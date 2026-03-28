@@ -55,7 +55,7 @@ function getNextPrayer(prayers: PrayerTime[]): { prayer: PrayerTime | null; rema
 }
 
 export default function PrayerTimes() {
-  const { prayerMadhab, midnightMode, latitudeAdjMethod, dstEnabled } = useApp();
+  const { prayerMadhab, latitudeAdjMethod, dstEnabled } = useApp();
   const [prayers, setPrayers] = useState<PrayerTime[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -74,9 +74,8 @@ export default function PrayerTimes() {
       const dd = today.getDate();
       const mm = today.getMonth() + 1;
       const yyyy = today.getFullYear();
-      const dstParam = dstEnabled ? 'auto' : '0';
       const res = await fetch(
-        `https://api.aladhan.com/v1/timings/${dd}-${mm}-${yyyy}?latitude=${lat}&longitude=${lng}&method=4&school=${schoolParam}&midnightMode=${midnightMode}&latitudeAdjustmentMethod=${latAdjParam}&adjustment=${dstParam === '0' ? '0' : ''}`
+        `https://api.aladhan.com/v1/timings/${dd}-${mm}-${yyyy}?latitude=${lat}&longitude=${lng}&method=4&school=${schoolParam}&latitudeAdjustmentMethod=${latAdjParam}`
       );
       const data = await res.json();
       if (data.code === 200) {
