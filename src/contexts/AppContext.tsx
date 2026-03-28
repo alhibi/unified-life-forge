@@ -19,6 +19,10 @@ interface AppContextType {
   setPaletteStyle: (style: PaletteStyle) => void;
   blackMode: boolean;
   setBlackMode: (v: boolean) => void;
+  fontFamily: string;
+  setFontFamily: (f: string) => void;
+  fontSize: string;
+  setFontSize: (s: string) => void;
 }
 
 const translations: Record<string, Record<Language, string>> = {
@@ -163,6 +167,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
   );
   const [blackMode, setBlackModeState] = useState<boolean>(() =>
     localStorage.getItem('app-black-mode') === 'true'
+  );
+  const [fontFamily, setFontFamilyState] = useState<string>(() =>
+    localStorage.getItem('app-font-family') || 'default'
+  );
+  const [fontSize, setFontSizeState] = useState<string>(() =>
+    localStorage.getItem('app-font-size') || 'medium'
   );
 
   const [authUser, setAuthUser] = useState<User | null>(null);
