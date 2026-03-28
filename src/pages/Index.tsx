@@ -3,6 +3,7 @@ import { useApp } from '@/contexts/AppContext';
 import DualCalendar from '@/components/DualCalendar';
 import AudioPlayer from '@/components/AudioPlayer';
 import LocationSaver from '@/components/LocationSaver';
+import PrayerTimes from '@/components/PrayerTimes';
 import { motion } from 'framer-motion';
 import { Sunrise, Sun, Moon } from 'lucide-react';
 
@@ -51,6 +52,7 @@ export default function Index() {
           </div>
         </motion.div>
 
+        <motion.div variants={item}><PrayerTimes /></motion.div>
         <motion.div variants={item}><DualCalendar /></motion.div>
         <motion.div variants={item}><AudioPlayer /></motion.div>
         <motion.div variants={item}><LocationSaver /></motion.div>
