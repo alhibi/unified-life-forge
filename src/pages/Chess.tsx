@@ -75,6 +75,24 @@ function loadBoardTheme(): BoardTheme {
 }
 function saveBoardTheme(t: BoardTheme) { localStorage.setItem('chess-board-theme', t); }
 
+interface SavedChessGame {
+  game: GameState;
+  gameTimer: number;
+  gameStarted: boolean;
+  moveLog: string[];
+  flipped: boolean;
+}
+
+function saveChessGame(state: SavedChessGame) {
+  localStorage.setItem('chess-game-state', JSON.stringify(state));
+}
+function loadChessGame(): SavedChessGame | null {
+  const saved = localStorage.getItem('chess-game-state');
+  if (!saved) return null;
+  try { return JSON.parse(saved); } catch { return null; }
+}
+function clearChessGame() { localStorage.removeItem('chess-game-state'); }
+
 // Minimal SVG piece rendering for a cleaner look
 const PIECE_SVG: Record<Color, Record<PieceType, string>> = {
   w: { K: '♔', Q: '♕', R: '♖', B: '♗', N: '♘', P: '♙' },
