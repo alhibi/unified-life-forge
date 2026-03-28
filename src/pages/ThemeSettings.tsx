@@ -78,7 +78,7 @@ const item = {
 };
 
 export default function ThemeSettingsPage() {
-  const { t, theme, setTheme, language, accentHue, setAccentHue, paletteStyle, setPaletteStyle } = useApp();
+  const { t, theme, setTheme, language, accentHue, setAccentHue, paletteStyle, setPaletteStyle, blackMode, setBlackMode } = useApp();
   const navigate = useNavigate();
 
   return (
