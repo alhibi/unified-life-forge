@@ -1,4 +1,6 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import type { User } from '@supabase/supabase-js';
 
 type Language = 'ar' | 'de';
 type Theme = 'light' | 'dark' | 'system';
@@ -142,16 +144,8 @@ const translations: Record<string, Record<Language, string>> = {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-const PALETTE_CONFIGS: Record<PaletteStyle, { sat: number; lightDark: number; lightLight: number }> = {
-  tonal:      { sat: 50, lightDark: 55, lightLight: 48 },
-  vibrant:    { sat: 75, lightDark: 60, lightLight: 50 },
-  expressive: { sat: 65, lightDark: 58, lightLight: 45 },
-  neutral:    { sat: 20, lightDark: 60, lightLight: 50 },
-  rainbow:    { sat: 70, lightDark: 58, lightLight: 50 },
-};
-
 function applyAccentHue(_hue: number, _isDark: boolean, _palette: PaletteStyle) {
-  // No longer dynamically overriding CSS variables - using defaults from index.css
+  // Using defaults from index.css
 }
 
 export function AppProvider({ children }: { children: ReactNode }) {
@@ -171,29 +165,98 @@ export function AppProvider({ children }: { children: ReactNode }) {
     localStorage.getItem('app-black-mode') === 'true'
   );
 
+  const [authUser, setAuthUser] = useState<User | null>(null);
+  const syncRef = useRef(false);
+  const initialLoadDone = useRef(false);
+
+  // Listen for auth changes
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setAuthUser(session?.user ?? null);
+    });
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setAuthUser(session?.user ?? null);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // Load settings from DB when user logs in
+  useEffect(() => {
+    if (!authUser) {
+      initialLoadDone.current = false;
+      return;
+    }
+    const load = async () => {
+      const { data } = await supabase
+        .from('user_settings')
+        .select('settings')
+        .eq('user_id', authUser.id)
+        .maybeSingle();
+      if (data?.settings && typeof data.settings === 'object') {
+        const s = data.settings as Record<string, any>;
+        syncRef.current = true; // prevent save-back during load
+        if (s.language) { setLanguageState(s.language); localStorage.setItem('app-language', s.language); }
+        if (s.theme) { setThemeState(s.theme); localStorage.setItem('app-theme', s.theme); }
+        if (s.accentHue !== undefined) { setAccentHueState(s.accentHue); localStorage.setItem('app-accent-hue', String(s.accentHue)); }
+        if (s.paletteStyle) { setPaletteStyleState(s.paletteStyle); localStorage.setItem('app-palette-style', s.paletteStyle); }
+        if (s.blackMode !== undefined) { setBlackModeState(s.blackMode); localStorage.setItem('app-black-mode', String(s.blackMode)); }
+        // Also load game stats and locations if stored
+        if (s.gameStats) localStorage.setItem('game-stats', JSON.stringify(s.gameStats));
+        if (s.savedLocations) localStorage.setItem('saved-locations', JSON.stringify(s.savedLocations));
+        setTimeout(() => { syncRef.current = false; }, 100);
+      }
+      initialLoadDone.current = true;
+    };
+    load();
+  }, [authUser]);
+
+  // Save settings to DB when they change
+  const saveToDb = async () => {
+    if (!authUser || syncRef.current || !initialLoadDone.current) return;
+    const settings: Record<string, any> = {
+      language: localStorage.getItem('app-language'),
+      theme: localStorage.getItem('app-theme'),
+      accentHue: parseInt(localStorage.getItem('app-accent-hue') || '152', 10),
+      paletteStyle: localStorage.getItem('app-palette-style'),
+      blackMode: localStorage.getItem('app-black-mode') === 'true',
+    };
+    // Also save game stats and locations
+    try { settings.gameStats = JSON.parse(localStorage.getItem('game-stats') || '{}'); } catch {}
+    try { settings.savedLocations = JSON.parse(localStorage.getItem('saved-locations') || '[]'); } catch {}
+
+    await supabase
+      .from('user_settings')
+      .upsert({ user_id: authUser.id, settings: settings as any }, { onConflict: 'user_id' });
+  };
+
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
     localStorage.setItem('app-language', lang);
+    setTimeout(saveToDb, 50);
   };
 
   const setTheme = (t: Theme) => {
     setThemeState(t);
     localStorage.setItem('app-theme', t);
+    setTimeout(saveToDb, 50);
   };
 
   const setAccentHue = (hue: number) => {
     setAccentHueState(hue);
     localStorage.setItem('app-accent-hue', hue.toString());
+    setTimeout(saveToDb, 50);
   };
 
   const setPaletteStyle = (style: PaletteStyle) => {
     setPaletteStyleState(style);
     localStorage.setItem('app-palette-style', style);
+    setTimeout(saveToDb, 50);
   };
 
   const setBlackMode = (v: boolean) => {
     setBlackModeState(v);
     localStorage.setItem('app-black-mode', v.toString());
+    setTimeout(saveToDb, 50);
   };
 
   const t = (key: string): string => translations[key]?.[language] || key;

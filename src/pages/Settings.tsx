@@ -1,8 +1,10 @@
 import React from 'react';
 import { useApp } from '@/contexts/AppContext';
-import { Languages, Palette, ChevronRight, ChevronLeft, Settings as SettingsIcon } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { Languages, Palette, ChevronLeft, Settings as SettingsIcon, UserCircle, LogOut } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 const stagger = {
   hidden: {},
@@ -14,17 +16,51 @@ const item = {
 };
 
 export default function SettingsPage() {
-  const { t, theme, language, setLanguage, dir } = useApp();
+  const { t, theme, language, setLanguage } = useApp();
+  const { user, username, signOut, loading } = useAuth();
   const navigate = useNavigate();
+  const isAr = language === 'ar';
+
+  const handleSignOut = async () => {
+    await signOut();
+    toast.success(isAr ? 'تم تسجيل الخروج' : 'Abgemeldet');
+  };
 
   const settingsItems = [
+    // Account
+    ...(user ? [{
+      key: 'account',
+      icon: UserCircle,
+      iconColor: 'text-blue-600 dark:text-blue-400',
+      iconBg: 'bg-blue-500/12 dark:bg-blue-400/15',
+      title: username || (isAr ? 'حسابي' : 'Mein Konto'),
+      subtitle: isAr ? 'مسجل الدخول' : 'Angemeldet',
+      onClick: handleSignOut,
+      trailing: (
+        <div className="flex items-center gap-1.5 text-destructive">
+          <LogOut className="w-4 h-4" />
+          <span className="text-[12px] font-medium">{isAr ? 'خروج' : 'Abmelden'}</span>
+        </div>
+      ),
+    }] : [{
+      key: 'account',
+      icon: UserCircle,
+      iconColor: 'text-blue-600 dark:text-blue-400',
+      iconBg: 'bg-blue-500/12 dark:bg-blue-400/15',
+      title: isAr ? 'تسجيل الدخول' : 'Anmelden',
+      subtitle: isAr ? 'احفظ إعداداتك على جميع الأجهزة' : 'Einstellungen auf allen Geräten speichern',
+      onClick: () => navigate('/auth'),
+      trailing: (
+        <ChevronLeft className="w-4.5 h-4.5 text-muted-foreground/50 ltr:rotate-180" />
+      ),
+    }]),
     {
       key: 'theme',
       icon: Palette,
       iconColor: 'text-violet-600 dark:text-violet-400',
       iconBg: 'bg-violet-500/12 dark:bg-violet-400/15',
       title: t('settings.theme'),
-      subtitle: theme === 'dark' ? t('settings.dark') : theme === 'system' ? (language === 'ar' ? 'النظام' : 'System') : t('settings.light'),
+      subtitle: theme === 'dark' ? t('settings.dark') : theme === 'system' ? (isAr ? 'النظام' : 'System') : t('settings.light'),
       onClick: () => navigate('/settings/theme'),
       trailing: (
         <ChevronLeft className="w-4.5 h-4.5 text-muted-foreground/50 ltr:rotate-180" />
