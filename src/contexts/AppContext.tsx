@@ -173,9 +173,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('app-language', lang);
   };
 
-  const setTheme = (t: Theme) => {
-    setThemeState(t);
-    localStorage.setItem('app-theme', t);
+  const setTheme = (newTheme: Theme) => {
+    setThemeState(newTheme);
+    localStorage.setItem('app-theme', newTheme);
   };
 
   const setAccentHue = (hue: number) => {
