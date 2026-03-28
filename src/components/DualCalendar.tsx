@@ -10,7 +10,8 @@ export default function DualCalendar() {
   const [viewYear, setViewYear] = useState(today.getFullYear());
   const [viewMonth, setViewMonth] = useState(today.getMonth() + 1);
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [direction, setDirection] = useState(0); // -1 prev, 1 next
+  const [direction, setDirection] = useState(0);
+  const [selectedDay, setSelectedDay] = useState<{ gDay: number; hDay: number; hMonth: number; hYear: number } | null>(null);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
