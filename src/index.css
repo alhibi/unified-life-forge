@@ -99,12 +99,23 @@
   * {
     @apply border-border;
   }
+  *,
+  *::before,
+  *::after {
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+  html {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+  }
   body {
     @apply bg-background text-foreground antialiased;
     font-family: var(--font-body);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     -webkit-tap-highlight-color: transparent;
+    overscroll-behavior-y: contain;
   }
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
@@ -181,6 +192,24 @@
   button:active,
   [role="button"]:active {
     opacity: 0.7;
-    transition: opacity 0.1s;
+    transition: opacity 0.08s ease-out;
   }
+}
+
+/* GPU acceleration for all transitions */
+.premium-card,
+.premium-card-elevated,
+.premium-card-intense {
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+/* Smooth transitions for all interactive elements */
+button,
+a,
+[role="button"],
+input,
+select,
+textarea {
+  transition-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
 }
