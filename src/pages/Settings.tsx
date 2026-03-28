@@ -63,27 +63,31 @@ export default function SettingsPage() {
 
         {/* Language */}
         <motion.div variants={item} className="premium-card-elevated p-5">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-2xl bg-accent/10 flex items-center justify-center">
-              <Languages className="w-5 h-5 text-accent" />
+          <button
+            onClick={() => setLanguage(language === 'ar' ? 'de' : 'ar')}
+            className="flex items-center justify-between w-full active:scale-[0.99] transition-transform"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-accent/10 flex items-center justify-center">
+                <Languages className="w-5 h-5 text-accent" />
+              </div>
+              <div className="text-start">
+                <h2 className="font-semibold text-[15px] text-foreground">
+                  {language === 'ar' ? '🇸🇦 العربية' : '🇩🇪 Deutsch'}
+                </h2>
+                <p className="text-[12px] text-muted-foreground mt-0.5">
+                  {t('settings.language')}
+                </p>
+              </div>
             </div>
-            <h2 className="font-semibold text-[15px] text-foreground">{t('settings.language')}</h2>
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            {([{ lang: 'ar' as const, flag: '🇸🇦', key: 'arabic' }, { lang: 'de' as const, flag: '🇩🇪', key: 'german' }]).map(({ lang, flag, key }) => (
-              <button
-                key={lang}
-                onClick={() => setLanguage(lang)}
-                className={`py-3 rounded-xl font-medium text-sm transition-all active:scale-[0.97] ${
-                  language === lang
-                    ? 'bg-primary text-primary-foreground shadow-sm'
-                    : 'bg-secondary text-secondary-foreground'
-                }`}
-              >
-                {flag} {t(`settings.${key}`)}
-              </button>
-            ))}
-          </div>
+            <div className={`relative w-[46px] h-[26px] rounded-full transition-colors duration-300 ${language === 'ar' ? 'bg-primary' : 'bg-muted'}`}>
+              <motion.div
+                className="absolute top-[3px] w-[20px] h-[20px] rounded-full bg-primary-foreground shadow-sm"
+                animate={{ x: language === 'ar' ? 23 : 3 }}
+                transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+              />
+            </div>
+          </button>
         </motion.div>
 
         {/* Color */}
