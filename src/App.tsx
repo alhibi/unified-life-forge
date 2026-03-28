@@ -28,6 +28,7 @@ const App = () => (
             <Route path="/games/sudoku" element={<SudokuPage />} />
             <Route path="/games/chess" element={<ChessPage />} />
             <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/settings/theme" element={<ThemeSettingsPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
           <BottomNav />
