@@ -4,61 +4,6 @@ import { Sun, Moon, Monitor, ChevronLeft, Contrast } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 
-type PaletteKey = 'rainbow' | 'expressive' | 'vibrant' | 'neutral' | 'tonal';
-
-const PALETTE_STYLES: { key: PaletteKey; name: { ar: string; de: string }; shades: (hue: number) => string[] }[] = [
-  {
-    key: 'rainbow',
-    name: { ar: 'قوس قزح', de: 'Rainbow' },
-    shades: (hue) => [
-      `hsl(${(hue + 40) % 360}, 55%, 80%)`,
-      `hsl(${(hue + 120) % 360}, 50%, 65%)`,
-      `hsl(${(hue + 200) % 360}, 45%, 55%)`,
-      `hsl(${(hue + 280) % 360}, 50%, 45%)`,
-    ],
-  },
-  {
-    key: 'expressive',
-    name: { ar: 'معبّر', de: 'Expressive' },
-    shades: (hue) => [
-      `hsl(${(hue + 30) % 360}, 50%, 78%)`,
-      `hsl(${hue}, 55%, 65%)`,
-      `hsl(${(hue - 30 + 360) % 360}, 45%, 48%)`,
-      `hsl(${(hue + 60) % 360}, 40%, 38%)`,
-    ],
-  },
-  {
-    key: 'vibrant',
-    name: { ar: 'نابض', de: 'Vibrant' },
-    shades: (hue) => [
-      `hsl(${hue}, 65%, 78%)`,
-      `hsl(${hue}, 58%, 62%)`,
-      `hsl(${hue}, 55%, 48%)`,
-      `hsl(${hue}, 60%, 35%)`,
-    ],
-  },
-  {
-    key: 'neutral',
-    name: { ar: 'هادئ', de: 'Neutral' },
-    shades: (hue) => [
-      `hsl(${hue}, 15%, 85%)`,
-      `hsl(${hue}, 12%, 72%)`,
-      `hsl(${hue}, 10%, 58%)`,
-      `hsl(${hue}, 14%, 42%)`,
-    ],
-  },
-  {
-    key: 'tonal',
-    name: { ar: 'درجات', de: 'Tonal Spot' },
-    shades: (hue) => [
-      `hsl(${hue}, 45%, 82%)`,
-      `hsl(${hue}, 40%, 68%)`,
-      `hsl(${hue}, 50%, 52%)`,
-      `hsl(${hue}, 55%, 38%)`,
-    ],
-  },
-];
-
 const stagger = {
   hidden: {},
   show: { transition: { staggerChildren: 0.06 } },
@@ -85,7 +30,7 @@ function ToggleSwitch({ value, onChange }: { value: boolean; onChange: () => voi
 }
 
 export default function ThemeSettingsPage() {
-  const { t, theme, setTheme, language, accentHue, paletteStyle, setPaletteStyle, blackMode, setBlackMode } = useApp();
+  const { t, theme, setTheme, language, blackMode, setBlackMode } = useApp();
   const navigate = useNavigate();
 
   const themeOptions = [
@@ -148,41 +93,6 @@ export default function ThemeSettingsPage() {
                     {label}
                   </span>
                 </button>
-              );
-            })}
-          </div>
-        </motion.div>
-
-        {/* Palette Style Card */}
-        <motion.div variants={item} className="premium-card-elevated p-5">
-          <h2 className="font-semibold text-[14px] text-foreground text-center mb-5">
-            {language === 'ar' ? 'نمط الألوان' : 'Palette style'}
-          </h2>
-          <div className="grid grid-cols-5 gap-3">
-            {PALETTE_STYLES.map((palette) => {
-              const isActive = paletteStyle === palette.key;
-              return (
-                <motion.button
-                  key={palette.key}
-                  whileTap={{ scale: 0.93 }}
-                  onClick={() => setPaletteStyle(palette.key)}
-                  className="flex flex-col items-center gap-2"
-                >
-                  <div className={`w-full aspect-[3/5] rounded-xl overflow-hidden flex flex-col transition-all duration-300 ${
-                    isActive
-                      ? 'ring-2 ring-primary ring-offset-2 ring-offset-background scale-105'
-                      : 'border border-border/20'
-                  }`}>
-                    {palette.shades(accentHue).map((shade, si) => (
-                      <div key={si} className="flex-1" style={{ backgroundColor: shade }} />
-                    ))}
-                  </div>
-                  <span className={`text-[10px] font-medium transition-colors leading-tight text-center ${
-                    isActive ? 'text-foreground' : 'text-muted-foreground'
-                  }`}>
-                    {palette.name[language]}
-                  </span>
-                </motion.button>
               );
             })}
           </div>
