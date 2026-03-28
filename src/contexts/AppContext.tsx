@@ -1,0 +1,152 @@
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+
+type Language = 'ar' | 'de';
+type Theme = 'light' | 'dark';
+
+interface AppContextType {
+  language: Language;
+  setLanguage: (lang: Language) => void;
+  theme: Theme;
+  setTheme: (theme: Theme) => void;
+  t: (key: string) => string;
+  dir: 'rtl' | 'ltr';
+}
+
+const translations: Record<string, Record<Language, string>> = {
+  'app.title': { ar: 'تطبيقي الذكي', de: 'Meine Smart App' },
+  'nav.home': { ar: 'الرئيسية', de: 'Startseite' },
+  'nav.games': { ar: 'الألعاب', de: 'Spiele' },
+  'nav.settings': { ar: 'الإعدادات', de: 'Einstellungen' },
+  'calendar.title': { ar: 'التقويم', de: 'Kalender' },
+  'calendar.today': { ar: 'اليوم', de: 'Heute' },
+  'calendar.hijri': { ar: 'هجري', de: 'Hijri' },
+  'calendar.gregorian': { ar: 'ميلادي', de: 'Gregorianisch' },
+  'audio.title': { ar: 'مشغل الصوت', de: 'Audio-Player' },
+  'audio.select': { ar: 'اختر ملفاً صوتياً', de: 'Audiodatei auswählen' },
+  'audio.noFile': { ar: 'لم يتم اختيار ملف', de: 'Keine Datei ausgewählt' },
+  'audio.playing': { ar: 'قيد التشغيل', de: 'Wird abgespielt' },
+  'audio.paused': { ar: 'متوقف', de: 'Pausiert' },
+  'location.title': { ar: 'حفظ الموقع', de: 'Standort speichern' },
+  'location.save': { ar: 'حفظ موقعي الحالي', de: 'Aktuellen Standort speichern' },
+  'location.saved': { ar: 'المواقع المحفوظة', de: 'Gespeicherte Standorte' },
+  'location.empty': { ar: 'لا توجد مواقع محفوظة', de: 'Keine gespeicherten Standorte' },
+  'location.description': { ar: 'الوصف', de: 'Beschreibung' },
+  'location.label': { ar: 'العنوان', de: 'Bezeichnung' },
+  'location.delete': { ar: 'حذف', de: 'Löschen' },
+  'location.saving': { ar: 'جاري الحفظ...', de: 'Wird gespeichert...' },
+  'location.lat': { ar: 'خط العرض', de: 'Breitengrad' },
+  'location.lng': { ar: 'خط الطول', de: 'Längengrad' },
+  'settings.title': { ar: 'الإعدادات', de: 'Einstellungen' },
+  'settings.theme': { ar: 'المظهر', de: 'Erscheinungsbild' },
+  'settings.light': { ar: 'فاتح', de: 'Hell' },
+  'settings.dark': { ar: 'داكن', de: 'Dunkel' },
+  'settings.language': { ar: 'اللغة', de: 'Sprache' },
+  'settings.arabic': { ar: 'العربية', de: 'Arabisch' },
+  'settings.german': { ar: 'الألمانية', de: 'Deutsch' },
+  'games.title': { ar: 'الألعاب', de: 'Spiele' },
+  'games.sudoku': { ar: 'سودوكو', de: 'Sudoku' },
+  'games.sudoku.desc': { ar: 'تحدي العقل الكلاسيكي', de: 'Das klassische Denkspiel' },
+  'games.chess': { ar: 'شطرنج', de: 'Schach' },
+  'games.chess.desc': { ar: 'شطرنج مبسط', de: 'Minimalistisches Schach' },
+  'games.back': { ar: 'رجوع', de: 'Zurück' },
+  'sudoku.new': { ar: 'لعبة جديدة', de: 'Neues Spiel' },
+  'sudoku.easy': { ar: 'سهل', de: 'Leicht' },
+  'sudoku.medium': { ar: 'متوسط', de: 'Mittel' },
+  'sudoku.hard': { ar: 'صعب', de: 'Schwer' },
+  'sudoku.check': { ar: 'تحقق', de: 'Prüfen' },
+  'sudoku.hint': { ar: 'تلميح', de: 'Hinweis' },
+  'sudoku.reset': { ar: 'إعادة', de: 'Zurücksetzen' },
+  'sudoku.solved': { ar: '🎉 أحسنت! حللت اللغز', de: '🎉 Bravo! Rätsel gelöst' },
+  'sudoku.errors': { ar: 'يوجد أخطاء', de: 'Es gibt Fehler' },
+  'sudoku.timer': { ar: 'الوقت', de: 'Zeit' },
+  'chess.white': { ar: 'الأبيض', de: 'Weiß' },
+  'chess.black': { ar: 'الأسود', de: 'Schwarz' },
+  'chess.turn': { ar: 'دور', de: 'Am Zug' },
+  'chess.newGame': { ar: 'لعبة جديدة', de: 'Neues Spiel' },
+  'chess.check': { ar: 'كش!', de: 'Schach!' },
+  'chess.checkmate': { ar: 'كش ملك!', de: 'Schachmatt!' },
+  'chess.captured': { ar: 'القطع المأسورة', de: 'Geschlagene Figuren' },
+  'months.1': { ar: 'يناير', de: 'Januar' },
+  'months.2': { ar: 'فبراير', de: 'Februar' },
+  'months.3': { ar: 'مارس', de: 'März' },
+  'months.4': { ar: 'أبريل', de: 'April' },
+  'months.5': { ar: 'مايو', de: 'Mai' },
+  'months.6': { ar: 'يونيو', de: 'Juni' },
+  'months.7': { ar: 'يوليو', de: 'Juli' },
+  'months.8': { ar: 'أغسطس', de: 'August' },
+  'months.9': { ar: 'سبتمبر', de: 'September' },
+  'months.10': { ar: 'أكتوبر', de: 'Oktober' },
+  'months.11': { ar: 'نوفمبر', de: 'November' },
+  'months.12': { ar: 'ديسمبر', de: 'Dezember' },
+  'hijriMonths.1': { ar: 'محرم', de: 'Muharram' },
+  'hijriMonths.2': { ar: 'صفر', de: 'Safar' },
+  'hijriMonths.3': { ar: 'ربيع الأول', de: 'Rabīʿ al-Awwal' },
+  'hijriMonths.4': { ar: 'ربيع الثاني', de: 'Rabīʿ ath-Thānī' },
+  'hijriMonths.5': { ar: 'جمادى الأولى', de: 'Dschumādā l-Ūlā' },
+  'hijriMonths.6': { ar: 'جمادى الآخرة', de: 'Dschumādā th-Thāniya' },
+  'hijriMonths.7': { ar: 'رجب', de: 'Radschab' },
+  'hijriMonths.8': { ar: 'شعبان', de: 'Schaʿbān' },
+  'hijriMonths.9': { ar: 'رمضان', de: 'Ramadan' },
+  'hijriMonths.10': { ar: 'شوال', de: 'Schawwāl' },
+  'hijriMonths.11': { ar: 'ذو القعدة', de: 'Dhū l-Qaʿda' },
+  'hijriMonths.12': { ar: 'ذو الحجة', de: 'Dhū l-Hiddscha' },
+  'days.0': { ar: 'الأحد', de: 'So' },
+  'days.1': { ar: 'الاثنين', de: 'Mo' },
+  'days.2': { ar: 'الثلاثاء', de: 'Di' },
+  'days.3': { ar: 'الأربعاء', de: 'Mi' },
+  'days.4': { ar: 'الخميس', de: 'Do' },
+  'days.5': { ar: 'الجمعة', de: 'Fr' },
+  'days.6': { ar: 'السبت', de: 'Sa' },
+  'daysShort.0': { ar: 'أح', de: 'So' },
+  'daysShort.1': { ar: 'اث', de: 'Mo' },
+  'daysShort.2': { ar: 'ثل', de: 'Di' },
+  'daysShort.3': { ar: 'أر', de: 'Mi' },
+  'daysShort.4': { ar: 'خم', de: 'Do' },
+  'daysShort.5': { ar: 'جم', de: 'Fr' },
+  'daysShort.6': { ar: 'سب', de: 'Sa' },
+};
+
+const AppContext = createContext<AppContextType | undefined>(undefined);
+
+export function AppProvider({ children }: { children: ReactNode }) {
+  const [language, setLanguageState] = useState<Language>(() => {
+    return (localStorage.getItem('app-language') as Language) || 'ar';
+  });
+  const [theme, setThemeState] = useState<Theme>(() => {
+    return (localStorage.getItem('app-theme') as Theme) || 'light';
+  });
+
+  const setLanguage = (lang: Language) => {
+    setLanguageState(lang);
+    localStorage.setItem('app-language', lang);
+  };
+
+  const setTheme = (t: Theme) => {
+    setThemeState(t);
+    localStorage.setItem('app-theme', t);
+  };
+
+  const t = (key: string): string => {
+    return translations[key]?.[language] || key;
+  };
+
+  const dir = language === 'ar' ? 'rtl' : 'ltr';
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', theme === 'dark');
+    document.documentElement.dir = dir;
+    document.documentElement.lang = language;
+  }, [theme, dir, language]);
+
+  return (
+    <AppContext.Provider value={{ language, setLanguage, theme, setTheme, t, dir }}>
+      {children}
+    </AppContext.Provider>
+  );
+}
+
+export function useApp() {
+  const ctx = useContext(AppContext);
+  if (!ctx) throw new Error('useApp must be used within AppProvider');
+  return ctx;
+}
