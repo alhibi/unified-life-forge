@@ -142,13 +142,8 @@ const PALETTE_CONFIGS: Record<PaletteStyle, { sat: number; lightDark: number; li
   rainbow:    { sat: 70, lightDark: 58, lightLight: 50 },
 };
 
-function applyAccentHue(hue: number, isDark: boolean, palette: PaletteStyle) {
-  const root = document.documentElement;
-  const cfg = PALETTE_CONFIGS[palette];
-  const lightness = isDark ? cfg.lightDark : cfg.lightLight;
-  root.style.setProperty('--primary', `${hue} ${cfg.sat}% ${lightness}%`);
-  root.style.setProperty('--primary-foreground', `0 0% 100%`);
-  root.style.setProperty('--ring', `${hue} ${cfg.sat}% ${lightness}%`);
+function applyAccentHue(_hue: number, _isDark: boolean, _palette: PaletteStyle) {
+  // No longer dynamically overriding CSS variables - using defaults from index.css
 }
 
 export function AppProvider({ children }: { children: ReactNode }) {
