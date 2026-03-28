@@ -210,6 +210,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         if (s.accentHue !== undefined) { setAccentHueState(s.accentHue); localStorage.setItem('app-accent-hue', String(s.accentHue)); }
         if (s.paletteStyle) { setPaletteStyleState(s.paletteStyle); localStorage.setItem('app-palette-style', s.paletteStyle); }
         if (s.blackMode !== undefined) { setBlackModeState(s.blackMode); localStorage.setItem('app-black-mode', String(s.blackMode)); }
+        if (s.fontFamily) { setFontFamilyState(s.fontFamily); localStorage.setItem('app-font-family', s.fontFamily); }
+        if (s.fontSize) { setFontSizeState(s.fontSize); localStorage.setItem('app-font-size', s.fontSize); }
         // Also load game stats and locations if stored
         if (s.gameStats) localStorage.setItem('game-stats', JSON.stringify(s.gameStats));
         if (s.savedLocations) localStorage.setItem('saved-locations', JSON.stringify(s.savedLocations));
@@ -229,6 +231,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       accentHue: parseInt(localStorage.getItem('app-accent-hue') || '152', 10),
       paletteStyle: localStorage.getItem('app-palette-style'),
       blackMode: localStorage.getItem('app-black-mode') === 'true',
+      fontFamily: localStorage.getItem('app-font-family') || 'default',
+      fontSize: localStorage.getItem('app-font-size') || 'medium',
     };
     // Also save game stats and locations
     try { settings.gameStats = JSON.parse(localStorage.getItem('game-stats') || '{}'); } catch {}
@@ -269,6 +273,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setTimeout(saveToDb, 50);
   };
 
+  const setFontFamily = (f: string) => {
+    setFontFamilyState(f);
+    localStorage.setItem('app-font-family', f);
+    setTimeout(saveToDb, 50);
+  };
+
+  const setFontSize = (s: string) => {
+    setFontSizeState(s);
+    localStorage.setItem('app-font-size', s);
+    setTimeout(saveToDb, 50);
+  };
+
   const t = (key: string): string => translations[key]?.[language] || key;
   const dir = language === 'ar' ? 'rtl' : 'ltr';
 
@@ -294,7 +310,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [theme, dir, language, accentHue, paletteStyle, blackMode]);
 
   return (
-    <AppContext.Provider value={{ language, setLanguage, theme, setTheme, t, dir, accentHue, setAccentHue, paletteStyle, setPaletteStyle, blackMode, setBlackMode }}>
+    <AppContext.Provider value={{ language, setLanguage, theme, setTheme, t, dir, accentHue, setAccentHue, paletteStyle, setPaletteStyle, blackMode, setBlackMode, fontFamily, setFontFamily, fontSize, setFontSize }}>
       {children}
     </AppContext.Provider>
   );
