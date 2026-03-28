@@ -136,7 +136,7 @@ export default function PrayerTimes() {
 
   if (loading) {
     return (
-      <div className="rounded-3xl bg-gradient-to-br from-[hsl(var(--primary)/0.9)] to-[hsl(var(--primary)/0.7)] p-5 text-primary-foreground animate-pulse min-h-[140px]" />
+      <div className="rounded-3xl bg-card border border-border p-5 text-card-foreground animate-pulse min-h-[140px]" />
     );
   }
 
@@ -153,13 +153,8 @@ export default function PrayerTimes() {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-      className="rounded-3xl bg-gradient-to-br from-[hsl(var(--primary))] to-[hsl(var(--primary)/0.75)] p-5 text-primary-foreground relative overflow-hidden"
+      className="rounded-3xl bg-card border border-border p-5 text-card-foreground relative overflow-hidden"
     >
-      {/* Subtle pattern overlay */}
-      <div className="absolute inset-0 opacity-[0.06]" style={{
-        backgroundImage: 'radial-gradient(circle, currentColor 1px, transparent 1px)',
-        backgroundSize: '20px 20px',
-      }} />
 
       <div className="relative z-10">
         {/* Header: next prayer info */}
@@ -175,12 +170,12 @@ export default function PrayerTimes() {
               </span>
             </div>
           </div>
-          <div className="w-11 h-11 rounded-2xl bg-primary-foreground/15 backdrop-blur-sm flex items-center justify-center mr-3">
-            <Bell className="w-5 h-5" />
+          <div className="w-11 h-11 rounded-2xl bg-muted flex items-center justify-center mr-3">
+            <Bell className="w-5 h-5 text-muted-foreground" />
           </div>
         </div>
 
-        <div className="h-px bg-primary-foreground/15 mb-4" />
+        <div className="h-px bg-border mb-4" />
 
         {/* Prayer times grid */}
         <div className="grid grid-cols-5 gap-2">
@@ -191,14 +186,14 @@ export default function PrayerTimes() {
                 key={p.name}
                 className={`rounded-2xl p-2.5 text-center transition-all duration-300 ${
                   isActive
-                    ? 'bg-primary-foreground/25 backdrop-blur-sm shadow-lg scale-[1.03]'
-                    : 'bg-primary-foreground/10 backdrop-blur-sm'
+                    ? 'bg-primary text-primary-foreground shadow-lg scale-[1.03]'
+                    : 'bg-muted text-muted-foreground'
                 }`}
               >
-                <p className={`text-[11px] font-semibold mb-1 ${isActive ? 'opacity-100' : 'opacity-80'}`}>
+                <p className={`text-[11px] font-semibold mb-1`}>
                   {p.nameAr}
                 </p>
-                <p className={`text-[11px] font-medium tabular-nums ${isActive ? 'opacity-100' : 'opacity-70'}`} dir="ltr">
+                <p className={`text-[11px] font-medium tabular-nums ${isActive ? '' : 'opacity-70'}`} dir="ltr">
                   {formatTime12(p.time.replace(/\s*\(.*\)/, ''))}
                 </p>
               </div>
