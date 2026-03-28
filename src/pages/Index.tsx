@@ -17,6 +17,8 @@ const item = {
 export default function Index() {
   const { t } = useApp();
   const now = new Date();
+  const hour = now.getHours();
+  const greeting = hour >= 5 && hour < 12 ? t('greeting.morning') : hour >= 12 && hour < 17 ? t('greeting.afternoon') : t('greeting.evening');
 
   return (
     <div className="min-h-screen bg-background pb-28 px-5 pt-14">
@@ -28,7 +30,7 @@ export default function Index() {
       >
         <motion.div variants={item}>
           <h1 className="text-[28px] font-bold tracking-tight text-foreground leading-tight">
-            {t('app.title')}
+            {greeting}
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
             {t('calendar.today')} · {now.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}

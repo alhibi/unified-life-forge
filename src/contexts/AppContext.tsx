@@ -16,6 +16,9 @@ interface AppContextType {
 
 const translations: Record<string, Record<Language, string>> = {
   'app.title': { ar: 'تطبيقي الذكي', de: 'Meine Smart App' },
+  'greeting.morning': { ar: 'صباح الخير ☀️', de: 'Guten Morgen ☀️' },
+  'greeting.afternoon': { ar: 'مساء الخير 🌤', de: 'Guten Tag 🌤' },
+  'greeting.evening': { ar: 'مساء الخير 🌙', de: 'Guten Abend 🌙' },
   'nav.home': { ar: 'الرئيسية', de: 'Start' },
   'nav.games': { ar: 'الألعاب', de: 'Spiele' },
   'nav.settings': { ar: 'الإعدادات', de: 'Einstellungen' },
