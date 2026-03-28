@@ -20,6 +20,7 @@ import ThemeSettingsPage from "./pages/ThemeSettings";
 import AuthPage from "./pages/Auth";
 import FontSettingsPage from "./pages/FontSettings";
 import PrayerSettingsPage from "./pages/PrayerSettings";
+import DuasPage from "./pages/Duas";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -37,6 +38,7 @@ function AnimatedRoutes() {
         <Route path="/games/minesweeper" element={<PageTransition><MinesweeperPage /></PageTransition>} />
         <Route path="/games/colormaze" element={<PageTransition><ColorMazePage /></PageTransition>} />
         <Route path="/games/pipes" element={<PageTransition><PipesPage /></PageTransition>} />
+        <Route path="/duas" element={<PageTransition><DuasPage /></PageTransition>} />
         <Route path="/settings" element={<PageTransition><SettingsPage /></PageTransition>} />
         <Route path="/settings/theme" element={<PageTransition><ThemeSettingsPage /></PageTransition>} />
         <Route path="/auth" element={<PageTransition><AuthPage /></PageTransition>} />
