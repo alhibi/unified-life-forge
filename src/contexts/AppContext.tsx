@@ -132,13 +132,21 @@ const translations: Record<string, Record<Language, string>> = {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-function applyAccentHue(hue: number, isDark: boolean) {
+const PALETTE_CONFIGS: Record<PaletteStyle, { sat: number; lightDark: number; lightLight: number }> = {
+  tonal:      { sat: 50, lightDark: 55, lightLight: 48 },
+  vibrant:    { sat: 75, lightDark: 60, lightLight: 50 },
+  expressive: { sat: 65, lightDark: 58, lightLight: 45 },
+  neutral:    { sat: 20, lightDark: 60, lightLight: 50 },
+  rainbow:    { sat: 70, lightDark: 58, lightLight: 50 },
+};
+
+function applyAccentHue(hue: number, isDark: boolean, palette: PaletteStyle) {
   const root = document.documentElement;
-  const lightness = isDark ? 58 : 50;
-  const fgLightness = isDark ? 100 : 100;
-  root.style.setProperty('--primary', `${hue} 70% ${lightness}%`);
-  root.style.setProperty('--primary-foreground', `0 0% ${fgLightness}%`);
-  root.style.setProperty('--ring', `${hue} 70% ${lightness}%`);
+  const cfg = PALETTE_CONFIGS[palette];
+  const lightness = isDark ? cfg.lightDark : cfg.lightLight;
+  root.style.setProperty('--primary', `${hue} ${cfg.sat}% ${lightness}%`);
+  root.style.setProperty('--primary-foreground', `0 0% 100%`);
+  root.style.setProperty('--ring', `${hue} ${cfg.sat}% ${lightness}%`);
 }
 
 export function AppProvider({ children }: { children: ReactNode }) {
