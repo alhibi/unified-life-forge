@@ -56,7 +56,7 @@ export default function MemoryGame() {
   const saved = useMemo(() => loadGame(), []);
 
   const [difficulty, setDifficulty] = useState<Difficulty>(saved?.difficulty || 'easy');
-  const [cards, setCards] = useState<string[]>(saved?.cards || () => createCards('easy'));
+  const [cards, setCards] = useState<string[]>(() => saved?.cards || createCards('easy'));
   const [flipped, setFlipped] = useState<number[]>(saved?.flipped || []);
   const [matched, setMatched] = useState<number[]>(saved?.matched || []);
   const [moves, setMoves] = useState(saved?.moves || 0);

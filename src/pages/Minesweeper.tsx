@@ -71,7 +71,7 @@ export default function MinesweeperPage() {
   const saved = useMemo(() => loadMineGame(), []);
 
   const [difficulty, setDifficulty] = useState<Difficulty>(saved?.difficulty || 'easy');
-  const [board, setBoard] = useState<Cell[][]>(saved?.board || () => createBoard('easy'));
+  const [board, setBoard] = useState<Cell[][]>(() => saved?.board || createBoard('easy'));
   const [gameOver, setGameOver] = useState(saved?.gameOver || false);
   const [won, setWon] = useState(saved?.won || false);
   const [timer, setTimer] = useState(saved?.timer || 0);
