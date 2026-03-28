@@ -9,6 +9,10 @@ import Index from "./pages/Index";
 import GamesPage from "./pages/Games";
 import SudokuPage from "./pages/Sudoku";
 import ChessPage from "./pages/Chess";
+import MemoryGame from "./pages/MemoryGame";
+import MinesweeperPage from "./pages/Minesweeper";
+import ColorMazePage from "./pages/ColorMaze";
+import PipesPage from "./pages/PipesGame";
 import SettingsPage from "./pages/Settings";
 import ThemeSettingsPage from "./pages/ThemeSettings";
 import NotFound from "./pages/NotFound";
@@ -27,6 +31,10 @@ const App = () => (
             <Route path="/games" element={<GamesPage />} />
             <Route path="/games/sudoku" element={<SudokuPage />} />
             <Route path="/games/chess" element={<ChessPage />} />
+            <Route path="/games/memory" element={<MemoryGame />} />
+            <Route path="/games/minesweeper" element={<MinesweeperPage />} />
+            <Route path="/games/colormaze" element={<ColorMazePage />} />
+            <Route path="/games/pipes" element={<PipesPage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/settings/theme" element={<ThemeSettingsPage />} />
             <Route path="*" element={<NotFound />} />
