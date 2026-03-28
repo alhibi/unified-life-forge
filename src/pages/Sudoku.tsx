@@ -81,8 +81,9 @@ export default function SudokuPage() {
   const [errors, setErrors] = useState<Set<string>>(new Set());
   const [solved, setSolved] = useState(false);
   const [timer, setTimer] = useState(0);
-  const [isRunning, setIsRunning] = useState(true);
+  const [isRunning, setIsRunning] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
+  const [gameStarted, setGameStarted] = useState(false);
   const [notes, setNotes] = useState<Set<string>[][]>(() =>
     Array.from({ length: 9 }, () => Array.from({ length: 9 }, () => new Set<string>()))
   );
@@ -124,12 +125,22 @@ export default function SudokuPage() {
     const data = createPuzzle(diff);
     setGameData(data);
     setBoard(data.puzzle.map(r => [...r]));
-    setSelected(null); setErrors(new Set()); setSolved(false); setTimer(0); setIsRunning(true); setIsPaused(false);
+    setSelected(null); setErrors(new Set()); setSolved(false); setTimer(0); setIsRunning(false); setIsPaused(false); setGameStarted(false);
     setNotes(Array.from({ length: 9 }, () => Array.from({ length: 9 }, () => new Set<string>())));
     setNoteMode(false); setHistory([]); setHintsUsed(0); setSelectedNumber(null);
   };
 
+  const startGame = () => {
+    setGameStarted(true);
+    setIsRunning(true);
+    setIsPaused(false);
+  };
+
   const togglePause = () => {
+    if (!gameStarted) {
+      startGame();
+      return;
+    }
     setIsPaused(!isPaused);
   };
 
@@ -352,20 +363,23 @@ export default function SudokuPage() {
 
       {/* Board — LibreSudoku style */}
       <div className="max-w-[360px] mx-auto mb-4 relative">
-        {/* Pause overlay */}
+        {/* Start / Pause overlay */}
         <AnimatePresence>
-          {isPaused && (
+          {(!gameStarted || isPaused) && !solved && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="absolute inset-0 z-20 rounded-2xl bg-card/95 backdrop-blur-sm flex items-center justify-center"
-              onClick={togglePause}
+              onClick={!gameStarted ? startGame : togglePause}
             >
               <div className="flex flex-col items-center gap-3">
                 <Play className="w-10 h-10 text-primary stroke-[1.5]" />
                 <span className="text-muted-foreground font-medium text-sm">
-                  {language === 'ar' ? 'اضغط للمتابعة' : 'Tap to continue'}
+                  {!gameStarted
+                    ? (language === 'ar' ? 'اضغط للبدء' : 'Tap to start')
+                    : (language === 'ar' ? 'اضغط للمتابعة' : 'Tap to continue')
+                  }
                 </span>
               </div>
             </motion.div>
