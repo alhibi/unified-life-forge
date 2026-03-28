@@ -1,7 +1,7 @@
 import React from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { useAuth } from '@/hooks/useAuth';
-import { Languages, Palette, ChevronLeft, Settings as SettingsIcon, UserCircle, LogOut } from 'lucide-react';
+import { Languages, Palette, ChevronLeft, Settings as SettingsIcon, UserCircle, LogOut, Type } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -62,6 +62,18 @@ export default function SettingsPage() {
       title: t('settings.theme'),
       subtitle: theme === 'dark' ? t('settings.dark') : theme === 'system' ? (isAr ? 'النظام' : 'System') : t('settings.light'),
       onClick: () => navigate('/settings/theme'),
+      trailing: (
+        <ChevronLeft className="w-4.5 h-4.5 text-muted-foreground/50 ltr:rotate-180" />
+      ),
+    },
+    {
+      key: 'font',
+      icon: Type,
+      iconColor: 'text-amber-600 dark:text-amber-400',
+      iconBg: 'bg-amber-500/12 dark:bg-amber-400/15',
+      title: isAr ? 'الخط' : 'Schriftart',
+      subtitle: isAr ? 'نوع وحجم الخط' : 'Schriftart & Größe',
+      onClick: () => navigate('/settings/font'),
       trailing: (
         <ChevronLeft className="w-4.5 h-4.5 text-muted-foreground/50 ltr:rotate-180" />
       ),
