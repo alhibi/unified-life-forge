@@ -16,6 +16,7 @@ import PipesPage from "./pages/PipesGame";
 import SettingsPage from "./pages/Settings";
 import ThemeSettingsPage from "./pages/ThemeSettings";
 import AuthPage from "./pages/Auth";
+import FontSettingsPage from "./pages/FontSettings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -39,6 +40,7 @@ const App = () => (
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/settings/theme" element={<ThemeSettingsPage />} />
             <Route path="/auth" element={<AuthPage />} />
+            <Route path="/settings/font" element={<FontSettingsPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
           <BottomNav />

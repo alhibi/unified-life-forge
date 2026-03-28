@@ -309,6 +309,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }, [theme, dir, language, accentHue, paletteStyle, blackMode]);
 
+  // Apply font family & size
+  useEffect(() => {
+    const fontMap: Record<string, string> = {
+      default: "'Inter', 'Noto Sans Arabic', system-ui, sans-serif",
+      cairo: "'Cairo', 'Inter', system-ui, sans-serif",
+      tajawal: "'Tajawal', 'Inter', system-ui, sans-serif",
+      'ibm-plex': "'IBM Plex Sans Arabic', 'Inter', system-ui, sans-serif",
+      readex: "'Readex Pro', 'Inter', system-ui, sans-serif",
+    };
+    const sizeMap: Record<string, string> = { small: '14px', medium: '16px', large: '18px' };
+    document.documentElement.style.fontFamily = fontMap[fontFamily] || fontMap.default;
+    document.documentElement.style.fontSize = sizeMap[fontSize] || '16px';
+  }, [fontFamily, fontSize]);
+
   return (
     <AppContext.Provider value={{ language, setLanguage, theme, setTheme, t, dir, accentHue, setAccentHue, paletteStyle, setPaletteStyle, blackMode, setBlackMode, fontFamily, setFontFamily, fontSize, setFontSize }}>
       {children}
