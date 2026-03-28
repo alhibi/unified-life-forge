@@ -15,6 +15,8 @@ interface AppContextType {
   setAccentHue: (hue: number) => void;
   paletteStyle: PaletteStyle;
   setPaletteStyle: (style: PaletteStyle) => void;
+  blackMode: boolean;
+  setBlackMode: (v: boolean) => void;
 }
 
 const translations: Record<string, Record<Language, string>> = {
@@ -162,6 +164,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [paletteStyle, setPaletteStyleState] = useState<PaletteStyle>(() =>
     (localStorage.getItem('app-palette-style') as PaletteStyle) || 'vibrant'
   );
+  const [blackMode, setBlackModeState] = useState<boolean>(() =>
+    localStorage.getItem('app-black-mode') === 'true'
+  );
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
@@ -183,18 +188,25 @@ export function AppProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('app-palette-style', style);
   };
 
+  const setBlackMode = (v: boolean) => {
+    setBlackModeState(v);
+    localStorage.setItem('app-black-mode', v.toString());
+  };
+
   const t = (key: string): string => translations[key]?.[language] || key;
   const dir = language === 'ar' ? 'rtl' : 'ltr';
 
   useEffect(() => {
-    document.documentElement.classList.toggle('dark', theme === 'dark');
+    const isDark = theme === 'dark';
+    document.documentElement.classList.toggle('dark', isDark);
+    document.documentElement.classList.toggle('black-mode', isDark && blackMode);
     document.documentElement.dir = dir;
     document.documentElement.lang = language;
-    applyAccentHue(accentHue, theme === 'dark', paletteStyle);
-  }, [theme, dir, language, accentHue, paletteStyle]);
+    applyAccentHue(accentHue, isDark, paletteStyle);
+  }, [theme, dir, language, accentHue, paletteStyle, blackMode]);
 
   return (
-    <AppContext.Provider value={{ language, setLanguage, theme, setTheme, t, dir, accentHue, setAccentHue, paletteStyle, setPaletteStyle }}>
+    <AppContext.Provider value={{ language, setLanguage, theme, setTheme, t, dir, accentHue, setAccentHue, paletteStyle, setPaletteStyle, blackMode, setBlackMode }}>
       {children}
     </AppContext.Provider>
   );

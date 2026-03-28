@@ -80,6 +80,19 @@
     --shadow-elevated: 0 4px 6px -1px hsl(0 0% 0% / 0.35), 0 2px 4px -2px hsl(0 0% 0% / 0.2);
     --shadow-intense: 0 10px 15px -3px hsl(0 0% 0% / 0.4), 0 4px 6px -4px hsl(0 0% 0% / 0.2);
   }
+
+  .dark.black-mode {
+    --background: 0 0% 0%;
+    --card: 0 0% 4%;
+    --popover: 0 0% 4%;
+    --secondary: 0 0% 7%;
+    --muted: 0 0% 9%;
+    --border: 0 0% 10%;
+    --input: 0 0% 10%;
+    --sidebar-background: 0 0% 2%;
+    --sidebar-accent: 0 0% 7%;
+    --sidebar-border: 0 0% 10%;
+  }
 }
 
 @layer base {

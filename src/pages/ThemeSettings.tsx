@@ -78,7 +78,7 @@ const item = {
 };
 
 export default function ThemeSettingsPage() {
-  const { t, theme, setTheme, language, accentHue, setAccentHue, paletteStyle, setPaletteStyle } = useApp();
+  const { t, theme, setTheme, language, accentHue, setAccentHue, paletteStyle, setPaletteStyle, blackMode, setBlackMode } = useApp();
   const navigate = useNavigate();
 
   return (
@@ -198,7 +198,7 @@ export default function ThemeSettingsPage() {
         {/* Black theme toggle */}
         <motion.div variants={item} className="premium-card-elevated px-5 py-4">
           <button
-            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            onClick={() => setBlackMode(!blackMode)}
             className="flex items-center justify-between w-full active:scale-[0.99] transition-transform"
           >
             <div className="flex items-center gap-3">
@@ -214,10 +214,10 @@ export default function ThemeSettingsPage() {
                 </p>
               </div>
             </div>
-            <div className={`relative w-[46px] h-[26px] rounded-full transition-colors duration-300 shrink-0 ${theme === 'dark' ? 'bg-primary' : 'bg-muted'}`} dir="ltr">
+            <div className={`relative w-[46px] h-[26px] rounded-full transition-colors duration-300 shrink-0 ${blackMode ? 'bg-primary' : 'bg-muted'}`} dir="ltr">
               <motion.div
                 className="absolute top-[3px] w-[20px] h-[20px] rounded-full bg-primary-foreground shadow-sm"
-                animate={{ left: theme === 'dark' ? 23 : 3 }}
+                animate={{ left: blackMode ? 23 : 3 }}
                 transition={{ type: 'spring', stiffness: 500, damping: 30 }}
               />
             </div>
