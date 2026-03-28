@@ -38,6 +38,7 @@ const App = () => (
             <Route path="/games/pipes" element={<PipesPage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/settings/theme" element={<ThemeSettingsPage />} />
+            <Route path="/auth" element={<AuthPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
           <BottomNav />
