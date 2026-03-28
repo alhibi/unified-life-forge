@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { Play, Pause, SkipBack, SkipForward, Music, FolderOpen, Volume2, List, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { saveAudioFiles, saveCurrentIndex, loadAudioFiles } from '@/utils/audioStorage';
 
 interface AudioFile { name: string; url: string }
 
@@ -14,25 +15,39 @@ export default function AudioPlayer() {
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
   const [showPlaylist, setShowPlaylist] = useState(false);
+  const [loaded, setLoaded] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Load saved files from IndexedDB on mount
+  useEffect(() => {
+    loadAudioFiles().then(data => {
+      if (data && data.files.length > 0) {
+        setFiles(data.files);
+        setCurrentIndex(data.currentIndex);
+        setShowPlaylist(true);
+      }
+      setLoaded(true);
+    });
+  }, []);
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files;
     if (!selected) return;
     const audioFiles = Array.from(selected).filter(f =>
       f.type.startsWith('audio/') || /\.(mp3|wav|ogg|flac|aac|m4a|wma)$/i.test(f.name)
     );
-    const newFiles: AudioFile[] = audioFiles
-      .sort((a, b) => a.name.localeCompare(b.name))
-      .map(f => ({
-        name: f.name.replace(/\.[^/.]+$/, ''),
-        url: URL.createObjectURL(f),
-      }));
+    const sorted = audioFiles.sort((a, b) => a.name.localeCompare(b.name));
+    const newFiles: AudioFile[] = sorted.map(f => ({
+      name: f.name.replace(/\.[^/.]+$/, ''),
+      url: URL.createObjectURL(f),
+    }));
     if (newFiles.length > 0) {
       setFiles(newFiles);
       setCurrentIndex(0);
       setShowPlaylist(true);
+      // Save to IndexedDB
+      await saveAudioFiles(sorted);
     }
   };
 
@@ -45,8 +60,10 @@ export default function AudioPlayer() {
 
   const skipNext = () => {
     if (files.length === 0) return;
-    setCurrentIndex((currentIndex + 1) % files.length);
+    const next = (currentIndex + 1) % files.length;
+    setCurrentIndex(next);
     setIsPlaying(true);
+    saveCurrentIndex(next);
   };
 
   const skipPrev = () => {
@@ -55,8 +72,10 @@ export default function AudioPlayer() {
       audioRef.current.currentTime = 0;
       return;
     }
-    setCurrentIndex((currentIndex - 1 + files.length) % files.length);
+    const prev = (currentIndex - 1 + files.length) % files.length;
+    setCurrentIndex(prev);
     setIsPlaying(true);
+    saveCurrentIndex(prev);
   };
 
   useEffect(() => {
@@ -65,6 +84,13 @@ export default function AudioPlayer() {
       if (isPlaying) audioRef.current.play();
     }
   }, [currentIndex, files]);
+
+  // Save current index when it changes
+  useEffect(() => {
+    if (loaded && files.length > 0) {
+      saveCurrentIndex(currentIndex);
+    }
+  }, [currentIndex, loaded]);
 
   const onTimeUpdate = () => {
     if (!audioRef.current) return;

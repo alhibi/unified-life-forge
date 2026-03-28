@@ -75,6 +75,24 @@ function loadBoardTheme(): BoardTheme {
 }
 function saveBoardTheme(t: BoardTheme) { localStorage.setItem('chess-board-theme', t); }
 
+interface SavedChessGame {
+  game: GameState;
+  gameTimer: number;
+  gameStarted: boolean;
+  moveLog: string[];
+  flipped: boolean;
+}
+
+function saveChessGame(state: SavedChessGame) {
+  localStorage.setItem('chess-game-state', JSON.stringify(state));
+}
+function loadChessGame(): SavedChessGame | null {
+  const saved = localStorage.getItem('chess-game-state');
+  if (!saved) return null;
+  try { return JSON.parse(saved); } catch { return null; }
+}
+function clearChessGame() { localStorage.removeItem('chess-game-state'); }
+
 // Minimal SVG piece rendering for a cleaner look
 const PIECE_SVG: Record<Color, Record<PieceType, string>> = {
   w: { K: '♔', Q: '♕', R: '♖', B: '♗', N: '♘', P: '♙' },
@@ -224,22 +242,34 @@ const RANKS = ['8', '7', '6', '5', '4', '3', '2', '1'];
 export default function ChessPage() {
   const { t, dir, language } = useApp();
   const navigate = useNavigate();
-  const [game, setGame] = useState<GameState>(initGameState);
+  
+  const savedChess = React.useMemo(() => loadChessGame(), []);
+  
+  const [game, setGame] = useState<GameState>(savedChess?.game || initGameState);
   const [selected, setSelected] = useState<Square | null>(null);
   const [legalMoves, setLegalMoves] = useState<Square[]>([]);
   const [status, setStatus] = useState('');
   const [gameOver, setGameOver] = useState(false);
-  const [gameTimer, setGameTimer] = useState(0);
+  const [gameTimer, setGameTimer] = useState(savedChess?.gameTimer || 0);
   const [isRunning, setIsRunning] = useState(false);
-  const [gameStarted, setGameStarted] = useState(false);
+  const [gameStarted, setGameStarted] = useState(savedChess?.gameStarted || false);
   const [stats, setStats] = useState<ChessStats>(loadChessStats);
   const [showStats, setShowStats] = useState(false);
   const [history, setHistory] = useState<GameState[]>([]);
   const [lastMove, setLastMove] = useState<{ from: Square; to: Square } | null>(null);
   const [boardTheme, setBoardTheme] = useState<BoardTheme>(loadBoardTheme);
   const [showThemeSelector, setShowThemeSelector] = useState(false);
-  const [flipped, setFlipped] = useState(false);
-  const [moveLog, setMoveLog] = useState<string[]>([]);
+  const [flipped, setFlipped] = useState(savedChess?.flipped || false);
+  const [moveLog, setMoveLog] = useState<string[]>(savedChess?.moveLog || []);
+
+  // Auto-save chess game state
+  useEffect(() => {
+    if (gameOver) {
+      clearChessGame();
+      return;
+    }
+    saveChessGame({ game, gameTimer, gameStarted, moveLog, flipped });
+  }, [game, gameTimer, gameStarted, moveLog, flipped, gameOver]);
 
   useEffect(() => {
     if (!isRunning || gameOver) return;
@@ -412,6 +442,7 @@ export default function ChessPage() {
   };
 
   const resetGame = () => {
+    clearChessGame();
     setGame(initGameState());
     setSelected(null);
     setLegalMoves([]);
