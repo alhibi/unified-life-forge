@@ -172,6 +172,7 @@ export default function SudokuPage() {
   };
 
   const newGame = (diff: Difficulty) => {
+    clearGameState();
     setDifficulty(diff);
     const data = createPuzzle(diff);
     setGameData(data);
