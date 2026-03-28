@@ -54,6 +54,15 @@ export default function Index() {
         <motion.div variants={item}><DualCalendar /></motion.div>
         <motion.div variants={item}><AudioPlayer /></motion.div>
         <motion.div variants={item}><LocationSaver /></motion.div>
+
+        {/* Made by Amer */}
+        <motion.div variants={item} className="flex items-center justify-center gap-2 py-6 mt-4">
+          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border/50 to-transparent" />
+          <span className="text-[11px] text-muted-foreground/60 font-medium tracking-wide">
+            صنع بواسطة <span className="text-primary/70 font-semibold">عامر</span> ✦
+          </span>
+          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border/50 to-transparent" />
+        </motion.div>
       </motion.div>
     </div>
   );
