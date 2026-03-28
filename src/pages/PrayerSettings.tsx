@@ -17,7 +17,6 @@ const item = {
 export default function PrayerSettings() {
   const {
     language, prayerMadhab, setPrayerMadhab,
-    midnightMode, setMidnightMode,
     latitudeAdjMethod, setLatitudeAdjMethod,
     dstEnabled, setDstEnabled,
   } = useApp();
@@ -28,7 +27,6 @@ export default function PrayerSettings() {
 
   const resetDefaults = () => {
     setPrayerMadhab('shafii');
-    setMidnightMode(0);
     setLatitudeAdjMethod('angle');
     setDstEnabled(true);
   };
@@ -62,7 +60,7 @@ export default function PrayerSettings() {
             </span>
             <Switch
               checked={!isHanafi}
-              onCheckedChange={(checked) => setPrayerMadhab(checked ? 'shafii' : 'hanafi')}
+              onCheckedChange={() => setPrayerMadhab('shafii')}
             />
           </div>
           <div className="p-4 flex items-center justify-between">
@@ -71,7 +69,7 @@ export default function PrayerSettings() {
             </span>
             <Switch
               checked={isHanafi}
-              onCheckedChange={(checked) => setPrayerMadhab(checked ? 'hanafi' : 'shafii')}
+              onCheckedChange={() => setPrayerMadhab('hanafi')}
             />
           </div>
         </motion.div>
@@ -85,15 +83,15 @@ export default function PrayerSettings() {
           </p>
         </motion.div>
 
-        {/* High Latitude Settings */}
+        {/* High Latitude Adjustment Methods - mutually exclusive */}
         <motion.div variants={item} className="premium-card-elevated overflow-hidden">
           <div className="p-4 flex items-center justify-between border-b border-border/50">
             <span className="font-semibold text-[15px] text-foreground">
               {isAr ? 'منتصف الليل' : 'Mitternacht'}
             </span>
             <Switch
-              checked={midnightMode === 0}
-              onCheckedChange={(checked) => setMidnightMode(checked ? 0 : 1)}
+              checked={latitudeAdjMethod === 'middle'}
+              onCheckedChange={() => setLatitudeAdjMethod('middle')}
             />
           </div>
           <div className="p-4 flex items-center justify-between border-b border-border/50">
@@ -102,7 +100,7 @@ export default function PrayerSettings() {
             </span>
             <Switch
               checked={latitudeAdjMethod === 'seventh'}
-              onCheckedChange={(checked) => setLatitudeAdjMethod(checked ? 'seventh' : 'angle')}
+              onCheckedChange={() => setLatitudeAdjMethod('seventh')}
             />
           </div>
           <div className="p-4 flex items-center justify-between">
@@ -111,7 +109,7 @@ export default function PrayerSettings() {
             </span>
             <Switch
               checked={latitudeAdjMethod === 'angle'}
-              onCheckedChange={(checked) => setLatitudeAdjMethod(checked ? 'angle' : 'middle')}
+              onCheckedChange={() => setLatitudeAdjMethod('angle')}
             />
           </div>
         </motion.div>
