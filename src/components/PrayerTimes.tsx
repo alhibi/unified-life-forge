@@ -79,7 +79,6 @@ export default function PrayerTimes() {
         `https://api.aladhan.com/v1/timings/${dd}-${mm}-${yyyy}?latitude=${lat}&longitude=${lng}&method=4&school=${schoolParam}&midnightMode=${midnightMode}&latitudeAdjustmentMethod=${latAdjParam}&adjustment=${dstParam === '0' ? '0' : ''}`
       );
       const data = await res.json();
-      const data = await res.json();
       if (data.code === 200) {
         const timings = data.data.timings;
         const result: PrayerTime[] = PRAYER_NAMES.map(p => ({
