@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { gregorianToHijri, getDaysInGregorianMonth, getFirstDayOfMonth } from '@/utils/hijri';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -9,6 +9,13 @@ export default function DualCalendar() {
   const today = new Date();
   const [viewYear, setViewYear] = useState(today.getFullYear());
   const [viewMonth, setViewMonth] = useState(today.getMonth() + 1);
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [direction, setDirection] = useState(0); // -1 prev, 1 next
+
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   const daysInMonth = getDaysInGregorianMonth(viewYear, viewMonth);
   const firstDay = getFirstDayOfMonth(viewYear, viewMonth);
@@ -26,25 +33,44 @@ export default function DualCalendar() {
   const hijriInfo = gregorianToHijri(viewYear, viewMonth, 1);
 
   const prevMonth = () => {
+    setDirection(-1);
     if (viewMonth === 1) { setViewYear(y => y - 1); setViewMonth(12); }
     else setViewMonth(m => m - 1);
   };
   const nextMonth = () => {
+    setDirection(1);
     if (viewMonth === 12) { setViewYear(y => y + 1); setViewMonth(1); }
     else setViewMonth(m => m + 1);
   };
-  const goToday = () => { setViewYear(today.getFullYear()); setViewMonth(today.getMonth() + 1); };
+  const goToday = () => { setDirection(0); setViewYear(today.getFullYear()); setViewMonth(today.getMonth() + 1); };
 
   const dayHeaders = Array.from({ length: 7 }, (_, i) => t(`daysShort.${i}`));
   const blanks = Array.from({ length: firstDay }, (_, i) => i);
 
+  const isCurrentMonth = viewMonth === today.getMonth() + 1 && viewYear === today.getFullYear();
+
+  // Live time line position: percentage of day passed
+  const timeProgress = (currentTime.getHours() * 60 + currentTime.getMinutes()) / 1440;
+  const timeString = currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+  // Find today's row index for the live time line
+  const todayCellIndex = isCurrentMonth ? (firstDay + today.getDate() - 1) : -1;
+  const todayRow = todayCellIndex >= 0 ? Math.floor(todayCellIndex / 7) : -1;
+  const totalRows = Math.ceil((firstDay + daysInMonth) / 7);
+
+  const slideVariants = {
+    enter: (d: number) => ({ opacity: 0, x: d === 0 ? 0 : d > 0 ? 60 : -60 }),
+    center: { opacity: 1, x: 0 },
+    exit: (d: number) => ({ opacity: 0, x: d === 0 ? 0 : d > 0 ? -60 : 60 }),
+  };
+
   return (
     <div className="premium-card-intense p-5">
       {/* Header */}
-      <div className="flex items-center justify-between mb-5">
+      <div className="flex items-center justify-between mb-4">
         <button
           onClick={dir === 'rtl' ? nextMonth : prevMonth}
-          className="w-9 h-9 rounded-full flex items-center justify-center bg-secondary hover:bg-muted transition-colors"
+          className="w-9 h-9 rounded-full flex items-center justify-center bg-secondary hover:bg-muted transition-colors active:scale-90 duration-150"
         >
           <ChevronLeft className="w-4 h-4 text-foreground" />
         </button>
@@ -58,11 +84,34 @@ export default function DualCalendar() {
         </button>
         <button
           onClick={dir === 'rtl' ? prevMonth : nextMonth}
-          className="w-9 h-9 rounded-full flex items-center justify-center bg-secondary hover:bg-muted transition-colors"
+          className="w-9 h-9 rounded-full flex items-center justify-center bg-secondary hover:bg-muted transition-colors active:scale-90 duration-150"
         >
           <ChevronRight className="w-4 h-4 text-foreground" />
         </button>
       </div>
+
+      {/* Live time indicator */}
+      {isCurrentMonth && (
+        <div className="flex items-center gap-2 mb-3 px-1">
+          <div className="relative flex-1 h-[2px] rounded-full bg-muted overflow-hidden">
+            <motion.div
+              className="absolute inset-y-0 left-0 bg-primary rounded-full"
+              style={{ width: `${timeProgress * 100}%` }}
+              layout
+              transition={{ duration: 0.5, ease: 'linear' }}
+            />
+            <motion.div
+              className="absolute top-1/2 -translate-y-1/2 w-[6px] h-[6px] rounded-full bg-primary shadow-sm shadow-primary/50"
+              style={{ left: `${timeProgress * 100}%` }}
+              animate={{ scale: [1, 1.3, 1] }}
+              transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+            />
+          </div>
+          <span className="text-[10px] font-mono text-muted-foreground tabular-nums min-w-[58px] text-right">
+            {timeString}
+          </span>
+        </div>
+      )}
 
       {/* Day headers */}
       <div className="grid grid-cols-7 mb-1">
@@ -72,34 +121,56 @@ export default function DualCalendar() {
       </div>
 
       {/* Calendar grid */}
-      <AnimatePresence mode="wait">
+      <AnimatePresence mode="wait" custom={direction}>
         <motion.div
           key={`${viewYear}-${viewMonth}`}
-          initial={{ opacity: 0, x: 16 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -16 }}
-          transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-          className="grid grid-cols-7 gap-y-0.5"
+          custom={direction}
+          variants={slideVariants}
+          initial="enter"
+          animate="center"
+          exit="exit"
+          transition={{ duration: 0.3, ease: [0.25, 1, 0.5, 1] as const }}
+          className="grid grid-cols-7 gap-y-0.5 relative"
         >
           {blanks.map(i => <div key={`b-${i}`} />)}
-          {calendarDays.map(day => (
-            <div
+          {calendarDays.map((day, idx) => (
+            <motion.div
               key={day.gDay}
-              className={`relative flex flex-col items-center justify-center py-2 rounded-xl transition-all duration-200 ${
+              initial={{ opacity: 0, scale: 0.85 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{
+                duration: 0.25,
+                delay: idx * 0.008,
+                ease: [0.25, 1, 0.5, 1] as const,
+              }}
+              className={`relative flex flex-col items-center justify-center py-2 rounded-xl transition-colors duration-200 ${
                 day.isToday
-                  ? 'bg-primary text-primary-foreground shadow-md'
+                  ? 'shadow-md'
                   : 'hover:bg-secondary'
               }`}
             >
-              <span className={`text-[13px] font-semibold leading-none ${day.isToday ? 'text-primary-foreground' : 'text-foreground'}`}>
+              {day.isToday && (
+                <motion.div
+                  className="absolute inset-0 rounded-xl bg-primary"
+                  animate={{
+                    boxShadow: [
+                      '0 0 0 0px hsl(var(--primary) / 0.3)',
+                      '0 0 0 4px hsl(var(--primary) / 0.08)',
+                      '0 0 0 0px hsl(var(--primary) / 0.3)',
+                    ],
+                  }}
+                  transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+                />
+              )}
+              <span className={`relative z-10 text-[13px] font-semibold leading-none ${day.isToday ? 'text-primary-foreground' : 'text-foreground'}`}>
                 {day.gDay}
               </span>
-              <span className={`text-[9px] mt-0.5 leading-none font-medium ${
+              <span className={`relative z-10 text-[9px] mt-0.5 leading-none font-medium ${
                 day.isToday ? 'text-primary-foreground/70' : 'text-muted-foreground'
               }`}>
                 {day.hDay}
               </span>
-            </div>
+            </motion.div>
           ))}
         </motion.div>
       </AnimatePresence>
