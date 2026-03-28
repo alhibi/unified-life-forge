@@ -133,6 +133,25 @@ export default function SudokuPage() {
     return s;
   }, [gameData]);
 
+  // Auto-save game state
+  useEffect(() => {
+    if (solved) {
+      clearGameState();
+      return;
+    }
+    saveGameState({
+      difficulty,
+      gameData,
+      board,
+      timer,
+      hintsUsed,
+      solved,
+      gameStarted,
+      errors: Array.from(errors),
+      notes: notes.map(row => row.map(cell => Array.from(cell))),
+    });
+  }, [board, timer, errors, hintsUsed, solved, gameStarted, difficulty, gameData, notes]);
+
   useEffect(() => {
     if (!isRunning || solved || isPaused) return;
     const iv = setInterval(() => setTimer(t => t + 1), 1000);
