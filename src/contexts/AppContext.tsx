@@ -159,7 +159,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     (localStorage.getItem('app-theme') as Theme) || 'light'
   );
   const [accentHue, setAccentHueState] = useState<number>(() =>
-    parseInt(localStorage.getItem('app-accent-hue') || '253', 10)
+    parseInt(localStorage.getItem('app-accent-hue') || '152', 10)
   );
   const [paletteStyle, setPaletteStyleState] = useState<PaletteStyle>(() =>
     (localStorage.getItem('app-palette-style') as PaletteStyle) || 'vibrant'
