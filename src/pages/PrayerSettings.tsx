@@ -1,6 +1,6 @@
 import React from 'react';
 import { useApp } from '@/contexts/AppContext';
-import { ChevronLeft, Moon, RotateCcw } from 'lucide-react';
+import { ChevronLeft, BookOpen, RotateCcw } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Switch } from '@/components/ui/switch';
