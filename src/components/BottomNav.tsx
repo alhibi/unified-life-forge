@@ -2,6 +2,7 @@ import React from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { Home, Gamepad2, Settings } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { motion } from 'framer-motion';
 
 const tabs = [
   { key: 'settings', path: '/settings', icon: Settings, labelKey: 'nav.settings' },
@@ -21,21 +22,28 @@ export default function BottomNav() {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 safe-bottom">
-      <div className="bg-card/90 backdrop-blur-xl border-t border-border/60 px-2 py-1.5 flex items-center justify-around">
+      <div className="bg-card/85 backdrop-blur-xl border-t border-border/50 px-2 py-1.5 flex items-center justify-around">
         {tabs.map(tab => {
           const active = isActive(tab.path);
           return (
             <button
               key={tab.key}
               onClick={() => navigate(tab.path)}
-              className={`flex flex-col items-center gap-0.5 px-5 py-1.5 rounded-xl transition-all duration-200 ${
-                active
-                  ? 'text-primary'
-                  : 'text-muted-foreground'
-              }`}
+              className="relative flex flex-col items-center gap-0.5 px-5 py-1.5 rounded-xl transition-all duration-200"
             >
-              <tab.icon className={`w-[22px] h-[22px] transition-all ${active ? 'stroke-[2.5px]' : 'stroke-[1.5px]'}`} />
-              <span className={`text-[10px] transition-all ${active ? 'font-semibold' : 'font-medium'}`}>
+              {active && (
+                <motion.div
+                  layoutId="nav-indicator"
+                  className="absolute -top-1.5 w-5 h-[3px] rounded-full bg-primary"
+                  transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                />
+              )}
+              <tab.icon className={`w-[22px] h-[22px] transition-all duration-200 ${
+                active ? 'text-primary stroke-[2.2]' : 'text-muted-foreground stroke-[1.5]'
+              }`} />
+              <span className={`text-[10px] transition-all duration-200 ${
+                active ? 'font-semibold text-primary' : 'font-medium text-muted-foreground'
+              }`}>
                 {t(tab.labelKey)}
               </span>
             </button>

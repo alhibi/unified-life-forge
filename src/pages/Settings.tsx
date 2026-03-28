@@ -1,6 +1,6 @@
 import React from 'react';
 import { useApp } from '@/contexts/AppContext';
-import { Moon, Languages, Palette, ChevronRight, ChevronLeft } from 'lucide-react';
+import { Languages, Palette, ChevronRight, ChevronLeft, Settings as SettingsIcon } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 
@@ -14,33 +14,27 @@ const item = {
 };
 
 export default function SettingsPage() {
-  const { t, theme, language, setLanguage, accentHue } = useApp();
+  const { t, theme, language, setLanguage, dir } = useApp();
   const navigate = useNavigate();
 
   const settingsItems = [
     {
       key: 'theme',
       icon: Palette,
-      iconColor: 'text-primary',
-      iconBg: 'bg-primary/15',
-      title: t('settings.theme') + ' · ' + t('settings.colors'),
+      iconColor: 'text-violet-600 dark:text-violet-400',
+      iconBg: 'bg-violet-500/12 dark:bg-violet-400/15',
+      title: t('settings.theme'),
       subtitle: theme === 'dark' ? t('settings.dark') : theme === 'system' ? (language === 'ar' ? 'النظام' : 'System') : t('settings.light'),
       onClick: () => navigate('/settings/theme'),
       trailing: (
-        <div className="flex items-center gap-2">
-          <div
-            className="w-6 h-6 rounded-full border-2 border-border/40"
-            style={{ backgroundColor: `hsl(${accentHue}, 65%, ${theme === 'dark' ? '58' : '50'}%)` }}
-          />
-          <ChevronLeft className="w-4 h-4 text-muted-foreground ltr:rotate-180" />
-        </div>
+        <ChevronLeft className="w-4.5 h-4.5 text-muted-foreground/50 ltr:rotate-180" />
       ),
     },
     {
       key: 'language',
       icon: Languages,
-      iconColor: 'text-accent',
-      iconBg: 'bg-accent/15',
+      iconColor: 'text-emerald-600 dark:text-emerald-400',
+      iconBg: 'bg-emerald-500/12 dark:bg-emerald-400/15',
       title: language === 'ar' ? 'العربية' : 'Deutsch',
       subtitle: t('settings.language'),
       onClick: () => setLanguage(language === 'ar' ? 'de' : 'ar'),
@@ -59,8 +53,11 @@ export default function SettingsPage() {
   return (
     <div className="min-h-screen bg-background pb-28 px-5 pt-14">
       <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-3 max-w-lg mx-auto">
-        <motion.div variants={item}>
-          <h1 className="text-[28px] font-bold tracking-tight text-foreground">{t('settings.title')}</h1>
+        <motion.div variants={item} className="flex items-center gap-3 mb-1">
+          <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center">
+            <SettingsIcon className="w-5 h-5 text-primary stroke-[1.8]" />
+          </div>
+          <h1 className="text-[26px] font-bold tracking-tight text-foreground">{t('settings.title')}</h1>
         </motion.div>
 
         {settingsItems.map((si) => (
@@ -70,8 +67,8 @@ export default function SettingsPage() {
               className="flex items-center justify-between w-full active:scale-[0.99] transition-transform"
             >
               <div className="flex items-center gap-3">
-                <div className={`w-10 h-10 rounded-2xl ${si.iconBg} flex items-center justify-center`}>
-                  <si.icon className={`w-5 h-5 ${si.iconColor}`} />
+                <div className={`w-11 h-11 rounded-2xl ${si.iconBg} flex items-center justify-center`}>
+                  <si.icon className={`w-5 h-5 ${si.iconColor} stroke-[1.8]`} />
                 </div>
                 <div className="text-start">
                   <h2 className="font-semibold text-[15px] text-foreground">{si.title}</h2>
