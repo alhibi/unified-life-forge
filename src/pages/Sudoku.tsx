@@ -32,6 +32,32 @@ function loadStats(): SudokuStats {
 }
 function saveStats(stats: SudokuStats) { localStorage.setItem('sudoku-stats', JSON.stringify(stats)); }
 
+interface SavedSudokuGame {
+  difficulty: Difficulty;
+  gameData: { puzzle: Board; solution: number[][] };
+  board: Board;
+  timer: number;
+  hintsUsed: number;
+  solved: boolean;
+  gameStarted: boolean;
+  errors: string[];
+  notes: string[][][];
+}
+
+function saveGameState(state: SavedSudokuGame) {
+  localStorage.setItem('sudoku-game-state', JSON.stringify(state));
+}
+
+function loadGameState(): SavedSudokuGame | null {
+  const saved = localStorage.getItem('sudoku-game-state');
+  if (!saved) return null;
+  try { return JSON.parse(saved); } catch { return null; }
+}
+
+function clearGameState() {
+  localStorage.removeItem('sudoku-game-state');
+}
+
 function generateSolvedBoard(): number[][] {
   const board: number[][] = Array.from({ length: 9 }, () => Array(9).fill(0));
   function isValid(b: number[][], r: number, c: number, n: number) {
