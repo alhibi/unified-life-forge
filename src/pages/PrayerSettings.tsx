@@ -58,19 +58,23 @@ export default function PrayerSettings() {
             <span className="font-semibold text-[15px] text-foreground">
               {isAr ? 'شافعي | حنبلي | مالكي' : 'Schafi\'i | Hanbali | Maliki'}
             </span>
-            <Switch
-              checked={!isHanafi}
-              onCheckedChange={() => setPrayerMadhab('shafii')}
-            />
+            <div dir="ltr">
+              <Switch
+                checked={!isHanafi}
+                onCheckedChange={() => setPrayerMadhab('shafii')}
+              />
+            </div>
           </div>
           <div className="p-4 flex items-center justify-between">
             <span className="font-semibold text-[15px] text-foreground">
               {isAr ? 'حنفي' : 'Hanafi'}
             </span>
-            <Switch
-              checked={isHanafi}
-              onCheckedChange={() => setPrayerMadhab('hanafi')}
-            />
+            <div dir="ltr">
+              <Switch
+                checked={isHanafi}
+                onCheckedChange={() => setPrayerMadhab('hanafi')}
+              />
+            </div>
           </div>
         </motion.div>
 
@@ -89,28 +93,34 @@ export default function PrayerSettings() {
             <span className="font-semibold text-[15px] text-foreground">
               {isAr ? 'منتصف الليل' : 'Mitternacht'}
             </span>
-            <Switch
-              checked={latitudeAdjMethod === 'middle'}
-              onCheckedChange={() => setLatitudeAdjMethod('middle')}
-            />
+            <div dir="ltr">
+              <Switch
+                checked={latitudeAdjMethod === 'middle'}
+                onCheckedChange={() => setLatitudeAdjMethod('middle')}
+              />
+            </div>
           </div>
           <div className="p-4 flex items-center justify-between border-b border-border/50">
             <span className="font-semibold text-[15px] text-foreground">
               {isAr ? 'سُبع الليل' : 'Ein Siebtel der Nacht'}
             </span>
-            <Switch
-              checked={latitudeAdjMethod === 'seventh'}
-              onCheckedChange={() => setLatitudeAdjMethod('seventh')}
-            />
+            <div dir="ltr">
+              <Switch
+                checked={latitudeAdjMethod === 'seventh'}
+                onCheckedChange={() => setLatitudeAdjMethod('seventh')}
+              />
+            </div>
           </div>
           <div className="p-4 flex items-center justify-between">
             <span className="font-semibold text-[15px] text-foreground">
               {isAr ? 'باستخدام الزاوية' : 'Winkelbasiert'}
             </span>
-            <Switch
-              checked={latitudeAdjMethod === 'angle'}
-              onCheckedChange={() => setLatitudeAdjMethod('angle')}
-            />
+            <div dir="ltr">
+              <Switch
+                checked={latitudeAdjMethod === 'angle'}
+                onCheckedChange={() => setLatitudeAdjMethod('angle')}
+              />
+            </div>
           </div>
         </motion.div>
 
@@ -120,10 +130,12 @@ export default function PrayerSettings() {
             <span className="font-semibold text-[15px] text-foreground">
               {isAr ? 'التوقيت الصيفي' : 'Sommerzeit'}
             </span>
-            <Switch
-              checked={dstEnabled}
-              onCheckedChange={setDstEnabled}
-            />
+            <div dir="ltr">
+              <Switch
+                checked={dstEnabled}
+                onCheckedChange={setDstEnabled}
+              />
+            </div>
           </div>
         </motion.div>
 
