@@ -10,6 +10,7 @@ import GamesPage from "./pages/Games";
 import SudokuPage from "./pages/Sudoku";
 import ChessPage from "./pages/Chess";
 import SettingsPage from "./pages/Settings";
+import ThemeSettingsPage from "./pages/ThemeSettings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
