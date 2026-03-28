@@ -6,6 +6,8 @@ type Language = 'ar' | 'de';
 type Theme = 'light' | 'dark' | 'system';
 type PaletteStyle = 'tonal' | 'vibrant' | 'expressive' | 'neutral' | 'rainbow';
 
+type PrayerMadhab = 'shafii' | 'hanafi' | 'hanbali' | 'maliki';
+
 interface AppContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
@@ -23,6 +25,8 @@ interface AppContextType {
   setFontFamily: (f: string) => void;
   fontSize: string;
   setFontSize: (s: string) => void;
+  prayerMadhab: PrayerMadhab;
+  setPrayerMadhab: (m: PrayerMadhab) => void;
 }
 
 const translations: Record<string, Record<Language, string>> = {
@@ -174,6 +178,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [fontSize, setFontSizeState] = useState<string>(() =>
     localStorage.getItem('app-font-size') || 'medium'
   );
+  const [prayerMadhab, setPrayerMadhabState] = useState<PrayerMadhab>(() =>
+    (localStorage.getItem('app-prayer-madhab') as PrayerMadhab) || 'shafii'
+  );
 
   const [authUser, setAuthUser] = useState<User | null>(null);
   const syncRef = useRef(false);
@@ -212,6 +219,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         if (s.blackMode !== undefined) { setBlackModeState(s.blackMode); localStorage.setItem('app-black-mode', String(s.blackMode)); }
         if (s.fontFamily) { setFontFamilyState(s.fontFamily); localStorage.setItem('app-font-family', s.fontFamily); }
         if (s.fontSize) { setFontSizeState(s.fontSize); localStorage.setItem('app-font-size', s.fontSize); }
+        if (s.prayerMadhab) { setPrayerMadhabState(s.prayerMadhab); localStorage.setItem('app-prayer-madhab', s.prayerMadhab); }
         // Also load game stats and locations if stored
         if (s.gameStats) localStorage.setItem('game-stats', JSON.stringify(s.gameStats));
         if (s.savedLocations) localStorage.setItem('saved-locations', JSON.stringify(s.savedLocations));
@@ -233,6 +241,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       blackMode: localStorage.getItem('app-black-mode') === 'true',
       fontFamily: localStorage.getItem('app-font-family') || 'default',
       fontSize: localStorage.getItem('app-font-size') || 'medium',
+      prayerMadhab: localStorage.getItem('app-prayer-madhab') || 'shafii',
     };
     // Also save game stats and locations
     try { settings.gameStats = JSON.parse(localStorage.getItem('game-stats') || '{}'); } catch {}
@@ -285,6 +294,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setTimeout(saveToDb, 50);
   };
 
+  const setPrayerMadhab = (m: PrayerMadhab) => {
+    setPrayerMadhabState(m);
+    localStorage.setItem('app-prayer-madhab', m);
+    setTimeout(saveToDb, 50);
+  };
+
   const t = (key: string): string => translations[key]?.[language] || key;
   const dir = language === 'ar' ? 'rtl' : 'ltr';
 
@@ -326,7 +341,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [fontFamily, fontSize]);
 
   return (
-    <AppContext.Provider value={{ language, setLanguage, theme, setTheme, t, dir, accentHue, setAccentHue, paletteStyle, setPaletteStyle, blackMode, setBlackMode, fontFamily, setFontFamily, fontSize, setFontSize }}>
+    <AppContext.Provider value={{ language, setLanguage, theme, setTheme, t, dir, accentHue, setAccentHue, paletteStyle, setPaletteStyle, blackMode, setBlackMode, fontFamily, setFontFamily, fontSize, setFontSize, prayerMadhab, setPrayerMadhab }}>
       {children}
     </AppContext.Provider>
   );

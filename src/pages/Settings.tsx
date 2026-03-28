@@ -1,7 +1,7 @@
 import React from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { useAuth } from '@/hooks/useAuth';
-import { Languages, Palette, ChevronLeft, Settings as SettingsIcon, UserCircle, LogOut, Type } from 'lucide-react';
+import { Languages, Palette, ChevronLeft, Settings as SettingsIcon, UserCircle, LogOut, Type, Moon } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -16,7 +16,7 @@ const item = {
 };
 
 export default function SettingsPage() {
-  const { t, theme, language, setLanguage } = useApp();
+  const { t, theme, language, setLanguage, prayerMadhab } = useApp();
   const { user, username, signOut, loading } = useAuth();
   const navigate = useNavigate();
   const isAr = language === 'ar';
@@ -74,6 +74,20 @@ export default function SettingsPage() {
       title: isAr ? 'الخط' : 'Schriftart',
       subtitle: isAr ? 'نوع وحجم الخط' : 'Schriftart & Größe',
       onClick: () => navigate('/settings/font'),
+      trailing: (
+        <ChevronLeft className="w-4.5 h-4.5 text-muted-foreground/50 ltr:rotate-180" />
+      ),
+    },
+    {
+      key: 'prayer',
+      icon: Moon,
+      iconColor: 'text-teal-600 dark:text-teal-400',
+      iconBg: 'bg-teal-500/12 dark:bg-teal-400/15',
+      title: isAr ? 'المذهب الفقهي' : 'Gebetsschule',
+      subtitle: isAr
+        ? ({ shafii: 'الشافعي', hanafi: 'الحنفي', hanbali: 'الحنبلي', maliki: 'المالكي' }[prayerMadhab])
+        : ({ shafii: "Schafi'i", hanafi: 'Hanafi', hanbali: 'Hanbali', maliki: 'Maliki' }[prayerMadhab]),
+      onClick: () => navigate('/settings/prayer'),
       trailing: (
         <ChevronLeft className="w-4.5 h-4.5 text-muted-foreground/50 ltr:rotate-180" />
       ),
