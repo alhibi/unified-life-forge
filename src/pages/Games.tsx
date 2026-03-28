@@ -1,32 +1,29 @@
 import React from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
-import { Grid3X3, Swords, ChevronRight, Gamepad2, Trophy, Star } from 'lucide-react';
+import { Grid3X3, Swords, ChevronRight, Gamepad2, Trophy, Star, Brain, Bomb, Palette, PipetteIcon } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.1 } } };
+const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.08 } } };
 const item = {
   hidden: { opacity: 0, y: 16 },
   show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] as const } },
 };
 
 export default function GamesPage() {
-  const { t, dir } = useApp();
+  const { t, dir, language } = useApp();
   const navigate = useNavigate();
 
-  const sudokuStats = (() => {
-    try {
-      const s = JSON.parse(localStorage.getItem('sudoku-stats') || '{}');
-      return { wins: s.gamesWon || 0, streak: s.bestStreak || 0 };
-    } catch { return { wins: 0, streak: 0 }; }
-  })();
+  const getStats = (key: string) => {
+    try { return JSON.parse(localStorage.getItem(key) || '{}'); } catch { return {}; }
+  };
 
-  const chessStats = (() => {
-    try {
-      const s = JSON.parse(localStorage.getItem('chess-stats') || '{}');
-      return { played: s.gamesPlayed || 0, moves: s.totalMoves || 0 };
-    } catch { return { played: 0, moves: 0 }; }
-  })();
+  const sudokuStats = getStats('sudoku-stats');
+  const chessStats = getStats('chess-stats');
+  const memoryStats = getStats('memory-stats');
+  const mineStats = getStats('mine-stats');
+  const mazeStats = getStats('maze-stats');
+  const pipesStats = getStats('pipes-stats');
 
   const games = [
     {
@@ -37,9 +34,9 @@ export default function GamesPage() {
       path: '/games/sudoku',
       iconBg: 'bg-blue-500/12 dark:bg-blue-400/15',
       iconColor: 'text-blue-600 dark:text-blue-400',
-      stats: sudokuStats.wins > 0 ? [
-        { icon: Trophy, value: sudokuStats.wins, label: t('stats.wins') },
-        { icon: Star, value: sudokuStats.streak, label: t('stats.streak') },
+      stats: sudokuStats.gamesWon > 0 ? [
+        { icon: Trophy, value: sudokuStats.gamesWon, label: t('stats.wins') },
+        { icon: Star, value: sudokuStats.bestStreak, label: t('stats.streak') },
       ] : null,
     },
     {
@@ -50,16 +47,68 @@ export default function GamesPage() {
       path: '/games/chess',
       iconBg: 'bg-amber-500/12 dark:bg-amber-400/15',
       iconColor: 'text-amber-600 dark:text-amber-400',
-      stats: chessStats.played > 0 ? [
-        { icon: Gamepad2, value: chessStats.played, label: t('stats.played') },
-        { icon: Star, value: chessStats.moves, label: t('stats.moves') },
+      stats: chessStats.gamesPlayed > 0 ? [
+        { icon: Gamepad2, value: chessStats.gamesPlayed, label: t('stats.played') },
+        { icon: Star, value: chessStats.totalMoves, label: t('stats.moves') },
+      ] : null,
+    },
+    {
+      key: 'memory',
+      icon: Brain,
+      title: t('games.memory'),
+      desc: t('games.memory.desc'),
+      path: '/games/memory',
+      iconBg: 'bg-purple-500/12 dark:bg-purple-400/15',
+      iconColor: 'text-purple-600 dark:text-purple-400',
+      stats: memoryStats.gamesWon > 0 ? [
+        { icon: Trophy, value: memoryStats.gamesWon, label: t('stats.wins') },
+        { icon: Star, value: memoryStats.bestStreak, label: t('stats.streak') },
+      ] : null,
+    },
+    {
+      key: 'minesweeper',
+      icon: Bomb,
+      title: t('games.minesweeper'),
+      desc: t('games.minesweeper.desc'),
+      path: '/games/minesweeper',
+      iconBg: 'bg-red-500/12 dark:bg-red-400/15',
+      iconColor: 'text-red-600 dark:text-red-400',
+      stats: mineStats.gamesWon > 0 ? [
+        { icon: Trophy, value: mineStats.gamesWon, label: t('stats.wins') },
+        { icon: Gamepad2, value: mineStats.gamesPlayed, label: t('stats.played') },
+      ] : null,
+    },
+    {
+      key: 'colormaze',
+      icon: Palette,
+      title: t('games.colormaze'),
+      desc: t('games.colormaze.desc'),
+      path: '/games/colormaze',
+      iconBg: 'bg-emerald-500/12 dark:bg-emerald-400/15',
+      iconColor: 'text-emerald-600 dark:text-emerald-400',
+      stats: mazeStats.gamesWon > 0 ? [
+        { icon: Trophy, value: mazeStats.gamesWon, label: t('stats.wins') },
+        { icon: Star, value: mazeStats.bestStreak, label: t('stats.streak') },
+      ] : null,
+    },
+    {
+      key: 'pipes',
+      icon: PipetteIcon,
+      title: t('games.pipes'),
+      desc: t('games.pipes.desc'),
+      path: '/games/pipes',
+      iconBg: 'bg-cyan-500/12 dark:bg-cyan-400/15',
+      iconColor: 'text-cyan-600 dark:text-cyan-400',
+      stats: pipesStats.gamesWon > 0 ? [
+        { icon: Trophy, value: pipesStats.gamesWon, label: t('stats.wins') },
+        { icon: Star, value: pipesStats.bestStreak, label: t('stats.streak') },
       ] : null,
     },
   ];
 
   return (
     <div className="min-h-screen bg-background pb-28 px-5 pt-14">
-      <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-4 max-w-lg mx-auto">
+      <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-3 max-w-lg mx-auto">
         <motion.div variants={item} className="flex items-center gap-3 mb-1">
           <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center">
             <Gamepad2 className="w-5 h-5 text-primary" />
