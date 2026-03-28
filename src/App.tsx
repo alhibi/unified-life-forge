@@ -10,6 +10,7 @@ import GamesPage from "./pages/Games";
 import SudokuPage from "./pages/Sudoku";
 import ChessPage from "./pages/Chess";
 import SettingsPage from "./pages/Settings";
+import ThemeSettingsPage from "./pages/ThemeSettings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -27,6 +28,7 @@ const App = () => (
             <Route path="/games/sudoku" element={<SudokuPage />} />
             <Route path="/games/chess" element={<ChessPage />} />
             <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/settings/theme" element={<ThemeSettingsPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
           <BottomNav />
