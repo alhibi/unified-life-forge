@@ -159,6 +159,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [accentHue, setAccentHueState] = useState<number>(() =>
     parseInt(localStorage.getItem('app-accent-hue') || '220', 10)
   );
+  const [paletteStyle, setPaletteStyleState] = useState<PaletteStyle>(() =>
+    (localStorage.getItem('app-palette-style') as PaletteStyle) || 'vibrant'
+  );
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
@@ -173,6 +176,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const setAccentHue = (hue: number) => {
     setAccentHueState(hue);
     localStorage.setItem('app-accent-hue', hue.toString());
+  };
+
+  const setPaletteStyle = (style: PaletteStyle) => {
+    setPaletteStyleState(style);
+    localStorage.setItem('app-palette-style', style);
   };
 
   const t = (key: string): string => translations[key]?.[language] || key;
