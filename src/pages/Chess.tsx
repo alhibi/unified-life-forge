@@ -230,7 +230,8 @@ export default function ChessPage() {
   const [status, setStatus] = useState('');
   const [gameOver, setGameOver] = useState(false);
   const [gameTimer, setGameTimer] = useState(0);
-  const [isRunning, setIsRunning] = useState(true);
+  const [isRunning, setIsRunning] = useState(false);
+  const [gameStarted, setGameStarted] = useState(false);
   const [stats, setStats] = useState<ChessStats>(loadChessStats);
   const [showStats, setShowStats] = useState(false);
   const [history, setHistory] = useState<GameState[]>([]);
@@ -413,7 +414,8 @@ export default function ChessPage() {
     setStatus('');
     setGameOver(false);
     setGameTimer(0);
-    setIsRunning(true);
+    setIsRunning(false);
+    setGameStarted(false);
     setHistory([]);
     setLastMove(null);
     setMoveLog([]);
