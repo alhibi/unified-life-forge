@@ -202,10 +202,35 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const syncRef = useRef(false);
   const initialLoadDone = useRef(false);
 
+  // Reset all state & localStorage to defaults
+  const resetToDefaults = () => {
+    syncRef.current = true;
+    setLanguageState('ar'); localStorage.setItem('app-language', 'ar');
+    setThemeState('light'); localStorage.setItem('app-theme', 'light');
+    setAccentHueState(152); localStorage.setItem('app-accent-hue', '152');
+    setPaletteStyleState('vibrant'); localStorage.setItem('app-palette-style', 'vibrant');
+    setBlackModeState(false); localStorage.setItem('app-black-mode', 'false');
+    setFontFamilyState('default'); localStorage.setItem('app-font-family', 'default');
+    setFontSizeState('medium'); localStorage.setItem('app-font-size', 'medium');
+    setPrayerMadhabState('shafii'); localStorage.setItem('app-prayer-madhab', 'shafii');
+    setMidnightModeState(0); localStorage.setItem('app-midnight-mode', '0');
+    setLatitudeAdjMethodState('angle'); localStorage.setItem('app-lat-adj-method', 'angle');
+    setDstEnabledState(true); localStorage.setItem('app-dst-enabled', 'true');
+    localStorage.removeItem('game-stats');
+    localStorage.removeItem('saved-locations');
+    localStorage.removeItem('lastLocation');
+    setTimeout(() => { syncRef.current = false; }, 100);
+  };
+
   // Listen for auth changes
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      const prevUser = authUser;
       setAuthUser(session?.user ?? null);
+      // Reset to defaults on logout
+      if (event === 'SIGNED_OUT' || (!session?.user && prevUser)) {
+        resetToDefaults();
+      }
     });
     supabase.auth.getSession().then(({ data: { session } }) => {
       setAuthUser(session?.user ?? null);
