@@ -65,7 +65,7 @@ export default function SettingsPage() {
               </div>
               <div className="text-start">
                 <h2 className="font-semibold text-[15px] text-foreground">
-                  {language === 'ar' ? '🇸🇦 العربية' : '🇩🇪 Deutsch'}
+                  {language === 'ar' ? 'العربية' : 'Deutsch'}
                 </h2>
                 <p className="text-[12px] text-muted-foreground mt-0.5">
                   {t('settings.language')}
