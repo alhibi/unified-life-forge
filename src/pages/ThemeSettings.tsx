@@ -13,28 +13,23 @@ const COLOR_PRESETS = [
   { name: 'Green', hue: 152, sat: 55 },
 ];
 
-const PALETTE_STYLES = [
+type PaletteKey = 'rainbow' | 'expressive' | 'vibrant' | 'neutral' | 'tonal';
+
+const PALETTE_STYLES: { key: PaletteKey; name: { ar: string; de: string }; shades: (hue: number) => string[] }[] = [
   {
-    name: { ar: 'هادئ', de: 'Neutral' },
-    shades: (hue: number) => [
-      `hsl(${hue}, 15%, 85%)`,
-      `hsl(${hue}, 12%, 72%)`,
-      `hsl(${hue}, 10%, 58%)`,
-      `hsl(${hue}, 14%, 42%)`,
+    key: 'rainbow',
+    name: { ar: 'قوس قزح', de: 'Rainbow' },
+    shades: (hue) => [
+      `hsl(${(hue + 40) % 360}, 55%, 80%)`,
+      `hsl(${(hue + 120) % 360}, 50%, 65%)`,
+      `hsl(${(hue + 200) % 360}, 45%, 55%)`,
+      `hsl(${(hue + 280) % 360}, 50%, 45%)`,
     ],
   },
   {
-    name: { ar: 'نابض', de: 'Vibrant' },
-    shades: (hue: number) => [
-      `hsl(${hue}, 65%, 78%)`,
-      `hsl(${hue}, 58%, 62%)`,
-      `hsl(${hue}, 55%, 48%)`,
-      `hsl(${hue}, 60%, 35%)`,
-    ],
-  },
-  {
+    key: 'expressive',
     name: { ar: 'معبّر', de: 'Expressiv' },
-    shades: (hue: number) => [
+    shades: (hue) => [
       `hsl(${(hue + 30) % 360}, 50%, 78%)`,
       `hsl(${hue}, 55%, 65%)`,
       `hsl(${(hue - 30 + 360) % 360}, 45%, 48%)`,
@@ -42,8 +37,29 @@ const PALETTE_STYLES = [
     ],
   },
   {
-    name: { ar: 'درجات', de: 'Tonal' },
-    shades: (hue: number) => [
+    key: 'vibrant',
+    name: { ar: 'نابض', de: 'Vibrant' },
+    shades: (hue) => [
+      `hsl(${hue}, 65%, 78%)`,
+      `hsl(${hue}, 58%, 62%)`,
+      `hsl(${hue}, 55%, 48%)`,
+      `hsl(${hue}, 60%, 35%)`,
+    ],
+  },
+  {
+    key: 'neutral',
+    name: { ar: 'هادئ', de: 'Neutral' },
+    shades: (hue) => [
+      `hsl(${hue}, 15%, 85%)`,
+      `hsl(${hue}, 12%, 72%)`,
+      `hsl(${hue}, 10%, 58%)`,
+      `hsl(${hue}, 14%, 42%)`,
+    ],
+  },
+  {
+    key: 'tonal',
+    name: { ar: 'درجات', de: 'Tonal Spot' },
+    shades: (hue) => [
       `hsl(${hue}, 45%, 82%)`,
       `hsl(${hue}, 40%, 68%)`,
       `hsl(${hue}, 50%, 52%)`,
@@ -62,13 +78,13 @@ const item = {
 };
 
 export default function ThemeSettingsPage() {
-  const { t, theme, setTheme, language, accentHue, setAccentHue } = useApp();
+  const { t, theme, setTheme, language, accentHue, setAccentHue, paletteStyle, setPaletteStyle } = useApp();
   const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-background pb-28 px-5 pt-6">
       <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-5 max-w-lg mx-auto">
-        {/* Header with back */}
+        {/* Header */}
         <motion.div variants={item} className="flex items-center justify-between">
           <h1 className="text-[24px] font-bold tracking-tight text-foreground">
             {t('settings.theme')}
@@ -86,7 +102,7 @@ export default function ThemeSettingsPage() {
           <h2 className="font-semibold text-[14px] text-muted-foreground text-center mb-4">
             {t('settings.theme')}
           </h2>
-          <div className="flex justify-center gap-6">
+          <div className="flex justify-center gap-8">
             {([
               { mode: 'dark' as const, icon: Moon, label: t('settings.dark') },
               { mode: 'light' as const, icon: Sun, label: t('settings.light') },
@@ -94,15 +110,15 @@ export default function ThemeSettingsPage() {
               <button
                 key={mode}
                 onClick={() => setTheme(mode)}
-                className="flex flex-col items-center gap-2 group"
+                className="flex flex-col items-center gap-2.5"
               >
                 <motion.div
                   whileTap={{ scale: 0.92 }}
-                  className={`w-16 h-16 rounded-full flex items-center justify-center transition-all duration-300 ${
+                  className={`w-[64px] h-[64px] rounded-full flex items-center justify-center transition-all duration-300 ${
                     theme === mode
                       ? mode === 'dark'
-                        ? 'bg-foreground shadow-lg'
-                        : 'bg-card shadow-lg ring-2 ring-primary/30'
+                        ? 'bg-foreground shadow-lg shadow-foreground/10'
+                        : 'bg-background shadow-lg ring-2 ring-primary/40'
                       : 'bg-secondary'
                   }`}
                 >
@@ -122,28 +138,38 @@ export default function ThemeSettingsPage() {
           </div>
         </motion.div>
 
-        {/* Palette Style Preview */}
+        {/* Palette Style */}
         <motion.div variants={item} className="premium-card-elevated p-5">
           <h2 className="font-semibold text-[14px] text-muted-foreground text-center mb-4">
-            {language === 'ar' ? 'نمط الألوان' : 'Farbstil'}
+            {language === 'ar' ? 'نمط الألوان' : 'Palette style'}
           </h2>
-          <div className="grid grid-cols-4 gap-3">
-            {PALETTE_STYLES.map((palette, idx) => (
-              <button
-                key={idx}
-                onClick={() => {/* visual only for now, uses current accent */}}
-                className="flex flex-col items-center gap-2 group"
-              >
-                <div className="w-full aspect-[3/4] rounded-xl overflow-hidden border border-border/40 flex flex-col">
-                  {palette.shades(accentHue).map((shade, si) => (
-                    <div key={si} className="flex-1" style={{ backgroundColor: shade }} />
-                  ))}
-                </div>
-                <span className="text-[11px] text-muted-foreground font-medium">
-                  {palette.name[language]}
-                </span>
-              </button>
-            ))}
+          <div className="grid grid-cols-5 gap-2.5">
+            {PALETTE_STYLES.map((palette) => {
+              const isActive = paletteStyle === palette.key;
+              return (
+                <motion.button
+                  key={palette.key}
+                  whileTap={{ scale: 0.93 }}
+                  onClick={() => setPaletteStyle(palette.key)}
+                  className="flex flex-col items-center gap-2"
+                >
+                  <div className={`w-full aspect-[3/5] rounded-xl overflow-hidden flex flex-col transition-all duration-300 ${
+                    isActive
+                      ? 'ring-2 ring-primary ring-offset-2 ring-offset-background scale-105'
+                      : 'border border-border/30'
+                  }`}>
+                    {palette.shades(accentHue).map((shade, si) => (
+                      <div key={si} className="flex-1" style={{ backgroundColor: shade }} />
+                    ))}
+                  </div>
+                  <span className={`text-[10px] font-medium transition-colors ${
+                    isActive ? 'text-primary' : 'text-muted-foreground'
+                  }`}>
+                    {palette.name[language]}
+                  </span>
+                </motion.button>
+              );
+            })}
           </div>
         </motion.div>
 
