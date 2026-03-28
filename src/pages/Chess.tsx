@@ -364,6 +364,10 @@ export default function ChessPage() {
 
   const handleClick = useCallback((r: number, c: number) => {
     if (gameOver) return;
+    if (!gameStarted) {
+      setGameStarted(true);
+      setIsRunning(true);
+    }
     const piece = game.board[r][c];
     if (selected) {
       const [sr, sc] = selected;
@@ -619,7 +623,26 @@ export default function ChessPage() {
       </div>
 
       {/* Board */}
-      <div className="max-w-[340px] mx-auto px-4">
+      <div className="max-w-[340px] mx-auto px-4 relative">
+        {/* Start overlay */}
+        <AnimatePresence>
+          {!gameStarted && !gameOver && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 z-20 rounded-lg bg-card/90 backdrop-blur-sm flex items-center justify-center mx-4"
+              onClick={() => { setGameStarted(true); setIsRunning(true); }}
+            >
+              <div className="flex flex-col items-center gap-3">
+                <Play className="w-10 h-10 text-primary stroke-[1.5]" />
+                <span className="text-muted-foreground font-medium text-sm">
+                  {language === 'ar' ? 'اضغط للبدء' : 'Tap to start'}
+                </span>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
         <div className="rounded-lg overflow-hidden shadow-lg">
           <div className="grid grid-cols-8">
             {renderBoard()}
