@@ -1,17 +1,8 @@
 import React from 'react';
 import { useApp } from '@/contexts/AppContext';
-import { Sun, Moon, ChevronLeft, Contrast } from 'lucide-react';
+import { Sun, Moon, Monitor, ChevronLeft, Contrast } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-
-const COLOR_PRESETS = [
-  { name: 'Blue', hue: 220, sat: 70 },
-  { name: 'Teal', hue: 174, sat: 65 },
-  { name: 'Violet', hue: 262, sat: 65 },
-  { name: 'Rose', hue: 350, sat: 65 },
-  { name: 'Amber', hue: 38, sat: 80 },
-  { name: 'Green', hue: 152, sat: 55 },
-];
 
 type PaletteKey = 'rainbow' | 'expressive' | 'vibrant' | 'neutral' | 'tonal';
 
@@ -28,7 +19,7 @@ const PALETTE_STYLES: { key: PaletteKey; name: { ar: string; de: string }; shade
   },
   {
     key: 'expressive',
-    name: { ar: 'معبّر', de: 'Expressiv' },
+    name: { ar: 'معبّر', de: 'Expressive' },
     shades: (hue) => [
       `hsl(${(hue + 30) % 360}, 50%, 78%)`,
       `hsl(${hue}, 55%, 65%)`,
@@ -77,16 +68,38 @@ const item = {
   show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] as const } },
 };
 
+function ToggleSwitch({ value, onChange }: { value: boolean; onChange: () => void }) {
+  return (
+    <button
+      onClick={onChange}
+      className={`relative w-[50px] h-[28px] rounded-full transition-colors duration-300 shrink-0 ${value ? 'bg-primary' : 'bg-muted'}`}
+      dir="ltr"
+    >
+      <motion.div
+        className="absolute top-[4px] w-[20px] h-[20px] rounded-full bg-primary-foreground shadow-sm"
+        animate={{ left: value ? 26 : 4 }}
+        transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+      />
+    </button>
+  );
+}
+
 export default function ThemeSettingsPage() {
-  const { t, theme, setTheme, language, accentHue, setAccentHue, paletteStyle, setPaletteStyle, blackMode, setBlackMode } = useApp();
+  const { t, theme, setTheme, language, accentHue, paletteStyle, setPaletteStyle, blackMode, setBlackMode } = useApp();
   const navigate = useNavigate();
+
+  const themeOptions = [
+    { mode: 'dark' as const, icon: Moon, label: language === 'ar' ? 'داكن' : 'Dark' },
+    { mode: 'light' as const, icon: Sun, label: language === 'ar' ? 'فاتح' : 'Light' },
+    { mode: 'system' as const, icon: Monitor, label: language === 'ar' ? 'النظام' : 'System' },
+  ];
 
   return (
     <div className="min-h-screen bg-background pb-28 px-5 pt-6">
-      <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-5 max-w-lg mx-auto">
+      <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-4 max-w-lg mx-auto">
         {/* Header */}
-        <motion.div variants={item} className="flex items-center justify-between">
-          <h1 className="text-[24px] font-bold tracking-tight text-foreground">
+        <motion.div variants={item} className="flex items-center justify-between mb-2">
+          <h1 className="text-[22px] font-bold tracking-tight text-foreground">
             {t('settings.theme')}
           </h1>
           <button
@@ -97,53 +110,55 @@ export default function ThemeSettingsPage() {
           </button>
         </motion.div>
 
-        {/* Appearance */}
+        {/* Appearance Card */}
         <motion.div variants={item} className="premium-card-elevated p-5">
-          <h2 className="font-semibold text-[14px] text-muted-foreground text-center mb-4">
-            {t('settings.theme')}
+          <h2 className="font-semibold text-[14px] text-foreground text-center mb-5">
+            {language === 'ar' ? 'المظهر' : 'Appearance'}
           </h2>
-          <div className="flex justify-center gap-8">
-            {([
-              { mode: 'dark' as const, icon: Moon, label: t('settings.dark') },
-              { mode: 'light' as const, icon: Sun, label: t('settings.light') },
-            ]).map(({ mode, icon: Icon, label }) => (
-              <button
-                key={mode}
-                onClick={() => setTheme(mode)}
-                className="flex flex-col items-center gap-2.5"
-              >
-                <motion.div
-                  whileTap={{ scale: 0.92 }}
-                  className={`w-[64px] h-[64px] rounded-full flex items-center justify-center transition-all duration-300 ${
-                    theme === mode
-                      ? mode === 'dark'
-                        ? 'bg-foreground shadow-lg shadow-foreground/10'
-                        : 'bg-background shadow-lg ring-2 ring-primary/40'
-                      : 'bg-secondary'
-                  }`}
+          <div className="flex justify-center gap-6">
+            {themeOptions.map(({ mode, icon: Icon, label }) => {
+              const isActive = theme === mode;
+              return (
+                <button
+                  key={mode}
+                  onClick={() => setTheme(mode)}
+                  className="flex flex-col items-center gap-2.5"
                 >
-                  <Icon className={`w-7 h-7 transition-colors ${
-                    theme === mode
-                      ? mode === 'dark' ? 'text-background' : 'text-foreground'
-                      : 'text-muted-foreground'
-                  }`} />
-                </motion.div>
-                <span className={`text-[13px] font-medium transition-colors ${
-                  theme === mode ? 'text-primary' : 'text-muted-foreground'
-                }`}>
-                  {label}
-                </span>
-              </button>
-            ))}
+                  <motion.div
+                    whileTap={{ scale: 0.92 }}
+                    className={`w-[60px] h-[60px] rounded-full flex items-center justify-center transition-all duration-300 ${
+                      isActive
+                        ? mode === 'dark'
+                          ? 'bg-foreground shadow-lg'
+                          : mode === 'light'
+                            ? 'bg-card shadow-lg ring-2 ring-primary/30'
+                            : 'bg-secondary ring-2 ring-foreground/30'
+                        : 'bg-secondary'
+                    }`}
+                  >
+                    <Icon className={`w-6 h-6 transition-colors ${
+                      isActive
+                        ? mode === 'dark' ? 'text-background' : 'text-foreground'
+                        : 'text-muted-foreground'
+                    }`} />
+                  </motion.div>
+                  <span className={`text-[12px] font-medium transition-colors ${
+                    isActive ? 'text-foreground' : 'text-muted-foreground'
+                  }`}>
+                    {label}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </motion.div>
 
-        {/* Palette Style */}
+        {/* Palette Style Card */}
         <motion.div variants={item} className="premium-card-elevated p-5">
-          <h2 className="font-semibold text-[14px] text-muted-foreground text-center mb-4">
+          <h2 className="font-semibold text-[14px] text-foreground text-center mb-5">
             {language === 'ar' ? 'نمط الألوان' : 'Palette style'}
           </h2>
-          <div className="grid grid-cols-5 gap-2.5">
+          <div className="grid grid-cols-5 gap-3">
             {PALETTE_STYLES.map((palette) => {
               const isActive = paletteStyle === palette.key;
               return (
@@ -156,14 +171,14 @@ export default function ThemeSettingsPage() {
                   <div className={`w-full aspect-[3/5] rounded-xl overflow-hidden flex flex-col transition-all duration-300 ${
                     isActive
                       ? 'ring-2 ring-primary ring-offset-2 ring-offset-background scale-105'
-                      : 'border border-border/30'
+                      : 'border border-border/20'
                   }`}>
                     {palette.shades(accentHue).map((shade, si) => (
                       <div key={si} className="flex-1" style={{ backgroundColor: shade }} />
                     ))}
                   </div>
-                  <span className={`text-[10px] font-medium transition-colors ${
-                    isActive ? 'text-primary' : 'text-muted-foreground'
+                  <span className={`text-[10px] font-medium transition-colors leading-tight text-center ${
+                    isActive ? 'text-foreground' : 'text-muted-foreground'
                   }`}>
                     {palette.name[language]}
                   </span>
@@ -173,54 +188,22 @@ export default function ThemeSettingsPage() {
           </div>
         </motion.div>
 
-        {/* Accent Colors */}
-        <motion.div variants={item} className="premium-card-elevated p-5">
-          <h2 className="font-semibold text-[14px] text-muted-foreground text-center mb-4">
-            {t('settings.colors')}
-          </h2>
-          <div className="flex justify-center gap-4 flex-wrap">
-            {COLOR_PRESETS.map(preset => (
-              <motion.button
-                key={preset.name}
-                whileTap={{ scale: 0.85 }}
-                onClick={() => setAccentHue(preset.hue)}
-                className={`w-12 h-12 rounded-full transition-all duration-300 ${
-                  accentHue === preset.hue
-                    ? 'ring-[3px] ring-offset-[3px] ring-offset-background ring-foreground/20 scale-110'
-                    : 'hover:scale-105'
-                }`}
-                style={{ backgroundColor: `hsl(${preset.hue}, ${preset.sat}%, ${theme === 'dark' ? '58' : '50'}%)` }}
-              />
-            ))}
-          </div>
-        </motion.div>
-
-        {/* Black theme toggle */}
-        <motion.div variants={item} className="premium-card-elevated px-5 py-4">
+        {/* Toggle: Black Theme */}
+        <motion.div variants={item}>
           <button
             onClick={() => setBlackMode(!blackMode)}
-            className="flex items-center justify-between w-full active:scale-[0.99] transition-transform"
+            className="flex items-center w-full px-2 py-3 active:scale-[0.99] transition-transform gap-4"
           >
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-secondary flex items-center justify-center">
-                <Contrast className="w-5 h-5 text-muted-foreground" />
-              </div>
-              <div className="text-start">
-                <h2 className="font-semibold text-[14px] text-foreground">
-                  {language === 'ar' ? 'الوضع الأسود' : 'Black Theme'}
-                </h2>
-                <p className="text-[11px] text-muted-foreground mt-0.5">
-                  {language === 'ar' ? 'اجعل الوضع الداكن أكثر عمقاً' : 'Dunkles Theme noch dunkler'}
-                </p>
-              </div>
+            <ToggleSwitch value={blackMode} onChange={() => {}} />
+            <div className="flex-1 text-start">
+              <h3 className="font-semibold text-[14px] text-foreground">
+                {language === 'ar' ? 'الوضع الأسود' : 'Black theme'}
+              </h3>
+              <p className="text-[11px] text-muted-foreground mt-0.5">
+                {language === 'ar' ? 'اجعل الوضع الداكن أكثر عمقاً' : 'Make dark theme truly dark'}
+              </p>
             </div>
-            <div className={`relative w-[46px] h-[26px] rounded-full transition-colors duration-300 shrink-0 ${blackMode ? 'bg-primary' : 'bg-muted'}`} dir="ltr">
-              <motion.div
-                className="absolute top-[3px] w-[20px] h-[20px] rounded-full bg-primary-foreground shadow-sm"
-                animate={{ left: blackMode ? 23 : 3 }}
-                transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-              />
-            </div>
+            <Contrast className="w-5 h-5 text-muted-foreground shrink-0" />
           </button>
         </motion.div>
       </motion.div>

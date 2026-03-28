@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 type Language = 'ar' | 'de';
-type Theme = 'light' | 'dark';
+type Theme = 'light' | 'dark' | 'system';
 type PaletteStyle = 'tonal' | 'vibrant' | 'expressive' | 'neutral' | 'rainbow';
 
 interface AppContextType {
