@@ -15,6 +15,8 @@ interface AppContextType {
   setAccentHue: (hue: number) => void;
   paletteStyle: PaletteStyle;
   setPaletteStyle: (style: PaletteStyle) => void;
+  blackMode: boolean;
+  setBlackMode: (v: boolean) => void;
 }
 
 const translations: Record<string, Record<Language, string>> = {
