@@ -44,6 +44,7 @@ const translations: Record<string, Record<Language, string>> = {
   'nav.home': { ar: 'الرئيسية', de: 'Start' },
   'nav.games': { ar: 'الألعاب', de: 'Spiele' },
   'nav.settings': { ar: 'الإعدادات', de: 'Einstellungen' },
+  'nav.duas': { ar: 'الأدعية', de: 'Bittgebete' },
   'calendar.title': { ar: 'التقويم', de: 'Kalender' },
   'calendar.today': { ar: 'اليوم', de: 'Heute' },
   'calendar.hijri': { ar: 'هجري', de: 'Hijri' },
