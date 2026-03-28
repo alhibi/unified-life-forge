@@ -100,24 +100,30 @@ function createPuzzle(difficulty: Difficulty) {
 export default function SudokuPage() {
   const { t, dir, language } = useApp();
   const navigate = useNavigate();
-  const [difficulty, setDifficulty] = useState<Difficulty>('easy');
-  const [gameData, setGameData] = useState(() => createPuzzle('easy'));
-  const [board, setBoard] = useState<Board>(() => gameData.puzzle.map(r => [...r]));
+  
+  const savedGame = useMemo(() => loadGameState(), []);
+  
+  const [difficulty, setDifficulty] = useState<Difficulty>(savedGame?.difficulty || 'easy');
+  const [gameData, setGameData] = useState(() => savedGame?.gameData || createPuzzle('easy'));
+  const [board, setBoard] = useState<Board>(() => savedGame?.board || gameData.puzzle.map(r => [...r]));
   const [selected, setSelected] = useState<[number, number] | null>(null);
-  const [errors, setErrors] = useState<Set<string>>(new Set());
-  const [solved, setSolved] = useState(false);
-  const [timer, setTimer] = useState(0);
+  const [errors, setErrors] = useState<Set<string>>(() => new Set(savedGame?.errors || []));
+  const [solved, setSolved] = useState(savedGame?.solved || false);
+  const [timer, setTimer] = useState(savedGame?.timer || 0);
   const [isRunning, setIsRunning] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
-  const [gameStarted, setGameStarted] = useState(false);
-  const [notes, setNotes] = useState<Set<string>[][]>(() =>
-    Array.from({ length: 9 }, () => Array.from({ length: 9 }, () => new Set<string>()))
-  );
+  const [gameStarted, setGameStarted] = useState(savedGame?.gameStarted || false);
+  const [notes, setNotes] = useState<Set<string>[][]>(() => {
+    if (savedGame?.notes) {
+      return savedGame.notes.map(row => row.map(cell => new Set(cell)));
+    }
+    return Array.from({ length: 9 }, () => Array.from({ length: 9 }, () => new Set<string>()));
+  });
   const [noteMode, setNoteMode] = useState(false);
   const [stats, setStats] = useState<SudokuStats>(loadStats);
   const [showStats, setShowStats] = useState(false);
   const [history, setHistory] = useState<{ board: Board; errors: Set<string> }[]>([]);
-  const [hintsUsed, setHintsUsed] = useState(0);
+  const [hintsUsed, setHintsUsed] = useState(savedGame?.hintsUsed || 0);
   const [selectedNumber, setSelectedNumber] = useState<number | null>(null);
   const maxHints = difficulty === 'easy' ? 5 : difficulty === 'medium' ? 3 : 1;
 
