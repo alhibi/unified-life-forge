@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Clock, MapPin, Bell } from 'lucide-react';
+import { useApp } from '@/contexts/AppContext';
+import { Clock, MapPin, Bell } from 'lucide-react';
 
 interface PrayerTime {
   name: string;
@@ -55,11 +57,15 @@ function getNextPrayer(prayers: PrayerTime[]): { prayer: PrayerTime | null; rema
 }
 
 export default function PrayerTimes() {
+  const { prayerMadhab } = useApp();
   const [prayers, setPrayers] = useState<PrayerTime[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [nextPrayer, setNextPrayer] = useState<{ prayer: PrayerTime | null; remaining: string }>({ prayer: null, remaining: '' });
   const [activePrayer, setActivePrayer] = useState<string | null>(null);
+
+  // Map madhab to Aladhan school param: 0=Shafii/Hanbali/Maliki, 1=Hanafi
+  const schoolParam = prayerMadhab === 'hanafi' ? 1 : 0;
 
   const fetchPrayers = useCallback(async (lat: number, lng: number) => {
     try {
@@ -68,7 +74,7 @@ export default function PrayerTimes() {
       const mm = today.getMonth() + 1;
       const yyyy = today.getFullYear();
       const res = await fetch(
-        `https://api.aladhan.com/v1/timings/${dd}-${mm}-${yyyy}?latitude=${lat}&longitude=${lng}&method=4`
+        `https://api.aladhan.com/v1/timings/${dd}-${mm}-${yyyy}?latitude=${lat}&longitude=${lng}&method=4&school=${schoolParam}`
       );
       const data = await res.json();
       if (data.code === 200) {
@@ -87,7 +93,7 @@ export default function PrayerTimes() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [schoolParam]);
 
   useEffect(() => {
     if (navigator.geolocation) {
