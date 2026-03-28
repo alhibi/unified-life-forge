@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, RefreshCw, Lightbulb, Clock, Eraser, PenLine, Trophy, Undo2 } from 'lucide-react';
+import { ArrowLeft, RefreshCw, Lightbulb, Clock, Eraser, PenLine, Trophy, Undo2, Pause, Play } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 type Board = (number | null)[][];
@@ -11,15 +11,22 @@ interface SudokuStats {
   gamesPlayed: number;
   gamesWon: number;
   bestTime: Record<Difficulty, number | null>;
+  averageTime: Record<Difficulty, { total: number; count: number }>;
   currentStreak: number;
   bestStreak: number;
 }
 
 function loadStats(): SudokuStats {
   const saved = localStorage.getItem('sudoku-stats');
-  return saved ? JSON.parse(saved) : {
+  if (saved) {
+    const s = JSON.parse(saved);
+    if (!s.averageTime) s.averageTime = { easy: { total: 0, count: 0 }, medium: { total: 0, count: 0 }, hard: { total: 0, count: 0 } };
+    return s;
+  }
+  return {
     gamesPlayed: 0, gamesWon: 0,
     bestTime: { easy: null, medium: null, hard: null },
+    averageTime: { easy: { total: 0, count: 0 }, medium: { total: 0, count: 0 }, hard: { total: 0, count: 0 } },
     currentStreak: 0, bestStreak: 0,
   };
 }
@@ -75,6 +82,7 @@ export default function SudokuPage() {
   const [solved, setSolved] = useState(false);
   const [timer, setTimer] = useState(0);
   const [isRunning, setIsRunning] = useState(true);
+  const [isPaused, setIsPaused] = useState(false);
   const [notes, setNotes] = useState<Set<string>[][]>(() =>
     Array.from({ length: 9 }, () => Array.from({ length: 9 }, () => new Set<string>()))
   );
@@ -83,6 +91,7 @@ export default function SudokuPage() {
   const [showStats, setShowStats] = useState(false);
   const [history, setHistory] = useState<{ board: Board; errors: Set<string> }[]>([]);
   const [hintsUsed, setHintsUsed] = useState(0);
+  const [selectedNumber, setSelectedNumber] = useState<number | null>(null);
   const maxHints = difficulty === 'easy' ? 5 : difficulty === 'medium' ? 3 : 1;
 
   const original = useMemo(() => {
@@ -92,10 +101,10 @@ export default function SudokuPage() {
   }, [gameData]);
 
   useEffect(() => {
-    if (!isRunning || solved) return;
+    if (!isRunning || solved || isPaused) return;
     const iv = setInterval(() => setTimer(t => t + 1), 1000);
     return () => clearInterval(iv);
-  }, [isRunning, solved]);
+  }, [isRunning, solved, isPaused]);
 
   const recordWin = (time: number, diff: Difficulty) => {
     const s = { ...stats };
@@ -104,6 +113,8 @@ export default function SudokuPage() {
     s.currentStreak++;
     if (s.currentStreak > s.bestStreak) s.bestStreak = s.currentStreak;
     if (s.bestTime[diff] === null || time < s.bestTime[diff]!) s.bestTime[diff] = time;
+    s.averageTime[diff].total += time;
+    s.averageTime[diff].count++;
     setStats(s);
     saveStats(s);
   };
@@ -113,31 +124,57 @@ export default function SudokuPage() {
     const data = createPuzzle(diff);
     setGameData(data);
     setBoard(data.puzzle.map(r => [...r]));
-    setSelected(null); setErrors(new Set()); setSolved(false); setTimer(0); setIsRunning(true);
+    setSelected(null); setErrors(new Set()); setSolved(false); setTimer(0); setIsRunning(true); setIsPaused(false);
     setNotes(Array.from({ length: 9 }, () => Array.from({ length: 9 }, () => new Set<string>())));
-    setNoteMode(false); setHistory([]); setHintsUsed(0);
+    setNoteMode(false); setHistory([]); setHintsUsed(0); setSelectedNumber(null);
   };
 
-  const handleCellClick = (r: number, c: number) => { if (!original.has(`${r}-${c}`)) setSelected([r, c]); else setSelected([r, c]); };
+  const togglePause = () => {
+    setIsPaused(!isPaused);
+  };
+
+  const handleCellClick = (r: number, c: number) => {
+    if (isPaused || solved) return;
+    setSelected([r, c]);
+    // If a number is already in this cell, highlight that number
+    if (board[r][c] !== null) {
+      setSelectedNumber(board[r][c]);
+    }
+  };
 
   const handleNumberInput = useCallback((num: number) => {
-    if (!selected || solved) return;
+    if (solved || isPaused) return;
+
+    // Toggle selected number for highlighting
+    if (selectedNumber === num) {
+      setSelectedNumber(null);
+    } else {
+      setSelectedNumber(num);
+    }
+
+    if (!selected) return;
     const [r, c] = selected;
     if (original.has(`${r}-${c}`)) return;
+
     if (noteMode) {
       const nn = notes.map(row => row.map(s => new Set(s)));
       const k = num.toString();
       if (nn[r][c].has(k)) nn[r][c].delete(k); else nn[r][c].add(k);
       setNotes(nn); return;
     }
-    // Save history for undo
+
     setHistory(prev => [...prev, { board: board.map(row => [...row]), errors: new Set(errors) }]);
     const nb = board.map(row => [...row]);
     nb[r][c] = num;
     setBoard(nb);
-    // Clear notes for this cell
+
+    // Auto-clear notes in same row, col, box
     const nn = notes.map(row => row.map(s => new Set(s)));
     nn[r][c].clear();
+    const k = num.toString();
+    for (let i = 0; i < 9; i++) { nn[r][i].delete(k); nn[i][c].delete(k); }
+    const br = Math.floor(r / 3) * 3, bc = Math.floor(c / 3) * 3;
+    for (let i = br; i < br + 3; i++) for (let j = bc; j < bc + 3; j++) nn[i][j].delete(k);
     setNotes(nn);
 
     const ne = new Set<string>();
@@ -148,29 +185,30 @@ export default function SudokuPage() {
       setSolved(true); setIsRunning(false);
       recordWin(timer, difficulty);
     }
-  }, [selected, solved, original, noteMode, notes, board, errors, gameData, timer, difficulty, stats]);
+  }, [selected, solved, isPaused, original, noteMode, notes, board, errors, gameData, timer, difficulty, stats, selectedNumber]);
 
   const handleErase = () => {
-    if (!selected) return;
+    if (!selected || isPaused) return;
     const [r, c] = selected;
     if (original.has(`${r}-${c}`)) return;
     setHistory(prev => [...prev, { board: board.map(row => [...row]), errors: new Set(errors) }]);
     const nb = board.map(row => [...row]); nb[r][c] = null; setBoard(nb);
-    errors.delete(`${r}-${c}`); setErrors(new Set(errors));
+    const ne = new Set(errors); ne.delete(`${r}-${c}`); setErrors(ne);
+    // Also clear notes
+    const nn = notes.map(row => row.map(s => new Set(s)));
+    nn[r][c].clear();
+    setNotes(nn);
   };
 
   const handleHint = () => {
-    if (!selected || hintsUsed >= maxHints) return;
+    if (!selected || hintsUsed >= maxHints || isPaused) return;
     const [r, c] = selected;
     if (original.has(`${r}-${c}`)) return;
+    if (board[r][c] === gameData.solution[r][c]) return;
     setHistory(prev => [...prev, { board: board.map(row => [...row]), errors: new Set(errors) }]);
     const nb = board.map(row => [...row]); nb[r][c] = gameData.solution[r][c]; setBoard(nb);
-    errors.delete(`${r}-${c}`); setErrors(new Set(errors));
+    const ne = new Set(errors); ne.delete(`${r}-${c}`); setErrors(ne);
     setHintsUsed(h => h + 1);
-    // Check win
-    const ne = new Set<string>();
-    for (let i = 0; i < 9; i++) for (let j = 0; j < 9; j++)
-      if (nb[i][j] !== null && nb[i][j] !== gameData.solution[i][j]) ne.add(`${i}-${j}`);
     if (ne.size === 0 && nb.every(row => row.every(cell => cell !== null))) {
       setSolved(true); setIsRunning(false);
       recordWin(timer, difficulty);
@@ -178,7 +216,7 @@ export default function SudokuPage() {
   };
 
   const handleUndo = () => {
-    if (history.length === 0) return;
+    if (history.length === 0 || isPaused) return;
     const prev = history[history.length - 1];
     setBoard(prev.board);
     setErrors(prev.errors);
@@ -188,12 +226,16 @@ export default function SudokuPage() {
   const formatTimer = (s: number) => `${Math.floor(s / 60).toString().padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`;
 
   const getHighlight = (r: number, c: number) => {
-    if (!selected) return '';
+    if (!selected) {
+      // Highlight matching numbers when a number is selected from pad
+      if (selectedNumber !== null && board[r][c] === selectedNumber) return 'bg-primary/12';
+      return '';
+    }
     const [sr, sc] = selected;
-    if (r === sr && c === sc) return 'ring-2 ring-primary bg-primary/15';
-    if (r === sr || c === sc) return 'bg-primary/5';
-    if (Math.floor(r / 3) === Math.floor(sr / 3) && Math.floor(c / 3) === Math.floor(sc / 3)) return 'bg-primary/5';
-    if (board[r][c] !== null && board[sr][sc] !== null && board[r][c] === board[sr][sc]) return 'bg-primary/8';
+    if (r === sr && c === sc) return 'bg-primary/20 ring-2 ring-inset ring-primary/50';
+    if (r === sr || c === sc) return 'bg-primary/6';
+    if (Math.floor(r / 3) === Math.floor(sr / 3) && Math.floor(c / 3) === Math.floor(sc / 3)) return 'bg-primary/6';
+    if (board[r][c] !== null && board[sr][sc] !== null && board[r][c] === board[sr][sc]) return 'bg-primary/10';
     return '';
   };
 
@@ -203,27 +245,52 @@ export default function SudokuPage() {
     for (let n = 1; n <= 9; n++) {
       let count = 0;
       for (let r = 0; r < 9; r++) for (let c = 0; c < 9; c++) if (board[r][c] === n) count++;
-      counts[n] = count;
+      counts[n] = 9 - count; // remaining
     }
     return counts;
   }, [board]);
 
   const winRate = stats.gamesPlayed > 0 ? Math.round((stats.gamesWon / stats.gamesPlayed) * 100) : 0;
+  const diffLabels: Record<Difficulty, string> = {
+    easy: t('sudoku.easy'),
+    medium: t('sudoku.medium'),
+    hard: t('sudoku.hard'),
+  };
 
   return (
     <div className="min-h-screen bg-background pb-28 px-4 pt-6">
-      {/* Header */}
-      <div className="flex items-center gap-3 mb-4 max-w-sm mx-auto">
-        <button onClick={() => navigate('/games')} className="w-10 h-10 rounded-2xl bg-secondary flex items-center justify-center active:scale-90 transition-transform">
-          <ArrowLeft className={`w-4.5 h-4.5 text-foreground stroke-[1.8] ${dir === 'rtl' ? 'rotate-180' : ''}`} />
+      {/* Header — LibreSudoku style */}
+      <div className="flex items-center justify-between mb-1 max-w-[360px] mx-auto">
+        <button onClick={() => navigate('/games')} className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-secondary transition-colors active:scale-90">
+          <ArrowLeft className={`w-5 h-5 text-foreground stroke-[1.8] ${dir === 'rtl' ? 'rotate-180' : ''}`} />
         </button>
-        <h1 className="text-xl font-bold text-foreground flex-1">{t('games.sudoku')}</h1>
-        <button onClick={() => setShowStats(!showStats)} className="w-10 h-10 rounded-2xl bg-secondary flex items-center justify-center">
-          <Trophy className={`w-4.5 h-4.5 stroke-[1.8] ${showStats ? 'text-primary' : 'text-muted-foreground'}`} />
-        </button>
-        <div className="flex items-center gap-1.5 text-sm text-muted-foreground bg-secondary px-3 py-2 rounded-2xl tabular-nums">
-          <Clock className="w-3.5 h-3.5 stroke-[1.8]" />{formatTimer(timer)}
+        <div className="flex items-center gap-2">
+          <button onClick={togglePause} className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-secondary transition-colors">
+            {isPaused ? <Play className="w-5 h-5 text-foreground stroke-[1.8]" /> : <Pause className="w-5 h-5 text-foreground stroke-[1.8]" />}
+          </button>
+          <button onClick={() => newGame(difficulty)} className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-secondary transition-colors">
+            <RefreshCw className="w-5 h-5 text-foreground stroke-[1.8]" />
+          </button>
+          <button onClick={() => setShowStats(!showStats)} className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-secondary transition-colors">
+            <Trophy className={`w-5 h-5 stroke-[1.8] ${showStats ? 'text-primary' : 'text-foreground'}`} />
+          </button>
         </div>
+      </div>
+
+      {/* Difficulty & Timer row */}
+      <div className="flex items-center justify-between max-w-[360px] mx-auto mb-3 px-1">
+        <div className="flex gap-1.5">
+          {(['easy', 'medium', 'hard'] as Difficulty[]).map(d => (
+            <button key={d} onClick={() => newGame(d)}
+              className={`px-3 py-1 rounded-full text-[11px] font-semibold transition-all ${
+                difficulty === d
+                  ? 'bg-primary/15 text-primary'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >{diffLabels[d]}</button>
+          ))}
+        </div>
+        <span className="text-sm text-muted-foreground tabular-nums font-medium">{formatTimer(timer)}</span>
       </div>
 
       {/* Stats Panel */}
@@ -233,82 +300,113 @@ export default function SudokuPage() {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="overflow-hidden max-w-sm mx-auto mb-4"
+            className="overflow-hidden max-w-[360px] mx-auto mb-3"
           >
-            <div className="premium-card-elevated p-4">
-              <h3 className="font-semibold text-sm text-foreground mb-3 flex items-center gap-2">
-                <Trophy className="w-4 h-4 text-primary stroke-[1.8]" />{t('stats.title')}
-              </h3>
-              <div className="grid grid-cols-3 gap-2.5">
-                <div className="text-center p-2.5 rounded-xl bg-secondary/60">
-                  <div className="text-xl font-bold text-foreground">{stats.gamesWon}</div>
-                  <div className="text-[10px] text-muted-foreground mt-0.5">{t('stats.wins')}</div>
+            <div className="rounded-2xl bg-secondary/50 p-4 space-y-3">
+              <div className="grid grid-cols-3 gap-2">
+                <div className="text-center p-2 rounded-xl bg-background/60">
+                  <div className="text-lg font-bold text-foreground">{stats.gamesWon}</div>
+                  <div className="text-[10px] text-muted-foreground">{t('stats.wins')}</div>
                 </div>
-                <div className="text-center p-2.5 rounded-xl bg-secondary/60">
-                  <div className="text-xl font-bold text-foreground">{winRate}%</div>
-                  <div className="text-[10px] text-muted-foreground mt-0.5">{t('stats.winRate')}</div>
+                <div className="text-center p-2 rounded-xl bg-background/60">
+                  <div className="text-lg font-bold text-foreground">{winRate}%</div>
+                  <div className="text-[10px] text-muted-foreground">{t('stats.winRate')}</div>
                 </div>
-                <div className="text-center p-2.5 rounded-xl bg-secondary/60">
-                  <div className="text-xl font-bold text-primary">{stats.bestStreak}</div>
-                  <div className="text-[10px] text-muted-foreground mt-0.5">{t('stats.streak')}</div>
+                <div className="text-center p-2 rounded-xl bg-background/60">
+                  <div className="text-lg font-bold text-primary">{stats.bestStreak}</div>
+                  <div className="text-[10px] text-muted-foreground">{t('stats.streak')}</div>
                 </div>
               </div>
-              <div className="mt-3 space-y-1.5">
-                {(['easy', 'medium', 'hard'] as Difficulty[]).map(d => (
-                  <div key={d} className="flex items-center justify-between px-3 py-2 rounded-xl bg-secondary/40 text-xs">
-                    <span className="text-muted-foreground">{t(`sudoku.${d}`)} {t('stats.best')}</span>
-                    <span className="font-semibold text-foreground tabular-nums">
-                      {stats.bestTime[d] !== null ? formatTimer(stats.bestTime[d]!) : '—'}
-                    </span>
-                  </div>
-                ))}
+              <div className="space-y-1">
+                {(['easy', 'medium', 'hard'] as Difficulty[]).map(d => {
+                  const avg = stats.averageTime[d]?.count > 0 ? Math.round(stats.averageTime[d].total / stats.averageTime[d].count) : null;
+                  return (
+                    <div key={d} className="flex items-center justify-between px-2.5 py-1.5 rounded-lg text-[11px]">
+                      <span className="text-muted-foreground font-medium">{diffLabels[d]}</span>
+                      <div className="flex gap-4">
+                        <span className="text-foreground tabular-nums">
+                          {language === 'ar' ? 'أفضل' : 'Best'}: {stats.bestTime[d] !== null ? formatTimer(stats.bestTime[d]!) : '—'}
+                        </span>
+                        <span className="text-muted-foreground tabular-nums">
+                          {language === 'ar' ? 'متوسط' : 'Avg'}: {avg !== null ? formatTimer(avg) : '—'}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Difficulty */}
-      <div className="flex gap-2 mb-4 justify-center">
-        {(['easy', 'medium', 'hard'] as Difficulty[]).map(d => (
-          <button key={d} onClick={() => newGame(d)}
-            className={`px-4 py-2 rounded-2xl text-xs font-semibold transition-all ${
-              difficulty === d ? 'bg-primary text-primary-foreground shadow-sm' : 'bg-secondary text-secondary-foreground'
-            }`}
-          >{t(`sudoku.${d}`)}</button>
-        ))}
-      </div>
-
+      {/* Win banner */}
       {solved && (
         <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
-          className="text-center py-3 mb-3 rounded-2xl bg-primary/10 text-primary font-bold max-w-sm mx-auto flex items-center justify-center gap-2">
-          <Trophy className="w-5 h-5 stroke-[1.8]" />
-          {t('sudoku.solved')} — {formatTimer(timer)}
+          className="text-center py-3 mb-3 rounded-2xl bg-primary/12 max-w-[360px] mx-auto flex items-center justify-center gap-2">
+          <Trophy className="w-5 h-5 text-primary stroke-[1.8]" />
+          <span className="text-primary font-bold">{t('sudoku.solved')}</span>
+          <span className="text-primary/70 text-sm font-medium">{formatTimer(timer)}</span>
         </motion.div>
       )}
 
-      {/* Board */}
-      <div className="max-w-[340px] mx-auto mb-4">
-        <div className="premium-card-intense p-2">
+      {/* Board — LibreSudoku style */}
+      <div className="max-w-[360px] mx-auto mb-4 relative">
+        {/* Pause overlay */}
+        <AnimatePresence>
+          {isPaused && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 z-20 rounded-2xl bg-card/95 backdrop-blur-sm flex items-center justify-center"
+              onClick={togglePause}
+            >
+              <div className="flex flex-col items-center gap-3">
+                <Play className="w-10 h-10 text-primary stroke-[1.5]" />
+                <span className="text-muted-foreground font-medium text-sm">
+                  {language === 'ar' ? 'اضغط للمتابعة' : 'Tap to continue'}
+                </span>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <div className="rounded-2xl overflow-hidden border border-border/40">
           <div className="grid grid-cols-9">
             {board.map((row, ri) => row.map((cell, ci) => {
               const isOrig = original.has(`${ri}-${ci}`);
               const hasError = errors.has(`${ri}-${ci}`);
               const cellNotes = notes[ri][ci];
+              const isSelected = selected?.[0] === ri && selected?.[1] === ci;
+              // Thick borders for 3x3 boxes
+              const borderR = ci % 3 === 2 && ci !== 8 ? 'border-e-[2px] border-e-foreground/15' : 'border-e border-e-border/30';
+              const borderB = ri % 3 === 2 && ri !== 8 ? 'border-b-[2px] border-b-foreground/15' : 'border-b border-b-border/30';
+
               return (
                 <button key={`${ri}-${ci}`} onClick={() => handleCellClick(ri, ci)}
-                  className={`aspect-square flex items-center justify-center text-[14px] font-semibold relative transition-colors
-                    ${ci % 3 === 2 && ci !== 8 ? 'border-e-2 border-e-primary/20' : 'border-e border-e-border/50'}
-                    ${ri % 3 === 2 && ri !== 8 ? 'border-b-2 border-b-primary/20' : 'border-b border-b-border/50'}
-                    ${isOrig ? 'text-foreground font-bold' : hasError ? 'text-destructive' : 'text-primary'}
+                  className={`aspect-square flex items-center justify-center relative transition-colors duration-100
+                    ${borderR} ${borderB}
                     ${getHighlight(ri, ci)}
-                    ${!isOrig && !solved ? 'cursor-pointer' : ''}
+                    ${!solved && !isPaused ? 'cursor-pointer active:bg-primary/15' : ''}
                   `}
                 >
-                  {cell !== null ? cell : cellNotes.size > 0 ? (
-                    <div className="grid grid-cols-3 gap-0 text-[5px] text-muted-foreground leading-none w-full h-full p-0.5">
+                  {cell !== null ? (
+                    <span className={`text-[15px] font-semibold select-none ${
+                      isOrig
+                        ? 'text-foreground'
+                        : hasError
+                          ? 'text-destructive'
+                          : 'text-primary'
+                    }`}>
+                      {cell}
+                    </span>
+                  ) : cellNotes.size > 0 ? (
+                    <div className="grid grid-cols-3 gap-0 text-[6px] text-muted-foreground/70 leading-none w-full h-full p-[2px]">
                       {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => (
-                        <span key={n} className="flex items-center justify-center">{cellNotes.has(n.toString()) ? n : ''}</span>
+                        <span key={n} className="flex items-center justify-center font-medium">
+                          {cellNotes.has(n.toString()) ? n : ''}
+                        </span>
                       ))}
                     </div>
                   ) : null}
@@ -319,45 +417,65 @@ export default function SudokuPage() {
         </div>
       </div>
 
-      {/* Number pad */}
-      <div className="max-w-[340px] mx-auto space-y-3">
-        <div className="grid grid-cols-9 gap-1.5">
+      {/* Number pad — LibreSudoku style: numbers with remaining count below */}
+      <div className="max-w-[360px] mx-auto space-y-3">
+        <div className="grid grid-cols-9 gap-1">
           {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => {
-            const isComplete = numberCounts[n] >= 9;
+            const remaining = numberCounts[n];
+            const isComplete = remaining <= 0;
+            const isActive = selectedNumber === n;
             return (
               <button key={n} onClick={() => handleNumberInput(n)} disabled={isComplete}
-                className={`aspect-square rounded-xl font-bold text-base transition-all active:scale-90 ${
+                className={`flex flex-col items-center justify-center py-2 rounded-2xl transition-all active:scale-90 ${
                   isComplete
-                    ? 'bg-secondary/40 text-muted-foreground/30 cursor-not-allowed'
-                    : 'bg-secondary text-secondary-foreground hover:bg-primary hover:text-primary-foreground'
+                    ? 'opacity-20 cursor-not-allowed'
+                    : isActive
+                      ? 'bg-primary/20 text-primary'
+                      : 'text-foreground hover:bg-secondary'
                 }`}>
-                {n}
+                <span className="text-[18px] font-bold leading-none">{n}</span>
+                <span className={`text-[9px] mt-0.5 leading-none font-medium ${
+                  isComplete ? 'text-muted-foreground/30' : 'text-muted-foreground/60'
+                }`}>
+                  {remaining}
+                </span>
               </button>
             );
           })}
         </div>
-        <div className="flex gap-2 justify-center flex-wrap">
+
+        {/* Tool buttons — LibreSudoku style: icon-only row */}
+        <div className="flex justify-center gap-3">
           <button onClick={handleUndo} disabled={history.length === 0}
-            className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-secondary text-secondary-foreground text-sm font-medium disabled:opacity-30 active:scale-95 transition-all">
-            <Undo2 className="w-4 h-4 stroke-[1.8]" />
+            className="w-12 h-12 rounded-full flex items-center justify-center hover:bg-secondary transition-colors disabled:opacity-20 active:scale-90"
+            title={language === 'ar' ? 'تراجع' : 'Undo'}
+          >
+            <Undo2 className="w-5 h-5 text-foreground stroke-[1.8]" />
           </button>
-          <button onClick={handleErase} className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-secondary text-secondary-foreground text-sm font-medium active:scale-95 transition-all">
-            <Eraser className="w-4 h-4 stroke-[1.8]" />
+          <button onClick={handleHint} disabled={hintsUsed >= maxHints}
+            className="relative w-12 h-12 rounded-full flex items-center justify-center hover:bg-secondary transition-colors disabled:opacity-20 active:scale-90"
+            title={language === 'ar' ? 'تلميح' : 'Hint'}
+          >
+            <Lightbulb className="w-5 h-5 text-foreground stroke-[1.8]" />
+            {hintsUsed < maxHints && (
+              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-primary/15 text-primary text-[8px] font-bold flex items-center justify-center">
+                {maxHints - hintsUsed}
+              </span>
+            )}
           </button>
           <button onClick={() => setNoteMode(!noteMode)}
-            className={`flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all active:scale-95 ${
-              noteMode ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'
+            className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors active:scale-90 ${
+              noteMode ? 'bg-primary/15 text-primary' : 'hover:bg-secondary text-foreground'
             }`}
-          ><PenLine className="w-4 h-4 stroke-[1.8]" />{language === 'ar' ? 'ملاحظات' : 'Notes'}</button>
-          <button onClick={handleHint} disabled={hintsUsed >= maxHints}
-            className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-secondary text-secondary-foreground text-sm font-medium disabled:opacity-30 active:scale-95 transition-all">
-            <Lightbulb className="w-4 h-4 stroke-[1.8]" />
-            <span className="text-[10px] text-muted-foreground">{maxHints - hintsUsed}</span>
+            title={language === 'ar' ? 'ملاحظات' : 'Notes'}
+          >
+            <PenLine className="w-5 h-5 stroke-[1.8]" />
           </button>
-        </div>
-        <div className="flex justify-center">
-          <button onClick={() => newGame(difficulty)} className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-medium active:scale-95 transition-transform">
-            <RefreshCw className="w-4 h-4 stroke-[1.8]" />{t('sudoku.new')}
+          <button onClick={handleErase}
+            className="w-12 h-12 rounded-full flex items-center justify-center hover:bg-secondary transition-colors active:scale-90"
+            title={language === 'ar' ? 'مسح' : 'Erase'}
+          >
+            <Eraser className="w-5 h-5 text-foreground stroke-[1.8]" />
           </button>
         </div>
       </div>
