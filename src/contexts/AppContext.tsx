@@ -190,11 +190,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     document.documentElement.classList.toggle('dark', theme === 'dark');
     document.documentElement.dir = dir;
     document.documentElement.lang = language;
-    applyAccentHue(accentHue, theme === 'dark');
-  }, [theme, dir, language, accentHue]);
+    applyAccentHue(accentHue, theme === 'dark', paletteStyle);
+  }, [theme, dir, language, accentHue, paletteStyle]);
 
   return (
-    <AppContext.Provider value={{ language, setLanguage, theme, setTheme, t, dir, accentHue, setAccentHue }}>
+    <AppContext.Provider value={{ language, setLanguage, theme, setTheme, t, dir, accentHue, setAccentHue, paletteStyle, setPaletteStyle }}>
       {children}
     </AppContext.Provider>
   );
