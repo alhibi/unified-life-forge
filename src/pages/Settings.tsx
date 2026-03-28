@@ -1,7 +1,7 @@
 import React from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { useAuth } from '@/hooks/useAuth';
-import { Languages, Palette, ChevronLeft, Settings as SettingsIcon, UserCircle, LogOut, Type, Moon } from 'lucide-react';
+import { Languages, Palette, ChevronLeft, Settings as SettingsIcon, UserCircle, LogOut, Type, BookOpen } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -80,7 +80,7 @@ export default function SettingsPage() {
     },
     {
       key: 'prayer',
-      icon: Moon,
+      icon: BookOpen,
       iconColor: 'text-teal-600 dark:text-teal-400',
       iconBg: 'bg-teal-500/12 dark:bg-teal-400/15',
       title: isAr ? 'المذهب الفقهي' : 'Gebetsschule',
