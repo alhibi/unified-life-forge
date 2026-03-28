@@ -442,6 +442,7 @@ export default function ChessPage() {
   };
 
   const resetGame = () => {
+    clearChessGame();
     setGame(initGameState());
     setSelected(null);
     setLegalMoves([]);
