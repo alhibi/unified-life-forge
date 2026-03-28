@@ -7,6 +7,7 @@ type Theme = 'light' | 'dark' | 'system';
 type PaletteStyle = 'tonal' | 'vibrant' | 'expressive' | 'neutral' | 'rainbow';
 
 type PrayerMadhab = 'shafii' | 'hanafi' | 'hanbali' | 'maliki';
+type LatitudeAdjMethod = 'middle' | 'seventh' | 'angle';
 
 interface AppContextType {
   language: Language;
@@ -27,6 +28,12 @@ interface AppContextType {
   setFontSize: (s: string) => void;
   prayerMadhab: PrayerMadhab;
   setPrayerMadhab: (m: PrayerMadhab) => void;
+  midnightMode: number;
+  setMidnightMode: (m: number) => void;
+  latitudeAdjMethod: LatitudeAdjMethod;
+  setLatitudeAdjMethod: (m: LatitudeAdjMethod) => void;
+  dstEnabled: boolean;
+  setDstEnabled: (v: boolean) => void;
 }
 
 const translations: Record<string, Record<Language, string>> = {
@@ -180,6 +187,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
   );
   const [prayerMadhab, setPrayerMadhabState] = useState<PrayerMadhab>(() =>
     (localStorage.getItem('app-prayer-madhab') as PrayerMadhab) || 'shafii'
+  );
+  const [midnightMode, setMidnightModeState] = useState<number>(() =>
+    parseInt(localStorage.getItem('app-midnight-mode') || '0', 10)
+  );
+  const [latitudeAdjMethod, setLatitudeAdjMethodState] = useState<LatitudeAdjMethod>(() =>
+    (localStorage.getItem('app-lat-adj-method') as LatitudeAdjMethod) || 'angle'
+  );
+  const [dstEnabled, setDstEnabledState] = useState<boolean>(() =>
+    localStorage.getItem('app-dst-enabled') !== 'false'
   );
 
   const [authUser, setAuthUser] = useState<User | null>(null);
