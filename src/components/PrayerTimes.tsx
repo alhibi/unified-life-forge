@@ -55,7 +55,7 @@ function getNextPrayer(prayers: PrayerTime[]): { prayer: PrayerTime | null; rema
 }
 
 export default function PrayerTimes() {
-  const { prayerMadhab } = useApp();
+  const { prayerMadhab, midnightMode, latitudeAdjMethod, dstEnabled } = useApp();
   const [prayers, setPrayers] = useState<PrayerTime[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -64,6 +64,9 @@ export default function PrayerTimes() {
 
   // Map madhab to Aladhan school param: 0=Shafii/Hanbali/Maliki, 1=Hanafi
   const schoolParam = prayerMadhab === 'hanafi' ? 1 : 0;
+  // Latitude adjustment: 1=middle of night, 2=one seventh, 3=angle based
+  const latAdjMap: Record<string, number> = { middle: 1, seventh: 2, angle: 3 };
+  const latAdjParam = latAdjMap[latitudeAdjMethod] || 3;
 
   const fetchPrayers = useCallback(async (lat: number, lng: number) => {
     try {
@@ -71,8 +74,9 @@ export default function PrayerTimes() {
       const dd = today.getDate();
       const mm = today.getMonth() + 1;
       const yyyy = today.getFullYear();
+      const dstParam = dstEnabled ? 'auto' : '0';
       const res = await fetch(
-        `https://api.aladhan.com/v1/timings/${dd}-${mm}-${yyyy}?latitude=${lat}&longitude=${lng}&method=4&school=${schoolParam}`
+        `https://api.aladhan.com/v1/timings/${dd}-${mm}-${yyyy}?latitude=${lat}&longitude=${lng}&method=4&school=${schoolParam}&midnightMode=${midnightMode}&latitudeAdjustmentMethod=${latAdjParam}&adjustment=${dstParam === '0' ? '0' : ''}`
       );
       const data = await res.json();
       if (data.code === 200) {
@@ -91,7 +95,7 @@ export default function PrayerTimes() {
     } finally {
       setLoading(false);
     }
-  }, [schoolParam]);
+  }, [schoolParam, midnightMode, latAdjParam, dstEnabled]);
 
   useEffect(() => {
     if (navigator.geolocation) {

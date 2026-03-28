@@ -7,6 +7,7 @@ type Theme = 'light' | 'dark' | 'system';
 type PaletteStyle = 'tonal' | 'vibrant' | 'expressive' | 'neutral' | 'rainbow';
 
 type PrayerMadhab = 'shafii' | 'hanafi' | 'hanbali' | 'maliki';
+type LatitudeAdjMethod = 'middle' | 'seventh' | 'angle';
 
 interface AppContextType {
   language: Language;
@@ -27,6 +28,12 @@ interface AppContextType {
   setFontSize: (s: string) => void;
   prayerMadhab: PrayerMadhab;
   setPrayerMadhab: (m: PrayerMadhab) => void;
+  midnightMode: number;
+  setMidnightMode: (m: number) => void;
+  latitudeAdjMethod: LatitudeAdjMethod;
+  setLatitudeAdjMethod: (m: LatitudeAdjMethod) => void;
+  dstEnabled: boolean;
+  setDstEnabled: (v: boolean) => void;
 }
 
 const translations: Record<string, Record<Language, string>> = {
@@ -181,6 +188,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [prayerMadhab, setPrayerMadhabState] = useState<PrayerMadhab>(() =>
     (localStorage.getItem('app-prayer-madhab') as PrayerMadhab) || 'shafii'
   );
+  const [midnightMode, setMidnightModeState] = useState<number>(() =>
+    parseInt(localStorage.getItem('app-midnight-mode') || '0', 10)
+  );
+  const [latitudeAdjMethod, setLatitudeAdjMethodState] = useState<LatitudeAdjMethod>(() =>
+    (localStorage.getItem('app-lat-adj-method') as LatitudeAdjMethod) || 'angle'
+  );
+  const [dstEnabled, setDstEnabledState] = useState<boolean>(() =>
+    localStorage.getItem('app-dst-enabled') !== 'false'
+  );
 
   const [authUser, setAuthUser] = useState<User | null>(null);
   const syncRef = useRef(false);
@@ -220,6 +236,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
         if (s.fontFamily) { setFontFamilyState(s.fontFamily); localStorage.setItem('app-font-family', s.fontFamily); }
         if (s.fontSize) { setFontSizeState(s.fontSize); localStorage.setItem('app-font-size', s.fontSize); }
         if (s.prayerMadhab) { setPrayerMadhabState(s.prayerMadhab); localStorage.setItem('app-prayer-madhab', s.prayerMadhab); }
+        if (s.midnightMode !== undefined) { setMidnightModeState(s.midnightMode); localStorage.setItem('app-midnight-mode', String(s.midnightMode)); }
+        if (s.latitudeAdjMethod) { setLatitudeAdjMethodState(s.latitudeAdjMethod); localStorage.setItem('app-lat-adj-method', s.latitudeAdjMethod); }
+        if (s.dstEnabled !== undefined) { setDstEnabledState(s.dstEnabled); localStorage.setItem('app-dst-enabled', String(s.dstEnabled)); }
         // Also load game stats and locations if stored
         if (s.gameStats) localStorage.setItem('game-stats', JSON.stringify(s.gameStats));
         if (s.savedLocations) localStorage.setItem('saved-locations', JSON.stringify(s.savedLocations));
@@ -242,6 +261,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       fontFamily: localStorage.getItem('app-font-family') || 'default',
       fontSize: localStorage.getItem('app-font-size') || 'medium',
       prayerMadhab: localStorage.getItem('app-prayer-madhab') || 'shafii',
+      midnightMode: parseInt(localStorage.getItem('app-midnight-mode') || '0', 10),
+      latitudeAdjMethod: localStorage.getItem('app-lat-adj-method') || 'angle',
+      dstEnabled: localStorage.getItem('app-dst-enabled') !== 'false',
     };
     // Also save game stats and locations
     try { settings.gameStats = JSON.parse(localStorage.getItem('game-stats') || '{}'); } catch {}
@@ -300,6 +322,24 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setTimeout(saveToDb, 50);
   };
 
+  const setMidnightMode = (m: number) => {
+    setMidnightModeState(m);
+    localStorage.setItem('app-midnight-mode', String(m));
+    setTimeout(saveToDb, 50);
+  };
+
+  const setLatitudeAdjMethod = (m: LatitudeAdjMethod) => {
+    setLatitudeAdjMethodState(m);
+    localStorage.setItem('app-lat-adj-method', m);
+    setTimeout(saveToDb, 50);
+  };
+
+  const setDstEnabled = (v: boolean) => {
+    setDstEnabledState(v);
+    localStorage.setItem('app-dst-enabled', String(v));
+    setTimeout(saveToDb, 50);
+  };
+
   const t = (key: string): string => translations[key]?.[language] || key;
   const dir = language === 'ar' ? 'rtl' : 'ltr';
 
@@ -341,7 +381,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [fontFamily, fontSize]);
 
   return (
-    <AppContext.Provider value={{ language, setLanguage, theme, setTheme, t, dir, accentHue, setAccentHue, paletteStyle, setPaletteStyle, blackMode, setBlackMode, fontFamily, setFontFamily, fontSize, setFontSize, prayerMadhab, setPrayerMadhab }}>
+    <AppContext.Provider value={{ language, setLanguage, theme, setTheme, t, dir, accentHue, setAccentHue, paletteStyle, setPaletteStyle, blackMode, setBlackMode, fontFamily, setFontFamily, fontSize, setFontSize, prayerMadhab, setPrayerMadhab, midnightMode, setMidnightMode, latitudeAdjMethod, setLatitudeAdjMethod, dstEnabled, setDstEnabled }}>
       {children}
     </AppContext.Provider>
   );
