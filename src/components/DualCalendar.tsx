@@ -144,10 +144,13 @@ export default function DualCalendar() {
                 delay: idx * 0.008,
                 ease: [0.25, 1, 0.5, 1] as const,
               }}
-              className={`relative flex flex-col items-center justify-center py-2 rounded-xl transition-colors duration-200 ${
+              onClick={() => setSelectedDay(selectedDay?.gDay === day.gDay ? null : day)}
+              className={`relative flex flex-col items-center justify-center py-2 rounded-xl transition-colors duration-200 cursor-pointer ${
                 day.isToday
                   ? 'shadow-md'
-                  : 'hover:bg-secondary'
+                  : selectedDay?.gDay === day.gDay
+                    ? 'bg-primary/10 ring-1 ring-primary/30'
+                    : 'hover:bg-secondary'
               }`}
             >
               {day.isToday && (
@@ -174,6 +177,54 @@ export default function DualCalendar() {
             </motion.div>
           ))}
         </motion.div>
+      </AnimatePresence>
+
+      {/* Countdown info */}
+      <AnimatePresence>
+        {selectedDay && (() => {
+          const targetDate = new Date(viewYear, viewMonth - 1, selectedDay.gDay);
+          const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+          const diffTime = targetDate.getTime() - todayStart.getTime();
+          const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+          const hijri = gregorianToHijri(viewYear, viewMonth, selectedDay.gDay);
+
+          let label: string;
+          if (diffDays === 0) label = t('calendar.isToday');
+          else if (diffDays === 1) label = t('calendar.tomorrow');
+          else if (diffDays === -1) label = t('calendar.yesterday');
+          else if (diffDays > 0) label = `${diffDays} ${t('calendar.daysLeft')}`;
+          else label = `${Math.abs(diffDays)} ${t('calendar.daysAgo')}`;
+
+          return (
+            <motion.div
+              initial={{ opacity: 0, height: 0, marginTop: 0 }}
+              animate={{ opacity: 1, height: 'auto', marginTop: 12 }}
+              exit={{ opacity: 0, height: 0, marginTop: 0 }}
+              transition={{ duration: 0.25, ease: [0.25, 1, 0.5, 1] as const }}
+              className="overflow-hidden"
+            >
+              <div className="flex items-center justify-between rounded-xl bg-secondary/60 px-4 py-3">
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-[13px] font-semibold text-foreground">
+                    {selectedDay.gDay} {t(`months.${viewMonth}`)} {viewYear}
+                  </span>
+                  <span className="text-[11px] text-muted-foreground">
+                    {hijri.day} {t(`hijriMonths.${hijri.month}`)} {hijri.year}
+                  </span>
+                </div>
+                <div className={`text-[13px] font-bold px-3 py-1.5 rounded-lg ${
+                  diffDays === 0
+                    ? 'bg-primary text-primary-foreground'
+                    : diffDays > 0
+                      ? 'bg-primary/10 text-primary'
+                      : 'bg-muted text-muted-foreground'
+                }`}>
+                  {label}
+                </div>
+              </div>
+            </motion.div>
+          );
+        })()}
       </AnimatePresence>
     </div>
   );
