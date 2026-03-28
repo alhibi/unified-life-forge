@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useApp } from '@/contexts/AppContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { frequentDuas, duaCategories, type DuaCategory, type FrequentDua } from '@/data/duas';
@@ -19,6 +20,11 @@ const item = {
   hidden: { opacity: 0, y: 12 },
   show: { opacity: 1, y: 0, transition: { duration: 0.35, ease: [0.25, 1, 0.5, 1] as [number, number, number, number] } },
 };
+
+function ModalPortal({ children }: { children: React.ReactNode }) {
+  if (typeof document === 'undefined') return null;
+  return createPortal(children, document.body);
+}
 
 function FrequentDuaCard({ dua, lang }: { dua: FrequentDua; lang: string }) {
   const [open, setOpen] = useState(false);
@@ -67,60 +73,62 @@ function DuaModal({ open, onClose, title, duas, lang }: {
   return (
     <AnimatePresence>
       {open && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.2 }}
-          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-          onClick={onClose}
-        >
+        <ModalPortal>
           <motion.div
-            initial={{ opacity: 0, scale: 0.92 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.92 }}
-            transition={{ type: 'spring', damping: 25, stiffness: 350 }}
-            onClick={e => e.stopPropagation()}
-            className="bg-card w-full max-w-md rounded-2xl max-h-[80vh] flex flex-col shadow-2xl"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+            onClick={onClose}
           >
-            <div className="flex items-center justify-between px-5 py-4 border-b border-border/50">
-              <h2 className="text-lg font-bold text-foreground">{title}</h2>
-              <button onClick={onClose} className="p-1.5 rounded-full hover:bg-muted/60 transition-colors">
-                <X className="w-5 h-5 text-muted-foreground" />
-              </button>
-            </div>
-            <div className="overflow-y-auto flex-1 p-4 space-y-3">
-              {duas.map((dua, i) => (
-                <motion.div
-                  key={dua.id}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.04, duration: 0.3 }}
-                  className="bg-muted/40 rounded-2xl p-4 space-y-2"
-                >
-                  <p className="text-foreground text-base leading-loose font-medium text-right" dir="rtl" style={{ fontFamily: "'Amiri', 'Noto Sans Arabic', serif" }}>
-                    {dua.text}
-                  </p>
-                  <div className="flex items-center justify-between">
-                    {dua.source && (
-                      <span className="text-[11px] text-primary/70 font-medium">{dua.source}</span>
-                    )}
-                    <button
-                      onClick={() => copyDua(dua.text, dua.id)}
-                      className="p-1.5 rounded-lg hover:bg-muted transition-colors ms-auto"
-                    >
-                      {copiedId === dua.id ? (
-                        <Check className="w-4 h-4 text-green-500" />
-                      ) : (
-                        <Copy className="w-4 h-4 text-muted-foreground" />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.92 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.92 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 350 }}
+              onClick={e => e.stopPropagation()}
+              className="bg-card w-full max-w-md rounded-2xl max-h-[80vh] flex flex-col shadow-2xl"
+            >
+              <div className="flex items-center justify-between px-5 py-4 border-b border-border/50">
+                <h2 className="text-lg font-bold text-foreground">{title}</h2>
+                <button onClick={onClose} className="p-1.5 rounded-full hover:bg-muted/60 transition-colors">
+                  <X className="w-5 h-5 text-muted-foreground" />
+                </button>
+              </div>
+              <div className="overflow-y-auto flex-1 p-4 space-y-3">
+                {duas.map((dua, i) => (
+                  <motion.div
+                    key={dua.id}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.04, duration: 0.3 }}
+                    className="bg-muted/40 rounded-2xl p-4 space-y-2"
+                  >
+                    <p className="text-foreground text-base leading-loose font-medium text-right" dir="rtl" style={{ fontFamily: "'Amiri', 'Noto Sans Arabic', serif" }}>
+                      {dua.text}
+                    </p>
+                    <div className="flex items-center justify-between">
+                      {dua.source && (
+                        <span className="text-[11px] text-primary/70 font-medium">{dua.source}</span>
                       )}
-                    </button>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
+                      <button
+                        onClick={() => copyDua(dua.text, dua.id)}
+                        className="p-1.5 rounded-lg hover:bg-muted transition-colors ms-auto"
+                      >
+                        {copiedId === dua.id ? (
+                          <Check className="w-4 h-4 text-green-500" />
+                        ) : (
+                          <Copy className="w-4 h-4 text-muted-foreground" />
+                        )}
+                      </button>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
           </motion.div>
-        </motion.div>
+        </ModalPortal>
       )}
     </AnimatePresence>
   );
@@ -144,53 +152,55 @@ function NawawiModal({ open, onClose, hadith, lang }: {
   return (
     <AnimatePresence>
       {open && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.2 }}
-          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-          onClick={onClose}
-        >
+        <ModalPortal>
           <motion.div
-            initial={{ opacity: 0, scale: 0.92 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.92 }}
-            transition={{ type: 'spring', damping: 25, stiffness: 350 }}
-            onClick={e => e.stopPropagation()}
-            className="bg-card w-full max-w-md rounded-2xl max-h-[80vh] flex flex-col shadow-2xl"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+            onClick={onClose}
           >
-            <div className="flex items-center justify-between px-5 py-4 border-b border-border/50">
-              <div className="flex items-center gap-2">
-                <span className="w-7 h-7 rounded-full bg-primary/20 text-primary text-xs font-bold flex items-center justify-center">{hadith.id}</span>
-                <h2 className="text-base font-bold text-foreground">{hadith.title}</h2>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.92 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.92 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 350 }}
+              onClick={e => e.stopPropagation()}
+              className="bg-card w-full max-w-md rounded-2xl max-h-[80vh] flex flex-col shadow-2xl"
+            >
+              <div className="flex items-center justify-between px-5 py-4 border-b border-border/50">
+                <div className="flex items-center gap-2">
+                  <span className="w-7 h-7 rounded-full bg-primary/20 text-primary text-xs font-bold flex items-center justify-center">{hadith.id}</span>
+                  <h2 className="text-base font-bold text-foreground">{hadith.title}</h2>
+                </div>
+                <button onClick={onClose} className="p-1.5 rounded-full hover:bg-muted/60 transition-colors">
+                  <X className="w-5 h-5 text-muted-foreground" />
+                </button>
               </div>
-              <button onClick={onClose} className="p-1.5 rounded-full hover:bg-muted/60 transition-colors">
-                <X className="w-5 h-5 text-muted-foreground" />
-              </button>
-            </div>
-            <div className="overflow-y-auto flex-1 p-4">
-              <div className="bg-muted/40 rounded-2xl p-4 space-y-3">
-                <p className="text-foreground text-base leading-[2] font-medium text-right" dir="rtl" style={{ fontFamily: "'Amiri', 'Noto Sans Arabic', serif" }}>
-                  {hadith.text}
-                </p>
-                <div className="flex items-center justify-between">
-                  <span className="text-[11px] text-primary/70 font-medium">{hadith.source}</span>
-                  <button
-                    onClick={copyText}
-                    className="p-1.5 rounded-lg hover:bg-muted transition-colors"
-                  >
-                    {copied ? (
-                      <Check className="w-4 h-4 text-green-500" />
-                    ) : (
-                      <Copy className="w-4 h-4 text-muted-foreground" />
-                    )}
-                  </button>
+              <div className="overflow-y-auto flex-1 p-4">
+                <div className="bg-muted/40 rounded-2xl p-4 space-y-3">
+                  <p className="text-foreground text-base leading-[2] font-medium text-right" dir="rtl" style={{ fontFamily: "'Amiri', 'Noto Sans Arabic', serif" }}>
+                    {hadith.text}
+                  </p>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] text-primary/70 font-medium">{hadith.source}</span>
+                    <button
+                      onClick={copyText}
+                      className="p-1.5 rounded-lg hover:bg-muted transition-colors"
+                    >
+                      {copied ? (
+                        <Check className="w-4 h-4 text-green-500" />
+                      ) : (
+                        <Copy className="w-4 h-4 text-muted-foreground" />
+                      )}
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
+            </motion.div>
           </motion.div>
-        </motion.div>
+        </ModalPortal>
       )}
     </AnimatePresence>
   );
@@ -309,53 +319,55 @@ export default function DuasPage() {
       {/* Nawawi List Modal */}
       <AnimatePresence>
         {showNawawiList && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-            onClick={() => setShowNawawiList(false)}
-          >
+          <ModalPortal>
             <motion.div
-              initial={{ opacity: 0, scale: 0.92 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.92 }}
-              transition={{ type: 'spring', damping: 25, stiffness: 350 }}
-              onClick={e => e.stopPropagation()}
-              className="bg-card w-full max-w-md rounded-2xl max-h-[85vh] flex flex-col shadow-2xl"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+              onClick={() => setShowNawawiList(false)}
             >
-              <div className="flex items-center justify-between px-5 py-4 border-b border-border/50">
-                <h2 className="text-lg font-bold text-foreground">
-                  {language === 'ar' ? 'الأربعون النووية' : 'An-Nawawis vierzig Hadithe'}
-                </h2>
-                <button onClick={() => setShowNawawiList(false)} className="p-1.5 rounded-full hover:bg-muted/60 transition-colors">
-                  <X className="w-5 h-5 text-muted-foreground" />
-                </button>
-              </div>
-              <div className="overflow-y-auto flex-1 p-3 space-y-1.5">
-                {nawawiHadiths.map((h, i) => (
-                  <motion.button
-                    key={h.id}
-                    initial={{ opacity: 0, y: 6 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.02, duration: 0.25 }}
-                    onClick={() => { setShowNawawiList(false); setOpenNawawi(h); }}
-                    className="w-full flex items-center gap-3 p-3 rounded-xl bg-muted/30 hover:bg-muted/60 active:scale-[0.98] transition-all duration-150 text-start"
-                  >
-                    <span className="w-8 h-8 rounded-full bg-primary/15 text-primary text-xs font-bold flex items-center justify-center shrink-0">
-                      {h.id}
-                    </span>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-bold text-foreground truncate">{h.title}</p>
-                      <p className="text-[11px] text-muted-foreground truncate" dir="rtl">{h.text.slice(0, 60)}...</p>
-                    </div>
-                    <Arrow className="w-4 h-4 text-muted-foreground shrink-0" />
-                  </motion.button>
-                ))}
-              </div>
+              <motion.div
+                initial={{ opacity: 0, scale: 0.92 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.92 }}
+                transition={{ type: 'spring', damping: 25, stiffness: 350 }}
+                onClick={e => e.stopPropagation()}
+                className="bg-card w-full max-w-md rounded-2xl max-h-[85vh] flex flex-col shadow-2xl"
+              >
+                <div className="flex items-center justify-between px-5 py-4 border-b border-border/50">
+                  <h2 className="text-lg font-bold text-foreground">
+                    {language === 'ar' ? 'الأربعون النووية' : 'An-Nawawis vierzig Hadithe'}
+                  </h2>
+                  <button onClick={() => setShowNawawiList(false)} className="p-1.5 rounded-full hover:bg-muted/60 transition-colors">
+                    <X className="w-5 h-5 text-muted-foreground" />
+                  </button>
+                </div>
+                <div className="overflow-y-auto flex-1 p-3 space-y-1.5">
+                  {nawawiHadiths.map((h, i) => (
+                    <motion.button
+                      key={h.id}
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.02, duration: 0.25 }}
+                      onClick={() => { setShowNawawiList(false); setOpenNawawi(h); }}
+                      className="w-full flex items-center gap-3 p-3 rounded-xl bg-muted/30 hover:bg-muted/60 active:scale-[0.98] transition-all duration-150 text-start"
+                    >
+                      <span className="w-8 h-8 rounded-full bg-primary/15 text-primary text-xs font-bold flex items-center justify-center shrink-0">
+                        {h.id}
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-bold text-foreground truncate">{h.title}</p>
+                        <p className="text-[11px] text-muted-foreground truncate" dir="rtl">{h.text.slice(0, 60)}...</p>
+                      </div>
+                      <Arrow className="w-4 h-4 text-muted-foreground shrink-0" />
+                    </motion.button>
+                  ))}
+                </div>
+              </motion.div>
             </motion.div>
-          </motion.div>
+          </ModalPortal>
         )}
       </AnimatePresence>
 
