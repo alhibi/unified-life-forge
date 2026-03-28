@@ -94,7 +94,7 @@ export default function PrayerTimes() {
     } finally {
       setLoading(false);
     }
-  }, [schoolParam, midnightMode, latAdjParam, dstEnabled]);
+  }, [schoolParam, latAdjParam, dstEnabled]);
 
   useEffect(() => {
     if (navigator.geolocation) {
