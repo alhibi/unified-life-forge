@@ -56,7 +56,7 @@ export function useAuth() {
     if (!user) return;
     const { error } = await supabase
       .from('user_settings')
-      .upsert({ user_id: user.id, settings }, { onConflict: 'user_id' });
+      .upsert({ user_id: user.id, settings: settings as any }, { onConflict: 'user_id' });
     return error;
   }, [user]);
 
