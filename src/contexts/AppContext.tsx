@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 
 type Language = 'ar' | 'de';
 type Theme = 'light' | 'dark';
+type PaletteStyle = 'tonal' | 'vibrant' | 'expressive' | 'neutral' | 'rainbow';
 
 interface AppContextType {
   language: Language;
@@ -12,6 +13,8 @@ interface AppContextType {
   dir: 'rtl' | 'ltr';
   accentHue: number;
   setAccentHue: (hue: number) => void;
+  paletteStyle: PaletteStyle;
+  setPaletteStyle: (style: PaletteStyle) => void;
 }
 
 const translations: Record<string, Record<Language, string>> = {
