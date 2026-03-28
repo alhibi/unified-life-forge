@@ -1,11 +1,32 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, RefreshCw, Lightbulb, Clock, Eraser, PenLine } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { ArrowLeft, RefreshCw, Lightbulb, Clock, Eraser, PenLine, Trophy, Target, Zap } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 type Board = (number | null)[][];
 type Difficulty = 'easy' | 'medium' | 'hard';
+
+interface SudokuStats {
+  gamesPlayed: number;
+  gamesWon: number;
+  bestTime: Record<Difficulty, number | null>;
+  currentStreak: number;
+  bestStreak: number;
+}
+
+function loadStats(): SudokuStats {
+  const saved = localStorage.getItem('sudoku-stats');
+  return saved ? JSON.parse(saved) : {
+    gamesPlayed: 0, gamesWon: 0,
+    bestTime: { easy: null, medium: null, hard: null },
+    currentStreak: 0, bestStreak: 0,
+  };
+}
+
+function saveStats(stats: SudokuStats) {
+  localStorage.setItem('sudoku-stats', JSON.stringify(stats));
+}
 
 function generateSolvedBoard(): number[][] {
   const board: number[][] = Array.from({ length: 9 }, () => Array(9).fill(0));
@@ -61,6 +82,8 @@ export default function SudokuPage() {
     Array.from({ length: 9 }, () => Array.from({ length: 9 }, () => new Set<string>()))
   );
   const [noteMode, setNoteMode] = useState(false);
+  const [stats, setStats] = useState<SudokuStats>(loadStats);
+  const [showStats, setShowStats] = useState(false);
 
   const original = useMemo(() => {
     const s = new Set<string>();
@@ -73,6 +96,17 @@ export default function SudokuPage() {
     const iv = setInterval(() => setTimer(t => t + 1), 1000);
     return () => clearInterval(iv);
   }, [isRunning, solved]);
+
+  const recordWin = (time: number, diff: Difficulty) => {
+    const s = { ...stats };
+    s.gamesPlayed++;
+    s.gamesWon++;
+    s.currentStreak++;
+    if (s.currentStreak > s.bestStreak) s.bestStreak = s.currentStreak;
+    if (s.bestTime[diff] === null || time < s.bestTime[diff]!) s.bestTime[diff] = time;
+    setStats(s);
+    saveStats(s);
+  };
 
   const newGame = (diff: Difficulty) => {
     setDifficulty(diff);
@@ -103,7 +137,10 @@ export default function SudokuPage() {
     for (let i = 0; i < 9; i++) for (let j = 0; j < 9; j++)
       if (nb[i][j] !== null && nb[i][j] !== gameData.solution[i][j]) ne.add(`${i}-${j}`);
     setErrors(ne);
-    if (ne.size === 0 && nb.every(row => row.every(cell => cell !== null))) { setSolved(true); setIsRunning(false); }
+    if (ne.size === 0 && nb.every(row => row.every(cell => cell !== null))) {
+      setSolved(true); setIsRunning(false);
+      recordWin(timer, difficulty);
+    }
   };
 
   const handleErase = () => {
@@ -134,6 +171,8 @@ export default function SudokuPage() {
     return '';
   };
 
+  const winRate = stats.gamesPlayed > 0 ? Math.round((stats.gamesWon / stats.gamesPlayed) * 100) : 0;
+
   return (
     <div className="min-h-screen bg-background pb-28 px-4 pt-6">
       {/* Header */}
@@ -142,10 +181,55 @@ export default function SudokuPage() {
           <ArrowLeft className={`w-4 h-4 text-foreground ${dir === 'rtl' ? 'rotate-180' : ''}`} />
         </button>
         <h1 className="text-xl font-bold text-foreground flex-1">{t('games.sudoku')}</h1>
+        <button onClick={() => setShowStats(!showStats)} className="w-9 h-9 rounded-full bg-secondary flex items-center justify-center">
+          <Trophy className="w-4 h-4 text-primary" />
+        </button>
         <div className="flex items-center gap-1.5 text-sm text-muted-foreground bg-secondary px-3 py-1.5 rounded-full tabular-nums">
           <Clock className="w-3.5 h-3.5" />{formatTimer(timer)}
         </div>
       </div>
+
+      {/* Stats Panel */}
+      <AnimatePresence>
+        {showStats && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="overflow-hidden max-w-sm mx-auto mb-4"
+          >
+            <div className="premium-card-elevated p-4">
+              <h3 className="font-semibold text-sm text-foreground mb-3 flex items-center gap-2">
+                <Trophy className="w-4 h-4 text-primary" />{t('stats.title')}
+              </h3>
+              <div className="grid grid-cols-3 gap-3">
+                <div className="text-center p-2.5 rounded-xl bg-secondary/60">
+                  <div className="text-xl font-bold text-foreground">{stats.gamesWon}</div>
+                  <div className="text-[10px] text-muted-foreground mt-0.5">{t('stats.wins')}</div>
+                </div>
+                <div className="text-center p-2.5 rounded-xl bg-secondary/60">
+                  <div className="text-xl font-bold text-foreground">{winRate}%</div>
+                  <div className="text-[10px] text-muted-foreground mt-0.5">{t('stats.winRate')}</div>
+                </div>
+                <div className="text-center p-2.5 rounded-xl bg-secondary/60">
+                  <div className="text-xl font-bold text-primary">{stats.bestStreak}</div>
+                  <div className="text-[10px] text-muted-foreground mt-0.5">{t('stats.streak')}</div>
+                </div>
+              </div>
+              <div className="mt-3 space-y-1.5">
+                {(['easy', 'medium', 'hard'] as Difficulty[]).map(d => (
+                  <div key={d} className="flex items-center justify-between px-2 py-1.5 rounded-lg bg-secondary/40 text-xs">
+                    <span className="text-muted-foreground">{t(`sudoku.${d}`)} {t('stats.best')}</span>
+                    <span className="font-medium text-foreground tabular-nums">
+                      {stats.bestTime[d] !== null ? formatTimer(stats.bestTime[d]!) : '—'}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Difficulty */}
       <div className="flex gap-2 mb-4 justify-center">
@@ -161,7 +245,7 @@ export default function SudokuPage() {
       {solved && (
         <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
           className="text-center py-3 mb-3 rounded-2xl bg-primary/10 text-primary font-bold max-w-sm mx-auto">
-          {t('sudoku.solved')}
+          {t('sudoku.solved')} — {formatTimer(timer)}
         </motion.div>
       )}
 

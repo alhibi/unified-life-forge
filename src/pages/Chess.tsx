@@ -1,13 +1,27 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, RefreshCw } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { ArrowLeft, RefreshCw, Trophy, Clock } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 type Color = 'w' | 'b';
 type PieceType = 'K' | 'Q' | 'R' | 'B' | 'N' | 'P';
 type Piece = { type: PieceType; color: Color } | null;
 type BoardState = Piece[][];
+
+interface ChessStats {
+  gamesPlayed: number;
+  whiteWins: number;
+  blackWins: number;
+  stalemates: number;
+  totalMoves: number;
+}
+
+function loadChessStats(): ChessStats {
+  const saved = localStorage.getItem('chess-stats');
+  return saved ? JSON.parse(saved) : { gamesPlayed: 0, whiteWins: 0, blackWins: 0, stalemates: 0, totalMoves: 0 };
+}
+function saveChessStats(s: ChessStats) { localStorage.setItem('chess-stats', JSON.stringify(s)); }
 
 const PIECE_SYMBOLS: Record<Color, Record<PieceType, string>> = {
   w: { K: '♔', Q: '♕', R: '♖', B: '♗', N: '♘', P: '♙' },
@@ -91,6 +105,28 @@ export default function ChessPage() {
   const [legalMoves, setLegalMoves] = useState<[number, number][]>([]);
   const [captured, setCaptured] = useState<{ w: string[]; b: string[] }>({ w: [], b: [] });
   const [status, setStatus] = useState('');
+  const [moveCount, setMoveCount] = useState(0);
+  const [gameTimer, setGameTimer] = useState(0);
+  const [isRunning, setIsRunning] = useState(true);
+  const [stats, setStats] = useState<ChessStats>(loadChessStats);
+  const [showStats, setShowStats] = useState(false);
+
+  useEffect(() => {
+    if (!isRunning) return;
+    const iv = setInterval(() => setGameTimer(t => t + 1), 1000);
+    return () => clearInterval(iv);
+  }, [isRunning]);
+
+  const formatTimer = (s: number) => `${Math.floor(s / 60).toString().padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`;
+
+  const recordResult = (winner: 'w' | 'b' | 'draw') => {
+    const s = { ...stats, gamesPlayed: stats.gamesPlayed + 1, totalMoves: stats.totalMoves + moveCount };
+    if (winner === 'w') s.whiteWins++;
+    else if (winner === 'b') s.blackWins++;
+    else s.stalemates++;
+    setStats(s);
+    saveChessStats(s);
+  };
 
   const handleClick = useCallback((r: number, c: number) => {
     if (status.includes('♚') || status.includes('♔')) return;
@@ -105,10 +141,19 @@ export default function ChessPage() {
         nb[sr][sc] = null;
         if (cp) setCaptured(prev => ({ ...prev, [turn]: [...prev[turn], PIECE_SYMBOLS[cp.color][cp.type]] }));
         setBoard(nb);
+        setMoveCount(prev => prev + 1);
         const next = turn === 'w' ? 'b' : 'w';
         const check = isInCheck(nb, next); const legal = hasAnyLegalMoves(nb, next);
-        if (!legal) setStatus(check ? `${t('chess.checkmate')} ${turn === 'w' ? '♔' : '♚'}` : 'Stalemate!');
-        else if (check) setStatus(t('chess.check'));
+        if (!legal) {
+          if (check) {
+            setStatus(`${t('chess.checkmate')} ${turn === 'w' ? '♔' : '♚'}`);
+            recordResult(turn);
+          } else {
+            setStatus('Stalemate!');
+            recordResult('draw');
+          }
+          setIsRunning(false);
+        } else if (check) setStatus(t('chess.check'));
         else setStatus('');
         setTurn(next); setSelected(null); setLegalMoves([]); return;
       }
@@ -116,11 +161,11 @@ export default function ChessPage() {
       setSelected(null); setLegalMoves([]); return;
     }
     if (piece?.color === turn) { setSelected([r, c]); setLegalMoves(getLegalMoves(board, r, c)); }
-  }, [board, selected, legalMoves, turn, status, t]);
+  }, [board, selected, legalMoves, turn, status, t, stats, moveCount]);
 
   const resetGame = () => {
     setBoard(initBoard()); setTurn('w'); setSelected(null); setLegalMoves([]);
-    setCaptured({ w: [], b: [] }); setStatus('');
+    setCaptured({ w: [], b: [] }); setStatus(''); setMoveCount(0); setGameTimer(0); setIsRunning(true);
   };
 
   return (
@@ -130,14 +175,54 @@ export default function ChessPage() {
           <ArrowLeft className={`w-4 h-4 text-foreground ${dir === 'rtl' ? 'rotate-180' : ''}`} />
         </button>
         <h1 className="text-xl font-bold text-foreground flex-1">{t('games.chess')}</h1>
-        <button onClick={resetGame} className="w-9 h-9 rounded-full bg-secondary flex items-center justify-center">
-          <RefreshCw className="w-4 h-4 text-foreground" />
+        <button onClick={() => setShowStats(!showStats)} className="w-9 h-9 rounded-full bg-secondary flex items-center justify-center">
+          <Trophy className="w-4 h-4 text-primary" />
         </button>
+        <div className="flex items-center gap-1.5 text-sm text-muted-foreground bg-secondary px-3 py-1.5 rounded-full tabular-nums">
+          <Clock className="w-3.5 h-3.5" />{formatTimer(gameTimer)}
+        </div>
       </div>
+
+      {/* Stats Panel */}
+      <AnimatePresence>
+        {showStats && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="overflow-hidden max-w-sm mx-auto mb-4"
+          >
+            <div className="premium-card-elevated p-4">
+              <h3 className="font-semibold text-sm text-foreground mb-3 flex items-center gap-2">
+                <Trophy className="w-4 h-4 text-primary" />{t('stats.title')}
+              </h3>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="text-center p-2.5 rounded-xl bg-secondary/60">
+                  <div className="text-xl font-bold text-foreground">{stats.gamesPlayed}</div>
+                  <div className="text-[10px] text-muted-foreground mt-0.5">{t('stats.played')}</div>
+                </div>
+                <div className="text-center p-2.5 rounded-xl bg-secondary/60">
+                  <div className="text-xl font-bold text-foreground">{stats.totalMoves}</div>
+                  <div className="text-[10px] text-muted-foreground mt-0.5">{t('stats.moves')}</div>
+                </div>
+                <div className="text-center p-2.5 rounded-xl bg-secondary/60">
+                  <div className="text-xl font-bold text-foreground">{stats.whiteWins}</div>
+                  <div className="text-[10px] text-muted-foreground mt-0.5">♔ {t('stats.wins')}</div>
+                </div>
+                <div className="text-center p-2.5 rounded-xl bg-secondary/60">
+                  <div className="text-xl font-bold text-foreground">{stats.blackWins}</div>
+                  <div className="text-[10px] text-muted-foreground mt-0.5">♚ {t('stats.wins')}</div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <div className="text-center mb-3">
         <span className="text-sm font-medium text-muted-foreground">
           {t('chess.turn')}: {turn === 'w' ? `${t('chess.white')} ♔` : `${t('chess.black')} ♚`}
+          <span className="ms-3 text-xs bg-secondary px-2 py-0.5 rounded-full">{t('stats.moves')}: {moveCount}</span>
         </span>
         {status && (
           <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
