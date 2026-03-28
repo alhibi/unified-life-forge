@@ -1,10 +1,12 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppProvider } from "@/contexts/AppContext";
+import { AnimatePresence } from "framer-motion";
 import BottomNav from "@/components/BottomNav";
+import PageTransition from "@/components/PageTransition";
 import Index from "./pages/Index";
 import GamesPage from "./pages/Games";
 import SudokuPage from "./pages/Sudoku";
@@ -22,6 +24,30 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+function AnimatedRoutes() {
+  const location = useLocation();
+  return (
+    <AnimatePresence mode="wait" initial={false}>
+      <Routes location={location} key={location.pathname}>
+        <Route path="/" element={<PageTransition><Index /></PageTransition>} />
+        <Route path="/games" element={<PageTransition><GamesPage /></PageTransition>} />
+        <Route path="/games/sudoku" element={<PageTransition><SudokuPage /></PageTransition>} />
+        <Route path="/games/chess" element={<PageTransition><ChessPage /></PageTransition>} />
+        <Route path="/games/memory" element={<PageTransition><MemoryGame /></PageTransition>} />
+        <Route path="/games/minesweeper" element={<PageTransition><MinesweeperPage /></PageTransition>} />
+        <Route path="/games/colormaze" element={<PageTransition><ColorMazePage /></PageTransition>} />
+        <Route path="/games/pipes" element={<PageTransition><PipesPage /></PageTransition>} />
+        <Route path="/settings" element={<PageTransition><SettingsPage /></PageTransition>} />
+        <Route path="/settings/theme" element={<PageTransition><ThemeSettingsPage /></PageTransition>} />
+        <Route path="/auth" element={<PageTransition><AuthPage /></PageTransition>} />
+        <Route path="/settings/font" element={<PageTransition><FontSettingsPage /></PageTransition>} />
+        <Route path="/settings/prayer" element={<PageTransition><PrayerSettingsPage /></PageTransition>} />
+        <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
+      </Routes>
+    </AnimatePresence>
+  );
+}
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AppProvider>
@@ -29,22 +55,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/games" element={<GamesPage />} />
-            <Route path="/games/sudoku" element={<SudokuPage />} />
-            <Route path="/games/chess" element={<ChessPage />} />
-            <Route path="/games/memory" element={<MemoryGame />} />
-            <Route path="/games/minesweeper" element={<MinesweeperPage />} />
-            <Route path="/games/colormaze" element={<ColorMazePage />} />
-            <Route path="/games/pipes" element={<PipesPage />} />
-            <Route path="/settings" element={<SettingsPage />} />
-            <Route path="/settings/theme" element={<ThemeSettingsPage />} />
-            <Route path="/auth" element={<AuthPage />} />
-            <Route path="/settings/font" element={<FontSettingsPage />} />
-            <Route path="/settings/prayer" element={<PrayerSettingsPage />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <AnimatedRoutes />
           <BottomNav />
         </BrowserRouter>
       </TooltipProvider>
