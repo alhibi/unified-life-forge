@@ -15,6 +15,7 @@ import ColorMazePage from "./pages/ColorMaze";
 import PipesPage from "./pages/PipesGame";
 import SettingsPage from "./pages/Settings";
 import ThemeSettingsPage from "./pages/ThemeSettings";
+import AuthPage from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
