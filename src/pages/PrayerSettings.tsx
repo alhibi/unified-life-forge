@@ -44,7 +44,7 @@ export default function PrayerSettings() {
           </button>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center">
-              <Moon className="w-5 h-5 text-primary stroke-[1.8]" />
+              <BookOpen className="w-5 h-5 text-primary stroke-[1.8]" />
             </div>
             <h1 className="text-[26px] font-bold tracking-tight text-foreground">
               {isAr ? 'إعدادات الصلاة' : 'Gebetseinstellungen'}
