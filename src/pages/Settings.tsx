@@ -51,10 +51,10 @@ export default function SettingsPage() {
               </div>
             </div>
             {/* Toggle switch */}
-            <div className={`relative w-[46px] h-[26px] rounded-full transition-colors duration-300 ${theme === 'dark' ? 'bg-primary' : 'bg-muted'}`}>
+            <div className={`relative w-[46px] h-[26px] rounded-full transition-colors duration-300 shrink-0 ${theme === 'dark' ? 'bg-primary' : 'bg-muted'}`} dir="ltr">
               <motion.div
                 className="absolute top-[3px] w-[20px] h-[20px] rounded-full bg-primary-foreground shadow-sm"
-                animate={{ x: theme === 'dark' ? 23 : 3 }}
+                animate={{ left: theme === 'dark' ? 23 : 3 }}
                 transition={{ type: 'spring', stiffness: 500, damping: 30 }}
               />
             </div>
@@ -80,10 +80,10 @@ export default function SettingsPage() {
                 </p>
               </div>
             </div>
-            <div className={`relative w-[46px] h-[26px] rounded-full transition-colors duration-300 ${language === 'ar' ? 'bg-primary' : 'bg-muted'}`}>
+            <div className={`relative w-[46px] h-[26px] rounded-full transition-colors duration-300 shrink-0 ${language === 'ar' ? 'bg-primary' : 'bg-muted'}`} dir="ltr">
               <motion.div
                 className="absolute top-[3px] w-[20px] h-[20px] rounded-full bg-primary-foreground shadow-sm"
-                animate={{ x: language === 'ar' ? 23 : 3 }}
+                animate={{ left: language === 'ar' ? 23 : 3 }}
                 transition={{ type: 'spring', stiffness: 500, damping: 30 }}
               />
             </div>
