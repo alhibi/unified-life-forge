@@ -2,8 +2,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Clock, MapPin, Bell } from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
-import { Clock, MapPin, Bell } from 'lucide-react';
-
 interface PrayerTime {
   name: string;
   nameAr: string;
