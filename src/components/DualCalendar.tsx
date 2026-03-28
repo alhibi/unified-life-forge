@@ -39,36 +39,35 @@ export default function DualCalendar() {
   const blanks = Array.from({ length: firstDay }, (_, i) => i);
 
   return (
-    <div className="glass-card-elevated p-4 animate-fade-in">
+    <div className="premium-card-intense p-5">
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <button onClick={dir === 'rtl' ? nextMonth : prevMonth} className="p-2 rounded-lg hover:bg-secondary transition-colors">
-          <ChevronLeft className="w-5 h-5 text-foreground" />
+      <div className="flex items-center justify-between mb-5">
+        <button
+          onClick={dir === 'rtl' ? nextMonth : prevMonth}
+          className="w-9 h-9 rounded-full flex items-center justify-center bg-secondary hover:bg-muted transition-colors"
+        >
+          <ChevronLeft className="w-4 h-4 text-foreground" />
         </button>
-        <div className="text-center">
-          <div className="text-lg font-bold font-display text-foreground">
+        <button onClick={goToday} className="text-center">
+          <div className="text-[17px] font-semibold text-foreground leading-snug">
             {t(`months.${viewMonth}`)} {viewYear}
           </div>
-          <div className="text-sm text-primary font-medium">
+          <div className="text-xs text-primary font-medium mt-0.5">
             {t(`hijriMonths.${hijriInfo.month}`)} {hijriInfo.year}
           </div>
-        </div>
-        <button onClick={dir === 'rtl' ? prevMonth : nextMonth} className="p-2 rounded-lg hover:bg-secondary transition-colors">
-          <ChevronRight className="w-5 h-5 text-foreground" />
         </button>
-      </div>
-
-      {/* Today button */}
-      <div className="flex justify-center mb-3">
-        <button onClick={goToday} className="text-xs gradient-primary text-primary-foreground px-3 py-1 rounded-full font-medium">
-          {t('calendar.today')}
+        <button
+          onClick={dir === 'rtl' ? prevMonth : nextMonth}
+          className="w-9 h-9 rounded-full flex items-center justify-center bg-secondary hover:bg-muted transition-colors"
+        >
+          <ChevronRight className="w-4 h-4 text-foreground" />
         </button>
       </div>
 
       {/* Day headers */}
-      <div className="grid grid-cols-7 gap-1 mb-1">
+      <div className="grid grid-cols-7 mb-1">
         {dayHeaders.map((d, i) => (
-          <div key={i} className="text-center text-xs font-medium text-muted-foreground py-1">{d}</div>
+          <div key={i} className="text-center text-[11px] font-medium text-muted-foreground py-1.5">{d}</div>
         ))}
       </div>
 
@@ -76,26 +75,28 @@ export default function DualCalendar() {
       <AnimatePresence mode="wait">
         <motion.div
           key={`${viewYear}-${viewMonth}`}
-          initial={{ opacity: 0, x: 20 }}
+          initial={{ opacity: 0, x: 16 }}
           animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -20 }}
-          transition={{ duration: 0.2 }}
-          className="grid grid-cols-7 gap-1"
+          exit={{ opacity: 0, x: -16 }}
+          transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+          className="grid grid-cols-7 gap-y-0.5"
         >
           {blanks.map(i => <div key={`b-${i}`} />)}
           {calendarDays.map(day => (
             <div
               key={day.gDay}
-              className={`relative flex flex-col items-center justify-center py-1.5 rounded-lg transition-all duration-200 ${
+              className={`relative flex flex-col items-center justify-center py-2 rounded-xl transition-all duration-200 ${
                 day.isToday
-                  ? 'gradient-primary text-primary-foreground shadow-lg animate-pulse-glow'
+                  ? 'bg-primary text-primary-foreground shadow-md'
                   : 'hover:bg-secondary'
               }`}
             >
-              <span className={`text-sm font-semibold ${day.isToday ? 'text-primary-foreground' : 'text-foreground'}`}>
+              <span className={`text-[13px] font-semibold leading-none ${day.isToday ? 'text-primary-foreground' : 'text-foreground'}`}>
                 {day.gDay}
               </span>
-              <span className={`text-[10px] leading-none ${day.isToday ? 'text-primary-foreground/80' : 'text-primary'}`}>
+              <span className={`text-[9px] mt-0.5 leading-none font-medium ${
+                day.isToday ? 'text-primary-foreground/70' : 'text-muted-foreground'
+              }`}>
                 {day.hDay}
               </span>
             </div>

@@ -10,11 +10,13 @@ interface AppContextType {
   setTheme: (theme: Theme) => void;
   t: (key: string) => string;
   dir: 'rtl' | 'ltr';
+  accentHue: number;
+  setAccentHue: (hue: number) => void;
 }
 
 const translations: Record<string, Record<Language, string>> = {
   'app.title': { ar: 'تطبيقي الذكي', de: 'Meine Smart App' },
-  'nav.home': { ar: 'الرئيسية', de: 'Startseite' },
+  'nav.home': { ar: 'الرئيسية', de: 'Start' },
   'nav.games': { ar: 'الألعاب', de: 'Spiele' },
   'nav.settings': { ar: 'الإعدادات', de: 'Einstellungen' },
   'calendar.title': { ar: 'التقويم', de: 'Kalender' },
@@ -43,6 +45,7 @@ const translations: Record<string, Record<Language, string>> = {
   'settings.language': { ar: 'اللغة', de: 'Sprache' },
   'settings.arabic': { ar: 'العربية', de: 'Arabisch' },
   'settings.german': { ar: 'الألمانية', de: 'Deutsch' },
+  'settings.colors': { ar: 'الألوان', de: 'Farben' },
   'games.title': { ar: 'الألعاب', de: 'Spiele' },
   'games.sudoku': { ar: 'سودوكو', de: 'Sudoku' },
   'games.sudoku.desc': { ar: 'تحدي العقل الكلاسيكي', de: 'Das klassische Denkspiel' },
@@ -108,13 +111,25 @@ const translations: Record<string, Record<Language, string>> = {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
+function applyAccentHue(hue: number, isDark: boolean) {
+  const root = document.documentElement;
+  const lightness = isDark ? 58 : 50;
+  const fgLightness = isDark ? 100 : 100;
+  root.style.setProperty('--primary', `${hue} 70% ${lightness}%`);
+  root.style.setProperty('--primary-foreground', `0 0% ${fgLightness}%`);
+  root.style.setProperty('--ring', `${hue} 70% ${lightness}%`);
+}
+
 export function AppProvider({ children }: { children: ReactNode }) {
-  const [language, setLanguageState] = useState<Language>(() => {
-    return (localStorage.getItem('app-language') as Language) || 'ar';
-  });
-  const [theme, setThemeState] = useState<Theme>(() => {
-    return (localStorage.getItem('app-theme') as Theme) || 'light';
-  });
+  const [language, setLanguageState] = useState<Language>(() =>
+    (localStorage.getItem('app-language') as Language) || 'ar'
+  );
+  const [theme, setThemeState] = useState<Theme>(() =>
+    (localStorage.getItem('app-theme') as Theme) || 'light'
+  );
+  const [accentHue, setAccentHueState] = useState<number>(() =>
+    parseInt(localStorage.getItem('app-accent-hue') || '220', 10)
+  );
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
@@ -126,20 +141,23 @@ export function AppProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('app-theme', t);
   };
 
-  const t = (key: string): string => {
-    return translations[key]?.[language] || key;
+  const setAccentHue = (hue: number) => {
+    setAccentHueState(hue);
+    localStorage.setItem('app-accent-hue', hue.toString());
   };
 
+  const t = (key: string): string => translations[key]?.[language] || key;
   const dir = language === 'ar' ? 'rtl' : 'ltr';
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', theme === 'dark');
     document.documentElement.dir = dir;
     document.documentElement.lang = language;
-  }, [theme, dir, language]);
+    applyAccentHue(accentHue, theme === 'dark');
+  }, [theme, dir, language, accentHue]);
 
   return (
-    <AppContext.Provider value={{ language, setLanguage, theme, setTheme, t, dir }}>
+    <AppContext.Provider value={{ language, setLanguage, theme, setTheme, t, dir, accentHue, setAccentHue }}>
       {children}
     </AppContext.Provider>
   );
