@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 
 type Language = 'ar' | 'de';
 type Theme = 'light' | 'dark';
+type PaletteStyle = 'tonal' | 'vibrant' | 'expressive' | 'neutral' | 'rainbow';
 
 interface AppContextType {
   language: Language;
@@ -12,6 +13,8 @@ interface AppContextType {
   dir: 'rtl' | 'ltr';
   accentHue: number;
   setAccentHue: (hue: number) => void;
+  paletteStyle: PaletteStyle;
+  setPaletteStyle: (style: PaletteStyle) => void;
 }
 
 const translations: Record<string, Record<Language, string>> = {
@@ -129,13 +132,21 @@ const translations: Record<string, Record<Language, string>> = {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-function applyAccentHue(hue: number, isDark: boolean) {
+const PALETTE_CONFIGS: Record<PaletteStyle, { sat: number; lightDark: number; lightLight: number }> = {
+  tonal:      { sat: 50, lightDark: 55, lightLight: 48 },
+  vibrant:    { sat: 75, lightDark: 60, lightLight: 50 },
+  expressive: { sat: 65, lightDark: 58, lightLight: 45 },
+  neutral:    { sat: 20, lightDark: 60, lightLight: 50 },
+  rainbow:    { sat: 70, lightDark: 58, lightLight: 50 },
+};
+
+function applyAccentHue(hue: number, isDark: boolean, palette: PaletteStyle) {
   const root = document.documentElement;
-  const lightness = isDark ? 58 : 50;
-  const fgLightness = isDark ? 100 : 100;
-  root.style.setProperty('--primary', `${hue} 70% ${lightness}%`);
-  root.style.setProperty('--primary-foreground', `0 0% ${fgLightness}%`);
-  root.style.setProperty('--ring', `${hue} 70% ${lightness}%`);
+  const cfg = PALETTE_CONFIGS[palette];
+  const lightness = isDark ? cfg.lightDark : cfg.lightLight;
+  root.style.setProperty('--primary', `${hue} ${cfg.sat}% ${lightness}%`);
+  root.style.setProperty('--primary-foreground', `0 0% 100%`);
+  root.style.setProperty('--ring', `${hue} ${cfg.sat}% ${lightness}%`);
 }
 
 export function AppProvider({ children }: { children: ReactNode }) {
@@ -147,6 +158,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
   );
   const [accentHue, setAccentHueState] = useState<number>(() =>
     parseInt(localStorage.getItem('app-accent-hue') || '220', 10)
+  );
+  const [paletteStyle, setPaletteStyleState] = useState<PaletteStyle>(() =>
+    (localStorage.getItem('app-palette-style') as PaletteStyle) || 'vibrant'
   );
 
   const setLanguage = (lang: Language) => {
@@ -164,6 +178,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('app-accent-hue', hue.toString());
   };
 
+  const setPaletteStyle = (style: PaletteStyle) => {
+    setPaletteStyleState(style);
+    localStorage.setItem('app-palette-style', style);
+  };
+
   const t = (key: string): string => translations[key]?.[language] || key;
   const dir = language === 'ar' ? 'rtl' : 'ltr';
 
@@ -171,11 +190,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     document.documentElement.classList.toggle('dark', theme === 'dark');
     document.documentElement.dir = dir;
     document.documentElement.lang = language;
-    applyAccentHue(accentHue, theme === 'dark');
-  }, [theme, dir, language, accentHue]);
+    applyAccentHue(accentHue, theme === 'dark', paletteStyle);
+  }, [theme, dir, language, accentHue, paletteStyle]);
 
   return (
-    <AppContext.Provider value={{ language, setLanguage, theme, setTheme, t, dir, accentHue, setAccentHue }}>
+    <AppContext.Provider value={{ language, setLanguage, theme, setTheme, t, dir, accentHue, setAccentHue, paletteStyle, setPaletteStyle }}>
       {children}
     </AppContext.Provider>
   );
