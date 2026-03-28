@@ -197,12 +197,24 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const dir = language === 'ar' ? 'rtl' : 'ltr';
 
   useEffect(() => {
-    const isDark = theme === 'dark';
+    const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const isDark = theme === 'dark' || (theme === 'system' && systemDark);
     document.documentElement.classList.toggle('dark', isDark);
     document.documentElement.classList.toggle('black-mode', isDark && blackMode);
     document.documentElement.dir = dir;
     document.documentElement.lang = language;
     applyAccentHue(accentHue, isDark, paletteStyle);
+
+    if (theme === 'system') {
+      const mq = window.matchMedia('(prefers-color-scheme: dark)');
+      const handler = (e: MediaQueryListEvent) => {
+        document.documentElement.classList.toggle('dark', e.matches);
+        document.documentElement.classList.toggle('black-mode', e.matches && blackMode);
+        applyAccentHue(accentHue, e.matches, paletteStyle);
+      };
+      mq.addEventListener('change', handler);
+      return () => mq.removeEventListener('change', handler);
+    }
   }, [theme, dir, language, accentHue, paletteStyle, blackMode]);
 
   return (
