@@ -33,28 +33,32 @@ export default function SettingsPage() {
 
         {/* Theme */}
         <motion.div variants={item} className="premium-card-elevated p-5">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center">
-              {theme === 'light' ? <Sun className="w-5 h-5 text-primary" /> : <Moon className="w-5 h-5 text-primary" />}
+          <button
+            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            className="flex items-center justify-between w-full active:scale-[0.99] transition-transform"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center">
+                {theme === 'dark' ? <Moon className="w-5 h-5 text-primary" /> : <Sun className="w-5 h-5 text-primary" />}
+              </div>
+              <div className="text-start">
+                <h2 className="font-semibold text-[15px] text-foreground">
+                  {theme === 'dark' ? t('settings.dark') : t('settings.light')}
+                </h2>
+                <p className="text-[12px] text-muted-foreground mt-0.5">
+                  {t('settings.theme')}
+                </p>
+              </div>
             </div>
-            <h2 className="font-semibold text-[15px] text-foreground">{t('settings.theme')}</h2>
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            {(['light', 'dark'] as const).map(mode => (
-              <button
-                key={mode}
-                onClick={() => setTheme(mode)}
-                className={`py-3 rounded-xl font-medium text-sm transition-all active:scale-[0.97] ${
-                  theme === mode
-                    ? 'bg-primary text-primary-foreground shadow-sm'
-                    : 'bg-secondary text-secondary-foreground'
-                }`}
-              >
-                {mode === 'light' ? <Sun className="w-4 h-4 inline-block me-2" /> : <Moon className="w-4 h-4 inline-block me-2" />}
-                {t(`settings.${mode}`)}
-              </button>
-            ))}
-          </div>
+            {/* Toggle switch */}
+            <div className={`relative w-[46px] h-[26px] rounded-full transition-colors duration-300 ${theme === 'dark' ? 'bg-primary' : 'bg-muted'}`}>
+              <motion.div
+                className="absolute top-[3px] w-[20px] h-[20px] rounded-full bg-primary-foreground shadow-sm"
+                animate={{ x: theme === 'dark' ? 23 : 3 }}
+                transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+              />
+            </div>
+          </button>
         </motion.div>
 
         {/* Language */}
