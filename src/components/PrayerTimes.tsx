@@ -97,15 +97,27 @@ export default function PrayerTimes() {
   }, [schoolParam, latAdjParam, dstEnabled]);
 
   useEffect(() => {
+    // Try cached location first for instant load
+    const cached = localStorage.getItem('lastLocation');
+    if (cached) {
+      const { lat, lng } = JSON.parse(cached);
+      fetchPrayers(lat, lng);
+    }
+
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        (pos) => fetchPrayers(pos.coords.latitude, pos.coords.longitude),
+        (pos) => {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          localStorage.setItem('lastLocation', JSON.stringify({ lat, lng }));
+          fetchPrayers(lat, lng);
+        },
         () => {
-          // Default to Mecca if denied
-          fetchPrayers(21.4225, 39.8262);
-        }
+          if (!cached) fetchPrayers(21.4225, 39.8262);
+        },
+        { timeout: 5000, maximumAge: 300000 }
       );
-    } else {
+    } else if (!cached) {
       fetchPrayers(21.4225, 39.8262);
     }
   }, [fetchPrayers]);
