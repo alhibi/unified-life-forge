@@ -1,11 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useApp } from '@/contexts/AppContext';
-import { Play, Pause, SkipBack, SkipForward, Music, Upload, Volume2 } from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward, Music, FolderOpen, Volume2 } from 'lucide-react';
 
-interface AudioFile {
-  name: string;
-  url: string;
-}
+interface AudioFile { name: string; url: string }
 
 export default function AudioPlayer() {
   const { t } = useApp();
@@ -31,25 +28,20 @@ export default function AudioPlayer() {
 
   const togglePlay = () => {
     if (!audioRef.current || files.length === 0) return;
-    if (isPlaying) {
-      audioRef.current.pause();
-    } else {
-      audioRef.current.play();
-    }
+    if (isPlaying) audioRef.current.pause();
+    else audioRef.current.play();
     setIsPlaying(!isPlaying);
   };
 
   const skipNext = () => {
     if (files.length === 0) return;
-    const next = (currentIndex + 1) % files.length;
-    setCurrentIndex(next);
+    setCurrentIndex((currentIndex + 1) % files.length);
     setIsPlaying(true);
   };
 
   const skipPrev = () => {
     if (files.length === 0) return;
-    const prev = (currentIndex - 1 + files.length) % files.length;
-    setCurrentIndex(prev);
+    setCurrentIndex((currentIndex - 1 + files.length) % files.length);
     setIsPlaying(true);
   };
 
@@ -70,8 +62,7 @@ export default function AudioPlayer() {
   const seekTo = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!audioRef.current || !duration) return;
     const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const pct = x / rect.width;
+    const pct = (e.clientX - rect.left) / rect.width;
     audioRef.current.currentTime = pct * duration;
   };
 
@@ -84,55 +75,56 @@ export default function AudioPlayer() {
   const currentFile = files[currentIndex];
 
   return (
-    <div className="glass-card p-4 animate-slide-up" style={{ animationDelay: '0.1s' }}>
+    <div className="premium-card-elevated p-5">
       <audio ref={audioRef} onTimeUpdate={onTimeUpdate} onEnded={skipNext} />
       <input ref={fileInputRef} type="file" accept="audio/*" multiple className="hidden" onChange={handleFileSelect} />
 
-      <div className="flex items-center gap-3 mb-4">
-        <div className="w-10 h-10 rounded-lg gradient-primary flex items-center justify-center shrink-0">
-          <Music className="w-5 h-5 text-primary-foreground" />
+      {/* Header */}
+      <div className="flex items-center gap-3 mb-5">
+        <div className="w-11 h-11 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
+          <Music className="w-5 h-5 text-primary" />
         </div>
         <div className="flex-1 min-w-0">
-          <h3 className="font-display font-semibold text-foreground">{t('audio.title')}</h3>
-          <p className="text-xs text-muted-foreground truncate">
+          <h3 className="font-semibold text-[15px] text-foreground">{t('audio.title')}</h3>
+          <p className="text-xs text-muted-foreground truncate mt-0.5">
             {currentFile ? currentFile.name : t('audio.noFile')}
           </p>
         </div>
         <button
           onClick={() => fileInputRef.current?.click()}
-          className="p-2 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors"
+          className="w-9 h-9 rounded-xl bg-secondary hover:bg-muted flex items-center justify-center transition-colors"
         >
-          <Upload className="w-4 h-4 text-secondary-foreground" />
+          <FolderOpen className="w-4 h-4 text-secondary-foreground" />
         </button>
       </div>
 
-      {/* Progress bar */}
-      <div className="mb-3">
-        <div
-          className="h-1.5 bg-secondary rounded-full cursor-pointer overflow-hidden"
-          onClick={seekTo}
-        >
+      {/* Progress */}
+      <div className="mb-5">
+        <div className="h-1 bg-secondary rounded-full cursor-pointer overflow-hidden" onClick={seekTo}>
           <div
-            className="h-full gradient-primary rounded-full transition-all duration-150"
+            className="h-full bg-primary rounded-full transition-all duration-100"
             style={{ width: `${progress}%` }}
           />
         </div>
-        <div className="flex justify-between mt-1">
-          <span className="text-[10px] text-muted-foreground">{formatTime(currentTime)}</span>
-          <span className="text-[10px] text-muted-foreground">{formatTime(duration)}</span>
+        <div className="flex justify-between mt-1.5">
+          <span className="text-[10px] text-muted-foreground tabular-nums">{formatTime(currentTime)}</span>
+          <span className="text-[10px] text-muted-foreground tabular-nums">{formatTime(duration)}</span>
         </div>
       </div>
 
       {/* Controls */}
-      <div className="flex items-center justify-center gap-4">
+      <div className="flex items-center justify-center gap-6">
         <button onClick={skipPrev} className="p-2 rounded-full hover:bg-secondary transition-colors">
           <SkipBack className="w-5 h-5 text-foreground" />
         </button>
         <button
           onClick={togglePlay}
-          className="w-12 h-12 rounded-full gradient-primary flex items-center justify-center shadow-lg hover:shadow-xl transition-shadow"
+          className="w-14 h-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg active:scale-95 transition-transform"
         >
-          {isPlaying ? <Pause className="w-5 h-5 text-primary-foreground" /> : <Play className="w-5 h-5 text-primary-foreground ms-0.5" />}
+          {isPlaying
+            ? <Pause className="w-6 h-6" />
+            : <Play className="w-6 h-6 ms-0.5" />
+          }
         </button>
         <button onClick={skipNext} className="p-2 rounded-full hover:bg-secondary transition-colors">
           <SkipForward className="w-5 h-5 text-foreground" />
@@ -141,16 +133,16 @@ export default function AudioPlayer() {
 
       {/* File list */}
       {files.length > 0 && (
-        <div className="mt-3 max-h-28 overflow-y-auto space-y-1">
+        <div className="mt-4 max-h-28 overflow-y-auto space-y-0.5">
           {files.map((f, i) => (
             <button
               key={i}
               onClick={() => { setCurrentIndex(i); setIsPlaying(true); }}
-              className={`w-full text-start px-3 py-1.5 rounded-lg text-xs transition-colors flex items-center gap-2 ${
-                i === currentIndex ? 'bg-primary/10 text-primary font-medium' : 'hover:bg-secondary text-muted-foreground'
+              className={`w-full text-start px-3 py-2 rounded-xl text-[13px] transition-colors flex items-center gap-2.5 ${
+                i === currentIndex ? 'bg-primary/8 text-primary font-medium' : 'hover:bg-secondary text-muted-foreground'
               }`}
             >
-              <Volume2 className="w-3 h-3 shrink-0" />
+              <Volume2 className="w-3.5 h-3.5 shrink-0" />
               <span className="truncate">{f.name}</span>
             </button>
           ))}
