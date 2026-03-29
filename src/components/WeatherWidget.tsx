@@ -148,7 +148,7 @@ export default function WeatherWidget() {
       <div className="flex items-center gap-3 overflow-x-auto no-scrollbar">
         {forecast.map((f) => {
           const Icon = getWeatherIcon(f.weatherCode, f.isDay);
-          const isNow = f.hour === new Date().getHours();
+          const isNow = f.hour === nowHour;
           return (
             <div
               key={f.hour}
