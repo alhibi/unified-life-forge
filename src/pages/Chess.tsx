@@ -410,6 +410,72 @@ function getBestMove(game: GameState, aiColor: Color, difficulty: AIDifficulty):
   return bestMove;
 }
 
+// ========== Sound Effects ==========
+const audioCtxRef = { current: null as AudioContext | null };
+function getAudioCtx() {
+  if (!audioCtxRef.current) audioCtxRef.current = new AudioContext();
+  return audioCtxRef.current;
+}
+
+function playMoveSound() {
+  try {
+    const ctx = getAudioCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(600, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(400, ctx.currentTime + 0.08);
+    gain.gain.setValueAtTime(0.15, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.1);
+  } catch {}
+}
+
+function playCaptureSound() {
+  try {
+    const ctx = getAudioCtx();
+    const osc = ctx.createOscillator();
+    const osc2 = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    osc2.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(300, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(100, ctx.currentTime + 0.15);
+    osc2.type = 'square';
+    osc2.frequency.setValueAtTime(150, ctx.currentTime);
+    osc2.frequency.exponentialRampToValueAtTime(80, ctx.currentTime + 0.12);
+    gain.gain.setValueAtTime(0.12, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.18);
+    osc.start(ctx.currentTime);
+    osc2.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.18);
+    osc2.stop(ctx.currentTime + 0.18);
+  } catch {}
+}
+
+function playCheckSound() {
+  try {
+    const ctx = getAudioCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = 'square';
+    osc.frequency.setValueAtTime(800, ctx.currentTime);
+    osc.frequency.setValueAtTime(600, ctx.currentTime + 0.1);
+    osc.frequency.setValueAtTime(800, ctx.currentTime + 0.2);
+    gain.gain.setValueAtTime(0.1, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.3);
+  } catch {}
+}
+
 // ========== Component ==========
 export default function ChessPage() {
   const { t, dir, language } = useApp();
