@@ -21,6 +21,7 @@ import AuthPage from "./pages/Auth";
 import FontSettingsPage from "./pages/FontSettings";
 import PrayerSettingsPage from "./pages/PrayerSettings";
 import DuasPage from "./pages/Duas";
+import DiwanPage from "./pages/Diwan";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();

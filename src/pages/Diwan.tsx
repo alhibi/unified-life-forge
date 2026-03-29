@@ -29,7 +29,7 @@ export default function DiwanPage() {
 
   const pageVariants = {
     initial: { opacity: 0, x: dir === 'rtl' ? -20 : 20 },
-    animate: { opacity: 1, x: 0, transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] } },
+    animate: { opacity: 1, x: 0, transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] as const } },
     exit: { opacity: 0, x: dir === 'rtl' ? 20 : -20, transition: { duration: 0.2 } },
   };
 
