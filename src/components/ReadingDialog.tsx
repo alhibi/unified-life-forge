@@ -632,29 +632,36 @@ export default function ReadingDialog({ open, onOpenChange }: ReadingDialogProps
     );
   };
 
+  if (!open) return null;
+
   return (
-    <AnimatePresence>
-      {open && (
-        <>
-          <Backdrop onClick={() => onOpenChange(false)} />
-          <motion.div
-            variants={drawerVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            className="fixed inset-x-0 bottom-0 z-50 h-[90vh] flex flex-col rounded-t-3xl border-t border-border/50 bg-background shadow-2xl overflow-hidden"
-            style={{ willChange: 'transform' }}
-          >
-            {/* Drag handle */}
-            <div className="flex justify-center pt-3 pb-1 shrink-0">
-              <div className="w-10 h-1 rounded-full bg-muted-foreground/30" />
-            </div>
-            <AnimatePresence mode="wait">
-              {renderContent()}
-            </AnimatePresence>
-          </motion.div>
-        </>
-      )}
-    </AnimatePresence>
+    <div className="fixed inset-0 z-[60]">
+      {/* Backdrop */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.2 }}
+        className="absolute inset-0 bg-black/50"
+        onClick={() => onOpenChange(false)}
+      />
+      {/* Drawer */}
+      <motion.div
+        initial={{ y: '100%' }}
+        animate={{ y: 0 }}
+        exit={{ y: '100%' }}
+        transition={{ type: 'spring' as const, damping: 30, stiffness: 350, mass: 0.8 }}
+        className="absolute inset-x-0 bottom-0 h-[90vh] flex flex-col rounded-t-3xl border-t border-border/50 bg-background shadow-2xl overflow-hidden"
+        style={{ willChange: 'transform' }}
+      >
+        {/* Drag handle */}
+        <div className="flex justify-center pt-3 pb-1 shrink-0">
+          <div className="w-10 h-1 rounded-full bg-muted-foreground/30" />
+        </div>
+        <div className="flex-1 flex flex-col overflow-hidden">
+          {renderContent()}
+        </div>
+      </motion.div>
+    </div>
   );
 }
