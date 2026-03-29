@@ -317,7 +317,9 @@ export default function ReadingPage() {
     setFeedSources(updated);
     storeFeeds(updated);
     setNewUrl(''); setNewName('');
-    toast.success(isAr ? 'تمت إضافة المصدر' : 'Feed added');
+    toast.success(isAr ? 'تمت إضافة المصدر - جاري جلب المقالات...' : 'Feed added - fetching articles...');
+    // Immediately fetch articles for the new feed
+    fetchSingleFeed(source);
   };
 
   const addSuggestedFeed = (feed: FeedSource) => {
@@ -325,7 +327,8 @@ export default function ReadingPage() {
     const updated = [...feedSources, { ...feed }];
     setFeedSources(updated);
     storeFeeds(updated);
-    toast.success(isAr ? `تمت إضافة ${feed.name}` : `Added ${feed.name}`);
+    toast.success(isAr ? `تمت إضافة ${feed.name} - جاري جلب المقالات...` : `Added ${feed.name} - fetching...`);
+    fetchSingleFeed(feed);
   };
 
   const removeFeed = (url: string) => {
