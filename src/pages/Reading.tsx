@@ -447,7 +447,7 @@ export default function ReadingPage() {
                   </button>
                   <h3 className="text-lg font-bold flex items-center gap-2.5">
                     <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center">
-                      <BookOpen className="h-4 w-4 text-primary" />
+                      <Newspaper className="h-4 w-4 text-primary" />
                     </div>
                     {isAr ? 'القراءة' : 'Reading'}
                   </h3>
