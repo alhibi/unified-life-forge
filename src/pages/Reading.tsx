@@ -39,7 +39,7 @@ interface FeedResult {
 
 const DEFAULT_FEEDS: FeedSource[] = [
   { url: 'https://www.aljazeera.net/aljazeerarss/a7c186be-1baa-4bd4-9d80-a84db769f779/73d0e1b4-532f-45ef-b135-bba0b18ad1a2', name: 'الجزيرة نت', category: 'أخبار', enabled: true },
-  { url: 'https://sana.sy/feed/', name: 'سانا', category: 'أخبار', enabled: true },
+  { url: 'https://www.sana.sy/?feed=rss2', name: 'سانا', category: 'أخبار', enabled: true },
 ];
 
 const SUGGESTED_FEEDS: FeedSource[] = [
@@ -157,7 +157,7 @@ export default function ReadingPage() {
         const db = b.pubDate ? new Date(b.pubDate).getTime() : 0;
         return db - da;
       });
-      setArticles(allItems.slice(0, 50));
+      setArticles(allItems);
     } catch (e: any) {
       console.error('RSS fetch error:', e);
       toast.error(isAr ? 'فشل في تحميل الأخبار' : 'Failed to load feeds');
@@ -538,7 +538,7 @@ export default function ReadingPage() {
                               {isBookmarked && <BookmarkCheck className="h-3 w-3 text-primary/60" />}
                             </div>
                           </div>
-                          {article.image && <img src={article.image} alt="" className="w-18 h-18 object-cover rounded-xl shrink-0" loading="lazy" />}
+                          {article.image && <img src={article.image} alt="" className="w-16 h-16 object-cover rounded-xl shrink-0" loading="lazy" />}
                         </button>
                         <button onClick={(e) => { e.stopPropagation(); toggleBookmark(article.link); }}
                           className="absolute top-3.5 end-3.5 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-accent/50 transition-all">
