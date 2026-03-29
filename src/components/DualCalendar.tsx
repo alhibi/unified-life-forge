@@ -247,6 +247,10 @@ export default function DualCalendar() {
           );
         })()}
       </AnimatePresence>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
