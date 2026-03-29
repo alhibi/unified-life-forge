@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   Plus, Rss, Trash2, ExternalLink, RefreshCw, ChevronLeft,
   Bookmark, BookmarkCheck, Search, Settings2, Globe, Star, Clock, Filter,
-  Newspaper, BookOpen, X, Check, Copy, ArrowRight
+  Newspaper, X, Check, Copy, ArrowRight
 } from 'lucide-react';
 import { toast } from 'sonner';
 
