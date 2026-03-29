@@ -144,13 +144,18 @@ export default function ReadingPage() {
     if (enabledUrls.length === 0) { setArticles([]); return; }
     setLoading(true);
     try {
+      // Build URL-to-name mapping so edge function source names get overridden
+      const nameMap: Record<string, string> = {};
+      feedSources.filter(f => f.enabled).forEach(f => { nameMap[f.url] = f.name; });
+
       const { data, error } = await supabase.functions.invoke('fetch-rss', {
-        body: { urls: enabledUrls, limit: 50 },
+        body: { urls: enabledUrls, limit: 50, fetchFullContent: true },
       });
       if (error) throw error;
       const allItems: FeedItem[] = [];
       (data.feeds || []).forEach((feed: FeedResult) => {
-        feed.items.forEach(item => allItems.push(item));
+        const overrideName = nameMap[feed.url] || feed.title;
+        feed.items.forEach(item => allItems.push({ ...item, source: overrideName }));
       });
       allItems.sort((a, b) => {
         const da = a.pubDate ? new Date(a.pubDate).getTime() : 0;
