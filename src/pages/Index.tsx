@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useApp } from '@/contexts/AppContext';
+import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 import DualCalendar from '@/components/DualCalendar';
 import AudioPlayer from '@/components/AudioPlayer';
 import LocationSaver from '@/components/LocationSaver';
@@ -7,7 +9,8 @@ import PrayerTimes from '@/components/PrayerTimes';
 import { motion } from 'framer-motion';
 import WeatherWidget from '@/components/WeatherWidget';
 import ReligiousOccasions from '@/components/ReligiousOccasions';
-import { Sunrise, Sun, Moon } from 'lucide-react'; // kept for potential future use
+import ChatDrawer from '@/components/ChatDrawer';
+import { Sunrise, Sun, Moon, MessageCircle } from 'lucide-react';
 
 const stagger = {
   hidden: {},
@@ -20,6 +23,7 @@ const item = {
 
 export default function Index() {
   const { t } = useApp();
+  const { user } = useAuth();
   const now = new Date();
   const hour = now.getHours();
   const isMorning = hour >= 5 && hour < 12;
@@ -32,6 +36,46 @@ export default function Index() {
       ? 'text-orange-500 dark:text-orange-400 bg-orange-500/12 dark:bg-orange-400/15'
       : 'text-indigo-500 dark:text-indigo-400 bg-indigo-500/12 dark:bg-indigo-400/15';
 
+  const [chatOpen, setChatOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  // Poll unread count
+  const fetchUnread = useCallback(async () => {
+    if (!user) { setUnreadCount(0); return; }
+    // Get all conversation IDs for this user
+    const { data: convs } = await supabase
+      .from('conversations')
+      .select('id')
+      .or(`user1_id.eq.${user.id},user2_id.eq.${user.id}`);
+    if (!convs || convs.length === 0) { setUnreadCount(0); return; }
+    const ids = convs.map(c => c.id);
+    const { count } = await supabase
+      .from('messages')
+      .select('*', { count: 'exact', head: true })
+      .in('conversation_id', ids)
+      .neq('sender_id', user.id)
+      .eq('read', false);
+    setUnreadCount(count || 0);
+  }, [user]);
+
+  useEffect(() => {
+    fetchUnread();
+    const interval = setInterval(fetchUnread, 15000);
+    return () => clearInterval(interval);
+  }, [fetchUnread]);
+
+  // Realtime unread listener
+  useEffect(() => {
+    if (!user) return;
+    const channel = supabase
+      .channel('unread-badge')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, () => {
+        fetchUnread();
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [user, fetchUnread]);
+
   return (
     <div className="min-h-screen bg-background pb-28 px-5 pt-14">
       <motion.div
@@ -41,13 +85,28 @@ export default function Index() {
         className="space-y-5 max-w-lg mx-auto"
       >
         <motion.div variants={item}>
-          <div>
-            <h1 className="text-[22px] font-bold tracking-tight text-foreground leading-tight">
-              {greeting}
-            </h1>
-            <p className="text-[12px] text-muted-foreground mt-0.5">
-              {now.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}
-            </p>
+          <div className="flex items-start justify-between">
+            <div>
+              <h1 className="text-[22px] font-bold tracking-tight text-foreground leading-tight">
+                {greeting}
+              </h1>
+              <p className="text-[12px] text-muted-foreground mt-0.5">
+                {now.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}
+              </p>
+            </div>
+            {user && (
+              <button
+                onClick={() => setChatOpen(true)}
+                className="relative p-2.5 rounded-xl bg-accent/50 hover:bg-accent transition-colors mt-0.5"
+              >
+                <MessageCircle className="h-5 w-5 text-foreground" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground text-[10px] rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 font-bold animate-pulse">
+                    {unreadCount}
+                  </span>
+                )}
+              </button>
+            )}
           </div>
         </motion.div>
 
@@ -67,6 +126,13 @@ export default function Index() {
           <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border/50 to-transparent" />
         </motion.div>
       </motion.div>
+
+      <ChatDrawer
+        open={chatOpen}
+        onOpenChange={setChatOpen}
+        unreadCount={unreadCount}
+        onUnreadChange={setUnreadCount}
+      />
     </div>
   );
 }
