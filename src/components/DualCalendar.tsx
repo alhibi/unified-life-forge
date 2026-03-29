@@ -67,7 +67,7 @@ export default function DualCalendar() {
   };
 
   return (
-    <div className="premium-card-intense p-4">
+    <div className="bg-card border border-border/40 rounded-2xl p-4">
       {/* Header */}
       <div className="flex items-center justify-between">
         {expanded ? (
