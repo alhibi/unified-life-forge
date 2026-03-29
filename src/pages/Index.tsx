@@ -137,6 +137,8 @@ export default function Index() {
         </motion.div>
       </motion.div>
 
+      <ReadingDialog open={readingOpen} onOpenChange={setReadingOpen} />
+
       <Suspense fallback={null}>
         <ChatDrawer
           open={chatOpen}
