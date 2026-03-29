@@ -144,6 +144,68 @@ export default function SettingsPage() {
             </button>
           </motion.div>
         ))}
+
+        {/* Guide Section */}
+        <motion.div variants={item} className="bg-card border border-border/40 rounded-2xl overflow-hidden">
+          <button
+            onClick={() => setShowGuide(g => !g)}
+            className="flex items-center justify-between w-full p-4 active:scale-[0.99] transition-transform"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 rounded-2xl bg-sky-500/12 dark:bg-sky-400/15 flex items-center justify-center">
+                <Compass className="w-5 h-5 text-sky-600 dark:text-sky-400 stroke-[1.8]" />
+              </div>
+              <div className="text-start">
+                <h2 className="font-semibold text-[15px] text-foreground">{isAr ? 'دليل التطبيق' : 'App-Anleitung'}</h2>
+                <p className="text-[12px] text-muted-foreground mt-0.5">{isAr ? 'تعرّف على جميع المزايا' : 'Alle Funktionen entdecken'}</p>
+              </div>
+            </div>
+            <motion.div animate={{ rotate: showGuide ? 180 : 0 }} transition={{ duration: 0.25 }}>
+              <ChevronDown className="w-4.5 h-4.5 text-muted-foreground/50" />
+            </motion.div>
+          </button>
+          <AnimatePresence initial={false}>
+            {showGuide && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.3, ease: [0.25, 1, 0.5, 1] }}
+                className="overflow-hidden"
+              >
+                <div className="px-4 pb-4 space-y-3">
+                  <div className="h-px bg-border/50" />
+                  {[
+                    { icon: Home, color: 'text-amber-500', bg: 'bg-amber-500/10', title: isAr ? 'الصفحة الرئيسية' : 'Startseite', desc: isAr ? 'تحية ذكية تتغير حسب الوقت، مع نظرة شاملة على يومك' : 'Intelligente Begrüßung je nach Tageszeit' },
+                    { icon: Calendar, color: 'text-blue-500', bg: 'bg-blue-500/10', title: isAr ? 'التقويم المزدوج' : 'Doppelkalender', desc: isAr ? 'تقويم ميلادي وهجري معاً مع عد تنازلي لأي تاريخ وقابل للطي' : 'Gregorianischer & Hijri-Kalender mit Countdown' },
+                    { icon: Moon, color: 'text-indigo-500', bg: 'bg-indigo-500/10', title: isAr ? 'مواقيت الصلاة' : 'Gebetszeiten', desc: isAr ? 'أوقات صلاة دقيقة بحسب موقعك مع عداد تنازلي للصلاة القادمة' : 'Genaue Gebetszeiten basierend auf deinem Standort' },
+                    { icon: BookOpenText, color: 'text-emerald-500', bg: 'bg-emerald-500/10', title: isAr ? 'الأدعية والأحاديث' : 'Duas & Hadithe', desc: isAr ? 'مجموعة شاملة من الأدعية المأثورة والأحاديث الصحيحة مع الأربعين النووية' : 'Umfassende Sammlung von Duas und authentischen Hadithen' },
+                    { icon: Music, color: 'text-rose-500', bg: 'bg-rose-500/10', title: isAr ? 'المشغل الصوتي' : 'Audioplayer', desc: isAr ? 'استمع إلى تلاوات القرآن الكريم والأذكار المسموعة' : 'Höre Quran-Rezitationen und Adhkar' },
+                    { icon: MapPin, color: 'text-orange-500', bg: 'bg-orange-500/10', title: isAr ? 'حفظ المواقع' : 'Standorte speichern', desc: isAr ? 'احفظ مواقعك المفضلة وارجع إليها بسهولة في أي وقت' : 'Speichere Lieblingsorte und greife jederzeit darauf zu' },
+                    { icon: Gamepad2, color: 'text-purple-500', bg: 'bg-purple-500/10', title: isAr ? 'الألعاب' : 'Spiele', desc: isAr ? 'مجموعة ألعاب ذكاء متنوعة: سودوكو، شطرنج، ألغاز وأكثر' : 'Puzzle-Spiele: Sudoku, Schach, und mehr' },
+                    { icon: Palette, color: 'text-violet-500', bg: 'bg-violet-500/10', title: isAr ? 'التخصيص' : 'Anpassung', desc: isAr ? 'غيّر المظهر والخط واللغة والمذهب الفقهي حسب تفضيلاتك' : 'Passe Aussehen, Schrift, Sprache und mehr an' },
+                  ].map((feature, idx) => (
+                    <motion.div
+                      key={idx}
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: idx * 0.04, duration: 0.3, ease: [0.25, 1, 0.5, 1] }}
+                      className="flex items-start gap-3"
+                    >
+                      <div className={`w-9 h-9 rounded-xl ${feature.bg} flex items-center justify-center shrink-0 mt-0.5`}>
+                        <feature.icon className={`w-4 h-4 ${feature.color}`} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-[13px] font-semibold text-foreground">{feature.title}</h3>
+                        <p className="text-[11px] text-muted-foreground leading-relaxed mt-0.5">{feature.desc}</p>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
       </motion.div>
 
       {/* Logout confirmation dialog */}
