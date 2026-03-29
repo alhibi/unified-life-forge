@@ -213,3 +213,17 @@ select,
 textarea {
   transition-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
 }
+
+/* Guide highlight effect */
+@keyframes guide-pulse {
+  0% { box-shadow: 0 0 0 0 hsl(var(--primary) / 0.4); }
+  40% { box-shadow: 0 0 0 6px hsl(var(--primary) / 0.15); }
+  100% { box-shadow: 0 0 0 0 hsl(var(--primary) / 0); }
+}
+
+.guide-highlight {
+  animation: guide-pulse 1s ease-out 2;
+  ring: 2px solid hsl(var(--primary) / 0.3);
+  outline: 2px solid hsl(var(--primary) / 0.3);
+  outline-offset: 2px;
+}
