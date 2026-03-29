@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { supabase } from '@/integrations/supabase/client';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Drawer, DrawerContent } from '@/components/ui/drawer';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -354,8 +354,8 @@ export default function ReadingDialog({ open, onOpenChange }: ReadingDialogProps
   // === Article Detail View ===
   if (view === 'article' && selectedArticle) {
     return (
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-lg h-[85vh] flex flex-col p-0 gap-0 overflow-hidden">
+      <Drawer open={open} onOpenChange={onOpenChange}>
+        <DrawerContent className="h-[85vh] flex flex-col p-0 gap-0 overflow-hidden">
           <div className="flex items-center gap-2 p-3 border-b border-border/40 bg-card/80 backdrop-blur-sm">
             <button
               onClick={() => { setView('list'); setSelectedArticle(null); }}
@@ -427,8 +427,8 @@ export default function ReadingDialog({ open, onOpenChange }: ReadingDialogProps
               </a>
             </div>
           </ScrollArea>
-        </DialogContent>
-      </Dialog>
+        </DrawerContent>
+      </Drawer>
     );
   }
 
@@ -438,8 +438,8 @@ export default function ReadingDialog({ open, onOpenChange }: ReadingDialogProps
       sf => !feedSources.some(f => f.url === sf.url)
     );
     return (
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-lg h-[85vh] flex flex-col p-0 gap-0 overflow-hidden">
+      <Drawer open={open} onOpenChange={onOpenChange}>
+        <DrawerContent className="h-[85vh] flex flex-col p-0 gap-0 overflow-hidden">
           <div className="flex items-center gap-2 p-3 border-b border-border/40 bg-card/80">
             <button
               onClick={() => setView('manage')}
@@ -484,16 +484,16 @@ export default function ReadingDialog({ open, onOpenChange }: ReadingDialogProps
               </div>
             )}
           </ScrollArea>
-        </DialogContent>
-      </Dialog>
+        </DrawerContent>
+      </Drawer>
     );
   }
 
   // === Feed Management View ===
   if (view === 'manage') {
     return (
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-lg h-[85vh] flex flex-col p-0 gap-0 overflow-hidden">
+      <Drawer open={open} onOpenChange={onOpenChange}>
+        <DrawerContent className="h-[85vh] flex flex-col p-0 gap-0 overflow-hidden">
           <div className="flex items-center gap-2 p-3 border-b border-border/40 bg-card/80">
             <button
               onClick={() => setView('list')}
@@ -620,24 +620,24 @@ export default function ReadingDialog({ open, onOpenChange }: ReadingDialogProps
               {isAr ? 'مقترحات' : 'Suggestions'}
             </Button>
           </div>
-        </DialogContent>
-      </Dialog>
+        </DrawerContent>
+      </Drawer>
     );
   }
 
   // === Main Articles List ===
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg h-[85vh] flex flex-col p-0 gap-0 overflow-hidden">
+    <Drawer open={open} onOpenChange={onOpenChange}>
+      <DrawerContent className="h-[85vh] flex flex-col p-0 gap-0 overflow-hidden">
         {/* Header */}
         <div className="p-3 border-b border-border/40 bg-card/80 backdrop-blur-sm">
           <div className="flex items-center justify-between mb-2">
-            <DialogHeader className="flex-1 text-start">
-              <DialogTitle className="text-base font-bold flex items-center gap-2">
+            <div className="flex-1 text-start">
+              <h3 className="text-base font-bold flex items-center gap-2">
                 <BookOpen className="h-4.5 w-4.5 text-primary" />
                 {isAr ? 'القراءة' : 'Reading'}
-              </DialogTitle>
-            </DialogHeader>
+              </h3>
+            </div>
             <div className="flex items-center gap-0.5">
               <button
                 onClick={() => setShowSearch(!showSearch)}
@@ -863,7 +863,7 @@ export default function ReadingDialog({ open, onOpenChange }: ReadingDialogProps
             }
           </span>
         </div>
-      </DialogContent>
-    </Dialog>
+      </DrawerContent>
+    </Drawer>
   );
 }
