@@ -908,46 +908,18 @@ export default function ChessPage() {
               </p>
               <div className="flex gap-2">
                 <button onClick={() => resetGame('local')}
-                  className={`flex-1 rounded-xl p-3 flex flex-col items-center gap-1.5 transition-all ${gameMode === 'local' ? 'ring-2 ring-primary bg-primary/10' : 'bg-background/50 hover:bg-background'}`}>
+                  className={`flex-1 rounded-xl p-3 flex flex-col items-center gap-1.5 transition-all ring-2 ring-primary bg-primary/10`}>
                   <Users className="w-5 h-5" />
                   <span className="text-[11px] font-medium">{language === 'ar' ? 'لاعبَين' : '2 Players'}</span>
                 </button>
-                <button onClick={() => resetGame('computer')}
-                  className={`flex-1 rounded-xl p-3 flex flex-col items-center gap-1.5 transition-all ${gameMode === 'computer' ? 'ring-2 ring-primary bg-primary/10' : 'bg-background/50 hover:bg-background'}`}>
-                  <Monitor className="w-5 h-5" />
-                  <span className="text-[11px] font-medium">{language === 'ar' ? 'ضد الكمبيوتر' : 'vs Computer'}</span>
-                </button>
+                <div className="flex-1 rounded-xl p-3 flex flex-col items-center gap-1.5 bg-background/50 opacity-50 cursor-not-allowed relative">
+                  <Monitor className="w-5 h-5 text-muted-foreground" />
+                  <span className="text-[11px] font-medium text-muted-foreground">{language === 'ar' ? 'ضد الكمبيوتر' : 'vs Computer'}</span>
+                  <span className="absolute -top-1 -right-1 text-[8px] bg-primary text-primary-foreground px-1.5 py-0.5 rounded-full font-bold">
+                    {language === 'ar' ? 'قريباً' : 'Soon'}
+                  </span>
+                </div>
               </div>
-              {gameMode === 'computer' && (
-                <>
-                  <p className="text-xs font-medium text-muted-foreground">
-                    {language === 'ar' ? 'مستوى الصعوبة' : 'AI Difficulty'}
-                  </p>
-                  <div className="flex gap-1.5">
-                    {(['easy', 'medium', 'hard'] as AIDifficulty[]).map(d => (
-                      <button key={d} onClick={() => { setAiDifficulty(d); resetGame('computer'); }}
-                        className={`flex-1 px-3 py-1.5 rounded-full text-[11px] font-semibold transition-all ${aiDifficulty === d ? 'bg-primary/15 text-primary' : 'text-muted-foreground hover:text-foreground'}`}>
-                        {aiDiffLabels[d]}
-                      </button>
-                    ))}
-                  </div>
-                  <p className="text-xs font-medium text-muted-foreground">
-                    {language === 'ar' ? 'العب بلون' : 'Play as'}
-                  </p>
-                  <div className="flex gap-2">
-                    <button onClick={() => { setPlayerColor('w'); setFlipped(false); resetGame('computer'); }}
-                      className={`flex-1 rounded-xl p-2 flex items-center justify-center gap-2 transition-all ${playerColor === 'w' ? 'ring-2 ring-primary bg-primary/10' : 'bg-background/50'}`}>
-                      <div className="w-5 h-5 rounded-full bg-white border-2 border-border" />
-                      <span className="text-[11px] font-medium">{language === 'ar' ? 'أبيض' : 'White'}</span>
-                    </button>
-                    <button onClick={() => { setPlayerColor('b'); setFlipped(true); resetGame('computer'); }}
-                      className={`flex-1 rounded-xl p-2 flex items-center justify-center gap-2 transition-all ${playerColor === 'b' ? 'ring-2 ring-primary bg-primary/10' : 'bg-background/50'}`}>
-                      <div className="w-5 h-5 rounded-full bg-gray-900 border-2 border-border" />
-                      <span className="text-[11px] font-medium">{language === 'ar' ? 'أسود' : 'Black'}</span>
-                    </button>
-                  </div>
-                </>
-              )}
             </div>
           </motion.div>
         )}
