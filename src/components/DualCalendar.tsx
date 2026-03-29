@@ -115,9 +115,9 @@ export default function DualCalendar() {
       )}
 
       {/* Day headers */}
-      <div className="grid grid-cols-7 mb-1">
+      <div className="grid grid-cols-7 mb-0.5">
         {dayHeaders.map((d, i) => (
-          <div key={i} className="text-center text-[11px] font-medium text-muted-foreground py-1.5">{d}</div>
+          <div key={i} className="text-center text-[10px] font-medium text-muted-foreground py-1">{d}</div>
         ))}
       </div>
 
