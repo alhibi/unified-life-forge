@@ -312,28 +312,44 @@ export default function ReadingPage() {
   const fetchSingleFeed = async (feed: FeedSource) => {
     try {
       const nameMap: Record<string, string> = { [feed.url]: feed.name };
+      console.log('Fetching single feed:', feed.url, feed.name);
       const { data, error } = await supabase.functions.invoke('fetch-rss', {
         body: { urls: [feed.url], limit: 100, fetchFullContent: true, store: true, nameMap },
       });
-      if (error) throw error;
+      
+      console.log('Single feed response:', { data, error });
+      
+      if (error) {
+        console.error('Edge function error:', error);
+        throw new Error(typeof error === 'object' ? JSON.stringify(error) : String(error));
+      }
+      
+      // Parse response - handle both direct and nested formats
+      const responseData = typeof data === 'string' ? JSON.parse(data) : data;
+      const feeds = responseData?.feeds || [];
       
       const freshItems: FeedItem[] = [];
-      if (data?.feeds) {
-        for (const f of data.feeds) {
-          for (const item of (f.items || [])) {
-            freshItems.push({
-              title: item.title, link: item.link, description: item.description || '',
-              fullContent: item.fullContent || '', pubDate: item.pubDate || '',
-              image: item.image, images: item.images || [], source: feed.name,
-            });
-          }
+      for (const f of feeds) {
+        for (const item of (f.items || [])) {
+          freshItems.push({
+            title: item.title || '',
+            link: item.link || '',
+            description: item.description || '',
+            fullContent: item.fullContent || '',
+            pubDate: item.pubDate || '',
+            image: item.image || null,
+            images: item.images || [],
+            source: feed.name,
+          });
         }
       }
+      
+      console.log(`Parsed ${freshItems.length} items from ${feed.name}`);
       
       if (freshItems.length > 0) {
         setArticles(prev => {
           const existingLinks = new Set(prev.map(a => a.link));
-          const newItems = freshItems.filter(a => !existingLinks.has(a.link));
+          const newItems = freshItems.filter(a => a.link && !existingLinks.has(a.link));
           const merged = [...prev, ...newItems];
           merged.sort((a, b) => {
             const da = a.pubDate ? new Date(a.pubDate).getTime() : 0;
@@ -343,10 +359,17 @@ export default function ReadingPage() {
           return merged;
         });
         toast.success(isAr ? `تم جلب ${freshItems.length} مقال من ${feed.name}` : `Fetched ${freshItems.length} articles from ${feed.name}`);
+      } else {
+        toast.info(isAr ? `لم يتم العثور على مقالات من ${feed.name}` : `No articles found from ${feed.name}`);
       }
-    } catch (e) {
+      
+      // Also switch to list view to show results
+      if (view === 'manage' || view === 'suggested') {
+        setTimeout(() => setView('list'), 1500);
+      }
+    } catch (e: any) {
       console.error('Single feed fetch error:', e);
-      toast.error(isAr ? `فشل جلب مقالات ${feed.name}` : `Failed to fetch ${feed.name}`);
+      toast.error(isAr ? `فشل جلب مقالات ${feed.name}: ${e.message}` : `Failed to fetch ${feed.name}: ${e.message}`);
     }
   };
 
