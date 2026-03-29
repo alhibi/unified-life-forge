@@ -127,12 +127,14 @@ export default function Index() {
         </motion.div>
       </motion.div>
 
-      <ChatDrawer
-        open={chatOpen}
-        onOpenChange={setChatOpen}
-        unreadCount={unreadCount}
-        onUnreadChange={setUnreadCount}
-      />
+      <Suspense fallback={null}>
+        <ChatDrawer
+          open={chatOpen}
+          onOpenChange={setChatOpen}
+          unreadCount={unreadCount}
+          onUnreadChange={setUnreadCount}
+        />
+      </Suspense>
     </div>
   );
 }
