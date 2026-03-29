@@ -1038,13 +1038,6 @@ export default function ChessPage() {
           )}
         </AnimatePresence>
 
-        {/* AI thinking indicator */}
-        {aiThinking && (
-          <div className="absolute top-2 left-1/2 -translate-x-1/2 z-10 bg-card/90 backdrop-blur-sm rounded-full px-3 py-1 flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-            <span className="text-[11px] text-muted-foreground">{language === 'ar' ? 'الكمبيوتر يفكر...' : 'Thinking...'}</span>
-          </div>
-        )}
 
         <div className="rounded-lg overflow-hidden shadow-lg">
           <div className="grid grid-cols-8">
