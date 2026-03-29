@@ -204,25 +204,21 @@ export default function SettingsPage() {
                       title: isAr ? 'المزامنة والحساب' : 'Sync & Konto',
                       desc: isAr ? 'سجّل دخولك لحفظ جميع إعداداتك ومواقعك وإحصائياتك على السحابة، واسترجعها على أي جهاز آخر بتسجيل الدخول فقط' : 'Melde dich an, um Einstellungen auf allen Geräten zu synchronisieren' },
                   ].map((feature, idx) => (
-                    <motion.button
+                    <motion.div
                       key={idx}
                       initial={{ opacity: 0, y: 8 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: idx * 0.04, duration: 0.3, ease: [0.25, 1, 0.5, 1] }}
-                      onClick={() => navigate(feature.route)}
-                      className="flex items-start gap-3 w-full text-start active:scale-[0.98] transition-transform rounded-xl p-2 -mx-2 hover:bg-secondary/50"
+                      className="flex items-start gap-3 w-full text-start rounded-xl p-2 -mx-2"
                     >
                       <div className={`w-9 h-9 rounded-xl ${feature.bg} flex items-center justify-center shrink-0 mt-0.5`}>
                         <feature.icon className={`w-4 h-4 ${feature.color}`} />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-1.5">
-                          <h3 className="text-[13px] font-semibold text-foreground">{feature.title}</h3>
-                          <ArrowRight className="w-3 h-3 text-muted-foreground/40 rtl:rotate-180" />
-                        </div>
+                        <h3 className="text-[13px] font-semibold text-foreground">{feature.title}</h3>
                         <p className="text-[11px] text-muted-foreground leading-relaxed mt-0.5">{feature.desc}</p>
                       </div>
-                    </motion.button>
+                    </motion.div>
                   ))}
                 </div>
               </motion.div>
