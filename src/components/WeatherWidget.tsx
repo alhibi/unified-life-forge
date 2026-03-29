@@ -38,8 +38,7 @@ export default function WeatherWidget() {
         setCurrentTemp(Math.round(data.current.temperature_2m));
         const currentHour = new Date().getHours();
         const hours: HourForecast[] = [];
-        // Show every 3 hours from current hour onwards (up to 8 slots)
-        for (let i = currentHour; i < 24 && hours.length < 8; i += 3) {
+        for (let i = currentHour; i < 24 && hours.length < 12; i++) {
           hours.push({
             hour: i,
             temperature: Math.round(data.hourly.temperature_2m[i]),
@@ -81,23 +80,20 @@ export default function WeatherWidget() {
         <span className="text-[11px] font-medium text-muted-foreground">حالة الطقس</span>
         <span className="text-[13px] font-bold text-foreground mr-auto">{currentTemp}°</span>
       </div>
-      <div className="flex items-center justify-between gap-1">
+      <div className="flex items-center gap-3 overflow-x-auto no-scrollbar">
         {forecast.map((f) => {
           const Icon = getWeatherIcon(f.weatherCode, f.isDay);
-          const iconColor = f.isDay
-            ? 'text-amber-500 dark:text-amber-400'
-            : 'text-indigo-400 dark:text-indigo-300';
           const isNow = f.hour === new Date().getHours();
           return (
             <div
               key={f.hour}
-              className={`flex flex-col items-center gap-1 flex-1 rounded-xl py-1.5 ${isNow ? 'bg-primary/10' : ''}`}
+              className={`flex flex-col items-center gap-1 min-w-[32px] rounded-xl py-1.5 ${isNow ? 'bg-secondary' : ''}`}
             >
-              <span className={`text-[10px] ${isNow ? 'font-bold text-primary' : 'text-muted-foreground'}`}>
+              <span className={`text-[10px] ${isNow ? 'font-bold text-foreground' : 'text-muted-foreground'}`}>
                 {formatHour(f.hour)}
               </span>
-              <Icon className={`w-3.5 h-3.5 stroke-[1.6] ${iconColor}`} />
-              <span className={`text-[11px] font-semibold ${isNow ? 'text-primary' : 'text-foreground'}`}>
+              <Icon className="w-3.5 h-3.5 stroke-[1.6] text-muted-foreground" />
+              <span className={`text-[11px] font-semibold ${isNow ? 'text-foreground' : 'text-muted-foreground'}`}>
                 {f.temperature}°
               </span>
             </div>
