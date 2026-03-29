@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, RotateCcw, Undo2, Flag, Trophy, Clock, ChevronDown, Settings2, Play } from 'lucide-react';
+import { ArrowLeft, RotateCcw, Undo2, Flag, Trophy, Clock, ChevronDown, Settings2, Play, Users, Monitor } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 type Color = 'w' | 'b';
@@ -9,6 +9,8 @@ type PieceType = 'K' | 'Q' | 'R' | 'B' | 'N' | 'P';
 type Piece = { type: PieceType; color: Color } | null;
 type BoardState = Piece[][];
 type Square = [number, number];
+type GameMode = 'local' | 'computer';
+type AIDifficulty = 'easy' | 'medium' | 'hard';
 
 interface ChessStats {
   gamesPlayed: number;
@@ -81,6 +83,9 @@ interface SavedChessGame {
   gameStarted: boolean;
   moveLog: string[];
   flipped: boolean;
+  gameMode: GameMode;
+  aiDifficulty: AIDifficulty;
+  playerColor: Color;
 }
 
 function saveChessGame(state: SavedChessGame) {
@@ -93,7 +98,6 @@ function loadChessGame(): SavedChessGame | null {
 }
 function clearChessGame() { localStorage.removeItem('chess-game-state'); }
 
-// Minimal SVG piece rendering for a cleaner look
 const PIECE_SVG: Record<Color, Record<PieceType, string>> = {
   w: { K: '♔', Q: '♕', R: '♖', B: '♗', N: '♘', P: '♙' },
   b: { K: '♚', Q: '♛', R: '♜', B: '♝', N: '♞', P: '♟' },
@@ -239,6 +243,174 @@ function initGameState(): GameState {
 const FILES = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
 const RANKS = ['8', '7', '6', '5', '4', '3', '2', '1'];
 
+// ========== AI Engine ==========
+const PIECE_VALUES: Record<PieceType, number> = { P: 100, N: 320, B: 330, R: 500, Q: 900, K: 20000 };
+
+// Piece-square tables (simplified)
+const PAWN_TABLE = [
+  [0,0,0,0,0,0,0,0],[50,50,50,50,50,50,50,50],[10,10,20,30,30,20,10,10],
+  [5,5,10,25,25,10,5,5],[0,0,0,20,20,0,0,0],[5,-5,-10,0,0,-10,-5,5],
+  [5,10,10,-20,-20,10,10,5],[0,0,0,0,0,0,0,0]
+];
+const KNIGHT_TABLE = [
+  [-50,-40,-30,-30,-30,-30,-40,-50],[-40,-20,0,0,0,0,-20,-40],[-30,0,10,15,15,10,0,-30],
+  [-30,5,15,20,20,15,5,-30],[-30,0,15,20,20,15,0,-30],[-30,5,10,15,15,10,5,-30],
+  [-40,-20,0,5,5,0,-20,-40],[-50,-40,-30,-30,-30,-30,-40,-50]
+];
+const BISHOP_TABLE = [
+  [-20,-10,-10,-10,-10,-10,-10,-20],[-10,0,0,0,0,0,0,-10],[-10,0,5,10,10,5,0,-10],
+  [-10,5,5,10,10,5,5,-10],[-10,0,10,10,10,10,0,-10],[-10,10,10,10,10,10,10,-10],
+  [-10,5,0,0,0,0,5,-10],[-20,-10,-10,-10,-10,-10,-10,-20]
+];
+const KING_TABLE = [
+  [-30,-40,-40,-50,-50,-40,-40,-30],[-30,-40,-40,-50,-50,-40,-40,-30],
+  [-30,-40,-40,-50,-50,-40,-40,-30],[-30,-40,-40,-50,-50,-40,-40,-30],
+  [-20,-30,-30,-40,-40,-30,-30,-20],[-10,-20,-20,-20,-20,-20,-20,-10],
+  [20,20,0,0,0,0,20,20],[20,30,10,0,0,10,30,20]
+];
+
+const PST: Partial<Record<PieceType, number[][]>> = { P: PAWN_TABLE, N: KNIGHT_TABLE, B: BISHOP_TABLE, K: KING_TABLE };
+
+function evaluateBoard(board: BoardState): number {
+  let score = 0;
+  for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
+    const p = board[r][c];
+    if (!p) continue;
+    let val = PIECE_VALUES[p.type];
+    const table = PST[p.type];
+    if (table) {
+      val += p.color === 'w' ? table[r][c] : table[7 - r][c];
+    }
+    score += p.color === 'w' ? val : -val;
+  }
+  return score;
+}
+
+function getAllMovesForColor(board: BoardState, color: Color, enPassant: Square | null, castling: { wK: boolean; wQ: boolean; bK: boolean; bQ: boolean }): { from: Square; to: Square }[] {
+  const moves: { from: Square; to: Square }[] = [];
+  for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
+    if (board[r][c]?.color !== color) continue;
+    const legal = getLegalMoves(board, r, c, enPassant, castling);
+    for (const to of legal) moves.push({ from: [r, c], to });
+  }
+  return moves;
+}
+
+function applyMove(board: BoardState, from: Square, to: Square, enPassant: Square | null, castling: { wK: boolean; wQ: boolean; bK: boolean; bQ: boolean }): { board: BoardState; castling: typeof castling; enPassant: Square | null } {
+  const nb = cloneBoard(board);
+  const piece = nb[from[0]][from[1]]!;
+  const newCastling = { ...castling };
+  let newEnPassant: Square | null = null;
+
+  // En passant capture
+  if (piece.type === 'P' && enPassant && to[0] === enPassant[0] && to[1] === enPassant[1]) {
+    nb[piece.color === 'w' ? to[0] + 1 : to[0] - 1][to[1]] = null;
+  }
+
+  // Castling
+  if (piece.type === 'K' && Math.abs(to[1] - from[1]) === 2) {
+    const row = from[0];
+    if (to[1] === 6) { nb[row][5] = nb[row][7]; nb[row][7] = null; }
+    if (to[1] === 2) { nb[row][3] = nb[row][0]; nb[row][0] = null; }
+  }
+
+  nb[to[0]][to[1]] = nb[from[0]][from[1]];
+  nb[from[0]][from[1]] = null;
+
+  if (piece.type === 'P' && Math.abs(to[0] - from[0]) === 2) newEnPassant = [(from[0] + to[0]) / 2, from[1]];
+
+  // Pawn promotion
+  if (piece.type === 'P' && (to[0] === 0 || to[0] === 7)) {
+    nb[to[0]][to[1]] = { type: 'Q', color: piece.color };
+  }
+
+  if (piece.type === 'K') {
+    if (piece.color === 'w') { newCastling.wK = false; newCastling.wQ = false; }
+    else { newCastling.bK = false; newCastling.bQ = false; }
+  }
+  if (piece.type === 'R') {
+    if (from[0] === 7 && from[1] === 7) newCastling.wK = false;
+    if (from[0] === 7 && from[1] === 0) newCastling.wQ = false;
+    if (from[0] === 0 && from[1] === 7) newCastling.bK = false;
+    if (from[0] === 0 && from[1] === 0) newCastling.bQ = false;
+  }
+  if (to[0] === 7 && to[1] === 7) newCastling.wK = false;
+  if (to[0] === 7 && to[1] === 0) newCastling.wQ = false;
+  if (to[0] === 0 && to[1] === 7) newCastling.bK = false;
+  if (to[0] === 0 && to[1] === 0) newCastling.bQ = false;
+
+  return { board: nb, castling: newCastling, enPassant: newEnPassant };
+}
+
+function minimax(board: BoardState, depth: number, alpha: number, beta: number, isMaximizing: boolean, enPassant: Square | null, castling: { wK: boolean; wQ: boolean; bK: boolean; bQ: boolean }): number {
+  if (depth === 0) return evaluateBoard(board);
+  
+  const color: Color = isMaximizing ? 'w' : 'b';
+  const moves = getAllMovesForColor(board, color, enPassant, castling);
+  
+  if (moves.length === 0) {
+    if (isInCheck(board, color)) return isMaximizing ? -99999 + (3 - depth) : 99999 - (3 - depth);
+    return 0; // stalemate
+  }
+
+  // Move ordering: captures first
+  moves.sort((a, b) => {
+    const capA = board[a.to[0]][a.to[1]] ? 1 : 0;
+    const capB = board[b.to[0]][b.to[1]] ? 1 : 0;
+    return capB - capA;
+  });
+
+  if (isMaximizing) {
+    let maxEval = -Infinity;
+    for (const move of moves) {
+      const result = applyMove(board, move.from, move.to, enPassant, castling);
+      const ev = minimax(result.board, depth - 1, alpha, beta, false, result.enPassant, result.castling);
+      maxEval = Math.max(maxEval, ev);
+      alpha = Math.max(alpha, ev);
+      if (beta <= alpha) break;
+    }
+    return maxEval;
+  } else {
+    let minEval = Infinity;
+    for (const move of moves) {
+      const result = applyMove(board, move.from, move.to, enPassant, castling);
+      const ev = minimax(result.board, depth - 1, alpha, beta, true, result.enPassant, result.castling);
+      minEval = Math.min(minEval, ev);
+      beta = Math.min(beta, ev);
+      if (beta <= alpha) break;
+    }
+    return minEval;
+  }
+}
+
+function getBestMove(game: GameState, aiColor: Color, difficulty: AIDifficulty): { from: Square; to: Square } | null {
+  const depth = difficulty === 'easy' ? 1 : difficulty === 'medium' ? 2 : 3;
+  const moves = getAllMovesForColor(game.board, aiColor, game.enPassant, game.castling);
+  if (moves.length === 0) return null;
+
+  const isMaximizing = aiColor === 'w';
+  let bestMove = moves[0];
+  let bestEval = isMaximizing ? -Infinity : Infinity;
+
+  for (const move of moves) {
+    const result = applyMove(game.board, move.from, move.to, game.enPassant, game.castling);
+    const ev = minimax(result.board, depth - 1, -Infinity, Infinity, !isMaximizing, result.enPassant, result.castling);
+    
+    if (isMaximizing ? ev > bestEval : ev < bestEval) {
+      bestEval = ev;
+      bestMove = move;
+    }
+  }
+
+  // Add randomness for easy mode
+  if (difficulty === 'easy' && Math.random() < 0.3) {
+    return moves[Math.floor(Math.random() * moves.length)];
+  }
+
+  return bestMove;
+}
+
+// ========== Component ==========
 export default function ChessPage() {
   const { t, dir, language } = useApp();
   const navigate = useNavigate();
@@ -261,6 +433,12 @@ export default function ChessPage() {
   const [showThemeSelector, setShowThemeSelector] = useState(false);
   const [flipped, setFlipped] = useState(savedChess?.flipped || false);
   const [moveLog, setMoveLog] = useState<string[]>(savedChess?.moveLog || []);
+  const [gameMode, setGameMode] = useState<GameMode>(savedChess?.gameMode || 'local');
+  const [aiDifficulty, setAiDifficulty] = useState<AIDifficulty>(savedChess?.aiDifficulty || 'medium');
+  const [playerColor, setPlayerColor] = useState<Color>(savedChess?.playerColor || 'w');
+  const [showModeSelector, setShowModeSelector] = useState(false);
+  const [aiThinking, setAiThinking] = useState(false);
+  const [promotionPending, setPromotionPending] = useState<{ from: Square; to: Square } | null>(null);
 
   // Auto-save chess game state
   useEffect(() => {
@@ -268,8 +446,8 @@ export default function ChessPage() {
       clearChessGame();
       return;
     }
-    saveChessGame({ game, gameTimer, gameStarted, moveLog, flipped });
-  }, [game, gameTimer, gameStarted, moveLog, flipped, gameOver]);
+    saveChessGame({ game, gameTimer, gameStarted, moveLog, flipped, gameMode, aiDifficulty, playerColor });
+  }, [game, gameTimer, gameStarted, moveLog, flipped, gameOver, gameMode, aiDifficulty, playerColor]);
 
   useEffect(() => {
     if (!isRunning || gameOver) return;
@@ -297,7 +475,7 @@ export default function ChessPage() {
     return `${pieceChar}${fromFile}${captureChar}${target}`;
   };
 
-  const executeMove = useCallback((sr: number, sc: number, tr: number, tc: number) => {
+  const executeMove = useCallback((sr: number, sc: number, tr: number, tc: number, promoteTo?: PieceType) => {
     const nb = cloneBoard(game.board);
     const piece = nb[sr][sc]!;
     const newCastling = { ...game.castling };
@@ -352,7 +530,7 @@ export default function ChessPage() {
 
     // Pawn promotion
     if (piece.type === 'P' && (tr === 0 || tr === 7)) {
-      nb[tr][tc] = { type: 'Q', color: piece.color };
+      nb[tr][tc] = { type: promoteTo || 'Q', color: piece.color };
     }
 
     setHistory(prev => [...prev, { ...game }]);
@@ -392,8 +570,27 @@ export default function ChessPage() {
     setLegalMoves([]);
   }, [game, t, language, stats]);
 
+  // AI move
+  useEffect(() => {
+    if (gameMode !== 'computer' || gameOver || !gameStarted || aiThinking) return;
+    if (game.turn === playerColor) return;
+
+    setAiThinking(true);
+    const timeoutId = setTimeout(() => {
+      const aiColor = playerColor === 'w' ? 'b' : 'w';
+      const move = getBestMove(game, aiColor, aiDifficulty);
+      if (move) {
+        executeMove(move.from[0], move.from[1], move.to[0], move.to[1]);
+      }
+      setAiThinking(false);
+    }, 300 + Math.random() * 400); // Small delay for natural feel
+
+    return () => clearTimeout(timeoutId);
+  }, [game.turn, gameMode, gameOver, gameStarted, playerColor, aiThinking]);
+
   const handleClick = useCallback((r: number, c: number) => {
-    if (gameOver) return;
+    if (gameOver || aiThinking) return;
+    if (gameMode === 'computer' && game.turn !== playerColor) return;
     if (!gameStarted) {
       setGameStarted(true);
       setIsRunning(true);
@@ -402,6 +599,12 @@ export default function ChessPage() {
     if (selected) {
       const [sr, sc] = selected;
       if (legalMoves.some(([mr, mc]) => mr === r && mc === c)) {
+        // Check if pawn promotion
+        const movingPiece = game.board[sr][sc];
+        if (movingPiece?.type === 'P' && (r === 0 || r === 7)) {
+          setPromotionPending({ from: [sr, sc], to: [r, c] });
+          return;
+        }
         executeMove(sr, sc, r, c);
         return;
       }
@@ -418,13 +621,21 @@ export default function ChessPage() {
       setSelected([r, c]);
       setLegalMoves(getLegalMoves(game.board, r, c, game.enPassant, game.castling));
     }
-  }, [game, selected, legalMoves, gameOver, executeMove]);
+  }, [game, selected, legalMoves, gameOver, executeMove, gameMode, playerColor, aiThinking]);
+
+  const handlePromotion = (pieceType: PieceType) => {
+    if (!promotionPending) return;
+    executeMove(promotionPending.from[0], promotionPending.from[1], promotionPending.to[0], promotionPending.to[1], pieceType);
+    setPromotionPending(null);
+  };
 
   const undo = () => {
     if (history.length === 0) return;
-    setGame(history[history.length - 1]);
-    setHistory(h => h.slice(0, -1));
-    setMoveLog(prev => prev.slice(0, -1));
+    // In computer mode, undo two moves (player + AI)
+    const stepsBack = gameMode === 'computer' && history.length >= 2 ? 2 : 1;
+    setGame(history[history.length - stepsBack]);
+    setHistory(h => h.slice(0, -stepsBack));
+    setMoveLog(prev => prev.slice(0, -stepsBack));
     setSelected(null);
     setLegalMoves([]);
     setStatus('');
@@ -441,8 +652,10 @@ export default function ChessPage() {
     setIsRunning(false);
   };
 
-  const resetGame = () => {
+  const resetGame = (mode?: GameMode) => {
     clearChessGame();
+    const newMode = mode || gameMode;
+    setGameMode(newMode);
     setGame(initGameState());
     setSelected(null);
     setLegalMoves([]);
@@ -454,6 +667,12 @@ export default function ChessPage() {
     setHistory([]);
     setLastMove(null);
     setMoveLog([]);
+    setAiThinking(false);
+    setPromotionPending(null);
+    if (newMode === 'computer') {
+      setFlipped(playerColor === 'b');
+    }
+    setShowModeSelector(false);
   };
 
   const isLastMoveSquare = (r: number, c: number) =>
@@ -495,7 +714,6 @@ export default function ChessPage() {
             ${isChecked ? theme.check : ''}
           `}
         >
-          {/* Coordinate labels */}
           {showRank && (
             <span className={`absolute top-0.5 left-0.5 text-[8px] font-medium leading-none pointer-events-none select-none
               ${isDark ? 'text-white/50' : 'text-black/35'}`}>
@@ -509,16 +727,13 @@ export default function ChessPage() {
             </span>
           )}
 
-          {/* Legal move dot */}
           {isLegal && !cell && (
             <div className="absolute w-[26%] h-[26%] rounded-full bg-black/20" />
           )}
-          {/* Legal capture ring */}
           {isLegal && cell && (
             <div className="absolute inset-[4px] rounded-full ring-[3px] ring-black/20 ring-inset" />
           )}
 
-          {/* Piece */}
           {cell && (
             <motion.span
               className={`relative z-10 select-none leading-none
@@ -536,7 +751,6 @@ export default function ChessPage() {
     }));
   };
 
-  // Material advantage calculation
   const pieceValues: Record<PieceType, number> = { P: 1, N: 3, B: 3, R: 5, Q: 9, K: 0 };
   const calcMaterial = (color: Color) => {
     let total = 0;
@@ -556,9 +770,15 @@ export default function ChessPage() {
     setShowThemeSelector(false);
   };
 
+  const aiDiffLabels: Record<AIDifficulty, string> = {
+    easy: language === 'ar' ? 'سهل' : 'Easy',
+    medium: language === 'ar' ? 'متوسط' : 'Medium',
+    hard: language === 'ar' ? 'صعب' : 'Hard',
+  };
+
   return (
     <div className="min-h-screen bg-background pb-28" dir={dir}>
-      {/* Minimal Header */}
+      {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 max-w-sm mx-auto">
         <button onClick={() => navigate('/games')}
           className="w-9 h-9 rounded-full bg-secondary/80 flex items-center justify-center active:scale-90 transition-transform">
@@ -570,6 +790,10 @@ export default function ChessPage() {
         </h1>
 
         <div className="flex items-center gap-1.5">
+          <button onClick={() => setShowModeSelector(!showModeSelector)}
+            className={`w-9 h-9 rounded-full bg-secondary/80 flex items-center justify-center active:scale-90 transition-transform ${showModeSelector ? 'ring-2 ring-primary' : ''}`}>
+            {gameMode === 'computer' ? <Monitor className="w-4 h-4 text-muted-foreground" /> : <Users className="w-4 h-4 text-muted-foreground" />}
+          </button>
           <button onClick={() => setShowThemeSelector(!showThemeSelector)}
             className="w-9 h-9 rounded-full bg-secondary/80 flex items-center justify-center active:scale-90 transition-transform">
             <Settings2 className="w-4 h-4 text-muted-foreground" />
@@ -581,15 +805,67 @@ export default function ChessPage() {
         </div>
       </div>
 
+      {/* Mode Selector */}
+      <AnimatePresence>
+        {showModeSelector && (
+          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }} className="overflow-hidden max-w-sm mx-auto px-4 mb-3">
+            <div className="bg-secondary/50 rounded-2xl p-3 space-y-3">
+              <p className="text-xs font-medium text-muted-foreground">
+                {language === 'ar' ? 'نمط اللعب' : 'Game Mode'}
+              </p>
+              <div className="flex gap-2">
+                <button onClick={() => resetGame('local')}
+                  className={`flex-1 rounded-xl p-3 flex flex-col items-center gap-1.5 transition-all ${gameMode === 'local' ? 'ring-2 ring-primary bg-primary/10' : 'bg-background/50 hover:bg-background'}`}>
+                  <Users className="w-5 h-5" />
+                  <span className="text-[11px] font-medium">{language === 'ar' ? 'لاعبَين' : '2 Players'}</span>
+                </button>
+                <button onClick={() => resetGame('computer')}
+                  className={`flex-1 rounded-xl p-3 flex flex-col items-center gap-1.5 transition-all ${gameMode === 'computer' ? 'ring-2 ring-primary bg-primary/10' : 'bg-background/50 hover:bg-background'}`}>
+                  <Monitor className="w-5 h-5" />
+                  <span className="text-[11px] font-medium">{language === 'ar' ? 'ضد الكمبيوتر' : 'vs Computer'}</span>
+                </button>
+              </div>
+              {gameMode === 'computer' && (
+                <>
+                  <p className="text-xs font-medium text-muted-foreground">
+                    {language === 'ar' ? 'مستوى الصعوبة' : 'AI Difficulty'}
+                  </p>
+                  <div className="flex gap-1.5">
+                    {(['easy', 'medium', 'hard'] as AIDifficulty[]).map(d => (
+                      <button key={d} onClick={() => { setAiDifficulty(d); resetGame('computer'); }}
+                        className={`flex-1 px-3 py-1.5 rounded-full text-[11px] font-semibold transition-all ${aiDifficulty === d ? 'bg-primary/15 text-primary' : 'text-muted-foreground hover:text-foreground'}`}>
+                        {aiDiffLabels[d]}
+                      </button>
+                    ))}
+                  </div>
+                  <p className="text-xs font-medium text-muted-foreground">
+                    {language === 'ar' ? 'العب بلون' : 'Play as'}
+                  </p>
+                  <div className="flex gap-2">
+                    <button onClick={() => { setPlayerColor('w'); setFlipped(false); resetGame('computer'); }}
+                      className={`flex-1 rounded-xl p-2 flex items-center justify-center gap-2 transition-all ${playerColor === 'w' ? 'ring-2 ring-primary bg-primary/10' : 'bg-background/50'}`}>
+                      <div className="w-5 h-5 rounded-full bg-white border-2 border-border" />
+                      <span className="text-[11px] font-medium">{language === 'ar' ? 'أبيض' : 'White'}</span>
+                    </button>
+                    <button onClick={() => { setPlayerColor('b'); setFlipped(true); resetGame('computer'); }}
+                      className={`flex-1 rounded-xl p-2 flex items-center justify-center gap-2 transition-all ${playerColor === 'b' ? 'ring-2 ring-primary bg-primary/10' : 'bg-background/50'}`}>
+                      <div className="w-5 h-5 rounded-full bg-gray-900 border-2 border-border" />
+                      <span className="text-[11px] font-medium">{language === 'ar' ? 'أسود' : 'Black'}</span>
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Theme Selector */}
       <AnimatePresence>
         {showThemeSelector && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            className="overflow-hidden max-w-sm mx-auto px-4 mb-3"
-          >
+          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }} className="overflow-hidden max-w-sm mx-auto px-4 mb-3">
             <div className="bg-secondary/50 rounded-2xl p-3">
               <p className="text-xs font-medium text-muted-foreground mb-2">
                 {language === 'ar' ? 'نمط الرقعة' : 'Board Style'}
@@ -637,43 +913,90 @@ export default function ChessPage() {
         )}
       </AnimatePresence>
 
-      {/* Player bar — Black */}
+      {/* Promotion Dialog */}
+      <AnimatePresence>
+        {promotionPending && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center">
+            <motion.div initial={{ scale: 0.8 }} animate={{ scale: 1 }}
+              className="bg-card rounded-2xl p-4 shadow-xl">
+              <p className="text-sm font-semibold text-foreground text-center mb-3">
+                {language === 'ar' ? 'اختر قطعة الترقية' : 'Choose promotion piece'}
+              </p>
+              <div className="flex gap-3">
+                {(['Q', 'R', 'B', 'N'] as PieceType[]).map(pt => (
+                  <button key={pt} onClick={() => handlePromotion(pt)}
+                    className="w-14 h-14 rounded-xl bg-secondary/80 flex items-center justify-center hover:bg-primary/20 transition-colors active:scale-90"
+                    style={{ fontSize: '32px' }}>
+                    {PIECE_SVG[game.turn][pt]}
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Player bar — Top */}
       <div className="max-w-[340px] mx-auto px-4 mb-1.5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-full bg-gray-900 border-2 border-border flex items-center justify-center">
-              <span className="text-[10px] text-white font-bold">B</span>
+            <div className={`w-6 h-6 rounded-full border-2 border-border flex items-center justify-center ${flipped ? 'bg-white' : 'bg-gray-900'}`}>
+              <span className={`text-[10px] font-bold ${flipped ? 'text-gray-900' : 'text-white'}`}>{flipped ? 'W' : 'B'}</span>
             </div>
-            <span className="text-xs font-medium text-foreground">{language === 'ar' ? 'أسود' : 'Black'}</span>
-            {blackAdv > 0 && <span className="text-[10px] text-muted-foreground">+{blackAdv}</span>}
+            <span className="text-xs font-medium text-foreground">
+              {flipped
+                ? (language === 'ar' ? 'أبيض' : 'White')
+                : (language === 'ar' ? 'أسود' : 'Black')}
+              {gameMode === 'computer' && (flipped ? playerColor === 'w' : playerColor === 'b') && (
+                <span className="text-muted-foreground text-[10px] mr-1 ml-1">
+                  ({language === 'ar' ? 'أنت' : 'You'})
+                </span>
+              )}
+              {gameMode === 'computer' && (flipped ? playerColor !== 'w' : playerColor !== 'b') && (
+                <span className="text-muted-foreground text-[10px] mr-1 ml-1">
+                  ({language === 'ar' ? 'كمبيوتر' : 'CPU'})
+                </span>
+              )}
+            </span>
+            {(flipped ? whiteAdv < 0 : blackAdv > 0) && <span className="text-[10px] text-muted-foreground">+{flipped ? -whiteAdv : blackAdv}</span>}
           </div>
           <div className="flex gap-0.5 min-h-[18px]">
-            {game.captured.b.map((p, i) => <span key={i} className="text-xs opacity-60">{p}</span>)}
+            {game.captured[flipped ? 'w' : 'b'].map((p, i) => <span key={i} className="text-xs opacity-60">{p}</span>)}
           </div>
         </div>
       </div>
 
       {/* Board */}
       <div className="max-w-[340px] mx-auto px-4 relative">
-        {/* Start overlay */}
         <AnimatePresence>
           {!gameStarted && !gameOver && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               className="absolute inset-0 z-20 rounded-lg bg-card/90 backdrop-blur-sm flex items-center justify-center mx-4"
-              onClick={() => { setGameStarted(true); setIsRunning(true); }}
-            >
+              onClick={() => { setGameStarted(true); setIsRunning(true); }}>
               <div className="flex flex-col items-center gap-3">
                 <Play className="w-10 h-10 text-primary stroke-[1.5]" />
                 <span className="text-muted-foreground font-medium text-sm">
                   {language === 'ar' ? 'اضغط للبدء' : 'Tap to start'}
                 </span>
+                {gameMode === 'computer' && (
+                  <span className="text-xs text-muted-foreground/70">
+                    {language === 'ar' ? `ضد الكمبيوتر (${aiDiffLabels[aiDifficulty]})` : `vs Computer (${aiDiffLabels[aiDifficulty]})`}
+                  </span>
+                )}
               </div>
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* AI thinking indicator */}
+        {aiThinking && (
+          <div className="absolute top-2 left-1/2 -translate-x-1/2 z-10 bg-card/90 backdrop-blur-sm rounded-full px-3 py-1 flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+            <span className="text-[11px] text-muted-foreground">{language === 'ar' ? 'الكمبيوتر يفكر...' : 'Thinking...'}</span>
+          </div>
+        )}
+
         <div className="rounded-lg overflow-hidden shadow-lg">
           <div className="grid grid-cols-8">
             {renderBoard()}
@@ -681,18 +1004,32 @@ export default function ChessPage() {
         </div>
       </div>
 
-      {/* Player bar — White */}
+      {/* Player bar — Bottom */}
       <div className="max-w-[340px] mx-auto px-4 mt-1.5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-full bg-white border-2 border-border flex items-center justify-center">
-              <span className="text-[10px] text-gray-900 font-bold">W</span>
+            <div className={`w-6 h-6 rounded-full border-2 border-border flex items-center justify-center ${flipped ? 'bg-gray-900' : 'bg-white'}`}>
+              <span className={`text-[10px] font-bold ${flipped ? 'text-white' : 'text-gray-900'}`}>{flipped ? 'B' : 'W'}</span>
             </div>
-            <span className="text-xs font-medium text-foreground">{language === 'ar' ? 'أبيض' : 'White'}</span>
-            {whiteAdv > 0 && <span className="text-[10px] text-muted-foreground">+{whiteAdv}</span>}
+            <span className="text-xs font-medium text-foreground">
+              {flipped
+                ? (language === 'ar' ? 'أسود' : 'Black')
+                : (language === 'ar' ? 'أبيض' : 'White')}
+              {gameMode === 'computer' && (flipped ? playerColor === 'b' : playerColor === 'w') && (
+                <span className="text-muted-foreground text-[10px] mr-1 ml-1">
+                  ({language === 'ar' ? 'أنت' : 'You'})
+                </span>
+              )}
+              {gameMode === 'computer' && (flipped ? playerColor !== 'b' : playerColor !== 'w') && (
+                <span className="text-muted-foreground text-[10px] mr-1 ml-1">
+                  ({language === 'ar' ? 'كمبيوتر' : 'CPU'})
+                </span>
+              )}
+            </span>
+            {(flipped ? blackAdv > 0 : whiteAdv > 0) && <span className="text-[10px] text-muted-foreground">+{flipped ? blackAdv : whiteAdv}</span>}
           </div>
           <div className="flex gap-0.5 min-h-[18px]">
-            {game.captured.w.map((p, i) => <span key={i} className="text-xs opacity-60">{p}</span>)}
+            {game.captured[flipped ? 'b' : 'w'].map((p, i) => <span key={i} className="text-xs opacity-60">{p}</span>)}
           </div>
         </div>
       </div>
@@ -702,14 +1039,19 @@ export default function ChessPage() {
         <div className="flex items-center justify-center gap-3">
           <div className={`w-3 h-3 rounded-full ${game.turn === 'w' ? 'bg-white border border-border' : 'bg-gray-900'}`} />
           <span className="text-sm font-medium text-foreground">
-            {game.turn === 'w' ? (language === 'ar' ? 'دور الأبيض' : "White's turn") : (language === 'ar' ? 'دور الأسود' : "Black's turn")}
+            {gameMode === 'computer'
+              ? (game.turn === playerColor
+                ? (language === 'ar' ? 'دورك' : 'Your turn')
+                : (language === 'ar' ? 'دور الكمبيوتر' : "Computer's turn"))
+              : (game.turn === 'w'
+                ? (language === 'ar' ? 'دور الأبيض' : "White's turn")
+                : (language === 'ar' ? 'دور الأسود' : "Black's turn"))}
           </span>
           <div className="flex items-center gap-1 text-xs text-muted-foreground bg-secondary/60 px-2.5 py-1 rounded-full tabular-nums">
             <Clock className="w-3 h-3" />{formatTimer(gameTimer)}
           </div>
         </div>
 
-        {/* Status message */}
         {status && (
           <motion.div initial={{ y: -5, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
             className="text-center mt-2">
@@ -720,7 +1062,7 @@ export default function ChessPage() {
         )}
       </div>
 
-      {/* Move log (last few moves) */}
+      {/* Move log */}
       {moveLog.length > 0 && (
         <div className="max-w-sm mx-auto px-4 mt-3">
           <div className="flex items-center justify-center gap-1.5 flex-wrap">
@@ -741,7 +1083,7 @@ export default function ChessPage() {
 
       {/* Controls */}
       <div className="flex justify-center gap-3 mt-5 max-w-sm mx-auto px-4">
-        <button onClick={undo} disabled={history.length === 0 || gameOver}
+        <button onClick={undo} disabled={history.length === 0 || gameOver || aiThinking}
           className="flex flex-col items-center gap-1 px-4 py-2.5 rounded-2xl bg-secondary/70 text-foreground disabled:opacity-25 active:scale-90 transition-all">
           <Undo2 className="w-5 h-5" />
           <span className="text-[9px] font-medium">{language === 'ar' ? 'تراجع' : 'Undo'}</span>
@@ -754,14 +1096,14 @@ export default function ChessPage() {
         </button>
 
         {!gameOver && (
-          <button onClick={resign}
-            className="flex flex-col items-center gap-1 px-4 py-2.5 rounded-2xl bg-destructive/10 text-destructive active:scale-90 transition-all">
+          <button onClick={resign} disabled={aiThinking}
+            className="flex flex-col items-center gap-1 px-4 py-2.5 rounded-2xl bg-destructive/10 text-destructive active:scale-90 transition-all disabled:opacity-25">
             <Flag className="w-5 h-5" />
             <span className="text-[9px] font-medium">{language === 'ar' ? 'استسلام' : 'Resign'}</span>
           </button>
         )}
 
-        <button onClick={resetGame}
+        <button onClick={() => resetGame()}
           className="flex flex-col items-center gap-1 px-5 py-2.5 rounded-2xl bg-primary text-primary-foreground active:scale-90 transition-all">
           <RotateCcw className="w-5 h-5" />
           <span className="text-[9px] font-medium">{t('chess.newGame')}</span>
