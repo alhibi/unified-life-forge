@@ -9,6 +9,18 @@ interface HourForecast {
   precipitation: number;
 }
 
+interface CachedWeather {
+  forecast: HourForecast[];
+  currentTemp: number;
+  timestamp: number;
+  lat: number;
+  lon: number;
+}
+
+const CACHE_KEY = 'weather_cache';
+const CACHE_TTL = 10 * 60 * 1000; // 10 min
+const REFRESH_INTERVAL = 15 * 60 * 1000;
+
 const getWeatherIcon = (code: number, isDay: boolean) => {
   if (code === 0 || code === 1) return isDay ? Sun : MoonStar;
   if (code === 2) return Cloudy;
@@ -23,11 +35,32 @@ const getWeatherIcon = (code: number, isDay: boolean) => {
   return isDay ? Sun : MoonStar;
 };
 
-const REFRESH_INTERVAL = 15 * 60 * 1000;
+const loadCache = (): CachedWeather | null => {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    if (!raw) return null;
+    const cached: CachedWeather = JSON.parse(raw);
+    if (Date.now() - cached.timestamp < CACHE_TTL) return cached;
+  } catch { /* ignore */ }
+  return null;
+};
+
+const saveCache = (data: CachedWeather) => {
+  try { localStorage.setItem(CACHE_KEY, JSON.stringify(data)); } catch { /* ignore */ }
+};
 
 export default function WeatherWidget() {
   const [forecast, setForecast] = useState<HourForecast[]>([]);
   const [currentTemp, setCurrentTemp] = useState<number | null>(null);
+
+  // Load cache immediately on mount
+  useEffect(() => {
+    const cached = loadCache();
+    if (cached) {
+      setForecast(cached.forecast);
+      setCurrentTemp(cached.currentTemp);
+    }
+  }, []);
 
   const fetchWeather = useCallback(async (lat: number, lon: number) => {
     try {
@@ -36,7 +69,7 @@ export default function WeatherWidget() {
       );
       const data = await res.json();
       if (data?.current && data?.hourly) {
-        setCurrentTemp(Math.round(data.current.temperature_2m));
+        const temp = Math.round(data.current.temperature_2m);
         const currentHour = new Date().getHours();
         const hours: HourForecast[] = [];
         for (let i = currentHour; i < 24 && hours.length < 12; i++) {
@@ -48,13 +81,22 @@ export default function WeatherWidget() {
             precipitation: data.hourly.precipitation_probability[i] ?? 0,
           });
         }
+        setCurrentTemp(temp);
         setForecast(hours);
+        saveCache({ forecast: hours, currentTemp: temp, timestamp: Date.now(), lat, lon });
       }
     } catch { /* silent */ }
   }, []);
 
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>;
+
+    // Try cached location first for instant fetch
+    const cached = loadCache();
+    if (cached) {
+      fetchWeather(cached.lat, cached.lon);
+    }
+
     navigator.geolocation?.getCurrentPosition(
       (pos) => {
         const { latitude, longitude } = pos.coords;
@@ -62,7 +104,7 @@ export default function WeatherWidget() {
         interval = setInterval(() => fetchWeather(latitude, longitude), REFRESH_INTERVAL);
       },
       () => {},
-      { enableHighAccuracy: true, timeout: 8000 }
+      { enableHighAccuracy: false, timeout: 5000, maximumAge: 300000 }
     );
     return () => clearInterval(interval);
   }, [fetchWeather]);
