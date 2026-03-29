@@ -23,6 +23,7 @@ import PrayerSettingsPage from "./pages/PrayerSettings";
 import DuasPage from "./pages/Duas";
 import DiwanPage from "./pages/Diwan";
 import AllOccasionsPage from "./pages/AllOccasions";
+import ReadingPage from "./pages/Reading";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -43,6 +44,7 @@ function AnimatedRoutes() {
         <Route path="/duas" element={<PageTransition><DuasPage /></PageTransition>} />
         <Route path="/diwan" element={<PageTransition><DiwanPage /></PageTransition>} />
         <Route path="/occasions" element={<PageTransition><AllOccasionsPage /></PageTransition>} />
+        <Route path="/reading" element={<PageTransition><ReadingPage /></PageTransition>} />
         <Route path="/settings" element={<PageTransition><SettingsPage /></PageTransition>} />
         <Route path="/settings/theme" element={<PageTransition><ThemeSettingsPage /></PageTransition>} />
         <Route path="/auth" element={<PageTransition><AuthPage /></PageTransition>} />
