@@ -908,46 +908,18 @@ export default function ChessPage() {
               </p>
               <div className="flex gap-2">
                 <button onClick={() => resetGame('local')}
-                  className={`flex-1 rounded-xl p-3 flex flex-col items-center gap-1.5 transition-all ${gameMode === 'local' ? 'ring-2 ring-primary bg-primary/10' : 'bg-background/50 hover:bg-background'}`}>
+                  className={`flex-1 rounded-xl p-3 flex flex-col items-center gap-1.5 transition-all ring-2 ring-primary bg-primary/10`}>
                   <Users className="w-5 h-5" />
                   <span className="text-[11px] font-medium">{language === 'ar' ? 'لاعبَين' : '2 Players'}</span>
                 </button>
-                <button onClick={() => resetGame('computer')}
-                  className={`flex-1 rounded-xl p-3 flex flex-col items-center gap-1.5 transition-all ${gameMode === 'computer' ? 'ring-2 ring-primary bg-primary/10' : 'bg-background/50 hover:bg-background'}`}>
-                  <Monitor className="w-5 h-5" />
-                  <span className="text-[11px] font-medium">{language === 'ar' ? 'ضد الكمبيوتر' : 'vs Computer'}</span>
-                </button>
+                <div className="flex-1 rounded-xl p-3 flex flex-col items-center gap-1.5 bg-background/50 opacity-50 cursor-not-allowed relative">
+                  <Monitor className="w-5 h-5 text-muted-foreground" />
+                  <span className="text-[11px] font-medium text-muted-foreground">{language === 'ar' ? 'ضد الكمبيوتر' : 'vs Computer'}</span>
+                  <span className="absolute -top-1 -right-1 text-[8px] bg-primary text-primary-foreground px-1.5 py-0.5 rounded-full font-bold">
+                    {language === 'ar' ? 'قريباً' : 'Soon'}
+                  </span>
+                </div>
               </div>
-              {gameMode === 'computer' && (
-                <>
-                  <p className="text-xs font-medium text-muted-foreground">
-                    {language === 'ar' ? 'مستوى الصعوبة' : 'AI Difficulty'}
-                  </p>
-                  <div className="flex gap-1.5">
-                    {(['easy', 'medium', 'hard'] as AIDifficulty[]).map(d => (
-                      <button key={d} onClick={() => { setAiDifficulty(d); resetGame('computer'); }}
-                        className={`flex-1 px-3 py-1.5 rounded-full text-[11px] font-semibold transition-all ${aiDifficulty === d ? 'bg-primary/15 text-primary' : 'text-muted-foreground hover:text-foreground'}`}>
-                        {aiDiffLabels[d]}
-                      </button>
-                    ))}
-                  </div>
-                  <p className="text-xs font-medium text-muted-foreground">
-                    {language === 'ar' ? 'العب بلون' : 'Play as'}
-                  </p>
-                  <div className="flex gap-2">
-                    <button onClick={() => { setPlayerColor('w'); setFlipped(false); resetGame('computer'); }}
-                      className={`flex-1 rounded-xl p-2 flex items-center justify-center gap-2 transition-all ${playerColor === 'w' ? 'ring-2 ring-primary bg-primary/10' : 'bg-background/50'}`}>
-                      <div className="w-5 h-5 rounded-full bg-white border-2 border-border" />
-                      <span className="text-[11px] font-medium">{language === 'ar' ? 'أبيض' : 'White'}</span>
-                    </button>
-                    <button onClick={() => { setPlayerColor('b'); setFlipped(true); resetGame('computer'); }}
-                      className={`flex-1 rounded-xl p-2 flex items-center justify-center gap-2 transition-all ${playerColor === 'b' ? 'ring-2 ring-primary bg-primary/10' : 'bg-background/50'}`}>
-                      <div className="w-5 h-5 rounded-full bg-gray-900 border-2 border-border" />
-                      <span className="text-[11px] font-medium">{language === 'ar' ? 'أسود' : 'Black'}</span>
-                    </button>
-                  </div>
-                </>
-              )}
             </div>
           </motion.div>
         )}
@@ -1040,16 +1012,6 @@ export default function ChessPage() {
               {flipped
                 ? (language === 'ar' ? 'أبيض' : 'White')
                 : (language === 'ar' ? 'أسود' : 'Black')}
-              {gameMode === 'computer' && (flipped ? playerColor === 'w' : playerColor === 'b') && (
-                <span className="text-muted-foreground text-[10px] mr-1 ml-1">
-                  ({language === 'ar' ? 'أنت' : 'You'})
-                </span>
-              )}
-              {gameMode === 'computer' && (flipped ? playerColor !== 'w' : playerColor !== 'b') && (
-                <span className="text-muted-foreground text-[10px] mr-1 ml-1">
-                  ({language === 'ar' ? 'كمبيوتر' : 'CPU'})
-                </span>
-              )}
             </span>
             {(flipped ? whiteAdv < 0 : blackAdv > 0) && <span className="text-[10px] text-muted-foreground">+{flipped ? -whiteAdv : blackAdv}</span>}
           </div>
@@ -1071,23 +1033,11 @@ export default function ChessPage() {
                 <span className="text-muted-foreground font-medium text-sm">
                   {language === 'ar' ? 'اضغط للبدء' : 'Tap to start'}
                 </span>
-                {gameMode === 'computer' && (
-                  <span className="text-xs text-muted-foreground/70">
-                    {language === 'ar' ? `ضد الكمبيوتر (${aiDiffLabels[aiDifficulty]})` : `vs Computer (${aiDiffLabels[aiDifficulty]})`}
-                  </span>
-                )}
               </div>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* AI thinking indicator */}
-        {aiThinking && (
-          <div className="absolute top-2 left-1/2 -translate-x-1/2 z-10 bg-card/90 backdrop-blur-sm rounded-full px-3 py-1 flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-            <span className="text-[11px] text-muted-foreground">{language === 'ar' ? 'الكمبيوتر يفكر...' : 'Thinking...'}</span>
-          </div>
-        )}
 
         <div className="rounded-lg overflow-hidden shadow-lg">
           <div className="grid grid-cols-8">
@@ -1107,16 +1057,6 @@ export default function ChessPage() {
               {flipped
                 ? (language === 'ar' ? 'أسود' : 'Black')
                 : (language === 'ar' ? 'أبيض' : 'White')}
-              {gameMode === 'computer' && (flipped ? playerColor === 'b' : playerColor === 'w') && (
-                <span className="text-muted-foreground text-[10px] mr-1 ml-1">
-                  ({language === 'ar' ? 'أنت' : 'You'})
-                </span>
-              )}
-              {gameMode === 'computer' && (flipped ? playerColor !== 'b' : playerColor !== 'w') && (
-                <span className="text-muted-foreground text-[10px] mr-1 ml-1">
-                  ({language === 'ar' ? 'كمبيوتر' : 'CPU'})
-                </span>
-              )}
             </span>
             {(flipped ? blackAdv > 0 : whiteAdv > 0) && <span className="text-[10px] text-muted-foreground">+{flipped ? blackAdv : whiteAdv}</span>}
           </div>
@@ -1131,13 +1071,9 @@ export default function ChessPage() {
         <div className="flex items-center justify-center gap-3">
           <div className={`w-3 h-3 rounded-full ${game.turn === 'w' ? 'bg-white border border-border' : 'bg-gray-900'}`} />
           <span className="text-sm font-medium text-foreground">
-            {gameMode === 'computer'
-              ? (game.turn === playerColor
-                ? (language === 'ar' ? 'دورك' : 'Your turn')
-                : (language === 'ar' ? 'دور الكمبيوتر' : "Computer's turn"))
-              : (game.turn === 'w'
-                ? (language === 'ar' ? 'دور الأبيض' : "White's turn")
-                : (language === 'ar' ? 'دور الأسود' : "Black's turn"))}
+            {game.turn === 'w'
+              ? (language === 'ar' ? 'دور الأبيض' : "White's turn")
+              : (language === 'ar' ? 'دور الأسود' : "Black's turn")}
           </span>
           <div className="flex items-center gap-1 text-xs text-muted-foreground bg-secondary/60 px-2.5 py-1 rounded-full tabular-nums">
             <Clock className="w-3 h-3" />{formatTimer(gameTimer)}
