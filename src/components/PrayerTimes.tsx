@@ -71,6 +71,15 @@ export default function PrayerTimes() {
 
   const fetchPrayers = useCallback(async (lat: number, lng: number) => {
     try {
+      // Fetch city name via reverse geocoding
+      try {
+        const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=ar`);
+        const geoData = await geoRes.json();
+        const addr = geoData.address;
+        const city = addr?.city || addr?.town || addr?.village || addr?.suburb || addr?.county || '';
+        if (city) setLocationName(city);
+      } catch {}
+
       const today = new Date();
       const dd = today.getDate();
       const mm = today.getMonth() + 1;
@@ -87,12 +96,6 @@ export default function PrayerTimes() {
           time: timings[p.key],
         }));
         setPrayers(result);
-        const meta = data.data.meta;
-        if (meta?.timezone) {
-          const tz = meta.timezone;
-          const city = tz.includes('/') ? tz.split('/').pop()?.replace(/_/g, ' ') : tz;
-          setLocationName(city || '');
-        }
       } else {
         setError('تعذر جلب مواقيت الصلاة');
       }
