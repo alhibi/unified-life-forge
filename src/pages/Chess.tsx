@@ -602,6 +602,10 @@ export default function ChessPage() {
     setHistory(prev => [...prev, { ...game }]);
     setLastMove({ from: [sr, sc], to: [tr, tc] });
 
+    // Play sound effect
+    if (isCapture) playCaptureSound();
+    else playMoveSound();
+
     const next = game.turn === 'w' ? 'b' : 'w';
     const newGame: GameState = {
       board: nb, turn: next, castling: newCastling,
