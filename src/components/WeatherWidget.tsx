@@ -65,25 +65,44 @@ export default function WeatherWidget() {
   const fetchWeather = useCallback(async (lat: number, lon: number) => {
     try {
       const res = await fetch(
-        `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,is_day&hourly=temperature_2m,weather_code,is_day,precipitation_probability&timezone=auto&forecast_days=1`
+        `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,is_day&hourly=temperature_2m,weather_code,is_day,precipitation_probability&timezone=auto&forecast_days=2`
       );
       const data = await res.json();
       if (data?.current && data?.hourly) {
         const temp = Math.round(data.current.temperature_2m);
-        const currentHour = new Date().getHours();
+        // Use the API's current time to determine the correct local hour
+        const apiCurrentTime = data.current.time; // e.g. "2026-03-29T20:00"
+        const currentHour = parseInt(apiCurrentTime.split('T')[1].split(':')[0], 10);
+        const currentDateStr = apiCurrentTime.split('T')[0];
+        
         const hours: HourForecast[] = [];
-        for (let i = currentHour; i < 24 && hours.length < 12; i++) {
-          hours.push({
-            hour: i,
-            temperature: Math.round(data.hourly.temperature_2m[i]),
-            weatherCode: data.hourly.weather_code[i],
-            isDay: data.hourly.is_day[i] === 1,
-            precipitation: data.hourly.precipitation_probability[i] ?? 0,
-          });
+        const allTimes: string[] = data.hourly.time;
+        
+        // Find the index matching current hour
+        const startIdx = allTimes.findIndex((t: string) => {
+          const [date, time] = t.split('T');
+          const h = parseInt(time.split(':')[0], 10);
+          return date === currentDateStr && h === currentHour;
+        });
+        
+        if (startIdx >= 0) {
+          for (let i = startIdx; i < allTimes.length && hours.length < 12; i++) {
+            const h = parseInt(allTimes[i].split('T')[1].split(':')[0], 10);
+            hours.push({
+              hour: h,
+              temperature: Math.round(data.hourly.temperature_2m[i]),
+              weatherCode: data.hourly.weather_code[i],
+              isDay: data.hourly.is_day[i] === 1,
+              precipitation: data.hourly.precipitation_probability[i] ?? 0,
+            });
+          }
         }
-        setCurrentTemp(temp);
-        setForecast(hours);
-        saveCache({ forecast: hours, currentTemp: temp, timestamp: Date.now(), lat, lon });
+        
+        if (hours.length > 0) {
+          setCurrentTemp(temp);
+          setForecast(hours);
+          saveCache({ forecast: hours, currentTemp: temp, timestamp: Date.now(), lat, lon });
+        }
       }
     } catch { /* silent */ }
   }, []);
@@ -111,8 +130,10 @@ export default function WeatherWidget() {
 
   if (!forecast.length || currentTemp === null) return null;
 
+  const nowHour = forecast.length > 0 ? forecast[0].hour : -1;
+
   const formatHour = (h: number) => {
-    if (h === new Date().getHours()) return 'الآن';
+    if (h === nowHour) return 'الآن';
     const period = h < 12 ? 'ص' : 'م';
     const display = h === 0 ? 12 : h > 12 ? h - 12 : h;
     return `${display}${period}`;
@@ -127,7 +148,7 @@ export default function WeatherWidget() {
       <div className="flex items-center gap-3 overflow-x-auto no-scrollbar">
         {forecast.map((f) => {
           const Icon = getWeatherIcon(f.weatherCode, f.isDay);
-          const isNow = f.hour === new Date().getHours();
+          const isNow = f.hour === nowHour;
           return (
             <div
               key={f.hour}
