@@ -94,6 +94,51 @@ export type Database = {
         }
         Relationships: []
       }
+      rss_articles: {
+        Row: {
+          created_at: string
+          description: string | null
+          fetched_at: string
+          full_content: string | null
+          id: string
+          image: string | null
+          images: Json | null
+          link: string
+          pub_date: string | null
+          source_name: string
+          source_url: string
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          fetched_at?: string
+          full_content?: string | null
+          id?: string
+          image?: string | null
+          images?: Json | null
+          link: string
+          pub_date?: string | null
+          source_name: string
+          source_url: string
+          title: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          fetched_at?: string
+          full_content?: string | null
+          id?: string
+          image?: string | null
+          images?: Json | null
+          link?: string
+          pub_date?: string | null
+          source_name?: string
+          source_url?: string
+          title?: string
+        }
+        Relationships: []
+      }
       user_settings: {
         Row: {
           id: string
