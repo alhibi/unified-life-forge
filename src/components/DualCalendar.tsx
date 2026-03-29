@@ -68,26 +68,26 @@ export default function DualCalendar() {
   return (
     <div className="premium-card-intense p-4">
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-3">
         <button
           onClick={dir === 'rtl' ? nextMonth : prevMonth}
-          className="w-9 h-9 rounded-full flex items-center justify-center bg-secondary hover:bg-muted transition-colors active:scale-90 duration-150"
+          className="w-8 h-8 rounded-full flex items-center justify-center bg-secondary hover:bg-muted transition-colors active:scale-90 duration-150"
         >
-          <ChevronLeft className="w-4 h-4 text-foreground" />
+          <ChevronLeft className="w-3.5 h-3.5 text-foreground" />
         </button>
         <button onClick={goToday} className="text-center">
-          <div className="text-[17px] font-semibold text-foreground leading-snug">
+          <div className="text-[15px] font-semibold text-foreground leading-snug">
             {t(`months.${viewMonth}`)} {viewYear}
           </div>
-          <div className="text-xs text-primary font-medium mt-0.5">
+          <div className="text-[11px] text-primary font-medium mt-0.5">
             {t(`hijriMonths.${hijriInfo.month}`)} {hijriInfo.year}
           </div>
         </button>
         <button
           onClick={dir === 'rtl' ? prevMonth : nextMonth}
-          className="w-9 h-9 rounded-full flex items-center justify-center bg-secondary hover:bg-muted transition-colors active:scale-90 duration-150"
+          className="w-8 h-8 rounded-full flex items-center justify-center bg-secondary hover:bg-muted transition-colors active:scale-90 duration-150"
         >
-          <ChevronRight className="w-4 h-4 text-foreground" />
+          <ChevronRight className="w-3.5 h-3.5 text-foreground" />
         </button>
       </div>
 
