@@ -179,7 +179,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
     const { data } = await supabase
       .from('profiles')
       .select('user_id, username')
-      .ilike('username', searchUser.trim())
+      .ilike('username', `%${searchUser.trim()}%`)
       .neq('user_id', user.id)
       .maybeSingle();
 
