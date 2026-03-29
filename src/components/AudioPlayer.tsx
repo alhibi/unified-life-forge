@@ -32,26 +32,7 @@ const reciters: Reciter[] = [
       { id: 2, name: 'سورة البقرة', url: 'https://server10.mp3quran.net/ajm/002.mp3' },
     ],
   },
-  {
-    id: 'sudais',
-    name: 'عبدالرحمن السديس',
-    nameEn: 'Abdulrahman Al-Sudais',
-    surahs: [
-      { id: 1, name: 'سورة الفاتحة', url: 'https://server11.mp3quran.net/sds/001.mp3' },
-      { id: 2, name: 'سورة البقرة', url: 'https://server11.mp3quran.net/sds/002.mp3' },
-    ],
-  },
-  {
-    id: 'mishary',
-    name: 'مشاري العفاسي',
-    nameEn: 'Mishary Al-Afasy',
-    surahs: [
-      { id: 1, name: 'سورة الفاتحة', url: 'https://server12.mp3quran.net/afsy/001.mp3' },
-      { id: 2, name: 'سورة البقرة', url: 'https://server12.mp3quran.net/afsy/002.mp3' },
-    ],
-  },
 ];
-
 type Tab = 'quran' | 'local';
 
 export default function AudioPlayer() {
