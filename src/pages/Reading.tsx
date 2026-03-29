@@ -4,12 +4,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { useNavigate } from 'react-router-dom';
 import {
   Plus, Rss, Trash2, ExternalLink, RefreshCw, ChevronLeft,
-  Bookmark, BookmarkCheck, Search, Settings2, Globe, Star, Clock, Filter,
-  Newspaper, X, Check, Copy, ArrowRight
+  Bookmark, BookmarkCheck, Search, Settings2, Globe, Star, Clock,
+  Newspaper, X, Check, Copy, Database, Wifi
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -31,12 +30,6 @@ interface FeedSource {
   enabled: boolean;
 }
 
-interface FeedResult {
-  url: string;
-  title: string;
-  items: FeedItem[];
-}
-
 const DEFAULT_FEEDS: FeedSource[] = [
   { url: 'https://www.aljazeera.net/aljazeerarss/a7c186be-1baa-4bd4-9d80-a84db769f779/73d0e1b4-532f-45ef-b135-bba0b18ad1a2', name: 'الجزيرة نت', category: 'أخبار', enabled: true },
   { url: 'https://www.sana.sy/?feed=rss2', name: 'سانا', category: 'أخبار', enabled: true },
@@ -54,7 +47,7 @@ const SUGGESTED_FEEDS: FeedSource[] = [
 const FEEDS_STORAGE_KEY = 'rss-reader-feeds-v2';
 const BOOKMARKS_STORAGE_KEY = 'rss-reader-bookmarks';
 const READ_STORAGE_KEY = 'rss-reader-read';
-const AUTO_REFRESH_INTERVAL = 60 * 60 * 1000;
+const LAST_REFRESH_KEY = 'rss-reader-last-refresh';
 
 function getStoredFeeds(): FeedSource[] {
   try {
@@ -101,7 +94,7 @@ function formatDate(dateStr: string, lang: string): string {
 
 function sanitizeHtml(html: string): string {
   if (!html) return '';
-  let clean = html
+  return html
     .replace(/<script[\s\S]*?<\/script>/gi, '')
     .replace(/<style[\s\S]*?<\/style>/gi, '')
     .replace(/<iframe[\s\S]*?<\/iframe>/gi, '')
@@ -110,7 +103,6 @@ function sanitizeHtml(html: string): string {
     .replace(/on\w+="[^"]*"/gi, '')
     .replace(/on\w+='[^']*'/gi, '')
     .replace(/javascript:/gi, '');
-  return clean;
 }
 
 type View = 'list' | 'article' | 'manage' | 'suggested';
@@ -124,6 +116,7 @@ export default function ReadingPage() {
   const [feedSources, setFeedSources] = useState<FeedSource[]>(getStoredFeeds);
   const [articles, setArticles] = useState<FeedItem[]>([]);
   const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [newUrl, setNewUrl] = useState('');
   const [newName, setNewName] = useState('');
   const [newCategory, setNewCategory] = useState('أخبار');
@@ -135,83 +128,109 @@ export default function ReadingPage() {
   const [filterTab, setFilterTab] = useState<FilterTab>('all');
   const [sourceFilter, setSourceFilter] = useState<string>('all');
   const [showSearch, setShowSearch] = useState(false);
+  const [totalInDB, setTotalInDB] = useState(0);
+  const [lastRefresh, setLastRefresh] = useState<string | null>(localStorage.getItem(LAST_REFRESH_KEY));
   const autoRefreshRef = useRef<NodeJS.Timeout | null>(null);
 
-  const enabledUrls = useMemo(() => feedSources.filter(f => f.enabled).map(f => f.url), [feedSources]);
-  const sources = useMemo(() => Array.from(new Set(articles.map(a => a.source))), [articles]);
+  const enabledFeeds = useMemo(() => feedSources.filter(f => f.enabled), [feedSources]);
+  const enabledNames = useMemo(() => enabledFeeds.map(f => f.name), [enabledFeeds]);
+  const sourceCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    articles.forEach(a => { counts[a.source] = (counts[a.source] || 0) + 1; });
+    return counts;
+  }, [articles]);
 
-  const fetchFeeds = useCallback(async () => {
-    if (enabledUrls.length === 0) { setArticles([]); return; }
-    setLoading(true);
+  // === CORE: Load articles from database ===
+  const loadFromDB = useCallback(async () => {
+    if (enabledNames.length === 0) { setArticles([]); setTotalInDB(0); return; }
+    
+    try {
+      const { data, count } = await supabase
+        .from('rss_articles')
+        .select('*', { count: 'exact' })
+        .in('source_name', enabledNames)
+        .order('pub_date', { ascending: false })
+        .limit(500);
+      
+      if (data) {
+        const items: FeedItem[] = data.map((r: any) => ({
+          title: r.title,
+          link: r.link,
+          description: r.description || '',
+          fullContent: r.full_content || '',
+          pubDate: r.pub_date || r.created_at || '',
+          image: r.image,
+          images: r.images || [],
+          source: r.source_name,
+        }));
+        setArticles(items);
+        setTotalInDB(count || items.length);
+      }
+    } catch (e) {
+      console.error('DB load error:', e);
+    }
+  }, [enabledNames]);
+
+  // === Background refresh: fetch from RSS, store in DB, then reload from DB ===
+  const refreshFeeds = useCallback(async (silent = false) => {
+    if (enabledFeeds.length === 0) return;
+    if (!silent) setRefreshing(true);
+    
     try {
       const nameMap: Record<string, string> = {};
-      feedSources.filter(f => f.enabled).forEach(f => { nameMap[f.url] = f.name; });
-
-      // 1. Load cached articles from DB first (instant)
-      const defaultUrls = DEFAULT_FEEDS.map(f => f.url);
-      const enabledDefaultUrls = enabledUrls.filter(u => defaultUrls.includes(u));
+      enabledFeeds.forEach(f => { nameMap[f.url] = f.name; });
       
-      let dbArticles: FeedItem[] = [];
-      if (enabledDefaultUrls.length > 0) {
-        const enabledNames = enabledDefaultUrls.map(u => nameMap[u] || u);
-        const { data: dbRows } = await supabase
-          .from('rss_articles')
-          .select('*')
-          .in('source_name', enabledNames)
-          .order('pub_date', { ascending: false })
-          .limit(200);
-        
-        if (dbRows && dbRows.length > 0) {
-          dbArticles = dbRows.map((r: any) => ({
-            title: r.title,
-            link: r.link,
-            description: r.description || '',
-            fullContent: r.full_content || '',
-            pubDate: r.pub_date || '',
-            image: r.image,
-            images: r.images || [],
-            source: r.source_name,
-          }));
-          // Show DB articles immediately
-          setArticles(dbArticles);
-          setLoading(false);
-        }
-      }
-
-      // 2. Fetch fresh articles from RSS (background refresh + store in DB)
-      const { data, error } = await supabase.functions.invoke('fetch-rss', {
-        body: { urls: enabledUrls, limit: 50, fetchFullContent: true, store: true, nameMap },
+      const { error } = await supabase.functions.invoke('fetch-rss', {
+        body: { 
+          urls: enabledFeeds.map(f => f.url), 
+          limit: 100, 
+          fetchFullContent: true, 
+          store: true, 
+          nameMap 
+        },
       });
+      
       if (error) throw error;
-      const allItems: FeedItem[] = [];
-      (data.feeds || []).forEach((feed: FeedResult) => {
-        const overrideName = nameMap[feed.url] || feed.title;
-        feed.items.forEach(item => allItems.push({ ...item, source: overrideName }));
-      });
-      allItems.sort((a, b) => {
-        const da = a.pubDate ? new Date(a.pubDate).getTime() : 0;
-        const db = b.pubDate ? new Date(b.pubDate).getTime() : 0;
-        return db - da;
-      });
-      setArticles(allItems);
+      
+      const now = new Date().toISOString();
+      setLastRefresh(now);
+      localStorage.setItem(LAST_REFRESH_KEY, now);
+      
+      // Reload from DB to show new articles
+      await loadFromDB();
+      
+      if (!silent) {
+        toast.success(isAr ? 'تم تحديث المقالات' : 'Articles updated');
+      }
     } catch (e: any) {
-      console.error('RSS fetch error:', e);
-      // If we already have DB articles, don't show error
-      if (articles.length === 0) {
-        toast.error(isAr ? 'فشل في تحميل الأخبار' : 'Failed to load feeds');
+      console.error('Refresh error:', e);
+      if (!silent) {
+        toast.error(isAr ? 'فشل في التحديث' : 'Refresh failed');
       }
     } finally {
-      setLoading(false);
+      setRefreshing(false);
     }
-  }, [enabledUrls, isAr, feedSources]);
+  }, [enabledFeeds, isAr, loadFromDB]);
 
+  // On mount: load from DB immediately, then background refresh
   useEffect(() => {
-    fetchFeeds();
-    autoRefreshRef.current = setInterval(fetchFeeds, AUTO_REFRESH_INTERVAL);
+    setLoading(true);
+    loadFromDB().then(() => {
+      setLoading(false);
+      // Check if we need a refresh (>30 min since last)
+      const last = localStorage.getItem(LAST_REFRESH_KEY);
+      const shouldRefresh = !last || (Date.now() - new Date(last).getTime() > 30 * 60 * 1000);
+      if (shouldRefresh) {
+        refreshFeeds(true);
+      }
+    });
+    
+    // Auto-refresh every hour
+    autoRefreshRef.current = setInterval(() => refreshFeeds(true), 60 * 60 * 1000);
     return () => {
       if (autoRefreshRef.current) clearInterval(autoRefreshRef.current);
     };
-  }, [fetchFeeds]);
+  }, [loadFromDB, refreshFeeds]);
 
   const filteredArticles = useMemo(() => {
     let items = [...articles];
@@ -224,6 +243,8 @@ export default function ReadingPage() {
     }
     return items;
   }, [articles, filterTab, sourceFilter, searchQuery, bookmarks, readArticles]);
+
+  const unreadCount = useMemo(() => articles.filter(a => !readArticles.includes(a.link)).length, [articles, readArticles]);
 
   const toggleBookmark = (link: string) => {
     const updated = bookmarks.includes(link) ? bookmarks.filter(b => b !== link) : [...bookmarks, link];
@@ -289,6 +310,8 @@ export default function ReadingPage() {
     else if (view === 'manage') { setView('list'); }
     else { navigate('/'); }
   };
+
+  const refreshTimeAgo = lastRefresh ? timeAgo(lastRefresh, language) : null;
 
   return (
     <div className="min-h-screen bg-background flex flex-col pb-20">
@@ -447,7 +470,9 @@ export default function ReadingPage() {
                         <p className="text-sm font-medium text-foreground truncate">{feed.name}</p>
                         <p className="text-[10px] text-muted-foreground truncate" dir="ltr">{feed.url}</p>
                       </div>
-                      <span className="text-[10px] px-2 py-1 rounded-lg bg-primary/10 text-primary font-medium shrink-0">{feed.category}</span>
+                      <span className="text-[11px] px-2 py-1 rounded-lg bg-primary/10 text-primary font-bold shrink-0">
+                        {sourceCounts[feed.name] || 0}
+                      </span>
                       <button onClick={() => toggleFeedEnabled(feed.url)} className={`p-1.5 rounded-lg transition-colors ${feed.enabled ? 'text-primary hover:bg-primary/10' : 'text-muted-foreground hover:bg-accent'}`}>
                         {feed.enabled ? <Check className="h-4 w-4" /> : <X className="h-4 w-4" />}
                       </button>
@@ -461,7 +486,10 @@ export default function ReadingPage() {
             </div>
 
             <div className="px-4 py-3 border-t border-border/30 flex items-center justify-between text-[11px] text-muted-foreground">
-              <span>{isAr ? `${feedSources.length} مصدر • ${feedSources.filter(f => f.enabled).length} مفعّل` : `${feedSources.length} feeds • ${feedSources.filter(f => f.enabled).length} enabled`}</span>
+              <span className="flex items-center gap-1.5">
+                <Database className="h-3 w-3" />
+                {isAr ? `${totalInDB} مقال في الأرشيف` : `${totalInDB} in archive`}
+              </span>
               <Button variant="ghost" size="sm" className="h-8 text-xs rounded-xl" onClick={() => setView('suggested')}>
                 <Star className="h-3 w-3 me-1" />
                 {isAr ? 'مقترحات' : 'Suggestions'}
@@ -490,8 +518,9 @@ export default function ReadingPage() {
                   <button onClick={() => setShowSearch(!showSearch)} className="p-2.5 rounded-xl hover:bg-accent/50 active:scale-95 transition-all">
                     <Search className={`h-4 w-4 ${showSearch ? 'text-primary' : 'text-muted-foreground'}`} />
                   </button>
-                  <button onClick={fetchFeeds} disabled={loading} className="p-2.5 rounded-xl hover:bg-accent/50 active:scale-95 transition-all">
-                    <RefreshCw className={`h-4 w-4 text-muted-foreground ${loading ? 'animate-spin' : ''}`} />
+                  <button onClick={() => refreshFeeds(false)} disabled={refreshing} className="p-2.5 rounded-xl hover:bg-accent/50 active:scale-95 transition-all relative">
+                    <RefreshCw className={`h-4 w-4 text-muted-foreground ${refreshing ? 'animate-spin' : ''}`} />
+                    {refreshing && <Wifi className="h-2.5 w-2.5 text-primary absolute top-1 end-1 animate-pulse" />}
                   </button>
                   <button onClick={() => setView('manage')} className="p-2.5 rounded-xl hover:bg-accent/50 active:scale-95 transition-all">
                     <Settings2 className="h-4 w-4 text-muted-foreground" />
@@ -514,23 +543,23 @@ export default function ReadingPage() {
               </AnimatePresence>
 
               <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
-                {/* Source filter buttons that replace "الكل" with individual sources */}
                 <button onClick={() => { setFilterTab('all'); setSourceFilter('all'); }}
                   className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all shrink-0 active:scale-95 ${filterTab === 'all' && sourceFilter === 'all' ? 'bg-primary text-primary-foreground shadow-sm' : 'bg-accent/30 text-muted-foreground hover:bg-accent/50'}`}>
                   {isAr ? 'الكل' : 'All'}
                   <span className="ms-1 opacity-70">{articles.length}</span>
                 </button>
-                {feedSources.filter(f => f.enabled).map(source => (
+                {enabledFeeds.map(source => (
                   <button key={source.url} onClick={() => { setFilterTab('all'); setSourceFilter(source.name === sourceFilter ? 'all' : source.name); }}
                     className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all shrink-0 active:scale-95 ${filterTab === 'all' && sourceFilter === source.name ? 'bg-primary text-primary-foreground shadow-sm' : 'bg-accent/30 text-muted-foreground hover:bg-accent/50'}`}>
                     {source.name}
-                    <span className="ms-1 opacity-70">{articles.filter(a => a.source === source.name).length}</span>
+                    <span className="ms-1 opacity-70">{sourceCounts[source.name] || 0}</span>
                   </button>
                 ))}
                 <div className="w-px h-4 bg-border/40 shrink-0" />
                 <button onClick={() => setFilterTab('unread')}
                   className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all shrink-0 active:scale-95 ${filterTab === 'unread' ? 'bg-primary text-primary-foreground shadow-sm' : 'bg-accent/30 text-muted-foreground hover:bg-accent/50'}`}>
                   {isAr ? 'غير مقروء' : 'Unread'}
+                  <span className="ms-1 opacity-70">{unreadCount}</span>
                 </button>
                 <button onClick={() => setFilterTab('bookmarks')}
                   className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all shrink-0 active:scale-95 ${filterTab === 'bookmarks' ? 'bg-primary text-primary-foreground shadow-sm' : 'bg-accent/30 text-muted-foreground hover:bg-accent/50'}`}>
@@ -555,7 +584,10 @@ export default function ReadingPage() {
                     <><Search className="h-8 w-8 text-muted-foreground/30" /><p className="text-sm text-muted-foreground">{isAr ? 'لا توجد نتائج' : 'No results'}</p></>
                   ) : (
                     <><Newspaper className="h-8 w-8 text-muted-foreground/30" /><p className="text-sm text-muted-foreground">{isAr ? 'لا توجد مقالات' : 'No articles'}</p>
-                      <Button variant="outline" size="sm" onClick={() => setView('manage')} className="rounded-xl">{isAr ? 'إضافة مصادر' : 'Add feeds'}</Button></>
+                      <Button variant="outline" size="sm" onClick={() => refreshFeeds(false)} className="rounded-xl">
+                        <RefreshCw className="h-3.5 w-3.5 me-1.5" />
+                        {isAr ? 'تحديث الآن' : 'Refresh now'}
+                      </Button></>
                   )}
                 </div>
               ) : (
@@ -564,7 +596,7 @@ export default function ReadingPage() {
                     const isRead = readArticles.includes(article.link);
                     const isBookmarked = bookmarks.includes(article.link);
                     return (
-                      <motion.div key={`${article.link}-${i}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: Math.min(i * 0.03, 0.5) }}
+                      <motion.div key={`${article.link}-${i}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: Math.min(i * 0.02, 0.3) }}
                         className={`group relative ${isRead ? 'opacity-65' : ''}`}>
                         <button onClick={() => openArticle(article)} className="w-full text-start p-4 hover:bg-accent/20 active:bg-accent/30 transition-colors flex gap-3.5">
                           <div className="flex-1 min-w-0">
@@ -591,10 +623,18 @@ export default function ReadingPage() {
             </div>
 
             <div className="px-4 py-2.5 border-t border-border/30 flex items-center justify-between text-[11px] text-muted-foreground">
-              <span>{isAr ? `${filteredArticles.length} مقال` : `${filteredArticles.length} articles`}</span>
               <span className="flex items-center gap-1.5">
-                <RefreshCw className="h-3 w-3" />
-                {isAr ? 'تحديث تلقائي كل ساعة' : 'Auto-refresh hourly'}
+                <Database className="h-3 w-3" />
+                {isAr ? `${totalInDB} مقال محفوظ` : `${totalInDB} archived`}
+              </span>
+              <span className="flex items-center gap-1.5">
+                {refreshing ? (
+                  <><Wifi className="h-3 w-3 animate-pulse text-primary" />{isAr ? 'جاري التحديث...' : 'Syncing...'}</>
+                ) : refreshTimeAgo ? (
+                  <><Clock className="h-3 w-3" />{isAr ? `آخر تحديث ${refreshTimeAgo}` : `Updated ${refreshTimeAgo}`}</>
+                ) : (
+                  <><Clock className="h-3 w-3" />{isAr ? 'لم يتم التحديث بعد' : 'Not synced yet'}</>
+                )}
               </span>
             </div>
           </motion.div>
