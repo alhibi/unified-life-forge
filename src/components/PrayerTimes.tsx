@@ -196,22 +196,22 @@ export default function PrayerTimes() {
         <div className="h-px bg-border mb-4" />
 
         {/* Prayer times grid */}
-        <div className="grid grid-cols-5 gap-2">
+        <div className="grid grid-cols-5 gap-1.5">
           {prayers.map((p) => {
             const isActive = p.name === activePrayer;
             return (
               <div
                 key={p.name}
-                className={`rounded-2xl p-2.5 text-center transition-all duration-300 ${
+                className={`rounded-xl px-1 py-2 text-center transition-all duration-300 ${
                   isActive
-                    ? 'bg-primary text-primary-foreground shadow-lg scale-[1.03]'
-                    : 'bg-muted text-muted-foreground'
+                    ? 'bg-primary text-primary-foreground scale-[1.03]'
+                    : 'bg-muted/60 text-muted-foreground'
                 }`}
               >
-                <p className={`text-[11px] font-semibold mb-1`}>
+                <p className="text-[10px] font-semibold mb-0.5">
                   {p.nameAr}
                 </p>
-                <p className={`text-[11px] font-medium tabular-nums ${isActive ? '' : 'opacity-70'}`} dir="ltr">
+                <p className={`text-[10px] font-medium tabular-nums ${isActive ? '' : 'opacity-70'}`} dir="ltr">
                   {formatTime12(p.time.replace(/\s*\(.*\)/, ''))}
                 </p>
               </div>
