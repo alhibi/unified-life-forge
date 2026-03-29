@@ -59,6 +59,7 @@ export default function PrayerTimes() {
   const [prayers, setPrayers] = useState<PrayerTime[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [locationName, setLocationName] = useState('');
   const [nextPrayer, setNextPrayer] = useState<{ prayer: PrayerTime | null; remaining: string }>({ prayer: null, remaining: '' });
   const [activePrayer, setActivePrayer] = useState<string | null>(null);
 
@@ -86,6 +87,12 @@ export default function PrayerTimes() {
           time: timings[p.key],
         }));
         setPrayers(result);
+        const meta = data.data.meta;
+        if (meta?.timezone) {
+          const tz = meta.timezone;
+          const city = tz.includes('/') ? tz.split('/').pop()?.replace(/_/g, ' ') : tz;
+          setLocationName(city || '');
+        }
       } else {
         setError('تعذر جلب مواقيت الصلاة');
       }
@@ -160,7 +167,15 @@ export default function PrayerTimes() {
         {/* Header: next prayer info */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex-1 text-right">
-            <p className="text-xs opacity-75 mb-0.5">الصلاة القادمة</p>
+            <div className="flex items-center justify-end gap-1.5 mb-0.5">
+              {locationName && (
+                <span className="flex items-center gap-1 text-[11px] opacity-60">
+                  <MapPin className="w-3 h-3" />
+                  {locationName}
+                </span>
+              )}
+              <span className="text-xs opacity-75">الصلاة القادمة</span>
+            </div>
             <div className="flex items-center justify-end gap-2">
               <span className="text-sm opacity-80">
                 متبقي {nextPrayer.remaining}
