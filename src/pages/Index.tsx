@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -9,7 +9,7 @@ import PrayerTimes from '@/components/PrayerTimes';
 import { motion } from 'framer-motion';
 import WeatherWidget from '@/components/WeatherWidget';
 import ReligiousOccasions from '@/components/ReligiousOccasions';
-import ChatDrawer from '@/components/ChatDrawer';
+const ChatDrawer = lazy(() => import('@/components/ChatDrawer'));
 import { Sunrise, Sun, Moon, MessageCircle } from 'lucide-react';
 
 const stagger = {
