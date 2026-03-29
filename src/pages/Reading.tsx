@@ -39,7 +39,7 @@ interface FeedResult {
 
 const DEFAULT_FEEDS: FeedSource[] = [
   { url: 'https://www.aljazeera.net/aljazeerarss/a7c186be-1baa-4bd4-9d80-a84db769f779/73d0e1b4-532f-45ef-b135-bba0b18ad1a2', name: 'الجزيرة نت', category: 'أخبار', enabled: true },
-  { url: 'https://sana.sy/feed/', name: 'سانا', category: 'أخبار', enabled: true },
+  { url: 'https://www.sana.sy/?feed=rss2', name: 'سانا', category: 'أخبار', enabled: true },
 ];
 
 const SUGGESTED_FEEDS: FeedSource[] = [
