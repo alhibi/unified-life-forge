@@ -42,7 +42,7 @@ function parseXML(text: string, maxItems = 50) {
         link: l ? l[1] : '',
         description: descText,
         fullContent: fullHtml,
-        hasRichContent: !!(content),
+        hasRichContent: !!(content && fullHtml.length > 300),
         pubDate: d ? d[1].trim() : '',
         image: images[0] || null,
         images,
@@ -72,7 +72,7 @@ function parseXML(text: string, maxItems = 50) {
       ? contentEncoded[1].replace(/<!\[CDATA\[(.*?)\]\]>/gs, '$1').trim()
       : desc ? desc[1].replace(/<!\[CDATA\[(.*?)\]\]>/gs, '$1').trim() : '';
     
-    const hasRichContent = !!contentEncoded;
+    const hasRichContent = !!contentEncoded && rawFullContent.length > 300;
     const descText = rawFullContent.replace(/<[^>]+>/g, '').trim().slice(0, 300);
     
     const images: string[] = [];
@@ -104,34 +104,202 @@ function parseXML(text: string, maxItems = 50) {
   return { title: feedTitle, items };
 }
 
-async function fetchArticleContent(url: string): Promise<string | null> {
+// Robust article content extractor - tries multiple strategies
+async function fetchArticleContent(url: string): Promise<{ content: string; images: string[] } | null> {
   try {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 8000);
+    const timeout = setTimeout(() => controller.abort(), 12000);
     const res = await fetch(url, {
-      headers: { "User-Agent": "ReadYou/1.0" },
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Accept": "text/html,application/xhtml+xml",
+        "Accept-Language": "ar,en;q=0.9",
+      },
       signal: controller.signal,
     });
     clearTimeout(timeout);
     if (!res.ok) return null;
     const html = await res.text();
     
-    let articleMatch = html.match(/<article[^>]*>([\s\S]*?)<\/article>/i);
-    if (articleMatch) return cleanArticleHtml(articleMatch[1]);
-    
-    const contentPatterns = [
-      /class="[^"]*(?:article-body|article-content|post-content|entry-content|story-body|wysiwyg)[^"]*"[^>]*>([\s\S]*?)<\/div>/i,
-      /class="[^"]*content[^"]*"[^>]*>([\s\S]*?)<\/div>/i,
-    ];
-    for (const pattern of contentPatterns) {
-      const match = html.match(pattern);
-      if (match && match[1].length > 200) return cleanArticleHtml(match[1]);
+    // Extract all images from the page for enrichment
+    const pageImages: string[] = [];
+    const allImgRegex = /<img[^>]*src=["']([^"']+)["'][^>]*>/gi;
+    let im;
+    while ((im = allImgRegex.exec(html)) !== null) {
+      const src = im[1];
+      if (src.startsWith('http') && !src.includes('logo') && !src.includes('icon') && !src.includes('avatar')
+          && !src.includes('sprite') && !src.includes('pixel') && !src.includes('tracking')
+          && !src.includes('1x1') && !src.includes('badge')) {
+        if (!pageImages.includes(src)) pageImages.push(src);
+      }
     }
+
+    let extracted: string | null = null;
+
+    // Strategy 1: Find the deepest/largest <article> tag
+    extracted = extractByTag(html, 'article');
+    if (extracted && getTextLength(extracted) > 200) {
+      return { content: cleanArticleHtml(extracted), images: pageImages };
+    }
+
+    // Strategy 2: Common content container class names (comprehensive list)
+    const classPatterns = [
+      'article-body', 'article-content', 'article__body', 'article__content',
+      'post-content', 'post-body', 'post__content', 'post__body',
+      'entry-content', 'entry-body',
+      'story-body', 'story-content', 'story__body',
+      'wysiwyg', 'rich-text', 'text-content',
+      'single-post-content', 'single__content',
+      'node__content', 'field--name-body',
+      'td-post-content', 'tdb-block-inner',
+      'c-article-body', 'article-detail',
+      'detail-content', 'news-content', 'news-body', 'news-detail',
+      'content-article', 'main-content',
+    ];
     
+    for (const cls of classPatterns) {
+      const regex = new RegExp(`class="[^"]*\\b${cls}\\b[^"]*"[^>]*>([\\s\\S]*?)(?=<\\/(?:div|section|main))`, 'i');
+      const match = html.match(regex);
+      if (match && getTextLength(match[1]) > 200) {
+        extracted = match[1];
+        return { content: cleanArticleHtml(extracted), images: pageImages };
+      }
+    }
+
+    // Strategy 3: WordPress specific - look for .entry-content or #content
+    const wpPatterns = [
+      /id="content"[^>]*>([\s\S]*?)(?=<\/(?:div|main|section)>[\s\S]*?<(?:footer|aside|div[^>]*(?:sidebar|widget|comment)))/i,
+      /class="[^"]*the_content[^"]*"[^>]*>([\s\S]*?)<\/div>/i,
+    ];
+    for (const pattern of wpPatterns) {
+      const match = html.match(pattern);
+      if (match && getTextLength(match[1]) > 200) {
+        return { content: cleanArticleHtml(match[1]), images: pageImages };
+      }
+    }
+
+    // Strategy 4: Al Jazeera specific patterns
+    if (url.includes('aljazeera')) {
+      const ajPatterns = [
+        /class="[^"]*wysiwyg[^"]*"[^>]*>([\s\S]*?)<\/div>/i,
+        /class="[^"]*article-body[^"]*"[^>]*>([\s\S]*?)<\/div>/i,
+      ];
+      for (const pattern of ajPatterns) {
+        const match = html.match(pattern);
+        if (match && getTextLength(match[1]) > 100) {
+          return { content: cleanArticleHtml(match[1]), images: pageImages };
+        }
+      }
+    }
+
+    // Strategy 5: SANA specific
+    if (url.includes('sana.sy')) {
+      const sanaMatch = html.match(/class="[^"]*entry-content[^"]*"[^>]*>([\s\S]*?)<\/div>/i);
+      if (sanaMatch && getTextLength(sanaMatch[1]) > 100) {
+        return { content: cleanArticleHtml(sanaMatch[1]), images: pageImages };
+      }
+    }
+
+    // Strategy 6: Find the largest text block with <p> tags
+    extracted = extractLargestParagraphBlock(html);
+    if (extracted && getTextLength(extracted) > 300) {
+      return { content: cleanArticleHtml(extracted), images: pageImages };
+    }
+
     return null;
-  } catch {
+  } catch (e) {
+    console.error('fetchArticleContent error:', e.message);
     return null;
   }
+}
+
+// Extract content from a specific HTML tag, handling nesting
+function extractByTag(html: string, tag: string): string | null {
+  const openTag = `<${tag}`;
+  const closeTag = `</${tag}>`;
+  let startIdx = html.indexOf(openTag);
+  if (startIdx === -1) return null;
+  
+  // Find the end of the opening tag
+  const tagEnd = html.indexOf('>', startIdx);
+  if (tagEnd === -1) return null;
+  
+  let depth = 1;
+  let i = tagEnd + 1;
+  while (i < html.length && depth > 0) {
+    const nextOpen = html.indexOf(openTag, i);
+    const nextClose = html.indexOf(closeTag, i);
+    
+    if (nextClose === -1) break;
+    
+    if (nextOpen !== -1 && nextOpen < nextClose) {
+      depth++;
+      i = nextOpen + openTag.length;
+    } else {
+      depth--;
+      if (depth === 0) {
+        return html.substring(tagEnd + 1, nextClose);
+      }
+      i = nextClose + closeTag.length;
+    }
+  }
+  return null;
+}
+
+// Find the largest block of consecutive <p> tags
+function extractLargestParagraphBlock(html: string): string | null {
+  // Remove nav, header, footer, sidebar, comments
+  let cleaned = html
+    .replace(/<nav[\s\S]*?<\/nav>/gi, '')
+    .replace(/<header[\s\S]*?<\/header>/gi, '')
+    .replace(/<footer[\s\S]*?<\/footer>/gi, '')
+    .replace(/<aside[\s\S]*?<\/aside>/gi, '')
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
+    .replace(/<style[\s\S]*?<\/style>/gi, '')
+    .replace(/<!--[\s\S]*?-->/g, '');
+
+  // Find all <p> tags with their positions
+  const pRegex = /<p[^>]*>[\s\S]*?<\/p>/gi;
+  const paragraphs: { text: string; start: number; end: number }[] = [];
+  let match;
+  while ((match = pRegex.exec(cleaned)) !== null) {
+    const text = match[0].replace(/<[^>]+>/g, '').trim();
+    if (text.length > 30) {
+      paragraphs.push({ text: match[0], start: match.index, end: match.index + match[0].length });
+    }
+  }
+  
+  if (paragraphs.length === 0) return null;
+  
+  // Find the largest cluster of nearby paragraphs
+  let bestStart = 0, bestEnd = 0, bestCount = 0;
+  for (let i = 0; i < paragraphs.length; i++) {
+    let count = 1;
+    let end = i;
+    for (let j = i + 1; j < paragraphs.length; j++) {
+      // If gap between paragraphs is less than 500 chars, consider them in same block
+      if (paragraphs[j].start - paragraphs[end].end < 500) {
+        count++;
+        end = j;
+      } else break;
+    }
+    if (count > bestCount) {
+      bestCount = count;
+      bestStart = i;
+      bestEnd = end;
+    }
+  }
+  
+  if (bestCount < 2) return null;
+  
+  // Extract the block including content between paragraphs (images, etc)
+  const blockStart = paragraphs[bestStart].start;
+  const blockEnd = paragraphs[bestEnd].end;
+  return cleaned.substring(blockStart, blockEnd);
+}
+
+function getTextLength(html: string): number {
+  return html.replace(/<[^>]+>/g, '').trim().length;
 }
 
 function cleanArticleHtml(html: string): string {
@@ -143,10 +311,18 @@ function cleanArticleHtml(html: string): string {
     .replace(/<header[\s\S]*?<\/header>/gi, '')
     .replace(/<aside[\s\S]*?<\/aside>/gi, '')
     .replace(/<iframe[\s\S]*?<\/iframe>/gi, '')
+    .replace(/<form[\s\S]*?<\/form>/gi, '')
+    .replace(/<button[\s\S]*?<\/button>/gi, '')
+    .replace(/<input[^>]*>/gi, '')
+    .replace(/<svg[\s\S]*?<\/svg>/gi, '')
+    .replace(/<!--[\s\S]*?-->/g, '')
+    .replace(/<div[^>]*class="[^"]*(?:share|social|comment|related|sidebar|widget|ad-|advertisement|newsletter|signup|subscribe)[^"]*"[^>]*>[\s\S]*?<\/div>/gi, '')
     .replace(/class="[^"]*"/gi, '')
     .replace(/style="[^"]*"/gi, '')
     .replace(/id="[^"]*"/gi, '')
     .replace(/data-[a-z-]+="[^"]*"/gi, '')
+    .replace(/onclick="[^"]*"/gi, '')
+    .replace(/\s+/g, ' ')
     .trim();
 }
 
@@ -158,24 +334,58 @@ function getSupabaseClient() {
 
 async function storeArticlesInDB(items: any[], sourceUrl: string, sourceName: string) {
   const sb = getSupabaseClient();
-  const rows = items.map(item => ({
-    title: item.title,
-    link: item.link,
-    description: item.description || '',
-    full_content: item.fullContent || '',
-    pub_date: item.pubDate ? new Date(item.pubDate).toISOString() : null,
-    image: item.image,
-    images: item.images || [],
-    source_name: sourceName,
-    source_url: sourceUrl,
-  }));
-
-  // Upsert - skip duplicates based on link
-  const { error } = await sb
-    .from('rss_articles')
-    .upsert(rows, { onConflict: 'link', ignoreDuplicates: true });
   
-  if (error) console.error('DB store error:', error.message);
+  // Check which articles already exist with full content
+  const links = items.map(i => i.link).filter(Boolean);
+  const { data: existing } = await sb
+    .from('rss_articles')
+    .select('link, full_content')
+    .in('link', links);
+  
+  const existingMap = new Map<string, string>();
+  (existing || []).forEach((r: any) => existingMap.set(r.link, r.full_content || ''));
+  
+  const toInsert: any[] = [];
+  const toUpdate: any[] = [];
+  
+  for (const item of items) {
+    if (!item.link) continue;
+    const existingContent = existingMap.get(item.link);
+    const row = {
+      title: item.title,
+      link: item.link,
+      description: item.description || '',
+      full_content: item.fullContent || '',
+      pub_date: item.pubDate ? new Date(item.pubDate).toISOString() : null,
+      image: item.image,
+      images: item.images || [],
+      source_name: sourceName,
+      source_url: sourceUrl,
+    };
+    
+    if (existingContent === undefined) {
+      // New article
+      toInsert.push(row);
+    } else if (item.fullContent && item.fullContent.length > (existingContent?.length || 0)) {
+      // Existing but we have better content now - update
+      toUpdate.push(row);
+    }
+  }
+  
+  if (toInsert.length > 0) {
+    const { error } = await sb.from('rss_articles').upsert(toInsert, { onConflict: 'link', ignoreDuplicates: true });
+    if (error) console.error('DB insert error:', error.message);
+  }
+  
+  // Update articles with better content
+  for (const row of toUpdate) {
+    const { error } = await sb.from('rss_articles')
+      .update({ full_content: row.full_content, images: row.images, image: row.image })
+      .eq('link', row.link);
+    if (error) console.error('DB update error:', error.message);
+  }
+  
+  console.log(`Stored: ${toInsert.length} new, ${toUpdate.length} updated for ${sourceName}`);
 }
 
 serve(async (req) => {
@@ -197,35 +407,53 @@ serve(async (req) => {
     const results = await Promise.allSettled(
       urls.map(async (url: string) => {
         const res = await fetch(url, {
-          headers: { "User-Agent": "ReadYou/1.0" },
+          headers: { "User-Agent": "Mozilla/5.0 (compatible; ReadYou/1.0)" },
         });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const text = await res.text();
         const parsed = parseXML(text, maxItems);
         
-        // For items without rich content, try to fetch full article
+        // Fetch full content for ALL articles that lack it - process in batches of 5
         if (fetchFullContent) {
           const itemsNeedingContent = parsed.items.filter((item: any) => !item.hasRichContent && item.link);
-          const toFetch = itemsNeedingContent.slice(0, 10);
-          await Promise.allSettled(
-            toFetch.map(async (item: any) => {
-              const content = await fetchArticleContent(item.link);
-              if (content && content.length > (item.fullContent?.length || 0)) {
-                item.fullContent = content;
-              }
-            })
-          );
+          console.log(`${itemsNeedingContent.length} articles need full content from ${url}`);
+          
+          // Process in parallel batches of 5 to stay within timeout
+          const batchSize = 5;
+          for (let i = 0; i < itemsNeedingContent.length; i += batchSize) {
+            const batch = itemsNeedingContent.slice(i, i + batchSize);
+            await Promise.allSettled(
+              batch.map(async (item: any) => {
+                const result = await fetchArticleContent(item.link);
+                if (result) {
+                  if (result.content && result.content.length > (item.fullContent?.length || 0)) {
+                    item.fullContent = result.content;
+                  }
+                  // Enrich images
+                  if (result.images.length > 0) {
+                    const existing = item.images || [];
+                    for (const img of result.images) {
+                      if (!existing.includes(img)) existing.push(img);
+                    }
+                    item.images = existing;
+                    if (!item.image && existing.length > 0) item.image = existing[0];
+                  }
+                }
+              })
+            );
+          }
         }
         
-        // Determine source name
         const sourceName = (nameMap && nameMap[url]) || parsed.title;
         
-        // Store in DB if requested
+        // Store in DB
         if (store) {
+          // Pass sourceName to items before storing
+          parsed.items.forEach((item: any) => item.source = sourceName);
           await storeArticlesInDB(parsed.items, url, sourceName);
         }
         
-        // Clean up internal field
+        // Clean up internal fields
         parsed.items.forEach((item: any) => delete item.hasRichContent);
         
         return { url, ...parsed };
@@ -235,6 +463,11 @@ serve(async (req) => {
     const feeds = results
       .filter((r) => r.status === "fulfilled")
       .map((r: any) => r.value);
+    
+    const failed = results.filter((r) => r.status === "rejected");
+    if (failed.length > 0) {
+      console.error('Failed feeds:', failed.map((r: any) => r.reason?.message));
+    }
 
     return new Response(JSON.stringify({ feeds }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
