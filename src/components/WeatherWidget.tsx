@@ -1,11 +1,12 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Cloud, Sun, CloudRain, CloudSnow, CloudLightning, CloudDrizzle, Cloudy, CloudFog, MoonStar } from 'lucide-react';
+import { Cloud, Sun, CloudRain, CloudSnow, CloudLightning, CloudDrizzle, Cloudy, CloudFog, MoonStar, Droplets } from 'lucide-react';
 
 interface HourForecast {
   hour: number;
   temperature: number;
   weatherCode: number;
   isDay: boolean;
+  precipitation: number;
 }
 
 const getWeatherIcon = (code: number, isDay: boolean) => {
@@ -31,7 +32,7 @@ export default function WeatherWidget() {
   const fetchWeather = useCallback(async (lat: number, lon: number) => {
     try {
       const res = await fetch(
-        `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,is_day&hourly=temperature_2m,weather_code,is_day&timezone=auto&forecast_days=1`
+        `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,is_day&hourly=temperature_2m,weather_code,is_day,precipitation_probability&timezone=auto&forecast_days=1`
       );
       const data = await res.json();
       if (data?.current && data?.hourly) {
@@ -44,6 +45,7 @@ export default function WeatherWidget() {
             temperature: Math.round(data.hourly.temperature_2m[i]),
             weatherCode: data.hourly.weather_code[i],
             isDay: data.hourly.is_day[i] === 1,
+            precipitation: data.hourly.precipitation_probability[i] ?? 0,
           });
         }
         setForecast(hours);
@@ -93,6 +95,12 @@ export default function WeatherWidget() {
                 {formatHour(f.hour)}
               </span>
               <Icon className="w-3.5 h-3.5 stroke-[1.6] text-muted-foreground" />
+              {f.precipitation > 0 && (
+                <span className="flex items-center gap-0.5 text-[9px] text-muted-foreground/70">
+                  <Droplets className="w-2.5 h-2.5" />
+                  {f.precipitation}%
+                </span>
+              )}
               <span className={`text-[11px] font-semibold ${isNow ? 'text-foreground' : 'text-muted-foreground'}`}>
                 {f.temperature}°
               </span>
