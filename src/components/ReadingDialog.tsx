@@ -152,13 +152,13 @@ const Backdrop = ({ onClick }: { onClick: () => void }) => (
 // Slide animation variants
 const drawerVariants = {
   hidden: { y: '100%', opacity: 0.5 },
-  visible: { y: 0, opacity: 1, transition: { type: 'spring', damping: 30, stiffness: 350, mass: 0.8 } },
-  exit: { y: '100%', opacity: 0, transition: { duration: 0.25, ease: [0.4, 0, 1, 1] } },
+  visible: { y: 0, opacity: 1, transition: { type: 'spring' as const, damping: 30, stiffness: 350, mass: 0.8 } },
+  exit: { y: '100%', opacity: 0, transition: { duration: 0.25, ease: [0.4, 0, 1, 1] as const } },
 };
 
 const viewVariants = {
   enter: { opacity: 0, x: 40 },
-  center: { opacity: 1, x: 0, transition: { duration: 0.25, ease: [0.16, 1, 0.3, 1] } },
+  center: { opacity: 1, x: 0, transition: { duration: 0.25, ease: [0.16, 1, 0.3, 1] as const } },
   exit: { opacity: 0, x: -40, transition: { duration: 0.2 } },
 };
 
