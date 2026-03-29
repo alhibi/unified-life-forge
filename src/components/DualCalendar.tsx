@@ -145,7 +145,7 @@ export default function DualCalendar() {
                 ease: [0.25, 1, 0.5, 1] as const,
               }}
               onClick={() => setSelectedDay(selectedDay?.gDay === day.gDay ? null : day)}
-              className={`relative flex flex-col items-center justify-center py-2 rounded-xl transition-colors duration-200 cursor-pointer ${
+              className={`relative flex flex-col items-center justify-center py-1.5 rounded-lg transition-colors duration-200 cursor-pointer ${
                 day.isToday
                   ? 'shadow-md'
                   : selectedDay?.gDay === day.gDay
@@ -155,21 +155,21 @@ export default function DualCalendar() {
             >
               {day.isToday && (
                 <motion.div
-                  className="absolute inset-0 rounded-xl bg-primary"
+                  className="absolute inset-0 rounded-lg bg-primary"
                   animate={{
                     boxShadow: [
                       '0 0 0 0px hsl(var(--primary) / 0.3)',
-                      '0 0 0 4px hsl(var(--primary) / 0.08)',
+                      '0 0 0 3px hsl(var(--primary) / 0.08)',
                       '0 0 0 0px hsl(var(--primary) / 0.3)',
                     ],
                   }}
                   transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
                 />
               )}
-              <span className={`relative z-10 text-[13px] font-semibold leading-none ${day.isToday ? 'text-primary-foreground' : 'text-foreground'}`}>
+              <span className={`relative z-10 text-[12px] font-semibold leading-none ${day.isToday ? 'text-primary-foreground' : 'text-foreground'}`}>
                 {day.gDay}
               </span>
-              <span className={`relative z-10 text-[9px] mt-0.5 leading-none font-medium ${
+              <span className={`relative z-10 text-[8px] mt-0.5 leading-none font-medium ${
                 day.isToday ? 'text-primary-foreground/70' : 'text-muted-foreground'
               }`}>
                 {day.hDay}
