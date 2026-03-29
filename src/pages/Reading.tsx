@@ -144,12 +144,43 @@ export default function ReadingPage() {
     if (enabledUrls.length === 0) { setArticles([]); return; }
     setLoading(true);
     try {
-      // Build URL-to-name mapping so edge function source names get overridden
       const nameMap: Record<string, string> = {};
       feedSources.filter(f => f.enabled).forEach(f => { nameMap[f.url] = f.name; });
 
+      // 1. Load cached articles from DB first (instant)
+      const defaultUrls = DEFAULT_FEEDS.map(f => f.url);
+      const enabledDefaultUrls = enabledUrls.filter(u => defaultUrls.includes(u));
+      
+      let dbArticles: FeedItem[] = [];
+      if (enabledDefaultUrls.length > 0) {
+        const enabledNames = enabledDefaultUrls.map(u => nameMap[u] || u);
+        const { data: dbRows } = await supabase
+          .from('rss_articles')
+          .select('*')
+          .in('source_name', enabledNames)
+          .order('pub_date', { ascending: false })
+          .limit(200);
+        
+        if (dbRows && dbRows.length > 0) {
+          dbArticles = dbRows.map((r: any) => ({
+            title: r.title,
+            link: r.link,
+            description: r.description || '',
+            fullContent: r.full_content || '',
+            pubDate: r.pub_date || '',
+            image: r.image,
+            images: r.images || [],
+            source: r.source_name,
+          }));
+          // Show DB articles immediately
+          setArticles(dbArticles);
+          setLoading(false);
+        }
+      }
+
+      // 2. Fetch fresh articles from RSS (background refresh + store in DB)
       const { data, error } = await supabase.functions.invoke('fetch-rss', {
-        body: { urls: enabledUrls, limit: 50, fetchFullContent: true },
+        body: { urls: enabledUrls, limit: 50, fetchFullContent: true, store: true, nameMap },
       });
       if (error) throw error;
       const allItems: FeedItem[] = [];
@@ -165,11 +196,14 @@ export default function ReadingPage() {
       setArticles(allItems);
     } catch (e: any) {
       console.error('RSS fetch error:', e);
-      toast.error(isAr ? 'فشل في تحميل الأخبار' : 'Failed to load feeds');
+      // If we already have DB articles, don't show error
+      if (articles.length === 0) {
+        toast.error(isAr ? 'فشل في تحميل الأخبار' : 'Failed to load feeds');
+      }
     } finally {
       setLoading(false);
     }
-  }, [enabledUrls, isAr]);
+  }, [enabledUrls, isAr, feedSources]);
 
   useEffect(() => {
     fetchFeeds();

@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -41,6 +42,7 @@ function parseXML(text: string, maxItems = 50) {
         link: l ? l[1] : '',
         description: descText,
         fullContent: fullHtml,
+        hasRichContent: !!(content),
         pubDate: d ? d[1].trim() : '',
         image: images[0] || null,
         images,
@@ -50,7 +52,6 @@ function parseXML(text: string, maxItems = 50) {
     return { title: feedTitle, items };
   }
   
-  // Parse RSS 2.0
   const channelTitle = text.match(/<channel>[\s\S]*?<title[^>]*>([\s\S]*?)<\/title>/);
   const feedTitle = channelTitle ? channelTitle[1].replace(/<!\[CDATA\[(.*?)\]\]>/g, '$1').trim() : 'Feed';
   
@@ -103,7 +104,6 @@ function parseXML(text: string, maxItems = 50) {
   return { title: feedTitle, items };
 }
 
-// Extract article content from a web page
 async function fetchArticleContent(url: string): Promise<string | null> {
   try {
     const controller = new AbortController();
@@ -116,12 +116,9 @@ async function fetchArticleContent(url: string): Promise<string | null> {
     if (!res.ok) return null;
     const html = await res.text();
     
-    // Try to extract article content using common patterns
-    // 1. <article> tag
     let articleMatch = html.match(/<article[^>]*>([\s\S]*?)<\/article>/i);
     if (articleMatch) return cleanArticleHtml(articleMatch[1]);
     
-    // 2. Common content class names
     const contentPatterns = [
       /class="[^"]*(?:article-body|article-content|post-content|entry-content|story-body|wysiwyg)[^"]*"[^>]*>([\s\S]*?)<\/div>/i,
       /class="[^"]*content[^"]*"[^>]*>([\s\S]*?)<\/div>/i,
@@ -153,13 +150,41 @@ function cleanArticleHtml(html: string): string {
     .trim();
 }
 
+function getSupabaseClient() {
+  const url = Deno.env.get("SUPABASE_URL")!;
+  const key = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+  return createClient(url, key);
+}
+
+async function storeArticlesInDB(items: any[], sourceUrl: string, sourceName: string) {
+  const sb = getSupabaseClient();
+  const rows = items.map(item => ({
+    title: item.title,
+    link: item.link,
+    description: item.description || '',
+    full_content: item.fullContent || '',
+    pub_date: item.pubDate ? new Date(item.pubDate).toISOString() : null,
+    image: item.image,
+    images: item.images || [],
+    source_name: sourceName,
+    source_url: sourceUrl,
+  }));
+
+  // Upsert - skip duplicates based on link
+  const { error } = await sb
+    .from('rss_articles')
+    .upsert(rows, { onConflict: 'link', ignoreDuplicates: true });
+  
+  if (error) console.error('DB store error:', error.message);
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { urls, limit, fetchFullContent } = await req.json();
+    const { urls, limit, fetchFullContent, store, nameMap } = await req.json();
     const maxItems = Math.min(limit || 50, 100);
     
     if (!urls || !Array.isArray(urls) || urls.length === 0) {
@@ -178,19 +203,26 @@ serve(async (req) => {
         const text = await res.text();
         const parsed = parseXML(text, maxItems);
         
-        // For items without rich content, try to fetch full article page
+        // For items without rich content, try to fetch full article
         if (fetchFullContent) {
           const itemsNeedingContent = parsed.items.filter((item: any) => !item.hasRichContent && item.link);
-          // Fetch up to 10 articles to avoid timeout
           const toFetch = itemsNeedingContent.slice(0, 10);
-          const contentResults = await Promise.allSettled(
+          await Promise.allSettled(
             toFetch.map(async (item: any) => {
               const content = await fetchArticleContent(item.link);
-              if (content && content.length > item.fullContent.length) {
+              if (content && content.length > (item.fullContent?.length || 0)) {
                 item.fullContent = content;
               }
             })
           );
+        }
+        
+        // Determine source name
+        const sourceName = (nameMap && nameMap[url]) || parsed.title;
+        
+        // Store in DB if requested
+        if (store) {
+          await storeArticlesInDB(parsed.items, url, sourceName);
         }
         
         // Clean up internal field
