@@ -505,7 +505,7 @@ export default function ReadingDialog({ open, onOpenChange }: ReadingDialogProps
               <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center">
                 <Newspaper className="h-4.5 w-4.5 text-primary" />
               </div>
-              {isAr ? 'القراءة' : 'Reading'}
+              {isAr ? 'إطلاع' : 'News'}
             </h3>
             <div className="flex items-center gap-1">
               <button onClick={() => setShowSearch(!showSearch)} className="p-2.5 rounded-xl hover:bg-accent/50 active:scale-95 transition-all">
