@@ -39,7 +39,7 @@ export default function Index() {
         animate="show"
         className="space-y-5 max-w-lg mx-auto"
       >
-        <motion.div variants={item} className="flex items-center justify-between">
+        <motion.div variants={item}>
           <div>
             <h1 className="text-[22px] font-bold tracking-tight text-foreground leading-tight">
               {greeting}
@@ -48,9 +48,9 @@ export default function Index() {
               {now.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}
             </p>
           </div>
-          <WeatherWidget />
         </motion.div>
 
+        <motion.div variants={item}><WeatherWidget /></motion.div>
         <motion.div variants={item}><PrayerTimes /></motion.div>
         <motion.div variants={item}><DualCalendar /></motion.div>
         <motion.div variants={item}><AudioPlayer /></motion.div>

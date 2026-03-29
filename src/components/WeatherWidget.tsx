@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Cloud, Sun, CloudRain, CloudSnow, CloudLightning, CloudDrizzle, Cloudy, CloudFog, MoonStar } from 'lucide-react';
 
-interface WeatherData {
+interface HourForecast {
+  hour: number;
   temperature: number;
   weatherCode: number;
   isDay: boolean;
@@ -21,23 +22,32 @@ const getWeatherIcon = (code: number, isDay: boolean) => {
   return isDay ? Sun : MoonStar;
 };
 
-const REFRESH_INTERVAL = 15 * 60 * 1000; // 15 minutes
+const REFRESH_INTERVAL = 15 * 60 * 1000;
 
 export default function WeatherWidget() {
-  const [weather, setWeather] = useState<WeatherData | null>(null);
+  const [forecast, setForecast] = useState<HourForecast[]>([]);
+  const [currentTemp, setCurrentTemp] = useState<number | null>(null);
 
   const fetchWeather = useCallback(async (lat: number, lon: number) => {
     try {
       const res = await fetch(
-        `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,is_day&timezone=auto`
+        `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,is_day&hourly=temperature_2m,weather_code,is_day&timezone=auto&forecast_days=1`
       );
       const data = await res.json();
-      if (data?.current) {
-        setWeather({
-          temperature: Math.round(data.current.temperature_2m),
-          weatherCode: data.current.weather_code,
-          isDay: data.current.is_day === 1,
-        });
+      if (data?.current && data?.hourly) {
+        setCurrentTemp(Math.round(data.current.temperature_2m));
+        const currentHour = new Date().getHours();
+        const hours: HourForecast[] = [];
+        // Show every 3 hours from current hour onwards (up to 8 slots)
+        for (let i = currentHour; i < 24 && hours.length < 8; i += 3) {
+          hours.push({
+            hour: i,
+            temperature: Math.round(data.hourly.temperature_2m[i]),
+            weatherCode: data.hourly.weather_code[i],
+            isDay: data.hourly.is_day[i] === 1,
+          });
+        }
+        setForecast(hours);
       }
     } catch { /* silent */ }
   }, []);
@@ -56,17 +66,44 @@ export default function WeatherWidget() {
     return () => clearInterval(interval);
   }, [fetchWeather]);
 
-  if (!weather) return null;
+  if (!forecast.length || currentTemp === null) return null;
 
-  const Icon = getWeatherIcon(weather.weatherCode, weather.isDay);
-  const iconColor = weather.isDay
-    ? 'text-amber-500 dark:text-amber-400'
-    : 'text-indigo-400 dark:text-indigo-300';
+  const formatHour = (h: number) => {
+    if (h === new Date().getHours()) return 'الآن';
+    const period = h < 12 ? 'ص' : 'م';
+    const display = h === 0 ? 12 : h > 12 ? h - 12 : h;
+    return `${display}${period}`;
+  };
 
   return (
-    <div className="flex items-center gap-1.5">
-      <Icon className={`w-4 h-4 stroke-[1.6] ${iconColor}`} />
-      <span className="text-[15px] font-semibold text-foreground">{weather.temperature}°</span>
+    <div className="rounded-2xl border border-border/60 bg-card/50 p-3">
+      <div className="flex items-center gap-1.5 mb-2.5">
+        <span className="text-[11px] font-medium text-muted-foreground">حالة الطقس</span>
+        <span className="text-[13px] font-bold text-foreground mr-auto">{currentTemp}°</span>
+      </div>
+      <div className="flex items-center justify-between gap-1">
+        {forecast.map((f) => {
+          const Icon = getWeatherIcon(f.weatherCode, f.isDay);
+          const iconColor = f.isDay
+            ? 'text-amber-500 dark:text-amber-400'
+            : 'text-indigo-400 dark:text-indigo-300';
+          const isNow = f.hour === new Date().getHours();
+          return (
+            <div
+              key={f.hour}
+              className={`flex flex-col items-center gap-1 flex-1 rounded-xl py-1.5 ${isNow ? 'bg-primary/10' : ''}`}
+            >
+              <span className={`text-[10px] ${isNow ? 'font-bold text-primary' : 'text-muted-foreground'}`}>
+                {formatHour(f.hour)}
+              </span>
+              <Icon className={`w-3.5 h-3.5 stroke-[1.6] ${iconColor}`} />
+              <span className={`text-[11px] font-semibold ${isNow ? 'text-primary' : 'text-foreground'}`}>
+                {f.temperature}°
+              </span>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
