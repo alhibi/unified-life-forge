@@ -8,7 +8,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Plus, Rss, Trash2, ExternalLink, RefreshCw, ArrowRight, ChevronLeft,
   Bookmark, BookmarkCheck, Search, Settings2, Globe, Star, Clock, Filter,
-  Newspaper, BookOpen, X, Check, Copy
+  Newspaper, X, Check, Copy
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -503,7 +503,7 @@ export default function ReadingDialog({ open, onOpenChange }: ReadingDialogProps
           <div className="flex items-center justify-between mb-2.5">
             <h3 className="text-lg font-bold flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center">
-                <BookOpen className="h-4.5 w-4.5 text-primary" />
+                <Newspaper className="h-4.5 w-4.5 text-primary" />
               </div>
               {isAr ? 'القراءة' : 'Reading'}
             </h3>

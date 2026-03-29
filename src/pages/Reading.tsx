@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   Plus, Rss, Trash2, ExternalLink, RefreshCw, ChevronLeft,
   Bookmark, BookmarkCheck, Search, Settings2, Globe, Star, Clock, Filter,
-  Newspaper, BookOpen, X, Check, Copy, ArrowRight
+  Newspaper, X, Check, Copy, ArrowRight
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -447,7 +447,7 @@ export default function ReadingPage() {
                   </button>
                   <h3 className="text-lg font-bold flex items-center gap-2.5">
                     <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center">
-                      <BookOpen className="h-4 w-4 text-primary" />
+                      <Newspaper className="h-4 w-4 text-primary" />
                     </div>
                     {isAr ? 'القراءة' : 'Reading'}
                   </h3>
