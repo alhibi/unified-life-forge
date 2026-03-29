@@ -630,6 +630,7 @@ export default function ChessPage() {
     } else if (check) {
       finalNotation += '+';
       setStatus(t('chess.check'));
+      playCheckSound();
     } else {
       setStatus('');
     }
