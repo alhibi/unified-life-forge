@@ -308,6 +308,48 @@ export default function ReadingPage() {
     }
   };
 
+  // Fetch articles for a single newly-added feed
+  const fetchSingleFeed = async (feed: FeedSource) => {
+    try {
+      const nameMap: Record<string, string> = { [feed.url]: feed.name };
+      const { data, error } = await supabase.functions.invoke('fetch-rss', {
+        body: { urls: [feed.url], limit: 100, fetchFullContent: true, store: true, nameMap },
+      });
+      if (error) throw error;
+      
+      const freshItems: FeedItem[] = [];
+      if (data?.feeds) {
+        for (const f of data.feeds) {
+          for (const item of (f.items || [])) {
+            freshItems.push({
+              title: item.title, link: item.link, description: item.description || '',
+              fullContent: item.fullContent || '', pubDate: item.pubDate || '',
+              image: item.image, images: item.images || [], source: feed.name,
+            });
+          }
+        }
+      }
+      
+      if (freshItems.length > 0) {
+        setArticles(prev => {
+          const existingLinks = new Set(prev.map(a => a.link));
+          const newItems = freshItems.filter(a => !existingLinks.has(a.link));
+          const merged = [...prev, ...newItems];
+          merged.sort((a, b) => {
+            const da = a.pubDate ? new Date(a.pubDate).getTime() : 0;
+            const db2 = b.pubDate ? new Date(b.pubDate).getTime() : 0;
+            return db2 - da;
+          });
+          return merged;
+        });
+        toast.success(isAr ? `تم جلب ${freshItems.length} مقال من ${feed.name}` : `Fetched ${freshItems.length} articles from ${feed.name}`);
+      }
+    } catch (e) {
+      console.error('Single feed fetch error:', e);
+      toast.error(isAr ? `فشل جلب مقالات ${feed.name}` : `Failed to fetch ${feed.name}`);
+    }
+  };
+
   const addFeed = () => {
     const url = newUrl.trim();
     if (!url) return;
@@ -317,7 +359,9 @@ export default function ReadingPage() {
     setFeedSources(updated);
     storeFeeds(updated);
     setNewUrl(''); setNewName('');
-    toast.success(isAr ? 'تمت إضافة المصدر' : 'Feed added');
+    toast.success(isAr ? 'تمت إضافة المصدر - جاري جلب المقالات...' : 'Feed added - fetching articles...');
+    // Immediately fetch articles for the new feed
+    fetchSingleFeed(source);
   };
 
   const addSuggestedFeed = (feed: FeedSource) => {
@@ -325,7 +369,8 @@ export default function ReadingPage() {
     const updated = [...feedSources, { ...feed }];
     setFeedSources(updated);
     storeFeeds(updated);
-    toast.success(isAr ? `تمت إضافة ${feed.name}` : `Added ${feed.name}`);
+    toast.success(isAr ? `تمت إضافة ${feed.name} - جاري جلب المقالات...` : `Added ${feed.name} - fetching...`);
+    fetchSingleFeed(feed);
   };
 
   const removeFeed = (url: string) => {
