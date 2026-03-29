@@ -343,9 +343,12 @@ function applyMove(board: BoardState, from: Square, to: Square, enPassant: Squar
 }
 
 let searchDeadline = 0;
+let nodesSearched = 0;
 
 function minimax(board: BoardState, depth: number, alpha: number, beta: number, isMaximizing: boolean, enPassant: Square | null, castling: { wK: boolean; wQ: boolean; bK: boolean; bQ: boolean }): number {
-  if (depth === 0 || Date.now() > searchDeadline) return evaluateBoard(board);
+  nodesSearched++;
+  // Check deadline every 200 nodes to avoid excessive Date.now() calls
+  if (depth === 0 || (nodesSearched % 200 === 0 && Date.now() > searchDeadline)) return evaluateBoard(board);
   
   const color: Color = isMaximizing ? 'w' : 'b';
   const moves = getAllMovesForColor(board, color, enPassant, castling);
@@ -355,34 +358,32 @@ function minimax(board: BoardState, depth: number, alpha: number, beta: number, 
     return 0;
   }
 
-  // Better move ordering: captures sorted by value, then non-captures
+  // Move ordering: captures by MVV-LVA
   moves.sort((a, b) => {
     const capA = board[a.to[0]][a.to[1]];
     const capB = board[b.to[0]][b.to[1]];
-    const valA = capA ? PIECE_VALUES[capA.type] : 0;
-    const valB = capB ? PIECE_VALUES[capB.type] : 0;
+    const valA = capA ? PIECE_VALUES[capA.type] - PIECE_VALUES[board[a.from[0]][a.from[1]]!.type] / 100 : -1000;
+    const valB = capB ? PIECE_VALUES[capB.type] - PIECE_VALUES[board[b.from[0]][b.from[1]]!.type] / 100 : -1000;
     return valB - valA;
   });
 
   if (isMaximizing) {
     let maxEval = -Infinity;
     for (const move of moves) {
-      if (Date.now() > searchDeadline) break;
       const result = applyMove(board, move.from, move.to, enPassant, castling);
       const ev = minimax(result.board, depth - 1, alpha, beta, false, result.enPassant, result.castling);
-      maxEval = Math.max(maxEval, ev);
-      alpha = Math.max(alpha, ev);
+      if (ev > maxEval) maxEval = ev;
+      if (ev > alpha) alpha = ev;
       if (beta <= alpha) break;
     }
     return maxEval;
   } else {
     let minEval = Infinity;
     for (const move of moves) {
-      if (Date.now() > searchDeadline) break;
       const result = applyMove(board, move.from, move.to, enPassant, castling);
       const ev = minimax(result.board, depth - 1, alpha, beta, true, result.enPassant, result.castling);
-      minEval = Math.min(minEval, ev);
-      beta = Math.min(beta, ev);
+      if (ev < minEval) minEval = ev;
+      if (ev < beta) beta = ev;
       if (beta <= alpha) break;
     }
     return minEval;
@@ -400,35 +401,29 @@ function getBestMove(game: GameState, aiColor: Color, difficulty: AIDifficulty):
     return moves[Math.floor(Math.random() * moves.length)];
   }
 
-  // Time-limited search: medium 500ms, hard 1200ms
-  const timeLimit = difficulty === 'medium' ? 500 : 1200;
-  const maxDepth = difficulty === 'medium' ? 3 : 4;
-  searchDeadline = Date.now() + timeLimit;
+  // Fixed depth: medium=1, hard=2 (fast and responsive)
+  const depth = difficulty === 'medium' ? 1 : 2;
+  searchDeadline = Date.now() + (difficulty === 'medium' ? 300 : 800);
+  nodesSearched = 0;
 
   const isMaximizing = aiColor === 'w';
   let bestMove = moves[0];
   let bestEval = isMaximizing ? -Infinity : Infinity;
 
-  // Iterative deepening within time limit
-  for (let depth = 1; depth <= maxDepth; depth++) {
-    if (Date.now() > searchDeadline) break;
-    let depthBest = moves[0];
-    let depthBestEval = isMaximizing ? -Infinity : Infinity;
+  // Sort root moves: captures first
+  moves.sort((a, b) => {
+    const capA = game.board[a.to[0]][a.to[1]];
+    const capB = game.board[b.to[0]][b.to[1]];
+    return (capB ? PIECE_VALUES[capB.type] : 0) - (capA ? PIECE_VALUES[capA.type] : 0);
+  });
 
-    for (const move of moves) {
-      if (Date.now() > searchDeadline) break;
-      const result = applyMove(game.board, move.from, move.to, game.enPassant, game.castling);
-      const ev = minimax(result.board, depth - 1, -Infinity, Infinity, !isMaximizing, result.enPassant, result.castling);
-      
-      if (isMaximizing ? ev > depthBestEval : ev < depthBestEval) {
-        depthBestEval = ev;
-        depthBest = move;
-      }
-    }
-
-    if (Date.now() <= searchDeadline) {
-      bestMove = depthBest;
-      bestEval = depthBestEval;
+  for (const move of moves) {
+    const result = applyMove(game.board, move.from, move.to, game.enPassant, game.castling);
+    const ev = minimax(result.board, depth, -Infinity, Infinity, !isMaximizing, result.enPassant, result.castling);
+    
+    if (isMaximizing ? ev > bestEval : ev < bestEval) {
+      bestEval = ev;
+      bestMove = move;
     }
   }
 
