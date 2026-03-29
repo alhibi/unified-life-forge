@@ -119,7 +119,7 @@ export default function WeatherWidget() {
   };
 
   return (
-    <div className="rounded-2xl border border-border/60 bg-card/50 p-3">
+    <div className="rounded-2xl bg-card border border-border/40 p-3">
       <div className="flex items-center gap-1.5 mb-2.5">
         <span className="text-[11px] font-medium text-muted-foreground">حالة الطقس</span>
         <span className="text-[13px] font-bold text-foreground mr-auto">{currentTemp}°</span>
