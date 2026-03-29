@@ -11,7 +11,7 @@ import WeatherWidget from '@/components/WeatherWidget';
 import ReligiousOccasions from '@/components/ReligiousOccasions';
 const ChatDrawer = lazy(() => import('@/components/ChatDrawer'));
 import { useNavigate } from 'react-router-dom';
-import { Sunrise, Sun, Moon, MessageCircle, BookOpen } from 'lucide-react';
+import { Sunrise, Sun, Moon, MessageCircle, Newspaper } from 'lucide-react';
 
 const stagger = {
   hidden: {},
@@ -101,7 +101,7 @@ export default function Index() {
                 onClick={() => navigate('/reading')}
                 className="p-2.5 rounded-xl bg-accent/50 hover:bg-accent transition-colors"
               >
-                <BookOpen className="h-5 w-5 text-foreground" />
+                <Newspaper className="h-5 w-5 text-foreground" />
               </button>
               {user && (
                 <button
