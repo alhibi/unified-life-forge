@@ -47,7 +47,10 @@ function FrequentDuaCard({ dua, lang }: { dua: FrequentDua; lang: string }) {
         open={open}
         onClose={() => setOpen(false)}
         title={lang === 'ar' ? dua.titleAr : dua.titleDe}
-        duas={[{ id: 1, text: dua.text, source: dua.source }]}
+        duas={[
+          { id: 1, text: dua.text, source: dua.source },
+          ...(dua.extras || []).map((e, i) => ({ id: i + 2, text: e.text, source: e.source })),
+        ]}
         lang={lang}
       />
     </>
