@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { useAuth } from '@/hooks/useAuth';
-import { Languages, Palette, ChevronLeft, Settings as SettingsIcon, UserCircle, LogOut, Type, BookOpen, AlertTriangle, Compass, Home, BookOpenText, Gamepad2, MapPin, Music, Calendar, Moon, ChevronDown, Clock, Repeat, FolderHeart, Brain, Grid3X3, Swords, Pipette, Bomb, ArrowRight } from 'lucide-react';
+import { Languages, Palette, ChevronLeft, Settings as SettingsIcon, UserCircle, LogOut, Type, BookOpen, AlertTriangle, Compass, Home, BookOpenText, Gamepad2, MapPin, Music, Calendar, Moon, ChevronDown, Clock, Repeat, FolderHeart, Brain, Grid3X3, Swords, Pipette, Bomb, ArrowRight, ScrollText, CloudSun } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -188,6 +188,12 @@ export default function SettingsPage() {
                     { icon: BookOpenText, color: 'text-emerald-500', bg: 'bg-emerald-500/10', route: '/duas',
                       title: isAr ? 'الأدعية والأحاديث' : 'Duas & Hadithe',
                       desc: isAr ? 'مكتبة شاملة تضم أدعية الصباح والمساء والنوم والاستيقاظ والسفر وغيرها، مع أحاديث صحيحة من الكتب الثمانية والأربعين النووية كاملة بالتشكيل' : 'Umfassende Bibliothek mit Duas, Sahih-Hadithen und den 40 Nawawi-Hadithen' },
+                    { icon: ScrollText, color: 'text-amber-600', bg: 'bg-amber-600/10', route: '/diwan',
+                      title: isAr ? 'ديوان الشعر' : 'Poesie-Diwan',
+                      desc: isAr ? 'مكتبة شعرية تضم أربعة عصور أدبية (الجاهلي، الإسلامي، الأموي، العباسي) مع أشهر خمسة شعراء في كل عصر وقصائدهم الكاملة بالتشكيل، وإمكانية نسخ أي بيت أو القصيدة كاملة' : 'Poetische Bibliothek mit 4 Epochen, berühmten Dichtern und vollständigen Gedichten mit Kopier-Funktion' },
+                    { icon: CloudSun, color: 'text-cyan-500', bg: 'bg-cyan-500/10', route: '/',
+                      title: isAr ? 'ودجت الطقس' : 'Wetter-Widget',
+                      desc: isAr ? 'شريط طقس ذكي يعرض حالة الطقس كل ساعة مع درجة الحرارة واحتمالية المطر، محدّث تلقائياً حسب موقعك الجغرافي باستخدام بيانات Open-Meteo الدقيقة' : 'Stündliches Wetter-Widget mit Temperatur und Regenwahrscheinlichkeit basierend auf Open-Meteo' },
                     { icon: Music, color: 'text-rose-500', bg: 'bg-rose-500/10', route: '/',
                       title: isAr ? 'المشغل الصوتي' : 'Audioplayer',
                       desc: isAr ? 'مشغل صوتي مدمج للاستماع إلى القرآن الكريم والأذكار، مع إمكانية التحكم بالتقديم والترجيع والتنقل بين المقاطع' : 'Integrierter Audioplayer für Quran und Adhkar mit Steuerung' },
