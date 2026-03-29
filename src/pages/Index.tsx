@@ -43,7 +43,7 @@ export default function Index() {
             <GreetingIcon className="w-5.5 h-5.5 stroke-[1.8]" />
           </div>
           <div>
-            <h1 className="text-[26px] font-bold tracking-tight text-foreground leading-tight">
+            <h1 className="text-[22px] font-bold tracking-tight text-foreground leading-tight">
               {greeting}
             </h1>
             <p className="text-[12px] text-muted-foreground mt-0.5">
