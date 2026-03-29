@@ -109,8 +109,8 @@ export default function LocationSaver() {
     <div className="bg-card border border-border/40 rounded-2xl p-5">
       {/* Header */}
       <div className="flex items-center gap-3 mb-4">
-        <div className="w-11 h-11 rounded-2xl bg-accent/10 flex items-center justify-center shrink-0">
-          <MapPin className="w-5 h-5 text-accent" />
+        <div className="w-11 h-11 rounded-2xl bg-orange-500/12 dark:bg-orange-400/15 flex items-center justify-center shrink-0">
+          <MapPin className="w-5 h-5 text-orange-600 dark:text-orange-400 stroke-[1.8]" />
         </div>
         <h3 className="font-semibold text-[15px] text-foreground flex-1">{t('location.title')}</h3>
       </div>
