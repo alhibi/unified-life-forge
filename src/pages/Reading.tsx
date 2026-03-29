@@ -180,7 +180,7 @@ export default function ReadingPage() {
       const nameMap: Record<string, string> = {};
       enabledFeeds.forEach(f => { nameMap[f.url] = f.name; });
       
-      const { error } = await supabase.functions.invoke('fetch-rss', {
+      const { data, error } = await supabase.functions.invoke('fetch-rss', {
         body: { 
           urls: enabledFeeds.map(f => f.url), 
           limit: 100, 
