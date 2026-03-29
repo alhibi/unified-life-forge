@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { gregorianToHijri, getDaysInGregorianMonth, getFirstDayOfMonth } from '@/utils/hijri';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function DualCalendar() {
@@ -12,6 +12,7 @@ export default function DualCalendar() {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [direction, setDirection] = useState(0);
   const [selectedDay, setSelectedDay] = useState<{ gDay: number; hDay: number; hMonth: number; hYear: number } | null>(null);
+  const [expanded, setExpanded] = useState(true);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -68,28 +69,48 @@ export default function DualCalendar() {
   return (
     <div className="premium-card-intense p-4">
       {/* Header */}
-      <div className="flex items-center justify-between mb-3">
-        <button
-          onClick={dir === 'rtl' ? nextMonth : prevMonth}
-          className="w-8 h-8 rounded-full flex items-center justify-center bg-secondary hover:bg-muted transition-colors active:scale-90 duration-150"
-        >
-          <ChevronLeft className="w-3.5 h-3.5 text-foreground" />
-        </button>
-        <button onClick={goToday} className="text-center">
+      <div className="flex items-center justify-between">
+        {expanded ? (
+          <button
+            onClick={dir === 'rtl' ? nextMonth : prevMonth}
+            className="w-8 h-8 rounded-full flex items-center justify-center bg-secondary hover:bg-muted transition-colors active:scale-90 duration-150"
+          >
+            <ChevronLeft className="w-3.5 h-3.5 text-foreground" />
+          </button>
+        ) : <div className="w-8" />}
+        <button onClick={() => setExpanded(e => !e)} className="text-center flex flex-col items-center gap-0.5">
           <div className="text-[15px] font-semibold text-foreground leading-snug">
             {t(`months.${viewMonth}`)} {viewYear}
           </div>
-          <div className="text-[11px] text-primary font-medium mt-0.5">
-            {t(`hijriMonths.${hijriInfo.month}`)} {hijriInfo.year}
+          <div className="flex items-center gap-1">
+            <span className="text-[11px] text-primary font-medium">
+              {t(`hijriMonths.${hijriInfo.month}`)} {hijriInfo.year}
+            </span>
+            <motion.div animate={{ rotate: expanded ? 180 : 0 }} transition={{ duration: 0.25 }}>
+              <ChevronDown className="w-3 h-3 text-muted-foreground" />
+            </motion.div>
           </div>
         </button>
-        <button
-          onClick={dir === 'rtl' ? prevMonth : nextMonth}
-          className="w-8 h-8 rounded-full flex items-center justify-center bg-secondary hover:bg-muted transition-colors active:scale-90 duration-150"
-        >
-          <ChevronRight className="w-3.5 h-3.5 text-foreground" />
-        </button>
+        {expanded ? (
+          <button
+            onClick={dir === 'rtl' ? prevMonth : nextMonth}
+            className="w-8 h-8 rounded-full flex items-center justify-center bg-secondary hover:bg-muted transition-colors active:scale-90 duration-150"
+          >
+            <ChevronRight className="w-3.5 h-3.5 text-foreground" />
+          </button>
+        ) : <div className="w-8" />}
       </div>
+
+      <AnimatePresence initial={false}>
+        {expanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3, ease: [0.25, 1, 0.5, 1] }}
+            className="overflow-hidden"
+          >
+            <div className="mt-3">
 
       {/* Live time indicator */}
       {isCurrentMonth && (
@@ -225,6 +246,10 @@ export default function DualCalendar() {
             </motion.div>
           );
         })()}
+      </AnimatePresence>
+            </div>
+          </motion.div>
+        )}
       </AnimatePresence>
     </div>
   );
