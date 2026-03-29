@@ -101,7 +101,7 @@ export default function Index() {
                 onClick={() => navigate('/reading')}
                 className="p-2.5 rounded-xl bg-accent/50 hover:bg-accent transition-colors"
               >
-                <BookOpen className="h-5 w-5 text-foreground" />
+                <Newspaper className="h-5 w-5 text-foreground" />
               </button>
               {user && (
                 <button
