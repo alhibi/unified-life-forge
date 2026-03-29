@@ -130,8 +130,10 @@ export default function WeatherWidget() {
 
   if (!forecast.length || currentTemp === null) return null;
 
+  const nowHour = forecast.length > 0 ? forecast[0].hour : -1;
+
   const formatHour = (h: number) => {
-    if (h === new Date().getHours()) return 'الآن';
+    if (h === nowHour) return 'الآن';
     const period = h < 12 ? 'ص' : 'م';
     const display = h === 0 ? 12 : h > 12 ? h - 12 : h;
     return `${display}${period}`;
