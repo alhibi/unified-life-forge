@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { useAuth } from '@/hooks/useAuth';
-import { Languages, Palette, ChevronLeft, Settings as SettingsIcon, UserCircle, LogOut, Type, BookOpen, AlertTriangle, Compass, Home, BookOpenText, Gamepad2, MapPin, Music, Calendar, Moon, ChevronDown, Clock, Repeat, FolderHeart, Brain, Grid3X3, Swords, Pipette, Bomb, ArrowRight, ScrollText, CloudSun } from 'lucide-react';
+import { Languages, Palette, ChevronLeft, Settings as SettingsIcon, UserCircle, LogOut, Type, BookOpen, AlertTriangle, Compass, Home, BookOpenText, Gamepad2, MapPin, Music, Calendar, CalendarDays, Moon, ChevronDown, Clock, Repeat, FolderHeart, Brain, Grid3X3, Swords, Pipette, Bomb, ArrowRight, ScrollText, CloudSun } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -194,9 +194,12 @@ export default function SettingsPage() {
                     { icon: CloudSun, color: 'text-cyan-500', bg: 'bg-cyan-500/10', route: '/',
                       title: isAr ? 'ودجت الطقس' : 'Wetter-Widget',
                       desc: isAr ? 'شريط طقس ذكي يعرض حالة الطقس كل ساعة مع درجة الحرارة واحتمالية المطر، محدّث تلقائياً حسب موقعك الجغرافي باستخدام بيانات Open-Meteo الدقيقة' : 'Stündliches Wetter-Widget mit Temperatur und Regenwahrscheinlichkeit basierend auf Open-Meteo' },
+                    { icon: CalendarDays, color: 'text-teal-500', bg: 'bg-teal-500/10', route: '/',
+                      title: isAr ? 'المناسبات الدينية' : 'Religiöse Anlässe',
+                      desc: isAr ? 'عرض المناسبات الإسلامية القادمة والماضية مع التواريخ الهجرية والميلادية، والعد التنازلي لكل مناسبة، وإمكانية استعراض جميع المناسبات' : 'Islamische Anlässe mit Hijri-/Gregorianischem Datum und Countdown' },
                     { icon: Music, color: 'text-rose-500', bg: 'bg-rose-500/10', route: '/',
                       title: isAr ? 'المشغل الصوتي' : 'Audioplayer',
-                      desc: isAr ? 'مشغل صوتي مدمج للاستماع إلى القرآن الكريم والأذكار، مع إمكانية التحكم بالتقديم والترجيع والتنقل بين المقاطع' : 'Integrierter Audioplayer für Quran und Adhkar mit Steuerung' },
+                      desc: isAr ? 'مشغل مزدوج يجمع بين تشغيل ملفاتك المحلية وقسم القرآن الكريم مع القارئ أحمد العجمي (الفاتحة والبقرة)، مع تزامن تلقائي بين المشغلين' : 'Dualer Player: lokale Dateien + Quran mit Ahmad Al-Ajmi, automatische Synchronisation' },
                     { icon: MapPin, color: 'text-orange-500', bg: 'bg-orange-500/10', route: '/',
                       title: isAr ? 'حفظ المواقع' : 'Standorte',
                       desc: isAr ? 'احفظ مواقعك المهمة (المسجد، المنزل، العمل) بنقرة واحدة باستخدام GPS، وارجع إليها في أي وقت مع إمكانية فتحها مباشرة في الخرائط' : 'Speichere wichtige Orte per GPS und öffne sie direkt in Maps' },
