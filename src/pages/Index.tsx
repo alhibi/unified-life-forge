@@ -5,6 +5,7 @@ import AudioPlayer from '@/components/AudioPlayer';
 import LocationSaver from '@/components/LocationSaver';
 import PrayerTimes from '@/components/PrayerTimes';
 import { motion } from 'framer-motion';
+import WeatherWidget from '@/components/WeatherWidget';
 import { Sunrise, Sun, Moon } from 'lucide-react';
 
 const stagger = {
@@ -38,18 +39,21 @@ export default function Index() {
         animate="show"
         className="space-y-5 max-w-lg mx-auto"
       >
-        <motion.div variants={item} className="flex items-center gap-3">
-          <div className={`w-11 h-11 rounded-2xl flex items-center justify-center ${greetingIconStyle}`}>
-            <GreetingIcon className="w-5.5 h-5.5 stroke-[1.8]" />
+        <motion.div variants={item} className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className={`w-11 h-11 rounded-2xl flex items-center justify-center ${greetingIconStyle}`}>
+              <GreetingIcon className="w-5.5 h-5.5 stroke-[1.8]" />
+            </div>
+            <div>
+              <h1 className="text-[22px] font-bold tracking-tight text-foreground leading-tight">
+                {greeting}
+              </h1>
+              <p className="text-[12px] text-muted-foreground mt-0.5">
+                {now.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}
+              </p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-[22px] font-bold tracking-tight text-foreground leading-tight">
-              {greeting}
-            </h1>
-            <p className="text-[12px] text-muted-foreground mt-0.5">
-              {now.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}
-            </p>
-          </div>
+          <WeatherWidget />
         </motion.div>
 
         <motion.div variants={item}><PrayerTimes /></motion.div>
