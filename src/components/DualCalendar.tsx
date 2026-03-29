@@ -93,7 +93,7 @@ export default function DualCalendar() {
 
       {/* Live time indicator */}
       {isCurrentMonth && (
-        <div className="flex items-center gap-2 mb-3 px-1">
+        <div className="flex items-center gap-2 mb-2 px-1">
           <div className="relative flex-1 h-[2px] rounded-full bg-muted overflow-hidden">
             <motion.div
               className="absolute inset-y-0 left-0 bg-primary rounded-full"
@@ -102,13 +102,13 @@ export default function DualCalendar() {
               transition={{ duration: 0.5, ease: 'linear' }}
             />
             <motion.div
-              className="absolute top-1/2 -translate-y-1/2 w-[6px] h-[6px] rounded-full bg-primary shadow-sm shadow-primary/50"
+              className="absolute top-1/2 -translate-y-1/2 w-[5px] h-[5px] rounded-full bg-primary shadow-sm shadow-primary/50"
               style={{ left: `${timeProgress * 100}%` }}
               animate={{ scale: [1, 1.3, 1] }}
               transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
             />
           </div>
-          <span className="text-[10px] font-mono text-muted-foreground tabular-nums min-w-[58px] text-right">
+          <span className="text-[9px] font-mono text-muted-foreground tabular-nums min-w-[52px] text-right">
             {timeString}
           </span>
         </div>
