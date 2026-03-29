@@ -196,11 +196,59 @@ export default function ReadingPage() {
       setLastRefresh(now);
       localStorage.setItem(LAST_REFRESH_KEY, now);
       
-      // Reload from DB to show new articles
-      await loadFromDB();
+      // Merge: DB articles + fresh response articles (for custom feeds not in DB)
+      const freshItems: FeedItem[] = [];
+      if (data?.feeds) {
+        for (const feed of data.feeds) {
+          const overrideName = nameMap[feed.url] || feed.title;
+          for (const item of (feed.items || [])) {
+            freshItems.push({
+              title: item.title,
+              link: item.link,
+              description: item.description || '',
+              fullContent: item.fullContent || '',
+              pubDate: item.pubDate || '',
+              image: item.image,
+              images: item.images || [],
+              source: overrideName,
+            });
+          }
+        }
+      }
+      
+      // Reload DB articles
+      const { data: dbData } = await supabase
+        .from('rss_articles')
+        .select('*', { count: 'exact' })
+        .in('source_name', enabledNames)
+        .order('pub_date', { ascending: false })
+        .limit(500);
+      
+      const dbItems: FeedItem[] = (dbData || []).map((r: any) => ({
+        title: r.title,
+        link: r.link,
+        description: r.description || '',
+        fullContent: r.full_content || '',
+        pubDate: r.pub_date || r.created_at || '',
+        image: r.image,
+        images: r.images || [],
+        source: r.source_name,
+      }));
+      
+      // Merge: DB articles take priority, add fresh items not in DB
+      const dbLinks = new Set(dbItems.map(a => a.link));
+      const merged = [...dbItems, ...freshItems.filter(a => !dbLinks.has(a.link))];
+      merged.sort((a, b) => {
+        const da = a.pubDate ? new Date(a.pubDate).getTime() : 0;
+        const db2 = b.pubDate ? new Date(b.pubDate).getTime() : 0;
+        return db2 - da;
+      });
+      
+      setArticles(merged);
+      setTotalInDB(dbData?.length || 0);
       
       if (!silent) {
-        toast.success(isAr ? 'تم تحديث المقالات' : 'Articles updated');
+        toast.success(isAr ? `تم تحديث ${merged.length} مقال` : `Updated ${merged.length} articles`);
       }
     } catch (e: any) {
       console.error('Refresh error:', e);
@@ -210,7 +258,7 @@ export default function ReadingPage() {
     } finally {
       setRefreshing(false);
     }
-  }, [enabledFeeds, isAr, loadFromDB]);
+  }, [enabledFeeds, enabledNames, isAr]);
 
   // On mount: load from DB immediately, then background refresh
   useEffect(() => {
