@@ -104,7 +104,7 @@ export default function WeatherWidget() {
         interval = setInterval(() => fetchWeather(latitude, longitude), REFRESH_INTERVAL);
       },
       () => {},
-      { enableHighAccuracy: false, timeout: 5000, maximumAge: 300000 }
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
     );
     return () => clearInterval(interval);
   }, [fetchWeather]);
