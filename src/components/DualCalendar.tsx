@@ -66,7 +66,7 @@ export default function DualCalendar() {
   };
 
   return (
-    <div className="premium-card-intense p-5">
+    <div className="premium-card-intense p-4">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <button
