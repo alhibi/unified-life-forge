@@ -6,7 +6,7 @@ import LocationSaver from '@/components/LocationSaver';
 import PrayerTimes from '@/components/PrayerTimes';
 import { motion } from 'framer-motion';
 import WeatherWidget from '@/components/WeatherWidget';
-import { Sunrise, Sun, Moon } from 'lucide-react';
+import { Sunrise, Sun, Moon } from 'lucide-react'; // kept for potential future use
 
 const stagger = {
   hidden: {},
