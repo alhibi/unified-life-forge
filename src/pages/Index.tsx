@@ -38,6 +38,7 @@ export default function Index() {
       : 'text-indigo-500 dark:text-indigo-400 bg-indigo-500/12 dark:bg-indigo-400/15';
 
   const [chatOpen, setChatOpen] = useState(false);
+  const [readingOpen, setReadingOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
 
   // Poll unread count
