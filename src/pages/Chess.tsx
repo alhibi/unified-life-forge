@@ -1078,13 +1078,9 @@ export default function ChessPage() {
         <div className="flex items-center justify-center gap-3">
           <div className={`w-3 h-3 rounded-full ${game.turn === 'w' ? 'bg-white border border-border' : 'bg-gray-900'}`} />
           <span className="text-sm font-medium text-foreground">
-            {gameMode === 'computer'
-              ? (game.turn === playerColor
-                ? (language === 'ar' ? 'دورك' : 'Your turn')
-                : (language === 'ar' ? 'دور الكمبيوتر' : "Computer's turn"))
-              : (game.turn === 'w'
-                ? (language === 'ar' ? 'دور الأبيض' : "White's turn")
-                : (language === 'ar' ? 'دور الأسود' : "Black's turn"))}
+            {game.turn === 'w'
+              ? (language === 'ar' ? 'دور الأبيض' : "White's turn")
+              : (language === 'ar' ? 'دور الأسود' : "Black's turn")}
           </span>
           <div className="flex items-center gap-1 text-xs text-muted-foreground bg-secondary/60 px-2.5 py-1 rounded-full tabular-nums">
             <Clock className="w-3 h-3" />{formatTimer(gameTimer)}
