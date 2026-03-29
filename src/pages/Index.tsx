@@ -10,7 +10,7 @@ import { motion } from 'framer-motion';
 import WeatherWidget from '@/components/WeatherWidget';
 import ReligiousOccasions from '@/components/ReligiousOccasions';
 const ChatDrawer = lazy(() => import('@/components/ChatDrawer'));
-import ReadingDialog from '@/components/ReadingDialog';
+import { useNavigate } from 'react-router-dom';
 import { Sunrise, Sun, Moon, MessageCircle, BookOpen } from 'lucide-react';
 
 const stagger = {
@@ -37,8 +37,8 @@ export default function Index() {
       ? 'text-orange-500 dark:text-orange-400 bg-orange-500/12 dark:bg-orange-400/15'
       : 'text-indigo-500 dark:text-indigo-400 bg-indigo-500/12 dark:bg-indigo-400/15';
 
+  const navigate = useNavigate();
   const [chatOpen, setChatOpen] = useState(false);
-  const [readingOpen, setReadingOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
 
   // Poll unread count
@@ -98,7 +98,7 @@ export default function Index() {
             </div>
             <div className="flex items-center gap-2 mt-0.5">
               <button
-                onClick={() => setReadingOpen(true)}
+                onClick={() => navigate('/reading')}
                 className="p-2.5 rounded-xl bg-accent/50 hover:bg-accent transition-colors"
               >
                 <BookOpen className="h-5 w-5 text-foreground" />
@@ -136,8 +136,6 @@ export default function Index() {
           <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border/50 to-transparent" />
         </motion.div>
       </motion.div>
-
-      <ReadingDialog open={readingOpen} onOpenChange={setReadingOpen} />
 
       <Suspense fallback={null}>
         <ChatDrawer
