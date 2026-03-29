@@ -1043,11 +1043,6 @@ export default function ChessPage() {
                 <span className="text-muted-foreground font-medium text-sm">
                   {language === 'ar' ? 'اضغط للبدء' : 'Tap to start'}
                 </span>
-                {gameMode === 'computer' && (
-                  <span className="text-xs text-muted-foreground/70">
-                    {language === 'ar' ? `ضد الكمبيوتر (${aiDiffLabels[aiDifficulty]})` : `vs Computer (${aiDiffLabels[aiDifficulty]})`}
-                  </span>
-                )}
               </div>
             </motion.div>
           )}
