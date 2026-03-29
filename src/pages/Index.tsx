@@ -11,7 +11,7 @@ import WeatherWidget from '@/components/WeatherWidget';
 import ReligiousOccasions from '@/components/ReligiousOccasions';
 const ChatDrawer = lazy(() => import('@/components/ChatDrawer'));
 import { useNavigate } from 'react-router-dom';
-import { Sunrise, Sun, Moon, MessageCircle, BookOpen } from 'lucide-react';
+import { Sunrise, Sun, Moon, MessageCircle, Newspaper } from 'lucide-react';
 
 const stagger = {
   hidden: {},
