@@ -24,12 +24,10 @@ function parseXML(text: string, maxItems = 50) {
       const d = entry.match(/<published>([\s\S]*?)<\/published>/) || entry.match(/<updated>([\s\S]*?)<\/updated>/);
       const img = entry.match(/<media:thumbnail[^>]*url=["']([^"']*)["']/) || entry.match(/<media:content[^>]*url=["']([^"']*)["']/);
       
-      // Get full content HTML, prefer <content> over <summary>
       const fullHtml = content ? content[1].replace(/<!\[CDATA\[(.*?)\]\]>/gs, '$1').trim() 
                      : summary ? summary[1].replace(/<!\[CDATA\[(.*?)\]\]>/gs, '$1').trim() : '';
       const descText = fullHtml.replace(/<[^>]+>/g, '').trim().slice(0, 300);
       
-      // Extract all images from content
       const images: string[] = [];
       if (img) images.push(img[1]);
       const imgRegex = /<img[^>]*src=["']([^"']*)["']/g;
@@ -69,14 +67,13 @@ function parseXML(text: string, maxItems = 50) {
     const mediaContent = item_text.match(/<media:content[^>]*url=["']([^"']*)["']/);
     const mediaThumbnail = item_text.match(/<media:thumbnail[^>]*url=["']([^"']*)["']/);
     
-    // Full content: prefer content:encoded > description
     const rawFullContent = contentEncoded 
       ? contentEncoded[1].replace(/<!\[CDATA\[(.*?)\]\]>/gs, '$1').trim()
       : desc ? desc[1].replace(/<!\[CDATA\[(.*?)\]\]>/gs, '$1').trim() : '';
     
+    const hasRichContent = !!contentEncoded;
     const descText = rawFullContent.replace(/<[^>]+>/g, '').trim().slice(0, 300);
     
-    // Extract images
     const images: string[] = [];
     if (enclosureImg) images.push(enclosureImg[1]);
     if (mediaContent && !images.includes(mediaContent[1])) images.push(mediaContent[1]);
@@ -88,11 +85,14 @@ function parseXML(text: string, maxItems = 50) {
       if (!images.includes(imgMatch[1])) images.push(imgMatch[1]);
     }
     
+    const link = l ? l[1].replace(/<!\[CDATA\[(.*?)\]\]>/gs, '$1').trim() : '';
+    
     items.push({
       title: t ? t[1].replace(/<!\[CDATA\[(.*?)\]\]>/gs, '$1').replace(/<[^>]+>/g, '').trim() : '',
-      link: l ? l[1].replace(/<!\[CDATA\[(.*?)\]\]>/gs, '$1').trim() : '',
+      link,
       description: descText,
       fullContent: rawFullContent,
+      hasRichContent,
       pubDate: d ? d[1].trim() : '',
       image: images[0] || null,
       images,
@@ -103,13 +103,63 @@ function parseXML(text: string, maxItems = 50) {
   return { title: feedTitle, items };
 }
 
+// Extract article content from a web page
+async function fetchArticleContent(url: string): Promise<string | null> {
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000);
+    const res = await fetch(url, {
+      headers: { "User-Agent": "ReadYou/1.0" },
+      signal: controller.signal,
+    });
+    clearTimeout(timeout);
+    if (!res.ok) return null;
+    const html = await res.text();
+    
+    // Try to extract article content using common patterns
+    // 1. <article> tag
+    let articleMatch = html.match(/<article[^>]*>([\s\S]*?)<\/article>/i);
+    if (articleMatch) return cleanArticleHtml(articleMatch[1]);
+    
+    // 2. Common content class names
+    const contentPatterns = [
+      /class="[^"]*(?:article-body|article-content|post-content|entry-content|story-body|wysiwyg)[^"]*"[^>]*>([\s\S]*?)<\/div>/i,
+      /class="[^"]*content[^"]*"[^>]*>([\s\S]*?)<\/div>/i,
+    ];
+    for (const pattern of contentPatterns) {
+      const match = html.match(pattern);
+      if (match && match[1].length > 200) return cleanArticleHtml(match[1]);
+    }
+    
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+function cleanArticleHtml(html: string): string {
+  return html
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
+    .replace(/<style[\s\S]*?<\/style>/gi, '')
+    .replace(/<nav[\s\S]*?<\/nav>/gi, '')
+    .replace(/<footer[\s\S]*?<\/footer>/gi, '')
+    .replace(/<header[\s\S]*?<\/header>/gi, '')
+    .replace(/<aside[\s\S]*?<\/aside>/gi, '')
+    .replace(/<iframe[\s\S]*?<\/iframe>/gi, '')
+    .replace(/class="[^"]*"/gi, '')
+    .replace(/style="[^"]*"/gi, '')
+    .replace(/id="[^"]*"/gi, '')
+    .replace(/data-[a-z-]+="[^"]*"/gi, '')
+    .trim();
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { urls, limit } = await req.json();
+    const { urls, limit, fetchFullContent } = await req.json();
     const maxItems = Math.min(limit || 50, 100);
     
     if (!urls || !Array.isArray(urls) || urls.length === 0) {
@@ -126,7 +176,27 @@ serve(async (req) => {
         });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const text = await res.text();
-        return { url, ...parseXML(text, maxItems) };
+        const parsed = parseXML(text, maxItems);
+        
+        // For items without rich content, try to fetch full article page
+        if (fetchFullContent) {
+          const itemsNeedingContent = parsed.items.filter((item: any) => !item.hasRichContent && item.link);
+          // Fetch up to 10 articles to avoid timeout
+          const toFetch = itemsNeedingContent.slice(0, 10);
+          const contentResults = await Promise.allSettled(
+            toFetch.map(async (item: any) => {
+              const content = await fetchArticleContent(item.link);
+              if (content && content.length > item.fullContent.length) {
+                item.fullContent = content;
+              }
+            })
+          );
+        }
+        
+        // Clean up internal field
+        parsed.items.forEach((item: any) => delete item.hasRichContent);
+        
+        return { url, ...parsed };
       })
     );
 
