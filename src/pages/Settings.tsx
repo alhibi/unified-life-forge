@@ -125,7 +125,7 @@ export default function SettingsPage() {
         </motion.div>
 
         {settingsItems.map((si) => (
-          <motion.div key={si.key} variants={item} className="premium-card-elevated p-4">
+          <motion.div key={si.key} variants={item} className="bg-card border border-border/40 rounded-2xl p-4">
             <button
               onClick={si.onClick}
               className="flex items-center justify-between w-full active:scale-[0.99] transition-transform"

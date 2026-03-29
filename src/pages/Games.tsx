@@ -121,7 +121,7 @@ export default function GamesPage() {
             key={game.key}
             variants={item}
             onClick={() => navigate(game.path)}
-            className="w-full premium-card-elevated p-4 flex items-center gap-4 text-start active:scale-[0.98] transition-transform"
+            className="w-full bg-card border border-border/40 rounded-2xl p-4 flex items-center gap-4 text-start active:scale-[0.98] transition-transform"
           >
             <div className={`w-14 h-14 rounded-2xl ${game.iconBg} flex items-center justify-center shrink-0`}>
               <game.icon className={`w-6 h-6 ${game.iconColor} stroke-[1.8]`} />
