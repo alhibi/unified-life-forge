@@ -1012,16 +1012,6 @@ export default function ChessPage() {
               {flipped
                 ? (language === 'ar' ? 'أبيض' : 'White')
                 : (language === 'ar' ? 'أسود' : 'Black')}
-              {gameMode === 'computer' && (flipped ? playerColor === 'w' : playerColor === 'b') && (
-                <span className="text-muted-foreground text-[10px] mr-1 ml-1">
-                  ({language === 'ar' ? 'أنت' : 'You'})
-                </span>
-              )}
-              {gameMode === 'computer' && (flipped ? playerColor !== 'w' : playerColor !== 'b') && (
-                <span className="text-muted-foreground text-[10px] mr-1 ml-1">
-                  ({language === 'ar' ? 'كمبيوتر' : 'CPU'})
-                </span>
-              )}
             </span>
             {(flipped ? whiteAdv < 0 : blackAdv > 0) && <span className="text-[10px] text-muted-foreground">+{flipped ? -whiteAdv : blackAdv}</span>}
           </div>
@@ -1074,16 +1064,6 @@ export default function ChessPage() {
               {flipped
                 ? (language === 'ar' ? 'أسود' : 'Black')
                 : (language === 'ar' ? 'أبيض' : 'White')}
-              {gameMode === 'computer' && (flipped ? playerColor === 'b' : playerColor === 'w') && (
-                <span className="text-muted-foreground text-[10px] mr-1 ml-1">
-                  ({language === 'ar' ? 'أنت' : 'You'})
-                </span>
-              )}
-              {gameMode === 'computer' && (flipped ? playerColor !== 'b' : playerColor !== 'w') && (
-                <span className="text-muted-foreground text-[10px] mr-1 ml-1">
-                  ({language === 'ar' ? 'كمبيوتر' : 'CPU'})
-                </span>
-              )}
             </span>
             {(flipped ? blackAdv > 0 : whiteAdv > 0) && <span className="text-[10px] text-muted-foreground">+{flipped ? blackAdv : whiteAdv}</span>}
           </div>
