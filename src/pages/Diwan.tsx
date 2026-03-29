@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { poetryEras, Era, Poet, Poem } from '@/data/poetryData';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronRight, ChevronLeft, X, BookOpen, Feather, ScrollText } from 'lucide-react';
+import { ChevronRight, ChevronLeft, X, BookOpen, Feather, ScrollText, Copy, Check, ClipboardCopy } from 'lucide-react';
+import { toast } from 'sonner';
 
 type View = 'eras' | 'poets' | 'poet';
 
@@ -12,6 +13,21 @@ export default function DiwanPage() {
   const [selectedEra, setSelectedEra] = useState<Era | null>(null);
   const [selectedPoet, setSelectedPoet] = useState<Poet | null>(null);
   const [selectedPoem, setSelectedPoem] = useState<Poem | null>(null);
+  const [copiedVerse, setCopiedVerse] = useState<number | null>(null);
+
+  const copyVerse = (verse: string, index: number) => {
+    navigator.clipboard.writeText(verse);
+    setCopiedVerse(index);
+    toast.success('تم نسخ البيت');
+    setTimeout(() => setCopiedVerse(null), 1500);
+  };
+
+  const copyAllPoem = () => {
+    if (!selectedPoem) return;
+    const text = `${selectedPoem.title}\n${selectedPoet?.name}\n\n${selectedPoem.verses.join('\n')}`;
+    navigator.clipboard.writeText(text);
+    toast.success('تم نسخ القصيدة كاملة');
+  };
 
   const Chevron = dir === 'rtl' ? ChevronLeft : ChevronRight;
 
