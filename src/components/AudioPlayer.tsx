@@ -116,7 +116,7 @@ export default function AudioPlayer() {
   const currentFile = files[currentIndex];
 
   return (
-    <div className="premium-card-elevated p-5">
+    <div className="bg-card border border-border/40 rounded-2xl p-5">
       <audio ref={audioRef} onTimeUpdate={onTimeUpdate} onEnded={skipNext} />
       <input
         ref={fileInputRef}
