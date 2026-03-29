@@ -66,34 +66,34 @@ export default function DualCalendar() {
   };
 
   return (
-    <div className="premium-card-intense p-5">
+    <div className="premium-card-intense p-4">
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-3">
         <button
           onClick={dir === 'rtl' ? nextMonth : prevMonth}
-          className="w-9 h-9 rounded-full flex items-center justify-center bg-secondary hover:bg-muted transition-colors active:scale-90 duration-150"
+          className="w-8 h-8 rounded-full flex items-center justify-center bg-secondary hover:bg-muted transition-colors active:scale-90 duration-150"
         >
-          <ChevronLeft className="w-4 h-4 text-foreground" />
+          <ChevronLeft className="w-3.5 h-3.5 text-foreground" />
         </button>
         <button onClick={goToday} className="text-center">
-          <div className="text-[17px] font-semibold text-foreground leading-snug">
+          <div className="text-[15px] font-semibold text-foreground leading-snug">
             {t(`months.${viewMonth}`)} {viewYear}
           </div>
-          <div className="text-xs text-primary font-medium mt-0.5">
+          <div className="text-[11px] text-primary font-medium mt-0.5">
             {t(`hijriMonths.${hijriInfo.month}`)} {hijriInfo.year}
           </div>
         </button>
         <button
           onClick={dir === 'rtl' ? prevMonth : nextMonth}
-          className="w-9 h-9 rounded-full flex items-center justify-center bg-secondary hover:bg-muted transition-colors active:scale-90 duration-150"
+          className="w-8 h-8 rounded-full flex items-center justify-center bg-secondary hover:bg-muted transition-colors active:scale-90 duration-150"
         >
-          <ChevronRight className="w-4 h-4 text-foreground" />
+          <ChevronRight className="w-3.5 h-3.5 text-foreground" />
         </button>
       </div>
 
       {/* Live time indicator */}
       {isCurrentMonth && (
-        <div className="flex items-center gap-2 mb-3 px-1">
+        <div className="flex items-center gap-2 mb-2 px-1">
           <div className="relative flex-1 h-[2px] rounded-full bg-muted overflow-hidden">
             <motion.div
               className="absolute inset-y-0 left-0 bg-primary rounded-full"
@@ -102,22 +102,22 @@ export default function DualCalendar() {
               transition={{ duration: 0.5, ease: 'linear' }}
             />
             <motion.div
-              className="absolute top-1/2 -translate-y-1/2 w-[6px] h-[6px] rounded-full bg-primary shadow-sm shadow-primary/50"
+              className="absolute top-1/2 -translate-y-1/2 w-[5px] h-[5px] rounded-full bg-primary shadow-sm shadow-primary/50"
               style={{ left: `${timeProgress * 100}%` }}
               animate={{ scale: [1, 1.3, 1] }}
               transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
             />
           </div>
-          <span className="text-[10px] font-mono text-muted-foreground tabular-nums min-w-[58px] text-right">
+          <span className="text-[9px] font-mono text-muted-foreground tabular-nums min-w-[52px] text-right">
             {timeString}
           </span>
         </div>
       )}
 
       {/* Day headers */}
-      <div className="grid grid-cols-7 mb-1">
+      <div className="grid grid-cols-7 mb-0.5">
         {dayHeaders.map((d, i) => (
-          <div key={i} className="text-center text-[11px] font-medium text-muted-foreground py-1.5">{d}</div>
+          <div key={i} className="text-center text-[10px] font-medium text-muted-foreground py-1">{d}</div>
         ))}
       </div>
 
@@ -145,7 +145,7 @@ export default function DualCalendar() {
                 ease: [0.25, 1, 0.5, 1] as const,
               }}
               onClick={() => setSelectedDay(selectedDay?.gDay === day.gDay ? null : day)}
-              className={`relative flex flex-col items-center justify-center py-2 rounded-xl transition-colors duration-200 cursor-pointer ${
+              className={`relative flex flex-col items-center justify-center py-1.5 rounded-lg transition-colors duration-200 cursor-pointer ${
                 day.isToday
                   ? 'shadow-md'
                   : selectedDay?.gDay === day.gDay
@@ -155,21 +155,21 @@ export default function DualCalendar() {
             >
               {day.isToday && (
                 <motion.div
-                  className="absolute inset-0 rounded-xl bg-primary"
+                  className="absolute inset-0 rounded-lg bg-primary"
                   animate={{
                     boxShadow: [
                       '0 0 0 0px hsl(var(--primary) / 0.3)',
-                      '0 0 0 4px hsl(var(--primary) / 0.08)',
+                      '0 0 0 3px hsl(var(--primary) / 0.08)',
                       '0 0 0 0px hsl(var(--primary) / 0.3)',
                     ],
                   }}
                   transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
                 />
               )}
-              <span className={`relative z-10 text-[13px] font-semibold leading-none ${day.isToday ? 'text-primary-foreground' : 'text-foreground'}`}>
+              <span className={`relative z-10 text-[12px] font-semibold leading-none ${day.isToday ? 'text-primary-foreground' : 'text-foreground'}`}>
                 {day.gDay}
               </span>
-              <span className={`relative z-10 text-[9px] mt-0.5 leading-none font-medium ${
+              <span className={`relative z-10 text-[8px] mt-0.5 leading-none font-medium ${
                 day.isToday ? 'text-primary-foreground/70' : 'text-muted-foreground'
               }`}>
                 {day.hDay}
