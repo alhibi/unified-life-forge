@@ -143,20 +143,24 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
     const channel = supabase
       .channel('messages-realtime')
       .on('postgres_changes', {
-        event: 'INSERT',
+        event: '*',
         schema: 'public',
         table: 'messages',
       }, (payload) => {
-        const newMsg = payload.new as Message;
-        if (activeConv && newMsg.conversation_id === activeConv.id) {
-          setMessages(prev => [...prev, newMsg]);
-          // Mark as read immediately
-          if (newMsg.sender_id !== user.id) {
-            supabase.from('messages').update({ read: true }).eq('id', newMsg.id).then();
+        const msg = payload.new as Message;
+        if (payload.eventType === 'INSERT') {
+          if (activeConv && msg.conversation_id === activeConv.id) {
+            setMessages(prev => [...prev, msg]);
+            if (msg.sender_id !== user.id) {
+              supabase.from('messages').update({ read: true }).eq('id', msg.id).then();
+            }
+            setTimeout(scrollToBottom, 100);
           }
-          setTimeout(scrollToBottom, 100);
+          loadConversations();
+        } else if (payload.eventType === 'UPDATE') {
+          // Update read status in existing messages
+          setMessages(prev => prev.map(m => m.id === msg.id ? { ...m, read: msg.read } : m));
         }
-        loadConversations();
       })
       .subscribe();
 
