@@ -635,25 +635,37 @@ export default function ReadingDialog({ open, onOpenChange }: ReadingDialogProps
   // Lock body scroll when open
   useEffect(() => {
     if (open) {
-      document.body.style.overflow = 'hidden';
-      document.body.style.touchAction = 'none';
+      const scrollY = window.scrollY;
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.left = '0';
+      document.body.style.right = '0';
     } else {
-      document.body.style.overflow = '';
-      document.body.style.touchAction = '';
+      const top = document.body.style.top;
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.left = '';
+      document.body.style.right = '';
+      if (top) window.scrollTo(0, parseInt(top) * -1);
     }
     return () => {
-      document.body.style.overflow = '';
-      document.body.style.touchAction = '';
+      const top = document.body.style.top;
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.left = '';
+      document.body.style.right = '';
+      if (top) window.scrollTo(0, parseInt(top) * -1);
     };
   }, [open]);
 
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[60]" style={{ touchAction: 'none' }}>
+    <div className="fixed inset-0 z-[60]">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/50 animate-fade-in"
+        className="absolute inset-0 bg-black/50"
+        style={{ animation: 'fade-in 0.2s ease-out' }}
         onClick={() => onOpenChange(false)}
       />
       {/* Drawer */}
@@ -662,7 +674,6 @@ export default function ReadingDialog({ open, onOpenChange }: ReadingDialogProps
         animate={{ y: 0 }}
         transition={{ type: 'spring' as const, damping: 30, stiffness: 350, mass: 0.8 }}
         className="absolute inset-x-0 bottom-0 h-[90vh] flex flex-col rounded-t-3xl border-t border-border/50 bg-background shadow-2xl overflow-hidden"
-        style={{ willChange: 'transform', touchAction: 'auto' }}
       >
         {/* Drag handle */}
         <div className="flex justify-center pt-3 pb-1 shrink-0">
