@@ -10,7 +10,8 @@ import { motion } from 'framer-motion';
 import WeatherWidget from '@/components/WeatherWidget';
 import ReligiousOccasions from '@/components/ReligiousOccasions';
 const ChatDrawer = lazy(() => import('@/components/ChatDrawer'));
-import { Sunrise, Sun, Moon, MessageCircle } from 'lucide-react';
+import ReadingDialog from '@/components/ReadingDialog';
+import { Sunrise, Sun, Moon, MessageCircle, BookOpen } from 'lucide-react';
 
 const stagger = {
   hidden: {},
