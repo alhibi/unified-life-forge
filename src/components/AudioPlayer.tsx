@@ -46,21 +46,10 @@ const reciters: Reciter[] = [
     name: 'مشاري العفاسي',
     nameEn: 'Mishary Al-Afasy',
     surahs: [
-      { id: 1, name: 'سورة الفاتحة', url: 'https://server8.mp3quran.net/afs_s/001.mp3' },
-      { id: 2, name: 'سورة البقرة', url: 'https://server8.mp3quran.net/afs_s/002.mp3' },
+      { id: 1, name: 'سورة الفاتحة', url: 'https://server12.mp3quran.net/afsy/001.mp3' },
+      { id: 2, name: 'سورة البقرة', url: 'https://server12.mp3quran.net/afsy/002.mp3' },
     ],
   },
-];
-
-// Fix Mishary URLs - use correct server
-reciters[3].surahs = [
-  { id: 1, name: 'سورة الفاتحة', url: 'https://server12.mp3quran.net/maher/001.mp3' },
-  { id: 2, name: 'سورة البقرة', url: 'https://server12.mp3quran.net/maher/002.mp3' },
-];
-// Actually let's use proper Mishary Rashid Alafasy URLs
-reciters[3].surahs = [
-  { id: 1, name: 'سورة الفاتحة', url: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/1.mp3' },
-  { id: 2, name: 'سورة البقرة', url: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/2.mp3' },
 ];
 
 type Tab = 'quran' | 'local';
