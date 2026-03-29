@@ -21,6 +21,7 @@ export default function SettingsPage() {
   const navigate = useNavigate();
   const isAr = language === 'ar';
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [showGuide, setShowGuide] = useState(false);
 
   const handleSignOut = async () => {
     setShowLogoutConfirm(false);
