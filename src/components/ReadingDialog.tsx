@@ -632,27 +632,37 @@ export default function ReadingDialog({ open, onOpenChange }: ReadingDialogProps
     );
   };
 
+  // Lock body scroll when open
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = 'hidden';
+      document.body.style.touchAction = 'none';
+    } else {
+      document.body.style.overflow = '';
+      document.body.style.touchAction = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+      document.body.style.touchAction = '';
+    };
+  }, [open]);
+
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[60]">
+    <div className="fixed inset-0 z-[60]" style={{ touchAction: 'none' }}>
       {/* Backdrop */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.2 }}
-        className="absolute inset-0 bg-black/50"
+      <div
+        className="absolute inset-0 bg-black/50 animate-fade-in"
         onClick={() => onOpenChange(false)}
       />
       {/* Drawer */}
       <motion.div
         initial={{ y: '100%' }}
         animate={{ y: 0 }}
-        exit={{ y: '100%' }}
         transition={{ type: 'spring' as const, damping: 30, stiffness: 350, mass: 0.8 }}
         className="absolute inset-x-0 bottom-0 h-[90vh] flex flex-col rounded-t-3xl border-t border-border/50 bg-background shadow-2xl overflow-hidden"
-        style={{ willChange: 'transform' }}
+        style={{ willChange: 'transform', touchAction: 'auto' }}
       >
         {/* Drag handle */}
         <div className="flex justify-center pt-3 pb-1 shrink-0">
