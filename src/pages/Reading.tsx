@@ -39,6 +39,7 @@ interface FeedResult {
 
 const DEFAULT_FEEDS: FeedSource[] = [
   { url: 'https://www.aljazeera.net/aljazeerarss/a7c186be-1baa-4bd4-9d80-a84db769f779/73d0e1b4-532f-45ef-b135-bba0b18ad1a2', name: 'الجزيرة نت', category: 'أخبار', enabled: true },
+  { url: 'https://sana.sy/feed/', name: 'سانا', category: 'أخبار', enabled: true },
 ];
 
 const SUGGESTED_FEEDS: FeedSource[] = [
@@ -474,28 +475,30 @@ export default function ReadingPage() {
               </AnimatePresence>
 
               <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
-                {(['all', 'unread', 'bookmarks'] as FilterTab[]).map(tab => (
-                  <button key={tab} onClick={() => setFilterTab(tab)}
-                    className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all shrink-0 active:scale-95 ${filterTab === tab ? 'bg-primary text-primary-foreground shadow-sm' : 'bg-accent/30 text-muted-foreground hover:bg-accent/50'}`}>
-                    {tab === 'bookmarks' && <Bookmark className="h-3 w-3 inline me-1" />}
-                    {tab === 'all' ? (isAr ? 'الكل' : 'All') : tab === 'unread' ? (isAr ? 'غير مقروء' : 'Unread') : (isAr ? 'المحفوظات' : 'Saved')}
-                    {tab === 'all' && <span className="ms-1 opacity-70">{articles.length}</span>}
-                    {tab === 'bookmarks' && bookmarks.length > 0 && <span className="ms-1 opacity-70">{bookmarks.length}</span>}
+                {/* Source filter buttons that replace "الكل" with individual sources */}
+                <button onClick={() => { setFilterTab('all'); setSourceFilter('all'); }}
+                  className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all shrink-0 active:scale-95 ${filterTab === 'all' && sourceFilter === 'all' ? 'bg-primary text-primary-foreground shadow-sm' : 'bg-accent/30 text-muted-foreground hover:bg-accent/50'}`}>
+                  {isAr ? 'الكل' : 'All'}
+                  <span className="ms-1 opacity-70">{articles.length}</span>
+                </button>
+                {feedSources.filter(f => f.enabled).map(source => (
+                  <button key={source.url} onClick={() => { setFilterTab('all'); setSourceFilter(source.name === sourceFilter ? 'all' : source.name); }}
+                    className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all shrink-0 active:scale-95 ${filterTab === 'all' && sourceFilter === source.name ? 'bg-primary text-primary-foreground shadow-sm' : 'bg-accent/30 text-muted-foreground hover:bg-accent/50'}`}>
+                    {source.name}
+                    <span className="ms-1 opacity-70">{articles.filter(a => a.source === source.name).length}</span>
                   </button>
                 ))}
-                {sources.length > 1 && (
-                  <>
-                    <div className="w-px h-4 bg-border/40 shrink-0" />
-                    <button onClick={() => setSourceFilter('all')} className={`px-3 py-1.5 rounded-full text-[11px] font-medium transition-all shrink-0 active:scale-95 ${sourceFilter === 'all' ? 'bg-secondary text-secondary-foreground' : 'bg-accent/20 text-muted-foreground hover:bg-accent/40'}`}>
-                      {isAr ? 'كل المصادر' : 'All sources'}
-                    </button>
-                    {sources.map(s => (
-                      <button key={s} onClick={() => setSourceFilter(s === sourceFilter ? 'all' : s)} className={`px-3 py-1.5 rounded-full text-[11px] font-medium transition-all shrink-0 active:scale-95 ${sourceFilter === s ? 'bg-secondary text-secondary-foreground' : 'bg-accent/20 text-muted-foreground hover:bg-accent/40'}`}>
-                        {s}
-                      </button>
-                    ))}
-                  </>
-                )}
+                <div className="w-px h-4 bg-border/40 shrink-0" />
+                <button onClick={() => setFilterTab('unread')}
+                  className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all shrink-0 active:scale-95 ${filterTab === 'unread' ? 'bg-primary text-primary-foreground shadow-sm' : 'bg-accent/30 text-muted-foreground hover:bg-accent/50'}`}>
+                  {isAr ? 'غير مقروء' : 'Unread'}
+                </button>
+                <button onClick={() => setFilterTab('bookmarks')}
+                  className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all shrink-0 active:scale-95 ${filterTab === 'bookmarks' ? 'bg-primary text-primary-foreground shadow-sm' : 'bg-accent/30 text-muted-foreground hover:bg-accent/50'}`}>
+                  <Bookmark className="h-3 w-3 inline me-1" />
+                  {isAr ? 'المحفوظات' : 'Saved'}
+                  {bookmarks.length > 0 && <span className="ms-1 opacity-70">{bookmarks.length}</span>}
+                </button>
               </div>
             </div>
 
