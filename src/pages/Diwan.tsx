@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { poetryEras, Era, Poet, Poem } from '@/data/poetryData';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronRight, ChevronLeft, X, BookOpen, Feather, ScrollText, Copy, Check, ClipboardCopy } from 'lucide-react';
+import { ChevronRight, ChevronLeft, X, BookOpen, Feather, ScrollText, Copy, Check, ClipboardCopy, Swords, Moon, Landmark, Castle } from 'lucide-react';
 import { toast } from 'sonner';
 
 type View = 'eras' | 'poets' | 'poet';
@@ -30,6 +30,13 @@ export default function DiwanPage() {
   };
 
   const Chevron = dir === 'rtl' ? ChevronLeft : ChevronRight;
+
+  const eraIcons: Record<string, React.ElementType> = {
+    jahili: Swords,
+    islami: Moon,
+    umawi: Landmark,
+    abbasi: Castle,
+  };
 
   const goBack = () => {
     if (selectedPoem) {
@@ -89,7 +96,7 @@ export default function DiwanPage() {
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                      <BookOpen className="w-5 h-5 text-primary" />
+                      {React.createElement(eraIcons[era.id] || BookOpen, { className: 'w-5 h-5 text-primary' })}
                     </div>
                     <div>
                       <p className="font-semibold text-[15px] text-foreground">{era.nameAr}</p>
