@@ -176,30 +176,53 @@ export default function SettingsPage() {
                 <div className="px-4 pb-4 space-y-3">
                   <div className="h-px bg-border/50" />
                   {[
-                    { icon: Home, color: 'text-amber-500', bg: 'bg-amber-500/10', title: isAr ? 'الصفحة الرئيسية' : 'Startseite', desc: isAr ? 'تحية ذكية تتغير حسب الوقت، مع نظرة شاملة على يومك' : 'Intelligente Begrüßung je nach Tageszeit' },
-                    { icon: Calendar, color: 'text-blue-500', bg: 'bg-blue-500/10', title: isAr ? 'التقويم المزدوج' : 'Doppelkalender', desc: isAr ? 'تقويم ميلادي وهجري معاً مع عد تنازلي لأي تاريخ وقابل للطي' : 'Gregorianischer & Hijri-Kalender mit Countdown' },
-                    { icon: Moon, color: 'text-indigo-500', bg: 'bg-indigo-500/10', title: isAr ? 'مواقيت الصلاة' : 'Gebetszeiten', desc: isAr ? 'أوقات صلاة دقيقة بحسب موقعك مع عداد تنازلي للصلاة القادمة' : 'Genaue Gebetszeiten basierend auf deinem Standort' },
-                    { icon: BookOpenText, color: 'text-emerald-500', bg: 'bg-emerald-500/10', title: isAr ? 'الأدعية والأحاديث' : 'Duas & Hadithe', desc: isAr ? 'مجموعة شاملة من الأدعية المأثورة والأحاديث الصحيحة مع الأربعين النووية' : 'Umfassende Sammlung von Duas und authentischen Hadithen' },
-                    { icon: Music, color: 'text-rose-500', bg: 'bg-rose-500/10', title: isAr ? 'المشغل الصوتي' : 'Audioplayer', desc: isAr ? 'استمع إلى تلاوات القرآن الكريم والأذكار المسموعة' : 'Höre Quran-Rezitationen und Adhkar' },
-                    { icon: MapPin, color: 'text-orange-500', bg: 'bg-orange-500/10', title: isAr ? 'حفظ المواقع' : 'Standorte speichern', desc: isAr ? 'احفظ مواقعك المفضلة وارجع إليها بسهولة في أي وقت' : 'Speichere Lieblingsorte und greife jederzeit darauf zu' },
-                    { icon: Gamepad2, color: 'text-purple-500', bg: 'bg-purple-500/10', title: isAr ? 'الألعاب' : 'Spiele', desc: isAr ? 'مجموعة ألعاب ذكاء متنوعة: سودوكو، شطرنج، ألغاز وأكثر' : 'Puzzle-Spiele: Sudoku, Schach, und mehr' },
-                    { icon: Palette, color: 'text-violet-500', bg: 'bg-violet-500/10', title: isAr ? 'التخصيص' : 'Anpassung', desc: isAr ? 'غيّر المظهر والخط واللغة والمذهب الفقهي حسب تفضيلاتك' : 'Passe Aussehen, Schrift, Sprache und mehr an' },
+                    { icon: Home, color: 'text-amber-500', bg: 'bg-amber-500/10', route: '/',
+                      title: isAr ? 'الصفحة الرئيسية' : 'Startseite',
+                      desc: isAr ? 'تحية ذكية تتغير حسب وقت اليوم (صباح، مساء، ليل) مع عرض التاريخ الحالي ونظرة شاملة على أدواتك اليومية' : 'Intelligente Begrüßung je nach Tageszeit mit Tagesübersicht' },
+                    { icon: Calendar, color: 'text-blue-500', bg: 'bg-blue-500/10', route: '/',
+                      title: isAr ? 'التقويم المزدوج' : 'Doppelkalender',
+                      desc: isAr ? 'تقويم تفاعلي يعرض التاريخ الميلادي والهجري معاً، مع شريط زمني حي يتحرك مع مرور اليوم، وإمكانية طي التقويم والعد التنازلي لأي تاريخ' : 'Interaktiver Kalender mit Hijri-Datum, Zeitleiste und Countdown' },
+                    { icon: Moon, color: 'text-indigo-500', bg: 'bg-indigo-500/10', route: '/',
+                      title: isAr ? 'مواقيت الصلاة' : 'Gebetszeiten',
+                      desc: isAr ? 'أوقات الصلوات الخمس بدقة حسب موقعك الجغرافي مع اسم منطقتك، وعداد تنازلي للصلاة القادمة يتحدث تلقائياً، ودعم لاختيار المذهب الفقهي' : 'Präzise Gebetszeiten mit Standort, Countdown und Madhab-Auswahl' },
+                    { icon: BookOpenText, color: 'text-emerald-500', bg: 'bg-emerald-500/10', route: '/duas',
+                      title: isAr ? 'الأدعية والأحاديث' : 'Duas & Hadithe',
+                      desc: isAr ? 'مكتبة شاملة تضم أدعية الصباح والمساء والنوم والاستيقاظ والسفر وغيرها، مع أحاديث صحيحة من الكتب الثمانية والأربعين النووية كاملة بالتشكيل' : 'Umfassende Bibliothek mit Duas, Sahih-Hadithen und den 40 Nawawi-Hadithen' },
+                    { icon: Music, color: 'text-rose-500', bg: 'bg-rose-500/10', route: '/',
+                      title: isAr ? 'المشغل الصوتي' : 'Audioplayer',
+                      desc: isAr ? 'مشغل صوتي مدمج للاستماع إلى القرآن الكريم والأذكار، مع إمكانية التحكم بالتقديم والترجيع والتنقل بين المقاطع' : 'Integrierter Audioplayer für Quran und Adhkar mit Steuerung' },
+                    { icon: MapPin, color: 'text-orange-500', bg: 'bg-orange-500/10', route: '/',
+                      title: isAr ? 'حفظ المواقع' : 'Standorte',
+                      desc: isAr ? 'احفظ مواقعك المهمة (المسجد، المنزل، العمل) بنقرة واحدة باستخدام GPS، وارجع إليها في أي وقت مع إمكانية فتحها مباشرة في الخرائط' : 'Speichere wichtige Orte per GPS und öffne sie direkt in Maps' },
+                    { icon: Gamepad2, color: 'text-purple-500', bg: 'bg-purple-500/10', route: '/games',
+                      title: isAr ? 'الألعاب الذهنية' : 'Denkspiele',
+                      desc: isAr ? 'مجموعة ألعاب ذكاء متنوعة تشمل: سودوكو بمستويات مختلفة، شطرنج، لعبة الذاكرة، متاهة الألوان، الأنابيب، وكاسحة الألغام — كلها بدون إنترنت' : 'Sudoku, Schach, Memory, Farblabyrinth, Pipes & Minesweeper — alles offline' },
+                    { icon: Palette, color: 'text-violet-500', bg: 'bg-violet-500/10', route: '/settings/theme',
+                      title: isAr ? 'التخصيص الكامل' : 'Volle Anpassung',
+                      desc: isAr ? 'تحكم كامل في مظهر التطبيق: الوضع الداكن أو الفاتح أو حسب النظام، اختيار نوع وحجم الخط، تغيير اللغة، واختيار المذهب الفقهي لحساب مواقيت الصلاة' : 'Dark/Light Mode, Schriftart, Sprache und Madhab-Einstellungen' },
+                    { icon: UserCircle, color: 'text-sky-500', bg: 'bg-sky-500/10', route: '/auth',
+                      title: isAr ? 'المزامنة والحساب' : 'Sync & Konto',
+                      desc: isAr ? 'سجّل دخولك لحفظ جميع إعداداتك ومواقعك وإحصائياتك على السحابة، واسترجعها على أي جهاز آخر بتسجيل الدخول فقط' : 'Melde dich an, um Einstellungen auf allen Geräten zu synchronisieren' },
                   ].map((feature, idx) => (
-                    <motion.div
+                    <motion.button
                       key={idx}
                       initial={{ opacity: 0, y: 8 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: idx * 0.04, duration: 0.3, ease: [0.25, 1, 0.5, 1] }}
-                      className="flex items-start gap-3"
+                      onClick={() => navigate(feature.route)}
+                      className="flex items-start gap-3 w-full text-start active:scale-[0.98] transition-transform rounded-xl p-2 -mx-2 hover:bg-secondary/50"
                     >
                       <div className={`w-9 h-9 rounded-xl ${feature.bg} flex items-center justify-center shrink-0 mt-0.5`}>
                         <feature.icon className={`w-4 h-4 ${feature.color}`} />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h3 className="text-[13px] font-semibold text-foreground">{feature.title}</h3>
+                        <div className="flex items-center gap-1.5">
+                          <h3 className="text-[13px] font-semibold text-foreground">{feature.title}</h3>
+                          <ArrowRight className="w-3 h-3 text-muted-foreground/40 rtl:rotate-180" />
+                        </div>
                         <p className="text-[11px] text-muted-foreground leading-relaxed mt-0.5">{feature.desc}</p>
                       </div>
-                    </motion.div>
+                    </motion.button>
                   ))}
                 </div>
               </motion.div>
