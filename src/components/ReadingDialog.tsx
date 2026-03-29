@@ -632,12 +632,12 @@ export default function ReadingDialog({ open, onOpenChange }: ReadingDialogProps
         {/* Header */}
         <div className="p-3 border-b border-border/40 bg-card/80 backdrop-blur-sm">
           <div className="flex items-center justify-between mb-2">
-            <DialogHeader className="flex-1 text-start">
-              <DialogTitle className="text-base font-bold flex items-center gap-2">
+            <div className="flex-1 text-start">
+              <h3 className="text-base font-bold flex items-center gap-2">
                 <BookOpen className="h-4.5 w-4.5 text-primary" />
                 {isAr ? 'القراءة' : 'Reading'}
-              </DialogTitle>
-            </DialogHeader>
+              </h3>
+            </div>
             <div className="flex items-center gap-0.5">
               <button
                 onClick={() => setShowSearch(!showSearch)}
