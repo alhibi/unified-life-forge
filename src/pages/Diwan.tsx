@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { poetryEras, Era, Poet, Poem } from '@/data/poetryData';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronRight, ChevronLeft, X, BookOpen, Feather, ScrollText } from 'lucide-react';
+import { ChevronRight, ChevronLeft, X, BookOpen, Feather, ScrollText, Copy, Check, ClipboardCopy } from 'lucide-react';
+import { toast } from 'sonner';
 
 type View = 'eras' | 'poets' | 'poet';
 
@@ -12,6 +13,21 @@ export default function DiwanPage() {
   const [selectedEra, setSelectedEra] = useState<Era | null>(null);
   const [selectedPoet, setSelectedPoet] = useState<Poet | null>(null);
   const [selectedPoem, setSelectedPoem] = useState<Poem | null>(null);
+  const [copiedVerse, setCopiedVerse] = useState<number | null>(null);
+
+  const copyVerse = (verse: string, index: number) => {
+    navigator.clipboard.writeText(verse);
+    setCopiedVerse(index);
+    toast.success('تم نسخ البيت');
+    setTimeout(() => setCopiedVerse(null), 1500);
+  };
+
+  const copyAllPoem = () => {
+    if (!selectedPoem) return;
+    const text = `${selectedPoem.title}\n${selectedPoet?.name}\n\n${selectedPoem.verses.join('\n')}`;
+    navigator.clipboard.writeText(text);
+    toast.success('تم نسخ القصيدة كاملة');
+  };
 
   const Chevron = dir === 'rtl' ? ChevronLeft : ChevronRight;
 
@@ -181,16 +197,36 @@ export default function DiwanPage() {
                     <X className="w-4 h-4 text-muted-foreground" />
                   </button>
                 </div>
-                <p className="text-[11px] text-muted-foreground mb-4">{selectedPoet?.name} — {selectedEra?.nameAr}</p>
-                <div className="space-y-3">
+                <div className="flex items-center justify-between mb-4">
+                  <p className="text-[11px] text-muted-foreground">{selectedPoet?.name} — {selectedEra?.nameAr}</p>
+                  <button
+                    onClick={copyAllPoem}
+                    className="flex items-center gap-1 text-[11px] text-primary font-medium px-2.5 py-1 rounded-lg bg-primary/10 active:bg-primary/20 transition-colors"
+                  >
+                    <ClipboardCopy className="w-3.5 h-3.5" />
+                    نسخ الكل
+                  </button>
+                </div>
+                <div className="space-y-1">
                   {selectedPoem.verses.map((verse, i) => (
-                    <p
+                    <button
                       key={i}
-                      className="text-[15px] text-foreground leading-[2] text-center"
-                      style={{ fontFamily: "'Amiri', serif" }}
+                      onClick={() => copyVerse(verse, i)}
+                      className="w-full group relative py-2 px-3 rounded-lg hover:bg-muted/50 active:bg-muted transition-colors text-center"
                     >
-                      {verse}
-                    </p>
+                      <p
+                        className="text-[15px] text-foreground leading-[2]"
+                        style={{ fontFamily: "'Amiri', serif" }}
+                      >
+                        {verse}
+                      </p>
+                      <span className={`absolute top-1/2 -translate-y-1/2 start-1 opacity-0 group-hover:opacity-100 transition-opacity ${copiedVerse === i ? 'opacity-100' : ''}`}>
+                        {copiedVerse === i
+                          ? <Check className="w-3.5 h-3.5 text-green-500" />
+                          : <Copy className="w-3.5 h-3.5 text-muted-foreground" />
+                        }
+                      </span>
+                    </button>
                   ))}
                 </div>
               </motion.div>
