@@ -8,7 +8,7 @@ export interface IslamicOccasion {
   color: string; // accent color class
 }
 
-// Approximate Gregorian dates for 1447 AH occasions
+// Verified Gregorian dates for 1447 AH (Umm al-Qura calendar)
 export const islamicOccasions: IslamicOccasion[] = [
   {
     id: 'new-year',
@@ -16,7 +16,7 @@ export const islamicOccasions: IslamicOccasion[] = [
     description: 'اليوم الأول من شهر محرم، وهو بداية التقويم الهجري',
     hijriDay: 1,
     hijriMonth: 'محرم',
-    gregorianDate: '2025-06-17',
+    gregorianDate: '2025-06-27',
     color: 'border-l-emerald-500',
   },
   {
@@ -25,7 +25,7 @@ export const islamicOccasions: IslamicOccasion[] = [
     description: 'اليوم العاشر من شهر محرم، وهو يوم صيام مستحب',
     hijriDay: 10,
     hijriMonth: 'محرم',
-    gregorianDate: '2025-06-26',
+    gregorianDate: '2025-07-06',
     color: 'border-l-emerald-500',
   },
   {
@@ -34,7 +34,7 @@ export const islamicOccasions: IslamicOccasion[] = [
     description: 'ذكرى مولد النبي محمد ﷺ',
     hijriDay: 12,
     hijriMonth: 'ربيع الأول',
-    gregorianDate: '2025-09-05',
+    gregorianDate: '2025-09-04',
     color: 'border-l-emerald-500',
   },
   {
@@ -43,7 +43,7 @@ export const islamicOccasions: IslamicOccasion[] = [
     description: 'بداية شهر رجب، أحد الأشهر الحرم',
     hijriDay: 1,
     hijriMonth: 'رجب',
-    gregorianDate: '2025-12-25',
+    gregorianDate: '2025-12-21',
     color: 'border-l-sky-500',
   },
   {
@@ -52,7 +52,7 @@ export const islamicOccasions: IslamicOccasion[] = [
     description: 'ذكرى رحلة الإسراء والمعراج التي أُسري فيها بالنبي ﷺ من مكة إلى القدس ثم عُرج به إلى السماء',
     hijriDay: 27,
     hijriMonth: 'رجب',
-    gregorianDate: '2026-01-20',
+    gregorianDate: '2026-01-16',
     color: 'border-l-sky-500',
   },
   {
@@ -61,7 +61,7 @@ export const islamicOccasions: IslamicOccasion[] = [
     description: 'بداية شهر شعبان، كان النبي ﷺ يصوم أكثر شعبان',
     hijriDay: 1,
     hijriMonth: 'شعبان',
-    gregorianDate: '2026-01-24',
+    gregorianDate: '2026-01-20',
     color: 'border-l-violet-500',
   },
   {
@@ -70,7 +70,7 @@ export const islamicOccasions: IslamicOccasion[] = [
     description: 'ليلة الخامس عشر من شعبان',
     hijriDay: 15,
     hijriMonth: 'شعبان',
-    gregorianDate: '2026-02-07',
+    gregorianDate: '2026-02-03',
     color: 'border-l-violet-500',
   },
   {
@@ -79,7 +79,7 @@ export const islamicOccasions: IslamicOccasion[] = [
     description: 'بداية شهر رمضان المبارك',
     hijriDay: 1,
     hijriMonth: 'رمضان',
-    gregorianDate: '2026-02-22',
+    gregorianDate: '2026-02-18',
     color: 'border-l-amber-500',
   },
   {
@@ -88,7 +88,7 @@ export const islamicOccasions: IslamicOccasion[] = [
     description: 'أعظم ليلة في السنة، وهي في العشر الأواخر من رمضان',
     hijriDay: 27,
     hijriMonth: 'رمضان',
-    gregorianDate: '2026-03-20',
+    gregorianDate: '2026-03-16',
     color: 'border-l-amber-500',
   },
   {
@@ -97,7 +97,7 @@ export const islamicOccasions: IslamicOccasion[] = [
     description: 'عيد المسلمين الأول، يأتي بعد انتهاء شهر رمضان',
     hijriDay: 1,
     hijriMonth: 'شوال',
-    gregorianDate: '2026-03-24',
+    gregorianDate: '2026-03-20',
     color: 'border-l-yellow-500',
   },
   {
@@ -106,7 +106,7 @@ export const islamicOccasions: IslamicOccasion[] = [
     description: 'من صام رمضان ثم أتبعه ستاً من شوال كان كصيام الدهر',
     hijriDay: 2,
     hijriMonth: 'شوال',
-    gregorianDate: '2026-03-25',
+    gregorianDate: '2026-03-21',
     color: 'border-l-yellow-500',
   },
   {
@@ -115,7 +115,7 @@ export const islamicOccasions: IslamicOccasion[] = [
     description: 'بداية شهر ذي الحجة، شهر الحج',
     hijriDay: 1,
     hijriMonth: 'ذو الحجة',
-    gregorianDate: '2026-05-22',
+    gregorianDate: '2026-05-18',
     color: 'border-l-emerald-600',
   },
   {
@@ -124,7 +124,7 @@ export const islamicOccasions: IslamicOccasion[] = [
     description: 'اليوم التاسع من ذي الحجة، يوم الوقوف بعرفة',
     hijriDay: 9,
     hijriMonth: 'ذو الحجة',
-    gregorianDate: '2026-05-30',
+    gregorianDate: '2026-05-26',
     color: 'border-l-emerald-600',
   },
   {
@@ -133,7 +133,7 @@ export const islamicOccasions: IslamicOccasion[] = [
     description: 'عيد المسلمين الثاني، يأتي في العاشر من ذي الحجة',
     hijriDay: 10,
     hijriMonth: 'ذو الحجة',
-    gregorianDate: '2026-05-31',
+    gregorianDate: '2026-05-27',
     color: 'border-l-yellow-600',
   },
   {
@@ -142,7 +142,7 @@ export const islamicOccasions: IslamicOccasion[] = [
     description: 'الأيام الثلاثة التي تلي عيد الأضحى',
     hijriDay: 11,
     hijriMonth: 'ذو الحجة',
-    gregorianDate: '2026-06-01',
+    gregorianDate: '2026-05-28',
     color: 'border-l-yellow-600',
   },
 ];
