@@ -96,19 +96,27 @@ export default function Index() {
                 {now.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}
               </p>
             </div>
-            {user && (
+            <div className="flex items-center gap-2 mt-0.5">
               <button
-                onClick={() => setChatOpen(true)}
-                className="relative p-2.5 rounded-xl bg-accent/50 hover:bg-accent transition-colors mt-0.5"
+                onClick={() => setReadingOpen(true)}
+                className="p-2.5 rounded-xl bg-accent/50 hover:bg-accent transition-colors"
               >
-                <MessageCircle className="h-5 w-5 text-foreground" />
-                {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground text-[10px] rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 font-bold animate-pulse">
-                    {unreadCount}
-                  </span>
-                )}
+                <BookOpen className="h-5 w-5 text-foreground" />
               </button>
-            )}
+              {user && (
+                <button
+                  onClick={() => setChatOpen(true)}
+                  className="relative p-2.5 rounded-xl bg-accent/50 hover:bg-accent transition-colors"
+                >
+                  <MessageCircle className="h-5 w-5 text-foreground" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground text-[10px] rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 font-bold animate-pulse">
+                      {unreadCount}
+                    </span>
+                  )}
+                </button>
+              )}
+            </div>
           </div>
         </motion.div>
 
