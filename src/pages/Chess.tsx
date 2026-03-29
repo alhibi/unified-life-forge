@@ -622,6 +622,7 @@ export default function ChessPage() {
       recordResult(game.turn);
       setGameOver(true);
       setIsRunning(false);
+      playCheckSound();
     } else if (!legal) {
       setStatus(language === 'ar' ? 'تعادل!' : 'Stalemate!');
       recordResult('draw');
