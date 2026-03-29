@@ -1,12 +1,13 @@
 import React from 'react';
 import { useApp } from '@/contexts/AppContext';
-import { Home, Gamepad2, Settings, BookOpen } from 'lucide-react';
+import { Home, Gamepad2, Settings, BookOpen, ScrollText } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
 const tabs = [
   { key: 'settings', path: '/settings', icon: Settings, labelKey: 'nav.settings' },
   { key: 'games', path: '/games', icon: Gamepad2, labelKey: 'nav.games' },
+  { key: 'diwan', path: '/diwan', icon: ScrollText, labelKey: 'nav.diwan' },
   { key: 'duas', path: '/duas', icon: BookOpen, labelKey: 'nav.duas' },
   { key: 'home', path: '/', icon: Home, labelKey: 'nav.home' },
 ];
