@@ -157,7 +157,7 @@ export default function ReadingPage() {
         const db = b.pubDate ? new Date(b.pubDate).getTime() : 0;
         return db - da;
       });
-      setArticles(allItems.slice(0, 50));
+      setArticles(allItems);
     } catch (e: any) {
       console.error('RSS fetch error:', e);
       toast.error(isAr ? 'فشل في تحميل الأخبار' : 'Failed to load feeds');
