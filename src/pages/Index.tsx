@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import { useApp } from '@/contexts/AppContext';
 import DualCalendar from '@/components/DualCalendar';
 import AudioPlayer from '@/components/AudioPlayer';
@@ -6,7 +6,6 @@ import LocationSaver from '@/components/LocationSaver';
 import PrayerTimes from '@/components/PrayerTimes';
 import { motion } from 'framer-motion';
 import { Sunrise, Sun, Moon } from 'lucide-react';
-import { useSearchParams } from 'react-router-dom';
 
 const stagger = {
   hidden: {},
@@ -19,44 +18,6 @@ const item = {
 
 export default function Index() {
   const { t } = useApp();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const highlight = searchParams.get('highlight');
-
-  const greetingRef = useRef<HTMLDivElement>(null);
-  const prayerRef = useRef<HTMLDivElement>(null);
-  const calendarRef = useRef<HTMLDivElement>(null);
-  const audioRef = useRef<HTMLDivElement>(null);
-  const locationRef = useRef<HTMLDivElement>(null);
-
-  const refMap: Record<string, React.RefObject<HTMLDivElement>> = {
-    greeting: greetingRef,
-    prayer: prayerRef,
-    calendar: calendarRef,
-    audio: audioRef,
-    location: locationRef,
-  };
-
-  useEffect(() => {
-    if (!highlight) return;
-    const ref = refMap[highlight];
-    if (!ref?.current) return;
-
-    // Small delay to let the page render
-    const timer = setTimeout(() => {
-      ref.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      // Add highlight class
-      ref.current?.classList.add('guide-highlight');
-      // Remove highlight and param after animation
-      const removeTimer = setTimeout(() => {
-        ref.current?.classList.remove('guide-highlight');
-        setSearchParams({}, { replace: true });
-      }, 2000);
-      return () => clearTimeout(removeTimer);
-    }, 300);
-
-    return () => clearTimeout(timer);
-  }, [highlight]);
-
   const now = new Date();
   const hour = now.getHours();
   const isMorning = hour >= 5 && hour < 12;
@@ -77,7 +38,7 @@ export default function Index() {
         animate="show"
         className="space-y-5 max-w-lg mx-auto"
       >
-        <motion.div ref={greetingRef} variants={item} className="flex items-center gap-3 transition-all duration-500 rounded-2xl">
+        <motion.div variants={item} className="flex items-center gap-3">
           <div className={`w-11 h-11 rounded-2xl flex items-center justify-center ${greetingIconStyle}`}>
             <GreetingIcon className="w-5.5 h-5.5 stroke-[1.8]" />
           </div>
@@ -91,10 +52,10 @@ export default function Index() {
           </div>
         </motion.div>
 
-        <motion.div ref={prayerRef} variants={item} className="transition-all duration-500 rounded-2xl"><PrayerTimes /></motion.div>
-        <motion.div ref={calendarRef} variants={item} className="transition-all duration-500 rounded-2xl"><DualCalendar /></motion.div>
-        <motion.div ref={audioRef} variants={item} className="transition-all duration-500 rounded-2xl"><AudioPlayer /></motion.div>
-        <motion.div ref={locationRef} variants={item} className="transition-all duration-500 rounded-2xl"><LocationSaver /></motion.div>
+        <motion.div variants={item}><PrayerTimes /></motion.div>
+        <motion.div variants={item}><DualCalendar /></motion.div>
+        <motion.div variants={item}><AudioPlayer /></motion.div>
+        <motion.div variants={item}><LocationSaver /></motion.div>
 
         {/* Made by Amer */}
         <motion.div variants={item} className="flex items-center justify-center gap-2 py-6 mt-4">
