@@ -15,15 +15,6 @@ interface Reciter {
 
 const reciters: Reciter[] = [
   {
-    id: 'shatri',
-    name: 'أبو بكر الشاطري',
-    nameEn: 'Abu Bakr Al-Shatri',
-    surahs: [
-      { id: 1, name: 'سورة الفاتحة', url: 'https://server8.mp3quran.net/afs/001.mp3' },
-      { id: 2, name: 'سورة البقرة', url: 'https://server8.mp3quran.net/afs/002.mp3' },
-    ],
-  },
-  {
     id: 'ajmi',
     name: 'أحمد العجمي',
     nameEn: 'Ahmad Al-Ajmi',
