@@ -538,7 +538,7 @@ export default function ReadingPage() {
                               {isBookmarked && <BookmarkCheck className="h-3 w-3 text-primary/60" />}
                             </div>
                           </div>
-                          {article.image && <img src={article.image} alt="" className="w-18 h-18 object-cover rounded-xl shrink-0" loading="lazy" />}
+                          {article.image && <img src={article.image} alt="" className="w-16 h-16 object-cover rounded-xl shrink-0" loading="lazy" />}
                         </button>
                         <button onClick={(e) => { e.stopPropagation(); toggleBookmark(article.link); }}
                           className="absolute top-3.5 end-3.5 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-accent/50 transition-all">
