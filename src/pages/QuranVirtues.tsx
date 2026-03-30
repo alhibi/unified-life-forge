@@ -84,9 +84,9 @@ export default function QuranVirtues() {
 
         {/* Section 2: فضائل القرآن */}
         <div className="space-y-4">
-          <div className="flex items-center justify-end gap-2">
-            <h2 className="text-base font-bold text-foreground">فضائل القرآن</h2>
+          <div className="flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-primary" />
+            <h2 className="text-base font-bold text-foreground">فضائل القرآن</h2>
           </div>
 
           <motion.div variants={container} initial="hidden" animate="show" className="flex flex-col gap-2.5">
