@@ -484,7 +484,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     document.documentElement.style.setProperty('--font-body', ff);
     document.documentElement.style.fontSize = sizeMap[fontSize] || '16px';
     document.documentElement.style.fontWeight = String(fontWeight);
-    document.documentElement.style.opacity = String(fontOpacity);
+    document.documentElement.style.setProperty('--text-opacity', String(fontOpacity));
   }, [fontFamily, fontSize, fontWeight, fontOpacity]);
 
   return (
