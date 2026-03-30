@@ -5,6 +5,7 @@ import { ChevronRight, ChevronLeft, Heart, Share2, Copy, BookOpen } from 'lucide
 import { sunnahDetailData, SunnahDetailItem } from '@/data/sunnahDetailData';
 import { useApp } from '@/contexts/AppContext';
 import { toast } from 'sonner';
+import BackButton from '@/components/BackButton';
 
 function DetailedView({ data }: { data: { label: string; accent: string; items: SunnahDetailItem[] } }) {
   const [searchParams] = useSearchParams();
@@ -14,7 +15,6 @@ function DetailedView({ data }: { data: { label: string; accent: string; items: 
   const [direction, setDirection] = useState(0);
   const navigate = useNavigate();
   const { dir } = useApp();
-  const BackIcon = dir === 'rtl' ? ChevronRight : ChevronLeft;
 
   const item = data.items[currentIndex];
   const total = data.items.length;
@@ -46,9 +46,7 @@ function DetailedView({ data }: { data: { label: string; accent: string; items: 
     <div className="min-h-screen bg-background pb-24 flex flex-col">
       <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border/30">
         <div className="flex items-center justify-between px-4 py-3">
-          <button onClick={() => navigate(-1)} className="w-10 h-10 rounded-full bg-card/80 border border-border/40 flex items-center justify-center">
-            <BackIcon className="w-5 h-5 text-foreground" />
-          </button>
+          <BackButton />
           <div className="text-center">
             <h1 className="text-lg font-bold text-foreground">{data.label}</h1>
             <p className="text-xs text-muted-foreground">{currentIndex + 1} / {total}</p>
@@ -107,7 +105,7 @@ function DetailedView({ data }: { data: { label: string; accent: string; items: 
 function SimpleListView({ data }: { data: { label: string; accent: string; items: { title: string }[] } }) {
   const navigate = useNavigate();
   const { dir } = useApp();
-  const BackIcon = dir === 'rtl' ? ChevronRight : ChevronLeft;
+  
 
   const container = { hidden: {}, show: { transition: { staggerChildren: 0.04 } } };
   const itemAnim = { hidden: { opacity: 0, x: 20 }, show: { opacity: 1, x: 0, transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] as const } } };
@@ -116,9 +114,7 @@ function SimpleListView({ data }: { data: { label: string; accent: string; items
     <div className="min-h-screen bg-background pb-24">
       <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border/30">
         <div className="flex items-center justify-between px-4 py-3">
-          <button onClick={() => navigate(-1)} className="w-10 h-10 rounded-full bg-card/80 border border-border/40 flex items-center justify-center">
-            <BackIcon className="w-5 h-5 text-foreground" />
-          </button>
+          <BackButton />
           <h1 className="text-lg font-bold text-foreground">{data.label}</h1>
           <div className="w-10" />
         </div>

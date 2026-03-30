@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '@/contexts/AppContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronRight, ChevronLeft, ChevronDown, Volume2, Droplet, User, Star, Users, UtensilsCrossed, Shirt, Copy, Bookmark, BookOpen } from 'lucide-react';
+import { ChevronDown, Volume2, Droplet, User, Star, Users, UtensilsCrossed, Shirt, Copy, Bookmark, BookOpen } from 'lucide-react';
 import { untimedSunnahData } from '@/data/untimedSunnahData';
 import { toast } from 'sonner';
+import BackButton from '@/components/BackButton';
 
 interface SavedItem {
   id: string;
@@ -40,7 +41,6 @@ const iconMap: Record<string, React.ElementType> = {
 export default function UntimedSunnah() {
   const navigate = useNavigate();
   const { dir } = useApp();
-  const BackIcon = dir === 'rtl' ? ChevronRight : ChevronLeft;
   const [openCatId, setOpenCatId] = useState<string | null>(null);
   const [openItemKey, setOpenItemKey] = useState<string | null>(null);
   const [saved, setSaved] = useState<SavedItem[]>(getSavedItems);
@@ -79,12 +79,7 @@ export default function UntimedSunnah() {
       {/* Header */}
       <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border/30">
         <div className="flex items-center justify-between px-4 py-3">
-          <button
-            onClick={() => navigate(-1)}
-            className="w-10 h-10 rounded-full bg-card/80 border border-border/40 flex items-center justify-center"
-          >
-            <BackIcon className="w-5 h-5 text-foreground" />
-          </button>
+          <BackButton />
           <h1 className="text-lg font-bold text-foreground">السنن غير الموقوتة</h1>
           <div className="w-10" />
         </div>

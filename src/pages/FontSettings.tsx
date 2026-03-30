@@ -1,6 +1,7 @@
 import React from 'react';
 import { useApp } from '@/contexts/AppContext';
-import { ChevronLeft, Check, Type, ALargeSmall, Bold, Eye } from 'lucide-react';
+import { Check, Type, ALargeSmall, Bold, Eye } from 'lucide-react';
+import BackButton from '@/components/BackButton';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Slider } from '@/components/ui/slider';
@@ -50,9 +51,7 @@ export default function FontSettingsPage() {
       <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-5 max-w-lg mx-auto">
         {/* Header */}
         <motion.div variants={item} className="flex items-center gap-3 mb-1">
-          <button onClick={() => navigate('/settings')} className="w-10 h-10 rounded-2xl bg-secondary/60 flex items-center justify-center active:scale-95 transition-transform">
-            <ChevronLeft className="w-5 h-5 text-foreground ltr:rotate-0 rtl:rotate-180" />
-          </button>
+          <BackButton to="/settings" />
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center">
               <Type className="w-5 h-5 text-primary stroke-[1.8]" />

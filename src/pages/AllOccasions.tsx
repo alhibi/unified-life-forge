@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronRight, ChevronLeft, CalendarDays, Clock } from 'lucide-react';
+import { CalendarDays, Clock } from 'lucide-react';
+import BackButton from '@/components/BackButton';
 import { useApp } from '@/contexts/AppContext';
 import { getUpcomingOccasions, getPastOccasions, getDaysUntil, formatGregorianDate } from '@/data/islamicOccasions';
 import type { IslamicOccasion } from '@/data/islamicOccasions';
@@ -40,16 +41,14 @@ export default function AllOccasions() {
   const { t, dir } = useApp();
   const upcoming = getUpcomingOccasions();
   const past = getPastOccasions();
-  const BackIcon = dir === 'rtl' ? ChevronRight : ChevronLeft;
+  
 
   return (
     <div className="min-h-screen bg-background pb-28 px-5 pt-6">
       <div className="max-w-lg mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center gap-3">
-          <button onClick={() => navigate(-1)} className="p-2 rounded-xl bg-card border border-border/60 hover:bg-muted transition-colors">
-            <BackIcon className="w-5 h-5 text-foreground" />
-          </button>
+          <BackButton />
           <h1 className="text-lg font-bold text-foreground">{t('occasions.title')}</h1>
         </div>
 

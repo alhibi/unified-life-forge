@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronRight, ChevronLeft, BookOpen, Sparkles } from 'lucide-react';
+import { BookOpen, Sparkles } from 'lucide-react';
+import BackButton from '@/components/BackButton';
 import { useApp } from '@/contexts/AppContext';
 
 // أسماء السور - سيتم إضافة المحتوى الداخلي لاحقاً
@@ -39,7 +40,6 @@ export default function QuranVirtues() {
   const [tappedSurah, setTappedSurah] = useState<number | null>(null);
   const navigate = useNavigate();
   const { dir } = useApp();
-  const BackIcon = dir === 'rtl' ? ChevronRight : ChevronLeft;
 
   const handleSurahTap = (i: number) => {
     setTappedSurah(i);
@@ -51,9 +51,7 @@ export default function QuranVirtues() {
       {/* Header */}
       <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border/30">
         <div className="flex items-center justify-between px-4 py-3">
-          <button onClick={() => navigate(-1)} className="w-10 h-10 rounded-full bg-card/80 border border-border/40 flex items-center justify-center">
-            <BackIcon className="w-5 h-5 text-foreground" />
-          </button>
+          <BackButton />
           <h1 className="text-lg font-bold text-foreground">فضائل القرآن</h1>
           <div className="w-10" />
         </div>

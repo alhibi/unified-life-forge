@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
-import { Sun, Moon, Monitor, ChevronLeft, Contrast, Check, Palette, Sparkles, Droplets, Zap, Circle, ImageIcon } from 'lucide-react';
+import { Sun, Moon, Monitor, Contrast, Check, Palette, Sparkles, Droplets, Zap, Circle, ImageIcon } from 'lucide-react';
+import BackButton from '@/components/BackButton';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { themePresets, type ThemeStyle, createDynamicPreset, extractDominantColor } from '@/utils/themeEngine';
@@ -90,16 +91,11 @@ export default function ThemeSettingsPage() {
     <div className="min-h-screen bg-background pb-28 px-5 pt-6">
       <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-4 max-w-lg mx-auto">
         {/* Header */}
-        <motion.div variants={item} className="flex items-center justify-between mb-2">
+        <motion.div variants={item} className="flex items-center gap-3 mb-2">
+          <BackButton to="/settings" />
           <h1 className="text-[22px] font-bold tracking-tight text-foreground">
             {isAr ? 'المظهر والألوان' : 'Appearance'}
           </h1>
-          <button
-            onClick={() => navigate('/settings')}
-            className="w-10 h-10 rounded-2xl bg-secondary flex items-center justify-center hover:bg-muted transition-colors active:scale-90"
-          >
-            <ChevronLeft className="w-5 h-5 text-foreground rtl:rotate-180" />
-          </button>
         </motion.div>
 
         {/* Appearance Mode */}

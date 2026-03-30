@@ -3,6 +3,7 @@ import { useApp } from '@/contexts/AppContext';
 import { poetryEras, Era, Poet, Poem } from '@/data/poetryData';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, ChevronLeft, X, BookOpen, Feather, ScrollText, Copy, Check, ClipboardCopy, Flame, Star, Landmark, Castle } from 'lucide-react';
+import BackButton from '@/components/BackButton';
 import { toast } from 'sonner';
 
 type View = 'eras' | 'poets' | 'poet';
@@ -60,7 +61,10 @@ export default function DiwanPage() {
     <div className="min-h-screen bg-background pb-28 px-5 pt-14">
       <div className="max-w-lg mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3 mb-6">
+          {view !== 'eras' && (
+            <BackButton onClick={goBack} />
+          )}
           <div>
             <h1 className="text-[22px] font-bold tracking-tight text-foreground flex items-center gap-2">
               <ScrollText className="w-5 h-5 text-primary" />
@@ -72,14 +76,6 @@ export default function DiwanPage() {
               {view === 'poet' && selectedPoet?.name}
             </p>
           </div>
-          {view !== 'eras' && (
-            <button
-              onClick={goBack}
-              className="text-[13px] text-primary font-medium flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary/10 active:bg-primary/20 transition-colors"
-            >
-              رجوع
-            </button>
-          )}
         </div>
 
         <AnimatePresence mode="wait">
