@@ -55,7 +55,7 @@ export default function IslamicSections() {
               <div className={`w-9 h-9 rounded-full ${section.bg} flex items-center justify-center`}>
                 <section.icon className={`w-[18px] h-[18px] ${section.color}`} />
               </div>
-              <span className="text-[13px] font-semibold text-foreground leading-tight">
+              <span className="text-[13px] font-semibold text-foreground leading-tight whitespace-nowrap">
                 {section.label}
               </span>
             </div>
