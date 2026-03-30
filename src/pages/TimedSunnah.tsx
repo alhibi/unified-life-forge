@@ -78,7 +78,7 @@ export default function TimedSunnah() {
   const shareText = async (title: string, description: string, source: string) => {
     const text = `${title}\n\n${description}\n\n${source}`;
     const shareData = encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify({ title, description, source })))));
-    const shareUrl = `${window.location.origin}/timed-sunnah?share=${shareData}`;
+    const shareUrl = `${window.location.origin}/section/timed-sunnah?share=${shareData}`;
     
     if (navigator.share) {
       try {
