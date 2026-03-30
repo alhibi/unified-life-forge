@@ -488,8 +488,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
         applyAccentHue(accentHue, e.matches, paletteStyle);
       };
       mq.addEventListener('change', handler);
-      return () => mq.removeEventListener('change', handler);
+      return () => { clearTimeout(timeout); mq.removeEventListener('change', handler); };
     }
+    return () => clearTimeout(timeout);
   }, [theme, dir, language, accentHue, paletteStyle, blackMode, colorTheme]);
 
   // Apply font family, size, weight & opacity
