@@ -157,6 +157,53 @@ const translations: Record<string, Record<Language, string>> = {
   'daysShort.4': { ar: 'خم', de: 'Do' },
   'daysShort.5': { ar: 'جم', de: 'Fr' },
   'daysShort.6': { ar: 'سب', de: 'Sa' },
+  // Prayer times
+  'prayer.next': { ar: 'الصلاة القادمة', de: 'Nächstes Gebet' },
+  'prayer.remaining': { ar: 'متبقي', de: 'verbleibend' },
+  'prayer.hour': { ar: 'ساعة', de: 'Std' },
+  'prayer.and': { ar: 'و', de: 'und' },
+  'prayer.minute': { ar: 'دقيقة', de: 'Min' },
+  'prayer.error': { ar: 'تعذر جلب مواقيت الصلاة', de: 'Gebetszeiten konnten nicht geladen werden' },
+  'prayer.connectionError': { ar: 'تعذر الاتصال بالخادم', de: 'Verbindung zum Server fehlgeschlagen' },
+  'prayer.fajr': { ar: 'الفجر', de: 'Fajr' },
+  'prayer.dhuhr': { ar: 'الظهر', de: 'Dhuhr' },
+  'prayer.asr': { ar: 'العصر', de: 'Asr' },
+  'prayer.maghrib': { ar: 'المغرب', de: 'Maghrib' },
+  'prayer.isha': { ar: 'العشاء', de: 'Isha' },
+  'prayer.am': { ar: 'ص', de: 'AM' },
+  'prayer.pm': { ar: 'م', de: 'PM' },
+  // Islamic sections
+  'sections.more': { ar: 'المزيد من', de: 'Mehr entdecken' },
+  'sections.timedSunnah': { ar: 'سنن موقوتة', de: 'Zeitgebundene Sunna' },
+  'sections.untimedSunnah': { ar: 'سنن غير موقوتة', de: 'Freiwillige Sunna' },
+  'sections.propheticDay': { ar: 'اليوم النبوي', de: 'Prophetischer Tag' },
+  'sections.quranVirtues': { ar: 'فضائل القرآن', de: 'Quran-Vorzüge' },
+  'sections.selections': { ar: 'قطوف', de: 'Auswahl' },
+  'sections.propheticBadges': { ar: 'الأوسمة النبوية', de: 'Prophetische Auszeichnungen' },
+  // Timed Sunnah page
+  'timed.title': { ar: 'السنن الموقوتة', de: 'Zeitgebundene Sunna' },
+  'timed.sunnah': { ar: 'سنة', de: 'Sunna' },
+  'timed.fajr': { ar: 'الفجر', de: 'Fajr' },
+  'timed.beforeFajr': { ar: 'قبل الفجر', de: 'Vor Fajr' },
+  'timed.dhuhr': { ar: 'الظهر', de: 'Dhuhr' },
+  'timed.duha': { ar: 'الضحى', de: 'Duha' },
+  'timed.asr': { ar: 'العصر', de: 'Asr' },
+  'timed.maghrib': { ar: 'المغرب', de: 'Maghrib' },
+  'timed.isha': { ar: 'العشاء', de: 'Isha' },
+  'timed.friday': { ar: 'يوم الجمعة', de: 'Freitag' },
+  // Sunnah detail
+  'sunnah.sunnahs': { ar: 'السنن', de: 'Sunna-Handlungen' },
+  'sunnah.sunnahUnit': { ar: 'سنة', de: 'Sunna' },
+  'sunnah.copied': { ar: 'تم النسخ', de: 'Kopiert' },
+  // Occasions
+  'occasions.title': { ar: 'مناسبات دينية', de: 'Religiöse Anlässe' },
+  'occasions.showAll': { ar: 'عرض الكل', de: 'Alle anzeigen' },
+  'occasions.today': { ar: 'اليوم', de: 'Heute' },
+  'occasions.after': { ar: 'بعد', de: 'in' },
+  'occasions.day': { ar: 'يوم', de: 'Tagen' },
+  // Footer
+  'footer.madeBy': { ar: 'صنع بواسطة', de: 'Erstellt von' },
+  'footer.and': { ar: 'و', de: 'und' },
 };
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
