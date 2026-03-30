@@ -1,7 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '@/contexts/AppContext';
-import { ChevronRight, ChevronLeft, Moon, Sunrise, Sun, BookOpen, CloudSun, SunDim, Sunset, MoonStar } from 'lucide-react';
+import { Moon, Sunrise, Sun, BookOpen, CloudSun, SunDim, Sunset, MoonStar } from 'lucide-react';
+import BackButton from '@/components/BackButton';
 import { motion } from 'framer-motion';
 
 interface TimeSection {
