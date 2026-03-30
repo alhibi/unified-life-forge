@@ -196,7 +196,7 @@ export default function ThemeSettingsPage() {
                 <motion.button
                   key={preset.id}
                   whileTap={{ scale: 0.9 }}
-                  onClick={() => setColorTheme(preset.id)}
+                  onClick={() => setColorTheme(preset.id as any)}
                   className="flex flex-col items-center gap-2"
                 >
                   <div className={`relative w-12 h-12 rounded-full overflow-hidden border-2 transition-all duration-300 ${
