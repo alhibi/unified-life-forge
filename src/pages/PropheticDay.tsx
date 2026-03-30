@@ -1,14 +1,15 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '@/contexts/AppContext';
-import { ChevronRight, ChevronLeft } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Moon, Sunrise, Sun, BookOpen, CloudSun, SunDim, Sunset, MoonStar } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface TimeSection {
   titleAr: string;
   titleDe: string;
   timeRange: string;
-  icon: string;
+  icon: React.ElementType;
+  iconColor: string;
   items: { ar: string; de: string }[];
 }
 
