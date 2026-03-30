@@ -54,7 +54,7 @@ function DetailedView({ data }: { data: { label: string; accent: string; items: 
 
       <div className="flex-1 flex items-start justify-center px-4 pt-4">
         <AnimatePresence mode="wait" custom={direction}>
-          <motion.div key={currentIndex} custom={direction} variants={variants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }} className="w-full max-w-lg rounded-2xl bg-card border border-border/40 overflow-hidden">
+          <motion.div key={currentIndex} variants={variants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.08 }} className="w-full max-w-lg rounded-2xl bg-card border border-border/40 overflow-hidden">
             <div className="h-1.5" style={{ backgroundColor: data.accent }} />
             <div className="px-6 pt-6 pb-3">
               <h2 className="text-xl font-bold text-foreground text-center leading-relaxed" style={{ fontSize: fontSize + 2 }}>{item.title}</h2>
