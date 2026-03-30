@@ -112,6 +112,7 @@
   body {
     @apply bg-background text-foreground antialiased;
     font-family: var(--font-body);
+    color: hsl(var(--foreground) / var(--text-opacity, 1));
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     -webkit-tap-highlight-color: transparent;
