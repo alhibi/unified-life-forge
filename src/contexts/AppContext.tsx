@@ -465,6 +465,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const isDark = theme === 'dark' || (theme === 'system' && systemDark);
     document.documentElement.classList.toggle('dark', isDark);
     document.documentElement.classList.toggle('black-mode', isDark && blackMode);
+    document.documentElement.setAttribute('data-color-theme', colorTheme);
     document.documentElement.dir = dir;
     document.documentElement.lang = language;
     applyAccentHue(accentHue, isDark, paletteStyle);
