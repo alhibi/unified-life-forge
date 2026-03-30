@@ -59,6 +59,7 @@ function AnimatedRoutes() {
         <Route path="/section/timed-sunnah/:categoryId" element={<PageTransition><SunnahDetailPage /></PageTransition>} />
         <Route path="/section/untimed-sunnah" element={<PageTransition><UntimedSunnahPage /></PageTransition>} />
         <Route path="/section/prophetic-day" element={<PageTransition><PropheticDayPage /></PageTransition>} />
+        <Route path="/section/quran-virtues" element={<PageTransition><QuranVirtuesPage /></PageTransition>} />
         <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
       </Routes>
     </AnimatePresence>
