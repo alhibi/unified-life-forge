@@ -480,7 +480,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       mq.addEventListener('change', handler);
       return () => mq.removeEventListener('change', handler);
     }
-  }, [theme, dir, language, accentHue, paletteStyle, blackMode]);
+  }, [theme, dir, language, accentHue, paletteStyle, blackMode, colorTheme]);
 
   // Apply font family, size, weight & opacity
   useEffect(() => {
