@@ -97,8 +97,8 @@ export default function GamesPage() {
       title: t('games.pipes'),
       desc: t('games.pipes.desc'),
       path: '/games/pipes',
-      iconBg: 'bg-cyan-500/12 dark:bg-cyan-400/15',
-      iconColor: 'text-cyan-600 dark:text-cyan-400',
+      iconBg: 'bg-primary/10',
+      iconColor: 'text-primary',
       stats: pipesStats.gamesWon > 0 ? [
         { icon: Trophy, value: pipesStats.gamesWon, label: t('stats.wins') },
         { icon: Star, value: pipesStats.bestStreak, label: t('stats.streak') },
