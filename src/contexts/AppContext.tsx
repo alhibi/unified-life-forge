@@ -466,27 +466,35 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const root = document.documentElement;
-    // Enable smooth theme transition
     root.classList.add('theme-transition');
 
     const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     const isDark = theme === 'dark' || (theme === 'system' && systemDark);
     root.classList.toggle('dark', isDark);
-    root.classList.toggle('black-mode', isDark && blackMode);
-    root.setAttribute('data-color-theme', colorTheme);
     root.dir = dir;
     root.lang = language;
-    applyAccentHue(accentHue, isDark, paletteStyle);
 
-    // Remove transition class after animation completes to avoid interfering with other transitions
+    // Find preset and generate tokens
+    let preset = themePresets.find(p => p.id === colorTheme);
+    if (!preset && colorTheme === 'dynamic') {
+      try {
+        const saved = localStorage.getItem('app-dynamic-preset');
+        if (saved) preset = JSON.parse(saved);
+      } catch {}
+    }
+    if (!preset) preset = themePresets[0];
+
+    const tokens = generateThemeTokens(preset, paletteStyle as ThemeStyle, isDark, isDark && blackMode);
+    applyThemeTokens(tokens);
+
     const timeout = setTimeout(() => root.classList.remove('theme-transition'), 600);
 
     if (theme === 'system') {
       const mq = window.matchMedia('(prefers-color-scheme: dark)');
       const handler = (e: MediaQueryListEvent) => {
-        document.documentElement.classList.toggle('dark', e.matches);
-        document.documentElement.classList.toggle('black-mode', e.matches && blackMode);
-        applyAccentHue(accentHue, e.matches, paletteStyle);
+        root.classList.toggle('dark', e.matches);
+        const t2 = generateThemeTokens(preset!, paletteStyle as ThemeStyle, e.matches, e.matches && blackMode);
+        applyThemeTokens(t2);
       };
       mq.addEventListener('change', handler);
       return () => { clearTimeout(timeout); mq.removeEventListener('change', handler); };
