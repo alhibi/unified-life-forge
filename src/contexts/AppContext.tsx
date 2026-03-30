@@ -403,6 +403,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setTimeout(saveToDb, 50);
   };
 
+  const setColorTheme = (ct: ColorTheme) => {
+    setColorThemeState(ct);
+    localStorage.setItem('app-color-theme', ct);
+    setTimeout(saveToDb, 50);
+  };
+
   const setFontFamily = (f: string) => {
     setFontFamilyState(f);
     localStorage.setItem('app-font-family', f);
