@@ -125,27 +125,30 @@ export default function PropheticDay() {
           const Icon = section.icon;
           return (
             <motion.div key={idx} variants={fadeItem}>
-              {/* Section header - title centered, icon+time on the end side */}
-              <div className="flex items-center justify-center gap-2 mb-1 px-4">
-                <h2 className="text-[15px] font-extrabold text-foreground">{isAr ? section.titleAr : section.titleDe}</h2>
-                <Icon className={`w-5 h-5 ${section.iconColor}`} />
+              {/* Section header - icon in circle on end, title+time next to it */}
+              <div className="flex items-center justify-end gap-3 mb-3 px-5">
+                <div className="flex flex-col items-end">
+                  <h2 className="text-[15px] font-extrabold text-foreground">{isAr ? section.titleAr : section.titleDe}</h2>
+                  <span className="text-[11px] text-muted-foreground mt-0.5" dir="ltr">{section.timeRange}</span>
+                </div>
+                <div className="w-11 h-11 rounded-full bg-secondary/80 border border-border/50 flex items-center justify-center shrink-0">
+                  <Icon className={`w-5 h-5 ${section.iconColor}`} />
+                </div>
               </div>
-              <p className="text-[11px] text-muted-foreground text-center mb-2.5" dir="ltr">{section.timeRange}</p>
 
-              {/* Items */}
-              <div className="mx-3 rounded-2xl overflow-hidden border border-border/40">
+              {/* Items - card with golden top border, bullet on end side */}
+              <div className="mx-3 rounded-2xl overflow-hidden border border-border/40" style={{ borderTop: '2.5px solid hsl(45 70% 45% / 0.6)' }}>
                 {section.items.map((item, i) => (
                   <div
                     key={i}
-                    className={`flex items-center gap-3 px-4 py-3.5 bg-card ${
+                    className={`flex items-center justify-end gap-3 px-4 py-3.5 bg-card ${
                       i < section.items.length - 1 ? 'border-b border-border/30' : ''
                     }`}
-                    style={{ borderInlineStart: '3px solid hsl(142 50% 40% / 0.5)' }}
                   >
-                    <span className="w-[5px] h-[5px] rounded-full bg-emerald-500 dark:bg-emerald-400 shrink-0" />
-                    <p className="text-[13px] leading-relaxed text-foreground font-medium flex-1">
+                    <p className="text-[13px] leading-relaxed text-foreground font-medium">
                       {isAr ? item.ar : item.de}
                     </p>
+                    <span className="w-[7px] h-[7px] rounded-full shrink-0" style={{ backgroundColor: 'hsl(45 70% 50%)' }} />
                   </div>
                 ))}
               </div>
