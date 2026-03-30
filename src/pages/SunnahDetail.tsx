@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, ChevronLeft, Heart, Share2, Copy, BookOpen } from 'lucide-react';
 import { sunnahDetailData, SunnahDetailItem } from '@/data/sunnahDetailData';
