@@ -241,6 +241,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [fontSize, setFontSizeState] = useState<string>(() =>
     localStorage.getItem('app-font-size') || 'medium'
   );
+  const [fontWeight, setFontWeightState] = useState<number>(() =>
+    parseInt(localStorage.getItem('app-font-weight') || '400', 10)
+  );
+  const [fontOpacity, setFontOpacityState] = useState<number>(() =>
+    parseFloat(localStorage.getItem('app-font-opacity') || '1')
+  );
   const [prayerMadhab, setPrayerMadhabState] = useState<PrayerMadhab>(() =>
     (localStorage.getItem('app-prayer-madhab') as PrayerMadhab) || 'shafii'
   );
