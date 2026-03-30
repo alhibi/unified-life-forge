@@ -198,9 +198,12 @@ const translations: Record<string, Record<Language, string>> = {
   // Occasions
   'occasions.title': { ar: 'مناسبات دينية', de: 'Religiöse Anlässe' },
   'occasions.showAll': { ar: 'عرض الكل', de: 'Alle anzeigen' },
-  'occasions.today': { ar: 'اليوم', de: 'Heute' },
+'occasions.today': { ar: 'اليوم', de: 'Heute' },
   'occasions.after': { ar: 'بعد', de: 'in' },
   'occasions.day': { ar: 'يوم', de: 'Tagen' },
+  'occasions.past': { ar: 'مضت', de: 'Vergangen' },
+  'occasions.upcoming': { ar: 'المناسبات القادمة', de: 'Kommende Anlässe' },
+  'occasions.pastTitle': { ar: 'المناسبات الماضية', de: 'Vergangene Anlässe' },
   // Footer
   'footer.madeBy': { ar: 'صنع بواسطة', de: 'Erstellt von' },
   'footer.and': { ar: 'و', de: 'und' },

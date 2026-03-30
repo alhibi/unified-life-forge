@@ -23,7 +23,7 @@ export default function BottomNav() {
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 safe-bottom">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 safe-bottom" dir="ltr">
       <div className="bg-card/85 backdrop-blur-xl border-t border-border/50 px-2 py-1.5 flex items-center justify-around">
         {tabs.map(tab => {
           const active = isActive(tab.path);

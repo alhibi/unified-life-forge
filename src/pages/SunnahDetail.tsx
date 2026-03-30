@@ -11,6 +11,9 @@ function DetailedView({ data }: { data: { label: string; accent: string; items: 
   const [fontSize, setFontSize] = useState(18);
   const [direction, setDirection] = useState(0);
   const navigate = useNavigate();
+  const { dir } = useApp();
+  const BackIcon = dir === 'rtl' ? ChevronRight : ChevronLeft;
+  const ForwardIcon = dir === 'rtl' ? ChevronLeft : ChevronRight;
 
   const item = data.items[currentIndex];
   const total = data.items.length;
@@ -39,14 +42,14 @@ function DetailedView({ data }: { data: { label: string; accent: string; items: 
     <div className="min-h-screen bg-background pb-24 flex flex-col">
       <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border/30">
         <div className="flex items-center justify-between px-4 py-3">
-          <div className="w-10" />
+          <button onClick={() => navigate(-1)} className="w-10 h-10 rounded-full bg-card/80 border border-border/40 flex items-center justify-center">
+            <BackIcon className="w-5 h-5 text-foreground" />
+          </button>
           <div className="text-center">
             <h1 className="text-lg font-bold text-foreground">{data.label}</h1>
-            <p className="text-xs text-muted-foreground">{total} / {currentIndex + 1}</p>
+            <p className="text-xs text-muted-foreground">{currentIndex + 1} / {total}</p>
           </div>
-          <button onClick={() => navigate(-1)} className="w-10 h-10 rounded-full bg-card/80 border border-border/40 flex items-center justify-center">
-            <ChevronRight className="w-5 h-5 text-foreground" />
-          </button>
+          <div className="w-10" />
         </div>
         <div className="h-1 w-full bg-muted/30">
           <div className="h-full transition-all duration-300" style={{ width: `${((currentIndex + 1) / total) * 100}%`, backgroundColor: data.accent }} />
@@ -78,15 +81,15 @@ function DetailedView({ data }: { data: { label: string; accent: string; items: 
             </div>
             <div className="mx-6 mb-5 border-t border-border/30 pt-4">
               <div className="flex items-center justify-between">
-                <button onClick={goPrev} disabled={currentIndex === 0} className="w-11 h-11 rounded-xl bg-muted/40 flex items-center justify-center disabled:opacity-20" style={currentIndex > 0 ? { backgroundColor: `${data.accent}25`, color: data.accent } : {}}>
-                  <ChevronLeft className="w-5 h-5" style={currentIndex > 0 ? { color: data.accent } : {}} />
+                <button onClick={dir === 'rtl' ? goNext : goPrev} disabled={dir === 'rtl' ? currentIndex === total - 1 : currentIndex === 0} className="w-11 h-11 rounded-xl bg-muted/40 flex items-center justify-center disabled:opacity-20" style={(dir === 'rtl' ? currentIndex < total - 1 : currentIndex > 0) ? { backgroundColor: `${data.accent}25`, color: data.accent } : {}}>
+                  <ChevronLeft className="w-5 h-5" style={(dir === 'rtl' ? currentIndex < total - 1 : currentIndex > 0) ? { color: data.accent } : {}} />
                 </button>
                 <div className="flex items-center gap-2">
                   <button onClick={() => setFontSize(s => Math.max(14, s - 2))} className="w-10 h-10 rounded-xl bg-muted/40 flex items-center justify-center text-muted-foreground font-bold text-sm">أ-</button>
                   <button onClick={() => setFontSize(s => Math.min(28, s + 2))} className="w-10 h-10 rounded-xl bg-muted/40 flex items-center justify-center text-muted-foreground font-bold text-sm">+أ</button>
                 </div>
-                <button onClick={goNext} disabled={currentIndex === total - 1} className="w-11 h-11 rounded-xl bg-muted/40 flex items-center justify-center disabled:opacity-20" style={currentIndex < total - 1 ? { backgroundColor: `${data.accent}25`, color: data.accent } : {}}>
-                  <ChevronRight className="w-5 h-5" style={currentIndex < total - 1 ? { color: data.accent } : {}} />
+                <button onClick={dir === 'rtl' ? goPrev : goNext} disabled={dir === 'rtl' ? currentIndex === 0 : currentIndex === total - 1} className="w-11 h-11 rounded-xl bg-muted/40 flex items-center justify-center disabled:opacity-20" style={(dir === 'rtl' ? currentIndex > 0 : currentIndex < total - 1) ? { backgroundColor: `${data.accent}25`, color: data.accent } : {}}>
+                  <ChevronRight className="w-5 h-5" style={(dir === 'rtl' ? currentIndex > 0 : currentIndex < total - 1) ? { color: data.accent } : {}} />
                 </button>
               </div>
             </div>
@@ -99,6 +102,8 @@ function DetailedView({ data }: { data: { label: string; accent: string; items: 
 
 function SimpleListView({ data }: { data: { label: string; accent: string; items: { title: string }[] } }) {
   const navigate = useNavigate();
+  const { dir } = useApp();
+  const BackIcon = dir === 'rtl' ? ChevronRight : ChevronLeft;
 
   const container = { hidden: {}, show: { transition: { staggerChildren: 0.04 } } };
   const itemAnim = { hidden: { opacity: 0, x: 20 }, show: { opacity: 1, x: 0, transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] as const } } };
@@ -108,7 +113,7 @@ function SimpleListView({ data }: { data: { label: string; accent: string; items
       <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border/30">
         <div className="flex items-center justify-between px-4 py-3">
           <button onClick={() => navigate(-1)} className="w-10 h-10 rounded-full bg-card/80 border border-border/40 flex items-center justify-center">
-            <ChevronRight className="w-5 h-5 text-foreground" />
+            <BackIcon className="w-5 h-5 text-foreground" />
           </button>
           <h1 className="text-lg font-bold text-foreground">{data.label}</h1>
           <div className="w-10" />
