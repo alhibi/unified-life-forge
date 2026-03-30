@@ -28,6 +28,7 @@ import TimedSunnahPage from "./pages/TimedSunnah";
 import SunnahDetailPage from "./pages/SunnahDetail";
 import PropheticDayPage from "./pages/PropheticDay";
 import UntimedSunnahPage from "./pages/UntimedSunnah";
+import QuranVirtuesPage from "./pages/QuranVirtues";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
