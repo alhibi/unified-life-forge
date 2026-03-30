@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useApp } from '@/contexts/AppContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, Leaf } from 'lucide-react';
