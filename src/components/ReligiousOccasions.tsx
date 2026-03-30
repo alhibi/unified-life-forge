@@ -1,16 +1,17 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CalendarDays, ChevronLeft } from 'lucide-react';
+import { useApp } from '@/contexts/AppContext';
+import { CalendarDays, ChevronLeft, ChevronRight } from 'lucide-react';
 import { getUpcomingOccasions, getDaysUntil, formatGregorianDate } from '@/data/islamicOccasions';
 import type { IslamicOccasion } from '@/data/islamicOccasions';
 
-function OccasionCard({ occasion }: { occasion: IslamicOccasion }) {
+function OccasionCard({ occasion, t }: { occasion: IslamicOccasion; t: (key: string) => string }) {
   const daysLeft = getDaysUntil(occasion.gregorianDate);
   const isToday = daysLeft === 0;
 
   return (
     <div
-      className={`relative rounded-xl bg-card/80 border border-border/60 p-4 flex items-center gap-4 rtl:flex-row-reverse border-r-0 border-t-0 border-b-0 border-l-[3px] ${occasion.color}`}
+      className={`relative rounded-xl bg-card/80 border border-border/60 p-4 flex items-center gap-4 border-r-0 border-t-0 border-b-0 ltr:border-l-[3px] rtl:border-r-[3px] rtl:border-l-0 ${occasion.color}`}
     >
       {/* Date badge */}
       <div className="flex flex-col items-center justify-center min-w-[52px] rounded-lg bg-muted/60 py-2 px-2">
@@ -19,16 +20,16 @@ function OccasionCard({ occasion }: { occasion: IslamicOccasion }) {
       </div>
 
       {/* Content */}
-      <div className="flex-1 min-w-0 text-right">
+      <div className="flex-1 min-w-0">
         <h3 className="text-sm font-bold text-foreground leading-snug">{occasion.name}</h3>
         <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-2 leading-relaxed">{occasion.description}</p>
         <p className="text-[10px] text-muted-foreground/70 mt-1">
           {formatGregorianDate(occasion.gregorianDate)}
           {' · '}
           {isToday ? (
-            <span className="text-primary font-semibold">اليوم</span>
+            <span className="text-primary font-semibold">{t('occasions.today')}</span>
           ) : (
-            <span>بعد {daysLeft} يوم</span>
+            <span>{t('occasions.after')} {daysLeft} {t('occasions.day')}</span>
           )}
         </p>
       </div>
@@ -38,7 +39,9 @@ function OccasionCard({ occasion }: { occasion: IslamicOccasion }) {
 
 export default function ReligiousOccasions() {
   const navigate = useNavigate();
+  const { t, dir } = useApp();
   const upcoming = getUpcomingOccasions(4);
+  const Arrow = dir === 'rtl' ? ChevronLeft : ChevronRight;
 
   if (upcoming.length === 0) return null;
 
@@ -50,21 +53,21 @@ export default function ReligiousOccasions() {
           <div className="p-1.5 rounded-lg bg-primary/10">
             <CalendarDays className="w-4 h-4 text-primary" />
           </div>
-          <h2 className="text-[15px] font-bold text-foreground">مناسبات دينية</h2>
+          <h2 className="text-[15px] font-bold text-foreground">{t('occasions.title')}</h2>
         </div>
         <button
           onClick={() => navigate('/occasions')}
           className="flex items-center gap-1 text-[12px] text-primary font-medium hover:underline"
         >
-          عرض الكل
-          <ChevronLeft className="w-3.5 h-3.5" />
+          {t('occasions.showAll')}
+          <Arrow className="w-3.5 h-3.5" />
         </button>
       </div>
 
       {/* Cards */}
       <div className="space-y-2.5">
         {upcoming.map(o => (
-          <OccasionCard key={o.id} occasion={o} />
+          <OccasionCard key={o.id} occasion={o} t={t} />
         ))}
       </div>
     </div>
