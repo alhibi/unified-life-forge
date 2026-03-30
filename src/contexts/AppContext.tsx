@@ -469,7 +469,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }, [theme, dir, language, accentHue, paletteStyle, blackMode]);
 
-  // Apply font family & size
+  // Apply font family, size, weight & opacity
   useEffect(() => {
     const fontMap: Record<string, string> = {
       default: "'Inter', 'Noto Sans Arabic', system-ui, -apple-system, sans-serif",
@@ -483,10 +483,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
     document.documentElement.style.setProperty('--font-display', ff);
     document.documentElement.style.setProperty('--font-body', ff);
     document.documentElement.style.fontSize = sizeMap[fontSize] || '16px';
-  }, [fontFamily, fontSize]);
+    document.documentElement.style.fontWeight = String(fontWeight);
+    document.documentElement.style.opacity = String(fontOpacity);
+  }, [fontFamily, fontSize, fontWeight, fontOpacity]);
 
   return (
-    <AppContext.Provider value={{ language, setLanguage, theme, setTheme, t, dir, accentHue, setAccentHue, paletteStyle, setPaletteStyle, blackMode, setBlackMode, fontFamily, setFontFamily, fontSize, setFontSize, prayerMadhab, setPrayerMadhab, midnightMode, setMidnightMode, latitudeAdjMethod, setLatitudeAdjMethod, dstEnabled, setDstEnabled }}>
+    <AppContext.Provider value={{ language, setLanguage, theme, setTheme, t, dir, accentHue, setAccentHue, paletteStyle, setPaletteStyle, blackMode, setBlackMode, fontFamily, setFontFamily, fontSize, setFontSize, fontWeight, setFontWeight, fontOpacity, setFontOpacity, prayerMadhab, setPrayerMadhab, midnightMode, setMidnightMode, latitudeAdjMethod, setLatitudeAdjMethod, dstEnabled, setDstEnabled }}>
       {children}
     </AppContext.Provider>
   );
