@@ -34,11 +34,7 @@ export default function Index() {
   const isAfternoon = hour >= 12 && hour < 17;
   const greeting = isMorning ? t('greeting.morning') : isAfternoon ? t('greeting.afternoon') : t('greeting.evening');
   const GreetingIcon = isMorning ? Sunrise : isAfternoon ? Sun : Moon;
-  const greetingIconStyle = isMorning
-    ? 'text-amber-500 dark:text-amber-400 bg-amber-500/12 dark:bg-amber-400/15'
-    : isAfternoon
-      ? 'text-orange-500 dark:text-orange-400 bg-orange-500/12 dark:bg-orange-400/15'
-      : 'text-indigo-500 dark:text-indigo-400 bg-indigo-500/12 dark:bg-indigo-400/15';
+  const greetingIconStyle = 'text-primary bg-primary/10';
 
   const navigate = useNavigate();
   const [chatOpen, setChatOpen] = useState(false);
