@@ -84,8 +84,8 @@ export default function SettingsPage() {
     {
       key: 'prayer',
       icon: BookOpen,
-      iconColor: 'text-teal-600 dark:text-teal-400',
-      iconBg: 'bg-teal-500/12 dark:bg-teal-400/15',
+      iconColor: 'text-primary',
+      iconBg: 'bg-primary/10',
       title: isAr ? 'المذهب الفقهي' : 'Gebetsschule',
       subtitle: isAr
         ? ({ shafii: 'الشافعي', hanafi: 'الحنفي', hanbali: 'الحنبلي', maliki: 'المالكي' }[prayerMadhab])
