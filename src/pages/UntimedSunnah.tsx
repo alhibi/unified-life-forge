@@ -41,7 +41,6 @@ const iconMap: Record<string, React.ElementType> = {
 export default function UntimedSunnah() {
   const navigate = useNavigate();
   const { dir } = useApp();
-  const BackIcon = dir === 'rtl' ? ChevronRight : ChevronLeft;
   const [openCatId, setOpenCatId] = useState<string | null>(null);
   const [openItemKey, setOpenItemKey] = useState<string | null>(null);
   const [saved, setSaved] = useState<SavedItem[]>(getSavedItems);
