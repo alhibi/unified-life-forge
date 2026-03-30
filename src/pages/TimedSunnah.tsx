@@ -29,28 +29,13 @@ function saveItems(items: SavedItem[]) {
 
 export default function TimedSunnah() {
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
   const { t, dir } = useApp();
   const BackIcon = dir === 'rtl' ? ChevronRight : ChevronLeft;
   const [openCatId, setOpenCatId] = useState<string | null>(null);
   const [openItemKey, setOpenItemKey] = useState<string | null>(null);
   const [saved, setSaved] = useState<SavedItem[]>(getSavedItems);
-  const [sharedContent, setSharedContent] = useState<{ title: string; description: string; source: string } | null>(null);
 
   useEffect(() => { saveItems(saved); }, [saved]);
-
-  useEffect(() => {
-    const shareParam = searchParams.get('share');
-    if (shareParam) {
-      try {
-        const decoded = JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(shareParam)))));
-        setSharedContent(decoded);
-        setSearchParams({}, { replace: true });
-      } catch (e) {
-        console.error('Invalid share link');
-      }
-    }
-  }, []);
 
   const categories = [
     { id: 'fajr', labelKey: 'timed.fajr', icon: CloudSun, accent: '#D4A843' },
