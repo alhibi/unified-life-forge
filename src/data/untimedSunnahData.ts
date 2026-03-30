@@ -219,6 +219,7 @@ export const untimedSunnahData: Record<string, UntimedSunnahCategory> = {
         source: 'رواه مسلم',
       },
     ],
+  },
   greeting: {
     label: 'سنن السلام واللقاء والمجالسة',
     icon: 'users',
