@@ -75,14 +75,12 @@ export default function QuranVirtues() {
             ))}
           </div>
 
-          {/* Dot indicator */}
-          <div className="flex justify-center pt-1">
-            <div className="w-2 h-2 rounded-full bg-emerald-500" />
-          </div>
+        {/* Divider with dot */}
+        <div className="flex items-center gap-0 py-1">
+          <div className="h-px flex-1 bg-border/40" />
+          <div className="w-2 h-2 rounded-full bg-emerald-500 mx-2" />
+          <div className="h-px flex-1 bg-border/40" />
         </div>
-
-        {/* Divider */}
-        <div className="h-px bg-border/40" />
 
         {/* Section 2: فضائل القرآن */}
         <div className="space-y-4">
