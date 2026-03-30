@@ -238,6 +238,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [blackMode, setBlackModeState] = useState<boolean>(() =>
     localStorage.getItem('app-black-mode') === 'true'
   );
+  const [colorTheme, setColorThemeState] = useState<ColorTheme>(() =>
+    (localStorage.getItem('app-color-theme') as ColorTheme) || 'default'
+  );
   const [fontFamily, setFontFamilyState] = useState<string>(() =>
     localStorage.getItem('app-font-family') || 'default'
   );
