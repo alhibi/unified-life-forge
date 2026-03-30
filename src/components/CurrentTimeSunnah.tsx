@@ -98,8 +98,20 @@ export default function CurrentTimeSunnah() {
   }, [prayerMadhab, latitudeAdjMethod]);
 
   useEffect(() => {
-    setCurrent(getCurrentPrayerKey(timings));
-    const interval = setInterval(() => setCurrent(getCurrentPrayerKey(timings)), 60000);
+    const isFriday = new Date().getDay() === 5;
+    if (isFriday) {
+      setCurrent({ key: 'friday', label: 'الجمعة' });
+    } else {
+      setCurrent(getCurrentPrayerKey(timings));
+    }
+    const interval = setInterval(() => {
+      const isFri = new Date().getDay() === 5;
+      if (isFri) {
+        setCurrent({ key: 'friday', label: 'الجمعة' });
+      } else {
+        setCurrent(getCurrentPrayerKey(timings));
+      }
+    }, 60000);
     return () => clearInterval(interval);
   }, [timings]);
 
@@ -107,6 +119,7 @@ export default function CurrentTimeSunnah() {
   if (!category) return null;
 
   const items = category.items as SunnahDetailItem[];
+  const isFriday = current.key === 'friday';
 
   return (
     <div className="rounded-2xl bg-card/80 border border-border/40 overflow-hidden">
@@ -119,8 +132,12 @@ export default function CurrentTimeSunnah() {
             <Leaf className="w-5 h-5 text-primary" />
           </div>
           <div className="text-start">
-            <h3 className="text-[14px] font-bold text-foreground leading-tight">سنن الوقت الحالي</h3>
-            <p className="text-[11px] text-muted-foreground mt-0.5">وقت {current.label}</p>
+            <h3 className="text-[14px] font-bold text-foreground leading-tight">
+              {isFriday ? 'سنن يوم الجمعة' : 'سنن الوقت الحالي'}
+            </h3>
+            <p className="text-[11px] text-muted-foreground mt-0.5">
+              {isFriday ? 'جمعة مباركة' : `وقت ${current.label}`}
+            </p>
           </div>
         </div>
         <motion.div
@@ -141,7 +158,7 @@ export default function CurrentTimeSunnah() {
             className="overflow-hidden"
           >
             <div className="px-4 pb-4 space-y-0">
-              {items.slice(0, 3).map((item, i) => (
+              {(isFriday ? items : items.slice(0, 3)).map((item, i) => (
                 <button
                   key={i}
                   onClick={() => navigate(`/section/timed-sunnah/${current.key}?index=${i}`)}
