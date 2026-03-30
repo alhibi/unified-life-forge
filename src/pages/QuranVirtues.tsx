@@ -99,8 +99,8 @@ export default function QuranVirtues() {
                 className="flex items-center gap-3 px-4 py-4 rounded-2xl bg-card border border-border/50"
               >
                 {/* Number on the right (first in RTL) */}
-                <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 bg-emerald-500/15">
-                  <span className="text-sm font-bold text-emerald-500">{index + 1}</span>
+                <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 bg-teal-600">
+                  <span className="text-sm font-bold text-white">{index + 1}</span>
                 </div>
                 {/* Text */}
                 <p className="flex-1 text-sm font-medium text-foreground text-right leading-relaxed">{virtue}</p>
