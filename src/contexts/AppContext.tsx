@@ -5,6 +5,7 @@ import type { User } from '@supabase/supabase-js';
 type Language = 'ar' | 'de';
 type Theme = 'light' | 'dark' | 'system';
 type PaletteStyle = 'tonal' | 'vibrant' | 'expressive' | 'neutral' | 'rainbow';
+type ColorTheme = 'default' | 'midnight' | 'rose' | 'emerald' | 'lavender' | 'sunset' | 'ocean' | 'neon' | 'coffee' | 'mono';
 
 type PrayerMadhab = 'shafii' | 'hanafi' | 'hanbali' | 'maliki';
 type LatitudeAdjMethod = 'middle' | 'seventh' | 'angle';
@@ -20,6 +21,8 @@ interface AppContextType {
   setAccentHue: (hue: number) => void;
   paletteStyle: PaletteStyle;
   setPaletteStyle: (style: PaletteStyle) => void;
+  colorTheme: ColorTheme;
+  setColorTheme: (t: ColorTheme) => void;
   blackMode: boolean;
   setBlackMode: (v: boolean) => void;
   fontFamily: string;
@@ -235,6 +238,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [blackMode, setBlackModeState] = useState<boolean>(() =>
     localStorage.getItem('app-black-mode') === 'true'
   );
+  const [colorTheme, setColorThemeState] = useState<ColorTheme>(() =>
+    (localStorage.getItem('app-color-theme') as ColorTheme) || 'default'
+  );
   const [fontFamily, setFontFamilyState] = useState<string>(() =>
     localStorage.getItem('app-font-family') || 'default'
   );
@@ -272,6 +278,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setAccentHueState(152); localStorage.setItem('app-accent-hue', '152');
     setPaletteStyleState('vibrant'); localStorage.setItem('app-palette-style', 'vibrant');
     setBlackModeState(false); localStorage.setItem('app-black-mode', 'false');
+    setColorThemeState('default'); localStorage.setItem('app-color-theme', 'default');
     setFontFamilyState('default'); localStorage.setItem('app-font-family', 'default');
     setFontSizeState('medium'); localStorage.setItem('app-font-size', 'medium');
     setFontWeightState(400); localStorage.setItem('app-font-weight', '400');
@@ -322,6 +329,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         if (s.accentHue !== undefined) { setAccentHueState(s.accentHue); localStorage.setItem('app-accent-hue', String(s.accentHue)); }
         if (s.paletteStyle) { setPaletteStyleState(s.paletteStyle); localStorage.setItem('app-palette-style', s.paletteStyle); }
         if (s.blackMode !== undefined) { setBlackModeState(s.blackMode); localStorage.setItem('app-black-mode', String(s.blackMode)); }
+        if (s.colorTheme) { setColorThemeState(s.colorTheme); localStorage.setItem('app-color-theme', s.colorTheme); }
         if (s.fontFamily) { setFontFamilyState(s.fontFamily); localStorage.setItem('app-font-family', s.fontFamily); }
         if (s.fontSize) { setFontSizeState(s.fontSize); localStorage.setItem('app-font-size', s.fontSize); }
         if (s.fontWeight !== undefined) { setFontWeightState(s.fontWeight); localStorage.setItem('app-font-weight', String(s.fontWeight)); }
@@ -349,6 +357,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       accentHue: parseInt(localStorage.getItem('app-accent-hue') || '152', 10),
       paletteStyle: localStorage.getItem('app-palette-style'),
       blackMode: localStorage.getItem('app-black-mode') === 'true',
+      colorTheme: localStorage.getItem('app-color-theme') || 'default',
       fontFamily: localStorage.getItem('app-font-family') || 'default',
       fontSize: localStorage.getItem('app-font-size') || 'medium',
       fontWeight: parseInt(localStorage.getItem('app-font-weight') || '400', 10),
@@ -394,6 +403,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const setBlackMode = (v: boolean) => {
     setBlackModeState(v);
     localStorage.setItem('app-black-mode', v.toString());
+    setTimeout(saveToDb, 50);
+  };
+
+  const setColorTheme = (ct: ColorTheme) => {
+    setColorThemeState(ct);
+    localStorage.setItem('app-color-theme', ct);
     setTimeout(saveToDb, 50);
   };
 
@@ -453,6 +468,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const isDark = theme === 'dark' || (theme === 'system' && systemDark);
     document.documentElement.classList.toggle('dark', isDark);
     document.documentElement.classList.toggle('black-mode', isDark && blackMode);
+    document.documentElement.setAttribute('data-color-theme', colorTheme);
     document.documentElement.dir = dir;
     document.documentElement.lang = language;
     applyAccentHue(accentHue, isDark, paletteStyle);
@@ -467,7 +483,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       mq.addEventListener('change', handler);
       return () => mq.removeEventListener('change', handler);
     }
-  }, [theme, dir, language, accentHue, paletteStyle, blackMode]);
+  }, [theme, dir, language, accentHue, paletteStyle, blackMode, colorTheme]);
 
   // Apply font family, size, weight & opacity
   useEffect(() => {
@@ -488,7 +504,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [fontFamily, fontSize, fontWeight, fontOpacity]);
 
   return (
-    <AppContext.Provider value={{ language, setLanguage, theme, setTheme, t, dir, accentHue, setAccentHue, paletteStyle, setPaletteStyle, blackMode, setBlackMode, fontFamily, setFontFamily, fontSize, setFontSize, fontWeight, setFontWeight, fontOpacity, setFontOpacity, prayerMadhab, setPrayerMadhab, midnightMode, setMidnightMode, latitudeAdjMethod, setLatitudeAdjMethod, dstEnabled, setDstEnabled }}>
+    <AppContext.Provider value={{ language, setLanguage, theme, setTheme, t, dir, accentHue, setAccentHue, paletteStyle, setPaletteStyle, colorTheme, setColorTheme, blackMode, setBlackMode, fontFamily, setFontFamily, fontSize, setFontSize, fontWeight, setFontWeight, fontOpacity, setFontOpacity, prayerMadhab, setPrayerMadhab, midnightMode, setMidnightMode, latitudeAdjMethod, setLatitudeAdjMethod, dstEnabled, setDstEnabled }}>
       {children}
     </AppContext.Provider>
   );

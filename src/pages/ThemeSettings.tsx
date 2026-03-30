@@ -1,6 +1,6 @@
 import React from 'react';
 import { useApp } from '@/contexts/AppContext';
-import { Sun, Moon, Monitor, ChevronLeft, Contrast } from 'lucide-react';
+import { Sun, Moon, Monitor, ChevronLeft, Contrast, Check } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 
@@ -29,8 +29,21 @@ function ToggleSwitch({ value, onChange }: { value: boolean; onChange: () => voi
   );
 }
 
+const colorThemes = [
+  { id: 'default' as const, name: 'كلاسيك', colors: ['hsl(240 5% 26%)', 'hsl(240 5% 93%)', 'hsl(240 5% 91%)'] },
+  { id: 'midnight' as const, name: 'منتصف الليل', colors: ['hsl(222 60% 50%)', 'hsl(222 15% 92%)', 'hsl(222 25% 12%)'] },
+  { id: 'rose' as const, name: 'روز جولد', colors: ['hsl(350 55% 55%)', 'hsl(350 15% 93%)', 'hsl(350 18% 8%)'] },
+  { id: 'emerald' as const, name: 'زمرد', colors: ['hsl(152 55% 40%)', 'hsl(152 12% 93%)', 'hsl(152 20% 7%)'] },
+  { id: 'lavender' as const, name: 'لافندر', colors: ['hsl(270 50% 55%)', 'hsl(270 14% 93%)', 'hsl(270 18% 8%)'] },
+  { id: 'sunset' as const, name: 'غروب', colors: ['hsl(25 80% 52%)', 'hsl(25 15% 93%)', 'hsl(25 20% 7%)'] },
+  { id: 'ocean' as const, name: 'محيط', colors: ['hsl(195 70% 42%)', 'hsl(195 14% 93%)', 'hsl(195 22% 7%)'] },
+  { id: 'neon' as const, name: 'نيون', colors: ['hsl(160 80% 38%)', 'hsl(160 10% 93%)', 'hsl(160 18% 6%)'] },
+  { id: 'coffee' as const, name: 'قهوة', colors: ['hsl(30 40% 38%)', 'hsl(30 12% 92%)', 'hsl(30 16% 7%)'] },
+  { id: 'mono' as const, name: 'مونوكروم', colors: ['hsl(0 0% 15%)', 'hsl(0 0% 93%)', 'hsl(0 0% 6%)'] },
+];
+
 export default function ThemeSettingsPage() {
-  const { t, theme, setTheme, language, blackMode, setBlackMode } = useApp();
+  const { t, theme, setTheme, language, blackMode, setBlackMode, colorTheme, setColorTheme } = useApp();
   const navigate = useNavigate();
 
   const themeOptions = [
@@ -93,6 +106,51 @@ export default function ThemeSettingsPage() {
                     {label}
                   </span>
                 </button>
+              );
+            })}
+          </div>
+        </motion.div>
+
+        {/* Color Themes */}
+        <motion.div variants={item} className="premium-card-elevated p-5">
+          <h2 className="font-semibold text-[14px] text-foreground text-center mb-5">
+            {language === 'ar' ? 'لوحة الألوان' : 'Color Palette'}
+          </h2>
+          <div className="grid grid-cols-5 gap-3">
+            {colorThemes.map((ct) => {
+              const isActive = colorTheme === ct.id;
+              return (
+                <motion.button
+                  key={ct.id}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => setColorTheme(ct.id)}
+                  className="flex flex-col items-center gap-2"
+                >
+                  <div className={`relative w-12 h-12 rounded-full overflow-hidden border-2 transition-all duration-300 ${
+                    isActive ? 'border-primary scale-110 shadow-lg' : 'border-border/50'
+                  }`}>
+                    {/* 3 color segments */}
+                    <div className="absolute inset-0">
+                      <div className="absolute top-0 left-0 w-full h-1/3" style={{ backgroundColor: ct.colors[0] }} />
+                      <div className="absolute top-1/3 left-0 w-full h-1/3" style={{ backgroundColor: ct.colors[1] }} />
+                      <div className="absolute top-2/3 left-0 w-full h-1/3" style={{ backgroundColor: ct.colors[2] }} />
+                    </div>
+                    {isActive && (
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        className="absolute inset-0 flex items-center justify-center bg-black/30"
+                      >
+                        <Check className="w-4 h-4 text-white" />
+                      </motion.div>
+                    )}
+                  </div>
+                  <span className={`text-[10px] font-medium leading-tight text-center transition-colors ${
+                    isActive ? 'text-primary' : 'text-muted-foreground'
+                  }`}>
+                    {ct.name}
+                  </span>
+                </motion.button>
               );
             })}
           </div>
