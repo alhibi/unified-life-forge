@@ -24,6 +24,7 @@ import DuasPage from "./pages/Duas";
 import DiwanPage from "./pages/Diwan";
 import AllOccasionsPage from "./pages/AllOccasions";
 import ReadingPage from "./pages/Reading";
+import TimedSunnahPage from "./pages/TimedSunnah";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -50,6 +51,7 @@ function AnimatedRoutes() {
         <Route path="/auth" element={<PageTransition><AuthPage /></PageTransition>} />
         <Route path="/settings/font" element={<PageTransition><FontSettingsPage /></PageTransition>} />
         <Route path="/settings/prayer" element={<PageTransition><PrayerSettingsPage /></PageTransition>} />
+        <Route path="/section/timed-sunnah" element={<PageTransition><TimedSunnahPage /></PageTransition>} />
         <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
       </Routes>
     </AnimatePresence>
