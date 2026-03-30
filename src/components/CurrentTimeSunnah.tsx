@@ -164,7 +164,7 @@ export default function CurrentTimeSunnah() {
                   onClick={() => navigate(`/section/timed-sunnah/${current.key}?index=${i}`)}
                   className="w-full flex items-start gap-3 py-2.5 hover:bg-accent/30 rounded-lg px-1 transition-colors"
                 >
-                  <div className={`mt-1.5 w-2.5 h-2.5 rounded-full shrink-0 ${i % 2 === 0 ? 'bg-primary' : 'bg-amber-500/80'}`} />
+                  <div className={`mt-1.5 w-2.5 h-2.5 rounded-full shrink-0 ${i % 2 === 0 ? 'bg-primary' : 'bg-primary/50'}`} />
                   <p className="text-[13px] text-foreground leading-relaxed font-medium text-start">{item.title}</p>
                 </button>
               ))}
