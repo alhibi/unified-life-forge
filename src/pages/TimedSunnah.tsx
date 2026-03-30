@@ -2,14 +2,16 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '@/contexts/AppContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronRight, ChevronLeft, ChevronDown, Moon, Sun, CloudSun, Cloud, Calendar } from 'lucide-react';
+import { ChevronRight, ChevronLeft, ChevronDown, Moon, Sun, CloudSun, Cloud, Calendar, Copy, Bookmark, BookOpen } from 'lucide-react';
 import { sunnahDetailData } from '@/data/sunnahDetailData';
+import { toast } from 'sonner';
 
 export default function TimedSunnah() {
   const navigate = useNavigate();
   const { t, dir } = useApp();
   const BackIcon = dir === 'rtl' ? ChevronRight : ChevronLeft;
-  const [openId, setOpenId] = useState<string | null>(null);
+  const [openCatId, setOpenCatId] = useState<string | null>(null);
+  const [openItemKey, setOpenItemKey] = useState<string | null>(null);
 
   const categories = [
     { id: 'fajr', labelKey: 'timed.fajr', icon: CloudSun, accent: '#D4A843' },
@@ -22,7 +24,26 @@ export default function TimedSunnah() {
     { id: 'friday', labelKey: 'timed.friday', icon: Calendar, accent: '#D4A843' },
   ];
 
-  const toggle = (id: string) => setOpenId(prev => prev === id ? null : id);
+  const toggleCat = (id: string) => {
+    setOpenCatId(prev => prev === id ? null : id);
+    setOpenItemKey(null);
+  };
+
+  const toggleItem = (key: string) => setOpenItemKey(prev => prev === key ? null : key);
+
+  const copyText = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast.success(dir === 'rtl' ? 'تم النسخ' : 'Copied');
+  };
+
+  const shareText = (title: string, description: string, source: string) => {
+    const text = `${title}\n\n${description}\n\n${source}`;
+    if (navigator.share) {
+      navigator.share({ text });
+    } else {
+      copyText(text);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background pb-24">
@@ -42,16 +63,16 @@ export default function TimedSunnah() {
 
       {/* Accordion List */}
       <div className="flex flex-col gap-2 p-4">
-        {categories.map((cat, idx) => {
+        {categories.map((cat) => {
           const data = sunnahDetailData[cat.id];
-          const isOpen = openId === cat.id;
+          const isCatOpen = openCatId === cat.id;
           const count = data?.items?.length || 0;
 
           return (
             <div key={cat.id} className="rounded-2xl bg-card/80 border border-border/40 overflow-hidden">
               {/* Category Header */}
               <button
-                onClick={() => toggle(cat.id)}
+                onClick={() => toggleCat(cat.id)}
                 className="w-full flex items-center gap-3 px-4 py-3.5 transition-colors hover:bg-accent/20"
               >
                 <div
@@ -62,18 +83,18 @@ export default function TimedSunnah() {
                 </div>
                 <div className="flex-1 text-start">
                   <span className="text-sm font-bold text-foreground">{t(cat.labelKey)}</span>
-                  <span className="text-xs text-muted-foreground mr-2 ml-2">
+                  <span className="text-xs text-muted-foreground mx-2">
                     {count} {t('timed.sunnah')}
                   </span>
                 </div>
                 <ChevronDown
-                  className={`w-5 h-5 text-muted-foreground transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+                  className={`w-5 h-5 text-muted-foreground transition-transform duration-200 ${isCatOpen ? 'rotate-180' : ''}`}
                 />
               </button>
 
-              {/* Expanded Content */}
+              {/* Category Content */}
               <AnimatePresence initial={false}>
-                {isOpen && data && (
+                {isCatOpen && data && (
                   <motion.div
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: 'auto', opacity: 1 }}
@@ -81,45 +102,85 @@ export default function TimedSunnah() {
                     transition={{ duration: 0.2, ease: 'easeInOut' }}
                     className="overflow-hidden"
                   >
-                    <div className="border-t border-border/30 px-4 py-2">
-                      {data.type === 'detailed' ? (
-                        // Detailed items - navigate to card view
-                        <div className="flex flex-col gap-1.5 py-1">
-                          {(data.items as { title: string; description: string; source: string }[]).map((item, i) => (
-                            <button
-                              key={i}
-                              onClick={() => navigate(`/section/timed-sunnah/${cat.id}`, { state: { startIndex: i } })}
-                              className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-accent/20 transition-colors text-start"
-                            >
-                              <span
-                                className="w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0"
-                                style={{ backgroundColor: `${cat.accent}20`, color: cat.accent }}
+                    <div className="border-t border-border/30 px-3 py-2">
+                      <div className="flex flex-col gap-1">
+                        {data.items.map((item, i) => {
+                          const itemKey = `${cat.id}-${i}`;
+                          const isItemOpen = openItemKey === itemKey;
+                          const isDetailed = data.type === 'detailed' && 'description' in item;
+
+                          return (
+                            <div key={i} className="rounded-xl overflow-hidden">
+                              {/* Item Header */}
+                              <button
+                                onClick={() => isDetailed ? toggleItem(itemKey) : undefined}
+                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors text-start ${isDetailed ? 'hover:bg-accent/20 cursor-pointer' : ''}`}
                               >
-                                {i + 1}
-                              </span>
-                              <span className="text-sm text-foreground leading-relaxed line-clamp-2">{item.title}</span>
-                            </button>
-                          ))}
-                        </div>
-                      ) : (
-                        // Simple items
-                        <div className="flex flex-col gap-1.5 py-1">
-                          {(data.items as { title: string }[]).map((item, i) => (
-                            <div
-                              key={i}
-                              className="flex items-center gap-3 px-3 py-2.5 rounded-xl"
-                            >
-                              <span
-                                className="w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0"
-                                style={{ backgroundColor: `${cat.accent}20`, color: cat.accent }}
-                              >
-                                {i + 1}
-                              </span>
-                              <span className="text-sm text-foreground leading-relaxed">{item.title}</span>
+                                <span
+                                  className="w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0"
+                                  style={{ backgroundColor: `${cat.accent}20`, color: cat.accent }}
+                                >
+                                  {i + 1}
+                                </span>
+                                <span className="flex-1 text-sm text-foreground leading-relaxed line-clamp-2">
+                                  {item.title}
+                                </span>
+                                {isDetailed && (
+                                  <ChevronDown
+                                    className={`w-4 h-4 text-muted-foreground/60 shrink-0 transition-transform duration-200 ${isItemOpen ? 'rotate-180' : ''}`}
+                                  />
+                                )}
+                              </button>
+
+                              {/* Item Expanded Content */}
+                              <AnimatePresence initial={false}>
+                                {isItemOpen && isDetailed && (
+                                  <motion.div
+                                    initial={{ height: 0, opacity: 0 }}
+                                    animate={{ height: 'auto', opacity: 1 }}
+                                    exit={{ height: 0, opacity: 0 }}
+                                    transition={{ duration: 0.15, ease: 'easeInOut' }}
+                                    className="overflow-hidden"
+                                  >
+                                    <div className="px-4 pb-3 mr-9 ml-9">
+                                      {/* Description */}
+                                      <p className="text-sm text-muted-foreground leading-relaxed mb-3">
+                                        {'description' in item ? (item as any).description : ''}
+                                      </p>
+
+                                      {/* Source */}
+                                      <div className="flex items-center gap-1.5 mb-3">
+                                        <BookOpen className="w-3.5 h-3.5 shrink-0" style={{ color: cat.accent }} />
+                                        <span className="text-xs font-medium" style={{ color: cat.accent }}>
+                                          {'source' in item ? (item as any).source : ''}
+                                        </span>
+                                      </div>
+
+                                      {/* Actions */}
+                                      <div className="flex items-center gap-2">
+                                        <button
+                                          onClick={() => copyText(`${item.title}\n${'description' in item ? (item as any).description : ''}\n${'source' in item ? (item as any).source : ''}`)}
+                                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/30 hover:bg-accent/50 transition-colors"
+                                        >
+                                          <Copy className="w-3.5 h-3.5 text-muted-foreground" />
+                                          <span className="text-xs text-muted-foreground">{dir === 'rtl' ? 'نسخ' : 'Copy'}</span>
+                                        </button>
+                                        <button
+                                          onClick={() => shareText(item.title, 'description' in item ? (item as any).description : '', 'source' in item ? (item as any).source : '')}
+                                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/30 hover:bg-accent/50 transition-colors"
+                                        >
+                                          <Bookmark className="w-3.5 h-3.5 text-muted-foreground" />
+                                          <span className="text-xs text-muted-foreground">{dir === 'rtl' ? 'مشاركة' : 'Share'}</span>
+                                        </button>
+                                      </div>
+                                    </div>
+                                  </motion.div>
+                                )}
+                              </AnimatePresence>
                             </div>
-                          ))}
-                        </div>
-                      )}
+                          );
+                        })}
+                      </div>
                     </div>
                   </motion.div>
                 )}
