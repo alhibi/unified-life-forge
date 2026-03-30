@@ -464,14 +464,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const dir = language === 'ar' ? 'rtl' : 'ltr';
 
   useEffect(() => {
+    const root = document.documentElement;
+    // Enable smooth theme transition
+    root.classList.add('theme-transition');
+
     const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     const isDark = theme === 'dark' || (theme === 'system' && systemDark);
-    document.documentElement.classList.toggle('dark', isDark);
-    document.documentElement.classList.toggle('black-mode', isDark && blackMode);
-    document.documentElement.setAttribute('data-color-theme', colorTheme);
-    document.documentElement.dir = dir;
-    document.documentElement.lang = language;
+    root.classList.toggle('dark', isDark);
+    root.classList.toggle('black-mode', isDark && blackMode);
+    root.setAttribute('data-color-theme', colorTheme);
+    root.dir = dir;
+    root.lang = language;
     applyAccentHue(accentHue, isDark, paletteStyle);
+
+    // Remove transition class after animation completes to avoid interfering with other transitions
+    const timeout = setTimeout(() => root.classList.remove('theme-transition'), 600);
 
     if (theme === 'system') {
       const mq = window.matchMedia('(prefers-color-scheme: dark)');
@@ -481,8 +488,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
         applyAccentHue(accentHue, e.matches, paletteStyle);
       };
       mq.addEventListener('change', handler);
-      return () => mq.removeEventListener('change', handler);
+      return () => { clearTimeout(timeout); mq.removeEventListener('change', handler); };
     }
+    return () => clearTimeout(timeout);
   }, [theme, dir, language, accentHue, paletteStyle, blackMode, colorTheme]);
 
   // Apply font family, size, weight & opacity
