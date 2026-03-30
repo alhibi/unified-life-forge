@@ -26,6 +26,10 @@ interface AppContextType {
   setFontFamily: (f: string) => void;
   fontSize: string;
   setFontSize: (s: string) => void;
+  fontWeight: number;
+  setFontWeight: (w: number) => void;
+  fontOpacity: number;
+  setFontOpacity: (o: number) => void;
   prayerMadhab: PrayerMadhab;
   setPrayerMadhab: (m: PrayerMadhab) => void;
   midnightMode: number;
