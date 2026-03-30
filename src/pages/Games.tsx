@@ -58,8 +58,8 @@ export default function GamesPage() {
       title: t('games.memory'),
       desc: t('games.memory.desc'),
       path: '/games/memory',
-      iconBg: 'bg-purple-500/12 dark:bg-purple-400/15',
-      iconColor: 'text-purple-600 dark:text-purple-400',
+      iconBg: 'bg-primary/10',
+      iconColor: 'text-primary',
       stats: memoryStats.gamesWon > 0 ? [
         { icon: Trophy, value: memoryStats.gamesWon, label: t('stats.wins') },
         { icon: Star, value: memoryStats.bestStreak, label: t('stats.streak') },
