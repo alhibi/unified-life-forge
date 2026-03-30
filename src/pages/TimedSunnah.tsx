@@ -38,14 +38,14 @@ export default function TimedSunnah() {
   useEffect(() => { saveItems(saved); }, [saved]);
 
   const categories = [
-    { id: 'fajr', labelKey: 'timed.fajr', icon: CloudSun, accent: '#D4A843' },
-    { id: 'before-fajr', labelKey: 'timed.beforeFajr', icon: Moon, accent: '#D4A843' },
-    { id: 'dhuhr', labelKey: 'timed.dhuhr', icon: Sun, accent: '#4CAF50' },
-    { id: 'duha', labelKey: 'timed.duha', icon: Sun, accent: '#D4A843' },
-    { id: 'maghrib', labelKey: 'timed.maghrib', icon: Cloud, accent: '#4CAF50' },
-    { id: 'asr', labelKey: 'timed.asr', icon: CloudSun, accent: '#4CAF50' },
-    { id: 'isha', labelKey: 'timed.isha', icon: Moon, accent: '#D4A843' },
-    { id: 'friday', labelKey: 'timed.friday', icon: Calendar, accent: '#D4A843' },
+    { id: 'fajr', labelKey: 'timed.fajr', icon: CloudSun },
+    { id: 'before-fajr', labelKey: 'timed.beforeFajr', icon: Moon },
+    { id: 'dhuhr', labelKey: 'timed.dhuhr', icon: Sun },
+    { id: 'duha', labelKey: 'timed.duha', icon: Sun },
+    { id: 'maghrib', labelKey: 'timed.maghrib', icon: Cloud },
+    { id: 'asr', labelKey: 'timed.asr', icon: CloudSun },
+    { id: 'isha', labelKey: 'timed.isha', icon: Moon },
+    { id: 'friday', labelKey: 'timed.friday', icon: Calendar },
   ];
 
   const toggleCat = (id: string) => {
@@ -105,11 +105,8 @@ export default function TimedSunnah() {
                 onClick={() => toggleCat(cat.id)}
                 className="w-full flex items-center gap-3 px-4 py-3.5 transition-colors hover:bg-accent/20"
               >
-                <div
-                  className="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
-                  style={{ backgroundColor: `${cat.accent}18` }}
-                >
-                  <cat.icon className="w-5 h-5" style={{ color: cat.accent }} />
+                <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 bg-primary/10">
+                  <cat.icon className="w-5 h-5 text-primary" />
                 </div>
                 <div className="flex-1 text-start">
                   <span className="text-sm font-bold text-foreground">{catLabel}</span>
@@ -146,10 +143,7 @@ export default function TimedSunnah() {
                                 onClick={() => isDetailed ? toggleItem(itemKey) : undefined}
                                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors text-start ${isDetailed ? 'hover:bg-accent/20 cursor-pointer' : ''}`}
                               >
-                                <span
-                                  className="w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0"
-                                  style={{ backgroundColor: `${cat.accent}20`, color: cat.accent }}
-                                >
+                                <span className="w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 bg-primary/15 text-primary">
                                   {i + 1}
                                 </span>
                                 <span className="flex-1 text-sm text-foreground leading-relaxed line-clamp-2">
@@ -177,8 +171,8 @@ export default function TimedSunnah() {
                                       </p>
 
                                       <div className="flex items-center gap-1.5 mb-3">
-                                        <BookOpen className="w-3.5 h-3.5 shrink-0" style={{ color: cat.accent }} />
-                                        <span className="text-xs font-medium" style={{ color: cat.accent }}>
+                                        <BookOpen className="w-3.5 h-3.5 shrink-0 text-primary" />
+                                        <span className="text-xs font-medium text-primary">
                                           {src}
                                         </span>
                                       </div>

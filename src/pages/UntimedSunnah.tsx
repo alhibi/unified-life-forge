@@ -102,11 +102,8 @@ export default function UntimedSunnah() {
                 onClick={() => toggleCat(id)}
                 className="w-full flex items-center gap-3 px-4 py-3.5 transition-colors hover:bg-accent/20"
               >
-                <div
-                  className="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
-                  style={{ backgroundColor: `${cat.accent}18` }}
-                >
-                  <Icon className="w-5 h-5" style={{ color: cat.accent }} />
+                <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 bg-primary/10">
+                  <Icon className="w-5 h-5 text-primary" />
                 </div>
                 <div className="flex-1 text-start">
                   <span className="text-sm font-bold text-foreground">{cat.label}</span>
@@ -141,10 +138,7 @@ export default function UntimedSunnah() {
                                 onClick={() => hasDetail ? toggleItem(itemKey) : undefined}
                                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors text-start ${hasDetail ? 'hover:bg-accent/20 cursor-pointer' : ''}`}
                               >
-                                <span
-                                  className="w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0"
-                                  style={{ backgroundColor: `${cat.accent}20`, color: cat.accent }}
-                                >
+                                <span className="w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 bg-primary/15 text-primary">
                                   {i + 1}
                                 </span>
                                 <span className="flex-1 text-sm text-foreground leading-relaxed line-clamp-2">
@@ -172,9 +166,9 @@ export default function UntimedSunnah() {
                                       </p>
 
                                       {item.source && (
-                                        <div className="flex items-center gap-1.5 mb-3">
-                                          <BookOpen className="w-3.5 h-3.5 shrink-0" style={{ color: cat.accent }} />
-                                          <span className="text-xs font-medium" style={{ color: cat.accent }}>
+                                         <div className="flex items-center gap-1.5 mb-3">
+                                          <BookOpen className="w-3.5 h-3.5 shrink-0 text-primary" />
+                                          <span className="text-xs font-medium text-primary">
                                             {item.source}
                                           </span>
                                         </div>
