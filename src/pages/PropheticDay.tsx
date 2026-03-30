@@ -137,7 +137,7 @@ export default function PropheticDay() {
               </div>
 
               {/* Items - card with golden top border, bullet on start */}
-              <div className="mx-3 rounded-2xl overflow-hidden border border-border/40" style={{ borderTop: '2.5px solid hsl(45 70% 45% / 0.6)' }}>
+              <div className="mx-5 rounded-2xl overflow-hidden border border-border/40" style={{ borderTop: '2.5px solid hsl(45 70% 45% / 0.6)' }}>
                 {section.items.map((item, i) => (
                   <div
                     key={i}
