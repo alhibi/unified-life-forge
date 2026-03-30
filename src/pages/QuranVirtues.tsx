@@ -68,6 +68,7 @@ export default function QuranVirtues() {
               <motion.button
                 key={i}
                 whileTap={{ scale: 0.95 }}
+                onClick={() => toast('قريباً')}
                 className="px-2 py-2.5 rounded-xl bg-card border border-border/50 text-[13px] font-semibold text-foreground hover:bg-accent/40 transition-colors text-center"
               >
                 {name}
