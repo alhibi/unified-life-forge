@@ -72,8 +72,8 @@ export default function SettingsPage() {
     {
       key: 'font',
       icon: Type,
-      iconColor: 'text-amber-600 dark:text-amber-400',
-      iconBg: 'bg-amber-500/12 dark:bg-amber-400/15',
+      iconColor: 'text-primary',
+      iconBg: 'bg-primary/10',
       title: isAr ? 'الخط' : 'Schriftart',
       subtitle: isAr ? 'نوع وحجم الخط' : 'Schriftart & Größe',
       onClick: () => navigate('/settings/font'),
