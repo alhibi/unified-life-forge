@@ -57,7 +57,7 @@ export default function QuranVirtues() {
         {/* Section 1: فضل سور القرآن */}
         <div className="space-y-4">
           {/* Title - icon right, text left */}
-          <div className="flex items-center gap-2 flex-row-reverse">
+          <div className="flex items-center gap-2">
             <BookOpen className="w-5 h-5 text-emerald-500" />
             <h2 className="text-base font-bold text-foreground">فضل سور القرآن</h2>
           </div>
