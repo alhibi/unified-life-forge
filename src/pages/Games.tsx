@@ -45,8 +45,8 @@ export default function GamesPage() {
       title: t('games.chess'),
       desc: t('games.chess.desc'),
       path: '/games/chess',
-      iconBg: 'bg-amber-500/12 dark:bg-amber-400/15',
-      iconColor: 'text-amber-600 dark:text-amber-400',
+      iconBg: 'bg-primary/10',
+      iconColor: 'text-primary',
       stats: chessStats.gamesPlayed > 0 ? [
         { icon: Gamepad2, value: chessStats.gamesPlayed, label: t('stats.played') },
         { icon: Star, value: chessStats.totalMoves, label: t('stats.moves') },
