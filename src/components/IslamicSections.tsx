@@ -47,7 +47,7 @@ export default function IslamicSections() {
             key={section.key}
             variants={item}
             whileTap={{ scale: 0.97 }}
-            onClick={() => navigate(`/section/${section.key}`)}
+            onClick={() => navigate(section.key === 'timed-sunnah' ? '/section/timed-sunnah' : `/section/${section.key}`)}
             className="flex items-center justify-between gap-1.5 px-2.5 py-4 rounded-2xl bg-card/80 border border-border/40 backdrop-blur-sm transition-colors hover:bg-accent/40 group"
             dir="rtl"
           >
