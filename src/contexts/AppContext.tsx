@@ -5,6 +5,7 @@ import type { User } from '@supabase/supabase-js';
 type Language = 'ar' | 'de';
 type Theme = 'light' | 'dark' | 'system';
 type PaletteStyle = 'tonal' | 'vibrant' | 'expressive' | 'neutral' | 'rainbow';
+type ColorTheme = 'default' | 'midnight' | 'rose' | 'emerald' | 'lavender' | 'sunset' | 'ocean' | 'neon' | 'coffee' | 'mono';
 
 type PrayerMadhab = 'shafii' | 'hanafi' | 'hanbali' | 'maliki';
 type LatitudeAdjMethod = 'middle' | 'seventh' | 'angle';
