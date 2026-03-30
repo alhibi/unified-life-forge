@@ -565,3 +565,11 @@ select,
 textarea {
   transition-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
 }
+
+/* Smooth theme transition */
+html.theme-transition,
+html.theme-transition *,
+html.theme-transition *::before,
+html.theme-transition *::after {
+  transition: background-color 0.5s ease, color 0.35s ease, border-color 0.4s ease, box-shadow 0.4s ease, fill 0.35s ease, stroke 0.35s ease !important;
+}
