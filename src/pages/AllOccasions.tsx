@@ -41,7 +41,7 @@ export default function AllOccasions() {
   const { t, dir } = useApp();
   const upcoming = getUpcomingOccasions();
   const past = getPastOccasions();
-  const BackIcon = dir === 'rtl' ? ChevronRight : ChevronLeft;
+  
 
   return (
     <div className="min-h-screen bg-background pb-28 px-5 pt-6">
