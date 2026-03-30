@@ -22,6 +22,7 @@ function getCurrentPrayerKey(): { key: string; label: string } {
 }
 
 export default function CurrentTimeSunnah() {
+  const navigate = useNavigate();
   const { dir } = useApp();
   const [open, setOpen] = useState(false);
   const [current, setCurrent] = useState(getCurrentPrayerKey);
