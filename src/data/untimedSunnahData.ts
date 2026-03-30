@@ -267,6 +267,7 @@ export const untimedSunnahData: Record<string, UntimedSunnahCategory> = {
         source: 'رواه الترمذي',
       },
     ],
+  },
   food: {
     label: 'سنن الطعام والشراب',
     icon: 'utensils',
