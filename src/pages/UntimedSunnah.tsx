@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '@/contexts/AppContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronRight, ChevronLeft, ChevronDown, Volume2, Droplet, User, Star, Users, UtensilsCrossed, Shirt, Copy, Bookmark, BookOpen } from 'lucide-react';
+import { ChevronDown, Volume2, Droplet, User, Star, Users, UtensilsCrossed, Shirt, Copy, Bookmark, BookOpen } from 'lucide-react';
 import { untimedSunnahData } from '@/data/untimedSunnahData';
 import { toast } from 'sonner';
+import BackButton from '@/components/BackButton';
 
 interface SavedItem {
   id: string;
