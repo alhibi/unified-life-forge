@@ -106,7 +106,7 @@ export default function SettingsPage() {
       trailing: (
         <div className={`relative w-[46px] h-[26px] rounded-full transition-colors duration-300 shrink-0 ${language === 'ar' ? 'bg-primary' : 'bg-muted'}`} dir="ltr">
           <motion.div
-            className="absolute top-[3px] w-[20px] h-[20px] rounded-full bg-primary-foreground shadow-sm"
+            className="absolute top-[3px] w-[20px] h-[20px] rounded-full bg-primary-foreground"
             animate={{ left: language === 'ar' ? 23 : 3 }}
             transition={{ type: 'spring', stiffness: 500, damping: 30 }}
           />
@@ -252,7 +252,7 @@ export default function SettingsPage() {
               exit={{ scale: 0.9, opacity: 0 }}
               transition={{ type: 'spring', stiffness: 400, damping: 25 }}
               onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-sm rounded-2xl bg-card border border-border p-6 shadow-xl space-y-4"
+              className="w-full max-w-sm rounded-2xl bg-card border border-border p-6 space-y-4"
             >
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-destructive/10 flex items-center justify-center">

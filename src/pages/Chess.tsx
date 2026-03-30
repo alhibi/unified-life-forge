@@ -983,7 +983,7 @@ export default function ChessPage() {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center">
             <motion.div initial={{ scale: 0.8 }} animate={{ scale: 1 }}
-              className="bg-card rounded-2xl p-4 shadow-xl">
+              className="bg-card rounded-2xl p-4">
               <p className="text-sm font-semibold text-foreground text-center mb-3">
                 {language === 'ar' ? 'اختر قطعة الترقية' : 'Choose promotion piece'}
               </p>
@@ -1039,7 +1039,7 @@ export default function ChessPage() {
         </AnimatePresence>
 
 
-        <div className="rounded-lg overflow-hidden shadow-lg">
+        <div className="rounded-lg overflow-hidden">
           <div className="grid grid-cols-8">
             {renderBoard()}
           </div>

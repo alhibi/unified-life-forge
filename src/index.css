@@ -36,10 +36,10 @@
     --sidebar-border: 240 6% 91%;
     --sidebar-ring: 240 5% 26%;
 
-    --shadow-sm: 0 1px 2px 0 hsl(240 10% 10% / 0.04);
-    --shadow-card: 0 1px 3px 0 hsl(240 10% 10% / 0.06), 0 1px 2px -1px hsl(240 10% 10% / 0.06);
-    --shadow-elevated: 0 4px 6px -1px hsl(240 10% 10% / 0.07), 0 2px 4px -2px hsl(240 10% 10% / 0.05);
-    --shadow-intense: 0 10px 15px -3px hsl(240 10% 10% / 0.08), 0 4px 6px -4px hsl(240 10% 10% / 0.05);
+    --shadow-sm: none;
+    --shadow-card: none;
+    --shadow-elevated: none;
+    --shadow-intense: none;
 
     --font-display: 'Inter', 'Noto Sans Arabic', system-ui, -apple-system, sans-serif;
     --font-body: 'Inter', 'Noto Sans Arabic', system-ui, -apple-system, sans-serif;
@@ -75,10 +75,10 @@
     --sidebar-border: 240 4% 18%;
     --sidebar-ring: 0 0% 93%;
 
-    --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.3);
-    --shadow-card: 0 1px 3px 0 hsl(0 0% 0% / 0.35), 0 1px 2px -1px hsl(0 0% 0% / 0.25);
-    --shadow-elevated: 0 4px 6px -1px hsl(0 0% 0% / 0.4), 0 2px 4px -2px hsl(0 0% 0% / 0.25);
-    --shadow-intense: 0 10px 15px -3px hsl(0 0% 0% / 0.45), 0 4px 6px -4px hsl(0 0% 0% / 0.25);
+    --shadow-sm: none;
+    --shadow-card: none;
+    --shadow-elevated: none;
+    --shadow-intense: none;
   }
 
   .dark.black-mode {
@@ -127,28 +127,23 @@
   .premium-card {
     background: hsl(var(--card));
     border: 1px solid hsl(var(--border));
-    box-shadow: var(--shadow-card);
     border-radius: var(--radius);
   }
   .premium-card-elevated {
     background: hsl(var(--card));
     border: 1px solid hsl(var(--border));
-    box-shadow: var(--shadow-elevated);
     border-radius: var(--radius);
   }
   .premium-card-intense {
     background: hsl(var(--card));
     border: 1px solid hsl(var(--border));
-    box-shadow: var(--shadow-intense);
     border-radius: calc(var(--radius) + 4px);
   }
   .btn-primary {
     @apply bg-primary text-primary-foreground font-medium transition-all duration-200;
-    box-shadow: var(--shadow-sm);
   }
   .btn-primary:hover {
     filter: brightness(1.08);
-    box-shadow: var(--shadow-card);
   }
   .btn-primary:active {
     transform: scale(0.98);

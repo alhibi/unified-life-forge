@@ -660,25 +660,25 @@ export default function ReadingPage() {
 
               <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
                 <button onClick={() => { setFilterTab('all'); setSourceFilter('all'); }}
-                  className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all shrink-0 active:scale-95 ${filterTab === 'all' && sourceFilter === 'all' ? 'bg-primary text-primary-foreground shadow-sm' : 'bg-accent/30 text-muted-foreground hover:bg-accent/50'}`}>
+                  className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all shrink-0 active:scale-95 ${filterTab === 'all' && sourceFilter === 'all' ? 'bg-primary text-primary-foreground' : 'bg-accent/30 text-muted-foreground hover:bg-accent/50'}`}>
                   {isAr ? 'الكل' : 'All'}
                   <span className="ms-1 opacity-70">{articles.length}</span>
                 </button>
                 {enabledFeeds.map(source => (
                   <button key={source.url} onClick={() => { setFilterTab('all'); setSourceFilter(source.name === sourceFilter ? 'all' : source.name); }}
-                    className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all shrink-0 active:scale-95 ${filterTab === 'all' && sourceFilter === source.name ? 'bg-primary text-primary-foreground shadow-sm' : 'bg-accent/30 text-muted-foreground hover:bg-accent/50'}`}>
+                    className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all shrink-0 active:scale-95 ${filterTab === 'all' && sourceFilter === source.name ? 'bg-primary text-primary-foreground' : 'bg-accent/30 text-muted-foreground hover:bg-accent/50'}`}>
                     {source.name}
                     <span className="ms-1 opacity-70">{sourceCounts[source.name] || 0}</span>
                   </button>
                 ))}
                 <div className="w-px h-4 bg-border/40 shrink-0" />
                 <button onClick={() => setFilterTab('unread')}
-                  className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all shrink-0 active:scale-95 ${filterTab === 'unread' ? 'bg-primary text-primary-foreground shadow-sm' : 'bg-accent/30 text-muted-foreground hover:bg-accent/50'}`}>
+                  className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all shrink-0 active:scale-95 ${filterTab === 'unread' ? 'bg-primary text-primary-foreground' : 'bg-accent/30 text-muted-foreground hover:bg-accent/50'}`}>
                   {isAr ? 'غير مقروء' : 'Unread'}
                   <span className="ms-1 opacity-70">{unreadCount}</span>
                 </button>
                 <button onClick={() => setFilterTab('bookmarks')}
-                  className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all shrink-0 active:scale-95 ${filterTab === 'bookmarks' ? 'bg-primary text-primary-foreground shadow-sm' : 'bg-accent/30 text-muted-foreground hover:bg-accent/50'}`}>
+                  className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all shrink-0 active:scale-95 ${filterTab === 'bookmarks' ? 'bg-primary text-primary-foreground' : 'bg-accent/30 text-muted-foreground hover:bg-accent/50'}`}>
                   <Bookmark className="h-3 w-3 inline me-1" />
                   {isAr ? 'المحفوظات' : 'Saved'}
                   {bookmarks.length > 0 && <span className="ms-1 opacity-70">{bookmarks.length}</span>}
