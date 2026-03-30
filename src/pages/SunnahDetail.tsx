@@ -5,6 +5,7 @@ import { ChevronRight, ChevronLeft, Heart, Share2, Copy, BookOpen } from 'lucide
 import { sunnahDetailData, SunnahDetailItem } from '@/data/sunnahDetailData';
 import { useApp } from '@/contexts/AppContext';
 import { toast } from 'sonner';
+import BackButton from '@/components/BackButton';
 
 function DetailedView({ data }: { data: { label: string; accent: string; items: SunnahDetailItem[] } }) {
   const [searchParams] = useSearchParams();
