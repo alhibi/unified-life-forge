@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronRight, ChevronLeft, BookOpen, Sparkles } from 'lucide-react';
+import { BookOpen, Sparkles } from 'lucide-react';
+import BackButton from '@/components/BackButton';
 import { useApp } from '@/contexts/AppContext';
 
 // أسماء السور - سيتم إضافة المحتوى الداخلي لاحقاً
