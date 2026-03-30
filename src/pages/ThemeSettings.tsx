@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
-import { Sun, Moon, Monitor, Contrast, Check, Palette, Sparkles, Droplets, Zap, Circle, ImageIcon } from 'lucide-react';
+import { Sun, Moon, Contrast, Check, Palette, Sparkles, Droplets, Zap, Circle, ImageIcon } from 'lucide-react';
 import BackButton from '@/components/BackButton';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -46,7 +46,6 @@ export default function ThemeSettingsPage() {
   const themeOptions = [
     { mode: 'dark' as const, icon: Moon, label: isAr ? 'داكن' : 'Dark' },
     { mode: 'light' as const, icon: Sun, label: isAr ? 'فاتح' : 'Light' },
-    { mode: 'system' as const, icon: Monitor, label: isAr ? 'النظام' : 'System' },
   ];
 
   const handleDynamicImage = () => {
