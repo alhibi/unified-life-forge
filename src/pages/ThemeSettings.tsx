@@ -131,9 +131,10 @@ export default function ThemeSettingsPage() {
                   }`}>
                     {/* 3 color segments */}
                     <div className="absolute inset-0">
-                      <div className="absolute top-0 left-0 w-full h-1/3" style={{ backgroundColor: ct.colors[0] }} />
-                      <div className="absolute top-1/3 left-0 w-full h-1/3" style={{ backgroundColor: ct.colors[1] }} />
-                      <div className="absolute top-2/3 left-0 w-full h-1/3" style={{ backgroundColor: ct.colors[2] }} />
+                      <div className="absolute top-0 left-0 w-full h-1/4" style={{ backgroundColor: ct.colors[0] }} />
+                      <div className="absolute top-[25%] left-0 w-full h-1/4" style={{ backgroundColor: ct.colors[1] }} />
+                      <div className="absolute top-[50%] left-0 w-full h-1/4" style={{ backgroundColor: ct.colors[2] }} />
+                      <div className="absolute top-[75%] left-0 w-full h-1/4" style={{ backgroundColor: ct.colors[3] }} />
                     </div>
                     {isActive && (
                       <motion.div
