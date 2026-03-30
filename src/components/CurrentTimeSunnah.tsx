@@ -98,8 +98,20 @@ export default function CurrentTimeSunnah() {
   }, [prayerMadhab, latitudeAdjMethod]);
 
   useEffect(() => {
-    setCurrent(getCurrentPrayerKey(timings));
-    const interval = setInterval(() => setCurrent(getCurrentPrayerKey(timings)), 60000);
+    const isFriday = new Date().getDay() === 5;
+    if (isFriday) {
+      setCurrent({ key: 'friday', label: 'الجمعة' });
+    } else {
+      setCurrent(getCurrentPrayerKey(timings));
+    }
+    const interval = setInterval(() => {
+      const isFri = new Date().getDay() === 5;
+      if (isFri) {
+        setCurrent({ key: 'friday', label: 'الجمعة' });
+      } else {
+        setCurrent(getCurrentPrayerKey(timings));
+      }
+    }, 60000);
     return () => clearInterval(interval);
   }, [timings]);
 
@@ -107,6 +119,7 @@ export default function CurrentTimeSunnah() {
   if (!category) return null;
 
   const items = category.items as SunnahDetailItem[];
+  const isFriday = current.key === 'friday';
 
   return (
     <div className="rounded-2xl bg-card/80 border border-border/40 overflow-hidden">
