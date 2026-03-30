@@ -123,7 +123,7 @@ export default function DualCalendar() {
               transition={{ duration: 0.5, ease: 'linear' }}
             />
             <motion.div
-              className="absolute top-1/2 -translate-y-1/2 w-[5px] h-[5px] rounded-full bg-primary shadow-sm shadow-primary/50"
+              className="absolute top-1/2 -translate-y-1/2 w-[5px] h-[5px] rounded-full bg-primary"
               style={{ left: `${timeProgress * 100}%` }}
               animate={{ scale: [1, 1.3, 1] }}
               transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}

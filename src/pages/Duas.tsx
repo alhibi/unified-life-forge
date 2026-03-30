@@ -112,7 +112,7 @@ function DuaModal({ open, onClose, title, duas, lang }: {
               exit={{ opacity: 0, scale: 0.92 }}
               transition={{ type: 'spring', damping: 25, stiffness: 350 }}
               onClick={e => e.stopPropagation()}
-              className="bg-card w-full max-w-md rounded-2xl max-h-[80vh] flex flex-col shadow-2xl"
+              className="bg-card w-full max-w-md rounded-2xl max-h-[80vh] flex flex-col"
             >
               <div className="flex items-center justify-between px-5 py-4 border-b border-border/50">
                 <h2 className="text-lg font-bold text-foreground">{title}</h2>
@@ -191,7 +191,7 @@ function NawawiModal({ open, onClose, hadith, lang }: {
               exit={{ opacity: 0, scale: 0.92 }}
               transition={{ type: 'spring', damping: 25, stiffness: 350 }}
               onClick={e => e.stopPropagation()}
-              className="bg-card w-full max-w-md rounded-2xl max-h-[80vh] flex flex-col shadow-2xl"
+              className="bg-card w-full max-w-md rounded-2xl max-h-[80vh] flex flex-col"
             >
               <div className="flex items-center justify-between px-5 py-4 border-b border-border/50">
                 <div className="flex items-center gap-2">
@@ -359,7 +359,7 @@ export default function DuasPage() {
                 exit={{ opacity: 0, scale: 0.92 }}
                 transition={{ type: 'spring', damping: 25, stiffness: 350 }}
                 onClick={e => e.stopPropagation()}
-                className="bg-card w-full max-w-md rounded-2xl max-h-[85vh] flex flex-col shadow-2xl"
+                className="bg-card w-full max-w-md rounded-2xl max-h-[85vh] flex flex-col"
               >
                 <div className="flex items-center justify-between px-5 py-4 border-b border-border/50">
                   <h2 className="text-lg font-bold text-foreground">

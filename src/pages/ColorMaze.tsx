@@ -295,7 +295,7 @@ export default function ColorMazePage() {
                   onClick={() => handleCell(ri, ci)}
                   className={`aspect-square rounded-lg transition-all duration-200 relative
                     ${isPaintedCell ? '' : isAdjacent ? 'ring-2 ring-primary/40' : ''}
-                    ${isCurrent ? 'ring-2 ring-primary shadow-lg' : ''}
+                    ${isCurrent ? 'ring-2 ring-primary' : ''}
                   `}
                   style={{
                     backgroundColor: isPaintedCell ? COLORS[colorIdx] : 'hsl(var(--muted))',

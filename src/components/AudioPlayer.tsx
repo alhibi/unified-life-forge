@@ -229,7 +229,7 @@ export default function AudioPlayer() {
         <button
           onClick={() => setTab('quran')}
           className={`flex-1 py-2 rounded-lg text-[13px] font-medium transition-all ${
-            tab === 'quran' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
+            tab === 'quran' ? 'bg-card text-foreground' : 'text-muted-foreground hover:text-foreground'
           }`}
         >
           <BookOpenText className="w-3.5 h-3.5 inline-block me-1.5 -mt-0.5" />
@@ -238,7 +238,7 @@ export default function AudioPlayer() {
         <button
           onClick={() => setTab('local')}
           className={`flex-1 py-2 rounded-lg text-[13px] font-medium transition-all ${
-            tab === 'local' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
+            tab === 'local' ? 'bg-card text-foreground' : 'text-muted-foreground hover:text-foreground'
           }`}
         >
           <FolderOpen className="w-3.5 h-3.5 inline-block me-1.5 -mt-0.5" />
@@ -390,7 +390,7 @@ export default function AudioPlayer() {
                 <button onClick={skipPrev} className="p-2 rounded-full hover:bg-secondary transition-colors">
                   <SkipBack className="w-5 h-5 text-foreground" />
                 </button>
-                <button onClick={togglePlay} className="w-14 h-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg active:scale-95 transition-transform">
+                <button onClick={togglePlay} className="w-14 h-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center active:scale-95 transition-transform">
                   {isPlaying ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6 ms-0.5" />}
                 </button>
                 <button onClick={skipNext} className="p-2 rounded-full hover:bg-secondary transition-colors">

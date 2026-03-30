@@ -540,7 +540,7 @@ export default function ReadingDialog({ open, onOpenChange }: ReadingDialogProps
                 key={tab}
                 onClick={() => setFilterTab(tab)}
                 className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all shrink-0 active:scale-95 ${
-                  filterTab === tab ? 'bg-primary text-primary-foreground shadow-sm' : 'bg-accent/30 text-muted-foreground hover:bg-accent/50'
+                  filterTab === tab ? 'bg-primary text-primary-foreground' : 'bg-accent/30 text-muted-foreground hover:bg-accent/50'
                 }`}
               >
                 {tab === 'bookmarks' && <Bookmark className="h-3 w-3 inline me-1" />}
@@ -673,7 +673,7 @@ export default function ReadingDialog({ open, onOpenChange }: ReadingDialogProps
         initial={{ y: '100%' }}
         animate={{ y: 0 }}
         transition={{ type: 'spring' as const, damping: 30, stiffness: 350, mass: 0.8 }}
-        className="absolute inset-x-0 bottom-0 h-[90vh] flex flex-col rounded-t-3xl border-t border-border/50 bg-background shadow-2xl overflow-hidden"
+        className="absolute inset-x-0 bottom-0 h-[90vh] flex flex-col rounded-t-3xl border-t border-border/50 bg-background overflow-hidden"
       >
         {/* Drag handle */}
         <div className="flex justify-center pt-3 pb-1 shrink-0">

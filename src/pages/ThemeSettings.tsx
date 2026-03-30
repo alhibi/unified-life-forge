@@ -21,7 +21,7 @@ function ToggleSwitch({ value, onChange }: { value: boolean; onChange: () => voi
       dir="ltr"
     >
       <motion.div
-        className="absolute top-[4px] w-[20px] h-[20px] rounded-full bg-primary-foreground shadow-sm"
+        className="absolute top-[4px] w-[20px] h-[20px] rounded-full bg-primary-foreground"
         animate={{ left: value ? 26 : 4 }}
         transition={{ type: 'spring', stiffness: 500, damping: 30 }}
       />
@@ -74,9 +74,9 @@ export default function ThemeSettingsPage() {
                     className={`w-[60px] h-[60px] rounded-full flex items-center justify-center transition-all duration-300 ${
                       isActive
                         ? mode === 'dark'
-                          ? 'bg-foreground shadow-lg'
+                          ? 'bg-foreground'
                           : mode === 'light'
-                            ? 'bg-card shadow-lg ring-2 ring-primary/30'
+                            ? 'bg-card ring-2 ring-primary/30'
                             : 'bg-secondary ring-2 ring-foreground/30'
                         : 'bg-secondary'
                     }`}
