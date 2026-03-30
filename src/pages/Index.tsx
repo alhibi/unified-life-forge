@@ -96,7 +96,6 @@ export default function Index() {
               <p className="text-[12px] text-muted-foreground mt-0.5">
                 {now.toLocaleDateString(language === 'ar' ? 'ar' : 'de', { weekday: 'long', month: 'long', day: 'numeric' })}
               </p>
-              </p>
             </div>
             <div className="flex items-center gap-2 mt-0.5">
               <button
