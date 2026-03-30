@@ -98,8 +98,8 @@ export default function SettingsPage() {
     {
       key: 'language',
       icon: Languages,
-      iconColor: 'text-emerald-600 dark:text-emerald-400',
-      iconBg: 'bg-emerald-500/12 dark:bg-emerald-400/15',
+      iconColor: 'text-primary',
+      iconBg: 'bg-primary/10',
       title: language === 'ar' ? 'العربية' : 'Deutsch',
       subtitle: t('settings.language'),
       onClick: () => setLanguage(language === 'ar' ? 'de' : 'ar'),
