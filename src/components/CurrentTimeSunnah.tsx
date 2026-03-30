@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useApp } from '@/contexts/AppContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, Leaf } from 'lucide-react';
@@ -21,6 +22,7 @@ function getCurrentPrayerKey(): { key: string; label: string } {
 }
 
 export default function CurrentTimeSunnah() {
+  const navigate = useNavigate();
   const { dir } = useApp();
   const [open, setOpen] = useState(false);
   const [current, setCurrent] = useState(getCurrentPrayerKey);
@@ -69,10 +71,14 @@ export default function CurrentTimeSunnah() {
           >
             <div className="px-4 pb-4 space-y-0">
               {items.slice(0, 3).map((item, i) => (
-                <div key={i} className="flex items-start gap-3 py-2.5">
+                <button
+                  key={i}
+                  onClick={() => navigate(`/section/${current.key}?index=${i}`)}
+                  className="w-full flex items-start gap-3 py-2.5 hover:bg-accent/30 rounded-lg px-1 transition-colors"
+                >
                   <div className={`mt-1.5 w-2.5 h-2.5 rounded-full shrink-0 ${i % 2 === 0 ? 'bg-primary' : 'bg-amber-500/80'}`} />
-                  <p className="text-[13px] text-foreground leading-relaxed font-medium">{item.title}</p>
-                </div>
+                  <p className="text-[13px] text-foreground leading-relaxed font-medium text-start">{item.title}</p>
+                </button>
               ))}
             </div>
           </motion.div>

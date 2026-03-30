@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, ChevronLeft, Heart, Share2, Copy, BookOpen } from 'lucide-react';
 import { sunnahDetailData, SunnahDetailItem } from '@/data/sunnahDetailData';
@@ -7,7 +7,9 @@ import { useApp } from '@/contexts/AppContext';
 import { toast } from 'sonner';
 
 function DetailedView({ data }: { data: { label: string; accent: string; items: SunnahDetailItem[] } }) {
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [searchParams] = useSearchParams();
+  const initialIndex = parseInt(searchParams.get('index') || '0', 10);
+  const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [fontSize, setFontSize] = useState(18);
   const [direction, setDirection] = useState(0);
   const navigate = useNavigate();
