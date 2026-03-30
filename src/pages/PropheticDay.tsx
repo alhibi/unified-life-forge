@@ -15,14 +15,16 @@ interface TimeSection {
 
 const sections: TimeSection[] = [
   {
-    titleAr: 'قبل الفجر', titleDe: 'Vor dem Fajr', timeRange: '00:00 - 05:00', icon: '🌙',
+    titleAr: 'قبل الفجر', titleDe: 'Vor dem Fajr', timeRange: '00:00 - 05:00',
+    icon: Moon, iconColor: 'text-indigo-400',
     items: [
       { ar: 'يتهجد ويصلي قيام الليل في المنزل أو في المسجد', de: 'Tahajjud und Nachtgebet zu Hause oder in der Moschee' },
       { ar: 'يأخذ قيلولة قصيرة بعد التهجد', de: 'Kurzes Nickerchen nach Tahajjud' },
     ],
   },
   {
-    titleAr: 'الفجر', titleDe: 'Fajr', timeRange: '05:00 - 07:00', icon: '🌅',
+    titleAr: 'الفجر', titleDe: 'Fajr', timeRange: '05:00 - 07:00',
+    icon: Sunrise, iconColor: 'text-amber-400',
     items: [
       { ar: 'يستيقظ، يتطهر فمه بالسواك', de: 'Aufwachen, Mund mit Siwak reinigen' },
       { ar: 'يحمد الله ويثني عليه', de: 'Allah loben und preisen' },
@@ -32,7 +34,8 @@ const sections: TimeSection[] = [
     ],
   },
   {
-    titleAr: 'بعد شروق الشمس', titleDe: 'Nach Sonnenaufgang', timeRange: '07:00 - 09:00', icon: '☀️',
+    titleAr: 'بعد شروق الشمس', titleDe: 'Nach Sonnenaufgang', timeRange: '07:00 - 09:00',
+    icon: Sun, iconColor: 'text-orange-400',
     items: [
       { ar: 'يصلي ركعتين', de: 'Zwei Rakat beten' },
       { ar: 'يذهب إلى المنزل ويحدث أهله', de: 'Nach Hause gehen und mit der Familie sprechen' },
@@ -40,7 +43,8 @@ const sections: TimeSection[] = [
     ],
   },
   {
-    titleAr: 'بداية اليوم', titleDe: 'Tagesbeginn', timeRange: '09:00 - 12:00', icon: '📖',
+    titleAr: 'بداية اليوم', titleDe: 'Tagesbeginn', timeRange: '09:00 - 12:00',
+    icon: BookOpen, iconColor: 'text-teal-400',
     items: [
       { ar: 'يعود إلى المسجد ويصلي ركعتين', de: 'Zurück zur Moschee und zwei Rakat beten' },
       { ar: 'يعلم أصحابه ويعظهم', de: 'Die Gefährten lehren und ermahnen' },
@@ -49,7 +53,8 @@ const sections: TimeSection[] = [
     ],
   },
   {
-    titleAr: 'الظهر', titleDe: 'Dhuhr', timeRange: '12:00 - 15:00', icon: '🔆',
+    titleAr: 'الظهر', titleDe: 'Dhuhr', timeRange: '12:00 - 15:00',
+    icon: SunDim, iconColor: 'text-yellow-500',
     items: [
       { ar: 'يقوم المصلين بصلاة الظهر', de: 'Dhuhr-Gebet verrichten' },
       { ar: 'في بعض الأحيان يعظهم ويوجههم', de: 'Manchmal predigen und anleiten' },
@@ -57,7 +62,8 @@ const sections: TimeSection[] = [
     ],
   },
   {
-    titleAr: 'العصر', titleDe: 'Asr', timeRange: '15:00 - 18:00', icon: '🌤️',
+    titleAr: 'العصر', titleDe: 'Asr', timeRange: '15:00 - 18:00',
+    icon: CloudSun, iconColor: 'text-orange-500',
     items: [
       { ar: 'يقوم المصلين بصلاة العصر', de: 'Asr-Gebet verrichten' },
       { ar: 'يعود إلى بيته ويمضي فترة مع أهله', de: 'Nach Hause zurückkehren und Zeit mit der Familie verbringen' },
@@ -65,7 +71,8 @@ const sections: TimeSection[] = [
     ],
   },
   {
-    titleAr: 'المغرب', titleDe: 'Maghrib', timeRange: '18:00 - 20:00', icon: '🌇',
+    titleAr: 'المغرب', titleDe: 'Maghrib', timeRange: '18:00 - 20:00',
+    icon: Sunset, iconColor: 'text-rose-400',
     items: [
       { ar: 'يقوم المصلين بصلاة المغرب', de: 'Maghrib-Gebet verrichten' },
       { ar: 'يصلي ركعتين بعد المغرب', de: 'Zwei Rakat nach Maghrib beten' },
@@ -74,7 +81,8 @@ const sections: TimeSection[] = [
     ],
   },
   {
-    titleAr: 'العشاء', titleDe: 'Isha', timeRange: '20:00 - 23:00', icon: '🌙',
+    titleAr: 'العشاء', titleDe: 'Isha', timeRange: '20:00 - 23:00',
+    icon: MoonStar, iconColor: 'text-violet-400',
     items: [
       { ar: 'يقوم المصلين بصلاة العشاء', de: 'Isha-Gebet verrichten' },
       { ar: 'يذكر الله ويثني عليه', de: 'Allah gedenken und Ihn preisen' },
@@ -113,36 +121,37 @@ export default function PropheticDay() {
 
       {/* Sections */}
       <motion.div variants={stagger} initial="hidden" animate="show" className="pt-4 pb-4 space-y-6">
-        {sections.map((section, idx) => (
-          <motion.div key={idx} variants={fadeItem}>
-            {/* Section header - centered */}
-            <div className="flex flex-col items-center gap-0 mb-2.5">
-              <h2 className="text-[15px] font-extrabold text-foreground">{isAr ? section.titleAr : section.titleDe}</h2>
-              <span className="text-base leading-none mt-0.5">{section.icon}</span>
-              <span className="text-[11px] text-muted-foreground mt-0.5" dir="ltr">{section.timeRange}</span>
-            </div>
+        {sections.map((section, idx) => {
+          const Icon = section.icon;
+          return (
+            <motion.div key={idx} variants={fadeItem}>
+              {/* Section header - title centered, icon+time on the end side */}
+              <div className="flex items-center justify-center gap-2 mb-1 px-4">
+                <h2 className="text-[15px] font-extrabold text-foreground">{isAr ? section.titleAr : section.titleDe}</h2>
+                <Icon className={`w-5 h-5 ${section.iconColor}`} />
+              </div>
+              <p className="text-[11px] text-muted-foreground text-center mb-2.5" dir="ltr">{section.timeRange}</p>
 
-            {/* Items - flat rows with green left border */}
-            <div className="mx-3 rounded-2xl overflow-hidden border border-border/40">
-              {section.items.map((item, i) => (
-                <div
-                  key={i}
-                  className={`flex items-center gap-3 px-4 py-3.5 bg-card ${
-                    i < section.items.length - 1 ? 'border-b border-border/30' : ''
-                  }`}
-                  style={{
-                    borderInlineStart: '3px solid hsl(142 50% 40% / 0.5)',
-                  }}
-                >
-                  <span className="w-[5px] h-[5px] rounded-full bg-emerald-500 dark:bg-emerald-400 shrink-0" />
-                  <p className="text-[13px] leading-relaxed text-foreground font-medium flex-1">
-                    {isAr ? item.ar : item.de}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-        ))}
+              {/* Items */}
+              <div className="mx-3 rounded-2xl overflow-hidden border border-border/40">
+                {section.items.map((item, i) => (
+                  <div
+                    key={i}
+                    className={`flex items-center gap-3 px-4 py-3.5 bg-card ${
+                      i < section.items.length - 1 ? 'border-b border-border/30' : ''
+                    }`}
+                    style={{ borderInlineStart: '3px solid hsl(142 50% 40% / 0.5)' }}
+                  >
+                    <span className="w-[5px] h-[5px] rounded-full bg-emerald-500 dark:bg-emerald-400 shrink-0" />
+                    <p className="text-[13px] leading-relaxed text-foreground font-medium flex-1">
+                      {isAr ? item.ar : item.de}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          );
+        })}
       </motion.div>
     </div>
   );
