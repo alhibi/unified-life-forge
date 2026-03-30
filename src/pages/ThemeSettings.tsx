@@ -46,7 +46,6 @@ export default function ThemeSettingsPage() {
   const themeOptions = [
     { mode: 'dark' as const, icon: Moon, label: isAr ? 'داكن' : 'Dark' },
     { mode: 'light' as const, icon: Sun, label: isAr ? 'فاتح' : 'Light' },
-    { mode: 'system' as const, icon: Monitor, label: isAr ? 'النظام' : 'System' },
   ];
 
   const handleDynamicImage = () => {
