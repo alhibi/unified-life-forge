@@ -27,12 +27,12 @@ export default function IslamicSections() {
   return (
     <div className="space-y-3">
       {/* Header */}
-      <div className="flex items-center gap-2">
-        <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border/60 to-transparent" />
+      <div className="flex items-center gap-2 px-2">
+        <div className="h-px flex-1 bg-border/60" />
         <span className="text-primary text-[6px]">●</span>
-        <h2 className="text-sm font-bold text-foreground">المزيد من</h2>
+        <h2 className="text-sm font-bold text-foreground whitespace-nowrap">المزيد من</h2>
         <span className="text-primary text-[6px]">●</span>
-        <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border/60 to-transparent" />
+        <div className="h-px flex-1 bg-border/60" />
       </div>
 
       {/* Grid */}
