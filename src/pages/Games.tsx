@@ -1,8 +1,9 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
-import { Grid3X3, Swords, Gamepad2, Trophy, Star, Brain, Bomb, Palette, PipetteIcon } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Grid3X3, Swords, Gamepad2, Trophy, Star, Brain, Bomb, Palette, PipetteIcon, Dices, Target, Puzzle, Layers, Hexagon, Crosshair } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'sonner';
 
 export default function GamesPage() {
   const { t, dir, language } = useApp();
