@@ -48,8 +48,8 @@ export default function SettingsPage() {
     }] : [{
       key: 'account',
       icon: UserCircle,
-      iconColor: 'text-blue-600 dark:text-blue-400',
-      iconBg: 'bg-blue-500/12 dark:bg-blue-400/15',
+      iconColor: 'text-primary',
+      iconBg: 'bg-primary/10',
       title: isAr ? 'تسجيل الدخول' : 'Anmelden',
       subtitle: isAr ? 'احفظ إعداداتك على جميع الأجهزة' : 'Einstellungen auf allen Geräten speichern',
       onClick: () => navigate('/auth'),
