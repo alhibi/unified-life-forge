@@ -257,6 +257,42 @@ export default function TimedSunnah() {
         })}
       </div>
 
+      {/* Shared Content Modal */}
+      <AnimatePresence>
+        {sharedContent && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+            onClick={() => setSharedContent(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-sm rounded-2xl border border-border/40 bg-card p-6 space-y-4"
+              dir="rtl"
+            >
+              <div className="h-1 w-16 mx-auto rounded-full bg-[#4CAF50]" />
+              <h3 className="text-xl font-bold text-foreground text-center">{sharedContent.title}</h3>
+              <p className="text-foreground/80 text-center leading-relaxed">{sharedContent.description}</p>
+              <div className="flex items-center justify-end gap-2 bg-[#4CAF50]/10 rounded-xl px-4 py-2.5">
+                <span className="text-sm text-[#4CAF50] font-medium">{sharedContent.source}</span>
+                <BookOpen className="w-4 h-4 text-[#4CAF50]" />
+              </div>
+              <button
+                onClick={() => setSharedContent(null)}
+                className="w-full py-2.5 rounded-xl bg-primary/20 text-primary font-medium"
+              >
+                إغلاق
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
     </div>
   );
 }
