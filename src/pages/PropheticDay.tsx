@@ -1,18 +1,14 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '@/contexts/AppContext';
-import { ChevronRight, ChevronLeft, Moon, Sun, Sunrise, Clock, Coffee, CloudSun, Sunset, MoonStar } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Menu } from 'lucide-react';
 import { motion } from 'framer-motion';
-import PageTransition from '@/components/PageTransition';
 
 interface TimeSection {
   titleAr: string;
   titleDe: string;
   timeRange: string;
-  icon: React.ElementType;
-  color: string;
-  bg: string;
-  borderColor: string;
+  emoji: string;
   items: { ar: string; de: string }[];
 }
 
@@ -21,10 +17,7 @@ const sections: TimeSection[] = [
     titleAr: 'قبل الفجر',
     titleDe: 'Vor dem Fajr',
     timeRange: '00:00 - 05:00',
-    icon: Moon,
-    color: 'text-indigo-400',
-    bg: 'bg-indigo-500/10',
-    borderColor: 'border-indigo-500/30',
+    emoji: '🌙',
     items: [
       { ar: 'يتهجد ويصلي قيام الليل في المنزل أو في المسجد', de: 'Tahajjud und Nachtgebet zu Hause oder in der Moschee' },
       { ar: 'يتوضأ ويصلي قيام الليل بعد التهجد', de: 'Wudu und Nachtgebet nach Tahajjud' },
@@ -35,10 +28,7 @@ const sections: TimeSection[] = [
     titleAr: 'الفجر',
     titleDe: 'Fajr',
     timeRange: '05:00 - 07:00',
-    icon: Sunrise,
-    color: 'text-amber-400',
-    bg: 'bg-amber-500/10',
-    borderColor: 'border-amber-500/30',
+    emoji: '🌅',
     items: [
       { ar: 'يستيقظ، يتطهر فمه بالسواك', de: 'Aufwachen, Mund mit Siwak reinigen' },
       { ar: 'يحمد الله ويثني عليه', de: 'Allah loben und preisen' },
@@ -51,10 +41,7 @@ const sections: TimeSection[] = [
     titleAr: 'بعد شروق الشمس',
     titleDe: 'Nach Sonnenaufgang',
     timeRange: '07:00 - 09:00',
-    icon: Sun,
-    color: 'text-orange-400',
-    bg: 'bg-orange-500/10',
-    borderColor: 'border-orange-500/30',
+    emoji: '☀️',
     items: [
       { ar: 'يصلي ركعتين', de: 'Zwei Rakat beten' },
       { ar: 'يذهب إلى المنزل ويحدث أهله', de: 'Nach Hause gehen und mit der Familie sprechen' },
@@ -65,10 +52,7 @@ const sections: TimeSection[] = [
     titleAr: 'بداية اليوم',
     titleDe: 'Tagesbeginn',
     timeRange: '09:00 - 12:00',
-    icon: Coffee,
-    color: 'text-teal-400',
-    bg: 'bg-teal-500/10',
-    borderColor: 'border-teal-500/30',
+    emoji: '🕘',
     items: [
       { ar: 'يعود إلى المسجد ويصلي ركعتين', de: 'Zurück zur Moschee und zwei Rakat beten' },
       { ar: 'يعلم أصحابه ويعظهم', de: 'Die Gefährten lehren und ermahnen' },
@@ -80,10 +64,7 @@ const sections: TimeSection[] = [
     titleAr: 'الظهر',
     titleDe: 'Dhuhr',
     timeRange: '12:00 - 15:00',
-    icon: CloudSun,
-    color: 'text-yellow-500',
-    bg: 'bg-yellow-500/10',
-    borderColor: 'border-yellow-500/30',
+    emoji: '🌤️',
     items: [
       { ar: 'يقوم المصلين بصلاة الظهر', de: 'Dhuhr-Gebet verrichten' },
       { ar: 'في بعض الأحيان يعظهم ويوجههم', de: 'Manchmal predigen und anleiten' },
@@ -94,10 +75,7 @@ const sections: TimeSection[] = [
     titleAr: 'العصر',
     titleDe: 'Asr',
     timeRange: '15:00 - 18:00',
-    icon: Sun,
-    color: 'text-orange-500',
-    bg: 'bg-orange-500/10',
-    borderColor: 'border-orange-500/30',
+    emoji: '🌇',
     items: [
       { ar: 'يقوم المصلين بصلاة العصر', de: 'Asr-Gebet verrichten' },
       { ar: 'يعود إلى بيته ويمضي فترة مع أهله', de: 'Nach Hause zurückkehren und Zeit mit der Familie verbringen' },
@@ -108,10 +86,7 @@ const sections: TimeSection[] = [
     titleAr: 'المغرب',
     titleDe: 'Maghrib',
     timeRange: '18:00 - 20:00',
-    icon: Sunset,
-    color: 'text-rose-400',
-    bg: 'bg-rose-500/10',
-    borderColor: 'border-rose-500/30',
+    emoji: '🌆',
     items: [
       { ar: 'يقوم المصلين بصلاة المغرب', de: 'Maghrib-Gebet verrichten' },
       { ar: 'يصلي ركعتين بعد المغرب', de: 'Zwei Rakat nach Maghrib beten' },
@@ -123,10 +98,7 @@ const sections: TimeSection[] = [
     titleAr: 'العشاء',
     titleDe: 'Isha',
     timeRange: '20:00 - 23:00',
-    icon: MoonStar,
-    color: 'text-violet-400',
-    bg: 'bg-violet-500/10',
-    borderColor: 'border-violet-500/30',
+    emoji: '🌙',
     items: [
       { ar: 'يقوم المصلين بصلاة العشاء', de: 'Isha-Gebet verrichten' },
       { ar: 'يذكر الله ويثني عليه', de: 'Allah gedenken und Ihn preisen' },
@@ -138,11 +110,11 @@ const sections: TimeSection[] = [
 
 const stagger = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.04 } },
+  show: { transition: { staggerChildren: 0.03 } },
 };
 const fadeItem = {
-  hidden: { opacity: 0, y: 10 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] as const } },
+  hidden: { opacity: 0, y: 8 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.25, ease: [0.16, 1, 0.3, 1] as const } },
 };
 
 export default function PropheticDay() {
@@ -166,43 +138,42 @@ export default function PropheticDay() {
         </div>
       </div>
 
-      {/* Timeline */}
+      {/* Timeline sections */}
       <motion.div
         variants={stagger}
         initial="hidden"
         animate="show"
-        className="px-4 py-4 space-y-6"
+        className="px-4 pt-5 pb-4 space-y-7"
       >
-        {sections.map((section, idx) => {
-          const Icon = section.icon;
-          return (
-            <motion.div key={idx} variants={fadeItem} className="space-y-2.5">
-              {/* Section header */}
-              <div className="flex flex-col items-center gap-1">
-                <div className={`w-10 h-10 rounded-full ${section.bg} flex items-center justify-center`}>
-                  <Icon className={`w-5 h-5 ${section.color}`} />
-                </div>
-                <h2 className="text-sm font-bold text-foreground">{isAr ? section.titleAr : section.titleDe}</h2>
-                <span className="text-[11px] text-muted-foreground font-medium" dir="ltr">{section.timeRange}</span>
-              </div>
+        {sections.map((section, idx) => (
+          <motion.div key={idx} variants={fadeItem} className="space-y-3">
+            {/* Section title */}
+            <div className="flex flex-col items-center gap-0.5">
+              <h2 className="text-[15px] font-bold text-foreground">{isAr ? section.titleAr : section.titleDe}</h2>
+              <span className="text-lg leading-none">{section.emoji}</span>
+              <span className="text-[11px] text-muted-foreground mt-0.5" dir="ltr">{section.timeRange}</span>
+            </div>
 
-              {/* Items */}
-              <div className="space-y-1.5">
-                {section.items.map((item, i) => (
-                  <div
-                    key={i}
-                    className={`flex items-start gap-2.5 px-3 py-2.5 rounded-xl border ${section.borderColor} bg-card/60`}
-                  >
-                    <span className={`mt-1 w-1.5 h-1.5 rounded-full shrink-0 ${section.color.replace('text-', 'bg-')}`} />
-                    <p className="text-[13px] leading-relaxed text-foreground/90">
-                      {isAr ? item.ar : item.de}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </motion.div>
-          );
-        })}
+            {/* Items - green gradient pill style */}
+            <div className="space-y-2">
+              {section.items.map((item, i) => (
+                <div
+                  key={i}
+                  className="relative flex items-center gap-3 px-4 py-3 rounded-xl"
+                  style={{
+                    background: 'linear-gradient(135deg, hsl(var(--accent)) 0%, hsl(142 40% 40% / 0.12) 100%)',
+                    border: '1px solid hsl(142 40% 40% / 0.25)',
+                  }}
+                >
+                  <span className="w-[5px] h-[5px] rounded-full bg-emerald-500 dark:bg-emerald-400 shrink-0" />
+                  <p className="text-[13px] leading-relaxed text-foreground/90 font-medium">
+                    {isAr ? item.ar : item.de}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        ))}
       </motion.div>
     </div>
   );
