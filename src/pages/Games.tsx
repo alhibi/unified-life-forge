@@ -84,8 +84,8 @@ export default function GamesPage() {
       title: t('games.colormaze'),
       desc: t('games.colormaze.desc'),
       path: '/games/colormaze',
-      iconBg: 'bg-emerald-500/12 dark:bg-emerald-400/15',
-      iconColor: 'text-emerald-600 dark:text-emerald-400',
+      iconBg: 'bg-primary/10',
+      iconColor: 'text-primary',
       stats: mazeStats.gamesWon > 0 ? [
         { icon: Trophy, value: mazeStats.gamesWon, label: t('stats.wins') },
         { icon: Star, value: mazeStats.bestStreak, label: t('stats.streak') },
