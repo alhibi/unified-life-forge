@@ -98,7 +98,7 @@ export default function QuranVirtues() {
         {/* Divider with dot */}
         <div className="flex items-center gap-0 py-1">
           <div className="h-px flex-1 bg-border/40" />
-          <div className="w-2 h-2 rounded-full bg-emerald-500 mx-2" />
+          <div className="w-2 h-2 rounded-full bg-primary mx-2" />
           <div className="h-px flex-1 bg-border/40" />
         </div>
 
