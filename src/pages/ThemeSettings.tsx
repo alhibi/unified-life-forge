@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
-import { Sun, Moon, Monitor, ChevronLeft, Contrast, Check, Palette, Sparkles, Droplets, Zap, Circle, ImageIcon } from 'lucide-react';
+import { Sun, Moon, Monitor, Contrast, Check, Palette, Sparkles, Droplets, Zap, Circle, ImageIcon } from 'lucide-react';
+import BackButton from '@/components/BackButton';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { themePresets, type ThemeStyle, createDynamicPreset, extractDominantColor } from '@/utils/themeEngine';
