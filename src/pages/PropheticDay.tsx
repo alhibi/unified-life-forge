@@ -109,13 +109,11 @@ export default function PropheticDay() {
       {/* Header */}
       <div className="sticky top-0 z-30 bg-background/90 backdrop-blur-md border-b border-border/40">
         <div className="flex items-center justify-between px-4 py-3">
-          <button onClick={() => navigate(-1)} className="w-9 h-9 flex items-center justify-center rounded-full bg-secondary/60 active:scale-95 transition-transform">
-            <BackArrow className="w-5 h-5 text-foreground" />
-          </button>
+          <BackButton />
           <h1 className="text-[15px] font-bold text-foreground">
             {isAr ? 'نظرة على يوم النبي ﷺ' : 'Ein Tag des Propheten ﷺ'}
           </h1>
-          <div className="w-9" />
+          <div className="w-10" />
         </div>
       </div>
 

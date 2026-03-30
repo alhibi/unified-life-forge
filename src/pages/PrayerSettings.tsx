@@ -37,12 +37,7 @@ export default function PrayerSettings() {
       <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-4 max-w-lg mx-auto">
         {/* Header */}
         <motion.div variants={item} className="flex items-center gap-3 mb-1">
-          <button
-            onClick={() => navigate('/settings')}
-            className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center active:scale-95 transition-transform"
-          >
-            <ChevronLeft className="w-5 h-5 text-primary stroke-[1.8] ltr:rotate-180" />
-          </button>
+          <BackButton to="/settings" />
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center">
               <BookOpen className="w-5 h-5 text-primary stroke-[1.8]" />

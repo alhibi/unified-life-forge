@@ -75,14 +75,8 @@ export default function AuthPage() {
   return (
     <div className="min-h-screen bg-background pb-28 px-5 pt-14">
       <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-5 max-w-lg mx-auto">
-        <motion.div variants={item}>
-          <button onClick={() => navigate('/settings')} className="flex items-center gap-1 text-muted-foreground mb-4">
-            <ChevronLeft className="w-4 h-4 ltr:rotate-0 rtl:rotate-180" />
-            <span className="text-sm">{isAr ? 'رجوع' : 'Zurück'}</span>
-          </button>
-        </motion.div>
-
         <motion.div variants={item} className="flex items-center gap-3 mb-2">
+          <BackButton to="/settings" />
           <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center">
             <UserCircle className="w-5 h-5 text-primary stroke-[1.8]" />
           </div>
