@@ -29,9 +29,9 @@ function DetailedView({ data }: { data: { label: string; accent: string; items: 
   };
 
   const variants = {
-    enter: (dir: number) => ({ x: dir >= 0 ? 200 : -200, opacity: 0 }),
-    center: { x: 0, opacity: 1 },
-    exit: (dir: number) => ({ x: dir >= 0 ? -200 : 200, opacity: 0 }),
+    enter: { opacity: 0 },
+    center: { opacity: 1 },
+    exit: { opacity: 0 },
   };
 
   return (
