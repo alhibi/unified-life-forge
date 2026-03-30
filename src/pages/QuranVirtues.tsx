@@ -1,9 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, ChevronLeft, BookOpen, Sparkles } from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
-import { toast } from 'sonner';
 
 // أسماء السور - سيتم إضافة المحتوى الداخلي لاحقاً
 const surahNames = [
@@ -37,9 +36,15 @@ const itemAnim = {
 };
 
 export default function QuranVirtues() {
+  const [tappedSurah, setTappedSurah] = useState<number | null>(null);
   const navigate = useNavigate();
   const { dir } = useApp();
   const BackIcon = dir === 'rtl' ? ChevronRight : ChevronLeft;
+
+  const handleSurahTap = (i: number) => {
+    setTappedSurah(i);
+    setTimeout(() => setTappedSurah(null), 1500);
+  };
 
   return (
     <div className="min-h-screen bg-background pb-24" dir="rtl">
@@ -69,9 +74,21 @@ export default function QuranVirtues() {
               <motion.button
                 key={i}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => toast('قريباً')}
-                className="px-2 py-2.5 rounded-xl bg-card border border-border/50 text-[13px] font-semibold text-foreground hover:bg-accent/40 transition-colors text-center"
+                onClick={() => handleSurahTap(i)}
+                className="relative px-2 py-2.5 rounded-xl bg-card border border-border/50 text-[13px] font-semibold text-foreground hover:bg-accent/40 transition-colors text-center overflow-hidden"
               >
+                <AnimatePresence>
+                  {tappedSurah === i && (
+                    <motion.span
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="absolute inset-0 flex items-center justify-center bg-card text-xs text-muted-foreground font-bold"
+                    >
+                      قريباً
+                    </motion.span>
+                  )}
+                </AnimatePresence>
                 {name}
               </motion.button>
             ))}
