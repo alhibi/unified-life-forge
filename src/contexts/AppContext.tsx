@@ -351,6 +351,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       blackMode: localStorage.getItem('app-black-mode') === 'true',
       fontFamily: localStorage.getItem('app-font-family') || 'default',
       fontSize: localStorage.getItem('app-font-size') || 'medium',
+      fontWeight: parseInt(localStorage.getItem('app-font-weight') || '400', 10),
+      fontOpacity: parseFloat(localStorage.getItem('app-font-opacity') || '1'),
       prayerMadhab: localStorage.getItem('app-prayer-madhab') || 'shafii',
       midnightMode: parseInt(localStorage.getItem('app-midnight-mode') || '0', 10),
       latitudeAdjMethod: localStorage.getItem('app-lat-adj-method') || 'angle',
