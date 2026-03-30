@@ -60,10 +60,15 @@ export default function TimedSunnah() {
     toast.success(dir === 'rtl' ? 'تم النسخ' : 'Copied');
   };
 
-  const shareText = (title: string, description: string, source: string) => {
+  const shareText = async (title: string, description: string, source: string) => {
     const text = `${title}\n\n${description}\n\n${source}`;
     if (navigator.share) {
-      navigator.share({ text });
+      try {
+        await navigator.share({ text });
+      } catch (err) {
+        // User cancelled or permission denied - fallback to copy
+        copyText(text);
+      }
     } else {
       copyText(text);
     }
