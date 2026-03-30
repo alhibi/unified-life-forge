@@ -15,7 +15,6 @@ function DetailedView({ data }: { data: { label: string; accent: string; items: 
   const [direction, setDirection] = useState(0);
   const navigate = useNavigate();
   const { dir } = useApp();
-  const BackIcon = dir === 'rtl' ? ChevronRight : ChevronLeft;
 
   const item = data.items[currentIndex];
   const total = data.items.length;
