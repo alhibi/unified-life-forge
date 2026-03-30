@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useApp } from '@/contexts/AppContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronRight, ChevronLeft, ChevronDown, Moon, Sun, CloudSun, Cloud, Calendar, Copy, Bookmark, BookOpen, Share2 } from 'lucide-react';
+import { ChevronRight, ChevronLeft, ChevronDown, Moon, Sun, CloudSun, Cloud, Calendar, Copy, Bookmark, BookOpen } from 'lucide-react';
 import { sunnahDetailData } from '@/data/sunnahDetailData';
 import { toast } from 'sonner';
 
@@ -29,28 +29,13 @@ function saveItems(items: SavedItem[]) {
 
 export default function TimedSunnah() {
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
   const { t, dir } = useApp();
   const BackIcon = dir === 'rtl' ? ChevronRight : ChevronLeft;
   const [openCatId, setOpenCatId] = useState<string | null>(null);
   const [openItemKey, setOpenItemKey] = useState<string | null>(null);
   const [saved, setSaved] = useState<SavedItem[]>(getSavedItems);
-  const [sharedContent, setSharedContent] = useState<{ title: string; description: string; source: string } | null>(null);
 
   useEffect(() => { saveItems(saved); }, [saved]);
-
-  useEffect(() => {
-    const shareParam = searchParams.get('share');
-    if (shareParam) {
-      try {
-        const decoded = JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(shareParam)))));
-        setSharedContent(decoded);
-        setSearchParams({}, { replace: true });
-      } catch (e) {
-        console.error('Invalid share link');
-      }
-    }
-  }, []);
 
   const categories = [
     { id: 'fajr', labelKey: 'timed.fajr', icon: CloudSun, accent: '#D4A843' },
@@ -75,23 +60,6 @@ export default function TimedSunnah() {
     toast.success(dir === 'rtl' ? 'تم النسخ' : 'Copied');
   };
 
-  const shareText = async (title: string, description: string, source: string) => {
-    const text = `${title}\n\n${description}\n\n${source}`;
-    const shareData = encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify({ title, description, source })))));
-    const shareUrl = `${window.location.origin}/section/timed-sunnah?share=${shareData}`;
-    
-    if (navigator.share) {
-      try {
-        await navigator.share({ title, text, url: shareUrl });
-      } catch (err) {
-        navigator.clipboard.writeText(shareUrl);
-        toast.success(dir === 'rtl' ? 'تم نسخ الرابط' : 'Link copied');
-      }
-    } else {
-      navigator.clipboard.writeText(shareUrl);
-      toast.success(dir === 'rtl' ? 'تم نسخ الرابط' : 'Link copied');
-    }
-  };
 
   const saveItem = (title: string, description: string, source: string, catLabel: string) => {
     const id = `${title}-${Date.now()}`;
@@ -224,13 +192,6 @@ export default function TimedSunnah() {
                                           <span className="text-xs text-muted-foreground">{dir === 'rtl' ? 'نسخ' : 'Copy'}</span>
                                         </button>
                                         <button
-                                          onClick={() => shareText(item.title, desc, src)}
-                                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/30 hover:bg-accent/50 transition-colors"
-                                        >
-                                          <Share2 className="w-3.5 h-3.5 text-muted-foreground" />
-                                          <span className="text-xs text-muted-foreground">{dir === 'rtl' ? 'مشاركة' : 'Share'}</span>
-                                        </button>
-                                        <button
                                           onClick={() => saveItem(item.title, desc, src, catLabel)}
                                           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors ${isSaved(item.title, catLabel) ? 'bg-primary/20' : 'bg-accent/30 hover:bg-accent/50'}`}
                                         >
@@ -257,41 +218,6 @@ export default function TimedSunnah() {
         })}
       </div>
 
-      {/* Shared Content Modal */}
-      <AnimatePresence>
-        {sharedContent && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
-            onClick={() => setSharedContent(null)}
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-sm rounded-2xl border border-border/40 bg-card p-6 space-y-4"
-              dir="rtl"
-            >
-              <div className="h-1 w-16 mx-auto rounded-full bg-[#4CAF50]" />
-              <h3 className="text-xl font-bold text-foreground text-center">{sharedContent.title}</h3>
-              <p className="text-foreground/80 text-center leading-relaxed">{sharedContent.description}</p>
-              <div className="flex items-center justify-end gap-2 bg-[#4CAF50]/10 rounded-xl px-4 py-2.5">
-                <span className="text-sm text-[#4CAF50] font-medium">{sharedContent.source}</span>
-                <BookOpen className="w-4 h-4 text-[#4CAF50]" />
-              </div>
-              <button
-                onClick={() => setSharedContent(null)}
-                className="w-full py-2.5 rounded-xl bg-primary/20 text-primary font-medium"
-              >
-                إغلاق
-              </button>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
     </div>
   );
