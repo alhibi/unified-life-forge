@@ -55,6 +55,7 @@ export default function TimedSunnah() {
             key={cat.id}
             variants={item}
             whileTap={{ scale: 0.96 }}
+            onClick={() => navigate(`/section/timed-sunnah/${cat.id}`)}
             className="relative flex flex-col items-center gap-2 py-6 px-3 rounded-2xl bg-card/80 border border-border/40 backdrop-blur-sm overflow-hidden group"
           >
             {/* Top accent line */}
