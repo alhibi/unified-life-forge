@@ -57,9 +57,9 @@ export default function QuranVirtues() {
         {/* Section 1: فضل سور القرآن */}
         <div className="space-y-4">
           {/* Title - icon right, text left */}
-          <div className="flex items-center justify-end gap-2">
-            <h2 className="text-base font-bold text-foreground">فضل سور القرآن</h2>
+          <div className="flex items-center gap-2 flex-row-reverse">
             <BookOpen className="w-5 h-5 text-emerald-500" />
+            <h2 className="text-base font-bold text-foreground">فضل سور القرآن</h2>
           </div>
 
           {/* Surah chips - 4 columns grid RTL */}
@@ -74,22 +74,21 @@ export default function QuranVirtues() {
               </motion.button>
             ))}
           </div>
-
-          {/* Dot indicator */}
-          <div className="flex justify-center pt-1">
-            <div className="w-2 h-2 rounded-full bg-emerald-500" />
-          </div>
         </div>
 
-        {/* Divider */}
-        <div className="h-px bg-border/40" />
+        {/* Divider with dot */}
+        <div className="flex items-center gap-0 py-1">
+          <div className="h-px flex-1 bg-border/40" />
+          <div className="w-2 h-2 rounded-full bg-emerald-500 mx-2" />
+          <div className="h-px flex-1 bg-border/40" />
+        </div>
 
         {/* Section 2: فضائل القرآن */}
         <div className="space-y-4">
           {/* Title - icon right, text left */}
-          <div className="flex items-center justify-end gap-2">
-            <h2 className="text-base font-bold text-foreground">فضائل القرآن</h2>
+          <div className="flex items-center gap-2 flex-row-reverse">
             <Sparkles className="w-5 h-5 text-amber-500" />
+            <h2 className="text-base font-bold text-foreground">فضائل القرآن</h2>
           </div>
 
           <motion.div variants={container} initial="hidden" animate="show" className="flex flex-col gap-2.5">
