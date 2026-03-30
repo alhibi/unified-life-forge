@@ -40,7 +40,6 @@ export default function QuranVirtues() {
   const [tappedSurah, setTappedSurah] = useState<number | null>(null);
   const navigate = useNavigate();
   const { dir } = useApp();
-  const BackIcon = dir === 'rtl' ? ChevronRight : ChevronLeft;
 
   const handleSurahTap = (i: number) => {
     setTappedSurah(i);
