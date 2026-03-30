@@ -26,6 +26,10 @@ interface AppContextType {
   setFontFamily: (f: string) => void;
   fontSize: string;
   setFontSize: (s: string) => void;
+  fontWeight: number;
+  setFontWeight: (w: number) => void;
+  fontOpacity: number;
+  setFontOpacity: (o: number) => void;
   prayerMadhab: PrayerMadhab;
   setPrayerMadhab: (m: PrayerMadhab) => void;
   midnightMode: number;
@@ -237,6 +241,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [fontSize, setFontSizeState] = useState<string>(() =>
     localStorage.getItem('app-font-size') || 'medium'
   );
+  const [fontWeight, setFontWeightState] = useState<number>(() =>
+    parseInt(localStorage.getItem('app-font-weight') || '400', 10)
+  );
+  const [fontOpacity, setFontOpacityState] = useState<number>(() =>
+    parseFloat(localStorage.getItem('app-font-opacity') || '1')
+  );
   const [prayerMadhab, setPrayerMadhabState] = useState<PrayerMadhab>(() =>
     (localStorage.getItem('app-prayer-madhab') as PrayerMadhab) || 'shafii'
   );
@@ -264,6 +274,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setBlackModeState(false); localStorage.setItem('app-black-mode', 'false');
     setFontFamilyState('default'); localStorage.setItem('app-font-family', 'default');
     setFontSizeState('medium'); localStorage.setItem('app-font-size', 'medium');
+    setFontWeightState(400); localStorage.setItem('app-font-weight', '400');
+    setFontOpacityState(1); localStorage.setItem('app-font-opacity', '1');
     setPrayerMadhabState('shafii'); localStorage.setItem('app-prayer-madhab', 'shafii');
     setMidnightModeState(0); localStorage.setItem('app-midnight-mode', '0');
     setLatitudeAdjMethodState('angle'); localStorage.setItem('app-lat-adj-method', 'angle');
@@ -312,6 +324,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         if (s.blackMode !== undefined) { setBlackModeState(s.blackMode); localStorage.setItem('app-black-mode', String(s.blackMode)); }
         if (s.fontFamily) { setFontFamilyState(s.fontFamily); localStorage.setItem('app-font-family', s.fontFamily); }
         if (s.fontSize) { setFontSizeState(s.fontSize); localStorage.setItem('app-font-size', s.fontSize); }
+        if (s.fontWeight !== undefined) { setFontWeightState(s.fontWeight); localStorage.setItem('app-font-weight', String(s.fontWeight)); }
+        if (s.fontOpacity !== undefined) { setFontOpacityState(s.fontOpacity); localStorage.setItem('app-font-opacity', String(s.fontOpacity)); }
         if (s.prayerMadhab) { setPrayerMadhabState(s.prayerMadhab); localStorage.setItem('app-prayer-madhab', s.prayerMadhab); }
         if (s.midnightMode !== undefined) { setMidnightModeState(s.midnightMode); localStorage.setItem('app-midnight-mode', String(s.midnightMode)); }
         if (s.latitudeAdjMethod) { setLatitudeAdjMethodState(s.latitudeAdjMethod); localStorage.setItem('app-lat-adj-method', s.latitudeAdjMethod); }
@@ -337,6 +351,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       blackMode: localStorage.getItem('app-black-mode') === 'true',
       fontFamily: localStorage.getItem('app-font-family') || 'default',
       fontSize: localStorage.getItem('app-font-size') || 'medium',
+      fontWeight: parseInt(localStorage.getItem('app-font-weight') || '400', 10),
+      fontOpacity: parseFloat(localStorage.getItem('app-font-opacity') || '1'),
       prayerMadhab: localStorage.getItem('app-prayer-madhab') || 'shafii',
       midnightMode: parseInt(localStorage.getItem('app-midnight-mode') || '0', 10),
       latitudeAdjMethod: localStorage.getItem('app-lat-adj-method') || 'angle',
@@ -393,6 +409,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setTimeout(saveToDb, 50);
   };
 
+  const setFontWeight = (w: number) => {
+    setFontWeightState(w);
+    localStorage.setItem('app-font-weight', String(w));
+    setTimeout(saveToDb, 50);
+  };
+
+  const setFontOpacity = (o: number) => {
+    setFontOpacityState(o);
+    localStorage.setItem('app-font-opacity', String(o));
+    setTimeout(saveToDb, 50);
+  };
+
   const setPrayerMadhab = (m: PrayerMadhab) => {
     setPrayerMadhabState(m);
     localStorage.setItem('app-prayer-madhab', m);
@@ -441,7 +469,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }, [theme, dir, language, accentHue, paletteStyle, blackMode]);
 
-  // Apply font family & size
+  // Apply font family, size, weight & opacity
   useEffect(() => {
     const fontMap: Record<string, string> = {
       default: "'Inter', 'Noto Sans Arabic', system-ui, -apple-system, sans-serif",
@@ -455,10 +483,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
     document.documentElement.style.setProperty('--font-display', ff);
     document.documentElement.style.setProperty('--font-body', ff);
     document.documentElement.style.fontSize = sizeMap[fontSize] || '16px';
-  }, [fontFamily, fontSize]);
+    document.documentElement.style.fontWeight = String(fontWeight);
+    document.documentElement.style.setProperty('--text-opacity', String(fontOpacity));
+  }, [fontFamily, fontSize, fontWeight, fontOpacity]);
 
   return (
-    <AppContext.Provider value={{ language, setLanguage, theme, setTheme, t, dir, accentHue, setAccentHue, paletteStyle, setPaletteStyle, blackMode, setBlackMode, fontFamily, setFontFamily, fontSize, setFontSize, prayerMadhab, setPrayerMadhab, midnightMode, setMidnightMode, latitudeAdjMethod, setLatitudeAdjMethod, dstEnabled, setDstEnabled }}>
+    <AppContext.Provider value={{ language, setLanguage, theme, setTheme, t, dir, accentHue, setAccentHue, paletteStyle, setPaletteStyle, blackMode, setBlackMode, fontFamily, setFontFamily, fontSize, setFontSize, fontWeight, setFontWeight, fontOpacity, setFontOpacity, prayerMadhab, setPrayerMadhab, midnightMode, setMidnightMode, latitudeAdjMethod, setLatitudeAdjMethod, dstEnabled, setDstEnabled }}>
       {children}
     </AppContext.Provider>
   );
