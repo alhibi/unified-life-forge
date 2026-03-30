@@ -3,7 +3,20 @@ import { useApp } from '@/contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
 import { Grid3X3, Swords, Gamepad2, Trophy, Star, Brain, Bomb, Palette, PipetteIcon, Dices, Target, Puzzle, Layers, Hexagon, Crosshair } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { toast } from 'sonner';
+function UpcomingGameButton({ icon: Icon, title, language }: { icon: any; title: string; language: string }) {
+  const [showSoon, setShowSoon] = useState(false);
+  return (
+    <button
+      onClick={() => { setShowSoon(true); setTimeout(() => setShowSoon(false), 1200); }}
+      className="flex flex-col items-center gap-2 py-4 px-2 rounded-2xl bg-card/60 border border-border/30 active:scale-95 transition-transform relative"
+    >
+      <Icon className="w-5 h-5 text-muted-foreground/60 stroke-[1.8]" />
+      <span className="text-[11px] font-medium text-muted-foreground truncate w-full text-center transition-all duration-300">
+        {showSoon ? (language === 'ar' ? 'قريباً' : 'Soon') : title}
+      </span>
+    </button>
+  );
+}
 
 export default function GamesPage() {
   const { t, dir, language } = useApp();
@@ -195,19 +208,9 @@ export default function GamesPage() {
             { key: 'stack', icon: Layers, title: language === 'ar' ? 'التكديس' : 'Stack' },
             { key: 'hex', icon: Hexagon, title: language === 'ar' ? 'السداسي' : 'Hex' },
             { key: 'aim', icon: Crosshair, title: language === 'ar' ? 'التركيز' : 'Focus' },
-          ].map((g) => {
-            const Icon = g.icon;
-            return (
-              <button
-                key={g.key}
-                onClick={() => toast(language === 'ar' ? 'قريباً' : 'Coming soon', { duration: 1200 })}
-                className="flex flex-col items-center gap-2 py-4 px-2 rounded-2xl bg-card/60 border border-border/30 active:scale-95 transition-transform relative"
-              >
-                <Icon className="w-5 h-5 text-muted-foreground/60 stroke-[1.8]" />
-                <span className="text-[11px] font-medium text-muted-foreground truncate w-full text-center">{g.title}</span>
-              </button>
-            );
-          })}
+          ].map((g) => (
+            <UpcomingGameButton key={g.key} icon={g.icon} title={g.title} language={language} />
+          ))}
         </div>
       </motion.div>
     </div>
