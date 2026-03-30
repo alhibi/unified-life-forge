@@ -80,10 +80,6 @@ export default function TimedSunnah() {
     toast.success(dir === 'rtl' ? 'تم الحفظ في الحافظة' : 'Saved to clipboard');
   };
 
-  const removeItem = (id: string) => {
-    setSaved(prev => prev.filter(s => s.id !== id));
-    toast.success(dir === 'rtl' ? 'تم الحذف' : 'Removed');
-  };
 
   const isSaved = (title: string, catLabel: string) => saved.some(s => s.title === title && s.from === catLabel);
 
