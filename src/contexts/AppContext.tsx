@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { User } from '@supabase/supabase-js';
+import { themePresets, generateThemeTokens, applyThemeTokens, type ThemeStyle } from '@/utils/themeEngine';
 
 type Language = 'ar' | 'de';
 type Theme = 'light' | 'dark' | 'system';
