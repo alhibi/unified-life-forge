@@ -64,7 +64,7 @@ export default function QuranVirtues() {
         <div className="space-y-4">
           {/* Title - icon right, text left */}
           <div className="flex items-center gap-2">
-            <BookOpen className="w-5 h-5 text-emerald-500" />
+            <BookOpen className="w-5 h-5 text-primary" />
             <h2 className="text-base font-bold text-foreground">فضل سور القرآن</h2>
           </div>
 
@@ -98,7 +98,7 @@ export default function QuranVirtues() {
         {/* Divider with dot */}
         <div className="flex items-center gap-0 py-1">
           <div className="h-px flex-1 bg-border/40" />
-          <div className="w-2 h-2 rounded-full bg-emerald-500 mx-2" />
+          <div className="w-2 h-2 rounded-full bg-primary mx-2" />
           <div className="h-px flex-1 bg-border/40" />
         </div>
 
@@ -106,7 +106,7 @@ export default function QuranVirtues() {
         <div className="space-y-4">
           {/* Title - icon right, text left */}
           <div className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-amber-500" />
+            <Sparkles className="w-5 h-5 text-primary" />
             <h2 className="text-base font-bold text-foreground">فضائل القرآن</h2>
           </div>
 
