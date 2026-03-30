@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, ChevronLeft, Heart, Share2, Copy, BookOpen } from 'lucide-react';
 import { sunnahDetailData, SunnahDetailItem } from '@/data/sunnahDetailData';
+import { useApp } from '@/contexts/AppContext';
 import { toast } from 'sonner';
 
 function DetailedView({ data }: { data: { label: string; accent: string; items: SunnahDetailItem[] } }) {
