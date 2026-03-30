@@ -168,7 +168,7 @@ export default function DualCalendar() {
               onClick={() => setSelectedDay(selectedDay?.gDay === day.gDay ? null : day)}
               className={`relative flex flex-col items-center justify-center py-1.5 rounded-lg transition-colors duration-200 cursor-pointer ${
                 day.isToday
-                  ? 'shadow-md'
+                  ? ''
                   : selectedDay?.gDay === day.gDay
                     ? 'bg-primary/10 ring-1 ring-primary/30'
                     : 'hover:bg-secondary'
