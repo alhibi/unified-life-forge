@@ -71,8 +71,8 @@ export default function GamesPage() {
       title: t('games.minesweeper'),
       desc: t('games.minesweeper.desc'),
       path: '/games/minesweeper',
-      iconBg: 'bg-red-500/12 dark:bg-red-400/15',
-      iconColor: 'text-red-600 dark:text-red-400',
+      iconBg: 'bg-primary/10',
+      iconColor: 'text-primary',
       stats: mineStats.gamesWon > 0 ? [
         { icon: Trophy, value: mineStats.gamesWon, label: t('stats.wins') },
         { icon: Gamepad2, value: mineStats.gamesPlayed, label: t('stats.played') },
