@@ -124,6 +124,7 @@ export default function Index() {
         <motion.div variants={item}><WeatherWidget /></motion.div>
         <motion.div variants={item}><PrayerTimes /></motion.div>
         <motion.div variants={item}><DualCalendar /></motion.div>
+        <motion.div variants={item}><IslamicSections /></motion.div>
         <motion.div variants={item}><ReligiousOccasions /></motion.div>
         <motion.div variants={item}><AudioPlayer /></motion.div>
         <motion.div variants={item}><LocationSaver /></motion.div>
