@@ -185,7 +185,7 @@ export default function SettingsPage() {
                     { icon: Moon, color: 'text-indigo-500', bg: 'bg-indigo-500/10', route: '/',
                       title: isAr ? 'مواقيت الصلاة' : 'Gebetszeiten',
                       desc: isAr ? 'أوقات الصلوات الخمس بدقة حسب موقعك الجغرافي مع اسم منطقتك، وعداد تنازلي للصلاة القادمة يتحدث تلقائياً، ودعم لاختيار المذهب الفقهي' : 'Präzise Gebetszeiten mit Standort, Countdown und Madhab-Auswahl' },
-                    { icon: BookOpenText, color: 'text-emerald-500', bg: 'bg-emerald-500/10', route: '/duas',
+                    { icon: BookOpenText, color: 'text-primary', bg: 'bg-primary/10', route: '/duas',
                       title: isAr ? 'الأدعية والأحاديث' : 'Duas & Hadithe',
                       desc: isAr ? 'مكتبة شاملة تضم أدعية الصباح والمساء والنوم والاستيقاظ والسفر وغيرها، مع أحاديث صحيحة من الكتب الثمانية والأربعين النووية كاملة بالتشكيل' : 'Umfassende Bibliothek mit Duas, Sahih-Hadithen und den 40 Nawawi-Hadithen' },
                     { icon: ScrollText, color: 'text-amber-600', bg: 'bg-amber-600/10', route: '/diwan',

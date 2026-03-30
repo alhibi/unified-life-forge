@@ -54,8 +54,8 @@ export default function FontSettingsPage() {
             <ChevronLeft className="w-5 h-5 text-foreground ltr:rotate-0 rtl:rotate-180" />
           </button>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-amber-500/12 dark:bg-amber-400/15 flex items-center justify-center">
-              <Type className="w-5 h-5 text-amber-600 dark:text-amber-400 stroke-[1.8]" />
+            <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center">
+              <Type className="w-5 h-5 text-primary stroke-[1.8]" />
             </div>
             <h1 className="text-[22px] font-bold tracking-tight text-foreground">
               {isAr ? 'الخط' : 'Schriftart'}
