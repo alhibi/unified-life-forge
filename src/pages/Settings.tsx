@@ -34,8 +34,8 @@ export default function SettingsPage() {
     ...(user ? [{
       key: 'account',
       icon: UserCircle,
-      iconColor: 'text-blue-600 dark:text-blue-400',
-      iconBg: 'bg-blue-500/12 dark:bg-blue-400/15',
+      iconColor: 'text-primary',
+      iconBg: 'bg-primary/10',
       title: username || (isAr ? 'حسابي' : 'Mein Konto'),
       subtitle: isAr ? 'مسجل الدخول' : 'Angemeldet',
       onClick: () => setShowLogoutConfirm(true),
