@@ -60,23 +60,6 @@ export default function TimedSunnah() {
     toast.success(dir === 'rtl' ? 'تم النسخ' : 'Copied');
   };
 
-  const shareText = async (title: string, description: string, source: string) => {
-    const text = `${title}\n\n${description}\n\n${source}`;
-    const shareData = encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify({ title, description, source })))));
-    const shareUrl = `${window.location.origin}/section/timed-sunnah?share=${shareData}`;
-    
-    if (navigator.share) {
-      try {
-        await navigator.share({ title, text, url: shareUrl });
-      } catch (err) {
-        navigator.clipboard.writeText(shareUrl);
-        toast.success(dir === 'rtl' ? 'تم نسخ الرابط' : 'Link copied');
-      }
-    } else {
-      navigator.clipboard.writeText(shareUrl);
-      toast.success(dir === 'rtl' ? 'تم نسخ الرابط' : 'Link copied');
-    }
-  };
 
   const saveItem = (title: string, description: string, source: string, catLabel: string) => {
     const id = `${title}-${Date.now()}`;
