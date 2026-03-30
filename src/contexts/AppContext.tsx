@@ -220,7 +220,7 @@ const translations: Record<string, Record<Language, string>> = {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 function applyAccentHue(_hue: number, _isDark: boolean, _palette: PaletteStyle) {
-  // Using defaults from index.css
+  // Legacy — now handled by themeEngine
 }
 
 export function AppProvider({ children }: { children: ReactNode }) {
