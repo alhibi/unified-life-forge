@@ -60,8 +60,8 @@ export default function SettingsPage() {
     {
       key: 'theme',
       icon: Palette,
-      iconColor: 'text-violet-600 dark:text-violet-400',
-      iconBg: 'bg-violet-500/12 dark:bg-violet-400/15',
+      iconColor: 'text-primary',
+      iconBg: 'bg-primary/10',
       title: t('settings.theme'),
       subtitle: theme === 'dark' ? t('settings.dark') : theme === 'system' ? (isAr ? 'النظام' : 'System') : t('settings.light'),
       onClick: () => navigate('/settings/theme'),
