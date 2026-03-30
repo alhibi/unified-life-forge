@@ -24,7 +24,7 @@ const item = {
 };
 
 export default function Index() {
-  const { t } = useApp();
+  const { t, language } = useApp();
   const { user } = useAuth();
   const now = new Date();
   const hour = now.getHours();
@@ -94,7 +94,7 @@ export default function Index() {
                 {greeting}
               </h1>
               <p className="text-[12px] text-muted-foreground mt-0.5">
-                {now.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}
+                {now.toLocaleDateString(language === 'ar' ? 'ar' : 'de', { weekday: 'long', month: 'long', day: 'numeric' })}
               </p>
             </div>
             <div className="flex items-center gap-2 mt-0.5">
@@ -133,7 +133,7 @@ export default function Index() {
         <motion.div variants={item} className="flex items-center justify-center gap-2 py-6 mt-4">
           <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border/50 to-transparent" />
           <span className="text-[11px] text-muted-foreground/60 font-medium tracking-wide">
-            صنع بواسطة <span className="text-primary/70 font-semibold">عامر</span> و <span className="text-primary/70 font-semibold">امولة</span> ✦
+            {t('footer.madeBy')} <span className="text-primary/70 font-semibold">عامر</span> {t('footer.and')} <span className="text-primary/70 font-semibold">امولة</span> ✦
           </span>
           <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border/50 to-transparent" />
         </motion.div>
