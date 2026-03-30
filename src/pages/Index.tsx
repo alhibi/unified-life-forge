@@ -10,6 +10,7 @@ import { motion } from 'framer-motion';
 import WeatherWidget from '@/components/WeatherWidget';
 import ReligiousOccasions from '@/components/ReligiousOccasions';
 import IslamicSections from '@/components/IslamicSections';
+import CurrentTimeSunnah from '@/components/CurrentTimeSunnah';
 const ChatDrawer = lazy(() => import('@/components/ChatDrawer'));
 import { useNavigate } from 'react-router-dom';
 import { Sunrise, Sun, Moon, MessageCircle, Newspaper, ClipboardList, X, Trash2, BookOpen } from 'lucide-react';
@@ -147,6 +148,7 @@ export default function Index() {
         <motion.div variants={item}><WeatherWidget /></motion.div>
         <motion.div variants={item}><PrayerTimes /></motion.div>
         <motion.div variants={item}><DualCalendar /></motion.div>
+        <motion.div variants={item}><CurrentTimeSunnah /></motion.div>
         <motion.div variants={item}><IslamicSections /></motion.div>
         <motion.div variants={item}><ReligiousOccasions /></motion.div>
         <motion.div variants={item}><AudioPlayer /></motion.div>
