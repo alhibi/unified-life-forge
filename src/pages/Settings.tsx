@@ -152,8 +152,8 @@ export default function SettingsPage() {
             className="flex items-center justify-between w-full p-4 active:scale-[0.99] transition-transform"
           >
             <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-2xl bg-sky-500/12 dark:bg-sky-400/15 flex items-center justify-center">
-                <Compass className="w-5 h-5 text-sky-600 dark:text-sky-400 stroke-[1.8]" />
+              <div className="w-11 h-11 rounded-2xl bg-primary/10 flex items-center justify-center">
+                <Compass className="w-5 h-5 text-primary stroke-[1.8]" />
               </div>
               <div className="text-start">
                 <h2 className="font-semibold text-[15px] text-foreground">{isAr ? 'دليل التطبيق' : 'App-Anleitung'}</h2>
