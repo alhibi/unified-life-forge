@@ -158,7 +158,7 @@ export default function CurrentTimeSunnah() {
             className="overflow-hidden"
           >
             <div className="px-4 pb-4 space-y-0">
-              {items.slice(0, 3).map((item, i) => (
+              {(isFriday ? items : items.slice(0, 3)).map((item, i) => (
                 <button
                   key={i}
                   onClick={() => navigate(`/section/timed-sunnah/${current.key}?index=${i}`)}
