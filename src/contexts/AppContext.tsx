@@ -21,6 +21,8 @@ interface AppContextType {
   setAccentHue: (hue: number) => void;
   paletteStyle: PaletteStyle;
   setPaletteStyle: (style: PaletteStyle) => void;
+  colorTheme: ColorTheme;
+  setColorTheme: (t: ColorTheme) => void;
   blackMode: boolean;
   setBlackMode: (v: boolean) => void;
   fontFamily: string;
