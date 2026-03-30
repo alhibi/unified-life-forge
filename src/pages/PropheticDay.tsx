@@ -103,7 +103,6 @@ export default function PropheticDay() {
   const navigate = useNavigate();
   const { language, dir } = useApp();
   const isAr = language === 'ar';
-  const BackArrow = dir === 'rtl' ? ChevronRight : ChevronLeft;
 
   return (
     <div className="min-h-screen bg-background pb-24" dir={dir}>
