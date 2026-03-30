@@ -171,6 +171,8 @@ export const untimedSunnahData: Record<string, UntimedSunnahCategory> = {
         source: '',
       },
     ],
+  },
+  mosque: {
     label: 'سنن الذهاب إلى المسجد',
     icon: 'star',
     accent: '#4CAF50',
