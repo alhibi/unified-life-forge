@@ -102,6 +102,8 @@ function DetailedView({ data }: { data: { label: string; accent: string; items: 
 
 function SimpleListView({ data }: { data: { label: string; accent: string; items: { title: string }[] } }) {
   const navigate = useNavigate();
+  const { dir } = useApp();
+  const BackIcon = dir === 'rtl' ? ChevronRight : ChevronLeft;
 
   const container = { hidden: {}, show: { transition: { staggerChildren: 0.04 } } };
   const itemAnim = { hidden: { opacity: 0, x: 20 }, show: { opacity: 1, x: 0, transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] as const } } };
@@ -111,7 +113,7 @@ function SimpleListView({ data }: { data: { label: string; accent: string; items
       <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border/30">
         <div className="flex items-center justify-between px-4 py-3">
           <button onClick={() => navigate(-1)} className="w-10 h-10 rounded-full bg-card/80 border border-border/40 flex items-center justify-center">
-            <ChevronRight className="w-5 h-5 text-foreground" />
+            <BackIcon className="w-5 h-5 text-foreground" />
           </button>
           <h1 className="text-lg font-bold text-foreground">{data.label}</h1>
           <div className="w-10" />
