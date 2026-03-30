@@ -4,8 +4,8 @@ import { motion } from 'framer-motion';
 import { Clock, Timer, CalendarDays, Sparkles, Trophy, Leaf, ChevronLeft } from 'lucide-react';
 
 const sections = [
-  { key: 'timed-sunnah', label: 'سنن مؤقتة', icon: Clock, color: 'text-emerald-500 dark:text-emerald-400', bg: 'bg-emerald-500/10 dark:bg-emerald-400/15' },
-  { key: 'untimed-sunnah', label: 'سنن غير مؤقتة', icon: Timer, color: 'text-emerald-500 dark:text-emerald-400', bg: 'bg-emerald-500/10 dark:bg-emerald-400/15' },
+  { key: 'timed-sunnah', label: 'سنن موقوتة', icon: Clock, color: 'text-emerald-500 dark:text-emerald-400', bg: 'bg-emerald-500/10 dark:bg-emerald-400/15' },
+  { key: 'untimed-sunnah', label: 'سنن غير موقوتة', icon: Timer, color: 'text-emerald-500 dark:text-emerald-400', bg: 'bg-emerald-500/10 dark:bg-emerald-400/15' },
   { key: 'prophetic-day', label: 'اليوم النبوي', icon: CalendarDays, color: 'text-emerald-500 dark:text-emerald-400', bg: 'bg-emerald-500/10 dark:bg-emerald-400/15' },
   { key: 'quran-virtues', label: 'فضائل القرآن', icon: Sparkles, color: 'text-emerald-500 dark:text-emerald-400', bg: 'bg-emerald-500/10 dark:bg-emerald-400/15' },
   { key: 'selections', label: 'قطوف', icon: Leaf, color: 'text-emerald-500 dark:text-emerald-400', bg: 'bg-emerald-500/10 dark:bg-emerald-400/15' },
