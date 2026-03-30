@@ -31,7 +31,6 @@ function saveItems(items: SavedItem[]) {
 export default function TimedSunnah() {
   const navigate = useNavigate();
   const { t, dir } = useApp();
-  const BackIcon = dir === 'rtl' ? ChevronRight : ChevronLeft;
   const [openCatId, setOpenCatId] = useState<string | null>(null);
   const [openItemKey, setOpenItemKey] = useState<string | null>(null);
   const [saved, setSaved] = useState<SavedItem[]>(getSavedItems);
