@@ -10,6 +10,7 @@ import { motion } from 'framer-motion';
 import WeatherWidget from '@/components/WeatherWidget';
 import ReligiousOccasions from '@/components/ReligiousOccasions';
 import IslamicSections from '@/components/IslamicSections';
+import CurrentTimeSunnah from '@/components/CurrentTimeSunnah';
 const ChatDrawer = lazy(() => import('@/components/ChatDrawer'));
 import { useNavigate } from 'react-router-dom';
 import { Sunrise, Sun, Moon, MessageCircle, Newspaper, ClipboardList, X, Trash2, BookOpen } from 'lucide-react';
