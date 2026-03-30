@@ -30,16 +30,16 @@ function ToggleSwitch({ value, onChange }: { value: boolean; onChange: () => voi
 }
 
 const colorThemes = [
-  { id: 'default' as const, name: 'كلاسيك', colors: ['hsl(240 5% 26%)', 'hsl(240 5% 93%)', 'hsl(240 5% 91%)'] },
-  { id: 'midnight' as const, name: 'منتصف الليل', colors: ['hsl(222 60% 50%)', 'hsl(222 15% 92%)', 'hsl(222 25% 12%)'] },
-  { id: 'rose' as const, name: 'روز جولد', colors: ['hsl(350 55% 55%)', 'hsl(350 15% 93%)', 'hsl(350 18% 8%)'] },
-  { id: 'emerald' as const, name: 'زمرد', colors: ['hsl(152 55% 40%)', 'hsl(152 12% 93%)', 'hsl(152 20% 7%)'] },
-  { id: 'lavender' as const, name: 'لافندر', colors: ['hsl(270 50% 55%)', 'hsl(270 14% 93%)', 'hsl(270 18% 8%)'] },
-  { id: 'sunset' as const, name: 'غروب', colors: ['hsl(25 80% 52%)', 'hsl(25 15% 93%)', 'hsl(25 20% 7%)'] },
-  { id: 'ocean' as const, name: 'محيط', colors: ['hsl(195 70% 42%)', 'hsl(195 14% 93%)', 'hsl(195 22% 7%)'] },
-  { id: 'neon' as const, name: 'نيون', colors: ['hsl(160 80% 38%)', 'hsl(160 10% 93%)', 'hsl(160 18% 6%)'] },
-  { id: 'coffee' as const, name: 'قهوة', colors: ['hsl(30 40% 38%)', 'hsl(30 12% 92%)', 'hsl(30 16% 7%)'] },
-  { id: 'mono' as const, name: 'مونوكروم', colors: ['hsl(0 0% 15%)', 'hsl(0 0% 93%)', 'hsl(0 0% 6%)'] },
+  { id: 'default' as const, name: 'كلاسيك', colors: ['hsl(240 5% 26%)', 'hsl(0 0% 100%)', 'hsl(240 5% 93%)', 'hsl(240 5% 91%)'] },
+  { id: 'midnight' as const, name: 'منتصف الليل', colors: ['hsl(222 60% 50%)', 'hsl(222 80% 65%)', 'hsl(222 15% 92%)', 'hsl(222 25% 12%)'] },
+  { id: 'rose' as const, name: 'روز جولد', colors: ['hsl(350 55% 55%)', 'hsl(350 70% 70%)', 'hsl(350 15% 93%)', 'hsl(350 18% 8%)'] },
+  { id: 'emerald' as const, name: 'زمرد', colors: ['hsl(152 55% 40%)', 'hsl(152 60% 55%)', 'hsl(152 12% 93%)', 'hsl(152 20% 7%)'] },
+  { id: 'lavender' as const, name: 'لافندر', colors: ['hsl(270 50% 55%)', 'hsl(270 60% 70%)', 'hsl(270 14% 93%)', 'hsl(270 18% 8%)'] },
+  { id: 'sunset' as const, name: 'غروب', colors: ['hsl(25 80% 52%)', 'hsl(35 90% 60%)', 'hsl(25 15% 93%)', 'hsl(25 20% 7%)'] },
+  { id: 'ocean' as const, name: 'محيط', colors: ['hsl(195 70% 42%)', 'hsl(195 80% 58%)', 'hsl(195 14% 93%)', 'hsl(195 22% 7%)'] },
+  { id: 'neon' as const, name: 'نيون', colors: ['hsl(160 80% 38%)', 'hsl(160 90% 50%)', 'hsl(160 10% 93%)', 'hsl(160 18% 6%)'] },
+  { id: 'coffee' as const, name: 'قهوة', colors: ['hsl(30 40% 38%)', 'hsl(30 50% 52%)', 'hsl(30 12% 92%)', 'hsl(30 16% 7%)'] },
+  { id: 'mono' as const, name: 'مونوكروم', colors: ['hsl(0 0% 15%)', 'hsl(0 0% 40%)', 'hsl(0 0% 93%)', 'hsl(0 0% 6%)'] },
 ];
 
 export default function ThemeSettingsPage() {
@@ -131,9 +131,10 @@ export default function ThemeSettingsPage() {
                   }`}>
                     {/* 3 color segments */}
                     <div className="absolute inset-0">
-                      <div className="absolute top-0 left-0 w-full h-1/3" style={{ backgroundColor: ct.colors[0] }} />
-                      <div className="absolute top-1/3 left-0 w-full h-1/3" style={{ backgroundColor: ct.colors[1] }} />
-                      <div className="absolute top-2/3 left-0 w-full h-1/3" style={{ backgroundColor: ct.colors[2] }} />
+                      <div className="absolute top-0 left-0 w-full h-1/4" style={{ backgroundColor: ct.colors[0] }} />
+                      <div className="absolute top-[25%] left-0 w-full h-1/4" style={{ backgroundColor: ct.colors[1] }} />
+                      <div className="absolute top-[50%] left-0 w-full h-1/4" style={{ backgroundColor: ct.colors[2] }} />
+                      <div className="absolute top-[75%] left-0 w-full h-1/4" style={{ backgroundColor: ct.colors[3] }} />
                     </div>
                     {isActive && (
                       <motion.div

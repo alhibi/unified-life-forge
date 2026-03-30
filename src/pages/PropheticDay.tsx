@@ -16,7 +16,7 @@ interface TimeSection {
 const sections: TimeSection[] = [
   {
     titleAr: 'قبل الفجر', titleDe: 'Vor dem Fajr', timeRange: '00:00 - 05:00',
-    icon: Moon, iconColor: 'text-indigo-400',
+    icon: Moon, iconColor: 'text-primary',
     items: [
       { ar: 'يتهجد ويصلي قيام الليل في المنزل أو في المسجد', de: 'Tahajjud und Nachtgebet zu Hause oder in der Moschee' },
       { ar: 'يأخذ قيلولة قصيرة بعد التهجد', de: 'Kurzes Nickerchen nach Tahajjud' },
@@ -24,7 +24,7 @@ const sections: TimeSection[] = [
   },
   {
     titleAr: 'الفجر', titleDe: 'Fajr', timeRange: '05:00 - 07:00',
-    icon: Sunrise, iconColor: 'text-amber-400',
+    icon: Sunrise, iconColor: 'text-primary',
     items: [
       { ar: 'يستيقظ، يتطهر فمه بالسواك', de: 'Aufwachen, Mund mit Siwak reinigen' },
       { ar: 'يحمد الله ويثني عليه', de: 'Allah loben und preisen' },
@@ -35,7 +35,7 @@ const sections: TimeSection[] = [
   },
   {
     titleAr: 'بعد شروق الشمس', titleDe: 'Nach Sonnenaufgang', timeRange: '07:00 - 09:00',
-    icon: Sun, iconColor: 'text-orange-400',
+    icon: Sun, iconColor: 'text-primary',
     items: [
       { ar: 'يصلي ركعتين', de: 'Zwei Rakat beten' },
       { ar: 'يذهب إلى المنزل ويحدث أهله', de: 'Nach Hause gehen und mit der Familie sprechen' },
@@ -44,7 +44,7 @@ const sections: TimeSection[] = [
   },
   {
     titleAr: 'بداية اليوم', titleDe: 'Tagesbeginn', timeRange: '09:00 - 12:00',
-    icon: BookOpen, iconColor: 'text-teal-400',
+    icon: BookOpen, iconColor: 'text-primary',
     items: [
       { ar: 'يعود إلى المسجد ويصلي ركعتين', de: 'Zurück zur Moschee und zwei Rakat beten' },
       { ar: 'يعلم أصحابه ويعظهم', de: 'Die Gefährten lehren und ermahnen' },
@@ -54,7 +54,7 @@ const sections: TimeSection[] = [
   },
   {
     titleAr: 'الظهر', titleDe: 'Dhuhr', timeRange: '12:00 - 15:00',
-    icon: SunDim, iconColor: 'text-yellow-500',
+    icon: SunDim, iconColor: 'text-primary',
     items: [
       { ar: 'يقوم المصلين بصلاة الظهر', de: 'Dhuhr-Gebet verrichten' },
       { ar: 'في بعض الأحيان يعظهم ويوجههم', de: 'Manchmal predigen und anleiten' },
@@ -63,7 +63,7 @@ const sections: TimeSection[] = [
   },
   {
     titleAr: 'العصر', titleDe: 'Asr', timeRange: '15:00 - 18:00',
-    icon: CloudSun, iconColor: 'text-orange-500',
+    icon: CloudSun, iconColor: 'text-primary',
     items: [
       { ar: 'يقوم المصلين بصلاة العصر', de: 'Asr-Gebet verrichten' },
       { ar: 'يعود إلى بيته ويمضي فترة مع أهله', de: 'Nach Hause zurückkehren und Zeit mit der Familie verbringen' },
@@ -72,7 +72,7 @@ const sections: TimeSection[] = [
   },
   {
     titleAr: 'المغرب', titleDe: 'Maghrib', timeRange: '18:00 - 20:00',
-    icon: Sunset, iconColor: 'text-rose-400',
+    icon: Sunset, iconColor: 'text-primary',
     items: [
       { ar: 'يقوم المصلين بصلاة المغرب', de: 'Maghrib-Gebet verrichten' },
       { ar: 'يصلي ركعتين بعد المغرب', de: 'Zwei Rakat nach Maghrib beten' },
@@ -82,7 +82,7 @@ const sections: TimeSection[] = [
   },
   {
     titleAr: 'العشاء', titleDe: 'Isha', timeRange: '20:00 - 23:00',
-    icon: MoonStar, iconColor: 'text-violet-400',
+    icon: MoonStar, iconColor: 'text-primary',
     items: [
       { ar: 'يقوم المصلين بصلاة العشاء', de: 'Isha-Gebet verrichten' },
       { ar: 'يذكر الله ويثني عليه', de: 'Allah gedenken und Ihn preisen' },
