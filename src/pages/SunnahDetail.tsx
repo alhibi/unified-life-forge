@@ -15,7 +15,6 @@ function DetailedView({ data }: { data: { label: string; accent: string; items: 
   const navigate = useNavigate();
   const { dir } = useApp();
   const BackIcon = dir === 'rtl' ? ChevronRight : ChevronLeft;
-  const ForwardIcon = dir === 'rtl' ? ChevronLeft : ChevronRight;
 
   const item = data.items[currentIndex];
   const total = data.items.length;
@@ -40,6 +39,9 @@ function DetailedView({ data }: { data: { label: string; accent: string; items: 
     exit: { opacity: 0 },
   };
 
+  const canGoBack = dir === 'rtl' ? currentIndex < total - 1 : currentIndex > 0;
+  const canGoForward = dir === 'rtl' ? currentIndex > 0 : currentIndex < total - 1;
+
   return (
     <div className="min-h-screen bg-background pb-24 flex flex-col">
       <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border/30">
@@ -54,14 +56,14 @@ function DetailedView({ data }: { data: { label: string; accent: string; items: 
           <div className="w-10" />
         </div>
         <div className="h-1 w-full bg-muted/30">
-          <div className="h-full transition-all duration-300" style={{ width: `${((currentIndex + 1) / total) * 100}%`, backgroundColor: data.accent }} />
+          <div className="h-full bg-primary transition-all duration-300" style={{ width: `${((currentIndex + 1) / total) * 100}%` }} />
         </div>
       </div>
 
       <div className="flex-1 flex items-start justify-center px-4 pt-4">
         <AnimatePresence mode="wait" custom={direction}>
           <motion.div key={currentIndex} variants={variants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.08 }} className="w-full max-w-lg rounded-2xl bg-card border border-border/40 overflow-hidden">
-            <div className="h-1.5" style={{ backgroundColor: data.accent }} />
+            <div className="h-1.5 bg-primary" />
             <div className="px-6 pt-6 pb-3">
               <h2 className="text-xl font-bold text-foreground text-center leading-relaxed" style={{ fontSize: fontSize + 2 }}>{item.title}</h2>
             </div>
@@ -70,28 +72,28 @@ function DetailedView({ data }: { data: { label: string; accent: string; items: 
               <button onClick={handleShare} className="w-10 h-10 rounded-lg bg-muted/40 flex items-center justify-center"><Share2 className="w-4 h-4 text-muted-foreground" /></button>
               <button className="w-10 h-10 rounded-lg bg-muted/40 flex items-center justify-center"><Heart className="w-4 h-4 text-muted-foreground" /></button>
             </div>
-            <div className="flex justify-center py-2"><div className="w-2 h-2 rounded-full" style={{ backgroundColor: data.accent }} /></div>
+            <div className="flex justify-center py-2"><div className="w-2 h-2 rounded-full bg-primary" /></div>
             <div className="mx-6 border-t border-border/30" />
             <div className="px-6 py-5">
               <p className="text-foreground text-center leading-[1.9]" style={{ fontSize }}>{item.description}</p>
             </div>
             <div className="mx-6 mb-4">
-              <div className="flex items-center justify-end gap-2 px-4 py-3 rounded-xl" style={{ backgroundColor: `${data.accent}15` }}>
-                <span className="text-sm font-semibold" style={{ color: data.accent }}>{item.source}</span>
-                <BookOpen className="w-4 h-4" style={{ color: data.accent }} />
+              <div className="flex items-center justify-end gap-2 px-4 py-3 rounded-xl bg-primary/10">
+                <span className="text-sm font-semibold text-primary">{item.source}</span>
+                <BookOpen className="w-4 h-4 text-primary" />
               </div>
             </div>
             <div className="mx-6 mb-5 border-t border-border/30 pt-4">
               <div className="flex items-center justify-between">
-                <button onClick={dir === 'rtl' ? goNext : goPrev} disabled={dir === 'rtl' ? currentIndex === total - 1 : currentIndex === 0} className="w-11 h-11 rounded-xl bg-muted/40 flex items-center justify-center disabled:opacity-20" style={(dir === 'rtl' ? currentIndex < total - 1 : currentIndex > 0) ? { backgroundColor: `${data.accent}25`, color: data.accent } : {}}>
-                  <ChevronLeft className="w-5 h-5" style={(dir === 'rtl' ? currentIndex < total - 1 : currentIndex > 0) ? { color: data.accent } : {}} />
+                <button onClick={dir === 'rtl' ? goNext : goPrev} disabled={!canGoBack} className={`w-11 h-11 rounded-xl flex items-center justify-center disabled:opacity-20 ${canGoBack ? 'bg-primary/15' : 'bg-muted/40'}`}>
+                  <ChevronLeft className={`w-5 h-5 ${canGoBack ? 'text-primary' : 'text-muted-foreground'}`} />
                 </button>
                 <div className="flex items-center gap-2">
                   <button onClick={() => setFontSize(s => Math.max(14, s - 2))} className="w-10 h-10 rounded-xl bg-muted/40 flex items-center justify-center text-muted-foreground font-bold text-sm">أ-</button>
                   <button onClick={() => setFontSize(s => Math.min(28, s + 2))} className="w-10 h-10 rounded-xl bg-muted/40 flex items-center justify-center text-muted-foreground font-bold text-sm">+أ</button>
                 </div>
-                <button onClick={dir === 'rtl' ? goPrev : goNext} disabled={dir === 'rtl' ? currentIndex === 0 : currentIndex === total - 1} className="w-11 h-11 rounded-xl bg-muted/40 flex items-center justify-center disabled:opacity-20" style={(dir === 'rtl' ? currentIndex > 0 : currentIndex < total - 1) ? { backgroundColor: `${data.accent}25`, color: data.accent } : {}}>
-                  <ChevronRight className="w-5 h-5" style={(dir === 'rtl' ? currentIndex > 0 : currentIndex < total - 1) ? { color: data.accent } : {}} />
+                <button onClick={dir === 'rtl' ? goPrev : goNext} disabled={!canGoForward} className={`w-11 h-11 rounded-xl flex items-center justify-center disabled:opacity-20 ${canGoForward ? 'bg-primary/15' : 'bg-muted/40'}`}>
+                  <ChevronRight className={`w-5 h-5 ${canGoForward ? 'text-primary' : 'text-muted-foreground'}`} />
                 </button>
               </div>
             </div>
@@ -126,8 +128,8 @@ function SimpleListView({ data }: { data: { label: string; accent: string; items
           <h2 className="text-base font-bold text-foreground">السنن</h2>
           <p className="text-sm text-muted-foreground">{data.items.length} سنة</p>
         </div>
-        <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ backgroundColor: `${data.accent}18` }}>
-          <BookOpen className="w-6 h-6" style={{ color: data.accent }} />
+        <div className="w-12 h-12 rounded-full flex items-center justify-center bg-primary/10">
+          <BookOpen className="w-6 h-6 text-primary" />
         </div>
       </div>
       <motion.div variants={container} initial="hidden" animate="show" className="flex flex-col gap-2.5 px-4">
@@ -138,8 +140,8 @@ function SimpleListView({ data }: { data: { label: string; accent: string; items
               <Heart className="w-4 h-4 text-muted-foreground/40" />
             </div>
             <p className="flex-1 text-sm font-medium text-foreground text-right leading-relaxed">{sunnah.title}</p>
-            <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: `${data.accent}20` }}>
-              <span className="text-xs font-bold" style={{ color: data.accent }}>{index + 1}</span>
+            <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 bg-primary/15">
+              <span className="text-xs font-bold text-primary">{index + 1}</span>
             </div>
           </motion.div>
         ))}
