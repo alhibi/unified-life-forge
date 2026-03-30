@@ -74,6 +74,7 @@ export default function QuranVirtues() {
               </motion.button>
             ))}
           </div>
+        </div>
 
         {/* Divider with dot */}
         <div className="flex items-center gap-0 py-1">
