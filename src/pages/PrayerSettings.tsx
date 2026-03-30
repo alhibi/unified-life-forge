@@ -1,9 +1,10 @@
 import React from 'react';
 import { useApp } from '@/contexts/AppContext';
-import { ChevronLeft, BookOpen, RotateCcw } from 'lucide-react';
+import { BookOpen, RotateCcw } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Switch } from '@/components/ui/switch';
+import BackButton from '@/components/BackButton';
 
 const stagger = {
   hidden: {},
