@@ -166,9 +166,9 @@ export default function UntimedSunnah() {
                                       </p>
 
                                       {item.source && (
-                                        <div className="flex items-center gap-1.5 mb-3">
-                                          <BookOpen className="w-3.5 h-3.5 shrink-0" style={{ color: cat.accent }} />
-                                          <span className="text-xs font-medium" style={{ color: cat.accent }}>
+                                         <div className="flex items-center gap-1.5 mb-3">
+                                          <BookOpen className="w-3.5 h-3.5 shrink-0 text-primary" />
+                                          <span className="text-xs font-medium text-primary">
                                             {item.source}
                                           </span>
                                         </div>
