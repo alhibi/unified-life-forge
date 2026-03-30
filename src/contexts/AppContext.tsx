@@ -357,6 +357,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       accentHue: parseInt(localStorage.getItem('app-accent-hue') || '152', 10),
       paletteStyle: localStorage.getItem('app-palette-style'),
       blackMode: localStorage.getItem('app-black-mode') === 'true',
+      colorTheme: localStorage.getItem('app-color-theme') || 'default',
       fontFamily: localStorage.getItem('app-font-family') || 'default',
       fontSize: localStorage.getItem('app-font-size') || 'medium',
       fontWeight: parseInt(localStorage.getItem('app-font-weight') || '400', 10),
