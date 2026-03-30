@@ -40,7 +40,7 @@ export default function IslamicSections() {
         variants={container}
         initial="hidden"
         animate="show"
-        className="grid grid-cols-2 gap-2.5"
+        className="grid grid-cols-2 gap-2 px-2"
       >
         {sections.map((section) => (
           <motion.button
@@ -48,7 +48,7 @@ export default function IslamicSections() {
             variants={item}
             whileTap={{ scale: 0.97 }}
             onClick={() => navigate(`/section/${section.key}`)}
-            className="flex items-center justify-between gap-2 px-3 py-4 rounded-2xl bg-card/80 border border-border/40 backdrop-blur-sm transition-colors hover:bg-accent/40 group"
+            className="flex items-center justify-between gap-1.5 px-2.5 py-4 rounded-2xl bg-card/80 border border-border/40 backdrop-blur-sm transition-colors hover:bg-accent/40 group"
             dir="rtl"
           >
             <div className="flex items-center gap-2.5">
