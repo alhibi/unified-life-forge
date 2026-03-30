@@ -1,8 +1,9 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
-import { Grid3X3, Swords, Gamepad2, Trophy, Star, Brain, Bomb, Palette, PipetteIcon } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Grid3X3, Swords, Gamepad2, Trophy, Star, Brain, Bomb, Palette, PipetteIcon, Dices, Target, Puzzle, Layers, Hexagon, Crosshair } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'sonner';
 
 export default function GamesPage() {
   const { t, dir, language } = useApp();
@@ -178,26 +179,36 @@ export default function GamesPage() {
         </div>
       </motion.div>
 
-      {/* Quick access grid below */}
+      {/* Upcoming games grid */}
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.35, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-        className="grid grid-cols-3 gap-3 px-5 mt-8"
+        className="px-5 mt-8"
       >
-        {games.map((game) => {
-          const Icon = game.icon;
-          return (
-            <button
-              key={game.key}
-              onClick={() => navigate(game.path)}
-              className="flex flex-col items-center gap-2 py-4 px-2 rounded-2xl bg-card/60 border border-border/30 active:scale-95 transition-transform"
-            >
-              <Icon className="w-5 h-5 text-primary stroke-[1.8]" />
-              <span className="text-[11px] font-medium text-foreground truncate w-full text-center">{game.title}</span>
-            </button>
-          );
-        })}
+        <h2 className="text-[14px] font-semibold text-muted-foreground mb-3">{language === 'ar' ? 'المزيد' : 'More'}</h2>
+        <div className="grid grid-cols-3 gap-3">
+          {[
+            { key: 'dice', icon: Dices, title: language === 'ar' ? 'النرد' : 'Dice' },
+            { key: 'target', icon: Target, title: language === 'ar' ? 'التصويب' : 'Target' },
+            { key: 'puzzle', icon: Puzzle, title: language === 'ar' ? 'الأحجية' : 'Puzzle' },
+            { key: 'stack', icon: Layers, title: language === 'ar' ? 'التكديس' : 'Stack' },
+            { key: 'hex', icon: Hexagon, title: language === 'ar' ? 'السداسي' : 'Hex' },
+            { key: 'aim', icon: Crosshair, title: language === 'ar' ? 'التركيز' : 'Focus' },
+          ].map((g) => {
+            const Icon = g.icon;
+            return (
+              <button
+                key={g.key}
+                onClick={() => toast(language === 'ar' ? 'قريباً' : 'Coming soon', { duration: 1200 })}
+                className="flex flex-col items-center gap-2 py-4 px-2 rounded-2xl bg-card/60 border border-border/30 active:scale-95 transition-transform relative"
+              >
+                <Icon className="w-5 h-5 text-muted-foreground/60 stroke-[1.8]" />
+                <span className="text-[11px] font-medium text-muted-foreground truncate w-full text-center">{g.title}</span>
+              </button>
+            );
+          })}
+        </div>
       </motion.div>
     </div>
   );
