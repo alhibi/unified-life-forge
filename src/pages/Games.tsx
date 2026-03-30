@@ -32,8 +32,8 @@ export default function GamesPage() {
       title: t('games.sudoku'),
       desc: t('games.sudoku.desc'),
       path: '/games/sudoku',
-      iconBg: 'bg-blue-500/12 dark:bg-blue-400/15',
-      iconColor: 'text-blue-600 dark:text-blue-400',
+      iconBg: 'bg-primary/10',
+      iconColor: 'text-primary',
       stats: sudokuStats.gamesWon > 0 ? [
         { icon: Trophy, value: sudokuStats.gamesWon, label: t('stats.wins') },
         { icon: Star, value: sudokuStats.bestStreak, label: t('stats.streak') },
