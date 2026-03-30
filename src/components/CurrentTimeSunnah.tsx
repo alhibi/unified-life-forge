@@ -132,8 +132,12 @@ export default function CurrentTimeSunnah() {
             <Leaf className="w-5 h-5 text-primary" />
           </div>
           <div className="text-start">
-            <h3 className="text-[14px] font-bold text-foreground leading-tight">سنن الوقت الحالي</h3>
-            <p className="text-[11px] text-muted-foreground mt-0.5">وقت {current.label}</p>
+            <h3 className="text-[14px] font-bold text-foreground leading-tight">
+              {isFriday ? 'سنن يوم الجمعة' : 'سنن الوقت الحالي'}
+            </h3>
+            <p className="text-[11px] text-muted-foreground mt-0.5">
+              {isFriday ? 'جمعة مباركة' : `وقت ${current.label}`}
+            </p>
           </div>
         </div>
         <motion.div
