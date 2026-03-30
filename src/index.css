@@ -127,28 +127,23 @@
   .premium-card {
     background: hsl(var(--card));
     border: 1px solid hsl(var(--border));
-    box-shadow: var(--shadow-card);
     border-radius: var(--radius);
   }
   .premium-card-elevated {
     background: hsl(var(--card));
     border: 1px solid hsl(var(--border));
-    box-shadow: var(--shadow-elevated);
     border-radius: var(--radius);
   }
   .premium-card-intense {
     background: hsl(var(--card));
     border: 1px solid hsl(var(--border));
-    box-shadow: var(--shadow-intense);
     border-radius: calc(var(--radius) + 4px);
   }
   .btn-primary {
     @apply bg-primary text-primary-foreground font-medium transition-all duration-200;
-    box-shadow: var(--shadow-sm);
   }
   .btn-primary:hover {
     filter: brightness(1.08);
-    box-shadow: var(--shadow-card);
   }
   .btn-primary:active {
     transform: scale(0.98);
