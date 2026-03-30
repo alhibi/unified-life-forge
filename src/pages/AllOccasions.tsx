@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronRight, ChevronLeft, CalendarDays, Clock } from 'lucide-react';
+import { CalendarDays, Clock } from 'lucide-react';
+import BackButton from '@/components/BackButton';
 import { useApp } from '@/contexts/AppContext';
 import { getUpcomingOccasions, getPastOccasions, getDaysUntil, formatGregorianDate } from '@/data/islamicOccasions';
 import type { IslamicOccasion } from '@/data/islamicOccasions';
