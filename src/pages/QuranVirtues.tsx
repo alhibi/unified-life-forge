@@ -36,9 +36,15 @@ const itemAnim = {
 };
 
 export default function QuranVirtues() {
+  const [tappedSurah, setTappedSurah] = useState<number | null>(null);
   const navigate = useNavigate();
   const { dir } = useApp();
   const BackIcon = dir === 'rtl' ? ChevronRight : ChevronLeft;
+
+  const handleSurahTap = (i: number) => {
+    setTappedSurah(i);
+    setTimeout(() => setTappedSurah(null), 1500);
+  };
 
   return (
     <div className="min-h-screen bg-background pb-24" dir="rtl">
