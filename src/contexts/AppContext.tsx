@@ -274,6 +274,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setBlackModeState(false); localStorage.setItem('app-black-mode', 'false');
     setFontFamilyState('default'); localStorage.setItem('app-font-family', 'default');
     setFontSizeState('medium'); localStorage.setItem('app-font-size', 'medium');
+    setFontWeightState(400); localStorage.setItem('app-font-weight', '400');
+    setFontOpacityState(1); localStorage.setItem('app-font-opacity', '1');
     setPrayerMadhabState('shafii'); localStorage.setItem('app-prayer-madhab', 'shafii');
     setMidnightModeState(0); localStorage.setItem('app-midnight-mode', '0');
     setLatitudeAdjMethodState('angle'); localStorage.setItem('app-lat-adj-method', 'angle');
