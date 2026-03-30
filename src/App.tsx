@@ -27,6 +27,7 @@ import ReadingPage from "./pages/Reading";
 import TimedSunnahPage from "./pages/TimedSunnah";
 import SunnahDetailPage from "./pages/SunnahDetail";
 import PropheticDayPage from "./pages/PropheticDay";
+import UntimedSunnahPage from "./pages/UntimedSunnah";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -55,6 +56,7 @@ function AnimatedRoutes() {
         <Route path="/settings/prayer" element={<PageTransition><PrayerSettingsPage /></PageTransition>} />
         <Route path="/section/timed-sunnah" element={<PageTransition><TimedSunnahPage /></PageTransition>} />
         <Route path="/section/timed-sunnah/:categoryId" element={<PageTransition><SunnahDetailPage /></PageTransition>} />
+        <Route path="/section/untimed-sunnah" element={<PageTransition><UntimedSunnahPage /></PageTransition>} />
         <Route path="/section/prophetic-day" element={<PageTransition><PropheticDayPage /></PageTransition>} />
         <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
       </Routes>
