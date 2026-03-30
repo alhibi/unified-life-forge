@@ -406,6 +406,7 @@ export const untimedSunnahData: Record<string, UntimedSunnahCategory> = {
         source: 'رواه أبو داود والترمذي',
       },
     ],
+  },
   dua: {
     label: 'سنن الدعاء',
     icon: 'star',
