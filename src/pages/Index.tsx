@@ -24,7 +24,7 @@ const item = {
 };
 
 export default function Index() {
-  const { t } = useApp();
+  const { t, language } = useApp();
   const { user } = useAuth();
   const now = new Date();
   const hour = now.getHours();
