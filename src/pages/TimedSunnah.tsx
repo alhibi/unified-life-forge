@@ -38,14 +38,14 @@ export default function TimedSunnah() {
   useEffect(() => { saveItems(saved); }, [saved]);
 
   const categories = [
-    { id: 'fajr', labelKey: 'timed.fajr', icon: CloudSun, accent: '#D4A843' },
-    { id: 'before-fajr', labelKey: 'timed.beforeFajr', icon: Moon, accent: '#D4A843' },
-    { id: 'dhuhr', labelKey: 'timed.dhuhr', icon: Sun, accent: '#4CAF50' },
-    { id: 'duha', labelKey: 'timed.duha', icon: Sun, accent: '#D4A843' },
-    { id: 'maghrib', labelKey: 'timed.maghrib', icon: Cloud, accent: '#4CAF50' },
-    { id: 'asr', labelKey: 'timed.asr', icon: CloudSun, accent: '#4CAF50' },
-    { id: 'isha', labelKey: 'timed.isha', icon: Moon, accent: '#D4A843' },
-    { id: 'friday', labelKey: 'timed.friday', icon: Calendar, accent: '#D4A843' },
+    { id: 'fajr', labelKey: 'timed.fajr', icon: CloudSun },
+    { id: 'before-fajr', labelKey: 'timed.beforeFajr', icon: Moon },
+    { id: 'dhuhr', labelKey: 'timed.dhuhr', icon: Sun },
+    { id: 'duha', labelKey: 'timed.duha', icon: Sun },
+    { id: 'maghrib', labelKey: 'timed.maghrib', icon: Cloud },
+    { id: 'asr', labelKey: 'timed.asr', icon: CloudSun },
+    { id: 'isha', labelKey: 'timed.isha', icon: Moon },
+    { id: 'friday', labelKey: 'timed.friday', icon: Calendar },
   ];
 
   const toggleCat = (id: string) => {
