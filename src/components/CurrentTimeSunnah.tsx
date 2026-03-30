@@ -6,31 +6,102 @@ import { ChevronDown, Leaf } from 'lucide-react';
 import { sunnahDetailData } from '@/data/sunnahDetailData';
 import type { SunnahDetailItem } from '@/data/sunnahDetailData';
 
-function getCurrentPrayerKey(): { key: string; label: string } {
-  const now = new Date();
-  const h = now.getHours();
-  const m = h * 60 + now.getMinutes();
+interface PrayerTimings {
+  Fajr: string;
+  Sunrise: string;
+  Dhuhr: string;
+  Asr: string;
+  Maghrib: string;
+  Isha: string;
+}
 
-  // Approximate prayer time windows
-  if (m >= 0 && m < 270) return { key: 'before-fajr', label: 'قبل الفجر' };       // 00:00 - 04:30
-  if (m >= 270 && m < 360) return { key: 'fajr', label: 'الفجر' };                 // 04:30 - 06:00
-  if (m >= 360 && m < 720) return { key: 'duha', label: 'الضحى' };                 // 06:00 - 12:00
-  if (m >= 720 && m < 900) return { key: 'dhuhr', label: 'الظهر' };                // 12:00 - 15:00
-  if (m >= 900 && m < 1050) return { key: 'asr', label: 'العصر' };                 // 15:00 - 17:30
-  if (m >= 1050 && m < 1140) return { key: 'maghrib', label: 'المغرب' };           // 17:30 - 19:00
-  return { key: 'isha', label: 'العشاء' };                                          // 19:00 - 00:00
+function toMinutes(time: string): number {
+  const clean = time.replace(/\s*\(.*\)/, '');
+  const [h, m] = clean.split(':').map(Number);
+  return h * 60 + m;
+}
+
+function getCurrentPrayerKey(timings: PrayerTimings | null): { key: string; label: string } {
+  if (!timings) {
+    // Fallback approximate
+    const h = new Date().getHours();
+    const m = h * 60 + new Date().getMinutes();
+    if (m < 270) return { key: 'before-fajr', label: 'قبل الفجر' };
+    if (m < 360) return { key: 'fajr', label: 'الفجر' };
+    if (m < 720) return { key: 'duha', label: 'الضحى' };
+    if (m < 900) return { key: 'dhuhr', label: 'الظهر' };
+    if (m < 1050) return { key: 'asr', label: 'العصر' };
+    if (m < 1140) return { key: 'maghrib', label: 'المغرب' };
+    return { key: 'isha', label: 'العشاء' };
+  }
+
+  const now = new Date();
+  const nowMin = now.getHours() * 60 + now.getMinutes();
+
+  const fajr = toMinutes(timings.Fajr);
+  const sunrise = toMinutes(timings.Sunrise);
+  const dhuhr = toMinutes(timings.Dhuhr);
+  const asr = toMinutes(timings.Asr);
+  const maghrib = toMinutes(timings.Maghrib);
+  const isha = toMinutes(timings.Isha);
+
+  if (nowMin < fajr) return { key: 'before-fajr', label: 'قبل الفجر' };
+  if (nowMin < sunrise) return { key: 'fajr', label: 'الفجر' };
+  if (nowMin < dhuhr) return { key: 'duha', label: 'الضحى' };
+  if (nowMin < asr) return { key: 'dhuhr', label: 'الظهر' };
+  if (nowMin < maghrib) return { key: 'asr', label: 'العصر' };
+  if (nowMin < isha) return { key: 'maghrib', label: 'المغرب' };
+  return { key: 'isha', label: 'العشاء' };
 }
 
 export default function CurrentTimeSunnah() {
   const navigate = useNavigate();
-  const { dir } = useApp();
+  const { dir, prayerMadhab, latitudeAdjMethod } = useApp();
   const [open, setOpen] = useState(false);
-  const [current, setCurrent] = useState(getCurrentPrayerKey);
+  const [timings, setTimings] = useState<PrayerTimings | null>(null);
+  const [current, setCurrent] = useState(() => getCurrentPrayerKey(null));
 
   useEffect(() => {
-    const interval = setInterval(() => setCurrent(getCurrentPrayerKey()), 60000);
+    const fetchTimings = async (lat: number, lng: number) => {
+      try {
+        const schoolParam = prayerMadhab === 'hanafi' ? 1 : 0;
+        const latAdjMap: Record<string, number> = { middle: 1, seventh: 2, angle: 3 };
+        const latAdjParam = latAdjMap[latitudeAdjMethod] || 3;
+        const today = new Date();
+        const dd = today.getDate();
+        const mm = today.getMonth() + 1;
+        const yyyy = today.getFullYear();
+        const res = await fetch(
+          `https://api.aladhan.com/v1/timings/${dd}-${mm}-${yyyy}?latitude=${lat}&longitude=${lng}&method=4&school=${schoolParam}&latitudeAdjustmentMethod=${latAdjParam}`
+        );
+        const data = await res.json();
+        if (data.code === 200) {
+          const t = data.data.timings;
+          setTimings({ Fajr: t.Fajr, Sunrise: t.Sunrise, Dhuhr: t.Dhuhr, Asr: t.Asr, Maghrib: t.Maghrib, Isha: t.Isha });
+        }
+      } catch {}
+    };
+
+    const cached = localStorage.getItem('lastLocation');
+    if (cached) {
+      const { lat, lng } = JSON.parse(cached);
+      fetchTimings(lat, lng);
+    } else if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => fetchTimings(pos.coords.latitude, pos.coords.longitude),
+        () => fetchTimings(21.4225, 39.8262),
+        { timeout: 5000, maximumAge: 300000 }
+      );
+    } else {
+      fetchTimings(21.4225, 39.8262);
+    }
+  }, [prayerMadhab, latitudeAdjMethod]);
+
+  useEffect(() => {
+    setCurrent(getCurrentPrayerKey(timings));
+    const interval = setInterval(() => setCurrent(getCurrentPrayerKey(timings)), 60000);
     return () => clearInterval(interval);
-  }, []);
+  }, [timings]);
 
   const category = sunnahDetailData[current.key];
   if (!category) return null;
