@@ -105,11 +105,8 @@ export default function TimedSunnah() {
                 onClick={() => toggleCat(cat.id)}
                 className="w-full flex items-center gap-3 px-4 py-3.5 transition-colors hover:bg-accent/20"
               >
-                <div
-                  className="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
-                  style={{ backgroundColor: `${cat.accent}18` }}
-                >
-                  <cat.icon className="w-5 h-5" style={{ color: cat.accent }} />
+                <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 bg-primary/10">
+                  <cat.icon className="w-5 h-5 text-primary" />
                 </div>
                 <div className="flex-1 text-start">
                   <span className="text-sm font-bold text-foreground">{catLabel}</span>
