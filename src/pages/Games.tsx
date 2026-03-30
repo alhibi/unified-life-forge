@@ -197,14 +197,20 @@ export default function GamesPage() {
             { key: 'aim', icon: Crosshair, title: language === 'ar' ? 'التركيز' : 'Focus' },
           ].map((g) => {
             const Icon = g.icon;
+            const [showSoon, setShowSoon] = React.useState(false);
             return (
               <button
                 key={g.key}
-                onClick={() => toast(language === 'ar' ? 'قريباً' : 'Coming soon', { duration: 1200 })}
+                onClick={() => {
+                  setShowSoon(true);
+                  setTimeout(() => setShowSoon(false), 1200);
+                }}
                 className="flex flex-col items-center gap-2 py-4 px-2 rounded-2xl bg-card/60 border border-border/30 active:scale-95 transition-transform relative"
               >
                 <Icon className="w-5 h-5 text-muted-foreground/60 stroke-[1.8]" />
-                <span className="text-[11px] font-medium text-muted-foreground truncate w-full text-center">{g.title}</span>
+                <span className="text-[11px] font-medium text-muted-foreground truncate w-full text-center transition-all duration-300">
+                  {showSoon ? (language === 'ar' ? 'قريباً' : 'Soon') : g.title}
+                </span>
               </button>
             );
           })}
