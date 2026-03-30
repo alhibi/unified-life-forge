@@ -114,9 +114,7 @@ function SimpleListView({ data }: { data: { label: string; accent: string; items
     <div className="min-h-screen bg-background pb-24">
       <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border/30">
         <div className="flex items-center justify-between px-4 py-3">
-          <button onClick={() => navigate(-1)} className="w-10 h-10 rounded-full bg-card/80 border border-border/40 flex items-center justify-center">
-            <BackIcon className="w-5 h-5 text-foreground" />
-          </button>
+          <BackButton />
           <h1 className="text-lg font-bold text-foreground">{data.label}</h1>
           <div className="w-10" />
         </div>
