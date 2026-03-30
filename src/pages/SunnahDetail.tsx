@@ -35,7 +35,7 @@ function DetailedView({ data }: { data: { label: string; accent: string; items: 
   };
 
   return (
-    <div className="min-h-screen bg-background pb-24 flex flex-col" dir="rtl">
+    <div className="min-h-screen bg-background pb-24 flex flex-col">
       <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border/30">
         <div className="flex items-center justify-between px-4 py-3">
           <div className="w-10" />
@@ -103,7 +103,7 @@ function SimpleListView({ data }: { data: { label: string; accent: string; items
   const itemAnim = { hidden: { opacity: 0, x: 20 }, show: { opacity: 1, x: 0, transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] as const } } };
 
   return (
-    <div className="min-h-screen bg-background pb-24" dir="rtl">
+    <div className="min-h-screen bg-background pb-24">
       <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border/30">
         <div className="flex items-center justify-between px-4 py-3">
           <button onClick={() => navigate(-1)} className="w-10 h-10 rounded-full bg-card/80 border border-border/40 flex items-center justify-center">

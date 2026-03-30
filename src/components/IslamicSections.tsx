@@ -49,7 +49,6 @@ export default function IslamicSections() {
             whileTap={{ scale: 0.97 }}
             onClick={() => navigate(section.key === 'timed-sunnah' ? '/section/timed-sunnah' : `/section/${section.key}`)}
             className="flex items-center justify-between gap-1.5 px-2.5 py-4 rounded-2xl bg-card/80 border border-border/40 backdrop-blur-sm transition-colors hover:bg-accent/40 group"
-            dir="rtl"
           >
             <div className="flex items-center gap-2.5">
               <div className={`w-9 h-9 rounded-full ${section.bg} flex items-center justify-center`}>
