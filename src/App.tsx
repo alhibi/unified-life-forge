@@ -51,6 +51,7 @@ function AnimatedRoutes() {
         <Route path="/auth" element={<PageTransition><AuthPage /></PageTransition>} />
         <Route path="/settings/font" element={<PageTransition><FontSettingsPage /></PageTransition>} />
         <Route path="/settings/prayer" element={<PageTransition><PrayerSettingsPage /></PageTransition>} />
+        <Route path="/section/timed-sunnah" element={<PageTransition><TimedSunnahPage /></PageTransition>} />
         <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
       </Routes>
     </AnimatePresence>
