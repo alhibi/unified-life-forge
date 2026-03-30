@@ -5,12 +5,12 @@ import { motion } from 'framer-motion';
 import { Clock, Timer, CalendarDays, Sparkles, Trophy, Leaf, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const sections = [
-  { key: 'timed-sunnah', labelKey: 'sections.timedSunnah', icon: Clock, color: 'text-emerald-500 dark:text-emerald-400', bg: 'bg-emerald-500/10 dark:bg-emerald-400/15' },
-  { key: 'untimed-sunnah', labelKey: 'sections.untimedSunnah', icon: Timer, color: 'text-emerald-500 dark:text-emerald-400', bg: 'bg-emerald-500/10 dark:bg-emerald-400/15' },
-  { key: 'prophetic-day', labelKey: 'sections.propheticDay', icon: CalendarDays, color: 'text-emerald-500 dark:text-emerald-400', bg: 'bg-emerald-500/10 dark:bg-emerald-400/15' },
-  { key: 'quran-virtues', labelKey: 'sections.quranVirtues', icon: Sparkles, color: 'text-emerald-500 dark:text-emerald-400', bg: 'bg-emerald-500/10 dark:bg-emerald-400/15' },
-  { key: 'selections', labelKey: 'sections.selections', icon: Leaf, color: 'text-emerald-500 dark:text-emerald-400', bg: 'bg-emerald-500/10 dark:bg-emerald-400/15' },
-  { key: 'prophetic-badges', labelKey: 'sections.propheticBadges', icon: Trophy, color: 'text-emerald-500 dark:text-emerald-400', bg: 'bg-emerald-500/10 dark:bg-emerald-400/15' },
+  { key: 'timed-sunnah', labelKey: 'sections.timedSunnah', icon: Clock, color: 'text-primary', bg: 'bg-primary/10' },
+  { key: 'untimed-sunnah', labelKey: 'sections.untimedSunnah', icon: Timer, color: 'text-primary', bg: 'bg-primary/10' },
+  { key: 'prophetic-day', labelKey: 'sections.propheticDay', icon: CalendarDays, color: 'text-primary', bg: 'bg-primary/10' },
+  { key: 'quran-virtues', labelKey: 'sections.quranVirtues', icon: Sparkles, color: 'text-primary', bg: 'bg-primary/10' },
+  { key: 'selections', labelKey: 'sections.selections', icon: Leaf, color: 'text-primary', bg: 'bg-primary/10' },
+  { key: 'prophetic-badges', labelKey: 'sections.propheticBadges', icon: Trophy, color: 'text-primary', bg: 'bg-primary/10' },
 ];
 
 const container = {

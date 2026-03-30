@@ -106,7 +106,7 @@ export default function QuranVirtues() {
         <div className="space-y-4">
           {/* Title - icon right, text left */}
           <div className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-amber-500" />
+            <Sparkles className="w-5 h-5 text-primary" />
             <h2 className="text-base font-bold text-foreground">فضائل القرآن</h2>
           </div>
 
