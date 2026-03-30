@@ -105,7 +105,7 @@ function DetailedView({ data }: { data: { label: string; accent: string; items: 
 function SimpleListView({ data }: { data: { label: string; accent: string; items: { title: string }[] } }) {
   const navigate = useNavigate();
   const { dir } = useApp();
-  const BackIcon = dir === 'rtl' ? ChevronRight : ChevronLeft;
+  
 
   const container = { hidden: {}, show: { transition: { staggerChildren: 0.04 } } };
   const itemAnim = { hidden: { opacity: 0, x: 20 }, show: { opacity: 1, x: 0, transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] as const } } };
