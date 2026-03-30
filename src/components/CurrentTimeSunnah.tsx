@@ -68,7 +68,7 @@ export default function CurrentTimeSunnah() {
             className="overflow-hidden"
           >
             <div className="px-4 pb-4 space-y-0">
-              {items.map((item, i) => (
+              {items.slice(0, 3).map((item, i) => (
                 <div key={i} className="flex items-start gap-3 py-2.5">
                   <div className={`mt-1.5 w-2.5 h-2.5 rounded-full shrink-0 ${i % 2 === 0 ? 'bg-primary' : 'bg-amber-500/80'}`} />
                   <p className="text-[13px] text-foreground leading-relaxed font-medium">{item.title}</p>
