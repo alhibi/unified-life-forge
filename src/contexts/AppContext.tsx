@@ -409,6 +409,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setTimeout(saveToDb, 50);
   };
 
+  const setFontWeight = (w: number) => {
+    setFontWeightState(w);
+    localStorage.setItem('app-font-weight', String(w));
+    setTimeout(saveToDb, 50);
+  };
+
+  const setFontOpacity = (o: number) => {
+    setFontOpacityState(o);
+    localStorage.setItem('app-font-opacity', String(o));
+    setTimeout(saveToDb, 50);
+  };
+
   const setPrayerMadhab = (m: PrayerMadhab) => {
     setPrayerMadhabState(m);
     localStorage.setItem('app-prayer-madhab', m);
