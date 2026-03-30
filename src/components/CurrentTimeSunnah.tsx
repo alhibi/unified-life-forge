@@ -144,7 +144,7 @@ export default function CurrentTimeSunnah() {
               {items.slice(0, 3).map((item, i) => (
                 <button
                   key={i}
-                  onClick={() => navigate(`/section/${current.key}?index=${i}`)}
+                  onClick={() => navigate(`/section/timed-sunnah/${current.key}?index=${i}`)}
                   className="w-full flex items-start gap-3 py-2.5 hover:bg-accent/30 rounded-lg px-1 transition-colors"
                 >
                   <div className={`mt-1.5 w-2.5 h-2.5 rounded-full shrink-0 ${i % 2 === 0 ? 'bg-primary' : 'bg-amber-500/80'}`} />
