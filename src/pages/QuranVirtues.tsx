@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ChevronRight, ChevronLeft, BookOpen, Sparkles } from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
+import { toast } from 'sonner';
 
 // أسماء السور - سيتم إضافة المحتوى الداخلي لاحقاً
 const surahNames = [
@@ -68,6 +69,7 @@ export default function QuranVirtues() {
               <motion.button
                 key={i}
                 whileTap={{ scale: 0.95 }}
+                onClick={() => toast('قريباً')}
                 className="px-2 py-2.5 rounded-xl bg-card border border-border/50 text-[13px] font-semibold text-foreground hover:bg-accent/40 transition-colors text-center"
               >
                 {name}
