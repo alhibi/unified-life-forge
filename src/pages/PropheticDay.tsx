@@ -125,30 +125,30 @@ export default function PropheticDay() {
           const Icon = section.icon;
           return (
             <motion.div key={idx} variants={fadeItem}>
-              {/* Section header - icon in circle on end, title+time next to it */}
-              <div className="flex items-center justify-end gap-3 mb-3 px-5">
-                <div className="flex flex-col items-end">
-                  <h2 className="text-[15px] font-extrabold text-foreground">{isAr ? section.titleAr : section.titleDe}</h2>
-                  <span className="text-[11px] text-muted-foreground mt-0.5" dir="ltr">{section.timeRange}</span>
-                </div>
+              {/* Section header - icon on start, title+time next to it */}
+              <div className="flex items-center gap-3 mb-3 px-5">
                 <div className="w-11 h-11 rounded-full bg-secondary/80 border border-border/50 flex items-center justify-center shrink-0">
                   <Icon className={`w-5 h-5 ${section.iconColor}`} />
                 </div>
+                <div className="flex flex-col">
+                  <h2 className="text-[15px] font-extrabold text-foreground">{isAr ? section.titleAr : section.titleDe}</h2>
+                  <span className="text-[11px] text-muted-foreground mt-0.5" dir="ltr">{section.timeRange}</span>
+                </div>
               </div>
 
-              {/* Items - card with golden top border, bullet on end side */}
+              {/* Items - card with golden top border, bullet on start */}
               <div className="mx-3 rounded-2xl overflow-hidden border border-border/40" style={{ borderTop: '2.5px solid hsl(45 70% 45% / 0.6)' }}>
                 {section.items.map((item, i) => (
                   <div
                     key={i}
-                    className={`flex items-center justify-end gap-3 px-4 py-3.5 bg-card ${
+                    className={`flex items-center gap-3 px-4 py-3.5 bg-card ${
                       i < section.items.length - 1 ? 'border-b border-border/30' : ''
                     }`}
                   >
+                    <span className="w-[7px] h-[7px] rounded-full shrink-0" style={{ backgroundColor: 'hsl(45 70% 50%)' }} />
                     <p className="text-[13px] leading-relaxed text-foreground font-medium">
                       {isAr ? item.ar : item.de}
                     </p>
-                    <span className="w-[7px] h-[7px] rounded-full shrink-0" style={{ backgroundColor: 'hsl(45 70% 50%)' }} />
                   </div>
                 ))}
               </div>
