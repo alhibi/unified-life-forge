@@ -11,11 +11,11 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 
 const ANIMAL_AVATARS = [
-  { id: 'fox', label: 'ثعلب', colors: ['/avatars/fox_orange.png', '/avatars/fox_blue.png', '/avatars/fox_red.png'] },
-  { id: 'cat', label: 'قطة', colors: ['/avatars/cat_purple.png', '/avatars/cat_gold.png', '/avatars/cat_black.png'] },
-  { id: 'owl', label: 'بومة', colors: ['/avatars/owl_teal.png', '/avatars/owl_white.png', '/avatars/owl_brown.png'] },
-  { id: 'dino', label: 'ديناصور', colors: ['/avatars/dino_green.png', '/avatars/dino_blue.png', '/avatars/dino_red.png'] },
-  { id: 'wolf', label: 'ذئب', colors: ['/avatars/wolf_gray.png', '/avatars/wolf_black.png', '/avatars/wolf_white.png'] },
+  { id: 'gazelle', label: 'غزال', src: '/avatars/gazelle.png' },
+  { id: 'bear', label: 'دب', src: '/avatars/bear.png' },
+  { id: 'cheetah', label: 'فهد', src: '/avatars/cheetah.png' },
+  { id: 'mandrill', label: 'مندريل', src: '/avatars/mandrill.png' },
+  { id: 'zebra', label: 'حمار وحشي', src: '/avatars/zebra.png' },
 ];
 
 const stagger = {
