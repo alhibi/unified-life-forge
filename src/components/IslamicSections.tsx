@@ -22,14 +22,49 @@ const item = {
   show: { opacity: 1, scale: 1, transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] as const } },
 };
 
-export default function IslamicSections() {
+const comingSoonKeys = new Set(['selections', 'prophetic-badges']);
+
+function SectionButton({ section, Arrow }: { section: typeof sections[0]; Arrow: any }) {
   const navigate = useNavigate();
+  const { t, language } = useApp();
+  const [showSoon, setShowSoon] = useState(false);
+  const isComingSoon = comingSoonKeys.has(section.key);
+
+  const handleClick = () => {
+    if (isComingSoon) {
+      setShowSoon(true);
+      setTimeout(() => setShowSoon(false), 1200);
+    } else {
+      navigate(`/section/${section.key}`);
+    }
+  };
+
+  return (
+    <motion.button
+      variants={item}
+      whileTap={{ scale: 0.97 }}
+      onClick={handleClick}
+      className="flex items-center justify-between gap-1.5 px-2.5 py-4 rounded-2xl bg-card/80 border border-border/40 backdrop-blur-sm transition-colors hover:bg-accent/40 group"
+    >
+      <div className="flex items-center gap-2.5">
+        <div className={`w-9 h-9 rounded-full ${section.bg} flex items-center justify-center`}>
+          <section.icon className={`w-[18px] h-[18px] ${section.color}`} />
+        </div>
+        <span className="text-[13px] font-semibold text-foreground leading-tight whitespace-nowrap transition-all duration-300">
+          {showSoon ? (language === 'ar' ? 'قريباً' : 'Soon') : t(section.labelKey)}
+        </span>
+      </div>
+      <Arrow className="w-4 h-4 text-muted-foreground/50 group-hover:text-muted-foreground transition-colors" />
+    </motion.button>
+  );
+}
+
+export default function IslamicSections() {
   const { t, dir } = useApp();
   const Arrow = dir === 'rtl' ? ChevronLeft : ChevronRight;
 
   return (
     <div className="space-y-3">
-      {/* Header */}
       <div className="flex items-center gap-2 px-2">
         <div className="h-px flex-1 bg-border/60" />
         <span className="text-primary text-[6px]">●</span>
@@ -38,7 +73,6 @@ export default function IslamicSections() {
         <div className="h-px flex-1 bg-border/60" />
       </div>
 
-      {/* Grid */}
       <motion.div
         variants={container}
         initial="hidden"
@@ -46,23 +80,7 @@ export default function IslamicSections() {
         className="grid grid-cols-2 gap-2 px-2"
       >
         {sections.map((section) => (
-          <motion.button
-            key={section.key}
-            variants={item}
-            whileTap={{ scale: 0.97 }}
-            onClick={() => navigate(`/section/${section.key}`)}
-            className="flex items-center justify-between gap-1.5 px-2.5 py-4 rounded-2xl bg-card/80 border border-border/40 backdrop-blur-sm transition-colors hover:bg-accent/40 group"
-          >
-            <div className="flex items-center gap-2.5">
-              <div className={`w-9 h-9 rounded-full ${section.bg} flex items-center justify-center`}>
-                <section.icon className={`w-[18px] h-[18px] ${section.color}`} />
-              </div>
-              <span className="text-[13px] font-semibold text-foreground leading-tight whitespace-nowrap">
-                {t(section.labelKey)}
-              </span>
-            </div>
-            <Arrow className="w-4 h-4 text-muted-foreground/50 group-hover:text-muted-foreground transition-colors" />
-          </motion.button>
+          <SectionButton key={section.key} section={section} Arrow={Arrow} />
         ))}
       </motion.div>
     </div>
