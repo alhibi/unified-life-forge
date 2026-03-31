@@ -37,20 +37,10 @@ export default function BottomNav() {
               onClick={() => navigate(tab.path)}
               className="relative flex flex-col items-center gap-0.5 py-1.5 px-3 rounded-xl"
             >
-              {active && (
-                <motion.div
-                  layoutId="nav-glow"
-                  className="absolute inset-0 rounded-xl"
-                  style={{
-                    background: 'radial-gradient(ellipse at center, hsl(var(--primary) / 0.2) 0%, transparent 70%)',
-                    boxShadow: '0 0 12px hsl(var(--primary) / 0.15)',
-                  }}
-                  transition={{ type: 'spring', stiffness: 500, damping: 35, mass: 0.5 }}
-                />
-              )}
               <motion.div
                 animate={active ? { y: -2, scale: 1.12 } : { y: 0, scale: 1 }}
                 transition={{ type: 'spring', stiffness: 500, damping: 28, mass: 0.4 }}
+                style={active ? { filter: 'drop-shadow(0 0 6px hsl(var(--primary) / 0.5))' } : {}}
               >
                 <tab.icon className={`relative z-10 w-[21px] h-[21px] ${
                   active ? 'text-primary stroke-[2.2]' : 'text-muted-foreground/70 stroke-[1.5]'
