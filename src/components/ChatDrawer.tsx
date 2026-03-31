@@ -99,6 +99,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
   const [loading, setLoading] = useState(false);
   const [replyTo, setReplyTo] = useState<Message | null>(null);
   const [actionMenu, setActionMenu] = useState<ActionMenuState | null>(null);
+  const [showExtraEmojis, setShowExtraEmojis] = useState(false);
   const [typingUser, setTypingUser] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [showProfilePopup, setShowProfilePopup] = useState(false);
