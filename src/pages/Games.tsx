@@ -34,6 +34,12 @@ export default function GamesPage() {
   const mineStats = getStats('mine-stats');
   const mazeStats = getStats('maze-stats');
   const pipesStats = getStats('pipes-stats');
+  const diceStats = getStats('dice-stats');
+  const targetStats = getStats('target-stats');
+  const puzzleStats = getStats('puzzle-stats');
+  const stackStats = getStats('stack-stats');
+  const hexStats = getStats('hex-stats');
+  const focusStats = getStats('focus-stats');
 
   const games = [
     {
