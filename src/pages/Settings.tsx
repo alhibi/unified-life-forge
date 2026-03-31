@@ -135,7 +135,7 @@ export default function SettingsPage() {
                     )}
                   </div>
                   {user && (
-                    <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-green-500 border-2 border-card" />
+                    <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-primary border-2 border-card" />
                   )}
                 </div>
 
