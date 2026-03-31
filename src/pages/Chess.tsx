@@ -869,6 +869,8 @@ export default function ChessPage() {
     hard: language === 'ar' ? 'صعب' : 'Hard',
   };
 
+  const isAr = language === 'ar';
+
   const chessRules = isAr ? [
     'كل لاعب يحرك قطعة واحدة في دوره',
     'الهدف هو كش ملك الخصم (شاه مات)',
@@ -886,7 +888,6 @@ export default function ChessPage() {
     'The queen combines rook and bishop movement',
     'Knights move in an L-shape',
   ];
-  const isAr = language === 'ar';
 
   const chessStats = [
     { label: isAr ? 'لُعبت' : 'Played', value: stats.gamesPlayed },
