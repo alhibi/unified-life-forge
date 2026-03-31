@@ -171,6 +171,7 @@ export default function ProfileEditPage() {
       }
     } finally {
       setSaving(false);
+      setUsernameChanged(false);
     }
   };
 
