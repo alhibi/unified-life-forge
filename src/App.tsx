@@ -42,33 +42,38 @@ const queryClient = new QueryClient();
 function AnimatedRoutes() {
   const location = useLocation();
   return (
-    <AnimatePresence mode="wait" initial={false}>
-      <Routes location={location} key={location.pathname}>
-        <Route path="/" element={<PageTransition><Index /></PageTransition>} />
-        <Route path="/games" element={<PageTransition><GamesPage /></PageTransition>} />
-        <Route path="/games/sudoku" element={<PageTransition><SudokuPage /></PageTransition>} />
-        <Route path="/games/chess" element={<PageTransition><ChessPage /></PageTransition>} />
-        <Route path="/games/memory" element={<PageTransition><MemoryGame /></PageTransition>} />
-        <Route path="/games/minesweeper" element={<PageTransition><MinesweeperPage /></PageTransition>} />
-        <Route path="/games/colormaze" element={<PageTransition><ColorMazePage /></PageTransition>} />
-        <Route path="/games/pipes" element={<PageTransition><PipesPage /></PageTransition>} />
-        <Route path="/duas" element={<PageTransition><DuasPage /></PageTransition>} />
-        <Route path="/diwan" element={<PageTransition><DiwanPage /></PageTransition>} />
-        <Route path="/occasions" element={<PageTransition><AllOccasionsPage /></PageTransition>} />
-        <Route path="/reading" element={<PageTransition><ReadingPage /></PageTransition>} />
-        <Route path="/settings" element={<PageTransition><SettingsPage /></PageTransition>} />
-        <Route path="/settings/theme" element={<PageTransition><ThemeSettingsPage /></PageTransition>} />
-        <Route path="/auth" element={<PageTransition><AuthPage /></PageTransition>} />
-        <Route path="/settings/font" element={<PageTransition><FontSettingsPage /></PageTransition>} />
-        <Route path="/settings/prayer" element={<PageTransition><PrayerSettingsPage /></PageTransition>} />
-        <Route path="/section/timed-sunnah" element={<PageTransition><TimedSunnahPage /></PageTransition>} />
-        <Route path="/section/timed-sunnah/:categoryId" element={<PageTransition><SunnahDetailPage /></PageTransition>} />
-        <Route path="/section/untimed-sunnah" element={<PageTransition><UntimedSunnahPage /></PageTransition>} />
-        <Route path="/section/prophetic-day" element={<PageTransition><PropheticDayPage /></PageTransition>} />
-        <Route path="/section/quran-virtues" element={<PageTransition><QuranVirtuesPage /></PageTransition>} />
-        <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
-      </Routes>
-    </AnimatePresence>
+    <>
+      <ScrollToTop />
+      <Suspense fallback={<div className="min-h-screen" />}>
+        <AnimatePresence mode="wait" initial={false}>
+          <Routes location={location} key={location.pathname}>
+            <Route path="/" element={<PageTransition><Index /></PageTransition>} />
+            <Route path="/games" element={<PageTransition><GamesPage /></PageTransition>} />
+            <Route path="/games/sudoku" element={<PageTransition><SudokuPage /></PageTransition>} />
+            <Route path="/games/chess" element={<PageTransition><ChessPage /></PageTransition>} />
+            <Route path="/games/memory" element={<PageTransition><MemoryGame /></PageTransition>} />
+            <Route path="/games/minesweeper" element={<PageTransition><MinesweeperPage /></PageTransition>} />
+            <Route path="/games/colormaze" element={<PageTransition><ColorMazePage /></PageTransition>} />
+            <Route path="/games/pipes" element={<PageTransition><PipesPage /></PageTransition>} />
+            <Route path="/duas" element={<PageTransition><DuasPage /></PageTransition>} />
+            <Route path="/diwan" element={<PageTransition><DiwanPage /></PageTransition>} />
+            <Route path="/occasions" element={<PageTransition><AllOccasionsPage /></PageTransition>} />
+            <Route path="/reading" element={<PageTransition><ReadingPage /></PageTransition>} />
+            <Route path="/settings" element={<PageTransition><SettingsPage /></PageTransition>} />
+            <Route path="/settings/theme" element={<PageTransition><ThemeSettingsPage /></PageTransition>} />
+            <Route path="/auth" element={<PageTransition><AuthPage /></PageTransition>} />
+            <Route path="/settings/font" element={<PageTransition><FontSettingsPage /></PageTransition>} />
+            <Route path="/settings/prayer" element={<PageTransition><PrayerSettingsPage /></PageTransition>} />
+            <Route path="/section/timed-sunnah" element={<PageTransition><TimedSunnahPage /></PageTransition>} />
+            <Route path="/section/timed-sunnah/:categoryId" element={<PageTransition><SunnahDetailPage /></PageTransition>} />
+            <Route path="/section/untimed-sunnah" element={<PageTransition><UntimedSunnahPage /></PageTransition>} />
+            <Route path="/section/prophetic-day" element={<PageTransition><PropheticDayPage /></PageTransition>} />
+            <Route path="/section/quran-virtues" element={<PageTransition><QuranVirtuesPage /></PageTransition>} />
+            <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
+          </Routes>
+        </AnimatePresence>
+      </Suspense>
+    </>
   );
 }
 
