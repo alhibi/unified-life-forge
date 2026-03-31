@@ -24,6 +24,7 @@ const PipesPage = lazy(() => import("./pages/PipesGame"));
 const SettingsPage = lazy(() => import("./pages/Settings"));
 const ThemeSettingsPage = lazy(() => import("./pages/ThemeSettings"));
 const AuthPage = lazy(() => import("./pages/Auth"));
+const ProfileEditPage = lazy(() => import("./pages/ProfileEdit"));
 const FontSettingsPage = lazy(() => import("./pages/FontSettings"));
 const PrayerSettingsPage = lazy(() => import("./pages/PrayerSettings"));
 const DuasPage = lazy(() => import("./pages/Duas"));
