@@ -100,8 +100,6 @@ const translations: Record<string, Record<Language, string>> = {
   'games.target.desc': { ar: 'اضغط على الأهداف قبل أن تختفي', de: 'Triff die Ziele bevor sie verschwinden' },
   'games.puzzle': { ar: 'الأحجية', de: 'Puzzle' },
   'games.puzzle.desc': { ar: 'رتّب الأرقام بالترتيب الصحيح', de: 'Ordne die Zahlen richtig an' },
-  'games.stack': { ar: 'التكديس', de: 'Stapeln' },
-  'games.stack.desc': { ar: 'كدّس الكتل بدقة فوق بعضها', de: 'Stapel die Blöcke präzise übereinander' },
   'games.hex': { ar: 'السداسي', de: 'Hex' },
   'games.hex.desc': { ar: 'لوّن الشبكة بلون واحد', de: 'Färbe das Feld in einer Farbe' },
   'games.focus': { ar: 'التركيز', de: 'Fokus' },
