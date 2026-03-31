@@ -2,11 +2,30 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { User, Session } from '@supabase/supabase-js';
 
+interface Profile {
+  username: string;
+  display_name: string | null;
+  avatar_url: string | null;
+}
+
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [username, setUsername] = useState<string | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
+
+  const fetchProfile = useCallback(async (userId: string) => {
+    const { data } = await supabase
+      .from('profiles')
+      .select('username, display_name, avatar_url')
+      .eq('user_id', userId)
+      .maybeSingle();
+    if (data) {
+      setProfile(data as Profile);
+      setUsername(data.username);
+    }
+  }, []);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -14,8 +33,10 @@ export function useAuth() {
       setUser(session?.user ?? null);
       if (session?.user) {
         setUsername(session.user.user_metadata?.username ?? null);
+        fetchProfile(session.user.id);
       } else {
         setUsername(null);
+        setProfile(null);
       }
       setLoading(false);
     });
@@ -25,12 +46,17 @@ export function useAuth() {
       setUser(session?.user ?? null);
       if (session?.user) {
         setUsername(session.user.user_metadata?.username ?? null);
+        fetchProfile(session.user.id);
       }
       setLoading(false);
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [fetchProfile]);
+
+  const refreshProfile = useCallback(async () => {
+    if (user) await fetchProfile(user.id);
+  }, [user, fetchProfile]);
 
   const signUp = useCallback(async (username: string, password: string) => {
     const email = `${username.toLowerCase().trim()}@smartapp.local`;
@@ -71,5 +97,5 @@ export function useAuth() {
     return data?.settings as Record<string, unknown> | null;
   }, [user]);
 
-  return { user, session, loading, username, signUp, signIn, signOut, saveSettings, loadSettings };
+  return { user, session, loading, username, profile, refreshProfile, signUp, signIn, signOut, saveSettings, loadSettings };
 }

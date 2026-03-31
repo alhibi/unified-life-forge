@@ -24,6 +24,7 @@ const PipesPage = lazy(() => import("./pages/PipesGame"));
 const SettingsPage = lazy(() => import("./pages/Settings"));
 const ThemeSettingsPage = lazy(() => import("./pages/ThemeSettings"));
 const AuthPage = lazy(() => import("./pages/Auth"));
+const ProfileEditPage = lazy(() => import("./pages/ProfileEdit"));
 const FontSettingsPage = lazy(() => import("./pages/FontSettings"));
 const PrayerSettingsPage = lazy(() => import("./pages/PrayerSettings"));
 const DuasPage = lazy(() => import("./pages/Duas"));
@@ -62,6 +63,7 @@ function AnimatedRoutes() {
             <Route path="/settings" element={<PageTransition><SettingsPage /></PageTransition>} />
             <Route path="/settings/theme" element={<PageTransition><ThemeSettingsPage /></PageTransition>} />
             <Route path="/auth" element={<PageTransition><AuthPage /></PageTransition>} />
+            <Route path="/settings/profile" element={<PageTransition><ProfileEditPage /></PageTransition>} />
             <Route path="/settings/font" element={<PageTransition><FontSettingsPage /></PageTransition>} />
             <Route path="/settings/prayer" element={<PageTransition><PrayerSettingsPage /></PageTransition>} />
             <Route path="/section/timed-sunnah" element={<PageTransition><TimedSunnahPage /></PageTransition>} />
