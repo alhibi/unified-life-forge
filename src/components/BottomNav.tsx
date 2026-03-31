@@ -17,7 +17,7 @@ const tabs = [
   { key: 'games', path: '/games', icon: Gamepad2, labelKey: 'nav.games' },
   { key: 'diwan', path: '/diwan', icon: ScrollText, labelKey: 'nav.diwan' },
   { key: 'duas', path: '/duas', icon: BookOpen, labelKey: 'nav.duas' },
-  { key: 'home', path: '/', icon: Armchair, labelKey: 'nav.home' },
+  { key: 'home', path: '/', icon: SofaIcon, labelKey: 'nav.home' },
 ];
 
 export default function BottomNav() {
