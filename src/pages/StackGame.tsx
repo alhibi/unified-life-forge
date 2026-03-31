@@ -2,21 +2,19 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import BackButton from '@/components/BackButton';
 import { motion } from 'framer-motion';
-import { Layers, RotateCcw, Trophy } from 'lucide-react';
+import { Layers, RotateCcw } from 'lucide-react';
 
-const CANVAS_W = 320;
-const CANVAS_H = 480;
-const INITIAL_BLOCK_W = 100;
-const BLOCK_H = 24;
-const SPEED_BASE = 2;
+const CANVAS_W = 340;
+const CANVAS_H = 500;
+const INITIAL_BLOCK_W = 120;
+const BLOCK_H = 22;
+const SPEED_BASE = 2.2;
 
-interface Block { x: number; w: number; color: string }
+interface Block { x: number; w: number }
 
-const COLORS = [
-  'hsl(var(--primary))',
-  'hsl(var(--primary) / 0.85)',
-  'hsl(var(--primary) / 0.7)',
-  'hsl(var(--primary) / 0.55)',
+const NEON_COLORS = [
+  '#00fff5', '#ff00e4', '#ffe600', '#00ff88', '#ff6b00', '#8b5cf6',
+  '#06b6d4', '#f43f5e', '#84cc16', '#f97316',
 ];
 
 export default function StackGame() {
@@ -26,32 +24,47 @@ export default function StackGame() {
   const [score, setScore] = useState(0);
   const [gameOver, setGameOver] = useState(false);
   const [started, setStarted] = useState(false);
+  const [perfectCount, setPerfectCount] = useState(0);
   const blocksRef = useRef<Block[]>([]);
   const movingRef = useRef<{ x: number; w: number; dir: number; speed: number }>({ x: 0, w: INITIAL_BLOCK_W, dir: 1, speed: SPEED_BASE });
   const animRef = useRef<number>(0);
   const scoreRef = useRef(0);
+  const perfectRef = useRef(0);
 
   const draw = useCallback(() => {
     const ctx = canvasRef.current?.getContext('2d');
     if (!ctx) return;
     ctx.clearRect(0, 0, CANVAS_W, CANVAS_H);
 
-    // Draw placed blocks
     const blocks = blocksRef.current;
-    const offset = Math.max(0, blocks.length * BLOCK_H - CANVAS_H + 100);
+    const offset = Math.max(0, blocks.length * BLOCK_H - CANVAS_H + 120);
+
+    // Draw glow trail
     blocks.forEach((b, i) => {
       const y = CANVAS_H - (i + 1) * BLOCK_H + offset;
-      ctx.fillStyle = b.color;
-      ctx.fillRect(b.x, y, b.w, BLOCK_H - 2);
-      ctx.strokeStyle = 'rgba(255,255,255,0.1)';
-      ctx.strokeRect(b.x, y, b.w, BLOCK_H - 2);
+      const color = NEON_COLORS[i % NEON_COLORS.length];
+
+      // Glow
+      ctx.shadowColor = color;
+      ctx.shadowBlur = 12;
+      ctx.fillStyle = color;
+      ctx.fillRect(b.x, y, b.w, BLOCK_H - 3);
+      ctx.shadowBlur = 0;
+
+      // Inner highlight
+      ctx.fillStyle = 'rgba(255,255,255,0.15)';
+      ctx.fillRect(b.x, y, b.w, 3);
     });
 
-    // Draw moving block
+    // Moving block
     const m = movingRef.current;
     const my = CANVAS_H - (blocks.length + 1) * BLOCK_H + offset;
-    ctx.fillStyle = COLORS[blocks.length % COLORS.length];
-    ctx.fillRect(m.x, my, m.w, BLOCK_H - 2);
+    const mColor = NEON_COLORS[blocks.length % NEON_COLORS.length];
+    ctx.shadowColor = mColor;
+    ctx.shadowBlur = 20;
+    ctx.fillStyle = mColor;
+    ctx.fillRect(m.x, my, m.w, BLOCK_H - 3);
+    ctx.shadowBlur = 0;
   }, []);
 
   const gameLoop = useCallback(() => {
@@ -64,10 +77,12 @@ export default function StackGame() {
   }, [draw]);
 
   const start = useCallback(() => {
-    blocksRef.current = [{ x: (CANVAS_W - INITIAL_BLOCK_W) / 2, w: INITIAL_BLOCK_W, color: COLORS[0] }];
+    blocksRef.current = [{ x: (CANVAS_W - INITIAL_BLOCK_W) / 2, w: INITIAL_BLOCK_W }];
     movingRef.current = { x: 0, w: INITIAL_BLOCK_W, dir: 1, speed: SPEED_BASE };
     scoreRef.current = 0;
+    perfectRef.current = 0;
     setScore(0);
+    setPerfectCount(0);
     setGameOver(false);
     setStarted(true);
     animRef.current = requestAnimationFrame(gameLoop);
@@ -83,7 +98,7 @@ export default function StackGame() {
 
     const overlapStart = Math.max(m.x, last.x);
     const overlapEnd = Math.min(m.x + m.w, last.x + last.w);
-    const overlapW = overlapEnd - overlapStart;
+    let overlapW = overlapEnd - overlapStart;
 
     if (overlapW <= 0) {
       setGameOver(true);
@@ -95,39 +110,43 @@ export default function StackGame() {
       return;
     }
 
-    const newBlock: Block = { x: overlapStart, w: overlapW, color: COLORS[blocks.length % COLORS.length] };
-    blocks.push(newBlock);
+    // Perfect placement bonus
+    const isPerfect = Math.abs(m.x - last.x) < 3;
+    if (isPerfect) {
+      overlapW = last.w; // Keep full width on perfect
+      perfectRef.current++;
+      setPerfectCount(perfectRef.current);
+    }
+
+    blocks.push({ x: overlapStart, w: isPerfect ? last.w : overlapW });
     scoreRef.current++;
     setScore(scoreRef.current);
 
-    const newSpeed = SPEED_BASE + scoreRef.current * 0.3;
-    movingRef.current = { x: 0, w: overlapW, dir: 1, speed: newSpeed };
+    const newSpeed = SPEED_BASE + scoreRef.current * 0.35;
+    movingRef.current = { x: 0, w: isPerfect ? last.w : overlapW, dir: 1, speed: newSpeed };
     animRef.current = requestAnimationFrame(gameLoop);
   }, [gameOver, started, draw, gameLoop]);
 
-  useEffect(() => {
-    return () => cancelAnimationFrame(animRef.current);
-  }, []);
-
-  useEffect(() => {
-    // Initial draw
-    const ctx = canvasRef.current?.getContext('2d');
-    if (ctx) {
-      ctx.clearRect(0, 0, CANVAS_W, CANVAS_H);
-    }
-  }, []);
+  useEffect(() => () => cancelAnimationFrame(animRef.current), []);
 
   return (
-    <div className="min-h-screen bg-background pb-28 pt-4">
+    <div className="min-h-screen pb-28 pt-4" style={{ background: 'linear-gradient(180deg, #000 0%, #0a001a 50%, #000 100%)' }}>
       <div className="px-5">
         <BackButton to="/games" />
-        <div className="flex items-center gap-3 mt-4 mb-4">
-          <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center">
-            <Layers className="w-5 h-5 text-primary" />
+
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center justify-between mt-4 mb-4">
+          <h1 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400">
+            {isAr ? '📦 التكديس' : '📦 Stapeln'}
+          </h1>
+          <div className="flex items-center gap-3">
+            {perfectCount > 0 && (
+              <motion.span key={perfectCount} initial={{ scale: 1.5 }} animate={{ scale: 1 }} className="text-xs text-cyan-400 font-bold">
+                ✨ {perfectCount}
+              </motion.span>
+            )}
+            <span className="text-2xl font-black text-white">{score}</span>
           </div>
-          <h1 className="text-2xl font-bold text-foreground">{isAr ? 'التكديس' : 'Stapeln'}</h1>
-          <span className="ms-auto text-lg font-bold text-primary">{score}</span>
-        </div>
+        </motion.div>
 
         <div className="flex justify-center mb-4">
           <canvas
@@ -135,21 +154,27 @@ export default function StackGame() {
             width={CANVAS_W}
             height={CANVAS_H}
             onClick={started && !gameOver ? place : start}
-            className="rounded-2xl bg-card border border-border/40 cursor-pointer"
-            style={{ maxWidth: '100%', touchAction: 'manipulation' }}
+            className="rounded-2xl cursor-pointer border border-white/5"
+            style={{ maxWidth: '100%', touchAction: 'manipulation', background: 'rgba(0,0,0,0.5)' }}
           />
         </div>
 
         {!started && (
-          <p className="text-center text-muted-foreground text-sm">{isAr ? 'اضغط للبدء' : 'Tippen zum Starten'}</p>
+          <motion.p animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 2, repeat: Infinity }} className="text-center text-cyan-400/60 text-sm">
+            {isAr ? 'اضغط للبدء' : 'Tippen zum Starten'}
+          </motion.p>
         )}
 
         {gameOver && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center mt-4">
-            <p className="text-xl font-bold text-foreground mb-2">{isAr ? `النتيجة: ${score}` : `Ergebnis: ${score}`}</p>
-            <button onClick={start} className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-primary text-primary-foreground font-bold mx-auto active:scale-95 transition-transform">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mt-4">
+            <p className="text-3xl font-black text-white mb-1">{score}</p>
+            <p className="text-zinc-500 text-sm mb-4">{perfectCount > 0 ? `✨ ${perfectCount} ${isAr ? 'مثالي' : 'Perfekt'}` : ''}</p>
+            <motion.button whileTap={{ scale: 0.9 }} onClick={start}
+              className="flex items-center gap-2 px-8 py-3 rounded-2xl font-black text-black mx-auto"
+              style={{ background: 'linear-gradient(135deg, #00fff5, #8b5cf6)' }}
+            >
               <RotateCcw className="w-5 h-5" /> {isAr ? 'مرة أخرى' : 'Nochmal'}
-            </button>
+            </motion.button>
           </motion.div>
         )}
       </div>
