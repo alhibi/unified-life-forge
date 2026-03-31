@@ -53,7 +53,7 @@ export default function ProfileEditPage() {
     } else if (authUsername) {
       setNewUsername(authUsername);
     }
-  }, [user, profile, authUsername, navigate]);
+  }, [user, loading, profile, authUsername, navigate]);
 
   const checkUsername = useCallback(async (name: string) => {
     if (!name.trim() || name.trim().length < 3) {
