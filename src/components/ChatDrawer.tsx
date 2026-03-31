@@ -6,8 +6,13 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sh
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { ArrowRight, ArrowLeft, Send, Search, Plus, MessageCircle, Check, CheckCheck } from 'lucide-react';
+import {
+  ArrowRight, ArrowLeft, Send, Search, Plus, MessageCircle,
+  Check, CheckCheck, Reply, Trash2, Image, Paperclip, X,
+  Smile, Download, FileText
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface Conversation {
   id: string;
@@ -15,6 +20,7 @@ interface Conversation {
   user2_id: string;
   updated_at: string;
   otherUsername?: string;
+  otherUserId?: string;
   lastMessage?: string;
   unreadCount?: number;
 }
@@ -26,6 +32,18 @@ interface Message {
   content: string;
   read: boolean;
   created_at: string;
+  reply_to_id?: string | null;
+  message_type: string;
+  file_url?: string | null;
+  file_name?: string | null;
+  deleted: boolean;
+}
+
+interface Reaction {
+  id: string;
+  message_id: string;
+  user_id: string;
+  emoji: string;
 }
 
 interface ChatDrawerProps {
@@ -35,6 +53,8 @@ interface ChatDrawerProps {
   onUnreadChange: (count: number) => void;
 }
 
+const QUICK_EMOJIS = ['❤️', '👍', '😂', '😮', '😢', '🔥'];
+
 export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadChange }: ChatDrawerProps) {
   const { user } = useAuth();
   const { language } = useApp();
@@ -43,13 +63,23 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConv, setActiveConv] = useState<Conversation | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
+  const [reactions, setReactions] = useState<Reaction[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [searchUser, setSearchUser] = useState('');
   const [searchResult, setSearchResult] = useState<{ user_id: string; username: string } | null>(null);
   const [searchError, setSearchError] = useState('');
   const [showNewChat, setShowNewChat] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [replyTo, setReplyTo] = useState<Message | null>(null);
+  const [showEmojiFor, setShowEmojiFor] = useState<string | null>(null);
+  const [typingUser, setTypingUser] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [contextMenu, setContextMenu] = useState<{ msg: Message; y: number } | null>(null);
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -66,21 +96,19 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
 
     if (!convs) return;
 
-    // Get other user profiles
     const otherIds = convs.map(c => c.user1_id === user.id ? c.user2_id : c.user1_id);
     const { data: profiles } = await supabase
       .from('profiles')
       .select('user_id, username')
       .in('user_id', otherIds);
 
-    // Get last messages & unread counts
     const enriched = await Promise.all(convs.map(async (conv) => {
       const otherId = conv.user1_id === user.id ? conv.user2_id : conv.user1_id;
       const profile = profiles?.find(p => p.user_id === otherId);
 
       const { data: lastMsg } = await supabase
         .from('messages')
-        .select('content')
+        .select('content, message_type, deleted')
         .eq('conversation_id', conv.id)
         .order('created_at', { ascending: false })
         .limit(1)
@@ -91,21 +119,28 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
         .select('*', { count: 'exact', head: true })
         .eq('conversation_id', conv.id)
         .neq('sender_id', user.id)
-        .eq('read', false);
+        .eq('read', false)
+        .eq('deleted', false);
+
+      let lastContent = lastMsg?.content;
+      if (lastMsg?.deleted) lastContent = isAr ? '🚫 تم حذف الرسالة' : '🚫 Nachricht gelöscht';
+      else if (lastMsg?.message_type === 'image') lastContent = '📷 ' + (isAr ? 'صورة' : 'Foto');
+      else if (lastMsg?.message_type === 'file') lastContent = '📎 ' + (isAr ? 'ملف' : 'Datei');
 
       return {
         ...conv,
         otherUsername: profile?.username || '?',
-        lastMessage: lastMsg?.content,
+        otherUserId: otherId,
+        lastMessage: lastContent,
         unreadCount: count || 0,
       };
     }));
 
     setConversations(enriched);
     onUnreadChange(enriched.reduce((sum, c) => sum + (c.unreadCount || 0), 0));
-  }, [user, onUnreadChange]);
+  }, [user, onUnreadChange, isAr]);
 
-  // Load messages for active conversation
+  // Load messages & reactions
   const loadMessages = useCallback(async () => {
     if (!activeConv || !user) return;
     const { data } = await supabase
@@ -115,15 +150,24 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
       .order('created_at', { ascending: true });
 
     if (data) {
-      setMessages(data);
-      // Mark as read
+      setMessages(data as Message[]);
       await supabase
         .from('messages')
         .update({ read: true })
         .eq('conversation_id', activeConv.id)
         .neq('sender_id', user.id)
         .eq('read', false);
-      
+
+      // Load reactions
+      const msgIds = data.map(m => m.id);
+      if (msgIds.length > 0) {
+        const { data: rxns } = await supabase
+          .from('message_reactions')
+          .select('*')
+          .in('message_id', msgIds);
+        setReactions((rxns || []) as Reaction[]);
+      }
+
       setTimeout(scrollToBottom, 100);
     }
   }, [activeConv, user, scrollToBottom]);
@@ -136,19 +180,15 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
     if (activeConv) loadMessages();
   }, [activeConv, loadMessages]);
 
-  // Realtime subscription
+  // Realtime
   useEffect(() => {
     if (!user || !open) return;
 
     const channel = supabase
-      .channel('messages-realtime')
-      .on('postgres_changes', {
-        event: '*',
-        schema: 'public',
-        table: 'messages',
-      }, (payload) => {
-        const msg = payload.new as Message;
+      .channel('chat-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, (payload) => {
         if (payload.eventType === 'INSERT') {
+          const msg = payload.new as Message;
           if (activeConv && msg.conversation_id === activeConv.id) {
             setMessages(prev => [...prev, msg]);
             if (msg.sender_id !== user.id) {
@@ -158,8 +198,16 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
           }
           loadConversations();
         } else if (payload.eventType === 'UPDATE') {
-          // Update read status in existing messages
-          setMessages(prev => prev.map(m => m.id === msg.id ? { ...m, read: msg.read } : m));
+          const msg = payload.new as Message;
+          setMessages(prev => prev.map(m => m.id === msg.id ? msg : m));
+        }
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'message_reactions' }, (payload) => {
+        if (payload.eventType === 'INSERT') {
+          setReactions(prev => [...prev, payload.new as Reaction]);
+        } else if (payload.eventType === 'DELETE') {
+          const old = payload.old as { id: string };
+          setReactions(prev => prev.filter(r => r.id !== old.id));
         }
       })
       .subscribe();
@@ -167,7 +215,37 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
     return () => { supabase.removeChannel(channel); };
   }, [user, open, activeConv, scrollToBottom, loadConversations]);
 
-  // Also poll for unread when drawer is closed
+  // Typing indicator via Realtime Presence
+  useEffect(() => {
+    if (!activeConv || !user) return;
+
+    const channel = supabase.channel(`typing:${activeConv.id}`, {
+      config: { presence: { key: user.id } },
+    });
+
+    channel.on('presence', { event: 'sync' }, () => {
+      const state = channel.presenceState();
+      const others = Object.keys(state).filter(k => k !== user.id);
+      setTypingUser(others.length > 0);
+    });
+
+    channel.subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [activeConv, user]);
+
+  const broadcastTyping = useCallback(() => {
+    if (!activeConv || !user) return;
+    const channel = supabase.channel(`typing:${activeConv.id}`);
+    channel.track({ typing: true });
+
+    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+    typingTimeoutRef.current = setTimeout(() => {
+      channel.untrack();
+    }, 3000);
+  }, [activeConv, user]);
+
+  // Polling
   useEffect(() => {
     if (!user) return;
     loadConversations();
@@ -198,7 +276,6 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
     if (!searchResult || !user) return;
     setLoading(true);
 
-    // Check if conversation exists
     const { data: existing } = await supabase
       .from('conversations')
       .select('*')
@@ -206,7 +283,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
       .maybeSingle();
 
     if (existing) {
-      setActiveConv({ ...existing, otherUsername: searchResult.username });
+      setActiveConv({ ...existing, otherUsername: searchResult.username, otherUserId: searchResult.user_id });
       setShowNewChat(false);
       setSearchUser('');
       setSearchResult(null);
@@ -216,15 +293,12 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
 
     const { data: newConv } = await supabase
       .from('conversations')
-      .insert({
-        user1_id: user.id,
-        user2_id: searchResult.user_id,
-      })
+      .insert({ user1_id: user.id, user2_id: searchResult.user_id })
       .select()
       .single();
 
     if (newConv) {
-      setActiveConv({ ...newConv, otherUsername: searchResult.username });
+      setActiveConv({ ...newConv, otherUsername: searchResult.username, otherUserId: searchResult.user_id });
       setShowNewChat(false);
       setSearchUser('');
       setSearchResult(null);
@@ -233,20 +307,78 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
     setLoading(false);
   };
 
-  const sendMessage = async () => {
-    if (!newMessage.trim() || !activeConv || !user) return;
-    const content = newMessage.trim();
+  const sendMessage = async (type: string = 'text', fileUrl?: string, fileName?: string) => {
+    const content = type === 'text' ? newMessage.trim() : (fileName || '');
+    if (!content && type === 'text') return;
+    if (!activeConv || !user) return;
+
     setNewMessage('');
+    setReplyTo(null);
 
     await supabase.from('messages').insert({
       conversation_id: activeConv.id,
       sender_id: user.id,
       content,
+      message_type: type,
+      file_url: fileUrl || null,
+      file_name: fileName || null,
+      reply_to_id: replyTo?.id || null,
     });
 
     await supabase.from('conversations')
       .update({ updated_at: new Date().toISOString() })
       .eq('id', activeConv.id);
+  };
+
+  const deleteMessage = async (msgId: string) => {
+    await supabase.from('messages').update({ deleted: true, content: '' }).eq('id', msgId);
+    setContextMenu(null);
+  };
+
+  const toggleReaction = async (messageId: string, emoji: string) => {
+    if (!user) return;
+    const existing = reactions.find(r => r.message_id === messageId && r.user_id === user.id && r.emoji === emoji);
+    if (existing) {
+      await supabase.from('message_reactions').delete().eq('id', existing.id);
+    } else {
+      await supabase.from('message_reactions').insert({
+        message_id: messageId,
+        user_id: user.id,
+        emoji,
+      });
+    }
+    setShowEmojiFor(null);
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user || !activeConv) return;
+    setUploading(true);
+
+    const ext = file.name.split('.').pop();
+    const path = `${user.id}/${activeConv.id}/${Date.now()}.${ext}`;
+
+    const { error } = await supabase.storage.from('chat-files').upload(path, file);
+    if (error) {
+      setUploading(false);
+      return;
+    }
+
+    const { data: urlData } = supabase.storage.from('chat-files').getPublicUrl(path);
+    const isImage = file.type.startsWith('image/');
+
+    await sendMessage(isImage ? 'image' : 'file', urlData.publicUrl, file.name);
+    setUploading(false);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const getReplyPreview = (replyId: string) => {
+    const msg = messages.find(m => m.id === replyId);
+    if (!msg) return null;
+    if (msg.deleted) return isAr ? 'رسالة محذوفة' : 'Gelöschte Nachricht';
+    if (msg.message_type === 'image') return '📷 ' + (isAr ? 'صورة' : 'Foto');
+    if (msg.message_type === 'file') return '📎 ' + msg.file_name;
+    return msg.content.length > 50 ? msg.content.slice(0, 50) + '…' : msg.content;
   };
 
   const BackIcon = isAr ? ArrowRight : ArrowLeft;
@@ -266,27 +398,37 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
   }
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side={isAr ? 'right' : 'left'} className="w-full sm:max-w-md p-0 flex flex-col">
+    <Sheet open={open} onOpenChange={(v) => { onOpenChange(v); if (!v) { setActiveConv(null); setShowNewChat(false); setContextMenu(null); } }}>
+      <SheetContent side={isAr ? 'right' : 'left'} className="w-full sm:max-w-md p-0 flex flex-col bg-background">
+        <input
+          type="file"
+          ref={fileInputRef}
+          className="hidden"
+          accept="image/*,application/pdf,.doc,.docx,.txt,.zip"
+          onChange={handleFileUpload}
+        />
+
         {!activeConv && !showNewChat ? (
-          // Conversation List
+          // ─── Conversation List ───
           <>
-            <SheetHeader className="p-4 border-b border-border">
+            <SheetHeader className="p-4 border-b border-border/50 bg-card/50">
               <div className="flex items-center justify-between">
                 <SheetTitle className="text-lg font-bold">
                   {isAr ? 'الرسائل' : 'Nachrichten'}
                 </SheetTitle>
-                <Button size="icon" variant="ghost" onClick={() => setShowNewChat(true)}>
+                <Button size="icon" variant="ghost" className="rounded-full" onClick={() => setShowNewChat(true)}>
                   <Plus className="h-5 w-5" />
                 </Button>
               </div>
             </SheetHeader>
             <div className="flex-1 overflow-y-auto">
               {conversations.length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-full text-muted-foreground gap-3">
-                  <MessageCircle className="h-12 w-12 opacity-30" />
+                <div className="flex flex-col items-center justify-center h-full text-muted-foreground gap-3 px-6">
+                  <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+                    <MessageCircle className="h-8 w-8 text-primary/50" />
+                  </div>
                   <p className="text-sm">{isAr ? 'لا توجد محادثات بعد' : 'Noch keine Gespräche'}</p>
-                  <Button variant="outline" size="sm" onClick={() => setShowNewChat(true)}>
+                  <Button variant="outline" size="sm" className="rounded-full" onClick={() => setShowNewChat(true)}>
                     {isAr ? 'ابدأ محادثة جديدة' : 'Neues Gespräch starten'}
                   </Button>
                 </div>
@@ -295,10 +437,10 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                   <button
                     key={conv.id}
                     onClick={() => setActiveConv(conv)}
-                    className="w-full flex items-center gap-3 p-4 hover:bg-accent/50 transition-colors border-b border-border/50 text-start"
+                    className="w-full flex items-center gap-3 p-4 hover:bg-accent/30 transition-colors border-b border-border/20 text-start"
                   >
-                    <Avatar className="h-11 w-11 shrink-0">
-                      <AvatarFallback className="bg-primary/10 text-primary font-bold text-sm">
+                    <Avatar className="h-12 w-12 shrink-0">
+                      <AvatarFallback className="bg-primary/10 text-primary font-bold text-base">
                         {conv.otherUsername?.charAt(0).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
@@ -306,15 +448,13 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                       <div className="flex items-center justify-between">
                         <span className="font-semibold text-sm text-foreground">{conv.otherUsername}</span>
                         {(conv.unreadCount ?? 0) > 0 && (
-                          <span className="bg-destructive text-destructive-foreground text-[10px] rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 font-bold">
+                          <span className="bg-primary text-primary-foreground text-[10px] rounded-full min-w-[20px] h-[20px] flex items-center justify-center px-1.5 font-bold">
                             {conv.unreadCount}
                           </span>
                         )}
                       </div>
                       {conv.lastMessage && (
-                        <p className="text-xs text-muted-foreground truncate mt-0.5">
-                          {conv.lastMessage}
-                        </p>
+                        <p className="text-xs text-muted-foreground truncate mt-0.5">{conv.lastMessage}</p>
                       )}
                     </div>
                   </button>
@@ -323,11 +463,11 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
             </div>
           </>
         ) : showNewChat ? (
-          // New Chat Search
+          // ─── New Chat Search ───
           <>
-            <SheetHeader className="p-4 border-b border-border">
+            <SheetHeader className="p-4 border-b border-border/50 bg-card/50">
               <div className="flex items-center gap-3">
-                <Button size="icon" variant="ghost" onClick={() => { setShowNewChat(false); setSearchResult(null); setSearchError(''); setSearchUser(''); }}>
+                <Button size="icon" variant="ghost" className="rounded-full" onClick={() => { setShowNewChat(false); setSearchResult(null); setSearchError(''); setSearchUser(''); }}>
                   <BackIcon className="h-5 w-5" />
                 </Button>
                 <SheetTitle className="text-lg font-bold">
@@ -342,24 +482,22 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                   value={searchUser}
                   onChange={e => setSearchUser(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && searchForUser()}
-                  className="flex-1"
+                  className="flex-1 rounded-full"
                   dir="auto"
                 />
-                <Button size="icon" onClick={searchForUser}>
+                <Button size="icon" className="rounded-full" onClick={searchForUser}>
                   <Search className="h-4 w-4" />
                 </Button>
               </div>
-              {searchError && (
-                <p className="text-destructive text-sm text-center">{searchError}</p>
-              )}
+              {searchError && <p className="text-destructive text-sm text-center">{searchError}</p>}
               {searchResult && (
                 <button
                   onClick={startConversation}
                   disabled={loading}
-                  className="w-full flex items-center gap-3 p-4 rounded-xl bg-accent/50 hover:bg-accent transition-colors"
+                  className="w-full flex items-center gap-3 p-4 rounded-2xl bg-accent/30 hover:bg-accent/50 transition-colors"
                 >
-                  <Avatar className="h-11 w-11">
-                    <AvatarFallback className="bg-primary/10 text-primary font-bold">
+                  <Avatar className="h-12 w-12">
+                    <AvatarFallback className="bg-primary/10 text-primary font-bold text-base">
                       {searchResult.username.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
@@ -369,57 +507,252 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
             </div>
           </>
         ) : (
-          // Active Chat
+          // ─── Active Chat ───
           <>
-            <div className="p-3 border-b border-border flex items-center gap-3">
-              <Button size="icon" variant="ghost" onClick={() => { setActiveConv(null); loadConversations(); }}>
+            {/* Chat Header */}
+            <div className="p-3 border-b border-border/50 bg-card/50 flex items-center gap-3">
+              <Button size="icon" variant="ghost" className="rounded-full shrink-0" onClick={() => { setActiveConv(null); setReplyTo(null); setContextMenu(null); loadConversations(); }}>
                 <BackIcon className="h-5 w-5" />
               </Button>
-              <Avatar className="h-9 w-9">
+              <Avatar className="h-10 w-10 shrink-0">
                 <AvatarFallback className="bg-primary/10 text-primary font-bold text-sm">
                   {activeConv?.otherUsername?.charAt(0).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
-              <span className="font-semibold text-sm">{activeConv?.otherUsername}</span>
+              <div className="flex-1 min-w-0">
+                <span className="font-semibold text-sm block">{activeConv?.otherUsername}</span>
+                <AnimatePresence>
+                  {typingUser && (
+                    <motion.span
+                      initial={{ opacity: 0, y: 4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 4 }}
+                      className="text-xs text-primary"
+                    >
+                      {isAr ? 'يكتب الآن...' : 'tippt...'}
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </div>
             </div>
-            <div className="flex-1 overflow-y-auto p-4 space-y-2">
-              {messages.map(msg => {
+
+            {/* Messages */}
+            <div className="flex-1 overflow-y-auto p-3 space-y-1" onClick={() => { setContextMenu(null); setShowEmojiFor(null); }}>
+              {messages.map((msg, idx) => {
                 const isMine = msg.sender_id === user.id;
+                const msgReactions = reactions.filter(r => r.message_id === msg.id);
+                const showDate = idx === 0 || new Date(msg.created_at).toDateString() !== new Date(messages[idx - 1].created_at).toDateString();
+
                 return (
-                  <div key={msg.id} className={cn('flex', isMine ? 'justify-end' : 'justify-start')}>
-                    <div className={cn(
-                      'max-w-[75%] rounded-2xl px-3.5 py-2 text-sm',
-                      isMine
-                        ? 'bg-primary text-primary-foreground rounded-br-md'
-                        : 'bg-muted text-foreground rounded-bl-md'
-                    )}>
-                      <p className="break-words whitespace-pre-wrap" dir="auto">{msg.content}</p>
-                      <div className={cn('flex items-center gap-1 mt-1', isMine ? 'justify-end' : 'justify-start')}>
-                        <span className={cn('text-[10px]', isMine ? 'text-primary-foreground/60' : 'text-muted-foreground')}>
-                          {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  <React.Fragment key={msg.id}>
+                    {showDate && (
+                      <div className="flex justify-center py-2">
+                        <span className="text-[10px] text-muted-foreground/60 bg-card/60 px-3 py-1 rounded-full">
+                          {new Date(msg.created_at).toLocaleDateString(isAr ? 'ar' : 'de', { day: 'numeric', month: 'short' })}
                         </span>
-                        {isMine && (
-                          msg.read
-                            ? <CheckCheck className="h-3 w-3 text-primary-foreground/60" />
-                            : <Check className="h-3 w-3 text-primary-foreground/60" />
-                        )}
                       </div>
-                    </div>
-                  </div>
+                    )}
+                    <motion.div
+                      initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      transition={{ duration: 0.15 }}
+                      className={cn('flex', isMine ? 'justify-end' : 'justify-start')}
+                    >
+                      <div
+                        className="relative max-w-[78%] group"
+                        onContextMenu={(e) => { e.preventDefault(); if (isMine && !msg.deleted) setContextMenu({ msg, y: e.clientY }); }}
+                        onClick={() => { if (!msg.deleted) setShowEmojiFor(showEmojiFor === msg.id ? null : msg.id); }}
+                      >
+                        {/* Reply preview */}
+                        {msg.reply_to_id && !msg.deleted && (
+                          <div className={cn(
+                            'text-[10px] px-3 py-1.5 mb-0.5 rounded-t-xl border-s-2',
+                            isMine
+                              ? 'bg-primary/20 border-primary-foreground/30 text-primary-foreground/70'
+                              : 'bg-muted/60 border-primary/40 text-muted-foreground'
+                          )}>
+                            <Reply className="w-3 h-3 inline me-1" />
+                            {getReplyPreview(msg.reply_to_id)}
+                          </div>
+                        )}
+
+                        <div className={cn(
+                          'rounded-2xl px-3.5 py-2 text-sm',
+                          msg.deleted
+                            ? 'bg-muted/30 text-muted-foreground/50 italic'
+                            : isMine
+                              ? 'bg-primary text-primary-foreground rounded-br-md'
+                              : 'bg-card border border-border/40 text-foreground rounded-bl-md'
+                        )}>
+                          {msg.deleted ? (
+                            <p className="text-xs">{isAr ? '🚫 تم حذف هذه الرسالة' : '🚫 Diese Nachricht wurde gelöscht'}</p>
+                          ) : msg.message_type === 'image' ? (
+                            <div className="space-y-1">
+                              <img
+                                src={msg.file_url!}
+                                alt={msg.file_name || 'image'}
+                                className="rounded-xl max-w-full max-h-60 object-cover cursor-pointer"
+                                onClick={(e) => { e.stopPropagation(); window.open(msg.file_url!, '_blank'); }}
+                              />
+                              {msg.content && msg.content !== msg.file_name && (
+                                <p className="break-words whitespace-pre-wrap text-xs" dir="auto">{msg.content}</p>
+                              )}
+                            </div>
+                          ) : msg.message_type === 'file' ? (
+                            <a
+                              href={msg.file_url!}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className={cn(
+                                'flex items-center gap-2 py-1',
+                                isMine ? 'text-primary-foreground' : 'text-foreground'
+                              )}
+                              onClick={e => e.stopPropagation()}
+                            >
+                              <FileText className="w-5 h-5 shrink-0" />
+                              <span className="text-xs truncate flex-1">{msg.file_name}</span>
+                              <Download className="w-4 h-4 shrink-0 opacity-60" />
+                            </a>
+                          ) : (
+                            <p className="break-words whitespace-pre-wrap" dir="auto">{msg.content}</p>
+                          )}
+
+                          {!msg.deleted && (
+                            <div className={cn('flex items-center gap-1 mt-1', isMine ? 'justify-end' : 'justify-start')}>
+                              <span className={cn('text-[10px]', isMine ? 'text-primary-foreground/50' : 'text-muted-foreground/60')}>
+                                {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                              </span>
+                              {isMine && (
+                                msg.read
+                                  ? <CheckCheck className="h-3 w-3 text-primary-foreground/50" />
+                                  : <Check className="h-3 w-3 text-primary-foreground/50" />
+                              )}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Reactions */}
+                        {msgReactions.length > 0 && (
+                          <div className={cn('flex gap-0.5 mt-0.5 flex-wrap', isMine ? 'justify-end' : 'justify-start')}>
+                            {Object.entries(
+                              msgReactions.reduce((acc, r) => {
+                                acc[r.emoji] = (acc[r.emoji] || 0) + 1;
+                                return acc;
+                              }, {} as Record<string, number>)
+                            ).map(([emoji, count]) => (
+                              <button
+                                key={emoji}
+                                onClick={(e) => { e.stopPropagation(); toggleReaction(msg.id, emoji); }}
+                                className={cn(
+                                  'text-xs px-1.5 py-0.5 rounded-full bg-card/80 border border-border/30',
+                                  msgReactions.some(r => r.emoji === emoji && r.user_id === user.id) && 'border-primary/50 bg-primary/10'
+                                )}
+                              >
+                                {emoji}{count > 1 ? ` ${count}` : ''}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Quick emoji bar */}
+                        <AnimatePresence>
+                          {showEmojiFor === msg.id && !msg.deleted && (
+                            <motion.div
+                              initial={{ opacity: 0, scale: 0.8, y: 4 }}
+                              animate={{ opacity: 1, scale: 1, y: 0 }}
+                              exit={{ opacity: 0, scale: 0.8 }}
+                              className={cn(
+                                'absolute -top-9 flex gap-1 bg-card border border-border/50 rounded-full px-2 py-1 shadow-lg z-10',
+                                isMine ? 'right-0' : 'left-0'
+                              )}
+                              onClick={e => e.stopPropagation()}
+                            >
+                              {QUICK_EMOJIS.map(emoji => (
+                                <button
+                                  key={emoji}
+                                  onClick={() => toggleReaction(msg.id, emoji)}
+                                  className="text-base hover:scale-125 transition-transform"
+                                >
+                                  {emoji}
+                                </button>
+                              ))}
+                              {!isMine && (
+                                <button
+                                  onClick={() => { setReplyTo(msg); setShowEmojiFor(null); inputRef.current?.focus(); }}
+                                  className="text-muted-foreground hover:text-foreground transition-colors px-1"
+                                >
+                                  <Reply className="w-4 h-4" />
+                                </button>
+                              )}
+                              {isMine && !msg.deleted && (
+                                <button
+                                  onClick={() => { deleteMessage(msg.id); setShowEmojiFor(null); }}
+                                  className="text-destructive/70 hover:text-destructive transition-colors px-1"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              )}
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    </motion.div>
+                  </React.Fragment>
                 );
               })}
               <div ref={messagesEndRef} />
             </div>
-            <div className="p-3 border-t border-border flex gap-2">
+
+            {/* Reply preview bar */}
+            <AnimatePresence>
+              {replyTo && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  className="border-t border-border/30 bg-card/50 px-4 py-2 flex items-center gap-2"
+                >
+                  <Reply className="w-4 h-4 text-primary shrink-0" />
+                  <p className="text-xs text-muted-foreground truncate flex-1" dir="auto">
+                    {replyTo.message_type === 'image' ? '📷' : replyTo.content}
+                  </p>
+                  <button onClick={() => setReplyTo(null)} className="text-muted-foreground hover:text-foreground">
+                    <X className="w-4 h-4" />
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Input area */}
+            <div className="p-3 border-t border-border/50 bg-card/30 flex items-center gap-2">
+              <Button
+                size="icon"
+                variant="ghost"
+                className="rounded-full shrink-0 h-9 w-9"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+              >
+                {uploading ? (
+                  <div className="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+                ) : (
+                  <Paperclip className="h-4 w-4 text-muted-foreground" />
+                )}
+              </Button>
               <Input
+                ref={inputRef}
                 placeholder={isAr ? 'اكتب رسالة...' : 'Nachricht schreiben...'}
                 value={newMessage}
-                onChange={e => setNewMessage(e.target.value)}
+                onChange={e => { setNewMessage(e.target.value); broadcastTyping(); }}
                 onKeyDown={e => e.key === 'Enter' && !e.shiftKey && sendMessage()}
                 dir="auto"
-                className="flex-1"
+                className="flex-1 rounded-full bg-accent/30 border-border/30"
               />
-              <Button size="icon" onClick={sendMessage} disabled={!newMessage.trim()}>
+              <Button
+                size="icon"
+                className="rounded-full shrink-0 h-9 w-9"
+                onClick={() => sendMessage()}
+                disabled={!newMessage.trim()}
+              >
                 <Send className="h-4 w-4" />
               </Button>
             </div>
