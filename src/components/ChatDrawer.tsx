@@ -57,7 +57,14 @@ interface ChatDrawerProps {
   onUnreadChange: (count: number) => void;
 }
 
-const QUICK_EMOJIS = ['❤️', '👍', '😂', '😮', '😢', '🔥', '👏', '🎉'];
+const QUICK_EMOJIS = ['❤️', '👍', '👎', '🔥', '🥰', '👏', '😁'];
+
+interface ActionMenuState {
+  msg: Message;
+  isMine: boolean;
+  rect: { top: number; bottom: number; left: number; right: number; width: number };
+  containerRect: { top: number; bottom: number; height: number };
+}
 
 function formatTime(dateStr: string, isAr: boolean) {
   const d = new Date(dateStr);
