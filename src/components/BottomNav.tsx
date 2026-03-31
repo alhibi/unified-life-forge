@@ -4,6 +4,14 @@ import { Gamepad2, Settings, BookOpen, ScrollText } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
+const SofaIcon = ({ className }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M4 14v-2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2" />
+    <path d="M2 12v4a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z" />
+    <path d="M6 18h12" />
+  </svg>
+);
+
 const tabs = [
   { key: 'settings', path: '/settings', icon: Settings, labelKey: 'nav.settings' },
   { key: 'games', path: '/games', icon: Gamepad2, labelKey: 'nav.games' },
