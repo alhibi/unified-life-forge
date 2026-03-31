@@ -44,6 +44,7 @@ export default function ProfileEditPage() {
   const [uploading, setUploading] = useState(false);
   const [checkingUsername, setCheckingUsername] = useState(false);
   const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
+  const [usernameChanged, setUsernameChanged] = useState(false);
 
   const isEmojiAvatar = EMOJI_AVATARS.some(a => a.emoji === selectedAvatar);
   const isUrlAvatar = selectedAvatar.startsWith('http');
@@ -170,6 +171,7 @@ export default function ProfileEditPage() {
       }
     } finally {
       setSaving(false);
+      setUsernameChanged(false);
     }
   };
 
@@ -270,14 +272,14 @@ export default function ProfileEditPage() {
               <span className="absolute start-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">@</span>
               <Input
                 value={newUsername}
-                onChange={(e) => setNewUsername(e.target.value.replace(/[^a-zA-Z0-9_]/g, '').toLowerCase())}
+                onChange={(e) => { setNewUsername(e.target.value.replace(/[^a-zA-Z0-9_]/g, '').toLowerCase()); setUsernameChanged(true); }}
                 placeholder={isAr ? 'اسم المستخدم' : 'benutzername'}
                 className="ps-8"
                 dir="ltr"
                 maxLength={20}
               />
             </div>
-            {newUsername.trim().length >= 3 && (
+            {usernameChanged && newUsername.trim().length >= 3 && (
               <p className={`text-[11px] ${checkingUsername ? 'text-muted-foreground' : usernameAvailable ? 'text-green-500' : 'text-destructive'}`}>
                 {checkingUsername
                   ? (isAr ? 'جاري التحقق...' : 'Wird geprüft...')
