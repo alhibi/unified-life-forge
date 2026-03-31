@@ -24,7 +24,7 @@ export default function GamesPage() {
   const diceStats = getStats('dice-stats');
   const targetStats = getStats('target-stats');
   const puzzleStats = getStats('puzzle-stats');
-  const stackStats = getStats('stack-stats');
+  
   const hexStats = getStats('hex-stats');
   const focusStats = getStats('focus-stats');
 
@@ -89,7 +89,7 @@ export default function GamesPage() {
     { key: 'dice', icon: Dices, title: t('games.dice'), path: '/games/dice' },
     { key: 'target', icon: Target, title: t('games.target'), path: '/games/target' },
     { key: 'puzzle', icon: Puzzle, title: t('games.puzzle'), path: '/games/puzzle' },
-    { key: 'stack', icon: Layers, title: t('games.stack'), path: '/games/stack' },
+    
     { key: 'hex', icon: Hexagon, title: t('games.hex'), path: '/games/hex' },
     { key: 'focus', icon: Crosshair, title: t('games.focus'), path: '/games/focus' },
   ];
