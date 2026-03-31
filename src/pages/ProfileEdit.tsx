@@ -10,16 +10,24 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 
+const APPLE_EMOJI_CDN = 'https://cdn.jsdelivr.net/npm/emoji-datasource-apple@16.0.0/img/apple/64';
+
 const EMOJI_AVATARS = [
-  { id: 'fox', emoji: '🦊', label: 'ثعلب' },
-  { id: 'cat', emoji: '🐱', label: 'قطة' },
-  { id: 'owl', emoji: '🦉', label: 'بومة' },
-  { id: 'wolf', emoji: '🐺', label: 'ذئب' },
-  { id: 'bear', emoji: '🐻', label: 'دب' },
-  { id: 'lion', emoji: '🦁', label: 'أسد' },
-  { id: 'eagle', emoji: '🦅', label: 'نسر' },
-  { id: 'dolphin', emoji: '🐬', label: 'دلفين' },
+  { id: 'fox', emoji: '🦊', code: '1f98a', label: 'ثعلب' },
+  { id: 'cat', emoji: '🐱', code: '1f431', label: 'قطة' },
+  { id: 'owl', emoji: '🦉', code: '1f989', label: 'بومة' },
+  { id: 'wolf', emoji: '🐺', code: '1f43a', label: 'ذئب' },
+  { id: 'bear', emoji: '🐻', code: '1f43b', label: 'دب' },
+  { id: 'lion', emoji: '🦁', code: '1f981', label: 'أسد' },
+  { id: 'eagle', emoji: '🦅', code: '1f985', label: 'نسر' },
+  { id: 'dolphin', emoji: '🐬', code: '1f42c', label: 'دلفين' },
 ];
+
+const getEmojiImg = (emoji: string) => {
+  const animal = EMOJI_AVATARS.find(a => a.emoji === emoji);
+  if (!animal) return null;
+  return `${APPLE_EMOJI_CDN}/${animal.code}.png`;
+};
 
 const stagger = {
   hidden: {},
