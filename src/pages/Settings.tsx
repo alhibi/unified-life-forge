@@ -62,7 +62,7 @@ export default function SettingsPage() {
     },
   ];
 
-  const generalItems = [
+  const generalItems: Array<{ key: string; icon: any; title: string; value: string; onClick: () => void; isToggle?: boolean }> = [
     {
       key: 'language',
       icon: Languages,
