@@ -1,6 +1,6 @@
 import React from 'react';
 import { useApp } from '@/contexts/AppContext';
-import { HardDriveDownload, Gamepad2, Settings, BookOpen, ScrollText } from 'lucide-react';
+import { Armchair, Gamepad2, Settings, BookOpen, ScrollText } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
