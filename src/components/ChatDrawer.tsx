@@ -104,6 +104,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
   const [showChatMenu, setShowChatMenu] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
