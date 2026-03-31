@@ -775,7 +775,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-3 space-y-1" onClick={() => { setShowChatMenu(false); setShowEmojiFor(null); }}>
+            <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-3 space-y-1" onClick={() => { setShowChatMenu(false); setActionMenu(null); }}>
               {messages.map((msg, idx) => {
                 const isMine = msg.sender_id === user.id;
                 const msgReactions = reactions.filter(r => r.message_id === msg.id);
