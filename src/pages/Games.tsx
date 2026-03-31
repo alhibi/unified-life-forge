@@ -83,60 +83,15 @@ export default function GamesPage() {
         { icon: Star, value: pipesStats.bestStreak, label: t('stats.streak') },
       ] : null,
     },
-    {
-      key: 'dice', icon: Dices,
-      title: t('games.dice'), desc: t('games.dice.desc'),
-      path: '/games/dice',
-      stats: diceStats.gamesPlayed > 0 ? [
-        { icon: Trophy, value: diceStats.gamesWon || 0, label: t('stats.wins') },
-        { icon: Gamepad2, value: diceStats.gamesPlayed, label: t('stats.played') },
-      ] : null,
-    },
-    {
-      key: 'target', icon: Target,
-      title: t('games.target'), desc: t('games.target.desc'),
-      path: '/games/target',
-      stats: targetStats.bestScore > 0 ? [
-        { icon: Star, value: targetStats.bestScore, label: t('stats.best') },
-        { icon: Gamepad2, value: targetStats.gamesPlayed, label: t('stats.played') },
-      ] : null,
-    },
-    {
-      key: 'puzzle', icon: Puzzle,
-      title: t('games.puzzle'), desc: t('games.puzzle.desc'),
-      path: '/games/puzzle',
-      stats: puzzleStats.gamesWon > 0 ? [
-        { icon: Trophy, value: puzzleStats.gamesWon, label: t('stats.wins') },
-        { icon: Star, value: puzzleStats.bestMoves, label: t('stats.best') },
-      ] : null,
-    },
-    {
-      key: 'stack', icon: Layers,
-      title: t('games.stack'), desc: t('games.stack.desc'),
-      path: '/games/stack',
-      stats: stackStats.bestScore > 0 ? [
-        { icon: Star, value: stackStats.bestScore, label: t('stats.best') },
-        { icon: Gamepad2, value: stackStats.gamesPlayed, label: t('stats.played') },
-      ] : null,
-    },
-    {
-      key: 'hex', icon: Hexagon,
-      title: t('games.hex'), desc: t('games.hex.desc'),
-      path: '/games/hex',
-      stats: hexStats.gamesWon > 0 ? [
-        { icon: Trophy, value: hexStats.gamesWon, label: t('stats.wins') },
-        { icon: Star, value: hexStats.bestMoves, label: t('stats.best') },
-      ] : null,
-    },
-    {
-      key: 'focus', icon: Crosshair,
-      title: t('games.focus'), desc: t('games.focus.desc'),
-      path: '/games/focus',
-      stats: focusStats.bestAvg > 0 ? [
-        { icon: Star, value: `${focusStats.bestAvg}ms`, label: t('stats.best') },
-        { icon: Gamepad2, value: focusStats.gamesPlayed, label: t('stats.played') },
-      ] : null,
-    },
+  ];
+
+  const extraGames = [
+    { key: 'dice', icon: Dices, title: t('games.dice'), path: '/games/dice' },
+    { key: 'target', icon: Target, title: t('games.target'), path: '/games/target' },
+    { key: 'puzzle', icon: Puzzle, title: t('games.puzzle'), path: '/games/puzzle' },
+    { key: 'stack', icon: Layers, title: t('games.stack'), path: '/games/stack' },
+    { key: 'hex', icon: Hexagon, title: t('games.hex'), path: '/games/hex' },
+    { key: 'focus', icon: Crosshair, title: t('games.focus'), path: '/games/focus' },
   ];
 
   // Snap-based scroll tracking
@@ -236,6 +191,31 @@ export default function GamesPage() {
               }`}
             />
           ))}
+        </div>
+      </motion.div>
+
+      {/* Extra games grid */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.35, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+        className="px-5 mt-8"
+      >
+        <h2 className="text-[14px] font-semibold text-muted-foreground mb-3">{language === 'ar' ? 'المزيد' : 'Mehr'}</h2>
+        <div className="grid grid-cols-3 gap-3">
+          {extraGames.map((g) => {
+            const GIcon = g.icon;
+            return (
+              <button
+                key={g.key}
+                onClick={() => navigate(g.path)}
+                className="flex flex-col items-center gap-2 py-4 px-2 rounded-2xl bg-card/60 border border-border/30 active:scale-95 transition-transform"
+              >
+                <GIcon className="w-5 h-5 text-primary stroke-[1.8]" />
+                <span className="text-[11px] font-medium text-muted-foreground truncate w-full text-center">{g.title}</span>
+              </button>
+            );
+          })}
         </div>
       </motion.div>
 
