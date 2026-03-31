@@ -894,50 +894,99 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                           </div>
                         )}
 
-                        {/* Quick emoji bar */}
-                        <AnimatePresence>
-                          {showEmojiFor === msg.id && !msg.deleted && (
-                            <motion.div
-                              initial={{ opacity: 0, scale: 0.8, y: 4 }}
-                              animate={{ opacity: 1, scale: 1, y: 0 }}
-                              exit={{ opacity: 0, scale: 0.8 }}
-                              className={cn(
-                                'absolute -top-11 flex items-center gap-0.5 bg-card border border-border/50 rounded-full px-2 py-1.5 shadow-xl z-10',
-                                isMine ? 'right-0' : 'left-0'
-                              )}
-                              dir="ltr"
-                              onClick={e => e.stopPropagation()}
-                            >
-                              {QUICK_EMOJIS.map(emoji => (
-                                <button
-                                  key={emoji}
-                                  onClick={() => toggleReaction(msg.id, emoji)}
-                                  className="text-lg hover:scale-125 active:scale-90 transition-transform p-0.5"
-                                  aria-label={`React with ${emoji}`}
-                                >
-                                  {emoji}
-                                </button>
-                              ))}
-                              <div className="w-px h-5 bg-border/40 mx-0.5" />
-                              <button
-                                onClick={() => { setReplyTo(msg); setShowEmojiFor(null); inputRef.current?.focus(); }}
-                                className="text-muted-foreground hover:text-foreground transition-colors p-1"
-                                aria-label={isAr ? 'رد' : 'Antworten'}
-                              >
-                                <Reply className="w-4 h-4" />
-                              </button>
-                              {isMine && (
-                                <button
-                                  onClick={() => { deleteMessage(msg.id); setShowEmojiFor(null); }}
-                                  className="text-destructive/70 hover:text-destructive transition-colors p-1"
-                                  aria-label={isAr ? 'حذف' : 'Löschen'}
-                                >
-                                  <Trash2 className="w-3.5 h-3.5" />
-                                </button>
-                              )}
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
+                      </div>
+                    </motion.div>
+                  </React.Fragment>
+                );
+              })}
+              <div ref={messagesEndRef} />
+            </div>
+
+            {/* ─── Action Menu Overlay (Telegram-style) ─── */}
+            <AnimatePresence>
+              {actionMenu && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.12 }}
+                  className="absolute inset-0 z-50 bg-black/40 backdrop-blur-[2px]"
+                  onClick={() => setActionMenu(null)}
+                >
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.85 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.85 }}
+                    transition={{ type: 'spring', damping: 25, stiffness: 400 }}
+                    className="absolute flex flex-col items-center gap-2"
+                    style={{
+                      top: (() => {
+                        const msgTop = actionMenu.rect.top - actionMenu.containerRect.top;
+                        const spaceAbove = actionMenu.rect.top - actionMenu.containerRect.top;
+                        // If enough space above, place above the message
+                        if (spaceAbove > 120) {
+                          return `${msgTop - 8}px`;
+                        }
+                        // Otherwise place below
+                        return `${actionMenu.rect.bottom - actionMenu.containerRect.top + 8}px`;
+                      })(),
+                      transform: (() => {
+                        const spaceAbove = actionMenu.rect.top - actionMenu.containerRect.top;
+                        return spaceAbove > 120 ? 'translateY(-100%)' : 'translateY(0)';
+                      })(),
+                      ...(actionMenu.isMine
+                        ? { right: '12px' }
+                        : { left: '12px' }
+                      ),
+                    }}
+                    onClick={e => e.stopPropagation()}
+                  >
+                    {/* Emoji Row */}
+                    <div className="flex items-center gap-1 bg-card border border-border/50 rounded-2xl px-3 py-2 shadow-2xl" dir="ltr">
+                      {QUICK_EMOJIS.map(emoji => (
+                        <button
+                          key={emoji}
+                          onClick={() => toggleReaction(actionMenu.msg.id, emoji)}
+                          className="text-[22px] hover:scale-130 active:scale-90 transition-transform p-0.5"
+                          aria-label={`React with ${emoji}`}
+                        >
+                          {emoji}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Action Menu */}
+                    <div className="bg-card border border-border/50 rounded-2xl shadow-2xl overflow-hidden min-w-[180px]">
+                      <button
+                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-accent/30 active:bg-accent/50 transition-colors text-sm text-start"
+                        onClick={() => { setReplyTo(actionMenu.msg); setActionMenu(null); inputRef.current?.focus(); }}
+                      >
+                        <Reply className="w-4 h-4 text-muted-foreground" />
+                        <span>{isAr ? 'رد' : 'Antworten'}</span>
+                      </button>
+                      {actionMenu.msg.message_type === 'text' && actionMenu.msg.content && (
+                        <button
+                          className="w-full flex items-center gap-3 px-4 py-3 hover:bg-accent/30 active:bg-accent/50 transition-colors text-sm text-start"
+                          onClick={() => copyMessage(actionMenu.msg.content)}
+                        >
+                          <Copy className="w-4 h-4 text-muted-foreground" />
+                          <span>{isAr ? 'نسخ' : 'Kopieren'}</span>
+                        </button>
+                      )}
+                      {actionMenu.isMine && !actionMenu.msg.deleted && (
+                        <button
+                          className="w-full flex items-center gap-3 px-4 py-3 hover:bg-destructive/10 active:bg-destructive/20 transition-colors text-sm text-destructive text-start"
+                          onClick={() => { deleteMessage(actionMenu.msg.id); setActionMenu(null); }}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                          <span>{isAr ? 'حذف' : 'Löschen'}</span>
+                        </button>
+                      )}
+                    </div>
+                  </motion.div>
+                </motion.div>
+              )}
+            </AnimatePresence>
                       </div>
                     </motion.div>
                   </React.Fragment>
