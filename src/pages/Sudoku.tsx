@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, RefreshCw, Lightbulb, Clock, Eraser, PenLine, Trophy, Undo2, Pause, Play } from 'lucide-react';
+import { Grid3X3, RefreshCw, Lightbulb, Clock, Eraser, PenLine, Trophy, Undo2, Pause, Play } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import GameShell from '@/components/GameShell';
 
 type Board = (number | null)[][];
 type Difficulty = 'easy' | 'medium' | 'hard';
