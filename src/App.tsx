@@ -62,6 +62,12 @@ function AnimatedRoutes() {
             <Route path="/games/minesweeper" element={<PageTransition><MinesweeperPage /></PageTransition>} />
             <Route path="/games/colormaze" element={<PageTransition><ColorMazePage /></PageTransition>} />
             <Route path="/games/pipes" element={<PageTransition><PipesPage /></PageTransition>} />
+            <Route path="/games/dice" element={<PageTransition><DiceGamePage /></PageTransition>} />
+            <Route path="/games/target" element={<PageTransition><TargetGamePage /></PageTransition>} />
+            <Route path="/games/puzzle" element={<PageTransition><PuzzleGamePage /></PageTransition>} />
+            <Route path="/games/stack" element={<PageTransition><StackGamePage /></PageTransition>} />
+            <Route path="/games/hex" element={<PageTransition><HexGamePage /></PageTransition>} />
+            <Route path="/games/focus" element={<PageTransition><FocusGamePage /></PageTransition>} />
             <Route path="/duas" element={<PageTransition><DuasPage /></PageTransition>} />
             <Route path="/diwan" element={<PageTransition><DiwanPage /></PageTransition>} />
             <Route path="/occasions" element={<PageTransition><AllOccasionsPage /></PageTransition>} />
