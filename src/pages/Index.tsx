@@ -103,7 +103,7 @@ export default function Index() {
             <div className="flex items-center gap-2 mt-0.5">
               <button
                 onClick={() => setShowClipboard(true)}
-                className="relative p-2.5 rounded-xl bg-accent/50 hover:bg-accent transition-colors"
+                className="relative p-2.5 rounded-xl bg-accent/50 hover:bg-accent transition-colors" aria-label="الحافظة"
               >
                 <ClipboardList className="h-5 w-5 text-foreground" />
                 {saved.length > 0 && (
@@ -114,14 +114,14 @@ export default function Index() {
               </button>
               <button
                 onClick={() => navigate('/reading')}
-                className="p-2.5 rounded-xl bg-accent/50 hover:bg-accent transition-colors"
+                className="p-2.5 rounded-xl bg-accent/50 hover:bg-accent transition-colors" aria-label="الأخبار"
               >
                 <Newspaper className="h-5 w-5 text-foreground" />
               </button>
               {user && (
                 <button
                   onClick={() => setChatOpen(true)}
-                  className="relative p-2.5 rounded-xl bg-accent/50 hover:bg-accent transition-colors"
+                  className="relative p-2.5 rounded-xl bg-accent/50 hover:bg-accent transition-colors" aria-label="المحادثات"
                 >
                   <MessageCircle className="h-5 w-5 text-foreground" />
                   {unreadCount > 0 && (
