@@ -10,24 +10,7 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 
-const APPLE_EMOJI_CDN = 'https://cdn.jsdelivr.net/npm/emoji-datasource-apple@16.0.0/img/apple/64';
-
-const EMOJI_AVATARS = [
-  { id: 'fox', emoji: '🦊', code: '1f98a', label: 'ثعلب' },
-  { id: 'cat', emoji: '🐱', code: '1f431', label: 'قطة' },
-  { id: 'owl', emoji: '🦉', code: '1f989', label: 'بومة' },
-  { id: 'wolf', emoji: '🐺', code: '1f43a', label: 'ذئب' },
-  { id: 'bear', emoji: '🐻', code: '1f43b', label: 'دب' },
-  { id: 'lion', emoji: '🦁', code: '1f981', label: 'أسد' },
-  { id: 'eagle', emoji: '🦅', code: '1f985', label: 'نسر' },
-  { id: 'dolphin', emoji: '🐬', code: '1f42c', label: 'دلفين' },
-];
-
-const getEmojiImg = (emoji: string) => {
-  const animal = EMOJI_AVATARS.find(a => a.emoji === emoji);
-  if (!animal) return null;
-  return `${APPLE_EMOJI_CDN}/${animal.code}.png`;
-};
+import { EMOJI_AVATARS, isEmojiAvatarValue, getAppleEmojiUrl } from '@/utils/emojiAvatar';
 
 const stagger = {
   hidden: {},
@@ -210,7 +193,7 @@ export default function ProfileEditPage() {
                 {isUrlAvatar ? (
                   <img src={selectedAvatar} alt="Avatar" className="w-full h-full object-cover" loading="lazy" />
                 ) : (
-                  <img src={getEmojiImg(selectedAvatar) || ''} alt="Avatar" className="w-16 h-16" loading="lazy" />
+                  <img src={getAppleEmojiUrl(selectedAvatar) || ''} alt="Avatar" className="w-16 h-16" loading="lazy" />
                 )}
               </div>
               <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-primary flex items-center justify-center border-2 border-card">
@@ -233,7 +216,7 @@ export default function ProfileEditPage() {
                       : 'bg-muted/30 ring-1 ring-border/40 hover:ring-primary/50 hover:bg-muted/50'
                   }`}
                 >
-                  <img src={`${APPLE_EMOJI_CDN}/${animal.code}.png`} alt={animal.label} className="w-8 h-8" loading="lazy" />
+                  <img src={getAppleEmojiUrl(animal.emoji) || ''} alt={animal.label} className="w-8 h-8" loading="lazy" />
                   <span className="text-[10px] text-muted-foreground">{animal.label}</span>
                   {isSelected && (
                     <div className="absolute top-1 end-1 w-4 h-4 rounded-full bg-primary flex items-center justify-center">
