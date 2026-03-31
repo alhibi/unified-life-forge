@@ -1,21 +1,24 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { UserCircle, Check, Pencil } from 'lucide-react';
+import { UserCircle, Check, Pencil, Camera, ImagePlus } from 'lucide-react';
 import BackButton from '@/components/BackButton';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 
-const ANIMAL_AVATARS = [
-  { id: 'gazelle', label: 'غزال', src: '/avatars/gazelle.png' },
-  { id: 'bear', label: 'دب', src: '/avatars/bear.png' },
-  { id: 'cheetah', label: 'فهد', src: '/avatars/cheetah.png' },
-  { id: 'mandrill', label: 'مندريل', src: '/avatars/mandrill.png' },
-  { id: 'zebra', label: 'حمار وحشي', src: '/avatars/zebra.png' },
+const EMOJI_AVATARS = [
+  { id: 'fox', emoji: '🦊', label: 'ثعلب' },
+  { id: 'cat', emoji: '🐱', label: 'قطة' },
+  { id: 'owl', emoji: '🦉', label: 'بومة' },
+  { id: 'wolf', emoji: '🐺', label: 'ذئب' },
+  { id: 'bear', emoji: '🐻', label: 'دب' },
+  { id: 'lion', emoji: '🦁', label: 'أسد' },
+  { id: 'eagle', emoji: '🦅', label: 'نسر' },
+  { id: 'dolphin', emoji: '🐬', label: 'دلفين' },
 ];
 
 const stagger = {
@@ -32,13 +35,18 @@ export default function ProfileEditPage() {
   const { user, loading, username: authUsername, profile, refreshProfile } = useAuth();
   const navigate = useNavigate();
   const isAr = language === 'ar';
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [newUsername, setNewUsername] = useState('');
   const [displayName, setDisplayName] = useState('');
-  const [selectedAvatar, setSelectedAvatar] = useState(ANIMAL_AVATARS[0].src);
+  const [selectedAvatar, setSelectedAvatar] = useState(EMOJI_AVATARS[0].emoji);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [checkingUsername, setCheckingUsername] = useState(false);
   const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
+
+  const isEmojiAvatar = EMOJI_AVATARS.some(a => a.emoji === selectedAvatar);
+  const isUrlAvatar = selectedAvatar.startsWith('http');
 
   useEffect(() => {
     if (loading) return;
@@ -49,7 +57,7 @@ export default function ProfileEditPage() {
     if (profile) {
       setNewUsername(profile.username || authUsername || '');
       setDisplayName(profile.display_name || '');
-      setSelectedAvatar(profile.avatar_url || ANIMAL_AVATARS[0].src);
+      setSelectedAvatar(profile.avatar_url || EMOJI_AVATARS[0].emoji);
     } else if (authUsername) {
       setNewUsername(authUsername);
     }
@@ -79,6 +87,48 @@ export default function ProfileEditPage() {
     return () => clearTimeout(timer);
   }, [newUsername, checkUsername]);
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error(isAr ? 'يرجى اختيار صورة' : 'Bitte ein Bild auswählen');
+      return;
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error(isAr ? 'الحد الأقصى 2 ميجابايت' : 'Maximal 2 MB');
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const ext = file.name.split('.').pop() || 'jpg';
+      const filePath = `${user.id}/avatar.${ext}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+
+      // Add cache-busting param
+      const publicUrl = `${urlData.publicUrl}?t=${Date.now()}`;
+      setSelectedAvatar(publicUrl);
+      toast.success(isAr ? 'تم رفع الصورة' : 'Bild hochgeladen');
+    } catch (err: any) {
+      toast.error(isAr ? 'فشل رفع الصورة' : 'Upload fehlgeschlagen');
+      console.error(err);
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
   const handleSave = async () => {
     if (!user) return;
     if (!newUsername.trim() || newUsername.trim().length < 3) {
@@ -103,7 +153,6 @@ export default function ProfileEditPage() {
 
       if (error) throw error;
 
-      // Also update auth metadata
       await supabase.auth.updateUser({
         data: { username: newUsername.toLowerCase().trim() },
       });
@@ -145,13 +194,12 @@ export default function ProfileEditPage() {
           {/* Current avatar preview */}
           <div className="flex justify-center mb-5">
             <div className="relative">
-              <div className="w-24 h-24 rounded-full bg-muted/30 flex items-center justify-center">
-                <img
-                  src={selectedAvatar}
-                  alt="Avatar"
-                  className="w-[120%] h-[120%] object-contain drop-shadow-md"
-                  loading="lazy"
-                />
+              <div className="w-24 h-24 rounded-full bg-muted/30 ring-4 ring-primary/20 flex items-center justify-center overflow-hidden">
+                {isUrlAvatar ? (
+                  <img src={selectedAvatar} alt="Avatar" className="w-full h-full object-cover" loading="lazy" />
+                ) : (
+                  <span className="text-5xl leading-none">{selectedAvatar}</span>
+                )}
               </div>
               <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-primary flex items-center justify-center border-2 border-card">
                 <Pencil className="w-3 h-3 text-primary-foreground" />
@@ -159,30 +207,55 @@ export default function ProfileEditPage() {
             </div>
           </div>
 
-          {/* Animal options */}
-          <div className="flex justify-center gap-3 flex-wrap">
-            {ANIMAL_AVATARS.map((animal) => {
-              const isSelected = selectedAvatar === animal.src;
+          {/* Emoji options */}
+          <div className="grid grid-cols-4 gap-2 mb-4">
+            {EMOJI_AVATARS.map((animal) => {
+              const isSelected = selectedAvatar === animal.emoji;
               return (
                 <button
                   key={animal.id}
-                  onClick={() => setSelectedAvatar(animal.src)}
-                  className={`relative w-14 h-14 rounded-full flex items-center justify-center transition-all duration-200 ${
+                  onClick={() => setSelectedAvatar(animal.emoji)}
+                  className={`relative flex flex-col items-center gap-1 py-2.5 rounded-xl transition-all duration-200 ${
                     isSelected
-                      ? 'ring-[3px] ring-primary scale-110'
-                      : 'ring-2 ring-border/40 hover:ring-primary/50'
+                      ? 'bg-primary/10 ring-2 ring-primary scale-105'
+                      : 'bg-muted/30 ring-1 ring-border/40 hover:ring-primary/50 hover:bg-muted/50'
                   }`}
                 >
-                  <img src={animal.src} alt={animal.label} className="w-[120%] h-[120%] object-contain drop-shadow-sm" loading="lazy" />
+                  <span className="text-3xl leading-none">{animal.emoji}</span>
+                  <span className="text-[10px] text-muted-foreground">{animal.label}</span>
                   {isSelected && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-primary/20 rounded-full">
-                      <Check className="w-4 h-4 text-primary" />
+                    <div className="absolute top-1 end-1 w-4 h-4 rounded-full bg-primary flex items-center justify-center">
+                      <Check className="w-2.5 h-2.5 text-primary-foreground" />
                     </div>
                   )}
                 </button>
               );
             })}
           </div>
+
+          {/* Upload from device */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleFileUpload}
+          />
+          <Button
+            variant="outline"
+            className="w-full gap-2"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploading}
+          >
+            {uploading ? (
+              <span className="animate-spin w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full" />
+            ) : (
+              <>
+                <ImagePlus className="w-4 h-4" />
+                {isAr ? 'اختيار صورة من الجهاز' : 'Bild vom Gerät wählen'}
+              </>
+            )}
+          </Button>
         </motion.div>
 
         {/* Username */}
