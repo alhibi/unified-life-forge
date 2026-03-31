@@ -150,7 +150,7 @@ export default function ProfileEditPage() {
                 <img
                   src={selectedAvatar}
                   alt="Avatar"
-                  className="w-16 h-16 object-contain"
+                  className="w-full h-full object-cover object-top"
                   loading="lazy"
                 />
               </div>
@@ -160,27 +160,64 @@ export default function ProfileEditPage() {
             </div>
           </div>
 
-          {/* Avatar options */}
+          {/* Animal options */}
           <div className="flex justify-center gap-3 flex-wrap">
-            {DEFAULT_AVATARS.map((avatar) => (
-              <button
-                key={avatar}
-                onClick={() => setSelectedAvatar(avatar)}
-                className={`relative w-14 h-14 rounded-full overflow-hidden flex items-center justify-center transition-all duration-200 ${
-                  selectedAvatar === avatar
-                    ? 'ring-[3px] ring-primary bg-primary/10 scale-110'
-                    : 'ring-2 ring-border/40 bg-muted/30 hover:ring-primary/50'
-                }`}
-              >
-                <img src={avatar} alt="" className="w-9 h-9 object-contain" loading="lazy" />
-                {selectedAvatar === avatar && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-primary/20 rounded-full">
-                    <Check className="w-4 h-4 text-primary" />
-                  </div>
-                )}
-              </button>
-            ))}
+            {ANIMAL_AVATARS.map((animal) => {
+              const isAnimalSelected = animal.colors.includes(selectedAvatar);
+              return (
+                <button
+                  key={animal.id}
+                  onClick={() => setSelectedAnimal(selectedAnimal === animal.id ? null : animal.id)}
+                  className={`relative w-14 h-14 rounded-full overflow-hidden flex items-center justify-center transition-all duration-200 ${
+                    isAnimalSelected
+                      ? 'ring-[3px] ring-primary bg-primary/10 scale-110'
+                      : selectedAnimal === animal.id
+                        ? 'ring-[3px] ring-accent bg-accent/10 scale-105'
+                        : 'ring-2 ring-border/40 bg-muted/30 hover:ring-primary/50'
+                  }`}
+                >
+                  <img src={animal.colors[0]} alt={animal.label} className="w-full h-full object-cover object-top" loading="lazy" />
+                  {isAnimalSelected && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-primary/20 rounded-full">
+                      <Check className="w-4 h-4 text-primary" />
+                    </div>
+                  )}
+                </button>
+              );
+            })}
           </div>
+
+          {/* Color variants */}
+          {selectedAnimal && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="mt-4"
+            >
+              <p className="text-[11px] text-muted-foreground text-center mb-3">
+                {isAr ? 'اختر اللون' : 'Farbe wählen'}
+              </p>
+              <div className="flex justify-center gap-3">
+                {ANIMAL_AVATARS.find(a => a.id === selectedAnimal)?.colors.map((colorPath, idx) => (
+                  <button
+                    key={colorPath}
+                    onClick={() => {
+                      setSelectedAvatar(colorPath);
+                      setSelectedAnimal(null);
+                    }}
+                    className={`relative w-16 h-16 rounded-2xl overflow-hidden flex items-center justify-center transition-all duration-200 ${
+                      selectedAvatar === colorPath
+                        ? 'ring-[3px] ring-primary bg-primary/10 scale-110'
+                        : 'ring-2 ring-border/40 bg-muted/30 hover:ring-primary/50'
+                    }`}
+                  >
+                    <img src={colorPath} alt="" className="w-full h-full object-cover object-top" loading="lazy" />
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          )}
         </motion.div>
 
         {/* Username */}
