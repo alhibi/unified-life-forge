@@ -410,7 +410,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
     loadConversations();
   };
 
-  const BackIcon = isAr ? ArrowRight : ArrowLeft;
+  const BackIcon = isAr ? ChevronRight : ChevronLeft;
 
   const renderAvatar = (username?: string, avatarUrl?: string | null, size: string = 'h-12 w-12') => {
     const initial = (username || '?').charAt(0).toUpperCase();
