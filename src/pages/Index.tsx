@@ -121,7 +121,7 @@ export default function Index() {
               {user && (
                 <button
                   onClick={() => setChatOpen(true)}
-                  className="relative p-2.5 rounded-xl bg-accent/50 hover:bg-accent transition-colors"
+                  className="relative p-2.5 rounded-xl bg-accent/50 hover:bg-accent transition-colors" aria-label="المحادثات"
                 >
                   <MessageCircle className="h-5 w-5 text-foreground" />
                   {unreadCount > 0 && (
