@@ -57,7 +57,8 @@ interface ChatDrawerProps {
   onUnreadChange: (count: number) => void;
 }
 
-const QUICK_EMOJIS = ['❤️', '👍', '👎', '🔥', '🥰', '👏', '😁'];
+const QUICK_EMOJIS = ['❤️', '👍', '😂', '🔥', '😢', '👏'];
+const EXTRA_EMOJIS = ['👎', '🥰', '😮', '🤔', '🎉', '💯', '🙏', '😡', '💔', '🫡', '✨', '🤣'];
 
 interface ActionMenuState {
   msg: Message;
