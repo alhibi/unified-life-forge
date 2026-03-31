@@ -145,11 +145,11 @@ export default function ProfileEditPage() {
           {/* Current avatar preview */}
           <div className="flex justify-center mb-5">
             <div className="relative">
-              <div className="w-24 h-24 rounded-full bg-primary/10 ring-4 ring-primary/20 overflow-hidden flex items-center justify-center">
+              <div className="w-24 h-24 rounded-full bg-muted/30 flex items-center justify-center">
                 <img
                   src={selectedAvatar}
                   alt="Avatar"
-                  className="w-full h-full object-cover object-top"
+                  className="w-[120%] h-[120%] object-contain drop-shadow-md"
                   loading="lazy"
                 />
               </div>
