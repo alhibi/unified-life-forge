@@ -24,11 +24,13 @@ export default function BottomNav() {
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-50 safe-bottom"
+      className="fixed bottom-0 left-0 right-0 z-50"
       dir="ltr"
       style={{ contain: 'layout style', willChange: 'transform', transform: 'translateZ(0)' }}
     >
-      <div className="bg-card/85 backdrop-blur-xl border-t border-border/50 px-2 py-1.5 flex items-center justify-around">
+      <div className="bg-card/85 backdrop-blur-xl border-t border-border/50 px-2 py-1.5 flex items-center justify-around"
+        style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 6px)' }}
+      >
         {tabs.map(tab => {
           const active = isActive(tab.path);
           return (
