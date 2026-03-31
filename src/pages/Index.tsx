@@ -16,6 +16,7 @@ const ChatDrawer = lazy(() => import('@/components/ChatDrawer'));
 import { useNavigate } from 'react-router-dom';
 import { Sunrise, Sun, Moon, MessageCircle, Newspaper, ClipboardList, X, Trash2, BookOpen } from 'lucide-react';
 import { AnimatePresence } from 'framer-motion';
+import { useClipboard } from '@/hooks/useClipboard';
 
 const stagger = {
   hidden: {},
@@ -42,15 +43,7 @@ export default function Index() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [showClipboard, setShowClipboard] = useState(false);
 
-  const STORAGE_KEY = 'sunnah-clipboard';
-  const getSavedItems = () => { try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch { return []; } };
-  const [saved, setSaved] = useState<any[]>(getSavedItems);
-
-  useEffect(() => { localStorage.setItem(STORAGE_KEY, JSON.stringify(saved)); }, [saved]);
-
-  const removeItem = (id: string) => {
-    setSaved((prev: any[]) => prev.filter((s: any) => s.id !== id));
-  };
+  const { items: saved, removeItem } = useClipboard('sunnah');
 
   // Poll unread count
   const fetchUnread = useCallback(async () => {
