@@ -167,13 +167,13 @@ export default function ProfileEditPage() {
                 <button
                   key={animal.id}
                   onClick={() => setSelectedAvatar(animal.src)}
-                  className={`relative w-14 h-14 rounded-full overflow-hidden flex items-center justify-center transition-all duration-200 ${
+                  className={`relative w-14 h-14 rounded-full flex items-center justify-center transition-all duration-200 ${
                     isSelected
-                      ? 'ring-[3px] ring-primary bg-primary/10 scale-110'
-                      : 'ring-2 ring-border/40 bg-muted/30 hover:ring-primary/50'
+                      ? 'ring-[3px] ring-primary scale-110'
+                      : 'ring-2 ring-border/40 hover:ring-primary/50'
                   }`}
                 >
-                  <img src={animal.src} alt={animal.label} className="w-full h-full object-cover object-top" loading="lazy" />
+                  <img src={animal.src} alt={animal.label} className="w-[120%] h-[120%] object-contain drop-shadow-sm" loading="lazy" />
                   {isSelected && (
                     <div className="absolute inset-0 flex items-center justify-center bg-primary/20 rounded-full">
                       <Check className="w-4 h-4 text-primary" />
