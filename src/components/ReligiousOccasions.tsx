@@ -23,7 +23,7 @@ function OccasionCard({ occasion, t }: { occasion: IslamicOccasion; t: (key: str
       <div className="flex-1 min-w-0">
         <h3 className="text-sm font-bold text-foreground leading-snug">{occasion.name}</h3>
         <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-2 leading-relaxed">{occasion.description}</p>
-        <p className="text-[10px] text-muted-foreground/70 mt-1">
+        <p className="text-[10px] text-muted-foreground mt-1">
           {formatGregorianDate(occasion.gregorianDate)}
           {' · '}
           {isToday ? (

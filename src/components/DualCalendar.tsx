@@ -83,7 +83,7 @@ export default function DualCalendar() {
             {t(`months.${viewMonth}`)} {viewYear}
           </div>
           <div className="flex items-center gap-1">
-            <span className="text-[11px] text-primary font-medium">
+            <span className="text-[11px] text-foreground font-medium">
               {t(`hijriMonths.${hijriInfo.month}`)} {hijriInfo.year}
             </span>
             <motion.div animate={{ rotate: expanded ? 180 : 0 }} transition={{ duration: 0.25 }}>
