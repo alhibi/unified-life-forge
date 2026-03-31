@@ -44,6 +44,7 @@ export default function ProfileEditPage() {
   const [uploading, setUploading] = useState(false);
   const [checkingUsername, setCheckingUsername] = useState(false);
   const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
+  const [usernameChanged, setUsernameChanged] = useState(false);
 
   const isEmojiAvatar = EMOJI_AVATARS.some(a => a.emoji === selectedAvatar);
   const isUrlAvatar = selectedAvatar.startsWith('http');
