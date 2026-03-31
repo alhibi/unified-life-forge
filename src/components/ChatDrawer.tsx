@@ -987,13 +987,6 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                 </motion.div>
               )}
             </AnimatePresence>
-                      </div>
-                    </motion.div>
-                  </React.Fragment>
-                );
-              })}
-              <div ref={messagesEndRef} />
-            </div>
 
             {/* Reply preview bar */}
             <AnimatePresence>
