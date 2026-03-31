@@ -429,7 +429,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
   if (!user) {
     return (
       <Sheet open={open} onOpenChange={onOpenChange}>
-        <SheetContent side={isAr ? 'right' : 'left'} className="w-full sm:max-w-md p-0">
+        <SheetContent side={isAr ? 'right' : 'left'} className="w-full sm:max-w-md p-0 [&>button[class*='absolute']]:hidden">
           <div className="flex items-center justify-center h-full">
             <p className="text-muted-foreground text-sm">
               {isAr ? 'يرجى تسجيل الدخول أولاً' : 'Bitte zuerst anmelden'}
