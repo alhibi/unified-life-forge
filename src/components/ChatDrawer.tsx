@@ -797,7 +797,10 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                       className={cn('flex', isMine ? 'justify-end' : 'justify-start')}
                     >
                       <div
-                        className="relative max-w-[78%] group"
+                        className={cn(
+                          "relative max-w-[78%] group",
+                          actionMenu?.msg.id === msg.id && "z-[51]"
+                        )}
                         onContextMenu={(e) => openActionMenu(msg, isMine, e)}
                         onClick={(e) => openActionMenu(msg, isMine, e)}
                       >
