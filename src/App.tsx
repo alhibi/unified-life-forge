@@ -21,6 +21,12 @@ const MemoryGame = lazy(() => import("./pages/MemoryGame"));
 const MinesweeperPage = lazy(() => import("./pages/Minesweeper"));
 const ColorMazePage = lazy(() => import("./pages/ColorMaze"));
 const PipesPage = lazy(() => import("./pages/PipesGame"));
+const DiceGamePage = lazy(() => import("./pages/DiceGame"));
+const TargetGamePage = lazy(() => import("./pages/TargetGame"));
+const PuzzleGamePage = lazy(() => import("./pages/PuzzleGame"));
+const StackGamePage = lazy(() => import("./pages/StackGame"));
+const HexGamePage = lazy(() => import("./pages/HexGame"));
+const FocusGamePage = lazy(() => import("./pages/FocusGame"));
 const SettingsPage = lazy(() => import("./pages/Settings"));
 const ThemeSettingsPage = lazy(() => import("./pages/ThemeSettings"));
 const AuthPage = lazy(() => import("./pages/Auth"));
@@ -56,6 +62,12 @@ function AnimatedRoutes() {
             <Route path="/games/minesweeper" element={<PageTransition><MinesweeperPage /></PageTransition>} />
             <Route path="/games/colormaze" element={<PageTransition><ColorMazePage /></PageTransition>} />
             <Route path="/games/pipes" element={<PageTransition><PipesPage /></PageTransition>} />
+            <Route path="/games/dice" element={<PageTransition><DiceGamePage /></PageTransition>} />
+            <Route path="/games/target" element={<PageTransition><TargetGamePage /></PageTransition>} />
+            <Route path="/games/puzzle" element={<PageTransition><PuzzleGamePage /></PageTransition>} />
+            <Route path="/games/stack" element={<PageTransition><StackGamePage /></PageTransition>} />
+            <Route path="/games/hex" element={<PageTransition><HexGamePage /></PageTransition>} />
+            <Route path="/games/focus" element={<PageTransition><FocusGamePage /></PageTransition>} />
             <Route path="/duas" element={<PageTransition><DuasPage /></PageTransition>} />
             <Route path="/diwan" element={<PageTransition><DiwanPage /></PageTransition>} />
             <Route path="/occasions" element={<PageTransition><AllOccasionsPage /></PageTransition>} />

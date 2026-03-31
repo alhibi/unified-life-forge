@@ -3,20 +3,7 @@ import { useApp } from '@/contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
 import { Grid3X3, Swords, Gamepad2, Trophy, Star, Brain, Bomb, Palette, PipetteIcon, Dices, Target, Puzzle, Layers, Hexagon, Crosshair } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-function UpcomingGameButton({ icon: Icon, title, language }: { icon: any; title: string; language: string }) {
-  const [showSoon, setShowSoon] = useState(false);
-  return (
-    <button
-      onClick={() => { setShowSoon(true); setTimeout(() => setShowSoon(false), 1200); }}
-      className="flex flex-col items-center gap-2 py-4 px-2 rounded-2xl bg-card/60 border border-border/30 active:scale-95 transition-transform relative"
-    >
-      <Icon className="w-5 h-5 text-muted-foreground/60 stroke-[1.8]" />
-      <span className="text-[11px] font-medium text-muted-foreground truncate w-full text-center transition-all duration-300">
-        {showSoon ? (language === 'ar' ? 'قريباً' : 'Soon') : title}
-      </span>
-    </button>
-  );
-}
+
 
 export default function GamesPage() {
   const { t, dir, language } = useApp();
@@ -34,6 +21,12 @@ export default function GamesPage() {
   const mineStats = getStats('mine-stats');
   const mazeStats = getStats('maze-stats');
   const pipesStats = getStats('pipes-stats');
+  const diceStats = getStats('dice-stats');
+  const targetStats = getStats('target-stats');
+  const puzzleStats = getStats('puzzle-stats');
+  const stackStats = getStats('stack-stats');
+  const hexStats = getStats('hex-stats');
+  const focusStats = getStats('focus-stats');
 
   const games = [
     {
@@ -88,6 +81,60 @@ export default function GamesPage() {
       stats: pipesStats.gamesWon > 0 ? [
         { icon: Trophy, value: pipesStats.gamesWon, label: t('stats.wins') },
         { icon: Star, value: pipesStats.bestStreak, label: t('stats.streak') },
+      ] : null,
+    },
+    {
+      key: 'dice', icon: Dices,
+      title: t('games.dice'), desc: t('games.dice.desc'),
+      path: '/games/dice',
+      stats: diceStats.gamesPlayed > 0 ? [
+        { icon: Trophy, value: diceStats.gamesWon || 0, label: t('stats.wins') },
+        { icon: Gamepad2, value: diceStats.gamesPlayed, label: t('stats.played') },
+      ] : null,
+    },
+    {
+      key: 'target', icon: Target,
+      title: t('games.target'), desc: t('games.target.desc'),
+      path: '/games/target',
+      stats: targetStats.bestScore > 0 ? [
+        { icon: Star, value: targetStats.bestScore, label: t('stats.best') },
+        { icon: Gamepad2, value: targetStats.gamesPlayed, label: t('stats.played') },
+      ] : null,
+    },
+    {
+      key: 'puzzle', icon: Puzzle,
+      title: t('games.puzzle'), desc: t('games.puzzle.desc'),
+      path: '/games/puzzle',
+      stats: puzzleStats.gamesWon > 0 ? [
+        { icon: Trophy, value: puzzleStats.gamesWon, label: t('stats.wins') },
+        { icon: Star, value: puzzleStats.bestMoves, label: t('stats.best') },
+      ] : null,
+    },
+    {
+      key: 'stack', icon: Layers,
+      title: t('games.stack'), desc: t('games.stack.desc'),
+      path: '/games/stack',
+      stats: stackStats.bestScore > 0 ? [
+        { icon: Star, value: stackStats.bestScore, label: t('stats.best') },
+        { icon: Gamepad2, value: stackStats.gamesPlayed, label: t('stats.played') },
+      ] : null,
+    },
+    {
+      key: 'hex', icon: Hexagon,
+      title: t('games.hex'), desc: t('games.hex.desc'),
+      path: '/games/hex',
+      stats: hexStats.gamesWon > 0 ? [
+        { icon: Trophy, value: hexStats.gamesWon, label: t('stats.wins') },
+        { icon: Star, value: hexStats.bestMoves, label: t('stats.best') },
+      ] : null,
+    },
+    {
+      key: 'focus', icon: Crosshair,
+      title: t('games.focus'), desc: t('games.focus.desc'),
+      path: '/games/focus',
+      stats: focusStats.bestAvg > 0 ? [
+        { icon: Star, value: `${focusStats.bestAvg}ms`, label: t('stats.best') },
+        { icon: Gamepad2, value: focusStats.gamesPlayed, label: t('stats.played') },
       ] : null,
     },
   ];
@@ -192,27 +239,6 @@ export default function GamesPage() {
         </div>
       </motion.div>
 
-      {/* Upcoming games grid */}
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.35, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-        className="px-5 mt-8"
-      >
-        <h2 className="text-[14px] font-semibold text-muted-foreground mb-3">{language === 'ar' ? 'المزيد' : 'More'}</h2>
-        <div className="grid grid-cols-3 gap-3">
-          {[
-            { key: 'dice', icon: Dices, title: language === 'ar' ? 'النرد' : 'Dice' },
-            { key: 'target', icon: Target, title: language === 'ar' ? 'التصويب' : 'Target' },
-            { key: 'puzzle', icon: Puzzle, title: language === 'ar' ? 'الأحجية' : 'Puzzle' },
-            { key: 'stack', icon: Layers, title: language === 'ar' ? 'التكديس' : 'Stack' },
-            { key: 'hex', icon: Hexagon, title: language === 'ar' ? 'السداسي' : 'Hex' },
-            { key: 'aim', icon: Crosshair, title: language === 'ar' ? 'التركيز' : 'Focus' },
-          ].map((g) => (
-            <UpcomingGameButton key={g.key} icon={g.icon} title={g.title} language={language} />
-          ))}
-        </div>
-      </motion.div>
     </div>
   );
 }
