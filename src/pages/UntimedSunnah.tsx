@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '@/contexts/AppContext';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -6,27 +6,7 @@ import { ChevronDown, Volume2, Droplet, User, Star, Users, UtensilsCrossed, Shir
 import { untimedSunnahData } from '@/data/untimedSunnahData';
 import { toast } from 'sonner';
 import BackButton from '@/components/BackButton';
-
-interface SavedItem {
-  id: string;
-  title: string;
-  description: string;
-  source: string;
-  from: string;
-  savedAt: string;
-}
-
-const STORAGE_KEY = 'untimed-sunnah-clipboard';
-
-function getSavedItems(): SavedItem[] {
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-  } catch { return []; }
-}
-
-function saveItems(items: SavedItem[]) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-}
+import { useClipboard } from '@/hooks/useClipboard';
 
 const iconMap: Record<string, React.ElementType> = {
   volume: Volume2,
@@ -43,9 +23,7 @@ export default function UntimedSunnah() {
   const { dir } = useApp();
   const [openCatId, setOpenCatId] = useState<string | null>(null);
   const [openItemKey, setOpenItemKey] = useState<string | null>(null);
-  const [saved, setSaved] = useState<SavedItem[]>(getSavedItems);
-
-  useEffect(() => { saveItems(saved); }, [saved]);
+  const { items: saved, addItem: addClipboardItem, isItemSaved } = useClipboard('untimed');
 
   const toggleCat = (id: string) => {
     setOpenCatId(prev => prev === id ? null : id);
