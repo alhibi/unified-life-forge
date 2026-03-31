@@ -1087,6 +1087,6 @@ export default function ChessPage() {
           <span className="text-[9px] font-medium">{t('chess.newGame')}</span>
         </button>
       </div>
-    </div>
+    </GameShell>
   );
 }
