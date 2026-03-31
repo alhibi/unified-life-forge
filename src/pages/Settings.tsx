@@ -256,7 +256,7 @@ export default function SettingsPage() {
 
         {/* Version */}
         <motion.div variants={item} className="text-center pt-2 pb-4">
-          <p className="text-[11px] text-muted-foreground/50">{isAr ? 'الإصدار' : 'Version'} 1.0.0</p>
+          <p className="text-[11px] text-muted-foreground/50">{isAr ? 'الإصدار' : 'Version'} 1.4.0</p>
         </motion.div>
       </motion.div>
 
