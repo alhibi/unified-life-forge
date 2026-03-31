@@ -38,17 +38,16 @@ export default function UntimedSunnah() {
   };
 
   const saveItem = (title: string, description: string, source: string, catLabel: string) => {
-    const exists = saved.some(s => s.title === title && s.from === catLabel);
-    if (exists) {
+    const id = `${title}-${catLabel}`;
+    if (isItemSaved(id)) {
       toast.info(dir === 'rtl' ? 'محفوظ مسبقاً' : 'Already saved');
       return;
     }
-    const id = `${title}-${Date.now()}`;
-    setSaved(prev => [...prev, { id, title, description, source, from: catLabel, savedAt: new Date().toLocaleDateString(dir === 'rtl' ? 'ar' : 'de') }]);
+    addClipboardItem({ id, title, description, source, from: catLabel, savedAt: new Date().toISOString() });
     toast.success(dir === 'rtl' ? 'تم الحفظ في الحافظة' : 'Saved to clipboard');
   };
 
-  const isSaved = (title: string, catLabel: string) => saved.some(s => s.title === title && s.from === catLabel);
+  const isSaved = (title: string, catLabel: string) => isItemSaved(`${title}-${catLabel}`);
 
   const categories = Object.entries(untimedSunnahData);
 
