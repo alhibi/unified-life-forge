@@ -665,9 +665,13 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
           <>
             {/* Chat Header */}
             <div className="p-3 border-b border-border/50 bg-card/50 flex items-center gap-3">
-              <Button size="icon" variant="ghost" className="rounded-full shrink-0" onClick={() => { setActiveConv(null); setReplyTo(null); setShowChatMenu(false); loadConversations(); }} aria-label={isAr ? 'رجوع' : 'Zurück'}>
-                <BackIcon className="h-5 w-5" />
-              </Button>
+              <button
+                onClick={() => { setActiveConv(null); setReplyTo(null); setShowChatMenu(false); loadConversations(); }}
+                className="w-10 h-10 rounded-2xl bg-secondary/60 flex items-center justify-center active:scale-95 transition-transform shrink-0"
+                aria-label={isAr ? 'رجوع' : 'Zurück'}
+              >
+                <BackIcon className="w-5 h-5 text-foreground stroke-[1.8]" />
+              </button>
               <button
                 className="flex items-center gap-3 flex-1 min-w-0"
                 onClick={() => setShowProfilePopup(true)}
