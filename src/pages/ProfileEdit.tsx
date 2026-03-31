@@ -271,7 +271,7 @@ export default function ProfileEditPage() {
               <span className="absolute start-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">@</span>
               <Input
                 value={newUsername}
-                onChange={(e) => setNewUsername(e.target.value.replace(/[^a-zA-Z0-9_]/g, '').toLowerCase())}
+                onChange={(e) => { setNewUsername(e.target.value.replace(/[^a-zA-Z0-9_]/g, '').toLowerCase()); setUsernameChanged(true); }}
                 placeholder={isAr ? 'اسم المستخدم' : 'benutzername'}
                 className="ps-8"
                 dir="ltr"
