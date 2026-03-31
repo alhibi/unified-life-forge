@@ -124,7 +124,7 @@ export default function SettingsPage() {
                 <button onClick={() => navigate('/settings/profile')} className="relative active:scale-95 transition-transform">
                   <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center ring-2 ring-primary/20 overflow-hidden">
                     {profile?.avatar_url ? (
-                      <img src={profile.avatar_url} alt="" className="w-10 h-10 object-contain" />
+                      <img src={profile.avatar_url} alt="" className="w-full h-full object-cover object-top" />
                     ) : (
                       <span className="text-xl font-bold text-primary">
                         {(username || 'U').charAt(0).toUpperCase()}
