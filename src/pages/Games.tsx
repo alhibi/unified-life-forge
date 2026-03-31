@@ -90,6 +90,60 @@ export default function GamesPage() {
         { icon: Star, value: pipesStats.bestStreak, label: t('stats.streak') },
       ] : null,
     },
+    {
+      key: 'dice', icon: Dices,
+      title: t('games.dice'), desc: t('games.dice.desc'),
+      path: '/games/dice',
+      stats: diceStats.gamesPlayed > 0 ? [
+        { icon: Trophy, value: diceStats.gamesWon || 0, label: t('stats.wins') },
+        { icon: Gamepad2, value: diceStats.gamesPlayed, label: t('stats.played') },
+      ] : null,
+    },
+    {
+      key: 'target', icon: Target,
+      title: t('games.target'), desc: t('games.target.desc'),
+      path: '/games/target',
+      stats: targetStats.bestScore > 0 ? [
+        { icon: Star, value: targetStats.bestScore, label: t('stats.best') },
+        { icon: Gamepad2, value: targetStats.gamesPlayed, label: t('stats.played') },
+      ] : null,
+    },
+    {
+      key: 'puzzle', icon: Puzzle,
+      title: t('games.puzzle'), desc: t('games.puzzle.desc'),
+      path: '/games/puzzle',
+      stats: puzzleStats.gamesWon > 0 ? [
+        { icon: Trophy, value: puzzleStats.gamesWon, label: t('stats.wins') },
+        { icon: Star, value: puzzleStats.bestMoves, label: t('stats.best') },
+      ] : null,
+    },
+    {
+      key: 'stack', icon: Layers,
+      title: t('games.stack'), desc: t('games.stack.desc'),
+      path: '/games/stack',
+      stats: stackStats.bestScore > 0 ? [
+        { icon: Star, value: stackStats.bestScore, label: t('stats.best') },
+        { icon: Gamepad2, value: stackStats.gamesPlayed, label: t('stats.played') },
+      ] : null,
+    },
+    {
+      key: 'hex', icon: Hexagon,
+      title: t('games.hex'), desc: t('games.hex.desc'),
+      path: '/games/hex',
+      stats: hexStats.gamesWon > 0 ? [
+        { icon: Trophy, value: hexStats.gamesWon, label: t('stats.wins') },
+        { icon: Star, value: hexStats.bestMoves, label: t('stats.best') },
+      ] : null,
+    },
+    {
+      key: 'focus', icon: Crosshair,
+      title: t('games.focus'), desc: t('games.focus.desc'),
+      path: '/games/focus',
+      stats: focusStats.bestAvg > 0 ? [
+        { icon: Star, value: `${focusStats.bestAvg}ms`, label: t('stats.best') },
+        { icon: Gamepad2, value: focusStats.gamesPlayed, label: t('stats.played') },
+      ] : null,
+    },
   ];
 
   // Snap-based scroll tracking
