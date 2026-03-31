@@ -29,7 +29,7 @@ export default function SettingsPage() {
     toast.success(isAr ? 'تم تسجيل الخروج' : 'Abgemeldet');
   };
 
-  const themeLabel = theme === 'dark' ? t('settings.dark') : theme === 'black' ? (isAr ? 'أسود' : 'Schwarz') : t('settings.light');
+  const themeLabel = theme === 'dark' ? t('settings.dark') : t('settings.light');
   const madhabLabel = isAr
     ? ({ shafii: 'الشافعي', hanafi: 'الحنفي', hanbali: 'الحنبلي', maliki: 'المالكي' }[prayerMadhab])
     : ({ shafii: "Schafi'i", hanafi: 'Hanafi', hanbali: 'Hanbali', maliki: 'Maliki' }[prayerMadhab]);
