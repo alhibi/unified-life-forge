@@ -413,7 +413,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
   const BackIcon = isAr ? ArrowRight : ArrowLeft;
 
   const renderAvatar = (username?: string, avatarUrl?: string | null, size: string = 'h-12 w-12') => {
-    const emoji = getEmojiAvatar(username || '?');
+    const initial = (username || '?').charAt(0).toUpperCase();
     return (
       <Avatar className={cn(size, 'shrink-0')}>
         {avatarUrl ? (
