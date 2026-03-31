@@ -17,7 +17,7 @@ const item = {
 
 export default function SettingsPage() {
   const { t, theme, language, setLanguage, prayerMadhab } = useApp();
-  const { user, username, signOut, loading } = useAuth();
+  const { user, username, profile, signOut, loading } = useAuth();
   const navigate = useNavigate();
   const isAr = language === 'ar';
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
