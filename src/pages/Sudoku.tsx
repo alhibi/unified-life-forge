@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, RefreshCw, Lightbulb, Clock, Eraser, PenLine, Trophy, Undo2, Pause, Play } from 'lucide-react';
+import { Grid3X3, RefreshCw, Lightbulb, Clock, Eraser, PenLine, Trophy, Undo2, Pause, Play } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import GameShell from '@/components/GameShell';
 
 type Board = (number | null)[][];
 type Difficulty = 'easy' | 'medium' | 'hard';
@@ -320,88 +321,64 @@ export default function SudokuPage() {
     hard: t('sudoku.hard'),
   };
 
+  const isAr = language === 'ar';
+
+  const sudokuRules = isAr ? [
+    'املأ الشبكة بالأرقام من 1 إلى 9',
+    'كل صف يجب أن يحتوي على الأرقام 1-9 بدون تكرار',
+    'كل عمود يجب أن يحتوي على الأرقام 1-9 بدون تكرار',
+    'كل مربع 3×3 يجب أن يحتوي على الأرقام 1-9 بدون تكرار',
+    'استخدم التلميحات والملاحظات لمساعدتك',
+  ] : [
+    'Fill the grid with numbers 1 to 9',
+    'Each row must contain 1-9 without repeating',
+    'Each column must contain 1-9 without repeating',
+    'Each 3×3 box must contain 1-9 without repeating',
+    'Use hints and notes to help you',
+  ];
+
+  const sudokuStats = [
+    { label: isAr ? 'فوز' : 'Wins', value: stats.gamesWon },
+    { label: isAr ? 'نسبة الفوز' : 'Win Rate', value: `${winRate}%` },
+    { label: isAr ? 'أفضل سلسلة' : 'Best Streak', value: stats.bestStreak },
+    { label: isAr ? 'أفضل وقت' : 'Best Time', value: stats.bestTime[difficulty] !== null ? formatTimer(stats.bestTime[difficulty]!) : '—' },
+  ];
+
+  const sudokuOptions = [
+    {
+      key: 'difficulty',
+      label: isAr ? 'المستوى' : 'Difficulty',
+      choices: [
+        { value: 'easy', label: diffLabels.easy },
+        { value: 'medium', label: diffLabels.medium },
+        { value: 'hard', label: diffLabels.hard },
+      ],
+      current: difficulty,
+      onChange: (v: string) => newGame(v as Difficulty),
+    },
+  ];
+
+  const timerDisplay = (
+    <div className="flex items-center gap-2">
+      <button onClick={togglePause} className="w-8 h-8 rounded-full flex items-center justify-center bg-white/5 active:scale-90 transition-transform">
+        {isPaused ? <Play className="w-3.5 h-3.5 text-zinc-400" /> : <Pause className="w-3.5 h-3.5 text-zinc-400" />}
+      </button>
+      <div className="flex items-center gap-1 text-xs text-zinc-400 bg-white/5 px-2.5 py-1 rounded-full tabular-nums">
+        <Clock className="w-3 h-3" />{formatTimer(timer)}
+      </div>
+    </div>
+  );
+
   return (
-    <div className="min-h-screen bg-background pb-28 px-4 pt-6">
-      {/* Header — LibreSudoku style */}
-      <div className="flex items-center justify-between mb-1 max-w-[360px] mx-auto">
-        <button onClick={() => navigate('/games')} className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-secondary transition-colors active:scale-90">
-          <ArrowLeft className={`w-5 h-5 text-foreground stroke-[1.8] ${dir === 'rtl' ? 'rotate-180' : ''}`} />
-        </button>
-        <div className="flex items-center gap-2">
-          <button onClick={togglePause} className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-secondary transition-colors">
-            {isPaused ? <Play className="w-5 h-5 text-foreground stroke-[1.8]" /> : <Pause className="w-5 h-5 text-foreground stroke-[1.8]" />}
-          </button>
-          <button onClick={() => newGame(difficulty)} className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-secondary transition-colors">
-            <RefreshCw className="w-5 h-5 text-foreground stroke-[1.8]" />
-          </button>
-          <button onClick={() => setShowStats(!showStats)} className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-secondary transition-colors">
-            <Trophy className={`w-5 h-5 stroke-[1.8] ${showStats ? 'text-primary' : 'text-foreground'}`} />
-          </button>
-        </div>
-      </div>
-
-      {/* Difficulty & Timer row */}
-      <div className="flex items-center justify-between max-w-[360px] mx-auto mb-3 px-1">
-        <div className="flex gap-1.5">
-          {(['easy', 'medium', 'hard'] as Difficulty[]).map(d => (
-            <button key={d} onClick={() => newGame(d)}
-              className={`px-3 py-1 rounded-full text-[11px] font-semibold transition-all ${
-                difficulty === d
-                  ? 'bg-primary/15 text-primary'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >{diffLabels[d]}</button>
-          ))}
-        </div>
-        <span className="text-sm text-muted-foreground tabular-nums font-medium">{formatTimer(timer)}</span>
-      </div>
-
-      {/* Stats Panel */}
-      <AnimatePresence>
-        {showStats && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            className="overflow-hidden max-w-[360px] mx-auto mb-3"
-          >
-            <div className="rounded-2xl bg-secondary/50 p-4 space-y-3">
-              <div className="grid grid-cols-3 gap-2">
-                <div className="text-center p-2 rounded-xl bg-background/60">
-                  <div className="text-lg font-bold text-foreground">{stats.gamesWon}</div>
-                  <div className="text-[10px] text-muted-foreground">{t('stats.wins')}</div>
-                </div>
-                <div className="text-center p-2 rounded-xl bg-background/60">
-                  <div className="text-lg font-bold text-foreground">{winRate}%</div>
-                  <div className="text-[10px] text-muted-foreground">{t('stats.winRate')}</div>
-                </div>
-                <div className="text-center p-2 rounded-xl bg-background/60">
-                  <div className="text-lg font-bold text-primary">{stats.bestStreak}</div>
-                  <div className="text-[10px] text-muted-foreground">{t('stats.streak')}</div>
-                </div>
-              </div>
-              <div className="space-y-1">
-                {(['easy', 'medium', 'hard'] as Difficulty[]).map(d => {
-                  const avg = stats.averageTime[d]?.count > 0 ? Math.round(stats.averageTime[d].total / stats.averageTime[d].count) : null;
-                  return (
-                    <div key={d} className="flex items-center justify-between px-2.5 py-1.5 rounded-lg text-[11px]">
-                      <span className="text-muted-foreground font-medium">{diffLabels[d]}</span>
-                      <div className="flex gap-4">
-                        <span className="text-foreground tabular-nums">
-                          {language === 'ar' ? 'أفضل' : 'Best'}: {stats.bestTime[d] !== null ? formatTimer(stats.bestTime[d]!) : '—'}
-                        </span>
-                        <span className="text-muted-foreground tabular-nums">
-                          {language === 'ar' ? 'متوسط' : 'Avg'}: {avg !== null ? formatTimer(avg) : '—'}
-                        </span>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+    <GameShell
+      title={t('games.sudoku')}
+      icon={Grid3X3}
+      accentColor="#3b82f6"
+      rules={sudokuRules}
+      stats={sudokuStats}
+      options={sudokuOptions}
+      headerRight={timerDisplay}
+    >
 
       {/* Win banner */}
       {solved && (
@@ -545,6 +522,6 @@ export default function SudokuPage() {
           </button>
         </div>
       </div>
-    </div>
+    </GameShell>
   );
 }
