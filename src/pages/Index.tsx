@@ -114,7 +114,7 @@ export default function Index() {
               </button>
               <button
                 onClick={() => navigate('/reading')}
-                className="p-2.5 rounded-xl bg-accent/50 hover:bg-accent transition-colors"
+                className="p-2.5 rounded-xl bg-accent/50 hover:bg-accent transition-colors" aria-label="الأخبار"
               >
                 <Newspaper className="h-5 w-5 text-foreground" />
               </button>
