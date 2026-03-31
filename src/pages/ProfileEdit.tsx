@@ -216,7 +216,7 @@ export default function ProfileEditPage() {
                       : 'bg-muted/30 ring-1 ring-border/40 hover:ring-primary/50 hover:bg-muted/50'
                   }`}
                 >
-                  <img src={`${APPLE_EMOJI_CDN}/${animal.code}.png`} alt={animal.label} className="w-8 h-8" loading="lazy" />
+                  <img src={getAppleEmojiUrl(animal.emoji) || ''} alt={animal.label} className="w-8 h-8" loading="lazy" />
                   <span className="text-[10px] text-muted-foreground">{animal.label}</span>
                   {isSelected && (
                     <div className="absolute top-1 end-1 w-4 h-4 rounded-full bg-primary flex items-center justify-center">
