@@ -1,30 +1,15 @@
 import React from 'react';
 import { useApp } from '@/contexts/AppContext';
-import { Gamepad2, Settings, BookOpen, ScrollText } from 'lucide-react';
+import { Home, Gamepad2, Settings, BookOpen, ScrollText } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-
-const SofaIcon = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 24 20" fill="currentColor" className={className}>
-    {/* Backrest */}
-    <path d="M5 2C5 0.9 5.9 0 7 0h10c1.1 0 2 0.9 2 2v5H5V2z" />
-    {/* Left armrest */}
-    <path d="M0 5c0-1.1 0.9-2 2-2h3v11H0V5z" />
-    {/* Right armrest */}
-    <path d="M19 3h3c1.1 0 2 0.9 2 2v9h-5V3z" />
-    {/* Seat cushion */}
-    <rect x="5" y="7" width="14" height="7" rx="1" />
-    {/* Bottom base */}
-    <rect x="0" y="14" width="24" height="4" rx="2" />
-  </svg>
-);
 
 const tabs = [
   { key: 'settings', path: '/settings', icon: Settings, labelKey: 'nav.settings' },
   { key: 'games', path: '/games', icon: Gamepad2, labelKey: 'nav.games' },
   { key: 'diwan', path: '/diwan', icon: ScrollText, labelKey: 'nav.diwan' },
   { key: 'duas', path: '/duas', icon: BookOpen, labelKey: 'nav.duas' },
-  { key: 'home', path: '/', icon: SofaIcon, labelKey: 'nav.home' },
+  { key: 'home', path: '/', icon: Home, labelKey: 'nav.home' },
 ];
 
 export default function BottomNav() {
