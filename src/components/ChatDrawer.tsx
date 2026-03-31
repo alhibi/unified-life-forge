@@ -420,7 +420,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
           <AvatarImage src={avatarUrl} alt={username} className="object-cover" />
         ) : null}
         <AvatarFallback className="bg-primary/10 text-lg">
-          {emoji}
+          {initial}
         </AvatarFallback>
       </Avatar>
     );
