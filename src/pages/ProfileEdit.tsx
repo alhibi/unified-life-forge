@@ -50,7 +50,7 @@ export default function ProfileEditPage() {
     if (profile) {
       setNewUsername(profile.username || authUsername || '');
       setDisplayName(profile.display_name || '');
-      setSelectedAvatar(profile.avatar_url || DEFAULT_AVATARS[0]);
+      setSelectedAvatar(profile.avatar_url || ANIMAL_AVATARS[0].colors[0]);
     } else if (authUsername) {
       setNewUsername(authUsername);
     }
