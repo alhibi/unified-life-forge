@@ -278,7 +278,7 @@ export default function ProfileEditPage() {
                 maxLength={20}
               />
             </div>
-            {newUsername.trim().length >= 3 && (
+            {usernameChanged && newUsername.trim().length >= 3 && (
               <p className={`text-[11px] ${checkingUsername ? 'text-muted-foreground' : usernameAvailable ? 'text-green-500' : 'text-destructive'}`}>
                 {checkingUsername
                   ? (isAr ? 'جاري التحقق...' : 'Wird geprüft...')
