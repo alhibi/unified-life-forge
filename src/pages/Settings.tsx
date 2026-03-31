@@ -73,7 +73,7 @@ export default function SettingsPage() {
     },
   ];
 
-  const renderGroup = (title: string, items: typeof appearanceItems) => (
+  const renderGroup = (title: string, items: typeof generalItems) => (
     <motion.div variants={item} className="space-y-1">
       <p className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-wider px-1 mb-2">
         {title}
