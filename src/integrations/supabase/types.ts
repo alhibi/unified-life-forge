@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      clipboard_items: {
+        Row: {
+          clipboard_type: string
+          created_at: string
+          description: string | null
+          id: string
+          item_from: string | null
+          item_id: string
+          saved_at: string
+          source: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          clipboard_type?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          item_from?: string | null
+          item_id: string
+          saved_at?: string
+          source?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          clipboard_type?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          item_from?: string | null
+          item_id?: string
+          saved_at?: string
+          source?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       conversations: {
         Row: {
           created_at: string

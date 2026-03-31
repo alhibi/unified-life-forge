@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'; 
+import React, { useState } from 'react'; 
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '@/contexts/AppContext';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -6,36 +6,14 @@ import { ChevronDown, Moon, Sun, CloudSun, Cloud, Calendar, Copy, Bookmark, Book
 import { sunnahDetailData } from '@/data/sunnahDetailData';
 import { toast } from 'sonner';
 import BackButton from '@/components/BackButton';
-
-interface SavedItem {
-  id: string;
-  title: string;
-  description: string;
-  source: string;
-  from: string; // category label
-  savedAt: string;
-}
-
-const STORAGE_KEY = 'sunnah-clipboard';
-
-function getSavedItems(): SavedItem[] {
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-  } catch { return []; }
-}
-
-function saveItems(items: SavedItem[]) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-}
+import { useClipboard } from '@/hooks/useClipboard';
 
 export default function TimedSunnah() {
   const navigate = useNavigate();
   const { t, dir } = useApp();
   const [openCatId, setOpenCatId] = useState<string | null>(null);
   const [openItemKey, setOpenItemKey] = useState<string | null>(null);
-  const [saved, setSaved] = useState<SavedItem[]>(getSavedItems);
-
-  useEffect(() => { saveItems(saved); }, [saved]);
+  const { items: saved, addItem: addClipboardItem, isItemSaved } = useClipboard('sunnah');
 
   const categories = [
     { id: 'fajr', labelKey: 'timed.fajr', icon: CloudSun },
@@ -62,18 +40,16 @@ export default function TimedSunnah() {
 
 
   const saveItem = (title: string, description: string, source: string, catLabel: string) => {
-    const id = `${title}-${Date.now()}`;
-    const exists = saved.some(s => s.title === title && s.from === catLabel);
-    if (exists) {
+    const id = `${title}-${catLabel}`;
+    if (isItemSaved(id)) {
       toast.info(dir === 'rtl' ? 'محفوظ مسبقاً' : 'Already saved');
       return;
     }
-    setSaved(prev => [...prev, { id, title, description, source, from: catLabel, savedAt: new Date().toLocaleDateString(dir === 'rtl' ? 'ar' : 'de') }]);
+    addClipboardItem({ id, title, description, source, from: catLabel, savedAt: new Date().toISOString() });
     toast.success(dir === 'rtl' ? 'تم الحفظ في الحافظة' : 'Saved to clipboard');
   };
 
-
-  const isSaved = (title: string, catLabel: string) => saved.some(s => s.title === title && s.from === catLabel);
+  const isSaved = (title: string, catLabel: string) => isItemSaved(`${title}-${catLabel}`);
 
   return (
     <div className="min-h-screen bg-background pb-24">

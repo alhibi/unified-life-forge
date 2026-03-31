@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '@/contexts/AppContext';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -6,27 +6,7 @@ import { ChevronDown, Volume2, Droplet, User, Star, Users, UtensilsCrossed, Shir
 import { untimedSunnahData } from '@/data/untimedSunnahData';
 import { toast } from 'sonner';
 import BackButton from '@/components/BackButton';
-
-interface SavedItem {
-  id: string;
-  title: string;
-  description: string;
-  source: string;
-  from: string;
-  savedAt: string;
-}
-
-const STORAGE_KEY = 'untimed-sunnah-clipboard';
-
-function getSavedItems(): SavedItem[] {
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-  } catch { return []; }
-}
-
-function saveItems(items: SavedItem[]) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-}
+import { useClipboard } from '@/hooks/useClipboard';
 
 const iconMap: Record<string, React.ElementType> = {
   volume: Volume2,
@@ -43,9 +23,7 @@ export default function UntimedSunnah() {
   const { dir } = useApp();
   const [openCatId, setOpenCatId] = useState<string | null>(null);
   const [openItemKey, setOpenItemKey] = useState<string | null>(null);
-  const [saved, setSaved] = useState<SavedItem[]>(getSavedItems);
-
-  useEffect(() => { saveItems(saved); }, [saved]);
+  const { items: saved, addItem: addClipboardItem, isItemSaved } = useClipboard('untimed');
 
   const toggleCat = (id: string) => {
     setOpenCatId(prev => prev === id ? null : id);
@@ -60,17 +38,16 @@ export default function UntimedSunnah() {
   };
 
   const saveItem = (title: string, description: string, source: string, catLabel: string) => {
-    const exists = saved.some(s => s.title === title && s.from === catLabel);
-    if (exists) {
+    const id = `${title}-${catLabel}`;
+    if (isItemSaved(id)) {
       toast.info(dir === 'rtl' ? 'محفوظ مسبقاً' : 'Already saved');
       return;
     }
-    const id = `${title}-${Date.now()}`;
-    setSaved(prev => [...prev, { id, title, description, source, from: catLabel, savedAt: new Date().toLocaleDateString(dir === 'rtl' ? 'ar' : 'de') }]);
+    addClipboardItem({ id, title, description, source, from: catLabel, savedAt: new Date().toISOString() });
     toast.success(dir === 'rtl' ? 'تم الحفظ في الحافظة' : 'Saved to clipboard');
   };
 
-  const isSaved = (title: string, catLabel: string) => saved.some(s => s.title === title && s.from === catLabel);
+  const isSaved = (title: string, catLabel: string) => isItemSaved(`${title}-${catLabel}`);
 
   const categories = Object.entries(untimedSunnahData);
 
