@@ -1,18 +1,18 @@
 import React, { useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { useAuth } from '@/hooks/useAuth';
-import { Languages, Palette, ChevronLeft, Settings as SettingsIcon, UserCircle, LogOut, Type, BookOpen, AlertTriangle, Compass, Home, BookOpenText, Gamepad2, MapPin, Music, Calendar, CalendarDays, Moon, ChevronDown, Clock, Repeat, FolderHeart, Brain, Grid3X3, Swords, Pipette, Bomb, ArrowRight, ScrollText, CloudSun } from 'lucide-react';
+import { Languages, Palette, ChevronLeft, Settings as SettingsIcon, UserCircle, LogOut, Type, BookOpen, AlertTriangle, Compass, Home, BookOpenText, Gamepad2, MapPin, Music, Calendar, CalendarDays, Moon, ChevronDown, Clock, Repeat, FolderHeart, Brain, Grid3X3, Swords, Pipette, Bomb, ArrowRight, ScrollText, CloudSun, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 const stagger = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.06 } },
+  show: { transition: { staggerChildren: 0.05 } },
 };
 const item = {
-  hidden: { opacity: 0, y: 12 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] as const } },
+  hidden: { opacity: 0, y: 14 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] as const } },
 };
 
 export default function SettingsPage() {
@@ -29,210 +29,234 @@ export default function SettingsPage() {
     toast.success(isAr ? 'تم تسجيل الخروج' : 'Abgemeldet');
   };
 
-  const settingsItems = [
-    // Account
-    ...(user ? [{
-      key: 'account',
-      icon: UserCircle,
-      iconColor: 'text-primary',
-      iconBg: 'bg-primary/10',
-      title: username || (isAr ? 'حسابي' : 'Mein Konto'),
-      subtitle: isAr ? 'مسجل الدخول' : 'Angemeldet',
-      onClick: () => setShowLogoutConfirm(true),
-      trailing: (
-        <div className="flex items-center gap-1.5 text-destructive">
-          <LogOut className="w-4 h-4" />
-          <span className="text-[12px] font-medium">{isAr ? 'خروج' : 'Abmelden'}</span>
-        </div>
-      ),
-    }] : [{
-      key: 'account',
-      icon: UserCircle,
-      iconColor: 'text-primary',
-      iconBg: 'bg-primary/10',
-      title: isAr ? 'تسجيل الدخول' : 'Anmelden',
-      subtitle: isAr ? 'احفظ إعداداتك على جميع الأجهزة' : 'Einstellungen auf allen Geräten speichern',
-      onClick: () => navigate('/auth'),
-      trailing: (
-        <ChevronLeft className="w-4.5 h-4.5 text-muted-foreground/50 ltr:rotate-180" />
-      ),
-    }]),
+  const themeLabel = theme === 'dark' ? t('settings.dark') : t('settings.light');
+  const madhabLabel = isAr
+    ? ({ shafii: 'الشافعي', hanafi: 'الحنفي', hanbali: 'الحنبلي', maliki: 'المالكي' }[prayerMadhab])
+    : ({ shafii: "Schafi'i", hanafi: 'Hanafi', hanbali: 'Hanbali', maliki: 'Maliki' }[prayerMadhab]);
+
+  // Grouped settings
+  const appearanceItems = [
     {
       key: 'theme',
       icon: Palette,
-      iconColor: 'text-primary',
-      iconBg: 'bg-primary/10',
       title: t('settings.theme'),
-      subtitle: theme === 'dark' ? t('settings.dark') : theme === 'system' ? (isAr ? 'النظام' : 'System') : t('settings.light'),
+      value: themeLabel,
       onClick: () => navigate('/settings/theme'),
-      trailing: (
-        <ChevronLeft className="w-4.5 h-4.5 text-muted-foreground/50 ltr:rotate-180" />
-      ),
     },
     {
       key: 'font',
       icon: Type,
-      iconColor: 'text-primary',
-      iconBg: 'bg-primary/10',
       title: isAr ? 'الخط' : 'Schriftart',
-      subtitle: isAr ? 'نوع وحجم الخط' : 'Schriftart & Größe',
+      value: isAr ? 'نوع وحجم' : 'Art & Größe',
       onClick: () => navigate('/settings/font'),
-      trailing: (
-        <ChevronLeft className="w-4.5 h-4.5 text-muted-foreground/50 ltr:rotate-180" />
-      ),
-    },
-    {
-      key: 'prayer',
-      icon: BookOpen,
-      iconColor: 'text-primary',
-      iconBg: 'bg-primary/10',
-      title: isAr ? 'المذهب الفقهي' : 'Gebetsschule',
-      subtitle: isAr
-        ? ({ shafii: 'الشافعي', hanafi: 'الحنفي', hanbali: 'الحنبلي', maliki: 'المالكي' }[prayerMadhab])
-        : ({ shafii: "Schafi'i", hanafi: 'Hanafi', hanbali: 'Hanbali', maliki: 'Maliki' }[prayerMadhab]),
-      onClick: () => navigate('/settings/prayer'),
-      trailing: (
-        <ChevronLeft className="w-4.5 h-4.5 text-muted-foreground/50 ltr:rotate-180" />
-      ),
-    },
-    {
-      key: 'language',
-      icon: Languages,
-      iconColor: 'text-primary',
-      iconBg: 'bg-primary/10',
-      title: language === 'ar' ? 'العربية' : 'Deutsch',
-      subtitle: t('settings.language'),
-      onClick: () => setLanguage(language === 'ar' ? 'de' : 'ar'),
-      trailing: (
-        <div className={`relative w-[46px] h-[26px] rounded-full transition-colors duration-300 shrink-0 ${language === 'ar' ? 'bg-primary' : 'bg-muted'}`} dir="ltr">
-          <motion.div
-            className="absolute top-[3px] w-[20px] h-[20px] rounded-full bg-primary-foreground"
-            animate={{ left: language === 'ar' ? 23 : 3 }}
-            transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-          />
-        </div>
-      ),
     },
   ];
 
-  return (
-    <div className="min-h-screen bg-background pb-28 px-5 pt-14">
-      <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-3 max-w-lg mx-auto">
-        <motion.div variants={item} className="flex items-center gap-3 mb-1">
-          <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center">
-            <SettingsIcon className="w-5 h-5 text-primary stroke-[1.8]" />
-          </div>
-          <h1 className="text-[26px] font-bold tracking-tight text-foreground">{t('settings.title')}</h1>
-        </motion.div>
+  const prayerItems = [
+    {
+      key: 'prayer',
+      icon: BookOpen,
+      title: isAr ? 'المذهب الفقهي' : 'Gebetsschule',
+      value: madhabLabel,
+      onClick: () => navigate('/settings/prayer'),
+    },
+  ];
 
-        {settingsItems.map((si) => (
-          <motion.div key={si.key} variants={item} className="bg-card border border-border/40 rounded-2xl p-4">
-            <button
-              onClick={si.onClick}
-              className="flex items-center justify-between w-full active:scale-[0.99] transition-transform"
-            >
-              <div className="flex items-center gap-3">
-                <div className={`w-11 h-11 rounded-2xl ${si.iconBg} flex items-center justify-center`}>
-                  <si.icon className={`w-5 h-5 ${si.iconColor} stroke-[1.8]`} />
-                </div>
-                <div className="text-start">
-                  <h2 className="font-semibold text-[15px] text-foreground">{si.title}</h2>
-                  <p className="text-[12px] text-muted-foreground mt-0.5">{si.subtitle}</p>
-                </div>
-              </div>
-              {si.trailing}
-            </button>
-          </motion.div>
-        ))}
+  const generalItems: Array<{ key: string; icon: any; title: string; value: string; onClick: () => void; isToggle?: boolean }> = [
+    {
+      key: 'language',
+      icon: Languages,
+      title: t('settings.language'),
+      value: language === 'ar' ? 'العربية' : 'Deutsch',
+      onClick: () => setLanguage(language === 'ar' ? 'de' : 'ar'),
+      isToggle: true,
+    },
+  ];
 
-        {/* Guide Section */}
-        <motion.div variants={item} className="bg-card border border-border/40 rounded-2xl overflow-hidden">
+  const renderGroup = (title: string, items: typeof generalItems) => (
+    <motion.div variants={item} className="space-y-1">
+      <p className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-wider px-1 mb-2">
+        {title}
+      </p>
+      <div className="bg-card border border-border/40 rounded-2xl overflow-hidden divide-y divide-border/30">
+        {items.map((si) => (
           <button
-            onClick={() => setShowGuide(g => !g)}
-            className="flex items-center justify-between w-full p-4 active:scale-[0.99] transition-transform"
+            key={si.key}
+            onClick={si.onClick}
+            className="flex items-center justify-between w-full px-4 py-3.5 active:bg-muted/30 transition-colors"
           >
             <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-2xl bg-primary/10 flex items-center justify-center">
-                <Compass className="w-5 h-5 text-primary stroke-[1.8]" />
-              </div>
-              <div className="text-start">
-                <h2 className="font-semibold text-[15px] text-foreground">{isAr ? 'دليل التطبيق' : 'App-Anleitung'}</h2>
-                <p className="text-[12px] text-muted-foreground mt-0.5">{isAr ? 'تعرّف على جميع المزايا' : 'Alle Funktionen entdecken'}</p>
+              <si.icon className="w-[18px] h-[18px] text-primary stroke-[1.8]" />
+              <span className="text-[14px] font-medium text-foreground">{si.title}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              {si.isToggle ? (
+                <div className={`relative w-[44px] h-[24px] rounded-full transition-colors duration-300 shrink-0 ${language === 'ar' ? 'bg-primary' : 'bg-muted'}`} dir="ltr">
+                  <motion.div
+                    className="absolute top-[2px] w-[20px] h-[20px] rounded-full bg-primary-foreground"
+                    animate={{ left: language === 'ar' ? 22 : 2 }}
+                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                  />
+                </div>
+              ) : (
+                <>
+                  <span className="text-[12px] text-muted-foreground">{si.value}</span>
+                  <ChevronLeft className="w-4 h-4 text-muted-foreground/40 ltr:rotate-180" />
+                </>
+              )}
+            </div>
+          </button>
+        ))}
+      </div>
+    </motion.div>
+  );
+
+  return (
+    <div className="min-h-screen bg-background pb-28 px-5 pt-10">
+      <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-5 max-w-lg mx-auto">
+
+        {/* Profile / Account Card */}
+        <motion.div variants={item}>
+          <button
+            onClick={() => user ? setShowLogoutConfirm(true) : navigate('/auth')}
+            className="w-full active:scale-[0.99] transition-transform"
+          >
+            <div className="bg-card border border-border/40 rounded-2xl p-5">
+              <div className="flex items-center gap-4">
+                {/* Avatar */}
+                <div className="relative">
+                  <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center ring-2 ring-primary/20">
+                    {user ? (
+                      <span className="text-xl font-bold text-primary">
+                        {(username || 'U').charAt(0).toUpperCase()}
+                      </span>
+                    ) : (
+                      <UserCircle className="w-7 h-7 text-primary stroke-[1.5]" />
+                    )}
+                  </div>
+                  {user && (
+                    <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-primary border-2 border-card" />
+                  )}
+                </div>
+
+                {/* Info */}
+                <div className="flex-1 text-start">
+                  {user ? (
+                    <>
+                      <h2 className="text-[17px] font-bold text-foreground">{username || (isAr ? 'المستخدم' : 'Benutzer')}</h2>
+                      <p className="text-[12px] text-muted-foreground mt-0.5">{isAr ? 'متصل • الإعدادات محفوظة' : 'Verbunden • Einstellungen gespeichert'}</p>
+                    </>
+                  ) : (
+                    <>
+                      <h2 className="text-[17px] font-bold text-foreground">{isAr ? 'تسجيل الدخول' : 'Anmelden'}</h2>
+                      <p className="text-[12px] text-muted-foreground mt-0.5">{isAr ? 'احفظ إعداداتك على جميع الأجهزة' : 'Einstellungen auf allen Geräten speichern'}</p>
+                    </>
+                  )}
+                </div>
+
+                {/* Trailing */}
+                {user ? (
+                  <div className="flex items-center gap-1.5 text-destructive/80">
+                    <LogOut className="w-4 h-4" />
+                  </div>
+                ) : (
+                  <ChevronLeft className="w-5 h-5 text-muted-foreground/40 ltr:rotate-180" />
+                )}
               </div>
             </div>
-            <motion.div animate={{ rotate: showGuide ? 180 : 0 }} transition={{ duration: 0.25 }}>
-              <ChevronDown className="w-4.5 h-4.5 text-muted-foreground/50" />
-            </motion.div>
           </button>
-          <AnimatePresence initial={false}>
-            {showGuide && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.3, ease: [0.25, 1, 0.5, 1] }}
-                className="overflow-hidden"
-              >
-                <div className="px-4 pb-4 space-y-3">
-                  <div className="h-px bg-border/50" />
-                  {[
-                    { icon: Home, color: 'text-primary', bg: 'bg-primary/10', route: '/',
-                      title: isAr ? 'الصفحة الرئيسية' : 'Startseite',
-                      desc: isAr ? 'تحية ذكية تتغير حسب وقت اليوم (صباح، مساء، ليل) مع عرض التاريخ الحالي ونظرة شاملة على أدواتك اليومية' : 'Intelligente Begrüßung je nach Tageszeit mit Tagesübersicht' },
-                    { icon: Calendar, color: 'text-primary', bg: 'bg-primary/10', route: '/',
-                      title: isAr ? 'التقويم المزدوج' : 'Doppelkalender',
-                      desc: isAr ? 'تقويم تفاعلي يعرض التاريخ الميلادي والهجري معاً، مع شريط زمني حي يتحرك مع مرور اليوم، وإمكانية طي التقويم والعد التنازلي لأي تاريخ' : 'Interaktiver Kalender mit Hijri-Datum, Zeitleiste und Countdown' },
-                    { icon: Moon, color: 'text-primary', bg: 'bg-primary/10', route: '/',
-                      title: isAr ? 'مواقيت الصلاة' : 'Gebetszeiten',
-                      desc: isAr ? 'أوقات الصلوات الخمس بدقة حسب موقعك الجغرافي مع اسم منطقتك، وعداد تنازلي للصلاة القادمة يتحدث تلقائياً، ودعم لاختيار المذهب الفقهي' : 'Präzise Gebetszeiten mit Standort, Countdown und Madhab-Auswahl' },
-                    { icon: BookOpenText, color: 'text-primary', bg: 'bg-primary/10', route: '/duas',
-                      title: isAr ? 'الأدعية والأحاديث' : 'Duas & Hadithe',
-                      desc: isAr ? 'مكتبة شاملة تضم أدعية الصباح والمساء والنوم والاستيقاظ والسفر وغيرها، مع أحاديث صحيحة من الكتب الثمانية والأربعين النووية كاملة بالتشكيل' : 'Umfassende Bibliothek mit Duas, Sahih-Hadithen und den 40 Nawawi-Hadithen' },
-                    { icon: ScrollText, color: 'text-primary', bg: 'bg-primary/10', route: '/diwan',
-                      title: isAr ? 'ديوان الشعر' : 'Poesie-Diwan',
-                      desc: isAr ? 'مكتبة شعرية تضم أربعة عصور أدبية (الجاهلي، الإسلامي، الأموي، العباسي) مع أشهر خمسة شعراء في كل عصر وقصائدهم الكاملة بالتشكيل، وإمكانية نسخ أي بيت أو القصيدة كاملة' : 'Poetische Bibliothek mit 4 Epochen, berühmten Dichtern und vollständigen Gedichten mit Kopier-Funktion' },
-                    { icon: CloudSun, color: 'text-primary', bg: 'bg-primary/10', route: '/',
-                      title: isAr ? 'ودجت الطقس' : 'Wetter-Widget',
-                      desc: isAr ? 'شريط طقس ذكي يعرض حالة الطقس كل ساعة مع درجة الحرارة واحتمالية المطر، محدّث تلقائياً حسب موقعك الجغرافي باستخدام بيانات Open-Meteo الدقيقة' : 'Stündliches Wetter-Widget mit Temperatur und Regenwahrscheinlichkeit basierend auf Open-Meteo' },
-                    { icon: CalendarDays, color: 'text-primary', bg: 'bg-primary/10', route: '/',
-                      title: isAr ? 'المناسبات الدينية' : 'Religiöse Anlässe',
-                      desc: isAr ? 'عرض المناسبات الإسلامية القادمة والماضية مع التواريخ الهجرية والميلادية، والعد التنازلي لكل مناسبة، وإمكانية استعراض جميع المناسبات' : 'Islamische Anlässe mit Hijri-/Gregorianischem Datum und Countdown' },
-                    { icon: Music, color: 'text-primary', bg: 'bg-primary/10', route: '/',
-                      title: isAr ? 'المشغل الصوتي' : 'Audioplayer',
-                      desc: isAr ? 'مشغل مزدوج يجمع بين تشغيل ملفاتك المحلية وقسم القرآن الكريم مع القارئ أحمد العجمي (الفاتحة والبقرة)، مع تزامن تلقائي بين المشغلين' : 'Dualer Player: lokale Dateien + Quran mit Ahmad Al-Ajmi, automatische Synchronisation' },
-                    { icon: MapPin, color: 'text-primary', bg: 'bg-primary/10', route: '/',
-                      title: isAr ? 'حفظ المواقع' : 'Standorte',
-                      desc: isAr ? 'احفظ مواقعك المهمة (المسجد، المنزل، العمل) بنقرة واحدة باستخدام GPS، وارجع إليها في أي وقت مع إمكانية فتحها مباشرة في الخرائط' : 'Speichere wichtige Orte per GPS und öffne sie direkt in Maps' },
-                    { icon: Gamepad2, color: 'text-primary', bg: 'bg-primary/10', route: '/games',
-                      title: isAr ? 'الألعاب الذهنية' : 'Denkspiele',
-                      desc: isAr ? 'مجموعة ألعاب ذكاء متنوعة تشمل: سودوكو بمستويات مختلفة، شطرنج، لعبة الذاكرة، متاهة الألوان، الأنابيب، وكاسحة الألغام — كلها بدون إنترنت' : 'Sudoku, Schach, Memory, Farblabyrinth, Pipes & Minesweeper — alles offline' },
-                    { icon: Palette, color: 'text-primary', bg: 'bg-primary/10', route: '/settings/theme',
-                      title: isAr ? 'التخصيص الكامل' : 'Volle Anpassung',
-                      desc: isAr ? 'تحكم كامل في مظهر التطبيق: الوضع الداكن أو الفاتح أو حسب النظام، اختيار نوع وحجم الخط، تغيير اللغة، واختيار المذهب الفقهي لحساب مواقيت الصلاة' : 'Dark/Light Mode, Schriftart, Sprache und Madhab-Einstellungen' },
-                    { icon: UserCircle, color: 'text-primary', bg: 'bg-primary/10', route: '/auth',
-                      title: isAr ? 'المزامنة والحساب' : 'Sync & Konto',
-                      desc: isAr ? 'سجّل دخولك لحفظ جميع إعداداتك ومواقعك وإحصائياتك على السحابة، واسترجعها على أي جهاز آخر بتسجيل الدخول فقط' : 'Melde dich an, um Einstellungen auf allen Geräten zu synchronisieren' },
-                  ].map((feature, idx) => (
-                    <motion.div
-                      key={idx}
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: idx * 0.04, duration: 0.3, ease: [0.25, 1, 0.5, 1] }}
-                      className="flex items-start gap-3 w-full text-start rounded-xl p-2 -mx-2"
-                    >
-                      <div className={`w-9 h-9 rounded-xl ${feature.bg} flex items-center justify-center shrink-0 mt-0.5`}>
-                        <feature.icon className={`w-4 h-4 ${feature.color}`} />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="text-[13px] font-semibold text-foreground">{feature.title}</h3>
-                        <p className="text-[11px] text-muted-foreground leading-relaxed mt-0.5">{feature.desc}</p>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
+        </motion.div>
+
+        {/* Appearance Group */}
+        {renderGroup(isAr ? 'المظهر' : 'Darstellung', appearanceItems)}
+
+        {/* Prayer Group */}
+        {renderGroup(isAr ? 'الصلاة' : 'Gebet', prayerItems)}
+
+        {/* General Group */}
+        {renderGroup(isAr ? 'عام' : 'Allgemein', generalItems)}
+
+        {/* Guide Section */}
+        <motion.div variants={item} className="space-y-1">
+          <p className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-wider px-1 mb-2">
+            {isAr ? 'المزيد' : 'Mehr'}
+          </p>
+          <div className="bg-card border border-border/40 rounded-2xl overflow-hidden">
+            <button
+              onClick={() => setShowGuide(g => !g)}
+              className="flex items-center justify-between w-full px-4 py-3.5 active:bg-muted/30 transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <Compass className="w-[18px] h-[18px] text-primary stroke-[1.8]" />
+                <span className="text-[14px] font-medium text-foreground">{isAr ? 'دليل التطبيق' : 'App-Anleitung'}</span>
+              </div>
+              <motion.div animate={{ rotate: showGuide ? 180 : 0 }} transition={{ duration: 0.25 }}>
+                <ChevronDown className="w-4 h-4 text-muted-foreground/40" />
               </motion.div>
-            )}
-          </AnimatePresence>
+            </button>
+            <AnimatePresence initial={false}>
+              {showGuide && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.3, ease: [0.25, 1, 0.5, 1] }}
+                  className="overflow-hidden"
+                >
+                  <div className="px-4 pb-4 space-y-3">
+                    <div className="h-px bg-border/50" />
+                    {[
+                      { icon: Home, title: isAr ? 'الصفحة الرئيسية' : 'Startseite',
+                        desc: isAr ? 'تحية ذكية تتغير حسب وقت اليوم مع نظرة شاملة على أدواتك اليومية' : 'Intelligente Begrüßung je nach Tageszeit mit Tagesübersicht' },
+                      { icon: Calendar, title: isAr ? 'التقويم المزدوج' : 'Doppelkalender',
+                        desc: isAr ? 'تقويم تفاعلي يعرض التاريخ الميلادي والهجري معاً مع شريط زمني حي' : 'Interaktiver Kalender mit Hijri-Datum und Zeitleiste' },
+                      { icon: Moon, title: isAr ? 'مواقيت الصلاة' : 'Gebetszeiten',
+                        desc: isAr ? 'أوقات الصلوات الخمس بدقة حسب موقعك مع عداد تنازلي' : 'Präzise Gebetszeiten mit Standort und Countdown' },
+                      { icon: BookOpenText, title: isAr ? 'الأدعية والأحاديث' : 'Duas & Hadithe',
+                        desc: isAr ? 'مكتبة شاملة تضم أدعية وأحاديث صحيحة والأربعين النووية' : 'Umfassende Bibliothek mit Duas und Sahih-Hadithen' },
+                      { icon: ScrollText, title: isAr ? 'ديوان الشعر' : 'Poesie-Diwan',
+                        desc: isAr ? 'مكتبة شعرية تضم أربعة عصور أدبية مع قصائد كاملة بالتشكيل' : 'Poetische Bibliothek mit 4 Epochen und vollständigen Gedichten' },
+                      { icon: CloudSun, title: isAr ? 'ودجت الطقس' : 'Wetter-Widget',
+                        desc: isAr ? 'شريط طقس ذكي يعرض حالة الطقس كل ساعة مع درجة الحرارة' : 'Stündliches Wetter-Widget mit Temperatur und Regenwahrscheinlichkeit' },
+                      { icon: CalendarDays, title: isAr ? 'المناسبات الدينية' : 'Religiöse Anlässe',
+                        desc: isAr ? 'عرض المناسبات الإسلامية القادمة والماضية مع العد التنازلي' : 'Islamische Anlässe mit Countdown' },
+                      { icon: Music, title: isAr ? 'المشغل الصوتي' : 'Audioplayer',
+                        desc: isAr ? 'مشغل مزدوج للملفات المحلية وقسم القرآن الكريم' : 'Dualer Player: lokale Dateien + Quran' },
+                      { icon: MapPin, title: isAr ? 'حفظ المواقع' : 'Standorte',
+                        desc: isAr ? 'احفظ مواقعك المهمة بنقرة واحدة باستخدام GPS' : 'Speichere wichtige Orte per GPS' },
+                      { icon: Gamepad2, title: isAr ? 'الألعاب الذهنية' : 'Denkspiele',
+                        desc: isAr ? 'مجموعة ألعاب ذكاء متنوعة تشمل سودوكو وشطرنج وغيرها' : 'Sudoku, Schach, Memory und mehr' },
+                      { icon: Palette, title: isAr ? 'التخصيص الكامل' : 'Volle Anpassung',
+                        desc: isAr ? 'تحكم كامل في مظهر التطبيق والثيمات والخطوط' : 'Dark/Light Mode, Schriftart und Themes' },
+                      { icon: UserCircle, title: isAr ? 'المزامنة والحساب' : 'Sync & Konto',
+                        desc: isAr ? 'سجّل دخولك لحفظ جميع إعداداتك على السحابة' : 'Melde dich an, um Einstellungen zu synchronisieren' },
+                    ].map((feature, idx) => (
+                      <motion.div
+                        key={idx}
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: idx * 0.03, duration: 0.3, ease: [0.25, 1, 0.5, 1] }}
+                        className="flex items-start gap-3 w-full text-start rounded-xl p-1.5 -mx-1.5"
+                      >
+                        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                          <feature.icon className="w-3.5 h-3.5 text-primary" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-[13px] font-semibold text-foreground">{feature.title}</h3>
+                          <p className="text-[11px] text-muted-foreground leading-relaxed mt-0.5">{feature.desc}</p>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </motion.div>
+
+        {/* Version */}
+        <motion.div variants={item} className="text-center pt-2 pb-4">
+          <p className="text-[11px] text-muted-foreground/50">{isAr ? 'الإصدار' : 'Version'} 1.0.0</p>
         </motion.div>
       </motion.div>
 
@@ -264,8 +288,8 @@ export default function SettingsPage() {
               </div>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 {isAr 
-                  ? 'سيتم مسح جميع البيانات المحلية (الإعدادات، المواقع، إحصائيات الألعاب) من هذا الجهاز. يمكنك استعادتها عند تسجيل الدخول مرة أخرى.'
-                  : 'Alle lokalen Daten (Einstellungen, Standorte, Spielstatistiken) werden von diesem Gerät gelöscht. Du kannst sie beim erneuten Anmelden wiederherstellen.'}
+                  ? 'سيتم مسح جميع البيانات المحلية من هذا الجهاز. يمكنك استعادتها عند تسجيل الدخول مرة أخرى.'
+                  : 'Alle lokalen Daten werden von diesem Gerät gelöscht. Du kannst sie beim erneuten Anmelden wiederherstellen.'}
               </p>
               <div className="flex gap-3 pt-1">
                 <button
