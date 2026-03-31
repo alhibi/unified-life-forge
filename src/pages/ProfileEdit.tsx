@@ -58,8 +58,10 @@ export default function ProfileEditPage() {
       setNewUsername(profile.username || authUsername || '');
       setDisplayName(profile.display_name || '');
       setSelectedAvatar(profile.avatar_url || EMOJI_AVATARS[0].emoji);
+      setUsernameAvailable(true); // Current username is already theirs
     } else if (authUsername) {
       setNewUsername(authUsername);
+      setUsernameAvailable(true);
     }
   }, [user, loading, profile, authUsername, navigate]);
 
