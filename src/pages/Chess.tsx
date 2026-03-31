@@ -1,8 +1,9 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, RotateCcw, Undo2, Flag, Trophy, Clock, ChevronDown, Settings2, Play, Users, Monitor } from 'lucide-react';
+import { Crown, RotateCcw, Undo2, Flag, Trophy, Clock, ChevronDown, Settings2, Play, Users, Monitor } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import GameShell from '@/components/GameShell';
 
 type Color = 'w' | 'b';
 type PieceType = 'K' | 'Q' | 'R' | 'B' | 'N' | 'P';
