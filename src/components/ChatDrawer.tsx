@@ -798,8 +798,8 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                     >
                       <div
                         className="relative max-w-[78%] group"
-                        onContextMenu={(e) => { e.preventDefault(); if (!msg.deleted) setShowEmojiFor(showEmojiFor === msg.id ? null : msg.id); }}
-                        onClick={(e) => { e.stopPropagation(); if (!msg.deleted) setShowEmojiFor(showEmojiFor === msg.id ? null : msg.id); }}
+                        onContextMenu={(e) => openActionMenu(msg, isMine, e)}
+                        onClick={(e) => openActionMenu(msg, isMine, e)}
                       >
                         {/* Reply preview */}
                         {msg.reply_to_id && !msg.deleted && (
