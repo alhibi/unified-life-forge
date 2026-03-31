@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, lazy, Suspense } from 'react';
+import { createPortal } from 'react-dom';
 import { useApp } from '@/contexts/AppContext';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
