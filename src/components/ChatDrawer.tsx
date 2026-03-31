@@ -374,7 +374,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
         emoji,
       });
     }
-    setShowEmojiFor(null);
+    setActionMenu(null);
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
