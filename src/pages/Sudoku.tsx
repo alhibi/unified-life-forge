@@ -522,6 +522,6 @@ export default function SudokuPage() {
           </button>
         </div>
       </div>
-    </div>
+    </GameShell>
   );
 }
