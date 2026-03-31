@@ -117,54 +117,54 @@ export default function SettingsPage() {
 
         {/* Profile / Account Card */}
         <motion.div variants={item}>
-          <button
-            onClick={() => user ? setShowLogoutConfirm(true) : navigate('/auth')}
-            className="w-full active:scale-[0.99] transition-transform"
-          >
+          {user ? (
             <div className="bg-card border border-border/40 rounded-2xl p-5">
               <div className="flex items-center gap-4">
                 {/* Avatar */}
-                <div className="relative">
-                  <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center ring-2 ring-primary/20">
-                    {user ? (
+                <button onClick={() => navigate('/settings/profile')} className="relative active:scale-95 transition-transform">
+                  <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center ring-2 ring-primary/20 overflow-hidden">
+                    {profile?.avatar_url ? (
+                      <img src={profile.avatar_url} alt="" className="w-10 h-10 object-contain" />
+                    ) : (
                       <span className="text-xl font-bold text-primary">
                         {(username || 'U').charAt(0).toUpperCase()}
                       </span>
-                    ) : (
-                      <UserCircle className="w-7 h-7 text-primary stroke-[1.5]" />
                     )}
                   </div>
-                  {user && (
-                    <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-primary border-2 border-card" />
-                  )}
-                </div>
+                  <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-primary border-2 border-card" />
+                </button>
 
                 {/* Info */}
-                <div className="flex-1 text-start">
-                  {user ? (
-                    <>
-                      <h2 className="text-[17px] font-bold text-foreground">{username || (isAr ? 'المستخدم' : 'Benutzer')}</h2>
-                      <p className="text-[12px] text-muted-foreground mt-0.5">{isAr ? 'متصل • الإعدادات محفوظة' : 'Verbunden • Einstellungen gespeichert'}</p>
-                    </>
-                  ) : (
-                    <>
-                      <h2 className="text-[17px] font-bold text-foreground">{isAr ? 'تسجيل الدخول' : 'Anmelden'}</h2>
-                      <p className="text-[12px] text-muted-foreground mt-0.5">{isAr ? 'احفظ إعداداتك على جميع الأجهزة' : 'Einstellungen auf allen Geräten speichern'}</p>
-                    </>
-                  )}
-                </div>
+                <button onClick={() => navigate('/settings/profile')} className="flex-1 text-start active:opacity-70 transition-opacity">
+                  <h2 className="text-[17px] font-bold text-foreground">{profile?.display_name || username || (isAr ? 'المستخدم' : 'Benutzer')}</h2>
+                  <p className="text-[12px] text-muted-foreground mt-0.5">@{username} • {isAr ? 'تعديل الملف الشخصي' : 'Profil bearbeiten'}</p>
+                </button>
 
-                {/* Trailing */}
-                {user ? (
-                  <div className="flex items-center gap-1.5 text-destructive/80">
-                    <LogOut className="w-4 h-4" />
-                  </div>
-                ) : (
-                  <ChevronLeft className="w-5 h-5 text-muted-foreground/40 ltr:rotate-180" />
-                )}
+                {/* Logout */}
+                <button onClick={() => setShowLogoutConfirm(true)} className="flex items-center gap-1.5 text-destructive/80 active:scale-90 transition-transform p-2">
+                  <LogOut className="w-4 h-4" />
+                </button>
               </div>
             </div>
-          </button>
+          ) : (
+            <button
+              onClick={() => navigate('/auth')}
+              className="w-full active:scale-[0.99] transition-transform"
+            >
+              <div className="bg-card border border-border/40 rounded-2xl p-5">
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center ring-2 ring-primary/20">
+                    <UserCircle className="w-7 h-7 text-primary stroke-[1.5]" />
+                  </div>
+                  <div className="flex-1 text-start">
+                    <h2 className="text-[17px] font-bold text-foreground">{isAr ? 'تسجيل الدخول' : 'Anmelden'}</h2>
+                    <p className="text-[12px] text-muted-foreground mt-0.5">{isAr ? 'احفظ إعداداتك على جميع الأجهزة' : 'Einstellungen auf allen Geräten speichern'}</p>
+                  </div>
+                  <ChevronLeft className="w-5 h-5 text-muted-foreground/40 ltr:rotate-180" />
+                </div>
+              </div>
+            </button>
+          )}
         </motion.div>
 
         {/* Appearance Group */}
