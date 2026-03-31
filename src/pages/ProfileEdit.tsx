@@ -210,7 +210,7 @@ export default function ProfileEditPage() {
                 {isUrlAvatar ? (
                   <img src={selectedAvatar} alt="Avatar" className="w-full h-full object-cover" loading="lazy" />
                 ) : (
-                  <span className="text-5xl leading-none">{selectedAvatar}</span>
+                  <img src={getEmojiImg(selectedAvatar) || ''} alt="Avatar" className="w-16 h-16" loading="lazy" />
                 )}
               </div>
               <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-primary flex items-center justify-center border-2 border-card">
