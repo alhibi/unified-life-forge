@@ -561,7 +561,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                       <div
                         className="relative max-w-[78%] group"
                         onContextMenu={(e) => { e.preventDefault(); if (isMine && !msg.deleted) setContextMenu({ msg, y: e.clientY }); }}
-                        onClick={() => { if (!msg.deleted) setShowEmojiFor(showEmojiFor === msg.id ? null : msg.id); }}
+                        onClick={(e) => { e.stopPropagation(); if (!msg.deleted) setShowEmojiFor(showEmojiFor === msg.id ? null : msg.id); }}
                       >
                         {/* Reply preview */}
                         {msg.reply_to_id && !msg.deleted && (
@@ -676,14 +676,12 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                                   {emoji}
                                 </button>
                               ))}
-                              {!isMine && (
-                                <button
+                              <button
                                   onClick={() => { setReplyTo(msg); setShowEmojiFor(null); inputRef.current?.focus(); }}
                                   className="text-muted-foreground hover:text-foreground transition-colors px-1"
                                 >
                                   <Reply className="w-4 h-4" />
                                 </button>
-                              )}
                               {isMine && !msg.deleted && (
                                 <button
                                   onClick={() => { deleteMessage(msg.id); setShowEmojiFor(null); }}
