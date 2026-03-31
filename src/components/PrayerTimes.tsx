@@ -205,7 +205,7 @@ export default function PrayerTimes() {
                 <p className="text-[10px] font-semibold mb-0.5">
                   {t(PRAYER_LABEL_KEYS[p.name])}
                 </p>
-                <p className={`text-[10px] font-medium tabular-nums ${isActive ? '' : 'opacity-70'}`} dir="ltr">
+                <p className={`text-[10px] font-medium tabular-nums ${isActive ? '' : ''}`} dir="ltr">
                   {formatTime12(p.time.replace(/\s*\(.*\)/, ''), t)}
                 </p>
               </div>

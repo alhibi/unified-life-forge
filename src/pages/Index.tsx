@@ -147,8 +147,8 @@ export default function Index() {
         {/* Made by Amer */}
         <motion.div variants={item} className="flex items-center justify-center gap-2 py-6 mt-4">
           <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border/50 to-transparent" />
-          <span className="text-[11px] text-muted-foreground/60 font-medium tracking-wide">
-            {t('footer.madeBy')} <span className="text-primary/70 font-semibold">عامر</span> {t('footer.and')} <span className="text-primary/70 font-semibold">امولة</span> ✦
+          <span className="text-[11px] text-muted-foreground font-medium tracking-wide">
+            {t('footer.madeBy')} <span className="text-primary font-semibold">عامر</span> {t('footer.and')} <span className="text-primary font-semibold">امولة</span> ✦
           </span>
           <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border/50 to-transparent" />
         </motion.div>
