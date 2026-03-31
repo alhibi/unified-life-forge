@@ -418,6 +418,26 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
     loadConversations();
   };
 
+  const openActionMenu = (msg: Message, isMine: boolean, e: React.MouseEvent | React.TouchEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (msg.deleted) return;
+    const target = (e.currentTarget as HTMLElement);
+    const rect = target.getBoundingClientRect();
+    const containerRect = messagesContainerRef.current?.getBoundingClientRect() || { top: 0, bottom: window.innerHeight, height: window.innerHeight };
+    setActionMenu({
+      msg,
+      isMine,
+      rect: { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right, width: rect.width },
+      containerRect: { top: containerRect.top, bottom: containerRect.bottom, height: containerRect.height },
+    });
+  };
+
+  const copyMessage = (content: string) => {
+    navigator.clipboard.writeText(content).catch(() => {});
+    setActionMenu(null);
+  };
+
   const BackIcon = isAr ? ChevronRight : ChevronLeft;
 
   const renderAvatar = (username?: string, avatarUrl?: string | null, size: string = 'h-12 w-12') => {
