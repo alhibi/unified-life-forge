@@ -252,27 +252,6 @@ export default function GamesPage() {
         </div>
       </motion.div>
 
-      {/* Upcoming games grid */}
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.35, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-        className="px-5 mt-8"
-      >
-        <h2 className="text-[14px] font-semibold text-muted-foreground mb-3">{language === 'ar' ? 'المزيد' : 'More'}</h2>
-        <div className="grid grid-cols-3 gap-3">
-          {[
-            { key: 'dice', icon: Dices, title: language === 'ar' ? 'النرد' : 'Dice' },
-            { key: 'target', icon: Target, title: language === 'ar' ? 'التصويب' : 'Target' },
-            { key: 'puzzle', icon: Puzzle, title: language === 'ar' ? 'الأحجية' : 'Puzzle' },
-            { key: 'stack', icon: Layers, title: language === 'ar' ? 'التكديس' : 'Stack' },
-            { key: 'hex', icon: Hexagon, title: language === 'ar' ? 'السداسي' : 'Hex' },
-            { key: 'aim', icon: Crosshair, title: language === 'ar' ? 'التركيز' : 'Focus' },
-          ].map((g) => (
-            <UpcomingGameButton key={g.key} icon={g.icon} title={g.title} language={language} />
-          ))}
-        </div>
-      </motion.div>
     </div>
   );
 }
