@@ -936,39 +936,36 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
             {/* ─── Action Menu Overlay (Telegram-style) ─── */}
             <AnimatePresence>
               {actionMenu && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.12 }}
-                  className="absolute inset-0 z-50 bg-black/40 backdrop-blur-[2px]"
-                  onClick={() => setActionMenu(null)}
-                >
+                <>
+                  {/* Backdrop */}
                   <motion.div
-                    initial={{ opacity: 0, scale: 0.85 }}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.12 }}
+                    className="absolute inset-0 z-50 bg-black/40 backdrop-blur-[2px]"
+                    onClick={() => setActionMenu(null)}
+                  />
+                  {/* Floating message + actions */}
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.85 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
                     transition={{ type: 'spring', damping: 25, stiffness: 400 }}
-                    className="absolute flex flex-col items-center gap-2"
+                    className="absolute z-[52] flex flex-col gap-2"
                     style={{
                       top: (() => {
-                        const msgTop = actionMenu.rect.top - actionMenu.containerRect.top;
                         const spaceAbove = actionMenu.rect.top - actionMenu.containerRect.top;
-                        // If enough space above, place above the message
                         if (spaceAbove > 120) {
-                          return `${msgTop - 8}px`;
+                          return `${actionMenu.rect.top - actionMenu.containerRect.top - 8}px`;
                         }
-                        // Otherwise place below
                         return `${actionMenu.rect.bottom - actionMenu.containerRect.top + 8}px`;
                       })(),
                       transform: (() => {
                         const spaceAbove = actionMenu.rect.top - actionMenu.containerRect.top;
                         return spaceAbove > 120 ? 'translateY(-100%)' : 'translateY(0)';
                       })(),
-                      ...(actionMenu.isMine
-                        ? { right: '12px' }
-                        : { left: '12px' }
-                      ),
+                      ...(actionMenu.isMine ? { right: '12px' } : { left: '12px' }),
                     }}
                     onClick={e => e.stopPropagation()}
                   >
@@ -986,7 +983,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                       ))}
                     </div>
 
-                    {/* Action Menu */}
+                    {/* Action buttons */}
                     <div className="bg-card border border-border/50 rounded-2xl shadow-2xl overflow-hidden min-w-[180px]">
                       <button
                         className="w-full flex items-center gap-3 px-4 py-3 hover:bg-accent/30 active:bg-accent/50 transition-colors text-sm text-start"
@@ -1015,7 +1012,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                       )}
                     </div>
                   </motion.div>
-                </motion.div>
+                </>
               )}
             </AnimatePresence>
 
