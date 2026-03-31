@@ -797,7 +797,10 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                       className={cn('flex', isMine ? 'justify-end' : 'justify-start')}
                     >
                       <div
-                        className="relative max-w-[78%] group"
+                        className={cn(
+                          "relative max-w-[78%] group",
+                          actionMenu?.msg.id === msg.id && "z-[51]"
+                        )}
                         onContextMenu={(e) => openActionMenu(msg, isMine, e)}
                         onClick={(e) => openActionMenu(msg, isMine, e)}
                       >
@@ -871,7 +874,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
 
                         {/* Reactions */}
                         {msgReactions.length > 0 && (
-                          <div className={cn('flex gap-1 mt-0.5 flex-wrap', isMine ? 'justify-end' : 'justify-start')} dir="ltr">
+                          <div className={cn('flex gap-0.5 mt-1 flex-wrap', isMine ? 'justify-end' : 'justify-start')} dir="ltr">
                             {Object.entries(
                               msgReactions.reduce((acc, r) => {
                                 acc[r.emoji] = (acc[r.emoji] || 0) + 1;
@@ -881,13 +884,10 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                               <button
                                 key={emoji}
                                 onClick={(e) => { e.stopPropagation(); toggleReaction(msg.id, emoji); }}
-                                className={cn(
-                                  'inline-flex items-center gap-0.5 text-sm px-1.5 py-0.5 rounded-full bg-card/80 border border-border/30 hover:scale-110 transition-transform',
-                                  msgReactions.some(r => r.emoji === emoji && r.user_id === user.id) && 'border-primary/50 bg-primary/10'
-                                )}
+                                className="inline-flex items-center gap-0.5 hover:scale-125 active:scale-90 transition-transform"
                                 aria-label={`${emoji} reaction`}
                               >
-                                <span className="text-base leading-none">{emoji}</span>
+                                <span className="text-[18px] leading-none">{emoji}</span>
                                 {count > 1 && <span className="text-[10px] text-muted-foreground font-medium">{count}</span>}
                               </button>
                             ))}
