@@ -804,70 +804,101 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                         onContextMenu={(e) => openActionMenu(msg, isMine, e)}
                         onClick={(e) => openActionMenu(msg, isMine, e)}
                       >
-                        {/* Reply preview */}
-                        {msg.reply_to_id && !msg.deleted && (
-                          <div className={cn(
-                            'text-[10px] px-3 py-1.5 mb-0.5 rounded-t-xl border-s-2',
-                            isMine
-                              ? 'bg-primary/20 border-primary-foreground/30 text-primary-foreground/70'
-                              : 'bg-muted/60 border-primary/40 text-muted-foreground'
-                          )}>
-                            <Reply className="w-3 h-3 inline me-1" />
-                            {getReplyPreview(msg.reply_to_id)}
-                          </div>
-                        )}
-
                         <div className={cn(
-                          'rounded-2xl px-3.5 py-2 text-sm',
+                          'rounded-2xl text-sm overflow-hidden',
                           msg.deleted
                             ? 'bg-muted/30 text-muted-foreground/50 italic'
                             : isMine
                               ? 'bg-primary text-primary-foreground rounded-br-md'
                               : 'bg-card border border-border/40 text-foreground rounded-bl-md'
                         )}>
+                          {/* Telegram-style reply preview */}
+                          {msg.reply_to_id && !msg.deleted && (() => {
+                            const repliedMsg = messages.find(m => m.id === msg.reply_to_id);
+                            const replySenderName = repliedMsg?.sender_id === user.id
+                              ? (isAr ? 'أنت' : 'Du')
+                              : (activeConv?.otherDisplayName || activeConv?.otherUsername || '');
+                            return (
+                              <div className={cn(
+                                'mx-1.5 mt-1.5 px-2.5 py-1.5 rounded-lg border-s-[3px]',
+                                isMine
+                                  ? 'bg-primary-foreground/10 border-primary-foreground/50'
+                                  : 'bg-muted/40 border-primary/60'
+                              )}>
+                                <span className={cn(
+                                  'text-[11px] font-semibold block',
+                                  isMine ? 'text-primary-foreground/80' : 'text-primary'
+                                )}>
+                                  {replySenderName}
+                                </span>
+                                <span className={cn(
+                                  'text-[11px] line-clamp-1',
+                                  isMine ? 'text-primary-foreground/60' : 'text-muted-foreground'
+                                )}>
+                                  {getReplyPreview(msg.reply_to_id)}
+                                </span>
+                              </div>
+                            );
+                          })()}
+
                           {msg.deleted ? (
-                            <p className="text-xs">{isAr ? '🚫 تم حذف هذه الرسالة' : '🚫 Diese Nachricht wurde gelöscht'}</p>
+                            <p className="text-xs px-3 py-2">{isAr ? '🚫 تم حذف هذه الرسالة' : '🚫 Diese Nachricht wurde gelöscht'}</p>
                           ) : msg.message_type === 'image' ? (
-                            <div className="space-y-1">
+                            <div>
                               <img
                                 src={msg.file_url!}
                                 alt={msg.file_name || 'image'}
-                                className="rounded-xl max-w-full max-h-60 object-cover cursor-pointer"
+                                className="rounded-t-lg max-w-full max-h-60 object-cover cursor-pointer"
                                 onClick={(e) => { e.stopPropagation(); window.open(msg.file_url!, '_blank'); }}
                               />
-                              {msg.content && msg.content !== msg.file_name && (
-                                <p className="break-words whitespace-pre-wrap text-xs" dir="auto">{msg.content}</p>
-                              )}
+                              <div className="px-3 py-1.5 flex items-end justify-between gap-2">
+                                {msg.content && msg.content !== msg.file_name ? (
+                                  <p className="break-words whitespace-pre-wrap text-xs flex-1" dir="auto">{msg.content}</p>
+                                ) : <span />}
+                                <span className={cn('text-[10px] whitespace-nowrap flex items-center gap-0.5 shrink-0', isMine ? 'text-primary-foreground/50' : 'text-muted-foreground/60')}>
+                                  {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                  {isMine && (msg.read ? <CheckCheck className="h-3 w-3" /> : <Check className="h-3 w-3" />)}
+                                </span>
+                              </div>
                             </div>
                           ) : msg.message_type === 'file' ? (
-                            <a
-                              href={msg.file_url!}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className={cn(
-                                'flex items-center gap-2 py-1',
-                                isMine ? 'text-primary-foreground' : 'text-foreground'
-                              )}
-                              onClick={e => e.stopPropagation()}
-                            >
-                              <FileText className="w-5 h-5 shrink-0" />
-                              <span className="text-xs truncate flex-1">{msg.file_name}</span>
-                              <Download className="w-4 h-4 shrink-0 opacity-60" />
-                            </a>
+                            <div className="px-3 py-2">
+                              <a
+                                href={msg.file_url!}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={cn(
+                                  'flex items-center gap-2',
+                                  isMine ? 'text-primary-foreground' : 'text-foreground'
+                                )}
+                                onClick={e => e.stopPropagation()}
+                              >
+                                <FileText className="w-5 h-5 shrink-0" />
+                                <span className="text-xs truncate flex-1">{msg.file_name}</span>
+                                <Download className="w-4 h-4 shrink-0 opacity-60" />
+                              </a>
+                              <div className="flex justify-end mt-0.5">
+                                <span className={cn('text-[10px] flex items-center gap-0.5', isMine ? 'text-primary-foreground/50' : 'text-muted-foreground/60')}>
+                                  {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                  {isMine && (msg.read ? <CheckCheck className="h-3 w-3" /> : <Check className="h-3 w-3" />)}
+                                </span>
+                              </div>
+                            </div>
                           ) : (
-                            <p className="break-words whitespace-pre-wrap" dir="auto">{msg.content}</p>
-                          )}
-
-                          {!msg.deleted && (
-                            <div className={cn('flex items-center gap-1 mt-1', isMine ? 'justify-end' : 'justify-start')}>
-                              <span className={cn('text-[10px]', isMine ? 'text-primary-foreground/50' : 'text-muted-foreground/60')}>
-                                {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            <div className="px-3 py-1.5">
+                              <span className="break-words whitespace-pre-wrap" dir="auto">
+                                {msg.content}
+                                {!msg.deleted && (
+                                  <span className={cn(
+                                    'inline-flex items-center gap-0.5 align-bottom text-[10px] whitespace-nowrap',
+                                    isMine ? 'text-primary-foreground/50' : 'text-muted-foreground/50',
+                                    isAr ? 'me-1 float-left ms-2' : 'ms-1 float-right me-0'
+                                  )} style={{ marginTop: '4px' }}>
+                                    {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                    {isMine && (msg.read ? <CheckCheck className="h-3 w-3" /> : <Check className="h-3 w-3" />)}
+                                  </span>
+                                )}
                               </span>
-                              {isMine && (
-                                msg.read
-                                  ? <CheckCheck className="h-3 w-3 text-primary-foreground/50" />
-                                  : <Check className="h-3 w-3 text-primary-foreground/50" />
-                              )}
                             </div>
                           )}
                         </div>
