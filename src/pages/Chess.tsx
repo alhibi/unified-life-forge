@@ -869,114 +869,63 @@ export default function ChessPage() {
     hard: language === 'ar' ? 'صعب' : 'Hard',
   };
 
+  const chessRules = isAr ? [
+    'كل لاعب يحرك قطعة واحدة في دوره',
+    'الهدف هو كش ملك الخصم (شاه مات)',
+    'البيادق تتحرك للأمام وتأكل قطرياً',
+    'القلعة تتحرك أفقياً وعمودياً',
+    'الفيل يتحرك قطرياً',
+    'الوزير يجمع حركة القلعة والفيل',
+    'الحصان يتحرك على شكل حرف L',
+  ] : [
+    'Each player moves one piece per turn',
+    'The goal is to checkmate the opponent\'s king',
+    'Pawns move forward, capture diagonally',
+    'Rooks move horizontally and vertically',
+    'Bishops move diagonally',
+    'The queen combines rook and bishop movement',
+    'Knights move in an L-shape',
+  ];
+  const isAr = language === 'ar';
+
+  const chessStats = [
+    { label: isAr ? 'لُعبت' : 'Played', value: stats.gamesPlayed },
+    { label: '♔ ' + (isAr ? 'فوز أبيض' : 'White W'), value: stats.whiteWins },
+    { label: '♚ ' + (isAr ? 'فوز أسود' : 'Black W'), value: stats.blackWins },
+    { label: isAr ? 'تعادل' : 'Draw', value: stats.stalemates },
+  ];
+
+  const chessOptions = [
+    {
+      key: 'theme',
+      label: isAr ? 'نمط الرقعة' : 'Board Style',
+      choices: [
+        { value: 'classic', label: isAr ? 'كلاسيكي' : 'Classic' },
+        { value: 'wooden', label: isAr ? 'خشبي' : 'Wooden' },
+        { value: 'midnight', label: isAr ? 'ليلي' : 'Midnight' },
+        { value: 'emerald', label: isAr ? 'زمردي' : 'Emerald' },
+      ],
+      current: boardTheme,
+      onChange: (v: string) => handleThemeChange(v as BoardTheme),
+    },
+  ];
+
+  const timerDisplay = (
+    <div className="flex items-center gap-1 text-xs text-zinc-400 bg-white/5 px-2.5 py-1 rounded-full tabular-nums">
+      <Clock className="w-3 h-3" />{formatTimer(gameTimer)}
+    </div>
+  );
+
   return (
-    <div className="min-h-screen bg-background pb-28" dir={dir}>
-      {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 max-w-sm mx-auto">
-        <button onClick={() => navigate('/games')}
-          className="w-9 h-9 rounded-full bg-secondary/80 flex items-center justify-center active:scale-90 transition-transform">
-          <ArrowLeft className={`w-4 h-4 text-foreground ${dir === 'rtl' ? 'rotate-180' : ''}`} />
-        </button>
-
-        <h1 className="text-base font-semibold text-foreground tracking-tight">
-          {t('games.chess')}
-        </h1>
-
-        <div className="flex items-center gap-1.5">
-          <button onClick={() => setShowModeSelector(!showModeSelector)}
-            className={`w-9 h-9 rounded-full bg-secondary/80 flex items-center justify-center active:scale-90 transition-transform ${showModeSelector ? 'ring-2 ring-primary' : ''}`}>
-            {gameMode === 'computer' ? <Monitor className="w-4 h-4 text-muted-foreground" /> : <Users className="w-4 h-4 text-muted-foreground" />}
-          </button>
-          <button onClick={() => setShowThemeSelector(!showThemeSelector)}
-            className="w-9 h-9 rounded-full bg-secondary/80 flex items-center justify-center active:scale-90 transition-transform">
-            <Settings2 className="w-4 h-4 text-muted-foreground" />
-          </button>
-          <button onClick={() => setShowStats(!showStats)}
-            className="w-9 h-9 rounded-full bg-secondary/80 flex items-center justify-center active:scale-90 transition-transform">
-            <Trophy className={`w-4 h-4 ${showStats ? 'text-primary' : 'text-muted-foreground'}`} />
-          </button>
-        </div>
-      </div>
-
-      {/* Mode Selector */}
-      <AnimatePresence>
-        {showModeSelector && (
-          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }} className="overflow-hidden max-w-sm mx-auto px-4 mb-3">
-            <div className="bg-secondary/50 rounded-2xl p-3 space-y-3">
-              <p className="text-xs font-medium text-muted-foreground">
-                {language === 'ar' ? 'نمط اللعب' : 'Game Mode'}
-              </p>
-              <div className="flex gap-2">
-                <button onClick={() => resetGame('local')}
-                  className={`flex-1 rounded-xl p-3 flex flex-col items-center gap-1.5 transition-all ring-2 ring-primary bg-primary/10`}>
-                  <Users className="w-5 h-5" />
-                  <span className="text-[11px] font-medium">{language === 'ar' ? 'لاعبَين' : '2 Players'}</span>
-                </button>
-                <div className="flex-1 rounded-xl p-3 flex flex-col items-center gap-1.5 bg-background/50 opacity-50 cursor-not-allowed relative">
-                  <Monitor className="w-5 h-5 text-muted-foreground" />
-                  <span className="text-[11px] font-medium text-muted-foreground">{language === 'ar' ? 'ضد الكمبيوتر' : 'vs Computer'}</span>
-                  <span className="absolute -top-1 -right-1 text-[8px] bg-primary text-primary-foreground px-1.5 py-0.5 rounded-full font-bold">
-                    {language === 'ar' ? 'قريباً' : 'Soon'}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Theme Selector */}
-      <AnimatePresence>
-        {showThemeSelector && (
-          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }} className="overflow-hidden max-w-sm mx-auto px-4 mb-3">
-            <div className="bg-secondary/50 rounded-2xl p-3">
-              <p className="text-xs font-medium text-muted-foreground mb-2">
-                {language === 'ar' ? 'نمط الرقعة' : 'Board Style'}
-              </p>
-              <div className="flex gap-2">
-                {(Object.keys(BOARD_THEMES) as BoardTheme[]).map(key => (
-                  <button key={key} onClick={() => handleThemeChange(key)}
-                    className={`flex-1 rounded-xl p-1.5 transition-all ${boardTheme === key ? 'ring-2 ring-primary bg-background' : 'hover:bg-background/50'}`}>
-                    <div className="grid grid-cols-2 rounded-md overflow-hidden aspect-square mb-1">
-                      <div className={BOARD_THEMES[key].light} />
-                      <div className={BOARD_THEMES[key].dark} />
-                      <div className={BOARD_THEMES[key].dark} />
-                      <div className={BOARD_THEMES[key].light} />
-                    </div>
-                    <p className="text-[9px] text-center text-foreground capitalize">{key}</p>
-                  </button>
-                ))}
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Stats Panel */}
-      <AnimatePresence>
-        {showStats && (
-          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }} className="overflow-hidden max-w-sm mx-auto px-4 mb-3">
-            <div className="bg-secondary/50 rounded-2xl p-4">
-              <div className="grid grid-cols-4 gap-2">
-                {[
-                  { v: stats.gamesPlayed, l: language === 'ar' ? 'لُعبت' : 'Played' },
-                  { v: stats.whiteWins, l: '♔ W' },
-                  { v: stats.blackWins, l: '♚ W' },
-                  { v: stats.stalemates, l: language === 'ar' ? 'تعادل' : 'Draw' },
-                ].map((s, i) => (
-                  <div key={i} className="text-center py-2">
-                    <div className="text-lg font-bold text-foreground">{s.v}</div>
-                    <div className="text-[9px] text-muted-foreground mt-0.5">{s.l}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+    <GameShell
+      title={t('games.chess')}
+      icon={Crown}
+      accentColor="#8b5cf6"
+      rules={chessRules}
+      stats={chessStats}
+      options={chessOptions}
+      headerRight={timerDisplay}
+    >
 
       {/* Promotion Dialog */}
       <AnimatePresence>
