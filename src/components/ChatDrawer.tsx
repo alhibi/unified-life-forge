@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
-  ChevronRight, ChevronLeft, Send, Search, Plus, MessageCircle,
+  ChevronRight, ChevronLeft, ChevronDown, Send, Search, Plus, MessageCircle,
   Check, CheckCheck, Reply, Trash2, Paperclip, X,
   Download, FileText, MoreVertical, Trash, Info, Copy, Pin
 } from 'lucide-react';
