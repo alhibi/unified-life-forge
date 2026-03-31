@@ -5,10 +5,12 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
 const SofaIcon = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <path d="M4 14v-2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2" />
-    <path d="M2 12v4a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z" />
-    <path d="M6 18h12" />
+  <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
+    <rect x="3" y="10" width="18" height="5" rx="1.5" />
+    <rect x="5" y="7" width="14" height="4" rx="1.5" />
+    <rect x="2" y="12" width="3" height="4" rx="1" />
+    <rect x="19" y="12" width="3" height="4" rx="1" />
+    <rect x="3" y="15" width="18" height="2" rx="0.8" />
   </svg>
 );
 
