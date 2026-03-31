@@ -23,7 +23,11 @@ export default function BottomNav() {
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 safe-bottom" dir="ltr">
+    <nav
+      className="fixed bottom-0 left-0 right-0 z-50 safe-bottom"
+      dir="ltr"
+      style={{ contain: 'layout style', willChange: 'transform', transform: 'translateZ(0)' }}
+    >
       <div className="bg-card/85 backdrop-blur-xl border-t border-border/50 px-2 py-1.5 flex items-center justify-around">
         {tabs.map(tab => {
           const active = isActive(tab.path);
@@ -31,19 +35,20 @@ export default function BottomNav() {
             <button
               key={tab.key}
               onClick={() => navigate(tab.path)}
-              className="relative flex flex-col items-center gap-0.5 px-5 py-1.5 rounded-xl transition-all duration-200"
+              className="relative flex flex-col items-center gap-0.5 px-5 py-1.5 rounded-xl"
             >
               {active && (
                 <motion.div
                   layoutId="nav-indicator"
                   className="absolute -top-1.5 w-5 h-[3px] rounded-full bg-primary"
-                  transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                  transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                  style={{ willChange: 'transform' }}
                 />
               )}
-              <tab.icon className={`w-[22px] h-[22px] transition-all duration-200 ${
+              <tab.icon className={`w-[22px] h-[22px] ${
                 active ? 'text-primary stroke-[2.2]' : 'text-muted-foreground stroke-[1.5]'
               }`} />
-              <span className={`text-[10px] transition-all duration-200 ${
+              <span className={`text-[10px] ${
                 active ? 'font-semibold text-primary' : 'font-medium text-muted-foreground'
               }`}>
                 {t(tab.labelKey)}
