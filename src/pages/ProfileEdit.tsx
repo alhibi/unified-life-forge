@@ -29,7 +29,7 @@ const item = {
 
 export default function ProfileEditPage() {
   const { language } = useApp();
-  const { user, username: authUsername, profile, refreshProfile } = useAuth();
+  const { user, loading, username: authUsername, profile, refreshProfile } = useAuth();
   const navigate = useNavigate();
   const isAr = language === 'ar';
 
@@ -41,6 +41,7 @@ export default function ProfileEditPage() {
   const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
 
   useEffect(() => {
+    if (loading) return;
     if (!user) {
       navigate('/auth');
       return;
