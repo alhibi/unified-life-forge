@@ -24,7 +24,7 @@ export default function GamesPage() {
   const diceStats = getStats('dice-stats');
   const targetStats = getStats('target-stats');
   const puzzleStats = getStats('puzzle-stats');
-  const stackStats = getStats('stack-stats');
+  
   const hexStats = getStats('hex-stats');
   const focusStats = getStats('focus-stats');
 
