@@ -162,21 +162,19 @@ export default function ProfileEditPage() {
           {/* Animal options */}
           <div className="flex justify-center gap-3 flex-wrap">
             {ANIMAL_AVATARS.map((animal) => {
-              const isAnimalSelected = animal.colors.includes(selectedAvatar);
+              const isSelected = selectedAvatar === animal.src;
               return (
                 <button
                   key={animal.id}
-                  onClick={() => setSelectedAnimal(selectedAnimal === animal.id ? null : animal.id)}
+                  onClick={() => setSelectedAvatar(animal.src)}
                   className={`relative w-14 h-14 rounded-full overflow-hidden flex items-center justify-center transition-all duration-200 ${
-                    isAnimalSelected
+                    isSelected
                       ? 'ring-[3px] ring-primary bg-primary/10 scale-110'
-                      : selectedAnimal === animal.id
-                        ? 'ring-[3px] ring-accent bg-accent/10 scale-105'
-                        : 'ring-2 ring-border/40 bg-muted/30 hover:ring-primary/50'
+                      : 'ring-2 ring-border/40 bg-muted/30 hover:ring-primary/50'
                   }`}
                 >
-                  <img src={animal.colors[0]} alt={animal.label} className="w-full h-full object-cover object-top" loading="lazy" />
-                  {isAnimalSelected && (
+                  <img src={animal.src} alt={animal.label} className="w-full h-full object-cover object-top" loading="lazy" />
+                  {isSelected && (
                     <div className="absolute inset-0 flex items-center justify-center bg-primary/20 rounded-full">
                       <Check className="w-4 h-4 text-primary" />
                     </div>
@@ -185,38 +183,6 @@ export default function ProfileEditPage() {
               );
             })}
           </div>
-
-          {/* Color variants */}
-          {selectedAnimal && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="mt-4"
-            >
-              <p className="text-[11px] text-muted-foreground text-center mb-3">
-                {isAr ? 'اختر اللون' : 'Farbe wählen'}
-              </p>
-              <div className="flex justify-center gap-3">
-                {ANIMAL_AVATARS.find(a => a.id === selectedAnimal)?.colors.map((colorPath, idx) => (
-                  <button
-                    key={colorPath}
-                    onClick={() => {
-                      setSelectedAvatar(colorPath);
-                      setSelectedAnimal(null);
-                    }}
-                    className={`relative w-16 h-16 rounded-2xl overflow-hidden flex items-center justify-center transition-all duration-200 ${
-                      selectedAvatar === colorPath
-                        ? 'ring-[3px] ring-primary bg-primary/10 scale-110'
-                        : 'ring-2 ring-border/40 bg-muted/30 hover:ring-primary/50'
-                    }`}
-                  >
-                    <img src={colorPath} alt="" className="w-full h-full object-cover object-top" loading="lazy" />
-                  </button>
-                ))}
-              </div>
-            </motion.div>
-          )}
         </motion.div>
 
         {/* Username */}
