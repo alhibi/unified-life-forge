@@ -86,13 +86,8 @@ export default function CurrentTimeSunnah() {
     if (cached) {
       const { lat, lng } = JSON.parse(cached);
       fetchTimings(lat, lng);
-    } else if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => fetchTimings(pos.coords.latitude, pos.coords.longitude),
-        () => fetchTimings(21.4225, 39.8262),
-        { timeout: 5000, maximumAge: 300000 }
-      );
     } else {
+      // Use default location (Makkah) without requesting geolocation on page load
       fetchTimings(21.4225, 39.8262);
     }
   }, [prayerMadhab, latitudeAdjMethod]);

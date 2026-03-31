@@ -110,21 +110,17 @@ export default function WeatherWidget() {
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>;
 
-    // Try cached location first for instant fetch
+    // Use cached location; don't request geolocation on page load
     const cached = loadCache();
+    const lastLoc = localStorage.getItem('lastLocation');
     if (cached) {
       fetchWeather(cached.lat, cached.lon);
+      interval = setInterval(() => fetchWeather(cached.lat, cached.lon), REFRESH_INTERVAL);
+    } else if (lastLoc) {
+      const { lat, lng } = JSON.parse(lastLoc);
+      fetchWeather(lat, lng);
+      interval = setInterval(() => fetchWeather(lat, lng), REFRESH_INTERVAL);
     }
-
-    navigator.geolocation?.getCurrentPosition(
-      (pos) => {
-        const { latitude, longitude } = pos.coords;
-        fetchWeather(latitude, longitude);
-        interval = setInterval(() => fetchWeather(latitude, longitude), REFRESH_INTERVAL);
-      },
-      () => {},
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
-    );
     return () => clearInterval(interval);
   }, [fetchWeather]);
 
