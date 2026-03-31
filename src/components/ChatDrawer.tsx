@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
-import { getEmojiAvatar } from '@/utils/emojiAvatar';
+import { EMOJI_AVATARS } from '@/utils/emojiAvatar';
 
 interface Conversation {
   id: string;
