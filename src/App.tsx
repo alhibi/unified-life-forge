@@ -7,29 +7,35 @@ import { AppProvider } from "@/contexts/AppContext";
 import { AnimatePresence } from "framer-motion";
 import BottomNav from "@/components/BottomNav";
 import PageTransition from "@/components/PageTransition";
+import ScrollToTop from "@/components/ScrollToTop";
+import { lazy, Suspense } from "react";
+
+// Eager load the main page
 import Index from "./pages/Index";
-import GamesPage from "./pages/Games";
-import SudokuPage from "./pages/Sudoku";
-import ChessPage from "./pages/Chess";
-import MemoryGame from "./pages/MemoryGame";
-import MinesweeperPage from "./pages/Minesweeper";
-import ColorMazePage from "./pages/ColorMaze";
-import PipesPage from "./pages/PipesGame";
-import SettingsPage from "./pages/Settings";
-import ThemeSettingsPage from "./pages/ThemeSettings";
-import AuthPage from "./pages/Auth";
-import FontSettingsPage from "./pages/FontSettings";
-import PrayerSettingsPage from "./pages/PrayerSettings";
-import DuasPage from "./pages/Duas";
-import DiwanPage from "./pages/Diwan";
-import AllOccasionsPage from "./pages/AllOccasions";
-import ReadingPage from "./pages/Reading";
-import TimedSunnahPage from "./pages/TimedSunnah";
-import SunnahDetailPage from "./pages/SunnahDetail";
-import PropheticDayPage from "./pages/PropheticDay";
-import UntimedSunnahPage from "./pages/UntimedSunnah";
-import QuranVirtuesPage from "./pages/QuranVirtues";
-import NotFound from "./pages/NotFound";
+
+// Lazy load all other pages
+const GamesPage = lazy(() => import("./pages/Games"));
+const SudokuPage = lazy(() => import("./pages/Sudoku"));
+const ChessPage = lazy(() => import("./pages/Chess"));
+const MemoryGame = lazy(() => import("./pages/MemoryGame"));
+const MinesweeperPage = lazy(() => import("./pages/Minesweeper"));
+const ColorMazePage = lazy(() => import("./pages/ColorMaze"));
+const PipesPage = lazy(() => import("./pages/PipesGame"));
+const SettingsPage = lazy(() => import("./pages/Settings"));
+const ThemeSettingsPage = lazy(() => import("./pages/ThemeSettings"));
+const AuthPage = lazy(() => import("./pages/Auth"));
+const FontSettingsPage = lazy(() => import("./pages/FontSettings"));
+const PrayerSettingsPage = lazy(() => import("./pages/PrayerSettings"));
+const DuasPage = lazy(() => import("./pages/Duas"));
+const DiwanPage = lazy(() => import("./pages/Diwan"));
+const AllOccasionsPage = lazy(() => import("./pages/AllOccasions"));
+const ReadingPage = lazy(() => import("./pages/Reading"));
+const TimedSunnahPage = lazy(() => import("./pages/TimedSunnah"));
+const SunnahDetailPage = lazy(() => import("./pages/SunnahDetail"));
+const PropheticDayPage = lazy(() => import("./pages/PropheticDay"));
+const UntimedSunnahPage = lazy(() => import("./pages/UntimedSunnah"));
+const QuranVirtuesPage = lazy(() => import("./pages/QuranVirtues"));
+const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
 
