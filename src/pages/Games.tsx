@@ -194,6 +194,31 @@ export default function GamesPage() {
         </div>
       </motion.div>
 
+      {/* Extra games grid */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.35, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+        className="px-5 mt-8"
+      >
+        <h2 className="text-[14px] font-semibold text-muted-foreground mb-3">{language === 'ar' ? 'المزيد' : 'Mehr'}</h2>
+        <div className="grid grid-cols-3 gap-3">
+          {extraGames.map((g) => {
+            const GIcon = g.icon;
+            return (
+              <button
+                key={g.key}
+                onClick={() => navigate(g.path)}
+                className="flex flex-col items-center gap-2 py-4 px-2 rounded-2xl bg-card/60 border border-border/30 active:scale-95 transition-transform"
+              >
+                <GIcon className="w-5 h-5 text-primary stroke-[1.8]" />
+                <span className="text-[11px] font-medium text-muted-foreground truncate w-full text-center">{g.title}</span>
+              </button>
+            );
+          })}
+        </div>
+      </motion.div>
+
     </div>
   );
 }
