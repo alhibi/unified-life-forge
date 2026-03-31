@@ -107,22 +107,8 @@ export default function PrayerTimes() {
     if (cached) {
       const { lat, lng } = JSON.parse(cached);
       fetchPrayers(lat, lng);
-    }
-
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          const lat = pos.coords.latitude;
-          const lng = pos.coords.longitude;
-          localStorage.setItem('lastLocation', JSON.stringify({ lat, lng }));
-          fetchPrayers(lat, lng);
-        },
-        () => {
-          if (!cached) fetchPrayers(21.4225, 39.8262);
-        },
-        { timeout: 5000, maximumAge: 300000 }
-      );
-    } else if (!cached) {
+    } else {
+      // Use default location (Makkah) without requesting geolocation on page load
       fetchPrayers(21.4225, 39.8262);
     }
   }, [fetchPrayers]);
