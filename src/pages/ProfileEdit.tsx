@@ -11,11 +11,11 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 
 const ANIMAL_AVATARS = [
-  { id: 'fox', label: 'ثعلب', colors: ['/avatars/fox_orange.png', '/avatars/fox_blue.png', '/avatars/fox_red.png'] },
-  { id: 'cat', label: 'قطة', colors: ['/avatars/cat_purple.png', '/avatars/cat_gold.png', '/avatars/cat_black.png'] },
-  { id: 'owl', label: 'بومة', colors: ['/avatars/owl_teal.png', '/avatars/owl_white.png', '/avatars/owl_brown.png'] },
-  { id: 'dino', label: 'ديناصور', colors: ['/avatars/dino_green.png', '/avatars/dino_blue.png', '/avatars/dino_red.png'] },
-  { id: 'wolf', label: 'ذئب', colors: ['/avatars/wolf_gray.png', '/avatars/wolf_black.png', '/avatars/wolf_white.png'] },
+  { id: 'gazelle', label: 'غزال', src: '/avatars/gazelle.png' },
+  { id: 'bear', label: 'دب', src: '/avatars/bear.png' },
+  { id: 'cheetah', label: 'فهد', src: '/avatars/cheetah.png' },
+  { id: 'mandrill', label: 'مندريل', src: '/avatars/mandrill.png' },
+  { id: 'zebra', label: 'حمار وحشي', src: '/avatars/zebra.png' },
 ];
 
 const stagger = {
@@ -35,8 +35,7 @@ export default function ProfileEditPage() {
 
   const [newUsername, setNewUsername] = useState('');
   const [displayName, setDisplayName] = useState('');
-  const [selectedAvatar, setSelectedAvatar] = useState(ANIMAL_AVATARS[0].colors[0]);
-  const [selectedAnimal, setSelectedAnimal] = useState<string | null>(null);
+  const [selectedAvatar, setSelectedAvatar] = useState(ANIMAL_AVATARS[0].src);
   const [saving, setSaving] = useState(false);
   const [checkingUsername, setCheckingUsername] = useState(false);
   const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
@@ -50,7 +49,7 @@ export default function ProfileEditPage() {
     if (profile) {
       setNewUsername(profile.username || authUsername || '');
       setDisplayName(profile.display_name || '');
-      setSelectedAvatar(profile.avatar_url || ANIMAL_AVATARS[0].colors[0]);
+      setSelectedAvatar(profile.avatar_url || ANIMAL_AVATARS[0].src);
     } else if (authUsername) {
       setNewUsername(authUsername);
     }
@@ -163,21 +162,19 @@ export default function ProfileEditPage() {
           {/* Animal options */}
           <div className="flex justify-center gap-3 flex-wrap">
             {ANIMAL_AVATARS.map((animal) => {
-              const isAnimalSelected = animal.colors.includes(selectedAvatar);
+              const isSelected = selectedAvatar === animal.src;
               return (
                 <button
                   key={animal.id}
-                  onClick={() => setSelectedAnimal(selectedAnimal === animal.id ? null : animal.id)}
+                  onClick={() => setSelectedAvatar(animal.src)}
                   className={`relative w-14 h-14 rounded-full overflow-hidden flex items-center justify-center transition-all duration-200 ${
-                    isAnimalSelected
+                    isSelected
                       ? 'ring-[3px] ring-primary bg-primary/10 scale-110'
-                      : selectedAnimal === animal.id
-                        ? 'ring-[3px] ring-accent bg-accent/10 scale-105'
-                        : 'ring-2 ring-border/40 bg-muted/30 hover:ring-primary/50'
+                      : 'ring-2 ring-border/40 bg-muted/30 hover:ring-primary/50'
                   }`}
                 >
-                  <img src={animal.colors[0]} alt={animal.label} className="w-full h-full object-cover object-top" loading="lazy" />
-                  {isAnimalSelected && (
+                  <img src={animal.src} alt={animal.label} className="w-full h-full object-cover object-top" loading="lazy" />
+                  {isSelected && (
                     <div className="absolute inset-0 flex items-center justify-center bg-primary/20 rounded-full">
                       <Check className="w-4 h-4 text-primary" />
                     </div>
@@ -186,38 +183,6 @@ export default function ProfileEditPage() {
               );
             })}
           </div>
-
-          {/* Color variants */}
-          {selectedAnimal && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="mt-4"
-            >
-              <p className="text-[11px] text-muted-foreground text-center mb-3">
-                {isAr ? 'اختر اللون' : 'Farbe wählen'}
-              </p>
-              <div className="flex justify-center gap-3">
-                {ANIMAL_AVATARS.find(a => a.id === selectedAnimal)?.colors.map((colorPath, idx) => (
-                  <button
-                    key={colorPath}
-                    onClick={() => {
-                      setSelectedAvatar(colorPath);
-                      setSelectedAnimal(null);
-                    }}
-                    className={`relative w-16 h-16 rounded-2xl overflow-hidden flex items-center justify-center transition-all duration-200 ${
-                      selectedAvatar === colorPath
-                        ? 'ring-[3px] ring-primary bg-primary/10 scale-110'
-                        : 'ring-2 ring-border/40 bg-muted/30 hover:ring-primary/50'
-                    }`}
-                  >
-                    <img src={colorPath} alt="" className="w-full h-full object-cover object-top" loading="lazy" />
-                  </button>
-                ))}
-              </div>
-            </motion.div>
-          )}
         </motion.div>
 
         {/* Username */}
