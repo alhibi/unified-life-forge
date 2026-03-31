@@ -442,7 +442,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
 
   return (
     <Sheet open={open} onOpenChange={(v) => { onOpenChange(v); if (!v) { setActiveConv(null); setShowNewChat(false); setShowChatMenu(false); setShowProfilePopup(false); } }}>
-      <SheetContent side={isAr ? 'right' : 'left'} className="w-full sm:max-w-md p-0 flex flex-col bg-background">
+      <SheetContent side={isAr ? 'right' : 'left'} className="w-full sm:max-w-md p-0 flex flex-col bg-background [&>button[class*='absolute']]:hidden">
         <input
           type="file"
           ref={fileInputRef}
