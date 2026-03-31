@@ -24,7 +24,7 @@ const PipesPage = lazy(() => import("./pages/PipesGame"));
 const DiceGamePage = lazy(() => import("./pages/DiceGame"));
 const TargetGamePage = lazy(() => import("./pages/TargetGame"));
 const PuzzleGamePage = lazy(() => import("./pages/PuzzleGame"));
-const StackGamePage = lazy(() => import("./pages/StackGame"));
+
 const HexGamePage = lazy(() => import("./pages/HexGame"));
 const FocusGamePage = lazy(() => import("./pages/FocusGame"));
 const SettingsPage = lazy(() => import("./pages/Settings"));
