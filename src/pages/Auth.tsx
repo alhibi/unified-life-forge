@@ -8,6 +8,7 @@ import BackButton from '@/components/BackButton';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { lovable } from '@/integrations/lovable/index';
 
 const stagger = {
   hidden: {},
