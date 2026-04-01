@@ -1013,7 +1013,8 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                           </div>
                         )}
                       </div>
-                    </motion.div>
+                      </SwipeableMessage>
+                    </div>
                   </React.Fragment>
                 );
               })}
