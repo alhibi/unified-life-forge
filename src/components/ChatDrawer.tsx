@@ -12,7 +12,7 @@ import {
   Download, FileText, MoreVertical, Trash, Info, Copy, Pin, Mic, Smile
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
 import { EMOJI_AVATARS } from '@/utils/emojiAvatar';
 
 interface Conversation {
