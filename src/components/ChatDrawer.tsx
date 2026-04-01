@@ -12,7 +12,7 @@ import {
   Download, FileText, MoreVertical, Trash, Info, Copy, Pin, Mic, Smile
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
 import { EMOJI_AVATARS } from '@/utils/emojiAvatar';
 
 interface Conversation {
@@ -88,6 +88,49 @@ function formatTime(dateStr: string, isAr: boolean) {
   return d.toLocaleDateString(isAr ? 'ar' : 'de', { day: 'numeric', month: 'short' });
 }
 
+// Swipeable message wrapper - right only
+function SwipeableMessage({ children, isMine, deleted, onSwipeReply }: {
+  children: React.ReactNode;
+  isMine: boolean;
+  deleted: boolean;
+  onSwipeReply: () => void;
+}) {
+  const x = useMotionValue(0);
+  const replyIconOpacity = useTransform(x, [0, 30, 50], [0, 0.5, 1]);
+  const replyIconScale = useTransform(x, [0, 30, 50], [0.5, 0.8, 1]);
+
+  return (
+    <div className="relative overflow-visible w-full">
+      <motion.div
+        className="absolute top-1/2 -translate-y-1/2 start-0 pointer-events-none z-0"
+        style={{ opacity: replyIconOpacity, scale: replyIconScale }}
+      >
+        <div className="w-8 h-8 rounded-full bg-primary/15 flex items-center justify-center">
+          <Reply className="w-4 h-4 text-primary" />
+        </div>
+      </motion.div>
+      <motion.div
+        className={cn("relative z-10 flex", isMine ? 'justify-end' : 'justify-start')}
+        style={{ x, touchAction: 'pan-y' }}
+        drag={deleted ? false : "x"}
+        dragDirectionLock
+        dragConstraints={{ left: 0, right: 0 }}
+        dragElastic={{ left: 0, right: 0.4 }}
+        dragSnapToOrigin
+        onDrag={(_, info) => {
+          // Prevent left drag entirely
+          if (info.offset.x < 0) x.set(0);
+        }}
+        onDragEnd={(_, info) => {
+          if (info.offset.x > 50) onSwipeReply();
+        }}
+      >
+        {children}
+      </motion.div>
+    </div>
+  );
+}
+
 export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadChange }: ChatDrawerProps) {
   const { user } = useAuth();
   const { language } = useApp();
@@ -111,6 +154,15 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
   const typingChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
   const [showProfilePopup, setShowProfilePopup] = useState(false);
   const [showChatMenu, setShowChatMenu] = useState(false);
+
+  // Voice recording state
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingTime, setRecordingTime] = useState(0);
+  const [recordingCancelled, setRecordingCancelled] = useState(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const recordingChunksRef = useRef<Blob[]>([]);
+  const recordingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const recordingStartXRef = useRef(0);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
@@ -162,6 +214,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
       let lastContent = lastMsg?.content;
       if (lastMsg?.deleted) lastContent = isAr ? '🚫 تم حذف الرسالة' : '🚫 Nachricht gelöscht';
       else if (lastMsg?.message_type === 'image') lastContent = '📷 ' + (isAr ? 'صورة' : 'Foto');
+      else if (lastMsg?.message_type === 'voice') lastContent = '🎤 ' + (isAr ? 'رسالة صوتية' : 'Sprachnachricht');
       else if (lastMsg?.message_type === 'file') lastContent = '📎 ' + (isAr ? 'ملف' : 'Datei');
 
       return {
@@ -425,6 +478,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
     if (!msg) return null;
     if (msg.deleted) return isAr ? 'رسالة محذوفة' : 'Gelöschte Nachricht';
     if (msg.message_type === 'image') return '📷 ' + (isAr ? 'صورة' : 'Foto');
+    if (msg.message_type === 'voice') return '🎤 ' + (isAr ? 'رسالة صوتية' : 'Sprachnachricht');
     if (msg.message_type === 'file') return '📎 ' + msg.file_name;
     return msg.content.length > 50 ? msg.content.slice(0, 50) + '…' : msg.content;
   };
@@ -437,6 +491,65 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
     setActiveConv(null);
     setShowChatMenu(false);
     loadConversations();
+  };
+
+  // Voice recording functions
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm;codecs=opus' });
+      recordingChunksRef.current = [];
+      mediaRecorderRef.current = mediaRecorder;
+
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) recordingChunksRef.current.push(e.data);
+      };
+
+      mediaRecorder.onstop = async () => {
+        stream.getTracks().forEach(t => t.stop());
+        if (recordingCancelled) {
+          setRecordingCancelled(false);
+          return;
+        }
+        const blob = new Blob(recordingChunksRef.current, { type: 'audio/webm' });
+        if (blob.size > 0 && activeConv && user) {
+          const path = `${user.id}/${activeConv.id}/${Date.now()}.webm`;
+          const { error } = await supabase.storage.from('chat-files').upload(path, blob);
+          if (!error) {
+            const { data: urlData } = supabase.storage.from('chat-files').getPublicUrl(path);
+            await sendMessage('voice', urlData.publicUrl, `voice_${Date.now()}.webm`);
+          }
+        }
+      };
+
+      mediaRecorder.start(100);
+      setIsRecording(true);
+      setRecordingTime(0);
+      recordingTimerRef.current = setInterval(() => {
+        setRecordingTime(prev => prev + 1);
+      }, 1000);
+    } catch {
+      console.log('Microphone access denied');
+    }
+  };
+
+  const stopRecording = (cancel = false) => {
+    if (cancel) setRecordingCancelled(true);
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+      mediaRecorderRef.current.stop();
+    }
+    setIsRecording(false);
+    if (recordingTimerRef.current) {
+      clearInterval(recordingTimerRef.current);
+      recordingTimerRef.current = null;
+    }
+    setRecordingTime(0);
+  };
+
+  const formatRecordingTime = (seconds: number) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}:${s.toString().padStart(2, '0')}`;
   };
 
   const openActionMenu = (msg: Message, isMine: boolean, e: React.MouseEvent | React.TouchEvent) => {
@@ -811,34 +924,22 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                         </span>
                       </div>
                     )}
-                    <motion.div
-                      initial={{ opacity: 0, y: 8, scale: 0.95 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      transition={{ duration: 0.15 }}
-                      className={cn('flex', isMine ? 'justify-end' : 'justify-start')}
-                      drag="x"
-                      dragDirectionLock
-                      dragConstraints={{ left: 0, right: 60 }}
-                      dragElastic={{ left: 0, right: 0.3 }}
-                      dragSnapToOrigin
-                      onDragEnd={(_, info) => {
-                        if (info.offset.x > 50 && !msg.deleted) {
+                    <div
+                      className={cn('flex relative', isMine ? 'justify-end' : 'justify-start')}
+                    >
+                      <SwipeableMessage
+                        isMine={isMine}
+                        deleted={msg.deleted}
+                        onSwipeReply={() => {
                           setReplyTo(msg);
                           inputRef.current?.focus();
-                        }
-                      }}
-                      style={{ touchAction: 'pan-y' }}
-                    >
-                      {/* Swipe reply icon */}
-                      <motion.div className="absolute left-0 top-1/2 -translate-y-1/2 opacity-0" style={{ opacity: 0 }}>
-                        <Reply className="w-5 h-5 text-primary" />
-                      </motion.div>
-
-                      <div
-                        className={cn("relative max-w-[78%] group")}
-                        onContextMenu={(e) => openActionMenu(msg, isMine, e)}
-                        onClick={(e) => openActionMenu(msg, isMine, e)}
+                        }}
                       >
+                        <div
+                          className={cn("relative max-w-[78%] group")}
+                          onContextMenu={(e) => openActionMenu(msg, isMine, e)}
+                          onClick={(e) => openActionMenu(msg, isMine, e)}
+                        >
                         <div className={cn(
                           'rounded-2xl text-sm overflow-hidden',
                           msg.deleted
@@ -895,6 +996,40 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                                   {isMine && (msg.read ? <CheckCheck className="h-3 w-3" /> : <Check className="h-3 w-3" />)}
                                 </span>
                               </div>
+                            </div>
+                          ) : msg.message_type === 'voice' ? (
+                            <div className="px-3 py-2 flex items-center gap-2 min-w-[180px]">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  const audio = new Audio(msg.file_url!);
+                                  audio.play();
+                                }}
+                                className={cn(
+                                  'w-8 h-8 rounded-full flex items-center justify-center shrink-0',
+                                  isMine ? 'bg-primary-foreground/20' : 'bg-primary/15'
+                                )}
+                              >
+                                <svg viewBox="0 0 24 24" className={cn('w-4 h-4', isMine ? 'text-primary-foreground' : 'text-primary')} fill="currentColor">
+                                  <path d="M8 5v14l11-7z" />
+                                </svg>
+                              </button>
+                              <div className="flex-1 flex items-center gap-[1px]" dir="ltr">
+                                {Array.from({ length: 24 }).map((_, i) => (
+                                  <div
+                                    key={i}
+                                    className={cn(
+                                      'w-[2px] rounded-full',
+                                      isMine ? 'bg-primary-foreground/40' : 'bg-primary/40'
+                                    )}
+                                    style={{ height: `${Math.random() * 12 + 4}px` }}
+                                  />
+                                ))}
+                              </div>
+                              <span className={cn('text-[10px] whitespace-nowrap flex items-center gap-0.5 shrink-0', isMine ? 'text-primary-foreground/50' : 'text-muted-foreground/60')}>
+                                {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                {isMine && (msg.read ? <CheckCheck className="h-3 w-3" /> : <Check className="h-3 w-3" />)}
+                              </span>
                             </div>
                           ) : msg.message_type === 'file' ? (
                             <div className="px-3 py-2">
@@ -957,7 +1092,8 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                           </div>
                         )}
                       </div>
-                    </motion.div>
+                      </SwipeableMessage>
+                    </div>
                   </React.Fragment>
                 );
               })}
@@ -1136,11 +1272,11 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
               })()}
             </AnimatePresence>
 
-            {/* Input area with integrated reply preview */}
+            {/* Input area */}
             <div className="border-t border-border/50 bg-card/30">
-              {/* Reply preview - WhatsApp style inside input area */}
+              {/* Reply preview */}
               <AnimatePresence>
-                {replyTo && (
+                {replyTo && !isRecording && (
                   <motion.div
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: 'auto', opacity: 1 }}
@@ -1162,7 +1298,6 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                         <button
                           onClick={() => setReplyTo(null)}
                           className="shrink-0 w-6 h-6 rounded-full flex items-center justify-center hover:bg-muted/60 transition-colors"
-                          aria-label={isAr ? 'إلغاء' : 'Abbrechen'}
                         >
                           <X className="w-3.5 h-3.5 text-muted-foreground" />
                         </button>
@@ -1172,66 +1307,127 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                 )}
               </AnimatePresence>
 
-              {/* Input row */}
-              <div className="p-2 flex items-end gap-1.5">
-                {/* Sticker button */}
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  className="rounded-full shrink-0 h-9 w-9"
-                  onClick={() => { /* sticker picker - placeholder */ }}
-                  aria-label={isAr ? 'ملصقات' : 'Sticker'}
-                >
-                  <Smile className="h-5 w-5 text-muted-foreground" />
-                </Button>
-
-                {/* Text input */}
-                <div className="flex-1 flex items-center bg-accent/30 border border-border/30 rounded-full overflow-hidden">
-                  <Input
-                    ref={inputRef}
-                    placeholder={isAr ? 'مراسلة' : 'Nachricht'}
-                    value={newMessage}
-                    onChange={e => { setNewMessage(e.target.value); broadcastTyping(); }}
-                    onKeyDown={e => e.key === 'Enter' && !e.shiftKey && sendMessage()}
-                    dir="auto"
-                    className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 h-9 text-sm"
-                  />
-                  <button
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={uploading}
-                    className="shrink-0 p-2 text-muted-foreground hover:text-foreground transition-colors"
-                    aria-label={isAr ? 'إرفاق' : 'Anhängen'}
+              <AnimatePresence mode="wait">
+                {isRecording ? (
+                  /* ─── Recording UI ─── */
+                  <motion.div
+                    key="recording"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    transition={{ type: 'spring', damping: 25, stiffness: 400 }}
+                    className="p-2 flex items-center gap-2"
                   >
-                    {uploading ? (
-                      <div className="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
-                    ) : (
-                      <Paperclip className="h-4 w-4" />
-                    )}
-                  </button>
-                </div>
+                    {/* Cancel button */}
+                    <button
+                      onClick={() => stopRecording(true)}
+                      className="shrink-0 w-9 h-9 rounded-full flex items-center justify-center bg-destructive/10 hover:bg-destructive/20 active:scale-90 transition-all"
+                    >
+                      <Trash2 className="w-4 h-4 text-destructive" />
+                    </button>
 
-                {/* Send or Mic button */}
-                {newMessage.trim() ? (
-                  <Button
-                    size="icon"
-                    className="rounded-full shrink-0 h-9 w-9"
-                    onClick={() => sendMessage()}
-                    aria-label={isAr ? 'إرسال' : 'Senden'}
-                  >
-                    <Send className="h-4 w-4" />
-                  </Button>
+                    {/* Recording indicator */}
+                    <div className="flex-1 flex items-center gap-3 bg-accent/30 border border-border/30 rounded-full px-4 h-9">
+                      <motion.div
+                        animate={{ opacity: [1, 0.3, 1] }}
+                        transition={{ duration: 1.2, repeat: Infinity }}
+                        className="w-2.5 h-2.5 rounded-full bg-destructive shrink-0"
+                      />
+                      <span className="text-sm font-mono text-foreground tabular-nums">
+                        {formatRecordingTime(recordingTime)}
+                      </span>
+                      <div className="flex-1 flex items-center justify-center gap-[2px]" dir="ltr">
+                        {Array.from({ length: 20 }).map((_, i) => (
+                          <motion.div
+                            key={i}
+                            animate={{
+                              height: [3, Math.random() * 14 + 4, 3],
+                            }}
+                            transition={{
+                              duration: 0.5 + Math.random() * 0.3,
+                              repeat: Infinity,
+                              delay: i * 0.05,
+                            }}
+                            className="w-[2px] bg-primary/60 rounded-full"
+                            style={{ minHeight: 3 }}
+                          />
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Send recording button */}
+                    <motion.button
+                      onClick={() => stopRecording(false)}
+                      className="shrink-0 w-10 h-10 rounded-full bg-primary flex items-center justify-center shadow-lg"
+                      whileTap={{ scale: 0.85 }}
+                      animate={{ scale: [1, 1.08, 1] }}
+                      transition={{ duration: 1.5, repeat: Infinity }}
+                    >
+                      <Send className="w-4 h-4 text-primary-foreground" />
+                    </motion.button>
+                  </motion.div>
                 ) : (
-                  <Button
-                    size="icon"
-                    variant="default"
-                    className="rounded-full shrink-0 h-9 w-9"
-                    onClick={() => { /* voice recording - placeholder */ }}
-                    aria-label={isAr ? 'تسجيل صوتي' : 'Sprachnachricht'}
+                  /* ─── Normal Input ─── */
+                  <motion.div
+                    key="input"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="p-2 flex items-end gap-1.5"
                   >
-                    <Mic className="h-4 w-4" />
-                  </Button>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="rounded-full shrink-0 h-9 w-9"
+                      onClick={() => {}}
+                      aria-label={isAr ? 'ملصقات' : 'Sticker'}
+                    >
+                      <Smile className="h-5 w-5 text-muted-foreground" />
+                    </Button>
+
+                    <div className="flex-1 flex items-center bg-accent/30 border border-border/30 rounded-full overflow-hidden">
+                      <Input
+                        ref={inputRef}
+                        placeholder={isAr ? 'مراسلة' : 'Nachricht'}
+                        value={newMessage}
+                        onChange={e => { setNewMessage(e.target.value); broadcastTyping(); }}
+                        onKeyDown={e => e.key === 'Enter' && !e.shiftKey && sendMessage()}
+                        dir="auto"
+                        className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 h-9 text-sm"
+                      />
+                      <button
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={uploading}
+                        className="shrink-0 p-2 text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        {uploading ? (
+                          <div className="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+                        ) : (
+                          <Paperclip className="h-4 w-4" />
+                        )}
+                      </button>
+                    </div>
+
+                    {newMessage.trim() ? (
+                      <Button
+                        size="icon"
+                        className="rounded-full shrink-0 h-9 w-9"
+                        onClick={() => sendMessage()}
+                      >
+                        <Send className="h-4 w-4" />
+                      </Button>
+                    ) : (
+                      <motion.button
+                        className="shrink-0 h-9 w-9 rounded-full bg-primary flex items-center justify-center text-primary-foreground"
+                        whileTap={{ scale: 1.3 }}
+                        onClick={startRecording}
+                      >
+                        <Mic className="h-4 w-4" />
+                      </motion.button>
+                    )}
+                  </motion.div>
                 )}
-              </div>
+              </AnimatePresence>
             </div>
           </>
         )}
