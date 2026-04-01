@@ -88,7 +88,49 @@ function formatTime(dateStr: string, isAr: boolean) {
   return d.toLocaleDateString(isAr ? 'ar' : 'de', { day: 'numeric', month: 'short' });
 }
 
-export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadChange }: ChatDrawerProps) {
+// Swipeable message wrapper - right only
+function SwipeableMessage({ children, isMine, deleted, onSwipeReply }: {
+  children: React.ReactNode;
+  isMine: boolean;
+  deleted: boolean;
+  onSwipeReply: () => void;
+}) {
+  const x = useMotionValue(0);
+  const replyIconOpacity = useTransform(x, [0, 30, 50], [0, 0.5, 1]);
+  const replyIconScale = useTransform(x, [0, 30, 50], [0.5, 0.8, 1]);
+
+  return (
+    <div className="relative overflow-visible w-full">
+      <motion.div
+        className="absolute top-1/2 -translate-y-1/2 start-0 pointer-events-none z-0"
+        style={{ opacity: replyIconOpacity, scale: replyIconScale }}
+      >
+        <div className="w-8 h-8 rounded-full bg-primary/15 flex items-center justify-center">
+          <Reply className="w-4 h-4 text-primary" />
+        </div>
+      </motion.div>
+      <motion.div
+        className={cn("relative z-10 flex", isMine ? 'justify-end' : 'justify-start')}
+        style={{ x, touchAction: 'pan-y' }}
+        drag={deleted ? false : "x"}
+        dragDirectionLock
+        dragConstraints={{ left: 0, right: 0 }}
+        dragElastic={{ left: 0, right: 0.4 }}
+        dragSnapToOrigin
+        onDrag={(_, info) => {
+          // Prevent left drag entirely
+          if (info.offset.x < 0) x.set(0);
+        }}
+        onDragEnd={(_, info) => {
+          if (info.offset.x > 50) onSwipeReply();
+        }}
+      >
+        {children}
+      </motion.div>
+    </div>
+  );
+}
+
   const { user } = useAuth();
   const { language } = useApp();
   const isAr = language === 'ar';
