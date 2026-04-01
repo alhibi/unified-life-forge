@@ -253,9 +253,10 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
     return () => { supabase.removeChannel(channel); };
   }, [user, open, activeConv, scrollToBottom, loadConversations]);
 
-  // Typing indicator
+  // Typing indicator - shared channel with presence
   useEffect(() => {
     if (!activeConv || !user) return;
+    setTypingUser(false);
 
     const channel = supabase.channel(`typing:${activeConv.id}`, {
       config: { presence: { key: user.id } },
@@ -264,23 +265,34 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
     channel.on('presence', { event: 'sync' }, () => {
       const state = channel.presenceState();
       const others = Object.keys(state).filter(k => k !== user.id);
-      setTypingUser(others.length > 0);
+      const isTyping = others.some(k => {
+        const presences = state[k] as any[];
+        return presences?.some((p: any) => p.typing === true);
+      });
+      setTypingUser(isTyping);
     });
 
-    channel.subscribe();
-    return () => { supabase.removeChannel(channel); };
+    channel.subscribe(async (status) => {
+      if (status === 'SUBSCRIBED') {
+        typingChannelRef.current = channel;
+      }
+    });
+
+    return () => {
+      typingChannelRef.current = null;
+      supabase.removeChannel(channel);
+    };
   }, [activeConv, user]);
 
   const broadcastTyping = useCallback(() => {
-    if (!activeConv || !user) return;
-    const channel = supabase.channel(`typing:${activeConv.id}`);
-    channel.track({ typing: true });
+    if (!typingChannelRef.current) return;
+    typingChannelRef.current.track({ typing: true });
 
     if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
     typingTimeoutRef.current = setTimeout(() => {
-      channel.untrack();
-    }, 3000);
-  }, [activeConv, user]);
+      typingChannelRef.current?.track({ typing: false });
+    }, 2000);
+  }, []);
 
   // Polling
   useEffect(() => {
