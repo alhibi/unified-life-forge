@@ -436,7 +436,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
     setActionMenu({
       msg,
       isMine,
-      rect: { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right, width: rect.width },
+      rect: { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right, width: rect.width, height: rect.height },
       containerRect: { top: containerRect.top, bottom: containerRect.bottom, height: containerRect.height },
     });
   };
