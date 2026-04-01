@@ -108,6 +108,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
   const [showExtraEmojis, setShowExtraEmojis] = useState(false);
   const [typingUser, setTypingUser] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const typingChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
   const [showProfilePopup, setShowProfilePopup] = useState(false);
   const [showChatMenu, setShowChatMenu] = useState(false);
 
@@ -252,9 +253,10 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
     return () => { supabase.removeChannel(channel); };
   }, [user, open, activeConv, scrollToBottom, loadConversations]);
 
-  // Typing indicator
+  // Typing indicator - shared channel with presence
   useEffect(() => {
     if (!activeConv || !user) return;
+    setTypingUser(false);
 
     const channel = supabase.channel(`typing:${activeConv.id}`, {
       config: { presence: { key: user.id } },
@@ -263,23 +265,34 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
     channel.on('presence', { event: 'sync' }, () => {
       const state = channel.presenceState();
       const others = Object.keys(state).filter(k => k !== user.id);
-      setTypingUser(others.length > 0);
+      const isTyping = others.some(k => {
+        const presences = state[k] as any[];
+        return presences?.some((p: any) => p.typing === true);
+      });
+      setTypingUser(isTyping);
     });
 
-    channel.subscribe();
-    return () => { supabase.removeChannel(channel); };
+    channel.subscribe(async (status) => {
+      if (status === 'SUBSCRIBED') {
+        typingChannelRef.current = channel;
+      }
+    });
+
+    return () => {
+      typingChannelRef.current = null;
+      supabase.removeChannel(channel);
+    };
   }, [activeConv, user]);
 
   const broadcastTyping = useCallback(() => {
-    if (!activeConv || !user) return;
-    const channel = supabase.channel(`typing:${activeConv.id}`);
-    channel.track({ typing: true });
+    if (!typingChannelRef.current) return;
+    typingChannelRef.current.track({ typing: true });
 
     if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
     typingTimeoutRef.current = setTimeout(() => {
-      channel.untrack();
-    }, 3000);
-  }, [activeConv, user]);
+      typingChannelRef.current?.track({ typing: false });
+    }, 2000);
+  }, []);
 
   // Polling
   useEffect(() => {
@@ -804,8 +817,9 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                       transition={{ duration: 0.15 }}
                       className={cn('flex', isMine ? 'justify-end' : 'justify-start')}
                       drag="x"
+                      dragDirectionLock
                       dragConstraints={{ left: 0, right: 60 }}
-                      dragElastic={0.3}
+                      dragElastic={{ left: 0, right: 0.3 }}
                       dragSnapToOrigin
                       onDragEnd={(_, info) => {
                         if (info.offset.x > 50 && !msg.deleted) {
