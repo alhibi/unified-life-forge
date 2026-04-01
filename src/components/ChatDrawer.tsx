@@ -1122,60 +1122,102 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
               })()}
             </AnimatePresence>
 
-            {/* Reply preview bar */}
-            <AnimatePresence>
-              {replyTo && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  className="border-t border-border/30 bg-card/50 px-4 py-2 flex items-center gap-2"
-                >
-                  <Reply className="w-4 h-4 text-primary shrink-0" />
-                  <p className="text-xs text-muted-foreground truncate flex-1" dir="auto">
-                    {replyTo.message_type === 'image' ? '📷' : replyTo.content}
-                  </p>
-                  <button onClick={() => setReplyTo(null)} className="text-muted-foreground hover:text-foreground" aria-label={isAr ? 'إلغاء' : 'Abbrechen'}>
-                    <X className="w-4 h-4" />
-                  </button>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {/* Input area */}
-            <div className="p-3 border-t border-border/50 bg-card/30 flex items-center gap-2">
-              <Button
-                size="icon"
-                variant="ghost"
-                className="rounded-full shrink-0 h-9 w-9"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={uploading}
-                aria-label={isAr ? 'إرفاق ملف' : 'Datei anhängen'}
-              >
-                {uploading ? (
-                  <div className="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
-                ) : (
-                  <Paperclip className="h-4 w-4 text-muted-foreground" />
+            {/* Input area with integrated reply preview */}
+            <div className="border-t border-border/50 bg-card/30">
+              {/* Reply preview - WhatsApp style inside input area */}
+              <AnimatePresence>
+                {replyTo && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="mx-3 mt-2 rounded-xl bg-accent/40 border border-border/30 overflow-hidden">
+                      <div className="flex items-start gap-2 p-2.5">
+                        <div className="flex-1 min-w-0 border-s-[3px] border-primary ps-2.5">
+                          <span className="text-[11px] font-semibold text-primary block">
+                            {replyTo.sender_id === user.id
+                              ? (isAr ? 'أنت' : 'Du')
+                              : (activeConv?.otherDisplayName || activeConv?.otherUsername || '')}
+                          </span>
+                          <p className="text-[11px] text-muted-foreground truncate" dir="auto">
+                            {replyTo.message_type === 'image' ? '📷 ' + (isAr ? 'صورة' : 'Foto') : replyTo.content}
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => setReplyTo(null)}
+                          className="shrink-0 w-6 h-6 rounded-full flex items-center justify-center hover:bg-muted/60 transition-colors"
+                          aria-label={isAr ? 'إلغاء' : 'Abbrechen'}
+                        >
+                          <X className="w-3.5 h-3.5 text-muted-foreground" />
+                        </button>
+                      </div>
+                    </div>
+                  </motion.div>
                 )}
-              </Button>
-              <Input
-                ref={inputRef}
-                placeholder={isAr ? 'اكتب رسالة...' : 'Nachricht schreiben...'}
-                value={newMessage}
-                onChange={e => { setNewMessage(e.target.value); broadcastTyping(); }}
-                onKeyDown={e => e.key === 'Enter' && !e.shiftKey && sendMessage()}
-                dir="auto"
-                className="flex-1 rounded-full bg-accent/30 border-border/30"
-              />
-              <Button
-                size="icon"
-                className="rounded-full shrink-0 h-9 w-9"
-                onClick={() => sendMessage()}
-                disabled={!newMessage.trim()}
-                aria-label={isAr ? 'إرسال' : 'Senden'}
-              >
-                <Send className="h-4 w-4" />
-              </Button>
+              </AnimatePresence>
+
+              {/* Input row */}
+              <div className="p-2 flex items-end gap-1.5">
+                {/* Sticker button */}
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="rounded-full shrink-0 h-9 w-9"
+                  onClick={() => { /* sticker picker - placeholder */ }}
+                  aria-label={isAr ? 'ملصقات' : 'Sticker'}
+                >
+                  <Smile className="h-5 w-5 text-muted-foreground" />
+                </Button>
+
+                {/* Text input */}
+                <div className="flex-1 flex items-center bg-accent/30 border border-border/30 rounded-full overflow-hidden">
+                  <Input
+                    ref={inputRef}
+                    placeholder={isAr ? 'مراسلة' : 'Nachricht'}
+                    value={newMessage}
+                    onChange={e => { setNewMessage(e.target.value); broadcastTyping(); }}
+                    onKeyDown={e => e.key === 'Enter' && !e.shiftKey && sendMessage()}
+                    dir="auto"
+                    className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 h-9 text-sm"
+                  />
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploading}
+                    className="shrink-0 p-2 text-muted-foreground hover:text-foreground transition-colors"
+                    aria-label={isAr ? 'إرفاق' : 'Anhängen'}
+                  >
+                    {uploading ? (
+                      <div className="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+                    ) : (
+                      <Paperclip className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
+
+                {/* Send or Mic button */}
+                {newMessage.trim() ? (
+                  <Button
+                    size="icon"
+                    className="rounded-full shrink-0 h-9 w-9"
+                    onClick={() => sendMessage()}
+                    aria-label={isAr ? 'إرسال' : 'Senden'}
+                  >
+                    <Send className="h-4 w-4" />
+                  </Button>
+                ) : (
+                  <Button
+                    size="icon"
+                    variant="default"
+                    className="rounded-full shrink-0 h-9 w-9"
+                    onClick={() => { /* voice recording - placeholder */ }}
+                    aria-label={isAr ? 'تسجيل صوتي' : 'Sprachnachricht'}
+                  >
+                    <Mic className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
             </div>
           </>
         )}
