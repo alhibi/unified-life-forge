@@ -498,8 +498,20 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm;codecs=opus' });
+      
+      // Detect supported mimeType
+      const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+        ? 'audio/webm;codecs=opus'
+        : MediaRecorder.isTypeSupported('audio/webm')
+          ? 'audio/webm'
+          : MediaRecorder.isTypeSupported('audio/mp4')
+            ? 'audio/mp4'
+            : '';
+
+      const options: MediaRecorderOptions = mimeType ? { mimeType } : {};
+      const mediaRecorder = new MediaRecorder(stream, options);
       recordingChunksRef.current = [];
+      recordingCancelledRef.current = false;
       mediaRecorderRef.current = mediaRecorder;
 
       mediaRecorder.ondataavailable = (e) => {
@@ -508,34 +520,35 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
 
       mediaRecorder.onstop = async () => {
         stream.getTracks().forEach(t => t.stop());
-        if (recordingCancelled) {
-          setRecordingCancelled(false);
+        if (recordingCancelledRef.current) {
           return;
         }
-        const blob = new Blob(recordingChunksRef.current, { type: 'audio/webm' });
+        const finalMime = mediaRecorder.mimeType || 'audio/webm';
+        const ext = finalMime.includes('mp4') ? 'mp4' : 'webm';
+        const blob = new Blob(recordingChunksRef.current, { type: finalMime });
         if (blob.size > 0 && activeConv && user) {
-          const path = `${user.id}/${activeConv.id}/${Date.now()}.webm`;
+          const path = `${user.id}/${activeConv.id}/${Date.now()}.${ext}`;
           const { error } = await supabase.storage.from('chat-files').upload(path, blob);
           if (!error) {
             const { data: urlData } = supabase.storage.from('chat-files').getPublicUrl(path);
-            await sendMessage('voice', urlData.publicUrl, `voice_${Date.now()}.webm`);
+            await sendMessage('voice', urlData.publicUrl, `voice_${Date.now()}.${ext}`);
           }
         }
       };
 
-      mediaRecorder.start(100);
+      mediaRecorder.start(250);
       setIsRecording(true);
       setRecordingTime(0);
       recordingTimerRef.current = setInterval(() => {
         setRecordingTime(prev => prev + 1);
       }, 1000);
-    } catch {
-      console.log('Microphone access denied');
+    } catch (err) {
+      console.error('Microphone error:', err);
     }
   };
 
   const stopRecording = (cancel = false) => {
-    if (cancel) setRecordingCancelled(true);
+    recordingCancelledRef.current = cancel;
     if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
       mediaRecorderRef.current.stop();
     }
