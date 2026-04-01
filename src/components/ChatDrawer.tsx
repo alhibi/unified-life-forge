@@ -1236,11 +1236,11 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
               })()}
             </AnimatePresence>
 
-            {/* Input area with integrated reply preview */}
+            {/* Input area */}
             <div className="border-t border-border/50 bg-card/30">
-              {/* Reply preview - WhatsApp style inside input area */}
+              {/* Reply preview */}
               <AnimatePresence>
-                {replyTo && (
+                {replyTo && !isRecording && (
                   <motion.div
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: 'auto', opacity: 1 }}
@@ -1262,7 +1262,6 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                         <button
                           onClick={() => setReplyTo(null)}
                           className="shrink-0 w-6 h-6 rounded-full flex items-center justify-center hover:bg-muted/60 transition-colors"
-                          aria-label={isAr ? 'إلغاء' : 'Abbrechen'}
                         >
                           <X className="w-3.5 h-3.5 text-muted-foreground" />
                         </button>
@@ -1272,66 +1271,127 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                 )}
               </AnimatePresence>
 
-              {/* Input row */}
-              <div className="p-2 flex items-end gap-1.5">
-                {/* Sticker button */}
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  className="rounded-full shrink-0 h-9 w-9"
-                  onClick={() => { /* sticker picker - placeholder */ }}
-                  aria-label={isAr ? 'ملصقات' : 'Sticker'}
-                >
-                  <Smile className="h-5 w-5 text-muted-foreground" />
-                </Button>
-
-                {/* Text input */}
-                <div className="flex-1 flex items-center bg-accent/30 border border-border/30 rounded-full overflow-hidden">
-                  <Input
-                    ref={inputRef}
-                    placeholder={isAr ? 'مراسلة' : 'Nachricht'}
-                    value={newMessage}
-                    onChange={e => { setNewMessage(e.target.value); broadcastTyping(); }}
-                    onKeyDown={e => e.key === 'Enter' && !e.shiftKey && sendMessage()}
-                    dir="auto"
-                    className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 h-9 text-sm"
-                  />
-                  <button
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={uploading}
-                    className="shrink-0 p-2 text-muted-foreground hover:text-foreground transition-colors"
-                    aria-label={isAr ? 'إرفاق' : 'Anhängen'}
+              <AnimatePresence mode="wait">
+                {isRecording ? (
+                  /* ─── Recording UI ─── */
+                  <motion.div
+                    key="recording"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    transition={{ type: 'spring', damping: 25, stiffness: 400 }}
+                    className="p-2 flex items-center gap-2"
                   >
-                    {uploading ? (
-                      <div className="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
-                    ) : (
-                      <Paperclip className="h-4 w-4" />
-                    )}
-                  </button>
-                </div>
+                    {/* Cancel button */}
+                    <button
+                      onClick={() => stopRecording(true)}
+                      className="shrink-0 w-9 h-9 rounded-full flex items-center justify-center bg-destructive/10 hover:bg-destructive/20 active:scale-90 transition-all"
+                    >
+                      <Trash2 className="w-4 h-4 text-destructive" />
+                    </button>
 
-                {/* Send or Mic button */}
-                {newMessage.trim() ? (
-                  <Button
-                    size="icon"
-                    className="rounded-full shrink-0 h-9 w-9"
-                    onClick={() => sendMessage()}
-                    aria-label={isAr ? 'إرسال' : 'Senden'}
-                  >
-                    <Send className="h-4 w-4" />
-                  </Button>
+                    {/* Recording indicator */}
+                    <div className="flex-1 flex items-center gap-3 bg-accent/30 border border-border/30 rounded-full px-4 h-9">
+                      <motion.div
+                        animate={{ opacity: [1, 0.3, 1] }}
+                        transition={{ duration: 1.2, repeat: Infinity }}
+                        className="w-2.5 h-2.5 rounded-full bg-destructive shrink-0"
+                      />
+                      <span className="text-sm font-mono text-foreground tabular-nums">
+                        {formatRecordingTime(recordingTime)}
+                      </span>
+                      <div className="flex-1 flex items-center justify-center gap-[2px]" dir="ltr">
+                        {Array.from({ length: 20 }).map((_, i) => (
+                          <motion.div
+                            key={i}
+                            animate={{
+                              height: [3, Math.random() * 14 + 4, 3],
+                            }}
+                            transition={{
+                              duration: 0.5 + Math.random() * 0.3,
+                              repeat: Infinity,
+                              delay: i * 0.05,
+                            }}
+                            className="w-[2px] bg-primary/60 rounded-full"
+                            style={{ minHeight: 3 }}
+                          />
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Send recording button */}
+                    <motion.button
+                      onClick={() => stopRecording(false)}
+                      className="shrink-0 w-10 h-10 rounded-full bg-primary flex items-center justify-center shadow-lg"
+                      whileTap={{ scale: 0.85 }}
+                      animate={{ scale: [1, 1.08, 1] }}
+                      transition={{ duration: 1.5, repeat: Infinity }}
+                    >
+                      <Send className="w-4 h-4 text-primary-foreground" />
+                    </motion.button>
+                  </motion.div>
                 ) : (
-                  <Button
-                    size="icon"
-                    variant="default"
-                    className="rounded-full shrink-0 h-9 w-9"
-                    onClick={() => { /* voice recording - placeholder */ }}
-                    aria-label={isAr ? 'تسجيل صوتي' : 'Sprachnachricht'}
+                  /* ─── Normal Input ─── */
+                  <motion.div
+                    key="input"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="p-2 flex items-end gap-1.5"
                   >
-                    <Mic className="h-4 w-4" />
-                  </Button>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="rounded-full shrink-0 h-9 w-9"
+                      onClick={() => {}}
+                      aria-label={isAr ? 'ملصقات' : 'Sticker'}
+                    >
+                      <Smile className="h-5 w-5 text-muted-foreground" />
+                    </Button>
+
+                    <div className="flex-1 flex items-center bg-accent/30 border border-border/30 rounded-full overflow-hidden">
+                      <Input
+                        ref={inputRef}
+                        placeholder={isAr ? 'مراسلة' : 'Nachricht'}
+                        value={newMessage}
+                        onChange={e => { setNewMessage(e.target.value); broadcastTyping(); }}
+                        onKeyDown={e => e.key === 'Enter' && !e.shiftKey && sendMessage()}
+                        dir="auto"
+                        className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 h-9 text-sm"
+                      />
+                      <button
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={uploading}
+                        className="shrink-0 p-2 text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        {uploading ? (
+                          <div className="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+                        ) : (
+                          <Paperclip className="h-4 w-4" />
+                        )}
+                      </button>
+                    </div>
+
+                    {newMessage.trim() ? (
+                      <Button
+                        size="icon"
+                        className="rounded-full shrink-0 h-9 w-9"
+                        onClick={() => sendMessage()}
+                      >
+                        <Send className="h-4 w-4" />
+                      </Button>
+                    ) : (
+                      <motion.button
+                        className="shrink-0 h-9 w-9 rounded-full bg-primary flex items-center justify-center text-primary-foreground"
+                        whileTap={{ scale: 1.3 }}
+                        onClick={startRecording}
+                      >
+                        <Mic className="h-4 w-4" />
+                      </motion.button>
+                    )}
+                  </motion.div>
                 )}
-              </div>
+              </AnimatePresence>
             </div>
           </>
         )}
