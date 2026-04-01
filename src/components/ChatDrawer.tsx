@@ -69,7 +69,7 @@ const EXTRA_EMOJIS = [
 interface ActionMenuState {
   msg: Message;
   isMine: boolean;
-  rect: { top: number; bottom: number; left: number; right: number; width: number };
+  rect: { top: number; bottom: number; left: number; right: number; width: number; height: number };
   containerRect: { top: number; bottom: number; height: number };
 }
 
@@ -436,7 +436,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
     setActionMenu({
       msg,
       isMine,
-      rect: { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right, width: rect.width },
+      rect: { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right, width: rect.width, height: rect.height },
       containerRect: { top: containerRect.top, bottom: containerRect.bottom, height: containerRect.height },
     });
   };
@@ -803,12 +803,25 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       transition={{ duration: 0.15 }}
                       className={cn('flex', isMine ? 'justify-end' : 'justify-start')}
+                      drag="x"
+                      dragConstraints={{ left: 0, right: 60 }}
+                      dragElastic={0.3}
+                      dragSnapToOrigin
+                      onDragEnd={(_, info) => {
+                        if (info.offset.x > 50 && !msg.deleted) {
+                          setReplyTo(msg);
+                          inputRef.current?.focus();
+                        }
+                      }}
+                      style={{ touchAction: 'pan-y' }}
                     >
+                      {/* Swipe reply icon */}
+                      <motion.div className="absolute left-0 top-1/2 -translate-y-1/2 opacity-0" style={{ opacity: 0 }}>
+                        <Reply className="w-5 h-5 text-primary" />
+                      </motion.div>
+
                       <div
-                        className={cn(
-                          "relative max-w-[78%] group",
-                          actionMenu?.msg.id === msg.id && "z-[51]"
-                        )}
+                        className={cn("relative max-w-[78%] group")}
                         onContextMenu={(e) => openActionMenu(msg, isMine, e)}
                         onClick={(e) => openActionMenu(msg, isMine, e)}
                       >
@@ -875,10 +888,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                                 href={msg.file_url!}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className={cn(
-                                  'flex items-center gap-2',
-                                  isMine ? 'text-primary-foreground' : 'text-foreground'
-                                )}
+                                className={cn('flex items-center gap-2', isMine ? 'text-primary-foreground' : 'text-foreground')}
                                 onClick={e => e.stopPropagation()}
                               >
                                 <FileText className="w-5 h-5 shrink-0" />
@@ -913,7 +923,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
 
                         {/* Reactions */}
                         {msgReactions.length > 0 && (
-                          <div className={cn('flex gap-0.5 mt-1 flex-wrap', isMine ? 'justify-end' : 'justify-start')} dir="ltr">
+                          <div className={cn('flex gap-0.5 mt-0.5 flex-wrap', isMine ? 'justify-end' : 'justify-start')} dir="ltr">
                             {Object.entries(
                               msgReactions.reduce((acc, r) => {
                                 acc[r.emoji] = (acc[r.emoji] || 0) + 1;
@@ -932,7 +942,6 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                             ))}
                           </div>
                         )}
-
                       </div>
                     </motion.div>
                   </React.Fragment>
@@ -941,25 +950,23 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
               <div ref={messagesEndRef} />
             </div>
 
-            {/* ─── Action Menu Overlay (Telegram-style) ─── */}
+            {/* ─── Action Menu Overlay ─── */}
             <AnimatePresence>
               {actionMenu && (() => {
                 const spaceAbove = actionMenu.rect.top - actionMenu.containerRect.top;
-                const showAbove = spaceAbove > 160;
+                const showAbove = spaceAbove > 180;
 
                 return (
                   <>
-                    {/* Backdrop - heavy blur */}
                     <motion.div
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
                       transition={{ duration: 0.15 }}
-                      className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-md"
+                      className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-lg"
                       onClick={() => { setActionMenu(null); setShowExtraEmojis(false); }}
                     />
 
-                    {/* Floating container */}
                     <div
                       className="fixed inset-0 z-[61] pointer-events-none"
                       onClick={() => { setActionMenu(null); setShowExtraEmojis(false); }}
@@ -974,16 +981,17 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                           showAbove ? "flex-col-reverse" : "flex-col"
                         )}
                         style={{
-                          top: showAbove ? undefined : `${actionMenu.rect.top - actionMenu.containerRect.top + actionMenu.containerRect.top}px`,
+                          top: showAbove ? undefined : `${actionMenu.rect.top}px`,
                           bottom: showAbove ? `${window.innerHeight - actionMenu.rect.top + 4}px` : undefined,
                           ...(actionMenu.isMine ? { right: '12px' } : { left: '12px' }),
+                          width: `${actionMenu.rect.width}px`,
                           maxWidth: '88vw',
                         }}
                         onClick={e => e.stopPropagation()}
                       >
-                        {/* Selected message bubble */}
+                        {/* Selected message - same width as original */}
                         <div className={cn(
-                          'rounded-2xl text-sm overflow-hidden shadow-2xl max-w-[280px]',
+                          'rounded-2xl text-sm overflow-hidden shadow-2xl',
                           actionMenu.isMine
                             ? 'bg-primary text-primary-foreground rounded-br-md'
                             : 'bg-card border border-border/40 text-foreground rounded-bl-md'
@@ -1008,83 +1016,52 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                           )}
                         </div>
 
-                        {/* Toolbar */}
-                        <div className={cn("flex flex-col gap-1.5", showAbove ? "mb-2" : "mt-2")}>
-                          {/* Emoji row + actions in one horizontal bar */}
-                          <div className="flex items-center gap-0.5 bg-card/95 backdrop-blur-sm border border-border/40 rounded-xl px-1.5 py-1 shadow-xl" dir="ltr">
+                        {/* Unified toolbar card */}
+                        <div className={cn(
+                          "bg-card/95 backdrop-blur-sm border border-border/30 rounded-2xl shadow-2xl overflow-hidden",
+                          showAbove ? "mb-1.5" : "mt-1.5"
+                        )}>
+                          {/* Emoji row */}
+                          <div className="flex items-center justify-center gap-0.5 px-2 py-1.5" dir="ltr">
                             {QUICK_EMOJIS.map(emoji => (
                               <button
                                 key={emoji}
                                 onClick={() => { toggleReaction(actionMenu.msg.id, emoji); setShowExtraEmojis(false); }}
-                                className="text-[18px] hover:scale-125 active:scale-90 transition-transform px-[3px]"
+                                className="text-[19px] hover:scale-125 active:scale-90 transition-transform px-[2px]"
                                 aria-label={`React with ${emoji}`}
                               >
                                 {emoji}
                               </button>
                             ))}
-                            <div className="w-px h-5 bg-border/40 mx-1" />
                             <button
                               onClick={() => setShowExtraEmojis(!showExtraEmojis)}
                               className={cn(
-                                "w-6 h-6 rounded-full flex items-center justify-center transition-all",
+                                "w-6 h-6 rounded-full flex items-center justify-center transition-all ms-1",
                                 showExtraEmojis ? "bg-primary text-primary-foreground" : "bg-muted/50 text-muted-foreground"
                               )}
                               aria-label="More emojis"
                             >
-                              <ChevronDown className={cn("w-3.5 h-3.5 transition-transform", showExtraEmojis && "rotate-180")} />
+                              <ChevronDown className={cn("w-3.5 h-3.5 transition-transform duration-200", showExtraEmojis && "rotate-180")} />
                             </button>
-                            <div className="w-px h-5 bg-border/40 mx-1" />
-                            {/* Horizontal action icons */}
-                            <button
-                              onClick={() => { setReplyTo(actionMenu.msg); setActionMenu(null); setShowExtraEmojis(false); inputRef.current?.focus(); }}
-                              className="p-1.5 rounded-lg hover:bg-accent/30 active:bg-accent/50 transition-colors"
-                              aria-label={isAr ? 'رد' : 'Reply'}
-                            >
-                              <Reply className="w-4 h-4 text-muted-foreground" />
-                            </button>
-                            {actionMenu.msg.message_type === 'text' && actionMenu.msg.content && (
-                              <button
-                                onClick={() => { copyMessage(actionMenu.msg.content); setShowExtraEmojis(false); }}
-                                className="p-1.5 rounded-lg hover:bg-accent/30 active:bg-accent/50 transition-colors"
-                                aria-label={isAr ? 'نسخ' : 'Copy'}
-                              >
-                                <Copy className="w-4 h-4 text-muted-foreground" />
-                              </button>
-                            )}
-                            <button
-                              onClick={() => { /* pin logic */ setActionMenu(null); setShowExtraEmojis(false); }}
-                              className="p-1.5 rounded-lg hover:bg-accent/30 active:bg-accent/50 transition-colors"
-                              aria-label={isAr ? 'تثبيت' : 'Pin'}
-                            >
-                              <Pin className="w-4 h-4 text-muted-foreground" />
-                            </button>
-                            {actionMenu.isMine && !actionMenu.msg.deleted && (
-                              <button
-                                onClick={() => { deleteMessage(actionMenu.msg.id); setActionMenu(null); setShowExtraEmojis(false); }}
-                                className="p-1.5 rounded-lg hover:bg-destructive/10 active:bg-destructive/20 transition-colors"
-                                aria-label={isAr ? 'حذف' : 'Delete'}
-                              >
-                                <Trash2 className="w-4 h-4 text-destructive" />
-                              </button>
-                            )}
                           </div>
 
-                          {/* Dropdown extra emojis */}
+                          {/* Dropdown emojis */}
                           <AnimatePresence>
                             {showExtraEmojis && (
                               <motion.div
-                                initial={{ opacity: 0, height: 0, scale: 0.95 }}
-                                animate={{ opacity: 1, height: 'auto', scale: 1 }}
-                                exit={{ opacity: 0, height: 0, scale: 0.95 }}
-                                transition={{ type: 'spring', damping: 25, stiffness: 400 }}
+                                initial={{ height: 0 }}
+                                animate={{ height: 'auto' }}
+                                exit={{ height: 0 }}
+                                transition={{ duration: 0.2 }}
                                 className="overflow-hidden"
                               >
-                                <div className="grid grid-cols-8 gap-0.5 bg-card/95 backdrop-blur-sm border border-border/40 rounded-xl px-2 py-2 shadow-xl max-h-[180px] overflow-y-auto" dir="ltr">
+                                <div className="h-px bg-border/30 mx-2" />
+                                <div className="grid grid-cols-8 gap-0 px-1.5 py-1.5 max-h-[160px] overflow-y-auto" dir="ltr">
                                   {EXTRA_EMOJIS.map(emoji => (
                                     <button
                                       key={emoji}
                                       onClick={() => { toggleReaction(actionMenu.msg.id, emoji); setShowExtraEmojis(false); }}
-                                      className="text-[20px] hover:scale-110 active:scale-90 transition-transform p-1 rounded-lg hover:bg-accent/20 flex items-center justify-center"
+                                      className="text-[19px] hover:scale-110 active:scale-90 transition-transform p-1 rounded-lg hover:bg-accent/20 flex items-center justify-center"
                                       aria-label={`React with ${emoji}`}
                                     >
                                       {emoji}
@@ -1094,6 +1071,49 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                               </motion.div>
                             )}
                           </AnimatePresence>
+
+                          {/* Thin separator */}
+                          <div className="h-px bg-border/30 mx-2" />
+
+                          {/* Action icons row */}
+                          <div className="flex items-center justify-center gap-1 px-2 py-1.5">
+                            <button
+                              onClick={() => { setReplyTo(actionMenu.msg); setActionMenu(null); setShowExtraEmojis(false); inputRef.current?.focus(); }}
+                              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg hover:bg-accent/30 active:bg-accent/50 transition-colors"
+                              aria-label={isAr ? 'رد' : 'Reply'}
+                            >
+                              <Reply className="w-3.5 h-3.5 text-muted-foreground" />
+                              <span className="text-[11px] text-muted-foreground">{isAr ? 'رد' : 'Rply'}</span>
+                            </button>
+                            {actionMenu.msg.message_type === 'text' && actionMenu.msg.content && (
+                              <button
+                                onClick={() => { copyMessage(actionMenu.msg.content); setShowExtraEmojis(false); }}
+                                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg hover:bg-accent/30 active:bg-accent/50 transition-colors"
+                                aria-label={isAr ? 'نسخ' : 'Copy'}
+                              >
+                                <Copy className="w-3.5 h-3.5 text-muted-foreground" />
+                                <span className="text-[11px] text-muted-foreground">{isAr ? 'نسخ' : 'Copy'}</span>
+                              </button>
+                            )}
+                            <button
+                              onClick={() => { setActionMenu(null); setShowExtraEmojis(false); }}
+                              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg hover:bg-accent/30 active:bg-accent/50 transition-colors"
+                              aria-label={isAr ? 'تثبيت' : 'Pin'}
+                            >
+                              <Pin className="w-3.5 h-3.5 text-muted-foreground" />
+                              <span className="text-[11px] text-muted-foreground">{isAr ? 'تثبيت' : 'Pin'}</span>
+                            </button>
+                            {actionMenu.isMine && !actionMenu.msg.deleted && (
+                              <button
+                                onClick={() => { deleteMessage(actionMenu.msg.id); setActionMenu(null); setShowExtraEmojis(false); }}
+                                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg hover:bg-destructive/10 active:bg-destructive/20 transition-colors"
+                                aria-label={isAr ? 'حذف' : 'Delete'}
+                              >
+                                <Trash2 className="w-3.5 h-3.5 text-destructive" />
+                                <span className="text-[11px] text-destructive">{isAr ? 'حذف' : 'Del'}</span>
+                              </button>
+                            )}
+                          </div>
                         </div>
                       </motion.div>
                     </div>
