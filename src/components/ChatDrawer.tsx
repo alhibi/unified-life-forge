@@ -131,6 +131,7 @@ function SwipeableMessage({ children, isMine, deleted, onSwipeReply }: {
   );
 }
 
+export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadChange }: ChatDrawerProps) {
   const { user } = useAuth();
   const { language } = useApp();
   const isAr = language === 'ar';
