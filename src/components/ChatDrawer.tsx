@@ -803,12 +803,25 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       transition={{ duration: 0.15 }}
                       className={cn('flex', isMine ? 'justify-end' : 'justify-start')}
+                      drag="x"
+                      dragConstraints={{ left: 0, right: 60 }}
+                      dragElastic={0.3}
+                      dragSnapToOrigin
+                      onDragEnd={(_, info) => {
+                        if (info.offset.x > 50 && !msg.deleted) {
+                          setReplyTo(msg);
+                          inputRef.current?.focus();
+                        }
+                      }}
+                      style={{ touchAction: 'pan-y' }}
                     >
+                      {/* Swipe reply icon */}
+                      <motion.div className="absolute left-0 top-1/2 -translate-y-1/2 opacity-0" style={{ opacity: 0 }}>
+                        <Reply className="w-5 h-5 text-primary" />
+                      </motion.div>
+
                       <div
-                        className={cn(
-                          "relative max-w-[78%] group",
-                          actionMenu?.msg.id === msg.id && "z-[51]"
-                        )}
+                        className={cn("relative max-w-[78%] group")}
                         onContextMenu={(e) => openActionMenu(msg, isMine, e)}
                         onClick={(e) => openActionMenu(msg, isMine, e)}
                       >
@@ -875,10 +888,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                                 href={msg.file_url!}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className={cn(
-                                  'flex items-center gap-2',
-                                  isMine ? 'text-primary-foreground' : 'text-foreground'
-                                )}
+                                className={cn('flex items-center gap-2', isMine ? 'text-primary-foreground' : 'text-foreground')}
                                 onClick={e => e.stopPropagation()}
                               >
                                 <FileText className="w-5 h-5 shrink-0" />
@@ -913,7 +923,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
 
                         {/* Reactions */}
                         {msgReactions.length > 0 && (
-                          <div className={cn('flex gap-0.5 mt-1 flex-wrap', isMine ? 'justify-end' : 'justify-start')} dir="ltr">
+                          <div className={cn('flex gap-0.5 mt-0.5 flex-wrap', isMine ? 'justify-end' : 'justify-start')} dir="ltr">
                             {Object.entries(
                               msgReactions.reduce((acc, r) => {
                                 acc[r.emoji] = (acc[r.emoji] || 0) + 1;
@@ -932,7 +942,6 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                             ))}
                           </div>
                         )}
-
                       </div>
                     </motion.div>
                   </React.Fragment>
