@@ -69,7 +69,7 @@ const EXTRA_EMOJIS = [
 interface ActionMenuState {
   msg: Message;
   isMine: boolean;
-  rect: { top: number; bottom: number; left: number; right: number; width: number };
+  rect: { top: number; bottom: number; left: number; right: number; width: number; height: number };
   containerRect: { top: number; bottom: number; height: number };
 }
 
