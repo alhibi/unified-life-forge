@@ -995,6 +995,40 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                                 </span>
                               </div>
                             </div>
+                          ) : msg.message_type === 'voice' ? (
+                            <div className="px-3 py-2 flex items-center gap-2 min-w-[180px]">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  const audio = new Audio(msg.file_url!);
+                                  audio.play();
+                                }}
+                                className={cn(
+                                  'w-8 h-8 rounded-full flex items-center justify-center shrink-0',
+                                  isMine ? 'bg-primary-foreground/20' : 'bg-primary/15'
+                                )}
+                              >
+                                <svg viewBox="0 0 24 24" className={cn('w-4 h-4', isMine ? 'text-primary-foreground' : 'text-primary')} fill="currentColor">
+                                  <path d="M8 5v14l11-7z" />
+                                </svg>
+                              </button>
+                              <div className="flex-1 flex items-center gap-[1px]" dir="ltr">
+                                {Array.from({ length: 24 }).map((_, i) => (
+                                  <div
+                                    key={i}
+                                    className={cn(
+                                      'w-[2px] rounded-full',
+                                      isMine ? 'bg-primary-foreground/40' : 'bg-primary/40'
+                                    )}
+                                    style={{ height: `${Math.random() * 12 + 4}px` }}
+                                  />
+                                ))}
+                              </div>
+                              <span className={cn('text-[10px] whitespace-nowrap flex items-center gap-0.5 shrink-0', isMine ? 'text-primary-foreground/50' : 'text-muted-foreground/60')}>
+                                {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                {isMine && (msg.read ? <CheckCheck className="h-3 w-3" /> : <Check className="h-3 w-3" />)}
+                              </span>
+                            </div>
                           ) : msg.message_type === 'file' ? (
                             <div className="px-3 py-2">
                               <a
