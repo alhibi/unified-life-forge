@@ -879,34 +879,22 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                         </span>
                       </div>
                     )}
-                    <motion.div
-                      initial={{ opacity: 0, y: 8, scale: 0.95 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      transition={{ duration: 0.15 }}
-                      className={cn('flex', isMine ? 'justify-end' : 'justify-start')}
-                      drag="x"
-                      dragDirectionLock
-                      dragConstraints={{ left: 0, right: 60 }}
-                      dragElastic={{ left: 0, right: 0.3 }}
-                      dragSnapToOrigin
-                      onDragEnd={(_, info) => {
-                        if (info.offset.x > 50 && !msg.deleted) {
+                    <div
+                      className={cn('flex relative', isMine ? 'justify-end' : 'justify-start')}
+                    >
+                      <SwipeableMessage
+                        isMine={isMine}
+                        deleted={msg.deleted}
+                        onSwipeReply={() => {
                           setReplyTo(msg);
                           inputRef.current?.focus();
-                        }
-                      }}
-                      style={{ touchAction: 'pan-y' }}
-                    >
-                      {/* Swipe reply icon */}
-                      <motion.div className="absolute left-0 top-1/2 -translate-y-1/2 opacity-0" style={{ opacity: 0 }}>
-                        <Reply className="w-5 h-5 text-primary" />
-                      </motion.div>
-
-                      <div
-                        className={cn("relative max-w-[78%] group")}
-                        onContextMenu={(e) => openActionMenu(msg, isMine, e)}
-                        onClick={(e) => openActionMenu(msg, isMine, e)}
+                        }}
                       >
+                        <div
+                          className={cn("relative max-w-[78%] group")}
+                          onContextMenu={(e) => openActionMenu(msg, isMine, e)}
+                          onClick={(e) => openActionMenu(msg, isMine, e)}
+                        >
                         <div className={cn(
                           'rounded-2xl text-sm overflow-hidden',
                           msg.deleted
