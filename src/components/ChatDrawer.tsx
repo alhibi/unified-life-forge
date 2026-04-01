@@ -448,6 +448,65 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
     loadConversations();
   };
 
+  // Voice recording functions
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm;codecs=opus' });
+      recordingChunksRef.current = [];
+      mediaRecorderRef.current = mediaRecorder;
+
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) recordingChunksRef.current.push(e.data);
+      };
+
+      mediaRecorder.onstop = async () => {
+        stream.getTracks().forEach(t => t.stop());
+        if (recordingCancelled) {
+          setRecordingCancelled(false);
+          return;
+        }
+        const blob = new Blob(recordingChunksRef.current, { type: 'audio/webm' });
+        if (blob.size > 0 && activeConv && user) {
+          const path = `${user.id}/${activeConv.id}/${Date.now()}.webm`;
+          const { error } = await supabase.storage.from('chat-files').upload(path, blob);
+          if (!error) {
+            const { data: urlData } = supabase.storage.from('chat-files').getPublicUrl(path);
+            await sendMessage('voice', urlData.publicUrl, `voice_${Date.now()}.webm`);
+          }
+        }
+      };
+
+      mediaRecorder.start(100);
+      setIsRecording(true);
+      setRecordingTime(0);
+      recordingTimerRef.current = setInterval(() => {
+        setRecordingTime(prev => prev + 1);
+      }, 1000);
+    } catch {
+      console.log('Microphone access denied');
+    }
+  };
+
+  const stopRecording = (cancel = false) => {
+    if (cancel) setRecordingCancelled(true);
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+      mediaRecorderRef.current.stop();
+    }
+    setIsRecording(false);
+    if (recordingTimerRef.current) {
+      clearInterval(recordingTimerRef.current);
+      recordingTimerRef.current = null;
+    }
+    setRecordingTime(0);
+  };
+
+  const formatRecordingTime = (seconds: number) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}:${s.toString().padStart(2, '0')}`;
+  };
+
   const openActionMenu = (msg: Message, isMine: boolean, e: React.MouseEvent | React.TouchEvent) => {
     e.preventDefault();
     e.stopPropagation();
