@@ -817,8 +817,9 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                       transition={{ duration: 0.15 }}
                       className={cn('flex', isMine ? 'justify-end' : 'justify-start')}
                       drag="x"
+                      dragDirectionLock
                       dragConstraints={{ left: 0, right: 60 }}
-                      dragElastic={0.3}
+                      dragElastic={{ left: 0, right: 0.3 }}
                       dragSnapToOrigin
                       onDragEnd={(_, info) => {
                         if (info.offset.x > 50 && !msg.deleted) {
