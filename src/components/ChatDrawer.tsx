@@ -478,6 +478,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
     if (!msg) return null;
     if (msg.deleted) return isAr ? 'رسالة محذوفة' : 'Gelöschte Nachricht';
     if (msg.message_type === 'image') return '📷 ' + (isAr ? 'صورة' : 'Foto');
+    if (msg.message_type === 'voice') return '🎤 ' + (isAr ? 'رسالة صوتية' : 'Sprachnachricht');
     if (msg.message_type === 'file') return '📎 ' + msg.file_name;
     return msg.content.length > 50 ? msg.content.slice(0, 50) + '…' : msg.content;
   };
