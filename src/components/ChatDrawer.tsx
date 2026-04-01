@@ -163,6 +163,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
   const recordingChunksRef = useRef<Blob[]>([]);
   const recordingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const recordingStartXRef = useRef(0);
+  const recordingCancelledRef = useRef(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
