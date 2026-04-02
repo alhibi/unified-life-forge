@@ -5,6 +5,7 @@ import { useApp } from '@/contexts/AppContext';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   ChevronRight, ChevronLeft, ChevronDown, Send, Search, Plus, MessageCircle,
@@ -181,10 +182,27 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, []);
+
+  const focusComposer = useCallback(() => {
+    requestAnimationFrame(() => {
+      const composer = inputRef.current;
+      if (!composer) return;
+      composer.focus({ preventScroll: true });
+      const caretPosition = composer.value.length;
+      composer.setSelectionRange(caretPosition, caretPosition);
+    });
+  }, []);
+
+  const resizeComposer = useCallback((element?: HTMLTextAreaElement | null) => {
+    const composer = element ?? inputRef.current;
+    if (!composer) return;
+    composer.style.height = '0px';
+    composer.style.height = `${Math.min(Math.max(composer.scrollHeight, 40), 120)}px`;
   }, []);
 
   // Load conversations
@@ -445,8 +463,12 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
     if (!content && type === 'text') return;
     if (!activeConv || !user) return;
 
+    const replyToId = replyTo?.id || null;
+
     setNewMessage('');
     setReplyTo(null);
+    resizeComposer();
+    typingChannelRef.current?.track({ typing: false });
 
     await supabase.from('messages').insert({
       conversation_id: activeConv.id,
@@ -455,12 +477,14 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
       message_type: type,
       file_url: fileUrl || null,
       file_name: fileName || null,
-      reply_to_id: replyTo?.id || null,
+      reply_to_id: replyToId,
     });
 
     await supabase.from('conversations')
       .update({ updated_at: new Date().toISOString() })
       .eq('id', activeConv.id);
+
+    if (type === 'text') focusComposer();
   };
 
   const deleteMessage = async (msgId: string) => {
@@ -954,7 +978,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
             </div>
 
             {/* Messages */}
-            <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-3 space-y-0.5" onClick={() => { setShowChatMenu(false); setActionMenu(null); setShowExtraEmojis(false); }}>
+            <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-3 space-y-1.5" onClick={() => { setShowChatMenu(false); setActionMenu(null); setShowExtraEmojis(false); }}>
               {messages.map((msg, idx) => {
                 const isMine = msg.sender_id === user.id;
                 const msgReactions = reactions.filter(r => r.message_id === msg.id);
@@ -1150,6 +1174,16 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
               {actionMenu && (() => {
                 const spaceAbove = actionMenu.rect.top - actionMenu.containerRect.top;
                 const showAbove = spaceAbove > 180;
+                const viewportPadding = 12;
+                const menuWidth = Math.min(Math.max(actionMenu.rect.width, 260), window.innerWidth - viewportPadding * 2);
+                const anchoredLeft = actionMenu.isMine
+                  ? actionMenu.rect.right - menuWidth
+                  : actionMenu.rect.left;
+                const menuLeft = Math.min(
+                  Math.max(anchoredLeft, viewportPadding),
+                  window.innerWidth - menuWidth - viewportPadding,
+                );
+                const previewWidth = Math.min(actionMenu.rect.width, menuWidth);
 
                 return (
                   <>
@@ -1173,14 +1207,15 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                         transition={{ type: 'spring', damping: 28, stiffness: 450 }}
                         className={cn(
                           "absolute pointer-events-auto flex flex-col",
-                          showAbove ? "flex-col-reverse" : "flex-col"
+                          showAbove ? "flex-col-reverse" : "flex-col",
+                          actionMenu.isMine ? 'items-end' : 'items-start'
                         )}
                         style={{
                           top: showAbove ? undefined : `${actionMenu.rect.top}px`,
                           bottom: showAbove ? `${window.innerHeight - actionMenu.rect.top + 4}px` : undefined,
-                          ...(actionMenu.isMine ? { right: '12px' } : { left: '12px' }),
-                          width: `${actionMenu.rect.width}px`,
-                          maxWidth: '88vw',
+                          left: `${menuLeft}px`,
+                          width: `${menuWidth}px`,
+                          maxWidth: `${menuWidth}px`,
                         }}
                         onClick={e => e.stopPropagation()}
                       >
@@ -1190,7 +1225,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                           actionMenu.isMine
                             ? 'bg-primary text-primary-foreground rounded-br-md'
                             : 'bg-card border border-border/40 text-foreground rounded-bl-md'
-                        )}>
+                        )} style={{ width: `${previewWidth}px`, maxWidth: '100%' }}>
                           {actionMenu.msg.message_type === 'text' && (
                             <div className="px-3 py-1.5">
                               <span className="break-words whitespace-pre-wrap text-[13.5px]" dir="auto">
@@ -1271,7 +1306,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                           <div className="h-px bg-border/30 mx-2" />
 
                           {/* Action icons row */}
-                          <div className="flex items-center justify-center gap-1 px-2 py-1.5">
+                          <div className="flex items-center justify-center gap-1 px-2 py-1.5 flex-wrap">
                             <button
                               onClick={() => { setReplyTo(actionMenu.msg); setActionMenu(null); setShowExtraEmojis(false); inputRef.current?.focus(); }}
                               className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg hover:bg-accent/30 active:bg-accent/50 transition-colors"
@@ -1318,7 +1353,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
             </AnimatePresence>
 
             {/* Input area */}
-            <div className="border-t border-border/50 bg-card/30">
+            <div className="border-t border-border/50 bg-card/30 pb-[env(safe-area-inset-bottom)]">
               {/* Reply preview */}
               <AnimatePresence>
                 {replyTo && !isRecording && (
@@ -1430,20 +1465,44 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                       <Smile className="h-5 w-5 text-muted-foreground" />
                     </Button>
 
-                    <div className="flex-1 flex items-center bg-accent/30 border border-border/30 rounded-full overflow-hidden">
-                      <Input
+                    <div className="flex-1 flex items-end bg-accent/30 border border-border/30 rounded-[28px] overflow-hidden ps-1.5">
+                      <Textarea
                         ref={inputRef}
                         placeholder={isAr ? 'مراسلة' : 'Nachricht'}
                         value={newMessage}
-                        onChange={e => { setNewMessage(e.target.value); broadcastTyping(); }}
-                        onKeyDown={e => e.key === 'Enter' && !e.shiftKey && sendMessage()}
+                        rows={1}
+                        name="chat-message"
+                        autoComplete="off"
+                        autoCorrect="on"
+                        autoCapitalize="sentences"
+                        spellCheck
+                        enterKeyHint="send"
+                        inputMode="text"
+                        data-form-type="other"
+                        onChange={e => {
+                          setNewMessage(e.target.value);
+                          resizeComposer(e.currentTarget);
+                          if (e.target.value.trim()) broadcastTyping();
+                        }}
+                        onFocus={() => {
+                          resizeComposer();
+                          setTimeout(scrollToBottom, 120);
+                        }}
+                        onKeyDown={e => {
+                          if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
+                            e.preventDefault();
+                            void sendMessage();
+                          }
+                        }}
                         dir="auto"
-                        className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 h-9 text-sm"
+                        className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 min-h-[40px] max-h-[120px] resize-none px-2.5 py-[10px] text-[15px] leading-6 placeholder:text-muted-foreground/70"
                       />
                       <button
+                        type="button"
+                        onPointerDown={(e) => e.preventDefault()}
                         onClick={() => fileInputRef.current?.click()}
                         disabled={uploading}
-                        className="shrink-0 p-2 text-muted-foreground hover:text-foreground transition-colors"
+                        className="shrink-0 p-2.5 text-muted-foreground hover:text-foreground transition-colors self-end"
                       >
                         {uploading ? (
                           <div className="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
@@ -1456,14 +1515,17 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                     {newMessage.trim() ? (
                       <Button
                         size="icon"
-                        className="rounded-full shrink-0 h-9 w-9"
+                        className="rounded-full shrink-0 h-10 w-10"
+                        type="button"
+                        onPointerDown={(e) => e.preventDefault()}
                         onClick={() => sendMessage()}
                       >
                         <Send className="h-4 w-4" />
                       </Button>
                     ) : (
                       <motion.button
-                        className="shrink-0 h-9 w-9 rounded-full bg-primary flex items-center justify-center text-primary-foreground"
+                        type="button"
+                        className="shrink-0 h-10 w-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground"
                         whileTap={{ scale: 1.3 }}
                         onClick={startRecording}
                       >
