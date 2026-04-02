@@ -43,6 +43,18 @@ interface Message {
   deleted: boolean;
 }
 
+// Helper to get a signed URL for private chat-files bucket
+const getSignedFileUrl = async (fileUrl: string): Promise<string> => {
+  // If it's already a signed URL or external URL, return as-is
+  if (!fileUrl || !fileUrl.includes('/chat-files/')) return fileUrl;
+  // Extract the path after 'chat-files/'
+  const match = fileUrl.match(/chat-files\/(.+?)(?:\?|$)/);
+  if (!match) return fileUrl;
+  const path = decodeURIComponent(match[1]);
+  const { data, error } = await supabase.storage.from('chat-files').createSignedUrl(path, 3600);
+  return error ? fileUrl : data.signedUrl;
+};
+
 interface Reaction {
   id: string;
   message_id: string;
@@ -151,6 +163,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
   const [showExtraEmojis, setShowExtraEmojis] = useState(false);
   const [typingUser, setTypingUser] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
   const typingChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
   const [showProfilePopup, setShowProfilePopup] = useState(false);
   const [showChatMenu, setShowChatMenu] = useState(false);
@@ -270,6 +283,24 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
   useEffect(() => {
     if (activeConv) loadMessages();
   }, [activeConv, loadMessages]);
+
+  // Resolve signed URLs for file messages
+  useEffect(() => {
+    const fileMessages = messages.filter(m => m.file_url && !signedUrls[m.id]);
+    if (fileMessages.length === 0) return;
+    Promise.all(fileMessages.map(async (m) => {
+      const url = await getSignedFileUrl(m.file_url!);
+      return { id: m.id, url };
+    })).then(results => {
+      setSignedUrls(prev => {
+        const next = { ...prev };
+        results.forEach(r => { next[r.id] = r.url; });
+        return next;
+      });
+    });
+  }, [messages]);
+
+  const getFileUrl = (msg: Message) => signedUrls[msg.id] || msg.file_url || '';
 
   // Realtime
   useEffect(() => {
@@ -465,10 +496,11 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
       return;
     }
 
-    const { data: urlData } = supabase.storage.from('chat-files').getPublicUrl(path);
+    const { data: signedData } = await supabase.storage.from('chat-files').createSignedUrl(path, 3600);
+    const fileUrl = signedData?.signedUrl || '';
     const isImage = file.type.startsWith('image/');
 
-    await sendMessage(isImage ? 'image' : 'file', urlData.publicUrl, file.name);
+    await sendMessage(isImage ? 'image' : 'file', fileUrl, file.name);
     setUploading(false);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
@@ -529,8 +561,8 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
           const path = `${user.id}/${activeConv.id}/${Date.now()}.${ext}`;
           const { error } = await supabase.storage.from('chat-files').upload(path, blob);
           if (!error) {
-            const { data: urlData } = supabase.storage.from('chat-files').getPublicUrl(path);
-            await sendMessage('voice', urlData.publicUrl, `voice_${Date.now()}.${ext}`);
+            const { data: signedData } = await supabase.storage.from('chat-files').createSignedUrl(path, 3600);
+            await sendMessage('voice', signedData?.signedUrl || '', `voice_${Date.now()}.${ext}`);
           }
         }
       };
@@ -995,10 +1027,10 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                           ) : msg.message_type === 'image' ? (
                             <div>
                               <img
-                                src={msg.file_url!}
+                                src={getFileUrl(msg)}
                                 alt={msg.file_name || 'image'}
                                 className="rounded-t-lg max-w-full max-h-60 object-cover cursor-pointer"
-                                onClick={(e) => { e.stopPropagation(); window.open(msg.file_url!, '_blank'); }}
+                                onClick={(e) => { e.stopPropagation(); window.open(getFileUrl(msg), '_blank'); }}
                               />
                               <div className="px-3 py-1.5 flex items-end justify-between gap-2">
                                 {msg.content && msg.content !== msg.file_name ? (
@@ -1015,7 +1047,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  const audio = new Audio(msg.file_url!);
+                                  const audio = new Audio(getFileUrl(msg));
                                   audio.play();
                                 }}
                                 className={cn(
@@ -1047,7 +1079,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                           ) : msg.message_type === 'file' ? (
                             <div className="px-3 py-2">
                               <a
-                                href={msg.file_url!}
+                                href={getFileUrl(msg)}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className={cn('flex items-center gap-2', isMine ? 'text-primary-foreground' : 'text-foreground')}
@@ -1175,7 +1207,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                             </div>
                           )}
                           {actionMenu.msg.message_type === 'image' && (
-                            <img src={actionMenu.msg.file_url!} alt="" className="max-w-full max-h-40 object-cover" />
+                            <img src={getFileUrl(actionMenu.msg)} alt="" className="max-w-full max-h-40 object-cover" />
                           )}
                         </div>
 
