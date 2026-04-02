@@ -43,6 +43,18 @@ interface Message {
   deleted: boolean;
 }
 
+// Helper to get a signed URL for private chat-files bucket
+const getSignedFileUrl = async (fileUrl: string): Promise<string> => {
+  // If it's already a signed URL or external URL, return as-is
+  if (!fileUrl || !fileUrl.includes('/chat-files/')) return fileUrl;
+  // Extract the path after 'chat-files/'
+  const match = fileUrl.match(/chat-files\/(.+?)(?:\?|$)/);
+  if (!match) return fileUrl;
+  const path = decodeURIComponent(match[1]);
+  const { data, error } = await supabase.storage.from('chat-files').createSignedUrl(path, 3600);
+  return error ? fileUrl : data.signedUrl;
+};
+
 interface Reaction {
   id: string;
   message_id: string;
