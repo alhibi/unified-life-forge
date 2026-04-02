@@ -284,6 +284,24 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
     if (activeConv) loadMessages();
   }, [activeConv, loadMessages]);
 
+  // Resolve signed URLs for file messages
+  useEffect(() => {
+    const fileMessages = messages.filter(m => m.file_url && !signedUrls[m.id]);
+    if (fileMessages.length === 0) return;
+    Promise.all(fileMessages.map(async (m) => {
+      const url = await getSignedFileUrl(m.file_url!);
+      return { id: m.id, url };
+    })).then(results => {
+      setSignedUrls(prev => {
+        const next = { ...prev };
+        results.forEach(r => { next[r.id] = r.url; });
+        return next;
+      });
+    });
+  }, [messages]);
+
+  const getFileUrl = (msg: Message) => signedUrls[msg.id] || msg.file_url || '';
+
   // Realtime
   useEffect(() => {
     if (!user || !open) return;
