@@ -542,8 +542,8 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
           const path = `${user.id}/${activeConv.id}/${Date.now()}.${ext}`;
           const { error } = await supabase.storage.from('chat-files').upload(path, blob);
           if (!error) {
-            const { data: urlData } = supabase.storage.from('chat-files').getPublicUrl(path);
-            await sendMessage('voice', urlData.publicUrl, `voice_${Date.now()}.${ext}`);
+            const { data: signedData } = await supabase.storage.from('chat-files').createSignedUrl(path, 3600);
+            await sendMessage('voice', signedData?.signedUrl || '', `voice_${Date.now()}.${ext}`);
           }
         }
       };
