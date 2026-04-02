@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useApp } from '@/contexts/AppContext';
@@ -10,7 +10,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   ChevronRight, ChevronLeft, ChevronDown, Send, Search, Plus, MessageCircle,
   Check, CheckCheck, Reply, Trash2, Paperclip, X,
-  Download, FileText, MoreVertical, Trash, Info, Copy, Pin, Mic, Smile
+  Download, FileText, MoreVertical, Trash, Info, Copy, Pin, Mic, Smile,
+  ArrowDown
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
@@ -44,11 +45,8 @@ interface Message {
   deleted: boolean;
 }
 
-// Helper to get a signed URL for private chat-files bucket
 const getSignedFileUrl = async (fileUrl: string): Promise<string> => {
-  // If it's already a signed URL or external URL, return as-is
   if (!fileUrl || !fileUrl.includes('/chat-files/')) return fileUrl;
-  // Extract the path after 'chat-files/'
   const match = fileUrl.match(/chat-files\/(.+?)(?:\?|$)/);
   if (!match) return fileUrl;
   const path = decodeURIComponent(match[1]);
@@ -131,7 +129,6 @@ function SwipeableMessage({ children, isMine, deleted, onSwipeReply }: {
         dragElastic={{ left: 0, right: 0.4 }}
         dragSnapToOrigin
         onDrag={(_, info) => {
-          // Prevent left drag entirely
           if (info.offset.x < 0) x.set(0);
         }}
         onDragEnd={(_, info) => {
@@ -140,6 +137,22 @@ function SwipeableMessage({ children, isMine, deleted, onSwipeReply }: {
       >
         {children}
       </motion.div>
+    </div>
+  );
+}
+
+// Typing dots animation
+function TypingDots() {
+  return (
+    <div className="flex items-center gap-[3px] py-0.5">
+      {[0, 1, 2].map(i => (
+        <motion.div
+          key={i}
+          className="w-[5px] h-[5px] rounded-full bg-primary"
+          animate={{ opacity: [0.3, 1, 0.3], y: [0, -3, 0] }}
+          transition={{ duration: 0.8, repeat: Infinity, delay: i * 0.15 }}
+        />
+      ))}
     </div>
   );
 }
@@ -168,6 +181,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
   const typingChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
   const [showProfilePopup, setShowProfilePopup] = useState(false);
   const [showChatMenu, setShowChatMenu] = useState(false);
+  const [showScrollDown, setShowScrollDown] = useState(false);
 
   // Voice recording state
   const [isRecording, setIsRecording] = useState(false);
@@ -184,8 +198,8 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  const scrollToBottom = useCallback(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  const scrollToBottom = useCallback((smooth = true) => {
+    messagesEndRef.current?.scrollIntoView({ behavior: smooth ? 'smooth' : 'instant' });
   }, []);
 
   const focusComposer = useCallback(() => {
@@ -203,6 +217,14 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
     if (!composer) return;
     composer.style.height = '0px';
     composer.style.height = `${Math.min(Math.max(composer.scrollHeight, 40), 120)}px`;
+  }, []);
+
+  // Scroll detection for FAB
+  const handleScroll = useCallback(() => {
+    const container = messagesContainerRef.current;
+    if (!container) return;
+    const distFromBottom = container.scrollHeight - container.scrollTop - container.clientHeight;
+    setShowScrollDown(distFromBottom > 200);
   }, []);
 
   // Load conversations
@@ -290,7 +312,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
         setReactions((rxns || []) as Reaction[]);
       }
 
-      setTimeout(scrollToBottom, 100);
+      setTimeout(() => scrollToBottom(false), 50);
     }
   }, [activeConv, user, scrollToBottom]);
 
@@ -355,7 +377,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
     return () => { supabase.removeChannel(channel); };
   }, [user, open, activeConv, scrollToBottom, loadConversations]);
 
-  // Typing indicator - shared channel with presence
+  // Typing indicator
   useEffect(() => {
     if (!activeConv || !user) return;
     setTypingUser(false);
@@ -521,10 +543,10 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
     }
 
     const { data: signedData } = await supabase.storage.from('chat-files').createSignedUrl(path, 3600);
-    const fileUrl = signedData?.signedUrl || '';
+    const fileUrlResult = signedData?.signedUrl || '';
     const isImage = file.type.startsWith('image/');
 
-    await sendMessage(isImage ? 'image' : 'file', fileUrl, file.name);
+    await sendMessage(isImage ? 'image' : 'file', fileUrlResult, file.name);
     setUploading(false);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
@@ -541,7 +563,6 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
 
   const deleteConversation = async () => {
     if (!activeConv || !user) return;
-    // Delete all messages in conversation
     await supabase.from('messages').delete().eq('conversation_id', activeConv.id);
     await supabase.from('conversations').delete().eq('id', activeConv.id);
     setActiveConv(null);
@@ -554,7 +575,6 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       
-      // Detect supported mimeType
       const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
         ? 'audio/webm;codecs=opus'
         : MediaRecorder.isTypeSupported('audio/webm')
@@ -575,9 +595,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
 
       mediaRecorder.onstop = async () => {
         stream.getTracks().forEach(t => t.stop());
-        if (recordingCancelledRef.current) {
-          return;
-        }
+        if (recordingCancelledRef.current) return;
         const finalMime = mediaRecorder.mimeType || 'audio/webm';
         const ext = finalMime.includes('mp4') ? 'mp4' : 'webm';
         const blob = new Blob(recordingChunksRef.current, { type: finalMime });
@@ -650,12 +668,24 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
         {avatarUrl ? (
           <AvatarImage src={avatarUrl} alt={username} className="object-cover" />
         ) : null}
-        <AvatarFallback className="bg-primary/10 text-lg">
+        <AvatarFallback className="bg-primary/10 text-lg font-semibold">
           {initial}
         </AvatarFallback>
       </Avatar>
     );
   };
+
+  // Group consecutive same-sender messages
+  const getMessageMeta = useCallback((idx: number) => {
+    const msg = messages[idx];
+    const prev = idx > 0 ? messages[idx - 1] : null;
+    const next = idx < messages.length - 1 ? messages[idx + 1] : null;
+    const sameSenderAsPrev = prev && prev.sender_id === msg.sender_id && !prev.deleted && (new Date(msg.created_at).getTime() - new Date(prev.created_at).getTime() < 120000);
+    const sameSenderAsNext = next && next.sender_id === msg.sender_id && !next.deleted && (new Date(next.created_at).getTime() - new Date(msg.created_at).getTime() < 120000);
+    const showDate = idx === 0 || new Date(msg.created_at).toDateString() !== new Date(messages[idx - 1].created_at).toDateString();
+    
+    return { sameSenderAsPrev: !!sameSenderAsPrev && !showDate, sameSenderAsNext: !!sameSenderAsNext, showDate };
+  }, [messages]);
 
   if (!user) {
     return (
@@ -700,7 +730,6 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                 className="flex flex-col items-center justify-center flex-1 gap-5 px-6"
                 onClick={e => e.stopPropagation()}
               >
-                {/* Large avatar */}
                 <motion.div
                   initial={{ scale: 0.5 }}
                   animate={{ scale: 1 }}
@@ -718,7 +747,6 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                   )}
                 </div>
 
-                {/* Stats */}
                 <div className="flex gap-8 mt-2">
                   <div className="text-center">
                     <p className="text-2xl font-bold text-foreground">{messages.length}</p>
@@ -732,7 +760,6 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                   </div>
                 </div>
 
-                {/* Actions */}
                 <div className="flex gap-3 mt-4">
                   <Button
                     variant="destructive"
@@ -761,75 +788,84 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
         {!activeConv && !showNewChat ? (
           // ─── Conversation List ───
           <>
-            <SheetHeader className="p-4 border-b border-border/50 bg-card/50">
+            <SheetHeader className="px-4 pt-4 pb-3 border-b border-border/40">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <button
                     onClick={() => onOpenChange(false)}
-                    className="w-10 h-10 rounded-2xl bg-secondary/60 flex items-center justify-center active:scale-95 transition-transform"
+                    className="w-9 h-9 rounded-xl bg-secondary/50 flex items-center justify-center active:scale-95 transition-transform"
                     aria-label={isAr ? 'رجوع' : 'Zurück'}
                   >
-                    <BackIcon className="w-5 h-5 text-foreground stroke-[1.8]" />
+                    <BackIcon className="w-4.5 h-4.5 text-foreground stroke-[2]" />
                   </button>
-                  <SheetTitle className="text-lg font-bold">
+                  <SheetTitle className="text-[17px] font-bold tracking-tight">
                     {isAr ? 'الرسائل' : 'Nachrichten'}
                   </SheetTitle>
                 </div>
-                <Button size="icon" variant="ghost" className="rounded-full" onClick={() => setShowNewChat(true)} aria-label={isAr ? 'محادثة جديدة' : 'Neues Gespräch'}>
-                  <Plus className="h-5 w-5" />
-                </Button>
+                <button
+                  onClick={() => setShowNewChat(true)}
+                  className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center active:scale-95 transition-all hover:bg-primary/20"
+                  aria-label={isAr ? 'محادثة جديدة' : 'Neues Gespräch'}
+                >
+                  <Plus className="h-4.5 w-4.5 text-primary stroke-[2]" />
+                </button>
               </div>
             </SheetHeader>
             <div className="flex-1 overflow-y-auto">
               {conversations.length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-full text-muted-foreground gap-3 px-6">
-                  <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-                    <MessageCircle className="h-8 w-8 text-primary/50" />
+                <div className="flex flex-col items-center justify-center h-full text-muted-foreground gap-4 px-8">
+                  <div className="w-20 h-20 rounded-full bg-primary/5 flex items-center justify-center">
+                    <MessageCircle className="h-9 w-9 text-primary/30" />
                   </div>
-                  <p className="text-sm">{isAr ? 'لا توجد محادثات بعد' : 'Noch keine Gespräche'}</p>
-                  <Button variant="outline" size="sm" className="rounded-full" onClick={() => setShowNewChat(true)}>
-                    {isAr ? 'ابدأ محادثة جديدة' : 'Neues Gespräch starten'}
+                  <div className="text-center space-y-1">
+                    <p className="text-sm font-medium text-foreground/60">{isAr ? 'لا توجد محادثات بعد' : 'Noch keine Gespräche'}</p>
+                    <p className="text-xs text-muted-foreground/60">{isAr ? 'ابدأ محادثة جديدة مع أصدقائك' : 'Starte ein neues Gespräch'}</p>
+                  </div>
+                  <Button variant="outline" size="sm" className="rounded-full mt-1" onClick={() => setShowNewChat(true)}>
+                    <Plus className="w-3.5 h-3.5 me-1.5" />
+                    {isAr ? 'محادثة جديدة' : 'Neues Gespräch'}
                   </Button>
                 </div>
               ) : (
-                conversations.map(conv => (
+                conversations.map((conv, idx) => (
                   <motion.button
                     key={conv.id}
-                    initial={{ opacity: 0, x: isAr ? 20 : -20 }}
-                    animate={{ opacity: 1, x: 0 }}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: idx * 0.03 }}
                     onClick={() => setActiveConv(conv)}
                     className={cn(
-                      'w-full flex items-center gap-3 p-3.5 hover:bg-accent/30 transition-all border-b border-border/10 text-start',
+                      'w-full flex items-center gap-3 px-4 py-3 hover:bg-accent/30 active:bg-accent/50 transition-all text-start',
                       (conv.unreadCount ?? 0) > 0 && 'bg-primary/[0.03]'
                     )}
                   >
                     <div className="relative">
-                      {renderAvatar(conv.otherUsername, conv.otherAvatarUrl, 'h-[52px] w-[52px]')}
+                      {renderAvatar(conv.otherUsername, conv.otherAvatarUrl, 'h-[50px] w-[50px]')}
                       {(conv.unreadCount ?? 0) > 0 && (
-                        <span className="absolute -top-0.5 -end-0.5 bg-primary text-primary-foreground text-[10px] rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 font-bold shadow-sm">
+                        <span className="absolute -top-0.5 -end-0.5 bg-primary text-primary-foreground text-[10px] rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 font-bold">
                           {conv.unreadCount}
                         </span>
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between">
+                      <div className="flex items-baseline justify-between gap-2">
                         <span className={cn(
-                          'font-semibold text-[14px] text-foreground',
-                          (conv.unreadCount ?? 0) > 0 && 'font-bold'
+                          'text-[14.5px] text-foreground truncate',
+                          (conv.unreadCount ?? 0) > 0 ? 'font-bold' : 'font-semibold'
                         )}>
                           {conv.otherDisplayName || conv.otherUsername}
                         </span>
                         <span className={cn(
-                          'text-[11px] shrink-0',
-                          (conv.unreadCount ?? 0) > 0 ? 'text-primary font-medium' : 'text-muted-foreground/60'
+                          'text-[11px] shrink-0 tabular-nums',
+                          (conv.unreadCount ?? 0) > 0 ? 'text-primary font-semibold' : 'text-muted-foreground/50'
                         )}>
                           {conv.lastMessageTime && formatTime(conv.lastMessageTime, isAr)}
                         </span>
                       </div>
                       {conv.lastMessage && (
                         <p className={cn(
-                          'text-[12.5px] truncate mt-0.5',
-                          (conv.unreadCount ?? 0) > 0 ? 'text-foreground/80 font-medium' : 'text-muted-foreground'
+                          'text-[12.5px] truncate mt-0.5 leading-relaxed',
+                          (conv.unreadCount ?? 0) > 0 ? 'text-foreground/70 font-medium' : 'text-muted-foreground/70'
                         )}>
                           {conv.lastMessage}
                         </p>
@@ -843,16 +879,16 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
         ) : showNewChat ? (
           // ─── New Chat Search ───
           <>
-            <SheetHeader className="p-4 border-b border-border/50 bg-card/50">
+            <SheetHeader className="px-4 pt-4 pb-3 border-b border-border/40">
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => { setShowNewChat(false); setSearchResult(null); setSearchError(''); setSearchUser(''); }}
-                  className="w-10 h-10 rounded-2xl bg-secondary/60 flex items-center justify-center active:scale-95 transition-transform"
+                  className="w-9 h-9 rounded-xl bg-secondary/50 flex items-center justify-center active:scale-95 transition-transform"
                   aria-label={isAr ? 'رجوع' : 'Zurück'}
                 >
-                  <BackIcon className="w-5 h-5 text-foreground stroke-[1.8]" />
+                  <BackIcon className="w-4.5 h-4.5 text-foreground stroke-[2]" />
                 </button>
-                <SheetTitle className="text-lg font-bold">
+                <SheetTitle className="text-[17px] font-bold tracking-tight">
                   {isAr ? 'محادثة جديدة' : 'Neues Gespräch'}
                 </SheetTitle>
               </div>
@@ -895,40 +931,43 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
           // ─── Active Chat ───
           <>
             {/* Chat Header */}
-            <div className="p-3 border-b border-border/50 bg-card/50 flex items-center gap-3">
+            <div className="px-3 py-2.5 border-b border-border/40 flex items-center gap-2.5">
               <button
                 onClick={() => { setActiveConv(null); setReplyTo(null); setShowChatMenu(false); loadConversations(); }}
-                className="w-10 h-10 rounded-2xl bg-secondary/60 flex items-center justify-center active:scale-95 transition-transform shrink-0"
+                className="w-9 h-9 rounded-xl bg-secondary/50 flex items-center justify-center active:scale-95 transition-transform shrink-0"
                 aria-label={isAr ? 'رجوع' : 'Zurück'}
               >
-                <BackIcon className="w-5 h-5 text-foreground stroke-[1.8]" />
+                <BackIcon className="w-4.5 h-4.5 text-foreground stroke-[2]" />
               </button>
               <button
-                className="flex items-center gap-3 flex-1 min-w-0"
+                className="flex items-center gap-2.5 flex-1 min-w-0"
                 onClick={() => setShowProfilePopup(true)}
               >
-                {renderAvatar(activeConv?.otherUsername, activeConv?.otherAvatarUrl, 'h-10 w-10')}
+                {renderAvatar(activeConv?.otherUsername, activeConv?.otherAvatarUrl, 'h-9 w-9')}
                 <div className="min-w-0 text-start">
-                  <span className="font-semibold text-sm block truncate">
+                  <span className="font-semibold text-[14px] block truncate leading-tight">
                     {activeConv?.otherDisplayName || activeConv?.otherUsername}
                   </span>
                   <AnimatePresence mode="wait">
                     {typingUser ? (
-                      <motion.span
+                      <motion.div
                         key="typing"
                         initial={{ opacity: 0, y: 4 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 4 }}
-                        className="text-[11px] text-primary font-medium"
+                        className="flex items-center gap-1.5"
                       >
-                        {isAr ? 'يكتب الآن...' : 'tippt...'}
-                      </motion.span>
+                        <span className="text-[11px] text-primary font-medium leading-tight">
+                          {isAr ? 'يكتب' : 'tippt'}
+                        </span>
+                        <TypingDots />
+                      </motion.div>
                     ) : (
                       <motion.span
-                        key="username"
+                        key="online"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        className="text-[11px] text-muted-foreground"
+                        className="text-[11px] text-muted-foreground/60 leading-tight"
                       >
                         @{activeConv?.otherUsername}
                       </motion.span>
@@ -937,15 +976,13 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                 </div>
               </button>
               <div className="relative">
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  className="rounded-full shrink-0"
+                <button
                   onClick={() => setShowChatMenu(!showChatMenu)}
+                  className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-accent/30 active:bg-accent/50 transition-colors"
                   aria-label={isAr ? 'خيارات' : 'Optionen'}
                 >
-                  <MoreVertical className="h-4 w-4" />
-                </Button>
+                  <MoreVertical className="h-4 w-4 text-muted-foreground" />
+                </button>
                 <AnimatePresence>
                   {showChatMenu && (
                     <motion.div
@@ -953,19 +990,20 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                       animate={{ opacity: 1, scale: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.9 }}
                       className={cn(
-                        'absolute top-full mt-1 bg-card border border-border/50 rounded-xl shadow-xl z-20 min-w-[180px] overflow-hidden',
+                        'absolute top-full mt-1 bg-card border border-border/40 rounded-xl z-20 min-w-[170px] overflow-hidden',
                         isAr ? 'left-0' : 'right-0'
                       )}
                     >
                       <button
-                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-accent/30 transition-colors text-sm text-start"
+                        className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-accent/30 transition-colors text-[13px] text-start"
                         onClick={() => { setShowProfilePopup(true); setShowChatMenu(false); }}
                       >
                         <Info className="w-4 h-4 text-muted-foreground" />
                         {isAr ? 'معلومات المحادثة' : 'Chat-Info'}
                       </button>
+                      <div className="h-px bg-border/20 mx-3" />
                       <button
-                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-destructive/10 transition-colors text-sm text-destructive text-start"
+                        className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-destructive/10 transition-colors text-[13px] text-destructive text-start"
                         onClick={deleteConversation}
                       >
                         <Trash className="w-4 h-4" />
@@ -978,23 +1016,32 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
             </div>
 
             {/* Messages */}
-            <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-3 space-y-1.5" onClick={() => { setShowChatMenu(false); setActionMenu(null); setShowExtraEmojis(false); }}>
+            <div
+              ref={messagesContainerRef}
+              className="flex-1 overflow-y-auto px-3 py-2"
+              onScroll={handleScroll}
+              onClick={() => { setShowChatMenu(false); setActionMenu(null); setShowExtraEmojis(false); }}
+            >
               {messages.map((msg, idx) => {
                 const isMine = msg.sender_id === user.id;
                 const msgReactions = reactions.filter(r => r.message_id === msg.id);
-                const showDate = idx === 0 || new Date(msg.created_at).toDateString() !== new Date(messages[idx - 1].created_at).toDateString();
+                const { sameSenderAsPrev, sameSenderAsNext, showDate } = getMessageMeta(idx);
 
                 return (
                   <React.Fragment key={msg.id}>
                     {showDate && (
-                      <div className="flex justify-center py-2">
-                        <span className="text-[10px] text-muted-foreground/60 bg-card/60 px-3 py-1 rounded-full">
-                          {new Date(msg.created_at).toLocaleDateString(isAr ? 'ar' : 'de', { day: 'numeric', month: 'short' })}
+                      <div className="flex justify-center py-3">
+                        <span className="text-[10px] text-muted-foreground/50 bg-muted/30 px-3 py-1 rounded-full font-medium tracking-wide">
+                          {new Date(msg.created_at).toLocaleDateString(isAr ? 'ar' : 'de', { day: 'numeric', month: 'long' })}
                         </span>
                       </div>
                     )}
                     <div
-                      className={cn('flex relative', isMine ? 'justify-end' : 'justify-start')}
+                      className={cn(
+                        'flex relative',
+                        isMine ? 'justify-end' : 'justify-start',
+                        sameSenderAsPrev ? 'mt-[2px]' : 'mt-2.5'
+                      )}
                     >
                       <SwipeableMessage
                         isMine={isMine}
@@ -1010,14 +1057,27 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                           onClick={(e) => openActionMenu(msg, isMine, e)}
                         >
                         <div className={cn(
-                          'rounded-2xl text-sm overflow-hidden',
+                          'text-[14px] overflow-hidden leading-relaxed',
                           msg.deleted
-                            ? 'bg-muted/30 text-muted-foreground/50 italic'
+                            ? 'bg-muted/30 text-muted-foreground/50 italic rounded-2xl'
                             : isMine
-                              ? 'bg-primary text-primary-foreground rounded-br-md'
-                              : 'bg-card border border-border/40 text-foreground rounded-bl-md'
+                              ? 'bg-primary text-primary-foreground'
+                              : 'bg-card border border-border/30 text-foreground',
+                          // Dynamic border radius based on grouping
+                          !msg.deleted && isMine && (
+                            sameSenderAsPrev && sameSenderAsNext ? 'rounded-2xl rounded-br-md rounded-tr-md'
+                            : sameSenderAsPrev ? 'rounded-2xl rounded-tr-md'
+                            : sameSenderAsNext ? 'rounded-2xl rounded-br-md'
+                            : 'rounded-2xl'
+                          ),
+                          !msg.deleted && !isMine && (
+                            sameSenderAsPrev && sameSenderAsNext ? 'rounded-2xl rounded-bl-md rounded-tl-md'
+                            : sameSenderAsPrev ? 'rounded-2xl rounded-tl-md'
+                            : sameSenderAsNext ? 'rounded-2xl rounded-bl-md'
+                            : 'rounded-2xl'
+                          ),
                         )}>
-                          {/* Telegram-style reply preview */}
+                          {/* Reply preview */}
                           {msg.reply_to_id && !msg.deleted && (() => {
                             const repliedMsg = messages.find(m => m.id === msg.reply_to_id);
                             const replySenderName = repliedMsg?.sender_id === user.id
@@ -1053,14 +1113,14 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                               <img
                                 src={getFileUrl(msg)}
                                 alt={msg.file_name || 'image'}
-                                className="rounded-t-lg max-w-full max-h-60 object-cover cursor-pointer"
+                                className="max-w-full max-h-60 object-cover cursor-pointer"
                                 onClick={(e) => { e.stopPropagation(); window.open(getFileUrl(msg), '_blank'); }}
                               />
                               <div className="px-3 py-1.5 flex items-end justify-between gap-2">
                                 {msg.content && msg.content !== msg.file_name ? (
-                                  <p className="break-words whitespace-pre-wrap text-xs flex-1" dir="auto">{msg.content}</p>
+                                  <p className="break-words whitespace-pre-wrap text-[13px] flex-1" dir="auto">{msg.content}</p>
                                 ) : <span />}
-                                <span className={cn('text-[10px] whitespace-nowrap flex items-center gap-0.5 shrink-0', isMine ? 'text-primary-foreground/50' : 'text-muted-foreground/60')}>
+                                <span className={cn('text-[10px] whitespace-nowrap flex items-center gap-0.5 shrink-0', isMine ? 'text-primary-foreground/50' : 'text-muted-foreground/50')}>
                                   {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                   {isMine && (msg.read ? <CheckCheck className="h-3 w-3" /> : <Check className="h-3 w-3" />)}
                                 </span>
@@ -1095,7 +1155,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                                   />
                                 ))}
                               </div>
-                              <span className={cn('text-[10px] whitespace-nowrap flex items-center gap-0.5 shrink-0', isMine ? 'text-primary-foreground/50' : 'text-muted-foreground/60')}>
+                              <span className={cn('text-[10px] whitespace-nowrap flex items-center gap-0.5 shrink-0', isMine ? 'text-primary-foreground/50' : 'text-muted-foreground/50')}>
                                 {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                 {isMine && (msg.read ? <CheckCheck className="h-3 w-3" /> : <Check className="h-3 w-3" />)}
                               </span>
@@ -1110,25 +1170,25 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                                 onClick={e => e.stopPropagation()}
                               >
                                 <FileText className="w-5 h-5 shrink-0" />
-                                <span className="text-xs truncate flex-1">{msg.file_name}</span>
+                                <span className="text-[13px] truncate flex-1">{msg.file_name}</span>
                                 <Download className="w-4 h-4 shrink-0 opacity-60" />
                               </a>
                               <div className="flex justify-end mt-0.5">
-                                <span className={cn('text-[10px] flex items-center gap-0.5', isMine ? 'text-primary-foreground/50' : 'text-muted-foreground/60')}>
+                                <span className={cn('text-[10px] flex items-center gap-0.5', isMine ? 'text-primary-foreground/50' : 'text-muted-foreground/50')}>
                                   {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                   {isMine && (msg.read ? <CheckCheck className="h-3 w-3" /> : <Check className="h-3 w-3" />)}
                                 </span>
                               </div>
                             </div>
                           ) : (
-                            <div className="px-3 py-1.5">
+                            <div className="px-3 py-[6px]">
                               <span className="break-words whitespace-pre-wrap" dir="auto">
                                 {msg.content}
                                 {!msg.deleted && (
                                   <span className={cn(
                                     'inline-flex items-center gap-0.5 align-bottom text-[10px] whitespace-nowrap',
-                                    isMine ? 'text-primary-foreground/50' : 'text-muted-foreground/50',
-                                    isAr ? 'me-1 float-left ms-2' : 'ms-1 float-right me-0'
+                                    isMine ? 'text-primary-foreground/40' : 'text-muted-foreground/40',
+                                    isAr ? 'me-1 float-left ms-2' : 'ms-2 float-right me-0'
                                   )} style={{ marginTop: '4px' }}>
                                     {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                     {isMine && (msg.read ? <CheckCheck className="h-3 w-3" /> : <Check className="h-3 w-3" />)}
@@ -1141,7 +1201,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
 
                         {/* Reactions */}
                         {msgReactions.length > 0 && (
-                          <div className={cn('flex gap-0.5 mt-0.5 flex-wrap', isMine ? 'justify-end' : 'justify-start')} dir="ltr">
+                          <div className={cn('flex gap-0.5 -mt-1 flex-wrap relative z-[1]', isMine ? 'justify-end pe-1' : 'justify-start ps-1')} dir="ltr">
                             {Object.entries(
                               msgReactions.reduce((acc, r) => {
                                 acc[r.emoji] = (acc[r.emoji] || 0) + 1;
@@ -1151,11 +1211,11 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                               <button
                                 key={emoji}
                                 onClick={(e) => { e.stopPropagation(); toggleReaction(msg.id, emoji); }}
-                                className="inline-flex items-center gap-0.5 hover:scale-125 active:scale-90 transition-transform"
+                                className="inline-flex items-center gap-0.5 bg-card/80 border border-border/20 rounded-full px-1 py-0.5 hover:scale-110 active:scale-90 transition-transform"
                                 aria-label={`${emoji} reaction`}
                               >
-                                <span className="text-[18px] leading-none">{emoji}</span>
-                                {count > 1 && <span className="text-[10px] text-muted-foreground font-medium">{count}</span>}
+                                <span className="text-[14px] leading-none">{emoji}</span>
+                                {count > 1 && <span className="text-[9px] text-muted-foreground font-medium">{count}</span>}
                               </button>
                             ))}
                           </div>
@@ -1166,8 +1226,40 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                   </React.Fragment>
                 );
               })}
+
+              {/* Typing indicator bubble */}
+              <AnimatePresence>
+                {typingUser && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    className="flex justify-start mt-2"
+                  >
+                    <div className="bg-card border border-border/30 rounded-2xl rounded-bl-md px-4 py-2.5">
+                      <TypingDots />
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
               <div ref={messagesEndRef} />
             </div>
+
+            {/* Scroll to bottom FAB */}
+            <AnimatePresence>
+              {showScrollDown && (
+                <motion.button
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ type: 'spring', damping: 20, stiffness: 400 }}
+                  onClick={() => scrollToBottom()}
+                  className="absolute bottom-24 end-4 z-10 w-9 h-9 rounded-full bg-card border border-border/40 flex items-center justify-center active:scale-90 transition-transform"
+                >
+                  <ArrowDown className="w-4 h-4 text-muted-foreground" />
+                </motion.button>
+              )}
+            </AnimatePresence>
 
             {/* ─── Action Menu Overlay ─── */}
             <AnimatePresence>
@@ -1192,7 +1284,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
                       transition={{ duration: 0.15 }}
-                      className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-lg"
+                      className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-xl"
                       onClick={() => { setActionMenu(null); setShowExtraEmojis(false); }}
                     />
 
@@ -1219,21 +1311,21 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                         }}
                         onClick={e => e.stopPropagation()}
                       >
-                        {/* Selected message - same width as original */}
+                        {/* Selected message preview */}
                         <div className={cn(
-                          'rounded-2xl text-sm overflow-hidden shadow-2xl',
+                          'rounded-2xl text-[14px] overflow-hidden',
                           actionMenu.isMine
                             ? 'bg-primary text-primary-foreground rounded-br-md'
-                            : 'bg-card border border-border/40 text-foreground rounded-bl-md'
+                            : 'bg-card border border-border/30 text-foreground rounded-bl-md'
                         )} style={{ width: `${previewWidth}px`, maxWidth: '100%' }}>
                           {actionMenu.msg.message_type === 'text' && (
-                            <div className="px-3 py-1.5">
-                              <span className="break-words whitespace-pre-wrap text-[13.5px]" dir="auto">
+                            <div className="px-3 py-[6px]">
+                              <span className="break-words whitespace-pre-wrap" dir="auto">
                                 {actionMenu.msg.content}
                                 <span className={cn(
                                   'inline-flex items-center gap-0.5 align-bottom text-[10px] whitespace-nowrap',
-                                  actionMenu.isMine ? 'text-primary-foreground/50' : 'text-muted-foreground/50',
-                                  isAr ? 'me-1 float-left ms-2' : 'ms-1 float-right me-0'
+                                  actionMenu.isMine ? 'text-primary-foreground/40' : 'text-muted-foreground/40',
+                                  isAr ? 'me-1 float-left ms-2' : 'ms-2 float-right me-0'
                                 )} style={{ marginTop: '4px' }}>
                                   {new Date(actionMenu.msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                   {actionMenu.isMine && (actionMenu.msg.read ? <CheckCheck className="h-3 w-3" /> : <Check className="h-3 w-3" />)}
@@ -1246,18 +1338,18 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                           )}
                         </div>
 
-                        {/* Unified toolbar card */}
+                        {/* Unified toolbar */}
                         <div className={cn(
-                          "bg-card/95 backdrop-blur-sm border border-border/30 rounded-2xl shadow-2xl overflow-hidden",
+                          "bg-card/95 backdrop-blur-md border border-border/30 rounded-2xl overflow-hidden",
                           showAbove ? "mb-1.5" : "mt-1.5"
                         )}>
                           {/* Emoji row */}
-                          <div className="flex items-center justify-center gap-0.5 px-2 py-1.5" dir="ltr">
+                          <div className="flex items-center justify-center gap-0.5 px-2.5 py-2" dir="ltr">
                             {QUICK_EMOJIS.map(emoji => (
                               <button
                                 key={emoji}
                                 onClick={() => { toggleReaction(actionMenu.msg.id, emoji); setShowExtraEmojis(false); }}
-                                className="text-[19px] hover:scale-125 active:scale-90 transition-transform px-[2px]"
+                                className="text-[20px] hover:scale-125 active:scale-90 transition-transform px-[3px]"
                                 aria-label={`React with ${emoji}`}
                               >
                                 {emoji}
@@ -1266,8 +1358,8 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                             <button
                               onClick={() => setShowExtraEmojis(!showExtraEmojis)}
                               className={cn(
-                                "w-6 h-6 rounded-full flex items-center justify-center transition-all ms-1",
-                                showExtraEmojis ? "bg-primary text-primary-foreground" : "bg-muted/50 text-muted-foreground"
+                                "w-7 h-7 rounded-full flex items-center justify-center transition-all ms-1",
+                                showExtraEmojis ? "bg-primary text-primary-foreground" : "bg-muted/40 text-muted-foreground"
                               )}
                               aria-label="More emojis"
                             >
@@ -1285,8 +1377,8 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                                 transition={{ duration: 0.2 }}
                                 className="overflow-hidden"
                               >
-                                <div className="h-px bg-border/30 mx-2" />
-                                <div className="grid grid-cols-8 gap-0 px-1.5 py-1.5 max-h-[160px] overflow-y-auto" dir="ltr">
+                                <div className="h-px bg-border/20 mx-2.5" />
+                                <div className="grid grid-cols-8 gap-0 px-2 py-2 max-h-[150px] overflow-y-auto" dir="ltr">
                                   {EXTRA_EMOJIS.map(emoji => (
                                     <button
                                       key={emoji}
@@ -1302,45 +1394,44 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                             )}
                           </AnimatePresence>
 
-                          {/* Thin separator */}
-                          <div className="h-px bg-border/30 mx-2" />
+                          <div className="h-px bg-border/20 mx-2.5" />
 
-                          {/* Action icons row */}
-                          <div className="flex items-center justify-center gap-1 px-2 py-1.5 flex-wrap">
+                          {/* Action icons */}
+                          <div className="flex items-center justify-center gap-0.5 px-2 py-1.5 flex-wrap">
                             <button
                               onClick={() => { setReplyTo(actionMenu.msg); setActionMenu(null); setShowExtraEmojis(false); inputRef.current?.focus(); }}
-                              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg hover:bg-accent/30 active:bg-accent/50 transition-colors"
+                              className="flex items-center gap-1.5 px-3 py-2 rounded-xl hover:bg-accent/30 active:bg-accent/50 transition-colors"
                               aria-label={isAr ? 'رد' : 'Reply'}
                             >
                               <Reply className="w-3.5 h-3.5 text-muted-foreground" />
-                              <span className="text-[11px] text-muted-foreground">{isAr ? 'رد' : 'Rply'}</span>
+                              <span className="text-[11px] text-muted-foreground font-medium">{isAr ? 'رد' : 'Rply'}</span>
                             </button>
                             {actionMenu.msg.message_type === 'text' && actionMenu.msg.content && (
                               <button
                                 onClick={() => { copyMessage(actionMenu.msg.content); setShowExtraEmojis(false); }}
-                                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg hover:bg-accent/30 active:bg-accent/50 transition-colors"
+                                className="flex items-center gap-1.5 px-3 py-2 rounded-xl hover:bg-accent/30 active:bg-accent/50 transition-colors"
                                 aria-label={isAr ? 'نسخ' : 'Copy'}
                               >
                                 <Copy className="w-3.5 h-3.5 text-muted-foreground" />
-                                <span className="text-[11px] text-muted-foreground">{isAr ? 'نسخ' : 'Copy'}</span>
+                                <span className="text-[11px] text-muted-foreground font-medium">{isAr ? 'نسخ' : 'Copy'}</span>
                               </button>
                             )}
                             <button
                               onClick={() => { setActionMenu(null); setShowExtraEmojis(false); }}
-                              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg hover:bg-accent/30 active:bg-accent/50 transition-colors"
+                              className="flex items-center gap-1.5 px-3 py-2 rounded-xl hover:bg-accent/30 active:bg-accent/50 transition-colors"
                               aria-label={isAr ? 'تثبيت' : 'Pin'}
                             >
                               <Pin className="w-3.5 h-3.5 text-muted-foreground" />
-                              <span className="text-[11px] text-muted-foreground">{isAr ? 'تثبيت' : 'Pin'}</span>
+                              <span className="text-[11px] text-muted-foreground font-medium">{isAr ? 'تثبيت' : 'Pin'}</span>
                             </button>
                             {actionMenu.isMine && !actionMenu.msg.deleted && (
                               <button
                                 onClick={() => { deleteMessage(actionMenu.msg.id); setActionMenu(null); setShowExtraEmojis(false); }}
-                                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg hover:bg-destructive/10 active:bg-destructive/20 transition-colors"
+                                className="flex items-center gap-1.5 px-3 py-2 rounded-xl hover:bg-destructive/10 active:bg-destructive/20 transition-colors"
                                 aria-label={isAr ? 'حذف' : 'Delete'}
                               >
                                 <Trash2 className="w-3.5 h-3.5 text-destructive" />
-                                <span className="text-[11px] text-destructive">{isAr ? 'حذف' : 'Del'}</span>
+                                <span className="text-[11px] text-destructive font-medium">{isAr ? 'حذف' : 'Del'}</span>
                               </button>
                             )}
                           </div>
@@ -1353,7 +1444,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
             </AnimatePresence>
 
             {/* Input area */}
-            <div className="border-t border-border/50 bg-card/30 pb-[env(safe-area-inset-bottom)]">
+            <div className="border-t border-border/30 bg-background pb-[env(safe-area-inset-bottom)]">
               {/* Reply preview */}
               <AnimatePresence>
                 {replyTo && !isRecording && (
@@ -1363,7 +1454,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                     exit={{ height: 0, opacity: 0 }}
                     className="overflow-hidden"
                   >
-                    <div className="mx-3 mt-2 rounded-xl bg-accent/40 border border-border/30 overflow-hidden">
+                    <div className="mx-3 mt-2 rounded-xl bg-accent/30 border border-border/20 overflow-hidden">
                       <div className="flex items-start gap-2 p-2.5">
                         <div className="flex-1 min-w-0 border-s-[3px] border-primary ps-2.5">
                           <span className="text-[11px] font-semibold text-primary block">
@@ -1389,7 +1480,6 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
 
               <AnimatePresence mode="wait">
                 {isRecording ? (
-                  /* ─── Recording UI ─── */
                   <motion.div
                     key="recording"
                     initial={{ opacity: 0, y: 10 }}
@@ -1398,7 +1488,6 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                     transition={{ type: 'spring', damping: 25, stiffness: 400 }}
                     className="p-2 flex items-center gap-2"
                   >
-                    {/* Cancel button */}
                     <button
                       onClick={() => stopRecording(true)}
                       className="shrink-0 w-9 h-9 rounded-full flex items-center justify-center bg-destructive/10 hover:bg-destructive/20 active:scale-90 transition-all"
@@ -1406,8 +1495,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                       <Trash2 className="w-4 h-4 text-destructive" />
                     </button>
 
-                    {/* Recording indicator */}
-                    <div className="flex-1 flex items-center gap-3 bg-accent/30 border border-border/30 rounded-full px-4 h-9">
+                    <div className="flex-1 flex items-center gap-3 bg-accent/20 border border-border/20 rounded-full px-4 h-9">
                       <motion.div
                         animate={{ opacity: [1, 0.3, 1] }}
                         transition={{ duration: 1.2, repeat: Infinity }}
@@ -1435,10 +1523,9 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                       </div>
                     </div>
 
-                    {/* Send recording button */}
                     <motion.button
                       onClick={() => stopRecording(false)}
-                      className="shrink-0 w-10 h-10 rounded-full bg-primary flex items-center justify-center shadow-lg"
+                      className="shrink-0 w-10 h-10 rounded-full bg-primary flex items-center justify-center"
                       whileTap={{ scale: 0.85 }}
                       animate={{ scale: [1, 1.08, 1] }}
                       transition={{ duration: 1.5, repeat: Infinity }}
@@ -1447,7 +1534,6 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                     </motion.button>
                   </motion.div>
                 ) : (
-                  /* ─── Normal Input ─── */
                   <motion.div
                     key="input"
                     initial={{ opacity: 0 }}
@@ -1455,20 +1541,24 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                     exit={{ opacity: 0 }}
                     className="p-2 flex items-end gap-1.5"
                   >
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="rounded-full shrink-0 h-9 w-9"
-                      onClick={() => {}}
-                      aria-label={isAr ? 'ملصقات' : 'Sticker'}
+                    <button
+                      type="button"
+                      onPointerDown={(e) => e.preventDefault()}
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={uploading}
+                      className="shrink-0 w-9 h-9 rounded-full flex items-center justify-center hover:bg-accent/30 active:bg-accent/50 transition-colors self-end"
                     >
-                      <Smile className="h-5 w-5 text-muted-foreground" />
-                    </Button>
+                      {uploading ? (
+                        <div className="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+                      ) : (
+                        <Paperclip className="h-[18px] w-[18px] text-muted-foreground" />
+                      )}
+                    </button>
 
-                    <div className="flex-1 flex items-end bg-accent/30 border border-border/30 rounded-[28px] overflow-hidden ps-1.5">
+                    <div className="flex-1 flex items-end bg-accent/20 border border-border/25 rounded-[22px] overflow-hidden">
                       <Textarea
                         ref={inputRef}
-                        placeholder={isAr ? 'مراسلة' : 'Nachricht'}
+                        placeholder={isAr ? 'اكتب رسالة...' : 'Nachricht...'}
                         value={newMessage}
                         rows={1}
                         name="chat-message"
@@ -1495,37 +1585,30 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                           }
                         }}
                         dir="auto"
-                        className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 min-h-[40px] max-h-[120px] resize-none px-2.5 py-[10px] text-[15px] leading-6 placeholder:text-muted-foreground/70"
+                        className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 min-h-[38px] max-h-[120px] resize-none px-3 py-[9px] text-[15px] leading-relaxed placeholder:text-muted-foreground/50"
                       />
-                      <button
-                        type="button"
-                        onPointerDown={(e) => e.preventDefault()}
-                        onClick={() => fileInputRef.current?.click()}
-                        disabled={uploading}
-                        className="shrink-0 p-2.5 text-muted-foreground hover:text-foreground transition-colors self-end"
-                      >
-                        {uploading ? (
-                          <div className="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
-                        ) : (
-                          <Paperclip className="h-4 w-4" />
-                        )}
-                      </button>
                     </div>
 
                     {newMessage.trim() ? (
-                      <Button
-                        size="icon"
-                        className="rounded-full shrink-0 h-10 w-10"
-                        type="button"
-                        onPointerDown={(e) => e.preventDefault()}
-                        onClick={() => sendMessage()}
+                      <motion.div
+                        initial={{ scale: 0.5, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ type: 'spring', damping: 15, stiffness: 400 }}
                       >
-                        <Send className="h-4 w-4" />
-                      </Button>
+                        <Button
+                          size="icon"
+                          className="rounded-full shrink-0 h-9 w-9"
+                          type="button"
+                          onPointerDown={(e) => e.preventDefault()}
+                          onClick={() => sendMessage()}
+                        >
+                          <Send className="h-4 w-4" />
+                        </Button>
+                      </motion.div>
                     ) : (
                       <motion.button
                         type="button"
-                        className="shrink-0 h-10 w-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground"
+                        className="shrink-0 h-9 w-9 rounded-full bg-primary flex items-center justify-center text-primary-foreground"
                         whileTap={{ scale: 1.3 }}
                         onClick={startRecording}
                       >
