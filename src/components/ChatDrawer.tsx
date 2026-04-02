@@ -1027,10 +1027,10 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                           ) : msg.message_type === 'image' ? (
                             <div>
                               <img
-                                src={msg.file_url!}
+                                src={getFileUrl(msg)}
                                 alt={msg.file_name || 'image'}
                                 className="rounded-t-lg max-w-full max-h-60 object-cover cursor-pointer"
-                                onClick={(e) => { e.stopPropagation(); window.open(msg.file_url!, '_blank'); }}
+                                onClick={(e) => { e.stopPropagation(); window.open(getFileUrl(msg), '_blank'); }}
                               />
                               <div className="px-3 py-1.5 flex items-end justify-between gap-2">
                                 {msg.content && msg.content !== msg.file_name ? (
@@ -1047,7 +1047,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  const audio = new Audio(msg.file_url!);
+                                  const audio = new Audio(getFileUrl(msg));
                                   audio.play();
                                 }}
                                 className={cn(
@@ -1079,7 +1079,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                           ) : msg.message_type === 'file' ? (
                             <div className="px-3 py-2">
                               <a
-                                href={msg.file_url!}
+                                href={getFileUrl(msg)}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className={cn('flex items-center gap-2', isMine ? 'text-primary-foreground' : 'text-foreground')}
@@ -1207,7 +1207,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                             </div>
                           )}
                           {actionMenu.msg.message_type === 'image' && (
-                            <img src={actionMenu.msg.file_url!} alt="" className="max-w-full max-h-40 object-cover" />
+                            <img src={getFileUrl(actionMenu.msg)} alt="" className="max-w-full max-h-40 object-cover" />
                           )}
                         </div>
 
