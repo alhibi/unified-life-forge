@@ -477,10 +477,11 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
       return;
     }
 
-    const { data: urlData } = supabase.storage.from('chat-files').getPublicUrl(path);
+    const { data: signedData } = await supabase.storage.from('chat-files').createSignedUrl(path, 3600);
+    const fileUrl = signedData?.signedUrl || '';
     const isImage = file.type.startsWith('image/');
 
-    await sendMessage(isImage ? 'image' : 'file', urlData.publicUrl, file.name);
+    await sendMessage(isImage ? 'image' : 'file', fileUrl, file.name);
     setUploading(false);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
