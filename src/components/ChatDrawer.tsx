@@ -163,6 +163,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
   const [showExtraEmojis, setShowExtraEmojis] = useState(false);
   const [typingUser, setTypingUser] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
   const typingChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
   const [showProfilePopup, setShowProfilePopup] = useState(false);
   const [showChatMenu, setShowChatMenu] = useState(false);
