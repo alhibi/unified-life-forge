@@ -1181,19 +1181,24 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                               </div>
                             </div>
                           ) : (
-                            <div className="px-2 py-[3px]">
-                              <span className="break-words whitespace-pre-wrap" dir="auto" style={{ display: 'inline' }}>
+                            <div className="relative px-2 py-[3px]" style={{ minHeight: '24px' }}>
+                              <span className="break-words whitespace-pre-wrap" dir="auto">
                                 {msg.content}
+                                {/* invisible spacer so text wraps around the timestamp area */}
                                 {!msg.deleted && (
-                                  <span className={cn(
-                                    'inline-flex items-center gap-[3px] align-bottom text-[10px] whitespace-nowrap leading-[16px]',
-                                    isMine ? 'text-primary-foreground/50' : 'text-muted-foreground/50',
-                                  )} style={{ float: isAr ? 'left' : 'right', marginTop: '1px', [isAr ? 'marginRight' : 'marginLeft']: '6px' }}>
-                                    {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                    {isMine && (msg.read ? <CheckCheck className="h-[11px] w-[11px]" /> : <Check className="h-[11px] w-[11px]" />)}
-                                  </span>
+                                  <span className="inline-block align-bottom" style={{ width: isMine ? '62px' : '46px', height: '1px' }} />
                                 )}
                               </span>
+                              {!msg.deleted && (
+                                <span className={cn(
+                                  'absolute bottom-[3px] flex items-center gap-[3px] text-[10px] whitespace-nowrap',
+                                  isMine ? 'text-primary-foreground/50' : 'text-muted-foreground/50',
+                                  isAr ? 'left-2' : 'right-2'
+                                )}>
+                                  {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                  {isMine && (msg.read ? <CheckCheck className="h-[11px] w-[11px]" /> : <Check className="h-[11px] w-[11px]" />)}
+                                </span>
+                              )}
                             </div>
                           )}
                         </div>
@@ -1318,16 +1323,18 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                             : 'bg-card border border-border/30 text-foreground rounded-bl-md'
                         )} style={{ width: `${previewWidth}px`, maxWidth: '100%' }}>
                           {actionMenu.msg.message_type === 'text' && (
-                            <div className="px-2 py-[3px]">
-                              <span className="break-words whitespace-pre-wrap" dir="auto" style={{ display: 'inline' }}>
+                            <div className="relative px-2 py-[3px]" style={{ minHeight: '24px' }}>
+                              <span className="break-words whitespace-pre-wrap" dir="auto">
                                 {actionMenu.msg.content}
-                                <span className={cn(
-                                  'inline-flex items-center gap-[3px] align-bottom text-[10px] whitespace-nowrap leading-[16px]',
-                                  actionMenu.isMine ? 'text-primary-foreground/50' : 'text-muted-foreground/50',
-                                )} style={{ float: isAr ? 'left' : 'right', marginTop: '1px', [isAr ? 'marginRight' : 'marginLeft']: '6px' }}>
-                                  {new Date(actionMenu.msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                  {actionMenu.isMine && (actionMenu.msg.read ? <CheckCheck className="h-[11px] w-[11px]" /> : <Check className="h-[11px] w-[11px]" />)}
-                                </span>
+                                <span className="inline-block align-bottom" style={{ width: actionMenu.isMine ? '62px' : '46px', height: '1px' }} />
+                              </span>
+                              <span className={cn(
+                                'absolute bottom-[3px] flex items-center gap-[3px] text-[10px] whitespace-nowrap',
+                                actionMenu.isMine ? 'text-primary-foreground/50' : 'text-muted-foreground/50',
+                                isAr ? 'left-2' : 'right-2'
+                              )}>
+                                {new Date(actionMenu.msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                {actionMenu.isMine && (actionMenu.msg.read ? <CheckCheck className="h-[11px] w-[11px]" /> : <Check className="h-[11px] w-[11px]" />)}
                               </span>
                             </div>
                           )}
