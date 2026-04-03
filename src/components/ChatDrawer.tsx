@@ -1181,16 +1181,16 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                               </div>
                             </div>
                           ) : (
-                            <div className="px-[9px] py-[5px]">
-                              <span className="break-words whitespace-pre-wrap text-start" dir="auto" style={{ display: 'inline' }}>
+                            <div className="px-2 py-[3px]">
+                              <span className="break-words whitespace-pre-wrap" dir="auto" style={{ display: 'inline' }}>
                                 {msg.content}
                                 {!msg.deleted && (
                                   <span className={cn(
-                                    'inline-flex items-center gap-0.5 align-bottom text-[10px] whitespace-nowrap leading-[18px]',
-                                    isMine ? 'text-primary-foreground/45' : 'text-muted-foreground/45',
-                                  )} style={{ float: isAr ? 'left' : 'right', marginTop: '2px', [isAr ? 'marginRight' : 'marginLeft']: '8px' }}>
+                                    'inline-flex items-center gap-[3px] align-bottom text-[10px] whitespace-nowrap leading-[16px]',
+                                    isMine ? 'text-primary-foreground/50' : 'text-muted-foreground/50',
+                                  )} style={{ float: isAr ? 'left' : 'right', marginTop: '1px', [isAr ? 'marginRight' : 'marginLeft']: '6px' }}>
                                     {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                    {isMine && (msg.read ? <CheckCheck className="h-3 w-3" /> : <Check className="h-3 w-3" />)}
+                                    {isMine && (msg.read ? <CheckCheck className="h-[11px] w-[11px]" /> : <Check className="h-[11px] w-[11px]" />)}
                                   </span>
                                 )}
                               </span>
