@@ -1181,15 +1181,14 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                               </div>
                             </div>
                           ) : (
-                            <div className="px-3 py-[6px]">
-                              <span className="break-words whitespace-pre-wrap" dir="auto">
+                            <div className="px-[9px] py-[5px]">
+                              <span className="break-words whitespace-pre-wrap text-start" dir="auto" style={{ display: 'inline' }}>
                                 {msg.content}
                                 {!msg.deleted && (
                                   <span className={cn(
-                                    'inline-flex items-center gap-0.5 align-bottom text-[10px] whitespace-nowrap',
-                                    isMine ? 'text-primary-foreground/40' : 'text-muted-foreground/40',
-                                    isAr ? 'me-1 float-left ms-2' : 'ms-2 float-right me-0'
-                                  )} style={{ marginTop: '4px' }}>
+                                    'inline-flex items-center gap-0.5 align-bottom text-[10px] whitespace-nowrap leading-[18px]',
+                                    isMine ? 'text-primary-foreground/45' : 'text-muted-foreground/45',
+                                  )} style={{ float: isAr ? 'left' : 'right', marginTop: '2px', [isAr ? 'marginRight' : 'marginLeft']: '8px' }}>
                                     {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                     {isMine && (msg.read ? <CheckCheck className="h-3 w-3" /> : <Check className="h-3 w-3" />)}
                                   </span>
