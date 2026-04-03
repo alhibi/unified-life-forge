@@ -28,6 +28,20 @@ const item = {
 };
 
 export default function Index() {
+  // Auto-detect location on first load and save for all widgets
+  useEffect(() => {
+    const saved = localStorage.getItem('lastLocation');
+    if (!saved && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          localStorage.setItem('lastLocation', JSON.stringify({ lat: pos.coords.latitude, lng: pos.coords.longitude }));
+          window.location.reload();
+        },
+        () => { /* user denied or error — keep Makkah default */ },
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    }
+  }, []);
   const { t, language } = useApp();
   const { user } = useAuth();
   const now = new Date();
