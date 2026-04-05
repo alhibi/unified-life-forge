@@ -51,6 +51,7 @@ export default function ProfileEditPage() {
       setNewUsername(profile.username || authUsername || '');
       setDisplayName(profile.display_name || '');
       setSelectedAvatar(profile.avatar_url || EMOJI_AVATARS[0].emoji);
+      setBio((profile as any).bio || '');
       setUsernameAvailable(true); // Current username is already theirs
     } else if (authUsername) {
       setNewUsername(authUsername);
