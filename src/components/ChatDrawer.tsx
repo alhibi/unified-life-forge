@@ -367,39 +367,63 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
 
   const getFileUrl = (msg: Message) => signedUrls[msg.id] || msg.file_url || '';
 
-  // Realtime
+  // Realtime with reconnection
   useEffect(() => {
     if (!user || !open) return;
 
-    const channel = supabase
-      .channel('chat-realtime')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, (payload) => {
-        if (payload.eventType === 'INSERT') {
-          const msg = payload.new as Message;
-          if (activeConv && msg.conversation_id === activeConv.id) {
-            setMessages(prev => [...prev, msg]);
-            if (msg.sender_id !== user.id) {
-              supabase.from('messages').update({ read: true }).eq('id', msg.id).then();
+    const subscribe = () => {
+      const channel = supabase
+        .channel('chat-realtime')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, (payload) => {
+          if (payload.eventType === 'INSERT') {
+            const msg = payload.new as Message;
+            if (activeConv && msg.conversation_id === activeConv.id) {
+              setMessages(prev => {
+                // Prevent duplicates
+                if (prev.some(m => m.id === msg.id)) return prev;
+                return [...prev, msg];
+              });
+              if (msg.sender_id !== user.id) {
+                supabase.from('messages').update({ read: true }).eq('id', msg.id).then();
+              }
+              setTimeout(scrollToBottom, 100);
             }
-            setTimeout(scrollToBottom, 100);
+            loadConversations();
+          } else if (payload.eventType === 'UPDATE') {
+            const msg = payload.new as Message;
+            setMessages(prev => prev.map(m => m.id === msg.id ? msg : m));
           }
-          loadConversations();
-        } else if (payload.eventType === 'UPDATE') {
-          const msg = payload.new as Message;
-          setMessages(prev => prev.map(m => m.id === msg.id ? msg : m));
-        }
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'message_reactions' }, (payload) => {
-        if (payload.eventType === 'INSERT') {
-          setReactions(prev => [...prev, payload.new as Reaction]);
-        } else if (payload.eventType === 'DELETE') {
-          const old = payload.old as { id: string };
-          setReactions(prev => prev.filter(r => r.id !== old.id));
-        }
-      })
-      .subscribe();
+        })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'message_reactions' }, (payload) => {
+          if (payload.eventType === 'INSERT') {
+            setReactions(prev => {
+              if (prev.some(r => r.id === (payload.new as Reaction).id)) return prev;
+              return [...prev, payload.new as Reaction];
+            });
+          } else if (payload.eventType === 'DELETE') {
+            const old = payload.old as { id: string };
+            setReactions(prev => prev.filter(r => r.id !== old.id));
+          }
+        })
+        .subscribe((status) => {
+          if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+            // Auto-reconnect after 3 seconds
+            reconnectRef.current = setTimeout(() => {
+              supabase.removeChannel(channel);
+              subscribe();
+            }, 3000);
+          }
+        });
 
-    return () => { supabase.removeChannel(channel); };
+      return channel;
+    };
+
+    const channel = subscribe();
+
+    return () => {
+      if (reconnectRef.current) clearTimeout(reconnectRef.current);
+      supabase.removeChannel(channel);
+    };
   }, [user, open, activeConv, scrollToBottom, loadConversations]);
 
   // Typing indicator
