@@ -6,6 +6,7 @@ interface Profile {
   username: string;
   display_name: string | null;
   avatar_url: string | null;
+  bio: string | null;
 }
 
 export function useAuth() {
