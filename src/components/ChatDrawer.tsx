@@ -26,6 +26,9 @@ interface Conversation {
   otherDisplayName?: string;
   otherAvatarUrl?: string;
   otherUserId?: string;
+  otherBio?: string | null;
+  otherLastSeen?: string | null;
+  otherCreatedAt?: string | null;
   lastMessage?: string;
   lastMessageTime?: string;
   unreadCount?: number;
