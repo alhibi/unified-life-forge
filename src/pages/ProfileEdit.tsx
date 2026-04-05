@@ -31,6 +31,7 @@ export default function ProfileEditPage() {
   const [newUsername, setNewUsername] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [selectedAvatar, setSelectedAvatar] = useState(EMOJI_AVATARS[0].emoji);
+  const [bio, setBio] = useState('');
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [checkingUsername, setCheckingUsername] = useState(false);
