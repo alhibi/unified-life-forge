@@ -435,6 +435,15 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
     return () => clearInterval(interval);
   }, [user, loadConversations]);
 
+  // Last seen heartbeat
+  useEffect(() => {
+    if (!user || !open) return;
+    const ping = () => supabase.rpc('update_last_seen').then();
+    ping();
+    const interval = setInterval(ping, 60000);
+    return () => clearInterval(interval);
+  }, [user, open]);
+
   const searchForUser = async () => {
     if (!searchUser.trim() || !user) return;
     setSearchError('');
