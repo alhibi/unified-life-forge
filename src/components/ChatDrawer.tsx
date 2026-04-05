@@ -185,6 +185,9 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
   const [showProfilePopup, setShowProfilePopup] = useState(false);
   const [showChatMenu, setShowChatMenu] = useState(false);
   const [showScrollDown, setShowScrollDown] = useState(false);
+  const [sharedMedia, setSharedMedia] = useState<Message[]>([]);
+  const [profileTab, setProfileTab] = useState<'info' | 'media'>('info');
+  const reconnectRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Voice recording state
   const [isRecording, setIsRecording] = useState(false);
