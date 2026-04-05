@@ -299,6 +299,23 @@ export default function ProfileEditPage() {
               {isAr ? 'يمكنك استخدام أي لغة' : 'Jede Sprache möglich'}
             </p>
           </div>
+
+          {/* Bio */}
+          <div className="space-y-2">
+            <label className="text-[13px] font-semibold text-foreground">
+              {isAr ? 'النبذة الشخصية' : 'Bio'}
+            </label>
+            <textarea
+              value={bio}
+              onChange={(e) => setBio(e.target.value)}
+              placeholder={isAr ? 'اكتب شيئاً عن نفسك...' : 'Schreib etwas über dich...'}
+              maxLength={150}
+              rows={3}
+              dir="auto"
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-none"
+            />
+            <p className="text-[11px] text-muted-foreground text-end">{bio.length}/150</p>
+          </div>
         </motion.div>
 
         {/* Save Button */}
