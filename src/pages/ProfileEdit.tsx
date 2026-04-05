@@ -144,7 +144,8 @@ export default function ProfileEditPage() {
           username: newUsername.toLowerCase().trim(),
           display_name: displayName.trim() || null,
           avatar_url: selectedAvatar,
-        })
+          bio: bio.trim() || null,
+        } as any)
         .eq('user_id', user.id);
 
       if (error) throw error;
