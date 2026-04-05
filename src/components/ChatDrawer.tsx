@@ -11,7 +11,7 @@ import {
   ChevronRight, ChevronLeft, ChevronDown, Send, Search, Plus, MessageCircle,
   Check, CheckCheck, Reply, Trash2, Paperclip, X,
   Download, FileText, MoreVertical, Trash, Info, Copy, Pin, Mic, Smile,
-  ArrowDown
+  ArrowDown, Calendar, Clock, Image as ImageIcon, User2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
