@@ -746,75 +746,186 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
           onChange={handleFileUpload}
         />
 
-        {/* ─── Profile Popup ─── */}
+        {/* ─── Enhanced Profile Popup ─── */}
         <AnimatePresence>
           {showProfilePopup && activeConv && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 z-50 bg-background/95 backdrop-blur-sm flex flex-col"
-              onClick={() => setShowProfilePopup(false)}
+              className="absolute inset-0 z-50 bg-background flex flex-col"
             >
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 30 }}
-                transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-                className="flex flex-col items-center justify-center flex-1 gap-5 px-6"
-                onClick={e => e.stopPropagation()}
-              >
+              {/* Header */}
+              <div className="flex items-center gap-3 px-4 pt-4 pb-3 border-b border-border/30">
+                <button
+                  onClick={() => { setShowProfilePopup(false); setProfileTab('info'); }}
+                  className="w-9 h-9 rounded-xl bg-secondary/50 flex items-center justify-center active:scale-95 transition-transform"
+                >
+                  <BackIcon className="w-4.5 h-4.5 text-foreground stroke-[2]" />
+                </button>
+                <h2 className="text-[16px] font-bold">{isAr ? 'الملف الشخصي' : 'Profil'}</h2>
+              </div>
+
+              {/* Profile hero */}
+              <div className="flex flex-col items-center pt-6 pb-4 px-6">
                 <motion.div
-                  initial={{ scale: 0.5 }}
+                  initial={{ scale: 0.7 }}
                   animate={{ scale: 1 }}
                   transition={{ type: 'spring', damping: 20, stiffness: 300 }}
                 >
-                  {renderAvatar(activeConv.otherUsername, activeConv.otherAvatarUrl, 'h-28 w-28')}
+                  {renderAvatar(activeConv.otherUsername, activeConv.otherAvatarUrl, 'h-24 w-24')}
                 </motion.div>
+                <h3 className="text-lg font-bold text-foreground mt-3">
+                  {activeConv.otherDisplayName || activeConv.otherUsername}
+                </h3>
+                {activeConv.otherDisplayName && activeConv.otherDisplayName !== activeConv.otherUsername && (
+                  <p className="text-[13px] text-muted-foreground">@{activeConv.otherUsername}</p>
+                )}
+                <p className={cn(
+                  'text-[12px] mt-1 font-medium',
+                  activeConv.otherLastSeen && (Date.now() - new Date(activeConv.otherLastSeen).getTime() < 120000)
+                    ? 'text-green-500'
+                    : 'text-muted-foreground/70'
+                )}>
+                  {formatLastSeen(activeConv.otherLastSeen, isAr)}
+                </p>
+              </div>
 
-                <div className="text-center space-y-1">
-                  <h2 className="text-xl font-bold text-foreground">
-                    {activeConv.otherDisplayName || activeConv.otherUsername}
-                  </h2>
-                  {activeConv.otherDisplayName && activeConv.otherDisplayName !== activeConv.otherUsername && (
-                    <p className="text-sm text-muted-foreground">@{activeConv.otherUsername}</p>
+              {/* Tab switcher */}
+              <div className="flex mx-4 bg-muted/30 rounded-xl p-1 gap-1">
+                <button
+                  onClick={() => setProfileTab('info')}
+                  className={cn(
+                    'flex-1 py-2 rounded-lg text-[13px] font-medium transition-all',
+                    profileTab === 'info' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground'
                   )}
-                </div>
-
-                <div className="flex gap-8 mt-2">
-                  <div className="text-center">
-                    <p className="text-2xl font-bold text-foreground">{messages.length}</p>
-                    <p className="text-xs text-muted-foreground">{isAr ? 'رسالة' : 'Nachrichten'}</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-2xl font-bold text-foreground">
-                      {messages.filter(m => m.message_type === 'image').length}
-                    </p>
-                    <p className="text-xs text-muted-foreground">{isAr ? 'صورة' : 'Fotos'}</p>
-                  </div>
-                </div>
-
-                <div className="flex gap-3 mt-4">
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    className="rounded-full gap-2"
-                    onClick={() => { deleteConversation(); setShowProfilePopup(false); }}
-                  >
-                    <Trash className="w-4 h-4" />
-                    {isAr ? 'حذف المحادثة' : 'Chat löschen'}
-                  </Button>
-                </div>
-
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="mt-4 rounded-full text-muted-foreground"
-                  onClick={() => setShowProfilePopup(false)}
                 >
-                  {isAr ? 'إغلاق' : 'Schließen'}
-                </Button>
-              </motion.div>
+                  {isAr ? 'المعلومات' : 'Info'}
+                </button>
+                <button
+                  onClick={() => {
+                    setProfileTab('media');
+                    // Load shared media
+                    if (activeConv) {
+                      supabase
+                        .from('messages')
+                        .select('*')
+                        .eq('conversation_id', activeConv.id)
+                        .in('message_type', ['image', 'file'])
+                        .eq('deleted', false)
+                        .order('created_at', { ascending: false })
+                        .limit(50)
+                        .then(({ data }) => setSharedMedia((data || []) as Message[]));
+                    }
+                  }}
+                  className={cn(
+                    'flex-1 py-2 rounded-lg text-[13px] font-medium transition-all',
+                    profileTab === 'media' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground'
+                  )}
+                >
+                  {isAr ? 'الوسائط' : 'Medien'}
+                </button>
+              </div>
+
+              {/* Tab content */}
+              <div className="flex-1 overflow-y-auto mt-3 px-4 pb-6">
+                {profileTab === 'info' ? (
+                  <div className="space-y-3">
+                    {/* Bio */}
+                    {activeConv.otherBio && (
+                      <div className="bg-card border border-border/20 rounded-2xl p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <User2 className="w-3.5 h-3.5 text-muted-foreground" />
+                          <span className="text-[11px] text-muted-foreground font-medium">{isAr ? 'النبذة' : 'Bio'}</span>
+                        </div>
+                        <p className="text-[14px] text-foreground leading-relaxed" dir="auto">{activeConv.otherBio}</p>
+                      </div>
+                    )}
+
+                    {/* Stats */}
+                    <div className="bg-card border border-border/20 rounded-2xl p-4">
+                      <div className="grid grid-cols-3 gap-3 text-center">
+                        <div>
+                          <p className="text-xl font-bold text-foreground">{messages.length}</p>
+                          <p className="text-[10px] text-muted-foreground">{isAr ? 'رسالة' : 'Nachrichten'}</p>
+                        </div>
+                        <div>
+                          <p className="text-xl font-bold text-foreground">
+                            {messages.filter(m => m.message_type === 'image').length}
+                          </p>
+                          <p className="text-[10px] text-muted-foreground">{isAr ? 'صورة' : 'Fotos'}</p>
+                        </div>
+                        <div>
+                          <p className="text-xl font-bold text-foreground">
+                            {messages.filter(m => m.message_type === 'voice').length}
+                          </p>
+                          <p className="text-[10px] text-muted-foreground">{isAr ? 'صوتية' : 'Audio'}</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Details */}
+                    <div className="bg-card border border-border/20 rounded-2xl divide-y divide-border/10">
+                      <div className="flex items-center gap-3 p-3.5">
+                        <Clock className="w-4 h-4 text-muted-foreground shrink-0" />
+                        <div className="min-w-0">
+                          <p className="text-[11px] text-muted-foreground">{isAr ? 'آخر ظهور' : 'Zuletzt gesehen'}</p>
+                          <p className="text-[13px] text-foreground font-medium">{formatLastSeen(activeConv.otherLastSeen, isAr)}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3 p-3.5">
+                        <Calendar className="w-4 h-4 text-muted-foreground shrink-0" />
+                        <div className="min-w-0">
+                          <p className="text-[11px] text-muted-foreground">{isAr ? 'تاريخ الانضمام' : 'Beigetreten'}</p>
+                          <p className="text-[13px] text-foreground font-medium">
+                            {activeConv.otherCreatedAt
+                              ? new Date(activeConv.otherCreatedAt).toLocaleDateString(isAr ? 'ar' : 'de', { day: 'numeric', month: 'long', year: 'numeric' })
+                              : '—'}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Delete */}
+                    <button
+                      onClick={() => { deleteConversation(); setShowProfilePopup(false); setProfileTab('info'); }}
+                      className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-destructive/10 text-destructive text-[13px] font-medium active:bg-destructive/20 transition-colors"
+                    >
+                      <Trash className="w-4 h-4" />
+                      {isAr ? 'حذف المحادثة' : 'Chat löschen'}
+                    </button>
+                  </div>
+                ) : (
+                  /* Shared Media Grid */
+                  <div>
+                    {sharedMedia.length === 0 ? (
+                      <div className="flex flex-col items-center justify-center py-16 text-muted-foreground gap-3">
+                        <ImageIcon className="w-10 h-10 opacity-30" />
+                        <p className="text-sm">{isAr ? 'لا توجد وسائط مشتركة' : 'Keine gemeinsamen Medien'}</p>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-3 gap-1 rounded-xl overflow-hidden">
+                        {sharedMedia.map(m => (
+                          m.message_type === 'image' ? (
+                            <button
+                              key={m.id}
+                              onClick={() => window.open(getFileUrl(m), '_blank')}
+                              className="aspect-square bg-muted/30 overflow-hidden hover:opacity-80 transition-opacity"
+                            >
+                              <img src={getFileUrl(m)} alt="" className="w-full h-full object-cover" />
+                            </button>
+                          ) : (
+                            <div key={m.id} className="aspect-square bg-muted/20 flex flex-col items-center justify-center gap-1.5 p-2">
+                              <FileText className="w-6 h-6 text-muted-foreground" />
+                              <span className="text-[9px] text-muted-foreground truncate w-full text-center">{m.file_name}</span>
+                            </div>
+                          )
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
