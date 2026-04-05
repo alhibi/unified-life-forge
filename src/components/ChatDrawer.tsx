@@ -11,7 +11,7 @@ import {
   ChevronRight, ChevronLeft, ChevronDown, Send, Search, Plus, MessageCircle,
   Check, CheckCheck, Reply, Trash2, Paperclip, X,
   Download, FileText, MoreVertical, Trash, Info, Copy, Pin, Mic, Smile,
-  ArrowDown
+  ArrowDown, Calendar, Clock, Image as ImageIcon, User2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
@@ -26,6 +26,9 @@ interface Conversation {
   otherDisplayName?: string;
   otherAvatarUrl?: string;
   otherUserId?: string;
+  otherBio?: string | null;
+  otherLastSeen?: string | null;
+  otherCreatedAt?: string | null;
   lastMessage?: string;
   lastMessageTime?: string;
   unreadCount?: number;
@@ -97,6 +100,22 @@ function formatTime(dateStr: string, isAr: boolean) {
   if (diffHours < 24) return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   if (diffDays < 7) return d.toLocaleDateString(isAr ? 'ar' : 'de', { weekday: 'short' });
   return d.toLocaleDateString(isAr ? 'ar' : 'de', { day: 'numeric', month: 'short' });
+}
+
+function formatLastSeen(dateStr: string | null | undefined, isAr: boolean) {
+  if (!dateStr) return isAr ? 'غير معروف' : 'Unbekannt';
+  const d = new Date(dateStr);
+  const now = new Date();
+  const diffMs = now.getTime() - d.getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMs / 3600000);
+  const diffDays = Math.floor(diffMs / 86400000);
+
+  if (diffMins < 2) return isAr ? 'متصل الآن' : 'Online';
+  if (diffMins < 60) return isAr ? `آخر ظهور منذ ${diffMins} دقيقة` : `Zuletzt vor ${diffMins} Min`;
+  if (diffHours < 24) return isAr ? `آخر ظهور منذ ${diffHours} ساعة` : `Zuletzt vor ${diffHours} Std`;
+  if (diffDays < 7) return isAr ? `آخر ظهور منذ ${diffDays} يوم` : `Zuletzt vor ${diffDays} Tagen`;
+  return isAr ? `آخر ظهور ${d.toLocaleDateString('ar', { day: 'numeric', month: 'short' })}` : `Zuletzt ${d.toLocaleDateString('de', { day: 'numeric', month: 'short' })}`;
 }
 
 // Swipeable message wrapper - right only
@@ -182,6 +201,9 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
   const [showProfilePopup, setShowProfilePopup] = useState(false);
   const [showChatMenu, setShowChatMenu] = useState(false);
   const [showScrollDown, setShowScrollDown] = useState(false);
+  const [sharedMedia, setSharedMedia] = useState<Message[]>([]);
+  const [profileTab, setProfileTab] = useState<'info' | 'media'>('info');
+  const reconnectRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Voice recording state
   const [isRecording, setIsRecording] = useState(false);
@@ -241,7 +263,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
     const otherIds = convs.map(c => c.user1_id === user.id ? c.user2_id : c.user1_id);
     const { data: profiles } = await supabase
       .from('profiles')
-      .select('user_id, username, display_name, avatar_url')
+      .select('user_id, username, display_name, avatar_url, bio, last_seen, created_at')
       .in('user_id', otherIds);
 
     const enriched = await Promise.all(convs.map(async (conv) => {
@@ -276,6 +298,9 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
         otherDisplayName: profile?.display_name || profile?.username || '?',
         otherAvatarUrl: profile?.avatar_url || null,
         otherUserId: otherId,
+        otherBio: (profile as any)?.bio || null,
+        otherLastSeen: (profile as any)?.last_seen || null,
+        otherCreatedAt: (profile as any)?.created_at || null,
         lastMessage: lastContent,
         lastMessageTime: lastMsg?.created_at || conv.updated_at,
         unreadCount: count || 0,
@@ -342,39 +367,63 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
 
   const getFileUrl = (msg: Message) => signedUrls[msg.id] || msg.file_url || '';
 
-  // Realtime
+  // Realtime with reconnection
   useEffect(() => {
     if (!user || !open) return;
 
-    const channel = supabase
-      .channel('chat-realtime')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, (payload) => {
-        if (payload.eventType === 'INSERT') {
-          const msg = payload.new as Message;
-          if (activeConv && msg.conversation_id === activeConv.id) {
-            setMessages(prev => [...prev, msg]);
-            if (msg.sender_id !== user.id) {
-              supabase.from('messages').update({ read: true }).eq('id', msg.id).then();
+    const subscribe = () => {
+      const channel = supabase
+        .channel('chat-realtime')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, (payload) => {
+          if (payload.eventType === 'INSERT') {
+            const msg = payload.new as Message;
+            if (activeConv && msg.conversation_id === activeConv.id) {
+              setMessages(prev => {
+                // Prevent duplicates
+                if (prev.some(m => m.id === msg.id)) return prev;
+                return [...prev, msg];
+              });
+              if (msg.sender_id !== user.id) {
+                supabase.from('messages').update({ read: true }).eq('id', msg.id).then();
+              }
+              setTimeout(scrollToBottom, 100);
             }
-            setTimeout(scrollToBottom, 100);
+            loadConversations();
+          } else if (payload.eventType === 'UPDATE') {
+            const msg = payload.new as Message;
+            setMessages(prev => prev.map(m => m.id === msg.id ? msg : m));
           }
-          loadConversations();
-        } else if (payload.eventType === 'UPDATE') {
-          const msg = payload.new as Message;
-          setMessages(prev => prev.map(m => m.id === msg.id ? msg : m));
-        }
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'message_reactions' }, (payload) => {
-        if (payload.eventType === 'INSERT') {
-          setReactions(prev => [...prev, payload.new as Reaction]);
-        } else if (payload.eventType === 'DELETE') {
-          const old = payload.old as { id: string };
-          setReactions(prev => prev.filter(r => r.id !== old.id));
-        }
-      })
-      .subscribe();
+        })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'message_reactions' }, (payload) => {
+          if (payload.eventType === 'INSERT') {
+            setReactions(prev => {
+              if (prev.some(r => r.id === (payload.new as Reaction).id)) return prev;
+              return [...prev, payload.new as Reaction];
+            });
+          } else if (payload.eventType === 'DELETE') {
+            const old = payload.old as { id: string };
+            setReactions(prev => prev.filter(r => r.id !== old.id));
+          }
+        })
+        .subscribe((status) => {
+          if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+            // Auto-reconnect after 3 seconds
+            reconnectRef.current = setTimeout(() => {
+              supabase.removeChannel(channel);
+              subscribe();
+            }, 3000);
+          }
+        });
 
-    return () => { supabase.removeChannel(channel); };
+      return channel;
+    };
+
+    const channel = subscribe();
+
+    return () => {
+      if (reconnectRef.current) clearTimeout(reconnectRef.current);
+      supabase.removeChannel(channel);
+    };
   }, [user, open, activeConv, scrollToBottom, loadConversations]);
 
   // Typing indicator
@@ -425,6 +474,15 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
     const interval = setInterval(loadConversations, 30000);
     return () => clearInterval(interval);
   }, [user, loadConversations]);
+
+  // Last seen heartbeat
+  useEffect(() => {
+    if (!user || !open) return;
+    const ping = () => supabase.rpc('update_last_seen').then();
+    ping();
+    const interval = setInterval(ping, 60000);
+    return () => clearInterval(interval);
+  }, [user, open]);
 
   const searchForUser = async () => {
     if (!searchUser.trim() || !user) return;
@@ -712,75 +770,186 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
           onChange={handleFileUpload}
         />
 
-        {/* ─── Profile Popup ─── */}
+        {/* ─── Enhanced Profile Popup ─── */}
         <AnimatePresence>
           {showProfilePopup && activeConv && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 z-50 bg-background/95 backdrop-blur-sm flex flex-col"
-              onClick={() => setShowProfilePopup(false)}
+              className="absolute inset-0 z-50 bg-background flex flex-col"
             >
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 30 }}
-                transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-                className="flex flex-col items-center justify-center flex-1 gap-5 px-6"
-                onClick={e => e.stopPropagation()}
-              >
+              {/* Header */}
+              <div className="flex items-center gap-3 px-4 pt-4 pb-3 border-b border-border/30">
+                <button
+                  onClick={() => { setShowProfilePopup(false); setProfileTab('info'); }}
+                  className="w-9 h-9 rounded-xl bg-secondary/50 flex items-center justify-center active:scale-95 transition-transform"
+                >
+                  <BackIcon className="w-4.5 h-4.5 text-foreground stroke-[2]" />
+                </button>
+                <h2 className="text-[16px] font-bold">{isAr ? 'الملف الشخصي' : 'Profil'}</h2>
+              </div>
+
+              {/* Profile hero */}
+              <div className="flex flex-col items-center pt-6 pb-4 px-6">
                 <motion.div
-                  initial={{ scale: 0.5 }}
+                  initial={{ scale: 0.7 }}
                   animate={{ scale: 1 }}
                   transition={{ type: 'spring', damping: 20, stiffness: 300 }}
                 >
-                  {renderAvatar(activeConv.otherUsername, activeConv.otherAvatarUrl, 'h-28 w-28')}
+                  {renderAvatar(activeConv.otherUsername, activeConv.otherAvatarUrl, 'h-24 w-24')}
                 </motion.div>
+                <h3 className="text-lg font-bold text-foreground mt-3">
+                  {activeConv.otherDisplayName || activeConv.otherUsername}
+                </h3>
+                {activeConv.otherDisplayName && activeConv.otherDisplayName !== activeConv.otherUsername && (
+                  <p className="text-[13px] text-muted-foreground">@{activeConv.otherUsername}</p>
+                )}
+                <p className={cn(
+                  'text-[12px] mt-1 font-medium',
+                  activeConv.otherLastSeen && (Date.now() - new Date(activeConv.otherLastSeen).getTime() < 120000)
+                    ? 'text-green-500'
+                    : 'text-muted-foreground/70'
+                )}>
+                  {formatLastSeen(activeConv.otherLastSeen, isAr)}
+                </p>
+              </div>
 
-                <div className="text-center space-y-1">
-                  <h2 className="text-xl font-bold text-foreground">
-                    {activeConv.otherDisplayName || activeConv.otherUsername}
-                  </h2>
-                  {activeConv.otherDisplayName && activeConv.otherDisplayName !== activeConv.otherUsername && (
-                    <p className="text-sm text-muted-foreground">@{activeConv.otherUsername}</p>
+              {/* Tab switcher */}
+              <div className="flex mx-4 bg-muted/30 rounded-xl p-1 gap-1">
+                <button
+                  onClick={() => setProfileTab('info')}
+                  className={cn(
+                    'flex-1 py-2 rounded-lg text-[13px] font-medium transition-all',
+                    profileTab === 'info' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground'
                   )}
-                </div>
-
-                <div className="flex gap-8 mt-2">
-                  <div className="text-center">
-                    <p className="text-2xl font-bold text-foreground">{messages.length}</p>
-                    <p className="text-xs text-muted-foreground">{isAr ? 'رسالة' : 'Nachrichten'}</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-2xl font-bold text-foreground">
-                      {messages.filter(m => m.message_type === 'image').length}
-                    </p>
-                    <p className="text-xs text-muted-foreground">{isAr ? 'صورة' : 'Fotos'}</p>
-                  </div>
-                </div>
-
-                <div className="flex gap-3 mt-4">
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    className="rounded-full gap-2"
-                    onClick={() => { deleteConversation(); setShowProfilePopup(false); }}
-                  >
-                    <Trash className="w-4 h-4" />
-                    {isAr ? 'حذف المحادثة' : 'Chat löschen'}
-                  </Button>
-                </div>
-
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="mt-4 rounded-full text-muted-foreground"
-                  onClick={() => setShowProfilePopup(false)}
                 >
-                  {isAr ? 'إغلاق' : 'Schließen'}
-                </Button>
-              </motion.div>
+                  {isAr ? 'المعلومات' : 'Info'}
+                </button>
+                <button
+                  onClick={() => {
+                    setProfileTab('media');
+                    // Load shared media
+                    if (activeConv) {
+                      supabase
+                        .from('messages')
+                        .select('*')
+                        .eq('conversation_id', activeConv.id)
+                        .in('message_type', ['image', 'file'])
+                        .eq('deleted', false)
+                        .order('created_at', { ascending: false })
+                        .limit(50)
+                        .then(({ data }) => setSharedMedia((data || []) as Message[]));
+                    }
+                  }}
+                  className={cn(
+                    'flex-1 py-2 rounded-lg text-[13px] font-medium transition-all',
+                    profileTab === 'media' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground'
+                  )}
+                >
+                  {isAr ? 'الوسائط' : 'Medien'}
+                </button>
+              </div>
+
+              {/* Tab content */}
+              <div className="flex-1 overflow-y-auto mt-3 px-4 pb-6">
+                {profileTab === 'info' ? (
+                  <div className="space-y-3">
+                    {/* Bio */}
+                    {activeConv.otherBio && (
+                      <div className="bg-card border border-border/20 rounded-2xl p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <User2 className="w-3.5 h-3.5 text-muted-foreground" />
+                          <span className="text-[11px] text-muted-foreground font-medium">{isAr ? 'النبذة' : 'Bio'}</span>
+                        </div>
+                        <p className="text-[14px] text-foreground leading-relaxed" dir="auto">{activeConv.otherBio}</p>
+                      </div>
+                    )}
+
+                    {/* Stats */}
+                    <div className="bg-card border border-border/20 rounded-2xl p-4">
+                      <div className="grid grid-cols-3 gap-3 text-center">
+                        <div>
+                          <p className="text-xl font-bold text-foreground">{messages.length}</p>
+                          <p className="text-[10px] text-muted-foreground">{isAr ? 'رسالة' : 'Nachrichten'}</p>
+                        </div>
+                        <div>
+                          <p className="text-xl font-bold text-foreground">
+                            {messages.filter(m => m.message_type === 'image').length}
+                          </p>
+                          <p className="text-[10px] text-muted-foreground">{isAr ? 'صورة' : 'Fotos'}</p>
+                        </div>
+                        <div>
+                          <p className="text-xl font-bold text-foreground">
+                            {messages.filter(m => m.message_type === 'voice').length}
+                          </p>
+                          <p className="text-[10px] text-muted-foreground">{isAr ? 'صوتية' : 'Audio'}</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Details */}
+                    <div className="bg-card border border-border/20 rounded-2xl divide-y divide-border/10">
+                      <div className="flex items-center gap-3 p-3.5">
+                        <Clock className="w-4 h-4 text-muted-foreground shrink-0" />
+                        <div className="min-w-0">
+                          <p className="text-[11px] text-muted-foreground">{isAr ? 'آخر ظهور' : 'Zuletzt gesehen'}</p>
+                          <p className="text-[13px] text-foreground font-medium">{formatLastSeen(activeConv.otherLastSeen, isAr)}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3 p-3.5">
+                        <Calendar className="w-4 h-4 text-muted-foreground shrink-0" />
+                        <div className="min-w-0">
+                          <p className="text-[11px] text-muted-foreground">{isAr ? 'تاريخ الانضمام' : 'Beigetreten'}</p>
+                          <p className="text-[13px] text-foreground font-medium">
+                            {activeConv.otherCreatedAt
+                              ? new Date(activeConv.otherCreatedAt).toLocaleDateString(isAr ? 'ar' : 'de', { day: 'numeric', month: 'long', year: 'numeric' })
+                              : '—'}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Delete */}
+                    <button
+                      onClick={() => { deleteConversation(); setShowProfilePopup(false); setProfileTab('info'); }}
+                      className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-destructive/10 text-destructive text-[13px] font-medium active:bg-destructive/20 transition-colors"
+                    >
+                      <Trash className="w-4 h-4" />
+                      {isAr ? 'حذف المحادثة' : 'Chat löschen'}
+                    </button>
+                  </div>
+                ) : (
+                  /* Shared Media Grid */
+                  <div>
+                    {sharedMedia.length === 0 ? (
+                      <div className="flex flex-col items-center justify-center py-16 text-muted-foreground gap-3">
+                        <ImageIcon className="w-10 h-10 opacity-30" />
+                        <p className="text-sm">{isAr ? 'لا توجد وسائط مشتركة' : 'Keine gemeinsamen Medien'}</p>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-3 gap-1 rounded-xl overflow-hidden">
+                        {sharedMedia.map(m => (
+                          m.message_type === 'image' ? (
+                            <button
+                              key={m.id}
+                              onClick={() => window.open(getFileUrl(m), '_blank')}
+                              className="aspect-square bg-muted/30 overflow-hidden hover:opacity-80 transition-opacity"
+                            >
+                              <img src={getFileUrl(m)} alt="" className="w-full h-full object-cover" />
+                            </button>
+                          ) : (
+                            <div key={m.id} className="aspect-square bg-muted/20 flex flex-col items-center justify-center gap-1.5 p-2">
+                              <FileText className="w-6 h-6 text-muted-foreground" />
+                              <span className="text-[9px] text-muted-foreground truncate w-full text-center">{m.file_name}</span>
+                            </div>
+                          )
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
@@ -964,12 +1133,17 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                       </motion.div>
                     ) : (
                       <motion.span
-                        key="online"
+                        key="status"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        className="text-[11px] text-muted-foreground/60 leading-tight"
+                        className={cn(
+                          'text-[11px] leading-tight',
+                          activeConv?.otherLastSeen && (Date.now() - new Date(activeConv.otherLastSeen).getTime() < 120000)
+                            ? 'text-green-500 font-medium'
+                            : 'text-muted-foreground/60'
+                        )}
                       >
-                        @{activeConv?.otherUsername}
+                        {formatLastSeen(activeConv?.otherLastSeen, isAr)}
                       </motion.span>
                     )}
                   </AnimatePresence>

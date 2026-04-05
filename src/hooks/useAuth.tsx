@@ -6,6 +6,7 @@ interface Profile {
   username: string;
   display_name: string | null;
   avatar_url: string | null;
+  bio: string | null;
 }
 
 export function useAuth() {
@@ -18,7 +19,7 @@ export function useAuth() {
   const fetchProfile = useCallback(async (userId: string) => {
     const { data } = await supabase
       .from('profiles')
-      .select('username, display_name, avatar_url')
+      .select('username, display_name, avatar_url, bio')
       .eq('user_id', userId)
       .maybeSingle();
     if (data) {

@@ -31,6 +31,7 @@ export default function ProfileEditPage() {
   const [newUsername, setNewUsername] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [selectedAvatar, setSelectedAvatar] = useState(EMOJI_AVATARS[0].emoji);
+  const [bio, setBio] = useState('');
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [checkingUsername, setCheckingUsername] = useState(false);
@@ -50,6 +51,7 @@ export default function ProfileEditPage() {
       setNewUsername(profile.username || authUsername || '');
       setDisplayName(profile.display_name || '');
       setSelectedAvatar(profile.avatar_url || EMOJI_AVATARS[0].emoji);
+      setBio((profile as any).bio || '');
       setUsernameAvailable(true); // Current username is already theirs
     } else if (authUsername) {
       setNewUsername(authUsername);
@@ -142,7 +144,8 @@ export default function ProfileEditPage() {
           username: newUsername.toLowerCase().trim(),
           display_name: displayName.trim() || null,
           avatar_url: selectedAvatar,
-        })
+          bio: bio.trim() || null,
+        } as any)
         .eq('user_id', user.id);
 
       if (error) throw error;
@@ -295,6 +298,23 @@ export default function ProfileEditPage() {
             <p className="text-[11px] text-muted-foreground">
               {isAr ? 'يمكنك استخدام أي لغة' : 'Jede Sprache möglich'}
             </p>
+          </div>
+
+          {/* Bio */}
+          <div className="space-y-2">
+            <label className="text-[13px] font-semibold text-foreground">
+              {isAr ? 'النبذة الشخصية' : 'Bio'}
+            </label>
+            <textarea
+              value={bio}
+              onChange={(e) => setBio(e.target.value)}
+              placeholder={isAr ? 'اكتب شيئاً عن نفسك...' : 'Schreib etwas über dich...'}
+              maxLength={150}
+              rows={3}
+              dir="auto"
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-none"
+            />
+            <p className="text-[11px] text-muted-foreground text-end">{bio.length}/150</p>
           </div>
         </motion.div>
 
