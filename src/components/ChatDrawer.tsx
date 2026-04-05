@@ -247,7 +247,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
     const otherIds = convs.map(c => c.user1_id === user.id ? c.user2_id : c.user1_id);
     const { data: profiles } = await supabase
       .from('profiles')
-      .select('user_id, username, display_name, avatar_url')
+      .select('user_id, username, display_name, avatar_url, bio, last_seen, created_at')
       .in('user_id', otherIds);
 
     const enriched = await Promise.all(convs.map(async (conv) => {
