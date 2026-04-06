@@ -2044,7 +2044,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                       />
                     </div>
 
-                    {newMessage.trim() ? (
+                    {(newMessage.trim() || stagedImages.length > 0) ? (
                       <motion.div
                         initial={{ scale: 0.5, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
@@ -2055,7 +2055,10 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                           className="rounded-full shrink-0 h-9 w-9"
                           type="button"
                           onPointerDown={(e) => e.preventDefault()}
-                          onClick={() => sendMessage()}
+                          onClick={() => {
+                            if (stagedImages.length > 0) sendStagedImages();
+                            if (newMessage.trim()) sendMessage();
+                          }}
                         >
                           <Send className="h-4 w-4" />
                         </Button>
