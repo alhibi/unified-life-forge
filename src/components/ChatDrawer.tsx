@@ -1331,9 +1331,11 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                                   <div className="min-w-[220px] px-3 py-2.5">
                                     <div className="flex items-center gap-3">
                                       <button
-                                        onClick={(e) => {
+                                        onClick={async (e) => {
                                           e.stopPropagation();
-                                          voicePlayer.togglePlayback(msg.id, fileUrl, senderName, msg.conversation_id);
+                                          const playableUrl = fileUrl || (msg.file_url ? await getSignedFileUrl(msg.file_url) : '');
+                                          if (!playableUrl) return;
+                                          voicePlayer.togglePlayback(msg.id, playableUrl, senderName, msg.conversation_id);
                                         }}
                                         className={cn(
                                           'flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-colors active:scale-90',
