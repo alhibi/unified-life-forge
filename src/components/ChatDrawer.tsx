@@ -1093,7 +1093,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
           // ─── Active Chat ───
           <>
             {/* Chat Header */}
-            <div className="px-3 py-2.5 border-b border-border/40 flex items-center gap-2.5">
+            <div className="sticky top-0 z-30 px-3 py-2.5 border-b border-border/40 flex items-center gap-2.5 bg-background/80 backdrop-blur-xl">
               <button
                 onClick={() => { setActiveConv(null); setReplyTo(null); setShowChatMenu(false); loadConversations(); }}
                 className="w-9 h-9 rounded-xl bg-secondary/50 flex items-center justify-center active:scale-95 transition-transform shrink-0"
