@@ -1563,6 +1563,61 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                   </motion.div>
                 )}
               </AnimatePresence>
+
+              {/* Pending image uploads (optimistic) */}
+              {activeConv && imageUpload.uploads
+                .filter(u => u.conversationId === activeConv.id)
+                .map(upload => (
+                  <div key={upload.tempId} className="flex justify-end mt-2">
+                    <div className="relative max-w-[75%] rounded-[18px] rounded-br-[4px] overflow-hidden bg-primary">
+                      <img
+                        src={upload.localPreviewUrl}
+                        alt=""
+                        className={cn(
+                          'max-w-full max-h-60 object-cover transition-all duration-500',
+                          upload.status === 'uploading' && 'blur-[2px] brightness-75',
+                          upload.status === 'done' && 'blur-0 brightness-100'
+                        )}
+                      />
+                      {/* Circular progress overlay */}
+                      {upload.status === 'uploading' && (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <svg className="w-12 h-12 -rotate-90" viewBox="0 0 48 48">
+                            <circle cx="24" cy="24" r="20" fill="none" stroke="white" strokeOpacity="0.2" strokeWidth="3" />
+                            <circle
+                              cx="24" cy="24" r="20"
+                              fill="none" stroke="white" strokeWidth="3"
+                              strokeLinecap="round"
+                              strokeDasharray={`${2 * Math.PI * 20}`}
+                              strokeDashoffset={`${2 * Math.PI * 20 * (1 - upload.progress / 100)}`}
+                              className="transition-all duration-300"
+                            />
+                          </svg>
+                          <span className="absolute text-white text-[11px] font-bold">{upload.progress}%</span>
+                        </div>
+                      )}
+                      {/* Error retry */}
+                      {upload.status === 'error' && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+                          <button
+                            onClick={() => imageUpload.retryUpload(upload.tempId)}
+                            className="px-4 py-2 rounded-full bg-destructive text-white text-sm font-medium active:scale-95 transition-transform"
+                          >
+                            {isAr ? 'إعادة المحاولة' : 'Wiederholen'}
+                          </button>
+                        </div>
+                      )}
+                      {/* Timestamp placeholder */}
+                      <div className="px-3 py-1.5">
+                        <div className="flex items-center justify-end gap-[3px] text-[11px] leading-none text-primary-foreground/50" dir="ltr">
+                          <span>{new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              }
+
               <div ref={messagesEndRef} />
             </div>
 
