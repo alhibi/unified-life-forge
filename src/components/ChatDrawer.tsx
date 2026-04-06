@@ -205,6 +205,14 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
   const [profileTab, setProfileTab] = useState<'info' | 'media'>('info');
   const reconnectRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Lightbox state
+  const [lightboxSrc, setLightboxSrc] = useState('');
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxRect, setLightboxRect] = useState<DOMRect | null>(null);
+
+  // Image upload context
+  const imageUpload = useImageUpload();
+
   // Voice recording state
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
