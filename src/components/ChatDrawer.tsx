@@ -210,6 +210,10 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxRect, setLightboxRect] = useState<DOMRect | null>(null);
 
+  // Multi-image staging
+  const [stagedImages, setStagedImages] = useState<File[]>([]);
+  const [stagedPreviews, setStagedPreviews] = useState<string[]>([]);
+
   // Image upload context
   const imageUpload = useImageUpload();
 
