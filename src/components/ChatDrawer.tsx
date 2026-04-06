@@ -1336,26 +1336,28 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                                 </div>
                               </div>
                             ) : (
-                              <div className="relative px-[10px] py-[6px]" style={{ minHeight: '28px' }}>
-                                <span className="break-words whitespace-pre-wrap text-[14.5px] leading-[1.5] [overflow-wrap:anywhere]" dir="auto">
-                                  {msg.content}
-                                  {/* Invisible inline spacer to reserve room for the timestamp */}
+                              <div className="px-[10px] py-[6px]">
+                                <p
+                                  className="break-words whitespace-pre-wrap text-[14.5px] leading-[1.55] [word-break:normal] [unicode-bidi:plaintext]"
+                                  dir="auto"
+                                >
+                                  <span>{msg.content}</span>
                                   {!msg.deleted && (
-                                    <span className="inline-block align-bottom" aria-hidden="true" style={{ width: isMine ? '70px' : '54px', height: '1px' }} />
+                                    <>
+                                      <span aria-hidden="true" className="inline-block w-1.5" />
+                                      <span
+                                        className={cn(
+                                          'inline-flex translate-y-[1px] items-center gap-[3px] align-bottom whitespace-nowrap text-[11px] leading-none select-none',
+                                          isMine ? 'text-primary-foreground/50' : 'text-foreground/40'
+                                        )}
+                                        dir="ltr"
+                                      >
+                                        <span>{new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                        {isMine && (msg.read ? <CheckCheck className="h-[11px] w-[11px]" /> : <Check className="h-[11px] w-[11px]" />)}
+                                      </span>
+                                    </>
                                   )}
-                                </span>
-                                {!msg.deleted && (
-                                  <span
-                                    className={cn(
-                                      'absolute bottom-[5px] flex items-center gap-[3px] text-[11px] leading-none select-none whitespace-nowrap',
-                                      isMine ? 'text-primary-foreground/50 right-[8px]' : 'text-foreground/40 right-[8px]'
-                                    )}
-                                    dir="ltr"
-                                  >
-                                    {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                    {isMine && (msg.read ? <CheckCheck className="h-[11px] w-[11px]" /> : <Check className="h-[11px] w-[11px]" />)}
-                                  </span>
-                                )}
+                                </p>
                               </div>
                             )}
                           </div>
