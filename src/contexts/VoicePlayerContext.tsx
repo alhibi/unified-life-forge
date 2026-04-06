@@ -82,6 +82,7 @@ export const VoicePlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
   });
 
   const [waveformCache, setWaveformCache] = useState<Record<string, number[]>>({});
+  const waveformCacheRef = useRef<Record<string, number[]>>({});
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const rafRef = useRef<number | null>(null);
 
@@ -120,18 +121,17 @@ export const VoicePlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
     // Stop previous
     if (audioRef.current) {
       audioRef.current.pause();
-      audioRef.current.src = '';
+      audioRef.current.removeAttribute('src');
+      audioRef.current.load();
+      audioRef.current = null;
     }
     stopRAF();
 
-    const audio = new Audio(url);
-    audio.preload = 'auto';
-    audioRef.current = audio;
+    const waveform = waveformCacheRef.current[msgId] || seedWaveform(msgId);
 
-    const waveform = waveformCache[msgId] || seedWaveform(msgId);
-
+    // Set state to "loading" - show play button changing
     setState({
-      isPlaying: true,
+      isPlaying: false,
       msgId,
       url,
       progress: 0,
@@ -141,13 +141,33 @@ export const VoicePlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
       waveformData: waveform,
     });
 
+    const audio = new Audio();
+    audio.preload = 'auto';
+    audioRef.current = audio;
+
+    let started = false;
+
+    const doPlay = () => {
+      if (started) return;
+      started = true;
+      audio.play().then(() => {
+        setState(prev => prev.msgId === msgId ? { ...prev, isPlaying: true } : prev);
+        startRAF();
+      }).catch(() => {
+        // Reset only if this is still the active message
+        setState(prev => prev.msgId === msgId ? { ...prev, isPlaying: false, msgId: null } : prev);
+      });
+    };
+
     audio.onloadedmetadata = () => {
       if (isFinite(audio.duration)) {
-        setState(prev => ({ ...prev, duration: audio.duration }));
+        setState(prev => prev.msgId === msgId ? { ...prev, duration: audio.duration } : prev);
       }
     };
 
-    audio.onplay = () => startRAF();
+    audio.oncanplaythrough = () => doPlay();
+    // Fallback - some browsers only fire canplay
+    audio.oncanplay = () => doPlay();
 
     audio.onended = () => {
       stopRAF();
@@ -155,28 +175,19 @@ export const VoicePlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
     };
 
     audio.onerror = () => {
-      // Retry without CORS
-      const retry = new Audio(url);
-      retry.preload = 'auto';
-      audioRef.current = retry;
-      retry.onloadedmetadata = () => {
-        if (isFinite(retry.duration)) setState(prev => ({ ...prev, duration: retry.duration }));
-      };
-      retry.onplay = () => startRAF();
-      retry.onended = () => {
-        stopRAF();
-        setState(prev => ({ ...prev, isPlaying: false, progress: 0, msgId: null }));
-      };
-      retry.onerror = () => stop();
-      retry.play().catch(() => stop());
+      setState(prev => prev.msgId === msgId ? { ...prev, isPlaying: false, msgId: null } : prev);
     };
 
-    audio.play().catch(() => {
-      audio.crossOrigin = null as any;
-      audio.load();
-      audio.play().catch(() => stop());
-    });
-  }, [stopRAF, startRAF, stop, waveformCache]);
+    audio.src = url;
+    audio.load();
+
+    // Safety timeout: if canplay doesn't fire within 500ms, force play
+    setTimeout(() => {
+      if (!started && audioRef.current === audio) {
+        doPlay();
+      }
+    }, 500);
+  }, [stopRAF, startRAF]);
 
   const pause = useCallback(() => {
     if (audioRef.current) {
@@ -189,11 +200,15 @@ export const VoicePlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const togglePlayback = useCallback((msgId: string, url: string, senderName: string, conversationId: string) => {
     if (state.msgId === msgId && state.isPlaying) {
       pause();
-    } else if (state.msgId === msgId && !state.isPlaying && audioRef.current) {
-      // Resume
-      audioRef.current.play().catch(() => {});
-      startRAF();
-      setState(prev => ({ ...prev, isPlaying: true }));
+    } else if (state.msgId === msgId && !state.isPlaying && audioRef.current && audioRef.current.src) {
+      // Resume paused audio
+      audioRef.current.play().then(() => {
+        setState(prev => ({ ...prev, isPlaying: true }));
+        startRAF();
+      }).catch(() => {
+        // If resume fails, restart from scratch
+        play(msgId, url, senderName, conversationId);
+      });
     } else {
       play(msgId, url, senderName, conversationId);
     }
@@ -220,17 +235,19 @@ export const VoicePlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
   }, [state.msgId, state.isPlaying]);
 
   const generateWaveform = useCallback(async (url: string, msgId: string): Promise<number[]> => {
-    if (waveformCache[msgId]) return waveformCache[msgId];
+    if (waveformCacheRef.current[msgId]) return waveformCacheRef.current[msgId];
     const fallback = seedWaveform(msgId);
+    waveformCacheRef.current[msgId] = fallback;
+    setWaveformCache(prev => ({ ...prev, [msgId]: fallback }));
     // Start async extraction
     extractWaveform(url).then(peaks => {
       if (peaks.length > 0) {
+        waveformCacheRef.current[msgId] = peaks;
         setWaveformCache(prev => ({ ...prev, [msgId]: peaks }));
       }
     });
-    setWaveformCache(prev => ({ ...prev, [msgId]: fallback }));
     return fallback;
-  }, [waveformCache]);
+  }, []);
 
   // Cleanup on unmount
   useEffect(() => {
