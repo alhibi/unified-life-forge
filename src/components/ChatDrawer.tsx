@@ -675,10 +675,12 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
         const blob = new Blob(recordingChunksRef.current, { type: finalMime });
         if (blob.size > 0 && activeConv && user) {
           const path = `${user.id}/${activeConv.id}/${Date.now()}.${ext}`;
-          const { error } = await supabase.storage.from('chat-files').upload(path, blob);
+          const { error } = await supabase.storage.from('chat-files').upload(path, blob, {
+            contentType: finalMime,
+            upsert: false,
+          });
           if (!error) {
-            const { data: signedData } = await supabase.storage.from('chat-files').createSignedUrl(path, 3600);
-            await sendMessage('voice', signedData?.signedUrl || '', `voice_${Date.now()}.${ext}`);
+            await sendMessage('voice', path, `voice_${Date.now()}.${ext}`);
           }
         }
       };
