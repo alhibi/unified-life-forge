@@ -102,21 +102,7 @@ function formatTime(dateStr: string, isAr: boolean) {
   return d.toLocaleDateString(isAr ? 'ar' : 'de', { day: 'numeric', month: 'short' });
 }
 
-function formatLastSeen(dateStr: string | null | undefined, isAr: boolean) {
-  if (!dateStr) return isAr ? 'غير معروف' : 'Unbekannt';
-  const d = new Date(dateStr);
-  const now = new Date();
-  const diffMs = now.getTime() - d.getTime();
-  const diffMins = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMs / 3600000);
-  const diffDays = Math.floor(diffMs / 86400000);
-
-  if (diffMins < 2) return isAr ? 'متصل الآن' : 'Online';
-  if (diffMins < 60) return isAr ? `آخر ظهور منذ ${diffMins} دقيقة` : `Zuletzt vor ${diffMins} Min`;
-  if (diffHours < 24) return isAr ? `آخر ظهور منذ ${diffHours} ساعة` : `Zuletzt vor ${diffHours} Std`;
-  if (diffDays < 7) return isAr ? `آخر ظهور منذ ${diffDays} يوم` : `Zuletzt vor ${diffDays} Tagen`;
-  return isAr ? `آخر ظهور ${d.toLocaleDateString('ar', { day: 'numeric', month: 'short' })}` : `Zuletzt ${d.toLocaleDateString('de', { day: 'numeric', month: 'short' })}`;
-}
+// formatLastSeen is now imported from usePresence
 
 // Swipeable message wrapper - right only
 function SwipeableMessage({ children, isMine, deleted, onSwipeReply }: {
