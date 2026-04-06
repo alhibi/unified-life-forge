@@ -1355,13 +1355,11 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                                   return `${m}:${sec.toString().padStart(2, '0')}`;
                                 };
                                 // Generate stable waveform bars based on message id
-                                const bars = useMemo(() => {
-                                  const seed = msg.id.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
-                                  return Array.from({ length: 28 }, (_, i) => {
-                                    const h = ((Math.sin(seed * (i + 1) * 0.7) + 1) / 2) * 14 + 3;
-                                    return h;
-                                  });
-                                }, [msg.id]);
+                                const seed = msg.id.split('').reduce((a: number, c: string) => a + c.charCodeAt(0), 0);
+                                const bars = Array.from({ length: 28 }, (_, i) => {
+                                  const h = ((Math.sin(seed * (i + 1) * 0.7) + 1) / 2) * 14 + 3;
+                                  return h;
+                                });
 
                                 return (
                                   <div className="min-w-[220px] px-3 py-2.5">
