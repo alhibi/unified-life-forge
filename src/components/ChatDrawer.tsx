@@ -628,7 +628,18 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
   // Voice recording functions
   const startRecording = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      // Stop any playing audio first
+      if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; setPlayingMsgId(null); }
+
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+          sampleRate: 48000,
+          channelCount: 1,
+        }
+      });
       
       const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
         ? 'audio/webm;codecs=opus'
@@ -638,7 +649,10 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
             ? 'audio/mp4'
             : '';
 
-      const options: MediaRecorderOptions = mimeType ? { mimeType } : {};
+      const options: MediaRecorderOptions = {
+        ...(mimeType ? { mimeType } : {}),
+        audioBitsPerSecond: 128000,
+      };
       const mediaRecorder = new MediaRecorder(stream, options);
       recordingChunksRef.current = [];
       recordingCancelledRef.current = false;
@@ -664,14 +678,14 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
         }
       };
 
-      mediaRecorder.start(250);
+      mediaRecorder.start(200);
       setIsRecording(true);
       setRecordingTime(0);
       recordingTimerRef.current = setInterval(() => {
         setRecordingTime(prev => prev + 1);
       }, 1000);
     } catch (err) {
-      console.error('Microphone error:', err);
+      // silently fail
     }
   };
 
@@ -687,6 +701,53 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
     }
     setRecordingTime(0);
   };
+
+  // Voice playback
+  const togglePlayback = useCallback((msgId: string, url: string) => {
+    // If already playing this message, pause it
+    if (playingMsgId === msgId && audioRef.current) {
+      audioRef.current.pause();
+      if (playbackRAF.current) cancelAnimationFrame(playbackRAF.current);
+      setPlayingMsgId(null);
+      return;
+    }
+
+    // Stop previous audio
+    if (audioRef.current) {
+      audioRef.current.pause();
+      if (playbackRAF.current) cancelAnimationFrame(playbackRAF.current);
+    }
+
+    const audio = new Audio(url);
+    audio.preload = 'auto';
+    audioRef.current = audio;
+    setPlayingMsgId(msgId);
+
+    audio.onloadedmetadata = () => {
+      if (isFinite(audio.duration)) {
+        setPlaybackDurations(prev => ({ ...prev, [msgId]: audio.duration }));
+      }
+    };
+
+    const updateProgress = () => {
+      if (audio.currentTime && audio.duration) {
+        setPlaybackProgress(prev => ({ ...prev, [msgId]: audio.currentTime / audio.duration }));
+      }
+      if (!audio.paused) {
+        playbackRAF.current = requestAnimationFrame(updateProgress);
+      }
+    };
+
+    audio.onplay = () => { playbackRAF.current = requestAnimationFrame(updateProgress); };
+
+    audio.onended = () => {
+      setPlayingMsgId(null);
+      setPlaybackProgress(prev => ({ ...prev, [msgId]: 0 }));
+      if (playbackRAF.current) cancelAnimationFrame(playbackRAF.current);
+    };
+
+    audio.play().catch(() => setPlayingMsgId(null));
+  }, [playingMsgId]);
 
   const formatRecordingTime = (seconds: number) => {
     const m = Math.floor(seconds / 60);
