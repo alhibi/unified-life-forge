@@ -1345,18 +1345,25 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                                 </div>
                               </div>
                             ) : (
-                              <div className="px-3 py-2">
-                                <p className="break-words whitespace-pre-wrap text-[14px] leading-[1.45] [overflow-wrap:anywhere] [unicode-bidi:plaintext]" dir="auto">
+                              <div className="relative px-[10px] py-[6px]" style={{ minHeight: '28px' }}>
+                                <span className="break-words whitespace-pre-wrap text-[14.5px] leading-[1.5] [overflow-wrap:anywhere]" dir="auto">
                                   {msg.content}
-                                </p>
+                                  {/* Invisible inline spacer to reserve room for the timestamp */}
+                                  {!msg.deleted && (
+                                    <span className="inline-block align-bottom" aria-hidden="true" style={{ width: isMine ? '70px' : '54px', height: '1px' }} />
+                                  )}
+                                </span>
                                 {!msg.deleted && (
-                                  <div className={cn(
-                                    'mt-1 flex items-center justify-end gap-[3px] pt-1 text-[11px] leading-none select-none',
-                                    isMine ? 'text-primary-foreground/50' : 'text-foreground/40'
-                                  )} dir="ltr">
-                                    <span>{new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                  <span
+                                    className={cn(
+                                      'absolute bottom-[5px] flex items-center gap-[3px] text-[11px] leading-none select-none whitespace-nowrap',
+                                      isMine ? 'text-primary-foreground/50 right-[8px]' : 'text-foreground/40 right-[8px]'
+                                    )}
+                                    dir="ltr"
+                                  >
+                                    {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                     {isMine && (msg.read ? <CheckCheck className="h-[11px] w-[11px]" /> : <Check className="h-[11px] w-[11px]" />)}
-                                  </div>
+                                  </span>
                                 )}
                               </div>
                             )}
