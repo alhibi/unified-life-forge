@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useImageUpload } from '@/contexts/ImageUploadContext';
+import ImageLightbox from '@/components/ImageLightbox';
 import { useAuth } from '@/hooks/useAuth';
 import { useOtherUserPresence, formatLastSeen } from '@/hooks/usePresence';
 import { useApp } from '@/contexts/AppContext';
