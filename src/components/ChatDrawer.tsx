@@ -202,6 +202,13 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
   const recordingStartXRef = useRef(0);
   const recordingCancelledRef = useRef(false);
 
+  // Voice playback state
+  const [playingMsgId, setPlayingMsgId] = useState<string | null>(null);
+  const [playbackProgress, setPlaybackProgress] = useState<Record<string, number>>({});
+  const [playbackDurations, setPlaybackDurations] = useState<Record<string, number>>({});
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const playbackRAF = useRef<number | null>(null);
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -621,7 +628,18 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
   // Voice recording functions
   const startRecording = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      // Stop any playing audio first
+      if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; setPlayingMsgId(null); }
+
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+          sampleRate: 48000,
+          channelCount: 1,
+        }
+      });
       
       const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
         ? 'audio/webm;codecs=opus'
@@ -631,7 +649,10 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
             ? 'audio/mp4'
             : '';
 
-      const options: MediaRecorderOptions = mimeType ? { mimeType } : {};
+      const options: MediaRecorderOptions = {
+        ...(mimeType ? { mimeType } : {}),
+        audioBitsPerSecond: 128000,
+      };
       const mediaRecorder = new MediaRecorder(stream, options);
       recordingChunksRef.current = [];
       recordingCancelledRef.current = false;
@@ -657,14 +678,14 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
         }
       };
 
-      mediaRecorder.start(250);
+      mediaRecorder.start(200);
       setIsRecording(true);
       setRecordingTime(0);
       recordingTimerRef.current = setInterval(() => {
         setRecordingTime(prev => prev + 1);
       }, 1000);
     } catch (err) {
-      console.error('Microphone error:', err);
+      // silently fail
     }
   };
 
@@ -680,6 +701,53 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
     }
     setRecordingTime(0);
   };
+
+  // Voice playback
+  const togglePlayback = useCallback((msgId: string, url: string) => {
+    // If already playing this message, pause it
+    if (playingMsgId === msgId && audioRef.current) {
+      audioRef.current.pause();
+      if (playbackRAF.current) cancelAnimationFrame(playbackRAF.current);
+      setPlayingMsgId(null);
+      return;
+    }
+
+    // Stop previous audio
+    if (audioRef.current) {
+      audioRef.current.pause();
+      if (playbackRAF.current) cancelAnimationFrame(playbackRAF.current);
+    }
+
+    const audio = new Audio(url);
+    audio.preload = 'auto';
+    audioRef.current = audio;
+    setPlayingMsgId(msgId);
+
+    audio.onloadedmetadata = () => {
+      if (isFinite(audio.duration)) {
+        setPlaybackDurations(prev => ({ ...prev, [msgId]: audio.duration }));
+      }
+    };
+
+    const updateProgress = () => {
+      if (audio.currentTime && audio.duration) {
+        setPlaybackProgress(prev => ({ ...prev, [msgId]: audio.currentTime / audio.duration }));
+      }
+      if (!audio.paused) {
+        playbackRAF.current = requestAnimationFrame(updateProgress);
+      }
+    };
+
+    audio.onplay = () => { playbackRAF.current = requestAnimationFrame(updateProgress); };
+
+    audio.onended = () => {
+      setPlayingMsgId(null);
+      setPlaybackProgress(prev => ({ ...prev, [msgId]: 0 }));
+      if (playbackRAF.current) cancelAnimationFrame(playbackRAF.current);
+    };
+
+    audio.play().catch(() => setPlayingMsgId(null));
+  }, [playingMsgId]);
 
   const formatRecordingTime = (seconds: number) => {
     const m = Math.floor(seconds / 60);
@@ -1276,44 +1344,88 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                                 </div>
                               </div>
                             ) : msg.message_type === 'voice' ? (
-                              <div className="min-w-[200px] px-3 py-2">
-                                <div className="flex items-center gap-2.5">
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      const audio = new Audio(getFileUrl(msg));
-                                      audio.play();
-                                    }}
-                                    className={cn(
-                                      'flex h-9 w-9 shrink-0 items-center justify-center rounded-full',
-                                      isMine ? 'bg-primary-foreground/20' : 'bg-primary/15'
-                                    )}
-                                  >
-                                    <svg viewBox="0 0 24 24" className={cn('h-4 w-4', isMine ? 'text-primary-foreground' : 'text-primary')} fill="currentColor">
-                                      <path d="M8 5v14l11-7z" />
-                                    </svg>
-                                  </button>
-                                  <div className="flex flex-1 items-center gap-[2px]" dir="ltr">
-                                    {Array.from({ length: 24 }).map((_, i) => (
-                                      <div
-                                        key={i}
+                              (() => {
+                                const isPlaying = playingMsgId === msg.id;
+                                const progress = playbackProgress[msg.id] || 0;
+                                const duration = playbackDurations[msg.id] || 0;
+                                const formatDur = (s: number) => {
+                                  if (!s || !isFinite(s)) return '0:00';
+                                  const m = Math.floor(s / 60);
+                                  const sec = Math.floor(s % 60);
+                                  return `${m}:${sec.toString().padStart(2, '0')}`;
+                                };
+                                // Generate stable waveform bars based on message id
+                                const seed = msg.id.split('').reduce((a: number, c: string) => a + c.charCodeAt(0), 0);
+                                const bars = Array.from({ length: 28 }, (_, i) => {
+                                  const h = ((Math.sin(seed * (i + 1) * 0.7) + 1) / 2) * 14 + 3;
+                                  return h;
+                                });
+
+                                return (
+                                  <div className="min-w-[220px] px-3 py-2.5">
+                                    <div className="flex items-center gap-3">
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          togglePlayback(msg.id, getFileUrl(msg));
+                                        }}
                                         className={cn(
-                                          'w-[3px] rounded-full',
-                                          isMine ? 'bg-primary-foreground/40' : 'bg-primary/40'
+                                          'flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-colors active:scale-90',
+                                          isMine ? 'bg-primary-foreground/20 hover:bg-primary-foreground/30' : 'bg-primary/15 hover:bg-primary/25'
                                         )}
-                                        style={{ height: `${Math.random() * 12 + 4}px` }}
-                                      />
-                                    ))}
+                                      >
+                                        {isPlaying ? (
+                                          <svg viewBox="0 0 24 24" className={cn('h-5 w-5', isMine ? 'text-primary-foreground' : 'text-primary')} fill="currentColor">
+                                            <rect x="6" y="4" width="4" height="16" rx="1" />
+                                            <rect x="14" y="4" width="4" height="16" rx="1" />
+                                          </svg>
+                                        ) : (
+                                          <svg viewBox="0 0 24 24" className={cn('h-5 w-5 ms-0.5', isMine ? 'text-primary-foreground' : 'text-primary')} fill="currentColor">
+                                            <path d="M8 5v14l11-7z" />
+                                          </svg>
+                                        )}
+                                      </button>
+                                      <div className="flex-1 flex flex-col gap-1.5">
+                                        {/* Waveform with progress overlay */}
+                                        <div className="flex items-center gap-[2px] h-[20px]" dir="ltr">
+                                          {bars.map((h, i) => {
+                                            const barProgress = i / bars.length;
+                                            const isActive = barProgress < progress;
+                                            return (
+                                              <div
+                                                key={i}
+                                                className={cn(
+                                                  'w-[3px] rounded-full transition-colors duration-150',
+                                                  isActive
+                                                    ? (isMine ? 'bg-primary-foreground/80' : 'bg-primary/80')
+                                                    : (isMine ? 'bg-primary-foreground/25' : 'bg-primary/25')
+                                                )}
+                                                style={{ height: `${h}px` }}
+                                              />
+                                            );
+                                          })}
+                                        </div>
+                                        {/* Duration */}
+                                        <div className="flex items-center justify-between" dir="ltr">
+                                          <span className={cn(
+                                            'text-[10px] tabular-nums',
+                                            isMine ? 'text-primary-foreground/45' : 'text-foreground/35'
+                                          )}>
+                                            {isPlaying && duration ? formatDur(progress * duration) : (duration ? formatDur(duration) : '')}
+                                          </span>
+                                          <span className={cn(
+                                            'flex items-center gap-[3px] text-[11px] leading-none',
+                                            isMine ? 'text-primary-foreground/50' : 'text-foreground/40'
+                                          )}>
+                                            {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                            {isMine && (msg.read ? <CheckCheck className="h-[11px] w-[11px]" /> : <Check className="h-[11px] w-[11px]" />)}
+                                          </span>
+                                        </div>
+                                      </div>
+                                    </div>
                                   </div>
-                                </div>
-                                <div className={cn(
-                                  'mt-1 flex items-center justify-end gap-[3px] pt-1 text-[11px] leading-none',
-                                  isMine ? 'text-primary-foreground/50' : 'text-foreground/40'
-                                )} dir="ltr">
-                                  <span>{new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                                  {isMine && (msg.read ? <CheckCheck className="h-[11px] w-[11px]" /> : <Check className="h-[11px] w-[11px]" />)}
-                                </div>
-                              </div>
+                                );
+                              })()
                             ) : msg.message_type === 'file' ? (
                               <div className="px-3 py-2">
                                 <a
