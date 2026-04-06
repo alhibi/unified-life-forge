@@ -45,6 +45,8 @@ export default function Index() {
   }, []);
   const { t, language } = useApp();
   const { user } = useAuth();
+  // Global presence tracking - runs as long as user is logged in
+  usePresence(user?.id);
   const now = new Date();
   const hour = now.getHours();
   const isMorning = hour >= 5 && hour < 12;
