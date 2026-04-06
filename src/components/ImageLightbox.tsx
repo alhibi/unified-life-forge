@@ -1,4 +1,5 @@
 import React, { useCallback, useRef, useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
 import { X, Download } from 'lucide-react';
 
@@ -22,13 +23,30 @@ export default function ImageLightbox({ src, alt, open, onClose, originRect }: I
   const containerRef = useRef<HTMLDivElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
 
-  // Prevent body scroll
+  // Reset zoom on open
+  useEffect(() => {
+    if (open) {
+      setScale(1);
+      setIsZoomed(false);
+      dragY.set(0);
+    }
+  }, [open, dragY]);
+
+  // Prevent body scroll & block sheet interaction
   useEffect(() => {
     if (open) {
       document.body.style.overflow = 'hidden';
-      return () => { document.body.style.overflow = ''; };
+      // Block pointer events on everything behind the lightbox
+      const handler = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') onClose();
+      };
+      window.addEventListener('keydown', handler);
+      return () => {
+        document.body.style.overflow = '';
+        window.removeEventListener('keydown', handler);
+      };
     }
-  }, [open]);
+  }, [open, onClose]);
 
   // Double-tap to zoom
   const handleDoubleTap = useCallback(() => {
@@ -88,7 +106,8 @@ export default function ImageLightbox({ src, alt, open, onClose, originRect }: I
     };
   };
 
-  const handleDownload = () => {
+  const handleDownload = (e: React.MouseEvent) => {
+    e.stopPropagation();
     const a = document.createElement('a');
     a.href = src;
     a.download = alt || 'image';
@@ -96,26 +115,34 @@ export default function ImageLightbox({ src, alt, open, onClose, originRect }: I
     a.click();
   };
 
-  return (
+  const handleClose = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    onClose();
+  };
+
+  const content = (
     <AnimatePresence>
       {open && (
         <motion.div
-          className="fixed inset-0 z-[100] flex items-center justify-center"
+          className="fixed inset-0 z-[200] flex items-center justify-center"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.25 }}
+          onClick={(e) => e.stopPropagation()}
+          onPointerDown={(e) => e.stopPropagation()}
         >
           {/* Background */}
           <motion.div
             className="absolute inset-0 bg-black"
             style={{ opacity: bgOpacity }}
-            onClick={onClose}
+            onClick={handleClose}
           />
 
           {/* Top bar */}
           <motion.div
-            className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-4 pt-[env(safe-area-inset-top)] pb-2"
+            className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-4 pb-2"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
@@ -123,7 +150,7 @@ export default function ImageLightbox({ src, alt, open, onClose, originRect }: I
             style={{ paddingTop: 'max(env(safe-area-inset-top), 12px)' }}
           >
             <button
-              onClick={onClose}
+              onClick={handleClose}
               className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center active:scale-90 transition-transform"
             >
               <X className="w-5 h-5 text-white" />
@@ -174,4 +201,7 @@ export default function ImageLightbox({ src, alt, open, onClose, originRect }: I
       )}
     </AnimatePresence>
   );
+
+  // Render via portal to escape Sheet's DOM tree
+  return createPortal(content, document.body);
 }
