@@ -199,11 +199,15 @@ export const VoicePlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const togglePlayback = useCallback((msgId: string, url: string, senderName: string, conversationId: string) => {
     if (state.msgId === msgId && state.isPlaying) {
       pause();
-    } else if (state.msgId === msgId && !state.isPlaying && audioRef.current) {
-      // Resume
-      audioRef.current.play().catch(() => {});
-      startRAF();
-      setState(prev => ({ ...prev, isPlaying: true }));
+    } else if (state.msgId === msgId && !state.isPlaying && audioRef.current && audioRef.current.src) {
+      // Resume paused audio
+      audioRef.current.play().then(() => {
+        setState(prev => ({ ...prev, isPlaying: true }));
+        startRAF();
+      }).catch(() => {
+        // If resume fails, restart from scratch
+        play(msgId, url, senderName, conversationId);
+      });
     } else {
       play(msgId, url, senderName, conversationId);
     }
