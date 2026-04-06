@@ -882,6 +882,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
           ref={fileInputRef}
           className="hidden"
           accept="image/*,application/pdf,.doc,.docx,.txt,.zip"
+          multiple
           onChange={handleFileUpload}
         />
 
