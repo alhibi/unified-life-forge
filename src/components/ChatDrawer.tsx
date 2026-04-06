@@ -359,56 +359,47 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
   useEffect(() => {
     if (!user || !open) return;
 
-    const subscribe = () => {
-      const channel = supabase
-        .channel('chat-realtime')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, (payload) => {
-          if (payload.eventType === 'INSERT') {
-            const msg = payload.new as Message;
-            if (activeConv && msg.conversation_id === activeConv.id) {
-              setMessages(prev => {
-                // Prevent duplicates
-                if (prev.some(m => m.id === msg.id)) return prev;
-                return [...prev, msg];
-              });
-              if (msg.sender_id !== user.id) {
-                supabase.from('messages').update({ read: true }).eq('id', msg.id).then();
-              }
-              setTimeout(scrollToBottom, 100);
-            }
-            loadConversations();
-          } else if (payload.eventType === 'UPDATE') {
-            const msg = payload.new as Message;
-            setMessages(prev => prev.map(m => m.id === msg.id ? msg : m));
-          }
-        })
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'message_reactions' }, (payload) => {
-          if (payload.eventType === 'INSERT') {
-            setReactions(prev => {
-              if (prev.some(r => r.id === (payload.new as Reaction).id)) return prev;
-              return [...prev, payload.new as Reaction];
+    let cancelled = false;
+    const channelName = `chat-realtime-${Date.now()}`;
+
+    const channel = supabase
+      .channel(channelName)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, (payload) => {
+        if (cancelled) return;
+        if (payload.eventType === 'INSERT') {
+          const msg = payload.new as Message;
+          if (activeConv && msg.conversation_id === activeConv.id) {
+            setMessages(prev => {
+              if (prev.some(m => m.id === msg.id)) return prev;
+              return [...prev, msg];
             });
-          } else if (payload.eventType === 'DELETE') {
-            const old = payload.old as { id: string };
-            setReactions(prev => prev.filter(r => r.id !== old.id));
+            if (msg.sender_id !== user.id) {
+              supabase.from('messages').update({ read: true }).eq('id', msg.id).then();
+            }
+            setTimeout(scrollToBottom, 100);
           }
-        })
-        .subscribe((status) => {
-          if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
-            // Auto-reconnect after 3 seconds
-            reconnectRef.current = setTimeout(() => {
-              supabase.removeChannel(channel);
-              subscribe();
-            }, 3000);
-          }
-        });
-
-      return channel;
-    };
-
-    const channel = subscribe();
+          loadConversations();
+        } else if (payload.eventType === 'UPDATE') {
+          const msg = payload.new as Message;
+          setMessages(prev => prev.map(m => m.id === msg.id ? msg : m));
+        }
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'message_reactions' }, (payload) => {
+        if (cancelled) return;
+        if (payload.eventType === 'INSERT') {
+          setReactions(prev => {
+            if (prev.some(r => r.id === (payload.new as Reaction).id)) return prev;
+            return [...prev, payload.new as Reaction];
+          });
+        } else if (payload.eventType === 'DELETE') {
+          const old = payload.old as { id: string };
+          setReactions(prev => prev.filter(r => r.id !== old.id));
+        }
+      })
+      .subscribe();
 
     return () => {
+      cancelled = true;
       if (reconnectRef.current) clearTimeout(reconnectRef.current);
       supabase.removeChannel(channel);
     };
@@ -1345,18 +1336,25 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                                 </div>
                               </div>
                             ) : (
-                              <div className="px-3 py-2">
-                                <p className="break-words whitespace-pre-wrap text-[14px] leading-[1.45] [overflow-wrap:anywhere] [unicode-bidi:plaintext]" dir="auto">
+                              <div className="relative px-[10px] py-[6px]" style={{ minHeight: '28px' }}>
+                                <span className="break-words whitespace-pre-wrap text-[14.5px] leading-[1.5] [overflow-wrap:anywhere]" dir="auto">
                                   {msg.content}
-                                </p>
+                                  {/* Invisible inline spacer to reserve room for the timestamp */}
+                                  {!msg.deleted && (
+                                    <span className="inline-block align-bottom" aria-hidden="true" style={{ width: isMine ? '70px' : '54px', height: '1px' }} />
+                                  )}
+                                </span>
                                 {!msg.deleted && (
-                                  <div className={cn(
-                                    'mt-1 flex items-center justify-end gap-[3px] pt-1 text-[11px] leading-none select-none',
-                                    isMine ? 'text-primary-foreground/50' : 'text-foreground/40'
-                                  )} dir="ltr">
-                                    <span>{new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                  <span
+                                    className={cn(
+                                      'absolute bottom-[5px] flex items-center gap-[3px] text-[11px] leading-none select-none whitespace-nowrap',
+                                      isMine ? 'text-primary-foreground/50 right-[8px]' : 'text-foreground/40 right-[8px]'
+                                    )}
+                                    dir="ltr"
+                                  >
+                                    {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                     {isMine && (msg.read ? <CheckCheck className="h-[11px] w-[11px]" /> : <Check className="h-[11px] w-[11px]" />)}
-                                  </div>
+                                  </span>
                                 )}
                               </div>
                             )}
