@@ -108,16 +108,19 @@ function AnimatedRoutes() {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AppProvider>
-      <TooltipProvider>
-        <ErrorBoundary>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <AnimatedRoutes />
-            <BottomNav />
-          </BrowserRouter>
-        </ErrorBoundary>
-      </TooltipProvider>
+      <VoicePlayerProvider>
+        <TooltipProvider>
+          <ErrorBoundary>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <FloatingVoicePlayer />
+              <AnimatedRoutes />
+              <BottomNav />
+            </BrowserRouter>
+          </ErrorBoundary>
+        </TooltipProvider>
+      </VoicePlayerProvider>
     </AppProvider>
   </QueryClientProvider>
 );
