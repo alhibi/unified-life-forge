@@ -645,6 +645,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
       // Optimistic upload via ImageUploadContext
       imageUpload.startUpload(file, activeConv.id, user.id);
       if (fileInputRef.current) fileInputRef.current.value = '';
+      setTimeout(() => scrollToBottom(), 100);
       return;
     }
 
