@@ -110,6 +110,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <AppProvider>
       <VoicePlayerProvider>
+        <ImageUploadProvider>
         <TooltipProvider>
           <ErrorBoundary>
             <Toaster />
