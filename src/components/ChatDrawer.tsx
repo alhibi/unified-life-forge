@@ -52,12 +52,21 @@ interface Message {
 }
 
 const getSignedFileUrl = async (fileUrl: string): Promise<string> => {
-  if (!fileUrl || !fileUrl.includes('/chat-files/')) return fileUrl;
-  const match = fileUrl.match(/chat-files\/(.+?)(?:\?|$)/);
-  if (!match) return fileUrl;
-  const path = decodeURIComponent(match[1]);
-  const { data, error } = await supabase.storage.from('chat-files').createSignedUrl(path, 3600);
-  return error ? fileUrl : data.signedUrl;
+  if (!fileUrl) return '';
+
+  // Already a full URL (old data) → keep as-is unless it points to chat-files, then refresh it.
+  if (fileUrl.startsWith('http')) {
+    if (!fileUrl.includes('/chat-files/')) return fileUrl;
+    const match = fileUrl.match(/chat-files\/(.+?)(?:\?|$)/);
+    if (!match) return fileUrl;
+    const path = decodeURIComponent(match[1]);
+    const { data, error } = await supabase.storage.from('chat-files').createSignedUrl(path, 3600);
+    return error ? fileUrl : data.signedUrl;
+  }
+
+  // New data is stored as the raw storage path.
+  const { data, error } = await supabase.storage.from('chat-files').createSignedUrl(fileUrl, 3600);
+  return error ? '' : data.signedUrl;
 };
 
 interface Reaction {
@@ -595,11 +604,9 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
       return;
     }
 
-    const { data: signedData } = await supabase.storage.from('chat-files').createSignedUrl(path, 3600);
-    const fileUrlResult = signedData?.signedUrl || '';
     const isImage = file.type.startsWith('image/');
 
-    await sendMessage(isImage ? 'image' : 'file', fileUrlResult, file.name);
+    await sendMessage(isImage ? 'image' : 'file', path, file.name);
     setUploading(false);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
@@ -668,10 +675,12 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
         const blob = new Blob(recordingChunksRef.current, { type: finalMime });
         if (blob.size > 0 && activeConv && user) {
           const path = `${user.id}/${activeConv.id}/${Date.now()}.${ext}`;
-          const { error } = await supabase.storage.from('chat-files').upload(path, blob);
+          const { error } = await supabase.storage.from('chat-files').upload(path, blob, {
+            contentType: finalMime,
+            upsert: false,
+          });
           if (!error) {
-            const { data: signedData } = await supabase.storage.from('chat-files').createSignedUrl(path, 3600);
-            await sendMessage('voice', signedData?.signedUrl || '', `voice_${Date.now()}.${ext}`);
+            await sendMessage('voice', path, `voice_${Date.now()}.${ext}`);
           }
         }
       };
@@ -1322,9 +1331,11 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                                   <div className="min-w-[220px] px-3 py-2.5">
                                     <div className="flex items-center gap-3">
                                       <button
-                                        onClick={(e) => {
+                                        onClick={async (e) => {
                                           e.stopPropagation();
-                                          voicePlayer.togglePlayback(msg.id, fileUrl, senderName, msg.conversation_id);
+                                          const playableUrl = fileUrl || (msg.file_url ? await getSignedFileUrl(msg.file_url) : '');
+                                          if (!playableUrl) return;
+                                          voicePlayer.togglePlayback(msg.id, playableUrl, senderName, msg.conversation_id);
                                         }}
                                         className={cn(
                                           'flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-colors active:scale-90',
