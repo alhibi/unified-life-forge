@@ -1854,6 +1854,52 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
 
             {/* Input area */}
             <div className="border-t border-border/30 bg-background pb-[env(safe-area-inset-bottom)]">
+              {/* Staged images preview gallery */}
+              <AnimatePresence>
+                {stagedPreviews.length > 0 && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="px-3 pt-2 pb-1">
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-[12px] text-muted-foreground font-medium">
+                          {stagedPreviews.length} {isAr ? 'صورة' : (stagedPreviews.length === 1 ? 'Foto' : 'Fotos')}
+                        </span>
+                        <button
+                          onClick={clearStagedImages}
+                          className="text-[11px] text-destructive font-medium px-2 py-0.5 rounded-full hover:bg-destructive/10 transition-colors"
+                        >
+                          {isAr ? 'مسح الكل' : 'Alle löschen'}
+                        </button>
+                      </div>
+                      <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+                        {stagedPreviews.map((url, i) => (
+                          <div key={i} className="relative shrink-0 w-16 h-16 rounded-xl overflow-hidden bg-muted/30 group">
+                            <img src={url} alt="" className="w-full h-full object-cover" />
+                            <button
+                              onClick={() => removeStagedImage(i)}
+                              className="absolute top-0.5 end-0.5 w-5 h-5 rounded-full bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                              style={{ opacity: 1 }}
+                            >
+                              <X className="w-3 h-3 text-white" />
+                            </button>
+                          </div>
+                        ))}
+                        {/* Add more button */}
+                        <button
+                          onClick={() => fileInputRef.current?.click()}
+                          className="shrink-0 w-16 h-16 rounded-xl border-2 border-dashed border-border/40 flex items-center justify-center hover:bg-accent/20 transition-colors"
+                        >
+                          <Plus className="w-5 h-5 text-muted-foreground" />
+                        </button>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
               {/* Reply preview */}
               <AnimatePresence>
                 {replyTo && !isRecording && (
