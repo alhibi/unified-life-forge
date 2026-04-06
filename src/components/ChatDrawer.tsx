@@ -879,10 +879,10 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                     {/* Details */}
                     <div className="bg-card border border-border/20 rounded-2xl divide-y divide-border/10">
                       <div className="flex items-center gap-3 p-3.5">
-                        <Clock className="w-4 h-4 text-muted-foreground shrink-0" />
+                        <User2 className="w-4 h-4 text-muted-foreground shrink-0" />
                         <div className="min-w-0">
-                          <p className="text-[11px] text-muted-foreground">{isAr ? 'آخر ظهور' : 'Last seen'}</p>
-                          <p className="text-[13px] text-foreground font-medium">{otherPresence.text}</p>
+                          <p className="text-[11px] text-muted-foreground">{isAr ? 'النبذة' : 'Bio'}</p>
+                          <p className="text-[13px] text-foreground font-medium">{activeConv.otherBio || (isAr ? 'لا توجد نبذة' : 'No bio')}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-3 p-3.5">
