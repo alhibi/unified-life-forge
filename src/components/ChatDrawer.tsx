@@ -52,12 +52,21 @@ interface Message {
 }
 
 const getSignedFileUrl = async (fileUrl: string): Promise<string> => {
-  if (!fileUrl || !fileUrl.includes('/chat-files/')) return fileUrl;
-  const match = fileUrl.match(/chat-files\/(.+?)(?:\?|$)/);
-  if (!match) return fileUrl;
-  const path = decodeURIComponent(match[1]);
-  const { data, error } = await supabase.storage.from('chat-files').createSignedUrl(path, 3600);
-  return error ? fileUrl : data.signedUrl;
+  if (!fileUrl) return '';
+
+  // Already a full URL (old data) → keep as-is unless it points to chat-files, then refresh it.
+  if (fileUrl.startsWith('http')) {
+    if (!fileUrl.includes('/chat-files/')) return fileUrl;
+    const match = fileUrl.match(/chat-files\/(.+?)(?:\?|$)/);
+    if (!match) return fileUrl;
+    const path = decodeURIComponent(match[1]);
+    const { data, error } = await supabase.storage.from('chat-files').createSignedUrl(path, 3600);
+    return error ? fileUrl : data.signedUrl;
+  }
+
+  // New data is stored as the raw storage path.
+  const { data, error } = await supabase.storage.from('chat-files').createSignedUrl(fileUrl, 3600);
+  return error ? '' : data.signedUrl;
 };
 
 interface Reaction {
