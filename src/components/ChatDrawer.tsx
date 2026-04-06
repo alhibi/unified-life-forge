@@ -351,17 +351,52 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
     if (activeConv) loadMessages();
   }, [activeConv, loadMessages]);
 
-  // Resolve signed URLs for file messages
+  // Resolve signed URLs for file messages (including voice with missing file_url)
   useEffect(() => {
-    const fileMessages = messages.filter(m => m.file_url && !signedUrls[m.id]);
-    if (fileMessages.length === 0) return;
-    Promise.all(fileMessages.map(async (m) => {
-      const url = await getSignedFileUrl(m.file_url!);
+    const needsUrl = messages.filter(m => {
+      if (signedUrls[m.id]) return false;
+      if (m.file_url) return true;
+      // Old voice messages without file_url: reconstruct path from metadata
+      if (m.message_type === 'voice' && m.file_name && !m.file_url) return true;
+      return false;
+    });
+    if (needsUrl.length === 0) return;
+    Promise.all(needsUrl.map(async (m) => {
+      let path = m.file_url || '';
+      // Reconstruct path for old voice messages
+      if (!path && m.message_type === 'voice' && m.file_name) {
+        const tsMatch = m.file_name.match(/voice_(\d+)/);
+        if (tsMatch) {
+          const ext = m.file_name.split('.').pop() || 'webm';
+          // Try listing the sender's conversation folder to find the closest file
+          const folderPath = `${m.sender_id}/${m.conversation_id}`;
+          const { data: files } = await supabase.storage.from('chat-files').list(folderPath, { limit: 200 });
+          if (files && files.length > 0) {
+            const target = parseInt(tsMatch[1]);
+            // Find closest file by timestamp
+            const voiceFiles = files.filter(f => f.name.endsWith(`.${ext}`));
+            let closest = voiceFiles[0];
+            let minDiff = Infinity;
+            for (const f of voiceFiles) {
+              const fts = parseInt(f.name.replace(`.${ext}`, ''));
+              if (!isNaN(fts)) {
+                const diff = Math.abs(fts - target);
+                if (diff < minDiff) { minDiff = diff; closest = f; }
+              }
+            }
+            if (closest && minDiff < 5000) {
+              path = `${folderPath}/${closest.name}`;
+            }
+          }
+        }
+      }
+      if (!path) return { id: m.id, url: '' };
+      const url = await getSignedFileUrl(path);
       return { id: m.id, url };
     })).then(results => {
       setSignedUrls(prev => {
         const next = { ...prev };
-        results.forEach(r => { next[r.id] = r.url; });
+        results.forEach(r => { if (r.url) next[r.id] = r.url; });
         return next;
       });
     });
