@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useOtherUserPresence, formatLastSeen } from '@/hooks/usePresence';
 import { useApp } from '@/contexts/AppContext';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Input } from '@/components/ui/input';
@@ -102,21 +103,7 @@ function formatTime(dateStr: string, isAr: boolean) {
   return d.toLocaleDateString(isAr ? 'ar' : 'de', { day: 'numeric', month: 'short' });
 }
 
-function formatLastSeen(dateStr: string | null | undefined, isAr: boolean) {
-  if (!dateStr) return isAr ? 'غير معروف' : 'Unbekannt';
-  const d = new Date(dateStr);
-  const now = new Date();
-  const diffMs = now.getTime() - d.getTime();
-  const diffMins = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMs / 3600000);
-  const diffDays = Math.floor(diffMs / 86400000);
-
-  if (diffMins < 2) return isAr ? 'متصل الآن' : 'Online';
-  if (diffMins < 60) return isAr ? `آخر ظهور منذ ${diffMins} دقيقة` : `Zuletzt vor ${diffMins} Min`;
-  if (diffHours < 24) return isAr ? `آخر ظهور منذ ${diffHours} ساعة` : `Zuletzt vor ${diffHours} Std`;
-  if (diffDays < 7) return isAr ? `آخر ظهور منذ ${diffDays} يوم` : `Zuletzt vor ${diffDays} Tagen`;
-  return isAr ? `آخر ظهور ${d.toLocaleDateString('ar', { day: 'numeric', month: 'short' })}` : `Zuletzt ${d.toLocaleDateString('de', { day: 'numeric', month: 'short' })}`;
-}
+// formatLastSeen is now imported from usePresence
 
 // Swipeable message wrapper - right only
 function SwipeableMessage({ children, isMine, deleted, onSwipeReply }: {
@@ -475,14 +462,15 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
     return () => clearInterval(interval);
   }, [user, loadConversations]);
 
-  // Last seen heartbeat
-  useEffect(() => {
-    if (!user || !open) return;
-    const ping = () => supabase.rpc('update_last_seen').then();
-    ping();
-    const interval = setInterval(ping, 60000);
-    return () => clearInterval(interval);
-  }, [user, open]);
+  // Realtime presence for the other user in active conversation
+  const [realtimeLastSeen, setRealtimeLastSeen] = useState<string | null>(null);
+  useOtherUserPresence(activeConv?.otherUserId, useCallback((ls) => setRealtimeLastSeen(ls), []));
+
+  // Compute presence display for the active conversation's other user
+  const otherPresence = useMemo(() => {
+    const ls = realtimeLastSeen ?? activeConv?.otherLastSeen ?? null;
+    return formatLastSeen(ls, isAr);
+  }, [realtimeLastSeen, activeConv?.otherLastSeen, isAr]);
 
   const searchForUser = async () => {
     if (!searchUser.trim() || !user) return;
@@ -807,11 +795,11 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                 )}
                 <p className={cn(
                   'text-[12px] mt-1 font-medium',
-                  activeConv.otherLastSeen && (Date.now() - new Date(activeConv.otherLastSeen).getTime() < 120000)
+                  otherPresence.isOnline
                     ? 'text-green-500'
                     : 'text-muted-foreground/70'
                 )}>
-                  {formatLastSeen(activeConv.otherLastSeen, isAr)}
+                  {otherPresence.text}
                 </p>
               </div>
 
@@ -893,8 +881,8 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                       <div className="flex items-center gap-3 p-3.5">
                         <Clock className="w-4 h-4 text-muted-foreground shrink-0" />
                         <div className="min-w-0">
-                          <p className="text-[11px] text-muted-foreground">{isAr ? 'آخر ظهور' : 'Zuletzt gesehen'}</p>
-                          <p className="text-[13px] text-foreground font-medium">{formatLastSeen(activeConv.otherLastSeen, isAr)}</p>
+                          <p className="text-[11px] text-muted-foreground">{isAr ? 'آخر ظهور' : 'Last seen'}</p>
+                          <p className="text-[13px] text-foreground font-medium">{otherPresence.text}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-3 p-3.5">
@@ -1138,12 +1126,12 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                         animate={{ opacity: 1 }}
                         className={cn(
                           'text-[11px] leading-tight',
-                          activeConv?.otherLastSeen && (Date.now() - new Date(activeConv.otherLastSeen).getTime() < 120000)
+                          otherPresence.isOnline
                             ? 'text-green-500 font-medium'
                             : 'text-muted-foreground/60'
                         )}
                       >
-                        {formatLastSeen(activeConv?.otherLastSeen, isAr)}
+                        {otherPresence.text}
                       </motion.span>
                     )}
                   </AnimatePresence>
