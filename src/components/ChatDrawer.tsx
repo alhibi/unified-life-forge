@@ -462,14 +462,15 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
     return () => clearInterval(interval);
   }, [user, loadConversations]);
 
-  // Last seen heartbeat
-  useEffect(() => {
-    if (!user || !open) return;
-    const ping = () => supabase.rpc('update_last_seen').then();
-    ping();
-    const interval = setInterval(ping, 60000);
-    return () => clearInterval(interval);
-  }, [user, open]);
+  // Realtime presence for the other user in active conversation
+  const [realtimeLastSeen, setRealtimeLastSeen] = useState<string | null>(null);
+  useOtherUserPresence(activeConv?.otherUserId, useCallback((ls) => setRealtimeLastSeen(ls), []));
+
+  // Compute presence display for the active conversation's other user
+  const otherPresence = useMemo(() => {
+    const ls = realtimeLastSeen ?? activeConv?.otherLastSeen ?? null;
+    return formatLastSeen(ls, isAr);
+  }, [realtimeLastSeen, activeConv?.otherLastSeen, isAr]);
 
   const searchForUser = async () => {
     if (!searchUser.trim() || !user) return;
