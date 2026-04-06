@@ -317,7 +317,7 @@ export default function ReadingPage() {
         body: { urls: [feed.url], limit: 100, fetchFullContent: true, store: true, nameMap },
       });
       
-      console.log('Single feed response:', { data, error });
+      
       
       if (error) {
         console.error('Edge function error:', error);
