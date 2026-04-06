@@ -312,7 +312,7 @@ export default function ReadingPage() {
   const fetchSingleFeed = async (feed: FeedSource) => {
     try {
       const nameMap: Record<string, string> = { [feed.url]: feed.name };
-      console.log('Fetching single feed:', feed.url, feed.name);
+      
       const { data, error } = await supabase.functions.invoke('fetch-rss', {
         body: { urls: [feed.url], limit: 100, fetchFullContent: true, store: true, nameMap },
       });
