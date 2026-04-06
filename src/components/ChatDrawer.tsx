@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useOtherUserPresence, formatLastSeen } from '@/hooks/usePresence';
 import { useApp } from '@/contexts/AppContext';
+import { useVoicePlayer } from '@/contexts/VoicePlayerContext';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
