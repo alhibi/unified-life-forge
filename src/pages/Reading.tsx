@@ -344,7 +344,7 @@ export default function ReadingPage() {
         }
       }
       
-      console.log(`Parsed ${freshItems.length} items from ${feed.name}`);
+      
       
       if (freshItems.length > 0) {
         setArticles(prev => {
