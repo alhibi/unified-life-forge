@@ -1348,18 +1348,14 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                               </div>
                             </div>
                           ) : (
-                            <div className="relative px-2 py-[3px]" style={{ minHeight: '24px' }}>
-                              <span className="break-words whitespace-pre-wrap" dir="auto">
+                            <div className="px-2.5 py-[5px]">
+                              <span className="break-words whitespace-pre-wrap text-[14px] leading-[1.45]" dir="auto">
                                 {msg.content}
-                                {/* invisible spacer — always reserve space for timestamp */}
-                                {!msg.deleted && (
-                                  <span className="inline-block align-bottom" style={{ width: isMine ? '68px' : '52px', height: '14px' }} />
-                                )}
                               </span>
                               {!msg.deleted && (
                                 <span className={cn(
-                                  'absolute bottom-[3px] right-2 flex items-center gap-[3px] text-[10px] whitespace-nowrap',
-                                  isMine ? 'text-primary-foreground/50' : 'text-muted-foreground/50'
+                                  'float-right mt-[2px] flex items-center gap-[3px] text-[10px] whitespace-nowrap leading-none select-none',
+                                  isMine ? 'text-primary-foreground/50 ms-3' : 'text-muted-foreground/50 ms-3'
                                 )} dir="ltr">
                                   {isMine && (msg.read ? <CheckCheck className="h-[11px] w-[11px]" /> : <Check className="h-[11px] w-[11px]" />)}
                                   {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
