@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useOtherUserPresence, formatLastSeen } from '@/hooks/usePresence';
 import { useApp } from '@/contexts/AppContext';
+import { useVoicePlayer } from '@/contexts/VoicePlayerContext';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -202,12 +203,9 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
   const recordingStartXRef = useRef(0);
   const recordingCancelledRef = useRef(false);
 
-  // Voice playback state
-  const [playingMsgId, setPlayingMsgId] = useState<string | null>(null);
-  const [playbackProgress, setPlaybackProgress] = useState<Record<string, number>>({});
-  const [playbackDurations, setPlaybackDurations] = useState<Record<string, number>>({});
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const playbackRAF = useRef<number | null>(null);
+  // Voice playback - global context
+  const voicePlayer = useVoicePlayer();
+
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
@@ -629,7 +627,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
   const startRecording = async () => {
     try {
       // Stop any playing audio first
-      if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; setPlayingMsgId(null); }
+      if (voicePlayer.state.isPlaying) { voicePlayer.stop(); }
 
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
@@ -702,86 +700,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
     setRecordingTime(0);
   };
 
-  // Voice playback
-  const togglePlayback = useCallback((msgId: string, url: string) => {
-    // If already playing this message, pause it
-    if (playingMsgId === msgId && audioRef.current) {
-      audioRef.current.pause();
-      if (playbackRAF.current) cancelAnimationFrame(playbackRAF.current);
-      setPlayingMsgId(null);
-      return;
-    }
-
-    // Validate URL
-    if (!url) return;
-
-    // Stop previous audio
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.src = '';
-      if (playbackRAF.current) cancelAnimationFrame(playbackRAF.current);
-    }
-
-    const audio = new Audio();
-    audio.crossOrigin = 'anonymous';
-    audio.preload = 'auto';
-    audio.src = url;
-    audioRef.current = audio;
-    setPlayingMsgId(msgId);
-
-    audio.onloadedmetadata = () => {
-      if (isFinite(audio.duration)) {
-        setPlaybackDurations(prev => ({ ...prev, [msgId]: audio.duration }));
-      }
-    };
-
-    const updateProgress = () => {
-      if (audio.duration && isFinite(audio.duration)) {
-        setPlaybackProgress(prev => ({ ...prev, [msgId]: audio.currentTime / audio.duration }));
-      }
-      if (!audio.paused) {
-        playbackRAF.current = requestAnimationFrame(updateProgress);
-      }
-    };
-
-    audio.onplay = () => { playbackRAF.current = requestAnimationFrame(updateProgress); };
-
-    audio.onended = () => {
-      setPlayingMsgId(null);
-      setPlaybackProgress(prev => ({ ...prev, [msgId]: 0 }));
-      if (playbackRAF.current) cancelAnimationFrame(playbackRAF.current);
-    };
-
-    audio.onerror = () => {
-      setPlayingMsgId(null);
-      // Retry without crossOrigin (some storage URLs don't support CORS)
-      const retryAudio = new Audio(url);
-      retryAudio.preload = 'auto';
-      audioRef.current = retryAudio;
-      setPlayingMsgId(msgId);
-
-      retryAudio.onloadedmetadata = () => {
-        if (isFinite(retryAudio.duration)) {
-          setPlaybackDurations(prev => ({ ...prev, [msgId]: retryAudio.duration }));
-        }
-      };
-      retryAudio.onplay = () => { playbackRAF.current = requestAnimationFrame(updateProgress); };
-      retryAudio.onended = () => {
-        setPlayingMsgId(null);
-        setPlaybackProgress(prev => ({ ...prev, [msgId]: 0 }));
-        if (playbackRAF.current) cancelAnimationFrame(playbackRAF.current);
-      };
-      retryAudio.onerror = () => setPlayingMsgId(null);
-      retryAudio.play().catch(() => setPlayingMsgId(null));
-    };
-
-    audio.play().catch(() => {
-      // Fallback: try without crossOrigin
-      audio.crossOrigin = null as any;
-      audio.load();
-      audio.play().catch(() => setPlayingMsgId(null));
-    });
-  }, [playingMsgId]);
+  // Voice playback now handled by global VoicePlayerContext
 
   const formatRecordingTime = (seconds: number) => {
     const m = Math.floor(seconds / 60);
@@ -1379,21 +1298,29 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                               </div>
                             ) : msg.message_type === 'voice' ? (
                               (() => {
-                                const isPlaying = playingMsgId === msg.id;
-                                const progress = playbackProgress[msg.id] || 0;
-                                const duration = playbackDurations[msg.id] || 0;
+                                const isPlaying = voicePlayer.isPlayingMsg(msg.id);
+                                const progress = voicePlayer.getProgress(msg.id);
+                                const duration = voicePlayer.getDuration(msg.id);
                                 const formatDur = (s: number) => {
                                   if (!s || !isFinite(s)) return '0:00';
                                   const m = Math.floor(s / 60);
                                   const sec = Math.floor(s % 60);
                                   return `${m}:${sec.toString().padStart(2, '0')}`;
                                 };
-                                // Generate stable waveform bars based on message id
-                                const seed = msg.id.split('').reduce((a: number, c: string) => a + c.charCodeAt(0), 0);
-                                const bars = Array.from({ length: 28 }, (_, i) => {
-                                  const h = ((Math.sin(seed * (i + 1) * 0.7) + 1) / 2) * 14 + 3;
-                                  return h;
-                                });
+                                // Use cached waveform or seed-based fallback
+                                const cachedWaveform = voicePlayer.waveformCache[msg.id];
+                                const bars = cachedWaveform || (() => {
+                                  const seed = msg.id.split('').reduce((a: number, c: string) => a + c.charCodeAt(0), 0);
+                                  return Array.from({ length: 40 }, (_, i) => ((Math.sin(seed * (i + 1) * 0.7) + 1) / 2) * 0.85 + 0.15);
+                                })();
+
+                                // Trigger waveform generation lazily
+                                const fileUrl = getFileUrl(msg);
+                                if (!cachedWaveform && fileUrl) {
+                                  voicePlayer.generateWaveform(fileUrl, msg.id);
+                                }
+
+                                const senderName = isMine ? 'أنت' : (activeConv?.otherDisplayName || activeConv?.otherUsername || '');
 
                                 return (
                                   <div className="min-w-[220px] px-3 py-2.5">
@@ -1401,7 +1328,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                                       <button
                                         onClick={(e) => {
                                           e.stopPropagation();
-                                          togglePlayback(msg.id, getFileUrl(msg));
+                                          voicePlayer.togglePlayback(msg.id, fileUrl, senderName, msg.conversation_id);
                                         }}
                                         className={cn(
                                           'flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-colors active:scale-90',
@@ -1420,8 +1347,19 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                                         )}
                                       </button>
                                       <div className="flex-1 flex flex-col gap-1.5">
-                                        {/* Waveform with progress overlay */}
-                                        <div className="flex items-center gap-[2px] h-[20px]" dir="ltr">
+                                        {/* Interactive waveform with seek */}
+                                        <div
+                                          className="flex items-center gap-[2px] h-[22px] cursor-pointer"
+                                          dir="ltr"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            if (voicePlayer.state.msgId === msg.id) {
+                                              const rect = e.currentTarget.getBoundingClientRect();
+                                              const fraction = (e.clientX - rect.left) / rect.width;
+                                              voicePlayer.seek(Math.max(0, Math.min(1, fraction)));
+                                            }
+                                          }}
+                                        >
                                           {bars.map((h, i) => {
                                             const barProgress = i / bars.length;
                                             const isActive = barProgress < progress;
@@ -1429,12 +1367,12 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                                               <div
                                                 key={i}
                                                 className={cn(
-                                                  'w-[3px] rounded-full transition-colors duration-150',
+                                                  'flex-1 rounded-full transition-colors duration-100',
                                                   isActive
                                                     ? (isMine ? 'bg-primary-foreground/80' : 'bg-primary/80')
                                                     : (isMine ? 'bg-primary-foreground/25' : 'bg-primary/25')
                                                 )}
-                                                style={{ height: `${h}px` }}
+                                                style={{ height: `${h * 22}px`, minWidth: '2px' }}
                                               />
                                             );
                                           })}
