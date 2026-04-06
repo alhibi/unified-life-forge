@@ -1314,11 +1314,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                                   return Array.from({ length: 40 }, (_, i) => ((Math.sin(seed * (i + 1) * 0.7) + 1) / 2) * 0.85 + 0.15);
                                 })();
 
-                                // Trigger waveform generation lazily
                                 const fileUrl = getFileUrl(msg);
-                                if (!cachedWaveform && fileUrl) {
-                                  voicePlayer.generateWaveform(fileUrl, msg.id);
-                                }
 
                                 const senderName = isMine ? 'أنت' : (activeConv?.otherDisplayName || activeConv?.otherUsername || '');
 
