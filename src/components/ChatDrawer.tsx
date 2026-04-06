@@ -546,6 +546,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
     setNewMessage('');
     setReplyTo(null);
     resizeComposer();
+    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
     typingChannelRef.current?.track({ typing: false });
 
     await supabase.from('messages').insert({
