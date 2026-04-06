@@ -848,16 +848,6 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
               <div className="flex-1 overflow-y-auto mt-3 px-4 pb-6">
                 {profileTab === 'info' ? (
                   <div className="space-y-3">
-                    {/* Bio */}
-                    {activeConv.otherBio && (
-                      <div className="bg-card border border-border/20 rounded-2xl p-4">
-                        <div className="flex items-center gap-2 mb-2">
-                          <User2 className="w-3.5 h-3.5 text-muted-foreground" />
-                          <span className="text-[11px] text-muted-foreground font-medium">{isAr ? 'النبذة' : 'Bio'}</span>
-                        </div>
-                        <p className="text-[14px] text-foreground leading-relaxed" dir="auto">{activeConv.otherBio}</p>
-                      </div>
-                    )}
 
                     {/* Stats */}
                     <div className="bg-card border border-border/20 rounded-2xl p-4">
