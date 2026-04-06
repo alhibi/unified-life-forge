@@ -1343,12 +1343,19 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                             {msg.deleted ? (
                               <p className="px-3 py-2 text-xs">{isAr ? '🚫 تم حذف هذه الرسالة' : '🚫 Diese Nachricht wurde gelöscht'}</p>
                             ) : msg.message_type === 'image' ? (
-                              <div>
+                              <div className="relative">
                                 <img
                                   src={getFileUrl(msg)}
                                   alt={msg.file_name || 'image'}
-                                  className="max-w-full max-h-60 object-cover cursor-pointer"
-                                  onClick={(e) => { e.stopPropagation(); window.open(getFileUrl(msg), '_blank'); }}
+                                  className="max-w-full max-h-60 object-cover cursor-pointer rounded-sm"
+                                  loading="lazy"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    const rect = (e.target as HTMLElement).getBoundingClientRect();
+                                    setLightboxRect(rect);
+                                    setLightboxSrc(getFileUrl(msg));
+                                    setLightboxOpen(true);
+                                  }}
                                 />
                                 <div className="px-3 py-2">
                                   {msg.content && msg.content !== msg.file_name && (
