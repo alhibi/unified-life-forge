@@ -8,6 +8,7 @@ import { AnimatePresence } from "framer-motion";
 import BottomNav from "@/components/BottomNav";
 import PageTransition from "@/components/PageTransition";
 import ScrollToTop from "@/components/ScrollToTop";
+import ErrorBoundary from "@/components/ErrorBoundary";
 import { lazy, Suspense } from "react";
 
 // Eager load the main page
@@ -46,12 +47,23 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
 
+// Skeleton fallback matching app layout
+const PageSkeleton = () => (
+  <div className="min-h-screen p-4 space-y-4">
+    <div className="skeleton h-8 w-40 mx-auto" />
+    <div className="skeleton h-24 w-full" />
+    <div className="skeleton h-16 w-full" />
+    <div className="skeleton h-16 w-full" />
+    <div className="skeleton h-32 w-full" />
+  </div>
+);
+
 function AnimatedRoutes() {
   const location = useLocation();
   return (
     <>
       <ScrollToTop />
-      <Suspense fallback={<div className="min-h-screen" />}>
+      <Suspense fallback={<PageSkeleton />}>
         <AnimatePresence mode="wait" initial={false}>
           <Routes location={location} key={location.pathname}>
             <Route path="/" element={<PageTransition><Index /></PageTransition>} />
@@ -95,12 +107,14 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <AppProvider>
       <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <AnimatedRoutes />
-          <BottomNav />
-        </BrowserRouter>
+        <ErrorBoundary>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <AnimatedRoutes />
+            <BottomNav />
+          </BrowserRouter>
+        </ErrorBoundary>
       </TooltipProvider>
     </AppProvider>
   </QueryClientProvider>
