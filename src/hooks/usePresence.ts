@@ -26,13 +26,6 @@ export function usePresence(userId: string | undefined) {
     if (!userId || !isOnline.current) return;
     isOnline.current = false;
     // Use sendBeacon for reliability on tab close
-    const url = `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/rpc/update_last_seen`;
-    const headers = {
-      apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-      Authorization: `Bearer ${supabase.auth.session?.()?.access_token || ''}`,
-      'Content-Type': 'application/json',
-    };
-    // Fallback: try normal RPC (sendBeacon doesn't support custom headers well)
     supabase.rpc('update_last_seen').then();
   }, [userId]);
 
