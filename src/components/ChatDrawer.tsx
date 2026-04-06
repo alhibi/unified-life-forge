@@ -709,15 +709,15 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
   const BackIcon = isAr ? ChevronRight : ChevronLeft;
 
   const renderAvatar = (username?: string, avatarUrl?: string | null, size: string = 'h-12 w-12') => {
-    const hasEmoji = avatarUrl && !avatarUrl.startsWith('http');
+    const isEmoji = avatarUrl ? isEmojiAvatarValue(avatarUrl) : false;
     const hasImage = avatarUrl && avatarUrl.startsWith('http');
     const defaultSrc = getDefaultAvatarForUser(username || '?');
     return (
       <Avatar className={cn(size, 'shrink-0')}>
         {hasImage ? (
           <AvatarImage src={avatarUrl} alt={username} className="object-cover" />
-        ) : hasEmoji ? (
-          <AvatarImage src={getAppleEmojiUrl(avatarUrl) || ''} alt={username} className="w-[60%] h-[60%] object-contain m-auto" />
+        ) : isEmoji ? (
+          <AvatarImage src={getAppleEmojiUrl(avatarUrl!) || ''} alt={username} className="w-[60%] h-[60%] object-contain m-auto" />
         ) : (
           <img src={defaultSrc} alt={username || ''} className="w-full h-full object-cover" />
         )}
