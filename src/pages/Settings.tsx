@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
-import { getAppleEmojiUrl } from '@/utils/emojiAvatar';
+import { getAppleEmojiUrl, isEmojiAvatarValue } from '@/utils/emojiAvatar';
 import { getDefaultAvatarForUser } from '@/utils/defaultAvatar';
 import { useAuth } from '@/hooks/useAuth';
 import { Languages, Palette, ChevronLeft, Settings as SettingsIcon, UserCircle, LogOut, Type, BookOpen, AlertTriangle, Compass, Home, BookOpenText, Gamepad2, MapPin, Music, Calendar, CalendarDays, Moon, ChevronDown, Clock, Repeat, FolderHeart, Brain, Grid3X3, Swords, Pipette, Bomb, ArrowRight, ScrollText, CloudSun, Sparkles } from 'lucide-react';
