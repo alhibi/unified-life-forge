@@ -433,6 +433,13 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
       setTypingUser(isTyping);
     });
 
+    // Also listen for join/leave to catch quick changes
+    channel.on('presence', { event: 'leave' }, ({ leftPresences }) => {
+      // When other user's presence leaves, stop showing typing
+      const otherLeft = leftPresences?.some((p: any) => p.typing === true);
+      if (otherLeft) setTypingUser(false);
+    });
+
     channel.subscribe(async (status) => {
       if (status === 'SUBSCRIBED') {
         typingChannelRef.current = channel;
@@ -440,6 +447,8 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
     });
 
     return () => {
+      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+      typingChannelRef.current?.untrack();
       typingChannelRef.current = null;
       supabase.removeChannel(channel);
     };
@@ -452,7 +461,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
     if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
     typingTimeoutRef.current = setTimeout(() => {
       typingChannelRef.current?.track({ typing: false });
-    }, 2000);
+    }, 1500);
   }, []);
 
   // Polling
