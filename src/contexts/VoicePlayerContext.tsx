@@ -127,7 +127,7 @@ export const VoicePlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
     }
     stopRAF();
 
-    const waveform = waveformCache[msgId] || seedWaveform(msgId);
+    const waveform = waveformCacheRef.current[msgId] || seedWaveform(msgId);
 
     // Set state to "loading" - show play button changing
     setState({
