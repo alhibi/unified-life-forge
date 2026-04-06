@@ -795,11 +795,11 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                 )}
                 <p className={cn(
                   'text-[12px] mt-1 font-medium',
-                  activeConv.otherLastSeen && (Date.now() - new Date(activeConv.otherLastSeen).getTime() < 120000)
+                  otherPresence.isOnline
                     ? 'text-green-500'
                     : 'text-muted-foreground/70'
                 )}>
-                  {formatLastSeen(activeConv.otherLastSeen, isAr)}
+                  {otherPresence.text}
                 </p>
               </div>
 
