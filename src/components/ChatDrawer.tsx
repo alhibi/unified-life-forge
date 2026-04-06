@@ -210,6 +210,10 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxRect, setLightboxRect] = useState<DOMRect | null>(null);
 
+  // Multi-image staging
+  const [stagedImages, setStagedImages] = useState<File[]>([]);
+  const [stagedPreviews, setStagedPreviews] = useState<string[]>([]);
+
   // Image upload context
   const imageUpload = useImageUpload();
 
@@ -636,28 +640,54 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !user || !activeConv) return;
+    const files = Array.from(e.target.files || []);
+    if (!files.length || !user || !activeConv) return;
 
-    const isImage = file.type.startsWith('image/');
+    const images = files.filter(f => f.type.startsWith('image/'));
+    const others = files.filter(f => !f.type.startsWith('image/'));
 
-    if (isImage) {
-      // Optimistic upload via ImageUploadContext
-      imageUpload.startUpload(file, activeConv.id, user.id);
+    // Stage images for preview if multiple, or single image
+    if (images.length > 0) {
+      const previews = images.map(f => URL.createObjectURL(f));
+      setStagedImages(prev => [...prev, ...images]);
+      setStagedPreviews(prev => [...prev, ...previews]);
       if (fileInputRef.current) fileInputRef.current.value = '';
-      setTimeout(() => scrollToBottom(), 100);
-      return;
     }
 
-    // Non-image files: keep old behavior
-    setUploading(true);
-    const ext = file.name.split('.').pop();
-    const path = `${user.id}/${activeConv.id}/${Date.now()}.${ext}`;
-    const { error } = await supabase.storage.from('chat-files').upload(path, file);
-    if (error) { setUploading(false); return; }
-    await sendMessage('file', path, file.name);
-    setUploading(false);
+    // Non-image files: upload immediately
+    for (const file of others) {
+      setUploading(true);
+      const ext = file.name.split('.').pop();
+      const path = `${user.id}/${activeConv.id}/${Date.now()}.${ext}`;
+      const { error } = await supabase.storage.from('chat-files').upload(path, file);
+      if (!error) await sendMessage('file', path, file.name);
+      setUploading(false);
+    }
     if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const sendStagedImages = () => {
+    if (!user || !activeConv || stagedImages.length === 0) return;
+    for (const file of stagedImages) {
+      imageUpload.startUpload(file, activeConv.id, user.id);
+    }
+    // Clean up previews
+    stagedPreviews.forEach(url => URL.revokeObjectURL(url));
+    setStagedImages([]);
+    setStagedPreviews([]);
+    setTimeout(() => scrollToBottom(), 100);
+  };
+
+  const removeStagedImage = (index: number) => {
+    URL.revokeObjectURL(stagedPreviews[index]);
+    setStagedImages(prev => prev.filter((_, i) => i !== index));
+    setStagedPreviews(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const clearStagedImages = () => {
+    stagedPreviews.forEach(url => URL.revokeObjectURL(url));
+    setStagedImages([]);
+    setStagedPreviews([]);
   };
 
   // Wire up image upload completion → send message
@@ -852,6 +882,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
           ref={fileInputRef}
           className="hidden"
           accept="image/*,application/pdf,.doc,.docx,.txt,.zip"
+          multiple
           onChange={handleFileUpload}
         />
 
@@ -1823,6 +1854,52 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
 
             {/* Input area */}
             <div className="border-t border-border/30 bg-background pb-[env(safe-area-inset-bottom)]">
+              {/* Staged images preview gallery */}
+              <AnimatePresence>
+                {stagedPreviews.length > 0 && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="px-3 pt-2 pb-1">
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-[12px] text-muted-foreground font-medium">
+                          {stagedPreviews.length} {isAr ? 'صورة' : (stagedPreviews.length === 1 ? 'Foto' : 'Fotos')}
+                        </span>
+                        <button
+                          onClick={clearStagedImages}
+                          className="text-[11px] text-destructive font-medium px-2 py-0.5 rounded-full hover:bg-destructive/10 transition-colors"
+                        >
+                          {isAr ? 'مسح الكل' : 'Alle löschen'}
+                        </button>
+                      </div>
+                      <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+                        {stagedPreviews.map((url, i) => (
+                          <div key={i} className="relative shrink-0 w-16 h-16 rounded-xl overflow-hidden bg-muted/30 group">
+                            <img src={url} alt="" className="w-full h-full object-cover" />
+                            <button
+                              onClick={() => removeStagedImage(i)}
+                              className="absolute top-0.5 end-0.5 w-5 h-5 rounded-full bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                              style={{ opacity: 1 }}
+                            >
+                              <X className="w-3 h-3 text-white" />
+                            </button>
+                          </div>
+                        ))}
+                        {/* Add more button */}
+                        <button
+                          onClick={() => fileInputRef.current?.click()}
+                          className="shrink-0 w-16 h-16 rounded-xl border-2 border-dashed border-border/40 flex items-center justify-center hover:bg-accent/20 transition-colors"
+                        >
+                          <Plus className="w-5 h-5 text-muted-foreground" />
+                        </button>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
               {/* Reply preview */}
               <AnimatePresence>
                 {replyTo && !isRecording && (
@@ -1967,7 +2044,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                       />
                     </div>
 
-                    {newMessage.trim() ? (
+                    {(newMessage.trim() || stagedImages.length > 0) ? (
                       <motion.div
                         initial={{ scale: 0.5, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
@@ -1978,7 +2055,10 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                           className="rounded-full shrink-0 h-9 w-9"
                           type="button"
                           onPointerDown={(e) => e.preventDefault()}
-                          onClick={() => sendMessage()}
+                          onClick={() => {
+                            if (stagedImages.length > 0) sendStagedImages();
+                            if (newMessage.trim()) sendMessage();
+                          }}
                         >
                           <Send className="h-4 w-4" />
                         </Button>
