@@ -604,11 +604,9 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
       return;
     }
 
-    const { data: signedData } = await supabase.storage.from('chat-files').createSignedUrl(path, 3600);
-    const fileUrlResult = signedData?.signedUrl || '';
     const isImage = file.type.startsWith('image/');
 
-    await sendMessage(isImage ? 'image' : 'file', fileUrlResult, file.name);
+    await sendMessage(isImage ? 'image' : 'file', path, file.name);
     setUploading(false);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
