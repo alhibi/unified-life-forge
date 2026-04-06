@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useImageUpload } from '@/contexts/ImageUploadContext';
+import ImageLightbox from '@/components/ImageLightbox';
 import { useAuth } from '@/hooks/useAuth';
 import { useOtherUserPresence, formatLastSeen } from '@/hooks/usePresence';
 import { useApp } from '@/contexts/AppContext';
@@ -202,6 +204,14 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
   const [sharedMedia, setSharedMedia] = useState<Message[]>([]);
   const [profileTab, setProfileTab] = useState<'info' | 'media'>('info');
   const reconnectRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Lightbox state
+  const [lightboxSrc, setLightboxSrc] = useState('');
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxRect, setLightboxRect] = useState<DOMRect | null>(null);
+
+  // Image upload context
+  const imageUpload = useImageUpload();
 
   // Voice recording state
   const [isRecording, setIsRecording] = useState(false);
@@ -628,23 +638,39 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !user || !activeConv) return;
-    setUploading(true);
-
-    const ext = file.name.split('.').pop();
-    const path = `${user.id}/${activeConv.id}/${Date.now()}.${ext}`;
-
-    const { error } = await supabase.storage.from('chat-files').upload(path, file);
-    if (error) {
-      setUploading(false);
-      return;
-    }
 
     const isImage = file.type.startsWith('image/');
 
-    await sendMessage(isImage ? 'image' : 'file', path, file.name);
+    if (isImage) {
+      // Optimistic upload via ImageUploadContext
+      imageUpload.startUpload(file, activeConv.id, user.id);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      setTimeout(() => scrollToBottom(), 100);
+      return;
+    }
+
+    // Non-image files: keep old behavior
+    setUploading(true);
+    const ext = file.name.split('.').pop();
+    const path = `${user.id}/${activeConv.id}/${Date.now()}.${ext}`;
+    const { error } = await supabase.storage.from('chat-files').upload(path, file);
+    if (error) { setUploading(false); return; }
+    await sendMessage('file', path, file.name);
     setUploading(false);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
+
+  // Wire up image upload completion → send message
+  useEffect(() => {
+    imageUpload.setOnUploadComplete((tempId, storagePath, fileName, conversationId) => {
+      if (activeConv && activeConv.id === conversationId && user) {
+        sendMessage('image', storagePath, fileName);
+        // Clear after a short delay for fade-out animation
+        setTimeout(() => imageUpload.clearUpload(tempId), 500);
+      }
+    });
+    return () => imageUpload.setOnUploadComplete(undefined);
+  }, [activeConv, user]);
 
   const getReplyPreview = (replyId: string) => {
     const msg = messages.find(m => m.id === replyId);
@@ -1318,12 +1344,19 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                             {msg.deleted ? (
                               <p className="px-3 py-2 text-xs">{isAr ? '🚫 تم حذف هذه الرسالة' : '🚫 Diese Nachricht wurde gelöscht'}</p>
                             ) : msg.message_type === 'image' ? (
-                              <div>
+                              <div className="relative">
                                 <img
                                   src={getFileUrl(msg)}
                                   alt={msg.file_name || 'image'}
-                                  className="max-w-full max-h-60 object-cover cursor-pointer"
-                                  onClick={(e) => { e.stopPropagation(); window.open(getFileUrl(msg), '_blank'); }}
+                                  className="max-w-full max-h-60 object-cover cursor-pointer rounded-sm"
+                                  loading="lazy"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    const rect = (e.target as HTMLElement).getBoundingClientRect();
+                                    setLightboxRect(rect);
+                                    setLightboxSrc(getFileUrl(msg));
+                                    setLightboxOpen(true);
+                                  }}
                                 />
                                 <div className="px-3 py-2">
                                   {msg.content && msg.content !== msg.file_name && (
@@ -1531,6 +1564,61 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                   </motion.div>
                 )}
               </AnimatePresence>
+
+              {/* Pending image uploads (optimistic) */}
+              {activeConv && imageUpload.uploads
+                .filter(u => u.conversationId === activeConv.id)
+                .map(upload => (
+                  <div key={upload.tempId} className="flex justify-end mt-2">
+                    <div className="relative max-w-[75%] rounded-[18px] rounded-br-[4px] overflow-hidden bg-primary">
+                      <img
+                        src={upload.localPreviewUrl}
+                        alt=""
+                        className={cn(
+                          'max-w-full max-h-60 object-cover transition-all duration-500',
+                          upload.status === 'uploading' && 'blur-[2px] brightness-75',
+                          upload.status === 'done' && 'blur-0 brightness-100'
+                        )}
+                      />
+                      {/* Circular progress overlay */}
+                      {upload.status === 'uploading' && (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <svg className="w-12 h-12 -rotate-90" viewBox="0 0 48 48">
+                            <circle cx="24" cy="24" r="20" fill="none" stroke="white" strokeOpacity="0.2" strokeWidth="3" />
+                            <circle
+                              cx="24" cy="24" r="20"
+                              fill="none" stroke="white" strokeWidth="3"
+                              strokeLinecap="round"
+                              strokeDasharray={`${2 * Math.PI * 20}`}
+                              strokeDashoffset={`${2 * Math.PI * 20 * (1 - upload.progress / 100)}`}
+                              className="transition-all duration-300"
+                            />
+                          </svg>
+                          <span className="absolute text-white text-[11px] font-bold">{upload.progress}%</span>
+                        </div>
+                      )}
+                      {/* Error retry */}
+                      {upload.status === 'error' && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+                          <button
+                            onClick={() => imageUpload.retryUpload(upload.tempId)}
+                            className="px-4 py-2 rounded-full bg-destructive text-white text-sm font-medium active:scale-95 transition-transform"
+                          >
+                            {isAr ? 'إعادة المحاولة' : 'Wiederholen'}
+                          </button>
+                        </div>
+                      )}
+                      {/* Timestamp placeholder */}
+                      <div className="px-3 py-1.5">
+                        <div className="flex items-center justify-end gap-[3px] text-[11px] leading-none text-primary-foreground/50" dir="ltr">
+                          <span>{new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              }
+
               <div ref={messagesEndRef} />
             </div>
 
@@ -1912,6 +2000,14 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
           </>
         )}
       </SheetContent>
+
+      {/* Image Lightbox */}
+      <ImageLightbox
+        src={lightboxSrc}
+        open={lightboxOpen}
+        onClose={() => setLightboxOpen(false)}
+        originRect={lightboxRect}
+      />
     </Sheet>
   );
 }
