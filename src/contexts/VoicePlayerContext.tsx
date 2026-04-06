@@ -82,6 +82,7 @@ export const VoicePlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
   });
 
   const [waveformCache, setWaveformCache] = useState<Record<string, number[]>>({});
+  const waveformCacheRef = useRef<Record<string, number[]>>({});
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const rafRef = useRef<number | null>(null);
 
