@@ -187,7 +187,7 @@ export const VoicePlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
         doPlay();
       }
     }, 500);
-  }, [stopRAF, startRAF, waveformCache]);
+  }, [stopRAF, startRAF]);
 
   const pause = useCallback(() => {
     if (audioRef.current) {
