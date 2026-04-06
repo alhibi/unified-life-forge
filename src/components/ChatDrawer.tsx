@@ -719,7 +719,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
         ) : hasEmoji ? (
           <AvatarImage src={getAppleEmojiUrl(avatarUrl) || ''} alt={username} className="w-[60%] h-[60%] object-contain m-auto" />
         ) : (
-          <AvatarImage src={defaultSrc} alt={username} className="object-cover" />
+          <img src={defaultSrc} alt={username || ''} className="w-full h-full object-cover" />
         )}
         <AvatarFallback className="bg-muted" />
       </Avatar>
