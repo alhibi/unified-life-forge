@@ -640,28 +640,54 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !user || !activeConv) return;
+    const files = Array.from(e.target.files || []);
+    if (!files.length || !user || !activeConv) return;
 
-    const isImage = file.type.startsWith('image/');
+    const images = files.filter(f => f.type.startsWith('image/'));
+    const others = files.filter(f => !f.type.startsWith('image/'));
 
-    if (isImage) {
-      // Optimistic upload via ImageUploadContext
-      imageUpload.startUpload(file, activeConv.id, user.id);
+    // Stage images for preview if multiple, or single image
+    if (images.length > 0) {
+      const previews = images.map(f => URL.createObjectURL(f));
+      setStagedImages(prev => [...prev, ...images]);
+      setStagedPreviews(prev => [...prev, ...previews]);
       if (fileInputRef.current) fileInputRef.current.value = '';
-      setTimeout(() => scrollToBottom(), 100);
-      return;
     }
 
-    // Non-image files: keep old behavior
-    setUploading(true);
-    const ext = file.name.split('.').pop();
-    const path = `${user.id}/${activeConv.id}/${Date.now()}.${ext}`;
-    const { error } = await supabase.storage.from('chat-files').upload(path, file);
-    if (error) { setUploading(false); return; }
-    await sendMessage('file', path, file.name);
-    setUploading(false);
+    // Non-image files: upload immediately
+    for (const file of others) {
+      setUploading(true);
+      const ext = file.name.split('.').pop();
+      const path = `${user.id}/${activeConv.id}/${Date.now()}.${ext}`;
+      const { error } = await supabase.storage.from('chat-files').upload(path, file);
+      if (!error) await sendMessage('file', path, file.name);
+      setUploading(false);
+    }
     if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const sendStagedImages = () => {
+    if (!user || !activeConv || stagedImages.length === 0) return;
+    for (const file of stagedImages) {
+      imageUpload.startUpload(file, activeConv.id, user.id);
+    }
+    // Clean up previews
+    stagedPreviews.forEach(url => URL.revokeObjectURL(url));
+    setStagedImages([]);
+    setStagedPreviews([]);
+    setTimeout(() => scrollToBottom(), 100);
+  };
+
+  const removeStagedImage = (index: number) => {
+    URL.revokeObjectURL(stagedPreviews[index]);
+    setStagedImages(prev => prev.filter((_, i) => i !== index));
+    setStagedPreviews(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const clearStagedImages = () => {
+    stagedPreviews.forEach(url => URL.revokeObjectURL(url));
+    setStagedImages([]);
+    setStagedPreviews([]);
   };
 
   // Wire up image upload completion → send message
