@@ -120,18 +120,17 @@ export const VoicePlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
     // Stop previous
     if (audioRef.current) {
       audioRef.current.pause();
-      audioRef.current.src = '';
+      audioRef.current.removeAttribute('src');
+      audioRef.current.load();
+      audioRef.current = null;
     }
     stopRAF();
 
-    const audio = new Audio(url);
-    audio.preload = 'auto';
-    audioRef.current = audio;
-
     const waveform = waveformCache[msgId] || seedWaveform(msgId);
 
+    // Set state to "loading" - show play button changing
     setState({
-      isPlaying: true,
+      isPlaying: false,
       msgId,
       url,
       progress: 0,
@@ -141,13 +140,33 @@ export const VoicePlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
       waveformData: waveform,
     });
 
+    const audio = new Audio();
+    audio.preload = 'auto';
+    audioRef.current = audio;
+
+    let started = false;
+
+    const doPlay = () => {
+      if (started) return;
+      started = true;
+      audio.play().then(() => {
+        setState(prev => prev.msgId === msgId ? { ...prev, isPlaying: true } : prev);
+        startRAF();
+      }).catch(() => {
+        // Reset only if this is still the active message
+        setState(prev => prev.msgId === msgId ? { ...prev, isPlaying: false, msgId: null } : prev);
+      });
+    };
+
     audio.onloadedmetadata = () => {
       if (isFinite(audio.duration)) {
-        setState(prev => ({ ...prev, duration: audio.duration }));
+        setState(prev => prev.msgId === msgId ? { ...prev, duration: audio.duration } : prev);
       }
     };
 
-    audio.onplay = () => startRAF();
+    audio.oncanplaythrough = () => doPlay();
+    // Fallback - some browsers only fire canplay
+    audio.oncanplay = () => doPlay();
 
     audio.onended = () => {
       stopRAF();
@@ -155,28 +174,19 @@ export const VoicePlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
     };
 
     audio.onerror = () => {
-      // Retry without CORS
-      const retry = new Audio(url);
-      retry.preload = 'auto';
-      audioRef.current = retry;
-      retry.onloadedmetadata = () => {
-        if (isFinite(retry.duration)) setState(prev => ({ ...prev, duration: retry.duration }));
-      };
-      retry.onplay = () => startRAF();
-      retry.onended = () => {
-        stopRAF();
-        setState(prev => ({ ...prev, isPlaying: false, progress: 0, msgId: null }));
-      };
-      retry.onerror = () => stop();
-      retry.play().catch(() => stop());
+      setState(prev => prev.msgId === msgId ? { ...prev, isPlaying: false, msgId: null } : prev);
     };
 
-    audio.play().catch(() => {
-      audio.crossOrigin = null as any;
-      audio.load();
-      audio.play().catch(() => stop());
-    });
-  }, [stopRAF, startRAF, stop, waveformCache]);
+    audio.src = url;
+    audio.load();
+
+    // Safety timeout: if canplay doesn't fire within 500ms, force play
+    setTimeout(() => {
+      if (!started && audioRef.current === audio) {
+        doPlay();
+      }
+    }, 500);
+  }, [stopRAF, startRAF, waveformCache]);
 
   const pause = useCallback(() => {
     if (audioRef.current) {
