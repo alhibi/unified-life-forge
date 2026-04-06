@@ -127,7 +127,7 @@ export default function SettingsPage() {
                   <div className="w-14 h-14 rounded-full flex items-center justify-center ring-2 ring-primary/20 overflow-hidden">
                     {profile?.avatar_url && profile.avatar_url.startsWith('http') ? (
                       <img src={profile.avatar_url} alt="" className="w-full h-full object-cover object-top" />
-                    ) : profile?.avatar_url ? (
+                    ) : profile?.avatar_url && isEmojiAvatarValue(profile.avatar_url) ? (
                       <img src={getAppleEmojiUrl(profile.avatar_url) || ''} alt="" className="w-9 h-9" />
                     ) : (
                       <img src={getDefaultAvatarForUser(username || 'U')} alt="" className="w-full h-full object-cover" />
