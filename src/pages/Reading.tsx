@@ -312,12 +312,12 @@ export default function ReadingPage() {
   const fetchSingleFeed = async (feed: FeedSource) => {
     try {
       const nameMap: Record<string, string> = { [feed.url]: feed.name };
-      console.log('Fetching single feed:', feed.url, feed.name);
+      
       const { data, error } = await supabase.functions.invoke('fetch-rss', {
         body: { urls: [feed.url], limit: 100, fetchFullContent: true, store: true, nameMap },
       });
       
-      console.log('Single feed response:', { data, error });
+      
       
       if (error) {
         console.error('Edge function error:', error);
@@ -344,7 +344,7 @@ export default function ReadingPage() {
         }
       }
       
-      console.log(`Parsed ${freshItems.length} items from ${feed.name}`);
+      
       
       if (freshItems.length > 0) {
         setArticles(prev => {
