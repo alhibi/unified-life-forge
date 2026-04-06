@@ -638,23 +638,38 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !user || !activeConv) return;
-    setUploading(true);
-
-    const ext = file.name.split('.').pop();
-    const path = `${user.id}/${activeConv.id}/${Date.now()}.${ext}`;
-
-    const { error } = await supabase.storage.from('chat-files').upload(path, file);
-    if (error) {
-      setUploading(false);
-      return;
-    }
 
     const isImage = file.type.startsWith('image/');
 
-    await sendMessage(isImage ? 'image' : 'file', path, file.name);
+    if (isImage) {
+      // Optimistic upload via ImageUploadContext
+      imageUpload.startUpload(file, activeConv.id, user.id);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
+
+    // Non-image files: keep old behavior
+    setUploading(true);
+    const ext = file.name.split('.').pop();
+    const path = `${user.id}/${activeConv.id}/${Date.now()}.${ext}`;
+    const { error } = await supabase.storage.from('chat-files').upload(path, file);
+    if (error) { setUploading(false); return; }
+    await sendMessage('file', path, file.name);
     setUploading(false);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
+
+  // Wire up image upload completion → send message
+  useEffect(() => {
+    imageUpload.setOnUploadComplete((tempId, storagePath, fileName, conversationId) => {
+      if (activeConv && activeConv.id === conversationId && user) {
+        sendMessage('image', storagePath, fileName);
+        // Clear after a short delay for fade-out animation
+        setTimeout(() => imageUpload.clearUpload(tempId), 500);
+      }
+    });
+    return () => imageUpload.setOnUploadComplete(undefined);
+  }, [activeConv, user]);
 
   const getReplyPreview = (replyId: string) => {
     const msg = messages.find(m => m.id === replyId);
