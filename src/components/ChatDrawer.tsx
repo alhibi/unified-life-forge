@@ -1126,12 +1126,12 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                         animate={{ opacity: 1 }}
                         className={cn(
                           'text-[11px] leading-tight',
-                          activeConv?.otherLastSeen && (Date.now() - new Date(activeConv.otherLastSeen).getTime() < 120000)
+                          otherPresence.isOnline
                             ? 'text-green-500 font-medium'
                             : 'text-muted-foreground/60'
                         )}
                       >
-                        {formatLastSeen(activeConv?.otherLastSeen, isAr)}
+                        {otherPresence.text}
                       </motion.span>
                     )}
                   </AnimatePresence>
