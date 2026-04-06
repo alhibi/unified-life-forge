@@ -1999,6 +1999,14 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
           </>
         )}
       </SheetContent>
+
+      {/* Image Lightbox */}
+      <ImageLightbox
+        src={lightboxSrc}
+        open={lightboxOpen}
+        onClose={() => setLightboxOpen(false)}
+        originRect={lightboxRect}
+      />
     </Sheet>
   );
 }
