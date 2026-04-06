@@ -712,14 +712,20 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
       return;
     }
 
+    // Validate URL
+    if (!url) return;
+
     // Stop previous audio
     if (audioRef.current) {
       audioRef.current.pause();
+      audioRef.current.src = '';
       if (playbackRAF.current) cancelAnimationFrame(playbackRAF.current);
     }
 
-    const audio = new Audio(url);
+    const audio = new Audio();
+    audio.crossOrigin = 'anonymous';
     audio.preload = 'auto';
+    audio.src = url;
     audioRef.current = audio;
     setPlayingMsgId(msgId);
 
@@ -730,7 +736,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
     };
 
     const updateProgress = () => {
-      if (audio.currentTime && audio.duration) {
+      if (audio.duration && isFinite(audio.duration)) {
         setPlaybackProgress(prev => ({ ...prev, [msgId]: audio.currentTime / audio.duration }));
       }
       if (!audio.paused) {
@@ -746,7 +752,35 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
       if (playbackRAF.current) cancelAnimationFrame(playbackRAF.current);
     };
 
-    audio.play().catch(() => setPlayingMsgId(null));
+    audio.onerror = () => {
+      setPlayingMsgId(null);
+      // Retry without crossOrigin (some storage URLs don't support CORS)
+      const retryAudio = new Audio(url);
+      retryAudio.preload = 'auto';
+      audioRef.current = retryAudio;
+      setPlayingMsgId(msgId);
+
+      retryAudio.onloadedmetadata = () => {
+        if (isFinite(retryAudio.duration)) {
+          setPlaybackDurations(prev => ({ ...prev, [msgId]: retryAudio.duration }));
+        }
+      };
+      retryAudio.onplay = () => { playbackRAF.current = requestAnimationFrame(updateProgress); };
+      retryAudio.onended = () => {
+        setPlayingMsgId(null);
+        setPlaybackProgress(prev => ({ ...prev, [msgId]: 0 }));
+        if (playbackRAF.current) cancelAnimationFrame(playbackRAF.current);
+      };
+      retryAudio.onerror = () => setPlayingMsgId(null);
+      retryAudio.play().catch(() => setPlayingMsgId(null));
+    };
+
+    audio.play().catch(() => {
+      // Fallback: try without crossOrigin
+      audio.crossOrigin = null as any;
+      audio.load();
+      audio.play().catch(() => setPlayingMsgId(null));
+    });
   }, [playingMsgId]);
 
   const formatRecordingTime = (seconds: number) => {
