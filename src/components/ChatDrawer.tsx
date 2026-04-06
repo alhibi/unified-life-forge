@@ -359,56 +359,47 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
   useEffect(() => {
     if (!user || !open) return;
 
-    const subscribe = () => {
-      const channel = supabase
-        .channel('chat-realtime')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, (payload) => {
-          if (payload.eventType === 'INSERT') {
-            const msg = payload.new as Message;
-            if (activeConv && msg.conversation_id === activeConv.id) {
-              setMessages(prev => {
-                // Prevent duplicates
-                if (prev.some(m => m.id === msg.id)) return prev;
-                return [...prev, msg];
-              });
-              if (msg.sender_id !== user.id) {
-                supabase.from('messages').update({ read: true }).eq('id', msg.id).then();
-              }
-              setTimeout(scrollToBottom, 100);
-            }
-            loadConversations();
-          } else if (payload.eventType === 'UPDATE') {
-            const msg = payload.new as Message;
-            setMessages(prev => prev.map(m => m.id === msg.id ? msg : m));
-          }
-        })
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'message_reactions' }, (payload) => {
-          if (payload.eventType === 'INSERT') {
-            setReactions(prev => {
-              if (prev.some(r => r.id === (payload.new as Reaction).id)) return prev;
-              return [...prev, payload.new as Reaction];
+    let cancelled = false;
+    const channelName = `chat-realtime-${Date.now()}`;
+
+    const channel = supabase
+      .channel(channelName)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, (payload) => {
+        if (cancelled) return;
+        if (payload.eventType === 'INSERT') {
+          const msg = payload.new as Message;
+          if (activeConv && msg.conversation_id === activeConv.id) {
+            setMessages(prev => {
+              if (prev.some(m => m.id === msg.id)) return prev;
+              return [...prev, msg];
             });
-          } else if (payload.eventType === 'DELETE') {
-            const old = payload.old as { id: string };
-            setReactions(prev => prev.filter(r => r.id !== old.id));
+            if (msg.sender_id !== user.id) {
+              supabase.from('messages').update({ read: true }).eq('id', msg.id).then();
+            }
+            setTimeout(scrollToBottom, 100);
           }
-        })
-        .subscribe((status) => {
-          if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
-            // Auto-reconnect after 3 seconds
-            reconnectRef.current = setTimeout(() => {
-              supabase.removeChannel(channel);
-              subscribe();
-            }, 3000);
-          }
-        });
-
-      return channel;
-    };
-
-    const channel = subscribe();
+          loadConversations();
+        } else if (payload.eventType === 'UPDATE') {
+          const msg = payload.new as Message;
+          setMessages(prev => prev.map(m => m.id === msg.id ? msg : m));
+        }
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'message_reactions' }, (payload) => {
+        if (cancelled) return;
+        if (payload.eventType === 'INSERT') {
+          setReactions(prev => {
+            if (prev.some(r => r.id === (payload.new as Reaction).id)) return prev;
+            return [...prev, payload.new as Reaction];
+          });
+        } else if (payload.eventType === 'DELETE') {
+          const old = payload.old as { id: string };
+          setReactions(prev => prev.filter(r => r.id !== old.id));
+        }
+      })
+      .subscribe();
 
     return () => {
+      cancelled = true;
       if (reconnectRef.current) clearTimeout(reconnectRef.current);
       supabase.removeChannel(channel);
     };
