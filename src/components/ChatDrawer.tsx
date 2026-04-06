@@ -203,12 +203,9 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
   const recordingStartXRef = useRef(0);
   const recordingCancelledRef = useRef(false);
 
-  // Voice playback state
-  const [playingMsgId, setPlayingMsgId] = useState<string | null>(null);
-  const [playbackProgress, setPlaybackProgress] = useState<Record<string, number>>({});
-  const [playbackDurations, setPlaybackDurations] = useState<Record<string, number>>({});
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const playbackRAF = useRef<number | null>(null);
+  // Voice playback - global context
+  const voicePlayer = useVoicePlayer();
+
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
