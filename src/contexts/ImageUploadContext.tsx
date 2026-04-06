@@ -43,7 +43,11 @@ export function ImageUploadProvider({ children }: { children: React.ReactNode })
     const ext = file.name.split('.').pop() || 'jpg';
     const path = `${senderId}/${conversationId}/${Date.now()}.${ext}`;
 
-    // Use XMLHttpRequest for progress tracking
+    // Get token first, then upload
+    const { data: sessionData } = await supabase.auth.getSession();
+    const token = sessionData.session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+    const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
     const xhr = new XMLHttpRequest();
 
     const uploadPromise = new Promise<string>((resolve, reject) => {
@@ -55,32 +59,19 @@ export function ImageUploadProvider({ children }: { children: React.ReactNode })
       });
 
       xhr.addEventListener('load', () => {
-        if (xhr.status >= 200 && xhr.status < 300) {
-          resolve(path);
-        } else {
-          reject(new Error(`Upload failed: ${xhr.status}`));
-        }
+        if (xhr.status >= 200 && xhr.status < 300) resolve(path);
+        else reject(new Error(`Upload failed: ${xhr.status}`));
       });
-
       xhr.addEventListener('error', () => reject(new Error('Network error')));
-      xhr.addEventListener('abort', () => reject(new Error('Aborted')));
 
-      // Build the URL and upload
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
       const url = `${supabaseUrl}/storage/v1/object/chat-files/${path}`;
 
       xhr.open('POST', url);
-      xhr.setRequestHeader('Authorization', `Bearer ${supabase.realtime?.accessToken || anonKey}`);
+      xhr.setRequestHeader('Authorization', `Bearer ${token}`);
       xhr.setRequestHeader('apikey', anonKey);
       xhr.setRequestHeader('x-upsert', 'false');
-
-      // We need the current session token
-      supabase.auth.getSession().then(({ data }) => {
-        const token = data.session?.access_token || anonKey;
-        xhr.setRequestHeader('Authorization', `Bearer ${token}`);
-        xhr.send(file);
-      });
+      xhr.send(file);
     });
 
     try {
