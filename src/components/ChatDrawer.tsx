@@ -707,14 +707,30 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
 
   const BackIcon = isAr ? ChevronRight : ChevronLeft;
 
+  const getGradientForUser = (name: string) => {
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    const h1 = Math.abs(hash) % 360;
+    const h2 = (h1 + 40 + (Math.abs(hash >> 8) % 30)) % 360;
+    const angle = 135 + (Math.abs(hash >> 4) % 90);
+    return `linear-gradient(${angle}deg, hsl(${h1}, 70%, 35%), hsl(${h2}, 80%, 60%))`;
+  };
+
   const renderAvatar = (username?: string, avatarUrl?: string | null, size: string = 'h-12 w-12') => {
     const initial = (username || '?').charAt(0).toUpperCase();
+    const hasEmoji = avatarUrl && !avatarUrl.startsWith('http');
+    const hasImage = avatarUrl && avatarUrl.startsWith('http');
     return (
       <Avatar className={cn(size, 'shrink-0')}>
-        {avatarUrl ? (
+        {hasImage ? (
           <AvatarImage src={avatarUrl} alt={username} className="object-cover" />
+        ) : hasEmoji ? (
+          <AvatarImage src={getAppleEmojiUrl(avatarUrl) || ''} alt={username} className="w-[60%] h-[60%] object-contain m-auto" />
         ) : null}
-        <AvatarFallback className="bg-primary/10 text-lg font-semibold">
+        <AvatarFallback
+          className="text-white font-bold text-lg"
+          style={{ background: getGradientForUser(username || '?') }}
+        >
           {initial}
         </AvatarFallback>
       </Avatar>
