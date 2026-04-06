@@ -122,6 +122,7 @@ const App = () => (
             </BrowserRouter>
           </ErrorBoundary>
         </TooltipProvider>
+        </ImageUploadProvider>
       </VoicePlayerProvider>
     </AppProvider>
   </QueryClientProvider>
