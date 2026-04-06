@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppProvider } from "@/contexts/AppContext";
 import { VoicePlayerProvider } from "@/contexts/VoicePlayerContext";
+import { ImageUploadProvider } from "@/contexts/ImageUploadContext";
 import { AnimatePresence } from "framer-motion";
 import BottomNav from "@/components/BottomNav";
 import PageTransition from "@/components/PageTransition";
