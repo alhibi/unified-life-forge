@@ -1351,19 +1351,18 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                             <div className="relative px-2 py-[3px]" style={{ minHeight: '24px' }}>
                               <span className="break-words whitespace-pre-wrap" dir="auto">
                                 {msg.content}
-                                {/* invisible spacer so text wraps around the timestamp area */}
+                                {/* invisible spacer — always reserve space for timestamp */}
                                 {!msg.deleted && (
-                                  <span className="inline-block align-bottom" style={{ width: isMine ? '62px' : '46px', height: '1px' }} />
+                                  <span className="inline-block align-bottom" style={{ width: isMine ? '68px' : '52px', height: '14px' }} />
                                 )}
                               </span>
                               {!msg.deleted && (
                                 <span className={cn(
-                                  'absolute bottom-[3px] flex items-center gap-[3px] text-[10px] whitespace-nowrap',
-                                  isMine ? 'text-primary-foreground/50' : 'text-muted-foreground/50',
-                                  isAr ? 'left-2' : 'right-2'
-                                )}>
-                                  {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                  'absolute bottom-[3px] right-2 flex items-center gap-[3px] text-[10px] whitespace-nowrap',
+                                  isMine ? 'text-primary-foreground/50' : 'text-muted-foreground/50'
+                                )} dir="ltr">
                                   {isMine && (msg.read ? <CheckCheck className="h-[11px] w-[11px]" /> : <Check className="h-[11px] w-[11px]" />)}
+                                  {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                 </span>
                               )}
                             </div>
