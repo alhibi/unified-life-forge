@@ -124,17 +124,13 @@ export default function SettingsPage() {
               <div className="flex items-center gap-4">
                 {/* Avatar */}
                 <button onClick={() => navigate('/settings/profile')} className="relative active:scale-95 transition-transform">
-                  <div className="w-14 h-14 rounded-full flex items-center justify-center ring-2 ring-primary/20 overflow-hidden"
-                    style={!profile?.avatar_url ? { background: (() => { let h=0; const n=username||'U'; for(let i=0;i<n.length;i++) h=n.charCodeAt(i)+((h<<5)-h); const h1=Math.abs(h)%360; const h2=(h1+40+(Math.abs(h>>8)%30))%360; return `linear-gradient(${135+(Math.abs(h>>4)%90)}deg, hsl(${h1},70%,35%), hsl(${h2},80%,60%))`; })() } : undefined}
-                  >
+                  <div className="w-14 h-14 rounded-full flex items-center justify-center ring-2 ring-primary/20 overflow-hidden">
                     {profile?.avatar_url && profile.avatar_url.startsWith('http') ? (
                       <img src={profile.avatar_url} alt="" className="w-full h-full object-cover object-top" />
                     ) : profile?.avatar_url ? (
                       <img src={getAppleEmojiUrl(profile.avatar_url) || ''} alt="" className="w-9 h-9" />
                     ) : (
-                      <span className="text-xl font-bold text-white">
-                        {(username || 'U').charAt(0).toUpperCase()}
-                      </span>
+                      <img src={getDefaultAvatarForUser(username || 'U')} alt="" className="w-full h-full object-cover" />
                     )}
                   </div>
                   <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-primary border-2 border-card" />
