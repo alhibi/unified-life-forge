@@ -627,7 +627,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
   const startRecording = async () => {
     try {
       // Stop any playing audio first
-      if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; setPlayingMsgId(null); }
+      if (voicePlayer.state.isPlaying) { voicePlayer.stop(); }
 
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
