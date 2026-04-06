@@ -4,11 +4,13 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppProvider } from "@/contexts/AppContext";
+import { VoicePlayerProvider } from "@/contexts/VoicePlayerContext";
 import { AnimatePresence } from "framer-motion";
 import BottomNav from "@/components/BottomNav";
 import PageTransition from "@/components/PageTransition";
 import ScrollToTop from "@/components/ScrollToTop";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import FloatingVoicePlayer from "@/components/FloatingVoicePlayer";
 import { lazy, Suspense } from "react";
 
 // Eager load the main page
