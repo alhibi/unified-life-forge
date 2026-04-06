@@ -235,17 +235,19 @@ export const VoicePlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
   }, [state.msgId, state.isPlaying]);
 
   const generateWaveform = useCallback(async (url: string, msgId: string): Promise<number[]> => {
-    if (waveformCache[msgId]) return waveformCache[msgId];
+    if (waveformCacheRef.current[msgId]) return waveformCacheRef.current[msgId];
     const fallback = seedWaveform(msgId);
+    waveformCacheRef.current[msgId] = fallback;
+    setWaveformCache(prev => ({ ...prev, [msgId]: fallback }));
     // Start async extraction
     extractWaveform(url).then(peaks => {
       if (peaks.length > 0) {
+        waveformCacheRef.current[msgId] = peaks;
         setWaveformCache(prev => ({ ...prev, [msgId]: peaks }));
       }
     });
-    setWaveformCache(prev => ({ ...prev, [msgId]: fallback }));
     return fallback;
-  }, [waveformCache]);
+  }, []);
 
   // Cleanup on unmount
   useEffect(() => {
