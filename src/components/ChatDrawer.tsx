@@ -2322,7 +2322,8 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                         onKeyDown={e => {
                           if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
                             e.preventDefault();
-                            void sendMessage();
+                            if (editingMessage) saveEditMessage();
+                            else sendMessage();
                           }
                         }}
                         dir="auto"
