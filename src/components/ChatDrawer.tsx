@@ -51,6 +51,8 @@ interface Message {
   file_url?: string | null;
   file_name?: string | null;
   deleted: boolean;
+  edited_at?: string | null;
+  expires_at?: string | null;
 }
 
 const getSignedFileUrl = async (fileUrl: string): Promise<string> => {
