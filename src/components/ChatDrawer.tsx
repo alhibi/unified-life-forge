@@ -14,8 +14,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   ChevronRight, ChevronLeft, ChevronDown, Send, Search, Plus, MessageCircle,
   Check, CheckCheck, Reply, Trash2, Paperclip, X,
-  Download, FileText, MoreVertical, Trash, Info, Copy, Pin, Mic, Smile,
-  ArrowDown, Calendar, Clock, Image as ImageIcon, User2
+  Download, FileText, MoreVertical, Trash, Info, Copy, Pin, PinOff, Mic, Smile,
+  ArrowDown, Calendar, Clock, Image as ImageIcon, User2, Pencil, Timer, TimerOff
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
@@ -51,6 +51,8 @@ interface Message {
   file_url?: string | null;
   file_name?: string | null;
   deleted: boolean;
+  edited_at?: string | null;
+  expires_at?: string | null;
 }
 
 const getSignedFileUrl = async (fileUrl: string): Promise<string> => {
@@ -204,6 +206,16 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
   const [sharedMedia, setSharedMedia] = useState<Message[]>([]);
   const [profileTab, setProfileTab] = useState<'info' | 'media'>('info');
   const reconnectRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Pin, Search, Edit, Self-destruct states
+  const [pinnedMessage, setPinnedMessage] = useState<Message | null>(null);
+  const [showSearch, setShowSearch] = useState(false);
+  const [chatSearchQuery, setChatSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<Message[]>([]);
+  const [searchIndex, setSearchIndex] = useState(0);
+  const [editingMessage, setEditingMessage] = useState<Message | null>(null);
+  const [selfDestructSeconds, setSelfDestructSeconds] = useState<number | null>(null);
+  const [showSelfDestructMenu, setShowSelfDestructMenu] = useState(false);
 
   // Lightbox state
   const [lightboxSrc, setLightboxSrc] = useState('');
@@ -603,7 +615,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
     if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
     typingChannelRef.current?.track({ typing: false });
 
-    await supabase.from('messages').insert({
+    const insertData: any = {
       conversation_id: activeConv.id,
       sender_id: user.id,
       content,
@@ -611,7 +623,14 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
       file_url: fileUrl || null,
       file_name: fileName || null,
       reply_to_id: replyToId,
-    });
+    };
+
+    // Add self-destruct expiry if enabled
+    if (selfDestructSeconds) {
+      insertData.expires_at = new Date(Date.now() + selfDestructSeconds * 1000).toISOString();
+    }
+
+    await supabase.from('messages').insert(insertData);
 
     await supabase.from('conversations')
       .update({ updated_at: new Date().toISOString() })
@@ -623,6 +642,101 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
   const deleteMessage = async (msgId: string) => {
     await supabase.from('messages').update({ deleted: true, content: '' }).eq('id', msgId);
   };
+
+  // Pin message
+  const pinMessage = async (msg: Message) => {
+    if (!activeConv) return;
+    const newPinId = pinnedMessage?.id === msg.id ? null : msg.id;
+    await supabase.from('conversations').update({ pinned_message_id: newPinId } as any).eq('id', activeConv.id);
+    setPinnedMessage(newPinId ? msg : null);
+    setActionMenu(null);
+  };
+
+  // Edit message
+  const startEditMessage = (msg: Message) => {
+    setEditingMessage(msg);
+    setNewMessage(msg.content);
+    setActionMenu(null);
+    setShowExtraEmojis(false);
+    setTimeout(() => { inputRef.current?.focus(); resizeComposer(); }, 50);
+  };
+
+  const saveEditMessage = async () => {
+    if (!editingMessage || !newMessage.trim()) return;
+    await supabase.from('messages').update({
+      content: newMessage.trim(),
+      edited_at: new Date().toISOString(),
+    } as any).eq('id', editingMessage.id);
+    setEditingMessage(null);
+    setNewMessage('');
+    resizeComposer();
+  };
+
+  // Search in chat
+  const searchInChat = useCallback((query: string) => {
+    setChatSearchQuery(query);
+    if (!query.trim()) { setSearchResults([]); setSearchIndex(0); return; }
+    const q = query.toLowerCase();
+    const results = messages.filter(m => !m.deleted && m.message_type === 'text' && m.content.toLowerCase().includes(q));
+    setSearchResults(results);
+    setSearchIndex(results.length > 0 ? results.length - 1 : 0);
+    if (results.length > 0) {
+      const el = document.getElementById(`msg-${results[results.length - 1].id}`);
+      el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [messages]);
+
+  const navigateSearch = (direction: 'up' | 'down') => {
+    if (searchResults.length === 0) return;
+    const newIdx = direction === 'up'
+      ? Math.max(0, searchIndex - 1)
+      : Math.min(searchResults.length - 1, searchIndex + 1);
+    setSearchIndex(newIdx);
+    const el = document.getElementById(`msg-${searchResults[newIdx].id}`);
+    el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  };
+
+  // Self-destruct timer
+  const toggleSelfDestruct = async (seconds: number | null) => {
+    if (!activeConv) return;
+    await supabase.from('conversations').update({ self_destruct_seconds: seconds } as any).eq('id', activeConv.id);
+    setSelfDestructSeconds(seconds);
+    setShowSelfDestructMenu(false);
+    setShowChatMenu(false);
+  };
+
+  // Load pinned message & self-destruct setting
+  useEffect(() => {
+    if (!activeConv) { setPinnedMessage(null); setSelfDestructSeconds(null); return; }
+    supabase.from('conversations').select('pinned_message_id, self_destruct_seconds' as any)
+      .eq('id', activeConv.id).single().then(({ data }) => {
+        const d = data as any;
+        if (d?.self_destruct_seconds) setSelfDestructSeconds(d.self_destruct_seconds);
+        else setSelfDestructSeconds(null);
+        if (d?.pinned_message_id) {
+          supabase.from('messages').select('*').eq('id', d.pinned_message_id).single().then(({ data: pmsg }) => {
+            if (pmsg) setPinnedMessage(pmsg as Message);
+          });
+        } else setPinnedMessage(null);
+      });
+  }, [activeConv?.id]);
+
+  // Check expired messages
+  useEffect(() => {
+    const now = new Date();
+    const expired = messages.filter(m => m.expires_at && new Date(m.expires_at) <= now);
+    if (expired.length > 0) {
+      setMessages(prev => prev.filter(m => !m.expires_at || new Date(m.expires_at) > now));
+    }
+    const upcoming = messages.filter(m => m.expires_at && new Date(m.expires_at) > now);
+    if (upcoming.length > 0) {
+      const nextExpiry = Math.min(...upcoming.map(m => new Date(m.expires_at!).getTime() - now.getTime()));
+      const timer = setTimeout(() => {
+        setMessages(prev => prev.filter(m => !m.expires_at || new Date(m.expires_at) > new Date()));
+      }, Math.max(nextExpiry, 1000));
+      return () => clearTimeout(timer);
+    }
+  }, [messages]);
 
   const toggleReaction = async (messageId: string, emoji: string) => {
     if (!user) return;
@@ -1283,6 +1397,50 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                       </button>
                       <div className="h-px bg-border/20 mx-3" />
                       <button
+                        className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-accent/30 transition-colors text-[13px] text-start"
+                        onClick={() => { setShowSearch(true); setShowChatMenu(false); }}
+                      >
+                        <Search className="w-4 h-4 text-muted-foreground" />
+                        {isAr ? 'بحث في المحادثة' : 'Im Chat suchen'}
+                      </button>
+                      <div className="h-px bg-border/20 mx-3" />
+                      <button
+                        className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-accent/30 transition-colors text-[13px] text-start"
+                        onClick={() => setShowSelfDestructMenu(!showSelfDestructMenu)}
+                      >
+                        {selfDestructSeconds ? <TimerOff className="w-4 h-4 text-muted-foreground" /> : <Timer className="w-4 h-4 text-muted-foreground" />}
+                        {selfDestructSeconds
+                          ? (isAr ? 'إيقاف التدمير الذاتي' : 'Selbstzerstörung aus')
+                          : (isAr ? 'رسائل ذاتية الحذف' : 'Selbstzerstörung')}
+                      </button>
+                      <AnimatePresence>
+                        {showSelfDestructMenu && (
+                          <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }} className="overflow-hidden">
+                            <div className="px-3 pb-2 space-y-0.5">
+                              {[
+                                { label: isAr ? '30 ثانية' : '30 Sek.', val: 30 },
+                                { label: isAr ? '5 دقائق' : '5 Min.', val: 300 },
+                                { label: isAr ? 'ساعة' : '1 Std.', val: 3600 },
+                                { label: isAr ? 'يوم' : '1 Tag', val: 86400 },
+                                { label: isAr ? 'إيقاف' : 'Aus', val: null as number | null },
+                              ].map(opt => (
+                                <button
+                                  key={opt.label}
+                                  onClick={() => toggleSelfDestruct(opt.val)}
+                                  className={cn(
+                                    'w-full text-start px-3 py-1.5 rounded-lg text-[12px] transition-colors',
+                                    selfDestructSeconds === opt.val ? 'bg-primary/15 text-primary font-medium' : 'hover:bg-accent/30 text-foreground'
+                                  )}
+                                >
+                                  {opt.label}
+                                </button>
+                              ))}
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                      <div className="h-px bg-border/20 mx-3" />
+                      <button
                         className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-destructive/10 transition-colors text-[13px] text-destructive text-start"
                         onClick={deleteConversation}
                       >
@@ -1294,6 +1452,87 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                 </AnimatePresence>
               </div>
             </div>
+
+            {/* Search bar */}
+            <AnimatePresence>
+              {showSearch && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  className="overflow-hidden border-b border-border/30"
+                >
+                  <div className="flex items-center gap-2 px-3 py-2">
+                    <Search className="w-4 h-4 text-muted-foreground shrink-0" />
+                    <input
+                      type="text"
+                      value={chatSearchQuery}
+                      onChange={e => searchInChat(e.target.value)}
+                      placeholder={isAr ? 'بحث في المحادثة...' : 'Suchen...'}
+                      className="flex-1 bg-transparent text-[13px] outline-none placeholder:text-muted-foreground/50"
+                      dir="auto"
+                      autoFocus
+                    />
+                    {searchResults.length > 0 && (
+                      <span className="text-[11px] text-muted-foreground tabular-nums shrink-0">
+                        {searchIndex + 1}/{searchResults.length}
+                      </span>
+                    )}
+                    <div className="flex gap-0.5 shrink-0">
+                      <button onClick={() => navigateSearch('up')} className="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-accent/30">
+                        <ChevronRight className="w-3.5 h-3.5 rotate-[-90deg] text-muted-foreground" />
+                      </button>
+                      <button onClick={() => navigateSearch('down')} className="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-accent/30">
+                        <ChevronRight className="w-3.5 h-3.5 rotate-90 text-muted-foreground" />
+                      </button>
+                    </div>
+                    <button onClick={() => { setShowSearch(false); setChatSearchQuery(''); setSearchResults([]); }} className="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-accent/30">
+                      <X className="w-3.5 h-3.5 text-muted-foreground" />
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Pinned message banner */}
+            <AnimatePresence>
+              {pinnedMessage && !pinnedMessage.deleted && (
+                <motion.button
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  className="w-full border-b border-border/30 px-3 py-2 flex items-center gap-2.5 bg-accent/10 hover:bg-accent/20 transition-colors text-start overflow-hidden"
+                  onClick={() => {
+                    const el = document.getElementById(`msg-${pinnedMessage.id}`);
+                    el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  }}
+                >
+                  <Pin className="w-3.5 h-3.5 text-primary shrink-0 rotate-45" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[10px] text-primary font-semibold">{isAr ? 'رسالة مثبتة' : 'Angeheftet'}</p>
+                    <p className="text-[12px] text-foreground/70 truncate" dir="auto">
+                      {pinnedMessage.message_type === 'text' ? pinnedMessage.content : pinnedMessage.message_type === 'image' ? '📷 ' + (isAr ? 'صورة' : 'Foto') : pinnedMessage.message_type === 'voice' ? '🎤' : '📎'}
+                    </p>
+                  </div>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); pinMessage(pinnedMessage); }}
+                    className="shrink-0 w-6 h-6 rounded-full flex items-center justify-center hover:bg-muted/50"
+                  >
+                    <X className="w-3 h-3 text-muted-foreground" />
+                  </button>
+                </motion.button>
+              )}
+            </AnimatePresence>
+
+            {/* Self-destruct indicator */}
+            {selfDestructSeconds && (
+              <div className="flex items-center justify-center gap-1.5 py-1.5 bg-accent/5 border-b border-border/20">
+                <Timer className="w-3 h-3 text-primary" />
+                <span className="text-[10px] text-primary font-medium">
+                  {isAr ? 'رسائل ذاتية الحذف' : 'Selbstzerstörung'}: {selfDestructSeconds < 60 ? `${selfDestructSeconds}${isAr ? 'ث' : 's'}` : selfDestructSeconds < 3600 ? `${Math.floor(selfDestructSeconds / 60)}${isAr ? 'د' : 'm'}` : selfDestructSeconds < 86400 ? `${Math.floor(selfDestructSeconds / 3600)}${isAr ? 'س' : 'h'}` : `${Math.floor(selfDestructSeconds / 86400)}${isAr ? 'ي' : 'd'}`}
+                </span>
+              </div>
+            )}
 
             {/* Messages */}
             <div
@@ -1317,6 +1556,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                       </div>
                     )}
                     <div
+                      id={`msg-${msg.id}`}
                       className={cn(
                         'flex relative',
                         isMine ? 'justify-end' : 'justify-start',
@@ -1542,6 +1782,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                                         )}
                                         dir="ltr"
                                       >
+                                        {msg.edited_at && <span className="text-[9px] italic">{isAr ? 'معدّلة' : 'bearb.'}</span>}
                                         <span>{new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                                         {isMine && (msg.read ? <CheckCheck className="h-[11px] w-[11px]" /> : <Check className="h-[11px] w-[11px]" />)}
                                       </span>
@@ -1826,13 +2067,27 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                               </button>
                             )}
                             <button
-                              onClick={() => { setActionMenu(null); setShowExtraEmojis(false); }}
+                              onClick={() => pinMessage(actionMenu.msg)}
                               className="flex items-center gap-1.5 px-3 py-2 rounded-xl hover:bg-accent/30 active:bg-accent/50 transition-colors"
                               aria-label={isAr ? 'تثبيت' : 'Pin'}
                             >
-                              <Pin className="w-3.5 h-3.5 text-muted-foreground" />
-                              <span className="text-[11px] text-muted-foreground font-medium">{isAr ? 'تثبيت' : 'Pin'}</span>
+                              {pinnedMessage?.id === actionMenu.msg.id
+                                ? <PinOff className="w-3.5 h-3.5 text-muted-foreground" />
+                                : <Pin className="w-3.5 h-3.5 text-muted-foreground" />}
+                              <span className="text-[11px] text-muted-foreground font-medium">
+                                {pinnedMessage?.id === actionMenu.msg.id ? (isAr ? 'إلغاء' : 'Unpin') : (isAr ? 'تثبيت' : 'Pin')}
+                              </span>
                             </button>
+                            {actionMenu.isMine && actionMenu.msg.message_type === 'text' && !actionMenu.msg.deleted && (
+                              <button
+                                onClick={() => startEditMessage(actionMenu.msg)}
+                                className="flex items-center gap-1.5 px-3 py-2 rounded-xl hover:bg-accent/30 active:bg-accent/50 transition-colors"
+                                aria-label={isAr ? 'تعديل' : 'Edit'}
+                              >
+                                <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
+                                <span className="text-[11px] text-muted-foreground font-medium">{isAr ? 'تعديل' : 'Edit'}</span>
+                              </button>
+                            )}
                             {actionMenu.isMine && !actionMenu.msg.deleted && (
                               <button
                                 onClick={() => { deleteMessage(actionMenu.msg.id); setActionMenu(null); setShowExtraEmojis(false); }}
@@ -1900,9 +2155,40 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                   </motion.div>
                 )}
               </AnimatePresence>
+              {/* Edit preview */}
+              <AnimatePresence>
+                {editingMessage && !isRecording && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="mx-3 mt-2 rounded-xl bg-primary/10 border border-primary/20 overflow-hidden">
+                      <div className="flex items-start gap-2 p-2.5">
+                        <div className="flex-1 min-w-0 border-s-[3px] border-primary ps-2.5">
+                          <span className="text-[11px] font-semibold text-primary block flex items-center gap-1">
+                            <Pencil className="w-3 h-3" />
+                            {isAr ? 'تعديل الرسالة' : 'Nachricht bearbeiten'}
+                          </span>
+                          <p className="text-[11px] text-muted-foreground truncate" dir="auto">
+                            {editingMessage.content}
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => { setEditingMessage(null); setNewMessage(''); resizeComposer(); }}
+                          className="shrink-0 w-6 h-6 rounded-full flex items-center justify-center hover:bg-muted/60 transition-colors"
+                        >
+                          <X className="w-3.5 h-3.5 text-muted-foreground" />
+                        </button>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
               {/* Reply preview */}
               <AnimatePresence>
-                {replyTo && !isRecording && (
+                {replyTo && !isRecording && !editingMessage && (
                   <motion.div
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: 'auto', opacity: 1 }}
@@ -2036,7 +2322,8 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                         onKeyDown={e => {
                           if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
                             e.preventDefault();
-                            void sendMessage();
+                            if (editingMessage) saveEditMessage();
+                            else sendMessage();
                           }
                         }}
                         dir="auto"
@@ -2056,11 +2343,12 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                           type="button"
                           onPointerDown={(e) => e.preventDefault()}
                           onClick={() => {
+                            if (editingMessage) { saveEditMessage(); return; }
                             if (stagedImages.length > 0) sendStagedImages();
                             if (newMessage.trim()) sendMessage();
                           }}
                         >
-                          <Send className="h-4 w-4" />
+                          {editingMessage ? <Check className="h-4 w-4" /> : <Send className="h-4 w-4" />}
                         </Button>
                       </motion.div>
                     ) : (

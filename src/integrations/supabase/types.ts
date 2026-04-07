@@ -57,6 +57,8 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          pinned_message_id: string | null
+          self_destruct_seconds: number | null
           updated_at: string
           user1_id: string
           user2_id: string
@@ -64,6 +66,8 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          pinned_message_id?: string | null
+          self_destruct_seconds?: number | null
           updated_at?: string
           user1_id: string
           user2_id: string
@@ -71,11 +75,21 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          pinned_message_id?: string | null
+          self_destruct_seconds?: number | null
           updated_at?: string
           user1_id?: string
           user2_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "conversations_pinned_message_id_fkey"
+            columns: ["pinned_message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       message_reactions: {
         Row: {
@@ -115,6 +129,8 @@ export type Database = {
           conversation_id: string
           created_at: string
           deleted: boolean
+          edited_at: string | null
+          expires_at: string | null
           file_name: string | null
           file_url: string | null
           id: string
@@ -128,6 +144,8 @@ export type Database = {
           conversation_id: string
           created_at?: string
           deleted?: boolean
+          edited_at?: string | null
+          expires_at?: string | null
           file_name?: string | null
           file_url?: string | null
           id?: string
@@ -141,6 +159,8 @@ export type Database = {
           conversation_id?: string
           created_at?: string
           deleted?: boolean
+          edited_at?: string | null
+          expires_at?: string | null
           file_name?: string | null
           file_url?: string | null
           id?: string
