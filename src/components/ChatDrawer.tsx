@@ -14,8 +14,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   ChevronRight, ChevronLeft, ChevronDown, Send, Search, Plus, MessageCircle,
   Check, CheckCheck, Reply, Trash2, Paperclip, X,
-  Download, FileText, MoreVertical, Trash, Info, Copy, Pin, Mic, Smile,
-  ArrowDown, Calendar, Clock, Image as ImageIcon, User2
+  Download, FileText, MoreVertical, Trash, Info, Copy, Pin, PinOff, Mic, Smile,
+  ArrowDown, Calendar, Clock, Image as ImageIcon, User2, Pencil, Timer, TimerOff
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
