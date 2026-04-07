@@ -2087,7 +2087,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                                 <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
                                 <span className="text-[11px] text-muted-foreground font-medium">{isAr ? 'تعديل' : 'Edit'}</span>
                               </button>
-                            )
+                            )}
                             {actionMenu.isMine && !actionMenu.msg.deleted && (
                               <button
                                 onClick={() => { deleteMessage(actionMenu.msg.id); setActionMenu(null); setShowExtraEmojis(false); }}
