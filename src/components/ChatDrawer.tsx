@@ -2155,9 +2155,40 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                   </motion.div>
                 )}
               </AnimatePresence>
+              {/* Edit preview */}
+              <AnimatePresence>
+                {editingMessage && !isRecording && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="mx-3 mt-2 rounded-xl bg-primary/10 border border-primary/20 overflow-hidden">
+                      <div className="flex items-start gap-2 p-2.5">
+                        <div className="flex-1 min-w-0 border-s-[3px] border-primary ps-2.5">
+                          <span className="text-[11px] font-semibold text-primary block flex items-center gap-1">
+                            <Pencil className="w-3 h-3" />
+                            {isAr ? 'تعديل الرسالة' : 'Nachricht bearbeiten'}
+                          </span>
+                          <p className="text-[11px] text-muted-foreground truncate" dir="auto">
+                            {editingMessage.content}
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => { setEditingMessage(null); setNewMessage(''); resizeComposer(); }}
+                          className="shrink-0 w-6 h-6 rounded-full flex items-center justify-center hover:bg-muted/60 transition-colors"
+                        >
+                          <X className="w-3.5 h-3.5 text-muted-foreground" />
+                        </button>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
               {/* Reply preview */}
               <AnimatePresence>
-                {replyTo && !isRecording && (
+                {replyTo && !isRecording && !editingMessage && (
                   <motion.div
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: 'auto', opacity: 1 }}
