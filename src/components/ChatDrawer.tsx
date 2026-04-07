@@ -1397,6 +1397,50 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                       </button>
                       <div className="h-px bg-border/20 mx-3" />
                       <button
+                        className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-accent/30 transition-colors text-[13px] text-start"
+                        onClick={() => { setShowSearch(true); setShowChatMenu(false); }}
+                      >
+                        <Search className="w-4 h-4 text-muted-foreground" />
+                        {isAr ? 'بحث في المحادثة' : 'Im Chat suchen'}
+                      </button>
+                      <div className="h-px bg-border/20 mx-3" />
+                      <button
+                        className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-accent/30 transition-colors text-[13px] text-start"
+                        onClick={() => setShowSelfDestructMenu(!showSelfDestructMenu)}
+                      >
+                        {selfDestructSeconds ? <TimerOff className="w-4 h-4 text-muted-foreground" /> : <Timer className="w-4 h-4 text-muted-foreground" />}
+                        {selfDestructSeconds
+                          ? (isAr ? 'إيقاف التدمير الذاتي' : 'Selbstzerstörung aus')
+                          : (isAr ? 'رسائل ذاتية الحذف' : 'Selbstzerstörung')}
+                      </button>
+                      <AnimatePresence>
+                        {showSelfDestructMenu && (
+                          <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }} className="overflow-hidden">
+                            <div className="px-3 pb-2 space-y-0.5">
+                              {[
+                                { label: isAr ? '30 ثانية' : '30 Sek.', val: 30 },
+                                { label: isAr ? '5 دقائق' : '5 Min.', val: 300 },
+                                { label: isAr ? 'ساعة' : '1 Std.', val: 3600 },
+                                { label: isAr ? 'يوم' : '1 Tag', val: 86400 },
+                                { label: isAr ? 'إيقاف' : 'Aus', val: null as number | null },
+                              ].map(opt => (
+                                <button
+                                  key={opt.label}
+                                  onClick={() => toggleSelfDestruct(opt.val)}
+                                  className={cn(
+                                    'w-full text-start px-3 py-1.5 rounded-lg text-[12px] transition-colors',
+                                    selfDestructSeconds === opt.val ? 'bg-primary/15 text-primary font-medium' : 'hover:bg-accent/30 text-foreground'
+                                  )}
+                                >
+                                  {opt.label}
+                                </button>
+                              ))}
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                      <div className="h-px bg-border/20 mx-3" />
+                      <button
                         className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-destructive/10 transition-colors text-[13px] text-destructive text-start"
                         onClick={deleteConversation}
                       >
