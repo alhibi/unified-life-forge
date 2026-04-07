@@ -207,6 +207,16 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
   const [profileTab, setProfileTab] = useState<'info' | 'media'>('info');
   const reconnectRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Pin, Search, Edit, Self-destruct states
+  const [pinnedMessage, setPinnedMessage] = useState<Message | null>(null);
+  const [showSearch, setShowSearch] = useState(false);
+  const [chatSearchQuery, setChatSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<Message[]>([]);
+  const [searchIndex, setSearchIndex] = useState(0);
+  const [editingMessage, setEditingMessage] = useState<Message | null>(null);
+  const [selfDestructSeconds, setSelfDestructSeconds] = useState<number | null>(null);
+  const [showSelfDestructMenu, setShowSelfDestructMenu] = useState(false);
+
   // Lightbox state
   const [lightboxSrc, setLightboxSrc] = useState('');
   const [lightboxOpen, setLightboxOpen] = useState(false);
