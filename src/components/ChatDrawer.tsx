@@ -636,6 +636,101 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
     await supabase.from('messages').update({ deleted: true, content: '' }).eq('id', msgId);
   };
 
+  // Pin message
+  const pinMessage = async (msg: Message) => {
+    if (!activeConv) return;
+    const newPinId = pinnedMessage?.id === msg.id ? null : msg.id;
+    await supabase.from('conversations').update({ pinned_message_id: newPinId } as any).eq('id', activeConv.id);
+    setPinnedMessage(newPinId ? msg : null);
+    setActionMenu(null);
+  };
+
+  // Edit message
+  const startEditMessage = (msg: Message) => {
+    setEditingMessage(msg);
+    setNewMessage(msg.content);
+    setActionMenu(null);
+    setShowExtraEmojis(false);
+    setTimeout(() => { inputRef.current?.focus(); resizeComposer(); }, 50);
+  };
+
+  const saveEditMessage = async () => {
+    if (!editingMessage || !newMessage.trim()) return;
+    await supabase.from('messages').update({
+      content: newMessage.trim(),
+      edited_at: new Date().toISOString(),
+    } as any).eq('id', editingMessage.id);
+    setEditingMessage(null);
+    setNewMessage('');
+    resizeComposer();
+  };
+
+  // Search in chat
+  const searchInChat = useCallback((query: string) => {
+    setChatSearchQuery(query);
+    if (!query.trim()) { setSearchResults([]); setSearchIndex(0); return; }
+    const q = query.toLowerCase();
+    const results = messages.filter(m => !m.deleted && m.message_type === 'text' && m.content.toLowerCase().includes(q));
+    setSearchResults(results);
+    setSearchIndex(results.length > 0 ? results.length - 1 : 0);
+    if (results.length > 0) {
+      const el = document.getElementById(`msg-${results[results.length - 1].id}`);
+      el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [messages]);
+
+  const navigateSearch = (direction: 'up' | 'down') => {
+    if (searchResults.length === 0) return;
+    const newIdx = direction === 'up'
+      ? Math.max(0, searchIndex - 1)
+      : Math.min(searchResults.length - 1, searchIndex + 1);
+    setSearchIndex(newIdx);
+    const el = document.getElementById(`msg-${searchResults[newIdx].id}`);
+    el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  };
+
+  // Self-destruct timer
+  const toggleSelfDestruct = async (seconds: number | null) => {
+    if (!activeConv) return;
+    await supabase.from('conversations').update({ self_destruct_seconds: seconds } as any).eq('id', activeConv.id);
+    setSelfDestructSeconds(seconds);
+    setShowSelfDestructMenu(false);
+    setShowChatMenu(false);
+  };
+
+  // Load pinned message & self-destruct setting
+  useEffect(() => {
+    if (!activeConv) { setPinnedMessage(null); setSelfDestructSeconds(null); return; }
+    supabase.from('conversations').select('pinned_message_id, self_destruct_seconds' as any)
+      .eq('id', activeConv.id).single().then(({ data }) => {
+        const d = data as any;
+        if (d?.self_destruct_seconds) setSelfDestructSeconds(d.self_destruct_seconds);
+        else setSelfDestructSeconds(null);
+        if (d?.pinned_message_id) {
+          supabase.from('messages').select('*').eq('id', d.pinned_message_id).single().then(({ data: pmsg }) => {
+            if (pmsg) setPinnedMessage(pmsg as Message);
+          });
+        } else setPinnedMessage(null);
+      });
+  }, [activeConv?.id]);
+
+  // Check expired messages
+  useEffect(() => {
+    const now = new Date();
+    const expired = messages.filter(m => m.expires_at && new Date(m.expires_at) <= now);
+    if (expired.length > 0) {
+      setMessages(prev => prev.filter(m => !m.expires_at || new Date(m.expires_at) > now));
+    }
+    const upcoming = messages.filter(m => m.expires_at && new Date(m.expires_at) > now);
+    if (upcoming.length > 0) {
+      const nextExpiry = Math.min(...upcoming.map(m => new Date(m.expires_at!).getTime() - now.getTime()));
+      const timer = setTimeout(() => {
+        setMessages(prev => prev.filter(m => !m.expires_at || new Date(m.expires_at) > new Date()));
+      }, Math.max(nextExpiry, 1000));
+      return () => clearTimeout(timer);
+    }
+  }, [messages]);
+
   const toggleReaction = async (messageId: string, emoji: string) => {
     if (!user) return;
     const existing = reactions.find(r => r.message_id === messageId && r.user_id === user.id && r.emoji === emoji);
