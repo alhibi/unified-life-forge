@@ -2343,6 +2343,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                           type="button"
                           onPointerDown={(e) => e.preventDefault()}
                           onClick={() => {
+                            if (editingMessage) { saveEditMessage(); return; }
                             if (stagedImages.length > 0) sendStagedImages();
                             if (newMessage.trim()) sendMessage();
                           }}
