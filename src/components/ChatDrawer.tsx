@@ -1556,6 +1556,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                       </div>
                     )}
                     <div
+                      id={`msg-${msg.id}`}
                       className={cn(
                         'flex relative',
                         isMine ? 'justify-end' : 'justify-start',
