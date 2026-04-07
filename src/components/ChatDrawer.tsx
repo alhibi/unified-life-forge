@@ -1782,6 +1782,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                                         )}
                                         dir="ltr"
                                       >
+                                        {msg.edited_at && <span className="text-[9px] italic">{isAr ? 'معدّلة' : 'bearb.'}</span>}
                                         <span>{new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                                         {isMine && (msg.read ? <CheckCheck className="h-[11px] w-[11px]" /> : <Check className="h-[11px] w-[11px]" />)}
                                       </span>
