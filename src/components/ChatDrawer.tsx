@@ -1453,6 +1453,87 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
               </div>
             </div>
 
+            {/* Search bar */}
+            <AnimatePresence>
+              {showSearch && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  className="overflow-hidden border-b border-border/30"
+                >
+                  <div className="flex items-center gap-2 px-3 py-2">
+                    <Search className="w-4 h-4 text-muted-foreground shrink-0" />
+                    <input
+                      type="text"
+                      value={chatSearchQuery}
+                      onChange={e => searchInChat(e.target.value)}
+                      placeholder={isAr ? 'بحث في المحادثة...' : 'Suchen...'}
+                      className="flex-1 bg-transparent text-[13px] outline-none placeholder:text-muted-foreground/50"
+                      dir="auto"
+                      autoFocus
+                    />
+                    {searchResults.length > 0 && (
+                      <span className="text-[11px] text-muted-foreground tabular-nums shrink-0">
+                        {searchIndex + 1}/{searchResults.length}
+                      </span>
+                    )}
+                    <div className="flex gap-0.5 shrink-0">
+                      <button onClick={() => navigateSearch('up')} className="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-accent/30">
+                        <ChevronRight className="w-3.5 h-3.5 rotate-[-90deg] text-muted-foreground" />
+                      </button>
+                      <button onClick={() => navigateSearch('down')} className="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-accent/30">
+                        <ChevronRight className="w-3.5 h-3.5 rotate-90 text-muted-foreground" />
+                      </button>
+                    </div>
+                    <button onClick={() => { setShowSearch(false); setChatSearchQuery(''); setSearchResults([]); }} className="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-accent/30">
+                      <X className="w-3.5 h-3.5 text-muted-foreground" />
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Pinned message banner */}
+            <AnimatePresence>
+              {pinnedMessage && !pinnedMessage.deleted && (
+                <motion.button
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  className="w-full border-b border-border/30 px-3 py-2 flex items-center gap-2.5 bg-accent/10 hover:bg-accent/20 transition-colors text-start overflow-hidden"
+                  onClick={() => {
+                    const el = document.getElementById(`msg-${pinnedMessage.id}`);
+                    el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  }}
+                >
+                  <Pin className="w-3.5 h-3.5 text-primary shrink-0 rotate-45" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[10px] text-primary font-semibold">{isAr ? 'رسالة مثبتة' : 'Angeheftet'}</p>
+                    <p className="text-[12px] text-foreground/70 truncate" dir="auto">
+                      {pinnedMessage.message_type === 'text' ? pinnedMessage.content : pinnedMessage.message_type === 'image' ? '📷 ' + (isAr ? 'صورة' : 'Foto') : pinnedMessage.message_type === 'voice' ? '🎤' : '📎'}
+                    </p>
+                  </div>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); pinMessage(pinnedMessage); }}
+                    className="shrink-0 w-6 h-6 rounded-full flex items-center justify-center hover:bg-muted/50"
+                  >
+                    <X className="w-3 h-3 text-muted-foreground" />
+                  </button>
+                </motion.button>
+              )}
+            </AnimatePresence>
+
+            {/* Self-destruct indicator */}
+            {selfDestructSeconds && (
+              <div className="flex items-center justify-center gap-1.5 py-1.5 bg-accent/5 border-b border-border/20">
+                <Timer className="w-3 h-3 text-primary" />
+                <span className="text-[10px] text-primary font-medium">
+                  {isAr ? 'رسائل ذاتية الحذف' : 'Selbstzerstörung'}: {selfDestructSeconds < 60 ? `${selfDestructSeconds}${isAr ? 'ث' : 's'}` : selfDestructSeconds < 3600 ? `${Math.floor(selfDestructSeconds / 60)}${isAr ? 'د' : 'm'}` : selfDestructSeconds < 86400 ? `${Math.floor(selfDestructSeconds / 3600)}${isAr ? 'س' : 'h'}` : `${Math.floor(selfDestructSeconds / 86400)}${isAr ? 'ي' : 'd'}`}
+                </span>
+              </div>
+            )}
+
             {/* Messages */}
             <div
               ref={messagesContainerRef}
