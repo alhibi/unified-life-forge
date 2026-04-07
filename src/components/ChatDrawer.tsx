@@ -2067,13 +2067,27 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                               </button>
                             )}
                             <button
-                              onClick={() => { setActionMenu(null); setShowExtraEmojis(false); }}
+                              onClick={() => pinMessage(actionMenu.msg)}
                               className="flex items-center gap-1.5 px-3 py-2 rounded-xl hover:bg-accent/30 active:bg-accent/50 transition-colors"
                               aria-label={isAr ? 'تثبيت' : 'Pin'}
                             >
-                              <Pin className="w-3.5 h-3.5 text-muted-foreground" />
-                              <span className="text-[11px] text-muted-foreground font-medium">{isAr ? 'تثبيت' : 'Pin'}</span>
+                              {pinnedMessage?.id === actionMenu.msg.id
+                                ? <PinOff className="w-3.5 h-3.5 text-muted-foreground" />
+                                : <Pin className="w-3.5 h-3.5 text-muted-foreground" />}
+                              <span className="text-[11px] text-muted-foreground font-medium">
+                                {pinnedMessage?.id === actionMenu.msg.id ? (isAr ? 'إلغاء' : 'Unpin') : (isAr ? 'تثبيت' : 'Pin')}
+                              </span>
                             </button>
+                            {actionMenu.isMine && actionMenu.msg.message_type === 'text' && !actionMenu.msg.deleted && (
+                              <button
+                                onClick={() => startEditMessage(actionMenu.msg)}
+                                className="flex items-center gap-1.5 px-3 py-2 rounded-xl hover:bg-accent/30 active:bg-accent/50 transition-colors"
+                                aria-label={isAr ? 'تعديل' : 'Edit'}
+                              >
+                                <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
+                                <span className="text-[11px] text-muted-foreground font-medium">{isAr ? 'تعديل' : 'Edit'}</span>
+                              </button>
+                            )
                             {actionMenu.isMine && !actionMenu.msg.deleted && (
                               <button
                                 onClick={() => { deleteMessage(actionMenu.msg.id); setActionMenu(null); setShowExtraEmojis(false); }}
