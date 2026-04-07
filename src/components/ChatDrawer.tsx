@@ -615,7 +615,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
     if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
     typingChannelRef.current?.track({ typing: false });
 
-    await supabase.from('messages').insert({
+    const insertData: any = {
       conversation_id: activeConv.id,
       sender_id: user.id,
       content,
@@ -623,7 +623,14 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
       file_url: fileUrl || null,
       file_name: fileName || null,
       reply_to_id: replyToId,
-    });
+    };
+
+    // Add self-destruct expiry if enabled
+    if (selfDestructSeconds) {
+      insertData.expires_at = new Date(Date.now() + selfDestructSeconds * 1000).toISOString();
+    }
+
+    await supabase.from('messages').insert(insertData);
 
     await supabase.from('conversations')
       .update({ updated_at: new Date().toISOString() })
