@@ -1,7 +1,7 @@
 import React, { useCallback, useRef, useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
-import { X, Download } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Download } from 'lucide-react';
 
 interface ImageLightboxProps {
   src: string;
@@ -12,6 +12,7 @@ interface ImageLightboxProps {
 }
 
 export default function ImageLightbox({ src, alt, open, onClose, originRect }: ImageLightboxProps) {
+  const isRtl = document.documentElement.dir === 'rtl';
   const [scale, setScale] = useState(1);
   const [isZoomed, setIsZoomed] = useState(false);
   const dragY = useMotionValue(0);
@@ -153,7 +154,7 @@ export default function ImageLightbox({ src, alt, open, onClose, originRect }: I
               onClick={handleClose}
               className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center active:scale-90 transition-transform"
             >
-              <X className="w-5 h-5 text-white" />
+              {isRtl ? <ChevronRight className="w-5 h-5 text-white" /> : <ChevronLeft className="w-5 h-5 text-white" />}
             </button>
             <button
               onClick={handleDownload}
