@@ -154,7 +154,7 @@ export default function ImageLightbox({ src, alt, open, onClose, originRect }: I
               onClick={handleClose}
               className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center active:scale-90 transition-transform"
             >
-              <X className="w-5 h-5 text-white" />
+              {isRtl ? <ChevronRight className="w-5 h-5 text-white" /> : <ChevronLeft className="w-5 h-5 text-white" />}
             </button>
             <button
               onClick={handleDownload}
