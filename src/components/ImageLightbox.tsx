@@ -12,6 +12,7 @@ interface ImageLightboxProps {
 }
 
 export default function ImageLightbox({ src, alt, open, onClose, originRect }: ImageLightboxProps) {
+  const isRtl = document.documentElement.dir === 'rtl';
   const [scale, setScale] = useState(1);
   const [isZoomed, setIsZoomed] = useState(false);
   const dragY = useMotionValue(0);
