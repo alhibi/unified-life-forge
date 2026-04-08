@@ -2223,55 +2223,60 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                 {isRecording ? (
                   <motion.div
                     key="recording"
-                    initial={{ opacity: 0, y: 10 }}
+                    initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
+                    exit={{ opacity: 0, y: 8 }}
                     transition={{ type: 'spring', damping: 25, stiffness: 400 }}
-                    className="p-2 flex items-center gap-2"
+                    className="px-3 py-2.5 flex items-center gap-3"
                   >
-                    <button
+                    {/* Cancel */}
+                    <motion.button
                       onClick={() => stopRecording(true)}
-                      className="shrink-0 w-9 h-9 rounded-full flex items-center justify-center bg-destructive/10 hover:bg-destructive/20 active:scale-90 transition-all"
+                      className="shrink-0 w-11 h-11 rounded-full flex items-center justify-center bg-destructive/10 hover:bg-destructive/20 transition-colors"
+                      whileTap={{ scale: 0.85 }}
                     >
-                      <Trash2 className="w-4 h-4 text-destructive" />
-                    </button>
+                      <Trash2 className="w-5 h-5 text-destructive" />
+                    </motion.button>
 
-                    <div className="flex-1 flex items-center gap-3 bg-accent/20 border border-border/20 rounded-full px-4 h-9">
+                    {/* Waveform + Timer */}
+                    <div className="flex-1 flex items-center gap-3 bg-accent/15 backdrop-blur-sm border border-border/15 rounded-full px-4 h-11">
                       <motion.div
-                        animate={{ opacity: [1, 0.3, 1] }}
-                        transition={{ duration: 1.2, repeat: Infinity }}
-                        className="w-2.5 h-2.5 rounded-full bg-destructive shrink-0"
+                        animate={{ opacity: [1, 0.2, 1] }}
+                        transition={{ duration: 1, repeat: Infinity, ease: 'easeInOut' }}
+                        className="w-3 h-3 rounded-full bg-destructive shrink-0 shadow-[0_0_8px_rgba(239,68,68,0.4)]"
                       />
-                      <span className="text-sm font-mono text-foreground tabular-nums">
+                      <span className="text-[13px] font-mono text-foreground tabular-nums tracking-wide">
                         {formatRecordingTime(recordingTime)}
                       </span>
-                      <div className="flex-1 flex items-center justify-center gap-[2px]" dir="ltr">
-                        {Array.from({ length: 20 }).map((_, i) => (
+                      <div className="flex-1 flex items-center justify-center gap-[2.5px]" dir="ltr">
+                        {Array.from({ length: 24 }).map((_, i) => (
                           <motion.div
                             key={i}
                             animate={{
-                              height: [3, Math.random() * 14 + 4, 3],
+                              height: [2, Math.random() * 18 + 4, 2],
                             }}
                             transition={{
-                              duration: 0.5 + Math.random() * 0.3,
+                              duration: 0.4 + Math.random() * 0.4,
                               repeat: Infinity,
-                              delay: i * 0.05,
+                              delay: i * 0.04,
+                              ease: 'easeInOut',
                             }}
-                            className="w-[2px] bg-primary/60 rounded-full"
-                            style={{ minHeight: 3 }}
+                            className="w-[2.5px] bg-primary/50 rounded-full"
+                            style={{ minHeight: 2 }}
                           />
                         ))}
                       </div>
                     </div>
 
+                    {/* Send */}
                     <motion.button
                       onClick={() => stopRecording(false)}
-                      className="shrink-0 w-10 h-10 rounded-full bg-primary flex items-center justify-center"
-                      whileTap={{ scale: 0.85 }}
-                      animate={{ scale: [1, 1.08, 1] }}
-                      transition={{ duration: 1.5, repeat: Infinity }}
+                      className="shrink-0 w-12 h-12 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/25"
+                      whileTap={{ scale: 0.8 }}
+                      animate={{ scale: [1, 1.06, 1] }}
+                      transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
                     >
-                      <Send className="w-4 h-4 text-primary-foreground" />
+                      <Send className="w-5 h-5 text-primary-foreground" style={{ marginInlineStart: '2px' }} />
                     </motion.button>
                   </motion.div>
                 ) : (
@@ -2280,23 +2285,25 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="p-2 flex items-end gap-1.5"
+                    className="px-2.5 py-2 flex items-end gap-2"
                   >
+                    {/* Attachment */}
                     <button
                       type="button"
                       onPointerDown={(e) => e.preventDefault()}
                       onClick={() => fileInputRef.current?.click()}
                       disabled={uploading}
-                      className="shrink-0 w-9 h-9 rounded-full flex items-center justify-center hover:bg-accent/30 active:bg-accent/50 transition-colors self-end"
+                      className="shrink-0 w-10 h-10 rounded-full flex items-center justify-center hover:bg-accent/30 active:bg-accent/50 transition-colors self-end"
                     >
                       {uploading ? (
-                        <div className="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+                        <div className="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
                       ) : (
-                        <Paperclip className="h-[18px] w-[18px] text-muted-foreground" />
+                        <Paperclip className="h-5 w-5 text-muted-foreground" />
                       )}
                     </button>
 
-                    <div className="flex-1 flex items-end bg-accent/20 border border-border/25 rounded-[22px] overflow-hidden">
+                    {/* Text Input */}
+                    <div className="flex-1 flex items-end bg-accent/15 border border-border/20 rounded-[24px] overflow-hidden transition-colors focus-within:border-primary/30 focus-within:bg-accent/25">
                       <Textarea
                         ref={inputRef}
                         placeholder={isAr ? 'اكتب رسالة...' : 'Nachricht...'}
@@ -2327,19 +2334,21 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                           }
                         }}
                         dir="auto"
-                        className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 min-h-[38px] max-h-[120px] resize-none px-3 py-[9px] text-[15px] leading-relaxed placeholder:text-muted-foreground/50"
+                        className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 min-h-[40px] max-h-[120px] resize-none px-4 py-[10px] text-[15px] leading-relaxed placeholder:text-muted-foreground/40"
                       />
                     </div>
 
+                    {/* Send / Mic */}
                     {(newMessage.trim() || stagedImages.length > 0) ? (
                       <motion.div
                         initial={{ scale: 0.5, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
                         transition={{ type: 'spring', damping: 15, stiffness: 400 }}
+                        className="self-end"
                       >
                         <Button
                           size="icon"
-                          className="rounded-full shrink-0 h-9 w-9"
+                          className="rounded-full shrink-0 h-11 w-11 shadow-md shadow-primary/20"
                           type="button"
                           onPointerDown={(e) => e.preventDefault()}
                           onClick={() => {
@@ -2348,17 +2357,17 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                             if (newMessage.trim()) sendMessage();
                           }}
                         >
-                          {editingMessage ? <Check className="h-4 w-4" /> : <Send className="h-4 w-4" />}
+                          {editingMessage ? <Check className="h-5 w-5" /> : <Send className="h-5 w-5" />}
                         </Button>
                       </motion.div>
                     ) : (
                       <motion.button
                         type="button"
-                        className="shrink-0 h-9 w-9 rounded-full bg-primary flex items-center justify-center text-primary-foreground"
-                        whileTap={{ scale: 1.3 }}
+                        className="shrink-0 h-11 w-11 rounded-full bg-primary flex items-center justify-center text-primary-foreground shadow-md shadow-primary/20 self-end"
+                        whileTap={{ scale: 1.2 }}
                         onClick={startRecording}
                       >
-                        <Mic className="h-4 w-4" />
+                        <Mic className="h-5 w-5" />
                       </motion.button>
                     )}
                   </motion.div>
