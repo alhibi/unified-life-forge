@@ -108,6 +108,7 @@ export default function PrayerTimes() {
       const { lat, lng } = JSON.parse(cached);
       fetchPrayers(lat, lng);
     } else {
+      // Use default location (Makkah) without requesting geolocation on page load
       fetchPrayers(21.4225, 39.8262);
     }
   }, [fetchPrayers]);
@@ -126,13 +127,13 @@ export default function PrayerTimes() {
 
   if (loading) {
     return (
-      <div className="obsidian-card p-5 animate-pulse min-h-[140px]" />
+      <div className="rounded-3xl bg-card border border-border p-5 text-card-foreground animate-pulse min-h-[140px]" />
     );
   }
 
   if (error) {
     return (
-      <div className="obsidian-card p-4 text-destructive text-center text-sm border-destructive/20">
+      <div className="rounded-3xl bg-destructive/10 border border-destructive/20 p-4 text-destructive text-center text-sm">
         {error}
       </div>
     );
@@ -143,10 +144,10 @@ export default function PrayerTimes() {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-      className="obsidian-card p-5"
+      className="rounded-3xl bg-card border border-border p-5 text-card-foreground relative overflow-hidden"
     >
       <div className="relative z-10">
-        {/* Header */}
+        {/* Header: next prayer info */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex-1">
             <div className="flex items-center gap-1.5 mb-0.5">
@@ -167,12 +168,12 @@ export default function PrayerTimes() {
               </span>
             </div>
           </div>
-          <div className="w-11 h-11 rounded-2xl obsidian-icon flex items-center justify-center">
+          <div className="w-11 h-11 rounded-2xl bg-muted flex items-center justify-center">
             <Bell className="w-5 h-5 text-muted-foreground" />
           </div>
         </div>
 
-        <div className="obsidian-divider mb-4" />
+        <div className="h-px bg-border mb-4" />
 
         {/* Prayer times grid */}
         <div className="grid grid-cols-5 gap-1.5">
@@ -183,14 +184,14 @@ export default function PrayerTimes() {
                 key={p.name}
                 className={`rounded-xl px-1 py-2 text-center transition-all duration-300 ${
                   isActive
-                    ? 'obsidian-btn scale-[1.03]'
-                    : 'obsidian-inset'
+                    ? 'bg-primary text-primary-foreground scale-[1.03]'
+                    : 'bg-muted/60 text-muted-foreground'
                 }`}
               >
-                <p className={`text-[10px] font-semibold mb-0.5 ${isActive ? 'text-primary-foreground' : 'text-muted-foreground'}`}>
+                <p className="text-[10px] font-semibold mb-0.5">
                   {t(PRAYER_LABEL_KEYS[p.name])}
                 </p>
-                <p className={`text-[10px] font-medium tabular-nums ${isActive ? 'text-primary-foreground' : 'text-foreground'}`} dir="ltr">
+                <p className={`text-[10px] font-medium tabular-nums ${isActive ? '' : ''}`} dir="ltr">
                   {formatTime12(p.time.replace(/\s*\(.*\)/, ''), t)}
                 </p>
               </div>

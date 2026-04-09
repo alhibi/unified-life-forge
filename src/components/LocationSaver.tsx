@@ -106,10 +106,10 @@ export default function LocationSaver() {
   };
 
   return (
-    <div className="obsidian-card p-5">
+    <div className="bg-card border border-border/40 rounded-2xl p-5">
       {/* Header */}
       <div className="flex items-center gap-3 mb-4">
-        <div className="w-11 h-11 rounded-2xl obsidian-icon flex items-center justify-center shrink-0">
+        <div className="w-11 h-11 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
           <MapPin className="w-5 h-5 text-primary stroke-[1.8]" />
         </div>
         <h3 className="font-semibold text-[15px] text-foreground flex-1">{t('location.title')}</h3>
@@ -120,7 +120,7 @@ export default function LocationSaver() {
         <button
           onClick={saveCurrentLocation}
           disabled={saving}
-          className="w-full py-3 rounded-xl obsidian-btn font-medium flex items-center justify-center gap-2 mb-4"
+          className="w-full py-3 rounded-xl bg-primary text-primary-foreground font-medium flex items-center justify-center gap-2 mb-4 active:scale-[0.98] transition-transform disabled:opacity-50"
         >
           {saving ? (
             <span className="animate-pulse">{t('location.saving')}</span>
@@ -138,7 +138,7 @@ export default function LocationSaver() {
         <motion.div
           initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
-          className="space-y-2.5 mb-4 p-4 obsidian-inset rounded-2xl"
+          className="space-y-2.5 mb-4 p-4 bg-secondary/60 rounded-2xl"
         >
           <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
             <MapPin className="w-3 h-3 text-primary" />
@@ -148,21 +148,21 @@ export default function LocationSaver() {
             value={label}
             onChange={e => setLabel(e.target.value)}
             placeholder={t('location.label')}
-            className="w-full px-3.5 py-2.5 rounded-xl obsidian-input text-sm text-foreground placeholder:text-muted-foreground outline-none"
+            className="w-full px-3.5 py-2.5 rounded-xl bg-background border border-border text-sm text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none transition-all"
           />
           <input
             value={description}
             onChange={e => setDescription(e.target.value)}
             placeholder={t('location.description')}
-            className="w-full px-3.5 py-2.5 rounded-xl obsidian-input text-sm text-foreground placeholder:text-muted-foreground outline-none"
+            className="w-full px-3.5 py-2.5 rounded-xl bg-background border border-border text-sm text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none transition-all"
           />
           <div className="flex gap-2">
-            <button onClick={confirmSave} className="flex-1 py-2.5 rounded-xl obsidian-btn text-sm font-medium">
+            <button onClick={confirmSave} className="flex-1 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-medium active:scale-[0.98] transition-transform">
               <Plus className="w-4 h-4 inline-block me-1" />{t('location.save')}
             </button>
             <button
               onClick={() => { setShowForm(false); setPendingCoords(null); setPendingGeo(null); }}
-              className="w-11 py-2.5 rounded-xl obsidian-btn-secondary text-sm flex items-center justify-center"
+              className="w-11 py-2.5 rounded-xl bg-muted text-muted-foreground text-sm flex items-center justify-center"
             >
               <X className="w-4 h-4" />
             </button>
@@ -181,14 +181,14 @@ export default function LocationSaver() {
               <motion.div
                 key={loc.id}
                 layout
-                className="rounded-2xl obsidian-inset overflow-hidden transition-colors"
+                className="rounded-2xl bg-secondary/40 overflow-hidden border border-border/30 transition-colors"
               >
                 {/* Card Header */}
                 <button
                   onClick={() => setExpandedId(isExpanded ? null : loc.id)}
                   className="w-full flex items-center gap-3 p-3.5 text-start hover:bg-secondary/60 transition-colors"
                 >
-                  <div className="w-9 h-9 rounded-xl obsidian-icon flex items-center justify-center shrink-0">
+                  <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
                     <MapPin className="w-4 h-4 text-primary" />
                   </div>
                   <div className="flex-1 min-w-0">

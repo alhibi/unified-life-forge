@@ -18,7 +18,7 @@ interface CachedWeather {
 }
 
 const CACHE_KEY = 'weather_cache';
-const CACHE_TTL = 10 * 60 * 1000;
+const CACHE_TTL = 10 * 60 * 1000; // 10 min
 const REFRESH_INTERVAL = 15 * 60 * 1000;
 
 const getWeatherIcon = (code: number, isDay: boolean) => {
@@ -41,18 +41,19 @@ const loadCache = (): CachedWeather | null => {
     if (!raw) return null;
     const cached: CachedWeather = JSON.parse(raw);
     if (Date.now() - cached.timestamp < CACHE_TTL) return cached;
-  } catch {}
+  } catch { /* ignore */ }
   return null;
 };
 
 const saveCache = (data: CachedWeather) => {
-  try { localStorage.setItem(CACHE_KEY, JSON.stringify(data)); } catch {}
+  try { localStorage.setItem(CACHE_KEY, JSON.stringify(data)); } catch { /* ignore */ }
 };
 
 export default function WeatherWidget() {
   const [forecast, setForecast] = useState<HourForecast[]>([]);
   const [currentTemp, setCurrentTemp] = useState<number | null>(null);
 
+  // Load cache immediately on mount
   useEffect(() => {
     const cached = loadCache();
     if (cached) {
@@ -69,13 +70,15 @@ export default function WeatherWidget() {
       const data = await res.json();
       if (data?.current && data?.hourly) {
         const temp = Math.round(data.current.temperature_2m);
-        const apiCurrentTime = data.current.time;
+        // Use the API's current time to determine the correct local hour
+        const apiCurrentTime = data.current.time; // e.g. "2026-03-29T20:00"
         const currentHour = parseInt(apiCurrentTime.split('T')[1].split(':')[0], 10);
         const currentDateStr = apiCurrentTime.split('T')[0];
         
         const hours: HourForecast[] = [];
         const allTimes: string[] = data.hourly.time;
         
+        // Find the index matching current hour
         const startIdx = allTimes.findIndex((t: string) => {
           const [date, time] = t.split('T');
           const h = parseInt(time.split(':')[0], 10);
@@ -101,11 +104,13 @@ export default function WeatherWidget() {
           saveCache({ forecast: hours, currentTemp: temp, timestamp: Date.now(), lat, lon });
         }
       }
-    } catch {}
+    } catch { /* silent */ }
   }, []);
 
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>;
+
+    // Use cached location; don't request geolocation on page load
     const cached = loadCache();
     const lastLoc = localStorage.getItem('lastLocation');
     if (cached) {
@@ -131,38 +136,36 @@ export default function WeatherWidget() {
   };
 
   return (
-    <div className="obsidian-card p-3">
-      <div className="relative z-10">
-        <div className="flex items-center gap-1.5 mb-2.5">
-          <span className="text-[11px] font-medium text-muted-foreground">حالة الطقس</span>
-          <span className="text-[13px] font-bold text-foreground mr-auto">{currentTemp}°</span>
-        </div>
-        <div className="flex items-center gap-3 overflow-x-auto no-scrollbar">
-          {forecast.map((f) => {
-            const Icon = getWeatherIcon(f.weatherCode, f.isDay);
-            const isNow = f.hour === nowHour;
-            return (
-              <div
-                key={f.hour}
-                className={`flex flex-col items-center gap-1 min-w-[32px] rounded-xl py-1.5 ${isNow ? 'obsidian-inset' : ''}`}
-              >
-                <span className={`text-[10px] ${isNow ? 'font-bold text-foreground' : 'text-muted-foreground'}`}>
-                  {formatHour(f.hour)}
+    <div className="rounded-2xl bg-card border border-border/40 p-3">
+      <div className="flex items-center gap-1.5 mb-2.5">
+        <span className="text-[11px] font-medium text-muted-foreground">حالة الطقس</span>
+        <span className="text-[13px] font-bold text-foreground mr-auto">{currentTemp}°</span>
+      </div>
+      <div className="flex items-center gap-3 overflow-x-auto no-scrollbar">
+        {forecast.map((f) => {
+          const Icon = getWeatherIcon(f.weatherCode, f.isDay);
+          const isNow = f.hour === nowHour;
+          return (
+            <div
+              key={f.hour}
+              className={`flex flex-col items-center gap-1 min-w-[32px] rounded-xl py-1.5 ${isNow ? 'bg-secondary' : ''}`}
+            >
+              <span className={`text-[10px] ${isNow ? 'font-bold text-foreground' : 'text-muted-foreground'}`}>
+                {formatHour(f.hour)}
+              </span>
+              <Icon className="w-3.5 h-3.5 stroke-[1.6] text-muted-foreground" />
+              {f.precipitation > 0 && (
+                <span className="flex items-center gap-0.5 text-[9px] text-muted-foreground/70">
+                  <Droplets className="w-2.5 h-2.5" />
+                  {f.precipitation}%
                 </span>
-                <Icon className="w-3.5 h-3.5 stroke-[1.6] text-muted-foreground" />
-                {f.precipitation > 0 && (
-                  <span className="flex items-center gap-0.5 text-[9px] text-muted-foreground/70">
-                    <Droplets className="w-2.5 h-2.5" />
-                    {f.precipitation}%
-                  </span>
-                )}
-                <span className={`text-[11px] font-semibold ${isNow ? 'text-foreground' : 'text-muted-foreground'}`}>
-                  {f.temperature}°
-                </span>
-              </div>
-            );
-          })}
-        </div>
+              )}
+              <span className={`text-[11px] font-semibold ${isNow ? 'text-foreground' : 'text-muted-foreground'}`}>
+                {f.temperature}°
+              </span>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

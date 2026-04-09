@@ -29,6 +29,7 @@ const item = {
 };
 
 export default function Index() {
+  // Auto-detect location on first load and save for all widgets
   useEffect(() => {
     const saved = localStorage.getItem('lastLocation');
     if (!saved && navigator.geolocation) {
@@ -37,19 +38,22 @@ export default function Index() {
           localStorage.setItem('lastLocation', JSON.stringify({ lat: pos.coords.latitude, lng: pos.coords.longitude }));
           window.location.reload();
         },
-        () => {},
+        () => { /* user denied or error — keep Makkah default */ },
         { enableHighAccuracy: true, timeout: 10000 }
       );
     }
   }, []);
   const { t, language } = useApp();
   const { user } = useAuth();
+  // Global presence tracking - runs as long as user is logged in
   usePresence(user?.id);
   const now = new Date();
   const hour = now.getHours();
   const isMorning = hour >= 5 && hour < 12;
   const isAfternoon = hour >= 12 && hour < 17;
   const greeting = isMorning ? t('greeting.morning') : isAfternoon ? t('greeting.afternoon') : t('greeting.evening');
+  const GreetingIcon = isMorning ? Sunrise : isAfternoon ? Sun : Moon;
+  const greetingIconStyle = 'text-primary bg-primary/10';
 
   const navigate = useNavigate();
   const [chatOpen, setChatOpen] = useState(false);
@@ -58,8 +62,10 @@ export default function Index() {
 
   const { items: saved, removeItem } = useClipboard('sunnah');
 
+  // Poll unread count
   const fetchUnread = useCallback(async () => {
     if (!user) { setUnreadCount(0); return; }
+    // Get all conversation IDs for this user
     const { data: convs } = await supabase
       .from('conversations')
       .select('id')
@@ -81,6 +87,7 @@ export default function Index() {
     return () => clearInterval(interval);
   }, [fetchUnread]);
 
+  // Realtime unread listener
   useEffect(() => {
     if (!user) return;
     const channel = supabase
@@ -100,7 +107,6 @@ export default function Index() {
         animate="show"
         className="space-y-5 max-w-lg mx-auto"
       >
-        {/* Header */}
         <motion.div variants={item}>
           <div className="flex items-start justify-between">
             <div>
@@ -114,25 +120,25 @@ export default function Index() {
             <div className="flex items-center gap-2 mt-0.5">
               <button
                 onClick={() => setShowClipboard(true)}
-                className="relative p-2.5 rounded-xl obsidian-btn-secondary" aria-label="الحافظة"
+                className="relative p-2.5 rounded-xl bg-accent/50 hover:bg-accent transition-colors" aria-label="الحافظة"
               >
                 <ClipboardList className="h-5 w-5 text-foreground" />
                 {saved.length > 0 && (
-                  <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center shadow-md">
+                  <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">
                     {saved.length}
                   </span>
                 )}
               </button>
               <button
                 onClick={() => navigate('/reading')}
-                className="p-2.5 rounded-xl obsidian-btn-secondary" aria-label="الأخبار"
+                className="p-2.5 rounded-xl bg-accent/50 hover:bg-accent transition-colors" aria-label="الأخبار"
               >
                 <Newspaper className="h-5 w-5 text-foreground" />
               </button>
               {user && (
                 <button
                   onClick={() => setChatOpen(true)}
-                  className="relative p-2.5 rounded-xl obsidian-btn-secondary" aria-label="المحادثات"
+                  className="relative p-2.5 rounded-xl bg-accent/50 hover:bg-accent transition-colors" aria-label="المحادثات"
                 >
                   <MessageCircle className="h-5 w-5 text-foreground" />
                   {unreadCount > 0 && (
@@ -201,7 +207,7 @@ export default function Index() {
                     <h2 className="text-base font-bold text-foreground">
                       {language === 'ar' ? 'الحافظة' : 'Clipboard'}
                     </h2>
-                    <button onClick={() => setShowClipboard(false)} className="w-8 h-8 rounded-full obsidian-icon flex items-center justify-center">
+                    <button onClick={() => setShowClipboard(false)} className="w-8 h-8 rounded-full bg-card/80 flex items-center justify-center">
                       <X className="w-4 h-4 text-muted-foreground" />
                     </button>
                   </div>
@@ -216,8 +222,8 @@ export default function Index() {
                     ) : (
                       <div className="flex flex-col gap-2 pb-6">
                         {saved.map((s: any) => (
-                          <div key={s.id} className="obsidian-card p-3">
-                            <div className="flex items-start justify-between gap-2 relative z-10">
+                          <div key={s.id} className="rounded-xl bg-card/80 border border-border/40 p-3">
+                            <div className="flex items-start justify-between gap-2">
                               <div className="flex-1 min-w-0">
                                 <p className="text-sm font-bold text-foreground leading-relaxed mb-1">{s.title}</p>
                                 <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2 mb-2">{s.description}</p>
