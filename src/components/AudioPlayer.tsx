@@ -197,7 +197,7 @@ export default function AudioPlayer() {
   };
 
   return (
-    <div className="bg-card border border-border/40 rounded-2xl p-5">
+    <div className="obsidian-card p-5">
       <audio ref={quranAudioRef} onTimeUpdate={onQuranTimeUpdate} onEnded={() => { setQuranIsPlaying(false); setQuranPlaying(null); }} />
       <audio ref={audioRef} onTimeUpdate={onTimeUpdate} onEnded={skipNext} />
       <input
