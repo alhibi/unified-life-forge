@@ -148,7 +148,7 @@ export default function LocationSaver() {
             value={label}
             onChange={e => setLabel(e.target.value)}
             placeholder={t('location.label')}
-            className="w-full px-3.5 py-2.5 rounded-xl bg-background border border-border text-sm text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none transition-all"
+            className="w-full px-3.5 py-2.5 rounded-xl obsidian-input text-sm text-foreground placeholder:text-muted-foreground outline-none"
           />
           <input
             value={description}
