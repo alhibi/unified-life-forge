@@ -518,7 +518,10 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
       });
   }, [activeConv?.id]);
 
-  // Check expired messages
+  // Fade tick — drives gradual opacity updates for expiring messages
+  const [fadeTick, setFadeTick] = useState(0);
+
+  // Check expired messages & drive fade animation
   useEffect(() => {
     const now = new Date();
     const expired = messages.filter(m => m.expires_at && new Date(m.expires_at) <= now);
@@ -528,12 +531,32 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     const upcoming = messages.filter(m => m.expires_at && new Date(m.expires_at) > now);
     if (upcoming.length > 0) {
       const nextExpiry = Math.min(...upcoming.map(m => new Date(m.expires_at!).getTime() - now.getTime()));
+      // Update fade every 2s for smooth gradual fading, or sooner if message expires soon
+      const tickInterval = Math.min(2000, Math.max(nextExpiry, 500));
       const timer = setTimeout(() => {
+        setFadeTick(t => t + 1);
         setMessages(prev => prev.filter(m => !m.expires_at || new Date(m.expires_at) > new Date()));
-      }, Math.max(nextExpiry, 1000));
+      }, tickInterval);
       return () => clearTimeout(timer);
     }
-  }, [messages]);
+  }, [messages, fadeTick]);
+
+  // Calculate opacity for a message based on remaining time vs total duration
+  const getMessageOpacity = useCallback((msg: Message): number => {
+    if (!msg.expires_at) return 1;
+    const now = Date.now();
+    const expiresAt = new Date(msg.expires_at).getTime();
+    const createdAt = new Date(msg.created_at).getTime();
+    const totalDuration = expiresAt - createdAt;
+    const remaining = expiresAt - now;
+    if (remaining <= 0) return 0;
+    if (totalDuration <= 0) return 1;
+    // Start fading when 70% of time has passed (last 30% = fade zone)
+    const ratio = remaining / totalDuration;
+    if (ratio > 0.3) return 1;
+    // Map 0.3→1, 0→0.15 (never fully invisible before deletion)
+    return 0.15 + (ratio / 0.3) * 0.85;
+  }, [fadeTick]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const toggleReaction = useCallback(async (messageId: string, emoji: string) => {
     if (!user) return;
@@ -734,6 +757,6 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     getReplyPreview, deleteConversation,
     searchForUser, startConversation,
     getMessageMeta, copyMessage, broadcastTyping,
-    setPinnedMessage,
+    setPinnedMessage, getMessageOpacity,
   };
 }

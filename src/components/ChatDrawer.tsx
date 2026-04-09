@@ -350,6 +350,8 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                 const isMine = msg.sender_id === chat.user!.id;
                 const msgReactions = chat.reactions.filter(r => r.message_id === msg.id);
                 const { sameSenderAsPrev, sameSenderAsNext, showDate } = chat.getMessageMeta(idx);
+                const fadeOpacity = chat.getMessageOpacity(msg);
+                const isFading = msg.expires_at && fadeOpacity < 1;
 
                 return (
                   <React.Fragment key={msg.id}>
@@ -360,7 +362,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                         </span>
                       </div>
                     )}
-                    <div id={`msg-${msg.id}`} className={cn('flex relative', isMine ? 'justify-end' : 'justify-start', sameSenderAsPrev ? 'mt-[2px]' : 'mt-2.5')}>
+                    <div id={`msg-${msg.id}`} className={cn('flex relative', isMine ? 'justify-end' : 'justify-start', sameSenderAsPrev ? 'mt-[2px]' : 'mt-2.5')} style={{ opacity: fadeOpacity, transition: 'opacity 2s ease-out' }}>
                       <SwipeableMessage isMine={isMine} deleted={msg.deleted} onSwipeReply={() => { chat.setReplyTo(msg); chat.inputRef.current?.focus(); }}>
                         <div className={cn('relative group w-fit min-w-[80px] max-w-[75%]')} onContextMenu={(e) => openActionMenu(msg, isMine, e)} onClick={(e) => openActionMenu(msg, isMine, e)}>
                           <div className={cn(
@@ -443,7 +445,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                               <div className="px-[10px] py-[6px]">
                                 <p className="break-words whitespace-pre-wrap text-[14.5px] leading-[1.55] [word-break:normal] [unicode-bidi:plaintext]" dir="auto">
                                   <span>{msg.content}</span>
-                                  {!msg.deleted && (<><span aria-hidden="true" className="inline-block w-1.5" /><span className={cn('inline-flex translate-y-[1px] items-center gap-[3px] align-bottom whitespace-nowrap text-[11px] leading-none select-none', isMine ? 'text-primary-foreground/50' : 'text-foreground/40')} dir="ltr">{msg.edited_at && <span className="text-[9px] italic">{chat.isAr ? 'معدّلة' : 'bearb.'}</span>}<span>{new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>{isMine && (msg.read ? <CheckCheck className="h-[11px] w-[11px]" /> : <Check className="h-[11px] w-[11px]" />)}</span></>)}
+                                  {!msg.deleted && (<><span aria-hidden="true" className="inline-block w-1.5" /><span className={cn('inline-flex translate-y-[1px] items-center gap-[3px] align-bottom whitespace-nowrap text-[11px] leading-none select-none', isMine ? 'text-primary-foreground/50' : 'text-foreground/40')} dir="ltr">{msg.edited_at && <span className="text-[9px] italic">{chat.isAr ? 'معدّلة' : 'bearb.'}</span>}{isFading && <Timer className="h-[10px] w-[10px] animate-pulse" />}<span>{new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>{isMine && (msg.read ? <CheckCheck className="h-[11px] w-[11px]" /> : <Check className="h-[11px] w-[11px]" />)}</span></>)}
                                 </p>
                               </div>
                             )}
