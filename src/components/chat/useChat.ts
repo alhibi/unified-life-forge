@@ -757,6 +757,6 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     getReplyPreview, deleteConversation,
     searchForUser, startConversation,
     getMessageMeta, copyMessage, broadcastTyping,
-    setPinnedMessage,
+    setPinnedMessage, getMessageOpacity,
   };
 }
