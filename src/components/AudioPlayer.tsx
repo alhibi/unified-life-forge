@@ -327,8 +327,8 @@ export default function AudioPlayer() {
                   <div className="text-[13px] font-medium text-foreground truncate">{getCurrentQuranSurahName()}</div>
                 </div>
               </div>
-              <div className="h-1.5 bg-secondary rounded-full cursor-pointer overflow-hidden" onClick={seekQuran}>
-                <div className="h-full bg-primary rounded-full transition-all duration-100" style={{ width: `${quranProgress}%` }} />
+              <div className="h-1.5 obsidian-progress cursor-pointer" onClick={seekQuran}>
+                <div className="h-full transition-all duration-100" style={{ width: `${quranProgress}%` }} />
               </div>
               <div className="flex justify-between mt-1">
                 <span className="text-[10px] text-muted-foreground tabular-nums">{formatTime(quranCurrentTime)}</span>
