@@ -66,6 +66,11 @@ export default function ImageLightbox({ src, alt, open, onClose, originRect }: I
         // If closed via UI (not browser back), silently remove the fake history entry
         if (historyPushedRef.current) {
           historyPushedRef.current = false;
+          // Add a one-shot listener to swallow the popstate from our back() call
+          const swallow = (e: PopStateEvent) => {
+            e.stopImmediatePropagation();
+          };
+          window.addEventListener('popstate', swallow, { once: true });
           window.history.back();
         }
       };
