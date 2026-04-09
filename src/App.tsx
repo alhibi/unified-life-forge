@@ -69,36 +69,35 @@ function AnimatedRoutes() {
       <Suspense fallback={<PageSkeleton />}>
         <AnimatePresence mode="wait" initial={false}>
           <Routes location={location} key={location.pathname}>
-            <Route path="/" element={<PageTransition><Index /></PageTransition>} />
-            <Route path="/games" element={<PageTransition><GamesPage /></PageTransition>} />
-            <Route path="/games/sudoku" element={<PageTransition><SudokuPage /></PageTransition>} />
-            <Route path="/games/chess" element={<PageTransition><ChessPage /></PageTransition>} />
-            <Route path="/games/memory" element={<PageTransition><MemoryGame /></PageTransition>} />
-            <Route path="/games/minesweeper" element={<PageTransition><MinesweeperPage /></PageTransition>} />
-            <Route path="/games/colormaze" element={<PageTransition><ColorMazePage /></PageTransition>} />
-            <Route path="/games/pipes" element={<PageTransition><PipesPage /></PageTransition>} />
-            <Route path="/games/dice" element={<PageTransition><DiceGamePage /></PageTransition>} />
-            <Route path="/games/target" element={<PageTransition><TargetGamePage /></PageTransition>} />
-            <Route path="/games/puzzle" element={<PageTransition><PuzzleGamePage /></PageTransition>} />
-            
-            <Route path="/games/hex" element={<PageTransition><HexGamePage /></PageTransition>} />
-            <Route path="/games/focus" element={<PageTransition><FocusGamePage /></PageTransition>} />
-            <Route path="/duas" element={<PageTransition><DuasPage /></PageTransition>} />
-            <Route path="/diwan" element={<PageTransition><DiwanPage /></PageTransition>} />
-            <Route path="/occasions" element={<PageTransition><AllOccasionsPage /></PageTransition>} />
-            <Route path="/reading" element={<PageTransition><ReadingPage /></PageTransition>} />
-            <Route path="/settings" element={<PageTransition><SettingsPage /></PageTransition>} />
-            <Route path="/settings/theme" element={<PageTransition><ThemeSettingsPage /></PageTransition>} />
-            <Route path="/auth" element={<PageTransition><AuthPage /></PageTransition>} />
-            <Route path="/settings/profile" element={<PageTransition><ProfileEditPage /></PageTransition>} />
-            <Route path="/settings/font" element={<PageTransition><FontSettingsPage /></PageTransition>} />
-            <Route path="/settings/prayer" element={<PageTransition><PrayerSettingsPage /></PageTransition>} />
-            <Route path="/section/timed-sunnah" element={<PageTransition><TimedSunnahPage /></PageTransition>} />
-            <Route path="/section/timed-sunnah/:categoryId" element={<PageTransition><SunnahDetailPage /></PageTransition>} />
-            <Route path="/section/untimed-sunnah" element={<PageTransition><UntimedSunnahPage /></PageTransition>} />
-            <Route path="/section/prophetic-day" element={<PageTransition><PropheticDayPage /></PageTransition>} />
-            <Route path="/section/quran-virtues" element={<PageTransition><QuranVirtuesPage /></PageTransition>} />
-            <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
+            <Route path="/" element={<ErrorBoundary><PageTransition><Index /></PageTransition></ErrorBoundary>} />
+            <Route path="/games" element={<ErrorBoundary><PageTransition><GamesPage /></PageTransition></ErrorBoundary>} />
+            <Route path="/games/sudoku" element={<ErrorBoundary><PageTransition><SudokuPage /></PageTransition></ErrorBoundary>} />
+            <Route path="/games/chess" element={<ErrorBoundary><PageTransition><ChessPage /></PageTransition></ErrorBoundary>} />
+            <Route path="/games/memory" element={<ErrorBoundary><PageTransition><MemoryGame /></PageTransition></ErrorBoundary>} />
+            <Route path="/games/minesweeper" element={<ErrorBoundary><PageTransition><MinesweeperPage /></PageTransition></ErrorBoundary>} />
+            <Route path="/games/colormaze" element={<ErrorBoundary><PageTransition><ColorMazePage /></PageTransition></ErrorBoundary>} />
+            <Route path="/games/pipes" element={<ErrorBoundary><PageTransition><PipesPage /></PageTransition></ErrorBoundary>} />
+            <Route path="/games/dice" element={<ErrorBoundary><PageTransition><DiceGamePage /></PageTransition></ErrorBoundary>} />
+            <Route path="/games/target" element={<ErrorBoundary><PageTransition><TargetGamePage /></PageTransition></ErrorBoundary>} />
+            <Route path="/games/puzzle" element={<ErrorBoundary><PageTransition><PuzzleGamePage /></PageTransition></ErrorBoundary>} />
+            <Route path="/games/hex" element={<ErrorBoundary><PageTransition><HexGamePage /></PageTransition></ErrorBoundary>} />
+            <Route path="/games/focus" element={<ErrorBoundary><PageTransition><FocusGamePage /></PageTransition></ErrorBoundary>} />
+            <Route path="/duas" element={<ErrorBoundary><PageTransition><DuasPage /></PageTransition></ErrorBoundary>} />
+            <Route path="/diwan" element={<ErrorBoundary><PageTransition><DiwanPage /></PageTransition></ErrorBoundary>} />
+            <Route path="/occasions" element={<ErrorBoundary><PageTransition><AllOccasionsPage /></PageTransition></ErrorBoundary>} />
+            <Route path="/reading" element={<ErrorBoundary><PageTransition><ReadingPage /></PageTransition></ErrorBoundary>} />
+            <Route path="/settings" element={<ErrorBoundary><PageTransition><SettingsPage /></PageTransition></ErrorBoundary>} />
+            <Route path="/settings/theme" element={<ErrorBoundary><PageTransition><ThemeSettingsPage /></PageTransition></ErrorBoundary>} />
+            <Route path="/auth" element={<ErrorBoundary><PageTransition><AuthPage /></PageTransition></ErrorBoundary>} />
+            <Route path="/settings/profile" element={<ErrorBoundary><PageTransition><ProfileEditPage /></PageTransition></ErrorBoundary>} />
+            <Route path="/settings/font" element={<ErrorBoundary><PageTransition><FontSettingsPage /></PageTransition></ErrorBoundary>} />
+            <Route path="/settings/prayer" element={<ErrorBoundary><PageTransition><PrayerSettingsPage /></PageTransition></ErrorBoundary>} />
+            <Route path="/section/timed-sunnah" element={<ErrorBoundary><PageTransition><TimedSunnahPage /></PageTransition></ErrorBoundary>} />
+            <Route path="/section/timed-sunnah/:categoryId" element={<ErrorBoundary><PageTransition><SunnahDetailPage /></PageTransition></ErrorBoundary>} />
+            <Route path="/section/untimed-sunnah" element={<ErrorBoundary><PageTransition><UntimedSunnahPage /></PageTransition></ErrorBoundary>} />
+            <Route path="/section/prophetic-day" element={<ErrorBoundary><PageTransition><PropheticDayPage /></PageTransition></ErrorBoundary>} />
+            <Route path="/section/quran-virtues" element={<ErrorBoundary><PageTransition><QuranVirtuesPage /></PageTransition></ErrorBoundary>} />
+            <Route path="*" element={<ErrorBoundary><PageTransition><NotFound /></PageTransition></ErrorBoundary>} />
           </Routes>
         </AnimatePresence>
       </Suspense>
