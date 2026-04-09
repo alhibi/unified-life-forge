@@ -376,8 +376,8 @@ export default function AudioPlayer() {
 
               {/* Progress */}
               <div className="mb-5">
-                <div className="h-1.5 bg-secondary rounded-full cursor-pointer overflow-hidden" onClick={seekTo}>
-                  <div className="h-full bg-primary rounded-full transition-all duration-100" style={{ width: `${progress}%` }} />
+                <div className="h-1.5 obsidian-progress cursor-pointer" onClick={seekTo}>
+                  <div className="h-full transition-all duration-100" style={{ width: `${progress}%` }} />
                 </div>
                 <div className="flex justify-between mt-1.5">
                   <span className="text-[10px] text-muted-foreground tabular-nums">{formatTime(currentTime)}</span>
