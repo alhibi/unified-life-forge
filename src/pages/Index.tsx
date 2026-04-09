@@ -36,7 +36,8 @@ export default function Index() {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
           localStorage.setItem('lastLocation', JSON.stringify({ lat: pos.coords.latitude, lng: pos.coords.longitude }));
-          window.location.reload();
+          // Dispatch storage event so widgets re-fetch with new location
+          window.dispatchEvent(new Event('locationUpdated'));
         },
         () => { /* user denied or error — keep Makkah default */ },
         { enableHighAccuracy: true, timeout: 10000 }
@@ -83,7 +84,7 @@ export default function Index() {
 
   useEffect(() => {
     fetchUnread();
-    const interval = setInterval(fetchUnread, 15000);
+    const interval = setInterval(fetchUnread, 60000); // reduced from 15s to 60s, realtime handles instant updates
     return () => clearInterval(interval);
   }, [fetchUnread]);
 

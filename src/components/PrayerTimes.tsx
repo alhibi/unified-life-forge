@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Clock, MapPin, Bell } from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
+import { fetchPrayerTimings as fetchPrayerTimingsCached } from '@/hooks/usePrayerTimesCache';
 
 interface PrayerTime {
   name: string;
@@ -69,24 +70,18 @@ export default function PrayerTimes() {
 
   const fetchPrayers = useCallback(async (lat: number, lng: number) => {
     try {
-      try {
-        const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=${language}`);
-        const geoData = await geoRes.json();
-        const addr = geoData.address;
-        const city = addr?.city || addr?.town || addr?.village || addr?.suburb || addr?.county || '';
-        if (city) setLocationName(city);
-      } catch {}
+      // Fetch location name (non-blocking)
+      fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=${language}`)
+        .then(r => r.json())
+        .then(geoData => {
+          const addr = geoData.address;
+          const city = addr?.city || addr?.town || addr?.village || addr?.suburb || addr?.county || '';
+          if (city) setLocationName(city);
+        })
+        .catch(() => {});
 
-      const today = new Date();
-      const dd = today.getDate();
-      const mm = today.getMonth() + 1;
-      const yyyy = today.getFullYear();
-      const res = await fetch(
-        `https://api.aladhan.com/v1/timings/${dd}-${mm}-${yyyy}?latitude=${lat}&longitude=${lng}&method=4&school=${schoolParam}&latitudeAdjustmentMethod=${latAdjParam}`
-      );
-      const data = await res.json();
-      if (data.code === 200) {
-        const timings = data.data.timings;
+      const timings = await fetchPrayerTimingsCached(lat, lng, schoolParam, latAdjParam);
+      if (timings) {
         const result: PrayerTime[] = PRAYER_KEYS.map(key => ({
           name: key,
           time: timings[key],
