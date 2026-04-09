@@ -429,7 +429,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
       requestAnimationFrame(() => scrollToBottom(false));
     }
 
-    const insertPromise = supabase.from('messages').insert(insertData as Record<string, string>).select().single();
+    const insertPromise = supabase.from('messages').insert(insertData as never).select().single();
     supabase.from('conversations')
       .update({ updated_at: now })
       .eq('id', activeConv.id)
