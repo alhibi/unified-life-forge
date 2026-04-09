@@ -52,7 +52,7 @@ export default function AuthPage() {
         if (error) {
           toast.error(isAr ? 'اسم المستخدم أو كلمة المرور غير صحيحة' : 'Falscher Benutzername oder Passwort');
         } else {
-          toast.success(isAr ? 'تم تسجيل الدخول بنجاح' : 'Erfolgreich angemeldet');
+          toast.success(isAr ? 'تم تسجيل الدخول بنجاح' : 'Erfolgreich angemeldet', { duration: 2000 });
           navigate('/settings');
         }
       } else {

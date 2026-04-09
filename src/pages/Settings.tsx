@@ -119,7 +119,17 @@ export default function SettingsPage() {
 
         {/* Profile / Account Card */}
         <motion.div variants={item}>
-          {user ? (
+          {loading ? (
+            <div className="bg-card border border-border/40 rounded-2xl p-5">
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 rounded-full bg-muted animate-pulse" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-4 w-24 bg-muted animate-pulse rounded" />
+                  <div className="h-3 w-36 bg-muted animate-pulse rounded" />
+                </div>
+              </div>
+            </div>
+          ) : user ? (
             <div className="bg-card border border-border/40 rounded-2xl p-5">
               <div className="flex items-center gap-4">
                 {/* Avatar */}
