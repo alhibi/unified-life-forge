@@ -33,18 +33,34 @@ export default function ImageLightbox({ src, alt, open, onClose, originRect }: I
     }
   }, [open, dragY]);
 
-  // Prevent body scroll & block sheet interaction
+  // Prevent body scroll, block sheet interaction & handle browser back button
   useEffect(() => {
     if (open) {
       document.body.style.overflow = 'hidden';
-      // Block pointer events on everything behind the lightbox
-      const handler = (e: KeyboardEvent) => {
+      
+      // Push a fake history entry so pressing back closes lightbox, not the chat
+      window.history.pushState({ lightbox: true }, '');
+      
+      const handlePopState = (e: PopStateEvent) => {
+        // Browser back pressed — close lightbox instead of navigating
+        onClose();
+      };
+      
+      const handleKeydown = (e: KeyboardEvent) => {
         if (e.key === 'Escape') onClose();
       };
-      window.addEventListener('keydown', handler);
+      
+      window.addEventListener('popstate', handlePopState);
+      window.addEventListener('keydown', handleKeydown);
+      
       return () => {
         document.body.style.overflow = '';
-        window.removeEventListener('keydown', handler);
+        window.removeEventListener('popstate', handlePopState);
+        window.removeEventListener('keydown', handleKeydown);
+        // If lightbox closes without back button (e.g. swipe/tap), remove the fake entry
+        if (window.history.state?.lightbox) {
+          window.history.back();
+        }
       };
     }
   }, [open, onClose]);
