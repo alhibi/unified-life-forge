@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+
+const WAVEFORM_HEIGHTS = Array.from({ length: 24 }, () => Math.round(Math.random() * 18 + 4));
 import { supabase } from '@/integrations/supabase/client';
 import { useImageUpload } from '@/contexts/ImageUploadContext';
 import ImageLightbox from '@/components/ImageLightbox';
@@ -2331,7 +2333,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                           <motion.div
                             key={i}
                             animate={{
-                              height: [2, Math.random() * 18 + 4, 2],
+                              height: [2, WAVEFORM_HEIGHTS[i], 2],
                             }}
                             transition={{
                               duration: 0.4 + Math.random() * 0.4,
