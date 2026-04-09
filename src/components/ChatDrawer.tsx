@@ -1611,7 +1611,8 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
             {/* Messages */}
             <div
               ref={messagesContainerRef}
-              className="flex-1 overflow-y-auto px-3 py-2"
+              className="flex-1 overflow-y-auto px-3 py-2 overscroll-contain scroll-smooth will-change-scroll"
+              style={{ WebkitOverflowScrolling: 'touch' } as any}
               onScroll={handleScroll}
               onClick={() => { setShowChatMenu(false); setActionMenu(null); setShowExtraEmojis(false); }}
             >
