@@ -154,7 +154,7 @@ export default function LocationSaver() {
             value={description}
             onChange={e => setDescription(e.target.value)}
             placeholder={t('location.description')}
-            className="w-full px-3.5 py-2.5 rounded-xl bg-background border border-border text-sm text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none transition-all"
+            className="w-full px-3.5 py-2.5 rounded-xl obsidian-input text-sm text-foreground placeholder:text-muted-foreground outline-none"
           />
           <div className="flex gap-2">
             <button onClick={confirmSave} className="flex-1 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-medium active:scale-[0.98] transition-transform">
