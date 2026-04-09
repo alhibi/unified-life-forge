@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { User, Session } from '@supabase/supabase-js';
 
@@ -15,49 +15,72 @@ export function useAuth() {
   const [loading, setLoading] = useState(true);
   const [username, setUsername] = useState<string | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
+  const requestRef = useRef(0);
 
-  const fetchProfile = useCallback(async (userId: string) => {
+  const applySession = useCallback(async (nextSession: Session | null) => {
+    const requestId = ++requestRef.current;
+
+    setSession(nextSession);
+    setUser(nextSession?.user ?? null);
+
+    if (!nextSession?.user) {
+      setUsername(null);
+      setProfile(null);
+      return;
+    }
+
+    setUsername(nextSession.user.user_metadata?.username ?? null);
+
     const { data } = await supabase
       .from('profiles')
       .select('username, display_name, avatar_url, bio')
-      .eq('user_id', userId)
+      .eq('user_id', nextSession.user.id)
       .maybeSingle();
+
+    if (requestRef.current !== requestId) return;
+
     if (data) {
       setProfile(data as Profile);
       setUsername(data.username);
+    } else {
+      setProfile(null);
     }
   }, []);
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        setUsername(session.user.user_metadata?.username ?? null);
-        fetchProfile(session.user.id);
-      } else {
-        setUsername(null);
-        setProfile(null);
+    let mounted = true;
+
+    const syncAuthState = async (nextSession: Session | null) => {
+      if (!mounted) return;
+      setLoading(true);
+      await applySession(nextSession);
+      if (mounted) {
+        setLoading(false);
       }
-      setLoading(false);
+    };
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+      void syncAuthState(nextSession);
     });
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        setUsername(session.user.user_metadata?.username ?? null);
-        fetchProfile(session.user.id);
-      }
-      setLoading(false);
+    void supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
+      void syncAuthState(currentSession);
     });
 
-    return () => subscription.unsubscribe();
-  }, [fetchProfile]);
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
+  }, [applySession]);
 
   const refreshProfile = useCallback(async () => {
-    if (user) await fetchProfile(user.id);
-  }, [user, fetchProfile]);
+    if (!user || !session) return;
+    setLoading(true);
+    await applySession(session);
+    setLoading(false);
+  }, [applySession, session, user]);
 
   const signUp = useCallback(async (username: string, password: string) => {
     const email = `${username.toLowerCase().trim()}@smartapp.local`;
