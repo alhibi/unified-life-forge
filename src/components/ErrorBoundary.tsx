@@ -1,5 +1,5 @@
 import React, { Component, type ReactNode } from 'react';
-import { RefreshCw } from 'lucide-react';
+import { RefreshCw, Home } from 'lucide-react';
 
 interface Props {
   children: ReactNode;
@@ -25,6 +25,11 @@ export default class ErrorBoundary extends Component<Props, State> {
     this.setState({ hasError: false });
   };
 
+  handleGoHome = () => {
+    this.setState({ hasError: false });
+    window.location.href = '/';
+  };
+
   render() {
     if (this.state.hasError) {
       return (
@@ -40,13 +45,22 @@ export default class ErrorBoundary extends Component<Props, State> {
               يرجى المحاولة مرة أخرى
             </p>
           </div>
-          <button
-            onClick={this.handleRetry}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-medium active:scale-95 transition-transform"
-          >
-            <RefreshCw className="w-4 h-4" />
-            إعادة المحاولة
-          </button>
+          <div className="flex gap-3">
+            <button
+              onClick={this.handleRetry}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-medium active:scale-95 transition-transform"
+            >
+              <RefreshCw className="w-4 h-4" />
+              إعادة المحاولة
+            </button>
+            <button
+              onClick={this.handleGoHome}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-secondary text-secondary-foreground text-sm font-medium active:scale-95 transition-transform"
+            >
+              <Home className="w-4 h-4" />
+              الرئيسية
+            </button>
+          </div>
         </div>
       );
     }
