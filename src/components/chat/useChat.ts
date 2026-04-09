@@ -193,11 +193,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
       const msgIds = data.map(m => m.id);
 
       supabase
-        .from('messages')
-        .update({ read: true })
-        .eq('conversation_id', activeConv.id)
-        .neq('sender_id', user.id)
-        .eq('read', false)
+        .rpc('mark_messages_read', { p_conversation_id: activeConv.id })
         .then();
 
       if (msgIds.length > 0) {
@@ -299,7 +295,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
               return [...prev, msg];
             });
             if (msg.sender_id !== user.id) {
-              supabase.from('messages').update({ read: true }).eq('id', msg.id).then();
+              supabase.rpc('mark_message_read', { p_message_id: msg.id }).then();
             }
             requestAnimationFrame(() => scrollToBottom(false));
           }

@@ -290,6 +290,11 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      mark_message_read: { Args: { p_message_id: string }; Returns: undefined }
+      mark_messages_read: {
+        Args: { p_conversation_id: string }
+        Returns: undefined
+      }
       update_last_seen: { Args: never; Returns: undefined }
     }
     Enums: {
