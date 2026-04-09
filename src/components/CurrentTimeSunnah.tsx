@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, Leaf } from 'lucide-react';
 import { sunnahDetailData } from '@/data/sunnahDetailData';
 import type { SunnahDetailItem } from '@/data/sunnahDetailData';
+import { fetchPrayerTimings } from '@/hooks/usePrayerTimesCache';
 
 interface PrayerTimings {
   Fajr: string;
@@ -62,33 +63,22 @@ export default function CurrentTimeSunnah() {
   const [current, setCurrent] = useState(() => getCurrentPrayerKey(null));
 
   useEffect(() => {
-    const fetchTimings = async (lat: number, lng: number) => {
-      try {
-        const schoolParam = prayerMadhab === 'hanafi' ? 1 : 0;
-        const latAdjMap: Record<string, number> = { middle: 1, seventh: 2, angle: 3 };
-        const latAdjParam = latAdjMap[latitudeAdjMethod] || 3;
-        const today = new Date();
-        const dd = today.getDate();
-        const mm = today.getMonth() + 1;
-        const yyyy = today.getFullYear();
-        const res = await fetch(
-          `https://api.aladhan.com/v1/timings/${dd}-${mm}-${yyyy}?latitude=${lat}&longitude=${lng}&method=4&school=${schoolParam}&latitudeAdjustmentMethod=${latAdjParam}`
-        );
-        const data = await res.json();
-        if (data.code === 200) {
-          const t = data.data.timings;
-          setTimings({ Fajr: t.Fajr, Sunrise: t.Sunrise, Dhuhr: t.Dhuhr, Asr: t.Asr, Maghrib: t.Maghrib, Isha: t.Isha });
-        }
-      } catch {}
+    const load = async (lat: number, lng: number) => {
+      const schoolParam = prayerMadhab === 'hanafi' ? 1 : 0;
+      const latAdjMap: Record<string, number> = { middle: 1, seventh: 2, angle: 3 };
+      const latAdjParam = latAdjMap[latitudeAdjMethod] || 3;
+      const result = await fetchPrayerTimings(lat, lng, schoolParam, latAdjParam);
+      if (result) {
+        setTimings({ Fajr: result.Fajr, Sunrise: result.Sunrise, Dhuhr: result.Dhuhr, Asr: result.Asr, Maghrib: result.Maghrib, Isha: result.Isha });
+      }
     };
 
     const cached = localStorage.getItem('lastLocation');
     if (cached) {
       const { lat, lng } = JSON.parse(cached);
-      fetchTimings(lat, lng);
+      load(lat, lng);
     } else {
-      // Use default location (Makkah) without requesting geolocation on page load
-      fetchTimings(21.4225, 39.8262);
+      load(21.4225, 39.8262);
     }
   }, [prayerMadhab, latitudeAdjMethod]);
 
