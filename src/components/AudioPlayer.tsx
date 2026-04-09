@@ -225,11 +225,11 @@ export default function AudioPlayer() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1.5 p-1 bg-secondary/50 rounded-xl mb-4">
+      <div className="flex gap-1.5 p-1 obsidian-inset mb-4">
         <button
           onClick={() => setTab('quran')}
           className={`flex-1 py-2 rounded-lg text-[13px] font-medium transition-all ${
-            tab === 'quran' ? 'bg-card text-foreground' : 'text-muted-foreground hover:text-foreground'
+            tab === 'quran' ? 'obsidian-tab-active text-foreground' : 'obsidian-tab text-muted-foreground hover:text-foreground'
           }`}
         >
           <BookOpenText className="w-3.5 h-3.5 inline-block me-1.5 -mt-0.5" />
@@ -238,7 +238,7 @@ export default function AudioPlayer() {
         <button
           onClick={() => setTab('local')}
           className={`flex-1 py-2 rounded-lg text-[13px] font-medium transition-all ${
-            tab === 'local' ? 'bg-card text-foreground' : 'text-muted-foreground hover:text-foreground'
+            tab === 'local' ? 'obsidian-tab-active text-foreground' : 'obsidian-tab text-muted-foreground hover:text-foreground'
           }`}
         >
           <FolderOpen className="w-3.5 h-3.5 inline-block me-1.5 -mt-0.5" />
