@@ -638,6 +638,9 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
     if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
     typingChannelRef.current?.track({ typing: false });
 
+    const optimisticId = `optimistic_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+    const now = new Date().toISOString();
+
     const insertData: any = {
       conversation_id: activeConv.id,
       sender_id: user.id,
@@ -653,13 +656,46 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
       insertData.expires_at = new Date(Date.now() + selfDestructSeconds * 1000).toISOString();
     }
 
-    await supabase.from('messages').insert(insertData);
+    // Optimistic: show message instantly for text messages
+    if (type === 'text') {
+      const optimisticMsg: Message = {
+        id: optimisticId,
+        conversation_id: activeConv.id,
+        sender_id: user.id,
+        content,
+        read: false,
+        created_at: now,
+        reply_to_id: replyToId,
+        message_type: type,
+        file_url: null,
+        file_name: null,
+        deleted: false,
+        edited_at: null,
+        expires_at: insertData.expires_at || null,
+      };
+      setMessages(prev => [...prev, optimisticMsg]);
+      // Instant scroll
+      requestAnimationFrame(() => scrollToBottom(false));
+    }
 
-    await supabase.from('conversations')
-      .update({ updated_at: new Date().toISOString() })
-      .eq('id', activeConv.id);
+    // Fire-and-forget: don't await insert for text, await for files
+    const insertPromise = supabase.from('messages').insert(insertData).select().single();
+    supabase.from('conversations')
+      .update({ updated_at: now })
+      .eq('id', activeConv.id)
+      .then();
 
-    if (type === 'text') focusComposer();
+    if (type === 'text') {
+      // Replace optimistic message with real one when DB responds
+      insertPromise.then(({ data: realMsg }) => {
+        if (realMsg) {
+          setMessages(prev => prev.map(m => m.id === optimisticId ? (realMsg as Message) : m));
+        }
+      });
+      focusComposer();
+    } else {
+      await insertPromise;
+    }
   };
 
   const deleteMessage = async (msgId: string) => {
