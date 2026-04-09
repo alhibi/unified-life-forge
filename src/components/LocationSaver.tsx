@@ -188,7 +188,7 @@ export default function LocationSaver() {
                   onClick={() => setExpandedId(isExpanded ? null : loc.id)}
                   className="w-full flex items-center gap-3 p-3.5 text-start hover:bg-secondary/60 transition-colors"
                 >
-                  <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                  <div className="w-9 h-9 rounded-xl obsidian-icon flex items-center justify-center shrink-0">
                     <MapPin className="w-4 h-4 text-primary" />
                   </div>
                   <div className="flex-1 min-w-0">
