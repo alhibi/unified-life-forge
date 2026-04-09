@@ -3,7 +3,7 @@ import { ChevronRight, ChevronLeft } from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
 
 interface BackButtonProps {
-  to?: string | number;
+  to?: string;
   onClick?: () => void;
 }
 
@@ -13,13 +13,9 @@ export default function BackButton({ to, onClick }: BackButtonProps) {
   const Icon = dir === 'rtl' ? ChevronRight : ChevronLeft;
 
   const handleClick = () => {
-    if (onClick) {
-      onClick();
-    } else if (typeof to === 'string') {
-      navigate(to);
-    } else {
-      navigate(-1);
-    }
+    if (onClick) { onClick(); return; }
+    if (to) { navigate(to); return; }
+    navigate(-1);
   };
 
   return (
