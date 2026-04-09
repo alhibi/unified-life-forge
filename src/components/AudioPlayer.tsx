@@ -197,7 +197,7 @@ export default function AudioPlayer() {
   };
 
   return (
-    <div className="bg-card border border-border/40 rounded-2xl p-5">
+    <div className="obsidian-card p-5">
       <audio ref={quranAudioRef} onTimeUpdate={onQuranTimeUpdate} onEnded={() => { setQuranIsPlaying(false); setQuranPlaying(null); }} />
       <audio ref={audioRef} onTimeUpdate={onTimeUpdate} onEnded={skipNext} />
       <input
@@ -213,7 +213,7 @@ export default function AudioPlayer() {
 
       {/* Header */}
       <div className="flex items-center gap-3 mb-4">
-        <div className="w-11 h-11 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
+        <div className="w-11 h-11 rounded-2xl obsidian-icon flex items-center justify-center shrink-0">
           <Music className="w-5 h-5 text-primary" />
         </div>
         <div className="flex-1 min-w-0">
@@ -225,11 +225,11 @@ export default function AudioPlayer() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1.5 p-1 bg-secondary/50 rounded-xl mb-4">
+      <div className="flex gap-1.5 p-1 obsidian-inset mb-4">
         <button
           onClick={() => setTab('quran')}
           className={`flex-1 py-2 rounded-lg text-[13px] font-medium transition-all ${
-            tab === 'quran' ? 'bg-card text-foreground' : 'text-muted-foreground hover:text-foreground'
+            tab === 'quran' ? 'obsidian-tab-active text-foreground' : 'obsidian-tab text-muted-foreground hover:text-foreground'
           }`}
         >
           <BookOpenText className="w-3.5 h-3.5 inline-block me-1.5 -mt-0.5" />
@@ -238,7 +238,7 @@ export default function AudioPlayer() {
         <button
           onClick={() => setTab('local')}
           className={`flex-1 py-2 rounded-lg text-[13px] font-medium transition-all ${
-            tab === 'local' ? 'bg-card text-foreground' : 'text-muted-foreground hover:text-foreground'
+            tab === 'local' ? 'obsidian-tab-active text-foreground' : 'obsidian-tab text-muted-foreground hover:text-foreground'
           }`}
         >
           <FolderOpen className="w-3.5 h-3.5 inline-block me-1.5 -mt-0.5" />
@@ -258,7 +258,7 @@ export default function AudioPlayer() {
                   onClick={() => setSelectedReciter(reciter)}
                   className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-secondary/60 transition-colors text-start"
                 >
-                  <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                  <div className="w-9 h-9 rounded-lg obsidian-icon flex items-center justify-center shrink-0">
                     <BookOpenText className="w-4 h-4 text-primary" />
                   </div>
                   <div className="flex-1 min-w-0">
@@ -295,7 +295,7 @@ export default function AudioPlayer() {
                       }`}
                     >
                       <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${
-                        isCurrentSurah ? 'bg-primary text-primary-foreground' : 'bg-secondary'
+                        isCurrentSurah ? 'obsidian-btn' : 'obsidian-icon'
                       }`}>
                         {isCurrentSurah && quranIsPlaying ? (
                           <Pause className="w-4 h-4" />
@@ -320,15 +320,15 @@ export default function AudioPlayer() {
           {quranPlaying && (
             <div className="mt-4 pt-3 border-t border-border/30">
               <div className="flex items-center gap-3 mb-2">
-                <button onClick={toggleQuranPlay} className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center shrink-0">
+                <button onClick={toggleQuranPlay} className="w-10 h-10 rounded-full obsidian-btn flex items-center justify-center shrink-0">
                   {quranIsPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ms-0.5" />}
                 </button>
                 <div className="flex-1 min-w-0">
                   <div className="text-[13px] font-medium text-foreground truncate">{getCurrentQuranSurahName()}</div>
                 </div>
               </div>
-              <div className="h-1.5 bg-secondary rounded-full cursor-pointer overflow-hidden" onClick={seekQuran}>
-                <div className="h-full bg-primary rounded-full transition-all duration-100" style={{ width: `${quranProgress}%` }} />
+              <div className="h-1.5 obsidian-progress cursor-pointer" onClick={seekQuran}>
+                <div className="h-full transition-all duration-100" style={{ width: `${quranProgress}%` }} />
               </div>
               <div className="flex justify-between mt-1">
                 <span className="text-[10px] text-muted-foreground tabular-nums">{formatTime(quranCurrentTime)}</span>
@@ -356,8 +356,8 @@ export default function AudioPlayer() {
           {files.length > 0 && (
             <>
               {/* Now Playing */}
-              <div className="flex items-center gap-3 mb-4 p-3 rounded-xl bg-secondary/40">
-                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+              <div className="flex items-center gap-3 mb-4 p-3 rounded-xl obsidian-inset">
+                <div className="w-10 h-10 rounded-lg obsidian-icon flex items-center justify-center shrink-0">
                   {isPlaying ? (
                     <div className="flex items-end gap-0.5 h-4">
                       <div className="w-1 bg-primary rounded-full animate-pulse" style={{ height: '60%' }} />
@@ -376,8 +376,8 @@ export default function AudioPlayer() {
 
               {/* Progress */}
               <div className="mb-5">
-                <div className="h-1.5 bg-secondary rounded-full cursor-pointer overflow-hidden" onClick={seekTo}>
-                  <div className="h-full bg-primary rounded-full transition-all duration-100" style={{ width: `${progress}%` }} />
+                <div className="h-1.5 obsidian-progress cursor-pointer" onClick={seekTo}>
+                  <div className="h-full transition-all duration-100" style={{ width: `${progress}%` }} />
                 </div>
                 <div className="flex justify-between mt-1.5">
                   <span className="text-[10px] text-muted-foreground tabular-nums">{formatTime(currentTime)}</span>
@@ -390,7 +390,7 @@ export default function AudioPlayer() {
                 <button onClick={skipPrev} className="p-2 rounded-full hover:bg-secondary transition-colors">
                   <SkipBack className="w-5 h-5 text-foreground" />
                 </button>
-                <button onClick={togglePlay} className="w-14 h-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center active:scale-95 transition-transform">
+                <button onClick={togglePlay} className="w-14 h-14 rounded-full obsidian-btn flex items-center justify-center active:scale-95 transition-transform">
                   {isPlaying ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6 ms-0.5" />}
                 </button>
                 <button onClick={skipNext} className="p-2 rounded-full hover:bg-secondary transition-colors">
