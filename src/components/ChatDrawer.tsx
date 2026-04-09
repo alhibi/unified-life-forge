@@ -1,1061 +1,83 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-
-const WAVEFORM_HEIGHTS = Array.from({ length: 24 }, () => Math.round(Math.random() * 18 + 4));
+import React, { useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useImageUpload } from '@/contexts/ImageUploadContext';
 import ImageLightbox from '@/components/ImageLightbox';
-import { useAuth } from '@/hooks/useAuth';
-import { useOtherUserPresence, formatLastSeen } from '@/hooks/usePresence';
-import { useApp } from '@/contexts/AppContext';
 import { useVoicePlayer } from '@/contexts/VoicePlayerContext';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
-  ChevronRight, ChevronLeft, ChevronDown, Send, Search, Plus, MessageCircle,
+  ChevronRight, ChevronLeft, ChevronDown, Search, Plus,
   Check, CheckCheck, Reply, Trash2, Paperclip, X,
-  Download, FileText, MoreVertical, Trash, Info, Copy, Pin, PinOff, Mic, Smile,
+  Download, FileText, MoreVertical, Trash, Info, Copy, Pin, PinOff,
   ArrowDown, Calendar, Clock, Image as ImageIcon, User2, Pencil, Timer, TimerOff
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
-import { EMOJI_AVATARS, getAppleEmojiUrl, isEmojiAvatarValue } from '@/utils/emojiAvatar';
+import { motion, AnimatePresence } from 'framer-motion';
+import { isEmojiAvatarValue, getAppleEmojiUrl } from '@/utils/emojiAvatar';
 import { getDefaultAvatarForUser } from '@/utils/defaultAvatar';
+import { getSignedFileUrl } from './chat/chatUtils';
+import { QUICK_EMOJIS, EXTRA_EMOJIS } from './chat/constants';
+import { useChat } from './chat/useChat';
+import { useVoiceRecording } from './chat/useVoiceRecording';
+import { SwipeableMessage, TypingDots } from './chat/MessageBubble';
+import ConversationList from './chat/ConversationList';
+import ChatInput from './chat/ChatInput';
+import type { ChatDrawerProps, ActionMenuState, Message } from './chat/types';
 
-interface Conversation {
-  id: string;
-  user1_id: string;
-  user2_id: string;
-  updated_at: string;
-  otherUsername?: string;
-  otherDisplayName?: string;
-  otherAvatarUrl?: string;
-  otherUserId?: string;
-  otherBio?: string | null;
-  otherLastSeen?: string | null;
-  otherCreatedAt?: string | null;
-  lastMessage?: string;
-  lastMessageTime?: string;
-  unreadCount?: number;
-}
-
-interface Message {
-  id: string;
-  conversation_id: string;
-  sender_id: string;
-  content: string;
-  read: boolean;
-  created_at: string;
-  reply_to_id?: string | null;
-  message_type: string;
-  file_url?: string | null;
-  file_name?: string | null;
-  deleted: boolean;
-  edited_at?: string | null;
-  expires_at?: string | null;
-}
-
-const getSignedFileUrl = async (fileUrl: string): Promise<string> => {
-  if (!fileUrl) return '';
-
-  // Already a full URL (old data) → keep as-is unless it points to chat-files, then refresh it.
-  if (fileUrl.startsWith('http')) {
-    if (!fileUrl.includes('/chat-files/')) return fileUrl;
-    const match = fileUrl.match(/chat-files\/(.+?)(?:\?|$)/);
-    if (!match) return fileUrl;
-    const path = decodeURIComponent(match[1]);
-    const { data, error } = await supabase.storage.from('chat-files').createSignedUrl(path, 3600);
-    return error ? fileUrl : data.signedUrl;
-  }
-
-  // New data is stored as the raw storage path.
-  const { data, error } = await supabase.storage.from('chat-files').createSignedUrl(fileUrl, 3600);
-  return error ? '' : data.signedUrl;
+const renderAvatar = (username?: string, avatarUrl?: string | null, size: string = 'h-12 w-12') => {
+  const isEmoji = avatarUrl ? isEmojiAvatarValue(avatarUrl) : false;
+  const hasImage = avatarUrl && avatarUrl.startsWith('http');
+  const defaultSrc = getDefaultAvatarForUser(username || '?');
+  return (
+    <Avatar className={cn(size, 'shrink-0')}>
+      {hasImage ? (
+        <AvatarImage src={avatarUrl} alt={username} className="object-cover" />
+      ) : isEmoji ? (
+        <AvatarImage src={getAppleEmojiUrl(avatarUrl!) || ''} alt={username} className="w-[60%] h-[60%] object-contain m-auto" />
+      ) : (
+        <img src={defaultSrc} alt={username || ''} className="w-full h-full object-cover" />
+      )}
+      <AvatarFallback className="bg-muted" />
+    </Avatar>
+  );
 };
 
-interface Reaction {
-  id: string;
-  message_id: string;
-  user_id: string;
-  emoji: string;
-}
-
-interface ChatDrawerProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  unreadCount: number;
-  onUnreadChange: (count: number) => void;
-}
-
-const QUICK_EMOJIS = ['❤️', '👍', '😂', '🔥', '😢', '👏'];
-const EXTRA_EMOJIS = [
-  '👎', '🥰', '😮', '🤔', '🎉', '💯', '🙏', '😡', '💔', '🫡',
-  '✨', '🤣', '😍', '🥺', '😘', '🤗', '😎', '🤩', '😏', '🫠',
-  '😤', '😭', '🥳', '💪', '🤝', '👀', '💀', '🫶', '🥹', '😈',
-  '🤯', '💃', '🕺', '❤️‍🔥', '💋', '🌹', '🍕', '☕', '🎶', '⚡',
-  '🦋', '🌙', '🔮', '🧿', '🪬', '📌', '🏆', '🎯', '💎', '🫰',
-];
-
-interface ActionMenuState {
-  msg: Message;
-  isMine: boolean;
-  rect: { top: number; bottom: number; left: number; right: number; width: number; height: number };
-  containerRect: { top: number; bottom: number; height: number };
-}
-
-function formatTime(dateStr: string, isAr: boolean) {
-  const d = new Date(dateStr);
-  const now = new Date();
-  const diffMs = now.getTime() - d.getTime();
-  const diffMins = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMs / 3600000);
-  const diffDays = Math.floor(diffMs / 86400000);
-
-  if (diffMins < 1) return isAr ? 'الآن' : 'Jetzt';
-  if (diffMins < 60) return isAr ? `${diffMins} د` : `${diffMins} Min`;
-  if (diffHours < 24) return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  if (diffDays < 7) return d.toLocaleDateString(isAr ? 'ar' : 'de', { weekday: 'short' });
-  return d.toLocaleDateString(isAr ? 'ar' : 'de', { day: 'numeric', month: 'short' });
-}
-
-// formatLastSeen is now imported from usePresence
-
-// Swipeable message wrapper - right only
-function SwipeableMessage({ children, isMine, deleted, onSwipeReply }: {
-  children: React.ReactNode;
-  isMine: boolean;
-  deleted: boolean;
-  onSwipeReply: () => void;
-}) {
-  const x = useMotionValue(0);
-  const replyIconOpacity = useTransform(x, [0, 30, 50], [0, 0.5, 1]);
-  const replyIconScale = useTransform(x, [0, 30, 50], [0.5, 0.8, 1]);
-
-  return (
-    <div className="relative overflow-visible w-full">
-      <motion.div
-        className="absolute top-1/2 -translate-y-1/2 start-0 pointer-events-none z-0"
-        style={{ opacity: replyIconOpacity, scale: replyIconScale }}
-      >
-        <div className="w-8 h-8 rounded-full bg-primary/15 flex items-center justify-center">
-          <Reply className="w-4 h-4 text-primary" />
-        </div>
-      </motion.div>
-      <motion.div
-        className={cn("relative z-10 flex", isMine ? 'justify-end' : 'justify-start')}
-        style={{ x, touchAction: 'pan-y' }}
-        drag={deleted ? false : "x"}
-        dragDirectionLock
-        dragConstraints={{ left: 0, right: 0 }}
-        dragElastic={{ left: 0, right: 0.4 }}
-        dragSnapToOrigin
-        onDrag={(_, info) => {
-          if (info.offset.x < 0) x.set(0);
-        }}
-        onDragEnd={(_, info) => {
-          if (info.offset.x > 50) onSwipeReply();
-        }}
-      >
-        {children}
-      </motion.div>
-    </div>
-  );
-}
-
-// Typing dots animation
-function TypingDots() {
-  return (
-    <div className="flex items-center gap-[3px] py-0.5">
-      {[0, 1, 2].map(i => (
-        <motion.div
-          key={i}
-          className="w-[5px] h-[5px] rounded-full bg-primary"
-          animate={{ opacity: [0.3, 1, 0.3], y: [0, -3, 0] }}
-          transition={{ duration: 0.8, repeat: Infinity, delay: i * 0.15 }}
-        />
-      ))}
-    </div>
-  );
-}
-
 export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadChange }: ChatDrawerProps) {
-  const { user } = useAuth();
-  const { language } = useApp();
-  const isAr = language === 'ar';
-
-  const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [activeConv, setActiveConv] = useState<Conversation | null>(null);
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [reactions, setReactions] = useState<Reaction[]>([]);
-  const [newMessage, setNewMessage] = useState('');
-  const [searchUser, setSearchUser] = useState('');
-  const [searchResult, setSearchResult] = useState<{ user_id: string; username: string; display_name?: string; avatar_url?: string } | null>(null);
-  const [searchError, setSearchError] = useState('');
-  const [showNewChat, setShowNewChat] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [replyTo, setReplyTo] = useState<Message | null>(null);
-  const [actionMenu, setActionMenu] = useState<ActionMenuState | null>(null);
-  const [showExtraEmojis, setShowExtraEmojis] = useState(false);
-  const [typingUser, setTypingUser] = useState(false);
-  const [uploading, setUploading] = useState(false);
-  const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
-  const typingChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
-  const [showProfilePopup, setShowProfilePopup] = useState(false);
-  const [showChatMenu, setShowChatMenu] = useState(false);
-  const [showScrollDown, setShowScrollDown] = useState(false);
-  const [sharedMedia, setSharedMedia] = useState<Message[]>([]);
-  const [profileTab, setProfileTab] = useState<'info' | 'media'>('info');
-  const reconnectRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  // Pin, Search, Edit, Self-destruct states
-  const [pinnedMessage, setPinnedMessage] = useState<Message | null>(null);
-  const [showSearch, setShowSearch] = useState(false);
-  const [chatSearchQuery, setChatSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<Message[]>([]);
-  const [searchIndex, setSearchIndex] = useState(0);
-  const [editingMessage, setEditingMessage] = useState<Message | null>(null);
-  const [selfDestructSeconds, setSelfDestructSeconds] = useState<number | null>(null);
-  const [showSelfDestructMenu, setShowSelfDestructMenu] = useState(false);
-
-  // Lightbox state
-  const [lightboxSrc, setLightboxSrc] = useState('');
-  const [lightboxOpen, setLightboxOpen] = useState(false);
-  const [lightboxRect, setLightboxRect] = useState<DOMRect | null>(null);
-
-  // Multi-image staging
-  const [stagedImages, setStagedImages] = useState<File[]>([]);
-  const [stagedPreviews, setStagedPreviews] = useState<string[]>([]);
-
-  // Image upload context
-  const imageUpload = useImageUpload();
-
-  // Voice recording state
-  const [isRecording, setIsRecording] = useState(false);
-  const [recordingTime, setRecordingTime] = useState(0);
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const recordingChunksRef = useRef<Blob[]>([]);
-  const recordingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const recordingStartXRef = useRef(0);
-  const recordingCancelledRef = useRef(false);
-
-  // Voice playback - global context
+  const chat = useChat({ open, onUnreadChange });
+  const { isRecording, recordingTime, startRecording, stopRecording } = useVoiceRecording({
+    activeConvId: chat.activeConv?.id || null,
+    userId: chat.user?.id,
+    sendMessage: chat.sendMessage,
+  });
   const voicePlayer = useVoicePlayer();
 
+  const [actionMenu, setActionMenu] = React.useState<ActionMenuState | null>(null);
 
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const messagesContainerRef = useRef<HTMLDivElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const inputRef = useRef<HTMLTextAreaElement>(null);
+  const BackIcon = chat.isAr ? ChevronRight : ChevronLeft;
 
-  const scrollToBottom = useCallback((smooth = true) => {
-    messagesEndRef.current?.scrollIntoView({ behavior: smooth ? 'smooth' : 'instant' });
-  }, []);
-
-  const focusComposer = useCallback(() => {
-    requestAnimationFrame(() => {
-      const composer = inputRef.current;
-      if (!composer) return;
-      composer.focus({ preventScroll: true });
-      const caretPosition = composer.value.length;
-      composer.setSelectionRange(caretPosition, caretPosition);
-    });
-  }, []);
-
-  const resizeComposer = useCallback((element?: HTMLTextAreaElement | null) => {
-    const composer = element ?? inputRef.current;
-    if (!composer) return;
-    composer.style.height = '0px';
-    composer.style.height = `${Math.min(Math.max(composer.scrollHeight, 40), 120)}px`;
-  }, []);
-
-  // Scroll detection for FAB
-  const handleScroll = useCallback(() => {
-    const container = messagesContainerRef.current;
-    if (!container) return;
-    const distFromBottom = container.scrollHeight - container.scrollTop - container.clientHeight;
-    setShowScrollDown(distFromBottom > 200);
-  }, []);
-
-  // Load conversations - optimized: batch queries instead of N+1
-  const loadConversations = useCallback(async () => {
-    if (!user) return;
-    const { data: convs } = await supabase
-      .from('conversations')
-      .select('*')
-      .or(`user1_id.eq.${user.id},user2_id.eq.${user.id}`)
-      .order('updated_at', { ascending: false });
-
-    if (!convs) return;
-
-    const otherIds = convs.map(c => c.user1_id === user.id ? c.user2_id : c.user1_id);
-    const convIds = convs.map(c => c.id);
-
-    // Batch: profiles + all recent messages + unread counts in parallel
-    const [profilesRes, allMsgsRes, unreadMsgsRes] = await Promise.all([
-      supabase.from('profiles')
-        .select('user_id, username, display_name, avatar_url, bio, last_seen, created_at')
-        .in('user_id', otherIds),
-      Promise.all(convIds.map(cid =>
-        supabase.from('messages')
-          .select('conversation_id, content, message_type, deleted, created_at')
-          .eq('conversation_id', cid)
-          .order('created_at', { ascending: false })
-          .limit(1)
-          .maybeSingle()
-      )).then(results => ({
-        data: results.map(r => r.data).filter(Boolean) as { conversation_id: string; content: string; message_type: string; deleted: boolean; created_at: string }[],
-        error: null,
-      })),
-      supabase.from('messages')
-        .select('conversation_id')
-        .in('conversation_id', convIds)
-        .neq('sender_id', user.id)
-        .eq('read', false)
-        .eq('deleted', false),
-    ]);
-
-    const profiles = profilesRes.data || [];
-    const allMsgs = allMsgsRes.data || [];
-    const unreadMsgs = unreadMsgsRes.data || [];
-
-    // Build last message per conversation
-    const lastMsgMap = new Map<string, typeof allMsgs[0]>();
-    for (const m of allMsgs) {
-      if (!lastMsgMap.has(m.conversation_id)) lastMsgMap.set(m.conversation_id, m);
-    }
-
-    // Build unread count per conversation
-    const unreadCountMap = new Map<string, number>();
-    for (const m of unreadMsgs) {
-      unreadCountMap.set(m.conversation_id, (unreadCountMap.get(m.conversation_id) || 0) + 1);
-    }
-
-    const enriched = convs.map((conv) => {
-      const otherId = conv.user1_id === user.id ? conv.user2_id : conv.user1_id;
-      const profile = profiles.find(p => p.user_id === otherId);
-      const lastMsg = lastMsgMap.get(conv.id);
-      const unreadCount = unreadCountMap.get(conv.id) || 0;
-
-      let lastContent = lastMsg?.content;
-      if (lastMsg?.deleted) lastContent = isAr ? '🚫 تم حذف الرسالة' : '🚫 Nachricht gelöscht';
-      else if (lastMsg?.message_type === 'image') lastContent = '📷 ' + (isAr ? 'صورة' : 'Foto');
-      else if (lastMsg?.message_type === 'voice') lastContent = '🎤 ' + (isAr ? 'رسالة صوتية' : 'Sprachnachricht');
-      else if (lastMsg?.message_type === 'file') lastContent = '📎 ' + (isAr ? 'ملف' : 'Datei');
-
-      return {
-        ...conv,
-        otherUsername: profile?.username || '?',
-        otherDisplayName: profile?.display_name ?? profile?.username ?? '?',
-        otherAvatarUrl: profile?.avatar_url ?? undefined,
-        otherUserId: otherId,
-        otherBio: (profile as Record<string, unknown>)?.bio as string | null ?? null,
-        otherLastSeen: (profile as Record<string, unknown>)?.last_seen as string | null ?? null,
-        otherCreatedAt: (profile as Record<string, unknown>)?.created_at as string | null ?? null,
-        lastMessage: lastContent,
-        lastMessageTime: lastMsg?.created_at || conv.updated_at,
-        unreadCount,
-      };
-    });
-
-    setConversations(enriched);
-    onUnreadChange(enriched.reduce((sum, c) => sum + (c.unreadCount || 0), 0));
-  }, [user, onUnreadChange, isAr]);
-
-  const loadMessages = useCallback(async () => {
-    if (!activeConv || !user) return;
-    // Load messages + mark read + load reactions in parallel
-    const { data } = await supabase
-      .from('messages')
-      .select('*')
-      .eq('conversation_id', activeConv.id)
-      .order('created_at', { ascending: true });
-
-    if (data) {
-      setMessages(data as Message[]);
-
-      const msgIds = data.map(m => m.id);
-
-      // Fire mark-read and reactions fetch in parallel (don't await mark-read)
-      supabase
-        .from('messages')
-        .update({ read: true })
-        .eq('conversation_id', activeConv.id)
-        .neq('sender_id', user.id)
-        .eq('read', false)
-        .then();
-
-      if (msgIds.length > 0) {
-        const { data: rxns } = await supabase
-          .from('message_reactions')
-          .select('*')
-          .in('message_id', msgIds);
-        setReactions((rxns || []) as Reaction[]);
-      }
-
-      // Instant scroll - no delay for native feel
-      scrollToBottom(false);
-    }
-  }, [activeConv, user, scrollToBottom]);
-
-  useEffect(() => {
-    if (open && user) loadConversations();
-  }, [open, user, loadConversations]);
-
-  useEffect(() => {
-    if (activeConv) loadMessages();
-  }, [activeConv, loadMessages]);
-
-  // Resolve signed URLs for file messages (including voice with missing file_url)
-  useEffect(() => {
-    const needsUrl = messages.filter(m => {
-      if (signedUrls[m.id]) return false;
-      if (m.file_url) return true;
-      // Old voice messages without file_url: reconstruct path from metadata
-      if (m.message_type === 'voice' && m.file_name && !m.file_url) return true;
-      return false;
-    });
-    if (needsUrl.length === 0) return;
-    Promise.all(needsUrl.map(async (m) => {
-      let path = m.file_url || '';
-      // Reconstruct path for old voice messages
-      if (!path && m.message_type === 'voice' && m.file_name) {
-        const tsMatch = m.file_name.match(/voice_(\d+)/);
-        if (tsMatch) {
-          const ext = m.file_name.split('.').pop() || 'webm';
-          // Try listing the sender's conversation folder to find the closest file
-          const folderPath = `${m.sender_id}/${m.conversation_id}`;
-          const { data: files } = await supabase.storage.from('chat-files').list(folderPath, { limit: 200 });
-          if (files && files.length > 0) {
-            const target = parseInt(tsMatch[1]);
-            // Find closest file by timestamp
-            const voiceFiles = files.filter(f => f.name.endsWith(`.${ext}`));
-            let closest = voiceFiles[0];
-            let minDiff = Infinity;
-            for (const f of voiceFiles) {
-              const fts = parseInt(f.name.replace(`.${ext}`, ''));
-              if (!isNaN(fts)) {
-                const diff = Math.abs(fts - target);
-                if (diff < minDiff) { minDiff = diff; closest = f; }
-              }
-            }
-            if (closest && minDiff < 5000) {
-              path = `${folderPath}/${closest.name}`;
-            }
-          }
-        }
-      }
-      if (!path) return { id: m.id, url: '' };
-      const url = await getSignedFileUrl(path);
-      return { id: m.id, url };
-    })).then(results => {
-      setSignedUrls(prev => {
-        const next = { ...prev };
-        results.forEach(r => { if (r.url) next[r.id] = r.url; });
-        return next;
-      });
-    });
-  }, [messages]);
-
-  const getFileUrl = (msg: Message) => signedUrls[msg.id] || msg.file_url || '';
-
-  // Realtime with reconnection
-  useEffect(() => {
-    if (!user || !open) return;
-
-    let cancelled = false;
-    const channelName = `chat-realtime-${Date.now()}`;
-
-    const channel = supabase
-      .channel(channelName)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, (payload) => {
-        if (cancelled) return;
-        if (payload.eventType === 'INSERT') {
-          const msg = payload.new as Message;
-          if (activeConv && msg.conversation_id === activeConv.id) {
-            setMessages(prev => {
-              // Skip if already exists (real ID)
-              if (prev.some(m => m.id === msg.id)) return prev;
-              // Replace optimistic message from same sender with matching content
-              if (msg.sender_id === user.id) {
-                const optimisticIdx = prev.findIndex(m => 
-                  m.id.startsWith('optimistic_') && 
-                  m.content === msg.content && 
-                  m.sender_id === msg.sender_id
-                );
-                if (optimisticIdx !== -1) {
-                  const next = [...prev];
-                  next[optimisticIdx] = msg;
-                  return next;
-                }
-              }
-              return [...prev, msg];
-            });
-            if (msg.sender_id !== user.id) {
-              supabase.from('messages').update({ read: true }).eq('id', msg.id).then();
-            }
-            // Instant scroll for native feel
-            requestAnimationFrame(() => scrollToBottom(false));
-          }
-          loadConversations();
-        } else if (payload.eventType === 'UPDATE') {
-          const msg = payload.new as Message;
-          setMessages(prev => prev.map(m => m.id === msg.id ? msg : m));
-        }
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'message_reactions' }, (payload) => {
-        if (cancelled) return;
-        if (payload.eventType === 'INSERT') {
-          setReactions(prev => {
-            if (prev.some(r => r.id === (payload.new as Reaction).id)) return prev;
-            return [...prev, payload.new as Reaction];
-          });
-        } else if (payload.eventType === 'DELETE') {
-          const old = payload.old as { id: string };
-          setReactions(prev => prev.filter(r => r.id !== old.id));
-        }
-      })
-      .subscribe();
-
-    return () => {
-      cancelled = true;
-      if (reconnectRef.current) clearTimeout(reconnectRef.current);
-      supabase.removeChannel(channel);
-    };
-  }, [user, open, activeConv, scrollToBottom, loadConversations]);
-
-  // Typing indicator
-  useEffect(() => {
-    if (!activeConv || !user) return;
-    setTypingUser(false);
-
-    const channel = supabase.channel(`typing:${activeConv.id}`, {
-      config: { presence: { key: user.id } },
-    });
-
-    channel.on('presence', { event: 'sync' }, () => {
-      const state = channel.presenceState();
-      const others = Object.keys(state).filter(k => k !== user.id);
-      const isTyping = others.some(k => {
-        const presences = state[k] as any[];
-        return presences?.some((p: any) => p.typing === true);
-      });
-      setTypingUser(isTyping);
-    });
-
-    // Also listen for join/leave to catch quick changes
-    channel.on('presence', { event: 'leave' }, ({ leftPresences }) => {
-      // When other user's presence leaves, stop showing typing
-      const otherLeft = leftPresences?.some((p: any) => p.typing === true);
-      if (otherLeft) setTypingUser(false);
-    });
-
-    channel.subscribe(async (status) => {
-      if (status === 'SUBSCRIBED') {
-        typingChannelRef.current = channel;
-      }
-    });
-
-    return () => {
-      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
-      typingChannelRef.current?.untrack();
-      typingChannelRef.current = null;
-      supabase.removeChannel(channel);
-    };
-  }, [activeConv, user]);
-
-  const broadcastTyping = useCallback(() => {
-    if (!typingChannelRef.current) return;
-    typingChannelRef.current.track({ typing: true });
-
-    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
-    typingTimeoutRef.current = setTimeout(() => {
-      typingChannelRef.current?.track({ typing: false });
-    }, 1500);
-  }, []);
-
-
-  // Realtime presence for the other user in active conversation
-  const [realtimeLastSeen, setRealtimeLastSeen] = useState<string | null>(null);
-  useOtherUserPresence(activeConv?.otherUserId, useCallback((ls) => setRealtimeLastSeen(ls), []));
-
-  // Compute presence display for the active conversation's other user
-  const otherPresence = useMemo(() => {
-    const ls = realtimeLastSeen ?? activeConv?.otherLastSeen ?? null;
-    return formatLastSeen(ls, isAr);
-  }, [realtimeLastSeen, activeConv?.otherLastSeen, isAr]);
-
-  const searchForUser = async () => {
-    if (!searchUser.trim() || !user) return;
-    setSearchError('');
-    setSearchResult(null);
-
-    const { data } = await supabase
-      .from('profiles')
-      .select('user_id, username, display_name, avatar_url')
-      .ilike('username', `%${searchUser.trim()}%`)
-      .neq('user_id', user.id)
-      .maybeSingle();
-
-    if (data) {
-      setSearchResult({ ...data, display_name: data.display_name ?? undefined, avatar_url: data.avatar_url ?? undefined });
-    } else {
-      setSearchError(isAr ? 'لم يتم العثور على المستخدم' : 'Benutzer nicht gefunden');
-    }
-  };
-
-  const startConversation = async () => {
-    if (!searchResult || !user) return;
-    setLoading(true);
-
-    const { data: existing } = await supabase
-      .from('conversations')
-      .select('*')
-      .or(`and(user1_id.eq.${user.id},user2_id.eq.${searchResult.user_id}),and(user1_id.eq.${searchResult.user_id},user2_id.eq.${user.id})`)
-      .maybeSingle();
-
-    if (existing) {
-      setActiveConv({ ...existing, otherUsername: searchResult.username, otherDisplayName: searchResult.display_name || searchResult.username, otherAvatarUrl: searchResult.avatar_url ?? undefined, otherUserId: searchResult.user_id });
-      setShowNewChat(false);
-      setSearchUser('');
-      setSearchResult(null);
-      setLoading(false);
-      return;
-    }
-
-    const { data: newConv } = await supabase
-      .from('conversations')
-      .insert({ user1_id: user.id, user2_id: searchResult.user_id })
-      .select()
-      .single();
-
-    if (newConv) {
-      setActiveConv({ ...newConv, otherUsername: searchResult.username, otherDisplayName: searchResult.display_name || searchResult.username, otherAvatarUrl: searchResult.avatar_url ?? undefined, otherUserId: searchResult.user_id });
-      setShowNewChat(false);
-      setSearchUser('');
-      setSearchResult(null);
-      loadConversations();
-    }
-    setLoading(false);
-  };
-
-  const sendMessage = async (type: string = 'text', fileUrl?: string, fileName?: string) => {
-    const content = type === 'text' ? newMessage.trim() : (fileName || '');
-    if (!content && type === 'text') return;
-    if (!activeConv || !user) return;
-
-    const replyToId = replyTo?.id || null;
-
-    setNewMessage('');
-    setReplyTo(null);
-    resizeComposer();
-    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
-    typingChannelRef.current?.track({ typing: false });
-
-    const optimisticId = `optimistic_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
-    const now = new Date().toISOString();
-
-    const insertData: any = {
-      conversation_id: activeConv.id,
-      sender_id: user.id,
-      content,
-      message_type: type,
-      file_url: fileUrl || null,
-      file_name: fileName || null,
-      reply_to_id: replyToId,
-    };
-
-    // Add self-destruct expiry if enabled
-    if (selfDestructSeconds) {
-      insertData.expires_at = new Date(Date.now() + selfDestructSeconds * 1000).toISOString();
-    }
-
-    // Optimistic: show message instantly for text messages
-    if (type === 'text') {
-      const optimisticMsg: Message = {
-        id: optimisticId,
-        conversation_id: activeConv.id,
-        sender_id: user.id,
-        content,
-        read: false,
-        created_at: now,
-        reply_to_id: replyToId,
-        message_type: type,
-        file_url: null,
-        file_name: null,
-        deleted: false,
-        edited_at: null,
-        expires_at: insertData.expires_at || null,
-      };
-      setMessages(prev => [...prev, optimisticMsg]);
-      // Instant scroll
-      requestAnimationFrame(() => scrollToBottom(false));
-    }
-
-    // Fire-and-forget: don't await insert for text, await for files
-    const insertPromise = supabase.from('messages').insert(insertData).select().single();
-    supabase.from('conversations')
-      .update({ updated_at: now })
-      .eq('id', activeConv.id)
-      .then();
-
-    if (type === 'text') {
-      // Replace optimistic message with real one when DB responds
-      insertPromise.then(({ data: realMsg }) => {
-        if (realMsg) {
-          setMessages(prev => prev.map(m => m.id === optimisticId ? (realMsg as Message) : m));
-        }
-      });
-      focusComposer();
-    } else {
-      await insertPromise;
-    }
-  };
-
-  const deleteMessage = async (msgId: string) => {
-    await supabase.from('messages').update({ deleted: true, content: '' }).eq('id', msgId);
-  };
-
-  // Pin message
-  const pinMessage = async (msg: Message) => {
-    if (!activeConv) return;
-    const newPinId = pinnedMessage?.id === msg.id ? null : msg.id;
-    await supabase.from('conversations').update({ pinned_message_id: newPinId } as any).eq('id', activeConv.id);
-    setPinnedMessage(newPinId ? msg : null);
-    setActionMenu(null);
-  };
-
-  // Edit message
-  const startEditMessage = (msg: Message) => {
-    setEditingMessage(msg);
-    setNewMessage(msg.content);
-    setActionMenu(null);
-    setShowExtraEmojis(false);
-    setTimeout(() => { inputRef.current?.focus(); resizeComposer(); }, 50);
-  };
-
-  const saveEditMessage = async () => {
-    if (!editingMessage || !newMessage.trim()) return;
-    await supabase.from('messages').update({
-      content: newMessage.trim(),
-      edited_at: new Date().toISOString(),
-    } as any).eq('id', editingMessage.id);
-    setEditingMessage(null);
-    setNewMessage('');
-    resizeComposer();
-  };
-
-  // Search in chat
-  const searchInChat = useCallback((query: string) => {
-    setChatSearchQuery(query);
-    if (!query.trim()) { setSearchResults([]); setSearchIndex(0); return; }
-    const q = query.toLowerCase();
-    const results = messages.filter(m => !m.deleted && m.message_type === 'text' && m.content.toLowerCase().includes(q));
-    setSearchResults(results);
-    setSearchIndex(results.length > 0 ? results.length - 1 : 0);
-    if (results.length > 0) {
-      const el = document.getElementById(`msg-${results[results.length - 1].id}`);
-      el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-  }, [messages]);
-
-  const navigateSearch = (direction: 'up' | 'down') => {
-    if (searchResults.length === 0) return;
-    const newIdx = direction === 'up'
-      ? Math.max(0, searchIndex - 1)
-      : Math.min(searchResults.length - 1, searchIndex + 1);
-    setSearchIndex(newIdx);
-    const el = document.getElementById(`msg-${searchResults[newIdx].id}`);
-    el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  };
-
-  // Self-destruct timer
-  const toggleSelfDestruct = async (seconds: number | null) => {
-    if (!activeConv) return;
-    await supabase.from('conversations').update({ self_destruct_seconds: seconds } as any).eq('id', activeConv.id);
-    setSelfDestructSeconds(seconds);
-    setShowSelfDestructMenu(false);
-    setShowChatMenu(false);
-  };
-
-  // Load pinned message & self-destruct setting
-  useEffect(() => {
-    if (!activeConv) { setPinnedMessage(null); setSelfDestructSeconds(null); return; }
-    supabase.from('conversations').select('pinned_message_id, self_destruct_seconds' as any)
-      .eq('id', activeConv.id).single().then(({ data }) => {
-        const d = data as any;
-        if (d?.self_destruct_seconds) setSelfDestructSeconds(d.self_destruct_seconds);
-        else setSelfDestructSeconds(null);
-        if (d?.pinned_message_id) {
-          supabase.from('messages').select('*').eq('id', d.pinned_message_id).single().then(({ data: pmsg }) => {
-            if (pmsg) setPinnedMessage(pmsg as Message);
-          });
-        } else setPinnedMessage(null);
-      });
-  }, [activeConv?.id]);
-
-  // Check expired messages
-  useEffect(() => {
-    const now = new Date();
-    const expired = messages.filter(m => m.expires_at && new Date(m.expires_at) <= now);
-    if (expired.length > 0) {
-      setMessages(prev => prev.filter(m => !m.expires_at || new Date(m.expires_at) > now));
-    }
-    const upcoming = messages.filter(m => m.expires_at && new Date(m.expires_at) > now);
-    if (upcoming.length > 0) {
-      const nextExpiry = Math.min(...upcoming.map(m => new Date(m.expires_at!).getTime() - now.getTime()));
-      const timer = setTimeout(() => {
-        setMessages(prev => prev.filter(m => !m.expires_at || new Date(m.expires_at) > new Date()));
-      }, Math.max(nextExpiry, 1000));
-      return () => clearTimeout(timer);
-    }
-  }, [messages]);
-
-  const toggleReaction = async (messageId: string, emoji: string) => {
-    if (!user) return;
-    const existing = reactions.find(r => r.message_id === messageId && r.user_id === user.id && r.emoji === emoji);
-    if (existing) {
-      await supabase.from('message_reactions').delete().eq('id', existing.id);
-    } else {
-      await supabase.from('message_reactions').insert({
-        message_id: messageId,
-        user_id: user.id,
-        emoji,
-      });
-    }
-    setActionMenu(null);
-  };
-
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    if (!files.length || !user || !activeConv) return;
-
-    const images = files.filter(f => f.type.startsWith('image/'));
-    const others = files.filter(f => !f.type.startsWith('image/'));
-
-    // Stage images for preview if multiple, or single image
-    if (images.length > 0) {
-      const previews = images.map(f => URL.createObjectURL(f));
-      setStagedImages(prev => [...prev, ...images]);
-      setStagedPreviews(prev => [...prev, ...previews]);
-      if (fileInputRef.current) fileInputRef.current.value = '';
-    }
-
-    // Non-image files: upload immediately
-    for (const file of others) {
-      setUploading(true);
-      const ext = file.name.split('.').pop();
-      const path = `${user.id}/${activeConv.id}/${Date.now()}.${ext}`;
-      const { error } = await supabase.storage.from('chat-files').upload(path, file);
-      if (!error) await sendMessage('file', path, file.name);
-      setUploading(false);
-    }
-    if (fileInputRef.current) fileInputRef.current.value = '';
-  };
-
-  const sendStagedImages = () => {
-    if (!user || !activeConv || stagedImages.length === 0) return;
-    for (const file of stagedImages) {
-      imageUpload.startUpload(file, activeConv.id, user.id);
-    }
-    // Clean up previews
-    stagedPreviews.forEach(url => URL.revokeObjectURL(url));
-    setStagedImages([]);
-    setStagedPreviews([]);
-    setTimeout(() => scrollToBottom(), 100);
-  };
-
-  const removeStagedImage = (index: number) => {
-    URL.revokeObjectURL(stagedPreviews[index]);
-    setStagedImages(prev => prev.filter((_, i) => i !== index));
-    setStagedPreviews(prev => prev.filter((_, i) => i !== index));
-  };
-
-  const clearStagedImages = () => {
-    stagedPreviews.forEach(url => URL.revokeObjectURL(url));
-    setStagedImages([]);
-    setStagedPreviews([]);
-  };
-
-  // Wire up image upload completion → send message
-  useEffect(() => {
-    imageUpload.setOnUploadComplete((tempId, storagePath, fileName, conversationId) => {
-      if (activeConv && activeConv.id === conversationId && user) {
-        sendMessage('image', storagePath, fileName);
-        // Clear after a short delay for fade-out animation
-        setTimeout(() => imageUpload.clearUpload(tempId), 500);
-      }
-    });
-    return () => imageUpload.setOnUploadComplete(undefined);
-  }, [activeConv, user]);
-
-  const getReplyPreview = (replyId: string) => {
-    const msg = messages.find(m => m.id === replyId);
-    if (!msg) return null;
-    if (msg.deleted) return isAr ? 'رسالة محذوفة' : 'Gelöschte Nachricht';
-    if (msg.message_type === 'image') return '📷 ' + (isAr ? 'صورة' : 'Foto');
-    if (msg.message_type === 'voice') return '🎤 ' + (isAr ? 'رسالة صوتية' : 'Sprachnachricht');
-    if (msg.message_type === 'file') return '📎 ' + msg.file_name;
-    return msg.content.length > 50 ? msg.content.slice(0, 50) + '…' : msg.content;
-  };
-
-  const deleteConversation = async () => {
-    if (!activeConv || !user) return;
-    await supabase.from('messages').delete().eq('conversation_id', activeConv.id);
-    await supabase.from('conversations').delete().eq('id', activeConv.id);
-    setActiveConv(null);
-    setShowChatMenu(false);
-    loadConversations();
-  };
-
-  // Voice recording functions
-  const startRecording = async () => {
-    try {
-      // Stop any playing audio first
-      if (voicePlayer.state.isPlaying) { voicePlayer.stop(); }
-
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: true,
-          sampleRate: 48000,
-          channelCount: 1,
-        }
-      });
-      
-      const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
-        ? 'audio/webm;codecs=opus'
-        : MediaRecorder.isTypeSupported('audio/webm')
-          ? 'audio/webm'
-          : MediaRecorder.isTypeSupported('audio/mp4')
-            ? 'audio/mp4'
-            : '';
-
-      const options: MediaRecorderOptions = {
-        ...(mimeType ? { mimeType } : {}),
-        audioBitsPerSecond: 128000,
-      };
-      const mediaRecorder = new MediaRecorder(stream, options);
-      recordingChunksRef.current = [];
-      recordingCancelledRef.current = false;
-      mediaRecorderRef.current = mediaRecorder;
-
-      mediaRecorder.ondataavailable = (e) => {
-        if (e.data.size > 0) recordingChunksRef.current.push(e.data);
-      };
-
-      mediaRecorder.onstop = async () => {
-        stream.getTracks().forEach(t => t.stop());
-        if (recordingCancelledRef.current) return;
-        const finalMime = mediaRecorder.mimeType || 'audio/webm';
-        const ext = finalMime.includes('mp4') ? 'mp4' : 'webm';
-        const blob = new Blob(recordingChunksRef.current, { type: finalMime });
-        if (blob.size > 0 && activeConv && user) {
-          const path = `${user.id}/${activeConv.id}/${Date.now()}.${ext}`;
-          const { error } = await supabase.storage.from('chat-files').upload(path, blob, {
-            contentType: finalMime,
-            upsert: false,
-          });
-          if (!error) {
-            await sendMessage('voice', path, `voice_${Date.now()}.${ext}`);
-          }
-        }
-      };
-
-      mediaRecorder.start(200);
-      setIsRecording(true);
-      setRecordingTime(0);
-      recordingTimerRef.current = setInterval(() => {
-        setRecordingTime(prev => prev + 1);
-      }, 1000);
-    } catch (err) {
-      // silently fail
-    }
-  };
-
-  const stopRecording = (cancel = false) => {
-    recordingCancelledRef.current = cancel;
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
-      mediaRecorderRef.current.stop();
-    }
-    setIsRecording(false);
-    if (recordingTimerRef.current) {
-      clearInterval(recordingTimerRef.current);
-      recordingTimerRef.current = null;
-    }
-    setRecordingTime(0);
-  };
-
-  // Voice playback now handled by global VoicePlayerContext
-
-  const formatRecordingTime = (seconds: number) => {
-    const m = Math.floor(seconds / 60);
-    const s = seconds % 60;
-    return `${m}:${s.toString().padStart(2, '0')}`;
-  };
-
-  const openActionMenu = (msg: Message, isMine: boolean, e: React.MouseEvent | React.TouchEvent) => {
+  const openActionMenu = useCallback((msg: Message, isMine: boolean, e: React.MouseEvent | React.TouchEvent) => {
     e.preventDefault();
     e.stopPropagation();
     if (msg.deleted) return;
     const target = (e.currentTarget as HTMLElement);
     const rect = target.getBoundingClientRect();
-    const containerRect = messagesContainerRef.current?.getBoundingClientRect() || { top: 0, bottom: window.innerHeight, height: window.innerHeight };
+    const containerRect = chat.messagesContainerRef.current?.getBoundingClientRect() || { top: 0, bottom: window.innerHeight, height: window.innerHeight };
     setActionMenu({
       msg,
       isMine,
       rect: { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right, width: rect.width, height: rect.height },
       containerRect: { top: containerRect.top, bottom: containerRect.bottom, height: containerRect.height },
     });
-  };
+  }, [chat.messagesContainerRef]);
 
-  const copyMessage = (content: string) => {
-    navigator.clipboard.writeText(content).catch(() => {});
-    setActionMenu(null);
-  };
-
-  const BackIcon = isAr ? ChevronRight : ChevronLeft;
-
-  const renderAvatar = (username?: string, avatarUrl?: string | null, size: string = 'h-12 w-12') => {
-    const isEmoji = avatarUrl ? isEmojiAvatarValue(avatarUrl) : false;
-    const hasImage = avatarUrl && avatarUrl.startsWith('http');
-    const defaultSrc = getDefaultAvatarForUser(username || '?');
-    return (
-      <Avatar className={cn(size, 'shrink-0')}>
-        {hasImage ? (
-          <AvatarImage src={avatarUrl} alt={username} className="object-cover" />
-        ) : isEmoji ? (
-          <AvatarImage src={getAppleEmojiUrl(avatarUrl!) || ''} alt={username} className="w-[60%] h-[60%] object-contain m-auto" />
-        ) : (
-          <img src={defaultSrc} alt={username || ''} className="w-full h-full object-cover" />
-        )}
-        <AvatarFallback className="bg-muted" />
-      </Avatar>
-    );
-  };
-
-  // Group consecutive same-sender messages
-  const getMessageMeta = useCallback((idx: number) => {
-    const msg = messages[idx];
-    const prev = idx > 0 ? messages[idx - 1] : null;
-    const next = idx < messages.length - 1 ? messages[idx + 1] : null;
-    const sameSenderAsPrev = prev && prev.sender_id === msg.sender_id && !prev.deleted && (new Date(msg.created_at).getTime() - new Date(prev.created_at).getTime() < 120000);
-    const sameSenderAsNext = next && next.sender_id === msg.sender_id && !next.deleted && (new Date(next.created_at).getTime() - new Date(msg.created_at).getTime() < 120000);
-    const showDate = idx === 0 || new Date(msg.created_at).toDateString() !== new Date(messages[idx - 1].created_at).toDateString();
-    
-    return { sameSenderAsPrev: !!sameSenderAsPrev && !showDate, sameSenderAsNext: !!sameSenderAsNext, showDate };
-  }, [messages]);
-
-  if (!user) {
+  if (!chat.user) {
     return (
       <Sheet open={open} onOpenChange={onOpenChange}>
-        <SheetContent side={isAr ? 'right' : 'left'} className="w-full sm:max-w-md p-0 [&>button[class*='absolute']]:hidden">
+        <SheetContent side={chat.isAr ? 'right' : 'left'} className="w-full sm:max-w-md p-0 [&>button[class*='absolute']]:hidden">
           <div className="flex items-center justify-center h-full">
             <p className="text-muted-foreground text-sm">
-              {isAr ? 'يرجى تسجيل الدخول أولاً' : 'Bitte zuerst anmelden'}
+              {chat.isAr ? 'يرجى تسجيل الدخول أولاً' : 'Bitte zuerst anmelden'}
             </p>
           </div>
         </SheetContent>
@@ -1064,181 +86,91 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
   }
 
   return (
-    <Sheet open={open} onOpenChange={(v) => { onOpenChange(v); if (!v) { setActiveConv(null); setShowNewChat(false); setShowChatMenu(false); setShowProfilePopup(false); } }}>
-      <SheetContent side={isAr ? 'right' : 'left'} className="w-full sm:max-w-md p-0 flex flex-col bg-background [&>button[class*='absolute']]:hidden">
+    <Sheet open={open} onOpenChange={(v) => { onOpenChange(v); if (!v) { chat.setActiveConv(null); chat.setShowNewChat(false); chat.setShowChatMenu(false); chat.setShowProfilePopup(false); } }}>
+      <SheetContent side={chat.isAr ? 'right' : 'left'} className="w-full sm:max-w-md p-0 flex flex-col bg-background [&>button[class*='absolute']]:hidden">
         <input
           type="file"
-          ref={fileInputRef}
+          ref={chat.fileInputRef}
           className="hidden"
           accept="image/*,application/pdf,.doc,.docx,.txt,.zip"
           multiple
-          onChange={handleFileUpload}
+          onChange={chat.handleFileUpload}
         />
 
-        {/* ─── Enhanced Profile Popup ─── */}
+        {/* ─── Profile Popup ─── */}
         <AnimatePresence>
-          {showProfilePopup && activeConv && (
+          {chat.showProfilePopup && chat.activeConv && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="absolute inset-0 z-50 bg-background flex flex-col"
             >
-              {/* Header */}
               <div className="flex items-center gap-3 px-4 pt-4 pb-3 border-b border-border/30">
                 <button
-                  onClick={() => { setShowProfilePopup(false); setProfileTab('info'); }}
+                  onClick={() => { chat.setShowProfilePopup(false); chat.setProfileTab('info'); }}
                   className="w-9 h-9 rounded-xl bg-secondary/50 flex items-center justify-center active:scale-95 transition-transform"
                 >
                   <BackIcon className="w-4.5 h-4.5 text-foreground stroke-[2]" />
                 </button>
-                <h2 className="text-[16px] font-bold">{isAr ? 'الملف الشخصي' : 'Profil'}</h2>
+                <h2 className="text-[16px] font-bold">{chat.isAr ? 'الملف الشخصي' : 'Profil'}</h2>
               </div>
 
-              {/* Profile hero */}
               <div className="flex flex-col items-center pt-6 pb-4 px-6">
-                <motion.div
-                  initial={{ scale: 0.7 }}
-                  animate={{ scale: 1 }}
-                  transition={{ type: 'spring', damping: 20, stiffness: 300 }}
-                >
-                  {renderAvatar(activeConv.otherUsername, activeConv.otherAvatarUrl, 'h-24 w-24')}
+                <motion.div initial={{ scale: 0.7 }} animate={{ scale: 1 }} transition={{ type: 'spring', damping: 20, stiffness: 300 }}>
+                  {renderAvatar(chat.activeConv.otherUsername, chat.activeConv.otherAvatarUrl, 'h-24 w-24')}
                 </motion.div>
-                <h3 className="text-lg font-bold text-foreground mt-3">
-                  {activeConv.otherDisplayName || activeConv.otherUsername}
-                </h3>
-                {activeConv.otherDisplayName && activeConv.otherDisplayName !== activeConv.otherUsername && (
-                  <p className="text-[13px] text-muted-foreground">@{activeConv.otherUsername}</p>
+                <h3 className="text-lg font-bold text-foreground mt-3">{chat.activeConv.otherDisplayName || chat.activeConv.otherUsername}</h3>
+                {chat.activeConv.otherDisplayName && chat.activeConv.otherDisplayName !== chat.activeConv.otherUsername && (
+                  <p className="text-[13px] text-muted-foreground">@{chat.activeConv.otherUsername}</p>
                 )}
-                <p className={cn(
-                  'text-[12px] mt-1 font-medium',
-                  otherPresence.isOnline
-                    ? 'text-green-500'
-                    : 'text-muted-foreground/70'
-                )}>
-                  {otherPresence.text}
+                <p className={cn('text-[12px] mt-1 font-medium', chat.otherPresence.isOnline ? 'text-green-500' : 'text-muted-foreground/70')}>
+                  {chat.otherPresence.text}
                 </p>
               </div>
 
-              {/* Tab switcher */}
               <div className="flex mx-4 bg-muted/30 rounded-xl p-1 gap-1">
-                <button
-                  onClick={() => setProfileTab('info')}
-                  className={cn(
-                    'flex-1 py-2 rounded-lg text-[13px] font-medium transition-all',
-                    profileTab === 'info' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground'
-                  )}
-                >
-                  {isAr ? 'المعلومات' : 'Info'}
+                <button onClick={() => chat.setProfileTab('info')} className={cn('flex-1 py-2 rounded-lg text-[13px] font-medium transition-all', chat.profileTab === 'info' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground')}>
+                  {chat.isAr ? 'المعلومات' : 'Info'}
                 </button>
-                <button
-                  onClick={() => {
-                    setProfileTab('media');
-                    // Load shared media
-                    if (activeConv) {
-                      supabase
-                        .from('messages')
-                        .select('*')
-                        .eq('conversation_id', activeConv.id)
-                        .in('message_type', ['image', 'file'])
-                        .eq('deleted', false)
-                        .order('created_at', { ascending: false })
-                        .limit(50)
-                        .then(({ data }) => setSharedMedia((data || []) as Message[]));
-                    }
-                  }}
-                  className={cn(
-                    'flex-1 py-2 rounded-lg text-[13px] font-medium transition-all',
-                    profileTab === 'media' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground'
-                  )}
-                >
-                  {isAr ? 'الوسائط' : 'Medien'}
+                <button onClick={() => {
+                  chat.setProfileTab('media');
+                  if (chat.activeConv) {
+                    supabase.from('messages').select('*').eq('conversation_id', chat.activeConv.id).in('message_type', ['image', 'file']).eq('deleted', false).order('created_at', { ascending: false }).limit(50).then(({ data }) => chat.setSharedMedia((data || []) as Message[]));
+                  }
+                }} className={cn('flex-1 py-2 rounded-lg text-[13px] font-medium transition-all', chat.profileTab === 'media' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground')}>
+                  {chat.isAr ? 'الوسائط' : 'Medien'}
                 </button>
               </div>
 
-              {/* Tab content */}
               <div className="flex-1 overflow-y-auto mt-3 px-4 pb-6">
-                {profileTab === 'info' ? (
+                {chat.profileTab === 'info' ? (
                   <div className="space-y-3">
-
-                    {/* Stats */}
                     <div className="bg-card border border-border/20 rounded-2xl p-4">
                       <div className="grid grid-cols-3 gap-3 text-center">
-                        <div>
-                          <p className="text-xl font-bold text-foreground">{messages.length}</p>
-                          <p className="text-[10px] text-muted-foreground">{isAr ? 'رسالة' : 'Nachrichten'}</p>
-                        </div>
-                        <div>
-                          <p className="text-xl font-bold text-foreground">
-                            {messages.filter(m => m.message_type === 'image').length}
-                          </p>
-                          <p className="text-[10px] text-muted-foreground">{isAr ? 'صورة' : 'Fotos'}</p>
-                        </div>
-                        <div>
-                          <p className="text-xl font-bold text-foreground">
-                            {messages.filter(m => m.message_type === 'voice').length}
-                          </p>
-                          <p className="text-[10px] text-muted-foreground">{isAr ? 'صوتية' : 'Audio'}</p>
-                        </div>
+                        <div><p className="text-xl font-bold text-foreground">{chat.messages.length}</p><p className="text-[10px] text-muted-foreground">{chat.isAr ? 'رسالة' : 'Nachrichten'}</p></div>
+                        <div><p className="text-xl font-bold text-foreground">{chat.messages.filter(m => m.message_type === 'image').length}</p><p className="text-[10px] text-muted-foreground">{chat.isAr ? 'صورة' : 'Fotos'}</p></div>
+                        <div><p className="text-xl font-bold text-foreground">{chat.messages.filter(m => m.message_type === 'voice').length}</p><p className="text-[10px] text-muted-foreground">{chat.isAr ? 'صوتية' : 'Audio'}</p></div>
                       </div>
                     </div>
-
-                    {/* Details */}
                     <div className="bg-card border border-border/20 rounded-2xl divide-y divide-border/10">
-                      <div className="flex items-center gap-3 p-3.5">
-                        <User2 className="w-4 h-4 text-muted-foreground shrink-0" />
-                        <div className="min-w-0">
-                          <p className="text-[11px] text-muted-foreground">{isAr ? 'النبذة' : 'Bio'}</p>
-                          <p className="text-[13px] text-foreground font-medium">{activeConv.otherBio || (isAr ? 'لا توجد نبذة' : 'No bio')}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3 p-3.5">
-                        <Calendar className="w-4 h-4 text-muted-foreground shrink-0" />
-                        <div className="min-w-0">
-                          <p className="text-[11px] text-muted-foreground">{isAr ? 'تاريخ الانضمام' : 'Beigetreten'}</p>
-                          <p className="text-[13px] text-foreground font-medium">
-                            {activeConv.otherCreatedAt
-                              ? new Date(activeConv.otherCreatedAt).toLocaleDateString(isAr ? 'ar' : 'de', { day: 'numeric', month: 'long', year: 'numeric' })
-                              : '—'}
-                          </p>
-                        </div>
-                      </div>
+                      <div className="flex items-center gap-3 p-3.5"><User2 className="w-4 h-4 text-muted-foreground shrink-0" /><div className="min-w-0"><p className="text-[11px] text-muted-foreground">{chat.isAr ? 'النبذة' : 'Bio'}</p><p className="text-[13px] text-foreground font-medium">{chat.activeConv.otherBio || (chat.isAr ? 'لا توجد نبذة' : 'No bio')}</p></div></div>
+                      <div className="flex items-center gap-3 p-3.5"><Calendar className="w-4 h-4 text-muted-foreground shrink-0" /><div className="min-w-0"><p className="text-[11px] text-muted-foreground">{chat.isAr ? 'تاريخ الانضمام' : 'Beigetreten'}</p><p className="text-[13px] text-foreground font-medium">{chat.activeConv.otherCreatedAt ? new Date(chat.activeConv.otherCreatedAt).toLocaleDateString(chat.isAr ? 'ar' : 'de', { day: 'numeric', month: 'long', year: 'numeric' }) : '—'}</p></div></div>
                     </div>
-
-                    {/* Delete */}
-                    <button
-                      onClick={() => { deleteConversation(); setShowProfilePopup(false); setProfileTab('info'); }}
-                      className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-destructive/10 text-destructive text-[13px] font-medium active:bg-destructive/20 transition-colors"
-                    >
-                      <Trash className="w-4 h-4" />
-                      {isAr ? 'حذف المحادثة' : 'Chat löschen'}
+                    <button onClick={() => { chat.deleteConversation(); chat.setShowProfilePopup(false); chat.setProfileTab('info'); }} className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-destructive/10 text-destructive text-[13px] font-medium active:bg-destructive/20 transition-colors">
+                      <Trash className="w-4 h-4" />{chat.isAr ? 'حذف المحادثة' : 'Chat löschen'}
                     </button>
                   </div>
                 ) : (
-                  /* Shared Media Grid */
                   <div>
-                    {sharedMedia.length === 0 ? (
-                      <div className="flex flex-col items-center justify-center py-16 text-muted-foreground gap-3">
-                        <ImageIcon className="w-10 h-10 opacity-30" />
-                        <p className="text-sm">{isAr ? 'لا توجد وسائط مشتركة' : 'Keine gemeinsamen Medien'}</p>
-                      </div>
+                    {chat.sharedMedia.length === 0 ? (
+                      <div className="flex flex-col items-center justify-center py-16 text-muted-foreground gap-3"><ImageIcon className="w-10 h-10 opacity-30" /><p className="text-sm">{chat.isAr ? 'لا توجد وسائط مشتركة' : 'Keine gemeinsamen Medien'}</p></div>
                     ) : (
                       <div className="grid grid-cols-3 gap-1 rounded-xl overflow-hidden">
-                        {sharedMedia.map(m => (
-                          m.message_type === 'image' ? (
-                            <button
-                              key={m.id}
-                              onClick={() => window.open(getFileUrl(m), '_blank')}
-                              className="aspect-square bg-muted/30 overflow-hidden hover:opacity-80 transition-opacity"
-                            >
-                              <img src={getFileUrl(m)} alt="" className="w-full h-full object-cover" />
-                            </button>
-                          ) : (
-                            <div key={m.id} className="aspect-square bg-muted/20 flex flex-col items-center justify-center gap-1.5 p-2">
-                              <FileText className="w-6 h-6 text-muted-foreground" />
-                              <span className="text-[9px] text-muted-foreground truncate w-full text-center">{m.file_name}</span>
-                            </div>
-                          )
+                        {chat.sharedMedia.map(m => m.message_type === 'image' ? (
+                          <button key={m.id} onClick={() => window.open(chat.getFileUrl(m), '_blank')} className="aspect-square bg-muted/30 overflow-hidden hover:opacity-80 transition-opacity"><img src={chat.getFileUrl(m)} alt="" className="w-full h-full object-cover" /></button>
+                        ) : (
+                          <div key={m.id} className="aspect-square bg-muted/20 flex flex-col items-center justify-center gap-1.5 p-2"><FileText className="w-6 h-6 text-muted-foreground" /><span className="text-[9px] text-muted-foreground truncate w-full text-center">{m.file_name}</span></div>
                         ))}
                       </div>
                     )}
@@ -1249,142 +181,48 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
           )}
         </AnimatePresence>
 
-        {!activeConv && !showNewChat ? (
-          // ─── Conversation List ───
+        {!chat.activeConv && !chat.showNewChat ? (
           <>
             <SheetHeader className="px-4 pt-4 pb-3 border-b border-border/40">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <button
-                    onClick={() => onOpenChange(false)}
-                    className="w-9 h-9 rounded-xl bg-secondary/50 flex items-center justify-center active:scale-95 transition-transform"
-                    aria-label={isAr ? 'رجوع' : 'Zurück'}
-                  >
+                  <button onClick={() => onOpenChange(false)} className="w-9 h-9 rounded-xl bg-secondary/50 flex items-center justify-center active:scale-95 transition-transform" aria-label={chat.isAr ? 'رجوع' : 'Zurück'}>
                     <BackIcon className="w-4.5 h-4.5 text-foreground stroke-[2]" />
                   </button>
-                  <SheetTitle className="text-[17px] font-bold tracking-tight">
-                    {isAr ? 'الرسائل' : 'Nachrichten'}
-                  </SheetTitle>
+                  <SheetTitle className="text-[17px] font-bold tracking-tight">{chat.isAr ? 'الرسائل' : 'Nachrichten'}</SheetTitle>
                 </div>
-                <button
-                  onClick={() => setShowNewChat(true)}
-                  className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center active:scale-95 transition-all hover:bg-primary/20"
-                  aria-label={isAr ? 'محادثة جديدة' : 'Neues Gespräch'}
-                >
+                <button onClick={() => chat.setShowNewChat(true)} className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center active:scale-95 transition-all hover:bg-primary/20" aria-label={chat.isAr ? 'محادثة جديدة' : 'Neues Gespräch'}>
                   <Plus className="h-4.5 w-4.5 text-primary stroke-[2]" />
                 </button>
               </div>
             </SheetHeader>
             <div className="flex-1 overflow-y-auto">
-              {conversations.length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-full text-muted-foreground gap-4 px-8">
-                  <div className="w-20 h-20 rounded-full bg-primary/5 flex items-center justify-center">
-                    <MessageCircle className="h-9 w-9 text-primary/30" />
-                  </div>
-                  <div className="text-center space-y-1">
-                    <p className="text-sm font-medium text-foreground/60">{isAr ? 'لا توجد محادثات بعد' : 'Noch keine Gespräche'}</p>
-                    <p className="text-xs text-muted-foreground/60">{isAr ? 'ابدأ محادثة جديدة مع أصدقائك' : 'Starte ein neues Gespräch'}</p>
-                  </div>
-                  <Button variant="outline" size="sm" className="rounded-full mt-1" onClick={() => setShowNewChat(true)}>
-                    <Plus className="w-3.5 h-3.5 me-1.5" />
-                    {isAr ? 'محادثة جديدة' : 'Neues Gespräch'}
-                  </Button>
-                </div>
-              ) : (
-                conversations.map((conv, idx) => (
-                  <motion.button
-                    key={conv.id}
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: idx * 0.03 }}
-                    onClick={() => setActiveConv(conv)}
-                    className={cn(
-                      'w-full flex items-center gap-3 px-4 py-3 hover:bg-accent/30 active:bg-accent/50 transition-all text-start',
-                      (conv.unreadCount ?? 0) > 0 && 'bg-primary/[0.03]'
-                    )}
-                  >
-                    <div className="relative">
-                      {renderAvatar(conv.otherUsername, conv.otherAvatarUrl, 'h-[50px] w-[50px]')}
-                      {(conv.unreadCount ?? 0) > 0 && (
-                        <span className="absolute -top-0.5 -end-0.5 bg-primary text-primary-foreground text-[10px] rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 font-bold">
-                          {conv.unreadCount}
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-baseline justify-between gap-2">
-                        <span className={cn(
-                          'text-[14.5px] text-foreground truncate',
-                          (conv.unreadCount ?? 0) > 0 ? 'font-bold' : 'font-semibold'
-                        )}>
-                          {conv.otherDisplayName || conv.otherUsername}
-                        </span>
-                        <span className={cn(
-                          'text-[11px] shrink-0 tabular-nums',
-                          (conv.unreadCount ?? 0) > 0 ? 'text-primary font-semibold' : 'text-muted-foreground/50'
-                        )}>
-                          {conv.lastMessageTime && formatTime(conv.lastMessageTime, isAr)}
-                        </span>
-                      </div>
-                      {conv.lastMessage && (
-                        <p className={cn(
-                          'text-[12.5px] truncate mt-0.5 leading-relaxed',
-                          (conv.unreadCount ?? 0) > 0 ? 'text-foreground/70 font-medium' : 'text-muted-foreground/70'
-                        )}>
-                          {conv.lastMessage}
-                        </p>
-                      )}
-                    </div>
-                  </motion.button>
-                ))
-              )}
+              <ConversationList conversations={chat.conversations} isAr={chat.isAr} onSelect={chat.setActiveConv} onNewChat={() => chat.setShowNewChat(true)} />
             </div>
           </>
-        ) : showNewChat ? (
-          // ─── New Chat Search ───
+        ) : chat.showNewChat ? (
           <>
             <SheetHeader className="px-4 pt-4 pb-3 border-b border-border/40">
               <div className="flex items-center gap-3">
-                <button
-                  onClick={() => { setShowNewChat(false); setSearchResult(null); setSearchError(''); setSearchUser(''); }}
-                  className="w-9 h-9 rounded-xl bg-secondary/50 flex items-center justify-center active:scale-95 transition-transform"
-                  aria-label={isAr ? 'رجوع' : 'Zurück'}
-                >
+                <button onClick={() => { chat.setShowNewChat(false); chat.setSearchUser(''); }} className="w-9 h-9 rounded-xl bg-secondary/50 flex items-center justify-center active:scale-95 transition-transform" aria-label={chat.isAr ? 'رجوع' : 'Zurück'}>
                   <BackIcon className="w-4.5 h-4.5 text-foreground stroke-[2]" />
                 </button>
-                <SheetTitle className="text-[17px] font-bold tracking-tight">
-                  {isAr ? 'محادثة جديدة' : 'Neues Gespräch'}
-                </SheetTitle>
+                <SheetTitle className="text-[17px] font-bold tracking-tight">{chat.isAr ? 'محادثة جديدة' : 'Neues Gespräch'}</SheetTitle>
               </div>
             </SheetHeader>
             <div className="p-4 space-y-4">
               <div className="flex gap-2">
-                <Input
-                  placeholder={isAr ? 'ابحث باسم المستخدم...' : 'Nach Benutzername suchen...'}
-                  value={searchUser}
-                  onChange={e => setSearchUser(e.target.value)}
-                  onKeyDown={e => e.key === 'Enter' && searchForUser()}
-                  className="flex-1 rounded-full"
-                  dir="auto"
-                />
-                <Button size="icon" className="rounded-full" onClick={searchForUser} aria-label={isAr ? 'بحث' : 'Suchen'}>
-                  <Search className="h-4 w-4" />
-                </Button>
+                <Input placeholder={chat.isAr ? 'ابحث باسم المستخدم...' : 'Nach Benutzername suchen...'} value={chat.searchUser} onChange={e => chat.setSearchUser(e.target.value)} onKeyDown={e => e.key === 'Enter' && chat.searchForUser()} className="flex-1 rounded-full" dir="auto" />
+                <Button size="icon" className="rounded-full" onClick={chat.searchForUser} aria-label={chat.isAr ? 'بحث' : 'Suchen'}><Search className="h-4 w-4" /></Button>
               </div>
-              {searchError && <p className="text-destructive text-sm text-center">{searchError}</p>}
-              {searchResult && (
-                <motion.button
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  onClick={startConversation}
-                  disabled={loading}
-                  className="w-full flex items-center gap-3 p-4 rounded-2xl bg-accent/30 hover:bg-accent/50 transition-colors"
-                >
-                  {renderAvatar(searchResult.username, searchResult.avatar_url, 'h-14 w-14')}
+              {chat.searchError && <p className="text-destructive text-sm text-center">{chat.searchError}</p>}
+              {chat.searchResult && (
+                <motion.button initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} onClick={chat.startConversation} disabled={chat.loading} className="w-full flex items-center gap-3 p-4 rounded-2xl bg-accent/30 hover:bg-accent/50 transition-colors">
+                  {renderAvatar(chat.searchResult.username, chat.searchResult.avatar_url, 'h-14 w-14')}
                   <div className="text-start">
-                    <span className="font-semibold text-sm block">{searchResult.display_name || searchResult.username}</span>
-                    {searchResult.display_name && searchResult.display_name !== searchResult.username && (
-                      <span className="text-xs text-muted-foreground">@{searchResult.username}</span>
+                    <span className="font-semibold text-sm block">{chat.searchResult.display_name || chat.searchResult.username}</span>
+                    {chat.searchResult.display_name && chat.searchResult.display_name !== chat.searchResult.username && (
+                      <span className="text-xs text-muted-foreground">@{chat.searchResult.username}</span>
                     )}
                   </div>
                 </motion.button>
@@ -1392,121 +230,55 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
             </div>
           </>
         ) : (
-          // ─── Active Chat ───
           <>
             {/* Chat Header */}
             <div className="sticky top-0 z-30 px-3 py-2.5 border-b border-border/40 flex items-center gap-2.5 bg-background/80 backdrop-blur-xl">
-              <button
-                onClick={() => { setActiveConv(null); setReplyTo(null); setShowChatMenu(false); loadConversations(); }}
-                className="w-9 h-9 rounded-xl bg-secondary/50 flex items-center justify-center active:scale-95 transition-transform shrink-0"
-                aria-label={isAr ? 'رجوع' : 'Zurück'}
-              >
+              <button onClick={() => { chat.setActiveConv(null); chat.setReplyTo(null); chat.setShowChatMenu(false); chat.loadConversations(); }} className="w-9 h-9 rounded-xl bg-secondary/50 flex items-center justify-center active:scale-95 transition-transform shrink-0" aria-label={chat.isAr ? 'رجوع' : 'Zurück'}>
                 <BackIcon className="w-4.5 h-4.5 text-foreground stroke-[2]" />
               </button>
-              <button
-                className="flex items-center gap-2.5 flex-1 min-w-0"
-                onClick={() => setShowProfilePopup(true)}
-              >
-                {renderAvatar(activeConv?.otherUsername, activeConv?.otherAvatarUrl, 'h-9 w-9')}
+              <button className="flex items-center gap-2.5 flex-1 min-w-0" onClick={() => chat.setShowProfilePopup(true)}>
+                {renderAvatar(chat.activeConv?.otherUsername, chat.activeConv?.otherAvatarUrl, 'h-9 w-9')}
                 <div className="min-w-0 text-start">
-                  <span className="font-semibold text-[14px] block truncate leading-tight">
-                    {activeConv?.otherDisplayName || activeConv?.otherUsername}
-                  </span>
+                  <span className="font-semibold text-[14px] block truncate leading-tight">{chat.activeConv?.otherDisplayName || chat.activeConv?.otherUsername}</span>
                   <AnimatePresence mode="wait">
-                    {typingUser ? (
-                      <motion.div
-                        key="typing"
-                        initial={{ opacity: 0, y: 4 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 4 }}
-                        className="flex items-center gap-1.5"
-                      >
-                        <span className="text-[11px] text-primary font-medium leading-tight">
-                          {isAr ? 'يكتب' : 'tippt'}
-                        </span>
+                    {chat.typingUser ? (
+                      <motion.div key="typing" initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 4 }} className="flex items-center gap-1.5">
+                        <span className="text-[11px] text-primary font-medium leading-tight">{chat.isAr ? 'يكتب' : 'tippt'}</span>
                         <TypingDots />
                       </motion.div>
                     ) : (
-                      <motion.span
-                        key="status"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className={cn(
-                          'text-[11px] leading-tight',
-                          otherPresence.isOnline
-                            ? 'text-green-500 font-medium'
-                            : 'text-muted-foreground/60'
-                        )}
-                      >
-                        {otherPresence.text}
+                      <motion.span key="status" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className={cn('text-[11px] leading-tight', chat.otherPresence.isOnline ? 'text-green-500 font-medium' : 'text-muted-foreground/60')}>
+                        {chat.otherPresence.text}
                       </motion.span>
                     )}
                   </AnimatePresence>
                 </div>
               </button>
               <div className="relative">
-                <button
-                  onClick={() => setShowChatMenu(!showChatMenu)}
-                  className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-accent/30 active:bg-accent/50 transition-colors"
-                  aria-label={isAr ? 'خيارات' : 'Optionen'}
-                >
+                <button onClick={() => chat.setShowChatMenu(!chat.showChatMenu)} className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-accent/30 active:bg-accent/50 transition-colors" aria-label={chat.isAr ? 'خيارات' : 'Optionen'}>
                   <MoreVertical className="h-4 w-4 text-muted-foreground" />
                 </button>
                 <AnimatePresence>
-                  {showChatMenu && (
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.9, y: -4 }}
-                      animate={{ opacity: 1, scale: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.9 }}
-                      className={cn(
-                        'absolute top-full mt-1 bg-card border border-border/40 rounded-xl z-20 min-w-[170px] overflow-hidden',
-                        isAr ? 'left-0' : 'right-0'
-                      )}
-                    >
-                      <button
-                        className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-accent/30 transition-colors text-[13px] text-start"
-                        onClick={() => { setShowProfilePopup(true); setShowChatMenu(false); }}
-                      >
-                        <Info className="w-4 h-4 text-muted-foreground" />
-                        {isAr ? 'معلومات المحادثة' : 'Chat-Info'}
+                  {chat.showChatMenu && (
+                    <motion.div initial={{ opacity: 0, scale: 0.9, y: -4 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9 }} className={cn('absolute top-full mt-1 bg-card border border-border/40 rounded-xl z-20 min-w-[170px] overflow-hidden', chat.isAr ? 'left-0' : 'right-0')}>
+                      <button className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-accent/30 transition-colors text-[13px] text-start" onClick={() => { chat.setShowProfilePopup(true); chat.setShowChatMenu(false); }}>
+                        <Info className="w-4 h-4 text-muted-foreground" />{chat.isAr ? 'معلومات المحادثة' : 'Chat-Info'}
                       </button>
                       <div className="h-px bg-border/20 mx-3" />
-                      <button
-                        className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-accent/30 transition-colors text-[13px] text-start"
-                        onClick={() => { setShowSearch(true); setShowChatMenu(false); }}
-                      >
-                        <Search className="w-4 h-4 text-muted-foreground" />
-                        {isAr ? 'بحث في المحادثة' : 'Im Chat suchen'}
+                      <button className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-accent/30 transition-colors text-[13px] text-start" onClick={() => { chat.setShowSearch(true); chat.setShowChatMenu(false); }}>
+                        <Search className="w-4 h-4 text-muted-foreground" />{chat.isAr ? 'بحث في المحادثة' : 'Im Chat suchen'}
                       </button>
                       <div className="h-px bg-border/20 mx-3" />
-                      <button
-                        className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-accent/30 transition-colors text-[13px] text-start"
-                        onClick={() => setShowSelfDestructMenu(!showSelfDestructMenu)}
-                      >
-                        {selfDestructSeconds ? <TimerOff className="w-4 h-4 text-muted-foreground" /> : <Timer className="w-4 h-4 text-muted-foreground" />}
-                        {selfDestructSeconds
-                          ? (isAr ? 'إيقاف التدمير الذاتي' : 'Selbstzerstörung aus')
-                          : (isAr ? 'رسائل ذاتية الحذف' : 'Selbstzerstörung')}
+                      <button className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-accent/30 transition-colors text-[13px] text-start" onClick={() => chat.setShowSelfDestructMenu(!chat.showSelfDestructMenu)}>
+                        {chat.selfDestructSeconds ? <TimerOff className="w-4 h-4 text-muted-foreground" /> : <Timer className="w-4 h-4 text-muted-foreground" />}
+                        {chat.selfDestructSeconds ? (chat.isAr ? 'إيقاف التدمير الذاتي' : 'Selbstzerstörung aus') : (chat.isAr ? 'رسائل ذاتية الحذف' : 'Selbstzerstörung')}
                       </button>
                       <AnimatePresence>
-                        {showSelfDestructMenu && (
+                        {chat.showSelfDestructMenu && (
                           <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }} className="overflow-hidden">
                             <div className="px-3 pb-2 space-y-0.5">
-                              {[
-                                { label: isAr ? '30 ثانية' : '30 Sek.', val: 30 },
-                                { label: isAr ? '5 دقائق' : '5 Min.', val: 300 },
-                                { label: isAr ? 'ساعة' : '1 Std.', val: 3600 },
-                                { label: isAr ? 'يوم' : '1 Tag', val: 86400 },
-                                { label: isAr ? 'إيقاف' : 'Aus', val: null as number | null },
-                              ].map(opt => (
-                                <button
-                                  key={opt.label}
-                                  onClick={() => toggleSelfDestruct(opt.val)}
-                                  className={cn(
-                                    'w-full text-start px-3 py-1.5 rounded-lg text-[12px] transition-colors',
-                                    selfDestructSeconds === opt.val ? 'bg-primary/15 text-primary font-medium' : 'hover:bg-accent/30 text-foreground'
-                                  )}
-                                >
+                              {[{ label: chat.isAr ? '30 ثانية' : '30 Sek.', val: 30 }, { label: chat.isAr ? '5 دقائق' : '5 Min.', val: 300 }, { label: chat.isAr ? 'ساعة' : '1 Std.', val: 3600 }, { label: chat.isAr ? 'يوم' : '1 Tag', val: 86400 }, { label: chat.isAr ? 'إيقاف' : 'Aus', val: null as number | null }].map(opt => (
+                                <button key={opt.label} onClick={() => chat.toggleSelfDestruct(opt.val)} className={cn('w-full text-start px-3 py-1.5 rounded-lg text-[12px] transition-colors', chat.selfDestructSeconds === opt.val ? 'bg-primary/15 text-primary font-medium' : 'hover:bg-accent/30 text-foreground')}>
                                   {opt.label}
                                 </button>
                               ))}
@@ -1515,12 +287,8 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                         )}
                       </AnimatePresence>
                       <div className="h-px bg-border/20 mx-3" />
-                      <button
-                        className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-destructive/10 transition-colors text-[13px] text-destructive text-start"
-                        onClick={deleteConversation}
-                      >
-                        <Trash className="w-4 h-4" />
-                        {isAr ? 'حذف المحادثة' : 'Chat löschen'}
+                      <button className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-destructive/10 transition-colors text-[13px] text-destructive text-start" onClick={chat.deleteConversation}>
+                        <Trash className="w-4 h-4" />{chat.isAr ? 'حذف المحادثة' : 'Chat löschen'}
                       </button>
                     </motion.div>
                   )}
@@ -1530,191 +298,94 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
 
             {/* Search bar */}
             <AnimatePresence>
-              {showSearch && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  className="overflow-hidden border-b border-border/30"
-                >
+              {chat.showSearch && (
+                <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden border-b border-border/30">
                   <div className="flex items-center gap-2 px-3 py-2">
                     <Search className="w-4 h-4 text-muted-foreground shrink-0" />
-                    <input
-                      type="text"
-                      value={chatSearchQuery}
-                      onChange={e => searchInChat(e.target.value)}
-                      placeholder={isAr ? 'بحث في المحادثة...' : 'Suchen...'}
-                      className="flex-1 bg-transparent text-[13px] outline-none placeholder:text-muted-foreground/50"
-                      dir="auto"
-                      autoFocus
-                    />
-                    {searchResults.length > 0 && (
-                      <span className="text-[11px] text-muted-foreground tabular-nums shrink-0">
-                        {searchIndex + 1}/{searchResults.length}
-                      </span>
-                    )}
+                    <input type="text" value={chat.chatSearchQuery} onChange={e => chat.searchInChat(e.target.value)} placeholder={chat.isAr ? 'بحث في المحادثة...' : 'Suchen...'} className="flex-1 bg-transparent text-[13px] outline-none placeholder:text-muted-foreground/50" dir="auto" autoFocus />
+                    {chat.searchResults.length > 0 && <span className="text-[11px] text-muted-foreground tabular-nums shrink-0">{chat.searchIndex + 1}/{chat.searchResults.length}</span>}
                     <div className="flex gap-0.5 shrink-0">
-                      <button onClick={() => navigateSearch('up')} className="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-accent/30">
-                        <ChevronRight className="w-3.5 h-3.5 rotate-[-90deg] text-muted-foreground" />
-                      </button>
-                      <button onClick={() => navigateSearch('down')} className="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-accent/30">
-                        <ChevronRight className="w-3.5 h-3.5 rotate-90 text-muted-foreground" />
-                      </button>
+                      <button onClick={() => chat.navigateSearch('up')} className="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-accent/30"><ChevronRight className="w-3.5 h-3.5 rotate-[-90deg] text-muted-foreground" /></button>
+                      <button onClick={() => chat.navigateSearch('down')} className="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-accent/30"><ChevronRight className="w-3.5 h-3.5 rotate-90 text-muted-foreground" /></button>
                     </div>
-                    <button onClick={() => { setShowSearch(false); setChatSearchQuery(''); setSearchResults([]); }} className="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-accent/30">
-                      <X className="w-3.5 h-3.5 text-muted-foreground" />
-                    </button>
+                    <button onClick={() => { chat.setShowSearch(false); }} className="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-accent/30"><X className="w-3.5 h-3.5 text-muted-foreground" /></button>
                   </div>
                 </motion.div>
               )}
             </AnimatePresence>
 
-            {/* Pinned message banner */}
+            {/* Pinned message */}
             <AnimatePresence>
-              {pinnedMessage && !pinnedMessage.deleted && (
-                <motion.button
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  className="w-full border-b border-border/30 px-3 py-2 flex items-center gap-2.5 bg-accent/10 hover:bg-accent/20 transition-colors text-start overflow-hidden"
-                  onClick={() => {
-                    const el = document.getElementById(`msg-${pinnedMessage.id}`);
-                    el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                  }}
-                >
+              {chat.pinnedMessage && !chat.pinnedMessage.deleted && (
+                <motion.button initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="w-full border-b border-border/30 px-3 py-2 flex items-center gap-2.5 bg-accent/10 hover:bg-accent/20 transition-colors text-start overflow-hidden" onClick={() => { const el = document.getElementById(`msg-${chat.pinnedMessage!.id}`); el?.scrollIntoView({ behavior: 'smooth', block: 'center' }); }}>
                   <Pin className="w-3.5 h-3.5 text-primary shrink-0 rotate-45" />
                   <div className="flex-1 min-w-0">
-                    <p className="text-[10px] text-primary font-semibold">{isAr ? 'رسالة مثبتة' : 'Angeheftet'}</p>
-                    <p className="text-[12px] text-foreground/70 truncate" dir="auto">
-                      {pinnedMessage.message_type === 'text' ? pinnedMessage.content : pinnedMessage.message_type === 'image' ? '📷 ' + (isAr ? 'صورة' : 'Foto') : pinnedMessage.message_type === 'voice' ? '🎤' : '📎'}
-                    </p>
+                    <p className="text-[10px] text-primary font-semibold">{chat.isAr ? 'رسالة مثبتة' : 'Angeheftet'}</p>
+                    <p className="text-[12px] text-foreground/70 truncate" dir="auto">{chat.pinnedMessage.message_type === 'text' ? chat.pinnedMessage.content : chat.pinnedMessage.message_type === 'image' ? '📷 ' + (chat.isAr ? 'صورة' : 'Foto') : chat.pinnedMessage.message_type === 'voice' ? '🎤' : '📎'}</p>
                   </div>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); pinMessage(pinnedMessage); }}
-                    className="shrink-0 w-6 h-6 rounded-full flex items-center justify-center hover:bg-muted/50"
-                  >
-                    <X className="w-3 h-3 text-muted-foreground" />
-                  </button>
+                  <button onClick={(e) => { e.stopPropagation(); chat.pinMessage(chat.pinnedMessage!); }} className="shrink-0 w-6 h-6 rounded-full flex items-center justify-center hover:bg-muted/50"><X className="w-3 h-3 text-muted-foreground" /></button>
                 </motion.button>
               )}
             </AnimatePresence>
 
             {/* Self-destruct indicator */}
-            {selfDestructSeconds && (
+            {chat.selfDestructSeconds && (
               <div className="flex items-center justify-center gap-1.5 py-1.5 bg-accent/5 border-b border-border/20">
                 <Timer className="w-3 h-3 text-primary" />
                 <span className="text-[10px] text-primary font-medium">
-                  {isAr ? 'رسائل ذاتية الحذف' : 'Selbstzerstörung'}: {selfDestructSeconds < 60 ? `${selfDestructSeconds}${isAr ? 'ث' : 's'}` : selfDestructSeconds < 3600 ? `${Math.floor(selfDestructSeconds / 60)}${isAr ? 'د' : 'm'}` : selfDestructSeconds < 86400 ? `${Math.floor(selfDestructSeconds / 3600)}${isAr ? 'س' : 'h'}` : `${Math.floor(selfDestructSeconds / 86400)}${isAr ? 'ي' : 'd'}`}
+                  {chat.isAr ? 'رسائل ذاتية الحذف' : 'Selbstzerstörung'}: {chat.selfDestructSeconds < 60 ? `${chat.selfDestructSeconds}${chat.isAr ? 'ث' : 's'}` : chat.selfDestructSeconds < 3600 ? `${Math.floor(chat.selfDestructSeconds / 60)}${chat.isAr ? 'د' : 'm'}` : chat.selfDestructSeconds < 86400 ? `${Math.floor(chat.selfDestructSeconds / 3600)}${chat.isAr ? 'س' : 'h'}` : `${Math.floor(chat.selfDestructSeconds / 86400)}${chat.isAr ? 'ي' : 'd'}`}
                 </span>
               </div>
             )}
 
             {/* Messages */}
             <div
-              ref={messagesContainerRef}
+              ref={chat.messagesContainerRef}
               className="flex-1 overflow-y-auto px-3 py-2 overscroll-contain scroll-smooth will-change-scroll"
-              style={{ WebkitOverflowScrolling: 'touch' } as any}
-              onScroll={handleScroll}
-              onClick={() => { setShowChatMenu(false); setActionMenu(null); setShowExtraEmojis(false); }}
+              style={{ WebkitOverflowScrolling: 'touch' } as React.CSSProperties}
+              onScroll={chat.handleScroll}
+              onClick={() => { chat.setShowChatMenu(false); setActionMenu(null); chat.setShowExtraEmojis(false); }}
             >
-              {messages.map((msg, idx) => {
-                const isMine = msg.sender_id === user.id;
-                const msgReactions = reactions.filter(r => r.message_id === msg.id);
-                const { sameSenderAsPrev, sameSenderAsNext, showDate } = getMessageMeta(idx);
+              {chat.messages.map((msg, idx) => {
+                const isMine = msg.sender_id === chat.user!.id;
+                const msgReactions = chat.reactions.filter(r => r.message_id === msg.id);
+                const { sameSenderAsPrev, sameSenderAsNext, showDate } = chat.getMessageMeta(idx);
 
                 return (
                   <React.Fragment key={msg.id}>
                     {showDate && (
                       <div className="flex justify-center py-3">
                         <span className="text-[10px] text-muted-foreground/50 bg-muted/30 px-3 py-1 rounded-full font-medium tracking-wide">
-                          {new Date(msg.created_at).toLocaleDateString(isAr ? 'ar' : 'de', { day: 'numeric', month: 'long' })}
+                          {new Date(msg.created_at).toLocaleDateString(chat.isAr ? 'ar' : 'de', { day: 'numeric', month: 'long' })}
                         </span>
                       </div>
                     )}
-                    <div
-                      id={`msg-${msg.id}`}
-                      className={cn(
-                        'flex relative',
-                        isMine ? 'justify-end' : 'justify-start',
-                        sameSenderAsPrev ? 'mt-[2px]' : 'mt-2.5'
-                      )}
-                    >
-                      <SwipeableMessage
-                        isMine={isMine}
-                        deleted={msg.deleted}
-                        onSwipeReply={() => {
-                          setReplyTo(msg);
-                          inputRef.current?.focus();
-                        }}
-                      >
-                        <div
-                          className={cn('relative group w-fit min-w-[80px] max-w-[75%]')}
-                          onContextMenu={(e) => openActionMenu(msg, isMine, e)}
-                          onClick={(e) => openActionMenu(msg, isMine, e)}
-                        >
+                    <div id={`msg-${msg.id}`} className={cn('flex relative', isMine ? 'justify-end' : 'justify-start', sameSenderAsPrev ? 'mt-[2px]' : 'mt-2.5')}>
+                      <SwipeableMessage isMine={isMine} deleted={msg.deleted} onSwipeReply={() => { chat.setReplyTo(msg); chat.inputRef.current?.focus(); }}>
+                        <div className={cn('relative group w-fit min-w-[80px] max-w-[75%]')} onContextMenu={(e) => openActionMenu(msg, isMine, e)} onClick={(e) => openActionMenu(msg, isMine, e)}>
                           <div className={cn(
                             'overflow-hidden text-[14px] leading-relaxed',
-                            msg.deleted
-                              ? 'bg-muted/30 text-muted-foreground/50 italic rounded-[18px]'
-                              : isMine
-                                ? 'bg-primary text-primary-foreground rounded-[18px] rounded-br-[4px]'
-                                : 'bg-card border border-border/30 text-foreground rounded-[18px] rounded-bl-[4px]'
+                            msg.deleted ? 'bg-muted/30 text-muted-foreground/50 italic rounded-[18px]' : isMine ? 'bg-primary text-primary-foreground rounded-[18px] rounded-br-[4px]' : 'bg-card border border-border/30 text-foreground rounded-[18px] rounded-bl-[4px]'
                           )}>
                             {msg.reply_to_id && !msg.deleted && (() => {
-                              const repliedMsg = messages.find(m => m.id === msg.reply_to_id);
-                              const replySenderName = repliedMsg?.sender_id === user.id
-                                ? (isAr ? 'أنت' : 'Du')
-                                : (activeConv?.otherDisplayName || activeConv?.otherUsername || '');
+                              const repliedMsg = chat.messages.find(m => m.id === msg.reply_to_id);
+                              const replySenderName = repliedMsg?.sender_id === chat.user!.id ? (chat.isAr ? 'أنت' : 'Du') : (chat.activeConv?.otherDisplayName || chat.activeConv?.otherUsername || '');
                               return (
-                                <div className={cn(
-                                  'mx-2 mt-2 rounded-xl border-s-2 px-3 py-2',
-                                  isMine
-                                    ? 'bg-primary-foreground/10 border-primary-foreground/60'
-                                    : 'bg-muted/40 border-primary/70'
-                                )}>
-                                  <span className={cn(
-                                    'mb-1 block text-[12px] font-semibold leading-none',
-                                    isMine ? 'text-primary-foreground/85' : 'text-primary'
-                                  )}>
-                                    {replySenderName}
-                                  </span>
-                                  <span className={cn(
-                                    'block text-[13px] leading-[1.35] line-clamp-2',
-                                    isMine ? 'text-primary-foreground/65' : 'text-muted-foreground'
-                                  )} dir="auto">
-                                    {getReplyPreview(msg.reply_to_id)}
-                                  </span>
+                                <div className={cn('mx-2 mt-2 rounded-xl border-s-2 px-3 py-2', isMine ? 'bg-primary-foreground/10 border-primary-foreground/60' : 'bg-muted/40 border-primary/70')}>
+                                  <span className={cn('mb-1 block text-[12px] font-semibold leading-none', isMine ? 'text-primary-foreground/85' : 'text-primary')}>{replySenderName}</span>
+                                  <span className={cn('block text-[13px] leading-[1.35] line-clamp-2', isMine ? 'text-primary-foreground/65' : 'text-muted-foreground')} dir="auto">{chat.getReplyPreview(msg.reply_to_id)}</span>
                                 </div>
                               );
                             })()}
 
                             {msg.deleted ? (
-                              <p className="px-3 py-2 text-xs">{isAr ? '🚫 تم حذف هذه الرسالة' : '🚫 Diese Nachricht wurde gelöscht'}</p>
+                              <p className="px-3 py-2 text-xs">{chat.isAr ? '🚫 تم حذف هذه الرسالة' : '🚫 Diese Nachricht wurde gelöscht'}</p>
                             ) : msg.message_type === 'image' ? (
                               <div className="relative">
-                                <img
-                                  src={getFileUrl(msg)}
-                                  alt={msg.file_name || 'image'}
-                                  className="max-w-full max-h-60 object-cover cursor-pointer rounded-sm"
-                                  loading="lazy"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    const rect = (e.target as HTMLElement).getBoundingClientRect();
-                                    setLightboxRect(rect);
-                                    setLightboxSrc(getFileUrl(msg));
-                                    setLightboxOpen(true);
-                                  }}
-                                />
+                                <img src={chat.getFileUrl(msg)} alt={msg.file_name || 'image'} className="max-w-full max-h-60 object-cover cursor-pointer rounded-sm" loading="lazy" onClick={(e) => { e.stopPropagation(); const rect = (e.target as HTMLElement).getBoundingClientRect(); chat.setLightboxRect(rect); chat.setLightboxSrc(chat.getFileUrl(msg)); chat.setLightboxOpen(true); }} />
                                 <div className="px-3 py-2">
-                                  {msg.content && msg.content !== msg.file_name && (
-                                    <p className="break-words whitespace-pre-wrap text-[14px] leading-[1.45] [overflow-wrap:anywhere] [unicode-bidi:plaintext]" dir="auto">
-                                      {msg.content}
-                                    </p>
-                                  )}
-                                  <div className={cn(
-                                    'mt-1 flex items-center justify-end gap-[3px] pt-1 text-[11px] leading-none',
-                                    isMine ? 'text-primary-foreground/50' : 'text-foreground/40'
-                                  )} dir="ltr">
+                                  {msg.content && msg.content !== msg.file_name && <p className="break-words whitespace-pre-wrap text-[14px] leading-[1.45] [overflow-wrap:anywhere] [unicode-bidi:plaintext]" dir="auto">{msg.content}</p>}
+                                  <div className={cn('mt-1 flex items-center justify-end gap-[3px] pt-1 text-[11px] leading-none', isMine ? 'text-primary-foreground/50' : 'text-foreground/40')} dir="ltr">
                                     <span>{new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                                     {isMine && (msg.read ? <CheckCheck className="h-[11px] w-[11px]" /> : <Check className="h-[11px] w-[11px]" />)}
                                   </div>
@@ -1725,95 +396,30 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                                 const isPlaying = voicePlayer.isPlayingMsg(msg.id);
                                 const progress = voicePlayer.getProgress(msg.id);
                                 const duration = voicePlayer.getDuration(msg.id);
-                                const formatDur = (s: number) => {
-                                  if (!s || !isFinite(s)) return '0:00';
-                                  const m = Math.floor(s / 60);
-                                  const sec = Math.floor(s % 60);
-                                  return `${m}:${sec.toString().padStart(2, '0')}`;
-                                };
-                                // Use cached waveform or seed-based fallback; lazy-generate real waveform
+                                const formatDur = (s: number) => { if (!s || !isFinite(s)) return '0:00'; const m = Math.floor(s / 60); const sec = Math.floor(s % 60); return `${m}:${sec.toString().padStart(2, '0')}`; };
                                 const cachedWaveform = voicePlayer.waveformCache[msg.id];
-                                const bars = cachedWaveform || (() => {
-                                  const seed = msg.id.split('').reduce((a: number, c: string) => a + c.charCodeAt(0), 0);
-                                  return Array.from({ length: 40 }, (_, i) => ((Math.sin(seed * (i + 1) * 0.7) + 1) / 2) * 0.85 + 0.15);
-                                })();
-                                // Lazy-load real waveform when URL is available
-                                const fileUrl = getFileUrl(msg);
-                                if (fileUrl && !cachedWaveform) {
-                                  voicePlayer.generateWaveform(fileUrl, msg.id);
-                                }
-
-                                const senderName = isMine ? 'أنت' : (activeConv?.otherDisplayName || activeConv?.otherUsername || '');
+                                const bars = cachedWaveform || (() => { const seed = msg.id.split('').reduce((a: number, c: string) => a + c.charCodeAt(0), 0); return Array.from({ length: 40 }, (_, i) => ((Math.sin(seed * (i + 1) * 0.7) + 1) / 2) * 0.85 + 0.15); })();
+                                const fileUrl = chat.getFileUrl(msg);
+                                if (fileUrl && !cachedWaveform) voicePlayer.generateWaveform(fileUrl, msg.id);
+                                const senderName = isMine ? 'أنت' : (chat.activeConv?.otherDisplayName || chat.activeConv?.otherUsername || '');
 
                                 return (
                                   <div className="min-w-[220px] px-3 py-2.5">
                                     <div className="flex items-center gap-3">
-                                      <button
-                                        onClick={async (e) => {
-                                          e.stopPropagation();
-                                          const playableUrl = fileUrl || (msg.file_url ? await getSignedFileUrl(msg.file_url) : '');
-                                          if (!playableUrl) return;
-                                          voicePlayer.togglePlayback(msg.id, playableUrl, senderName, msg.conversation_id);
-                                        }}
-                                        className={cn(
-                                          'flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-colors active:scale-90',
-                                          isMine ? 'bg-primary-foreground/20 hover:bg-primary-foreground/30' : 'bg-primary/15 hover:bg-primary/25'
-                                        )}
-                                      >
+                                      <button onClick={async (e) => { e.stopPropagation(); const playableUrl = fileUrl || (msg.file_url ? await getSignedFileUrl(msg.file_url) : ''); if (!playableUrl) return; voicePlayer.togglePlayback(msg.id, playableUrl, senderName, msg.conversation_id); }} className={cn('flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-colors active:scale-90', isMine ? 'bg-primary-foreground/20 hover:bg-primary-foreground/30' : 'bg-primary/15 hover:bg-primary/25')}>
                                         {isPlaying ? (
-                                          <svg viewBox="0 0 24 24" className={cn('h-5 w-5', isMine ? 'text-primary-foreground' : 'text-primary')} fill="currentColor">
-                                            <rect x="6" y="4" width="4" height="16" rx="1" />
-                                            <rect x="14" y="4" width="4" height="16" rx="1" />
-                                          </svg>
+                                          <svg viewBox="0 0 24 24" className={cn('h-5 w-5', isMine ? 'text-primary-foreground' : 'text-primary')} fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1" /><rect x="14" y="4" width="4" height="16" rx="1" /></svg>
                                         ) : (
-                                          <svg viewBox="0 0 24 24" className={cn('h-5 w-5 ms-0.5', isMine ? 'text-primary-foreground' : 'text-primary')} fill="currentColor">
-                                            <path d="M8 5v14l11-7z" />
-                                          </svg>
+                                          <svg viewBox="0 0 24 24" className={cn('h-5 w-5 ms-0.5', isMine ? 'text-primary-foreground' : 'text-primary')} fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
                                         )}
                                       </button>
                                       <div className="flex-1 flex flex-col gap-1.5">
-                                        {/* Interactive waveform with seek */}
-                                        <div
-                                          className="flex items-center gap-[2px] h-[22px] cursor-pointer"
-                                          dir="ltr"
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            if (voicePlayer.state.msgId === msg.id) {
-                                              const rect = e.currentTarget.getBoundingClientRect();
-                                              const fraction = (e.clientX - rect.left) / rect.width;
-                                              voicePlayer.seek(Math.max(0, Math.min(1, fraction)));
-                                            }
-                                          }}
-                                        >
-                                          {bars.map((h, i) => {
-                                            const barProgress = i / bars.length;
-                                            const isActive = barProgress < progress;
-                                            return (
-                                              <div
-                                                key={i}
-                                                className={cn(
-                                                  'flex-1 rounded-full transition-colors duration-100',
-                                                  isActive
-                                                    ? (isMine ? 'bg-primary-foreground/80' : 'bg-primary/80')
-                                                    : (isMine ? 'bg-primary-foreground/25' : 'bg-primary/25')
-                                                )}
-                                                style={{ height: `${h * 22}px`, minWidth: '2px' }}
-                                              />
-                                            );
-                                          })}
+                                        <div className="flex items-center gap-[2px] h-[22px] cursor-pointer" dir="ltr" onClick={(e) => { e.stopPropagation(); if (voicePlayer.state.msgId === msg.id) { const rect = e.currentTarget.getBoundingClientRect(); const fraction = (e.clientX - rect.left) / rect.width; voicePlayer.seek(Math.max(0, Math.min(1, fraction))); } }}>
+                                          {bars.map((h, i) => { const barProgress = i / bars.length; const isActive = voicePlayer.state.msgId === msg.id && barProgress < progress; return (<div key={i} className={cn('flex-1 rounded-full transition-colors duration-100', isActive ? (isMine ? 'bg-primary-foreground' : 'bg-primary') : (isMine ? 'bg-primary-foreground/25' : 'bg-muted-foreground/25'))} style={{ height: `${h * 22}px`, minWidth: '2px' }} />); })}
                                         </div>
-                                        {/* Duration */}
                                         <div className="flex items-center justify-between" dir="ltr">
-                                          <span className={cn(
-                                            'text-[10px] tabular-nums',
-                                            isMine ? 'text-primary-foreground/45' : 'text-foreground/35'
-                                          )}>
-                                            {isPlaying && duration ? formatDur(progress * duration) : (duration ? formatDur(duration) : '')}
-                                          </span>
-                                          <span className={cn(
-                                            'flex items-center gap-[3px] text-[11px] leading-none',
-                                            isMine ? 'text-primary-foreground/50' : 'text-foreground/40'
-                                          )}>
+                                          <span className={cn('text-[10px] tabular-nums', isMine ? 'text-primary-foreground/45' : 'text-foreground/35')}>{isPlaying && duration ? formatDur(progress * duration) : (duration ? formatDur(duration) : '')}</span>
+                                          <span className={cn('flex items-center gap-[3px] text-[11px] leading-none', isMine ? 'text-primary-foreground/50' : 'text-foreground/40')}>
                                             {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                             {isMine && (msg.read ? <CheckCheck className="h-[11px] w-[11px]" /> : <Check className="h-[11px] w-[11px]" />)}
                                           </span>
@@ -1825,357 +431,146 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                               })()
                             ) : msg.message_type === 'file' ? (
                               <div className="px-3 py-2">
-                                <a
-                                  href={getFileUrl(msg)}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className={cn('flex items-center gap-2', isMine ? 'text-primary-foreground' : 'text-foreground')}
-                                  onClick={e => e.stopPropagation()}
-                                >
-                                  <FileText className="h-5 w-5 shrink-0" />
-                                  <span className="flex-1 truncate text-[13px]">{msg.file_name}</span>
-                                  <Download className="h-4 w-4 shrink-0 opacity-60" />
+                                <a href={chat.getFileUrl(msg)} target="_blank" rel="noopener noreferrer" className={cn('flex items-center gap-2', isMine ? 'text-primary-foreground' : 'text-foreground')} onClick={e => e.stopPropagation()}>
+                                  <FileText className="h-5 w-5 shrink-0" /><span className="flex-1 truncate text-[13px]">{msg.file_name}</span><Download className="h-4 w-4 shrink-0 opacity-60" />
                                 </a>
-                                <div className={cn(
-                                  'mt-1 flex items-center justify-end gap-[3px] pt-1 text-[11px] leading-none',
-                                  isMine ? 'text-primary-foreground/50' : 'text-foreground/40'
-                                )} dir="ltr">
+                                <div className={cn('mt-1 flex items-center justify-end gap-[3px] pt-1 text-[11px] leading-none', isMine ? 'text-primary-foreground/50' : 'text-foreground/40')} dir="ltr">
                                   <span>{new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                                   {isMine && (msg.read ? <CheckCheck className="h-[11px] w-[11px]" /> : <Check className="h-[11px] w-[11px]" />)}
                                 </div>
                               </div>
                             ) : (
                               <div className="px-[10px] py-[6px]">
-                                <p
-                                  className="break-words whitespace-pre-wrap text-[14.5px] leading-[1.55] [word-break:normal] [unicode-bidi:plaintext]"
-                                  dir="auto"
-                                >
+                                <p className="break-words whitespace-pre-wrap text-[14.5px] leading-[1.55] [word-break:normal] [unicode-bidi:plaintext]" dir="auto">
                                   <span>{msg.content}</span>
-                                  {!msg.deleted && (
-                                    <>
-                                      <span aria-hidden="true" className="inline-block w-1.5" />
-                                      <span
-                                        className={cn(
-                                          'inline-flex translate-y-[1px] items-center gap-[3px] align-bottom whitespace-nowrap text-[11px] leading-none select-none',
-                                          isMine ? 'text-primary-foreground/50' : 'text-foreground/40'
-                                        )}
-                                        dir="ltr"
-                                      >
-                                        {msg.edited_at && <span className="text-[9px] italic">{isAr ? 'معدّلة' : 'bearb.'}</span>}
-                                        <span>{new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                                        {isMine && (msg.read ? <CheckCheck className="h-[11px] w-[11px]" /> : <Check className="h-[11px] w-[11px]" />)}
-                                      </span>
-                                    </>
-                                  )}
+                                  {!msg.deleted && (<><span aria-hidden="true" className="inline-block w-1.5" /><span className={cn('inline-flex translate-y-[1px] items-center gap-[3px] align-bottom whitespace-nowrap text-[11px] leading-none select-none', isMine ? 'text-primary-foreground/50' : 'text-foreground/40')} dir="ltr">{msg.edited_at && <span className="text-[9px] italic">{chat.isAr ? 'معدّلة' : 'bearb.'}</span>}<span>{new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>{isMine && (msg.read ? <CheckCheck className="h-[11px] w-[11px]" /> : <Check className="h-[11px] w-[11px]" />)}</span></>)}
                                 </p>
                               </div>
                             )}
                           </div>
 
-                        {/* Reactions */}
-                        {msgReactions.length > 0 && (
-                          <div className={cn('flex gap-0.5 -mt-1 flex-wrap relative z-[1]', isMine ? 'justify-end pe-1' : 'justify-start ps-1')} dir="ltr">
-                            {Object.entries(
-                              msgReactions.reduce((acc, r) => {
-                                acc[r.emoji] = (acc[r.emoji] || 0) + 1;
-                                return acc;
-                              }, {} as Record<string, number>)
-                            ).map(([emoji, count]) => (
-                              <button
-                                key={emoji}
-                                onClick={(e) => { e.stopPropagation(); toggleReaction(msg.id, emoji); }}
-                                className="inline-flex items-center gap-0.5 bg-card/80 border border-border/20 rounded-full px-1 py-0.5 hover:scale-110 active:scale-90 transition-transform"
-                                aria-label={`${emoji} reaction`}
-                              >
-                                <span className="text-[14px] leading-none">{emoji}</span>
-                                {count > 1 && <span className="text-[9px] text-muted-foreground font-medium">{count}</span>}
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                      </div>
+                          {msgReactions.length > 0 && (
+                            <div className={cn('flex gap-0.5 -mt-1 flex-wrap relative z-[1]', isMine ? 'justify-end pe-1' : 'justify-start ps-1')} dir="ltr">
+                              {Object.entries(msgReactions.reduce((acc, r) => { acc[r.emoji] = (acc[r.emoji] || 0) + 1; return acc; }, {} as Record<string, number>)).map(([emoji, count]) => (
+                                <button key={emoji} onClick={(e) => { e.stopPropagation(); chat.toggleReaction(msg.id, emoji); }} className="inline-flex items-center gap-0.5 bg-card/80 border border-border/20 rounded-full px-1 py-0.5 hover:scale-110 active:scale-90 transition-transform" aria-label={`${emoji} reaction`}>
+                                  <span className="text-[14px] leading-none">{emoji}</span>
+                                  {count > 1 && <span className="text-[9px] text-muted-foreground font-medium">{count}</span>}
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                        </div>
                       </SwipeableMessage>
                     </div>
                   </React.Fragment>
                 );
               })}
 
-              {/* Typing indicator bubble */}
               <AnimatePresence>
-                {typingUser && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
-                    className="flex justify-start mt-2"
-                  >
-                    <div className="bg-card border border-border/30 rounded-2xl rounded-bl-md px-4 py-2.5">
-                      <TypingDots />
-                    </div>
+                {chat.typingUser && (
+                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} className="flex justify-start mt-2">
+                    <div className="bg-card border border-border/30 rounded-2xl rounded-bl-md px-4 py-2.5"><TypingDots /></div>
                   </motion.div>
                 )}
               </AnimatePresence>
 
-              {/* Pending image uploads (optimistic) */}
-              {activeConv && imageUpload.uploads
-                .filter(u => u.conversationId === activeConv.id)
-                .map(upload => (
-                  <div key={upload.tempId} className="flex justify-end mt-2">
-                    <div className="relative max-w-[75%] rounded-[18px] rounded-br-[4px] overflow-hidden bg-primary">
-                      <img
-                        src={upload.localPreviewUrl}
-                        alt=""
-                        className={cn(
-                          'max-w-full max-h-60 object-cover transition-all duration-500',
-                          upload.status === 'uploading' && 'blur-[2px] brightness-75',
-                          upload.status === 'done' && 'blur-0 brightness-100'
-                        )}
-                      />
-                      {/* Circular progress overlay */}
-                      {upload.status === 'uploading' && (
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <svg className="w-12 h-12 -rotate-90" viewBox="0 0 48 48">
-                            <circle cx="24" cy="24" r="20" fill="none" stroke="white" strokeOpacity="0.2" strokeWidth="3" />
-                            <circle
-                              cx="24" cy="24" r="20"
-                              fill="none" stroke="white" strokeWidth="3"
-                              strokeLinecap="round"
-                              strokeDasharray={`${2 * Math.PI * 20}`}
-                              strokeDashoffset={`${2 * Math.PI * 20 * (1 - upload.progress / 100)}`}
-                              className="transition-all duration-300"
-                            />
-                          </svg>
-                          <span className="absolute text-white text-[11px] font-bold">{upload.progress}%</span>
-                        </div>
-                      )}
-                      {/* Error retry */}
-                      {upload.status === 'error' && (
-                        <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-                          <button
-                            onClick={() => imageUpload.retryUpload(upload.tempId)}
-                            className="px-4 py-2 rounded-full bg-destructive text-white text-sm font-medium active:scale-95 transition-transform"
-                          >
-                            {isAr ? 'إعادة المحاولة' : 'Wiederholen'}
-                          </button>
-                        </div>
-                      )}
-                      {/* Timestamp placeholder */}
-                      <div className="px-3 py-1.5">
-                        <div className="flex items-center justify-end gap-[3px] text-[11px] leading-none text-primary-foreground/50" dir="ltr">
-                          <span>{new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                        </div>
+              {chat.activeConv && chat.imageUpload.uploads.filter(u => u.conversationId === chat.activeConv!.id).map(upload => (
+                <div key={upload.tempId} className="flex justify-end mt-2">
+                  <div className="relative max-w-[75%] rounded-[18px] rounded-br-[4px] overflow-hidden bg-primary">
+                    <img src={upload.localPreviewUrl} alt="" className={cn('max-w-full max-h-60 object-cover transition-all duration-500', upload.status === 'uploading' && 'blur-[2px] brightness-75', upload.status === 'done' && 'blur-0 brightness-100')} />
+                    {upload.status === 'uploading' && (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <svg className="w-12 h-12 -rotate-90" viewBox="0 0 48 48"><circle cx="24" cy="24" r="20" fill="none" stroke="white" strokeOpacity="0.2" strokeWidth="3" /><circle cx="24" cy="24" r="20" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeDasharray={`${2 * Math.PI * 20}`} strokeDashoffset={`${2 * Math.PI * 20 * (1 - upload.progress / 100)}`} className="transition-all duration-300" /></svg>
+                        <span className="absolute text-white text-[11px] font-bold">{upload.progress}%</span>
                       </div>
-                    </div>
+                    )}
+                    {upload.status === 'error' && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+                        <button onClick={() => chat.imageUpload.retryUpload(upload.tempId)} className="px-4 py-2 rounded-full bg-destructive text-white text-sm font-medium active:scale-95 transition-transform">{chat.isAr ? 'إعادة المحاولة' : 'Wiederholen'}</button>
+                      </div>
+                    )}
+                    <div className="px-3 py-1.5"><div className="flex items-center justify-end gap-[3px] text-[11px] leading-none text-primary-foreground/50" dir="ltr"><span>{new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span></div></div>
                   </div>
-                ))
-              }
+                </div>
+              ))}
 
-              <div ref={messagesEndRef} />
+              <div ref={chat.messagesEndRef} />
             </div>
 
-            {/* Scroll to bottom FAB */}
+            {/* Scroll FAB */}
             <AnimatePresence>
-              {showScrollDown && (
-                <motion.button
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
-                  transition={{ type: 'spring', damping: 20, stiffness: 400 }}
-                  onClick={() => scrollToBottom()}
-                  className="absolute bottom-24 end-4 z-10 w-9 h-9 rounded-full bg-card border border-border/40 flex items-center justify-center active:scale-90 transition-transform"
-                >
+              {chat.showScrollDown && (
+                <motion.button initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} transition={{ type: 'spring', damping: 20, stiffness: 400 }} onClick={() => chat.scrollToBottom()} className="absolute bottom-24 end-4 z-10 w-9 h-9 rounded-full bg-card border border-border/40 flex items-center justify-center active:scale-90 transition-transform">
                   <ArrowDown className="w-4 h-4 text-muted-foreground" />
                 </motion.button>
               )}
             </AnimatePresence>
 
-            {/* ─── Action Menu Overlay ─── */}
+            {/* Action Menu */}
             <AnimatePresence>
               {actionMenu && (() => {
                 const spaceAbove = actionMenu.rect.top - actionMenu.containerRect.top;
                 const showAbove = spaceAbove > 180;
                 const viewportPadding = 12;
                 const menuWidth = Math.min(Math.max(actionMenu.rect.width, 260), window.innerWidth - viewportPadding * 2);
-                const anchoredLeft = actionMenu.isMine
-                  ? actionMenu.rect.right - menuWidth
-                  : actionMenu.rect.left;
-                const menuLeft = Math.min(
-                  Math.max(anchoredLeft, viewportPadding),
-                  window.innerWidth - menuWidth - viewportPadding,
-                );
+                const anchoredLeft = actionMenu.isMine ? actionMenu.rect.right - menuWidth : actionMenu.rect.left;
+                const menuLeft = Math.min(Math.max(anchoredLeft, viewportPadding), window.innerWidth - menuWidth - viewportPadding);
                 const previewWidth = Math.min(actionMenu.rect.width, menuWidth);
 
                 return (
                   <>
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.15 }}
-                      className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-xl"
-                      onClick={() => { setActionMenu(null); setShowExtraEmojis(false); }}
-                    />
-
-                    <div
-                      className="fixed inset-0 z-[61] pointer-events-none"
-                      onClick={() => { setActionMenu(null); setShowExtraEmojis(false); }}
-                    >
-                      <motion.div
-                        initial={{ opacity: 0, scale: 0.92 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.92 }}
-                        transition={{ type: 'spring', damping: 28, stiffness: 450 }}
-                        className={cn(
-                          "absolute pointer-events-auto flex flex-col",
-                          showAbove ? "flex-col-reverse" : "flex-col",
-                          actionMenu.isMine ? 'items-end' : 'items-start'
-                        )}
-                        style={{
-                          top: showAbove ? undefined : `${actionMenu.rect.top}px`,
-                          bottom: showAbove ? `${window.innerHeight - actionMenu.rect.top + 4}px` : undefined,
-                          left: `${menuLeft}px`,
-                          width: `${menuWidth}px`,
-                          maxWidth: `${menuWidth}px`,
-                        }}
-                        onClick={e => e.stopPropagation()}
-                      >
-                        {/* Selected message preview */}
-                        <div className={cn(
-                          'rounded-2xl text-[14px] overflow-hidden',
-                          actionMenu.isMine
-                            ? 'bg-primary text-primary-foreground rounded-br-md'
-                            : 'bg-card border border-border/30 text-foreground rounded-bl-md'
-                        )} style={{ width: `${previewWidth}px`, maxWidth: '100%' }}>
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }} className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-xl" onClick={() => { setActionMenu(null); chat.setShowExtraEmojis(false); }} />
+                    <div className="fixed inset-0 z-[61] pointer-events-none" onClick={() => { setActionMenu(null); chat.setShowExtraEmojis(false); }}>
+                      <motion.div initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.92 }} transition={{ type: 'spring', damping: 28, stiffness: 450 }} className={cn("absolute pointer-events-auto flex flex-col", showAbove ? "flex-col-reverse" : "flex-col", actionMenu.isMine ? 'items-end' : 'items-start')} style={{ top: showAbove ? undefined : `${actionMenu.rect.top}px`, bottom: showAbove ? `${window.innerHeight - actionMenu.rect.top + 4}px` : undefined, left: `${menuLeft}px`, width: `${menuWidth}px`, maxWidth: `${menuWidth}px` }} onClick={e => e.stopPropagation()}>
+                        <div className={cn('rounded-2xl text-[14px] overflow-hidden', actionMenu.isMine ? 'bg-primary text-primary-foreground rounded-br-md' : 'bg-card border border-border/30 text-foreground rounded-bl-md')} style={{ width: `${previewWidth}px`, maxWidth: '100%' }}>
                           {actionMenu.msg.message_type === 'text' && (
                             <div className="relative px-2 py-[3px]" style={{ minHeight: '24px' }}>
-                              <span className="break-words whitespace-pre-wrap" dir="auto">
-                                {actionMenu.msg.content}
-                                <span className="inline-block align-bottom" style={{ width: actionMenu.isMine ? '62px' : '46px', height: '1px' }} />
-                              </span>
-                              <span className={cn(
-                                'absolute bottom-[3px] flex items-center gap-[3px] text-[10px] whitespace-nowrap',
-                                actionMenu.isMine ? 'text-primary-foreground/50' : 'text-muted-foreground/50',
-                                isAr ? 'left-2' : 'right-2'
-                              )}>
+                              <span className="break-words whitespace-pre-wrap" dir="auto">{actionMenu.msg.content}<span className="inline-block align-bottom" style={{ width: actionMenu.isMine ? '62px' : '46px', height: '1px' }} /></span>
+                              <span className={cn('absolute bottom-[3px] flex items-center gap-[3px] text-[10px] whitespace-nowrap', actionMenu.isMine ? 'text-primary-foreground/50' : 'text-muted-foreground/50', chat.isAr ? 'left-2' : 'right-2')}>
                                 {new Date(actionMenu.msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                 {actionMenu.isMine && (actionMenu.msg.read ? <CheckCheck className="h-[11px] w-[11px]" /> : <Check className="h-[11px] w-[11px]" />)}
                               </span>
                             </div>
                           )}
-                          {actionMenu.msg.message_type === 'image' && (
-                            <img src={getFileUrl(actionMenu.msg)} alt="" className="max-w-full max-h-40 object-cover" />
-                          )}
+                          {actionMenu.msg.message_type === 'image' && <img src={chat.getFileUrl(actionMenu.msg)} alt="" className="max-w-full max-h-40 object-cover" />}
                         </div>
 
-                        {/* Unified toolbar */}
-                        <div className={cn(
-                          "bg-card/95 backdrop-blur-md border border-border/30 rounded-2xl overflow-hidden",
-                          showAbove ? "mb-1.5" : "mt-1.5"
-                        )}>
-                          {/* Emoji row */}
+                        <div className={cn("bg-card/95 backdrop-blur-md border border-border/30 rounded-2xl overflow-hidden", showAbove ? "mb-1.5" : "mt-1.5")}>
                           <div className="flex items-center justify-center gap-0.5 px-2.5 py-2" dir="ltr">
                             {QUICK_EMOJIS.map(emoji => (
-                              <button
-                                key={emoji}
-                                onClick={() => { toggleReaction(actionMenu.msg.id, emoji); setShowExtraEmojis(false); }}
-                                className="text-[20px] hover:scale-125 active:scale-90 transition-transform px-[3px]"
-                                aria-label={`React with ${emoji}`}
-                              >
-                                {emoji}
-                              </button>
+                              <button key={emoji} onClick={() => { chat.toggleReaction(actionMenu.msg.id, emoji); setActionMenu(null); chat.setShowExtraEmojis(false); }} className="text-[20px] hover:scale-125 active:scale-90 transition-transform px-[3px]" aria-label={`React with ${emoji}`}>{emoji}</button>
                             ))}
-                            <button
-                              onClick={() => setShowExtraEmojis(!showExtraEmojis)}
-                              className={cn(
-                                "w-7 h-7 rounded-full flex items-center justify-center transition-all ms-1",
-                                showExtraEmojis ? "bg-primary text-primary-foreground" : "bg-muted/40 text-muted-foreground"
-                              )}
-                              aria-label="More emojis"
-                            >
-                              <ChevronDown className={cn("w-3.5 h-3.5 transition-transform duration-200", showExtraEmojis && "rotate-180")} />
+                            <button onClick={() => chat.setShowExtraEmojis(!chat.showExtraEmojis)} className={cn("w-7 h-7 rounded-full flex items-center justify-center transition-all ms-1", chat.showExtraEmojis ? "bg-primary text-primary-foreground" : "bg-muted/40 text-muted-foreground")} aria-label="More emojis">
+                              <ChevronDown className={cn("w-3.5 h-3.5 transition-transform duration-200", chat.showExtraEmojis && "rotate-180")} />
                             </button>
                           </div>
-
-                          {/* Dropdown emojis */}
                           <AnimatePresence>
-                            {showExtraEmojis && (
-                              <motion.div
-                                initial={{ height: 0 }}
-                                animate={{ height: 'auto' }}
-                                exit={{ height: 0 }}
-                                transition={{ duration: 0.2 }}
-                                className="overflow-hidden"
-                              >
+                            {chat.showExtraEmojis && (
+                              <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }} transition={{ duration: 0.2 }} className="overflow-hidden">
                                 <div className="h-px bg-border/20 mx-2.5" />
                                 <div className="grid grid-cols-8 gap-0 px-2 py-2 max-h-[150px] overflow-y-auto" dir="ltr">
                                   {EXTRA_EMOJIS.map(emoji => (
-                                    <button
-                                      key={emoji}
-                                      onClick={() => { toggleReaction(actionMenu.msg.id, emoji); setShowExtraEmojis(false); }}
-                                      className="text-[19px] hover:scale-110 active:scale-90 transition-transform p-1 rounded-lg hover:bg-accent/20 flex items-center justify-center"
-                                      aria-label={`React with ${emoji}`}
-                                    >
-                                      {emoji}
-                                    </button>
+                                    <button key={emoji} onClick={() => { chat.toggleReaction(actionMenu.msg.id, emoji); setActionMenu(null); chat.setShowExtraEmojis(false); }} className="text-[19px] hover:scale-110 active:scale-90 transition-transform p-1 rounded-lg hover:bg-accent/20 flex items-center justify-center" aria-label={`React with ${emoji}`}>{emoji}</button>
                                   ))}
                                 </div>
                               </motion.div>
                             )}
                           </AnimatePresence>
-
                           <div className="h-px bg-border/20 mx-2.5" />
-
-                          {/* Action icons */}
                           <div className="flex items-center justify-center gap-0.5 px-2 py-1.5 flex-wrap">
-                            <button
-                              onClick={() => { setReplyTo(actionMenu.msg); setActionMenu(null); setShowExtraEmojis(false); inputRef.current?.focus(); }}
-                              className="flex items-center gap-1.5 px-3 py-2 rounded-xl hover:bg-accent/30 active:bg-accent/50 transition-colors"
-                              aria-label={isAr ? 'رد' : 'Reply'}
-                            >
-                              <Reply className="w-3.5 h-3.5 text-muted-foreground" />
-                              <span className="text-[11px] text-muted-foreground font-medium">{isAr ? 'رد' : 'Rply'}</span>
-                            </button>
+                            <button onClick={() => { chat.setReplyTo(actionMenu.msg); setActionMenu(null); chat.setShowExtraEmojis(false); chat.inputRef.current?.focus(); }} className="flex items-center gap-1.5 px-3 py-2 rounded-xl hover:bg-accent/30 active:bg-accent/50 transition-colors" aria-label={chat.isAr ? 'رد' : 'Reply'}><Reply className="w-3.5 h-3.5 text-muted-foreground" /><span className="text-[11px] text-muted-foreground font-medium">{chat.isAr ? 'رد' : 'Rply'}</span></button>
                             {actionMenu.msg.message_type === 'text' && actionMenu.msg.content && (
-                              <button
-                                onClick={() => { copyMessage(actionMenu.msg.content); setShowExtraEmojis(false); }}
-                                className="flex items-center gap-1.5 px-3 py-2 rounded-xl hover:bg-accent/30 active:bg-accent/50 transition-colors"
-                                aria-label={isAr ? 'نسخ' : 'Copy'}
-                              >
-                                <Copy className="w-3.5 h-3.5 text-muted-foreground" />
-                                <span className="text-[11px] text-muted-foreground font-medium">{isAr ? 'نسخ' : 'Copy'}</span>
-                              </button>
+                              <button onClick={() => { chat.copyMessage(actionMenu.msg.content); setActionMenu(null); chat.setShowExtraEmojis(false); }} className="flex items-center gap-1.5 px-3 py-2 rounded-xl hover:bg-accent/30 active:bg-accent/50 transition-colors" aria-label={chat.isAr ? 'نسخ' : 'Copy'}><Copy className="w-3.5 h-3.5 text-muted-foreground" /><span className="text-[11px] text-muted-foreground font-medium">{chat.isAr ? 'نسخ' : 'Copy'}</span></button>
                             )}
-                            <button
-                              onClick={() => pinMessage(actionMenu.msg)}
-                              className="flex items-center gap-1.5 px-3 py-2 rounded-xl hover:bg-accent/30 active:bg-accent/50 transition-colors"
-                              aria-label={isAr ? 'تثبيت' : 'Pin'}
-                            >
-                              {pinnedMessage?.id === actionMenu.msg.id
-                                ? <PinOff className="w-3.5 h-3.5 text-muted-foreground" />
-                                : <Pin className="w-3.5 h-3.5 text-muted-foreground" />}
-                              <span className="text-[11px] text-muted-foreground font-medium">
-                                {pinnedMessage?.id === actionMenu.msg.id ? (isAr ? 'إلغاء' : 'Unpin') : (isAr ? 'تثبيت' : 'Pin')}
-                              </span>
+                            <button onClick={() => { chat.pinMessage(actionMenu.msg); setActionMenu(null); }} className="flex items-center gap-1.5 px-3 py-2 rounded-xl hover:bg-accent/30 active:bg-accent/50 transition-colors" aria-label={chat.isAr ? 'تثبيت' : 'Pin'}>
+                              {chat.pinnedMessage?.id === actionMenu.msg.id ? <PinOff className="w-3.5 h-3.5 text-muted-foreground" /> : <Pin className="w-3.5 h-3.5 text-muted-foreground" />}
+                              <span className="text-[11px] text-muted-foreground font-medium">{chat.pinnedMessage?.id === actionMenu.msg.id ? (chat.isAr ? 'إلغاء' : 'Unpin') : (chat.isAr ? 'تثبيت' : 'Pin')}</span>
                             </button>
                             {actionMenu.isMine && actionMenu.msg.message_type === 'text' && !actionMenu.msg.deleted && (
-                              <button
-                                onClick={() => startEditMessage(actionMenu.msg)}
-                                className="flex items-center gap-1.5 px-3 py-2 rounded-xl hover:bg-accent/30 active:bg-accent/50 transition-colors"
-                                aria-label={isAr ? 'تعديل' : 'Edit'}
-                              >
-                                <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
-                                <span className="text-[11px] text-muted-foreground font-medium">{isAr ? 'تعديل' : 'Edit'}</span>
-                              </button>
+                              <button onClick={() => { chat.startEditMessage(actionMenu.msg); setActionMenu(null); chat.setShowExtraEmojis(false); }} className="flex items-center gap-1.5 px-3 py-2 rounded-xl hover:bg-accent/30 active:bg-accent/50 transition-colors" aria-label={chat.isAr ? 'تعديل' : 'Edit'}><Pencil className="w-3.5 h-3.5 text-muted-foreground" /><span className="text-[11px] text-muted-foreground font-medium">{chat.isAr ? 'تعديل' : 'Edit'}</span></button>
                             )}
                             {actionMenu.isMine && !actionMenu.msg.deleted && (
-                              <button
-                                onClick={() => { deleteMessage(actionMenu.msg.id); setActionMenu(null); setShowExtraEmojis(false); }}
-                                className="flex items-center gap-1.5 px-3 py-2 rounded-xl hover:bg-destructive/10 active:bg-destructive/20 transition-colors"
-                                aria-label={isAr ? 'حذف' : 'Delete'}
-                              >
-                                <Trash2 className="w-3.5 h-3.5 text-destructive" />
-                                <span className="text-[11px] text-destructive font-medium">{isAr ? 'حذف' : 'Del'}</span>
-                              </button>
+                              <button onClick={() => { chat.deleteMessage(actionMenu.msg.id); setActionMenu(null); chat.setShowExtraEmojis(false); }} className="flex items-center gap-1.5 px-3 py-2 rounded-xl hover:bg-destructive/10 active:bg-destructive/20 transition-colors" aria-label={chat.isAr ? 'حذف' : 'Delete'}><Trash2 className="w-3.5 h-3.5 text-destructive" /><span className="text-[11px] text-destructive font-medium">{chat.isAr ? 'حذف' : 'Del'}</span></button>
                             )}
                           </div>
                         </div>
@@ -2186,283 +581,44 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
               })()}
             </AnimatePresence>
 
-            {/* Input area */}
-            <div className="border-t border-border/30 bg-background pb-[env(safe-area-inset-bottom)]">
-              {/* Staged images preview gallery */}
-              <AnimatePresence>
-                {stagedPreviews.length > 0 && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    className="overflow-hidden"
-                  >
-                    <div className="px-3 pt-2 pb-1">
-                      <div className="flex items-center justify-between mb-1.5">
-                        <span className="text-[12px] text-muted-foreground font-medium">
-                          {stagedPreviews.length} {isAr ? 'صورة' : (stagedPreviews.length === 1 ? 'Foto' : 'Fotos')}
-                        </span>
-                        <button
-                          onClick={clearStagedImages}
-                          className="text-[11px] text-destructive font-medium px-2 py-0.5 rounded-full hover:bg-destructive/10 transition-colors"
-                        >
-                          {isAr ? 'مسح الكل' : 'Alle löschen'}
-                        </button>
-                      </div>
-                      <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-                        {stagedPreviews.map((url, i) => (
-                          <div key={i} className="relative shrink-0 w-16 h-16 rounded-xl overflow-hidden bg-muted/30 group">
-                            <img src={url} alt="" className="w-full h-full object-cover" />
-                            <button
-                              onClick={() => removeStagedImage(i)}
-                              className="absolute top-0.5 end-0.5 w-5 h-5 rounded-full bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                              style={{ opacity: 1 }}
-                            >
-                              <X className="w-3 h-3 text-white" />
-                            </button>
-                          </div>
-                        ))}
-                        {/* Add more button */}
-                        <button
-                          onClick={() => fileInputRef.current?.click()}
-                          className="shrink-0 w-16 h-16 rounded-xl border-2 border-dashed border-border/40 flex items-center justify-center hover:bg-accent/20 transition-colors"
-                        >
-                          <Plus className="w-5 h-5 text-muted-foreground" />
-                        </button>
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-              {/* Edit preview */}
-              <AnimatePresence>
-                {editingMessage && !isRecording && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    className="overflow-hidden"
-                  >
-                    <div className="mx-3 mt-2 rounded-xl bg-primary/10 border border-primary/20 overflow-hidden">
-                      <div className="flex items-start gap-2 p-2.5">
-                        <div className="flex-1 min-w-0 border-s-[3px] border-primary ps-2.5">
-                          <span className="text-[11px] font-semibold text-primary block flex items-center gap-1">
-                            <Pencil className="w-3 h-3" />
-                            {isAr ? 'تعديل الرسالة' : 'Nachricht bearbeiten'}
-                          </span>
-                          <p className="text-[11px] text-muted-foreground truncate" dir="auto">
-                            {editingMessage.content}
-                          </p>
-                        </div>
-                        <button
-                          onClick={() => { setEditingMessage(null); setNewMessage(''); resizeComposer(); }}
-                          className="shrink-0 w-6 h-6 rounded-full flex items-center justify-center hover:bg-muted/60 transition-colors"
-                        >
-                          <X className="w-3.5 h-3.5 text-muted-foreground" />
-                        </button>
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-              {/* Reply preview */}
-              <AnimatePresence>
-                {replyTo && !isRecording && !editingMessage && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    className="overflow-hidden"
-                  >
-                    <div className="mx-3 mt-2 rounded-xl bg-accent/30 border border-border/20 overflow-hidden">
-                      <div className="flex items-start gap-2 p-2.5">
-                        <div className="flex-1 min-w-0 border-s-[3px] border-primary ps-2.5">
-                          <span className="text-[11px] font-semibold text-primary block">
-                            {replyTo.sender_id === user.id
-                              ? (isAr ? 'أنت' : 'Du')
-                              : (activeConv?.otherDisplayName || activeConv?.otherUsername || '')}
-                          </span>
-                          <p className="text-[11px] text-muted-foreground truncate" dir="auto">
-                            {replyTo.message_type === 'image' ? '📷 ' + (isAr ? 'صورة' : 'Foto') : replyTo.content}
-                          </p>
-                        </div>
-                        <button
-                          onClick={() => setReplyTo(null)}
-                          className="shrink-0 w-6 h-6 rounded-full flex items-center justify-center hover:bg-muted/60 transition-colors"
-                        >
-                          <X className="w-3.5 h-3.5 text-muted-foreground" />
-                        </button>
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              <AnimatePresence mode="wait">
-                {isRecording ? (
-                  <motion.div
-                    key="recording"
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 8 }}
-                    transition={{ type: 'spring', damping: 25, stiffness: 400 }}
-                    className="px-3 py-2.5 flex items-center gap-3"
-                  >
-                    {/* Cancel */}
-                    <motion.button
-                      onClick={() => stopRecording(true)}
-                      className="shrink-0 w-11 h-11 rounded-full flex items-center justify-center bg-destructive/10 hover:bg-destructive/20 transition-colors"
-                      whileTap={{ scale: 0.85 }}
-                    >
-                      <Trash2 className="w-5 h-5 text-destructive" />
-                    </motion.button>
-
-                    {/* Waveform + Timer */}
-                    <div className="flex-1 flex items-center gap-3 bg-accent/15 backdrop-blur-sm border border-border/15 rounded-full px-4 h-11">
-                      <motion.div
-                        animate={{ opacity: [1, 0.2, 1] }}
-                        transition={{ duration: 1, repeat: Infinity, ease: 'easeInOut' }}
-                        className="w-3 h-3 rounded-full bg-destructive shrink-0 shadow-[0_0_8px_rgba(239,68,68,0.4)]"
-                      />
-                      <span className="text-[13px] font-mono text-foreground tabular-nums tracking-wide">
-                        {formatRecordingTime(recordingTime)}
-                      </span>
-                      <div className="flex-1 flex items-center justify-center gap-[2.5px]" dir="ltr">
-                        {Array.from({ length: 24 }).map((_, i) => (
-                          <motion.div
-                            key={i}
-                            animate={{
-                              height: [2, WAVEFORM_HEIGHTS[i], 2],
-                            }}
-                            transition={{
-                              duration: 0.4 + Math.random() * 0.4,
-                              repeat: Infinity,
-                              delay: i * 0.04,
-                              ease: 'easeInOut',
-                            }}
-                            className="w-[2.5px] bg-primary/50 rounded-full"
-                            style={{ minHeight: 2 }}
-                          />
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Send */}
-                    <motion.button
-                      onClick={() => stopRecording(false)}
-                      className="shrink-0 w-12 h-12 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/25"
-                      whileTap={{ scale: 0.8 }}
-                      animate={{ scale: [1, 1.06, 1] }}
-                      transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
-                    >
-                      <Send className="w-5 h-5 text-primary-foreground" style={{ marginInlineStart: '2px' }} />
-                    </motion.button>
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key="input"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="px-2.5 py-2 flex items-end gap-2"
-                  >
-                    {/* Attachment */}
-                    <button
-                      type="button"
-                      onPointerDown={(e) => e.preventDefault()}
-                      onClick={() => fileInputRef.current?.click()}
-                      disabled={uploading}
-                      className="shrink-0 w-10 h-10 rounded-full flex items-center justify-center hover:bg-accent/30 active:bg-accent/50 transition-colors self-end"
-                    >
-                      {uploading ? (
-                        <div className="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
-                      ) : (
-                        <Paperclip className="h-5 w-5 text-muted-foreground" />
-                      )}
-                    </button>
-
-                    {/* Text Input */}
-                    <div className="flex-1 flex items-end bg-accent/15 border border-border/20 rounded-[24px] overflow-hidden transition-colors focus-within:border-primary/30 focus-within:bg-accent/25">
-                      <Textarea
-                        ref={inputRef}
-                        placeholder={isAr ? 'اكتب رسالة...' : 'Nachricht...'}
-                        value={newMessage}
-                        rows={1}
-                        name="chat-message"
-                        autoComplete="off"
-                        autoCorrect="on"
-                        autoCapitalize="sentences"
-                        spellCheck
-                        enterKeyHint="send"
-                        inputMode="text"
-                        data-form-type="other"
-                        onChange={e => {
-                          setNewMessage(e.target.value);
-                          resizeComposer(e.currentTarget);
-                          if (e.target.value.trim()) broadcastTyping();
-                        }}
-                        onFocus={() => {
-                          resizeComposer();
-                          setTimeout(scrollToBottom, 120);
-                        }}
-                        onKeyDown={e => {
-                          if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
-                            e.preventDefault();
-                            if (editingMessage) saveEditMessage();
-                            else sendMessage();
-                          }
-                        }}
-                        dir="auto"
-                        className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 min-h-[40px] max-h-[120px] resize-none px-4 py-[10px] text-[15px] leading-relaxed placeholder:text-muted-foreground/40"
-                      />
-                    </div>
-
-                    {/* Send / Mic */}
-                    {(newMessage.trim() || stagedImages.length > 0) ? (
-                      <motion.div
-                        initial={{ scale: 0.5, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        transition={{ type: 'spring', damping: 15, stiffness: 400 }}
-                        className="self-end"
-                      >
-                        <Button
-                          size="icon"
-                          className="rounded-full shrink-0 h-11 w-11 shadow-md shadow-primary/20"
-                          type="button"
-                          onPointerDown={(e) => e.preventDefault()}
-                          onClick={() => {
-                            if (editingMessage) { saveEditMessage(); return; }
-                            if (stagedImages.length > 0) sendStagedImages();
-                            if (newMessage.trim()) sendMessage();
-                          }}
-                        >
-                          {editingMessage ? <Check className="h-5 w-5" /> : <Send className="h-5 w-5" />}
-                        </Button>
-                      </motion.div>
-                    ) : (
-                      <motion.button
-                        type="button"
-                        className="shrink-0 h-11 w-11 rounded-full bg-primary flex items-center justify-center text-primary-foreground shadow-md shadow-primary/20 self-end"
-                        whileTap={{ scale: 1.2 }}
-                        onClick={startRecording}
-                      >
-                        <Mic className="h-5 w-5" />
-                      </motion.button>
-                    )}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+            {/* Chat Input */}
+            <ChatInput
+              isAr={chat.isAr}
+              isRecording={isRecording}
+              recordingTime={recordingTime}
+              newMessage={chat.newMessage}
+              setNewMessage={chat.setNewMessage}
+              replyTo={chat.replyTo}
+              setReplyTo={chat.setReplyTo}
+              editingMessage={chat.editingMessage}
+              setEditingMessage={chat.setEditingMessage}
+              stagedPreviews={chat.stagedPreviews}
+              uploading={chat.uploading}
+              inputRef={chat.inputRef as React.RefObject<HTMLTextAreaElement>}
+              fileInputRef={chat.fileInputRef as React.RefObject<HTMLInputElement>}
+              sendMessage={chat.sendMessage}
+              saveEditMessage={chat.saveEditMessage}
+              sendStagedImages={chat.sendStagedImages}
+              startRecording={startRecording}
+              stopRecording={stopRecording}
+              removeStagedImage={chat.removeStagedImage}
+              clearStagedImages={chat.clearStagedImages}
+              resizeComposer={chat.resizeComposer}
+              broadcastTyping={chat.broadcastTyping}
+              scrollToBottom={chat.scrollToBottom}
+              activeConvOtherName={chat.activeConv?.otherDisplayName || chat.activeConv?.otherUsername}
+              userId={chat.user?.id}
+              stagedImagesCount={chat.stagedImages.length}
+            />
           </>
         )}
       </SheetContent>
 
-      {/* Image Lightbox */}
       <ImageLightbox
-        src={lightboxSrc}
-        open={lightboxOpen}
-        onClose={() => setLightboxOpen(false)}
-        originRect={lightboxRect}
+        src={chat.lightboxSrc}
+        open={chat.lightboxOpen}
+        onClose={() => chat.setLightboxOpen(false)}
+        originRect={chat.lightboxRect}
       />
     </Sheet>
   );
