@@ -277,7 +277,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
     setShowScrollDown(distFromBottom > 200);
   }, []);
 
-  // Load conversations
+  // Load conversations - optimized: batch queries instead of N+1
   const loadConversations = useCallback(async () => {
     if (!user) return;
     const { data: convs } = await supabase
@@ -289,30 +289,47 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
     if (!convs) return;
 
     const otherIds = convs.map(c => c.user1_id === user.id ? c.user2_id : c.user1_id);
-    const { data: profiles } = await supabase
-      .from('profiles')
-      .select('user_id, username, display_name, avatar_url, bio, last_seen, created_at')
-      .in('user_id', otherIds);
+    const convIds = convs.map(c => c.id);
 
-    const enriched = await Promise.all(convs.map(async (conv) => {
-      const otherId = conv.user1_id === user.id ? conv.user2_id : conv.user1_id;
-      const profile = profiles?.find(p => p.user_id === otherId);
-
-      const { data: lastMsg } = await supabase
-        .from('messages')
-        .select('content, message_type, deleted, created_at')
-        .eq('conversation_id', conv.id)
+    // Batch: profiles + all recent messages + unread counts in parallel
+    const [profilesRes, allMsgsRes, unreadMsgsRes] = await Promise.all([
+      supabase.from('profiles')
+        .select('user_id, username, display_name, avatar_url, bio, last_seen, created_at')
+        .in('user_id', otherIds),
+      supabase.from('messages')
+        .select('conversation_id, content, message_type, deleted, created_at')
+        .in('conversation_id', convIds)
         .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
-      const { count } = await supabase
-        .from('messages')
-        .select('*', { count: 'exact', head: true })
-        .eq('conversation_id', conv.id)
+        .limit(convIds.length * 2), // rough limit for last messages
+      supabase.from('messages')
+        .select('conversation_id')
+        .in('conversation_id', convIds)
         .neq('sender_id', user.id)
         .eq('read', false)
-        .eq('deleted', false);
+        .eq('deleted', false),
+    ]);
+
+    const profiles = profilesRes.data || [];
+    const allMsgs = allMsgsRes.data || [];
+    const unreadMsgs = unreadMsgsRes.data || [];
+
+    // Build last message per conversation
+    const lastMsgMap = new Map<string, typeof allMsgs[0]>();
+    for (const m of allMsgs) {
+      if (!lastMsgMap.has(m.conversation_id)) lastMsgMap.set(m.conversation_id, m);
+    }
+
+    // Build unread count per conversation
+    const unreadCountMap = new Map<string, number>();
+    for (const m of unreadMsgs) {
+      unreadCountMap.set(m.conversation_id, (unreadCountMap.get(m.conversation_id) || 0) + 1);
+    }
+
+    const enriched = convs.map((conv) => {
+      const otherId = conv.user1_id === user.id ? conv.user2_id : conv.user1_id;
+      const profile = profiles.find(p => p.user_id === otherId);
+      const lastMsg = lastMsgMap.get(conv.id);
+      const unreadCount = unreadCountMap.get(conv.id) || 0;
 
       let lastContent = lastMsg?.content;
       if (lastMsg?.deleted) lastContent = isAr ? '🚫 تم حذف الرسالة' : '🚫 Nachricht gelöscht';
@@ -331,9 +348,9 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
         otherCreatedAt: (profile as any)?.created_at || null,
         lastMessage: lastContent,
         lastMessageTime: lastMsg?.created_at || conv.updated_at,
-        unreadCount: count || 0,
+        unreadCount,
       };
-    }));
+    });
 
     setConversations(enriched);
     onUnreadChange(enriched.reduce((sum, c) => sum + (c.unreadCount || 0), 0));
@@ -341,6 +358,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
 
   const loadMessages = useCallback(async () => {
     if (!activeConv || !user) return;
+    // Load messages + mark read + load reactions in parallel
     const { data } = await supabase
       .from('messages')
       .select('*')
@@ -349,14 +367,18 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
 
     if (data) {
       setMessages(data as Message[]);
-      await supabase
+
+      const msgIds = data.map(m => m.id);
+
+      // Fire mark-read and reactions fetch in parallel (don't await mark-read)
+      supabase
         .from('messages')
         .update({ read: true })
         .eq('conversation_id', activeConv.id)
         .neq('sender_id', user.id)
-        .eq('read', false);
+        .eq('read', false)
+        .then();
 
-      const msgIds = data.map(m => m.id);
       if (msgIds.length > 0) {
         const { data: rxns } = await supabase
           .from('message_reactions')
@@ -365,7 +387,8 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
         setReactions((rxns || []) as Reaction[]);
       }
 
-      setTimeout(() => scrollToBottom(false), 50);
+      // Instant scroll - no delay for native feel
+      scrollToBottom(false);
     }
   }, [activeConv, user, scrollToBottom]);
 
@@ -445,13 +468,28 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
           const msg = payload.new as Message;
           if (activeConv && msg.conversation_id === activeConv.id) {
             setMessages(prev => {
+              // Skip if already exists (real ID)
               if (prev.some(m => m.id === msg.id)) return prev;
+              // Replace optimistic message from same sender with matching content
+              if (msg.sender_id === user.id) {
+                const optimisticIdx = prev.findIndex(m => 
+                  m.id.startsWith('optimistic_') && 
+                  m.content === msg.content && 
+                  m.sender_id === msg.sender_id
+                );
+                if (optimisticIdx !== -1) {
+                  const next = [...prev];
+                  next[optimisticIdx] = msg;
+                  return next;
+                }
+              }
               return [...prev, msg];
             });
             if (msg.sender_id !== user.id) {
               supabase.from('messages').update({ read: true }).eq('id', msg.id).then();
             }
-            setTimeout(scrollToBottom, 100);
+            // Instant scroll for native feel
+            requestAnimationFrame(() => scrollToBottom(false));
           }
           loadConversations();
         } else if (payload.eventType === 'UPDATE') {
@@ -615,6 +653,9 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
     if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
     typingChannelRef.current?.track({ typing: false });
 
+    const optimisticId = `optimistic_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+    const now = new Date().toISOString();
+
     const insertData: any = {
       conversation_id: activeConv.id,
       sender_id: user.id,
@@ -630,13 +671,46 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
       insertData.expires_at = new Date(Date.now() + selfDestructSeconds * 1000).toISOString();
     }
 
-    await supabase.from('messages').insert(insertData);
+    // Optimistic: show message instantly for text messages
+    if (type === 'text') {
+      const optimisticMsg: Message = {
+        id: optimisticId,
+        conversation_id: activeConv.id,
+        sender_id: user.id,
+        content,
+        read: false,
+        created_at: now,
+        reply_to_id: replyToId,
+        message_type: type,
+        file_url: null,
+        file_name: null,
+        deleted: false,
+        edited_at: null,
+        expires_at: insertData.expires_at || null,
+      };
+      setMessages(prev => [...prev, optimisticMsg]);
+      // Instant scroll
+      requestAnimationFrame(() => scrollToBottom(false));
+    }
 
-    await supabase.from('conversations')
-      .update({ updated_at: new Date().toISOString() })
-      .eq('id', activeConv.id);
+    // Fire-and-forget: don't await insert for text, await for files
+    const insertPromise = supabase.from('messages').insert(insertData).select().single();
+    supabase.from('conversations')
+      .update({ updated_at: now })
+      .eq('id', activeConv.id)
+      .then();
 
-    if (type === 'text') focusComposer();
+    if (type === 'text') {
+      // Replace optimistic message with real one when DB responds
+      insertPromise.then(({ data: realMsg }) => {
+        if (realMsg) {
+          setMessages(prev => prev.map(m => m.id === optimisticId ? (realMsg as Message) : m));
+        }
+      });
+      focusComposer();
+    } else {
+      await insertPromise;
+    }
   };
 
   const deleteMessage = async (msgId: string) => {
@@ -1537,7 +1611,8 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
             {/* Messages */}
             <div
               ref={messagesContainerRef}
-              className="flex-1 overflow-y-auto px-3 py-2"
+              className="flex-1 overflow-y-auto px-3 py-2 overscroll-contain scroll-smooth will-change-scroll"
+              style={{ WebkitOverflowScrolling: 'touch' } as any}
               onScroll={handleScroll}
               onClick={() => { setShowChatMenu(false); setActionMenu(null); setShowExtraEmojis(false); }}
             >
@@ -1655,14 +1730,17 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                                   const sec = Math.floor(s % 60);
                                   return `${m}:${sec.toString().padStart(2, '0')}`;
                                 };
-                                // Use cached waveform or seed-based fallback
+                                // Use cached waveform or seed-based fallback; lazy-generate real waveform
                                 const cachedWaveform = voicePlayer.waveformCache[msg.id];
                                 const bars = cachedWaveform || (() => {
                                   const seed = msg.id.split('').reduce((a: number, c: string) => a + c.charCodeAt(0), 0);
                                   return Array.from({ length: 40 }, (_, i) => ((Math.sin(seed * (i + 1) * 0.7) + 1) / 2) * 0.85 + 0.15);
                                 })();
-
+                                // Lazy-load real waveform when URL is available
                                 const fileUrl = getFileUrl(msg);
+                                if (fileUrl && !cachedWaveform) {
+                                  voicePlayer.generateWaveform(fileUrl, msg.id);
+                                }
 
                                 const senderName = isMine ? 'أنت' : (activeConv?.otherDisplayName || activeConv?.otherUsername || '');
 

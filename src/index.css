@@ -218,3 +218,41 @@ html.theme-transition *::before,
 html.theme-transition *::after {
   transition: background-color 0.4s ease, color 0.3s ease, border-color 0.35s ease, fill 0.3s ease, stroke 0.3s ease !important;
 }
+
+/* ─── Native Android Chat Performance ─── */
+.will-change-scroll {
+  will-change: scroll-position;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}
+
+/* GPU-accelerate message bubbles for smooth 60fps scrolling */
+[id^="msg-"] > div {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  contain: layout style paint;
+}
+
+/* Smooth waveform bar transitions */
+[id^="msg-"] .rounded-full[style*="height"] {
+  will-change: background-color;
+}
+
+/* Optimize image rendering in chat */
+[id^="msg-"] img {
+  content-visibility: auto;
+  contain-intrinsic-size: 200px 150px;
+}
+
+/* Fast tap response - remove 300ms delay */
+* {
+  touch-action: manipulation;
+}
+
+/* Scroll snap for conversation list */
+.scrollbar-none {
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
