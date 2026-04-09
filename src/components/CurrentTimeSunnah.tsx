@@ -23,7 +23,6 @@ function toMinutes(time: string): number {
 
 function getCurrentPrayerKey(timings: PrayerTimings | null): { key: string; label: string } {
   if (!timings) {
-    // Fallback approximate
     const h = new Date().getHours();
     const m = h * 60 + new Date().getMinutes();
     if (m < 270) return { key: 'before-fajr', label: 'قبل الفجر' };
@@ -87,7 +86,6 @@ export default function CurrentTimeSunnah() {
       const { lat, lng } = JSON.parse(cached);
       fetchTimings(lat, lng);
     } else {
-      // Use default location (Makkah) without requesting geolocation on page load
       fetchTimings(21.4225, 39.8262);
     }
   }, [prayerMadhab, latitudeAdjMethod]);
@@ -117,13 +115,13 @@ export default function CurrentTimeSunnah() {
   const isFriday = current.key === 'friday';
 
   return (
-    <div className="rounded-2xl bg-card/80 border border-border/40 overflow-hidden">
+    <div className="obsidian-card overflow-hidden">
       <button
         onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between gap-3 px-4 py-3.5"
+        className="w-full flex items-center justify-between gap-3 px-4 py-3.5 relative z-10"
       >
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-full obsidian-icon flex items-center justify-center">
             <Leaf className="w-5 h-5 text-primary" />
           </div>
           <div className="text-start">
@@ -152,7 +150,7 @@ export default function CurrentTimeSunnah() {
             transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
             className="overflow-hidden"
           >
-            <div className="px-4 pb-4 space-y-0">
+            <div className="px-4 pb-4 space-y-0 relative z-10">
               {(isFriday ? items : items.slice(0, 3)).map((item, i) => (
                 <button
                   key={i}
