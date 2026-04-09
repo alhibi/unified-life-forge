@@ -109,7 +109,7 @@ export default function LocationSaver() {
     <div className="obsidian-card p-5">
       {/* Header */}
       <div className="flex items-center gap-3 mb-4">
-        <div className="w-11 h-11 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
+        <div className="w-11 h-11 rounded-2xl obsidian-icon flex items-center justify-center shrink-0">
           <MapPin className="w-5 h-5 text-primary stroke-[1.8]" />
         </div>
         <h3 className="font-semibold text-[15px] text-foreground flex-1">{t('location.title')}</h3>
