@@ -64,6 +64,13 @@ export default function AudioPlayer() {
     });
   }, []);
 
+  // Cleanup blob URLs on unmount
+  useEffect(() => {
+    return () => {
+      files.forEach(f => { if (f.url.startsWith('blob:')) URL.revokeObjectURL(f.url); });
+    };
+  }, [files]);
+
   // === Quran functions ===
   const playQuranSurah = (reciter: Reciter, surah: { id: number; name: string; url: string }) => {
     if (quranAudioRef.current) {
@@ -114,6 +121,7 @@ export default function AudioPlayer() {
       url: URL.createObjectURL(f),
     }));
     if (newFiles.length > 0) {
+      files.forEach(f => { if (f.url.startsWith('blob:')) URL.revokeObjectURL(f.url); });
       setFiles(newFiles);
       setCurrentIndex(0);
       setShowPlaylist(true);
