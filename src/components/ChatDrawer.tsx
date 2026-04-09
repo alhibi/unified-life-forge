@@ -277,7 +277,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
     setShowScrollDown(distFromBottom > 200);
   }, []);
 
-  // Load conversations
+  // Load conversations - optimized: batch queries instead of N+1
   const loadConversations = useCallback(async () => {
     if (!user) return;
     const { data: convs } = await supabase
@@ -289,30 +289,47 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
     if (!convs) return;
 
     const otherIds = convs.map(c => c.user1_id === user.id ? c.user2_id : c.user1_id);
-    const { data: profiles } = await supabase
-      .from('profiles')
-      .select('user_id, username, display_name, avatar_url, bio, last_seen, created_at')
-      .in('user_id', otherIds);
+    const convIds = convs.map(c => c.id);
 
-    const enriched = await Promise.all(convs.map(async (conv) => {
-      const otherId = conv.user1_id === user.id ? conv.user2_id : conv.user1_id;
-      const profile = profiles?.find(p => p.user_id === otherId);
-
-      const { data: lastMsg } = await supabase
-        .from('messages')
-        .select('content, message_type, deleted, created_at')
-        .eq('conversation_id', conv.id)
+    // Batch: profiles + all recent messages + unread counts in parallel
+    const [profilesRes, allMsgsRes, unreadMsgsRes] = await Promise.all([
+      supabase.from('profiles')
+        .select('user_id, username, display_name, avatar_url, bio, last_seen, created_at')
+        .in('user_id', otherIds),
+      supabase.from('messages')
+        .select('conversation_id, content, message_type, deleted, created_at')
+        .in('conversation_id', convIds)
         .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
-      const { count } = await supabase
-        .from('messages')
-        .select('*', { count: 'exact', head: true })
-        .eq('conversation_id', conv.id)
+        .limit(convIds.length * 2), // rough limit for last messages
+      supabase.from('messages')
+        .select('conversation_id')
+        .in('conversation_id', convIds)
         .neq('sender_id', user.id)
         .eq('read', false)
-        .eq('deleted', false);
+        .eq('deleted', false),
+    ]);
+
+    const profiles = profilesRes.data || [];
+    const allMsgs = allMsgsRes.data || [];
+    const unreadMsgs = unreadMsgsRes.data || [];
+
+    // Build last message per conversation
+    const lastMsgMap = new Map<string, typeof allMsgs[0]>();
+    for (const m of allMsgs) {
+      if (!lastMsgMap.has(m.conversation_id)) lastMsgMap.set(m.conversation_id, m);
+    }
+
+    // Build unread count per conversation
+    const unreadCountMap = new Map<string, number>();
+    for (const m of unreadMsgs) {
+      unreadCountMap.set(m.conversation_id, (unreadCountMap.get(m.conversation_id) || 0) + 1);
+    }
+
+    const enriched = convs.map((conv) => {
+      const otherId = conv.user1_id === user.id ? conv.user2_id : conv.user1_id;
+      const profile = profiles.find(p => p.user_id === otherId);
+      const lastMsg = lastMsgMap.get(conv.id);
+      const unreadCount = unreadCountMap.get(conv.id) || 0;
 
       let lastContent = lastMsg?.content;
       if (lastMsg?.deleted) lastContent = isAr ? '🚫 تم حذف الرسالة' : '🚫 Nachricht gelöscht';
@@ -331,9 +348,9 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
         otherCreatedAt: (profile as any)?.created_at || null,
         lastMessage: lastContent,
         lastMessageTime: lastMsg?.created_at || conv.updated_at,
-        unreadCount: count || 0,
+        unreadCount,
       };
-    }));
+    });
 
     setConversations(enriched);
     onUnreadChange(enriched.reduce((sum, c) => sum + (c.unreadCount || 0), 0));
@@ -341,6 +358,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
 
   const loadMessages = useCallback(async () => {
     if (!activeConv || !user) return;
+    // Load messages + mark read + load reactions in parallel
     const { data } = await supabase
       .from('messages')
       .select('*')
@@ -349,14 +367,18 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
 
     if (data) {
       setMessages(data as Message[]);
-      await supabase
+
+      const msgIds = data.map(m => m.id);
+
+      // Fire mark-read and reactions fetch in parallel (don't await mark-read)
+      supabase
         .from('messages')
         .update({ read: true })
         .eq('conversation_id', activeConv.id)
         .neq('sender_id', user.id)
-        .eq('read', false);
+        .eq('read', false)
+        .then();
 
-      const msgIds = data.map(m => m.id);
       if (msgIds.length > 0) {
         const { data: rxns } = await supabase
           .from('message_reactions')
@@ -365,7 +387,8 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
         setReactions((rxns || []) as Reaction[]);
       }
 
-      setTimeout(() => scrollToBottom(false), 50);
+      // Instant scroll - no delay for native feel
+      scrollToBottom(false);
     }
   }, [activeConv, user, scrollToBottom]);
 
