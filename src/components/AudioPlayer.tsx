@@ -390,7 +390,7 @@ export default function AudioPlayer() {
                 <button onClick={skipPrev} className="p-2 rounded-full hover:bg-secondary transition-colors">
                   <SkipBack className="w-5 h-5 text-foreground" />
                 </button>
-                <button onClick={togglePlay} className="w-14 h-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center active:scale-95 transition-transform">
+                <button onClick={togglePlay} className="w-14 h-14 rounded-full obsidian-btn flex items-center justify-center active:scale-95 transition-transform">
                   {isPlaying ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6 ms-0.5" />}
                 </button>
                 <button onClick={skipNext} className="p-2 rounded-full hover:bg-secondary transition-colors">
