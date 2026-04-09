@@ -157,7 +157,7 @@ export default function LocationSaver() {
             className="w-full px-3.5 py-2.5 rounded-xl obsidian-input text-sm text-foreground placeholder:text-muted-foreground outline-none"
           />
           <div className="flex gap-2">
-            <button onClick={confirmSave} className="flex-1 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-medium active:scale-[0.98] transition-transform">
+            <button onClick={confirmSave} className="flex-1 py-2.5 rounded-xl obsidian-btn text-sm font-medium">
               <Plus className="w-4 h-4 inline-block me-1" />{t('location.save')}
             </button>
             <button
