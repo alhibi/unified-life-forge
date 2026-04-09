@@ -320,7 +320,7 @@ export default function AudioPlayer() {
           {quranPlaying && (
             <div className="mt-4 pt-3 border-t border-border/30">
               <div className="flex items-center gap-3 mb-2">
-                <button onClick={toggleQuranPlay} className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center shrink-0">
+                <button onClick={toggleQuranPlay} className="w-10 h-10 rounded-full obsidian-btn flex items-center justify-center shrink-0">
                   {quranIsPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ms-0.5" />}
                 </button>
                 <div className="flex-1 min-w-0">
