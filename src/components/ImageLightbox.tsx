@@ -34,15 +34,19 @@ export default function ImageLightbox({ src, alt, open, onClose, originRect }: I
   }, [open, dragY]);
 
   // Prevent body scroll, block sheet interaction & handle browser back button
+  const closedByPopstateRef = useRef(false);
+
   useEffect(() => {
     if (open) {
       document.body.style.overflow = 'hidden';
+      closedByPopstateRef.current = false;
       
       // Push a fake history entry so pressing back closes lightbox, not the chat
       window.history.pushState({ lightbox: true }, '');
       
-      const handlePopState = (e: PopStateEvent) => {
+      const handlePopState = () => {
         // Browser back pressed — close lightbox instead of navigating
+        closedByPopstateRef.current = true;
         onClose();
       };
       
@@ -57,9 +61,10 @@ export default function ImageLightbox({ src, alt, open, onClose, originRect }: I
         document.body.style.overflow = '';
         window.removeEventListener('popstate', handlePopState);
         window.removeEventListener('keydown', handleKeydown);
-        // If lightbox closes without back button (e.g. swipe/tap), remove the fake entry
-        if (window.history.state?.lightbox) {
-          window.history.back();
+        // Only go back if closed via UI (button/swipe), not via browser back
+        if (!closedByPopstateRef.current && window.history.state?.lightbox) {
+          // Replace current state instead of going back to avoid triggering popstate
+          window.history.go(-1);
         }
       };
     }
