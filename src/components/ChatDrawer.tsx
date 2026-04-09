@@ -342,12 +342,12 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
       return {
         ...conv,
         otherUsername: profile?.username || '?',
-        otherDisplayName: profile?.display_name || profile?.username || '?',
-        otherAvatarUrl: profile?.avatar_url || null,
+        otherDisplayName: profile?.display_name ?? profile?.username ?? '?',
+        otherAvatarUrl: profile?.avatar_url ?? undefined,
         otherUserId: otherId,
-        otherBio: (profile as any)?.bio || null,
-        otherLastSeen: (profile as any)?.last_seen || null,
-        otherCreatedAt: (profile as any)?.created_at || null,
+        otherBio: (profile as Record<string, unknown>)?.bio as string | null ?? null,
+        otherLastSeen: (profile as Record<string, unknown>)?.last_seen as string | null ?? null,
+        otherCreatedAt: (profile as Record<string, unknown>)?.created_at as string | null ?? null,
         lastMessage: lastContent,
         lastMessageTime: lastMsg?.created_at || conv.updated_at,
         unreadCount,
@@ -594,7 +594,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
       .maybeSingle();
 
     if (data) {
-      setSearchResult(data);
+      setSearchResult({ ...data, display_name: data.display_name ?? undefined, avatar_url: data.avatar_url ?? undefined });
     } else {
       setSearchError(isAr ? 'لم يتم العثور على المستخدم' : 'Benutzer nicht gefunden');
     }
@@ -611,7 +611,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
       .maybeSingle();
 
     if (existing) {
-      setActiveConv({ ...existing, otherUsername: searchResult.username, otherDisplayName: searchResult.display_name || searchResult.username, otherAvatarUrl: searchResult.avatar_url || null, otherUserId: searchResult.user_id });
+      setActiveConv({ ...existing, otherUsername: searchResult.username, otherDisplayName: searchResult.display_name || searchResult.username, otherAvatarUrl: searchResult.avatar_url ?? undefined, otherUserId: searchResult.user_id });
       setShowNewChat(false);
       setSearchUser('');
       setSearchResult(null);
@@ -626,7 +626,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
       .single();
 
     if (newConv) {
-      setActiveConv({ ...newConv, otherUsername: searchResult.username, otherDisplayName: searchResult.display_name || searchResult.username, otherAvatarUrl: searchResult.avatar_url || null, otherUserId: searchResult.user_id });
+      setActiveConv({ ...newConv, otherUsername: searchResult.username, otherDisplayName: searchResult.display_name || searchResult.username, otherAvatarUrl: searchResult.avatar_url ?? undefined, otherUserId: searchResult.user_id });
       setShowNewChat(false);
       setSearchUser('');
       setSearchResult(null);

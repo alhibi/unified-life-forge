@@ -88,7 +88,7 @@ export default function MinesweeperPage() {
 
   useEffect(() => {
     if (!isRunning || gameOver || isPaused) return;
-    const iv = setInterval(() => setTimer(t => t + 1), 1000);
+    const iv = setInterval(() => setTimer((t: number) => t + 1), 1000);
     return () => clearInterval(iv);
   }, [isRunning, gameOver, isPaused]);
 

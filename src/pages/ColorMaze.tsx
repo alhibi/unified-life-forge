@@ -115,7 +115,7 @@ export default function ColorMazePage() {
 
   useEffect(() => {
     if (!isRunning || solved || isPaused) return;
-    const iv = setInterval(() => setTimer(t => t + 1), 1000);
+    const iv = setInterval(() => setTimer((t: number) => t + 1), 1000);
     return () => clearInterval(iv);
   }, [isRunning, solved, isPaused]);
 
