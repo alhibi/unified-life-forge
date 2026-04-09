@@ -298,11 +298,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
       supabase.from('profiles')
         .select('user_id, username, display_name, avatar_url, bio, last_seen, created_at')
         .in('user_id', otherIds),
-      supabase.from('messages')
-        .select('conversation_id, content, message_type, deleted, created_at')
-        .in('conversation_id', convIds)
-        .order('created_at', { ascending: false })
-        .limit(convIds.length * 2), // rough limit for last messages
+      supabase.rpc('get_last_messages_per_conversation' as never, { conv_ids: convIds }) as Promise<{ data: { conversation_id: string; content: string; message_type: string; deleted: boolean; created_at: string }[] | null; error: unknown }>,
       supabase.from('messages')
         .select('conversation_id')
         .in('conversation_id', convIds)
