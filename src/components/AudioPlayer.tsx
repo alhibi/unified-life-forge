@@ -295,7 +295,7 @@ export default function AudioPlayer() {
                       }`}
                     >
                       <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${
-                        isCurrentSurah ? 'bg-primary text-primary-foreground' : 'bg-secondary'
+                        isCurrentSurah ? 'obsidian-btn' : 'obsidian-icon'
                       }`}>
                         {isCurrentSurah && quranIsPlaying ? (
                           <Pause className="w-4 h-4" />
