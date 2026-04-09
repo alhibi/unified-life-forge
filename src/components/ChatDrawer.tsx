@@ -468,13 +468,28 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
           const msg = payload.new as Message;
           if (activeConv && msg.conversation_id === activeConv.id) {
             setMessages(prev => {
+              // Skip if already exists (real ID)
               if (prev.some(m => m.id === msg.id)) return prev;
+              // Replace optimistic message from same sender with matching content
+              if (msg.sender_id === user.id) {
+                const optimisticIdx = prev.findIndex(m => 
+                  m.id.startsWith('optimistic_') && 
+                  m.content === msg.content && 
+                  m.sender_id === msg.sender_id
+                );
+                if (optimisticIdx !== -1) {
+                  const next = [...prev];
+                  next[optimisticIdx] = msg;
+                  return next;
+                }
+              }
               return [...prev, msg];
             });
             if (msg.sender_id !== user.id) {
               supabase.from('messages').update({ read: true }).eq('id', msg.id).then();
             }
-            setTimeout(scrollToBottom, 100);
+            // Instant scroll for native feel
+            requestAnimationFrame(() => scrollToBottom(false));
           }
           loadConversations();
         } else if (payload.eventType === 'UPDATE') {
