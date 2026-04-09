@@ -15,7 +15,7 @@ export default function DualCalendar() {
   const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    const timer = setInterval(() => setCurrentTime(new Date()), 60000);
     return () => clearInterval(timer);
   }, []);
 
@@ -53,7 +53,7 @@ export default function DualCalendar() {
 
   // Live time line position: percentage of day passed
   const timeProgress = (currentTime.getHours() * 60 + currentTime.getMinutes()) / 1440;
-  const timeString = currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  const timeString = currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
   // Find today's row index for the live time line
   const todayCellIndex = isCurrentMonth ? (firstDay + today.getDate() - 1) : -1;
