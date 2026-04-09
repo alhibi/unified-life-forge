@@ -33,48 +33,22 @@ export default function ImageLightbox({ src, alt, open, onClose, originRect }: I
     }
   }, [open, dragY]);
 
-  // Prevent body scroll, block sheet interaction & handle browser back button
-  const closedByBackRef = useRef(false);
-  const historyPushedRef = useRef(false);
-
+  // Prevent body scroll while the lightbox is open
   useEffect(() => {
-    if (open) {
-      document.body.style.overflow = 'hidden';
-      closedByBackRef.current = false;
-      historyPushedRef.current = true;
-      
-      // Push a fake history entry so pressing back closes lightbox, not the chat
-      window.history.pushState({ lightbox: true }, '');
-      
-      const handlePopState = () => {
-        closedByBackRef.current = true;
-        historyPushedRef.current = false; // entry already consumed by browser back
-        onClose();
-      };
-      
-      const handleKeydown = (e: KeyboardEvent) => {
-        if (e.key === 'Escape') onClose();
-      };
-      
-      window.addEventListener('popstate', handlePopState);
-      window.addEventListener('keydown', handleKeydown);
-      
-      return () => {
-        document.body.style.overflow = '';
-        window.removeEventListener('popstate', handlePopState);
-        window.removeEventListener('keydown', handleKeydown);
-        // If closed via UI (not browser back), silently remove the fake history entry
-        if (historyPushedRef.current) {
-          historyPushedRef.current = false;
-          // Add a one-shot listener to swallow the popstate from our back() call
-          const swallow = (e: PopStateEvent) => {
-            e.stopImmediatePropagation();
-          };
-          window.addEventListener('popstate', swallow, { once: true });
-          window.history.back();
-        }
-      };
-    }
+    if (!open) return;
+
+    const previousOverflow = document.body.style.overflow;
+    const handleKeydown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', handleKeydown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', handleKeydown);
+    };
   }, [open, onClose]);
 
   // Double-tap to zoom
