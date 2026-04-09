@@ -570,13 +570,6 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
     }, 1500);
   }, []);
 
-  // Polling
-  useEffect(() => {
-    if (!user) return;
-    loadConversations();
-    const interval = setInterval(loadConversations, 30000);
-    return () => clearInterval(interval);
-  }, [user, loadConversations]);
 
   // Realtime presence for the other user in active conversation
   const [realtimeLastSeen, setRealtimeLastSeen] = useState<string | null>(null);
