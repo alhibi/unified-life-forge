@@ -356,8 +356,8 @@ export default function AudioPlayer() {
           {files.length > 0 && (
             <>
               {/* Now Playing */}
-              <div className="flex items-center gap-3 mb-4 p-3 rounded-xl bg-secondary/40">
-                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+              <div className="flex items-center gap-3 mb-4 p-3 rounded-xl obsidian-inset">
+                <div className="w-10 h-10 rounded-lg obsidian-icon flex items-center justify-center shrink-0">
                   {isPlaying ? (
                     <div className="flex items-end gap-0.5 h-4">
                       <div className="w-1 bg-primary rounded-full animate-pulse" style={{ height: '60%' }} />
