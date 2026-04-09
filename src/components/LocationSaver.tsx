@@ -181,7 +181,7 @@ export default function LocationSaver() {
               <motion.div
                 key={loc.id}
                 layout
-                className="rounded-2xl bg-secondary/40 overflow-hidden border border-border/30 transition-colors"
+                className="rounded-2xl obsidian-inset overflow-hidden transition-colors"
               >
                 {/* Card Header */}
                 <button
