@@ -350,6 +350,8 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                 const isMine = msg.sender_id === chat.user!.id;
                 const msgReactions = chat.reactions.filter(r => r.message_id === msg.id);
                 const { sameSenderAsPrev, sameSenderAsNext, showDate } = chat.getMessageMeta(idx);
+                const fadeOpacity = chat.getMessageOpacity(msg);
+                const isFading = msg.expires_at && fadeOpacity < 1;
 
                 return (
                   <React.Fragment key={msg.id}>
@@ -360,7 +362,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                         </span>
                       </div>
                     )}
-                    <div id={`msg-${msg.id}`} className={cn('flex relative', isMine ? 'justify-end' : 'justify-start', sameSenderAsPrev ? 'mt-[2px]' : 'mt-2.5')}>
+                    <div id={`msg-${msg.id}`} className={cn('flex relative', isMine ? 'justify-end' : 'justify-start', sameSenderAsPrev ? 'mt-[2px]' : 'mt-2.5')} style={{ opacity: fadeOpacity, transition: 'opacity 2s ease-out' }}>
                       <SwipeableMessage isMine={isMine} deleted={msg.deleted} onSwipeReply={() => { chat.setReplyTo(msg); chat.inputRef.current?.focus(); }}>
                         <div className={cn('relative group w-fit min-w-[80px] max-w-[75%]')} onContextMenu={(e) => openActionMenu(msg, isMine, e)} onClick={(e) => openActionMenu(msg, isMine, e)}>
                           <div className={cn(
