@@ -138,7 +138,7 @@ export default function LocationSaver() {
         <motion.div
           initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
-          className="space-y-2.5 mb-4 p-4 bg-secondary/60 rounded-2xl"
+          className="space-y-2.5 mb-4 p-4 obsidian-inset rounded-2xl"
         >
           <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
             <MapPin className="w-3 h-3 text-primary" />
