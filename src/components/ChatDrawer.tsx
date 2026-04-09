@@ -1730,14 +1730,17 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                                   const sec = Math.floor(s % 60);
                                   return `${m}:${sec.toString().padStart(2, '0')}`;
                                 };
-                                // Use cached waveform or seed-based fallback
+                                // Use cached waveform or seed-based fallback; lazy-generate real waveform
                                 const cachedWaveform = voicePlayer.waveformCache[msg.id];
                                 const bars = cachedWaveform || (() => {
                                   const seed = msg.id.split('').reduce((a: number, c: string) => a + c.charCodeAt(0), 0);
                                   return Array.from({ length: 40 }, (_, i) => ((Math.sin(seed * (i + 1) * 0.7) + 1) / 2) * 0.85 + 0.15);
                                 })();
-
+                                // Lazy-load real waveform when URL is available
                                 const fileUrl = getFileUrl(msg);
+                                if (fileUrl && !cachedWaveform) {
+                                  voicePlayer.generateWaveform(fileUrl, msg.id);
+                                }
 
                                 const senderName = isMine ? 'أنت' : (activeConv?.otherDisplayName || activeConv?.otherUsername || '');
 
