@@ -162,7 +162,7 @@ export default function LocationSaver() {
             </button>
             <button
               onClick={() => { setShowForm(false); setPendingCoords(null); setPendingGeo(null); }}
-              className="w-11 py-2.5 rounded-xl bg-muted text-muted-foreground text-sm flex items-center justify-center"
+              className="w-11 py-2.5 rounded-xl obsidian-btn-secondary text-sm flex items-center justify-center"
             >
               <X className="w-4 h-4" />
             </button>
