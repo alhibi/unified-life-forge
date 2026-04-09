@@ -120,7 +120,7 @@ export default function LocationSaver() {
         <button
           onClick={saveCurrentLocation}
           disabled={saving}
-          className="w-full py-3 rounded-xl bg-primary text-primary-foreground font-medium flex items-center justify-center gap-2 mb-4 active:scale-[0.98] transition-transform disabled:opacity-50"
+          className="w-full py-3 rounded-xl obsidian-btn font-medium flex items-center justify-center gap-2 mb-4"
         >
           {saving ? (
             <span className="animate-pulse">{t('location.saving')}</span>
