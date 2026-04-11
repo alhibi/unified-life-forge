@@ -48,7 +48,17 @@ const UntimedSunnahPage = lazy(() => import("./pages/UntimedSunnah"));
 const QuranVirtuesPage = lazy(() => import("./pages/QuranVirtues"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000,
+      gcTime: 15 * 60 * 1000,
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+  },
+});
+
 
 // Skeleton fallback matching app layout
 const PageSkeleton = () => (
