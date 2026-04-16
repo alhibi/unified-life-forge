@@ -1,10 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '@/contexts/AppContext';
-import { Sun, Moon, Contrast, Check, Palette, Sparkles, Droplets, Zap, Circle, ImageIcon } from 'lucide-react';
+import { Sun, Moon, Contrast, Check, Palette, Sparkles, Droplets, Zap, Circle, ImageIcon, Clock, ChevronDown } from 'lucide-react';
 import BackButton from '@/components/BackButton';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { themePresets, type ThemeStyle, createDynamicPreset, extractDominantColor } from '@/utils/themeEngine';
+import {
+  getAutoPrayerThemeEnabled,
+  setAutoPrayerThemeEnabled,
+  getPrayerThemeMap,
+  setPrayerThemeFor,
+  type PrayerSlot,
+} from '@/hooks/useAutoPrayerTheme';
 
 const stagger = {
   hidden: {},
