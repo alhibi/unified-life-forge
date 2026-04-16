@@ -166,6 +166,125 @@ export default function ThemeSettingsPage() {
           </div>
         </motion.div>
 
+        {/* Auto Theme by Prayer Time */}
+        <motion.div variants={item} className="premium-card-elevated p-5">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3 flex-1 min-w-0">
+              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                <Clock className="w-5 h-5 text-primary" />
+              </div>
+              <div className="text-start flex-1 min-w-0">
+                <h3 className="font-semibold text-[14px] text-foreground">
+                  {isAr ? 'ثيم تلقائي حسب وقت الصلاة' : 'Auto theme by prayer time'}
+                </h3>
+                <p className="text-[11px] text-muted-foreground mt-0.5">
+                  {isAr ? 'يتغير الثيم تلقائياً مع كل صلاة' : 'Theme changes with each prayer'}
+                </p>
+              </div>
+            </div>
+            <ToggleSwitch value={autoEnabled} onChange={toggleAuto} />
+          </div>
+
+          <AnimatePresence>
+            {autoEnabled && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                className="overflow-hidden"
+              >
+                <div className="mt-4 pt-4 border-t border-border/50 space-y-2">
+                  <p className="text-[11px] text-muted-foreground text-center mb-2">
+                    {isAr ? 'اضغط على أي صلاة لتخصيص ثيمها' : 'Tap a prayer to customize its theme'}
+                  </p>
+                  {prayerSlots.map((slot) => {
+                    const cur = prayerMap[slot.id];
+                    const preset = themePresets.find(p => p.id === cur?.colorTheme) || themePresets[0];
+                    const [pH, pS, pL] = preset.primary;
+                    const isExpanded = expandedSlot === slot.id;
+                    const Icon = slot.icon;
+                    return (
+                      <div key={slot.id} className="rounded-xl bg-card/50 border border-border/40 overflow-hidden">
+                        <button
+                          onClick={() => setExpandedSlot(isExpanded ? null : slot.id)}
+                          className="w-full flex items-center gap-3 p-3 active:bg-muted/30 transition-colors"
+                        >
+                          <Icon className="w-4 h-4 text-muted-foreground shrink-0" />
+                          <span className="text-[13px] font-medium text-foreground flex-1 text-start">
+                            {isAr ? slot.ar : slot.de}
+                          </span>
+                          <div className="flex items-center gap-2">
+                            <div
+                              className="w-5 h-5 rounded-full border border-border"
+                              style={{ backgroundColor: `hsl(${pH}, ${pS}%, ${pL}%)` }}
+                            />
+                            {cur?.mode === 'dark' ? (
+                              <Moon className="w-3 h-3 text-muted-foreground" />
+                            ) : (
+                              <Sun className="w-3 h-3 text-muted-foreground" />
+                            )}
+                            <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                          </div>
+                        </button>
+                        <AnimatePresence>
+                          {isExpanded && (
+                            <motion.div
+                              initial={{ height: 0 }}
+                              animate={{ height: 'auto' }}
+                              exit={{ height: 0 }}
+                              transition={{ duration: 0.2 }}
+                              className="overflow-hidden"
+                            >
+                              <div className="p-3 pt-0 space-y-3">
+                                <div className="flex gap-2">
+                                  {(['light', 'dark'] as const).map((m) => (
+                                    <button
+                                      key={m}
+                                      onClick={() => updateSlot(slot.id, cur.colorTheme, m)}
+                                      className={`flex-1 py-1.5 rounded-lg text-[11px] font-medium transition-all ${
+                                        cur?.mode === m
+                                          ? 'bg-primary text-primary-foreground'
+                                          : 'bg-secondary text-muted-foreground'
+                                      }`}
+                                    >
+                                      {m === 'light' ? (isAr ? 'فاتح' : 'Light') : (isAr ? 'داكن' : 'Dark')}
+                                    </button>
+                                  ))}
+                                </div>
+                                <div className="grid grid-cols-6 gap-2">
+                                  {themePresets.filter(p => p.id !== 'dynamic').slice(0, 18).map((p) => {
+                                    const [h, s, l] = p.primary;
+                                    const isSel = cur?.colorTheme === p.id;
+                                    return (
+                                      <button
+                                        key={p.id}
+                                        onClick={() => updateSlot(slot.id, p.id, cur?.mode || 'light')}
+                                        className={`relative w-full aspect-square rounded-full border-2 transition-all ${
+                                          isSel ? 'border-primary scale-110' : 'border-border/50'
+                                        }`}
+                                        style={{ backgroundColor: `hsl(${h}, ${s}%, ${l}%)` }}
+                                      >
+                                        {isSel && (
+                                          <Check className="absolute inset-0 m-auto w-3 h-3 text-white" strokeWidth={3} />
+                                        )}
+                                      </button>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    );
+                  })}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
+
         {/* Theme Style */}
         <motion.div variants={item} className="premium-card-elevated p-5">
           <h2 className="font-semibold text-[13px] text-muted-foreground text-center mb-4 uppercase tracking-wider">
