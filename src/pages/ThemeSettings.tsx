@@ -50,6 +50,31 @@ export default function ThemeSettingsPage() {
   const navigate = useNavigate();
   const isAr = language === 'ar';
 
+  // Auto-theme by prayer time
+  const [autoEnabled, setAutoEnabled] = useState<boolean>(getAutoPrayerThemeEnabled());
+  const [prayerMap, setPrayerMap] = useState(getPrayerThemeMap());
+  const [expandedSlot, setExpandedSlot] = useState<PrayerSlot | null>(null);
+
+  const toggleAuto = () => {
+    const next = !autoEnabled;
+    setAutoEnabled(next);
+    setAutoPrayerThemeEnabled(next);
+  };
+
+  const updateSlot = (slot: PrayerSlot, colorThemeId: string, mode: 'light' | 'dark') => {
+    setPrayerThemeFor(slot, colorThemeId, mode);
+    setPrayerMap(getPrayerThemeMap());
+  };
+
+  const prayerSlots: { id: PrayerSlot; ar: string; de: string; icon: typeof Sun }[] = [
+    { id: 'fajr', ar: 'الفجر', de: 'Fajr', icon: Moon },
+    { id: 'sunrise', ar: 'الشروق', de: 'Sunrise', icon: Sun },
+    { id: 'dhuhr', ar: 'الظهر', de: 'Dhuhr', icon: Sun },
+    { id: 'asr', ar: 'العصر', de: 'Asr', icon: Sun },
+    { id: 'maghrib', ar: 'المغرب', de: 'Maghrib', icon: Sun },
+    { id: 'isha', ar: 'العشاء', de: 'Isha', icon: Moon },
+  ];
+
   const themeOptions = [
     { mode: 'dark' as const, icon: Moon, label: isAr ? 'داكن' : 'Dark' },
     { mode: 'light' as const, icon: Sun, label: isAr ? 'فاتح' : 'Light' },
