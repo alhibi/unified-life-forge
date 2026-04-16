@@ -13,9 +13,15 @@ import ScrollToTop from "@/components/ScrollToTop";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import FloatingVoicePlayer from "@/components/FloatingVoicePlayer";
 import { lazy, Suspense } from "react";
+import { useAutoPrayerTheme } from "@/hooks/useAutoPrayerTheme";
 
 // Eager load the main page
 import Index from "./pages/Index";
+
+function AutoPrayerThemeRunner() {
+  useAutoPrayerTheme();
+  return null;
+}
 
 // Lazy load all other pages
 const GamesPage = lazy(() => import("./pages/Games"));
@@ -125,6 +131,7 @@ const App = () => (
             <Toaster />
             <Sonner />
             <BrowserRouter>
+              <AutoPrayerThemeRunner />
               <FloatingVoicePlayer />
               <AnimatedRoutes />
               <BottomNav />
