@@ -176,12 +176,21 @@ const WORLD_PATH = "M30,55 L70,52 L95,58 L110,68 L125,72 L130,85 L120,95 L100,98
 function UmmahPulse() {
   const { language } = useApp();
   const [now, setNow] = useState(() => new Date());
+  const [expanded, setExpanded] = useState(false);
 
-  // Update every minute
+  // Update every minute (every 30s when expanded for snappier feel)
   useEffect(() => {
-    const id = setInterval(() => setNow(new Date()), 60_000);
+    const id = setInterval(() => setNow(new Date()), expanded ? 30_000 : 60_000);
     return () => clearInterval(id);
-  }, []);
+  }, [expanded]);
+
+  // Lock body scroll when modal open
+  useEffect(() => {
+    if (!expanded) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = prev; };
+  }, [expanded]);
 
   const nightPath = useMemo(() => buildNightPath(now), [now]);
 
@@ -190,14 +199,27 @@ function UmmahPulse() {
     [now]
   );
 
-  // Estimate population currently in Fajr window
   const fajrPop = useMemo(
     () => fajrCities.reduce((s, c) => s + c.pop, 0),
     [fajrCities]
   );
 
+  // Compute slot + local time for every city (memoized — recomputed each minute)
+  const cityDetails = useMemo(
+    () =>
+      CITIES.map((c) => ({
+        ...c,
+        slot: getCityPrayerSlot(c.lat, c.lng, now),
+        localTime: getCityLocalTime(c.lng, now),
+      })).sort((a, b) => {
+        // Order: fajr first, then sunrise/duha/dhuhr/asr/maghrib/isha/night
+        const order: PrayerSlot[] = ['fajr', 'sunrise', 'duha', 'dhuhr', 'asr', 'maghrib', 'isha', 'night'];
+        return order.indexOf(a.slot) - order.indexOf(b.slot);
+      }),
+    [now]
+  );
+
   const subLng = getSubsolarLng(now);
-  // Fajr band centered ~105° east of subsolar (sun -15° below east horizon)
   const fajrCenterLng = ((subLng + 105 + 540) % 360) - 180;
   const fajrCenter = project(0, fajrCenterLng);
 
