@@ -376,22 +376,164 @@ function UmmahPulse() {
               ))}
             </div>
           )}
-        </div>
+          </div>
+        </button>
 
         {/* Footer note */}
         <p
           className="text-[10.5px] text-muted-foreground text-center mt-2.5 leading-relaxed px-2"
           dir={language === 'ar' ? 'rtl' : 'ltr'}
         >
-          {fajrCities.length === 0
-            ? language === 'ar'
-              ? 'لا توجد مدن كبرى في وقت الفجر حالياً — الموجة قادمة'
-              : 'No major cities in Fajr right now — the wave is coming'
-            : language === 'ar'
-              ? `الموجة الذهبية تدور حول الأرض كل 24 ساعة • تحديث كل دقيقة`
-              : `The golden wave circles Earth every 24 hours • updates every minute`}
+          {language === 'ar'
+            ? 'اضغط على الخريطة لعرض كل المدن وأوقات صلاتها'
+            : 'Tap the map to see all cities & prayer times'}
         </p>
       </div>
+
+      {/* Fullscreen modal — portal */}
+      {typeof document !== 'undefined' && createPortal(
+        <AnimatePresence>
+          {expanded && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 z-[100] bg-background/95 backdrop-blur-md flex flex-col"
+              dir={language === 'ar' ? 'rtl' : 'ltr'}
+            >
+              {/* Top bar */}
+              <div className="flex items-center justify-between px-5 pt-[max(env(safe-area-inset-top),1rem)] pb-3 border-b border-border/30">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
+                    <Globe2 className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <h2 className="text-[15px] font-bold text-foreground leading-tight">
+                      {language === 'ar' ? 'نبض الأمة' : 'Ummah Pulse'}
+                    </h2>
+                    <p className="text-[11px] text-muted-foreground leading-tight mt-0.5">
+                      {language === 'ar'
+                        ? `~${fajrPop} مليون مسلم في الفجر الآن`
+                        : `~${fajrPop}M Muslims in Fajr now`}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setExpanded(false)}
+                  className="w-10 h-10 rounded-2xl bg-card border border-border/40 flex items-center justify-center active:scale-95 transition-transform"
+                  aria-label={language === 'ar' ? 'إغلاق' : 'Close'}
+                >
+                  <X className="w-4.5 h-4.5 text-foreground" />
+                </button>
+              </div>
+
+              {/* Scrollable content */}
+              <div className="flex-1 overflow-y-auto pb-[max(env(safe-area-inset-bottom),1.5rem)]">
+                {/* Larger map */}
+                <div className="px-4 pt-4">
+                  <div className="relative rounded-2xl overflow-hidden bg-[hsl(var(--muted))]/30 border border-border/30">
+                    <svg
+                      viewBox={`0 0 ${W} ${H}`}
+                      className="w-full h-auto block"
+                      preserveAspectRatio="xMidYMid meet"
+                    >
+                      <defs>
+                        <radialGradient id="fajrGlow2" cx="50%" cy="50%" r="50%">
+                          <stop offset="0%" stopColor="hsl(38, 95%, 65%)" stopOpacity="0.9" />
+                          <stop offset="40%" stopColor="hsl(28, 90%, 55%)" stopOpacity="0.5" />
+                          <stop offset="100%" stopColor="hsl(20, 80%, 45%)" stopOpacity="0" />
+                        </radialGradient>
+                        <filter id="softBlur2">
+                          <feGaussianBlur stdDeviation="2.5" />
+                        </filter>
+                      </defs>
+                      <rect width={W} height={H} fill="hsl(var(--muted))" fillOpacity="0.25" />
+                      <path d={WORLD_PATH} fill="hsl(var(--foreground))" fillOpacity="0.2" />
+                      <path d={nightPath} fill="hsl(220, 40%, 8%)" fillOpacity="0.55" />
+                      <ellipse cx={fajrCenter.x} cy={H / 2} rx={28} ry={H / 2} fill="url(#fajrGlow2)" filter="url(#softBlur2)" />
+                      {cityDetails.map((c) => {
+                        const { x, y } = project(c.lat, c.lng);
+                        const isFajr = c.slot === 'fajr';
+                        return (
+                          <g key={c.name}>
+                            <circle cx={x} cy={y} r={isFajr ? 2.6 : 1.4} fill={SLOT_LABEL[c.slot].color} fillOpacity={isFajr ? 1 : 0.7} />
+                            {isFajr && (
+                              <circle cx={x} cy={y} r={5} fill="hsl(45, 100%, 70%)" fillOpacity="0.25" />
+                            )}
+                          </g>
+                        );
+                      })}
+                    </svg>
+                  </div>
+                </div>
+
+                {/* Legend */}
+                <div className="px-4 pt-4 pb-2">
+                  <div className="flex flex-wrap gap-1.5">
+                    {(['fajr', 'sunrise', 'duha', 'dhuhr', 'asr', 'maghrib', 'isha', 'night'] as PrayerSlot[]).map((s) => (
+                      <div key={s} className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-card border border-border/40">
+                        <span className="w-2 h-2 rounded-full" style={{ background: SLOT_LABEL[s].color }} />
+                        <span className="text-[10px] font-medium text-foreground">
+                          {language === 'ar' ? SLOT_LABEL[s].ar : SLOT_LABEL[s].en}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* City list */}
+                <div className="px-4 pt-3 space-y-1.5">
+                  <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide px-1 mb-2">
+                    {language === 'ar' ? 'المدن — مرتبة حسب الصلاة الحالية' : 'Cities — sorted by current prayer'}
+                  </p>
+                  {cityDetails.map((c) => {
+                    const slot = SLOT_LABEL[c.slot];
+                    return (
+                      <motion.div
+                        key={c.name}
+                        layout
+                        className="flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl bg-card border border-border/30"
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                          <span
+                            className="w-2.5 h-2.5 rounded-full shrink-0"
+                            style={{ background: slot.color, boxShadow: c.slot === 'fajr' ? `0 0 8px ${slot.color}` : 'none' }}
+                          />
+                          <div className="min-w-0 flex-1">
+                            <p className="text-[13px] font-semibold text-foreground truncate leading-tight">
+                              {language === 'ar' ? c.nameAr : c.name}
+                            </p>
+                            <p className="text-[10.5px] text-muted-foreground tabular-nums leading-tight mt-0.5">
+                              {c.localTime} {language === 'ar' ? 'محلي' : 'local'}
+                            </p>
+                          </div>
+                        </div>
+                        <span
+                          className="text-[11px] font-bold px-2.5 py-1 rounded-full shrink-0"
+                          style={{
+                            background: `${slot.color.replace(')', ', 0.15)').replace('hsl(', 'hsla(')}`,
+                            color: slot.color,
+                          }}
+                        >
+                          {language === 'ar' ? slot.ar : slot.en}
+                        </span>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+
+                <p className="text-[10px] text-muted-foreground text-center mt-4 px-6 leading-relaxed">
+                  {language === 'ar'
+                    ? 'الأوقات تقريبية مبنية على زاوية الشمس • تحديث كل 30 ثانية'
+                    : 'Times are approximate based on sun angle • updates every 30s'}
+                </p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
     </div>
   );
 }
