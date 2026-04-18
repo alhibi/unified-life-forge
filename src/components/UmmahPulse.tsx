@@ -253,9 +253,18 @@ function UmmahPulse() {
         </div>
       </div>
 
-      {/* Map */}
+      {/* Map (clickable to expand) */}
       <div className="relative px-3 pb-3">
-        <div className="relative rounded-2xl overflow-hidden bg-[hsl(var(--muted))]/30">
+        <button
+          onClick={() => setExpanded(true)}
+          className="block w-full text-left active:scale-[0.98] transition-transform"
+          aria-label={language === 'ar' ? 'فتح الخريطة بحجم كامل' : 'Open fullscreen map'}
+        >
+          <div className="relative rounded-2xl overflow-hidden bg-[hsl(var(--muted))]/30 group">
+            {/* Expand hint */}
+            <div className="absolute top-2 right-2 z-10 w-7 h-7 rounded-lg bg-background/70 backdrop-blur-md border border-border/40 flex items-center justify-center opacity-80 group-hover:opacity-100 transition-opacity">
+              <Maximize2 className="w-3.5 h-3.5 text-foreground" />
+            </div>
           <svg
             viewBox={`0 0 ${W} ${H}`}
             className="w-full h-auto block"
