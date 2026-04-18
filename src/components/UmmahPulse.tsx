@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
-import { motion } from 'framer-motion';
+import { createPortal } from 'react-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '@/contexts/AppContext';
-import { Globe2 } from 'lucide-react';
+import { Globe2, X, Maximize2 } from 'lucide-react';
 
 /**
  * Ummah Pulse — live world map showing where Fajr is currently being prayed.
@@ -115,16 +116,58 @@ function isInFajr(lat: number, lng: number, date: Date): boolean {
   const subLng = getSubsolarLng(date);
   const declRad = (decl * Math.PI) / 180;
   const latRad = (lat * Math.PI) / 180;
-  // Sun altitude
   const lngDiff = (((lng - subLng + 540) % 360) - 180) * Math.PI / 180;
   const sinAlt =
     Math.sin(latRad) * Math.sin(declRad) +
     Math.cos(latRad) * Math.cos(declRad) * Math.cos(lngDiff);
   const altDeg = (Math.asin(sinAlt) * 180) / Math.PI;
-  // Fajr: sun between -18° and -12°, AND we're on the morning (eastern) side
-  const morningSide = lngDiff > 0; // sun is east of city → morning
+  const morningSide = lngDiff > 0;
   return morningSide && altDeg >= -18 && altDeg <= -12;
 }
+
+type PrayerSlot = 'fajr' | 'sunrise' | 'duha' | 'dhuhr' | 'asr' | 'maghrib' | 'isha' | 'night';
+
+/** Estimate the current prayer slot for a city based on sun altitude & side. */
+function getCityPrayerSlot(lat: number, lng: number, date: Date): PrayerSlot {
+  const decl = getSolarDeclination(date);
+  const subLng = getSubsolarLng(date);
+  const declRad = (decl * Math.PI) / 180;
+  const latRad = (lat * Math.PI) / 180;
+  const lngDiff = (((lng - subLng + 540) % 360) - 180) * Math.PI / 180;
+  const sinAlt =
+    Math.sin(latRad) * Math.sin(declRad) +
+    Math.cos(latRad) * Math.cos(declRad) * Math.cos(lngDiff);
+  const altDeg = (Math.asin(sinAlt) * 180) / Math.PI;
+  const morning = lngDiff > 0;
+  if (altDeg < -18) return 'night'; // deep night / isha continues
+  if (altDeg >= -18 && altDeg < -0.83) return morning ? 'fajr' : 'isha';
+  if (altDeg >= -0.83 && altDeg < 5) return morning ? 'sunrise' : 'maghrib';
+  if (altDeg >= 5 && altDeg < 25) return morning ? 'duha' : 'asr';
+  // Sun is high — dhuhr around solar noon (lngDiff near 0)
+  if (Math.abs(lngDiff) < (15 * Math.PI) / 180) return 'dhuhr';
+  return morning ? 'duha' : 'asr';
+}
+
+/** Local time in a city derived from its longitude offset from UTC. */
+function getCityLocalTime(lng: number, date: Date): string {
+  const utcMs = date.getTime() + date.getTimezoneOffset() * 60_000;
+  const cityMs = utcMs + (lng / 15) * 3600_000;
+  const d = new Date(cityMs);
+  const h = d.getHours().toString().padStart(2, '0');
+  const m = d.getMinutes().toString().padStart(2, '0');
+  return `${h}:${m}`;
+}
+
+const SLOT_LABEL: Record<PrayerSlot, { ar: string; en: string; color: string }> = {
+  fajr:    { ar: 'الفجر',  en: 'Fajr',    color: 'hsl(45, 100%, 65%)' },
+  sunrise: { ar: 'الشروق', en: 'Sunrise', color: 'hsl(28, 95%, 60%)' },
+  duha:    { ar: 'الضحى',  en: 'Duha',    color: 'hsl(48, 90%, 55%)' },
+  dhuhr:   { ar: 'الظهر',  en: 'Dhuhr',   color: 'hsl(200, 80%, 60%)' },
+  asr:     { ar: 'العصر',  en: 'Asr',     color: 'hsl(20, 75%, 55%)' },
+  maghrib: { ar: 'المغرب', en: 'Maghrib', color: 'hsl(340, 70%, 55%)' },
+  isha:    { ar: 'العشاء', en: 'Isha',    color: 'hsl(250, 60%, 55%)' },
+  night:   { ar: 'الليل',  en: 'Night',   color: 'hsl(220, 30%, 50%)' },
+};
 
 // Simplified world land silhouette (low-poly, recognizable continents).
 // Source: simplified manually for performance — equirectangular 360x180.
