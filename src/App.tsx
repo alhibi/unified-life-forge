@@ -52,6 +52,7 @@ const SunnahDetailPage = lazy(() => import("./pages/SunnahDetail"));
 const PropheticDayPage = lazy(() => import("./pages/PropheticDay"));
 const UntimedSunnahPage = lazy(() => import("./pages/UntimedSunnah"));
 const QuranVirtuesPage = lazy(() => import("./pages/QuranVirtues"));
+const WellnessPage = lazy(() => import("./pages/Wellness"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient({
@@ -113,6 +114,7 @@ function AnimatedRoutes() {
             <Route path="/section/untimed-sunnah" element={<ErrorBoundary><PageTransition><UntimedSunnahPage /></PageTransition></ErrorBoundary>} />
             <Route path="/section/prophetic-day" element={<ErrorBoundary><PageTransition><PropheticDayPage /></PageTransition></ErrorBoundary>} />
             <Route path="/section/quran-virtues" element={<ErrorBoundary><PageTransition><QuranVirtuesPage /></PageTransition></ErrorBoundary>} />
+            <Route path="/wellness" element={<ErrorBoundary><PageTransition><WellnessPage /></PageTransition></ErrorBoundary>} />
             <Route path="*" element={<ErrorBoundary><PageTransition><NotFound /></PageTransition></ErrorBoundary>} />
           </Routes>
         </AnimatePresence>

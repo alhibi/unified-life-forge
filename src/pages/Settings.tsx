@@ -3,7 +3,7 @@ import { useApp } from '@/contexts/AppContext';
 import { getAppleEmojiUrl, isEmojiAvatarValue } from '@/utils/emojiAvatar';
 import { getDefaultAvatarForUser } from '@/utils/defaultAvatar';
 import { useAuth } from '@/hooks/useAuth';
-import { Languages, Palette, ChevronLeft, Settings as SettingsIcon, UserCircle, LogOut, Type, BookOpen, AlertTriangle, Compass, Home, BookOpenText, Gamepad2, MapPin, Music, Calendar, CalendarDays, Moon, ChevronDown, Clock, Repeat, FolderHeart, Brain, Grid3X3, Swords, Pipette, Bomb, ArrowRight, ScrollText, CloudSun, Sparkles } from 'lucide-react';
+import { Languages, Palette, ChevronLeft, Settings as SettingsIcon, UserCircle, LogOut, Type, BookOpen, AlertTriangle, Compass, Home, BookOpenText, Gamepad2, MapPin, Music, Calendar, CalendarDays, Moon, ChevronDown, Clock, Repeat, FolderHeart, Brain, Grid3X3, Swords, Pipette, Bomb, ArrowRight, ScrollText, CloudSun, Sparkles, HeartPulse } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -61,6 +61,16 @@ export default function SettingsPage() {
       title: isAr ? 'المذهب الفقهي' : 'Gebetsschule',
       value: madhabLabel,
       onClick: () => navigate('/settings/prayer'),
+    },
+  ];
+
+  const wellnessItems = [
+    {
+      key: 'wellness',
+      icon: HeartPulse,
+      title: t('wellness.settingsLabel'),
+      value: isAr ? 'محلي' : 'Lokal',
+      onClick: () => navigate('/wellness'),
     },
   ];
 
@@ -184,6 +194,9 @@ export default function SettingsPage() {
 
         {/* Prayer Group */}
         {renderGroup(isAr ? 'الصلاة' : 'Gebet', prayerItems)}
+
+        {/* Wellness Group */}
+        {renderGroup(isAr ? 'العافية' : 'Wellness', wellnessItems)}
 
         {/* General Group */}
         {renderGroup(isAr ? 'عام' : 'Allgemein', generalItems)}

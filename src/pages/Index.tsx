@@ -16,7 +16,7 @@ import CurrentTimeSunnah from '@/components/CurrentTimeSunnah';
 import UmmahPulse from '@/components/UmmahPulse';
 const ChatDrawer = lazy(() => import('@/components/ChatDrawer'));
 import { useNavigate } from 'react-router-dom';
-import { Sunrise, Sun, Moon, MessageCircle, Newspaper, ClipboardList, X, Trash2, BookOpen } from 'lucide-react';
+import { Sunrise, Sun, Moon, MessageCircle, Newspaper, ClipboardList, X, Trash2, BookOpen, HeartPulse, ShieldCheck } from 'lucide-react';
 import { AnimatePresence } from 'framer-motion';
 import { useClipboard } from '@/hooks/useClipboard';
 
@@ -163,6 +163,31 @@ export default function Index() {
         <motion.div variants={item}><ReligiousOccasions /></motion.div>
         <motion.div variants={item}><AudioPlayer /></motion.div>
         <motion.div variants={item}><LocationSaver /></motion.div>
+
+        {/* Wellness entry point */}
+        <motion.div variants={item}>
+          <button
+            onClick={() => navigate('/wellness')}
+            className="w-full text-start active:scale-[0.99] transition-transform"
+          >
+            <div className="bg-card border border-border/40 rounded-2xl p-4 flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                <HeartPulse className="w-6 h-6 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <h3 className="text-[15px] font-bold text-foreground">{t('wellness.title')}</h3>
+                  <span className="inline-flex items-center gap-0.5 text-[9px] font-semibold text-primary bg-primary/10 px-1.5 py-0.5 rounded-full">
+                    <ShieldCheck className="w-2.5 h-2.5" />
+                    {language === 'ar' ? 'محلي' : 'Lokal'}
+                  </span>
+                </div>
+                <p className="text-[12px] text-muted-foreground mt-0.5 truncate">{t('wellness.subtitle')}</p>
+                <p className="text-[11px] text-primary/80 mt-0.5">{t('wellness.cta')}</p>
+              </div>
+            </div>
+          </button>
+        </motion.div>
 
         {/* Made by Amer */}
         <motion.div variants={item} className="flex items-center justify-center gap-2 py-6 mt-4">

@@ -225,6 +225,11 @@ const translations: Record<string, Record<Language, string>> = {
   // Footer
   'footer.madeBy': { ar: 'صنع بواسطة', de: 'Erstellt von' },
   'footer.and': { ar: 'و', de: 'und' },
+  // Wellness entry point
+  'wellness.title': { ar: 'العافية', de: 'Wellness' },
+  'wellness.subtitle': { ar: 'المكملات والتغذية والبشرة', de: 'Supplemente, Ernährung, Haut' },
+  'wellness.cta': { ar: 'تتبّع ذكي وخاص بالكامل', de: 'Smartes, privates Tracking' },
+  'wellness.settingsLabel': { ar: 'العافية والمكملات', de: 'Wellness & Supplemente' },
 };
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
