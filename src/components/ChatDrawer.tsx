@@ -1,30 +1,41 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import ImageLightbox from '@/components/ImageLightbox';
 import { useVoicePlayer } from '@/contexts/VoicePlayerContext';
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   ChevronRight, ChevronLeft, ChevronDown, Search,
-  Check, CheckCheck, Reply, Trash2, Paperclip, X,
-  Download, FileText, MoreVertical, Trash, Info, Copy, Pin, PinOff,
-  ArrowDown, Calendar, Clock, Image as ImageIcon, User2, Pencil, Timer, TimerOff
+  Check, CheckCheck, Reply, Trash2, X,
+  Download, FileText, MoreVertical, Trash, Copy, Pin, PinOff,
+  ArrowDown, Calendar, Image as ImageIcon, User2, Pencil, Timer, TimerOff,
+  Share2, BellOff, Bell, Archive, ArchiveRestore, Volume2, VolumeX,
+  Palette as WallpaperIcon, Forward as ForwardIcon,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { isEmojiAvatarValue, getAppleEmojiUrl } from '@/utils/emojiAvatar';
 import { getDefaultAvatarForUser } from '@/utils/defaultAvatar';
-import { getSignedFileUrl } from './chat/chatUtils';
-import { QUICK_EMOJIS, EXTRA_EMOJIS } from './chat/constants';
+import {
+  getSignedFileUrl, formatClockTime, formatDateSeparator, formatSelfDestructLabel,
+  renderRichText, stripMarkers,
+} from './chat/chatUtils';
+import { QUICK_EMOJIS, EXTRA_EMOJIS, WALLPAPERS, SELF_DESTRUCT_OPTIONS } from './chat/constants';
 import { useChat } from './chat/useChat';
 import { useVoiceRecording } from './chat/useVoiceRecording';
 import { SwipeableMessage, TypingDots } from './chat/MessageBubble';
 import ConversationList from './chat/ConversationList';
 import ChatInput from './chat/ChatInput';
+import ForwardPicker from './chat/ForwardPicker';
+import WallpaperPicker from './chat/WallpaperPicker';
+import { haptic } from './chat/sounds';
 import type { ChatDrawerProps, ActionMenuState, Message } from './chat/types';
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Helpers
+// ─────────────────────────────────────────────────────────────────────────────
 const renderAvatar = (username?: string, avatarUrl?: string | null, size: string = 'h-12 w-12') => {
   const isEmoji = avatarUrl ? isEmojiAvatarValue(avatarUrl) : false;
   const hasImage = avatarUrl && avatarUrl.startsWith('http');
@@ -43,28 +54,27 @@ const renderAvatar = (username?: string, avatarUrl?: string | null, size: string
   );
 };
 
-/* ─── Signal-style bubble corners ─── */
+/** Signal-style asymmetric bubble radius based on grouping + orientation. */
 function getBubbleRadius(isMine: boolean, samePrev: boolean, sameNext: boolean) {
-  // Signal: all corners 18px, except the "tail" corner which is 4px
-  // Grouped: middle messages get 4px on the side corner
   const big = '18px';
   const small = '4px';
   if (isMine) {
-    // Right side tail
     const topRight = samePrev ? small : big;
     const bottomRight = sameNext ? small : big;
     return { borderRadius: `${big} ${topRight} ${bottomRight} ${big}` };
   } else {
-    // Left side tail
     const topLeft = samePrev ? small : big;
     const bottomLeft = sameNext ? small : big;
     return { borderRadius: `${topLeft} ${big} ${big} ${bottomLeft}` };
   }
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// ChatDrawer – root of the entire messaging experience.
+// ─────────────────────────────────────────────────────────────────────────────
 export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadChange }: ChatDrawerProps) {
   const chat = useChat({ open, onUnreadChange });
-  const { isRecording, recordingTime, startRecording, stopRecording } = useVoiceRecording({
+  const voice = useVoiceRecording({
     activeConvId: chat.activeConv?.id || null,
     userId: chat.user?.id,
     sendMessage: chat.sendMessage,
@@ -77,16 +87,31 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
 
   const BackIcon = chat.isAr ? ChevronRight : ChevronLeft;
 
-  const filteredConversations = React.useMemo(() => {
-    if (!convSearchQuery.trim()) return chat.conversations;
-    const q = convSearchQuery.toLowerCase();
-    return chat.conversations.filter(c =>
-      (c.otherDisplayName || c.otherUsername || '').toLowerCase().includes(q) ||
-      (c.lastMessage || '').toLowerCase().includes(q)
-    );
-  }, [chat.conversations, convSearchQuery]);
+  // Unread ignoring archived + muted shown in the tab badge.
+  const totalUnread = useMemo(() => {
+    return chat.conversations.reduce((sum, c) => {
+      if (chat.chatPrefs.isArchived(c.id)) return sum;
+      if (chat.chatPrefs.isMuted(c.id)) return sum;
+      return sum + (c.unreadCount || 0);
+    }, 0);
+  }, [chat.conversations, chat.chatPrefs]);
 
+  // Filtered list for the conversation screen (matches tab + search).
+  const filteredConversations = useMemo(() => {
+    let list = chat.filteredByTab;
+    if (convSearchQuery.trim()) {
+      const q = convSearchQuery.toLowerCase();
+      list = list.filter(c =>
+        (c.otherDisplayName || c.otherUsername || '').toLowerCase().includes(q) ||
+        stripMarkers(c.lastMessage || '').toLowerCase().includes(q)
+      );
+    }
+    return list;
+  }, [chat.filteredByTab, convSearchQuery]);
+
+  // Long-press / right-click / click handler that opens the message action menu.
   const openActionMenu = useCallback((msg: Message, isMine: boolean, e: React.MouseEvent | React.TouchEvent) => {
+    if (chat.selectionMode) return;      // in selection mode, taps toggle select
     e.preventDefault();
     e.stopPropagation();
     if (msg.deleted) return;
@@ -99,7 +124,13 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
       rect: { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right, width: rect.width, height: rect.height },
       containerRect: { top: containerRect.top, bottom: containerRect.bottom, height: containerRect.height },
     });
-  }, [chat.messagesContainerRef]);
+    haptic('medium');
+  }, [chat.messagesContainerRef, chat.selectionMode]);
+
+  // ── Wallpaper resolution ──────────────────────────────────────────────────
+  const currentWallpaperId = chat.chatPrefs.getWallpaper(chat.activeConv?.id);
+  const currentWallpaper = WALLPAPERS.find(w => w.id === currentWallpaperId) || WALLPAPERS[0];
+  const isDarkBg = currentWallpaper.isDark;
 
   if (!chat.user) {
     return (
@@ -115,8 +146,18 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
     );
   }
 
+  const closeAll = () => {
+    onOpenChange(false);
+    chat.setActiveConv(null);
+    chat.setShowNewChat(false);
+    chat.setShowChatMenu(false);
+    chat.setShowProfilePopup(false);
+    setShowConvSearch(false);
+    setConvSearchQuery('');
+  };
+
   return (
-    <Sheet open={open} onOpenChange={(v) => { onOpenChange(v); if (!v) { chat.setActiveConv(null); chat.setShowNewChat(false); chat.setShowChatMenu(false); chat.setShowProfilePopup(false); setShowConvSearch(false); setConvSearchQuery(''); } }}>
+    <Sheet open={open} onOpenChange={(v) => { if (!v) closeAll(); else onOpenChange(v); }}>
       <SheetContent side={chat.isAr ? 'right' : 'left'} className="w-full sm:max-w-md p-0 flex flex-col bg-background [&>button[class*='absolute']]:hidden">
         <input
           type="file"
@@ -127,13 +168,11 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
           onChange={chat.handleFileUpload}
         />
 
-        {/* ─── Profile Popup ─── */}
+        {/* ───────────────── Profile Popup ───────────────── */}
         <AnimatePresence>
           {chat.showProfilePopup && chat.activeConv && (
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               className="absolute inset-0 z-50 bg-background flex flex-col"
             >
               <div className="flex items-center gap-3 px-4 h-14 border-b border-border/20">
@@ -157,6 +196,43 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                 <p className={cn('text-[12px] mt-1 font-medium', chat.otherPresence.isOnline ? 'text-green-500' : 'text-muted-foreground/70')}>
                   {chat.otherPresence.text}
                 </p>
+              </div>
+
+              {/* Quick action pills */}
+              <div className="flex items-center justify-center gap-2 px-4 mb-3">
+                <button
+                  onClick={() => chat.chatPrefs.toggleMuted(chat.activeConv!.id)}
+                  className={cn('flex flex-col items-center gap-1 px-4 py-2.5 rounded-2xl transition-colors active:scale-95',
+                    chat.chatPrefs.isMuted(chat.activeConv.id) ? 'bg-primary/10 text-primary' : 'bg-muted/30 text-foreground')}
+                >
+                  {chat.chatPrefs.isMuted(chat.activeConv.id)
+                    ? <BellOff className="w-4 h-4" />
+                    : <Bell className="w-4 h-4" />}
+                  <span className="text-[10.5px] font-medium">
+                    {chat.chatPrefs.isMuted(chat.activeConv.id) ? (chat.isAr ? 'مكتوم' : 'Stumm') : (chat.isAr ? 'كتم' : 'Stummschalten')}
+                  </span>
+                </button>
+                <button
+                  onClick={() => chat.chatPrefs.togglePinned(chat.activeConv!.id)}
+                  className={cn('flex flex-col items-center gap-1 px-4 py-2.5 rounded-2xl transition-colors active:scale-95',
+                    chat.chatPrefs.isPinned(chat.activeConv.id) ? 'bg-primary/10 text-primary' : 'bg-muted/30 text-foreground')}
+                >
+                  <Pin className={cn('w-4 h-4', chat.chatPrefs.isPinned(chat.activeConv.id) && 'rotate-45')} />
+                  <span className="text-[10.5px] font-medium">
+                    {chat.chatPrefs.isPinned(chat.activeConv.id) ? (chat.isAr ? 'مثبّتة' : 'Angeheftet') : (chat.isAr ? 'تثبيت' : 'Anheften')}
+                  </span>
+                </button>
+                <button
+                  onClick={() => { chat.chatPrefs.toggleArchived(chat.activeConv!.id); chat.setActiveConv(null); chat.setShowProfilePopup(false); }}
+                  className="flex flex-col items-center gap-1 px-4 py-2.5 rounded-2xl bg-muted/30 text-foreground transition-colors active:scale-95"
+                >
+                  {chat.chatPrefs.isArchived(chat.activeConv.id)
+                    ? <ArchiveRestore className="w-4 h-4" />
+                    : <Archive className="w-4 h-4" />}
+                  <span className="text-[10.5px] font-medium">
+                    {chat.chatPrefs.isArchived(chat.activeConv.id) ? (chat.isAr ? 'إلغاء الأرشفة' : 'Entarchivieren') : (chat.isAr ? 'أرشفة' : 'Archivieren')}
+                  </span>
+                </button>
               </div>
 
               <div className="flex mx-4 bg-muted/30 rounded-xl p-1 gap-1">
@@ -184,8 +260,17 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                       </div>
                     </div>
                     <div className="bg-card border border-border/20 rounded-2xl divide-y divide-border/10">
-                      <div className="flex items-center gap-3 p-3.5"><User2 className="w-4 h-4 text-muted-foreground shrink-0" /><div className="min-w-0"><p className="text-[11px] text-muted-foreground">{chat.isAr ? 'النبذة' : 'Bio'}</p><p className="text-[13px] text-foreground font-medium">{chat.activeConv.otherBio || (chat.isAr ? 'لا توجد نبذة' : 'No bio')}</p></div></div>
+                      <div className="flex items-center gap-3 p-3.5"><User2 className="w-4 h-4 text-muted-foreground shrink-0" /><div className="min-w-0"><p className="text-[11px] text-muted-foreground">{chat.isAr ? 'النبذة' : 'Bio'}</p><p className="text-[13px] text-foreground font-medium">{chat.activeConv.otherBio || (chat.isAr ? 'لا توجد نبذة' : 'Keine Bio')}</p></div></div>
                       <div className="flex items-center gap-3 p-3.5"><Calendar className="w-4 h-4 text-muted-foreground shrink-0" /><div className="min-w-0"><p className="text-[11px] text-muted-foreground">{chat.isAr ? 'تاريخ الانضمام' : 'Beigetreten'}</p><p className="text-[13px] text-foreground font-medium">{chat.activeConv.otherCreatedAt ? new Date(chat.activeConv.otherCreatedAt).toLocaleDateString(chat.isAr ? 'ar' : 'de', { day: 'numeric', month: 'long', year: 'numeric' }) : '—'}</p></div></div>
+                      <button className="w-full flex items-center gap-3 p-3.5 active:bg-accent/30 transition-colors text-start"
+                        onClick={() => chat.setShowWallpaperPicker(true)}>
+                        <WallpaperIcon className="w-4 h-4 text-muted-foreground shrink-0" />
+                        <div className="min-w-0 flex-1">
+                          <p className="text-[11px] text-muted-foreground">{chat.isAr ? 'الخلفية' : 'Hintergrund'}</p>
+                          <p className="text-[13px] text-foreground font-medium">{chat.isAr ? currentWallpaper.labelAr : currentWallpaper.label}</p>
+                        </div>
+                        <ChevronRight className={cn('w-4 h-4 text-muted-foreground/50', chat.isAr && 'rotate-180')} />
+                      </button>
                     </div>
                     <button onClick={() => { chat.deleteConversation(); chat.setShowProfilePopup(false); chat.setProfileTab('info'); }} className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-destructive/10 text-destructive text-[13px] font-medium active:bg-destructive/20 transition-colors">
                       <Trash className="w-4 h-4" />{chat.isAr ? 'حذف المحادثة' : 'Chat löschen'}
@@ -211,12 +296,10 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
           )}
         </AnimatePresence>
 
-        {/* ════════════════════════════════════════════════════
-            CONVERSATION LIST SCREEN
-            ════════════════════════════════════════════════════ */}
+        {/* ───────────────── CONVERSATION LIST SCREEN ───────────────── */}
         {!chat.activeConv && !chat.showNewChat ? (
           <>
-            <div className="px-4 h-14 flex items-center justify-between border-b border-border/20">
+            <div className="px-4 h-14 flex items-center justify-between border-b border-border/20 shrink-0">
               <div className="flex items-center gap-3">
                 <button onClick={() => onOpenChange(false)} className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40 transition-colors" aria-label={chat.isAr ? 'رجوع' : 'Zurück'}>
                   <BackIcon className="w-5 h-5 text-foreground" />
@@ -244,22 +327,46 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                   </button>
                 </div>
               ) : (
-                <button onClick={() => setShowConvSearch(true)} className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40 transition-colors" aria-label={chat.isAr ? 'بحث' : 'Suchen'}>
-                  <Search className="w-5 h-5 text-muted-foreground" />
-                </button>
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => chat.chatPrefs.setSoundEnabled(!chat.chatPrefs.prefs.soundEnabled)}
+                    className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40 transition-colors"
+                    aria-label={chat.chatPrefs.prefs.soundEnabled ? (chat.isAr ? 'كتم الصوت' : 'Stumm') : (chat.isAr ? 'تفعيل الصوت' : 'Laut')}
+                  >
+                    {chat.chatPrefs.prefs.soundEnabled
+                      ? <Volume2 className="w-[18px] h-[18px] text-muted-foreground" />
+                      : <VolumeX className="w-[18px] h-[18px] text-muted-foreground" />}
+                  </button>
+                  <button onClick={() => setShowConvSearch(true)} className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40 transition-colors" aria-label={chat.isAr ? 'بحث' : 'Suchen'}>
+                    <Search className="w-5 h-5 text-muted-foreground" />
+                  </button>
+                </div>
               )}
             </div>
-            <div className="flex-1 overflow-y-auto relative">
-              <ConversationList conversations={filteredConversations} isAr={chat.isAr} onSelect={chat.setActiveConv} onNewChat={() => chat.setShowNewChat(true)} />
-            </div>
+            <ConversationList
+              conversations={filteredConversations}
+              isAr={chat.isAr}
+              currentUserId={chat.user.id}
+              filter={chat.conversationFilter}
+              onFilterChange={chat.setConversationFilter}
+              totalUnread={totalUnread}
+              onSelect={chat.setActiveConv}
+              onNewChat={() => chat.setShowNewChat(true)}
+              isPinned={chat.chatPrefs.isPinned}
+              isMuted={chat.chatPrefs.isMuted}
+              isArchived={chat.chatPrefs.isArchived}
+              togglePinned={chat.chatPrefs.togglePinned}
+              toggleMuted={chat.chatPrefs.toggleMuted}
+              toggleArchived={chat.chatPrefs.toggleArchived}
+              getDraft={chat.chatPrefs.getDraft}
+              searchQuery={convSearchQuery}
+            />
           </>
 
-        /* ════════════════════════════════════════════════════
-            NEW CHAT SCREEN
-            ════════════════════════════════════════════════════ */
+        /* ───────────────── NEW CHAT SCREEN ───────────────── */
         ) : chat.showNewChat ? (
           <>
-            <div className="px-4 h-14 flex items-center gap-3 border-b border-border/20">
+            <div className="px-4 h-14 flex items-center gap-3 border-b border-border/20 shrink-0">
               <button onClick={() => { chat.setShowNewChat(false); chat.setSearchUser(''); }} className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40 transition-colors" aria-label={chat.isAr ? 'رجوع' : 'Zurück'}>
                 <BackIcon className="w-5 h-5 text-foreground" />
               </button>
@@ -285,95 +392,158 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
             </div>
           </>
 
-        /* ════════════════════════════════════════════════════
-            CHAT VIEW
-            ════════════════════════════════════════════════════ */
+        /* ───────────────── CHAT VIEW ───────────────── */
         ) : (
           <>
-            {/* ─── Chat Header ─── */}
-            <div className="sticky top-0 z-30 h-14 px-3 flex items-center gap-2 bg-background border-b border-border/20">
-              <button onClick={() => { chat.setActiveConv(null); chat.setReplyTo(null); chat.setShowChatMenu(false); chat.setShowProfilePopup(false); chat.loadConversations(); }} className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40 transition-colors shrink-0" aria-label={chat.isAr ? 'رجوع' : 'Zurück'}>
-                <BackIcon className="w-5 h-5 text-foreground" />
-              </button>
-              <button className="flex items-center gap-2.5 flex-1 min-w-0 active:opacity-70 transition-opacity" onClick={() => chat.setShowProfilePopup(true)}>
-                {renderAvatar(chat.activeConv?.otherUsername, chat.activeConv?.otherAvatarUrl, 'h-9 w-9')}
-                <div className="min-w-0 text-start">
-                  <span className="font-semibold text-[15px] block truncate leading-tight">{chat.activeConv?.otherDisplayName || chat.activeConv?.otherUsername}</span>
-                  <AnimatePresence mode="wait">
-                    {chat.typingUser ? (
-                      <motion.div key="typing" initial={{ opacity: 0, y: 2 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 2 }} className="flex items-center gap-1.5">
-                        <span className="text-[11px] text-primary font-medium leading-tight">{chat.isAr ? 'يكتب' : 'tippt'}</span>
-                        <TypingDots />
-                      </motion.div>
-                    ) : (
-                      <motion.span key="status" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className={cn('text-[11px] leading-tight block', chat.otherPresence.isOnline ? 'text-green-500 font-medium' : 'text-muted-foreground/60')}>
-                        {chat.otherPresence.text}
-                      </motion.span>
-                    )}
-                  </AnimatePresence>
-                </div>
-              </button>
-
-              {/* Self-destruct indicator in header */}
-              {chat.selfDestructSeconds && (
-                <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-accent/20">
-                  <Timer className="w-3 h-3 text-primary" />
-                  <span className="text-[10px] text-primary font-medium">
-                    {chat.selfDestructSeconds < 60 ? `${chat.selfDestructSeconds}s` : chat.selfDestructSeconds < 3600 ? `${Math.floor(chat.selfDestructSeconds / 60)}m` : chat.selfDestructSeconds < 86400 ? `${Math.floor(chat.selfDestructSeconds / 3600)}h` : `${Math.floor(chat.selfDestructSeconds / 86400)}d`}
+            {/* ── Chat Header ── */}
+            <div className="sticky top-0 z-30 h-14 px-3 flex items-center gap-2 bg-background border-b border-border/20 shrink-0">
+              {chat.selectionMode ? (
+                <>
+                  <button onClick={chat.clearSelection} className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40 transition-colors shrink-0">
+                    <X className="w-5 h-5 text-foreground" />
+                  </button>
+                  <span className="font-semibold text-[15px]">
+                    {chat.selectedIds.size} {chat.isAr ? 'محددة' : 'ausgewählt'}
                   </span>
-                </div>
-              )}
-
-              {/* Three-dot menu */}
-              <div className="relative">
-                <button onClick={() => chat.setShowChatMenu(!chat.showChatMenu)} className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40 transition-colors" aria-label={chat.isAr ? 'خيارات' : 'Optionen'}>
-                  <MoreVertical className="h-5 w-5 text-muted-foreground" />
-                </button>
-                <AnimatePresence>
-                  {chat.showChatMenu && (
-                    <>
-                      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-10" onClick={() => chat.setShowChatMenu(false)} />
-                      <motion.div initial={{ opacity: 0, scale: 0.95, y: -4 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }} transition={{ duration: 0.15 }} className={cn('absolute top-full mt-1 bg-card border border-border/30 rounded-xl z-20 min-w-[180px] overflow-hidden shadow-lg', chat.isAr ? 'left-0' : 'right-0')}>
-                        <button className="w-full flex items-center gap-3 px-4 py-2.5 active:bg-accent/30 transition-colors text-[13px] text-start" onClick={() => { chat.setShowSearch(true); chat.setShowChatMenu(false); }}>
-                          <Search className="w-4 h-4 text-muted-foreground" />{chat.isAr ? 'بحث في المحادثة' : 'Im Chat suchen'}
-                        </button>
-                        <div className="h-px bg-border/15 mx-3" />
-                        <button className="w-full flex items-center gap-3 px-4 py-2.5 active:bg-accent/30 transition-colors text-[13px] text-start" onClick={() => { chat.setShowProfilePopup(true); chat.setProfileTab('media'); chat.setShowChatMenu(false); if (chat.activeConv) { supabase.from('messages').select('*').eq('conversation_id', chat.activeConv.id).in('message_type', ['image', 'file']).eq('deleted', false).order('created_at', { ascending: false }).limit(50).then(({ data }) => chat.setSharedMedia((data || []) as Message[])); } }}>
-                          <ImageIcon className="w-4 h-4 text-muted-foreground" />{chat.isAr ? 'الوسائط المشتركة' : 'Shared media'}
-                        </button>
-                        <div className="h-px bg-border/15 mx-3" />
-                        <button className="w-full flex items-center gap-3 px-4 py-2.5 active:bg-accent/30 transition-colors text-[13px] text-start" onClick={() => chat.setShowSelfDestructMenu(!chat.showSelfDestructMenu)}>
-                          {chat.selfDestructSeconds ? <TimerOff className="w-4 h-4 text-muted-foreground" /> : <Timer className="w-4 h-4 text-muted-foreground" />}
-                          {chat.selfDestructSeconds ? (chat.isAr ? 'إيقاف الرسائل الزائلة' : 'Timer aus') : (chat.isAr ? 'رسائل زائلة' : 'Verschwindend')}
-                        </button>
-                        <AnimatePresence>
-                          {chat.showSelfDestructMenu && (
-                            <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }} className="overflow-hidden">
-                              <div className="px-3 pb-2 space-y-0.5">
-                                {[{ label: chat.isAr ? '30 ثانية' : '30 Sek.', val: 30 }, { label: chat.isAr ? '5 دقائق' : '5 Min.', val: 300 }, { label: chat.isAr ? 'ساعة' : '1 Std.', val: 3600 }, { label: chat.isAr ? 'يوم' : '1 Tag', val: 86400 }, { label: chat.isAr ? 'أسبوع' : '1 Woche', val: 604800 }, { label: chat.isAr ? 'إيقاف' : 'Aus', val: null as number | null }].map(opt => (
-                                  <button key={opt.label} onClick={() => chat.toggleSelfDestruct(opt.val)} className={cn('w-full text-start px-3 py-1.5 rounded-lg text-[12px] transition-colors', chat.selfDestructSeconds === opt.val ? 'bg-primary/15 text-primary font-medium' : 'active:bg-accent/30 text-foreground')}>
-                                    {opt.label}
-                                  </button>
-                                ))}
-                              </div>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                        <div className="h-px bg-border/15 mx-3" />
-                        <button className="w-full flex items-center gap-3 px-4 py-2.5 active:bg-destructive/10 transition-colors text-[13px] text-destructive text-start" onClick={chat.deleteConversation}>
-                          <Trash className="w-4 h-4" />{chat.isAr ? 'حذف المحادثة' : 'Chat löschen'}
-                        </button>
-                      </motion.div>
-                    </>
+                  <div className="flex-1" />
+                  <button onClick={chat.copySelectedMessages} className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40" aria-label={chat.isAr ? 'نسخ' : 'Kopieren'}>
+                    <Copy className="w-5 h-5 text-foreground" />
+                  </button>
+                  <button onClick={() => {
+                    const msgs = chat.messages.filter(m => chat.selectedIds.has(m.id));
+                    chat.startForward(msgs);
+                  }} className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40" aria-label={chat.isAr ? 'توجيه' : 'Weiterleiten'}>
+                    <ForwardIcon className="w-5 h-5 text-foreground" />
+                  </button>
+                  {chat.messages.filter(m => chat.selectedIds.has(m.id) && m.sender_id === chat.user.id && !m.deleted).length > 0 && (
+                    <button onClick={chat.deleteSelectedMessages} className="w-9 h-9 rounded-full flex items-center justify-center active:bg-destructive/15" aria-label={chat.isAr ? 'حذف' : 'Löschen'}>
+                      <Trash2 className="w-5 h-5 text-destructive" />
+                    </button>
                   )}
-                </AnimatePresence>
-              </div>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={() => { chat.setActiveConv(null); chat.loadConversations(); }}
+                    className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40 transition-colors shrink-0 relative"
+                    aria-label={chat.isAr ? 'رجوع' : 'Zurück'}
+                  >
+                    <BackIcon className="w-5 h-5 text-foreground" />
+                    {totalUnread > 0 && (
+                      <span className="absolute -top-0.5 -end-0.5 bg-primary text-primary-foreground text-[9px] font-bold rounded-full min-w-[14px] h-[14px] flex items-center justify-center px-1">
+                        {totalUnread > 9 ? '9+' : totalUnread}
+                      </span>
+                    )}
+                  </button>
+                  <button className="flex items-center gap-2.5 flex-1 min-w-0 active:opacity-70 transition-opacity" onClick={() => chat.setShowProfilePopup(true)}>
+                    {renderAvatar(chat.activeConv?.otherUsername, chat.activeConv?.otherAvatarUrl, 'h-9 w-9')}
+                    <div className="min-w-0 text-start">
+                      <span className="font-semibold text-[15px] block truncate leading-tight flex items-center gap-1">
+                        {chat.activeConv?.otherDisplayName || chat.activeConv?.otherUsername}
+                        {chat.activeConv && chat.chatPrefs.isMuted(chat.activeConv.id) && (
+                          <BellOff className="w-3 h-3 text-muted-foreground/50 shrink-0" />
+                        )}
+                      </span>
+                      <AnimatePresence mode="wait">
+                        {chat.typingUser ? (
+                          <motion.div key="typing" initial={{ opacity: 0, y: 2 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 2 }} className="flex items-center gap-1.5">
+                            <span className="text-[11px] text-primary font-medium leading-tight">{chat.isAr ? 'يكتب' : 'tippt'}</span>
+                            <TypingDots />
+                          </motion.div>
+                        ) : (
+                          <motion.span key="status" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className={cn('text-[11px] leading-tight block', chat.otherPresence.isOnline ? 'text-green-500 font-medium' : 'text-muted-foreground/60')}>
+                            {chat.otherPresence.text}
+                          </motion.span>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  </button>
+
+                  {chat.selfDestructSeconds && (
+                    <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-accent/20">
+                      <Timer className="w-3 h-3 text-primary" />
+                      <span className="text-[10px] text-primary font-medium">{formatSelfDestructLabel(chat.selfDestructSeconds)}</span>
+                    </div>
+                  )}
+
+                  {/* Three-dot menu */}
+                  <div className="relative">
+                    <button onClick={() => chat.setShowChatMenu(!chat.showChatMenu)} className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40 transition-colors" aria-label={chat.isAr ? 'خيارات' : 'Optionen'}>
+                      <MoreVertical className="h-5 w-5 text-muted-foreground" />
+                    </button>
+                    <AnimatePresence>
+                      {chat.showChatMenu && (
+                        <>
+                          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-10" onClick={() => chat.setShowChatMenu(false)} />
+                          <motion.div
+                            initial={{ opacity: 0, scale: 0.95, y: -4 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            transition={{ duration: 0.15 }}
+                            className={cn('absolute top-full mt-1 bg-card border border-border/30 rounded-xl z-20 min-w-[200px] overflow-hidden shadow-lg', chat.isAr ? 'left-0' : 'right-0')}
+                          >
+                            <button className="w-full flex items-center gap-3 px-4 py-2.5 active:bg-accent/30 transition-colors text-[13px] text-start" onClick={() => { chat.setShowSearch(true); chat.setShowChatMenu(false); }}>
+                              <Search className="w-4 h-4 text-muted-foreground" />{chat.isAr ? 'بحث في المحادثة' : 'Im Chat suchen'}
+                            </button>
+                            <button className="w-full flex items-center gap-3 px-4 py-2.5 active:bg-accent/30 transition-colors text-[13px] text-start" onClick={() => { chat.chatPrefs.toggleMuted(chat.activeConv!.id); chat.setShowChatMenu(false); }}>
+                              {chat.chatPrefs.isMuted(chat.activeConv!.id) ? <Bell className="w-4 h-4 text-muted-foreground" /> : <BellOff className="w-4 h-4 text-muted-foreground" />}
+                              {chat.chatPrefs.isMuted(chat.activeConv!.id) ? (chat.isAr ? 'إلغاء الكتم' : 'Laut schalten') : (chat.isAr ? 'كتم الإشعارات' : 'Stummschalten')}
+                            </button>
+                            <button className="w-full flex items-center gap-3 px-4 py-2.5 active:bg-accent/30 transition-colors text-[13px] text-start" onClick={() => { chat.chatPrefs.togglePinned(chat.activeConv!.id); chat.setShowChatMenu(false); }}>
+                              {chat.chatPrefs.isPinned(chat.activeConv!.id) ? <PinOff className="w-4 h-4 text-muted-foreground" /> : <Pin className="w-4 h-4 text-muted-foreground" />}
+                              {chat.chatPrefs.isPinned(chat.activeConv!.id) ? (chat.isAr ? 'إلغاء التثبيت' : 'Lösen') : (chat.isAr ? 'تثبيت المحادثة' : 'Chat anheften')}
+                            </button>
+                            <button className="w-full flex items-center gap-3 px-4 py-2.5 active:bg-accent/30 transition-colors text-[13px] text-start" onClick={() => { chat.setShowWallpaperPicker(true); chat.setShowChatMenu(false); }}>
+                              <WallpaperIcon className="w-4 h-4 text-muted-foreground" />
+                              {chat.isAr ? 'الخلفية' : 'Hintergrund'}
+                            </button>
+                            <div className="h-px bg-border/15 mx-3" />
+                            <button className="w-full flex items-center gap-3 px-4 py-2.5 active:bg-accent/30 transition-colors text-[13px] text-start" onClick={() => { chat.setShowProfilePopup(true); chat.setProfileTab('media'); chat.setShowChatMenu(false); if (chat.activeConv) { supabase.from('messages').select('*').eq('conversation_id', chat.activeConv.id).in('message_type', ['image', 'file']).eq('deleted', false).order('created_at', { ascending: false }).limit(50).then(({ data }) => chat.setSharedMedia((data || []) as Message[])); } }}>
+                              <ImageIcon className="w-4 h-4 text-muted-foreground" />{chat.isAr ? 'الوسائط المشتركة' : 'Geteilte Medien'}
+                            </button>
+                            <button className="w-full flex items-center gap-3 px-4 py-2.5 active:bg-accent/30 transition-colors text-[13px] text-start" onClick={() => chat.setShowSelfDestructMenu(!chat.showSelfDestructMenu)}>
+                              {chat.selfDestructSeconds ? <TimerOff className="w-4 h-4 text-muted-foreground" /> : <Timer className="w-4 h-4 text-muted-foreground" />}
+                              {chat.isAr ? 'رسائل زائلة' : 'Verschwindend'}
+                            </button>
+                            <AnimatePresence>
+                              {chat.showSelfDestructMenu && (
+                                <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }} className="overflow-hidden">
+                                  <div className="px-3 pb-2 space-y-0.5">
+                                    {SELF_DESTRUCT_OPTIONS.map(opt => (
+                                      <button
+                                        key={`sd-${opt.valueSeconds ?? 'off'}`}
+                                        onClick={() => chat.toggleSelfDestruct(opt.valueSeconds)}
+                                        className={cn(
+                                          'w-full text-start px-3 py-1.5 rounded-lg text-[12px] transition-colors',
+                                          chat.selfDestructSeconds === opt.valueSeconds
+                                            ? 'bg-primary/15 text-primary font-medium'
+                                            : 'active:bg-accent/30 text-foreground'
+                                        )}
+                                      >
+                                        {chat.isAr ? opt.labelAr : opt.labelDe}
+                                      </button>
+                                    ))}
+                                  </div>
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
+                            <div className="h-px bg-border/15 mx-3" />
+                            <button className="w-full flex items-center gap-3 px-4 py-2.5 active:bg-destructive/10 transition-colors text-[13px] text-destructive text-start" onClick={chat.deleteConversation}>
+                              <Trash className="w-4 h-4" />{chat.isAr ? 'حذف المحادثة' : 'Chat löschen'}
+                            </button>
+                          </motion.div>
+                        </>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                </>
+              )}
             </div>
 
-            {/* ─── Search Bar ─── */}
+            {/* ── Search Bar ── */}
             <AnimatePresence>
               {chat.showSearch && (
-                <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden border-b border-border/20">
+                <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden border-b border-border/20 shrink-0">
                   <div className="flex items-center gap-2 px-3 h-12">
                     <Search className="w-4 h-4 text-muted-foreground/50 shrink-0" />
                     <input type="text" value={chat.chatSearchQuery} onChange={e => chat.searchInChat(e.target.value)} placeholder={chat.isAr ? 'بحث في المحادثة...' : 'Suchen...'} className="flex-1 bg-transparent text-[14px] outline-none placeholder:text-muted-foreground/40" dir="auto" autoFocus />
@@ -388,28 +558,50 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
               )}
             </AnimatePresence>
 
-            {/* ─── Pinned Message ─── */}
+            {/* ── Pinned Message ── */}
             <AnimatePresence>
               {chat.pinnedMessage && !chat.pinnedMessage.deleted && (
-                <motion.button initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="w-full border-b border-border/20 px-3 py-2 flex items-center gap-2.5 bg-accent/5 active:bg-accent/15 transition-colors text-start overflow-hidden" onClick={() => { const el = document.getElementById(`msg-${chat.pinnedMessage!.id}`); el?.scrollIntoView({ behavior: 'smooth', block: 'center' }); }}>
+                <motion.button initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="w-full border-b border-border/20 px-3 py-2 flex items-center gap-2.5 bg-accent/5 active:bg-accent/15 transition-colors text-start overflow-hidden shrink-0" onClick={() => { const el = document.getElementById(`msg-${chat.pinnedMessage!.id}`); el?.scrollIntoView({ behavior: 'smooth', block: 'center' }); }}>
                   <Pin className="w-3.5 h-3.5 text-primary shrink-0 rotate-45" />
                   <div className="flex-1 min-w-0">
                     <p className="text-[10px] text-primary font-semibold">{chat.isAr ? 'رسالة مثبتة' : 'Angeheftet'}</p>
-                    <p className="text-[12px] text-foreground/70 truncate" dir="auto">{chat.pinnedMessage.message_type === 'text' ? chat.pinnedMessage.content : chat.pinnedMessage.message_type === 'image' ? '📷' : chat.pinnedMessage.message_type === 'voice' ? '🎤' : '📎'}</p>
+                    <p className="text-[12px] text-foreground/70 truncate" dir="auto">{chat.pinnedMessage.message_type === 'text' ? stripMarkers(chat.pinnedMessage.content) : chat.pinnedMessage.message_type === 'image' ? '📷' : chat.pinnedMessage.message_type === 'voice' ? '🎤' : '📎'}</p>
                   </div>
                   <button onClick={(e) => { e.stopPropagation(); chat.pinMessage(chat.pinnedMessage!); }} className="shrink-0 w-6 h-6 rounded-full flex items-center justify-center active:bg-muted/50"><X className="w-3 h-3 text-muted-foreground" /></button>
                 </motion.button>
               )}
             </AnimatePresence>
 
-            {/* ─── Messages ─── */}
+            {/* ── Messages ── */}
             <div
               ref={chat.messagesContainerRef}
-              className="flex-1 overflow-y-auto px-3 py-3 overscroll-contain scroll-smooth will-change-scroll"
-              style={{ WebkitOverflowScrolling: 'touch' } as React.CSSProperties}
+              className={cn(
+                'flex-1 overflow-y-auto px-3 py-3 overscroll-contain scroll-smooth will-change-scroll',
+                isDarkBg && 'text-white'
+              )}
+              style={{
+                WebkitOverflowScrolling: 'touch',
+                background: currentWallpaper.background,
+              } as React.CSSProperties}
               onScroll={chat.handleScroll}
               onClick={() => { chat.setShowChatMenu(false); setActionMenu(null); chat.setShowExtraEmojis(false); }}
             >
+              {chat.messages.length === 0 && (
+                <div className="flex flex-col items-center justify-center h-full text-center gap-3 py-16 opacity-60">
+                  <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+                    <span className="text-2xl">👋</span>
+                  </div>
+                  <div>
+                    <p className="text-[14px] font-semibold text-foreground/70">
+                      {chat.isAr ? 'لا توجد رسائل بعد' : 'Noch keine Nachrichten'}
+                    </p>
+                    <p className="text-[12px] text-muted-foreground/70 mt-1">
+                      {chat.isAr ? 'أرسل رسالتك الأولى لبدء المحادثة' : 'Sende die erste Nachricht'}
+                    </p>
+                  </div>
+                </div>
+              )}
+
               {chat.messages.map((msg, idx) => {
                 const isMine = msg.sender_id === chat.user!.id;
                 const msgReactions = chat.reactions.filter(r => r.message_id === msg.id);
@@ -417,48 +609,79 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                 const fadeOpacity = chat.getMessageOpacity(msg);
                 const isFading = msg.expires_at && fadeOpacity < 1;
                 const bubbleStyle = getBubbleRadius(isMine, sameSenderAsPrev, sameSenderAsNext);
+                const isSelected = chat.selectedIds.has(msg.id);
+                const isFirstUnread = msg.id === chat.firstUnreadId;
 
                 return (
                   <React.Fragment key={msg.id}>
                     {/* Date separator */}
                     {showDate && (
                       <div className="flex justify-center py-4">
-                        <span className="text-[11px] text-muted-foreground/60 bg-muted/20 px-3 py-1 rounded-full font-medium">
-                          {(() => {
-                            const d = new Date(msg.created_at);
-                            const today = new Date();
-                            const yesterday = new Date(); yesterday.setDate(today.getDate() - 1);
-                            if (d.toDateString() === today.toDateString()) return chat.isAr ? 'اليوم' : 'Heute';
-                            if (d.toDateString() === yesterday.toDateString()) return chat.isAr ? 'أمس' : 'Gestern';
-                            return d.toLocaleDateString(chat.isAr ? 'ar' : 'de', { day: 'numeric', month: 'long' });
-                          })()}
+                        <span className="text-[11px] text-muted-foreground/70 bg-background/60 backdrop-blur-sm px-3 py-1 rounded-full font-medium shadow-sm">
+                          {formatDateSeparator(msg.created_at, chat.isAr)}
                         </span>
+                      </div>
+                    )}
+
+                    {/* "New messages" divider */}
+                    {isFirstUnread && (
+                      <div className="flex items-center gap-2 my-3">
+                        <div className="flex-1 h-px bg-primary/30" />
+                        <span className="text-[10px] font-semibold text-primary uppercase tracking-wider bg-primary/10 px-2 py-0.5 rounded-full">
+                          {chat.isAr ? 'رسائل جديدة' : 'Neue Nachrichten'}
+                        </span>
+                        <div className="flex-1 h-px bg-primary/30" />
                       </div>
                     )}
 
                     <div
                       id={`msg-${msg.id}`}
                       className={cn(
-                        'flex relative',
+                        'flex relative transition-colors rounded-md -mx-1 px-1',
                         isMine ? 'justify-end' : 'justify-start',
-                        sameSenderAsPrev ? 'mt-[2px]' : 'mt-3'
+                        sameSenderAsPrev ? 'mt-[2px]' : 'mt-3',
+                        isSelected && 'bg-primary/10'
                       )}
-                      style={{ opacity: fadeOpacity, transition: 'opacity 2s ease-out' }}
+                      style={{ opacity: fadeOpacity, transition: 'opacity 2s ease-out, background-color 0.15s' }}
+                      onClick={(e) => {
+                        if (chat.selectionMode && !msg.deleted) {
+                          e.stopPropagation();
+                          chat.toggleSelect(msg.id);
+                        }
+                      }}
                     >
-                      <SwipeableMessage isMine={isMine} deleted={msg.deleted} onSwipeReply={() => { chat.setReplyTo(msg); chat.inputRef.current?.focus(); }}>
+                      <SwipeableMessage
+                        isMine={isMine}
+                        deleted={msg.deleted}
+                        disabled={chat.selectionMode}
+                        onSwipeReply={() => { chat.setReplyTo(msg); chat.inputRef.current?.focus(); }}
+                      >
                         <div
-                          className={cn('relative group w-fit min-w-[72px] max-w-[75%]')}
+                          className={cn('relative group w-fit min-w-[72px] max-w-[82%]')}
                           onContextMenu={(e) => openActionMenu(msg, isMine, e)}
-                          onClick={(e) => openActionMenu(msg, isMine, e)}
+                          onClick={(e) => {
+                            if (!chat.selectionMode) openActionMenu(msg, isMine, e);
+                          }}
                         >
+                          {/* Selection checkmark */}
+                          {chat.selectionMode && !msg.deleted && (
+                            <div className={cn(
+                              'absolute top-1 z-10 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors',
+                              isMine ? 'start-1' : 'end-1',
+                              isSelected ? 'bg-primary border-primary' : 'bg-background/80 border-border/50'
+                            )}>
+                              {isSelected && <Check className="w-3 h-3 text-primary-foreground" />}
+                            </div>
+                          )}
+
                           <div
                             className={cn(
                               'overflow-hidden text-[15px] leading-[1.5]',
                               msg.deleted
                                 ? 'bg-muted/20 text-muted-foreground/50 italic'
                                 : isMine
-                                  ? 'bg-primary/15 text-foreground'
-                                  : 'bg-card border border-border/15 text-foreground'
+                                  ? isDarkBg ? 'bg-primary/90 text-primary-foreground' : 'bg-primary/15 text-foreground'
+                                  : isDarkBg ? 'bg-white/10 backdrop-blur-md text-white border border-white/5' : 'bg-card border border-border/15 text-foreground'
                             )}
                             style={bubbleStyle}
                           >
@@ -493,13 +716,17 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                               <p className="px-3 py-2 text-[13px]">{chat.isAr ? '🚫 تم حذف هذه الرسالة' : '🚫 Diese Nachricht wurde gelöscht'}</p>
                             ) : msg.message_type === 'image' ? (
                               <div className="relative">
-                                <img src={chat.getFileUrl(msg)} alt={msg.file_name || 'image'} className="max-w-full max-h-60 object-cover cursor-pointer" loading="lazy" onClick={(e) => { e.stopPropagation(); const rect = (e.target as HTMLElement).getBoundingClientRect(); chat.setLightboxRect(rect); chat.setLightboxSrc(chat.getFileUrl(msg)); chat.setLightboxOpen(true); }} />
+                                <img src={chat.getFileUrl(msg)} alt={msg.file_name || 'image'} className="max-w-full max-h-60 object-cover cursor-pointer" loading="lazy" onClick={(e) => { e.stopPropagation(); if (chat.selectionMode) { chat.toggleSelect(msg.id); return; } const rect = (e.target as HTMLElement).getBoundingClientRect(); chat.setLightboxRect(rect); chat.setLightboxSrc(chat.getFileUrl(msg)); chat.setLightboxOpen(true); }} />
                                 <div className="px-3 py-1.5">
-                                  {msg.content && msg.content !== msg.file_name && <p className="break-words whitespace-pre-wrap text-[15px] leading-[1.45] [overflow-wrap:anywhere] [unicode-bidi:plaintext]" dir="auto">{msg.content}</p>}
-                                  <div className={cn('mt-0.5 flex items-center justify-end gap-[3px] text-[11px] leading-none text-muted-foreground/60')} dir="ltr">
+                                  {msg.content && msg.content !== msg.file_name && (
+                                    <p className="break-words whitespace-pre-wrap text-[15px] leading-[1.45] [overflow-wrap:anywhere] [unicode-bidi:plaintext]" dir="auto">
+                                      {renderRichText(msg.content)}
+                                    </p>
+                                  )}
+                                  <div className={cn('mt-0.5 flex items-center justify-end gap-[3px] text-[11px] leading-none', isDarkBg && isMine ? 'text-primary-foreground/70' : 'text-muted-foreground/60')} dir="ltr">
                                     {msg.edited_at && <span className="text-[9px] italic">{chat.isAr ? 'معدّلة' : 'bearb.'}</span>}
                                     {isFading && <Timer className="h-[10px] w-[10px] animate-pulse" />}
-                                    <span>{new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                    <span>{formatClockTime(msg.created_at)}</span>
                                     {isMine && (msg.read ? <CheckCheck className="h-[11px] w-[11px] text-primary" /> : <Check className="h-[11px] w-[11px]" />)}
                                   </div>
                                 </div>
@@ -519,7 +746,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                                 return (
                                   <div className="min-w-[220px] px-3 py-2.5">
                                     <div className="flex items-center gap-3">
-                                      <button onClick={async (e) => { e.stopPropagation(); const playableUrl = fileUrl || (msg.file_url ? await getSignedFileUrl(msg.file_url) : ''); if (!playableUrl) return; voicePlayer.togglePlayback(msg.id, playableUrl, senderName, msg.conversation_id); }} className={cn('flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-colors active:scale-90', isMine ? 'bg-primary/20' : 'bg-primary/15')}>
+                                      <button onClick={async (e) => { e.stopPropagation(); if (chat.selectionMode) { chat.toggleSelect(msg.id); return; } const playableUrl = fileUrl || (msg.file_url ? await getSignedFileUrl(msg.file_url) : ''); if (!playableUrl) return; voicePlayer.togglePlayback(msg.id, playableUrl, senderName, msg.conversation_id); }} className={cn('flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-colors active:scale-90', isMine ? 'bg-primary/20' : 'bg-primary/15')}>
                                         {isPlaying ? (
                                           <svg viewBox="0 0 24 24" className="h-4 w-4 text-primary" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1" /><rect x="14" y="4" width="4" height="16" rx="1" /></svg>
                                         ) : (
@@ -532,10 +759,10 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                                         </div>
                                         <div className="flex items-center justify-between" dir="ltr">
                                           <span className="text-[10px] tabular-nums text-muted-foreground/50">{isPlaying && duration ? formatDur(progress * duration) : (duration ? formatDur(duration) : '')}</span>
-                                          <span className="flex items-center gap-[3px] text-[11px] leading-none text-muted-foreground/60">
+                                          <span className={cn('flex items-center gap-[3px] text-[11px] leading-none', isDarkBg && isMine ? 'text-primary-foreground/70' : 'text-muted-foreground/60')}>
                                             {msg.edited_at && <span className="text-[9px] italic">{chat.isAr ? 'معدّلة' : 'bearb.'}</span>}
                                             {isFading && <Timer className="h-[10px] w-[10px] animate-pulse" />}
-                                            {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                            {formatClockTime(msg.created_at)}
                                             {isMine && (msg.read ? <CheckCheck className="h-[11px] w-[11px] text-primary" /> : <Check className="h-[11px] w-[11px]" />)}
                                           </span>
                                         </div>
@@ -549,24 +776,25 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                                 <a href={chat.getFileUrl(msg)} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-foreground" onClick={e => e.stopPropagation()}>
                                   <FileText className="h-5 w-5 shrink-0 text-muted-foreground" /><span className="flex-1 truncate text-[13px]">{msg.file_name}</span><Download className="h-4 w-4 shrink-0 opacity-50" />
                                 </a>
-                                <div className="mt-1 flex items-center justify-end gap-[3px] text-[11px] leading-none text-muted-foreground/60" dir="ltr">
+                                <div className={cn('mt-1 flex items-center justify-end gap-[3px] text-[11px] leading-none', isDarkBg && isMine ? 'text-primary-foreground/70' : 'text-muted-foreground/60')} dir="ltr">
                                   {isFading && <Timer className="h-[10px] w-[10px] animate-pulse" />}
-                                  <span>{new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                  <span>{formatClockTime(msg.created_at)}</span>
                                   {isMine && (msg.read ? <CheckCheck className="h-[11px] w-[11px] text-primary" /> : <Check className="h-[11px] w-[11px]" />)}
                                 </div>
                               </div>
                             ) : (
-                              /* ─── Text message ─── */
+                              /* ── Text message ── */
                               <div className="px-[10px] py-[6px]">
                                 <p className="break-words whitespace-pre-wrap text-[15px] leading-[1.5] [word-break:normal] [unicode-bidi:plaintext]" dir="auto">
-                                  <span>{msg.content}</span>
+                                  {renderRichText(msg.content)}
                                   {!msg.deleted && (
                                     <>
                                       <span aria-hidden="true" className="inline-block w-1.5" />
-                                      <span className="inline-flex translate-y-[1px] items-center gap-[3px] align-bottom whitespace-nowrap text-[11px] leading-none select-none text-muted-foreground/60" dir="ltr">
+                                      <span className={cn('inline-flex translate-y-[1px] items-center gap-[3px] align-bottom whitespace-nowrap text-[11px] leading-none select-none',
+                                        isDarkBg && isMine ? 'text-primary-foreground/70' : 'text-muted-foreground/60')} dir="ltr">
                                         {msg.edited_at && <span className="text-[9px] italic">{chat.isAr ? 'معدّلة' : 'bearb.'}</span>}
                                         {isFading && <Timer className="h-[10px] w-[10px] animate-pulse" />}
-                                        <span>{new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                        <span>{formatClockTime(msg.created_at)}</span>
                                         {isMine && (msg.read
                                           ? <CheckCheck className="h-[11px] w-[11px] text-primary" />
                                           : <Check className="h-[11px] w-[11px]" />
@@ -583,7 +811,12 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                           {msgReactions.length > 0 && (
                             <div className={cn('flex gap-1 -mt-1.5 flex-wrap relative z-[1]', isMine ? 'justify-end pe-1' : 'justify-start ps-1')} dir="ltr">
                               {Object.entries(msgReactions.reduce((acc, r) => { acc[r.emoji] = (acc[r.emoji] || 0) + 1; return acc; }, {} as Record<string, number>)).map(([emoji, count]) => (
-                                <button key={emoji} onClick={(e) => { e.stopPropagation(); chat.toggleReaction(msg.id, emoji); }} className="inline-flex items-center gap-0.5 bg-card border border-border/20 rounded-full px-1.5 py-0.5 active:scale-90 transition-transform text-[13px]" aria-label={`${emoji} reaction`}>
+                                <button
+                                  key={emoji}
+                                  onClick={(e) => { e.stopPropagation(); if (chat.user) chat.toggleReaction(msg.id, emoji); }}
+                                  className="inline-flex items-center gap-0.5 bg-card border border-border/20 rounded-full px-1.5 py-0.5 active:scale-90 transition-transform text-[13px]"
+                                  aria-label={`${emoji} reaction`}
+                                >
                                   <span className="leading-none">{emoji}</span>
                                   {count > 1 && <span className="text-[9px] text-muted-foreground font-medium">{count}</span>}
                                 </button>
@@ -624,7 +857,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                         <button onClick={() => chat.imageUpload.retryUpload(upload.tempId)} className="px-4 py-2 rounded-full bg-destructive text-white text-sm font-medium active:scale-95 transition-transform">{chat.isAr ? 'إعادة المحاولة' : 'Wiederholen'}</button>
                       </div>
                     )}
-                    <div className="px-3 py-1.5"><div className="flex items-center justify-end gap-[3px] text-[11px] leading-none text-muted-foreground/60" dir="ltr"><span>{new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span></div></div>
+                    <div className="px-3 py-1.5"><div className="flex items-center justify-end gap-[3px] text-[11px] leading-none text-muted-foreground/60" dir="ltr"><span>{formatClockTime(new Date().toISOString())}</span></div></div>
                   </div>
                 </div>
               ))}
@@ -632,7 +865,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
               <div ref={chat.messagesEndRef} />
             </div>
 
-            {/* ─── Scroll to Bottom FAB ─── */}
+            {/* ── Scroll to Bottom FAB ── */}
             <AnimatePresence>
               {chat.showScrollDown && (
                 <motion.button
@@ -641,14 +874,19 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                   exit={{ opacity: 0, scale: 0.8 }}
                   transition={{ type: 'spring', damping: 20, stiffness: 400 }}
                   onClick={() => chat.scrollToBottom()}
-                  className="absolute bottom-24 end-4 z-10 w-9 h-9 rounded-full bg-card border border-border/20 flex items-center justify-center active:scale-90 transition-transform shadow-sm"
+                  className="absolute bottom-24 end-4 z-10 w-10 h-10 rounded-full bg-card border border-border/20 flex items-center justify-center active:scale-90 transition-transform shadow-md"
                 >
                   <ArrowDown className="w-4 h-4 text-muted-foreground" />
+                  {chat.firstUnreadId && (
+                    <span className="absolute -top-1 -end-1 bg-primary text-primary-foreground text-[9px] font-bold rounded-full min-w-[14px] h-[14px] flex items-center justify-center px-1">
+                      !
+                    </span>
+                  )}
                 </motion.button>
               )}
             </AnimatePresence>
 
-            {/* ─── Action Menu (Long Press) ─── */}
+            {/* ── Action Menu (Long Press / tap) ── */}
             <AnimatePresence>
               {actionMenu && (() => {
                 const spaceAbove = actionMenu.rect.top - actionMenu.containerRect.top;
@@ -668,9 +906,9 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                         <div className={cn('text-[15px] overflow-hidden', actionMenu.isMine ? 'bg-primary/15 text-foreground' : 'bg-card border border-border/15 text-foreground')} style={getBubbleRadius(actionMenu.isMine, false, false) as React.CSSProperties}>
                           {actionMenu.msg.message_type === 'text' && (
                             <div className="relative px-[10px] py-[6px]" style={{ width: `${previewWidth}px`, maxWidth: '100%' }}>
-                              <span className="break-words whitespace-pre-wrap" dir="auto">{actionMenu.msg.content}<span className="inline-block align-bottom" style={{ width: '62px', height: '1px' }} /></span>
+                              <span className="break-words whitespace-pre-wrap" dir="auto">{renderRichText(actionMenu.msg.content)}<span className="inline-block align-bottom" style={{ width: '62px', height: '1px' }} /></span>
                               <span className={cn('absolute bottom-[6px] flex items-center gap-[3px] text-[10px] whitespace-nowrap text-muted-foreground/50', chat.isAr ? 'left-2.5' : 'right-2.5')}>
-                                {new Date(actionMenu.msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                {formatClockTime(actionMenu.msg.created_at)}
                                 {actionMenu.isMine && (actionMenu.msg.read ? <CheckCheck className="h-[11px] w-[11px] text-primary" /> : <Check className="h-[11px] w-[11px]" />)}
                               </span>
                             </div>
@@ -707,8 +945,11 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                             <button onClick={() => { chat.setReplyTo(actionMenu.msg); setActionMenu(null); chat.setShowExtraEmojis(false); chat.inputRef.current?.focus(); }} className="w-full flex items-center gap-3 px-4 py-2 active:bg-accent/30 transition-colors text-start">
                               <Reply className="w-4 h-4 text-muted-foreground" /><span className="text-[13px]">{chat.isAr ? 'رد' : 'Antworten'}</span>
                             </button>
+                            <button onClick={() => { chat.startForward([actionMenu.msg]); setActionMenu(null); chat.setShowExtraEmojis(false); }} className="w-full flex items-center gap-3 px-4 py-2 active:bg-accent/30 transition-colors text-start">
+                              <Share2 className="w-4 h-4 text-muted-foreground" /><span className="text-[13px]">{chat.isAr ? 'توجيه' : 'Weiterleiten'}</span>
+                            </button>
                             {actionMenu.msg.message_type === 'text' && actionMenu.msg.content && (
-                              <button onClick={() => { chat.copyMessage(actionMenu.msg.content); setActionMenu(null); chat.setShowExtraEmojis(false); }} className="w-full flex items-center gap-3 px-4 py-2 active:bg-accent/30 transition-colors text-start">
+                              <button onClick={() => { chat.copyMessage(stripMarkers(actionMenu.msg.content)); setActionMenu(null); chat.setShowExtraEmojis(false); }} className="w-full flex items-center gap-3 px-4 py-2 active:bg-accent/30 transition-colors text-start">
                                 <Copy className="w-4 h-4 text-muted-foreground" /><span className="text-[13px]">{chat.isAr ? 'نسخ النص' : 'Text kopieren'}</span>
                               </button>
                             )}
@@ -720,6 +961,9 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                             <button onClick={() => { chat.pinMessage(actionMenu.msg); setActionMenu(null); }} className="w-full flex items-center gap-3 px-4 py-2 active:bg-accent/30 transition-colors text-start">
                               {chat.pinnedMessage?.id === actionMenu.msg.id ? <PinOff className="w-4 h-4 text-muted-foreground" /> : <Pin className="w-4 h-4 text-muted-foreground" />}
                               <span className="text-[13px]">{chat.pinnedMessage?.id === actionMenu.msg.id ? (chat.isAr ? 'إلغاء التثبيت' : 'Lösen') : (chat.isAr ? 'تثبيت' : 'Anheften')}</span>
+                            </button>
+                            <button onClick={() => { chat.toggleSelect(actionMenu.msg.id); setActionMenu(null); chat.setShowExtraEmojis(false); }} className="w-full flex items-center gap-3 px-4 py-2 active:bg-accent/30 transition-colors text-start">
+                              <Check className="w-4 h-4 text-muted-foreground" /><span className="text-[13px]">{chat.isAr ? 'تحديد' : 'Auswählen'}</span>
                             </button>
                             {actionMenu.isMine && !actionMenu.msg.deleted && (
                               <>
@@ -738,36 +982,71 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
               })()}
             </AnimatePresence>
 
-            {/* ─── Chat Input ─── */}
+            {/* ── Chat Input ── */}
             <ChatInput
               isAr={chat.isAr}
-              isRecording={isRecording}
-              recordingTime={recordingTime}
               newMessage={chat.newMessage}
               setNewMessage={chat.setNewMessage}
               replyTo={chat.replyTo}
               setReplyTo={chat.setReplyTo}
               editingMessage={chat.editingMessage}
-              setEditingMessage={chat.setEditingMessage}
+              cancelEdit={chat.cancelEdit}
               stagedPreviews={chat.stagedPreviews}
+              stagedImagesCount={chat.stagedImages.length}
               uploading={chat.uploading}
               inputRef={chat.inputRef as React.RefObject<HTMLTextAreaElement>}
               fileInputRef={chat.fileInputRef as React.RefObject<HTMLInputElement>}
+              isRecording={voice.isRecording}
+              recordingTime={voice.recordingTime}
+              locked={voice.locked}
+              previewBlob={voice.previewBlob}
+              previewUrl={voice.previewUrl}
+              startRecording={voice.startRecording}
+              stopAndSend={voice.stopAndSend}
+              stopAndCancel={voice.stopAndCancel}
+              stopForPreview={voice.stopForPreview}
+              lockRecording={voice.lockRecording}
+              sendPreview={voice.sendPreview}
+              discardPreview={voice.discardPreview}
               sendMessage={chat.sendMessage}
               saveEditMessage={chat.saveEditMessage}
               sendStagedImages={chat.sendStagedImages}
-              startRecording={startRecording}
-              stopRecording={stopRecording}
               removeStagedImage={chat.removeStagedImage}
               clearStagedImages={chat.clearStagedImages}
+              showEmojiPicker={chat.showEmojiPicker}
+              setShowEmojiPicker={chat.setShowEmojiPicker}
               resizeComposer={chat.resizeComposer}
               broadcastTyping={chat.broadcastTyping}
               scrollToBottom={chat.scrollToBottom}
               activeConvOtherName={chat.activeConv?.otherDisplayName || chat.activeConv?.otherUsername}
-              userId={chat.user?.id}
-              stagedImagesCount={chat.stagedImages.length}
+              userId={chat.user.id}
+              onPasteFiles={chat.addImagesFromFiles}
             />
           </>
+        )}
+
+        {/* ── Forward picker ── */}
+        {chat.forwardingMessages && (
+          <ForwardPicker
+            isAr={chat.isAr}
+            messages={chat.forwardingMessages}
+            conversations={chat.conversations.filter(c => c.id !== chat.activeConv?.id)}
+            onClose={chat.cancelForward}
+            onForward={chat.performForwardTo}
+          />
+        )}
+
+        {/* ── Wallpaper picker ── */}
+        {chat.showWallpaperPicker && (
+          <WallpaperPicker
+            isAr={chat.isAr}
+            currentId={currentWallpaperId}
+            onClose={() => chat.setShowWallpaperPicker(false)}
+            onPick={(id) => {
+              chat.chatPrefs.setWallpaper(chat.activeConv?.id ?? null, id);
+              chat.setShowWallpaperPicker(false);
+            }}
+          />
         )}
       </SheetContent>
 
