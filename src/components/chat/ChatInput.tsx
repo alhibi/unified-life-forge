@@ -57,6 +57,8 @@ interface ChatInputProps {
   activeConvOtherName?: string;
   userId?: string;
   onPasteFiles?: (files: File[]) => void;
+  /** When true, bare Enter sends; Shift+Enter inserts newline. When false, Enter always inserts a newline. */
+  enterToSend?: boolean;
 }
 
 /**
@@ -78,6 +80,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
   showEmojiPicker, setShowEmojiPicker,
   resizeComposer, broadcastTyping, scrollToBottom,
   activeConvOtherName, userId, onPasteFiles,
+  enterToSend = true,
 }) => {
   // Drag state for slide-to-cancel / drag-to-lock overlay.
   const drag = useMotionValue(0);
@@ -202,7 +205,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 <span className="text-[12px] text-muted-foreground font-medium">
                   {stagedPreviews.length} {isAr ? 'صورة' : (stagedPreviews.length === 1 ? 'Foto' : 'Fotos')}
                 </span>
-                <button onClick={clearStagedImages} className="text-[11px] text-destructive font-medium px-2 py-0.5 rounded-full active:bg-destructive/10 transition-colors">
+                <button onClick={clearStagedImages} aria-label={isAr ? 'مسح جميع الصور' : 'Alle Bilder entfernen'} className="text-[11px] text-destructive font-medium px-2 py-0.5 rounded-full active:bg-destructive/10 transition-colors">
                   {isAr ? 'مسح الكل' : 'Alle löschen'}
                 </button>
               </div>
@@ -210,12 +213,12 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 {stagedPreviews.map((url, i) => (
                   <div key={i} className="relative shrink-0 w-16 h-16 rounded-xl overflow-hidden bg-muted/30 group">
                     <img src={url} alt="" className="w-full h-full object-cover" />
-                    <button onClick={() => removeStagedImage(i)} className="absolute top-0.5 end-0.5 w-5 h-5 rounded-full bg-black/60 flex items-center justify-center">
+                    <button onClick={() => removeStagedImage(i)} aria-label={isAr ? 'إزالة الصورة' : 'Bild entfernen'} className="absolute top-0.5 end-0.5 w-5 h-5 rounded-full bg-black/60 flex items-center justify-center">
                       <X className="w-3 h-3 text-white" />
                     </button>
                   </div>
                 ))}
-                <button onClick={() => fileInputRef.current?.click()} className="shrink-0 w-16 h-16 rounded-xl border-2 border-dashed border-border/30 flex items-center justify-center active:bg-accent/20 transition-colors">
+                <button onClick={() => fileInputRef.current?.click()} aria-label={isAr ? 'إضافة صور' : 'Mehr hinzufügen'} className="shrink-0 w-16 h-16 rounded-xl border-2 border-dashed border-border/30 flex items-center justify-center active:bg-accent/20 transition-colors">
                   <Plus className="w-5 h-5 text-muted-foreground" />
                 </button>
               </div>
@@ -237,7 +240,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                   </span>
                   <p className="text-[11px] text-muted-foreground truncate" dir="auto">{editingMessage.content}</p>
                 </div>
-                <button onClick={cancelEdit} className="shrink-0 w-6 h-6 rounded-full flex items-center justify-center active:bg-muted/60 transition-colors">
+                <button onClick={cancelEdit} aria-label={isAr ? 'إلغاء التعديل' : 'Bearbeitung abbrechen'} className="shrink-0 w-6 h-6 rounded-full flex items-center justify-center active:bg-muted/60 transition-colors">
                   <X className="w-3.5 h-3.5 text-muted-foreground" />
                 </button>
               </div>
@@ -263,7 +266,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                       : replyTo.content}
                   </p>
                 </div>
-                <button onClick={() => setReplyTo(null)} className="shrink-0 w-6 h-6 rounded-full flex items-center justify-center active:bg-muted/60 transition-colors">
+                <button onClick={() => setReplyTo(null)} aria-label={isAr ? 'إلغاء الرد' : 'Antwort abbrechen'} className="shrink-0 w-6 h-6 rounded-full flex items-center justify-center active:bg-muted/60 transition-colors">
                   <X className="w-3.5 h-3.5 text-muted-foreground" />
                 </button>
               </div>
@@ -276,14 +279,15 @@ const ChatInput: React.FC<ChatInputProps> = ({
       <AnimatePresence mode="wait">
         {showPreviewBar ? (
           /* ── Recorded voice preview bar ── */
-          <motion.div key="preview" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 6 }} className="px-3 py-2 flex items-center gap-3">
-            <motion.button onClick={discardPreview} whileTap={{ scale: 0.85 }} className="shrink-0 w-10 h-10 rounded-full flex items-center justify-center bg-destructive/10 active:bg-destructive/20 transition-colors">
+          <motion.div key="preview" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 6 }} className="px-3 py-2 flex items-center gap-3" role="region" aria-label={isAr ? 'معاينة الرسالة الصوتية' : 'Sprachnachricht-Vorschau'}>
+            <motion.button onClick={discardPreview} whileTap={{ scale: 0.85 }} aria-label={isAr ? 'تجاهل التسجيل' : 'Aufnahme verwerfen'} className="shrink-0 w-10 h-10 rounded-full flex items-center justify-center bg-destructive/10 active:bg-destructive/20 transition-colors">
               <Trash2 className="w-5 h-5 text-destructive" />
             </motion.button>
 
             <div className="flex-1 flex items-center gap-3 bg-muted/20 rounded-full px-2 h-11">
               <button
                 onClick={togglePreviewPlay}
+                aria-label={previewPlaying ? (isAr ? 'إيقاف مؤقت' : 'Pause') : (isAr ? 'تشغيل' : 'Abspielen')}
                 className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/20 active:scale-90 transition-transform"
               >
                 {previewPlaying ? <Pause className="w-4 h-4 text-primary" /> : <Play className="w-4 h-4 text-primary ms-0.5" />}
@@ -303,26 +307,28 @@ const ChatInput: React.FC<ChatInputProps> = ({
               </span>
             </div>
 
-            <motion.button onClick={sendPreview} whileTap={{ scale: 0.85 }} className="shrink-0 w-11 h-11 rounded-full bg-primary flex items-center justify-center shadow-md shadow-primary/20">
+            <motion.button onClick={sendPreview} whileTap={{ scale: 0.85 }} aria-label={isAr ? 'إرسال الرسالة الصوتية' : 'Sprachnachricht senden'} className="shrink-0 w-11 h-11 rounded-full bg-primary flex items-center justify-center shadow-md shadow-primary/20">
               <Send className="w-5 h-5 text-primary-foreground" style={{ marginInlineStart: '2px' }} />
             </motion.button>
           </motion.div>
         ) : isRecording ? (
           /* ── Live recording bar ── */
-          <motion.div key="recording" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 6 }} transition={{ type: 'spring', damping: 25, stiffness: 400 }} className="px-3 py-2 flex items-center gap-3 relative">
+          <motion.div key="recording" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 6 }} transition={{ type: 'spring', damping: 25, stiffness: 400 }} className="px-3 py-2 flex items-center gap-3 relative" role="status" aria-live="polite">
             {locked ? (
-              <motion.button onClick={stopAndCancel} whileTap={{ scale: 0.85 }} className="shrink-0 w-10 h-10 rounded-full flex items-center justify-center bg-destructive/10 active:bg-destructive/20 transition-colors">
+              <motion.button onClick={stopAndCancel} whileTap={{ scale: 0.85 }} aria-label={isAr ? 'إلغاء التسجيل' : 'Aufnahme abbrechen'} className="shrink-0 w-10 h-10 rounded-full flex items-center justify-center bg-destructive/10 active:bg-destructive/20 transition-colors">
                 <Trash2 className="w-5 h-5 text-destructive" />
               </motion.button>
             ) : (
-              <motion.div className="shrink-0 w-10 h-10 rounded-full flex items-center justify-center bg-destructive/10" style={{ opacity: cancelOpacity }}>
+              <motion.div className="shrink-0 w-10 h-10 rounded-full flex items-center justify-center bg-destructive/10" style={{ opacity: cancelOpacity }} aria-hidden="true">
                 <Trash2 className="w-5 h-5 text-destructive" />
               </motion.div>
             )}
 
             <div className="flex-1 flex items-center gap-3 bg-muted/20 rounded-full px-4 h-10">
-              <motion.div animate={{ opacity: [1, 0.2, 1] }} transition={{ duration: 1, repeat: Infinity, ease: 'easeInOut' }} className="w-2.5 h-2.5 rounded-full bg-destructive shrink-0" />
-              <span className="text-[13px] font-mono text-foreground tabular-nums tracking-wide">{formatRecordingTime(recordingTime)}</span>
+              <motion.div animate={{ opacity: [1, 0.2, 1] }} transition={{ duration: 1, repeat: Infinity, ease: 'easeInOut' }} className="w-2.5 h-2.5 rounded-full bg-destructive shrink-0" aria-hidden="true" />
+              <span className="text-[13px] font-mono text-foreground tabular-nums tracking-wide" role="timer" aria-label={isAr ? `مدة التسجيل ${formatRecordingTime(recordingTime)}` : `Aufnahmedauer ${formatRecordingTime(recordingTime)}`}>
+                {formatRecordingTime(recordingTime)}
+              </span>
               {!locked ? (
                 <div className="flex-1 flex items-center justify-center gap-1 text-[12px] text-muted-foreground/70">
                   <span className={cn('inline-block transition-transform', isAr ? '-rotate-180' : '')}>‹</span>
@@ -344,7 +350,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
             {/* Lock / Send buttons */}
             {locked ? (
-              <motion.button onClick={stopAndSend} whileTap={{ scale: 0.85 }} className="shrink-0 w-10 h-10 rounded-full bg-primary flex items-center justify-center shadow-md shadow-primary/20">
+              <motion.button onClick={stopAndSend} whileTap={{ scale: 0.85 }} aria-label={isAr ? 'إرسال الرسالة الصوتية' : 'Sprachnachricht senden'} className="shrink-0 w-10 h-10 rounded-full bg-primary flex items-center justify-center shadow-md shadow-primary/20">
                 <Send className="w-5 h-5 text-primary-foreground" style={{ marginInlineStart: '2px' }} />
               </motion.button>
             ) : (
@@ -407,7 +413,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 autoCorrect="on"
                 autoCapitalize="sentences"
                 spellCheck
-                enterKeyHint="send"
+                enterKeyHint={enterToSend ? 'send' : 'enter'}
                 inputMode="text"
                 data-form-type="other"
                 onChange={e => {
@@ -422,7 +428,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 }}
                 onPaste={handlePaste}
                 onKeyDown={e => {
-                  if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
+                  if (e.key === 'Enter' && enterToSend && !e.shiftKey && !e.nativeEvent.isComposing) {
                     e.preventDefault();
                     if (editingMessage) saveEditMessage();
                     else sendMessage();
@@ -441,6 +447,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 transition={{ type: 'spring', damping: 15, stiffness: 400 }}
                 className="shrink-0 w-10 h-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground shadow-md shadow-primary/20 self-end"
                 type="button"
+                aria-label={editingMessage ? (isAr ? 'حفظ التعديل' : 'Änderung speichern') : (isAr ? 'إرسال' : 'Senden')}
                 onPointerDown={(e) => e.preventDefault()}
                 onClick={() => {
                   if (editingMessage) { saveEditMessage(); return; }

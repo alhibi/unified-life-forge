@@ -14,6 +14,7 @@ import ReligiousOccasions from '@/components/ReligiousOccasions';
 import IslamicSections from '@/components/IslamicSections';
 import CurrentTimeSunnah from '@/components/CurrentTimeSunnah';
 import UmmahPulse from '@/components/UmmahPulse';
+import ErrorBoundary from '@/components/ErrorBoundary';
 const ChatDrawer = lazy(() => import('@/components/ChatDrawer'));
 import { useNavigate } from 'react-router-dom';
 import { Sunrise, Sun, Moon, MessageCircle, Newspaper, ClipboardList, X, Trash2, BookOpen, HeartPulse, ShieldCheck } from 'lucide-react';
@@ -201,14 +202,16 @@ export default function Index() {
 
       {createPortal(
         <>
-          <Suspense fallback={null}>
-            <ChatDrawer
-              open={chatOpen}
-              onOpenChange={setChatOpen}
-              unreadCount={unreadCount}
-              onUnreadChange={setUnreadCount}
-            />
-          </Suspense>
+          <ErrorBoundary fallbackTitle={language === 'ar' ? 'حدث خطأ في المحادثة' : 'Fehler im Chat'}>
+            <Suspense fallback={null}>
+              <ChatDrawer
+                open={chatOpen}
+                onOpenChange={setChatOpen}
+                unreadCount={unreadCount}
+                onUnreadChange={setUnreadCount}
+              />
+            </Suspense>
+          </ErrorBoundary>
 
           {/* Clipboard Drawer */}
           <AnimatePresence>
