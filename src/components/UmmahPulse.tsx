@@ -2,68 +2,126 @@ import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '@/contexts/AppContext';
-import { Globe2, X, Maximize2, Search, Sparkles, Sun, MapPin } from 'lucide-react';
+import {
+  Globe2, X, Maximize2, Search, Sparkles, Sun, MapPin,
+  Clock, Compass, Info,
+} from 'lucide-react';
+import {
+  getCityPrayerInfo,
+  qiblaBearing,
+  bearingToCompass,
+  formatLocalMinutes,
+  type CalculationMethodId,
+  type PrayerSlot,
+  METHOD_LABELS,
+  PRAYER_SLOT_ORDER,
+} from '@/utils/prayerAstronomy';
 
 /**
  * Ummah Pulse — a live planetary view of Islamic prayer across the world.
  *
- * Goals of this component:
- *  - Show, in real time, where on Earth each of the five daily prayers is
- *    currently due based on precise solar geometry.
- *  - Highlight the Fajr "wave" sweeping westward each minute as dawn breaks.
- *  - Feel alive: smooth animations, tactile interactions, high-information
- *    density without clutter.
- *
- * Astronomy notes (all self-contained, no external libs):
- *  - Solar declination and Equation of Time are computed from day-of-year.
- *  - The sub-solar longitude accounts for EoT so the sun sits where it
- *    really is (within ~1°), not just at 12:00 UTC nominal.
- *  - Solar altitude is derived exactly from the spherical trig formula.
- *  - Asr timing uses the user's madhab (Hanafi = shadow factor 2, otherwise 1).
+ * Accuracy model (this version):
+ *  - Every city carries its *official calculation method* (MWL, Umm al-Qura,
+ *    Diyanet, UOIF, Karachi, ISNA, etc.) and an IANA timezone.
+ *  - Prayer times are computed locally from sun position (Meeus) + the
+ *    method's angle parameters, matched against the city's real local clock.
+ *  - The "current slot" for a city is therefore aligned with that city's
+ *    official timetable — not just a sun-altitude approximation.
+ *  - The terminator/sun glyph on the globe still uses solar geometry
+ *    (that IS the truth underlying every method), but all city badges
+ *    are driven by the actual prayer times.
  */
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Data: major Muslim-population centers
-// pop = approx Muslim population (millions) in the metro / surrounding region
+// City registry — each carries IANA tz, official method, flag, region, Muslim pop
 // ─────────────────────────────────────────────────────────────────────────────
-type City = { name: string; nameAr: string; lat: number; lng: number; pop: number };
+type Region = 'arab' | 'africa' | 'asia' | 'europe' | 'americas' | 'oceania';
+
+interface City {
+  name: string;
+  nameAr: string;
+  country: string;
+  countryAr: string;
+  flag: string;
+  lat: number;
+  lng: number;
+  tz: string;
+  method: CalculationMethodId;
+  region: Region;
+  /** approx Muslim population (millions) in the metro / surrounding region */
+  pop: number;
+}
 
 const CITIES: City[] = [
-  { name: 'Jakarta',       nameAr: 'جاكرتا',       lat: -6.2,  lng: 106.8, pop: 230 },
-  { name: 'Karachi',       nameAr: 'كراتشي',       lat: 24.9,  lng: 67.0,  pop: 200 },
-  { name: 'Dhaka',         nameAr: 'دكا',          lat: 23.8,  lng: 90.4,  pop: 165 },
-  { name: 'Lahore',        nameAr: 'لاهور',        lat: 31.5,  lng: 74.3,  pop: 130 },
-  { name: 'Cairo',         nameAr: 'القاهرة',      lat: 30.0,  lng: 31.2,  pop: 100 },
-  { name: 'Istanbul',      nameAr: 'إسطنبول',      lat: 41.0,  lng: 28.9,  pop: 85 },
-  { name: 'Makkah',        nameAr: 'مكة المكرمة',  lat: 21.4225, lng: 39.8262, pop: 90 },
-  { name: 'Madinah',       nameAr: 'المدينة',      lat: 24.47, lng: 39.61, pop: 15 },
-  { name: 'Tehran',        nameAr: 'طهران',        lat: 35.7,  lng: 51.4,  pop: 70 },
-  { name: 'Riyadh',        nameAr: 'الرياض',       lat: 24.7,  lng: 46.7,  pop: 60 },
-  { name: 'Baghdad',       nameAr: 'بغداد',        lat: 33.3,  lng: 44.4,  pop: 65 },
-  { name: 'Kuala Lumpur',  nameAr: 'كوالالمبور',   lat: 3.1,   lng: 101.7, pop: 60 },
-  { name: 'Casablanca',    nameAr: 'الدار البيضاء', lat: 33.6, lng: -7.6,  pop: 55 },
-  { name: 'Algiers',       nameAr: 'الجزائر',      lat: 36.7,  lng: 3.1,   pop: 50 },
-  { name: 'Tunis',         nameAr: 'تونس',         lat: 36.8,  lng: 10.2,  pop: 35 },
-  { name: 'Khartoum',      nameAr: 'الخرطوم',      lat: 15.6,  lng: 32.5,  pop: 45 },
-  { name: 'Lagos',         nameAr: 'لاغوس',        lat: 6.5,   lng: 3.4,   pop: 55 },
-  { name: 'Damascus',      nameAr: 'دمشق',         lat: 33.5,  lng: 36.3,  pop: 30 },
-  { name: 'Amman',         nameAr: 'عمّان',        lat: 31.95, lng: 35.9,  pop: 25 },
-  { name: 'Sanaa',         nameAr: 'صنعاء',        lat: 15.4,  lng: 44.2,  pop: 30 },
-  { name: 'Tashkent',      nameAr: 'طشقند',        lat: 41.3,  lng: 69.2,  pop: 35 },
-  { name: 'Kabul',         nameAr: 'كابول',        lat: 34.5,  lng: 69.2,  pop: 45 },
-  { name: 'Mumbai',        nameAr: 'مومباي',       lat: 19.1,  lng: 72.9,  pop: 70 },
-  { name: 'Delhi',         nameAr: 'دلهي',         lat: 28.6,  lng: 77.2,  pop: 45 },
-  { name: 'London',        nameAr: 'لندن',         lat: 51.5,  lng: -0.1,  pop: 12 },
-  { name: 'Paris',         nameAr: 'باريس',        lat: 48.9,  lng: 2.4,   pop: 10 },
-  { name: 'Berlin',        nameAr: 'برلين',        lat: 52.5,  lng: 13.4,  pop: 8 },
-  { name: 'Moscow',        nameAr: 'موسكو',        lat: 55.75, lng: 37.6,  pop: 20 },
-  { name: 'New York',      nameAr: 'نيويورك',      lat: 40.7,  lng: -74.0, pop: 12 },
-  { name: 'Toronto',       nameAr: 'تورنتو',       lat: 43.65, lng: -79.4, pop: 5 },
-  { name: 'Sydney',        nameAr: 'سيدني',        lat: -33.9, lng: 151.2, pop: 3 },
+  { name: 'Makkah',        nameAr: 'مكة المكرمة',  country: 'Saudi Arabia',  countryAr: 'السعودية',   flag: '🇸🇦', lat: 21.4225, lng: 39.8262, tz: 'Asia/Riyadh',       method: 'UmmAlQura', region: 'arab',     pop: 90 },
+  { name: 'Madinah',       nameAr: 'المدينة',      country: 'Saudi Arabia',  countryAr: 'السعودية',   flag: '🇸🇦', lat: 24.4672, lng: 39.6142, tz: 'Asia/Riyadh',       method: 'UmmAlQura', region: 'arab',     pop: 15 },
+  { name: 'Riyadh',        nameAr: 'الرياض',       country: 'Saudi Arabia',  countryAr: 'السعودية',   flag: '🇸🇦', lat: 24.7136, lng: 46.6753, tz: 'Asia/Riyadh',       method: 'UmmAlQura', region: 'arab',     pop: 60 },
+  { name: 'Cairo',         nameAr: 'القاهرة',      country: 'Egypt',         countryAr: 'مصر',        flag: '🇪🇬', lat: 30.0444, lng: 31.2357, tz: 'Africa/Cairo',      method: 'Egyptian',  region: 'arab',     pop: 100 },
+  { name: 'Baghdad',       nameAr: 'بغداد',        country: 'Iraq',          countryAr: 'العراق',     flag: '🇮🇶', lat: 33.3152, lng: 44.3661, tz: 'Asia/Baghdad',      method: 'MWL',       region: 'arab',     pop: 65 },
+  { name: 'Damascus',      nameAr: 'دمشق',         country: 'Syria',         countryAr: 'سوريا',      flag: '🇸🇾', lat: 33.5138, lng: 36.2765, tz: 'Asia/Damascus',     method: 'MWL',       region: 'arab',     pop: 30 },
+  { name: 'Amman',         nameAr: 'عمّان',        country: 'Jordan',        countryAr: 'الأردن',     flag: '🇯🇴', lat: 31.9539, lng: 35.9106, tz: 'Asia/Amman',        method: 'MWL',       region: 'arab',     pop: 25 },
+  { name: 'Sanaa',         nameAr: 'صنعاء',        country: 'Yemen',         countryAr: 'اليمن',      flag: '🇾🇪', lat: 15.3694, lng: 44.1910, tz: 'Asia/Aden',         method: 'MWL',       region: 'arab',     pop: 30 },
+  { name: 'Dubai',         nameAr: 'دبي',          country: 'UAE',           countryAr: 'الإمارات',   flag: '🇦🇪', lat: 25.2048, lng: 55.2708, tz: 'Asia/Dubai',        method: 'Dubai',     region: 'arab',     pop: 9 },
+  { name: 'Doha',          nameAr: 'الدوحة',       country: 'Qatar',         countryAr: 'قطر',        flag: '🇶🇦', lat: 25.2854, lng: 51.5310, tz: 'Asia/Qatar',        method: 'Qatar',     region: 'arab',     pop: 3 },
+  { name: 'Kuwait City',   nameAr: 'الكويت',       country: 'Kuwait',        countryAr: 'الكويت',     flag: '🇰🇼', lat: 29.3759, lng: 47.9774, tz: 'Asia/Kuwait',       method: 'Kuwait',    region: 'arab',     pop: 4 },
+  { name: 'Manama',        nameAr: 'المنامة',      country: 'Bahrain',       countryAr: 'البحرين',    flag: '🇧🇭', lat: 26.2285, lng: 50.5860, tz: 'Asia/Bahrain',      method: 'Kuwait',    region: 'arab',     pop: 1.4 },
+  { name: 'Muscat',        nameAr: 'مسقط',         country: 'Oman',          countryAr: 'عُمان',      flag: '🇴🇲', lat: 23.5880, lng: 58.3829, tz: 'Asia/Muscat',       method: 'Kuwait',    region: 'arab',     pop: 4 },
+  { name: 'Beirut',        nameAr: 'بيروت',        country: 'Lebanon',       countryAr: 'لبنان',      flag: '🇱🇧', lat: 33.8938, lng: 35.5018, tz: 'Asia/Beirut',       method: 'MWL',       region: 'arab',     pop: 3 },
+  { name: 'Jerusalem',     nameAr: 'القدس',        country: 'Palestine',     countryAr: 'فلسطين',     flag: '🇵🇸', lat: 31.7683, lng: 35.2137, tz: 'Asia/Hebron',       method: 'MWL',       region: 'arab',     pop: 5 },
+  { name: 'Gaza',          nameAr: 'غزة',          country: 'Palestine',     countryAr: 'فلسطين',     flag: '🇵🇸', lat: 31.5018, lng: 34.4668, tz: 'Asia/Gaza',         method: 'MWL',       region: 'arab',     pop: 2 },
+  { name: 'Khartoum',      nameAr: 'الخرطوم',      country: 'Sudan',         countryAr: 'السودان',    flag: '🇸🇩', lat: 15.5007, lng: 32.5599, tz: 'Africa/Khartoum',   method: 'MWL',       region: 'africa',   pop: 45 },
+  { name: 'Tripoli',       nameAr: 'طرابلس',       country: 'Libya',         countryAr: 'ليبيا',      flag: '🇱🇾', lat: 32.8872, lng: 13.1913, tz: 'Africa/Tripoli',    method: 'MWL',       region: 'africa',   pop: 6 },
+  { name: 'Tunis',         nameAr: 'تونس',         country: 'Tunisia',       countryAr: 'تونس',       flag: '🇹🇳', lat: 36.8065, lng: 10.1815, tz: 'Africa/Tunis',      method: 'Algerian',  region: 'africa',   pop: 11 },
+  { name: 'Algiers',       nameAr: 'الجزائر',      country: 'Algeria',       countryAr: 'الجزائر',    flag: '🇩🇿', lat: 36.7538, lng: 3.0588,  tz: 'Africa/Algiers',    method: 'Algerian',  region: 'africa',   pop: 42 },
+  { name: 'Casablanca',    nameAr: 'الدار البيضاء',country: 'Morocco',       countryAr: 'المغرب',     flag: '🇲🇦', lat: 33.5731, lng: -7.5898, tz: 'Africa/Casablanca', method: 'Morocco',   region: 'africa',   pop: 34 },
+  { name: 'Nouakchott',    nameAr: 'نواكشوط',      country: 'Mauritania',    countryAr: 'موريتانيا',  flag: '🇲🇷', lat: 18.0735, lng: -15.9582,tz: 'Africa/Nouakchott', method: 'MWL',       region: 'africa',   pop: 4 },
+  { name: 'Dakar',         nameAr: 'داكار',        country: 'Senegal',       countryAr: 'السنغال',    flag: '🇸🇳', lat: 14.7167, lng: -17.4677,tz: 'Africa/Dakar',      method: 'MWL',       region: 'africa',   pop: 14 },
+  { name: 'Lagos',         nameAr: 'لاغوس',        country: 'Nigeria',       countryAr: 'نيجيريا',    flag: '🇳🇬', lat: 6.5244,  lng: 3.3792,  tz: 'Africa/Lagos',      method: 'MWL',       region: 'africa',   pop: 55 },
+  { name: 'Mogadishu',     nameAr: 'مقديشو',       country: 'Somalia',       countryAr: 'الصومال',    flag: '🇸🇴', lat: 2.0469,  lng: 45.3182, tz: 'Africa/Mogadishu',  method: 'MWL',       region: 'africa',   pop: 15 },
+  { name: 'Istanbul',      nameAr: 'إسطنبول',      country: 'Türkiye',       countryAr: 'تركيا',      flag: '🇹🇷', lat: 41.0082, lng: 28.9784, tz: 'Europe/Istanbul',   method: 'Turkey',    region: 'europe',   pop: 85 },
+  { name: 'Ankara',        nameAr: 'أنقرة',        country: 'Türkiye',       countryAr: 'تركيا',      flag: '🇹🇷', lat: 39.9334, lng: 32.8597, tz: 'Europe/Istanbul',   method: 'Turkey',    region: 'europe',   pop: 6 },
+  { name: 'Tehran',        nameAr: 'طهران',        country: 'Iran',          countryAr: 'إيران',      flag: '🇮🇷', lat: 35.6892, lng: 51.3890, tz: 'Asia/Tehran',       method: 'Tehran',    region: 'asia',     pop: 70 },
+  { name: 'Kabul',         nameAr: 'كابول',        country: 'Afghanistan',   countryAr: 'أفغانستان',  flag: '🇦🇫', lat: 34.5553, lng: 69.2075, tz: 'Asia/Kabul',        method: 'Karachi',   region: 'asia',     pop: 45 },
+  { name: 'Tashkent',      nameAr: 'طشقند',        country: 'Uzbekistan',    countryAr: 'أوزبكستان',  flag: '🇺🇿', lat: 41.2995, lng: 69.2401, tz: 'Asia/Tashkent',     method: 'Karachi',   region: 'asia',     pop: 35 },
+  { name: 'Baku',          nameAr: 'باكو',         country: 'Azerbaijan',    countryAr: 'أذربيجان',   flag: '🇦🇿', lat: 40.4093, lng: 49.8671, tz: 'Asia/Baku',         method: 'Tehran',    region: 'asia',     pop: 10 },
+  { name: 'Karachi',       nameAr: 'كراتشي',       country: 'Pakistan',      countryAr: 'باكستان',    flag: '🇵🇰', lat: 24.8607, lng: 67.0011, tz: 'Asia/Karachi',      method: 'Karachi',   region: 'asia',     pop: 200 },
+  { name: 'Lahore',        nameAr: 'لاهور',        country: 'Pakistan',      countryAr: 'باكستان',    flag: '🇵🇰', lat: 31.5497, lng: 74.3436, tz: 'Asia/Karachi',      method: 'Karachi',   region: 'asia',     pop: 130 },
+  { name: 'Islamabad',     nameAr: 'إسلام آباد',   country: 'Pakistan',      countryAr: 'باكستان',    flag: '🇵🇰', lat: 33.6844, lng: 73.0479, tz: 'Asia/Karachi',      method: 'Karachi',   region: 'asia',     pop: 12 },
+  { name: 'Dhaka',         nameAr: 'دكا',          country: 'Bangladesh',    countryAr: 'بنغلاديش',   flag: '🇧🇩', lat: 23.8103, lng: 90.4125, tz: 'Asia/Dhaka',        method: 'Karachi',   region: 'asia',     pop: 165 },
+  { name: 'Delhi',         nameAr: 'دلهي',         country: 'India',         countryAr: 'الهند',      flag: '🇮🇳', lat: 28.6139, lng: 77.2090, tz: 'Asia/Kolkata',      method: 'Karachi',   region: 'asia',     pop: 45 },
+  { name: 'Mumbai',        nameAr: 'مومباي',       country: 'India',         countryAr: 'الهند',      flag: '🇮🇳', lat: 19.0760, lng: 72.8777, tz: 'Asia/Kolkata',      method: 'Karachi',   region: 'asia',     pop: 70 },
+  { name: 'Hyderabad',     nameAr: 'حيدر آباد',    country: 'India',         countryAr: 'الهند',      flag: '🇮🇳', lat: 17.3850, lng: 78.4867, tz: 'Asia/Kolkata',      method: 'Karachi',   region: 'asia',     pop: 30 },
+  { name: 'Jakarta',       nameAr: 'جاكرتا',       country: 'Indonesia',     countryAr: 'إندونيسيا',  flag: '🇮🇩', lat: -6.2088, lng: 106.8456,tz: 'Asia/Jakarta',      method: 'Singapore', region: 'asia',     pop: 230 },
+  { name: 'Surabaya',      nameAr: 'سورابايا',     country: 'Indonesia',     countryAr: 'إندونيسيا',  flag: '🇮🇩', lat: -7.2575, lng: 112.7521,tz: 'Asia/Jakarta',      method: 'Singapore', region: 'asia',     pop: 40 },
+  { name: 'Kuala Lumpur',  nameAr: 'كوالالمبور',   country: 'Malaysia',      countryAr: 'ماليزيا',    flag: '🇲🇾', lat: 3.1390,  lng: 101.6869,tz: 'Asia/Kuala_Lumpur', method: 'Singapore', region: 'asia',     pop: 60 },
+  { name: 'Singapore',     nameAr: 'سنغافورة',     country: 'Singapore',     countryAr: 'سنغافورة',   flag: '🇸🇬', lat: 1.3521,  lng: 103.8198,tz: 'Asia/Singapore',    method: 'Singapore', region: 'asia',     pop: 0.9 },
+  { name: 'Brunei',        nameAr: 'بروناي',       country: 'Brunei',        countryAr: 'بروناي',     flag: '🇧🇳', lat: 4.9031,  lng: 114.9398,tz: 'Asia/Brunei',       method: 'Singapore', region: 'asia',     pop: 0.4 },
+  { name: 'Moscow',        nameAr: 'موسكو',        country: 'Russia',        countryAr: 'روسيا',      flag: '🇷🇺', lat: 55.7558, lng: 37.6173, tz: 'Europe/Moscow',     method: 'Russia',    region: 'europe',   pop: 20 },
+  { name: 'Sarajevo',      nameAr: 'سراييفو',      country: 'Bosnia',        countryAr: 'البوسنة',    flag: '🇧🇦', lat: 43.8563, lng: 18.4131, tz: 'Europe/Sarajevo',   method: 'MWL',       region: 'europe',   pop: 2 },
+  { name: 'Tirana',        nameAr: 'تيرانا',       country: 'Albania',       countryAr: 'ألبانيا',    flag: '🇦🇱', lat: 41.3275, lng: 19.8187, tz: 'Europe/Tirane',     method: 'MWL',       region: 'europe',   pop: 2 },
+  { name: 'London',        nameAr: 'لندن',         country: 'United Kingdom',countryAr: 'بريطانيا',   flag: '🇬🇧', lat: 51.5074, lng: -0.1278, tz: 'Europe/London',     method: 'MWL',       region: 'europe',   pop: 12 },
+  { name: 'Paris',         nameAr: 'باريس',        country: 'France',        countryAr: 'فرنسا',      flag: '🇫🇷', lat: 48.8566, lng: 2.3522,  tz: 'Europe/Paris',      method: 'UOIF',      region: 'europe',   pop: 10 },
+  { name: 'Berlin',        nameAr: 'برلين',        country: 'Germany',       countryAr: 'ألمانيا',    flag: '🇩🇪', lat: 52.5200, lng: 13.4050, tz: 'Europe/Berlin',     method: 'MWL',       region: 'europe',   pop: 8 },
+  { name: 'Rome',          nameAr: 'روما',         country: 'Italy',         countryAr: 'إيطاليا',    flag: '🇮🇹', lat: 41.9028, lng: 12.4964, tz: 'Europe/Rome',       method: 'MWL',       region: 'europe',   pop: 3 },
+  { name: 'Madrid',        nameAr: 'مدريد',        country: 'Spain',         countryAr: 'إسبانيا',    flag: '🇪🇸', lat: 40.4168, lng: -3.7038, tz: 'Europe/Madrid',     method: 'MWL',       region: 'europe',   pop: 2 },
+  { name: 'New York',      nameAr: 'نيويورك',      country: 'United States', countryAr: 'أمريكا',     flag: '🇺🇸', lat: 40.7128, lng: -74.0060,tz: 'America/New_York',  method: 'ISNA',      region: 'americas', pop: 12 },
+  { name: 'Chicago',       nameAr: 'شيكاغو',       country: 'United States', countryAr: 'أمريكا',     flag: '🇺🇸', lat: 41.8781, lng: -87.6298,tz: 'America/Chicago',   method: 'ISNA',      region: 'americas', pop: 4 },
+  { name: 'Los Angeles',   nameAr: 'لوس أنجلوس',   country: 'United States', countryAr: 'أمريكا',     flag: '🇺🇸', lat: 34.0522, lng: -118.2437,tz:'America/Los_Angeles',method: 'ISNA',      region: 'americas', pop: 3 },
+  { name: 'Toronto',       nameAr: 'تورنتو',       country: 'Canada',        countryAr: 'كندا',       flag: '🇨🇦', lat: 43.6532, lng: -79.3832,tz: 'America/Toronto',   method: 'ISNA',      region: 'americas', pop: 5 },
+  { name: 'Sydney',        nameAr: 'سيدني',        country: 'Australia',     countryAr: 'أستراليا',   flag: '🇦🇺', lat: -33.8688,lng: 151.2093,tz: 'Australia/Sydney',  method: 'MWL',       region: 'oceania',  pop: 3 },
 ];
 
+const REGION_LABELS: Record<Region, { ar: string; de: string }> = {
+  arab:     { ar: 'العالم العربي',   de: 'Arab. Welt' },
+  africa:   { ar: 'أفريقيا',          de: 'Afrika' },
+  asia:     { ar: 'آسيا',             de: 'Asien' },
+  europe:   { ar: 'أوروبا',           de: 'Europa' },
+  americas: { ar: 'الأمريكتان',       de: 'Amerika' },
+  oceania:  { ar: 'أوقيانوسيا',       de: 'Ozeanien' },
+};
+
 // ─────────────────────────────────────────────────────────────────────────────
-// Projection — simple equirectangular onto a 360×180 virtual canvas
+// Map projection
 // ─────────────────────────────────────────────────────────────────────────────
 const W = 360;
 const H = 180;
@@ -73,235 +131,91 @@ const project = (lat: number, lng: number) => ({
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Astronomy
+// Terminator (night shading) — solar geometry
 // ─────────────────────────────────────────────────────────────────────────────
-function dayOfYear(d: Date): number {
-  const start = Date.UTC(d.getUTCFullYear(), 0, 0);
-  return (d.getTime() - start) / 86400000;
+const RAD = Math.PI / 180;
+
+function getSubsolar(date: Date): { lng: number; decl: number } {
+  const D = date.getTime() / 86400000 - 10957.5; // days from J2000
+  const g = ((357.529 + 0.98560028 * D) % 360 + 360) % 360;
+  const q = ((280.459 + 0.98564736 * D) % 360 + 360) % 360;
+  const L = (q + 1.915 * Math.sin(g * RAD) + 0.020 * Math.sin(2 * g * RAD)) % 360;
+  const e = 23.439 - 0.00000036 * D;
+  const decl = Math.asin(Math.sin(e * RAD) * Math.sin(L * RAD)) / RAD;
+  const RAh = Math.atan2(Math.cos(e * RAD) * Math.sin(L * RAD), Math.cos(L * RAD)) / RAD / 15;
+  let eot = q / 15 - ((RAh + 24) % 24);
+  if (eot > 12)  eot -= 24;
+  if (eot < -12) eot += 24;
+  const utcMin = date.getUTCHours() * 60 + date.getUTCMinutes() + date.getUTCSeconds() / 60;
+  const subLng = -((utcMin + eot * 60 - 720) / 4);
+  return { lng: ((subLng + 540) % 360) - 180, decl };
 }
 
-/** Solar declination (deg) — Spencer's formula approximation. */
-function getSolarDeclination(d: Date): number {
-  const n = dayOfYear(d);
-  const gamma = (2 * Math.PI / 365) * (n - 1);
-  const decl =
-    0.006918 -
-    0.399912 * Math.cos(gamma) +
-    0.070257 * Math.sin(gamma) -
-    0.006758 * Math.cos(2 * gamma) +
-    0.000907 * Math.sin(2 * gamma) -
-    0.002697 * Math.cos(3 * gamma) +
-    0.00148  * Math.sin(3 * gamma);
-  return (decl * 180) / Math.PI;
-}
-
-/** Equation of time (minutes) — difference between apparent and mean solar time. */
-function getEquationOfTime(d: Date): number {
-  const n = dayOfYear(d);
-  const gamma = (2 * Math.PI / 365) * (n - 1);
-  const eot =
-    229.18 *
-    (0.000075 +
-      0.001868 * Math.cos(gamma) -
-      0.032077 * Math.sin(gamma) -
-      0.014615 * Math.cos(2 * gamma) -
-      0.040849 * Math.sin(2 * gamma));
-  return eot; // minutes
-}
-
-/** Longitude of the subsolar point (where the sun is directly overhead), deg. */
-function getSubsolarLng(d: Date): number {
-  const utcMinutes = d.getUTCHours() * 60 + d.getUTCMinutes() + d.getUTCSeconds() / 60;
-  const eot = getEquationOfTime(d);
-  // Solar noon at Greenwich happens at (720 - EoT) UTC minutes.
-  // Subsolar longitude = -(utcMinutes + eot - 720) / 4   (4 min per degree)
-  return -((utcMinutes + eot - 720) / 4);
-}
-
-/** Signed solar altitude (deg) at a given lat/lng and time. */
-function getSolarAltitude(lat: number, lng: number, d: Date): number {
-  const decl = (getSolarDeclination(d) * Math.PI) / 180;
-  const subLng = getSubsolarLng(d);
-  const hourAngle = (((lng - subLng + 540) % 360) - 180) * Math.PI / 180;
-  const latR = (lat * Math.PI) / 180;
-  const sinAlt =
-    Math.sin(latR) * Math.sin(decl) +
-    Math.cos(latR) * Math.cos(decl) * Math.cos(hourAngle);
-  return (Math.asin(Math.max(-1, Math.min(1, sinAlt))) * 180) / Math.PI;
-}
-
-/** True if observer is on the morning side of solar noon (sun rising). */
-function isMorningSide(lat: number, lng: number, d: Date): boolean {
-  const subLng = getSubsolarLng(d);
-  const hourAngle = ((lng - subLng + 540) % 360) - 180;
-  return hourAngle > 0;
-}
-
-/**
- * Build SVG path(s) for the night hemisphere, correctly handling
- * antimeridian wrap. Returns an array of path `d` strings to render.
- *
- * Strategy: compute the terminator polygon in *unwrapped* longitude space
- * (lng values may exceed ±180), then draw the same path three times at
- * offsets -W, 0, +W. The SVG viewBox clips the visible slice.
- */
 function buildNightPaths(date: Date): string[] {
-  const subLng = getSubsolarLng(date);
-  const declRad = (getSolarDeclination(date) * Math.PI) / 180;
-
-  // Walk from south pole to north pole along the EASTERN (sunset) terminator,
-  // then back from north to south along the WESTERN (sunrise) terminator.
-  // Both expressed relative to subLng so the polygon is always contiguous.
+  const { lng: subLng, decl } = getSubsolar(date);
+  const declRad = decl * RAD;
   const pts: { lng: number; lat: number }[] = [];
 
   for (let lat = -90; lat <= 90; lat += 2) {
-    const latR = (lat * Math.PI) / 180;
+    const latR = lat * RAD;
     const cosH = -Math.tan(latR) * Math.tan(declRad);
-    if (cosH >= 1) {
-      pts.push({ lng: subLng + 180, lat }); // polar night — on antimeridian
-      continue;
-    }
-    if (cosH <= -1) continue; // midnight sun — skip, polygon wraps past it
-    const H_ang = (Math.acos(cosH) * 180) / Math.PI;
-    pts.push({ lng: subLng + H_ang, lat }); // eastern terminator
+    if (cosH >= 1)  { pts.push({ lng: subLng + 180, lat }); continue; }
+    if (cosH <= -1) continue;
+    const H_ang = Math.acos(cosH) / RAD;
+    pts.push({ lng: subLng + H_ang, lat });
   }
   for (let lat = 90; lat >= -90; lat -= 2) {
-    const latR = (lat * Math.PI) / 180;
+    const latR = lat * RAD;
     const cosH = -Math.tan(latR) * Math.tan(declRad);
-    if (cosH >= 1) {
-      pts.push({ lng: subLng - 180, lat });
-      continue;
-    }
+    if (cosH >= 1)  { pts.push({ lng: subLng - 180, lat }); continue; }
     if (cosH <= -1) continue;
-    const H_ang = (Math.acos(cosH) * 180) / Math.PI;
-    pts.push({ lng: subLng + 360 - H_ang, lat }); // western terminator (far side)
+    const H_ang = Math.acos(cosH) / RAD;
+    pts.push({ lng: subLng + 360 - H_ang, lat });
   }
 
-  // Base path in unwrapped space
-  const base =
-    pts
-      .map((p, i) => {
-        const x = ((p.lng + 180) / 360) * W;
-        const y = ((90 - p.lat) / 180) * H;
-        return `${i === 0 ? 'M' : 'L'}${x.toFixed(1)},${y.toFixed(1)}`;
-      })
-      .join(' ') + ' Z';
-
-  // Render shifted copies so wrapping is handled at the viewBox edges.
   const shift = (dx: number) =>
-    pts
-      .map((p, i) => {
-        const x = ((p.lng + 180) / 360) * W + dx;
-        const y = ((90 - p.lat) / 180) * H;
-        return `${i === 0 ? 'M' : 'L'}${x.toFixed(1)},${y.toFixed(1)}`;
-      })
-      .join(' ') + ' Z';
+    pts.map((p, i) => {
+      const x = ((p.lng + 180) / 360) * W + dx;
+      const y = ((90 - p.lat) / 180) * H;
+      return `${i === 0 ? 'M' : 'L'}${x.toFixed(1)},${y.toFixed(1)}`;
+    }).join(' ') + ' Z';
 
-  return [shift(-W), base, shift(W)];
+  return [shift(-W), shift(0), shift(W)];
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Prayer slots
+// UI meta
 // ─────────────────────────────────────────────────────────────────────────────
-type PrayerSlot =
-  | 'fajr' | 'shuruq' | 'duha' | 'dhuhr' | 'asr'
-  | 'maghrib' | 'isha' | 'night';
-
-const SLOT_ORDER: PrayerSlot[] = ['fajr', 'shuruq', 'duha', 'dhuhr', 'asr', 'maghrib', 'isha', 'night'];
-
 const SLOT_META: Record<PrayerSlot, { ar: string; de: string; color: string }> = {
-  fajr:    { ar: 'الفجر',   de: 'Fadschr',    color: 'hsl(42, 100%, 62%)' },
-  shuruq:  { ar: 'الشروق',  de: 'Sonnenaufg.', color: 'hsl(28, 95%, 60%)' },
-  duha:    { ar: 'الضحى',   de: 'Duha',        color: 'hsl(48, 90%, 55%)' },
+  fajr:    { ar: 'الفجر',   de: 'Fadschr',     color: 'hsl(42, 100%, 62%)' },
+  shuruq:  { ar: 'الشروق',  de: 'Sonnenaufg.', color: 'hsl(28, 95%, 60%)'  },
+  duha:    { ar: 'الضحى',   de: 'Duha',        color: 'hsl(48, 90%, 55%)'  },
   dhuhr:   { ar: 'الظهر',   de: 'Dhuhr',       color: 'hsl(200, 78%, 58%)' },
-  asr:     { ar: 'العصر',   de: 'Asr',         color: 'hsl(22, 75%, 55%)' },
+  asr:     { ar: 'العصر',   de: 'Asr',         color: 'hsl(22, 75%, 55%)'  },
   maghrib: { ar: 'المغرب',  de: 'Maghrib',     color: 'hsl(340, 72%, 55%)' },
   isha:    { ar: 'العشاء',  de: 'Ischa',       color: 'hsl(250, 60%, 58%)' },
   night:   { ar: 'الليل',   de: 'Nacht',       color: 'hsl(220, 30%, 45%)' },
 };
 
-/**
- * Classify the "current prayer slot" for a city.
- *   shadowFactor: 1 for Shafi'i/Maliki/Hanbali, 2 for Hanafi (Asr timing).
- */
-function getCityPrayerSlot(lat: number, lng: number, d: Date, shadowFactor = 1): PrayerSlot {
-  const altDeg = getSolarAltitude(lat, lng, d);
-  const morning = isMorningSide(lat, lng, d);
-
-  // Deep night — sun far below horizon (below Isha threshold).
-  if (altDeg < -18) return 'night';
-
-  // Twilight zones. -18° to -0.833° (refraction-adjusted horizon).
-  if (altDeg < -0.833) return morning ? 'fajr' : 'isha';
-
-  // Sunrise / sunset bands — ~7 min on each side.
-  if (altDeg < 3) return morning ? 'shuruq' : 'maghrib';
-
-  // Compute Asr altitude (sun altitude when shadow = shadowFactor + noon-shadow).
-  // altAsr = arccot(shadowFactor + tan(|lat - decl|))
-  const decl = getSolarDeclination(d);
-  const absLatMinusDecl = Math.abs(lat - decl) * Math.PI / 180;
-  const altAsr = (Math.atan(1 / (shadowFactor + Math.tan(absLatMinusDecl))) * 180) / Math.PI;
-
-  if (!morning) {
-    // Afternoon side: Asr begins when sun drops to altAsr.
-    if (altDeg <= altAsr) return 'asr';
-    return 'dhuhr';
-  }
-
-  // Morning side: Duha runs from after sunrise until zenith.
-  // We call "Dhuhr" the narrow band near solar noon (|hourAngle| < ~0.5h).
-  const subLng = getSubsolarLng(d);
-  const hourAngleDeg = Math.abs((((lng - subLng + 540) % 360) - 180));
-  if (hourAngleDeg < 7.5) return 'dhuhr'; // ±30 min around solar noon
-  return 'duha';
-}
-
-/** Local clock time for a longitude (approximated as UTC ± lng/15). */
-function getCityLocalTime(lng: number, d: Date): string {
-  const ms = d.getTime() + (lng / 15) * 3600_000
-    // cancel the browser's own local offset so longitude alone drives it
-    + d.getTimezoneOffset() * 60_000;
-  const dt = new Date(ms);
-  return `${dt.getHours().toString().padStart(2, '0')}:${dt.getMinutes().toString().padStart(2, '0')}`;
-}
-
 // ─────────────────────────────────────────────────────────────────────────────
-// Simplified continents — equirectangular (W=360, H=180).
-// Hand-traced outline: accurate enough to be instantly recognizable yet light.
+// Simplified continents (equirectangular, W=360, H=180)
 // ─────────────────────────────────────────────────────────────────────────────
 const CONTINENTS = [
-  // Africa
   'M163,69 L174,55 L191,57 L202,58 L212,59 L216,75 L231,79 L220,95 L215,115 L200,125 L198,124 L188,95 L180,85 L170,83 L163,76 Z',
-  // Eurasia (large landmass, incl. India, SE Asia, Arabia)
   'M170,54 L183,47 L181,40 L178,39 L188,35 L200,31 L210,30 L220,24 L240,23 L280,15 L315,18 L350,22 L348,30 L330,38 L325,48 L320,53 L308,55 L302,60 L290,70 L282,78 L278,82 L260,83 L252,68 L248,65 L240,65 L238,67 L232,64 L227,60 L220,55 L215,54 L210,53 L204,54 L195,52 L188,51 L175,54 Z',
-  // British Isles
   'M174,36 L182,34 L181,42 L175,44 Z',
-  // Scandinavia
   'M188,25 L210,20 L215,28 L205,36 L195,34 Z',
-  // Japan
   'M318,48 L325,45 L322,52 L316,55 Z',
-  // North America
   'M12,24 L39,20 L55,18 L80,18 L95,24 L105,29 L115,42 L100,46 L99,59 L93,60 L83,64 L73,67 L62,57 L56,50 L50,35 L30,30 Z',
-  // Greenland
   'M125,12 L155,8 L165,12 L160,22 L140,25 L128,22 Z',
-  // Central America + Caribbean
   'M85,68 L95,70 L103,74 L100,78 L90,76 Z',
-  // South America
   'M102,78 L120,83 L130,90 L145,98 L142,113 L132,120 L123,125 L109,143 L105,137 L108,125 L100,102 Z',
-  // Australia
   'M293,112 L302,107 L311,102 L321,102 L325,107 L334,115 L329,127 L321,128 L296,125 L294,116 Z',
-  // New Zealand
   'M348,128 L354,126 L352,136 L346,134 Z',
-  // Indonesia
   'M275,85 L286,84 L300,84 L311,90 L320,92 L320,98 L310,98 L295,99 L285,98 L275,92 Z',
-  // Madagascar
   'M228,112 L233,110 L234,122 L229,124 Z',
-  // Arabian Peninsula tip (Yemen/Oman) — thicken
   'M228,72 L246,72 L245,82 L230,80 Z',
-  // Philippines
   'M308,82 L314,80 L315,90 L310,92 Z',
-  // Iceland
   'M158,25 L166,23 L167,30 L158,31 Z',
 ].join(' ');
 
@@ -314,16 +228,17 @@ function UmmahPulse() {
   const [expanded, setExpanded] = useState(false);
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
   const [filter, setFilter] = useState<PrayerSlot | 'all'>('all');
+  const [regionFilter, setRegionFilter] = useState<Region | 'all'>('all');
   const [search, setSearch] = useState('');
-  const shadowFactor = prayerMadhab === 'hanafi' ? 2 : 1;
+  const shadowFactor: 1 | 2 = prayerMadhab === 'hanafi' ? 2 : 1;
 
-  // Tick clock. Faster in expanded mode for smoother visuals.
+  // Clock tick — every 15s in expanded view, every 60s compact
   useEffect(() => {
-    const id = setInterval(() => setNow(new Date()), expanded ? 15_000 : 45_000);
+    const id = setInterval(() => setNow(new Date()), expanded ? 15_000 : 60_000);
     return () => clearInterval(id);
   }, [expanded]);
 
-  // Lock body scroll while modal is open
+  // Lock body scroll when modal is open
   useEffect(() => {
     if (!expanded) return;
     const prev = document.body.style.overflow;
@@ -331,7 +246,7 @@ function UmmahPulse() {
     return () => { document.body.style.overflow = prev; };
   }, [expanded]);
 
-  // Keyboard: Esc closes modal, Esc also clears selection
+  // Esc closes (selection first, then modal)
   useEffect(() => {
     if (!expanded && !selectedCity) return;
     const onKey = (e: KeyboardEvent) => {
@@ -343,47 +258,41 @@ function UmmahPulse() {
     return () => window.removeEventListener('keydown', onKey);
   }, [expanded, selectedCity]);
 
+  const { lng: subLng, decl: subLat } = useMemo(() => getSubsolar(now), [now]);
   const nightPaths = useMemo(() => buildNightPaths(now), [now]);
-  const subLng = getSubsolarLng(now);
-  const subLat = getSolarDeclination(now);
   const sunPoint = project(subLat, subLng);
 
-  // Compute slot + local time + altitude for every city (recomputed each tick)
+  // Compute per-city prayer info (recomputed every tick)
   const cityDetails = useMemo(
     () =>
       CITIES.map((c) => {
-        const slot = getCityPrayerSlot(c.lat, c.lng, now, shadowFactor);
-        return {
-          ...c,
-          slot,
-          altitude: getSolarAltitude(c.lat, c.lng, now),
-          localTime: getCityLocalTime(c.lng, now),
-        };
+        const info = getCityPrayerInfo(c.lat, c.lng, c.tz, c.method, now, shadowFactor);
+        return { ...c, info };
       }),
     [now, shadowFactor]
   );
 
   const fajrCities = useMemo(
-    () => cityDetails.filter((c) => c.slot === 'fajr'),
+    () => cityDetails.filter((c) => c.info.slot === 'fajr'),
     [cityDetails]
   );
   const maghribCities = useMemo(
-    () => cityDetails.filter((c) => c.slot === 'maghrib'),
+    () => cityDetails.filter((c) => c.info.slot === 'maghrib'),
     [cityDetails]
   );
 
-  // Aggregate Muslim pop (millions) per slot
+  // Aggregate Muslim pop per slot
   const slotPop = useMemo(() => {
     const agg: Record<PrayerSlot, number> = {
       fajr: 0, shuruq: 0, duha: 0, dhuhr: 0, asr: 0, maghrib: 0, isha: 0, night: 0,
     };
-    cityDetails.forEach((c) => { agg[c.slot] += c.pop; });
+    cityDetails.forEach((c) => { agg[c.info.slot] += c.pop; });
     return agg;
   }, [cityDetails]);
 
   const fajrPop = slotPop.fajr;
 
-  // Center of the Fajr glow band (roughly 15° east of the sunrise terminator)
+  // Fajr band center (~15° east of terminator, sunrise side)
   const fajrCenterLng = ((subLng + 105 + 540) % 360) - 180;
   const fajrCenter = project(0, fajrCenterLng);
 
@@ -391,13 +300,22 @@ function UmmahPulse() {
   const sortedCities = useMemo(() => {
     const q = search.trim().toLowerCase();
     return cityDetails
-      .filter((c) => filter === 'all' || c.slot === filter)
-      .filter((c) => !q || c.name.toLowerCase().includes(q) || c.nameAr.includes(search))
+      .filter((c) => filter === 'all' || c.info.slot === filter)
+      .filter((c) => regionFilter === 'all' || c.region === regionFilter)
+      .filter((c) => {
+        if (!q) return true;
+        return (
+          c.name.toLowerCase().includes(q) ||
+          c.nameAr.includes(search) ||
+          c.country.toLowerCase().includes(q) ||
+          c.countryAr.includes(search)
+        );
+      })
       .sort((a, b) => {
-        const oi = SLOT_ORDER.indexOf(a.slot) - SLOT_ORDER.indexOf(b.slot);
+        const oi = PRAYER_SLOT_ORDER.indexOf(a.info.slot) - PRAYER_SLOT_ORDER.indexOf(b.info.slot);
         return oi !== 0 ? oi : b.pop - a.pop;
       });
-  }, [cityDetails, filter, search]);
+  }, [cityDetails, filter, regionFilter, search]);
 
   const selectedCityDetails = selectedCity
     ? cityDetails.find((c) => c.name === selectedCity) ?? null
@@ -405,7 +323,7 @@ function UmmahPulse() {
 
   const t = (ar: string, de: string) => (language === 'ar' ? ar : de);
 
-  // ── render helpers ────────────────────────────────────────────────────────
+  // ── Map render ────────────────────────────────────────────────────────────
   const renderMapSvg = (opts: { large?: boolean } = {}) => {
     const large = !!opts.large;
     const idSuffix = large ? 'Lg' : 'Sm';
@@ -437,17 +355,15 @@ function UmmahPulse() {
           <radialGradient id={`sunGrad${idSuffix}`} cx="50%" cy="50%" r="50%">
             <stop offset="0%"  stopColor="hsl(48, 100%, 80%)" stopOpacity="1"   />
             <stop offset="55%" stopColor="hsl(42, 100%, 60%)" stopOpacity="0.75"/>
-            <stop offset="100%" stopColor="hsl(35, 95%, 50%)"  stopOpacity="0"   />
+            <stop offset="100%" stopColor="hsl(35, 95%, 50%)" stopOpacity="0"   />
           </radialGradient>
           <filter id={`softBlur${idSuffix}`}>
             <feGaussianBlur stdDeviation="2.5" />
           </filter>
         </defs>
 
-        {/* Ocean */}
         <rect width={W} height={H} fill={`url(#ocean${idSuffix})`} />
 
-        {/* Graticule: equator (solid hint), tropics & arctic circles (dashed) */}
         <line x1={0} y1={90} x2={W} y2={90}
               stroke="hsl(var(--border))" strokeOpacity="0.3" strokeWidth="0.35" />
         {[66.5, 23.5, -23.5, -66.5].map((lat) => {
@@ -467,12 +383,10 @@ function UmmahPulse() {
           );
         })}
 
-        {/* Continents */}
         <path d={CONTINENTS} fill="hsl(var(--foreground))" fillOpacity="0.22" />
         <path d={CONTINENTS} fill="none"
               stroke="hsl(var(--foreground))" strokeOpacity="0.18" strokeWidth="0.4" />
 
-        {/* Night side overlay (three copies handle antimeridian wrap) */}
         <g>
           {nightPaths.map((d, i) => (
             <path key={i} d={d} fill="hsl(220, 42%, 6%)" fillOpacity="0.55" />
@@ -483,7 +397,8 @@ function UmmahPulse() {
                   strokeWidth="0.6" strokeDasharray="1.5 1.5" />
           ))}
         </g>
-        {/* Maghrib band (subtle rose glow on sunset side) */}
+
+        {/* Maghrib band */}
         {(() => {
           const mLng = ((subLng - 95 + 540) % 360) - 180;
           const p = project(0, mLng);
@@ -498,7 +413,7 @@ function UmmahPulse() {
           );
         })()}
 
-        {/* Fajr glow band — sweeps westward each minute */}
+        {/* Fajr band */}
         <motion.g
           key={`fajr-${Math.round(fajrCenter.x / 3)}`}
           initial={{ opacity: 0.65 }}
@@ -517,7 +432,7 @@ function UmmahPulse() {
           )}
         </motion.g>
 
-        {/* Sub-solar point (the "sun") */}
+        {/* Subsolar point */}
         <g>
           <motion.circle
             cx={sunPoint.x} cy={sunPoint.y} r={8}
@@ -529,11 +444,11 @@ function UmmahPulse() {
           <circle cx={sunPoint.x} cy={sunPoint.y} r={1.8} fill="hsl(48, 100%, 92%)" />
         </g>
 
-        {/* Cities — colored by current slot */}
+        {/* City dots */}
         {cityDetails.map((c) => {
           const { x, y } = project(c.lat, c.lng);
-          const color = SLOT_META[c.slot].color;
-          const isFajr = c.slot === 'fajr';
+          const color = SLOT_META[c.info.slot].color;
+          const isFajr = c.info.slot === 'fajr';
           const isSelected = c.name === selectedCity;
           const isMakkah = c.name === 'Makkah';
           return (
@@ -543,7 +458,6 @@ function UmmahPulse() {
                  e.stopPropagation();
                  setSelectedCity(c.name === selectedCity ? null : c.name);
                }}>
-              {/* invisible hit-area for easy tapping */}
               <circle cx={x} cy={y} r={5} fill="transparent" />
               {isFajr && (
                 <motion.circle
@@ -575,32 +489,42 @@ function UmmahPulse() {
           );
         })}
 
-        {/* Tooltip for selected city (rendered inside SVG for correct layering) */}
+        {/* Tooltip for selected city */}
         {large && selectedCityDetails && (() => {
           const p = project(selectedCityDetails.lat, selectedCityDetails.lng);
-          const tipW = 72;
-          const tipH = 22;
-          // flip tooltip if too close to right edge
+          const tipW = 80;
+          const tipH = 28;
           const flip = p.x > W - tipW - 4;
           const tx = flip ? p.x - tipW - 4 : p.x + 4;
           const ty = Math.max(2, Math.min(H - tipH - 2, p.y - tipH / 2));
           const c = selectedCityDetails;
+          const nextName = SLOT_META[c.info.next.name].ar;
+          const nextDe = SLOT_META[c.info.next.name].de;
+          const rem = c.info.next.minutesUntil;
+          const hh = Math.floor(rem / 60);
+          const mm = rem % 60;
           return (
             <g pointerEvents="none">
               <rect x={tx} y={ty} width={tipW} height={tipH} rx={3}
                     fill="hsl(var(--background))" fillOpacity="0.95"
-                    stroke={SLOT_META[c.slot].color} strokeWidth="0.5" />
-              <text x={tx + 3} y={ty + 8}
+                    stroke={SLOT_META[c.info.slot].color} strokeWidth="0.5" />
+              <text x={tx + 3} y={ty + 7}
                     fontSize="5" fill="hsl(var(--foreground))" fontWeight="700">
                 {language === 'ar' ? c.nameAr : c.name}
               </text>
-              <text x={tx + 3} y={ty + 15} fontSize="4"
-                    fill={SLOT_META[c.slot].color} fontWeight="700">
-                {language === 'ar' ? SLOT_META[c.slot].ar : SLOT_META[c.slot].de}
+              <text x={tx + 3} y={ty + 14} fontSize="4"
+                    fill={SLOT_META[c.info.slot].color} fontWeight="700">
+                {language === 'ar' ? SLOT_META[c.info.slot].ar : SLOT_META[c.info.slot].de}
               </text>
-              <text x={tx + tipW - 3} y={ty + 15} fontSize="4"
+              <text x={tx + tipW - 3} y={ty + 14} fontSize="4"
                     fill="hsl(var(--muted-foreground))" textAnchor="end">
-                {c.localTime}
+                {c.info.localClock}
+              </text>
+              <text x={tx + 3} y={ty + 22} fontSize="3.5"
+                    fill="hsl(var(--muted-foreground))">
+                {language === 'ar'
+                  ? `→ ${nextName} بعد ${hh ? hh + 'س ' : ''}${mm}د`
+                  : `→ ${nextDe} in ${hh ? hh + 'h ' : ''}${mm}m`}
               </text>
             </g>
           );
@@ -609,7 +533,130 @@ function UmmahPulse() {
     );
   };
 
-  // ── main render ───────────────────────────────────────────────────────────
+  // ── Detail panel (expanded-modal) ─────────────────────────────────────────
+  const renderCityDetailPanel = (c: NonNullable<typeof selectedCityDetails>) => {
+    const meta = SLOT_META[c.info.slot];
+    const qibla = qiblaBearing(c.lat, c.lng);
+    const prayerRows: Array<{ key: PrayerSlot; min: number }> = [
+      { key: 'fajr',    min: c.info.fajr    },
+      { key: 'shuruq',  min: c.info.sunrise },
+      { key: 'dhuhr',   min: c.info.dhuhr   },
+      { key: 'asr',     min: c.info.asr     },
+      { key: 'maghrib', min: c.info.maghrib },
+      { key: 'isha',    min: c.info.isha    },
+    ];
+    const rem = c.info.next.minutesUntil;
+    const hh = Math.floor(rem / 60);
+    const mm = rem % 60;
+    return (
+      <motion.div
+        key={c.name}
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: 8 }}
+        className="rounded-2xl bg-card border border-border/40 overflow-hidden"
+      >
+        <div className="px-4 py-3 flex items-start justify-between gap-3 border-b border-border/30">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="text-3xl leading-none shrink-0">{c.flag}</div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <h3 className="text-[15px] font-bold text-foreground truncate leading-tight">
+                  {language === 'ar' ? c.nameAr : c.name}
+                </h3>
+                {c.name === 'Makkah' && (
+                  <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-600 font-bold">
+                    ★ {t('قبلة', 'Qibla')}
+                  </span>
+                )}
+              </div>
+              <p className="text-[11px] text-muted-foreground leading-tight mt-0.5 truncate">
+                {language === 'ar' ? c.countryAr : c.country}
+              </p>
+            </div>
+          </div>
+          <div className="text-right shrink-0">
+            <div className="text-[18px] font-bold tabular-nums text-foreground leading-none">
+              {c.info.localClock}
+            </div>
+            <div
+              className="text-[10px] font-bold mt-1 px-2 py-0.5 rounded-full inline-block"
+              style={{
+                background: meta.color.replace('hsl(', 'hsla(').replace(')', ', 0.15)'),
+                color: meta.color,
+              }}
+            >
+              {language === 'ar' ? meta.ar : meta.de}
+            </div>
+          </div>
+        </div>
+
+        {/* Next prayer countdown */}
+        <div className="px-4 py-2.5 bg-muted/30 flex items-center justify-between gap-2 border-b border-border/30">
+          <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+            <Clock className="w-3 h-3" />
+            <span>
+              {t('القادمة', 'Nächstes')}:
+              <span className="font-semibold text-foreground ml-1">
+                {language === 'ar' ? SLOT_META[c.info.next.name].ar : SLOT_META[c.info.next.name].de}
+              </span>
+            </span>
+          </div>
+          <div className="text-[12px] font-bold tabular-nums text-primary">
+            {hh > 0 && `${hh}${t('س', 'h')} `}{mm}{t('د', 'm')}
+          </div>
+        </div>
+
+        {/* Prayer times grid */}
+        <div className="grid grid-cols-6 gap-1 p-2">
+          {prayerRows.map(({ key, min }) => {
+            const isCurrent = c.info.slot === key;
+            const m = SLOT_META[key];
+            return (
+              <div
+                key={key}
+                className={`rounded-lg px-1.5 py-2 text-center transition-all ${
+                  isCurrent
+                    ? 'shadow-sm'
+                    : 'bg-muted/30'
+                }`}
+                style={isCurrent ? {
+                  background: m.color.replace('hsl(', 'hsla(').replace(')', ', 0.15)'),
+                  boxShadow: `inset 0 0 0 1px ${m.color}`,
+                } : undefined}
+              >
+                <p className="text-[9px] font-semibold leading-tight"
+                   style={{ color: isCurrent ? m.color : 'hsl(var(--muted-foreground))' }}>
+                  {language === 'ar' ? m.ar : m.de}
+                </p>
+                <p className="text-[10.5px] font-bold tabular-nums text-foreground mt-0.5" dir="ltr">
+                  {formatLocalMinutes(min)}
+                </p>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Meta row: method + qibla */}
+        <div className="px-4 py-2.5 border-t border-border/30 flex items-center justify-between gap-3 text-[10.5px]">
+          <div className="flex items-center gap-1.5 text-muted-foreground min-w-0">
+            <Info className="w-3 h-3 shrink-0" />
+            <span className="truncate">
+              {language === 'ar' ? METHOD_LABELS[c.method].ar : METHOD_LABELS[c.method].de}
+            </span>
+          </div>
+          <div className="flex items-center gap-1.5 text-muted-foreground shrink-0">
+            <Compass className="w-3 h-3" />
+            <span className="tabular-nums">
+              {qibla.toFixed(0)}° · {bearingToCompass(qibla)}
+            </span>
+          </div>
+        </div>
+      </motion.div>
+    );
+  };
+
+  // ── Main render ───────────────────────────────────────────────────────────
   return (
     <div
       dir="ltr"
@@ -656,20 +703,16 @@ function UmmahPulse() {
               <Maximize2 className="w-3.5 h-3.5 text-foreground" />
             </div>
 
-            {/* "LIVE" pill */}
             <div className="absolute top-2 left-2 z-10 flex items-center gap-1 px-2 py-0.5 rounded-full bg-background/75 backdrop-blur-md border border-border/40">
               <span className="relative flex w-1.5 h-1.5">
                 <span className="absolute inline-flex w-full h-full rounded-full bg-red-500 opacity-75 animate-ping" />
                 <span className="relative inline-flex rounded-full w-1.5 h-1.5 bg-red-500" />
               </span>
-              <span className="text-[9px] font-bold tracking-wide text-foreground">
-                LIVE
-              </span>
+              <span className="text-[9px] font-bold tracking-wide text-foreground">LIVE</span>
             </div>
 
             {renderMapSvg()}
 
-            {/* Active fajr cities ticker */}
             {fajrCities.length > 0 && (
               <div
                 className="absolute bottom-2 left-2 right-2 flex flex-wrap gap-1.5 justify-center"
@@ -680,8 +723,9 @@ function UmmahPulse() {
                     key={c.name}
                     initial={{ opacity: 0, y: 4 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="text-[9.5px] font-semibold px-2 py-0.5 rounded-full bg-primary/20 text-primary backdrop-blur-sm border border-primary/30"
+                    className="text-[9.5px] font-semibold px-2 py-0.5 rounded-full bg-primary/20 text-primary backdrop-blur-sm border border-primary/30 inline-flex items-center gap-1"
                   >
+                    <span>{c.flag}</span>
                     {language === 'ar' ? c.nameAr : c.name}
                   </motion.span>
                 ))}
@@ -695,12 +739,18 @@ function UmmahPulse() {
           </div>
         </button>
 
-        {/* Quick stats row */}
+        {/* Quick stats row — 5 prayer summaries */}
         <div
-          className="grid grid-cols-4 gap-1.5 mt-2.5"
+          className="grid grid-cols-5 gap-1.5 mt-2.5"
           dir={language === 'ar' ? 'rtl' : 'ltr'}
         >
-          {([['fajr', fajrCities.length], ['dhuhr', cityDetails.filter(c=>c.slot==='dhuhr').length], ['asr', cityDetails.filter(c=>c.slot==='asr').length], ['maghrib', maghribCities.length]] as [PrayerSlot, number][]).map(([slot, count]) => (
+          {([
+            ['fajr',    fajrCities.length],
+            ['dhuhr',   cityDetails.filter(c => c.info.slot === 'dhuhr').length],
+            ['asr',     cityDetails.filter(c => c.info.slot === 'asr').length],
+            ['maghrib', maghribCities.length],
+            ['isha',    cityDetails.filter(c => c.info.slot === 'isha').length],
+          ] as [PrayerSlot, number][]).map(([slot, count]) => (
             <button
               key={slot}
               onClick={() => { setFilter(slot); setExpanded(true); }}
@@ -719,19 +769,18 @@ function UmmahPulse() {
           ))}
         </div>
 
-        {/* Footer note */}
         <p
           className="text-[10.5px] text-muted-foreground text-center mt-2.5 leading-relaxed px-2"
           dir={language === 'ar' ? 'rtl' : 'ltr'}
         >
           {t(
-            'اضغط على الخريطة لعرض كل المدن وأوقات صلاتها',
-            'Tippe die Karte für Details zu allen Städten'
+            'اضغط على الخريطة لعرض كل المدن ومواقيتها الرسمية',
+            'Tippe die Karte für offizielle Gebetszeiten aller Städte'
           )}
         </p>
       </div>
 
-      {/* Fullscreen modal — portal */}
+      {/* Fullscreen modal */}
       {typeof document !== 'undefined' && createPortal(
         <AnimatePresence>
           {expanded && (
@@ -779,8 +828,6 @@ function UmmahPulse() {
                     onClick={() => setSelectedCity(null)}
                   >
                     {renderMapSvg({ large: true })}
-
-                    {/* Sun info overlay */}
                     <div className="absolute top-2 left-2 flex items-center gap-1.5 px-2 py-1 rounded-lg bg-background/80 backdrop-blur-md border border-border/40">
                       <Sun className="w-3 h-3 text-amber-500" />
                       <span className="text-[10px] font-semibold text-foreground tabular-nums">
@@ -790,15 +837,24 @@ function UmmahPulse() {
                   </div>
                 </div>
 
-                {/* Filter tabs */}
+                {/* Selected city detail */}
+                <AnimatePresence mode="wait">
+                  {selectedCityDetails && (
+                    <div className="px-4 pt-3">
+                      {renderCityDetailPanel(selectedCityDetails)}
+                    </div>
+                  )}
+                </AnimatePresence>
+
+                {/* Slot filter */}
                 <div className="px-4 pt-3">
                   <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-1">
-                    {(['all', ...SLOT_ORDER] as const).map((s) => {
+                    {(['all', ...PRAYER_SLOT_ORDER] as const).map((s) => {
                       const active = filter === s;
                       const label = s === 'all'
                         ? t('الكل', 'Alle')
                         : language === 'ar' ? SLOT_META[s].ar : SLOT_META[s].de;
-                      const count = s === 'all' ? CITIES.length : cityDetails.filter(c => c.slot === s).length;
+                      const count = s === 'all' ? CITIES.length : cityDetails.filter(c => c.info.slot === s).length;
                       return (
                         <button
                           key={s}
@@ -822,6 +878,31 @@ function UmmahPulse() {
                   </div>
                 </div>
 
+                {/* Region filter */}
+                <div className="px-4 pt-2">
+                  <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-1">
+                    {(['all', 'arab', 'africa', 'asia', 'europe', 'americas', 'oceania'] as const).map((r) => {
+                      const active = regionFilter === r;
+                      const label = r === 'all'
+                        ? t('كل المناطق', 'Alle Regionen')
+                        : language === 'ar' ? REGION_LABELS[r].ar : REGION_LABELS[r].de;
+                      return (
+                        <button
+                          key={r}
+                          onClick={() => setRegionFilter(r)}
+                          className={`shrink-0 px-2.5 py-1 rounded-full border text-[10.5px] font-medium transition-all ${
+                            active
+                              ? 'bg-foreground/90 text-background border-foreground'
+                              : 'bg-card border-border/30 text-muted-foreground hover:text-foreground'
+                          }`}
+                        >
+                          {label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
                 {/* Search */}
                 <div className="px-4 pt-3">
                   <div className="relative">
@@ -829,7 +910,7 @@ function UmmahPulse() {
                     <input
                       value={search}
                       onChange={(e) => setSearch(e.target.value)}
-                      placeholder={t('ابحث عن مدينة…', 'Stadt suchen…')}
+                      placeholder={t('ابحث عن مدينة أو دولة…', 'Stadt oder Land suchen…')}
                       className={`w-full py-2 text-[12px] rounded-xl bg-card border border-border/40 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 ${
                         language === 'ar' ? 'pr-9 pl-3' : 'pl-9 pr-3'
                       }`}
@@ -856,8 +937,11 @@ function UmmahPulse() {
                     </div>
                   ) : (
                     sortedCities.map((c) => {
-                      const meta = SLOT_META[c.slot];
+                      const meta = SLOT_META[c.info.slot];
                       const isSelected = c.name === selectedCity;
+                      const rem = c.info.next.minutesUntil;
+                      const hh = Math.floor(rem / 60);
+                      const mm = rem % 60;
                       return (
                         <motion.button
                           key={c.name}
@@ -870,11 +954,12 @@ function UmmahPulse() {
                           }`}
                         >
                           <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                            <span className="text-xl leading-none shrink-0">{c.flag}</span>
                             <span
-                              className="w-2.5 h-2.5 rounded-full shrink-0"
+                              className="w-2 h-2 rounded-full shrink-0"
                               style={{
                                 background: meta.color,
-                                boxShadow: c.slot === 'fajr' ? `0 0 8px ${meta.color}` : 'none',
+                                boxShadow: c.info.slot === 'fajr' ? `0 0 8px ${meta.color}` : 'none',
                               }}
                             />
                             <div className="min-w-0 flex-1">
@@ -886,8 +971,12 @@ function UmmahPulse() {
                                   </span>
                                 )}
                               </p>
-                              <p className="text-[10.5px] text-muted-foreground tabular-nums leading-tight mt-0.5">
-                                {c.localTime} · {c.altitude >= 0 ? '↑' : '↓'} {Math.abs(c.altitude).toFixed(0)}°
+                              <p className="text-[10.5px] text-muted-foreground tabular-nums leading-tight mt-0.5 flex items-center gap-1.5" dir="ltr">
+                                <span>{c.info.localClock}</span>
+                                <span className="opacity-60">·</span>
+                                <span className="opacity-80">
+                                  → {hh > 0 ? `${hh}h ` : ''}{mm}m
+                                </span>
                               </p>
                             </div>
                           </div>
@@ -908,9 +997,9 @@ function UmmahPulse() {
 
                 <p className="text-[10px] text-muted-foreground text-center mt-5 px-6 leading-relaxed">
                   {t(
-                    'الأوقات تقريبية مبنية على زاوية الشمس • يحدّث كل 15 ثانية • مذهب العصر: ' +
+                    'أوقات دقيقة مبنية على الطرق الرسمية لكل بلد (أم القرى، ديانت، كراتشي، إلخ) • يُحدَّث كل 15 ثانية • مذهب العصر: ' +
                       (prayerMadhab === 'hanafi' ? 'حنفي' : 'جمهور'),
-                    'Zeiten basieren auf Sonnenstand · Aktualisierung alle 15 s · Asr-Madhab: ' +
+                    'Präzise Zeiten nach offizieller Methode jedes Landes (Umm al-Qura, Diyanet, Karatschi, …) · Aktualisierung alle 15 s · Asr-Madhab: ' +
                       (prayerMadhab === 'hanafi' ? 'Hanafi' : 'Mehrheit')
                   )}
                 </p>
