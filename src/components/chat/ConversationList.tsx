@@ -28,6 +28,8 @@ interface ConversationListProps {
   toggleArchived: (id: string) => void;
   getDraft: (id: string) => string;
   searchQuery?: string;
+  /** When true, show skeleton rows instead of empty state during first fetch. */
+  isLoading?: boolean;
 }
 
 function renderAvatar(username?: string, avatarUrl?: string | null, size: string = 'h-[52px] w-[52px]') {
@@ -106,7 +108,7 @@ function SwipeRow({
 const ConversationList: React.FC<ConversationListProps> = ({
   conversations, isAr, currentUserId, filter, onFilterChange, totalUnread,
   onSelect, onNewChat, isPinned, isMuted, isArchived,
-  togglePinned, toggleMuted, toggleArchived, getDraft, searchQuery,
+  togglePinned, toggleMuted, toggleArchived, getDraft, searchQuery, isLoading,
 }) => {
   const tabs: Array<{ id: ConversationFilter; labelAr: string; labelDe: string }> = [
     { id: 'all',      labelAr: 'الكل',      labelDe: 'Alle' },
@@ -148,7 +150,22 @@ const ConversationList: React.FC<ConversationListProps> = ({
 
       {/* Conversations */}
       <div className="flex-1 overflow-y-auto">
-        {!hasContent ? (
+        {isLoading ? (
+          <div className="divide-y divide-border/10" aria-hidden="true">
+            {[0, 1, 2, 3, 4, 5].map(i => (
+              <div key={i} className="flex items-center gap-3 px-4 py-3">
+                <div className="skeleton h-[52px] w-[52px] rounded-full shrink-0" />
+                <div className="flex-1 min-w-0 space-y-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="skeleton h-3.5 w-24 rounded" />
+                    <div className="skeleton h-2.5 w-10 rounded" />
+                  </div>
+                  <div className="skeleton h-3 w-full max-w-[220px] rounded" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : !hasContent ? (
           <div className="flex flex-col items-center justify-center h-full text-muted-foreground gap-4 px-8">
             <div className="w-20 h-20 rounded-full bg-primary/5 flex items-center justify-center">
               {filter === 'archived'

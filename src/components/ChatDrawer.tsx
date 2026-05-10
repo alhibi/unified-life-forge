@@ -13,6 +13,7 @@ import {
   ArrowDown, Calendar, Image as ImageIcon, User2, Pencil, Timer, TimerOff,
   Share2, BellOff, Bell, Archive, ArchiveRestore, Volume2, VolumeX,
   Palette as WallpaperIcon, Forward as ForwardIcon,
+  CornerDownLeft,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -69,6 +70,159 @@ function getBubbleRadius(isMine: boolean, samePrev: boolean, sameNext: boolean) 
   }
 }
 
+/**
+ * Waveform gating. We only ask the voice-player context to decode audio peaks
+ * once the bubble has scrolled into view — otherwise a 200-message chat with
+ * 30 voice notes would kick off 30 fetches + decodeAudioData on first paint,
+ * stalling the UI and hitting signed-URL rate limits.
+ */
+function useWaveformOnVisible(
+  ref: React.RefObject<HTMLDivElement | null>,
+  fileUrl: string,
+  msgId: string,
+  hasCachedWaveform: boolean,
+  generateWaveform: (url: string, msgId: string) => Promise<number[]>,
+) {
+  React.useEffect(() => {
+    if (!fileUrl || hasCachedWaveform) return;
+    const el = ref.current;
+    if (!el) return;
+    // Browsers without IntersectionObserver fall back to eager generation
+    // (matches old behavior without crashing).
+    if (typeof IntersectionObserver === 'undefined') {
+      generateWaveform(fileUrl, msgId);
+      return;
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            generateWaveform(fileUrl, msgId);
+            io.disconnect();
+            break;
+          }
+        }
+      },
+      { root: null, rootMargin: '200px 0px', threshold: 0.01 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [ref, fileUrl, msgId, hasCachedWaveform, generateWaveform]);
+}
+
+/**
+ * Voice-message bubble. Encapsulates the player UI + waveform-on-visible
+ * hook so the main render tree stays readable and so the IntersectionObserver
+ * only fires for voice notes actually on screen.
+ */
+interface VoiceBubbleProps {
+  msg: Message;
+  isMine: boolean;
+  isDarkBg: boolean;
+  isFading: boolean;
+  isAr: boolean;
+  fileUrl: string;
+  rawFileUrl: string | null;
+  senderName: string;
+  onSelectToggle: (id: string) => void;
+  selectionMode: boolean;
+  voicePlayer: ReturnType<typeof useVoicePlayer>;
+}
+
+function VoiceBubble({
+  msg, isMine, isDarkBg, isFading, isAr,
+  fileUrl, rawFileUrl, senderName, onSelectToggle, selectionMode, voicePlayer,
+}: VoiceBubbleProps) {
+  const containerRef = React.useRef<HTMLDivElement | null>(null);
+  const cachedWaveform = voicePlayer.waveformCache[msg.id];
+  useWaveformOnVisible(containerRef, fileUrl, msg.id, !!cachedWaveform, voicePlayer.generateWaveform);
+
+  const isPlaying = voicePlayer.isPlayingMsg(msg.id);
+  const progress = voicePlayer.getProgress(msg.id);
+  const duration = voicePlayer.getDuration(msg.id);
+  const formatDur = (s: number) => {
+    if (!s || !isFinite(s)) return '0:00';
+    const m = Math.floor(s / 60);
+    const sec = Math.floor(s % 60);
+    return `${m}:${sec.toString().padStart(2, '0')}`;
+  };
+
+  const bars = React.useMemo(() => {
+    if (cachedWaveform) return cachedWaveform;
+    const seed = msg.id.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
+    return Array.from({ length: 40 }, (_, i) => ((Math.sin(seed * (i + 1) * 0.7) + 1) / 2) * 0.85 + 0.15);
+  }, [cachedWaveform, msg.id]);
+
+  const handleToggle = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (selectionMode) { onSelectToggle(msg.id); return; }
+    const playableUrl = fileUrl || (rawFileUrl ? await getSignedFileUrl(rawFileUrl) : '');
+    if (!playableUrl) return;
+    voicePlayer.togglePlayback(msg.id, playableUrl, senderName, msg.conversation_id);
+  };
+
+  const handleSeek = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (voicePlayer.state.msgId !== msg.id) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const fraction = (e.clientX - rect.left) / rect.width;
+    voicePlayer.seek(Math.max(0, Math.min(1, fraction)));
+  };
+
+  return (
+    <div ref={containerRef} className="min-w-[220px] px-3 py-2.5">
+      <div className="flex items-center gap-3">
+        <button
+          onClick={handleToggle}
+          aria-label={isPlaying ? (isAr ? 'إيقاف مؤقت' : 'Pause') : (isAr ? 'تشغيل الرسالة الصوتية' : 'Sprachnachricht abspielen')}
+          className={cn('flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-colors active:scale-90', isMine ? 'bg-primary/20' : 'bg-primary/15')}
+        >
+          {isPlaying ? (
+            <svg viewBox="0 0 24 24" className="h-4 w-4 text-primary" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1" /><rect x="14" y="4" width="4" height="16" rx="1" /></svg>
+          ) : (
+            <svg viewBox="0 0 24 24" className="h-4 w-4 text-primary ms-0.5" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
+          )}
+        </button>
+        <div className="flex-1 flex flex-col gap-1.5">
+          <div
+            className="flex items-center gap-[2px] h-[20px] cursor-pointer"
+            dir="ltr"
+            role={voicePlayer.state.msgId === msg.id ? 'slider' : undefined}
+            aria-label={isAr ? 'شريط تقدم الصوت' : 'Audio-Fortschritt'}
+            aria-valuemin={voicePlayer.state.msgId === msg.id ? 0 : undefined}
+            aria-valuemax={voicePlayer.state.msgId === msg.id ? 100 : undefined}
+            aria-valuenow={voicePlayer.state.msgId === msg.id ? Math.round(progress * 100) : undefined}
+            onClick={handleSeek}
+          >
+            {bars.map((h, i) => {
+              const barProgress = i / bars.length;
+              const isActive = voicePlayer.state.msgId === msg.id && barProgress < progress;
+              return (
+                <div
+                  key={i}
+                  className={cn('flex-1 rounded-full transition-colors duration-100', isActive ? 'bg-primary' : 'bg-muted-foreground/25')}
+                  style={{ height: `${h * 20}px`, minWidth: '2px' }}
+                />
+              );
+            })}
+          </div>
+          <div className="flex items-center justify-between" dir="ltr">
+            <span className="text-[10px] tabular-nums text-muted-foreground/50">
+              {isPlaying && duration ? formatDur(progress * duration) : (duration ? formatDur(duration) : '')}
+            </span>
+            <span className={cn('flex items-center gap-[3px] text-[11px] leading-none', isDarkBg && isMine ? 'text-primary-foreground/70' : 'text-muted-foreground/60')}>
+              {msg.edited_at && <span className="text-[9px] italic">{isAr ? 'معدّلة' : 'bearb.'}</span>}
+              {isFading && <Timer className="h-[10px] w-[10px] animate-pulse" />}
+              {formatClockTime(msg.created_at)}
+              {isMine && (msg.read ? <CheckCheck className="h-[11px] w-[11px] text-primary" /> : <Check className="h-[11px] w-[11px]" />)}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // ChatDrawer – root of the entire messaging experience.
 // ─────────────────────────────────────────────────────────────────────────────
@@ -77,6 +231,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
   const voice = useVoiceRecording({
     activeConvId: chat.activeConv?.id || null,
     userId: chat.user?.id,
+    isAr: chat.isAr,
     sendMessage: chat.sendMessage,
   });
   const voicePlayer = useVoicePlayer();
@@ -109,14 +264,13 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
     return list;
   }, [chat.filteredByTab, convSearchQuery]);
 
-  // Long-press / right-click / click handler that opens the message action menu.
-  const openActionMenu = useCallback((msg: Message, isMine: boolean, e: React.MouseEvent | React.TouchEvent) => {
-    if (chat.selectionMode) return;      // in selection mode, taps toggle select
-    e.preventDefault();
-    e.stopPropagation();
+  // Open the action menu anchored to the given bubble element. The trigger
+  // is either a long-press (~350 ms) or a native contextmenu — a bare tap
+  // never opens it, so users can scroll and read without surprise.
+  const openActionMenu = useCallback((msg: Message, isMine: boolean, bubbleEl: HTMLElement) => {
+    if (chat.selectionMode) return;
     if (msg.deleted) return;
-    const target = (e.currentTarget as HTMLElement);
-    const rect = target.getBoundingClientRect();
+    const rect = bubbleEl.getBoundingClientRect();
     const containerRect = chat.messagesContainerRef.current?.getBoundingClientRect() || { top: 0, bottom: window.innerHeight, height: window.innerHeight };
     setActionMenu({
       msg,
@@ -126,6 +280,81 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
     });
     haptic('medium');
   }, [chat.messagesContainerRef, chat.selectionMode]);
+
+  // Long-press gesture state. Kept outside hooks so refs persist across renders
+  // of individual message bubbles, indexed by pointer id so multi-touch doesn't
+  // collide.
+  const longPressTimersRef = React.useRef<Map<number, ReturnType<typeof setTimeout>>>(new Map());
+  const longPressStartRef  = React.useRef<Map<number, { x: number; y: number; fired: boolean }>>(new Map());
+  const LONG_PRESS_MS      = 380;
+  const LONG_PRESS_TOLER   = 10; // px of movement that still counts as a press
+
+  const clearLongPress = useCallback((pointerId: number) => {
+    const t = longPressTimersRef.current.get(pointerId);
+    if (t) { clearTimeout(t); longPressTimersRef.current.delete(pointerId); }
+    longPressStartRef.current.delete(pointerId);
+  }, []);
+
+  const beginLongPress = useCallback((msg: Message, isMine: boolean, e: React.PointerEvent<HTMLDivElement>) => {
+    if (chat.selectionMode) return;
+    if (msg.deleted) return;
+    if (e.pointerType === 'mouse' && e.button !== 0) return; // only left mouse button
+    const el = e.currentTarget;
+    const startX = e.clientX, startY = e.clientY;
+    longPressStartRef.current.set(e.pointerId, { x: startX, y: startY, fired: false });
+    const timer = setTimeout(() => {
+      const entry = longPressStartRef.current.get(e.pointerId);
+      if (!entry) return;
+      entry.fired = true;
+      openActionMenu(msg, isMine, el);
+    }, LONG_PRESS_MS);
+    longPressTimersRef.current.set(e.pointerId, timer);
+  }, [chat.selectionMode, openActionMenu]);
+
+  const continueLongPress = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    const entry = longPressStartRef.current.get(e.pointerId);
+    if (!entry) return;
+    const dx = e.clientX - entry.x;
+    const dy = e.clientY - entry.y;
+    if (Math.hypot(dx, dy) > LONG_PRESS_TOLER) clearLongPress(e.pointerId);
+  }, [clearLongPress]);
+
+  const endLongPress = useCallback((msg: Message, e: React.PointerEvent<HTMLDivElement>) => {
+    const entry = longPressStartRef.current.get(e.pointerId);
+    const fired = entry?.fired ?? false;
+    clearLongPress(e.pointerId);
+    // If the user simply tapped in selection mode, toggle the selection.
+    if (!fired && chat.selectionMode && !msg.deleted) {
+      chat.toggleSelect(msg.id);
+    }
+  }, [clearLongPress, chat.selectionMode, chat.toggleSelect, chat.messages.length]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Clean up any in-flight long-press timers on unmount
+  React.useEffect(() => {
+    const timers = longPressTimersRef.current;
+    return () => {
+      timers.forEach(t => clearTimeout(t));
+      timers.clear();
+    };
+  }, []);
+
+  // Esc closes the action menu, menus, and other overlays.
+  React.useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      if (actionMenu) { setActionMenu(null); chat.setShowExtraEmojis(false); return; }
+      if (chat.showChatMenu) { chat.setShowChatMenu(false); return; }
+      if (chat.showSelfDestructMenu) { chat.setShowSelfDestructMenu(false); return; }
+      if (chat.showEmojiPicker) { chat.setShowEmojiPicker(false); return; }
+      if (chat.showSearch) { chat.setShowSearch(false); return; }
+      if (chat.selectionMode) { chat.clearSelection(); return; }
+      if (showConvSearch) { setShowConvSearch(false); setConvSearchQuery(''); return; }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [open, actionMenu, chat.showChatMenu, chat.showSelfDestructMenu, chat.showEmojiPicker, chat.showSearch, chat.selectionMode, showConvSearch, chat]);
+
 
   // ── Wallpaper resolution ──────────────────────────────────────────────────
   const currentWallpaperId = chat.chatPrefs.getWallpaper(chat.activeConv?.id);
@@ -360,6 +589,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
               toggleArchived={chat.chatPrefs.toggleArchived}
               getDraft={chat.chatPrefs.getDraft}
               searchQuery={convSearchQuery}
+              isLoading={chat.conversationsLoading && chat.conversations.length === 0}
             />
           </>
 
@@ -374,19 +604,47 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
             </div>
             <div className="p-4 space-y-4">
               <div className="flex gap-2">
-                <Input placeholder={chat.isAr ? 'ابحث باسم المستخدم...' : 'Nach Benutzername suchen...'} value={chat.searchUser} onChange={e => chat.setSearchUser(e.target.value)} onKeyDown={e => e.key === 'Enter' && chat.searchForUser()} className="flex-1 rounded-full h-10" dir="auto" />
-                <Button size="icon" className="rounded-full h-10 w-10" onClick={chat.searchForUser} aria-label={chat.isAr ? 'بحث' : 'Suchen'}><Search className="h-4 w-4" /></Button>
+                <Input
+                  placeholder={chat.isAr ? 'ابحث باسم المستخدم...' : 'Nach Benutzername suchen...'}
+                  value={chat.searchUser}
+                  onChange={e => chat.setSearchUser(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && !chat.searching && chat.searchForUser()}
+                  className="flex-1 rounded-full h-10"
+                  dir="auto"
+                  disabled={chat.searching}
+                />
+                <Button
+                  size="icon"
+                  className="rounded-full h-10 w-10"
+                  onClick={chat.searchForUser}
+                  disabled={chat.searching || !chat.searchUser.trim()}
+                  aria-label={chat.isAr ? 'بحث' : 'Suchen'}
+                >
+                  {chat.searching
+                    ? <div className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" aria-hidden="true" />
+                    : <Search className="h-4 w-4" />}
+                </Button>
               </div>
-              {chat.searchError && <p className="text-destructive text-sm text-center">{chat.searchError}</p>}
-              {chat.searchResult && (
-                <motion.button initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} onClick={chat.startConversation} disabled={chat.loading} className="w-full flex items-center gap-3 p-4 rounded-2xl bg-accent/20 active:bg-accent/40 transition-colors">
+              {chat.searching && (
+                <p className="text-muted-foreground text-sm text-center" aria-live="polite">
+                  {chat.isAr ? 'جاري البحث...' : 'Suche läuft...'}
+                </p>
+              )}
+              {!chat.searching && chat.searchError && (
+                <p className="text-destructive text-sm text-center">{chat.searchError}</p>
+              )}
+              {chat.searchResult && !chat.searching && (
+                <motion.button initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} onClick={chat.startConversation} disabled={chat.loading} className="w-full flex items-center gap-3 p-4 rounded-2xl bg-accent/20 active:bg-accent/40 transition-colors disabled:opacity-60">
                   {renderAvatar(chat.searchResult.username, chat.searchResult.avatar_url, 'h-14 w-14')}
-                  <div className="text-start">
-                    <span className="font-semibold text-[15px] block">{chat.searchResult.display_name || chat.searchResult.username}</span>
+                  <div className="text-start flex-1 min-w-0">
+                    <span className="font-semibold text-[15px] block truncate">{chat.searchResult.display_name || chat.searchResult.username}</span>
                     {chat.searchResult.display_name && chat.searchResult.display_name !== chat.searchResult.username && (
                       <span className="text-[13px] text-muted-foreground">@{chat.searchResult.username}</span>
                     )}
                   </div>
+                  {chat.loading && (
+                    <div className="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin shrink-0" aria-label={chat.isAr ? 'جاري البدء' : 'Startet'} />
+                  )}
                 </motion.button>
               )}
             </div>
@@ -528,6 +786,27 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                               )}
                             </AnimatePresence>
                             <div className="h-px bg-border/15 mx-3" />
+                            <button
+                              className="w-full flex items-center justify-between gap-3 px-4 py-2.5 active:bg-accent/30 transition-colors text-[13px] text-start"
+                              onClick={() => chat.chatPrefs.setEnterToSend(!chat.chatPrefs.prefs.enterToSend)}
+                              role="menuitemcheckbox"
+                              aria-checked={chat.chatPrefs.prefs.enterToSend}
+                            >
+                              <span className="flex items-center gap-3">
+                                <CornerDownLeft className="w-4 h-4 text-muted-foreground" />
+                                {chat.isAr ? 'Enter للإرسال' : 'Enter zum Senden'}
+                              </span>
+                              <span className={cn(
+                                'relative w-8 h-[18px] rounded-full transition-colors shrink-0',
+                                chat.chatPrefs.prefs.enterToSend ? 'bg-primary' : 'bg-muted/50'
+                              )}>
+                                <span className={cn(
+                                  'absolute top-[2px] w-[14px] h-[14px] rounded-full bg-background shadow-sm transition-all',
+                                  chat.chatPrefs.prefs.enterToSend ? 'start-[16px]' : 'start-[2px]'
+                                )} />
+                              </span>
+                            </button>
+                            <div className="h-px bg-border/15 mx-3" />
                             <button className="w-full flex items-center gap-3 px-4 py-2.5 active:bg-destructive/10 transition-colors text-[13px] text-destructive text-start" onClick={chat.deleteConversation}>
                               <Trash className="w-4 h-4" />{chat.isAr ? 'حذف المحادثة' : 'Chat löschen'}
                             </button>
@@ -586,7 +865,24 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
               onScroll={chat.handleScroll}
               onClick={() => { chat.setShowChatMenu(false); setActionMenu(null); chat.setShowExtraEmojis(false); }}
             >
-              {chat.messages.length === 0 && (
+              {chat.messagesLoading && chat.messages.length === 0 && (
+                <div className="flex flex-col gap-3 py-4" aria-hidden="true">
+                  {[0, 1, 2, 3, 4].map(i => {
+                    const mine = i % 2 === 1;
+                    const width = 140 + ((i * 37) % 140);
+                    return (
+                      <div key={i} className={cn('flex', mine ? 'justify-end' : 'justify-start')}>
+                        <div
+                          className="skeleton h-10"
+                          style={{ width, borderRadius: mine ? '18px 4px 4px 18px' : '4px 18px 18px 4px' }}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {!chat.messagesLoading && chat.messages.length === 0 && (
                 <div className="flex flex-col items-center justify-center h-full text-center gap-3 py-16 opacity-60">
                   <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
                     <span className="text-2xl">👋</span>
@@ -658,10 +954,14 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                       >
                         <div
                           className={cn('relative group w-fit min-w-[72px] max-w-[82%]')}
-                          onContextMenu={(e) => openActionMenu(msg, isMine, e)}
-                          onClick={(e) => {
-                            if (!chat.selectionMode) openActionMenu(msg, isMine, e);
-                          }}
+                          onContextMenu={(e) => { e.preventDefault(); openActionMenu(msg, isMine, e.currentTarget as HTMLElement); }}
+                          onPointerDown={(e) => beginLongPress(msg, isMine, e)}
+                          onPointerMove={continueLongPress}
+                          onPointerUp={(e) => endLongPress(msg, e)}
+                          onPointerCancel={(e) => clearLongPress(e.pointerId)}
+                          onPointerLeave={(e) => clearLongPress(e.pointerId)}
+                          role="article"
+                          aria-label={isMine ? (chat.isAr ? 'رسالتك' : 'Deine Nachricht') : (chat.activeConv?.otherDisplayName || chat.activeConv?.otherUsername || '')}
                         >
                           {/* Selection checkmark */}
                           {chat.selectionMode && !msg.deleted && (
@@ -732,45 +1032,19 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                                 </div>
                               </div>
                             ) : msg.message_type === 'voice' ? (
-                              (() => {
-                                const isPlaying = voicePlayer.isPlayingMsg(msg.id);
-                                const progress = voicePlayer.getProgress(msg.id);
-                                const duration = voicePlayer.getDuration(msg.id);
-                                const formatDur = (s: number) => { if (!s || !isFinite(s)) return '0:00'; const m = Math.floor(s / 60); const sec = Math.floor(s % 60); return `${m}:${sec.toString().padStart(2, '0')}`; };
-                                const cachedWaveform = voicePlayer.waveformCache[msg.id];
-                                const bars = cachedWaveform || (() => { const seed = msg.id.split('').reduce((a: number, c: string) => a + c.charCodeAt(0), 0); return Array.from({ length: 40 }, (_, i) => ((Math.sin(seed * (i + 1) * 0.7) + 1) / 2) * 0.85 + 0.15); })();
-                                const fileUrl = chat.getFileUrl(msg);
-                                if (fileUrl && !cachedWaveform) voicePlayer.generateWaveform(fileUrl, msg.id);
-                                const senderName = isMine ? 'أنت' : (chat.activeConv?.otherDisplayName || chat.activeConv?.otherUsername || '');
-
-                                return (
-                                  <div className="min-w-[220px] px-3 py-2.5">
-                                    <div className="flex items-center gap-3">
-                                      <button onClick={async (e) => { e.stopPropagation(); if (chat.selectionMode) { chat.toggleSelect(msg.id); return; } const playableUrl = fileUrl || (msg.file_url ? await getSignedFileUrl(msg.file_url) : ''); if (!playableUrl) return; voicePlayer.togglePlayback(msg.id, playableUrl, senderName, msg.conversation_id); }} className={cn('flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-colors active:scale-90', isMine ? 'bg-primary/20' : 'bg-primary/15')}>
-                                        {isPlaying ? (
-                                          <svg viewBox="0 0 24 24" className="h-4 w-4 text-primary" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1" /><rect x="14" y="4" width="4" height="16" rx="1" /></svg>
-                                        ) : (
-                                          <svg viewBox="0 0 24 24" className="h-4 w-4 text-primary ms-0.5" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
-                                        )}
-                                      </button>
-                                      <div className="flex-1 flex flex-col gap-1.5">
-                                        <div className="flex items-center gap-[2px] h-[20px] cursor-pointer" dir="ltr" onClick={(e) => { e.stopPropagation(); if (voicePlayer.state.msgId === msg.id) { const rect = e.currentTarget.getBoundingClientRect(); const fraction = (e.clientX - rect.left) / rect.width; voicePlayer.seek(Math.max(0, Math.min(1, fraction))); } }}>
-                                          {bars.map((h, i) => { const barProgress = i / bars.length; const isActive = voicePlayer.state.msgId === msg.id && barProgress < progress; return (<div key={i} className={cn('flex-1 rounded-full transition-colors duration-100', isActive ? 'bg-primary' : 'bg-muted-foreground/25')} style={{ height: `${h * 20}px`, minWidth: '2px' }} />); })}
-                                        </div>
-                                        <div className="flex items-center justify-between" dir="ltr">
-                                          <span className="text-[10px] tabular-nums text-muted-foreground/50">{isPlaying && duration ? formatDur(progress * duration) : (duration ? formatDur(duration) : '')}</span>
-                                          <span className={cn('flex items-center gap-[3px] text-[11px] leading-none', isDarkBg && isMine ? 'text-primary-foreground/70' : 'text-muted-foreground/60')}>
-                                            {msg.edited_at && <span className="text-[9px] italic">{chat.isAr ? 'معدّلة' : 'bearb.'}</span>}
-                                            {isFading && <Timer className="h-[10px] w-[10px] animate-pulse" />}
-                                            {formatClockTime(msg.created_at)}
-                                            {isMine && (msg.read ? <CheckCheck className="h-[11px] w-[11px] text-primary" /> : <Check className="h-[11px] w-[11px]" />)}
-                                          </span>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                );
-                              })()
+                              <VoiceBubble
+                                msg={msg}
+                                isMine={isMine}
+                                isDarkBg={!!isDarkBg}
+                                isFading={!!isFading}
+                                isAr={chat.isAr}
+                                fileUrl={chat.getFileUrl(msg)}
+                                rawFileUrl={msg.file_url ?? null}
+                                senderName={isMine ? (chat.isAr ? 'أنت' : 'Du') : (chat.activeConv?.otherDisplayName || chat.activeConv?.otherUsername || '')}
+                                onSelectToggle={chat.toggleSelect}
+                                selectionMode={chat.selectionMode}
+                                voicePlayer={voicePlayer}
+                              />
                             ) : msg.message_type === 'file' ? (
                               <div className="px-3 py-2">
                                 <a href={chat.getFileUrl(msg)} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-foreground" onClick={e => e.stopPropagation()}>
@@ -833,7 +1107,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
               {/* Typing indicator */}
               <AnimatePresence>
                 {chat.typingUser && (
-                  <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 6 }} className="flex justify-start mt-2">
+                  <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 6 }} className="flex justify-start mt-2" aria-live="polite" aria-label={chat.isAr ? 'يكتب' : 'tippt'}>
                     <div className="bg-card border border-border/15 px-4 py-2.5" style={{ borderRadius: '18px 18px 18px 4px' }}>
                       <TypingDots />
                     </div>
@@ -874,6 +1148,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                   exit={{ opacity: 0, scale: 0.8 }}
                   transition={{ type: 'spring', damping: 20, stiffness: 400 }}
                   onClick={() => chat.scrollToBottom()}
+                  aria-label={chat.isAr ? 'الانتقال للأسفل' : 'Nach unten scrollen'}
                   className="absolute bottom-24 end-4 z-10 w-10 h-10 rounded-full bg-card border border-border/20 flex items-center justify-center active:scale-90 transition-transform shadow-md"
                 >
                   <ArrowDown className="w-4 h-4 text-muted-foreground" />
@@ -1021,6 +1296,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
               activeConvOtherName={chat.activeConv?.otherDisplayName || chat.activeConv?.otherUsername}
               userId={chat.user.id}
               onPasteFiles={chat.addImagesFromFiles}
+              enterToSend={chat.chatPrefs.prefs.enterToSend}
             />
           </>
         )}
