@@ -4,63 +4,102 @@ import { useAuth } from '@/hooks/useAuth';
 import { useApp } from '@/contexts/AppContext';
 import { useImageUpload } from '@/contexts/ImageUploadContext';
 import { useOtherUserPresence, formatLastSeen } from '@/hooks/usePresence';
-import { getSignedFileUrl } from './chatUtils';
-import type { Conversation, Message, Reaction } from './types';
+import { getSignedFileUrl, getMessagePreview } from './chatUtils';
+import { playChatSound, primeAudio, haptic } from './sounds';
+import { useChatPrefs } from './useChatPrefs';
+import type { Conversation, Message, Reaction, ConversationFilter } from './types';
 
 interface UseChatOptions {
   open: boolean;
   onUnreadChange: (count: number) => void;
 }
 
+/**
+ * Top-level hook powering ChatDrawer. Organizes state, realtime, drafts,
+ * selection mode, filters and local prefs (pin/mute/archive/wallpaper) into
+ * a single ergonomic API for the UI.
+ */
 export function useChat({ open, onUnreadChange }: UseChatOptions) {
   const { user } = useAuth();
   const { language } = useApp();
   const isAr = language === 'ar';
 
+  // Local chat preferences (pinned/muted/archived/drafts/wallpapers/sounds)
+  const chatPrefs = useChatPrefs(user?.id);
+
+  // ── Data ──────────────────────────────────────────────────────────────────
   const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [activeConv, setActiveConv] = useState<Conversation | null>(null);
+  const [activeConv, setActiveConvRaw] = useState<Conversation | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [reactions, setReactions] = useState<Reaction[]>([]);
+
+  // ── Composer ──────────────────────────────────────────────────────────────
   const [newMessage, setNewMessage] = useState('');
+  const [replyTo, setReplyTo] = useState<Message | null>(null);
+  const [editingMessage, setEditingMessage] = useState<Message | null>(null);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+
+  // ── New chat ──────────────────────────────────────────────────────────────
   const [searchUser, setSearchUser] = useState('');
   const [searchResult, setSearchResult] = useState<{ user_id: string; username: string; display_name?: string; avatar_url?: string } | null>(null);
   const [searchError, setSearchError] = useState('');
   const [showNewChat, setShowNewChat] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [replyTo, setReplyTo] = useState<Message | null>(null);
+
+  // ── Header / panels ───────────────────────────────────────────────────────
   const [showExtraEmojis, setShowExtraEmojis] = useState(false);
+  const [showProfilePopup, setShowProfilePopup] = useState(false);
+  const [profileTab, setProfileTab] = useState<'info' | 'media'>('info');
+  const [showChatMenu, setShowChatMenu] = useState(false);
+  const [showScrollDown, setShowScrollDown] = useState(false);
+  const [showSelfDestructMenu, setShowSelfDestructMenu] = useState(false);
+  const [showWallpaperPicker, setShowWallpaperPicker] = useState(false);
+
+  // ── Conversation filter (All / Unread / Archived) ─────────────────────────
+  const [conversationFilter, setConversationFilter] = useState<ConversationFilter>('all');
+
+  // ── Realtime / network ────────────────────────────────────────────────────
   const [typingUser, setTypingUser] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
-  const [showProfilePopup, setShowProfilePopup] = useState(false);
-  const [showChatMenu, setShowChatMenu] = useState(false);
-  const [showScrollDown, setShowScrollDown] = useState(false);
-  const [sharedMedia, setSharedMedia] = useState<Message[]>([]);
-  const [profileTab, setProfileTab] = useState<'info' | 'media'>('info');
-  const [pinnedMessage, setPinnedMessage] = useState<Message | null>(null);
+
+  // ── Search ────────────────────────────────────────────────────────────────
   const [showSearch, setShowSearch] = useState(false);
   const [chatSearchQuery, setChatSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<Message[]>([]);
   const [searchIndex, setSearchIndex] = useState(0);
-  const [editingMessage, setEditingMessage] = useState<Message | null>(null);
+
+  // ── Pin / self-destruct (server) ──────────────────────────────────────────
+  const [pinnedMessage, setPinnedMessage] = useState<Message | null>(null);
   const [selfDestructSeconds, setSelfDestructSeconds] = useState<number | null>(null);
-  const [showSelfDestructMenu, setShowSelfDestructMenu] = useState(false);
+
+  // ── Lightbox / staged images ──────────────────────────────────────────────
+  const [sharedMedia, setSharedMedia] = useState<Message[]>([]);
   const [lightboxSrc, setLightboxSrc] = useState('');
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxRect, setLightboxRect] = useState<DOMRect | null>(null);
   const [stagedImages, setStagedImages] = useState<File[]>([]);
   const [stagedPreviews, setStagedPreviews] = useState<string[]>([]);
 
+  // ── Multi-select mode ─────────────────────────────────────────────────────
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const selectionMode = selectedIds.size > 0;
+
+  // ── Forward flow ──────────────────────────────────────────────────────────
+  const [forwardingMessages, setForwardingMessages] = useState<Message[] | null>(null);
+
+  // ── Refs ──────────────────────────────────────────────────────────────────
   const typingChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
-  const reconnectRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const lastIncomingTsRef = useRef<number>(0);   // for rate-limiting receive sound
 
   const imageUpload = useImageUpload();
 
+  // ── Presence ──────────────────────────────────────────────────────────────
   const [realtimeLastSeen, setRealtimeLastSeen] = useState<string | null>(null);
   useOtherUserPresence(activeConv?.otherUserId, useCallback((ls: string | null) => setRealtimeLastSeen(ls), []));
 
@@ -69,6 +108,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     return formatLastSeen(ls, isAr);
   }, [realtimeLastSeen, activeConv?.otherLastSeen, isAr]);
 
+  // ── Helpers ───────────────────────────────────────────────────────────────
   const scrollToBottom = useCallback((smooth = true) => {
     messagesEndRef.current?.scrollIntoView({ behavior: smooth ? 'smooth' : 'instant' });
   }, []);
@@ -87,7 +127,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     const composer = element ?? inputRef.current;
     if (!composer) return;
     composer.style.height = '0px';
-    composer.style.height = `${Math.min(Math.max(composer.scrollHeight, 40), 120)}px`;
+    composer.style.height = `${Math.min(Math.max(composer.scrollHeight, 40), 140)}px`;
   }, []);
 
   const handleScroll = useCallback(() => {
@@ -97,7 +137,43 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     setShowScrollDown(distFromBottom > 200);
   }, []);
 
-  // Load conversations
+  // Wrapped setActiveConv: save/restore drafts, reset ephemeral UI state.
+  const setActiveConv = useCallback((conv: Conversation | null) => {
+    // Save draft of the currently-active conversation before switching.
+    if (activeConv && activeConv.id !== conv?.id) {
+      chatPrefs.setDraft(activeConv.id, newMessage);
+    }
+    setActiveConvRaw(conv);
+    setReplyTo(null);
+    setEditingMessage(null);
+    setShowChatMenu(false);
+    setShowProfilePopup(false);
+    setShowSelfDestructMenu(false);
+    setShowSearch(false);
+    setChatSearchQuery('');
+    setSearchResults([]);
+    setShowEmojiPicker(false);
+    setSelectedIds(new Set());
+
+    if (conv) {
+      const draft = chatPrefs.getDraft(conv.id);
+      setNewMessage(draft);
+      setTimeout(() => resizeComposer(), 0);
+    } else {
+      setNewMessage('');
+    }
+  }, [activeConv, newMessage, chatPrefs, resizeComposer]);
+
+  // Auto-save draft as user types.
+  useEffect(() => {
+    if (!activeConv) return;
+    const timer = setTimeout(() => {
+      chatPrefs.setDraft(activeConv.id, newMessage);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [newMessage, activeConv, chatPrefs]);
+
+  // ── Load conversations ────────────────────────────────────────────────────
   const loadConversations = useCallback(async () => {
     if (!user) return;
     const { data: convs } = await supabase
@@ -117,13 +193,15 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
         .in('user_id', otherIds),
       Promise.all(convIds.map(cid =>
         supabase.from('messages')
-          .select('conversation_id, content, message_type, deleted, created_at')
+          .select('conversation_id, sender_id, content, message_type, deleted, created_at, file_name')
           .eq('conversation_id', cid)
           .order('created_at', { ascending: false })
           .limit(1)
           .maybeSingle()
       )).then(results => ({
-        data: results.map(r => r.data).filter(Boolean) as { conversation_id: string; content: string; message_type: string; deleted: boolean; created_at: string }[],
+        data: results.map(r => r.data).filter(Boolean) as Array<{
+          conversation_id: string; sender_id: string; content: string; message_type: string; deleted: boolean; created_at: string; file_name: string | null;
+        }>,
         error: null,
       })),
       supabase.from('messages')
@@ -148,17 +226,11 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
       unreadCountMap.set(m.conversation_id, (unreadCountMap.get(m.conversation_id) || 0) + 1);
     }
 
-    const enriched = convs.map((conv) => {
+    const enriched: Conversation[] = convs.map((conv) => {
       const otherId = conv.user1_id === user.id ? conv.user2_id : conv.user1_id;
       const profile = profiles.find(p => p.user_id === otherId);
       const lastMsg = lastMsgMap.get(conv.id);
       const unreadCount = unreadCountMap.get(conv.id) || 0;
-
-      let lastContent = lastMsg?.content;
-      if (lastMsg?.deleted) lastContent = isAr ? '🚫 تم حذف الرسالة' : '🚫 Nachricht gelöscht';
-      else if (lastMsg?.message_type === 'image') lastContent = '📷 ' + (isAr ? 'صورة' : 'Foto');
-      else if (lastMsg?.message_type === 'voice') lastContent = '🎤 ' + (isAr ? 'رسالة صوتية' : 'Sprachnachricht');
-      else if (lastMsg?.message_type === 'file') lastContent = '📎 ' + (isAr ? 'ملف' : 'Datei');
 
       return {
         ...conv,
@@ -166,20 +238,29 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
         otherDisplayName: profile?.display_name ?? profile?.username ?? '?',
         otherAvatarUrl: profile?.avatar_url ?? undefined,
         otherUserId: otherId,
-        otherBio: (profile as Record<string, unknown>)?.bio as string | null ?? null,
-        otherLastSeen: (profile as Record<string, unknown>)?.last_seen as string | null ?? null,
-        otherCreatedAt: (profile as Record<string, unknown>)?.created_at as string | null ?? null,
-        lastMessage: lastContent,
+        otherBio: (profile as unknown as { bio?: string | null })?.bio ?? null,
+        otherLastSeen: (profile as unknown as { last_seen?: string | null })?.last_seen ?? null,
+        otherCreatedAt: (profile as unknown as { created_at?: string | null })?.created_at ?? null,
+        lastMessage: lastMsg ? getMessagePreview(lastMsg, isAr) : undefined,
+        lastMessageType: lastMsg?.message_type,
+        lastMessageFromMe: lastMsg?.sender_id === user.id,
+        lastMessageDeleted: lastMsg?.deleted,
         lastMessageTime: lastMsg?.created_at || conv.updated_at,
         unreadCount,
       };
     });
 
     setConversations(enriched);
-    onUnreadChange(enriched.reduce((sum, c) => sum + (c.unreadCount || 0), 0));
-  }, [user, onUnreadChange, isAr]);
+    // Unread badge: ignore muted chats so notifications don't nag
+    onUnreadChange(enriched.reduce((sum, c) => chatPrefs.isMuted(c.id) ? sum : sum + (c.unreadCount || 0), 0));
+  }, [user, onUnreadChange, isAr, chatPrefs]);
 
-  // Load messages
+  // Recompute unread badge when mute prefs change
+  useEffect(() => {
+    onUnreadChange(conversations.reduce((sum, c) => chatPrefs.isMuted(c.id) ? sum : sum + (c.unreadCount || 0), 0));
+  }, [conversations, chatPrefs.prefs.muted, onUnreadChange, chatPrefs]);
+
+  // ── Load messages ─────────────────────────────────────────────────────────
   const loadMessages = useCallback(async () => {
     if (!activeConv || !user) return;
     const { data } = await supabase
@@ -192,9 +273,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
       setMessages(data as Message[]);
       const msgIds = data.map(m => m.id);
 
-      supabase
-        .rpc('mark_messages_read', { p_conversation_id: activeConv.id })
-        .then();
+      supabase.rpc('mark_messages_read', { p_conversation_id: activeConv.id }).then();
 
       if (msgIds.length > 0) {
         const { data: rxns } = await supabase
@@ -204,19 +283,14 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
         setReactions((rxns || []) as Reaction[]);
       }
 
-      scrollToBottom(false);
+      requestAnimationFrame(() => scrollToBottom(false));
     }
   }, [activeConv, user, scrollToBottom]);
 
-  useEffect(() => {
-    if (open && user) loadConversations();
-  }, [open, user, loadConversations]);
+  useEffect(() => { if (open && user) loadConversations(); }, [open, user, loadConversations]);
+  useEffect(() => { if (activeConv) loadMessages(); }, [activeConv, loadMessages]);
 
-  useEffect(() => {
-    if (activeConv) loadMessages();
-  }, [activeConv, loadMessages]);
-
-  // Resolve signed URLs
+  // ── Resolve signed URLs for files ─────────────────────────────────────────
   useEffect(() => {
     const needsUrl = messages.filter(m => {
       if (signedUrls[m.id]) return false;
@@ -225,6 +299,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
       return false;
     });
     if (needsUrl.length === 0) return;
+
     Promise.all(needsUrl.map(async (m) => {
       let path = m.file_url || '';
       if (!path && m.message_type === 'voice' && m.file_name) {
@@ -245,9 +320,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
                 if (diff < minDiff) { minDiff = diff; closest = f; }
               }
             }
-            if (closest && minDiff < 5000) {
-              path = `${folderPath}/${closest.name}`;
-            }
+            if (closest && minDiff < 5000) path = `${folderPath}/${closest.name}`;
           }
         }
       }
@@ -261,11 +334,11 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
         return next;
       });
     });
-  }, [messages]);
+  }, [messages, signedUrls]);
 
   const getFileUrl = useCallback((msg: Message) => signedUrls[msg.id] || msg.file_url || '', [signedUrls]);
 
-  // Realtime
+  // ── Realtime subscription ─────────────────────────────────────────────────
   useEffect(() => {
     if (!user || !open) return;
     let cancelled = false;
@@ -277,32 +350,56 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
         if (cancelled) return;
         if (payload.eventType === 'INSERT') {
           const msg = payload.new as Message;
+
           if (activeConv && msg.conversation_id === activeConv.id) {
             setMessages(prev => {
               if (prev.some(m => m.id === msg.id)) return prev;
+              // Replace optimistic message if it matches
               if (msg.sender_id === user.id) {
-                const optimisticIdx = prev.findIndex(m =>
+                const idx = prev.findIndex(m =>
                   m.id.startsWith('optimistic_') &&
                   m.content === msg.content &&
                   m.sender_id === msg.sender_id
                 );
-                if (optimisticIdx !== -1) {
+                if (idx !== -1) {
                   const next = [...prev];
-                  next[optimisticIdx] = msg;
+                  next[idx] = msg;
                   return next;
                 }
               }
               return [...prev, msg];
             });
+
             if (msg.sender_id !== user.id) {
               supabase.rpc('mark_message_read', { p_message_id: msg.id }).then();
+              // Play receive sound (rate-limited)
+              if (!chatPrefs.isMuted(activeConv.id)) {
+                const now = Date.now();
+                if (now - lastIncomingTsRef.current > 800) {
+                  lastIncomingTsRef.current = now;
+                  playChatSound('receive');
+                }
+              }
             }
-            requestAnimationFrame(() => scrollToBottom(false));
+            requestAnimationFrame(() => scrollToBottom(true));
+          } else if (msg.sender_id !== user.id) {
+            // Message in a different conversation – play receive (if not muted)
+            const conv = conversations.find(c => c.id === msg.conversation_id);
+            if (conv && !chatPrefs.isMuted(conv.id)) {
+              const now = Date.now();
+              if (now - lastIncomingTsRef.current > 1500) {
+                lastIncomingTsRef.current = now;
+                playChatSound('receive');
+              }
+            }
           }
           loadConversations();
         } else if (payload.eventType === 'UPDATE') {
           const msg = payload.new as Message;
           setMessages(prev => prev.map(m => m.id === msg.id ? msg : m));
+        } else if (payload.eventType === 'DELETE') {
+          const oldMsg = payload.old as { id: string };
+          setMessages(prev => prev.filter(m => m.id !== oldMsg.id));
         }
       })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'message_reactions' }, (payload) => {
@@ -321,12 +418,11 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
 
     return () => {
       cancelled = true;
-      if (reconnectRef.current) clearTimeout(reconnectRef.current);
       supabase.removeChannel(channel);
     };
-  }, [user, open, activeConv, scrollToBottom, loadConversations]);
+  }, [user, open, activeConv, scrollToBottom, loadConversations, chatPrefs, conversations]);
 
-  // Typing indicator
+  // ── Typing presence ───────────────────────────────────────────────────────
   useEffect(() => {
     if (!activeConv || !user) return;
     setTypingUser(false);
@@ -351,9 +447,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     });
 
     channel.subscribe(async (status) => {
-      if (status === 'SUBSCRIBED') {
-        typingChannelRef.current = channel;
-      }
+      if (status === 'SUBSCRIBED') typingChannelRef.current = channel;
     });
 
     return () => {
@@ -367,24 +461,29 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
   const broadcastTyping = useCallback(() => {
     if (!typingChannelRef.current) return;
     typingChannelRef.current.track({ typing: true });
-
     if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
     typingTimeoutRef.current = setTimeout(() => {
       typingChannelRef.current?.track({ typing: false });
     }, 1500);
   }, []);
 
-  // Send message
-  const sendMessage = useCallback(async (type: string = 'text', fileUrl?: string, fileName?: string) => {
-    const content = type === 'text' ? newMessage.trim() : (fileName || '');
+  // ── Send / edit / delete messages ─────────────────────────────────────────
+  const sendMessage = useCallback(async (type: string = 'text', fileUrl?: string, fileName?: string, explicitContent?: string, explicitConvId?: string) => {
+    const content = explicitContent ?? (type === 'text' ? newMessage.trim() : (fileName || ''));
     if (!content && type === 'text') return;
-    if (!activeConv || !user) return;
 
-    const replyToId = replyTo?.id || null;
+    const convId = explicitConvId ?? activeConv?.id;
+    if (!convId || !user) return;
 
-    setNewMessage('');
-    setReplyTo(null);
-    resizeComposer();
+    const isCurrentConv = activeConv?.id === convId;
+    const replyToId = isCurrentConv ? (replyTo?.id || null) : null;
+
+    if (type === 'text' && isCurrentConv) {
+      setNewMessage('');
+      chatPrefs.clearDraft(convId);
+      setReplyTo(null);
+      resizeComposer();
+    }
     if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
     typingChannelRef.current?.track({ typing: false });
 
@@ -392,7 +491,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     const now = new Date().toISOString();
 
     const insertData: Record<string, unknown> = {
-      conversation_id: activeConv.id,
+      conversation_id: convId,
       sender_id: user.id,
       content,
       message_type: type,
@@ -401,14 +500,14 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
       reply_to_id: replyToId,
     };
 
-    if (selfDestructSeconds) {
+    if (selfDestructSeconds && isCurrentConv) {
       insertData.expires_at = new Date(Date.now() + selfDestructSeconds * 1000).toISOString();
     }
 
-    if (type === 'text') {
+    if (type === 'text' && isCurrentConv) {
       const optimisticMsg: Message = {
         id: optimisticId,
-        conversation_id: activeConv.id,
+        conversation_id: convId,
         sender_id: user.id,
         content,
         read: false,
@@ -422,29 +521,35 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
         expires_at: (insertData.expires_at as string) || null,
       };
       setMessages(prev => [...prev, optimisticMsg]);
-      requestAnimationFrame(() => scrollToBottom(false));
+      requestAnimationFrame(() => scrollToBottom(true));
     }
 
-    const insertPromise = supabase.from('messages').insert(insertData as never).select().single();
-    supabase.from('conversations')
-      .update({ updated_at: now })
-      .eq('id', activeConv.id)
-      .then();
+    primeAudio();
+    playChatSound('send');
+    haptic('light');
 
-    if (type === 'text') {
-      insertPromise.then(({ data: realMsg }) => {
-        if (realMsg) {
-          setMessages(prev => prev.map(m => m.id === optimisticId ? (realMsg as Message) : m));
-        }
+    const insertPromise = supabase.from('messages').insert(insertData as never).select().single();
+    supabase.from('conversations').update({ updated_at: now }).eq('id', convId).then();
+
+    if (type === 'text' && isCurrentConv) {
+      insertPromise.then(({ data: realMsg, error }) => {
+        if (error) { playChatSound('error'); return; }
+        if (realMsg) setMessages(prev => prev.map(m => m.id === optimisticId ? (realMsg as Message) : m));
       });
       focusComposer();
     } else {
       await insertPromise;
     }
-  }, [newMessage, activeConv, user, replyTo, selfDestructSeconds, resizeComposer, scrollToBottom, focusComposer]);
+  }, [newMessage, activeConv, user, replyTo, selfDestructSeconds, resizeComposer, scrollToBottom, focusComposer, chatPrefs]);
 
   const deleteMessage = useCallback(async (msgId: string) => {
     await supabase.from('messages').update({ deleted: true, content: '' }).eq('id', msgId);
+  }, []);
+
+  const deleteManyMessages = useCallback(async (ids: string[]) => {
+    if (ids.length === 0) return;
+    await supabase.from('messages').update({ deleted: true, content: '' }).in('id', ids);
+    setSelectedIds(new Set());
   }, []);
 
   const pinMessage = useCallback(async (msg: Message) => {
@@ -456,21 +561,31 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
 
   const startEditMessage = useCallback((msg: Message) => {
     setEditingMessage(msg);
+    setReplyTo(null);
     setNewMessage(msg.content);
     setTimeout(() => { inputRef.current?.focus(); resizeComposer(); }, 50);
   }, [resizeComposer]);
 
   const saveEditMessage = useCallback(async () => {
     if (!editingMessage || !newMessage.trim()) return;
-    await supabase.from('messages').update({
-      content: newMessage.trim(),
-      edited_at: new Date().toISOString(),
-    } as Record<string, unknown>).eq('id', editingMessage.id);
+    const content = newMessage.trim();
     setEditingMessage(null);
     setNewMessage('');
     resizeComposer();
+    await supabase.from('messages').update({
+      content,
+      edited_at: new Date().toISOString(),
+    } as Record<string, unknown>).eq('id', editingMessage.id);
+    playChatSound('send');
   }, [editingMessage, newMessage, resizeComposer]);
 
+  const cancelEdit = useCallback(() => {
+    setEditingMessage(null);
+    setNewMessage('');
+    resizeComposer();
+  }, [resizeComposer]);
+
+  // ── In-chat search ────────────────────────────────────────────────────────
   const searchInChat = useCallback((query: string) => {
     setChatSearchQuery(query);
     if (!query.trim()) { setSearchResults([]); setSearchIndex(0); return; }
@@ -494,6 +609,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }, [searchResults, searchIndex]);
 
+  // ── Self-destruct ─────────────────────────────────────────────────────────
   const toggleSelfDestruct = useCallback(async (seconds: number | null) => {
     if (!activeConv) return;
     await supabase.from('conversations').update({ self_destruct_seconds: seconds } as Record<string, unknown>).eq('id', activeConv.id);
@@ -502,7 +618,6 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     setShowChatMenu(false);
   }, [activeConv]);
 
-  // Load pinned message & self-destruct setting
   useEffect(() => {
     if (!activeConv) { setPinnedMessage(null); setSelfDestructSeconds(null); return; }
     supabase.from('conversations').select('pinned_message_id, self_destruct_seconds' as string)
@@ -516,22 +631,20 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
           });
         } else setPinnedMessage(null);
       });
-  }, [activeConv?.id]);
+  }, [activeConv]);
 
-  // Fade tick — drives gradual opacity updates for expiring messages
+  // ── Self-destruct fade + expiry ───────────────────────────────────────────
   const [fadeTick, setFadeTick] = useState(0);
 
-  // Check expired messages & drive fade animation
   useEffect(() => {
     const now = new Date();
+    const upcoming = messages.filter(m => m.expires_at && new Date(m.expires_at) > now);
     const expired = messages.filter(m => m.expires_at && new Date(m.expires_at) <= now);
     if (expired.length > 0) {
       setMessages(prev => prev.filter(m => !m.expires_at || new Date(m.expires_at) > now));
     }
-    const upcoming = messages.filter(m => m.expires_at && new Date(m.expires_at) > now);
     if (upcoming.length > 0) {
       const nextExpiry = Math.min(...upcoming.map(m => new Date(m.expires_at!).getTime() - now.getTime()));
-      // Update fade every 2s for smooth gradual fading, or sooner if message expires soon
       const tickInterval = Math.min(2000, Math.max(nextExpiry, 500));
       const timer = setTimeout(() => {
         setFadeTick(t => t + 1);
@@ -541,7 +654,6 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     }
   }, [messages, fadeTick]);
 
-  // Calculate opacity for a message based on remaining time vs total duration
   const getMessageOpacity = useCallback((msg: Message): number => {
     if (!msg.expires_at) return 1;
     const now = Date.now();
@@ -551,27 +663,24 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     const remaining = expiresAt - now;
     if (remaining <= 0) return 0;
     if (totalDuration <= 0) return 1;
-    // Start fading when 70% of time has passed (last 30% = fade zone)
     const ratio = remaining / totalDuration;
     if (ratio > 0.3) return 1;
-    // Map 0.3→1, 0→0.15 (never fully invisible before deletion)
     return 0.15 + (ratio / 0.3) * 0.85;
-  }, [fadeTick]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []); // fadeTick captured by re-render; no need as dep
 
+  // ── Reactions ─────────────────────────────────────────────────────────────
   const toggleReaction = useCallback(async (messageId: string, emoji: string) => {
     if (!user) return;
     const existing = reactions.find(r => r.message_id === messageId && r.user_id === user.id && r.emoji === emoji);
     if (existing) {
       await supabase.from('message_reactions').delete().eq('id', existing.id);
     } else {
-      await supabase.from('message_reactions').insert({
-        message_id: messageId,
-        user_id: user.id,
-        emoji,
-      });
+      await supabase.from('message_reactions').insert({ message_id: messageId, user_id: user.id, emoji });
+      haptic('light');
     }
   }, [user, reactions]);
 
+  // ── Files + staged images ─────────────────────────────────────────────────
   const handleFileUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (!files.length || !user || !activeConv) return;
@@ -597,15 +706,22 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     if (fileInputRef.current) fileInputRef.current.value = '';
   }, [user, activeConv, sendMessage]);
 
+  const addImagesFromFiles = useCallback((files: File[]) => {
+    const images = files.filter(f => f.type.startsWith('image/'));
+    if (images.length === 0) return;
+    const previews = images.map(f => URL.createObjectURL(f));
+    setStagedImages(prev => [...prev, ...images]);
+    setStagedPreviews(prev => [...prev, ...previews]);
+  }, []);
+
   const sendStagedImages = useCallback(() => {
     if (!user || !activeConv || stagedImages.length === 0) return;
-    for (const file of stagedImages) {
-      imageUpload.startUpload(file, activeConv.id, user.id);
-    }
+    for (const file of stagedImages) imageUpload.startUpload(file, activeConv.id, user.id);
     stagedPreviews.forEach(url => URL.revokeObjectURL(url));
     setStagedImages([]);
     setStagedPreviews([]);
     setTimeout(() => scrollToBottom(), 100);
+    playChatSound('send');
   }, [user, activeConv, stagedImages, stagedPreviews, imageUpload, scrollToBottom]);
 
   const removeStagedImage = useCallback((index: number) => {
@@ -620,16 +736,16 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     setStagedPreviews([]);
   }, [stagedPreviews]);
 
-  // Wire up image upload completion
+  // Wire image-upload completion
   useEffect(() => {
     imageUpload.setOnUploadComplete((tempId: string, storagePath: string, fileName: string, conversationId: string) => {
-      if (activeConv && activeConv.id === conversationId && user) {
-        sendMessage('image', storagePath, fileName);
+      if (user) {
+        sendMessage('image', storagePath, fileName, undefined, conversationId);
         setTimeout(() => imageUpload.clearUpload(tempId), 500);
       }
     });
     return () => imageUpload.setOnUploadComplete(undefined);
-  }, [activeConv, user, sendMessage, imageUpload]);
+  }, [user, sendMessage, imageUpload]);
 
   const getReplyPreview = useCallback((replyId: string) => {
     const msg = messages.find(m => m.id === replyId);
@@ -645,11 +761,13 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     if (!activeConv || !user) return;
     await supabase.from('messages').delete().eq('conversation_id', activeConv.id);
     await supabase.from('conversations').delete().eq('id', activeConv.id);
+    chatPrefs.clearDraft(activeConv.id);
     setActiveConv(null);
     setShowChatMenu(false);
     loadConversations();
-  }, [activeConv, user, loadConversations]);
+  }, [activeConv, user, loadConversations, chatPrefs, setActiveConv]);
 
+  // ── New chat search ───────────────────────────────────────────────────────
   const searchForUser = useCallback(async () => {
     if (!searchUser.trim() || !user) return;
     setSearchError('');
@@ -679,14 +797,21 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
       .or(`and(user1_id.eq.${user.id},user2_id.eq.${searchResult.user_id}),and(user1_id.eq.${searchResult.user_id},user2_id.eq.${user.id})`)
       .maybeSingle();
 
-    if (existing) {
-      setActiveConv({ ...existing, otherUsername: searchResult.username, otherDisplayName: searchResult.display_name || searchResult.username, otherAvatarUrl: searchResult.avatar_url ?? undefined, otherUserId: searchResult.user_id });
+    const finish = (conv: Record<string, unknown>) => {
+      setActiveConv({
+        ...(conv as unknown as Conversation),
+        otherUsername: searchResult.username,
+        otherDisplayName: searchResult.display_name || searchResult.username,
+        otherAvatarUrl: searchResult.avatar_url ?? undefined,
+        otherUserId: searchResult.user_id,
+      });
       setShowNewChat(false);
       setSearchUser('');
       setSearchResult(null);
       setLoading(false);
-      return;
-    }
+    };
+
+    if (existing) return finish(existing);
 
     const { data: newConv } = await supabase
       .from('conversations')
@@ -694,15 +819,8 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
       .select()
       .single();
 
-    if (newConv) {
-      setActiveConv({ ...newConv, otherUsername: searchResult.username, otherDisplayName: searchResult.display_name || searchResult.username, otherAvatarUrl: searchResult.avatar_url ?? undefined, otherUserId: searchResult.user_id });
-      setShowNewChat(false);
-      setSearchUser('');
-      setSearchResult(null);
-      loadConversations();
-    }
-    setLoading(false);
-  }, [searchResult, user, loadConversations]);
+    if (newConv) { finish(newConv); loadConversations(); } else { setLoading(false); }
+  }, [searchResult, user, loadConversations, setActiveConv]);
 
   const getMessageMeta = useCallback((idx: number) => {
     const msg = messages[idx];
@@ -711,7 +829,6 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     const sameSenderAsPrev = prev && prev.sender_id === msg.sender_id && !prev.deleted && (new Date(msg.created_at).getTime() - new Date(prev.created_at).getTime() < 120000);
     const sameSenderAsNext = next && next.sender_id === msg.sender_id && !next.deleted && (new Date(next.created_at).getTime() - new Date(msg.created_at).getTime() < 120000);
     const showDate = idx === 0 || new Date(msg.created_at).toDateString() !== new Date(messages[idx - 1].created_at).toDateString();
-
     return { sameSenderAsPrev: !!sameSenderAsPrev && !showDate, sameSenderAsNext: !!sameSenderAsNext, showDate };
   }, [messages]);
 
@@ -719,44 +836,158 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     navigator.clipboard.writeText(content).catch(() => {});
   }, []);
 
+  // ── Multi-select ──────────────────────────────────────────────────────────
+  const toggleSelect = useCallback((msgId: string) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(msgId)) next.delete(msgId);
+      else next.add(msgId);
+      return next;
+    });
+    haptic('light');
+  }, []);
+
+  const clearSelection = useCallback(() => setSelectedIds(new Set()), []);
+
+  const copySelectedMessages = useCallback(() => {
+    const selected = messages
+      .filter(m => selectedIds.has(m.id) && !m.deleted)
+      .map(m => {
+        if (m.message_type === 'text') return m.content;
+        return getMessagePreview(m, isAr);
+      })
+      .join('\n');
+    if (selected) navigator.clipboard.writeText(selected).catch(() => {});
+  }, [messages, selectedIds, isAr]);
+
+  const deleteSelectedMessages = useCallback(async () => {
+    if (!user) return;
+    const ownSelected = messages
+      .filter(m => selectedIds.has(m.id) && m.sender_id === user.id && !m.deleted)
+      .map(m => m.id);
+    await deleteManyMessages(ownSelected);
+  }, [messages, selectedIds, user, deleteManyMessages]);
+
+  // Forward: pick messages, open picker, then send to chosen conversation(s)
+  const startForward = useCallback((msgs: Message[]) => {
+    setForwardingMessages(msgs);
+  }, []);
+
+  const performForwardTo = useCallback(async (targetConvId: string) => {
+    if (!forwardingMessages || !user) return;
+    const label = isAr ? '↪️ محوّلة' : '↪️ Weitergeleitet';
+    for (const m of forwardingMessages) {
+      if (m.deleted) continue;
+      const prefix = `${label}\n`;
+      if (m.message_type === 'text') {
+        await sendMessage('text', undefined, undefined, prefix + m.content, targetConvId);
+      } else if (m.message_type === 'image' || m.message_type === 'file' || m.message_type === 'voice') {
+        // Re-reference same storage path - target user sees it via signed URL
+        await sendMessage(m.message_type, m.file_url || undefined, m.file_name || undefined, prefix + (m.content || ''), targetConvId);
+      }
+    }
+    setForwardingMessages(null);
+    setSelectedIds(new Set());
+    playChatSound('send');
+  }, [forwardingMessages, user, sendMessage, isAr]);
+
+  const cancelForward = useCallback(() => setForwardingMessages(null), []);
+
+  // ── Unread divider anchor (client-side: first unread incoming) ────────────
+  const firstUnreadId = useMemo(() => {
+    if (!user || messages.length === 0) return null;
+    const first = messages.find(m => !m.read && m.sender_id !== user.id && !m.deleted);
+    return first?.id ?? null;
+  }, [messages, user]);
+
+  // ── Sort + filter conversations for UI ────────────────────────────────────
+  const sortedConversations = useMemo(() => {
+    const pinned: Conversation[] = [];
+    const rest: Conversation[] = [];
+    for (const c of conversations) {
+      if (chatPrefs.isPinned(c.id)) pinned.push(c);
+      else rest.push(c);
+    }
+    // Each group already sorted by updated_at (descending) thanks to loadConversations
+    return [...pinned, ...rest];
+  }, [conversations, chatPrefs.prefs.pinned]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const filteredByTab = useMemo(() => {
+    if (conversationFilter === 'archived') {
+      return sortedConversations.filter(c => chatPrefs.isArchived(c.id));
+    }
+    const visible = sortedConversations.filter(c => !chatPrefs.isArchived(c.id));
+    if (conversationFilter === 'unread') {
+      return visible.filter(c => (c.unreadCount || 0) > 0);
+    }
+    return visible;
+  }, [sortedConversations, conversationFilter, chatPrefs.prefs.archived]); // eslint-disable-line react-hooks/exhaustive-deps
+
   return {
     user, isAr,
-    conversations, activeConv, setActiveConv,
+    // Data
+    conversations, sortedConversations, filteredByTab,
+    activeConv, setActiveConv,
     messages, reactions,
+    firstUnreadId,
+    // Composer
     newMessage, setNewMessage,
+    replyTo, setReplyTo,
+    editingMessage, setEditingMessage, cancelEdit,
+    showEmojiPicker, setShowEmojiPicker,
+    // New chat
     searchUser, setSearchUser, searchResult, searchError,
     showNewChat, setShowNewChat,
-    loading, replyTo, setReplyTo,
+    loading,
+    // Panels
     showExtraEmojis, setShowExtraEmojis,
-    typingUser, uploading,
-    signedUrls, getFileUrl,
     showProfilePopup, setShowProfilePopup,
+    profileTab, setProfileTab,
     showChatMenu, setShowChatMenu,
     showScrollDown,
-    sharedMedia, setSharedMedia,
-    profileTab, setProfileTab,
-    pinnedMessage, showSearch, setShowSearch,
+    showSelfDestructMenu, setShowSelfDestructMenu,
+    showWallpaperPicker, setShowWallpaperPicker,
+    // Filter
+    conversationFilter, setConversationFilter,
+    // Realtime
+    typingUser, uploading,
+    signedUrls, getFileUrl,
+    // Search
+    showSearch, setShowSearch,
     chatSearchQuery, searchResults, searchIndex,
-    editingMessage, setEditingMessage,
-    selfDestructSeconds, showSelfDestructMenu, setShowSelfDestructMenu,
+    // Pin / self-destruct
+    pinnedMessage, setPinnedMessage,
+    selfDestructSeconds,
+    // Lightbox / media
+    sharedMedia, setSharedMedia,
     lightboxSrc, setLightboxSrc,
     lightboxOpen, setLightboxOpen,
     lightboxRect, setLightboxRect,
     stagedImages, stagedPreviews,
+    // Selection
+    selectedIds, selectionMode, toggleSelect, clearSelection,
+    copySelectedMessages, deleteSelectedMessages,
+    // Forward
+    forwardingMessages, startForward, performForwardTo, cancelForward,
+    // Presence
     otherPresence, imageUpload,
     // Refs
     messagesEndRef, messagesContainerRef, fileInputRef, inputRef,
     // Actions
     scrollToBottom, focusComposer, resizeComposer, handleScroll,
     loadConversations, loadMessages,
-    sendMessage, deleteMessage, pinMessage,
+    sendMessage, deleteMessage, deleteManyMessages, pinMessage,
     startEditMessage, saveEditMessage,
     searchInChat, navigateSearch,
     toggleSelfDestruct, toggleReaction,
-    handleFileUpload, sendStagedImages, removeStagedImage, clearStagedImages,
+    handleFileUpload, addImagesFromFiles, sendStagedImages, removeStagedImage, clearStagedImages,
     getReplyPreview, deleteConversation,
     searchForUser, startConversation,
     getMessageMeta, copyMessage, broadcastTyping,
-    setPinnedMessage, getMessageOpacity,
+    getMessageOpacity,
+    // Prefs
+    chatPrefs,
   };
 }
+
+export type ChatHook = ReturnType<typeof useChat>;

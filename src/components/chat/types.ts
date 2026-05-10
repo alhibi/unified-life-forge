@@ -1,3 +1,10 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// Chat type definitions
+// ─────────────────────────────────────────────────────────────────────────────
+
+export type ConversationFilter = 'all' | 'unread' | 'archived';
+export type MessageTypeStr = 'text' | 'image' | 'voice' | 'file';
+
 export interface Conversation {
   id: string;
   user1_id: string;
@@ -11,6 +18,9 @@ export interface Conversation {
   otherLastSeen?: string | null;
   otherCreatedAt?: string | null;
   lastMessage?: string;
+  lastMessageType?: string;
+  lastMessageFromMe?: boolean;
+  lastMessageDeleted?: boolean;
   lastMessageTime?: string;
   unreadCount?: number;
 }
@@ -50,4 +60,24 @@ export interface ActionMenuState {
   isMine: boolean;
   rect: { top: number; bottom: number; left: number; right: number; width: number; height: number };
   containerRect: { top: number; bottom: number; height: number };
+}
+
+export interface ChatPrefs {
+  pinned: Record<string, boolean>;
+  muted: Record<string, boolean>;
+  archived: Record<string, boolean>;
+  drafts: Record<string, string>;
+  wallpapers: Record<string, string>;   // convId -> wallpaper id
+  globalWallpaper: string;              // default wallpaper
+  soundEnabled: boolean;
+  enterToSend: boolean;
+}
+
+export interface Wallpaper {
+  id: string;
+  label: string;
+  labelAr: string;
+  /** CSS background for the chat area. Keep low contrast so bubbles pop. */
+  background: string;
+  isDark?: boolean;
 }
