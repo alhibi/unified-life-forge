@@ -33,11 +33,26 @@ export type CalculationMethodId =
   | 'Kuwait'
   | 'Qatar'
   | 'Singapore'
+  | 'Kemenag'
+  | 'JAKIM'
   | 'Turkey'
   | 'UOIF'
   | 'Morocco'
   | 'Algerian'
+  | 'Tunisia'
+  | 'Jordan'
   | 'Russia';
+
+/** Minute offsets applied AFTER astronomical computation to match each
+ *  agency's published timetable (Ihtiyat / safety / iqamah delays). */
+export interface PrayerAdjustments {
+  fajr?: number;
+  sunrise?: number;
+  dhuhr?: number;
+  asr?: number;
+  maghrib?: number;
+  isha?: number;
+}
 
 export interface CalculationParams {
   fajrAngle: number;
@@ -45,13 +60,15 @@ export interface CalculationParams {
   ishaMinutesAfterMaghrib?: number;
   maghribAngle?: number;
   midnightMode?: 'Standard' | 'Jafari';
+  /** Default per-method published offsets (per agency conventions). */
+  adjustments?: PrayerAdjustments;
 }
 
 export const METHODS: Record<CalculationMethodId, CalculationParams> = {
   MWL:        { fajrAngle: 18,   ishaAngle: 17 },
   ISNA:       { fajrAngle: 15,   ishaAngle: 15 },
   Egyptian:   { fajrAngle: 19.5, ishaAngle: 17.5 },
-  UmmAlQura:  { fajrAngle: 18.5, ishaMinutesAfterMaghrib: 90 },
+  UmmAlQura:  { fajrAngle: 18.5, ishaMinutesAfterMaghrib: 90, adjustments: { maghrib: 3 } },
   Karachi:    { fajrAngle: 18,   ishaAngle: 18 },
   Tehran:     { fajrAngle: 17.7, ishaAngle: 14,  maghribAngle: 4.5, midnightMode: 'Jafari' },
   Jafari:     { fajrAngle: 16,   ishaAngle: 14,  maghribAngle: 4,   midnightMode: 'Jafari' },
@@ -59,10 +76,14 @@ export const METHODS: Record<CalculationMethodId, CalculationParams> = {
   Kuwait:     { fajrAngle: 18,   ishaAngle: 17.5 },
   Qatar:      { fajrAngle: 18,   ishaMinutesAfterMaghrib: 90 },
   Singapore:  { fajrAngle: 20,   ishaAngle: 18 },
-  Turkey:     { fajrAngle: 18,   ishaAngle: 17 },
+  Kemenag:    { fajrAngle: 20,   ishaAngle: 18, adjustments: { fajr: 2, sunrise: -1, dhuhr: 2, asr: 2, maghrib: 2, isha: 2 } },
+  JAKIM:      { fajrAngle: 20,   ishaAngle: 18, adjustments: { fajr: 1, dhuhr: 1, asr: 1, maghrib: 1, isha: 1 } },
+  Turkey:     { fajrAngle: 18,   ishaAngle: 17, adjustments: { fajr: -2, sunrise: -7, dhuhr: 5, asr: 4, maghrib: 7, isha: 1 } },
   UOIF:       { fajrAngle: 12,   ishaAngle: 12 },
-  Morocco:    { fajrAngle: 19,   ishaAngle: 17 },
-  Algerian:   { fajrAngle: 18,   ishaAngle: 17 },
+  Morocco:    { fajrAngle: 19,   ishaAngle: 17, adjustments: { maghrib: 5 } },
+  Algerian:   { fajrAngle: 18,   ishaAngle: 17, adjustments: { maghrib: 3 } },
+  Tunisia:    { fajrAngle: 18,   ishaAngle: 18, adjustments: { maghrib: 1 } },
+  Jordan:     { fajrAngle: 18,   ishaAngle: 18 },
   Russia:     { fajrAngle: 16,   ishaAngle: 15 },
 };
 
@@ -77,11 +98,15 @@ export const METHOD_LABELS: Record<CalculationMethodId, { ar: string; de: string
   Dubai:      { ar: 'دبي – الإمارات',                de: 'Dubai (VAE)' },
   Kuwait:     { ar: 'الكويت',                        de: 'Kuwait' },
   Qatar:      { ar: 'قطر',                           de: 'Katar' },
-  Singapore:  { ar: 'جنوب شرق آسيا',                 de: 'Südostasien' },
+  Singapore:  { ar: 'مويس – سنغافورة',                de: 'MUIS (Singapur)' },
+  Kemenag:    { ar: 'الأوقاف – إندونيسيا',             de: 'Kemenag (Indonesien)' },
+  JAKIM:      { ar: 'جاكيم – ماليزيا',               de: 'JAKIM (Malaysia)' },
   Turkey:     { ar: 'ديانت – تركيا',                 de: 'Diyanet (Türkei)' },
   UOIF:       { ar: 'الاتحاد الإسلامي – فرنسا',      de: 'UOIF (Frankreich)' },
   Morocco:    { ar: 'الأوقاف – المغرب',              de: 'Habous (Marokko)' },
   Algerian:   { ar: 'الأوقاف – الجزائر',             de: 'Algerische Behörde' },
+  Tunisia:    { ar: 'الأوقاف – تونس',                de: 'Habous (Tunesien)' },
+  Jordan:     { ar: 'الأوقاف – الأردن',              de: 'Awqaf (Jordanien)' },
   Russia:     { ar: 'مجلس المفتين – روسيا',          de: 'Muftirat (Russland)' },
 };
 
@@ -145,9 +170,18 @@ export function computePrayerTimes(
   lat: number,
   lng: number,
   method: CalculationMethodId,
-  asrShadowFactor: 1 | 2 = 1
+  asrShadowFactor: 1 | 2 = 1,
+  extraAdjustments?: PrayerAdjustments
 ): PrayerTimesResult {
   const params = METHODS[method];
+  const adj: Required<PrayerAdjustments> = {
+    fajr:    (params.adjustments?.fajr    ?? 0) + (extraAdjustments?.fajr    ?? 0),
+    sunrise: (params.adjustments?.sunrise ?? 0) + (extraAdjustments?.sunrise ?? 0),
+    dhuhr:   (params.adjustments?.dhuhr   ?? 0) + (extraAdjustments?.dhuhr   ?? 0),
+    asr:     (params.adjustments?.asr     ?? 0) + (extraAdjustments?.asr     ?? 0),
+    maghrib: (params.adjustments?.maghrib ?? 0) + (extraAdjustments?.maghrib ?? 0),
+    isha:    (params.adjustments?.isha    ?? 0) + (extraAdjustments?.isha    ?? 0),
+  };
   // Approximate jd at solar noon for this location to stabilize declination.
   const jdNoon = julianDay(year, month, day) + 0.5 - lng / 360;
   const { declination: decl, equationOfTime: eqt } = sunPosition(jdNoon);
@@ -204,12 +238,12 @@ export function computePrayerTimes(
     : (maghrib + (sunrise + 24)) / 2;
 
   return {
-    fajr: fajr * 60,
-    sunrise: sunrise * 60,
-    dhuhr: dhuhr * 60,
-    asr: asr * 60,
-    maghrib: maghrib * 60,
-    isha: isha * 60,
+    fajr:     fajr     * 60 + adj.fajr,
+    sunrise:  sunrise  * 60 + adj.sunrise,
+    dhuhr:    dhuhr    * 60 + adj.dhuhr,
+    asr:      asr      * 60 + adj.asr,
+    maghrib:  maghrib  * 60 + adj.maghrib,
+    isha:     isha     * 60 + adj.isha,
     midnight: midnight * 60,
   };
 }
@@ -298,15 +332,18 @@ export function getCityPrayerInfo(
   timeZone: string,
   method: CalculationMethodId,
   now: Date,
-  asrShadowFactor: 1 | 2 = 1
+  asrShadowFactor: 1 | 2 = 1,
+  extraAdjustments?: PrayerAdjustments
 ): CityPrayerInfo {
   const d = localDateInZone(timeZone, now);
   const offsetMin = tzOffsetMinutes(timeZone, now);
-  const utc = computePrayerTimes(d.year, d.month, d.day, lat, lng, method, asrShadowFactor);
+  const utc = computePrayerTimes(d.year, d.month, d.day, lat, lng, method, asrShadowFactor, extraAdjustments);
 
-  // Convert each prayer from UTC minutes → local minutes (0–1439, wrap 24h)
+  // Convert each prayer from UTC minutes → local minutes (0–1439, wrap 24h).
+  // Round to whole minutes — every published timetable in the world publishes
+  // HH:MM, so the consumer-visible "minutes until next prayer" should be int.
   const toLocal = (utcMin: number) => {
-    const m = utcMin + offsetMin;
+    const m = Math.round(utcMin + offsetMin);
     return ((m % 1440) + 1440) % 1440;
   };
 
