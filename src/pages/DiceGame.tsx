@@ -240,6 +240,26 @@ export default function DiceGame() {
 
   useEffect(() => { resetYatzy(); resetHighRoll(); }, [mode, resetYatzy, resetHighRoll]);
 
+  // Yatzy end-of-game detection: both cards full
+  useEffect(() => {
+    if (mode !== 'yatzy' || gameOver) return;
+    const pCount = Object.keys(playerCard.scores).length;
+    const aCount = Object.keys(aiCard.scores).length;
+    if (pCount >= ALL_CATEGORIES.length && aCount >= ALL_CATEGORIES.length) {
+      setGameOver(true);
+      const finalP = totalScore(playerCard);
+      const finalA = totalScore(aiCard);
+      const s = loadStats();
+      s.gamesPlayed = (s.gamesPlayed || 0) + 1;
+      s.totalScore = (s.totalScore || 0) + finalP;
+      if (finalP > finalA) s.gamesWon = (s.gamesWon || 0) + 1;
+      if (finalP > (s.bestScore || 0)) s.bestScore = finalP;
+      saveStatsFn(s);
+      if (finalP > finalA) playSfx('win'); else playSfx('lose');
+      vibrate([60, 60, 200]);
+    }
+  }, [playerCard, aiCard, mode, gameOver]);
+
   const rollDice = useCallback(() => {
     if (rolling || rollsLeft <= 0 || turn !== 'player' || gameOver) return;
     setRolling(true);
@@ -286,13 +306,16 @@ export default function DiceGame() {
       });
       playSfx('place');
       aiTimer.current = setTimeout(() => {
+        const aiFilledCount = Object.keys(aiCard.scores).length + 1;
+        const playerFilledCount = Object.keys(playerCard.scores).length;
+        if (aiFilledCount >= ALL_CATEGORIES.length && playerFilledCount >= ALL_CATEGORIES.length) return;
         setTurn('player');
         setDice([1, 1, 1, 1, 1]);
         setHeld([false, false, false, false, false]);
         setRollsLeft(3);
       }, 800);
     }, 650);
-  }, [aiCard, aiLevel]);
+  }, [aiCard, aiLevel, playerCard]);
 
   const pickCategory = useCallback((cat: CategoryId) => {
     if (turn !== 'player' || gameOver || rollsLeft === 3) return;
@@ -306,22 +329,6 @@ export default function DiceGame() {
       const s = loadStats();
       s.yatzeesRolled = (s.yatzeesRolled || 0) + 1;
       saveStatsFn(s);
-    }
-    // Check end
-    const filled = { ...playerCard.scores, [cat]: value };
-    const filledCount = Object.keys(filled).length;
-    if (filledCount === ALL_CATEGORIES.length) {
-      setGameOver(true);
-      const finalP = totalScore({ scores: filled });
-      const finalA = totalScore(aiCard);
-      const s = loadStats();
-      s.gamesPlayed = (s.gamesPlayed || 0) + 1;
-      s.totalScore = (s.totalScore || 0) + finalP;
-      if (finalP > finalA) s.gamesWon = (s.gamesWon || 0) + 1;
-      if (finalP > (s.bestScore || 0)) s.bestScore = finalP;
-      saveStatsFn(s);
-      if (finalP > finalA) playSfx('win'); else playSfx('lose');
-      return;
     }
     setTurn('ai');
     playAiTurn();

@@ -41,8 +41,18 @@ function shuffle(size: number): number[] {
   return board;
 }
 
-// Find the best tile to move next: pick adjacent-to-blank tile whose movement
-// most reduces total Manhattan distance.
+// Sum of Manhattan distances to goal: admissible heuristic for 15-puzzle
+function manhattan(board: number[], size: number): number {
+  let h = 0;
+  for (let i = 0; i < board.length; i++) {
+    const v = board[i]; if (v === 0) continue;
+    const goal = v - 1;
+    h += Math.abs(Math.floor(i / size) - Math.floor(goal / size)) + Math.abs((i % size) - (goal % size));
+  }
+  return h;
+}
+
+// Greedy: pick adjacent-to-blank tile whose movement reduces Manhattan distance most.
 function bestHintTile(board: number[], size: number): number | null {
   const blank = board.indexOf(0);
   const br = Math.floor(blank / size), bc = blank % size;
@@ -63,10 +73,56 @@ function bestHintTile(board: number[], size: number): number | null {
   return best ? best.idx : null;
 }
 
-// Build a list of optimal moves toward solution (IDA*-lite, capped depth for 3×3 only).
-// For larger sizes we just return the best hint tile.
+// IDA* solver for sliding puzzle. Returns the FIRST optimal move index, or null on timeout.
+// Works reliably for 3×3 (always optimal); for 4×4 falls back to greedy if time budget exceeded.
+function solveIdaStarFirstMove(board: number[], size: number, timeMs: number): number | null {
+  const goalBlank = -1;
+  const deadline = Date.now() + timeMs;
+  let firstMove: number | null = null;
+
+  function dfs(b: number[], blank: number, g: number, bound: number, prevBlank: number, rootMove: number | null): number {
+    const h = manhattan(b, size);
+    const f = g + h;
+    if (f > bound) return f;
+    if (h === 0) { firstMove = rootMove; return -1; }
+    if (Date.now() > deadline) return -2;
+    const br = Math.floor(blank / size), bc = blank % size;
+    const dirs: [number, number][] = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+    let min = Infinity;
+    for (const [dr, dc] of dirs) {
+      const r = br + dr, c = bc + dc;
+      if (r < 0 || r >= size || c < 0 || c >= size) continue;
+      const idx = r * size + c;
+      if (idx === prevBlank) continue;
+      [b[blank], b[idx]] = [b[idx], b[blank]];
+      const nextRoot = rootMove ?? idx;
+      const t = dfs(b, idx, g + 1, bound, blank, nextRoot);
+      [b[blank], b[idx]] = [b[idx], b[blank]];
+      if (t === -1) return -1;
+      if (t === -2) return -2;
+      if (t < min) min = t;
+    }
+    return min;
+  }
+
+  const start = board.slice();
+  let bound = manhattan(start, size);
+  while (Date.now() < deadline) {
+    const t = dfs(start, start.indexOf(0), 0, bound, goalBlank, null);
+    if (t === -1) return firstMove;
+    if (t === -2 || t === Infinity) return null;
+    bound = t;
+  }
+  return null;
+}
+
 function solveStep(board: number[], size: number): number | null {
   if (isSolved(board, size)) return null;
+  if (size <= 4) {
+    const budget = size === 3 ? 200 : 600;
+    const ida = solveIdaStarFirstMove(board, size, budget);
+    if (ida !== null) return ida;
+  }
   return bestHintTile(board, size);
 }
 
