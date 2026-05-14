@@ -114,6 +114,10 @@ type Token =
   | { kind: 'code'; value: string }
   | { kind: 'link'; value: string; href: string };
 
+// Tokenize returns base Token[], but tokenizeStyles enriches styled tokens
+// with a `children` field for nested style support — see RichToken below.
+
+
 // URL detection (http(s)://, www.). Tight enough to avoid false positives.
 const URL_REGEX = /\b((?:https?:\/\/|www\.)[^\s<>()]+[^\s<>().,;:!?"'])/gi;
 
@@ -157,17 +161,21 @@ function tokenizeInline(text: string): Token[] {
   return tokens;
 }
 
-function tokenizeStyles(text: string): Token[] {
-  // Apply *bold*, _italic_, ~strike~ in one pass (non-greedy, with \S boundaries)
-  // We process left-to-right and recurse for correctness of nested styles.
-  const tokens: Token[] = [];
-  const patterns: Array<{ regex: RegExp; kind: Token['kind'] }> = [
+// Styled token may hold either a plain string OR a nested token tree so that
+// patterns like `*hello _world_*` render as bold-then-bold-italic correctly
+// instead of leaking the inner markers as literal text.
+type StyledToken = Extract<Token, { kind: 'bold' | 'italic' | 'strike' }>;
+export type RichToken = Token | (StyledToken & { children: RichToken[] });
+
+function tokenizeStyles(text: string): RichToken[] {
+  const tokens: RichToken[] = [];
+  const patterns: Array<{ regex: RegExp; kind: 'bold' | 'italic' | 'strike' }> = [
     { regex: /\*(\S(?:[^*\n]*\S)?)\*/, kind: 'bold' },
     { regex: /_(\S(?:[^_\n]*\S)?)_/,   kind: 'italic' },
     { regex: /~(\S(?:[^~\n]*\S)?)~/,   kind: 'strike' },
   ];
 
-  let best: { index: number; match: RegExpExecArray; kind: Token['kind'] } | null = null;
+  let best: { index: number; match: RegExpExecArray; kind: 'bold' | 'italic' | 'strike' } | null = null;
   for (const p of patterns) {
     const m = p.regex.exec(text);
     if (m && (best === null || m.index < best.index)) {
@@ -182,35 +190,41 @@ function tokenizeStyles(text: string): Token[] {
 
   const { index, match, kind } = best;
   if (index > 0) tokens.push({ kind: 'text', value: text.slice(0, index) });
-  // Recursively tokenize the inner content to allow nested styles (e.g. *_bold italic_*)
   const inner = match[1];
   const innerTokens = tokenizeStyles(inner);
-  // If the inner is plain text only, use simple styled token
-  if (innerTokens.length === 1 && innerTokens[0].kind === 'text') {
-    tokens.push({ kind, value: innerTokens[0].value } as Token);
-  } else {
-    // Wrap each inner token with our style; for simplicity we merge by rendering
-    // with outer style applied via a wrapper in renderRichText.
-    tokens.push({ kind, value: inner } as Token);
-  }
+  tokens.push({ kind, value: inner, children: innerTokens });
   const after = text.slice(index + match[0].length);
   tokens.push(...tokenizeStyles(after));
   return tokens;
 }
 
+function renderToken(t: RichToken, key: number | string): React.ReactNode {
+  switch (t.kind) {
+    case 'bold': {
+      const children = 'children' in t ? t.children.map((c, i) => renderToken(c, i)) : t.value;
+      return React.createElement('strong', { key, className: 'font-semibold' }, children);
+    }
+    case 'italic': {
+      const children = 'children' in t ? t.children.map((c, i) => renderToken(c, i)) : t.value;
+      return React.createElement('em', { key, className: 'italic' }, children);
+    }
+    case 'strike': {
+      const children = 'children' in t ? t.children.map((c, i) => renderToken(c, i)) : t.value;
+      return React.createElement('span', { key, className: 'line-through opacity-70' }, children);
+    }
+    case 'code':
+      return React.createElement('code', { key, className: 'px-1 py-[1px] rounded-md bg-muted/40 font-mono text-[0.92em]' }, t.value);
+    case 'link':
+      return React.createElement('a', { key, href: t.href, target: '_blank', rel: 'noopener noreferrer', className: 'underline underline-offset-2 text-primary break-all', onClick: (e: React.MouseEvent) => e.stopPropagation() }, t.value);
+    default:
+      return React.createElement(React.Fragment, { key }, t.value);
+  }
+}
+
 /** Render parsed rich-text tokens as React nodes. */
 export function renderRichText(raw: string): React.ReactNode[] {
-  const tokens = tokenize(raw);
-  return tokens.map((t, i) => {
-    switch (t.kind) {
-      case 'bold':   return React.createElement('strong', { key: i, className: 'font-semibold' }, t.value);
-      case 'italic': return React.createElement('em',     { key: i, className: 'italic' }, t.value);
-      case 'strike': return React.createElement('span',   { key: i, className: 'line-through opacity-70' }, t.value);
-      case 'code':   return React.createElement('code',   { key: i, className: 'px-1 py-[1px] rounded-md bg-muted/40 font-mono text-[0.92em]' }, t.value);
-      case 'link':   return React.createElement('a',      { key: i, href: t.href, target: '_blank', rel: 'noopener noreferrer', className: 'underline underline-offset-2 text-primary break-all', onClick: (e: React.MouseEvent) => e.stopPropagation() }, t.value);
-      default:       return React.createElement(React.Fragment, { key: i }, t.value);
-    }
-  });
+  const tokens = tokenize(raw) as RichToken[];
+  return tokens.map((t, i) => renderToken(t, i));
 }
 
 /** Strip formatting markers from content for copy-as-plain and the conversation preview. */
