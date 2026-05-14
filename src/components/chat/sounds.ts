@@ -72,10 +72,35 @@ export function playChatSound(name: SoundName) {
   }
 }
 
-/** Light haptic tick on supported devices. */
-export function haptic(kind: 'light' | 'medium' | 'heavy' = 'light') {
+/**
+ * Web Native 2026 haptic patterns. The Vibration API is supported on Android
+ * Chrome and Safari 17.4+ (iOS). Unsupported devices silently skip.
+ *
+ * Vocabulary mirrors iOS UIFeedbackGenerator so we can pick a kind by intent
+ * rather than millisecond counts:
+ *   - light    → tap on a UI element (toggle, chip, segmented control)
+ *   - medium   → confirmation tap (sent message, picked emoji)
+ *   - heavy    → emphatic action (delete, long-press lock, big CTA)
+ *   - success  → "✓ done" — gentle double tap
+ *   - error    → "✗ bad" — sharper double tap
+ *   - warning  → "⚠ careful" — three-pulse
+ *   - tick     → scroll-snap / picker detent (very short)
+ */
+export type HapticKind = 'light' | 'medium' | 'heavy' | 'success' | 'error' | 'warning' | 'tick';
+
+const HAPTIC_PATTERNS: Record<HapticKind, number | number[]> = {
+  light:   6,
+  medium:  15,
+  heavy:   30,
+  tick:    4,
+  success: [10, 30, 10],
+  error:   [30, 10, 30],
+  warning: [15, 40, 15, 40, 15],
+};
+
+export function haptic(kind: HapticKind = 'light') {
   if (typeof navigator === 'undefined' || !navigator.vibrate) return;
   try {
-    navigator.vibrate(kind === 'heavy' ? 30 : kind === 'medium' ? 15 : 6);
+    navigator.vibrate(HAPTIC_PATTERNS[kind]);
   } catch { /* no-op */ }
 }

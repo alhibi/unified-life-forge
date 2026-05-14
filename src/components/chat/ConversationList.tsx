@@ -278,6 +278,11 @@ const ConversationList: React.FC<ConversationListProps> = ({
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: Math.min(idx * 0.015, 0.3), duration: 0.2 }}
                     onClick={() => onSelect(conv)}
+                    style={{
+                      contentVisibility: 'auto',
+                      containIntrinsicSize: 'auto 78px',
+                      contain: 'layout style',
+                    }}
                     className={cn(
                       'w-full flex items-center gap-3 px-4 py-3 transition-colors text-start bg-background',
                       'active:bg-accent/40',
