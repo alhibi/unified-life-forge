@@ -2,10 +2,66 @@ import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
-  // TODO: تقييد بدومين التطبيق عند الإنتاج
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
+
+// Verify the caller is an authenticated Supabase user. The platform may
+// or may not strip the JWT for us depending on the function's verify_jwt
+// flag, so we always re-check here too — defence in depth.
+async function requireUser(req: Request): Promise<{ ok: true; userId: string } | { ok: false; status: number; error: string }> {
+  const auth = req.headers.get("authorization") || req.headers.get("Authorization");
+  if (!auth || !auth.toLowerCase().startsWith("bearer ")) {
+    return { ok: false, status: 401, error: "Missing bearer token" };
+  }
+  const token = auth.slice(7).trim();
+  if (!token) return { ok: false, status: 401, error: "Empty bearer token" };
+
+  const sb = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_ANON_KEY")!,
+    { global: { headers: { Authorization: `Bearer ${token}` } } },
+  );
+  const { data, error } = await sb.auth.getUser(token);
+  if (error || !data?.user) {
+    return { ok: false, status: 401, error: "Invalid or expired token" };
+  }
+  return { ok: true, userId: data.user.id };
+}
+
+// Reject SSRF vectors before letting the server fetch a user-supplied URL:
+// - non-http(s) schemes (file:, gopher:, data:, ftp:, etc.)
+// - localhost / loopback hostnames
+// - link-local / private RFC1918 / CGNAT / metadata addresses
+// - explicit ports (everything below 1024 plus typical internal services)
+const PRIVATE_HOSTNAME_PATTERNS: RegExp[] = [
+  /^localhost$/i,
+  /^127(?:\.\d+){3}$/,
+  /^0\.0\.0\.0$/,
+  /^10(?:\.\d+){3}$/,
+  /^192\.168(?:\.\d+){2}$/,
+  /^172\.(?:1[6-9]|2\d|3[01])(?:\.\d+){2}$/,
+  /^169\.254(?:\.\d+){2}$/,
+  /^100\.(?:6[4-9]|[7-9]\d|1[01]\d|12[0-7])(?:\.\d+){2}$/,
+  /^::1$/,
+  /^fc[0-9a-f]{2}:/i,
+  /^fd[0-9a-f]{2}:/i,
+  /^fe80:/i,
+  /\.internal$/i,
+  /\.local$/i,
+  /\.localdomain$/i,
+];
+
+function isSafeFeedUrl(input: string): boolean {
+  let u: URL;
+  try { u = new URL(input); } catch { return false; }
+  if (u.protocol !== "http:" && u.protocol !== "https:") return false;
+  const host = u.hostname.replace(/^\[|\]$/g, "");
+  if (!host) return false;
+  if (PRIVATE_HOSTNAME_PATTERNS.some(re => re.test(host))) return false;
+  return true;
+}
 
 interface FeedItem {
   title: string;
@@ -135,6 +191,7 @@ function parseRSS(xml: string, maxItems: number): { title: string; items: FeedIt
 
 // ── Fetch full article from web page ──
 async function scrapeArticle(url: string): Promise<string | null> {
+  if (!isSafeFeedUrl(url)) return null;
   try {
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), 10000);
@@ -149,6 +206,9 @@ async function scrapeArticle(url: string): Promise<string | null> {
     });
     clearTimeout(timer);
     if (!res.ok) return null;
+    // Re-check the final URL after redirects in case an attacker chained
+    // redirects to a private host.
+    if (!isSafeFeedUrl(res.url)) return null;
     const html = await res.text();
 
     // Remove noise
@@ -309,6 +369,21 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  if (req.method !== "POST") {
+    return new Response(JSON.stringify({ error: "Method not allowed" }), {
+      status: 405,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
+  const authResult = await requireUser(req);
+  if (!authResult.ok) {
+    return new Response(JSON.stringify({ error: authResult.error }), {
+      status: authResult.status,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
   try {
     const body = await req.json();
     const { urls, limit, fetchFullContent, store, nameMap } = body;
@@ -321,9 +396,21 @@ serve(async (req) => {
       });
     }
 
+    const safeUrls = (urls as unknown[])
+      .filter((u): u is string => typeof u === "string")
+      .filter(isSafeFeedUrl)
+      .slice(0, 50);
+
+    if (safeUrls.length === 0) {
+      return new Response(JSON.stringify({ error: "No valid http(s) URLs after SSRF filtering" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     // Step 1: Fetch and parse all feeds in parallel (fast)
     const feedResults = await Promise.allSettled(
-      urls.map(async (url: string) => {
+      safeUrls.map(async (url: string) => {
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), 15000);
         try {
@@ -333,6 +420,7 @@ serve(async (req) => {
           });
           clearTimeout(timeout);
           if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          if (!isSafeFeedUrl(res.url)) throw new Error("Redirect landed on disallowed host");
           const text = await res.text();
           const parsed = parseRSS(text, maxItems);
           const sourceName = nameMap?.[url] || parsed.title;

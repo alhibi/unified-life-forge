@@ -1,1 +1,6 @@
 project_id = "nmrckgzmluoavgucqvjh"
+
+# Edge Functions require an authenticated JWT before reaching the handler.
+# The handler also re-checks via supabase.auth.getUser() as defence in depth.
+[functions.fetch-rss]
+verify_jwt = true

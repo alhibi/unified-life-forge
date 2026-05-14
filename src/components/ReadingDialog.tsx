@@ -11,6 +11,7 @@ import {
   Newspaper, X, Check, Copy
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { sanitizeRssHtml } from '@/utils/sanitizeRssHtml';
 
 interface FeedItem {
   title: string;
@@ -111,22 +112,6 @@ function formatDate(dateStr: string, lang: string): string {
       weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit',
     });
   } catch { return dateStr; }
-}
-
-// Sanitize HTML for safe rendering - allow images and basic formatting
-function sanitizeHtml(html: string): string {
-  if (!html) return '';
-  // Remove script tags, style tags, iframes, objects, embeds
-  let clean = html
-    .replace(/<script[\s\S]*?<\/script>/gi, '')
-    .replace(/<style[\s\S]*?<\/style>/gi, '')
-    .replace(/<iframe[\s\S]*?<\/iframe>/gi, '')
-    .replace(/<object[\s\S]*?<\/object>/gi, '')
-    .replace(/<embed[^>]*>/gi, '')
-    .replace(/on\w+="[^"]*"/gi, '')
-    .replace(/on\w+='[^']*'/gi, '')
-    .replace(/javascript:/gi, '');
-  return clean;
 }
 
 type View = 'list' | 'article' | 'manage' | 'suggested';
@@ -340,7 +325,7 @@ export default function ReadingDialog({ open, onOpenChange }: ReadingDialogProps
                       [&_h1]:text-lg [&_h2]:text-base [&_h3]:text-sm
                       [&_p]:mb-4 [&_blockquote]:border-s-2 [&_blockquote]:border-primary/30 [&_blockquote]:ps-4 [&_blockquote]:italic
                       [&_figure]:my-4 [&_figcaption]:text-xs [&_figcaption]:text-muted-foreground [&_figcaption]:mt-2"
-                    dangerouslySetInnerHTML={{ __html: sanitizeHtml(selectedArticle.fullContent!) }}
+                    dangerouslySetInnerHTML={{ __html: sanitizeRssHtml(selectedArticle.fullContent!) }}
                   />
                 ) : (
                   <p className="text-sm text-foreground/80 leading-[1.9]">{selectedArticle.description}</p>
