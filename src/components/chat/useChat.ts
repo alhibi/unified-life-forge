@@ -7,6 +7,7 @@ import { useOtherUserPresence, useUserOnline, useOnlineUserIds, formatLastSeen, 
 import { getSignedFileUrl, getMessagePreview } from './chatUtils';
 import { playChatSound, primeAudio, haptic } from './sounds';
 import { useChatPrefs } from './useChatPrefs';
+import { acquireTypingChannel } from './typingChannels';
 import {
   chatError, chatSuccess, describeError, validateFile, clampText,
   MAX_STAGED_IMAGES,
@@ -531,42 +532,34 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
       }
     };
 
-    const channel = supabase.channel(`typing:${activeConv.id}`, {
-      config: { presence: { key: user.id } },
-    });
+    // Acquire the shared `typing:<id>` channel; the singleton attaches its
+    // presence listeners exactly once, before `.subscribe()`, so the second
+    // consumer (list observer) never has to call `.on('presence', …)` after
+    // the channel is already subscribed.
+    const handle = acquireTypingChannel(activeConv.id, user.id);
+    typingChannelRef.current = handle.channel;
 
-    channel.on('presence', { event: 'sync' }, () => {
-      const state = channel.presenceState();
-      const others = Object.keys(state).filter(k => k !== user!.id);
-      const isTyping = others.some(k => {
-        const presences = state[k] as Record<string, unknown>[];
-        return presences?.some((p) => p.typing === true);
-      });
+    const offChange = handle.onChange((state) => {
+      const others = Object.entries(state).filter(([k]) => k !== user.id);
+      const isTyping = others.some(([, presences]) =>
+        (presences as Array<Record<string, unknown>>).some(p => p.typing === true),
+      );
       setTypingUser(isTyping);
       if (isTyping) armStale(); else disarmStale();
-    });
-
-    channel.on('presence', { event: 'leave' }, ({ leftPresences }) => {
-      const otherLeft = leftPresences?.some((p: Record<string, unknown>) => p.typing === true);
-      if (otherLeft) { setTypingUser(false); disarmStale(); }
-    });
-
-    channel.subscribe(async (status) => {
-      if (status === 'SUBSCRIBED') typingChannelRef.current = channel;
     });
 
     return () => {
       if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
       disarmStale();
-      // Synchronously emit a final {typing: false} on the OUTGOING channel
-      // so the other side sees us stop the moment we switch conv, even if
-      // the trailing setTimeout (which fires {typing: false}) never gets to
-      // run because we just cleared it.
-      try { channel.track({ typing: false }); } catch { /* no-op */ }
-      try { channel.untrack(); } catch { /* no-op */ }
+      // Emit a final {typing: false} so the other side stops the indicator
+      // the moment we switch conv, even though the trailing setTimeout that
+      // would have fired it just got cleared above.
+      try { handle.channel.track({ typing: false }); } catch { /* no-op */ }
+      try { handle.channel.untrack(); } catch { /* no-op */ }
       typingChannelRef.current = null;
       typingThrottleRef.current = 0;
-      supabase.removeChannel(channel);
+      offChange();
+      handle.release();
     };
   }, [activeConv, user]);
 
@@ -584,18 +577,14 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
   useEffect(() => {
     if (!open || !user || !convIdsForTyping) return;
     const ids = convIdsForTyping.split(',').filter(Boolean);
-    const listKey = `${user.id}-list`;
-    const channels = ids.map(convId => {
-      // Reuse the same channel name as the active-conv tracker so writes
-      // there are visible here. Distinguish ourselves with a `-list` suffix
-      // on the presence key so the active-conv subscriber doesn't think we
-      // are a second tab for the same user.
-      const ch = supabase.channel(`typing:${convId}`, {
-        config: { presence: { key: listKey } },
-      });
-      const recompute = () => {
-        const state = ch.presenceState();
-        const others = Object.entries(state).filter(([k]) => k !== listKey && k !== user.id);
+    // The list observer shares the per-conv typing channel with the
+    // active-conv tracker. Same presence key (user.id) — both filter out
+    // their own key when computing "is the OTHER side typing?", so they
+    // never see themselves as typing.
+    const handles = ids.map(convId => {
+      const handle = acquireTypingChannel(convId, user.id);
+      const off = handle.onChange((state) => {
+        const others = Object.entries(state).filter(([k]) => k !== user.id);
         const typing = others.some(([, entries]) =>
           (entries as Array<Record<string, unknown>>).some(e => e.typing === true),
         );
@@ -603,15 +592,11 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
           if (prev[convId] === typing) return prev;
           return { ...prev, [convId]: typing };
         });
-      };
-      ch.on('presence', { event: 'sync' }, recompute);
-      ch.on('presence', { event: 'join' },  recompute);
-      ch.on('presence', { event: 'leave' }, recompute);
-      ch.subscribe();
-      return ch;
+      });
+      return { off, handle };
     });
     return () => {
-      channels.forEach(ch => supabase.removeChannel(ch));
+      handles.forEach(({ off, handle }) => { off(); handle.release(); });
       setTypingByConv({});
     };
   }, [open, user, convIdsForTyping]);
