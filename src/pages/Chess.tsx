@@ -538,6 +538,20 @@ function getBestMove(game: GameState, aiColor: Color, difficulty: AIDifficulty):
     if (Math.abs(bestEval) > 90000) break;
     if (Date.now() > searchDeadline) break;
   }
+
+  // Opening / early-game variety: pick randomly among moves within 25cp of best
+  // for medium difficulty, 12cp for hard, 5cp for master. Avoids repetitive play.
+  const tolerance = difficulty === 'medium' ? 25 : difficulty === 'hard' ? 12 : 5;
+  if (game.moveCount < 12) {
+    const tied: { from: Square; to: Square }[] = [];
+    for (const m of moves) {
+      const k = `${m.from[0]}${m.from[1]}-${m.to[0]}${m.to[1]}`;
+      const sc = moveScores.get(k);
+      if (sc === undefined) continue;
+      if (isMaximizing ? sc >= bestEval - tolerance : sc <= bestEval + tolerance) tied.push(m);
+    }
+    if (tied.length > 1) bestMove = tied[Math.floor(Math.random() * tied.length)];
+  }
   return bestMove;
 }
 
