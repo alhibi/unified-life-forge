@@ -1,9 +1,10 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
-import { Crown, RotateCcw, Undo2, Flag, Trophy, Clock, ChevronDown, Settings2, Play, Users, Monitor } from 'lucide-react';
+import { Crown, RotateCcw, Undo2, Flag, Clock, Play, Lightbulb } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import GameShell from '@/components/GameShell';
+import { playSfx, vibrate } from '@/utils/gameFeedback';
 
 type Color = 'w' | 'b';
 type PieceType = 'K' | 'Q' | 'R' | 'B' | 'N' | 'P';
@@ -432,70 +433,10 @@ function getBestMove(game: GameState, aiColor: Color, difficulty: AIDifficulty):
 }
 
 // ========== Sound Effects ==========
-const audioCtxRef = { current: null as AudioContext | null };
-function getAudioCtx() {
-  if (!audioCtxRef.current) audioCtxRef.current = new AudioContext();
-  return audioCtxRef.current;
-}
-
-function playMoveSound() {
-  try {
-    const ctx = getAudioCtx();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(600, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(400, ctx.currentTime + 0.08);
-    gain.gain.setValueAtTime(0.15, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1);
-    osc.start(ctx.currentTime);
-    osc.stop(ctx.currentTime + 0.1);
-  } catch {}
-}
-
-function playCaptureSound() {
-  try {
-    const ctx = getAudioCtx();
-    const osc = ctx.createOscillator();
-    const osc2 = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain);
-    osc2.connect(gain);
-    gain.connect(ctx.destination);
-    osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(300, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(100, ctx.currentTime + 0.15);
-    osc2.type = 'square';
-    osc2.frequency.setValueAtTime(150, ctx.currentTime);
-    osc2.frequency.exponentialRampToValueAtTime(80, ctx.currentTime + 0.12);
-    gain.gain.setValueAtTime(0.12, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.18);
-    osc.start(ctx.currentTime);
-    osc2.start(ctx.currentTime);
-    osc.stop(ctx.currentTime + 0.18);
-    osc2.stop(ctx.currentTime + 0.18);
-  } catch {}
-}
-
-function playCheckSound() {
-  try {
-    const ctx = getAudioCtx();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.type = 'square';
-    osc.frequency.setValueAtTime(800, ctx.currentTime);
-    osc.frequency.setValueAtTime(600, ctx.currentTime + 0.1);
-    osc.frequency.setValueAtTime(800, ctx.currentTime + 0.2);
-    gain.gain.setValueAtTime(0.1, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
-    osc.start(ctx.currentTime);
-    osc.stop(ctx.currentTime + 0.3);
-  } catch {}
-}
+const playMoveSound = () => { playSfx('move'); vibrate(12); };
+const playCaptureSound = () => { playSfx('capture'); vibrate([10, 20, 25]); };
+const playCheckSound = () => { playSfx('check'); vibrate([30, 30, 50]); };
+const playCastleSound = () => { playSfx('castle'); vibrate([20, 30, 20]); };
 
 // ========== Component ==========
 export default function ChessPage() {
@@ -503,7 +444,15 @@ export default function ChessPage() {
   const navigate = useNavigate();
   
   const savedChess = React.useMemo(() => loadChessGame(), []);
-  
+
+  type TimeControl = 'none' | 'rapid' | 'blitz' | 'bullet';
+  const TC: Record<TimeControl, { seconds: number; inc: number }> = {
+    none:   { seconds: 0,   inc: 0 },
+    rapid:  { seconds: 600, inc: 5 },
+    blitz:  { seconds: 300, inc: 2 },
+    bullet: { seconds: 60,  inc: 1 },
+  };
+
   const [game, setGame] = useState<GameState>(savedChess?.game || initGameState);
   const [selected, setSelected] = useState<Square | null>(null);
   const [legalMoves, setLegalMoves] = useState<Square[]>([]);
@@ -526,6 +475,11 @@ export default function ChessPage() {
   const [showModeSelector, setShowModeSelector] = useState(false);
   const [aiThinking, setAiThinking] = useState(false);
   const [promotionPending, setPromotionPending] = useState<{ from: Square; to: Square } | null>(null);
+  const [timeControl, setTimeControl] = useState<TimeControl>(() => (localStorage.getItem('chess-tc') as TimeControl) || 'none');
+  const [clockW, setClockW] = useState<number>(() => TC[(localStorage.getItem('chess-tc') as TimeControl) || 'none'].seconds);
+  const [clockB, setClockB] = useState<number>(() => TC[(localStorage.getItem('chess-tc') as TimeControl) || 'none'].seconds);
+  const [hintMove, setHintMove] = useState<{ from: Square; to: Square } | null>(null);
+  const [hintCount, setHintCount] = useState(0);
 
   // Auto-save chess game state
   useEffect(() => {
@@ -541,6 +495,28 @@ export default function ChessPage() {
     const iv = setInterval(() => setGameTimer(t => t + 1), 1000);
     return () => clearInterval(iv);
   }, [isRunning, gameOver]);
+
+  // Per-player chess clock
+  useEffect(() => {
+    if (!isRunning || gameOver || timeControl === 'none') return;
+    const iv = setInterval(() => {
+      if (game.turn === 'w') setClockW(s => Math.max(0, s - 1));
+      else setClockB(s => Math.max(0, s - 1));
+    }, 1000);
+    return () => clearInterval(iv);
+  }, [isRunning, gameOver, game.turn, timeControl]);
+
+  // Flag fall = loss
+  useEffect(() => {
+    if (timeControl === 'none' || gameOver) return;
+    if (clockW <= 0) {
+      setStatus(language === 'ar' ? 'سقوط العلم — فوز الأسود' : 'Flag fell — Black wins');
+      recordResult('b'); setGameOver(true); setIsRunning(false);
+    } else if (clockB <= 0) {
+      setStatus(language === 'ar' ? 'سقوط العلم — فوز الأبيض' : 'Flag fell — White wins');
+      recordResult('w'); setGameOver(true); setIsRunning(false);
+    }
+  }, [clockW, clockB, timeControl, gameOver, language]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const formatTimer = (s: number) => `${Math.floor(s / 60).toString().padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`;
 
@@ -622,9 +598,21 @@ export default function ChessPage() {
 
     setHistory(prev => [...prev, { ...game }]);
     setLastMove({ from: [sr, sc], to: [tr, tc] });
+    setHintMove(null);
 
-    // Play sound effect
-    if (isCapture) playCaptureSound();
+    // Apply increment for player who just moved
+    if (timeControl !== 'none') {
+      const inc = TC[timeControl].inc;
+      if (inc > 0) {
+        if (game.turn === 'w') setClockW(s => s + inc);
+        else setClockB(s => s + inc);
+      }
+    }
+
+    // Sound effects
+    const isCastle = piece.type === 'K' && Math.abs(tc - sc) === 2;
+    if (isCastle) playCastleSound();
+    else if (isCapture) playCaptureSound();
     else playMoveSound();
 
     const next = game.turn === 'w' ? 'b' : 'w';
@@ -724,7 +712,6 @@ export default function ChessPage() {
 
   const undo = () => {
     if (history.length === 0) return;
-    // In computer mode, undo two moves (player + AI)
     const stepsBack = gameMode === 'computer' && history.length >= 2 ? 2 : 1;
     setGame(history[history.length - stepsBack]);
     setHistory(h => h.slice(0, -stepsBack));
@@ -735,6 +722,19 @@ export default function ChessPage() {
     setGameOver(false);
     setIsRunning(true);
     setLastMove(null);
+    setHintMove(null);
+    playSfx('click');
+  };
+
+  const showHint = () => {
+    if (gameOver || !gameStarted || aiThinking) return;
+    const aiColor = game.turn;
+    const move = getBestMove(game, aiColor, 'hard');
+    if (move) {
+      setHintMove(move); setHintCount(n => n + 1);
+      playSfx('hint');
+      setTimeout(() => setHintMove(null), 3000);
+    }
   };
 
   const resign = () => {
@@ -762,6 +762,9 @@ export default function ChessPage() {
     setMoveLog([]);
     setAiThinking(false);
     setPromotionPending(null);
+    setHintMove(null); setHintCount(0);
+    setClockW(TC[timeControl].seconds);
+    setClockB(TC[timeControl].seconds);
     if (newMode === 'computer') {
       setFlipped(playerColor === 'b');
     }
@@ -779,6 +782,13 @@ export default function ChessPage() {
     return findKing(game.board, game.turn);
   })();
 
+  // Evaluation bar (-1..+1 of evaluateBoard, capped)
+  const evalScore = useMemo(() => {
+    const raw = evaluateBoard(game.board) / 100;
+    return Math.max(-10, Math.min(10, raw));
+  }, [game.board]);
+  const evalPct = ((evalScore + 10) / 20) * 100;
+
   const theme = BOARD_THEMES[boardTheme];
 
   const renderBoard = () => {
@@ -792,6 +802,8 @@ export default function ChessPage() {
       const isLegal = legalMoves.some(([mr, mc]) => mr === ri && mc === ci);
       const isLast = isLastMoveSquare(ri, ci);
       const isChecked = checkedKing && checkedKing[0] === ri && checkedKing[1] === ci;
+      const isHintFrom = hintMove && hintMove.from[0] === ri && hintMove.from[1] === ci;
+      const isHintTo = hintMove && hintMove.to[0] === ri && hintMove.to[1] === ci;
 
       const showFile = (flipped ? ri === 0 : ri === 7);
       const showRank = (flipped ? ci === 7 : ci === 0);
@@ -825,6 +837,13 @@ export default function ChessPage() {
           )}
           {isLegal && cell && (
             <div className="absolute inset-[4px] rounded-full ring-[3px] ring-black/20 ring-inset" />
+          )}
+          {(isHintFrom || isHintTo) && (
+            <motion.div
+              className="absolute inset-0 rounded-md ring-2 ring-amber-400/80"
+              animate={{ opacity: [0.4, 1, 0.4] }}
+              transition={{ duration: 1.2, repeat: Infinity }}
+            />
           )}
 
           {cell && (
@@ -898,6 +917,53 @@ export default function ChessPage() {
 
   const chessOptions = [
     {
+      key: 'mode',
+      label: isAr ? 'الوضع' : 'Mode',
+      choices: [
+        { value: 'local', label: isAr ? 'لاعبان' : 'Two players' },
+        { value: 'computer', label: isAr ? 'ضد الحاسوب' : 'vs Computer' },
+      ],
+      current: gameMode,
+      onChange: (v: string) => resetGame(v as GameMode),
+    },
+    {
+      key: 'ai',
+      label: isAr ? 'صعوبة الحاسوب' : 'AI level',
+      choices: [
+        { value: 'easy',   label: aiDiffLabels.easy },
+        { value: 'medium', label: aiDiffLabels.medium },
+        { value: 'hard',   label: aiDiffLabels.hard },
+      ],
+      current: aiDifficulty,
+      onChange: (v: string) => setAiDifficulty(v as AIDifficulty),
+    },
+    {
+      key: 'color',
+      label: isAr ? 'لونك' : 'Your color',
+      choices: [
+        { value: 'w', label: isAr ? 'أبيض' : 'White' },
+        { value: 'b', label: isAr ? 'أسود' : 'Black' },
+      ],
+      current: playerColor,
+      onChange: (v: string) => { setPlayerColor(v as Color); if (gameMode === 'computer') resetGame('computer'); },
+    },
+    {
+      key: 'tc',
+      label: isAr ? 'الساعة' : 'Time control',
+      choices: [
+        { value: 'none',   label: isAr ? 'بلا' : 'None' },
+        { value: 'rapid',  label: '10+5' },
+        { value: 'blitz',  label: '5+2' },
+        { value: 'bullet', label: '1+1' },
+      ],
+      current: timeControl,
+      onChange: (v: string) => {
+        const t = v as TimeControl;
+        setTimeControl(t); localStorage.setItem('chess-tc', t);
+        setClockW(TC[t].seconds); setClockB(TC[t].seconds);
+      },
+    },
+    {
       key: 'theme',
       label: isAr ? 'نمط الرقعة' : 'Board Style',
       choices: [
@@ -966,9 +1032,28 @@ export default function ChessPage() {
             </span>
             {(flipped ? whiteAdv < 0 : blackAdv > 0) && <span className="text-[10px] text-muted-foreground">+{flipped ? -whiteAdv : blackAdv}</span>}
           </div>
-          <div className="flex gap-0.5 min-h-[18px]">
-            {game.captured[flipped ? 'w' : 'b'].map((p, i) => <span key={i} className="text-xs opacity-60">{p}</span>)}
+          <div className="flex items-center gap-2">
+            <div className="flex gap-0.5 min-h-[18px]">
+              {game.captured[flipped ? 'w' : 'b'].map((p, i) => <span key={i} className="text-xs opacity-60">{p}</span>)}
+            </div>
+            {timeControl !== 'none' && (
+              <div className={`text-[11px] font-bold tabular-nums px-2 py-0.5 rounded-md ${game.turn === (flipped ? 'w' : 'b') ? 'bg-amber-500/20 text-amber-200' : 'bg-secondary/60 text-foreground/60'}`}>
+                {formatTimer(flipped ? clockW : clockB)}
+              </div>
+            )}
           </div>
+        </div>
+      </div>
+
+      {/* Eval bar */}
+      <div className="max-w-[340px] mx-auto px-4 mb-1">
+        <div className="h-1.5 rounded-full bg-zinc-800 overflow-hidden flex relative">
+          <div className="h-full bg-white transition-all duration-300" style={{ width: `${evalPct}%` }} />
+          <div className="absolute left-1/2 top-0 bottom-0 w-px bg-zinc-500/60" />
+        </div>
+        <div className="flex justify-between text-[9px] text-muted-foreground mt-0.5 tabular-nums">
+          <span>{evalScore > 0 ? `+${evalScore.toFixed(1)}` : evalScore.toFixed(1)}</span>
+          <span>{isAr ? 'تقييم' : 'Eval'}</span>
         </div>
       </div>
 
@@ -1011,8 +1096,15 @@ export default function ChessPage() {
             </span>
             {(flipped ? blackAdv > 0 : whiteAdv > 0) && <span className="text-[10px] text-muted-foreground">+{flipped ? blackAdv : whiteAdv}</span>}
           </div>
-          <div className="flex gap-0.5 min-h-[18px]">
-            {game.captured[flipped ? 'b' : 'w'].map((p, i) => <span key={i} className="text-xs opacity-60">{p}</span>)}
+          <div className="flex items-center gap-2">
+            <div className="flex gap-0.5 min-h-[18px]">
+              {game.captured[flipped ? 'b' : 'w'].map((p, i) => <span key={i} className="text-xs opacity-60">{p}</span>)}
+            </div>
+            {timeControl !== 'none' && (
+              <div className={`text-[11px] font-bold tabular-nums px-2 py-0.5 rounded-md ${game.turn === (flipped ? 'b' : 'w') ? 'bg-amber-500/20 text-amber-200' : 'bg-secondary/60 text-foreground/60'}`}>
+                {formatTimer(flipped ? clockB : clockW)}
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -1072,6 +1164,13 @@ export default function ChessPage() {
           className="flex flex-col items-center gap-1 px-4 py-2.5 rounded-2xl bg-secondary/70 text-foreground active:scale-90 transition-all">
           <RotateCcw className="w-5 h-5" />
           <span className="text-[9px] font-medium">{language === 'ar' ? 'قلب' : 'Flip'}</span>
+        </button>
+
+        <button onClick={showHint} disabled={gameOver || aiThinking || !gameStarted}
+          className="relative flex flex-col items-center gap-1 px-4 py-2.5 rounded-2xl bg-amber-500/15 text-amber-300 active:scale-90 transition-all disabled:opacity-25">
+          <Lightbulb className="w-5 h-5" />
+          <span className="text-[9px] font-medium">{language === 'ar' ? 'تلميح' : 'Hint'}</span>
+          {hintCount > 0 && <span className="absolute -top-1 -right-1 text-[8px] bg-amber-500/30 rounded-full px-1">{hintCount}</span>}
         </button>
 
         {!gameOver && (

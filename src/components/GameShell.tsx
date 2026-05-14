@@ -1,8 +1,9 @@
-import React, { useState, ReactNode } from 'react';
+import React, { useState, useEffect, ReactNode } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import BackButton from '@/components/BackButton';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Info, Settings2, BarChart3, ChevronDown, X, type LucideIcon } from 'lucide-react';
+import { Info, Settings2, BarChart3, ChevronDown, X, Volume2, VolumeX, Vibrate, type LucideIcon } from 'lucide-react';
+import { isHapticsOff, isMuted, setHapticsOff, setMuted } from '@/utils/gameFeedback';
 
 interface GameStats {
   label: string;
@@ -32,6 +33,22 @@ export default function GameShell({ title, icon: Icon, accentColor, rules, stats
   const { language } = useApp();
   const isAr = language === 'ar';
   const [activeTab, setActiveTab] = useState<'game' | 'rules' | 'stats' | 'options' | null>(null);
+  const [muted, setMutedState] = useState<boolean>(() => isMuted());
+  const [hapticsOff, setHapticsOffState] = useState<boolean>(() => isHapticsOff());
+
+  useEffect(() => {
+    const onMute = (e: Event) => setMutedState(Boolean((e as CustomEvent<boolean>).detail));
+    const onHap = (e: Event) => setHapticsOffState(Boolean((e as CustomEvent<boolean>).detail));
+    window.addEventListener('games-mute-change', onMute);
+    window.addEventListener('games-haptics-change', onHap);
+    return () => {
+      window.removeEventListener('games-mute-change', onMute);
+      window.removeEventListener('games-haptics-change', onHap);
+    };
+  }, []);
+
+  const toggleMute = () => { setMuted(!muted); setMutedState(!muted); };
+  const toggleHap = () => { setHapticsOff(!hapticsOff); setHapticsOffState(!hapticsOff); };
 
   const tabs = [
     { id: 'rules' as const, icon: Info, label: isAr ? 'القواعد' : 'Regeln' },
@@ -45,14 +62,32 @@ export default function GameShell({ title, icon: Icon, accentColor, rules, stats
         <BackButton to="/games" />
 
         {/* Header */}
-        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center justify-between mt-3 mb-3">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: `${accentColor}20` }}>
+        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center justify-between mt-3 mb-3 gap-2">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: `${accentColor}20` }}>
               <Icon className="w-4.5 h-4.5" style={{ color: accentColor }} />
             </div>
-            <h1 className="text-xl font-black text-white">{title}</h1>
+            <h1 className="text-xl font-black text-white truncate">{title}</h1>
           </div>
-          {headerRight}
+          <div className="flex items-center gap-1.5 shrink-0">
+            <button
+              onClick={toggleMute}
+              aria-label={isAr ? 'كتم الصوت' : 'Ton'}
+              className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
+              style={{ background: muted ? 'rgba(255,255,255,0.04)' : `${accentColor}18`, color: muted ? 'rgba(255,255,255,0.45)' : accentColor, border: `1px solid ${muted ? 'rgba(255,255,255,0.06)' : `${accentColor}30`}` }}
+            >
+              {muted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+            </button>
+            <button
+              onClick={toggleHap}
+              aria-label={isAr ? 'اهتزاز' : 'Vibration'}
+              className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
+              style={{ background: hapticsOff ? 'rgba(255,255,255,0.04)' : `${accentColor}18`, color: hapticsOff ? 'rgba(255,255,255,0.45)' : accentColor, border: `1px solid ${hapticsOff ? 'rgba(255,255,255,0.06)' : `${accentColor}30`}` }}
+            >
+              <Vibrate className="w-3.5 h-3.5" />
+            </button>
+            {headerRight}
+          </div>
         </motion.div>
 
         {/* Tab bar */}
