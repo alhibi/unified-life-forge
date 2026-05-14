@@ -11,8 +11,13 @@ export const WAVEFORM_HEIGHTS = Array.from({ length: 24 }, () => Math.round(Math
 export const QUICK_EMOJIS = ['❤️', '👍', '😂', '🔥', '😢', '👏'];
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Emoji picker data (categorized) - used both in action-menu "more reactions"
-// and in the composer emoji picker
+// Legacy emoji-picker fallback data.
+//
+// The composer + reactions "more" panel now both render the full Apple
+// (iPhone-style) emoji set via emoji-mart, so this categorised list is no
+// longer used at runtime. We keep the shape (and a tiny representative
+// sampling) only so any external consumers that still import the constant
+// keep typechecking; it is safe to delete once the codebase is audited.
 // ─────────────────────────────────────────────────────────────────────────────
 export interface EmojiCategory {
   id: string;
@@ -168,7 +173,9 @@ export const EMOJI_CATEGORIES: EmojiCategory[] = [
   },
 ];
 
-// Flattened list used by the long-press "more reactions" panel
+// Flattened sample of the legacy categorized data — preserved only as a
+// no-asset fallback for code that imported this constant directly. The
+// real reactions "more" picker now uses the Apple emoji-mart picker.
 export const EXTRA_EMOJIS: string[] = EMOJI_CATEGORIES.flatMap(c => c.emojis).slice(0, 120);
 
 // ─────────────────────────────────────────────────────────────────────────────
