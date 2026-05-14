@@ -1,98 +1,150 @@
-import React, { useState, useMemo } from 'react';
-import { motion } from 'framer-motion';
+import React, { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
-import { EMOJI_CATEGORIES } from './constants';
+import { useApp } from '@/contexts/AppContext';
 
 interface EmojiPickerProps {
   isAr: boolean;
   onPick: (emoji: string) => void;
-  /** When true, clicking outside is handled by parent (e.g. collapse panel). */
+  /** When true, picker is shorter (260px). Default is 320px. */
   compact?: boolean;
 }
 
-const RECENT_KEY = 'ulf.chat.recentEmojis';
-const RECENT_MAX = 24;
-
-function getRecent(): string[] {
-  try {
-    const raw = localStorage.getItem(RECENT_KEY);
-    if (!raw) return [];
-    return JSON.parse(raw) as string[];
-  } catch { return []; }
-}
-
-function pushRecent(emoji: string): string[] {
-  const current = getRecent().filter(e => e !== emoji);
-  current.unshift(emoji);
-  const trimmed = current.slice(0, RECENT_MAX);
-  try { localStorage.setItem(RECENT_KEY, JSON.stringify(trimmed)); } catch { /* quota */ }
-  return trimmed;
-}
-
 /**
- * Categorized emoji picker used in the composer.
- * - Horizontal category strip (scrollable, with "recent" as first category)
- * - Grid of emojis below; taps insert at caret via parent callback.
+ * Apple-style emoji picker (iPhone artwork from emoji-datasource-apple via CDN).
+ *
+ * Renders the full official Unicode emoji set, grouped into categories with
+ * search, recents and skin-tone variants. We lazy-load the picker library
+ * and its data the first time the component mounts so the initial bundle
+ * stays small.
+ *
+ * Wraps `@emoji-mart/react`'s `<Picker>` and adapts it to the app theme,
+ * locale (ar/de) and the chat composer's onPick contract.
  */
 const EmojiPicker: React.FC<EmojiPickerProps> = ({ isAr, onPick, compact }) => {
-  const [recent, setRecent] = useState<string[]>(() => getRecent());
-  const [activeId, setActiveId] = useState<string>(recent.length > 0 ? 'recent' : 'smileys');
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const pickerHostRef = useRef<HTMLElement | null>(null);
+  const onPickRef = useRef(onPick);
+  useEffect(() => { onPickRef.current = onPick; }, [onPick]);
+  const { theme } = useApp();
+  const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>(() =>
+    document.documentElement.classList.contains('dark') ? 'dark' : 'light'
+  );
+  const [ready, setReady] = useState(false);
+  const [error, setError] = useState(false);
 
-  const categories = useMemo(() => {
-    const cats = [...EMOJI_CATEGORIES];
-    if (recent.length > 0) {
-      cats.unshift({ id: 'recent', icon: '🕘', labelAr: 'الأخيرة', labelDe: 'Zuletzt', emojis: recent });
+  // Keep the picker's theme in sync with the app theme (incl. 'system').
+  useEffect(() => {
+    const update = () => {
+      setResolvedTheme(document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+    };
+    update();
+    const obs = new MutationObserver(update);
+    obs.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => obs.disconnect();
+  }, [theme]);
+
+  // Lazy-load emoji-mart and mount its picker once.
+  useEffect(() => {
+    let cancelled = false;
+    const mount = async () => {
+      try {
+        const [{ Picker }, dataMod, i18nMod] = await Promise.all([
+          import('emoji-mart'),
+          import('@emoji-mart/data'),
+          isAr
+            ? import('@emoji-mart/data/i18n/ar.json')
+            : import('@emoji-mart/data/i18n/de.json'),
+        ]);
+        if (cancelled || !containerRef.current) return;
+
+        const picker = new (Picker as unknown as new (props: Record<string, unknown>) => HTMLElement)({
+          data: (dataMod as { default: unknown }).default ?? dataMod,
+          i18n: (i18nMod as { default: unknown }).default ?? i18nMod,
+          set: 'apple',
+          theme: resolvedTheme,
+          locale: isAr ? 'ar' : 'de',
+          navPosition: 'top',
+          previewPosition: 'none',
+          searchPosition: 'sticky',
+          skinTonePosition: 'search',
+          perLine: 9,
+          emojiSize: 22,
+          emojiButtonSize: 34,
+          emojiButtonRadius: '12px',
+          maxFrequentRows: 2,
+          dynamicWidth: true,
+          autoFocus: false,
+          onEmojiSelect: (emoji: { native?: string; src?: string; shortcodes?: string }) => {
+            // Native unicode (e.g. "😀") is what we insert; emoji-mart hands us
+            // its Apple-image src for display, but the actual character we send.
+            if (emoji?.native) onPickRef.current(emoji.native);
+          },
+        });
+
+        pickerHostRef.current = picker;
+        containerRef.current.appendChild(picker);
+        setReady(true);
+      } catch (e) {
+        if (!cancelled) {
+          console.error('[EmojiPicker] failed to mount', e);
+          setError(true);
+        }
+      }
+    };
+    mount();
+
+    return () => {
+      cancelled = true;
+      if (pickerHostRef.current) {
+        pickerHostRef.current.remove();
+        pickerHostRef.current = null;
+      }
+    };
+    // Re-mount when locale changes (different i18n bundle, different category labels).
+    // We don't include `onPick` because it's stable per parent render and changing
+    // it shouldn't tear down the picker; the closure captures the latest via ref-like
+    // behaviour from the parent if it memos onPick.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAr]);
+
+  // Hot-swap theme without remounting (emoji-mart watches the `theme` attribute).
+  useEffect(() => {
+    const el = pickerHostRef.current;
+    if (!el) return;
+    try {
+      (el as unknown as { theme?: string }).theme = resolvedTheme;
+      el.setAttribute('theme', resolvedTheme);
+    } catch {
+      /* noop */
     }
-    return cats;
-  }, [recent]);
-
-  const activeCat = categories.find(c => c.id === activeId) || categories[0];
-
-  const handlePick = (e: string) => {
-    onPick(e);
-    setRecent(pushRecent(e));
-  };
+  }, [resolvedTheme]);
 
   return (
-    <div className={cn('bg-background border-t border-border/15 flex flex-col', compact ? 'h-[260px]' : 'h-[320px]')}>
-      {/* Category strip */}
-      <div className="flex items-center gap-0.5 px-2 py-1.5 overflow-x-auto scrollbar-none border-b border-border/10" dir="ltr">
-        {categories.map(cat => {
-          const active = cat.id === activeId;
-          return (
-            <button
-              key={cat.id}
-              onClick={() => setActiveId(cat.id)}
-              className={cn(
-                'shrink-0 h-9 w-9 rounded-full flex items-center justify-center text-[18px] transition-all',
-                active ? 'bg-primary/15 scale-105' : 'active:bg-accent/40'
-              )}
-              aria-label={isAr ? cat.labelAr : cat.labelDe}
-            >
-              {cat.icon}
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Grid */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="px-2 pt-2 text-[10.5px] font-semibold uppercase tracking-wide text-muted-foreground/60">
-          {isAr ? activeCat.labelAr : activeCat.labelDe}
+    <div
+      className={cn(
+        'bg-background border-t border-border/15 flex flex-col relative',
+        compact ? 'h-[300px]' : 'h-[360px]'
+      )}
+      dir="ltr"
+    >
+      <div
+        ref={containerRef}
+        className={cn(
+          'flex-1 min-h-0 overflow-hidden',
+          // Style the Picker host element to fill the container.
+          '[&_em-emoji-picker]:!w-full [&_em-emoji-picker]:!h-full [&_em-emoji-picker]:!min-h-0 [&_em-emoji-picker]:!max-h-none [&_em-emoji-picker]:!border-0 [&_em-emoji-picker]:!shadow-none [&_em-emoji-picker]:!rounded-none [&_em-emoji-picker]:!font-sans'
+        )}
+      />
+      {!ready && !error && (
+        <div className="absolute inset-0 flex items-center justify-center text-[12px] text-muted-foreground/70 pointer-events-none">
+          {isAr ? 'جاري تحميل الرموز…' : 'Lade Emojis…'}
         </div>
-        <div className="grid grid-cols-8 gap-0.5 px-1.5 py-1.5" dir="ltr">
-          {activeCat.emojis.map((emoji, i) => (
-            <motion.button
-              key={`${activeCat.id}-${emoji}-${i}`}
-              onClick={() => handlePick(emoji)}
-              whileTap={{ scale: 1.25 }}
-              className="aspect-square flex items-center justify-center text-[22px] rounded-lg active:bg-accent/30 transition-colors"
-            >
-              {emoji}
-            </motion.button>
-          ))}
+      )}
+      {error && (
+        <div className="absolute inset-0 flex items-center justify-center text-[12px] text-destructive">
+          {isAr ? 'تعذّر تحميل الرموز' : 'Emojis konnten nicht geladen werden'}
         </div>
-      </div>
+      )}
     </div>
   );
 };

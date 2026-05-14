@@ -23,13 +23,14 @@ import {
   getSignedFileUrl, formatClockTime, formatDateSeparator, formatSelfDestructLabel,
   renderRichText, stripMarkers,
 } from './chat/chatUtils';
-import { QUICK_EMOJIS, EXTRA_EMOJIS, WALLPAPERS, SELF_DESTRUCT_OPTIONS } from './chat/constants';
+import { QUICK_EMOJIS, WALLPAPERS, SELF_DESTRUCT_OPTIONS } from './chat/constants';
 import { useChat } from './chat/useChat';
 import { useVoiceRecording } from './chat/useVoiceRecording';
 import { SwipeableMessage, TypingDots } from './chat/MessageBubble';
 import ConversationList from './chat/ConversationList';
 import ChatInput from './chat/ChatInput';
 import ChatImage from './chat/ChatImage';
+import EmojiPicker from './chat/EmojiPicker';
 import ForwardPicker from './chat/ForwardPicker';
 import WallpaperPicker from './chat/WallpaperPicker';
 import { haptic } from './chat/sounds';
@@ -1382,10 +1383,16 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                             {chat.showExtraEmojis && (
                               <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }} transition={{ duration: 0.2 }} className="overflow-hidden">
                                 <div className="h-px bg-border/15 mx-3" />
-                                <div className="grid grid-cols-8 gap-0 px-2 py-2 max-h-[150px] overflow-y-auto" dir="ltr">
-                                  {EXTRA_EMOJIS.map(emoji => (
-                                    <button key={emoji} onClick={() => { chat.toggleReaction(actionMenu.msg.id, emoji); setActionMenu(null); chat.setShowExtraEmojis(false); }} className="text-[19px] active:scale-110 transition-transform p-1 rounded-lg active:bg-accent/20 flex items-center justify-center" aria-label={`React with ${emoji}`}>{emoji}</button>
-                                  ))}
+                                <div className="px-1 pt-1 pb-2">
+                                  <EmojiPicker
+                                    isAr={chat.isAr}
+                                    compact
+                                    onPick={(emoji) => {
+                                      chat.toggleReaction(actionMenu.msg.id, emoji);
+                                      setActionMenu(null);
+                                      chat.setShowExtraEmojis(false);
+                                    }}
+                                  />
                                 </div>
                               </motion.div>
                             )}
