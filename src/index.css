@@ -7,6 +7,24 @@
 @layer base {
   /* Base defaults — overridden dynamically by themeEngine */
   :root {
+    /* ─ Spring easings (Web Native 2026) ─
+     * iOS / Material-3 grade easing via the new CSS `linear()` keyword.
+     * Use these instead of cubic-bezier for any UI affordance that should
+     * feel "native" (sheets, modals, taps, swipes). Falls back to ease on
+     * old browsers (linear() unsupported = parse error skipped).
+     */
+    --spring-bounce: linear(
+      0, 0.009, 0.035 2.1%, 0.141, 0.281 6.7%, 0.723 12.9%,
+      0.938 16.7%, 1.017, 1.077, 1.121, 1.149 24.3%,
+      1.159, 1.163 27%, 1.154, 1.129 32.8%, 1.051 39.6%,
+      1.017 43.1%, 0.991, 0.977 51%, 0.974 53.8%,
+      0.977 57.5%, 1.001 69.3%, 1.003 74.9%, 1
+    );
+    --spring-snappy: linear(
+      0, 0.5 7.7%, 1 15.4%
+    );
+    --spring-smooth: cubic-bezier(0.22, 1, 0.36, 1); /* fallback */
+
     --background: 0 0% 98%;
     --foreground: 240 10% 10%;
     --card: 0 0% 100%;
@@ -116,7 +134,7 @@
   }
   .btn-primary {
     @apply bg-primary text-primary-foreground font-medium;
-    transition: filter 0.15s ease-out, transform 0.1s ease-out;
+    transition: filter 0.15s ease-out, transform 0.12s var(--spring-snappy);
   }
   .btn-primary:hover {
     filter: brightness(1.08);
@@ -126,7 +144,7 @@
   }
   .btn-secondary {
     @apply bg-secondary text-secondary-foreground font-medium;
-    transition: background-color 0.15s ease-out, transform 0.1s ease-out;
+    transition: background-color 0.15s ease-out, transform 0.12s var(--spring-snappy);
   }
   .btn-secondary:hover {
     @apply bg-muted;
@@ -153,9 +171,27 @@
     flex-shrink: 0;
   }
 
-  /* Skeleton loading placeholder */
+  /* Skeleton loading placeholder — gradient shimmer (Web Native 2026)
+   * Replaces a plain animate-pulse with a sweeping highlight that matches
+   * the visual language of native iOS/Android list placeholders. */
   .skeleton {
-    @apply animate-pulse rounded-lg bg-muted;
+    border-radius: 0.5rem;
+    background:
+      linear-gradient(
+        90deg,
+        hsl(var(--muted) / 0.6) 0%,
+        hsl(var(--muted-foreground) / 0.12) 50%,
+        hsl(var(--muted) / 0.6) 100%
+      );
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.4s linear infinite;
+  }
+  @keyframes skeleton-shimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .skeleton { animation: none; }
   }
 }
 
@@ -188,14 +224,16 @@
   text-align: right;
 }
 
-/* Native touch feedback — scale + opacity on press */
+/* Native touch feedback — scale + opacity on press, spring-snappy curve */
 @media (hover: none) and (pointer: coarse) {
   button:active,
   [role="button"]:active,
   a:active {
     transform: scale(0.96);
     opacity: 0.8;
-    transition: transform 0.1s ease-out, opacity 0.1s ease-out;
+    transition:
+      transform 0.12s var(--spring-snappy),
+      opacity   0.1s ease-out;
   }
 }
 
@@ -203,7 +241,9 @@
 button,
 a,
 [role="button"] {
-  transition: opacity 0.12s ease-out, transform 0.1s ease-out;
+  transition:
+    opacity 0.12s ease-out,
+    transform 0.12s var(--spring-snappy);
 }
 
 /* Disable browser context menu on UI elements */
@@ -244,9 +284,89 @@ html.theme-transition *::after {
   contain-intrinsic-size: 200px 150px;
 }
 
-/* Fast tap response - remove 300ms delay */
+/* Fast tap response — remove 300 ms delay on touch devices.
+ * `manipulation` allows pinch-zoom but disables double-tap-to-zoom, which is
+ * what every native-feeling app does. */
 * {
   touch-action: manipulation;
+}
+
+/* ─ Chat composer ─
+ * `field-sizing: content` (Chromium 123+, Safari 18+) sizes a textarea to its
+ * content automatically, removing the need for JS-driven resize hacks. The
+ * JS fallback in useChat.resizeComposer keeps older browsers consistent. */
+@supports (field-sizing: content) {
+  .chat-textarea {
+    field-sizing: content;
+  }
+}
+
+/* ─ Native-feeling Radix overlay/content transitions ─
+ * Apply our spring curves to the data-state driven open/close animations that
+ * shadcn ships with Radix. Pure CSS, no JS — the tailwind utility classes
+ * still drive in/out, we just retime them. */
+[data-state="open"][data-radix-popper-content-wrapper],
+[data-state="open"].radix-state-open,
+[data-radix-portal] [data-state="open"] {
+  --tw-enter-duration: 220ms;
+}
+[data-state="closed"][data-radix-popper-content-wrapper],
+[data-state="closed"].radix-state-closed,
+[data-radix-portal] [data-state="closed"] {
+  --tw-exit-duration: 160ms;
+}
+
+/* ─ View Transitions API styling ─
+ * When the app calls document.startViewTransition() for a route change,
+ * cross-fade by default. Pages that want a slide can opt in by setting
+ * `view-transition-name: page` on their root. Older browsers ignore these
+ * pseudo-elements. */
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 220ms;
+    animation-timing-function: var(--spring-smooth);
+  }
+  ::view-transition-old(page) {
+    animation: vt-slide-out 220ms var(--spring-smooth) forwards;
+  }
+  ::view-transition-new(page) {
+    animation: vt-slide-in 240ms var(--spring-smooth) forwards;
+  }
+  @keyframes vt-slide-out {
+    to { opacity: 0; transform: translateX(-12px); }
+  }
+  @keyframes vt-slide-in {
+    from { opacity: 0; transform: translateX(12px); }
+  }
+}
+
+/* ─ @starting-style for dialogs/sheets/toasts ─
+ * Browsers that support `@starting-style` (Chromium 117+, Safari 17.5+) get a
+ * proper enter animation when an element is added to the DOM, without React
+ * needing AnimatePresence machinery. Old browsers skip the rule entirely. */
+@supports (transition-behavior: allow-discrete) {
+  [popover],
+  dialog,
+  .sheet-content {
+    transition:
+      opacity 220ms var(--spring-smooth),
+      transform 260ms var(--spring-bounce),
+      overlay 220ms allow-discrete,
+      display 220ms allow-discrete;
+  }
+  [popover]:not(:popover-open),
+  dialog:not([open]) {
+    opacity: 0;
+    transform: scale(0.96) translateY(8px);
+  }
+  @starting-style {
+    [popover]:popover-open,
+    dialog[open] {
+      opacity: 0;
+      transform: scale(0.95) translateY(12px);
+    }
+  }
 }
 
 /* Scroll snap for conversation list */
