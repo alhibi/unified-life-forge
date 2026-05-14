@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import { createPortal } from 'react-dom';
 import { useApp } from '@/contexts/AppContext';
 import { useAuth } from '@/hooks/useAuth';
-import { usePresence } from '@/hooks/usePresence';
 import { supabase } from '@/integrations/supabase/client';
 import DualCalendar from '@/components/DualCalendar';
 import AudioPlayer from '@/components/AudioPlayer';
@@ -48,8 +47,6 @@ export default function Index() {
   }, []);
   const { t, language } = useApp();
   const { user } = useAuth();
-  // Global presence tracking - runs as long as user is logged in
-  usePresence(user?.id);
   const now = new Date();
   const hour = now.getHours();
   const isMorning = hour >= 5 && hour < 12;

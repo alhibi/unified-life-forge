@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
 import {
   Send, Mic, X, Pencil, Check, Trash2, Plus, Smile, Lock,
-  Play, Pause,
+  Play, Pause, Loader2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Textarea } from '@/components/ui/textarea';
@@ -34,6 +34,7 @@ interface ChatInputProps {
   locked: boolean;
   previewBlob: Blob | null;
   previewUrl: string;
+  uploadingVoice: boolean;
   startRecording: () => void;
   stopAndSend: () => void;
   stopAndCancel: () => void;
@@ -74,7 +75,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
   replyTo, setReplyTo, editingMessage, cancelEdit,
   stagedPreviews, stagedImagesCount, uploading,
   inputRef, fileInputRef,
-  isRecording, recordingTime, locked, previewBlob, previewUrl,
+  isRecording, recordingTime, locked, previewBlob, previewUrl, uploadingVoice,
   startRecording, stopAndSend, stopAndCancel, stopForPreview, lockRecording, sendPreview, discardPreview,
   sendMessage, saveEditMessage, sendStagedImages, removeStagedImage, clearStagedImages,
   showEmojiPicker, setShowEmojiPicker,
@@ -280,7 +281,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
         {showPreviewBar ? (
           /* ── Recorded voice preview bar ── */
           <motion.div key="preview" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 6 }} className="px-3 py-2 flex items-center gap-3" role="region" aria-label={isAr ? 'معاينة الرسالة الصوتية' : 'Sprachnachricht-Vorschau'}>
-            <motion.button onClick={discardPreview} whileTap={{ scale: 0.85 }} aria-label={isAr ? 'تجاهل التسجيل' : 'Aufnahme verwerfen'} className="shrink-0 w-10 h-10 rounded-full flex items-center justify-center bg-destructive/10 active:bg-destructive/20 transition-colors">
+            <motion.button onClick={discardPreview} disabled={uploadingVoice} whileTap={{ scale: 0.85 }} aria-label={isAr ? 'تجاهل التسجيل' : 'Aufnahme verwerfen'} className="shrink-0 w-10 h-10 rounded-full flex items-center justify-center bg-destructive/10 active:bg-destructive/20 transition-colors disabled:opacity-40 disabled:pointer-events-none">
               <Trash2 className="w-5 h-5 text-destructive" />
             </motion.button>
 
@@ -307,8 +308,17 @@ const ChatInput: React.FC<ChatInputProps> = ({
               </span>
             </div>
 
-            <motion.button onClick={sendPreview} whileTap={{ scale: 0.85 }} aria-label={isAr ? 'إرسال الرسالة الصوتية' : 'Sprachnachricht senden'} className="shrink-0 w-11 h-11 rounded-full bg-primary flex items-center justify-center shadow-md shadow-primary/20">
-              <Send className="w-5 h-5 text-primary-foreground" style={{ marginInlineStart: '2px' }} />
+            <motion.button
+              onClick={uploadingVoice ? undefined : sendPreview}
+              disabled={uploadingVoice}
+              whileTap={uploadingVoice ? undefined : { scale: 0.85 }}
+              aria-label={isAr ? 'إرسال الرسالة الصوتية' : 'Sprachnachricht senden'}
+              aria-busy={uploadingVoice}
+              className="shrink-0 w-11 h-11 rounded-full bg-primary flex items-center justify-center shadow-md shadow-primary/20 disabled:opacity-90"
+            >
+              {uploadingVoice
+                ? <Loader2 className="w-5 h-5 text-primary-foreground animate-spin" />
+                : <Send className="w-5 h-5 text-primary-foreground" style={{ marginInlineStart: '2px' }} />}
             </motion.button>
           </motion.div>
         ) : isRecording ? (

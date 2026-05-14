@@ -679,6 +679,8 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
               getDraft={chat.chatPrefs.getDraft}
               searchQuery={convSearchQuery}
               isLoading={chat.conversationsLoading && chat.conversations.length === 0}
+              typingByConv={chat.typingByConv}
+              onlineUserIds={chat.onlineUserIds}
             />
           </>
 
@@ -783,7 +785,12 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                     )}
                   </button>
                   <button className="flex items-center gap-2.5 flex-1 min-w-0 active:opacity-70 transition-opacity" onClick={() => chat.setShowProfilePopup(true)}>
-                    {renderAvatar(chat.activeConv?.otherUsername, chat.activeConv?.otherAvatarUrl, 'h-9 w-9')}
+                    <div className="relative shrink-0">
+                      {renderAvatar(chat.activeConv?.otherUsername, chat.activeConv?.otherAvatarUrl, 'h-9 w-9')}
+                      {chat.otherPresence.isOnline && (
+                        <span aria-label={chat.isAr ? 'متصل الآن' : 'Online'} className="absolute bottom-0 end-0 block h-2.5 w-2.5 rounded-full bg-green-500 ring-2 ring-background" />
+                      )}
+                    </div>
                     <div className="min-w-0 text-start">
                       <span className="font-semibold text-[15px] block truncate leading-tight flex items-center gap-1">
                         {chat.activeConv?.otherDisplayName || chat.activeConv?.otherUsername}
@@ -1415,6 +1422,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
               locked={voice.locked}
               previewBlob={voice.previewBlob}
               previewUrl={voice.previewUrl}
+              uploadingVoice={voice.uploadingVoice}
               startRecording={voice.startRecording}
               stopAndSend={voice.stopAndSend}
               stopAndCancel={voice.stopAndCancel}

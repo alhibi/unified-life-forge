@@ -60,30 +60,47 @@ const seedWaveform = (id: string, count = 40): number[] => {
   });
 };
 
-// Decode audio buffer and extract waveform peaks
+type AudioContextCtor = typeof AudioContext;
+function getAudioContextCtor(): AudioContextCtor | null {
+  if (typeof window === 'undefined') return null;
+  const w = window as Window & { webkitAudioContext?: AudioContextCtor };
+  return window.AudioContext ?? w.webkitAudioContext ?? null;
+}
+
+// Decode audio buffer and extract waveform peaks. Bounded by an AbortController
+// so a stalled signed URL can't hang the request forever, and the AudioContext
+// is always closed in `finally` even on decode failure.
 const extractWaveform = async (url: string, barCount = 40): Promise<number[]> => {
+  const Ctor = getAudioContextCtor();
+  if (!Ctor) return [];
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 8000);
+  let audioCtx: AudioContext | null = null;
   try {
-    const response = await fetch(url);
+    const response = await fetch(url, { signal: controller.signal });
+    if (!response.ok) return [];
     const arrayBuffer = await response.arrayBuffer();
-    const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    audioCtx = new Ctor();
     const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
     const channelData = audioBuffer.getChannelData(0);
-    const blockSize = Math.floor(channelData.length / barCount);
+    const blockSize = Math.max(1, Math.floor(channelData.length / barCount));
     const peaks: number[] = [];
     for (let i = 0; i < barCount; i++) {
       let sum = 0;
       const start = i * blockSize;
-      for (let j = start; j < start + blockSize && j < channelData.length; j++) {
-        sum += Math.abs(channelData[j]);
-      }
+      const end = Math.min(start + blockSize, channelData.length);
+      for (let j = start; j < end; j++) sum += Math.abs(channelData[j]);
       peaks.push(sum / blockSize);
     }
-    // Normalize to 0..1
     const max = Math.max(...peaks, 0.001);
-    audioCtx.close();
     return peaks.map(p => Math.max(p / max, 0.08));
   } catch {
     return [];
+  } finally {
+    clearTimeout(timeout);
+    if (audioCtx && audioCtx.state !== 'closed') {
+      try { await audioCtx.close(); } catch { /* no-op */ }
+    }
   }
 };
 
@@ -111,12 +128,20 @@ export const VoicePlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
     }
   }, []);
 
+  // Throttle progress writes to ~12 Hz instead of the full 60 fps RAF rate.
+  // 80 ms updates keep the playhead visually smooth without driving a
+  // re-render through every consumer 60 times a second.
+  const lastProgressAtRef = useRef(0);
   const startRAF = useCallback(() => {
     stopRAF();
     const tick = () => {
       const audio = audioRef.current;
       if (audio && !audio.paused && audio.duration && isFinite(audio.duration)) {
-        setState(prev => ({ ...prev, progress: audio.currentTime / audio.duration }));
+        const now = performance.now();
+        if (now - lastProgressAtRef.current >= 80) {
+          lastProgressAtRef.current = now;
+          setState(prev => ({ ...prev, progress: audio.currentTime / audio.duration }));
+        }
       }
       rafRef.current = requestAnimationFrame(tick);
     };
@@ -257,18 +282,25 @@ export const VoicePlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
     return state.msgId === msgId && state.isPlaying;
   }, [state.msgId, state.isPlaying]);
 
+  // Tracks in-flight extractions so the same msgId can't trigger N parallel
+  // fetches if many bubbles mount at once.
+  const inflightWaveforms = useRef<Set<string>>(new Set());
   const generateWaveform = useCallback(async (url: string, msgId: string): Promise<number[]> => {
     if (waveformCacheRef.current[msgId]) return waveformCacheRef.current[msgId];
     const fallback = seedWaveform(msgId);
     waveformCacheRef.current[msgId] = fallback;
     setWaveformCache(prev => ({ ...prev, [msgId]: fallback }));
-    // Start async extraction
-    extractWaveform(url).then(peaks => {
-      if (peaks.length > 0) {
-        waveformCacheRef.current[msgId] = peaks;
-        setWaveformCache(prev => ({ ...prev, [msgId]: peaks }));
-      }
-    });
+    if (!inflightWaveforms.current.has(msgId)) {
+      inflightWaveforms.current.add(msgId);
+      extractWaveform(url).then(peaks => {
+        if (peaks.length > 0) {
+          waveformCacheRef.current[msgId] = peaks;
+          setWaveformCache(prev => ({ ...prev, [msgId]: peaks }));
+        }
+      }).finally(() => {
+        inflightWaveforms.current.delete(msgId);
+      });
+    }
     return fallback;
   }, []);
 

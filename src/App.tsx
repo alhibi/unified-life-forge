@@ -14,12 +14,20 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import FloatingVoicePlayer from "@/components/FloatingVoicePlayer";
 import { lazy, Suspense } from "react";
 import { useAutoPrayerTheme } from "@/hooks/useAutoPrayerTheme";
+import { usePresence } from "@/hooks/usePresence";
+import { useAuth } from "@/hooks/useAuth";
 
 // Eager load the main page
 import Index from "./pages/Index";
 
 function AutoPrayerThemeRunner() {
   useAutoPrayerTheme();
+  return null;
+}
+
+function PresenceRunner() {
+  const { user } = useAuth();
+  usePresence(user?.id);
   return null;
 }
 
@@ -134,6 +142,7 @@ const App = () => (
             <Sonner />
             <BrowserRouter>
               <AutoPrayerThemeRunner />
+              <PresenceRunner />
               <FloatingVoicePlayer />
               <AnimatedRoutes />
               <BottomNav />

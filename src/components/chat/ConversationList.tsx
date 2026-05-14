@@ -30,6 +30,10 @@ interface ConversationListProps {
   searchQuery?: string;
   /** When true, show skeleton rows instead of empty state during first fetch. */
   isLoading?: boolean;
+  /** Map of conversation id → whether the other party is currently typing. */
+  typingByConv?: Record<string, boolean>;
+  /** Set of user ids currently online (from realtime presence). */
+  onlineUserIds?: Set<string>;
 }
 
 function renderAvatar(username?: string, avatarUrl?: string | null, size: string = 'h-[52px] w-[52px]') {
@@ -105,10 +109,26 @@ function SwipeRow({
   );
 }
 
+function TypingDotsMini() {
+  return (
+    <span className="inline-flex items-center gap-[2px]" aria-hidden>
+      {[0, 1, 2].map(i => (
+        <motion.span
+          key={i}
+          className="w-[3px] h-[3px] rounded-full bg-primary"
+          animate={{ opacity: [0.3, 1, 0.3], y: [0, -1.5, 0] }}
+          transition={{ duration: 0.8, repeat: Infinity, delay: i * 0.15 }}
+        />
+      ))}
+    </span>
+  );
+}
+
 const ConversationList: React.FC<ConversationListProps> = ({
   conversations, isAr, currentUserId, filter, onFilterChange, totalUnread,
   onSelect, onNewChat, isPinned, isMuted, isArchived,
   togglePinned, toggleMuted, toggleArchived, getDraft, searchQuery, isLoading,
+  typingByConv, onlineUserIds,
 }) => {
   const tabs: Array<{ id: ConversationFilter; labelAr: string; labelDe: string }> = [
     { id: 'all',      labelAr: 'الكل',      labelDe: 'Alle' },
@@ -199,7 +219,17 @@ const ConversationList: React.FC<ConversationListProps> = ({
               let previewBody: React.ReactNode = null;
               let previewIcon: React.ReactNode = null;
 
-              if (draft.trim()) {
+              const otherTyping = !!typingByConv?.[conv.id];
+
+              if (otherTyping) {
+                previewIcon = null;
+                previewBody = (
+                  <span className="text-primary font-medium flex items-center gap-1">
+                    {isAr ? 'يكتب' : 'tippt'}
+                    <TypingDotsMini />
+                  </span>
+                );
+              } else if (draft.trim()) {
                 previewIcon = null;
                 previewBody = (
                   <span className="text-destructive font-medium">
@@ -256,6 +286,12 @@ const ConversationList: React.FC<ConversationListProps> = ({
                   >
                     <div className="relative shrink-0">
                       {renderAvatar(conv.otherUsername, conv.otherAvatarUrl, 'h-[52px] w-[52px]')}
+                      {onlineUserIds?.has(conv.otherUserId) && (
+                        <span
+                          aria-label={isAr ? 'متصل الآن' : 'Online'}
+                          className="absolute bottom-0 end-0 block h-3 w-3 rounded-full bg-green-500 ring-2 ring-background"
+                        />
+                      )}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-2">
