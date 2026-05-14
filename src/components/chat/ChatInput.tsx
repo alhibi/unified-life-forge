@@ -262,7 +262,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                   <p className="text-[11px] text-muted-foreground truncate" dir="auto">
                     {replyTo.message_type === 'image' ? '📷 ' + (isAr ? 'صورة' : 'Foto')
                       : replyTo.message_type === 'voice' ? '🎤 ' + (isAr ? 'رسالة صوتية' : 'Sprachnachricht')
-                      : replyTo.message_type === 'file' ? '📎 ' + replyTo.file_name
+                      : replyTo.message_type === 'file' ? '📎 ' + (replyTo.file_name || (isAr ? 'ملف' : 'Datei'))
                       : replyTo.content}
                   </p>
                 </div>
@@ -405,7 +405,11 @@ const ChatInput: React.FC<ChatInputProps> = ({
             <div className="flex-1 flex items-end bg-muted/15 border border-border/15 rounded-2xl overflow-hidden transition-colors focus-within:border-primary/20">
               <Textarea
                 ref={inputRef}
-                placeholder={isAr ? 'رسالة...' : 'Nachricht...'}
+                placeholder={
+                  stagedImagesCount > 0
+                    ? (isAr ? 'أضف تعليقًا (اختياري)...' : 'Bildunterschrift hinzufügen (optional)...')
+                    : (isAr ? 'رسالة...' : 'Nachricht...')
+                }
                 value={newMessage}
                 rows={1}
                 name="chat-message"
@@ -431,6 +435,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                   if (e.key === 'Enter' && enterToSend && !e.shiftKey && !e.nativeEvent.isComposing) {
                     e.preventDefault();
                     if (editingMessage) saveEditMessage();
+                    else if (stagedImagesCount > 0) sendStagedImages();
                     else sendMessage();
                   }
                 }}
@@ -451,7 +456,12 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 onPointerDown={(e) => e.preventDefault()}
                 onClick={() => {
                   if (editingMessage) { saveEditMessage(); return; }
-                  if (stagedImagesCount > 0) sendStagedImages();
+                  if (stagedImagesCount > 0) {
+                    // Staged images consume any typed text as a caption; do
+                    // not also fire a standalone text message.
+                    sendStagedImages();
+                    return;
+                  }
                   if (newMessage.trim()) sendMessage();
                 }}
               >
