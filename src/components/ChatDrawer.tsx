@@ -13,7 +13,7 @@ import {
   ArrowDown, Calendar, Image as ImageIcon, User2, Pencil, Timer, TimerOff,
   Share2, BellOff, Bell, Archive, ArchiveRestore, Volume2, VolumeX,
   Palette as WallpaperIcon, Forward as ForwardIcon,
-  CornerDownLeft,
+  CornerDownLeft, Upload,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -29,6 +29,7 @@ import { useVoiceRecording } from './chat/useVoiceRecording';
 import { SwipeableMessage, TypingDots } from './chat/MessageBubble';
 import ConversationList from './chat/ConversationList';
 import ChatInput from './chat/ChatInput';
+import ChatImage from './chat/ChatImage';
 import ForwardPicker from './chat/ForwardPicker';
 import WallpaperPicker from './chat/WallpaperPicker';
 import { haptic } from './chat/sounds';
@@ -338,23 +339,92 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
     };
   }, []);
 
-  // Esc closes the action menu, menus, and other overlays.
+  // Keyboard shortcuts: Esc cascades through overlays/modes; Ctrl/Cmd+K opens
+  // search (in-chat when a conversation is open, otherwise conversation list).
   React.useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key !== 'Escape') return;
-      if (actionMenu) { setActionMenu(null); chat.setShowExtraEmojis(false); return; }
-      if (chat.showChatMenu) { chat.setShowChatMenu(false); return; }
-      if (chat.showSelfDestructMenu) { chat.setShowSelfDestructMenu(false); return; }
-      if (chat.showEmojiPicker) { chat.setShowEmojiPicker(false); return; }
-      if (chat.showSearch) { chat.setShowSearch(false); return; }
-      if (chat.selectionMode) { chat.clearSelection(); return; }
-      if (showConvSearch) { setShowConvSearch(false); setConvSearchQuery(''); return; }
+      if (e.key === 'Escape') {
+        if (actionMenu) { setActionMenu(null); chat.setShowExtraEmojis(false); return; }
+        if (chat.showChatMenu) { chat.setShowChatMenu(false); return; }
+        if (chat.showSelfDestructMenu) { chat.setShowSelfDestructMenu(false); return; }
+        if (chat.showEmojiPicker) { chat.setShowEmojiPicker(false); return; }
+        if (chat.showSearch) { chat.setShowSearch(false); return; }
+        if (chat.selectionMode) { chat.clearSelection(); return; }
+        if (showConvSearch) { setShowConvSearch(false); setConvSearchQuery(''); return; }
+        return;
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        if (chat.activeConv) {
+          chat.setShowSearch(true);
+        } else {
+          setShowConvSearch(true);
+        }
+      }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [open, actionMenu, chat.showChatMenu, chat.showSelfDestructMenu, chat.showEmojiPicker, chat.showSearch, chat.selectionMode, showConvSearch, chat]);
+  }, [open, actionMenu, chat.showChatMenu, chat.showSelfDestructMenu, chat.showEmojiPicker, chat.showSearch, chat.selectionMode, chat.activeConv, showConvSearch, chat]);
 
+
+  // ── Double-tap to react (Instagram/Telegram-style) ─────────────────────────
+  // Tracks the most recent tap timestamp per message so quick double-taps
+  // toggle a heart reaction without opening the long-press action menu.
+  const lastTapRef = React.useRef<Map<string, number>>(new Map());
+  const DOUBLE_TAP_MS = 320;
+
+  const handleDoubleTapReact = useCallback((msg: Message, e: React.PointerEvent) => {
+    if (!chat.user) return;
+    if (chat.selectionMode || msg.deleted) return;
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    const now = Date.now();
+    const last = lastTapRef.current.get(msg.id) || 0;
+    if (now - last < DOUBLE_TAP_MS) {
+      chat.toggleReaction(msg.id, '❤️');
+      haptic('medium');
+      lastTapRef.current.delete(msg.id);
+    } else {
+      lastTapRef.current.set(msg.id, now);
+    }
+  }, [chat]);
+
+  // ── Drag and drop file support ────────────────────────────────────────────
+  const [isDraggingFiles, setIsDraggingFiles] = React.useState(false);
+  const dragCounterRef = React.useRef(0);
+
+  const onDragEnter = useCallback((e: React.DragEvent) => {
+    if (!chat.activeConv) return;
+    const types = Array.from(e.dataTransfer.types || []);
+    if (!types.includes('Files')) return;
+    e.preventDefault();
+    dragCounterRef.current += 1;
+    setIsDraggingFiles(true);
+  }, [chat.activeConv]);
+
+  const onDragOver = useCallback((e: React.DragEvent) => {
+    if (!chat.activeConv) return;
+    const types = Array.from(e.dataTransfer.types || []);
+    if (!types.includes('Files')) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'copy';
+  }, [chat.activeConv]);
+
+  const onDragLeave = useCallback((e: React.DragEvent) => {
+    if (!chat.activeConv) return;
+    e.preventDefault();
+    dragCounterRef.current = Math.max(0, dragCounterRef.current - 1);
+    if (dragCounterRef.current === 0) setIsDraggingFiles(false);
+  }, [chat.activeConv]);
+
+  const onDrop = useCallback((e: React.DragEvent) => {
+    if (!chat.activeConv) return;
+    e.preventDefault();
+    dragCounterRef.current = 0;
+    setIsDraggingFiles(false);
+    const files = Array.from(e.dataTransfer.files || []);
+    if (files.length > 0) chat.addFilesFromDrop(files);
+  }, [chat]);
 
   // ── Wallpaper resolution ──────────────────────────────────────────────────
   const currentWallpaperId = chat.chatPrefs.getWallpaper(chat.activeConv?.id);
@@ -512,7 +582,26 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                     ) : (
                       <div className="grid grid-cols-3 gap-1 rounded-xl overflow-hidden">
                         {chat.sharedMedia.map(m => m.message_type === 'image' ? (
-                          <button key={m.id} onClick={() => window.open(chat.getFileUrl(m), '_blank')} className="aspect-square bg-muted/30 overflow-hidden hover:opacity-80 transition-opacity"><img src={chat.getFileUrl(m)} alt="" className="w-full h-full object-cover" /></button>
+                          <button
+                            key={m.id}
+                            onClick={(e) => {
+                              const url = chat.getFileUrl(m);
+                              if (!url) return;
+                              const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+                              chat.setLightboxRect(rect);
+                              chat.setLightboxSrc(url);
+                              chat.setLightboxOpen(true);
+                            }}
+                            className="aspect-square bg-muted/30 overflow-hidden hover:opacity-80 transition-opacity"
+                          >
+                            <ChatImage
+                              src={chat.getFileUrl(m)}
+                              alt={m.file_name || ''}
+                              isAr={chat.isAr}
+                              refreshUrl={() => chat.refreshSignedUrl(m)}
+                              className="w-full h-full"
+                            />
+                          </button>
                         ) : (
                           <div key={m.id} className="aspect-square bg-muted/20 flex flex-col items-center justify-center gap-1.5 p-2"><FileText className="w-6 h-6 text-muted-foreground" /><span className="text-[9px] text-muted-foreground truncate w-full text-center">{m.file_name}</span></div>
                         ))}
@@ -855,7 +944,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
             <div
               ref={chat.messagesContainerRef}
               className={cn(
-                'flex-1 overflow-y-auto px-3 py-3 overscroll-contain scroll-smooth will-change-scroll',
+                'flex-1 overflow-y-auto px-3 py-3 overscroll-contain scroll-smooth will-change-scroll relative',
                 isDarkBg && 'text-white'
               )}
               style={{
@@ -864,7 +953,29 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
               } as React.CSSProperties}
               onScroll={chat.handleScroll}
               onClick={() => { chat.setShowChatMenu(false); setActionMenu(null); chat.setShowExtraEmojis(false); }}
+              onDragEnter={onDragEnter}
+              onDragOver={onDragOver}
+              onDragLeave={onDragLeave}
+              onDrop={onDrop}
             >
+              <AnimatePresence>
+                {isDraggingFiles && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.98 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.98 }}
+                    className="absolute inset-2 z-30 rounded-2xl border-2 border-dashed border-primary bg-primary/10 backdrop-blur-sm flex flex-col items-center justify-center gap-3 pointer-events-none"
+                    aria-hidden="true"
+                  >
+                    <div className="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center">
+                      <Upload className="w-7 h-7 text-primary" />
+                    </div>
+                    <p className="text-[14px] font-semibold text-primary">
+                      {chat.isAr ? 'أفلت الملفات هنا للإرسال' : 'Dateien hier ablegen zum Senden'}
+                    </p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
               {chat.messagesLoading && chat.messages.length === 0 && (
                 <div className="flex flex-col gap-3 py-4" aria-hidden="true">
                   {[0, 1, 2, 3, 4].map(i => {
@@ -955,7 +1066,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                         <div
                           className={cn('relative group w-fit min-w-[72px] max-w-[82%]')}
                           onContextMenu={(e) => { e.preventDefault(); openActionMenu(msg, isMine, e.currentTarget as HTMLElement); }}
-                          onPointerDown={(e) => beginLongPress(msg, isMine, e)}
+                          onPointerDown={(e) => { handleDoubleTapReact(msg, e); beginLongPress(msg, isMine, e); }}
                           onPointerMove={continueLongPress}
                           onPointerUp={(e) => endLongPress(msg, e)}
                           onPointerCancel={(e) => clearLongPress(e.pointerId)}
@@ -1016,7 +1127,23 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                               <p className="px-3 py-2 text-[13px]">{chat.isAr ? '🚫 تم حذف هذه الرسالة' : '🚫 Diese Nachricht wurde gelöscht'}</p>
                             ) : msg.message_type === 'image' ? (
                               <div className="relative">
-                                <img src={chat.getFileUrl(msg)} alt={msg.file_name || 'image'} className="max-w-full max-h-60 object-cover cursor-pointer" loading="lazy" onClick={(e) => { e.stopPropagation(); if (chat.selectionMode) { chat.toggleSelect(msg.id); return; } const rect = (e.target as HTMLElement).getBoundingClientRect(); chat.setLightboxRect(rect); chat.setLightboxSrc(chat.getFileUrl(msg)); chat.setLightboxOpen(true); }} />
+                                <ChatImage
+                                  src={chat.getFileUrl(msg)}
+                                  alt={msg.file_name || 'image'}
+                                  isAr={chat.isAr}
+                                  refreshUrl={() => chat.refreshSignedUrl(msg)}
+                                  className="max-w-full max-h-60 aspect-[4/3] cursor-pointer"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (chat.selectionMode) { chat.toggleSelect(msg.id); return; }
+                                    const url = chat.getFileUrl(msg);
+                                    if (!url) return;
+                                    const rect = (e.target as HTMLElement).getBoundingClientRect();
+                                    chat.setLightboxRect(rect);
+                                    chat.setLightboxSrc(url);
+                                    chat.setLightboxOpen(true);
+                                  }}
+                                />
                                 <div className="px-3 py-1.5">
                                   {msg.content && msg.content !== msg.file_name && (
                                     <p className="break-words whitespace-pre-wrap text-[15px] leading-[1.45] [overflow-wrap:anywhere] [unicode-bidi:plaintext]" dir="auto">
@@ -1188,7 +1315,15 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                               </span>
                             </div>
                           )}
-                          {actionMenu.msg.message_type === 'image' && <img src={chat.getFileUrl(actionMenu.msg)} alt="" className="max-w-full max-h-40 object-cover" />}
+                          {actionMenu.msg.message_type === 'image' && (
+                            <ChatImage
+                              src={chat.getFileUrl(actionMenu.msg)}
+                              alt={actionMenu.msg.file_name || ''}
+                              isAr={chat.isAr}
+                              refreshUrl={() => chat.refreshSignedUrl(actionMenu.msg)}
+                              className="max-w-full aspect-[4/3] max-h-40"
+                            />
+                          )}
                         </div>
 
                         {/* Emoji bar + actions */}

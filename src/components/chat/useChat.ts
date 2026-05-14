@@ -377,7 +377,30 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     return () => { cancelled = true; };
   }, [messages, signedUrls]);
 
-  const getFileUrl = useCallback((msg: Message) => signedUrls[msg.id] || msg.file_url || '', [signedUrls]);
+  /**
+   * Returns the signed URL for a message's attachment when it's resolved.
+   * Falls back to the raw `file_url` only if it already looks like an HTTP(S)
+   * URL — otherwise returns an empty string so the bubble can show its
+   * skeleton instead of triggering a broken-image request.
+   */
+  const getFileUrl = useCallback((msg: Message) => {
+    if (signedUrls[msg.id]) return signedUrls[msg.id];
+    if (msg.file_url && /^https?:\/\//i.test(msg.file_url)) return msg.file_url;
+    return '';
+  }, [signedUrls]);
+
+  /** Force-refresh a signed URL for a given message — e.g. after expiry. */
+  const refreshSignedUrl = useCallback(async (msg: Message): Promise<string | null> => {
+    if (!msg.file_url) return null;
+    try {
+      const url = await getSignedFileUrl(msg.file_url);
+      if (!url) return null;
+      setSignedUrls(prev => ({ ...prev, [msg.id]: url }));
+      return url;
+    } catch {
+      return null;
+    }
+  }, []);
 
   // ── Realtime subscription ─────────────────────────────────────────────────
   useEffect(() => {
@@ -813,9 +836,45 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     setStagedPreviews(prev => [...prev, ...previews]);
   }, [isAr, stagedImages.length]);
 
+  /**
+   * Mixed-content handler used by drag-and-drop: stages images for batched
+   * preview/send and uploads other files immediately as 'file' messages.
+   */
+  const addFilesFromDrop = useCallback(async (files: File[]) => {
+    if (!files.length || !user || !activeConv) return;
+    const images = files.filter(f => f.type.startsWith('image/'));
+    const others = files.filter(f => !f.type.startsWith('image/'));
+    if (images.length > 0) addImagesFromFiles(images);
+    for (const file of others) {
+      if (!validateFile(file, 'file', isAr)) continue;
+      setUploading(true);
+      const ext = file.name.includes('.') ? (file.name.split('.').pop() || 'bin') : 'bin';
+      const path = `${user.id}/${activeConv.id}/${Date.now()}.${ext}`;
+      const { error } = await supabase.storage.from('chat-files').upload(path, file);
+      setUploading(false);
+      if (error) { chatError('uploadFailed', isAr, describeError(error, isAr)); continue; }
+      await sendMessage('file', path, file.name);
+    }
+  }, [user, activeConv, addImagesFromFiles, isAr, sendMessage]);
+
+  // Tracks pending captions keyed by temp upload id, so the first image of a
+  // batch carries the user's typed caption once its storage upload completes.
+  const pendingCaptionsRef = useRef<Map<string, string>>(new Map());
+
   const sendStagedImages = useCallback(() => {
     if (!user || !activeConv || stagedImages.length === 0) return;
-    for (const file of stagedImages) imageUpload.startUpload(file, activeConv.id, user.id);
+    const caption = newMessage.trim();
+    let firstTempId: string | null = null;
+    for (const file of stagedImages) {
+      const tempId = imageUpload.startUpload(file, activeConv.id, user.id);
+      if (!firstTempId) firstTempId = tempId;
+    }
+    if (caption && firstTempId) {
+      pendingCaptionsRef.current.set(firstTempId, caption);
+      setNewMessage('');
+      chatPrefs.clearDraft(activeConv.id);
+      resizeComposer();
+    }
     // Revoke preview URLs here — ImageUploadContext owns its own localPreviewUrl
     // created when the upload starts, so these are safe to release.
     stagedPreviews.forEach(url => { try { URL.revokeObjectURL(url); } catch { /* no-op */ } });
@@ -824,7 +883,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     isNearBottomRef.current = true;
     setTimeout(() => scrollToBottom(), 100);
     playChatSound('send');
-  }, [user, activeConv, stagedImages, stagedPreviews, imageUpload, scrollToBottom]);
+  }, [user, activeConv, stagedImages, stagedPreviews, imageUpload, scrollToBottom, newMessage, chatPrefs, resizeComposer]);
 
   const removeStagedImage = useCallback((index: number) => {
     const url = stagedPreviews[index];
@@ -843,7 +902,9 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
   useEffect(() => {
     imageUpload.setOnUploadComplete((tempId: string, storagePath: string, fileName: string, conversationId: string) => {
       if (user) {
-        sendMessage('image', storagePath, fileName, undefined, conversationId);
+        const caption = pendingCaptionsRef.current.get(tempId);
+        if (caption !== undefined) pendingCaptionsRef.current.delete(tempId);
+        sendMessage('image', storagePath, fileName, caption, conversationId);
         setTimeout(() => imageUpload.clearUpload(tempId), 500);
       }
     });
@@ -1086,7 +1147,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     // Realtime
     typingUser, uploading,
     messagesLoading, conversationsLoading,
-    signedUrls, getFileUrl,
+    signedUrls, getFileUrl, refreshSignedUrl,
     // Search
     showSearch, setShowSearch,
     chatSearchQuery, searchResults, searchIndex,
@@ -1115,7 +1176,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     startEditMessage, saveEditMessage,
     searchInChat, navigateSearch,
     toggleSelfDestruct, toggleReaction,
-    handleFileUpload, addImagesFromFiles, sendStagedImages, removeStagedImage, clearStagedImages,
+    handleFileUpload, addImagesFromFiles, addFilesFromDrop, sendStagedImages, removeStagedImage, clearStagedImages,
     getReplyPreview, deleteConversation,
     searchForUser, startConversation,
     getMessageMeta, copyMessage, broadcastTyping,
