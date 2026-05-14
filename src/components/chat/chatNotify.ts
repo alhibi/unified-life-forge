@@ -24,6 +24,7 @@ const M = {
   reactionFailed:    { ar: 'تعذر إضافة التفاعل', de: 'Reaktion fehlgeschlagen' },
   uploadFailed:      { ar: 'تعذر رفع الملف', de: 'Upload fehlgeschlagen' },
   voiceUploadFailed: { ar: 'تعذر إرسال الرسالة الصوتية', de: 'Sprachnachricht konnte nicht gesendet werden' },
+  voicePlayFailed:   { ar: 'تعذر تشغيل الرسالة الصوتية', de: 'Sprachnachricht konnte nicht abgespielt werden' },
   voiceEmpty:        { ar: 'التسجيل قصير جداً', de: 'Aufnahme zu kurz' },
   voiceTooLong:      { ar: 'تم إيقاف التسجيل (الحد الأقصى 10 دقائق)', de: 'Aufnahme beendet (max. 10 Min.)' },
   micDenied:         { ar: 'يرجى السماح باستخدام الميكروفون', de: 'Bitte Mikrofon-Zugriff erlauben' },

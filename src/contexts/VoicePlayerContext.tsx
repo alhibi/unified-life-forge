@@ -1,4 +1,22 @@
 import React, { createContext, useContext, useState, useRef, useCallback, useEffect } from 'react';
+import { toast } from 'sonner';
+
+// Best-effort language detection so the play-failure toast follows the user's
+// preferred locale without coupling this context to AppContext.
+const detectIsAr = (): boolean => {
+  if (typeof document === 'undefined') return false;
+  const lang = document.documentElement.lang || localStorage.getItem('app-language') || '';
+  return lang.toLowerCase().startsWith('ar');
+};
+
+let lastPlayErrorAt = 0;
+const notifyPlayFailure = () => {
+  const now = Date.now();
+  if (now - lastPlayErrorAt < 2500) return; // throttle bursts
+  lastPlayErrorAt = now;
+  const isAr = detectIsAr();
+  toast.error(isAr ? 'تعذر تشغيل الرسالة الصوتية' : 'Sprachnachricht konnte nicht abgespielt werden');
+};
 
 interface VoicePlayerState {
   isPlaying: boolean;
@@ -153,9 +171,13 @@ export const VoicePlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
       audio.play().then(() => {
         setState(prev => prev.msgId === msgId ? { ...prev, isPlaying: true } : prev);
         startRAF();
-      }).catch(() => {
+      }).catch((err: unknown) => {
         // Reset only if this is still the active message
         setState(prev => prev.msgId === msgId ? { ...prev, isPlaying: false, msgId: null } : prev);
+        // Suppress the NotAllowedError that fires when the browser blocks
+        // autoplay before a gesture — the user will tap play themselves.
+        const name = (err as { name?: string } | null)?.name;
+        if (name !== 'NotAllowedError' && name !== 'AbortError') notifyPlayFailure();
       });
     };
 
@@ -176,6 +198,7 @@ export const VoicePlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
     audio.onerror = () => {
       setState(prev => prev.msgId === msgId ? { ...prev, isPlaying: false, msgId: null } : prev);
+      notifyPlayFailure();
     };
 
     audio.src = url;
