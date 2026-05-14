@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, lazy, Suspense } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { useApp } from '@/contexts/AppContext';
 import { useAuth } from '@/hooks/useAuth';
@@ -13,8 +13,6 @@ import ReligiousOccasions from '@/components/ReligiousOccasions';
 import IslamicSections from '@/components/IslamicSections';
 import CurrentTimeSunnah from '@/components/CurrentTimeSunnah';
 import UmmahPulse from '@/components/UmmahPulse';
-import ErrorBoundary from '@/components/ErrorBoundary';
-const ChatDrawer = lazy(() => import('@/components/ChatDrawer'));
 import { useNavigate } from 'react-router-dom';
 import { Sunrise, Sun, Moon, MessageCircle, Newspaper, ClipboardList, X, Trash2, BookOpen, HeartPulse, ShieldCheck } from 'lucide-react';
 import { AnimatePresence } from 'framer-motion';
@@ -56,7 +54,6 @@ export default function Index() {
   const greetingIconStyle = 'text-primary bg-primary/10';
 
   const navigate = useNavigate();
-  const [chatOpen, setChatOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [showClipboard, setShowClipboard] = useState(false);
 
@@ -137,7 +134,7 @@ export default function Index() {
               </button>
               {user && (
                 <button
-                  onClick={() => setChatOpen(true)}
+                  onClick={() => navigate('/chat')}
                   className="relative p-2.5 rounded-xl bg-accent/50 hover:bg-accent transition-colors" aria-label="المحادثات"
                 >
                   <MessageCircle className="h-5 w-5 text-foreground" />
@@ -199,17 +196,6 @@ export default function Index() {
 
       {createPortal(
         <>
-          <ErrorBoundary fallbackTitle={language === 'ar' ? 'حدث خطأ في المحادثة' : 'Fehler im Chat'}>
-            <Suspense fallback={null}>
-              <ChatDrawer
-                open={chatOpen}
-                onOpenChange={setChatOpen}
-                unreadCount={unreadCount}
-                onUnreadChange={setUnreadCount}
-              />
-            </Suspense>
-          </ErrorBoundary>
-
           {/* Clipboard Drawer */}
           <AnimatePresence>
             {showClipboard && (

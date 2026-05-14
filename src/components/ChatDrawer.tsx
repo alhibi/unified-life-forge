@@ -227,7 +227,7 @@ function VoiceBubble({
 // ─────────────────────────────────────────────────────────────────────────────
 // ChatDrawer – root of the entire messaging experience.
 // ─────────────────────────────────────────────────────────────────────────────
-export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadChange }: ChatDrawerProps) {
+export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadChange, inline = false }: ChatDrawerProps) {
   const chat = useChat({ open, onUnreadChange });
   const voice = useVoiceRecording({
     activeConvId: chat.activeConv?.id || null,
@@ -240,6 +240,27 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
   const [actionMenu, setActionMenu] = React.useState<ActionMenuState | null>(null);
   const [convSearchQuery, setConvSearchQuery] = React.useState('');
   const [showConvSearch, setShowConvSearch] = React.useState(false);
+
+  // Escape key collapses one layer at a time: overlays first, then the
+  // active conversation, finally leaves the page. Matches what users
+  // already get from clicking the in-app back arrows.
+  React.useEffect(() => {
+    if (!inline) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      if (actionMenu) { setActionMenu(null); return; }
+      if (showConvSearch) { setShowConvSearch(false); setConvSearchQuery(''); return; }
+      if (chat.showChatMenu) { chat.setShowChatMenu(false); return; }
+      if (chat.showProfilePopup) { chat.setShowProfilePopup(false); return; }
+      if (chat.showWallpaperPicker) { chat.setShowWallpaperPicker(false); return; }
+      if (chat.forwardingMessages) { chat.cancelForward(); return; }
+      if (chat.showNewChat) { chat.setShowNewChat(false); return; }
+      if (chat.activeConv) { chat.setActiveConv(null); return; }
+      onOpenChange(false);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [inline, actionMenu, showConvSearch, chat, onOpenChange]);
 
   const BackIcon = chat.isAr ? ChevronRight : ChevronLeft;
 
@@ -432,14 +453,24 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
   const isDarkBg = currentWallpaper.isDark;
 
   if (!chat.user) {
+    const signInPrompt = (
+      <div className="flex flex-col items-center justify-center gap-3 h-full px-6 text-center">
+        <p className="text-muted-foreground text-sm">
+          {chat.isAr ? 'يرجى تسجيل الدخول أولاً' : 'Bitte zuerst anmelden'}
+        </p>
+      </div>
+    );
+    if (inline) {
+      return (
+        <div className="fixed inset-0 z-30 flex flex-col bg-background pb-24">
+          {signInPrompt}
+        </div>
+      );
+    }
     return (
       <Sheet open={open} onOpenChange={onOpenChange}>
         <SheetContent side={chat.isAr ? 'right' : 'left'} className="w-full sm:max-w-md p-0 [&>button[class*='absolute']]:hidden">
-          <div className="flex items-center justify-center h-full">
-            <p className="text-muted-foreground text-sm">
-              {chat.isAr ? 'يرجى تسجيل الدخول أولاً' : 'Bitte zuerst anmelden'}
-            </p>
-          </div>
+          {signInPrompt}
         </SheetContent>
       </Sheet>
     );
@@ -455,9 +486,8 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
     setConvSearchQuery('');
   };
 
-  return (
-    <Sheet open={open} onOpenChange={(v) => { if (!v) closeAll(); else onOpenChange(v); }}>
-      <SheetContent side={chat.isAr ? 'right' : 'left'} className="w-full sm:max-w-md p-0 flex flex-col bg-background [&>button[class*='absolute']]:hidden">
+  const body = (
+    <>
         <input
           type="file"
           ref={chat.fileInputRef}
@@ -1471,14 +1501,41 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
             }}
           />
         )}
-      </SheetContent>
+    </>
+  );
 
-      <ImageLightbox
-        src={chat.lightboxSrc}
-        open={chat.lightboxOpen}
-        onClose={() => chat.setLightboxOpen(false)}
-        originRect={chat.lightboxRect}
-      />
+  const lightbox = (
+    <ImageLightbox
+      src={chat.lightboxSrc}
+      open={chat.lightboxOpen}
+      onClose={() => chat.setLightboxOpen(false)}
+      originRect={chat.lightboxRect}
+    />
+  );
+
+  if (inline) {
+    // Full-screen page rendering for the dedicated /chat route. We leave
+    // room at the bottom for the persistent BottomNav (~84px including
+    // the iOS safe-area inset) so the composer never sits underneath it.
+    return (
+      <>
+        <div
+          className="fixed inset-0 z-30 flex flex-col bg-background"
+          style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 64px)' }}
+        >
+          {body}
+        </div>
+        {lightbox}
+      </>
+    );
+  }
+
+  return (
+    <Sheet open={open} onOpenChange={(v) => { if (!v) closeAll(); else onOpenChange(v); }}>
+      <SheetContent side={chat.isAr ? 'right' : 'left'} className="w-full sm:max-w-md p-0 flex flex-col bg-background [&>button[class*='absolute']]:hidden">
+        {body}
+      </SheetContent>
+      {lightbox}
     </Sheet>
   );
 }
