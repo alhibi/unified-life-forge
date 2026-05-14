@@ -381,14 +381,14 @@ export default function SudokuPage() {
   }, [board]);
 
   const winRate = stats.gamesPlayed > 0 ? Math.round((stats.gamesWon / stats.gamesPlayed) * 100) : 0;
+  const isAr = language === 'ar';
+
   const diffLabels: Record<Difficulty, string> = {
     easy: t('sudoku.easy'),
     medium: t('sudoku.medium'),
     hard: t('sudoku.hard'),
     expert: isAr ? 'محترف' : 'Expert',
   };
-
-  const isAr = language === 'ar';
 
   const sudokuRules = isAr ? [
     'املأ الشبكة بالأرقام من 1 إلى 9',
