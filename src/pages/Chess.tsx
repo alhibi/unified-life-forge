@@ -12,7 +12,7 @@ type Piece = { type: PieceType; color: Color } | null;
 type BoardState = Piece[][];
 type Square = [number, number];
 type GameMode = 'local' | 'computer';
-type AIDifficulty = 'easy' | 'medium' | 'hard';
+type AIDifficulty = 'easy' | 'medium' | 'hard' | 'master';
 
 interface ChessStats {
   gamesPlayed: number;
@@ -29,6 +29,42 @@ interface GameState {
   enPassant: Square | null;
   moveCount: number;
   captured: { w: string[]; b: string[] };
+  halfmoveClock: number;
+  positionCounts: Record<string, number>;
+}
+
+function boardHash(b: BoardState, turn: Color, castling: GameState['castling'], ep: Square | null): string {
+  let s = turn;
+  for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
+    const p = b[r][c]; s += p ? p.color + p.type : '.';
+  }
+  s += castling.wK ? 'K' : ''; s += castling.wQ ? 'Q' : '';
+  s += castling.bK ? 'k' : ''; s += castling.bQ ? 'q' : '';
+  if (ep) s += `e${ep[0]}${ep[1]}`;
+  return s;
+}
+
+function isInsufficientMaterial(board: BoardState): boolean {
+  const pieces: { color: Color; type: PieceType; r: number; c: number }[] = [];
+  for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
+    const p = board[r][c]; if (p) pieces.push({ ...p, r, c });
+  }
+  // Any pawn / rook / queen on board -> sufficient material
+  if (pieces.some(p => p.type === 'P' || p.type === 'R' || p.type === 'Q')) return false;
+  // Only K vs K
+  if (pieces.length === 2) return true;
+  // K + minor vs K
+  if (pieces.length === 3 && pieces.some(p => p.type === 'B' || p.type === 'N')) return true;
+  // K + B vs K + B with bishops on same color
+  if (pieces.length === 4) {
+    const bishops = pieces.filter(p => p.type === 'B');
+    if (bishops.length === 2) {
+      const sq0 = (bishops[0].r + bishops[0].c) % 2;
+      const sq1 = (bishops[1].r + bishops[1].c) % 2;
+      if (sq0 === sq1) return true;
+    }
+  }
+  return false;
 }
 
 type BoardTheme = 'classic' | 'wooden' | 'midnight' | 'emerald';
@@ -232,13 +268,16 @@ function hasAnyLegalMoves(board: BoardState, color: Color, enPassant: Square | n
 }
 
 function initGameState(): GameState {
+  const board = initBoard();
   return {
-    board: initBoard(),
+    board,
     turn: 'w',
     castling: { wK: true, wQ: true, bK: true, bQ: true },
     enPassant: null,
     moveCount: 0,
     captured: { w: [], b: [] },
+    halfmoveClock: 0,
+    positionCounts: { [boardHash(board, 'w', { wK: true, wQ: true, bK: true, bQ: true }, null)]: 1 },
   };
 }
 
@@ -275,17 +314,71 @@ const PST: Partial<Record<PieceType, number[][]>> = { P: PAWN_TABLE, N: KNIGHT_T
 
 function evaluateBoard(board: BoardState): number {
   let score = 0;
+  let wBishops = 0, bBishops = 0;
+  const wPawnsCol = [0,0,0,0,0,0,0,0], bPawnsCol = [0,0,0,0,0,0,0,0];
   for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
     const p = board[r][c];
     if (!p) continue;
     let val = PIECE_VALUES[p.type];
     const table = PST[p.type];
-    if (table) {
-      val += p.color === 'w' ? table[r][c] : table[7 - r][c];
-    }
+    if (table) val += p.color === 'w' ? table[r][c] : table[7 - r][c];
     score += p.color === 'w' ? val : -val;
+    if (p.type === 'B') { if (p.color === 'w') wBishops++; else bBishops++; }
+    if (p.type === 'P') { if (p.color === 'w') wPawnsCol[c]++; else bPawnsCol[c]++; }
+  }
+  if (wBishops >= 2) score += 35;
+  if (bBishops >= 2) score -= 35;
+  for (let c = 0; c < 8; c++) {
+    if (wPawnsCol[c] >= 2) score -= 18 * (wPawnsCol[c] - 1);
+    if (bPawnsCol[c] >= 2) score += 18 * (bPawnsCol[c] - 1);
   }
   return score;
+}
+
+function generateCaptures(board: BoardState, color: Color, enPassant: Square | null, castling: GameState['castling']): { from: Square; to: Square }[] {
+  const result: { from: Square; to: Square }[] = [];
+  for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
+    if (board[r][c]?.color !== color) continue;
+    const legal = getLegalMoves(board, r, c, enPassant, castling);
+    for (const to of legal) {
+      const target = board[to[0]][to[1]];
+      const isEp = board[r][c]?.type === 'P' && enPassant && to[0] === enPassant[0] && to[1] === enPassant[1];
+      if (target || isEp) result.push({ from: [r, c], to });
+    }
+  }
+  return result;
+}
+
+function quiesce(board: BoardState, alpha: number, beta: number, isMaximizing: boolean, enPassant: Square | null, castling: GameState['castling']): number {
+  nodesSearched++;
+  const stand = evaluateBoard(board);
+  if (isMaximizing) {
+    if (stand >= beta) return beta;
+    if (stand > alpha) alpha = stand;
+  } else {
+    if (stand <= alpha) return alpha;
+    if (stand < beta) beta = stand;
+  }
+  if (nodesSearched % 500 === 0 && Date.now() > searchDeadline) return stand;
+  const color: Color = isMaximizing ? 'w' : 'b';
+  const caps = generateCaptures(board, color, enPassant, castling);
+  caps.sort((a, b) => {
+    const va = board[a.to[0]][a.to[1]] ? PIECE_VALUES[board[a.to[0]][a.to[1]]!.type] : 100;
+    const vb = board[b.to[0]][b.to[1]] ? PIECE_VALUES[board[b.to[0]][b.to[1]]!.type] : 100;
+    return vb - va;
+  });
+  for (const m of caps) {
+    const r = applyMove(board, m.from, m.to, enPassant, castling);
+    const sc = quiesce(r.board, alpha, beta, !isMaximizing, r.enPassant, r.castling);
+    if (isMaximizing) {
+      if (sc >= beta) return beta;
+      if (sc > alpha) alpha = sc;
+    } else {
+      if (sc <= alpha) return alpha;
+      if (sc < beta) beta = sc;
+    }
+  }
+  return isMaximizing ? alpha : beta;
 }
 
 function getAllMovesForColor(board: BoardState, color: Color, enPassant: Square | null, castling: { wK: boolean; wQ: boolean; bK: boolean; bQ: boolean }): { from: Square; to: Square }[] {
@@ -347,20 +440,19 @@ function applyMove(board: BoardState, from: Square, to: Square, enPassant: Squar
 let searchDeadline = 0;
 let nodesSearched = 0;
 
-function minimax(board: BoardState, depth: number, alpha: number, beta: number, isMaximizing: boolean, enPassant: Square | null, castling: { wK: boolean; wQ: boolean; bK: boolean; bQ: boolean }): number {
+function minimax(board: BoardState, depth: number, alpha: number, beta: number, isMaximizing: boolean, enPassant: Square | null, castling: GameState['castling']): number {
   nodesSearched++;
-  // Check deadline every 200 nodes to avoid excessive Date.now() calls
-  if (depth === 0 || (nodesSearched % 200 === 0 && Date.now() > searchDeadline)) return evaluateBoard(board);
-  
+  if (nodesSearched % 500 === 0 && Date.now() > searchDeadline) return evaluateBoard(board);
+  if (depth === 0) return quiesce(board, alpha, beta, isMaximizing, enPassant, castling);
+
   const color: Color = isMaximizing ? 'w' : 'b';
   const moves = getAllMovesForColor(board, color, enPassant, castling);
-  
+
   if (moves.length === 0) {
-    if (isInCheck(board, color)) return isMaximizing ? -99999 + (3 - depth) : 99999 - (3 - depth);
+    if (isInCheck(board, color)) return isMaximizing ? -99999 + (10 - depth) : 99999 - (10 - depth);
     return 0;
   }
 
-  // Move ordering: captures by MVV-LVA
   moves.sort((a, b) => {
     const capA = board[a.to[0]][a.to[1]];
     const capB = board[b.to[0]][b.to[1]];
@@ -396,39 +488,56 @@ function getBestMove(game: GameState, aiColor: Color, difficulty: AIDifficulty):
   const moves = getAllMovesForColor(game.board, aiColor, game.enPassant, game.castling);
   if (moves.length === 0) return null;
 
-  // Easy: random with slight preference for captures
+  // Easy: random with mild capture preference
   if (difficulty === 'easy') {
     const captures = moves.filter(m => game.board[m.to[0]][m.to[1]]);
-    if (captures.length > 0 && Math.random() < 0.5) return captures[Math.floor(Math.random() * captures.length)];
+    if (captures.length > 0 && Math.random() < 0.55) return captures[Math.floor(Math.random() * captures.length)];
     return moves[Math.floor(Math.random() * moves.length)];
   }
 
-  // Fixed depth: medium=1, hard=2 (fast and responsive)
-  const depth = difficulty === 'medium' ? 1 : 2;
-  searchDeadline = Date.now() + (difficulty === 'medium' ? 300 : 800);
+  // Iterative deepening with time budget
+  const timeMs   = difficulty === 'medium' ? 800 : difficulty === 'hard' ? 1800 : 3500;
+  const maxDepth = difficulty === 'medium' ? 3 : difficulty === 'hard' ? 4 : 5;
+  searchDeadline = Date.now() + timeMs;
   nodesSearched = 0;
 
   const isMaximizing = aiColor === 'w';
-  let bestMove = moves[0];
-  let bestEval = isMaximizing ? -Infinity : Infinity;
 
-  // Sort root moves: captures first
   moves.sort((a, b) => {
     const capA = game.board[a.to[0]][a.to[1]];
     const capB = game.board[b.to[0]][b.to[1]];
     return (capB ? PIECE_VALUES[capB.type] : 0) - (capA ? PIECE_VALUES[capA.type] : 0);
   });
 
-  for (const move of moves) {
-    const result = applyMove(game.board, move.from, move.to, game.enPassant, game.castling);
-    const ev = minimax(result.board, depth, -Infinity, Infinity, !isMaximizing, result.enPassant, result.castling);
-    
-    if (isMaximizing ? ev > bestEval : ev < bestEval) {
-      bestEval = ev;
-      bestMove = move;
-    }
-  }
+  let bestMove: { from: Square; to: Square } = moves[0];
+  let bestEval = isMaximizing ? -Infinity : Infinity;
+  const moveScores = new Map<string, number>();
 
+  for (let depth = 1; depth <= maxDepth; depth++) {
+    let iterBest = moves[0];
+    let iterBestEval = isMaximizing ? -Infinity : Infinity;
+    moves.sort((a, b) => {
+      const ka = `${a.from[0]}${a.from[1]}-${a.to[0]}${a.to[1]}`;
+      const kb = `${b.from[0]}${b.from[1]}-${b.to[0]}${b.to[1]}`;
+      const sa = moveScores.get(ka) ?? -Infinity;
+      const sb = moveScores.get(kb) ?? -Infinity;
+      return isMaximizing ? sb - sa : sa - sb;
+    });
+    let timedOut = false;
+    for (const move of moves) {
+      if (Date.now() > searchDeadline) { timedOut = true; break; }
+      const result = applyMove(game.board, move.from, move.to, game.enPassant, game.castling);
+      const ev = minimax(result.board, depth - 1, -Infinity, Infinity, !isMaximizing, result.enPassant, result.castling);
+      const k = `${move.from[0]}${move.from[1]}-${move.to[0]}${move.to[1]}`;
+      moveScores.set(k, ev);
+      if (isMaximizing ? ev > iterBestEval : ev < iterBestEval) {
+        iterBestEval = ev; iterBest = move;
+      }
+    }
+    if (!timedOut) { bestMove = iterBest; bestEval = iterBestEval; }
+    if (Math.abs(bestEval) > 90000) break;
+    if (Date.now() > searchDeadline) break;
+  }
   return bestMove;
 }
 
@@ -616,13 +725,22 @@ export default function ChessPage() {
     else playMoveSound();
 
     const next = game.turn === 'w' ? 'b' : 'w';
+    const isPawnOrCapture = piece.type === 'P' || isCapture;
+    const newHalfmoveClock = isPawnOrCapture ? 0 : game.halfmoveClock + 1;
+    const newPositionCounts = { ...game.positionCounts };
+    const positionKey = boardHash(nb, next, newCastling, newEnPassant);
+    newPositionCounts[positionKey] = (newPositionCounts[positionKey] || 0) + 1;
     const newGame: GameState = {
       board: nb, turn: next, castling: newCastling,
       enPassant: newEnPassant, moveCount: game.moveCount + 1, captured: newCaptured,
+      halfmoveClock: newHalfmoveClock, positionCounts: newPositionCounts,
     };
 
     const check = isInCheck(nb, next);
     const legal = hasAnyLegalMoves(nb, next, newEnPassant, newCastling);
+    const insuf = isInsufficientMaterial(nb);
+    const threefold = (newPositionCounts[positionKey] || 0) >= 3;
+    const fiftyMove = newHalfmoveClock >= 100;
 
     let finalNotation = notation;
     if (!legal && check) {
@@ -633,7 +751,22 @@ export default function ChessPage() {
       setIsRunning(false);
       playCheckSound();
     } else if (!legal) {
-      setStatus(language === 'ar' ? 'تعادل!' : 'Stalemate!');
+      setStatus(language === 'ar' ? 'مأزق — تعادل!' : 'Stalemate — Draw!');
+      recordResult('draw');
+      setGameOver(true);
+      setIsRunning(false);
+    } else if (insuf) {
+      setStatus(language === 'ar' ? 'تعادل: مواد غير كافية' : 'Draw: Insufficient material');
+      recordResult('draw');
+      setGameOver(true);
+      setIsRunning(false);
+    } else if (threefold) {
+      setStatus(language === 'ar' ? 'تعادل: تكرار ثلاثي' : 'Draw: Threefold repetition');
+      recordResult('draw');
+      setGameOver(true);
+      setIsRunning(false);
+    } else if (fiftyMove) {
+      setStatus(language === 'ar' ? 'تعادل: قاعدة الـ50 نقلة' : 'Draw: Fifty-move rule');
       recordResult('draw');
       setGameOver(true);
       setIsRunning(false);
@@ -651,23 +784,38 @@ export default function ChessPage() {
     setLegalMoves([]);
   }, [game, t, language, stats]);
 
+  // Auto-start when player picks Black vs Computer (they can't make the first move)
+  useEffect(() => {
+    if (gameMode === 'computer' && playerColor === 'b' && !gameStarted && !gameOver && game.moveCount === 0) {
+      setGameStarted(true);
+      setIsRunning(true);
+    }
+  }, [gameMode, playerColor, gameStarted, gameOver, game.moveCount]);
+
   // AI move
   useEffect(() => {
-    if (gameMode !== 'computer' || gameOver || !gameStarted || aiThinking) return;
+    if (gameMode !== 'computer' || gameOver || !gameStarted) return;
     if (game.turn === playerColor) return;
 
+    let cancelled = false;
     setAiThinking(true);
     const timeoutId = setTimeout(() => {
-      const aiColor = playerColor === 'w' ? 'b' : 'w';
+      if (cancelled) return;
+      const aiColor: Color = playerColor === 'w' ? 'b' : 'w';
       const move = getBestMove(game, aiColor, aiDifficulty);
+      if (cancelled) return;
       if (move) {
-        executeMove(move.from[0], move.from[1], move.to[0], move.to[1]);
+        const movingPiece = game.board[move.from[0]][move.from[1]];
+        const promo: PieceType | undefined =
+          movingPiece?.type === 'P' && (move.to[0] === 0 || move.to[0] === 7) ? 'Q' : undefined;
+        executeMove(move.from[0], move.from[1], move.to[0], move.to[1], promo);
       }
       setAiThinking(false);
-    }, 300 + Math.random() * 400); // Small delay for natural feel
+    }, 300 + Math.random() * 400);
 
-    return () => clearTimeout(timeoutId);
-  }, [game.turn, gameMode, gameOver, gameStarted, playerColor, aiThinking]);
+    return () => { cancelled = true; clearTimeout(timeoutId); setAiThinking(false); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [game, gameMode, gameOver, gameStarted, playerColor, aiDifficulty]);
 
   const handleClick = useCallback((r: number, c: number) => {
     if (gameOver || aiThinking) return;
@@ -886,6 +1034,7 @@ export default function ChessPage() {
     easy: language === 'ar' ? 'سهل' : 'Easy',
     medium: language === 'ar' ? 'متوسط' : 'Medium',
     hard: language === 'ar' ? 'صعب' : 'Hard',
+    master: language === 'ar' ? 'خبير' : 'Master',
   };
 
   const isAr = language === 'ar';
@@ -933,6 +1082,7 @@ export default function ChessPage() {
         { value: 'easy',   label: aiDiffLabels.easy },
         { value: 'medium', label: aiDiffLabels.medium },
         { value: 'hard',   label: aiDiffLabels.hard },
+        { value: 'master', label: aiDiffLabels.master },
       ],
       current: aiDifficulty,
       onChange: (v: string) => setAiDifficulty(v as AIDifficulty),

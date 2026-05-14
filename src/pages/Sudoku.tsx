@@ -65,7 +65,27 @@ function clearGameState() {
   localStorage.removeItem('sudoku-game-state');
 }
 
-function generateSolvedBoard(): number[][] {
+// Mulberry32: tiny, fast, deterministic 32-bit PRNG
+function mulberry32(seed: number) {
+  let t = seed >>> 0;
+  return () => {
+    t = (t + 0x6D2B79F5) >>> 0;
+    let r = Math.imul(t ^ (t >>> 15), 1 | t);
+    r = (r + Math.imul(r ^ (r >>> 7), 61 | r)) ^ r;
+    return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function hashString(s: string): number {
+  let h = 2166136261 >>> 0;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619) >>> 0;
+  }
+  return h >>> 0;
+}
+
+function generateSolvedBoard(rng: () => number = Math.random): number[][] {
   const board: number[][] = Array.from({ length: 9 }, () => Array(9).fill(0));
   function isValid(b: number[][], r: number, c: number, n: number) {
     for (let i = 0; i < 9; i++) if (b[r][i] === n || b[i][c] === n) return false;
@@ -76,7 +96,7 @@ function generateSolvedBoard(): number[][] {
   function solve(b: number[][]): boolean {
     for (let r = 0; r < 9; r++) for (let c = 0; c < 9; c++) {
       if (b[r][c] === 0) {
-        const nums = shuffle([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+        const nums = shuffle([1, 2, 3, 4, 5, 6, 7, 8, 9], rng);
         for (const n of nums) { if (isValid(b, r, c, n)) { b[r][c] = n; if (solve(b)) return true; b[r][c] = 0; } }
         return false;
       }
@@ -87,25 +107,26 @@ function generateSolvedBoard(): number[][] {
   return board;
 }
 
-function shuffle<T>(arr: T[]): T[] {
+function shuffle<T>(arr: T[], rng: () => number = Math.random): T[] {
   const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
   return a;
 }
 
-function createPuzzle(difficulty: Difficulty) {
-  const solution = generateSolvedBoard();
+function createPuzzle(difficulty: Difficulty, seed?: string) {
+  const rng = seed ? mulberry32(hashString(seed)) : Math.random;
+  const solution = generateSolvedBoard(rng);
   const puzzle: Board = solution.map(r => [...r]);
   const removals = difficulty === 'easy' ? 35 : difficulty === 'medium' ? 45 : difficulty === 'hard' ? 52 : 58;
-  const cells = shuffle(Array.from({ length: 81 }, (_, i) => i));
+  const cells = shuffle(Array.from({ length: 81 }, (_, i) => i), rng);
   for (let i = 0; i < removals && i < cells.length; i++) {
     puzzle[Math.floor(cells[i] / 9)][cells[i] % 9] = null;
   }
   return { puzzle, solution };
 }
 
-// Daily challenge: seeded by date
-function todayKey(): string { const d = new Date(); return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`; }
+// Daily challenge: seeded by date — UTC for global consistency
+function todayKey(): string { const d = new Date(); return `${d.getUTCFullYear()}-${d.getUTCMonth()+1}-${d.getUTCDate()}`; }
 
 // Live conflict detection: returns set of cells whose value clashes with another cell in same row/col/box
 function findConflicts(board: Board): Set<string> {
@@ -212,7 +233,7 @@ export default function SudokuPage() {
     setDifficulty(diff);
     setIsDaily(daily);
     localStorage.setItem('sudoku-is-daily', String(daily));
-    const data = createPuzzle(diff);
+    const data = daily ? createPuzzle(diff, `daily-${todayKey()}-${diff}`) : createPuzzle(diff);
     setGameData(data);
     setBoard(data.puzzle.map(r => [...r]));
     setSelected(null); setErrors(new Set()); setSolved(false); setTimer(0); setIsRunning(false); setIsPaused(false); setGameStarted(false);
