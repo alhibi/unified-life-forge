@@ -12,7 +12,7 @@ const ChatDrawer = lazy(() => import('@/components/ChatDrawer'));
 // transition from the bottom-nav tap to the chat surface stays smooth.
 function ChatSkeleton() {
   return (
-    <div className="fixed inset-0 z-30 flex flex-col bg-background" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 64px)' }}>
+    <div className="flex flex-col bg-background w-full" style={{ height: '100dvh', paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 64px)' }}>
       <div className="h-14 border-b border-border/20 px-4 flex items-center gap-3">
         <div className="skeleton h-9 w-9 rounded-full" />
         <div className="skeleton h-5 w-32 rounded-md" />

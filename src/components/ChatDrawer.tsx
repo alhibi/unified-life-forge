@@ -462,7 +462,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
     );
     if (inline) {
       return (
-        <div className="fixed inset-0 z-30 flex flex-col bg-background pb-24">
+        <div className="flex flex-col bg-background" style={{ minHeight: '100dvh', paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 96px)' }}>
           {signInPrompt}
         </div>
       );
@@ -1514,14 +1514,20 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
   );
 
   if (inline) {
-    // Full-screen page rendering for the dedicated /chat route. We leave
-    // room at the bottom for the persistent BottomNav (~84px including
-    // the iOS safe-area inset) so the composer never sits underneath it.
+    // Full-page rendering for the dedicated /chat route. We deliberately
+    // avoid `position: fixed` here because the parent <PageTransition>
+    // sets `contain: paint`, which establishes a containing block for
+    // fixed-positioned descendants — trapping them inside a zero-height
+    // box. A regular flex column anchored to the dynamic viewport height
+    // works on every browser and respects the persistent BottomNav.
     return (
       <>
         <div
-          className="fixed inset-0 z-30 flex flex-col bg-background"
-          style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 64px)' }}
+          className="flex flex-col bg-background w-full"
+          style={{
+            height: '100dvh',
+            paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 64px)',
+          }}
         >
           {body}
         </div>
