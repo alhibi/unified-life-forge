@@ -54,6 +54,7 @@ const translations: Record<string, Record<Language, string>> = {
   'nav.settings': { ar: 'الإعدادات', de: 'Einstellungen' },
   'nav.duas': { ar: 'الأدعية', de: 'Bittgebete' },
   'nav.diwan': { ar: 'ديوان', de: 'Diwan' },
+  'nav.chat': { ar: 'الدردشة', de: 'Chat' },
   'calendar.title': { ar: 'التقويم', de: 'Kalender' },
   'calendar.today': { ar: 'اليوم', de: 'Heute' },
   'calendar.hijri': { ar: 'هجري', de: 'Hijri' },

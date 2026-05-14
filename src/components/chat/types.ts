@@ -53,6 +53,13 @@ export interface ChatDrawerProps {
   onOpenChange: (open: boolean) => void;
   unreadCount: number;
   onUnreadChange: (count: number) => void;
+  /**
+   * When true the drawer is rendered as a full-screen page instead of
+   * a Radix Sheet, so it can host the dedicated /chat route under the
+   * bottom navigation. The `onOpenChange(false)` callback is then used
+   * by the host to issue a router back-navigation.
+   */
+  inline?: boolean;
 }
 
 export interface ActionMenuState {
