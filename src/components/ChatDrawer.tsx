@@ -1279,11 +1279,15 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                   className="absolute bottom-24 end-4 z-10 w-10 h-10 rounded-full bg-card border border-border/20 flex items-center justify-center active:scale-90 transition-transform shadow-md"
                 >
                   <ArrowDown className="w-4 h-4 text-muted-foreground" />
-                  {chat.firstUnreadId && (
-                    <span className="absolute -top-1 -end-1 bg-primary text-primary-foreground text-[9px] font-bold rounded-full min-w-[14px] h-[14px] flex items-center justify-center px-1">
-                      !
-                    </span>
-                  )}
+                  {(() => {
+                    const unread = chat.activeConv?.unreadCount || 0;
+                    if (!unread) return null;
+                    return (
+                      <span className="absolute -top-1 -end-1 bg-primary text-primary-foreground text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 shadow">
+                        {unread > 99 ? '99+' : unread}
+                      </span>
+                    );
+                  })()}
                 </motion.button>
               )}
             </AnimatePresence>

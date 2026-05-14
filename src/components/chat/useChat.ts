@@ -527,12 +527,21 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     };
   }, [activeConv, user]);
 
+  const typingThrottleRef = useRef(0);
   const broadcastTyping = useCallback(() => {
     if (!typingChannelRef.current) return;
-    typingChannelRef.current.track({ typing: true });
+    // Throttle the "is typing" broadcast to once per second to avoid a
+    // network call on every keystroke; the off-timer still trails by 1.5s
+    // so the indicator reliably fades after the user stops.
+    const now = Date.now();
+    if (now - typingThrottleRef.current >= 1000) {
+      typingThrottleRef.current = now;
+      typingChannelRef.current.track({ typing: true });
+    }
     if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
     typingTimeoutRef.current = setTimeout(() => {
       typingChannelRef.current?.track({ typing: false });
+      typingThrottleRef.current = 0;
     }, 1500);
   }, []);
 
