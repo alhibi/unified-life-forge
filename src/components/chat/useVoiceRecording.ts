@@ -14,6 +14,42 @@ interface UseVoiceRecordingOptions {
   sendMessage: (type: string, fileUrl?: string, fileName?: string) => Promise<void>;
 }
 
+// Pick the highest-quality codec the runtime supports. We prefer Opus at
+// 48 kHz because it produces clean voice at a fraction of the bitrate of
+// AAC; Safari currently has no webm/Opus support so we fall back to AAC
+// inside an MP4 container with the LC profile (mp4a.40.2).
+function pickRecorderMime(): string {
+  if (typeof MediaRecorder === 'undefined') return '';
+  const candidates = [
+    'audio/webm;codecs=opus',
+    'audio/ogg;codecs=opus',
+    'audio/webm',
+    'audio/mp4;codecs=mp4a.40.2',
+    'audio/mp4',
+    'audio/aac',
+  ];
+  for (const mime of candidates) {
+    try { if (MediaRecorder.isTypeSupported(mime)) return mime; } catch { /* no-op */ }
+  }
+  return '';
+}
+
+function extFromMime(mime: string): string {
+  if (mime.includes('webm')) return 'webm';
+  if (mime.includes('ogg'))  return 'ogg';
+  if (mime.includes('mp4'))  return 'mp4';
+  if (mime.includes('aac'))  return 'aac';
+  return 'webm';
+}
+
+// Opus encodes intelligible speech at 24 kbps and is transparent at ~32
+// kbps mono; raising it to 128 kbps just wastes bandwidth. AAC needs a
+// little more headroom (~64 kbps) for the same perceptual quality.
+function targetBitrate(mime: string): number {
+  if (mime.includes('opus') || mime.includes('webm') || mime.includes('ogg')) return 32_000;
+  return 64_000;
+}
+
 /**
  * WhatsApp/Telegram-style voice recording:
  * - press & hold to record
@@ -93,18 +129,23 @@ export function useVoiceRecording({ activeConvId, userId, isAr, sendMessage }: U
     streamRef.current = null;
   }, []);
 
-  const uploadBlob = useCallback(async (blob: Blob, mime: string, ext: string) => {
+  /**
+   * Uploads a recorded blob to chat-files storage and emits the message.
+   * Returns `true` on success — callers use this to decide whether to keep
+   * the preview blob around (so the user can retry without re-recording).
+   */
+  const uploadBlob = useCallback(async (blob: Blob, mime: string, ext: string): Promise<boolean> => {
     const convId = activeConvIdRef.current;
     const uid = userIdRef.current;
     const ar = isArRef.current;
-    if (!convId || !uid) { chatError('conversationGone', ar); return; }
+    if (!convId || !uid) { chatError('conversationGone', ar); return false; }
 
     // Cheap guard: don't send silent stubs
-    if (blob.size < 512) { chatError('voiceEmpty', ar); return; }
+    if (blob.size < 512) { chatError('voiceEmpty', ar); return false; }
 
     // Enforce max file size. validateFile already toasts the right message.
     const probe = new File([blob], `voice.${ext}`, { type: mime });
-    if (!validateFile(probe, 'voice', ar)) return;
+    if (!validateFile(probe, 'voice', ar)) return false;
 
     // Use a SINGLE timestamp for both the storage path and the file_name
     // so downstream code never has to fuzzy-match by closest ts.
@@ -118,11 +159,13 @@ export function useVoiceRecording({ activeConvId, userId, isAr, sendMessage }: U
       });
       if (error) {
         chatError('voiceUploadFailed', ar, error.message);
-        return;
+        return false;
       }
       await sendMessageRef.current('voice', path, `voice_${stamp}.${ext}`);
+      return true;
     } catch (err) {
       chatError('voiceUploadFailed', ar, (err as Error)?.message);
+      return false;
     } finally {
       setUploadingVoice(false);
     }
@@ -150,17 +193,11 @@ export function useVoiceRecording({ activeConvId, userId, isAr, sendMessage }: U
       });
       streamRef.current = stream;
 
-      const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
-        ? 'audio/webm;codecs=opus'
-        : MediaRecorder.isTypeSupported('audio/webm')
-          ? 'audio/webm'
-          : MediaRecorder.isTypeSupported('audio/mp4')
-            ? 'audio/mp4'
-            : '';
+      const mimeType = pickRecorderMime();
 
       const options: MediaRecorderOptions = {
         ...(mimeType ? { mimeType } : {}),
-        audioBitsPerSecond: 128000,
+        audioBitsPerSecond: targetBitrate(mimeType),
       };
       const mediaRecorder = new MediaRecorder(stream, options);
       recordingChunksRef.current = [];
@@ -177,8 +214,8 @@ export function useVoiceRecording({ activeConvId, userId, isAr, sendMessage }: U
       };
 
       mediaRecorder.onstop = async () => {
-        const finalMime = mediaRecorder.mimeType || 'audio/webm';
-        const ext = finalMime.includes('mp4') ? 'mp4' : 'webm';
+        const finalMime = mediaRecorder.mimeType || mimeType || 'audio/webm';
+        const ext = extFromMime(finalMime);
         const blob = new Blob(recordingChunksRef.current, { type: finalMime });
         const mode = cancelModeRef.current;
         cleanupRecorder();
@@ -195,10 +232,21 @@ export function useVoiceRecording({ activeConvId, userId, isAr, sendMessage }: U
           return;
         }
 
-        await uploadBlob(blob, finalMime, ext);
+        // Direct-send path: on failure, fall back to preview so the user
+        // can retry with a single tap instead of losing the recording.
+        const ok = await uploadBlob(blob, finalMime, ext);
+        if (!ok) {
+          const url = URL.createObjectURL(blob);
+          setPreviewBlob(blob);
+          setPreviewUrl(url);
+          setPreviewExt(ext);
+          setPreviewMime(finalMime);
+        }
       };
 
-      mediaRecorder.start(200);
+      // Larger timeslice = bigger chunks = fewer events on the JS thread =
+      // less risk of dropping audio when the page is doing other work.
+      mediaRecorder.start(1000);
       setIsRecording(true);
       setRecordingTime(0);
       recordingTimerRef.current = setInterval(() => {
@@ -268,13 +316,14 @@ export function useVoiceRecording({ activeConvId, userId, isAr, sendMessage }: U
 
   const sendPreview = useCallback(async () => {
     if (!previewBlob) { discardPreview(); return; }
-    // Snapshot the blob before discardPreview() revokes its URL so we can
-    // upload it independently of the component's preview state.
+    // Don't tear the preview down up front: if the upload fails we want
+    // the user to see the same waveform and tap Send again, instead of
+    // re-recording from scratch.
     const blob = previewBlob;
     const mime = previewMime;
     const ext = previewExt;
-    discardPreview();
-    await uploadBlob(blob, mime, ext);
+    const ok = await uploadBlob(blob, mime, ext);
+    if (ok) discardPreview();
   }, [previewBlob, previewMime, previewExt, discardPreview, uploadBlob]);
 
   return {

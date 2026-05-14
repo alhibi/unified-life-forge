@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useApp } from '@/contexts/AppContext';
 import { useImageUpload } from '@/contexts/ImageUploadContext';
-import { useOtherUserPresence, formatLastSeen } from '@/hooks/usePresence';
+import { useOtherUserPresence, useUserOnline, useOnlineUserIds, formatLastSeen, useTick } from '@/hooks/usePresence';
 import { getSignedFileUrl, getMessagePreview } from './chatUtils';
 import { playChatSound, primeAudio, haptic } from './sounds';
 import { useChatPrefs } from './useChatPrefs';
@@ -65,6 +65,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
 
   // ── Realtime / network ────────────────────────────────────────────────────
   const [typingUser, setTypingUser] = useState(false);
+  const [typingByConv, setTypingByConv] = useState<Record<string, boolean>>({});
   const [uploading, setUploading] = useState(false);
   const [messagesLoading, setMessagesLoading] = useState(false);
   const [conversationsLoading, setConversationsLoading] = useState(false);
@@ -113,11 +114,27 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
   // ── Presence ──────────────────────────────────────────────────────────────
   const [realtimeLastSeen, setRealtimeLastSeen] = useState<string | null>(null);
   useOtherUserPresence(activeConv?.otherUserId, useCallback((ls: string | null) => setRealtimeLastSeen(ls), []));
+  const otherIsLiveOnline = useUserOnline(activeConv?.otherUserId);
+  // While the drawer is open we read the entire set of online users on a
+  // single channel so the conversation list can paint a green dot on each
+  // avatar without N hooks per row.
+  const onlineUserIds = useOnlineUserIds(open);
+  // Re-evaluate the formatted "last seen" string every 30s so labels like
+  // "2 min ago" stay accurate without the consumer wiring a setInterval.
+  const presenceTick = useTick(30_000);
 
   const otherPresence = useMemo(() => {
     const ls = realtimeLastSeen ?? activeConv?.otherLastSeen ?? null;
-    return formatLastSeen(ls, isAr);
-  }, [realtimeLastSeen, activeConv?.otherLastSeen, isAr]);
+    const formatted = formatLastSeen(ls, isAr);
+    if (otherIsLiveOnline) {
+      return { text: isAr ? 'متصل الآن' : 'Online', isOnline: true };
+    }
+    return formatted;
+    // presenceTick is included intentionally so the memo recomputes on each
+    // 30s tick and labels like "2 min ago" stay accurate without consumers
+    // wiring a setInterval.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [realtimeLastSeen, activeConv?.otherLastSeen, otherIsLiveOnline, isAr, presenceTick]);
 
   // ── Helpers ───────────────────────────────────────────────────────────────
   const scrollToBottom = useCallback((smooth = true) => {
@@ -492,9 +509,27 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
   }, [user, open, activeConv, scrollToBottom, scheduleLoadConversations, chatPrefs, conversations]);
 
   // ── Typing presence ───────────────────────────────────────────────────────
+  // Receiver-side fail-safe: if the remote tab dies between an "I'm typing"
+  // and the trailing "stopped" broadcast, we never get the corresponding
+  // `track({ typing: false })`. A local timer auto-clears the indicator if
+  // we haven't seen a fresh sync within TYPING_STALE_MS.
+  const typingStaleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const typingThrottleRef   = useRef(0);
   useEffect(() => {
     if (!activeConv || !user) return;
     setTypingUser(false);
+
+    const TYPING_STALE_MS = 6000;
+    const armStale = () => {
+      if (typingStaleTimerRef.current) clearTimeout(typingStaleTimerRef.current);
+      typingStaleTimerRef.current = setTimeout(() => setTypingUser(false), TYPING_STALE_MS);
+    };
+    const disarmStale = () => {
+      if (typingStaleTimerRef.current) {
+        clearTimeout(typingStaleTimerRef.current);
+        typingStaleTimerRef.current = null;
+      }
+    };
 
     const channel = supabase.channel(`typing:${activeConv.id}`, {
       config: { presence: { key: user.id } },
@@ -508,11 +543,12 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
         return presences?.some((p) => p.typing === true);
       });
       setTypingUser(isTyping);
+      if (isTyping) armStale(); else disarmStale();
     });
 
     channel.on('presence', { event: 'leave' }, ({ leftPresences }) => {
       const otherLeft = leftPresences?.some((p: Record<string, unknown>) => p.typing === true);
-      if (otherLeft) setTypingUser(false);
+      if (otherLeft) { setTypingUser(false); disarmStale(); }
     });
 
     channel.subscribe(async (status) => {
@@ -521,13 +557,65 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
 
     return () => {
       if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
-      typingChannelRef.current?.untrack();
+      disarmStale();
+      // Synchronously emit a final {typing: false} on the OUTGOING channel
+      // so the other side sees us stop the moment we switch conv, even if
+      // the trailing setTimeout (which fires {typing: false}) never gets to
+      // run because we just cleared it.
+      try { channel.track({ typing: false }); } catch { /* no-op */ }
+      try { channel.untrack(); } catch { /* no-op */ }
       typingChannelRef.current = null;
+      typingThrottleRef.current = 0;
       supabase.removeChannel(channel);
     };
   }, [activeConv, user]);
 
-  const typingThrottleRef = useRef(0);
+  // ── Typing-in-conversation-list ──────────────────────────────────────────
+  // While the drawer is open we want to surface "X is typing…" right in the
+  // conversation list, not only inside the active chat. We piggy-back on the
+  // existing per-conv presence channels by subscribing in listen-only mode
+  // (no track() call). Capped at MAX_LIST_TYPING_CHANNELS so a user with
+  // hundreds of conversations never opens hundreds of realtime sockets.
+  const MAX_LIST_TYPING_CHANNELS = 40;
+  const convIdsForTyping = useMemo(
+    () => conversations.slice(0, MAX_LIST_TYPING_CHANNELS).map(c => c.id).sort().join(','),
+    [conversations],
+  );
+  useEffect(() => {
+    if (!open || !user || !convIdsForTyping) return;
+    const ids = convIdsForTyping.split(',').filter(Boolean);
+    const listKey = `${user.id}-list`;
+    const channels = ids.map(convId => {
+      // Reuse the same channel name as the active-conv tracker so writes
+      // there are visible here. Distinguish ourselves with a `-list` suffix
+      // on the presence key so the active-conv subscriber doesn't think we
+      // are a second tab for the same user.
+      const ch = supabase.channel(`typing:${convId}`, {
+        config: { presence: { key: listKey } },
+      });
+      const recompute = () => {
+        const state = ch.presenceState();
+        const others = Object.entries(state).filter(([k]) => k !== listKey && k !== user.id);
+        const typing = others.some(([, entries]) =>
+          (entries as Array<Record<string, unknown>>).some(e => e.typing === true),
+        );
+        setTypingByConv(prev => {
+          if (prev[convId] === typing) return prev;
+          return { ...prev, [convId]: typing };
+        });
+      };
+      ch.on('presence', { event: 'sync' }, recompute);
+      ch.on('presence', { event: 'join' },  recompute);
+      ch.on('presence', { event: 'leave' }, recompute);
+      ch.subscribe();
+      return ch;
+    });
+    return () => {
+      channels.forEach(ch => supabase.removeChannel(ch));
+      setTypingByConv({});
+    };
+  }, [open, user, convIdsForTyping]);
+
   const broadcastTyping = useCallback(() => {
     if (!typingChannelRef.current) return;
     // Throttle the "is typing" broadcast to once per second to avoid a
@@ -1154,7 +1242,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     // Filter
     conversationFilter, setConversationFilter,
     // Realtime
-    typingUser, uploading,
+    typingUser, typingByConv, onlineUserIds, uploading,
     messagesLoading, conversationsLoading,
     signedUrls, getFileUrl, refreshSignedUrl,
     // Search
