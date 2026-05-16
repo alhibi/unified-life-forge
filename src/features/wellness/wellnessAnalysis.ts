@@ -366,18 +366,15 @@ export function detectSynergies(supplements: Supplement[]): Insight[] {
     const isAlmost = syn.nutrients.length >= 3 && matched.length === syn.nutrients.length - 1;
     if (!isFull && !isAlmost) continue;
 
-    const head = syn.benefits.ar[0];
     out.push({
       id: `syn-${syn.id}`,
       kind: 'synergy',
       severity: 'info',
       title: syn.title,
       message: isFull
-        ? syn.benefits as unknown as Record<Lang, string>
-          ? { ar: syn.benefits.ar.join(' • '), de: syn.benefits.de.join(' • ') }
-          : syn.title
+        ? { ar: syn.benefits.ar.join(' • '), de: syn.benefits.de.join(' • ') }
         : {
-            ar: `أنت قريب من هذه الحزمة (تنقص ${syn.nutrients.length - matched.length} عنصر). ${head}`,
+            ar: `أنت قريب من هذه الحزمة (تنقص ${syn.nutrients.length - matched.length} عنصر). ${syn.benefits.ar[0]}`,
             de: `Du bist nah an diesem Stack (es fehlt ${syn.nutrients.length - matched.length}). ${syn.benefits.de[0]}`,
           },
     });
