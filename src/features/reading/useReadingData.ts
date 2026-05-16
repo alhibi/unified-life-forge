@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import type { FeedItem, FeedSource, FeedStatus } from './types';
+import { offlineDb } from './offlineDb';
 import {
   LAST_REFRESH_KEY,
   getBookmarks,
@@ -60,10 +61,21 @@ export function useReadingData(opts: { isAr: boolean }) {
   // ─── Load articles from DB ────────────────────────────────────────────
   const loadFromDB = useCallback(async () => {
     if (enabledNames.length === 0) {
-      setArticles([]);
-      setTotalInDB(0);
+      // Even without enabled feeds, surface anything the user has
+      // archived offline so the Saved tab still shows content.
+      try {
+        const offline = await offlineDb.listArticles();
+        setArticles(offline);
+        setTotalInDB(offline.length);
+      } catch {
+        setArticles([]);
+        setTotalInDB(0);
+      }
       return;
     }
+    let online: FeedItem[] = [];
+    let onlineCount = 0;
+    let onlineFailed = false;
     try {
       const { data, count } = await supabase
         .from('rss_articles')
@@ -72,7 +84,7 @@ export function useReadingData(opts: { isAr: boolean }) {
         .order('pub_date', { ascending: false })
         .limit(500);
       if (data) {
-        const items: FeedItem[] = data.map((r: any) => ({
+        online = data.map((r: any) => ({
           title: r.title,
           link: r.link,
           description: r.description || '',
@@ -83,12 +95,45 @@ export function useReadingData(opts: { isAr: boolean }) {
           author: r.author,
           source: r.source_name,
         }));
-        setArticles(items);
-        setTotalInDB(count || items.length);
+        onlineCount = count || online.length;
       }
     } catch (e) {
       console.error('Reading: DB load failed', e);
+      onlineFailed = true;
     }
+
+    // Always merge in offline archive (saved articles, plus anything
+    // cached for offline reading) so we have content even when the
+    // network is down. De-dupe by link, keeping online's metadata
+    // when both sources have the same article.
+    let offline: FeedItem[] = [];
+    try {
+      offline = await offlineDb.listArticles();
+    } catch { /* IDB unavailable */ }
+
+    if (onlineFailed && offline.length === 0 && online.length === 0) {
+      // Hard offline + nothing cached. Leave articles empty so the
+      // empty state shows; don't blow away whatever was already
+      // in state from a prior render.
+      return;
+    }
+
+    const seen = new Set<string>();
+    const merged: FeedItem[] = [];
+    for (const a of online) {
+      if (a.link && !seen.has(a.link)) {
+        seen.add(a.link);
+        merged.push(a);
+      }
+    }
+    for (const a of offline) {
+      if (a.link && !seen.has(a.link)) {
+        seen.add(a.link);
+        merged.push(a);
+      }
+    }
+    setArticles(merged);
+    setTotalInDB(onlineCount || merged.length);
   }, [enabledNames]);
 
   // ─── Refresh from edge function ───────────────────────────────────────
@@ -308,6 +353,57 @@ export function useReadingData(opts: { isAr: boolean }) {
     [feedSources, isAr, fetchSingleFeed],
   );
 
+  /**
+   * Bulk-add feeds (OPML import). We add every new feed to local state
+   * in one shot, persist once, then trigger a single batched
+   * `refreshFeeds` rather than firing N parallel edge-function
+   * invocations. fetch-rss caps each request at MAX_FEEDS_PER_REQUEST
+   * (50) so a 200-feed Feedly export still finishes safely.
+   */
+  const addFeedsBulk = useCallback(
+    async (
+      feeds: ReadonlyArray<{ url: string; name: string; category: string; enabled?: boolean }>,
+    ): Promise<{ added: number; skipped: number }> => {
+      const existingByUrl = new Map(feedSources.map((f) => [f.url, f] as const));
+      const fresh: FeedSource[] = [];
+      let skipped = 0;
+      for (const f of feeds) {
+        const url = f.url.trim();
+        if (!url) {
+          skipped++;
+          continue;
+        }
+        if (existingByUrl.has(url)) {
+          skipped++;
+          continue;
+        }
+        const name = f.name.trim() || (() => {
+          try { return new URL(url).hostname; } catch { return 'Feed'; }
+        })();
+        fresh.push({
+          url,
+          name,
+          category: f.category || 'other',
+          enabled: f.enabled !== false,
+        });
+        existingByUrl.set(url, fresh[fresh.length - 1]);
+      }
+      if (fresh.length === 0) return { added: 0, skipped };
+      const next = [...feedSources, ...fresh];
+      setFeedSources(next);
+      storeFeeds(next);
+      // refreshFeeds reads from `enabledFeeds`, which is derived from
+      // `feedSources` state. State update is asynchronous, so kick off
+      // the refresh on the next microtask after React schedules the
+      // update — by then `enabledFeeds` will include the new feeds.
+      // The `fetch-rss` function chunks at 50 feeds per call internally,
+      // so we don't need to fan out manually.
+      setTimeout(() => { void refreshFeeds(true); }, 0);
+      return { added: fresh.length, skipped };
+    },
+    [feedSources, refreshFeeds],
+  );
+
   const removeFeed = useCallback(
     (url: string) => {
       const next = feedSources.filter((f) => f.url !== url);
@@ -349,6 +445,7 @@ export function useReadingData(opts: { isAr: boolean }) {
     markAllRead,
     addFeed,
     addSuggestedFeed,
+    addFeedsBulk,
     removeFeed,
     toggleFeedEnabled,
   };

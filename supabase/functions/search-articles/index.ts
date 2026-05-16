@@ -53,6 +53,16 @@ serve(async (req) => {
   const sources = Array.isArray(body.sources)
     ? body.sources.filter((s): s is string => typeof s === "string")
     : null;
+  // Disambiguate: an explicit empty array from the client means
+  // "the user has no enabled feeds". Searching every source in that
+  // state would surprise the user — return zero results instead.
+  if (Array.isArray(body.sources) && (sources?.length ?? 0) === 0) {
+    return jsonResponse({
+      query: q,
+      count: 0,
+      results: [],
+    });
+  }
   const limit = typeof body.limit === "number"
     ? Math.max(1, Math.min(200, Math.floor(body.limit)))
     : 50;

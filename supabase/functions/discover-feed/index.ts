@@ -34,6 +34,7 @@ const FETCH_TIMEOUT_MS = 12_000;
 const PARSE_TIMEOUT_MS = 8_000;
 
 const COMMON_FEED_PATHS = [
+  // No-slash forms
   "/feed",
   "/rss",
   "/feed.xml",
@@ -49,6 +50,10 @@ const COMMON_FEED_PATHS = [
   "/blog/rss",
   "/news/rss",
   "/news.xml",
+  // Trailing-slash variants — some sites only respond on the slashed form
+  "/feed/",
+  "/rss/",
+  "/blog/feed/",
 ];
 
 function normalizeUrl(input: string): string | null {
@@ -65,25 +70,23 @@ function normalizeUrl(input: string): string | null {
 
 function extractFeedLinks(html: string, baseUrl: string): string[] {
   const out: string[] = [];
+  // Some sites encode `&` as `&amp;` in their feed href attrs, so we
+  // run every captured value through decodeEntities before resolving.
+  const push = (raw: string) => {
+    try {
+      const abs = new URL(decodeEntities(raw), baseUrl).toString();
+      if (!out.includes(abs)) out.push(abs);
+    } catch { /* ignore malformed href */ }
+  };
   // <link rel="alternate" type="application/rss+xml" href="...">
   const re =
     /<link[^>]+rel=["']alternate["'][^>]+type=["']application\/(?:rss|atom)\+xml["'][^>]+href=["']([^"']+)["']/gi;
   let m;
-  while ((m = re.exec(html)) !== null) {
-    try {
-      const abs = new URL(m[1], baseUrl).toString();
-      if (!out.includes(abs)) out.push(abs);
-    } catch { /* ignore malformed href */ }
-  }
+  while ((m = re.exec(html)) !== null) push(m[1]);
   // The order of attrs varies; also try type-first, href-second.
   const re2 =
     /<link[^>]+href=["']([^"']+)["'][^>]+type=["']application\/(?:rss|atom)\+xml["']/gi;
-  while ((m = re2.exec(html)) !== null) {
-    try {
-      const abs = new URL(m[1], baseUrl).toString();
-      if (!out.includes(abs)) out.push(abs);
-    } catch { /* ignore */ }
-  }
+  while ((m = re2.exec(html)) !== null) push(m[1]);
   return out;
 }
 
@@ -265,8 +268,9 @@ serve(async (req) => {
   }).filter((u): u is string => !!u && !declaredFeeds.includes(u));
 
   // Run declared first (highest signal), then probes. Both in parallel
-  // but limited to 10 total to keep latency bounded.
-  const candidatesToCheck = [...declaredFeeds, ...probedPaths].slice(0, 10);
+  // but limited to keep latency bounded — enough headroom for the 18
+  // probe paths plus a couple of declared feeds to all run together.
+  const candidatesToCheck = [...declaredFeeds, ...probedPaths].slice(0, 22);
   const results = await Promise.all(candidatesToCheck.map(probeFeed));
   const ok = results.filter((r) => r.ok);
 

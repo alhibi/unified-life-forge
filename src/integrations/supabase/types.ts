@@ -264,6 +264,122 @@ export type Database = {
         }
         Relationships: []
       }
+      rss_feed_meta: {
+        Row: {
+          consecutive_failures: number
+          created_at: string
+          etag: string | null
+          item_count_last: number | null
+          last_error: string | null
+          last_fetched_at: string | null
+          last_modified: string | null
+          last_status: number | null
+          source_url: string
+          updated_at: string
+        }
+        Insert: {
+          consecutive_failures?: number
+          created_at?: string
+          etag?: string | null
+          item_count_last?: number | null
+          last_error?: string | null
+          last_fetched_at?: string | null
+          last_modified?: string | null
+          last_status?: number | null
+          source_url: string
+          updated_at?: string
+        }
+        Update: {
+          consecutive_failures?: number
+          created_at?: string
+          etag?: string | null
+          item_count_last?: number | null
+          last_error?: string | null
+          last_fetched_at?: string | null
+          last_modified?: string | null
+          last_status?: number | null
+          source_url?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      keyword_alerts: {
+        Row: {
+          created_at: string
+          enabled: boolean
+          id: string
+          keyword: string
+          last_check_at: string
+          match_mode: string
+          source_filter: string[] | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          keyword: string
+          last_check_at?: string
+          match_mode?: string
+          source_filter?: string[] | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          keyword?: string
+          last_check_at?: string
+          match_mode?: string
+          source_filter?: string[] | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      keyword_alert_hits: {
+        Row: {
+          alert_id: string
+          article_link: string
+          article_title: string
+          id: string
+          matched_at: string
+          seen: boolean
+          source_name: string | null
+          user_id: string
+        }
+        Insert: {
+          alert_id: string
+          article_link: string
+          article_title: string
+          id?: string
+          matched_at?: string
+          seen?: boolean
+          source_name?: string | null
+          user_id: string
+        }
+        Update: {
+          alert_id?: string
+          article_link?: string
+          article_title?: string
+          id?: string
+          matched_at?: string
+          seen?: boolean
+          source_name?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "keyword_alert_hits_alert_id_fkey"
+            columns: ["alert_id"]
+            isOneToOne: false
+            referencedRelation: "keyword_alerts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_settings: {
         Row: {
           id: string
@@ -296,6 +412,26 @@ export type Database = {
         Returns: undefined
       }
       update_last_seen: { Args: never; Returns: undefined }
+      search_rss_articles: {
+        Args: {
+          q: string
+          src_names?: string[] | null
+          max_rows?: number
+        }
+        Returns: {
+          link: string
+          title: string
+          description: string | null
+          pub_date: string | null
+          image: string | null
+          source_name: string
+          rank: number
+        }[]
+      }
+      invoke_edge_function: {
+        Args: { fn_name: string; payload?: Json }
+        Returns: number | null
+      }
     }
     Enums: {
       [_ in never]: never

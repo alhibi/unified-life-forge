@@ -370,10 +370,12 @@ export async function scrapeArticle(
 }
 
 // ─── Auth ──────────────────────────────────────────────────────────────────
-export async function requireUser(req: Request): Promise<
-  { ok: true; userId: string; token: string }
-  | { ok: false; status: number; error: string }
-> {
+export type AuthResult =
+  | { ok: true; userId: string; token: string; serviceRole?: false }
+  | { ok: true; serviceRole: true; token: string; userId?: undefined }
+  | { ok: false; status: number; error: string };
+
+export async function requireUser(req: Request): Promise<AuthResult> {
   const auth = req.headers.get("authorization") ||
     req.headers.get("Authorization");
   if (!auth || !auth.toLowerCase().startsWith("bearer ")) {
@@ -381,6 +383,14 @@ export async function requireUser(req: Request): Promise<
   }
   const token = auth.slice(7).trim();
   if (!token) return { ok: false, status: 401, error: "Empty bearer token" };
+
+  // Allow internal callers (cron / fetch-rss-cron) that authenticate with
+  // the service-role key directly. We compare against the env var so a
+  // forged JWT claim can't elevate.
+  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (serviceKey && token === serviceKey) {
+    return { ok: true, serviceRole: true, token };
+  }
 
   // Lazy import to avoid pulling supabase-js into functions that don't
   // need DB writes.

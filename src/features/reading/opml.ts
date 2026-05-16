@@ -11,8 +11,12 @@ import type { FeedSource } from './types';
  * "no feeds found" and the UI can prompt the user.
  */
 
+// Map well-known category labels (any language) to our internal ids.
+// Feedly / Inoreader / NetNewsWire all let users name folders freely,
+// so we recognise both English and the localised Arabic labels we emit
+// during export.
 const OPML_FEED_CATEGORIES: Record<string, string> = {
-  // Common Feedly category labels → our category ids
+  // English
   'news': 'news',
   'tech': 'tech',
   'technology': 'tech',
@@ -22,6 +26,19 @@ const OPML_FEED_CATEGORIES: Record<string, string> = {
   'culture': 'culture',
   'sports': 'sports',
   'sport': 'sports',
+  // Arabic (matching the labels produced by buildOpml + the CATEGORIES list)
+  'أخبار': 'news',
+  'تقنية': 'tech',
+  'علوم': 'science',
+  'إسلامي': 'islamic',
+  'اسلامي': 'islamic',
+  'دين': 'islamic',
+  'ثقافة': 'culture',
+  'ثقافه': 'culture',
+  'رياضة': 'sports',
+  'رياضه': 'sports',
+  'أخرى': 'other',
+  'اخرى': 'other',
 };
 
 function categorize(label: string | null | undefined): string {
@@ -83,8 +100,30 @@ export function parseOpml(xml: string): FeedSource[] {
  * Build an OPML XML string from a list of FeedSource objects, grouped
  * by category (with a sensible default ordering). The output mirrors
  * what Feedly produces, so it round-trips through major readers.
+ *
+ * `lang` controls the human-readable category folder labels (Arabic
+ * by default since the app's primary audience is Arabic-speaking).
+ * The id is preserved in the title attr so importing back into the
+ * app keeps the original category mapping.
  */
-export function buildOpml(feeds: FeedSource[]): string {
+const CATEGORY_LABELS: Record<string, { ar: string; en: string }> = {
+  news: { ar: 'أخبار', en: 'News' },
+  tech: { ar: 'تقنية', en: 'Tech' },
+  science: { ar: 'علوم', en: 'Science' },
+  islamic: { ar: 'إسلامي', en: 'Islamic' },
+  culture: { ar: 'ثقافة', en: 'Culture' },
+  sports: { ar: 'رياضة', en: 'Sports' },
+  other: { ar: 'أخرى', en: 'Other' },
+};
+
+function categoryLabel(id: string, lang: 'ar' | 'en'): string {
+  return CATEGORY_LABELS[id]?.[lang] ?? id;
+}
+
+export function buildOpml(
+  feeds: FeedSource[],
+  lang: 'ar' | 'en' = 'ar',
+): string {
   const byCat = new Map<string, FeedSource[]>();
   for (const f of feeds) {
     const cat = f.category || 'other';
@@ -110,7 +149,10 @@ export function buildOpml(feeds: FeedSource[]): string {
     '  <body>',
   ];
   for (const [cat, items] of byCat) {
-    lines.push(`    <outline text="${escape(cat)}" title="${escape(cat)}">`);
+    const label = categoryLabel(cat, lang);
+    lines.push(
+      `    <outline text="${escape(label)}" title="${escape(label)}">`,
+    );
     for (const f of items) {
       lines.push(
         `      <outline type="rss" text="${escape(f.name)}" title="${escape(f.name)}" xmlUrl="${escape(f.url)}"/>`,
@@ -127,8 +169,11 @@ export function buildOpml(feeds: FeedSource[]): string {
  * feeds. Filename includes today's date so multiple exports don't
  * overwrite each other in the user's downloads folder.
  */
-export function downloadOpml(feeds: FeedSource[]): void {
-  const xml = buildOpml(feeds);
+export function downloadOpml(
+  feeds: FeedSource[],
+  lang: 'ar' | 'en' = 'ar',
+): void {
+  const xml = buildOpml(feeds, lang);
   const today = new Date().toISOString().slice(0, 10);
   const blob = new Blob([xml], { type: 'application/xml' });
   const url = URL.createObjectURL(blob);

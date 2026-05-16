@@ -67,7 +67,14 @@ export function SearchPanel({
           {
             body: {
               q: debounced,
-              sources: restrictTo && restrictTo.length > 0 ? restrictTo : null,
+              // null = search every source. An empty array means the
+              // user has disabled every feed — don't silently widen
+              // the search to "everywhere", that would be confusing.
+              // The page never passes undefined here; if it ever did
+              // we'd treat that the same as null.
+              sources: restrictTo === undefined
+                ? null
+                : restrictTo,
               limit: 100,
             },
           },

@@ -27,6 +27,7 @@ export function ManageFeedsView({
   onBack,
   onSuggested,
   onAdd,
+  onAddBulk,
   onRemove,
   onToggleEnabled,
 }: {
@@ -38,6 +39,9 @@ export function ManageFeedsView({
   onBack: () => void;
   onSuggested: () => void;
   onAdd: (url: string, name: string, category: string) => boolean;
+  onAddBulk?: (
+    feeds: ReadonlyArray<{ url: string; name: string; category: string; enabled?: boolean }>,
+  ) => Promise<{ added: number; skipped: number }>;
   onRemove: (url: string) => void;
   onToggleEnabled: (url: string) => void;
 }) {
@@ -66,6 +70,20 @@ export function ManageFeedsView({
         toast.error(isAr ? 'لم يتم العثور على خلاصات في الملف' : 'No feeds found in file');
         return;
       }
+      // Prefer the bulk path: it adds every new feed in a single state
+      // update and triggers exactly one batched refresh, instead of
+      // firing N parallel edge-function invocations (which would
+      // rate-limit / DoS the function on a 200-feed Feedly export).
+      if (onAddBulk) {
+        const { added, skipped } = await onAddBulk(imported);
+        toast.success(
+          isAr
+            ? `أُضيف ${added} مصدر${skipped > 0 ? `، تم تخطّي ${skipped} موجود` : ''}`
+            : `Added ${added}${skipped > 0 ? `, skipped ${skipped} existing` : ''}`,
+        );
+        return;
+      }
+      // Fallback: single-add loop (used by older callers / tests).
       let added = 0;
       let skipped = 0;
       for (const feed of imported) {
@@ -91,7 +109,7 @@ export function ManageFeedsView({
       toast.info(isAr ? 'لا توجد خلاصات للتصدير' : 'Nothing to export');
       return;
     }
-    downloadOpml(feedSources);
+    downloadOpml(feedSources, isAr ? 'ar' : 'en');
     toast.success(isAr ? 'تم تصدير OPML' : 'OPML exported');
   };
 

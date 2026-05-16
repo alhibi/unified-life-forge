@@ -33,6 +33,7 @@ async function requireUser(
   req: Request,
 ): Promise<
   | { ok: true; userId: string }
+  | { ok: true; serviceRole: true }
   | { ok: false; status: number; error: string }
 > {
   const auth = req.headers.get("authorization") ||
@@ -42,6 +43,14 @@ async function requireUser(
   }
   const token = auth.slice(7).trim();
   if (!token) return { ok: false, status: 401, error: "Empty bearer token" };
+
+  // Allow internal callers (cron / fetch-rss-cron) that authenticate with
+  // the service-role key. We compare against the env var to avoid trusting
+  // a forged JWT whose `role` claim says "service_role".
+  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (serviceKey && token === serviceKey) {
+    return { ok: true, serviceRole: true };
+  }
 
   const sb = createClient(
     Deno.env.get("SUPABASE_URL")!,

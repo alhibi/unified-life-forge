@@ -14,10 +14,20 @@ CREATE EXTENSION IF NOT EXISTS pg_cron;
 CREATE EXTENSION IF NOT EXISTS pg_net;
 
 -- Helper that posts to one of our edge functions. Reads the project
--- URL and service-role key from app settings (set once via
---   SELECT set_config('app.settings.supabase_url', '...', false);
---   SELECT set_config('app.settings.service_role_key', '...', false);
--- in Supabase Studio → Database → Extensions or via a one-off SQL).
+-- URL and service-role key from app settings. Set them ONCE per
+-- database (not per session) using ALTER DATABASE so cron sessions see
+-- them too. In Supabase Studio → Database → SQL Editor run:
+--
+--   ALTER DATABASE postgres
+--     SET app.settings.supabase_url = 'https://YOUR-PROJECT.supabase.co';
+--   ALTER DATABASE postgres
+--     SET app.settings.service_role_key = 'YOUR-SERVICE-ROLE-KEY';
+--
+-- Using ALTER DATABASE is critical: pg_cron runs each job in its own
+-- session, so values set with `set_config(..., false)` (which is
+-- session-scoped) would be invisible to the scheduled invocation and
+-- the cron would silently no-op.
+--
 -- If those settings are missing the function silently returns NULL so
 -- the cron job keeps the schedule slot but doesn't crash.
 CREATE OR REPLACE FUNCTION public.invoke_edge_function(fn_name text, payload jsonb DEFAULT '{}'::jsonb)
