@@ -63,6 +63,24 @@ export function easeOutStagger(index: number, total: number, max = 220): number 
   return t * t * max; // quadratic ease-out on the delay
 }
 
+/**
+ * Tight list stagger — 20ms per item, capped at the 5th item.
+ * Long lists are NOT punished: items beyond `cap` use the cap delay.
+ * Pair with duration 250ms, ease cubic-bezier(0.16, 1, 0.3, 1).
+ */
+export function tightStagger(index: number, step = 20, cap = 4): number {
+  return Math.min(index, cap) * step;
+}
+
+export function tightStaggerStyle(index: number) {
+  return {
+    animationDelay: `${tightStagger(index)}ms`,
+    animationDuration: '250ms',
+    animationTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)',
+    animationFillMode: 'both' as const,
+  };
+}
+
 // ── Variants ──────────────────────────────────────────────
 // Use these instead of redeclaring identical stagger objects across pages.
 export const fadeUp: Variants = {
@@ -75,16 +93,16 @@ export const fadeIn: Variants = {
   show: { opacity: 1, transition: motionWeight.small },
 };
 
-// Container that staggers children with an organic (non-linear) cadence.
-export const organicStagger = (total: number): Variants => ({
+// Container that staggers children with a tight cadence — 20ms per item,
+// no penalty for long lists (framer-motion repeats the same step but our
+// per-item variants should cap their own delay via `tightStagger`).
+export const organicStagger = (_total?: number): Variants => ({
   hidden: {},
   show: {
     transition: {
-      staggerChildren: 0.04,
-      delayChildren: 0.02,
+      staggerChildren: 0.02,   // 20ms
+      delayChildren: 0,
       when: 'beforeChildren',
-      // total is informational — framer-motion handles the cascade. For
-      // hand-tuned per-item delay use `easeOutStagger(i, total)` directly.
     },
   },
 });
