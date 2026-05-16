@@ -6,6 +6,7 @@ import { FOOD_LIST, FOODS, type Lang } from './wellnessData';
 import type { DietLog, UUID } from './wellnessDb';
 import { todayIso } from './wellnessDb';
 import { CATEGORY_META, categoryOf, type FoodCategory } from './foodCategories';
+import { FoodIcon } from './foodIcons';
 import AppDatePicker from './AppDatePicker';
 
 interface Props {
@@ -107,13 +108,10 @@ export default function DietTab({ dietLogs, onAdd, onRemove }: Props) {
               const label = food?.label[lang] ?? (isCustom ? log.foodKey.slice(7) : log.foodKey);
               const cat = food ? categoryOf(log.foodKey) : 'vegetable';
               const meta = CATEGORY_META[cat];
-              const Icon = meta.icon;
               return (
                 <div key={log.id} className="flex items-center justify-between p-3">
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className={`w-9 h-9 rounded-xl ${meta.bg} flex items-center justify-center shrink-0`}>
-                      <Icon className={`w-4 h-4 ${meta.color}`} strokeWidth={2} />
-                    </div>
+                    <FoodIcon foodKey={log.foodKey} size={36} />
                     <div className="min-w-0">
                       <p className="text-sm font-semibold text-foreground truncate">{label}</p>
                       <p className="text-[10px] text-muted-foreground mt-0.5">
@@ -212,9 +210,7 @@ export default function DietTab({ dietLogs, onAdd, onRemove }: Props) {
                         onClick={() => onAdd(date, f.key)}
                         className="bg-card border border-border/40 rounded-xl p-2.5 flex flex-col items-center gap-1.5 active:scale-95 transition-transform hover:border-primary/40"
                       >
-                        <div className={`w-9 h-9 rounded-xl ${meta.bg} flex items-center justify-center`}>
-                          <Icon className={`w-4 h-4 ${meta.color}`} strokeWidth={2} />
-                        </div>
+                        <FoodIcon foodKey={f.key} size={36} />
                         <span className="text-[11px] font-medium text-foreground text-center leading-tight">
                           {f.label[lang]}
                         </span>
