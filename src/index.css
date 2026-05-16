@@ -98,6 +98,41 @@
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { transition: none !important; }
   }
+
+  /* ── Linear-style scrollbars ──
+     Thin 6px rail, transparent track, thumb fades in on hover/scroll. */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+  }
+  *:hover,
+  *:focus-within,
+  *:active {
+    scrollbar-color: hsl(var(--foreground) / 0.2) transparent;
+  }
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--foreground) / 0.15);
+    border-radius: 999px;
+    opacity: 0;
+    transition: opacity 200ms linear, background-color 150ms linear;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--foreground) / 0.3);
+  }
+  /* Reveal thumb when the scroll container (or any ancestor) is hovered
+     or being interacted with. */
+  :hover::-webkit-scrollbar-thumb,
+  :focus-within::-webkit-scrollbar-thumb,
+  :active::-webkit-scrollbar-thumb {
+    opacity: 1;
+  }
   /* ── Focus ring: outline-only, no box-shadow (accessibility + perf) ── */
   *:focus { outline: none; }
   *:focus-visible {
