@@ -193,7 +193,17 @@ export const offlineDb = {
     return toDelete.length;
   },
 
-  /** Approximate bytes used by archived articles + cached images. */
+  /** Approximate bytes used by archived articles + cached images.
+   *
+   *  We return three numbers:
+   *   - `articles`: count of FeedItem rows in IndexedDB.
+   *   - `quotaBytes`: how much storage the browser will let us use
+   *     for this origin in total (across IDB + Cache Storage + the
+   *     rest). 0 if the platform doesn't expose StorageManager.
+   *   - `usageBytes`: how much we're using right now (also from the
+   *     browser; aggregates IDB + Cache Storage so the SW image
+   *     cache counts here too).
+   */
   async storageEstimate(): Promise<{
     articles: number;
     quotaBytes: number;
@@ -210,5 +220,57 @@ export const offlineDb = {
       } catch { /* ignore */ }
     }
     return { articles, quotaBytes, usageBytes };
+  },
+
+  /** Wipe every archived article. Bookmarks list (in localStorage) is
+   *  intentionally NOT touched — clearing the offline cache means
+   *  "I'm low on disk", not "forget what I saved". */
+  async clearArticles(): Promise<number> {
+    if (!this.available()) return 0;
+    const all = await this.listArticles();
+    for (const a of all) {
+      await tx(STORE_ARTICLES, 'readwrite', (s) => s.delete(a.link));
+    }
+    return all.length;
+  },
+
+  /** Replace the current archive with exactly the given articles. Used
+   *  by the auto-cache logic to reconcile state without a full
+   *  read-modify-write loop on every refresh. */
+  async syncArticles(
+    items: ReadonlyArray<FeedItem>,
+    keepLinks: ReadonlyArray<string> = [],
+  ): Promise<{ added: number; kept: number; removed: number }> {
+    if (!this.available()) return { added: 0, kept: 0, removed: 0 };
+    const want = new Set<string>([
+      ...items.map((i) => i.link).filter(Boolean),
+      ...keepLinks,
+    ]);
+    const itemByLink = new Map(items.map((i) => [i.link, i] as const));
+    const existing = await this.listArticles();
+    const have = new Set(existing.map((a) => a.link));
+
+    let added = 0;
+    let removed = 0;
+    let kept = 0;
+
+    for (const link of want) {
+      if (have.has(link)) {
+        kept++;
+        continue;
+      }
+      const item = itemByLink.get(link);
+      if (item) {
+        await this.saveArticle(item);
+        added++;
+      }
+    }
+    for (const a of existing) {
+      if (!want.has(a.link)) {
+        await this.removeArticle(a.link);
+        removed++;
+      }
+    }
+    return { added, kept, removed };
   },
 };

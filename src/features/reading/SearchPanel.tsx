@@ -1,19 +1,40 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, Loader2, Search, X } from 'lucide-react';
+import {
+  ChevronLeft, Clock, Loader2, Search, TrendingUp, X,
+} from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
 import type { FeedItem } from './types';
 import { SourcePill } from './SourcePill';
 import { timeAgo } from './utils';
+import {
+  type SearchHistoryEntry,
+  clearSearchHistory,
+  getSearchHistory,
+  pushSearchHistory,
+  removeSearchHistoryEntry,
+} from './storage';
+import { highlightText } from './highlight';
 
 /**
- * Full-archive search. Calls the search-articles edge function which
- * uses Postgres' tsvector + GIN index, so we can scan the full body
- * of every stored article in a few hundred milliseconds.
+ * Full-archive search.
  *
- * Optional `restrictTo` limits results to the user's currently-enabled
- * feed names so disabled sources don't pollute the results.
+ * Calls the search-articles edge function which uses Postgres'
+ * tsvector + GIN index, so we can scan the full body of every stored
+ * article in a few hundred milliseconds.
+ *
+ * Three layered enhancements over the bare SQL:
+ *  - Search history (last 20 queries) shown when the input is empty,
+ *    each row tappable + dismissible. Stored locally so suggestions
+ *    appear instantly without a roundtrip.
+ *  - Time-range chips (today / week / month / all). The chip the user
+ *    picks becomes a `since` ISO timestamp on the request.
+ *  - Inline `<mark>` highlight on the title + description so users
+ *    can see *why* a row matched without re-reading the whole text.
+ *    Highlight is Arabic-aware (matches normalised tashkeel/hamza
+ *    variants) so the visible underline always lines up with what
+ *    the SQL search considered a match.
  */
 
 interface SearchHit {
@@ -24,6 +45,17 @@ interface SearchHit {
   image: string | null;
   source_name: string;
   rank: number;
+}
+
+type Range = 'all' | 'today' | 'week' | 'month';
+
+function rangeToSinceIso(r: Range): string | undefined {
+  const now = Date.now();
+  const d = 24 * 60 * 60 * 1000;
+  if (r === 'today') return new Date(now - d).toISOString();
+  if (r === 'week') return new Date(now - 7 * d).toISOString();
+  if (r === 'month') return new Date(now - 30 * d).toISOString();
+  return undefined;
 }
 
 export function SearchPanel({
@@ -44,6 +76,8 @@ export function SearchPanel({
   const [loading, setLoading] = useState(false);
   const [hits, setHits] = useState<SearchHit[]>([]);
   const [error, setError] = useState('');
+  const [range, setRange] = useState<Range>('all');
+  const [history, setHistory] = useState<SearchHistoryEntry[]>(getSearchHistory);
 
   // Debounce keyboard input by 350 ms.
   useEffect(() => {
@@ -67,15 +101,9 @@ export function SearchPanel({
           {
             body: {
               q: debounced,
-              // null = search every source. An empty array means the
-              // user has disabled every feed — don't silently widen
-              // the search to "everywhere", that would be confusing.
-              // The page never passes undefined here; if it ever did
-              // we'd treat that the same as null.
-              sources: restrictTo === undefined
-                ? null
-                : restrictTo,
+              sources: restrictTo === undefined ? null : restrictTo,
               limit: 100,
+              since: rangeToSinceIso(range),
             },
           },
         );
@@ -83,7 +111,16 @@ export function SearchPanel({
         if (error) throw error;
         const payload = data as { results: SearchHit[]; error?: string };
         if (payload.error) throw new Error(payload.error);
-        setHits(payload.results || []);
+        const results = payload.results || [];
+        setHits(results);
+        // Persist as history once a debounced query has resolved
+        // (avoids storing every keystroke). We only push on the
+        // "all" range so the suggestion list remains stable
+        // regardless of which time-range chip was active.
+        if (range === 'all' && results.length > 0) {
+          pushSearchHistory(debounced, results.length);
+          setHistory(getSearchHistory());
+        }
       } catch (e: any) {
         if (cancelled) return;
         setError(e?.message || (isAr ? 'تعذّر البحث' : 'Search failed'));
@@ -96,7 +133,22 @@ export function SearchPanel({
     return () => {
       cancelled = true;
     };
-  }, [debounced, isAr, restrictTo]);
+  }, [debounced, isAr, restrictTo, range]);
+
+  const headline = useMemo(() => {
+    if (q.length === 0 || debounced.length < 2) return '';
+    if (loading) {
+      return isAr ? 'جاري البحث...' : 'Searching...';
+    }
+    if (hits.length === 0) {
+      return isAr
+        ? `لا نتائج لـ "${debounced}"`
+        : `No matches for “${debounced}”`;
+    }
+    return isAr
+      ? `${hits.length} نتيجة لـ "${debounced}"`
+      : `${hits.length} match${hits.length === 1 ? '' : 'es'} for “${debounced}”`;
+  }, [q.length, debounced, loading, hits.length, isAr]);
 
   return (
     <motion.div
@@ -121,7 +173,7 @@ export function SearchPanel({
         </h3>
       </div>
 
-      <div className="px-4 py-3 border-b border-border/30">
+      <div className="px-4 py-3 border-b border-border/30 space-y-3">
         <div className="relative">
           <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
@@ -137,53 +189,91 @@ export function SearchPanel({
             <button
               type="button"
               onClick={() => setQ('')}
-              className="absolute end-3 top-1/2 -translate-y-1/2"
+              className="absolute end-3 top-1/2 -translate-y-1/2 p-1 rounded-md hover:bg-accent/40"
               aria-label={isAr ? 'مسح' : 'Clear'}
             >
               <X className="h-4 w-4 text-muted-foreground" />
             </button>
           )}
         </div>
-        {restrictTo && restrictTo.length > 0 && (
-          <p className="text-[10px] text-muted-foreground/70 mt-2">
-            {isAr
-              ? `يبحث في ${restrictTo.length} مصدر مفعّل`
-              : `Searching ${restrictTo.length} enabled source${restrictTo.length === 1 ? '' : 's'}`}
-          </p>
-        )}
+
+        {/* Time-range chips */}
+        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+          {(
+            [
+              { id: 'all', ar: 'كل الأرشيف', en: 'All' },
+              { id: 'today', ar: 'اليوم', en: 'Today' },
+              { id: 'week', ar: 'الأسبوع', en: 'This week' },
+              { id: 'month', ar: 'الشهر', en: 'This month' },
+            ] as const
+          ).map((r) => (
+            <button
+              key={r.id}
+              type="button"
+              onClick={() => setRange(r.id)}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors shrink-0 ${
+                range === r.id
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-accent/30 text-muted-foreground hover:bg-accent/50'
+              }`}
+            >
+              {isAr ? r.ar : r.en}
+            </button>
+          ))}
+          {restrictTo && restrictTo.length > 0 && (
+            <span className="ms-auto shrink-0 text-[10px] text-muted-foreground/70">
+              {isAr
+                ? `${restrictTo.length} مصدر مفعّل`
+                : `${restrictTo.length} source${restrictTo.length === 1 ? '' : 's'}`}
+            </span>
+          )}
+        </div>
       </div>
 
       <div className="flex-1 overflow-y-auto">
-        {loading && (
-          <div className="flex items-center justify-center gap-2 py-10">
-            <Loader2 className="h-4 w-4 animate-spin text-primary" />
-            <span className="text-sm text-muted-foreground">
-              {isAr ? 'جاري البحث...' : 'Searching...'}
+        {/* Empty input → recent search history */}
+        {q.length === 0 && (
+          <RecentSearches
+            history={history}
+            isAr={isAr}
+            onPick={(s) => setQ(s)}
+            onRemove={(s) => {
+              removeSearchHistoryEntry(s);
+              setHistory(getSearchHistory());
+            }}
+            onClear={() => {
+              clearSearchHistory();
+              setHistory([]);
+            }}
+          />
+        )}
+
+        {/* Header strip — counts / loading / error */}
+        {q.length > 0 && (
+          <div className="px-4 py-2.5 border-b border-border/20 flex items-center gap-2">
+            {loading && <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />}
+            <span className="text-[11px] text-muted-foreground tabular-nums">
+              {headline}
             </span>
           </div>
         )}
-        {!loading && debounced.length >= 2 && hits.length === 0 && !error && (
-          <div className="flex flex-col items-center justify-center py-20 gap-2 text-center">
-            <Search className="h-8 w-8 text-muted-foreground/30" />
-            <p className="text-sm text-muted-foreground">
-              {isAr ? 'لا نتائج لـ "' + debounced + '"' : `No matches for “${debounced}”`}
-            </p>
-          </div>
-        )}
+
         {!loading && error && (
           <div className="flex flex-col items-center justify-center py-20 gap-2 text-center px-6">
             <p className="text-sm text-destructive">{error}</p>
           </div>
         )}
-        {!loading && q.length === 0 && (
+
+        {!loading && !error && q.length > 0 && debounced.length < 2 && (
           <div className="flex flex-col items-center justify-center py-20 gap-2 text-center px-6">
             <p className="text-sm text-muted-foreground">
               {isAr
-                ? 'اكتب كلمتين أو أكثر للبحث في كامل الأرشيف'
-                : 'Type 2+ characters to search every stored article'}
+                ? 'اكتب حرفين على الأقل'
+                : 'Type at least 2 characters'}
             </p>
           </div>
         )}
+
         <AnimatePresence initial={false}>
           {hits.map((hit, i) => (
             <motion.button
@@ -207,11 +297,11 @@ export function SearchPanel({
             >
               <div className="flex-1 min-w-0">
                 <h4 className="text-[14px] font-semibold leading-snug line-clamp-2">
-                  {hit.title}
+                  {highlightText(hit.title, debounced)}
                 </h4>
                 {hit.description && (
                   <p className="text-xs text-muted-foreground mt-1 line-clamp-2 leading-relaxed">
-                    {hit.description}
+                    {highlightText(hit.description, debounced)}
                   </p>
                 )}
                 <div className="flex items-center gap-2 mt-2 flex-wrap">
@@ -245,5 +335,82 @@ export function SearchPanel({
         </AnimatePresence>
       </div>
     </motion.div>
+  );
+}
+
+// ─── Recent searches block ──────────────────────────────────────────────
+
+function RecentSearches({
+  history,
+  isAr,
+  onPick,
+  onRemove,
+  onClear,
+}: {
+  history: SearchHistoryEntry[];
+  isAr: boolean;
+  onPick: (q: string) => void;
+  onRemove: (q: string) => void;
+  onClear: () => void;
+}) {
+  if (history.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 gap-3 text-center px-6">
+        <Search className="h-8 w-8 text-muted-foreground/30" />
+        <p className="text-sm text-muted-foreground max-w-xs">
+          {isAr
+            ? 'اكتب كلمتين أو أكثر للبحث في كامل الأرشيف'
+            : 'Type 2+ characters to search every stored article'}
+        </p>
+      </div>
+    );
+  }
+  return (
+    <div className="px-4 py-3">
+      <div className="flex items-center justify-between mb-2">
+        <p className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground inline-flex items-center gap-1.5">
+          <Clock className="h-3 w-3" />
+          {isAr ? 'عمليات البحث الأخيرة' : 'Recent searches'}
+        </p>
+        <button
+          type="button"
+          onClick={onClear}
+          className="text-[10px] text-muted-foreground hover:text-foreground transition-colors"
+        >
+          {isAr ? 'مسح الكل' : 'Clear all'}
+        </button>
+      </div>
+      <div className="space-y-1">
+        {history.map((entry) => (
+          <div
+            key={entry.q}
+            className="group flex items-center gap-2 rounded-xl hover:bg-accent/15 transition-colors"
+          >
+            <button
+              type="button"
+              onClick={() => onPick(entry.q)}
+              className="flex-1 text-start flex items-center gap-3 py-2 ps-3 min-w-0"
+            >
+              <Search className="h-3.5 w-3.5 text-muted-foreground/60 shrink-0" />
+              <span className="text-sm truncate flex-1">{entry.q}</span>
+              {typeof entry.hits === 'number' && entry.hits > 0 && (
+                <span className="text-[10px] text-muted-foreground/60 inline-flex items-center gap-1 shrink-0">
+                  <TrendingUp className="h-2.5 w-2.5" />
+                  {entry.hits}
+                </span>
+              )}
+            </button>
+            <button
+              type="button"
+              onClick={() => onRemove(entry.q)}
+              className="p-1.5 me-2 rounded-md opacity-0 group-hover:opacity-100 hover:bg-accent/40 transition-opacity"
+              aria-label={isAr ? 'إزالة' : 'Remove'}
+            >
+              <X className="h-3 w-3 text-muted-foreground" />
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }

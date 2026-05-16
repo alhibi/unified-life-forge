@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   AlertCircle, Check, ChevronLeft, Database, Download, Plus,
@@ -10,8 +10,9 @@ import { toast } from 'sonner';
 import type { FeedSource, FeedStatus } from './types';
 import { CATEGORIES } from './feeds';
 import { SourcePill } from './SourcePill';
-import { downloadOpml, parseOpml } from './opml';
+import { downloadOpml } from './opml';
 import { AddFeedDialog } from './AddFeedDialog';
+import { OpmlImportDialog } from './OpmlImportDialog';
 
 /**
  * Lets the user add, remove, enable/disable feeds and shows per-feed
@@ -49,7 +50,7 @@ export function ManageFeedsView({
   const [newName, setNewName] = useState('');
   const [newCategory, setNewCategory] = useState('news');
   const [showAddDialog, setShowAddDialog] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [showOpmlDialog, setShowOpmlDialog] = useState(false);
 
   const statusByUrl = new Map(statuses.map((s) => [s.url, s] as const));
   const existingUrls = new Set(feedSources.map((f) => f.url));
@@ -59,48 +60,6 @@ export function ManageFeedsView({
     if (ok) {
       setNewUrl('');
       setNewName('');
-    }
-  };
-
-  const handleOpmlImport = async (file: File) => {
-    try {
-      const text = await file.text();
-      const imported = parseOpml(text);
-      if (imported.length === 0) {
-        toast.error(isAr ? 'لم يتم العثور على خلاصات في الملف' : 'No feeds found in file');
-        return;
-      }
-      // Prefer the bulk path: it adds every new feed in a single state
-      // update and triggers exactly one batched refresh, instead of
-      // firing N parallel edge-function invocations (which would
-      // rate-limit / DoS the function on a 200-feed Feedly export).
-      if (onAddBulk) {
-        const { added, skipped } = await onAddBulk(imported);
-        toast.success(
-          isAr
-            ? `أُضيف ${added} مصدر${skipped > 0 ? `، تم تخطّي ${skipped} موجود` : ''}`
-            : `Added ${added}${skipped > 0 ? `, skipped ${skipped} existing` : ''}`,
-        );
-        return;
-      }
-      // Fallback: single-add loop (used by older callers / tests).
-      let added = 0;
-      let skipped = 0;
-      for (const feed of imported) {
-        if (existingUrls.has(feed.url)) {
-          skipped++;
-          continue;
-        }
-        const ok = onAdd(feed.url, feed.name, feed.category);
-        if (ok) added++;
-      }
-      toast.success(
-        isAr
-          ? `أُضيف ${added} مصدر${skipped > 0 ? `، تم تخطّي ${skipped} موجود` : ''}`
-          : `Added ${added}${skipped > 0 ? `, skipped ${skipped} existing` : ''}`,
-      );
-    } catch {
-      toast.error(isAr ? 'تعذّر قراءة الملف' : 'Could not read file');
     }
   };
 
@@ -137,7 +96,7 @@ export function ManageFeedsView({
         </h3>
         <button
           type="button"
-          onClick={() => fileInputRef.current?.click()}
+          onClick={() => setShowOpmlDialog(true)}
           className="p-2 rounded-xl hover:bg-accent/50 active:scale-95 transition-all"
           aria-label={isAr ? 'استيراد OPML' : 'Import OPML'}
           title={isAr ? 'استيراد OPML' : 'Import OPML'}
@@ -162,20 +121,6 @@ export function ManageFeedsView({
           <Star className="h-4 w-4 text-muted-foreground" />
         </button>
       </div>
-
-      {/* Hidden file input for OPML import */}
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept=".opml,.xml,application/xml,text/xml"
-        className="hidden"
-        onChange={(e) => {
-          const file = e.target.files?.[0];
-          if (file) handleOpmlImport(file);
-          // Reset so the same file can be picked twice in a row
-          e.target.value = '';
-        }}
-      />
 
       {/* Smart "Add Feed" button (opens discover dialog) */}
       <div className="px-4 pt-4 pb-2">
@@ -355,6 +300,32 @@ export function ManageFeedsView({
         existingUrls={existingUrls}
         onClose={() => setShowAddDialog(false)}
         onAdd={onAdd}
+      />
+
+      <OpmlImportDialog
+        open={showOpmlDialog}
+        isAr={isAr}
+        existingUrls={existingUrls}
+        onClose={() => setShowOpmlDialog(false)}
+        onImport={async (feeds) => {
+          if (onAddBulk) {
+            return onAddBulk(feeds);
+          }
+          // Fallback for parents that didn't supply bulk-add: add
+          // one-by-one. Preserves the user-visible counts.
+          let added = 0;
+          let skipped = 0;
+          for (const f of feeds) {
+            if (existingUrls.has(f.url)) {
+              skipped++;
+              continue;
+            }
+            const ok = onAdd(f.url, f.name, f.category);
+            if (ok) added++;
+            else skipped++;
+          }
+          return { added, skipped };
+        }}
       />
     </motion.div>
   );

@@ -100,8 +100,16 @@ async function probeFeed(
     title: string;
     description: string;
     itemCount: number;
-    itemTitles: string[];
+    items: { title: string; pubDate: string | null; link: string | null }[];
     image?: string;
+    favicon?: string;
+    language?: string;
+    /** Median seconds between publications, computed from up to 10
+     *  most recent items. Null when we have fewer than 3 dated items. */
+    medianGapSeconds: number | null;
+    /** ISO timestamp of the most recent dated item. Lets the UI show
+     *  "last updated 3 hours ago" without re-fetching. */
+    lastPublishedAt: string | null;
   }
 > {
   if (!isSafeUrl(url)) return { url, ok: false };
@@ -142,6 +150,9 @@ async function probeFeed(
     const imageMatch = text.match(
       /<channel>[\s\S]*?<image>[\s\S]*?<url>([\s\S]*?)<\/url>/i,
     );
+    const langMatch = text.match(
+      /<(?:channel>[\s\S]*?)?<language>([\s\S]*?)<\/language>/i,
+    );
     const title = titleMatch
       ? decodeEntities(stripText(titleMatch[1]))
       : new URL(url).hostname;
@@ -149,30 +160,103 @@ async function probeFeed(
       ? decodeEntities(stripText(descMatch[1])).slice(0, 240)
       : "";
     const image = imageMatch ? stripText(imageMatch[1]) : undefined;
+    const language = langMatch
+      ? stripText(langMatch[1]).slice(0, 12) || undefined
+      : undefined;
 
-    const itemTitles: string[] = [];
-    const itemRe = isAtom
-      ? /<entry[\s\S]*?<title[^>]*>([\s\S]*?)<\/title>/g
-      : /<item[\s\S]*?<title[^>]*>([\s\S]*?)<\/title>/g;
-    let im;
+    // Walk the items collecting the first 5 titles+links (for the
+    // preview list) and up to 10 timestamps (for the frequency
+    // estimate). Either RSS <pubDate> / <dc:date> or Atom <published> /
+    // <updated> is accepted.
+    const items: { title: string; pubDate: string | null; link: string | null }[] = [];
+    const dates: number[] = [];
     let count = 0;
-    while ((im = itemRe.exec(text)) !== null) {
+    const blockRe = isAtom ? /<entry[\s\S]*?<\/entry>/gi : /<item[\s\S]*?<\/item>/gi;
+    let bm;
+    while ((bm = blockRe.exec(text)) !== null) {
       count++;
-      if (itemTitles.length < 3) {
-        const t = decodeEntities(stripText(im[1]));
-        if (t) itemTitles.push(t);
+      const block = bm[0];
+      if (items.length < 5) {
+        const tm = block.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+        const titleText = tm ? decodeEntities(stripText(tm[1])) : "";
+        let link: string | null = null;
+        if (isAtom) {
+          const lm = block.match(
+            /<link[^>]*\shref=["']([^"']+)["'][^>]*\/?>/i,
+          );
+          link = lm ? lm[1] : null;
+        } else {
+          const lm = block.match(/<link[^>]*>([\s\S]*?)<\/link>/i);
+          link = lm ? stripText(lm[1]) : null;
+        }
+        const dm = isAtom
+          ? block.match(/<published[^>]*>([\s\S]*?)<\/published>/i) ||
+            block.match(/<updated[^>]*>([\s\S]*?)<\/updated>/i)
+          : block.match(/<pubDate[^>]*>([\s\S]*?)<\/pubDate>/i) ||
+            block.match(/<dc:date[^>]*>([\s\S]*?)<\/dc:date>/i);
+        const pubDate = dm ? stripText(dm[1]) : null;
+        items.push({ title: titleText, pubDate, link });
+      }
+      if (dates.length < 10) {
+        const dm2 = isAtom
+          ? block.match(/<published[^>]*>([\s\S]*?)<\/published>/i) ||
+            block.match(/<updated[^>]*>([\s\S]*?)<\/updated>/i)
+          : block.match(/<pubDate[^>]*>([\s\S]*?)<\/pubDate>/i) ||
+            block.match(/<dc:date[^>]*>([\s\S]*?)<\/dc:date>/i);
+        if (dm2) {
+          const t = Date.parse(stripText(dm2[1]));
+          if (!Number.isNaN(t)) dates.push(t);
+        }
       }
       if (count > 200) break;
     }
     if (count === 0) return { url, ok: false };
+
+    // Compute median gap. Sort timestamps descending so gap[i] =
+    // dates[i] - dates[i+1] is always positive.
+    let medianGapSeconds: number | null = null;
+    let lastPublishedAt: string | null = null;
+    if (dates.length >= 3) {
+      const sorted = [...dates].sort((a, b) => b - a);
+      const gaps: number[] = [];
+      for (let i = 0; i < sorted.length - 1; i++) {
+        const g = sorted[i] - sorted[i + 1];
+        if (g > 0) gaps.push(g);
+      }
+      if (gaps.length > 0) {
+        gaps.sort((a, b) => a - b);
+        const mid = Math.floor(gaps.length / 2);
+        const median = gaps.length % 2 === 0
+          ? (gaps[mid - 1] + gaps[mid]) / 2
+          : gaps[mid];
+        medianGapSeconds = Math.max(1, Math.round(median / 1000));
+      }
+      lastPublishedAt = new Date(sorted[0]).toISOString();
+    } else if (dates.length === 1) {
+      lastPublishedAt = new Date(dates[0]).toISOString();
+    }
+
+    // Favicon: derive from the feed URL's origin. We pick the simple
+    // "origin/favicon.ico" path because the alternative — fetching
+    // the homepage and parsing <link rel=icon> — adds 1 round-trip
+    // per candidate and the fallback URL works for ~95 % of sites.
+    let favicon: string | undefined;
+    try {
+      favicon = new URL("/favicon.ico", url).toString();
+    } catch { /* malformed url */ }
+
     return {
       url,
       ok: true,
       title,
       description,
       itemCount: count,
-      itemTitles,
+      items,
       image,
+      favicon,
+      language,
+      medianGapSeconds,
+      lastPublishedAt,
     };
   } catch {
     return { url, ok: false };

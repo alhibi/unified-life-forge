@@ -24,6 +24,7 @@ export function ArticleList({
   searchQuery,
   bookmarks,
   readArticles,
+  cachedLinks,
   onOpenArticle,
   onToggleBookmark,
   onRefresh,
@@ -38,6 +39,7 @@ export function ArticleList({
   searchQuery: string;
   bookmarks: string[];
   readArticles: string[];
+  cachedLinks?: ReadonlySet<string>;
   onOpenArticle: (a: FeedItem) => void;
   onToggleBookmark: (link: string) => void;
   onRefresh: () => void;
@@ -119,6 +121,7 @@ export function ArticleList({
             index={i}
             isRead={readArticles.includes(article.link)}
             isBookmarked={bookmarks.includes(article.link)}
+            cached={cachedLinks?.has(article.link)}
             language={language}
             onOpen={() => onOpenArticle(article)}
             onToggleBookmark={() => onToggleBookmark(article.link)}
