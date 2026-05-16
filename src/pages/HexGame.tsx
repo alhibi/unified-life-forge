@@ -108,7 +108,7 @@ interface HexStats {
 function loadStats(): HexStats {
   try {
     const s = JSON.parse(localStorage.getItem('hex-stats') || '{}');
-    return { gamesPlayed: 0, gamesWon: 0, bestMoves: {}, perfectGames: 0, totalCells: 0, ...s,
+    return { gamesPlayed: 0, gamesWon: 0, perfectGames: 0, totalCells: 0, ...s,
       bestMoves: s.bestMoves && typeof s.bestMoves === 'object' ? s.bestMoves : {} };
   } catch { return { gamesPlayed: 0, gamesWon: 0, bestMoves: {}, perfectGames: 0, totalCells: 0 }; }
 }

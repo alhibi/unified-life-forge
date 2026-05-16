@@ -57,7 +57,7 @@ interface FocusStats {
 function loadStats(): FocusStats {
   try {
     const s = JSON.parse(localStorage.getItem('focus-stats') || '{}');
-    return { gamesPlayed: 0, bestAvg: {}, bestSequence: 0, totalAccuracy: 0, totalRounds: 0, ...s, bestAvg: s.bestAvg || {} };
+    return { gamesPlayed: 0, bestSequence: 0, totalAccuracy: 0, totalRounds: 0, ...s, bestAvg: s.bestAvg || {} };
   } catch {
     return { gamesPlayed: 0, bestAvg: {}, bestSequence: 0, totalAccuracy: 0, totalRounds: 0 };
   }

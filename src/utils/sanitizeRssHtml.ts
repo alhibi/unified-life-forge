@@ -9,7 +9,7 @@ import DOMPurify from 'dompurify';
 
 // One configured profile shared across the app. Centralising it means a
 // future tweak (allow `<aside>`, deny `<figure>`, etc.) is a single edit.
-const RSS_SANITIZE_CONFIG: DOMPurify.Config = {
+const RSS_SANITIZE_CONFIG = {
   ALLOWED_TAGS: [
     'p', 'br', 'span', 'div',
     'h1', 'h2', 'h3', 'h4', 'h5', 'h6',

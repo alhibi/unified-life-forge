@@ -120,7 +120,6 @@ function loadStats(): MazeStats {
     const s = JSON.parse(localStorage.getItem('maze-stats') || '{}');
     return {
       gamesPlayed: 0, gamesWon: 0, perfectGames: 0,
-      bestTime: { easy: null, medium: null, hard: null, expert: null },
       bestStreak: 0, currentStreak: 0, ...s,
       bestTime: { easy: null, medium: null, hard: null, expert: null, ...(s.bestTime || {}) },
     };

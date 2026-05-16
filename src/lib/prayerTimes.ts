@@ -1,4 +1,4 @@
-import { PrayerTimes, Coordinates, CalculationMethod, HighLatitudeRule } from 'adhan';
+import { PrayerTimes, Coordinates, CalculationMethod, HighLatitudeRule, Madhab } from 'adhan';
 
 export type PrayerName = 'fajr' | 'sunrise' | 'dhuhr' | 'asr' | 'maghrib' | 'isha';
 
@@ -10,12 +10,12 @@ export interface PrayerTime {
 }
 
 const prayerLabels = {
-  fajr: { ar: 'الفجر', de: 'Fajr' },
-  sunrise: { ar: 'الشروق', de: 'Sonnenaufgang' },
-  dhuhr: { ar: 'الظهر', de: 'Dhuhr' },
-  asr: { ar: 'العصر', de: 'Asr' },
-  maghrib: { ar: 'المغرب', de: 'Maghrib' },
-  isha: { ar: 'العشاء', de: 'Isha' },
+  fajr: { labelAr: 'الفجر', labelDe: 'Fajr' },
+  sunrise: { labelAr: 'الشروق', labelDe: 'Sonnenaufgang' },
+  dhuhr: { labelAr: 'الظهر', labelDe: 'Dhuhr' },
+  asr: { labelAr: 'العصر', labelDe: 'Asr' },
+  maghrib: { labelAr: 'المغرب', labelDe: 'Maghrib' },
+  isha: { labelAr: 'العشاء', labelDe: 'Isha' },
 };
 
 export function calculatePrayerTimes(
@@ -28,9 +28,8 @@ export function calculatePrayerTimes(
 ): PrayerTime[] {
   const coordinates = new Coordinates(lat, lng);
 
-  let params = madhab === 'hanafi' 
-    ? CalculationMethod.Hanafi() 
-    : CalculationMethod.MuslimWorldLeague();
+  const params = CalculationMethod.MuslimWorldLeague();
+  params.madhab = madhab === 'hanafi' ? Madhab.Hanafi : Madhab.Shafi;
 
   // High Latitude Adjustment
   switch (highLatitudeMethod) {
@@ -42,7 +41,7 @@ export function calculatePrayerTimes(
       break;
     case 'angle':
     default:
-      params.highLatitudeRule = HighLatitudeRule.AngleBased;
+      params.highLatitudeRule = HighLatitudeRule.TwilightAngle;
   }
 
   const prayerTimes = new PrayerTimes(coordinates, date, params);

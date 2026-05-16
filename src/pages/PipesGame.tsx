@@ -23,8 +23,6 @@ function loadStats(): PipeStats {
     const s = JSON.parse(localStorage.getItem('pipes-stats') || '{}');
     return {
       gamesPlayed: 0, gamesWon: 0, perfectGames: 0,
-      bestTime: { easy: null, medium: null, hard: null, expert: null },
-      bestMoves: { easy: null, medium: null, hard: null, expert: null },
       bestStreak: 0, currentStreak: 0, ...s,
       bestTime: { easy: null, medium: null, hard: null, expert: null, ...(s.bestTime || {}) },
       bestMoves: { easy: null, medium: null, hard: null, expert: null, ...(s.bestMoves || {}) },

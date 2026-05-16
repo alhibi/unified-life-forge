@@ -286,7 +286,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
                   >
                     <div className="relative shrink-0">
                       {renderAvatar(conv.otherUsername, conv.otherAvatarUrl, 'h-[52px] w-[52px]')}
-                      {onlineUserIds?.has(conv.otherUserId) && (
+                      {conv.otherUserId && onlineUserIds?.has(conv.otherUserId) && (
                         <span
                           aria-label={isAr ? 'متصل الآن' : 'Online'}
                           className="absolute bottom-0 end-0 block h-3 w-3 rounded-full bg-green-500 ring-2 ring-background"
