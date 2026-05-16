@@ -98,7 +98,7 @@ export default function BottomNav() {
             <button
               key={tab.key}
               onClick={() => navigate(tab.path)}
-              className="relative flex flex-col items-center gap-0.5 py-1.5 px-2 rounded-xl"
+              className="relative flex flex-col items-center gap-0.5 py-1.5 px-1 rounded-xl"
               aria-label={t(tab.labelKey)}
               aria-current={active ? 'page' : undefined}
             >
