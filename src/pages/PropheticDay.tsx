@@ -1,4 +1,5 @@
 import React from 'react';
+import SEO from '@/components/SEO';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '@/contexts/AppContext';
 import { Moon, Sunrise, Sun, BookOpen, CloudSun, SunDim, Sunset, MoonStar } from 'lucide-react';
@@ -106,6 +107,7 @@ export default function PropheticDay() {
 
   return (
     <div className="min-h-screen bg-background pb-24" dir={dir}>
+      <SEO title="اليوم النبوي — هدي النبي ﷺ — SmartHub" description="يوم النبي ﷺ مقسماً إلى ثماني فترات مع السنن والأذكار المتعلقة بكل فترة." path="/section/prophetic-day" />
       {/* Header */}
       <div className="sticky top-0 z-30 bg-background/90 backdrop-blur-md border-b border-border/40">
         <div className="flex items-center justify-between px-4 py-3">

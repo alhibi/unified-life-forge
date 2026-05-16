@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import SEO from '@/components/SEO';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Pill, Utensils, Sparkles, Brain, Trash2, Download, ShieldCheck, BookOpen } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -78,6 +79,7 @@ export default function WellnessPage() {
 
   return (
     <div className="min-h-screen bg-background pb-28 px-5 pt-10">
+      <SEO title="الصحة والعافية — SmartHub" description="متابعة المكملات، الحمية، العناية بالبشرة والشعر، والرؤى الصحية الشخصية في SmartHub." path="/wellness" />
       <motion.div
         variants={stagger}
         initial="hidden"

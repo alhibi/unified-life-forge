@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import SEO from '@/components/SEO';
 import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useApp } from '@/contexts/AppContext';
@@ -241,6 +242,7 @@ export default function DuasPage() {
 
   return (
     <div className="min-h-screen bg-background pb-28 px-5 pt-14">
+      <SEO title="الأذكار والأدعية — SmartHub" description="مجموعة منتقاة من الأدعية والأذكار اليومية وأربعين النووي في SmartHub." path="/duas" />
       <motion.div
         variants={stagger}
         initial="hidden"

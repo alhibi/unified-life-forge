@@ -1,4 +1,5 @@
 import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
+import SEO from '@/components/SEO';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '@/contexts/AppContext';
 import { useAuth } from '@/hooks/useAuth';
@@ -106,6 +107,7 @@ export default function ChatPage() {
 
   return (
     <ErrorBoundary fallbackTitle={isAr ? 'حدث خطأ في الدردشة' : 'Fehler im Chat'}>
+      <SEO title="المحادثات — SmartHub" description="دردشة آمنة بين الأصدقاء داخل SmartHub مع صور وملاحظات صوتية وتشفير للجلسة." path="/chat" />
       <Suspense fallback={<ChatSkeleton />}>
         <ChatDrawer
           inline

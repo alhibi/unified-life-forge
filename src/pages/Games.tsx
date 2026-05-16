@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
+import SEO from '@/components/SEO';
 import { useApp } from '@/contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
 import { Grid3X3, Swords, Gamepad2, Trophy, Star, Brain, Bomb, Palette, PipetteIcon, Dices, Target, Puzzle, Hexagon, Crosshair } from 'lucide-react';
@@ -110,6 +111,7 @@ export default function GamesPage() {
 
   return (
     <div className="min-h-screen bg-background pb-28 pt-14">
+      <SEO title="الألعاب — SmartHub" description="مجموعة ألعاب ذهنية: سودوكو، شطرنج، ذاكرة، كاسحة ألغام والمزيد، بتصميم داكن سلس داخل SmartHub." path="/games" />
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: 12 }}
