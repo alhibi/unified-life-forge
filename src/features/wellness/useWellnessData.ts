@@ -8,19 +8,23 @@ import {
   deleteIntakeLog,
   deleteSkinHair,
   deleteSupplement,
+  deleteVital,
   listDietLogs,
   listIntakeLogs,
   listSkinHairLogs,
   listSupplements,
+  listVitals,
   logDiet,
   logIntake,
   saveSupplement,
   upsertSkinHair,
+  upsertVital,
   wipeAll,
   type DietLog,
   type IntakeLog,
   type SkinHairLog,
   type Supplement,
+  type VitalLog,
   type UUID,
 } from './wellnessDb';
 
@@ -29,20 +33,23 @@ export function useWellnessData() {
   const [intakeLogs, setIntakeLogs] = useState<IntakeLog[]>([]);
   const [dietLogs, setDietLogs] = useState<DietLog[]>([]);
   const [skinHair, setSkinHair] = useState<SkinHairLog[]>([]);
+  const [vitals, setVitals] = useState<VitalLog[]>([]);
   const [loading, setLoading] = useState(true);
 
   const refresh = useCallback(async () => {
     try {
-      const [s, i, d, sh] = await Promise.all([
+      const [s, i, d, sh, v] = await Promise.all([
         listSupplements(),
         listIntakeLogs(),
         listDietLogs(),
         listSkinHairLogs(),
+        listVitals(),
       ]);
       setSupplements(s);
       setIntakeLogs(i);
       setDietLogs(d);
       setSkinHair(sh);
+      setVitals(v);
     } finally {
       setLoading(false);
     }
@@ -118,6 +125,22 @@ export function useWellnessData() {
     [refresh],
   );
 
+  // --- Vitals ---
+  const saveVital = useCallback(
+    async (entry: Parameters<typeof upsertVital>[0]) => {
+      await upsertVital(entry);
+      await refresh();
+    },
+    [refresh],
+  );
+  const removeVital = useCallback(
+    async (id: UUID) => {
+      await deleteVital(id);
+      await refresh();
+    },
+    [refresh],
+  );
+
   const wipe = useCallback(async () => {
     await wipeAll();
     await refresh();
@@ -128,6 +151,7 @@ export function useWellnessData() {
     intakeLogs,
     dietLogs,
     skinHair,
+    vitals,
     loading,
     refresh,
     addOrUpdateSupplement,
@@ -138,6 +162,8 @@ export function useWellnessData() {
     removeDiet,
     saveSkinHair,
     removeSkinHair,
+    saveVital,
+    removeVital,
     wipe,
   };
 }
