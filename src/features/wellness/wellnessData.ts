@@ -1388,7 +1388,11 @@ export interface SynergyRule {
   nutrients: string[];
   evidence: 'strong' | 'moderate' | 'emerging';
   /** primary domain this stack acts on */
-  domain: 'bone' | 'skin' | 'hair' | 'energy' | 'immunity' | 'sleep' | 'heart' | 'gut' | 'mood' | 'blood';
+  domain:
+    | 'bone' | 'skin' | 'hair' | 'energy' | 'immunity' | 'sleep'
+    | 'heart' | 'gut' | 'mood' | 'blood'
+    | 'methylation' | 'mitochondria' | 'cognition'
+    | 'longevity' | 'detox' | 'hormones';
   title: Record<Lang, string>;
   /** concrete benefits — short bullets the UI lists */
   benefits: Record<Lang, string[]>;
@@ -1680,6 +1684,12 @@ export const DOMAIN_META: Record<
   gut:      { icon: '🌱', label: { ar: 'الأمعاء',  de: 'Darm'      } },
   mood:     { icon: '🧘', label: { ar: 'المزاج',   de: 'Stimmung'  } },
   blood:    { icon: '🩸', label: { ar: 'الدم',     de: 'Blut'      } },
+  methylation:  { icon: '🧬', label: { ar: 'الميثيلة',     de: 'Methylierung' } },
+  mitochondria: { icon: '🔋', label: { ar: 'الميتوكوندريا', de: 'Mitochondrien' } },
+  cognition:    { icon: '🧠', label: { ar: 'الإدراك',       de: 'Kognition'    } },
+  longevity:    { icon: '♾️', label: { ar: 'طول العمر',     de: 'Longevity'    } },
+  detox:        { icon: '💧', label: { ar: 'إزالة السموم',  de: 'Entgiftung'   } },
+  hormones:     { icon: '⚖️', label: { ar: 'الهرمونات',     de: 'Hormone'      } },
 };
 
 export const EVIDENCE_LABEL: Record<SynergyRule['evidence'], Record<Lang, string>> = {
