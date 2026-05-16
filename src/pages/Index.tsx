@@ -105,8 +105,8 @@ export default function Index() {
         className="space-y-5 max-w-lg mx-auto"
       >
         <motion.div variants={item}>
-          <div className="flex items-start justify-between">
-            <div>
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0">
               <h1 className="text-[22px] font-bold tracking-tight text-foreground leading-tight">
                 {greeting}
               </h1>
@@ -114,7 +114,7 @@ export default function Index() {
                 {now.toLocaleDateString(language === 'ar' ? 'ar' : 'de', { weekday: 'long', month: 'long', day: 'numeric' })}
               </p>
             </div>
-            <div className="flex items-center gap-2 mt-0.5">
+            <div className="flex items-center gap-2 shrink-0">
               <button
                 onClick={() => setShowClipboard(true)}
                 className="relative p-2.5 rounded-xl bg-accent/50 hover:bg-accent transition-colors" aria-label="الحافظة"
