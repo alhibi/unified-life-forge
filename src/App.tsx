@@ -17,6 +17,7 @@ import { useEffect } from "react";
 import { useAutoPrayerTheme } from "@/hooks/useAutoPrayerTheme";
 import { usePresence } from "@/hooks/usePresence";
 import { useAuth } from "@/hooks/useAuth";
+import { navStart } from "@/lib/navPerf";
 
 // Eager load the main page
 import Index from "./pages/Index";
@@ -139,6 +140,9 @@ const PageSkeleton = () => (
 function AnimatedRoutes() {
   const location = useLocation();
   useIdlePrefetch();
+  // Mark the navigation start timestamp synchronously on every route change.
+  // PageTransition then closes the measurement after mount + paint.
+  navStart(location.pathname);
   return (
     <>
       <ScrollToTop />
