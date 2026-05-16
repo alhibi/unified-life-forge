@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Bell, BellRing, ChevronLeft, ExternalLink, Loader2, Plus,
@@ -65,6 +65,17 @@ export function KeywordAlertsView({
   const [filteredSources, setFilteredSources] = useState<string[]>([]);
 
   // ─── Initial load + realtime ─────────────────────────────────────────────
+  // Burst-of-inserts is the expected behaviour when the cron fires —
+  // many alerts can match new articles within a 30 ms window. To avoid
+  // a stack of N toasts, we batch them: the first hit of a burst opens
+  // a 2 s window, every subsequent hit during that window adds to the
+  // counter, and a single toast fires when the window closes ("X new
+  // matches" instead of one toast per row).
+  const burstRef = useRef<{
+    timer: ReturnType<typeof setTimeout> | null;
+    count: number;
+    lastTitle: string;
+  }>({ timer: null, count: 0, lastTitle: '' });
   useEffect(() => {
     let cancelled = false;
     const init = async () => {
@@ -114,11 +125,29 @@ export function KeywordAlertsView({
           (payload) => {
             const row = payload.new as AlertHit;
             setHits((prev) => [row, ...prev].slice(0, 200));
-            toast.info(
-              isAr
-                ? `تطابق جديد: ${row.article_title}`
-                : `New match: ${row.article_title}`,
-            );
+            // Coalesce burst inserts into one toast.
+            const burst = burstRef.current;
+            burst.count += 1;
+            burst.lastTitle = row.article_title;
+            if (burst.timer) clearTimeout(burst.timer);
+            burst.timer = setTimeout(() => {
+              if (burst.count === 1) {
+                toast.info(
+                  isAr
+                    ? `تطابق جديد: ${burst.lastTitle}`
+                    : `New match: ${burst.lastTitle}`,
+                );
+              } else {
+                toast.info(
+                  isAr
+                    ? `${burst.count} تطابقات جديدة`
+                    : `${burst.count} new matches`,
+                );
+              }
+              burst.count = 0;
+              burst.lastTitle = '';
+              burst.timer = null;
+            }, 2000);
           },
         )
         .subscribe();
@@ -127,6 +156,10 @@ export function KeywordAlertsView({
     return () => {
       cancelled = true;
       if (chan) supabase.removeChannel(chan);
+      if (burstRef.current.timer) {
+        clearTimeout(burstRef.current.timer);
+        burstRef.current.timer = null;
+      }
     };
   }, [isAr]);
 

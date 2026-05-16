@@ -38,6 +38,8 @@ export function ReaderView({
   onChangePrefs,
   onBack,
   initialUrl,
+  isBookmarked,
+  onToggleBookmark,
 }: {
   isAr: boolean;
   language: string;
@@ -45,11 +47,21 @@ export function ReaderView({
   onChangePrefs: (p: ReaderPrefs) => void;
   onBack: () => void;
   initialUrl?: string;
+  isBookmarked?: boolean;
+  onToggleBookmark?: (link: string) => void;
 }) {
   const [input, setInput] = useState(initialUrl ?? '');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [article, setArticle] = useState<ExtractedArticle | null>(null);
+  // The reader has two related but distinct flags:
+  //  - `saved`: the article body is in our IndexedDB offline store
+  //    (so it survives going offline / clearing the network cache).
+  //  - `bookmarked`: the user has marked it for later in the bookmarks
+  //    list (so it shows up in the Saved tab on the main list).
+  // The Save button toggles BOTH together, since "save for later"
+  // should always be visible to the user regardless of whether they
+  // pasted the link or it came from a feed.
   const [saved, setSaved] = useState(false);
 
   const sizeMap: Record<ReaderPrefs['fontSize'], string> = {
@@ -82,6 +94,29 @@ export function ReaderView({
     setError('');
     setArticle(null);
     setSaved(false);
+    // First, try the offline cache — instant, and works even if we're
+    // disconnected. We still hit the edge function below to refresh
+    // the content if we have network, but having the cached version
+    // ready means a previously-saved article is readable on a plane.
+    try {
+      const cached = await offlineDb.getArticle(url);
+      if (cached) {
+        setArticle({
+          url: cached.link,
+          title: cached.title,
+          siteName: cached.source || undefined,
+          description: cached.description,
+          image: cached.image,
+          html: cached.fullContent || '',
+        });
+        setSaved(true);
+        // If we're offline, that's the final answer.
+        if (typeof navigator !== 'undefined' && !navigator.onLine) {
+          setLoading(false);
+          return;
+        }
+      }
+    } catch { /* IDB unavailable, fall through */ }
     try {
       const { data, error } = await supabase.functions.invoke(
         'extract-article',
@@ -90,7 +125,8 @@ export function ReaderView({
       if (error) throw error;
       const payload = data as ExtractedArticle & { error?: string };
       if (payload.error) throw new Error(payload.error);
-      if (!payload.html) {
+      // If we got at least an image OR html, surface what we have.
+      if (!payload.html && !payload.image) {
         throw new Error(
           isAr
             ? 'لم يتم العثور على محتوى قابل للقراءة'
@@ -101,17 +137,36 @@ export function ReaderView({
       // Auto-cache the hero image so offline rendering works.
       if (payload.image) void offlineDb.cacheImage(payload.image);
     } catch (e: any) {
-      setError(
-        e?.message ||
-          (isAr ? 'تعذّر استخراج المقال' : 'Could not extract article'),
-      );
+      // If we already populated `article` from the cache above, keep
+      // it visible — the network refresh failed but the user can read
+      // the cached copy.
+      if (!article) {
+        setError(
+          e?.message ||
+            (isAr ? 'تعذّر استخراج المقال' : 'Could not extract article'),
+        );
+      }
     } finally {
       setLoading(false);
     }
   }
 
+  // Keep the local "saved" indicator in sync when the parent's
+  // bookmark list changes (e.g. user un-saved from another view).
+  useEffect(() => {
+    if (typeof isBookmarked === 'boolean') setSaved(isBookmarked);
+  }, [isBookmarked]);
+
   async function handleSave() {
     if (!article) return;
+    if (saved) {
+      // Toggle off: remove from offline store and bookmarks.
+      await offlineDb.removeArticle(article.url).catch(() => undefined);
+      onToggleBookmark?.(article.url);
+      setSaved(false);
+      toast.success(isAr ? 'أُزيل من المحفوظات' : 'Removed from saved');
+      return;
+    }
     await offlineDb.saveArticle({
       title: article.title,
       link: article.url,
@@ -120,8 +175,18 @@ export function ReaderView({
       pubDate: new Date().toISOString(),
       image: article.image,
       images: article.image ? [article.image] : [],
-      source: article.siteName || new URL(article.url).hostname,
+      source: article.siteName ||
+        (() => {
+          try { return new URL(article.url).hostname; } catch { return ''; }
+        })(),
     });
+    // Mirror the save into bookmarks so it appears in the Saved tab on
+    // the main list. We only call onToggleBookmark when the parent
+    // says it's not currently bookmarked — otherwise we'd accidentally
+    // un-bookmark an existing entry.
+    if (onToggleBookmark && !isBookmarked) {
+      onToggleBookmark(article.url);
+    }
     setSaved(true);
     toast.success(isAr ? 'تم الحفظ للقراءة لاحقاً' : 'Saved for offline reading');
   }
@@ -157,9 +222,13 @@ export function ReaderView({
             <button
               type="button"
               onClick={handleSave}
-              disabled={saved}
               className="p-2 rounded-xl hover:bg-accent/50 active:scale-95 transition-all"
-              aria-label={isAr ? 'حفظ' : 'Save offline'}
+              aria-label={isAr
+                ? (saved ? 'إزالة' : 'حفظ')
+                : (saved ? 'Unsave' : 'Save offline')}
+              title={isAr
+                ? (saved ? 'إزالة من المحفوظات' : 'حفظ للقراءة لاحقاً')
+                : (saved ? 'Remove from saved' : 'Save offline')}
             >
               {saved
                 ? <BookmarkCheck className="h-4 w-4 text-primary" />

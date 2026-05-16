@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { Clock, Database, Wifi, WifiOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -60,6 +60,7 @@ export default function ReadingPage() {
     markAllRead,
     addFeed,
     addSuggestedFeed,
+    addFeedsBulk,
     removeFeed,
     toggleFeedEnabled,
   } = data;
@@ -83,8 +84,15 @@ export default function ReadingPage() {
   // ─── Service worker + offline cache lifecycle ────────────────────────
   useEffect(() => {
     void registerReadingServiceWorker();
-    // Periodic prune of stale archived articles (run once per session)
-    void offlineDb.pruneOlderThan().catch(() => undefined);
+    // Periodic prune of stale archived articles (run once per session).
+    // Pass the current bookmarks so explicit saves are never deleted
+    // by the age-based sweep, regardless of how long ago they were
+    // archived.
+    void offlineDb.pruneOlderThan(undefined, bookmarks).catch(() => undefined);
+    // Intentionally only depends on the *initial* bookmarks snapshot:
+    // we want this to fire once per session, not every time the user
+    // toggles a bookmark.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // ─── Online/offline tracking ──────────────────────────────────────────
@@ -102,14 +110,30 @@ export default function ReadingPage() {
 
   // ─── Cache bookmarked articles for offline reading ────────────────────
   // Whenever an article is bookmarked we save its full content + image
-  // to IndexedDB. Removing a bookmark prunes it from the offline cache.
+  // to IndexedDB. We only write articles we haven't already saved this
+  // session — a re-render with the same bookmark list shouldn't replay
+  // dozens of IDB writes. We also remove un-bookmarked articles when
+  // the user toggles them off so the offline store mirrors intent.
+  const savedThisSession = useRef<Set<string>>(new Set());
   useEffect(() => {
     if (!offlineDb.available()) return;
     const bookmarkSet = new Set(bookmarks);
-    // Save anything that's bookmarked + currently in our list
-    for (const article of articles) {
-      if (bookmarkSet.has(article.link)) {
+    // Save anything newly bookmarked + currently visible
+    const articleByLink = new Map(articles.map((a) => [a.link, a] as const));
+    for (const link of bookmarkSet) {
+      if (savedThisSession.current.has(link)) continue;
+      const article = articleByLink.get(link);
+      if (article) {
+        savedThisSession.current.add(link);
         void offlineDb.saveArticle(article).catch(() => undefined);
+      }
+    }
+    // Remove from offline store anything the user has un-bookmarked
+    // since last render (compared against our local "saved" set).
+    for (const link of Array.from(savedThisSession.current)) {
+      if (!bookmarkSet.has(link)) {
+        savedThisSession.current.delete(link);
+        void offlineDb.removeArticle(link).catch(() => undefined);
       }
     }
   }, [bookmarks, articles]);
@@ -284,6 +308,10 @@ export default function ReadingPage() {
             onChangePrefs={setReaderPrefs}
             onBack={goBack}
             initialUrl={selectedArticle?.link}
+            isBookmarked={
+              selectedArticle ? bookmarks.includes(selectedArticle.link) : false
+            }
+            onToggleBookmark={toggleBookmark}
           />
         )}
 
@@ -308,6 +336,7 @@ export default function ReadingPage() {
             onBack={goBack}
             onSuggested={() => setView('suggested')}
             onAdd={addFeed}
+            onAddBulk={addFeedsBulk}
             onRemove={removeFeed}
             onToggleEnabled={toggleFeedEnabled}
           />

@@ -3,6 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import {
   corsHeaders,
   jsonResponse,
+  requireUser,
   stripText,
 } from "../_shared/rss-utils.ts";
 
@@ -40,25 +41,36 @@ interface Article {
   description: string;
   full_content: string | null;
   pub_date: string | null;
+  created_at: string;
   source_name: string;
 }
 
 function normalize(s: string): string {
-  // Lowercase + strip diacritics so "ذكاء" matches "ذِكاء" too.
+  // Lowercase + strip Arabic diacritics + unify hamza variants so
+  // "ذِكاء" matches "ذكاء" and "إيران" matches "ايران".
   return s
     .normalize("NFKD")
     .replace(/[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED]/g, "")
+    .replace(/[إأآ]/g, "ا")
+    .replace(/ى/g, "ي")
+    .replace(/ة/g, "ه")
     .toLowerCase();
 }
 
-function matches(article: Article, alert: Alert): boolean {
-  const haystack = normalize(
+function buildHaystack(article: Article): string {
+  // Pre-normalised concatenation of every searchable surface. We do
+  // this once per article (instead of once per (article, alert) pair)
+  // so the cost stays linear in articles, not multiplicative.
+  return normalize(
     [
       article.title,
       article.description,
       stripText(article.full_content || ""),
     ].join(" \n "),
   );
+}
+
+function matches(haystack: string, alert: Alert): boolean {
   const needle = normalize(alert.keyword);
   if (!needle) return false;
   switch (alert.match_mode) {
@@ -84,12 +96,18 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  // Authenticate the caller so a malicious user can't pass another
+  // user's `user_id` and trigger RLS-bypassing inserts on their behalf.
+  const auth = await requireUser(req);
+  if (!auth.ok) return jsonResponse({ error: auth.error }, auth.status);
+
   const sb = createClient(
     Deno.env.get("SUPABASE_URL")!,
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
   );
 
-  // Optional manual scope from the request body
+  // Optional manual scope from the request body. Service role (cron)
+  // can scope to anyone; an authenticated user is forced to themselves.
   let scope: { user_id?: string; alert_id?: string } = {};
   if (req.method === "POST") {
     try {
@@ -99,6 +117,11 @@ serve(async (req) => {
         if (typeof body.alert_id === "string") scope.alert_id = body.alert_id;
       }
     } catch { /* empty body is fine */ }
+  }
+  if (!auth.serviceRole) {
+    // Authenticated user calls (the "Check now" button) can only
+    // request a check for their own alerts.
+    scope.user_id = auth.userId;
   }
 
   // 1. Load enabled alerts (optionally narrowed)
@@ -115,21 +138,34 @@ serve(async (req) => {
     return jsonResponse({ checked: 0, hits: 0, alerts: 0 });
   }
 
-  // 2. Load all articles published since the earliest last_check_at,
-  //    once. Then filter per-alert in memory. This is much cheaper
-  //    than running one query per alert when many alerts overlap.
-  const earliest = alerts.reduce<string>(
+  // 2. Load all articles INGESTED since the earliest last_check_at,
+  //    once. Then filter per-alert in memory. We use `created_at`
+  //    (when the article entered our DB) rather than `pub_date`
+  //    (when the source published it) — otherwise an article that's
+  //    new to us but old at the source would never trigger an alert.
+  const earliest = (alerts as Alert[]).reduce<string>(
     (min, a) => a.last_check_at < min ? a.last_check_at : min,
-    alerts[0].last_check_at,
+    (alerts as Alert[])[0].last_check_at,
   );
 
   const { data: articles, error: artErr } = await sb.from("rss_articles")
-    .select("link, title, description, full_content, pub_date, source_name")
-    .gte("pub_date", earliest)
-    .order("pub_date", { ascending: false })
+    .select(
+      "link, title, description, full_content, pub_date, created_at, source_name",
+    )
+    .gte("created_at", earliest)
+    .order("created_at", { ascending: false })
     .limit(2000);
   if (artErr) return jsonResponse({ error: artErr.message }, 500);
   const allArticles = (articles ?? []) as Article[];
+
+  // Pre-normalise each article's haystack ONCE so the per-alert loop
+  // is a cheap substring/regex check instead of repeating the
+  // expensive NFKD + diacritic-strip work for every (article, alert)
+  // pair (was O(N×M), now O(N + N×M-where-M-is-cheap)).
+  const haystacks = new Map<string, string>();
+  for (const a of allArticles) {
+    haystacks.set(a.link, buildHaystack(a));
+  }
 
   // 3. For each alert, find new matches and prepare hit rows.
   const hitsToInsert: {
@@ -142,17 +178,19 @@ serve(async (req) => {
   const alertCheckpoints: { id: string; last_check_at: string }[] = [];
 
   let totalChecked = 0;
+  const runStart = new Date().toISOString();
   for (const alert of alerts as Alert[]) {
     const since = alert.last_check_at;
     const subset = allArticles.filter((a) =>
-      a.pub_date && a.pub_date > since &&
+      a.created_at && a.created_at > since &&
       (!alert.source_filter || alert.source_filter.length === 0 ||
         alert.source_filter.includes(a.source_name))
     );
     totalChecked += subset.length;
 
     for (const article of subset) {
-      if (matches(article, alert)) {
+      const haystack = haystacks.get(article.link) || "";
+      if (matches(haystack, alert)) {
         hitsToInsert.push({
           alert_id: alert.id,
           user_id: alert.user_id,
@@ -162,22 +200,31 @@ serve(async (req) => {
         });
       }
     }
-    alertCheckpoints.push({
-      id: alert.id,
-      last_check_at: new Date().toISOString(),
-    });
+    // Use a single `runStart` so all alerts move forward consistently
+    // regardless of how long the loop takes.
+    alertCheckpoints.push({ id: alert.id, last_check_at: runStart });
   }
 
-  // 4. Insert hits (UNIQUE constraint dedupes). Batch in 100s.
+  // 4. Insert hits (UNIQUE constraint dedupes). Batch in 100s. We
+  //    track inserted vs skipped via the returned rows: upsert with
+  //    ignoreDuplicates returns only the truly-new rows so the count
+  //    is accurate (the previous `count: 'exact'` over-reported by
+  //    including conflicts that were silently merged).
   let inserted = 0;
   for (let i = 0; i < hitsToInsert.length; i += 100) {
     const batch = hitsToInsert.slice(i, i + 100);
-    const { error, count } = await sb.from("keyword_alert_hits")
-      .upsert(batch, { onConflict: "alert_id,article_link", count: "exact" });
-    if (!error && typeof count === "number") inserted += count;
+    const { data: insRows, error } = await sb.from("keyword_alert_hits")
+      .upsert(batch, {
+        onConflict: "alert_id,article_link",
+        ignoreDuplicates: true,
+      })
+      .select("id");
+    if (!error && Array.isArray(insRows)) inserted += insRows.length;
   }
 
-  // 5. Advance each alert's last_check_at.
+  // 5. Advance each alert's last_check_at. Only do this when we have
+  //    a successful run — if the article query failed earlier we'd
+  //    have returned already.
   for (const cp of alertCheckpoints) {
     await sb.from("keyword_alerts")
       .update({ last_check_at: cp.last_check_at })
@@ -186,7 +233,7 @@ serve(async (req) => {
 
   return jsonResponse({
     checked: totalChecked,
-    hits: hitsToInsert.length,
+    candidates: hitsToInsert.length,
     alerts: alerts.length,
     inserted,
   });

@@ -81,7 +81,11 @@ export const offlineDb = {
     return typeof indexedDB !== 'undefined';
   },
 
-  /** Persist an article (and best-effort prefetch its primary image). */
+  /** Persist an article's metadata (full body + first image url) for
+   *  offline reading. The actual image bytes live in the Service
+   *  Worker's Cache Storage, which can fetch cross-origin images
+   *  without CORS (no-cors mode produces opaque responses that the
+   *  Cache API can store and replay byte-for-byte). */
   async saveArticle(item: FeedItem): Promise<void> {
     if (!this.available()) return;
     const archived: ArchivedArticle = {
@@ -89,9 +93,21 @@ export const offlineDb = {
       archivedAt: Date.now(),
     };
     await tx(STORE_ARTICLES, 'readwrite', (s) => s.put(archived));
-    // Best-effort image cache: don't fail the save if it errors.
-    if (item.image) {
-      void this.cacheImage(item.image).catch(() => undefined);
+    // Ask the Service Worker to pre-cache the article's images so
+    // they're available when we go offline. We pass a list (hero +
+    // inline images parsed from the body) and let the SW handle the
+    // network details — that side runs in a context where opaque
+    // responses are fully storable.
+    const urls: string[] = [];
+    if (item.image) urls.push(item.image);
+    for (const i of item.images || []) {
+      if (typeof i === 'string' && !urls.includes(i)) urls.push(i);
+    }
+    if (urls.length > 0 && typeof navigator !== 'undefined') {
+      try {
+        const reg = await navigator.serviceWorker?.ready;
+        reg?.active?.postMessage({ type: 'reading:precache', urls });
+      } catch { /* no SW = no offline images, fine */ }
     }
   },
 
@@ -122,45 +138,55 @@ export const offlineDb = {
     return all.sort((a, b) => b.archivedAt - a.archivedAt);
   },
 
-  /** Cache a remote image as a Blob so the SW can serve it offline. */
+  /** Ask the Service Worker to add this image URL to the runtime cache.
+   *  We hand off to the SW because it can do `fetch(..., { mode: 'no-cors' })`
+   *  and store the resulting *opaque* response in Cache Storage — which
+   *  IndexedDB can't, since reading the response body of an opaque
+   *  Response throws. The SW then intercepts subsequent image fetches
+   *  for this URL and returns the cached copy when offline. */
   async cacheImage(url: string): Promise<void> {
-    if (!this.available()) return;
     if (!url || !/^https?:\/\//i.test(url)) return;
-    // Skip if we already have it
-    const existing = await tx<{ url: string } | undefined>(
-      STORE_IMAGES,
-      'readonly',
-      (s) => s.get(url) as IDBRequest<{ url: string } | undefined>,
-    );
-    if (existing) return;
+    if (typeof navigator === 'undefined' || !navigator.serviceWorker) return;
     try {
-      const res = await fetch(url, { mode: 'cors', credentials: 'omit' });
-      if (!res.ok) return;
-      const blob = await res.blob();
-      // Don't cache anything bigger than 4 MB
-      if (blob.size > 4 * 1024 * 1024) return;
-      await tx(STORE_IMAGES, 'readwrite', (s) => s.put({ url, blob }));
+      const reg = await navigator.serviceWorker.ready;
+      reg.active?.postMessage({ type: 'reading:precache', urls: [url] });
     } catch {
-      // Network or CORS failure — silently skip.
+      // SW not active (e.g. iframe) — silently skip.
     }
   },
 
   async getCachedImage(url: string): Promise<Blob | null> {
+    // Kept for backward compatibility but no longer authoritative.
+    // The SW serves images from Cache Storage on the fly during fetch
+    // events, so callers shouldn't need to read this directly.
     if (!this.available()) return null;
-    const row = await tx<{ url: string; blob: Blob } | undefined>(
-      STORE_IMAGES,
-      'readonly',
-      (s) => s.get(url) as IDBRequest<{ url: string; blob: Blob } | undefined>,
-    );
-    return row?.blob ?? null;
+    try {
+      const row = await tx<{ url: string; blob: Blob } | undefined>(
+        STORE_IMAGES,
+        'readonly',
+        (s) => s.get(url) as IDBRequest<{ url: string; blob: Blob } | undefined>,
+      );
+      return row?.blob ?? null;
+    } catch {
+      return null;
+    }
   },
 
-  /** Clear stale data (older than `maxAgeMs`). Default: 60 days. */
-  async pruneOlderThan(maxAgeMs = 60 * 24 * 60 * 60 * 1000): Promise<number> {
+  /** Clear stale data (older than `maxAgeMs`). Default: 60 days.
+   *  Articles whose `link` is in `keepLinks` are preserved regardless
+   *  of age — the caller passes the user's bookmarks here so explicit
+   *  saves are never silently garbage-collected. */
+  async pruneOlderThan(
+    maxAgeMs = 60 * 24 * 60 * 60 * 1000,
+    keepLinks: ReadonlyArray<string> = [],
+  ): Promise<number> {
     if (!this.available()) return 0;
     const cutoff = Date.now() - maxAgeMs;
     const all = await this.listArticles();
-    const toDelete = all.filter((a) => a.archivedAt < cutoff).map((a) => a.link);
+    const keep = new Set(keepLinks);
+    const toDelete = all
+      .filter((a) => a.archivedAt < cutoff && !keep.has(a.link))
+      .map((a) => a.link);
     for (const link of toDelete) {
       await tx(STORE_ARTICLES, 'readwrite', (s) => s.delete(link));
     }
