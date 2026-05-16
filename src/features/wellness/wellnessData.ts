@@ -234,6 +234,221 @@ export const NUTRIENTS: Record<string, NutrientInfo> = {
     group: 'other',
     label: { ar: 'كربوهيدرات', de: 'Kohlenhydrate' },
   },
+
+  // ============================================================
+  // === Atlas-derived advanced compounds (deep biochemistry) ===
+  // ============================================================
+
+  // — Active methylation cofactors —
+  methylfolate: {
+    key: 'methylfolate',
+    group: 'vitamin',
+    label: { ar: 'ميثيل فولات (B9 نشط)', de: 'Methylfolat (aktives B9)' },
+    note: {
+      ar: 'الصيغة النشطة الجاهزة لدورة الميثيلة دون الحاجة لإنزيم MTHFR.',
+      de: 'Bioaktive Form — umgeht den MTHFR-Engpass.',
+    },
+  },
+  methylB12: {
+    key: 'methylB12',
+    group: 'vitamin',
+    label: { ar: 'ميثيل كوبالامين (B12 نشط)', de: 'Methylcobalamin (aktives B12)' },
+  },
+  p5p: {
+    key: 'p5p',
+    group: 'vitamin',
+    label: { ar: 'P-5-P (B6 نشط)', de: 'P-5-P (aktives B6)' },
+  },
+  tmg: {
+    key: 'tmg',
+    group: 'other',
+    label: { ar: 'بيتائين (TMG)', de: 'Betain (TMG)' },
+    note: {
+      ar: 'مانح ميثيل قوي يدعم تحويل الهوموسيستين عبر مسار بديل.',
+      de: 'Methyldonor — alternativer Homocystein-Abbauweg.',
+    },
+  },
+
+  // — Mitochondrial axis —
+  coq10: {
+    key: 'coq10',
+    group: 'other',
+    label: { ar: 'يوبيكوينول (CoQ10)', de: 'Ubiquinol (CoQ10)' },
+    note: {
+      ar: 'دهني — مع وجبة فيها زيت زيتون أو أوميغا-3 لامتصاص أعلى.',
+      de: 'Fettlöslich — mit Olivenöl/Omega-3 für bessere Aufnahme.',
+    },
+  },
+  pqq: {
+    key: 'pqq',
+    group: 'other',
+    label: { ar: 'PQQ (محفّز ميتوكوندريا)', de: 'PQQ (Mitochondrien-Trigger)' },
+  },
+  nmn: {
+    key: 'nmn',
+    group: 'other',
+    label: { ar: 'NMN (سلف NAD+)', de: 'NMN (NAD+-Vorstufe)' },
+  },
+  ala: {
+    key: 'ala',
+    group: 'other',
+    label: { ar: 'حمض ألفا-ليبويك (R-ALA)', de: 'Alpha-Liponsäure (R-ALA)' },
+  },
+  lcarnitine: {
+    key: 'lcarnitine',
+    group: 'amino',
+    label: { ar: 'L-كارنيتين', de: 'L-Carnitin' },
+  },
+  creatine: {
+    key: 'creatine',
+    group: 'amino',
+    label: { ar: 'الكرياتين', de: 'Kreatin' },
+  },
+
+  // — Antioxidant / detox —
+  nac: {
+    key: 'nac',
+    group: 'amino',
+    label: { ar: 'N-أسيتيل سيستين (NAC)', de: 'N-Acetylcystein (NAC)' },
+  },
+  glutathione: {
+    key: 'glutathione',
+    group: 'amino',
+    label: { ar: 'الجلوتاثيون', de: 'Glutathion' },
+  },
+  milkthistle: {
+    key: 'milkthistle',
+    group: 'other',
+    label: { ar: 'حليب الشوك (سيليمارين)', de: 'Mariendistel (Silymarin)' },
+  },
+
+  // — Cognition / nervous system —
+  phosphatidylserine: {
+    key: 'phosphatidylserine',
+    group: 'other',
+    label: { ar: 'فوسفاتيديل سيرين (PS)', de: 'Phosphatidylserin (PS)' },
+  },
+  lionsmane: {
+    key: 'lionsmane',
+    group: 'other',
+    label: { ar: 'عرف الأسد', de: 'Lion\'s Mane' },
+  },
+  ltheanine: {
+    key: 'ltheanine',
+    group: 'amino',
+    label: { ar: 'L-ثيانين', de: 'L-Theanin' },
+  },
+  glycine: {
+    key: 'glycine',
+    group: 'amino',
+    label: { ar: 'جلايسين', de: 'Glycin' },
+  },
+  taurine: {
+    key: 'taurine',
+    group: 'amino',
+    label: { ar: 'التورين', de: 'Taurin' },
+  },
+
+  // — HPA / adaptogens —
+  ashwagandha: {
+    key: 'ashwagandha',
+    group: 'other',
+    label: { ar: 'أشواغاندا', de: 'Ashwagandha' },
+  },
+  rhodiola: {
+    key: 'rhodiola',
+    group: 'other',
+    label: { ar: 'روديولا', de: 'Rhodiola' },
+  },
+
+  // — Anti-inflammation / senolytic —
+  curcumin: {
+    key: 'curcumin',
+    group: 'other',
+    label: { ar: 'الكركومين', de: 'Curcumin' },
+    note: {
+      ar: 'يمتص أفضل مع البايبرين والدهون الصحية.',
+      de: 'Bessere Aufnahme mit Piperin und gesunden Fetten.',
+    },
+  },
+  resveratrol: {
+    key: 'resveratrol',
+    group: 'other',
+    label: { ar: 'ريسفيراترول', de: 'Resveratrol' },
+  },
+  quercetin: {
+    key: 'quercetin',
+    group: 'other',
+    label: { ar: 'كيرسيتين', de: 'Quercetin' },
+  },
+  fisetin: {
+    key: 'fisetin',
+    group: 'other',
+    label: { ar: 'فايسيتين', de: 'Fisetin' },
+  },
+  spermidine: {
+    key: 'spermidine',
+    group: 'other',
+    label: { ar: 'سبيرميدين', de: 'Spermidin' },
+  },
+
+  // — Anti-glycation —
+  carnosine: {
+    key: 'carnosine',
+    group: 'amino',
+    label: { ar: 'الكارنوزين', de: 'Carnosin' },
+  },
+  benfotiamine: {
+    key: 'benfotiamine',
+    group: 'vitamin',
+    label: { ar: 'بنفوتيامين (B1 دهني)', de: 'Benfotiamin (fettlösliches B1)' },
+  },
+
+  // — Skin matrix —
+  hyaluronic: {
+    key: 'hyaluronic',
+    group: 'other',
+    label: { ar: 'حمض الهيالورونيك', de: 'Hyaluronsäure' },
+  },
+  silica: {
+    key: 'silica',
+    group: 'mineral',
+    label: { ar: 'السيليكا', de: 'Silizium' },
+  },
+  msm: {
+    key: 'msm',
+    group: 'other',
+    label: { ar: 'MSM (كبريت عضوي)', de: 'MSM (organischer Schwefel)' },
+  },
+
+  // — Microbiome precision —
+  hmo: {
+    key: 'hmo',
+    group: 'other',
+    label: { ar: 'سكريات حليب الأم (HMO)', de: 'HMOs (Muttermilch-Oligos)' },
+  },
+  akkermansia: {
+    key: 'akkermansia',
+    group: 'other',
+    label: { ar: 'أكرمانسيا مسينيفيلا', de: 'Akkermansia muciniphila' },
+  },
+  butyrate: {
+    key: 'butyrate',
+    group: 'other',
+    label: { ar: 'البوتيرات (SCFA)', de: 'Butyrat (SCFA)' },
+  },
+  glutamine: {
+    key: 'glutamine',
+    group: 'amino',
+    label: { ar: 'L-جلوتامين', de: 'L-Glutamin' },
+  },
+
+  // — Hormonal / metabolic —
+  inositol: {
+    key: 'inositol',
+    group: 'other',
+    label: { ar: 'إينوزيتول (Myo + DCI)', de: 'Inositol (Myo + DCI)' },
+  },
 };
 
 export const NUTRIENT_LIST: NutrientInfo[] = Object.values(NUTRIENTS);
