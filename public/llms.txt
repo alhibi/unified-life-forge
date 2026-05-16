@@ -1,0 +1,23 @@
+# SmartHub
+
+> تطبيق إسلامي شامل: أوقات الصلاة، الأذكار، القرآن الكريم، التقويم الهجري، الطقس، الألعاب والمراسلة في مكان واحد.
+
+SmartHub is a comprehensive Islamic companion web app. It bundles prayer times (Aladhan + astronomical calculation), Hijri/Gregorian dual calendar, Quran virtues, prophetic-day routines, timed and untimed sunnah libraries, duas, Arabic poetry diwan, weather (Open-Meteo), Islamic occasions, RSS reader, end-to-end messaging, and a small collection of games. The interface ships in Arabic (RTL) and German with a dark "Obsidian Depth" theme.
+
+## Pages
+
+- [Home](/): Prayer times, weather, dual calendar, greeting, and quick sections.
+- [Duas](/duas): Curated Islamic supplications in Amiri typography.
+- [Diwan](/diwan): Classical Arabic poetry organized by era.
+- [Occasions](/occasions): Upcoming and past Islamic occasions with countdowns.
+- [Reading](/reading): Reading material and saved content.
+- [Wellness](/wellness): Nutrition, supplements, skin/hair, and personal insights.
+- [Games](/games): Sudoku, chess, memory, minesweeper, color maze, pipes, dice, target, puzzle, hex, focus.
+- [Settings](/settings): Theme, fonts, prayer calculation method, profile.
+
+## Sections
+
+- [Timed Sunnah](/section/timed-sunnah): Sunnah practices tied to daily prayer times.
+- [Untimed Sunnah](/section/untimed-sunnah): General sunnah practices.
+- [Prophetic Day](/section/prophetic-day): The Prophet's daily routine across eight periods.
+- [Quran Virtues](/section/quran-virtues): Virtues of reciting and memorizing the Quran.
