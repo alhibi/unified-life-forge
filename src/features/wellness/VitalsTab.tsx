@@ -184,23 +184,25 @@ function makePulseDot(lastIndex: number, color: string, size = 4) {
     if (cx == null || cy == null || index !== lastIndex) return null;
     return (
       <g>
-        <circle cx={cx} cy={cy} r={size + 6} fill={color} opacity={0.18}>
+        {/* Single soft halo — no compounding rings */}
+        <circle cx={cx} cy={cy} r={size + 2} fill={color} opacity={0.22}>
           <animate
             attributeName="r"
-            from={String(size + 2)}
-            to={String(size + 14)}
-            dur="2s"
+            from={String(size + 1)}
+            to={String(size + 10)}
+            dur="2.2s"
             repeatCount="indefinite"
           />
           <animate
             attributeName="opacity"
-            from="0.45"
+            from="0.32"
             to="0"
-            dur="2s"
+            dur="2.2s"
             repeatCount="indefinite"
           />
         </circle>
-        <circle cx={cx} cy={cy} r={size} fill={color} stroke="hsl(var(--card))" strokeWidth={2} />
+        {/* Crisp inner dot with card-colored border to "punch" through the fill */}
+        <circle cx={cx} cy={cy} r={size} fill={color} stroke="hsl(var(--card))" strokeWidth={1.75} />
       </g>
     );
   };
@@ -353,21 +355,21 @@ function MiniMetricCard({
       variants={CARD_ITEM}
       whileTap={{ scale: 0.97 }}
       onClick={onSelect}
-      className="relative rounded-2xl bg-card/80 backdrop-blur-sm p-3 space-y-2 overflow-hidden text-left transition-all duration-300"
+      className="relative rounded-2xl bg-card p-3 space-y-2 overflow-hidden text-left transition-all duration-300"
       style={{
         direction: 'ltr',
         border: '1px solid',
-        borderColor: active ? `${spec.color}80` : 'hsl(var(--border) / 0.4)',
+        borderColor: active ? `${spec.color}55` : 'hsl(var(--border) / 0.4)',
         boxShadow: active
-          ? `0 0 0 1px ${spec.color}40, 0 8px 24px -10px ${spec.color}55`
-          : '0 1px 2px rgba(0,0,0,0.04)',
+          ? `0 8px 24px -14px ${spec.color}66`
+          : 'none',
       }}
     >
-      {/* Subtle radial wash */}
+      {/* Single soft top-right wash — gentle, not stacking */}
       <div
         aria-hidden
-        className="absolute -top-10 -right-10 w-28 h-28 rounded-full blur-2xl pointer-events-none transition-opacity duration-300"
-        style={{ background: spec.color, opacity: active ? 0.28 : 0.12 }}
+        className="absolute -top-12 -right-12 w-32 h-32 rounded-full blur-3xl pointer-events-none transition-opacity duration-500"
+        style={{ background: spec.color, opacity: active ? 0.18 : 0.07 }}
       />
 
       <div className="flex items-center justify-between relative">
@@ -405,15 +407,17 @@ function MiniMetricCard({
           <AreaChart data={series} margin={{ top: 4, right: 6, left: 6, bottom: 0 }}>
             <defs>
               <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor={spec.color} stopOpacity={0.5} />
-                <stop offset="100%" stopColor={spec.color} stopOpacity={0} />
+                <stop offset="0%" stopColor={spec.color} stopOpacity={0.32} />
+                <stop offset="100%" stopColor={spec.color} stopOpacity={0.02} />
               </linearGradient>
             </defs>
             <Area
               type="monotone"
               dataKey={dataKey}
               stroke={spec.color}
-              strokeWidth={1.8}
+              strokeWidth={1.75}
+              strokeLinecap="round"
+              strokeLinejoin="round"
               fill={`url(#${gradId})`}
               dot={PulseDot as any}
               activeDot={false}
@@ -486,30 +490,23 @@ function HeroChart({
   const TrendIcon = trendIcon;
 
   const heroGradId = `hero-grad-${spec.key}`;
-  const heroGlowId = `hero-glow-${spec.key}`;
-  const ringGradId = `hero-ring-${spec.key}`;
 
   return (
     <div
       className="relative rounded-3xl overflow-hidden"
       style={{
-        background:
-          'linear-gradient(155deg, hsl(var(--card)) 0%, hsl(var(--card) / 0.85) 100%)',
+        background: 'hsl(var(--card))',
         border: '1px solid hsl(var(--border) / 0.5)',
-        boxShadow:
-          `0 1px 0 hsl(var(--border) / 0.5) inset, 0 24px 40px -22px ${spec.color}40`,
+        boxShadow: `0 16px 40px -24px ${spec.color}55`,
       }}
     >
-      {/* Aurora background */}
+      {/* Single wide ambient glow — top-only, very soft, no second layer */}
       <div
         aria-hidden
-        className="absolute -top-24 -right-16 w-72 h-72 rounded-full blur-3xl pointer-events-none"
-        style={{ background: spec.color, opacity: 0.18 }}
-      />
-      <div
-        aria-hidden
-        className="absolute -bottom-32 -left-16 w-72 h-72 rounded-full blur-3xl pointer-events-none"
-        style={{ background: spec.color, opacity: 0.08 }}
+        className="absolute inset-x-0 -top-32 h-64 pointer-events-none"
+        style={{
+          background: `radial-gradient(ellipse 60% 100% at 50% 100%, ${spec.color}22, transparent 70%)`,
+        }}
       />
 
       <div className="relative p-4 space-y-3">
@@ -519,8 +516,7 @@ function HeroChart({
             <div
               className="w-9 h-9 rounded-xl flex items-center justify-center"
               style={{
-                background: `linear-gradient(135deg, ${spec.color}33, ${spec.color}11)`,
-                border: `1px solid ${spec.color}40`,
+                background: `${spec.color}1a`,
               }}
             >
               <Icon className="w-4.5 h-4.5" style={{ color: spec.color, width: 18, height: 18 }} />
@@ -577,10 +573,7 @@ function HeroChart({
             <div className="flex items-baseline gap-1.5">
               <span
                 className="text-[44px] font-bold tabular-nums leading-none"
-                style={{
-                  color: spec.color,
-                  textShadow: `0 0 24px ${spec.color}40`,
-                }}
+                style={{ color: spec.color }}
               >
                 <AnimatedNumber value={todayValue ?? avg} digits={spec.digits} />
               </span>
@@ -637,45 +630,34 @@ function HeroChart({
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={series} margin={{ top: 12, right: 12, left: 12, bottom: 4 }}>
               <defs>
+                {/* Two-stop fill — apex slightly diluted so the line "sits on" the gradient
+                    instead of slicing through a dense block. Bottom fades smoothly to 0. */}
                 <linearGradient id={heroGradId} x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor={spec.color} stopOpacity={0.55} />
-                  <stop offset="55%" stopColor={spec.color} stopOpacity={0.18} />
+                  <stop offset="0%" stopColor={spec.color} stopOpacity={0.28} />
                   <stop offset="100%" stopColor={spec.color} stopOpacity={0} />
                 </linearGradient>
-                <linearGradient id={ringGradId} x1="0" y1="0" x2="1" y2="0">
-                  <stop offset="0%" stopColor={spec.color} stopOpacity={0.4} />
-                  <stop offset="50%" stopColor={spec.color} stopOpacity={1} />
-                  <stop offset="100%" stopColor={spec.color} stopOpacity={0.4} />
-                </linearGradient>
-                <filter id={heroGlowId} x="-20%" y="-20%" width="140%" height="140%">
-                  <feGaussianBlur stdDeviation="2" result="b" />
-                  <feMerge>
-                    <feMergeNode in="b" />
-                    <feMergeNode in="SourceGraphic" />
-                  </feMerge>
-                </filter>
               </defs>
 
               <CartesianGrid
                 stroke="hsl(var(--border))"
-                strokeOpacity={0.18}
+                strokeOpacity={0.14}
                 vertical={false}
-                strokeDasharray="2 6"
+                strokeDasharray="3 6"
               />
               <XAxis
                 dataKey="date"
-                tick={{ fontSize: 9, fill: 'hsl(var(--muted-foreground) / 0.6)' }}
+                tick={{ fontSize: 9, fill: 'hsl(var(--muted-foreground) / 0.55)' }}
                 axisLine={false}
                 tickLine={false}
                 interval={range === 14 ? 1 : 0}
-                tickMargin={6}
+                tickMargin={8}
               />
               <YAxis hide domain={['auto', 'auto']} />
               <Tooltip
                 cursor={{
                   stroke: spec.color,
-                  strokeOpacity: 0.45,
-                  strokeWidth: 1.5,
+                  strokeOpacity: 0.35,
+                  strokeWidth: 1,
                   strokeDasharray: '3 4',
                 }}
                 content={
@@ -685,20 +667,21 @@ function HeroChart({
               <Area
                 type="monotone"
                 dataKey={dataKey}
-                stroke={`url(#${ringGradId})`}
-                strokeWidth={2.5}
+                stroke={spec.color}
+                strokeWidth={2.25}
+                strokeLinecap="round"
+                strokeLinejoin="round"
                 fill={`url(#${heroGradId})`}
                 dot={PulseDot as any}
                 activeDot={{
-                  r: 5,
-                  strokeWidth: 2.5,
+                  r: 4.5,
+                  strokeWidth: 2,
                   stroke: 'hsl(var(--card))',
                   fill: spec.color,
                 }}
                 isAnimationActive
                 animationDuration={1300}
                 connectNulls
-                filter={`url(#${heroGlowId})`}
               />
             </AreaChart>
           </ResponsiveContainer>
