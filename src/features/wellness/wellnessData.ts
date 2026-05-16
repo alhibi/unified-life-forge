@@ -164,6 +164,76 @@ export const NUTRIENTS: Record<string, NutrientInfo> = {
     group: 'other',
     label: { ar: 'كافيين', de: 'Koffein' },
   },
+  potassium: {
+    key: 'potassium',
+    group: 'mineral',
+    label: { ar: 'البوتاسيوم', de: 'Kalium' },
+  },
+  phosphorus: {
+    key: 'phosphorus',
+    group: 'mineral',
+    label: { ar: 'الفوسفور', de: 'Phosphor' },
+  },
+  manganese: {
+    key: 'manganese',
+    group: 'mineral',
+    label: { ar: 'المنغنيز', de: 'Mangan' },
+  },
+  chromium: {
+    key: 'chromium',
+    group: 'mineral',
+    label: { ar: 'الكروم', de: 'Chrom' },
+  },
+  vitaminB1: {
+    key: 'vitaminB1',
+    group: 'vitamin',
+    label: { ar: 'فيتامين ب1 (ثيامين)', de: 'Vitamin B1 (Thiamin)' },
+  },
+  vitaminB2: {
+    key: 'vitaminB2',
+    group: 'vitamin',
+    label: { ar: 'فيتامين ب2 (ريبوفلافين)', de: 'Vitamin B2 (Riboflavin)' },
+  },
+  vitaminB3: {
+    key: 'vitaminB3',
+    group: 'vitamin',
+    label: { ar: 'فيتامين ب3 (نياسين)', de: 'Vitamin B3 (Niacin)' },
+  },
+  vitaminB5: {
+    key: 'vitaminB5',
+    group: 'vitamin',
+    label: { ar: 'فيتامين ب5 (بانتوثينيك)', de: 'Vitamin B5 (Pantothensäure)' },
+  },
+  choline: {
+    key: 'choline',
+    group: 'other',
+    label: { ar: 'الكولين', de: 'Cholin' },
+  },
+  lycopene: {
+    key: 'lycopene',
+    group: 'other',
+    label: { ar: 'الليكوبين', de: 'Lycopin' },
+  },
+  lutein: {
+    key: 'lutein',
+    group: 'other',
+    label: { ar: 'اللوتين', de: 'Lutein' },
+  },
+  antioxidants: {
+    key: 'antioxidants',
+    group: 'other',
+    label: { ar: 'مضادات أكسدة', de: 'Antioxidantien' },
+  },
+  polyphenols: {
+    key: 'polyphenols',
+    group: 'other',
+    label: { ar: 'بوليفينولات', de: 'Polyphenole' },
+  },
+  carbs: {
+    key: 'carbs',
+    group: 'other',
+    label: { ar: 'كربوهيدرات', de: 'Kohlenhydrate' },
+  },
 };
 
 export const NUTRIENT_LIST: NutrientInfo[] = Object.values(NUTRIENTS);
