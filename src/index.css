@@ -108,18 +108,24 @@
     border: 1px solid hsl(var(--border));
     border-radius: var(--radius);
     contain: layout style;
+    content-visibility: auto;
+    contain-intrinsic-size: auto 180px;
   }
   .premium-card-elevated {
     background: hsl(var(--card));
     border: 1px solid hsl(var(--border));
     border-radius: var(--radius);
     contain: layout style;
+    content-visibility: auto;
+    contain-intrinsic-size: auto 220px;
   }
   .premium-card-intense {
     background: hsl(var(--card));
     border: 1px solid hsl(var(--border));
     border-radius: calc(var(--radius) + 4px);
     contain: layout style;
+    content-visibility: auto;
+    contain-intrinsic-size: auto 260px;
   }
   .btn-primary {
     @apply bg-primary text-primary-foreground font-medium;
@@ -198,6 +204,34 @@
     content-visibility: auto;
     contain-intrinsic-size: auto 400px;
   }
+  .cv-card {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 200px;
+  }
+  .cv-list-item {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 72px;
+  }
+  .cv-section {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 480px;
+  }
+}
+
+/* ─── Global content-visibility: skip rendering work for off-screen content ─── */
+/* Applies to common card/section/list patterns. Browser keeps these elements
+   collapsed (placeholder-sized) until they scroll near the viewport.
+   Avoids: sticky/fixed elements, the bottom nav, modals, anything in chat
+   (which has its own optimizations), and elements relying on intersection
+   observers for entrance animations. */
+article,
+section.cv,
+[data-cv],
+.card,
+ul.cv > li,
+ol.cv > li {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 240px;
 }
 
 /* Hide ALL scrollbars globally but keep scroll functional */
