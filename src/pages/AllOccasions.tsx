@@ -1,4 +1,5 @@
 import React from 'react';
+import SEO from '@/components/SEO';
 import { useNavigate } from 'react-router-dom';
 import { CalendarDays, Clock } from 'lucide-react';
 import BackButton from '@/components/BackButton';
@@ -45,6 +46,7 @@ export default function AllOccasions() {
 
   return (
     <div className="min-h-screen bg-background pb-28 px-5 pt-6">
+      <SEO title="المناسبات الإسلامية — SmartHub" description="تقويم المناسبات الإسلامية القادمة والسابقة مع العد التنازلي والتاريخ الهجري والميلادي." path="/occasions" />
       <div className="max-w-lg mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center gap-3">

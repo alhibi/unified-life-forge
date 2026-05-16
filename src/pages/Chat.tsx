@@ -1,4 +1,5 @@
 import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
+import SEO from '@/components/SEO';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '@/contexts/AppContext';
 import { useAuth } from '@/hooks/useAuth';
@@ -83,7 +84,8 @@ export default function ChatPage() {
   }, [navigate]);
 
   if (authLoading) {
-    return <ChatSkeleton />;
+    return <ChatSkeleton />
+      <SEO title="المحادثات — SmartHub" description="دردشة آمنة بين الأصدقاء داخل SmartHub مع صور وملاحظات صوتية وتشفير للجلسة." path="/chat" />;
   }
 
   if (!user) {

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import SEO from '@/components/SEO';
 import { useApp } from '@/contexts/AppContext';
 import { poetryEras, Era, Poet, Poem } from '@/data/poetryData';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -59,6 +60,7 @@ export default function DiwanPage() {
 
   return (
     <div className="min-h-screen bg-background pb-28 px-5 pt-14">
+      <SEO title="الديوان — الشعر العربي الكلاسيكي — SmartHub" description="تصفح الشعر العربي عبر العصور الجاهلية، الأموية، العباسية والأندلسية بخط أميري أنيق." path="/diwan" />
       <div className="max-w-lg mx-auto">
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
