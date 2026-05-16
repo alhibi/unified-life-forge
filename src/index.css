@@ -54,6 +54,7 @@
   * {
     @apply border-border;
     -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
   }
   html {
     -webkit-overflow-scrolling: touch;
@@ -69,7 +70,7 @@
     -moz-osx-font-smoothing: grayscale;
     -webkit-tap-highlight-color: transparent;
     overscroll-behavior-y: contain;
-    text-rendering: optimizeSpeed;
+    text-rendering: optimizeLegibility;
     /* Fill entire viewport including safe areas */
     min-height: 100dvh;
     padding-top: env(safe-area-inset-top, 0px);
