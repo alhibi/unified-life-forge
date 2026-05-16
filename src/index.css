@@ -151,6 +151,29 @@
     transition: none !important;
     outline-offset: 0;
   }
+
+  /* ── Sidebar: shrink, never disappear ──
+     Smooth width transition using global tokens. When collapsed, the
+     sidebar narrows to the icon rail instead of sliding offscreen. */
+  [data-sidebar="sidebar"],
+  [data-sidebar="sidebar"] ~ *,
+  .group\/sidebar-wrapper [data-variant],
+  .group\/sidebar-wrapper > div {
+    transition:
+      width var(--duration-normal) var(--ease-out-expo),
+      left var(--duration-normal) var(--ease-out-expo),
+      right var(--duration-normal) var(--ease-out-expo),
+      transform var(--duration-normal) var(--ease-out-expo) !important;
+    will-change: width;
+    contain: layout style;
+  }
+  /* Force-shrink even in offcanvas mode — keep icon rail visible */
+  .group\/sidebar-wrapper [data-collapsible="offcanvas"] {
+    width: var(--sidebar-width-icon) !important;
+  }
+  .group\/sidebar-wrapper [data-state="collapsed"] [data-sidebar="sidebar"] {
+    width: var(--sidebar-width-icon) !important;
+  }
   @keyframes glass-overlay-in {
     from { opacity: 0; transform: translateY(-8px); }
     to   { opacity: 1; transform: translateY(0); }
