@@ -354,7 +354,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
             ref={fabRef}
             onClick={onNewChat}
             className="absolute bottom-6 end-5 w-14 h-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg shadow-primary/25 z-10"
-            whileTap={{ scale: 0.9 }}
+            
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
