@@ -16,6 +16,7 @@ import {
   FOODS,
   INTERACTIONS,
   NUTRIENTS,
+  SYNERGIES,
   type Lang,
 } from './wellnessData';
 
@@ -29,6 +30,7 @@ export interface Insight {
     | 'overlap'
     | 'gap'
     | 'correlation'
+    | 'synergy'
     | 'habit';
   severity: Severity;
   title: Record<Lang, string>;
@@ -346,6 +348,43 @@ export function detectHabits(skinHair: SkinHairLog[]): Insight[] {
   return out;
 }
 
+/**
+ * Detect positive synergies between the user's active supplements.
+ * Emits one insight per stack the user is fully (or near-fully) on.
+ */
+export function detectSynergies(supplements: Supplement[]): Insight[] {
+  const active = supplements.filter((s) => s.active);
+  if (active.length === 0) return [];
+  const have = new Set<string>();
+  for (const s of active) for (const n of s.nutrientKeys) have.add(n);
+
+  const out: Insight[] = [];
+  for (const syn of SYNERGIES) {
+    const matched = syn.nutrients.filter((n) => have.has(n));
+    // Only flag full matches (2-nutrient) or "almost full" for 3+ stacks.
+    const isFull = matched.length === syn.nutrients.length;
+    const isAlmost = syn.nutrients.length >= 3 && matched.length === syn.nutrients.length - 1;
+    if (!isFull && !isAlmost) continue;
+
+    const head = syn.benefits.ar[0];
+    out.push({
+      id: `syn-${syn.id}`,
+      kind: 'synergy',
+      severity: 'info',
+      title: syn.title,
+      message: isFull
+        ? syn.benefits as unknown as Record<Lang, string>
+          ? { ar: syn.benefits.ar.join(' • '), de: syn.benefits.de.join(' • ') }
+          : syn.title
+        : {
+            ar: `أنت قريب من هذه الحزمة (تنقص ${syn.nutrients.length - matched.length} عنصر). ${head}`,
+            de: `Du bist nah an diesem Stack (es fehlt ${syn.nutrients.length - matched.length}). ${syn.benefits.de[0]}`,
+          },
+    });
+  }
+  return out;
+}
+
 /** Compose all insights. */
 export function runAllInsights(args: {
   supplements: Supplement[];
@@ -354,6 +393,7 @@ export function runAllInsights(args: {
   skinHair: SkinHairLog[];
 }): Insight[] {
   return [
+    ...detectSynergies(args.supplements),
     ...detectInteractions(args.supplements),
     ...detectTiming(args.supplements),
     ...detectDietOverlap(args.supplements, args.dietLogs),
