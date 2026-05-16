@@ -6,16 +6,14 @@ import { useLocation } from 'react-router-dom';
 const TAB_PATHS = ['/', '/games', '/duas', '/diwan', '/settings'];
 
 const slideVariants = {
-  initial: { opacity: 0, x: 60 },
+  initial: { opacity: 0 },
   animate: {
     opacity: 1,
-    x: 0,
-    transition: { duration: 0.25, ease: [0.25, 1, 0.5, 1] as [number, number, number, number] },
+    transition: { duration: 0.18, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] },
   },
   exit: {
     opacity: 0,
-    x: -30,
-    transition: { duration: 0.15, ease: [0.4, 0, 1, 1] as [number, number, number, number] },
+    transition: { duration: 0.1, ease: [0.4, 0, 1, 1] as [number, number, number, number] },
   },
 };
 
