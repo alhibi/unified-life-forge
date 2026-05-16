@@ -450,7 +450,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                   }
                 }}
                 dir="auto"
-                className="chat-textarea flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 min-h-[40px] max-h-[140px] resize-none px-4 py-[10px] text-[15px] leading-relaxed placeholder:text-muted-foreground/40"
+                className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 min-h-[40px] max-h-[140px] resize-none px-4 py-[10px] text-[15px] leading-relaxed placeholder:text-muted-foreground/40"
               />
             </div>
 

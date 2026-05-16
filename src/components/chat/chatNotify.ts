@@ -48,10 +48,10 @@ type Key = keyof typeof M;
 
 function pick(pair: Pair, isAr: boolean) { return isAr ? pair.ar : pair.de; }
 
-/** Soft error: brief destructive toast + error chirp + error haptic pattern. */
+/** Soft error: brief destructive toast + error chirp + light haptic. */
 export function chatError(key: Key, isAr: boolean, description?: string) {
   playChatSound('error');
-  haptic('error');
+  haptic('medium');
   toast.error(pick(M[key], isAr), description ? { description } : undefined);
 }
 
@@ -62,7 +62,6 @@ export function chatInfo(key: Key, isAr: boolean) {
 
 /** Success toast (used sparingly – most actions are visually obvious). */
 export function chatSuccess(key: Key, isAr: boolean) {
-  haptic('success');
   toast.success(pick(M[key], isAr));
 }
 

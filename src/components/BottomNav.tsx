@@ -5,7 +5,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { House, Dices, SlidersHorizontal, HandHeart, Feather, MessageCircle } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { haptic } from '@/lib/haptics';
 
 type Tab = {
   key: string;
@@ -92,10 +91,7 @@ export default function BottomNav() {
           return (
             <button
               key={tab.key}
-              onClick={() => {
-                haptic('light');
-                if (!active) navigate(tab.path);
-              }}
+              onClick={() => navigate(tab.path)}
               className="relative flex flex-col items-center gap-0.5 py-1.5 px-2 rounded-xl"
               aria-label={t(tab.labelKey)}
               aria-current={active ? 'page' : undefined}
