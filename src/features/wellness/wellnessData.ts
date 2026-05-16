@@ -2233,8 +2233,7 @@ export const SYNERGIES: SynergyRule[] = [
   },
   {
     id: 'thyroid-axis',
-    nutrients: ['iodine', 'selenium', 'zinc', 'tyrosine' as never].filter(Boolean) as string[],
-    // Note: tyrosine intentionally optional; only iodine/selenium/zinc tracked.
+    nutrients: ['iodine', 'selenium', 'zinc'],
     evidence: 'moderate',
     domain: 'hormones',
     title: { ar: 'محور الغدة الدرقية', de: 'Schilddrüsen-Achse' },
