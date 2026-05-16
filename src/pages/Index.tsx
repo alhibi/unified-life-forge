@@ -15,7 +15,7 @@ import IslamicSections from '@/components/IslamicSections';
 import CurrentTimeSunnah from '@/components/CurrentTimeSunnah';
 import UmmahPulse from '@/components/UmmahPulse';
 import { useNavigate } from 'react-router-dom';
-import { Sunrise, Sun, Moon, MessageCircle, Newspaper, ClipboardList, X, Trash2, BookOpen, HeartPulse, ShieldCheck } from 'lucide-react';
+import { Sunrise, Sun, Moon, MessageCircle, Newspaper, ClipboardList, X, Trash2, BookOpen } from 'lucide-react';
 import { AnimatePresence } from 'framer-motion';
 import { useClipboard } from '@/hooks/useClipboard';
 
