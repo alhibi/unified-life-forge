@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, Pill, Utensils, Sparkles, Brain, Trash2, Download, ShieldCheck } from 'lucide-react';
+import { ChevronLeft, Pill, Utensils, Sparkles, Brain, Trash2, Download, ShieldCheck, BookOpen } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useApp } from '@/contexts/AppContext';
@@ -9,9 +9,10 @@ import SupplementsTab from '@/features/wellness/SupplementsTab';
 import DietTab from '@/features/wellness/DietTab';
 import SkinHairTab from '@/features/wellness/SkinHairTab';
 import InsightsTab from '@/features/wellness/InsightsTab';
+import NutrientsAtlasTab from '@/features/wellness/NutrientsAtlasTab';
 import { exportAll } from '@/features/wellness/wellnessDb';
 
-type TabKey = 'supplements' | 'diet' | 'skin' | 'insights';
+type TabKey = 'supplements' | 'diet' | 'skin' | 'insights' | 'atlas';
 
 const stagger = {
   hidden: {},
@@ -49,6 +50,7 @@ export default function WellnessPage() {
     { key: 'diet', labelAr: 'التغذية', labelDe: 'Ernährung', icon: Utensils },
     { key: 'skin', labelAr: 'البشرة والشعر', labelDe: 'Haut & Haar', icon: Sparkles },
     { key: 'insights', labelAr: 'التحليل', labelDe: 'Analyse', icon: Brain },
+    { key: 'atlas', labelAr: 'الأطلس', labelDe: 'Atlas', icon: BookOpen },
   ];
 
   const handleExport = async () => {
@@ -174,6 +176,7 @@ export default function WellnessPage() {
                     skinHair={skinHair}
                   />
                 )}
+                {tab === 'atlas' && <NutrientsAtlasTab />}
               </motion.div>
             </AnimatePresence>
           </motion.div>
