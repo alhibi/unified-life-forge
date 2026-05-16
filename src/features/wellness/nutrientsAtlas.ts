@@ -510,7 +510,7 @@ export const nutrientsAtlas: NutrientCategory[] = [
   },
   {
     key: 'sn_microbiome_blends',
-    title: 'أطلس ميكروبيوم Sunday Natural — التركيبات المحورية',
+    title: 'ميكروبيوم الأمعاء المتكامل',
     groups: [
       {
         title: 'القواعد البروبيوتيكية متعددة السلالات',
