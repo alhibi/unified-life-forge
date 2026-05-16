@@ -175,7 +175,7 @@ function AnimatedRoutes() {
     ? (location.pathname as TabPath)
     : null;
   return (
-    <>
+    <main id="main-content">
       <ScrollToTop />
       {/* Persistent layer — all 6 tab pages mounted once, toggled by display */}
       <PersistentTabs active={activeTab} />
@@ -218,7 +218,7 @@ function AnimatedRoutes() {
           </Routes>
         </AnimatePresence>
       </Suspense>
-    </>
+    </main>
   );
 }
 
