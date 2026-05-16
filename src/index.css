@@ -207,6 +207,34 @@
     content-visibility: auto;
     contain-intrinsic-size: auto 260px;
   }
+
+  /* ── Card interaction physics ──
+     transform → spring • shadow → Linear curve • bg → instant linear.
+     Hover lifts 1px (no exaggeration), press settles to scale(0.98). */
+  .card,
+  .premium-card,
+  .premium-card-elevated,
+  .premium-card-intense {
+    transition:
+      transform var(--duration-fast) var(--ease-spring),
+      box-shadow var(--duration-fast) var(--ease-linear-app),
+      background-color var(--duration-instant) linear,
+      background var(--duration-instant) linear;
+    will-change: transform;
+  }
+  .card:hover,
+  .premium-card:hover,
+  .premium-card-elevated:hover,
+  .premium-card-intense:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  }
+  .card:active,
+  .premium-card:active,
+  .premium-card-elevated:active,
+  .premium-card-intense:active {
+    transform: scale(0.98) translateY(0);
+  }
   .btn-primary {
     @apply bg-primary text-primary-foreground font-medium;
     transition: filter 0.15s ease-out, transform 0.1s ease-out;
