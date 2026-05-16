@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import SEO from '@/components/SEO';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Pill, Utensils, Sparkles, Brain, Trash2, Download, ShieldCheck, BookOpen } from 'lucide-react';
+import { Pill, Utensils, Sparkles, Brain, Trash2, Download, ShieldCheck, BookOpen, HeartPulse } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useApp } from '@/contexts/AppContext';
@@ -12,9 +12,10 @@ import DietTab from '@/features/wellness/DietTab';
 import SkinHairTab from '@/features/wellness/SkinHairTab';
 import InsightsTab from '@/features/wellness/InsightsTab';
 import AtlasTab from '@/features/wellness/AtlasTab';
+import VitalsTab from '@/features/wellness/VitalsTab';
 import { exportAll } from '@/features/wellness/wellnessDb';
 
-type TabKey = 'supplements' | 'diet' | 'skin' | 'insights' | 'atlas';
+type TabKey = 'supplements' | 'diet' | 'skin' | 'vitals' | 'insights' | 'atlas';
 
 const stagger = {
   hidden: {},
@@ -37,6 +38,7 @@ export default function WellnessPage() {
     intakeLogs,
     dietLogs,
     skinHair,
+    vitals,
     loading,
     addOrUpdateSupplement,
     removeSupplement,
@@ -44,6 +46,7 @@ export default function WellnessPage() {
     addDiet,
     removeDiet,
     saveSkinHair,
+    saveVital,
     wipe,
   } = useWellnessData();
 
@@ -51,6 +54,7 @@ export default function WellnessPage() {
     { key: 'supplements', labelAr: 'المكملات', labelDe: 'Supplemente', icon: Pill },
     { key: 'diet', labelAr: 'التغذية', labelDe: 'Ernährung', icon: Utensils },
     { key: 'skin', labelAr: 'الجسد', labelDe: 'Körper', icon: Sparkles },
+    { key: 'vitals', labelAr: 'الحيوية', labelDe: 'Vitale', icon: HeartPulse },
     { key: 'insights', labelAr: 'التركيبات', labelDe: 'Stack', icon: Brain },
     { key: 'atlas', labelAr: 'الأطلس', labelDe: 'Atlas', icon: BookOpen },
   ];
@@ -164,6 +168,9 @@ export default function WellnessPage() {
                 )}
                 {tab === 'skin' && (
                   <SkinHairTab skinHair={skinHair} onSave={saveSkinHair} />
+                )}
+                {tab === 'vitals' && (
+                  <VitalsTab vitals={vitals} onSave={saveVital} />
                 )}
                 {tab === 'insights' && (
                   <InsightsTab
