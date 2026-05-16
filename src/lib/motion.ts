@@ -25,15 +25,21 @@ export const SPRING_ENTER  = [0.22, 1, 0.36, 1]     as const;
 export const SPRING_EXIT   = [0.55, 0, 1, 0.45]     as const;
 export const SPRING_IOS    = [0.25, 0.46, 0.45, 0.94] as const;
 
+// ── Override: expanding/collapsing elements use bouncy springs ──
+// (Project-wide directive — applies to dropdowns, menus, popovers,
+// accordions, collapsibles.)
+export const BOUNCE_OPEN  = [0.34, 1.56, 0.64, 1] as const;
+export const BOUNCE_CLOSE = [0.55, 0, 1, 0.45]    as const;
+
 // ── Weight scale ──────────────────────────────────────────
 // Pair element size with motion duration. Heavier surfaces move slower so the
 // UI feels physical without being slow overall.
 export const motionWeight = {
-  micro: { duration: 0.1, ease: EASE_OUT },   // ripple, badge, tooltip
-  small: { duration: 0.18, ease: EASE_OUT },  // dropdown, snackbar, menu item
-  medium: { duration: 0.28, ease: EASE_OUT }, // card, accordion, tab content
-  large: { duration: 0.4, ease: EASE_OUT },   // sheet, modal, full-screen panel
-  hero:  { duration: 0.55, ease: EASE_OUT },  // page transition, lightbox
+  micro: { duration: 0.1, ease: EASE_OUT },             // ripple, badge, tooltip
+  small: { duration: 0.22, ease: BOUNCE_OPEN },         // dropdown, snackbar, menu item
+  medium: { duration: 0.32, ease: BOUNCE_OPEN },        // card, accordion, tab content
+  large: { duration: 0.42, ease: BOUNCE_OPEN },         // sheet, modal, full-screen panel
+  hero:  { duration: 0.55, ease: EASE_OUT },            // page transition, lightbox
 } as const satisfies Record<string, Transition>;
 
 // ── Stagger ───────────────────────────────────────────────
@@ -89,7 +95,7 @@ export const spatialPopover = (dir: Direction = 'down'): Variants => {
   const off = offsetFor(dir);
   return {
     hidden: { opacity: 0, ...off },
-    show: { opacity: 1, x: 0, y: 0, transition: motionWeight.small },
-    exit: { opacity: 0, ...off, transition: motionWeight.micro },
+    show: { opacity: 1, x: 0, y: 0, transition: { duration: 0.22, ease: BOUNCE_OPEN } },
+    exit: { opacity: 0, ...off, transition: { duration: 0.18, ease: BOUNCE_CLOSE } },
   };
 };
