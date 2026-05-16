@@ -234,6 +234,221 @@ export const NUTRIENTS: Record<string, NutrientInfo> = {
     group: 'other',
     label: { ar: 'كربوهيدرات', de: 'Kohlenhydrate' },
   },
+
+  // ============================================================
+  // === Atlas-derived advanced compounds (deep biochemistry) ===
+  // ============================================================
+
+  // — Active methylation cofactors —
+  methylfolate: {
+    key: 'methylfolate',
+    group: 'vitamin',
+    label: { ar: 'ميثيل فولات (B9 نشط)', de: 'Methylfolat (aktives B9)' },
+    note: {
+      ar: 'الصيغة النشطة الجاهزة لدورة الميثيلة دون الحاجة لإنزيم MTHFR.',
+      de: 'Bioaktive Form — umgeht den MTHFR-Engpass.',
+    },
+  },
+  methylB12: {
+    key: 'methylB12',
+    group: 'vitamin',
+    label: { ar: 'ميثيل كوبالامين (B12 نشط)', de: 'Methylcobalamin (aktives B12)' },
+  },
+  p5p: {
+    key: 'p5p',
+    group: 'vitamin',
+    label: { ar: 'P-5-P (B6 نشط)', de: 'P-5-P (aktives B6)' },
+  },
+  tmg: {
+    key: 'tmg',
+    group: 'other',
+    label: { ar: 'بيتائين (TMG)', de: 'Betain (TMG)' },
+    note: {
+      ar: 'مانح ميثيل قوي يدعم تحويل الهوموسيستين عبر مسار بديل.',
+      de: 'Methyldonor — alternativer Homocystein-Abbauweg.',
+    },
+  },
+
+  // — Mitochondrial axis —
+  coq10: {
+    key: 'coq10',
+    group: 'other',
+    label: { ar: 'يوبيكوينول (CoQ10)', de: 'Ubiquinol (CoQ10)' },
+    note: {
+      ar: 'دهني — مع وجبة فيها زيت زيتون أو أوميغا-3 لامتصاص أعلى.',
+      de: 'Fettlöslich — mit Olivenöl/Omega-3 für bessere Aufnahme.',
+    },
+  },
+  pqq: {
+    key: 'pqq',
+    group: 'other',
+    label: { ar: 'PQQ (محفّز ميتوكوندريا)', de: 'PQQ (Mitochondrien-Trigger)' },
+  },
+  nmn: {
+    key: 'nmn',
+    group: 'other',
+    label: { ar: 'NMN (سلف NAD+)', de: 'NMN (NAD+-Vorstufe)' },
+  },
+  ala: {
+    key: 'ala',
+    group: 'other',
+    label: { ar: 'حمض ألفا-ليبويك (R-ALA)', de: 'Alpha-Liponsäure (R-ALA)' },
+  },
+  lcarnitine: {
+    key: 'lcarnitine',
+    group: 'amino',
+    label: { ar: 'L-كارنيتين', de: 'L-Carnitin' },
+  },
+  creatine: {
+    key: 'creatine',
+    group: 'amino',
+    label: { ar: 'الكرياتين', de: 'Kreatin' },
+  },
+
+  // — Antioxidant / detox —
+  nac: {
+    key: 'nac',
+    group: 'amino',
+    label: { ar: 'N-أسيتيل سيستين (NAC)', de: 'N-Acetylcystein (NAC)' },
+  },
+  glutathione: {
+    key: 'glutathione',
+    group: 'amino',
+    label: { ar: 'الجلوتاثيون', de: 'Glutathion' },
+  },
+  milkthistle: {
+    key: 'milkthistle',
+    group: 'other',
+    label: { ar: 'حليب الشوك (سيليمارين)', de: 'Mariendistel (Silymarin)' },
+  },
+
+  // — Cognition / nervous system —
+  phosphatidylserine: {
+    key: 'phosphatidylserine',
+    group: 'other',
+    label: { ar: 'فوسفاتيديل سيرين (PS)', de: 'Phosphatidylserin (PS)' },
+  },
+  lionsmane: {
+    key: 'lionsmane',
+    group: 'other',
+    label: { ar: 'عرف الأسد', de: 'Lion\'s Mane' },
+  },
+  ltheanine: {
+    key: 'ltheanine',
+    group: 'amino',
+    label: { ar: 'L-ثيانين', de: 'L-Theanin' },
+  },
+  glycine: {
+    key: 'glycine',
+    group: 'amino',
+    label: { ar: 'جلايسين', de: 'Glycin' },
+  },
+  taurine: {
+    key: 'taurine',
+    group: 'amino',
+    label: { ar: 'التورين', de: 'Taurin' },
+  },
+
+  // — HPA / adaptogens —
+  ashwagandha: {
+    key: 'ashwagandha',
+    group: 'other',
+    label: { ar: 'أشواغاندا', de: 'Ashwagandha' },
+  },
+  rhodiola: {
+    key: 'rhodiola',
+    group: 'other',
+    label: { ar: 'روديولا', de: 'Rhodiola' },
+  },
+
+  // — Anti-inflammation / senolytic —
+  curcumin: {
+    key: 'curcumin',
+    group: 'other',
+    label: { ar: 'الكركومين', de: 'Curcumin' },
+    note: {
+      ar: 'يمتص أفضل مع البايبرين والدهون الصحية.',
+      de: 'Bessere Aufnahme mit Piperin und gesunden Fetten.',
+    },
+  },
+  resveratrol: {
+    key: 'resveratrol',
+    group: 'other',
+    label: { ar: 'ريسفيراترول', de: 'Resveratrol' },
+  },
+  quercetin: {
+    key: 'quercetin',
+    group: 'other',
+    label: { ar: 'كيرسيتين', de: 'Quercetin' },
+  },
+  fisetin: {
+    key: 'fisetin',
+    group: 'other',
+    label: { ar: 'فايسيتين', de: 'Fisetin' },
+  },
+  spermidine: {
+    key: 'spermidine',
+    group: 'other',
+    label: { ar: 'سبيرميدين', de: 'Spermidin' },
+  },
+
+  // — Anti-glycation —
+  carnosine: {
+    key: 'carnosine',
+    group: 'amino',
+    label: { ar: 'الكارنوزين', de: 'Carnosin' },
+  },
+  benfotiamine: {
+    key: 'benfotiamine',
+    group: 'vitamin',
+    label: { ar: 'بنفوتيامين (B1 دهني)', de: 'Benfotiamin (fettlösliches B1)' },
+  },
+
+  // — Skin matrix —
+  hyaluronic: {
+    key: 'hyaluronic',
+    group: 'other',
+    label: { ar: 'حمض الهيالورونيك', de: 'Hyaluronsäure' },
+  },
+  silica: {
+    key: 'silica',
+    group: 'mineral',
+    label: { ar: 'السيليكا', de: 'Silizium' },
+  },
+  msm: {
+    key: 'msm',
+    group: 'other',
+    label: { ar: 'MSM (كبريت عضوي)', de: 'MSM (organischer Schwefel)' },
+  },
+
+  // — Microbiome precision —
+  hmo: {
+    key: 'hmo',
+    group: 'other',
+    label: { ar: 'سكريات حليب الأم (HMO)', de: 'HMOs (Muttermilch-Oligos)' },
+  },
+  akkermansia: {
+    key: 'akkermansia',
+    group: 'other',
+    label: { ar: 'أكرمانسيا مسينيفيلا', de: 'Akkermansia muciniphila' },
+  },
+  butyrate: {
+    key: 'butyrate',
+    group: 'other',
+    label: { ar: 'البوتيرات (SCFA)', de: 'Butyrat (SCFA)' },
+  },
+  glutamine: {
+    key: 'glutamine',
+    group: 'amino',
+    label: { ar: 'L-جلوتامين', de: 'L-Glutamin' },
+  },
+
+  // — Hormonal / metabolic —
+  inositol: {
+    key: 'inositol',
+    group: 'other',
+    label: { ar: 'إينوزيتول (Myo + DCI)', de: 'Inositol (Myo + DCI)' },
+  },
 };
 
 export const NUTRIENT_LIST: NutrientInfo[] = Object.values(NUTRIENTS);
@@ -1173,7 +1388,11 @@ export interface SynergyRule {
   nutrients: string[];
   evidence: 'strong' | 'moderate' | 'emerging';
   /** primary domain this stack acts on */
-  domain: 'bone' | 'skin' | 'hair' | 'energy' | 'immunity' | 'sleep' | 'heart' | 'gut' | 'mood' | 'blood';
+  domain:
+    | 'bone' | 'skin' | 'hair' | 'energy' | 'immunity' | 'sleep'
+    | 'heart' | 'gut' | 'mood' | 'blood'
+    | 'methylation' | 'mitochondria' | 'cognition'
+    | 'longevity' | 'detox' | 'hormones';
   title: Record<Lang, string>;
   /** concrete benefits — short bullets the UI lists */
   benefits: Record<Lang, string[]>;
@@ -1448,6 +1667,646 @@ export const SYNERGIES: SynergyRule[] = [
     },
     foodBoosters: ['orange', 'salmon', 'eggs', 'kale'],
   },
+
+  // =====================================================================
+  // === Atlas-derived deep biochemical axes (advanced clinical stacks) ==
+  // =====================================================================
+
+  // --- Methylation axis ---
+  {
+    id: 'methylation-core',
+    nutrients: ['methylfolate', 'methylB12', 'p5p'],
+    evidence: 'strong',
+    domain: 'methylation',
+    title: { ar: 'محور الميثيلة النشط', de: 'Aktive Methylierungs-Achse' },
+    benefits: {
+      ar: [
+        'الصيغ النشطة تعبر مباشرة دون الحاجة لإنزيم MTHFR',
+        'خفض الهوموسيستين وحماية بطانة الشرايين والأعصاب',
+        'دعم تصنيع SAMe — مانح الميثيل العالمي للجسم',
+      ],
+      de: [
+        'Aktive Formen umgehen den MTHFR-Engpass direkt',
+        'Senkt Homocystein — schützt Gefäße und Nervensystem',
+        'Fördert SAMe-Synthese — der universelle Methyldonor',
+      ],
+    },
+    howTo: {
+      ar: 'صباحاً مع وجبة خفيفة. ابدأ بجرعة منخفضة لتجنب التحفيز المفرط.',
+      de: 'Morgens zu leichter Mahlzeit. Niedrig starten gegen Überstimulation.',
+    },
+    foodBoosters: ['spinach', 'eggs', 'liver', 'beans'],
+  },
+  {
+    id: 'methylation-bypass',
+    nutrients: ['tmg', 'methylfolate', 'methylB12'],
+    evidence: 'moderate',
+    domain: 'methylation',
+    title: { ar: 'مسار TMG البديل للهوموسيستين', de: 'TMG-Alternativweg' },
+    benefits: {
+      ar: [
+        'TMG يفعّل إنزيم BHMT لتحويل الهوموسيستين بمسار ثانٍ',
+        'حماية مضاعفة من تكلس الشرايين والإجهاد الميثيلي',
+        'دعم وظائف الكبد ومضادات الأكسدة الذاتية',
+      ],
+      de: [
+        'TMG aktiviert BHMT — zweiter Homocystein-Abbauweg',
+        'Doppelter Schutz vor Gefäßverkalkung und Methylstress',
+        'Unterstützt Leber und körpereigene Antioxidantien',
+      ],
+    },
+    howTo: {
+      ar: 'TMG مع الإفطار (500-1000مغ)، الفيتامينات النشطة معه.',
+      de: 'TMG zum Frühstück (500-1000mg), aktive Vitamine dazu.',
+    },
+    foodBoosters: ['beetroot', 'spinach', 'eggs'],
+  },
+
+  // --- Mitochondrial axis ---
+  {
+    id: 'mito-trio',
+    nutrients: ['coq10', 'pqq', 'magnesium'],
+    evidence: 'strong',
+    domain: 'mitochondria',
+    title: { ar: 'ثلاثي الميتوكوندريا الذهبي', de: 'Mitochondrien-Trio' },
+    benefits: {
+      ar: [
+        'CoQ10 يحمل الإلكترونات في سلسلة التنفس الخلوي',
+        'PQQ يحفز نمو ميتوكوندريا جديدة (Biogenesis)',
+        'المغنيسيوم وقود ATP الفعّال — يضاعف إنتاج الطاقة',
+      ],
+      de: [
+        'CoQ10 transportiert Elektronen in der Atmungskette',
+        'PQQ stimuliert Neubildung neuer Mitochondrien',
+        'Magnesium aktiviert ATP — verdoppelt Energieausbeute',
+      ],
+    },
+    howTo: {
+      ar: 'CoQ10 و PQQ صباحاً مع دهون. المغنيسيوم مساءً.',
+      de: 'CoQ10 + PQQ morgens mit Fett. Magnesium abends.',
+    },
+    foodBoosters: ['salmon', 'avocado', 'spinach', 'almonds'],
+  },
+  {
+    id: 'mito-fuel',
+    nutrients: ['lcarnitine', 'coq10', 'ala'],
+    evidence: 'strong',
+    domain: 'energy',
+    title: { ar: 'وقود الميتوكوندريا للدهون', de: 'Fett-zu-Energie-Stack' },
+    benefits: {
+      ar: [
+        'L-كارنيتين ينقل الأحماض الدهنية إلى داخل الميتوكوندريا',
+        'CoQ10 يحرقها بكفاءة كاملة لإنتاج ATP',
+        'ALA يعيد تدوير المضادات المؤكسدة داخل الخلية',
+      ],
+      de: [
+        'L-Carnitin schleust Fettsäuren in Mitochondrien',
+        'CoQ10 verbrennt sie effizient zu ATP',
+        'ALA recycelt Antioxidantien intrazellulär',
+      ],
+    },
+    howTo: {
+      ar: 'قبل التمرين بـ 30 دقيقة على معدة شبه فارغة.',
+      de: '30 Min. vor dem Training, fast nüchtern.',
+    },
+    foodBoosters: ['beef', 'salmon', 'avocado'],
+  },
+
+  // --- NAD+ / Longevity ---
+  {
+    id: 'nad-sirtuin',
+    nutrients: ['nmn', 'resveratrol', 'tmg'],
+    evidence: 'emerging',
+    domain: 'longevity',
+    title: { ar: 'محور NAD⁺ والسيرتوينات', de: 'NAD⁺ & Sirtuin-Achse' },
+    benefits: {
+      ar: [
+        'NMN يرفع مستويات NAD⁺ الخلوية بصورة مباشرة',
+        'الريسفيراترول يفعّل إنزيمات السيرتوين SIRT1/3 طول العمر',
+        'TMG يعوّض مجموعات الميثيل المستهلكة في الاستقلاب',
+      ],
+      de: [
+        'NMN hebt direkt zelluläres NAD⁺',
+        'Resveratrol aktiviert SIRT1/3 — Langlebigkeits-Enzyme',
+        'TMG ersetzt verbrauchte Methylgruppen',
+      ],
+    },
+    howTo: {
+      ar: 'صباحاً على معدة فارغة قبل الإفطار بـ 20 دقيقة.',
+      de: 'Morgens nüchtern, 20 Min. vor dem Frühstück.',
+    },
+    foodBoosters: ['avocado', 'broccoli', 'salmon'],
+  },
+  {
+    id: 'senolytic-flush',
+    nutrients: ['fisetin', 'quercetin', 'spermidine'],
+    evidence: 'emerging',
+    domain: 'longevity',
+    title: { ar: 'سينوليتك: تنظيف الخلايا الهرمة', de: 'Senolytische Reinigung' },
+    benefits: {
+      ar: [
+        'فايسيتين وكيرسيتين يحفّزان موت الخلايا الزومبية المتراكمة',
+        'سبيرميدين يفعّل الالتهام الذاتي (Autophagy) لتجديد الخلايا',
+        'تحسّن مرونة الأنسجة وانخفاض الالتهاب المزمن',
+      ],
+      de: [
+        'Fisetin + Quercetin entfernen seneszente Zombie-Zellen',
+        'Spermidin aktiviert Autophagie — Zellrecycling',
+        'Bessere Gewebeelastizität, weniger chronische Entzündung',
+      ],
+    },
+    howTo: {
+      ar: 'بروتوكول نبضي: 2 يوم أسبوعياً بجرعة عالية مع وجبة دسمة.',
+      de: 'Puls-Protokoll: 2 Tage/Woche hochdosiert zu Fett-Mahlzeit.',
+    },
+    foodBoosters: ['strawberry', 'apple', 'olive_oil'],
+  },
+
+  // --- Anti-glycation ---
+  {
+    id: 'anti-glycation',
+    nutrients: ['carnosine', 'benfotiamine', 'ala'],
+    evidence: 'moderate',
+    domain: 'longevity',
+    title: { ar: 'درع مضاد الجلكزة (AGEs)', de: 'Anti-Glykations-Schild' },
+    benefits: {
+      ar: [
+        'الكارنوزين يكسر روابط البروتين-سكر قبل تكوينها',
+        'البنفوتيامين يحوّل سلائف AGEs بعيداً عن الأنسجة',
+        'ALA يحمي الأعصاب الطرفية من تلف السكر العالي',
+      ],
+      de: [
+        'Carnosin blockiert Protein-Zucker-Vernetzung',
+        'Benfotiamin lenkt AGE-Vorstufen aus dem Gewebe',
+        'ALA schützt periphere Nerven vor Zuckerschäden',
+      ],
+    },
+    howTo: {
+      ar: 'مع الوجبات الغنية بالكربوهيدرات لتقليل الذروة السكرية.',
+      de: 'Zu kohlenhydratreichen Mahlzeiten — dämpft Zuckerspitzen.',
+    },
+    foodBoosters: ['broccoli', 'spinach', 'beef'],
+  },
+
+  // --- Detox / Glutathione cycle ---
+  {
+    id: 'gsh-cycle',
+    nutrients: ['nac', 'glutathione', 'selenium'],
+    evidence: 'strong',
+    domain: 'detox',
+    title: { ar: 'دورة الجلوتاثيون الكاملة', de: 'Glutathion-Zyklus' },
+    benefits: {
+      ar: [
+        'NAC يوفّر السيستين — اللبنة المحدِّدة لتصنيع الجلوتاثيون',
+        'السيلينيوم ينشّط إنزيم GPx لإعادة شحن GSH المستهلك',
+        'تنظيف الكبد، المعادن الثقيلة، وحماية الميتوكوندريا',
+      ],
+      de: [
+        'NAC liefert Cystein — Schlüsselbaustein für Glutathion',
+        'Selen aktiviert GPx — regeneriert verbrauchtes GSH',
+        'Leber-Detox, Schwermetalle, Schutz der Mitochondrien',
+      ],
+    },
+    howTo: {
+      ar: 'NAC على معدة فارغة، الجلوتاثيون تحت اللسان لامتصاص أفضل.',
+      de: 'NAC nüchtern, Glutathion sublingual für bessere Aufnahme.',
+    },
+    foodBoosters: ['broccoli', 'eggs', 'salmon', 'kale'],
+  },
+  {
+    id: 'liver-renewal',
+    nutrients: ['milkthistle', 'nac', 'tmg'],
+    evidence: 'moderate',
+    domain: 'detox',
+    title: { ar: 'تجديد الكبد العميق', de: 'Tiefe Leber-Regeneration' },
+    benefits: {
+      ar: [
+        'سيليمارين يثبّت أغشية خلايا الكبد ويسرّع تجديدها',
+        'NAC يدعم تفكيك السموم في المرحلتين I و II',
+        'TMG يقلل تراكم الدهون الكبدية ويحسّن إنزيمات ALT/AST',
+      ],
+      de: [
+        'Silymarin stabilisiert Leberzellmembranen, fördert Regeneration',
+        'NAC unterstützt Phase-I- und Phase-II-Entgiftung',
+        'TMG reduziert Leberverfettung — bessere ALT/AST-Werte',
+      ],
+    },
+    howTo: {
+      ar: 'موزعة على اليوم، أكبر جرعة قبل النوم لعمل الكبد الليلي.',
+      de: 'Über den Tag verteilt, Hauptdosis abends für Leber-Nachtarbeit.',
+    },
+    foodBoosters: ['beetroot', 'broccoli', 'lemon'],
+  },
+
+  // --- HPA / Stress ---
+  {
+    id: 'hpa-calm',
+    nutrients: ['ashwagandha', 'magnesium', 'ltheanine'],
+    evidence: 'strong',
+    domain: 'mood',
+    title: { ar: 'تهدئة محور HPA', de: 'HPA-Achse beruhigen' },
+    benefits: {
+      ar: [
+        'الأشواغاندا تخفض الكورتيزول المساء حتى 28%',
+        'L-ثيانين يرفع موجات ألفا الدماغية — هدوء حاضر',
+        'المغنيسيوم يعيد توازن GABA ويهدّئ الجهاز العصبي',
+      ],
+      de: [
+        'Ashwagandha senkt Abend-Cortisol bis 28%',
+        'L-Theanin steigert Alpha-Wellen — wache Ruhe',
+        'Magnesium balanciert GABA — Nervensystem-Reset',
+      ],
+    },
+    howTo: {
+      ar: 'الأشواغاندا مساءً، L-ثيانين عند التوتر، المغنيسيوم قبل النوم.',
+      de: 'Ashwagandha abends, L-Theanin bei Stress, Magnesium vor Schlaf.',
+    },
+    foodBoosters: ['oats', 'almonds', 'banana'],
+  },
+  {
+    id: 'adaptogen-drive',
+    nutrients: ['rhodiola', 'p5p', 'vitaminB12'],
+    evidence: 'moderate',
+    domain: 'energy',
+    title: { ar: 'دفع التكيف الصباحي', de: 'Adaptogener Morgen-Drive' },
+    benefits: {
+      ar: [
+        'روديولا ترفع الأداء العقلي تحت الضغط دون كافيين',
+        'P5P يسرّع تصنيع الدوبامين والنورأدرينالين',
+        'B12 يضمن توصيل الإشارات العصبية بكفاءة عالية',
+      ],
+      de: [
+        'Rhodiola steigert mentale Leistung unter Stress (ohne Koffein)',
+        'P5P beschleunigt Dopamin- und Noradrenalin-Synthese',
+        'B12 sichert effiziente Nervenleitung',
+      ],
+    },
+    howTo: {
+      ar: 'صباحاً قبل بدء العمل، تجنّب بعد الظهر.',
+      de: 'Morgens vor Arbeitsbeginn, nicht nach Mittag.',
+    },
+    foodBoosters: ['eggs', 'salmon', 'spinach'],
+  },
+
+  // --- Sleep deep architecture ---
+  {
+    id: 'sleep-architecture',
+    nutrients: ['magnesium', 'glycine', 'ltheanine'],
+    evidence: 'strong',
+    domain: 'sleep',
+    title: { ar: 'هندسة النوم العميق', de: 'Tiefschlaf-Architektur' },
+    benefits: {
+      ar: [
+        'الجلايسين يخفض درجة حرارة الجسم المركزية للدخول السريع للنوم',
+        'L-ثيانين يطيل مرحلة النوم العميق وحركة العين السريعة (REM)',
+        'المغنيسيوم يهدّئ مستقبلات NMDA المثيرة',
+      ],
+      de: [
+        'Glycin senkt Kerntemperatur — schnelleres Einschlafen',
+        'L-Theanin verlängert Tief- und REM-Schlafphasen',
+        'Magnesium dämpft erregende NMDA-Rezeptoren',
+      ],
+    },
+    howTo: {
+      ar: '30-60 دقيقة قبل النوم، بعيداً عن الكافيين والشاشات.',
+      de: '30-60 Min. vor dem Schlafen, fern von Koffein und Bildschirmen.',
+    },
+    foodBoosters: ['oats', 'almonds', 'cherry'],
+  },
+
+  // --- Cognition deep ---
+  {
+    id: 'cog-membrane',
+    nutrients: ['omega3', 'phosphatidylserine', 'methylB12'],
+    evidence: 'strong',
+    domain: 'cognition',
+    title: { ar: 'بناء أغشية الدماغ', de: 'Hirnmembran-Aufbau' },
+    benefits: {
+      ar: [
+        'DHA يشكّل 30% من فوسفوليبيدات الدماغ — مرونة المشابك',
+        'PS يخفض الكورتيزول ويقوّي الذاكرة العاملة',
+        'الميثيل B12 يحمي غمد المايلين من التآكل',
+      ],
+      de: [
+        'DHA bildet 30% der Hirn-Phospholipide — Synapsen-Flexibilität',
+        'PS senkt Cortisol, stärkt Arbeitsgedächtnis',
+        'Methyl-B12 schützt Myelinscheide vor Abbau',
+      ],
+    },
+    howTo: {
+      ar: 'مع وجبة الغداء الدسمة لامتصاص مثالي للدهنيات.',
+      de: 'Zur fetthaltigen Mittagsmahlzeit für optimale Aufnahme.',
+    },
+    foodBoosters: ['salmon', 'walnuts', 'eggs', 'avocado'],
+  },
+  {
+    id: 'nerve-growth',
+    nutrients: ['lionsmane', 'omega3', 'choline'],
+    evidence: 'emerging',
+    domain: 'cognition',
+    title: { ar: 'نمو الأعصاب (NGF)', de: 'Nervenwachstum (NGF)' },
+    benefits: {
+      ar: [
+        'عرف الأسد يحفّز إفراز عامل نمو الأعصاب NGF و BDNF',
+        'DHA يدعم تكوين النواقل العصبية في المشابك',
+        'الكولين سلف الأستيل كولين — وقود الذاكرة',
+      ],
+      de: [
+        'Lion\'s Mane stimuliert NGF- und BDNF-Ausschüttung',
+        'DHA fördert Neurotransmitter-Bildung an Synapsen',
+        'Cholin: Acetylcholin-Vorstufe — Gedächtnis-Treibstoff',
+      ],
+    },
+    howTo: {
+      ar: 'صباحاً ومنتصف اليوم، استمرارية 8 أسابيع لأثر ملموس.',
+      de: 'Morgens und mittags, 8 Wochen Konsistenz für Wirkung.',
+    },
+    foodBoosters: ['eggs', 'salmon', 'walnuts'],
+  },
+  {
+    id: 'focus-now',
+    nutrients: ['ltheanine', 'caffeine'],
+    evidence: 'strong',
+    domain: 'cognition',
+    title: { ar: 'تركيز فوري بلا توتر', de: 'Fokus ohne Nervosität' },
+    benefits: {
+      ar: [
+        'الكافيين يرفع اليقظة، L-ثيانين يلغي العصبية',
+        'تركيز حاد ومستقر لـ 3-4 ساعات',
+        'بدون ارتداد طاقة سلبي',
+      ],
+      de: [
+        'Koffein erhöht Wachheit, L-Theanin neutralisiert Nervosität',
+        'Klarer, stabiler Fokus für 3-4 Stunden',
+        'Ohne Energie-Crash danach',
+      ],
+    },
+    howTo: {
+      ar: 'نسبة 2:1 (مثلاً 200مغ ثيانين مع 100مغ كافيين) قبل عمل عميق.',
+      de: 'Verhältnis 2:1 (z.B. 200mg Theanin + 100mg Koffein) vor Deep Work.',
+    },
+    foodBoosters: [],
+  },
+
+  // --- Microbiome precision ---
+  {
+    id: 'microbiome-rebuild',
+    nutrients: ['hmo', 'akkermansia', 'butyrate', 'fiber'],
+    evidence: 'emerging',
+    domain: 'gut',
+    title: { ar: 'إعادة بناء الميكروبيوم', de: 'Mikrobiom-Wiederaufbau' },
+    benefits: {
+      ar: [
+        'HMOs تغذّي حصرياً سلالات B. infantis الملكية',
+        'أكرمانسيا تسمّك طبقة الميوكين الواقية لجدار المعى',
+        'البوتيرات يغذّي خلايا القولون مباشرة — وقود مفضّل',
+      ],
+      de: [
+        'HMOs nähren exklusiv B. infantis-Stämme',
+        'Akkermansia verdickt Mukus-Schutzschicht',
+        'Butyrat nährt Kolonozyten direkt — bevorzugter Treibstoff',
+      ],
+    },
+    howTo: {
+      ar: 'بروتوكول 12 أسبوع: HMO يومياً، أكرمانسيا مساءً، ألياف متنوعة.',
+      de: '12-Wochen-Protokoll: HMO täglich, Akkermansia abends, vielfältige Ballaststoffe.',
+    },
+    foodBoosters: ['oats', 'beans', 'broccoli', 'avocado'],
+  },
+  {
+    id: 'gut-barrier',
+    nutrients: ['glutamine', 'zinc', 'akkermansia'],
+    evidence: 'moderate',
+    domain: 'gut',
+    title: { ar: 'ترميم جدار الأمعاء المتسرّب', de: 'Leaky-Gut-Reparatur' },
+    benefits: {
+      ar: [
+        'L-جلوتامين الوقود الأول لخلايا الأمعاء — يرمم الروابط الضيقة',
+        'الزنك يقفل النفاذية المعوية ويستعيد البطانة',
+        'أكرمانسيا تعيد بناء طبقة المخاط الواقية',
+      ],
+      de: [
+        'L-Glutamin: Hauptbrennstoff der Darmzellen, repariert Tight Junctions',
+        'Zink schließt Darmpermeabilität — Epithel-Reset',
+        'Akkermansia regeneriert schützende Mukus-Schicht',
+      ],
+    },
+    howTo: {
+      ar: 'الجلوتامين على معدة فارغة (5مغ مرتين)، الزنك مع العشاء.',
+      de: 'Glutamin nüchtern (5g 2x), Zink zum Abendessen.',
+    },
+    foodBoosters: ['beef', 'eggs', 'oats'],
+  },
+
+  // --- Skin matrix deep ---
+  {
+    id: 'skin-matrix',
+    nutrients: ['collagen', 'hyaluronic', 'silica', 'vitaminC'],
+    evidence: 'strong',
+    domain: 'skin',
+    title: { ar: 'مصفوفة البشرة المتكاملة', de: 'Vollständige Hautmatrix' },
+    benefits: {
+      ar: [
+        'الكولاجين يبني البنية التحتية للأدمة',
+        'حمض الهيالورونيك يحبس 1000 ضعف وزنه ماءً في الأنسجة',
+        'السيليكا تربط ألياف الكولاجين والإيلاستين بقوة',
+        'فيتامين سي شرط إلزامي لتشابك الكولاجين',
+      ],
+      de: [
+        'Kollagen baut Dermis-Grundstruktur',
+        'Hyaluronsäure bindet 1000-faches Eigengewicht an Wasser',
+        'Silizium vernetzt Kollagen- und Elastinfasern',
+        'Vitamin C ist Voraussetzung für Kollagen-Crosslinking',
+      ],
+    },
+    howTo: {
+      ar: 'صباحاً معاً مع عصير حمضيات. 12 أسبوع لنتيجة بصرية.',
+      de: 'Morgens zusammen mit Zitrussaft. 12 Wochen für sichtbares Ergebnis.',
+    },
+    foodBoosters: ['orange', 'strawberry', 'broccoli', 'kiwi'],
+  },
+
+  // --- Joint matrix ---
+  {
+    id: 'joint-shield',
+    nutrients: ['collagen', 'msm', 'omega3', 'vitaminC'],
+    evidence: 'moderate',
+    domain: 'bone',
+    title: { ar: 'درع المفاصل والأوتار', de: 'Gelenk- & Sehnen-Schild' },
+    benefits: {
+      ar: [
+        'كولاجين النوع II يبني الغضاريف ويعيد ترطيبها',
+        'MSM يوفر الكبريت لجسور ثنائي السلفايد بين البروتينات',
+        'أوميغا-3 يخفض الالتهاب المفصلي المزمن',
+      ],
+      de: [
+        'Kollagen Typ II baut Knorpel auf, rehydriert ihn',
+        'MSM liefert Schwefel für Disulfid-Brücken',
+        'Omega-3 reduziert chronische Gelenkentzündung',
+      ],
+    },
+    howTo: {
+      ar: 'صباحاً معاً، استمرار 8-12 أسبوع لتحسن مرونة المفاصل.',
+      de: 'Morgens gemeinsam, 8-12 Wochen für bessere Beweglichkeit.',
+    },
+    foodBoosters: ['salmon', 'broccoli', 'eggs'],
+  },
+
+  // --- Cardio shield deep ---
+  {
+    id: 'cardio-shield',
+    nutrients: ['omega3', 'coq10', 'vitaminK', 'magnesium'],
+    evidence: 'strong',
+    domain: 'heart',
+    title: { ar: 'درع القلب الرباعي', de: 'Vierfach-Herzschild' },
+    benefits: {
+      ar: [
+        'CoQ10 يدعم عضلة القلب الأعلى استهلاكاً للطاقة في الجسم',
+        'فيتامين K2 يمنع تكلس الشرايين ويوجّه الكالسيوم للعظام',
+        'أوميغا-3 يخفض الترايغليسريد ويعدّل ضغط الدم',
+        'المغنيسيوم ينظّم إيقاع القلب الكهربائي',
+      ],
+      de: [
+        'CoQ10 versorgt den Herzmuskel (höchster Energieverbrauch)',
+        'Vitamin K2 verhindert Arterienverkalkung',
+        'Omega-3 senkt Triglyceride, reguliert Blutdruck',
+        'Magnesium stabilisiert Herzrhythmus elektrisch',
+      ],
+    },
+    howTo: {
+      ar: 'الجميع مع وجبة دسمة. المغنيسيوم مساءً بعيداً عن CoQ10.',
+      de: 'Alle zu fetthaltiger Mahlzeit. Magnesium abends getrennt.',
+    },
+    foodBoosters: ['salmon', 'avocado', 'olive_oil', 'spinach'],
+  },
+
+  // --- Anti-inflammation ---
+  {
+    id: 'inflam-quench',
+    nutrients: ['curcumin', 'omega3', 'quercetin'],
+    evidence: 'strong',
+    domain: 'immunity',
+    title: { ar: 'إطفاء الالتهاب المزمن', de: 'Chronische Entzündung löschen' },
+    benefits: {
+      ar: [
+        'الكركومين يكبح مسار NF-κB الالتهابي على المستوى الجيني',
+        'EPA من أوميغا-3 يصنع رسائل مُحلّلة للالتهاب (Resolvins)',
+        'كيرسيتين يثبّت الخلايا الصارية ويمنع إفراز الهيستامين',
+      ],
+      de: [
+        'Curcumin hemmt NF-κB-Entzündungspfad auf Gen-Ebene',
+        'EPA bildet entzündungsauflösende Resolvine',
+        'Quercetin stabilisiert Mastzellen — weniger Histamin',
+      ],
+    },
+    howTo: {
+      ar: 'مع وجبة دسمة وفلفل أسود لرفع امتصاص الكركومين 20 ضعفاً.',
+      de: 'Zu fetthaltiger Mahlzeit + schwarzer Pfeffer (20x Curcumin-Aufnahme).',
+    },
+    foodBoosters: ['salmon', 'olive_oil', 'broccoli', 'apple'],
+  },
+
+  // --- Hormonal / metabolic ---
+  {
+    id: 'insulin-sense',
+    nutrients: ['chromium', 'magnesium', 'ala', 'inositol'],
+    evidence: 'moderate',
+    domain: 'hormones',
+    title: { ar: 'حساسية الإنسولين العميقة', de: 'Tiefe Insulinsensitivität' },
+    benefits: {
+      ar: [
+        'الكروم يقوّي عمل مستقبلات الإنسولين على الخلايا',
+        'ALA يحسّن نقل الجلوكوز إلى داخل الخلية بكفاءة',
+        'الإينوزيتول يعيد إشارة الإنسولين خاصة لدى متلازمة المبيض المتعدد',
+      ],
+      de: [
+        'Chrom stärkt Insulinrezeptor-Signal',
+        'ALA verbessert Glukose-Aufnahme in die Zelle',
+        'Inositol stellt Insulinsignal wieder her (v.a. PCOS)',
+      ],
+    },
+    howTo: {
+      ar: 'مع الوجبات الكربوهيدراتية، الإينوزيتول صباحاً ومساءً.',
+      de: 'Zu kohlenhydratreichen Mahlzeiten; Inositol morgens + abends.',
+    },
+    foodBoosters: ['broccoli', 'beans', 'oats'],
+  },
+  {
+    id: 'thyroid-axis',
+    nutrients: ['iodine', 'selenium', 'zinc'],
+    evidence: 'moderate',
+    domain: 'hormones',
+    title: { ar: 'محور الغدة الدرقية', de: 'Schilddrüsen-Achse' },
+    benefits: {
+      ar: [
+        'اليود يبني هرمونات T4 و T3 مباشرة',
+        'السيلينيوم ينشّط إنزيم Deiodinase لتحويل T4 الخامل إلى T3 النشط',
+        'الزنك ضروري لارتباط T3 بمستقبلاتها النووية',
+      ],
+      de: [
+        'Jod baut T4 und T3 direkt auf',
+        'Selen aktiviert Deiodinase: T4 → aktives T3',
+        'Zink essenziell für T3-Rezeptor-Bindung',
+      ],
+    },
+    howTo: {
+      ar: 'صباحاً مع الإفطار، بعيداً عن مكملات الحديد والكالسيوم بـ 4 ساعات.',
+      de: 'Morgens zum Frühstück, 4 Std. Abstand zu Eisen/Calcium.',
+    },
+    foodBoosters: ['salmon', 'eggs', 'beef'],
+  },
+
+  // --- Female hormonal ---
+  {
+    id: 'female-balance',
+    nutrients: ['inositol', 'vitaminD', 'magnesium', 'p5p'],
+    evidence: 'moderate',
+    domain: 'hormones',
+    title: { ar: 'توازن الهرمونات الأنثوية', de: 'Weibliches Hormongleichgewicht' },
+    benefits: {
+      ar: [
+        'الإينوزيتول (Myo+DCI بنسبة 40:1) يعيد انتظام التبويض',
+        'فيتامين د هرمون-ستيرويدي ينظّم استقبال الإستروجين',
+        'P5P يخفّض البرولاكتين وأعراض ما قبل الحيض',
+      ],
+      de: [
+        'Inositol (Myo+DCI 40:1) reguliert Eisprung',
+        'Vitamin D als Steroidhormon — Östrogen-Rezeptoren',
+        'P5P senkt Prolaktin und PMS-Symptome',
+      ],
+    },
+    howTo: {
+      ar: 'الإينوزيتول صباحاً ومساءً، فيتامين د مع وجبة دسمة.',
+      de: 'Inositol morgens + abends, Vitamin D zu Fett-Mahlzeit.',
+    },
+    foodBoosters: ['salmon', 'eggs', 'avocado', 'spinach'],
+  },
+
+  // --- Performance ---
+  {
+    id: 'muscle-power',
+    nutrients: ['creatine', 'protein', 'magnesium'],
+    evidence: 'strong',
+    domain: 'energy',
+    title: { ar: 'قوة العضلات والاستشفاء', de: 'Muskelkraft & Regeneration' },
+    benefits: {
+      ar: [
+        'الكرياتين يضاعف مخزون ATP الفوري في العضلات',
+        'البروتين يوفر الأحماض الأمينية لبناء النسيج العضلي',
+        'المغنيسيوم يمنع تشنجات العضلات بعد التمرين',
+      ],
+      de: [
+        'Kreatin verdoppelt ATP-Speicher in Muskelzellen',
+        'Protein liefert Aminosäuren für Muskelaufbau',
+        'Magnesium verhindert Muskelkrämpfe nach dem Training',
+      ],
+    },
+    howTo: {
+      ar: 'الكرياتين 5مغ يومياً (وقت ثابت)، البروتين بعد التمرين.',
+      de: 'Kreatin 5g täglich (fester Zeitpunkt), Protein nach Training.',
+    },
+    foodBoosters: ['beef', 'eggs', 'salmon', 'beans'],
+  },
 ];
 
 /** Domain → emoji + color hint for the UI. */
@@ -1465,6 +2324,12 @@ export const DOMAIN_META: Record<
   gut:      { icon: '🌱', label: { ar: 'الأمعاء',  de: 'Darm'      } },
   mood:     { icon: '🧘', label: { ar: 'المزاج',   de: 'Stimmung'  } },
   blood:    { icon: '🩸', label: { ar: 'الدم',     de: 'Blut'      } },
+  methylation:  { icon: '🧬', label: { ar: 'الميثيلة',     de: 'Methylierung' } },
+  mitochondria: { icon: '🔋', label: { ar: 'الميتوكوندريا', de: 'Mitochondrien' } },
+  cognition:    { icon: '🧠', label: { ar: 'الإدراك',       de: 'Kognition'    } },
+  longevity:    { icon: '♾️', label: { ar: 'طول العمر',     de: 'Longevity'    } },
+  detox:        { icon: '💧', label: { ar: 'إزالة السموم',  de: 'Entgiftung'   } },
+  hormones:     { icon: '⚖️', label: { ar: 'الهرمونات',     de: 'Hormone'      } },
 };
 
 export const EVIDENCE_LABEL: Record<SynergyRule['evidence'], Record<Lang, string>> = {
