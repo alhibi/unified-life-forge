@@ -180,5 +180,66 @@ self.addEventListener('message', async (event) => {
           }
         }),
     );
+    return;
+  }
+  if (data && data.type === 'reading:clear-images') {
+    // Wipe the cross-origin image cache. Triggered from StorageView's
+    // "Clear image cache" action — the user is usually under disk
+    // pressure and wants to free space without losing their saved
+    // articles. We delete + recreate so a subsequent precache request
+    // doesn't have to wait for the old cache to be evicted.
+    try {
+      await caches.delete(IMAGE_CACHE);
+      await caches.open(IMAGE_CACHE);
+    } catch {
+      // Cache Storage unavailable; nothing we can do from here.
+    }
+    return;
+  }
+  if (data && data.type === 'reading:clear-runtime') {
+    // Drop the app-shell cache. The next navigation will refetch
+    // /reading + /assets/* from the network. Useful when a deployment
+    // ships a breaking JS change and we need to evict stale bundles.
+    try {
+      await caches.delete(RUNTIME_CACHE);
+      await caches.open(RUNTIME_CACHE);
+    } catch { /* */ }
+    return;
+  }
+  if (data && data.type === 'reading:estimate' && event.source) {
+    // Reply with a quick summary the page can show in StorageView
+    // without having to call navigator.storage.estimate() itself
+    // (which on some browsers does not include Cache Storage in the
+    // count, leading to a confusingly small number). Counting cache
+    // entries directly gives the user something concrete.
+    let imageCount = 0;
+    let runtimeCount = 0;
+    try {
+      const imgCache = await caches.open(IMAGE_CACHE);
+      const imgKeys = await imgCache.keys();
+      imageCount = imgKeys.length;
+      const rtCache = await caches.open(RUNTIME_CACHE);
+      const rtKeys = await rtCache.keys();
+      runtimeCount = rtKeys.length;
+    } catch { /* */ }
+    let quotaBytes = 0;
+    let usageBytes = 0;
+    try {
+      const est = await self.navigator.storage?.estimate?.();
+      if (est) {
+        quotaBytes = est.quota || 0;
+        usageBytes = est.usage || 0;
+      }
+    } catch { /* */ }
+    try {
+      event.source.postMessage({
+        type: 'reading:estimate-result',
+        imageCount,
+        runtimeCount,
+        quotaBytes,
+        usageBytes,
+      });
+    } catch { /* */ }
+    return;
   }
 });

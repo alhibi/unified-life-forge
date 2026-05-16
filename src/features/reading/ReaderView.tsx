@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+import { useEffect, useRef, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Bookmark, BookmarkCheck, ChevronLeft, ExternalLink, Loader2, Type,
+  Bookmark, BookmarkCheck, ChevronLeft, Clipboard, ExternalLink,
+  History, Loader2, Trash2, Type, X,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,15 +12,39 @@ import type { ReaderPrefs } from './types';
 import { ReaderPrefsPopover } from './ReaderPrefsPopover';
 import { ArticleDetailSkeleton } from './Skeletons';
 import { offlineDb } from './offlineDb';
-import { readingMinutes } from './utils';
+import { readingMinutes, timeAgo } from './utils';
+import {
+  type ReaderHistoryEntry,
+  clearReaderHistory,
+  getReaderHistory,
+  pushReaderHistory,
+  removeReaderHistoryEntry,
+} from './storage';
 import { toast } from 'sonner';
 
 /**
  * ReaderView — turns any URL the user pastes into a clean, readable
  * article rendered with the same typography controls and progress bar
- * as the in-feed reader. Calls the extract-article edge function and
- * lets the user save the result for offline reading even though it
- * wasn't published in any of their RSS feeds.
+ * as the in-feed reader.
+ *
+ * Three deep enhancements layered onto the basic flow:
+ *
+ *  - **Clipboard paste-detection**: when the URL field is empty AND
+ *    the page becomes visible (i.e. the user just switched back to
+ *    this tab), we silently peek at the clipboard. If it contains a
+ *    URL the user hasn't already read, we surface a "Read this?" pill
+ *    above the input. One tap loads the article — no manual paste
+ *    required. The peek uses the async Clipboard API and degrades
+ *    gracefully on browsers that block read access.
+ *
+ *  - **Recently-read history (last 20)**: every successful extract is
+ *    written to localStorage with title, site name, image, timestamp.
+ *    When the input is empty we render the list as tappable rows,
+ *    each individually removable + a "Clear all" affordance.
+ *
+ *  - **Offline-first read**: still tries IndexedDB before the network
+ *    so a previously-saved article is instantly readable without a
+ *    connection. Same as before, just kept here for completeness.
  */
 
 interface ExtractedArticle {
@@ -54,6 +79,15 @@ export function ReaderView({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [article, setArticle] = useState<ExtractedArticle | null>(null);
+  const [history, setHistory] = useState<ReaderHistoryEntry[]>(getReaderHistory);
+  /** A URL we found in the clipboard that the user hasn't read yet.
+   *  Surfaced as a "Read this?" pill above the input; tapping it
+   *  loads the article. We never auto-load — that would be creepy. */
+  const [clipboardSuggestion, setClipboardSuggestion] = useState<string | null>(null);
+  /** Tracks the last URL we offered as a clipboard suggestion this
+   *  session, so we don't keep re-suggesting it after the user
+   *  dismisses it. */
+  const dismissedClipboardRef = useRef<Set<string>>(new Set());
   // The reader has two related but distinct flags:
   //  - `saved`: the article body is in our IndexedDB offline store
   //    (so it survives going offline / clearing the network cache).
@@ -86,6 +120,46 @@ export function ReaderView({
     if (initialUrl) handleExtract(initialUrl);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // ─── Clipboard suggestion ──────────────────────────────────────────────
+  // Peek at the clipboard whenever the page becomes visible AND the
+  // input is empty. If it contains a URL we haven't already read,
+  // surface a one-tap "Read this?" pill. We never auto-load — even
+  // when the user grants clipboard permission, silently navigating on
+  // their behalf would feel like surveillance.
+  useEffect(() => {
+    let cancelled = false;
+    async function peek() {
+      if (input.trim().length > 0) return;
+      if (article) return;
+      if (typeof navigator === 'undefined' || !navigator.clipboard?.readText) return;
+      // Some browsers (Firefox) require an explicit user gesture, so
+      // navigator.clipboard.readText() throws. We just swallow the
+      // failure — the manual paste flow is still there.
+      let text = '';
+      try {
+        text = await navigator.clipboard.readText();
+      } catch { return; }
+      if (cancelled) return;
+      const trimmed = (text || '').trim();
+      if (!trimmed || trimmed.length > 2048) return;
+      if (!/^https?:\/\//i.test(trimmed)) return;
+      // Don't suggest URLs the user has already read in this device.
+      if (history.some((h) => h.url === trimmed)) return;
+      // Don't re-suggest a URL the user dismissed this session.
+      if (dismissedClipboardRef.current.has(trimmed)) return;
+      setClipboardSuggestion(trimmed);
+    }
+    void peek();
+    const onVis = () => {
+      if (document.visibilityState === 'visible') void peek();
+    };
+    document.addEventListener('visibilitychange', onVis);
+    return () => {
+      cancelled = true;
+      document.removeEventListener('visibilitychange', onVis);
+    };
+  }, [input, article, history]);
 
   async function handleExtract(rawUrl?: string) {
     const url = (rawUrl ?? input).trim();
@@ -134,6 +208,20 @@ export function ReaderView({
         );
       }
       setArticle(payload);
+      // Record successful read in local history so it shows up in the
+      // "recently read" list when the URL field is empty next time.
+      pushReaderHistory({
+        url: payload.url || url,
+        title: payload.title || url,
+        siteName: payload.siteName,
+        image: payload.image,
+      });
+      setHistory(getReaderHistory());
+      // Clear the clipboard suggestion if it matched.
+      if (clipboardSuggestion && clipboardSuggestion === url) {
+        dismissedClipboardRef.current.add(url);
+        setClipboardSuggestion(null);
+      }
       // Auto-cache the hero image so offline rendering works.
       if (payload.image) void offlineDb.cacheImage(payload.image);
     } catch (e: any) {
@@ -247,7 +335,49 @@ export function ReaderView({
         )}
       </div>
 
-      <div className="px-4 py-4 border-b border-border/30">
+      <div className="px-4 py-4 border-b border-border/30 space-y-2.5">
+        {/* Clipboard suggestion pill — only when input is empty and we
+            actually found a fresh URL on the clipboard. */}
+        <AnimatePresence>
+          {clipboardSuggestion && input.trim().length === 0 && !article && (
+            <motion.button
+              type="button"
+              initial={{ opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              onClick={() => {
+                setInput(clipboardSuggestion);
+                handleExtract(clipboardSuggestion);
+              }}
+              className="w-full flex items-center gap-3 p-3 rounded-2xl bg-primary/10 hover:bg-primary/15 transition-colors text-start"
+            >
+              <span className="w-8 h-8 rounded-xl bg-primary/15 text-primary inline-flex items-center justify-center shrink-0">
+                <Clipboard className="h-4 w-4" />
+              </span>
+              <div className="flex-1 min-w-0">
+                <p className="text-[12px] font-bold text-primary mb-0.5">
+                  {isAr ? 'رابط في الحافظة' : 'URL on your clipboard'}
+                </p>
+                <p className="text-[11px] text-muted-foreground truncate" dir="ltr">
+                  {clipboardSuggestion}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  dismissedClipboardRef.current.add(clipboardSuggestion);
+                  setClipboardSuggestion(null);
+                }}
+                className="p-1.5 rounded-md hover:bg-primary/20"
+                aria-label={isAr ? 'تجاهل' : 'Dismiss'}
+              >
+                <X className="h-3.5 w-3.5 text-muted-foreground" />
+              </button>
+            </motion.button>
+          )}
+        </AnimatePresence>
+
         <div className="flex gap-2">
           <Input
             dir="ltr"
@@ -279,7 +409,7 @@ export function ReaderView({
             <p className="text-sm text-muted-foreground">{error}</p>
           </div>
         )}
-        {!loading && !error && !article && (
+        {!loading && !error && !article && history.length === 0 && (
           <div className="flex flex-col items-center justify-center text-center py-24 gap-3 px-6">
             <Type className="h-10 w-10 text-muted-foreground/30" />
             <p className="text-sm text-muted-foreground max-w-xs">
@@ -288,6 +418,25 @@ export function ReaderView({
                 : 'Paste any article URL — we’ll show it ad-free in the same reader mode'}
             </p>
           </div>
+        )}
+        {!loading && !error && !article && history.length > 0 && (
+          <ReaderHistoryList
+            history={history}
+            isAr={isAr}
+            language={language}
+            onPick={(url) => {
+              setInput(url);
+              handleExtract(url);
+            }}
+            onRemove={(url) => {
+              removeReaderHistoryEntry(url);
+              setHistory(getReaderHistory());
+            }}
+            onClear={() => {
+              clearReaderHistory();
+              setHistory([]);
+            }}
+          />
         )}
         {article && (
           <article className="px-5 pt-5 pb-16 max-w-prose mx-auto">
@@ -340,5 +489,99 @@ export function ReaderView({
         )}
       </div>
     </motion.div>
+  );
+}
+
+
+
+// ─── Recently-read history ─────────────────────────────────────────────
+
+function ReaderHistoryList({
+  history,
+  isAr,
+  language,
+  onPick,
+  onRemove,
+  onClear,
+}: {
+  history: ReaderHistoryEntry[];
+  isAr: boolean;
+  language: string;
+  onPick: (url: string) => void;
+  onRemove: (url: string) => void;
+  onClear: () => void;
+}) {
+  return (
+    <div className="px-4 py-4">
+      <div className="flex items-center justify-between mb-3">
+        <p className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground inline-flex items-center gap-1.5">
+          <History className="h-3 w-3" />
+          {isAr ? 'قراءات حديثة' : 'Recently read'}
+        </p>
+        <button
+          type="button"
+          onClick={onClear}
+          className="text-[10px] text-muted-foreground hover:text-foreground transition-colors"
+        >
+          {isAr ? 'مسح الكل' : 'Clear all'}
+        </button>
+      </div>
+      <div className="space-y-1.5">
+        {history.map((entry) => (
+          <div
+            key={entry.url}
+            className="group flex items-stretch gap-2 rounded-2xl hover:bg-accent/15 transition-colors"
+          >
+            <button
+              type="button"
+              onClick={() => onPick(entry.url)}
+              className="flex-1 flex gap-3 items-start p-2.5 text-start min-w-0"
+            >
+              {entry.image
+                ? (
+                  <img
+                    src={entry.image}
+                    alt=""
+                    className="w-12 h-12 rounded-xl object-cover shrink-0"
+                    loading="lazy"
+                    onError={(e) => {
+                      (e.currentTarget as HTMLImageElement).style.display = 'none';
+                    }}
+                  />
+                )
+                : (
+                  <span className="w-12 h-12 rounded-xl bg-primary/10 inline-flex items-center justify-center shrink-0">
+                    <Type className="h-4 w-4 text-primary" />
+                  </span>
+                )}
+              <div className="flex-1 min-w-0">
+                <p className="text-[13px] font-semibold line-clamp-2 leading-snug">
+                  {entry.title}
+                </p>
+                <div className="flex items-center gap-2 mt-1 flex-wrap">
+                  {entry.siteName && (
+                    <span className="text-[11px] text-muted-foreground truncate max-w-[140px]">
+                      {entry.siteName}
+                    </span>
+                  )}
+                  <span className="text-[10px] text-muted-foreground/70">
+                    {timeAgo(new Date(entry.at).toISOString(), language)}
+                  </span>
+                </div>
+              </div>
+            </button>
+            <button
+              type="button"
+              onClick={() => onRemove(entry.url)}
+              className="px-2 rounded-xl opacity-0 group-hover:opacity-100 hover:bg-destructive/10 transition-all"
+              aria-label={isAr ? 'إزالة' : 'Remove'}
+              title={isAr ? 'إزالة' : 'Remove'}
+            >
+              <Trash2 className="h-3.5 w-3.5 text-destructive/80" />
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }

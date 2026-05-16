@@ -417,6 +417,7 @@ export type Database = {
           q: string
           src_names?: string[] | null
           max_rows?: number
+          since_at?: string | null
         }
         Returns: {
           link: string
@@ -431,6 +432,16 @@ export type Database = {
       invoke_edge_function: {
         Args: { fn_name: string; payload?: Json }
         Returns: number | null
+      }
+      reading_cron_status: {
+        Args: { max_rows?: number }
+        Returns: {
+          jobname: string
+          status: string
+          start_time: string
+          end_time: string | null
+          return_message: string | null
+        }[]
       }
     }
     Enums: {

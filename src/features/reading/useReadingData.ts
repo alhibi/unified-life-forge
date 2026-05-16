@@ -6,6 +6,7 @@ import { offlineDb } from './offlineDb';
 import {
   LAST_REFRESH_KEY,
   getBookmarks,
+  getOfflinePrefs,
   getReadArticles,
   getStoredFeeds,
   storeBookmarks,
@@ -36,10 +37,14 @@ export function useReadingData(opts: { isAr: boolean }) {
   const [refreshing, setRefreshing] = useState(false);
   const [statuses, setStatuses] = useState<FeedStatus[]>([]);
   const [totalInDB, setTotalInDB] = useState(0);
+  const [cachedLinks, setCachedLinks] = useState<ReadonlySet<string>>(
+    () => new Set<string>(),
+  );
   const [lastRefresh, setLastRefresh] = useState<string | null>(
     typeof window !== 'undefined' ? localStorage.getItem(LAST_REFRESH_KEY) : null,
   );
   const autoRefreshRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const autoCacheTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const enabledFeeds = useMemo(
     () => feedSources.filter((f) => f.enabled),
@@ -425,6 +430,93 @@ export function useReadingData(opts: { isAr: boolean }) {
     [feedSources],
   );
 
+  // ─── Offline auto-cache ────────────────────────────────────────────────
+  // Whenever `articles` or `bookmarks` changes, reconcile the
+  // IndexedDB store so the user's "auto-cache last N unread"
+  // preference is honoured. We always include bookmarked links
+  // regardless of the cap, so explicit saves are never bumped out by
+  // the rolling N-most-recent-unread window. Debounced 600 ms so a
+  // burst of state updates doesn't trigger a write storm.
+  const recacheNow = useCallback(async (): Promise<void> => {
+    if (!offlineDb.available()) return;
+    const prefs = getOfflinePrefs();
+    const bookmarkSet = new Set(bookmarks);
+    const readSet = new Set(readArticles);
+
+    // Pick the auto-cache window: most recent unread, capped at N.
+    let toKeep: FeedItem[] = [];
+    if (prefs.autoCacheCount > 0) {
+      const sorted = [...articles].sort((a, b) => {
+        const da = a.pubDate ? new Date(a.pubDate).getTime() : 0;
+        const db = b.pubDate ? new Date(b.pubDate).getTime() : 0;
+        return db - da;
+      });
+      for (const a of sorted) {
+        if (toKeep.length >= prefs.autoCacheCount) break;
+        if (a.link && !readSet.has(a.link) && !bookmarkSet.has(a.link)) {
+          toKeep.push(a);
+        }
+      }
+    }
+
+    // Always cache every bookmarked article we currently have a copy of.
+    const linkToArticle = new Map(articles.map((a) => [a.link, a] as const));
+    const bookmarkedItems = bookmarks
+      .map((l) => linkToArticle.get(l))
+      .filter((a): a is FeedItem => !!a);
+
+    const sync = await offlineDb.syncArticles(
+      [...toKeep, ...bookmarkedItems],
+      bookmarks,
+    );
+
+    // Refresh image cache too, but only if the user wants it.
+    if (prefs.cacheImages) {
+      const urls: string[] = [];
+      for (const a of [...toKeep, ...bookmarkedItems]) {
+        if (a.image) urls.push(a.image);
+      }
+      if (urls.length > 0 && typeof navigator !== 'undefined') {
+        try {
+          const reg = await navigator.serviceWorker?.ready;
+          reg?.active?.postMessage({ type: 'reading:precache', urls });
+        } catch { /* SW unavailable, ignore */ }
+      }
+    }
+
+    // Refresh the cachedLinks indicator set.
+    try {
+      const list = await offlineDb.listArticles();
+      setCachedLinks(new Set(list.map((a) => a.link)));
+    } catch { /* */ }
+
+    return sync as unknown as void;
+  }, [articles, bookmarks, readArticles]);
+
+  // Debounce auto-cache so frequent state updates don't write-storm IDB.
+  useEffect(() => {
+    if (autoCacheTimerRef.current) clearTimeout(autoCacheTimerRef.current);
+    autoCacheTimerRef.current = setTimeout(() => {
+      void recacheNow();
+    }, 600);
+    return () => {
+      if (autoCacheTimerRef.current) clearTimeout(autoCacheTimerRef.current);
+    };
+  }, [recacheNow]);
+
+  // Initial load of cachedLinks (so the offline dot renders before the
+  // first refresh fires).
+  useEffect(() => {
+    if (!offlineDb.available()) return;
+    let cancelled = false;
+    offlineDb.listArticles()
+      .then((list) => {
+        if (!cancelled) setCachedLinks(new Set(list.map((a) => a.link)));
+      })
+      .catch(() => undefined);
+    return () => { cancelled = true; };
+  }, []);
+
   return {
     // state
     feedSources,
@@ -438,6 +530,7 @@ export function useReadingData(opts: { isAr: boolean }) {
     totalInDB,
     lastRefresh,
     sourceCounts,
+    cachedLinks,
     // actions
     refreshFeeds,
     toggleBookmark,
@@ -448,6 +541,7 @@ export function useReadingData(opts: { isAr: boolean }) {
     addFeedsBulk,
     removeFeed,
     toggleFeedEnabled,
+    recacheNow,
   };
 }
 

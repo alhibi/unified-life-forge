@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Bell, BellRing, ChevronLeft, ExternalLink, Loader2, Plus,
-  Trash2,
+  Bell, BellOff, BellRing, ChevronLeft, ChevronDown, ExternalLink,
+  Loader2, Moon, Plus, Settings2, Trash2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,15 +11,34 @@ import { toast } from 'sonner';
 import type { FeedSource } from './types';
 import { timeAgo } from './utils';
 import { SourcePill } from './SourcePill';
+import { useNotifications } from './useNotifications';
 
 /**
  * KeywordAlertsView — manages a per-user list of keywords. The cron
  * job (check-keyword-alerts edge function) scans new articles every
  * 30 minutes against these and writes hits into keyword_alert_hits.
- * The UI shows both the list of alerts and the unseen hits inbox.
  *
- * Realtime: we subscribe to inserts on keyword_alert_hits filtered by
- * user_id so a hit landing during cron run shows up live.
+ * What this view delivers, end-to-end:
+ *   - Alert CRUD (create / enable-toggle / delete) with source filter
+ *     + match-mode (any / whole_word / phrase).
+ *   - "Check now" button to trigger the edge function manually.
+ *   - Realtime hit feed: postgres_changes on keyword_alert_hits with
+ *     a per-user filter. New hits land instantly.
+ *   - Browser notifications: opt-in via the standard Notification
+ *     permission flow. When granted, every burst of inserts also
+ *     fires a system notification (with a 2 s coalescing window so a
+ *     30-row cron run produces ONE notification, not 30).
+ *   - Quiet hours: a "no notifications between HH:mm and HH:mm"
+ *     setting that handles wrap-around (22:00 → 07:00).
+ *   - Snooze for 1 h / 8 h / 24 h, with a clear-snooze action.
+ *   - Frequency mode: "instant" or "digest" (an in-app reminder
+ *     that the cron has been running but no individual notifications
+ *     fired — useful when the user wants the data but not the
+ *     interruptions).
+ *   - Inbox of recent hits with mark-as-read + mark-all-read.
+ *
+ * State that survives reload lives in localStorage (notification
+ * prefs) and Postgres (alerts + hits).
  */
 
 type MatchMode = 'any' | 'whole_word' | 'phrase';
@@ -63,19 +82,20 @@ export function KeywordAlertsView({
   const [matchMode, setMatchMode] = useState<MatchMode>('any');
   const [creating, setCreating] = useState(false);
   const [filteredSources, setFilteredSources] = useState<string[]>([]);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
-  // ─── Initial load + realtime ─────────────────────────────────────────────
-  // Burst-of-inserts is the expected behaviour when the cron fires —
-  // many alerts can match new articles within a 30 ms window. To avoid
-  // a stack of N toasts, we batch them: the first hit of a burst opens
-  // a 2 s window, every subsequent hit during that window adds to the
-  // counter, and a single toast fires when the window closes ("X new
-  // matches" instead of one toast per row).
+  const notifications = useNotifications();
+  const { prefs: notifPrefs, permission, request, notify, mute, setPrefs: setNotifPrefs } =
+    notifications;
+
+  // Burst-of-inserts: many alerts can match new articles within 30ms
+  // when the cron fires. Coalesce into a single browser notification
+  // (and a single in-app toast as fallback) per 2 s window.
   const burstRef = useRef<{
     timer: ReturnType<typeof setTimeout> | null;
-    count: number;
-    lastTitle: string;
-  }>({ timer: null, count: 0, lastTitle: '' });
+    titles: string[];
+  }>({ timer: null, titles: [] });
+
   useEffect(() => {
     let cancelled = false;
     const init = async () => {
@@ -125,28 +145,11 @@ export function KeywordAlertsView({
           (payload) => {
             const row = payload.new as AlertHit;
             setHits((prev) => [row, ...prev].slice(0, 200));
-            // Coalesce burst inserts into one toast.
             const burst = burstRef.current;
-            burst.count += 1;
-            burst.lastTitle = row.article_title;
+            burst.titles.push(row.article_title);
             if (burst.timer) clearTimeout(burst.timer);
             burst.timer = setTimeout(() => {
-              if (burst.count === 1) {
-                toast.info(
-                  isAr
-                    ? `تطابق جديد: ${burst.lastTitle}`
-                    : `New match: ${burst.lastTitle}`,
-                );
-              } else {
-                toast.info(
-                  isAr
-                    ? `${burst.count} تطابقات جديدة`
-                    : `${burst.count} new matches`,
-                );
-              }
-              burst.count = 0;
-              burst.lastTitle = '';
-              burst.timer = null;
+              flushBurst();
             }, 2000);
           },
         )
@@ -156,14 +159,49 @@ export function KeywordAlertsView({
     return () => {
       cancelled = true;
       if (chan) supabase.removeChannel(chan);
-      if (burstRef.current.timer) {
-        clearTimeout(burstRef.current.timer);
-        burstRef.current.timer = null;
-      }
+      if (burstRef.current.timer) clearTimeout(burstRef.current.timer);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAr]);
 
-  // ─── Mutations ──────────────────────────────────────────────────────────
+  /** Coalesced delivery: prefer a browser notification when granted +
+   *  not muted + outside quiet hours. Otherwise fall back to an
+   *  in-app toast. Either way, we collapse the burst into one. */
+  function flushBurst() {
+    const burst = burstRef.current;
+    const count = burst.titles.length;
+    if (count === 0) {
+      burst.timer = null;
+      return;
+    }
+    const firstTitle = burst.titles[0];
+    burst.titles = [];
+    burst.timer = null;
+
+    // Digest mode silences individual notifications; the user will
+    // see the inbox count + badge instead. We still update the
+    // in-app inbox state above; here we just skip the notification.
+    if (notifPrefs.frequency === 'digest') return;
+
+    const title = isAr
+      ? count === 1 ? 'تطابق جديد' : `${count} تطابقات جديدة`
+      : count === 1 ? 'New match' : `${count} new matches`;
+    const body = count === 1 ? firstTitle : firstTitle + (
+      isAr ? ` و ${count - 1} أخرى` : ` and ${count - 1} more`
+    );
+
+    const result = notify({
+      title,
+      body,
+      tag: 'reading-alerts',
+    });
+    if (!result.ok) {
+      // Fall back to a toast so we don't drop the signal entirely.
+      toast.info(`${title} · ${body}`);
+    }
+  }
+
+  // ─── Alert mutations ────────────────────────────────────────────────────
   async function addAlert() {
     const k = keyword.trim();
     if (k.length < 2) return;
@@ -246,6 +284,7 @@ export function KeywordAlertsView({
   }
 
   const unseenCount = hits.filter((h) => !h.seen).length;
+  const muteRemaining = computeMuteRemaining(notifPrefs.mutedUntil);
 
   return (
     <motion.div
@@ -284,6 +323,213 @@ export function KeywordAlertsView({
         >
           {isAr ? 'فحص الآن' : 'Check now'}
         </button>
+      </div>
+
+      {/* Notification status strip */}
+      <div className="px-4 py-2.5 border-b border-border/30 bg-card/40">
+        <button
+          type="button"
+          onClick={() => setSettingsOpen((v) => !v)}
+          className="w-full flex items-center gap-3 group"
+        >
+          <span
+            className={`w-9 h-9 rounded-xl inline-flex items-center justify-center shrink-0 ${
+              permission === 'granted' && notifPrefs.enabled && !muteRemaining
+                ? 'bg-primary/15 text-primary'
+                : 'bg-foreground/8 text-muted-foreground'
+            }`}
+          >
+            {muteRemaining
+              ? <BellOff className="h-4 w-4" />
+              : permission === 'granted' && notifPrefs.enabled
+                ? <BellRing className="h-4 w-4" />
+                : <Bell className="h-4 w-4" />}
+          </span>
+          <div className="flex-1 min-w-0 text-start">
+            <p className="text-[13px] font-semibold truncate">
+              {permission === 'unsupported'
+                ? (isAr ? 'الإشعارات غير مدعومة' : 'Notifications unsupported')
+                : permission === 'denied'
+                  ? (isAr ? 'الإشعارات مرفوضة' : 'Notifications blocked')
+                  : permission !== 'granted'
+                    ? (isAr ? 'الإشعارات غير مفعّلة' : 'Notifications off')
+                    : !notifPrefs.enabled
+                      ? (isAr ? 'الإشعارات متوقفة' : 'Notifications paused')
+                      : muteRemaining
+                        ? (isAr
+                          ? `كتم لمدة ${muteRemaining}`
+                          : `Muted ${muteRemaining}`)
+                        : notifPrefs.frequency === 'digest'
+                          ? (isAr ? 'وضع الموجز' : 'Digest mode')
+                          : (isAr ? 'الإشعارات مفعّلة' : 'Notifications on')}
+            </p>
+            <p className="text-[10px] text-muted-foreground line-clamp-1">
+              {isAr
+                ? 'اضغط لتعديل الإعدادات'
+                : 'Tap to adjust preferences'}
+            </p>
+          </div>
+          <ChevronDown
+            className={`h-4 w-4 text-muted-foreground transition-transform ${
+              settingsOpen ? 'rotate-180' : ''
+            }`}
+          />
+        </button>
+
+        <AnimatePresence initial={false}>
+          {settingsOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.22 }}
+              className="overflow-hidden"
+            >
+              <div className="pt-3 pb-1 space-y-3">
+                {/* Permission action */}
+                {permission !== 'granted' && permission !== 'unsupported' && (
+                  <Button
+                    onClick={() => { void request(); }}
+                    size="sm"
+                    className="w-full rounded-xl h-9"
+                  >
+                    <Bell className="h-3.5 w-3.5 me-1.5" />
+                    {permission === 'denied'
+                      ? (isAr
+                        ? 'فعّل الإشعارات من إعدادات المتصفح'
+                        : 'Enable in browser settings')
+                      : (isAr ? 'السماح بالإشعارات' : 'Allow notifications')}
+                  </Button>
+                )}
+
+                {/* Master toggle (only useful when permission is granted) */}
+                {permission === 'granted' && (
+                  <div className="flex items-center gap-3">
+                    <span className="flex-1 text-[12px] font-medium">
+                      {isAr ? 'تشغيل الإشعارات' : 'Notifications on'}
+                    </span>
+                    <Toggle
+                      on={notifPrefs.enabled}
+                      onChange={(v) => setNotifPrefs({ ...notifPrefs, enabled: v })}
+                    />
+                  </div>
+                )}
+
+                {/* Sound toggle */}
+                {permission === 'granted' && notifPrefs.enabled && (
+                  <div className="flex items-center gap-3">
+                    <span className="flex-1 text-[12px] font-medium">
+                      {isAr ? 'صوت' : 'Play sound'}
+                    </span>
+                    <Toggle
+                      on={notifPrefs.sound}
+                      onChange={(v) => setNotifPrefs({ ...notifPrefs, sound: v })}
+                    />
+                  </div>
+                )}
+
+                {/* Frequency: instant vs digest */}
+                {permission === 'granted' && notifPrefs.enabled && (
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground mb-1.5">
+                      {isAr ? 'التكرار' : 'Frequency'}
+                    </p>
+                    <div className="flex gap-1.5">
+                      <SegButton
+                        active={notifPrefs.frequency === 'instant'}
+                        onClick={() => setNotifPrefs({ ...notifPrefs, frequency: 'instant' })}
+                        label={isAr ? 'فوري' : 'Instant'}
+                      />
+                      <SegButton
+                        active={notifPrefs.frequency === 'digest'}
+                        onClick={() => setNotifPrefs({ ...notifPrefs, frequency: 'digest' })}
+                        label={isAr ? 'موجز' : 'Digest'}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Quiet hours */}
+                {permission === 'granted' && notifPrefs.enabled && (
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground mb-1.5 inline-flex items-center gap-1.5">
+                      <Moon className="h-3 w-3" />
+                      {isAr ? 'ساعات الهدوء' : 'Quiet hours'}
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <TimeInput
+                        value={notifPrefs.quietStart}
+                        onChange={(v) => setNotifPrefs({ ...notifPrefs, quietStart: v })}
+                      />
+                      <span className="text-[11px] text-muted-foreground">
+                        {isAr ? 'إلى' : 'to'}
+                      </span>
+                      <TimeInput
+                        value={notifPrefs.quietEnd}
+                        onChange={(v) => setNotifPrefs({ ...notifPrefs, quietEnd: v })}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Snooze actions */}
+                {permission === 'granted' && notifPrefs.enabled && (
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground mb-1.5">
+                      {isAr ? 'كتم مؤقت' : 'Snooze'}
+                    </p>
+                    <div className="flex gap-1.5 flex-wrap">
+                      <SnoozeChip
+                        label={isAr ? 'ساعة' : '1 h'}
+                        onClick={() => mute(60)}
+                      />
+                      <SnoozeChip
+                        label={isAr ? '٨ ساعات' : '8 h'}
+                        onClick={() => mute(60 * 8)}
+                      />
+                      <SnoozeChip
+                        label={isAr ? '٢٤ ساعة' : '24 h'}
+                        onClick={() => mute(60 * 24)}
+                      />
+                      {muteRemaining && (
+                        <button
+                          type="button"
+                          onClick={() => mute(null)}
+                          className="px-3 py-1 rounded-full text-[11px] font-medium bg-destructive/10 text-destructive"
+                        >
+                          {isAr ? 'إلغاء الكتم' : 'Clear snooze'}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Test button */}
+                {permission === 'granted' && (
+                  <Button
+                    onClick={() => {
+                      const r = notify({
+                        title: isAr ? 'اختبار الإشعار' : 'Test notification',
+                        body: isAr
+                          ? 'سيظهر مثل هذا عند تطابق كلمة'
+                          : 'This is what a keyword match will look like',
+                        force: true,
+                      });
+                      if (!r.ok) {
+                        toast.error(isAr ? 'الإشعار لم يفعّل' : 'Notification could not fire');
+                      }
+                    }}
+                    variant="outline"
+                    size="sm"
+                    className="w-full rounded-xl h-9"
+                  >
+                    {isAr ? 'إرسال إشعار تجريبي' : 'Send a test notification'}
+                  </Button>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Add new alert */}
@@ -505,4 +751,92 @@ export function KeywordAlertsView({
       </div>
     </motion.div>
   );
+}
+
+// ─── small UI helpers ─────────────────────────────────────────────────
+
+function Toggle({ on, onChange }: { on: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <button
+      type="button"
+      onClick={() => onChange(!on)}
+      className={`w-10 h-5 rounded-full transition-colors relative shrink-0 ${
+        on ? 'bg-primary' : 'bg-foreground/15'
+      }`}
+      aria-pressed={on}
+    >
+      <motion.span
+        className="absolute top-0.5 w-4 h-4 rounded-full bg-white shadow-sm"
+        initial={false}
+        animate={{ left: on ? 'calc(100% - 1.125rem)' : '0.125rem' }}
+        transition={{ type: 'spring', stiffness: 500, damping: 32 }}
+      />
+    </button>
+  );
+}
+
+function SegButton({
+  active,
+  onClick,
+  label,
+}: {
+  active: boolean;
+  onClick: () => void;
+  label: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`px-3 py-1.5 rounded-xl text-[11px] font-medium transition-colors ${
+        active
+          ? 'bg-primary text-primary-foreground'
+          : 'bg-accent/30 text-muted-foreground hover:bg-accent/50'
+      }`}
+    >
+      {label}
+    </button>
+  );
+}
+
+function SnoozeChip({ label, onClick }: { label: string; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="px-3 py-1 rounded-full text-[11px] font-medium bg-accent/30 text-muted-foreground hover:bg-accent/50"
+    >
+      {label}
+    </button>
+  );
+}
+
+function TimeInput({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  return (
+    <input
+      type="time"
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      className="bg-background border border-border/60 rounded-lg text-[12px] px-2 py-1 tabular-nums"
+      dir="ltr"
+    />
+  );
+}
+
+function computeMuteRemaining(iso: string | null): string | null {
+  if (!iso) return null;
+  const t = new Date(iso).getTime();
+  if (Number.isNaN(t)) return null;
+  const ms = t - Date.now();
+  if (ms <= 0) return null;
+  const hours = Math.floor(ms / (60 * 60_000));
+  if (hours >= 1) return `${hours}h`;
+  const mins = Math.max(1, Math.floor(ms / 60_000));
+  return `${mins}m`;
 }

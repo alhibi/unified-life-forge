@@ -1,5 +1,7 @@
 import { motion } from 'framer-motion';
-import { Bookmark, BookmarkCheck, Clock } from 'lucide-react';
+import {
+  Bookmark, BookmarkCheck, CircleCheck, Clock,
+} from 'lucide-react';
 import type { FeedItem } from './types';
 import { readingMinutes, timeAgo } from './utils';
 import { SourcePill } from './SourcePill';
@@ -10,12 +12,16 @@ import { SourcePill } from './SourcePill';
  *
  * Layout (LTR):
  *   [text column flex-1] [thumbnail 64×64 if present] [bookmark on hover]
+ *
+ * The optional `cached` flag adds a subtle WiFi-off chip so users can
+ * see at a glance which articles are available offline.
  */
 export function ArticleCard({
   article,
   index,
   isRead,
   isBookmarked,
+  cached,
   language,
   onOpen,
   onToggleBookmark,
@@ -24,6 +30,7 @@ export function ArticleCard({
   index: number;
   isRead: boolean;
   isBookmarked: boolean;
+  cached?: boolean;
   language: string;
   onOpen: () => void;
   onToggleBookmark: () => void;
@@ -77,6 +84,14 @@ export function ArticleCard({
             </span>
             {isBookmarked && (
               <BookmarkCheck className="h-3 w-3 text-primary/60 shrink-0" />
+            )}
+            {cached && !isBookmarked && (
+              <span
+                className="inline-flex items-center gap-0.5 text-[10px] text-emerald-600 dark:text-emerald-400 shrink-0"
+                title={isAr ? 'متاحة دون اتصال' : 'Available offline'}
+              >
+                <CircleCheck className="h-2.5 w-2.5" />
+              </span>
             )}
           </div>
         </div>

@@ -37,7 +37,12 @@ serve(async (req) => {
   const auth = await requireUser(req);
   if (!auth.ok) return jsonResponse({ error: auth.error }, auth.status);
 
-  let body: { q?: unknown; sources?: unknown; limit?: unknown };
+  let body: {
+    q?: unknown;
+    sources?: unknown;
+    limit?: unknown;
+    since?: unknown;
+  };
   try {
     body = await req.json();
   } catch {
@@ -66,6 +71,14 @@ serve(async (req) => {
   const limit = typeof body.limit === "number"
     ? Math.max(1, Math.min(200, Math.floor(body.limit)))
     : 50;
+  // since: ISO-8601 string. The page sends "today"/"week"/"month" as
+  // ISO timestamps after computing them client-side, so we don't have
+  // to pull a date library into the edge function. NULL = no limit.
+  let sinceIso: string | null = null;
+  if (typeof body.since === "string") {
+    const parsed = Date.parse(body.since);
+    if (!Number.isNaN(parsed)) sinceIso = new Date(parsed).toISOString();
+  }
 
   const sb = createClient(
     Deno.env.get("SUPABASE_URL")!,
@@ -77,6 +90,7 @@ serve(async (req) => {
     q,
     src_names: sources && sources.length > 0 ? sources : null,
     max_rows: limit,
+    since_at: sinceIso,
   });
 
   if (error) {

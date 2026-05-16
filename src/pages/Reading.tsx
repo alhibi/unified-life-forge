@@ -25,6 +25,8 @@ import { SuggestedFeedsView } from '@/features/reading/SuggestedFeedsView';
 import { PullToRefresh } from '@/features/reading/PullToRefresh';
 import { SearchPanel } from '@/features/reading/SearchPanel';
 import { KeywordAlertsView } from '@/features/reading/KeywordAlertsView';
+import { StorageView } from '@/features/reading/StorageView';
+import { CronView } from '@/features/reading/CronView';
 import { ReaderView } from '@/features/reading/ReaderView';
 import { timeAgo } from '@/features/reading/utils';
 import { offlineDb } from '@/features/reading/offlineDb';
@@ -63,6 +65,8 @@ export default function ReadingPage() {
     addFeedsBulk,
     removeFeed,
     toggleFeedEnabled,
+    cachedLinks,
+    recacheNow,
   } = data;
 
   // ─── View state ───────────────────────────────────────────────────────
@@ -265,6 +269,8 @@ export default function ReadingPage() {
       case 'search':
       case 'alerts':
       case 'reader':
+      case 'storage':
+      case 'cron':
         setView('list');
         setSelectedArticle(null);
         break;
@@ -364,6 +370,26 @@ export default function ReadingPage() {
           />
         )}
 
+        {view === 'storage' && (
+          <StorageView
+            key="storage"
+            isAr={isAr}
+            bookmarksCount={bookmarks.length}
+            onBack={goBack}
+            onRecacheNow={recacheNow}
+          />
+        )}
+
+        {view === 'cron' && (
+          <CronView
+            key="cron"
+            isAr={isAr}
+            language={language}
+            feedSources={feedSources}
+            onBack={goBack}
+          />
+        )}
+
         {view === 'list' && (
           <div key="list" className="flex flex-col flex-1 min-h-screen">
             <ListHeader
@@ -410,6 +436,7 @@ export default function ReadingPage() {
                 searchQuery={searchQuery}
                 bookmarks={bookmarks}
                 readArticles={readArticles}
+                cachedLinks={cachedLinks}
                 onOpenArticle={openArticle}
                 onToggleBookmark={toggleBookmark}
                 onRefresh={() => refreshFeeds(false)}
@@ -417,11 +444,21 @@ export default function ReadingPage() {
             </PullToRefresh>
 
             <div className="px-4 py-2.5 border-t border-border/30 flex items-center justify-between text-[11px] text-muted-foreground">
-              <span className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => setView('storage')}
+                className="flex items-center gap-1.5 hover:text-foreground transition-colors"
+                title={isAr ? 'إدارة التخزين دون اتصال' : 'Manage offline storage'}
+              >
                 <Database className="h-3 w-3" />
                 {isAr ? `${totalInDB} مقال محفوظ` : `${totalInDB} archived`}
-              </span>
-              <span className="flex items-center gap-1.5">
+              </button>
+              <button
+                type="button"
+                onClick={() => setView('cron')}
+                className="flex items-center gap-1.5 hover:text-foreground transition-colors"
+                title={isAr ? 'حالة التحديث التلقائي' : 'Refresh status'}
+              >
                 {!isOnline
                   ? (<>
                       <WifiOff className="h-3 w-3 text-amber-500" />
@@ -443,7 +480,7 @@ export default function ReadingPage() {
                           <Clock className="h-3 w-3" />
                           {isAr ? 'لم يتم التحديث بعد' : 'Not synced yet'}
                         </>)}
-              </span>
+              </button>
             </div>
           </div>
         )}

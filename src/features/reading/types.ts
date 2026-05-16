@@ -35,7 +35,9 @@ export type View =
   | 'search'
   | 'alerts'
   | 'reader'
-  | 'archive';
+  | 'archive'
+  | 'storage'
+  | 'cron';
 export type FilterTab = 'all' | 'bookmarks' | 'unread';
 
 /** Reader-mode preferences, persisted in localStorage. */
