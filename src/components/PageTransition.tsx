@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
-import { ReactNode, memo } from 'react';
+import { ReactNode, memo, useLayoutEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import { navLoaded } from '@/lib/navPerf';
 
 // Main tabs — these get a fast fade (no slide)
 const TAB_PATHS = ['/', '/games', '/duas', '/diwan', '/settings'];
@@ -33,6 +34,12 @@ export default memo(function PageTransition({ children }: { children: ReactNode 
   const location = useLocation();
   const isTab = TAB_PATHS.includes(location.pathname);
   const variants = isTab ? fadeVariants : slideVariants;
+
+  // Measure how long this route took to mount + paint.
+  useLayoutEffect(() => {
+    const { finish } = navLoaded(location.pathname);
+    finish();
+  }, [location.pathname]);
 
   return (
     <motion.div
