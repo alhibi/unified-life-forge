@@ -13,6 +13,20 @@ import {
   type Lang,
 } from './wellnessData';
 import type { Supplement } from './wellnessDb';
+import { CATEGORY_META, categoryOf } from './foodCategories';
+
+function FoodChip({ foodKey, label }: { foodKey: string; label: string }) {
+  const meta = CATEGORY_META[categoryOf(foodKey)];
+  const Icon = meta.icon;
+  return (
+    <span className="text-[11px] ps-1 pe-2 py-0.5 rounded-full bg-muted/60 text-foreground/80 inline-flex items-center gap-1">
+      <span className={`w-4 h-4 rounded-full ${meta.bg} flex items-center justify-center`}>
+        <Icon className={`w-2.5 h-2.5 ${meta.color}`} strokeWidth={2.5} />
+      </span>
+      {label}
+    </span>
+  );
+}
 
 interface Props {
   supplements: Supplement[];
@@ -342,13 +356,7 @@ export default function StackAdvisor({ supplements }: Props) {
                               const f = FOODS[fk];
                               if (!f) return null;
                               return (
-                                <span
-                                  key={fk}
-                                  className="text-[11px] px-2 py-1 rounded-full bg-muted/60 text-foreground/80 flex items-center gap-1"
-                                >
-                                  <span>{f.icon}</span>
-                                  {f.label[lang]}
-                                </span>
+                                <FoodChip key={fk} foodKey={fk} label={f.label[lang]} />
                               );
                             })}
                           </div>
@@ -372,13 +380,7 @@ export default function StackAdvisor({ supplements }: Props) {
           </p>
           <div className="flex flex-wrap gap-1.5">
             {recommendedFoods.map((f) => (
-              <span
-                key={f.key}
-                className="text-[11px] px-2 py-1 rounded-full bg-primary/10 text-primary flex items-center gap-1"
-              >
-                <span>{f.icon}</span>
-                {f.label[lang]}
-              </span>
+              <FoodChip key={f.key} foodKey={f.key} label={f.label[lang]} />
             ))}
           </div>
         </div>
