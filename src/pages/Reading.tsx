@@ -420,6 +420,7 @@ export default function ReadingPage() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col pb-20">
+      <SEO title="القارئ — RSS وأخبار — SmartHub" description="قارئ RSS مدمج مع إستراتيجيات استخراج متعددة وحفظ المقالات للقراءة لاحقاً." path="/reading" />
       <AnimatePresence mode="wait">
         {/* === Article Detail View === */}
         {view === 'article' && selectedArticle && (
