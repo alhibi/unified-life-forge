@@ -348,6 +348,20 @@
     animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
     animation-fill-mode: both;
   }
+
+  /* ── Empty states: never leave dead space ──
+     Enter with opacity 0 + scale(0.96) → 1, 300ms ease-out-expo. */
+  @keyframes empty-state-in {
+    from { opacity: 0; transform: scale(0.96); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+  .empty-state,
+  [data-empty="true"],
+  [data-state="empty"] {
+    animation: empty-state-in 300ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    transform-origin: center;
+    will-change: transform, opacity;
+  }
 }
 
 /* ─── Global content-visibility: skip rendering work for off-screen content ─── */
