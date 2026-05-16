@@ -216,31 +216,20 @@
   text-align: right;
 }
 
-/* Native touch feedback — opacity only (no bounce/scale) */
-@media (hover: none) and (pointer: coarse) {
-  button:active,
-  [role="button"]:active,
-  a:active {
-    opacity: 0.85;
-    transition: opacity 0.12s ease-out;
-  }
-}
-
-/* Neutralize any Tailwind `active:scale-*` utilities so taps stay flat */
-button:active,
-[role="button"]:active,
-a:active,
-button:focus-visible,
-[role="button"]:focus-visible {
-  --tw-scale-x: 1 !important;
-  --tw-scale-y: 1 !important;
-}
-
-/* Interactive elements — only animate compositor-friendly props */
+/* Native press feedback — spring scale + opacity (user override) */
 button,
 a,
 [role="button"] {
-  transition: opacity 0.12s ease-out, transform 0.1s ease-out;
+  transition:
+    transform 120ms cubic-bezier(0.34, 1.56, 0.64, 1),
+    opacity 120ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform-origin: center;
+}
+button:active,
+[role="button"]:active,
+a:active {
+  transform: scale(0.96);
+  opacity: 0.92;
 }
 
 /* Disable browser context menu on UI elements */
