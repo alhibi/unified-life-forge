@@ -13,33 +13,33 @@
 import type { Transition, Variants } from 'framer-motion';
 
 // ── Easing curves ─────────────────────────────────────────
-// Smooth (no overshoot). Use these everywhere collapsibles / dropdowns appear.
-export const EASE_OUT = [0.16, 1, 0.3, 1] as const;
-export const EASE_IN_OUT = [0.65, 0, 0.35, 1] as const;
-
-// Native-feel curves for framer-motion / WAAPI consumers. These mirror the
-// CSS custom properties (--spring-*) defined in index.css so JS-driven
-// transitions match CSS ones.
+// Global motion law (project-wide override):
+//   • Element ENTER  → ease-out-expo (fast start, soft finish)
+//   • Element EXIT   → ease-in       (soft start, fast finish)
+//   • User INTERACT  → spring        (lively, elastic)
+export const EASE_OUT_EXPO = [0.19, 1, 0.22, 1] as const;
+export const EASE_IN       = [0.4, 0, 1, 1]    as const;
 export const SPRING_SNAPPY = [0.34, 1.56, 0.64, 1] as const;
-export const SPRING_ENTER  = [0.22, 1, 0.36, 1]     as const;
-export const SPRING_EXIT   = [0.55, 0, 1, 0.45]     as const;
-export const SPRING_IOS    = [0.25, 0.46, 0.45, 0.94] as const;
 
-// ── Override: expanding/collapsing elements use bouncy springs ──
-// (Project-wide directive — applies to dropdowns, menus, popovers,
-// accordions, collapsibles.)
-export const BOUNCE_OPEN  = [0.34, 1.56, 0.64, 1] as const;
-export const BOUNCE_CLOSE = [0.55, 0, 1, 0.45]    as const;
+// Aliases — kept for backward compatibility across the codebase.
+export const EASE_OUT      = EASE_OUT_EXPO;
+export const EASE_IN_OUT   = [0.65, 0, 0.35, 1] as const;
+export const SPRING_ENTER  = EASE_OUT_EXPO;
+export const SPRING_EXIT   = EASE_IN;
+export const SPRING_IOS    = SPRING_SNAPPY;
+// Expanding/collapsing elements: open with ease-out-expo, close with ease-in.
+export const BOUNCE_OPEN   = EASE_OUT_EXPO;
+export const BOUNCE_CLOSE  = EASE_IN;
 
 // ── Weight scale ──────────────────────────────────────────
 // Pair element size with motion duration. Heavier surfaces move slower so the
 // UI feels physical without being slow overall.
 export const motionWeight = {
-  micro: { duration: 0.1, ease: EASE_OUT },             // ripple, badge, tooltip
-  small: { duration: 0.22, ease: BOUNCE_OPEN },         // dropdown, snackbar, menu item
-  medium: { duration: 0.32, ease: BOUNCE_OPEN },        // card, accordion, tab content
-  large: { duration: 0.42, ease: BOUNCE_OPEN },         // sheet, modal, full-screen panel
-  hero:  { duration: 0.55, ease: EASE_OUT },            // page transition, lightbox
+  micro:  { duration: 0.1,  ease: EASE_OUT_EXPO },  // ripple, badge, tooltip
+  small:  { duration: 0.22, ease: EASE_OUT_EXPO },  // dropdown, snackbar, menu item
+  medium: { duration: 0.32, ease: EASE_OUT_EXPO },  // card, accordion, tab content
+  large:  { duration: 0.42, ease: EASE_OUT_EXPO },  // sheet, modal, full-screen panel
+  hero:   { duration: 0.55, ease: EASE_OUT_EXPO },  // page transition, lightbox
 } as const satisfies Record<string, Transition>;
 
 // ── Stagger ───────────────────────────────────────────────
@@ -95,7 +95,7 @@ export const spatialPopover = (dir: Direction = 'down'): Variants => {
   const off = offsetFor(dir);
   return {
     hidden: { opacity: 0, ...off },
-    show: { opacity: 1, x: 0, y: 0, transition: { duration: 0.22, ease: BOUNCE_OPEN } },
-    exit: { opacity: 0, ...off, transition: { duration: 0.18, ease: BOUNCE_CLOSE } },
+    show: { opacity: 1, x: 0, y: 0, transition: { duration: 0.22, ease: EASE_OUT_EXPO } },
+    exit: { opacity: 0, ...off, transition: { duration: 0.18, ease: EASE_IN } },
   };
 };
