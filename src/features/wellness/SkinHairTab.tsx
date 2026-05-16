@@ -1,10 +1,20 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Droplets, Sparkles, Wind, Moon, Heart, Check } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  Droplets, Sparkles, Wind, Moon, Heart, Check, ChevronDown,
+  Eye, Bone, Dumbbell, Battery, Brain, Sprout, Shield, Scale,
+  Dna, Droplet, Infinity as InfinityIcon, Smile,
+} from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
+import { bodySystems } from './bodySystems';
 import type { Lang } from './wellnessData';
 import type { SkinHairLog } from './wellnessDb';
 import { todayIso } from './wellnessDb';
+
+const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
+  Droplets, Sparkles, Eye, Bone, Dumbbell, Battery, Brain, Sprout,
+  Shield, Heart, Scale, Dna, Droplet, Infinity: InfinityIcon, Moon, Smile,
+};
 
 interface Props {
   skinHair: SkinHairLog[];
@@ -96,6 +106,8 @@ export default function SkinHairTab({ skinHair, onSave }: Props) {
     setSaved(true);
     setTimeout(() => setSaved(false), 1500);
   };
+
+  const [openSystem, setOpenSystem] = useState<string | null>(null);
 
   const scaleRow = (
     labelAr: string,
@@ -279,6 +291,82 @@ export default function SkinHairTab({ skinHair, onSave }: Props) {
           </div>
         </motion.div>
       )}
+
+      {/* Body Systems Atlas — what every Atlas element does for your body */}
+      <motion.div variants={item} initial="hidden" animate="show" className="space-y-2 pt-2">
+        <div className="px-1">
+          <p className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-wider">
+            {isAr ? 'أطلس الجسد' : 'Körper-Atlas'}
+          </p>
+          <p className="text-[11px] text-muted-foreground/80 mt-0.5 leading-snug">
+            {isAr
+              ? 'كيف تعمل عناصر الأطلس على كل جهاز في جسدك — مرجع علمي دقيق.'
+              : 'Wie die Atlas-Elemente auf jedes Körpersystem wirken.'}
+          </p>
+        </div>
+
+        <div className="space-y-2">
+          {bodySystems.map((sys) => {
+            const Icon = ICON_MAP[sys.icon] ?? Heart;
+            const open = openSystem === sys.key;
+            return (
+              <div key={sys.key} className="rounded-2xl bg-card border border-border/40 overflow-hidden">
+                <button
+                  onClick={() => setOpenSystem(open ? null : sys.key)}
+                  className="w-full px-3 py-3 flex items-center justify-between gap-2 active:scale-[0.99] transition-transform"
+                >
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                      <Icon className="w-4 h-4 text-primary" />
+                    </div>
+                    <div className="min-w-0 text-start">
+                      <p className="text-[13px] font-bold text-foreground truncate">
+                        {isAr ? sys.title.ar : sys.title.de}
+                      </p>
+                      <p className="text-[11px] text-muted-foreground truncate">
+                        {isAr ? sys.summary.ar : sys.summary.de}
+                      </p>
+                    </div>
+                  </div>
+                  <motion.span animate={{ rotate: open ? 180 : 0 }} transition={{ duration: 0.2 }}>
+                    <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />
+                  </motion.span>
+                </button>
+                <AnimatePresence initial={false}>
+                  {open && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                      className="overflow-hidden"
+                    >
+                      <div className="px-3 pb-3 space-y-1.5">
+                        {sys.effects.map((e, i) => (
+                          <div key={i} className="rounded-xl bg-accent/30 border border-border/30 p-3">
+                            <p className="text-[12.5px] font-semibold text-foreground leading-tight">
+                              {isAr ? e.name.ar : e.name.de}
+                            </p>
+                            <p className="text-[12px] text-muted-foreground leading-relaxed mt-1">
+                              {isAr ? e.action.ar : e.action.de}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            );
+          })}
+        </div>
+
+        <p className="text-[10px] text-muted-foreground/70 leading-relaxed text-center px-2 pt-1">
+          {isAr
+            ? 'مرجع بيوكيميائي تثقيفي — استشر مختصاً قبل أي بروتوكول.'
+            : 'Biochemische Referenz — vor jedem Protokoll Fachpersonal konsultieren.'}
+        </p>
+      </motion.div>
     </div>
   );
 }
