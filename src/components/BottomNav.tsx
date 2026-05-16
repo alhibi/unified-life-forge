@@ -98,7 +98,7 @@ export default function BottomNav() {
             >
               <motion.div
                 animate={active ? { y: -2, scale: 1.12 } : { y: 0, scale: 1 }}
-                transition={{ type: 'spring', stiffness: 500, damping: 28, mass: 0.4 }}
+                transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
                 style={active ? { filter: 'drop-shadow(0 0 6px hsl(var(--primary) / 0.5))' } : {}}
                 className="relative"
               >
@@ -123,7 +123,7 @@ export default function BottomNav() {
                 <motion.div
                   layoutId="nav-dot"
                   className="absolute -bottom-0.5 w-1 h-1 rounded-full bg-primary"
-                  transition={{ type: 'spring', stiffness: 500, damping: 35, mass: 0.5 }}
+                  transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
                 />
               )}
             </button>
