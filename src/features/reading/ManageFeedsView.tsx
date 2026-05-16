@@ -1,14 +1,17 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
-  AlertCircle, Check, ChevronLeft, Database, Plus, Rss, Settings2,
-  Star, Trash2, X,
+  AlertCircle, Check, ChevronLeft, Database, Download, Plus,
+  Rss, Settings2, Star, Trash2, Upload, X,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { toast } from 'sonner';
 import type { FeedSource, FeedStatus } from './types';
 import { CATEGORIES } from './feeds';
 import { SourcePill } from './SourcePill';
+import { downloadOpml, parseOpml } from './opml';
+import { AddFeedDialog } from './AddFeedDialog';
 
 /**
  * Lets the user add, remove, enable/disable feeds and shows per-feed
@@ -41,8 +44,11 @@ export function ManageFeedsView({
   const [newUrl, setNewUrl] = useState('');
   const [newName, setNewName] = useState('');
   const [newCategory, setNewCategory] = useState('news');
+  const [showAddDialog, setShowAddDialog] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const statusByUrl = new Map(statuses.map((s) => [s.url, s] as const));
+  const existingUrls = new Set(feedSources.map((f) => f.url));
 
   const handleAdd = () => {
     const ok = onAdd(newUrl, newName, newCategory);
@@ -50,6 +56,43 @@ export function ManageFeedsView({
       setNewUrl('');
       setNewName('');
     }
+  };
+
+  const handleOpmlImport = async (file: File) => {
+    try {
+      const text = await file.text();
+      const imported = parseOpml(text);
+      if (imported.length === 0) {
+        toast.error(isAr ? 'لم يتم العثور على خلاصات في الملف' : 'No feeds found in file');
+        return;
+      }
+      let added = 0;
+      let skipped = 0;
+      for (const feed of imported) {
+        if (existingUrls.has(feed.url)) {
+          skipped++;
+          continue;
+        }
+        const ok = onAdd(feed.url, feed.name, feed.category);
+        if (ok) added++;
+      }
+      toast.success(
+        isAr
+          ? `أُضيف ${added} مصدر${skipped > 0 ? `، تم تخطّي ${skipped} موجود` : ''}`
+          : `Added ${added}${skipped > 0 ? `, skipped ${skipped} existing` : ''}`,
+      );
+    } catch {
+      toast.error(isAr ? 'تعذّر قراءة الملف' : 'Could not read file');
+    }
+  };
+
+  const handleOpmlExport = () => {
+    if (feedSources.length === 0) {
+      toast.info(isAr ? 'لا توجد خلاصات للتصدير' : 'Nothing to export');
+      return;
+    }
+    downloadOpml(feedSources);
+    toast.success(isAr ? 'تم تصدير OPML' : 'OPML exported');
   };
 
   return (
@@ -76,12 +119,58 @@ export function ManageFeedsView({
         </h3>
         <button
           type="button"
+          onClick={() => fileInputRef.current?.click()}
+          className="p-2 rounded-xl hover:bg-accent/50 active:scale-95 transition-all"
+          aria-label={isAr ? 'استيراد OPML' : 'Import OPML'}
+          title={isAr ? 'استيراد OPML' : 'Import OPML'}
+        >
+          <Upload className="h-4 w-4 text-muted-foreground" />
+        </button>
+        <button
+          type="button"
+          onClick={handleOpmlExport}
+          className="p-2 rounded-xl hover:bg-accent/50 active:scale-95 transition-all"
+          aria-label={isAr ? 'تصدير OPML' : 'Export OPML'}
+          title={isAr ? 'تصدير OPML' : 'Export OPML'}
+        >
+          <Download className="h-4 w-4 text-muted-foreground" />
+        </button>
+        <button
+          type="button"
           onClick={onSuggested}
           className="p-2 rounded-xl hover:bg-accent/50 active:scale-95 transition-all"
           aria-label={isAr ? 'مقترحات' : 'Suggestions'}
         >
           <Star className="h-4 w-4 text-muted-foreground" />
         </button>
+      </div>
+
+      {/* Hidden file input for OPML import */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".opml,.xml,application/xml,text/xml"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) handleOpmlImport(file);
+          // Reset so the same file can be picked twice in a row
+          e.target.value = '';
+        }}
+      />
+
+      {/* Smart "Add Feed" button (opens discover dialog) */}
+      <div className="px-4 pt-4 pb-2">
+        <Button
+          onClick={() => setShowAddDialog(true)}
+          variant="outline"
+          className="w-full h-12 rounded-2xl border-dashed border-2 hover:bg-accent/30 hover:border-primary/40 transition-all group"
+        >
+          <Plus className="h-4 w-4 me-2 text-primary group-hover:scale-110 transition-transform" />
+          <span className="text-sm">
+            {isAr ? 'إضافة مصدر بالاكتشاف الذكي' : 'Add a feed (auto-discover)'}
+          </span>
+        </Button>
       </div>
 
       {/* New-feed form */}
@@ -241,6 +330,14 @@ export function ManageFeedsView({
           {isAr ? 'مقترحات' : 'Suggestions'}
         </Button>
       </div>
+
+      <AddFeedDialog
+        open={showAddDialog}
+        isAr={isAr}
+        existingUrls={existingUrls}
+        onClose={() => setShowAddDialog(false)}
+        onAdd={onAdd}
+      />
     </motion.div>
   );
 }

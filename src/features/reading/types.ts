@@ -27,7 +27,15 @@ export interface FeedStatus {
   error?: string;
 }
 
-export type View = 'list' | 'article' | 'manage' | 'suggested';
+export type View =
+  | 'list'
+  | 'article'
+  | 'manage'
+  | 'suggested'
+  | 'search'
+  | 'alerts'
+  | 'reader'
+  | 'archive';
 export type FilterTab = 'all' | 'bookmarks' | 'unread';
 
 /** Reader-mode preferences, persisted in localStorage. */
