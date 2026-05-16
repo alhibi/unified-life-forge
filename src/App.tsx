@@ -21,6 +21,13 @@ import { navStart } from "@/lib/navPerf";
 
 // Eager load the main page
 import Index from "./pages/Index";
+// Tab pages are eager-loaded and stay mounted across navigation so
+// switching between bottom-nav tabs feels instant (no remount/refetch).
+import GamesPage from "./pages/Games";
+import SettingsPage from "./pages/Settings";
+import DuasPage from "./pages/Duas";
+import DiwanPage from "./pages/Diwan";
+import ChatPage from "./pages/Chat";
 
 function AutoPrayerThemeRunner() {
   useAutoPrayerTheme();
@@ -33,9 +40,8 @@ function PresenceRunner() {
   return null;
 }
 
-// Lazy load all other pages
+// Lazy load all non-tab pages
 // Lazy loaders are kept as named factories so we can prefetch them on idle.
-const loadGames = () => import("./pages/Games");
 const loadSudoku = () => import("./pages/Sudoku");
 const loadChess = () => import("./pages/Chess");
 const loadMemory = () => import("./pages/MemoryGame");
@@ -47,14 +53,11 @@ const loadTarget = () => import("./pages/TargetGame");
 const loadPuzzle = () => import("./pages/PuzzleGame");
 const loadHex = () => import("./pages/HexGame");
 const loadFocus = () => import("./pages/FocusGame");
-const loadSettings = () => import("./pages/Settings");
 const loadTheme = () => import("./pages/ThemeSettings");
 const loadAuth = () => import("./pages/Auth");
 const loadProfile = () => import("./pages/ProfileEdit");
 const loadFont = () => import("./pages/FontSettings");
 const loadPrayer = () => import("./pages/PrayerSettings");
-const loadDuas = () => import("./pages/Duas");
-const loadDiwan = () => import("./pages/Diwan");
 const loadOccasions = () => import("./pages/AllOccasions");
 const loadReading = () => import("./pages/Reading");
 const loadTimed = () => import("./pages/TimedSunnah");
@@ -63,10 +66,8 @@ const loadProphetic = () => import("./pages/PropheticDay");
 const loadUntimed = () => import("./pages/UntimedSunnah");
 const loadVirtues = () => import("./pages/QuranVirtues");
 const loadWellness = () => import("./pages/Wellness");
-const loadChat = () => import("./pages/Chat");
 const loadNotFound = () => import("./pages/NotFound");
 
-const GamesPage = lazy(loadGames);
 const SudokuPage = lazy(loadSudoku);
 const ChessPage = lazy(loadChess);
 const MemoryGame = lazy(loadMemory);
@@ -78,14 +79,11 @@ const TargetGamePage = lazy(loadTarget);
 const PuzzleGamePage = lazy(loadPuzzle);
 const HexGamePage = lazy(loadHex);
 const FocusGamePage = lazy(loadFocus);
-const SettingsPage = lazy(loadSettings);
 const ThemeSettingsPage = lazy(loadTheme);
 const AuthPage = lazy(loadAuth);
 const ProfileEditPage = lazy(loadProfile);
 const FontSettingsPage = lazy(loadFont);
 const PrayerSettingsPage = lazy(loadPrayer);
-const DuasPage = lazy(loadDuas);
-const DiwanPage = lazy(loadDiwan);
 const AllOccasionsPage = lazy(loadOccasions);
 const ReadingPage = lazy(loadReading);
 const TimedSunnahPage = lazy(loadTimed);
@@ -94,18 +92,17 @@ const PropheticDayPage = lazy(loadProphetic);
 const UntimedSunnahPage = lazy(loadUntimed);
 const QuranVirtuesPage = lazy(loadVirtues);
 const WellnessPage = lazy(loadWellness);
-const ChatPage = lazy(loadChat);
 const NotFound = lazy(loadNotFound);
 
-// Warm the most-used tab chunks once the browser is idle, so the first
-// navigation feels instant without bloating the initial bundle.
+// Tab pages are now eager (always mounted), so the idle prefetch warms
+// the next most-likely sub-routes instead of the tabs themselves.
 function useIdlePrefetch() {
   useEffect(() => {
     const ric: (cb: () => void) => number =
       (window as any).requestIdleCallback ||
       ((cb) => window.setTimeout(cb, 1500));
     const id = ric(() => {
-      loadSettings(); loadGames(); loadDuas(); loadDiwan(); loadChat();
+      loadTheme(); loadProfile(); loadPrayer(); loadReading();
     });
     return () => {
       const cic = (window as any).cancelIdleCallback;
@@ -137,20 +134,62 @@ const PageSkeleton = () => (
   </div>
 );
 
+// Tab routes that stay mounted across navigation. Their components are
+// rendered once in <PersistentTabs/> and toggled with display:none — never
+// unmounted. This makes bottom-nav switching feel native and instant.
+const TAB_PATHS = ['/', '/games', '/chat', '/settings', '/duas', '/diwan'] as const;
+type TabPath = typeof TAB_PATHS[number];
+
+function PersistentTabs({ active }: { active: TabPath | null }) {
+  // Hide the entire layer when the user is on a non-tab route so it
+  // doesn't fight for the viewport with the active sub-page.
+  const visible = active !== null;
+  const slot = (path: TabPath, node: React.ReactNode) => (
+    <div
+      key={path}
+      style={{ display: active === path ? 'block' : 'none' }}
+      aria-hidden={active !== path}
+    >
+      <ErrorBoundary>{node}</ErrorBoundary>
+    </div>
+  );
+  return (
+    <div style={{ display: visible ? 'block' : 'none' }}>
+      {slot('/',         <Index />)}
+      {slot('/games',    <GamesPage />)}
+      {slot('/chat',     <ChatPage />)}
+      {slot('/settings', <SettingsPage />)}
+      {slot('/duas',     <DuasPage />)}
+      {slot('/diwan',    <DiwanPage />)}
+    </div>
+  );
+}
+
 function AnimatedRoutes() {
   const location = useLocation();
   useIdlePrefetch();
   // Mark the navigation start timestamp synchronously on every route change.
   // PageTransition then closes the measurement after mount + paint.
   navStart(location.pathname);
+  const activeTab = (TAB_PATHS as readonly string[]).includes(location.pathname)
+    ? (location.pathname as TabPath)
+    : null;
   return (
     <>
       <ScrollToTop />
-      <Suspense fallback={<PageSkeleton />}>
+      {/* Persistent layer — all 6 tab pages mounted once, toggled by display */}
+      <PersistentTabs active={activeTab} />
+      {/* Non-tab routes (sub-pages, settings details, games, etc.) */}
+      <Suspense fallback={activeTab ? null : <PageSkeleton />}>
         <AnimatePresence mode="wait" initial={false}>
-          <Routes location={location} key={location.pathname}>
-            <Route path="/" element={<ErrorBoundary><PageTransition><Index /></PageTransition></ErrorBoundary>} />
-            <Route path="/games" element={<ErrorBoundary><PageTransition><GamesPage /></PageTransition></ErrorBoundary>} />
+          <Routes location={location} key={activeTab ?? location.pathname}>
+            {/* Tab paths render null — the persistent layer handles them. */}
+            <Route path="/" element={null} />
+            <Route path="/games" element={null} />
+            <Route path="/chat" element={null} />
+            <Route path="/settings" element={null} />
+            <Route path="/duas" element={null} />
+            <Route path="/diwan" element={null} />
             <Route path="/games/sudoku" element={<ErrorBoundary><PageTransition><SudokuPage /></PageTransition></ErrorBoundary>} />
             <Route path="/games/chess" element={<ErrorBoundary><PageTransition><ChessPage /></PageTransition></ErrorBoundary>} />
             <Route path="/games/memory" element={<ErrorBoundary><PageTransition><MemoryGame /></PageTransition></ErrorBoundary>} />
@@ -162,11 +201,8 @@ function AnimatedRoutes() {
             <Route path="/games/puzzle" element={<ErrorBoundary><PageTransition><PuzzleGamePage /></PageTransition></ErrorBoundary>} />
             <Route path="/games/hex" element={<ErrorBoundary><PageTransition><HexGamePage /></PageTransition></ErrorBoundary>} />
             <Route path="/games/focus" element={<ErrorBoundary><PageTransition><FocusGamePage /></PageTransition></ErrorBoundary>} />
-            <Route path="/duas" element={<ErrorBoundary><PageTransition><DuasPage /></PageTransition></ErrorBoundary>} />
-            <Route path="/diwan" element={<ErrorBoundary><PageTransition><DiwanPage /></PageTransition></ErrorBoundary>} />
             <Route path="/occasions" element={<ErrorBoundary><PageTransition><AllOccasionsPage /></PageTransition></ErrorBoundary>} />
             <Route path="/reading" element={<ErrorBoundary><PageTransition><ReadingPage /></PageTransition></ErrorBoundary>} />
-            <Route path="/settings" element={<ErrorBoundary><PageTransition><SettingsPage /></PageTransition></ErrorBoundary>} />
             <Route path="/settings/theme" element={<ErrorBoundary><PageTransition><ThemeSettingsPage /></PageTransition></ErrorBoundary>} />
             <Route path="/auth" element={<ErrorBoundary><PageTransition><AuthPage /></PageTransition></ErrorBoundary>} />
             <Route path="/settings/profile" element={<ErrorBoundary><PageTransition><ProfileEditPage /></PageTransition></ErrorBoundary>} />
@@ -178,7 +214,6 @@ function AnimatedRoutes() {
             <Route path="/section/prophetic-day" element={<ErrorBoundary><PageTransition><PropheticDayPage /></PageTransition></ErrorBoundary>} />
             <Route path="/section/quran-virtues" element={<ErrorBoundary><PageTransition><QuranVirtuesPage /></PageTransition></ErrorBoundary>} />
             <Route path="/wellness" element={<ErrorBoundary><PageTransition><WellnessPage /></PageTransition></ErrorBoundary>} />
-            <Route path="/chat" element={<ErrorBoundary><PageTransition><ChatPage /></PageTransition></ErrorBoundary>} />
             <Route path="*" element={<ErrorBoundary><PageTransition><NotFound /></PageTransition></ErrorBoundary>} />
           </Routes>
         </AnimatePresence>
