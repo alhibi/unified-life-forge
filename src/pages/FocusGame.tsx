@@ -371,7 +371,7 @@ function ChoiceMode({ diff, rounds, isAr, onFinish }: { diff: DifficultyMeta; ro
         {options.map(id => {
           const c = COLORS.find(x => x.id === id)!;
           return (
-            <motion.button key={id} whileTap={{ scale: 0.88 }} onClick={() => handleTap(id)}
+            <motion.button key={id}  onClick={() => handleTap(id)}
               className="w-20 h-20 rounded-2xl border-2 border-white/15 shadow-lg"
               style={{ background: c.hex, boxShadow: `0 6px 24px ${c.hex}44` }} />
           );
@@ -474,7 +474,7 @@ function StroopMode({ diff, rounds, isAr, onFinish }: { diff: DifficultyMeta; ro
         {options.map(id => {
           const c = COLORS.find(x => x.id === id)!;
           return (
-            <motion.button key={id} whileTap={{ scale: 0.88 }} onClick={() => handleTap(id)}
+            <motion.button key={id}  onClick={() => handleTap(id)}
               className="px-3 py-3 rounded-2xl border-2 border-white/15 font-bold text-sm bg-white/4"
               style={{ color: c.hex }}>
               {isAr ? c.ar : c.de}

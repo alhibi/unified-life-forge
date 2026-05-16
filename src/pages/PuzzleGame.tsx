@@ -384,7 +384,7 @@ export default function PuzzleGame() {
               {moves} {isAr ? 'حركة' : 'Züge'} · {formatTime(seconds)}
               {hintsUsed > 0 && (isAr ? ` · ${hintsUsed} تلميح` : ` · ${hintsUsed} Tipps`)}
             </p>
-            <motion.button whileTap={{ scale: 0.95 }} onClick={() => reset()}
+            <motion.button  onClick={() => reset()}
               className="px-7 py-2.5 rounded-xl font-black text-emerald-950"
               style={{ background: 'linear-gradient(135deg, #34d399, #10b981)' }}>
               {isAr ? 'لعبة جديدة' : 'Neues Spiel'}

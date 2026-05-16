@@ -253,7 +253,7 @@ export default function HexGame() {
           const isActive = board[0][0] === i;
           const isHint = hintIdx === i;
           return (
-            <motion.button key={i} whileTap={{ scale: 0.85 }} onClick={() => pickColor(i)}
+            <motion.button key={i}  onClick={() => pickColor(i)}
               disabled={won || moves >= maxMoves || isActive}
               animate={isHint ? { scale: [1, 1.15, 1] } : { scale: 1 }}
               transition={{ duration: 0.6, repeat: isHint ? Infinity : 0 }}
@@ -287,7 +287,7 @@ export default function HexGame() {
               {moves} {isAr ? 'خطوة' : 'Schritte'}
               {hintsUsed > 0 && (isAr ? ` · ${hintsUsed} تلميح` : ` · ${hintsUsed} Tipps`)}
             </p>
-            <motion.button whileTap={{ scale: 0.9 }} onClick={() => reset()}
+            <motion.button  onClick={() => reset()}
               className="px-7 py-2.5 rounded-2xl font-black text-emerald-950"
               style={{ background: 'linear-gradient(135deg, #4ade80, #22c55e)' }}>
               {isAr ? 'مرة أخرى' : 'Nochmal'}
@@ -299,7 +299,7 @@ export default function HexGame() {
       {!won && moves >= maxMoves && (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center mt-4">
           <p className="text-lg font-bold text-rose-400 mb-3">{isAr ? 'انتهت الخطوات!' : 'Keine Züge mehr!'}</p>
-          <motion.button whileTap={{ scale: 0.9 }} onClick={() => reset()}
+          <motion.button  onClick={() => reset()}
             className="px-7 py-2.5 rounded-xl bg-emerald-600 text-white font-bold">
             {isAr ? 'حاول مجدداً' : 'Nochmal'}
           </motion.button>

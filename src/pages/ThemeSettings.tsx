@@ -144,7 +144,7 @@ export default function ThemeSettingsPage() {
                   className="flex flex-col items-center gap-2.5"
                 >
                   <motion.div
-                    whileTap={{ scale: 0.92 }}
+                    
                     className={`w-[56px] h-[56px] rounded-full flex items-center justify-center transition-all duration-300 ${
                       isActive
                         ? 'bg-primary'
@@ -297,7 +297,7 @@ export default function ThemeSettingsPage() {
               return (
                 <motion.button
                   key={ts.id}
-                  whileTap={{ scale: 0.96 }}
+                  
                   onClick={() => setPaletteStyle(ts.id)}
                   className={`relative flex items-center gap-3 p-3.5 rounded-2xl border transition-all duration-300 ${
                     isActive
@@ -341,7 +341,7 @@ export default function ThemeSettingsPage() {
               return (
                 <motion.button
                   key={preset.id}
-                  whileTap={{ scale: 0.9 }}
+                  
                   onClick={() => setColorTheme(preset.id as any)}
                   className="flex flex-col items-center gap-2"
                 >

@@ -350,7 +350,7 @@ function Arena({ mode, difficulty, duration, isAr, onFinish }: ArenaProps) {
         </motion.div>
         <p className="text-2xl font-black text-white mb-1">{MODES.find(m => m.id === mode)?.[isAr ? 'ar' : 'de']}</p>
         <p className="text-xs text-zinc-500 mb-6">{isAr ? `${duration} ثانية` : `${duration} Sekunden`}</p>
-        <motion.button whileTap={{ scale: 0.93 }} onClick={start}
+        <motion.button  onClick={start}
           className="px-10 py-3.5 rounded-2xl font-black text-white shadow-lg shadow-rose-500/30"
           style={{ background: 'linear-gradient(135deg, #f87171, #ef4444)' }}>
           🎯 {isAr ? 'ابدأ' : 'Start'}
@@ -384,7 +384,7 @@ function Arena({ mode, difficulty, duration, isAr, onFinish }: ArenaProps) {
             <p className="text-[10px] text-zinc-500">{isAr ? 'أعلى كومبو' : 'Top Combo'}</p>
           </div>
         </div>
-        <motion.button whileTap={{ scale: 0.93 }} onClick={start}
+        <motion.button  onClick={start}
           className="px-8 py-3 rounded-2xl font-black text-white shadow-lg shadow-rose-500/30"
           style={{ background: 'linear-gradient(135deg, #f87171, #ef4444)' }}>
           {isAr ? 'مرة أخرى' : 'Nochmal'}

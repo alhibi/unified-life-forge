@@ -42,7 +42,7 @@ function SectionButton({ section, Arrow }: { section: typeof sections[0]; Arrow:
   return (
     <motion.button
       variants={item}
-      whileTap={{ scale: 0.97 }}
+      
       onClick={handleClick}
       className="flex items-center justify-between gap-1.5 px-2.5 py-4 rounded-2xl bg-card/80 border border-border/40 backdrop-blur-sm transition-colors hover:bg-accent/40 group"
     >

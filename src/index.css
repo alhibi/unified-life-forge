@@ -121,9 +121,7 @@
   .btn-primary:hover {
     filter: brightness(1.08);
   }
-  .btn-primary:active {
-    transform: scale(0.96);
-  }
+  .btn-primary:active { opacity: 0.85; }
   .btn-secondary {
     @apply bg-secondary text-secondary-foreground font-medium;
     transition: background-color 0.15s ease-out, transform 0.1s ease-out;
@@ -131,9 +129,7 @@
   .btn-secondary:hover {
     @apply bg-muted;
   }
-  .btn-secondary:active {
-    transform: scale(0.96);
-  }
+  .btn-secondary:active { opacity: 0.85; }
 
   /* Native-feel horizontal carousel */
   .native-carousel {
@@ -188,15 +184,24 @@
   text-align: right;
 }
 
-/* Native touch feedback — scale + opacity on press */
+/* Native touch feedback — opacity only (no bounce/scale) */
 @media (hover: none) and (pointer: coarse) {
   button:active,
   [role="button"]:active,
   a:active {
-    transform: scale(0.96);
-    opacity: 0.8;
-    transition: transform 0.1s ease-out, opacity 0.1s ease-out;
+    opacity: 0.85;
+    transition: opacity 0.12s ease-out;
   }
+}
+
+/* Neutralize any Tailwind `active:scale-*` utilities so taps stay flat */
+button:active,
+[role="button"]:active,
+a:active,
+button:focus-visible,
+[role="button"]:focus-visible {
+  --tw-scale-x: 1 !important;
+  --tw-scale-y: 1 !important;
 }
 
 /* Interactive elements — only animate compositor-friendly props */

@@ -423,7 +423,7 @@ export default function PipesPage() {
                   onPointerDown={() => handlePointerDown(ri, ci)}
                   onPointerUp={handlePointerUp}
                   onPointerLeave={handlePointerUp}
-                  whileTap={{ scale: isLocked ? 1 : 0.9 }}
+                  
                   animate={{ rotate: 0 }}
                   className={`aspect-square rounded-lg p-1 transition-all ${
                     isConn ? 'bg-primary/10' : 'bg-secondary/60'

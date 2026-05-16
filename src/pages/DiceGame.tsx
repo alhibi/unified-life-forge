@@ -27,7 +27,6 @@ function DiceFace({ value, held, rolling, onClick, color }: {
   return (
     <motion.button
       onClick={onClick}
-      whileTap={onClick ? { scale: 0.88 } : {}}
       animate={rolling ? { rotate: [0, 90, 180, 270, 360], scale: [1, 0.95, 1] } : { rotate: 0, scale: 1 }}
       transition={rolling ? { duration: 0.45, ease: 'easeInOut' } : { type: 'spring', stiffness: 400, damping: 26 }}
       className={`relative w-14 h-14 rounded-2xl border-2 grid grid-rows-3 grid-cols-3 p-2 transition-colors ${
@@ -571,7 +570,7 @@ function YatzyView(p: YatzyViewProps) {
         </div>
         <div className="flex justify-center">
           <motion.button
-            whileTap={{ scale: 0.95 }}
+            
             disabled={rolling || rollsLeft <= 0 || turn !== 'player' || gameOver}
             onClick={rollDice}
             className="px-6 py-2 rounded-2xl font-black text-amber-950 disabled:opacity-30 disabled:cursor-not-allowed shadow-lg shadow-amber-500/30"
@@ -605,7 +604,7 @@ function YatzyView(p: YatzyViewProps) {
               {finalTotal > aiTotal ? (isAr ? '👑 بطل!' : '👑 Champion!') : finalTotal < aiTotal ? (isAr ? 'حظاً أوفر' : 'Nächstes Mal!') : (isAr ? 'تعادل!' : 'Unentschieden!')}
             </p>
             <p className="text-amber-400 text-sm font-mono">{finalTotal} : {aiTotal}</p>
-            <motion.button whileTap={{ scale: 0.95 }} onClick={resetYatzy}
+            <motion.button  onClick={resetYatzy}
               className="mt-3 px-6 py-2 rounded-xl font-bold text-amber-950"
               style={{ background: 'linear-gradient(135deg, #fbbf24, #f59e0b)' }}>
               <RotateCcw className="w-3.5 h-3.5 inline mr-1.5" /> {isAr ? 'مباراة جديدة' : 'Neue Partie'}
@@ -716,13 +715,13 @@ function HighRollView(p: HighRollViewProps) {
         <p className="text-[11px] text-amber-400 font-bold mb-2">🔥 {hrStreak} {isAr ? 'فوز متتالي' : 'in Folge'}</p>
       )}
       {!finished ? (
-        <motion.button whileTap={{ scale: 0.93 }} onClick={rollHighRoll} disabled={hrRolling}
+        <motion.button  onClick={rollHighRoll} disabled={hrRolling}
           className="px-9 py-3 rounded-2xl font-black text-amber-950 shadow-lg shadow-amber-500/30 disabled:opacity-40"
           style={{ background: 'linear-gradient(135deg, #fbbf24, #f59e0b)' }}>
           <Dices className="w-4 h-4 inline mr-2" />{isAr ? 'ارمِ النرد' : 'Würfeln'}
         </motion.button>
       ) : (
-        <motion.button whileTap={{ scale: 0.93 }} onClick={resetHighRoll}
+        <motion.button  onClick={resetHighRoll}
           className="px-9 py-3 rounded-2xl font-black text-white"
           style={{ background: 'linear-gradient(135deg, #6366f1, #4f46e5)' }}>
           <RotateCcw className="w-4 h-4 inline mr-2" />{isAr ? 'مباراة جديدة' : 'Neue Partie'}
