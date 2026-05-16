@@ -50,7 +50,7 @@ export default function WellnessPage() {
   const tabs: Array<{ key: TabKey; labelAr: string; labelDe: string; icon: any }> = [
     { key: 'supplements', labelAr: 'المكملات', labelDe: 'Supplemente', icon: Pill },
     { key: 'diet', labelAr: 'التغذية', labelDe: 'Ernährung', icon: Utensils },
-    { key: 'skin', labelAr: 'البشرة والشعر', labelDe: 'Haut & Haar', icon: Sparkles },
+    { key: 'skin', labelAr: 'الجسد', labelDe: 'Körper', icon: Sparkles },
     { key: 'insights', labelAr: 'التركيبات', labelDe: 'Stack', icon: Brain },
     { key: 'atlas', labelAr: 'الأطلس', labelDe: 'Atlas', icon: BookOpen },
   ];
