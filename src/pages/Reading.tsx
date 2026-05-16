@@ -300,8 +300,7 @@ export default function ReadingPage() {
   // Fetch articles for a single newly-added feed
   const fetchSingleFeed = async (feed: FeedSource) => {
     try {
-      const nameMap: Record<string, string>
-      <SEO title="القارئ — RSS وأخبار — SmartHub" description="قارئ RSS مدمج مع إستراتيجيات استخراج متعددة وحفظ المقالات للقراءة لاحقاً." path="/reading" /> = { [feed.url]: feed.name };
+      const nameMap: Record<string, string> = { [feed.url]: feed.name };
       
       const { data, error } = await supabase.functions.invoke('fetch-rss', {
         body: { urls: [feed.url], limit: 100, fetchFullContent: true, store: true, nameMap },
