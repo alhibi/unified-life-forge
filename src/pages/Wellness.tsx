@@ -51,7 +51,7 @@ export default function WellnessPage() {
     { key: 'supplements', labelAr: 'المكملات', labelDe: 'Supplemente', icon: Pill },
     { key: 'diet', labelAr: 'التغذية', labelDe: 'Ernährung', icon: Utensils },
     { key: 'skin', labelAr: 'البشرة والشعر', labelDe: 'Haut & Haar', icon: Sparkles },
-    { key: 'insights', labelAr: 'التحليل', labelDe: 'Analyse', icon: Brain },
+    { key: 'insights', labelAr: 'التركيبات', labelDe: 'Stack', icon: Brain },
     { key: 'atlas', labelAr: 'الأطلس', labelDe: 'Atlas', icon: BookOpen },
   ];
 

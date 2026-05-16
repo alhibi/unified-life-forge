@@ -473,3 +473,319 @@ export const DISCLAIMER: Record<Lang, string> = {
   ar: 'هذه المعلومات عامة لأغراض تثقيفية فقط وليست استشارة طبية. راجع طبيبك قبل تعديل المكملات.',
   de: 'Diese Infos sind allgemein und bildend — keine medizinische Beratung. Vor Änderungen an Nahrungsergänzungsmitteln bitte Arzt fragen.',
 };
+
+/**
+ * Positive synergies — combinations whose joint effect is well-documented.
+ * Used by the Stack Advisor to show concrete benefits when the user picks
+ * (or already takes) two or more nutrients together.
+ *
+ * `evidence` levels:
+ *   - 'strong'   : repeatedly demonstrated in clinical research
+ *   - 'moderate' : consistent evidence, mechanism well understood
+ *   - 'emerging' : promising, less conclusive
+ */
+export interface SynergyRule {
+  id: string;
+  /** 2-4 nutrient keys whose presence triggers this synergy */
+  nutrients: string[];
+  evidence: 'strong' | 'moderate' | 'emerging';
+  /** primary domain this stack acts on */
+  domain: 'bone' | 'skin' | 'hair' | 'energy' | 'immunity' | 'sleep' | 'heart' | 'gut' | 'mood' | 'blood';
+  title: Record<Lang, string>;
+  /** concrete benefits — short bullets the UI lists */
+  benefits: Record<Lang, string[]>;
+  /** how to take the stack for the synergy to actually happen */
+  howTo: Record<Lang, string>;
+  /** food keys that naturally amplify this stack */
+  foodBoosters?: string[];
+}
+
+export const SYNERGIES: SynergyRule[] = [
+  {
+    id: 'd-k2-ca',
+    nutrients: ['vitaminD', 'vitaminK', 'calcium'],
+    evidence: 'strong',
+    domain: 'bone',
+    title: { ar: 'مثلث العظام: د + ك + كالسيوم', de: 'Knochen-Trio: D + K + Calcium' },
+    benefits: {
+      ar: [
+        'فيتامين د يفتح امتصاص الكالسيوم في الأمعاء',
+        'فيتامين ك2 يوجّه الكالسيوم إلى العظام لا الشرايين',
+        'دعم كثافة العظام وصحة الأسنان على المدى الطويل',
+      ],
+      de: [
+        'Vitamin D ermöglicht die Calcium-Aufnahme im Darm',
+        'Vitamin K2 lenkt Calcium in die Knochen, nicht in die Arterien',
+        'Langfristig bessere Knochendichte und Zahngesundheit',
+      ],
+    },
+    howTo: {
+      ar: 'تناولهم معاً مع وجبة فيها دهون (بيض، أفوكادو، زيت زيتون).',
+      de: 'Zusammen zu einer fetthaltigen Mahlzeit (Eier, Avocado, Olivenöl).',
+    },
+    foodBoosters: ['eggs', 'salmon', 'avocado', 'olive_oil', 'cheese'],
+  },
+  {
+    id: 'c-iron',
+    nutrients: ['vitaminC', 'iron'],
+    evidence: 'strong',
+    domain: 'blood',
+    title: { ar: 'سي + حديد: امتصاص أعلى', de: 'C + Eisen: bessere Aufnahme' },
+    benefits: {
+      ar: [
+        'فيتامين سي يضاعف امتصاص الحديد النباتي حتى 3 مرات',
+        'دعم تكوين خلايا الدم الحمراء وتقليل الإرهاق',
+        'تحسن مستوى الطاقة خلال أسابيع لمن يعاني نقص الحديد',
+      ],
+      de: [
+        'Vitamin C verdreifacht die pflanzliche Eisenaufnahme',
+        'Unterstützt Blutbildung, reduziert Müdigkeit',
+        'Energieniveau steigt innerhalb weniger Wochen bei Eisenmangel',
+      ],
+    },
+    howTo: {
+      ar: 'تناول الحديد على معدة فارغة مع كوب عصير برتقال أو ليمون.',
+      de: 'Eisen nüchtern mit einem Glas Orangen- oder Zitronensaft.',
+    },
+    foodBoosters: ['orange', 'lemon', 'strawberry', 'spinach', 'lentils'],
+  },
+  {
+    id: 'mg-b6',
+    nutrients: ['magnesium', 'vitaminB6'],
+    evidence: 'strong',
+    domain: 'mood',
+    title: { ar: 'مغنيسيوم + ب6: هدوء وتركيز', de: 'Magnesium + B6: Ruhe & Fokus' },
+    benefits: {
+      ar: [
+        'ب6 يزيد دخول المغنيسيوم إلى الخلية',
+        'تخفيف القلق والتوتر بشكل ملموس',
+        'تحسن جودة النوم العميق',
+      ],
+      de: [
+        'B6 erhöht den Magnesium-Eintritt in die Zelle',
+        'Spürbare Reduktion von Anspannung und Stress',
+        'Verbesserte Tiefschlafqualität',
+      ],
+    },
+    howTo: {
+      ar: 'الجرعة المسائية قبل النوم بساعة، مع كوب ماء.',
+      de: 'Abenddosis ca. 1 Std. vor dem Schlafen, mit Wasser.',
+    },
+    foodBoosters: ['banana', 'almonds', 'spinach', 'oats'],
+  },
+  {
+    id: 'zn-vita-skin',
+    nutrients: ['zinc', 'vitaminA'],
+    evidence: 'moderate',
+    domain: 'skin',
+    title: { ar: 'زنك + فيتامين أ: بشرة هادئة', de: 'Zink + Vitamin A: ruhige Haut' },
+    benefits: {
+      ar: [
+        'تنظيم إفراز الدهون وتقليل الحبوب',
+        'تسريع التئام الجلد والندبات الخفيفة',
+        'دعم حاجز البشرة ومقاومة الالتهاب',
+      ],
+      de: [
+        'Reguliert Talgproduktion, reduziert Unreinheiten',
+        'Beschleunigt Heilung kleiner Hautläsionen',
+        'Stärkt Hautbarriere gegen Entzündungen',
+      ],
+    },
+    howTo: {
+      ar: 'الزنك مع وجبة لتفادي الغثيان، فيتامين أ مع دهون.',
+      de: 'Zink zu einer Mahlzeit, Vitamin A mit Fett.',
+    },
+    foodBoosters: ['liver', 'carrot', 'eggs', 'salmon'],
+  },
+  {
+    id: 'biotin-zn-collagen',
+    nutrients: ['biotin', 'zinc', 'collagen'],
+    evidence: 'moderate',
+    domain: 'hair',
+    title: { ar: 'حزمة الشعر: بيوتين + زنك + كولاجين', de: 'Haar-Stack: Biotin + Zink + Kollagen' },
+    benefits: {
+      ar: [
+        'تقوية بصيلات الشعر وتقليل التساقط الموسمي',
+        'دعم بنية الكيراتين وزيادة لمعان الشعر',
+        'تحسن في الأظافر والبشرة كأثر جانبي',
+      ],
+      de: [
+        'Stärkere Haarfollikel, weniger saisonaler Ausfall',
+        'Bessere Keratinstruktur, sichtbarer Glanz',
+        'Nebeneffekt: festere Nägel, glattere Haut',
+      ],
+    },
+    howTo: {
+      ar: 'الكولاجين صباحاً مع فيتامين سي، الزنك مساءً مع وجبة.',
+      de: 'Kollagen morgens mit Vitamin C, Zink abends zu einer Mahlzeit.',
+    },
+    foodBoosters: ['eggs', 'salmon', 'walnuts', 'beans'],
+  },
+  {
+    id: 'omega3-vite',
+    nutrients: ['omega3', 'vitaminE'],
+    evidence: 'strong',
+    domain: 'heart',
+    title: { ar: 'أوميغا-3 + فيتامين هـ', de: 'Omega-3 + Vitamin E' },
+    benefits: {
+      ar: [
+        'فيتامين هـ يحمي أوميغا-3 من الأكسدة في الجسم',
+        'دعم صحة القلب والأوعية الدموية',
+        'تقليل الالتهاب المزمن في المفاصل والبشرة',
+      ],
+      de: [
+        'Vitamin E schützt Omega-3 vor Oxidation',
+        'Unterstützt Herz und Gefäße',
+        'Reduziert chronische Entzündung in Gelenken und Haut',
+      ],
+    },
+    howTo: {
+      ar: 'كلاهما مع وجبة دسمة في نفس الوقت.',
+      de: 'Beide zusammen zu einer fettreichen Mahlzeit.',
+    },
+    foodBoosters: ['salmon', 'walnuts', 'almonds', 'olive_oil', 'avocado'],
+  },
+  {
+    id: 'iron-folate-b12',
+    nutrients: ['iron', 'folate', 'vitaminB12'],
+    evidence: 'strong',
+    domain: 'blood',
+    title: { ar: 'ثلاثي تكوين الدم', de: 'Blutbildungs-Trio' },
+    benefits: {
+      ar: [
+        'تكوين خلايا دم حمراء صحية وكاملة الوظيفة',
+        'علاج فعّال لفقر الدم الغذائي',
+        'تحسن في التركيز والطاقة الذهنية',
+      ],
+      de: [
+        'Bildung gesunder, voll funktionsfähiger roter Blutzellen',
+        'Wirksam bei ernährungsbedingter Anämie',
+        'Mehr mentale Energie und Konzentration',
+      ],
+    },
+    howTo: {
+      ar: 'الحديد على الريق، ب12 والفوليك أي وقت — أضف فيتامين سي معهم.',
+      de: 'Eisen nüchtern, B12 + Folsäure jederzeit — mit Vitamin C kombinieren.',
+    },
+    foodBoosters: ['liver', 'spinach', 'beans', 'lentils', 'beef'],
+  },
+  {
+    id: 'mg-zn-sleep',
+    nutrients: ['magnesium', 'zinc'],
+    evidence: 'moderate',
+    domain: 'sleep',
+    title: { ar: 'مغنيسيوم + زنك: نوم أعمق', de: 'Magnesium + Zink: tieferer Schlaf' },
+    benefits: {
+      ar: [
+        'تنظيم هرمون الميلاتونين الطبيعي',
+        'تقليل الاستيقاظ الليلي',
+        'استرخاء عضلي وتعافٍ أفضل بعد المجهود',
+      ],
+      de: [
+        'Reguliert die natürliche Melatonin-Produktion',
+        'Weniger nächtliches Aufwachen',
+        'Muskelentspannung und bessere Erholung',
+      ],
+    },
+    howTo: {
+      ar: 'كلاهما مع وجبة العشاء، قبل النوم بساعة على الأقل.',
+      de: 'Beide zum Abendessen, mind. 1 Std. vor dem Schlafen.',
+    },
+    foodBoosters: ['almonds', 'oats', 'beef', 'beans'],
+  },
+  {
+    id: 'collagen-c',
+    nutrients: ['collagen', 'vitaminC'],
+    evidence: 'strong',
+    domain: 'skin',
+    title: { ar: 'كولاجين + فيتامين سي', de: 'Kollagen + Vitamin C' },
+    benefits: {
+      ar: [
+        'فيتامين سي شرط أساسي لتكوين الكولاجين الجديد',
+        'تحسن مرونة البشرة خلال 8-12 أسبوع',
+        'دعم المفاصل والأوتار',
+      ],
+      de: [
+        'Vitamin C ist Voraussetzung für die Kollagensynthese',
+        'Bessere Hautelastizität in 8-12 Wochen',
+        'Unterstützt Gelenke und Sehnen',
+      ],
+    },
+    howTo: {
+      ar: 'الكولاجين صباحاً مع كوب عصير حمضيات أو حبة برتقال.',
+      de: 'Kollagen morgens mit Zitrussaft oder einer Orange.',
+    },
+    foodBoosters: ['orange', 'strawberry', 'lemon', 'broccoli'],
+  },
+  {
+    id: 'probiotics-fiber',
+    nutrients: ['probiotics', 'fiber'],
+    evidence: 'strong',
+    domain: 'gut',
+    title: { ar: 'بروبيوتيك + ألياف', de: 'Probiotika + Ballaststoffe' },
+    benefits: {
+      ar: [
+        'الألياف غذاء البكتيريا النافعة (بريبيوتيك)',
+        'تحسن الهضم وانتظام الأمعاء',
+        'دعم المناعة وتقليل الانتفاخ',
+      ],
+      de: [
+        'Ballaststoffe nähren die guten Bakterien (Präbiotika)',
+        'Bessere Verdauung und regelmäßiger Stuhlgang',
+        'Stärkere Immunabwehr, weniger Blähungen',
+      ],
+    },
+    howTo: {
+      ar: 'البروبيوتيك صباحاً قبل الفطور، مع وجبات غنية بالألياف يومياً.',
+      de: 'Probiotika morgens nüchtern, täglich ballaststoffreich essen.',
+    },
+    foodBoosters: ['oats', 'beans', 'lentils', 'broccoli', 'avocado'],
+  },
+  {
+    id: 'd-immune',
+    nutrients: ['vitaminD', 'vitaminC', 'zinc'],
+    evidence: 'moderate',
+    domain: 'immunity',
+    title: { ar: 'حزمة المناعة', de: 'Immun-Stack' },
+    benefits: {
+      ar: [
+        'تقليل مدة وحدة نزلات البرد',
+        'دعم خلايا المناعة المختلفة في وقت واحد',
+        'يفيد بشكل خاص في الشتاء وقلة الشمس',
+      ],
+      de: [
+        'Verkürzt Dauer und Schwere von Erkältungen',
+        'Unterstützt verschiedene Immunzellen gleichzeitig',
+        'Besonders wertvoll im Winter bei wenig Sonne',
+      ],
+    },
+    howTo: {
+      ar: 'فيتامين د مع وجبة دسمة، سي والزنك موزعين على اليوم.',
+      de: 'Vitamin D zu fetthaltiger Mahlzeit, C und Zink über den Tag verteilt.',
+    },
+    foodBoosters: ['orange', 'salmon', 'eggs', 'kale'],
+  },
+];
+
+/** Domain → emoji + color hint for the UI. */
+export const DOMAIN_META: Record<
+  SynergyRule['domain'],
+  { icon: string; label: Record<Lang, string> }
+> = {
+  bone:     { icon: '🦴', label: { ar: 'العظام',   de: 'Knochen'   } },
+  skin:     { icon: '✨', label: { ar: 'البشرة',   de: 'Haut'      } },
+  hair:     { icon: '💇', label: { ar: 'الشعر',    de: 'Haar'      } },
+  energy:   { icon: '⚡', label: { ar: 'الطاقة',   de: 'Energie'   } },
+  immunity: { icon: '🛡️', label: { ar: 'المناعة',  de: 'Immunität' } },
+  sleep:    { icon: '🌙', label: { ar: 'النوم',    de: 'Schlaf'    } },
+  heart:    { icon: '❤️', label: { ar: 'القلب',    de: 'Herz'      } },
+  gut:      { icon: '🌱', label: { ar: 'الأمعاء',  de: 'Darm'      } },
+  mood:     { icon: '🧘', label: { ar: 'المزاج',   de: 'Stimmung'  } },
+  blood:    { icon: '🩸', label: { ar: 'الدم',     de: 'Blut'      } },
+};
+
+export const EVIDENCE_LABEL: Record<SynergyRule['evidence'], Record<Lang, string>> = {
+  strong:   { ar: 'دليل قوي',     de: 'Starke Evidenz'   },
+  moderate: { ar: 'دليل متوسط',   de: 'Mittlere Evidenz' },
+  emerging: { ar: 'دليل أولي',     de: 'Vorläufig'        },
+};
