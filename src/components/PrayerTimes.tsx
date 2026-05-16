@@ -1,46 +1,49 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MapPin, Bell } from 'lucide-react';
+import { Check, Sunrise as SunriseIcon } from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
 import { fetchPrayerTimings as fetchPrayerTimingsCached } from '@/hooks/usePrayerTimesCache';
 
 /**
- * PrayerTimes — sky-panorama hero card.
+ * PrayerTimes — a faithful re-implementation of khushu's Home prayer feature
+ * (https://github.com/greykaizen/khushu, Kotlin/Compose) ported to React.
  *
- * The top "panorama" depicts a horizon with a continuous arc that mirrors
- * the sun's path through the day. The arc carries five labelled markers,
- * one per obligatory prayer, sitting on the curve at exactly the time-of-day
- * fraction of that prayer between sunrise and sunset (Fajr & Isha are
- * placed before/after the lit arc on the night side). The sun (or moon
- * during night) glides along the arc in real time and the entire palette
- * shifts smoothly between dawn / noon / dusk / night.
+ * The card has three stacked sections, mirroring khushu:
+ *   1. Dual-tone hero  → "Current prayer | Next prayer" with location + source
+ *   2. Arc strip       → sinusoidal day/night sun-path with prayer dots,
+ *                         makruh zones, sun/moon, twinkling stars at night
+ *   3. Prayer slab     → list of all 5 fard prayers with sequential
+ *                         "completed today" tracking, progress bar, NEXT badge,
+ *                         "Pray" pill on the active prayer, shake on rejected
+ *                         tap and guide-pulse on the row that *should* be
+ *                         tapped next.
  *
- * Below the panorama:
- *  - Sunset / sunrise labels at the horizon line.
- *  - Big "next prayer" header with countdown.
- *  - A 5-cell strip showing every daily prayer with its local time and an
- *    "active" pill on the current one. A "Pray" pill blinks on the entry
- *    whose time is within ±15 minutes of now.
+ * Notes / parity with khushu:
+ *   • Time arc is anchored on solar noon: tToArc(ms) = clamp(0.5 + (ms − solarNoon)/24h, −0.2, 1.2).
+ *   • Makruh zones: Sunrise..+20min, Dhuhr−15min..Dhuhr, Maghrib−15min..Maghrib.
+ *   • Done states are stored in localStorage keyed by yyyy-MM-dd; auto-reset at
+ *     midnight rollover.
+ *   • Sequential rule: tapping a not-yet-done prayer that isn't the very next
+ *     uncompleted one shakes the row and pulses the row the user *should* tap.
+ *     Tapping an already-done prayer rewinds it and every later prayer.
  */
 
 // ─── Types & constants ──────────────────────────────────────────────────────
 interface PrayerTime {
-  name: string;
-  time: string; // "HH:MM"
+  name: PrayerKey;
+  ar: string;
+  time24: string;        // "HH:MM" — used only for parsing
+  time: string;          // "h:mm AM" — preformatted for display
+  rawTimeMs: number;     // epoch ms for ordering
+  arcT: number;          // 0..1 position on the day-arc
+  dotLight: string;
+  dotDark: string;
 }
 
 const PRAYER_KEYS = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'] as const;
 type PrayerKey = (typeof PRAYER_KEYS)[number];
 
-const PRAYER_LABEL_KEYS: Record<PrayerKey, string> = {
-  Fajr: 'prayer.fajr',
-  Dhuhr: 'prayer.dhuhr',
-  Asr: 'prayer.asr',
-  Maghrib: 'prayer.maghrib',
-  Isha: 'prayer.isha',
-};
-
-const PRAYER_AR_LABEL: Record<PrayerKey, string> = {
+const PRAYER_AR: Record<PrayerKey, string> = {
   Fajr: 'الفجر',
   Dhuhr: 'الظهر',
   Asr: 'العصر',
@@ -48,16 +51,33 @@ const PRAYER_AR_LABEL: Record<PrayerKey, string> = {
   Isha: 'العشاء',
 };
 
-// Per-prayer accent on the panorama markers
-const PRAYER_ACCENT: Record<PrayerKey, string> = {
-  Fajr: '#9aa6ff', // pre-dawn lavender
-  Dhuhr: '#fff7c2', // bright noon cream
-  Asr: '#ffc88a', // golden afternoon
-  Maghrib: '#ff7e8a', // dusk rose
-  Isha: '#7c8fff', // deep night blue
+const PRAYER_DOT_LIGHT: Record<PrayerKey, string> = {
+  Fajr: '#4a70b0',
+  Dhuhr: '#a87010',
+  Asr: '#a06020',
+  Maghrib: '#9a3828',
+  Isha: '#584898',
+};
+const PRAYER_DOT_DARK: Record<PrayerKey, string> = {
+  Fajr: '#6890d8',
+  Dhuhr: '#d4a828',
+  Asr: '#d08840',
+  Maghrib: '#e06050',
+  Isha: '#9070d0',
 };
 
-// ─── Time helpers ───────────────────────────────────────────────────────────
+// Makruh palette (same hexes as khushu)
+const MAKRUH_RED = '#E04030';
+const MAKRUH_BADGE_AMBER = '#FFB300';
+const MAKRUH_BADGE_RED = '#E53935';
+const MAKRUH_TINT_SOLAR = 'rgba(229, 115, 115, 0.12)';   // zawal
+const MAKRUH_TINT_HORIZON = 'rgba(255, 213, 79, 0.12)';  // sunrise/sunset
+
+// Sun/moon palette
+const SUN_COLOR = '#FAC82D';
+const MOON_COLOR = '#B4A2FF';
+
+// ─── Time / parsing helpers ────────────────────────────────────────────────
 function parseHM(time?: string): number | null {
   if (!time) return null;
   const clean = time.replace(/\s*\(.*\)/, '').trim();
@@ -66,300 +86,218 @@ function parseHM(time?: string): number | null {
   return h * 60 + m;
 }
 
-function formatTime12(time24?: string, t?: (k: string) => string): string {
-  if (!time24) return '--:--';
-  const minutes = parseHM(time24);
-  if (minutes == null) return '--:--';
-  const h = Math.floor(minutes / 60);
-  const m = minutes % 60;
-  const suffix = t
-    ? h >= 12
-      ? t('prayer.pm')
-      : t('prayer.am')
-    : h >= 12
-      ? 'PM'
-      : 'AM';
+/** Convert "HH:MM" to a Date today. */
+function timeToDateToday(time24: string, anchor: Date): Date {
+  const m = parseHM(time24);
+  const d = new Date(anchor);
+  if (m == null) return d;
+  d.setHours(Math.floor(m / 60), m % 60, 0, 0);
+  return d;
+}
+
+function formatTime12(time24: string, ampm: { am: string; pm: string }): string {
+  const m = parseHM(time24);
+  if (m == null) return '--:--';
+  const h = Math.floor(m / 60);
+  const mm = (m % 60).toString().padStart(2, '0');
+  const suffix = h >= 12 ? ampm.pm : ampm.am;
   const h12 = h % 12 || 12;
-  return `${h12}:${m.toString().padStart(2, '0')} ${suffix}`;
+  return `${h12}:${mm} ${suffix}`;
 }
 
-function nowMinutes(): number {
+function todayStamp(): string {
   const d = new Date();
-  return d.getHours() * 60 + d.getMinutes() + d.getSeconds() / 60;
+  return `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d
+    .getDate()
+    .toString()
+    .padStart(2, '0')}`;
 }
 
-function getNextPrayer(
-  prayers: PrayerTime[],
-  t: (k: string) => string
-): { prayer: PrayerTime | null; remaining: string; remainingMinutes: number } {
-  const cur = nowMinutes();
-  for (const p of prayers) {
-    const m = parseHM(p.time);
-    if (m != null && m > cur) {
-      const diff = m - cur;
-      return { prayer: p, remaining: formatRemaining(diff, t), remainingMinutes: diff };
-    }
-  }
-  // After Isha — next is tomorrow's Fajr
-  if (prayers.length > 0) {
-    const fajr = prayers[0];
-    const fm = parseHM(fajr.time);
-    if (fm != null) {
-      const diff = 24 * 60 - cur + fm;
-      return { prayer: fajr, remaining: formatRemaining(diff, t), remainingMinutes: diff };
-    }
-  }
-  return { prayer: null, remaining: '', remainingMinutes: 0 };
+/** Khushu's tToArc: 0.5 = solar noon, 0.0 = 12h before, 1.0 = 12h after. */
+function tToArc(targetMs: number, solarNoonMs: number): number {
+  const dayMs = 86_400_000;
+  const ratio = (targetMs - solarNoonMs) / dayMs;
+  return Math.max(-0.2, Math.min(1.2, 0.5 + ratio));
 }
 
-function formatRemaining(diffMin: number, t: (k: string) => string): string {
-  const totalMin = Math.max(0, Math.ceil(diffMin));
-  const hours = Math.floor(totalMin / 60);
-  const mins = totalMin % 60;
-  if (hours > 0) {
-    return `${hours} ${t('prayer.hour')} ${t('prayer.and')} ${mins} ${t('prayer.minute')}`;
-  }
-  return `${mins} ${t('prayer.minute')}`;
+// ─── Makruh zone computation ───────────────────────────────────────────────
+interface MakruhZone {
+  tStart: number;
+  tEnd: number;
+  label: 'Sunrise' | 'Zawal' | 'Sunset';
 }
 
-// ─── Sky palette per period ─────────────────────────────────────────────────
-type Period = 'night' | 'fajr' | 'morning' | 'noon' | 'afternoon' | 'sunset' | 'dusk';
-
-function periodLabel(p: Period, ar: boolean): string {
-  if (ar) {
-    return {
-      night: 'الليل',
-      fajr: 'الفجر',
-      morning: 'الصباح',
-      noon: 'الظهيرة',
-      afternoon: 'العصر',
-      sunset: 'الغروب',
-      dusk: 'الغسق',
-    }[p];
+function computeMakruhZones(
+  sunriseMs: number | null,
+  dhuhrMs: number | null,
+  maghribMs: number | null,
+  solarNoonMs: number
+): MakruhZone[] {
+  const zones: MakruhZone[] = [];
+  const min15 = 15 * 60_000;
+  const min20 = 20 * 60_000;
+  if (sunriseMs != null) {
+    zones.push({
+      tStart: tToArc(sunriseMs, solarNoonMs),
+      tEnd: tToArc(sunriseMs + min20, solarNoonMs),
+      label: 'Sunrise',
+    });
   }
-  return {
-    night: 'Night',
-    fajr: 'Fajr',
-    morning: 'Morning',
-    noon: 'Noon',
-    afternoon: 'Afternoon',
-    sunset: 'Sunset',
-    dusk: 'Dusk',
-  }[p];
+  if (dhuhrMs != null) {
+    zones.push({
+      tStart: tToArc(dhuhrMs - min15, solarNoonMs),
+      tEnd: tToArc(dhuhrMs, solarNoonMs),
+      label: 'Zawal',
+    });
+  }
+  if (maghribMs != null) {
+    zones.push({
+      tStart: tToArc(maghribMs - min15, solarNoonMs),
+      tEnd: tToArc(maghribMs, solarNoonMs),
+      label: 'Sunset',
+    });
+  }
+  return zones;
 }
 
-interface SkyPalette {
-  period: Period;
-  /** Sky gradient: top-of-panorama → horizon */
-  topColor: string;
-  midColor: string;
-  bottomColor: string;
-  /** Color of the sun/moon body */
-  bodyColor: string;
-  bodyGlow: string;
-  /** Star opacity (0 hides them) */
-  starOpacity: number;
-  /** Should we draw moon (else sun) */
-  showMoon: boolean;
-  /** Foreground accent (text/labels) */
-  fg: string;
-  fgMuted: string;
-}
-
-function paletteFor(
-  cur: number,
-  fajr: number | null,
-  sunrise: number | null,
-  dhuhr: number | null,
-  asr: number | null,
-  maghrib: number | null,
-  isha: number | null
-): SkyPalette {
-  const inRange = (a: number | null, b: number | null) =>
-    a != null && b != null && cur >= a && cur < b;
-
-  // Night (after Isha or before Fajr)
-  if (isha != null && fajr != null && (cur >= isha || cur < fajr)) {
-    return {
-      period: 'night',
-      topColor: '#0b1230',
-      midColor: '#142154',
-      bottomColor: '#1d2c6e',
-      bodyColor: '#e8eeff',
-      bodyGlow: 'rgba(180, 200, 255, 0.5)',
-      starOpacity: 1,
-      showMoon: true,
-      fg: '#ffffff',
-      fgMuted: 'rgba(255,255,255,0.7)',
-    };
-  }
-  // Fajr → sunrise: pre-dawn
-  if (inRange(fajr, sunrise)) {
-    return {
-      period: 'fajr',
-      topColor: '#1a1f4a',
-      midColor: '#5a3f78',
-      bottomColor: '#f0a07a',
-      bodyColor: '#ffd7a8',
-      bodyGlow: 'rgba(255, 200, 140, 0.55)',
-      starOpacity: 0.4,
-      showMoon: false,
-      fg: '#ffffff',
-      fgMuted: 'rgba(255,255,255,0.78)',
-    };
-  }
-  // Sunrise → Dhuhr: morning
-  if (inRange(sunrise, dhuhr)) {
-    return {
-      period: 'morning',
-      topColor: '#6db8ff',
-      midColor: '#a5d4ff',
-      bottomColor: '#ffe8b8',
-      bodyColor: '#ffe48a',
-      bodyGlow: 'rgba(255, 220, 130, 0.7)',
-      starOpacity: 0,
-      showMoon: false,
-      fg: '#ffffff',
-      fgMuted: 'rgba(255,255,255,0.85)',
-    };
-  }
-  // Dhuhr → Asr: high noon, brightest blue
-  if (inRange(dhuhr, asr)) {
-    return {
-      period: 'noon',
-      topColor: '#3b8dd8',
-      midColor: '#74c0ee',
-      bottomColor: '#cfe6f6',
-      bodyColor: '#fff6c8',
-      bodyGlow: 'rgba(255, 240, 180, 0.85)',
-      starOpacity: 0,
-      showMoon: false,
-      fg: '#ffffff',
-      fgMuted: 'rgba(255,255,255,0.85)',
-    };
-  }
-  // Asr → Maghrib: golden hour
-  if (inRange(asr, maghrib)) {
-    return {
-      period: 'afternoon',
-      topColor: '#5e7fbe',
-      midColor: '#dba66c',
-      bottomColor: '#ffc788',
-      bodyColor: '#ffb868',
-      bodyGlow: 'rgba(255, 165, 90, 0.75)',
-      starOpacity: 0,
-      showMoon: false,
-      fg: '#ffffff',
-      fgMuted: 'rgba(255,255,255,0.85)',
-    };
-  }
-  // Maghrib → Isha: dusk
-  if (inRange(maghrib, isha)) {
-    return {
-      period: 'dusk',
-      topColor: '#1c1f55',
-      midColor: '#7d3a78',
-      bottomColor: '#e6776a',
-      bodyColor: '#ff8a6a',
-      bodyGlow: 'rgba(255, 130, 100, 0.65)',
-      starOpacity: 0.3,
-      showMoon: false,
-      fg: '#ffffff',
-      fgMuted: 'rgba(255,255,255,0.78)',
-    };
-  }
-  // Fallback: neutral evening
-  return {
-    period: 'night',
-    topColor: '#0b1230',
-    midColor: '#142154',
-    bottomColor: '#1d2c6e',
-    bodyColor: '#e8eeff',
-    bodyGlow: 'rgba(180, 200, 255, 0.5)',
-    starOpacity: 1,
-    showMoon: true,
-    fg: '#ffffff',
-    fgMuted: 'rgba(255,255,255,0.7)',
-  };
-}
-
-// ─── Arc geometry ───────────────────────────────────────────────────────────
-// Panorama is drawn in a 320×130 viewBox. The arc represents *day*: it goes
-// from sunrise (left horizon) over a peak around the middle (solar noon) and
-// down to sunset (right horizon). Times before sunrise and after sunset are
-// placed *below* the horizon line at fixed positions left/right.
-
-const VB_W = 320;
-const VB_H = 130;
-const HORIZON_Y = 110;
-const ARC_PEAK_Y = 28;
-const ARC_LEFT_X = 24;
-const ARC_RIGHT_X = VB_W - 24;
-
-/** Position of `min` minutes on the panorama, given sunrise/sunset minutes. */
-function positionFor(
-  min: number,
-  sunrise: number,
-  sunset: number
-): { x: number; y: number; onArc: boolean } {
-  // Below-horizon: left of arc (before sunrise) or right (after sunset)
-  if (min <= sunrise) {
-    const t = Math.max(0, Math.min(1, (sunrise - min) / 90)); // 90-min wedge
-    const x = ARC_LEFT_X - 14 - t * 6;
-    const y = HORIZON_Y + 6 + t * 8;
-    return { x, y, onArc: false };
-  }
-  if (min >= sunset) {
-    const t = Math.max(0, Math.min(1, (min - sunset) / 90));
-    const x = ARC_RIGHT_X + 14 + t * 6;
-    const y = HORIZON_Y + 6 + t * 8;
-    return { x, y, onArc: false };
-  }
-  // On arc: parameterise t in [0..1] from sunrise → sunset, and shape with
-  // a shifted-cosine so the apex sits at solar noon.
-  const t = (min - sunrise) / Math.max(1, sunset - sunrise);
-  const x = ARC_LEFT_X + t * (ARC_RIGHT_X - ARC_LEFT_X);
-  // Bell curve: y = horizon - sin(πt) * height
-  const height = HORIZON_Y - ARC_PEAK_Y;
-  const y = HORIZON_Y - Math.sin(t * Math.PI) * height;
-  return { x, y, onArc: true };
-}
-
-/** SVG path for the day arc itself. */
-function arcPath(): string {
-  const cx = (ARC_LEFT_X + ARC_RIGHT_X) / 2;
-  const cy = ARC_PEAK_Y - 8; // pull control point above peak
-  return `M ${ARC_LEFT_X} ${HORIZON_Y} Q ${cx} ${cy} ${ARC_RIGHT_X} ${HORIZON_Y}`;
-}
-
-/** Star field — fixed seed so it doesn't jitter every render. */
-const STARS: { x: number; y: number; r: number; o: number }[] = (() => {
-  let s = 0xb16b00b5;
-  const rand = () => {
-    s = (s * 1664525 + 1013904223) >>> 0;
-    return s / 0xffffffff;
-  };
-  const arr: { x: number; y: number; r: number; o: number }[] = [];
-  for (let i = 0; i < 50; i++) {
+// ─── Star field (deterministic seed, like khushu) ──────────────────────────
+const STARS: { x: number; y: number; r: number; delayMs: number }[] = (() => {
+  const arr: { x: number; y: number; r: number; delayMs: number }[] = [];
+  for (let i = 0; i < 22; i++) {
     arr.push({
-      x: rand() * VB_W,
-      y: rand() * (HORIZON_Y - 8),
-      r: 0.4 + rand() * 0.7,
-      o: 0.5 + rand() * 0.5,
+      x: ((i * 47 + 19) % 120) + 5,
+      y: ((i * 31 + 11) % 55) + 4,
+      r: ((i * 13) % 8) / 10 + 0.35,
+      delayMs: ((i * 7) % 20) * 100,
     });
   }
   return arr;
 })();
 
+// ─── Arc strip geometry ────────────────────────────────────────────────────
+// Drawn in a 320×100 viewBox.
+const ARC_W = 320;
+const ARC_H = 100;
+const ARC_PAD_X = 22;
+const ARC_LINE_Y = 56;        // horizon line baseline
+const ARC_DAY_AMPL = 22;      // upward bell amplitude during day
+const ARC_NIGHT_AMPL = 14;    // downward bump amplitude at night
+
+interface ArcGeom {
+  dayStart: number;
+  dayEnd: number;
+}
+
+function arcCurveY(t: number, geom: ArcGeom): number {
+  if (t >= geom.dayStart && t <= geom.dayEnd) {
+    const dayDur = Math.max(0.0001, geom.dayEnd - geom.dayStart);
+    const norm = (t - geom.dayStart) / dayDur;
+    return ARC_LINE_Y - ARC_DAY_AMPL * Math.sin(Math.PI * norm);
+  }
+  const nightDur = Math.max(0.0001, 1 - (geom.dayEnd - geom.dayStart));
+  const norm =
+    t > geom.dayEnd
+      ? (t - geom.dayEnd) / nightDur
+      : (t + (1 - geom.dayEnd)) / nightDur;
+  return ARC_LINE_Y + ARC_NIGHT_AMPL * Math.sin(Math.PI * norm);
+}
+
+function arcX(t: number): number {
+  const lineLen = ARC_W - 2 * ARC_PAD_X;
+  return ARC_PAD_X + Math.max(0, Math.min(1, t)) * lineLen;
+}
+
+/** Build a smooth SVG path between t0 and t1 using `steps` samples. */
+function buildArcPath(t0: number, t1: number, steps: number, geom: ArcGeom): string {
+  let d = '';
+  for (let i = 0; i <= steps; i++) {
+    const t = t0 + ((t1 - t0) * i) / steps;
+    const x = arcX(t).toFixed(2);
+    const y = arcCurveY(t, geom).toFixed(2);
+    d += i === 0 ? `M ${x} ${y}` : ` L ${x} ${y}`;
+  }
+  return d;
+}
+
+// ─── Slot detection (current / next prayer) ─────────────────────────────────
+interface Slot {
+  current: PrayerKey;
+  next: PrayerKey;
+  /** ms epoch of the next prayer's start (may be tomorrow's Fajr) */
+  nextMs: number;
+}
+
+function computeSlot(prayers: PrayerTime[], nowMs: number): Slot | null {
+  if (prayers.length < 5) return null;
+  // current = last prayer with rawTime ≤ now, fallback to last (Isha) so
+  // before-Fajr today still shows "Isha" (yesterday's last) like khushu.
+  let current: PrayerKey = prayers[prayers.length - 1].name;
+  for (const p of prayers) {
+    if (p.rawTimeMs <= nowMs) current = p.name;
+  }
+  // next = first prayer with rawTime > now; fallback to tomorrow's Fajr.
+  const upcoming = prayers.find((p) => p.rawTimeMs > nowMs);
+  if (upcoming) {
+    return { current, next: upcoming.name, nextMs: upcoming.rawTimeMs };
+  }
+  const fajr = prayers[0];
+  return { current, next: fajr.name, nextMs: fajr.rawTimeMs + 86_400_000 };
+}
+
+// ─── Done-states persistence ────────────────────────────────────────────────
+const DONE_KEY = 'prayer_done_states';
+
+function loadDoneStates(stamp: string): Record<PrayerKey, boolean> {
+  const empty: Record<PrayerKey, boolean> = {
+    Fajr: false,
+    Dhuhr: false,
+    Asr: false,
+    Maghrib: false,
+    Isha: false,
+  };
+  try {
+    const raw = localStorage.getItem(DONE_KEY);
+    if (!raw) return empty;
+    const parsed = JSON.parse(raw);
+    if (parsed?.stamp === stamp && parsed?.states) {
+      return { ...empty, ...parsed.states };
+    }
+  } catch { /* ignore */ }
+  return empty;
+}
+
+function saveDoneStates(stamp: string, states: Record<PrayerKey, boolean>) {
+  try {
+    localStorage.setItem(DONE_KEY, JSON.stringify({ stamp, states }));
+  } catch { /* ignore */ }
+}
+
 // ─── Component ──────────────────────────────────────────────────────────────
 export default function PrayerTimes() {
-  const { prayerMadhab, latitudeAdjMethod, dstEnabled, t, language } = useApp();
+  const { prayerMadhab, latitudeAdjMethod, dstEnabled, t, language, theme } = useApp();
+  const isDark = useIsDark(theme);
+
   const [prayers, setPrayers] = useState<PrayerTime[]>([]);
   const [extraTimings, setExtraTimings] = useState<{ Sunrise?: string; Sunset?: string }>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [locationName, setLocationName] = useState('');
   const [now, setNow] = useState(() => new Date());
+
+  // Done-states keyed by yyyy-MM-dd, auto-reset on day rollover
+  const [stamp, setStamp] = useState(todayStamp);
+  const [doneStates, setDoneStates] = useState<Record<PrayerKey, boolean>>(() =>
+    loadDoneStates(todayStamp())
+  );
+
+  // Animation triggers per-row: each value is an ever-increasing counter that
+  // re-fires the keyframe whenever it changes (mirrors khushu's pattern).
+  const [shakeCounter, setShakeCounter] = useState<Record<PrayerKey, number>>({
+    Fajr: 0, Dhuhr: 0, Asr: 0, Maghrib: 0, Isha: 0,
+  });
+  const [guideCounter, setGuideCounter] = useState<Record<PrayerKey, number>>({
+    Fajr: 0, Dhuhr: 0, Asr: 0, Maghrib: 0, Isha: 0,
+  });
 
   const schoolParam = prayerMadhab === 'hanafi' ? 1 : 0;
   const latAdjMap: Record<string, number> = { middle: 1, seventh: 2, angle: 3 };
@@ -385,23 +323,53 @@ export default function PrayerTimes() {
               '';
             if (city) setLocationName(city);
           })
-          .catch(() => {});
+          .catch(() => { /* ignore geocoding failure */ });
 
-        const timings = await fetchPrayerTimingsCached(
-          lat,
-          lng,
-          schoolParam,
-          latAdjParam
-        );
+        const timings = await fetchPrayerTimingsCached(lat, lng, schoolParam, latAdjParam);
         if (timings) {
-          const result: PrayerTime[] = PRAYER_KEYS.map((key) => ({
-            name: key,
-            time: timings[key],
-          }));
+          // Build PrayerTime[] with absolute epoch ms anchored to TODAY.
+          // We anchor by parsing each HH:MM into today's date; the slot-detect
+          // then handles "after Isha → next is tomorrow Fajr".
+          const anchor = new Date();
+          // First pass: parse times we need for the arc/makruh math.
+          const sunriseMs = timings.Sunrise
+            ? timeToDateToday(timings.Sunrise, anchor).getTime()
+            : null;
+          const sunsetMs = timings.Sunset
+            ? timeToDateToday(timings.Sunset, anchor).getTime()
+            : timings.Maghrib
+              ? timeToDateToday(timings.Maghrib, anchor).getTime()
+              : null;
+          const dhuhrMs = timings.Dhuhr
+            ? timeToDateToday(timings.Dhuhr, anchor).getTime()
+            : null;
+          const maghribMs = timings.Maghrib
+            ? timeToDateToday(timings.Maghrib, anchor).getTime()
+            : null;
+          const solarNoonMs =
+            sunriseMs != null && sunsetMs != null
+              ? (sunriseMs + sunsetMs) / 2
+              : dhuhrMs ?? anchor.getTime();
+
+          const ampm = { am: t('prayer.am'), pm: t('prayer.pm') };
+          const result: PrayerTime[] = PRAYER_KEYS.map((key) => {
+            const time24 = timings[key] || '';
+            const ms = timeToDateToday(time24, anchor).getTime();
+            return {
+              name: key,
+              ar: PRAYER_AR[key],
+              time24,
+              time: formatTime12(time24, ampm),
+              rawTimeMs: ms,
+              arcT: tToArc(ms, solarNoonMs),
+              dotLight: PRAYER_DOT_LIGHT[key],
+              dotDark: PRAYER_DOT_DARK[key],
+            };
+          });
           setPrayers(result);
           setExtraTimings({
             Sunrise: timings.Sunrise,
-            Sunset: timings.Sunset || timings.Maghrib, // fall back to Maghrib if Sunset missing
+            Sunset: timings.Sunset || timings.Maghrib,
           });
         } else {
           setError(t('prayer.error'));
@@ -421,96 +389,96 @@ export default function PrayerTimes() {
       const { lat, lng } = JSON.parse(cached);
       fetchPrayers(lat, lng);
     } else {
-      // Default to Mecca if no saved location
+      // Default: Mecca
       fetchPrayers(21.4225, 39.8262);
     }
   }, [fetchPrayers]);
 
-  // Tick every 30 s — sun moves visibly within a minute
+  // Tick once per second so the arc, sun and any inside-makruh tinting stay live.
   useEffect(() => {
-    const id = setInterval(() => setNow(new Date()), 30_000);
+    const id = setInterval(() => {
+      const next = new Date();
+      setNow(next);
+      const stampNow = todayStamp();
+      if (stampNow !== stamp) {
+        // Day rolled over — reset done states
+        setStamp(stampNow);
+        setDoneStates(loadDoneStates(stampNow));
+      }
+    }, 1000);
     return () => clearInterval(id);
-  }, []);
+  }, [stamp]);
 
-  // ─── Derived ──────────────────────────────────────────────────────────────
-  const cur = useMemo(
-    () => now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60,
-    [now]
+  // ─── Derived values ──────────────────────────────────────────────────────
+  const nowMs = now.getTime();
+
+  const slot = useMemo(() => computeSlot(prayers, nowMs), [prayers, nowMs]);
+
+  const sunriseMs = extraTimings.Sunrise
+    ? timeToDateToday(extraTimings.Sunrise, now).getTime()
+    : null;
+  const sunsetMs = extraTimings.Sunset
+    ? timeToDateToday(extraTimings.Sunset, now).getTime()
+    : null;
+  const dhuhrMs = prayers.find((p) => p.name === 'Dhuhr')?.rawTimeMs ?? null;
+  const maghribMs = prayers.find((p) => p.name === 'Maghrib')?.rawTimeMs ?? null;
+  const solarNoonMs =
+    sunriseMs != null && sunsetMs != null ? (sunriseMs + sunsetMs) / 2 : dhuhrMs ?? nowMs;
+
+  const sunT = useMemo(() => tToArc(nowMs, solarNoonMs), [nowMs, solarNoonMs]);
+  const makruhZones = useMemo(
+    () => computeMakruhZones(sunriseMs, dhuhrMs, maghribMs, solarNoonMs),
+    [sunriseMs, dhuhrMs, maghribMs, solarNoonMs]
   );
-  const sunrise = parseHM(extraTimings.Sunrise);
-  const sunset = parseHM(extraTimings.Sunset);
-  const fajr = parseHM(prayers.find((p) => p.name === 'Fajr')?.time);
-  const dhuhr = parseHM(prayers.find((p) => p.name === 'Dhuhr')?.time);
-  const asr = parseHM(prayers.find((p) => p.name === 'Asr')?.time);
-  const maghrib = parseHM(prayers.find((p) => p.name === 'Maghrib')?.time);
-  const isha = parseHM(prayers.find((p) => p.name === 'Isha')?.time);
+  const arcGeom: ArcGeom = useMemo(
+    () => ({
+      dayStart: makruhZones.find((z) => z.label === 'Sunrise')?.tStart ?? 0.25,
+      dayEnd: makruhZones.find((z) => z.label === 'Sunset')?.tEnd ?? 0.75,
+    }),
+    [makruhZones]
+  );
+  const isNight = sunT < arcGeom.dayStart || sunT > arcGeom.dayEnd;
+  const currentMakruh = makruhZones.find((z) => sunT >= z.tStart && sunT <= z.tEnd);
 
-  const palette = useMemo(
-    () => paletteFor(cur, fajr, sunrise, dhuhr, asr, maghrib, isha),
-    [cur, fajr, sunrise, dhuhr, asr, maghrib, isha]
+  // ─── Slab toggle logic ───────────────────────────────────────────────────
+  const handleToggle = useCallback(
+    (name: PrayerKey) => {
+      const ordered = PRAYER_KEYS;
+      // Tapped is already done → rewind it and every later prayer
+      if (doneStates[name]) {
+        const idx = ordered.indexOf(name);
+        const rewound = { ...doneStates };
+        for (let i = idx; i < ordered.length; i++) rewound[ordered[i]] = false;
+        setDoneStates(rewound);
+        saveDoneStates(stamp, rewound);
+        return;
+      }
+      // Find the first uncompleted prayer; if it isn't this one, REJECT
+      const firstPending = ordered.find((k) => !doneStates[k]);
+      if (firstPending == null) {
+        // All already done — rejection too-early (no guidance)
+        setShakeCounter((s) => ({ ...s, [name]: s[name] + 1 }));
+        return;
+      }
+      if (firstPending !== name) {
+        setShakeCounter((s) => ({ ...s, [name]: s[name] + 1 }));
+        setGuideCounter((g) => ({ ...g, [firstPending]: g[firstPending] + 1 }));
+        return;
+      }
+      // Accept: mark this one done
+      const updated = { ...doneStates, [name]: true };
+      setDoneStates(updated);
+      saveDoneStates(stamp, updated);
+    },
+    [doneStates, stamp]
   );
 
-  // Sun/moon position on arc. We use the SAME arc shape for both — during
-  // day the sun crawls left → right between sunrise and sunset; at night
-  // the moon traces the same arc but parameterised by how far the night
-  // has progressed (start of night → moon at left, end → moon at right).
-  const bodyPos = useMemo(() => {
-    if (sunrise == null || sunset == null) {
-      return { x: VB_W / 2, y: ARC_PEAK_Y, onArc: true };
-    }
-    if (palette.showMoon) {
-      // The night runs sunset → next sunrise (≈ +24h). The moon rises in
-      // the East (right side as drawn) and sets in the West (left side),
-      // so as `tNight` goes 0→1 the moon should travel right → left.
-      const nightLen = 24 * 60 - sunset + sunrise;
-      let elapsed: number;
-      if (cur >= sunset) elapsed = cur - sunset;
-      else elapsed = 24 * 60 - sunset + cur;
-      const tNight = Math.max(0, Math.min(1, elapsed / nightLen));
-      const x = ARC_RIGHT_X - tNight * (ARC_RIGHT_X - ARC_LEFT_X);
-      const height = HORIZON_Y - ARC_PEAK_Y;
-      const y = HORIZON_Y - Math.sin(tNight * Math.PI) * height * 0.85;
-      return { x, y, onArc: true };
-    }
-    return positionFor(cur, sunrise, sunset);
-  }, [cur, sunrise, sunset, palette.showMoon]);
+  const doneCount = Object.values(doneStates).filter(Boolean).length;
 
-  // Marker positions for each prayer along the arc
-  const markers = useMemo(() => {
-    if (sunrise == null || sunset == null) return [];
-    return PRAYER_KEYS.map((key) => {
-      const p = prayers.find((x) => x.name === key);
-      const m = parseHM(p?.time);
-      if (m == null) return null;
-      const pos = positionFor(m, sunrise, sunset);
-      return { key, time: p!.time, ...pos };
-    }).filter(Boolean) as Array<{
-      key: PrayerKey;
-      time: string;
-      x: number;
-      y: number;
-      onArc: boolean;
-    }>;
-  }, [prayers, sunrise, sunset]);
-
-  // Next prayer
-  const next = useMemo(() => getNextPrayer(prayers, t), [prayers, t, now]);
-  const activePrayerName = next.prayer?.name ?? null;
-
-  // Prayer that is "due now" (within ±15 min of its scheduled time)
-  const dueNowName = useMemo(() => {
-    for (const p of prayers) {
-      const m = parseHM(p.time);
-      if (m == null) continue;
-      if (Math.abs(cur - m) <= 15) return p.name;
-    }
-    return null;
-  }, [prayers, cur]);
-
-  // ─── Render guards ────────────────────────────────────────────────────────
+  // ─── Render guards ───────────────────────────────────────────────────────
   if (loading) {
     return (
-      <div className="rounded-3xl bg-card border border-border p-5 text-card-foreground animate-pulse min-h-[280px]" />
+      <div className="rounded-3xl bg-card border border-border p-5 text-card-foreground animate-pulse min-h-[360px]" />
     );
   }
   if (error) {
@@ -520,6 +488,16 @@ export default function PrayerTimes() {
       </div>
     );
   }
+  if (!slot) return null;
+
+  const currentPrayer = prayers.find((p) => p.name === slot.current);
+  const nextPrayer = prayers.find((p) => p.name === slot.next);
+  const sunriseStr = extraTimings.Sunrise
+    ? formatTime12(extraTimings.Sunrise, { am: t('prayer.am'), pm: t('prayer.pm') })
+    : '';
+  const sunsetStr = extraTimings.Sunset
+    ? formatTime12(extraTimings.Sunset, { am: t('prayer.am'), pm: t('prayer.pm') })
+    : '';
 
   // ─── Layout ───────────────────────────────────────────────────────────────
   return (
@@ -527,387 +505,635 @@ export default function PrayerTimes() {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-      className="rounded-3xl bg-card border border-border text-card-foreground relative overflow-hidden"
+      className="rounded-3xl border border-border bg-card text-card-foreground relative overflow-hidden shadow-sm"
     >
-      {/* ═══ Sky panorama ════════════════════════════════════════════════ */}
-      <div className="relative" style={{ aspectRatio: `${VB_W} / ${VB_H}` }}>
-        <svg
-          viewBox={`0 0 ${VB_W} ${VB_H}`}
-          className="w-full h-full block select-none"
-          preserveAspectRatio="xMidYMid slice"
-          aria-hidden="true"
-        >
-          <defs>
-            {/* Smoothly-shifting sky gradient */}
-            <linearGradient id="prayerSky" x1="0" y1="0" x2="0" y2="1">
-              <motion.stop
-                offset="0%"
-                animate={{ stopColor: palette.topColor }}
-                transition={{ duration: 1.2 }}
-              />
-              <motion.stop
-                offset="55%"
-                animate={{ stopColor: palette.midColor }}
-                transition={{ duration: 1.2 }}
-              />
-              <motion.stop
-                offset="100%"
-                animate={{ stopColor: palette.bottomColor }}
-                transition={{ duration: 1.2 }}
-              />
-            </linearGradient>
+      {/* ═══ Hero (Current | Next) ════════════════════════════════════════ */}
+      <Hero
+        currentPrayer={currentPrayer}
+        nextPrayer={nextPrayer}
+        locationLabel={locationName || t('prayer.locationFallback')}
+        language={language}
+        t={t}
+      />
 
-            {/* Sun/moon glow */}
-            <radialGradient id="prayerBodyGlow" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor={palette.bodyColor} stopOpacity="0.85" />
-              <stop offset="55%" stopColor={palette.bodyGlow} stopOpacity="0.45" />
-              <stop offset="100%" stopColor={palette.bodyGlow} stopOpacity="0" />
-            </radialGradient>
+      {/* ═══ Arc strip ════════════════════════════════════════════════════ */}
+      <ArcStrip
+        prayers={prayers}
+        sunT={sunT}
+        nextName={slot.next}
+        makruhZones={makruhZones}
+        currentMakruh={currentMakruh}
+        arcGeom={arcGeom}
+        isNight={isNight}
+        isDark={isDark}
+        sunriseStr={sunriseStr}
+        sunsetStr={sunsetStr}
+        language={language}
+        t={t}
+      />
 
-            {/* Soft underglow on horizon */}
-            <radialGradient
-              id="prayerHorizonGlow"
-              cx="50%"
-              cy="100%"
-              r="60%"
-              fx="50%"
-              fy="100%"
-            >
-              <stop offset="0%" stopColor={palette.bodyColor} stopOpacity="0.4" />
-              <stop offset="60%" stopColor={palette.bodyColor} stopOpacity="0.1" />
-              <stop offset="100%" stopColor={palette.bodyColor} stopOpacity="0" />
-            </radialGradient>
-          </defs>
-
-          {/* Sky fill */}
-          <rect width={VB_W} height={VB_H} fill="url(#prayerSky)" />
-
-          {/* Stars (only at night / dusk) */}
-          {palette.starOpacity > 0 && (
-            <g style={{ opacity: palette.starOpacity }}>
-              {STARS.map((s, i) => (
-                <motion.circle
-                  key={i}
-                  cx={s.x}
-                  cy={s.y}
-                  r={s.r}
-                  fill="white"
-                  fillOpacity={s.o}
-                  animate={
-                    i % 5 === 0
-                      ? { opacity: [s.o, s.o * 0.3, s.o] }
-                      : undefined
-                  }
-                  transition={
-                    i % 5 === 0
-                      ? {
-                          duration: 2.5 + (i % 4) * 0.7,
-                          repeat: Infinity,
-                          ease: 'easeInOut',
-                          delay: (i % 7) * 0.3,
-                        }
-                      : undefined
-                  }
-                />
-              ))}
-            </g>
-          )}
-
-          {/* Horizon underglow */}
-          <rect
-            x="0"
-            y={HORIZON_Y - 28}
-            width={VB_W}
-            height="60"
-            fill="url(#prayerHorizonGlow)"
-          />
-
-          {/* Day arc */}
-          <path
-            d={arcPath()}
-            fill="none"
-            stroke="rgba(255,255,255,0.45)"
-            strokeWidth="0.7"
-            strokeDasharray="2 2"
-          />
-
-          {/* Horizon line */}
-          <line
-            x1="0"
-            y1={HORIZON_Y}
-            x2={VB_W}
-            y2={HORIZON_Y}
-            stroke="rgba(255,255,255,0.55)"
-            strokeWidth="0.6"
-          />
-
-          {/* Prayer markers on the arc */}
-          {markers.map((mk) => {
-            const isActive = activePrayerName === mk.key;
-            const accent = PRAYER_ACCENT[mk.key];
-            // Label sits above the marker on the arc; below for off-arc
-            const labelY = mk.onArc ? mk.y - 6 : mk.y + 10;
-            return (
-              <g key={mk.key}>
-                {/* Vertical hairline drop to horizon (subtle) */}
-                {mk.onArc && (
-                  <line
-                    x1={mk.x}
-                    y1={mk.y + 2}
-                    x2={mk.x}
-                    y2={HORIZON_Y - 1}
-                    stroke="rgba(255,255,255,0.15)"
-                    strokeWidth="0.4"
-                    strokeDasharray="1 2"
-                  />
-                )}
-                {/* Halo when active */}
-                {isActive && (
-                  <motion.circle
-                    cx={mk.x}
-                    cy={mk.y}
-                    r={6}
-                    fill={accent}
-                    fillOpacity={0.35}
-                    animate={{ r: [4, 8, 4], opacity: [0.5, 0.05, 0.5] }}
-                    transition={{
-                      duration: 2.4,
-                      repeat: Infinity,
-                      ease: 'easeInOut',
-                    }}
-                  />
-                )}
-                {/* Solid dot */}
-                <circle
-                  cx={mk.x}
-                  cy={mk.y}
-                  r={isActive ? 2.8 : 2}
-                  fill={accent}
-                  stroke="white"
-                  strokeWidth="0.7"
-                />
-                {/* Tiny prayer name label */}
-                <text
-                  x={mk.x}
-                  y={labelY}
-                  textAnchor="middle"
-                  fontSize="6"
-                  fontWeight="800"
-                  fill={palette.fg}
-                  style={{
-                    paintOrder: 'stroke',
-                    stroke: 'rgba(0,0,0,0.45)',
-                    strokeWidth: 0.7,
-                    strokeLinejoin: 'round',
-                    letterSpacing: '0.2px',
-                  }}
-                >
-                  {language === 'ar' ? PRAYER_AR_LABEL[mk.key] : t(PRAYER_LABEL_KEYS[mk.key])}
-                </text>
-              </g>
-            );
-          })}
-
-          {/* Sun / moon body */}
-          <g>
-            {/* Soft outer glow */}
-            <circle
-              cx={bodyPos.x}
-              cy={bodyPos.y}
-              r="14"
-              fill="url(#prayerBodyGlow)"
-            />
-            {/* Inner glow ring */}
-            {!palette.showMoon && (
-              <motion.circle
-                cx={bodyPos.x}
-                cy={bodyPos.y}
-                r="7"
-                fill={palette.bodyColor}
-                fillOpacity="0.25"
-                animate={{ r: [6, 9, 6], opacity: [0.35, 0.1, 0.35] }}
-                transition={{
-                  duration: 3.2,
-                  repeat: Infinity,
-                  ease: 'easeInOut',
-                }}
-              />
-            )}
-            {/* Body itself */}
-            <motion.circle
-              cx={bodyPos.x}
-              cy={bodyPos.y}
-              r="4"
-              fill={palette.bodyColor}
-              animate={
-                palette.showMoon
-                  ? {}
-                  : { r: [3.8, 4.4, 3.8] }
-              }
-              transition={{
-                duration: 3,
-                repeat: Infinity,
-                ease: 'easeInOut',
-              }}
-            />
-            {/* Moon crescent shadow */}
-            {palette.showMoon && (
-              <circle
-                cx={bodyPos.x + 1.4}
-                cy={bodyPos.y - 0.4}
-                r="3.4"
-                fill={palette.midColor}
-                opacity="0.85"
-              />
-            )}
-          </g>
-        </svg>
-
-        {/* Sunrise / Sunset chips overlaid on horizon line */}
-        <div
-          className="absolute inset-x-0 flex items-center justify-between px-4 pointer-events-none"
-          style={{ top: `calc(${(HORIZON_Y / VB_H) * 100}% + 6px)` }}
-        >
-          <div
-            className="flex items-center gap-1 text-[10px] font-semibold tabular-nums"
-            dir="ltr"
-            style={{ color: palette.fgMuted }}
-          >
-            <span>{formatTime12(extraTimings.Sunrise, t)}</span>
-            <span className="opacity-70 text-[9px]">
-              {language === 'ar' ? '☀ شروق' : 'Sunrise'}
-            </span>
-          </div>
-          <div
-            className="flex items-center gap-1 text-[10px] font-semibold tabular-nums"
-            dir="ltr"
-            style={{ color: palette.fgMuted }}
-          >
-            <span className="opacity-70 text-[9px]">
-              {language === 'ar' ? '🌇 غروب' : 'Sunset'}
-            </span>
-            <span>{formatTime12(extraTimings.Sunset, t)}</span>
-          </div>
-        </div>
-
-        {/* Location chip — top-left, above the sky */}
-        {locationName && (
-          <div
-            className="absolute top-2 left-3 px-2.5 py-0.5 rounded-full text-[10px] font-semibold flex items-center gap-1 pointer-events-none"
-            style={{
-              background: 'rgba(255,255,255,0.18)',
-              color: palette.fg,
-              backdropFilter: 'blur(6px)',
-              border: '1px solid rgba(255,255,255,0.25)',
-            }}
-          >
-            <MapPin className="w-2.5 h-2.5" />
-            {locationName}
-          </div>
-        )}
-
-        {/* Period chip — top-right */}
-        <div
-          className="absolute top-2 right-3 px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wide pointer-events-none uppercase"
-          style={{
-            background: 'rgba(255,255,255,0.18)',
-            color: palette.fg,
-            backdropFilter: 'blur(6px)',
-            border: '1px solid rgba(255,255,255,0.25)',
-          }}
-        >
-          {periodLabel(palette.period, language === 'ar')}
-        </div>
-      </div>
-
-      {/* ═══ Next prayer header ══════════════════════════════════════════ */}
-      <div className="px-5 pt-4 pb-3 flex items-center justify-between gap-3">
-        <div className="flex-1 min-w-0">
-          <p className="text-[11px] opacity-70 leading-tight">
-            {t('prayer.next')}
-          </p>
-          <p className="mt-0.5">
-            <span className="text-[18px] font-bold leading-tight">
-              {next.prayer ? t(PRAYER_LABEL_KEYS[next.prayer.name as PrayerKey]) : ''}
-            </span>
-            {next.prayer && (
-              <span
-                className="ml-2 text-[12px] font-semibold tabular-nums"
-                dir="ltr"
-              >
-                {formatTime12(next.prayer.time, t)}
-              </span>
-            )}
-          </p>
-          {next.prayer && (
-            <p className="text-[11.5px] opacity-75 mt-0.5">
-              {t('prayer.remaining')} {next.remaining}
-            </p>
-          )}
-        </div>
-        <div className="w-11 h-11 rounded-2xl bg-muted flex items-center justify-center shrink-0">
-          <Bell className="w-5 h-5 text-muted-foreground" />
-        </div>
-      </div>
-
-      <div className="h-px bg-border/60 mx-5" />
-
-      {/* ═══ Prayer cells ═══════════════════════════════════════════════ */}
-      <div className="px-3 pb-3 pt-2.5">
-        <div className="grid grid-cols-5 gap-1.5">
-          {prayers.map((p) => {
-            const isActive = p.name === activePrayerName;
-            const isDue = p.name === dueNowName;
-            const accent = PRAYER_ACCENT[p.name as PrayerKey];
-            return (
-              <motion.div
-                key={p.name}
-                whileHover={{ y: -1 }}
-                className={`relative rounded-2xl px-1 py-2.5 text-center transition-colors ${
-                  isActive
-                    ? 'bg-foreground text-background shadow-sm'
-                    : 'bg-muted/60 text-foreground'
-                }`}
-              >
-                {/* Color dot */}
-                <span
-                  className="absolute top-1.5 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full"
-                  style={{ background: accent, boxShadow: `0 0 6px ${accent}` }}
-                />
-                <p className="text-[10.5px] font-semibold mt-1.5 leading-tight">
-                  {t(PRAYER_LABEL_KEYS[p.name as PrayerKey])}
-                </p>
-                <p
-                  className={`text-[10px] font-bold tabular-nums mt-0.5 ${
-                    isActive ? '' : 'opacity-80'
-                  }`}
-                  dir="ltr"
-                >
-                  {formatTime12(p.time, t)}
-                </p>
-                {/* "Pray now" pill */}
-                <AnimatePresence>
-                  {isDue && (
-                    <motion.span
-                      initial={{ scale: 0.6, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      exit={{ scale: 0.6, opacity: 0 }}
-                      className="absolute -top-1 -right-1 px-1.5 py-0.5 rounded-full text-[8.5px] font-bold tracking-wide"
-                      style={{
-                        background: accent,
-                        color: '#1a1a1a',
-                        boxShadow: `0 0 8px ${accent}`,
-                      }}
-                    >
-                      {language === 'ar' ? 'صلِّ' : 'Pray'}
-                    </motion.span>
-                  )}
-                </AnimatePresence>
-              </motion.div>
-            );
-          })}
-        </div>
-      </div>
+      {/* ═══ Prayer slab ══════════════════════════════════════════════════ */}
+      <Slab
+        prayers={prayers}
+        doneStates={doneStates}
+        doneCount={doneCount}
+        activeName={slot.current}
+        shakeCounter={shakeCounter}
+        guideCounter={guideCounter}
+        onToggle={handleToggle}
+        isDark={isDark}
+        language={language}
+        t={t}
+      />
     </motion.div>
   );
+}
+
+// ─── Hero ───────────────────────────────────────────────────────────────────
+function Hero({
+  currentPrayer,
+  nextPrayer,
+  locationLabel,
+  language,
+  t,
+}: {
+  currentPrayer?: PrayerTime;
+  nextPrayer?: PrayerTime;
+  locationLabel: string;
+  language: string;
+  t: (k: string) => string;
+}) {
+  const nameOf = (p?: PrayerTime) =>
+    p ? (language === 'ar' ? p.ar : p.name === 'Fajr' || p.name === 'Dhuhr' || p.name === 'Asr' || p.name === 'Maghrib' || p.name === 'Isha' ? t(`prayer.${p.name.toLowerCase()}`) : p.name) : '—';
+
+  return (
+    <div className="grid grid-cols-2 divide-x divide-border/40">
+      {/* Current */}
+      <div className="bg-card px-4 pt-3 pb-2.5">
+        <div className="flex items-center justify-between gap-2 mb-1.5">
+          <span className="text-[8.5px] font-semibold tracking-[0.09em] uppercase text-muted-foreground/80 truncate">
+            {locationLabel}
+          </span>
+          <span className="text-[8px] font-bold uppercase text-primary/75 shrink-0">
+            {t('prayer.local')}
+          </span>
+        </div>
+        <div className="flex items-baseline justify-between gap-2">
+          <span className="text-[20px] font-medium leading-none truncate">
+            {nameOf(currentPrayer)}
+          </span>
+          <span
+            className="text-[17px] font-light tabular-nums text-muted-foreground/70 shrink-0"
+            dir="ltr"
+          >
+            {currentPrayer?.time ?? '--:--'}
+          </span>
+        </div>
+      </div>
+
+      {/* Next — slightly darker bg using muted/30 to mimic surfaceContainer */}
+      <div className="bg-muted/30 px-4 pt-3 pb-2.5">
+        <div className="text-[8.5px] font-semibold tracking-[0.09em] uppercase text-muted-foreground/80 mb-1.5">
+          {t('prayer.next')}
+        </div>
+        <div className="flex items-baseline justify-between gap-2">
+          <span className="text-[17px] font-medium leading-none truncate">
+            {nameOf(nextPrayer)}
+          </span>
+          <span
+            className="text-[13px] font-light tabular-nums text-muted-foreground/70 shrink-0"
+            dir="ltr"
+          >
+            {nextPrayer?.time ?? '--:--'}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Arc strip ──────────────────────────────────────────────────────────────
+function ArcStrip({
+  prayers,
+  sunT,
+  nextName,
+  makruhZones,
+  currentMakruh,
+  arcGeom,
+  isNight,
+  isDark,
+  sunriseStr,
+  sunsetStr,
+  language,
+  t,
+}: {
+  prayers: PrayerTime[];
+  sunT: number;
+  nextName: PrayerKey;
+  makruhZones: MakruhZone[];
+  currentMakruh: MakruhZone | undefined;
+  arcGeom: ArcGeom;
+  isNight: boolean;
+  isDark: boolean;
+  sunriseStr: string;
+  sunsetStr: string;
+  language: string;
+  t: (k: string) => string;
+}) {
+  const [expandedZone, setExpandedZone] = useState<number | null>(null);
+  const showStars = isDark && isNight;
+
+  // Tint overlay when inside a makruh zone
+  let tint = 'transparent';
+  if (currentMakruh) {
+    tint =
+      currentMakruh.label === 'Zawal' ? MAKRUH_TINT_SOLAR : MAKRUH_TINT_HORIZON;
+  }
+
+  // Arc paths
+  const fullPath = useMemo(() => buildArcPath(0, 1, 60, arcGeom), [arcGeom]);
+  const pastPath = useMemo(
+    () => (sunT > 0 ? buildArcPath(0, Math.min(1, sunT), Math.max(1, Math.floor(sunT * 60)), arcGeom) : ''),
+    [sunT, arcGeom]
+  );
+
+  const sunX = arcX(sunT);
+  const sunY = arcCurveY(sunT, arcGeom);
+
+  return (
+    <div
+      className="relative bg-muted/10"
+      style={{
+        backgroundColor: tint === 'transparent' ? undefined : tint,
+        aspectRatio: `${ARC_W} / ${ARC_H}`,
+      }}
+    >
+      <svg
+        viewBox={`0 0 ${ARC_W} ${ARC_H}`}
+        className="w-full h-full block select-none"
+        preserveAspectRatio="xMidYMid slice"
+        aria-hidden="true"
+      >
+        {/* Stars (only at night in dark mode) */}
+        {showStars && (
+          <g>
+            {STARS.map((s, i) => (
+              <motion.circle
+                key={i}
+                cx={ARC_PAD_X + s.x * ((ARC_W - 2 * ARC_PAD_X) / 130)}
+                cy={Math.min(
+                  ARC_LINE_Y + ARC_NIGHT_AMPL,
+                  ARC_LINE_Y - ARC_DAY_AMPL + (s.y / 60) * (ARC_DAY_AMPL + ARC_NIGHT_AMPL + 12)
+                )}
+                r={s.r * 1.1}
+                fill="white"
+                animate={{ opacity: [0.1, 0.5, 0.1] }}
+                transition={{
+                  duration: 1.8,
+                  repeat: Infinity,
+                  delay: s.delayMs / 1000,
+                  ease: 'easeInOut',
+                  repeatType: 'reverse',
+                }}
+              />
+            ))}
+          </g>
+        )}
+
+        {/* Horizon hairline */}
+        <line
+          x1={ARC_PAD_X}
+          y1={ARC_LINE_Y}
+          x2={ARC_W - ARC_PAD_X}
+          y2={ARC_LINE_Y}
+          stroke="currentColor"
+          strokeOpacity={0.08}
+          strokeWidth={1}
+        />
+
+        {/* Full 24h path (dashed) */}
+        <path
+          d={fullPath}
+          fill="none"
+          stroke="currentColor"
+          strokeOpacity={0.18}
+          strokeWidth={1.5}
+          strokeDasharray="4 6"
+        />
+
+        {/* Past trail (solid, primary tint) */}
+        {pastPath && (
+          <path
+            d={pastPath}
+            fill="none"
+            stroke="hsl(var(--primary))"
+            strokeOpacity={0.55}
+            strokeWidth={2.5}
+            strokeLinecap="round"
+          />
+        )}
+
+        {/* Makruh zones */}
+        {makruhZones.map((mk, i) => {
+          const expanded = expandedZone === i;
+          return (
+            <path
+              key={mk.label}
+              d={buildArcPath(mk.tStart, mk.tEnd, 12, arcGeom)}
+              fill="none"
+              stroke={MAKRUH_RED}
+              strokeOpacity={expanded ? 0.7 : 0.6}
+              strokeWidth={expanded ? 6 : 4}
+              strokeLinecap="round"
+              style={{ cursor: 'pointer', transition: 'all 0.2s ease' }}
+              onClick={() => setExpandedZone(expanded ? null : i)}
+            />
+          );
+        })}
+
+        {/* Prayer dots + labels */}
+        {prayers.map((p) => {
+          const isNext = p.name === nextName;
+          const isPast = sunT > p.arcT;
+          const px = arcX(p.arcT);
+          const py = arcCurveY(p.arcT, arcGeom);
+          const dotColor = isDark ? p.dotDark : p.dotLight;
+          return (
+            <g key={p.name}>
+              {isNext && (
+                <circle
+                  cx={px}
+                  cy={py}
+                  r={9}
+                  fill="none"
+                  stroke="currentColor"
+                  strokeOpacity={0.4}
+                  strokeWidth={1.2}
+                />
+              )}
+              <circle
+                cx={px}
+                cy={py}
+                r={isNext ? 4 : 3.5}
+                fill={dotColor}
+                fillOpacity={isNext ? 1 : isPast ? 0.85 : 0.4}
+              />
+              <text
+                x={px}
+                y={py + 14}
+                textAnchor="middle"
+                fontSize={isNext ? 7.5 : 7}
+                fontWeight={isNext ? 700 : 500}
+                fill="currentColor"
+                fillOpacity={isNext ? 0.9 : 0.5}
+              >
+                {language === 'ar' ? p.ar : p.name}
+              </text>
+            </g>
+          );
+        })}
+
+        {/* Sun / Moon */}
+        <g>
+          {/* Outer glow */}
+          <circle
+            cx={sunX}
+            cy={sunY}
+            r={20}
+            fill={isNight ? MOON_COLOR : SUN_COLOR}
+            fillOpacity={0.15}
+          />
+          {isNight ? (
+            <>
+              {/* Crescent moon: filled circle minus offset surface circle */}
+              <circle cx={sunX} cy={sunY} r={6} fill={MOON_COLOR} fillOpacity={0.85} />
+              <circle
+                cx={sunX + 2.5}
+                cy={sunY - 1}
+                r={5}
+                fill={isDark ? '#0b1230' : '#ffffff'}
+              />
+            </>
+          ) : (
+            <motion.circle
+              cx={sunX}
+              cy={sunY}
+              r={6}
+              fill={SUN_COLOR}
+              animate={{ r: [5.5, 6.5, 5.5] }}
+              transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+            />
+          )}
+        </g>
+      </svg>
+
+      {/* Sunrise / Sunset corner labels */}
+      {sunriseStr && (
+        <div className="absolute bottom-1.5 left-3 flex items-center gap-1 pointer-events-none">
+          <SunriseIcon className="w-3 h-3 text-amber-400/85" />
+          <span className="text-[9px] font-medium text-muted-foreground/70 leading-none">
+            {language === 'ar' ? 'شروق' : 'Sunrise'}
+          </span>
+          <span className="text-[9px] font-medium tabular-nums leading-none" dir="ltr">
+            {sunriseStr}
+          </span>
+        </div>
+      )}
+      {sunsetStr && (
+        <div className="absolute bottom-1.5 right-3 flex items-center gap-1 pointer-events-none">
+          <span className="text-[9px] font-medium tabular-nums leading-none" dir="ltr">
+            {sunsetStr}
+          </span>
+          <span className="text-[9px] font-medium text-muted-foreground/70 leading-none">
+            {language === 'ar' ? 'غروب' : 'Sunset'}
+          </span>
+          <SunriseIcon className="w-3 h-3 text-indigo-400/70 rotate-180" />
+        </div>
+      )}
+
+      {/* Makruh badge top-right */}
+      {currentMakruh && (
+        <div
+          className="absolute top-1.5 right-2 px-1.5 py-0.5 rounded text-[7px] font-bold tracking-wide"
+          style={{
+            backgroundColor:
+              currentMakruh.label === 'Zawal'
+                ? `${MAKRUH_BADGE_RED}30`
+                : `${MAKRUH_BADGE_AMBER}30`,
+            color:
+              currentMakruh.label === 'Zawal'
+                ? MAKRUH_BADGE_RED
+                : MAKRUH_BADGE_AMBER,
+          }}
+        >
+          {t('prayer.makruh').toUpperCase()} ·{' '}
+          {language === 'ar'
+            ? t(`prayer.makruh.${currentMakruh.label.toLowerCase()}`)
+            : currentMakruh.label.toUpperCase()}
+        </div>
+      )}
+
+      {/* Expanded makruh overlay (tap a zone to learn) */}
+      <AnimatePresence>
+        {expandedZone != null && makruhZones[expandedZone] && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.22 }}
+            className="absolute inset-0 flex flex-col items-center justify-center text-center px-5 cursor-pointer"
+            style={{ background: 'rgba(0,0,0,0.86)' }}
+            onClick={() => setExpandedZone(null)}
+          >
+            <p className="text-[7.5px] font-bold tracking-wide" style={{ color: '#F06045' }}>
+              {t('prayer.makruh').toUpperCase()} ·{' '}
+              {language === 'ar'
+                ? t(`prayer.makruh.${makruhZones[expandedZone].label.toLowerCase()}`)
+                : makruhZones[expandedZone].label.toUpperCase()}
+            </p>
+            <p className="mt-1 text-[10.5px] leading-[16px] text-white/80 font-light">
+              {t(`prayer.makruh.desc.${makruhZones[expandedZone].label.toLowerCase()}`)}
+            </p>
+            <p className="mt-2 text-[8px] text-white/30">{t('prayer.tapDismiss')}</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+// ─── Slab ───────────────────────────────────────────────────────────────────
+function Slab({
+  prayers,
+  doneStates,
+  doneCount,
+  activeName,
+  shakeCounter,
+  guideCounter,
+  onToggle,
+  isDark,
+  language,
+  t,
+}: {
+  prayers: PrayerTime[];
+  doneStates: Record<PrayerKey, boolean>;
+  doneCount: number;
+  activeName: PrayerKey;
+  shakeCounter: Record<PrayerKey, number>;
+  guideCounter: Record<PrayerKey, number>;
+  onToggle: (k: PrayerKey) => void;
+  isDark: boolean;
+  language: string;
+  t: (k: string) => string;
+}) {
+  // First not-yet-done prayer (suggested next)
+  const nextToPray = PRAYER_KEYS.find((k) => !doneStates[k]) ?? null;
+
+  return (
+    <div className="px-4 pt-4 pb-4">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-[10px] font-semibold tracking-[0.09em] uppercase text-muted-foreground">
+          {t('prayer.todaysPrayers')}
+        </span>
+        <span className="text-[10px] font-medium text-muted-foreground/75 tabular-nums">
+          {doneCount} {t('prayer.of')} 5
+        </span>
+      </div>
+
+      {/* Progress bar */}
+      <div className="w-full h-[2.5px] rounded-sm bg-foreground/10 overflow-hidden">
+        <motion.div
+          className="h-full rounded-sm bg-primary"
+          initial={false}
+          animate={{ width: `${(doneCount / 5) * 100}%` }}
+          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+        />
+      </div>
+
+      <div className="mt-3">
+        {prayers.map((p, idx) => {
+          const isPrayed = doneStates[p.name];
+          const isNext = !isPrayed && nextToPray === p.name;
+          const isActive = p.name === activeName;
+          const dotColor = isDark ? p.dotDark : p.dotLight;
+          return (
+            <SlabRow
+              key={p.name}
+              prayer={p}
+              isPrayed={isPrayed}
+              isNext={isNext}
+              isActive={isActive}
+              dotColor={dotColor}
+              shakeKey={shakeCounter[p.name]}
+              guideKey={guideCounter[p.name]}
+              onToggle={() => onToggle(p.name)}
+              language={language}
+              t={t}
+              showDivider={idx < prayers.length - 1}
+            />
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function SlabRow({
+  prayer,
+  isPrayed,
+  isNext,
+  isActive,
+  dotColor,
+  shakeKey,
+  guideKey,
+  onToggle,
+  language,
+  t,
+  showDivider,
+}: {
+  prayer: PrayerTime;
+  isPrayed: boolean;
+  isNext: boolean;
+  isActive: boolean;
+  dotColor: string;
+  shakeKey: number;
+  guideKey: number;
+  onToggle: () => void;
+  language: string;
+  t: (k: string) => string;
+  showDivider: boolean;
+}) {
+  // Shake on rejection: re-fires whenever shakeKey increments
+  const shakeRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (shakeKey === 0 || !shakeRef.current) return;
+    const el = shakeRef.current;
+    const anim = el.animate(
+      [
+        { transform: 'translateX(0)' },
+        { transform: 'translateX(-10px)' },
+        { transform: 'translateX(9px)' },
+        { transform: 'translateX(-7px)' },
+        { transform: 'translateX(5px)' },
+        { transform: 'translateX(-3px)' },
+        { transform: 'translateX(0)' },
+      ],
+      { duration: 360, easing: 'ease-out' }
+    );
+    return () => anim.cancel();
+  }, [shakeKey]);
+
+  // Guide pulse: 150ms in, 420ms out
+  const [guideAlpha, setGuideAlpha] = useState(0);
+  useEffect(() => {
+    if (guideKey === 0) return;
+    setGuideAlpha(0.22);
+    const timeout = setTimeout(() => setGuideAlpha(0), 150);
+    return () => clearTimeout(timeout);
+  }, [guideKey]);
+
+  return (
+    <>
+      <div
+        ref={shakeRef}
+        onClick={onToggle}
+        className="relative flex items-center gap-2.5 py-2 cursor-pointer rounded-2xl transition-colors px-2"
+        style={{
+          backgroundColor: guideAlpha > 0 ? `hsl(var(--primary) / ${guideAlpha})` : 'transparent',
+          transition: 'background-color 420ms ease',
+        }}
+      >
+        {/* Color dot */}
+        <span
+          className="w-1.5 h-1.5 rounded-full shrink-0"
+          style={{
+            background: isPrayed ? 'hsl(var(--foreground) / 0.1)' : dotColor,
+          }}
+        />
+
+        {/* Checkbox */}
+        <div
+          className={`w-[18px] h-[18px] rounded-full border-[1.6px] flex items-center justify-center shrink-0 ${
+            isPrayed ? 'bg-foreground/10 border-foreground/20' : 'border-foreground/15'
+          }`}
+        >
+          {isPrayed && <Check className="w-3 h-3 text-foreground/65" strokeWidth={3} />}
+        </div>
+
+        {/* Name (English/transliterated) */}
+        <span
+          className={`text-[14px] flex-1 truncate ${
+            isPrayed
+              ? 'text-foreground/40 font-light'
+              : isNext
+                ? 'font-semibold'
+                : 'font-light'
+          }`}
+        >
+          {language === 'ar' ? prayer.ar : t(`prayer.${prayer.name.toLowerCase()}`)}
+        </span>
+
+        {/* NEXT badge */}
+        {isNext && (
+          <span className="text-[7.5px] font-bold tracking-[0.1em] text-primary me-2 shrink-0">
+            {t('prayer.next.short')}
+          </span>
+        )}
+
+        {/* "Pray" pill — for the active (current-window) prayer */}
+        {isActive && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              // Just acknowledge tap; could open a Qibla / pray-tracker modal
+            }}
+            className="px-2.5 py-1 rounded-full text-[9px] font-semibold tracking-wide bg-primary/10 text-primary shrink-0"
+          >
+            {t('prayer.pray')}
+          </button>
+        )}
+
+        {/* Arabic name (only when UI lang is not Arabic) */}
+        {language !== 'ar' && (
+          <span className="text-[14px] text-foreground/50 shrink-0">
+            {prayer.ar}
+          </span>
+        )}
+
+        {/* Time */}
+        <span
+          className="text-[13px] font-medium text-foreground/70 tabular-nums min-w-[60px] text-end shrink-0"
+          dir="ltr"
+        >
+          {prayer.time}
+        </span>
+      </div>
+      {showDivider && <div className="h-px bg-foreground/5 mx-2" />}
+    </>
+  );
+}
+
+// ─── Helpers ────────────────────────────────────────────────────────────────
+/** True if the current effective theme is dark. */
+function useIsDark(theme: 'light' | 'dark' | 'system'): boolean {
+  const [isDark, setIsDark] = useState(() => {
+    if (theme === 'dark') return true;
+    if (theme === 'light') return false;
+    if (typeof window !== 'undefined' && window.matchMedia) {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+    return false;
+  });
+  useEffect(() => {
+    if (theme === 'dark') return setIsDark(true);
+    if (theme === 'light') return setIsDark(false);
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    setIsDark(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsDark(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, [theme]);
+  return isDark;
 }
