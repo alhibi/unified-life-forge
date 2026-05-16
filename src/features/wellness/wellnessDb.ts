@@ -62,13 +62,14 @@ export interface SkinHairLog {
 }
 
 const DB_NAME = 'wellness-db';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 const STORES = {
   supplements: 'supplements',
   intakeLogs: 'intake_logs',
   dietLogs: 'diet_logs',
   skinHair: 'skin_hair_logs',
+  vitals: 'vital_logs',
 } as const;
 
 let dbPromise: Promise<IDBDatabase> | null = null;
@@ -97,6 +98,10 @@ function openDb(): Promise<IDBDatabase> {
       }
       if (!db.objectStoreNames.contains(STORES.skinHair)) {
         const s = db.createObjectStore(STORES.skinHair, { keyPath: 'id' });
+        s.createIndex('by_date', 'date', { unique: true });
+      }
+      if (!db.objectStoreNames.contains(STORES.vitals)) {
+        const s = db.createObjectStore(STORES.vitals, { keyPath: 'id' });
         s.createIndex('by_date', 'date', { unique: true });
       }
     };
