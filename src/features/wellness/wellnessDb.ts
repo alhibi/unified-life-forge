@@ -278,6 +278,62 @@ export async function deleteSkinHair(id: UUID): Promise<void> {
   await del(STORES.skinHair, id);
 }
 
+// ---------- Vitals (steps / sleep / heart rate / weight / BP) ----------
+
+export interface VitalLog {
+  id: UUID;
+  date: string;               // "YYYY-MM-DD" — one record per day (upsert)
+  steps?: number;             // daily step count
+  sleepHours?: number;        // 0..14
+  sleepQuality?: number;      // 1..5
+  restingHR?: number;         // bpm (resting heart rate)
+  weightKg?: number;          // body weight in kg
+  bpSystolic?: number;        // mmHg
+  bpDiastolic?: number;       // mmHg
+  hydrationLiters?: number;   // water intake
+  energy?: number;            // 1..5 subjective energy
+  mood?: number;              // 1..5
+  notes?: string;
+  loggedAt: number;
+}
+
+export async function listVitals(): Promise<VitalLog[]> {
+  const all = await getAll<VitalLog>(STORES.vitals);
+  return all.sort((a, b) => b.date.localeCompare(a.date));
+}
+
+export async function getVitalForDate(date: string): Promise<VitalLog | null> {
+  const all = await listVitals();
+  return all.find((v) => v.date === date) ?? null;
+}
+
+export async function upsertVital(
+  entry: Omit<VitalLog, 'id' | 'loggedAt'> & { id?: UUID },
+): Promise<VitalLog> {
+  const existing = await getVitalForDate(entry.date);
+  const out: VitalLog = {
+    id: entry.id ?? existing?.id ?? uuid(),
+    date: entry.date,
+    steps: entry.steps,
+    sleepHours: entry.sleepHours,
+    sleepQuality: entry.sleepQuality,
+    restingHR: entry.restingHR,
+    weightKg: entry.weightKg,
+    bpSystolic: entry.bpSystolic,
+    bpDiastolic: entry.bpDiastolic,
+    hydrationLiters: entry.hydrationLiters,
+    energy: entry.energy,
+    mood: entry.mood,
+    notes: entry.notes,
+    loggedAt: Date.now(),
+  };
+  return put(STORES.vitals, out);
+}
+
+export async function deleteVital(id: UUID): Promise<void> {
+  await del(STORES.vitals, id);
+}
+
 // ---------- Export / Wipe (privacy control) ----------
 
 export async function exportAll(): Promise<{
@@ -285,15 +341,17 @@ export async function exportAll(): Promise<{
   intakeLogs: IntakeLog[];
   dietLogs: DietLog[];
   skinHairLogs: SkinHairLog[];
+  vitalLogs: VitalLog[];
   exportedAt: number;
 }> {
-  const [supplements, intakeLogs, dietLogs, skinHairLogs] = await Promise.all([
+  const [supplements, intakeLogs, dietLogs, skinHairLogs, vitalLogs] = await Promise.all([
     listSupplements(),
     listIntakeLogs(),
     listDietLogs(),
     listSkinHairLogs(),
+    listVitals(),
   ]);
-  return { supplements, intakeLogs, dietLogs, skinHairLogs, exportedAt: Date.now() };
+  return { supplements, intakeLogs, dietLogs, skinHairLogs, vitalLogs, exportedAt: Date.now() };
 }
 
 export async function wipeAll(): Promise<void> {
