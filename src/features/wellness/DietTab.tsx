@@ -6,6 +6,7 @@ import { FOOD_LIST, FOODS, type Lang } from './wellnessData';
 import type { DietLog, UUID } from './wellnessDb';
 import { todayIso } from './wellnessDb';
 import { CATEGORY_META, categoryOf, type FoodCategory } from './foodCategories';
+import AppDatePicker from './AppDatePicker';
 
 interface Props {
   dietLogs: DietLog[];
@@ -83,13 +84,7 @@ export default function DietTab({ dietLogs, onAdd, onRemove }: Props) {
               <p className="text-sm font-semibold text-foreground mt-0.5">{date}</p>
             </div>
           </div>
-          <input
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            className="bg-muted/60 border border-border/40 rounded-lg px-2 py-1 text-base text-foreground outline-none"
-            dir="ltr"
-          />
+          <AppDatePicker value={date} onChange={setDate} />
         </div>
       </motion.div>
 
