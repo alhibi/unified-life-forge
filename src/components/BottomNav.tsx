@@ -4,7 +4,6 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { House, Dices, SlidersHorizontal, HandHeart, Feather, MessageCircle } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { motion } from 'framer-motion';
 
 type Tab = {
   key: string;
@@ -96,11 +95,12 @@ export default function BottomNav() {
               aria-label={t(tab.labelKey)}
               aria-current={active ? 'page' : undefined}
             >
-              <motion.div
-                animate={active ? { y: -2, scale: 1.12 } : { y: 0, scale: 1 }}
-                transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-                style={active ? { filter: 'drop-shadow(0 0 6px hsl(var(--primary) / 0.5))' } : {}}
-                className="relative"
+              <div
+                className="relative transition-transform duration-200 ease-out"
+                style={{
+                  transform: active ? 'translateY(-2px) scale(1.12)' : 'translateY(0) scale(1)',
+                  filter: active ? 'drop-shadow(0 0 6px hsl(var(--primary) / 0.5))' : undefined,
+                }}
               >
                 <tab.icon className={`relative z-10 w-[20px] h-[20px] ${
                   active ? 'text-primary stroke-[2.2]' : 'text-muted-foreground/70 stroke-[1.5]'
@@ -113,18 +113,14 @@ export default function BottomNav() {
                     {unreadCount > 99 ? '99+' : unreadCount}
                   </span>
                 )}
-              </motion.div>
+              </div>
               <span className={`relative z-10 text-[9.5px] ${
                 active ? 'font-semibold text-primary' : 'font-medium text-muted-foreground/70'
               }`}>
                 {t(tab.labelKey)}
               </span>
               {active && (
-                <motion.div
-                  layoutId="nav-dot"
-                  className="absolute -bottom-0.5 w-1 h-1 rounded-full bg-primary"
-                  transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
-                />
+                <div className="absolute -bottom-0.5 w-1 h-1 rounded-full bg-primary" />
               )}
             </button>
           );
