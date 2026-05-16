@@ -13,6 +13,7 @@ import ScrollToTop from "@/components/ScrollToTop";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import FloatingVoicePlayer from "@/components/FloatingVoicePlayer";
 import { lazy, Suspense } from "react";
+import { useEffect } from "react";
 import { useAutoPrayerTheme } from "@/hooks/useAutoPrayerTheme";
 import { usePresence } from "@/hooks/usePresence";
 import { useAuth } from "@/hooks/useAuth";
@@ -32,37 +33,85 @@ function PresenceRunner() {
 }
 
 // Lazy load all other pages
-const GamesPage = lazy(() => import("./pages/Games"));
-const SudokuPage = lazy(() => import("./pages/Sudoku"));
-const ChessPage = lazy(() => import("./pages/Chess"));
-const MemoryGame = lazy(() => import("./pages/MemoryGame"));
-const MinesweeperPage = lazy(() => import("./pages/Minesweeper"));
-const ColorMazePage = lazy(() => import("./pages/ColorMaze"));
-const PipesPage = lazy(() => import("./pages/PipesGame"));
-const DiceGamePage = lazy(() => import("./pages/DiceGame"));
-const TargetGamePage = lazy(() => import("./pages/TargetGame"));
-const PuzzleGamePage = lazy(() => import("./pages/PuzzleGame"));
+// Lazy loaders are kept as named factories so we can prefetch them on idle.
+const loadGames = () => import(/* @vite-ignore */ "./pages/Games");
+const loadSudoku = () => import(/* @vite-ignore */ "./pages/Sudoku");
+const loadChess = () => import(/* @vite-ignore */ "./pages/Chess");
+const loadMemory = () => import(/* @vite-ignore */ "./pages/MemoryGame");
+const loadMine = () => import(/* @vite-ignore */ "./pages/Minesweeper");
+const loadMaze = () => import(/* @vite-ignore */ "./pages/ColorMaze");
+const loadPipes = () => import(/* @vite-ignore */ "./pages/PipesGame");
+const loadDice = () => import(/* @vite-ignore */ "./pages/DiceGame");
+const loadTarget = () => import(/* @vite-ignore */ "./pages/TargetGame");
+const loadPuzzle = () => import(/* @vite-ignore */ "./pages/PuzzleGame");
+const loadHex = () => import(/* @vite-ignore */ "./pages/HexGame");
+const loadFocus = () => import(/* @vite-ignore */ "./pages/FocusGame");
+const loadSettings = () => import(/* @vite-ignore */ "./pages/Settings");
+const loadTheme = () => import(/* @vite-ignore */ "./pages/ThemeSettings");
+const loadAuth = () => import(/* @vite-ignore */ "./pages/Auth");
+const loadProfile = () => import(/* @vite-ignore */ "./pages/ProfileEdit");
+const loadFont = () => import(/* @vite-ignore */ "./pages/FontSettings");
+const loadPrayer = () => import(/* @vite-ignore */ "./pages/PrayerSettings");
+const loadDuas = () => import(/* @vite-ignore */ "./pages/Duas");
+const loadDiwan = () => import(/* @vite-ignore */ "./pages/Diwan");
+const loadOccasions = () => import(/* @vite-ignore */ "./pages/AllOccasions");
+const loadReading = () => import(/* @vite-ignore */ "./pages/Reading");
+const loadTimed = () => import(/* @vite-ignore */ "./pages/TimedSunnah");
+const loadSunnahDetail = () => import(/* @vite-ignore */ "./pages/SunnahDetail");
+const loadProphetic = () => import(/* @vite-ignore */ "./pages/PropheticDay");
+const loadUntimed = () => import(/* @vite-ignore */ "./pages/UntimedSunnah");
+const loadVirtues = () => import(/* @vite-ignore */ "./pages/QuranVirtues");
+const loadWellness = () => import(/* @vite-ignore */ "./pages/Wellness");
+const loadChat = () => import(/* @vite-ignore */ "./pages/Chat");
+const loadNotFound = () => import(/* @vite-ignore */ "./pages/NotFound");
 
-const HexGamePage = lazy(() => import("./pages/HexGame"));
-const FocusGamePage = lazy(() => import("./pages/FocusGame"));
-const SettingsPage = lazy(() => import("./pages/Settings"));
-const ThemeSettingsPage = lazy(() => import("./pages/ThemeSettings"));
-const AuthPage = lazy(() => import("./pages/Auth"));
-const ProfileEditPage = lazy(() => import("./pages/ProfileEdit"));
-const FontSettingsPage = lazy(() => import("./pages/FontSettings"));
-const PrayerSettingsPage = lazy(() => import("./pages/PrayerSettings"));
-const DuasPage = lazy(() => import("./pages/Duas"));
-const DiwanPage = lazy(() => import("./pages/Diwan"));
-const AllOccasionsPage = lazy(() => import("./pages/AllOccasions"));
-const ReadingPage = lazy(() => import("./pages/Reading"));
-const TimedSunnahPage = lazy(() => import("./pages/TimedSunnah"));
-const SunnahDetailPage = lazy(() => import("./pages/SunnahDetail"));
-const PropheticDayPage = lazy(() => import("./pages/PropheticDay"));
-const UntimedSunnahPage = lazy(() => import("./pages/UntimedSunnah"));
-const QuranVirtuesPage = lazy(() => import("./pages/QuranVirtues"));
-const WellnessPage = lazy(() => import("./pages/Wellness"));
-const ChatPage = lazy(() => import("./pages/Chat"));
-const NotFound = lazy(() => import("./pages/NotFound"));
+const GamesPage = lazy(loadGames);
+const SudokuPage = lazy(loadSudoku);
+const ChessPage = lazy(loadChess);
+const MemoryGame = lazy(loadMemory);
+const MinesweeperPage = lazy(loadMine);
+const ColorMazePage = lazy(loadMaze);
+const PipesPage = lazy(loadPipes);
+const DiceGamePage = lazy(loadDice);
+const TargetGamePage = lazy(loadTarget);
+const PuzzleGamePage = lazy(loadPuzzle);
+const HexGamePage = lazy(loadHex);
+const FocusGamePage = lazy(loadFocus);
+const SettingsPage = lazy(loadSettings);
+const ThemeSettingsPage = lazy(loadTheme);
+const AuthPage = lazy(loadAuth);
+const ProfileEditPage = lazy(loadProfile);
+const FontSettingsPage = lazy(loadFont);
+const PrayerSettingsPage = lazy(loadPrayer);
+const DuasPage = lazy(loadDuas);
+const DiwanPage = lazy(loadDiwan);
+const AllOccasionsPage = lazy(loadOccasions);
+const ReadingPage = lazy(loadReading);
+const TimedSunnahPage = lazy(loadTimed);
+const SunnahDetailPage = lazy(loadSunnahDetail);
+const PropheticDayPage = lazy(loadProphetic);
+const UntimedSunnahPage = lazy(loadUntimed);
+const QuranVirtuesPage = lazy(loadVirtues);
+const WellnessPage = lazy(loadWellness);
+const ChatPage = lazy(loadChat);
+const NotFound = lazy(loadNotFound);
+
+// Warm the most-used tab chunks once the browser is idle, so the first
+// navigation feels instant without bloating the initial bundle.
+function useIdlePrefetch() {
+  useEffect(() => {
+    const ric: (cb: () => void) => number =
+      (window as any).requestIdleCallback ||
+      ((cb) => window.setTimeout(cb, 1500));
+    const id = ric(() => {
+      loadSettings(); loadGames(); loadDuas(); loadDiwan(); loadChat();
+    });
+    return () => {
+      const cic = (window as any).cancelIdleCallback;
+      if (cic) cic(id); else clearTimeout(id);
+    };
+  }, []);
+}
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -89,6 +138,7 @@ const PageSkeleton = () => (
 
 function AnimatedRoutes() {
   const location = useLocation();
+  useIdlePrefetch();
   return (
     <>
       <ScrollToTop />
