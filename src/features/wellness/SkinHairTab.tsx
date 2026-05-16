@@ -10,6 +10,7 @@ import { bodySystems } from './bodySystems';
 import type { Lang } from './wellnessData';
 import type { SkinHairLog } from './wellnessDb';
 import { todayIso } from './wellnessDb';
+import AppDatePicker from './AppDatePicker';
 
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   Droplets, Sparkles, Eye, Bone, Dumbbell, Battery, Brain, Sprout,
@@ -206,13 +207,7 @@ export default function SkinHairTab({ skinHair, onSave }: Props) {
             </p>
             <p className="text-sm font-semibold text-foreground mt-0.5">{form.date}</p>
           </div>
-          <input
-            type="date"
-            value={form.date}
-            onChange={(e) => update('date', e.target.value)}
-            className="bg-muted/60 border border-border/40 rounded-lg px-2 py-1 text-sm text-foreground outline-none"
-            dir="ltr"
-          />
+          <AppDatePicker value={form.date} onChange={(v) => update('date', v)} />
         </div>
       </motion.div>
 
