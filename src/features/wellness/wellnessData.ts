@@ -448,6 +448,619 @@ export const FOODS: Record<string, FoodInfo> = {
     nutrients: ['vitaminE'],
     tags: ['fatty'],
   },
+
+  // ===== Fruits =====
+  apple: {
+    key: 'apple', icon: '🍎',
+    label: { ar: 'تفاح', de: 'Apfel' },
+    nutrients: ['fiber', 'vitaminC', 'antioxidants', 'polyphenols'],
+  },
+  pear: {
+    key: 'pear', icon: '🍐',
+    label: { ar: 'كمثرى', de: 'Birne' },
+    nutrients: ['fiber', 'vitaminC', 'potassium'],
+  },
+  grape: {
+    key: 'grape', icon: '🍇',
+    label: { ar: 'عنب', de: 'Trauben' },
+    nutrients: ['vitaminK', 'antioxidants', 'polyphenols'],
+  },
+  watermelon: {
+    key: 'watermelon', icon: '🍉',
+    label: { ar: 'بطيخ', de: 'Wassermelone' },
+    nutrients: ['vitaminC', 'vitaminA', 'lycopene', 'potassium'],
+  },
+  melon: {
+    key: 'melon', icon: '🍈',
+    label: { ar: 'شمام', de: 'Honigmelone' },
+    nutrients: ['vitaminC', 'vitaminA', 'potassium'],
+  },
+  pineapple: {
+    key: 'pineapple', icon: '🍍',
+    label: { ar: 'أناناس', de: 'Ananas' },
+    nutrients: ['vitaminC', 'manganese', 'fiber'],
+  },
+  mango: {
+    key: 'mango', icon: '🥭',
+    label: { ar: 'مانجو', de: 'Mango' },
+    nutrients: ['vitaminC', 'vitaminA', 'folate', 'antioxidants'],
+  },
+  peach: {
+    key: 'peach', icon: '🍑',
+    label: { ar: 'خوخ', de: 'Pfirsich' },
+    nutrients: ['vitaminC', 'vitaminA', 'potassium', 'fiber'],
+  },
+  cherry: {
+    key: 'cherry', icon: '🍒',
+    label: { ar: 'كرز', de: 'Kirschen' },
+    nutrients: ['vitaminC', 'antioxidants', 'polyphenols', 'potassium'],
+  },
+  blueberry: {
+    key: 'blueberry', icon: '🫐',
+    label: { ar: 'توت أزرق', de: 'Blaubeeren' },
+    nutrients: ['vitaminC', 'vitaminK', 'antioxidants', 'polyphenols', 'fiber'],
+  },
+  raspberry: {
+    key: 'raspberry', icon: '🍇',
+    label: { ar: 'توت أحمر', de: 'Himbeeren' },
+    nutrients: ['vitaminC', 'fiber', 'antioxidants', 'manganese'],
+  },
+  pomegranate: {
+    key: 'pomegranate', icon: '🥭',
+    label: { ar: 'رمان', de: 'Granatapfel' },
+    nutrients: ['vitaminC', 'vitaminK', 'folate', 'antioxidants', 'polyphenols'],
+  },
+  fig: {
+    key: 'fig', icon: '🌰',
+    label: { ar: 'تين', de: 'Feige' },
+    nutrients: ['fiber', 'calcium', 'potassium', 'magnesium'],
+  },
+  apricot: {
+    key: 'apricot', icon: '🍑',
+    label: { ar: 'مشمش', de: 'Aprikose' },
+    nutrients: ['vitaminA', 'vitaminC', 'potassium', 'fiber'],
+  },
+  kiwi: {
+    key: 'kiwi', icon: '🥝',
+    label: { ar: 'كيوي', de: 'Kiwi' },
+    nutrients: ['vitaminC', 'vitaminK', 'folate', 'fiber'],
+  },
+  papaya: {
+    key: 'papaya', icon: '🥭',
+    label: { ar: 'بابايا', de: 'Papaya' },
+    nutrients: ['vitaminC', 'vitaminA', 'folate', 'fiber'],
+  },
+  guava: {
+    key: 'guava', icon: '🍈',
+    label: { ar: 'جوافة', de: 'Guave' },
+    nutrients: ['vitaminC', 'fiber', 'potassium', 'folate'],
+  },
+  grapefruit: {
+    key: 'grapefruit', icon: '🍊',
+    label: { ar: 'جريب فروت', de: 'Grapefruit' },
+    nutrients: ['vitaminC', 'vitaminA', 'fiber', 'lycopene'],
+    tags: ['citrus'],
+  },
+  raisins: {
+    key: 'raisins', icon: '🍇',
+    label: { ar: 'زبيب', de: 'Rosinen' },
+    nutrients: ['iron', 'potassium', 'fiber', 'antioxidants'],
+  },
+  prunes: {
+    key: 'prunes', icon: '🍑',
+    label: { ar: 'خوخ مجفف', de: 'Trockenpflaumen' },
+    nutrients: ['fiber', 'vitaminK', 'potassium', 'iron'],
+  },
+
+  // ===== Vegetables =====
+  tomato: {
+    key: 'tomato', icon: '🍅',
+    label: { ar: 'طماطم', de: 'Tomate' },
+    nutrients: ['vitaminC', 'vitaminK', 'lycopene', 'potassium', 'folate'],
+  },
+  cucumber: {
+    key: 'cucumber', icon: '🥒',
+    label: { ar: 'خيار', de: 'Gurke' },
+    nutrients: ['vitaminK', 'potassium'],
+  },
+  bell_pepper: {
+    key: 'bell_pepper', icon: '🫑',
+    label: { ar: 'فلفل ملون', de: 'Paprika' },
+    nutrients: ['vitaminC', 'vitaminA', 'vitaminB6', 'folate', 'antioxidants'],
+  },
+  onion: {
+    key: 'onion', icon: '🧅',
+    label: { ar: 'بصل', de: 'Zwiebel' },
+    nutrients: ['vitaminC', 'folate', 'fiber', 'polyphenols'],
+  },
+  garlic: {
+    key: 'garlic', icon: '🧄',
+    label: { ar: 'ثوم', de: 'Knoblauch' },
+    nutrients: ['vitaminC', 'vitaminB6', 'manganese', 'antioxidants'],
+  },
+  potato: {
+    key: 'potato', icon: '🥔',
+    label: { ar: 'بطاطس', de: 'Kartoffel' },
+    nutrients: ['vitaminC', 'vitaminB6', 'potassium', 'carbs', 'fiber'],
+  },
+  sweet_potato: {
+    key: 'sweet_potato', icon: '🍠',
+    label: { ar: 'بطاطا حلوة', de: 'Süßkartoffel' },
+    nutrients: ['vitaminA', 'vitaminC', 'potassium', 'fiber', 'manganese'],
+  },
+  pumpkin: {
+    key: 'pumpkin', icon: '🎃',
+    label: { ar: 'قرع', de: 'Kürbis' },
+    nutrients: ['vitaminA', 'vitaminC', 'potassium', 'fiber'],
+  },
+  zucchini: {
+    key: 'zucchini', icon: '🥒',
+    label: { ar: 'كوسا', de: 'Zucchini' },
+    nutrients: ['vitaminC', 'vitaminA', 'potassium', 'manganese'],
+  },
+  eggplant: {
+    key: 'eggplant', icon: '🍆',
+    label: { ar: 'باذنجان', de: 'Aubergine' },
+    nutrients: ['fiber', 'manganese', 'antioxidants', 'polyphenols'],
+  },
+  cauliflower: {
+    key: 'cauliflower', icon: '🥦',
+    label: { ar: 'قرنبيط', de: 'Blumenkohl' },
+    nutrients: ['vitaminC', 'vitaminK', 'folate', 'fiber', 'choline'],
+  },
+  cabbage: {
+    key: 'cabbage', icon: '🥬',
+    label: { ar: 'ملفوف', de: 'Kohl' },
+    nutrients: ['vitaminC', 'vitaminK', 'folate', 'fiber'],
+    tags: ['leafy'],
+  },
+  brussels_sprouts: {
+    key: 'brussels_sprouts', icon: '🥬',
+    label: { ar: 'كرنب بروكسل', de: 'Rosenkohl' },
+    nutrients: ['vitaminC', 'vitaminK', 'folate', 'fiber'],
+  },
+  asparagus: {
+    key: 'asparagus', icon: '🌿',
+    label: { ar: 'هليون', de: 'Spargel' },
+    nutrients: ['folate', 'vitaminK', 'vitaminC', 'fiber'],
+  },
+  green_beans: {
+    key: 'green_beans', icon: '🫛',
+    label: { ar: 'فاصولياء خضراء', de: 'Grüne Bohnen' },
+    nutrients: ['vitaminC', 'vitaminK', 'folate', 'fiber'],
+  },
+  peas: {
+    key: 'peas', icon: '🫛',
+    label: { ar: 'بازلاء', de: 'Erbsen' },
+    nutrients: ['protein', 'vitaminK', 'vitaminC', 'folate', 'fiber', 'iron'],
+  },
+  celery: {
+    key: 'celery', icon: '🥬',
+    label: { ar: 'كرفس', de: 'Sellerie' },
+    nutrients: ['vitaminK', 'potassium', 'fiber'],
+    tags: ['leafy'],
+  },
+  arugula: {
+    key: 'arugula', icon: '🥬',
+    label: { ar: 'جرجير', de: 'Rucola' },
+    nutrients: ['vitaminK', 'vitaminA', 'folate', 'calcium'],
+    tags: ['leafy'],
+  },
+  lettuce: {
+    key: 'lettuce', icon: '🥬',
+    label: { ar: 'خس', de: 'Salat' },
+    nutrients: ['vitaminK', 'vitaminA', 'folate'],
+    tags: ['leafy'],
+  },
+  parsley: {
+    key: 'parsley', icon: '🌿',
+    label: { ar: 'بقدونس', de: 'Petersilie' },
+    nutrients: ['vitaminK', 'vitaminC', 'vitaminA', 'iron'],
+    tags: ['leafy'],
+  },
+  cilantro: {
+    key: 'cilantro', icon: '🌿',
+    label: { ar: 'كزبرة', de: 'Koriander' },
+    nutrients: ['vitaminK', 'vitaminA', 'vitaminC', 'antioxidants'],
+    tags: ['leafy'],
+  },
+  mint: {
+    key: 'mint', icon: '🌿',
+    label: { ar: 'نعناع', de: 'Minze' },
+    nutrients: ['vitaminA', 'iron', 'manganese', 'antioxidants'],
+    tags: ['leafy'],
+  },
+  beet: {
+    key: 'beet', icon: '🫜',
+    label: { ar: 'شمندر', de: 'Rote Bete' },
+    nutrients: ['folate', 'manganese', 'potassium', 'iron', 'fiber'],
+  },
+  radish: {
+    key: 'radish', icon: '🌶️',
+    label: { ar: 'فجل', de: 'Rettich' },
+    nutrients: ['vitaminC', 'folate', 'potassium'],
+  },
+  okra: {
+    key: 'okra', icon: '🌿',
+    label: { ar: 'بامية', de: 'Okra' },
+    nutrients: ['vitaminC', 'vitaminK', 'folate', 'magnesium', 'fiber'],
+  },
+  artichoke: {
+    key: 'artichoke', icon: '🌿',
+    label: { ar: 'خرشوف', de: 'Artischocke' },
+    nutrients: ['folate', 'vitaminK', 'vitaminC', 'fiber', 'magnesium'],
+  },
+  corn: {
+    key: 'corn', icon: '🌽',
+    label: { ar: 'ذرة', de: 'Mais' },
+    nutrients: ['fiber', 'vitaminB1', 'folate', 'lutein', 'carbs'],
+  },
+  mushroom: {
+    key: 'mushroom', icon: '🍄',
+    label: { ar: 'فطر', de: 'Pilze' },
+    nutrients: ['vitaminD', 'vitaminB2', 'vitaminB3', 'selenium', 'copper'],
+  },
+
+  // ===== Proteins (meat & poultry) =====
+  turkey: {
+    key: 'turkey', icon: '🦃',
+    label: { ar: 'ديك رومي', de: 'Pute' },
+    nutrients: ['protein', 'vitaminB3', 'vitaminB6', 'selenium', 'zinc'],
+  },
+  lamb: {
+    key: 'lamb', icon: '🐑',
+    label: { ar: 'لحم ضأن', de: 'Lammfleisch' },
+    nutrients: ['protein', 'iron', 'zinc', 'vitaminB12', 'vitaminB3'],
+  },
+  duck: {
+    key: 'duck', icon: '🦆',
+    label: { ar: 'بط', de: 'Ente' },
+    nutrients: ['protein', 'iron', 'vitaminB12', 'selenium'],
+    tags: ['fatty'],
+  },
+
+  // ===== Seafood =====
+  tuna: {
+    key: 'tuna', icon: '🐟',
+    label: { ar: 'تونة', de: 'Thunfisch' },
+    nutrients: ['protein', 'omega3', 'vitaminD', 'vitaminB12', 'selenium'],
+  },
+  sardines: {
+    key: 'sardines', icon: '🐟',
+    label: { ar: 'سردين', de: 'Sardinen' },
+    nutrients: ['protein', 'omega3', 'vitaminD', 'calcium', 'vitaminB12'],
+    tags: ['fatty'],
+  },
+  mackerel: {
+    key: 'mackerel', icon: '🐟',
+    label: { ar: 'ماكريل', de: 'Makrele' },
+    nutrients: ['protein', 'omega3', 'vitaminD', 'vitaminB12', 'selenium'],
+    tags: ['fatty'],
+  },
+  shrimp: {
+    key: 'shrimp', icon: '🦐',
+    label: { ar: 'جمبري', de: 'Garnelen' },
+    nutrients: ['protein', 'iodine', 'selenium', 'vitaminB12', 'zinc'],
+  },
+  oyster: {
+    key: 'oyster', icon: '🦪',
+    label: { ar: 'محار', de: 'Austern' },
+    nutrients: ['zinc', 'iron', 'vitaminB12', 'copper', 'selenium', 'protein'],
+  },
+
+  // ===== Eggs / Dairy =====
+  egg_yolk: {
+    key: 'egg_yolk', icon: '🍳',
+    label: { ar: 'صفار البيض', de: 'Eigelb' },
+    nutrients: ['vitaminD', 'vitaminA', 'choline', 'biotin', 'lutein'],
+    tags: ['fatty'],
+  },
+  cottage_cheese: {
+    key: 'cottage_cheese', icon: '🧀',
+    label: { ar: 'جبنة قريش', de: 'Hüttenkäse' },
+    nutrients: ['protein', 'calcium', 'vitaminB12', 'phosphorus'],
+    tags: ['dairy'],
+  },
+  feta: {
+    key: 'feta', icon: '🧀',
+    label: { ar: 'فيتا', de: 'Feta' },
+    nutrients: ['calcium', 'protein', 'vitaminB12', 'phosphorus'],
+    tags: ['dairy'],
+  },
+  kefir: {
+    key: 'kefir', icon: '🥛',
+    label: { ar: 'كفير', de: 'Kefir' },
+    nutrients: ['probiotics', 'calcium', 'protein', 'vitaminB12'],
+    tags: ['dairy'],
+  },
+  butter: {
+    key: 'butter', icon: '🧈',
+    label: { ar: 'زبدة', de: 'Butter' },
+    nutrients: ['vitaminA', 'vitaminD', 'vitaminK'],
+    tags: ['fatty', 'dairy'],
+  },
+  ghee: {
+    key: 'ghee', icon: '🧈',
+    label: { ar: 'سمن', de: 'Ghee' },
+    nutrients: ['vitaminA', 'vitaminE', 'vitaminK'],
+    tags: ['fatty', 'dairy'],
+  },
+
+  // ===== Plant proteins / Legumes =====
+  chickpeas: {
+    key: 'chickpeas', icon: '🫘',
+    label: { ar: 'حمص', de: 'Kichererbsen' },
+    nutrients: ['protein', 'iron', 'folate', 'fiber', 'magnesium', 'manganese'],
+  },
+  black_beans: {
+    key: 'black_beans', icon: '🫘',
+    label: { ar: 'فاصولياء سوداء', de: 'Schwarze Bohnen' },
+    nutrients: ['protein', 'iron', 'folate', 'fiber', 'magnesium'],
+  },
+  edamame: {
+    key: 'edamame', icon: '🫛',
+    label: { ar: 'إدامامي', de: 'Edamame' },
+    nutrients: ['protein', 'folate', 'vitaminK', 'iron', 'fiber'],
+  },
+  tofu: {
+    key: 'tofu', icon: '🍱',
+    label: { ar: 'توفو', de: 'Tofu' },
+    nutrients: ['protein', 'calcium', 'iron', 'magnesium'],
+  },
+  tempeh: {
+    key: 'tempeh', icon: '🍱',
+    label: { ar: 'تيمبيه', de: 'Tempeh' },
+    nutrients: ['protein', 'iron', 'calcium', 'probiotics', 'magnesium'],
+  },
+  hummus: {
+    key: 'hummus', icon: '🥣',
+    label: { ar: 'حمص بطحينة', de: 'Hummus' },
+    nutrients: ['protein', 'fiber', 'iron', 'folate', 'magnesium'],
+  },
+  falafel: {
+    key: 'falafel', icon: '🧆',
+    label: { ar: 'فلافل', de: 'Falafel' },
+    nutrients: ['protein', 'fiber', 'iron', 'folate'],
+  },
+
+  // ===== Nuts & Seeds =====
+  pistachios: {
+    key: 'pistachios', icon: '🌰',
+    label: { ar: 'فستق', de: 'Pistazien' },
+    nutrients: ['protein', 'vitaminB6', 'fiber', 'potassium', 'antioxidants'],
+    tags: ['fatty'],
+  },
+  cashews: {
+    key: 'cashews', icon: '🌰',
+    label: { ar: 'كاجو', de: 'Cashews' },
+    nutrients: ['protein', 'magnesium', 'copper', 'iron', 'zinc'],
+    tags: ['fatty'],
+  },
+  hazelnuts: {
+    key: 'hazelnuts', icon: '🌰',
+    label: { ar: 'بندق', de: 'Haselnüsse' },
+    nutrients: ['vitaminE', 'manganese', 'magnesium', 'protein'],
+    tags: ['fatty'],
+  },
+  brazil_nuts: {
+    key: 'brazil_nuts', icon: '🌰',
+    label: { ar: 'جوز برازيلي', de: 'Paranüsse' },
+    nutrients: ['selenium', 'vitaminE', 'magnesium', 'protein'],
+    tags: ['fatty'],
+  },
+  peanuts: {
+    key: 'peanuts', icon: '🥜',
+    label: { ar: 'فول سوداني', de: 'Erdnüsse' },
+    nutrients: ['protein', 'vitaminB3', 'folate', 'magnesium', 'vitaminE'],
+    tags: ['fatty'],
+  },
+  pecans: {
+    key: 'pecans', icon: '🌰',
+    label: { ar: 'بقان', de: 'Pekannüsse' },
+    nutrients: ['manganese', 'zinc', 'fiber', 'antioxidants'],
+    tags: ['fatty'],
+  },
+  chia_seeds: {
+    key: 'chia_seeds', icon: '🌱',
+    label: { ar: 'بذور الشيا', de: 'Chiasamen' },
+    nutrients: ['omega3', 'fiber', 'calcium', 'magnesium', 'protein'],
+    tags: ['fatty'],
+  },
+  flax_seeds: {
+    key: 'flax_seeds', icon: '🌱',
+    label: { ar: 'بذور الكتان', de: 'Leinsamen' },
+    nutrients: ['omega3', 'fiber', 'magnesium', 'protein'],
+    tags: ['fatty'],
+  },
+  pumpkin_seeds: {
+    key: 'pumpkin_seeds', icon: '🌱',
+    label: { ar: 'بذور اليقطين', de: 'Kürbiskerne' },
+    nutrients: ['zinc', 'magnesium', 'iron', 'protein', 'manganese'],
+    tags: ['fatty'],
+  },
+  sunflower_seeds: {
+    key: 'sunflower_seeds', icon: '🌻',
+    label: { ar: 'بذور دوار الشمس', de: 'Sonnenblumenkerne' },
+    nutrients: ['vitaminE', 'magnesium', 'selenium', 'protein'],
+    tags: ['fatty'],
+  },
+  sesame: {
+    key: 'sesame', icon: '🌱',
+    label: { ar: 'سمسم', de: 'Sesam' },
+    nutrients: ['calcium', 'iron', 'magnesium', 'zinc', 'copper'],
+    tags: ['fatty'],
+  },
+  tahini: {
+    key: 'tahini', icon: '🥣',
+    label: { ar: 'طحينة', de: 'Tahin' },
+    nutrients: ['calcium', 'iron', 'magnesium', 'protein', 'vitaminB1'],
+    tags: ['fatty'],
+  },
+
+  // ===== Grains & Starches =====
+  brown_rice: {
+    key: 'brown_rice', icon: '🍚',
+    label: { ar: 'أرز بني', de: 'Vollkornreis' },
+    nutrients: ['carbs', 'fiber', 'magnesium', 'manganese', 'vitaminB3'],
+  },
+  quinoa: {
+    key: 'quinoa', icon: '🌾',
+    label: { ar: 'كينوا', de: 'Quinoa' },
+    nutrients: ['protein', 'fiber', 'magnesium', 'iron', 'folate', 'manganese'],
+  },
+  bulgur: {
+    key: 'bulgur', icon: '🌾',
+    label: { ar: 'برغل', de: 'Bulgur' },
+    nutrients: ['fiber', 'protein', 'magnesium', 'iron', 'carbs'],
+  },
+  couscous: {
+    key: 'couscous', icon: '🌾',
+    label: { ar: 'كسكسي', de: 'Couscous' },
+    nutrients: ['protein', 'selenium', 'carbs'],
+  },
+  barley: {
+    key: 'barley', icon: '🌾',
+    label: { ar: 'شعير', de: 'Gerste' },
+    nutrients: ['fiber', 'magnesium', 'manganese', 'selenium', 'carbs'],
+  },
+  whole_bread: {
+    key: 'whole_bread', icon: '🍞',
+    label: { ar: 'خبز كامل الحبة', de: 'Vollkornbrot' },
+    nutrients: ['fiber', 'iron', 'magnesium', 'vitaminB1', 'carbs'],
+  },
+  pita: {
+    key: 'pita', icon: '🫓',
+    label: { ar: 'خبز عربي', de: 'Pita-Brot' },
+    nutrients: ['carbs', 'iron', 'folate'],
+  },
+  pasta: {
+    key: 'pasta', icon: '🍝',
+    label: { ar: 'مكرونة', de: 'Pasta' },
+    nutrients: ['carbs', 'protein', 'vitaminB1', 'folate'],
+  },
+
+  // ===== Beverages =====
+  green_tea: {
+    key: 'green_tea', icon: '🍵',
+    label: { ar: 'شاي أخضر', de: 'Grüner Tee' },
+    nutrients: ['caffeine', 'antioxidants', 'polyphenols'],
+    tags: ['caffeine'],
+  },
+  black_tea: {
+    key: 'black_tea', icon: '🍵',
+    label: { ar: 'شاي أسود', de: 'Schwarzer Tee' },
+    nutrients: ['caffeine', 'antioxidants', 'polyphenols'],
+    tags: ['caffeine'],
+  },
+  herbal_tea: {
+    key: 'herbal_tea', icon: '🍵',
+    label: { ar: 'شاي أعشاب', de: 'Kräutertee' },
+    nutrients: ['antioxidants'],
+  },
+  matcha: {
+    key: 'matcha', icon: '🍵',
+    label: { ar: 'ماتشا', de: 'Matcha' },
+    nutrients: ['caffeine', 'antioxidants', 'polyphenols', 'vitaminC'],
+    tags: ['caffeine'],
+  },
+  orange_juice: {
+    key: 'orange_juice', icon: '🧃',
+    label: { ar: 'عصير برتقال', de: 'Orangensaft' },
+    nutrients: ['vitaminC', 'folate', 'potassium'],
+    tags: ['citrus'],
+  },
+  pomegranate_juice: {
+    key: 'pomegranate_juice', icon: '🧃',
+    label: { ar: 'عصير رمان', de: 'Granatapfelsaft' },
+    nutrients: ['antioxidants', 'polyphenols', 'vitaminC', 'potassium'],
+  },
+  coconut_water: {
+    key: 'coconut_water', icon: '🥥',
+    label: { ar: 'ماء جوز الهند', de: 'Kokoswasser' },
+    nutrients: ['potassium', 'magnesium'],
+  },
+
+  // ===== Fats & Oils =====
+  coconut_oil: {
+    key: 'coconut_oil', icon: '🥥',
+    label: { ar: 'زيت جوز الهند', de: 'Kokosöl' },
+    nutrients: [],
+    tags: ['fatty'],
+  },
+  fish_oil: {
+    key: 'fish_oil', icon: '🐟',
+    label: { ar: 'زيت السمك', de: 'Fischöl' },
+    nutrients: ['omega3', 'vitaminD', 'vitaminA'],
+    tags: ['fatty'],
+  },
+  dark_chocolate: {
+    key: 'dark_chocolate', icon: '🍫',
+    label: { ar: 'شوكولاتة داكنة', de: 'Dunkle Schokolade' },
+    nutrients: ['iron', 'magnesium', 'copper', 'antioxidants', 'polyphenols', 'caffeine'],
+    tags: ['fatty'],
+  },
+
+  // ===== Spices / Herbs =====
+  turmeric: {
+    key: 'turmeric', icon: '🌿',
+    label: { ar: 'كركم', de: 'Kurkuma' },
+    nutrients: ['antioxidants', 'manganese', 'iron'],
+  },
+  ginger: {
+    key: 'ginger', icon: '🌿',
+    label: { ar: 'زنجبيل', de: 'Ingwer' },
+    nutrients: ['antioxidants', 'manganese'],
+  },
+  cinnamon: {
+    key: 'cinnamon', icon: '🌿',
+    label: { ar: 'قرفة', de: 'Zimt' },
+    nutrients: ['antioxidants', 'manganese', 'chromium'],
+  },
+  black_seed: {
+    key: 'black_seed', icon: '🌱',
+    label: { ar: 'حبة البركة', de: 'Schwarzkümmel' },
+    nutrients: ['antioxidants', 'iron', 'calcium'],
+  },
+  saffron: {
+    key: 'saffron', icon: '🌸',
+    label: { ar: 'زعفران', de: 'Safran' },
+    nutrients: ['antioxidants', 'manganese'],
+  },
+
+  // ===== Middle-Eastern staples =====
+  labneh: {
+    key: 'labneh', icon: '🥣',
+    label: { ar: 'لبنة', de: 'Labneh' },
+    nutrients: ['protein', 'calcium', 'probiotics', 'vitaminB12'],
+    tags: ['dairy'],
+  },
+  zaatar: {
+    key: 'zaatar', icon: '🌿',
+    label: { ar: 'زعتر', de: 'Zatar' },
+    nutrients: ['iron', 'calcium', 'antioxidants', 'vitaminK'],
+  },
+  freekeh: {
+    key: 'freekeh', icon: '🌾',
+    label: { ar: 'فريكة', de: 'Freekeh' },
+    nutrients: ['protein', 'fiber', 'iron', 'magnesium'],
+  },
+  molokhia: {
+    key: 'molokhia', icon: '🥬',
+    label: { ar: 'ملوخية', de: 'Molokhia' },
+    nutrients: ['vitaminA', 'vitaminC', 'calcium', 'iron', 'folate'],
+    tags: ['leafy'],
+  },
+  fava_beans: {
+    key: 'fava_beans', icon: '🫘',
+    label: { ar: 'فول', de: 'Saubohnen' },
+    nutrients: ['protein', 'folate', 'iron', 'manganese', 'fiber'],
+  },
+  kishk: {
+    key: 'kishk', icon: '🥣',
+    label: { ar: 'كشك', de: 'Kishk' },
+    nutrients: ['protein', 'probiotics', 'calcium', 'vitaminB12'],
+    tags: ['dairy'],
+  },
 };
 
 export const FOOD_LIST: FoodInfo[] = Object.values(FOODS);
