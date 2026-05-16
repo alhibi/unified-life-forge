@@ -27,7 +27,6 @@ function DiceFace({ value, held, rolling, onClick, color }: {
   return (
     <motion.button
       onClick={onClick}
-       : {}}
       animate={rolling ? { rotate: [0, 90, 180, 270, 360], scale: [1, 0.95, 1] } : { rotate: 0, scale: 1 }}
       transition={rolling ? { duration: 0.45, ease: 'easeInOut' } : { type: 'spring', stiffness: 400, damping: 26 }}
       className={`relative w-14 h-14 rounded-2xl border-2 grid grid-rows-3 grid-cols-3 p-2 transition-colors ${

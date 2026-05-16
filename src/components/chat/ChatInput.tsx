@@ -311,7 +311,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
             <motion.button
               onClick={uploadingVoice ? undefined : sendPreview}
               disabled={uploadingVoice}
-              }
               aria-label={isAr ? 'إرسال الرسالة الصوتية' : 'Sprachnachricht senden'}
               aria-busy={uploadingVoice}
               className="shrink-0 w-11 h-11 rounded-full bg-primary flex items-center justify-center shadow-md shadow-primary/20 disabled:opacity-90"
