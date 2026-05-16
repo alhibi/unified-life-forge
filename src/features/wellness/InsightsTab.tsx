@@ -5,6 +5,7 @@ import { useApp } from '@/contexts/AppContext';
 import { DISCLAIMER, type Lang } from './wellnessData';
 import { runAllInsights, type Insight } from './wellnessAnalysis';
 import type { DietLog, IntakeLog, SkinHairLog, Supplement } from './wellnessDb';
+import StackAdvisor from './StackAdvisor';
 
 interface Props {
   supplements: Supplement[];
@@ -24,6 +25,7 @@ const KIND_ICON: Record<Insight['kind'], any> = {
   overlap: Utensils,
   gap: Utensils,
   correlation: Sparkles,
+  synergy: Sparkles,
   habit: Activity,
 };
 
@@ -33,6 +35,7 @@ const KIND_LABEL: Record<Insight['kind'], Record<Lang, string>> = {
   overlap: { ar: 'تداخل مع التغذية', de: 'Ernährungsüberschneidung' },
   gap: { ar: 'نقص محتمل', de: 'Möglicher Mangel' },
   correlation: { ar: 'ارتباط', de: 'Korrelation' },
+  synergy: { ar: 'تركيبة فعّالة', de: 'Aktive Synergie' },
   habit: { ar: 'عادة', de: 'Gewohnheit' },
 };
 
@@ -63,6 +66,11 @@ export default function InsightsTab({
 
   return (
     <div className="space-y-5">
+      {/* Stack Advisor — the heart of the integration */}
+      <motion.div variants={item} initial="hidden" animate="show">
+        <StackAdvisor supplements={supplements} />
+      </motion.div>
+
       {/* Privacy banner */}
       <motion.div variants={item} initial="hidden" animate="show">
         <div className="bg-primary/5 border border-primary/20 rounded-2xl p-4 flex items-start gap-3">
