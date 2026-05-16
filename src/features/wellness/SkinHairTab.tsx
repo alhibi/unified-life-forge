@@ -38,6 +38,12 @@ const DEFAULT_FORM: Form = {
   sleepHours: 7,
   waterGlasses: 6,
   stress: 3,
+  eyeFatigue: 2,
+  eyeDryness: 2,
+  jointPain: 2,
+  jointStiffness: 2,
+  muscleSoreness: 2,
+  muscleEnergy: 3,
   notes: '',
 };
 
@@ -62,6 +68,12 @@ export default function SkinHairTab({ skinHair, onSave }: Props) {
     sleepHours: todayLog.sleepHours,
     waterGlasses: todayLog.waterGlasses,
     stress: todayLog.stress,
+    eyeFatigue: todayLog.eyeFatigue ?? 2,
+    eyeDryness: todayLog.eyeDryness ?? 2,
+    jointPain: todayLog.jointPain ?? 2,
+    jointStiffness: todayLog.jointStiffness ?? 2,
+    muscleSoreness: todayLog.muscleSoreness ?? 2,
+    muscleEnergy: todayLog.muscleEnergy ?? 3,
     notes: todayLog.notes ?? '',
   } : DEFAULT_FORM);
 
@@ -80,6 +92,12 @@ export default function SkinHairTab({ skinHair, onSave }: Props) {
         sleepHours: todayLog.sleepHours,
         waterGlasses: todayLog.waterGlasses,
         stress: todayLog.stress,
+        eyeFatigue: todayLog.eyeFatigue ?? 2,
+        eyeDryness: todayLog.eyeDryness ?? 2,
+        jointPain: todayLog.jointPain ?? 2,
+        jointStiffness: todayLog.jointStiffness ?? 2,
+        muscleSoreness: todayLog.muscleSoreness ?? 2,
+        muscleEnergy: todayLog.muscleEnergy ?? 3,
         notes: todayLog.notes ?? '',
       });
     }
@@ -96,7 +114,13 @@ export default function SkinHairTab({ skinHair, onSave }: Props) {
     | 'hairLuster'
     | 'sleepHours'
     | 'waterGlasses'
-    | 'stress';
+    | 'stress'
+    | 'eyeFatigue'
+    | 'eyeDryness'
+    | 'jointPain'
+    | 'jointStiffness'
+    | 'muscleSoreness'
+    | 'muscleEnergy';
 
   const updateNumber = (k: NumberKey, v: number) =>
     setForm((f) => ({ ...f, [k]: v }));
@@ -227,6 +251,60 @@ export default function SkinHairTab({ skinHair, onSave }: Props) {
             [isAr ? 'لا شيء' : 'Keiner', isAr ? 'شديد' : 'Stark'])}
           {scaleRow('اللمعان', 'Glanz', 'hairLuster',
             [isAr ? 'باهت' : 'Matt', isAr ? 'لامع' : 'Glänzend'])}
+        </div>
+      </motion.div>
+
+      {/* Eyes card */}
+      <motion.div variants={item} initial="hidden" animate="show">
+        <div className="bg-card border border-border/40 rounded-2xl p-4 space-y-4">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+              <Eye className="w-4 h-4 text-primary" />
+            </div>
+            <h3 className="text-sm font-bold text-foreground">
+              {isAr ? 'العيون' : 'Augen'}
+            </h3>
+          </div>
+          {scaleRow('إجهاد العين', 'Augenmüdigkeit', 'eyeFatigue',
+            [isAr ? 'منتعشة' : 'Frisch', isAr ? 'مُجهدة' : 'Erschöpft'])}
+          {scaleRow('جفاف العين', 'Trockene Augen', 'eyeDryness',
+            [isAr ? 'مرطبة' : 'Feucht', isAr ? 'جافة' : 'Trocken'])}
+        </div>
+      </motion.div>
+
+      {/* Bones & Joints card */}
+      <motion.div variants={item} initial="hidden" animate="show">
+        <div className="bg-card border border-border/40 rounded-2xl p-4 space-y-4">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+              <Bone className="w-4 h-4 text-primary" />
+            </div>
+            <h3 className="text-sm font-bold text-foreground">
+              {isAr ? 'العظام والمفاصل' : 'Knochen & Gelenke'}
+            </h3>
+          </div>
+          {scaleRow('آلام المفاصل', 'Gelenkschmerz', 'jointPain',
+            [isAr ? 'لا شيء' : 'Keiner', isAr ? 'شديد' : 'Stark'])}
+          {scaleRow('تيبّس المفاصل', 'Steifheit', 'jointStiffness',
+            [isAr ? 'مرنة' : 'Flexibel', isAr ? 'متيبّسة' : 'Steif'])}
+        </div>
+      </motion.div>
+
+      {/* Muscles card */}
+      <motion.div variants={item} initial="hidden" animate="show">
+        <div className="bg-card border border-border/40 rounded-2xl p-4 space-y-4">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+              <Dumbbell className="w-4 h-4 text-primary" />
+            </div>
+            <h3 className="text-sm font-bold text-foreground">
+              {isAr ? 'العضلات' : 'Muskeln'}
+            </h3>
+          </div>
+          {scaleRow('وجع العضلات', 'Muskelkater', 'muscleSoreness',
+            [isAr ? 'لا شيء' : 'Keiner', isAr ? 'شديد' : 'Stark'])}
+          {scaleRow('طاقة العضلة', 'Muskelenergie', 'muscleEnergy',
+            [isAr ? 'منخفضة' : 'Niedrig', isAr ? 'عالية' : 'Hoch'])}
         </div>
       </motion.div>
 
