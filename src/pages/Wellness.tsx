@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, Pill, Utensils, Sparkles, Brain, Trash2, Download, ShieldCheck, BookOpen } from 'lucide-react';
+import { Pill, Utensils, Sparkles, Brain, Trash2, Download, ShieldCheck, BookOpen } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useApp } from '@/contexts/AppContext';
+import BackButton from '@/components/BackButton';
 import { useWellnessData } from '@/features/wellness/useWellnessData';
 import SupplementsTab from '@/features/wellness/SupplementsTab';
 import DietTab from '@/features/wellness/DietTab';
@@ -84,16 +85,10 @@ export default function WellnessPage() {
         className="space-y-4 max-w-lg mx-auto"
       >
         {/* Header */}
-        <motion.div variants={item} className="flex items-center justify-between">
-          <button
-            onClick={() => navigate(-1)}
-            className="p-2 rounded-xl bg-accent/50 hover:bg-accent transition-colors"
-            aria-label={isAr ? 'رجوع' : 'Zurück'}
-          >
-            <ChevronLeft className={`w-5 h-5 text-foreground ${isAr ? '' : 'rotate-180'}`} />
-          </button>
-          <div className="text-center">
-            <h1 className="text-[20px] font-bold tracking-tight text-foreground">
+        <motion.div variants={item} className="flex items-center justify-between gap-3">
+          <BackButton />
+          <div className="flex-1 text-center min-w-0">
+            <h1 className="text-[20px] font-bold tracking-tight text-foreground truncate">
               {isAr ? 'العافية' : 'Wellness'}
             </h1>
             <p className="text-[11px] text-muted-foreground mt-0.5 flex items-center justify-center gap-1">
@@ -103,7 +98,7 @@ export default function WellnessPage() {
           </div>
           <button
             onClick={() => setShowPrivacy(true)}
-            className="p-2 rounded-xl bg-accent/50 hover:bg-accent transition-colors"
+            className="w-10 h-10 rounded-2xl bg-secondary/60 flex items-center justify-center shrink-0"
             aria-label={isAr ? 'الخصوصية' : 'Privatsphäre'}
           >
             <ShieldCheck className="w-5 h-5 text-foreground" />
@@ -112,19 +107,19 @@ export default function WellnessPage() {
 
         {/* Tab bar */}
         <motion.div variants={item}>
-          <div className="bg-card border border-border/40 rounded-2xl p-1 flex gap-0.5 overflow-x-auto">
+          <div className="bg-card border border-border/40 rounded-2xl p-1 flex gap-0.5">
             {tabs.map((t) => {
               const active = tab === t.key;
               return (
                 <button
                   key={t.key}
                   onClick={() => setTab(t.key)}
-                  className={`flex-1 min-w-[80px] py-2 px-2 rounded-xl flex flex-col items-center gap-0.5 transition-colors ${
+                  className={`flex-1 min-w-0 py-2 px-1 rounded-xl flex flex-col items-center gap-0.5 transition-colors ${
                     active ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'
                   }`}
                 >
                   <t.icon className="w-4 h-4" />
-                  <span className="text-[11px] font-semibold whitespace-nowrap">
+                  <span className="text-[10px] font-semibold truncate max-w-full">
                     {isAr ? t.labelAr : t.labelDe}
                   </span>
                 </button>
