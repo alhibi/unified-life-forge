@@ -355,36 +355,35 @@ function MiniMetricCard({
       variants={CARD_ITEM}
       whileTap={{ scale: 0.97 }}
       onClick={onSelect}
-      className="relative rounded-2xl bg-card p-3 space-y-2 overflow-hidden text-left transition-all duration-300"
+      className="relative rounded-2xl bg-card p-3 space-y-2 overflow-hidden text-start transition-all duration-300"
       style={{
-        direction: 'ltr',
         border: '1px solid',
         borderColor: active ? `${spec.color}55` : 'hsl(var(--border) / 0.4)',
-        boxShadow: active
-          ? `0 8px 24px -14px ${spec.color}66`
-          : 'none',
+        boxShadow: active ? `0 8px 24px -14px ${spec.color}66` : 'none',
       }}
     >
-      {/* Single soft top-right wash — gentle, not stacking */}
+      {/* Single soft top wash — gentle, not stacking */}
       <div
         aria-hidden
-        className="absolute -top-12 -right-12 w-32 h-32 rounded-full blur-3xl pointer-events-none transition-opacity duration-500"
+        className="absolute -top-12 -end-12 w-32 h-32 rounded-full blur-3xl pointer-events-none transition-opacity duration-500"
         style={{ background: spec.color, opacity: active ? 0.18 : 0.07 }}
       />
 
-      <div className="flex items-center justify-between relative">
-        <div className="flex items-center gap-1.5">
+      <div className="flex items-center justify-between gap-2 relative">
+        <div className="flex items-center gap-1.5 min-w-0">
           <div
-            className="w-6 h-6 rounded-lg flex items-center justify-center"
+            className="w-6 h-6 rounded-lg flex items-center justify-center shrink-0"
             style={{ background: `${spec.color}1f` }}
           >
             <Icon className="w-3.5 h-3.5" style={{ color: spec.color }} />
           </div>
-          <span className="text-[11px] font-semibold text-muted-foreground">{spec.label}</span>
+          <span className="text-[11px] font-semibold text-muted-foreground truncate">
+            {spec.label}
+          </span>
         </div>
         {delta !== null && (
           <div
-            className="flex items-center gap-0.5 text-[10px] font-bold tabular-nums"
+            className="flex items-center gap-0.5 text-[10px] font-bold tabular-nums shrink-0"
             style={{ color: trendColor }}
           >
             <TrendIcon className="w-3 h-3" />
@@ -394,7 +393,7 @@ function MiniMetricCard({
       </div>
 
       <div className="flex items-baseline gap-1 relative" dir="ltr">
-        <span className="text-[19px] font-bold text-foreground tabular-nums leading-none">
+        <span className="text-[20px] font-bold text-foreground tabular-nums leading-none">
           <AnimatedNumber value={avg} digits={spec.digits} />
         </span>
         {avg !== null && spec.unit && (
@@ -402,7 +401,8 @@ function MiniMetricCard({
         )}
       </div>
 
-      <div className="h-12 -mx-1 relative">
+      {/* Sparkline — chart axes always render LTR */}
+      <div className="h-12 -mx-1 relative" dir="ltr">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={series} margin={{ top: 4, right: 6, left: 6, bottom: 0 }}>
             <defs>
@@ -450,6 +450,7 @@ function HeroChart({
   setRange: (r: 7 | 14) => void;
   lang: 'ar' | 'de';
 }) {
+  const isAr = lang === 'ar';
   const Icon = spec.icon;
   const dataKey = spec.key;
 
@@ -509,23 +510,25 @@ function HeroChart({
         }}
       />
 
-      <div className="relative p-4 space-y-3">
+      <div className="relative p-4 space-y-4">
         {/* Top row: icon + label, range pills */}
-        <div className="flex items-center justify-between" dir="ltr">
-          <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5 min-w-0">
             <div
-              className="w-9 h-9 rounded-xl flex items-center justify-center"
-              style={{
-                background: `${spec.color}1a`,
-              }}
+              className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+              style={{ background: `${spec.color}1f` }}
             >
-              <Icon className="w-4.5 h-4.5" style={{ color: spec.color, width: 18, height: 18 }} />
+              <Icon className="w-[18px] h-[18px]" style={{ color: spec.color }} />
             </div>
-            <div className="leading-tight">
-              <div className="text-[11px] font-semibold text-muted-foreground/80 uppercase tracking-wider">
+            <div className="leading-tight min-w-0">
+              <div
+                className={`text-[12px] font-bold text-foreground truncate ${
+                  isAr ? '' : 'tracking-tight'
+                }`}
+              >
                 {spec.label}
               </div>
-              <div className="text-[10px] text-muted-foreground/60">
+              <div className="text-[10px] text-muted-foreground/70">
                 {range === 7 ? t.range7[lang] : t.range14[lang]}
               </div>
             </div>
@@ -533,7 +536,7 @@ function HeroChart({
 
           {/* Range pills */}
           <div
-            className="flex items-center rounded-full p-0.5 gap-0.5"
+            className="flex items-center rounded-full p-0.5 gap-0.5 shrink-0"
             style={{
               background: 'hsl(var(--muted) / 0.6)',
               border: '1px solid hsl(var(--border) / 0.3)',
@@ -564,13 +567,14 @@ function HeroChart({
           </div>
         </div>
 
-        {/* Big value + delta */}
-        <div className="flex items-end justify-between" dir="ltr">
-          <div>
-            <div className="text-[10px] font-semibold text-muted-foreground/70 uppercase tracking-wider mb-1">
+        {/* Big value + delta — anchored to language direction so the trend
+            pill always sits at the visually trailing edge */}
+        <div className="flex items-end justify-between gap-3">
+          <div className="min-w-0">
+            <div className="text-[10px] font-semibold text-muted-foreground/70 mb-1">
               {t.today[lang]}
             </div>
-            <div className="flex items-baseline gap-1.5">
+            <div className="flex items-baseline gap-1.5" dir="ltr">
               <span
                 className="text-[44px] font-bold tabular-nums leading-none"
                 style={{ color: spec.color }}
@@ -587,7 +591,7 @@ function HeroChart({
 
           {delta !== null && trendText && (
             <div
-              className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold tabular-nums"
+              className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold tabular-nums shrink-0"
               style={{
                 color: trendColor,
                 background: `${trendColor}15`,
@@ -602,31 +606,33 @@ function HeroChart({
 
         {/* Sub-stats row */}
         <div
-          className="grid grid-cols-3 gap-2 py-2 px-3 rounded-2xl"
+          className="grid grid-cols-3 py-2.5 px-3 rounded-2xl divide-x divide-border/40 rtl:divide-x-reverse"
           style={{
             background: 'hsl(var(--muted) / 0.4)',
             border: '1px solid hsl(var(--border) / 0.3)',
           }}
-          dir="ltr"
         >
           {[
             { label: t.avg[lang], value: avg },
             { label: t.min[lang], value: minV },
             { label: t.max[lang], value: maxV },
           ].map((s) => (
-            <div key={s.label} className="text-center">
-              <div className="text-[9px] font-semibold text-muted-foreground/70 uppercase tracking-wider">
+            <div key={s.label} className="text-center px-1">
+              <div className="text-[9px] font-semibold text-muted-foreground/70">
                 {s.label}
               </div>
-              <div className="text-[13px] font-bold text-foreground tabular-nums leading-tight">
+              <div
+                className="text-[13px] font-bold text-foreground tabular-nums leading-tight mt-0.5"
+                dir="ltr"
+              >
                 {s.value !== null ? s.value.toFixed(spec.digits) : '—'}
               </div>
             </div>
           ))}
         </div>
 
-        {/* Big chart */}
-        <div className="h-44 -mx-2" style={{ direction: 'ltr' }}>
+        {/* Big chart — chart axes always render LTR regardless of UI lang */}
+        <div className="h-44 -mx-2" dir="ltr">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={series} margin={{ top: 12, right: 12, left: 12, bottom: 4 }}>
               <defs>
@@ -1016,7 +1022,7 @@ export default function VitalsTab({ vitals, onSave }: Props) {
       {/* Trend mini grid */}
       {hasAnyData && (
         <motion.div variants={SECTION} initial="hidden" animate="show">
-          <p className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-wider px-1 mb-2 flex items-center gap-1.5">
+          <p className="text-[11px] font-semibold text-muted-foreground/80 px-1 mb-2 flex items-center gap-1.5">
             <TrendingUp className="w-3.5 h-3.5" />
             {t.trends[lang]}
           </p>

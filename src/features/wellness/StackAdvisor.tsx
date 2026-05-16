@@ -14,15 +14,12 @@ import {
 } from './wellnessData';
 import type { Supplement } from './wellnessDb';
 import { CATEGORY_META, categoryOf } from './foodCategories';
+import { FoodIcon } from './foodIcons';
 
 function FoodChip({ foodKey, label }: { foodKey: string; label: string }) {
-  const meta = CATEGORY_META[categoryOf(foodKey)];
-  const Icon = meta.icon;
   return (
     <span className="text-[11px] ps-1 pe-2 py-0.5 rounded-full bg-muted/60 text-foreground/80 inline-flex items-center gap-1">
-      <span className={`w-4 h-4 rounded-full ${meta.bg} flex items-center justify-center`}>
-        <Icon className={`w-2.5 h-2.5 ${meta.color}`} strokeWidth={2.5} />
-      </span>
+      <FoodIcon foodKey={foodKey} size={16} shape="rounded-full" />
       {label}
     </span>
   );
