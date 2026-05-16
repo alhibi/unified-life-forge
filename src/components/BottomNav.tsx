@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { House, Dices, SlidersHorizontal, HandHeart, Feather, MessageCircle } from 'lucide-react';
+import { House, Dices, SlidersHorizontal, HandHeart, Feather, MessageCircle, HeartPulse } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 type Tab = {
@@ -17,6 +17,7 @@ const tabs: Tab[] = [
   { key: 'games', path: '/games', icon: Dices, labelKey: 'nav.games' },
   { key: 'chat', path: '/chat', icon: MessageCircle, labelKey: 'nav.chat' },
   { key: 'home', path: '/', icon: House, labelKey: 'nav.home' },
+  { key: 'wellness', path: '/wellness', icon: HeartPulse, labelKey: 'nav.wellness' },
   { key: 'duas', path: '/duas', icon: HandHeart, labelKey: 'nav.duas' },
   { key: 'diwan', path: '/diwan', icon: Feather, labelKey: 'nav.diwan' },
 ];
