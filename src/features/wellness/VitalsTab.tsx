@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import {
   HeartPulse,
@@ -10,10 +10,13 @@ import {
   Zap,
   Save,
   TrendingUp,
+  ArrowUpRight,
+  ArrowDownRight,
+  Minus,
 } from 'lucide-react';
 import {
-  LineChart,
-  Line,
+  AreaChart,
+  Area,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -96,13 +99,99 @@ const t = {
     hydration: { ar: 'الماء', de: 'Wasser' },
     energy: { ar: 'الطاقة', de: 'Energie' },
   },
-  summary: { ar: 'متوسط آخر 7 أيام', de: 'Ø letzte 7 Tage' },
+  vsLast: { ar: 'مقارنة بالأسبوع السابق', de: 'vs. Vorwoche' },
 };
 
 const SECTION = {
   hidden: { opacity: 0, y: 14 },
   show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] as const } },
 };
+
+const CARD_STAGGER = {
+  hidden: { opacity: 0 },
+  show: { opacity: 1, transition: { staggerChildren: 0.07, delayChildren: 0.05 } },
+};
+
+const CARD_ITEM = {
+  hidden: { opacity: 0, y: 16, scale: 0.96 },
+  show: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] as const },
+  },
+};
+
+/** Animated counter that eases from 0 to the target value (or between updates). */
+function AnimatedNumber({
+  value,
+  digits = 0,
+  duration = 900,
+}: {
+  value: number | null;
+  digits?: number;
+  duration?: number;
+}) {
+  const [display, setDisplay] = useState(0);
+  const fromRef = useRef(0);
+
+  useEffect(() => {
+    if (value === null || isNaN(value)) {
+      setDisplay(0);
+      return;
+    }
+    const from = fromRef.current;
+    const to = value;
+    const start = performance.now();
+    let raf = 0;
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - start) / duration);
+      // ease-out cubic
+      const eased = 1 - Math.pow(1 - t, 3);
+      const cur = from + (to - from) * eased;
+      setDisplay(cur);
+      if (t < 1) {
+        raf = requestAnimationFrame(tick);
+      } else {
+        fromRef.current = to;
+      }
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [value, duration]);
+
+  if (value === null) return <>—</>;
+  return <>{display.toFixed(digits)}</>;
+}
+
+/** Custom dot that pulses only on the last non-null point. */
+function makePulseDot(lastIndex: number, color: string) {
+  return function PulseDot(props: any) {
+    const { cx, cy, index } = props;
+    if (cx == null || cy == null || index !== lastIndex) return null;
+    return (
+      <g>
+        <circle cx={cx} cy={cy} r={3.5} fill={color} stroke="hsl(var(--card))" strokeWidth={1.5} />
+        <circle cx={cx} cy={cy} r={3.5} fill={color} opacity={0.45}>
+          <animate
+            attributeName="r"
+            from="3.5"
+            to="11"
+            dur="1.8s"
+            repeatCount="indefinite"
+          />
+          <animate
+            attributeName="opacity"
+            from="0.45"
+            to="0"
+            dur="1.8s"
+            repeatCount="indefinite"
+          />
+        </circle>
+      </g>
+    );
+  };
+}
 
 function NumInput({
   value,
@@ -135,6 +224,154 @@ function NumInput({
         className="w-full bg-secondary/50 border border-border/40 rounded-xl px-3 py-2.5 text-[16px] text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-primary/40"
       />
     </div>
+  );
+}
+
+type MetricKey = 'steps' | 'sleep' | 'hr' | 'weight' | 'hydration' | 'energy';
+
+interface MetricSpec {
+  key: MetricKey;
+  icon: any;
+  label: string;
+  color: string;
+  unit: string;
+  digits: number;
+  /** higher value = better health signal? Used to color the trend arrow. */
+  higherIsBetter: boolean;
+}
+
+interface SparkSeriesPoint {
+  date: string;
+  steps: number | null;
+  sleep: number | null;
+  hr: number | null;
+  weight: number | null;
+  hydration: number | null;
+  energy: number | null;
+}
+
+function MetricCard({
+  spec,
+  series,
+  avg,
+  delta,
+  index,
+}: {
+  spec: MetricSpec;
+  series: SparkSeriesPoint[];
+  avg: number | null;
+  delta: number | null; // percentage delta vs previous week
+  index: number;
+}) {
+  const Icon = spec.icon;
+  const dataKey: MetricKey = spec.key;
+
+  // Find last non-null point for pulse dot
+  const lastIndex = useMemo(() => {
+    for (let i = series.length - 1; i >= 0; i--) {
+      if (typeof series[i][dataKey] === 'number') return i;
+    }
+    return -1;
+  }, [series, dataKey]);
+
+  const PulseDot = useMemo(() => makePulseDot(lastIndex, spec.color), [lastIndex, spec.color]);
+
+  const gradId = `grad-${spec.key}`;
+  const glowId = `glow-${spec.key}`;
+
+  // Trend arrow + color
+  let trendIcon: any = Minus;
+  let trendColor = 'hsl(var(--muted-foreground))';
+  let trendText = '—';
+  if (delta !== null && Math.abs(delta) >= 0.1) {
+    const positive = delta > 0;
+    const good = (positive && spec.higherIsBetter) || (!positive && !spec.higherIsBetter);
+    trendIcon = positive ? ArrowUpRight : ArrowDownRight;
+    trendColor = good ? '#10b981' : '#ef4444';
+    trendText = `${positive ? '+' : ''}${delta.toFixed(0)}%`;
+  } else if (delta !== null) {
+    trendText = '0%';
+  }
+  const TrendIcon = trendIcon;
+
+  return (
+    <motion.div
+      variants={CARD_ITEM}
+      whileTap={{ scale: 0.98 }}
+      className="relative rounded-2xl bg-card border border-border/40 p-3 space-y-2 overflow-hidden"
+      style={{ direction: 'ltr' }}
+    >
+      {/* Soft color wash in the corner */}
+      <div
+        aria-hidden
+        className="absolute -top-8 -right-8 w-24 h-24 rounded-full blur-2xl opacity-[0.18] pointer-events-none"
+        style={{ background: spec.color }}
+      />
+
+      <div className="flex items-center justify-between relative">
+        <div className="flex items-center gap-1.5">
+          <div
+            className="w-6 h-6 rounded-lg flex items-center justify-center"
+            style={{ background: `${spec.color}1f` }}
+          >
+            <Icon className="w-3.5 h-3.5" style={{ color: spec.color }} />
+          </div>
+          <span className="text-[11px] font-semibold text-muted-foreground">{spec.label}</span>
+        </div>
+        {delta !== null && (
+          <div
+            className="flex items-center gap-0.5 text-[10px] font-bold tabular-nums"
+            style={{ color: trendColor }}
+          >
+            <TrendIcon className="w-3 h-3" />
+            {trendText}
+          </div>
+        )}
+      </div>
+
+      <div className="flex items-baseline gap-1 relative" dir="ltr">
+        <span className="text-[20px] font-bold text-foreground tabular-nums leading-none">
+          <AnimatedNumber value={avg} digits={spec.digits} />
+        </span>
+        {avg !== null && spec.unit && (
+          <span className="text-[10px] text-muted-foreground">{spec.unit}</span>
+        )}
+      </div>
+
+      <div className="h-14 -mx-1 relative">
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart data={series} margin={{ top: 4, right: 6, left: 6, bottom: 0 }}>
+            <defs>
+              <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor={spec.color} stopOpacity={0.45} />
+                <stop offset="100%" stopColor={spec.color} stopOpacity={0} />
+              </linearGradient>
+              <filter id={glowId} x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="1.2" result="b" />
+                <feMerge>
+                  <feMergeNode in="b" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+            </defs>
+            <Area
+              type="monotone"
+              dataKey={dataKey}
+              stroke={spec.color}
+              strokeWidth={2}
+              fill={`url(#${gradId})`}
+              dot={PulseDot as any}
+              activeDot={false}
+              isAnimationActive
+              animationDuration={1200}
+              animationBegin={index * 90}
+              connectNulls
+              filter={`url(#${glowId})`}
+            />
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
+    </motion.div>
   );
 }
 
@@ -193,7 +430,7 @@ export default function VitalsTab({ vitals, onSave }: Props) {
   };
 
   // Build 14-day series
-  const series = useMemo(() => {
+  const series = useMemo<SparkSeriesPoint[]>(() => {
     const days: { date: string; label: string }[] = [];
     const now = new Date();
     for (let i = 13; i >= 0; i--) {
@@ -216,40 +453,64 @@ export default function VitalsTab({ vitals, onSave }: Props) {
     });
   }, [vitals]);
 
+  const avgOf = (slice: SparkSeriesPoint[], key: MetricKey): number | null => {
+    const vals = slice.map((s) => s[key]).filter((n): n is number => typeof n === 'number');
+    if (!vals.length) return null;
+    return vals.reduce((a, b) => a + b, 0) / vals.length;
+  };
+
   const last7Avg = useMemo(() => {
     const last7 = series.slice(-7);
-    const avg = (key: keyof (typeof series)[number]) => {
-      const vals = last7.map((s) => s[key]).filter((n): n is number => typeof n === 'number');
-      if (!vals.length) return null;
-      return vals.reduce((a, b) => a + b, 0) / vals.length;
-    };
     return {
-      steps: avg('steps'),
-      sleep: avg('sleep'),
-      hr: avg('hr'),
-      weight: avg('weight'),
-      hydration: avg('hydration'),
-      energy: avg('energy'),
+      steps: avgOf(last7, 'steps'),
+      sleep: avgOf(last7, 'sleep'),
+      hr: avgOf(last7, 'hr'),
+      weight: avgOf(last7, 'weight'),
+      hydration: avgOf(last7, 'hydration'),
+      energy: avgOf(last7, 'energy'),
     };
   }, [series]);
 
+  const prev7Avg = useMemo(() => {
+    const prev7 = series.slice(-14, -7);
+    return {
+      steps: avgOf(prev7, 'steps'),
+      sleep: avgOf(prev7, 'sleep'),
+      hr: avgOf(prev7, 'hr'),
+      weight: avgOf(prev7, 'weight'),
+      hydration: avgOf(prev7, 'hydration'),
+      energy: avgOf(prev7, 'energy'),
+    };
+  }, [series]);
+
+  const deltaPct = (cur: number | null, prev: number | null): number | null => {
+    if (cur === null || prev === null || prev === 0) return null;
+    return ((cur - prev) / prev) * 100;
+  };
+
   const hasAnyData = vitals.length > 0;
 
-  const trendCards: Array<{
-    key: keyof typeof last7Avg;
-    icon: any;
-    label: string;
-    color: string;
-    unit: string;
-    digits: number;
-  }> = [
-    { key: 'steps', icon: Footprints, label: t.metrics.steps[lang], color: 'hsl(var(--primary))', unit: '', digits: 0 },
-    { key: 'sleep', icon: Moon, label: t.metrics.sleep[lang], color: '#a78bfa', unit: 'h', digits: 1 },
-    { key: 'hr', icon: HeartPulse, label: t.metrics.hr[lang], color: '#ef4444', unit: 'bpm', digits: 0 },
-    { key: 'weight', icon: Scale, label: t.metrics.weight[lang], color: '#10b981', unit: 'kg', digits: 1 },
-    { key: 'hydration', icon: Droplets, label: t.metrics.hydration[lang], color: '#06b6d4', unit: 'L', digits: 1 },
-    { key: 'energy', icon: Zap, label: t.metrics.energy[lang], color: '#f59e0b', unit: '/5', digits: 1 },
+  const trendCards: MetricSpec[] = [
+    { key: 'steps', icon: Footprints, label: t.metrics.steps[lang], color: 'hsl(var(--primary))', unit: '', digits: 0, higherIsBetter: true },
+    { key: 'sleep', icon: Moon, label: t.metrics.sleep[lang], color: '#a78bfa', unit: 'h', digits: 1, higherIsBetter: true },
+    { key: 'hr', icon: HeartPulse, label: t.metrics.hr[lang], color: '#ef4444', unit: 'bpm', digits: 0, higherIsBetter: false },
+    { key: 'weight', icon: Scale, label: t.metrics.weight[lang], color: '#10b981', unit: 'kg', digits: 1, higherIsBetter: false },
+    { key: 'hydration', icon: Droplets, label: t.metrics.hydration[lang], color: '#06b6d4', unit: 'L', digits: 1, higherIsBetter: true },
+    { key: 'energy', icon: Zap, label: t.metrics.energy[lang], color: '#f59e0b', unit: '/5', digits: 1, higherIsBetter: true },
   ];
+
+  // Find last non-null index for steps in big chart, for pulse dot
+  const lastStepsIndex = useMemo(() => {
+    for (let i = series.length - 1; i >= 0; i--) {
+      if (typeof series[i].steps === 'number') return i;
+    }
+    return -1;
+  }, [series]);
+
+  const StepsPulseDot = useMemo(
+    () => makePulseDot(lastStepsIndex, 'hsl(var(--primary))'),
+    [lastStepsIndex],
+  );
 
   return (
     <div className="space-y-5">
@@ -350,83 +611,95 @@ export default function VitalsTab({ vitals, onSave }: Props) {
             <p className="text-sm text-muted-foreground">{t.noData[lang]}</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-3">
-            {trendCards.map(({ key, icon: Icon, label, color, unit, digits }) => {
-              const avg = last7Avg[key];
-              const dataKey = key === 'sleep' ? 'sleep' : key;
-              return (
-                <div
-                  key={key}
-                  className="rounded-2xl bg-card border border-border/40 p-3 space-y-2"
-                  style={{ direction: 'ltr' }}
-                >
-                  <div className="flex items-center justify-between" dir={isAr ? 'rtl' : 'ltr'}>
-                    <div className="flex items-center gap-1.5">
-                      <Icon className="w-3.5 h-3.5" style={{ color }} />
-                      <span className="text-[11px] font-semibold text-muted-foreground">{label}</span>
-                    </div>
-                  </div>
-                  <div className="flex items-baseline gap-1" dir="ltr">
-                    <span className="text-[18px] font-bold text-foreground tabular-nums">
-                      {avg !== null ? avg.toFixed(digits) : '—'}
-                    </span>
-                    {avg !== null && unit && (
-                      <span className="text-[10px] text-muted-foreground">{unit}</span>
-                    )}
-                  </div>
-                  <div className="h-12 -mx-1">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={series} margin={{ top: 2, right: 2, left: 2, bottom: 0 }}>
-                        <Line
-                          type="monotone"
-                          dataKey={dataKey}
-                          stroke={color}
-                          strokeWidth={1.8}
-                          dot={false}
-                          isAnimationActive={false}
-                          connectNulls
-                        />
-                      </LineChart>
-                    </ResponsiveContainer>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+          <motion.div
+            variants={CARD_STAGGER}
+            initial="hidden"
+            animate="show"
+            className="grid grid-cols-2 gap-3"
+          >
+            {trendCards.map((spec, i) => (
+              <MetricCard
+                key={spec.key}
+                spec={spec}
+                series={series}
+                avg={last7Avg[spec.key]}
+                delta={deltaPct(last7Avg[spec.key], prev7Avg[spec.key])}
+                index={i}
+              />
+            ))}
+          </motion.div>
         )}
       </motion.div>
 
       {/* Big chart */}
       {hasAnyData && (
         <motion.div variants={SECTION} initial="hidden" animate="show">
-          <div className="rounded-2xl bg-card border border-border/40 p-4">
-            <p className="text-[11px] font-semibold text-muted-foreground mb-3 flex items-center gap-1.5">
-              <Footprints className="w-3.5 h-3.5" />
-              {t.metrics.steps[lang]} — 14d
-            </p>
-            <div className="h-40" style={{ direction: 'ltr' }}>
+          <div className="rounded-2xl bg-card border border-border/40 p-4 overflow-hidden">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-[11px] font-semibold text-muted-foreground flex items-center gap-1.5">
+                <Footprints className="w-3.5 h-3.5 text-primary" />
+                {t.metrics.steps[lang]} — 14d
+              </p>
+              <p className="text-[10px] text-muted-foreground/70 tabular-nums">
+                <AnimatedNumber value={last7Avg.steps} digits={0} />{' '}
+                <span className="text-muted-foreground/50">{t.vsLast[lang]}</span>
+              </p>
+            </div>
+            <div className="h-44" style={{ direction: 'ltr' }}>
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={series} margin={{ top: 5, right: 8, left: -20, bottom: 0 }}>
-                  <CartesianGrid stroke="hsl(var(--border))" strokeOpacity={0.2} vertical={false} />
-                  <XAxis dataKey="date" tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} width={40} />
+                <AreaChart data={series} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="grad-steps-big" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.5} />
+                      <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                    </linearGradient>
+                    <filter id="glow-steps-big" x="-20%" y="-20%" width="140%" height="140%">
+                      <feGaussianBlur stdDeviation="1.6" result="b" />
+                      <feMerge>
+                        <feMergeNode in="b" />
+                        <feMergeNode in="SourceGraphic" />
+                      </feMerge>
+                    </filter>
+                  </defs>
+                  <CartesianGrid stroke="hsl(var(--border))" strokeOpacity={0.18} vertical={false} />
+                  <XAxis
+                    dataKey="date"
+                    tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
+                    axisLine={false}
+                    tickLine={false}
+                    interval={1}
+                  />
+                  <YAxis
+                    tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
+                    axisLine={false}
+                    tickLine={false}
+                    width={40}
+                  />
                   <Tooltip
+                    cursor={{ stroke: 'hsl(var(--primary))', strokeOpacity: 0.3, strokeWidth: 1, strokeDasharray: '4 4' }}
                     contentStyle={{
                       background: 'hsl(var(--card))',
                       border: '1px solid hsl(var(--border))',
                       borderRadius: 12,
                       fontSize: 12,
+                      boxShadow: '0 8px 24px -8px rgba(0,0,0,0.25)',
                     }}
+                    labelStyle={{ color: 'hsl(var(--muted-foreground))', fontSize: 10 }}
                   />
-                  <Line
+                  <Area
                     type="monotone"
                     dataKey="steps"
                     stroke="hsl(var(--primary))"
-                    strokeWidth={2}
-                    dot={{ r: 3, fill: 'hsl(var(--primary))' }}
+                    strokeWidth={2.5}
+                    fill="url(#grad-steps-big)"
+                    dot={StepsPulseDot as any}
+                    activeDot={{ r: 5, strokeWidth: 2, stroke: 'hsl(var(--card))', fill: 'hsl(var(--primary))' }}
+                    isAnimationActive
+                    animationDuration={1500}
                     connectNulls
+                    filter="url(#glow-steps-big)"
                   />
-                </LineChart>
+                </AreaChart>
               </ResponsiveContainer>
             </div>
           </div>
