@@ -1,117 +1,36 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React from 'react';
 import SEO from '@/components/SEO';
 import { useApp } from '@/contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
-import { Grid3X3, Swords, Gamepad2, Trophy, Star, Brain, Bomb, Palette, PipetteIcon, Dices, Target, Puzzle, Hexagon, Crosshair } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-
+import { Grid3X3, Swords, Gamepad2, Trophy, Brain, Bomb, Palette, PipetteIcon, Dices, Target, Puzzle, Hexagon, Crosshair } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 export default function GamesPage() {
-  const { t, dir, language } = useApp();
+  const { t } = useApp();
   const navigate = useNavigate();
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const [activeIndex, setActiveIndex] = useState(0);
 
   const getStats = (key: string) => {
     try { return JSON.parse(localStorage.getItem(key) || '{}'); } catch { return {}; }
   };
 
-  const sudokuStats = getStats('sudoku-stats');
-  const chessStats = getStats('chess-stats');
-  const memoryStats = getStats('memory-stats');
-  const mineStats = getStats('mine-stats');
-  const mazeStats = getStats('maze-stats');
-  const pipesStats = getStats('pipes-stats');
-  const diceStats = getStats('dice-stats');
-  const targetStats = getStats('target-stats');
-  const puzzleStats = getStats('puzzle-stats');
-  
-  const hexStats = getStats('hex-stats');
-  const focusStats = getStats('focus-stats');
-
   const games = [
-    {
-      key: 'sudoku', icon: Grid3X3,
-      title: t('games.sudoku'), desc: t('games.sudoku.desc'),
-      path: '/games/sudoku',
-      stats: sudokuStats.gamesWon > 0 ? [
-        { icon: Trophy, value: sudokuStats.gamesWon, label: t('stats.wins') },
-        { icon: Star, value: sudokuStats.bestStreak, label: t('stats.streak') },
-      ] : null,
-    },
-    {
-      key: 'chess', icon: Swords,
-      title: t('games.chess'), desc: t('games.chess.desc'),
-      path: '/games/chess',
-      stats: chessStats.gamesPlayed > 0 ? [
-        { icon: Gamepad2, value: chessStats.gamesPlayed, label: t('stats.played') },
-        { icon: Star, value: chessStats.totalMoves, label: t('stats.moves') },
-      ] : null,
-    },
-    {
-      key: 'memory', icon: Brain,
-      title: t('games.memory'), desc: t('games.memory.desc'),
-      path: '/games/memory',
-      stats: memoryStats.gamesWon > 0 ? [
-        { icon: Trophy, value: memoryStats.gamesWon, label: t('stats.wins') },
-        { icon: Star, value: memoryStats.bestStreak, label: t('stats.streak') },
-      ] : null,
-    },
-    {
-      key: 'minesweeper', icon: Bomb,
-      title: t('games.minesweeper'), desc: t('games.minesweeper.desc'),
-      path: '/games/minesweeper',
-      stats: mineStats.gamesWon > 0 ? [
-        { icon: Trophy, value: mineStats.gamesWon, label: t('stats.wins') },
-        { icon: Gamepad2, value: mineStats.gamesPlayed, label: t('stats.played') },
-      ] : null,
-    },
-    {
-      key: 'colormaze', icon: Palette,
-      title: t('games.colormaze'), desc: t('games.colormaze.desc'),
-      path: '/games/colormaze',
-      stats: mazeStats.gamesWon > 0 ? [
-        { icon: Trophy, value: mazeStats.gamesWon, label: t('stats.wins') },
-        { icon: Star, value: mazeStats.bestStreak, label: t('stats.streak') },
-      ] : null,
-    },
-    {
-      key: 'pipes', icon: PipetteIcon,
-      title: t('games.pipes'), desc: t('games.pipes.desc'),
-      path: '/games/pipes',
-      stats: pipesStats.gamesWon > 0 ? [
-        { icon: Trophy, value: pipesStats.gamesWon, label: t('stats.wins') },
-        { icon: Star, value: pipesStats.bestStreak, label: t('stats.streak') },
-      ] : null,
-    },
+    { key: 'sudoku', icon: Grid3X3, title: t('games.sudoku'), desc: t('games.sudoku.desc'), path: '/games/sudoku', wins: getStats('sudoku-stats').gamesWon || 0 },
+    { key: 'chess', icon: Swords, title: t('games.chess'), desc: t('games.chess.desc'), path: '/games/chess', wins: getStats('chess-stats').gamesPlayed || 0 },
+    { key: 'memory', icon: Brain, title: t('games.memory'), desc: t('games.memory.desc'), path: '/games/memory', wins: getStats('memory-stats').gamesWon || 0 },
+    { key: 'minesweeper', icon: Bomb, title: t('games.minesweeper'), desc: t('games.minesweeper.desc'), path: '/games/minesweeper', wins: getStats('mine-stats').gamesWon || 0 },
+    { key: 'colormaze', icon: Palette, title: t('games.colormaze'), desc: t('games.colormaze.desc'), path: '/games/colormaze', wins: getStats('maze-stats').gamesWon || 0 },
+    { key: 'pipes', icon: PipetteIcon, title: t('games.pipes'), desc: t('games.pipes.desc'), path: '/games/pipes', wins: getStats('pipes-stats').gamesWon || 0 },
+    { key: 'dice', icon: Dices, title: t('games.dice'), desc: '', path: '/games/dice', wins: getStats('dice-stats').gamesWon || 0 },
+    { key: 'target', icon: Target, title: t('games.target'), desc: '', path: '/games/target', wins: getStats('target-stats').gamesWon || 0 },
+    { key: 'puzzle', icon: Puzzle, title: t('games.puzzle'), desc: '', path: '/games/puzzle', wins: getStats('puzzle-stats').gamesWon || 0 },
+    { key: 'hex', icon: Hexagon, title: t('games.hex'), desc: '', path: '/games/hex', wins: getStats('hex-stats').gamesWon || 0 },
+    { key: 'focus', icon: Crosshair, title: t('games.focus'), desc: '', path: '/games/focus', wins: getStats('focus-stats').gamesWon || 0 },
   ];
-
-  const extraGames = [
-    { key: 'dice', icon: Dices, title: t('games.dice'), path: '/games/dice' },
-    { key: 'target', icon: Target, title: t('games.target'), path: '/games/target' },
-    { key: 'puzzle', icon: Puzzle, title: t('games.puzzle'), path: '/games/puzzle' },
-    
-    { key: 'hex', icon: Hexagon, title: t('games.hex'), path: '/games/hex' },
-    { key: 'focus', icon: Crosshair, title: t('games.focus'), path: '/games/focus' },
-  ];
-
-  // Snap-based scroll tracking
-  useEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-    const onScroll = () => {
-      const cardWidth = el.offsetWidth * 0.72 + 16; // card width + gap
-      const scrollPos = el.scrollLeft;
-      const idx = Math.round(scrollPos / cardWidth);
-      setActiveIndex(Math.max(0, Math.min(idx, games.length - 1)));
-    };
-    el.addEventListener('scroll', onScroll, { passive: true });
-    return () => el.removeEventListener('scroll', onScroll);
-  }, [games.length]);
 
   return (
     <div className="min-h-screen bg-background pb-28 pt-14">
       <SEO title="الألعاب — SmartHub" description="مجموعة ألعاب ذهنية: سودوكو، شطرنج، ذاكرة، كاسحة ألغام والمزيد، بتصميم داكن سلس داخل SmartHub." path="/games" />
+
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: 12 }}
@@ -125,102 +44,44 @@ export default function GamesPage() {
         <h1 className="text-[26px] font-bold tracking-tight text-foreground">{t('games.title')}</h1>
       </motion.div>
 
-      {/* Carousel */}
+      {/* Uniform grid */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 0.15, duration: 0.4 }}
+        transition={{ delay: 0.1, duration: 0.4 }}
+        className="px-4 grid grid-cols-2 gap-3"
       >
-        <div
-          ref={scrollRef}
-          className="flex gap-4 overflow-x-auto snap-x snap-mandatory px-5 pb-6 scrollbar-hide"
-          style={{
-            scrollbarWidth: 'none',
-            msOverflowStyle: 'none',
-            WebkitOverflowScrolling: 'touch',
-          }}
-          dir="ltr"
-        >
-          {games.map((game, i) => {
-            const Icon = game.icon;
-            return (
-              <motion.button
-                key={game.key}
-                initial={{ opacity: 0, scale: 0.92 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.1 + i * 0.06, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                onClick={() => navigate(game.path)}
-                className="snap-center shrink-0 flex flex-col items-center justify-between rounded-3xl bg-card border border-border/40 p-6 text-center active:scale-[0.96] transition-transform"
-                style={{ width: '72vw', maxWidth: '320px', minHeight: '260px' }}
-              >
-                {/* Icon */}
-                <div className="w-20 h-20 rounded-3xl bg-primary/10 flex items-center justify-center mb-5">
-                  <Icon className="w-9 h-9 text-primary stroke-[1.5]" />
-                </div>
-
-                {/* Title & desc */}
-                <div className="flex-1 flex flex-col items-center justify-center">
-                  <h2 className="font-bold text-[20px] text-foreground mb-1.5">{game.title}</h2>
-                  <p className="text-[13px] text-muted-foreground leading-relaxed max-w-[200px]">{game.desc}</p>
-                </div>
-
-                {/* Stats */}
-                {game.stats && (
-                  <div className="flex gap-4 mt-4 pt-4 border-t border-border/30 w-full justify-center">
-                    {game.stats.map((s, si) => (
-                      <div key={si} className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-                        <s.icon className="w-3.5 h-3.5 text-primary/70" />
-                        <span className="font-bold text-foreground">{s.value}</span>
-                        <span>{s.label}</span>
-                      </div>
-                    ))}
-                  </div>
+        {games.map((game, i) => {
+          const Icon = game.icon;
+          return (
+            <motion.button
+              key={game.key}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.08 + i * 0.04, duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+              onClick={() => navigate(game.path)}
+              className="group relative flex flex-col items-start gap-3 rounded-2xl bg-card border border-border/40 p-4 min-h-[128px] active:scale-[0.97] transition-transform text-start"
+            >
+              <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center">
+                <Icon className="w-5 h-5 text-primary stroke-[1.8]" />
+              </div>
+              <div className="flex-1 w-full">
+                <h2 className="font-bold text-[14px] text-foreground leading-tight">{game.title}</h2>
+                {game.desc && (
+                  <p className="text-[11px] text-muted-foreground mt-1 line-clamp-2 leading-snug">{game.desc}</p>
                 )}
-              </motion.button>
-            );
-          })}
-        </div>
-
-        {/* Dot indicators */}
-        <div className="flex justify-center gap-1.5 mt-1">
-          {games.map((_, i) => (
-            <div
-              key={i}
-              className={`rounded-full transition-all duration-300 ${
-                i === activeIndex
-                  ? 'w-6 h-2 bg-primary'
-                  : 'w-2 h-2 bg-muted-foreground/25'
-              }`}
-            />
-          ))}
-        </div>
+              </div>
+              {game.wins > 0 && (
+                <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                  <Trophy className="w-3 h-3 text-primary/70" />
+                  <span className="font-bold text-foreground">{game.wins}</span>
+                  <span>{t('stats.wins')}</span>
+                </div>
+              )}
+            </motion.button>
+          );
+        })}
       </motion.div>
-
-      {/* Extra games grid */}
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.35, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-        className="px-5 mt-8"
-      >
-        <h2 className="text-[14px] font-semibold text-muted-foreground mb-3">{language === 'ar' ? 'المزيد' : 'Mehr'}</h2>
-        <div className="grid grid-cols-3 gap-3">
-          {extraGames.map((g) => {
-            const GIcon = g.icon;
-            return (
-              <button
-                key={g.key}
-                onClick={() => navigate(g.path)}
-                className="flex flex-col items-center gap-2 py-4 px-2 rounded-2xl bg-card/60 border border-border/30 active:scale-95 transition-transform"
-              >
-                <GIcon className="w-5 h-5 text-primary stroke-[1.8]" />
-                <span className="text-[11px] font-medium text-muted-foreground truncate w-full text-center">{g.title}</span>
-              </button>
-            );
-          })}
-        </div>
-      </motion.div>
-
     </div>
   );
 }
