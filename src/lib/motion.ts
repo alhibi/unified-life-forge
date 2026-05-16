@@ -17,6 +17,14 @@ import type { Transition, Variants } from 'framer-motion';
 export const EASE_OUT = [0.16, 1, 0.3, 1] as const;
 export const EASE_IN_OUT = [0.65, 0, 0.35, 1] as const;
 
+// Native-feel curves for framer-motion / WAAPI consumers. These mirror the
+// CSS custom properties (--spring-*) defined in index.css so JS-driven
+// transitions match CSS ones.
+export const SPRING_SNAPPY = [0.34, 1.56, 0.64, 1] as const;
+export const SPRING_ENTER  = [0.22, 1, 0.36, 1]     as const;
+export const SPRING_EXIT   = [0.55, 0, 1, 0.45]     as const;
+export const SPRING_IOS    = [0.25, 0.46, 0.45, 0.94] as const;
+
 // ── Weight scale ──────────────────────────────────────────
 // Pair element size with motion duration. Heavier surfaces move slower so the
 // UI feels physical without being slow overall.

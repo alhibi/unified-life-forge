@@ -152,7 +152,24 @@
 
   /* Skeleton loading placeholder */
   .skeleton {
-    @apply animate-pulse rounded-lg bg-muted;
+    @apply rounded-lg bg-muted relative overflow-hidden;
+  }
+  .skeleton::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      hsl(var(--foreground) / 0.06) 50%,
+      transparent 100%
+    );
+    transform: translateX(-100%);
+    animation: skeleton-shimmer 1.5s linear infinite;
+    will-change: transform;
+  }
+  @keyframes skeleton-shimmer {
+    100% { transform: translateX(100%); }
   }
 }
 
@@ -166,6 +183,14 @@
   .gpu {
     transform: translateZ(0);
     will-change: transform;
+    backface-visibility: hidden;
+  }
+  .contain-paint {
+    contain: layout style paint;
+  }
+  .cv-auto {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 400px;
   }
 }
 
