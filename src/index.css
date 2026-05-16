@@ -81,6 +81,23 @@
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
   }
+  /* ── Linear-style global color transition ──
+     Makes theme switches and hover state changes feel buttery.
+     Only color/background-color/border-color/fill/stroke — does NOT
+     touch transform/opacity so press feedback stays snappy. */
+  *,
+  *::before,
+  *::after {
+    transition:
+      color 150ms linear,
+      background-color 150ms linear,
+      border-color 150ms linear,
+      fill 150ms linear,
+      stroke 150ms linear;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition: none !important; }
+  }
   /* ── Focus ring: outline-only, no box-shadow (accessibility + perf) ── */
   *:focus { outline: none; }
   *:focus-visible {
