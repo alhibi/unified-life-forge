@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://amv.life/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://amv.life/games</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://amv.life/duas</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://amv.life/diwan</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://amv.life/settings</loc><changefreq>monthly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://amv.life/occasions</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://amv.life/reading</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://amv.life/wellness</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://amv.life/section/timed-sunnah</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://amv.life/section/untimed-sunnah</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://amv.life/section/prophetic-day</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://amv.life/section/quran-virtues</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://amv.life/games/sudoku</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://amv.life/games/chess</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://amv.life/games/memory</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://amv.life/games/minesweeper</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://amv.life/games/colormaze</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://amv.life/games/pipes</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://amv.life/games/dice</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://amv.life/games/target</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://amv.life/games/puzzle</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://amv.life/games/hex</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://amv.life/games/focus</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+</urlset>
