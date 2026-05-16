@@ -84,8 +84,7 @@ export default function ChatPage() {
   }, [navigate]);
 
   if (authLoading) {
-    return <ChatSkeleton />
-      <SEO title="المحادثات — SmartHub" description="دردشة آمنة بين الأصدقاء داخل SmartHub مع صور وملاحظات صوتية وتشفير للجلسة." path="/chat" />;
+    return <ChatSkeleton />;
   }
 
   if (!user) {
@@ -108,6 +107,7 @@ export default function ChatPage() {
 
   return (
     <ErrorBoundary fallbackTitle={isAr ? 'حدث خطأ في الدردشة' : 'Fehler im Chat'}>
+      <SEO title="المحادثات — SmartHub" description="دردشة آمنة بين الأصدقاء داخل SmartHub مع صور وملاحظات صوتية وتشفير للجلسة." path="/chat" />
       <Suspense fallback={<ChatSkeleton />}>
         <ChatDrawer
           inline
