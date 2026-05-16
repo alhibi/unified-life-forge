@@ -32,7 +32,7 @@ interface TargetStats {
 function loadStats(): TargetStats {
   try {
     const s = JSON.parse(localStorage.getItem('target-stats') || '{}');
-    return { gamesPlayed: 0, bestScore: {}, bestAccuracy: {}, bestHpm: {}, totalHits: 0, ...s,
+    return { gamesPlayed: 0, totalHits: 0, ...s,
       bestScore: s.bestScore || {}, bestAccuracy: s.bestAccuracy || {}, bestHpm: s.bestHpm || {} };
   } catch {
     return { gamesPlayed: 0, bestScore: {}, bestAccuracy: {}, bestHpm: {}, totalHits: 0 };

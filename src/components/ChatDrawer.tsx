@@ -795,7 +795,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                   }} className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40" aria-label={chat.isAr ? 'توجيه' : 'Weiterleiten'}>
                     <ForwardIcon className="w-5 h-5 text-foreground" />
                   </button>
-                  {chat.messages.filter(m => chat.selectedIds.has(m.id) && m.sender_id === chat.user.id && !m.deleted).length > 0 && (
+                  {chat.messages.filter(m => chat.selectedIds.has(m.id) && m.sender_id === chat.user?.id && !m.deleted).length > 0 && (
                     <button onClick={chat.deleteSelectedMessages} className="w-9 h-9 rounded-full flex items-center justify-center active:bg-destructive/15" aria-label={chat.isAr ? 'حذف' : 'Löschen'}>
                       <Trash2 className="w-5 h-5 text-destructive" />
                     </button>

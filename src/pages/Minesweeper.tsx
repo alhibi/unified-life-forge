@@ -35,7 +35,6 @@ function loadStats(): MineStats {
     const s = JSON.parse(localStorage.getItem('mine-stats') || '{}');
     return {
       gamesPlayed: 0, gamesWon: 0, flawless: 0,
-      bestTime: { easy: null, medium: null, hard: null, expert: null },
       currentStreak: 0, bestStreak: 0, ...s,
       bestTime: { easy: null, medium: null, hard: null, expert: null, ...(s.bestTime || {}) },
     };
