@@ -179,6 +179,10 @@ const translations: Record<string, Record<Language, string>> = {
   'daysShort.6': { ar: 'سب', de: 'Sa' },
   // Prayer times
   'prayer.next': { ar: 'الصلاة القادمة', de: 'Nächstes Gebet' },
+  'prayer.next.short': { ar: 'القادمة', de: 'NÄCHST' },
+  'prayer.current': { ar: 'الصلاة الحالية', de: 'Aktuelles Gebet' },
+  'prayer.endsIn': { ar: 'تنتهي خلال', de: 'Endet in' },
+  'prayer.beginsIn': { ar: 'تبدأ خلال', de: 'Beginnt in' },
   'prayer.remaining': { ar: 'متبقي', de: 'verbleibend' },
   'prayer.hour': { ar: 'ساعة', de: 'Std' },
   'prayer.and': { ar: 'و', de: 'und' },
@@ -192,6 +196,29 @@ const translations: Record<string, Record<Language, string>> = {
   'prayer.isha': { ar: 'العشاء', de: 'Isha' },
   'prayer.am': { ar: 'ص', de: 'AM' },
   'prayer.pm': { ar: 'م', de: 'PM' },
+  // Prayer — khushu-style additions
+  'prayer.local': { ar: 'محلي', de: 'Lokal' },
+  'prayer.locationFallback': { ar: 'موقعك', de: 'Dein Ort' },
+  'prayer.todaysPrayers': { ar: 'صلوات اليوم', de: 'Heutige Gebete' },
+  'prayer.of': { ar: 'من', de: 'von' },
+  'prayer.pray': { ar: 'صلِّ', de: 'Beten' },
+  'prayer.tapDismiss': { ar: 'اضغط للإغلاق', de: 'Zum Schließen tippen' },
+  'prayer.makruh': { ar: 'مكروه', de: 'Makruh' },
+  'prayer.makruh.sunrise': { ar: 'الشروق', de: 'Sonnenaufgang' },
+  'prayer.makruh.zawal': { ar: 'الزوال', de: 'Zawāl' },
+  'prayer.makruh.sunset': { ar: 'الغروب', de: 'Sonnenuntergang' },
+  'prayer.makruh.desc.sunrise': {
+    ar: 'يُكره التطوع حتى ترتفع الشمس قِيد رمح (نحو 20 دقيقة بعد الشروق). "من أدرك ركعة من الفجر قبل أن تطلع الشمس فقد أدرك الفجر." — البخاري ٥٧٩، مسلم ٦٠٨',
+    de: 'Es ist verpönt zu beten, bis die Sonne eine Speerlänge gestiegen ist (~20 Min). „Wer eine Rakʿa des Fadschr vor Sonnenaufgang erreicht, hat das Fadschr erreicht." — Buchari 579, Muslim 608',
+  },
+  'prayer.makruh.desc.zawal': {
+    ar: 'الشمس في كبد السماء — تُمنع الصلاة في هذه اللحظة. "نهى رسول الله ﷺ عن الصلاة وقت زوال الشمس حتى تزول." — مسلم ٨٣١',
+    de: 'Die Sonne steht im Zenit — Gebet ist in diesem Augenblick verboten. „Der Prophet ﷺ verbot das Gebet, wenn die Sonne in ihrem Höchststand (Zawāl) steht, bis sie abnimmt." — Muslim 831',
+  },
+  'prayer.makruh.desc.sunset': {
+    ar: 'يُكره التطوع عند تَدلِّي الشمس للغروب. "من أدرك ركعة من العصر قبل أن تغرب الشمس فقد أدرك العصر." — البخاري ٥٥٦، مسلم ٦٠٨',
+    de: 'Es ist verpönt zu beten, während die Sonne untergeht. „Wer eine Rakʿa des ʿAsr vor Sonnenuntergang erreicht, hat das ʿAsr erreicht." — Buchari 556, Muslim 608',
+  },
   // Islamic sections
   'sections.more': { ar: 'المزيد من', de: 'Mehr entdecken' },
   'sections.timedSunnah': { ar: 'سنن موقوتة', de: 'Zeitgebundene Sunna' },
