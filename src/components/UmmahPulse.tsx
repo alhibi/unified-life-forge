@@ -1,10 +1,10 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '@/contexts/AppContext';
 import {
   Globe2, X, Maximize2, Search, Sparkles, Sun, MapPin,
-  Clock, Compass, Info,
+  Clock, Compass, Info, Plus, Minus, Locate,
 } from 'lucide-react';
 import {
   getCityPrayerInfo,
@@ -18,7 +18,7 @@ import {
   PRAYER_SLOT_ORDER,
 } from '@/utils/prayerAstronomy';
 import { WORLD_LAND_PATH } from './UmmahPulse.worldPath';
-import { UmmahGlobe, type GlobeCity } from './UmmahGlobe';
+import { UmmahGlobe, type GlobeCity, type UmmahGlobeHandle } from './UmmahGlobe';
 
 /**
  * Ummah Pulse — a live planetary view of Islamic prayer across the world.
@@ -238,6 +238,7 @@ function UmmahPulse() {
   const [expanded, setExpanded] = useState(false);
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
   const [filter, setFilter] = useState<PrayerSlot | 'all'>('all');
+  const globeRef = useRef<UmmahGlobeHandle | null>(null);
   const [regionFilter, setRegionFilter] = useState<Region | 'all'>('all');
   const [search, setSearch] = useState('');
   const userShadowFactor: 1 | 2 = prayerMadhab === 'hanafi' ? 2 : 1;
@@ -1077,6 +1078,7 @@ function UmmahPulse() {
                     onClick={() => setSelectedCity(null)}
                   >
                     <UmmahGlobe
+                      ref={globeRef}
                       cities={cityDetails.map<GlobeCity>((c) => ({
                         name: c.name,
                         nameAr: c.nameAr,
@@ -1095,9 +1097,18 @@ function UmmahPulse() {
                       subSolarLat={subLat}
                       language={language === 'ar' ? 'ar' : 'de'}
                       selectedCity={selectedCity}
-                      onCityClick={(name) =>
-                        setSelectedCity((cur) => (cur === name ? null : name))
-                      }
+                      onCityClick={(name) => {
+                        setSelectedCity((cur) => (cur === name ? null : name));
+                        const c = cityDetails.find((x) => x.name === name);
+                        if (c) {
+                          globeRef.current?.flyTo({
+                            lng: c.lng,
+                            lat: c.lat,
+                            zoom: Math.max(1.4, Math.min(2.2, 1.6)),
+                            duration: 700,
+                          });
+                        }
+                      }}
                       onBackgroundClick={() => setSelectedCity(null)}
                       idleRotate={2.5}
                     />
@@ -1110,6 +1121,42 @@ function UmmahPulse() {
                       </span>
                     </div>
 
+                    {/* Globe controls */}
+                    <div
+                      className="absolute top-2 right-2 flex flex-col gap-1.5"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <button
+                        onClick={() => globeRef.current?.zoomBy(1.35)}
+                        className="w-8 h-8 rounded-lg bg-background/80 backdrop-blur-md border border-border/40 flex items-center justify-center active:scale-95 transition-transform"
+                        aria-label={t('تكبير', 'Vergrößern')}
+                      >
+                        <Plus className="w-3.5 h-3.5 text-foreground" />
+                      </button>
+                      <button
+                        onClick={() => globeRef.current?.zoomBy(1 / 1.35)}
+                        className="w-8 h-8 rounded-lg bg-background/80 backdrop-blur-md border border-border/40 flex items-center justify-center active:scale-95 transition-transform"
+                        aria-label={t('تصغير', 'Verkleinern')}
+                      >
+                        <Minus className="w-3.5 h-3.5 text-foreground" />
+                      </button>
+                      <button
+                        onClick={() =>
+                          globeRef.current?.flyTo({
+                            lng: 39.8262,
+                            lat: 21.4225,
+                            zoom: 1,
+                            duration: 900,
+                          })
+                        }
+                        className="w-8 h-8 rounded-lg bg-amber-500/15 backdrop-blur-md border border-amber-500/40 flex items-center justify-center active:scale-95 transition-transform"
+                        aria-label={t('العودة إلى مكة', 'Zurück nach Mekka')}
+                        title={t('العودة إلى مكة', 'Zurück nach Mekka')}
+                      >
+                        <Locate className="w-3.5 h-3.5 text-amber-600" />
+                      </button>
+                    </div>
+
                     {/* Hint badge */}
                     <div
                       className="absolute bottom-2 left-1/2 -translate-x-1/2 px-2.5 py-1 rounded-full bg-background/70 backdrop-blur-md border border-border/40 pointer-events-none"
@@ -1117,8 +1164,8 @@ function UmmahPulse() {
                     >
                       <span className="text-[10px] font-semibold text-muted-foreground">
                         {t(
-                          'اسحب لتدوير الكرة • اضغط مدينة للتفاصيل',
-                          'Ziehen zum Drehen · Stadt antippen für Details'
+                          'اسحب • قرّص للتكبير • انقر مرّتين',
+                          'Ziehen · Pinch · Doppelklick zum Zoomen'
                         )}
                       </span>
                     </div>
