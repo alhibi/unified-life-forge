@@ -65,16 +65,6 @@ export default function SettingsPage() {
     },
   ];
 
-  const wellnessItems = [
-    {
-      key: 'wellness',
-      icon: HeartPulse,
-      title: t('wellness.settingsLabel'),
-      value: isAr ? 'محلي' : 'Lokal',
-      onClick: () => navigate('/wellness'),
-    },
-  ];
-
   const generalItems: Array<{ key: string; icon: any; title: string; value: string; onClick: () => void; isToggle?: boolean }> = [
     {
       key: 'language',
@@ -196,9 +186,6 @@ export default function SettingsPage() {
 
         {/* Prayer Group */}
         {renderGroup(isAr ? 'الصلاة' : 'Gebet', prayerItems)}
-
-        {/* Wellness Group */}
-        {renderGroup(isAr ? 'العافية' : 'Wellness', wellnessItems)}
 
         {/* General Group */}
         {renderGroup(isAr ? 'عام' : 'Allgemein', generalItems)}
