@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-  Bookmark, CheckCheck, ChevronLeft, Newspaper,
-  RefreshCw, Search, Settings2, Wifi, X,
+  Bell, Bookmark, CheckCheck, ChevronLeft, Newspaper,
+  RefreshCw, Search, Settings2, Type, Wifi, X,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import type { FeedSource, FilterTab } from './types';
@@ -23,6 +23,10 @@ export function ListHeader({
   onRefresh,
   onManage,
   onMarkAllRead,
+  onOpenArchiveSearch,
+  onOpenAlerts,
+  onOpenReader,
+  unseenAlerts,
   filterTab,
   setFilterTab,
   sourceFilter,
@@ -43,6 +47,10 @@ export function ListHeader({
   onRefresh: () => void;
   onManage: () => void;
   onMarkAllRead: () => void;
+  onOpenArchiveSearch: () => void;
+  onOpenAlerts: () => void;
+  onOpenReader: () => void;
+  unseenAlerts: number;
   filterTab: FilterTab;
   setFilterTab: (t: FilterTab) => void;
   sourceFilter: string;
@@ -75,14 +83,35 @@ export function ListHeader({
         <div className="flex items-center gap-1">
           <button
             type="button"
-            onClick={() => setShowSearch(!showSearch)}
+            onClick={onOpenArchiveSearch}
             className="p-2.5 rounded-xl hover:bg-accent/50 active:scale-95 transition-all"
-            aria-label={isAr ? 'بحث' : 'Search'}
+            aria-label={isAr ? 'بحث الأرشيف' : 'Search archive'}
+            title={isAr ? 'بحث الأرشيف الكامل' : 'Search full archive'}
           >
-            <Search
-              className={`h-4 w-4 ${showSearch ? 'text-primary' : 'text-muted-foreground'}`}
-            />
+            <Search className="h-4 w-4 text-muted-foreground" />
           </button>
+          <button
+            type="button"
+            onClick={onOpenAlerts}
+            className="p-2.5 rounded-xl hover:bg-accent/50 active:scale-95 transition-all relative"
+            aria-label={isAr ? 'التنبيهات' : 'Keyword alerts'}
+            title={isAr ? 'تنبيهات الكلمات' : 'Keyword alerts'}
+          >
+            <Bell className="h-4 w-4 text-muted-foreground" />
+            {unseenAlerts > 0 && (
+              <span className="absolute top-1 end-1 h-2 w-2 rounded-full bg-primary" />
+            )}
+          </button>
+          <button
+            type="button"
+            onClick={onOpenReader}
+            className="p-2.5 rounded-xl hover:bg-accent/50 active:scale-95 transition-all"
+            aria-label={isAr ? 'قراءة رابط' : 'Reader view'}
+            title={isAr ? 'قراءة رابط من الويب' : 'Read a web link'}
+          >
+            <Type className="h-4 w-4 text-muted-foreground" />
+          </button>
+          <div className="w-px h-5 bg-border/50 mx-0.5" />
           {unreadCount > 0 && (
             <button
               type="button"
