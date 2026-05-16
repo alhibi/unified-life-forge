@@ -117,7 +117,7 @@ export default function DietTab({ dietLogs, onAdd, onRemove }: Props) {
                 <div key={log.id} className="flex items-center justify-between p-3">
                   <div className="flex items-center gap-3 min-w-0">
                     <div className={`w-9 h-9 rounded-xl ${meta.bg} flex items-center justify-center shrink-0`}>
-                      <Icon className={`w-4.5 h-4.5 ${meta.color}`} strokeWidth={2} />
+                      <Icon className={`w-4 h-4 ${meta.color}`} strokeWidth={2} />
                     </div>
                     <div className="min-w-0">
                       <p className="text-sm font-semibold text-foreground truncate">{label}</p>
@@ -218,7 +218,7 @@ export default function DietTab({ dietLogs, onAdd, onRemove }: Props) {
                         className="bg-card border border-border/40 rounded-xl p-2.5 flex flex-col items-center gap-1.5 active:scale-95 transition-transform hover:border-primary/40"
                       >
                         <div className={`w-9 h-9 rounded-xl ${meta.bg} flex items-center justify-center`}>
-                          <Icon className={`w-4.5 h-4.5 ${meta.color}`} strokeWidth={2} />
+                          <Icon className={`w-4 h-4 ${meta.color}`} strokeWidth={2} />
                         </div>
                         <span className="text-[11px] font-medium text-foreground text-center leading-tight">
                           {f.label[lang]}
