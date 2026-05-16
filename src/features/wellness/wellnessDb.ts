@@ -50,6 +50,13 @@ export interface SkinHairLog {
   sleepHours: number;         // 0..14
   waterGlasses: number;       // 0..20
   stress: number;             // 1..5
+  // Body extensions (all optional for backward compatibility)
+  eyeFatigue?: number;        // 1..5 (1 = fresh, 5 = exhausted)
+  eyeDryness?: number;        // 1..5
+  jointPain?: number;         // 1..5
+  jointStiffness?: number;    // 1..5
+  muscleSoreness?: number;    // 1..5
+  muscleEnergy?: number;      // 1..5
   notes?: string;
   loggedAt: number;
 }
@@ -250,6 +257,12 @@ export async function upsertSkinHair(
     sleepHours: entry.sleepHours,
     waterGlasses: entry.waterGlasses,
     stress: entry.stress,
+    eyeFatigue: entry.eyeFatigue,
+    eyeDryness: entry.eyeDryness,
+    jointPain: entry.jointPain,
+    jointStiffness: entry.jointStiffness,
+    muscleSoreness: entry.muscleSoreness,
+    muscleEnergy: entry.muscleEnergy,
     notes: entry.notes,
     loggedAt: Date.now(),
   };
