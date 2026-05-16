@@ -18,6 +18,7 @@ import {
   PRAYER_SLOT_ORDER,
 } from '@/utils/prayerAstronomy';
 import { WORLD_LAND_PATH } from './UmmahPulse.worldPath';
+import { UmmahGlobe, type GlobeCity } from './UmmahGlobe';
 
 /**
  * Ummah Pulse — a live planetary view of Islamic prayer across the world.
@@ -1065,17 +1066,60 @@ function UmmahPulse() {
 
               {/* Scrollable content */}
               <div className="flex-1 overflow-y-auto pb-[max(env(safe-area-inset-bottom),1.5rem)]">
-                {/* Larger map */}
+                {/* Interactive 3D globe */}
                 <div className="px-4 pt-4">
                   <div
-                    className="relative rounded-2xl overflow-hidden bg-[hsl(var(--muted))]/30 border border-border/30"
+                    className="relative rounded-2xl overflow-hidden border border-border/30"
+                    style={{
+                      background:
+                        'radial-gradient(120% 90% at 50% 35%, hsl(225, 80%, 8%) 0%, hsl(228, 80%, 4%) 60%, #000 100%)',
+                    }}
                     onClick={() => setSelectedCity(null)}
                   >
-                    {renderMapSvg({ large: true })}
-                    <div className="absolute top-2 left-2 flex items-center gap-1.5 px-2 py-1 rounded-lg bg-background/80 backdrop-blur-md border border-border/40">
+                    <UmmahGlobe
+                      cities={cityDetails.map<GlobeCity>((c) => ({
+                        name: c.name,
+                        nameAr: c.nameAr,
+                        lat: c.lat,
+                        lng: c.lng,
+                        flag: c.flag,
+                        pop: c.pop,
+                        color: SLOT_META[c.info.slot].color,
+                        active:
+                          c.info.slot === 'fajr' ||
+                          c.info.slot === 'maghrib' ||
+                          c.info.slot === 'isha',
+                        qibla: c.name === 'Makkah',
+                      }))}
+                      subSolarLng={subLng}
+                      subSolarLat={subLat}
+                      language={language === 'ar' ? 'ar' : 'de'}
+                      selectedCity={selectedCity}
+                      onCityClick={(name) =>
+                        setSelectedCity((cur) => (cur === name ? null : name))
+                      }
+                      onBackgroundClick={() => setSelectedCity(null)}
+                      idleRotate={2.5}
+                    />
+
+                    {/* Sub-solar coordinates badge */}
+                    <div className="absolute top-2 left-2 flex items-center gap-1.5 px-2 py-1 rounded-lg bg-background/80 backdrop-blur-md border border-border/40 pointer-events-none">
                       <Sun className="w-3 h-3 text-amber-500" />
                       <span className="text-[10px] font-semibold text-foreground tabular-nums">
                         {subLat.toFixed(1)}°, {((subLng + 540) % 360 - 180).toFixed(1)}°
+                      </span>
+                    </div>
+
+                    {/* Hint badge */}
+                    <div
+                      className="absolute bottom-2 left-1/2 -translate-x-1/2 px-2.5 py-1 rounded-full bg-background/70 backdrop-blur-md border border-border/40 pointer-events-none"
+                      dir={language === 'ar' ? 'rtl' : 'ltr'}
+                    >
+                      <span className="text-[10px] font-semibold text-muted-foreground">
+                        {t(
+                          'اسحب لتدوير الكرة • اضغط مدينة للتفاصيل',
+                          'Ziehen zum Drehen · Stadt antippen für Details'
+                        )}
                       </span>
                     </div>
                   </div>
