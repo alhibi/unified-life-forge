@@ -100,11 +100,17 @@ export default {
         },
       },
       animation: {
-        "accordion-down": "accordion-down 0.28s cubic-bezier(0.34, 1.56, 0.64, 1)",
-        "accordion-up": "accordion-up 0.22s cubic-bezier(0.55, 0, 1, 0.45)",
-        "fade-in": "fade-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both",
-        "scale-in": "scale-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) both",
-        "slide-up": "slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) both",
+        // ENTER → ease-out-expo, EXIT → ease-in, INTERACT → spring snappy
+        "accordion-down": "accordion-down 0.28s cubic-bezier(0.19, 1, 0.22, 1)",
+        "accordion-up":   "accordion-up 0.22s cubic-bezier(0.4, 0, 1, 1)",
+        "fade-in":  "fade-in 0.5s cubic-bezier(0.19, 1, 0.22, 1) both",
+        "scale-in": "scale-in 0.35s cubic-bezier(0.19, 1, 0.22, 1) both",
+        "slide-up": "slide-up 0.5s cubic-bezier(0.19, 1, 0.22, 1) both",
+      },
+      transitionTimingFunction: {
+        "out-expo": "cubic-bezier(0.19, 1, 0.22, 1)",
+        "in":       "cubic-bezier(0.4, 0, 1, 1)",
+        "spring":   "cubic-bezier(0.34, 1.56, 0.64, 1)",
       },
     },
   },
