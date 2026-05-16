@@ -324,6 +324,22 @@
     content-visibility: auto;
     contain-intrinsic-size: auto 480px;
   }
+
+  /* ── Tight list stagger ──
+     20ms between siblings, capped at the 5th child. Long lists are
+     NOT punished — items 6+ all share the cap delay. Pair with
+     animate-fade-in / animate-slide-up. */
+  .stagger-tight > *      { animation-delay: 0ms; }
+  .stagger-tight > *:nth-child(2) { animation-delay: 20ms; }
+  .stagger-tight > *:nth-child(3) { animation-delay: 40ms; }
+  .stagger-tight > *:nth-child(4) { animation-delay: 60ms; }
+  .stagger-tight > *:nth-child(5),
+  .stagger-tight > *:nth-child(n+6) { animation-delay: 80ms; }
+  .stagger-tight > * {
+    animation-duration: 250ms;
+    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+    animation-fill-mode: both;
+  }
 }
 
 /* ─── Global content-visibility: skip rendering work for off-screen content ─── */
