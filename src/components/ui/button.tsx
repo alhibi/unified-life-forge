@@ -37,9 +37,46 @@ export interface ButtonProps
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
+  ({ className, variant, size, asChild = false, onClick, onPointerDown, type, ...props }, ref) => {
     const Comp = asChild ? Slot : "button";
-    return <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />;
+
+    // Linear-style fast tap: fire onClick on pointerdown (80–100ms faster).
+    // Skip for submit/reset (forms need a real click) and when modifier
+    // keys are held (so cmd+click on links still opens new tabs).
+    const isFormAction = type === "submit" || type === "reset";
+    const firedRef = React.useRef(false);
+
+    const handlePointerDown = (e: React.PointerEvent<HTMLButtonElement>) => {
+      onPointerDown?.(e);
+      if (isFormAction || asChild) return;
+      if (e.button !== 0) return;
+      if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
+      if (props.disabled) return;
+      if (e.defaultPrevented) return;
+      firedRef.current = true;
+      onClick?.(e as unknown as React.MouseEvent<HTMLButtonElement>);
+    };
+
+    const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+      if (firedRef.current) {
+        firedRef.current = false;
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
+      onClick?.(e);
+    };
+
+    return (
+      <Comp
+        className={cn(buttonVariants({ variant, size, className }))}
+        ref={ref}
+        type={type}
+        onPointerDown={handlePointerDown}
+        onClick={handleClick}
+        {...props}
+      />
+    );
   },
 );
 Button.displayName = "Button";
