@@ -91,6 +91,83 @@ export type Database = {
           },
         ]
       }
+      keyword_alert_hits: {
+        Row: {
+          alert_id: string
+          article_link: string
+          article_title: string
+          id: string
+          matched_at: string
+          seen: boolean
+          source_name: string | null
+          user_id: string
+        }
+        Insert: {
+          alert_id: string
+          article_link: string
+          article_title: string
+          id?: string
+          matched_at?: string
+          seen?: boolean
+          source_name?: string | null
+          user_id: string
+        }
+        Update: {
+          alert_id?: string
+          article_link?: string
+          article_title?: string
+          id?: string
+          matched_at?: string
+          seen?: boolean
+          source_name?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "keyword_alert_hits_alert_id_fkey"
+            columns: ["alert_id"]
+            isOneToOne: false
+            referencedRelation: "keyword_alerts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      keyword_alerts: {
+        Row: {
+          created_at: string
+          enabled: boolean
+          id: string
+          keyword: string
+          last_check_at: string
+          match_mode: string
+          source_filter: string[] | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          keyword: string
+          last_check_at?: string
+          match_mode?: string
+          source_filter?: string[] | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          keyword?: string
+          last_check_at?: string
+          match_mode?: string
+          source_filter?: string[] | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       message_reactions: {
         Row: {
           created_at: string
@@ -230,6 +307,7 @@ export type Database = {
           images: Json | null
           link: string
           pub_date: string | null
+          search_vector: unknown
           source_name: string
           source_url: string
           title: string
@@ -244,6 +322,7 @@ export type Database = {
           images?: Json | null
           link: string
           pub_date?: string | null
+          search_vector?: unknown
           source_name: string
           source_url: string
           title: string
@@ -258,9 +337,49 @@ export type Database = {
           images?: Json | null
           link?: string
           pub_date?: string | null
+          search_vector?: unknown
           source_name?: string
           source_url?: string
           title?: string
+        }
+        Relationships: []
+      }
+      rss_feed_meta: {
+        Row: {
+          consecutive_failures: number
+          created_at: string
+          etag: string | null
+          item_count_last: number | null
+          last_error: string | null
+          last_fetched_at: string | null
+          last_modified: string | null
+          last_status: number | null
+          source_url: string
+          updated_at: string
+        }
+        Insert: {
+          consecutive_failures?: number
+          created_at?: string
+          etag?: string | null
+          item_count_last?: number | null
+          last_error?: string | null
+          last_fetched_at?: string | null
+          last_modified?: string | null
+          last_status?: number | null
+          source_url: string
+          updated_at?: string
+        }
+        Update: {
+          consecutive_failures?: number
+          created_at?: string
+          etag?: string | null
+          item_count_last?: number | null
+          last_error?: string | null
+          last_fetched_at?: string | null
+          last_modified?: string | null
+          last_status?: number | null
+          source_url?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -290,10 +409,42 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      invoke_edge_function: {
+        Args: { fn_name: string; payload?: Json }
+        Returns: number
+      }
       mark_message_read: { Args: { p_message_id: string }; Returns: undefined }
       mark_messages_read: {
         Args: { p_conversation_id: string }
         Returns: undefined
+      }
+      normalize_arabic: { Args: { s: string }; Returns: string }
+      reading_cron_status: {
+        Args: { max_rows?: number }
+        Returns: {
+          end_time: string
+          jobname: string
+          return_message: string
+          start_time: string
+          status: string
+        }[]
+      }
+      search_rss_articles: {
+        Args: {
+          max_rows?: number
+          q: string
+          since_at?: string
+          src_names?: string[]
+        }
+        Returns: {
+          description: string
+          image: string
+          link: string
+          pub_date: string
+          rank: number
+          source_name: string
+          title: string
+        }[]
       }
       update_last_seen: { Args: never; Returns: undefined }
     }
