@@ -1,27 +1,43 @@
 /**
  * Profile / biometrics tab — the singleton AthleteProfile editor.
  *
- * Drives every calculator in the Hub, the macro/calorie targets, the
- * recommended goals and the strength standards. Designed as one long
- * scrollable form with section cards, not a dialog — this is the most
- * important screen for new users.
+ * v2 — input overhaul:
+ *   • Sex / Activity / Goal / Experience / Units use <ChoiceCardGrid>
+ *     so each option is a tappable card with icon + description.
+ *   • Birth-year uses <YearWheel> — a momentum-snap scrollable picker
+ *     instead of a number input that summons the keyboard.
+ *   • Height / Weight / Neck / Waist / Hip use <Stepper> with optional
+ *     companion <NumberSlider>, presets, and tap-and-hold to scrub.
+ *   • Weight has an auto-fill chip — when the profile.weightKg is empty
+ *     but the user has vitals data, we offer to copy the latest entry.
+ *   • Live preview of BMI/BF/BMR/TDEE/calories renders below the
+ *     basics card so the user sees their numbers light up as they
+ *     change inputs.
+ *   • Sticky save bar with dirty-state detection (kept).
  */
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Activity, Award, Check, Crown, Dumbbell, Flame, Footprints,
-  Ruler, Scale, Target, Trophy, User, Zap,
+  Activity, Award, Beef, Check, Crown, Dumbbell, Flame, Footprints,
+  Ruler, Scale, Sparkles, Target, Trophy, User, Zap,
 } from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
 import type {
   AthleteProfile, Sex, ActivityLevel, FitnessGoal, Experience, Units,
+  VitalLog,
 } from '../wellnessDb';
 import { athleticSummary } from '../athleticEngine';
-import { PremiumCard, SectionHeader, AnimatedNumber } from './primitives';
+import { resolveWeight } from '../wellnessLink';
+import { SoftSurface, withAlpha } from './surfaces';
+import { SectionHeader, AnimatedNumber } from './primitives';
+import {
+  ChoiceCardGrid, Field, Stepper, YearWheel,
+} from './inputs';
 
 interface Props {
   profile: AthleteProfile | null;
+  vitals?: VitalLog[];   // for weight auto-fill
   onSave: (p: Omit<AthleteProfile, 'id' | 'updatedAt'>) => Promise<void>;
 }
 
@@ -47,17 +63,19 @@ const T = {
   male: { ar: 'ذكر', de: 'Männlich' },
   female: { ar: 'أنثى', de: 'Weiblich' },
   birthYear: { ar: 'سنة الميلاد', de: 'Geburtsjahr' },
-  height: { ar: 'الطول (سم)', de: 'Größe (cm)' },
-  weight: { ar: 'الوزن (كغ)', de: 'Gewicht (kg)' },
+  height: { ar: 'الطول', de: 'Größe' },
+  weight: { ar: 'الوزن', de: 'Gewicht' },
+  cm: { ar: 'سم', de: 'cm' },
+  kg: { ar: 'كغ', de: 'kg' },
 
   measurements: { ar: 'القياسات (للتقدير الدقيق)', de: 'Maße (für genaue Schätzung)' },
   measurementsDesc: {
     ar: 'تستخدم لحساب نسبة الدهون بطريقة البحرية الأمريكية.',
     de: 'Wird für die US-Navy-Methode zur Körperfettberechnung verwendet.',
   },
-  neck: { ar: 'الرقبة (سم)', de: 'Hals (cm)' },
-  waist: { ar: 'الخصر (سم)', de: 'Taille (cm)' },
-  hip: { ar: 'الورك (سم)', de: 'Hüfte (cm)' },
+  neck: { ar: 'الرقبة', de: 'Hals' },
+  waist: { ar: 'الخصر', de: 'Taille' },
+  hip: { ar: 'الورك', de: 'Hüfte' },
 
   activity: { ar: 'مستوى النشاط', de: 'Aktivitätslevel' },
   sedentary: { ar: 'كسل', de: 'Sitzend' },
@@ -102,18 +120,12 @@ const T = {
   unitsLabel: { ar: 'الوحدات', de: 'Einheiten' },
   metric: { ar: 'متري', de: 'Metrisch' },
   imperial: { ar: 'إمبراطوري', de: 'Imperial' },
-};
 
-const ACTIVITY_LEVELS: ActivityLevel[] = ['sedentary', 'light', 'moderate', 'active', 'athlete'];
-const GOALS: Array<{ key: FitnessGoal; label: keyof typeof T; icon: any; color: string }> = [
-  { key: 'cut',         label: 'goalCut',         icon: Flame,      color: '#ef4444' },
-  { key: 'recomp',      label: 'goalRecomp',      icon: Activity,   color: '#06b6d4' },
-  { key: 'maintain',    label: 'goalMaintain',    icon: Target,     color: '#10b981' },
-  { key: 'lean_bulk',   label: 'goalLeanBulk',    icon: Trophy,     color: '#3b82f6' },
-  { key: 'bulk',        label: 'goalBulk',        icon: Crown,      color: '#a855f7' },
-  { key: 'performance', label: 'goalPerformance', icon: Zap,        color: '#fbbf24' },
-];
-const EXPERIENCES: Experience[] = ['beginner', 'intermediate', 'advanced'];
+  weightAutoTitle: { ar: 'اعتماد آخر وزن مسجّل', de: 'Letztes Gewicht übernehmen' },
+  weightAutoCta: { ar: 'استخدام', de: 'Übernehmen' },
+
+  recommended: { ar: 'موصى به', de: 'Empfohlen' },
+};
 
 const DEFAULT: Omit<AthleteProfile, 'id' | 'updatedAt'> = {
   name: '',
@@ -130,47 +142,7 @@ const DEFAULT: Omit<AthleteProfile, 'id' | 'updatedAt'> = {
   units: 'metric',
 };
 
-/* ─────────────────── Reusable building blocks ─────────────────── */
-
-function NumberField({
-  label,
-  value,
-  onChange,
-  step = 1,
-  placeholder,
-}: {
-  label: string;
-  value: number | undefined | '';
-  onChange: (v: number | undefined) => void;
-  step?: number;
-  placeholder?: string;
-}) {
-  return (
-    <div className="space-y-1">
-      <label className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">
-        {label}
-      </label>
-      <input
-        type="number"
-        inputMode="decimal"
-        step={step}
-        value={value === undefined ? '' : value}
-        onChange={(e) => {
-          const v = e.target.value;
-          if (v === '') onChange(undefined);
-          else onChange(parseFloat(v));
-        }}
-        placeholder={placeholder}
-        className="w-full bg-card border border-border/40 rounded-xl px-3 py-2.5 text-[16px] text-foreground outline-none focus:border-primary/50 tabular-nums"
-        dir="ltr"
-      />
-    </div>
-  );
-}
-
-/* ─────────────────── Main component ─────────────────── */
-
-export default function ProfileTab({ profile, onSave }: Props) {
+export default function ProfileTab({ profile, vitals = [], onSave }: Props) {
   const { language } = useApp();
   const lang = language as 'ar' | 'de';
   const isAr = lang === 'ar';
@@ -195,7 +167,7 @@ export default function ProfileTab({ profile, onSave }: Props) {
   );
   const [savedAt, setSavedAt] = useState<number | null>(null);
 
-  // Keep in sync if the underlying profile gets reloaded.
+  // Sync when profile reloads
   useEffect(() => {
     if (!profile) return;
     setForm({
@@ -214,7 +186,22 @@ export default function ProfileTab({ profile, onSave }: Props) {
     });
   }, [profile?.updatedAt]);
 
-  // Live preview summary — recomputes on every form change.
+  // Auto-fill weight suggestion (latest non-null vitals.weightKg)
+  const suggestedWeight = useMemo(() => {
+    if (form.weightKg) return null;
+    const r = resolveWeight({
+      profile: profile ?? null,
+      vitals,
+      skinHair: [],
+      hydration: [],
+      workouts: [],
+      dietLogs: [],
+    });
+    if (r.source === 'vitals' && r.value) return r.value;
+    return null;
+  }, [form.weightKg, profile, vitals]);
+
+  // Live preview summary
   const previewSummary = useMemo(() => {
     const tempProfile: AthleteProfile = {
       id: 'me',
@@ -243,16 +230,51 @@ export default function ProfileTab({ profile, onSave }: Props) {
   const setField = <K extends keyof typeof form>(k: K, v: (typeof form)[K]) =>
     setForm((f) => ({ ...f, [k]: v }));
 
-  // Year options: 16..90 years old.
   const thisYear = new Date().getFullYear();
   const minYear = thisYear - 90;
   const maxYear = thisYear - 12;
+
+  /* ─────────────────── Choice options ─────────────────── */
+
+  const sexOptions = [
+    { value: 'male'   as Sex, label: T.male[lang],   icon: User as any, color: '#3b82f6' },
+    { value: 'female' as Sex, label: T.female[lang], icon: User as any, color: '#ec4899' },
+  ];
+
+  const activityOptions = (['sedentary', 'light', 'moderate', 'active', 'athlete'] as ActivityLevel[]).map((a) => ({
+    value: a,
+    label: T[a][lang],
+    description: T.activityHint[a][lang],
+    icon: a === 'sedentary' ? User : a === 'light' ? Footprints : a === 'moderate' ? Activity : a === 'active' ? Dumbbell : Zap,
+    color: a === 'sedentary' ? '#9ca3af' : a === 'light' ? '#06b6d4' : a === 'moderate' ? '#10b981' : a === 'active' ? '#f59e0b' : '#ef4444',
+  }));
+
+  const goalOptions: Array<{ value: FitnessGoal; label: string; icon: any; color: string }> = [
+    { value: 'cut',         label: T.goalCut[lang],         icon: Flame,    color: '#ef4444' },
+    { value: 'recomp',      label: T.goalRecomp[lang],      icon: Activity, color: '#06b6d4' },
+    { value: 'maintain',    label: T.goalMaintain[lang],    icon: Target,   color: '#10b981' },
+    { value: 'lean_bulk',   label: T.goalLeanBulk[lang],    icon: Trophy,   color: '#3b82f6' },
+    { value: 'bulk',        label: T.goalBulk[lang],        icon: Crown,    color: '#a855f7' },
+    { value: 'performance', label: T.goalPerformance[lang], icon: Zap,      color: '#fbbf24' },
+  ];
+
+  const experienceOptions = (['beginner', 'intermediate', 'advanced'] as Experience[]).map((e) => ({
+    value: e,
+    label: T[e][lang],
+    icon: e === 'beginner' ? Sparkles : e === 'intermediate' ? Dumbbell : Trophy,
+    color: e === 'beginner' ? '#06b6d4' : e === 'intermediate' ? '#10b981' : '#a855f7',
+  }));
+
+  const unitsOptions = [
+    { value: 'metric'   as Units, label: T.metric[lang],   icon: Scale, color: '#10b981' },
+    { value: 'imperial' as Units, label: T.imperial[lang], icon: Scale, color: '#f59e0b' },
+  ];
 
   return (
     <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-4">
       {/* Header */}
       <motion.div variants={item}>
-        <PremiumCard gradient accent="hsl(var(--primary))" className="p-4">
+        <SoftSurface accent="hsl(var(--primary))" intensity={0.85} className="p-4">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-2xl bg-primary/15 flex items-center justify-center">
               <User className="w-6 h-6 text-primary" />
@@ -262,13 +284,13 @@ export default function ProfileTab({ profile, onSave }: Props) {
               <p className="text-[11px] text-muted-foreground mt-0.5">{T.subtitle[lang]}</p>
             </div>
           </div>
-        </PremiumCard>
+        </SoftSurface>
       </motion.div>
 
       {/* Live preview */}
       {previewSummary && (
         <motion.div variants={item}>
-          <PremiumCard gradient accent="#10b981" className="p-4 space-y-3">
+          <SoftSurface accent="#10b981" variant="mesh" intensity={0.85} className="p-4 space-y-3">
             <SectionHeader title={T.preview[lang]} icon={Award} />
             <div className="grid grid-cols-3 gap-2">
               {[
@@ -279,7 +301,8 @@ export default function ProfileTab({ profile, onSave }: Props) {
                 { label: T.target[lang], val: previewSummary.calorieTarget, digits: 0, color: '#10b981', unit: 'kcal' },
                 { label: T.age[lang], val: previewSummary.age, digits: 0, color: '#06b6d4', unit: isAr ? 'سنة' : 'J' },
               ].map((s) => (
-                <div key={s.label} className="bg-muted/30 rounded-xl p-2 text-center" dir="ltr">
+                <div key={s.label} className="rounded-xl p-2 text-center" dir="ltr"
+                     style={{ background: 'hsl(var(--muted) / 0.45)', border: '1px solid hsl(var(--border) / 0.3)' }}>
                   <div className="text-[9px] uppercase tracking-wider text-muted-foreground/70 font-semibold">
                     {s.label}
                   </div>
@@ -290,218 +313,178 @@ export default function ProfileTab({ profile, onSave }: Props) {
                 </div>
               ))}
             </div>
-          </PremiumCard>
+          </SoftSurface>
         </motion.div>
       )}
 
       {/* Basics */}
       <motion.div variants={item}>
-        <PremiumCard className="p-4 space-y-3">
+        <SoftSurface variant="flat" className="p-4 space-y-4">
           <SectionHeader title={T.basics[lang]} icon={User} />
 
           {/* Name */}
-          <div className="space-y-1">
-            <label className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">
-              {T.name[lang]}
-            </label>
+          <Field label={T.name[lang]}>
             <input
               value={form.name ?? ''}
               onChange={(e) => setField('name', e.target.value)}
               placeholder={T.namePh[lang]}
               className="w-full bg-card border border-border/40 rounded-xl px-3 py-2.5 text-[16px] text-foreground outline-none focus:border-primary/50"
             />
-          </div>
+          </Field>
 
-          {/* Sex toggle */}
-          <div className="space-y-1">
-            <label className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">
-              {T.sex[lang]}
-            </label>
-            <div className="flex gap-2" dir="ltr">
-              {(['male', 'female'] as Sex[]).map((s) => {
-                const sel = form.sex === s;
-                return (
-                  <button
-                    key={s}
-                    type="button"
-                    onClick={() => setField('sex', s)}
-                    className={`flex-1 py-2.5 rounded-xl text-[12px] font-semibold flex items-center justify-center gap-1.5 transition-colors ${
-                      sel
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-muted text-muted-foreground'
-                    }`}
-                  >
-                    <span className="text-base leading-none">{s === 'male' ? '♂' : '♀'}</span>
-                    {s === 'male' ? T.male[lang] : T.female[lang]}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+          {/* Sex */}
+          <Field label={T.sex[lang]}>
+            <ChoiceCardGrid
+              options={sexOptions}
+              value={form.sex}
+              onChange={(v) => setField('sex', v)}
+              columns={2}
+            />
+          </Field>
 
-          {/* Birth year + height + weight */}
-          <div className="grid grid-cols-3 gap-2">
-            <NumberField
-              label={T.birthYear[lang]}
+          {/* Birth year — wheel */}
+          <Field label={T.birthYear[lang]} hint={`${thisYear - form.birthYear} ${isAr ? 'سنة' : 'J'}`}>
+            <YearWheel
               value={form.birthYear}
-              onChange={(v) => setField('birthYear', Math.max(minYear, Math.min(maxYear, v ?? thisYear - 25)))}
-              step={1}
+              onChange={(y) => setField('birthYear', y)}
+              min={minYear}
+              max={maxYear}
             />
-            <NumberField
-              label={T.height[lang]}
+          </Field>
+
+          {/* Height */}
+          <Field label={`${T.height[lang]} (${T.cm[lang]})`} icon={Ruler}>
+            <Stepper
               value={form.heightCm}
-              onChange={(v) => setField('heightCm', Math.max(100, Math.min(250, v ?? 175)))}
-              step={0.5}
+              onChange={(v) => setField('heightCm', v ?? form.heightCm)}
+              min={100} max={230} step={0.5} digits={1}
+              accent="#06b6d4" unit={T.cm[lang]}
+              withSlider
+              editable
             />
-            <NumberField
-              label={T.weight[lang]}
-              value={form.weightKg}
-              onChange={(v) => setField('weightKg', v == null ? undefined : Math.max(30, Math.min(250, v)))}
-              step={0.1}
-            />
-          </div>
-        </PremiumCard>
+          </Field>
+
+          {/* Weight */}
+          <Field
+            label={`${T.weight[lang]} (${T.kg[lang]})`}
+            icon={Scale}
+            hint={form.weightKg ? '' : (suggestedWeight ? T.weightAutoTitle[lang] : '')}
+          >
+            <div className="space-y-2">
+              <Stepper
+                value={form.weightKg}
+                onChange={(v) => setField('weightKg', v)}
+                min={30} max={250} step={0.1} digits={1}
+                accent="#10b981" unit={T.kg[lang]}
+                editable
+              />
+              {!form.weightKg && suggestedWeight != null && (
+                <button
+                  type="button"
+                  onClick={() => setField('weightKg', suggestedWeight)}
+                  className="w-full inline-flex items-center justify-center gap-1.5 py-2 rounded-xl text-[12px] font-semibold border-dashed border"
+                  style={{
+                    borderColor: withAlpha('#10b981', 0.4),
+                    color: '#10b981',
+                    background: withAlpha('#10b981', 0.05),
+                  }}
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  {T.weightAutoCta[lang]} {suggestedWeight.toFixed(1)} {T.kg[lang]}
+                </button>
+              )}
+            </div>
+          </Field>
+        </SoftSurface>
       </motion.div>
 
       {/* Body measurements */}
       <motion.div variants={item}>
-        <PremiumCard className="p-4 space-y-3">
+        <SoftSurface variant="flat" className="p-4 space-y-4">
           <SectionHeader title={T.measurements[lang]} subtitle={T.measurementsDesc[lang]} icon={Ruler} />
-          <div className="grid grid-cols-3 gap-2">
-            <NumberField
-              label={T.neck[lang]}
+
+          <Field label={`${T.neck[lang]} (${T.cm[lang]})`}>
+            <Stepper
               value={form.neckCm}
               onChange={(v) => setField('neckCm', v)}
-              step={0.5}
-              placeholder="cm"
+              min={20} max={60} step={0.5} digits={1}
+              accent="#3b82f6" unit={T.cm[lang]}
+              editable
             />
-            <NumberField
-              label={T.waist[lang]}
+          </Field>
+          <Field label={`${T.waist[lang]} (${T.cm[lang]})`}>
+            <Stepper
               value={form.waistCm}
               onChange={(v) => setField('waistCm', v)}
-              step={0.5}
-              placeholder="cm"
+              min={50} max={180} step={0.5} digits={1}
+              accent="#3b82f6" unit={T.cm[lang]}
+              editable
             />
-            {form.sex === 'female' && (
-              <NumberField
-                label={T.hip[lang]}
+          </Field>
+          {form.sex === 'female' && (
+            <Field label={`${T.hip[lang]} (${T.cm[lang]})`}>
+              <Stepper
                 value={form.hipCm}
                 onChange={(v) => setField('hipCm', v)}
-                step={0.5}
-                placeholder="cm"
+                min={60} max={180} step={0.5} digits={1}
+                accent="#ec4899" unit={T.cm[lang]}
+                editable
               />
-            )}
-          </div>
-        </PremiumCard>
+            </Field>
+          )}
+        </SoftSurface>
       </motion.div>
 
-      {/* Activity level */}
+      {/* Activity */}
       <motion.div variants={item}>
-        <PremiumCard className="p-4 space-y-3">
+        <SoftSurface variant="flat" className="p-4 space-y-3">
           <SectionHeader title={T.activity[lang]} icon={Footprints} />
-          <div className="grid grid-cols-1 gap-1.5">
-            {ACTIVITY_LEVELS.map((a) => {
-              const sel = form.activityLevel === a;
-              return (
-                <button
-                  key={a}
-                  type="button"
-                  onClick={() => setField('activityLevel', a)}
-                  className={`flex items-center justify-between gap-2 py-2.5 px-3 rounded-xl border transition-colors ${
-                    sel
-                      ? 'border-primary bg-primary/10'
-                      : 'border-border/40 bg-card'
-                  }`}
-                >
-                  <div className="text-start">
-                    <p className={`text-[12px] font-bold ${sel ? 'text-primary' : 'text-foreground'}`}>
-                      {T[a][lang]}
-                    </p>
-                    <p className="text-[10px] text-muted-foreground mt-0.5">{T.activityHint[a][lang]}</p>
-                  </div>
-                  {sel && <Check className="w-4 h-4 text-primary" />}
-                </button>
-              );
-            })}
-          </div>
-        </PremiumCard>
+          <ChoiceCardGrid
+            options={activityOptions}
+            value={form.activityLevel}
+            onChange={(v) => setField('activityLevel', v)}
+            columns={2}
+          />
+        </SoftSurface>
       </motion.div>
 
       {/* Goal */}
       <motion.div variants={item}>
-        <PremiumCard className="p-4 space-y-3">
+        <SoftSurface variant="flat" className="p-4 space-y-3">
           <SectionHeader title={T.goal[lang]} icon={Target} />
-          <div className="grid grid-cols-3 gap-2">
-            {GOALS.map((g) => {
-              const Icon = g.icon;
-              const sel = form.goal === g.key;
-              return (
-                <button
-                  key={g.key}
-                  type="button"
-                  onClick={() => setField('goal', g.key)}
-                  className={`flex flex-col items-center gap-1 py-3 px-2 rounded-xl border transition-colors ${
-                    sel ? 'border-current' : 'border-border/40 bg-card'
-                  }`}
-                  style={sel ? { background: `${g.color}1f`, color: g.color } : undefined}
-                >
-                  <Icon className="w-4 h-4" style={{ color: sel ? g.color : 'hsl(var(--muted-foreground))' }} />
-                  <span className={`text-[11px] font-semibold ${sel ? '' : 'text-foreground'}`}>
-                    {T[g.label][lang]}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </PremiumCard>
+          <ChoiceCardGrid
+            options={goalOptions}
+            value={form.goal}
+            onChange={(v) => setField('goal', v)}
+            columns={3}
+          />
+        </SoftSurface>
       </motion.div>
 
       {/* Experience */}
       <motion.div variants={item}>
-        <PremiumCard className="p-4 space-y-3">
+        <SoftSurface variant="flat" className="p-4 space-y-3">
           <SectionHeader title={T.experience[lang]} icon={Dumbbell} />
-          <div className="flex gap-2" dir="ltr">
-            {EXPERIENCES.map((e) => {
-              const sel = form.experience === e;
-              return (
-                <button
-                  key={e}
-                  type="button"
-                  onClick={() => setField('experience', e)}
-                  className={`flex-1 py-2.5 rounded-xl text-[12px] font-semibold transition-colors ${
-                    sel ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
-                  }`}
-                >
-                  {T[e][lang]}
-                </button>
-              );
-            })}
-          </div>
-        </PremiumCard>
+          <ChoiceCardGrid
+            options={experienceOptions}
+            value={form.experience}
+            onChange={(v) => setField('experience', v)}
+            columns={3}
+          />
+        </SoftSurface>
       </motion.div>
 
-      {/* Units (metric only for now, future-proof) */}
+      {/* Units */}
       <motion.div variants={item}>
-        <PremiumCard className="p-4 space-y-3">
+        <SoftSurface variant="flat" className="p-4 space-y-3">
           <SectionHeader title={T.unitsLabel[lang]} icon={Scale} />
-          <div className="flex gap-2" dir="ltr">
-            {(['metric', 'imperial'] as Units[]).map((u) => {
-              const sel = form.units === u;
-              return (
-                <button
-                  key={u}
-                  type="button"
-                  onClick={() => setField('units', u)}
-                  className={`flex-1 py-2.5 rounded-xl text-[12px] font-semibold transition-colors ${
-                    sel ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
-                  }`}
-                >
-                  {u === 'metric' ? T.metric[lang] : T.imperial[lang]}
-                </button>
-              );
-            })}
-          </div>
-        </PremiumCard>
+          <ChoiceCardGrid
+            options={unitsOptions}
+            value={form.units}
+            onChange={(v) => setField('units', v)}
+            columns={2}
+          />
+        </SoftSurface>
       </motion.div>
 
       {/* Sticky save bar */}

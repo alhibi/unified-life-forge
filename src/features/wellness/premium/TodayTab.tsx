@@ -1,22 +1,23 @@
 /**
  * Today / Dashboard tab — the home of the premium wellness experience.
  *
- * Shows at a glance:
- *   • Recovery + Readiness gauges with trend sparkline
- *   • A coaching recommendation derived from readiness + ACWR
- *   • Hydration ring driven by per-event hydration_events store
- *   • Active fasting countdown OR a "Start fasting" CTA
- *   • Next supplement dose with countdown
- *   • Stats grid: steps, sleep, energy, mood, weight, HRV (delta vs week)
- *   • Training-load card with ACWR zone
- *   • 10-week training-streak heatmap
+ * v2 changes (gradient + UX overhaul):
+ *  • All cards use the new SoftSurface (multi-stop gradient + dither)
+ *    so accents wash gently rather than as a harsh ring.
+ *  • A single `QuickLogSheet` lets the user log water, weight, sleep,
+ *    sleep-quality, HRV, RHR, steps, energy and mood from this page —
+ *    every stat tile and ring becomes a one-tap entry point.
+ *  • The ACWR bar is now the new <SmoothBar> (continuous spectrum
+ *    interpolated through oklab — no hard segment seams).
+ *  • Stat tiles read from the unified `wellnessLink` resolver so the
+ *    same number appears here, in the Hub, and in the Profile preview.
  */
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   Activity, BatteryCharging, Droplets, Flame, Footprints, Heart, HeartPulse,
-  Moon, Pill, Scale, Sparkles, Timer, TrendingUp, Zap,
+  Moon, Pill, Plus, Scale, Smile, Sparkles, Timer, TrendingUp, Zap,
 } from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
 import {
@@ -32,8 +33,11 @@ import {
   ProgressRing, ScoreGauge, StatTile, FastingRing, useNowSecond,
   HeatmapCalendar, SectionHeader, PremiumCard, AnimatedNumber, zoneColor,
 } from './primitives';
+import { SoftSurface, SmoothBar, withAlpha } from './surfaces';
+import QuickLogSheet, { type QuickMetric } from './QuickLogSheet';
 import { recoveryScore, readinessScore, dailyScoreSeries, streakBackwards } from '../recoveryEngine';
 import { acwr, dailyWaterMl } from '../athleticEngine';
+import { resolveWeight, dailySnapshot } from '../wellnessLink';
 
 interface Props {
   profile: AthleteProfile | null;
@@ -47,6 +51,8 @@ interface Props {
   onLogHydration: (ml: number) => void;
   onStartFasting: (hours: number, protocol: string) => void;
   onEndFasting: () => void;
+  /** Vital upsert (used by QuickLogSheet). */
+  onSaveVital: (entry: Omit<VitalLog, 'id' | 'loggedAt'>) => Promise<void>;
   onJump: (key: string) => void;
 }
 
@@ -102,6 +108,7 @@ const T = {
   liters: { ar: 'لتر', de: 'L' },
   glass: { ar: 'كوب', de: 'Glas' },
   add: { ar: 'إضافة', de: 'Hinzufügen' },
+  log: { ar: 'تسجيل', de: 'Loggen' },
   setProfile: { ar: 'أكمل ملفك الرياضي', de: 'Athletenprofil ergänzen' },
   setProfileDesc: {
     ar: 'أضف الطول والوزن والعمر لتفعيل كل الحسابات.',
@@ -138,8 +145,6 @@ function deltaPct(latest: number | null, base: number | null): number | null {
   return ((latest - base) / base) * 100;
 }
 
-
-
 /* ────────────────── Recommendation card ────────────────── */
 function RecCard({
   rec,
@@ -166,11 +171,11 @@ function RecCard({
   const text = rec ? labelMap[rec] : (isAr ? T.noData.ar : T.noData.de);
 
   return (
-    <PremiumCard gradient accent={color} className="p-4">
+    <SoftSurface accent={color} variant="mesh" intensity={0.85} className="p-4">
       <div className="flex items-center gap-3">
         <div
           className="w-11 h-11 rounded-2xl flex items-center justify-center shrink-0"
-          style={{ background: `${color}1f` }}
+          style={{ background: withAlpha(color, 0.16) }}
         >
           <Icon className="w-5 h-5" style={{ color }} />
         </div>
@@ -197,7 +202,8 @@ function RecCard({
             <AreaChart data={ar7} margin={{ top: 4, right: 6, left: 6, bottom: 0 }}>
               <defs>
                 <linearGradient id="readiness-grad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%"   stopColor={color} stopOpacity={0.35} />
+                  <stop offset="0%"   stopColor={color} stopOpacity={0.45} />
+                  <stop offset="60%"  stopColor={color} stopOpacity={0.18} />
                   <stop offset="100%" stopColor={color} stopOpacity={0} />
                 </linearGradient>
               </defs>
@@ -206,8 +212,8 @@ function RecCard({
                 cursor={{ stroke: color, strokeOpacity: 0.4, strokeWidth: 1, strokeDasharray: '3 4' }}
                 contentStyle={{
                   background: 'hsl(var(--card))',
-                  border: `1px solid ${color}33`,
-                  borderRadius: 8,
+                  border: `1px solid ${withAlpha(color, 0.25)}`,
+                  borderRadius: 10,
                   fontSize: 11,
                   padding: '4px 8px',
                 }}
@@ -228,7 +234,7 @@ function RecCard({
           </ResponsiveContainer>
         </div>
       )}
-    </PremiumCard>
+    </SoftSurface>
   );
 }
 
@@ -238,23 +244,30 @@ function HydrationCard({
   targetMl,
   lang,
   onAdd,
+  onLogMore,
 }: {
   todayMl: number;
   targetMl: number;
   lang: 'ar' | 'de';
   onAdd: (ml: number) => void;
+  onLogMore: () => void;
 }) {
   const isAr = lang === 'ar';
   const ratio = pct(todayMl, targetMl);
   const liters = (todayMl / 1000).toFixed(1);
   const targetL = (targetMl / 1000).toFixed(1);
   const color = '#06b6d4'; // cyan-500
+  const colorAlt = '#22d3ee'; // cyan-400
 
   const quick = [200, 300, 500];
 
   return (
-    <PremiumCard gradient accent={color} className="p-4">
-      <div className="flex items-center justify-between gap-3">
+    <SoftSurface accent={color} variant="mesh" intensity={0.85} className="p-4">
+      <button
+        type="button"
+        onClick={onLogMore}
+        className="w-full flex items-center justify-between gap-3 text-start"
+      >
         <div className="flex-1 min-w-0">
           <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">
             {T.hydration[lang]}
@@ -269,22 +282,27 @@ function HydrationCard({
             {Math.round(ratio * 100)}% {T.ofTarget[lang]}
           </p>
         </div>
-        <ProgressRing value={ratio} size={70} strokeWidth={6} color={color} gradient>
+        <ProgressRing value={ratio} size={74} strokeWidth={6} color={color} colorAlt={colorAlt} gradient>
           <Droplets className="w-5 h-5" style={{ color }} />
         </ProgressRing>
-      </div>
+      </button>
       <div className="flex gap-1.5 mt-3" dir="ltr">
         {quick.map((ml) => (
           <button
             key={ml}
             onClick={() => onAdd(ml)}
-            className="flex-1 py-1.5 rounded-lg text-[11px] font-semibold border border-border/40 bg-muted/30 text-foreground active:scale-95 transition-transform"
+            className="flex-1 py-1.5 rounded-lg text-[11px] font-semibold border active:scale-95 transition-transform"
+            style={{
+              borderColor: withAlpha(color, 0.25),
+              background: withAlpha(color, 0.06),
+              color: color,
+            }}
           >
             +{ml} {isAr ? 'مل' : 'ml'}
           </button>
         ))}
       </div>
-    </PremiumCard>
+    </SoftSurface>
   );
 }
 
@@ -303,6 +321,7 @@ function FastingCard({
   const isAr = lang === 'ar';
   const now = useNowSecond(!!active);
   const elapsed = active ? Math.max(0, Math.floor((now - active.startedAt) / 1000)) : 0;
+  const accent = '#a855f7';
 
   const protocols = [
     { hours: 16, label: '16:8' },
@@ -311,7 +330,7 @@ function FastingCard({
   ];
 
   return (
-    <PremiumCard gradient accent="#a855f7" className="p-4">
+    <SoftSurface accent={accent} variant="mesh" intensity={0.85} className="p-4">
       <div className="flex items-center justify-between gap-3 mb-3">
         <div>
           <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">
@@ -321,7 +340,7 @@ function FastingCard({
             {active ? (active.protocol ?? '16:8') : (isAr ? 'متوقّف' : 'Inaktiv')}
           </p>
         </div>
-        <Timer className="w-5 h-5 text-purple-500/70" />
+        <Timer className="w-5 h-5" style={{ color: withAlpha(accent, 0.7) }} />
       </div>
       <div className="flex items-center justify-center mb-3">
         <FastingRing
@@ -346,14 +365,19 @@ function FastingCard({
             <button
               key={p.label}
               onClick={() => onStart(p.hours, p.label)}
-              className="flex-1 py-2 rounded-xl text-[11px] font-semibold border border-purple-500/30 bg-purple-500/10 text-purple-600 dark:text-purple-400 active:scale-95 transition-transform"
+              className="flex-1 py-2 rounded-xl text-[11px] font-semibold border active:scale-95 transition-transform"
+              style={{
+                borderColor: withAlpha(accent, 0.3),
+                background: withAlpha(accent, 0.08),
+                color: accent,
+              }}
             >
               {p.label}
             </button>
           ))}
         </div>
       )}
-    </PremiumCard>
+    </SoftSurface>
   );
 }
 
@@ -396,45 +420,40 @@ function NextDoseCard({
     return null;
   }, [supplements, intakeLogs, today]);
 
+  const accent = '#f59e0b';
+
   return (
-    <button
-      onClick={onJump}
-      className="w-full text-start"
-    >
-      <PremiumCard className="p-4">
-        <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-2xl bg-amber-500/15 flex items-center justify-center shrink-0">
-            <Pill className="w-5 h-5 text-amber-600 dark:text-amber-400" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">
-              {T.nextDose[lang]}
-            </p>
-            {next ? (
-              <>
-                <p className="text-[14px] font-bold text-foreground truncate mt-0.5">
-                  {next.sup.name}
-                </p>
-                <p className="text-[11px] text-amber-600 dark:text-amber-400 mt-0.5" dir="ltr">
-                  {next.time} · {T.in[lang]}{' '}
-                  {next.deltaMin < 60
-                    ? `${next.deltaMin}${T.min[lang]}`
-                    : `${Math.floor(next.deltaMin / 60)}${T.hour[lang]} ${next.deltaMin % 60}${T.min[lang]}`}
-                </p>
-              </>
-            ) : (
-              <p className="text-[13px] font-semibold text-muted-foreground mt-1">
-                {T.noPending[lang]}
-              </p>
-            )}
-          </div>
+    <SoftSurface as="button" onClick={onJump} accent={accent} variant="mesh" intensity={0.6} className="p-4">
+      <div className="flex items-center gap-3">
+        <div className="w-11 h-11 rounded-2xl flex items-center justify-center shrink-0" style={{ background: withAlpha(accent, 0.16) }}>
+          <Pill className="w-5 h-5" style={{ color: accent }} />
         </div>
-      </PremiumCard>
-    </button>
+        <div className="flex-1 min-w-0">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">
+            {T.nextDose[lang]}
+          </p>
+          {next ? (
+            <>
+              <p className="text-[14px] font-bold text-foreground truncate mt-0.5">
+                {next.sup.name}
+              </p>
+              <p className="text-[11px] mt-0.5" style={{ color: accent }} dir="ltr">
+                {next.time} · {T.in[lang]}{' '}
+                {next.deltaMin < 60
+                  ? `${next.deltaMin}${T.min[lang]}`
+                  : `${Math.floor(next.deltaMin / 60)}${T.hour[lang]} ${next.deltaMin % 60}${T.min[lang]}`}
+              </p>
+            </>
+          ) : (
+            <p className="text-[13px] font-semibold text-muted-foreground mt-1">
+              {T.noPending[lang]}
+            </p>
+          )}
+        </div>
+      </div>
+    </SoftSurface>
   );
 }
-
-
 
 /* ────────────────── Training-load card ────────────────── */
 function TrainingLoadCard({
@@ -459,12 +478,11 @@ function TrainingLoadCard({
     : ar.zone === 'caution'       ? '#f59e0b'
     :                                '#ef4444';
 
-  // Position marker on a 0..2 scale, with 0.8/1.3/1.5 zone splits.
   const r = ar?.ratio ?? 0;
   const markerPct = Math.max(0, Math.min(1, r / 2));
 
   return (
-    <PremiumCard className="p-4 space-y-3">
+    <SoftSurface accent={color} variant="mesh" intensity={0.6} className="p-4 space-y-3">
       <div className="flex items-center justify-between">
         <div>
           <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">
@@ -484,28 +502,19 @@ function TrainingLoadCard({
         )}
       </div>
 
-      {/* Zone bar */}
-      <div className="relative h-2 rounded-full overflow-hidden" dir="ltr">
-        <div className="absolute inset-0 flex">
-          <div className="h-full bg-amber-500/30" style={{ width: '40%' }} />     {/* 0..0.8 */}
-          <div className="h-full bg-emerald-500/40" style={{ width: '25%' }} />   {/* 0.8..1.3 */}
-          <div className="h-full bg-amber-500/40" style={{ width: '10%' }} />     {/* 1.3..1.5 */}
-          <div className="h-full bg-rose-500/40" style={{ width: '25%' }} />      {/* 1.5..2 */}
-        </div>
-        {ar && (
-          <motion.div
-            className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full border-2"
-            style={{
-              background: color,
-              borderColor: 'hsl(var(--card))',
-              boxShadow: `0 0 0 1.5px ${color}`,
-            }}
-            initial={{ left: '0%' }}
-            animate={{ left: `calc(${markerPct * 100}% - 6px)` }}
-            transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
-          />
-        )}
-      </div>
+      {/* Smooth zone bar — continuous gradient through oklab */}
+      <SmoothBar
+        spectrum={[
+          { color: '#f59e0b', at: 0 },     // amber: under
+          { color: '#10b981', at: 40 },    // emerald: sweet spot
+          { color: '#10b981', at: 65 },
+          { color: '#f59e0b', at: 75 },    // amber: caution
+          { color: '#ef4444', at: 100 },   // red: danger
+        ]}
+        marker={ar ? markerPct : undefined}
+        markerColor={color}
+        height={10}
+      />
 
       {ar && (
         <div className="grid grid-cols-2 gap-2 text-[10px]" dir="ltr">
@@ -519,15 +528,12 @@ function TrainingLoadCard({
           </div>
         </div>
       )}
-    </PremiumCard>
+    </SoftSurface>
   );
 }
 
 /* ────────────────── Streak heatmap card ────────────────── */
 function StreakCard({ workouts, lang }: { workouts: WorkoutSession[]; lang: 'ar' | 'de' }) {
-  const isAr = lang === 'ar';
-
-  // Build a 70-day series with intensity = capped(workouts in day / 1).
   const days = useMemo(() => {
     const today = new Date();
     const out: { iso: string; value: number }[] = [];
@@ -548,7 +554,7 @@ function StreakCard({ workouts, lang }: { workouts: WorkoutSession[]; lang: 'ar'
   }, [workouts]);
 
   return (
-    <PremiumCard className="p-4">
+    <SoftSurface accent="#f97316" variant="mesh" intensity={0.55} className="p-4">
       <div className="flex items-center justify-between mb-3">
         <div>
           <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">
@@ -561,18 +567,16 @@ function StreakCard({ workouts, lang }: { workouts: WorkoutSession[]; lang: 'ar'
             <span className="text-[11px] text-muted-foreground">{T.streakDays[lang]}</span>
           </div>
         </div>
-        <div className="w-9 h-9 rounded-2xl bg-orange-500/15 flex items-center justify-center">
+        <div className="w-9 h-9 rounded-2xl flex items-center justify-center" style={{ background: 'rgba(249,115,22,0.15)' }}>
           <Flame className="w-4 h-4 text-orange-500" />
         </div>
       </div>
       <div className="overflow-x-auto -mx-1 px-1">
         <HeatmapCalendar days={days} weeks={10} color="#f97316" />
       </div>
-    </PremiumCard>
+    </SoftSurface>
   );
 }
-
-
 
 /* ────────────────── Main component ────────────────── */
 export default function TodayTab({
@@ -587,12 +591,16 @@ export default function TodayTab({
   onLogHydration,
   onStartFasting,
   onEndFasting,
+  onSaveVital,
   onJump,
 }: Props) {
   const { language } = useApp();
   const lang = language as 'ar' | 'de';
   const isAr = lang === 'ar';
   const today = todayIso();
+
+  const [quickOpen, setQuickOpen] = useState(false);
+  const [quickMetric, setQuickMetric] = useState<QuickMetric | undefined>(undefined);
 
   // ── scores ──
   const recovery = useMemo(() => recoveryScore(vitals, skinHair), [vitals, skinHair]);
@@ -609,22 +617,29 @@ export default function TodayTab({
     [vitals, skinHair, workouts],
   );
 
-  // ── hydration today ──
-  const hydrationTodayMl = useMemo(
-    () => hydration.filter((h) => h.date === today).reduce((s, h) => s + h.amountMl, 0),
-    [hydration, today],
+  // ── unified daily snapshot ──
+  const snap = useMemo(
+    () => dailySnapshot({ profile, vitals, skinHair, hydration, workouts, dietLogs: [] }),
+    [profile, vitals, skinHair, hydration, workouts],
   );
+
+  // Today's vital row (used as seed for the QuickLog sheet)
+  const todayVital = useMemo(() => vitals.find((v) => v.date === today) ?? null, [vitals, today]);
+
+  // Effective body weight for hydration target
+  const weightForTarget = useMemo(() => {
+    return resolveWeight({ profile, vitals, skinHair, hydration, workouts, dietLogs: [] }).value
+      ?? profile?.weightKg ?? 70;
+  }, [profile, vitals, skinHair, hydration, workouts]);
+
   const targetMl = useMemo(() => {
-    if (!profile) return 2500;
     return dailyWaterMl({
-      weightKg: profile.weightKg ?? 70,
+      weightKg: weightForTarget,
       trainingHours: workouts.some((w) => w.date === today) ? 1 : 0,
     }) ?? 2500;
-  }, [profile, workouts, today]);
+  }, [weightForTarget, workouts, today]);
 
-  // ── stat tiles ──
-  const latestVital = vitals[0] ?? null;
-  const latestSkin = skinHair[0] ?? null;
+  // ── stat tiles (avg of last 7d, baseline = previous 7d) ──
   const last7Vitals = vitals.slice(0, 7);
   const prev7Vitals = vitals.slice(7, 14);
 
@@ -637,175 +652,228 @@ export default function TodayTab({
   const weightAvg = avgField(last7Vitals, (v) => v.weightKg);
   const weightPrev = avgField(prev7Vitals, (v) => v.weightKg);
 
-  const energyVal = latestVital?.energy ?? latestSkin?.muscleEnergy ?? null;
-  const moodVal = latestVital?.mood ?? null;
+  const energyVal = snap.energy;
+  const moodVal = snap.mood;
 
-  // Profile incomplete banner
   const profileIncomplete = !profile || !profile.heightCm || !profile.weightKg;
 
-  return (
-    <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-4">
-      {/* Greeting */}
-      <motion.div variants={item} className="space-y-0.5 px-1">
-        <p className="text-[12px] text-muted-foreground">{greeting(lang)}{profile?.name ? `, ${profile.name}` : ''}</p>
-        <p className="text-[11px] text-muted-foreground/60">
-          {new Date().toLocaleDateString(isAr ? 'ar' : 'de', { weekday: 'long', day: 'numeric', month: 'long' })}
-        </p>
-      </motion.div>
+  const openQuick = (m?: QuickMetric) => {
+    setQuickMetric(m);
+    setQuickOpen(true);
+  };
 
-      {/* Profile-incomplete banner */}
-      {profileIncomplete && (
-        <motion.div variants={item}>
+  return (
+    <>
+      <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-4">
+        {/* Greeting + Quick-log CTA */}
+        <motion.div variants={item} className="flex items-end justify-between gap-3 px-1">
+          <div className="space-y-0.5 min-w-0">
+            <p className="text-[12px] text-muted-foreground truncate">
+              {greeting(lang)}{profile?.name ? `, ${profile.name}` : ''}
+            </p>
+            <p className="text-[11px] text-muted-foreground/60">
+              {new Date().toLocaleDateString(isAr ? 'ar' : 'de', { weekday: 'long', day: 'numeric', month: 'long' })}
+            </p>
+          </div>
           <button
-            onClick={() => onJump('profile')}
-            className="w-full text-start"
+            onClick={() => openQuick()}
+            className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-[12px] font-semibold active:scale-95 transition-transform"
           >
-            <PremiumCard gradient accent="hsl(var(--primary))" className="p-4">
+            <Plus className="w-3.5 h-3.5" />
+            {T.log[lang]}
+          </button>
+        </motion.div>
+
+        {/* Profile-incomplete banner */}
+        {profileIncomplete && (
+          <motion.div variants={item}>
+            <SoftSurface as="button" onClick={() => onJump('profile')} accent="hsl(var(--primary))" intensity={1} className="p-4">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-2xl bg-primary/15 flex items-center justify-center shrink-0">
                   <Sparkles className="w-5 h-5 text-primary" />
                 </div>
-                <div className="flex-1 min-w-0">
+                <div className="flex-1 min-w-0 text-start">
                   <p className="text-[13px] font-bold text-foreground">{T.setProfile[lang]}</p>
                   <p className="text-[11px] text-muted-foreground/80 mt-0.5">{T.setProfileDesc[lang]}</p>
                 </div>
               </div>
-            </PremiumCard>
-          </button>
+            </SoftSurface>
+          </motion.div>
+        )}
+
+        {/* Score gauges */}
+        <motion.div variants={item}>
+          <SoftSurface accent={zoneColor(recovery.zone)} variant="mesh" intensity={0.85} className="p-4">
+            <div className="grid grid-cols-2 gap-2">
+              <div className="flex flex-col items-center">
+                <ScoreGauge
+                  value={recovery.score}
+                  zone={recovery.zone}
+                  label={T.recovery[lang]}
+                  size={130}
+                  caption={recovery.hasData ? '' : T.setup[lang]}
+                />
+              </div>
+              <div className="flex flex-col items-center">
+                <ScoreGauge
+                  value={readiness.score}
+                  zone={readiness.zone}
+                  label={T.readiness[lang]}
+                  size={130}
+                  caption={readiness.components.loadPenalty > 0 ? `−${readiness.components.loadPenalty} (load)` : ''}
+                />
+              </div>
+            </div>
+          </SoftSurface>
         </motion.div>
-      )}
 
-      {/* Score gauges */}
-      <motion.div variants={item}>
-        <PremiumCard gradient accent={zoneColor(recovery.zone)} className="p-4">
+        {/* Recommendation */}
+        <motion.div variants={item}>
+          <RecCard
+            rec={readiness.recommendation}
+            score={readiness.score}
+            zone={readiness.zone}
+            lang={lang}
+            ar7={series7}
+          />
+        </motion.div>
+
+        {/* Hydration + Fasting row */}
+        <motion.div variants={item} className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <HydrationCard
+            todayMl={snap.hydrationMl}
+            targetMl={targetMl}
+            lang={lang}
+            onAdd={onLogHydration}
+            onLogMore={() => openQuick('water')}
+          />
+          <FastingCard
+            active={activeFasting}
+            lang={lang}
+            onStart={onStartFasting}
+            onEnd={onEndFasting}
+          />
+        </motion.div>
+
+        {/* Next dose */}
+        <motion.div variants={item}>
+          <NextDoseCard
+            supplements={supplements}
+            intakeLogs={intakeLogs}
+            lang={lang}
+            onJump={() => onJump('supplements')}
+          />
+        </motion.div>
+
+        {/* Stats grid — every tile opens QuickLog */}
+        <motion.div variants={item} className="space-y-2">
+          <SectionHeader
+            title={T.todaysStats[lang]}
+            subtitle={T.weeklyTrend[lang]}
+            icon={TrendingUp}
+            action={
+              <button
+                onClick={() => openQuick()}
+                className="text-[11px] font-semibold text-primary inline-flex items-center gap-1"
+              >
+                <Plus className="w-3 h-3" />
+                {T.log[lang]}
+              </button>
+            }
+          />
           <div className="grid grid-cols-2 gap-2">
-            <div className="flex flex-col items-center">
-              <ScoreGauge
-                value={recovery.score}
-                zone={recovery.zone}
-                label={T.recovery[lang]}
-                size={130}
-                caption={recovery.hasData ? '' : T.setup[lang]}
-              />
-            </div>
-            <div className="flex flex-col items-center">
-              <ScoreGauge
-                value={readiness.score}
-                zone={readiness.zone}
-                label={T.readiness[lang]}
-                size={130}
-                caption={readiness.components.loadPenalty > 0 ? `−${readiness.components.loadPenalty} (load)` : ''}
-              />
-            </div>
+            <StatTile
+              icon={Footprints}
+              label={T.steps[lang]}
+              accent="#06b6d4"
+              value={snap.steps != null
+                ? snap.steps.toLocaleString()
+                : (stepsAvg ? Math.round(stepsAvg).toLocaleString() : '—')}
+              delta={deltaPct(stepsAvg, stepsPrev)}
+              higherIsBetter
+              onClick={() => openQuick('steps')}
+            />
+            <StatTile
+              icon={Moon}
+              label={T.sleep[lang]}
+              accent="#8b5cf6"
+              value={snap.sleepHours != null
+                ? snap.sleepHours.toFixed(1)
+                : (sleepAvg ? sleepAvg.toFixed(1) : '—')}
+              unit={isAr ? 'س' : 'h'}
+              delta={deltaPct(sleepAvg, sleepPrev)}
+              higherIsBetter
+              onClick={() => openQuick('sleep')}
+            />
+            <StatTile
+              icon={Heart}
+              label={T.hrv[lang]}
+              accent="#10b981"
+              value={snap.hrv != null
+                ? Math.round(snap.hrv).toString()
+                : (hrvAvg ? Math.round(hrvAvg).toString() : '—')}
+              unit="ms"
+              delta={deltaPct(hrvAvg, hrvPrev)}
+              higherIsBetter
+              onClick={() => openQuick('hrv')}
+            />
+            <StatTile
+              icon={Scale}
+              label={T.weight[lang]}
+              accent="#f59e0b"
+              value={snap.weightKg != null
+                ? snap.weightKg.toFixed(1)
+                : (weightAvg ? weightAvg.toFixed(1) : '—')}
+              unit="kg"
+              delta={deltaPct(weightAvg, weightPrev)}
+              higherIsBetter={false}
+              onClick={() => openQuick('weight')}
+            />
+            <StatTile
+              icon={BatteryCharging}
+              label={T.energy[lang]}
+              accent="#22c55e"
+              value={energyVal ? `${energyVal}/5` : '—'}
+              onClick={() => openQuick('energy')}
+            />
+            <StatTile
+              icon={Smile}
+              label={T.mood[lang]}
+              accent="#ec4899"
+              value={moodVal ? `${moodVal}/5` : '—'}
+              onClick={() => openQuick('mood')}
+            />
           </div>
-        </PremiumCard>
+        </motion.div>
+
+        {/* Training load */}
+        <motion.div variants={item}>
+          <TrainingLoadCard workouts={workouts} lang={lang} />
+        </motion.div>
+
+        {/* Streak heatmap */}
+        <motion.div variants={item}>
+          <StreakCard workouts={workouts} lang={lang} />
+        </motion.div>
       </motion.div>
 
-      {/* Recommendation */}
-      <motion.div variants={item}>
-        <RecCard
-          rec={readiness.recommendation}
-          score={readiness.score}
-          zone={readiness.zone}
-          lang={lang}
-          ar7={series7}
-        />
-      </motion.div>
-
-      {/* Hydration + Fasting row */}
-      <motion.div variants={item} className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <HydrationCard todayMl={hydrationTodayMl} targetMl={targetMl} lang={lang} onAdd={onLogHydration} />
-        <FastingCard
-          active={activeFasting}
-          lang={lang}
-          onStart={onStartFasting}
-          onEnd={onEndFasting}
-        />
-      </motion.div>
-
-      {/* Next dose */}
-      <motion.div variants={item}>
-        <NextDoseCard
-          supplements={supplements}
-          intakeLogs={intakeLogs}
-          lang={lang}
-          onJump={() => onJump('supplements')}
-        />
-      </motion.div>
-
-      {/* Stats grid */}
-      <motion.div variants={item} className="space-y-2">
-        <SectionHeader
-          title={T.todaysStats[lang]}
-          subtitle={T.weeklyTrend[lang]}
-          icon={TrendingUp}
-        />
-        <div className="grid grid-cols-2 gap-2">
-          <StatTile
-            icon={Footprints}
-            label={T.steps[lang]}
-            accent="#06b6d4"
-            value={stepsAvg ? Math.round(stepsAvg).toLocaleString() : '—'}
-            delta={deltaPct(stepsAvg, stepsPrev)}
-            higherIsBetter
-            onClick={() => onJump('vitals')}
-          />
-          <StatTile
-            icon={Moon}
-            label={T.sleep[lang]}
-            accent="#8b5cf6"
-            value={sleepAvg ? sleepAvg.toFixed(1) : '—'}
-            unit={isAr ? 'س' : 'h'}
-            delta={deltaPct(sleepAvg, sleepPrev)}
-            higherIsBetter
-            onClick={() => onJump('vitals')}
-          />
-          <StatTile
-            icon={Heart}
-            label={T.hrv[lang]}
-            accent="#10b981"
-            value={hrvAvg ? Math.round(hrvAvg).toString() : '—'}
-            unit="ms"
-            delta={deltaPct(hrvAvg, hrvPrev)}
-            higherIsBetter
-            onClick={() => onJump('vitals')}
-          />
-          <StatTile
-            icon={Scale}
-            label={T.weight[lang]}
-            accent="#f59e0b"
-            value={weightAvg ? weightAvg.toFixed(1) : '—'}
-            unit="kg"
-            delta={deltaPct(weightAvg, weightPrev)}
-            higherIsBetter={false}
-            onClick={() => onJump('hub')}
-          />
-          <StatTile
-            icon={BatteryCharging}
-            label={T.energy[lang]}
-            accent="#22c55e"
-            value={energyVal ? `${energyVal}/5` : '—'}
-            onClick={() => onJump('vitals')}
-          />
-          <StatTile
-            icon={Activity}
-            label={T.mood[lang]}
-            accent="#ec4899"
-            value={moodVal ? `${moodVal}/5` : '—'}
-            onClick={() => onJump('vitals')}
-          />
-        </div>
-      </motion.div>
-
-      {/* Training load */}
-      <motion.div variants={item}>
-        <TrainingLoadCard workouts={workouts} lang={lang} />
-      </motion.div>
-
-      {/* Streak heatmap */}
-      <motion.div variants={item}>
-        <StreakCard workouts={workouts} lang={lang} />
-      </motion.div>
-    </motion.div>
+      <QuickLogSheet
+        open={quickOpen}
+        metric={quickMetric}
+        todayVital={todayVital}
+        hydrationTodayMl={snap.hydrationMl}
+        fallbackWeightKg={weightForTarget}
+        onClose={() => setQuickOpen(false)}
+        onSaveVital={async (patch) => {
+          await onSaveVital({
+            date: today,
+            ...patch,
+          } as Omit<VitalLog, 'id' | 'loggedAt'>);
+        }}
+        onAddHydration={async (ml) => {
+          await onLogHydration(ml);
+        }}
+      />
+    </>
   );
 }

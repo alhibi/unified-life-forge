@@ -6,6 +6,7 @@ import { DISCLAIMER, type Lang } from './wellnessData';
 import { runAllInsights, type Insight } from './wellnessAnalysis';
 import type { DietLog, IntakeLog, SkinHairLog, Supplement } from './wellnessDb';
 import StackAdvisor from './StackAdvisor';
+import { SoftSurface, withAlpha } from './premium/surfaces';
 
 interface Props {
   supplements: Supplement[];
@@ -73,32 +74,36 @@ export default function InsightsTab({
 
       {/* Privacy banner */}
       <motion.div variants={item} initial="hidden" animate="show">
-        <div className="bg-primary/5 border border-primary/20 rounded-2xl p-4 flex items-start gap-3">
-          <ShieldCheck className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-          <div>
-            <h3 className="text-sm font-bold text-foreground">
-              {isAr ? 'خصوصيتك محفوظة' : 'Deine Privatsphäre'}
-            </h3>
-            <p className="text-[12px] text-muted-foreground mt-0.5 leading-relaxed">
-              {isAr
-                ? 'كل البيانات محفوظة على جهازك فقط. لا شيء يُرسل لأي خادم.'
-                : 'Alle Daten bleiben nur auf deinem Gerät. Nichts wird an Server gesendet.'}
-            </p>
+        <SoftSurface accent="hsl(var(--primary))" variant="mesh" intensity={0.65} className="p-4">
+          <div className="flex items-start gap-3">
+            <ShieldCheck className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+            <div>
+              <h3 className="text-sm font-bold text-foreground">
+                {isAr ? 'خصوصيتك محفوظة' : 'Deine Privatsphäre'}
+              </h3>
+              <p className="text-[12px] text-muted-foreground mt-0.5 leading-relaxed">
+                {isAr
+                  ? 'كل البيانات محفوظة على جهازك فقط. لا شيء يُرسل لأي خادم.'
+                  : 'Alle Daten bleiben nur auf deinem Gerät. Nichts wird an Server gesendet.'}
+              </p>
+            </div>
           </div>
-        </div>
+        </SoftSurface>
       </motion.div>
 
       {/* Empty state */}
       {insights.length === 0 && (
         <motion.div variants={item} initial="hidden" animate="show">
-          <div className="bg-card border border-dashed border-border/50 rounded-2xl p-8 text-center">
-            <Info className="w-10 h-10 text-muted-foreground/30 mx-auto mb-2" />
-            <p className="text-sm text-muted-foreground">
-              {isAr
-                ? 'لا توجد ملاحظات بعد. أضف مكملاتك وسجل بعض الوجبات لترى تحليلاً.'
-                : 'Noch keine Hinweise. Füge Supplemente und Mahlzeiten hinzu.'}
-            </p>
-          </div>
+          <SoftSurface variant="flat" className="p-8 border-dashed">
+            <div className="text-center">
+              <Info className="w-10 h-10 text-muted-foreground/30 mx-auto mb-2" />
+              <p className="text-sm text-muted-foreground">
+                {isAr
+                  ? 'لا توجد ملاحظات بعد. أضف مكملاتك وسجل بعض الوجبات لترى تحليلاً.'
+                  : 'Noch keine Hinweise. Füge Supplemente und Mahlzeiten hinzu.'}
+              </p>
+            </div>
+          </SoftSurface>
         </motion.div>
       )}
 
@@ -120,20 +125,19 @@ export default function InsightsTab({
             <div className="space-y-2">
               {list.map((ins) => {
                 const isWarn = ins.severity === 'warn';
+                const accent = isWarn ? '#ef4444' : 'hsl(var(--primary))';
                 return (
-                  <div
+                  <SoftSurface
                     key={ins.id}
-                    className={`rounded-2xl border p-3.5 ${
-                      isWarn
-                        ? 'bg-destructive/5 border-destructive/30'
-                        : 'bg-card border-border/40'
-                    }`}
+                    accent={accent}
+                    variant="mesh"
+                    intensity={isWarn ? 0.9 : 0.5}
+                    className="p-3.5"
                   >
                     <div className="flex items-start gap-3">
                       <div
-                        className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
-                          isWarn ? 'bg-destructive/15 text-destructive' : 'bg-primary/10 text-primary'
-                        }`}
+                        className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+                        style={{ background: withAlpha(accent, 0.16), color: accent }}
                       >
                         {isWarn ? <AlertTriangle className="w-4 h-4" /> : <Info className="w-4 h-4" />}
                       </div>
@@ -146,7 +150,7 @@ export default function InsightsTab({
                         </p>
                       </div>
                     </div>
-                  </div>
+                  </SoftSurface>
                 );
               })}
             </div>
@@ -156,12 +160,12 @@ export default function InsightsTab({
 
       {/* Disclaimer */}
       <motion.div variants={item} initial="hidden" animate="show">
-        <div className="bg-muted/40 border border-border/40 rounded-2xl p-3.5">
+        <SoftSurface variant="flat" className="p-3.5">
           <p className="text-[11px] text-muted-foreground leading-relaxed">
             <AlertTriangle className="inline w-3.5 h-3.5 me-1 text-muted-foreground/60" />
             {DISCLAIMER[lang]}
           </p>
-        </div>
+        </SoftSurface>
       </motion.div>
     </div>
   );

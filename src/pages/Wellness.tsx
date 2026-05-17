@@ -188,6 +188,7 @@ export default function WellnessPage() {
             onLogHydration={(ml) => data.addHydration(ml)}
             onStartFasting={(hours, protocol) => data.beginFasting(hours, protocol)}
             onEndFasting={() => data.stopFasting()}
+            onSaveVital={data.saveVital}
             onJump={(k) => setTab(k as TabKey)}
           />
         );
@@ -260,6 +261,7 @@ export default function WellnessPage() {
         return (
           <ProfileTab
             profile={data.profile}
+            vitals={data.vitals}
             onSave={data.saveAthleteProfile}
           />
         );
