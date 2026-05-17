@@ -3,7 +3,7 @@ import SEO from '@/components/SEO';
 import { useApp } from '@/contexts/AppContext';
 import { poetryEras, Era, Poet, Poem } from '@/data/poetryData';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronRight, ChevronLeft, X, BookOpen, Feather, ScrollText, Copy, Check, ClipboardCopy, Flame, Star, Landmark, Castle } from 'lucide-react';
+import { ChevronRight, ChevronLeft, X, BookOpen, Feather, ScrollText, Copy, Check, ClipboardCopy, Flame, Star, Landmark, Castle, Swords, Building2 } from 'lucide-react';
 import BackButton from '@/components/BackButton';
 import { toast } from 'sonner';
 
@@ -35,9 +35,11 @@ export default function DiwanPage() {
 
   const eraIcons: Record<string, React.ElementType> = {
     jahili: Flame,
+    mukhadram: Swords,
     islami: Star,
     umawi: Landmark,
     abbasi: Castle,
+    andalusi: Building2,
   };
 
   const goBack = () => {
