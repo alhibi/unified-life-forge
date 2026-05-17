@@ -373,6 +373,25 @@ export async function logDiet(
   return put(STORES.dietLogs, entry);
 }
 
+/**
+ * Update an existing diet log entry — currently used to tune `portion`
+ * after logging (the original API only let you add/remove items, which
+ * forced users to delete-and-re-log to fix a portion).
+ */
+export async function updateDietLog(
+  id: UUID,
+  patch: Partial<Pick<DietLog, 'portion' | 'foodKey' | 'date'>>,
+): Promise<DietLog | null> {
+  const cur = await getOne<DietLog>(STORES.dietLogs, id);
+  if (!cur) return null;
+  const updated: DietLog = {
+    ...cur,
+    ...patch,
+    portion: patch.portion != null ? Math.max(0.25, patch.portion) : cur.portion,
+  };
+  return put(STORES.dietLogs, updated);
+}
+
 export async function deleteDietLog(id: UUID): Promise<void> {
   await del(STORES.dietLogs, id);
 }

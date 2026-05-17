@@ -24,6 +24,7 @@ import {
 } from './primitives';
 import { dailyWaterMl, macroTarget, athleticSummary } from '../athleticEngine';
 import { streakBackwards } from '../recoveryEngine';
+import { macrosForDate } from '../foodMacros';
 
 interface Props {
   profile: AthleteProfile | null;
@@ -124,6 +125,7 @@ function progressForGoal(
     workouts: WorkoutSession[];
     hydration: HydrationEvent[];
     skinHair: SkinHairLog[];
+    dietLogs: DietLog[];
   },
 ): ProgressRow {
   const { todayIso: today } = ctx;
@@ -178,10 +180,39 @@ function progressForGoal(
       current = streakBackwards((iso) => set.has(iso));
       break;
     }
-    case 'protein':
+    case 'protein': {
+      // Compute from diet logs via the macro bridge.
+      if (g.period === 'weekly') {
+        let sum = 0;
+        const since = new Date();
+        since.setDate(since.getDate() - 6);
+        const sinceIso = since.toISOString().slice(0, 10);
+        for (const l of ctx.dietLogs) {
+          if (l.date < sinceIso) continue;
+          // accumulate per-day to keep numerics bounded
+          // (macrosForDate also does this; calling per-log keeps it simple)
+        }
+        // Re-compute properly day-by-day
+        const days = new Set(ctx.dietLogs.map((l) => l.date).filter((d) => d >= sinceIso));
+        for (const d of days) sum += macrosForDate(ctx.dietLogs, d).protein;
+        current = Math.round(sum * 10) / 10;
+      } else {
+        current = Math.round(macrosForDate(ctx.dietLogs, today).protein * 10) / 10;
+      }
+      break;
+    }
     case 'calories': {
-      // Without per-food macros, we cannot compute precisely. Return 0.
-      current = 0;
+      if (g.period === 'weekly') {
+        const since = new Date();
+        since.setDate(since.getDate() - 6);
+        const sinceIso = since.toISOString().slice(0, 10);
+        const days = new Set(ctx.dietLogs.map((l) => l.date).filter((d) => d >= sinceIso));
+        let sum = 0;
+        for (const d of days) sum += macrosForDate(ctx.dietLogs, d).kcal;
+        current = sum;
+      } else {
+        current = macrosForDate(ctx.dietLogs, today).kcal;
+      }
       break;
     }
   }
@@ -574,8 +605,8 @@ function buildRecommendedGoals(profile: AthleteProfile | null): Array<Omit<Goal,
     { metric: 'steps',    target: 10000, period: 'daily',  active: true },
     { metric: 'sleep',    target: 8,     period: 'daily',  active: true },
     { metric: 'water',    target: water, period: 'daily',  active: true },
-    { metric: 'protein',  target: proteinG, period: 'daily', active: false },
-    { metric: 'calories', target: calorie, period: 'daily',  active: false },
+    { metric: 'protein',  target: proteinG, period: 'daily', active: true },
+    { metric: 'calories', target: calorie, period: 'daily',  active: true },
     { metric: 'workouts', target: 4,     period: 'weekly', active: true },
   ];
 }
@@ -601,8 +632,8 @@ export default function GoalsTab({
   const today = todayIso();
   const activeGoals = goals.filter((g) => g.active);
   const rows = useMemo(
-    () => activeGoals.map((g) => progressForGoal(g, { todayIso: today, vitals, workouts, hydration, skinHair })),
-    [activeGoals, today, vitals, workouts, hydration, skinHair],
+    () => activeGoals.map((g) => progressForGoal(g, { todayIso: today, vitals, workouts, hydration, skinHair, dietLogs })),
+    [activeGoals, today, vitals, workouts, hydration, skinHair, dietLogs],
   );
 
   // Streaks & counters per goal type
