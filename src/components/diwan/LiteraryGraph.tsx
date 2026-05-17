@@ -232,12 +232,36 @@ export default function LiteraryGraph({ onSelectPoet, initialPoetId }: Props) {
             );
           })}
 
-          {/* Nodes */}
+          {/* ─── Animated particles on highlighted links ─── */}
+          {(selected || hovered) && visibleLinks
+            .filter(l => focusIds.has(l.source.id) && focusIds.has(l.target.id))
+            .map((l, i) => {
+              const color = relationColors[l.relation.type];
+              const path = curvedPath(l.source.x, l.source.y, l.target.x, l.target.y);
+              return (
+                <g key={`particle-${i}`}>
+                  <circle r="3" fill={color} opacity="0.9">
+                    <animateMotion dur={`${2 + i * 0.3}s`} repeatCount="indefinite" path={path} />
+                    <animate attributeName="opacity" values="0;0.9;0.9;0" dur={`${2 + i * 0.3}s`} repeatCount="indefinite" />
+                  </circle>
+                  <circle r="2" fill={color} opacity="0.6">
+                    <animateMotion dur={`${2 + i * 0.3}s`} repeatCount="indefinite" path={path} begin={`${0.8 + i * 0.1}s`} />
+                    <animate attributeName="opacity" values="0;0.6;0.6;0" dur={`${2 + i * 0.3}s`} repeatCount="indefinite" begin={`${0.8 + i * 0.1}s`} />
+                  </circle>
+                </g>
+              );
+            })}
+
+          {/* ─── Nodes with depth/parallax effect ─── */}
           {nodes.map((node, idx) => {
             const active = focusIds.size === 0 || focusIds.has(node.id);
             const isSel = selected?.id === node.id;
             const conns = connectionCount[node.id] || 0;
-            const radius = 22 + Math.min(conns * 2, 10);
+            // DEPTH: nodes with more connections are bigger and more prominent
+            const maxConns = Math.max(...Object.values(connectionCount), 1);
+            const importance = conns / maxConns; // 0..1
+            const radius = 18 + importance * 18; // 18..36
+            const depthOpacity = active ? 1 : (0.08 + importance * 0.12); // dimmer if unconnected AND unimportant
 
             return (
               <g
@@ -247,7 +271,7 @@ export default function LiteraryGraph({ onSelectPoet, initialPoetId }: Props) {
                 onClick={(e) => { e.stopPropagation(); setSelected(isSel ? null : node); }}
                 onPointerEnter={() => setHovered(node.id)}
                 onPointerLeave={() => setHovered(null)}
-                style={{ opacity: active ? 1 : 0.15, transition: 'opacity 0.4s ease' }}
+                style={{ opacity: depthOpacity, transition: 'opacity 0.4s ease, transform 0.3s ease' }}
               >
                 {/* Pulse ring for selected */}
                 {isSel && (
@@ -397,7 +421,7 @@ export default function LiteraryGraph({ onSelectPoet, initialPoetId }: Props) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 30, scale: 0.95 }}
             transition={{ type: 'spring', stiffness: 350, damping: 28 }}
-            className="ui-panel absolute bottom-4 start-4 end-4 max-h-[42%] overflow-y-auto bg-card/90 backdrop-blur-xl border border-border/30 rounded-3xl p-5 shadow-2xl z-20"
+            className="ui-panel absolute bottom-[85px] start-4 end-4 max-h-[38%] overflow-y-auto bg-card/90 backdrop-blur-xl border border-border/30 rounded-3xl p-5 shadow-2xl z-20"
           >
             {/* Header */}
             <div className="flex items-center justify-between mb-4">
@@ -464,12 +488,40 @@ export default function LiteraryGraph({ onSelectPoet, initialPoetId }: Props) {
         )}
       </AnimatePresence>
 
-      {/* Empty state hint */}
-      {!selected && !showFilters && (
-        <div className="ui-panel absolute bottom-4 start-1/2 -translate-x-1/2 bg-card/70 backdrop-blur-lg border border-border/20 rounded-full px-4 py-2 shadow-md z-10">
-          <p className="text-[10px] text-muted-foreground text-center">اضغط على شاعر لاستكشاف علاقاته الأدبية</p>
+      {/* ─── Mini Timeline Bar ─── */}
+      <div className="ui-panel absolute bottom-4 start-4 end-4 z-10">
+        <div className="bg-card/80 backdrop-blur-xl border border-border/30 rounded-2xl px-3 py-2.5 shadow-lg">
+          <div className="flex items-center gap-1">
+            {(['jahili', 'mukhadram', 'islami', 'umawi', 'abbasi', 'andalusi'] as const).map((eraId) => {
+              const color = eraColors[eraId];
+              const label = eraId === 'jahili' ? 'الجاهلي' : eraId === 'mukhadram' ? 'المخضرم' : eraId === 'islami' ? 'الإسلامي' : eraId === 'umawi' ? 'الأموي' : eraId === 'abbasi' ? 'العباسي' : 'الأندلسي';
+              const eraNodeIds = nodes.filter(n => n.era === eraId).map(n => n.id);
+              const isHighlighted = focusIds.size === 0 || eraNodeIds.some(id => focusIds.has(id));
+              return (
+                <button
+                  key={eraId}
+                  onClick={() => {
+                    // Focus on first poet of this era
+                    const firstNode = nodes.find(n => n.era === eraId);
+                    if (firstNode) {
+                      setSelected(firstNode);
+                      setTransform({ x: dims.w / 2 - firstNode.x, y: dims.h / 2 - firstNode.y, s: 1.2 });
+                    }
+                  }}
+                  className={`flex-1 flex flex-col items-center gap-1 py-1 px-1 rounded-xl transition-all ${isHighlighted ? 'opacity-100' : 'opacity-40'} hover:opacity-100 active:scale-95`}
+                >
+                  <div className="w-full h-1.5 rounded-full transition-all" style={{ backgroundColor: color, opacity: isHighlighted ? 0.9 : 0.3 }} />
+                  <span className="text-[8px] font-medium text-muted-foreground leading-none">{label}</span>
+                </button>
+              );
+            })}
+          </div>
+          {/* Hint text */}
+          {!selected && (
+            <p className="text-[9px] text-muted-foreground/60 text-center mt-1.5">اضغط على عصر للاستكشاف · أو على شاعر لرؤية علاقاته</p>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 }
