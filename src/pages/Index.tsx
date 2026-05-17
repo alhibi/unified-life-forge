@@ -8,7 +8,6 @@ import LocationSaver from '@/components/LocationSaver';
 import PrayerTimes from '@/components/PrayerTimes';
 import { motion } from 'framer-motion';
 import WeatherWidget from '@/components/WeatherWidget';
-import ReligiousOccasions from '@/components/ReligiousOccasions';
 import IslamicSections from '@/components/IslamicSections';
 import CurrentTimeSunnah from '@/components/CurrentTimeSunnah';
 import UmmahPulse from '@/components/UmmahPulse';
@@ -154,7 +153,6 @@ export default function Index() {
         <motion.div variants={item}><CurrentTimeSunnah /></motion.div>
         <motion.div variants={item}><UmmahPulse /></motion.div>
         <motion.div variants={item}><IslamicSections /></motion.div>
-        <motion.div variants={item}><ReligiousOccasions /></motion.div>
         <motion.div variants={item}><LocationSaver /></motion.div>
 
         {/* Made by Amer */}
