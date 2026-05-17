@@ -212,8 +212,77 @@ export function dailySeries(s: WellnessSources, count = 14): DailySnapshot[] {
   for (let i = count - 1; i >= 0; i--) {
     const d = new Date(today);
     d.setDate(d.getDate() - i);
-    const iso = d.toISOString().slice(0, 10);
+    const iso = isoFromTs(d.getTime());
     out.push(dailySnapshot(s, iso));
   }
   return out;
+}
+
+/* ─────────────────── Freshness ─────────────────── */
+
+/**
+ * How fresh is the latest log we have? Used by recovery / readiness
+ * engines to refuse to score from stale data — otherwise the dashboard
+ * keeps boasting "85, looking great" based on values logged a week ago.
+ *
+ *   stale = no log within `maxAgeDays` of today.
+ */
+export interface Freshness {
+  /** Latest date we have any vital/skin-hair/hydration data for. */
+  latestDate: string | null;
+  /** Days between today and latestDate (0 = today). null when no data. */
+  ageDays: number | null;
+  /** True when ageDays <= maxAgeDays. */
+  fresh: boolean;
+}
+
+/** Diff in days between two YYYY-MM-DD strings (local). */
+function daysBetweenIso(a: string, b: string): number {
+  const [ay, am, ad] = a.split('-').map(Number);
+  const [by, bm, bd] = b.split('-').map(Number);
+  const da = new Date(ay, am - 1, ad).getTime();
+  const db = new Date(by, bm - 1, bd).getTime();
+  return Math.round((db - da) / 86_400_000);
+}
+
+/**
+ * Inspect a few stores and report the most recent date the user
+ * actually logged anything. By default we accept up to 2 days old.
+ */
+export function freshness(s: WellnessSources, maxAgeDays = 2): Freshness {
+  const candidates: string[] = [];
+  if (s.vitals[0]?.date) candidates.push(s.vitals[0].date);
+  if (s.skinHair[0]?.date) candidates.push(s.skinHair[0].date);
+  if (s.hydration[0]?.date) candidates.push(s.hydration[0].date);
+  if (s.workouts[0]?.date) candidates.push(s.workouts[0].date);
+  if (candidates.length === 0) {
+    return { latestDate: null, ageDays: null, fresh: false };
+  }
+  const latest = candidates.sort().pop()!; // ISO sort = chrono order
+  const today = todayIso();
+  const age = Math.max(0, daysBetweenIso(latest, today));
+  return { latestDate: latest, ageDays: age, fresh: age <= maxAgeDays };
+}
+
+/* ─────────────────── Training-hours helper ─────────────────── */
+
+/**
+ * Sum of workout duration (hours) for a given date — used by hydration
+ * target calculation so 90 min lifting ≠ 20 min walk.
+ *
+ * Falls back to a 1-hour estimate when a workout exists but has no
+ * start/end timestamps (legacy / manually-entered sessions).
+ */
+export function trainingHoursFor(s: WellnessSources, isoDate?: string): number {
+  const date = isoDate ?? todayIso();
+  let hours = 0;
+  for (const w of s.workouts) {
+    if (w.date !== date) continue;
+    if (w.startedAt && w.endedAt && w.endedAt > w.startedAt) {
+      hours += (w.endedAt - w.startedAt) / 3_600_000;
+    } else {
+      hours += 1; // legacy fallback
+    }
+  }
+  return hours;
 }

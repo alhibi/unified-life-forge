@@ -31,7 +31,7 @@ import { SoftSurface, SmoothBar, withAlpha, AuroraCard, GlassSurface, ElevatedCa
 import QuickLogSheet, { type QuickMetric } from './QuickLogSheet';
 import { recoveryScore, readinessScore, dailyScoreSeries, streakBackwards } from '../recoveryEngine';
 import { acwr, dailyWaterMl } from '../athleticEngine';
-import { resolveWeight, dailySnapshot } from '../wellnessLink';
+import { resolveWeight, dailySnapshot, freshness, trainingHoursFor, type WellnessSources } from '../wellnessLink';
 
 interface Props {
   profile: AthleteProfile | null;
@@ -105,6 +105,12 @@ const T = {
   },
   quickActions: { ar: 'إجراءات سريعة', de: 'Schnellaktionen' },
   viewAll: { ar: 'عرض الكل', de: 'Alle anzeigen' },
+  staleData: { ar: 'بياناتك قديمة', de: 'Daten veraltet' },
+  staleDataDesc: {
+    ar: 'لم نسجّل قياسات منذ {n} يوم — سجّل اليوم لتحديث نقاطك.',
+    de: 'Seit {n} Tagen kein Eintrag — heute loggen für aktuelle Scores.',
+  },
+  daysAgo: { ar: 'يوم', de: 'Tagen' },
 };
 
 function greeting(lang: 'ar' | 'de'): string {
@@ -602,11 +608,13 @@ export default function TodayTab({
   const [quickOpen, setQuickOpen] = useState(false);
   const [quickMetric, setQuickMetric] = useState<QuickMetric | undefined>(undefined);
 
-  const recovery = useMemo(() => recoveryScore(vitals, skinHair), [vitals, skinHair]);
-  const readiness = useMemo(
-    () => readinessScore({ vitals, skinHair, workouts }),
-    [vitals, skinHair, workouts],
+  const sources = useMemo<WellnessSources>(
+    () => ({ profile, vitals, skinHair, hydration, workouts, dietLogs: [] }),
+    [profile, vitals, skinHair, hydration, workouts],
   );
+
+  const recovery = useMemo(() => recoveryScore(sources), [sources]);
+  const readiness = useMemo(() => readinessScore(sources), [sources]);
   const series7 = useMemo(
     () => dailyScoreSeries(vitals, skinHair, workouts, 7).map((p) => ({
       date: p.date.slice(8),
@@ -615,25 +623,22 @@ export default function TodayTab({
     })),
     [vitals, skinHair, workouts],
   );
+  const dataFresh = useMemo(() => freshness(sources), [sources]);
 
-  const snap = useMemo(
-    () => dailySnapshot({ profile, vitals, skinHair, hydration, workouts, dietLogs: [] }),
-    [profile, vitals, skinHair, hydration, workouts],
-  );
+  const snap = useMemo(() => dailySnapshot(sources), [sources]);
 
   const todayVital = useMemo(() => vitals.find((v) => v.date === today) ?? null, [vitals, today]);
 
   const weightForTarget = useMemo(() => {
-    return resolveWeight({ profile, vitals, skinHair, hydration, workouts, dietLogs: [] }).value
-      ?? profile?.weightKg ?? 70;
-  }, [profile, vitals, skinHair, hydration, workouts]);
+    return resolveWeight(sources).value ?? profile?.weightKg ?? 70;
+  }, [sources, profile]);
 
   const targetMl = useMemo(() => {
     return dailyWaterMl({
       weightKg: weightForTarget,
-      trainingHours: workouts.some((w) => w.date === today) ? 1 : 0,
+      trainingHours: trainingHoursFor(sources, today),
     }) ?? 2500;
-  }, [weightForTarget, workouts, today]);
+  }, [weightForTarget, sources, today]);
 
   const last7Vitals = vitals.slice(0, 7);
   const prev7Vitals = vitals.slice(7, 14);
@@ -690,6 +695,28 @@ export default function TodayTab({
               <div className="flex-1 min-w-0 text-start">
                 <p className="text-[10px] font-medium text-foreground">{T.setProfile[lang]}</p>
                 <p className="text-[8px] text-muted-foreground/60 mt-0.5 leading-relaxed">{T.setProfileDesc[lang]}</p>
+              </div>
+              <ChevronRight className="w-3 h-3 text-muted-foreground/40 shrink-0" />
+            </div>
+          </motion.div>
+        )}
+
+        {dataFresh.latestDate && !dataFresh.fresh && dataFresh.ageDays != null && (
+          <motion.div variants={item}>
+            <div
+              className="flex items-center gap-2.5 p-2.5 rounded-lg border border-amber-500/20 bg-amber-500/5 cursor-pointer active:scale-[0.98] transition-transform"
+              onClick={() => openQuick()}
+              role="button"
+              tabIndex={0}
+            >
+              <div className="w-6 h-6 rounded-md bg-amber-500/15 flex items-center justify-center shrink-0">
+                <Timer className="w-3 h-3 text-amber-600 dark:text-amber-400" />
+              </div>
+              <div className="flex-1 min-w-0 text-start">
+                <p className="text-[10px] font-medium text-foreground">{T.staleData[lang]}</p>
+                <p className="text-[8px] text-muted-foreground/70 mt-0.5 leading-relaxed">
+                  {T.staleDataDesc[lang].replace('{n}', String(dataFresh.ageDays))}
+                </p>
               </div>
               <ChevronRight className="w-3 h-3 text-muted-foreground/40 shrink-0" />
             </div>
