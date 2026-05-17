@@ -8,6 +8,7 @@ import { todayIso } from './wellnessDb';
 import { CATEGORY_META, categoryOf, type FoodCategory } from './foodCategories';
 import { FoodIcon } from './foodIcons';
 import AppDatePicker from './AppDatePicker';
+import { SoftSurface, withAlpha } from './premium/surfaces';
 
 interface Props {
   dietLogs: DietLog[];
@@ -73,20 +74,22 @@ export default function DietTab({ dietLogs, onAdd, onRemove }: Props) {
     <div className="space-y-5">
       {/* Date picker */}
       <motion.div variants={item} initial="hidden" animate="show">
-        <div className="bg-card border border-border/40 rounded-2xl p-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-              <CalIcon className="w-5 h-5 text-primary" />
+        <SoftSurface accent="hsl(var(--primary))" variant="mesh" intensity={0.65} className="p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-primary/12 flex items-center justify-center">
+                <CalIcon className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <p className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-wider">
+                  {isAr ? 'التاريخ' : 'Datum'}
+                </p>
+                <p className="text-sm font-semibold text-foreground mt-0.5" dir="ltr">{date}</p>
+              </div>
             </div>
-            <div>
-              <p className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-wider">
-                {isAr ? 'التاريخ' : 'Datum'}
-              </p>
-              <p className="text-sm font-semibold text-foreground mt-0.5">{date}</p>
-            </div>
+            <AppDatePicker value={date} onChange={setDate} />
           </div>
-          <AppDatePicker value={date} onChange={setDate} />
-        </div>
+        </SoftSurface>
       </motion.div>
 
       {/* Logged foods */}
@@ -95,40 +98,42 @@ export default function DietTab({ dietLogs, onAdd, onRemove }: Props) {
           {isAr ? 'وجبات اليوم' : 'Mahlzeiten'}
         </p>
         {logsForDay.length === 0 ? (
-          <div className="bg-card border border-dashed border-border/50 rounded-2xl p-6 text-center">
-            <p className="text-sm text-muted-foreground">
+          <SoftSurface variant="flat" className="p-6 border-dashed">
+            <p className="text-sm text-muted-foreground text-center">
               {isAr ? 'لم تسجل أي طعام بعد' : 'Noch keine Mahlzeiten erfasst'}
             </p>
-          </div>
+          </SoftSurface>
         ) : (
-          <div className="bg-card border border-border/40 rounded-2xl overflow-hidden divide-y divide-border/30">
-            {logsForDay.map((log) => {
-              const food = FOODS[log.foodKey];
-              const isCustom = log.foodKey.startsWith('custom:');
-              const label = food?.label[lang] ?? (isCustom ? log.foodKey.slice(7) : log.foodKey);
-              const cat = food ? categoryOf(log.foodKey) : 'vegetable';
-              const meta = CATEGORY_META[cat];
-              return (
-                <div key={log.id} className="flex items-center justify-between p-3">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <FoodIcon foodKey={log.foodKey} size={36} />
-                    <div className="min-w-0">
-                      <p className="text-sm font-semibold text-foreground truncate">{label}</p>
-                      <p className="text-[10px] text-muted-foreground mt-0.5">
-                        {meta.label[lang]}
-                      </p>
+          <SoftSurface variant="flat" className="overflow-hidden">
+            <div className="divide-y divide-border/30">
+              {logsForDay.map((log) => {
+                const food = FOODS[log.foodKey];
+                const isCustom = log.foodKey.startsWith('custom:');
+                const label = food?.label[lang] ?? (isCustom ? log.foodKey.slice(7) : log.foodKey);
+                const cat = food ? categoryOf(log.foodKey) : 'vegetable';
+                const meta = CATEGORY_META[cat];
+                return (
+                  <div key={log.id} className="flex items-center justify-between p-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <FoodIcon foodKey={log.foodKey} size={36} />
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold text-foreground truncate">{label}</p>
+                        <p className="text-[10px] text-muted-foreground mt-0.5">
+                          {meta.label[lang]}
+                        </p>
+                      </div>
                     </div>
+                    <button
+                      onClick={() => onRemove(log.id)}
+                      className="p-2 rounded-lg bg-destructive/10 text-destructive active:scale-90 transition-transform"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
                   </div>
-                  <button
-                    onClick={() => onRemove(log.id)}
-                    className="p-2 rounded-lg bg-destructive/10 text-destructive active:scale-90 transition-transform"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          </SoftSurface>
         )}
       </motion.div>
 

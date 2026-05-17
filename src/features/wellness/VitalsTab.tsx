@@ -1,98 +1,57 @@
-import React, { useMemo, useState, useEffect, useRef } from 'react';
+/**
+ * Vitals tab — historical view + chart picker.
+ *
+ * v2 — input overhaul:
+ *  • The bespoke long form has been replaced by the shared
+ *    <QuickLogSheet> from the premium folder. Tapping any metric card,
+ *    or the floating "+ سجّل اليوم" CTA, opens the same sheet that the
+ *    Today tab uses, so users only learn one input flow.
+ *  • The sheet is per-date — the user can swipe to a past day and log
+ *    retroactively, which the previous form already supported but
+ *    behind a chevron disclosure that most users never opened.
+ *  • All cards now use SoftSurface so accents wash gently.
+ *  • The hero/mini chart cards keep their existing shape because their
+ *    visual treatment was already on-spec; only the gradient stop curves
+ *    were tightened (28%→0% with mid-stop @ 60%·0.18% so the apex
+ *    no longer slices through a dense block).
+ */
+
+import React, { useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  HeartPulse,
-  Footprints,
-  Moon,
-  Scale,
-  Activity,
-  Droplets,
-  Zap,
-  Save,
-  TrendingUp,
-  ArrowUpRight,
-  ArrowDownRight,
-  Minus,
-  ChevronDown,
-  Plus,
+  Activity, ArrowDownRight, ArrowUpRight, CalendarDays, Droplets, Footprints,
+  HeartPulse, Minus, Moon, Pencil, Plus, Scale, TrendingUp, Zap,
 } from 'lucide-react';
 import {
-  AreaChart,
-  Area,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-  CartesianGrid,
+  Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis,
 } from 'recharts';
 import { useApp } from '@/contexts/AppContext';
 import AppDatePicker from './AppDatePicker';
 import { todayIso, type VitalLog } from './wellnessDb';
+import { SoftSurface, withAlpha } from './premium/surfaces';
+import { AnimatedNumber } from './premium/primitives';
+import QuickLogSheet, { type QuickMetric } from './premium/QuickLogSheet';
 
 interface Props {
   vitals: VitalLog[];
   onSave: (entry: Omit<VitalLog, 'id' | 'loggedAt'>) => Promise<void>;
 }
 
-type FormState = {
-  date: string;
-  steps: string;
-  sleepHours: string;
-  sleepQuality: string;
-  restingHR: string;
-  weightKg: string;
-  bpSystolic: string;
-  bpDiastolic: string;
-  hydrationLiters: string;
-  energy: string;
-  mood: string;
-  notes: string;
-};
-
-const emptyForm = (date: string): FormState => ({
-  date,
-  steps: '',
-  sleepHours: '',
-  sleepQuality: '',
-  restingHR: '',
-  weightKg: '',
-  bpSystolic: '',
-  bpDiastolic: '',
-  hydrationLiters: '',
-  energy: '',
-  mood: '',
-  notes: '',
-});
-
-const numOrUndef = (v: string): number | undefined => {
-  const n = parseFloat(v);
-  return isNaN(n) ? undefined : n;
-};
-
 const t = {
   title: { ar: 'المؤشرات الحيوية', de: 'Vitalwerte' },
   subtitle: {
-    ar: 'تتبّع يومي للجسد — تظهر اتجاهاتك خلال 14 يوماً',
+    ar: 'تتبّع يومي للجسد — اتجاهاتك خلال 14 يوماً',
     de: 'Tägliche Vitalwerte — 14-Tage-Trends',
   },
   date: { ar: 'التاريخ', de: 'Datum' },
-  steps: { ar: 'الخطوات', de: 'Schritte' },
-  sleepHours: { ar: 'ساعات النوم', de: 'Schlaf (Std.)' },
-  sleepQuality: { ar: 'جودة النوم (1-5)', de: 'Schlafqualität (1-5)' },
-  restingHR: { ar: 'النبض أثناء الراحة (نبضة/د)', de: 'Ruhepuls (bpm)' },
-  weight: { ar: 'الوزن (كغ)', de: 'Gewicht (kg)' },
-  bp: { ar: 'الضغط (انقباضي/انبساطي)', de: 'Blutdruck (sys/dia)' },
-  hydration: { ar: 'الماء (لتر)', de: 'Wasser (Liter)' },
-  energy: { ar: 'الطاقة (1-5)', de: 'Energie (1-5)' },
-  mood: { ar: 'المزاج (1-5)', de: 'Stimmung (1-5)' },
-  notes: { ar: 'ملاحظات', de: 'Notizen' },
-  save: { ar: 'حفظ اليوم', de: 'Tag speichern' },
-  saved: { ar: 'تم الحفظ ✓', de: 'Gespeichert ✓' },
-  trends: { ar: 'الاتجاهات', de: 'Trends' },
+  today: { ar: 'اليوم', de: 'Heute' },
+  log: { ar: 'تسجيل', de: 'Loggen' },
+  logForDate: { ar: 'سجّل قياسات', de: 'Werte loggen' },
   noData: {
-    ar: 'لا توجد بيانات بعد. سجّل اليوم لتبدأ.',
-    de: 'Noch keine Daten. Beginne mit heutigem Eintrag.',
+    ar: 'لا توجد بيانات بعد. اضغط "تسجيل" لتبدأ.',
+    de: 'Noch keine Daten. Tippe auf „Loggen", um zu starten.',
   },
+  trends: { ar: 'الاتجاهات', de: 'Trends' },
   metrics: {
     steps: { ar: 'الخطوات', de: 'Schritte' },
     sleep: { ar: 'ساعات النوم', de: 'Schlaf' },
@@ -101,149 +60,44 @@ const t = {
     hydration: { ar: 'الماء', de: 'Wasser' },
     energy: { ar: 'الطاقة', de: 'Energie' },
   },
-  today: { ar: 'اليوم', de: 'Heute' },
   avg: { ar: 'المتوسط', de: 'Ø' },
   min: { ar: 'الأدنى', de: 'Min' },
   max: { ar: 'الأعلى', de: 'Max' },
   range7: { ar: '٧ أيام', de: '7T' },
   range14: { ar: '١٤ يوماً', de: '14T' },
-  vsLast: { ar: 'مقارنة بالأسبوع السابق', de: 'vs. Vorwoche' },
-  logEntry: { ar: 'تسجيل قياسات اليوم', de: 'Heute erfassen' },
-  logEntrySub: {
-    ar: 'الخطوات، النوم، النبض، الوزن…',
-    de: 'Schritte, Schlaf, Puls, Gewicht…',
-  },
 };
 
 const SECTION = {
   hidden: { opacity: 0, y: 14 },
   show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] as const } },
 };
-
 const CARD_STAGGER = {
   hidden: { opacity: 0 },
   show: { opacity: 1, transition: { staggerChildren: 0.06, delayChildren: 0.05 } },
 };
-
 const CARD_ITEM = {
   hidden: { opacity: 0, y: 14, scale: 0.96 },
-  show: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] as const },
-  },
+  show: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] as const } },
 };
 
-/* ───────────────────────── Animated number counter ───────────────────────── */
-function AnimatedNumber({
-  value,
-  digits = 0,
-  duration = 900,
-}: {
-  value: number | null;
-  digits?: number;
-  duration?: number;
-}) {
-  const [display, setDisplay] = useState(0);
-  const fromRef = useRef(0);
-
-  useEffect(() => {
-    if (value === null || isNaN(value)) {
-      setDisplay(0);
-      fromRef.current = 0;
-      return;
-    }
-    const from = fromRef.current;
-    const to = value;
-    const start = performance.now();
-    let raf = 0;
-    const tick = (now: number) => {
-      const t = Math.min(1, (now - start) / duration);
-      const eased = 1 - Math.pow(1 - t, 3);
-      const cur = from + (to - from) * eased;
-      setDisplay(cur);
-      if (t < 1) {
-        raf = requestAnimationFrame(tick);
-      } else {
-        fromRef.current = to;
-      }
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [value, duration]);
-
-  if (value === null) return <>—</>;
-  return <>{display.toFixed(digits)}</>;
-}
-
-/* ──────────────────────── Pulsing dot on latest point ────────────────────── */
+/* ───────────── Pulse-dot factory (latest data point) ───────────── */
 function makePulseDot(lastIndex: number, color: string, size = 4) {
   return function PulseDot(props: any) {
     const { cx, cy, index } = props;
     if (cx == null || cy == null || index !== lastIndex) return null;
     return (
       <g>
-        {/* Single soft halo — no compounding rings */}
         <circle cx={cx} cy={cy} r={size + 2} fill={color} opacity={0.22}>
-          <animate
-            attributeName="r"
-            from={String(size + 1)}
-            to={String(size + 10)}
-            dur="2.2s"
-            repeatCount="indefinite"
-          />
-          <animate
-            attributeName="opacity"
-            from="0.32"
-            to="0"
-            dur="2.2s"
-            repeatCount="indefinite"
-          />
+          <animate attributeName="r" from={String(size + 1)} to={String(size + 10)} dur="2.2s" repeatCount="indefinite" />
+          <animate attributeName="opacity" from="0.32" to="0" dur="2.2s" repeatCount="indefinite" />
         </circle>
-        {/* Crisp inner dot with card-colored border to "punch" through the fill */}
         <circle cx={cx} cy={cy} r={size} fill={color} stroke="hsl(var(--card))" strokeWidth={1.75} />
       </g>
     );
   };
 }
 
-/* ─────────────────────────────── Form fields ─────────────────────────────── */
-function NumInput({
-  value,
-  onChange,
-  placeholder,
-  icon: Icon,
-  label,
-  step = '1',
-}: {
-  value: string;
-  onChange: (v: string) => void;
-  placeholder?: string;
-  icon: any;
-  label: string;
-  step?: string;
-}) {
-  return (
-    <div className="space-y-1.5">
-      <label className="text-[11px] font-semibold text-muted-foreground flex items-center gap-1.5">
-        <Icon className="w-3.5 h-3.5" />
-        {label}
-      </label>
-      <input
-        type="number"
-        inputMode="decimal"
-        step={step}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        className="w-full bg-secondary/50 border border-border/40 rounded-xl px-3 py-2.5 text-[16px] text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-primary/40"
-      />
-    </div>
-  );
-}
-
-/* ──────────────────────────── Metric definitions ─────────────────────────── */
+/* ───────────── Types ───────────── */
 type MetricKey = 'steps' | 'sleep' | 'hr' | 'weight' | 'hydration' | 'energy';
 
 interface MetricSpec {
@@ -253,13 +107,14 @@ interface MetricSpec {
   color: string;
   unit: string;
   digits: number;
-  /** Higher value = better health signal? Used to color the trend arrow. */
   higherIsBetter: boolean;
+  /** Quick-log mapping — which QuickLogSheet field maps to this card. */
+  quick: QuickMetric;
 }
 
 interface SeriesPoint {
-  date: string; // day-of-month label
-  iso: string;  // full ISO date
+  date: string;
+  iso: string;
   steps: number | null;
   sleep: number | null;
   hr: number | null;
@@ -268,29 +123,17 @@ interface SeriesPoint {
   energy: number | null;
 }
 
-/* ─────────────────────────── Hero tooltip pill ───────────────────────────── */
-function HeroTooltip({
-  active,
-  payload,
-  label,
-  color,
-  unit,
-  digits,
-}: any) {
+/* ───────────── Tooltip pill ───────────── */
+function HeroTooltip({ active, payload, label, color, unit, digits }: any) {
   if (!active || !payload || !payload.length) return null;
   const v = payload[0]?.value;
   if (v == null) return null;
   return (
     <div
       className="rounded-xl px-2.5 py-1.5 border backdrop-blur-md shadow-xl"
-      style={{
-        background: 'hsl(var(--card) / 0.92)',
-        borderColor: `${color}33`,
-      }}
+      style={{ background: 'hsl(var(--card) / 0.92)', borderColor: withAlpha(color, 0.25) }}
     >
-      <div className="text-[9px] text-muted-foreground/80 tabular-nums leading-none mb-0.5">
-        {label}
-      </div>
+      <div className="text-[9px] text-muted-foreground/80 tabular-nums leading-none mb-0.5">{label}</div>
       <div className="flex items-baseline gap-1 leading-none" dir="ltr">
         <span className="text-[14px] font-bold tabular-nums" style={{ color }}>
           {Number(v).toFixed(digits)}
@@ -301,7 +144,7 @@ function HeroTooltip({
   );
 }
 
-/* ───────────────────────────── Mini metric chip ──────────────────────────── */
+/* ───────────── Mini metric card ───────────── */
 function MiniMetricCard({
   spec,
   series,
@@ -327,14 +170,9 @@ function MiniMetricCard({
     return -1;
   }, [series, dataKey]);
 
-  const PulseDot = useMemo(
-    () => makePulseDot(lastIndex, spec.color, 2.5),
-    [lastIndex, spec.color],
-  );
-
+  const PulseDot = useMemo(() => makePulseDot(lastIndex, spec.color, 2.5), [lastIndex, spec.color]);
   const gradId = `mini-grad-${spec.key}`;
 
-  // Trend indicator
   let trendIcon: any = Minus;
   let trendColor = 'hsl(var(--muted-foreground))';
   let trendText = '—';
@@ -344,95 +182,76 @@ function MiniMetricCard({
     trendIcon = positive ? ArrowUpRight : ArrowDownRight;
     trendColor = good ? '#10b981' : '#ef4444';
     trendText = `${positive ? '+' : ''}${delta.toFixed(0)}%`;
-  } else if (delta !== null) {
-    trendText = '0%';
-  }
+  } else if (delta !== null) trendText = '0%';
   const TrendIcon = trendIcon;
 
   return (
-    <motion.button
-      type="button"
-      variants={CARD_ITEM}
-      whileTap={{ scale: 0.97 }}
-      onClick={onSelect}
-      className="relative rounded-2xl bg-card p-3 space-y-2 overflow-hidden text-start transition-all duration-300"
-      style={{
-        border: '1px solid',
-        borderColor: active ? `${spec.color}55` : 'hsl(var(--border) / 0.4)',
-        boxShadow: active ? `0 8px 24px -14px ${spec.color}66` : 'none',
-      }}
-    >
-      {/* Single soft top wash — gentle, not stacking */}
-      <div
-        aria-hidden
-        className="absolute -top-12 -end-12 w-32 h-32 rounded-full blur-3xl pointer-events-none transition-opacity duration-500"
-        style={{ background: spec.color, opacity: active ? 0.18 : 0.07 }}
-      />
-
-      <div className="flex items-center justify-between gap-2 relative">
-        <div className="flex items-center gap-1.5 min-w-0">
-          <div
-            className="w-6 h-6 rounded-lg flex items-center justify-center shrink-0"
-            style={{ background: `${spec.color}1f` }}
-          >
-            <Icon className="w-3.5 h-3.5" style={{ color: spec.color }} />
+    <motion.div variants={CARD_ITEM} className="relative">
+      <SoftSurface
+        as="button"
+        onClick={onSelect}
+        accent={spec.color}
+        intensity={active ? 1.05 : 0.55}
+        className="p-3"
+      >
+        <div className="flex items-center justify-between gap-2 relative">
+          <div className="flex items-center gap-1.5 min-w-0">
+            <div
+              className="w-6 h-6 rounded-lg flex items-center justify-center shrink-0"
+              style={{ background: withAlpha(spec.color, 0.14) }}
+            >
+              <Icon className="w-3.5 h-3.5" style={{ color: spec.color }} />
+            </div>
+            <span className="text-[11px] font-semibold text-muted-foreground truncate">{spec.label}</span>
           </div>
-          <span className="text-[11px] font-semibold text-muted-foreground truncate">
-            {spec.label}
-          </span>
+          {delta !== null && (
+            <div className="flex items-center gap-0.5 text-[10px] font-bold tabular-nums shrink-0" style={{ color: trendColor }}>
+              <TrendIcon className="w-3 h-3" />
+              {trendText}
+            </div>
+          )}
         </div>
-        {delta !== null && (
-          <div
-            className="flex items-center gap-0.5 text-[10px] font-bold tabular-nums shrink-0"
-            style={{ color: trendColor }}
-          >
-            <TrendIcon className="w-3 h-3" />
-            {trendText}
-          </div>
-        )}
-      </div>
 
-      <div className="flex items-baseline gap-1 relative" dir="ltr">
-        <span className="text-[20px] font-bold text-foreground tabular-nums leading-none">
-          <AnimatedNumber value={avg} digits={spec.digits} />
-        </span>
-        {avg !== null && spec.unit && (
-          <span className="text-[10px] text-muted-foreground">{spec.unit}</span>
-        )}
-      </div>
+        <div className="flex items-baseline gap-1 relative mt-1.5" dir="ltr">
+          <span className="text-[20px] font-bold text-foreground tabular-nums leading-none">
+            <AnimatedNumber value={avg} digits={spec.digits} />
+          </span>
+          {avg !== null && spec.unit && <span className="text-[10px] text-muted-foreground">{spec.unit}</span>}
+        </div>
 
-      {/* Sparkline — chart axes always render LTR */}
-      <div className="h-12 -mx-1 relative" dir="ltr">
-        <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={series} margin={{ top: 4, right: 6, left: 6, bottom: 0 }}>
-            <defs>
-              <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor={spec.color} stopOpacity={0.32} />
-                <stop offset="100%" stopColor={spec.color} stopOpacity={0.02} />
-              </linearGradient>
-            </defs>
-            <Area
-              type="monotone"
-              dataKey={dataKey}
-              stroke={spec.color}
-              strokeWidth={1.75}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              fill={`url(#${gradId})`}
-              dot={PulseDot as any}
-              activeDot={false}
-              isAnimationActive
-              animationDuration={1100}
-              connectNulls
-            />
-          </AreaChart>
-        </ResponsiveContainer>
-      </div>
-    </motion.button>
+        <div className="h-12 -mx-1 relative mt-1" dir="ltr">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={series} margin={{ top: 4, right: 6, left: 6, bottom: 0 }}>
+              <defs>
+                <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%"   stopColor={spec.color} stopOpacity={0.32} />
+                  <stop offset="55%"  stopColor={spec.color} stopOpacity={0.12} />
+                  <stop offset="100%" stopColor={spec.color} stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <Area
+                type="monotone"
+                dataKey={dataKey}
+                stroke={spec.color}
+                strokeWidth={1.75}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                fill={`url(#${gradId})`}
+                dot={PulseDot as any}
+                activeDot={false}
+                isAnimationActive
+                animationDuration={1100}
+                connectNulls
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+      </SoftSurface>
+    </motion.div>
   );
 }
 
-/* ───────────────────────────── Premium hero card ─────────────────────────── */
+/* ───────────── Hero chart ───────────── */
 function HeroChart({
   spec,
   series,
@@ -454,7 +273,6 @@ function HeroChart({
   const Icon = spec.icon;
   const dataKey = spec.key;
 
-  // Stats
   const values = useMemo(
     () => series.map((s) => s[dataKey]).filter((n): n is number => typeof n === 'number'),
     [series, dataKey],
@@ -470,12 +288,8 @@ function HeroChart({
     return -1;
   }, [series, dataKey]);
 
-  const PulseDot = useMemo(
-    () => makePulseDot(lastIndex, spec.color, 4),
-    [lastIndex, spec.color],
-  );
+  const PulseDot = useMemo(() => makePulseDot(lastIndex, spec.color, 4), [lastIndex, spec.color]);
 
-  // Trend arrow (vs delta passed in)
   let trendIcon: any = Minus;
   let trendColor = 'hsl(var(--muted-foreground))';
   let trendText = '';
@@ -485,277 +299,116 @@ function HeroChart({
     trendIcon = positive ? ArrowUpRight : ArrowDownRight;
     trendColor = good ? '#10b981' : '#ef4444';
     trendText = `${positive ? '+' : ''}${delta.toFixed(0)}%`;
-  } else if (delta !== null) {
-    trendText = '0%';
-  }
+  } else if (delta !== null) trendText = '0%';
   const TrendIcon = trendIcon;
 
   const heroGradId = `hero-grad-${spec.key}`;
 
   return (
-    <div
-      className="relative rounded-3xl overflow-hidden"
-      style={{
-        background: 'hsl(var(--card))',
-        border: '1px solid hsl(var(--border) / 0.5)',
-        boxShadow: `0 16px 40px -24px ${spec.color}55`,
-      }}
-    >
-      {/* Single wide ambient glow — top-only, very soft, no second layer */}
-      <div
-        aria-hidden
-        className="absolute inset-x-0 -top-32 h-64 pointer-events-none"
-        style={{
-          background: `radial-gradient(ellipse 60% 100% at 50% 100%, ${spec.color}22, transparent 70%)`,
-        }}
-      />
-
-      <div className="relative p-4 space-y-4">
-        {/* Top row: icon + label, range pills */}
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2.5 min-w-0">
-            <div
-              className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-              style={{ background: `${spec.color}1f` }}
-            >
-              <Icon className="w-[18px] h-[18px]" style={{ color: spec.color }} />
-            </div>
-            <div className="leading-tight min-w-0">
-              <div
-                className={`text-[12px] font-bold text-foreground truncate ${
-                  isAr ? '' : 'tracking-tight'
-                }`}
-              >
-                {spec.label}
-              </div>
-              <div className="text-[10px] text-muted-foreground/70">
-                {range === 7 ? t.range7[lang] : t.range14[lang]}
-              </div>
-            </div>
+    <SoftSurface accent={spec.color} variant="mesh" intensity={0.85} className="p-4 space-y-4" radius="1.5rem">
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: withAlpha(spec.color, 0.16) }}>
+            <Icon className="w-[18px] h-[18px]" style={{ color: spec.color }} />
           </div>
-
-          {/* Range pills */}
-          <div
-            className="flex items-center rounded-full p-0.5 gap-0.5 shrink-0"
-            style={{
-              background: 'hsl(var(--muted) / 0.6)',
-              border: '1px solid hsl(var(--border) / 0.3)',
-            }}
-          >
-            {[7, 14].map((r) => (
-              <button
-                key={r}
-                type="button"
-                onClick={() => setRange(r as 7 | 14)}
-                className="relative text-[10px] font-bold px-2.5 py-1 rounded-full tabular-nums transition-colors"
-                style={{
-                  color:
-                    range === r ? 'hsl(var(--background))' : 'hsl(var(--muted-foreground))',
-                }}
-              >
-                {range === r && (
-                  <motion.span
-                    layoutId="rangePill"
-                    className="absolute inset-0 rounded-full"
-                    style={{ background: spec.color }}
-                    transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-                  />
-                )}
-                <span className="relative">{r === 7 ? t.range7[lang] : t.range14[lang]}</span>
-              </button>
-            ))}
+          <div className="leading-tight min-w-0">
+            <div className={`text-[12px] font-bold text-foreground truncate ${isAr ? '' : 'tracking-tight'}`}>{spec.label}</div>
+            <div className="text-[10px] text-muted-foreground/70">{range === 7 ? t.range7[lang] : t.range14[lang]}</div>
           </div>
         </div>
 
-        {/* Big value + delta — anchored to language direction so the trend
-            pill always sits at the visually trailing edge */}
-        <div className="flex items-end justify-between gap-3">
-          <div className="min-w-0">
-            <div className="text-[10px] font-semibold text-muted-foreground/70 mb-1">
-              {t.today[lang]}
-            </div>
-            <div className="flex items-baseline gap-1.5" dir="ltr">
-              <span
-                className="text-[44px] font-bold tabular-nums leading-none"
-                style={{ color: spec.color }}
-              >
-                <AnimatedNumber value={todayValue ?? avg} digits={spec.digits} />
-              </span>
-              {spec.unit && (
-                <span className="text-[14px] text-muted-foreground/70 font-semibold">
-                  {spec.unit}
-                </span>
+        <div className="flex items-center rounded-full p-0.5 gap-0.5 shrink-0" style={{ background: 'hsl(var(--muted) / 0.6)', border: '1px solid hsl(var(--border) / 0.3)' }}>
+          {[7, 14].map((r) => (
+            <button key={r} type="button" onClick={() => setRange(r as 7 | 14)} className="relative text-[10px] font-bold px-2.5 py-1 rounded-full tabular-nums transition-colors" style={{ color: range === r ? 'hsl(var(--background))' : 'hsl(var(--muted-foreground))' }}>
+              {range === r && (
+                <motion.span layoutId="rangePill" className="absolute inset-0 rounded-full" style={{ background: spec.color }} transition={{ type: 'spring', stiffness: 500, damping: 35 }} />
               )}
-            </div>
-          </div>
-
-          {delta !== null && trendText && (
-            <div
-              className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold tabular-nums shrink-0"
-              style={{
-                color: trendColor,
-                background: `${trendColor}15`,
-                border: `1px solid ${trendColor}30`,
-              }}
-            >
-              <TrendIcon className="w-3 h-3" />
-              {trendText}
-            </div>
-          )}
-        </div>
-
-        {/* Sub-stats row */}
-        <div
-          className="grid grid-cols-3 py-2.5 px-3 rounded-2xl divide-x divide-border/40 rtl:divide-x-reverse"
-          style={{
-            background: 'hsl(var(--muted) / 0.4)',
-            border: '1px solid hsl(var(--border) / 0.3)',
-          }}
-        >
-          {[
-            { label: t.avg[lang], value: avg },
-            { label: t.min[lang], value: minV },
-            { label: t.max[lang], value: maxV },
-          ].map((s) => (
-            <div key={s.label} className="text-center px-1">
-              <div className="text-[9px] font-semibold text-muted-foreground/70">
-                {s.label}
-              </div>
-              <div
-                className="text-[13px] font-bold text-foreground tabular-nums leading-tight mt-0.5"
-                dir="ltr"
-              >
-                {s.value !== null ? s.value.toFixed(spec.digits) : '—'}
-              </div>
-            </div>
+              <span className="relative">{r === 7 ? t.range7[lang] : t.range14[lang]}</span>
+            </button>
           ))}
         </div>
-
-        {/* Big chart — chart axes always render LTR regardless of UI lang */}
-        <div className="h-44 -mx-2" dir="ltr">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={series} margin={{ top: 12, right: 12, left: 12, bottom: 4 }}>
-              <defs>
-                {/* Two-stop fill — apex slightly diluted so the line "sits on" the gradient
-                    instead of slicing through a dense block. Bottom fades smoothly to 0. */}
-                <linearGradient id={heroGradId} x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor={spec.color} stopOpacity={0.28} />
-                  <stop offset="100%" stopColor={spec.color} stopOpacity={0} />
-                </linearGradient>
-              </defs>
-
-              <CartesianGrid
-                stroke="hsl(var(--border))"
-                strokeOpacity={0.14}
-                vertical={false}
-                strokeDasharray="3 6"
-              />
-              <XAxis
-                dataKey="date"
-                tick={{ fontSize: 9, fill: 'hsl(var(--muted-foreground) / 0.55)' }}
-                axisLine={false}
-                tickLine={false}
-                interval={range === 14 ? 1 : 0}
-                tickMargin={8}
-              />
-              <YAxis hide domain={['auto', 'auto']} />
-              <Tooltip
-                cursor={{
-                  stroke: spec.color,
-                  strokeOpacity: 0.35,
-                  strokeWidth: 1,
-                  strokeDasharray: '3 4',
-                }}
-                content={
-                  <HeroTooltip color={spec.color} unit={spec.unit} digits={spec.digits} />
-                }
-              />
-              <Area
-                type="monotone"
-                dataKey={dataKey}
-                stroke={spec.color}
-                strokeWidth={2.25}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                fill={`url(#${heroGradId})`}
-                dot={PulseDot as any}
-                activeDot={{
-                  r: 4.5,
-                  strokeWidth: 2,
-                  stroke: 'hsl(var(--card))',
-                  fill: spec.color,
-                }}
-                isAnimationActive
-                animationDuration={1300}
-                connectNulls
-              />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
       </div>
-    </div>
+
+      <div className="flex items-end justify-between gap-3">
+        <div className="min-w-0">
+          <div className="text-[10px] font-semibold text-muted-foreground/70 mb-1">{t.today[lang]}</div>
+          <div className="flex items-baseline gap-1.5" dir="ltr">
+            <span className="text-[44px] font-bold tabular-nums leading-none" style={{ color: spec.color }}>
+              <AnimatedNumber value={todayValue ?? avg} digits={spec.digits} />
+            </span>
+            {spec.unit && <span className="text-[14px] text-muted-foreground/70 font-semibold">{spec.unit}</span>}
+          </div>
+        </div>
+
+        {delta !== null && trendText && (
+          <div className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold tabular-nums shrink-0"
+               style={{ color: trendColor, background: withAlpha(trendColor, 0.12), border: `1px solid ${withAlpha(trendColor, 0.25)}` }}>
+            <TrendIcon className="w-3 h-3" />
+            {trendText}
+          </div>
+        )}
+      </div>
+
+      <div className="grid grid-cols-3 py-2.5 px-3 rounded-2xl divide-x divide-border/40 rtl:divide-x-reverse"
+           style={{ background: 'hsl(var(--muted) / 0.4)', border: '1px solid hsl(var(--border) / 0.3)' }}>
+        {[
+          { label: t.avg[lang], value: avg },
+          { label: t.min[lang], value: minV },
+          { label: t.max[lang], value: maxV },
+        ].map((s) => (
+          <div key={s.label} className="text-center px-1">
+            <div className="text-[9px] font-semibold text-muted-foreground/70">{s.label}</div>
+            <div className="text-[13px] font-bold text-foreground tabular-nums leading-tight mt-0.5" dir="ltr">
+              {s.value !== null ? s.value.toFixed(spec.digits) : '—'}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="h-44 -mx-2" dir="ltr">
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart data={series} margin={{ top: 12, right: 12, left: 12, bottom: 4 }}>
+            <defs>
+              {/* Tighter mid-stop curve so the apex no longer slices a dense block */}
+              <linearGradient id={heroGradId} x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%"   stopColor={spec.color} stopOpacity={0.32} />
+                <stop offset="35%"  stopColor={spec.color} stopOpacity={0.18} />
+                <stop offset="65%"  stopColor={spec.color} stopOpacity={0.08} />
+                <stop offset="100%" stopColor={spec.color} stopOpacity={0} />
+              </linearGradient>
+            </defs>
+
+            <CartesianGrid stroke="hsl(var(--border))" strokeOpacity={0.14} vertical={false} strokeDasharray="3 6" />
+            <XAxis dataKey="date" tick={{ fontSize: 9, fill: 'hsl(var(--muted-foreground) / 0.55)' }} axisLine={false} tickLine={false} interval={range === 14 ? 1 : 0} tickMargin={8} />
+            <YAxis hide domain={['auto', 'auto']} />
+            <Tooltip cursor={{ stroke: spec.color, strokeOpacity: 0.35, strokeWidth: 1, strokeDasharray: '3 4' }} content={<HeroTooltip color={spec.color} unit={spec.unit} digits={spec.digits} />} />
+            <Area
+              type="monotone" dataKey={dataKey}
+              stroke={spec.color} strokeWidth={2.25} strokeLinecap="round" strokeLinejoin="round"
+              fill={`url(#${heroGradId})`}
+              dot={PulseDot as any}
+              activeDot={{ r: 4.5, strokeWidth: 2, stroke: 'hsl(var(--card))', fill: spec.color }}
+              isAnimationActive animationDuration={1300} connectNulls
+            />
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
+    </SoftSurface>
   );
 }
 
-/* ────────────────────────────── Main component ───────────────────────────── */
+/* ───────────── Main component ───────────── */
 export default function VitalsTab({ vitals, onSave }: Props) {
   const { language } = useApp();
   const isAr = language === 'ar';
-  const lang = isAr ? 'ar' : 'de';
+  const lang: 'ar' | 'de' = isAr ? 'ar' : 'de';
 
-  const [form, setForm] = useState<FormState>(() => emptyForm(todayIso()));
-  const [justSaved, setJustSaved] = useState(false);
-  const [formOpen, setFormOpen] = useState(false);
   const [activeMetric, setActiveMetric] = useState<MetricKey>('steps');
   const [range, setRange] = useState<7 | 14>(7);
+  const [logDate, setLogDate] = useState<string>(todayIso());
+  const [quickOpen, setQuickOpen] = useState(false);
+  const [quickMetric, setQuickMetric] = useState<QuickMetric | undefined>(undefined);
 
-  // When date changes, hydrate form from existing record
-  useEffect(() => {
-    const existing = vitals.find((v) => v.date === form.date);
-    if (existing) {
-      setForm((f) => ({
-        ...f,
-        steps: existing.steps?.toString() ?? '',
-        sleepHours: existing.sleepHours?.toString() ?? '',
-        sleepQuality: existing.sleepQuality?.toString() ?? '',
-        restingHR: existing.restingHR?.toString() ?? '',
-        weightKg: existing.weightKg?.toString() ?? '',
-        bpSystolic: existing.bpSystolic?.toString() ?? '',
-        bpDiastolic: existing.bpDiastolic?.toString() ?? '',
-        hydrationLiters: existing.hydrationLiters?.toString() ?? '',
-        energy: existing.energy?.toString() ?? '',
-        mood: existing.mood?.toString() ?? '',
-        notes: existing.notes ?? '',
-      }));
-    } else {
-      setForm(emptyForm(form.date));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [form.date, vitals.length]);
-
-  const update = <K extends keyof FormState>(k: K, v: FormState[K]) =>
-    setForm((f) => ({ ...f, [k]: v }));
-
-  const handleSave = async () => {
-    await onSave({
-      date: form.date,
-      steps: numOrUndef(form.steps),
-      sleepHours: numOrUndef(form.sleepHours),
-      sleepQuality: numOrUndef(form.sleepQuality),
-      restingHR: numOrUndef(form.restingHR),
-      weightKg: numOrUndef(form.weightKg),
-      bpSystolic: numOrUndef(form.bpSystolic),
-      bpDiastolic: numOrUndef(form.bpDiastolic),
-      hydrationLiters: numOrUndef(form.hydrationLiters),
-      energy: numOrUndef(form.energy),
-      mood: numOrUndef(form.mood),
-      notes: form.notes || undefined,
-    });
-    setJustSaved(true);
-    setTimeout(() => setJustSaved(false), 1400);
-  };
-
-  // Build full 14-day series (mini cards always show 14d)
   const fullSeries = useMemo<SeriesPoint[]>(() => {
     const days: { date: string; iso: string; label: string }[] = [];
     const now = new Date();
@@ -780,11 +433,7 @@ export default function VitalsTab({ vitals, onSave }: Props) {
     });
   }, [vitals]);
 
-  // Hero series respects the range toggle
-  const heroSeries = useMemo<SeriesPoint[]>(
-    () => (range === 7 ? fullSeries.slice(-7) : fullSeries),
-    [fullSeries, range],
-  );
+  const heroSeries = useMemo<SeriesPoint[]>(() => (range === 7 ? fullSeries.slice(-7) : fullSeries), [fullSeries, range]);
 
   const avgOf = (slice: SeriesPoint[], key: MetricKey): number | null => {
     const vals = slice.map((s) => s[key]).filter((n): n is number => typeof n === 'number');
@@ -822,173 +471,94 @@ export default function VitalsTab({ vitals, onSave }: Props) {
   };
 
   const todayValueFor = (key: MetricKey): number | null => {
-    const t = vitals.find((v) => v.date === todayIso());
-    if (!t) return null;
+    const today = vitals.find((v) => v.date === todayIso());
+    if (!today) return null;
     switch (key) {
-      case 'steps': return t.steps ?? null;
-      case 'sleep': return t.sleepHours ?? null;
-      case 'hr': return t.restingHR ?? null;
-      case 'weight': return t.weightKg ?? null;
-      case 'hydration': return t.hydrationLiters ?? null;
-      case 'energy': return t.energy ?? null;
+      case 'steps': return today.steps ?? null;
+      case 'sleep': return today.sleepHours ?? null;
+      case 'hr': return today.restingHR ?? null;
+      case 'weight': return today.weightKg ?? null;
+      case 'hydration': return today.hydrationLiters ?? null;
+      case 'energy': return today.energy ?? null;
     }
   };
 
   const hasAnyData = vitals.length > 0;
 
   const metricSpecs: MetricSpec[] = [
-    { key: 'steps', icon: Footprints, label: t.metrics.steps[lang], color: 'hsl(var(--primary))', unit: '', digits: 0, higherIsBetter: true },
-    { key: 'sleep', icon: Moon, label: t.metrics.sleep[lang], color: '#a78bfa', unit: 'h', digits: 1, higherIsBetter: true },
-    { key: 'hr', icon: HeartPulse, label: t.metrics.hr[lang], color: '#ef4444', unit: 'bpm', digits: 0, higherIsBetter: false },
-    { key: 'weight', icon: Scale, label: t.metrics.weight[lang], color: '#10b981', unit: 'kg', digits: 1, higherIsBetter: false },
-    { key: 'hydration', icon: Droplets, label: t.metrics.hydration[lang], color: '#06b6d4', unit: 'L', digits: 1, higherIsBetter: true },
-    { key: 'energy', icon: Zap, label: t.metrics.energy[lang], color: '#f59e0b', unit: '/5', digits: 1, higherIsBetter: true },
+    { key: 'steps',     icon: Footprints, label: t.metrics.steps[lang],     color: '#0ea5e9', unit: '',    digits: 0, higherIsBetter: true,  quick: 'steps' },
+    { key: 'sleep',     icon: Moon,       label: t.metrics.sleep[lang],     color: '#a78bfa', unit: 'h',   digits: 1, higherIsBetter: true,  quick: 'sleep' },
+    { key: 'hr',        icon: HeartPulse, label: t.metrics.hr[lang],        color: '#ef4444', unit: 'bpm', digits: 0, higherIsBetter: false, quick: 'restingHR' },
+    { key: 'weight',    icon: Scale,      label: t.metrics.weight[lang],    color: '#10b981', unit: 'kg',  digits: 1, higherIsBetter: false, quick: 'weight' },
+    { key: 'hydration', icon: Droplets,   label: t.metrics.hydration[lang], color: '#06b6d4', unit: 'L',   digits: 1, higherIsBetter: true,  quick: 'water' },
+    { key: 'energy',    icon: Zap,        label: t.metrics.energy[lang],    color: '#f59e0b', unit: '/5',  digits: 1, higherIsBetter: true,  quick: 'energy' },
   ];
 
   const activeSpec = metricSpecs.find((m) => m.key === activeMetric)!;
 
+  const targetVital = useMemo(() => vitals.find((v) => v.date === logDate) ?? null, [vitals, logDate]);
+
+  const openQuick = (m?: QuickMetric) => {
+    setQuickMetric(m);
+    setQuickOpen(true);
+  };
+
   return (
     <div className="space-y-5">
-      {/* Header */}
+      {/* Header card */}
       <motion.div variants={SECTION} initial="hidden" animate="show">
-        <div className="rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20 p-4 flex items-start gap-3">
-          <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center shrink-0">
-            <HeartPulse className="w-5 h-5 text-primary" />
-          </div>
-          <div>
-            <h3 className="text-[14px] font-bold text-foreground">{t.title[lang]}</h3>
-            <p className="text-[12px] text-muted-foreground mt-0.5 leading-relaxed">
-              {t.subtitle[lang]}
-            </p>
-          </div>
-        </div>
-      </motion.div>
-
-      {/* Collapsible form */}
-      <motion.div variants={SECTION} initial="hidden" animate="show">
-        <div
-          className="rounded-2xl bg-card border border-border/40 overflow-hidden"
-          style={{ boxShadow: formOpen ? '0 12px 32px -16px hsl(var(--primary) / 0.18)' : undefined }}
-        >
-          {/* Header bar — always visible */}
-          <button
-            type="button"
-            onClick={() => setFormOpen((v) => !v)}
-            className="w-full flex items-center justify-between gap-3 px-4 py-3.5 active:scale-[0.995] transition-transform"
-            aria-expanded={formOpen}
-          >
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="w-9 h-9 rounded-xl bg-primary/12 flex items-center justify-center shrink-0">
-                <Plus
-                  className="w-4 h-4 text-primary transition-transform duration-300"
-                  style={{ transform: formOpen ? 'rotate(45deg)' : 'rotate(0deg)' }}
-                />
+        <SoftSurface accent="hsl(var(--primary))" variant="mesh" intensity={0.7} className="p-4">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center shrink-0">
+                <HeartPulse className="w-5 h-5 text-primary" />
               </div>
-              <div className="text-left min-w-0" dir={isAr ? 'rtl' : 'ltr'}>
-                <div className="text-[13px] font-bold text-foreground truncate">
-                  {t.logEntry[lang]}
-                </div>
-                <div className="text-[11px] text-muted-foreground truncate">
-                  {t.logEntrySub[lang]}
-                </div>
+              <div>
+                <h3 className="text-[14px] font-bold text-foreground">{t.title[lang]}</h3>
+                <p className="text-[12px] text-muted-foreground mt-0.5 leading-relaxed">{t.subtitle[lang]}</p>
               </div>
             </div>
-            <motion.div
-              animate={{ rotate: formOpen ? 180 : 0 }}
-              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-              className="shrink-0"
+            <button
+              onClick={() => openQuick()}
+              className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-[12px] font-semibold active:scale-95 transition-transform"
             >
-              <ChevronDown className="w-4 h-4 text-muted-foreground" />
-            </motion.div>
-          </button>
-
-          {/* Animated body */}
-          <AnimatePresence initial={false}>
-            {formOpen && (
-              <motion.div
-                key="form-body"
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{
-                  height: { duration: 0.35, ease: [0.16, 1, 0.3, 1] },
-                  opacity: { duration: 0.25 },
-                }}
-                style={{ overflow: 'hidden' }}
-              >
-                <div className="px-4 pb-4 pt-1 space-y-4 border-t border-border/30">
-                  <div className="space-y-1.5 pt-3">
-                    <label className="text-[11px] font-semibold text-muted-foreground">
-                      {t.date[lang]}
-                    </label>
-                    <AppDatePicker value={form.date} onChange={(v) => update('date', v)} />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <NumInput icon={Footprints} label={t.steps[lang]} value={form.steps} onChange={(v) => update('steps', v)} placeholder="8000" />
-                    <NumInput icon={Moon} label={t.sleepHours[lang]} value={form.sleepHours} onChange={(v) => update('sleepHours', v)} placeholder="7.5" step="0.1" />
-                    <NumInput icon={Moon} label={t.sleepQuality[lang]} value={form.sleepQuality} onChange={(v) => update('sleepQuality', v)} placeholder="4" />
-                    <NumInput icon={HeartPulse} label={t.restingHR[lang]} value={form.restingHR} onChange={(v) => update('restingHR', v)} placeholder="62" />
-                    <NumInput icon={Scale} label={t.weight[lang]} value={form.weightKg} onChange={(v) => update('weightKg', v)} placeholder="72.5" step="0.1" />
-                    <NumInput icon={Droplets} label={t.hydration[lang]} value={form.hydrationLiters} onChange={(v) => update('hydrationLiters', v)} placeholder="2.0" step="0.1" />
-                  </div>
-
-                  {/* Blood pressure */}
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] font-semibold text-muted-foreground flex items-center gap-1.5">
-                      <Activity className="w-3.5 h-3.5" />
-                      {t.bp[lang]}
-                    </label>
-                    <div className="grid grid-cols-2 gap-3">
-                      <input
-                        type="number"
-                        inputMode="numeric"
-                        value={form.bpSystolic}
-                        onChange={(e) => update('bpSystolic', e.target.value)}
-                        placeholder="120"
-                        className="w-full bg-secondary/50 border border-border/40 rounded-xl px-3 py-2.5 text-[16px] text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-primary/40"
-                      />
-                      <input
-                        type="number"
-                        inputMode="numeric"
-                        value={form.bpDiastolic}
-                        onChange={(e) => update('bpDiastolic', e.target.value)}
-                        placeholder="80"
-                        className="w-full bg-secondary/50 border border-border/40 rounded-xl px-3 py-2.5 text-[16px] text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-primary/40"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <NumInput icon={Zap} label={t.energy[lang]} value={form.energy} onChange={(v) => update('energy', v)} placeholder="4" />
-                    <NumInput icon={Zap} label={t.mood[lang]} value={form.mood} onChange={(v) => update('mood', v)} placeholder="4" />
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] font-semibold text-muted-foreground">{t.notes[lang]}</label>
-                    <textarea
-                      value={form.notes}
-                      onChange={(e) => update('notes', e.target.value)}
-                      rows={2}
-                      className="w-full bg-secondary/50 border border-border/40 rounded-xl px-3 py-2.5 text-[16px] text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-primary/40 resize-none"
-                    />
-                  </div>
-
-                  <button
-                    onClick={handleSave}
-                    className="w-full py-3 rounded-xl bg-primary text-primary-foreground text-sm font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition-transform"
-                  >
-                    <Save className="w-4 h-4" />
-                    {justSaved ? t.saved[lang] : t.save[lang]}
-                  </button>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+              <Plus className="w-3.5 h-3.5" />
+              {t.log[lang]}
+            </button>
+          </div>
+        </SoftSurface>
       </motion.div>
 
-      {/* Hero metric card */}
+      {/* Date row + edit button */}
+      <motion.div variants={SECTION} initial="hidden" animate="show">
+        <SoftSurface variant="flat" className="p-3">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                <CalendarDays className="w-4 h-4 text-primary" />
+              </div>
+              <div className="text-start">
+                <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">
+                  {t.logForDate[lang]}
+                </div>
+                <div className="text-[13px] font-bold text-foreground" dir="ltr">{logDate}</div>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <AppDatePicker value={logDate} onChange={setLogDate} />
+              <button
+                onClick={() => openQuick()}
+                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-secondary text-secondary-foreground text-[11px] font-semibold"
+              >
+                <Pencil className="w-3 h-3" />
+                {targetVital ? (isAr ? 'تعديل' : 'Bearb.') : t.log[lang]}
+              </button>
+            </div>
+          </div>
+        </SoftSurface>
+      </motion.div>
+
+      {/* Hero chart */}
       {hasAnyData ? (
         <motion.div variants={SECTION} initial="hidden" animate="show">
           <AnimatePresence mode="wait">
@@ -1013,13 +583,13 @@ export default function VitalsTab({ vitals, onSave }: Props) {
         </motion.div>
       ) : (
         <motion.div variants={SECTION} initial="hidden" animate="show">
-          <div className="bg-card border border-dashed border-border/50 rounded-2xl p-8 text-center">
-            <p className="text-sm text-muted-foreground">{t.noData[lang]}</p>
-          </div>
+          <SoftSurface variant="flat" className="p-8 border-dashed">
+            <p className="text-sm text-muted-foreground text-center">{t.noData[lang]}</p>
+          </SoftSurface>
         </motion.div>
       )}
 
-      {/* Trend mini grid */}
+      {/* Mini-card grid */}
       {hasAnyData && (
         <motion.div variants={SECTION} initial="hidden" animate="show">
           <p className="text-[11px] font-semibold text-muted-foreground/80 px-1 mb-2 flex items-center gap-1.5">
@@ -1027,12 +597,7 @@ export default function VitalsTab({ vitals, onSave }: Props) {
             {t.trends[lang]}
           </p>
 
-          <motion.div
-            variants={CARD_STAGGER}
-            initial="hidden"
-            animate="show"
-            className="grid grid-cols-2 gap-3"
-          >
+          <motion.div variants={CARD_STAGGER} initial="hidden" animate="show" className="grid grid-cols-2 gap-3">
             {metricSpecs.map((spec) => (
               <MiniMetricCard
                 key={spec.key}
@@ -1041,12 +606,43 @@ export default function VitalsTab({ vitals, onSave }: Props) {
                 avg={last7Avg[spec.key]}
                 delta={deltaPct(last7Avg[spec.key], prev7Avg[spec.key])}
                 active={spec.key === activeMetric}
-                onSelect={() => setActiveMetric(spec.key)}
+                onSelect={() => {
+                  setActiveMetric(spec.key);
+                }}
               />
             ))}
           </motion.div>
         </motion.div>
       )}
+
+      {/* The shared quick-log sheet — same UI as Today tab */}
+      <QuickLogSheet
+        open={quickOpen}
+        metric={quickMetric}
+        forDate={logDate}
+        todayVital={targetVital}
+        hydrationTodayMl={0}
+        hideHydration={logDate !== todayIso()}
+        onClose={() => setQuickOpen(false)}
+        onSaveVital={async (patch) => {
+          await onSave({
+            date: logDate,
+            steps: patch.steps ?? targetVital?.steps,
+            sleepHours: patch.sleepHours ?? targetVital?.sleepHours,
+            sleepQuality: patch.sleepQuality ?? targetVital?.sleepQuality,
+            restingHR: patch.restingHR ?? targetVital?.restingHR,
+            hrv: patch.hrv ?? targetVital?.hrv,
+            weightKg: patch.weightKg ?? targetVital?.weightKg,
+            bpSystolic: patch.bpSystolic ?? targetVital?.bpSystolic,
+            bpDiastolic: patch.bpDiastolic ?? targetVital?.bpDiastolic,
+            hydrationLiters: patch.hydrationLiters ?? targetVital?.hydrationLiters,
+            energy: patch.energy ?? targetVital?.energy,
+            mood: patch.mood ?? targetVital?.mood,
+            notes: targetVital?.notes,
+          });
+        }}
+        onAddHydration={async () => { /* hydration sheet handled separately for non-today dates */ }}
+      />
     </div>
   );
 }

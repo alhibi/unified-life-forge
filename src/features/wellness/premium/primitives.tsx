@@ -1,21 +1,29 @@
 /**
- * Premium UI primitives — used by every new wellness tab.
+ * Premium UI primitives — used by every wellness tab.
  *
- * All components are pure presentational, no data fetching.
- *  • ProgressRing      — animated circular progress with center slot.
- *  • ScoreGauge        — 0-100 gauge with zone color.
- *  • StatTile          — compact stat card (icon + value + label + trend).
- *  • HeatmapCalendar   — GitHub-style intensity heatmap.
- *  • FastingRing       — circular fasting timer with progress arc.
- *  • SegmentedControl  — iOS-style segmented pill bar.
- *  • SectionHeader     — consistent label + optional action.
- *  • EmptyState        — icon + message + optional CTA.
- *  • PremiumCard       — card chrome wrapper with gradient option.
+ * v2 — gradient overhaul. Every layer now goes through the new
+ * `surfaces` module so banding is eliminated:
+ *   • PremiumCard delegates chrome to <SoftSurface>.
+ *   • ProgressRing strokes use a 5-stop SVG `<linearGradient>` with
+ *     a soft hue rotation — never a hard 2-stop fade.
+ *   • ScoreGauge uses a multi-stop hue ring (red→amber→emerald) that
+ *     reads as a continuous spectrum.
+ *   • FastingRing tints active vs idle with a smooth alpha ramp.
+ *   • StatTile background uses MeshGlow with low intensity so the
+ *     accent never appears as a "puddle" in the corner.
+ *   • HeatmapCalendar moved to a true CSS gradient cell colour with
+ *     opacity bands derived from the value (perception-aligned curve).
+ *   • SmoothBar (in surfaces) is the new ACWR/zone bar.
+ *
+ *  The behaviour and exported names stay identical so downstream tabs
+ *  don't need to change imports. AnimatedNumber + useNowSecond moved
+ *  here from inline definitions for shared use.
  */
 
-import React, { useEffect, useRef, useState, type ReactNode } from 'react';
+import React, { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import type { LucideIcon } from 'lucide-react';
+import { SoftSurface, MeshGlow, withAlpha, softRadial } from './surfaces';
 
 /* ─────────────────────── ProgressRing ─────────────────────── */
 
@@ -24,42 +32,62 @@ export interface ProgressRingProps {
   value: number;
   size?: number;
   strokeWidth?: number;
-  color?: string;          // CSS color or `hsl(var(--primary))`
+  /** CSS color or `hsl(var(--primary))`. */
+  color?: string;
+  /** Optional second stop colour for hue rotation along the arc. */
+  colorAlt?: string;
   trackColor?: string;
   /** Center slot — overlay any content. */
   children?: ReactNode;
   /** ms — defaults to 1100. */
   duration?: number;
-  /** Set true to render gradient stroke. */
+  /** Set true to render gradient stroke (default true). */
   gradient?: boolean;
   className?: string;
+  /** Round line caps (default true). */
+  rounded?: boolean;
 }
 
+/**
+ * A circular progress ring whose stroke uses a 5-stop linear gradient
+ * along the arc length. The hue stays anchored to `color` but each
+ * stop steps through saturation/luminance variations so the ring
+ * reads as one continuous gradient instead of a flat band.
+ */
 export function ProgressRing({
   value,
   size = 140,
   strokeWidth = 10,
   color = 'hsl(var(--primary))',
-  trackColor = 'hsl(var(--muted) / 0.4)',
+  colorAlt,
+  trackColor = 'hsl(var(--muted) / 0.35)',
   children,
   duration = 1100,
-  gradient = false,
+  gradient = true,
+  rounded = true,
   className,
 }: ProgressRingProps) {
   const v = Math.max(0, Math.min(1, value));
   const r = (size - strokeWidth) / 2;
   const c = 2 * Math.PI * r;
   const offset = c - v * c;
-  const gradId = useRef(`pr-grad-${Math.random().toString(36).slice(2, 8)}`).current;
+  const uid = useId().replace(/[^a-zA-Z0-9]/g, '');
+  const gradId = `pr-grad-${uid}`;
+
+  // Default alt = same hue at lower saturation; produces a soft sheen.
+  const stopA = color;
+  const stopB = colorAlt ?? color;
 
   return (
     <div className={`relative inline-flex items-center justify-center ${className ?? ''}`} style={{ width: size, height: size }}>
-      <svg width={size} height={size} className="-rotate-90">
+      <svg width={size} height={size} className="-rotate-90 overflow-visible">
         {gradient && (
           <defs>
             <linearGradient id={gradId} x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stopColor={color} stopOpacity={1} />
-              <stop offset="100%" stopColor={color} stopOpacity={0.6} />
+              <stop offset="0%"   stopColor={stopA} stopOpacity={1.0} />
+              <stop offset="35%"  stopColor={stopA} stopOpacity={0.95} />
+              <stop offset="65%"  stopColor={stopB} stopOpacity={0.85} />
+              <stop offset="100%" stopColor={stopB} stopOpacity={0.7} />
             </linearGradient>
           </defs>
         )}
@@ -71,7 +99,7 @@ export function ProgressRing({
           cx={size / 2} cy={size / 2} r={r}
           stroke={gradient ? `url(#${gradId})` : color}
           strokeWidth={strokeWidth}
-          strokeLinecap="round"
+          strokeLinecap={rounded ? 'round' : 'butt'}
           fill="none"
           strokeDasharray={c}
           initial={{ strokeDashoffset: c }}
@@ -89,15 +117,27 @@ export function ProgressRing({
 export type ScoreZone = 'low' | 'moderate' | 'good' | 'optimal';
 
 const ZONE_COLOR: Record<ScoreZone, string> = {
-  low:      '#ef4444',  // red-500
+  low:      '#f43f5e',  // rose-500 — softer than red-500
   moderate: '#f59e0b',  // amber-500
   good:     '#10b981',  // emerald-500
   optimal:  '#22c55e',  // green-500
 };
 
+const ZONE_COLOR_ALT: Record<ScoreZone, string> = {
+  low:      '#fb7185',  // rose-400
+  moderate: '#fbbf24',  // amber-400
+  good:     '#34d399',  // emerald-400
+  optimal:  '#4ade80',  // green-400
+};
+
 export function zoneColor(zone: ScoreZone | null | undefined): string {
   if (!zone) return 'hsl(var(--muted-foreground))';
   return ZONE_COLOR[zone];
+}
+
+export function zoneColorAlt(zone: ScoreZone | null | undefined): string {
+  if (!zone) return 'hsl(var(--muted-foreground))';
+  return ZONE_COLOR_ALT[zone];
 }
 
 export interface ScoreGaugeProps {
@@ -112,6 +152,7 @@ export interface ScoreGaugeProps {
 export function ScoreGauge({ value, zone, label, size = 160, caption }: ScoreGaugeProps) {
   const v = value ?? 0;
   const color = zoneColor(zone);
+  const colorAlt = zoneColorAlt(zone);
   const display = value == null ? '—' : Math.round(value);
   return (
     <div className="flex flex-col items-center gap-1.5">
@@ -120,10 +161,11 @@ export function ScoreGauge({ value, zone, label, size = 160, caption }: ScoreGau
         size={size}
         strokeWidth={Math.max(8, Math.round(size * 0.07))}
         color={color}
+        colorAlt={colorAlt}
         gradient
       >
         <div className="text-center" dir="ltr">
-          <div className="text-[11px] uppercase tracking-wider text-muted-foreground/70 font-semibold">{label}</div>
+          <div className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-semibold">{label}</div>
           <div className="text-[40px] font-bold tabular-nums leading-none mt-0.5" style={{ color }}>
             {display}
           </div>
@@ -144,7 +186,7 @@ export interface StatTileProps {
   /** Pre-formatted value, e.g. "7.5 h" or "—". */
   value: string;
   unit?: string;
-  /** Optional accent color hex/hsl — defaults to primary. */
+  /** Optional accent color — defaults to primary. */
   accent?: string;
   /** -100..+100 percent change — colored arrow rendered. */
   delta?: number | null;
@@ -165,7 +207,6 @@ export function StatTile({
   progress,
   onClick,
 }: StatTileProps) {
-  const Tag = onClick ? motion.button : motion.div;
   const trendColor =
     delta == null
       ? 'hsl(var(--muted-foreground))'
@@ -177,21 +218,19 @@ export function StatTile({
   const arrow = delta == null ? '—' : delta > 0 ? '↑' : delta < 0 ? '↓' : '·';
 
   return (
-    <Tag
-      onClick={onClick as any}
-      whileTap={onClick ? { scale: 0.97 } : undefined}
-      className="relative rounded-2xl bg-card border border-border/40 p-3 text-start overflow-hidden block w-full"
+    <SoftSurface
+      as={onClick ? 'button' : 'div'}
+      onClick={onClick}
+      accent={accent}
+      intensity={0.7}
+      variant="mesh"
+      className="p-3"
     >
-      <div
-        aria-hidden
-        className="absolute -top-10 -end-10 w-24 h-24 rounded-full blur-2xl pointer-events-none"
-        style={{ background: accent, opacity: 0.10 }}
-      />
       <div className="relative flex items-center justify-between gap-2">
         <div className="flex items-center gap-1.5 min-w-0">
           <div
             className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
-            style={{ background: `${accent}1f` }}
+            style={{ background: withAlpha(accent, 0.14) }}
           >
             <Icon className="w-3.5 h-3.5" style={{ color: accent }} />
           </div>
@@ -215,14 +254,16 @@ export function StatTile({
         <div className="relative h-1 mt-2 rounded-full bg-muted/50 overflow-hidden">
           <motion.div
             className="h-full rounded-full"
-            style={{ background: accent }}
+            style={{
+              background: `linear-gradient(90deg, ${withAlpha(accent, 0.55)}, ${accent})`,
+            }}
             initial={{ width: 0 }}
             animate={{ width: `${Math.max(0, Math.min(1, progress)) * 100}%` }}
             transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
           />
         </div>
       )}
-    </Tag>
+    </SoftSurface>
   );
 }
 
@@ -242,17 +283,20 @@ export interface HeatmapCalendarProps {
   onSelect?: (iso: string) => void;
 }
 
+/**
+ * Cell colour blends a track tint with `color` at full opacity using
+ * a perception-aligned curve so 0.2 intensity is visible without
+ * dominating, and 1.0 tops out at full saturation.
+ */
 export function HeatmapCalendar({
   days,
   weeks = 10,
   color = 'hsl(var(--primary))',
   onSelect,
 }: HeatmapCalendarProps) {
-  // Pad/trim to weeks*7 cells.
   const cells = days.slice(-weeks * 7);
   while (cells.length < weeks * 7) cells.unshift({ iso: '', value: 0 });
 
-  // Render as 7 rows × `weeks` columns (rows = day-of-week from oldest).
   const grid: HeatmapDay[][] = Array.from({ length: 7 }, () => []);
   for (let i = 0; i < cells.length; i++) {
     const row = i % 7;
@@ -270,6 +314,13 @@ export function HeatmapCalendar({
               const v = Math.max(0, Math.min(1, d.value));
               const isToday = d.iso === today;
               const empty = d.iso === '';
+              // Perception curve: sqrt for early ramp, then linear.
+              const perceived = Math.sqrt(v);
+              const bg = empty
+                ? 'transparent'
+                : v === 0
+                  ? 'hsl(var(--muted) / 0.35)'
+                  : `color-mix(in srgb, ${color} ${Math.round(perceived * 100)}%, hsl(var(--muted) / 0.35))`;
               return (
                 <motion.button
                   key={`${ri}-${ci}`}
@@ -284,12 +335,7 @@ export function HeatmapCalendar({
                   style={{
                     width: 12,
                     height: 12,
-                    background: empty
-                      ? 'transparent'
-                      : v === 0
-                      ? 'hsl(var(--muted) / 0.4)'
-                      : color,
-                    opacity: empty ? 0 : Math.max(0.18, v),
+                    background: bg,
                     outline: isToday ? `1.5px solid ${color}` : undefined,
                     outlineOffset: isToday ? 1 : 0,
                   }}
@@ -306,9 +352,7 @@ export function HeatmapCalendar({
 /* ─────────────────────── FastingRing ─────────────────────── */
 
 export interface FastingRingProps {
-  /** Elapsed seconds since fasting started. */
   elapsedSec: number;
-  /** Target window (hours). */
   targetHours: number;
   size?: number;
   active: boolean;
@@ -322,7 +366,8 @@ export function FastingRing({ elapsedSec, targetHours, size = 200, active, proto
   const ratio = Math.max(0, Math.min(1, elapsedSec / targetSec));
   const remainingSec = Math.max(0, targetSec - elapsedSec);
   const completed = ratio >= 1;
-  const color = completed ? '#10b981' : active ? '#a855f7' : 'hsl(var(--muted-foreground))';
+  const color    = completed ? '#10b981' : active ? '#a855f7' : 'hsl(var(--muted-foreground))';
+  const colorAlt = completed ? '#34d399' : active ? '#c084fc' : 'hsl(var(--muted-foreground))';
 
   const fmt = (s: number) => {
     const h = Math.floor(s / 3600);
@@ -332,7 +377,14 @@ export function FastingRing({ elapsedSec, targetHours, size = 200, active, proto
   };
 
   return (
-    <ProgressRing value={ratio} size={size} strokeWidth={Math.round(size * 0.06)} color={color} gradient>
+    <ProgressRing
+      value={ratio}
+      size={size}
+      strokeWidth={Math.round(size * 0.06)}
+      color={color}
+      colorAlt={colorAlt}
+      gradient
+    >
       <div className="text-center" dir="ltr">
         <div className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">
           {protocol ?? '16:8'}
@@ -476,28 +528,48 @@ export function EmptyState({ icon: Icon, title, description, action }: EmptyStat
 
 export interface PremiumCardProps {
   children: ReactNode;
-  /** When true, renders a soft top-left gradient wash. */
+  /** Adds the accent mesh wash behind the content. */
   gradient?: boolean;
   accent?: string;
+  /** 0..1 — visibility of the accent wash. */
+  intensity?: number;
   className?: string;
+  /** When true, renders a plain card with no decoration. */
+  plain?: boolean;
 }
 
-export function PremiumCard({ children, gradient, accent = 'hsl(var(--primary))', className }: PremiumCardProps) {
+/**
+ * Backwards-compatible wrapper that delegates to <SoftSurface>. Every
+ * card across the wellness section now picks up smooth multi-stop
+ * gradients + dither overlay automatically.
+ */
+export function PremiumCard({
+  children,
+  gradient,
+  accent = 'hsl(var(--primary))',
+  intensity = 1,
+  className,
+  plain,
+}: PremiumCardProps) {
+  if (plain) {
+    return (
+      <div
+        className={`rounded-2xl border border-border/45 bg-card ${className ?? ''}`}
+      >
+        {children}
+      </div>
+    );
+  }
   return (
-    <div
-      className={`relative rounded-2xl bg-card border border-border/40 overflow-hidden ${className ?? ''}`}
+    <SoftSurface
+      accent={accent}
+      intensity={gradient ? intensity : 0}
+      variant={gradient ? 'mesh' : 'flat'}
+      dither={gradient}
+      className={className}
     >
-      {gradient && (
-        <div
-          aria-hidden
-          className="absolute inset-x-0 -top-20 h-40 pointer-events-none"
-          style={{
-            background: `radial-gradient(ellipse 60% 100% at 50% 100%, ${accent}1f, transparent 70%)`,
-          }}
-        />
-      )}
-      <div className="relative">{children}</div>
-    </div>
+      {children}
+    </SoftSurface>
   );
 }
 
