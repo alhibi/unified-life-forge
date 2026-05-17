@@ -44,7 +44,19 @@ export interface DietLog {
   id: UUID;
   date: string;
   foodKey: string;
+  /**
+   * Legacy multiplier (1 = "one serving"). New entries should set
+   * `grams` instead, but old entries are honored via the
+   * `defaultGramsFor` heuristic in foodMacros.ts.
+   */
   portion: number;
+  /** Mass in grams. New field — falls back to `portion * default` if absent. */
+  grams?: number;
+  /**
+   * Override for foods we don't have nutrition data for (typically
+   * `custom:<name>`). Per-100g values; macrosFor scales by `grams`.
+   */
+  customMacros?: { kcal: number; protein: number; carbs: number; fat: number };
   loggedAt: number;
 }
 
@@ -161,6 +173,19 @@ export interface Goal {
   period: 'daily' | 'weekly';
   active: boolean;
   createdAt: number;
+  /**
+   * Optional starting value — only meaningful for `weight` goals,
+   * which need to express "I started at 95 kg, going to 75 kg".
+   * If absent, the engine assumes the first measurement after the
+   * goal's createdAt is the start.
+   */
+  startValue?: number;
+  /**
+   * Direction of change. `lose` (target < start) and `gain`
+   * (target > start) are the two interesting cases for weight.
+   * Defaults to `lose` when target < start, else `gain`.
+   */
+  direction?: 'lose' | 'gain';
 }
 
 export interface HydrationEvent {
@@ -368,8 +393,20 @@ export async function logDiet(
   date: string,
   foodKey: string,
   portion = 1,
+  extras?: {
+    grams?: number;
+    customMacros?: { kcal: number; protein: number; carbs: number; fat: number };
+  },
 ): Promise<DietLog> {
-  const entry: DietLog = { id: uuid(), date, foodKey, portion, loggedAt: Date.now() };
+  const entry: DietLog = {
+    id: uuid(),
+    date,
+    foodKey,
+    portion,
+    grams: extras?.grams,
+    customMacros: extras?.customMacros,
+    loggedAt: Date.now(),
+  };
   return put(STORES.dietLogs, entry);
 }
 
@@ -509,6 +546,8 @@ export async function saveGoal(
     period: input.period,
     active: input.active,
     createdAt: input.createdAt ?? Date.now(),
+    startValue: input.startValue,
+    direction: input.direction,
   };
   return put(STORES.goals, out);
 }

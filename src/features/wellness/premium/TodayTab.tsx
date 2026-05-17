@@ -545,7 +545,10 @@ function StreakCard({ workouts, lang }: { workouts: WorkoutSession[]; lang: 'ar'
     for (const w of workouts) byDay.set(w.date, (byDay.get(w.date) ?? 0) + 1);
     for (let i = 55; i >= 0; i--) {
       const d = new Date(today); d.setDate(d.getDate() - i);
-      const iso = d.toISOString().slice(0, 10);
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const dd = String(d.getDate()).padStart(2, '0');
+      const iso = `${y}-${m}-${dd}`;
       const c = byDay.get(iso) ?? 0;
       out.push({ iso, value: c === 0 ? 0 : Math.min(1, 0.4 + c * 0.3) });
     }
@@ -554,7 +557,9 @@ function StreakCard({ workouts, lang }: { workouts: WorkoutSession[]; lang: 'ar'
 
   const streak = useMemo(() => {
     const set = new Set(workouts.map((w) => w.date));
-    return streakBackwards((iso) => set.has(iso));
+    // Allow 1 rest day between workouts before the streak breaks —
+    // matches healthy training (3-5x/week beats daily for most lifters).
+    return streakBackwards((iso) => set.has(iso), 365, 1);
   }, [workouts]);
 
   return (

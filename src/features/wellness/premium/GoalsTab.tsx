@@ -24,6 +24,7 @@ import {
 } from './primitives';
 import { dailyWaterMl, macroTarget, athleticSummary } from '../athleticEngine';
 import { streakBackwards } from '../recoveryEngine';
+import { dailyMacros } from '../foodMacros';
 
 interface Props {
   profile: AthleteProfile | null;
@@ -79,6 +80,14 @@ const T = {
     ar: 'أكمل ملفك الرياضي لاقتراحات أكثر دقة.',
     de: 'Vervollständige dein Profil für genauere Empfehlungen.',
   },
+  startValue: { ar: 'القيمة الابتدائية', de: 'Startwert' },
+  direction: { ar: 'الاتجاه', de: 'Richtung' },
+  lose: { ar: 'إنقاص', de: 'Abnehmen' },
+  gain: { ar: 'زيادة', de: 'Zunehmen' },
+  weightHint: {
+    ar: 'مثال: ابدأ من 95كغ، الهدف 75كغ — التقدّم يقاس على رحلة 20كغ.',
+    de: 'Beispiel: Start 95 kg, Ziel 75 kg — Fortschritt entlang der 20 kg.',
+  },
 };
 
 const METRIC_META: Record<GoalMetric, {
@@ -124,6 +133,7 @@ function progressForGoal(
     workouts: WorkoutSession[];
     hydration: HydrationEvent[];
     skinHair: SkinHairLog[];
+    dietLogs: DietLog[];
   },
 ): ProgressRow {
   const { todayIso: today } = ctx;
@@ -131,7 +141,10 @@ function progressForGoal(
   const isWeekly = g.period === 'weekly';
   const since = new Date();
   since.setDate(since.getDate() - 6);
-  const sinceIso = since.toISOString().slice(0, 10);
+  const sy = since.getFullYear();
+  const sm = String(since.getMonth() + 1).padStart(2, '0');
+  const sd = String(since.getDate()).padStart(2, '0');
+  const sinceIso = `${sy}-${sm}-${sd}`;
 
   let current = 0;
 
@@ -154,9 +167,8 @@ function progressForGoal(
       break;
     }
     case 'water': {
-      const target = todayIso();
       current = ctx.hydration
-        .filter((h) => h.date === target)
+        .filter((h) => h.date === today)
         .reduce((s, h) => s + h.amountMl, 0);
       break;
     }
@@ -169,6 +181,7 @@ function progressForGoal(
       break;
     }
     case 'weight': {
+      // Latest known weight (from any vital, not just today's)
       const v = ctx.vitals.find((x) => x.weightKg && x.weightKg > 0);
       current = v?.weightKg ?? 0;
       break;
@@ -178,21 +191,61 @@ function progressForGoal(
       current = streakBackwards((iso) => set.has(iso));
       break;
     }
-    case 'protein':
+    case 'protein': {
+      const todays = ctx.dietLogs.filter((d) => d.date === today);
+      current = dailyMacros(todays).protein;
+      break;
+    }
     case 'calories': {
-      // Without per-food macros, we cannot compute precisely. Return 0.
-      current = 0;
+      const todays = ctx.dietLogs.filter((d) => d.date === today);
+      current = dailyMacros(todays).kcal;
       break;
     }
   }
 
   const target = g.target > 0 ? g.target : 1;
-  const ratio =
-    g.metric === 'weight'
-      ? // Weight goals: closer to target = better; ratio = 1 - |delta|/target.
-        current === 0 ? 0 : Math.max(0, 1 - Math.abs(current - target) / target)
-      : Math.max(0, Math.min(1, current / target));
-  const done = ratio >= 1;
+  let ratio: number;
+  let done: boolean;
+
+  if (g.metric === 'weight') {
+    // Weight goal: progress along start → target.
+    // If startValue is missing, infer it from the first measurement
+    // logged after createdAt. If we still don't know, fall back to
+    // current (so the user is "at the start").
+    const startValue =
+      g.startValue ??
+      (() => {
+        const after = [...ctx.vitals]
+          .filter((v) => v.weightKg && v.loggedAt >= (g.createdAt ?? 0))
+          .sort((a, b) => a.loggedAt - b.loggedAt)[0];
+        return after?.weightKg ?? current;
+      })();
+
+    const direction =
+      g.direction ?? (target < startValue ? 'lose' : 'gain');
+
+    if (current === 0 || startValue <= 0) {
+      ratio = 0;
+      done = false;
+    } else if (Math.abs(target - startValue) < 0.01) {
+      // No real change requested — treat as maintenance: 100% if within ±1 kg.
+      ratio = Math.abs(current - target) <= 1 ? 1 : 0;
+      done = ratio >= 1;
+    } else {
+      const total = Math.abs(target - startValue);
+      const traveled =
+        direction === 'lose' ? startValue - current : current - startValue;
+      ratio = Math.max(0, Math.min(1, traveled / total));
+      // Done when we've reached target (or surpassed in the right direction).
+      done =
+        direction === 'lose' ? current <= target : current >= target;
+      if (done) ratio = 1;
+    }
+  } else {
+    ratio = Math.max(0, Math.min(1, current / target));
+    done = ratio >= 1;
+  }
+
   return { goal: g, current, ratio, done };
 }
 
@@ -255,8 +308,16 @@ function GoalEditor({
   const [target, setTarget] = useState<string>(String(initial.target));
   const [period, setPeriod] = useState<'daily' | 'weekly'>(initial.period);
   const [active, setActive] = useState<boolean>(isExisting ? (initial as Goal).active : true);
+  const initialStart = isExisting ? (initial as Goal).startValue : undefined;
+  const initialDir = isExisting ? (initial as Goal).direction : undefined;
+  const [startValue, setStartValue] = useState<string>(initialStart != null ? String(initialStart) : '');
+  const [direction, setDirection] = useState<'lose' | 'gain'>(
+    initialDir
+      ?? (Number(initialStart ?? 0) > Number(initial.target) ? 'lose' : 'gain'),
+  );
 
   const meta = METRIC_META[metric];
+  const isWeight = metric === 'weight';
 
   return (
     <motion.div
@@ -349,6 +410,50 @@ function GoalEditor({
             </div>
           </div>
 
+          {/* Weight-specific: startValue + direction */}
+          {isWeight && (
+            <>
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-wider">
+                  {T.startValue[lang]} ({meta.unit[lang]})
+                </label>
+                <input
+                  type="number"
+                  inputMode="decimal"
+                  value={startValue}
+                  onChange={(e) => setStartValue(e.target.value)}
+                  placeholder={meta.unit[lang]}
+                  className="w-full bg-card border border-border/40 rounded-xl px-3 py-2.5 text-[16px] text-foreground outline-none focus:border-primary/50"
+                  dir="ltr"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-wider">
+                  {T.direction[lang]}
+                </label>
+                <div className="flex gap-2" dir="ltr">
+                  {(['lose', 'gain'] as const).map((d) => (
+                    <button
+                      key={d}
+                      type="button"
+                      onClick={() => setDirection(d)}
+                      className={`flex-1 py-2 rounded-xl text-[12px] font-medium transition-colors ${
+                        direction === d
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-muted text-muted-foreground'
+                      }`}
+                    >
+                      {d === 'lose' ? T.lose[lang] : T.gain[lang]}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <p className="text-[10px] text-muted-foreground/70 leading-relaxed">
+                {T.weightHint[lang]}
+              </p>
+            </>
+          )}
+
           {/* Active toggle */}
           <label className="flex items-center justify-between bg-card border border-border/40 rounded-xl px-3 py-2.5">
             <span className="text-sm text-foreground">{T.active[lang]}</span>
@@ -383,6 +488,7 @@ function GoalEditor({
               onClick={() => {
                 const t = parseFloat(target);
                 if (!Number.isFinite(t) || t <= 0) return;
+                const sv = parseFloat(startValue);
                 onSave({
                   id: isExisting ? (initial as Goal).id : undefined,
                   createdAt: isExisting ? (initial as Goal).createdAt : undefined,
@@ -390,6 +496,8 @@ function GoalEditor({
                   target: t,
                   period,
                   active,
+                  startValue: isWeight && Number.isFinite(sv) && sv > 0 ? sv : undefined,
+                  direction: isWeight ? direction : undefined,
                 });
               }}
               className="flex-1 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold active:scale-[0.98] transition-transform"
@@ -428,7 +536,10 @@ function ConsistencyHeatmap({
 
     for (let i = 69; i >= 0; i--) {
       const d = new Date(today); d.setDate(d.getDate() - i);
-      const iso = d.toISOString().slice(0, 10);
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const dd = String(d.getDate()).padStart(2, '0');
+      const iso = `${y}-${m}-${dd}`;
       let v = 0;
       if (wByDay.get(iso)) v += 0.4;
       if ((hByDay.get(iso) ?? 0) >= 1500) v += 0.3;
@@ -601,13 +712,16 @@ export default function GoalsTab({
   const today = todayIso();
   const activeGoals = goals.filter((g) => g.active);
   const rows = useMemo(
-    () => activeGoals.map((g) => progressForGoal(g, { todayIso: today, vitals, workouts, hydration, skinHair })),
-    [activeGoals, today, vitals, workouts, hydration, skinHair],
+    () => activeGoals.map((g) => progressForGoal(g, { todayIso: today, vitals, workouts, hydration, skinHair, dietLogs })),
+    [activeGoals, today, vitals, workouts, hydration, skinHair, dietLogs],
   );
 
   // Streaks & counters per goal type
   const trainSet = useMemo(() => new Set(workouts.map((w) => w.date)), [workouts]);
-  const workoutStreak = useMemo(() => streakBackwards((iso) => trainSet.has(iso)), [trainSet]);
+  const workoutStreak = useMemo(
+    () => streakBackwards((iso) => trainSet.has(iso), 365, 1),
+    [trainSet],
+  );
   const sleepStreak = useMemo(() => {
     const set = new Set(vitals.filter((v) => (v.sleepHours ?? 0) >= 7).map((v) => v.date));
     return streakBackwards((iso) => set.has(iso));

@@ -138,8 +138,16 @@ export function useWellnessData() {
 
   // ── Diet ──
   const addDiet = useCallback(
-    async (date: string, foodKey: string, portion = 1) => {
-      await logDiet(date, foodKey, portion);
+    async (
+      date: string,
+      foodKey: string,
+      portion = 1,
+      extras?: {
+        grams?: number;
+        customMacros?: { kcal: number; protein: number; carbs: number; fat: number };
+      },
+    ) => {
+      await logDiet(date, foodKey, portion, extras);
       await refresh();
     },
     [refresh],
