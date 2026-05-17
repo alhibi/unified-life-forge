@@ -4,8 +4,6 @@ import { createPortal } from 'react-dom';
 import { useApp } from '@/contexts/AppContext';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import DualCalendar from '@/components/DualCalendar';
-import AudioPlayer from '@/components/AudioPlayer';
 import LocationSaver from '@/components/LocationSaver';
 import PrayerTimes from '@/components/PrayerTimes';
 import { motion } from 'framer-motion';
@@ -153,12 +151,10 @@ export default function Index() {
 
         <motion.div variants={item}><WeatherWidget /></motion.div>
         <motion.div variants={item}><PrayerTimes /></motion.div>
-        <motion.div variants={item}><DualCalendar /></motion.div>
         <motion.div variants={item}><CurrentTimeSunnah /></motion.div>
         <motion.div variants={item}><UmmahPulse /></motion.div>
         <motion.div variants={item}><IslamicSections /></motion.div>
         <motion.div variants={item}><ReligiousOccasions /></motion.div>
-        <motion.div variants={item}><AudioPlayer /></motion.div>
         <motion.div variants={item}><LocationSaver /></motion.div>
 
         {/* Made by Amer */}
