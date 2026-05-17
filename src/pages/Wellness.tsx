@@ -3,7 +3,7 @@ import SEO from '@/components/SEO';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Activity, BookOpen, Brain, ChevronRight, Download, Dumbbell, HeartPulse,
-  Pill, ShieldCheck, Sparkles, Target, Trash2, User, Utensils, X,
+  Library, Pill, ShieldCheck, Sparkles, Target, Trash2, User, Utensils, X,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useApp } from '@/contexts/AppContext';
@@ -25,13 +25,14 @@ import WorkoutsTab from '@/features/wellness/premium/WorkoutsTab';
 import GoalsTab from '@/features/wellness/premium/GoalsTab';
 import ProfileTab from '@/features/wellness/premium/ProfileTab';
 import CalisthenicsTab from '@/features/wellness/premium/CalisthenicsTab';
+import EncyclopediaTab from '@/features/wellness/EncyclopediaTab';
 
 import { exportAll } from '@/features/wellness/wellnessDb';
 
 type TabKey =
   | 'today' | 'workouts' | 'cali' | 'hub' | 'goals'
   | 'supplements' | 'diet' | 'vitals' | 'skin'
-  | 'insights' | 'atlas' | 'profile';
+  | 'insights' | 'atlas' | 'encyclopedia' | 'profile';
 
 const STORAGE_KEY = 'wellness:lastTab';
 
@@ -83,6 +84,7 @@ const TABS: TabDef[] = [
   { key: 'skin',        labelAr: 'الجسد',        labelDe: 'Körper',        icon: User,       group: 1 },
   { key: 'insights',    labelAr: 'التحليلات',    labelDe: 'Insights',      icon: Brain,      group: 1 },
   { key: 'atlas',       labelAr: 'الأطلس',       labelDe: 'Atlas',         icon: BookOpen,   group: 1 },
+  { key: 'encyclopedia',labelAr: 'الموسوعة',     labelDe: 'Wissen',        icon: Library,    group: 1 },
   { key: 'profile',     labelAr: 'ملفّي',        labelDe: 'Profil',        icon: User,       group: 2 },
 ];
 
@@ -243,6 +245,8 @@ export default function WellnessPage() {
         );
       case 'atlas':
         return <AtlasTab />;
+      case 'encyclopedia':
+        return <EncyclopediaTab />;
       case 'profile':
         return (
           <ProfileTab
