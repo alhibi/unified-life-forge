@@ -25,6 +25,7 @@ import {
   upsertSkinHair,
   upsertVital,
   wipeAll,
+  updateDietLog,
   // premium
   getActiveFasting,
   getProfile,
@@ -146,6 +147,13 @@ export function useWellnessData() {
   );
   const removeDiet = useCallback(
     async (id: UUID) => { await deleteDietLog(id); await refresh(); },
+    [refresh],
+  );
+  const patchDiet = useCallback(
+    async (id: UUID, patch: { portion?: number; foodKey?: string; date?: string }) => {
+      await updateDietLog(id, patch);
+      await refresh();
+    },
     [refresh],
   );
 
@@ -274,6 +282,7 @@ export function useWellnessData() {
     removeIntake,
     addDiet,
     removeDiet,
+    patchDiet,
     saveSkinHair,
     removeSkinHair,
     saveVital,

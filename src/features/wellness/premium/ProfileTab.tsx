@@ -219,7 +219,15 @@ export default function ProfileTab({ profile, vitals = [], onSave }: Props) {
       'waistCm', 'neckCm', 'hipCm',
       'activityLevel', 'goal', 'experience', 'units',
     ];
-    return keys.some((k) => (form as any)[k] !== (profile as any)[k]);
+    return keys.some((k) => {
+      const a = (form as any)[k];
+      const b = (profile as any)[k];
+      // Treat empty string and undefined as equivalent so an empty name
+      // input doesn't permanently mark the form dirty.
+      const norm = (v: unknown) =>
+        v === '' || v === null ? undefined : v;
+      return norm(a) !== norm(b);
+    });
   }, [form, profile]);
 
   const save = async () => {
@@ -487,8 +495,8 @@ export default function ProfileTab({ profile, vitals = [], onSave }: Props) {
         </SoftSurface>
       </motion.div>
 
-      {/* Sticky save bar */}
-      <div className="sticky bottom-2 z-30">
+      {/* Sticky save bar — positioned above BottomNav (~72 px tall) */}
+      <div className="sticky bottom-20 z-30">
         <AnimatePresence>
           {(dirty || savedAt) && (
             <motion.div

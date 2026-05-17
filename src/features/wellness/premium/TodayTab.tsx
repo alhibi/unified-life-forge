@@ -308,7 +308,10 @@ function HydrationCard({
         {quick.map((ml) => (
           <button
             key={ml}
-            onClick={() => onAdd(ml)}
+            onClick={(e) => {
+              e.stopPropagation();
+              onAdd(ml);
+            }}
             className="flex-1 h-6 rounded-md text-[9px] font-medium active:scale-95 transition-all duration-150"
             style={{
               background: withAlpha(color, 0.07),
@@ -319,6 +322,22 @@ function HydrationCard({
             +{ml}{isAr ? 'مل' : 'ml'}
           </button>
         ))}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onLogMore();
+          }}
+          className="shrink-0 h-6 px-2 rounded-md text-[9px] font-semibold active:scale-95 transition-all duration-150 inline-flex items-center gap-0.5"
+          style={{
+            background: withAlpha(color, 0.14),
+            color,
+            border: `1px solid ${withAlpha(color, 0.22)}`,
+          }}
+          aria-label={isAr ? 'مخصص' : 'Eigene Menge'}
+        >
+          <Plus className="w-2.5 h-2.5" />
+          {isAr ? 'مخصص' : 'Custom'}
+        </button>
       </div>
     </SoftSurface>
   );
@@ -417,7 +436,7 @@ function NextDoseCard({
 }) {
   const today = todayIso();
 
-  const next = useMemo(() => {
+  const { next, totalToday, takenToday } = useMemo(() => {
     const taken = new Set<string>();
     for (const l of intakeLogs) {
       const d = isoFromTs(l.takenAt);
@@ -426,56 +445,89 @@ function NextDoseCard({
     const now = new Date();
     const nowMin = now.getHours() * 60 + now.getMinutes();
     let best: { sup: Supplement; time: string; minutes: number } | null = null;
+    let total = 0;
+    let done = 0;
     for (const s of supplements) {
       if (!s.active) continue;
       for (const t of s.times) {
         const m = /^(\d{1,2}):(\d{2})$/.exec(t);
         if (!m) continue;
         const min = parseInt(m[1], 10) * 60 + parseInt(m[2], 10);
+        total++;
+        const key = `${s.id}@${t}`;
+        if (taken.has(key)) {
+          done++;
+          continue;
+        }
         if (min < nowMin) continue;
-        if (taken.has(`${s.id}@${t}`)) continue;
         if (!best || min < best.minutes) best = { sup: s, time: t, minutes: min };
       }
     }
-    if (best) return { ...best, deltaMin: best.minutes - nowMin };
-    return null;
+    const nextEntry = best ? { ...best, deltaMin: best.minutes - nowMin } : null;
+    return { next: nextEntry, totalToday: total, takenToday: done };
   }, [supplements, intakeLogs, today]);
 
   const accent = '#f59e0b';
+  const adherenceRatio = totalToday > 0 ? takenToday / totalToday : 0;
+  const adherencePct = Math.round(adherenceRatio * 100);
 
   return (
     <div
-      className="flex items-center gap-2.5 p-2.5 rounded-lg border cursor-pointer active:scale-[0.98] transition-transform"
+      className="p-2.5 rounded-lg border cursor-pointer active:scale-[0.98] transition-transform space-y-2"
       style={{ borderColor: withAlpha(accent, 0.15) }}
       onClick={onJump}
       role="button"
       tabIndex={0}
     >
-      <div
-        className="w-7 h-7 rounded-md flex items-center justify-center shrink-0"
-        style={{ background: withAlpha(accent, 0.1) }}
-      >
-        <Pill className="w-3.5 h-3.5" style={{ color: accent }} />
+      <div className="flex items-center gap-2.5">
+        <div
+          className="w-7 h-7 rounded-md flex items-center justify-center shrink-0"
+          style={{ background: withAlpha(accent, 0.1) }}
+        >
+          <Pill className="w-3.5 h-3.5" style={{ color: accent }} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-[8px] uppercase tracking-widest font-medium text-muted-foreground">
+            {T.nextDose[lang]}
+          </p>
+          {next ? (
+            <>
+              <p className="text-[11px] font-medium text-foreground truncate mt-0.5">{next.sup.name}</p>
+              <p className="text-[9px] font-medium mt-0.5" style={{ color: accent }} dir="ltr">
+                {next.time} · {T.in[lang]}{' '}
+                {next.deltaMin < 60
+                  ? `${next.deltaMin}${T.min[lang]}`
+                  : `${Math.floor(next.deltaMin / 60)}${T.hour[lang]} ${next.deltaMin % 60}${T.min[lang]}`}
+              </p>
+            </>
+          ) : (
+            <p className="text-[10px] font-medium text-muted-foreground/60 mt-0.5">{T.noPending[lang]}</p>
+          )}
+        </div>
+        <ChevronRight className="w-3 h-3 text-muted-foreground/40 shrink-0" />
       </div>
-      <div className="flex-1 min-w-0">
-        <p className="text-[8px] uppercase tracking-widest font-medium text-muted-foreground">
-          {T.nextDose[lang]}
-        </p>
-        {next ? (
-          <>
-            <p className="text-[11px] font-medium text-foreground truncate mt-0.5">{next.sup.name}</p>
-            <p className="text-[9px] font-medium mt-0.5" style={{ color: accent }} dir="ltr">
-              {next.time} · {T.in[lang]}{' '}
-              {next.deltaMin < 60
-                ? `${next.deltaMin}${T.min[lang]}`
-                : `${Math.floor(next.deltaMin / 60)}${T.hour[lang]} ${next.deltaMin % 60}${T.min[lang]}`}
-            </p>
-          </>
-        ) : (
-          <p className="text-[10px] font-medium text-muted-foreground/60 mt-0.5">{T.noPending[lang]}</p>
-        )}
-      </div>
-      <ChevronRight className="w-3 h-3 text-muted-foreground/40 shrink-0" />
+
+      {totalToday > 0 && (
+        <div className="space-y-1" dir="ltr">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-[8px] uppercase tracking-widest font-medium text-muted-foreground/70">
+              {lang === 'ar' ? 'الالتزام اليوم' : 'Heute eingenommen'}
+            </span>
+            <span className="text-[9px] tabular-nums font-semibold" style={{ color: accent }}>
+              {takenToday}/{totalToday} · {adherencePct}%
+            </span>
+          </div>
+          <div className="relative h-1 rounded-full overflow-hidden" style={{ background: withAlpha(accent, 0.1) }}>
+            <motion.div
+              className="absolute inset-y-0 left-0 rounded-full"
+              style={{ background: accent }}
+              initial={{ width: 0 }}
+              animate={{ width: `${adherencePct}%` }}
+              transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

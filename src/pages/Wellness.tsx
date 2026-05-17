@@ -109,13 +109,30 @@ export default function WellnessPage() {
 
   useEffect(() => {
     if (data.loading) return;
-    if (data.profile) return;
+    if (data.profile) {
+      // If the user already has a profile, mark the welcome as completed
+      // so it never reappears even after a tab reload.
+      try { localStorage.setItem('wellness:onboarded', '1'); } catch { /* noop */ }
+      return;
+    }
     try {
       const dismissed = localStorage.getItem('wellness:onboarded');
       if (dismissed) return;
     } catch { /* noop */ }
     setShowOnboarding(true);
   }, [data.loading, data.profile]);
+
+  // Close any open sheet on Escape
+  useEffect(() => {
+    if (!showPrivacy && !showOnboarding) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      setShowPrivacy(false);
+      setShowOnboarding(false);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [showPrivacy, showOnboarding]);
 
   const dismissOnboarding = (gotoProfile: boolean) => {
     setShowOnboarding(false);
@@ -142,12 +159,12 @@ export default function WellnessPage() {
   const handleWipe = async () => {
     if (!window.confirm(T.wipeConfirm[language])) return;
     await data.wipe();
+    // Also reset the onboarding flag so a freshly-cleared user gets the
+    // welcome modal again.
+    try { localStorage.removeItem('wellness:onboarded'); } catch { /* noop */ }
     setShowPrivacy(false);
     toast.success(T.wipeOk[language]);
   };
-
-  const premiumTabs = TABS.filter((t) => t.group === 0);
-  const healthTabs = TABS.filter((t) => t.group === 1);
 
   const renderTab = useCallback(() => {
     if (data.loading) {
@@ -188,7 +205,7 @@ export default function WellnessPage() {
           />
         );
       case 'cali':
-        return <CalisthenicsTab />;
+        return <CalisthenicsTab onJump={(k) => setTab(k as TabKey)} />;
       case 'hub':
         return (
           <AthleticHubTab
@@ -226,8 +243,10 @@ export default function WellnessPage() {
         return (
           <DietTab
             dietLogs={data.dietLogs}
+            profile={data.profile}
             onAdd={data.addDiet}
             onRemove={data.removeDiet}
+            onPatch={data.patchDiet}
           />
         );
       case 'vitals':
@@ -299,59 +318,54 @@ export default function WellnessPage() {
           </div>
         </header>
 
-        {/* ─── Ultra-compact Dock Navigation ─── */}
-        <nav className="mb-3 space-y-1.5">
-          {/* Primary dock — icons only, pill bar */}
-          <div className="bg-card border border-border/40 rounded-xl p-1 flex items-center gap-px overflow-x-auto scrollbar-none" dir="ltr">
-            {premiumTabs.map((t) => {
+        {/* ─── Refined dock navigation ─── */}
+        <nav className="mb-3" aria-label="wellness sections">
+          <div
+            className="bg-card/80 backdrop-blur border border-border/45 rounded-2xl p-1 flex items-center gap-0.5 overflow-x-auto scrollbar-none"
+            dir="ltr"
+          >
+            {TABS.map((t, i) => {
               const active = tab === t.key;
               const Icon = t.icon;
+              const isFirstOfGroup =
+                i > 0 && TABS[i - 1].group !== t.group;
               return (
-                <button
-                  key={t.key}
-                  onClick={() => setTab(t.key)}
-                  className={`relative shrink-0 h-[28px] px-2.5 flex items-center gap-1 rounded-lg transition-all duration-200 ${
-                    active ? 'text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                >
-                  {active && (
-                    <motion.div
-                      layoutId="wellness-dock-primary"
-                      className="absolute inset-0 rounded-lg bg-primary"
-                      transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                <React.Fragment key={t.key}>
+                  {isFirstOfGroup && (
+                    <span
+                      aria-hidden
+                      className="shrink-0 self-stretch w-px mx-0.5 bg-border/40"
                     />
                   )}
-                  <span className="relative flex items-center gap-1">
-                    <Icon className="w-[9px] h-[9px]" />
-                    <span className="text-[9px] font-medium whitespace-nowrap">
-                      {isAr ? t.labelAr : t.labelDe}
+                  <button
+                    onClick={() => setTab(t.key)}
+                    aria-pressed={active}
+                    aria-label={t.labelAr}
+                    className={`relative shrink-0 inline-flex items-center gap-1.5 h-9 px-3 rounded-xl transition-colors duration-150 ${
+                      active
+                        ? 'text-primary-foreground'
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    {active && (
+                      <motion.span
+                        layoutId="wellness-dock-pill"
+                        className="absolute inset-0 rounded-xl bg-primary shadow-sm"
+                        transition={{ type: 'spring', stiffness: 480, damping: 36 }}
+                      />
+                    )}
+                    <span className="relative inline-flex items-center gap-1.5">
+                      <Icon className="w-4 h-4 shrink-0" strokeWidth={active ? 2.4 : 2} />
+                      <span
+                        className={`text-[12px] font-semibold whitespace-nowrap leading-none ${
+                          active ? '' : 'tracking-tight'
+                        }`}
+                      >
+                        {isAr ? t.labelAr : t.labelDe}
+                      </span>
                     </span>
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Secondary dock — tiny text buttons, no container bg */}
-          <div className="flex items-center gap-px overflow-x-auto scrollbar-none" dir="ltr">
-            {healthTabs.map((t) => {
-              const active = tab === t.key;
-              const Icon = t.icon;
-              return (
-                <button
-                  key={t.key}
-                  onClick={() => setTab(t.key)}
-                  className={`shrink-0 h-[28px] px-2 flex items-center gap-0.5 rounded-lg transition-all duration-150 ${
-                    active
-                      ? 'bg-muted/60 text-foreground'
-                      : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                >
-                  <Icon className="w-[9px] h-[9px]" />
-                  <span className="text-[9px] font-medium whitespace-nowrap">
-                    {isAr ? t.labelAr : t.labelDe}
-                  </span>
-                </button>
+                  </button>
+                </React.Fragment>
               );
             })}
           </div>
@@ -432,14 +446,27 @@ export default function WellnessPage() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4"
+            onClick={() => dismissOnboarding(false)}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="wellness-welcome-title"
           >
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 16 }}
               transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-              className="w-full max-w-xs rounded-2xl bg-card border border-border/40 p-5 space-y-4"
+              onClick={(e) => e.stopPropagation()}
+              className="relative w-full max-w-xs rounded-2xl bg-card border border-border/40 p-5 space-y-4"
             >
+              <button
+                onClick={() => dismissOnboarding(false)}
+                className="absolute top-2 end-2 w-7 h-7 rounded-full bg-muted/50 flex items-center justify-center hover:bg-muted/80 transition-colors"
+                aria-label={T.close[language]}
+              >
+                <X className="w-3.5 h-3.5 text-muted-foreground" />
+              </button>
+
               <div className="flex justify-center">
                 <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
                   <Sparkles className="w-5 h-5 text-primary" />
@@ -447,7 +474,10 @@ export default function WellnessPage() {
               </div>
 
               <div className="text-center space-y-1">
-                <h2 className="text-[15px] font-medium text-foreground">
+                <h2
+                  id="wellness-welcome-title"
+                  className="text-[15px] font-medium text-foreground"
+                >
                   {T.welcomeTitle[language]}
                 </h2>
                 <p className="text-[11px] text-muted-foreground leading-relaxed">

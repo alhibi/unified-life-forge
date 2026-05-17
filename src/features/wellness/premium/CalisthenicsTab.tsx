@@ -664,7 +664,11 @@ function WeeklyVolume({ logs, lang }: { logs: LogEntry[]; lang: 'ar' | 'de' }) {
 
 /* ─────────────── Main Component ─────────────── */
 
-export default function CalisthenicsTab() {
+interface CalisthenicsTabProps {
+  onJump?: (tabKey: string) => void;
+}
+
+export default function CalisthenicsTab({ onJump }: CalisthenicsTabProps = {}) {
   const { language } = useApp();
   const lang = language as 'ar' | 'de';
 
@@ -756,9 +760,11 @@ export default function CalisthenicsTab() {
       />
 
       {/* Encyclopedia link */}
-      <motion.div
+      <motion.button
+        type="button"
+        onClick={() => onJump?.('encyclopedia')}
         variants={item}
-        className="rounded-xl p-2.5 border border-border/40 bg-gradient-to-r from-violet-500/5 to-purple-500/5 flex items-center gap-2.5"
+        className="w-full text-start rounded-xl p-2.5 border border-border/40 bg-gradient-to-r from-violet-500/5 to-purple-500/5 flex items-center gap-2.5 active:scale-[0.99] transition-transform hover:border-violet-500/40"
       >
         <div className="w-8 h-8 rounded-lg bg-violet-500/15 flex items-center justify-center shrink-0">
           <BookOpen className="w-4 h-4 text-violet-500" />
@@ -768,7 +774,7 @@ export default function CalisthenicsTab() {
           <div className="text-[9px] text-muted-foreground line-clamp-1">{T.encDesc[lang]}</div>
         </div>
         <ChevronRight className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
-      </motion.div>
+      </motion.button>
 
       {/* Today's Workout */}
       <TodayWorkout

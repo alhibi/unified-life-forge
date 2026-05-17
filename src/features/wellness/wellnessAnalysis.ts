@@ -228,6 +228,110 @@ export function detectDietOverlap(
 }
 
 /**
+ * Essential nutrients that should appear in a normal week's diet — used
+ * by `detectGaps` to flag what the user is neither supplementing nor
+ * eating.
+ *
+ * The list is intentionally short — only nutrients common-enough to
+ * expect them in any reasonable diet (so we don't shame the user about
+ * brazil-nut-only selenium).
+ */
+const ESSENTIAL_NUTRIENT_GAPS: Array<{
+  key: string;
+  /** minimum diet hits per `daysWindow` to consider it adequately covered */
+  expected: number;
+  hint: Record<Lang, string>;
+}> = [
+  { key: 'protein',   expected: 7, hint: {
+      ar: 'البروتين أساس بناء الأنسجة. ضع مصدراً عالي البروتين في كل وجبة (بيض، عدس، دجاج، سمك، زبادي).',
+      de: 'Protein ist Baustein für Gewebe. In jede Mahlzeit eine Proteinquelle (Eier, Linsen, Hähnchen, Fisch, Joghurt).',
+  }},
+  { key: 'omega3',    expected: 2, hint: {
+      ar: 'أوميغا 3 يدعم الدماغ والقلب. مرتان أسبوعياً من سمك دهني (سلمون، سردين) أو بذور الكتان/الجوز.',
+      de: 'Omega-3 für Gehirn & Herz. 2×/Woche fetter Fisch (Lachs, Sardinen) oder Lein- und Walnüsse.',
+  }},
+  { key: 'iron',      expected: 4, hint: {
+      ar: 'الحديد ينقل الأكسجين. أدخل لحوماً حمراء، عدساً، سبانخاً، وكبدة بانتظام.',
+      de: 'Eisen transportiert Sauerstoff. Rotes Fleisch, Linsen, Spinat, Leber regelmäßig.',
+  }},
+  { key: 'calcium',   expected: 5, hint: {
+      ar: 'الكالسيوم أساس العظام. ألبان أو سردين أو لوز يومياً.',
+      de: 'Calcium fürs Knochengerüst. Milchprodukte, Sardinen oder Mandeln täglich.',
+  }},
+  { key: 'magnesium', expected: 5, hint: {
+      ar: 'المغنيسيوم يدعم العضلات والنوم. لوز، سبانخ، شوفان، أفوكادو.',
+      de: 'Magnesium für Muskeln und Schlaf. Mandeln, Spinat, Hafer, Avocado.',
+  }},
+  { key: 'vitaminC',  expected: 5, hint: {
+      ar: 'فيتامين سي مضاد أكسدة قوي. حمضيات، فلفل ملوّن، فراولة، كيوي.',
+      de: 'Vitamin C als Antioxidans. Zitrusfrüchte, Paprika, Erdbeeren, Kiwi.',
+  }},
+  { key: 'fiber',     expected: 7, hint: {
+      ar: 'الألياف تدعم الأمعاء. بقوليات، شوفان، خضروات ورقية، فواكه يومياً.',
+      de: 'Ballaststoffe für den Darm. Hülsenfrüchte, Hafer, Blattgemüse, Obst täglich.',
+  }},
+  { key: 'probiotics', expected: 3, hint: {
+      ar: 'البروبيوتيك يدعم الميكروبيوم. زبادي، كفير، لبنة، تيمبيه.',
+      de: 'Probiotika fürs Mikrobiom. Joghurt, Kefir, Labneh, Tempeh.',
+  }},
+];
+
+/**
+ * Detect nutrient gaps — essential nutrients the user neither
+ * supplements nor regularly eats. Skipped silently if the user has
+ * fewer than 5 logged meals (we don't have enough signal yet).
+ */
+export function detectGaps(
+  supplements: Supplement[],
+  dietLogs: DietLog[],
+  daysWindow = 7,
+): Insight[] {
+  const out: Insight[] = [];
+  const since = new Date();
+  since.setDate(since.getDate() - daysWindow);
+  const sinceIso = since.toISOString().slice(0, 10);
+  const recent = dietLogs.filter((d) => d.date >= sinceIso);
+  if (recent.length < 5) return out; // not enough signal
+
+  // Diet coverage by nutrient
+  const dietHits: Record<string, number> = {};
+  for (const log of recent) {
+    const f = FOODS[log.foodKey];
+    if (!f) continue;
+    for (const n of f.nutrients) {
+      dietHits[n] = (dietHits[n] ?? 0) + (log.portion || 1);
+    }
+  }
+
+  // Supplement coverage
+  const suppCovered = new Set<string>();
+  for (const s of supplements) {
+    if (!s.active) continue;
+    for (const n of s.nutrientKeys) suppCovered.add(n);
+  }
+
+  for (const ess of ESSENTIAL_NUTRIENT_GAPS) {
+    if (suppCovered.has(ess.key)) continue;          // covered via supplement
+    const hits = dietHits[ess.key] ?? 0;
+    if (hits >= ess.expected) continue;              // covered via diet
+    const info = NUTRIENTS[ess.key];
+    const label = info?.label ?? { ar: ess.key, de: ess.key };
+    out.push({
+      id: `gap-${ess.key}`,
+      kind: 'gap',
+      severity: 'info',
+      title: {
+        ar: `نقص محتمل: ${label.ar}`,
+        de: `Möglicher Mangel: ${label.de}`,
+      },
+      message: ess.hint,
+    });
+  }
+
+  return out;
+}
+
+/**
  * Detect correlations between supplement intake frequency and skin/hair trends
  * over the last 14 days. Very simple: compare metric averages on days with
  * vs without a supplement taken.
@@ -394,6 +498,7 @@ export function runAllInsights(args: {
     ...detectInteractions(args.supplements),
     ...detectTiming(args.supplements),
     ...detectDietOverlap(args.supplements, args.dietLogs),
+    ...detectGaps(args.supplements, args.dietLogs),
     ...detectCorrelations(args.supplements, args.intakeLogs, args.skinHair),
     ...detectHabits(args.skinHair),
   ];
