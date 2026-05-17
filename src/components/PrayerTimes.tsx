@@ -1238,15 +1238,16 @@ function HijriCalendarStrip({
   };
 
   return (
-    <div className="border-t border-border/30">
+    <div>
+      {/* خط فاصل خفيف */}
+      <div className="mx-4 h-px bg-border/20" />
+
       {/* ── Header row ─────────────────────────────────────────────── */}
-      <div className="flex items-center justify-between px-4 pt-3 pb-2">
+      <div className="flex items-center justify-between px-4 pt-2.5 pb-1.5">
         {/* Today Hijri */}
-        <div className="flex items-center gap-2">
-          <div className="p-1 rounded-md bg-primary/10">
-            <CalendarDays className="w-3.5 h-3.5 text-primary" />
-          </div>
-          <span className="text-[12px] font-bold text-foreground" dir="rtl">
+        <div className="flex items-center gap-1.5">
+          <CalendarDays className="w-3 h-3 text-primary/70" />
+          <span className="text-[11px] font-semibold text-muted-foreground" dir="rtl">
             {formatHijriDate(hijri)}
           </span>
         </div>
@@ -1254,19 +1255,19 @@ function HijriCalendarStrip({
         {/* ALL button */}
         <button
           onClick={() => navigate('/occasions')}
-          className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 hover:bg-primary/20 transition-colors"
+          className="flex items-center gap-0.5 text-primary/80 hover:text-primary transition-colors"
           aria-label={language === 'ar' ? 'عرض التقويم كاملاً' : 'View full calendar'}
         >
-          <span className="text-[10px] font-bold text-primary uppercase tracking-wide">
+          <span className="text-[10px] font-bold uppercase tracking-wide">
             {language === 'ar' ? 'الكل' : 'ALL'}
           </span>
-          <ChevronLeft className="w-3 h-3 text-primary" />
+          <ChevronLeft className="w-3 h-3" />
         </button>
       </div>
 
       {/* ── Occasions horizontal scroll ─────────────────────────────── */}
       <div
-        className="flex gap-2.5 overflow-x-auto pb-3 px-4 scrollbar-none"
+        className="flex gap-2 overflow-x-auto pb-2.5 px-4 scrollbar-none"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         dir="rtl"
       >
@@ -1279,53 +1280,49 @@ function HijriCalendarStrip({
             <button
               key={occ.id}
               onClick={() => navigate('/occasions')}
-              className="flex-shrink-0 flex flex-col items-start gap-1 rounded-xl border border-border/50 bg-card/60 px-3 py-2.5 min-w-[130px] max-w-[150px] hover:bg-card transition-colors text-right"
-              style={{ borderTopColor: accent, borderTopWidth: 2 }}
+              className="flex-shrink-0 flex flex-col gap-0.5 rounded-xl px-3 py-2 min-w-[120px] max-w-[140px] text-right active:opacity-70 transition-opacity"
+              style={{ background: `${accent}12`, borderLeft: `2px solid ${accent}40` }}
             >
-              {/* Hijri day badge */}
-              <div className="flex items-center gap-1.5 w-full">
+              {/* Days countdown + month */}
+              <div className="flex items-center justify-between w-full">
                 <span
-                  className="text-[18px] font-bold leading-none"
+                  className="text-[9px] font-bold uppercase tracking-wide"
                   style={{ color: accent }}
                 >
-                  {occ.hijriDay}
+                  {isToday
+                    ? (language === 'ar' ? 'اليوم' : 'TODAY')
+                    : language === 'ar'
+                      ? `${daysLeft} يوم`
+                      : `IN ${daysLeft}D`}
                 </span>
-                <span className="text-[9px] text-muted-foreground leading-tight flex-1">
-                  {occ.hijriMonth}
+                <span className="text-[8.5px] text-muted-foreground/70 tabular-nums">
+                  {occ.hijriDay} {occ.hijriMonth}
                 </span>
-                {isToday ? (
-                  <span
-                    className="text-[8px] font-bold px-1.5 py-0.5 rounded-full"
-                    style={{ background: `${accent}20`, color: accent }}
-                  >
-                    {language === 'ar' ? 'اليوم' : 'Today'}
-                  </span>
-                ) : (
-                  <span className="text-[8px] text-muted-foreground/60 tabular-nums">
-                    {language === 'ar' ? `${daysLeft}ي` : `${daysLeft}d`}
-                  </span>
-                )}
               </div>
 
               {/* Name */}
-              <p className="text-[10.5px] font-semibold text-foreground leading-snug line-clamp-2 w-full">
+              <p className="text-[11px] font-semibold text-foreground leading-snug line-clamp-2 w-full">
                 {occ.name}
               </p>
             </button>
           );
         })}
 
-        {/* "Show all" terminal card */}
+        {/* "Show all" terminal button */}
         <button
           onClick={() => navigate('/occasions')}
-          className="flex-shrink-0 flex flex-col items-center justify-center gap-1.5 rounded-xl border border-dashed border-primary/30 bg-primary/5 hover:bg-primary/10 transition-colors px-4 py-2.5 min-w-[80px]"
+          className="flex-shrink-0 flex flex-col items-center justify-center gap-1 rounded-xl px-3 py-2 min-w-[60px] active:opacity-70 transition-opacity"
+          style={{ background: 'hsl(var(--primary) / 0.08)' }}
         >
-          <ChevronLeft className="w-4 h-4 text-primary" />
-          <span className="text-[9px] font-bold text-primary uppercase tracking-wide">
+          <ChevronLeft className="w-3.5 h-3.5 text-primary/70" />
+          <span className="text-[8.5px] font-bold text-primary/70 uppercase tracking-wide">
             {language === 'ar' ? 'الكل' : 'ALL'}
           </span>
         </button>
       </div>
+
+      {/* خط فاصل خفيف أسفل */}
+      <div className="mx-4 h-px bg-border/20" />
     </div>
   );
 }
