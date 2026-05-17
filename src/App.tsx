@@ -11,7 +11,6 @@ import BottomNav from "@/components/BottomNav";
 import PageTransition from "@/components/PageTransition";
 import ScrollToTop from "@/components/ScrollToTop";
 import ErrorBoundary from "@/components/ErrorBoundary";
-import FloatingVoicePlayer from "@/components/FloatingVoicePlayer";
 import { lazy, Suspense } from "react";
 import { useEffect } from "react";
 import { useAutoPrayerTheme } from "@/hooks/useAutoPrayerTheme";
@@ -234,7 +233,6 @@ const App = () => (
             <BrowserRouter>
               <AutoPrayerThemeRunner />
               <PresenceRunner />
-              <FloatingVoicePlayer />
               <AnimatedRoutes />
               <BottomNav />
             </BrowserRouter>
