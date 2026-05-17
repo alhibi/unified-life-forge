@@ -28,6 +28,7 @@ import SettingsPage from "./pages/Settings";
 import DuasPage from "./pages/Duas";
 import DiwanPage from "./pages/Diwan";
 import ChatPage from "./pages/Chat";
+import WellnessPage from "./pages/Wellness";
 
 function AutoPrayerThemeRunner() {
   useAutoPrayerTheme();
@@ -65,7 +66,6 @@ const loadSunnahDetail = () => import("./pages/SunnahDetail");
 const loadProphetic = () => import("./pages/PropheticDay");
 const loadUntimed = () => import("./pages/UntimedSunnah");
 const loadVirtues = () => import("./pages/QuranVirtues");
-const loadWellness = () => import("./pages/Wellness");
 const loadNotFound = () => import("./pages/NotFound");
 
 const SudokuPage = lazy(loadSudoku);
@@ -91,7 +91,6 @@ const SunnahDetailPage = lazy(loadSunnahDetail);
 const PropheticDayPage = lazy(loadProphetic);
 const UntimedSunnahPage = lazy(loadUntimed);
 const QuranVirtuesPage = lazy(loadVirtues);
-const WellnessPage = lazy(loadWellness);
 const NotFound = lazy(loadNotFound);
 
 // Tab pages are now eager (always mounted), so the idle prefetch warms
@@ -137,7 +136,7 @@ const PageSkeleton = () => (
 // Tab routes that stay mounted across navigation. Their components are
 // rendered once in <PersistentTabs/> and toggled with display:none — never
 // unmounted. This makes bottom-nav switching feel native and instant.
-const TAB_PATHS = ['/', '/games', '/chat', '/settings', '/duas', '/diwan'] as const;
+const TAB_PATHS = ['/', '/games', '/chat', '/settings', '/duas', '/diwan', '/wellness'] as const;
 type TabPath = typeof TAB_PATHS[number];
 
 function PersistentTabs({ active }: { active: TabPath | null }) {
@@ -161,6 +160,7 @@ function PersistentTabs({ active }: { active: TabPath | null }) {
       {slot('/settings', <SettingsPage />)}
       {slot('/duas',     <DuasPage />)}
       {slot('/diwan',    <DiwanPage />)}
+      {slot('/wellness', <WellnessPage />)}
     </div>
   );
 }
@@ -190,6 +190,7 @@ function AnimatedRoutes() {
             <Route path="/settings" element={null} />
             <Route path="/duas" element={null} />
             <Route path="/diwan" element={null} />
+            <Route path="/wellness" element={null} />
             <Route path="/games/sudoku" element={<ErrorBoundary><PageTransition><SudokuPage /></PageTransition></ErrorBoundary>} />
             <Route path="/games/chess" element={<ErrorBoundary><PageTransition><ChessPage /></PageTransition></ErrorBoundary>} />
             <Route path="/games/memory" element={<ErrorBoundary><PageTransition><MemoryGame /></PageTransition></ErrorBoundary>} />
@@ -213,7 +214,6 @@ function AnimatedRoutes() {
             <Route path="/section/untimed-sunnah" element={<ErrorBoundary><PageTransition><UntimedSunnahPage /></PageTransition></ErrorBoundary>} />
             <Route path="/section/prophetic-day" element={<ErrorBoundary><PageTransition><PropheticDayPage /></PageTransition></ErrorBoundary>} />
             <Route path="/section/quran-virtues" element={<ErrorBoundary><PageTransition><QuranVirtuesPage /></PageTransition></ErrorBoundary>} />
-            <Route path="/wellness" element={<ErrorBoundary><PageTransition><WellnessPage /></PageTransition></ErrorBoundary>} />
             <Route path="*" element={<ErrorBoundary><PageTransition><NotFound /></PageTransition></ErrorBoundary>} />
           </Routes>
         </AnimatePresence>
