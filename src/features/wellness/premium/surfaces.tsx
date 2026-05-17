@@ -461,3 +461,369 @@ export function PageBackdrop({ accent }: { accent?: string }) {
     />
   );
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   PREMIUM V3 — Glass, Aurora, and elevated surfaces
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ─────────────────────────── GlassSurface ─────────────────────────── */
+
+export interface GlassSurfaceProps {
+  /** Accent colour for the subtle tint. */
+  accent?: string;
+  /** 0..1 — blur + frost intensity. */
+  frost?: number;
+  /** Glass border highlight intensity. */
+  highlight?: boolean;
+  children?: ReactNode;
+  className?: string;
+  onClick?: () => void;
+  as?: 'div' | 'button';
+}
+
+/**
+ * A frosted-glass surface for premium cards. Uses backdrop-blur with
+ * a translucent background, edge highlights, and subtle noise overlay.
+ * Looks like native iOS/macOS glass — no WebGL needed.
+ */
+export function GlassSurface({
+  accent = 'hsl(var(--primary))',
+  frost = 0.8,
+  highlight = true,
+  children,
+  className,
+  onClick,
+  as = 'div',
+}: GlassSurfaceProps) {
+  const Tag: any = as === 'button' ? 'button' : 'div';
+  const blur = Math.round(12 + frost * 12); // 12..24px
+
+  return (
+    <Tag
+      onClick={onClick}
+      className={`relative overflow-hidden ${onClick ? 'text-start w-full block' : ''} ${className ?? ''}`}
+      style={{
+        background: `hsl(var(--card) / ${0.55 + frost * 0.2})`,
+        backdropFilter: `blur(${blur}px) saturate(1.4)`,
+        WebkitBackdropFilter: `blur(${blur}px) saturate(1.4)`,
+        borderRadius: '1.25rem',
+        border: '1px solid hsl(var(--border) / 0.3)',
+        boxShadow: `0 4px 32px -8px ${withAlpha(accent, 0.08)}, inset 0 1px 0 hsl(0 0% 100% / 0.06)`,
+        transform: 'translateZ(0)',
+      }}
+    >
+      {/* Top highlight */}
+      {highlight && (
+        <div
+          aria-hidden
+          className="absolute inset-x-0 top-0 h-px pointer-events-none"
+          style={{
+            background: 'linear-gradient(90deg, transparent 10%, hsl(0 0% 100% / 0.12) 50%, transparent 90%)',
+          }}
+        />
+      )}
+      {/* Subtle accent wash */}
+      <div
+        aria-hidden
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          backgroundImage: softRadial(accent, 0.06, 'ellipse 80% 60% at 30% -20%'),
+        }}
+      />
+      {/* Noise */}
+      <DitherLayer opacity={0.015} />
+      {/* Content */}
+      <div className="relative">{children}</div>
+    </Tag>
+  );
+}
+
+/* ─────────────────────────── AuroraGlow ─────────────────────────── */
+
+export interface AuroraGlowProps {
+  /** Three colours for the aurora shift. */
+  colors?: [string, string, string];
+  /** 0..1. */
+  intensity?: number;
+  className?: string;
+}
+
+/**
+ * Multi-coloured aurora-style glow using layered radial gradients at
+ * different positions. Gives a rich, organic "northern lights" feel
+ * without any animation (pure CSS, zero-cost).
+ */
+export function AuroraGlow({
+  colors = ['#6366f1', '#06b6d4', '#10b981'],
+  intensity = 0.7,
+  className,
+}: AuroraGlowProps) {
+  const [a, b, c] = colors;
+  return (
+    <div
+      aria-hidden
+      className={`absolute inset-0 pointer-events-none ${className ?? ''}`}
+      style={{
+        backgroundImage: [
+          softRadial(a, 0.14 * intensity, 'ellipse 60% 80% at 15% 0%'),
+          softRadial(b, 0.10 * intensity, 'ellipse 50% 90% at 85% 20%'),
+          softRadial(c, 0.08 * intensity, 'ellipse 70% 60% at 50% 100%'),
+        ].join(', '),
+      }}
+    />
+  );
+}
+
+/* ─────────────────────────── AuroraCard ─────────────────────────── */
+
+export interface AuroraCardProps {
+  /** Three-colour palette for the aurora. */
+  colors?: [string, string, string];
+  intensity?: number;
+  children?: ReactNode;
+  className?: string;
+  onClick?: () => void;
+  as?: 'div' | 'button';
+}
+
+/**
+ * Premium card with an aurora-style glow background. Perfect for
+ * hero sections, score displays, and feature highlights.
+ */
+export function AuroraCard({
+  colors = ['#6366f1', '#06b6d4', '#10b981'],
+  intensity = 0.8,
+  children,
+  className,
+  onClick,
+  as = 'div',
+}: AuroraCardProps) {
+  const Tag: any = as === 'button' ? 'button' : 'div';
+
+  return (
+    <Tag
+      onClick={onClick}
+      className={`relative overflow-hidden ${onClick ? 'text-start w-full block' : ''} ${className ?? ''}`}
+      style={{
+        background: 'hsl(var(--card))',
+        borderRadius: '1.5rem',
+        border: '1px solid hsl(var(--border) / 0.35)',
+        boxShadow: `0 8px 40px -12px ${withAlpha(colors[0], 0.12)}`,
+        transform: 'translateZ(0)',
+      }}
+    >
+      <AuroraGlow colors={colors} intensity={intensity} />
+      {/* Top edge highlight */}
+      <div
+        aria-hidden
+        className="absolute inset-x-0 top-0 h-px pointer-events-none"
+        style={{
+          background: `linear-gradient(90deg, transparent 5%, ${withAlpha(colors[0], 0.15)} 30%, ${withAlpha(colors[1], 0.12)} 60%, transparent 95%)`,
+        }}
+      />
+      <DitherLayer opacity={0.02} />
+      <div className="relative">{children}</div>
+    </Tag>
+  );
+}
+
+/* ─────────────────────────── ElevatedCard ─────────────────────────── */
+
+export interface ElevatedCardProps {
+  /** Accent for the subtle coloured shadow. */
+  accent?: string;
+  /** Elevation level 1..3. */
+  elevation?: 1 | 2 | 3;
+  children?: ReactNode;
+  className?: string;
+  onClick?: () => void;
+  as?: 'div' | 'button';
+}
+
+/**
+ * Material-like elevated card with a coloured ambient shadow. The
+ * shadow is split into two layers: one tight (definition) and one
+ * spread (ambient glow) — looks realistic on both light/dark themes.
+ */
+export function ElevatedCard({
+  accent = 'hsl(var(--primary))',
+  elevation = 2,
+  children,
+  className,
+  onClick,
+  as = 'div',
+}: ElevatedCardProps) {
+  const Tag: any = as === 'button' ? 'button' : 'div';
+
+  const shadows = {
+    1: `0 2px 8px -4px ${withAlpha(accent, 0.1)}, 0 1px 3px hsl(0 0% 0% / 0.06)`,
+    2: `0 6px 24px -8px ${withAlpha(accent, 0.14)}, 0 2px 8px hsl(0 0% 0% / 0.05)`,
+    3: `0 12px 40px -12px ${withAlpha(accent, 0.18)}, 0 4px 12px hsl(0 0% 0% / 0.06)`,
+  };
+
+  return (
+    <Tag
+      onClick={onClick}
+      className={`relative overflow-hidden ${onClick ? 'text-start w-full block' : ''} ${className ?? ''}`}
+      style={{
+        background: 'hsl(var(--card))',
+        borderRadius: '1.25rem',
+        border: '1px solid hsl(var(--border) / 0.3)',
+        boxShadow: shadows[elevation],
+        transform: 'translateZ(0)',
+      }}
+    >
+      <div className="relative">{children}</div>
+    </Tag>
+  );
+}
+
+/* ─────────────────────────── ShimmerBorder ─────────────────────────── */
+
+export interface ShimmerBorderProps {
+  /** Colours for the shimmer gradient. */
+  colors?: string[];
+  /** Border width in px. */
+  width?: number;
+  children?: ReactNode;
+  className?: string;
+  /** Border radius — defaults to 1.25rem. */
+  radius?: string;
+}
+
+/**
+ * A subtle animated gradient border that hints at premium status.
+ * Uses a conic-gradient background on a pseudo-wrapper. The animation
+ * is pure CSS (keyframe rotation) so it's zero-cost on GPU.
+ */
+export function ShimmerBorder({
+  colors = ['hsl(var(--primary))', '#06b6d4', '#10b981', 'hsl(var(--primary))'],
+  width = 1,
+  children,
+  className,
+  radius = '1.25rem',
+}: ShimmerBorderProps) {
+  const gradient = `conic-gradient(from var(--shimmer-angle, 0deg), ${colors.join(', ')})`;
+
+  return (
+    <div
+      className={`relative ${className ?? ''}`}
+      style={{
+        borderRadius: radius,
+        padding: width,
+        background: gradient,
+        // CSS custom property animated via @property in a <style>
+        animation: 'shimmer-rotate 4s linear infinite',
+      }}
+    >
+      <div
+        className="relative overflow-hidden"
+        style={{
+          borderRadius: `calc(${radius} - ${width}px)`,
+          background: 'hsl(var(--card))',
+        }}
+      >
+        {children}
+      </div>
+      {/* Inject the keyframe animation */}
+      <style>{`
+        @property --shimmer-angle {
+          syntax: '<angle>';
+          initial-value: 0deg;
+          inherits: false;
+        }
+        @keyframes shimmer-rotate {
+          to { --shimmer-angle: 360deg; }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+/* ─────────────────────────── PulseRing ─────────────────────────── */
+
+export interface PulseRingProps {
+  /** Color of the pulse. */
+  color?: string;
+  /** Size of the ring in px. */
+  size?: number;
+  /** Whether the ring is actively pulsing. */
+  active?: boolean;
+  children?: ReactNode;
+  className?: string;
+}
+
+/**
+ * A pulsing ring indicator for live data (e.g. active fasting, live HR).
+ * Two concentric rings expand and fade on a staggered loop.
+ */
+export function PulseRing({
+  color = 'hsl(var(--primary))',
+  size = 48,
+  active = true,
+  children,
+  className,
+}: PulseRingProps) {
+  return (
+    <div className={`relative inline-flex items-center justify-center ${className ?? ''}`} style={{ width: size, height: size }}>
+      {active && (
+        <>
+          <div
+            className="absolute inset-0 rounded-full animate-ping"
+            style={{
+              border: `2px solid ${withAlpha(color, 0.3)}`,
+              animationDuration: '2s',
+            }}
+          />
+          <div
+            className="absolute inset-[3px] rounded-full animate-ping"
+            style={{
+              border: `1.5px solid ${withAlpha(color, 0.15)}`,
+              animationDuration: '2s',
+              animationDelay: '0.5s',
+            }}
+          />
+        </>
+      )}
+      <div className="relative flex items-center justify-center w-full h-full">
+        {children}
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────────────────── MetricBadge ─────────────────────────── */
+
+export interface MetricBadgeProps {
+  value: string;
+  label: string;
+  color?: string;
+  icon?: ReactNode;
+  className?: string;
+}
+
+/**
+ * A compact pill-shaped badge for displaying a single metric value.
+ * Used in headers and inline stats.
+ */
+export function MetricBadge({
+  value,
+  label,
+  color = 'hsl(var(--primary))',
+  icon,
+  className,
+}: MetricBadgeProps) {
+  return (
+    <div
+      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full ${className ?? ''}`}
+      style={{
+        background: withAlpha(color, 0.08),
+        border: `1px solid ${withAlpha(color, 0.15)}`,
+      }}
+    >
+      {icon && <span className="shrink-0" style={{ color }}>{icon}</span>}
+      <span className="text-[11px] font-bold tabular-nums" style={{ color }}>{value}</span>
+      <span className="text-[9px] font-medium text-muted-foreground/70">{label}</span>
+    </div>
+  );
+}

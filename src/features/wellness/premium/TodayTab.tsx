@@ -1,23 +1,16 @@
 /**
- * Today / Dashboard tab — the home of the premium wellness experience.
+ * Today / Dashboard tab — v3 Premium overhaul.
  *
- * v2 changes (gradient + UX overhaul):
- *  • All cards use the new SoftSurface (multi-stop gradient + dither)
- *    so accents wash gently rather than as a harsh ring.
- *  • A single `QuickLogSheet` lets the user log water, weight, sleep,
- *    sleep-quality, HRV, RHR, steps, energy and mood from this page —
- *    every stat tile and ring becomes a one-tap entry point.
- *  • The ACWR bar is now the new <SmoothBar> (continuous spectrum
- *    interpolated through oklab — no hard segment seams).
- *  • Stat tiles read from the unified `wellnessLink` resolver so the
- *    same number appears here, in the Hub, and in the Profile preview.
+ * Hero section with aurora-glow score display, glassmorphism cards,
+ * floating quick-action dock, and deep metric visualization.
  */
 
 import React, { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
-  Activity, BatteryCharging, Droplets, Flame, Footprints, Heart, HeartPulse,
-  Moon, Pill, Plus, Scale, Smile, Sparkles, Timer, TrendingUp, Zap,
+  Activity, BatteryCharging, ChevronRight, Droplets, Flame, Footprints,
+  Heart, HeartPulse, Moon, Pill, Plus, Scale, Smile, Sparkles, Timer,
+  TrendingUp, Zap,
 } from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
 import {
@@ -32,8 +25,9 @@ import { todayIso, isoFromTs } from '../wellnessDb';
 import {
   ProgressRing, ScoreGauge, StatTile, FastingRing, useNowSecond,
   HeatmapCalendar, SectionHeader, PremiumCard, AnimatedNumber, zoneColor,
+  zoneColorAlt,
 } from './primitives';
-import { SoftSurface, SmoothBar, withAlpha } from './surfaces';
+import { SoftSurface, SmoothBar, withAlpha, AuroraCard, GlassSurface, ElevatedCard, PulseRing } from './surfaces';
 import QuickLogSheet, { type QuickMetric } from './QuickLogSheet';
 import { recoveryScore, readinessScore, dailyScoreSeries, streakBackwards } from '../recoveryEngine';
 import { acwr, dailyWaterMl } from '../athleticEngine';
@@ -51,74 +45,72 @@ interface Props {
   onLogHydration: (ml: number) => void;
   onStartFasting: (hours: number, protocol: string) => void;
   onEndFasting: () => void;
-  /** Vital upsert (used by QuickLogSheet). */
   onSaveVital: (entry: Omit<VitalLog, 'id' | 'loggedAt'>) => Promise<void>;
   onJump: (key: string) => void;
 }
 
 const item = {
-  hidden: { opacity: 0, y: 14 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] as const } },
+  hidden: { opacity: 0, y: 12 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] as const } },
 };
 const stagger = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.06 } },
+  show: { transition: { staggerChildren: 0.055 } },
 };
+
 
 const T = {
   greetingMorning: { ar: 'صباح الخير', de: 'Guten Morgen' },
   greetingAfternoon: { ar: 'نهارك جميل', de: 'Guten Tag' },
   greetingEvening: { ar: 'مساء الخير', de: 'Guten Abend' },
   greetingNight: { ar: 'مساء الخير', de: 'Gute Nacht' },
-  recovery: { ar: 'التعافي', de: 'Erholung' },
-  readiness: { ar: 'الجاهزية', de: 'Bereitschaft' },
-  noData: { ar: 'بيانات غير كافية', de: 'Daten unzureichend' },
-  setup: { ar: 'سجّل وزنك ونومك لتظهر النقاط', de: 'Erfasse Gewicht & Schlaf für Werte' },
-  trainingAdvice: { ar: 'نصيحة اليوم', de: 'Heutige Empfehlung' },
-  recGoHard: { ar: 'اليوم مناسب لتمرين شاق', de: 'Bereit für hartes Training' },
-  recNormal: { ar: 'تمرين معتاد ممكن', de: 'Normales Training' },
-  recEasy: { ar: 'خفّف الحمل اليوم', de: 'Heute leichter trainieren' },
-  recRest: { ar: 'يوم استشفاء واستراحة', de: 'Erholungstag empfohlen' },
+  recovery: { ar: 'التعافي', de: 'Recovery' },
+  readiness: { ar: 'الجاهزية', de: 'Readiness' },
+  noData: { ar: 'لا بيانات كافية', de: 'Nicht genug Daten' },
+  setup: { ar: 'سجّل بياناتك لتفعيل النقاط', de: 'Logge Daten für Scores' },
+  trainingAdvice: { ar: 'توصية اليوم', de: 'Empfehlung' },
+  recGoHard: { ar: 'جسمك جاهز لتمرين عالي الشدة', de: 'Bereit für hartes Training' },
+  recNormal: { ar: 'تمرين بشدة معتدلة مناسب', de: 'Normales Training möglich' },
+  recEasy: { ar: 'خفّف الحمل — جسمك يحتاج راحة', de: 'Heute leichter trainieren' },
+  recRest: { ar: 'خذ يوم استشفاء كامل', de: 'Erholungstag empfohlen' },
   hydration: { ar: 'الترطيب', de: 'Hydration' },
   ofTarget: { ar: 'من الهدف', de: 'des Ziels' },
-  nextDose: { ar: 'الجرعة القادمة', de: 'Nächste Dosis' },
-  noPending: { ar: 'لا جرعات معلّقة', de: 'Keine offenen Dosen' },
+  nextDose: { ar: 'المكمل التالي', de: 'Nächste Dosis' },
+  noPending: { ar: 'لا جرعات معلّقة اليوم', de: 'Keine offenen Dosen heute' },
   fasting: { ar: 'الصيام المتقطع', de: 'Intervallfasten' },
-  startFasting: { ar: 'ابدأ الصيام', de: 'Fasten starten' },
-  endFasting: { ar: 'إنهاء', de: 'Beenden' },
-  todaysStats: { ar: 'إحصائيات اليوم', de: 'Heutige Werte' },
-  weeklyTrend: { ar: 'سبعة أيام', de: '7 Tage' },
+  endFasting: { ar: 'إنهاء الصيام', de: 'Beenden' },
+  todaysStats: { ar: 'مؤشرات اليوم', de: 'Heutige Werte' },
+  weeklyTrend: { ar: 'مقارنة بآخر 7 أيام', de: 'Vergleich letzte 7 Tage' },
   steps: { ar: 'الخطوات', de: 'Schritte' },
   sleep: { ar: 'النوم', de: 'Schlaf' },
   energy: { ar: 'الطاقة', de: 'Energie' },
   mood: { ar: 'المزاج', de: 'Stimmung' },
   weight: { ar: 'الوزن', de: 'Gewicht' },
-  hrv: { ar: 'تباين النبض', de: 'HRV' },
+  hrv: { ar: 'HRV', de: 'HRV' },
   trainingLoad: { ar: 'الحمل التدريبي', de: 'Trainingsbelastung' },
-  acwrSweet: { ar: 'منطقة مثالية', de: 'Idealer Bereich' },
-  acwrLow: { ar: 'حمل منخفض', de: 'Geringe Belastung' },
-  acwrCaution: { ar: 'انتبه — حمل مرتفع', de: 'Achtung — hohe Belastung' },
-  acwrDanger: { ar: 'خطر إفراط', de: 'Übertraining-Risiko' },
+  acwrSweet: { ar: 'المنطقة المثالية', de: 'Idealer Bereich' },
+  acwrLow: { ar: 'حمل منخفض — زِد التدريب', de: 'Geringe Belastung' },
+  acwrCaution: { ar: 'حمل مرتفع — انتبه', de: 'Achtung — hohe Last' },
+  acwrDanger: { ar: 'خطر إفراط تدريبي', de: 'Übertraining-Risiko' },
   streakDays: { ar: 'يوم متواصل', de: 'Tage in Folge' },
-  trainingStreak: { ar: 'تتابع التمارين', de: 'Trainings-Streak' },
+  trainingStreak: { ar: 'سلسلة التمارين', de: 'Trainings-Streak' },
   in: { ar: 'بعد', de: 'in' },
   hour: { ar: 'س', de: 'h' },
   min: { ar: 'د', de: 'min' },
-  ml: { ar: 'مل', de: 'ml' },
   liters: { ar: 'لتر', de: 'L' },
-  glass: { ar: 'كوب', de: 'Glas' },
-  add: { ar: 'إضافة', de: 'Hinzufügen' },
-  log: { ar: 'تسجيل', de: 'Loggen' },
-  setProfile: { ar: 'أكمل ملفك الرياضي', de: 'Athletenprofil ergänzen' },
+  log: { ar: 'تسجيل سريع', de: 'Quick Log' },
+  setProfile: { ar: 'أكمل ملفك لتفعيل كل الميزات', de: 'Profil vervollständigen' },
   setProfileDesc: {
-    ar: 'أضف الطول والوزن والعمر لتفعيل كل الحسابات.',
-    de: 'Füge Größe, Gewicht und Alter hinzu, um alle Berechnungen freizuschalten.',
+    ar: 'أضف بياناتك الأساسية (الطول، الوزن، العمر) لتشغيل الحاسبات والنقاط الذكية.',
+    de: 'Ergänze Größe, Gewicht & Alter für alle Berechnungen und Smart-Scores.',
   },
+  quickActions: { ar: 'إجراءات سريعة', de: 'Schnellaktionen' },
+  viewAll: { ar: 'عرض الكل', de: 'Alle anzeigen' },
 };
 
 function greeting(lang: 'ar' | 'de'): string {
   const h = new Date().getHours();
-  if (h < 5)  return T.greetingNight[lang];
+  if (h < 5) return T.greetingNight[lang];
   if (h < 12) return T.greetingMorning[lang];
   if (h < 17) return T.greetingAfternoon[lang];
   if (h < 21) return T.greetingEvening[lang];
@@ -145,77 +137,103 @@ function deltaPct(latest: number | null, base: number | null): number | null {
   return ((latest - base) / base) * 100;
 }
 
-/* ────────────────── Recommendation card ────────────────── */
-function RecCard({
-  rec,
-  score,
-  zone,
+
+/* ═══════════════════ Hero Score Section ═══════════════════ */
+
+function HeroScores({
+  recovery: rec,
+  readiness: ready,
+  series7,
   lang,
-  ar7,
 }: {
-  rec: 'go_hard' | 'normal' | 'easy' | 'rest' | null;
-  score: number | null;
-  zone: 'low' | 'moderate' | 'good' | 'optimal' | null;
+  recovery: ReturnType<typeof recoveryScore>;
+  readiness: ReturnType<typeof readinessScore>;
+  series7: { date: string; readiness: number | null; recovery: number | null }[];
   lang: 'ar' | 'de';
-  ar7: { date: string; readiness: number | null }[];
 }) {
-  const isAr = lang === 'ar';
-  const labelMap = {
-    go_hard: T.recGoHard[lang],
-    normal:  T.recNormal[lang],
-    easy:    T.recEasy[lang],
-    rest:    T.recRest[lang],
-  } as const;
-  const Icon = !rec ? HeartPulse : rec === 'go_hard' ? Zap : rec === 'normal' ? Activity : rec === 'easy' ? Heart : Moon;
-  const color = zoneColor(zone);
-  const text = rec ? labelMap[rec] : (isAr ? T.noData.ar : T.noData.de);
+  const recColor = zoneColor(rec.zone);
+  const readyColor = zoneColor(ready.zone);
+  const recAlt = zoneColorAlt(rec.zone);
+  const readyAlt = zoneColorAlt(ready.zone);
+
+  // Aurora palette derived from the dominant score
+  const auroraColors: [string, string, string] = [
+    recColor || '#6366f1',
+    readyColor || '#06b6d4',
+    '#10b981',
+  ];
 
   return (
-    <SoftSurface accent={color} variant="mesh" intensity={0.85} className="p-4">
-      <div className="flex items-center gap-3">
-        <div
-          className="w-11 h-11 rounded-2xl flex items-center justify-center shrink-0"
-          style={{ background: withAlpha(color, 0.16) }}
-        >
-          <Icon className="w-5 h-5" style={{ color }} />
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">
-            {T.trainingAdvice[lang]}
-          </p>
-          <p className="text-[15px] font-bold text-foreground leading-tight">{text}</p>
-        </div>
-        {score != null && (
-          <div className="text-end shrink-0" dir="ltr">
-            <div className="text-[28px] font-bold tabular-nums leading-none" style={{ color }}>
-              {Math.round(score)}
+    <AuroraCard colors={auroraColors} intensity={0.6} className="p-5">
+      {/* Score gauges row */}
+      <div className="flex items-center justify-around gap-4">
+        <div className="flex flex-col items-center">
+          <ProgressRing
+            value={(rec.score ?? 0) / 100}
+            size={110}
+            strokeWidth={8}
+            color={recColor}
+            colorAlt={recAlt}
+            gradient
+          >
+            <div className="text-center" dir="ltr">
+              <div className="text-[32px] font-extrabold tabular-nums leading-none" style={{ color: recColor }}>
+                {rec.score != null ? Math.round(rec.score) : '—'}
+              </div>
             </div>
-            <div className="text-[9px] uppercase tracking-wider text-muted-foreground/70">
-              /100
+          </ProgressRing>
+          <p className="text-[11px] font-bold text-foreground mt-2">{T.recovery[lang]}</p>
+          {!rec.hasData && (
+            <p className="text-[9px] text-muted-foreground/60 mt-0.5 text-center max-w-[80px]">{T.setup[lang]}</p>
+          )}
+        </div>
+
+        {/* Divider */}
+        <div className="w-px h-16 bg-border/30" />
+
+        <div className="flex flex-col items-center">
+          <ProgressRing
+            value={(ready.score ?? 0) / 100}
+            size={110}
+            strokeWidth={8}
+            color={readyColor}
+            colorAlt={readyAlt}
+            gradient
+          >
+            <div className="text-center" dir="ltr">
+              <div className="text-[32px] font-extrabold tabular-nums leading-none" style={{ color: readyColor }}>
+                {ready.score != null ? Math.round(ready.score) : '—'}
+              </div>
             </div>
-          </div>
-        )}
+          </ProgressRing>
+          <p className="text-[11px] font-bold text-foreground mt-2">{T.readiness[lang]}</p>
+          {ready.components.loadPenalty > 0 && (
+            <p className="text-[9px] text-muted-foreground/60 mt-0.5">−{ready.components.loadPenalty} load</p>
+          )}
+        </div>
       </div>
-      {ar7.some((p) => p.readiness != null) && (
-        <div className="h-10 mt-3 -mx-1" dir="ltr">
+
+      {/* Trend sparkline */}
+      {series7.some((p) => p.readiness != null) && (
+        <div className="h-12 mt-4 -mx-2" dir="ltr">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={ar7} margin={{ top: 4, right: 6, left: 6, bottom: 0 }}>
+            <AreaChart data={series7} margin={{ top: 4, right: 4, left: 4, bottom: 0 }}>
               <defs>
-                <linearGradient id="readiness-grad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%"   stopColor={color} stopOpacity={0.45} />
-                  <stop offset="60%"  stopColor={color} stopOpacity={0.18} />
-                  <stop offset="100%" stopColor={color} stopOpacity={0} />
+                <linearGradient id="hero-grad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor={readyColor} stopOpacity={0.4} />
+                  <stop offset="100%" stopColor={readyColor} stopOpacity={0} />
                 </linearGradient>
               </defs>
               <YAxis hide domain={[0, 100]} />
               <Tooltip
-                cursor={{ stroke: color, strokeOpacity: 0.4, strokeWidth: 1, strokeDasharray: '3 4' }}
+                cursor={{ stroke: readyColor, strokeOpacity: 0.3, strokeWidth: 1, strokeDasharray: '3 4' }}
                 contentStyle={{
-                  background: 'hsl(var(--card))',
-                  border: `1px solid ${withAlpha(color, 0.25)}`,
-                  borderRadius: 10,
+                  background: 'hsl(var(--card) / 0.9)',
+                  backdropFilter: 'blur(8px)',
+                  border: `1px solid ${withAlpha(readyColor, 0.2)}`,
+                  borderRadius: 12,
                   fontSize: 11,
-                  padding: '4px 8px',
+                  padding: '4px 10px',
                 }}
                 labelStyle={{ display: 'none' }}
                 formatter={(v: any) => [`${Math.round(Number(v))}/100`, T.readiness[lang]]}
@@ -223,22 +241,77 @@ function RecCard({
               <Area
                 type="monotone"
                 dataKey="readiness"
-                stroke={color}
-                strokeWidth={2}
-                fill="url(#readiness-grad)"
+                stroke={readyColor}
+                strokeWidth={2.5}
+                fill="url(#hero-grad)"
                 connectNulls
                 isAnimationActive
-                animationDuration={1100}
+                animationDuration={1200}
               />
             </AreaChart>
           </ResponsiveContainer>
         </div>
       )}
-    </SoftSurface>
+    </AuroraCard>
   );
 }
 
-/* ────────────────── Hydration card ────────────────── */
+
+/* ═══════════════════ Recommendation Card ═══════════════════ */
+
+function RecCard({
+  rec,
+  score,
+  zone,
+  lang,
+}: {
+  rec: 'go_hard' | 'normal' | 'easy' | 'rest' | null;
+  score: number | null;
+  zone: 'low' | 'moderate' | 'good' | 'optimal' | null;
+  lang: 'ar' | 'de';
+}) {
+  const labelMap = {
+    go_hard: T.recGoHard[lang],
+    normal: T.recNormal[lang],
+    easy: T.recEasy[lang],
+    rest: T.recRest[lang],
+  } as const;
+  const Icon = !rec ? HeartPulse : rec === 'go_hard' ? Zap : rec === 'normal' ? Activity : rec === 'easy' ? Heart : Moon;
+  const color = zoneColor(zone);
+  const text = rec ? labelMap[rec] : T.noData[lang];
+
+  return (
+    <GlassSurface accent={color} className="p-4">
+      <div className="flex items-center gap-3">
+        <div
+          className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0"
+          style={{ background: withAlpha(color, 0.12), border: `1px solid ${withAlpha(color, 0.15)}` }}
+        >
+          <Icon className="w-5.5 h-5.5" style={{ color }} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/60">
+            {T.trainingAdvice[lang]}
+          </p>
+          <p className="text-[14px] font-bold text-foreground leading-snug mt-0.5">{text}</p>
+        </div>
+        {score != null && (
+          <div className="text-end shrink-0" dir="ltr">
+            <div className="text-[26px] font-extrabold tabular-nums leading-none" style={{ color }}>
+              {Math.round(score)}
+            </div>
+            <div className="text-[8px] uppercase tracking-widest text-muted-foreground/60 mt-0.5">
+              /100
+            </div>
+          </div>
+        )}
+      </div>
+    </GlassSurface>
+  );
+}
+
+/* ═══════════════════ Hydration Card ═══════════════════ */
+
 function HydrationCard({
   todayMl,
   targetMl,
@@ -256,33 +329,28 @@ function HydrationCard({
   const ratio = pct(todayMl, targetMl);
   const liters = (todayMl / 1000).toFixed(1);
   const targetL = (targetMl / 1000).toFixed(1);
-  const color = '#06b6d4'; // cyan-500
-  const colorAlt = '#22d3ee'; // cyan-400
-
+  const color = '#06b6d4';
+  const colorAlt = '#22d3ee';
   const quick = [200, 300, 500];
 
   return (
-    <SoftSurface accent={color} variant="mesh" intensity={0.85} className="p-4">
-      <button
-        type="button"
-        onClick={onLogMore}
-        className="w-full flex items-center justify-between gap-3 text-start"
-      >
+    <ElevatedCard accent={color} elevation={2} className="p-4">
+      <button type="button" onClick={onLogMore} className="w-full flex items-center justify-between gap-3 text-start">
         <div className="flex-1 min-w-0">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">
+          <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/60">
             {T.hydration[lang]}
           </p>
-          <div className="flex items-baseline gap-1.5 mt-0.5" dir="ltr">
-            <span className="text-[26px] font-bold tabular-nums leading-none" style={{ color }}>
+          <div className="flex items-baseline gap-1.5 mt-1" dir="ltr">
+            <span className="text-[28px] font-extrabold tabular-nums leading-none" style={{ color }}>
               <AnimatedNumber value={Number(liters)} digits={1} />
             </span>
-            <span className="text-[11px] text-muted-foreground">/ {targetL} {T.liters[lang]}</span>
+            <span className="text-[11px] text-muted-foreground font-medium">/ {targetL} {T.liters[lang]}</span>
           </div>
-          <p className="text-[10px] text-muted-foreground/70 mt-0.5">
+          <p className="text-[10px] text-muted-foreground/60 mt-1 font-medium">
             {Math.round(ratio * 100)}% {T.ofTarget[lang]}
           </p>
         </div>
-        <ProgressRing value={ratio} size={74} strokeWidth={6} color={color} colorAlt={colorAlt} gradient>
+        <ProgressRing value={ratio} size={72} strokeWidth={6} color={color} colorAlt={colorAlt} gradient>
           <Droplets className="w-5 h-5" style={{ color }} />
         </ProgressRing>
       </button>
@@ -291,22 +359,23 @@ function HydrationCard({
           <button
             key={ml}
             onClick={() => onAdd(ml)}
-            className="flex-1 py-1.5 rounded-lg text-[11px] font-semibold border active:scale-95 transition-transform"
+            className="flex-1 py-2 rounded-xl text-[11px] font-bold active:scale-95 transition-all duration-150"
             style={{
-              borderColor: withAlpha(color, 0.25),
-              background: withAlpha(color, 0.06),
-              color: color,
+              background: withAlpha(color, 0.08),
+              color,
+              border: `1px solid ${withAlpha(color, 0.15)}`,
             }}
           >
-            +{ml} {isAr ? 'مل' : 'ml'}
+            +{ml}{isAr ? 'مل' : 'ml'}
           </button>
         ))}
       </div>
-    </SoftSurface>
+    </ElevatedCard>
   );
 }
 
-/* ────────────────── Fasting card ────────────────── */
+/* ═══════════════════ Fasting Card ═══════════════════ */
+
 function FastingCard({
   active,
   lang,
@@ -330,17 +399,23 @@ function FastingCard({
   ];
 
   return (
-    <SoftSurface accent={accent} variant="mesh" intensity={0.85} className="p-4">
+    <ElevatedCard accent={accent} elevation={2} className="p-4">
       <div className="flex items-center justify-between gap-3 mb-3">
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">
+          <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/60">
             {T.fasting[lang]}
           </p>
           <p className="text-[13px] font-bold text-foreground mt-0.5">
             {active ? (active.protocol ?? '16:8') : (isAr ? 'متوقّف' : 'Inaktiv')}
           </p>
         </div>
-        <Timer className="w-5 h-5" style={{ color: withAlpha(accent, 0.7) }} />
+        {active ? (
+          <PulseRing color={accent} size={32} active>
+            <Timer className="w-4 h-4" style={{ color: accent }} />
+          </PulseRing>
+        ) : (
+          <Timer className="w-5 h-5" style={{ color: withAlpha(accent, 0.5) }} />
+        )}
       </div>
       <div className="flex items-center justify-center mb-3">
         <FastingRing
@@ -349,13 +424,13 @@ function FastingCard({
           active={!!active}
           protocol={active?.protocol ?? '16:8'}
           lang={lang}
-          size={150}
+          size={140}
         />
       </div>
       {active ? (
         <button
           onClick={onEnd}
-          className="w-full py-2 rounded-xl text-[12px] font-semibold bg-destructive/15 text-destructive active:scale-[0.98] transition-transform"
+          className="w-full py-2.5 rounded-xl text-[12px] font-bold bg-destructive/10 text-destructive active:scale-[0.98] transition-transform border border-destructive/15"
         >
           {T.endFasting[lang]}
         </button>
@@ -365,10 +440,10 @@ function FastingCard({
             <button
               key={p.label}
               onClick={() => onStart(p.hours, p.label)}
-              className="flex-1 py-2 rounded-xl text-[11px] font-semibold border active:scale-95 transition-transform"
+              className="flex-1 py-2.5 rounded-xl text-[11px] font-bold active:scale-95 transition-all duration-150"
               style={{
-                borderColor: withAlpha(accent, 0.3),
                 background: withAlpha(accent, 0.08),
+                border: `1px solid ${withAlpha(accent, 0.2)}`,
                 color: accent,
               }}
             >
@@ -377,11 +452,13 @@ function FastingCard({
           ))}
         </div>
       )}
-    </SoftSurface>
+    </ElevatedCard>
   );
 }
 
-/* ────────────────── Next supplement card ────────────────── */
+
+/* ═══════════════════ Next Supplement Card ═══════════════════ */
+
 function NextDoseCard({
   supplements,
   intakeLogs,
@@ -423,21 +500,22 @@ function NextDoseCard({
   const accent = '#f59e0b';
 
   return (
-    <SoftSurface as="button" onClick={onJump} accent={accent} variant="mesh" intensity={0.6} className="p-4">
+    <GlassSurface as="button" onClick={onJump} accent={accent} className="p-4">
       <div className="flex items-center gap-3">
-        <div className="w-11 h-11 rounded-2xl flex items-center justify-center shrink-0" style={{ background: withAlpha(accent, 0.16) }}>
+        <div
+          className="w-11 h-11 rounded-2xl flex items-center justify-center shrink-0"
+          style={{ background: withAlpha(accent, 0.12), border: `1px solid ${withAlpha(accent, 0.12)}` }}
+        >
           <Pill className="w-5 h-5" style={{ color: accent }} />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">
+          <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/60">
             {T.nextDose[lang]}
           </p>
           {next ? (
             <>
-              <p className="text-[14px] font-bold text-foreground truncate mt-0.5">
-                {next.sup.name}
-              </p>
-              <p className="text-[11px] mt-0.5" style={{ color: accent }} dir="ltr">
+              <p className="text-[14px] font-bold text-foreground truncate mt-0.5">{next.sup.name}</p>
+              <p className="text-[11px] font-medium mt-0.5" style={{ color: accent }} dir="ltr">
                 {next.time} · {T.in[lang]}{' '}
                 {next.deltaMin < 60
                   ? `${next.deltaMin}${T.min[lang]}`
@@ -445,71 +523,60 @@ function NextDoseCard({
               </p>
             </>
           ) : (
-            <p className="text-[13px] font-semibold text-muted-foreground mt-1">
-              {T.noPending[lang]}
-            </p>
+            <p className="text-[12px] font-semibold text-muted-foreground/70 mt-1">{T.noPending[lang]}</p>
           )}
         </div>
+        <ChevronRight className="w-4 h-4 text-muted-foreground/40 shrink-0" />
       </div>
-    </SoftSurface>
+    </GlassSurface>
   );
 }
 
-/* ────────────────── Training-load card ────────────────── */
-function TrainingLoadCard({
-  workouts,
-  lang,
-}: {
-  workouts: WorkoutSession[];
-  lang: 'ar' | 'de';
-}) {
-  const isAr = lang === 'ar';
+/* ═══════════════════ Training Load Card ═══════════════════ */
+
+function TrainingLoadCard({ workouts, lang }: { workouts: WorkoutSession[]; lang: 'ar' | 'de' }) {
   const ar = useMemo(() => acwr(workouts), [workouts]);
   const zoneLabel = !ar
     ? T.noData[lang]
     : ar.zone === 'undertraining' ? T.acwrLow[lang]
-    : ar.zone === 'sweet_spot'    ? T.acwrSweet[lang]
-    : ar.zone === 'caution'       ? T.acwrCaution[lang]
-    :                                T.acwrDanger[lang];
+    : ar.zone === 'sweet_spot' ? T.acwrSweet[lang]
+    : ar.zone === 'caution' ? T.acwrCaution[lang]
+    : T.acwrDanger[lang];
   const color =
     !ar ? 'hsl(var(--muted-foreground))'
     : ar.zone === 'undertraining' ? '#f59e0b'
-    : ar.zone === 'sweet_spot'    ? '#10b981'
-    : ar.zone === 'caution'       ? '#f59e0b'
-    :                                '#ef4444';
-
+    : ar.zone === 'sweet_spot' ? '#10b981'
+    : ar.zone === 'caution' ? '#f59e0b'
+    : '#ef4444';
   const r = ar?.ratio ?? 0;
   const markerPct = Math.max(0, Math.min(1, r / 2));
 
   return (
-    <SoftSurface accent={color} variant="mesh" intensity={0.6} className="p-4 space-y-3">
+    <ElevatedCard accent={color} elevation={2} className="p-4 space-y-3">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">
+          <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/60">
             {T.trainingLoad[lang]}
           </p>
-          <p className="text-[15px] font-bold text-foreground mt-0.5">{zoneLabel}</p>
+          <p className="text-[14px] font-bold text-foreground mt-0.5">{zoneLabel}</p>
         </div>
         {ar && (
           <div className="text-end" dir="ltr">
-            <div className="text-[28px] font-bold tabular-nums leading-none" style={{ color }}>
+            <div className="text-[26px] font-extrabold tabular-nums leading-none" style={{ color }}>
               {ar.ratio.toFixed(2)}
             </div>
-            <div className="text-[9px] uppercase tracking-wider text-muted-foreground/70">
-              ACWR
-            </div>
+            <div className="text-[8px] uppercase tracking-widest text-muted-foreground/60 mt-0.5">ACWR</div>
           </div>
         )}
       </div>
 
-      {/* Smooth zone bar — continuous gradient through oklab */}
       <SmoothBar
         spectrum={[
-          { color: '#f59e0b', at: 0 },     // amber: under
-          { color: '#10b981', at: 40 },    // emerald: sweet spot
+          { color: '#f59e0b', at: 0 },
+          { color: '#10b981', at: 40 },
           { color: '#10b981', at: 65 },
-          { color: '#f59e0b', at: 75 },    // amber: caution
-          { color: '#ef4444', at: 100 },   // red: danger
+          { color: '#f59e0b', at: 75 },
+          { color: '#ef4444', at: 100 },
         ]}
         marker={ar ? markerPct : undefined}
         markerColor={color}
@@ -518,21 +585,22 @@ function TrainingLoadCard({
 
       {ar && (
         <div className="grid grid-cols-2 gap-2 text-[10px]" dir="ltr">
-          <div className="bg-muted/30 rounded-lg p-2">
-            <div className="text-muted-foreground/70">Acute (7d)</div>
-            <div className="font-bold tabular-nums text-foreground">{ar.acute}</div>
+          <div className="bg-muted/20 rounded-xl p-2.5 border border-border/20">
+            <div className="text-muted-foreground/60 font-medium">Acute (7d)</div>
+            <div className="font-bold tabular-nums text-foreground mt-0.5 text-[13px]">{ar.acute}</div>
           </div>
-          <div className="bg-muted/30 rounded-lg p-2">
-            <div className="text-muted-foreground/70">Chronic (28d)</div>
-            <div className="font-bold tabular-nums text-foreground">{ar.chronic}</div>
+          <div className="bg-muted/20 rounded-xl p-2.5 border border-border/20">
+            <div className="text-muted-foreground/60 font-medium">Chronic (28d)</div>
+            <div className="font-bold tabular-nums text-foreground mt-0.5 text-[13px]">{ar.chronic}</div>
           </div>
         </div>
       )}
-    </SoftSurface>
+    </ElevatedCard>
   );
 }
 
-/* ────────────────── Streak heatmap card ────────────────── */
+/* ═══════════════════ Streak Heatmap ═══════════════════ */
+
 function StreakCard({ workouts, lang }: { workouts: WorkoutSession[]; lang: 'ar' | 'de' }) {
   const days = useMemo(() => {
     const today = new Date();
@@ -554,31 +622,36 @@ function StreakCard({ workouts, lang }: { workouts: WorkoutSession[]; lang: 'ar'
   }, [workouts]);
 
   return (
-    <SoftSurface accent="#f97316" variant="mesh" intensity={0.55} className="p-4">
+    <ElevatedCard accent="#f97316" elevation={1} className="p-4">
       <div className="flex items-center justify-between mb-3">
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">
+          <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/60">
             {T.trainingStreak[lang]}
           </p>
-          <div className="flex items-baseline gap-1.5 mt-0.5" dir="ltr">
-            <span className="text-[26px] font-bold tabular-nums text-foreground leading-none">
+          <div className="flex items-baseline gap-1.5 mt-1" dir="ltr">
+            <span className="text-[28px] font-extrabold tabular-nums text-foreground leading-none">
               {streak}
             </span>
-            <span className="text-[11px] text-muted-foreground">{T.streakDays[lang]}</span>
+            <span className="text-[11px] text-muted-foreground font-medium">{T.streakDays[lang]}</span>
           </div>
         </div>
-        <div className="w-9 h-9 rounded-2xl flex items-center justify-center" style={{ background: 'rgba(249,115,22,0.15)' }}>
-          <Flame className="w-4 h-4 text-orange-500" />
+        <div
+          className="w-10 h-10 rounded-2xl flex items-center justify-center"
+          style={{ background: 'rgba(249,115,22,0.1)', border: '1px solid rgba(249,115,22,0.12)' }}
+        >
+          <Flame className="w-5 h-5 text-orange-500" />
         </div>
       </div>
       <div className="overflow-x-auto -mx-1 px-1">
         <HeatmapCalendar days={days} weeks={10} color="#f97316" />
       </div>
-    </SoftSurface>
+    </ElevatedCard>
   );
 }
 
-/* ────────────────── Main component ────────────────── */
+
+/* ═══════════════════ Main Component ═══════════════════ */
+
 export default function TodayTab({
   profile,
   supplements,
@@ -602,7 +675,7 @@ export default function TodayTab({
   const [quickOpen, setQuickOpen] = useState(false);
   const [quickMetric, setQuickMetric] = useState<QuickMetric | undefined>(undefined);
 
-  // ── scores ──
+  // ── Scores ──
   const recovery = useMemo(() => recoveryScore(vitals, skinHair), [vitals, skinHair]);
   const readiness = useMemo(
     () => readinessScore({ vitals, skinHair, workouts }),
@@ -617,16 +690,14 @@ export default function TodayTab({
     [vitals, skinHair, workouts],
   );
 
-  // ── unified daily snapshot ──
+  // ── Unified daily snapshot ──
   const snap = useMemo(
     () => dailySnapshot({ profile, vitals, skinHair, hydration, workouts, dietLogs: [] }),
     [profile, vitals, skinHair, hydration, workouts],
   );
 
-  // Today's vital row (used as seed for the QuickLog sheet)
   const todayVital = useMemo(() => vitals.find((v) => v.date === today) ?? null, [vitals, today]);
 
-  // Effective body weight for hydration target
   const weightForTarget = useMemo(() => {
     return resolveWeight({ profile, vitals, skinHair, hydration, workouts, dietLogs: [] }).value
       ?? profile?.weightKg ?? 70;
@@ -639,10 +710,9 @@ export default function TodayTab({
     }) ?? 2500;
   }, [weightForTarget, workouts, today]);
 
-  // ── stat tiles (avg of last 7d, baseline = previous 7d) ──
+  // ── Stats (7d avg + delta) ──
   const last7Vitals = vitals.slice(0, 7);
   const prev7Vitals = vitals.slice(7, 14);
-
   const stepsAvg = avgField(last7Vitals, (v) => v.steps);
   const stepsPrev = avgField(prev7Vitals, (v) => v.steps);
   const sleepAvg = avgField(last7Vitals, (v) => v.sleepHours);
@@ -651,7 +721,6 @@ export default function TodayTab({
   const hrvPrev = avgField(prev7Vitals, (v) => v.hrv);
   const weightAvg = avgField(last7Vitals, (v) => v.weightKg);
   const weightPrev = avgField(prev7Vitals, (v) => v.weightKg);
-
   const energyVal = snap.energy;
   const moodVal = snap.mood;
 
@@ -665,80 +734,64 @@ export default function TodayTab({
   return (
     <>
       <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-4">
-        {/* Greeting + Quick-log CTA */}
-        <motion.div variants={item} className="flex items-end justify-between gap-3 px-1">
+        {/* ─── Greeting + Quick Log CTA ─── */}
+        <motion.div variants={item} className="flex items-end justify-between gap-3">
           <div className="space-y-0.5 min-w-0">
-            <p className="text-[12px] text-muted-foreground truncate">
+            <p className="text-[14px] font-bold text-foreground truncate">
               {greeting(lang)}{profile?.name ? `, ${profile.name}` : ''}
             </p>
-            <p className="text-[11px] text-muted-foreground/60">
+            <p className="text-[11px] text-muted-foreground/70 font-medium">
               {new Date().toLocaleDateString(isAr ? 'ar' : 'de', { weekday: 'long', day: 'numeric', month: 'long' })}
             </p>
           </div>
           <button
             onClick={() => openQuick()}
-            className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-[12px] font-semibold active:scale-95 transition-transform"
+            className="shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-[11px] font-bold active:scale-95 transition-transform shadow-[0_4px_12px_-4px_hsl(var(--primary)/0.4)]"
           >
             <Plus className="w-3.5 h-3.5" />
             {T.log[lang]}
           </button>
         </motion.div>
 
-        {/* Profile-incomplete banner */}
+        {/* ─── Profile incomplete banner ─── */}
         {profileIncomplete && (
           <motion.div variants={item}>
-            <SoftSurface as="button" onClick={() => onJump('profile')} accent="hsl(var(--primary))" intensity={1} className="p-4">
+            <GlassSurface as="button" onClick={() => onJump('profile')} accent="hsl(var(--primary))" className="p-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-primary/15 flex items-center justify-center shrink-0">
+                <div className="w-11 h-11 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 ring-1 ring-primary/15">
                   <Sparkles className="w-5 h-5 text-primary" />
                 </div>
                 <div className="flex-1 min-w-0 text-start">
                   <p className="text-[13px] font-bold text-foreground">{T.setProfile[lang]}</p>
-                  <p className="text-[11px] text-muted-foreground/80 mt-0.5">{T.setProfileDesc[lang]}</p>
+                  <p className="text-[11px] text-muted-foreground/70 mt-0.5 leading-relaxed">{T.setProfileDesc[lang]}</p>
                 </div>
+                <ChevronRight className="w-4 h-4 text-muted-foreground/40 shrink-0" />
               </div>
-            </SoftSurface>
+            </GlassSurface>
           </motion.div>
         )}
 
-        {/* Score gauges */}
+        {/* ─── Hero Score Section (Aurora) ─── */}
         <motion.div variants={item}>
-          <SoftSurface accent={zoneColor(recovery.zone)} variant="mesh" intensity={0.85} className="p-4">
-            <div className="grid grid-cols-2 gap-2">
-              <div className="flex flex-col items-center">
-                <ScoreGauge
-                  value={recovery.score}
-                  zone={recovery.zone}
-                  label={T.recovery[lang]}
-                  size={130}
-                  caption={recovery.hasData ? '' : T.setup[lang]}
-                />
-              </div>
-              <div className="flex flex-col items-center">
-                <ScoreGauge
-                  value={readiness.score}
-                  zone={readiness.zone}
-                  label={T.readiness[lang]}
-                  size={130}
-                  caption={readiness.components.loadPenalty > 0 ? `−${readiness.components.loadPenalty} (load)` : ''}
-                />
-              </div>
-            </div>
-          </SoftSurface>
+          <HeroScores
+            recovery={recovery}
+            readiness={readiness}
+            series7={series7}
+            lang={lang}
+          />
         </motion.div>
 
-        {/* Recommendation */}
+        {/* ─── Recommendation ─── */}
         <motion.div variants={item}>
           <RecCard
             rec={readiness.recommendation}
             score={readiness.score}
             zone={readiness.zone}
             lang={lang}
-            ar7={series7}
           />
         </motion.div>
 
-        {/* Hydration + Fasting row */}
+        {/* ─── Hydration + Fasting ─── */}
         <motion.div variants={item} className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <HydrationCard
             todayMl={snap.hydrationMl}
@@ -755,7 +808,7 @@ export default function TodayTab({
           />
         </motion.div>
 
-        {/* Next dose */}
+        {/* ─── Next supplement ─── */}
         <motion.div variants={item}>
           <NextDoseCard
             supplements={supplements}
@@ -765,8 +818,8 @@ export default function TodayTab({
           />
         </motion.div>
 
-        {/* Stats grid — every tile opens QuickLog */}
-        <motion.div variants={item} className="space-y-2">
+        {/* ─── Stats Grid ─── */}
+        <motion.div variants={item} className="space-y-3">
           <SectionHeader
             title={T.todaysStats[lang]}
             subtitle={T.weeklyTrend[lang]}
@@ -774,14 +827,14 @@ export default function TodayTab({
             action={
               <button
                 onClick={() => openQuick()}
-                className="text-[11px] font-semibold text-primary inline-flex items-center gap-1"
+                className="text-[11px] font-bold text-primary inline-flex items-center gap-1"
               >
                 <Plus className="w-3 h-3" />
                 {T.log[lang]}
               </button>
             }
           />
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-2.5">
             <StatTile
               icon={Footprints}
               label={T.steps[lang]}
@@ -846,17 +899,18 @@ export default function TodayTab({
           </div>
         </motion.div>
 
-        {/* Training load */}
+        {/* ─── Training Load ─── */}
         <motion.div variants={item}>
           <TrainingLoadCard workouts={workouts} lang={lang} />
         </motion.div>
 
-        {/* Streak heatmap */}
+        {/* ─── Streak Heatmap ─── */}
         <motion.div variants={item}>
           <StreakCard workouts={workouts} lang={lang} />
         </motion.div>
       </motion.div>
 
+      {/* ─── Quick Log Sheet ─── */}
       <QuickLogSheet
         open={quickOpen}
         metric={quickMetric}
