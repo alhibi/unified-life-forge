@@ -657,51 +657,6 @@ export const poetryEras: Era[] = [
           },
         ],
       },
-      {
-        id: 'bshr-bin-sluwah',
-        name: 'بشر بن سلوة',
-        era: 'jahili',
-        bio: 'بشر بن سلوة — شاعر جاهلي مذكور في قوائم الديوان (مصدر: aldiwan.net).',
-        poems: [
-          { title: 'قصيدة مختارة', verses: ['بيت مثال لشاعر بشر بن سلوة. (مصدر: aldiwan.net)'] },
-        ],
-      },
-      {
-        id: 'amr-bin-maawayah',
-        name: 'عمرو بن معاوية',
-        era: 'jahili',
-        bio: 'عمرو بن معاوية — من شعراء الجاهلية المذكورين في الأرشيفات الأدبية (مصدر: aldiwan.net).',
-        poems: [
-          { title: 'قصيدة مختارة', verses: ['بيت مثال لشاعر عمرو بن معاوية. (مصدر: aldiwan.net)'] },
-        ],
-      },
-      {
-        id: 'amr-bin-al-mashmarj',
-        name: 'عمرو بن المشمرج',
-        era: 'jahili',
-        bio: 'عمرو بن المشمرج — شاعر جاهلي مذكور في فهارس الشعر العربي (مصدر: aldiwan.net).',
-        poems: [
-          { title: 'قصيدة مختارة', verses: ['بيت مثال لشاعر عمرو بن المشمرج. (مصدر: aldiwan.net)'] },
-        ],
-      },
-      {
-        id: 'al-akhous-al-yarbuai',
-        name: 'الأخوص اليربوعي',
-        era: 'jahili',
-        bio: 'الأخوص اليربوعي — اسم منسوب إلى قبيلة اليربوع ورد في مصادر الديوان (مصدر: aldiwan.net).',
-        poems: [
-          { title: 'قصيدة مختارة', verses: ['بيت مثال لشاعر الأخوص اليربوعي. (مصدر: aldiwan.net)'] },
-        ],
-      },
-      {
-        id: 'al-ashar-al-balawi',
-        name: 'الأشعر البلوي',
-        era: 'jahili',
-        bio: 'الأشعر البلوي — شاعر جاهلي مذكور ضمن جداول الشعراء على الديوان (مصدر: aldiwan.net).',
-        poems: [
-          { title: 'قصيدة مختارة', verses: ['بيت مثال لشاعر الأشعر البلوي. (مصدر: aldiwan.net)'] },
-        ],
-      },
     ],
   },
   {
@@ -732,51 +687,6 @@ export const poetryEras: Era[] = [
           },
         ],
       },
-      {
-          id: 'al-ahnf-bin-qais',
-          name: 'الأحنف بن قيس',
-          era: 'mukhadram',
-          bio: 'الأحنف بن قيس — قائد وشاعر مخضرم مذكور في المصادر الإسلامية والديوان (مصدر: aldiwan.net).',
-          poems: [
-            { title: 'قصيدة مختارة', verses: ['بيت مثال للأحنف بن قيس. (مصدر: aldiwan.net)'] },
-          ],
-        },
-        {
-          id: 'al-aswad-bin-yazid',
-          name: 'الأسود بن يزيد النخعي',
-          era: 'mukhadram',
-          bio: 'الأسود بن يزيد النخعي — شاعر مخضرم من النخع، له أشعار منقولة في المجموعات (مصدر: aldiwan.net).',
-          poems: [
-            { title: 'قصيدة مختارة', verses: ['بيت مثال للأسود بن يزيد النخعي. (مصدر: aldiwan.net)'] },
-          ],
-        },
-        {
-          id: 'saad-bin-iyas',
-          name: 'سعد بن إياس الشيباني',
-          era: 'mukhadram',
-          bio: 'سعد بن إياس الشيباني — شاعر مخضرم مذكور في السرد التاريخي للأدب العربي (مصدر: aldiwan.net).',
-          poems: [
-            { title: 'قصيدة مختارة', verses: ['بيت مثال لسعد بن إياس الشيباني. (مصدر: aldiwan.net)'] },
-          ],
-        },
-        {
-          id: 'najjashi',
-          name: 'النجاشي',
-          era: 'mukhadram',
-          bio: 'النجاشي — ملك الحبشة الذي ذُكرت له أزجال ومدائح في المصادر الأدبية (مصدر: ar.wikipedia.org / aldiwan.net).',
-          poems: [
-            { title: 'قصيدة مختارة', verses: ['بيت منسوب إلى النجاشي في بعض السجلات الأدبية.'] },
-          ],
-        },
-        {
-          id: 'salama-bin-qaysr',
-          name: 'سلامة بن قيصر',
-          era: 'mukhadram',
-          bio: 'سلامة بن قيصر — شاعر مخضرم مذكور في مصادر الشعر العربي القديم (مصدر: aldiwan.net).',
-          poems: [
-            { title: 'قصيدة مختارة', verses: ['بيت مثال لسلامة بن قيصر. (مصدر: aldiwan.net)'] },
-          ],
-        },
       {
         id: 'abu-dhuayb',
         name: 'أبو ذؤيب الهذلي',
@@ -1646,51 +1556,6 @@ export const poetryEras: Era[] = [
           },
         ],
       },
-      {
-        id: 'khabib-bin-adi',
-        name: 'خبيب بن عدي',
-        era: 'islami',
-        bio: 'خبيب بن عدي — صحابي وشاعر وردت له أبيات في المصادر الإسلامية والأدبية (مصدر: aldiwan.net).',
-        poems: [
-          { title: 'قصيدة مختارة', verses: ['بيت منسوب إلى خبيب بن عدي. (مصدر: aldiwan.net)'] },
-        ],
-      },
-      {
-        id: 'kaab-bin-mashhoor',
-        name: 'كعب بن مشهور',
-        era: 'islami',
-        bio: 'كعب بن مشهور — من شعراء الفترة الإسلامية المبكرة المذكورين في سجلات الأدب (مصدر: aldiwan.net).',
-        poems: [
-          { title: 'قصيدة مختارة', verses: ['بيت مثال لكعب بن مشهور. (مصدر: aldiwan.net)'] },
-        ],
-      },
-      {
-        id: 'al-mukhriq-al-muzni',
-        name: 'المخرق المزني',
-        era: 'islami',
-        bio: 'المخرق المزني — شاعر مذكور في فهارس الأدب الإسلامي وبدايات العصر الأموي (مصدر: aldiwan.net).',
-        poems: [
-          { title: 'قصيدة مختارة', verses: ['بيت مثال للمخرق المزني. (مصدر: aldiwan.net)'] },
-        ],
-      },
-      {
-        id: 'ibrahim-bin-kunayf',
-        name: 'إبراهيم بن كنيف النبهاني',
-        era: 'islami',
-        bio: 'إبراهيم بن كنيف النبهاني — شاعر من أوائل العصر الإسلامي المذكور في المصادر (مصدر: aldiwan.net).',
-        poems: [
-          { title: 'قصيدة مختارة', verses: ['بيت مثال لإبراهيم بن كنيف النبهاني. (مصدر: aldiwan.net)'] },
-        ],
-      },
-      {
-        id: 'al-mundhir-al-wadaei',
-        name: 'المنذر الوادعي',
-        era: 'islami',
-        bio: 'المنذر الوادعي — شاعر من العصر الإسلامي المبكر ذكره أرشيف الديوان (مصدر: aldiwan.net).',
-        poems: [
-          { title: 'قصيدة مختارة', verses: ['بيت مثال للمنذر الوادعي. (مصدر: aldiwan.net)'] },
-        ],
-      },
     ],
   },
   {
@@ -2070,51 +1935,6 @@ export const poetryEras: Era[] = [
               'كَأَنِّي بِبَطْنِ الرَّاحَتَيْنِ مُجَرَّحُ',
             ],
           },
-        ],
-      },
-      {
-        id: 'qais-bin-dhurayh',
-        name: 'قيس بن ذريع',
-        era: 'umawi',
-        bio: 'قيس بن ذريع — من شعراء العصر الأموي المذكورين في فهارس الديوان (مصدر: aldiwan.net).',
-        poems: [
-          { title: 'قصيدة مختارة', verses: ['بيت مثال لقيس بن ذريع. (مصدر: aldiwan.net)'] },
-        ],
-      },
-      {
-        id: 'burair-al-hamdani',
-        name: 'برير الهمداني',
-        era: 'umawi',
-        bio: 'برير الهمداني — شاعر أموي مذكور في سجلات الشعراء (مصدر: aldiwan.net).',
-        poems: [
-          { title: 'قصيدة مختارة', verses: ['بيت مثال لبرير الهمداني. (مصدر: aldiwan.net)'] },
-        ],
-      },
-      {
-        id: 'badr-al-fuqasi',
-        name: 'بدر الفقعسي',
-        era: 'umawi',
-        bio: 'بدر الفقعسي — شاعر من العصر الأموي مذكور ضمن الفهارس الأدبية (مصدر: aldiwan.net).',
-        poems: [
-          { title: 'قصيدة مختارة', verses: ['بيت مثال لبدر الفقعسي. (مصدر: aldiwan.net)'] },
-        ],
-      },
-      {
-        id: 'kaab-bin-umayra',
-        name: 'كعب بن عميرة',
-        era: 'umawi',
-        bio: 'كعب بن عميرة — اسم شاعري من العصر الأموي ذُكر في المصادر (مصدر: aldiwan.net).',
-        poems: [
-          { title: 'قصيدة مختارة', verses: ['بيت مثال لكعب بن عميرة. (مصدر: aldiwan.net)'] },
-        ],
-      },
-      {
-        id: 'al-safah-al-yarbuai',
-        name: 'السفاح اليربوعي',
-        era: 'umawi',
-        bio: 'السفاح اليربوعي — شاعر أموي منسوب إلى قبيلة اليربوع ورد ذكره في قواعد الديوان (مصدر: aldiwan.net).',
-        poems: [
-          { title: 'قصيدة مختارة', verses: ['بيت مثال للسفاح اليربوعي. (مصدر: aldiwan.net)'] },
         ],
       },
     ],
@@ -2661,51 +2481,6 @@ export const poetryEras: Era[] = [
           },
         ],
       },
-      {
-        id: 'al-muraymi',
-        name: 'المريمي',
-        era: 'abbasi',
-        bio: 'المريمي — شاعر عباسي مذكور في سجلات الأدب (مصدر: aldiwan.net).',
-        poems: [
-          { title: 'قصيدة مختارة', verses: ['بيت مثال للمريمي. (مصدر: aldiwan.net)'] },
-        ],
-      },
-      {
-        id: 'ahmad-bin-abi-fanan',
-        name: 'أحمد بن أبي فنن',
-        era: 'abbasi',
-        bio: 'أحمد بن أبي فنن — من شعراء العصر العباسي المذكورين في الفهارس الأدبية (مصدر: aldiwan.net).',
-        poems: [
-          { title: 'قصيدة مختارة', verses: ['بيت مثال لأحمد بن أبي فنن. (مصدر: aldiwan.net)'] },
-        ],
-      },
-      {
-        id: 'al-siraj-al-baghdadi',
-        name: 'السراج البغدادي',
-        era: 'abbasi',
-        bio: 'السراج البغدادي — شاعر وناظر من بغداد ورد في قواعد الأدب (مصدر: aldiwan.net).',
-        poems: [
-          { title: 'قصيدة مختارة', verses: ['بيت مثال للسراج البغدادي. (مصدر: aldiwan.net)'] },
-        ],
-      },
-      {
-        id: 'abu-ali-al-basir',
-        name: 'أبو علي البصير',
-        era: 'abbasi',
-        bio: 'أبو علي البصير — شاعر عباسي مذكور في الفهارس الأدبية القديمة (مصدر: aldiwan.net).',
-        poems: [
-          { title: 'قصيدة مختارة', verses: ['بيت مثال لأبو علي البصير. (مصدر: aldiwan.net)'] },
-        ],
-      },
-      {
-        id: 'al-abbas-bin-al-ahnf',
-        name: 'العباس بن الأحنف',
-        era: 'abbasi',
-        bio: 'العباس بن الأحنف — من شعراء العصر العباسي المعروفين برقة اللفظ والحنين، مذكور في الديوان (مصدر: aldiwan.net).',
-        poems: [
-          { title: 'قصيدة مختارة', verses: ['بيت مثال للعباس بن الأحنف. (مصدر: aldiwan.net)'] },
-        ],
-      },
     ],
   },
   {
@@ -3164,51 +2939,6 @@ export const poetryEras: Era[] = [
               'فَإِنَّ المَجْدَ يُذْكَرُ بِالشَّمَائِلْ',
             ],
           },
-        ],
-      },
-      {
-        id: 'ibn-al-furaydi',
-        name: 'ابن الفرضي',
-        era: 'andalusi',
-        bio: 'أبو القاسم عبد الرحمن بن الفرضي — أديب وشاعر أندلسي مذكور في الدواوين والمراجع (مصدر: aldiwan.net).',
-        poems: [
-          { title: 'قصيدة مختارة', verses: ['بيت مثال لابن الفرضي. (مصدر: aldiwan.net)'] },
-        ],
-      },
-      {
-        id: 'aisha-al-qurtubiyya',
-        name: 'عائشة القرطبية',
-        era: 'andalusi',
-        bio: 'عائشة القرطبية — شاعرة أندلسية مذكورة في أرشيف الديوان ومن مصادر الأدب العربي (مصدر: aldiwan.net).',
-        poems: [
-          { title: 'قصيدة مختارة', verses: ['بيت مثال لعائشة القرطبية. (مصدر: aldiwan.net)'] },
-        ],
-      },
-      {
-        id: 'ibn-al-siraj-al-malqi',
-        name: 'ابن السراج المالقي',
-        era: 'andalusi',
-        bio: 'ابن السراج المالقي — شاعر وأديب من مالقة ورد ذكره في المراجع الأدبية (مصدر: aldiwan.net).',
-        poems: [
-          { title: 'قصيدة مختارة', verses: ['بيت مثال لابن السراج المالقي. (مصدر: aldiwan.net)'] },
-        ],
-      },
-      {
-        id: 'ibn-habish',
-        name: 'ابن حبيش',
-        era: 'andalusi',
-        bio: 'ابن حبيش — شاعر أندلسي مذكور في قوائم الديوان والمراجع الأدبية (مصدر: aldiwan.net).',
-        poems: [
-          { title: 'قصيدة مختارة', verses: ['بيت مثال لابن حبيش. (مصدر: aldiwan.net)'] },
-        ],
-      },
-      {
-        id: 'marj-al-kahl',
-        name: 'مرج الكحل',
-        era: 'andalusi',
-        bio: 'مرج الكحل — اسم شعري منسوب إلى منطقة أو كنَاة مذكورة في الفهارس الأندلسية (مصدر: aldiwan.net).',
-        poems: [
-          { title: 'قصيدة مختارة', verses: ['بيت مثال لمرج الكحل. (مصدر: aldiwan.net)'] },
         ],
       },
     ],
