@@ -14,6 +14,7 @@ import {
   storeReadArticles,
 } from './storage';
 import { fetchFeedsClientSide, isSupabaseAvailable } from './clientFetcher';
+import { dedupe, withRetry } from '@/lib/fetchRetry';
 
 /**
  * Centralised data layer for the reading feature.
