@@ -5,6 +5,7 @@ import {
   ExternalLink, Share2,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { notify } from '@/lib/notify';
 import { sanitizeRssHtml } from '@/utils/sanitizeRssHtml';
 import type { FeedItem, ReaderPrefs } from './types';
 import { formatDate, readingMinutes } from './utils';

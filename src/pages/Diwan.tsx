@@ -10,7 +10,7 @@ import {
   Swords, Building2, Network, Clock, BookMarked,
 } from 'lucide-react';
 import BackButton from '@/components/BackButton';
-import { toast } from 'sonner';
+import { notify } from '@/lib/notify';
 import LiteraryGraph from '@/components/diwan/LiteraryGraph';
 import PoetTimeline from '@/components/diwan/PoetTimeline';
 import PoemContextCard from '@/components/diwan/PoemContextCard';
