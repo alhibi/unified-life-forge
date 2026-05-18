@@ -63,6 +63,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (`react-hook-form`, `recharts`, `cmdk`, `vaul`, `embla-carousel-react`,
   `react-resizable-panels`, `input-otp`) are kept for the same reason.
   A future PR can prune them as a separate, deliberate decision.
+- The following non-UI source files have zero importers as of this audit
+  but were retained because the single-commit git history does not let
+  us distinguish "abandoned" from "staged for upcoming work" — they may
+  be load-bearing exports for the Lovable platform integration or
+  upcoming features. A maintainer with domain context should decide:
+  `src/components/NavLink.tsx`, `src/components/ReadingDialog.tsx`,
+  `src/components/ReligiousOccasions.tsx`, `src/hooks/useFastTap.ts`,
+  `src/integrations/lovable/index.ts`, `src/lib/motion.ts`,
+  `src/lib/prayerTimes.ts`, `src/utils/audioStorage.ts`,
+  `src/utils/hijri.ts`. The new `@typescript-eslint/no-unused-vars`
+  warn-level rule will surface unused exports the moment they're
+  touched in a PR.
 - The following dependencies are deliberately *not* upgraded across a
   major version because each upgrade requires non-trivial code changes
   and is best done in a focused PR with manual QA: `react-day-picker`
