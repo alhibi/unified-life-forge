@@ -5,6 +5,16 @@ import type { Database } from './types';
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
+// Fail fast with a readable error so a broken/empty `.env` doesn't surface
+// later as opaque "fetch failed" / "Invalid URL" errors deep inside the
+// supabase client.
+if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
+  throw new Error(
+    'Supabase env vars missing. Set VITE_SUPABASE_URL and ' +
+    'VITE_SUPABASE_PUBLISHABLE_KEY in your .env file (see .env.example).'
+  );
+}
+
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 

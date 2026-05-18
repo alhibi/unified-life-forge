@@ -263,9 +263,9 @@ const translations: Record<string, Record<Language, string>> = {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-function applyAccentHue(_hue: number, _isDark: boolean, _palette: PaletteStyle) {
-  // Legacy — now handled by themeEngine
-}
+// How long to wait before flushing settings to the database after a setting
+// change. Multiple rapid changes coalesce into a single upsert.
+const SAVE_DEBOUNCE_MS = 400;
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [language, setLanguageState] = useState<Language>(() =>
@@ -312,8 +312,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
   );
 
   const [authUser, setAuthUser] = useState<User | null>(null);
+  const authUserRef = useRef<User | null>(null);
   const syncRef = useRef(false);
   const initialLoadDone = useRef(false);
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Reset all state & localStorage to defaults
   const resetToDefaults = () => {
@@ -341,15 +343,24 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // Listen for auth changes
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      const prevUser = authUser;
-      setAuthUser(session?.user ?? null);
-      // Reset to defaults on logout
-      if (event === 'SIGNED_OUT' || (!session?.user && prevUser)) {
+      // Use a ref instead of `authUser` from the effect closure — the closure
+      // is created once (deps: []) so reading state directly here would always
+      // see the initial value and miss the SIGNED_OUT case for sessions that
+      // expired silently.
+      const prevUser = authUserRef.current;
+      const nextUser = session?.user ?? null;
+      authUserRef.current = nextUser;
+      setAuthUser(nextUser);
+      // Reset to defaults on logout (explicit SIGNED_OUT, or session lost
+      // for a previously-logged-in user).
+      if (event === 'SIGNED_OUT' || (!nextUser && prevUser)) {
         resetToDefaults();
       }
     });
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setAuthUser(session?.user ?? null);
+      const initialUser = session?.user ?? null;
+      authUserRef.current = initialUser;
+      setAuthUser(initialUser);
     });
     return () => subscription.unsubscribe();
   }, []);
@@ -393,9 +404,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
     load();
   }, [authUser]);
 
-  // Save settings to DB when they change
-  const saveToDb = async () => {
-    if (!authUser || syncRef.current || !initialLoadDone.current) return;
+  // Save settings to DB when they change.
+  // Wrapped in a coalescing debounce so that rapid changes (e.g. user dragging
+  // a slider, or toggling several settings in quick succession) flush as a
+  // single upsert instead of N parallel ones.
+  const flushSaveToDb = async () => {
+    saveTimerRef.current = null;
+    const user = authUserRef.current;
+    if (!user || syncRef.current || !initialLoadDone.current) return;
     const settings: Record<string, any> = {
       language: localStorage.getItem('app-language'),
       theme: localStorage.getItem('app-theme'),
@@ -413,96 +429,119 @@ export function AppProvider({ children }: { children: ReactNode }) {
       dstEnabled: localStorage.getItem('app-dst-enabled') !== 'false',
     };
     // Also save game stats and locations
-    try { settings.gameStats = JSON.parse(localStorage.getItem('game-stats') || '{}'); } catch {}
-    try { settings.savedLocations = JSON.parse(localStorage.getItem('saved-locations') || '[]'); } catch {}
+    try { settings.gameStats = JSON.parse(localStorage.getItem('game-stats') || '{}'); } catch { /* noop */ }
+    try { settings.savedLocations = JSON.parse(localStorage.getItem('saved-locations') || '[]'); } catch { /* noop */ }
 
     await supabase
       .from('user_settings')
-      .upsert({ user_id: authUser.id, settings: settings as any }, { onConflict: 'user_id' });
+      .upsert({ user_id: user.id, settings: settings as any }, { onConflict: 'user_id' });
   };
+
+  const scheduleSave = () => {
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    saveTimerRef.current = setTimeout(flushSaveToDb, SAVE_DEBOUNCE_MS);
+  };
+
+  // Flush any pending save when the provider unmounts or the tab is hidden,
+  // so we don't lose the last change made just before navigation.
+  useEffect(() => {
+    const onHide = () => {
+      if (saveTimerRef.current) {
+        clearTimeout(saveTimerRef.current);
+        flushSaveToDb();
+      }
+    };
+    document.addEventListener('visibilitychange', onHide);
+    window.addEventListener('pagehide', onHide);
+    return () => {
+      document.removeEventListener('visibilitychange', onHide);
+      window.removeEventListener('pagehide', onHide);
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    };
+  }, []);
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
     localStorage.setItem('app-language', lang);
-    setTimeout(saveToDb, 50);
+    scheduleSave();
   };
 
   const setTheme = (t: Theme) => {
     setThemeState(t);
     localStorage.setItem('app-theme', t);
-    setTimeout(saveToDb, 50);
+    scheduleSave();
   };
 
   const setAccentHue = (hue: number) => {
     setAccentHueState(hue);
     localStorage.setItem('app-accent-hue', hue.toString());
-    setTimeout(saveToDb, 50);
+    scheduleSave();
   };
 
   const setPaletteStyle = (style: PaletteStyle) => {
     setPaletteStyleState(style);
     localStorage.setItem('app-palette-style', style);
-    setTimeout(saveToDb, 50);
+    scheduleSave();
   };
 
   const setBlackMode = (v: boolean) => {
     setBlackModeState(v);
     localStorage.setItem('app-black-mode', v.toString());
-    setTimeout(saveToDb, 50);
+    scheduleSave();
   };
 
   const setColorTheme = (ct: ColorTheme) => {
     setColorThemeState(ct);
     localStorage.setItem('app-color-theme', ct);
-    setTimeout(saveToDb, 50);
+    scheduleSave();
   };
 
   const setFontFamily = (f: string) => {
     setFontFamilyState(f);
     localStorage.setItem('app-font-family', f);
-    setTimeout(saveToDb, 50);
+    scheduleSave();
   };
 
   const setFontSize = (s: string) => {
     setFontSizeState(s);
     localStorage.setItem('app-font-size', s);
-    setTimeout(saveToDb, 50);
+    scheduleSave();
   };
 
   const setFontWeight = (w: number) => {
     setFontWeightState(w);
     localStorage.setItem('app-font-weight', String(w));
-    setTimeout(saveToDb, 50);
+    scheduleSave();
   };
 
   const setFontOpacity = (o: number) => {
     setFontOpacityState(o);
     localStorage.setItem('app-font-opacity', String(o));
-    setTimeout(saveToDb, 50);
+    scheduleSave();
   };
 
   const setPrayerMadhab = (m: PrayerMadhab) => {
     setPrayerMadhabState(m);
     localStorage.setItem('app-prayer-madhab', m);
-    setTimeout(saveToDb, 50);
+    scheduleSave();
   };
 
   const setMidnightMode = (m: number) => {
     setMidnightModeState(m);
     localStorage.setItem('app-midnight-mode', String(m));
-    setTimeout(saveToDb, 50);
+    scheduleSave();
   };
 
   const setLatitudeAdjMethod = (m: LatitudeAdjMethod) => {
     setLatitudeAdjMethodState(m);
     localStorage.setItem('app-lat-adj-method', m);
-    setTimeout(saveToDb, 50);
+    scheduleSave();
   };
 
   const setDstEnabled = (v: boolean) => {
     setDstEnabledState(v);
     localStorage.setItem('app-dst-enabled', String(v));
-    setTimeout(saveToDb, 50);
+    scheduleSave();
   };
 
   const t = (key: string): string => translations[key]?.[language] || key;

@@ -128,7 +128,12 @@ type Token =
 
 
 // URL detection (http(s)://, www.). Tight enough to avoid false positives.
-const URL_REGEX = /\b((?:https?:\/\/|www\.)[^\s<>()]+[^\s<>().,;:!?"'])/gi;
+// The regex is intentionally NOT module-level with `g` flag — sharing a
+// stateful regex across renders caused `RegExp.lastIndex` to leak between
+// calls and produce non-deterministic matches. Build a fresh one per call.
+const URL_PATTERN = String.raw`(?:https?:\/\/|www\.)[^\s<>()]+[^\s<>().,;:!?"']`;
+const buildUrlSplitRegex = () => new RegExp(`(${URL_PATTERN})`, 'gi');
+const buildUrlTestRegex = () => new RegExp(`^${URL_PATTERN}$`, 'i');
 
 // Inline markers: delimiter must have non-space boundaries, like WhatsApp.
 // Order matters: code (backticks) first so * and _ inside code are preserved.
@@ -153,19 +158,20 @@ function tokenize(raw: string): Token[] {
 
 function tokenizeInline(text: string): Token[] {
   const tokens: Token[] = [];
-  // Linkify first – split by URL, then apply *_~ to non-link spans
-  const linkParts = text.split(URL_REGEX);
+  // Linkify first – split by URL, then apply *_~ to non-link spans.
+  // Each call gets fresh regex instances so `lastIndex` can't leak.
+  const splitRe = buildUrlSplitRegex();
+  const testRe = buildUrlTestRegex();
+  const linkParts = text.split(splitRe);
   for (let i = 0; i < linkParts.length; i++) {
     const part = linkParts[i];
     if (!part) continue;
-    if (URL_REGEX.test(part)) {
-      URL_REGEX.lastIndex = 0;
+    if (testRe.test(part)) {
       const href = part.startsWith('http') ? part : `https://${part}`;
       tokens.push({ kind: 'link', value: part, href });
     } else {
       tokens.push(...tokenizeStyles(part));
     }
-    URL_REGEX.lastIndex = 0;
   }
   return tokens;
 }
