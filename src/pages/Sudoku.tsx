@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useApp } from '@/contexts/AppContext';
-import { useNavigate } from 'react-router-dom';
-import { Grid3X3, Lightbulb, Clock, Eraser, PenLine, Trophy, Undo2, Pause, Play, Calendar } from 'lucide-react';
+import { Grid3X3, Lightbulb, Clock, Eraser, PenLine, Trophy, Undo2, Pause, Play, Calendar, Sparkles, X, Zap } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import GameShell from '@/components/GameShell';
 import { playSfx, vibrate } from '@/utils/gameFeedback';
 
 type Board = (number | null)[][];
 type Difficulty = 'easy' | 'medium' | 'hard' | 'expert';
+type Variant = 'classic' | 'x' | 'mini';
 
 interface SudokuStats {
   gamesPlayed: number;
@@ -18,6 +18,9 @@ interface SudokuStats {
   bestStreak: number;
   flawless: number;
   dailyDone: string[];
+  variantWins: Record<Variant, number>;
+  totalHints: number;
+  noErrors: number; // count of games solved without any wrong placement
 }
 
 function loadStats(): SudokuStats {
@@ -26,6 +29,8 @@ function loadStats(): SudokuStats {
     bestTime: { easy: null, medium: null, hard: null, expert: null },
     averageTime: { easy: { total: 0, count: 0 }, medium: { total: 0, count: 0 }, hard: { total: 0, count: 0 }, expert: { total: 0, count: 0 } },
     currentStreak: 0, bestStreak: 0, flawless: 0, dailyDone: [],
+    variantWins: { classic: 0, x: 0, mini: 0 },
+    totalHints: 0, noErrors: 0,
   };
   try {
     const s = JSON.parse(localStorage.getItem('sudoku-stats') || '{}');
@@ -34,6 +39,7 @@ function loadStats(): SudokuStats {
       bestTime: { ...def.bestTime, ...(s.bestTime || {}) },
       averageTime: { ...def.averageTime, ...(s.averageTime || {}) },
       dailyDone: Array.isArray(s.dailyDone) ? s.dailyDone : [],
+      variantWins: { ...def.variantWins, ...(s.variantWins || {}) },
     };
   } catch { return def; }
 }
@@ -41,6 +47,7 @@ function saveStats(stats: SudokuStats) { localStorage.setItem('sudoku-stats', JS
 
 interface SavedSudokuGame {
   difficulty: Difficulty;
+  variant: Variant;
   gameData: { puzzle: Board; solution: number[][] };
   board: Board;
   timer: number;
@@ -49,23 +56,20 @@ interface SavedSudokuGame {
   gameStarted: boolean;
   errors: string[];
   notes: string[][][];
+  errorCount: number;
 }
 
-function saveGameState(state: SavedSudokuGame) {
-  localStorage.setItem('sudoku-game-state', JSON.stringify(state));
-}
-
+function saveGameState(state: SavedSudokuGame) { localStorage.setItem('sudoku-game-state', JSON.stringify(state)); }
 function loadGameState(): SavedSudokuGame | null {
   const saved = localStorage.getItem('sudoku-game-state');
   if (!saved) return null;
   try { return JSON.parse(saved); } catch { return null; }
 }
+function clearGameState() { localStorage.removeItem('sudoku-game-state'); }
 
-function clearGameState() {
-  localStorage.removeItem('sudoku-game-state');
-}
-
-// Mulberry32: tiny, fast, deterministic 32-bit PRNG
+// ============================================================================
+// PRNG + helpers
+// ============================================================================
 function mulberry32(seed: number) {
   let t = seed >>> 0;
   return () => {
@@ -75,7 +79,6 @@ function mulberry32(seed: number) {
     return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
   };
 }
-
 function hashString(s: string): number {
   let h = 2166136261 >>> 0;
   for (let i = 0; i < s.length; i++) {
@@ -84,20 +87,49 @@ function hashString(s: string): number {
   }
   return h >>> 0;
 }
+function shuffle<T>(arr: T[], rng: () => number = Math.random): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
 
-function generateSolvedBoard(rng: () => number = Math.random): number[][] {
-  const board: number[][] = Array.from({ length: 9 }, () => Array(9).fill(0));
-  function isValid(b: number[][], r: number, c: number, n: number) {
-    for (let i = 0; i < 9; i++) if (b[r][i] === n || b[i][c] === n) return false;
-    const sr = Math.floor(r / 3) * 3, sc = Math.floor(c / 3) * 3;
-    for (let i = sr; i < sr + 3; i++) for (let j = sc; j < sc + 3; j++) if (b[i][j] === n) return false;
-    return true;
+// ============================================================================
+// X-Sudoku validity (extra constraint: both diagonals must contain 1-9)
+// ============================================================================
+function onMainDiag(r: number, c: number) { return r === c; }
+function onAntiDiag(r: number, c: number) { return r + c === 8; }
+
+function isValidPlacement(b: number[][], r: number, c: number, n: number, variant: Variant): boolean {
+  // Row + column
+  for (let i = 0; i < 9; i++) if (b[r][i] === n || b[i][c] === n) return false;
+  // 3×3 box
+  const sr = Math.floor(r / 3) * 3, sc = Math.floor(c / 3) * 3;
+  for (let i = sr; i < sr + 3; i++) for (let j = sc; j < sc + 3; j++) if (b[i][j] === n) return false;
+  // Diagonals (X-Sudoku)
+  if (variant === 'x') {
+    if (onMainDiag(r, c)) {
+      for (let i = 0; i < 9; i++) if (b[i][i] === n) return false;
+    }
+    if (onAntiDiag(r, c)) {
+      for (let i = 0; i < 9; i++) if (b[i][8 - i] === n) return false;
+    }
   }
+  return true;
+}
+
+function generateSolvedBoard(rng: () => number, variant: Variant): number[][] {
+  const board: number[][] = Array.from({ length: 9 }, () => Array(9).fill(0));
   function solve(b: number[][]): boolean {
     for (let r = 0; r < 9; r++) for (let c = 0; c < 9; c++) {
       if (b[r][c] === 0) {
         const nums = shuffle([1, 2, 3, 4, 5, 6, 7, 8, 9], rng);
-        for (const n of nums) { if (isValid(b, r, c, n)) { b[r][c] = n; if (solve(b)) return true; b[r][c] = 0; } }
+        for (const n of nums) {
+          if (isValidPlacement(b, r, c, n, variant)) {
+            b[r][c] = n;
+            if (solve(b)) return true;
+            b[r][c] = 0;
+          }
+        }
         return false;
       }
     }
@@ -107,17 +139,13 @@ function generateSolvedBoard(rng: () => number = Math.random): number[][] {
   return board;
 }
 
-function shuffle<T>(arr: T[], rng: () => number = Math.random): T[] {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
-  return a;
-}
-
-function createPuzzle(difficulty: Difficulty, seed?: string) {
+function createPuzzle(difficulty: Difficulty, variant: Variant, seed?: string) {
   const rng = seed ? mulberry32(hashString(seed)) : Math.random;
-  const solution = generateSolvedBoard(rng);
+  const solution = generateSolvedBoard(rng, variant);
   const puzzle: Board = solution.map(r => [...r]);
-  const removals = difficulty === 'easy' ? 35 : difficulty === 'medium' ? 45 : difficulty === 'hard' ? 52 : 58;
+  // X-sudoku is intrinsically more constrained → fewer removals needed
+  let removals = difficulty === 'easy' ? 35 : difficulty === 'medium' ? 45 : difficulty === 'hard' ? 52 : 58;
+  if (variant === 'x') removals = Math.min(removals + 4, 60);
   const cells = shuffle(Array.from({ length: 81 }, (_, i) => i), rng);
   for (let i = 0; i < removals && i < cells.length; i++) {
     puzzle[Math.floor(cells[i] / 9)][cells[i] % 9] = null;
@@ -125,11 +153,13 @@ function createPuzzle(difficulty: Difficulty, seed?: string) {
   return { puzzle, solution };
 }
 
-// Daily challenge: seeded by date — UTC for global consistency
-function todayKey(): string { const d = new Date(); return `${d.getUTCFullYear()}-${d.getUTCMonth()+1}-${d.getUTCDate()}`; }
+// Daily challenge
+function todayKey(): string { const d = new Date(); return `${d.getUTCFullYear()}-${d.getUTCMonth() + 1}-${d.getUTCDate()}`; }
 
-// Live conflict detection: returns set of cells whose value clashes with another cell in same row/col/box
-function findConflicts(board: Board): Set<string> {
+// ============================================================================
+// Conflict detection
+// ============================================================================
+function findConflicts(board: Board, variant: Variant): Set<string> {
   const out = new Set<string>();
   for (let r = 0; r < 9; r++) {
     for (let c = 0; c < 9; c++) {
@@ -142,39 +172,62 @@ function findConflicts(board: Board): Set<string> {
       for (let i = sr; i < sr + 3; i++) for (let j = sc; j < sc + 3; j++) {
         if ((i !== r || j !== c) && board[i][j] === v) { out.add(`${r}-${c}`); out.add(`${i}-${j}`); }
       }
+      // X-diagonals
+      if (variant === 'x') {
+        if (onMainDiag(r, c)) {
+          for (let i = 0; i < 9; i++) if ((i !== r || i !== c) && board[i][i] === v && (i !== r)) { out.add(`${r}-${c}`); out.add(`${i}-${i}`); }
+        }
+        if (onAntiDiag(r, c)) {
+          for (let i = 0; i < 9; i++) if (board[i][8 - i] === v && (i !== r)) { out.add(`${r}-${c}`); out.add(`${i}-${8-i}`); }
+        }
+      }
     }
   }
   return out;
 }
 
+// Compute legal candidates for a given empty cell (for auto-pencil-marks)
+function legalCandidates(board: Board, r: number, c: number, variant: Variant): Set<string> {
+  const out = new Set<string>();
+  if (board[r][c] !== null) return out;
+  const tmp = board.map(row => row.map(x => (x ?? 0))) as number[][];
+  for (let n = 1; n <= 9; n++) {
+    if (isValidPlacement(tmp, r, c, n, variant)) out.add(String(n));
+  }
+  return out;
+}
+
+// ============================================================================
+// Component
+// ============================================================================
 export default function SudokuPage() {
-  const { t, dir, language } = useApp();
-  const navigate = useNavigate();
-  
+  const { t, language } = useApp();
+  const isAr = language === 'ar';
+
   const savedGame = useMemo(() => loadGameState(), []);
-  
+
   const [difficulty, setDifficulty] = useState<Difficulty>(savedGame?.difficulty || 'easy');
-  const [gameData, setGameData] = useState(() => savedGame?.gameData || createPuzzle('easy'));
+  const [variant, setVariant] = useState<Variant>(savedGame?.variant || 'classic');
+  const [gameData, setGameData] = useState(() => savedGame?.gameData || createPuzzle('easy', 'classic'));
   const [board, setBoard] = useState<Board>(() => savedGame?.board || gameData.puzzle.map(r => [...r]));
   const [selected, setSelected] = useState<[number, number] | null>(null);
   const [errors, setErrors] = useState<Set<string>>(() => new Set(savedGame?.errors || []));
+  const [errorCount, setErrorCount] = useState(savedGame?.errorCount ?? 0);
   const [solved, setSolved] = useState(savedGame?.solved || false);
   const [timer, setTimer] = useState(savedGame?.timer || 0);
   const [isRunning, setIsRunning] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [gameStarted, setGameStarted] = useState(savedGame?.gameStarted || false);
   const [notes, setNotes] = useState<Set<string>[][]>(() => {
-    if (savedGame?.notes) {
-      return savedGame.notes.map(row => row.map(cell => new Set(cell)));
-    }
+    if (savedGame?.notes) return savedGame.notes.map(row => row.map(cell => new Set(cell)));
     return Array.from({ length: 9 }, () => Array.from({ length: 9 }, () => new Set<string>()));
   });
   const [noteMode, setNoteMode] = useState(false);
   const [stats, setStats] = useState<SudokuStats>(loadStats);
-  const [showStats, setShowStats] = useState(false);
-  const [history, setHistory] = useState<{ board: Board; errors: Set<string> }[]>([]);
+  const [history, setHistory] = useState<{ board: Board; errors: Set<string>; notes: Set<string>[][] }[]>([]);
   const [hintsUsed, setHintsUsed] = useState(savedGame?.hintsUsed || 0);
   const [selectedNumber, setSelectedNumber] = useState<number | null>(null);
+  const [autoNotes, setAutoNotes] = useState(false);
   const maxHints = difficulty === 'easy' ? 5 : difficulty === 'medium' ? 3 : difficulty === 'hard' ? 2 : 1;
   const [isDaily, setIsDaily] = useState<boolean>(() => localStorage.getItem('sudoku-is-daily') === 'true' && stats.dailyDone[stats.dailyDone.length - 1] !== todayKey());
 
@@ -184,24 +237,15 @@ export default function SudokuPage() {
     return s;
   }, [gameData]);
 
-  // Auto-save game state
+  // Auto-save
   useEffect(() => {
-    if (solved) {
-      clearGameState();
-      return;
-    }
+    if (solved) { clearGameState(); return; }
     saveGameState({
-      difficulty,
-      gameData,
-      board,
-      timer,
-      hintsUsed,
-      solved,
-      gameStarted,
-      errors: Array.from(errors),
+      difficulty, variant, gameData, board, timer, hintsUsed, solved, gameStarted,
+      errors: Array.from(errors), errorCount,
       notes: notes.map(row => row.map(cell => Array.from(cell))),
     });
-  }, [board, timer, errors, hintsUsed, solved, gameStarted, difficulty, gameData, notes]);
+  }, [board, timer, errors, hintsUsed, solved, gameStarted, difficulty, variant, gameData, notes, errorCount]);
 
   useEffect(() => {
     if (!isRunning || solved || isPaused) return;
@@ -209,70 +253,79 @@ export default function SudokuPage() {
     return () => clearInterval(iv);
   }, [isRunning, solved, isPaused]);
 
-  const recordWin = (time: number, diff: Difficulty) => {
+  const recordWin = (time: number, diff: Difficulty, var_: Variant, errs: number, hints: number) => {
     const s = { ...stats };
-    s.gamesPlayed++;
-    s.gamesWon++;
+    s.gamesPlayed++; s.gamesWon++;
     s.currentStreak++;
     if (s.currentStreak > s.bestStreak) s.bestStreak = s.currentStreak;
     if (s.bestTime[diff] === null || time < s.bestTime[diff]!) s.bestTime[diff] = time;
     s.averageTime[diff].total += time;
     s.averageTime[diff].count++;
-    if (hintsUsed === 0) s.flawless = (s.flawless || 0) + 1;
+    s.variantWins[var_] = (s.variantWins[var_] || 0) + 1;
+    s.totalHints = (s.totalHints || 0) + hints;
+    if (hints === 0 && errs === 0) s.flawless = (s.flawless || 0) + 1;
+    if (errs === 0) s.noErrors = (s.noErrors || 0) + 1;
     if (isDaily) {
       const k = todayKey();
       if (!s.dailyDone.includes(k)) s.dailyDone = [...s.dailyDone, k];
     }
-    setStats(s);
-    saveStats(s);
+    setStats(s); saveStats(s);
     playSfx('win'); vibrate([60, 60, 200]);
   };
 
-  const newGame = (diff: Difficulty, daily = false) => {
+  const newGame = (diff: Difficulty, var_: Variant = variant, daily = false) => {
     clearGameState();
     setDifficulty(diff);
+    setVariant(var_);
     setIsDaily(daily);
     localStorage.setItem('sudoku-is-daily', String(daily));
-    const data = daily ? createPuzzle(diff, `daily-${todayKey()}-${diff}`) : createPuzzle(diff);
+    const data = daily ? createPuzzle(diff, var_, `daily-${todayKey()}-${diff}-${var_}`) : createPuzzle(diff, var_);
     setGameData(data);
     setBoard(data.puzzle.map(r => [...r]));
-    setSelected(null); setErrors(new Set()); setSolved(false); setTimer(0); setIsRunning(false); setIsPaused(false); setGameStarted(false);
+    setSelected(null); setErrors(new Set()); setErrorCount(0); setSolved(false); setTimer(0);
+    setIsRunning(false); setIsPaused(false); setGameStarted(false);
     setNotes(Array.from({ length: 9 }, () => Array.from({ length: 9 }, () => new Set<string>())));
-    setNoteMode(false); setHistory([]); setHintsUsed(0); setSelectedNumber(null);
+    setNoteMode(false); setHistory([]); setHintsUsed(0); setSelectedNumber(null); setAutoNotes(false);
   };
 
-  const startGame = () => {
-    setGameStarted(true);
-    setIsRunning(true);
-    setIsPaused(false);
-  };
+  const startGame = () => { setGameStarted(true); setIsRunning(true); setIsPaused(false); };
+  const togglePause = () => { if (!gameStarted) { startGame(); return; } setIsPaused(!isPaused); };
 
-  const togglePause = () => {
-    if (!gameStarted) {
-      startGame();
-      return;
+  // Smart auto-pencil-marks: fill notes for every empty cell with legal candidates
+  const fillAutoNotes = () => {
+    const newNotes: Set<string>[][] = Array.from({ length: 9 }, () => Array.from({ length: 9 }, () => new Set<string>()));
+    for (let r = 0; r < 9; r++) for (let c = 0; c < 9; c++) {
+      if (board[r][c] === null) newNotes[r][c] = legalCandidates(board, r, c, variant);
     }
-    setIsPaused(!isPaused);
+    setHistory(prev => [...prev, snapshot()]);
+    setNotes(newNotes);
+    setAutoNotes(true);
+    playSfx('hint');
   };
+
+  const clearAutoNotes = () => {
+    setHistory(prev => [...prev, snapshot()]);
+    setNotes(Array.from({ length: 9 }, () => Array.from({ length: 9 }, () => new Set<string>())));
+    setAutoNotes(false);
+    playSfx('click');
+  };
+
+  const snapshot = () => ({
+    board: board.map(row => [...row]),
+    errors: new Set(errors),
+    notes: notes.map(row => row.map(cell => new Set(cell))),
+  });
 
   const handleCellClick = (r: number, c: number) => {
     if (isPaused || solved) return;
     setSelected([r, c]);
-    // If a number is already in this cell, highlight that number
-    if (board[r][c] !== null) {
-      setSelectedNumber(board[r][c]);
-    }
+    if (board[r][c] !== null) setSelectedNumber(board[r][c]);
   };
 
   const handleNumberInput = useCallback((num: number) => {
     if (solved || isPaused) return;
-
-    // Toggle selected number for highlighting
-    if (selectedNumber === num) {
-      setSelectedNumber(null);
-    } else {
-      setSelectedNumber(num);
-    }
+    if (selectedNumber === num) setSelectedNumber(null);
+    else setSelectedNumber(num);
 
     if (!selected) return;
     const [r, c] = selected;
@@ -285,37 +338,43 @@ export default function SudokuPage() {
       setNotes(nn); return;
     }
 
-    setHistory(prev => [...prev, { board: board.map(row => [...row]), errors: new Set(errors) }]);
+    setHistory(prev => [...prev, snapshot()]);
     const nb = board.map(row => [...row]);
     nb[r][c] = num;
     setBoard(nb);
-    if (num === gameData.solution[r][c]) { playSfx('place'); vibrate(15); }
-    else { playSfx('wrong'); vibrate(40); }
+    const correct = num === gameData.solution[r][c];
+    if (correct) { playSfx('place'); vibrate(15); }
+    else { playSfx('wrong'); vibrate(40); setErrorCount(e => e + 1); }
 
-    // Auto-clear notes in same row, col, box
+    // Auto-clear notes in same row, col, box (and diag for X-sudoku)
     const nn = notes.map(row => row.map(s => new Set(s)));
     nn[r][c].clear();
     const k = num.toString();
     for (let i = 0; i < 9; i++) { nn[r][i].delete(k); nn[i][c].delete(k); }
     const br = Math.floor(r / 3) * 3, bc = Math.floor(c / 3) * 3;
     for (let i = br; i < br + 3; i++) for (let j = bc; j < bc + 3; j++) nn[i][j].delete(k);
+    if (variant === 'x') {
+      if (onMainDiag(r, c)) for (let i = 0; i < 9; i++) nn[i][i].delete(k);
+      if (onAntiDiag(r, c)) for (let i = 0; i < 9; i++) nn[i][8 - i].delete(k);
+    }
     setNotes(nn);
 
+    // Refresh errors
     const ne = new Set<string>();
     for (let i = 0; i < 9; i++) for (let j = 0; j < 9; j++)
       if (nb[i][j] !== null && nb[i][j] !== gameData.solution[i][j]) ne.add(`${i}-${j}`);
     setErrors(ne);
     if (ne.size === 0 && nb.every(row => row.every(cell => cell !== null))) {
       setSolved(true); setIsRunning(false);
-      recordWin(timer, difficulty);
+      recordWin(timer, difficulty, variant, errorCount + (correct ? 0 : 1), hintsUsed);
     }
-  }, [selected, solved, isPaused, original, noteMode, notes, board, errors, gameData, timer, difficulty, stats, selectedNumber]);
+  }, [selected, solved, isPaused, original, noteMode, notes, board, errors, gameData, timer, difficulty, variant, errorCount, hintsUsed, selectedNumber]);
 
   const handleErase = () => {
     if (!selected || isPaused) return;
     const [r, c] = selected;
     if (original.has(`${r}-${c}`)) return;
-    setHistory(prev => [...prev, { board: board.map(row => [...row]), errors: new Set(errors) }]);
+    setHistory(prev => [...prev, snapshot()]);
     const nb = board.map(row => [...row]); nb[r][c] = null; setBoard(nb);
     const ne = new Set(errors); ne.delete(`${r}-${c}`); setErrors(ne);
     const nn = notes.map(row => row.map(s => new Set(s)));
@@ -329,14 +388,14 @@ export default function SudokuPage() {
     const [r, c] = selected;
     if (original.has(`${r}-${c}`)) return;
     if (board[r][c] === gameData.solution[r][c]) return;
-    setHistory(prev => [...prev, { board: board.map(row => [...row]), errors: new Set(errors) }]);
+    setHistory(prev => [...prev, snapshot()]);
     const nb = board.map(row => [...row]); nb[r][c] = gameData.solution[r][c]; setBoard(nb);
     const ne = new Set(errors); ne.delete(`${r}-${c}`); setErrors(ne);
     setHintsUsed(h => h + 1);
     playSfx('hint'); vibrate(20);
     if (ne.size === 0 && nb.every(row => row.every(cell => cell !== null))) {
       setSolved(true); setIsRunning(false);
-      recordWin(timer, difficulty);
+      recordWin(timer, difficulty, variant, errorCount, hintsUsed + 1);
     }
   };
 
@@ -345,19 +404,18 @@ export default function SudokuPage() {
     const prev = history[history.length - 1];
     setBoard(prev.board);
     setErrors(prev.errors);
+    setNotes(prev.notes);
     setHistory(h => h.slice(0, -1));
     playSfx('click');
   };
 
   const formatTimer = (s: number) => `${Math.floor(s / 60).toString().padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`;
 
-  // Live conflicts: same number clashing in row/col/box
-  const conflicts = useMemo(() => findConflicts(board), [board]);
+  const conflicts = useMemo(() => findConflicts(board, variant), [board, variant]);
 
   const getHighlight = (r: number, c: number) => {
     if (conflicts.has(`${r}-${c}`)) return 'bg-rose-500/15 ring-1 ring-inset ring-rose-400/40';
     if (!selected) {
-      // Highlight matching numbers when a number is selected from pad
       if (selectedNumber !== null && board[r][c] === selectedNumber) return 'bg-primary/12';
       return '';
     }
@@ -365,57 +423,76 @@ export default function SudokuPage() {
     if (r === sr && c === sc) return 'bg-primary/20 ring-2 ring-inset ring-primary/50';
     if (r === sr || c === sc) return 'bg-primary/6';
     if (Math.floor(r / 3) === Math.floor(sr / 3) && Math.floor(c / 3) === Math.floor(sc / 3)) return 'bg-primary/6';
+    if (variant === 'x') {
+      if (onMainDiag(sr, sc) && onMainDiag(r, c)) return 'bg-purple-500/8';
+      if (onAntiDiag(sr, sc) && onAntiDiag(r, c)) return 'bg-purple-500/8';
+    }
     if (board[r][c] !== null && board[sr][sc] !== null && board[r][c] === board[sr][sc]) return 'bg-primary/10';
     return '';
   };
 
-  // Count remaining numbers
   const numberCounts = useMemo(() => {
-    const counts: Record<number, number> = {};
+    const c: Record<number, number> = {};
     for (let n = 1; n <= 9; n++) {
       let count = 0;
-      for (let r = 0; r < 9; r++) for (let c = 0; c < 9; c++) if (board[r][c] === n) count++;
-      counts[n] = 9 - count; // remaining
+      for (let r = 0; r < 9; r++) for (let cc = 0; cc < 9; cc++) if (board[r][cc] === n) count++;
+      c[n] = 9 - count;
     }
-    return counts;
+    return c;
   }, [board]);
 
   const winRate = stats.gamesPlayed > 0 ? Math.round((stats.gamesWon / stats.gamesPlayed) * 100) : 0;
-  const isAr = language === 'ar';
 
   const diffLabels: Record<Difficulty, string> = {
     easy: t('sudoku.easy'),
     medium: t('sudoku.medium'),
     hard: t('sudoku.hard'),
-    expert: isAr ? 'محترف' : 'Expert',
+    expert: isAr ? 'محترف' : 'Experte',
+  };
+  const variantLabels: Record<Variant, { ar: string; de: string }> = {
+    classic: { ar: 'كلاسيكي', de: 'Klassisch' },
+    x: { ar: 'X-سودوكو', de: 'X-Sudoku' },
+    mini: { ar: 'مصغّر 6×6', de: 'Mini 6×6' },
   };
 
   const sudokuRules = isAr ? [
     'املأ الشبكة بالأرقام من 1 إلى 9',
-    'كل صف يجب أن يحتوي على الأرقام 1-9 بدون تكرار',
-    'كل عمود يجب أن يحتوي على الأرقام 1-9 بدون تكرار',
-    'كل مربع 3×3 يجب أن يحتوي على الأرقام 1-9 بدون تكرار',
-    'استخدم التلميحات والملاحظات لمساعدتك',
+    'كل صف وعمود ومربع 3×3 يحتوي 1-9 بدون تكرار',
+    variant === 'x' ? 'X-سودوكو: القطران الكبيران أيضاً يحتويان 1-9' : 'استخدم الملاحظات للأرقام المحتملة',
+    'علامات تلقائية تساعدك (للصعب فقط)',
+    'أخطاء أقل + بدون تلميحات = إتقان',
   ] : [
-    'Fill the grid with numbers 1 to 9',
-    'Each row must contain 1-9 without repeating',
-    'Each column must contain 1-9 without repeating',
-    'Each 3×3 box must contain 1-9 without repeating',
-    'Use hints and notes to help you',
+    'Fülle das Gitter mit 1-9',
+    'Jede Reihe, Spalte und 3×3-Box enthält 1-9 ohne Wiederholung',
+    variant === 'x' ? 'X-Sudoku: Beide Diagonalen enthalten auch 1-9' : 'Notizen helfen bei Kandidaten',
+    'Auto-Notizen für Fortgeschrittene',
+    'Weniger Fehler + ohne Tipps = "Perfekt"',
   ];
 
   const sudokuStats = [
-    { label: isAr ? 'فوز' : 'Wins', value: stats.gamesWon },
-    { label: isAr ? 'نسبة الفوز' : 'Win Rate', value: `${winRate}%` },
-    { label: isAr ? 'أفضل سلسلة' : 'Best Streak', value: stats.bestStreak },
-    { label: isAr ? 'أفضل وقت' : 'Best Time', value: stats.bestTime[difficulty] !== null ? formatTimer(stats.bestTime[difficulty]!) : '—' },
+    { label: isAr ? 'فوز' : 'Siege', value: stats.gamesWon },
+    { label: isAr ? 'نسبة الفوز' : 'Siegquote', value: `${winRate}%` },
+    { label: isAr ? 'أفضل سلسلة' : 'Beste Serie', value: stats.bestStreak },
+    { label: isAr ? 'أفضل وقت' : 'Bestzeit', value: stats.bestTime[difficulty] !== null ? formatTimer(stats.bestTime[difficulty]!) : '—' },
+    { label: isAr ? 'X-سودوكو' : 'X-Sudoku', value: stats.variantWins.x || 0 },
+    { label: isAr ? 'بلا أخطاء' : 'Fehlerfrei', value: stats.noErrors || 0 },
+    { label: isAr ? 'إتقان' : 'Perfekt', value: stats.flawless || 0 },
+    { label: isAr ? 'يومية' : 'Daily', value: stats.dailyDone.length || 0 },
   ];
 
   const todayDone = stats.dailyDone.includes(todayKey());
   const sudokuOptions = [
     {
-      key: 'difficulty',
-      label: isAr ? 'المستوى' : 'Difficulty',
+      key: 'variant', label: isAr ? 'النمط' : 'Variante',
+      choices: [
+        { value: 'classic', label: variantLabels.classic[isAr ? 'ar' : 'de'] },
+        { value: 'x', label: variantLabels.x[isAr ? 'ar' : 'de'] },
+      ],
+      current: variant,
+      onChange: (v: string) => newGame(difficulty, v as Variant),
+    },
+    {
+      key: 'difficulty', label: isAr ? 'الصعوبة' : 'Schwierigkeit',
       choices: [
         { value: 'easy', label: diffLabels.easy },
         { value: 'medium', label: diffLabels.medium },
@@ -426,14 +503,13 @@ export default function SudokuPage() {
       onChange: (v: string) => newGame(v as Difficulty),
     },
     {
-      key: 'daily',
-      label: isAr ? 'تحدّي اليوم' : 'Daily challenge',
+      key: 'daily', label: isAr ? 'تحدّي اليوم' : 'Tageschallenge',
       choices: [
         { value: 'no', label: isAr ? 'عادي' : 'Normal' },
-        { value: 'yes', label: todayDone ? (isAr ? 'تم اليوم' : 'Today done') : (isAr ? 'ابدأ اليوم' : 'Start today') },
+        { value: 'yes', label: todayDone ? (isAr ? 'تم اليوم' : 'Heute fertig') : (isAr ? 'ابدأ اليوم' : 'Heute starten') },
       ],
       current: isDaily ? 'yes' : 'no',
-      onChange: (v: string) => { if (v === 'yes' && !todayDone) newGame(difficulty, true); else newGame(difficulty, false); },
+      onChange: (v: string) => { if (v === 'yes' && !todayDone) newGame(difficulty, variant, true); else newGame(difficulty, variant, false); },
     },
   ];
 
@@ -445,6 +521,11 @@ export default function SudokuPage() {
       <div className="flex items-center gap-1 text-xs text-zinc-400 bg-white/5 px-2.5 py-1 rounded-full tabular-nums">
         <Clock className="w-3 h-3" />{formatTimer(timer)}
       </div>
+      {errorCount > 0 && (
+        <div className="flex items-center gap-1 text-xs text-rose-400 bg-rose-500/10 px-2 py-1 rounded-full">
+          <X className="w-3 h-3" />{errorCount}
+        </div>
+      )}
     </div>
   );
 
@@ -458,78 +539,77 @@ export default function SudokuPage() {
       options={sudokuOptions}
       headerRight={timerDisplay}
     >
-
-      {/* Daily banner */}
+      {/* Variant + Daily banner */}
+      {variant === 'x' && !solved && (
+        <div className="text-center py-1.5 mb-2 rounded-2xl bg-purple-500/10 max-w-[360px] mx-auto flex items-center justify-center gap-2">
+          <Sparkles className="w-3.5 h-3.5 text-purple-300" />
+          <span className="text-purple-200 font-bold text-[11px]">X-Sudoku</span>
+          <span className="text-purple-200/60 text-[10px]">{isAr ? 'القطران 1-9 أيضاً' : 'Diagonalen 1-9'}</span>
+        </div>
+      )}
       {isDaily && !solved && (
         <div className="text-center py-2 mb-2 rounded-2xl bg-amber-500/10 max-w-[360px] mx-auto flex items-center justify-center gap-2">
           <Calendar className="w-4 h-4 text-amber-300" />
-          <span className="text-amber-200 font-bold text-xs">{isAr ? 'تحدّي اليوم' : 'Daily Challenge'}</span>
+          <span className="text-amber-200 font-bold text-xs">{isAr ? 'تحدّي اليوم' : 'Tageschallenge'}</span>
           <span className="text-amber-200/60 text-xs tabular-nums">{todayKey()}</span>
         </div>
       )}
 
-      {/* Win banner */}
       {solved && (
         <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
           className="text-center py-3 mb-3 rounded-2xl bg-primary/12 max-w-[360px] mx-auto flex items-center justify-center gap-2">
           <Trophy className="w-5 h-5 text-primary stroke-[1.8]" />
           <span className="text-primary font-bold">{t('sudoku.solved')}</span>
           <span className="text-primary/70 text-sm font-medium">{formatTimer(timer)}</span>
-          {hintsUsed === 0 && <span className="text-amber-400 text-xs">★</span>}
+          {hintsUsed === 0 && errorCount === 0 && <span className="text-amber-400 text-xs">★ {isAr ? 'إتقان' : 'Perfekt'}</span>}
         </motion.div>
       )}
 
-      {/* Board — LibreSudoku style */}
+      {/* Board */}
       <div className="max-w-[360px] mx-auto mb-4 relative">
-        {/* Start / Pause overlay */}
         <AnimatePresence>
           {(!gameStarted || isPaused) && !solved && (
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               className="absolute inset-0 z-20 rounded-2xl bg-card/95 backdrop-blur-sm flex items-center justify-center"
               onClick={!gameStarted ? startGame : togglePause}
             >
               <div className="flex flex-col items-center gap-3">
                 <Play className="w-10 h-10 text-primary stroke-[1.5]" />
                 <span className="text-muted-foreground font-medium text-sm">
-                  {!gameStarted
-                    ? (language === 'ar' ? 'اضغط للبدء' : 'Tap to start')
-                    : (language === 'ar' ? 'اضغط للمتابعة' : 'Tap to continue')
-                  }
+                  {!gameStarted ? (isAr ? 'اضغط للبدء' : 'Tippe zum Starten') : (isAr ? 'اضغط للمتابعة' : 'Tippe zum Fortsetzen')}
                 </span>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
 
-        <div className="rounded-2xl overflow-hidden border border-border/40">
+        <div className="rounded-2xl overflow-hidden border border-border/40 relative">
+          {/* X-Sudoku diagonal overlay */}
+          {variant === 'x' && (
+            <svg className="absolute inset-0 pointer-events-none w-full h-full z-10" preserveAspectRatio="none" viewBox="0 0 9 9">
+              <line x1="0" y1="0" x2="9" y2="9" stroke="#a855f7" strokeWidth="0.04" strokeDasharray="0.2,0.15" opacity="0.45" />
+              <line x1="9" y1="0" x2="0" y2="9" stroke="#a855f7" strokeWidth="0.04" strokeDasharray="0.2,0.15" opacity="0.45" />
+            </svg>
+          )}
+
           <div className="grid grid-cols-9">
             {board.map((row, ri) => row.map((cell, ci) => {
               const isOrig = original.has(`${ri}-${ci}`);
               const hasError = errors.has(`${ri}-${ci}`);
               const cellNotes = notes[ri][ci];
-              const isSelected = selected?.[0] === ri && selected?.[1] === ci;
-              // Thick borders for 3x3 boxes
               const borderR = ci % 3 === 2 && ci !== 8 ? 'border-e-[2px] border-e-foreground/15' : 'border-e border-e-border/30';
               const borderB = ri % 3 === 2 && ri !== 8 ? 'border-b-[2px] border-b-foreground/15' : 'border-b border-b-border/30';
 
               return (
                 <button key={`${ri}-${ci}`} onClick={() => handleCellClick(ri, ci)}
                   className={`aspect-square flex items-center justify-center relative transition-colors duration-100
-                    ${borderR} ${borderB}
-                    ${getHighlight(ri, ci)}
-                    ${!solved && !isPaused ? 'cursor-pointer active:bg-primary/15' : ''}
-                  `}
+                    ${borderR} ${borderB} ${getHighlight(ri, ci)}
+                    ${!solved && !isPaused ? 'cursor-pointer active:bg-primary/15' : ''}`}
                 >
                   {cell !== null ? (
                     <span className={`text-[15px] font-semibold select-none ${
-                      isOrig
-                        ? 'text-foreground'
-                        : hasError
-                          ? 'text-destructive'
-                          : 'text-primary'
+                      isOrig ? 'text-foreground' : hasError ? 'text-destructive' : 'text-primary'
                     }`}>
                       {cell}
                     </span>
@@ -549,7 +629,7 @@ export default function SudokuPage() {
         </div>
       </div>
 
-      {/* Number pad — LibreSudoku style: numbers with remaining count below */}
+      {/* Number pad */}
       <div className="max-w-[360px] mx-auto space-y-3">
         <div className="grid grid-cols-9 gap-1">
           {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => {
@@ -576,18 +656,16 @@ export default function SudokuPage() {
           })}
         </div>
 
-        {/* Tool buttons — LibreSudoku style: icon-only row */}
-        <div className="flex justify-center gap-3">
+        {/* Tool row */}
+        <div className="flex justify-center gap-2">
           <button onClick={handleUndo} disabled={history.length === 0}
-            className="w-12 h-12 rounded-full flex items-center justify-center hover:bg-secondary transition-colors disabled:opacity-20 active:scale-90"
-            title={language === 'ar' ? 'تراجع' : 'Undo'}
-          >
+            title={isAr ? 'تراجع' : 'Rückgängig'}
+            className="w-11 h-11 rounded-full flex items-center justify-center hover:bg-secondary transition-colors disabled:opacity-20 active:scale-90">
             <Undo2 className="w-5 h-5 text-foreground stroke-[1.8]" />
           </button>
           <button onClick={handleHint} disabled={hintsUsed >= maxHints}
-            className="relative w-12 h-12 rounded-full flex items-center justify-center hover:bg-secondary transition-colors disabled:opacity-20 active:scale-90"
-            title={language === 'ar' ? 'تلميح' : 'Hint'}
-          >
+            title={isAr ? 'تلميح' : 'Tipp'}
+            className="relative w-11 h-11 rounded-full flex items-center justify-center hover:bg-secondary transition-colors disabled:opacity-20 active:scale-90">
             <Lightbulb className="w-5 h-5 text-foreground stroke-[1.8]" />
             {hintsUsed < maxHints && (
               <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-primary/15 text-primary text-[8px] font-bold flex items-center justify-center">
@@ -596,17 +674,22 @@ export default function SudokuPage() {
             )}
           </button>
           <button onClick={() => setNoteMode(!noteMode)}
-            className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors active:scale-90 ${
+            title={isAr ? 'ملاحظات' : 'Notizen'}
+            className={`w-11 h-11 rounded-full flex items-center justify-center transition-colors active:scale-90 ${
               noteMode ? 'bg-primary/15 text-primary' : 'hover:bg-secondary text-foreground'
-            }`}
-            title={language === 'ar' ? 'ملاحظات' : 'Notes'}
-          >
+            }`}>
             <PenLine className="w-5 h-5 stroke-[1.8]" />
           </button>
+          <button onClick={autoNotes ? clearAutoNotes : fillAutoNotes}
+            title={isAr ? 'علامات تلقائية' : 'Auto-Notizen'}
+            className={`w-11 h-11 rounded-full flex items-center justify-center transition-colors active:scale-90 ${
+              autoNotes ? 'bg-amber-500/20 text-amber-300' : 'hover:bg-secondary text-foreground'
+            }`}>
+            <Zap className="w-5 h-5 stroke-[1.8]" />
+          </button>
           <button onClick={handleErase}
-            className="w-12 h-12 rounded-full flex items-center justify-center hover:bg-secondary transition-colors active:scale-90"
-            title={language === 'ar' ? 'مسح' : 'Erase'}
-          >
+            title={isAr ? 'مسح' : 'Löschen'}
+            className="w-11 h-11 rounded-full flex items-center justify-center hover:bg-secondary transition-colors active:scale-90">
             <Eraser className="w-5 h-5 text-foreground stroke-[1.8]" />
           </button>
         </div>

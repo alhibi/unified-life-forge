@@ -46,6 +46,7 @@ const loadChess = () => import("./pages/Chess");
 const loadMemory = () => import("./pages/MemoryGame");
 const loadDice = () => import("./pages/DiceGame");
 const loadFocus = () => import("./pages/FocusGame");
+const loadChessPuzzle = () => import("./pages/ChessPuzzle");
 const loadTheme = () => import("./pages/ThemeSettings");
 const loadAuth = () => import("./pages/Auth");
 const loadProfile = () => import("./pages/ProfileEdit");
@@ -66,6 +67,7 @@ const ChessPage = lazy(loadChess);
 const MemoryGame = lazy(loadMemory);
 const DiceGamePage = lazy(loadDice);
 const FocusGamePage = lazy(loadFocus);
+const ChessPuzzlePage = lazy(loadChessPuzzle);
 const ThemeSettingsPage = lazy(loadTheme);
 const AuthPage = lazy(loadAuth);
 const ProfileEditPage = lazy(loadProfile);
@@ -193,6 +195,7 @@ function AnimatedRoutes() {
             <Route path="/wellness" element={null} />
             <Route path="/games/sudoku" element={<ErrorBoundary><PageTransition><SudokuPage /></PageTransition></ErrorBoundary>} />
             <Route path="/games/chess" element={<ErrorBoundary><PageTransition><ChessPage /></PageTransition></ErrorBoundary>} />
+            <Route path="/games/chess/puzzles" element={<ErrorBoundary><PageTransition><ChessPuzzlePage /></PageTransition></ErrorBoundary>} />
             <Route path="/games/memory" element={<ErrorBoundary><PageTransition><MemoryGame /></PageTransition></ErrorBoundary>} />
             <Route path="/games/dice" element={<ErrorBoundary><PageTransition><DiceGamePage /></PageTransition></ErrorBoundary>} />
             <Route path="/games/focus" element={<ErrorBoundary><PageTransition><FocusGamePage /></PageTransition></ErrorBoundary>} />
