@@ -304,14 +304,14 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
           .select('user_id, username, display_name, avatar_url, bio, last_seen, created_at')
           .in('user_id', otherIds),
         Promise.all(convIds.map(cid =>
-          supabase.from('messages')
+          (supabase.from('messages') as any)
             .select('conversation_id, sender_id, content, message_type, deleted, created_at, file_name, hidden_for, read, delivered_at')
             .eq('conversation_id', cid)
             .order('created_at', { ascending: false })
             .limit(1)
             .maybeSingle()
         )).then(results => ({
-          data: results.map(r => r.data).filter(Boolean) as Array<{
+          data: results.map((r: any) => r.data).filter(Boolean) as Array<{
             conversation_id: string; sender_id: string; content: string; message_type: string; deleted: boolean; created_at: string; file_name: string | null; hidden_for: string[] | null; read: boolean; delivered_at: string | null;
           }>,
           error: null,
@@ -446,7 +446,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
         // Mark in parallel: every undelivered "from them" row becomes
         // delivered, every unread one becomes read. Both RPCs ignore
         // already-stamped rows, so they are idempotent.
-        supabase.rpc('mark_messages_delivered', { p_conversation_id: activeConv.id }).then();
+        (supabase.rpc as any)('mark_messages_delivered', { p_conversation_id: activeConv.id }).then();
         supabase.rpc('mark_messages_read',      { p_conversation_id: activeConv.id }).then();
 
         if (msgIds.length > 0) {
@@ -516,7 +516,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
       // UPDATEs across many conversations on a busy account.
       for (const c of convs) {
         if (cancelled) return;
-        try { await supabase.rpc('mark_messages_delivered', { p_conversation_id: c.id }); } catch { /* no-op */ }
+        try { await (supabase.rpc as any)('mark_messages_delivered', { p_conversation_id: c.id }); } catch { /* no-op */ }
       }
     }, 600);
     return () => { cancelled = true; clearTimeout(id); };
@@ -611,7 +611,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
               // The conversation is open, so this message is BOTH delivered
               // AND about to be read. Stamp the timestamps in parallel —
               // each RPC ignores already-stamped rows so they stay idempotent.
-              supabase.rpc('mark_message_delivered', { p_message_id: msg.id }).then();
+              (supabase.rpc as any)('mark_message_delivered', { p_message_id: msg.id }).then();
               supabase.rpc('mark_message_read', { p_message_id: msg.id }).then();
               if (!chatPrefsRef.current.isMuted(activeId)) {
                 const now = Date.now();
@@ -629,7 +629,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
             // the message is still delivered to this client even though
             // the user hasn't read it yet. This is exactly the "delivered
             // but unread" Telegram tick state.
-            supabase.rpc('mark_message_delivered', { p_message_id: msg.id }).then();
+            (supabase.rpc as any)('mark_message_delivered', { p_message_id: msg.id }).then();
             const conv = conversationsRef.current.find(c => c.id === msg.conversation_id);
             if (conv && !chatPrefsRef.current.isMuted(conv.id)) {
               const now = Date.now();
@@ -969,10 +969,10 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
       if (error) {
         // 23505 = unique_violation (already inserted). Re-fetch the row.
         if ((error as { code?: string }).code === '23505') {
-          const { data: existing } = await supabase
+          const { data: existing } = await (supabase
             .from('messages')
             .select('*')
-            .eq('sender_id', user.id)
+            .eq('sender_id', user.id) as any)
             .eq('client_id', failed.client_id)
             .single();
           if (existing) {
@@ -1022,7 +1022,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
         ? { ...m, hidden_for: [...(m.hidden_for ?? []), user.id] }
         : m,
     ));
-    const { error } = await supabase.rpc('hide_message_for_self', { p_message_id: msgId });
+    const { error } = await (supabase.rpc as any)('hide_message_for_self', { p_message_id: msgId });
     if (error) {
       // Roll back on failure.
       setMessages(prev => prev.map(m =>
@@ -1045,7 +1045,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     // Sequential RPC calls to keep auth.uid lookups consistent — these are
     // cheap (single UPDATE) and the user typically picks <10.
     for (const id of ids) {
-      try { await supabase.rpc('hide_message_for_self', { p_message_id: id }); } catch { /* no-op */ }
+      try { await (supabase.rpc as any)('hide_message_for_self', { p_message_id: id }); } catch { /* no-op */ }
     }
   }, [user]);
 
