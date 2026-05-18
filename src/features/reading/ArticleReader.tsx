@@ -102,18 +102,18 @@ export function ArticleReader({
     }
     try {
       await navigator.clipboard.writeText(article.link);
-      toast.success(isAr ? 'تم نسخ الرابط' : 'Link copied');
+      notify.linkCopied(isAr ? 'ar' : 'de');
     } catch {
-      toast.error(isAr ? 'تعذر النسخ' : 'Copy failed');
+      notify.copyFailed(isAr ? 'ar' : 'de');
     }
   };
 
   const onCopy = async () => {
     try {
       await navigator.clipboard.writeText(article.link);
-      toast.success(isAr ? 'تم نسخ الرابط' : 'Link copied');
+      notify.linkCopied(isAr ? 'ar' : 'de');
     } catch {
-      toast.error(isAr ? 'تعذر النسخ' : 'Copy failed');
+      notify.copyFailed(isAr ? 'ar' : 'de');
     }
   };
 

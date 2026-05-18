@@ -37,7 +37,7 @@ export default function DiwanPage() {
   const copyVerse = (verse: string, index: number) => {
     navigator.clipboard.writeText(verse);
     setCopiedVerse(index);
-    toast.success('تم نسخ البيت');
+    notify.copied();
     setTimeout(() => setCopiedVerse(null), 1500);
   };
 
@@ -45,7 +45,7 @@ export default function DiwanPage() {
     if (!selectedPoem) return;
     const text = `${selectedPoem.title}\n${selectedPoet?.name}\n\n${selectedPoem.verses.join('\n')}`;
     navigator.clipboard.writeText(text);
-    toast.success('تم نسخ القصيدة كاملة');
+    notify.copied();
   };
 
   const Chevron = dir === 'rtl' ? ChevronLeft : ChevronRight;

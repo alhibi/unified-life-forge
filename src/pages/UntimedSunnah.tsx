@@ -5,9 +5,9 @@ import { useApp } from '@/contexts/AppContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, Volume2, Droplet, User, Star, Users, UtensilsCrossed, Shirt, Copy, Bookmark, BookOpen } from 'lucide-react';
 import { untimedSunnahData } from '@/data/untimedSunnahData';
-import { toast } from 'sonner';
 import BackButton from '@/components/BackButton';
 import { useClipboard } from '@/hooks/useClipboard';
+import { notify } from '@/lib/notify';
 
 const iconMap: Record<string, React.ElementType> = {
   volume: Volume2,
@@ -35,17 +35,17 @@ export default function UntimedSunnah() {
 
   const copyText = (text: string) => {
     navigator.clipboard.writeText(text);
-    toast.success(dir === 'rtl' ? 'تم النسخ' : 'Copied');
+    notify.copied();
   };
 
   const saveItem = (title: string, description: string, source: string, catLabel: string) => {
     const id = `${title}-${catLabel}`;
     if (isItemSaved(id)) {
-      toast.info(dir === 'rtl' ? 'محفوظ مسبقاً' : 'Already saved');
+      notify.alreadySaved();
       return;
     }
     addClipboardItem({ id, title, description, source, from: catLabel, savedAt: new Date().toISOString() });
-    toast.success(dir === 'rtl' ? 'تم الحفظ في الحافظة' : 'Saved to clipboard');
+    notify.savedToClipboard();
   };
 
   const isSaved = (title: string, catLabel: string) => isItemSaved(`${title}-${catLabel}`);

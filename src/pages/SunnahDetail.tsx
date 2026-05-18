@@ -24,7 +24,7 @@ function DetailedView({ data }: { data: { label: string; accent: string; items: 
 
   const handleCopy = () => {
     navigator.clipboard.writeText(`${item.title}\n\n${item.description}\n\n${item.source}`);
-    toast.success('تم النسخ');
+    notify.copied();
   };
 
   const handleShare = async () => {
