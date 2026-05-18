@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { Clock, Database, Wifi, WifiOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -19,18 +19,30 @@ import {
 import { useReadingData } from '@/features/reading/useReadingData';
 import { ListHeader } from '@/features/reading/ListHeader';
 import { ArticleList } from '@/features/reading/ArticleList';
-import { ArticleReader } from '@/features/reading/ArticleReader';
-import { ManageFeedsView } from '@/features/reading/ManageFeedsView';
-import { SuggestedFeedsView } from '@/features/reading/SuggestedFeedsView';
 import { PullToRefresh } from '@/features/reading/PullToRefresh';
-import { SearchPanel } from '@/features/reading/SearchPanel';
-import { KeywordAlertsView } from '@/features/reading/KeywordAlertsView';
-import { StorageView } from '@/features/reading/StorageView';
-import { CronView } from '@/features/reading/CronView';
-import { ReaderView } from '@/features/reading/ReaderView';
 import { timeAgo } from '@/features/reading/utils';
 import { offlineDb } from '@/features/reading/offlineDb';
 import { registerReadingServiceWorker } from '@/features/reading/registerSw';
+
+// Heavy sub-views are loaded on demand to keep the initial Reading
+// bundle small. The list view (default) ships immediately; everything
+// else streams in when the user opens that surface.
+const ArticleReader = lazy(() => import('@/features/reading/ArticleReader').then(m => ({ default: m.ArticleReader })));
+const ManageFeedsView = lazy(() => import('@/features/reading/ManageFeedsView').then(m => ({ default: m.ManageFeedsView })));
+const SuggestedFeedsView = lazy(() => import('@/features/reading/SuggestedFeedsView').then(m => ({ default: m.SuggestedFeedsView })));
+const SearchPanel = lazy(() => import('@/features/reading/SearchPanel').then(m => ({ default: m.SearchPanel })));
+const KeywordAlertsView = lazy(() => import('@/features/reading/KeywordAlertsView').then(m => ({ default: m.KeywordAlertsView })));
+const StorageView = lazy(() => import('@/features/reading/StorageView').then(m => ({ default: m.StorageView })));
+const CronView = lazy(() => import('@/features/reading/CronView').then(m => ({ default: m.CronView })));
+const ReaderView = lazy(() => import('@/features/reading/ReaderView').then(m => ({ default: m.ReaderView })));
+
+const SubviewFallback = () => (
+  <div className="min-h-screen p-4 space-y-3">
+    <div className="skeleton h-10 w-32" />
+    <div className="skeleton h-24 w-full" />
+    <div className="skeleton h-24 w-full" />
+  </div>
+);
 
 /**
  * Reading (إطلاع) page — thin shell that wires together the feature
@@ -292,6 +304,7 @@ export default function ReadingPage() {
       />
       <AnimatePresence mode="wait">
         {view === 'article' && selectedArticle && (
+         <Suspense key="article-s" fallback={<SubviewFallback />}>
           <ArticleReader
             key="article"
             article={selectedArticle}
@@ -303,9 +316,11 @@ export default function ReadingPage() {
             onToggleBookmark={() => toggleBookmark(selectedArticle.link)}
             onChangePrefs={setReaderPrefs}
           />
+         </Suspense>
         )}
 
         {view === 'reader' && (
+         <Suspense key="reader-s" fallback={<SubviewFallback />}>
           <ReaderView
             key="reader"
             isAr={isAr}
@@ -319,9 +334,11 @@ export default function ReadingPage() {
             }
             onToggleBookmark={toggleBookmark}
           />
+         </Suspense>
         )}
 
         {view === 'suggested' && (
+         <Suspense key="sugg-s" fallback={<SubviewFallback />}>
           <SuggestedFeedsView
             key="suggested"
             feedSources={feedSources}
@@ -329,9 +346,11 @@ export default function ReadingPage() {
             onBack={goBack}
             onAddSuggested={addSuggestedFeed}
           />
+         </Suspense>
         )}
 
         {view === 'manage' && (
+         <Suspense key="manage-s" fallback={<SubviewFallback />}>
           <ManageFeedsView
             key="manage"
             feedSources={feedSources}
@@ -346,9 +365,11 @@ export default function ReadingPage() {
             onRemove={removeFeed}
             onToggleEnabled={toggleFeedEnabled}
           />
+         </Suspense>
         )}
 
         {view === 'search' && (
+         <Suspense key="search-s" fallback={<SubviewFallback />}>
           <SearchPanel
             key="search"
             isAr={isAr}
@@ -357,9 +378,11 @@ export default function ReadingPage() {
             onBack={goBack}
             onOpenArticle={openArticle}
           />
+         </Suspense>
         )}
 
         {view === 'alerts' && (
+         <Suspense key="alerts-s" fallback={<SubviewFallback />}>
           <KeywordAlertsView
             key="alerts"
             isAr={isAr}
@@ -368,9 +391,11 @@ export default function ReadingPage() {
             onBack={goBack}
             onOpenLink={openLinkInReader}
           />
+         </Suspense>
         )}
 
         {view === 'storage' && (
+         <Suspense key="storage-s" fallback={<SubviewFallback />}>
           <StorageView
             key="storage"
             isAr={isAr}
@@ -378,9 +403,11 @@ export default function ReadingPage() {
             onBack={goBack}
             onRecacheNow={recacheNow}
           />
+         </Suspense>
         )}
 
         {view === 'cron' && (
+         <Suspense key="cron-s" fallback={<SubviewFallback />}>
           <CronView
             key="cron"
             isAr={isAr}
@@ -388,6 +415,7 @@ export default function ReadingPage() {
             feedSources={feedSources}
             onBack={goBack}
           />
+         </Suspense>
         )}
 
         {view === 'list' && (
