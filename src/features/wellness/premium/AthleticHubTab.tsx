@@ -184,8 +184,8 @@ function BodyCompCard({
   lang,
 }: { summary: ReturnType<typeof athleticSummary>; lang: 'ar' | 'de' }) {
   const isAr = lang === 'ar';
-  const bmiCat = summary.bmiCategory ? T[BMI_LABEL[summary.bmiCategory]][lang] : '—';
-  const bfBracket = summary.bodyFatBracket ? T[BF_LABEL[summary.bodyFatBracket]][lang] : '—';
+  const bmiCat = summary.bmiCategory ? (T[BMI_LABEL[summary.bmiCategory]] as { ar: string; de: string })[lang] : '—';
+  const bfBracket = summary.bodyFatBracket ? (T[BF_LABEL[summary.bodyFatBracket]] as { ar: string; de: string })[lang] : '—';
 
   // BMI ring 0..40 → 0..1
   const bmiV = summary.bmi ?? 0;
