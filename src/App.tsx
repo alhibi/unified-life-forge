@@ -44,13 +44,7 @@ function PresenceRunner() {
 const loadSudoku = () => import("./pages/Sudoku");
 const loadChess = () => import("./pages/Chess");
 const loadMemory = () => import("./pages/MemoryGame");
-const loadMine = () => import("./pages/Minesweeper");
-const loadMaze = () => import("./pages/ColorMaze");
-const loadPipes = () => import("./pages/PipesGame");
 const loadDice = () => import("./pages/DiceGame");
-const loadTarget = () => import("./pages/TargetGame");
-const loadPuzzle = () => import("./pages/PuzzleGame");
-const loadHex = () => import("./pages/HexGame");
 const loadFocus = () => import("./pages/FocusGame");
 const loadTheme = () => import("./pages/ThemeSettings");
 const loadAuth = () => import("./pages/Auth");
@@ -70,13 +64,7 @@ const loadNotFound = () => import("./pages/NotFound");
 const SudokuPage = lazy(loadSudoku);
 const ChessPage = lazy(loadChess);
 const MemoryGame = lazy(loadMemory);
-const MinesweeperPage = lazy(loadMine);
-const ColorMazePage = lazy(loadMaze);
-const PipesPage = lazy(loadPipes);
 const DiceGamePage = lazy(loadDice);
-const TargetGamePage = lazy(loadTarget);
-const PuzzleGamePage = lazy(loadPuzzle);
-const HexGamePage = lazy(loadHex);
 const FocusGamePage = lazy(loadFocus);
 const ThemeSettingsPage = lazy(loadTheme);
 const AuthPage = lazy(loadAuth);
@@ -206,13 +194,7 @@ function AnimatedRoutes() {
             <Route path="/games/sudoku" element={<ErrorBoundary><PageTransition><SudokuPage /></PageTransition></ErrorBoundary>} />
             <Route path="/games/chess" element={<ErrorBoundary><PageTransition><ChessPage /></PageTransition></ErrorBoundary>} />
             <Route path="/games/memory" element={<ErrorBoundary><PageTransition><MemoryGame /></PageTransition></ErrorBoundary>} />
-            <Route path="/games/minesweeper" element={<ErrorBoundary><PageTransition><MinesweeperPage /></PageTransition></ErrorBoundary>} />
-            <Route path="/games/colormaze" element={<ErrorBoundary><PageTransition><ColorMazePage /></PageTransition></ErrorBoundary>} />
-            <Route path="/games/pipes" element={<ErrorBoundary><PageTransition><PipesPage /></PageTransition></ErrorBoundary>} />
             <Route path="/games/dice" element={<ErrorBoundary><PageTransition><DiceGamePage /></PageTransition></ErrorBoundary>} />
-            <Route path="/games/target" element={<ErrorBoundary><PageTransition><TargetGamePage /></PageTransition></ErrorBoundary>} />
-            <Route path="/games/puzzle" element={<ErrorBoundary><PageTransition><PuzzleGamePage /></PageTransition></ErrorBoundary>} />
-            <Route path="/games/hex" element={<ErrorBoundary><PageTransition><HexGamePage /></PageTransition></ErrorBoundary>} />
             <Route path="/games/focus" element={<ErrorBoundary><PageTransition><FocusGamePage /></PageTransition></ErrorBoundary>} />
             <Route path="/occasions" element={<ErrorBoundary><PageTransition><AllOccasionsPage /></PageTransition></ErrorBoundary>} />
             <Route path="/reading" element={<ErrorBoundary><PageTransition><ReadingPage /></PageTransition></ErrorBoundary>} />
