@@ -2,10 +2,12 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useApp } from '@/contexts/AppContext';
 import GameShell from '@/components/GameShell';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Dices, RotateCcw, Crown, Bot, User as UserIcon } from 'lucide-react';
+import { Dices, RotateCcw, Crown, Bot, User as UserIcon, PiggyBank, Swords, Trophy, Flame } from 'lucide-react';
 import { playSfx, vibrate } from '@/utils/gameFeedback';
 
-// ---------- Dice rendering ----------
+// =============================================================================
+// Dice rendering
+// =============================================================================
 const DICE_DOTS: Record<number, number[][]> = {
   1: [[1, 1]],
   2: [[0, 0], [2, 2]],
@@ -15,21 +17,20 @@ const DICE_DOTS: Record<number, number[][]> = {
   6: [[0, 0], [0, 2], [1, 0], [1, 2], [2, 0], [2, 2]],
 };
 
-function DiceFace({ value, held, rolling, onClick, color }: {
-  value: number;
-  held: boolean;
-  rolling: boolean;
-  onClick?: () => void;
-  color: 'gold' | 'silver';
+function DiceFace({ value, held, rolling, onClick, color, size = 'md' }: {
+  value: number; held: boolean; rolling: boolean; onClick?: () => void;
+  color: 'gold' | 'silver'; size?: 'sm' | 'md' | 'lg';
 }) {
   const dots = DICE_DOTS[value] || [];
   const isGold = color === 'gold';
+  const dim = size === 'lg' ? 'w-20 h-20' : size === 'sm' ? 'w-10 h-10' : 'w-14 h-14';
+  const dotDim = size === 'lg' ? 'w-3 h-3' : size === 'sm' ? 'w-1.5 h-1.5' : 'w-2 h-2';
   return (
     <motion.button
       onClick={onClick}
       animate={rolling ? { rotate: [0, 90, 180, 270, 360], scale: [1, 0.95, 1] } : { rotate: 0, scale: 1 }}
       transition={rolling ? { duration: 0.45, ease: 'easeInOut' } : { type: 'spring', stiffness: 400, damping: 26 }}
-      className={`relative w-14 h-14 rounded-2xl border-2 grid grid-rows-3 grid-cols-3 p-2 transition-colors ${
+      className={`relative ${dim} rounded-2xl border-2 grid grid-rows-3 grid-cols-3 p-2 transition-colors ${
         isGold
           ? held
             ? 'border-amber-400 ring-2 ring-amber-400/40 shadow-lg shadow-amber-500/30 bg-gradient-to-br from-amber-100 to-yellow-200'
@@ -43,17 +44,15 @@ function DiceFace({ value, held, rolling, onClick, color }: {
         [0, 1, 2].map(c => (
           <div key={`${r}-${c}`} className="flex items-center justify-center">
             {dots.some(([dr, dc]) => dr === r && dc === c) && (
-              <div className={`w-2 h-2 rounded-full ${isGold ? 'bg-amber-900' : 'bg-rose-100'}`} />
+              <div className={`${dotDim} rounded-full ${isGold ? 'bg-amber-900' : 'bg-rose-100'}`} />
             )}
           </div>
         ))
       )}
-      {held && (
-        <span
-          className={`absolute -top-2 left-1/2 -translate-x-1/2 text-[8px] font-black tracking-wider px-1.5 py-0.5 rounded-full ${
-            isGold ? 'bg-amber-500 text-amber-50' : 'bg-rose-500 text-white'
-          }`}
-        >
+      {held && size !== 'lg' && (
+        <span className={`absolute -top-2 left-1/2 -translate-x-1/2 text-[8px] font-black tracking-wider px-1.5 py-0.5 rounded-full ${
+          isGold ? 'bg-amber-500 text-amber-50' : 'bg-rose-500 text-white'
+        }`}>
           HOLD
         </span>
       )}
@@ -61,7 +60,9 @@ function DiceFace({ value, held, rolling, onClick, color }: {
   );
 }
 
-// ---------- Scoring ----------
+// =============================================================================
+// Yatzy scoring
+// =============================================================================
 type CategoryId =
   | 'ones' | 'twos' | 'threes' | 'fours' | 'fives' | 'sixes'
   | 'three' | 'four' | 'full' | 'small' | 'large' | 'yatzy' | 'chance';
@@ -70,7 +71,7 @@ const UPPER: CategoryId[] = ['ones', 'twos', 'threes', 'fours', 'fives', 'sixes'
 const LOWER: CategoryId[] = ['three', 'four', 'full', 'small', 'large', 'yatzy', 'chance'];
 const ALL_CATEGORIES: CategoryId[] = [...UPPER, ...LOWER];
 
-function count(dice: number[]): Record<number, number> {
+function counts(dice: number[]): Record<number, number> {
   const c: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
   for (const d of dice) c[d]++;
   return c;
@@ -87,7 +88,7 @@ function hasStraight(dice: number[], len: number): boolean {
 
 function scoreCategory(cat: CategoryId, dice: number[]): number {
   if (dice.length < 5) return 0;
-  const c = count(dice);
+  const c = counts(dice);
   const sum = dice.reduce((a, b) => a + b, 0);
   switch (cat) {
     case 'ones':   return c[1] * 1;
@@ -118,77 +119,134 @@ function upperBonus(card: Scorecard): number { return upperSum(card) >= 63 ? 35 
 function totalScore(card: Scorecard): number {
   return ALL_CATEGORIES.reduce((s, k) => s + (card.scores[k] ?? 0), 0) + upperBonus(card);
 }
-function isCardFull(card: Scorecard): boolean {
-  return ALL_CATEGORIES.every(k => card.scores[k] !== undefined);
-}
 
-// ---------- AI ----------
-// Greedy: of all remaining categories, look at each — for each, do a one-shot
-// "best hold then reroll once" simulation and pick the category with highest EV.
 function rollDie() { return 1 + Math.floor(Math.random() * 6); }
 
-function aiPlayTurn(card: Scorecard, level: 'easy' | 'hard'): { dice: number[]; pickCategory: CategoryId; pickScore: number } {
-  let dice = Array.from({ length: 5 }, rollDie);
-  const rerolls = level === 'easy' ? 1 : 2;
-  for (let roll = 0; roll < rerolls; roll++) {
-    if (level === 'easy') {
-      // Easy: only hold pairs+, no strategic awareness.
-      const c = count(dice);
-      const repeats = new Set<number>();
-      for (let v = 1; v <= 6; v++) if (c[v] >= 2) repeats.add(v);
-      dice = dice.map(d => (repeats.has(d) ? d : rollDie()));
-    } else {
-      const { hold } = aiPickHold(dice, card);
-      dice = dice.map((d, i) => (hold[i] ? d : rollDie()));
-    }
-  }
-  let best: { cat: CategoryId; score: number } | null = null;
+// =============================================================================
+// Smart Yatzy AI: Monte Carlo expected value of hold patterns
+// =============================================================================
+// Evaluate current dice for the BEST attainable category given remaining cats,
+// considering also future Upper-bonus benefit.
+function valueOfFinalDice(dice: number[], card: Scorecard): { cat: CategoryId; score: number; effective: number } {
+  let best: { cat: CategoryId; score: number; effective: number } = { cat: 'chance', score: 0, effective: -1 };
   for (const cat of ALL_CATEGORIES) {
     if (card.scores[cat] !== undefined) continue;
     const sc = scoreCategory(cat, dice);
-    if (!best || sc > best.score) best = { cat, score: sc };
+    let effective = sc;
+    // Encourage filling Yatzy with 50, Large 40, Full 25 only when scoring positively
+    if (sc === 0) {
+      // Slight preference to "burn" upper categories with low remaining value first
+      effective = -50 + (UPPER.includes(cat) ? -20 : 0);
+    }
+    // Upper bonus heuristic: each upper-pip is worth ~35/63 ≈ 0.55 cps
+    if (UPPER.includes(cat) && sc > 0) {
+      const currentUpper = upperSum(card);
+      if (currentUpper < 63) effective += sc * 0.5;
+    }
+    if (effective > best.effective) best = { cat, score: sc, effective };
   }
-  if (!best) best = { cat: 'chance', score: dice.reduce((a, b) => a + b, 0) };
-  return { dice, pickCategory: best.cat, pickScore: best.score };
+  return best;
 }
 
-function aiPickHold(dice: number[], card: Scorecard): { hold: boolean[] } {
-  // Hold dice that contribute to a likely high score: chase highest-count die,
-  // or save high values toward Sixes/Chance/Three-Four-of-a-kind.
-  const c = count(dice);
-  // Prefer keeping the most common face if appears ≥ 2.
-  let bestFace = 0;
-  let bestCount = 0;
-  for (let v = 1; v <= 6; v++) {
-    if (c[v] > bestCount) { bestCount = c[v]; bestFace = v; }
+// Returns array of { holdMask: bool[], EV: number } and picks the best mask.
+// Uses small Monte Carlo (60 samples) per mask.
+function bestHoldMask(dice: number[], card: Scorecard, rerollsLeft: number, samples = 60): boolean[] {
+  if (rerollsLeft === 0) return dice.map(() => true);
+  let bestMask = dice.map(() => true);
+  let bestEv = valueOfFinalDice(dice, card).effective;
+  // Try all 32 hold masks
+  for (let mask = 0; mask < 32; mask++) {
+    const hold: boolean[] = dice.map((_, i) => Boolean((mask >> i) & 1));
+    let ev = 0;
+    for (let s = 0; s < samples; s++) {
+      const next = dice.map((d, i) => hold[i] ? d : rollDie());
+      // After this reroll, simulate one more reroll greedily (for rerollsLeft >= 2)
+      if (rerollsLeft >= 2) {
+        const next2Hold = bestHoldMaskShallow(next, card);
+        const final = next.map((d, i) => next2Hold[i] ? d : rollDie());
+        ev += valueOfFinalDice(final, card).effective;
+      } else {
+        ev += valueOfFinalDice(next, card).effective;
+      }
+    }
+    ev /= samples;
+    if (ev > bestEv) { bestEv = ev; bestMask = hold; }
   }
-  if (bestCount >= 2 && card.scores.yatzy === undefined) {
-    return { hold: dice.map(d => d === bestFace) };
-  }
-  // If straight progress (4 unique values), keep them.
-  const unique = Array.from(new Set(dice)).sort((a, b) => a - b);
-  if (unique.length >= 4 && card.scores.large === undefined) {
-    return { hold: dice.map(d => unique.includes(d)) };
-  }
-  // Otherwise hold the highest values (≥4) to maximize chance.
-  return { hold: dice.map(d => d >= 4) };
+  return bestMask;
 }
 
-// ---------- Stats ----------
+// Greedy single-step: pick mask that maximizes immediate value-of-final-dice
+function bestHoldMaskShallow(dice: number[], card: Scorecard): boolean[] {
+  let bestMask = dice.map(() => true);
+  let bestVal = valueOfFinalDice(dice, card).effective;
+  for (let mask = 0; mask < 32; mask++) {
+    const hold: boolean[] = dice.map((_, i) => Boolean((mask >> i) & 1));
+    // Quick estimate: EV of one reroll of unheld dice
+    let ev = 0;
+    const samples = 30;
+    for (let s = 0; s < samples; s++) {
+      const next = dice.map((d, i) => hold[i] ? d : rollDie());
+      ev += valueOfFinalDice(next, card).effective;
+    }
+    ev /= samples;
+    if (ev > bestVal) { bestVal = ev; bestMask = hold; }
+  }
+  return bestMask;
+}
+
+function aiPlayTurn(card: Scorecard, level: 'easy' | 'hard'): { dice: number[]; pickCategory: CategoryId; pickScore: number } {
+  let dice = Array.from({ length: 5 }, rollDie);
+  if (level === 'easy') {
+    for (let r = 0; r < 2; r++) {
+      const c = counts(dice);
+      const repeats = new Set<number>();
+      for (let v = 1; v <= 6; v++) if (c[v] >= 2) repeats.add(v);
+      if (Math.random() < 0.7) dice = dice.map(d => (repeats.has(d) ? d : rollDie()));
+    }
+  } else {
+    // Hard: 2 rerolls with proper EV-based hold selection
+    for (let r = 0; r < 2; r++) {
+      const rerollsLeft = 2 - r;
+      const hold = bestHoldMask(dice, card, rerollsLeft, 50);
+      const allHold = hold.every(Boolean);
+      if (allHold) break;
+      dice = dice.map((d, i) => hold[i] ? d : rollDie());
+    }
+  }
+  // Pick best category for final dice
+  const { cat, score } = valueOfFinalDice(dice, card);
+  return { dice, pickCategory: cat, pickScore: score };
+}
+
+// =============================================================================
+// Stats
+// =============================================================================
 interface DiceStats {
   gamesPlayed: number;
   gamesWon: number;
   bestScore: number;
   totalScore: number;
   yatzeesRolled: number;
+  pigGamesPlayed: number;
+  pigGamesWon: number;
+  pigBestRound: number;
+  hrStreak: number;
+  hrBestStreak: number;
 }
+const DEFAULT_DICE_STATS: DiceStats = {
+  gamesPlayed: 0, gamesWon: 0, bestScore: 0, totalScore: 0,
+  yatzeesRolled: 0, pigGamesPlayed: 0, pigGamesWon: 0, pigBestRound: 0,
+  hrStreak: 0, hrBestStreak: 0,
+};
 function loadStats(): DiceStats {
-  try { return JSON.parse(localStorage.getItem('dice-stats') || '{}'); } catch { return {} as DiceStats; }
+  try { return { ...DEFAULT_DICE_STATS, ...JSON.parse(localStorage.getItem('dice-stats') || '{}') }; } catch { return { ...DEFAULT_DICE_STATS }; }
 }
 function saveStatsFn(s: DiceStats) { localStorage.setItem('dice-stats', JSON.stringify(s)); }
 
-// ---------- Component ----------
-type Mode = 'yatzy' | 'highroll';
+// =============================================================================
+// Component
+// =============================================================================
+type Mode = 'yatzy' | 'highroll' | 'pig';
 type Turn = 'player' | 'ai';
 
 export default function DiceGame() {
@@ -200,7 +258,96 @@ export default function DiceGame() {
   useEffect(() => { localStorage.setItem('dice-mode', mode); }, [mode]);
   useEffect(() => { localStorage.setItem('dice-ai', aiLevel); }, [aiLevel]);
 
-  // === Yatzy state ===
+  const stats = useMemo(loadStats, [mode]);
+
+  const rules = useMemo(() => {
+    if (mode === 'yatzy') {
+      return isAr ? [
+        'ارمِ 5 نرود حتى 3 مرات؛ اضغط على نرد لتثبيته',
+        'بعد آخر رمية اختر خانة لتسجيل النتيجة',
+        'القسم العلوي (1-6): 63+ ⇒ مكافأة 35',
+        'فول هاوس 25 · سلسلة 30/40 · يَتزي 50',
+        '13 جولة لكل لاعب. الأعلى يفوز!',
+      ] : [
+        '5 Würfel, bis zu 3 Würfe; tippen zum Halten',
+        'Nach letztem Wurf: Kategorie wählen',
+        'Oberer Bereich (1-6): 63+ ⇒ Bonus 35',
+        'Full House 25 · Straße 30/40 · Kniffel 50',
+        '13 Runden pro Spieler. Höchste Summe gewinnt!',
+      ];
+    }
+    if (mode === 'pig') {
+      return isAr ? [
+        'ارمِ النرد لجمع نقاط الجولة',
+        '"احتفظ" يضيف نقاط الجولة لرصيدك',
+        'إذا رميت 1 ⇒ تخسر نقاط هذه الجولة',
+        'إذا رميت زوجين 1+1 ⇒ تخسر كل رصيدك!',
+        'أول من يصل إلى 100 نقطة يفوز',
+      ] : [
+        'Würfle, um Rundenpunkte zu sammeln',
+        '"Halten" überträgt Rundenpunkte aufs Konto',
+        'Eine 1 ⇒ Rundenpunkte futsch',
+        'Doppel-1 ⇒ kompletter Score weg!',
+        'Wer zuerst 100 erreicht, gewinnt',
+      ];
+    }
+    return isAr ? [
+      'كل جولة يرمي اللاعب والخصم نرداً واحداً',
+      'صاحب الرقم الأعلى يفوز بالجولة',
+      'من يجمع جولات أكثر يفوز باللعبة',
+      'السلسلة تتراكم مع كل فوز',
+    ] : [
+      'Jede Runde würfeln Spieler und Gegner',
+      'Höhere Zahl gewinnt die Runde',
+      'Mehr Rundensiege ⇒ Spielsieg',
+      'Siegesserie zählt mit',
+    ];
+  }, [mode, isAr]);
+
+  const statsArr = [
+    { label: isAr ? 'مباريات' : 'Spiele', value: stats.gamesPlayed },
+    { label: isAr ? 'انتصارات' : 'Siege', value: stats.gamesWon },
+    { label: isAr ? 'أفضل نتيجة (Yatzy)' : 'Top (Kniffel)', value: stats.bestScore },
+    { label: isAr ? 'يَتزي مرمي' : 'Kniffel ges.', value: stats.yatzeesRolled },
+    { label: isAr ? 'فوز Pig' : 'Pig Siege', value: stats.pigGamesWon },
+    { label: isAr ? 'أعلى جولة Pig' : 'Pig Best Runde', value: stats.pigBestRound },
+    { label: isAr ? 'سلسلة Highroll' : 'HR Serie', value: stats.hrBestStreak },
+    { label: isAr ? 'نسبة الفوز' : 'Siegquote', value: stats.gamesPlayed ? `${Math.round((stats.gamesWon / stats.gamesPlayed) * 100)}%` : '-' },
+  ];
+
+  const options = [
+    {
+      key: 'mode', label: isAr ? 'نمط اللعب' : 'Spielmodus',
+      choices: [
+        { value: 'yatzy', label: isAr ? 'يَتزي' : 'Kniffel' },
+        { value: 'pig', label: isAr ? 'الخنزير' : 'Pig' },
+        { value: 'highroll', label: isAr ? 'رمية كبرى' : 'Highroll' },
+      ],
+      current: mode, onChange: (v: string) => setMode(v as Mode),
+    },
+    ...(mode === 'yatzy' || mode === 'pig' ? [{
+      key: 'ai', label: isAr ? 'مستوى الخصم' : 'KI-Stärke',
+      choices: [
+        { value: 'easy', label: isAr ? 'سهل' : 'Leicht' },
+        { value: 'hard', label: isAr ? 'محترف' : 'Profi' },
+      ],
+      current: aiLevel, onChange: (v: string) => setAiLevel(v as 'easy' | 'hard'),
+    }] : []),
+  ];
+
+  return (
+    <GameShell title={isAr ? 'النرد' : 'Würfel'} icon={Dices} accentColor="#f59e0b" rules={rules} stats={statsArr} options={options}>
+      {mode === 'yatzy' && <YatzyView key="yatzy" isAr={isAr} aiLevel={aiLevel} />}
+      {mode === 'pig' && <PigView key="pig" isAr={isAr} aiLevel={aiLevel} />}
+      {mode === 'highroll' && <HighRollView key="hr" isAr={isAr} />}
+    </GameShell>
+  );
+}
+
+// =============================================================================
+// Yatzy View
+// =============================================================================
+function YatzyView({ isAr, aiLevel }: { isAr: boolean; aiLevel: 'easy' | 'hard' }) {
   const [playerCard, setPlayerCard] = useState<Scorecard>({ scores: {} });
   const [aiCard, setAiCard] = useState<Scorecard>({ scores: {} });
   const [dice, setDice] = useState<number[]>([1, 1, 1, 1, 1]);
@@ -210,38 +357,11 @@ export default function DiceGame() {
   const [turn, setTurn] = useState<Turn>('player');
   const [gameOver, setGameOver] = useState(false);
   const [yatzeeFlash, setYatzeeFlash] = useState(false);
+  const [hint, setHint] = useState<string | null>(null);
 
-  // === High-roll state ===
-  const [hrPlayer, setHrPlayer] = useState(1);
-  const [hrAi, setHrAi] = useState(1);
-  const [hrScore, setHrScore] = useState({ p: 0, a: 0 });
-  const [hrRound, setHrRound] = useState(0);
-  const [hrRolling, setHrRolling] = useState(false);
-  const [hrMessage, setHrMessage] = useState('');
-  const [hrRounds, setHrRounds] = useState(() => parseInt(localStorage.getItem('dice-rounds') || '10'));
-  const [hrStreak, setHrStreak] = useState(0);
-
-  useEffect(() => { localStorage.setItem('dice-rounds', String(hrRounds)); }, [hrRounds]);
-
-  const stats = useMemo(loadStats, [gameOver, hrRound]);
-
-  // === Yatzy actions ===
-  const resetYatzy = useCallback(() => {
-    setPlayerCard({ scores: {} }); setAiCard({ scores: {} });
-    setDice([1, 1, 1, 1, 1]); setHeld([false, false, false, false, false]);
-    setRollsLeft(3); setTurn('player'); setGameOver(false); setYatzeeFlash(false);
-  }, []);
-
-  const resetHighRoll = useCallback(() => {
-    setHrPlayer(1); setHrAi(1); setHrScore({ p: 0, a: 0 }); setHrRound(0);
-    setHrMessage(''); setHrStreak(0);
-  }, []);
-
-  useEffect(() => { resetYatzy(); resetHighRoll(); }, [mode, resetYatzy, resetHighRoll]);
-
-  // Yatzy end-of-game detection: both cards full
+  // End-of-game detection
   useEffect(() => {
-    if (mode !== 'yatzy' || gameOver) return;
+    if (gameOver) return;
     const pCount = Object.keys(playerCard.scores).length;
     const aCount = Object.keys(aiCard.scores).length;
     if (pCount >= ALL_CATEGORIES.length && aCount >= ALL_CATEGORIES.length) {
@@ -249,33 +369,44 @@ export default function DiceGame() {
       const finalP = totalScore(playerCard);
       const finalA = totalScore(aiCard);
       const s = loadStats();
-      s.gamesPlayed = (s.gamesPlayed || 0) + 1;
-      s.totalScore = (s.totalScore || 0) + finalP;
-      if (finalP > finalA) s.gamesWon = (s.gamesWon || 0) + 1;
-      if (finalP > (s.bestScore || 0)) s.bestScore = finalP;
+      s.gamesPlayed += 1;
+      s.totalScore += finalP;
+      if (finalP > finalA) s.gamesWon += 1;
+      if (finalP > s.bestScore) s.bestScore = finalP;
       saveStatsFn(s);
       if (finalP > finalA) playSfx('win'); else playSfx('lose');
       vibrate([60, 60, 200]);
     }
-  }, [playerCard, aiCard, mode, gameOver]);
+  }, [playerCard, aiCard, gameOver]);
+
+  // Hint generation when player has rolled
+  useEffect(() => {
+    if (turn !== 'player' || rollsLeft === 3 || gameOver) { setHint(null); return; }
+    const { cat, score } = valueOfFinalDice(dice, playerCard);
+    if (score > 0) {
+      const lbl = catLabels[cat];
+      setHint(`${isAr ? 'مقترح' : 'Tipp'}: ${isAr ? lbl.ar : lbl.de} (+${score})`);
+    } else {
+      setHint(null);
+    }
+  }, [dice, rollsLeft, turn, playerCard, gameOver, isAr]);
 
   const rollDice = useCallback(() => {
     if (rolling || rollsLeft <= 0 || turn !== 'player' || gameOver) return;
     setRolling(true);
     playSfx('rotate');
     vibrate(30);
-    let count = 0;
+    let n = 0;
     const interval = setInterval(() => {
       setDice(prev => prev.map((d, i) => (held[i] ? d : rollDie())));
-      count++;
-      if (count >= 8) {
+      n++;
+      if (n >= 8) {
         clearInterval(interval);
         const finalDice = dice.map((d, i) => (held[i] ? d : rollDie()));
         setDice(finalDice);
         setRolling(false);
         setRollsLeft(r => r - 1);
         playSfx('place');
-        // Yatzee surprise!
         if (scoreCategory('yatzy', finalDice) > 0 && playerCard.scores.yatzy === undefined) {
           setYatzeeFlash(true);
           playSfx('streak');
@@ -288,8 +419,7 @@ export default function DiceGame() {
   const toggleHold = useCallback((i: number) => {
     if (rolling || rollsLeft === 3 || turn !== 'player') return;
     setHeld(h => h.map((v, idx) => (idx === i ? !v : v)));
-    playSfx('tap');
-    vibrate(10);
+    playSfx('tap'); vibrate(10);
   }, [rolling, rollsLeft, turn]);
 
   const aiTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -299,235 +429,51 @@ export default function DiceGame() {
       const result = aiPlayTurn(aiCard, aiLevel);
       setDice(result.dice);
       setHeld([true, true, true, true, true]);
-      setAiCard(prev => {
-        const next = { scores: { ...prev.scores, [result.pickCategory]: result.pickScore } };
-        return next;
-      });
+      setAiCard(prev => ({ scores: { ...prev.scores, [result.pickCategory]: result.pickScore } }));
       playSfx('place');
       aiTimer.current = setTimeout(() => {
-        const aiFilledCount = Object.keys(aiCard.scores).length + 1;
-        const playerFilledCount = Object.keys(playerCard.scores).length;
-        if (aiFilledCount >= ALL_CATEGORIES.length && playerFilledCount >= ALL_CATEGORIES.length) return;
         setTurn('player');
         setDice([1, 1, 1, 1, 1]);
         setHeld([false, false, false, false, false]);
         setRollsLeft(3);
       }, 800);
     }, 650);
-  }, [aiCard, aiLevel, playerCard]);
+  }, [aiCard, aiLevel]);
 
   const pickCategory = useCallback((cat: CategoryId) => {
     if (turn !== 'player' || gameOver || rollsLeft === 3) return;
     if (playerCard.scores[cat] !== undefined) return;
     const value = scoreCategory(cat, dice);
     setPlayerCard(prev => ({ scores: { ...prev.scores, [cat]: value } }));
-    playSfx('match');
-    vibrate(20);
-    // Save Yahtzee stat
+    playSfx('match'); vibrate(20);
     if (cat === 'yatzy' && value > 0) {
-      const s = loadStats();
-      s.yatzeesRolled = (s.yatzeesRolled || 0) + 1;
-      saveStatsFn(s);
+      const s = loadStats(); s.yatzeesRolled += 1; saveStatsFn(s);
     }
-    setTurn('ai');
-    playAiTurn();
-  }, [turn, gameOver, rollsLeft, dice, playerCard, aiCard, playAiTurn]);
+    setTurn('ai'); playAiTurn();
+  }, [turn, gameOver, rollsLeft, dice, playerCard, playAiTurn]);
 
-  // High-roll roll
-  const rollHighRoll = useCallback(() => {
-    if (hrRolling || hrRound >= hrRounds) return;
-    setHrRolling(true);
-    setHrMessage('');
-    playSfx('rotate');
-    vibrate(40);
-    let n = 0;
-    const interval = setInterval(() => {
-      setHrPlayer(rollDie());
-      setHrAi(rollDie());
-      n++;
-      if (n >= 14) {
-        clearInterval(interval);
-        const p = rollDie();
-        const a = rollDie();
-        setHrPlayer(p); setHrAi(a); setHrRolling(false);
-        const newRound = hrRound + 1; setHrRound(newRound);
-        const ns = { ...hrScore };
-        if (p > a) { ns.p++; setHrStreak(s => s + 1); setHrMessage(isAr ? '🎉 فزت بالجولة!' : '🎉 Runde gewonnen!'); playSfx('match'); }
-        else if (a > p) { ns.a++; setHrStreak(0); setHrMessage(isAr ? '💀 الخصم فاز' : '💀 Gegner gewinnt'); playSfx('wrong'); }
-        else { setHrMessage(isAr ? '🤝 تعادل' : '🤝 Unentschieden'); playSfx('click'); }
-        setHrScore(ns);
-        if (newRound >= hrRounds) {
-          const s = loadStats();
-          s.gamesPlayed = (s.gamesPlayed || 0) + 1;
-          if (ns.p > ns.a) { s.gamesWon = (s.gamesWon || 0) + 1; setHrMessage(isAr ? '👑 أنت البطل!' : '👑 Champion!'); playSfx('win'); }
-          else if (ns.a > ns.p) { setHrMessage(isAr ? '😞 حظاً أوفر' : '😞 Nächstes Mal'); playSfx('lose'); }
-          saveStatsFn(s);
-        }
-      }
-    }, 55);
-  }, [hrRolling, hrRound, hrRounds, hrScore, isAr]);
+  const reset = useCallback(() => {
+    setPlayerCard({ scores: {} }); setAiCard({ scores: {} });
+    setDice([1, 1, 1, 1, 1]); setHeld([false, false, false, false, false]);
+    setRollsLeft(3); setTurn('player'); setGameOver(false); setYatzeeFlash(false);
+  }, []);
 
-  // ===== Yatzy auto-AI tick =====
-  // (already done in playAiTurn) — cleanup on unmount
   useEffect(() => () => { if (aiTimer.current) clearTimeout(aiTimer.current); }, []);
 
-  // Labels
-  const catLabels: Record<CategoryId, { ar: string; de: string }> = {
-    ones: { ar: 'الآحاد', de: 'Einer' },
-    twos: { ar: 'الثنائيات', de: 'Zweier' },
-    threes: { ar: 'الثلاثيات', de: 'Dreier' },
-    fours: { ar: 'الرباعيات', de: 'Vierer' },
-    fives: { ar: 'الخماسيات', de: 'Fünfer' },
-    sixes: { ar: 'السداسيات', de: 'Sechser' },
-    three: { ar: 'ثلاثة متشابهة', de: 'Dreierpasch' },
-    four: { ar: 'أربعة متشابهة', de: 'Viererpasch' },
-    full: { ar: 'فول هاوس', de: 'Full House' },
-    small: { ar: 'سلسلة قصيرة', de: 'Kleine Straße' },
-    large: { ar: 'سلسلة طويلة', de: 'Große Straße' },
-    yatzy: { ar: 'يَتزي!', de: 'Kniffel!' },
-    chance: { ar: 'فرصة', de: 'Chance' },
-  };
-  const lbl = (c: CategoryId) => (isAr ? catLabels[c].ar : catLabels[c].de);
-
-  const rules = mode === 'yatzy'
-    ? (isAr
-      ? [
-        'ارمِ 5 نرود 3 مرات؛ اضغط على أي نرد لتثبيته بين الرميات',
-        'بعد آخر رمية اختر خانة لتسجيل النتيجة',
-        'القسم العلوي (1-6): اجمع 63+ لمكافأة 35',
-        'القسم السفلي: Full House 25 • سلسلة 30/40 • Yatzy 50',
-        'الخصم يلعب 13 جولة باستراتيجية ذكية. أعلى مجموع يفوز!',
-      ]
-      : [
-        'Würfle 5 Würfel 3× – tippe einen Würfel zum Halten',
-        'Wähle nach dem letzten Wurf eine Kategorie',
-        'Oberer Bereich (1-6): 63+ ⇒ Bonus 35',
-        'Unten: Full House 25 · Straße 30/40 · Kniffel 50',
-        'KI spielt 13 Runden taktisch. Höchste Summe gewinnt!',
-      ])
-    : (isAr
-      ? ['كل جولة يرمي اللاعب والخصم نرداً واحداً', 'صاحب الرقم الأعلى يفوز بالجولة', 'من يجمع جولات أكثر يفوز باللعبة', 'السلسلة تتراكم مع كل فوز']
-      : ['Jede Runde würfeln Spieler und Gegner', 'Höhere Zahl gewinnt die Runde', 'Mehr Rundensiege ⇒ Spielsieg', 'Siegesserie zählt mit']);
-
-  const statsArr = [
-    { label: isAr ? 'مباريات' : 'Spiele', value: stats.gamesPlayed || 0 },
-    { label: isAr ? 'انتصارات' : 'Siege', value: stats.gamesWon || 0 },
-    { label: isAr ? 'أفضل نتيجة' : 'Bestleistung', value: stats.bestScore || 0 },
-    { label: isAr ? 'يَتزي مرمي' : 'Kniffel ges.', value: stats.yatzeesRolled || 0 },
-    { label: isAr ? 'نسبة الفوز' : 'Siegquote', value: stats.gamesPlayed ? `${Math.round(((stats.gamesWon || 0) / stats.gamesPlayed) * 100)}%` : '-' },
-  ];
-
-  const options = [
-    {
-      key: 'mode', label: isAr ? 'نمط اللعب' : 'Spielmodus',
-      choices: [
-        { value: 'yatzy', label: isAr ? 'يَتزي (5 نرود)' : 'Kniffel (5 W.)' },
-        { value: 'highroll', label: isAr ? 'رمية كبرى' : 'Highroll' },
-      ],
-      current: mode, onChange: (v: string) => setMode(v as Mode),
-    },
-    ...(mode === 'yatzy' ? [{
-      key: 'ai', label: isAr ? 'مستوى الخصم' : 'KI-Stärke',
-      choices: [
-        { value: 'easy', label: isAr ? 'سهل' : 'Leicht' },
-        { value: 'hard', label: isAr ? 'محترف' : 'Profi' },
-      ],
-      current: aiLevel, onChange: (v: string) => setAiLevel(v as 'easy' | 'hard'),
-    }] : [{
-      key: 'rounds', label: isAr ? 'عدد الجولات' : 'Rundenanzahl',
-      choices: [
-        { value: '5', label: '5' }, { value: '10', label: '10' }, { value: '15', label: '15' }, { value: '20', label: '20' },
-      ],
-      current: String(hrRounds), onChange: (v: string) => { setHrRounds(parseInt(v)); resetHighRoll(); },
-    }]),
-  ];
-
-  // Computed final
-  const finalTotal = totalScore(playerCard);
-  const aiTotal = totalScore(aiCard);
-
-  return (
-    <GameShell title={isAr ? 'النرد' : 'Würfel'} icon={Dices} accentColor="#f59e0b" rules={rules} stats={statsArr} options={options}
-      headerRight={
-        <button
-          onClick={() => { if (mode === 'yatzy') resetYatzy(); else resetHighRoll(); }}
-          className="text-amber-400 active:scale-90 transition-transform"
-          aria-label={isAr ? 'إعادة' : 'Zurücksetzen'}
-        >
-          <RotateCcw className="w-4 h-4" />
-        </button>
-      }
-    >
-      {mode === 'yatzy' ? (
-        <YatzyView
-          isAr={isAr}
-          dice={dice}
-          held={held}
-          rolling={rolling}
-          rollsLeft={rollsLeft}
-          turn={turn}
-          playerCard={playerCard}
-          aiCard={aiCard}
-          gameOver={gameOver}
-          finalTotal={finalTotal}
-          aiTotal={aiTotal}
-          yatzeeFlash={yatzeeFlash}
-          rollDice={rollDice}
-          toggleHold={toggleHold}
-          pickCategory={pickCategory}
-          resetYatzy={resetYatzy}
-          lbl={lbl}
-        />
-      ) : (
-        <HighRollView
-          isAr={isAr}
-          hrPlayer={hrPlayer}
-          hrAi={hrAi}
-          hrScore={hrScore}
-          hrRound={hrRound}
-          hrRounds={hrRounds}
-          hrRolling={hrRolling}
-          hrMessage={hrMessage}
-          hrStreak={hrStreak}
-          rollHighRoll={rollHighRoll}
-          resetHighRoll={resetHighRoll}
-        />
-      )}
-    </GameShell>
-  );
-}
-
-// ---------- Yatzy view ----------
-interface YatzyViewProps {
-  isAr: boolean;
-  dice: number[];
-  held: boolean[];
-  rolling: boolean;
-  rollsLeft: number;
-  turn: Turn;
-  playerCard: Scorecard;
-  aiCard: Scorecard;
-  gameOver: boolean;
-  finalTotal: number;
-  aiTotal: number;
-  yatzeeFlash: boolean;
-  rollDice: () => void;
-  toggleHold: (i: number) => void;
-  pickCategory: (cat: CategoryId) => void;
-  resetYatzy: () => void;
-  lbl: (cat: CategoryId) => string;
-}
-
-function YatzyView(p: YatzyViewProps) {
-  const { isAr, dice, held, rolling, rollsLeft, turn, playerCard, aiCard, gameOver, finalTotal, aiTotal, yatzeeFlash, rollDice, toggleHold, pickCategory, resetYatzy, lbl } = p;
   const previewScores = useMemo(() => {
     const map: Partial<Record<CategoryId, number>> = {};
+    if (rollsLeft === 3) return map;
     for (const cat of ALL_CATEGORIES) {
       if (playerCard.scores[cat] !== undefined) continue;
       map[cat] = scoreCategory(cat, dice);
     }
     return map;
-  }, [dice, playerCard]);
+  }, [dice, playerCard, rollsLeft]);
+
+  const finalTotal = totalScore(playerCard);
+  const aiTotal = totalScore(aiCard);
+
+  const lbl = (c: CategoryId) => (isAr ? catLabels[c].ar : catLabels[c].de);
 
   return (
     <div className="relative">
@@ -545,7 +491,7 @@ function YatzyView(p: YatzyViewProps) {
         )}
       </AnimatePresence>
 
-      {/* Header strip */}
+      {/* Header */}
       <div className="flex items-center justify-between mb-3 px-1">
         <div className="flex items-center gap-2">
           <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold ${turn === 'player' ? 'bg-amber-500/15 text-amber-300' : 'bg-white/4 text-zinc-500'}`}>
@@ -568,9 +514,8 @@ function YatzyView(p: YatzyViewProps) {
             <DiceFace key={i} value={v} held={held[i]} rolling={rolling && !held[i]} onClick={() => toggleHold(i)} color="gold" />
           ))}
         </div>
-        <div className="flex justify-center">
+        <div className="flex justify-center items-center gap-3">
           <motion.button
-            
             disabled={rolling || rollsLeft <= 0 || turn !== 'player' || gameOver}
             onClick={rollDice}
             className="px-6 py-2 rounded-2xl font-black text-amber-950 disabled:opacity-30 disabled:cursor-not-allowed shadow-lg shadow-amber-500/30"
@@ -580,6 +525,11 @@ function YatzyView(p: YatzyViewProps) {
             {isAr ? 'رمية' : 'Wurf'} {3 - rollsLeft + 1}/3
           </motion.button>
         </div>
+        {hint && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center mt-2 text-[10px] text-amber-300/80 font-semibold">
+            💡 {hint}
+          </motion.div>
+        )}
       </div>
 
       {/* Scorecard */}
@@ -604,7 +554,7 @@ function YatzyView(p: YatzyViewProps) {
               {finalTotal > aiTotal ? (isAr ? '👑 بطل!' : '👑 Champion!') : finalTotal < aiTotal ? (isAr ? 'حظاً أوفر' : 'Nächstes Mal!') : (isAr ? 'تعادل!' : 'Unentschieden!')}
             </p>
             <p className="text-amber-400 text-sm font-mono">{finalTotal} : {aiTotal}</p>
-            <motion.button  onClick={resetYatzy}
+            <motion.button onClick={reset}
               className="mt-3 px-6 py-2 rounded-xl font-bold text-amber-950"
               style={{ background: 'linear-gradient(135deg, #fbbf24, #f59e0b)' }}>
               <RotateCcw className="w-3.5 h-3.5 inline mr-1.5" /> {isAr ? 'مباراة جديدة' : 'Neue Partie'}
@@ -615,6 +565,359 @@ function YatzyView(p: YatzyViewProps) {
     </div>
   );
 }
+
+// =============================================================================
+// Pig (push-your-luck) View
+// =============================================================================
+function PigView({ isAr, aiLevel }: { isAr: boolean; aiLevel: 'easy' | 'hard' }) {
+  const TARGET = 100;
+  const [playerScore, setPlayerScore] = useState(0);
+  const [aiScore, setAiScore] = useState(0);
+  const [turn, setTurn] = useState<Turn>('player');
+  const [roundPoints, setRoundPoints] = useState(0);
+  const [dice, setDice] = useState(1);
+  const [rolling, setRolling] = useState(false);
+  const [message, setMessage] = useState('');
+  const [gameOver, setGameOver] = useState(false);
+  const [history, setHistory] = useState<{ p: number; a: number }[]>([]);
+  const [bestRoundThisGame, setBestRoundThisGame] = useState(0);
+  const aiTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // AI strategy: hold at 20 (easy) or based on Pig optimal "hold-at-25" with adaptive when behind
+  const aiThreshold = useCallback(() => {
+    if (aiLevel === 'easy') return 18;
+    // Hard: use Neller's optimal-ish: if winning needs only X points, push for it.
+    const need = TARGET - aiScore;
+    if (need <= 25) return Math.max(8, need);
+    if (aiScore < playerScore - 15) return 30; // catch up
+    return 22;
+  }, [aiLevel, aiScore, playerScore]);
+
+  const reset = () => {
+    setPlayerScore(0); setAiScore(0); setRoundPoints(0); setTurn('player');
+    setDice(1); setRolling(false); setMessage(''); setGameOver(false);
+    setHistory([]); setBestRoundThisGame(0);
+  };
+
+  const recordWin = (winner: 'player' | 'ai') => {
+    const s = loadStats();
+    s.pigGamesPlayed += 1;
+    if (winner === 'player') s.pigGamesWon += 1;
+    if (bestRoundThisGame > s.pigBestRound) s.pigBestRound = bestRoundThisGame;
+    saveStatsFn(s);
+  };
+
+  const playerRoll = useCallback(() => {
+    if (rolling || gameOver || turn !== 'player') return;
+    setRolling(true); playSfx('rotate'); vibrate(30);
+    let n = 0;
+    const iv = setInterval(() => {
+      setDice(rollDie()); n++;
+      if (n >= 10) {
+        clearInterval(iv);
+        const final = rollDie();
+        setDice(final); setRolling(false);
+        if (final === 1) {
+          setMessage(isAr ? '💀 رميت 1! خسرت نقاط الجولة' : '💀 Eine 1! Rundenpunkte weg');
+          setRoundPoints(0);
+          playSfx('lose'); vibrate([80, 60, 80]);
+          // Bust = end of turn
+          setTurn('ai');
+        } else {
+          const newRound = roundPoints + final;
+          setRoundPoints(newRound);
+          if (newRound > bestRoundThisGame) setBestRoundThisGame(newRound);
+          setMessage(isAr ? `+${final}` : `+${final}`);
+          playSfx('place'); vibrate(15);
+        }
+      }
+    }, 55);
+  }, [rolling, gameOver, turn, roundPoints, isAr, bestRoundThisGame]);
+
+  const playerHold = () => {
+    if (rolling || gameOver || turn !== 'player' || roundPoints === 0) return;
+    const newScore = playerScore + roundPoints;
+    setPlayerScore(newScore);
+    setHistory(h => [...h, { p: newScore, a: aiScore }]);
+    setMessage(isAr ? `أضفت ${roundPoints}!` : `+${roundPoints}!`);
+    playSfx('match'); vibrate(20);
+    if (newScore >= TARGET) {
+      setGameOver(true); recordWin('player'); playSfx('win');
+      setMessage(isAr ? '👑 فزت!' : '👑 Gewonnen!');
+      return;
+    }
+    setRoundPoints(0);
+    setTurn('ai');
+  };
+
+  // AI plays
+  useEffect(() => {
+    if (turn !== 'ai' || gameOver) return;
+    if (aiTimerRef.current) clearTimeout(aiTimerRef.current);
+
+    const playOnce = (currentRound: number) => {
+      const threshold = aiThreshold();
+      const need = TARGET - aiScore;
+      // If winning is achievable, AI keeps pushing
+      if (currentRound >= Math.min(threshold, need)) {
+        // Hold
+        const final = aiScore + currentRound;
+        setAiScore(final);
+        setMessage(isAr ? `الذكاء حصل ${currentRound}` : `KI: +${currentRound}`);
+        playSfx('place'); vibrate(15);
+        if (final >= TARGET) {
+          setGameOver(true); recordWin('ai'); playSfx('lose');
+          setMessage(isAr ? '😞 الذكاء فاز' : '😞 KI gewinnt');
+          return;
+        }
+        setRoundPoints(0);
+        setTurn('player');
+        return;
+      }
+      // Roll
+      setRolling(true); playSfx('rotate');
+      let n = 0;
+      const iv = setInterval(() => {
+        setDice(rollDie()); n++;
+        if (n >= 8) {
+          clearInterval(iv);
+          const final = rollDie(); setDice(final); setRolling(false);
+          if (final === 1) {
+            setMessage(isAr ? '💥 الذكاء رمى 1' : '💥 KI würfelt 1');
+            playSfx('wrong'); vibrate(40);
+            setRoundPoints(0);
+            setTurn('player');
+            return;
+          }
+          const newRound = currentRound + final;
+          setRoundPoints(newRound);
+          setMessage(isAr ? `الذكاء +${final}` : `KI +${final}`);
+          aiTimerRef.current = setTimeout(() => playOnce(newRound), 700);
+        }
+      }, 50);
+    };
+
+    aiTimerRef.current = setTimeout(() => playOnce(0), 700);
+    return () => { if (aiTimerRef.current) clearTimeout(aiTimerRef.current); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [turn, gameOver]);
+
+  const playerProgress = (playerScore / TARGET) * 100;
+  const aiProgress = (aiScore / TARGET) * 100;
+
+  return (
+    <div className="text-center pt-2 max-w-md mx-auto">
+      {/* Score bars */}
+      <div className="space-y-2 mb-4">
+        <div>
+          <div className="flex items-center justify-between text-[11px] mb-0.5 px-1">
+            <div className="flex items-center gap-1.5">
+              <UserIcon className="w-3 h-3 text-amber-400" />
+              <span className="font-bold text-amber-300">{isAr ? 'أنت' : 'Du'}</span>
+            </div>
+            <span className="font-mono font-black text-amber-300">{playerScore} / {TARGET}</span>
+          </div>
+          <div className="h-2 rounded-full bg-zinc-800 overflow-hidden">
+            <motion.div className="h-full rounded-full bg-gradient-to-r from-amber-400 to-yellow-300"
+              animate={{ width: `${playerProgress}%` }} transition={{ duration: 0.4 }} />
+          </div>
+        </div>
+        <div>
+          <div className="flex items-center justify-between text-[11px] mb-0.5 px-1">
+            <div className="flex items-center gap-1.5">
+              <Bot className="w-3 h-3 text-rose-400" />
+              <span className="font-bold text-rose-300">{isAr ? 'الذكاء' : 'KI'}</span>
+            </div>
+            <span className="font-mono font-black text-rose-300">{aiScore} / {TARGET}</span>
+          </div>
+          <div className="h-2 rounded-full bg-zinc-800 overflow-hidden">
+            <motion.div className="h-full rounded-full bg-gradient-to-r from-rose-500 to-red-400"
+              animate={{ width: `${aiProgress}%` }} transition={{ duration: 0.4 }} />
+          </div>
+        </div>
+      </div>
+
+      {/* Round points */}
+      <div className="rounded-2xl border border-amber-500/15 bg-amber-500/5 p-4 mb-4">
+        <p className="text-[10px] text-amber-200/70 uppercase tracking-wider mb-1">
+          {isAr ? 'نقاط الجولة' : 'Runden-Punkte'}
+        </p>
+        <motion.p key={roundPoints} initial={{ scale: 0.8 }} animate={{ scale: 1 }}
+          className="text-4xl font-black text-amber-300 mb-2">{roundPoints}</motion.p>
+        <div className="flex justify-center mb-3">
+          <DiceFace value={dice} held={false} rolling={rolling} color={turn === 'player' ? 'gold' : 'silver'} size="lg" />
+        </div>
+        <div className="h-5 text-xs text-zinc-300 font-semibold">{message}</div>
+      </div>
+
+      {/* Action buttons */}
+      {!gameOver && (
+        <div className="flex justify-center gap-3">
+          <motion.button onClick={playerRoll} disabled={turn !== 'player' || rolling}
+            className="flex-1 max-w-[160px] py-3 rounded-2xl font-black text-amber-950 disabled:opacity-30 shadow-lg shadow-amber-500/30"
+            style={{ background: 'linear-gradient(135deg, #fbbf24, #f59e0b)' }}>
+            <Dices className="w-5 h-5 inline mr-1.5" />
+            {isAr ? 'ارمِ' : 'Würfeln'}
+          </motion.button>
+          <motion.button onClick={playerHold} disabled={turn !== 'player' || rolling || roundPoints === 0}
+            className="flex-1 max-w-[160px] py-3 rounded-2xl font-black text-emerald-950 disabled:opacity-30 shadow-lg shadow-emerald-500/30"
+            style={{ background: 'linear-gradient(135deg, #34d399, #10b981)' }}>
+            <PiggyBank className="w-5 h-5 inline mr-1.5" />
+            {isAr ? 'احتفظ' : 'Halten'}
+          </motion.button>
+        </div>
+      )}
+
+      {gameOver && (
+        <button onClick={reset} className="px-6 py-3 rounded-2xl bg-amber-500 text-amber-950 font-black">
+          <RotateCcw className="w-4 h-4 inline mr-1.5" />{isAr ? 'مباراة جديدة' : 'Neue Partie'}
+        </button>
+      )}
+
+      {/* Strategy hint */}
+      {turn === 'player' && !gameOver && roundPoints >= 15 && (
+        <p className="text-[10px] text-zinc-500 mt-3">
+          {isAr ? '💡 كل رمية فيها 1/6 احتمال خسارة كل ما جمعته' : '💡 Jeder Wurf: 1/6 Chance, alles zu verlieren'}
+        </p>
+      )}
+    </div>
+  );
+}
+
+// =============================================================================
+// HighRoll View
+// =============================================================================
+function HighRollView({ isAr }: { isAr: boolean }) {
+  const [hrPlayer, setHrPlayer] = useState(1);
+  const [hrAi, setHrAi] = useState(1);
+  const [hrScore, setHrScore] = useState({ p: 0, a: 0 });
+  const [hrRound, setHrRound] = useState(0);
+  const [rolling, setRolling] = useState(false);
+  const [message, setMessage] = useState('');
+  const [hrRounds, setHrRounds] = useState(() => parseInt(localStorage.getItem('dice-rounds') || '10'));
+  const [streak, setStreak] = useState(0);
+
+  useEffect(() => { localStorage.setItem('dice-rounds', String(hrRounds)); }, [hrRounds]);
+
+  const reset = () => {
+    setHrPlayer(1); setHrAi(1); setHrScore({ p: 0, a: 0 }); setHrRound(0);
+    setMessage(''); setStreak(0);
+  };
+
+  const rollOne = useCallback(() => {
+    if (rolling || hrRound >= hrRounds) return;
+    setRolling(true); setMessage('');
+    playSfx('rotate'); vibrate(40);
+    let n = 0;
+    const iv = setInterval(() => {
+      setHrPlayer(rollDie()); setHrAi(rollDie()); n++;
+      if (n >= 14) {
+        clearInterval(iv);
+        const p = rollDie(); const a = rollDie();
+        setHrPlayer(p); setHrAi(a); setRolling(false);
+        const newRound = hrRound + 1; setHrRound(newRound);
+        const ns = { ...hrScore };
+        let newStreak = streak;
+        if (p > a) {
+          ns.p++; newStreak = streak + 1;
+          setMessage(isAr ? '🎉 فزت بالجولة!' : '🎉 Runde gewonnen!');
+          playSfx('match');
+        } else if (a > p) {
+          ns.a++; newStreak = 0;
+          setMessage(isAr ? '💀 الخصم فاز' : '💀 Gegner gewinnt');
+          playSfx('wrong');
+        } else {
+          setMessage(isAr ? '🤝 تعادل' : '🤝 Unentschieden');
+          playSfx('click');
+        }
+        setStreak(newStreak); setHrScore(ns);
+        if (newRound >= hrRounds) {
+          const s = loadStats();
+          s.gamesPlayed += 1;
+          if (ns.p > ns.a) {
+            s.gamesWon += 1;
+            setMessage(isAr ? '👑 أنت البطل!' : '👑 Champion!');
+            playSfx('win');
+          } else if (ns.a > ns.p) {
+            setMessage(isAr ? '😞 حظاً أوفر' : '😞 Nächstes Mal');
+            playSfx('lose');
+          }
+          if (newStreak > s.hrBestStreak) s.hrBestStreak = newStreak;
+          saveStatsFn(s);
+        }
+      }
+    }, 55);
+  }, [rolling, hrRound, hrRounds, hrScore, isAr, streak]);
+
+  const finished = hrRound >= hrRounds;
+
+  return (
+    <div className="text-center pt-2">
+      {/* Rounds selector */}
+      <div className="flex items-center justify-center gap-1.5 mb-3">
+        {[5, 10, 15, 20].map(n => (
+          <button key={n} onClick={() => { setHrRounds(n); reset(); }}
+            className={`px-2.5 py-1 rounded-full text-[10px] font-semibold ${hrRounds === n ? 'bg-amber-500/20 text-amber-300' : 'bg-white/4 text-zinc-500'}`}>
+            {n}
+          </button>
+        ))}
+      </div>
+
+      <div className="flex items-center justify-between mb-4 px-3">
+        <div className="text-left">
+          <p className="text-[9px] text-zinc-500 uppercase tracking-wider">{isAr ? 'أنت' : 'Du'}</p>
+          <p className="text-3xl font-black text-amber-400">{hrScore.p}</p>
+        </div>
+        <div className="text-[10px] text-zinc-500">{hrRound}/{hrRounds}</div>
+        <div className="text-right">
+          <p className="text-[9px] text-zinc-500 uppercase tracking-wider">{isAr ? 'الخصم' : 'KI'}</p>
+          <p className="text-3xl font-black text-rose-400">{hrScore.a}</p>
+        </div>
+      </div>
+      <div className="flex justify-center gap-8 my-6">
+        <DiceFace value={hrPlayer} held={false} rolling={rolling} color="gold" size="lg" />
+        <DiceFace value={hrAi} held={false} rolling={rolling} color="silver" size="lg" />
+      </div>
+      <div className="h-6 text-sm text-zinc-300 font-semibold mb-3">{message}</div>
+      {streak >= 2 && !finished && (
+        <p className="text-[11px] text-amber-400 font-bold mb-2 flex items-center justify-center gap-1">
+          <Flame className="w-3 h-3" /> {streak} {isAr ? 'فوز متتالي' : 'in Folge'}
+        </p>
+      )}
+      {!finished ? (
+        <motion.button onClick={rollOne} disabled={rolling}
+          className="px-9 py-3 rounded-2xl font-black text-amber-950 shadow-lg shadow-amber-500/30 disabled:opacity-40"
+          style={{ background: 'linear-gradient(135deg, #fbbf24, #f59e0b)' }}>
+          <Dices className="w-5 h-5 inline mr-1.5" />
+          {isAr ? 'ارمِ النرد' : 'Würfeln'}
+        </motion.button>
+      ) : (
+        <button onClick={reset} className="px-6 py-3 rounded-2xl bg-amber-500 text-amber-950 font-black">
+          <RotateCcw className="w-4 h-4 inline mr-1.5" />{isAr ? 'مباراة جديدة' : 'Neue Partie'}
+        </button>
+      )}
+    </div>
+  );
+}
+
+// =============================================================================
+// Helpers
+// =============================================================================
+const catLabels: Record<CategoryId, { ar: string; de: string }> = {
+  ones: { ar: 'الآحاد', de: 'Einer' },
+  twos: { ar: 'الثنائيات', de: 'Zweier' },
+  threes: { ar: 'الثلاثيات', de: 'Dreier' },
+  fours: { ar: 'الرباعيات', de: 'Vierer' },
+  fives: { ar: 'الخماسيات', de: 'Fünfer' },
+  sixes: { ar: 'السداسيات', de: 'Sechser' },
+  three: { ar: 'ثلاثة متشابهة', de: 'Dreierpasch' },
+  four: { ar: 'أربعة متشابهة', de: 'Viererpasch' },
+  full: { ar: 'فول هاوس', de: 'Full House' },
+  small: { ar: 'سلسلة قصيرة', de: 'Kl. Straße' },
+  large: { ar: 'سلسلة طويلة', de: 'Gr. Straße' },
+  yatzy: { ar: 'يَتزي!', de: 'Kniffel!' },
+  chance: { ar: 'فرصة', de: 'Chance' },
+};
 
 function ScorecardSection(props: {
   title: string;
@@ -652,7 +955,6 @@ function ScorecardSection(props: {
                   ? `bg-${accentColor}-500/8 hover:bg-${accentColor}-500/15 active:scale-[0.98] cursor-pointer`
                   : 'bg-white/3 opacity-60'
             }`}
-            style={{ border: `1px solid ${filled ? 'rgba(255,255,255,0.06)' : `var(--tw-color-${accentColor}-500, #f59e0b)33`}` }}
           >
             <span className={`font-semibold ${filled ? 'text-zinc-400' : `text-${accentColor}-200`}`}>{lbl(cat)}</span>
             <span className="flex items-center gap-1.5">
@@ -671,61 +973,6 @@ function ScorecardSection(props: {
           <span className={`text-${accentColor}-400/70`}>{bonusLabel} (63+)</span>
           <span className="font-mono font-bold text-amber-400">+{bonus}</span>
         </div>
-      )}
-    </div>
-  );
-}
-
-// ---------- High-roll view ----------
-interface HighRollViewProps {
-  isAr: boolean;
-  hrPlayer: number;
-  hrAi: number;
-  hrScore: { p: number; a: number };
-  hrRound: number;
-  hrRounds: number;
-  hrRolling: boolean;
-  hrMessage: string;
-  hrStreak: number;
-  rollHighRoll: () => void;
-  resetHighRoll: () => void;
-}
-function HighRollView(p: HighRollViewProps) {
-  const { isAr, hrPlayer, hrAi, hrScore, hrRound, hrRounds, hrRolling, hrMessage, hrStreak, rollHighRoll, resetHighRoll } = p;
-  const finished = hrRound >= hrRounds;
-  return (
-    <div className="text-center pt-2">
-      <div className="flex items-center justify-between mb-4 px-3">
-        <div className="text-left">
-          <p className="text-[9px] text-zinc-500 uppercase tracking-wider">{isAr ? 'أنت' : 'Du'}</p>
-          <p className="text-3xl font-black text-amber-400">{hrScore.p}</p>
-        </div>
-        <div className="text-[10px] text-zinc-500">{hrRound}/{hrRounds}</div>
-        <div className="text-right">
-          <p className="text-[9px] text-zinc-500 uppercase tracking-wider">{isAr ? 'الخصم' : 'KI'}</p>
-          <p className="text-3xl font-black text-rose-400">{hrScore.a}</p>
-        </div>
-      </div>
-      <div className="flex justify-center gap-8 my-6">
-        <DiceFace value={hrPlayer} held={false} rolling={hrRolling} color="gold" />
-        <DiceFace value={hrAi} held={false} rolling={hrRolling} color="silver" />
-      </div>
-      <div className="h-6 text-sm text-zinc-300 font-semibold mb-3">{hrMessage}</div>
-      {hrStreak >= 2 && !finished && (
-        <p className="text-[11px] text-amber-400 font-bold mb-2">🔥 {hrStreak} {isAr ? 'فوز متتالي' : 'in Folge'}</p>
-      )}
-      {!finished ? (
-        <motion.button  onClick={rollHighRoll} disabled={hrRolling}
-          className="px-9 py-3 rounded-2xl font-black text-amber-950 shadow-lg shadow-amber-500/30 disabled:opacity-40"
-          style={{ background: 'linear-gradient(135deg, #fbbf24, #f59e0b)' }}>
-          <Dices className="w-4 h-4 inline mr-2" />{isAr ? 'ارمِ النرد' : 'Würfeln'}
-        </motion.button>
-      ) : (
-        <motion.button  onClick={resetHighRoll}
-          className="px-9 py-3 rounded-2xl font-black text-white"
-          style={{ background: 'linear-gradient(135deg, #6366f1, #4f46e5)' }}>
-          <RotateCcw className="w-4 h-4 inline mr-2" />{isAr ? 'مباراة جديدة' : 'Neue Partie'}
-        </motion.button>
       )}
     </div>
   );
