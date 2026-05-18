@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import SEO from '@/components/SEO';
 import { useApp } from '@/contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
-import { Grid3X3, Swords, Gamepad2, Trophy, Brain, Dices, Crosshair, Puzzle, Flame, Target, Zap } from 'lucide-react';
+import { Grid3X3, Swords, Gamepad2, Trophy, Brain, Dices, Crosshair, Puzzle, Flame, Target, Zap, Crown, Map, Award, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface GameCardData {
@@ -33,6 +33,12 @@ export default function GamesPage() {
   const chessStats = getStats<{ gamesPlayed?: number; whiteWins?: number; blackWins?: number }>('chess-stats');
   const puzzleStats = getStats<{ rating?: number; solved?: number; currentStreak?: number }>('chess-puzzle-stats');
   const sudStats = getStats<{ gamesWon?: number; bestStreak?: number; flawless?: number }>('sudoku-stats');
+  // Newer "world" modes — each has its own persistent state we surface as
+  // mini progress badges on the Worlds row at the top of the page.
+  const careerStats = getStats<{ rating?: number; highestDefeated?: number }>('chess-career');
+  const adventureStats = getStats<{ highestCleared?: number; stars?: Record<number, number> }>('memory-adventure');
+  const decathlonStats = getStats<{ best?: { index?: number } }>('focus-decathlon');
+  const tournamentStats = getStats<{ status?: string }>('dice-tournament');
 
   const games: GameCardData[] = useMemo(() => [
     {
@@ -117,6 +123,48 @@ export default function GamesPage() {
   const totalAchievements = memStats.unlocked?.length || 0;
   const memoryLevel = memStats.level || 1;
 
+  // World-mode quick stats. Each "world" is a richer game-mode that lives on
+  // its own page and has its own persistence — so we summarize progress in
+  // a single line each.
+  const adventureStars = Object.values(adventureStats.stars || {}).reduce((s, n) => s + (n || 0), 0);
+  const careerRank = (careerStats.highestDefeated ?? -1) + 1; // bots beaten = next-rank index
+  const worlds = [
+    {
+      key: 'chess-career',
+      title: isAr ? 'مسيرة الشطرنج' : 'Schachkarriere',
+      subtitle: isAr ? `Elo ${careerStats.rating || 800} · ${careerRank}/8 بطل` : `Elo ${careerStats.rating || 800} · ${careerRank}/8 besiegt`,
+      icon: Crown, color: '#a855f7',
+      path: '/games/chess/career',
+    },
+    {
+      key: 'memory-adventure',
+      title: isAr ? 'مغامرة الذاكرة' : 'Memory-Abenteuer',
+      subtitle: isAr ? `${adventureStats.highestCleared || 0}/15 محطة · ${adventureStars}★` : `${adventureStats.highestCleared || 0}/15 Etappen · ${adventureStars}★`,
+      icon: Map, color: '#ec4899',
+      path: '/games/memory/adventure',
+    },
+    {
+      key: 'dice-tournament',
+      title: isAr ? 'بطولة النرد' : 'Würfel-Turnier',
+      subtitle: tournamentStats.status === 'won'
+        ? (isAr ? 'فزت بالكأس 🏆' : 'Pokal gewonnen 🏆')
+        : tournamentStats.status === 'in-progress'
+          ? (isAr ? 'بطولة قيد اللعب' : 'Turnier läuft')
+          : (isAr ? '4 لاعبين · بطولة إقصاء' : '4 Spieler · K.-O.-Runde'),
+      icon: Trophy, color: '#f59e0b',
+      path: '/games/dice/tournament',
+    },
+    {
+      key: 'focus-decathlon',
+      title: isAr ? 'العشاري الذهني' : 'Mental-Decathlon',
+      subtitle: decathlonStats.best?.index
+        ? (isAr ? `أفضل: ${decathlonStats.best.index}` : `Best: ${decathlonStats.best.index}`)
+        : (isAr ? '5 محطات · مؤشر معرفي' : '5 Disziplinen · Cognitive Index'),
+      icon: Award, color: '#06b6d4',
+      path: '/games/focus/decathlon',
+    },
+  ];
+
   return (
     <div className="min-h-screen bg-background pb-28 pt-14">
       <SEO title="الألعاب — SmartHub" description="مجموعة ألعاب ذهنية: سودوكو، شطرنج، ألغاز، ذاكرة، تركيز ونرد. أنماط متعددة وذكاء اصطناعي متقدم." path="/games" />
@@ -134,7 +182,7 @@ export default function GamesPage() {
         <div className="flex-1">
           <h1 className="text-[26px] font-bold tracking-tight text-foreground leading-tight">{t('games.title')}</h1>
           <p className="text-[11px] text-muted-foreground">
-            {isAr ? '6 ألعاب · 20+ نمط' : '6 Spiele · 20+ Modi'}
+            {isAr ? '6 ألعاب · 4 عوالم · 25+ نمط' : '6 Spiele · 4 Welten · 25+ Modi'}
           </p>
         </div>
       </motion.div>
@@ -150,6 +198,49 @@ export default function GamesPage() {
           <ProgressTile icon={Trophy} value={totalWins} label={isAr ? 'انتصار' : 'Siege'} color="#fbbf24" />
           <ProgressTile icon={Flame} value={`Lv.${memoryLevel}`} label={isAr ? 'الذاكرة' : 'Memory'} color="#ec4899" />
           <ProgressTile icon={Target} value={puzzleStats.rating || 800} label={isAr ? 'تقييم ألغاز' : 'Puzzle Elo'} color="#a855f7" />
+        </div>
+      </motion.div>
+
+      {/* Worlds — flagship rich modes that live as their own pages. Each world
+          spans the full row so it gets enough visual weight to compete with
+          the standard game grid. */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.08, duration: 0.4 }}
+        className="px-4 mb-5"
+      >
+        <div className="flex items-center justify-between mb-2 px-1">
+          <p className="text-[11px] font-bold text-foreground/80">
+            {isAr ? '🌟 العوالم' : '🌟 Welten'}
+          </p>
+          <p className="text-[10px] text-muted-foreground">
+            {isAr ? 'أنماط بقصة وعمق' : 'Story-Modi'}
+          </p>
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          {worlds.map((world, i) => {
+            const Icon = world.icon;
+            return (
+              <motion.button
+                key={world.key}
+                initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 + i * 0.04, duration: 0.3 }}
+                onClick={() => navigate(world.path)}
+                className="relative overflow-hidden rounded-2xl border p-3 text-start active:scale-[0.97] transition-transform"
+                style={{
+                  background: `linear-gradient(135deg, ${world.color}18, ${world.color}05)`,
+                  borderColor: `${world.color}30`,
+                }}
+              >
+                <div className="flex items-center gap-2 mb-1">
+                  <Icon className="w-4 h-4 stroke-[2]" style={{ color: world.color }} />
+                  <Sparkles className="w-2.5 h-2.5 ml-auto" style={{ color: world.color, opacity: 0.5 }} />
+                </div>
+                <p className="text-[12px] font-black text-foreground leading-tight">{world.title}</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-1">{world.subtitle}</p>
+              </motion.button>
+            );
+          })}
         </div>
       </motion.div>
 

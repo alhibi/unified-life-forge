@@ -47,6 +47,10 @@ const loadMemory = () => import("./pages/MemoryGame");
 const loadDice = () => import("./pages/DiceGame");
 const loadFocus = () => import("./pages/FocusGame");
 const loadChessPuzzle = () => import("./pages/ChessPuzzle");
+const loadChessCareer = () => import("./pages/ChessCareer");
+const loadMemoryAdventure = () => import("./pages/MemoryAdventure");
+const loadDiceTournament = () => import("./pages/DiceTournament");
+const loadFocusDecathlon = () => import("./pages/FocusDecathlon");
 const loadTheme = () => import("./pages/ThemeSettings");
 const loadAuth = () => import("./pages/Auth");
 const loadProfile = () => import("./pages/ProfileEdit");
@@ -68,6 +72,10 @@ const MemoryGame = lazy(loadMemory);
 const DiceGamePage = lazy(loadDice);
 const FocusGamePage = lazy(loadFocus);
 const ChessPuzzlePage = lazy(loadChessPuzzle);
+const ChessCareerPage = lazy(loadChessCareer);
+const MemoryAdventurePage = lazy(loadMemoryAdventure);
+const DiceTournamentPage = lazy(loadDiceTournament);
+const FocusDecathlonPage = lazy(loadFocusDecathlon);
 const ThemeSettingsPage = lazy(loadTheme);
 const AuthPage = lazy(loadAuth);
 const ProfileEditPage = lazy(loadProfile);
@@ -196,9 +204,13 @@ function AnimatedRoutes() {
             <Route path="/games/sudoku" element={<ErrorBoundary><PageTransition><SudokuPage /></PageTransition></ErrorBoundary>} />
             <Route path="/games/chess" element={<ErrorBoundary><PageTransition><ChessPage /></PageTransition></ErrorBoundary>} />
             <Route path="/games/chess/puzzles" element={<ErrorBoundary><PageTransition><ChessPuzzlePage /></PageTransition></ErrorBoundary>} />
+            <Route path="/games/chess/career" element={<ErrorBoundary><PageTransition><ChessCareerPage /></PageTransition></ErrorBoundary>} />
             <Route path="/games/memory" element={<ErrorBoundary><PageTransition><MemoryGame /></PageTransition></ErrorBoundary>} />
+            <Route path="/games/memory/adventure" element={<ErrorBoundary><PageTransition><MemoryAdventurePage /></PageTransition></ErrorBoundary>} />
             <Route path="/games/dice" element={<ErrorBoundary><PageTransition><DiceGamePage /></PageTransition></ErrorBoundary>} />
+            <Route path="/games/dice/tournament" element={<ErrorBoundary><PageTransition><DiceTournamentPage /></PageTransition></ErrorBoundary>} />
             <Route path="/games/focus" element={<ErrorBoundary><PageTransition><FocusGamePage /></PageTransition></ErrorBoundary>} />
+            <Route path="/games/focus/decathlon" element={<ErrorBoundary><PageTransition><FocusDecathlonPage /></PageTransition></ErrorBoundary>} />
             <Route path="/occasions" element={<ErrorBoundary><PageTransition><AllOccasionsPage /></PageTransition></ErrorBoundary>} />
             <Route path="/reading" element={<ErrorBoundary><PageTransition><ReadingPage /></PageTransition></ErrorBoundary>} />
             <Route path="/settings/theme" element={<ErrorBoundary><PageTransition><ThemeSettingsPage /></PageTransition></ErrorBoundary>} />

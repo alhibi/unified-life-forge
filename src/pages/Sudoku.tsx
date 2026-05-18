@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useApp } from '@/contexts/AppContext';
-import { Grid3X3, Lightbulb, Clock, Eraser, PenLine, Trophy, Undo2, Pause, Play, Calendar, Sparkles, X, Zap } from 'lucide-react';
+import { Grid3X3, Lightbulb, Clock, Eraser, PenLine, Trophy, Undo2, Pause, Play, Calendar, Sparkles, X, Zap, Brain } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import GameShell from '@/components/GameShell';
 import { playSfx, vibrate } from '@/utils/gameFeedback';
+import { nextHint, SolverHint, TECHNIQUE_LABELS } from '@/utils/sudokuSolver';
 
 type Board = (number | null)[][];
 type Difficulty = 'easy' | 'medium' | 'hard' | 'expert';
@@ -399,6 +400,61 @@ export default function SudokuPage() {
     }
   };
 
+  // Smart Hint: surfaces the next solving technique that applies to the current
+  // board state. Unlike the regular hint, it never reveals a digit unprompted —
+  // the player can choose to apply or just learn from it. So it doesn't burn
+  // hint credit; instead we increment `smartHintsViewed` for the stats panel.
+  const [smartHint, setSmartHint] = useState<SolverHint | null>(null);
+  const [smartHintsViewed, setSmartHintsViewed] = useState(0);
+
+  const handleSmartHint = () => {
+    if (isPaused || solved) return;
+    const hint = nextHint(board);
+    if (!hint) {
+      // No logical move available — board may be inconsistent or only
+      // solvable by guessing. Fall back to telling the user gently.
+      setSmartHint({
+        technique: 'guess',
+        placements: [], eliminations: [], highlights: [],
+        explanationAr: 'لم أعثر على حركة منطقية. تأكد من عدم وجود خطأ.',
+        explanationDe: 'Kein logischer Zug gefunden. Prüfe auf Fehler.',
+      });
+      playSfx('wrong'); vibrate(40);
+      return;
+    }
+    setSmartHint(hint);
+    setSmartHintsViewed(n => n + 1);
+    playSfx('hint'); vibrate(20);
+  };
+
+  const applySmartHint = () => {
+    if (!smartHint) return;
+    setHistory(prev => [...prev, snapshot()]);
+    if (smartHint.placements.length > 0) {
+      const nb = board.map(row => [...row]);
+      for (const p of smartHint.placements) nb[p.r][p.c] = p.value;
+      setBoard(nb);
+      // Refresh errors after placement
+      const ne = new Set<string>();
+      for (let i = 0; i < 9; i++) for (let j = 0; j < 9; j++) {
+        if (nb[i][j] !== null && nb[i][j] !== gameData.solution[i][j]) ne.add(`${i}-${j}`);
+      }
+      setErrors(ne);
+      playSfx('place'); vibrate(20);
+      if (ne.size === 0 && nb.every(row => row.every(cell => cell !== null))) {
+        setSolved(true); setIsRunning(false);
+        recordWin(timer, difficulty, variant, errorCount, hintsUsed);
+      }
+    } else if (smartHint.eliminations.length > 0) {
+      // Apply the candidate eliminations into pencil marks.
+      const nn = notes.map(row => row.map(s => new Set(s)));
+      for (const e of smartHint.eliminations) nn[e.r][e.c].delete(String(e.value));
+      setNotes(nn);
+      playSfx('click');
+    }
+    setSmartHint(null);
+  };
+
   const handleUndo = () => {
     if (history.length === 0 || isPaused) return;
     const prev = history[history.length - 1];
@@ -414,6 +470,17 @@ export default function SudokuPage() {
   const conflicts = useMemo(() => findConflicts(board, variant), [board, variant]);
 
   const getHighlight = (r: number, c: number) => {
+    // Smart-hint highlights take precedence so the player can see the
+    // technique illustrated. Placement target glows green, eliminated
+    // cells glow rose, and supporting evidence cells glow purple.
+    if (smartHint) {
+      const isPlacement = smartHint.placements.some(p => p.r === r && p.c === c);
+      const isElim      = smartHint.eliminations.some(e => e.r === r && e.c === c);
+      const isHighlight = smartHint.highlights.some(h => h.r === r && h.c === c);
+      if (isPlacement) return 'bg-emerald-500/30 ring-2 ring-inset ring-emerald-400';
+      if (isElim)      return 'bg-rose-500/15 ring-1 ring-inset ring-rose-400/50';
+      if (isHighlight) return 'bg-purple-500/15 ring-1 ring-inset ring-purple-400/40';
+    }
     if (conflicts.has(`${r}-${c}`)) return 'bg-rose-500/15 ring-1 ring-inset ring-rose-400/40';
     if (!selected) {
       if (selectedNumber !== null && board[r][c] === selectedNumber) return 'bg-primary/12';
@@ -680,6 +747,11 @@ export default function SudokuPage() {
             }`}>
             <PenLine className="w-5 h-5 stroke-[1.8]" />
           </button>
+          <button onClick={handleSmartHint}
+            title={isAr ? 'تلميح ذكي' : 'Schlauer Tipp'}
+            className="w-11 h-11 rounded-full flex items-center justify-center bg-purple-500/15 hover:bg-purple-500/25 text-purple-300 transition-colors active:scale-90">
+            <Brain className="w-5 h-5 stroke-[1.8]" />
+          </button>
           <button onClick={autoNotes ? clearAutoNotes : fillAutoNotes}
             title={isAr ? 'علامات تلقائية' : 'Auto-Notizen'}
             className={`w-11 h-11 rounded-full flex items-center justify-center transition-colors active:scale-90 ${
@@ -694,6 +766,91 @@ export default function SudokuPage() {
           </button>
         </div>
       </div>
+
+      {/* Smart Hint dialog: explains the next applicable solving technique
+          using the same logical solver an expert uses internally. The user
+          can then choose to apply it or just learn from it. */}
+      <AnimatePresence>
+        {smartHint && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-end sm:items-center justify-center p-4"
+            onClick={() => setSmartHint(null)}
+          >
+            <motion.div
+              initial={{ y: 60, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 60, opacity: 0 }}
+              transition={{ type: 'spring', stiffness: 320, damping: 30 }}
+              onClick={e => e.stopPropagation()}
+              className="w-full max-w-sm rounded-3xl border border-purple-500/30 bg-card p-5"
+            >
+              <div className="flex items-start gap-3 mb-3">
+                <div className="w-10 h-10 rounded-xl bg-purple-500/20 flex items-center justify-center shrink-0">
+                  <Brain className="w-5 h-5 text-purple-300" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-[10px] uppercase tracking-wider text-purple-300/80 font-bold">
+                    {isAr ? 'تقنية الحل' : 'Lösungstechnik'}
+                  </p>
+                  <h3 className="text-base font-black text-foreground">
+                    {isAr ? TECHNIQUE_LABELS[smartHint.technique].ar : TECHNIQUE_LABELS[smartHint.technique].de}
+                  </h3>
+                  <div className="flex items-center gap-1 mt-0.5">
+                    {Array.from({ length: 9 }).map((_, i) => (
+                      <span key={i} className={`w-1.5 h-1 rounded-full ${
+                        i < TECHNIQUE_LABELS[smartHint.technique].difficulty
+                          ? 'bg-purple-400' : 'bg-zinc-700'
+                      }`} />
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <p className="text-sm text-foreground/90 leading-relaxed mb-4">
+                {isAr ? smartHint.explanationAr : smartHint.explanationDe}
+              </p>
+
+              {/* Effect summary */}
+              {smartHint.placements.length > 0 && (
+                <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/25 p-2.5 mb-3 text-[11px]">
+                  <p className="font-bold text-emerald-300 mb-0.5">
+                    {isAr ? 'سيضع الرقم:' : 'Zahl setzen:'}
+                  </p>
+                  {smartHint.placements.map((p, i) => (
+                    <p key={i} className="text-emerald-200/90 font-mono">
+                      ({p.r + 1}, {p.c + 1}) ← <b>{p.value}</b>
+                    </p>
+                  ))}
+                </div>
+              )}
+              {smartHint.eliminations.length > 0 && (
+                <div className="rounded-xl bg-rose-500/10 border border-rose-500/25 p-2.5 mb-3 text-[11px]">
+                  <p className="font-bold text-rose-300 mb-0.5">
+                    {isAr ? `سيلغي ${smartHint.eliminations.length} مرشحاً` : `Streicht ${smartHint.eliminations.length} Kandidaten`}
+                  </p>
+                </div>
+              )}
+
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setSmartHint(null)}
+                  className="flex-1 py-2.5 rounded-xl bg-white/5 text-foreground font-bold text-sm"
+                >
+                  {isAr ? 'فهمت' : 'Verstanden'}
+                </button>
+                {(smartHint.placements.length > 0 || smartHint.eliminations.length > 0) && (
+                  <button
+                    onClick={applySmartHint}
+                    className="flex-1 py-2.5 rounded-xl font-black text-purple-950 text-sm"
+                    style={{ background: 'linear-gradient(135deg, #c084fc, #a855f7)' }}
+                  >
+                    {isAr ? 'طبّقها' : 'Anwenden'}
+                  </button>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </GameShell>
   );
 }

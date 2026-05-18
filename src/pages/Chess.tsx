@@ -1,10 +1,13 @@
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { useApp } from '@/contexts/AppContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Crown, RotateCcw, Undo2, Flag, Clock, Play, Lightbulb } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import GameShell from '@/components/GameShell';
 import { playSfx, vibrate } from '@/utils/gameFeedback';
+import { recognizeOpening } from '@/data/chessOpenings';
+import { botById, BotPersonality, BOTS } from '@/data/chessBots';
+import { recordCareerResult } from '@/pages/ChessCareer';
 
 type Color = 'w' | 'b';
 type PieceType = 'K' | 'Q' | 'R' | 'B' | 'N' | 'P';
@@ -287,6 +290,14 @@ const RANKS = ['8', '7', '6', '5', '4', '3', '2', '1'];
 // ========== AI Engine ==========
 const PIECE_VALUES: Record<PieceType, number> = { P: 100, N: 320, B: 330, R: 500, Q: 900, K: 20000 };
 
+// Per-bot evaluation tweaks. The default profile reproduces the original
+// behaviour exactly (all multipliers = 1.0, no extras). Bots can override.
+import type { BotEvalWeights } from '@/data/chessBots';
+const DEFAULT_WEIGHTS: BotEvalWeights = {
+  material: 1.0, pst: 1.0, mobility: 0.0, kingAttack: 0.0,
+  pawnPush: 0.0, tradeAversion: 0.0, blunderRate: 0.0, depthBonus: 0,
+};
+
 // Piece-square tables (simplified)
 const PAWN_TABLE = [
   [0,0,0,0,0,0,0,0],[50,50,50,50,50,50,50,50],[10,10,20,30,30,20,10,10],
@@ -312,26 +323,69 @@ const KING_TABLE = [
 
 const PST: Partial<Record<PieceType, number[][]>> = { P: PAWN_TABLE, N: KNIGHT_TABLE, B: BISHOP_TABLE, K: KING_TABLE };
 
-function evaluateBoard(board: BoardState): number {
-  let score = 0;
+function evaluateBoard(board: BoardState, weights: BotEvalWeights = DEFAULT_WEIGHTS): number {
+  let mat = 0;
+  let psqt = 0;
   let wBishops = 0, bBishops = 0;
   const wPawnsCol = [0,0,0,0,0,0,0,0], bPawnsCol = [0,0,0,0,0,0,0,0];
+  let wKingPos: [number, number] | null = null;
+  let bKingPos: [number, number] | null = null;
+  let wMost = 6, bMost = 1; // most-advanced pawn ranks (for pawnPush)
+
   for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
     const p = board[r][c];
     if (!p) continue;
-    let val = PIECE_VALUES[p.type];
+    mat += p.color === 'w' ? PIECE_VALUES[p.type] : -PIECE_VALUES[p.type];
     const table = PST[p.type];
-    if (table) val += p.color === 'w' ? table[r][c] : table[7 - r][c];
-    score += p.color === 'w' ? val : -val;
+    if (table) {
+      const v = p.color === 'w' ? table[r][c] : table[7 - r][c];
+      psqt += p.color === 'w' ? v : -v;
+    }
     if (p.type === 'B') { if (p.color === 'w') wBishops++; else bBishops++; }
-    if (p.type === 'P') { if (p.color === 'w') wPawnsCol[c]++; else bPawnsCol[c]++; }
+    if (p.type === 'P') {
+      if (p.color === 'w') { wPawnsCol[c]++; if (r < wMost) wMost = r; }
+      else                 { bPawnsCol[c]++; if (r > bMost) bMost = r; }
+    }
+    if (p.type === 'K') {
+      if (p.color === 'w') wKingPos = [r, c]; else bKingPos = [r, c];
+    }
   }
-  if (wBishops >= 2) score += 35;
-  if (bBishops >= 2) score -= 35;
+
+  // Bishop pair / doubled pawns (folded into psqt to keep one knob)
+  if (wBishops >= 2) psqt += 35;
+  if (bBishops >= 2) psqt -= 35;
   for (let c = 0; c < 8; c++) {
-    if (wPawnsCol[c] >= 2) score -= 18 * (wPawnsCol[c] - 1);
-    if (bPawnsCol[c] >= 2) score += 18 * (bPawnsCol[c] - 1);
+    if (wPawnsCol[c] >= 2) psqt -= 18 * (wPawnsCol[c] - 1);
+    if (bPawnsCol[c] >= 2) psqt += 18 * (bPawnsCol[c] - 1);
   }
+
+  let score = weights.material * mat + weights.pst * psqt;
+
+  // Pawn-push: reward how far your most-advanced pawn has marched.
+  if (weights.pawnPush !== 0) {
+    // White advances toward rank 0, Black toward rank 7.
+    const wAdv = 6 - wMost;       // 0..6 (rank 1 starts at 6, promotion at 0)
+    const bAdv = bMost - 1;
+    score += weights.pawnPush * 8 * (wAdv - bAdv);
+  }
+
+  // King-attack heat: count enemy pieces close to the friendly king.
+  if (weights.kingAttack !== 0 && wKingPos && bKingPos) {
+    let wPressure = 0, bPressure = 0;
+    for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
+      const p = board[r][c]; if (!p) continue;
+      // distance to enemy king
+      const target = p.color === 'w' ? bKingPos : wKingPos;
+      const dr = Math.abs(r - target[0]), dc = Math.abs(c - target[1]);
+      const cheb = Math.max(dr, dc);
+      if (cheb <= 3 && p.type !== 'K' && p.type !== 'P') {
+        const heat = (4 - cheb) * (p.type === 'Q' ? 8 : p.type === 'R' ? 5 : 3);
+        if (p.color === 'w') wPressure += heat; else bPressure += heat;
+      }
+    }
+    score += weights.kingAttack * (wPressure - bPressure);
+  }
+
   return score;
 }
 
@@ -351,7 +405,7 @@ function generateCaptures(board: BoardState, color: Color, enPassant: Square | n
 
 function quiesce(board: BoardState, alpha: number, beta: number, isMaximizing: boolean, enPassant: Square | null, castling: GameState['castling']): number {
   nodesSearched++;
-  const stand = evaluateBoard(board);
+  const stand = evaluateBoard(board, activeWeights);
   if (isMaximizing) {
     if (stand >= beta) return beta;
     if (stand > alpha) alpha = stand;
@@ -439,10 +493,11 @@ function applyMove(board: BoardState, from: Square, to: Square, enPassant: Squar
 
 let searchDeadline = 0;
 let nodesSearched = 0;
+let activeWeights: BotEvalWeights = DEFAULT_WEIGHTS;
 
 function minimax(board: BoardState, depth: number, alpha: number, beta: number, isMaximizing: boolean, enPassant: Square | null, castling: GameState['castling']): number {
   nodesSearched++;
-  if (nodesSearched % 500 === 0 && Date.now() > searchDeadline) return evaluateBoard(board);
+  if (nodesSearched % 500 === 0 && Date.now() > searchDeadline) return evaluateBoard(board, activeWeights);
   if (depth === 0) return quiesce(board, alpha, beta, isMaximizing, enPassant, castling);
 
   const color: Color = isMaximizing ? 'w' : 'b';
@@ -484,9 +539,66 @@ function minimax(board: BoardState, depth: number, alpha: number, beta: number, 
   }
 }
 
-function getBestMove(game: GameState, aiColor: Color, difficulty: AIDifficulty): { from: Square; to: Square } | null {
+import { bookContinuations } from '@/data/chessOpenings';
+
+// Convert a from→to square pair into UCI like "e2e4". Promotion is suffixed
+// with the lowercase piece character ("e7e8q"). Used for opening-book lookups.
+function squaresToUci(from: Square, to: Square, promotion?: PieceType): string {
+  const file = (c: number) => 'abcdefgh'[c];
+  const rank = (r: number) => String(8 - r);
+  return `${file(from[1])}${rank(from[0])}${file(to[1])}${rank(to[0])}${promotion ? promotion.toLowerCase() : ''}`;
+}
+
+export interface AiOptions {
+  weights?: BotEvalWeights;
+  /** UCI sequence so far — used for opening-book consultation */
+  history?: string[];
+  /** Bot's preferred openings (UCI first half-moves) */
+  preferredOpenings?: string[];
+}
+
+function getBestMove(
+  game: GameState,
+  aiColor: Color,
+  difficulty: AIDifficulty,
+  opts: AiOptions = {},
+): { from: Square; to: Square } | null {
   const moves = getAllMovesForColor(game.board, aiColor, game.enPassant, game.castling);
   if (moves.length === 0) return null;
+
+  // -------- 1. Opening book consultation --------
+  // While the played sequence still lies inside the opening book we choose
+  // a continuation. This gives bots authentic openings without burning
+  // search time. Higher-rated bots only deviate when their preferred
+  // continuation is gone.
+  if (opts.history && opts.history.length < 14) {
+    const continuations = bookContinuations(opts.history);
+    if (continuations.length > 0) {
+      // Filter to legal moves (the book never has illegal moves but we
+      // still cross-check to be safe).
+      const legalUci = new Set<string>();
+      for (const m of moves) legalUci.add(squaresToUci(m.from, m.to));
+      const playable = continuations.filter(c => legalUci.has(c.uci));
+      if (playable.length > 0) {
+        // Bot preference: if the very first move and the bot prefers a
+        // particular opening move, favor that.
+        if (opts.history.length === 0 && opts.preferredOpenings?.length) {
+          for (const pref of opts.preferredOpenings) {
+            const found = playable.find(c => c.uci === pref);
+            if (found) return uciToMove(found.uci);
+          }
+        }
+        // Otherwise pick weighted-randomly: prefer the continuation that
+        // stays in book longest (more "remaining" depth).
+        playable.sort((a, b) => b.remaining - a.remaining);
+        const pick = playable[Math.floor(Math.random() * Math.min(3, playable.length))];
+        return uciToMove(pick.uci);
+      }
+    }
+  }
+
+  // -------- 2. Set bot personality before searching --------
+  activeWeights = opts.weights ?? DEFAULT_WEIGHTS;
 
   // Easy: random with mild capture preference
   if (difficulty === 'easy') {
@@ -495,9 +607,12 @@ function getBestMove(game: GameState, aiColor: Color, difficulty: AIDifficulty):
     return moves[Math.floor(Math.random() * moves.length)];
   }
 
-  // Iterative deepening with time budget
-  const timeMs   = difficulty === 'medium' ? 800 : difficulty === 'hard' ? 1800 : 3500;
-  const maxDepth = difficulty === 'medium' ? 3 : difficulty === 'hard' ? 4 : 5;
+  // -------- 3. Iterative deepening with time budget --------
+  const baseTime  = difficulty === 'medium' ? 800 : difficulty === 'hard' ? 1800 : 3500;
+  const baseDepth = difficulty === 'medium' ? 3 : difficulty === 'hard' ? 4 : 5;
+  const depthBonus = Math.max(-1, Math.min(2, opts.weights?.depthBonus ?? 0));
+  const timeMs   = baseTime + depthBonus * 600;
+  const maxDepth = baseDepth + depthBonus;
   searchDeadline = Date.now() + timeMs;
   nodesSearched = 0;
 
@@ -552,7 +667,37 @@ function getBestMove(game: GameState, aiColor: Color, difficulty: AIDifficulty):
     }
     if (tied.length > 1) bestMove = tied[Math.floor(Math.random() * tied.length)];
   }
+
+  // Bot personality: with probability=blunderRate, swap to a near-best move.
+  // We pick from moves whose evaluation is within 80cp of the best — these
+  // are still legal-looking moves a human at that level might play.
+  const blunderRate = opts.weights?.blunderRate ?? 0;
+  if (blunderRate > 0 && Math.random() < blunderRate) {
+    const candidates: { from: Square; to: Square }[] = [];
+    for (const m of moves) {
+      const k = `${m.from[0]}${m.from[1]}-${m.to[0]}${m.to[1]}`;
+      const sc = moveScores.get(k);
+      if (sc === undefined) continue;
+      const delta = isMaximizing ? bestEval - sc : sc - bestEval;
+      // Only allow inaccuracies (≥40cp off) to feel like a real "human" mistake
+      if (delta >= 40 && delta <= 250) candidates.push(m);
+    }
+    if (candidates.length > 0) {
+      bestMove = candidates[Math.floor(Math.random() * candidates.length)];
+    }
+  }
+
   return bestMove;
+}
+
+// Convert a UCI string back into a {from,to} move pair. Inverse of squaresToUci.
+function uciToMove(uci: string): { from: Square; to: Square } {
+  const file = (c: string) => 'abcdefgh'.indexOf(c);
+  const rank = (c: string) => 8 - parseInt(c, 10);
+  return {
+    from: [rank(uci[1]), file(uci[0])] as Square,
+    to:   [rank(uci[3]), file(uci[2])] as Square,
+  };
 }
 
 // ========== Sound Effects ==========
@@ -604,6 +749,37 @@ export default function ChessPage() {
   const [hintMove, setHintMove] = useState<{ from: Square; to: Square } | null>(null);
   const [hintCount, setHintCount] = useState(0);
 
+  // Bot personality (e.g. /games/chess?bot=fatima from career mode).
+  // When unset, the AI plays the generic profile selected by aiDifficulty.
+  const [searchParams] = useSearchParams();
+  const activeBot: BotPersonality | null = useMemo(() => {
+    const id = searchParams.get('bot');
+    return id ? botById(id) : null;
+  }, [searchParams]);
+
+  // When a career bot is active, force computer mode and apply the URL color.
+  // We do this once on mount so the player can still toggle later if they want.
+  useEffect(() => {
+    if (!activeBot) return;
+    setGameMode('computer');
+    const colorParam = searchParams.get('color');
+    if (colorParam === 'w' || colorParam === 'b') setPlayerColor(colorParam);
+    // Pick AI difficulty from the bot's Elo so the search depth matches.
+    if (activeBot.elo < 900) setAiDifficulty('easy');
+    else if (activeBot.elo < 1500) setAiDifficulty('medium');
+    else if (activeBot.elo < 2000) setAiDifficulty('hard');
+    else setAiDifficulty('master');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeBot]);
+
+  // UCI history mirrors moveLog for opening-book lookups. Built incrementally
+  // as moves are made so we never re-derive it from the board state.
+  const [uciHistory, setUciHistory] = useState<string[]>([]);
+
+  // Recognized opening (just the name) — refreshed whenever uciHistory grows
+  // while still inside the book. Becomes null once we drift off-book.
+  const openingName = useMemo(() => recognizeOpening(uciHistory), [uciHistory]);
+
   // Auto-save chess game state
   useEffect(() => {
     if (gameOver) {
@@ -650,6 +826,17 @@ export default function ChessPage() {
     else s.stalemates++;
     setStats(s);
     saveChessStats(s);
+
+    // Career mode: when an active bot is set we feed the result into the
+    // career ladder so the next opponent unlocks and the player rating shifts.
+    // The player is whichever color was chosen via playerColor; the bot is the
+    // other side. We translate winner→player perspective before recording.
+    if (activeBot) {
+      let result: 'win' | 'loss' | 'draw';
+      if (winner === 'draw') result = 'draw';
+      else result = winner === playerColor ? 'win' : 'loss';
+      recordCareerResult(activeBot.id, result);
+    }
   };
 
   const getMoveNotation = (board: BoardState, sr: number, sc: number, tr: number, tc: number, piece: { type: PieceType; color: Color }, isCapture: boolean): string => {
@@ -793,6 +980,14 @@ export default function ChessPage() {
     }
 
     setMoveLog(prev => [...prev, finalNotation]);
+    // Mirror the move into UCI history for opening-book consultation. Promotion
+    // suffix is included when the pawn promoted in this move (board square is
+    // a queen but the moving piece was a pawn).
+    const promotedHere = piece.type === 'P' && (tr === 0 || tr === 7);
+    setUciHistory(prev => [
+      ...prev,
+      squaresToUci([sr, sc], [tr, tc], promotedHere ? (promoteTo || 'Q') : undefined),
+    ]);
     setGame(newGame);
     setSelected(null);
     setLegalMoves([]);
@@ -816,7 +1011,14 @@ export default function ChessPage() {
     const timeoutId = setTimeout(() => {
       if (cancelled) return;
       const aiColor: Color = playerColor === 'w' ? 'b' : 'w';
-      const move = getBestMove(game, aiColor, aiDifficulty);
+      // If a bot personality is selected via career mode, use its weights and
+      // opening preferences. Otherwise fall back to the default profile keyed
+      // by aiDifficulty.
+      const move = getBestMove(game, aiColor, aiDifficulty, {
+        weights: activeBot?.weights,
+        history: uciHistory,
+        preferredOpenings: activeBot?.preferredOpenings,
+      });
       if (cancelled) return;
       if (move) {
         const movingPiece = game.board[move.from[0]][move.from[1]];
@@ -878,6 +1080,7 @@ export default function ChessPage() {
     setGame(history[history.length - stepsBack]);
     setHistory(h => h.slice(0, -stepsBack));
     setMoveLog(prev => prev.slice(0, -stepsBack));
+    setUciHistory(prev => prev.slice(0, -stepsBack));
     setSelected(null);
     setLegalMoves([]);
     setStatus('');
@@ -922,6 +1125,7 @@ export default function ChessPage() {
     setHistory([]);
     setLastMove(null);
     setMoveLog([]);
+    setUciHistory([]);
     setAiThinking(false);
     setPromotionPending(null);
     setHintMove(null); setHintCount(0);
@@ -1181,6 +1385,28 @@ export default function ChessPage() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Bot personality + opening banner — appears above the board so the
+          player always sees who they're playing and what theory is on. */}
+      {(activeBot || openingName) && (
+        <div className="max-w-[340px] mx-auto px-4 mb-2 flex items-center justify-between gap-2">
+          {activeBot ? (
+            <div className="flex items-center gap-1.5 text-xs">
+              <span className="text-base">{activeBot.emoji}</span>
+              <div className="leading-tight">
+                <p className="font-bold text-foreground text-[11px]">{language === 'ar' ? activeBot.ar : activeBot.de}</p>
+                <p className="text-[9px] text-muted-foreground">Elo {activeBot.elo}</p>
+              </div>
+            </div>
+          ) : <div />}
+          {openingName && (
+            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-amber-500/12 border border-amber-500/25">
+              <span className="text-[9px] font-mono text-amber-300/80">{openingName.eco}</span>
+              <span className="text-[10px] font-bold text-amber-200">{language === 'ar' ? openingName.ar : openingName.de}</span>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Player bar — Top */}
       <div className="max-w-[340px] mx-auto px-4 mb-1.5">
