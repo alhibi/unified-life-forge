@@ -982,7 +982,7 @@ function ModeHud({
           <span className="font-black">{isAr ? 'أنت' : 'Du'}</span>
           <span className="font-mono">{versusScores.player}</span>
         </div>
-        <span className="text-zinc-600 text-[10px]">{fmt(timer)}</span>
+        <span className="text-zinc-400 text-[10px]">{fmt(timer)}</span>
         <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full transition-colors ${versusTurn === 'ai' ? 'bg-rose-500/20 text-rose-200' : 'bg-white/5 text-zinc-500'}`}>
           <span className="font-mono">{versusScores.ai}</span>
           <span className="font-black">{isAr ? 'الذكاء' : 'KI'}</span>

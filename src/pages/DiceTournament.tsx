@@ -167,7 +167,7 @@ export default function DiceTournamentPage() {
 
         {/* Connector */}
         <div className="flex justify-center">
-          <ChevronRight className="w-5 h-5 text-zinc-600 rotate-90" />
+          <ChevronRight className="w-5 h-5 text-zinc-400 rotate-90" />
         </div>
 
         <BracketRound title={isAr ? 'النهائي' : 'Finale'} matches={[final]} isAr={isAr} active={state.nextPlayerMatch === 'final'} />
