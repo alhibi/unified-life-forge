@@ -1,0 +1,77 @@
+name: CI
+
+# `on:` is quoted so YAML 1.1 parsers (which treat unquoted `on` as a
+# boolean true) don't trip up on it. GitHub Actions itself uses YAML 1.2
+# and is fine either way; this is purely defensive for tooling.
+"on":
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Cancel an older in-progress run on the same branch / PR when a new commit lands.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: lint • typecheck • test • build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: ["20", "22"]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+
+      - name: Install dependencies
+        # Using `npm install` rather than `npm ci` until package-lock.json
+        # is regenerated against the new devDependencies (prettier,
+        # eslint-config-prettier, husky, lint-staged, @vitest/coverage-v8,
+        # prettier-plugin-tailwindcss). Once a maintainer commits a
+        # refreshed lock, switch back to `npm ci --no-audit --no-fund`.
+        run: npm install --no-audit --no-fund
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Format check
+        run: npm run format:check
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Unit tests
+        run: npm run test
+
+      - name: Build
+        run: npm run build
+        env:
+          # CI build runs without real Supabase env so the bundle exercises
+          # the offline / placeholder code path. Real values are injected
+          # by the deployment platform.
+          VITE_SUPABASE_URL: ""
+          VITE_SUPABASE_PUBLISHABLE_KEY: ""
+
+      - name: Upload build artifact
+        if: matrix.node-version == '20'
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist
+          retention-days: 7
+          if-no-files-found: error

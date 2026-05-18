@@ -1,0 +1,38 @@
+# Build & dependency artifacts
+node_modules
+dist
+dist-ssr
+build
+coverage
+.vite
+.turbo
+.cache
+
+# Lock files
+bun.lock
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Generated / vendored content
+src/integrations/supabase/types.ts
+public/
+supabase/migrations/
+supabase/functions/_shared/
+
+# Static assets that aren't source
+*.min.js
+*.min.css
+*.map
+
+# Editor / OS noise
+.DS_Store
+.idea
+.vscode
+
+# Service workers (hand-maintained)
+public/fonts-sw.js
+public/reading-sw.js
+
+# Markdown changelogs are edited by hand and follow Keep-a-Changelog
+CHANGELOG.md

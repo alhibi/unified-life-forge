@@ -1,0 +1,3 @@
+#!/usr/bin/env sh
+# Run lint-staged so ESLint + Prettier only touch files actually staged.
+npx lint-staged
