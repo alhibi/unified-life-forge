@@ -1243,9 +1243,6 @@ function HijriCalendarStrip({
 
   return (
     <div>
-      {/* خط فاصل خفيف */}
-      <div className="mx-4 h-px bg-border/20" />
-
       {/* ── Header row ─────────────────────────────────────────────── */}
       <div className="flex items-center justify-between px-4 pt-2.5 pb-1.5">
         {/* Today Hijri */}
@@ -1324,9 +1321,6 @@ function HijriCalendarStrip({
           </span>
         </button>
       </div>
-
-      {/* خط فاصل خفيف أسفل */}
-      <div className="mx-4 h-px bg-border/20" />
     </div>
   );
 }
