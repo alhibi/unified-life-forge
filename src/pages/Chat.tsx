@@ -7,7 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import ErrorBoundary from '@/components/ErrorBoundary';
 
-const ChatDrawer = lazy(() => import('@/components/ChatDrawer'));
+const ChatDrawer = lazy(() => import('@/components/chat/ChatDrawer'));
 
 // Skeleton matches the chat layout while the lazy chunk loads, so the
 // transition from the bottom-nav tap to the chat surface stays smooth.

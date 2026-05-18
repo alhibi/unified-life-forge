@@ -22,20 +22,20 @@ import { getDefaultAvatarForUser } from '@/utils/defaultAvatar';
 import {
   getSignedFileUrl, formatClockTime, formatDateSeparator, formatSelfDestructLabel,
   renderRichText, stripMarkers, renderHighlighted,
-} from './chat/chatUtils';
-import { QUICK_EMOJIS, WALLPAPERS, SELF_DESTRUCT_OPTIONS, MUTE_DURATION_OPTIONS } from './chat/constants';
-import { useChat } from './chat/useChat';
-import { useVoiceRecording } from './chat/useVoiceRecording';
-import { SwipeableMessage, TypingDots, MessageTicks, ReactionPill, ForwardedBadge } from './chat/MessageBubble';
-import ConversationList from './chat/ConversationList';
-import ChatInput from './chat/ChatInput';
-import ChatImage from './chat/ChatImage';
-import EmojiPicker from './chat/EmojiPicker';
-import ForwardPicker from './chat/ForwardPicker';
-import WallpaperPicker from './chat/WallpaperPicker';
-import MessageInfo from './chat/MessageInfo';
-import { haptic } from './chat/sounds';
-import type { ChatDrawerProps, ActionMenuState, Message } from './chat/types';
+} from './chatUtils';
+import { QUICK_EMOJIS, WALLPAPERS, SELF_DESTRUCT_OPTIONS, MUTE_DURATION_OPTIONS } from './constants';
+import { useChat } from './useChat';
+import { useVoiceRecording } from './useVoiceRecording';
+import { SwipeableMessage, TypingDots, MessageTicks, ReactionPill, ForwardedBadge } from './MessageBubble';
+import ConversationList from './ConversationList';
+import ChatInput from './ChatInput';
+import ChatImage from './ChatImage';
+import EmojiPicker from './EmojiPicker';
+import ForwardPicker from './ForwardPicker';
+import WallpaperPicker from './WallpaperPicker';
+import MessageInfo from './MessageInfo';
+import { haptic } from './sounds';
+import type { ChatDrawerProps, ActionMenuState, Message } from './types';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Helpers
