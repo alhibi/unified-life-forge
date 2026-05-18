@@ -15,6 +15,9 @@ import {
 } from './storage';
 import { fetchFeedsClientSide, isSupabaseAvailable } from './clientFetcher';
 import { dedupe, withRetry } from '@/lib/fetchRetry';
+import type { Database } from '@/integrations/supabase/types';
+
+type RssArticleRow = Database['public']['Tables']['rss_articles']['Row'];
 
 /**
  * Centralised data layer for the reading feature.
@@ -91,15 +94,15 @@ export function useReadingData(opts: { isAr: boolean }) {
         .order('pub_date', { ascending: false })
         .limit(500);
       if (data) {
-        online = data.map((r: any) => ({
+        online = data.map((r: RssArticleRow) => ({
           title: r.title,
           link: r.link,
           description: r.description || '',
           fullContent: r.full_content || '',
           pubDate: r.pub_date || r.created_at || '',
-          image: r.image,
-          images: r.images || [],
-          author: r.author,
+          image: r.image ?? undefined,
+          images: (r.images as FeedItem['images']) || [],
+          author: undefined,
           source: r.source_name,
         }));
         onlineCount = count || online.length;
@@ -370,11 +373,12 @@ export function useReadingData(opts: { isAr: boolean }) {
               : `No articles from ${feed.name}`,
           );
         }
-      } catch (e: any) {
+      } catch (e: unknown) {
+        const msg = e instanceof Error ? e.message : '';
         toast.error(
           isAr
-            ? `فشل جلب ${feed.name}: ${e?.message || ''}`
-            : `Failed to fetch ${feed.name}: ${e?.message || ''}`,
+            ? `فشل جلب ${feed.name}: ${msg}`
+            : `Failed to fetch ${feed.name}: ${msg}`,
         );
       }
     },
