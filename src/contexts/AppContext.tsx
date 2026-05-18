@@ -254,6 +254,11 @@ const translations: Record<string, Record<Language, string>> = {
   // Footer
   'footer.madeBy': { ar: 'صنع بواسطة', de: 'Erstellt von' },
   'footer.and': { ar: 'و', de: 'und' },
+  // Tafsir
+  'tafsir.title': { ar: 'التفسير', de: 'Tafsir' },
+  'tafsir.subtitle': { ar: 'ابحث في سور القرآن واقرأ التفسير الموثّق من كبار العلماء', de: 'Durchsuche Suren und lies gelehrte Kommentare' },
+  'tafsir.allSurahs': { ar: 'كل السور', de: 'Alle Suren' },
+  'tafsir.ayah': { ar: 'الآية', de: 'Ayah' },
   // Wellness entry point
   'wellness.title': { ar: 'العافية', de: 'Wellness' },
   'wellness.subtitle': { ar: 'المكملات والتغذية والبشرة', de: 'Supplemente, Ernährung, Haut' },

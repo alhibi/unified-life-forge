@@ -64,6 +64,7 @@ const loadSunnahDetail = () => import("./pages/SunnahDetail");
 const loadProphetic = () => import("./pages/PropheticDay");
 const loadUntimed = () => import("./pages/UntimedSunnah");
 const loadVirtues = () => import("./pages/QuranVirtues");
+const loadTafsir = () => import("./pages/Tafsir");
 const loadNotFound = () => import("./pages/NotFound");
 
 const SudokuPage = lazy(loadSudoku);
@@ -89,6 +90,7 @@ const SunnahDetailPage = lazy(loadSunnahDetail);
 const PropheticDayPage = lazy(loadProphetic);
 const UntimedSunnahPage = lazy(loadUntimed);
 const QuranVirtuesPage = lazy(loadVirtues);
+const TafsirPage = lazy(loadTafsir);
 const NotFound = lazy(loadNotFound);
 
 // Tab pages are now eager (always mounted), so the idle prefetch warms
@@ -212,6 +214,7 @@ function AnimatedRoutes() {
             <Route path="/section/untimed-sunnah" element={<ErrorBoundary><PageTransition><UntimedSunnahPage /></PageTransition></ErrorBoundary>} />
             <Route path="/section/prophetic-day" element={<ErrorBoundary><PageTransition><PropheticDayPage /></PageTransition></ErrorBoundary>} />
             <Route path="/section/quran-virtues" element={<ErrorBoundary><PageTransition><QuranVirtuesPage /></PageTransition></ErrorBoundary>} />
+            <Route path="/tafsir" element={<ErrorBoundary><PageTransition><TafsirPage /></PageTransition></ErrorBoundary>} />
             <Route path="*" element={<ErrorBoundary><PageTransition><NotFound /></PageTransition></ErrorBoundary>} />
           </Routes>
         </AnimatePresence>

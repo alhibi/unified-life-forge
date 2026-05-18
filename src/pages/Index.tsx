@@ -152,6 +152,35 @@ export default function Index() {
         <motion.div variants={item}><PrayerTimes /></motion.div>
         <motion.div variants={item}><CurrentTimeSunnah /></motion.div>
         <motion.div variants={item}><UmmahPulse /></motion.div>
+        {/* Tafsir Feature Card */}
+        <motion.div variants={item}>
+          <button
+            onClick={() => navigate('/tafsir')}
+            className="w-full group relative overflow-hidden rounded-2xl border border-primary/20 bg-gradient-to-bl from-primary/10 via-card to-card p-5 text-right transition-all hover:shadow-lg hover:border-primary/40 hover:scale-[1.01] active:scale-[0.99]"
+          >
+            {/* Decorative background pattern */}
+            <div className="absolute top-0 left-0 w-full h-full opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 20% 50%, hsl(var(--primary)) 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-primary/15 flex items-center justify-center shrink-0 group-hover:bg-primary/25 transition-colors">
+                <BookOpen className="w-7 h-7 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-base font-bold text-foreground mb-0.5">
+                  {t('tafsir.title')}
+                </h3>
+                <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">
+                  {t('tafsir.subtitle')}
+                </p>
+              </div>
+              <div className="shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                <BookOpen className="w-4 h-4 text-primary" />
+              </div>
+            </div>
+            {/* Bottom accent line */}
+            <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-primary/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+          </button>
+        </motion.div>
+
         <motion.div variants={item}><IslamicSections /></motion.div>
         <motion.div variants={item}><LocationSaver /></motion.div>
 
