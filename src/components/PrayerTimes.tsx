@@ -282,7 +282,7 @@ function saveDoneStates(stamp: string, states: Record<PrayerKey, boolean>) {
 
 // ─── Component ──────────────────────────────────────────────────────────────
 export default function PrayerTimes() {
-  const { prayerMadhab, latitudeAdjMethod, dstEnabled, t, language, theme } = useApp();
+  const { prayerMadhab, latitudeAdjMethod, t, language, theme } = useApp();
   const isDark = useIsDark(theme);
 
   const [prayers, setPrayers] = useState<PrayerTime[]>([]);
@@ -388,7 +388,11 @@ export default function PrayerTimes() {
         setLoading(false);
       }
     },
-    [schoolParam, latAdjParam, dstEnabled, language, t]
+    // dstEnabled is intentionally not in deps: the underlying Aladhan API
+    // does its own DST handling, so toggling the user setting doesn't
+    // change what we fetch. Listed here would just churn this callback
+    // (and re-fire the network request) for nothing.
+    [schoolParam, latAdjParam, language, t]
   );
 
   // Resolve location, then fetch prayer times.

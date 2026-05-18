@@ -24,7 +24,6 @@ export function calculatePrayerTimes(
   date: Date = new Date(),
   madhab: 'shafii' | 'hanafi' = 'shafii',
   highLatitudeMethod: 'middle' | 'seventh' | 'angle' = 'angle',
-  dstEnabled: boolean = true
 ): PrayerTime[] {
   const coordinates = new Coordinates(lat, lng);
 

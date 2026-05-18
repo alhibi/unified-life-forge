@@ -26,10 +26,18 @@ const item = {
 };
 
 export default function Index() {
-  // Auto-detect location on first load and save for all widgets
+  // Auto-detect location on first load and save for all widgets.
+  // We only call getCurrentPosition() when the Permissions API tells us
+  // the geolocation permission is already 'granted' — otherwise the
+  // prompt would fire on every fresh visit, which is hostile UX. When
+  // the user has not yet decided we wait for the LocationSaver button
+  // to capture the click as a user gesture (which is also the only way
+  // some browsers / iOS Safari accept the prompt at all).
   useEffect(() => {
     const saved = localStorage.getItem('lastLocation');
-    if (!saved && navigator.geolocation) {
+    if (saved || !navigator.geolocation) return;
+
+    const tryFetch = () => {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
           localStorage.setItem('lastLocation', JSON.stringify({ lat: pos.coords.latitude, lng: pos.coords.longitude }));
@@ -39,6 +47,17 @@ export default function Index() {
         () => { /* user denied or error — keep Makkah default */ },
         { enableHighAccuracy: true, timeout: 10000 }
       );
+    };
+
+    // Browsers without Permissions API (older Safari) fall back to the
+    // legacy behaviour of prompting on visit. Everywhere else, only
+    // re-fetch silently for users who already said yes.
+    if (typeof navigator.permissions?.query === 'function') {
+      navigator.permissions.query({ name: 'geolocation' as PermissionName })
+        .then((status) => { if (status.state === 'granted') tryFetch(); })
+        .catch(() => { /* permissions query unsupported — skip silently */ });
+    } else {
+      tryFetch();
     }
   }, []);
   const { t, language } = useApp();
