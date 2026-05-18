@@ -6,10 +6,12 @@ import {
   Timer as TimerIcon, Calendar, Zap, Award, Flame, Lock,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { playSfx, vibrate } from '@/utils/gameFeedback';
+import { STAGES, AdventureStage, gradeStage, recordStageResult } from '@/data/memoryAdventure';
 
 type Difficulty = 'easy' | 'medium' | 'hard' | 'expert';
-type Mode = 'classic' | 'endless' | 'timeattack' | 'daily' | 'versus';
+type Mode = 'classic' | 'endless' | 'timeattack' | 'daily' | 'versus' | 'adventure';
 
 // =============================================================================
 // Themes
@@ -162,6 +164,30 @@ export default function MemoryGame() {
   const [themeId, setThemeId] = useState(() => localStorage.getItem('memory-theme') || 'classic');
   const theme = useMemo(() => THEMES.find(t => t.id === themeId) ?? THEMES[0], [themeId]);
 
+  // -------- Adventure mode wiring --------
+  // When ?adventure=N is in the URL, the game switches to campaign mode.
+  // The stage's twist, theme, and pair count override regular settings,
+  // and on victory we grade stars + persist progress + return to the hub.
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const adventureStage: AdventureStage | null = useMemo(() => {
+    const id = searchParams.get('adventure');
+    if (!id) return null;
+    return STAGES.find(s => s.id === Number(id)) ?? null;
+  }, [searchParams]);
+  const [adventureMistakes, setAdventureMistakes] = useState(0);
+  const [adventureResult, setAdventureResult] = useState<{ stars: number; time: number } | null>(null);
+
+  // Pull theme + auto-switch to adventure mode when the URL says so.
+  useEffect(() => {
+    if (!adventureStage) return;
+    setMode('adventure');
+    setThemeId(adventureStage.themeId);
+    setAdventureMistakes(0);
+    setAdventureResult(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [adventureStage?.id]);
+
   useEffect(() => { localStorage.setItem('memory-mode', mode); }, [mode]);
   useEffect(() => { localStorage.setItem('memory-diff', difficulty); }, [difficulty]);
   useEffect(() => { localStorage.setItem('memory-theme', themeId); }, [themeId]);
@@ -265,10 +291,27 @@ export default function MemoryGame() {
       finishVersus();
       return;
     }
+    if (mode === 'adventure' && adventureStage) {
+      finishAdventure();
+      return;
+    }
     // classic / daily
     finishClassicGame();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [matched.length]);
+
+  // Adventure stages grade by time + mistakes (mistakes counted in handleCard
+  // wherever a non-matching pair is flipped). On clear we persist stars and
+  // can route the player back to the hub or onto the next stage.
+  function finishAdventure() {
+    if (!adventureStage) return;
+    setSolved(true);
+    setIsRunning(false);
+    playSfx('win'); vibrate([80, 100, 80, 100, 200]);
+    const stars = gradeStage(adventureStage, timer, adventureMistakes);
+    recordStageResult(adventureStage.id, stars, timer);
+    setAdventureResult({ stars, time: timer });
+  }
 
   function finishClassicGame() {
     setSolved(true);
@@ -472,6 +515,8 @@ export default function MemoryGame() {
         setTimeout(() => {
           setFlipped([]); setChecking(false); setChain(0);
           playSfx('wrong'); vibrate(50);
+          // Track mismatches for adventure-stage star rating.
+          if (mode === 'adventure') setAdventureMistakes(n => n + 1);
           if (mode === 'versus') {
             setVersusTurn('ai');
           }
@@ -491,6 +536,11 @@ export default function MemoryGame() {
     if (mm === 'daily') deck = buildDeck(DIFF_PAIRS.medium, th, dailySeed());
     else if (mm === 'endless') deck = buildDeck(5, th);
     else if (mm === 'timeattack') deck = buildDeck(4, th);
+    else if (mm === 'adventure' && adventureStage) {
+      // Adventure stages provide a fixed pair count keyed off the stage,
+      // so the briefing screen actually matches the game.
+      deck = buildDeck(adventureStage.pairs, th);
+    }
     else deck = buildDeck(pairs, th);
     setCards(deck);
     setFlipped([]); setMatched([]); setMoves(0); setTimer(0); setScore(0);
@@ -501,7 +551,9 @@ export default function MemoryGame() {
     setEndlessLevel(1); setTimeAttackLeft(60); setTimeAttackPairs(0);
     setVersusScores({ player: 0, ai: 0 }); setVersusTurn('player');
     setAiMemory({});
-  }, [difficulty, theme, mode]);
+    setAdventureMistakes(0);
+    setAdventureResult(null);
+  }, [difficulty, theme, mode, adventureStage]);
 
   // Re-init when mode changes
   useEffect(() => { newGame(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [mode]);
@@ -548,6 +600,7 @@ export default function MemoryGame() {
     timeattack: { ar: 'سباق الوقت', de: 'Zeitrennen', icon: TimerIcon },
     daily:      { ar: 'تحدّي اليوم', de: 'Tageschallenge', icon: Calendar },
     versus:     { ar: 'ضد الذكاء', de: 'Gegen KI',   icon: Zap },
+    adventure:  { ar: 'مغامرة',    de: 'Abenteuer',  icon: Trophy },
   };
 
   // GameShell options
@@ -645,6 +698,32 @@ export default function MemoryGame() {
         </div>
       </div>
 
+      {/* Adventure stage banner — shows the active stage's title and twist
+          so the player always remembers what rule applies, plus a live
+          mistake counter against their star budget. */}
+      {mode === 'adventure' && adventureStage && (
+        <motion.div
+          initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }}
+          className="rounded-2xl border border-pink-500/25 bg-pink-500/8 p-2.5 mb-3 max-w-[400px] mx-auto"
+        >
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="text-base shrink-0">{adventureStage.isBoss ? '👑' : `#${adventureStage.id}`}</span>
+              <p className="text-xs font-bold text-pink-200 truncate">
+                {isAr ? adventureStage.ar : adventureStage.de}
+              </p>
+            </div>
+            <div className="flex items-center gap-1 shrink-0">
+              <span className={`text-[10px] font-mono ${
+                adventureMistakes > adventureStage.starMistakeBudget ? 'text-rose-400' : 'text-pink-300'
+              }`}>
+                {adventureMistakes}/{adventureStage.starMistakeBudget} {isAr ? 'خطأ' : 'Fehler'}
+              </span>
+            </div>
+          </div>
+        </motion.div>
+      )}
+
       {/* Mode indicator + mode-specific HUD */}
       <ModeHud
         mode={mode}
@@ -725,7 +804,62 @@ export default function MemoryGame() {
 
       {/* Solved screen */}
       <AnimatePresence>
-        {solved && (
+        {solved && mode === 'adventure' && adventureResult && adventureStage && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
+            className="max-w-[400px] mx-auto mt-5 text-center p-5 rounded-2xl border border-pink-500/30 bg-pink-500/5"
+          >
+            <p className="text-4xl mb-1">{adventureStage.isBoss ? '👑' : '🎊'}</p>
+            <p className="text-xl font-black text-pink-300 mb-2">
+              {isAr ? 'نجحت في المحطة!' : 'Etappe geschafft!'}
+            </p>
+            {/* Star reveal */}
+            <div className="flex justify-center gap-2 mb-3">
+              {[1, 2, 3].map(n => (
+                <motion.span
+                  key={n}
+                  initial={{ scale: 0, rotate: -90 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  transition={{ delay: 0.2 + n * 0.2, type: 'spring', stiffness: 220 }}
+                  className="text-3xl"
+                >
+                  {n <= adventureResult.stars ? '⭐' : '☆'}
+                </motion.span>
+              ))}
+            </div>
+            <div className="grid grid-cols-2 gap-2 mb-4">
+              <StatCard value={fmt(adventureResult.time)} label={isAr ? 'الوقت' : 'Zeit'} />
+              <StatCard value={adventureMistakes} label={isAr ? 'أخطاء' : 'Fehler'} />
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => navigate('/games/memory/adventure')}
+                className="flex-1 py-2.5 rounded-xl bg-white/5 text-foreground font-bold text-sm"
+              >
+                {isAr ? 'الخريطة' : 'Karte'}
+              </button>
+              {adventureStage.id < STAGES.length && (
+                <button
+                  onClick={() => navigate(`/games/memory?adventure=${adventureStage.id + 1}`)}
+                  className="flex-1 py-2.5 rounded-xl font-black text-pink-950 text-sm"
+                  style={{ background: 'linear-gradient(135deg, #f472b6, #ec4899)' }}
+                >
+                  {isAr ? 'التالية ←' : 'Weiter →'}
+                </button>
+              )}
+              {adventureStage.id === STAGES.length && (
+                <button
+                  onClick={() => navigate('/games/memory/adventure')}
+                  className="flex-1 py-2.5 rounded-xl font-black text-amber-950 text-sm"
+                  style={{ background: 'linear-gradient(135deg, #fbbf24, #f59e0b)' }}
+                >
+                  {isAr ? '🏆 إنهاء' : '🏆 Ende'}
+                </button>
+              )}
+            </div>
+          </motion.div>
+        )}
+        {solved && mode !== 'adventure' && (
           <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
             className="max-w-[400px] mx-auto mt-5 text-center p-5 rounded-2xl border border-pink-500/30 bg-pink-500/5">
             <p className="text-4xl mb-1">

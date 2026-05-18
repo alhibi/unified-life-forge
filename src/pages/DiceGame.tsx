@@ -3,7 +3,12 @@ import { useApp } from '@/contexts/AppContext';
 import GameShell from '@/components/GameShell';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Dices, RotateCcw, Crown, Bot, User as UserIcon, PiggyBank, Swords, Trophy, Flame } from 'lucide-react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { playSfx, vibrate } from '@/utils/gameFeedback';
+import {
+  DICE_BOTS, DicePersonality, effectiveThreshold,
+  loadTournament, saveTournament, recordPlayerMatch, TournamentState,
+} from '@/data/diceTournament';
 
 // =============================================================================
 // Dice rendering
@@ -258,6 +263,33 @@ export default function DiceGame() {
   useEffect(() => { localStorage.setItem('dice-mode', mode); }, [mode]);
   useEffect(() => { localStorage.setItem('dice-ai', aiLevel); }, [aiLevel]);
 
+  // -------- Tournament wiring --------
+  // When ?tournament=semi-A&bot=hassan is in the URL we force Pig mode
+  // and pass the tournament personality to PigView so it uses the bot's
+  // bespoke push-your-luck strategy. On match end, PigView calls back
+  // here so we can update the bracket and route to the tournament hub.
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const tournamentMatchId = searchParams.get('tournament') as 'semi-A' | 'final' | null;
+  const tournamentBotId = searchParams.get('bot');
+  const tournamentBot: DicePersonality | null = useMemo(() =>
+    tournamentBotId ? (DICE_BOTS.find(b => b.id === tournamentBotId) ?? null) : null,
+  [tournamentBotId]);
+
+  useEffect(() => {
+    if (tournamentMatchId && tournamentBot) setMode('pig');
+  }, [tournamentMatchId, tournamentBot]);
+
+  const handleTournamentResult = (playerScore: number, botScore: number) => {
+    if (!tournamentMatchId) return;
+    const state = loadTournament();
+    if (!state) return;
+    const next = recordPlayerMatch(state, tournamentMatchId, { playerScore, botScore });
+    saveTournament(next);
+    // Brief delay so the player sees the win animation before navigating away
+    setTimeout(() => navigate('/games/dice/tournament'), 1800);
+  };
+
   const stats = useMemo(loadStats, [mode]);
 
   const rules = useMemo(() => {
@@ -338,7 +370,15 @@ export default function DiceGame() {
   return (
     <GameShell title={isAr ? 'النرد' : 'Würfel'} icon={Dices} accentColor="#f59e0b" rules={rules} stats={statsArr} options={options}>
       {mode === 'yatzy' && <YatzyView key="yatzy" isAr={isAr} aiLevel={aiLevel} />}
-      {mode === 'pig' && <PigView key="pig" isAr={isAr} aiLevel={aiLevel} />}
+      {mode === 'pig' && (
+        <PigView
+          key={tournamentBot ? `pig-tournament-${tournamentBot.id}-${tournamentMatchId}` : 'pig'}
+          isAr={isAr}
+          aiLevel={aiLevel}
+          tournamentBot={tournamentBot}
+          onTournamentResult={tournamentBot ? handleTournamentResult : undefined}
+        />
+      )}
       {mode === 'highroll' && <HighRollView key="hr" isAr={isAr} />}
     </GameShell>
   );
@@ -569,7 +609,12 @@ function YatzyView({ isAr, aiLevel }: { isAr: boolean; aiLevel: 'easy' | 'hard' 
 // =============================================================================
 // Pig (push-your-luck) View
 // =============================================================================
-function PigView({ isAr, aiLevel }: { isAr: boolean; aiLevel: 'easy' | 'hard' }) {
+function PigView({ isAr, aiLevel, tournamentBot, onTournamentResult }: {
+  isAr: boolean;
+  aiLevel: 'easy' | 'hard';
+  tournamentBot?: DicePersonality | null;
+  onTournamentResult?: (playerScore: number, botScore: number) => void;
+}) {
   const TARGET = 100;
   const [playerScore, setPlayerScore] = useState(0);
   const [aiScore, setAiScore] = useState(0);
@@ -583,15 +628,19 @@ function PigView({ isAr, aiLevel }: { isAr: boolean; aiLevel: 'easy' | 'hard' })
   const [bestRoundThisGame, setBestRoundThisGame] = useState(0);
   const aiTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // AI strategy: hold at 20 (easy) or based on Pig optimal "hold-at-25" with adaptive when behind
+  // AI strategy: tournament personality (if any), else fall back to the
+  // generic Neller-ish heuristic. Tournament bots have richer behavior:
+  // distinct hold thresholds, defensive bias when ahead, catch-up when
+  // behind, and a small greedRate that can push them past their threshold.
   const aiThreshold = useCallback(() => {
+    if (tournamentBot) return effectiveThreshold(tournamentBot, aiScore, playerScore, TARGET);
     if (aiLevel === 'easy') return 18;
     // Hard: use Neller's optimal-ish: if winning needs only X points, push for it.
     const need = TARGET - aiScore;
     if (need <= 25) return Math.max(8, need);
     if (aiScore < playerScore - 15) return 30; // catch up
     return 22;
-  }, [aiLevel, aiScore, playerScore]);
+  }, [aiLevel, aiScore, playerScore, tournamentBot]);
 
   const reset = () => {
     setPlayerScore(0); setAiScore(0); setRoundPoints(0); setTurn('player');
@@ -599,12 +648,16 @@ function PigView({ isAr, aiLevel }: { isAr: boolean; aiLevel: 'easy' | 'hard' })
     setHistory([]); setBestRoundThisGame(0);
   };
 
-  const recordWin = (winner: 'player' | 'ai') => {
+  const recordWin = (winner: 'player' | 'ai', finalPlayer: number, finalAi: number) => {
     const s = loadStats();
     s.pigGamesPlayed += 1;
     if (winner === 'player') s.pigGamesWon += 1;
     if (bestRoundThisGame > s.pigBestRound) s.pigBestRound = bestRoundThisGame;
     saveStatsFn(s);
+    // Tournament hook: pipe explicit final scores back to the bracket
+    // controller (closure values would be stale — React state updates
+    // from setPlayerScore/setAiScore haven't flushed yet at this point).
+    if (onTournamentResult) onTournamentResult(finalPlayer, finalAi);
   };
 
   const playerRoll = useCallback(() => {
@@ -642,7 +695,7 @@ function PigView({ isAr, aiLevel }: { isAr: boolean; aiLevel: 'easy' | 'hard' })
     setMessage(isAr ? `أضفت ${roundPoints}!` : `+${roundPoints}!`);
     playSfx('match'); vibrate(20);
     if (newScore >= TARGET) {
-      setGameOver(true); recordWin('player'); playSfx('win');
+      setGameOver(true); recordWin('player', newScore, aiScore); playSfx('win');
       setMessage(isAr ? '👑 فزت!' : '👑 Gewonnen!');
       return;
     }
@@ -666,7 +719,7 @@ function PigView({ isAr, aiLevel }: { isAr: boolean; aiLevel: 'easy' | 'hard' })
         setMessage(isAr ? `الذكاء حصل ${currentRound}` : `KI: +${currentRound}`);
         playSfx('place'); vibrate(15);
         if (final >= TARGET) {
-          setGameOver(true); recordWin('ai'); playSfx('lose');
+          setGameOver(true); recordWin('ai', playerScore, final); playSfx('lose');
           setMessage(isAr ? '😞 الذكاء فاز' : '😞 KI gewinnt');
           return;
         }
@@ -707,6 +760,21 @@ function PigView({ isAr, aiLevel }: { isAr: boolean; aiLevel: 'easy' | 'hard' })
 
   return (
     <div className="text-center pt-2 max-w-md mx-auto">
+      {/* Tournament banner: shown only when Pig was launched from the bracket. */}
+      {tournamentBot && (
+        <div className="rounded-2xl border border-amber-500/30 bg-amber-500/8 p-3 mb-3 flex items-center gap-3">
+          <Trophy className="w-5 h-5 text-amber-300 shrink-0" />
+          <div className="text-left flex-1">
+            <p className="text-[10px] uppercase tracking-wider text-amber-300/80 font-bold">
+              {isAr ? 'مباراة بطولة' : 'Turnierspiel'}
+            </p>
+            <p className="text-sm font-black text-amber-200">
+              {isAr ? 'ضد' : 'gegen'} {tournamentBot.emoji} {isAr ? tournamentBot.ar : tournamentBot.de}
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Score bars */}
       <div className="space-y-2 mb-4">
         <div>
