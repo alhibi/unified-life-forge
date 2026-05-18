@@ -806,7 +806,7 @@ function NBackMode({ diff, isAr, onFinish }: { diff: DifficultyMeta; isAr: boole
         ))}
       </div>
 
-      <button onClick={onMatchTap} disabled={responseGiven}
+      <button onClick={onMatchTap} disabled={matched !== null}
         className="mt-6 w-full max-w-[280px] py-4 rounded-2xl font-black text-lg transition-all disabled:opacity-40"
         style={{
           background: matched === true ? 'rgba(16,185,129,0.3)' : matched === false ? 'rgba(244,63,94,0.3)' : 'linear-gradient(135deg, #22d3ee, #06b6d4)',
