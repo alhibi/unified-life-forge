@@ -1,5 +1,16 @@
 /** Pure utility helpers — no React, no DOM. */
 
+/**
+ * Defence-in-depth: only allow http(s) URLs as anchor `href` values.
+ * Untrusted RSS feeds could supply `javascript:` or `data:` URLs that
+ * would execute in our origin when clicked. Anything else collapses
+ * to "#" so the link becomes a no-op.
+ */
+export function safeHref(url: string | null | undefined): string {
+  if (!url) return '#';
+  return /^https?:\/\//i.test(url.trim()) ? url : '#';
+}
+
 /** Relative-time string like "2h ago" / "منذ ساعتين". */
 export function timeAgo(dateStr: string, lang: string): string {
   if (!dateStr) return '';
