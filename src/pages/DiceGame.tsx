@@ -1029,7 +1029,7 @@ function ScorecardSection(props: {
               {aVal !== undefined && (
                 <span className="text-[9px] text-rose-400/70 font-mono">{aVal}</span>
               )}
-              <span className={`font-mono font-bold ${filled ? 'text-white' : preview && preview > 0 ? `text-${accentColor}-300` : 'text-zinc-600'}`}>
+              <span className={`font-mono font-bold ${filled ? 'text-white' : preview && preview > 0 ? `text-${accentColor}-300` : 'text-zinc-400'}`}>
                 {filled ? pVal : preview !== undefined ? preview : '-'}
               </span>
             </span>

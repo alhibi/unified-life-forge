@@ -648,7 +648,7 @@ function SequenceMode({ diff, isAr, onFinish }: { diff: DifficultyMeta; isAr: bo
             style={{ background: c.hex, boxShadow: activeIdx === i ? `0 0 32px ${c.hex}` : `0 4px 16px ${c.hex}44` }} />
         ))}
       </div>
-      <p className="text-[10px] text-zinc-600">{seq.length} {isAr ? 'خطوات' : 'Schritte'}</p>
+      <p className="text-[10px] text-zinc-400">{seq.length} {isAr ? 'خطوات' : 'Schritte'}</p>
     </div>
   );
 }
@@ -815,7 +815,7 @@ function NBackMode({ diff, isAr, onFinish }: { diff: DifficultyMeta; isAr: boole
         }}>
         {matched === true ? '✓' : matched === false ? '✗' : (isAr ? 'تطابق' : 'MATCH')}
       </button>
-      <p className="text-[10px] text-zinc-600 text-center">
+      <p className="text-[10px] text-zinc-400 text-center">
         {isAr ? `هل الموضع نفس الموضع قبل ${N} خطوة؟` : `Position gleich wie vor ${N} Schritt(en)?`}
       </p>
     </div>
