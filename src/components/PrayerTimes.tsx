@@ -596,49 +596,53 @@ export default function PrayerTimes() {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-      className="rounded-3xl border border-border bg-card text-card-foreground relative overflow-hidden shadow-sm"
+      className="space-y-4"
     >
-      {/* ═══ Hero (Current | Next) ════════════════════════════════════════ */}
-      <Hero
-        currentPrayer={currentPrayer}
-        nextPrayer={nextPrayer}
-        locationLabel={locationName || t('prayer.locationFallback')}
-        language={language}
-        t={t}
-      />
+      {/* ═══ Card 1: Prayer hero + arc ═══════════════════════════════════ */}
+      <div className="rounded-3xl border border-border bg-card text-card-foreground relative overflow-hidden shadow-sm">
+        <Hero
+          currentPrayer={currentPrayer}
+          nextPrayer={nextPrayer}
+          locationLabel={locationName || t('prayer.locationFallback')}
+          language={language}
+          t={t}
+        />
+        <ArcStrip
+          prayers={prayers}
+          sunT={sunT}
+          nextName={slot.next}
+          makruhZones={makruhZones}
+          currentMakruh={currentMakruh}
+          arcGeom={arcGeom}
+          isNight={isNight}
+          isDark={isDark}
+          sunriseStr={sunriseStr}
+          sunsetStr={sunsetStr}
+          language={language}
+          t={t}
+        />
+      </div>
 
-      {/* ═══ Arc strip ════════════════════════════════════════════════════ */}
-      <ArcStrip
-        prayers={prayers}
-        sunT={sunT}
-        nextName={slot.next}
-        makruhZones={makruhZones}
-        currentMakruh={currentMakruh}
-        arcGeom={arcGeom}
-        isNight={isNight}
-        isDark={isDark}
-        sunriseStr={sunriseStr}
-        sunsetStr={sunsetStr}
-        language={language}
-        t={t}
-      />
+      {/* ═══ Card 2: Hijri occasions strip ═══════════════════════════════ */}
+      <div className="rounded-3xl border border-border bg-card overflow-hidden shadow-sm">
+        <HijriCalendarStrip language={language} t={t} />
+      </div>
 
-      {/* ═══ Hijri Calendar Strip — separator ════════════════════════════ */}
-      <HijriCalendarStrip language={language} t={t} />
-
-      {/* ═══ Prayer slab ══════════════════════════════════════════════════ */}
-      <Slab
-        prayers={prayers}
-        doneStates={doneStates}
-        doneCount={doneCount}
-        activeName={slot.current}
-        shakeCounter={shakeCounter}
-        guideCounter={guideCounter}
-        onToggle={handleToggle}
-        isDark={isDark}
-        language={language}
-        t={t}
-      />
+      {/* ═══ Card 3: Today's prayers list ════════════════════════════════ */}
+      <div className="rounded-3xl border border-border bg-card text-card-foreground overflow-hidden shadow-sm">
+        <Slab
+          prayers={prayers}
+          doneStates={doneStates}
+          doneCount={doneCount}
+          activeName={slot.current}
+          shakeCounter={shakeCounter}
+          guideCounter={guideCounter}
+          onToggle={handleToggle}
+          isDark={isDark}
+          language={language}
+          t={t}
+        />
+      </div>
     </motion.div>
   );
 }
@@ -1239,9 +1243,6 @@ function HijriCalendarStrip({
 
   return (
     <div>
-      {/* خط فاصل خفيف */}
-      <div className="mx-4 h-px bg-border/20" />
-
       {/* ── Header row ─────────────────────────────────────────────── */}
       <div className="flex items-center justify-between px-4 pt-2.5 pb-1.5">
         {/* Today Hijri */}
@@ -1320,9 +1321,6 @@ function HijriCalendarStrip({
           </span>
         </button>
       </div>
-
-      {/* خط فاصل خفيف أسفل */}
-      <div className="mx-4 h-px bg-border/20" />
     </div>
   );
 }

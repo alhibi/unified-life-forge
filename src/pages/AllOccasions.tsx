@@ -1,405 +1,259 @@
 import React, { useMemo, useState } from 'react';
 import SEO from '@/components/SEO';
-import { useNavigate } from 'react-router-dom';
-import { CalendarDays, ChevronRight, Clock, Star, Sparkles } from 'lucide-react';
 import BackButton from '@/components/BackButton';
 import { useApp } from '@/contexts/AppContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   islamicOccasions,
-  getUpcomingOccasions,
-  getPastOccasions,
-  getDaysUntil,
-  formatGregorianDate,
   getTodayHijri,
-  formatHijriDate,
   HIJRI_MONTHS,
   toHijri,
+  getDaysUntil,
+  formatGregorianDate,
 } from '@/data/islamicOccasions';
-import type { IslamicOccasion, HijriDate } from '@/data/islamicOccasions';
+import type { IslamicOccasion } from '@/data/islamicOccasions';
 
-// ─── Accent hex per Tailwind border class ────────────────────────────────────
+// English month names for bilingual display
+const HIJRI_MONTHS_EN = [
+  'Muharram', 'Safar', "Rabi' al-Awwal", "Rabi' al-Thani",
+  'Jumada al-Awwal', 'Jumada al-Thani', 'Rajab', "Sha'ban",
+  'Ramadan', 'Shawwal', 'Dhu al-Qidah', 'Dhu al-Hijjah',
+];
+
+// Accent palette for occasion cards
 const ACCENT: Record<string, string> = {
   'border-l-emerald-500': '#10b981',
   'border-l-emerald-600': '#059669',
-  'border-l-sky-500':     '#0ea5e9',
-  'border-l-violet-500':  '#8b5cf6',
-  'border-l-amber-500':   '#f59e0b',
-  'border-l-yellow-500':  '#eab308',
-  'border-l-yellow-600':  '#ca8a04',
+  'border-l-sky-500': '#0ea5e9',
+  'border-l-violet-500': '#8b5cf6',
+  'border-l-amber-500': '#f59e0b',
+  'border-l-yellow-500': '#eab308',
+  'border-l-yellow-600': '#ca8a04',
 };
 
-// ─── Month-group helpers ──────────────────────────────────────────────────────
-interface MonthGroup {
-  monthName: string;
-  monthIndex: number; // 1-based
-  year: number;
-  occasions: IslamicOccasion[];
-}
-
-function groupByHijriMonth(occasions: IslamicOccasion[]): MonthGroup[] {
-  const map = new Map<string, MonthGroup>();
-  for (const occ of occasions) {
-    const h: HijriDate = toHijri(new Date(occ.gregorianDate));
-    const key = `${h.year}-${h.month}`;
-    if (!map.has(key)) {
-      map.set(key, {
-        monthName: h.monthName,
-        monthIndex: h.month,
-        year: h.year,
-        occasions: [],
-      });
-    }
-    map.get(key)!.occasions.push(occ);
+// Build a map: hijri month index (1-12) → IslamicOccasion[]
+function groupOccasionsByMonth(): Record<number, IslamicOccasion[]> {
+  const map: Record<number, IslamicOccasion[]> = {};
+  for (let m = 1; m <= 12; m++) map[m] = [];
+  for (const occ of islamicOccasions) {
+    // Use the toHijri conversion for accuracy
+    const h = toHijri(new Date(occ.gregorianDate));
+    map[h.month] = map[h.month] || [];
+    map[h.month].push(occ);
   }
-  return Array.from(map.values());
+  // sort each month by day
+  for (const m of Object.keys(map)) {
+    map[+m].sort((a, b) => {
+      const ha = toHijri(new Date(a.gregorianDate)).day;
+      const hb = toHijri(new Date(b.gregorianDate)).day;
+      return ha - hb;
+    });
+  }
+  return map;
 }
 
-// ─── Single occasion card ─────────────────────────────────────────────────────
-function OccasionCard({
-  occasion,
-  isPast,
-  t,
-  language,
-}: {
-  occasion: IslamicOccasion;
-  isPast?: boolean;
-  t: (k: string) => string;
-  language: string;
-}) {
-  const [expanded, setExpanded] = useState(false);
-  const daysLeft  = getDaysUntil(occasion.gregorianDate);
-  const isToday   = daysLeft === 0;
-  const accent    = ACCENT[occasion.color] ?? '#10b981';
-
-  return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: isPast ? 0.65 : 1, y: 0 }}
-      transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-      className="rounded-2xl border border-border/50 bg-card/80 overflow-hidden"
-      style={{ borderTopColor: accent, borderTopWidth: 2 }}
-    >
-      <button
-        className="w-full text-right px-4 py-3 flex items-center gap-3"
-        onClick={() => setExpanded(v => !v)}
-      >
-        {/* Day badge */}
-        <div
-          className="flex flex-col items-center justify-center min-w-[46px] rounded-xl py-2"
-          style={{ background: `${accent}18` }}
-        >
-          <span className="text-[22px] font-black leading-none" style={{ color: accent }}>
-            {occasion.hijriDay}
-          </span>
-          <span className="text-[8px] text-muted-foreground mt-0.5 leading-tight font-medium">
-            {occasion.hijriMonth}
-          </span>
-        </div>
-
-        {/* Content */}
-        <div className="flex-1 min-w-0 text-right">
-          <div className="flex items-center justify-between gap-2">
-            <h3 className="text-[13px] font-bold text-foreground leading-snug flex-1">
-              {occasion.name}
-            </h3>
-            {isToday && (
-              <span
-                className="text-[9px] font-bold px-2 py-0.5 rounded-full shrink-0"
-                style={{ background: `${accent}20`, color: accent }}
-              >
-                {language === 'ar' ? 'اليوم' : 'Today'}
-              </span>
-            )}
-          </div>
-          <p className="text-[10px] text-muted-foreground mt-0.5">
-            {formatGregorianDate(occasion.gregorianDate)}
-            {' · '}
-            {isPast ? (
-              <span className="text-muted-foreground/60">{t('occasions.past')}</span>
-            ) : isToday ? (
-              <span className="font-semibold" style={{ color: accent }}>
-                {t('occasions.today')}
-              </span>
-            ) : (
-              <span>
-                {t('occasions.after')} <span className="font-semibold tabular-nums">{daysLeft}</span> {t('occasions.day')}
-              </span>
-            )}
-          </p>
-        </div>
-
-        {/* Expand chevron */}
-        <ChevronRight
-          className="w-4 h-4 text-muted-foreground/50 shrink-0 transition-transform duration-200"
-          style={{ transform: expanded ? 'rotate(90deg)' : 'rotate(0deg)' }}
-        />
-      </button>
-
-      {/* Expandable description */}
-      <AnimatePresence initial={false}>
-        {expanded && (
-          <motion.div
-            key="desc"
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.25, ease: 'easeOut' }}
-            className="overflow-hidden"
-          >
-            <div
-              className="px-4 pb-4 pt-1 text-[12px] text-muted-foreground leading-relaxed border-t border-border/30"
-              dir="rtl"
-            >
-              {occasion.description}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.div>
-  );
-}
-
-// ─── Month section header ──────────────────────────────────────────────────────
-function MonthHeader({ group, language }: { group: MonthGroup; language: string }) {
-  return (
-    <div className="flex items-center gap-2.5 pt-2">
-      <div className="flex flex-col items-center justify-center w-10 h-10 rounded-xl bg-muted/50 shrink-0">
-        <span className="text-[11px] font-black text-primary leading-none">{group.monthIndex}</span>
-        <span className="text-[7px] text-muted-foreground mt-0.5 leading-none font-medium">
-          {language === 'ar' ? 'هجري' : 'H'}
-        </span>
-      </div>
-      <div className="flex-1 min-w-0">
-        <h2 className="text-[15px] font-black text-foreground">{group.monthName}</h2>
-        <p className="text-[10px] text-muted-foreground">{group.year} هـ</p>
-      </div>
-      <div className="h-px flex-1 bg-border/40" />
-    </div>
-  );
-}
-
-// ─── Today Hijri hero banner ───────────────────────────────────────────────────
-function HijriHero({ hijri, language }: { hijri: HijriDate; language: string }) {
-  return (
-    <div className="rounded-2xl bg-gradient-to-br from-primary/15 via-primary/8 to-transparent border border-primary/20 px-5 py-4 flex items-center gap-4">
-      <div className="p-2.5 rounded-xl bg-primary/15 shrink-0">
-        <Sparkles className="w-5 h-5 text-primary" />
-      </div>
-      <div className="flex-1 min-w-0" dir="rtl">
-        <p className="text-[10px] font-semibold tracking-wide text-primary/80 uppercase mb-0.5">
-          {language === 'ar' ? 'التاريخ الهجري اليوم' : "Today's Hijri Date"}
-        </p>
-        <p className="text-[20px] font-black text-foreground leading-tight">
-          {formatHijriDate(hijri)}
-        </p>
-        <p className="text-[11px] text-muted-foreground mt-0.5">
-          {new Date().toLocaleDateString(language === 'ar' ? 'ar-SA' : 'de-DE', {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-          })}
-        </p>
-      </div>
-    </div>
-  );
-}
-
-// ─── Month selector tabs ───────────────────────────────────────────────────────
-function MonthTabs({
-  groups,
-  activeKey,
-  onSelect,
-}: {
-  groups: MonthGroup[];
-  activeKey: string;
-  onSelect: (key: string) => void;
-}) {
-  return (
-    <div
-      className="flex gap-2 overflow-x-auto pb-1 scrollbar-none"
-      style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-      dir="rtl"
-    >
-      {groups.map(g => {
-        const key = `${g.year}-${g.monthIndex}`;
-        const isActive = key === activeKey;
-        return (
-          <button
-            key={key}
-            onClick={() => onSelect(key)}
-            className={`flex-shrink-0 px-3 py-1.5 rounded-full text-[11px] font-bold transition-all duration-200 ${
-              isActive
-                ? 'bg-primary text-primary-foreground shadow-sm'
-                : 'bg-muted/60 text-muted-foreground hover:bg-muted'
-            }`}
-          >
-            {g.monthName}
-          </button>
-        );
-      })}
-    </div>
-  );
-}
-
-// ─── Page ──────────────────────────────────────────────────────────────────────
 export default function AllOccasions() {
-  const { t, language } = useApp();
-  const hijri    = useMemo(() => getTodayHijri(), []);
-  const upcoming = useMemo(() => getUpcomingOccasions(), []);
-  const past     = useMemo(() => getPastOccasions(), []);
+  const { language } = useApp();
+  const today = useMemo(() => getTodayHijri(), []);
+  const byMonth = useMemo(() => groupOccasionsByMonth(), []);
+  const isAr = language === 'ar';
 
-  const upcomingGroups = useMemo(() => groupByHijriMonth(upcoming), [upcoming]);
-  const pastGroups     = useMemo(() => groupByHijriMonth(past), [past]);
+  const [selectedMonth, setSelectedMonth] = useState<number>(today.month);
+  const [selectedDay, setSelectedDay] = useState<number>(today.day);
 
-  const allGroups   = useMemo(() => [...upcomingGroups, ...pastGroups], [upcomingGroups, pastGroups]);
-  const firstKey    = allGroups[0] ? `${allGroups[0].year}-${allGroups[0].monthIndex}` : '';
-  const [activeTab, setActiveTab] = useState(firstKey);
+  // Reset selected day when month changes (don't auto-pick)
+  const monthOccasions = byMonth[selectedMonth] || [];
+  const daysWithEvents = useMemo(() => {
+    const set = new Set<number>();
+    for (const occ of monthOccasions) {
+      set.add(toHijri(new Date(occ.gregorianDate)).day);
+    }
+    return set;
+  }, [monthOccasions]);
 
-  const activeGroup = useMemo(
-    () => allGroups.find(g => `${g.year}-${g.monthIndex}` === activeTab),
-    [allGroups, activeTab]
+  const dayOccasions = monthOccasions.filter(
+    (occ) => toHijri(new Date(occ.gregorianDate)).day === selectedDay
   );
-  const isActivePast = useMemo(
-    () => pastGroups.some(g => `${g.year}-${g.monthIndex}` === activeTab),
-    [pastGroups, activeTab]
-  );
 
-  // count upcoming occasions
-  const upcomingCount = upcoming.length;
-  const nextOcc       = upcoming[0];
-  const daysToNext    = nextOcc ? getDaysUntil(nextOcc.gregorianDate) : null;
+  // Show 30 days per Hijri month (visual grid — actual lengths vary 29/30)
+  const days = Array.from({ length: 30 }, (_, i) => i + 1);
 
   return (
-    <div className="min-h-screen bg-background pb-28 px-4 pt-6">
+    <div className="min-h-screen bg-background pb-28 px-4 pt-6" dir={isAr ? 'rtl' : 'ltr'}>
       <SEO
-        title="التقويم الهجري — SmartHub"
-        description="التقويم الهجري الكامل للمناسبات الإسلامية مع التاريخ الهجري والعد التنازلي."
+        title={isAr ? 'التقويم الهجري — SmartHub' : 'Hijri Calendar — SmartHub'}
+        description={isAr ? 'تصفح المناسبات الإسلامية حسب الشهر الهجري.' : 'Browse Islamic occasions by Hijri month.'}
         path="/occasions"
       />
-      <div className="max-w-lg mx-auto space-y-5">
-
-        {/* ── Header ───────────────────────────────────────────────── */}
+      <div className="max-w-lg mx-auto space-y-6">
+        {/* Header */}
         <div className="flex items-center gap-3">
           <BackButton />
-          <div className="flex-1 min-w-0">
-            <h1 className="text-[18px] font-black text-foreground leading-tight">
-              {language === 'ar' ? 'التقويم الهجري' : 'Hijri Calendar'}
+          <div className="flex-1 min-w-0 text-end">
+            <h1 className="text-[22px] font-black text-foreground leading-tight">
+              {isAr ? 'التقويم الهجري' : 'Hijri Calendar'}
             </h1>
-            <p className="text-[11px] text-muted-foreground">
-              {language === 'ar'
-                ? `${upcomingCount} مناسبة قادمة · 1447 هـ`
-                : `${upcomingCount} upcoming · 1447 AH`}
+            <p className="text-[12px] text-muted-foreground">
+              {isAr ? 'تصفح المناسبات حسب الشهر الهجري' : 'Browse events by Hijri month'}
             </p>
-          </div>
-          <div className="p-2 rounded-xl bg-primary/10">
-            <CalendarDays className="w-5 h-5 text-primary" />
           </div>
         </div>
 
-        {/* ── Today Hijri hero ──────────────────────────────────────── */}
-        <HijriHero hijri={hijri} language={language} />
+        {/* ── Months grid (4 rows × 3 cols) ────────────────────────── */}
+        <div className="grid grid-cols-3 gap-2.5">
+          {HIJRI_MONTHS.map((name, i) => {
+            const monthIdx = i + 1;
+            const count = (byMonth[monthIdx] || []).length;
+            const active = monthIdx === selectedMonth;
+            const isCurrent = monthIdx === today.month;
+            return (
+              <motion.button
+                key={monthIdx}
+                onClick={() => {
+                  setSelectedMonth(monthIdx);
+                  setSelectedDay(monthIdx === today.month ? today.day : 1);
+                }}
+                whileTap={{ scale: 0.96 }}
+                className={`relative rounded-2xl border p-3 text-start transition-all ${
+                  active
+                    ? 'bg-primary/15 border-primary/40 shadow-sm'
+                    : 'bg-card/60 border-border/50 hover:bg-card'
+                }`}
+              >
+                <span className="absolute top-2 end-2 text-[11px] font-bold text-muted-foreground/70 tabular-nums">
+                  {monthIdx}
+                </span>
+                <p className={`text-[13px] font-bold leading-tight mt-3 ${active ? 'text-primary' : 'text-foreground'}`}>
+                  {isAr ? name : HIJRI_MONTHS_EN[i]}
+                </p>
+                <p className="text-[10px] text-muted-foreground mt-1">
+                  {isAr ? `${count} مناسبة` : `${count} event${count === 1 ? '' : 's'}`}
+                </p>
+                {isCurrent && (
+                  <span className="absolute bottom-2 end-2 w-1.5 h-1.5 rounded-full bg-primary" />
+                )}
+              </motion.button>
+            );
+          })}
+        </div>
 
-        {/* ── Next occasion callout ─────────────────────────────────── */}
-        {nextOcc && daysToNext !== null && (
-          <div className="rounded-2xl border border-border/50 bg-card/60 px-4 py-3 flex items-center gap-3">
-            <Star className="w-4 h-4 text-amber-400 shrink-0" />
-            <div className="flex-1 min-w-0" dir="rtl">
-              <p className="text-[10px] text-muted-foreground">
-                {language === 'ar' ? 'المناسبة القادمة' : 'Next occasion'}
-              </p>
-              <p className="text-[13px] font-bold text-foreground truncate">{nextOcc.name}</p>
-            </div>
-            <span
-              className="text-[11px] font-black tabular-nums px-2.5 py-1 rounded-full bg-primary/10 text-primary shrink-0"
-            >
-              {daysToNext === 0
-                ? (language === 'ar' ? 'اليوم' : 'Today')
-                : language === 'ar'
-                  ? `${daysToNext} يوم`
-                  : `${daysToNext}d`}
-            </span>
-          </div>
-        )}
+        {/* ── Selected month header ────────────────────────────────── */}
+        <div className="flex items-baseline justify-between pt-1">
+          <h2 className="text-[18px] font-black text-foreground">
+            {isAr ? HIJRI_MONTHS[selectedMonth - 1] : HIJRI_MONTHS_EN[selectedMonth - 1]}
+          </h2>
+          <span className="text-[14px] font-bold text-muted-foreground/70 tabular-nums">
+            {selectedMonth}
+          </span>
+        </div>
 
-        {/* ── Month tabs ────────────────────────────────────────────── */}
-        {allGroups.length > 1 && (
-          <MonthTabs
-            groups={allGroups}
-            activeKey={activeTab}
-            onSelect={setActiveTab}
-          />
-        )}
+        {/* ── Days grid (5 cols × 6 rows) ──────────────────────────── */}
+        <div className="grid grid-cols-5 gap-2">
+          {days.map((d) => {
+            const hasEvent = daysWithEvents.has(d);
+            const isToday = selectedMonth === today.month && d === today.day;
+            const isSelected = d === selectedDay;
+            return (
+              <motion.button
+                key={d}
+                whileTap={{ scale: 0.92 }}
+                onClick={() => setSelectedDay(d)}
+                className={`relative aspect-square rounded-2xl border flex items-start justify-end p-2 transition-all ${
+                  isSelected
+                    ? 'bg-primary/20 border-primary/50'
+                    : hasEvent
+                      ? 'bg-card/70 border-border/60'
+                      : 'bg-card/30 border-border/30'
+                }`}
+              >
+                <span
+                  className={`text-[14px] tabular-nums ${
+                    isSelected ? 'font-bold text-primary' : hasEvent ? 'font-semibold text-foreground' : 'font-light text-muted-foreground/60'
+                  }`}
+                >
+                  {d}
+                </span>
+                {isToday && (
+                  <span className="absolute top-1.5 start-1.5 text-[7px] font-bold uppercase text-primary tracking-wide">
+                    {isAr ? 'اليوم' : 'today'}
+                  </span>
+                )}
+                {hasEvent && (
+                  <span className="absolute bottom-2 start-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-primary/70" />
+                )}
+              </motion.button>
+            );
+          })}
+        </div>
 
-        {/* ── Active month occasions ────────────────────────────────── */}
-        {activeGroup && (
-          <motion.section
-            key={activeTab}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-            className="space-y-3"
-          >
-            <MonthHeader group={activeGroup} language={language} />
-            <div className="space-y-2.5">
-              {activeGroup.occasions.map(occ => (
-                <OccasionCard
-                  key={occ.id}
-                  occasion={occ}
-                  isPast={isActivePast}
-                  t={t}
-                  language={language}
-                />
-              ))}
-            </div>
-          </motion.section>
-        )}
+        {/* ── Events for selected day ──────────────────────────────── */}
+        <div className="space-y-3 pt-2">
+          <h3 className="text-[13px] font-bold text-muted-foreground">
+            {isAr
+              ? `مناسبات ${selectedDay} ${HIJRI_MONTHS[selectedMonth - 1]}`
+              : `Events on ${selectedDay} ${HIJRI_MONTHS_EN[selectedMonth - 1]}`}
+          </h3>
 
-        {/* ── All months fallback (no tab selected) ─────────────────── */}
-        {!activeGroup && (
-          <>
-            {upcomingGroups.map(group => {
-              const key = `${group.year}-${group.monthIndex}`;
-              return (
-                <section key={key} className="space-y-3">
-                  <MonthHeader group={group} language={language} />
-                  <div className="space-y-2.5">
-                    {group.occasions.map(occ => (
-                      <OccasionCard key={occ.id} occasion={occ} t={t} language={language} />
-                    ))}
-                  </div>
-                </section>
-              );
-            })}
-
-            {pastGroups.length > 0 && (
-              <>
-                <div className="flex items-center gap-2 pt-2">
-                  <Clock className="w-4 h-4 text-muted-foreground" />
-                  <h2 className="text-[13px] font-bold text-muted-foreground">
-                    {t('occasions.pastTitle')}
-                  </h2>
-                  <div className="h-px flex-1 bg-border/40" />
-                </div>
-                {pastGroups.map(group => {
-                  const key = `${group.year}-${group.monthIndex}`;
-                  return (
-                    <section key={key} className="space-y-3">
-                      <MonthHeader group={group} language={language} />
-                      <div className="space-y-2.5">
-                        {group.occasions.map(occ => (
-                          <OccasionCard key={occ.id} occasion={occ} isPast t={t} language={language} />
-                        ))}
-                      </div>
-                    </section>
-                  );
-                })}
-              </>
+          <AnimatePresence mode="popLayout">
+            {dayOccasions.length === 0 ? (
+              <motion.div
+                key="empty"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="rounded-2xl border border-border/40 bg-card/40 px-4 py-6 text-center"
+              >
+                <p className="text-[12px] text-muted-foreground">
+                  {isAr ? 'لا توجد مناسبات في هذا اليوم' : 'No events on this day'}
+                </p>
+              </motion.div>
+            ) : (
+              dayOccasions.map((occ) => {
+                const accent = ACCENT[occ.color] ?? '#10b981';
+                const daysLeft = getDaysUntil(occ.gregorianDate);
+                return (
+                  <motion.div
+                    key={occ.id}
+                    layout
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    transition={{ duration: 0.25 }}
+                    className="rounded-2xl border border-border/50 p-4"
+                    style={{ background: `${accent}14`, borderColor: `${accent}40` }}
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <span
+                        className="text-[9px] font-bold uppercase tracking-wider"
+                        style={{ color: accent }}
+                      >
+                        {isAr
+                          ? `${HIJRI_MONTHS[selectedMonth - 1]} ${selectedDay}`
+                          : `${HIJRI_MONTHS_EN[selectedMonth - 1]} ${selectedDay}`}
+                      </span>
+                      <span className="text-[9px] font-semibold text-muted-foreground tabular-nums">
+                        {daysLeft > 0
+                          ? isAr ? `بعد ${daysLeft} يوم` : `in ${daysLeft}d`
+                          : daysLeft === 0
+                            ? isAr ? 'اليوم' : 'today'
+                            : isAr ? 'مضى' : 'past'}
+                      </span>
+                    </div>
+                    <h4 className="text-[15px] font-bold text-foreground leading-snug mb-1">
+                      {occ.name}
+                    </h4>
+                    <p className="text-[11px] text-muted-foreground leading-relaxed line-clamp-3">
+                      {occ.description}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground/60 mt-1.5">
+                      {formatGregorianDate(occ.gregorianDate)}
+                    </p>
+                  </motion.div>
+                );
+              })
             )}
-          </>
-        )}
+          </AnimatePresence>
+        </div>
       </div>
     </div>
   );
