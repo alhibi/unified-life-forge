@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { sanitizeRssHtml } from '@/utils/sanitizeRssHtml';
+import { safeHref } from '@/features/reading/utils';
 
 interface FeedItem {
   title: string;
@@ -297,7 +298,7 @@ export default function ReadingDialog({ open, onOpenChange }: ReadingDialogProps
               <button onClick={() => copyLink(selectedArticle.link)} className="p-2 rounded-xl hover:bg-accent/50 active:scale-95 transition-all">
                 <Copy className="h-4.5 w-4.5 text-muted-foreground" />
               </button>
-              <a href={selectedArticle.link} target="_blank" rel="noopener noreferrer" className="p-2 rounded-xl hover:bg-accent/50 active:scale-95 transition-all">
+              <a href={safeHref(selectedArticle.link)} target="_blank" rel="noopener noreferrer" className="p-2 rounded-xl hover:bg-accent/50 active:scale-95 transition-all">
                 <ExternalLink className="h-4.5 w-4.5 text-muted-foreground" />
               </a>
             </div>
@@ -331,7 +332,7 @@ export default function ReadingDialog({ open, onOpenChange }: ReadingDialogProps
                   <p className="text-sm text-foreground/80 leading-[1.9]">{selectedArticle.description}</p>
                 )}
                 <a
-                  href={selectedArticle.link}
+                  href={safeHref(selectedArticle.link)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 mt-6 px-5 py-3 rounded-2xl bg-primary/10 text-primary text-sm font-semibold hover:bg-primary/20 active:scale-[0.98] transition-all"
