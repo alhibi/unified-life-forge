@@ -1,9 +1,21 @@
 import type { Wallpaper } from './types';
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Voice recording waveform fallback heights
+// Voice recording waveform fallback heights.
+// MUST be deterministic — using `Math.random()` at module init meant the
+// pattern silently changed between hot reloads / route lazy loads, which
+// looked like glitching when the user navigated back.
 // ─────────────────────────────────────────────────────────────────────────────
-export const WAVEFORM_HEIGHTS = Array.from({ length: 24 }, () => Math.round(Math.random() * 18 + 4));
+export const WAVEFORM_HEIGHTS: number[] = (() => {
+  // Linear-congruential generator with a fixed seed so the bars are stable
+  // across the whole app and across builds.
+  let seed = 0x6f57c11b;
+  const rand = () => {
+    seed = (seed * 1664525 + 1013904223) >>> 0;
+    return seed / 0xffffffff;
+  };
+  return Array.from({ length: 24 }, () => Math.round(rand() * 18 + 4));
+})();
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Reactions (first row is "quick" in long-press menu)
@@ -11,13 +23,8 @@ export const WAVEFORM_HEIGHTS = Array.from({ length: 24 }, () => Math.round(Math
 export const QUICK_EMOJIS = ['❤️', '👍', '😂', '🔥', '😢', '👏'];
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Legacy emoji-picker fallback data.
-//
-// The composer + reactions "more" panel now both render the full Apple
-// (iPhone-style) emoji set via emoji-mart, so this categorised list is no
-// longer used at runtime. We keep the shape (and a tiny representative
-// sampling) only so any external consumers that still import the constant
-// keep typechecking; it is safe to delete once the codebase is audited.
+// Legacy emoji-picker shape — kept as an empty list for backwards-compat.
+// The real picker is the Apple emoji-mart sheet rendered by EmojiPicker.tsx.
 // ─────────────────────────────────────────────────────────────────────────────
 export interface EmojiCategory {
   id: string;
@@ -26,157 +33,8 @@ export interface EmojiCategory {
   labelDe: string;
   emojis: string[];
 }
-
-export const EMOJI_CATEGORIES: EmojiCategory[] = [
-  {
-    id: 'smileys',
-    icon: '😀',
-    labelAr: 'الوجوه',
-    labelDe: 'Smileys',
-    emojis: [
-      '😀', '😃', '😄', '😁', '😆', '😅', '🤣', '😂', '🙂', '🙃', '😉', '😊',
-      '😇', '🥰', '😍', '🤩', '😘', '😗', '😚', '😙', '🥲', '😋', '😛', '😜',
-      '🤪', '😝', '🤑', '🤗', '🤭', '🤫', '🤔', '🤐', '🤨', '😐', '😑', '😶',
-      '😏', '😒', '🙄', '😬', '🤥', '😌', '😔', '😪', '🤤', '😴', '😷', '🤒',
-      '🤕', '🤢', '🤮', '🤧', '🥵', '🥶', '🥴', '😵', '🤯', '🤠', '🥳', '🥸',
-      '😎', '🤓', '🧐', '😕', '😟', '🙁', '☹️', '😮', '😯', '😲', '😳', '🥺',
-      '😦', '😧', '😨', '😰', '😥', '😢', '😭', '😱', '😖', '😣', '😞', '😓',
-      '😩', '😫', '🥱', '😤', '😡', '😠', '🤬', '😈', '👿', '💀', '☠️', '💩',
-    ],
-  },
-  {
-    id: 'hearts',
-    icon: '❤️',
-    labelAr: 'القلوب',
-    labelDe: 'Herzen',
-    emojis: [
-      '❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍', '🤎', '💔', '❤️‍🔥',
-      '❤️‍🩹', '💕', '💞', '💓', '💗', '💖', '💘', '💝', '💟', '♥️', '💌',
-      '💋', '🫶', '💐', '🌹', '🌷', '🌸', '🌺', '🌻',
-    ],
-  },
-  {
-    id: 'gestures',
-    icon: '👍',
-    labelAr: 'الإيماءات',
-    labelDe: 'Gesten',
-    emojis: [
-      '👋', '🤚', '🖐️', '✋', '🖖', '👌', '🤌', '🤏', '✌️', '🤞', '🤟', '🤘',
-      '🤙', '👈', '👉', '👆', '🖕', '👇', '☝️', '👍', '👎', '✊', '👊', '🤛',
-      '🤜', '👏', '🙌', '👐', '🤲', '🤝', '🙏', '✍️', '💪', '🦾',
-    ],
-  },
-  {
-    id: 'animals',
-    icon: '🐶',
-    labelAr: 'الحيوانات',
-    labelDe: 'Tiere',
-    emojis: [
-      '🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐻‍❄️', '🐨', '🐯', '🦁',
-      '🐮', '🐷', '🐽', '🐸', '🐵', '🙈', '🙉', '🙊', '🐒', '🐔', '🐧', '🐦',
-      '🐤', '🐣', '🐥', '🦆', '🦅', '🦉', '🦇', '🐺', '🐗', '🐴', '🦄', '🐝',
-      '🦋', '🐌', '🐞', '🐜', '🪰', '🪲', '🪳', '🦗', '🕷️', '🦂', '🐢', '🐍',
-      '🦎', '🦖', '🦕', '🐙', '🦑', '🦐', '🦞', '🦀', '🐡', '🐠', '🐟', '🐬',
-      '🐳', '🐋', '🦈',
-    ],
-  },
-  {
-    id: 'food',
-    icon: '🍔',
-    labelAr: 'الطعام',
-    labelDe: 'Essen',
-    emojis: [
-      '🍏', '🍎', '🍐', '🍊', '🍋', '🍌', '🍉', '🍇', '🍓', '🫐', '🍈', '🍒',
-      '🍑', '🥭', '🍍', '🥥', '🥝', '🍅', '🍆', '🥑', '🥦', '🥬', '🥒', '🌶️',
-      '🌽', '🥕', '🧄', '🧅', '🥔', '🍠', '🥐', '🥯', '🍞', '🥖', '🥨', '🧀',
-      '🥚', '🍳', '🧈', '🥞', '🧇', '🥓', '🥩', '🍗', '🍖', '🌭', '🍔', '🍟',
-      '🍕', '🥪', '🥙', '🧆', '🌮', '🌯', '🥗', '🥘', '🫕', '🍝', '🍜', '🍲',
-      '🍛', '🍣', '🍱', '🥟', '🍤', '🍙', '🍚', '🍘', '🍥', '🥮', '🍡', '🥧',
-      '🍦', '🍧', '🍨', '🍩', '🍪', '🎂', '🍰', '🧁', '🍫', '🍬', '🍭', '🍮',
-      '🍯', '☕', '🍵', '🧃', '🥤', '🧋', '🍶', '🍺', '🍻', '🥂', '🍷',
-    ],
-  },
-  {
-    id: 'activities',
-    icon: '⚽',
-    labelAr: 'الأنشطة',
-    labelDe: 'Aktivität',
-    emojis: [
-      '⚽', '🏀', '🏈', '⚾', '🥎', '🎾', '🏐', '🏉', '🥏', '🎱', '🪀', '🏓',
-      '🏸', '🏒', '🏑', '🥍', '🏏', '🪃', '🥅', '⛳', '🪁', '🏹', '🎣', '🤿',
-      '🥊', '🥋', '🎽', '🛹', '🛼', '🛷', '⛸️', '🥌', '🎿', '⛷️', '🏂', '🏋️',
-      '🤼', '🤸', '⛹️', '🤺', '🤾', '🏌️', '🏇', '🧘', '🏄', '🏊', '🚴', '🏆',
-      '🥇', '🥈', '🥉', '🎖️', '🏅', '🎗️', '🎫', '🎟️', '🎪', '🤹', '🎭', '🎨',
-    ],
-  },
-  {
-    id: 'travel',
-    icon: '🌍',
-    labelAr: 'السفر',
-    labelDe: 'Reisen',
-    emojis: [
-      '🌍', '🌎', '🌏', '🌐', '🗺️', '🏔️', '⛰️', '🌋', '🗻', '🏕️', '🏖️', '🏜️',
-      '🏝️', '🏞️', '🏟️', '🏛️', '🏗️', '🧱', '🏘️', '🏚️', '🏠', '🏡', '🏢', '🏣',
-      '🏤', '🏥', '🏦', '🏨', '🏩', '🏪', '🏫', '🏬', '🏭', '🏯', '🏰', '💒',
-      '🗼', '🗽', '⛪', '🕌', '🛕', '🕍', '⛩️', '🕋', '⛲', '⛺', '🌁', '🌃',
-      '🏙️', '🌄', '🌅', '🌆', '🌇', '🌉', '♨️', '🎠', '🎡', '🎢', '💈', '🎪',
-      '🚂', '🚃', '🚄', '🚅', '🚆', '🚇', '🚈', '🚉', '🚊', '🚝', '🚞', '🚋',
-      '🚌', '🚍', '🚎', '🚐', '🚑', '🚒', '🚓', '🚔', '🚕', '🚖', '🚗', '🚘',
-      '🚙', '🛻', '🚚', '🚛', '🚜', '🛺', '🏎️', '🏍️', '🛵', '🦽', '🦼', '🛴',
-      '🚲', '🛹', '🛼', '✈️', '🛫', '🛬', '🛩️', '💺', '🛰️', '🚀', '🛸', '🚁',
-      '⚓', '⛵', '🚤', '🛥️', '🛳️', '⛴️', '🚢',
-    ],
-  },
-  {
-    id: 'objects',
-    icon: '💡',
-    labelAr: 'الأشياء',
-    labelDe: 'Objekte',
-    emojis: [
-      '⌚', '📱', '📲', '💻', '⌨️', '🖥️', '🖨️', '🖱️', '🖲️', '🕹️', '🗜️', '💽',
-      '💾', '💿', '📀', '📼', '📷', '📸', '📹', '🎥', '📽️', '🎞️', '📞', '☎️',
-      '📟', '📠', '📺', '📻', '🎙️', '🎚️', '🎛️', '🧭', '⏱️', '⏲️', '⏰', '🕰️',
-      '⌛', '⏳', '📡', '🔋', '🔌', '💡', '🔦', '🕯️', '🪔', '🧯', '🛢️', '💸',
-      '💵', '💴', '💶', '💷', '💰', '💳', '💎', '⚖️', '🧰', '🔧', '🔨', '⚒️',
-      '🛠️', '⛏️', '🔩', '⚙️', '🧱', '⛓️', '🧲', '🔫', '💣', '🧨', '🪓', '🔪',
-      '🗡️', '⚔️', '🛡️', '🚬', '⚰️', '🪦', '⚱️', '🏺', '🔮', '📿', '🧿', '💈',
-      '⚗️', '🔭', '🔬', '🕳️', '🩹', '🩺', '💊', '💉', '🩸', '🧬', '🦠', '🧫',
-      '🧪', '🌡️', '🧹', '🧺', '🧻', '🚽', '🚰', '🚿', '🛁', '🛀', '🧼', '🪥',
-      '🪒', '🧽', '🪣', '🧴', '🛎️', '🔑', '🗝️', '🚪', '🪑', '🛋️', '🛏️', '🛌',
-      '🧸', '🖼️', '🛍️', '🛒', '🎁', '🎈', '🎏', '🎀', '🎊', '🎉', '🎎', '🏮',
-      '🎐', '🧧', '✉️', '📩', '📨', '📧', '💌', '📥', '📤', '📦', '🏷️', '📪',
-      '📫', '📬', '📭', '📮', '📯', '📜', '📃', '📄', '📑', '🧾', '📊', '📈',
-      '📉', '🗒️', '🗓️', '📆', '📅', '🗑️', '📇', '🗃️', '🗳️', '🗄️', '📋', '📁',
-      '📂', '🗂️', '🗞️', '📰', '📓', '📔', '📒', '📕', '📗', '📘', '📙', '📚',
-      '📖', '🔖', '🧷', '🔗', '📎', '🖇️', '📐', '📏', '🧮', '📌', '📍', '✂️',
-      '🖊️', '🖋️', '✒️', '🖌️', '🖍️', '📝', '✏️', '🔍', '🔎', '🔏', '🔐', '🔒',
-      '🔓',
-    ],
-  },
-  {
-    id: 'symbols',
-    icon: '✨',
-    labelAr: 'الرموز',
-    labelDe: 'Symbole',
-    emojis: [
-      '✨', '⭐', '🌟', '💫', '⚡', '🔥', '💥', '☄️', '🌠', '🌈', '☀️', '🌞',
-      '🌝', '🌛', '🌜', '🌚', '🌕', '🌖', '🌗', '🌘', '🌑', '🌒', '🌓', '🌔',
-      '🌙', '🌎', '💯', '🆕', '🆓', '🆙', '🆒', '🆗', '🆖', '🆘', '⛔', '📛',
-      '🚫', '💢', '♨️', '🚷', '🚯', '🚳', '🚱', '🔞', '📵', '❌', '⭕', '🛑',
-      '⚠️', '🚸', '🔱', '⚜️', '🔰', '♻️', '✅', '🈯', '💹', '❇️', '✳️', '❎',
-      '🌐', '💠', 'Ⓜ️', '🌀', '💤', '🏧', '🚾', '♿', '🅿️', '🛗', '🈂️', '🛂',
-      '🛃', '🛄', '🛅', '🚹', '🚺', '🚼', '⚧', '🚻', '🚮', '🎦', '📶', '🈁',
-      '🔣', 'ℹ️', '🔤', '🔡', '🔠', '🆎', '🆑', '🆚', '🈶', '🈚', '🈸', '🈺',
-      '🈷️', '✴️', '🆔', '#️⃣', '*️⃣', '0️⃣', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣',
-      '7️⃣', '8️⃣', '9️⃣', '🔟',
-    ],
-  },
-];
-
-// Flattened sample of the legacy categorized data — preserved only as a
-// no-asset fallback for code that imported this constant directly. The
-// real reactions "more" picker now uses the Apple emoji-mart picker.
-export const EXTRA_EMOJIS: string[] = EMOJI_CATEGORIES.flatMap(c => c.emojis).slice(0, 120);
+export const EMOJI_CATEGORIES: EmojiCategory[] = [];
+export const EXTRA_EMOJIS: string[] = QUICK_EMOJIS.slice();
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Chat wallpapers – pure CSS gradients for zero-asset performance.
@@ -256,6 +114,17 @@ export const SELF_DESTRUCT_OPTIONS: Array<{ valueSeconds: number | null; labelAr
   { valueSeconds: 3600,    labelAr: 'ساعة',        labelDe: '1 Std.' },
   { valueSeconds: 86400,   labelAr: 'يوم',         labelDe: '1 Tag' },
   { valueSeconds: 604800,  labelAr: 'أسبوع',       labelDe: '1 Woche' },
+];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Mute duration choices. -1 = forever, 0 = unmute, otherwise seconds.
+// ─────────────────────────────────────────────────────────────────────────────
+export const MUTE_DURATION_OPTIONS: Array<{ valueSeconds: number; labelAr: string; labelDe: string }> = [
+  { valueSeconds: 3600,    labelAr: 'ساعة',         labelDe: '1 Std.' },
+  { valueSeconds: 28800,   labelAr: '8 ساعات',      labelDe: '8 Std.' },
+  { valueSeconds: 86400,   labelAr: 'يوم',          labelDe: '1 Tag' },
+  { valueSeconds: 604800,  labelAr: 'أسبوع',        labelDe: '1 Woche' },
+  { valueSeconds: -1,      labelAr: 'دائماً',        labelDe: 'Immer' },
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo, type ChangeEvent } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useApp } from '@/contexts/AppContext';
@@ -12,11 +12,29 @@ import {
   chatError, chatSuccess, describeError, validateFile, clampText,
   MAX_STAGED_IMAGES,
 } from './chatNotify';
-import type { Conversation, Message, Reaction, ConversationFilter } from './types';
+import type { Conversation, Message, Reaction, ConversationFilter, MessageStatus } from './types';
 
 interface UseChatOptions {
   open: boolean;
   onUnreadChange: (count: number) => void;
+}
+
+// Stable client UUID generator. `crypto.randomUUID` is available in modern
+// browsers (Safari 15.4+, all evergreens) but fall back gracefully so the
+// hook still works on the rare older engine. The id only needs to be
+// reasonably unique per user — the DB unique index is on
+// (sender_id, client_id), so even if two users happened to mint the same
+// uuid it wouldn't collide.
+function newClientId(): string {
+  const c = (typeof globalThis !== 'undefined' ? globalThis.crypto : undefined) as
+    | (Crypto & { randomUUID?: () => string })
+    | undefined;
+  if (c?.randomUUID) {
+    try { return c.randomUUID(); } catch { /* fall through */ }
+  }
+  // RFC4122 v4-ish fallback. Good enough for client-only idempotency.
+  const r = () => Math.random().toString(16).slice(2, 10);
+  return `${r()}-${r().slice(0, 4)}-${r().slice(0, 4)}-${r().slice(0, 4)}-${r()}${r().slice(0, 4)}`;
 }
 
 /**
@@ -59,6 +77,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
   const [showChatMenu, setShowChatMenu] = useState(false);
   const [showScrollDown, setShowScrollDown] = useState(false);
   const [showSelfDestructMenu, setShowSelfDestructMenu] = useState(false);
+  const [showMuteMenu, setShowMuteMenu] = useState(false);
   const [showWallpaperPicker, setShowWallpaperPicker] = useState(false);
 
   // ── Conversation filter (All / Unread / Archived) ─────────────────────────
@@ -108,7 +127,21 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
   const loadConversationsTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isNearBottomRef = useRef(true);          // whether to auto-scroll new msgs
   const stagedPreviewsRef = useRef<string[]>([]);
+  const userIdRef = useRef<string | undefined>(user?.id);
+  const activeConvIdRef = useRef<string | null>(null);
+  const conversationsRef = useRef<Conversation[]>(conversations);
+  const chatPrefsRef = useRef(chatPrefs);
+  const isArRef = useRef(isAr);
+  const messagesRef = useRef<Message[]>(messages);
+  const restoreScrollRef = useRef<number | null>(null);
+
   useEffect(() => { stagedPreviewsRef.current = stagedPreviews; }, [stagedPreviews]);
+  useEffect(() => { userIdRef.current = user?.id; }, [user?.id]);
+  useEffect(() => { activeConvIdRef.current = activeConv?.id ?? null; }, [activeConv?.id]);
+  useEffect(() => { conversationsRef.current = conversations; }, [conversations]);
+  useEffect(() => { chatPrefsRef.current = chatPrefs; }, [chatPrefs]);
+  useEffect(() => { isArRef.current = isAr; }, [isAr]);
+  useEffect(() => { messagesRef.current = messages; }, [messages]);
 
   const imageUpload = useImageUpload();
 
@@ -116,12 +149,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
   const [realtimeLastSeen, setRealtimeLastSeen] = useState<string | null>(null);
   useOtherUserPresence(activeConv?.otherUserId, useCallback((ls: string | null) => setRealtimeLastSeen(ls), []));
   const otherIsLiveOnline = useUserOnline(activeConv?.otherUserId);
-  // While the drawer is open we read the entire set of online users on a
-  // single channel so the conversation list can paint a green dot on each
-  // avatar without N hooks per row.
   const onlineUserIds = useOnlineUserIds(open);
-  // Re-evaluate the formatted "last seen" string every 30s so labels like
-  // "2 min ago" stay accurate without the consumer wiring a setInterval.
   const presenceTick = useTick(30_000);
 
   const otherPresence = useMemo(() => {
@@ -131,9 +159,6 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
       return { text: isAr ? 'متصل الآن' : 'Online', isOnline: true };
     }
     return formatted;
-    // presenceTick is included intentionally so the memo recomputes on each
-    // 30s tick and labels like "2 min ago" stay accurate without consumers
-    // wiring a setInterval.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [realtimeLastSeen, activeConv?.otherLastSeen, otherIsLiveOnline, isAr, presenceTick]);
 
@@ -163,13 +188,22 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     const container = messagesContainerRef.current;
     if (!container) return;
     const distFromBottom = container.scrollHeight - container.scrollTop - container.clientHeight;
-    // "Near bottom" threshold — within 120 px we still auto-scroll on new
-    // messages; beyond that we respect the user and surface the scroll FAB.
     isNearBottomRef.current = distFromBottom < 120;
     setShowScrollDown(distFromBottom > 200);
+
+    // Persist scroll position so the next visit resumes here. We only
+    // remember non-bottom positions — at the bottom we always want fresh
+    // messages to anchor.
+    const convId = activeConvIdRef.current;
+    if (convId) {
+      if (distFromBottom < 80) {
+        chatPrefsRef.current.clearScroll(convId);
+      } else {
+        chatPrefsRef.current.setScroll(convId, container.scrollTop);
+      }
+    }
   }, []);
 
-  // Revoke all staged preview object URLs (defensive cleanup).
   const revokeStagedPreviews = useCallback(() => {
     stagedPreviewsRef.current.forEach(url => {
       try { URL.revokeObjectURL(url); } catch { /* no-op */ }
@@ -177,14 +211,11 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     stagedPreviewsRef.current = [];
   }, []);
 
-  // On full unmount, revoke any lingering blob URLs so they don't leak.
   useEffect(() => {
     return () => { revokeStagedPreviews(); };
   }, [revokeStagedPreviews]);
 
-  // Wrapped setActiveConv: save/restore drafts, reset ephemeral UI state,
-  // and clear the signed-URL cache so files from a different conversation
-  // don't leak (they expire after 1h anyway).
+  // Wrapped setActiveConv: save/restore drafts, reset ephemeral UI state.
   const setActiveConv = useCallback((conv: Conversation | null) => {
     if (activeConv && activeConv.id !== conv?.id) {
       chatPrefs.setDraft(activeConv.id, newMessage);
@@ -195,23 +226,40 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     setShowChatMenu(false);
     setShowProfilePopup(false);
     setShowSelfDestructMenu(false);
+    setShowMuteMenu(false);
     setShowSearch(false);
     setChatSearchQuery('');
     setSearchResults([]);
     setShowEmojiPicker(false);
     setSelectedIds(new Set());
-    setSignedUrls({});          // fresh conv = fresh URL cache
-    revokeStagedPreviews();     // don't carry images across conversations
+    setSignedUrls({});
+    revokeStagedPreviews();
     setStagedImages([]);
     setStagedPreviews([]);
     isNearBottomRef.current = true;
 
     if (conv) {
+      // Instant unread reset: clear the count locally so the badge updates
+      // immediately, before the network round-trip to mark_messages_read
+      // even leaves the tab. The server is already authoritative — we just
+      // want zero-latency feedback.
+      setConversations(prev => {
+        const target = prev.find(c => c.id === conv.id);
+        if (!target || (target.unreadCount ?? 0) === 0) return prev;
+        return prev.map(c => c.id === conv.id ? { ...c, unreadCount: 0 } : c);
+      });
+
       const draft = chatPrefs.getDraft(conv.id);
       setNewMessage(draft);
       setTimeout(() => resizeComposer(), 0);
+
+      // Schedule scroll restore: loadMessages will scroll to bottom on
+      // first paint, then we override if there's a saved position.
+      const savedScroll = chatPrefs.getScroll(conv.id);
+      restoreScrollRef.current = savedScroll > 0 ? savedScroll : null;
     } else {
       setNewMessage('');
+      restoreScrollRef.current = null;
     }
   }, [activeConv, newMessage, chatPrefs, resizeComposer, revokeStagedPreviews]);
 
@@ -223,6 +271,11 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     }, 300);
     return () => clearTimeout(timer);
   }, [newMessage, activeConv, chatPrefs]);
+
+  // Re-emit total unread to host whenever conversations or mute prefs change.
+  useEffect(() => {
+    onUnreadChange(conversations.reduce((sum, c) => chatPrefs.isMuted(c.id) ? sum : sum + (c.unreadCount || 0), 0));
+  }, [conversations, chatPrefs.prefs.muted, onUnreadChange, chatPrefs]);
 
   // ── Load conversations ────────────────────────────────────────────────────
   const loadConversations = useCallback(async () => {
@@ -246,14 +299,14 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
           .in('user_id', otherIds),
         Promise.all(convIds.map(cid =>
           supabase.from('messages')
-            .select('conversation_id, sender_id, content, message_type, deleted, created_at, file_name')
+            .select('conversation_id, sender_id, content, message_type, deleted, created_at, file_name, hidden_for')
             .eq('conversation_id', cid)
             .order('created_at', { ascending: false })
             .limit(1)
             .maybeSingle()
         )).then(results => ({
           data: results.map(r => r.data).filter(Boolean) as Array<{
-            conversation_id: string; sender_id: string; content: string; message_type: string; deleted: boolean; created_at: string; file_name: string | null;
+            conversation_id: string; sender_id: string; content: string; message_type: string; deleted: boolean; created_at: string; file_name: string | null; hidden_for: string[] | null;
           }>,
           error: null,
         })),
@@ -294,7 +347,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
           otherBio: (profile as unknown as { bio?: string | null })?.bio ?? null,
           otherLastSeen: (profile as unknown as { last_seen?: string | null })?.last_seen ?? null,
           otherCreatedAt: (profile as unknown as { created_at?: string | null })?.created_at ?? null,
-          lastMessage: lastMsg ? getMessagePreview(lastMsg, isAr) : undefined,
+          lastMessage: lastMsg ? getMessagePreview(lastMsg, isAr, user.id) : undefined,
           lastMessageType: lastMsg?.message_type,
           lastMessageFromMe: lastMsg?.sender_id === user.id,
           lastMessageDeleted: lastMsg?.deleted,
@@ -304,17 +357,13 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
       });
 
       setConversations(enriched);
-      // Unread badge: ignore muted chats so notifications don't nag
-      onUnreadChange(enriched.reduce((sum, c) => chatPrefs.isMuted(c.id) ? sum : sum + (c.unreadCount || 0), 0));
     } catch {
       // Silent — network toast already handled via chatError elsewhere
     } finally {
       setConversationsLoading(false);
     }
-  }, [user, onUnreadChange, isAr, chatPrefs]);
+  }, [user, isAr]);
 
-  // Trailing-debounced variant for realtime bursts. Multiple incoming messages
-  // within 400 ms coalesce into a single refetch.
   const scheduleLoadConversations = useCallback(() => {
     if (loadConversationsTimerRef.current) clearTimeout(loadConversationsTimerRef.current);
     loadConversationsTimerRef.current = setTimeout(() => {
@@ -322,10 +371,39 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     }, 400);
   }, [loadConversations]);
 
-  // Recompute unread badge when mute prefs change
-  useEffect(() => {
-    onUnreadChange(conversations.reduce((sum, c) => chatPrefs.isMuted(c.id) ? sum : sum + (c.unreadCount || 0), 0));
-  }, [conversations, chatPrefs.prefs.muted, onUnreadChange, chatPrefs]);
+  /**
+   * Optimistically bump a conversation row to the top of the list with a
+   * fresh preview / timestamp. Used both when the local user sends a
+   * message AND when realtime delivers an incoming one — so the list
+   * reorders instantly instead of waiting on the 400ms debounce.
+   */
+  const bumpConversationLocally = useCallback((msg: Message) => {
+    const uid = userIdRef.current;
+    if (!uid) return;
+    setConversations(prev => {
+      const idx = prev.findIndex(c => c.id === msg.conversation_id);
+      if (idx < 0) return prev;
+      const old = prev[idx];
+      const fromMe = msg.sender_id === uid;
+      const next: Conversation = {
+        ...old,
+        lastMessage: msg.deleted ? undefined : getMessagePreview(msg, isArRef.current, uid),
+        lastMessageType: msg.message_type,
+        lastMessageFromMe: fromMe,
+        lastMessageDeleted: msg.deleted,
+        lastMessageTime: msg.created_at,
+        updated_at: msg.created_at,
+        // If incoming AND we're not currently viewing that conv, increment.
+        unreadCount: !fromMe && msg.conversation_id !== activeConvIdRef.current
+          ? (old.unreadCount ?? 0) + 1
+          : (msg.conversation_id === activeConvIdRef.current ? 0 : (old.unreadCount ?? 0)),
+      };
+      // Re-sort by updated_at desc (pin/sort layer in UI handles pinned rows).
+      const without = [...prev.slice(0, idx), ...prev.slice(idx + 1)];
+      without.unshift(next);
+      return without;
+    });
+  }, []);
 
   // ── Load messages ─────────────────────────────────────────────────────────
   const loadMessages = useCallback(async () => {
@@ -356,7 +434,21 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
           setReactions([]);
         }
 
-        requestAnimationFrame(() => scrollToBottom(false));
+        // Scroll restore: if we have a saved position, jump there; otherwise
+        // anchor at the bottom (default chat behavior).
+        requestAnimationFrame(() => {
+          const target = restoreScrollRef.current;
+          if (target != null && messagesContainerRef.current) {
+            messagesContainerRef.current.scrollTop = target;
+            isNearBottomRef.current =
+              (messagesContainerRef.current.scrollHeight
+                - messagesContainerRef.current.scrollTop
+                - messagesContainerRef.current.clientHeight) < 120;
+            restoreScrollRef.current = null;
+          } else {
+            scrollToBottom(false);
+          }
+        });
       }
     } finally {
       setMessagesLoading(false);
@@ -395,19 +487,12 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     return () => { cancelled = true; };
   }, [messages, signedUrls]);
 
-  /**
-   * Returns the signed URL for a message's attachment when it's resolved.
-   * Falls back to the raw `file_url` only if it already looks like an HTTP(S)
-   * URL — otherwise returns an empty string so the bubble can show its
-   * skeleton instead of triggering a broken-image request.
-   */
   const getFileUrl = useCallback((msg: Message) => {
     if (signedUrls[msg.id]) return signedUrls[msg.id];
     if (msg.file_url && /^https?:\/\//i.test(msg.file_url)) return msg.file_url;
     return '';
   }, [signedUrls]);
 
-  /** Force-refresh a signed URL for a given message — e.g. after expiry. */
   const refreshSignedUrl = useCallback(async (msg: Message): Promise<string | null> => {
     if (!msg.file_url) return null;
     try {
@@ -421,40 +506,46 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
   }, []);
 
   // ── Realtime subscription ─────────────────────────────────────────────────
+  // Stable channel name so React StrictMode + activeConv changes don't churn
+  // the websocket. Subscribed once per (user, drawer-open) lifecycle. All
+  // closures inside read fresh state via refs to avoid stale-state bugs.
   useEffect(() => {
     if (!user || !open) return;
     let cancelled = false;
-    const channelName = `chat-realtime-${Date.now()}`;
+    const channelName = `chat-realtime:${user.id}`;
 
     const channel = supabase
       .channel(channelName)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, (payload) => {
         if (cancelled) return;
+        const uid = userIdRef.current;
+        if (!uid) return;
+        const activeId = activeConvIdRef.current;
+        const isAr = isArRef.current;
+
         if (payload.eventType === 'INSERT') {
           const msg = payload.new as Message;
 
-          if (activeConv && msg.conversation_id === activeConv.id) {
+          if (activeId && msg.conversation_id === activeId) {
             setMessages(prev => {
               if (prev.some(m => m.id === msg.id)) return prev;
-              // Replace optimistic message if it matches
-              if (msg.sender_id === user.id) {
-                const idx = prev.findIndex(m =>
-                  m.id.startsWith('optimistic_') &&
-                  m.content === msg.content &&
-                  m.sender_id === msg.sender_id
-                );
+              // Idempotent dedup: if a pending optimistic row carries the
+              // same client_id we just inserted, replace it. Falls back to
+              // checking by id only for legacy rows without a client_id.
+              if (msg.sender_id === uid && msg.client_id) {
+                const idx = prev.findIndex(m => m.client_id === msg.client_id);
                 if (idx !== -1) {
                   const next = [...prev];
-                  next[idx] = msg;
+                  next[idx] = { ...msg, status: 'sent' };
                   return next;
                 }
               }
               return [...prev, msg];
             });
 
-            if (msg.sender_id !== user.id) {
+            if (msg.sender_id !== uid) {
               supabase.rpc('mark_message_read', { p_message_id: msg.id }).then();
-              if (!chatPrefs.isMuted(activeConv.id)) {
+              if (!chatPrefsRef.current.isMuted(activeId)) {
                 const now = Date.now();
                 if (now - lastIncomingTsRef.current > 800) {
                   lastIncomingTsRef.current = now;
@@ -462,16 +553,12 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
                 }
               }
             }
-            // Only auto-scroll if the user is already near the bottom; otherwise
-            // leave them where they are and let the scroll-down FAB advertise
-            // the new message.
-            if (isNearBottomRef.current || msg.sender_id === user.id) {
+            if (isNearBottomRef.current || msg.sender_id === uid) {
               requestAnimationFrame(() => scrollToBottom(true));
             }
-          } else if (msg.sender_id !== user.id) {
-            // Message in a different conversation – play receive (if not muted)
-            const conv = conversations.find(c => c.id === msg.conversation_id);
-            if (conv && !chatPrefs.isMuted(conv.id)) {
+          } else if (msg.sender_id !== uid) {
+            const conv = conversationsRef.current.find(c => c.id === msg.conversation_id);
+            if (conv && !chatPrefsRef.current.isMuted(conv.id)) {
               const now = Date.now();
               if (now - lastIncomingTsRef.current > 1500) {
                 lastIncomingTsRef.current = now;
@@ -479,10 +566,20 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
               }
             }
           }
-          scheduleLoadConversations();
+          // Bump the conversation list locally so the row jumps to top
+          // instantly with the right preview, regardless of which conv
+          // the user is currently inside.
+          bumpConversationLocally(msg);
         } else if (payload.eventType === 'UPDATE') {
           const msg = payload.new as Message;
-          setMessages(prev => prev.map(m => m.id === msg.id ? msg : m));
+          setMessages(prev => prev.map(m => {
+            if (m.id !== msg.id) return m;
+            // Promote to "read" once the recipient flips read=true on our message.
+            const status: MessageStatus | undefined =
+              msg.sender_id === uid && msg.read ? 'read' :
+              (m.status === 'pending' || m.status === 'failed' ? 'sent' : m.status);
+            return { ...msg, status } as Message;
+          }));
         } else if (payload.eventType === 'DELETE') {
           const oldMsg = payload.old as { id: string };
           setMessages(prev => prev.filter(m => m.id !== oldMsg.id));
@@ -507,13 +604,9 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
       if (loadConversationsTimerRef.current) clearTimeout(loadConversationsTimerRef.current);
       supabase.removeChannel(channel);
     };
-  }, [user, open, activeConv, scrollToBottom, scheduleLoadConversations, chatPrefs, conversations]);
+  }, [user, open, scrollToBottom, bumpConversationLocally]);
 
   // ── Typing presence ───────────────────────────────────────────────────────
-  // Receiver-side fail-safe: if the remote tab dies between an "I'm typing"
-  // and the trailing "stopped" broadcast, we never get the corresponding
-  // `track({ typing: false })`. A local timer auto-clears the indicator if
-  // we haven't seen a fresh sync within TYPING_STALE_MS.
   const typingStaleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const typingThrottleRef   = useRef(0);
   useEffect(() => {
@@ -532,10 +625,6 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
       }
     };
 
-    // Acquire the shared `typing:<id>` channel; the singleton attaches its
-    // presence listeners exactly once, before `.subscribe()`, so the second
-    // consumer (list observer) never has to call `.on('presence', …)` after
-    // the channel is already subscribed.
     const handle = acquireTypingChannel(activeConv.id, user.id);
     typingChannelRef.current = handle.channel;
 
@@ -551,9 +640,6 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     return () => {
       if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
       disarmStale();
-      // Emit a final {typing: false} so the other side stops the indicator
-      // the moment we switch conv, even though the trailing setTimeout that
-      // would have fired it just got cleared above.
       try { handle.channel.track({ typing: false }); } catch { /* no-op */ }
       try { handle.channel.untrack(); } catch { /* no-op */ }
       typingChannelRef.current = null;
@@ -564,11 +650,6 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
   }, [activeConv, user]);
 
   // ── Typing-in-conversation-list ──────────────────────────────────────────
-  // While the drawer is open we want to surface "X is typing…" right in the
-  // conversation list, not only inside the active chat. We piggy-back on the
-  // existing per-conv presence channels by subscribing in listen-only mode
-  // (no track() call). Capped at MAX_LIST_TYPING_CHANNELS so a user with
-  // hundreds of conversations never opens hundreds of realtime sockets.
   const MAX_LIST_TYPING_CHANNELS = 40;
   const convIdsForTyping = useMemo(
     () => conversations.slice(0, MAX_LIST_TYPING_CHANNELS).map(c => c.id).sort().join(','),
@@ -577,10 +658,6 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
   useEffect(() => {
     if (!open || !user || !convIdsForTyping) return;
     const ids = convIdsForTyping.split(',').filter(Boolean);
-    // The list observer shares the per-conv typing channel with the
-    // active-conv tracker. Same presence key (user.id) — both filter out
-    // their own key when computing "is the OTHER side typing?", so they
-    // never see themselves as typing.
     const handles = ids.map(convId => {
       const handle = acquireTypingChannel(convId, user.id);
       const off = handle.onChange((state) => {
@@ -603,9 +680,6 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
 
   const broadcastTyping = useCallback(() => {
     if (!typingChannelRef.current) return;
-    // Throttle the "is typing" broadcast to once per second to avoid a
-    // network call on every keystroke; the off-timer still trails by 1.5s
-    // so the indicator reliably fades after the user stops.
     const now = Date.now();
     if (now - typingThrottleRef.current >= 1000) {
       typingThrottleRef.current = now;
@@ -619,10 +693,21 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
   }, []);
 
   // ── Send / edit / delete messages ─────────────────────────────────────────
-  const sendMessage = useCallback(async (type: string = 'text', fileUrl?: string, fileName?: string, explicitContent?: string, explicitConvId?: string) => {
+  /**
+   * Insert a message. Uses a server-generated row id for the canonical
+   * message, but a client-supplied `client_id` for optimistic dedup so the
+   * realtime echo can replace the optimistic row deterministically — for
+   * every message_type, including images/voice/files where the visible
+   * text would be identical across multiple sends.
+   */
+  const sendMessage = useCallback(async (
+    type: string = 'text',
+    fileUrl?: string,
+    fileName?: string,
+    explicitContent?: string,
+    explicitConvId?: string,
+  ) => {
     const rawContent = explicitContent ?? (type === 'text' ? newMessage.trim() : (fileName || ''));
-    // Clamp long messages defensively (RLS may reject otherwise, and it keeps
-    // the DB tidy). `clipped` is currently not surfaced; toasting would be noisy.
     const { text: content } = clampText(rawContent);
     if (!content && type === 'text') return;
 
@@ -641,7 +726,8 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
     typingChannelRef.current?.track({ typing: false });
 
-    const optimisticId = `optimistic_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+    const clientId = newClientId();
+    const optimisticId = `optimistic_${clientId}`;
     const now = new Date().toISOString();
 
     const insertData: Record<string, unknown> = {
@@ -652,66 +738,138 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
       file_url: fileUrl || null,
       file_name: fileName || null,
       reply_to_id: replyToId,
+      client_id: clientId,
     };
 
     if (selfDestructSeconds && isCurrentConv) {
       insertData.expires_at = new Date(Date.now() + selfDestructSeconds * 1000).toISOString();
     }
 
-    if (type === 'text' && isCurrentConv) {
-      const optimisticMsg: Message = {
-        id: optimisticId,
-        conversation_id: convId,
-        sender_id: user.id,
-        content,
-        read: false,
-        created_at: now,
-        reply_to_id: replyToId,
-        message_type: type,
-        file_url: null,
-        file_name: null,
-        deleted: false,
-        edited_at: null,
-        expires_at: (insertData.expires_at as string) || null,
-      };
+    // Optimistic local row for ALL types (text/image/voice/file). The
+    // realtime echo will replace it deterministically via client_id.
+    const optimisticMsg: Message = {
+      id: optimisticId,
+      conversation_id: convId,
+      sender_id: user.id,
+      content,
+      read: false,
+      created_at: now,
+      reply_to_id: replyToId,
+      message_type: type,
+      file_url: fileUrl ?? null,
+      file_name: fileName ?? null,
+      deleted: false,
+      edited_at: null,
+      expires_at: (insertData.expires_at as string) || null,
+      hidden_for: [],
+      client_id: clientId,
+      status: 'pending',
+    };
+    if (isCurrentConv) {
       setMessages(prev => [...prev, optimisticMsg]);
-      isNearBottomRef.current = true; // I just sent → jump to bottom
+      isNearBottomRef.current = true;
       requestAnimationFrame(() => scrollToBottom(true));
     }
+    // Also bump the conversation list immediately even if the user is
+    // looking at a different conversation when sending (e.g. forwarding).
+    bumpConversationLocally(optimisticMsg);
 
     primeAudio();
     playChatSound('send');
     haptic('light');
 
-    const insertPromise = supabase.from('messages').insert(insertData as never).select().single();
     supabase.from('conversations').update({ updated_at: now }).eq('id', convId).then();
 
     try {
-      const { data: realMsg, error } = await insertPromise;
+      const { data: realMsg, error } = await supabase
+        .from('messages')
+        .insert(insertData as never)
+        .select()
+        .single();
+
       if (error) {
         chatError('sendFailed', isAr, describeError(error, isAr));
-        // Roll back the optimistic row so the user can retry via composer.
-        if (type === 'text' && isCurrentConv) {
-          setMessages(prev => prev.filter(m => m.id !== optimisticId));
-          // Restore the text so they don't lose what they typed.
-          setNewMessage(prev => prev || content);
-          setTimeout(() => resizeComposer(), 0);
-        }
+        // Mark the optimistic row as failed instead of dropping it, so the
+        // user can tap a "retry" button without retyping.
+        setMessages(prev => prev.map(m =>
+          m.id === optimisticId ? { ...m, status: 'failed' } : m,
+        ));
         return;
       }
-      if (realMsg && type === 'text' && isCurrentConv) {
-        setMessages(prev => prev.map(m => m.id === optimisticId ? (realMsg as Message) : m));
+      if (realMsg) {
+        setMessages(prev => prev.map(m =>
+          m.id === optimisticId
+            ? { ...(realMsg as Message), status: 'sent' }
+            : m,
+        ));
       }
     } catch (err) {
       chatError('sendFailed', isAr, describeError(err, isAr));
-      if (type === 'text' && isCurrentConv) {
-        setMessages(prev => prev.filter(m => m.id !== optimisticId));
-        setNewMessage(prev => prev || content);
-      }
+      setMessages(prev => prev.map(m =>
+        m.id === optimisticId ? { ...m, status: 'failed' } : m,
+      ));
     }
 
     if (type === 'text' && isCurrentConv) focusComposer();
-  }, [newMessage, activeConv, user, replyTo, selfDestructSeconds, resizeComposer, scrollToBottom, focusComposer, chatPrefs, isAr]);
+  }, [newMessage, activeConv, user, replyTo, selfDestructSeconds, resizeComposer,
+      scrollToBottom, focusComposer, chatPrefs, isAr, bumpConversationLocally]);
+
+  /**
+   * Re-attempt a send for a message that previously transitioned to 'failed'.
+   * Idempotent thanks to the (sender_id, client_id) unique index — even if
+   * the original insert silently committed before we observed the failure,
+   * the retry collapses into a no-op.
+   */
+  const retryFailedMessage = useCallback(async (failed: Message) => {
+    if (!user || !failed.client_id) return;
+    setMessages(prev => prev.map(m => m.id === failed.id ? { ...m, status: 'pending' } : m));
+    const insertData: Record<string, unknown> = {
+      conversation_id: failed.conversation_id,
+      sender_id: user.id,
+      content: failed.content,
+      message_type: failed.message_type,
+      file_url: failed.file_url ?? null,
+      file_name: failed.file_name ?? null,
+      reply_to_id: failed.reply_to_id ?? null,
+      client_id: failed.client_id,
+      expires_at: failed.expires_at ?? null,
+    };
+    try {
+      const { data: realMsg, error } = await supabase
+        .from('messages')
+        .insert(insertData as never)
+        .select()
+        .single();
+      if (error) {
+        // 23505 = unique_violation (already inserted). Re-fetch the row.
+        if ((error as { code?: string }).code === '23505') {
+          const { data: existing } = await supabase
+            .from('messages')
+            .select('*')
+            .eq('sender_id', user.id)
+            .eq('client_id', failed.client_id)
+            .single();
+          if (existing) {
+            setMessages(prev => prev.map(m =>
+              m.id === failed.id ? { ...(existing as Message), status: 'sent' } : m,
+            ));
+            return;
+          }
+        }
+        chatError('sendFailed', isAr, describeError(error, isAr));
+        setMessages(prev => prev.map(m => m.id === failed.id ? { ...m, status: 'failed' } : m));
+        return;
+      }
+      if (realMsg) {
+        setMessages(prev => prev.map(m =>
+          m.id === failed.id ? { ...(realMsg as Message), status: 'sent' } : m,
+        ));
+      }
+    } catch (err) {
+      chatError('sendFailed', isAr, describeError(err, isAr));
+      setMessages(prev => prev.map(m => m.id === failed.id ? { ...m, status: 'failed' } : m));
+    }
+  }, [user, isAr]);
 
   const deleteMessage = useCallback(async (msgId: string) => {
     const { error } = await supabase.from('messages').update({ deleted: true, content: '' }).eq('id', msgId);
@@ -724,6 +882,46 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     if (error) chatError('deleteFailed', isAr, describeError(error, isAr));
     setSelectedIds(new Set());
   }, [isAr]);
+
+  /**
+   * Hide a single message for the current viewer only (delete-for-me),
+   * leaving the original sender's copy intact. The DB function appends
+   * auth.uid() to messages.hidden_for.
+   */
+  const hideMessageForSelf = useCallback(async (msgId: string) => {
+    if (!user) return;
+    // Optimistic: mark it locally first so the bubble disappears instantly.
+    setMessages(prev => prev.map(m =>
+      m.id === msgId
+        ? { ...m, hidden_for: [...(m.hidden_for ?? []), user.id] }
+        : m,
+    ));
+    const { error } = await supabase.rpc('hide_message_for_self', { p_message_id: msgId });
+    if (error) {
+      // Roll back on failure.
+      setMessages(prev => prev.map(m =>
+        m.id === msgId
+          ? { ...m, hidden_for: (m.hidden_for ?? []).filter(u => u !== user.id) }
+          : m,
+      ));
+      chatError('deleteFailed', isAr, describeError(error, isAr));
+    }
+  }, [user, isAr]);
+
+  const hideManyForSelf = useCallback(async (ids: string[]) => {
+    if (!user || ids.length === 0) return;
+    setMessages(prev => prev.map(m =>
+      ids.includes(m.id)
+        ? { ...m, hidden_for: [...(m.hidden_for ?? []), user.id] }
+        : m,
+    ));
+    setSelectedIds(new Set());
+    // Sequential RPC calls to keep auth.uid lookups consistent — these are
+    // cheap (single UPDATE) and the user typically picks <10.
+    for (const id of ids) {
+      try { await supabase.rpc('hide_message_for_self', { p_message_id: id }); } catch { /* no-op */ }
+    }
+  }, [user]);
 
   const pinMessage = useCallback(async (msg: Message) => {
     if (!activeConv) return;
@@ -753,7 +951,6 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     } as Record<string, unknown>).eq('id', msgToEdit.id);
     if (error) {
       chatError('editFailed', isAr, describeError(error, isAr));
-      // Put the user back into edit mode so they don't lose context.
       setEditingMessage(msgToEdit);
       setNewMessage(content);
       setTimeout(() => resizeComposer(), 0);
@@ -850,7 +1047,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     const ratio = remaining / totalDuration;
     if (ratio > 0.3) return 1;
     return 0.15 + (ratio / 0.3) * 0.85;
-  }, []); // fadeTick captured by re-render; no need as dep
+  }, []);
 
   // ── Reactions ─────────────────────────────────────────────────────────────
   const toggleReaction = useCallback(async (messageId: string, emoji: string) => {
@@ -871,7 +1068,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
   }, [user, reactions, isAr]);
 
   // ── Files + staged images ─────────────────────────────────────────────────
-  const handleFileUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = useCallback(async (e: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (!files.length || !user || !activeConv) return;
 
@@ -918,10 +1115,6 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     setStagedPreviews(prev => [...prev, ...previews]);
   }, [isAr, stagedImages.length]);
 
-  /**
-   * Mixed-content handler used by drag-and-drop: stages images for batched
-   * preview/send and uploads other files immediately as 'file' messages.
-   */
   const addFilesFromDrop = useCallback(async (files: File[]) => {
     if (!files.length || !user || !activeConv) return;
     const images = files.filter(f => f.type.startsWith('image/'));
@@ -939,8 +1132,6 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     }
   }, [user, activeConv, addImagesFromFiles, isAr, sendMessage]);
 
-  // Tracks pending captions keyed by temp upload id, so the first image of a
-  // batch carries the user's typed caption once its storage upload completes.
   const pendingCaptionsRef = useRef<Map<string, string>>(new Map());
 
   const sendStagedImages = useCallback(() => {
@@ -957,8 +1148,6 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
       chatPrefs.clearDraft(activeConv.id);
       resizeComposer();
     }
-    // Revoke preview URLs here — ImageUploadContext owns its own localPreviewUrl
-    // created when the upload starts, so these are safe to release.
     stagedPreviews.forEach(url => { try { URL.revokeObjectURL(url); } catch { /* no-op */ } });
     setStagedImages([]);
     setStagedPreviews([]);
@@ -980,7 +1169,6 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     setStagedPreviews([]);
   }, [stagedPreviews]);
 
-  // Wire image-upload completion
   useEffect(() => {
     imageUpload.setOnUploadComplete((tempId: string, storagePath: string, fileName: string, conversationId: string) => {
       if (user) {
@@ -1010,6 +1198,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     const { error: delConvErr } = await supabase.from('conversations').delete().eq('id', activeConv.id);
     if (delConvErr) { chatError('deleteFailed', isAr, describeError(delConvErr, isAr)); return; }
     chatPrefs.clearDraft(activeConv.id);
+    chatPrefs.clearScroll(activeConv.id);
     setActiveConv(null);
     setShowChatMenu(false);
     loadConversations();
@@ -1023,8 +1212,6 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     setSearching(true);
 
     try {
-      // Use .limit(1) instead of .maybeSingle() so multiple matches don't
-      // crash the query – we just pick the best one.
       const { data, error } = await supabase
         .from('profiles')
         .select('user_id, username, display_name, avatar_url')
@@ -1093,15 +1280,22 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     }
   }, [searchResult, user, loadConversations, setActiveConv, isAr]);
 
+  // ── Visible messages = filter out hidden_for-includes-me ─────────────────
+  const visibleMessages = useMemo(() => {
+    if (!user) return messages;
+    return messages.filter(m => !m.hidden_for?.includes(user.id));
+  }, [messages, user]);
+
   const getMessageMeta = useCallback((idx: number) => {
-    const msg = messages[idx];
-    const prev = idx > 0 ? messages[idx - 1] : null;
-    const next = idx < messages.length - 1 ? messages[idx + 1] : null;
+    const list = visibleMessages;
+    const msg = list[idx];
+    const prev = idx > 0 ? list[idx - 1] : null;
+    const next = idx < list.length - 1 ? list[idx + 1] : null;
     const sameSenderAsPrev = prev && prev.sender_id === msg.sender_id && !prev.deleted && (new Date(msg.created_at).getTime() - new Date(prev.created_at).getTime() < 120000);
     const sameSenderAsNext = next && next.sender_id === msg.sender_id && !next.deleted && (new Date(next.created_at).getTime() - new Date(msg.created_at).getTime() < 120000);
-    const showDate = idx === 0 || new Date(msg.created_at).toDateString() !== new Date(messages[idx - 1].created_at).toDateString();
+    const showDate = idx === 0 || new Date(msg.created_at).toDateString() !== new Date(list[idx - 1].created_at).toDateString();
     return { sameSenderAsPrev: !!sameSenderAsPrev && !showDate, sameSenderAsNext: !!sameSenderAsNext, showDate };
-  }, [messages]);
+  }, [visibleMessages]);
 
   const copyMessage = useCallback((content: string) => {
     navigator.clipboard.writeText(content)
@@ -1123,11 +1317,12 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
   const clearSelection = useCallback(() => setSelectedIds(new Set()), []);
 
   const copySelectedMessages = useCallback(() => {
+    if (!user) return;
     const selected = messages
       .filter(m => selectedIds.has(m.id) && !m.deleted)
       .map(m => {
         if (m.message_type === 'text') return m.content;
-        return getMessagePreview(m, isAr);
+        return getMessagePreview(m, isAr, user.id);
       })
       .join('\n');
     if (selected) {
@@ -1135,7 +1330,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
         .then(() => chatSuccess('copied', isAr))
         .catch(() => chatError('linkCopyFailed', isAr));
     }
-  }, [messages, selectedIds, isAr]);
+  }, [messages, selectedIds, isAr, user]);
 
   const deleteSelectedMessages = useCallback(async () => {
     if (!user) return;
@@ -1145,39 +1340,33 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     await deleteManyMessages(ownSelected);
   }, [messages, selectedIds, user, deleteManyMessages]);
 
-  // Forward: pick messages, open picker, then send to chosen conversation(s)
   const startForward = useCallback((msgs: Message[]) => {
     setForwardingMessages(msgs);
   }, []);
 
   const performForwardTo = useCallback(async (targetConvId: string) => {
     if (!forwardingMessages || !user) return;
-    const label = isAr ? '↪️ محوّلة' : '↪️ Weitergeleitet';
     for (const m of forwardingMessages) {
       if (m.deleted) continue;
-      const prefix = `${label}\n`;
       if (m.message_type === 'text') {
-        await sendMessage('text', undefined, undefined, prefix + m.content, targetConvId);
+        await sendMessage('text', undefined, undefined, m.content, targetConvId);
       } else if (m.message_type === 'image' || m.message_type === 'file' || m.message_type === 'voice') {
-        // Re-reference same storage path - target user sees it via signed URL
-        await sendMessage(m.message_type, m.file_url || undefined, m.file_name || undefined, prefix + (m.content || ''), targetConvId);
+        await sendMessage(m.message_type, m.file_url || undefined, m.file_name || undefined, m.content || '', targetConvId);
       }
     }
     setForwardingMessages(null);
     setSelectedIds(new Set());
     playChatSound('send');
-  }, [forwardingMessages, user, sendMessage, isAr]);
+  }, [forwardingMessages, user, sendMessage]);
 
   const cancelForward = useCallback(() => setForwardingMessages(null), []);
 
-  // ── Unread divider anchor (client-side: first unread incoming) ────────────
   const firstUnreadId = useMemo(() => {
-    if (!user || messages.length === 0) return null;
-    const first = messages.find(m => !m.read && m.sender_id !== user.id && !m.deleted);
+    if (!user || visibleMessages.length === 0) return null;
+    const first = visibleMessages.find(m => !m.read && m.sender_id !== user.id && !m.deleted);
     return first?.id ?? null;
-  }, [messages, user]);
+  }, [visibleMessages, user]);
 
-  // ── Sort + filter conversations for UI ────────────────────────────────────
   const sortedConversations = useMemo(() => {
     const pinned: Conversation[] = [];
     const rest: Conversation[] = [];
@@ -1185,7 +1374,6 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
       if (chatPrefs.isPinned(c.id)) pinned.push(c);
       else rest.push(c);
     }
-    // Each group already sorted by updated_at (descending) thanks to loadConversations
     return [...pinned, ...rest];
   }, [conversations, chatPrefs.prefs.pinned]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -1205,7 +1393,9 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     // Data
     conversations, sortedConversations, filteredByTab,
     activeConv, setActiveConv,
-    messages, reactions,
+    messages: visibleMessages,
+    rawMessages: messages,
+    reactions,
     firstUnreadId,
     // Composer
     newMessage, setNewMessage,
@@ -1223,6 +1413,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     showChatMenu, setShowChatMenu,
     showScrollDown,
     showSelfDestructMenu, setShowSelfDestructMenu,
+    showMuteMenu, setShowMuteMenu,
     showWallpaperPicker, setShowWallpaperPicker,
     // Filter
     conversationFilter, setConversationFilter,
@@ -1245,6 +1436,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     // Selection
     selectedIds, selectionMode, toggleSelect, clearSelection,
     copySelectedMessages, deleteSelectedMessages,
+    hideManyForSelf,
     // Forward
     forwardingMessages, startForward, performForwardTo, cancelForward,
     // Presence
@@ -1254,7 +1446,9 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     // Actions
     scrollToBottom, focusComposer, resizeComposer, handleScroll,
     loadConversations, loadMessages,
-    sendMessage, deleteMessage, deleteManyMessages, pinMessage,
+    sendMessage, retryFailedMessage,
+    deleteMessage, deleteManyMessages, hideMessageForSelf,
+    pinMessage,
     startEditMessage, saveEditMessage,
     searchInChat, navigateSearch,
     toggleSelfDestruct, toggleReaction,

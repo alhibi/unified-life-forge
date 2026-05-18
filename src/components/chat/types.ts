@@ -5,6 +5,18 @@
 export type ConversationFilter = 'all' | 'unread' | 'archived';
 export type MessageTypeStr = 'text' | 'image' | 'voice' | 'file';
 
+/**
+ * Client-side delivery state. Drives the bubble tick:
+ *   pending  → single grey clock     ("sending")
+ *   sent     → single grey check     ("server received")
+ *   delivered → double grey check    ("recipient client got it")
+ *   read     → double primary check  ("recipient read it")
+ *   failed   → red "!" with retry    ("send failed")
+ *
+ * Anything missing this field is treated as `'sent'` (legacy rows).
+ */
+export type MessageStatus = 'pending' | 'sent' | 'delivered' | 'read' | 'failed';
+
 export interface Conversation {
   id: string;
   user1_id: string;
@@ -39,6 +51,15 @@ export interface Message {
   deleted: boolean;
   edited_at?: string | null;
   expires_at?: string | null;
+  /** uuid[] of recipients who have hidden this message for themselves. */
+  hidden_for?: string[] | null;
+  /** Client-supplied UUID for idempotent inserts (anti-duplicate). */
+  client_id?: string | null;
+  /** Forward provenance — set when this message was created via "forward". */
+  forwarded_from_message_id?: string | null;
+  forwarded_from_sender_id?: string | null;
+  /** Client-only delivery state. Never persisted to the DB. */
+  status?: MessageStatus;
 }
 
 export interface Reaction {
@@ -71,9 +92,12 @@ export interface ActionMenuState {
 
 export interface ChatPrefs {
   pinned: Record<string, boolean>;
-  muted: Record<string, boolean>;
+  /** Mute expiry timestamp (ms epoch). 0 = unmuted, Infinity-encoded as -1 = forever. */
+  muted: Record<string, number>;
   archived: Record<string, boolean>;
   drafts: Record<string, string>;
+  /** Last known scroll position (px) per conversation, for "resume where you were". */
+  scroll: Record<string, number>;
   wallpapers: Record<string, string>;   // convId -> wallpaper id
   globalWallpaper: string;              // default wallpaper
   soundEnabled: boolean;

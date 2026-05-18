@@ -41,6 +41,17 @@ interface VoicePlayerContextType {
   isPlayingMsg: (msgId: string) => boolean;
   generateWaveform: (url: string, msgId: string) => Promise<number[]>;
   waveformCache: Record<string, number[]>;
+  /**
+   * Register a resolver that returns the next voice message to auto-play
+   * once the current one ends. Pass `undefined` to disable auto-advance.
+   * The chat drawer wires this with its current conversation messages list
+   * so playback flows continuously like Telegram / WhatsApp.
+   */
+  setOnEnded: (
+    resolver:
+      | ((finishedMsgId: string, conversationId: string) => Promise<{ msgId: string; url: string; senderName: string } | null> | { msgId: string; url: string; senderName: string } | null)
+      | undefined,
+  ) => void;
 }
 
 const VoicePlayerContext = createContext<VoicePlayerContextType | null>(null);
@@ -120,6 +131,22 @@ export const VoicePlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const waveformCacheRef = useRef<Record<string, number[]>>({});
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const rafRef = useRef<number | null>(null);
+  // Auto-advance resolver — see setOnEnded(). Callers register a function
+  // that, given the message that just ended and its conversation id, returns
+  // the next voice message to play (or null to stop). Stored in a ref so
+  // updates do not retrigger consumers.
+  type EndedResolver = (
+    finishedMsgId: string,
+    conversationId: string,
+  ) =>
+    | Promise<{ msgId: string; url: string; senderName: string } | null>
+    | { msgId: string; url: string; senderName: string }
+    | null;
+  const onEndedRef = useRef<EndedResolver | undefined>(undefined);
+
+  const setOnEnded = useCallback((resolver: EndedResolver | undefined) => {
+    onEndedRef.current = resolver;
+  }, []);
 
   const stopRAF = useCallback(() => {
     if (rafRef.current) {
@@ -218,7 +245,31 @@ export const VoicePlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
     audio.onended = () => {
       stopRAF();
+      const finishedId = msgId;
+      const conv = conversationId;
+      // Reset state immediately so the bubble flips back to "play" while we
+      // resolve the next clip.
       setState(prev => ({ ...prev, isPlaying: false, progress: 0, msgId: null }));
+      const resolver = onEndedRef.current;
+      if (!resolver) return;
+      try {
+        const ret = resolver(finishedId, conv);
+        const handle = (
+          next: { msgId: string; url: string; senderName: string } | null,
+        ) => {
+          if (!next) return;
+          // Use the public `play` via this same closure-capable function.
+          // Wrap in a setTimeout so the previous Audio element is fully torn
+          // down before we mount the next one — otherwise iOS Safari's
+          // single-element audio session gets confused.
+          setTimeout(() => play(next.msgId, next.url, next.senderName, conv), 80);
+        };
+        if (ret && typeof (ret as Promise<unknown>).then === 'function') {
+          (ret as Promise<{ msgId: string; url: string; senderName: string } | null>).then(handle).catch(() => {});
+        } else {
+          handle(ret as { msgId: string; url: string; senderName: string } | null);
+        }
+      } catch { /* no-op — defensive */ }
     };
 
     audio.onerror = () => {
@@ -328,6 +379,7 @@ export const VoicePlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
       isPlayingMsg,
       generateWaveform,
       waveformCache,
+      setOnEnded,
     }}>
       {children}
     </VoicePlayerContext.Provider>

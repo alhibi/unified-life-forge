@@ -78,7 +78,16 @@ export const getSignedFileUrl = async (fileUrl: string): Promise<string> => {
 // ─────────────────────────────────────────────────────────────────────────────
 
 /** Human-friendly preview of a message (with emoji prefixes for media). */
-export function getMessagePreview(msg: Pick<Message, 'content' | 'message_type' | 'deleted' | 'file_name'>, isAr: boolean): string {
+export function getMessagePreview(
+  msg: Pick<Message, 'content' | 'message_type' | 'deleted' | 'file_name' | 'hidden_for'>,
+  isAr: boolean,
+  viewerUserId?: string,
+): string {
+  // A message hidden by the viewer (delete-for-me) becomes "[hidden]" in
+  // their list preview; the sender still sees the original.
+  if (viewerUserId && msg.hidden_for?.includes(viewerUserId)) {
+    return isAr ? '🚫 رسالة مخفية' : '🚫 Versteckt';
+  }
   if (msg.deleted) return isAr ? '🚫 تم حذف الرسالة' : '🚫 Nachricht gelöscht';
   switch (msg.message_type) {
     case 'image': return '📷 ' + (isAr ? 'صورة' : 'Foto');
@@ -222,9 +231,35 @@ function renderToken(t: RichToken, key: number | string): React.ReactNode {
 }
 
 /** Render parsed rich-text tokens as React nodes. */
-export function renderRichText(raw: string): React.ReactNode[] {
+function renderRichTextUncached(raw: string): React.ReactNode[] {
   const tokens = tokenize(raw) as RichToken[];
   return tokens.map((t, i) => renderToken(t, i));
+}
+
+// LRU-ish memoization. The previous implementation re-tokenized + re-rendered
+// every message body on every re-render of the messages list (200 messages
+// * keystroke = 200 tokenizations). Cap at 500 entries — chat windows rarely
+// hold more than a few hundred unique strings simultaneously, and React
+// nodes themselves are tiny stable references.
+const RICH_TEXT_CACHE_MAX = 500;
+const richTextCache = new Map<string, React.ReactNode[]>();
+
+export function renderRichText(raw: string): React.ReactNode[] {
+  if (!raw) return [];
+  const cached = richTextCache.get(raw);
+  if (cached) return cached;
+  const rendered = renderRichTextUncached(raw);
+  // Map preserves insertion order; oldest entries are first. Drop a
+  // handful at a time so we don't churn on every miss past the limit.
+  if (richTextCache.size >= RICH_TEXT_CACHE_MAX) {
+    let i = 0;
+    for (const k of richTextCache.keys()) {
+      richTextCache.delete(k);
+      if (++i > 32) break;
+    }
+  }
+  richTextCache.set(raw, rendered);
+  return rendered;
 }
 
 /** Strip formatting markers from content for copy-as-plain and the conversation preview. */
@@ -234,4 +269,39 @@ export function stripMarkers(text: string): string {
     .replace(/\*(\S(?:[^*\n]*\S)?)\*/g, '$1')
     .replace(/_(\S(?:[^_\n]*\S)?)_/g, '$1')
     .replace(/~(\S(?:[^~\n]*\S)?)~/g, '$1');
+}
+
+/**
+ * Render a string with `query` substring highlighted. Markers (*, _, ~, `)
+ * are stripped before matching so a user search for "hello" still highlights
+ * "hello" inside "*hello*". This is intentionally simpler than
+ * renderRichText so it can stack on top of search results without
+ * recomputing token nesting.
+ */
+export function renderHighlighted(raw: string, query: string): React.ReactNode {
+  if (!query) return raw;
+  const plain = stripMarkers(raw);
+  const haystack = plain.toLowerCase();
+  const needle = query.toLowerCase();
+  if (!needle || !haystack.includes(needle)) return raw;
+  const out: React.ReactNode[] = [];
+  let i = 0;
+  let key = 0;
+  while (i < plain.length) {
+    const idx = haystack.indexOf(needle, i);
+    if (idx < 0) {
+      out.push(plain.slice(i));
+      break;
+    }
+    if (idx > i) out.push(plain.slice(i, idx));
+    out.push(
+      React.createElement(
+        'mark',
+        { key: `m-${key++}`, className: 'bg-primary/25 text-primary-foreground rounded-[3px] px-[1px]' },
+        plain.slice(idx, idx + needle.length),
+      ),
+    );
+    i = idx + needle.length;
+  }
+  return out;
 }
