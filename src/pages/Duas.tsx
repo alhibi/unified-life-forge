@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { frequentDuas, duaCategories, type DuaCategory, type FrequentDua } from '@/data/duas';
 import { nawawiHadiths, type NawawiHadith } from '@/data/nawawiHadiths';
 import { ChevronLeft, ChevronRight, Copy, Check, X, Moon, Sun, Plane, Home, HelpCircle, Car, DoorOpen, Building, Users, Globe, Droplets, Zap, Shield, Star, Leaf, Flag, Heart, CloudRain, BookOpen } from 'lucide-react';
-import { toast } from 'sonner';
+import { notify } from '@/lib/notify';
 
 const iconMap: Record<string, React.ElementType> = {
   Moon, Sun, Plane, Home, HelpCircle, Car, DoorOpen, Building,
