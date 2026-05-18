@@ -5,6 +5,7 @@ import {
   ExternalLink, Share2,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { notify } from '@/lib/notify';
 import { sanitizeRssHtml } from '@/utils/sanitizeRssHtml';
 import type { FeedItem, ReaderPrefs } from './types';
 import { formatDate, readingMinutes } from './utils';
@@ -102,18 +103,18 @@ export function ArticleReader({
     }
     try {
       await navigator.clipboard.writeText(article.link);
-      toast.success(isAr ? 'تم نسخ الرابط' : 'Link copied');
+      notify.linkCopied(isAr ? 'ar' : 'de');
     } catch {
-      toast.error(isAr ? 'تعذر النسخ' : 'Copy failed');
+      notify.copyFailed(isAr ? 'ar' : 'de');
     }
   };
 
   const onCopy = async () => {
     try {
       await navigator.clipboard.writeText(article.link);
-      toast.success(isAr ? 'تم نسخ الرابط' : 'Link copied');
+      notify.linkCopied(isAr ? 'ar' : 'de');
     } catch {
-      toast.error(isAr ? 'تعذر النسخ' : 'Copy failed');
+      notify.copyFailed(isAr ? 'ar' : 'de');
     }
   };
 

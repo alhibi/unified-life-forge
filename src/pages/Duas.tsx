@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { frequentDuas, duaCategories, type DuaCategory, type FrequentDua } from '@/data/duas';
 import { nawawiHadiths, type NawawiHadith } from '@/data/nawawiHadiths';
 import { ChevronLeft, ChevronRight, Copy, Check, X, Moon, Sun, Plane, Home, HelpCircle, Car, DoorOpen, Building, Users, Globe, Droplets, Zap, Shield, Star, Leaf, Flag, Heart, CloudRain, BookOpen } from 'lucide-react';
-import { toast } from 'sonner';
+import { notify } from '@/lib/notify';
 
 const iconMap: Record<string, React.ElementType> = {
   Moon, Sun, Plane, Home, HelpCircle, Car, DoorOpen, Building,
@@ -91,7 +91,7 @@ function DuaModal({ open, onClose, title, duas, lang }: {
   const copyDua = (text: string, id: number) => {
     navigator.clipboard.writeText(text);
     setCopiedId(id);
-    toast.success(lang === 'ar' ? 'تم النسخ' : 'Kopiert');
+    notify.copied(lang === 'ar' ? 'ar' : 'de');
     setTimeout(() => setCopiedId(null), 1500);
   };
 
@@ -170,7 +170,7 @@ function NawawiModal({ open, onClose, hadith, lang }: {
   const copyText = () => {
     navigator.clipboard.writeText(hadith.text);
     setCopied(true);
-    toast.success(lang === 'ar' ? 'تم النسخ' : 'Kopiert');
+    notify.copied(lang === 'ar' ? 'ar' : 'de');
     setTimeout(() => setCopied(false), 1500);
   };
 
