@@ -315,23 +315,12 @@ export default function PrayerTimes() {
   const fetchPrayers = useCallback(
     async (lat: number, lng: number) => {
       try {
-        // Reverse-geocode (non-blocking)
-        fetch(
-          `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=${language}`
-        )
-          .then((r) => r.json())
-          .then((geoData) => {
-            const addr = geoData.address;
-            const city =
-              addr?.city ||
-              addr?.town ||
-              addr?.village ||
-              addr?.suburb ||
-              addr?.county ||
-              '';
-            if (city) setLocationName(city);
-          })
-          .catch(() => { /* ignore geocoding failure */ });
+        // Reverse-geocode (non-blocking, cached 7d in localStorage).
+        void import('@/lib/reverseGeocode').then(({ reverseGeocode }) =>
+          reverseGeocode(lat, lng, language).then((r) => {
+            if (r?.city) setLocationName(r.city);
+          }),
+        );
 
         const timings = await fetchPrayerTimingsCached(lat, lng, schoolParam, latAdjParam);
         if (timings) {
