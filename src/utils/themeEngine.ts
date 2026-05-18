@@ -367,6 +367,7 @@ export function generateThemeTokens(
       '--sidebar-accent-foreground': hsl(pH, ps * 0.6, 26),
       '--sidebar-border':       hsl(nH, ns * 0.4, 91),
       '--sidebar-ring':         hsl(pH, ps, 50),
+      '--radius':               '0.875rem',
     };
   }
 
@@ -413,6 +414,7 @@ export function generateThemeTokens(
     '--sidebar-accent-foreground': hsl(nH, ns * 0.2, 90),
     '--sidebar-border':       hsl(nH, clamp(ns * 0.3, 0, 100), borderL),
     '--sidebar-ring':         hsl(pH, clamp(ps * 0.85, 0, 100), 60),
+    '--radius':               '0.875rem',
   };
 }
 
@@ -422,6 +424,162 @@ export function applyThemeTokens(tokens: Record<string, string>) {
   for (const [key, value] of Object.entries(tokens)) {
     root.style.setProperty(key, value);
   }
+}
+
+// ─── Material Design 3 — "Indigo Night" baseline scheme ──────
+// Exact tokens from the M3 baseline (hex → HSL conversions verified).
+// Light:
+//   Primary               #6750A4 → 256 34% 48%
+//   On Primary            #FFFFFF → 0   0%  100%
+//   Primary Container     #EADDFF → 263 100% 93%
+//   On Primary Container  #21005D → 261 100% 18%
+//   Secondary             #625B71 → 259 11% 40%
+//   On Secondary          #FFFFFF → 0   0%  100%
+//   Secondary Container   #E8DEF8 → 263 65% 92%
+//   On Secondary Container#1D192B → 254 26% 13%
+//   Tertiary              #7D5260 → 341 21% 41%
+//   Tertiary Container    #FFD8E4 → 342 100% 92%
+//   On Tertiary Container #31111D → 338 48% 13%
+//   Error                 #B3261E → 3   71% 41%
+//   Surface               #FFFBFE → 315 100% 99%
+//   On Surface            #1C1B1F → 255 7% 11%
+//   Surface Variant       #E7E0EC → 275 24% 90%
+//   On Surface Variant    #49454F → 264 7% 29%
+//   Outline               #79747E → 270 4% 47%
+//   Outline Variant       #CAC4D0 → 270 11% 79%
+// Dark (M3 baseline):
+//   Primary               #D0BCFF → 258 100% 87%
+//   On Primary            #381E72 → 259 58% 28%
+//   Primary Container     #4F378B → 257 43% 38%
+//   On Primary Container  #EADDFF → 263 100% 93%
+//   Secondary Container   #4A4458 → 258 13% 31%
+//   On Secondary Container#E8DEF8 → 263 65% 92%
+//   Tertiary              #EFB8C8 → 343 63% 83%
+//   Tertiary Container    #633B48 → 341 25% 31%
+//   On Tertiary Container #FFD8E4 → 342 100% 92%
+//   Error                 #F2B8B5 → 3   70% 83%
+//   Surface               #1C1B1F → 255 7% 11%
+//   On Surface            #E6E1E5 → 312 9% 89%
+//   Surface Variant       #49454F → 264 7% 29%
+//   On Surface Variant    #CAC4D0 → 270 11% 79%
+//   Outline               #938F99 → 264 5% 58%
+export function generateMD3Tokens(isDark: boolean, isBlack: boolean): Record<string, string> {
+  if (!isDark) {
+    return {
+      // Surface family
+      '--background':           '315 100% 99%',
+      '--foreground':           '255 7% 11%',
+      '--card':                 '315 100% 99%',
+      '--card-foreground':      '255 7% 11%',
+      '--popover':              '315 100% 99%',
+      '--popover-foreground':   '255 7% 11%',
+      // Primary
+      '--primary':              '256 34% 48%',
+      '--primary-foreground':   '0 0% 100%',
+      // Secondary → mapped to MD3 secondary-container/on-secondary-container
+      '--secondary':            '263 65% 92%',
+      '--secondary-foreground': '254 26% 13%',
+      // Muted → MD3 surface-variant / on-surface-variant
+      '--muted':                '275 24% 90%',
+      '--muted-foreground':     '264 7% 29%',
+      // Accent → MD3 tertiary-container / on-tertiary-container
+      '--accent':               '342 100% 92%',
+      '--accent-foreground':    '338 48% 13%',
+      // Status
+      '--destructive':          '3 71% 41%',
+      '--destructive-foreground': '0 0% 100%',
+      '--success':              '142 60% 40%',
+      '--success-foreground':   '0 0% 100%',
+      '--warning':              '38 85% 50%',
+      '--warning-foreground':   '38 90% 10%',
+      '--error':                '3 71% 41%',
+      '--error-foreground':     '0 0% 100%',
+      // Outlines
+      '--border':               '270 11% 79%', // outline-variant — softer for separators
+      '--input':                '270 4% 47%',  // outline — sharper for input borders
+      '--ring':                 '256 34% 48%',
+      // Sidebar
+      '--sidebar-background':   '315 100% 99%',
+      '--sidebar-foreground':   '254 26% 13%',
+      '--sidebar-primary':      '256 34% 48%',
+      '--sidebar-primary-foreground': '0 0% 100%',
+      '--sidebar-accent':       '263 100% 93%', // primary-container
+      '--sidebar-accent-foreground': '261 100% 18%',
+      '--sidebar-border':       '270 11% 79%',
+      '--sidebar-ring':         '256 34% 48%',
+      // Extra MD3 tokens (consumable by components that want to opt in)
+      '--md3-primary':          '256 34% 48%',
+      '--md3-on-primary':       '0 0% 100%',
+      '--md3-primary-container':'263 100% 93%',
+      '--md3-on-primary-container':'261 100% 18%',
+      '--md3-secondary':        '259 11% 40%',
+      '--md3-secondary-container':'263 65% 92%',
+      '--md3-tertiary':         '341 21% 41%',
+      '--md3-tertiary-container':'342 100% 92%',
+      '--md3-surface':          '315 100% 99%',
+      '--md3-surface-variant':  '275 24% 90%',
+      '--md3-outline':          '270 4% 47%',
+      '--md3-outline-variant':  '270 11% 79%',
+      '--md3-surface-tint':     '256 34% 48%',
+      // MD3 shape system
+      '--radius':               '1rem', // 16px – medium component shape
+    };
+  }
+
+  // ─── Dark Mode (M3 baseline) ──────────────────────────────
+  const surfaceL  = isBlack ? 0  : 11;   // #1C1B1F → 11%
+  const cardL     = isBlack ? 4  : 14;
+  const containerSatScale = isBlack ? 0.9 : 1;
+  return {
+    '--background':           `255 ${isBlack ? 0 : 7}% ${surfaceL}%`,
+    '--foreground':           '312 9% 89%',
+    '--card':                 `255 ${isBlack ? 0 : 7}% ${cardL}%`,
+    '--card-foreground':      '312 9% 89%',
+    '--popover':              `255 ${isBlack ? 0 : 7}% ${cardL}%`,
+    '--popover-foreground':   '312 9% 89%',
+    '--primary':              '258 100% 87%',     // #D0BCFF
+    '--primary-foreground':   '259 58% 28%',      // #381E72
+    '--secondary':            `258 ${Math.round(13 * containerSatScale)}% ${isBlack ? 22 : 31}%`, // #4A4458
+    '--secondary-foreground': '263 65% 92%',      // #E8DEF8
+    '--muted':                `264 ${Math.round(7 * containerSatScale)}% ${isBlack ? 22 : 29}%`,  // #49454F
+    '--muted-foreground':     '270 11% 79%',      // #CAC4D0
+    '--accent':               `341 ${Math.round(25 * containerSatScale)}% ${isBlack ? 22 : 31}%`, // #633B48
+    '--accent-foreground':    '342 100% 92%',     // #FFD8E4
+    '--destructive':          '3 70% 83%',        // #F2B8B5
+    '--destructive-foreground': '359 100% 21%',
+    '--success':              '142 50% 65%',
+    '--success-foreground':   '142 60% 12%',
+    '--warning':              '38 75% 70%',
+    '--warning-foreground':   '38 80% 8%',
+    '--error':                '3 70% 83%',
+    '--error-foreground':     '359 100% 21%',
+    '--border':               `264 ${isBlack ? 4 : 6}% ${isBlack ? 24 : 32}%`,
+    '--input':                '264 5% 58%',
+    '--ring':                 '258 100% 87%',
+    '--sidebar-background':   `255 ${isBlack ? 0 : 7}% ${isBlack ? 4 : 8}%`,
+    '--sidebar-foreground':   '312 9% 89%',
+    '--sidebar-primary':      '258 100% 87%',
+    '--sidebar-primary-foreground': '259 58% 28%',
+    '--sidebar-accent':       `257 43% ${isBlack ? 28 : 38}%`, // primary-container dark #4F378B
+    '--sidebar-accent-foreground': '263 100% 93%',
+    '--sidebar-border':       `264 ${isBlack ? 4 : 6}% ${isBlack ? 18 : 25}%`,
+    '--sidebar-ring':         '258 100% 87%',
+    // Extra MD3 tokens
+    '--md3-primary':          '258 100% 87%',
+    '--md3-on-primary':       '259 58% 28%',
+    '--md3-primary-container':`257 43% ${isBlack ? 28 : 38}%`,
+    '--md3-on-primary-container':'263 100% 93%',
+    '--md3-secondary':        '263 27% 81%',
+    '--md3-secondary-container':`258 ${Math.round(13 * containerSatScale)}% ${isBlack ? 22 : 31}%`,
+    '--md3-tertiary':         '343 63% 83%',
+    '--md3-tertiary-container':`341 ${Math.round(25 * containerSatScale)}% ${isBlack ? 22 : 31}%`,
+    '--md3-surface':          `255 ${isBlack ? 0 : 7}% ${surfaceL}%`,
+    '--md3-surface-variant':  `264 ${Math.round(7 * containerSatScale)}% ${isBlack ? 22 : 29}%`,
+    '--md3-outline':          '264 5% 58%',
+    '--md3-outline-variant':  `264 7% ${isBlack ? 24 : 32}%`,
+    '--md3-surface-tint':     '258 100% 87%',
+    '--radius':               '1rem',
+  };
 }
 
 // ─── Dynamic theme from image ───────────────────────────────

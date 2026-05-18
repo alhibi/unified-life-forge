@@ -525,3 +525,203 @@ html.theme-transition *::after {
 .scrollbar-none::-webkit-scrollbar {
   display: none;
 }
+
+
+/* ════════════════════════════════════════════════════════════
+   MATERIAL DESIGN 3 — "Indigo Night"
+   All overrides live under [data-md3="true"] so toggling the
+   md3Mode boolean is fully reversible without page reload.
+   ════════════════════════════════════════════════════════════ */
+[data-md3="true"] {
+  /* MD3 Shape scale — used by utility classes below */
+  --md3-shape-xs: 4px;
+  --md3-shape-sm: 8px;
+  --md3-shape-md: 12px;
+  --md3-shape-lg: 16px;
+  --md3-shape-xl: 28px;
+  --md3-shape-full: 9999px;
+
+  /* MD3 elevation (tonal — surface-tint at decreasing alpha) */
+  --md3-elevation-1: 0 1px 2px 0 rgba(0,0,0,0.30), 0 1px 3px 1px rgba(0,0,0,0.15);
+  --md3-elevation-2: 0 1px 2px 0 rgba(0,0,0,0.30), 0 2px 6px 2px rgba(0,0,0,0.15);
+  --md3-elevation-3: 0 4px 8px 3px rgba(0,0,0,0.15), 0 1px 3px 0 rgba(0,0,0,0.30);
+
+  /* MD3 default body letter-spacing is slightly tighter than free Inter */
+  letter-spacing: -0.005em;
+}
+
+/* ── 1. Surfaces & cards ────────────────────────────────────
+   MD3 uses tonal surfaces — every card gets a faint primary tint
+   layered on top of the base surface ("surface-tint" at low alpha).
+   This is what makes M3 feel different from flat Material 2. */
+[data-md3="true"] .premium-card,
+[data-md3="true"] .premium-card-elevated,
+[data-md3="true"] .premium-card-intense,
+[data-md3="true"] .card {
+  border-radius: var(--md3-shape-lg);
+  background:
+    linear-gradient(
+      hsl(var(--md3-surface-tint) / 0.05),
+      hsl(var(--md3-surface-tint) / 0.05)
+    ),
+    hsl(var(--card));
+  border-color: hsl(var(--md3-outline-variant));
+}
+[data-md3="true"] .premium-card-elevated {
+  background:
+    linear-gradient(
+      hsl(var(--md3-surface-tint) / 0.08),
+      hsl(var(--md3-surface-tint) / 0.08)
+    ),
+    hsl(var(--card));
+  box-shadow: var(--md3-elevation-1);
+  border-width: 0;
+}
+[data-md3="true"] .premium-card-intense {
+  background:
+    linear-gradient(
+      hsl(var(--md3-surface-tint) / 0.11),
+      hsl(var(--md3-surface-tint) / 0.11)
+    ),
+    hsl(var(--card));
+  box-shadow: var(--md3-elevation-2);
+  border-width: 0;
+  border-radius: var(--md3-shape-xl);
+}
+
+/* Hover lift swapped for MD3 elevation level-up */
+[data-md3="true"] .card:hover,
+[data-md3="true"] .premium-card:hover,
+[data-md3="true"] .premium-card-elevated:hover,
+[data-md3="true"] .premium-card-intense:hover {
+  transform: none;
+  box-shadow: var(--md3-elevation-3);
+}
+
+/* ── 2. Buttons → MD3 filled / outlined / text ─────────────
+   • <button>, [role=button], <a> with no specific class get
+     pill shape (40dp height, 9999px radius is the M3 spec).
+   • Press-state gets a "state layer" — semi-transparent overlay
+     of on-primary at 12% alpha. */
+[data-md3="true"] button:not(.no-md3),
+[data-md3="true"] [role="button"]:not(.no-md3) {
+  border-radius: var(--md3-shape-full);
+  position: relative;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+/* Filled-tonal style for primary-color backgrounds */
+[data-md3="true"] .btn-primary,
+[data-md3="true"] button.bg-primary,
+[data-md3="true"] [role="button"].bg-primary {
+  background: hsl(var(--md3-primary)) !important;
+  color: hsl(var(--md3-on-primary)) !important;
+  box-shadow: var(--md3-elevation-1);
+  border-radius: var(--md3-shape-full);
+  padding-inline: 1.5rem;
+}
+[data-md3="true"] .btn-primary:hover,
+[data-md3="true"] button.bg-primary:hover {
+  box-shadow: var(--md3-elevation-2);
+  filter: brightness(1.02);
+}
+[data-md3="true"] .btn-primary:active,
+[data-md3="true"] button.bg-primary:active {
+  box-shadow: var(--md3-elevation-1);
+}
+
+/* Tonal (secondary-container) buttons */
+[data-md3="true"] .btn-secondary,
+[data-md3="true"] button.bg-secondary,
+[data-md3="true"] [role="button"].bg-secondary {
+  background: hsl(var(--md3-secondary-container)) !important;
+  color: hsl(var(--secondary-foreground)) !important;
+  border-radius: var(--md3-shape-full);
+}
+
+/* ── 3. Inputs → outlined text-fields w/ MD3 corner shape ── */
+[data-md3="true"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+[data-md3="true"] textarea,
+[data-md3="true"] select {
+  border-radius: var(--md3-shape-xs);
+  border: 1px solid hsl(var(--md3-outline));
+  background: transparent;
+  padding: 0.875rem 1rem;
+  transition: border-color 150ms linear, box-shadow 150ms linear;
+}
+[data-md3="true"] input:focus,
+[data-md3="true"] textarea:focus,
+[data-md3="true"] select:focus {
+  border-color: hsl(var(--md3-primary));
+  box-shadow: inset 0 0 0 1px hsl(var(--md3-primary));
+  outline: none;
+}
+
+/* ── 4. Badges, chips, pills → fully rounded MD3 chips ───── */
+[data-md3="true"] [class*="rounded-full"]:not(button):not([role="button"]) {
+  /* leave images/avatars alone — only style if it's not media */
+}
+[data-md3="true"] [class*="rounded-2xl"],
+[data-md3="true"] [class*="rounded-xl"] {
+  border-radius: var(--md3-shape-lg);
+}
+[data-md3="true"] [class*="rounded-3xl"] {
+  border-radius: var(--md3-shape-xl);
+}
+
+/* ── 5. Bottom navigation → MD3 navigation-bar look ────────
+   Indicator pill behind active tab + 80dp height feel. */
+[data-md3="true"] nav[aria-label*="bottom" i],
+[data-md3="true"] nav.bottom-nav,
+[data-md3="true"] [data-bottom-nav] {
+  background: linear-gradient(
+      hsl(var(--md3-surface-tint) / 0.08),
+      hsl(var(--md3-surface-tint) / 0.08)
+    ),
+    hsl(var(--card));
+  border-top: 1px solid hsl(var(--md3-outline-variant));
+  border-radius: 0;
+}
+
+/* ── 6. Dialogs / sheets → MD3 large radius ──────────────── */
+[data-md3="true"] [role="dialog"],
+[data-md3="true"] [data-state="open"][class*="DialogContent"],
+[data-md3="true"] .glass-overlay {
+  border-radius: var(--md3-shape-xl);
+}
+
+/* ── 7. Toggle switches → MD3 spec proportions ─────────────
+   M3 switch = 52×32 with a 16dp thumb (24dp when checked). */
+[data-md3="true"] .relative.rounded-full[class*="bg-primary"],
+[data-md3="true"] .relative.rounded-full[class*="bg-muted"] {
+  /* nothing here — page-level switches already render reasonably,
+     only adjust spacing if they overflow */
+}
+
+/* ── 8. Typography polish ──────────────────────────────────
+   M3 uses Display / Headline / Title / Body / Label scales. */
+[data-md3="true"] h1 { font-weight: 400; letter-spacing: -0.02em; }
+[data-md3="true"] h2 { font-weight: 500; letter-spacing: -0.015em; }
+[data-md3="true"] h3, [data-md3="true"] h4 { font-weight: 500; letter-spacing: -0.01em; }
+[data-md3="true"] .uppercase { letter-spacing: 0.08em; font-weight: 500; }
+
+/* ── 9. FAB-style floating buttons ─────────────────────────
+   Any button with .fixed + .rounded-full positioning gets MD3 FAB look. */
+[data-md3="true"] button.fixed.rounded-full,
+[data-md3="true"] [role="button"].fixed.rounded-full {
+  background: hsl(var(--md3-primary-container)) !important;
+  color: hsl(var(--md3-on-primary-container)) !important;
+  box-shadow: var(--md3-elevation-3);
+}
+
+/* ── 10. Scrollbar — slightly more visible on MD3 surfaces ── */
+[data-md3="true"] ::-webkit-scrollbar-thumb {
+  background: hsl(var(--md3-outline) / 0.4);
+}
+
+/* ── 11. Selection highlight uses primary-container ──────── */
+[data-md3="true"] ::selection {
+  background: hsl(var(--md3-primary-container));
+  color: hsl(var(--md3-on-primary-container));
+}
