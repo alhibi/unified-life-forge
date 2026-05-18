@@ -784,6 +784,395 @@ export const EXERCISES: Record<string, Exercise> = {
     secondary: ['quads'], defaultSets: 3, defaultReps: 30,
     label: { ar: 'ركبتان عاليتان', de: 'Hohe Knie' },
   },
+
+  // ════════════════════════════════════════════════════════════
+  //  CALISTHENICS — Extended Push Progressions
+  // ════════════════════════════════════════════════════════════
+  wide_pushup: {
+    key: 'wide_pushup', type: 'strength', equipment: 'bodyweight', primary: 'chest',
+    secondary: ['shoulders'], defaultSets: 3, defaultReps: 12,
+    label: { ar: 'ضغط واسع', de: 'Weiter Liegestütz' },
+  },
+  hindu_pushup: {
+    key: 'hindu_pushup', type: 'strength', equipment: 'bodyweight', primary: 'chest',
+    secondary: ['shoulders', 'triceps', 'core'], defaultSets: 3, defaultReps: 10,
+    label: { ar: 'ضغط هندي', de: 'Hindu Push-up' },
+  },
+  dive_bomber_pushup: {
+    key: 'dive_bomber_pushup', type: 'strength', equipment: 'bodyweight', primary: 'chest',
+    secondary: ['shoulders', 'triceps', 'core'], defaultSets: 3, defaultReps: 8,
+    label: { ar: 'ضغط القاذفة', de: 'Dive Bomber Push-up' },
+  },
+  ring_pushup: {
+    key: 'ring_pushup', type: 'strength', equipment: 'bodyweight', primary: 'chest',
+    secondary: ['triceps', 'core', 'shoulders'], defaultSets: 4, defaultReps: 10,
+    label: { ar: 'ضغط على الحلقات', de: 'Ring Push-up' },
+  },
+  sphinx_pushup: {
+    key: 'sphinx_pushup', type: 'strength', equipment: 'bodyweight', primary: 'triceps',
+    secondary: ['chest'], defaultSets: 3, defaultReps: 10,
+    label: { ar: 'ضغط أبو الهول', de: 'Sphinx Push-up' },
+  },
+  tiger_bend_pushup: {
+    key: 'tiger_bend_pushup', type: 'strength', equipment: 'bodyweight', primary: 'triceps',
+    secondary: ['shoulders', 'chest'], defaultSets: 4, defaultReps: 6,
+    label: { ar: 'ضغط انحناء النمر', de: 'Tiger Bend Push-up' },
+  },
+  elevated_pike_pushup: {
+    key: 'elevated_pike_pushup', type: 'strength', equipment: 'bodyweight', primary: 'shoulders',
+    secondary: ['triceps'], defaultSets: 4, defaultReps: 8,
+    label: { ar: 'بايك مرتفع', de: 'Erhöhter Pike Push-up' },
+  },
+  wall_hspu: {
+    key: 'wall_hspu', type: 'strength', equipment: 'bodyweight', primary: 'shoulders',
+    secondary: ['triceps', 'traps', 'core'], defaultSets: 4, defaultReps: 5,
+    label: { ar: 'ضغط يدين بالحائط', de: 'Wand-HSPU' },
+  },
+  deficit_hspu: {
+    key: 'deficit_hspu', type: 'strength', equipment: 'bodyweight', primary: 'shoulders',
+    secondary: ['triceps', 'traps'], defaultSets: 4, defaultReps: 4,
+    label: { ar: 'HSPU عميق', de: 'Deficit-HSPU' },
+  },
+  korean_dip: {
+    key: 'korean_dip', type: 'strength', equipment: 'bodyweight', primary: 'triceps',
+    secondary: ['shoulders', 'chest'], defaultSets: 4, defaultReps: 6,
+    label: { ar: 'ديبس كوري', de: 'Korean Dip' },
+  },
+  impossible_dip: {
+    key: 'impossible_dip', type: 'strength', equipment: 'bodyweight', primary: 'triceps',
+    secondary: ['chest', 'shoulders', 'core'], defaultSets: 4, defaultReps: 4,
+    label: { ar: 'ديبس مستحيل', de: 'Impossible Dip' },
+  },
+  bulgarian_dip: {
+    key: 'bulgarian_dip', type: 'strength', equipment: 'bodyweight', primary: 'triceps',
+    secondary: ['chest', 'shoulders'], defaultSets: 4, defaultReps: 6,
+    label: { ar: 'ديبس بلغاري', de: 'Bulgarian Ring Dip' },
+  },
+  planche_pushup: {
+    key: 'planche_pushup', type: 'strength', equipment: 'bodyweight', primary: 'shoulders',
+    secondary: ['chest', 'core', 'triceps'], defaultSets: 5, defaultReps: 3,
+    label: { ar: 'ضغط بلانش', de: 'Planche Push-up' },
+  },
+  planche_lean: {
+    key: 'planche_lean', type: 'strength', equipment: 'bodyweight', primary: 'shoulders',
+    secondary: ['core', 'chest'], defaultSets: 4, defaultReps: 1,
+    label: { ar: 'ميلان البلانش', de: 'Planche Lean' },
+  },
+  frog_stand: {
+    key: 'frog_stand', type: 'strength', equipment: 'bodyweight', primary: 'shoulders',
+    secondary: ['core', 'triceps'], defaultSets: 4, defaultReps: 1,
+    label: { ar: 'وقفة الضفدع', de: 'Frog Stand' },
+  },
+
+  // ════════════════════════════════════════════════════════════
+  //  CALISTHENICS — Extended Pull Progressions
+  // ════════════════════════════════════════════════════════════
+  close_grip_pullup: {
+    key: 'close_grip_pullup', type: 'strength', equipment: 'bodyweight', primary: 'back',
+    secondary: ['biceps'], defaultSets: 4, defaultReps: 8,
+    label: { ar: 'عقلة ضيقة', de: 'Enger Klimmzug' },
+  },
+  wide_pullup: {
+    key: 'wide_pullup', type: 'strength', equipment: 'bodyweight', primary: 'back',
+    secondary: ['biceps', 'shoulders'], defaultSets: 4, defaultReps: 6,
+    label: { ar: 'عقلة واسعة', de: 'Weiter Klimmzug' },
+  },
+  commando_pullup: {
+    key: 'commando_pullup', type: 'strength', equipment: 'bodyweight', primary: 'back',
+    secondary: ['biceps', 'core'], defaultSets: 3, defaultReps: 6,
+    label: { ar: 'عقلة كوماندوز', de: 'Commando Pull-up' },
+  },
+  l_sit_pullup: {
+    key: 'l_sit_pullup', type: 'strength', equipment: 'bodyweight', primary: 'back',
+    secondary: ['biceps', 'core'], defaultSets: 4, defaultReps: 6,
+    label: { ar: 'عقلة إل-سيت', de: 'L-Sit Klimmzug' },
+  },
+  explosive_pullup: {
+    key: 'explosive_pullup', type: 'plyo', equipment: 'bodyweight', primary: 'back',
+    secondary: ['biceps'], defaultSets: 4, defaultReps: 5,
+    label: { ar: 'عقلة انفجارية', de: 'Explosiver Klimmzug' },
+  },
+  false_grip_pullup: {
+    key: 'false_grip_pullup', type: 'strength', equipment: 'bodyweight', primary: 'back',
+    secondary: ['forearms', 'biceps'], defaultSets: 4, defaultReps: 6,
+    label: { ar: 'عقلة قبضة كاذبة', de: 'False Grip Pull-up' },
+  },
+  weighted_pullup: {
+    key: 'weighted_pullup', type: 'strength', equipment: 'bodyweight', primary: 'back',
+    secondary: ['biceps', 'forearms'], defaultSets: 5, defaultReps: 5, isBigLift: true,
+    label: { ar: 'عقلة بأوزان', de: 'Gewichteter Klimmzug' },
+  },
+  ring_muscle_up: {
+    key: 'ring_muscle_up', type: 'strength', equipment: 'bodyweight', primary: 'back',
+    secondary: ['triceps', 'chest', 'biceps'], defaultSets: 5, defaultReps: 3,
+    label: { ar: 'ماصل أب حلقات', de: 'Ring Muscle-Up' },
+  },
+  slow_muscle_up: {
+    key: 'slow_muscle_up', type: 'strength', equipment: 'bodyweight', primary: 'back',
+    secondary: ['triceps', 'chest'], defaultSets: 4, defaultReps: 3,
+    label: { ar: 'ماصل أب بطيء', de: 'Langsamer Muscle-Up' },
+  },
+  front_lever_row: {
+    key: 'front_lever_row', type: 'strength', equipment: 'bodyweight', primary: 'back',
+    secondary: ['core', 'biceps'], defaultSets: 4, defaultReps: 5,
+    label: { ar: 'تجديف فرنت ليفر', de: 'Front Lever Row' },
+  },
+  ice_cream_maker: {
+    key: 'ice_cream_maker', type: 'strength', equipment: 'bodyweight', primary: 'back',
+    secondary: ['core', 'biceps'], defaultSets: 4, defaultReps: 6,
+    label: { ar: 'آيس كريم ميكر', de: 'Ice Cream Maker' },
+  },
+  skin_the_cat: {
+    key: 'skin_the_cat', type: 'strength', equipment: 'bodyweight', primary: 'shoulders',
+    secondary: ['back', 'core'], defaultSets: 3, defaultReps: 5,
+    label: { ar: 'سكن ذا كات', de: 'Skin the Cat' },
+  },
+  pelican_curl: {
+    key: 'pelican_curl', type: 'strength', equipment: 'bodyweight', primary: 'biceps',
+    secondary: ['forearms', 'shoulders'], defaultSets: 3, defaultReps: 6,
+    label: { ar: 'كيرل البجعة', de: 'Pelikan-Curl' },
+  },
+
+  // ════════════════════════════════════════════════════════════
+  //  CALISTHENICS — Extended Legs (Bodyweight)
+  // ════════════════════════════════════════════════════════════
+  sissy_squat: {
+    key: 'sissy_squat', type: 'strength', equipment: 'bodyweight', primary: 'quads',
+    secondary: ['core'], defaultSets: 3, defaultReps: 10,
+    label: { ar: 'سيسي سكوات', de: 'Sissy Squat' },
+  },
+  dragon_squat: {
+    key: 'dragon_squat', type: 'strength', equipment: 'bodyweight', primary: 'quads',
+    secondary: ['glutes', 'core'], defaultSets: 3, defaultReps: 5,
+    label: { ar: 'سكوات التنين', de: 'Dragon Squat' },
+  },
+  natural_leg_extension: {
+    key: 'natural_leg_extension', type: 'strength', equipment: 'bodyweight', primary: 'quads',
+    secondary: ['core'], defaultSets: 3, defaultReps: 8,
+    label: { ar: 'تمديد ساق طبيعي', de: 'Natural Leg Extension' },
+  },
+  reverse_nordic: {
+    key: 'reverse_nordic', type: 'strength', equipment: 'bodyweight', primary: 'quads',
+    secondary: ['core'], defaultSets: 3, defaultReps: 8,
+    label: { ar: 'نوردك معكوس', de: 'Reverse Nordic' },
+  },
+  single_leg_rdl: {
+    key: 'single_leg_rdl', type: 'strength', equipment: 'bodyweight', primary: 'hamstrings',
+    secondary: ['glutes', 'core'], defaultSets: 3, defaultReps: 8,
+    label: { ar: 'ديدليفت رجل واحدة', de: 'Einbeiniger RDL' },
+  },
+  hamstring_slide: {
+    key: 'hamstring_slide', type: 'strength', equipment: 'bodyweight', primary: 'hamstrings',
+    secondary: ['glutes'], defaultSets: 3, defaultReps: 10,
+    label: { ar: 'انزلاق خلفي', de: 'Hamstring Slide' },
+  },
+  single_leg_hip_thrust: {
+    key: 'single_leg_hip_thrust', type: 'strength', equipment: 'bodyweight', primary: 'glutes',
+    secondary: ['hamstrings'], defaultSets: 3, defaultReps: 10,
+    label: { ar: 'هيب ثرست رجل واحدة', de: 'Einbeiniger Hip Thrust' },
+  },
+  elevated_calf_raise: {
+    key: 'elevated_calf_raise', type: 'strength', equipment: 'bodyweight', primary: 'calves',
+    defaultSets: 4, defaultReps: 20,
+    label: { ar: 'رفع كعب مرتفع', de: 'Erhöhtes Wadenheben' },
+  },
+  single_leg_calf_raise: {
+    key: 'single_leg_calf_raise', type: 'strength', equipment: 'bodyweight', primary: 'calves',
+    defaultSets: 4, defaultReps: 15,
+    label: { ar: 'رفع كعب رجل واحدة', de: 'Einbeiniges Wadenheben' },
+  },
+  sprinter_lunge: {
+    key: 'sprinter_lunge', type: 'plyo', equipment: 'bodyweight', primary: 'quads',
+    secondary: ['glutes', 'calves'], defaultSets: 3, defaultReps: 8,
+    label: { ar: 'لنج العدّاء', de: 'Sprinter-Ausfallschritt' },
+  },
+  lateral_lunge: {
+    key: 'lateral_lunge', type: 'strength', equipment: 'bodyweight', primary: 'quads',
+    secondary: ['glutes', 'hamstrings'], defaultSets: 3, defaultReps: 10,
+    label: { ar: 'لنج جانبي', de: 'Seitlicher Ausfallschritt' },
+  },
+  skater_squat: {
+    key: 'skater_squat', type: 'strength', equipment: 'bodyweight', primary: 'quads',
+    secondary: ['glutes', 'core'], defaultSets: 3, defaultReps: 6,
+    label: { ar: 'سكوات المتزلج', de: 'Skater Squat' },
+  },
+
+  // ════════════════════════════════════════════════════════════
+  //  CALISTHENICS — Extended Core & Statics
+  // ════════════════════════════════════════════════════════════
+  hanging_windshield_wiper: {
+    key: 'hanging_windshield_wiper', type: 'core', equipment: 'bodyweight', primary: 'core',
+    secondary: ['back'], defaultSets: 3, defaultReps: 8,
+    label: { ar: 'مساحات معلقة', de: 'Hängende Scheibenwischer' },
+  },
+  front_lever_hold: {
+    key: 'front_lever_hold', type: 'strength', equipment: 'bodyweight', primary: 'back',
+    secondary: ['core'], defaultSets: 5, defaultReps: 1,
+    label: { ar: 'ثبات فرنت ليفر', de: 'Front Lever Hold' },
+  },
+  back_lever_hold: {
+    key: 'back_lever_hold', type: 'strength', equipment: 'bodyweight', primary: 'back',
+    secondary: ['shoulders', 'core'], defaultSets: 5, defaultReps: 1,
+    label: { ar: 'ثبات باك ليفر', de: 'Back Lever Hold' },
+  },
+  ring_support_hold: {
+    key: 'ring_support_hold', type: 'strength', equipment: 'bodyweight', primary: 'triceps',
+    secondary: ['shoulders', 'core'], defaultSets: 4, defaultReps: 1,
+    label: { ar: 'ثبات على الحلقات', de: 'Ring Support Hold' },
+  },
+  rto_support: {
+    key: 'rto_support', type: 'strength', equipment: 'bodyweight', primary: 'triceps',
+    secondary: ['chest', 'shoulders'], defaultSets: 4, defaultReps: 1,
+    label: { ar: 'حلقات مفتوحة RTO', de: 'RTO Support' },
+  },
+  iron_cross_hold: {
+    key: 'iron_cross_hold', type: 'strength', equipment: 'bodyweight', primary: 'chest',
+    secondary: ['shoulders', 'biceps'], defaultSets: 5, defaultReps: 1,
+    label: { ar: 'ثبات الصليب الحديدي', de: 'Iron Cross Hold' },
+  },
+  maltese_hold: {
+    key: 'maltese_hold', type: 'strength', equipment: 'bodyweight', primary: 'chest',
+    secondary: ['shoulders', 'core'], defaultSets: 5, defaultReps: 1,
+    label: { ar: 'ثبات مالتيز', de: 'Maltese Hold' },
+  },
+  press_to_handstand: {
+    key: 'press_to_handstand', type: 'strength', equipment: 'bodyweight', primary: 'shoulders',
+    secondary: ['core'], defaultSets: 4, defaultReps: 3,
+    label: { ar: 'ضغط للوقوف على اليدين', de: 'Press to Handstand' },
+  },
+  straddle_press: {
+    key: 'straddle_press', type: 'strength', equipment: 'bodyweight', primary: 'shoulders',
+    secondary: ['core'], defaultSets: 4, defaultReps: 3,
+    label: { ar: 'ضغط مفتوح للوقوف', de: 'Straddle Press to HS' },
+  },
+  ab_wheel_standing: {
+    key: 'ab_wheel_standing', type: 'core', equipment: 'bodyweight', primary: 'core',
+    secondary: ['shoulders'], defaultSets: 3, defaultReps: 5,
+    label: { ar: 'عجلة البطن واقفاً', de: 'Ab-Wheel stehend' },
+  },
+  ring_ab_rollout: {
+    key: 'ring_ab_rollout', type: 'core', equipment: 'bodyweight', primary: 'core',
+    secondary: ['shoulders'], defaultSets: 3, defaultReps: 8,
+    label: { ar: 'رولأوت حلقات', de: 'Ring Ab-Rollout' },
+  },
+  hanging_knee_raise: {
+    key: 'hanging_knee_raise', type: 'core', equipment: 'bodyweight', primary: 'core',
+    defaultSets: 3, defaultReps: 12,
+    label: { ar: 'رفع ركبة معلق', de: 'Hängendes Knieheben' },
+  },
+  body_saw: {
+    key: 'body_saw', type: 'core', equipment: 'bodyweight', primary: 'core',
+    secondary: ['shoulders'], defaultSets: 3, defaultReps: 10,
+    label: { ar: 'المنشار', de: 'Body Saw' },
+  },
+  plank_to_pushup: {
+    key: 'plank_to_pushup', type: 'core', equipment: 'bodyweight', primary: 'core',
+    secondary: ['triceps', 'shoulders'], defaultSets: 3, defaultReps: 10,
+    label: { ar: 'بلانك إلى ضغط', de: 'Plank to Push-up' },
+  },
+  reverse_plank: {
+    key: 'reverse_plank', type: 'core', equipment: 'bodyweight', primary: 'core',
+    secondary: ['glutes', 'shoulders'], defaultSets: 3, defaultReps: 1,
+    label: { ar: 'بلانك معكوس', de: 'Reverse Plank' },
+  },
+  banana_hold: {
+    key: 'banana_hold', type: 'core', equipment: 'bodyweight', primary: 'core',
+    defaultSets: 3, defaultReps: 1,
+    label: { ar: 'ثبات الموزة', de: 'Banana Hold' },
+  },
+  superman_hold: {
+    key: 'superman_hold', type: 'core', equipment: 'bodyweight', primary: 'back',
+    secondary: ['glutes'], defaultSets: 3, defaultReps: 1,
+    label: { ar: 'ثبات سوبرمان', de: 'Superman Hold' },
+  },
+
+  // ════════════════════════════════════════════════════════════
+  //  CALISTHENICS — Rings Specific
+  // ════════════════════════════════════════════════════════════
+  ring_flies: {
+    key: 'ring_flies', type: 'strength', equipment: 'bodyweight', primary: 'chest',
+    secondary: ['shoulders', 'core'], defaultSets: 3, defaultReps: 8,
+    label: { ar: 'تفتيح حلقات', de: 'Ring Flies' },
+  },
+  ring_face_pull: {
+    key: 'ring_face_pull', type: 'strength', equipment: 'bodyweight', primary: 'shoulders',
+    secondary: ['back'], defaultSets: 3, defaultReps: 12,
+    label: { ar: 'سحب وجه بالحلقات', de: 'Ring Face Pull' },
+  },
+  ring_bicep_curl: {
+    key: 'ring_bicep_curl', type: 'strength', equipment: 'bodyweight', primary: 'biceps',
+    secondary: ['forearms'], defaultSets: 3, defaultReps: 10,
+    label: { ar: 'كيرل حلقات', de: 'Ring Bizeps-Curl' },
+  },
+  ring_tricep_extension: {
+    key: 'ring_tricep_extension', type: 'strength', equipment: 'bodyweight', primary: 'triceps',
+    defaultSets: 3, defaultReps: 10,
+    label: { ar: 'تمديد ترايسبس حلقات', de: 'Ring Trizeps-Extension' },
+  },
+  ring_pike_pushup: {
+    key: 'ring_pike_pushup', type: 'strength', equipment: 'bodyweight', primary: 'shoulders',
+    secondary: ['triceps', 'core'], defaultSets: 3, defaultReps: 8,
+    label: { ar: 'بايك حلقات', de: 'Ring Pike Push-up' },
+  },
+  ring_l_sit: {
+    key: 'ring_l_sit', type: 'core', equipment: 'bodyweight', primary: 'core',
+    secondary: ['triceps'], defaultSets: 4, defaultReps: 1,
+    label: { ar: 'إل-سيت حلقات', de: 'Ring L-Sit' },
+  },
+
+  // ════════════════════════════════════════════════════════════
+  //  CALISTHENICS — Mobility & Flexibility (for athletes)
+  // ════════════════════════════════════════════════════════════
+  pike_stretch: {
+    key: 'pike_stretch', type: 'mobility', equipment: 'bodyweight', primary: 'hamstrings',
+    secondary: ['back'], defaultSets: 3, defaultReps: 1,
+    label: { ar: 'تمدد بايك', de: 'Pike-Dehnung' },
+  },
+  pancake_stretch: {
+    key: 'pancake_stretch', type: 'mobility', equipment: 'bodyweight', primary: 'hamstrings',
+    secondary: ['glutes'], defaultSets: 3, defaultReps: 1,
+    label: { ar: 'تمدد الفطيرة', de: 'Pancake-Stretch' },
+  },
+  bridge: {
+    key: 'bridge', type: 'mobility', equipment: 'bodyweight', primary: 'back',
+    secondary: ['shoulders', 'glutes'], defaultSets: 3, defaultReps: 1,
+    label: { ar: 'الجسر', de: 'Brücke' },
+  },
+  full_bridge: {
+    key: 'full_bridge', type: 'mobility', equipment: 'bodyweight', primary: 'back',
+    secondary: ['shoulders', 'glutes', 'quads'], defaultSets: 3, defaultReps: 1,
+    label: { ar: 'الجسر الكامل', de: 'Volle Brücke' },
+  },
+  wrist_prep: {
+    key: 'wrist_prep', type: 'mobility', equipment: 'bodyweight', primary: 'forearms',
+    defaultSets: 2, defaultReps: 1,
+    label: { ar: 'تحضير المعصم', de: 'Handgelenk-Vorbereitung' },
+  },
+  front_split: {
+    key: 'front_split', type: 'mobility', equipment: 'bodyweight', primary: 'hamstrings',
+    secondary: ['quads', 'glutes'], defaultSets: 3, defaultReps: 1,
+    label: { ar: 'سبليت أمامي', de: 'Frontspagat' },
+  },
+  middle_split: {
+    key: 'middle_split', type: 'mobility', equipment: 'bodyweight', primary: 'glutes',
+    secondary: ['hamstrings'], defaultSets: 3, defaultReps: 1,
+    label: { ar: 'سبليت وسطي', de: 'Mittelspagat' },
+  },
+  jefferson_curl: {
+    key: 'jefferson_curl', type: 'mobility', equipment: 'bodyweight', primary: 'back',
+    secondary: ['hamstrings'], defaultSets: 3, defaultReps: 5,
+    label: { ar: 'جيفرسون كيرل', de: 'Jefferson Curl' },
+  },
+  german_hang: {
+    key: 'german_hang', type: 'mobility', equipment: 'bodyweight', primary: 'shoulders',
+    secondary: ['biceps', 'back'], defaultSets: 3, defaultReps: 1,
+    label: { ar: 'التعليق الألماني', de: 'German Hang' },
+  },
+  scapular_push_up: {
+    key: 'scapular_push_up', type: 'mobility', equipment: 'bodyweight', primary: 'back',
+    secondary: ['shoulders'], defaultSets: 3, defaultReps: 10,
+    label: { ar: 'ضغط لوح الكتف', de: 'Scapular Push-up' },
+  },
 };
 
 export const EXERCISE_LIST: Exercise[] = Object.values(EXERCISES);
@@ -976,6 +1365,83 @@ export const TEMPLATES: WorkoutTemplate[] = [
       de: 'Klassisches Kraftprogramm — Stronglifts.',
     },
     exerciseKeys: ['squat', 'bench', 'bent_row', 'ohp', 'deadlift'],
+  },
+  {
+    key: 'cali_push_focus',
+    type: 'strength',
+    durationMin: 45,
+    name: { ar: 'كاليستنيكس — دفع', de: 'Calisthenics — Push' },
+    description: {
+      ar: 'صدر، أكتاف، ترايسبس بالكامل بوزن الجسم.',
+      de: 'Brust, Schultern, Trizeps nur mit Körpergewicht.',
+    },
+    exerciseKeys: ['archer_pushup', 'ring_dip', 'pike_pushup', 'pseudo_planche_pushup', 'diamond_pushup', 'hspu'],
+  },
+  {
+    key: 'cali_pull_focus',
+    type: 'strength',
+    durationMin: 45,
+    name: { ar: 'كاليستنيكس — سحب', de: 'Calisthenics — Pull' },
+    description: {
+      ar: 'ظهر وبايسبس — تدرجات السحب المتقدمة.',
+      de: 'Rücken & Bizeps — fortgeschrittene Zugprogressionen.',
+    },
+    exerciseKeys: ['pull_up', 'muscle_up', 'archer_pullup', 'front_lever_raise', 'inverted_row', 'pelican_curl'],
+  },
+  {
+    key: 'cali_legs_focus',
+    type: 'strength',
+    durationMin: 40,
+    name: { ar: 'كاليستنيكس — أرجل', de: 'Calisthenics — Beine' },
+    description: {
+      ar: 'بناء أرجل قوية بدون أوزان — تدرجات من السكوات إلى النوردك.',
+      de: 'Starke Beine ohne Gewichte — von Squats bis Nordic Curls.',
+    },
+    exerciseKeys: ['pistol_squat', 'nordic_curl', 'shrimp_squat', 'cossack_squat', 'sissy_squat', 'single_leg_glute_bridge'],
+  },
+  {
+    key: 'cali_core_destroyer',
+    type: 'strength',
+    durationMin: 25,
+    name: { ar: 'كاليستنيكس — جذع حديدي', de: 'Calisthenics — Core Destroyer' },
+    description: {
+      ar: 'تحدٍّ جذعي شامل — من الهولو إلى علم التنين.',
+      de: 'Umfassende Core-Herausforderung — von Hollow Hold bis Dragon Flag.',
+    },
+    exerciseKeys: ['hollow_hold', 'dragon_flag', 'toes_to_bar', 'l_sit', 'windshield_wiper', 'hanging_leg_raise'],
+  },
+  {
+    key: 'cali_rings_intro',
+    type: 'strength',
+    durationMin: 40,
+    name: { ar: 'مقدمة الحلقات', de: 'Ringe Einführung' },
+    description: {
+      ar: 'تمارين أساسية على الحلقات لبناء الاستقرار والقوة.',
+      de: 'Ring-Grundlagen für Stabilität und Kraft.',
+    },
+    exerciseKeys: ['ring_row', 'ring_pushup', 'ring_dip', 'ring_support_hold', 'ring_l_sit', 'ring_face_pull'],
+  },
+  {
+    key: 'cali_skills_session',
+    type: 'strength',
+    durationMin: 50,
+    name: { ar: 'جلسة مهارات', de: 'Skills-Session' },
+    description: {
+      ar: 'تدريب مهارات ثابتة — بلانش، فرنت ليفر، وقوف يدين.',
+      de: 'Statisches Skills-Training — Planche, Front Lever, Handstand.',
+    },
+    exerciseKeys: ['tuck_planche', 'tuck_front_lever', 'free_handstand', 'back_lever', 'l_sit', 'human_flag'],
+  },
+  {
+    key: 'cali_flexibility',
+    type: 'mobility',
+    durationMin: 20,
+    name: { ar: 'مرونة الكاليستنيكس', de: 'Calisthenics-Flexibilität' },
+    description: {
+      ar: 'تمارين مرونة ضرورية لتقدم المهارات.',
+      de: 'Essentielle Flexibilitätsarbeit für Skill-Fortschritt.',
+    },
+    exerciseKeys: ['pike_stretch', 'pancake_stretch', 'wrist_prep', 'german_hang', 'bridge', 'hip_opener'],
   },
 ];
 
