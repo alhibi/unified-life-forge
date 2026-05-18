@@ -6,27 +6,33 @@ import { navLoaded } from '@/lib/navPerf';
 // Main tabs — these get a fast fade (no slide)
 const TAB_PATHS = ['/', '/games', '/duas', '/diwan', '/settings'];
 
+// Zoom-fade transition: subtle scale-up on enter, scale-down on exit
+// (matches the iOS-style "soft zoom" the user requested).
 const slideVariants = {
-  initial: { opacity: 0 },
+  initial: { opacity: 0, scale: 0.965 },
   animate: {
     opacity: 1,
-    transition: { duration: 0.18, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] },
+    scale: 1,
+    transition: { duration: 0.26, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] },
   },
   exit: {
     opacity: 0,
-    transition: { duration: 0.1, ease: [0.4, 0, 1, 1] as [number, number, number, number] },
+    scale: 0.985,
+    transition: { duration: 0.16, ease: [0.4, 0, 1, 1] as [number, number, number, number] },
   },
 };
 
 const fadeVariants = {
-  initial: { opacity: 0 },
+  initial: { opacity: 0, scale: 0.97 },
   animate: {
     opacity: 1,
-    transition: { duration: 0.15, ease: [0.4, 0, 0.2, 1] as [number, number, number, number] },
+    scale: 1,
+    transition: { duration: 0.22, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] },
   },
   exit: {
     opacity: 0,
-    transition: { duration: 0.1, ease: [0.4, 0, 1, 1] as [number, number, number, number] },
+    scale: 0.99,
+    transition: { duration: 0.14, ease: [0.4, 0, 1, 1] as [number, number, number, number] },
   },
 };
 
@@ -49,6 +55,7 @@ export default memo(function PageTransition({ children }: { children: ReactNode 
       exit="exit"
       style={{
         willChange: 'opacity, transform',
+        transformOrigin: 'center center',
         contain: 'layout style paint',
         backfaceVisibility: 'hidden',
       }}
