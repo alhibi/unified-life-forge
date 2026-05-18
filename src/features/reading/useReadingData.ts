@@ -13,6 +13,7 @@ import {
   storeFeeds,
   storeReadArticles,
 } from './storage';
+import { fetchFeedsClientSide, isSupabaseAvailable } from './clientFetcher';
 
 /**
  * Centralised data layer for the reading feature.
@@ -141,51 +142,100 @@ export function useReadingData(opts: { isAr: boolean }) {
     setTotalInDB(onlineCount || merged.length);
   }, [enabledNames]);
 
-  // ─── Refresh from edge function ───────────────────────────────────────
+  // ─── Refresh from edge function (with client-side fallback) ─────────────
   const refreshFeeds = useCallback(
     async (silent = false) => {
       if (enabledFeeds.length === 0) return;
       if (!silent) setRefreshing(true);
       try {
-        const nameMap: Record<string, string> = {};
-        enabledFeeds.forEach((f) => {
-          nameMap[f.url] = f.name;
-        });
+        let succeeded = false;
 
-        const { data, error } = await supabase.functions.invoke('fetch-rss', {
-          body: {
-            urls: enabledFeeds.map((f) => f.url),
-            limit: 100,
-            fetchFullContent: true,
-            store: true,
-            nameMap,
-          },
-        });
+        // Try Supabase edge function first (if available)
+        if (isSupabaseAvailable()) {
+          try {
+            const nameMap: Record<string, string> = {};
+            enabledFeeds.forEach((f) => { nameMap[f.url] = f.name; });
 
-        if (error) throw error;
+            const { data, error } = await supabase.functions.invoke('fetch-rss', {
+              body: {
+                urls: enabledFeeds.map((f) => f.url),
+                limit: 100,
+                fetchFullContent: true,
+                store: true,
+                nameMap,
+              },
+            });
 
-        if (Array.isArray(data?.statuses)) {
-          setStatuses(data.statuses as FeedStatus[]);
+            if (!error && data) {
+              if (Array.isArray(data?.statuses)) {
+                setStatuses(data.statuses as FeedStatus[]);
+                // Track failed feeds for user notification
+                const failedFeeds = (data.statuses as FeedStatus[]).filter(s => s.status === 'error');
+                if (failedFeeds.length > 0 && !silent) {
+                  toast.warning(
+                    isAr
+                      ? `تم التحديث، لكن فشل ${failedFeeds.length} مصدر`
+                      : `Refreshed, but ${failedFeeds.length} feed(s) failed`,
+                  );
+                }
+              }
+              await loadFromDB();
+              succeeded = true;
+            }
+          } catch (e) {
+            console.warn('Reading: Supabase refresh failed, falling back to client-side', e);
+          }
         }
 
-        const now = new Date().toISOString();
-        setLastRefresh(now);
-        try { localStorage.setItem(LAST_REFRESH_KEY, now); } catch { /* quota */ }
+        // Fallback: client-side fetch via CORS proxy
+        if (!succeeded) {
+          const controller = new AbortController();
+          const results = await fetchFeedsClientSide(enabledFeeds, controller.signal);
 
-        // Re-pull from DB so we reflect the freshly persisted articles.
-        await loadFromDB();
+          const freshArticles: FeedItem[] = [];
+          const failedSources: string[] = [];
+          for (const r of results) {
+            if (r.error) {
+              failedSources.push(r.source || r.url);
+            } else {
+              freshArticles.push(...r.items);
+            }
+          }
 
-        if (!silent) {
-          const failed = (data?.errors || []).length as number;
-          if (failed > 0) {
+          if (freshArticles.length > 0) {
+            setArticles(prev => {
+              const seen = new Set(prev.map(a => a.link));
+              const newOnes = freshArticles.filter(a => a.link && !seen.has(a.link));
+              const merged = [...newOnes, ...prev].sort((a, b) => {
+                const da = a.pubDate ? new Date(a.pubDate).getTime() : 0;
+                const db = b.pubDate ? new Date(b.pubDate).getTime() : 0;
+                return db - da;
+              });
+              return merged;
+            });
+            // Cache for offline use
+            for (const a of freshArticles.slice(0, 25)) {
+              void offlineDb.saveArticle(a).catch(() => {});
+            }
+            succeeded = true;
+          }
+
+          if (failedSources.length > 0 && !silent) {
             toast.warning(
               isAr
-                ? `تم التحديث، لكن فشل ${failed} مصدر`
-                : `Refreshed, but ${failed} feed(s) failed`,
+                ? `فشل جلب: ${failedSources.slice(0, 3).join('، ')}${failedSources.length > 3 ? '...' : ''}`
+                : `Failed: ${failedSources.slice(0, 3).join(', ')}${failedSources.length > 3 ? '...' : ''}`,
             );
-          } else {
-            toast.success(isAr ? 'تم التحديث' : 'Refreshed');
           }
+        }
+
+        if (succeeded) {
+          const now = new Date().toISOString();
+          setLastRefresh(now);
+          try { localStorage.setItem(LAST_REFRESH_KEY, now); } catch {}
+          if (!silent) toast.success(isAr ? 'تم التحديث' : 'Refreshed');
+        } else if (!silent) {
+          toast.error(isAr ? 'فشل التحديث — تحقق من اتصال الإنترنت' : 'Refresh failed — check your connection');
         }
       } catch (e) {
         console.error('Reading: refresh failed', e);
@@ -398,12 +448,10 @@ export function useReadingData(opts: { isAr: boolean }) {
       setFeedSources(next);
       storeFeeds(next);
       // refreshFeeds reads from `enabledFeeds`, which is derived from
-      // `feedSources` state. State update is asynchronous, so kick off
-      // the refresh on the next microtask after React schedules the
-      // update — by then `enabledFeeds` will include the new feeds.
-      // The `fetch-rss` function chunks at 50 feeds per call internally,
-      // so we don't need to fan out manually.
-      setTimeout(() => { void refreshFeeds(true); }, 0);
+      // `feedSources` state. We use a microtask + small delay so React
+      // has time to process the state update before we trigger refresh.
+      await new Promise(resolve => setTimeout(resolve, 50));
+      void refreshFeeds(true);
       return { added: fresh.length, skipped };
     },
     [feedSources, refreshFeeds],
