@@ -772,13 +772,12 @@ serve(async (req) => {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
+  // Auth is optional: anonymous callers can fetch & parse public feeds,
+  // but only authenticated users (or the service role) may persist rows
+  // to rss_articles / rss_feed_meta. We downgrade `store` silently when
+  // no valid bearer is presented.
   const auth = await requireUser(req);
-  if (!auth.ok) {
-    return new Response(JSON.stringify({ error: auth.error }), {
-      status: auth.status,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
-  }
+  const authed = auth.ok;
 
   try {
     const body = await req.json();
@@ -841,8 +840,9 @@ serve(async (req) => {
       ),
     );
 
-    // Phase 2 — scrape full content (only when requested) + persist
-    if (store) {
+    // Phase 2 — scrape full content (only when requested) + persist.
+    // Anonymous callers cannot persist; we silently drop the write phase.
+    if (store && authed) {
       const bg = (async () => {
         for (const fr of fetched) {
           if (fr.status !== "ok") {
