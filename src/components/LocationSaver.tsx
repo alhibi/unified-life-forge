@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { MapPin, Plus, Trash2, Navigation, Clock, ChevronDown, ChevronUp, X, ExternalLink } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { reverseGeocode as reverseGeocodeCached } from '@/lib/reverseGeocode';
 
 interface SavedLocation {
   id: string;
@@ -16,18 +17,9 @@ interface SavedLocation {
 }
 
 async function reverseGeocode(lat: number, lng: number): Promise<{ address: string; city: string; street: string }> {
-  try {
-    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=en`);
-    const data = await res.json();
-    const addr = data.address || {};
-    return {
-      city: addr.city || addr.town || addr.village || addr.county || '',
-      street: addr.road || addr.pedestrian || addr.neighbourhood || '',
-      address: data.display_name || `${lat.toFixed(4)}, ${lng.toFixed(4)}`,
-    };
-  } catch {
-    return { city: '', street: '', address: `${lat.toFixed(4)}, ${lng.toFixed(4)}` };
-  }
+  const r = await reverseGeocodeCached(lat, lng, 'en');
+  if (r) return { address: r.address, city: r.city, street: r.street };
+  return { city: '', street: '', address: `${lat.toFixed(4)}, ${lng.toFixed(4)}` };
 }
 
 export default function LocationSaver() {
