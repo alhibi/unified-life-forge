@@ -46,7 +46,7 @@ const themeStyles: { id: ThemeStyle; icon: typeof Palette; name: string; nameEn:
 ];
 
 export default function ThemeSettingsPage() {
-  const { language, theme, setTheme, blackMode, setBlackMode, colorTheme, setColorTheme, paletteStyle, setPaletteStyle } = useApp();
+  const { language, theme, setTheme, blackMode, setBlackMode, md3Mode, setMd3Mode, colorTheme, setColorTheme, paletteStyle, setPaletteStyle } = useApp();
   const navigate = useNavigate();
   const isAr = language === 'ar';
 
@@ -127,6 +127,119 @@ export default function ThemeSettingsPage() {
           <h1 className="text-[22px] font-bold tracking-tight text-foreground">
             {isAr ? 'المظهر والألوان' : 'Appearance'}
           </h1>
+        </motion.div>
+
+        {/* ─── Material Design 3 — Indigo Night (colors only) ─── */}
+        <motion.div variants={item}>
+          <div
+            role="button"
+            tabIndex={0}
+            onClick={() => setMd3Mode(!md3Mode)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                setMd3Mode(!md3Mode);
+              }
+            }}
+            aria-pressed={md3Mode}
+            aria-label={isAr ? 'تفعيل ألوان مادي يو نيلي الليل' : 'Toggle Material You Indigo Night colors'}
+            className={`w-full text-start premium-card-elevated p-5 active:scale-[0.99] transition-all relative overflow-hidden cursor-pointer ${
+              md3Mode ? 'ring-2 ring-offset-2 ring-offset-background' : ''
+            }`}
+            style={md3Mode ? { '--tw-ring-color': 'hsl(256 34% 48%)' } as React.CSSProperties : undefined}
+          >
+            {/* Decorative gradient corner badge — exact gradient from Indigo Night reference */}
+            <div
+              className="absolute top-3 end-3 w-12 h-12 rounded-2xl shadow-lg pointer-events-none"
+              style={{
+                background: 'linear-gradient(135deg, hsl(256 34% 48%) 0%, hsl(341 21% 41%) 100%)',
+              }}
+              aria-hidden
+            />
+
+            <div className="flex items-start gap-3 mb-4 pe-14">
+              <div
+                className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                style={{
+                  background: 'hsl(263 100% 93%)',
+                  color: 'hsl(261 100% 18%)',
+                }}
+              >
+                <Palette className="w-5 h-5" strokeWidth={2.2} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h3 className="font-bold text-[15px] text-foreground leading-tight">
+                    {isAr ? 'مادي يو — نيلي الليل' : 'Material You — Indigo Night'}
+                  </h3>
+                  <span
+                    className="text-[9px] font-bold px-1.5 py-0.5 rounded-md tracking-wider"
+                    style={{
+                      background: 'hsl(263 100% 93%)',
+                      color: 'hsl(261 100% 18%)',
+                    }}
+                  >
+                    MD3
+                  </span>
+                </div>
+                <p className="text-[11px] text-muted-foreground mt-1 leading-relaxed">
+                  {isAr
+                    ? 'لوحة ألوان Material Design 3 الكاملة — راقٍ وهادئ'
+                    : 'Full Material Design 3 color palette — calm & elegant'}
+                </p>
+              </div>
+              {/* Visual-only toggle (parent div handles the click) */}
+              <div
+                className={`relative w-[50px] h-[28px] rounded-full transition-colors duration-300 shrink-0 pointer-events-none ${md3Mode ? 'bg-primary' : 'bg-muted'}`}
+                dir="ltr"
+                aria-hidden
+              >
+                <motion.div
+                  className="absolute top-[4px] w-[20px] h-[20px] rounded-full bg-primary-foreground"
+                  animate={{ left: md3Mode ? 26 : 4 }}
+                  transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                />
+              </div>
+            </div>
+
+            {/* Exact palette swatches taken pixel-by-pixel from the Indigo Night reference */}
+            <div className="grid grid-cols-6 gap-1.5">
+              {[
+                { hex: '#6750A4' },
+                { hex: '#EADDFF' },
+                { hex: '#625B71' },
+                { hex: '#7D5260' },
+                { hex: '#FFD8E4' },
+                { hex: '#21005D' },
+              ].map((c) => (
+                <div key={c.hex} className="flex flex-col items-center gap-1">
+                  <div
+                    className="w-full aspect-square rounded-lg border border-black/5 shadow-sm"
+                    style={{ backgroundColor: c.hex }}
+                  />
+                  <span className="text-[8px] text-muted-foreground/70 font-mono leading-none">
+                    {c.hex}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            {md3Mode && (
+              <motion.div
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-3 flex items-center gap-2 text-[11px] font-medium"
+                style={{ color: 'hsl(256 34% 48%)' }}
+              >
+                <Check className="w-3.5 h-3.5" strokeWidth={3} />
+                <span>
+                  {isAr
+                    ? 'مفعّل — تطبّق ألوانه على التطبيق بالكامل'
+                    : 'Active — applied to the entire app'}
+                </span>
+              </motion.div>
+            )}
+          </div>
         </motion.div>
 
         {/* Appearance Mode */}
@@ -286,9 +399,14 @@ export default function ThemeSettingsPage() {
         </motion.div>
 
         {/* Theme Style */}
-        <motion.div variants={item} className="premium-card-elevated p-5">
+        <motion.div variants={item} className={`premium-card-elevated p-5 transition-opacity ${md3Mode ? 'opacity-40 pointer-events-none' : ''}`}>
           <h2 className="font-semibold text-[13px] text-muted-foreground text-center mb-4 uppercase tracking-wider">
             {isAr ? 'نمط الثيم' : 'Theme Style'}
+            {md3Mode && (
+              <span className="block text-[10px] normal-case tracking-normal text-muted-foreground/60 mt-1 font-normal">
+                {isAr ? 'معطّل عند تفعيل MD3' : 'Disabled while MD3 is active'}
+              </span>
+            )}
           </h2>
           <div className="grid grid-cols-2 gap-2.5">
             {themeStyles.map((ts) => {
@@ -330,9 +448,14 @@ export default function ThemeSettingsPage() {
         </motion.div>
 
         {/* Color Palettes */}
-        <motion.div variants={item} className="premium-card-elevated p-5">
+        <motion.div variants={item} className={`premium-card-elevated p-5 transition-opacity ${md3Mode ? 'opacity-40 pointer-events-none' : ''}`}>
           <h2 className="font-semibold text-[13px] text-muted-foreground text-center mb-4 uppercase tracking-wider">
             {isAr ? 'لوحة الألوان' : 'Color Palette'}
+            {md3Mode && (
+              <span className="block text-[10px] normal-case tracking-normal text-muted-foreground/60 mt-1 font-normal">
+                {isAr ? 'معطّل عند تفعيل MD3' : 'Disabled while MD3 is active'}
+              </span>
+            )}
           </h2>
           <div className="grid grid-cols-4 gap-3">
             {themePresets.map((preset) => {
@@ -379,7 +502,7 @@ export default function ThemeSettingsPage() {
         </motion.div>
 
         {/* Dynamic Theme */}
-        <motion.div variants={item}>
+        <motion.div variants={item} className={md3Mode ? 'opacity-40 pointer-events-none' : ''}>
           <button
             onClick={handleDynamicImage}
             className="flex items-center w-full p-4 premium-card-elevated gap-4 active:scale-[0.99] transition-transform"
