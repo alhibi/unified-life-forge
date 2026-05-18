@@ -80,7 +80,12 @@ export interface Reaction {
 export interface ChatDrawerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  unreadCount: number;
+  /**
+   * Total unread message count (sum across non-muted conversations) is
+   * pushed back to the host through this callback. Used by the bottom
+   * nav and homepage badges. The previous `unreadCount` input was unused
+   * inside the drawer and has been removed — single direction of flow.
+   */
   onUnreadChange: (count: number) => void;
   /**
    * When true the drawer is rendered as a full-screen page instead of

@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import SEO from '@/components/SEO';
 import { createPortal } from 'react-dom';
 import { useApp } from '@/contexts/AppContext';
 import { useAuth } from '@/hooks/useAuth';
-import { supabase } from '@/integrations/supabase/client';
+import { useUnreadCount } from '@/hooks/useUnreadCount';
 import LocationSaver from '@/components/LocationSaver';
 import PrayerTimes from '@/components/PrayerTimes';
 import { motion } from 'framer-motion';
@@ -52,47 +52,12 @@ export default function Index() {
   const greetingIconStyle = 'text-primary bg-primary/10';
 
   const navigate = useNavigate();
-  const [unreadCount, setUnreadCount] = useState(0);
+  // Unread badge is delegated to the shared hook (also used by BottomNav
+  // and the Chat page) so all three counts stay in sync.
+  const unreadCount = useUnreadCount(user, 'home-unread');
   const [showClipboard, setShowClipboard] = useState(false);
 
   const { items: saved, removeItem } = useClipboard('sunnah');
-
-  // Poll unread count
-  const fetchUnread = useCallback(async () => {
-    if (!user) { setUnreadCount(0); return; }
-    // Get all conversation IDs for this user
-    const { data: convs } = await supabase
-      .from('conversations')
-      .select('id')
-      .or(`user1_id.eq.${user.id},user2_id.eq.${user.id}`);
-    if (!convs || convs.length === 0) { setUnreadCount(0); return; }
-    const ids = convs.map(c => c.id);
-    const { count } = await supabase
-      .from('messages')
-      .select('*', { count: 'exact', head: true })
-      .in('conversation_id', ids)
-      .neq('sender_id', user.id)
-      .eq('read', false);
-    setUnreadCount(count || 0);
-  }, [user]);
-
-  useEffect(() => {
-    fetchUnread();
-    const interval = setInterval(fetchUnread, 60000); // reduced from 15s to 60s, realtime handles instant updates
-    return () => clearInterval(interval);
-  }, [fetchUnread]);
-
-  // Realtime unread listener
-  useEffect(() => {
-    if (!user) return;
-    const channel = supabase
-      .channel('unread-badge')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, () => {
-        fetchUnread();
-      })
-      .subscribe();
-    return () => { supabase.removeChannel(channel); };
-  }, [user, fetchUnread]);
 
   return (
     <div className="min-h-screen bg-background pb-28 px-5 pt-14">

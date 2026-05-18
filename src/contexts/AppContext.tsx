@@ -585,7 +585,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return () => clearTimeout(timeout);
   }, [theme, dir, language, accentHue, paletteStyle, blackMode, colorTheme]);
 
-  // Apply font family, size, weight & opacity
+  // Apply font family, size, weight & opacity.
+  //
+  // Font family + opacity are exposed as CSS variables and consumed by
+  // body / headings in `index.css`. The user-controllable size and weight
+  // are applied to <body> instead of <html> on purpose: setting fontSize
+  // on <html> would re-scale every `rem` token (and break tailwind's
+  // 16px=1rem assumption), and a global fontWeight on <html> overrides
+  // utility classes like `font-bold`. Body-level keeps both knobs working
+  // without leaking into the type scale.
   useEffect(() => {
     const fontMap: Record<string, string> = {
       default: "'Inter', 'Noto Sans Arabic', system-ui, -apple-system, sans-serif",
@@ -598,9 +606,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const ff = fontMap[fontFamily] || fontMap.default;
     document.documentElement.style.setProperty('--font-display', ff);
     document.documentElement.style.setProperty('--font-body', ff);
-    document.documentElement.style.fontSize = sizeMap[fontSize] || '16px';
-    document.documentElement.style.fontWeight = String(fontWeight);
     document.documentElement.style.setProperty('--text-opacity', String(fontOpacity));
+    if (document.body) {
+      document.body.style.fontSize = sizeMap[fontSize] || '16px';
+      document.body.style.fontWeight = String(fontWeight);
+    }
   }, [fontFamily, fontSize, fontWeight, fontOpacity]);
 
   return (

@@ -243,7 +243,7 @@ function VoiceBubble({
 // ─────────────────────────────────────────────────────────────────────────────
 // ChatDrawer – root of the entire messaging experience.
 // ─────────────────────────────────────────────────────────────────────────────
-export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadChange, inline = false }: ChatDrawerProps) {
+export default function ChatDrawer({ open, onOpenChange, onUnreadChange, inline = false }: ChatDrawerProps) {
   const chat = useChat({ open, onUnreadChange });
   const voice = useVoiceRecording({
     activeConvId: chat.activeConv?.id || null,

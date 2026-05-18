@@ -1,7 +1,7 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { useAuth } from '@/hooks/useAuth';
-import { supabase } from '@/integrations/supabase/client';
+import { useUnreadCount } from '@/hooks/useUnreadCount';
 import { House, Dices, SlidersHorizontal, HandHeart, Feather, MessageCircle, HeartPulse } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -34,51 +34,10 @@ export default function BottomNav() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [unreadCount, setUnreadCount] = useState(0);
-
-  // Chat unread badge. The data already lives in postgres so we pull it
-  // once and then re-pull on every realtime INSERT, identical to the
-  // previous homepage badge but available globally now.
-  const fetchUnread = useCallback(async () => {
-    if (!user) { setUnreadCount(0); return; }
-    const { data: convs } = await supabase
-      .from('conversations')
-      .select('id')
-      .or(`user1_id.eq.${user.id},user2_id.eq.${user.id}`);
-    if (!convs || convs.length === 0) { setUnreadCount(0); return; }
-    const ids = convs.map(c => c.id);
-    const { count } = await supabase
-      .from('messages')
-      .select('*', { count: 'exact', head: true })
-      .in('conversation_id', ids)
-      .neq('sender_id', user.id)
-      .eq('read', false);
-    setUnreadCount(count || 0);
-  }, [user]);
-
-  useEffect(() => {
-    fetchUnread();
-    const id = setInterval(fetchUnread, 60_000);
-    return () => clearInterval(id);
-  }, [fetchUnread]);
-
-  useEffect(() => {
-    if (!user) return;
-    let timer: ReturnType<typeof setTimeout> | null = null;
-    const debounced = () => {
-      if (timer) clearTimeout(timer);
-      timer = setTimeout(() => fetchUnread(), 800);
-    };
-    const ch = supabase
-      .channel('bottomnav-unread')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, debounced)
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'messages' }, debounced)
-      .subscribe();
-    return () => {
-      if (timer) clearTimeout(timer);
-      supabase.removeChannel(ch);
-    };
-  }, [user, fetchUnread]);
+  // Single source of truth for the chat unread badge. Polling + realtime
+  // wiring live in the hook now (used to be inlined here, in Index, and
+  // in Chat — three forks that drifted slightly).
+  const unreadCount = useUnreadCount(user, 'bottomnav-unread');
 
   const isActive = (path: string) => {
     if (path === '/') return location.pathname === '/';

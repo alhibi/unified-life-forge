@@ -1264,9 +1264,17 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     if (!user || !activeConv || stagedImages.length === 0) return;
     const caption = newMessage.trim();
     let firstTempId: string | null = null;
+    let rejected = 0;
     for (const file of stagedImages) {
       const tempId = imageUpload.startUpload(file, activeConv.id, user.id);
+      if (tempId === null) { rejected++; continue; }
       if (!firstTempId) firstTempId = tempId;
+    }
+    if (rejected > 0 && firstTempId === null) {
+      // Every file was rejected (oversized / disallowed type) so nothing
+      // is going up. Surface a toast instead of silently swallowing the
+      // tap.
+      chatError('uploadFailed', isAr, isAr ? 'الملف كبير أو نوعه غير مدعوم' : 'Datei zu groß oder Typ nicht erlaubt');
     }
     if (caption && firstTempId) {
       pendingCaptionsRef.current.set(firstTempId, caption);
@@ -1280,7 +1288,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     isNearBottomRef.current = true;
     setTimeout(() => scrollToBottom(), 100);
     playChatSound('send');
-  }, [user, activeConv, stagedImages, stagedPreviews, imageUpload, scrollToBottom, newMessage, chatPrefs, resizeComposer]);
+  }, [user, activeConv, stagedImages, stagedPreviews, imageUpload, scrollToBottom, newMessage, chatPrefs, resizeComposer, isAr]);
 
   const removeStagedImage = useCallback((index: number) => {
     const url = stagedPreviews[index];
