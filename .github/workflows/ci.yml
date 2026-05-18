@@ -1,6 +1,9 @@
 name: CI
 
-on:
+# `on:` is quoted so YAML 1.1 parsers (which treat unquoted `on` as a
+# boolean true) don't trip up on it. GitHub Actions itself uses YAML 1.2
+# and is fine either way; this is purely defensive for tooling.
+"on":
   push:
     branches: [main]
   pull_request:
