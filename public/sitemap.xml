@@ -15,14 +15,13 @@
   <url><loc>https://amv.life/games/sudoku</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
   <url><loc>https://amv.life/games/chess</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
   <url><loc>https://amv.life/games/memory</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://amv.life/games/minesweeper</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://amv.life/games/colormaze</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://amv.life/games/pipes</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
   <url><loc>https://amv.life/games/dice</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://amv.life/games/target</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://amv.life/games/puzzle</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://amv.life/games/hex</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
   <url><loc>https://amv.life/games/focus</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://amv.life/games/chess/puzzles</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://amv.life/games/chess/career</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://amv.life/games/memory/adventure</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://amv.life/games/dice/tournament</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://amv.life/games/focus/decathlon</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
   <url><loc>https://amv.life/chat</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://amv.life/auth</loc><changefreq>monthly</changefreq><priority>0.4</priority></url>
   <url><loc>https://amv.life/settings/theme</loc><changefreq>monthly</changefreq><priority>0.3</priority></url>
