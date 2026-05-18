@@ -9,6 +9,26 @@ interface Profile {
   bio: string | null;
 }
 
+// Username constraints. The app uses `<username>@smartapp.local` as a synthetic
+// email so Supabase's email/password auth flow can be reused — that means
+// usernames MUST always produce a valid email local-part. We constrain to a
+// safe charset (letters, digits, underscore) and a sane length.
+const USERNAME_REGEX = /^[a-zA-Z0-9_]{3,24}$/;
+const USERNAME_DOMAIN = 'smartapp.local';
+
+function validateUsername(raw: string): string | null {
+  const u = raw.trim();
+  if (!u) return 'Username required';
+  if (!USERNAME_REGEX.test(u)) {
+    return 'Username must be 3–24 chars (letters, digits, underscore only)';
+  }
+  return null;
+}
+
+function usernameToEmail(raw: string): string {
+  return `${raw.toLowerCase().trim()}@${USERNAME_DOMAIN}`;
+}
+
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
@@ -83,7 +103,9 @@ export function useAuth() {
   }, [applySession, session, user]);
 
   const signUp = useCallback(async (username: string, password: string) => {
-    const email = `${username.toLowerCase().trim()}@smartapp.local`;
+    const validation = validateUsername(username);
+    if (validation) return { data: null, error: { name: 'ValidationError', message: validation } as Error };
+    const email = usernameToEmail(username);
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -93,7 +115,9 @@ export function useAuth() {
   }, []);
 
   const signIn = useCallback(async (username: string, password: string) => {
-    const email = `${username.toLowerCase().trim()}@smartapp.local`;
+    const validation = validateUsername(username);
+    if (validation) return { data: null, error: { name: 'ValidationError', message: validation } as Error };
+    const email = usernameToEmail(username);
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     return { data, error };
   }, []);

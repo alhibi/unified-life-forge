@@ -64,17 +64,20 @@ export default function BottomNav() {
 
   useEffect(() => {
     if (!user) return;
-    let t: ReturnType<typeof setTimeout> | null = null;
+    let timer: ReturnType<typeof setTimeout> | null = null;
     const debounced = () => {
-      if (t) clearTimeout(t);
-      t = setTimeout(() => fetchUnread(), 800);
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(() => fetchUnread(), 800);
     };
     const ch = supabase
       .channel('bottomnav-unread')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, debounced)
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'messages' }, debounced)
       .subscribe();
-    return () => { supabase.removeChannel(ch); };
+    return () => {
+      if (timer) clearTimeout(timer);
+      supabase.removeChannel(ch);
+    };
   }, [user, fetchUnread]);
 
   const isActive = (path: string) => {
