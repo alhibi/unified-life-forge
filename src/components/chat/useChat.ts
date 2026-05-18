@@ -116,6 +116,12 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
   // ── Forward flow ──────────────────────────────────────────────────────────
   const [forwardingMessages, setForwardingMessages] = useState<Message[] | null>(null);
 
+  // ── Resolved display names for forwarded message authors ─────────────────
+  // Realtime echoes of forwarded messages only carry the author's user id,
+  // not their display name. We resolve them lazily from the profiles table
+  // and cache forever since names rarely change in a session.
+  const [forwardedNames, setForwardedNames] = useState<Record<string, string>>({});
+
   // ── Refs ──────────────────────────────────────────────────────────────────
   const typingChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -299,14 +305,14 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
           .in('user_id', otherIds),
         Promise.all(convIds.map(cid =>
           supabase.from('messages')
-            .select('conversation_id, sender_id, content, message_type, deleted, created_at, file_name, hidden_for')
+            .select('conversation_id, sender_id, content, message_type, deleted, created_at, file_name, hidden_for, read, delivered_at')
             .eq('conversation_id', cid)
             .order('created_at', { ascending: false })
             .limit(1)
             .maybeSingle()
         )).then(results => ({
           data: results.map(r => r.data).filter(Boolean) as Array<{
-            conversation_id: string; sender_id: string; content: string; message_type: string; deleted: boolean; created_at: string; file_name: string | null; hidden_for: string[] | null;
+            conversation_id: string; sender_id: string; content: string; message_type: string; deleted: boolean; created_at: string; file_name: string | null; hidden_for: string[] | null; read: boolean; delivered_at: string | null;
           }>,
           error: null,
         })),
@@ -352,6 +358,8 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
           lastMessageFromMe: lastMsg?.sender_id === user.id,
           lastMessageDeleted: lastMsg?.deleted,
           lastMessageTime: lastMsg?.created_at || conv.updated_at,
+          lastMessageRead: lastMsg?.sender_id === user.id ? !!lastMsg?.read : undefined,
+          lastMessageDelivered: lastMsg?.sender_id === user.id ? !!lastMsg?.delivered_at : undefined,
           unreadCount,
         };
       });
@@ -392,6 +400,8 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
         lastMessageFromMe: fromMe,
         lastMessageDeleted: msg.deleted,
         lastMessageTime: msg.created_at,
+        lastMessageRead:      fromMe ? !!msg.read         : undefined,
+        lastMessageDelivered: fromMe ? !!msg.delivered_at : undefined,
         updated_at: msg.created_at,
         // If incoming AND we're not currently viewing that conv, increment.
         unreadCount: !fromMe && msg.conversation_id !== activeConvIdRef.current
@@ -419,10 +429,25 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
       if (error) { chatError('conversationGone', isAr, describeError(error, isAr)); return; }
 
       if (data) {
-        setMessages(data as Message[]);
+        // Hydrate the client-side `status` field from server columns so
+        // every previously-loaded row renders the correct tick the moment
+        // it appears (read > delivered > sent), instead of waiting for the
+        // first realtime UPDATE.
+        const hydrated = (data as Message[]).map(m => {
+          if (m.sender_id !== user.id) return m;
+          let status: MessageStatus = 'sent';
+          if (m.read) status = 'read';
+          else if (m.delivered_at) status = 'delivered';
+          return { ...m, status };
+        });
+        setMessages(hydrated);
         const msgIds = data.map(m => m.id);
 
-        supabase.rpc('mark_messages_read', { p_conversation_id: activeConv.id }).then();
+        // Mark in parallel: every undelivered "from them" row becomes
+        // delivered, every unread one becomes read. Both RPCs ignore
+        // already-stamped rows, so they are idempotent.
+        supabase.rpc('mark_messages_delivered', { p_conversation_id: activeConv.id }).then();
+        supabase.rpc('mark_messages_read',      { p_conversation_id: activeConv.id }).then();
 
         if (msgIds.length > 0) {
           const { data: rxns } = await supabase
@@ -434,8 +459,10 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
           setReactions([]);
         }
 
-        // Scroll restore: if we have a saved position, jump there; otherwise
-        // anchor at the bottom (default chat behavior).
+        // Scroll restore: if we have a saved position, jump there. If not,
+        // and there is at least one unread incoming message, anchor at the
+        // first unread (Telegram-style "X new messages" entrypoint).
+        // Otherwise default to the bottom (latest message).
         requestAnimationFrame(() => {
           const target = restoreScrollRef.current;
           if (target != null && messagesContainerRef.current) {
@@ -445,9 +472,22 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
                 - messagesContainerRef.current.scrollTop
                 - messagesContainerRef.current.clientHeight) < 120;
             restoreScrollRef.current = null;
-          } else {
-            scrollToBottom(false);
+            return;
           }
+          // Find first unread message from the OTHER user — same logic as
+          // the firstUnreadId memo, computed inline because that memo isn't
+          // available yet on first paint.
+          const firstUnread = (data as Message[]).find(
+            m => !m.read && m.sender_id !== user.id && !m.deleted && !(m.hidden_for ?? []).includes(user.id),
+          );
+          if (firstUnread) {
+            const el = document.getElementById(`msg-${firstUnread.id}`);
+            if (el) {
+              el.scrollIntoView({ behavior: 'instant' as ScrollBehavior, block: 'center' });
+              return;
+            }
+          }
+          scrollToBottom(false);
         });
       }
     } finally {
@@ -457,6 +497,30 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
 
   useEffect(() => { if (open && user) loadConversations(); }, [open, user, loadConversations]);
   useEffect(() => { if (activeConv) loadMessages(); }, [activeConv, loadMessages]);
+
+  // When the chat opens we sweep delivery acknowledgements across every
+  // conversation the user is a participant of. The recipient client is
+  // the only entity that can attest "I have received this row", so any
+  // tab-restart / network drop is handled here. The RPC walks the
+  // user's conversations and skips already-stamped rows on the server,
+  // so the call is cheap and idempotent.
+  useEffect(() => {
+    if (!open || !user) return;
+    let cancelled = false;
+    // Defer slightly so loadConversations finishes first and we're not
+    // spamming requests at the same moment as initial paint.
+    const id = setTimeout(async () => {
+      const convs = conversationsRef.current;
+      if (cancelled || convs.length === 0) return;
+      // Sequentialize to avoid hammering the database with parallel
+      // UPDATEs across many conversations on a busy account.
+      for (const c of convs) {
+        if (cancelled) return;
+        try { await supabase.rpc('mark_messages_delivered', { p_conversation_id: c.id }); } catch { /* no-op */ }
+      }
+    }, 600);
+    return () => { cancelled = true; clearTimeout(id); };
+  }, [open, user, conversations.length]);
 
   // ── Resolve signed URLs for files ─────────────────────────────────────────
   useEffect(() => {
@@ -544,6 +608,10 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
             });
 
             if (msg.sender_id !== uid) {
+              // The conversation is open, so this message is BOTH delivered
+              // AND about to be read. Stamp the timestamps in parallel —
+              // each RPC ignores already-stamped rows so they stay idempotent.
+              supabase.rpc('mark_message_delivered', { p_message_id: msg.id }).then();
               supabase.rpc('mark_message_read', { p_message_id: msg.id }).then();
               if (!chatPrefsRef.current.isMuted(activeId)) {
                 const now = Date.now();
@@ -557,6 +625,11 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
               requestAnimationFrame(() => scrollToBottom(true));
             }
           } else if (msg.sender_id !== uid) {
+            // Tab is open and subscribed but on a different conversation —
+            // the message is still delivered to this client even though
+            // the user hasn't read it yet. This is exactly the "delivered
+            // but unread" Telegram tick state.
+            supabase.rpc('mark_message_delivered', { p_message_id: msg.id }).then();
             const conv = conversationsRef.current.find(c => c.id === msg.conversation_id);
             if (conv && !chatPrefsRef.current.isMuted(conv.id)) {
               const now = Date.now();
@@ -574,11 +647,31 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
           const msg = payload.new as Message;
           setMessages(prev => prev.map(m => {
             if (m.id !== msg.id) return m;
-            // Promote to "read" once the recipient flips read=true on our message.
-            const status: MessageStatus | undefined =
-              msg.sender_id === uid && msg.read ? 'read' :
-              (m.status === 'pending' || m.status === 'failed' ? 'sent' : m.status);
+            // Telegram-style status escalation. A row never goes backwards,
+            // so we always pick the highest-precedence state we can prove
+            // from the server data:
+            //   read > delivered > sent  (for messages WE sent)
+            //   For messages from others we don't render ticks, so we
+            //   keep whatever we had.
+            let status: MessageStatus | undefined = m.status;
+            if (msg.sender_id === uid) {
+              if (msg.read) status = 'read';
+              else if (msg.delivered_at) status = 'delivered';
+              else if (m.status === 'pending' || m.status === 'failed') status = 'sent';
+              else status = m.status ?? 'sent';
+            }
             return { ...msg, status } as Message;
+          }));
+          // Propagate read/delivered transitions to the conversation list
+          // so the WhatsApp-style tick next to the preview updates without
+          // a roundtrip refetch.
+          setConversations(prev => prev.map(c => {
+            if (c.id !== msg.conversation_id) return c;
+            // We only care when the row update is on the most-recent
+            // message I sent — otherwise the preview is unaffected.
+            const isMyLast = c.lastMessageFromMe && c.lastMessageTime === msg.created_at && msg.sender_id === uid;
+            if (!isMyLast) return c;
+            return { ...c, lastMessageRead: !!msg.read, lastMessageDelivered: !!msg.delivered_at };
           }));
         } else if (payload.eventType === 'DELETE') {
           const oldMsg = payload.old as { id: string };
@@ -596,6 +689,28 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
           const old = payload.old as { id: string };
           setReactions(prev => prev.filter(r => r.id !== old.id));
         }
+      })
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'conversations' }, (payload) => {
+        // The server-side bump trigger fires on every new message so the
+        // updated_at column reflects the canonical message timestamp.
+        // Reordering here keeps every tab's list in lock-step with the
+        // database without depending on the local optimistic bump.
+        if (cancelled) return;
+        const conv = payload.new as { id: string; updated_at: string; pinned_message_id: string | null; self_destruct_seconds: number | null };
+        setConversations(prev => {
+          const idx = prev.findIndex(c => c.id === conv.id);
+          if (idx < 0) return prev;
+          const old = prev[idx];
+          if (old.updated_at === conv.updated_at) return prev;
+          const next = { ...old, updated_at: conv.updated_at } as Conversation;
+          // Re-sort by updated_at desc; pinned ordering happens in the
+          // UI layer (sortedConversations) so we just need chronological.
+          const without = [...prev.slice(0, idx), ...prev.slice(idx + 1)];
+          let insertAt = 0;
+          while (insertAt < without.length && without[insertAt].updated_at > conv.updated_at) insertAt++;
+          without.splice(insertAt, 0, next);
+          return without;
+        });
       })
       .subscribe();
 
@@ -706,6 +821,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     fileName?: string,
     explicitContent?: string,
     explicitConvId?: string,
+    forwardOf?: { messageId: string; senderId: string },
   ) => {
     const rawContent = explicitContent ?? (type === 'text' ? newMessage.trim() : (fileName || ''));
     const { text: content } = clampText(rawContent);
@@ -739,6 +855,8 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
       file_name: fileName || null,
       reply_to_id: replyToId,
       client_id: clientId,
+      forwarded_from_message_id: forwardOf?.messageId ?? null,
+      forwarded_from_sender_id:  forwardOf?.senderId  ?? null,
     };
 
     if (selfDestructSeconds && isCurrentConv) {
@@ -763,6 +881,8 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
       expires_at: (insertData.expires_at as string) || null,
       hidden_for: [],
       client_id: clientId,
+      forwarded_from_message_id: forwardOf?.messageId ?? null,
+      forwarded_from_sender_id:  forwardOf?.senderId  ?? null,
       status: 'pending',
     };
     if (isCurrentConv) {
@@ -778,7 +898,11 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     playChatSound('send');
     haptic('light');
 
-    supabase.from('conversations').update({ updated_at: now }).eq('id', convId).then();
+    // The DB trigger `messages_bump_conversation` updates
+    // conversations.updated_at atomically with the INSERT — so we no
+    // longer need to fire a separate UPDATE here. That avoids a write
+    // race where the client UPDATE happened to land before the realtime
+    // INSERT echoed in subscribers' tabs.
 
     try {
       const { data: realMsg, error } = await supabase
@@ -833,6 +957,8 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
       reply_to_id: failed.reply_to_id ?? null,
       client_id: failed.client_id,
       expires_at: failed.expires_at ?? null,
+      forwarded_from_message_id: failed.forwarded_from_message_id ?? null,
+      forwarded_from_sender_id:  failed.forwarded_from_sender_id  ?? null,
     };
     try {
       const { data: realMsg, error } = await supabase
@@ -1297,11 +1423,54 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     return { sameSenderAsPrev: !!sameSenderAsPrev && !showDate, sameSenderAsNext: !!sameSenderAsNext, showDate };
   }, [visibleMessages]);
 
+  // Resolve forwarded-from author names. Skips uids we already know
+  // (cached, our own user, or the active conversation peer).
+  useEffect(() => {
+    if (!user) return;
+    const known = new Set<string>([
+      user.id,
+      ...(activeConv?.otherUserId ? [activeConv.otherUserId] : []),
+      ...Object.keys(forwardedNames),
+    ]);
+    const missing = new Set<string>();
+    for (const m of messages) {
+      const id = m.forwarded_from_sender_id;
+      if (id && !known.has(id)) missing.add(id);
+    }
+    if (missing.size === 0) return;
+    let cancelled = false;
+    supabase.from('profiles')
+      .select('user_id, username, display_name')
+      .in('user_id', Array.from(missing))
+      .then(({ data }) => {
+        if (cancelled || !data) return;
+        setForwardedNames(prev => {
+          const next = { ...prev };
+          for (const row of data) {
+            const r = row as { user_id: string; username: string | null; display_name: string | null };
+            next[r.user_id] = r.display_name || r.username || '';
+          }
+          return next;
+        });
+      });
+    return () => { cancelled = true; };
+  }, [messages, user, activeConv?.otherUserId, forwardedNames]);
+
+  /** Look up a display name for a forwarded message's original author. */
+  const getForwardedName = useCallback((senderId: string | null | undefined): string => {
+    if (!senderId) return '';
+    if (user && senderId === user.id) return isAr ? 'أنت' : 'Du';
+    if (activeConv?.otherUserId === senderId) return activeConv.otherDisplayName || activeConv.otherUsername || '';
+    return forwardedNames[senderId] || '';
+  }, [user, activeConv, forwardedNames, isAr]);
+
   const copyMessage = useCallback((content: string) => {
     navigator.clipboard.writeText(content)
       .then(() => chatSuccess('copied', isAr))
       .catch(() => chatError('linkCopyFailed', isAr));
   }, [isAr]);
+
+
 
   // ── Multi-select ──────────────────────────────────────────────────────────
   const toggleSelect = useCallback((msgId: string) => {
@@ -1348,10 +1517,17 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     if (!forwardingMessages || !user) return;
     for (const m of forwardingMessages) {
       if (m.deleted) continue;
+      // Preserve the original author so the badge shows the right name
+      // even after multiple chained forwards (Telegram chains forward
+      // provenance to the FIRST author, not the proximate forwarder).
+      const provenance = {
+        messageId: m.forwarded_from_message_id ?? m.id,
+        senderId:  m.forwarded_from_sender_id  ?? m.sender_id,
+      };
       if (m.message_type === 'text') {
-        await sendMessage('text', undefined, undefined, m.content, targetConvId);
+        await sendMessage('text', undefined, undefined, m.content, targetConvId, provenance);
       } else if (m.message_type === 'image' || m.message_type === 'file' || m.message_type === 'voice') {
-        await sendMessage(m.message_type, m.file_url || undefined, m.file_name || undefined, m.content || '', targetConvId);
+        await sendMessage(m.message_type, m.file_url || undefined, m.file_name || undefined, m.content || '', targetConvId, provenance);
       }
     }
     setForwardingMessages(null);
@@ -1457,6 +1633,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     searchForUser, startConversation,
     getMessageMeta, copyMessage, broadcastTyping,
     getMessageOpacity,
+    getForwardedName,
     // Prefs
     chatPrefs,
   };

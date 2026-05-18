@@ -26,13 +26,14 @@ import {
 import { QUICK_EMOJIS, WALLPAPERS, SELF_DESTRUCT_OPTIONS, MUTE_DURATION_OPTIONS } from './chat/constants';
 import { useChat } from './chat/useChat';
 import { useVoiceRecording } from './chat/useVoiceRecording';
-import { SwipeableMessage, TypingDots, MessageTicks, ReactionPill } from './chat/MessageBubble';
+import { SwipeableMessage, TypingDots, MessageTicks, ReactionPill, ForwardedBadge } from './chat/MessageBubble';
 import ConversationList from './chat/ConversationList';
 import ChatInput from './chat/ChatInput';
 import ChatImage from './chat/ChatImage';
 import EmojiPicker from './chat/EmojiPicker';
 import ForwardPicker from './chat/ForwardPicker';
 import WallpaperPicker from './chat/WallpaperPicker';
+import MessageInfo from './chat/MessageInfo';
 import { haptic } from './chat/sounds';
 import type { ChatDrawerProps, ActionMenuState, Message } from './chat/types';
 
@@ -212,12 +213,26 @@ function VoiceBubble({
             <span className="text-[10px] tabular-nums text-muted-foreground/50">
               {isPlaying && duration ? formatDur(progress * duration) : (duration ? formatDur(duration) : '')}
             </span>
-            <span className={cn('flex items-center gap-[3px] text-[11px] leading-none', isDarkBg && isMine ? 'text-primary-foreground/70' : 'text-muted-foreground/60')}>
-              {msg.edited_at && <span className="text-[9px] italic">{isAr ? 'معدّلة' : 'bearb.'}</span>}
-              {isFading && <Timer className="h-[10px] w-[10px] animate-pulse" />}
-              {formatClockTime(msg.created_at)}
-              {isMine && <MessageTicks status={msg.status} read={msg.read} dimmed={isDarkBg} isAr={isAr} />}
-            </span>
+            <div className="flex items-center gap-1.5">
+              {isPlaying && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); voicePlayer.cyclePlaybackRate(); }}
+                  className={cn(
+                    'text-[10px] font-bold tabular-nums px-1.5 py-[1px] rounded-full leading-none transition-colors active:scale-90',
+                    isMine && isDarkBg ? 'bg-primary-foreground/20 text-primary-foreground' : 'bg-primary/15 text-primary'
+                  )}
+                  aria-label={isAr ? 'سرعة التشغيل' : 'Wiedergabegeschwindigkeit'}
+                >
+                  {voicePlayer.state.playbackRate === 1 ? '1×' : voicePlayer.state.playbackRate === 1.5 ? '1.5×' : '2×'}
+                </button>
+              )}
+              <span className={cn('flex items-center gap-[3px] text-[11px] leading-none', isDarkBg && isMine ? 'text-primary-foreground/70' : 'text-muted-foreground/60')}>
+                {msg.edited_at && <span className="text-[9px] italic">{isAr ? 'معدّلة' : 'bearb.'}</span>}
+                {isFading && <Timer className="h-[10px] w-[10px] animate-pulse" />}
+                {formatClockTime(msg.created_at)}
+                {isMine && <MessageTicks status={msg.status} read={msg.read} dimmed={isDarkBg} isAr={isAr} />}
+              </span>
+            </div>
           </div>
         </div>
       </div>
@@ -277,6 +292,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
   const [actionMenu, setActionMenu] = React.useState<ActionMenuState | null>(null);
   const [convSearchQuery, setConvSearchQuery] = React.useState('');
   const [showConvSearch, setShowConvSearch] = React.useState(false);
+  const [messageInfoTarget, setMessageInfoTarget] = React.useState<Message | null>(null);
 
   // Escape key collapses one layer at a time: overlays first, then the
   // active conversation, finally leaves the page. Matches what users
@@ -285,6 +301,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
     if (!inline) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== 'Escape') return;
+      if (messageInfoTarget) { setMessageInfoTarget(null); return; }
       if (actionMenu) { setActionMenu(null); return; }
       if (showConvSearch) { setShowConvSearch(false); setConvSearchQuery(''); return; }
       if (chat.showChatMenu) { chat.setShowChatMenu(false); return; }
@@ -297,7 +314,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [inline, actionMenu, showConvSearch, chat, onOpenChange]);
+  }, [inline, actionMenu, showConvSearch, chat, onOpenChange, messageInfoTarget]);
 
   const BackIcon = chat.isAr ? ChevronRight : ChevronLeft;
 
@@ -403,6 +420,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
+        if (messageInfoTarget) { setMessageInfoTarget(null); return; }
         if (actionMenu) { setActionMenu(null); chat.setShowExtraEmojis(false); return; }
         if (chat.showChatMenu) { chat.setShowChatMenu(false); return; }
         if (chat.showSelfDestructMenu) { chat.setShowSelfDestructMenu(false); return; }
@@ -423,7 +441,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [open, actionMenu, chat.showChatMenu, chat.showSelfDestructMenu, chat.showEmojiPicker, chat.showSearch, chat.selectionMode, chat.activeConv, showConvSearch, chat]);
+  }, [open, actionMenu, chat.showChatMenu, chat.showSelfDestructMenu, chat.showEmojiPicker, chat.showSearch, chat.selectionMode, chat.activeConv, showConvSearch, chat, messageInfoTarget]);
 
 
   // ── Double-tap to react (Instagram/Telegram-style) ─────────────────────────
@@ -1210,6 +1228,13 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                             )}
                             style={bubbleStyle}
                           >
+                            {/* Forwarded provenance — Telegram-style "↪ Forwarded from Author" */}
+                            {msg.forwarded_from_sender_id && !msg.deleted && (
+                              <div className="px-3 pt-2 -mb-1">
+                                <ForwardedBadge name={chat.getForwardedName(msg.forwarded_from_sender_id)} isAr={chat.isAr} />
+                              </div>
+                            )}
+
                             {/* Reply preview inside bubble */}
                             {msg.reply_to_id && !msg.deleted && (() => {
                               const repliedMsg = chat.messages.find(m => m.id === msg.reply_to_id);
@@ -1515,6 +1540,12 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                             <button onClick={() => { chat.toggleSelect(actionMenu.msg.id); setActionMenu(null); chat.setShowExtraEmojis(false); }} className="w-full flex items-center gap-3 px-4 py-2 active:bg-accent/30 transition-colors text-start">
                               <Check className="w-4 h-4 text-muted-foreground" /><span className="text-[13px]">{chat.isAr ? 'تحديد' : 'Auswählen'}</span>
                             </button>
+                            {/* Info — only meaningful for messages I sent (delivery/read receipts). */}
+                            {actionMenu.isMine && !actionMenu.msg.deleted && (
+                              <button onClick={() => { setMessageInfoTarget(actionMenu.msg); setActionMenu(null); chat.setShowExtraEmojis(false); }} className="w-full flex items-center gap-3 px-4 py-2 active:bg-accent/30 transition-colors text-start">
+                                <Calendar className="w-4 h-4 text-muted-foreground" /><span className="text-[13px]">{chat.isAr ? 'معلومات الرسالة' : 'Nachrichteninfo'}</span>
+                              </button>
+                            )}
                             {/* Delete for me — works for any non-deleted message regardless of sender. */}
                             {!actionMenu.msg.deleted && (
                               <button onClick={() => { chat.hideMessageForSelf(actionMenu.msg.id); setActionMenu(null); chat.setShowExtraEmojis(false); }} className="w-full flex items-center gap-3 px-4 py-2 active:bg-accent/30 transition-colors text-start">
@@ -1593,6 +1624,17 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
             onForward={chat.performForwardTo}
           />
         )}
+
+        {/* ── Message info ── */}
+        {/* Always re-resolve the message from the live messages list so
+            the modal updates in real time (sent → delivered → read) without
+            forcing the caller to re-open the dialog. */}
+        <MessageInfo
+          isAr={chat.isAr}
+          isOpen={!!messageInfoTarget}
+          message={messageInfoTarget ? (chat.messages.find(m => m.id === messageInfoTarget.id) ?? messageInfoTarget) : null}
+          onClose={() => setMessageInfoTarget(null)}
+        />
 
         {/* ── Wallpaper picker ── */}
         {chat.showWallpaperPicker && (

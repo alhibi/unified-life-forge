@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
-import { motion, useMotionValue, useTransform, AnimatePresence } from 'framer-motion';
+import { motion, useMotionValue, useTransform, AnimatePresence, LayoutGroup } from 'framer-motion';
 import {
-  MessageCircle, Pencil, Pin, BellOff, Archive, CheckCheck,
+  MessageCircle, Pencil, Pin, BellOff, Archive, Check, CheckCheck,
   Image as ImageIcon, Mic, FileText, ArchiveRestore,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -87,9 +87,11 @@ function SwipeRow({
   ]);
   return (
     <motion.div
+      layout="position"
       key={id}
       className="relative"
       style={{ background: bg }}
+      transition={{ layout: { type: 'spring', damping: 30, stiffness: 350 } }}
     >
       <motion.div
         style={{ x, touchAction: 'pan-y' }}
@@ -206,8 +208,9 @@ const ConversationList: React.FC<ConversationListProps> = ({
             </div>
           </div>
         ) : (
-          <div className="divide-y divide-border/10">
-            {conversations.map((conv, idx) => {
+          <LayoutGroup>
+            <div className="divide-y divide-border/10">
+              {conversations.map((conv, idx) => {
               const pinned = isPinned(conv.id);
               const muted = isMuted(conv.id);
               const archived = isArchived(conv.id);
@@ -317,9 +320,16 @@ const ConversationList: React.FC<ConversationListProps> = ({
                           'text-[13px] truncate leading-relaxed flex items-center gap-1.5 min-w-0',
                           unread > 0 && !muted ? 'text-foreground/75 font-medium' : 'text-muted-foreground/65'
                         )}>
-                          {/* Own read/delivered ticks (like WhatsApp) */}
-                          {conv.lastMessageFromMe && !conv.lastMessageDeleted && !draft && (
-                            <CheckCheck className={cn('w-3.5 h-3.5 shrink-0', unread === 0 ? 'text-primary' : 'text-muted-foreground/50')} />
+                          {/* Own delivery/read tick (WhatsApp/Telegram-style):
+                              single grey check  → only sent
+                              double grey check  → delivered to recipient
+                              double primary     → recipient read it */}
+                          {conv.lastMessageFromMe && !conv.lastMessageDeleted && !draft && !otherTyping && (
+                            conv.lastMessageRead
+                              ? <CheckCheck className="w-3.5 h-3.5 shrink-0 text-primary" />
+                              : conv.lastMessageDelivered
+                                ? <CheckCheck className="w-3.5 h-3.5 shrink-0 text-muted-foreground/55" />
+                                : <Check className="w-3.5 h-3.5 shrink-0 text-muted-foreground/55" />
                           )}
                           {previewIcon}
                           <span className="truncate" dir="auto">{previewBody}</span>
@@ -343,7 +353,8 @@ const ConversationList: React.FC<ConversationListProps> = ({
                 </SwipeRow>
               );
             })}
-          </div>
+            </div>
+          </LayoutGroup>
         )}
       </div>
 

@@ -34,6 +34,12 @@ export interface Conversation {
   lastMessageFromMe?: boolean;
   lastMessageDeleted?: boolean;
   lastMessageTime?: string;
+  /** Whether the OTHER user has read the most recent message I sent.
+   * Used to render the WhatsApp-style read indicator next to the preview. */
+  lastMessageRead?: boolean;
+  /** Whether the OTHER user has received (delivered_at != null) my most
+   * recent message but not yet read it. */
+  lastMessageDelivered?: boolean;
   unreadCount?: number;
 }
 
@@ -50,6 +56,8 @@ export interface Message {
   file_name?: string | null;
   deleted: boolean;
   edited_at?: string | null;
+  /** Server-stamped time when the recipient client received the row. */
+  delivered_at?: string | null;
   expires_at?: string | null;
   /** uuid[] of recipients who have hidden this message for themselves. */
   hidden_for?: string[] | null;
