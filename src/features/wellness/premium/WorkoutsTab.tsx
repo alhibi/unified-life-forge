@@ -27,6 +27,7 @@ import {
   bestE1RMFromSets, sessionVolumeKg, sessionLoad,
 } from '../athleticEngine';
 import { PremiumCard, SectionHeader, EmptyState, SegmentedControl, AnimatedNumber } from './primitives';
+import ExerciseDetailSheet from '@/components/ExerciseDetailSheet';
 
 interface Props {
   workouts: WorkoutSession[];
@@ -181,6 +182,7 @@ function ExercisePicker({
 }) {
   const [q, setQ] = useState('');
   const [muscle, setMuscle] = useState<MuscleGroup | 'all'>('all');
+  const [detailExercise, setDetailExercise] = useState<Exercise | null>(null);
 
   const filtered = useMemo(() => {
     const query = q.trim().toLowerCase();
@@ -260,20 +262,30 @@ function ExercisePicker({
               {/* Results */}
               <div className="space-y-1">
                 {filtered.map((e) => (
-                  <button
+                  <div
                     key={e.key}
-                    onClick={() => { onPick(e.key); onClose(); }}
-                    className="w-full text-start rounded-xl bg-card border border-border/40 p-3 active:scale-[0.99] transition-transform flex items-center justify-between gap-2"
+                    className="w-full text-start rounded-xl bg-card border border-border/40 p-3 flex items-center justify-between gap-2"
                   >
-                    <div className="min-w-0">
+                    <button
+                      onClick={() => setDetailExercise(e)}
+                      className="min-w-0 flex-1 text-start active:opacity-70 transition-opacity"
+                    >
                       <p className="text-[13px] font-bold text-foreground truncate">{e.label[lang]}</p>
                       <p className="text-[10px] text-muted-foreground mt-0.5">
                         {MUSCLE_LABELS[e.primary][lang]}
+                        {e.secondary && e.secondary.length > 0 && (
+                          <span className="opacity-60"> · {e.secondary.map(m => MUSCLE_LABELS[m][lang]).join(', ')}</span>
+                        )}
                         {e.isBigLift && <span className="ms-1.5 text-amber-500">★</span>}
                       </p>
-                    </div>
-                    <Plus className="w-4 h-4 text-primary shrink-0" />
-                  </button>
+                    </button>
+                    <button
+                      onClick={() => { onPick(e.key); onClose(); }}
+                      className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 active:scale-95 transition-transform"
+                    >
+                      <Plus className="w-4 h-4 text-primary" />
+                    </button>
+                  </div>
                 ))}
                 {q.trim() && filtered.length === 0 && (
                   <button
@@ -284,6 +296,14 @@ function ExercisePicker({
                   </button>
                 )}
               </div>
+
+              {/* Exercise Detail Sheet */}
+              <ExerciseDetailSheet
+                exercise={detailExercise}
+                open={!!detailExercise}
+                onClose={() => setDetailExercise(null)}
+                lang={lang}
+              />
             </div>
           </motion.div>
         </motion.div>

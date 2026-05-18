@@ -21,6 +21,8 @@ import {
   Target, Timer, Trophy, Zap, BookOpen, ChevronRight, TrendingUp, Activity,
 } from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
+import MuscleBodyMap from '@/components/MuscleBodyMap';
+import type { MuscleGroup } from '@/features/wellness/exerciseCatalog';
 
 /* ─────────────── Constants & Types ─────────────── */
 
@@ -598,6 +600,8 @@ function SkillProgressions({
   onLevelChange: (key: SkillKey, lvl: number) => void;
   lang: 'ar' | 'de';
 }) {
+  const [expandedSkill, setExpandedSkill] = useState<SkillKey | null>(null);
+
   return (
     <motion.section variants={stagger} initial="hidden" animate="show" className="space-y-1.5">
       <div className="flex items-center gap-1.5 mb-1">
@@ -608,9 +612,10 @@ function SkillProgressions({
           {SKILLS.reduce((a, s) => a + s.levels.length, 0)}
         </span>
       </div>
-      <div className="space-y-1.5 max-h-[380px] overflow-y-auto pe-0.5 scrollbar-thin">
+      <div className="space-y-1.5 max-h-[480px] overflow-y-auto pe-0.5 scrollbar-thin">
         {SKILLS.map((skill) => {
           const currentLvl = progress[skill.key] ?? 0;
+          const isExpanded = expandedSkill === skill.key;
 
           return (
             <motion.div
@@ -618,32 +623,39 @@ function SkillProgressions({
               variants={item}
               className="rounded-xl p-2 bg-card/60 border border-border/30 hover:border-border/60 transition-colors"
             >
-              <div className="flex items-center gap-2 mb-1.5">
-                <div
-                  className="w-7 h-7 rounded-lg flex items-center justify-center text-base shrink-0"
-                  style={{ backgroundColor: `${skill.color}20`, border: `1px solid ${skill.color}40` }}
-                >
-                  {skill.emoji}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between gap-1">
-                    <span className="text-[11px] font-semibold text-foreground truncate">
-                      {skill.name[lang]}
-                    </span>
-                    <span
-                      className="text-[8.5px] font-bold px-1.5 py-0.5 rounded shrink-0"
-                      style={{ backgroundColor: `${skill.color}15`, color: skill.color }}
-                    >
-                      {currentLvl + 1}/{skill.levels.length}
-                    </span>
+              {/* Header — tap to expand */}
+              <button
+                type="button"
+                onClick={() => setExpandedSkill(isExpanded ? null : skill.key)}
+                className="w-full text-start"
+              >
+                <div className="flex items-center gap-2 mb-1.5">
+                  <div
+                    className="w-7 h-7 rounded-lg flex items-center justify-center text-base shrink-0"
+                    style={{ backgroundColor: `${skill.color}20`, border: `1px solid ${skill.color}40` }}
+                  >
+                    {skill.emoji}
                   </div>
-                  <div className="text-[9px] text-muted-foreground truncate mt-0.5">
-                    → {skill.levels[currentLvl]}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-1">
+                      <span className="text-[11px] font-semibold text-foreground truncate">
+                        {skill.name[lang]}
+                      </span>
+                      <span
+                        className="text-[8.5px] font-bold px-1.5 py-0.5 rounded shrink-0"
+                        style={{ backgroundColor: `${skill.color}15`, color: skill.color }}
+                      >
+                        {currentLvl + 1}/{skill.levels.length}
+                      </span>
+                    </div>
+                    <div className="text-[9px] text-muted-foreground truncate mt-0.5">
+                      → {skill.levels[currentLvl]}
+                    </div>
                   </div>
                 </div>
-              </div>
+              </button>
 
-              {/* Target muscles */}
+              {/* Target muscles chips */}
               <div className="flex flex-wrap gap-1 mb-1.5">
                 {skill.targetMuscles.map((m) => (
                   <span key={m} className="text-[7.5px] px-1.5 py-0.5 rounded-full bg-muted/50 text-muted-foreground">
@@ -651,6 +663,53 @@ function SkillProgressions({
                   </span>
                 ))}
               </div>
+
+              {/* Expanded: Body Map + Difficulty */}
+              <AnimatePresence>
+                {isExpanded && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                    className="overflow-hidden"
+                  >
+                    <div className="pt-2 pb-1 space-y-2">
+                      {/* Body Map */}
+                      <div className="flex justify-center rounded-xl bg-background/50 border border-border/20 p-2">
+                        <MuscleBodyMap
+                          primary={skill.targetMuscles.slice(0, 2) as MuscleGroup[]}
+                          secondary={skill.targetMuscles.slice(2) as MuscleGroup[]}
+                          size="sm"
+                          showLegend={true}
+                          lang={lang}
+                        />
+                      </div>
+
+                      {/* Difficulty bar */}
+                      <div className="space-y-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[9px] font-semibold text-muted-foreground">
+                            {lang === 'ar' ? 'الصعوبة' : 'Schwierigkeit'}
+                          </span>
+                          <span className="text-[9px] font-bold" style={{ color: skill.color }}>
+                            {skill.difficulty}/10
+                          </span>
+                        </div>
+                        <div className="h-1.5 rounded-full bg-muted/40 overflow-hidden">
+                          <motion.div
+                            className="h-full rounded-full"
+                            style={{ backgroundColor: skill.color }}
+                            initial={{ width: 0 }}
+                            animate={{ width: `${skill.difficulty * 10}%` }}
+                            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
               {/* Progression dots */}
               <div className="flex items-center gap-1" dir="ltr">
