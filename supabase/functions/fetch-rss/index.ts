@@ -209,7 +209,9 @@ function parseRSS(xml: string, maxItems: number): {
     while ((m = entryRe.exec(xml)) !== null && items.length < maxItems) {
       const e = m[0];
       const title = decodeEntities(stripTags(getTag(e, "title")));
-      const link = getAttr(e, "link", "href");
+      const linkRaw = getAttr(e, "link", "href");
+      const link = isSafeUrl(linkRaw) ? linkRaw : "";
+      if (!link) continue;
       const content = getTag(e, "content") || getTag(e, "summary");
       const pubDate = getTag(e, "published") || getTag(e, "updated");
       const author = stripTags(getTag(e, "name"));
@@ -243,6 +245,7 @@ function parseRSS(xml: string, maxItems: number): {
         const lm = it.match(/<link[^>]*>([\s\S]*?)<\/link>/i);
         if (lm) link = cdata(lm[1]).trim();
       }
+      if (!isSafeUrl(link)) continue;
       const contentEncoded = getTag(it, "content:encoded");
       const desc = getTag(it, "description");
       const fullContent = contentEncoded || desc;
