@@ -1,6 +1,7 @@
 project_id = "nmrckgzmluoavgucqvjh"
 
-# Edge Functions require an authenticated JWT before reaching the handler.
-# The handler also re-checks via supabase.auth.getUser() as defence in depth.
+# RSS fetching is harmless (public feeds, SSRF-filtered URLs). We accept
+# anonymous callers so guests can refresh feeds; the handler still
+# requires a valid user for `store=true` writes.
 [functions.fetch-rss]
-verify_jwt = true
+verify_jwt = false

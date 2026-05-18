@@ -772,13 +772,12 @@ serve(async (req) => {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
+  // Auth is optional: anonymous callers can fetch & parse public feeds,
+  // but only authenticated users (or the service role) may persist rows
+  // to rss_articles / rss_feed_meta. We downgrade `store` silently when
+  // no valid bearer is presented.
   const auth = await requireUser(req);
-  if (!auth.ok) {
-    return new Response(JSON.stringify({ error: auth.error }), {
-      status: auth.status,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
-  }
+  const authed = auth.ok;
 
   try {
     const body = await req.json();
