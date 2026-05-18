@@ -17,6 +17,12 @@ something feels off, open an issue privately with a maintainer.
    npm ci
    cp .env.example .env       # fill in your Supabase project values
    ```
+   > **First-time setup note** — after this professional-overhaul branch
+   > lands, the `package-lock.json` will not yet contain the new dev
+   > tooling (`prettier`, `eslint-config-prettier`, `husky`, `lint-staged`,
+   > `@vitest/coverage-v8`, `prettier-plugin-tailwindcss`). Run
+   > `npm install` once to regenerate the lockfile, commit the result,
+   > then `npm ci` will work going forward.
 4. Run the dev server:
    ```bash
    npm run dev

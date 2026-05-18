@@ -38,12 +38,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `src/App.css` — empty placeholder, not imported anywhere.
 - `bun.lockb` — legacy Bun binary lockfile, superseded by the text `bun.lock`.
+- Unused npm dependencies (zero source references):
+  - `zod` — no schemas exist anywhere.
+  - `@hookform/resolvers` — `react-hook-form` is only referenced by the
+    unused shadcn `ui/form.tsx` primitive.
+  - `@emoji-mart/react` — the chat picker uses the framework-agnostic
+    `emoji-mart` API directly (`new Picker()`).
+  - `@types/dompurify` — `dompurify@^3.x` ships its own types; the
+    separate `@types` package targets v2.
 
 ### Fixed
 
 - Seven source files that did not end with a final newline now do
   (`SEO.tsx`, `useFastTap.ts`, `fetchRetry.ts`, `notify.ts`, `registerFontsSw.ts`,
   `reverseGeocode.ts`, `tsconfig.app.json`).
+
+### Notes
+
+- The following shadcn/ui primitives are currently present on disk but
+  unused by any feature: `ui/form.tsx`, `ui/chart.tsx`, `ui/command.tsx`,
+  `ui/drawer.tsx`, `ui/carousel.tsx`, `ui/resizable.tsx`,
+  `ui/input-otp.tsx`. They are intentionally retained because the shadcn
+  CLI treats them as a managed set; their underlying npm dependencies
+  (`react-hook-form`, `recharts`, `cmdk`, `vaul`, `embla-carousel-react`,
+  `react-resizable-panels`, `input-otp`) are kept for the same reason.
+  A future PR can prune them as a separate, deliberate decision.
+- The following dependencies are deliberately *not* upgraded across a
+  major version because each upgrade requires non-trivial code changes
+  and is best done in a focused PR with manual QA: `react-day-picker`
+  (8.x → 9.x — API rewrite) and `lucide-react` (0.462 → current — minor
+  icon name churn). Both are still actively maintained on their current
+  major.
 
 ## [0.1.0] - 2026-05-18
 
