@@ -27,6 +27,8 @@ interface VoicePlayerState {
   senderName: string;
   conversationId: string;
   waveformData: number[];
+  /** Playback rate: 1, 1.5 or 2. Persisted across messages within a session. */
+  playbackRate: number;
 }
 
 interface VoicePlayerContextType {
@@ -36,6 +38,9 @@ interface VoicePlayerContextType {
   togglePlayback: (msgId: string, url: string, senderName: string, conversationId: string) => void;
   seek: (fraction: number) => void;
   stop: () => void;
+  /** Cycle 1 → 1.5 → 2 → 1. */
+  cyclePlaybackRate: () => void;
+  setPlaybackRate: (rate: number) => void;
   getProgress: (msgId: string) => number;
   getDuration: (msgId: string) => number;
   isPlayingMsg: (msgId: string) => boolean;
@@ -125,12 +130,20 @@ export const VoicePlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
     senderName: '',
     conversationId: '',
     waveformData: [],
+    playbackRate: 1,
   });
 
   const [waveformCache, setWaveformCache] = useState<Record<string, number[]>>({});
   const waveformCacheRef = useRef<Record<string, number[]>>({});
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const rafRef = useRef<number | null>(null);
+  // Mirror state in a ref so callbacks captured before a setState batch
+  // (like the play() factory below) can still read the latest playbackRate.
+  const stateRef = useRef<VoicePlayerState>({
+    isPlaying: false, msgId: null, url: '', progress: 0, duration: 0,
+    senderName: '', conversationId: '', waveformData: [], playbackRate: 1,
+  });
+  useEffect(() => { stateRef.current = state; }, [state]);
   // Auto-advance resolver — see setOnEnded(). Callers register a function
   // that, given the message that just ended and its conversation id, returns
   // the next voice message to play (or null to stop). Stored in a ref so
@@ -200,7 +213,7 @@ export const VoicePlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
     const waveform = waveformCacheRef.current[msgId] || seedWaveform(msgId);
 
     // Set state to "loading" - show play button changing
-    setState({
+    setState(prev => ({
       isPlaying: false,
       msgId,
       url,
@@ -209,10 +222,12 @@ export const VoicePlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
       senderName,
       conversationId,
       waveformData: waveform,
-    });
+      playbackRate: prev.playbackRate,
+    }));
 
     const audio = new Audio();
     audio.preload = 'auto';
+    audio.playbackRate = stateRef.current.playbackRate;
     audioRef.current = audio;
 
     let started = false;
@@ -333,6 +348,19 @@ export const VoicePlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
     return state.msgId === msgId && state.isPlaying;
   }, [state.msgId, state.isPlaying]);
 
+  const setPlaybackRate = useCallback((rate: number) => {
+    const clamped = Math.max(0.5, Math.min(3, rate));
+    if (audioRef.current) audioRef.current.playbackRate = clamped;
+    setState(prev => ({ ...prev, playbackRate: clamped }));
+  }, []);
+
+  const cyclePlaybackRate = useCallback(() => {
+    const cur = stateRef.current.playbackRate;
+    // 1 → 1.5 → 2 → 1 (Telegram's voice-message speed cycle).
+    const next = cur < 1.25 ? 1.5 : cur < 1.75 ? 2 : 1;
+    setPlaybackRate(next);
+  }, [setPlaybackRate]);
+
   // Tracks in-flight extractions so the same msgId can't trigger N parallel
   // fetches if many bubbles mount at once.
   const inflightWaveforms = useRef<Set<string>>(new Set());
@@ -374,6 +402,8 @@ export const VoicePlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
       togglePlayback,
       seek,
       stop,
+      cyclePlaybackRate,
+      setPlaybackRate,
       getProgress,
       getDuration,
       isPlayingMsg,

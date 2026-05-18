@@ -202,14 +202,19 @@ export type Database = {
       }
       messages: {
         Row: {
+          client_id: string | null
           content: string
           conversation_id: string
           created_at: string
           deleted: boolean
+          delivered_at: string | null
           edited_at: string | null
           expires_at: string | null
           file_name: string | null
           file_url: string | null
+          forwarded_from_message_id: string | null
+          forwarded_from_sender_id: string | null
+          hidden_for: string[]
           id: string
           message_type: string
           read: boolean
@@ -217,14 +222,19 @@ export type Database = {
           sender_id: string
         }
         Insert: {
+          client_id?: string | null
           content: string
           conversation_id: string
           created_at?: string
           deleted?: boolean
+          delivered_at?: string | null
           edited_at?: string | null
           expires_at?: string | null
           file_name?: string | null
           file_url?: string | null
+          forwarded_from_message_id?: string | null
+          forwarded_from_sender_id?: string | null
+          hidden_for?: string[]
           id?: string
           message_type?: string
           read?: boolean
@@ -232,14 +242,19 @@ export type Database = {
           sender_id: string
         }
         Update: {
+          client_id?: string | null
           content?: string
           conversation_id?: string
           created_at?: string
           deleted?: boolean
+          delivered_at?: string | null
           edited_at?: string | null
           expires_at?: string | null
           file_name?: string | null
           file_url?: string | null
+          forwarded_from_message_id?: string | null
+          forwarded_from_sender_id?: string | null
+          hidden_for?: string[]
           id?: string
           message_type?: string
           read?: boolean
@@ -414,9 +429,33 @@ export type Database = {
         Returns: number
       }
       mark_message_read: { Args: { p_message_id: string }; Returns: undefined }
+      mark_message_delivered: { Args: { p_message_id: string }; Returns: undefined }
       mark_messages_read: {
         Args: { p_conversation_id: string }
         Returns: undefined
+      }
+      mark_messages_delivered: {
+        Args: { p_conversation_id: string }
+        Returns: undefined
+      }
+      hide_message_for_self: {
+        Args: { p_message_id: string }
+        Returns: undefined
+      }
+      delete_message_for_me: {
+        Args: { p_message_id: string }
+        Returns: undefined
+      }
+      get_visible_profile: {
+        Args: { p_user_id: string }
+        Returns: {
+          user_id: string
+          username: string
+          display_name: string | null
+          avatar_url: string | null
+          bio: string | null
+          last_seen: string | null
+        }[]
       }
       normalize_arabic: { Args: { s: string }; Returns: string }
       reading_cron_status: {
