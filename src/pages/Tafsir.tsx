@@ -1,11 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BookOpen, Search, ChevronDown, ArrowRight, Loader2, BookMarked, X } from 'lucide-react';
 import BackButton from '@/components/BackButton';
 import SEO from '@/components/SEO';
 import { useApp } from '@/contexts/AppContext';
 
-// 114 Surah names in Arabic
+// ─── DATA ────────────────────────────────────────────────────────────────────
+
 const SURAHS = [
   'الفاتحة','البقرة','آل عمران','النساء','المائدة','الأنعام','الأعراف','الأنفال','التوبة','يونس',
   'هود','يوسف','الرعد','إبراهيم','الحجر','النحل','الإسراء','الكهف','مريم','طه',
@@ -21,7 +22,6 @@ const SURAHS = [
   'المسد','الإخلاص','الفلق','الناس',
 ];
 
-// Ayah counts per surah
 const AYAH_COUNTS = [
   7,286,200,176,120,165,206,75,129,109,123,111,43,52,99,128,111,110,98,135,
   112,78,118,64,77,227,93,88,69,60,34,30,73,54,45,83,182,88,75,85,
@@ -31,14 +31,23 @@ const AYAH_COUNTS = [
   11,8,3,9,5,4,7,3,6,3,5,4,5,6,
 ];
 
-// Available tafsirs
+/**
+ * Arabic-only tafsir editions for alquran.cloud API.
+ * This API reliably returns Arabic text and does NOT mix languages.
+ * Each edition identifier maps to a well-known Arabic tafsir.
+ */
 const TAFSIRS = [
-  { id: 1, name: 'تفسير ابن كثير', slug: 'ar-tafsir-ibn-kathir' },
-  { id: 2, name: 'التفسير الميسر', slug: 'ar-tafseer-muyassar' },
-  { id: 3, name: 'تفسير الجلالين', slug: 'ar-tafsir-al-jalalayn' },
-  { id: 4, name: 'تفسير السعدي', slug: 'ar-tafsir-al-saadi' },
-  { id: 5, name: 'تفسير البغوي', slug: 'ar-tafsir-al-baghawi' },
+  { id: 'ar.muyassar',   name: 'التفسير الميسر' },
+  { id: 'ar.jalalayn',   name: 'تفسير الجلالين' },
+  { id: 'ar.ibn-katheer', name: 'تفسير ابن كثير' },
+  { id: 'ar.qurtubi',    name: 'تفسير القرطبي' },
+  { id: 'ar.tabari',     name: 'تفسير الطبري' },
+  { id: 'ar.baghawi',    name: 'تفسير البغوي' },
+  { id: 'ar.saddi',      name: 'تفسير السعدي' },
+  { id: 'ar.waseet',     name: 'تفسير الوسيط' },
 ];
+
+// ─── TYPES ───────────────────────────────────────────────────────────────────
 
 interface AyahData {
   number: number;
@@ -46,16 +55,15 @@ interface AyahData {
   numberInSurah: number;
 }
 
-interface TafsirText {
-  text: string;
-  resource_name?: string;
-}
+// ─── ANIMATIONS ──────────────────────────────────────────────────────────────
 
-const container = { hidden: {}, show: { transition: { staggerChildren: 0.02 } } };
+const container = { hidden: {}, show: { transition: { staggerChildren: 0.015 } } };
 const itemAnim = {
   hidden: { opacity: 0, y: 6 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.25, ease: [0.16, 1, 0.3, 1] as const } },
+  show: { opacity: 1, y: 0, transition: { duration: 0.2, ease: [0.16, 1, 0.3, 1] as const } },
 };
+
+// ─── COMPONENT ───────────────────────────────────────────────────────────────
 
 export default function TafsirPage() {
   const { t, language } = useApp();
@@ -73,15 +81,17 @@ export default function TafsirPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const tafsirRef = useRef<HTMLDivElement>(null);
 
-  // Fetch ayahs when surah is selected
+  // ─── Fetch Ayahs ────────────────────────────────────────────────────────────
+
   useEffect(() => {
     if (selectedSurah === null) return;
+    const controller = new AbortController();
     setLoadingAyahs(true);
     setAyahs([]);
     setSelectedAyah(null);
     setTafsirText('');
 
-    fetch(`https://api.alquran.cloud/v1/surah/${selectedSurah + 1}`)
+    fetch(`https://api.alquran.cloud/v1/surah/${selectedSurah + 1}`, { signal: controller.signal })
       .then(r => r.json())
       .then(data => {
         if (data.code === 200 && data.data?.ayahs) {
@@ -94,67 +104,76 @@ export default function TafsirPage() {
       })
       .catch(() => {})
       .finally(() => setLoadingAyahs(false));
+
+    return () => controller.abort();
   }, [selectedSurah]);
 
-  // Fetch tafsir when ayah is selected
+  // ─── Fetch Tafsir (Arabic only via alquran.cloud) ───────────────────────────
+
+  const fetchTafsir = useCallback(async (surahIdx: number, ayahNum: number, tafsirId: string, signal: AbortSignal) => {
+    const surahNum = surahIdx + 1;
+
+    // Primary: alquran.cloud edition-based API — guaranteed Arabic
+    const url = `https://api.alquran.cloud/v1/ayah/${surahNum}:${ayahNum}/${tafsirId}`;
+    const res = await fetch(url, { signal });
+    const data = await res.json();
+
+    if (data.code === 200 && data.data?.text) {
+      return data.data.text;
+    }
+
+    // Fallback: try without specific edition suffix for muyassar
+    const fallbackUrl = `https://api.alquran.cloud/v1/ayah/${surahNum}:${ayahNum}/ar.muyassar`;
+    const fallbackRes = await fetch(fallbackUrl, { signal });
+    const fallbackData = await fallbackRes.json();
+
+    if (fallbackData.code === 200 && fallbackData.data?.text) {
+      return fallbackData.data.text;
+    }
+
+    return null;
+  }, []);
+
   useEffect(() => {
     if (selectedSurah === null || selectedAyah === null) return;
+    const controller = new AbortController();
     setLoadingTafsir(true);
     setTafsirText('');
 
-    const surahNum = selectedSurah + 1;
-    const ayahNum = selectedAyah;
-
-    // Use quran.com API v4 for tafsir
-    fetch(`https://api.quran.com/api/v4/tafsirs/${selectedTafsir.slug}/by_ayah/${surahNum}:${ayahNum}`)
-      .then(r => r.json())
-      .then(data => {
-        if (data.tafsir?.text) {
-          // Strip HTML tags for clean display
-          const clean = data.tafsir.text.replace(/<[^>]*>/g, '');
-          setTafsirText(clean);
+    fetchTafsir(selectedSurah, selectedAyah, selectedTafsir.id, controller.signal)
+      .then(text => {
+        if (text) {
+          // Clean any HTML tags
+          setTafsirText(text.replace(/<[^>]*>/g, ''));
         } else {
-          setTafsirText(isAr ? 'لم يتوفر التفسير لهذه الآية' : 'Tafsir not available for this ayah');
+          setTafsirText('لم يتوفر التفسير لهذه الآية');
         }
       })
-      .catch(() => {
-        setTafsirText(isAr ? 'تعذر تحميل التفسير، تحقق من اتصال الإنترنت' : 'Failed to load tafsir');
+      .catch((err) => {
+        if (err.name !== 'AbortError') {
+          setTafsirText('تعذر تحميل التفسير، تحقق من اتصال الإنترنت');
+        }
       })
       .finally(() => setLoadingTafsir(false));
 
-    // Scroll to tafsir section
     setTimeout(() => {
-      tafsirRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 300);
-  }, [selectedAyah, selectedTafsir, selectedSurah, isAr]);
+      tafsirRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 350);
+
+    return () => controller.abort();
+  }, [selectedAyah, selectedTafsir, selectedSurah, fetchTafsir]);
+
+  // ─── Helpers ────────────────────────────────────────────────────────────────
 
   const filteredSurahs = SURAHS.map((name, i) => ({ name, index: i })).filter(s =>
     searchQuery ? s.name.includes(searchQuery) || String(s.index + 1).includes(searchQuery) : true
   );
 
-  const handleSurahSelect = (index: number) => {
-    setSelectedSurah(index);
-    setShowSurahPicker(false);
-  };
-
-  const handleBack = () => {
-    if (selectedAyah !== null) {
-      setSelectedAyah(null);
-      setTafsirText('');
-    } else if (selectedSurah !== null) {
-      setSelectedSurah(null);
-      setShowSurahPicker(true);
-      setAyahs([]);
-    }
-  };
+  // ─── RENDER ─────────────────────────────────────────────────────────────────
 
   return (
     <div className="min-h-screen bg-background pb-24" dir="rtl">
-      <SEO
-        title={isAr ? 'التفسير — SmartHub' : 'Tafsir — SmartHub'}
-        description={isAr ? 'تفسير القرآن الكريم — ابحث في سور القرآن واقرأ التفسير' : 'Quran Tafsir — Browse surahs and read scholarly commentary'}
-        path="/tafsir"
-      />
+      <SEO title="التفسير — SmartHub" description="تفسير القرآن الكريم باللغة العربية" path="/tafsir" />
 
       {/* Header */}
       <div className="sticky top-0 z-20 bg-background/80 backdrop-blur-md border-b border-border/30">
@@ -169,29 +188,18 @@ export default function TafsirPage() {
       </div>
 
       <div className="px-4 pt-4 space-y-4 max-w-lg mx-auto">
-        {/* Surah & Ayah breadcrumb */}
+        {/* Breadcrumb */}
         {selectedSurah !== null && (
-          <motion.div
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex items-center gap-2 flex-wrap"
-          >
-            <button
-              onClick={() => { setSelectedSurah(null); setShowSurahPicker(true); setAyahs([]); setSelectedAyah(null); setTafsirText(''); }}
-              className="text-xs font-medium text-primary hover:underline"
-            >
+          <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-2 flex-wrap">
+            <button onClick={() => { setSelectedSurah(null); setShowSurahPicker(true); setAyahs([]); setSelectedAyah(null); setTafsirText(''); }} className="text-xs font-medium text-primary hover:underline">
               {t('tafsir.allSurahs')}
             </button>
             <ArrowRight className="w-3 h-3 text-muted-foreground rotate-180" />
-            <span className="text-xs font-bold text-foreground">
-              {SURAHS[selectedSurah]} ({selectedSurah + 1})
-            </span>
+            <span className="text-xs font-bold text-foreground">{SURAHS[selectedSurah]} ({selectedSurah + 1})</span>
             {selectedAyah !== null && (
               <>
                 <ArrowRight className="w-3 h-3 text-muted-foreground rotate-180" />
-                <span className="text-xs font-bold text-primary">
-                  {t('tafsir.ayah')} {selectedAyah}
-                </span>
+                <span className="text-xs font-bold text-primary">{t('tafsir.ayah')} {selectedAyah}</span>
               </>
             )}
           </motion.div>
@@ -199,7 +207,7 @@ export default function TafsirPage() {
 
         {/* Tafsir source picker */}
         {selectedSurah !== null && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="relative">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="relative z-10">
             <button
               onClick={() => setShowTafsirPicker(!showTafsirPicker)}
               className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-card border border-border/50 hover:bg-accent/30 transition-colors"
@@ -210,22 +218,19 @@ export default function TafsirPage() {
               </div>
               <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${showTafsirPicker ? 'rotate-180' : ''}`} />
             </button>
-
             <AnimatePresence>
               {showTafsirPicker && (
                 <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="overflow-hidden mt-1 rounded-xl bg-card border border-border/50 shadow-lg"
+                  initial={{ opacity: 0, y: -4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -4 }}
+                  className="mt-1 rounded-xl bg-card border border-border/50 shadow-xl absolute left-0 right-0 z-20 overflow-hidden"
                 >
                   {TAFSIRS.map(tf => (
                     <button
                       key={tf.id}
                       onClick={() => { setSelectedTafsir(tf); setShowTafsirPicker(false); }}
-                      className={`w-full text-right px-4 py-3 text-sm font-medium transition-colors hover:bg-accent/30 ${
-                        tf.id === selectedTafsir.id ? 'text-primary bg-primary/5' : 'text-foreground'
-                      }`}
+                      className={`w-full text-right px-4 py-3 text-sm font-medium transition-colors hover:bg-accent/30 ${tf.id === selectedTafsir.id ? 'text-primary bg-primary/5' : 'text-foreground'}`}
                     >
                       {tf.name}
                     </button>
@@ -239,21 +244,12 @@ export default function TafsirPage() {
         {/* Surah Picker */}
         <AnimatePresence mode="wait">
           {showSurahPicker && (
-            <motion.div
-              key="surah-picker"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="space-y-3"
-            >
-              {/* Search */}
+            <motion.div key="surah-picker" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-3">
               <div className="relative">
                 <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={e => setSearchQuery(e.target.value)}
-                  placeholder={isAr ? 'ابحث عن سورة...' : 'Search surah...'}
+                  type="text" value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
+                  placeholder="ابحث عن سورة..."
                   className="w-full pr-10 pl-4 py-3 rounded-xl bg-card border border-border/50 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/30"
                 />
                 {searchQuery && (
@@ -262,30 +258,16 @@ export default function TafsirPage() {
                   </button>
                 )}
               </div>
-
-              {/* Surah grid */}
-              <motion.div
-                variants={container}
-                initial="hidden"
-                animate="show"
-                className="grid grid-cols-3 gap-2"
-              >
+              <motion.div variants={container} initial="hidden" animate="show" className="grid grid-cols-3 gap-2">
                 {filteredSurahs.map(({ name, index }) => (
                   <motion.button
-                    key={index}
-                    variants={itemAnim}
-                    onClick={() => handleSurahSelect(index)}
+                    key={index} variants={itemAnim}
+                    onClick={() => { setSelectedSurah(index); setShowSurahPicker(false); }}
                     className="relative flex flex-col items-center gap-1 px-2 py-3.5 rounded-xl bg-card border border-border/50 hover:bg-accent/40 hover:border-primary/30 transition-all group"
                   >
-                    <span className="absolute top-1.5 left-2 text-[10px] text-muted-foreground/60 font-mono">
-                      {index + 1}
-                    </span>
-                    <span className="text-[13px] font-bold text-foreground group-hover:text-primary transition-colors">
-                      {name}
-                    </span>
-                    <span className="text-[10px] text-muted-foreground">
-                      {AYAH_COUNTS[index]} {isAr ? 'آية' : 'Ayahs'}
-                    </span>
+                    <span className="absolute top-1.5 left-2 text-[10px] text-muted-foreground/60 font-mono">{index + 1}</span>
+                    <span className="text-[13px] font-bold text-foreground group-hover:text-primary transition-colors">{name}</span>
+                    <span className="text-[10px] text-muted-foreground">{AYAH_COUNTS[index]} آية</span>
                   </motion.button>
                 ))}
               </motion.div>
@@ -293,96 +275,65 @@ export default function TafsirPage() {
           )}
         </AnimatePresence>
 
-        {/* Ayah list */}
+        {/* Ayah list + inline tafsir */}
         <AnimatePresence mode="wait">
           {selectedSurah !== null && !showSurahPicker && (
-            <motion.div
-              key="ayah-list"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              className="space-y-3"
-            >
+            <motion.div key="ayah-list" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-2">
               {loadingAyahs ? (
-                <div className="flex items-center justify-center py-16">
-                  <Loader2 className="w-6 h-6 text-primary animate-spin" />
-                </div>
+                <div className="flex items-center justify-center py-16"><Loader2 className="w-6 h-6 text-primary animate-spin" /></div>
               ) : (
                 <motion.div variants={container} initial="hidden" animate="show" className="space-y-2">
-                  {ayahs.map(ayah => (
-                    <motion.button
-                      key={ayah.number}
-                      variants={itemAnim}
-                      onClick={() => setSelectedAyah(ayah.numberInSurah)}
-                      className={`w-full text-right px-4 py-4 rounded-xl border transition-all ${
-                        selectedAyah === ayah.numberInSurah
-                          ? 'bg-primary/10 border-primary/40 shadow-sm'
-                          : 'bg-card border-border/50 hover:bg-accent/30 hover:border-primary/20'
-                      }`}
-                    >
-                      <div className="flex items-start gap-3">
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
-                          selectedAyah === ayah.numberInSurah ? 'bg-primary/20' : 'bg-muted/50'
-                        }`}>
-                          <span className={`text-xs font-bold ${
-                            selectedAyah === ayah.numberInSurah ? 'text-primary' : 'text-muted-foreground'
-                          }`}>
-                            {ayah.numberInSurah}
-                          </span>
-                        </div>
-                        <p className="flex-1 text-[15px] font-medium text-foreground leading-[2.2] font-[Amiri,serif]">
-                          {ayah.text}
-                        </p>
+                  {ayahs.map(ayah => {
+                    const isSelected = selectedAyah === ayah.numberInSurah;
+                    return (
+                      <div key={ayah.number}>
+                        <motion.button
+                          variants={itemAnim}
+                          onClick={() => setSelectedAyah(isSelected ? null : ayah.numberInSurah)}
+                          className={`w-full text-right px-4 py-4 border transition-all ${isSelected ? 'bg-primary/8 border-primary/30 rounded-t-xl rounded-b-none' : 'bg-card border-border/50 hover:bg-accent/30 hover:border-primary/20 rounded-xl'}`}
+                        >
+                          <div className="flex items-start gap-3">
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-colors ${isSelected ? 'bg-primary/20' : 'bg-muted/50'}`}>
+                              <span className={`text-xs font-bold ${isSelected ? 'text-primary' : 'text-muted-foreground'}`}>{ayah.numberInSurah}</span>
+                            </div>
+                            <p className="flex-1 text-[15px] font-medium text-foreground leading-[2.2] font-[Amiri,serif]">{ayah.text}</p>
+                          </div>
+                        </motion.button>
+
+                        <AnimatePresence>
+                          {isSelected && (
+                            <motion.div
+                              ref={tafsirRef}
+                              initial={{ opacity: 0, height: 0 }}
+                              animate={{ opacity: 1, height: 'auto' }}
+                              exit={{ opacity: 0, height: 0 }}
+                              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                              className="overflow-hidden"
+                            >
+                              <div className="rounded-b-xl border border-t-0 border-primary/30 bg-gradient-to-b from-primary/5 to-card">
+                                <div className="px-4 py-2.5 flex items-center gap-2 border-b border-primary/10">
+                                  <BookMarked className="w-3.5 h-3.5 text-primary" />
+                                  <span className="text-xs font-bold text-primary">{selectedTafsir.name}</span>
+                                </div>
+                                <div className="px-4 py-4">
+                                  {loadingTafsir ? (
+                                    <div className="flex items-center justify-center py-6"><Loader2 className="w-5 h-5 text-primary animate-spin" /></div>
+                                  ) : (
+                                    <p className="text-[13px] text-foreground/90 leading-[2.1] whitespace-pre-wrap" dir="rtl" lang="ar">{tafsirText}</p>
+                                  )}
+                                </div>
+                                <div className="px-4 py-2 border-t border-border/20">
+                                  <p className="text-[10px] text-muted-foreground/70 text-center">المصدر: alquran.cloud</p>
+                                </div>
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
                       </div>
-                    </motion.button>
-                  ))}
+                    );
+                  })}
                 </motion.div>
               )}
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Tafsir display */}
-        <AnimatePresence>
-          {(selectedAyah !== null && selectedSurah !== null) && (
-            <motion.div
-              ref={tafsirRef}
-              key="tafsir-content"
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              className="rounded-2xl bg-card border border-primary/20 shadow-lg overflow-hidden"
-            >
-              {/* Tafsir header */}
-              <div className="px-4 py-3 bg-primary/5 border-b border-primary/10 flex items-center gap-2">
-                <BookMarked className="w-4 h-4 text-primary" />
-                <span className="text-sm font-bold text-primary">
-                  {selectedTafsir.name}
-                </span>
-                <span className="text-xs text-muted-foreground mr-auto">
-                  — {SURAHS[selectedSurah]} : {selectedAyah}
-                </span>
-              </div>
-
-              {/* Tafsir body */}
-              <div className="px-4 py-4">
-                {loadingTafsir ? (
-                  <div className="flex items-center justify-center py-8">
-                    <Loader2 className="w-5 h-5 text-primary animate-spin" />
-                  </div>
-                ) : (
-                  <p className="text-sm text-foreground leading-[2] whitespace-pre-wrap">
-                    {tafsirText}
-                  </p>
-                )}
-              </div>
-
-              {/* Source attribution */}
-              <div className="px-4 py-2 border-t border-border/30 bg-muted/20">
-                <p className="text-[10px] text-muted-foreground text-center">
-                  {isAr ? 'المصدر: مركز تفسير للدراسات القرآنية — quran.com API' : 'Source: Tafsir Center — quran.com API'}
-                </p>
-              </div>
             </motion.div>
           )}
         </AnimatePresence>
