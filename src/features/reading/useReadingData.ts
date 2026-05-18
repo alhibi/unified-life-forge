@@ -100,7 +100,7 @@ export function useReadingData(opts: { isAr: boolean }) {
           description: r.description || '',
           fullContent: r.full_content || '',
           pubDate: r.pub_date || r.created_at || '',
-          image: r.image ?? undefined,
+          image: r.image ?? null,
           images: (r.images as FeedItem['images']) || [],
           author: undefined,
           source: r.source_name,
