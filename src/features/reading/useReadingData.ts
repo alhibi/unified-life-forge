@@ -14,6 +14,7 @@ import {
   storeReadArticles,
 } from './storage';
 import { fetchFeedsClientSide, isSupabaseAvailable } from './clientFetcher';
+import { dedupe, withRetry } from '@/lib/fetchRetry';
 
 /**
  * Centralised data layer for the reading feature.
@@ -156,15 +157,26 @@ export function useReadingData(opts: { isAr: boolean }) {
             const nameMap: Record<string, string> = {};
             enabledFeeds.forEach((f) => { nameMap[f.url] = f.name; });
 
-            const { data, error } = await supabase.functions.invoke('fetch-rss', {
-              body: {
-                urls: enabledFeeds.map((f) => f.url),
-                limit: 100,
-                fetchFullContent: true,
-                store: true,
-                nameMap,
-              },
-            });
+            // Dedupe + retry the edge invocation: parallel refresh
+            // triggers (auto-refresh tick colliding with a manual
+            // button press) collapse to a single in-flight request,
+            // and transient 5xx / network blips get 2 backoff attempts
+            // before we fall through to the client-side fallback.
+            const { data, error } = await dedupe(
+              `fetch-rss:${enabledFeeds.map(f => f.url).sort().join('|')}`,
+              () => withRetry(
+                () => supabase.functions.invoke('fetch-rss', {
+                  body: {
+                    urls: enabledFeeds.map((f) => f.url),
+                    limit: 100,
+                    fetchFullContent: true,
+                    store: true,
+                    nameMap,
+                  },
+                }),
+                { attempts: 2, baseMs: 600 },
+              ),
+            );
 
             if (!error && data) {
               if (Array.isArray(data?.statuses)) {
