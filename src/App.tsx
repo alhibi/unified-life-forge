@@ -149,7 +149,19 @@ function PersistentTabs({ active }: { active: TabPath | null }) {
       style={{ display: active === path ? 'block' : 'none' }}
       aria-hidden={active !== path}
     >
-      <ErrorBoundary>{node}</ErrorBoundary>
+      <ErrorBoundary>
+        {active === path ? (
+          <div
+            key={`tab-anim-${path}-${active}`}
+            className="tab-zoom-in"
+            style={{ transformOrigin: 'center center', willChange: 'opacity, transform' }}
+          >
+            {node}
+          </div>
+        ) : (
+          node
+        )}
+      </ErrorBoundary>
     </div>
   );
   return (
