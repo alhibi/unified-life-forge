@@ -31,15 +31,16 @@ const AYAH_COUNTS = [
   11,8,3,9,5,4,7,3,6,3,5,4,5,6,
 ];
 
-// Available tafsirs — using numeric resource IDs from quran.com API v4
+// Available Arabic tafsirs — resource IDs from quran.com API v4
+// These are the Arabic-language tafsir resources specifically
 const TAFSIRS = [
-  { id: 169, name: 'تفسير ابن كثير' },
   { id: 16,  name: 'التفسير الميسر' },
-  { id: 74,  name: 'تفسير الجلالين' },
-  { id: 170, name: 'تفسير السعدي' },
-  { id: 171, name: 'تفسير البغوي' },
-  { id: 91,  name: 'تفسير الطبري' },
-  { id: 168, name: 'تفسير القرطبي' },
+  { id: 93,  name: 'تفسير ابن كثير' },
+  { id: 90,  name: 'تفسير الطبري' },
+  { id: 92,  name: 'تفسير القرطبي' },
+  { id: 94,  name: 'تفسير البغوي' },
+  { id: 381, name: 'تفسير السعدي' },
+  { id: 382, name: 'تفسير الوسيط' },
 ];
 
 interface AyahData {
@@ -103,14 +104,18 @@ export default function TafsirPage() {
     const ayahKey = `${surahNum}:${selectedAyah}`;
 
     // quran.com API v4: GET /api/v4/tafsirs/:resource_id/by_ayah/:ayah_key
-    fetch(`https://api.quran.com/api/v4/tafsirs/${selectedTafsir.id}/by_ayah/${ayahKey}`)
+    fetch(`https://api.quran.com/api/v4/tafsirs/${selectedTafsir.id}/by_ayah/${ayahKey}?fields=text,resource_name,language_id`)
       .then(r => r.json())
       .then(data => {
+        let text = '';
         if (data.tafsir?.text) {
-          const clean = data.tafsir.text.replace(/<[^>]*>/g, '');
-          setTafsirText(clean);
+          text = data.tafsir.text;
         } else if (data.tafsirs && data.tafsirs.length > 0) {
-          const clean = data.tafsirs[0].text.replace(/<[^>]*>/g, '');
+          text = data.tafsirs[0].text;
+        }
+        if (text) {
+          // Strip HTML tags for clean display
+          const clean = text.replace(/<[^>]*>/g, '');
           setTafsirText(clean);
         } else {
           setTafsirText(isAr ? 'لم يتوفر التفسير لهذه الآية' : 'Tafsir not available for this ayah');
