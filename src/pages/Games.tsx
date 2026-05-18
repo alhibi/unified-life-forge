@@ -2,7 +2,7 @@ import React from 'react';
 import SEO from '@/components/SEO';
 import { useApp } from '@/contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
-import { Grid3X3, Swords, Gamepad2, Trophy, Brain, Bomb, Palette, PipetteIcon, Dices, Target, Puzzle, Hexagon, Crosshair } from 'lucide-react';
+import { Grid3X3, Swords, Gamepad2, Trophy, Brain, Dices, Crosshair } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function GamesPage() {
@@ -14,17 +14,11 @@ export default function GamesPage() {
   };
 
   const games = [
-    { key: 'sudoku', icon: Grid3X3, title: t('games.sudoku'), desc: t('games.sudoku.desc'), path: '/games/sudoku', wins: getStats('sudoku-stats').gamesWon || 0 },
-    { key: 'chess', icon: Swords, title: t('games.chess'), desc: t('games.chess.desc'), path: '/games/chess', wins: getStats('chess-stats').gamesPlayed || 0 },
-    { key: 'memory', icon: Brain, title: t('games.memory'), desc: t('games.memory.desc'), path: '/games/memory', wins: getStats('memory-stats').gamesWon || 0 },
-    { key: 'minesweeper', icon: Bomb, title: t('games.minesweeper'), desc: t('games.minesweeper.desc'), path: '/games/minesweeper', wins: getStats('mine-stats').gamesWon || 0 },
-    { key: 'colormaze', icon: Palette, title: t('games.colormaze'), desc: t('games.colormaze.desc'), path: '/games/colormaze', wins: getStats('maze-stats').gamesWon || 0 },
-    { key: 'pipes', icon: PipetteIcon, title: t('games.pipes'), desc: t('games.pipes.desc'), path: '/games/pipes', wins: getStats('pipes-stats').gamesWon || 0 },
-    { key: 'dice', icon: Dices, title: t('games.dice'), desc: '', path: '/games/dice', wins: getStats('dice-stats').gamesWon || 0 },
-    { key: 'target', icon: Target, title: t('games.target'), desc: '', path: '/games/target', wins: getStats('target-stats').gamesWon || 0 },
-    { key: 'puzzle', icon: Puzzle, title: t('games.puzzle'), desc: '', path: '/games/puzzle', wins: getStats('puzzle-stats').gamesWon || 0 },
-    { key: 'hex', icon: Hexagon, title: t('games.hex'), desc: '', path: '/games/hex', wins: getStats('hex-stats').gamesWon || 0 },
     { key: 'focus', icon: Crosshair, title: t('games.focus'), desc: '', path: '/games/focus', wins: getStats('focus-stats').gamesWon || 0 },
+    { key: 'dice', icon: Dices, title: t('games.dice'), desc: '', path: '/games/dice', wins: getStats('dice-stats').gamesWon || 0 },
+    { key: 'memory', icon: Brain, title: t('games.memory'), desc: t('games.memory.desc'), path: '/games/memory', wins: getStats('memory-stats').gamesWon || 0 },
+    { key: 'chess', icon: Swords, title: t('games.chess'), desc: t('games.chess.desc'), path: '/games/chess', wins: getStats('chess-stats').gamesPlayed || 0 },
+    { key: 'sudoku', icon: Grid3X3, title: t('games.sudoku'), desc: t('games.sudoku.desc'), path: '/games/sudoku', wins: getStats('sudoku-stats').gamesWon || 0 },
   ];
 
   return (
