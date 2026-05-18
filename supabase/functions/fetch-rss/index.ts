@@ -840,8 +840,9 @@ serve(async (req) => {
       ),
     );
 
-    // Phase 2 — scrape full content (only when requested) + persist
-    if (store) {
+    // Phase 2 — scrape full content (only when requested) + persist.
+    // Anonymous callers cannot persist; we silently drop the write phase.
+    if (store && authed) {
       const bg = (async () => {
         for (const fr of fetched) {
           if (fr.status !== "ok") {
