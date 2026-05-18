@@ -1,12 +1,14 @@
 /**
  * CalisthenicsTab — elite bodyweight training hub.
  *
- * Visual upgrade — full polish for athletes in their 20s:
+ * Comprehensive calisthenics system targeting the full body:
+ *  • 18 skill progressions covering push, pull, legs, core, dynamics
+ *  • 8 training plans (beginner → elite) with day-by-day programming
  *  • Hero stats banner with active streak & total volume
- *  • Skill Progressions  — animated dot ladders with detailed labels
- *  • Training Plans      — visual cards with day-of-week mapping
- *  • Today's Workout     — interactive checklist with rest timer
- *  • Weekly Volume       — animated bar chart with sparkline
+ *  • Skill Progressions — animated dot ladders with detailed labels
+ *  • Training Plans — visual cards with day-of-week mapping
+ *  • Today's Workout — interactive checklist with rest timer
+ *  • Weekly Volume — animated bar chart with sparkline
  *  • Quick links to Encyclopedia atlas
  *
  * Self-contained: all state persisted in localStorage.
@@ -29,7 +31,9 @@ const LS_STREAK = 'cali:streak';
 
 type SkillKey =
   | 'pushUp' | 'pullUp' | 'dip' | 'squat' | 'lSit'
-  | 'handstand' | 'frontLever' | 'backLever' | 'planche' | 'muscleUp';
+  | 'handstand' | 'frontLever' | 'backLever' | 'planche' | 'muscleUp'
+  | 'humanFlag' | 'nordicCurl' | 'dragonFlag' | 'ironCross'
+  | 'maltese' | 'victorianCross' | 'oneArmPullUp' | 'press2HS';
 
 interface SkillDef {
   key: SkillKey;
@@ -38,6 +42,7 @@ interface SkillDef {
   color: string;
   levels: string[];
   difficulty: number;
+  targetMuscles: string[];
 }
 
 interface LogEntry {
@@ -45,7 +50,7 @@ interface LogEntry {
   exercises: { key: string; sets: number; reps: number; done: boolean }[];
 }
 
-type PlanKey = 'ppl' | 'fullBody' | 'skills';
+type PlanKey = 'beginner' | 'ppl' | 'fullBody' | 'skills' | 'upperLower' | 'grease' | 'hybrid' | 'rings';
 
 interface PlanDef {
   key: PlanKey;
@@ -54,127 +59,411 @@ interface PlanDef {
   desc: { ar: string; de: string };
   emoji: string;
   color: string;
+  level: 'beginner' | 'intermediate' | 'advanced' | 'elite';
   days: { name: { ar: string; de: string }; exercises: { key: string; name: string; sets: number; reps: number }[] }[];
 }
 
-/* ─────────────── Skill Definitions ─────────────── */
+/* ─────────────── Skill Definitions (18 skills) ─────────────── */
 
 const SKILLS: SkillDef[] = [
+  // ── PUSH ──
   { key: 'pushUp', name: { ar: 'ضغط', de: 'Liegestütz' }, emoji: '💪', color: '#ef4444', difficulty: 2,
-    levels: ['Wall', 'Incline', 'Standard', 'Diamond', 'Archer', 'One-Arm'] },
-  { key: 'pullUp', name: { ar: 'عقلة', de: 'Klimmzug' }, emoji: '🔝', color: '#3b82f6', difficulty: 4,
-    levels: ['Dead Hang', 'Negative', 'Assisted', 'Standard', 'L-sit Pull', 'Muscle-Up'] },
+    targetMuscles: ['chest', 'triceps', 'shoulders'],
+    levels: ['Wall Push-up', 'Incline Push-up', 'Knee Push-up', 'Standard Push-up', 'Diamond Push-up', 'Decline Push-up', 'Archer Push-up', 'One-Arm Push-up'] },
   { key: 'dip', name: { ar: 'ديبس', de: 'Dips' }, emoji: '🦅', color: '#f59e0b', difficulty: 5,
-    levels: ['Bench', 'Assisted', 'Standard', 'Ring', 'Weighted', 'Korean'] },
-  { key: 'squat', name: { ar: 'سكوات', de: 'Kniebeuge' }, emoji: '🦵', color: '#10b981', difficulty: 6,
-    levels: ['Bodyweight', 'Split', 'Bulgarian', 'Pistol Neg.', 'Pistol', 'Shrimp'] },
-  { key: 'lSit', name: { ar: 'إل-سيت', de: 'L-Sit' }, emoji: '🪑', color: '#8b5cf6', difficulty: 5,
-    levels: ['Tuck', 'One-leg', 'Straddle', 'Full L-sit', 'V-sit'] },
+    targetMuscles: ['triceps', 'chest', 'shoulders'],
+    levels: ['Bench Dip', 'Negative Dip', 'Parallel Dip', 'Ring Dip', 'Weighted Dip', 'Korean Dip', 'Impossible Dip'] },
   { key: 'handstand', name: { ar: 'وقوف يدين', de: 'Handstand' }, emoji: '🤸', color: '#ec4899', difficulty: 7,
-    levels: ['Wall HS', 'Chest-to-wall', 'Back-to-wall', 'Kick-up', 'Freestanding', 'HSPU'] },
-  { key: 'frontLever', name: { ar: 'فرنت ليفر', de: 'Front Lever' }, emoji: '🪂', color: '#06b6d4', difficulty: 8,
-    levels: ['Tuck', 'Adv. Tuck', 'One-leg', 'Straddle', 'Full'] },
-  { key: 'backLever', name: { ar: 'باك ليفر', de: 'Back Lever' }, emoji: '🌗', color: '#14b8a6', difficulty: 7,
-    levels: ['Tuck', 'Adv. Tuck', 'One-leg', 'Straddle', 'Full'] },
+    targetMuscles: ['shoulders', 'core', 'traps'],
+    levels: ['Wall Plank Hold', 'Chest-to-Wall HS', 'Back-to-Wall HS', 'Toe-Pull Freestanding', 'Freestanding 30s', 'HS Walk', 'Pike HSPU', 'Full HSPU', 'Freestanding HSPU'] },
   { key: 'planche', name: { ar: 'بلانش', de: 'Planche' }, emoji: '✈️', color: '#f97316', difficulty: 10,
-    levels: ['Plank', 'Pseudo PU', 'Tuck Planche', 'Adv. Tuck', 'Straddle', 'Full'] },
+    targetMuscles: ['shoulders', 'chest', 'core', 'biceps'],
+    levels: ['Planche Lean', 'Pseudo Planche PU', 'Frog Stand', 'Tuck Planche', 'Adv. Tuck Planche', 'Straddle Planche', 'Full Planche', 'Planche Push-up'] },
+
+  // ── PULL ──
+  { key: 'pullUp', name: { ar: 'عقلة', de: 'Klimmzug' }, emoji: '🔝', color: '#3b82f6', difficulty: 4,
+    targetMuscles: ['back', 'biceps', 'forearms'],
+    levels: ['Dead Hang 30s', 'Scapular Pull', 'Negative Pull-up', 'Band-Assisted', 'Standard Pull-up', 'Wide Pull-up', 'L-sit Pull-up', 'Archer Pull-up', 'Typewriter Pull-up'] },
+  { key: 'oneArmPullUp', name: { ar: 'سحب يد واحدة', de: 'Einarm-Klimmzug' }, emoji: '🏋️', color: '#1e40af', difficulty: 9,
+    targetMuscles: ['back', 'biceps', 'core', 'forearms'],
+    levels: ['Weighted Pull-up +50%BW', 'Archer Pull-up ×8', 'Mixed Grip Pull-up', 'Towel-Assisted OAP', 'Negative OAP (5s)', 'Band-Assisted OAP', 'Full OAP'] },
   { key: 'muscleUp', name: { ar: 'ماصل أب', de: 'Muscle-Up' }, emoji: '🎯', color: '#6366f1', difficulty: 8,
-    levels: ['High Pull', 'Negative MU', 'Kipping', 'Strict', 'Slow MU'] },
+    targetMuscles: ['back', 'triceps', 'chest', 'core'],
+    levels: ['High Pull-up', 'Explosive Pull-up', 'Negative Muscle-Up', 'Kipping MU', 'Strict Bar MU', 'Slow MU (3s)', 'Ring MU', 'Strict Ring MU'] },
+  { key: 'frontLever', name: { ar: 'فرنت ليفر', de: 'Front Lever' }, emoji: '🪂', color: '#06b6d4', difficulty: 8,
+    targetMuscles: ['back', 'core', 'shoulders'],
+    levels: ['Tuck FL Hold', 'Tuck FL Raise', 'Adv. Tuck FL', 'One-Leg FL', 'Straddle FL', 'Full FL Hold', 'FL Pull-up'] },
+  { key: 'backLever', name: { ar: 'باك ليفر', de: 'Back Lever' }, emoji: '🌗', color: '#14b8a6', difficulty: 7,
+    targetMuscles: ['shoulders', 'back', 'biceps', 'core'],
+    levels: ['German Hang', 'Tuck BL', 'Adv. Tuck BL', 'One-Leg BL', 'Straddle BL', 'Full BL'] },
+
+  // ── LEGS ──
+  { key: 'squat', name: { ar: 'سكوات', de: 'Kniebeuge' }, emoji: '🦵', color: '#10b981', difficulty: 6,
+    targetMuscles: ['quads', 'glutes', 'hamstrings'],
+    levels: ['Assisted Squat', 'Air Squat', 'Split Squat', 'Bulgarian Split', 'Cossack Squat', 'Pistol Negative', 'Pistol Squat', 'Shrimp Squat', 'Dragon Squat'] },
+  { key: 'nordicCurl', name: { ar: 'نوردك كيرل', de: 'Nordic Curl' }, emoji: '🔥', color: '#dc2626', difficulty: 7,
+    targetMuscles: ['hamstrings', 'glutes', 'calves'],
+    levels: ['Hamstring Slide', 'Eccentric Nordic (top 30°)', 'Eccentric Nordic (60°)', 'Full Eccentric Nordic', 'Concentric Partial', 'Full Nordic Curl', 'Weighted Nordic'] },
+
+  // ── CORE ──
+  { key: 'lSit', name: { ar: 'إل-سيت', de: 'L-Sit' }, emoji: '🪑', color: '#8b5cf6', difficulty: 5,
+    targetMuscles: ['core', 'hip flexors', 'triceps'],
+    levels: ['Foot-Supported L-sit', 'One-Leg L-sit', 'Tuck L-sit', 'Full L-sit (Floor)', 'L-sit on Parallettes', 'V-sit', 'Manna'] },
+  { key: 'dragonFlag', name: { ar: 'علم التنين', de: 'Dragon Flag' }, emoji: '🐉', color: '#7c3aed', difficulty: 7,
+    targetMuscles: ['core', 'lower back', 'hip flexors'],
+    levels: ['Tuck Dragon Flag', 'One-Leg DF', 'Straddle DF', 'Full DF Negative', 'Full DF (3 reps)', 'Full DF (8 reps)', 'Weighted DF'] },
+  { key: 'humanFlag', name: { ar: 'العلم البشري', de: 'Human Flag' }, emoji: '🚩', color: '#be185d', difficulty: 9,
+    targetMuscles: ['core', 'shoulders', 'back', 'obliques'],
+    levels: ['Side Plank 60s', 'Vertical Flag', 'Tuck Human Flag', 'One-Leg Flag', 'Straddle Flag', 'Full Human Flag (5s)', 'Full Human Flag (15s)'] },
+
+  // ── DYNAMICS & ELITE ──
+  { key: 'ironCross', name: { ar: 'الصليب الحديدي', de: 'Iron Cross' }, emoji: '✝️', color: '#b91c1c', difficulty: 10,
+    targetMuscles: ['chest', 'shoulders', 'biceps'],
+    levels: ['Ring Support Hold', 'RTO Support', 'Wide Ring Flies', 'Band-Assisted Cross', 'Cross Negative', 'Iron Cross Hold (3s)', 'Iron Cross (10s)'] },
+  { key: 'maltese', name: { ar: 'مالتيز', de: 'Maltese' }, emoji: '🦎', color: '#9333ea', difficulty: 10,
+    targetMuscles: ['chest', 'shoulders', 'core'],
+    levels: ['Planche Hold', 'Wide Planche Lean', 'Tuck Maltese', 'Adv. Tuck Maltese', 'Straddle Maltese', 'Full Maltese'] },
+  { key: 'victorianCross', name: { ar: 'صليب فيكتوريان', de: 'Victorian Cross' }, emoji: '⚔️', color: '#4338ca', difficulty: 10,
+    targetMuscles: ['back', 'biceps', 'core'],
+    levels: ['Inverted Hang', 'Back Lever Hold', 'Wide BL', 'Band-Assisted VC', 'Negative VC', 'Victorian Cross (3s)'] },
+  { key: 'press2HS', name: { ar: 'ضغط للوقوف', de: 'Press to HS' }, emoji: '🔺', color: '#0d9488', difficulty: 8,
+    targetMuscles: ['shoulders', 'core', 'hip flexors'],
+    levels: ['L-sit (30s)', 'Straddle Press Negative', 'Wall Straddle Press', 'Straddle Press', 'Pike Press Negative', 'Full Pike Press to HS'] },
 ];
 
-/* ─────────────── Training Plans ─────────────── */
+
+/* ─────────────── Training Plans (8 plans) ─────────────── */
 
 const PLANS: PlanDef[] = [
+  // ═══════════ BEGINNER ═══════════
+  {
+    key: 'beginner',
+    name: { ar: 'المبتدئ الشامل', de: 'Einsteiger Ganzkörper' },
+    freq: { ar: '3×/أسبوع', de: '3×/Woche' },
+    desc: { ar: 'بناء الأساسات — ضغط، سحب، أرجل، جذع بأمان', de: 'Grundlagen sicher aufbauen — Push, Pull, Beine, Core' },
+    emoji: '🌱',
+    color: '#22c55e',
+    level: 'beginner',
+    days: [
+      { name: { ar: 'اليوم الأول', de: 'Tag 1' }, exercises: [
+        { key: 'pushUp', name: 'Incline Push-ups', sets: 3, reps: 10 },
+        { key: 'pullUp', name: 'Australian Rows', sets: 3, reps: 10 },
+        { key: 'squat', name: 'Air Squats', sets: 3, reps: 15 },
+        { key: 'lSit', name: 'Knee Tuck Hold', sets: 3, reps: 20 },
+        { key: 'dragonFlag', name: 'Dead Bug', sets: 3, reps: 10 },
+      ]},
+      { name: { ar: 'اليوم الثاني', de: 'Tag 2' }, exercises: [
+        { key: 'pushUp', name: 'Knee Push-ups', sets: 3, reps: 12 },
+        { key: 'pullUp', name: 'Negative Pull-ups', sets: 3, reps: 5 },
+        { key: 'squat', name: 'Split Squats', sets: 3, reps: 10 },
+        { key: 'dip', name: 'Bench Dips', sets: 3, reps: 12 },
+        { key: 'humanFlag', name: 'Side Plank', sets: 2, reps: 30 },
+      ]},
+      { name: { ar: 'اليوم الثالث', de: 'Tag 3' }, exercises: [
+        { key: 'pushUp', name: 'Standard Push-ups', sets: 3, reps: 8 },
+        { key: 'pullUp', name: 'Band Pull-ups', sets: 3, reps: 6 },
+        { key: 'squat', name: 'Glute Bridges', sets: 3, reps: 15 },
+        { key: 'lSit', name: 'Hollow Hold', sets: 3, reps: 20 },
+        { key: 'handstand', name: 'Wall Plank', sets: 3, reps: 30 },
+      ]},
+    ],
+  },
+
+  // ═══════════ PUSH/PULL/LEGS ═══════════
   {
     key: 'ppl',
-    name: { ar: 'دفع/سحب/أرجل', de: 'Push/Pull/Legs' },
-    freq: { ar: '3×/أسبوع', de: '3×/Woche' },
-    desc: { ar: 'تقسيم كلاسيكي لبناء القوة المتوازنة', de: 'Klassischer Split für ausgewogenen Kraftaufbau' },
+    name: { ar: 'دفع / سحب / أرجل', de: 'Push / Pull / Legs' },
+    freq: { ar: '6×/أسبوع', de: '6×/Woche' },
+    desc: { ar: 'تقسيم كلاسيكي بحجم عالي لبناء القوة والضخامة', de: 'Klassischer Split mit hohem Volumen für Kraft & Masse' },
     emoji: '⚖️',
     color: '#3b82f6',
+    level: 'intermediate',
     days: [
-      { name: { ar: 'يوم الدفع', de: 'Push-Tag' }, exercises: [
-        { key: 'pushUp', name: 'Push-ups', sets: 4, reps: 8 },
-        { key: 'dip', name: 'Dips', sets: 3, reps: 8 },
-        { key: 'handstand', name: 'HS Hold', sets: 3, reps: 30 },
-        { key: 'planche', name: 'Planche Lean', sets: 3, reps: 15 },
+      { name: { ar: 'دفع A (صدر)', de: 'Push A (Brust)' }, exercises: [
+        { key: 'pushUp', name: 'Archer Push-ups', sets: 4, reps: 6 },
+        { key: 'dip', name: 'Parallel Dips', sets: 4, reps: 10 },
+        { key: 'planche', name: 'Pseudo Planche PU', sets: 4, reps: 8 },
+        { key: 'pushUp', name: 'Diamond Push-ups', sets: 3, reps: 12 },
+        { key: 'handstand', name: 'Pike Push-ups', sets: 3, reps: 10 },
       ]},
-      { name: { ar: 'يوم السحب', de: 'Pull-Tag' }, exercises: [
-        { key: 'pullUp', name: 'Pull-ups', sets: 4, reps: 6 },
-        { key: 'frontLever', name: 'FL Rows', sets: 3, reps: 6 },
-        { key: 'backLever', name: 'BL Hold', sets: 3, reps: 15 },
-        { key: 'muscleUp', name: 'High Pulls', sets: 3, reps: 5 },
+      { name: { ar: 'سحب A (ظهر)', de: 'Pull A (Rücken)' }, exercises: [
+        { key: 'pullUp', name: 'Pull-ups', sets: 4, reps: 8 },
+        { key: 'frontLever', name: 'Tuck FL Rows', sets: 4, reps: 8 },
+        { key: 'pullUp', name: 'Wide Pull-ups', sets: 3, reps: 8 },
+        { key: 'backLever', name: 'German Hang', sets: 3, reps: 20 },
+        { key: 'muscleUp', name: 'High Pull-ups', sets: 3, reps: 5 },
       ]},
-      { name: { ar: 'يوم الأرجل', de: 'Beintag' }, exercises: [
-        { key: 'squat', name: 'Squats', sets: 4, reps: 10 },
-        { key: 'squat', name: 'Nordic Curl', sets: 3, reps: 5 },
-        { key: 'lSit', name: 'L-sit Hold', sets: 3, reps: 20 },
-        { key: 'squat', name: 'Calf Raises', sets: 3, reps: 15 },
+      { name: { ar: 'أرجل A', de: 'Legs A' }, exercises: [
+        { key: 'squat', name: 'Bulgarian Split Squat', sets: 4, reps: 10 },
+        { key: 'nordicCurl', name: 'Nordic Negative (5s)', sets: 4, reps: 5 },
+        { key: 'squat', name: 'Cossack Squats', sets: 3, reps: 8 },
+        { key: 'squat', name: 'Pistol Negatives', sets: 3, reps: 5 },
+        { key: 'squat', name: 'Calf Raises (single)', sets: 4, reps: 20 },
+        { key: 'squat', name: 'Wall Sit', sets: 3, reps: 45 },
+      ]},
+      { name: { ar: 'دفع B (أكتاف)', de: 'Push B (Schultern)' }, exercises: [
+        { key: 'handstand', name: 'Wall HSPU', sets: 4, reps: 6 },
+        { key: 'dip', name: 'Ring Dips', sets: 4, reps: 8 },
+        { key: 'planche', name: 'Planche Lean (45°)', sets: 4, reps: 15 },
+        { key: 'pushUp', name: 'Decline Push-ups', sets: 3, reps: 12 },
+        { key: 'handstand', name: 'HS Hold (freestand)', sets: 5, reps: 20 },
+      ]},
+      { name: { ar: 'سحب B (قوة)', de: 'Pull B (Kraft)' }, exercises: [
+        { key: 'pullUp', name: 'Weighted Pull-ups', sets: 5, reps: 5 },
+        { key: 'frontLever', name: 'Adv. Tuck FL', sets: 4, reps: 10 },
+        { key: 'muscleUp', name: 'Muscle-Up Practice', sets: 5, reps: 3 },
+        { key: 'pullUp', name: 'L-sit Pull-ups', sets: 3, reps: 8 },
+        { key: 'backLever', name: 'Tuck BL Hold', sets: 3, reps: 15 },
+      ]},
+      { name: { ar: 'أرجل B + جذع', de: 'Legs B + Core' }, exercises: [
+        { key: 'squat', name: 'Pistol Squats', sets: 4, reps: 5 },
+        { key: 'nordicCurl', name: 'Nordic Curls', sets: 3, reps: 4 },
+        { key: 'squat', name: 'Jump Squats', sets: 3, reps: 12 },
+        { key: 'dragonFlag', name: 'Dragon Flags', sets: 4, reps: 6 },
+        { key: 'lSit', name: 'V-sit Hold', sets: 3, reps: 15 },
+        { key: 'humanFlag', name: 'Oblique Raise', sets: 3, reps: 10 },
       ]},
     ],
   },
+
+  // ═══════════ FULL BODY ═══════════
   {
     key: 'fullBody',
-    name: { ar: 'جسم كامل', de: 'Ganzkörper' },
+    name: { ar: 'جسم كامل متوسط', de: 'Ganzkörper Mittelstufe' },
     freq: { ar: '3×/أسبوع', de: '3×/Woche' },
-    desc: { ar: 'تمرين شامل لكل جلسة', de: 'Komplettes Training pro Session' },
+    desc: { ar: 'كل عضلة في كل جلسة — مثالي للانتظام', de: 'Jede Muskelgruppe pro Session — ideal für Regelmäßigkeit' },
     emoji: '🔥',
     color: '#10b981',
+    level: 'intermediate',
     days: [
       { name: { ar: 'الجلسة A', de: 'Session A' }, exercises: [
-        { key: 'pullUp', name: 'Pull-ups', sets: 3, reps: 8 },
-        { key: 'pushUp', name: 'Push-ups', sets: 3, reps: 12 },
-        { key: 'squat', name: 'Squats', sets: 3, reps: 12 },
-        { key: 'dip', name: 'Dips', sets: 3, reps: 8 },
-        { key: 'lSit', name: 'L-sit', sets: 3, reps: 15 },
+        { key: 'pullUp', name: 'Pull-ups', sets: 4, reps: 8 },
+        { key: 'pushUp', name: 'Push-ups', sets: 4, reps: 12 },
+        { key: 'squat', name: 'Pistol Negatives', sets: 3, reps: 6 },
+        { key: 'dip', name: 'Dips', sets: 3, reps: 10 },
+        { key: 'lSit', name: 'L-sit Hold', sets: 3, reps: 20 },
+        { key: 'handstand', name: 'Wall HS Hold', sets: 4, reps: 30 },
       ]},
       { name: { ar: 'الجلسة B', de: 'Session B' }, exercises: [
-        { key: 'pullUp', name: 'Chin-ups', sets: 3, reps: 8 },
-        { key: 'pushUp', name: 'Diamond PU', sets: 3, reps: 10 },
-        { key: 'squat', name: 'Split Squat', sets: 3, reps: 10 },
-        { key: 'handstand', name: 'Wall HS', sets: 3, reps: 30 },
-        { key: 'frontLever', name: 'Tuck FL', sets: 3, reps: 12 },
+        { key: 'pullUp', name: 'Chin-ups', sets: 4, reps: 8 },
+        { key: 'pushUp', name: 'Diamond Push-ups', sets: 4, reps: 10 },
+        { key: 'squat', name: 'Bulgarian Split', sets: 3, reps: 10 },
+        { key: 'handstand', name: 'Pike HSPU', sets: 3, reps: 6 },
+        { key: 'frontLever', name: 'Tuck FL Rows', sets: 3, reps: 8 },
+        { key: 'nordicCurl', name: 'Nordic Negative', sets: 3, reps: 5 },
       ]},
       { name: { ar: 'الجلسة C', de: 'Session C' }, exercises: [
-        { key: 'muscleUp', name: 'High Pulls', sets: 3, reps: 5 },
-        { key: 'pushUp', name: 'Archer PU', sets: 3, reps: 6 },
-        { key: 'squat', name: 'Pistol Neg.', sets: 3, reps: 6 },
-        { key: 'dip', name: 'Ring Dips', sets: 3, reps: 6 },
-        { key: 'planche', name: 'Pseudo PU', sets: 3, reps: 8 },
+        { key: 'muscleUp', name: 'High Pull-ups', sets: 4, reps: 5 },
+        { key: 'pushUp', name: 'Archer Push-ups', sets: 3, reps: 6 },
+        { key: 'squat', name: 'Cossack Squats', sets: 3, reps: 8 },
+        { key: 'dip', name: 'Ring Dips', sets: 3, reps: 8 },
+        { key: 'planche', name: 'Pseudo Planche PU', sets: 4, reps: 8 },
+        { key: 'dragonFlag', name: 'Dragon Flag Neg.', sets: 3, reps: 6 },
       ]},
     ],
   },
+
+  // ═══════════ SKILLS FOCUS ═══════════
   {
     key: 'skills',
-    name: { ar: 'مهارات نخبوية', de: 'Skills Focus' },
+    name: { ar: 'مهارات متقدمة', de: 'Advanced Skills' },
     freq: { ar: '4×/أسبوع', de: '4×/Woche' },
-    desc: { ar: 'تركيز على المهارات المتقدمة والثبات', de: 'Fokus auf fortgeschrittene Skills & Holds' },
+    desc: { ar: 'تركيز على المهارات الثابتة والديناميكية المتقدمة', de: 'Fokus auf fortgeschrittene statische & dynamische Skills' },
     emoji: '🏆',
     color: '#f97316',
+    level: 'advanced',
     days: [
-      { name: { ar: 'دفع متقدم', de: 'Advanced Push' }, exercises: [
-        { key: 'handstand', name: 'Freestanding HS', sets: 5, reps: 20 },
-        { key: 'planche', name: 'Tuck Planche', sets: 4, reps: 10 },
-        { key: 'pushUp', name: 'HSPU Neg.', sets: 3, reps: 5 },
+      { name: { ar: 'دفع ثابت', de: 'Static Push' }, exercises: [
+        { key: 'handstand', name: 'Freestanding HS (60s total)', sets: 5, reps: 20 },
+        { key: 'planche', name: 'Tuck Planche', sets: 5, reps: 12 },
+        { key: 'handstand', name: 'Wall HSPU', sets: 4, reps: 5 },
+        { key: 'planche', name: 'Pseudo Planche PU', sets: 4, reps: 8 },
+        { key: 'press2HS', name: 'Straddle Press Neg.', sets: 4, reps: 5 },
       ]},
-      { name: { ar: 'سحب متقدم', de: 'Advanced Pull' }, exercises: [
-        { key: 'frontLever', name: 'Front Lever', sets: 5, reps: 10 },
-        { key: 'backLever', name: 'Back Lever', sets: 4, reps: 10 },
-        { key: 'pullUp', name: 'Weighted Pull', sets: 3, reps: 5 },
+      { name: { ar: 'سحب ثابت', de: 'Static Pull' }, exercises: [
+        { key: 'frontLever', name: 'Straddle FL', sets: 5, reps: 8 },
+        { key: 'backLever', name: 'Full BL Hold', sets: 4, reps: 12 },
+        { key: 'oneArmPullUp', name: 'Archer Pull-ups', sets: 4, reps: 5 },
+        { key: 'frontLever', name: 'FL Raises (Tuck)', sets: 4, reps: 6 },
+        { key: 'pullUp', name: 'Weighted Pull-ups', sets: 4, reps: 5 },
       ]},
       { name: { ar: 'ديناميكي', de: 'Dynamic' }, exercises: [
-        { key: 'muscleUp', name: 'Muscle-ups', sets: 5, reps: 3 },
-        { key: 'dip', name: 'Korean Dips', sets: 3, reps: 6 },
-        { key: 'lSit', name: 'V-sit', sets: 4, reps: 12 },
+        { key: 'muscleUp', name: 'Strict Ring MU', sets: 5, reps: 3 },
+        { key: 'dip', name: 'Korean Dips', sets: 4, reps: 5 },
+        { key: 'muscleUp', name: 'Slow MU (3s up)', sets: 3, reps: 3 },
+        { key: 'lSit', name: 'V-sit to L-sit (flow)', sets: 3, reps: 8 },
+        { key: 'planche', name: 'Planche PU (Tuck)', sets: 4, reps: 5 },
       ]},
-      { name: { ar: 'توازن', de: 'Balance' }, exercises: [
-        { key: 'handstand', name: 'HS Walk', sets: 4, reps: 10 },
-        { key: 'planche', name: 'Straddle Pl.', sets: 4, reps: 8 },
-        { key: 'squat', name: 'Shrimp Squat', sets: 3, reps: 6 },
+      { name: { ar: 'أرجل + جذع قوي', de: 'Legs + Strong Core' }, exercises: [
+        { key: 'squat', name: 'Pistol Squats', sets: 4, reps: 6 },
+        { key: 'nordicCurl', name: 'Full Nordic Curls', sets: 4, reps: 4 },
+        { key: 'humanFlag', name: 'Straddle Flag', sets: 4, reps: 8 },
+        { key: 'dragonFlag', name: 'Full Dragon Flags', sets: 4, reps: 6 },
+        { key: 'squat', name: 'Shrimp Squats', sets: 3, reps: 5 },
+        { key: 'press2HS', name: 'Pike Press to HS', sets: 3, reps: 3 },
+      ]},
+    ],
+  },
+
+  // ═══════════ UPPER / LOWER ═══════════
+  {
+    key: 'upperLower',
+    name: { ar: 'علوي / سفلي', de: 'Ober-/Unterkörper' },
+    freq: { ar: '4×/أسبوع', de: '4×/Woche' },
+    desc: { ar: 'تقسيم مثالي لتكرار مرتين — توازن وقوة', de: 'Idealer Split für 2× Frequenz — Balance & Kraft' },
+    emoji: '🔄',
+    color: '#8b5cf6',
+    level: 'intermediate',
+    days: [
+      { name: { ar: 'علوي A (قوة)', de: 'Upper A (Kraft)' }, exercises: [
+        { key: 'pullUp', name: 'Weighted Pull-ups', sets: 5, reps: 5 },
+        { key: 'dip', name: 'Weighted Dips', sets: 5, reps: 5 },
+        { key: 'pullUp', name: 'Wide Pull-ups', sets: 3, reps: 8 },
+        { key: 'handstand', name: 'Pike Push-ups', sets: 3, reps: 10 },
+        { key: 'frontLever', name: 'Tuck FL Hold', sets: 3, reps: 12 },
+      ]},
+      { name: { ar: 'سفلي A', de: 'Lower A' }, exercises: [
+        { key: 'squat', name: 'Bulgarian Split Squat', sets: 4, reps: 10 },
+        { key: 'nordicCurl', name: 'Nordic Negatives', sets: 4, reps: 5 },
+        { key: 'squat', name: 'Pistol Squats', sets: 3, reps: 5 },
+        { key: 'squat', name: 'Single-Leg Calf Raise', sets: 4, reps: 15 },
+        { key: 'dragonFlag', name: 'Dragon Flags', sets: 3, reps: 6 },
+        { key: 'lSit', name: 'L-sit Hold', sets: 3, reps: 20 },
+      ]},
+      { name: { ar: 'علوي B (حجم)', de: 'Upper B (Volumen)' }, exercises: [
+        { key: 'pushUp', name: 'Archer Push-ups', sets: 4, reps: 6 },
+        { key: 'pullUp', name: 'L-sit Pull-ups', sets: 4, reps: 6 },
+        { key: 'dip', name: 'Ring Dips', sets: 3, reps: 10 },
+        { key: 'muscleUp', name: 'Muscle-Up Practice', sets: 5, reps: 3 },
+        { key: 'planche', name: 'Planche Lean Hold', sets: 4, reps: 15 },
+        { key: 'backLever', name: 'Tuck Back Lever', sets: 3, reps: 12 },
+      ]},
+      { name: { ar: 'سفلي B + جذع', de: 'Lower B + Core' }, exercises: [
+        { key: 'squat', name: 'Cossack Squats', sets: 4, reps: 8 },
+        { key: 'nordicCurl', name: 'Nordic Curls', sets: 3, reps: 4 },
+        { key: 'squat', name: 'Jump Squats', sets: 4, reps: 10 },
+        { key: 'humanFlag', name: 'Side Plank (weighted)', sets: 3, reps: 30 },
+        { key: 'dragonFlag', name: 'Windshield Wipers', sets: 3, reps: 8 },
+        { key: 'squat', name: 'Sissy Squats', sets: 3, reps: 10 },
+      ]},
+    ],
+  },
+
+  // ═══════════ GREASE THE GROOVE ═══════════
+  {
+    key: 'grease',
+    name: { ar: 'دهن المجرى (GTG)', de: 'Grease the Groove' },
+    freq: { ar: 'يومياً (5-8× /يوم)', de: 'Täglich (5-8×/Tag)' },
+    desc: { ar: 'تقنية بافلوف — تكرارات فرعية موزعة على اليوم لزيادة الأعداد', de: 'Pawlow-Technik — submaximale Wdh. über den Tag verteilt' },
+    emoji: '⚡',
+    color: '#eab308',
+    level: 'intermediate',
+    days: [
+      { name: { ar: 'أسبوع 1-2', de: 'Woche 1-2' }, exercises: [
+        { key: 'pullUp', name: 'Pull-ups (50% max)', sets: 6, reps: 4 },
+        { key: 'pushUp', name: 'Push-ups (50% max)', sets: 6, reps: 10 },
+        { key: 'dip', name: 'Dips (50% max)', sets: 5, reps: 5 },
+      ]},
+      { name: { ar: 'أسبوع 3-4', de: 'Woche 3-4' }, exercises: [
+        { key: 'pullUp', name: 'Pull-ups (60% max)', sets: 7, reps: 5 },
+        { key: 'pushUp', name: 'Push-ups (60% max)', sets: 7, reps: 12 },
+        { key: 'dip', name: 'Dips (60% max)', sets: 6, reps: 6 },
+      ]},
+      { name: { ar: 'أسبوع 5-6 (اختبار)', de: 'Woche 5-6 (Test)' }, exercises: [
+        { key: 'pullUp', name: 'Pull-ups (70% max)', sets: 8, reps: 6 },
+        { key: 'pushUp', name: 'Push-ups (70% max)', sets: 8, reps: 14 },
+        { key: 'dip', name: 'Dips (70% max)', sets: 7, reps: 7 },
+      ]},
+    ],
+  },
+
+  // ═══════════ HYBRID (Strength + Skills) ═══════════
+  {
+    key: 'hybrid',
+    name: { ar: 'هجين قوة + مهارات', de: 'Hybrid: Kraft + Skills' },
+    freq: { ar: '5×/أسبوع', de: '5×/Woche' },
+    desc: { ar: 'الجمع بين بناء القوة الأساسية وتعلم المهارات', de: 'Kraft aufbauen + Skills meistern kombiniert' },
+    emoji: '💎',
+    color: '#0ea5e9',
+    level: 'advanced',
+    days: [
+      { name: { ar: 'قوة دفع', de: 'Push Kraft' }, exercises: [
+        { key: 'dip', name: 'Weighted Dips', sets: 5, reps: 5 },
+        { key: 'pushUp', name: 'One-Arm PU Progression', sets: 4, reps: 5 },
+        { key: 'handstand', name: 'HSPU (wall)', sets: 4, reps: 5 },
+        { key: 'pushUp', name: 'Ring Push-ups', sets: 3, reps: 12 },
+      ]},
+      { name: { ar: 'مهارات دفع', de: 'Push Skills' }, exercises: [
+        { key: 'planche', name: 'Adv. Tuck Planche', sets: 5, reps: 10 },
+        { key: 'handstand', name: 'Freestanding HS', sets: 6, reps: 20 },
+        { key: 'press2HS', name: 'Straddle Press', sets: 4, reps: 3 },
+        { key: 'maltese', name: 'Wide Planche Lean', sets: 4, reps: 10 },
+      ]},
+      { name: { ar: 'قوة سحب', de: 'Pull Kraft' }, exercises: [
+        { key: 'pullUp', name: 'Weighted Pull-ups', sets: 5, reps: 5 },
+        { key: 'oneArmPullUp', name: 'Archer Pull-ups', sets: 4, reps: 5 },
+        { key: 'muscleUp', name: 'Strict Bar MU', sets: 5, reps: 3 },
+        { key: 'pullUp', name: 'Wide Pull-ups', sets: 3, reps: 10 },
+      ]},
+      { name: { ar: 'مهارات سحب', de: 'Pull Skills' }, exercises: [
+        { key: 'frontLever', name: 'Full FL Hold', sets: 5, reps: 8 },
+        { key: 'backLever', name: 'Full BL Hold', sets: 4, reps: 10 },
+        { key: 'ironCross', name: 'Cross Negative', sets: 4, reps: 5 },
+        { key: 'victorianCross', name: 'Wide BL Hold', sets: 4, reps: 8 },
+      ]},
+      { name: { ar: 'أرجل + جذع', de: 'Legs + Core' }, exercises: [
+        { key: 'squat', name: 'Pistol Squats', sets: 4, reps: 6 },
+        { key: 'nordicCurl', name: 'Full Nordic Curls', sets: 4, reps: 5 },
+        { key: 'humanFlag', name: 'Human Flag Practice', sets: 5, reps: 8 },
+        { key: 'dragonFlag', name: 'Full Dragon Flags', sets: 4, reps: 8 },
+        { key: 'squat', name: 'Shrimp Squats', sets: 3, reps: 5 },
+        { key: 'lSit', name: 'V-sit to Manna', sets: 3, reps: 10 },
+      ]},
+    ],
+  },
+
+  // ═══════════ RINGS ═══════════
+  {
+    key: 'rings',
+    name: { ar: 'حلقات الجمباز', de: 'Ringe' },
+    freq: { ar: '4×/أسبوع', de: '4×/Woche' },
+    desc: { ar: 'تدريب حلقات شامل — ثبات، قوة، وديناميكية', de: 'Umfassendes Ringtraining — Stabilität, Kraft & Dynamik' },
+    emoji: '⭕',
+    color: '#d946ef',
+    level: 'advanced',
+    days: [
+      { name: { ar: 'ثبات أساسي', de: 'Grundstabilität' }, exercises: [
+        { key: 'dip', name: 'RTO Support Hold', sets: 5, reps: 15 },
+        { key: 'ironCross', name: 'Ring Flies (band)', sets: 4, reps: 8 },
+        { key: 'dip', name: 'Ring Dips', sets: 4, reps: 8 },
+        { key: 'pullUp', name: 'Ring Pull-ups', sets: 4, reps: 8 },
+        { key: 'backLever', name: 'German Hang', sets: 3, reps: 20 },
+      ]},
+      { name: { ar: 'قوة ثابتة', de: 'Statische Kraft' }, exercises: [
+        { key: 'ironCross', name: 'Cross Negatives', sets: 5, reps: 5 },
+        { key: 'maltese', name: 'Tuck Maltese', sets: 4, reps: 8 },
+        { key: 'backLever', name: 'Full Back Lever', sets: 4, reps: 10 },
+        { key: 'planche', name: 'Ring Tuck Planche', sets: 4, reps: 10 },
+        { key: 'lSit', name: 'Ring L-sit', sets: 3, reps: 15 },
+      ]},
+      { name: { ar: 'ديناميكي', de: 'Dynamisch' }, exercises: [
+        { key: 'muscleUp', name: 'Strict Ring MU', sets: 5, reps: 3 },
+        { key: 'dip', name: 'Ring Bulgarian Dips', sets: 4, reps: 6 },
+        { key: 'muscleUp', name: 'Kip to Support', sets: 4, reps: 5 },
+        { key: 'pullUp', name: 'False Grip Pull-ups', sets: 4, reps: 8 },
+      ]},
+      { name: { ar: 'جسم كامل حلقات', de: 'Ringe Ganzkörper' }, exercises: [
+        { key: 'pushUp', name: 'Ring Push-ups', sets: 4, reps: 12 },
+        { key: 'pullUp', name: 'Ring Rows (feet elevated)', sets: 4, reps: 10 },
+        { key: 'dip', name: 'Ring Dip Hold (RTO)', sets: 4, reps: 15 },
+        { key: 'lSit', name: 'Ring L-sit Hold', sets: 3, reps: 15 },
+        { key: 'squat', name: 'Ring-Assisted Pistols', sets: 3, reps: 6 },
+        { key: 'dragonFlag', name: 'Ring Ab Rollout', sets: 3, reps: 8 },
       ]},
     ],
   },
 ];
+
 
 /* ─────────────── Translations ─────────────── */
 
@@ -199,6 +488,11 @@ const T = {
   thisWeek: { ar: 'هذا الأسبوع', de: 'Diese Woche' },
   encyclopedia: { ar: 'الموسوعة الكاملة', de: 'Volle Enzyklopädie' },
   encDesc: { ar: 'تقنيات، شروط، أخطاء — لكل مهارة', de: 'Technik, Voraussetzungen, Fehler' },
+  muscles: { ar: 'العضلات المستهدفة', de: 'Zielmuskeln' },
+  beginner: { ar: 'مبتدئ', de: 'Anfänger' },
+  intermediate: { ar: 'متوسط', de: 'Mittelstufe' },
+  advanced: { ar: 'متقدم', de: 'Fortgeschritten' },
+  elite: { ar: 'نخبوي', de: 'Elite' },
 };
 
 /* ─────────────── Helpers ─────────────── */
@@ -233,7 +527,6 @@ function calcStreak(logs: LogEntry[]): number {
     if (sorted.includes(iso)) {
       streak++;
     } else if (i === 0) {
-      // today not done, check yesterday onwards
       continue;
     } else {
       break;
@@ -256,12 +549,10 @@ function HeroBanner({
         border: '1px solid hsl(var(--primary) / 0.2)',
       }}
     >
-      {/* Decorative glow */}
       <div
         className="absolute -top-10 -end-10 w-32 h-32 rounded-full opacity-20 blur-2xl pointer-events-none"
         style={{ background: 'hsl(var(--primary))' }}
       />
-
       <div className="relative">
         <div className="flex items-center gap-2 mb-2">
           <div className="w-8 h-8 rounded-lg bg-primary/15 flex items-center justify-center">
@@ -272,8 +563,6 @@ function HeroBanner({
             <p className="text-[9px] text-muted-foreground">{T.hero[lang]}</p>
           </div>
         </div>
-
-        {/* 4-stat grid */}
         <div className="grid grid-cols-4 gap-1.5">
           <StatBubble icon={Flame} label={T.streak[lang]} value={`${streak}d`} color="#f97316" />
           <StatBubble icon={TrendingUp} label={T.thisWeek[lang]} value={`${weekSets}`} color="#10b981" />
@@ -291,15 +580,12 @@ function StatBubble({ icon: Icon, label, value, color }: { icon: any; label: str
       <div className="flex items-center justify-center gap-0.5 mb-0.5">
         <Icon className="w-2.5 h-2.5" style={{ color }} />
       </div>
-      <div className="text-[12px] font-bold leading-none" style={{ color }}>
-        {value}
-      </div>
-      <div className="text-[8px] text-muted-foreground uppercase tracking-tight mt-0.5">
-        {label}
-      </div>
+      <div className="text-[12px] font-bold leading-none" style={{ color }}>{value}</div>
+      <div className="text-[8px] text-muted-foreground uppercase tracking-tight mt-0.5">{label}</div>
     </div>
   );
 }
+
 
 /* ─────────────── Sub-components ─────────────── */
 
@@ -322,10 +608,9 @@ function SkillProgressions({
           {SKILLS.reduce((a, s) => a + s.levels.length, 0)}
         </span>
       </div>
-      <div className="space-y-1.5 max-h-[280px] overflow-y-auto pe-0.5 scrollbar-thin">
-        {SKILLS.map((skill, idx) => {
+      <div className="space-y-1.5 max-h-[380px] overflow-y-auto pe-0.5 scrollbar-thin">
+        {SKILLS.map((skill) => {
           const currentLvl = progress[skill.key] ?? 0;
-          const completion = ((currentLvl + 1) / skill.levels.length) * 100;
 
           return (
             <motion.div
@@ -334,7 +619,6 @@ function SkillProgressions({
               className="rounded-xl p-2 bg-card/60 border border-border/30 hover:border-border/60 transition-colors"
             >
               <div className="flex items-center gap-2 mb-1.5">
-                {/* Emoji icon */}
                 <div
                   className="w-7 h-7 rounded-lg flex items-center justify-center text-base shrink-0"
                   style={{ backgroundColor: `${skill.color}20`, border: `1px solid ${skill.color}40` }}
@@ -357,6 +641,15 @@ function SkillProgressions({
                     → {skill.levels[currentLvl]}
                   </div>
                 </div>
+              </div>
+
+              {/* Target muscles */}
+              <div className="flex flex-wrap gap-1 mb-1.5">
+                {skill.targetMuscles.map((m) => (
+                  <span key={m} className="text-[7.5px] px-1.5 py-0.5 rounded-full bg-muted/50 text-muted-foreground">
+                    {m}
+                  </span>
+                ))}
               </div>
 
               {/* Progression dots */}
@@ -410,13 +703,20 @@ function TrainingPlans({
   onSelectPlan: (key: PlanKey) => void;
   lang: 'ar' | 'de';
 }) {
+  const levelColors = {
+    beginner: '#22c55e',
+    intermediate: '#3b82f6',
+    advanced: '#f97316',
+    elite: '#ef4444',
+  };
+
   return (
     <motion.section variants={stagger} initial="hidden" animate="show" className="space-y-1.5">
       <div className="flex items-center gap-1.5 mb-1">
         <Calendar className="w-3 h-3 text-primary" />
         <h3 className="text-[12px] font-semibold text-foreground">{T.plans[lang]}</h3>
       </div>
-      <div className="grid grid-cols-3 gap-1.5">
+      <div className="grid grid-cols-2 gap-1.5">
         {PLANS.map((plan) => {
           const isActive = activePlan === plan.key;
           return (
@@ -443,16 +743,24 @@ function TrainingPlans({
                   {plan.name[lang]}
                 </div>
                 <div className="text-[8.5px] text-muted-foreground">{plan.freq[lang]}</div>
+                <div className="flex items-center gap-1 mt-1">
+                  <span
+                    className="text-[7.5px] font-bold px-1.5 py-0.5 rounded-full"
+                    style={{ backgroundColor: `${levelColors[plan.level]}20`, color: levelColors[plan.level] }}
+                  >
+                    {T[plan.level][lang]}
+                  </span>
+                </div>
                 {isActive ? (
                   <div
-                    className="mt-1.5 text-[8px] font-bold flex items-center gap-1"
+                    className="mt-1 text-[8px] font-bold flex items-center gap-1"
                     style={{ color: plan.color }}
                   >
                     <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: plan.color }} />
                     {T.active[lang]}
                   </div>
                 ) : (
-                  <div className="mt-1.5 text-[8px] text-muted-foreground/60 flex items-center gap-0.5">
+                  <div className="mt-1 text-[8px] text-muted-foreground/60 flex items-center gap-0.5">
                     <Play className="w-2 h-2" />
                     {T.start[lang]}
                   </div>
@@ -465,6 +773,7 @@ function TrainingPlans({
     </motion.section>
   );
 }
+
 
 function TodayWorkout({
   plan,
@@ -662,6 +971,7 @@ function WeeklyVolume({ logs, lang }: { logs: LogEntry[]; lang: 'ar' | 'de' }) {
   );
 }
 
+
 /* ─────────────── Main Component ─────────────── */
 
 interface CalisthenicsTabProps {
@@ -673,11 +983,15 @@ export default function CalisthenicsTab({ onJump }: CalisthenicsTabProps = {}) {
   const lang = language as 'ar' | 'de';
 
   /* ── State ── */
+  const defaultProgress: Record<SkillKey, number> = {
+    pushUp: 2, pullUp: 1, dip: 2, squat: 1, lSit: 0,
+    handstand: 0, frontLever: 0, backLever: 0, planche: 0, muscleUp: 0,
+    humanFlag: 0, nordicCurl: 0, dragonFlag: 0, ironCross: 0,
+    maltese: 0, victorianCross: 0, oneArmPullUp: 0, press2HS: 0,
+  };
+
   const [progress, setProgress] = useState<Record<SkillKey, number>>(() =>
-    loadJson<Record<SkillKey, number>>(LS_PROGRESS, {
-      pushUp: 2, pullUp: 1, dip: 2, squat: 1, lSit: 0,
-      handstand: 0, frontLever: 0, backLever: 0, planche: 0, muscleUp: 0,
-    })
+    loadJson<Record<SkillKey, number>>(LS_PROGRESS, defaultProgress)
   );
   const [activePlan, setActivePlan] = useState<PlanKey | null>(() =>
     loadJson<PlanKey | null>(LS_PLAN, null)
@@ -691,7 +1005,10 @@ export default function CalisthenicsTab({ onJump }: CalisthenicsTabProps = {}) {
   const todayLog = useMemo(() => logs.find((l) => l.date === todayIso()) ?? null, [logs]);
 
   const stats = useMemo(() => {
-    const completedSkills = Object.values(progress).filter((v) => v >= 3).length;
+    const completedSkills = Object.entries(progress).filter(([key, v]) => {
+      const skill = SKILLS.find((s) => s.key === key);
+      return skill && v >= skill.levels.length - 1;
+    }).length;
     const totalSets = logs.reduce((sum, l) => sum + l.exercises.reduce((s, e) => s + (e.done ? e.sets : 0), 0), 0);
     const today = new Date();
     let weekSets = 0;
