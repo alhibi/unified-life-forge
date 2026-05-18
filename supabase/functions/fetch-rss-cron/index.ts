@@ -19,6 +19,18 @@ serve(async (req) => {
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
   const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+
+  // Only the service role (pg_cron via invoke_edge_function) may trigger
+  // this. Without this gate any anonymous caller could spam the cron and
+  // exhaust function-invocation / outbound-fetch budget.
+  const authHeader = req.headers.get("Authorization") ?? "";
+  const token = authHeader.toLowerCase().startsWith("bearer ")
+    ? authHeader.slice(7).trim()
+    : "";
+  if (!token || token !== serviceKey) {
+    return jsonResponse({ error: "Unauthorized" }, 401);
+  }
+
   const sb = createClient(supabaseUrl, serviceKey);
 
   // Distinct source URLs: prefer rss_feed_meta (everything we've ever

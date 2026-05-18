@@ -12,7 +12,7 @@ import type { ReaderPrefs } from './types';
 import { ReaderPrefsPopover } from './ReaderPrefsPopover';
 import { ArticleDetailSkeleton } from './Skeletons';
 import { offlineDb } from './offlineDb';
-import { readingMinutes, timeAgo } from './utils';
+import { readingMinutes, safeHref, timeAgo } from './utils';
 import {
   type ReaderHistoryEntry,
   clearReaderHistory,
@@ -323,7 +323,7 @@ export function ReaderView({
                 : <Bookmark className="h-4 w-4 text-muted-foreground" />}
             </button>
             <a
-              href={article.url}
+              href={safeHref(article.url)}
               target="_blank"
               rel="noopener noreferrer"
               className="p-2 rounded-xl hover:bg-accent/50 active:scale-95 transition-all"

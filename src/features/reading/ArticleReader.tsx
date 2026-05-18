@@ -8,7 +8,7 @@ import { toast } from 'sonner';
 import { notify } from '@/lib/notify';
 import { sanitizeRssHtml } from '@/utils/sanitizeRssHtml';
 import type { FeedItem, ReaderPrefs } from './types';
-import { formatDate, readingMinutes } from './utils';
+import { formatDate, readingMinutes, safeHref } from './utils';
 import { ReaderPrefsPopover } from './ReaderPrefsPopover';
 import { SourcePill } from './SourcePill';
 import { ArticleDetailSkeleton } from './Skeletons';
@@ -173,7 +173,7 @@ export function ArticleReader({
             <Copy className="h-4 w-4 text-muted-foreground" />
           </button>
           <a
-            href={article.link}
+            href={safeHref(article.link)}
             target="_blank"
             rel="noopener noreferrer"
             className="p-2 rounded-xl hover:bg-accent/50 active:scale-95 transition-all inline-flex items-center justify-center"
@@ -275,7 +275,7 @@ export function ArticleReader({
               : <ArticleDetailSkeleton />}
 
           <a
-            href={article.link}
+            href={safeHref(article.link)}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 mt-8 px-5 py-3 rounded-2xl bg-primary/10 text-primary text-sm font-semibold hover:bg-primary/20 active:scale-[0.98] transition-all"
