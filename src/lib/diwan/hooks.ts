@@ -3,7 +3,8 @@
 //   - مفاتيح cache هرميّة: ['diwan', resource, ...params]
 //   - staleTime عالٍ (5 دقائق) لأن البيانات أدبية لا تتغيّر كثيرًا
 
-import { useQuery, type UseQueryResult } from '@tanstack/react-query';
+import { useQuery, useQueryClient, type UseQueryResult } from '@tanstack/react-query';
+import { useCallback } from 'react';
 import {
   fetchEras,
   fetchLibraryStats,
@@ -13,6 +14,9 @@ import {
   fetchPoem,
   searchPoems,
   searchVerses,
+  fetchSimilarPoems,
+  fetchSuggestions,
+  fetchPoemGlossary,
   type PoemSearchParams,
   type PoetPoemsParams,
   type PoetsListParams,
@@ -27,14 +31,20 @@ import {
   localPoem,
   localSearchPoems,
   localSearchVerses,
+  localSimilarPoems,
+  localSuggest,
+  localGlossary,
 } from './local-fallback';
 import type {
   DiwanEra,
+  DiwanGlossaryEntry,
   DiwanLibraryStats,
   DiwanPoemDetail,
   DiwanPoemSearchResult,
   DiwanPoemSummary,
   DiwanPoetSummary,
+  DiwanSimilarPoem,
+  DiwanSuggestItem,
   DiwanVerseSearchResult,
 } from './types';
 
@@ -144,4 +154,69 @@ export function useDiwanSearchVerses(p: VerseSearchParams): UseQueryResult<Diwan
     enabled: !!p.q,
     staleTime: STALE,
   });
+}
+
+// ─── جديد: قصائد مشابهة ────────────────────────────────────────────────
+export function useDiwanSimilarPoems(slug?: string, limit = 6): UseQueryResult<DiwanSimilarPoem[]> {
+  return useQuery({
+    queryKey: ['diwan', 'similar', slug, limit],
+    queryFn: withFallback(
+      () => fetchSimilarPoems(slug!, limit),
+      () => localSimilarPoems(slug!, limit),
+    ),
+    enabled: !!slug,
+    staleTime: STALE,
+  });
+}
+
+// ─── جديد: اقتراحات Autocomplete ───────────────────────────────────────
+export function useDiwanSuggest(prefix: string, limit = 8): UseQueryResult<DiwanSuggestItem[]> {
+  return useQuery({
+    queryKey: ['diwan', 'suggest', prefix, limit],
+    queryFn: withFallback(
+      () => fetchSuggestions(prefix, limit),
+      () => localSuggest(prefix, limit),
+    ),
+    enabled: prefix.trim().length >= 1,
+    staleTime: 30_000,
+  });
+}
+
+// ─── جديد: شرح مفردات القصيدة ──────────────────────────────────────────
+export function useDiwanGlossary(slug?: string): UseQueryResult<DiwanGlossaryEntry[]> {
+  return useQuery({
+    queryKey: ['diwan', 'glossary', slug],
+    queryFn: withFallback(
+      () => fetchPoemGlossary(slug!),
+      () => localGlossary(slug!),
+    ),
+    enabled: !!slug,
+    staleTime: STALE,
+  });
+}
+
+// ─── Prefetch helpers (للأداء عند hover/touch على البطاقة) ────────────
+export function useDiwanPrefetch() {
+  const qc = useQueryClient();
+  const prefetchPoem = useCallback(
+    (slug: string) => {
+      qc.prefetchQuery({
+        queryKey: ['diwan', 'poem', slug],
+        queryFn: withFallback(() => fetchPoem(slug), () => localPoem(slug)),
+        staleTime: STALE,
+      });
+    },
+    [qc],
+  );
+  const prefetchPoet = useCallback(
+    (slug: string) => {
+      qc.prefetchQuery({
+        queryKey: ['diwan', 'poet', slug],
+        queryFn: withFallback(() => fetchPoetBySlug(slug), () => localPoetBySlug(slug)),
+        staleTime: STALE,
+      });
+    },
+    [qc],
+  );
+  return { prefetchPoem, prefetchPoet };
 }
