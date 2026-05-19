@@ -22,12 +22,23 @@ const tabs: Tab[] = [
   { key: 'diwan', path: '/diwan', icon: Feather, labelKey: 'nav.diwan' },
 ];
 
-// Hide the persistent bottom nav while the user is reading a Diwan poem or
-// drafting voice notes inside the chat composer in landscape — adding more
-// routes here keeps the surface area minimal.
-const HIDE_ON_PATHS: RegExp[] = [
-  /^\/auth$/,
-];
+// The bottom nav is a *tab bar*, not a global chrome element — it only
+// makes sense on the seven top-level tab routes that <PersistentTabs/>
+// renders. Sub-pages (game boards, reading view, settings details, the
+// auth screen, …) deliberately suppress it so the user has a clear
+// "you are deep, hit Back to surface" mental model.
+//
+// Keeping this list in sync with TAB_PATHS in App.tsx is intentional;
+// they describe the same set from two angles.
+const TAB_PATHS = new Set<string>([
+  '/',
+  '/games',
+  '/chat',
+  '/settings',
+  '/duas',
+  '/diwan',
+  '/wellness',
+]);
 
 export default function BottomNav() {
   const { t } = useApp();
@@ -85,15 +96,23 @@ export default function BottomNav() {
     return location.pathname.startsWith(path);
   };
 
-  if (HIDE_ON_PATHS.some(re => re.test(location.pathname))) return null;
+  // Show only on the seven top-level tab routes. On any deeper path the
+  // nav vanishes so the focused screen owns the full viewport.
+  if (!TAB_PATHS.has(location.pathname)) return null;
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-50"
+      data-bottom-nav
+      className="bottom-nav fixed bottom-0 left-0 right-0 z-50 bg-card/85 backdrop-blur-2xl border-t border-border/40 shadow-[0_-4px_24px_rgba(0,0,0,0.25)]"
       dir="ltr"
-      style={{ contain: 'layout style', willChange: 'transform', transform: 'translateZ(0)', paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+      style={{
+        contain: 'layout style',
+        willChange: 'transform',
+        transform: 'translateZ(0)',
+        paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+      }}
     >
-      <div className="mx-2 mb-2 rounded-2xl bg-card/70 backdrop-blur-2xl border border-border/30 shadow-[0_-4px_30px_rgba(0,0,0,0.3)] px-1 py-1.5 flex items-center justify-around">
+      <div className="px-1 py-1.5 flex items-center justify-around">
         {tabs.map(tab => {
           const active = isActive(tab.path);
           const showBadge = tab.key === 'chat' && unreadCount > 0;
