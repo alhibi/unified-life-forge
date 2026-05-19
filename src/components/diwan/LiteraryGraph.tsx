@@ -195,7 +195,16 @@ export default function LiteraryGraph({ onSelectPoet, initialPoetId }: Props) {
         onTouchMove={handleTouch}
         onTouchEnd={() => setLastPinch(null)}
         style={{ touchAction: 'none' }}
+        role="img"
+        aria-labelledby="literary-graph-title literary-graph-desc"
       >
+        <title id="literary-graph-title">شجرة العلاقات الأدبية بين الشعراء العرب</title>
+        <desc id="literary-graph-desc">
+          مخطّط تفاعلي يعرض {nodes.length} شاعراً موزّعين على عصور أدبية،
+          مع {visibleLinks.length} علاقة بينهم (أستاذ-تلميذ، نقائض،
+          تأثّر، قرابة، عشق). اضغط Tab للتنقّل بلوحة المفاتيح بين
+          النقاط، ثم Enter لتحديد شاعر وعرض علاقاته.
+        </desc>
         <defs>
           <filter id="node-shadow">
             <feDropShadow dx="0" dy="2" stdDeviation="4" floodOpacity="0.15" />
@@ -263,14 +272,35 @@ export default function LiteraryGraph({ onSelectPoet, initialPoetId }: Props) {
             const radius = 18 + importance * 18; // 18..36
             const depthOpacity = active ? 1 : (0.08 + importance * 0.12); // dimmer if unconnected AND unimportant
 
+            // a11y: نضيف tabIndex و role + onKeyDown على كل عقدة
+            // ليتمكّن مستخدمو لوحة المفاتيح من التنقّل وتحديد الشعراء.
+            // تعطّل التركيز للعُقد المُعتَمة (active=false) لأن المستخدم
+            // لا يستطيع رؤيتها أصلاً، فإدراجها في tab order مشوّش.
+            const onNodeKeyDown = (e: React.KeyboardEvent) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                setSelected(isSel ? null : node);
+              } else if (e.key === 'Escape' && isSel) {
+                e.preventDefault();
+                setSelected(null);
+              }
+            };
+
             return (
               <g
                 key={node.id}
-                className="graph-node cursor-pointer"
+                className="graph-node cursor-pointer focus:outline-none"
                 transform={`translate(${node.x},${node.y})`}
                 onClick={(e) => { e.stopPropagation(); setSelected(isSel ? null : node); }}
                 onPointerEnter={() => setHovered(node.id)}
                 onPointerLeave={() => setHovered(null)}
+                onFocus={() => setHovered(node.id)}
+                onBlur={() => setHovered(null)}
+                onKeyDown={onNodeKeyDown}
+                tabIndex={active ? 0 : -1}
+                role="button"
+                aria-label={`${node.name} — ${node.eraAr}${node.title ? ' — ' + node.title : ''} — ${conns} ${conns === 1 ? 'علاقة' : 'علاقات'}`}
+                aria-pressed={isSel}
                 style={{ opacity: depthOpacity, transition: 'opacity 0.4s ease, transform 0.3s ease' }}
               >
                 {/* Pulse ring for selected */}
