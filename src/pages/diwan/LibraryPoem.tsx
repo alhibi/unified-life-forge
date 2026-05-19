@@ -11,6 +11,7 @@ import { useApp } from '@/contexts/AppContext';
 import { notify } from '@/lib/notify';
 import { useDiwanPoem } from '@/lib/diwan/hooks';
 import PoemContextCard from '@/components/diwan/PoemContextCard';
+import SimilarPoems from '@/components/diwan/library/SimilarPoems';
 
 /**
  * صفحة قصيدة كاملة. تعرض الأبيات بصدر/عجز، تسمح بنسخ بيت أو
@@ -197,6 +198,9 @@ export default function LibraryPoemPage() {
             المصدر الأصلي
           </a>
         )}
+
+        {/* Similar poems */}
+        <SimilarPoems slug={p.slug} />
       </div>
     </div>
   );
