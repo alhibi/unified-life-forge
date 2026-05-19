@@ -2,18 +2,26 @@ import React, { useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
   ScrollText, ClipboardCopy, Feather, ChevronLeft, ChevronRight,
-  ExternalLink, Sparkles,
+  ExternalLink, Sparkles, Heart,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import SEO from '@/components/SEO';
 import BackButton from '@/components/BackButton';
 import { useApp } from '@/contexts/AppContext';
 import { notify } from '@/lib/notify';
-import { useDiwanGlossary, useDiwanPoem } from '@/lib/diwan/hooks';
+import {
+  useDiwanGlossary,
+  useDiwanPoem,
+  useDiwanFavoriteIds,
+  useDiwanToggleFavorite,
+} from '@/lib/diwan/hooks';
+import { isSupabaseReady } from '@/lib/diwan/env';
+import { useAuth } from '@/hooks/useAuth';
 import PoemContextCard from '@/components/diwan/PoemContextCard';
 import SimilarPoems from '@/components/diwan/library/SimilarPoems';
 import VerseLine from '@/components/diwan/library/VerseLine';
 import GlossarySheet from '@/components/diwan/library/GlossarySheet';
+import FallbackBadge from '@/components/diwan/library/FallbackBadge';
 import type { DiwanGlossaryEntry, DiwanVerse } from '@/lib/diwan/types';
 
 // ─── أدوات تطبيع عربية مشتركة بين الصفحة و VerseLine ─────────────────
@@ -55,6 +63,13 @@ export default function LibraryPoemPage() {
 
   const poem     = useDiwanPoem(slug);
   const glossary = useDiwanGlossary(slug);
+
+  // المفضّلة — متاحة فقط حين يكون Supabase مهيّئاً
+  const sbReady     = isSupabaseReady();
+  const { user }    = useAuth();
+  const favIds      = useDiwanFavoriteIds();
+  const toggleFav   = useDiwanToggleFavorite();
+  const isFavorited = !!(poem.data && favIds.data?.has(poem.data.id));
 
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
   const [tashkeel,  setTashkeel]  = useState(false);
@@ -202,6 +217,36 @@ export default function LibraryPoemPage() {
               <Chevron className="w-3 h-3 opacity-60" />
             </Link>
           </div>
+          {sbReady && (
+            <button
+              onClick={() => {
+                if (!user) {
+                  navigate('/auth');
+                  return;
+                }
+                if (!toggleFav.isPending) toggleFav.mutate(p.id);
+              }}
+              disabled={toggleFav.isPending}
+              aria-pressed={isFavorited}
+              aria-label={isFavorited ? 'إزالة من المفضّلة' : 'إضافة إلى المفضّلة'}
+              className={`shrink-0 w-9 h-9 rounded-full flex items-center justify-center transition-all active:scale-90 ${
+                isFavorited
+                  ? 'bg-rose-500/15 text-rose-500'
+                  : 'bg-muted/60 text-muted-foreground hover:text-foreground'
+              } disabled:opacity-60`}
+            >
+              <Heart
+                className="w-4 h-4"
+                fill={isFavorited ? 'currentColor' : 'none'}
+                strokeWidth={isFavorited ? 0 : 2}
+              />
+            </button>
+          )}
+        </div>
+
+        {/* Fallback indicator (لطيف وغير مزعج) */}
+        <div className="mb-2 flex">
+          <FallbackBadge />
         </div>
 
         {/* Meta tags */}

@@ -7,6 +7,7 @@ import BackButton from '@/components/BackButton';
 import SearchBar from '@/components/diwan/library/SearchBar';
 import PoemCard from '@/components/diwan/library/PoemCard';
 import PoetTimeline from '@/components/diwan/PoetTimeline';
+import FallbackBadge from '@/components/diwan/library/FallbackBadge';
 import { useDiwanPoet, useDiwanPoetPoems } from '@/lib/diwan/hooks';
 import { poetTimelines } from '@/data/poetTimelines';
 import type { DiwanPoemSummary } from '@/lib/diwan/types';
@@ -118,9 +119,12 @@ export default function LibraryPoetPage() {
             >
               {p.name_ar}
             </h1>
-            {p.title && (
-              <p className="text-[11px] text-primary mt-0.5">{p.title}</p>
-            )}
+            <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+              {p.title && (
+                <p className="text-[11px] text-primary">{p.title}</p>
+              )}
+              <FallbackBadge />
+            </div>
           </div>
         </div>
 

@@ -3,10 +3,11 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   Library as LibraryIcon, Users, Search, ChevronLeft, ChevronRight,
-  ScrollText, Feather, Sparkles, BookOpen,
+  ScrollText, Feather, Sparkles, BookOpen, Heart,
 } from 'lucide-react';
 import SEO from '@/components/SEO';
 import BackButton from '@/components/BackButton';
+import FallbackBadge from '@/components/diwan/library/FallbackBadge';
 import { useApp } from '@/contexts/AppContext';
 import { useDiwanStats } from '@/lib/diwan/hooks';
 
@@ -48,9 +49,12 @@ export default function DiwanLibraryPage({ tab = false }: Props) {
               <LibraryIcon className="w-5 h-5 text-primary" />
               المكتبة الكبرى
             </h1>
-            <p className="text-[12px] text-muted-foreground mt-0.5">
-              الموسوعة الشعرية عبر العصور
-            </p>
+            <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+              <p className="text-[12px] text-muted-foreground">
+                الموسوعة الشعرية عبر العصور
+              </p>
+              <FallbackBadge />
+            </div>
           </div>
         </div>
 
@@ -86,6 +90,13 @@ export default function DiwanLibraryPage({ tab = false }: Props) {
             label="كل الشعراء"
             sub="مرتّبون بالعصر"
             icon={<Users className="w-4 h-4 text-primary" />}
+            chev={Chevron}
+          />
+          <ActionLink
+            to="/diwan/library/favorites"
+            label="مفضّلتي"
+            sub="القصائد المحفوظة"
+            icon={<Heart className="w-4 h-4 text-rose-500" />}
             chev={Chevron}
           />
         </div>
