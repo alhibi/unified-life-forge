@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ScrollText } from 'lucide-react';
 import { motion } from 'framer-motion';
 import type { DiwanPoemSummary, DiwanPoemSearchResult } from '@/lib/diwan/types';
+import { useDiwanPrefetch } from '@/lib/diwan/hooks';
 
 interface Props {
   poem: DiwanPoemSummary | DiwanPoemSearchResult;
@@ -12,6 +13,8 @@ interface Props {
 
 export default function PoemCard({ poem, showPoet, index = 0 }: Props) {
   const search = poem as DiwanPoemSearchResult;
+  const { prefetchPoem } = useDiwanPrefetch();
+  const prefetch = () => prefetchPoem(poem.slug);
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -19,6 +22,8 @@ export default function PoemCard({ poem, showPoet, index = 0 }: Props) {
     >
       <Link
         to={`/diwan/library/poem/${poem.slug}`}
+        onPointerEnter={prefetch}
+        onTouchStart={prefetch}
         className="block w-full rounded-2xl bg-card border border-border/40 p-4 active:scale-[0.98] transition-transform"
       >
         <div className="flex items-start gap-2 mb-1.5">
