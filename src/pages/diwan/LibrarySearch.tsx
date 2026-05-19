@@ -7,6 +7,7 @@ import BackButton from '@/components/BackButton';
 import SearchBar from '@/components/diwan/library/SearchBar';
 import EraPills from '@/components/diwan/library/EraPills';
 import PoemCard from '@/components/diwan/library/PoemCard';
+import FallbackBadge from '@/components/diwan/library/FallbackBadge';
 import {
   useDiwanEras,
   useDiwanSearchPoems,
@@ -171,6 +172,9 @@ export default function LibrarySearchPage() {
               <Search className="w-5 h-5 text-primary" />
               البحث المتقدّم
             </h1>
+            <div className="mt-0.5">
+              <FallbackBadge />
+            </div>
           </div>
         </div>
 

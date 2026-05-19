@@ -9,6 +9,7 @@
 // لم تُحدَّث بعد في src/integrations/supabase/types.ts.
 
 import { supabase } from '@/integrations/supabase/client';
+import { isSupabaseReady } from './env';
 import type {
   DiwanEra,
   DiwanGlossaryEntry,
@@ -28,12 +29,6 @@ import type {
 const sb: any = supabase;
 
 const PAGE_LIMIT = 30;
-
-function isSupabaseReady(): boolean {
-  const url = (import.meta as ImportMeta).env?.VITE_SUPABASE_URL;
-  const key = (import.meta as ImportMeta).env?.VITE_SUPABASE_PUBLISHABLE_KEY;
-  return !!(url && key && !String(url).includes('placeholder'));
-}
 
 // ─── Eras ──────────────────────────────────────────────────────────────
 export async function fetchEras(): Promise<DiwanEra[]> {
@@ -200,6 +195,76 @@ export async function fetchFavorites(): Promise<string[]> {
     .eq('user_id', userId);
   if (error) return [];
   return (data ?? []).map((r: { poem_id: string }) => r.poem_id);
+}
+
+/**
+ * يُرجع تفاصيل القصائد المفضّلة لكي تُعرض في صفحة LibraryFavorites.
+ * ثلاث استدعاءات متتابعة: favorites → poems → poets، لأن PostgREST
+ * relational select يحتاج foreign-key مُعرَّف (وهو موجود) لكن TS-types
+ * المُولَّدة قديمة. نتجنّب التعقيد بالاستعلامات المتسلسلة.
+ *
+ * إذا فشل أيّ شيء (لا تسجيل دخول، لا اتصال) نُرجع [] دون رمي.
+ */
+export async function fetchFavoritePoems(): Promise<DiwanPoemSearchResult[]> {
+  if (!isSupabaseReady()) return [];
+  const { data: user } = await sb.auth.getUser();
+  const userId = user?.user?.id;
+  if (!userId) return [];
+
+  // 1) معرّفات القصائد المفضّلة بترتيب الإضافة (الأحدث أولاً)
+  const { data: favs, error: favsErr } = await sb
+    .from('diwan_user_favorites')
+    .select('poem_id, created_at')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false });
+  if (favsErr || !favs || favs.length === 0) return [];
+
+  const orderedIds = favs.map((r: { poem_id: string }) => r.poem_id);
+
+  // 2) تفاصيل القصائد
+  const { data: poems, error: poemsErr } = await sb
+    .from('diwan_poems')
+    .select('id, slug, title, opening, meter, rhyme, kind, tags, verses_count, era_id, poet_id')
+    .in('id', orderedIds);
+  if (poemsErr || !poems) return [];
+
+  // 3) أسماء الشعراء
+  const poetIds = Array.from(new Set(poems.map((p: { poet_id: string }) => p.poet_id)));
+  const { data: poets } = await sb
+    .from('diwan_poets')
+    .select('id, slug, name_ar')
+    .in('id', poetIds);
+  const poetMap = new Map(
+    (poets ?? []).map((p: { id: string; slug: string; name_ar: string }) =>
+      [p.id, p] as const,
+    ),
+  );
+
+  // نُحافظ على ترتيب favorites الأصلي
+  const poemMap = new Map(poems.map((p: { id: string }) => [p.id, p] as const));
+  const out: DiwanPoemSearchResult[] = [];
+  for (const id of orderedIds) {
+    const p = poemMap.get(id);
+    if (!p) continue;
+    const pAny = p as Record<string, unknown> & {
+      id: string; slug: string; title: string; opening: string | null;
+      meter: string | null; rhyme: string | null; kind: string | null;
+      tags: string[] | null; verses_count: number; era_id: string | null;
+      poet_id: string;
+    };
+    const poet = poetMap.get(pAny.poet_id);
+    out.push({
+      id: pAny.id, slug: pAny.slug, title: pAny.title, opening: pAny.opening,
+      meter: pAny.meter, rhyme: pAny.rhyme, kind: pAny.kind,
+      tags: pAny.tags ?? [],
+      verses_count: pAny.verses_count,
+      poet_id: pAny.poet_id,
+      poet_slug: poet?.slug ?? '',
+      poet_name: poet?.name_ar ?? '—',
+      era_id: pAny.era_id,
+    });
+  }
+  return out;
 }
 
 // ─── جديد: قصائد مشابهة ────────────────────────────────────────────────

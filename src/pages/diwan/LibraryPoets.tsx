@@ -6,6 +6,7 @@ import BackButton from '@/components/BackButton';
 import SearchBar from '@/components/diwan/library/SearchBar';
 import EraPills from '@/components/diwan/library/EraPills';
 import PoetCard from '@/components/diwan/library/PoetCard';
+import FallbackBadge from '@/components/diwan/library/FallbackBadge';
 import { useDiwanEras, useDiwanPoets } from '@/lib/diwan/hooks';
 import type { DiwanPoetSummary } from '@/lib/diwan/types';
 
@@ -98,9 +99,12 @@ export default function LibraryPoetsPage() {
               <Users className="w-5 h-5 text-primary" />
               {eraLabel ? `شعراء ${eraLabel}` : 'كل الشعراء'}
             </h1>
-            <p className="text-[11px] text-muted-foreground mt-0.5">
-              {list.length > 0 && `${list.length}${reachedEnd ? '' : '+'} شاعر`}
-            </p>
+            <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+              <p className="text-[11px] text-muted-foreground">
+                {list.length > 0 && `${list.length}${reachedEnd ? '' : '+'} شاعر`}
+              </p>
+              <FallbackBadge />
+            </div>
           </div>
         </div>
 

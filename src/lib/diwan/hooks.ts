@@ -2,8 +2,10 @@
 //   - في حال غياب Supabase أو فشل الاستدعاء => fallback للـ localFallback
 //   - مفاتيح cache هرميّة: ['diwan', resource, ...params]
 //   - staleTime عالٍ (5 دقائق) لأن البيانات أدبية لا تتغيّر كثيرًا
+//   - يُصدر حالة المصدر (demo/offline/none) إلى fallback-status لعرض
+//     badge شفّاف للمستخدم (راجع DiwanFallbackBadge).
 
-import { useQuery, useQueryClient, type UseQueryResult } from '@tanstack/react-query';
+import { useQuery, useQueryClient, useMutation, type UseQueryResult } from '@tanstack/react-query';
 import { useCallback } from 'react';
 import {
   fetchEras,
@@ -18,6 +20,9 @@ import {
   fetchSuggestions,
   fetchPoemGlossary,
   fetchSmartSearch,
+  fetchFavorites,
+  fetchFavoritePoems,
+  toggleFavorite,
   type PoemSearchParams,
   type PoetPoemsParams,
   type PoetsListParams,
@@ -37,6 +42,8 @@ import {
   localGlossary,
   localSmartSearch,
 } from './local-fallback';
+import { isSupabaseReady } from './env';
+import { notifyFallback, notifyRemoteOk } from './fallback-status';
 import type {
   DiwanEra,
   DiwanGlossaryEntry,
@@ -55,23 +62,42 @@ const STALE = 5 * 60 * 1000;
 
 function withFallback<T>(remote: () => Promise<T>, local: () => T): () => Promise<T> {
   return async () => {
+    // Supabase غير مكوّن → سقوط متعمَّد على البيانات المحلية (وضع
+    // تجريبي). لا نحاول استدعاء remote لأنّ client يعيد لنا أخطاء HTTP
+    // 401 على placeholder URL.
+    if (!isSupabaseReady()) {
+      notifyFallback('demo');
+      return local();
+    }
     try {
       const data = await remote();
-      // لو رجعت Supabase بمصفوفة فارغة بينما local عنده بيانات — استخدم local
+      // لو رجعت Supabase بمصفوفة فارغة بينما local عنده بيانات — استخدم local.
+      // هذا لا يُعتبر "offline" بل "demo": Supabase تعمل لكنها لم تُملأ بعد.
       if (Array.isArray(data) && data.length === 0) {
         const fb = local();
-        if (Array.isArray(fb) && fb.length > 0) return fb;
+        if (Array.isArray(fb) && fb.length > 0) {
+          notifyFallback('demo');
+          return fb;
+        }
       }
       // لو رجع null/undefined نسقط
-      if (data == null) return local();
+      if (data == null) {
+        notifyFallback('demo');
+        return local();
+      }
       // إحصاءات: لو كل القيم 0، استبدل
       if (typeof data === 'object' && 'poets_count' in (data as object)) {
         const stats = data as unknown as DiwanLibraryStats;
-        if (stats.poets_count === 0 && stats.poems_count === 0) return local();
+        if (stats.poets_count === 0 && stats.poems_count === 0) {
+          notifyFallback('demo');
+          return local();
+        }
       }
+      notifyRemoteOk();
       return data;
     } catch (e) {
       console.warn('[diwan] remote failed, fallback to local:', (e as Error).message);
+      notifyFallback('offline');
       return local();
     }
   };
@@ -237,4 +263,78 @@ export function useDiwanPrefetch() {
     [qc],
   );
   return { prefetchPoem, prefetchPoet };
+}
+
+
+
+// ─── Favorites ─────────────────────────────────────────────────────────
+// مفتاح مشترك واحد لكل بيانات المفضّلة (IDs + Poems) لإعادة جلب
+// متزامنة بعد toggle.
+const FAVS_KEYS = {
+  ids: ['diwan', 'favorites', 'ids'] as const,
+  poems: ['diwan', 'favorites', 'poems'] as const,
+};
+
+/**
+ * مجموعة معرّفات القصائد المفضّلة. خفيف وسريع — يكفي لرسم الأيقونة
+ * المملوءة على بطاقات القصائد.
+ *
+ * `staleTime: 0` متعمَّد: المفضّلة تتغيّر بتفاعل المستخدم، فنريد
+ * إعادة الجلب الفوري بعد كل toggle.
+ */
+export function useDiwanFavoriteIds(): UseQueryResult<Set<string>> {
+  return useQuery({
+    queryKey: FAVS_KEYS.ids,
+    queryFn: async () => new Set(await fetchFavorites()),
+    staleTime: 0,
+    gcTime: 5 * 60 * 1000,
+  });
+}
+
+/**
+ * تفاصيل القصائد المفضّلة كاملة، لعرضها في صفحة LibraryFavorites.
+ * staleTime أعلى لأن الصفحة تعرض ما هو ثابت بين الـ toggles.
+ */
+export function useDiwanFavoritePoems(): UseQueryResult<DiwanPoemSearchResult[]> {
+  return useQuery({
+    queryKey: FAVS_KEYS.poems,
+    queryFn: fetchFavoritePoems,
+    staleTime: 30_000,
+    gcTime: 5 * 60 * 1000,
+  });
+}
+
+/**
+ * Mutation لتبديل حالة المفضّلة. يُحدّث optimistic للـ ids set ويبطل
+ * كاش القائمة الكاملة بعد النجاح. يتقبّل (poemId, currentlyFav) ويعيد
+ * (newFavState, poemId) عند الإكمال.
+ */
+export function useDiwanToggleFavorite() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (poemId: string) => {
+      const newState = await toggleFavorite(poemId);
+      return { poemId, isFavorite: newState };
+    },
+    // Optimistic update على Set الـ ids حتى لا يومض القلب.
+    onMutate: async (poemId) => {
+      await qc.cancelQueries({ queryKey: FAVS_KEYS.ids });
+      const prev = qc.getQueryData<Set<string>>(FAVS_KEYS.ids);
+      if (prev) {
+        const next = new Set(prev);
+        if (next.has(poemId)) next.delete(poemId);
+        else next.add(poemId);
+        qc.setQueryData(FAVS_KEYS.ids, next);
+      }
+      return { prev };
+    },
+    onError: (_err, _vars, ctx) => {
+      // تراجع عند الفشل
+      if (ctx?.prev) qc.setQueryData(FAVS_KEYS.ids, ctx.prev);
+    },
+    onSuccess: () => {
+      // قائمة التفاصيل قد تكون فقدت/كسبت عنصراً
+      qc.invalidateQueries({ queryKey: FAVS_KEYS.poems });
+    },
+  });
 }

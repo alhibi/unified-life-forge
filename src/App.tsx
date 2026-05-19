@@ -71,6 +71,7 @@ const loadLibraryPoets = () => import("./pages/diwan/LibraryPoets");
 const loadLibraryPoet = () => import("./pages/diwan/LibraryPoet");
 const loadLibraryPoem = () => import("./pages/diwan/LibraryPoem");
 const loadLibrarySearch = () => import("./pages/diwan/LibrarySearch");
+const loadLibraryFavorites = () => import("./pages/diwan/LibraryFavorites");
 
 const SudokuPage = lazy(loadSudoku);
 const ChessPage = lazy(loadChess);
@@ -101,6 +102,7 @@ const DiwanLibraryPoetsPage = lazy(loadLibraryPoets);
 const DiwanLibraryPoetPage = lazy(loadLibraryPoet);
 const DiwanLibraryPoemPage = lazy(loadLibraryPoem);
 const DiwanLibrarySearchPage = lazy(loadLibrarySearch);
+const DiwanLibraryFavoritesPage = lazy(loadLibraryFavorites);
 
 // Tab pages are now eager (always mounted), so the idle prefetch warms
 // the next most-likely sub-routes instead of the tabs themselves.
@@ -241,6 +243,7 @@ function AnimatedRoutes() {
             <Route path="/diwan/library/poets"         element={<ErrorBoundary><PageTransition><DiwanLibraryPoetsPage /></PageTransition></ErrorBoundary>} />
             <Route path="/diwan/library/poet/:slug"    element={<ErrorBoundary><PageTransition><DiwanLibraryPoetPage /></PageTransition></ErrorBoundary>} />
             <Route path="/diwan/library/poem/:slug"    element={<ErrorBoundary><PageTransition><DiwanLibraryPoemPage /></PageTransition></ErrorBoundary>} />
+            <Route path="/diwan/library/favorites"     element={<ErrorBoundary><PageTransition><DiwanLibraryFavoritesPage /></PageTransition></ErrorBoundary>} />
             <Route path="*" element={<ErrorBoundary><PageTransition><NotFound /></PageTransition></ErrorBoundary>} />
           </Routes>
         </AnimatePresence>
