@@ -96,13 +96,13 @@ export interface DiwanLibraryStats {
 }
 
 export interface PoemSearchFilters {
-  q?: string;
-  era?: string;
-  poet_slug?: string;
-  meter?: string;
-  rhyme?: string;
-  kind?: string;
-  tag?: string;
+  q?: string | null;
+  era?: string | null;
+  poet_slug?: string | null;
+  meter?: string | null;
+  rhyme?: string | null;
+  kind?: string | null;
+  tag?: string | null;
 }
 
 export interface DiwanSimilarPoem extends DiwanPoemSearchResult {
