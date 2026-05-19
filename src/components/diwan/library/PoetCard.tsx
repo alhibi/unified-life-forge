@@ -30,32 +30,32 @@ export default function PoetCard({ poet, index = 0 }: Props) {
         to={`/diwan/library/poet/${poet.slug}`}
         onPointerEnter={prefetch}
         onTouchStart={prefetch}
-        className="block w-full rounded-xl bg-card border border-border/40 px-3 py-2.5 active:scale-[0.98] transition-transform"
+        className="block w-full rounded-2xl bg-card border border-border/40 p-4 active:scale-[0.98] transition-transform"
       >
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-            <Feather className="w-3.5 h-3.5 text-primary" />
+        <div className="flex items-center gap-3">
+          <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+            <Feather className="w-5 h-5 text-primary" />
           </div>
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-2">
               <h3
-                className="font-bold text-[13.5px] text-foreground truncate leading-tight"
+                className="font-bold text-[15px] text-foreground truncate"
                 style={{ fontFamily: "'Amiri', serif" }}
               >
                 {poet.name_ar}
               </h3>
               {poet.title && (
-                <span className="text-[9px] font-semibold text-primary bg-primary/10 px-1.5 py-0.5 rounded whitespace-nowrap">
+                <span className="text-[10px] font-semibold text-primary bg-primary/10 px-1.5 py-0.5 rounded-md whitespace-nowrap">
                   {poet.title}
                 </span>
               )}
             </div>
-            <div className="flex items-center gap-1.5 mt-0.5 text-[10.5px] text-muted-foreground">
+            <div className="flex items-center gap-2 mt-1 text-[11px] text-muted-foreground">
               {lifespan && <span>{lifespan}</span>}
               {lifespan && (poet.poems_count > 0 || poet.verses_count > 0) && <span>·</span>}
               {poet.poems_count > 0 && (
-                <span className="flex items-center gap-0.5">
-                  <ScrollText className="w-2.5 h-2.5" />
+                <span className="flex items-center gap-1">
+                  <ScrollText className="w-3 h-3" />
                   {poet.poems_count} {poet.poems_count === 1 ? 'قصيدة' : 'قصائد'}
                 </span>
               )}
@@ -64,8 +64,13 @@ export default function PoetCard({ poet, index = 0 }: Props) {
               )}
             </div>
           </div>
-          <Chevron className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+          <Chevron className="w-4 h-4 text-muted-foreground shrink-0" />
         </div>
+        {poet.bio && (
+          <p className="text-[12px] text-muted-foreground/80 leading-relaxed mt-2 line-clamp-2">
+            {poet.bio}
+          </p>
+        )}
       </Link>
     </motion.div>
   );
