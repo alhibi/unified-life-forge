@@ -18,6 +18,7 @@ import type {
   DiwanPoemSummary,
   DiwanPoetSummary,
   DiwanSimilarPoem,
+  DiwanSmartSearchItem,
   DiwanSuggestItem,
   DiwanVerseSearchResult,
   PoemSearchFilters,
@@ -231,4 +232,17 @@ export async function fetchPoemGlossary(poemSlug: string): Promise<DiwanGlossary
   });
   if (error) throw error;
   return (data ?? []) as DiwanGlossaryEntry[];
+}
+
+// ─── جديد: بحث موحّد (شعراء + قصائد + أبيات) ──────────────────────────
+// يُستدعى من شريط بحث "كل شيء". يُرجع مصفوفة بأنواع مختلطة، يفصلها
+// المستهلك حسب `kind`.
+export async function fetchSmartSearch(q: string, limit = 12): Promise<DiwanSmartSearchItem[]> {
+  if (!isSupabaseReady() || !q || q.trim().length === 0) return [];
+  const { data, error } = await sb.rpc('diwan_smart_search', {
+    q,
+    page_limit: limit,
+  });
+  if (error) throw error;
+  return (data ?? []) as DiwanSmartSearchItem[];
 }

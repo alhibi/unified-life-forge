@@ -17,6 +17,7 @@ import {
   fetchSimilarPoems,
   fetchSuggestions,
   fetchPoemGlossary,
+  fetchSmartSearch,
   type PoemSearchParams,
   type PoetPoemsParams,
   type PoetsListParams,
@@ -34,6 +35,7 @@ import {
   localSimilarPoems,
   localSuggest,
   localGlossary,
+  localSmartSearch,
 } from './local-fallback';
 import type {
   DiwanEra,
@@ -44,6 +46,7 @@ import type {
   DiwanPoemSummary,
   DiwanPoetSummary,
   DiwanSimilarPoem,
+  DiwanSmartSearchItem,
   DiwanSuggestItem,
   DiwanVerseSearchResult,
 } from './types';
@@ -192,6 +195,21 @@ export function useDiwanGlossary(slug?: string): UseQueryResult<DiwanGlossaryEnt
     ),
     enabled: !!slug,
     staleTime: STALE,
+  });
+}
+
+// ─── جديد: بحث موحّد (شعراء + قصائد + أبيات) ─────────────────────────
+// نقطة دخول مستقبلية لشريط Universal Search. تُغلِّف diwan_smart_search
+// مع fallback محلّي يحاكي السلوك على بيانات poetryData.ts.
+export function useDiwanSmartSearch(q: string, limit = 12): UseQueryResult<DiwanSmartSearchItem[]> {
+  return useQuery({
+    queryKey: ['diwan', 'smart-search', q, limit],
+    queryFn: withFallback(
+      () => fetchSmartSearch(q, limit),
+      () => localSmartSearch(q, limit),
+    ),
+    enabled: q.trim().length >= 2,
+    staleTime: 60_000,
   });
 }
 
