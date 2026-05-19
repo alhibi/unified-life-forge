@@ -1,19 +1,24 @@
-import React, { useMemo, useState } from 'react';
+import React, { lazy, Suspense, useMemo, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { Search, ScrollText, Quote, ChevronDown, ChevronUp, X, Filter, History, Network } from 'lucide-react';
+import { Search, ScrollText, Quote, ChevronDown, ChevronUp, X, Filter, History, Network, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import SEO from '@/components/SEO';
 import BackButton from '@/components/BackButton';
 import SearchBar from '@/components/diwan/library/SearchBar';
 import EraPills from '@/components/diwan/library/EraPills';
 import PoemCard from '@/components/diwan/library/PoemCard';
-import LiteraryGraph from '@/components/diwan/LiteraryGraph';
 import {
   useDiwanEras,
   useDiwanSearchPoems,
   useDiwanSearchVerses,
 } from '@/lib/diwan/hooks';
 import { KNOWN_METERS, KNOWN_KINDS, RHYME_LETTERS } from '@/lib/diwan/constants';
+import type { DiwanPoemSearchResult, DiwanVerseSearchResult } from '@/lib/diwan/types';
+
+// LiteraryGraph ضخم (~527 سطر + force-simulation + framer-motion)
+// والمستخدم لا يفتحه إلا أحيانًا، لذلك نُحمّله بكسلًا فقط عند توسيع
+// القسم. هذا يقتطع ~40-50KB gzipped من حزمة بحث الديوان الأولى.
+const LiteraryGraph = lazy(() => import('@/components/diwan/LiteraryGraph'));
 
 type Mode = 'poems' | 'verses';
 
@@ -67,7 +72,7 @@ export default function LibrarySearchPage() {
     try { localStorage.removeItem(HIST_KEY); } catch { /* ignore */ }
   };
 
-  // sync URL with state
+  // sync URL with state (تصفير الصفحة يتم في effect منفصل أعلاه)
   React.useEffect(() => {
     const next = new URLSearchParams();
     if (mode !== 'poems') next.set('mode', mode);
@@ -77,7 +82,6 @@ export default function LibrarySearchPage() {
     if (rhyme) next.set('rhyme', rhyme);
     if (kind)  next.set('kind', kind);
     setParams(next, { replace: true });
-    setPage(0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode, q, era, meter, rhyme, kind]);
 
@@ -88,12 +92,59 @@ export default function LibrarySearchPage() {
     q: q ?? '', era, page, pageSize: PAGE,
   });
 
-  const poems  = poemsQuery.data ?? [];
-  const verses = versesQuery.data ?? [];
+  // قوائم مُجمَّعة عبر الصفحات (نفس نمط LibraryPoets) — قبل هذا الإصلاح
+  // كانت "تحميل المزيد" تستبدل الصفحة الحالية فيرى المستخدم 30 نتيجة
+  // كحدّ أقصى رغم وجود المزيد.
+  const [poemItems,  setPoemItems]  = useState<DiwanPoemSearchResult[]>([]);
+  const [verseItems, setVerseItems] = useState<DiwanVerseSearchResult[]>([]);
+  const [reachedEndPoems,  setReachedEndPoems]  = useState(false);
+  const [reachedEndVerses, setReachedEndVerses] = useState(false);
+
+  // إعادة تعيين عند تبدّل أيّ مدخل بحث
+  React.useEffect(() => {
+    setPage(0);
+    setPoemItems([]);
+    setVerseItems([]);
+    setReachedEndPoems(false);
+    setReachedEndVerses(false);
+  }, [mode, q, era, meter, rhyme, kind]);
+
+  // دمج صفحة poems الجديدة مع المُجمَّع
+  React.useEffect(() => {
+    if (mode !== 'poems') return;
+    const data = poemsQuery.data;
+    if (!data) return;
+    setPoemItems(prev => {
+      if (page === 0) return data;
+      const seen = new Set(prev.map(p => p.slug));
+      const merged = [...prev];
+      for (const p of data) if (!seen.has(p.slug)) merged.push(p);
+      return merged;
+    });
+    if (data.length < PAGE) setReachedEndPoems(true);
+  }, [poemsQuery.data, page, mode]);
+
+  // دمج صفحة verses الجديدة مع المُجمَّع
+  React.useEffect(() => {
+    if (mode !== 'verses') return;
+    const data = versesQuery.data;
+    if (!data) return;
+    setVerseItems(prev => {
+      if (page === 0) return data;
+      const seenKey = (v: DiwanVerseSearchResult) => `${v.poem_slug}-${v.position}`;
+      const seen = new Set(prev.map(seenKey));
+      const merged = [...prev];
+      for (const v of data) if (!seen.has(seenKey(v))) merged.push(v);
+      return merged;
+    });
+    if (data.length < PAGE) setReachedEndVerses(true);
+  }, [versesQuery.data, page, mode]);
+
+  const poems  = poemItems;
+  const verses = verseItems;
   const isFetching = mode === 'poems' ? poemsQuery.isFetching : versesQuery.isFetching;
-  const hasMore =
-    (mode === 'poems' && poems.length === PAGE) ||
-    (mode === 'verses' && verses.length === PAGE);
+  const reachedEnd = mode === 'poems' ? reachedEndPoems : reachedEndVerses;
+  const hasMore = !reachedEnd && (mode === 'poems' ? poems.length > 0 : verses.length > 0);
 
   const activeFilters = useMemo(() => {
     const f = [era, meter, rhyme, kind].filter(Boolean);
@@ -322,10 +373,21 @@ export default function LibrarySearchPage() {
                 className="overflow-hidden"
               >
                 <div className="mt-3">
-                  <LiteraryGraph
-                    initialPoetId={initialGraphPoet ?? undefined}
-                    onSelectPoet={(id) => navigate(`/diwan/library/poet/${id}`)}
-                  />
+                  <Suspense
+                    fallback={
+                      <div className="w-full h-[72vh] min-h-[420px] rounded-3xl border border-border/30 bg-card/30 flex items-center justify-center">
+                        <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                          <span className="text-[11px]">يحمّل الشجرة الأدبية…</span>
+                        </div>
+                      </div>
+                    }
+                  >
+                    <LiteraryGraph
+                      initialPoetId={initialGraphPoet ?? undefined}
+                      onSelectPoet={(id) => navigate(`/diwan/library/poet/${id}`)}
+                    />
+                  </Suspense>
                   <p className="text-[10px] text-muted-foreground/80 text-center mt-2">
                     اضغط على شاعر لرؤية علاقاته، أو على زر "عرض قصائد" للانتقال إلى صفحته.
                   </p>

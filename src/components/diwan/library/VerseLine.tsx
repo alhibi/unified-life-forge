@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useMemo, useRef } from 'react';
 import { Check, Copy } from 'lucide-react';
 import { motion } from 'framer-motion';
 import type { DiwanVerse } from '@/lib/diwan/types';
@@ -35,8 +35,12 @@ interface Props {
  *
  * نستخدم Pointer Events الموحّدة فتعمل بنفس السلوك على
  * اللمس وعلى الفأرة.
+ *
+ * مُحاط بـ React.memo لأنّ صفحة القصيدة تُعيد render-ها كل مرة يتغيّر
+ * فيها copiedIdx (حالة في الأب)، وقصائد المعلّقات قد تحوي 80 بيتاً —
+ * بدون memo نُعيد تركيب جميع الـ <span data-word> 80 مرّة لكل ضغطة.
  */
-export default function VerseLine({
+function VerseLine({
   verse, normalize, glossaryHas, copied, onCopy, onLookup,
 }: Props) {
   const h1 = verse.hemistich1 ?? '';
@@ -47,6 +51,18 @@ export default function VerseLine({
   const targetWord    = useRef<string | null>(null);
   const startX        = useRef(0);
   const startY        = useRef(0);
+
+  // التوكنة عملية صرفة على (text, glossaryHas) — نحفظها بـ useMemo
+  // لتجنّب إعادة بناء عشرات/مئات الـ spans في كل re-render.
+  // Set يُعرَّف كجزء من المفتاح بمرجعه؛ يضمن الأب استقراره (Set مبنيّ بـ useMemo).
+  const renderedH1 = useMemo(
+    () => renderWords(h1, normalize, glossaryHas),
+    [h1, normalize, glossaryHas],
+  );
+  const renderedH2 = useMemo(
+    () => renderWords(h2, normalize, glossaryHas),
+    [h2, normalize, glossaryHas],
+  );
 
   const cancelTimer = () => {
     if (pressTimer.current !== null) {
@@ -112,13 +128,13 @@ export default function VerseLine({
             className="text-[15px] sm:text-[16px] text-foreground leading-[2] text-end"
             style={{ fontFamily: "'Amiri', serif" }}
           >
-            {renderWords(h1, normalize, glossaryHas)}
+            {renderedH1}
           </p>
           <p
             className="text-[15px] sm:text-[16px] text-foreground leading-[2] text-start"
             style={{ fontFamily: "'Amiri', serif" }}
           >
-            {renderWords(h2, normalize, glossaryHas)}
+            {renderedH2}
           </p>
         </div>
       ) : (
@@ -126,7 +142,7 @@ export default function VerseLine({
           className="text-[15px] text-foreground leading-[2]"
           style={{ fontFamily: "'Amiri', serif" }}
         >
-          {renderWords(h1, normalize, glossaryHas)}
+          {renderedH1}
         </p>
       )}
 
@@ -141,6 +157,11 @@ export default function VerseLine({
     </motion.button>
   );
 }
+
+// React.memo — props مرجعيّاً مستقرّة (verse عبر slug، normalize/glossaryHas
+// عبر useMemo في الأب، وonCopy/onLookup عبر useCallback اختياريّاً).
+// نستخدم المقارنة الافتراضية (Object.is) لأن جميع props بسيطة أو مذكّرة.
+export default React.memo(VerseLine);
 
 // ─── Helpers ───────────────────────────────────────────────────────────
 
