@@ -11,11 +11,14 @@
 import { supabase } from '@/integrations/supabase/client';
 import type {
   DiwanEra,
+  DiwanGlossaryEntry,
   DiwanLibraryStats,
   DiwanPoemDetail,
   DiwanPoemSearchResult,
   DiwanPoemSummary,
   DiwanPoetSummary,
+  DiwanSimilarPoem,
+  DiwanSuggestItem,
   DiwanVerseSearchResult,
   PoemSearchFilters,
 } from './types';
@@ -196,4 +199,36 @@ export async function fetchFavorites(): Promise<string[]> {
     .eq('user_id', userId);
   if (error) return [];
   return (data ?? []).map((r: { poem_id: string }) => r.poem_id);
+}
+
+// ─── جديد: قصائد مشابهة ────────────────────────────────────────────────
+export async function fetchSimilarPoems(poemSlug: string, limit = 6): Promise<DiwanSimilarPoem[]> {
+  if (!isSupabaseReady() || !poemSlug) return [];
+  const { data, error } = await sb.rpc('diwan_similar_poems', {
+    poem_slug: poemSlug,
+    page_limit: limit,
+  });
+  if (error) throw error;
+  return (data ?? []) as DiwanSimilarPoem[];
+}
+
+// ─── جديد: اقتراحات Autocomplete ───────────────────────────────────────
+export async function fetchSuggestions(prefix: string, limit = 8): Promise<DiwanSuggestItem[]> {
+  if (!isSupabaseReady() || !prefix || prefix.trim().length < 1) return [];
+  const { data, error } = await sb.rpc('diwan_suggest', {
+    prefix,
+    page_limit: limit,
+  });
+  if (error) throw error;
+  return (data ?? []) as DiwanSuggestItem[];
+}
+
+// ─── جديد: شرح مفردات قصيدة ────────────────────────────────────────────
+export async function fetchPoemGlossary(poemSlug: string): Promise<DiwanGlossaryEntry[]> {
+  if (!isSupabaseReady() || !poemSlug) return [];
+  const { data, error } = await sb.rpc('diwan_poem_glossary', {
+    poem_slug: poemSlug,
+  });
+  if (error) throw error;
+  return (data ?? []) as DiwanGlossaryEntry[];
 }
