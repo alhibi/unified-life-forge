@@ -5,13 +5,17 @@
 
 import { poetryEras } from '@/data/poetryData';
 import { poetNodes } from '@/data/literaryConnections';
+import { diwanLocalGlossary } from '@/data/diwanGlossary';
 import type {
   DiwanEra,
+  DiwanGlossaryEntry,
   DiwanLibraryStats,
   DiwanPoemDetail,
   DiwanPoemSearchResult,
   DiwanPoemSummary,
   DiwanPoetSummary,
+  DiwanSimilarPoem,
+  DiwanSuggestItem,
   DiwanVerse,
   DiwanVerseSearchResult,
 } from './types';
@@ -224,4 +228,88 @@ export function localSearchVerses(p: { q: string; era?: string | null; page?: nu
   const page = p.page ?? 0;
   const size = p.pageSize ?? 30;
   return out.slice(page * size, page * size + size);
+}
+
+// ─── جديد: قصائد مشابهة ────────────────────────────────────────────────
+export function localSimilarPoems(poemSlug: string, limit = 6): DiwanSimilarPoem[] {
+  const idx = buildIdx();
+  const src = idx.poems.find(p => p.slug === poemSlug);
+  if (!src) return [];
+  const scored = idx.poems
+    .filter(p => p.slug !== poemSlug)
+    .map(p => {
+      let score = 0;
+      if (p.era_id && p.era_id === src.era_id) score += 1.5;
+      if (p.meter && src.meter && p.meter === src.meter) score += 3;
+      if (p.kind && src.kind && p.kind === src.kind) score += 2.5;
+      if (p.rhyme && src.rhyme && p.rhyme === src.rhyme) score += 1;
+      if (p.poet_slug === src.poet_slug) score += 0.8;
+      const shared = (p.tags ?? []).filter(t => (src.tags ?? []).includes(t)).length;
+      score += shared * 0.4;
+      return { p, score };
+    })
+    .filter(x => x.score > 0)
+    .sort((a, b) => b.score - a.score || b.p.verses_count - a.p.verses_count)
+    .slice(0, Math.max(1, Math.min(limit, 30)));
+  return scored.map(({ p, score }) => {
+    const { _verses, ...rest } = p;
+    void _verses;
+    return { ...rest, score };
+  });
+}
+
+// ─── جديد: اقتراحات أثناء الكتابة ───────────────────────────────────────
+export function localSuggest(prefix: string, limit = 8): DiwanSuggestItem[] {
+  const q = norm(prefix);
+  if (!q || q.length < 1) return [];
+  const idx = buildIdx();
+  const items: DiwanSuggestItem[] = [];
+
+  for (const po of idx.poets) {
+    const n = norm(po.name_ar);
+    if (n.startsWith(q) || n.includes(q)) {
+      const lifespan =
+        po.birth_year && po.death_year
+          ? `${po.birth_year}–${po.death_year}م`
+          : po.death_year
+          ? `ت ${po.death_year}م`
+          : po.title;
+      items.push({
+        kind: 'poet',
+        slug: po.slug,
+        label: po.name_ar,
+        sub: lifespan ?? null,
+        rank: (n.startsWith(q) ? 2 : 1) + po.verses_count / 1000,
+      });
+    }
+  }
+
+  for (const pm of idx.poems) {
+    const n = norm(pm.title);
+    const op = norm(pm.opening ?? '');
+    if (n.includes(q) || op.startsWith(q)) {
+      items.push({
+        kind: 'poem',
+        slug: pm.slug,
+        label: pm.title,
+        sub: pm.poet_name,
+        rank: (n.startsWith(q) ? 1.5 : 0.8) + pm.verses_count / 5000,
+      });
+    }
+  }
+
+  return items
+    .sort((a, b) => b.rank - a.rank)
+    .slice(0, Math.max(1, Math.min(limit, 20)));
+}
+
+// ─── جديد: شرح المفردات ────────────────────────────────────────────────
+export function localGlossary(poemSlug: string): DiwanGlossaryEntry[] {
+  const all = diwanLocalGlossary[poemSlug] ?? [];
+  return all.map(g => ({
+    word: g.word,
+    word_normalized: norm(g.word),
+    meaning: g.meaning,
+    verse_position: g.verse_position ?? null,
+  }));
 }
