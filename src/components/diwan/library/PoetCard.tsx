@@ -4,6 +4,7 @@ import { ChevronLeft, ChevronRight, Feather, ScrollText } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useApp } from '@/contexts/AppContext';
 import type { DiwanPoetSummary } from '@/lib/diwan/types';
+import { useDiwanPrefetch } from '@/lib/diwan/hooks';
 
 interface Props {
   poet: DiwanPoetSummary;
@@ -13,6 +14,8 @@ interface Props {
 export default function PoetCard({ poet, index = 0 }: Props) {
   const { dir } = useApp();
   const Chevron = dir === 'rtl' ? ChevronLeft : ChevronRight;
+  const { prefetchPoet } = useDiwanPrefetch();
+  const prefetch = () => prefetchPoet(poet.slug);
 
   const lifespan = poet.birth_year && poet.death_year
     ? `${poet.birth_year}–${poet.death_year}م`
@@ -25,6 +28,8 @@ export default function PoetCard({ poet, index = 0 }: Props) {
     >
       <Link
         to={`/diwan/library/poet/${poet.slug}`}
+        onPointerEnter={prefetch}
+        onTouchStart={prefetch}
         className="block w-full rounded-2xl bg-card border border-border/40 p-4 active:scale-[0.98] transition-transform"
       >
         <div className="flex items-center gap-3">
