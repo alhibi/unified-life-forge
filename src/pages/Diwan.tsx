@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import SEO from '@/components/SEO';
 import { useApp } from '@/contexts/AppContext';
 import { poetryEras, Era, Poet, Poem } from '@/data/poetryData';
@@ -7,7 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   ChevronRight, ChevronLeft, X, BookOpen, Feather, ScrollText,
   Copy, Check, ClipboardCopy, Flame, Star, Landmark, Castle,
-  Swords, Building2, Network, Clock, BookMarked,
+  Swords, Building2, Network, Clock, BookMarked, Library as LibraryIcon,
 } from 'lucide-react';
 import BackButton from '@/components/BackButton';
 import { notify } from '@/lib/notify';
@@ -121,6 +122,14 @@ export default function DiwanPage() {
               {activeTab === 'browse' && view === 'poet' && selectedPoet?.name}
             </p>
           </div>
+          <Link
+            to="/diwan/library"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold bg-primary/10 text-primary border border-primary/20 hover:bg-primary/15 active:scale-95 transition"
+            aria-label="فتح المكتبة الكبرى"
+          >
+            <LibraryIcon className="w-3.5 h-3.5" />
+            المكتبة
+          </Link>
         </div>
 
         {/* Tab Switcher */}
@@ -249,7 +258,7 @@ export default function DiwanPage() {
                       <p className="text-[13px] text-muted-foreground leading-relaxed">{selectedPoet.bio}</p>
 
                       {/* Action buttons */}
-                      <div className="flex items-center gap-2 mt-3 pt-3 border-t border-border/30">
+                      <div className="flex flex-wrap items-center gap-2 mt-3 pt-3 border-t border-border/30">
                         {hasTimeline && (
                           <button
                             onClick={() => setShowTimeline(!showTimeline)}
@@ -270,6 +279,13 @@ export default function DiwanPage() {
                           <Network className="w-3.5 h-3.5" />
                           علاقاته الأدبية
                         </button>
+                        <Link
+                          to={`/diwan/library/poet/${selectedPoet.id}`}
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-primary/10 text-primary hover:bg-primary/15 transition-all"
+                        >
+                          <LibraryIcon className="w-3.5 h-3.5" />
+                          المكتبة الكبرى
+                        </Link>
                       </div>
                     </div>
 

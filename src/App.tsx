@@ -65,6 +65,12 @@ const loadUntimed = () => import("./pages/UntimedSunnah");
 const loadVirtues = () => import("./pages/QuranVirtues");
 const loadTafsir = () => import("./pages/Tafsir");
 const loadNotFound = () => import("./pages/NotFound");
+// Diwan library — adab.com integration
+const loadLibrary = () => import("./pages/diwan/Library");
+const loadLibraryPoets = () => import("./pages/diwan/LibraryPoets");
+const loadLibraryPoet = () => import("./pages/diwan/LibraryPoet");
+const loadLibraryPoem = () => import("./pages/diwan/LibraryPoem");
+const loadLibrarySearch = () => import("./pages/diwan/LibrarySearch");
 
 const SudokuPage = lazy(loadSudoku);
 const ChessPage = lazy(loadChess);
@@ -90,6 +96,11 @@ const UntimedSunnahPage = lazy(loadUntimed);
 const QuranVirtuesPage = lazy(loadVirtues);
 const TafsirPage = lazy(loadTafsir);
 const NotFound = lazy(loadNotFound);
+const DiwanLibraryPage = lazy(loadLibrary);
+const DiwanLibraryPoetsPage = lazy(loadLibraryPoets);
+const DiwanLibraryPoetPage = lazy(loadLibraryPoet);
+const DiwanLibraryPoemPage = lazy(loadLibraryPoem);
+const DiwanLibrarySearchPage = lazy(loadLibrarySearch);
 
 // Tab pages are now eager (always mounted), so the idle prefetch warms
 // the next most-likely sub-routes instead of the tabs themselves.
@@ -224,6 +235,12 @@ function AnimatedRoutes() {
             <Route path="/section/prophetic-day" element={<ErrorBoundary><PageTransition><PropheticDayPage /></PageTransition></ErrorBoundary>} />
             <Route path="/section/quran-virtues" element={<ErrorBoundary><PageTransition><QuranVirtuesPage /></PageTransition></ErrorBoundary>} />
             <Route path="/tafsir" element={<ErrorBoundary><PageTransition><TafsirPage /></PageTransition></ErrorBoundary>} />
+            {/* Diwan Library — adab.com */}
+            <Route path="/diwan/library"               element={<ErrorBoundary><PageTransition><DiwanLibraryPage /></PageTransition></ErrorBoundary>} />
+            <Route path="/diwan/library/search"        element={<ErrorBoundary><PageTransition><DiwanLibrarySearchPage /></PageTransition></ErrorBoundary>} />
+            <Route path="/diwan/library/poets"         element={<ErrorBoundary><PageTransition><DiwanLibraryPoetsPage /></PageTransition></ErrorBoundary>} />
+            <Route path="/diwan/library/poet/:slug"    element={<ErrorBoundary><PageTransition><DiwanLibraryPoetPage /></PageTransition></ErrorBoundary>} />
+            <Route path="/diwan/library/poem/:slug"    element={<ErrorBoundary><PageTransition><DiwanLibraryPoemPage /></PageTransition></ErrorBoundary>} />
             <Route path="*" element={<ErrorBoundary><PageTransition><NotFound /></PageTransition></ErrorBoundary>} />
           </Routes>
         </AnimatePresence>
