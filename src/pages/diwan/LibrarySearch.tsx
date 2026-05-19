@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { Search, ScrollText, Quote, ChevronDown, X, Filter } from 'lucide-react';
+import { Search, ScrollText, Quote, ChevronDown, X, Filter, History } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import SEO from '@/components/SEO';
 import BackButton from '@/components/BackButton';
@@ -37,6 +37,28 @@ export default function LibrarySearchPage() {
   const [showFilters, setShowFilters] = useState(false);
 
   const eras = useDiwanEras();
+
+  // ─── سجل البحث المحلي (آخر 8) ──────────────────────────────────────
+  const HIST_KEY = 'diwan:search:history';
+  const [history, setHistory] = React.useState<string[]>(() => {
+    try { return JSON.parse(localStorage.getItem(HIST_KEY) ?? '[]'); } catch { return []; }
+  });
+  React.useEffect(() => {
+    const term = q.trim();
+    if (!term || term.length < 2) return;
+    const t = setTimeout(() => {
+      setHistory(prev => {
+        const next = [term, ...prev.filter(x => x !== term)].slice(0, 8);
+        try { localStorage.setItem(HIST_KEY, JSON.stringify(next)); } catch { /* ignore */ }
+        return next;
+      });
+    }, 1500);
+    return () => clearTimeout(t);
+  }, [q]);
+  const clearHistory = () => {
+    setHistory([]);
+    try { localStorage.removeItem(HIST_KEY); } catch { /* ignore */ }
+  };
 
   // sync URL with state
   React.useEffect(() => {
@@ -143,6 +165,35 @@ export default function LibrarySearchPage() {
         {eras.data && (
           <div className="mb-3">
             <EraPills eras={eras.data} selected={era} onSelect={setEra} />
+          </div>
+        )}
+
+        {/* Recent searches */}
+        {history.length > 0 && !q && (
+          <div className="mb-3">
+            <div className="flex items-center justify-between mb-1.5">
+              <p className="flex items-center gap-1 text-[10px] font-bold text-muted-foreground">
+                <History className="w-3 h-3" />
+                عمليات بحث سابقة
+              </p>
+              <button
+                onClick={clearHistory}
+                className="text-[10px] text-muted-foreground hover:text-foreground"
+              >
+                مسح
+              </button>
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {history.map((h) => (
+                <button
+                  key={h}
+                  onClick={() => setQ(h)}
+                  className="px-2.5 py-1 rounded-full bg-muted/50 text-[11px] text-foreground hover:bg-muted transition"
+                >
+                  {h}
+                </button>
+              ))}
+            </div>
           </div>
         )}
 
