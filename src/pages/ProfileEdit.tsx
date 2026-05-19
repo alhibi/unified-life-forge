@@ -170,7 +170,7 @@ export default function ProfileEditPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-28 px-5 pt-14">
+    <div className="min-h-screen bg-background pb-app px-5 pt-14">
       <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-5 max-w-lg mx-auto">
         {/* Header */}
         <motion.div variants={item} className="flex items-center gap-3 mb-2">

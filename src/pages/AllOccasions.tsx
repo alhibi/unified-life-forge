@@ -79,7 +79,7 @@ export default function AllOccasions() {
   const days = Array.from({ length: 30 }, (_, i) => i + 1);
 
   return (
-    <div className="min-h-screen bg-background pb-28 px-4 pt-6" dir={isAr ? 'rtl' : 'ltr'}>
+    <div className="min-h-screen bg-background pb-app px-4 pt-6" dir={isAr ? 'rtl' : 'ltr'}>
       <SEO
         title={isAr ? 'التقويم الهجري — SmartHub' : 'Hijri Calendar — SmartHub'}
         description={isAr ? 'تصفح المناسبات الإسلامية حسب الشهر الهجري.' : 'Browse Islamic occasions by Hijri month.'}

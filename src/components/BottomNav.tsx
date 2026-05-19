@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -46,6 +46,8 @@ export default function BottomNav() {
   const navigate = useNavigate();
   const location = useLocation();
   const [unreadCount, setUnreadCount] = useState(0);
+  const navRef = useRef<HTMLElement>(null);
+  const isVisible = TAB_PATHS.has(location.pathname);
 
   // Chat unread badge. The data already lives in postgres so we pull it
   // once and then re-pull on every realtime INSERT, identical to the
@@ -96,12 +98,48 @@ export default function BottomNav() {
     return location.pathname.startsWith(path);
   };
 
+  // Publish the nav's actual rendered height (which already includes
+  // env(safe-area-inset-bottom) since we pad the nav by it) onto the
+  // documentElement as `--app-bottom-inset`. Pages and bottom-anchored
+  // widgets across the app reserve clearance with `padding-bottom:
+  // var(--app-bottom-inset)` so nothing ever hides behind the bar.
+  //
+  // When the nav is hidden (sub-routes), the variable falls back to
+  // just env(safe-area-inset-bottom) so deep pages don't carry a
+  // phantom 60+px gutter.
+  useLayoutEffect(() => {
+    const root = document.documentElement;
+    const SAFE_ONLY = 'env(safe-area-inset-bottom, 0px)';
+
+    if (!isVisible) {
+      root.style.setProperty('--app-bottom-inset', SAFE_ONLY);
+      return;
+    }
+
+    const el = navRef.current;
+    if (!el) return;
+    const update = () => {
+      // getBoundingClientRect captures the full painted height,
+      // including the safe-area padding-bottom that lives inside the nav.
+      root.style.setProperty('--app-bottom-inset', `${el.getBoundingClientRect().height}px`);
+    };
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    window.addEventListener('orientationchange', update);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('orientationchange', update);
+    };
+  }, [isVisible]);
+
   // Show only on the seven top-level tab routes. On any deeper path the
   // nav vanishes so the focused screen owns the full viewport.
-  if (!TAB_PATHS.has(location.pathname)) return null;
+  if (!isVisible) return null;
 
   return (
     <nav
+      ref={navRef}
       data-bottom-nav
       className="bottom-nav fixed bottom-0 left-0 right-0 z-50 bg-card/85 backdrop-blur-2xl border-t border-border/40 shadow-[0_-4px_24px_rgba(0,0,0,0.25)]"
       dir="ltr"

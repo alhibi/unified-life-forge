@@ -75,7 +75,7 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-28 px-5 pt-14">
+    <div className="min-h-screen bg-background pb-app px-5 pt-14">
       <SEO title="تسجيل الدخول — SmartHub" description="تسجيل الدخول أو إنشاء حساب للوصول إلى المزامنة السحابية والإعدادات الشخصية." path="/auth" />
       <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-5 max-w-lg mx-auto">
         <motion.div variants={item} className="flex items-center gap-3 mb-2">

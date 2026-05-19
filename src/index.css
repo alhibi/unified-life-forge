@@ -144,6 +144,13 @@
     -webkit-text-size-adjust: 100%;
     overscroll-behavior: contain;
     scroll-behavior: smooth;
+    /* Default — BottomNav overrides this with its real height on tab
+       routes and resets to safe-area only on sub-routes. Declared on
+       :root above the cascade so it is available before React mounts. */
+    --app-bottom-inset: env(safe-area-inset-bottom, 0px);
+    /* Anchor jumps and `scrollIntoView` calls land *above* the bottom
+       bar instead of behind it. */
+    scroll-padding-bottom: var(--app-bottom-inset);
   }
   body {
     @apply bg-background text-foreground antialiased;
@@ -362,6 +369,20 @@
   }
   .safe-top {
     padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  /* ── App-level bottom inset ──
+     Reserves room for the persistent BottomNav AND the device safe area.
+     `--app-bottom-inset` is published by <BottomNav/> and reflects the
+     bar's real rendered height on tab routes, or just the safe-area on
+     sub-routes where the bar is hidden. Use these utilities on every
+     page's outer scroll container and on any element that anchors to
+     the bottom of the viewport. */
+  .pb-app {
+    padding-bottom: var(--app-bottom-inset, env(safe-area-inset-bottom, 0px));
+  }
+  .bottom-app {
+    bottom: var(--app-bottom-inset, env(safe-area-inset-bottom, 0px));
   }
   .gpu {
     transform: translateZ(0);

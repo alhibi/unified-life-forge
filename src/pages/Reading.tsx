@@ -294,7 +294,7 @@ export default function ReadingPage() {
   const refreshTimeAgo = lastRefresh ? timeAgo(lastRefresh, language) : null;
 
   return (
-    <div className="min-h-screen bg-background flex flex-col pb-20">
+    <div className="min-h-screen bg-background flex flex-col pb-app">
       <SEO
         title={isAr ? 'إطلاع — قارئ الأخبار — SmartHub' : 'Reading — RSS — SmartHub'}
         description={isAr

@@ -114,7 +114,7 @@ export default function SettingsPage() {
   );
 
   return (
-    <div className="min-h-screen bg-background pb-28 px-5 pt-10">
+    <div className="min-h-screen bg-background pb-app px-5 pt-10">
       <SEO title="الإعدادات — SmartHub" description="تخصيص اللغة، السمة، الخط، حساب الصلاة والملف الشخصي في SmartHub." path="/settings" />
       <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-5 max-w-lg mx-auto">
 

@@ -241,7 +241,7 @@ export default function DuasPage() {
   const Arrow = isRtl ? ChevronLeft : ChevronRight;
 
   return (
-    <div className="min-h-screen bg-background pb-28 px-5 pt-14">
+    <div className="min-h-screen bg-background pb-app px-5 pt-14">
       <SEO title="الأذكار والأدعية — SmartHub" description="مجموعة منتقاة من الأدعية والأذكار اليومية وأربعين النووي في SmartHub." path="/duas" />
       <motion.div
         variants={stagger}

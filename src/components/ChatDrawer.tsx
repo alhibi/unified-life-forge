@@ -517,7 +517,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
     );
     if (inline) {
       return (
-        <div className="flex flex-col bg-background" style={{ minHeight: '100dvh', paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 96px)' }}>
+        <div className="flex flex-col bg-background" style={{ minHeight: '100dvh', paddingBottom: 'var(--app-bottom-inset)' }}>
           {signInPrompt}
         </div>
       );
@@ -1673,7 +1673,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
           className="flex flex-col bg-background w-full"
           style={{
             height: '100dvh',
-            paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 64px)',
+            paddingBottom: 'var(--app-bottom-inset)',
           }}
         >
           {body}

@@ -280,7 +280,7 @@ export default function WellnessPage() {
   }, [tab, data]);
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-screen bg-background pb-app">
       <SEO
         title={isAr ? 'الصحة والعافية — SmartHub' : 'Wellness — SmartHub'}
         description={isAr

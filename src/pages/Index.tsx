@@ -95,7 +95,7 @@ export default function Index() {
   }, [user, fetchUnread]);
 
   return (
-    <div className="min-h-screen bg-background pb-28 px-5 pt-14">
+    <div className="min-h-screen bg-background pb-app px-5 pt-14">
       <SEO title="SmartHub — أوقات الصلاة والأذكار والقرآن" description="الصفحة الرئيسية لـ SmartHub: أوقات الصلاة، التقويم الهجري، الطقس، الأذكار وروابط سريعة لكل الأقسام." path="/" />
       <motion.div
         variants={stagger}

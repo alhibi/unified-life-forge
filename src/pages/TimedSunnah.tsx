@@ -53,7 +53,7 @@ export default function TimedSunnah() {
   const isSaved = (title: string, catLabel: string) => isItemSaved(`${title}-${catLabel}`);
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-screen bg-background pb-app">
       <SEO title="السنن المؤقتة — SmartHub" description="السنن المرتبطة بأوقات الصلاة اليومية مصنفة في تسع فئات." path="/section/timed-sunnah" />
       {/* Header */}
       <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border/30">
