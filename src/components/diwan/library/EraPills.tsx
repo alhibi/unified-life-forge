@@ -11,14 +11,23 @@ interface Props {
 /**
  * صفّ من شارات قابلة للتمرير الأفقي. تظهر في كل صفحات التصفية —
  * الشعراء، البحث، إلخ — لتوحيد التجربة.
+ *
+ * كل شارة `<button>` فعلية مع `aria-pressed` فيقرؤها قارئ الشاشة
+ * كـ "tab/toggle" ويصرّح بالحالة المختارة.
  */
 export default function EraPills({ eras, selected, onSelect, showAll = true }: Props) {
   return (
-    <div className="overflow-x-auto -mx-1 pb-2 scrollbar-thin">
+    <div
+      className="overflow-x-auto -mx-1 pb-2 scrollbar-thin"
+      role="group"
+      aria-label="فلتر العصور الأدبية"
+    >
       <div className="flex items-center gap-1.5 px-1 min-w-min">
         {showAll && (
           <button
+            type="button"
             onClick={() => onSelect(null)}
+            aria-pressed={selected === null}
             className={`whitespace-nowrap px-3 py-1.5 rounded-full text-[12px] font-semibold transition-all ${
               selected === null
                 ? 'bg-foreground text-background'
@@ -33,7 +42,10 @@ export default function EraPills({ eras, selected, onSelect, showAll = true }: P
           return (
             <button
               key={era.id}
+              type="button"
               onClick={() => onSelect(active ? null : era.id)}
+              aria-pressed={active}
+              aria-label={`عصر ${era.name_ar}`}
               className={`whitespace-nowrap px-3 py-1.5 rounded-full text-[12px] font-semibold transition-all border ${
                 active
                   ? 'text-background border-transparent'

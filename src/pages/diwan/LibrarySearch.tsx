@@ -518,8 +518,12 @@ function VerseRow({
           className="grid grid-cols-2 gap-3 mb-2"
           style={{ fontFamily: "'Amiri', serif" }}
         >
-          <p className="text-[14px] text-foreground leading-[1.9] text-end" dangerouslySetInnerHTML={{ __html: emphasize(verse.hemistich1, highlight) }} />
-          <p className="text-[14px] text-foreground leading-[1.9] text-start" dangerouslySetInnerHTML={{ __html: emphasize(verse.hemistich2 ?? '', highlight) }} />
+          <p className="text-[14px] text-foreground leading-[1.9] text-end">
+            {renderHighlighted(verse.hemistich1, highlight)}
+          </p>
+          <p className="text-[14px] text-foreground leading-[1.9] text-start">
+            {renderHighlighted(verse.hemistich2 ?? '', highlight)}
+          </p>
         </div>
         <p className="text-[10px] text-muted-foreground">
           <span className="text-primary font-semibold">{verse.poet_name}</span>
@@ -531,19 +535,47 @@ function VerseRow({
   );
 }
 
-// تظليل المطابقات بدون مكتبة. نعتمد escape بسيط ثم replaceAll
-function emphasize(text: string, q: string): string {
-  if (!q || !text) return escapeHtml(text);
-  const safeText = escapeHtml(text);
+/**
+ * تظليل المطابقات بدون مكتبة وبدون dangerouslySetInnerHTML — نُقسم
+ * النصّ حول الـ matches ونُعيد مصفوفة من React elements (نص + <mark>).
+ *
+ * مزايا مقابل النسخة السابقة (dangerouslySetInnerHTML + escapeHtml):
+ *   • لا حاجة لـ HTML escaping يدوي (React يفعل ذلك تلقائياً).
+ *   • diff طبيعي في React — المتصفح لا يُعيد بناء innerHTML بالكامل.
+ *   • أكثر أماناً: لا يوجد سبيل أن ينفذ HTML من بيانات Supabase.
+ *
+ * المطابقة case-insensitive لتسهيل البحث (المستخدم قد يكتب لاتينياً
+ * مع عربي، والنص قد يحوي أحرفاً بحالات مختلفة في القصائد الحديثة).
+ */
+function renderHighlighted(text: string, q: string): React.ReactNode {
+  if (!q || !text) return text;
   const escaped = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  let re: RegExp;
   try {
-    const re = new RegExp(escaped, 'g');
-    return safeText.replace(re, m => `<mark class="bg-amber-200/60 dark:bg-amber-900/40 text-foreground rounded px-0.5">${m}</mark>`);
+    re = new RegExp(escaped, 'gi');
   } catch {
-    return safeText;
+    return text;
   }
-}
-
-function escapeHtml(s: string): string {
-  return s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', '\'': '&#39;' }[c]!));
+  const parts: React.ReactNode[] = [];
+  let lastIndex = 0;
+  let m: RegExpExecArray | null;
+  let key = 0;
+  while ((m = re.exec(text)) !== null) {
+    if (m.index > lastIndex) {
+      parts.push(text.slice(lastIndex, m.index));
+    }
+    parts.push(
+      <mark
+        key={key++}
+        className="bg-amber-200/60 dark:bg-amber-900/40 text-foreground rounded px-0.5"
+      >
+        {m[0]}
+      </mark>,
+    );
+    lastIndex = m.index + m[0].length;
+    // حماية من loop لا نهائي على match فارغ (regex مرضيّة بسلسلة فارغة)
+    if (m[0].length === 0) re.lastIndex++;
+  }
+  if (lastIndex < text.length) parts.push(text.slice(lastIndex));
+  return parts;
 }

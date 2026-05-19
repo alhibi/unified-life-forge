@@ -1,7 +1,18 @@
 /**
  * أنواع البيانات المتبادلة بين الـ scraper وسكريبت الـ ingestion.
  * نخزّن JSONL — كل سطر سجل مستقل — ليتسنّى الاستئناف بعد أيّ انقطاع.
+ *
+ * الثوابت الأدبية (KNOWN_METERS / KNOWN_KINDS) مُعرَّفة مرّة واحدة في
+ * `src/lib/diwan/constants.ts` ونُعيد تصديرها هنا لتجنّب الـ drift —
+ * كانت قبل ذلك مكرَّرة بنُسختين قد تختلفان مع الزمن.
  */
+
+export {
+  KNOWN_METERS,
+  KNOWN_KINDS,
+  type Meter,
+  type Kind,
+} from '../../src/lib/diwan/constants.ts';
 
 export interface RawEra {
   id: string;            // 'jahili'
@@ -54,20 +65,3 @@ export interface RawPoem {
   tags?: string[];
   verses: RawVerse[];
 }
-
-/** قائمة البحور المعتمَدة عند عزل الموسيقى من القصيدة. */
-export const KNOWN_METERS = [
-  'الطويل', 'البسيط', 'الكامل', 'الوافر', 'الهزج', 'الرجز',
-  'الرمل', 'السريع', 'المنسرح', 'الخفيف', 'المضارع', 'المقتضب',
-  'المجتث', 'المتقارب', 'المتدارك',
-] as const;
-
-export type Meter = (typeof KNOWN_METERS)[number];
-
-/** أنواع القصائد الشائعة. */
-export const KNOWN_KINDS = [
-  'مديح', 'رثاء', 'غزل', 'فخر', 'حماسة', 'هجاء', 'زهد', 'حكمة',
-  'وصف', 'خمريات', 'طرديات', 'إخوانيات', 'اعتذار', 'مناجاة',
-] as const;
-
-export type Kind = (typeof KNOWN_KINDS)[number];
