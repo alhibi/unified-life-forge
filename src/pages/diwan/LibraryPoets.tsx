@@ -92,7 +92,7 @@ export default function LibraryPoetsPage() {
       <div className="max-w-lg mx-auto">
         {/* Header */}
         <div className="flex items-center gap-3 mb-4">
-          <BackButton onClick={() => navigate('/diwan/library')} />
+          <BackButton onClick={() => navigate('/diwan')} />
           <div className="flex-1">
             <h1 className="text-[20px] font-bold tracking-tight text-foreground flex items-center gap-2">
               <Users className="w-5 h-5 text-primary" />

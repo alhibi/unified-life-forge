@@ -47,7 +47,7 @@ export default function LibraryPoetPage() {
   if (!poet.data) {
     return (
       <div className="min-h-screen bg-background pt-14 px-5 text-center">
-        <BackButton onClick={() => navigate('/diwan/library/poets')} />
+        <BackButton onClick={() => navigate('/diwan')} />
         <p className="text-muted-foreground mt-8">لم يُعثر على هذا الشاعر.</p>
       </div>
     );
@@ -138,7 +138,7 @@ export default function LibraryPoetPage() {
               </button>
             )}
             <button
-              onClick={() => navigate(`/diwan?graph=${slug}`)}
+              onClick={() => navigate(`/diwan/library/search?graph=${slug}`)}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-muted/50 text-muted-foreground hover:text-foreground transition-all"
             >
               <Network className="w-3.5 h-3.5" />

@@ -10,11 +10,19 @@ import BackButton from '@/components/BackButton';
 import { useApp } from '@/contexts/AppContext';
 import { useDiwanStats } from '@/lib/diwan/hooks';
 
+interface Props {
+  /**
+   * عند تركيبها كصفحة الـ tab الرئيسية لقسم الديوان، نخفي زر الرجوع
+   * لأنّ التبويب نفسه هو الجذر. الافتراضي عبر الراوتر هو page-mode.
+   */
+  tab?: boolean;
+}
+
 /**
- * صفحة المكتبة الكبرى الرئيسية (Hub).
- * تعرض إحصاءات + روابط سريعة لكل عصر + بحث + قسم الشعراء.
+ * صفحة المكتبة الكبرى الرئيسية (Hub) — نقطة دخول قسم الديوان.
+ * تعرض إحصاءات + رابط بحث متقدّم + رابط الشعراء.
  */
-export default function DiwanLibraryPage() {
+export default function DiwanLibraryPage({ tab = false }: Props) {
   const { dir } = useApp();
   const navigate = useNavigate();
   const Chevron = dir === 'rtl' ? ChevronLeft : ChevronRight;
@@ -29,12 +37,12 @@ export default function DiwanLibraryPage() {
       <SEO
         title="المكتبة الكبرى — الديوان العربي الكلاسيكي"
         description="آلاف الشعراء وعشرات الآلاف من القصائد عبر العصور: الجاهلي، الأموي، العباسي، الأندلسي وما بعدها."
-        path="/diwan/library"
+        path={tab ? '/diwan' : '/diwan/library'}
       />
       <div className="max-w-lg mx-auto">
         {/* Header */}
         <div className="flex items-center gap-3 mb-5">
-          <BackButton onClick={() => navigate('/diwan')} />
+          {!tab && <BackButton onClick={() => navigate('/')} />}
           <div className="flex-1">
             <h1 className="text-[22px] font-bold tracking-tight text-foreground flex items-center gap-2">
               <LibraryIcon className="w-5 h-5 text-primary" />

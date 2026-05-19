@@ -1,12 +1,13 @@
 import React, { useMemo, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { Search, ScrollText, Quote, ChevronDown, X, Filter, History } from 'lucide-react';
+import { Search, ScrollText, Quote, ChevronDown, ChevronUp, X, Filter, History, Network } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import SEO from '@/components/SEO';
 import BackButton from '@/components/BackButton';
 import SearchBar from '@/components/diwan/library/SearchBar';
 import EraPills from '@/components/diwan/library/EraPills';
 import PoemCard from '@/components/diwan/library/PoemCard';
+import LiteraryGraph from '@/components/diwan/LiteraryGraph';
 import {
   useDiwanEras,
   useDiwanSearchPoems,
@@ -35,6 +36,12 @@ export default function LibrarySearchPage() {
   const [kind, setKind]   = useState<string | null>(params.get('kind'));
   const [page, setPage]   = useState(0);
   const [showFilters, setShowFilters] = useState(false);
+
+  // الشجرة الأدبية — انتقلت من /diwan إلى هنا كقسم قابل للطيّ.
+  // ملاحظة: نفتحها تلقائيًا حين يصل المستخدم برابط ?graph=<poet-slug>
+  // (يأتي عادةً من زرّ "علاقاته الأدبية" في صفحة الشاعر).
+  const initialGraphPoet = params.get('graph');
+  const [showGraph, setShowGraph] = useState(!!initialGraphPoet);
 
   const eras = useDiwanEras();
 
@@ -107,7 +114,7 @@ export default function LibrarySearchPage() {
       <div className="max-w-lg mx-auto">
         {/* Header */}
         <div className="flex items-center gap-3 mb-4">
-          <BackButton onClick={() => navigate('/diwan/library')} />
+          <BackButton onClick={() => navigate('/diwan')} />
           <div className="flex-1">
             <h1 className="text-[20px] font-bold tracking-tight text-foreground flex items-center gap-2">
               <Search className="w-5 h-5 text-primary" />
@@ -276,6 +283,57 @@ export default function LibrarySearchPage() {
             </>
           )
         )}
+
+        {/* ═════ الشجرة الأدبية — قسم قابل للطيّ تحت البحث ═════ */}
+        <section className="mt-8">
+          <button
+            onClick={() => setShowGraph(s => !s)}
+            className={`w-full flex items-center justify-between gap-3 px-4 py-3 rounded-2xl border transition ${
+              showGraph
+                ? 'bg-primary/10 border-primary/30 text-primary'
+                : 'bg-card border-border/40 text-foreground hover:border-primary/30'
+            }`}
+            aria-expanded={showGraph}
+          >
+            <div className="flex items-center gap-2.5">
+              <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${showGraph ? 'bg-primary/20' : 'bg-primary/10'}`}>
+                <Network className="w-4.5 h-4.5 text-primary" />
+              </div>
+              <div className="text-start">
+                <p className="font-bold text-[13px] leading-tight">الشجرة الأدبية</p>
+                <p className="text-[10.5px] mt-0.5 text-muted-foreground">
+                  علاقات الشعراء عبر العصور
+                </p>
+              </div>
+            </div>
+            {showGraph
+              ? <ChevronUp   className="w-4 h-4 shrink-0 opacity-70" />
+              : <ChevronDown className="w-4 h-4 shrink-0 opacity-70" />}
+          </button>
+
+          <AnimatePresence initial={false}>
+            {showGraph && (
+              <motion.div
+                key="graph-wrap"
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                className="overflow-hidden"
+              >
+                <div className="mt-3">
+                  <LiteraryGraph
+                    initialPoetId={initialGraphPoet ?? undefined}
+                    onSelectPoet={(id) => navigate(`/diwan/library/poet/${id}`)}
+                  />
+                  <p className="text-[10px] text-muted-foreground/80 text-center mt-2">
+                    اضغط على شاعر لرؤية علاقاته، أو على زر "عرض قصائد" للانتقال إلى صفحته.
+                  </p>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </section>
       </div>
     </div>
   );

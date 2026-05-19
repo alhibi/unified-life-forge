@@ -66,6 +66,9 @@ export interface DiwanVerse {
   position: number;
   hemistich1: string;
   hemistich2: string | null;
+  /** نسخة بكامل التشكيل — اختيارية. تُستخدم حين يُفعّل المستخدم زرّ التشكيل. */
+  hemistich1_diacritized?: string | null;
+  hemistich2_diacritized?: string | null;
 }
 
 export interface DiwanPoemDetail {
@@ -124,4 +127,22 @@ export interface DiwanGlossaryEntry {
   word_normalized: string;
   meaning: string;
   verse_position: number | null;
+}
+
+/**
+ * نتيجة موحّدة من diwan_smart_search — تمزج الشعراء والقصائد والأبيات
+ * في مصفوفة واحدة. مفيدة لشريط بحث Universal مستقبلًا.
+ */
+export type DiwanSmartKind = 'poet' | 'poem' | 'verse';
+
+export interface DiwanSmartSearchItem {
+  kind: DiwanSmartKind;
+  slug: string;            // poet slug / poem slug / poem slug (للأبيات)
+  label: string;           // اسم الشاعر / عنوان القصيدة / صدر البيت
+  sub: string | null;      // لقب / اسم الشاعر / عجز البيت
+  poem_slug: string | null;
+  poet_slug: string;
+  poet_name: string;
+  era_id: string | null;
+  rank: number;
 }

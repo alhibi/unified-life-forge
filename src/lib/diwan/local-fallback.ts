@@ -15,6 +15,7 @@ import type {
   DiwanPoemSummary,
   DiwanPoetSummary,
   DiwanSimilarPoem,
+  DiwanSmartSearchItem,
   DiwanSuggestItem,
   DiwanVerse,
   DiwanVerseSearchResult,
@@ -312,4 +313,74 @@ export function localGlossary(poemSlug: string): DiwanGlossaryEntry[] {
     meaning: g.meaning,
     verse_position: g.verse_position ?? null,
   }));
+}
+
+// ─── جديد: بحث موحّد (محلّي) ───────────────────────────────────────────
+// يحاكي diwan_smart_search عبر مزج 3 مصادر بأوزان متشابهة:
+// poet ×1.5, poem ×1.2, verse ×1.0.
+export function localSmartSearch(q: string, limit = 12): DiwanSmartSearchItem[] {
+  if (!q || q.trim().length === 0) return [];
+  const qn = norm(q);
+  const idx = buildIdx();
+  const out: DiwanSmartSearchItem[] = [];
+
+  // شعراء
+  for (const p of idx.poets) {
+    const n = norm(p.name_ar);
+    if (n.includes(qn)) {
+      out.push({
+        kind: 'poet',
+        slug: p.slug,
+        label: p.name_ar,
+        sub: p.title ?? null,
+        poem_slug: null,
+        poet_slug: p.slug,
+        poet_name: p.name_ar,
+        era_id: p.era_id,
+        rank: (n.startsWith(qn) ? 2 : 1) * 1.5,
+      });
+    }
+  }
+
+  // قصائد
+  for (const pm of idx.poems) {
+    const n = norm(pm.title);
+    if (n.includes(qn)) {
+      out.push({
+        kind: 'poem',
+        slug: pm.slug,
+        label: pm.title,
+        sub: pm.poet_name,
+        poem_slug: null,
+        poet_slug: pm.poet_slug,
+        poet_name: pm.poet_name,
+        era_id: pm.era_id,
+        rank: (n.startsWith(qn) ? 1.5 : 1) * 1.2,
+      });
+    }
+  }
+
+  // أبيات
+  for (const pm of idx.poems) {
+    for (const v of pm._verses) {
+      const text = `${v.hemistich1} ${v.hemistich2 ?? ''}`;
+      if (norm(text).includes(qn)) {
+        out.push({
+          kind: 'verse',
+          slug: pm.slug,
+          label: v.hemistich1,
+          sub: v.hemistich2 ?? pm.poet_name,
+          poem_slug: pm.slug,
+          poet_slug: pm.poet_slug,
+          poet_name: pm.poet_name,
+          era_id: pm.era_id,
+          rank: 0.6,
+        });
+      }
+    }
+  }
+
+  return out
+    .sort((a, b) => b.rank - a.rank)
+    .slice(0, Math.max(1, Math.min(limit, 60)));
 }
