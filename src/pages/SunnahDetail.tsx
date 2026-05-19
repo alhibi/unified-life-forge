@@ -43,7 +43,7 @@ function DetailedView({ data }: { data: { label: string; accent: string; items: 
   const canGoForward = dir === 'rtl' ? currentIndex > 0 : currentIndex < total - 1;
 
   return (
-    <div className="min-h-screen bg-background pb-24 flex flex-col">
+    <div className="min-h-screen bg-background pb-app flex flex-col">
       <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border/30">
         <div className="flex items-center justify-between px-4 py-3">
           <BackButton />
@@ -111,7 +111,7 @@ function SimpleListView({ data }: { data: { label: string; accent: string; items
   const itemAnim = { hidden: { opacity: 0, x: 20 }, show: { opacity: 1, x: 0, transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] as const } } };
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-screen bg-background pb-app">
       <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border/30">
         <div className="flex items-center justify-between px-4 py-3">
           <BackButton />

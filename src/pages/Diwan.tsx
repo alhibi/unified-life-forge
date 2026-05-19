@@ -101,7 +101,7 @@ export default function DiwanPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-28 px-5 pt-14">
+    <div className="min-h-screen bg-background pb-app px-5 pt-14">
       <SEO title="الديوان — الشعر العربي الكلاسيكي — SmartHub" description="تصفح الشعر العربي عبر العصور الجاهلية، الأموية، العباسية والأندلسية بخط أميري أنيق." path="/diwan" />
       <div className="max-w-lg mx-auto">
         {/* Header */}

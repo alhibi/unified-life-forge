@@ -495,8 +495,10 @@ export default function ProfileTab({ profile, vitals = [], onSave }: Props) {
         </SoftSurface>
       </motion.div>
 
-      {/* Sticky save bar — positioned above BottomNav (~72 px tall) */}
-      <div className="sticky bottom-20 z-30">
+      {/* Sticky save bar — sits a touch above the BottomNav using the
+          shared --app-bottom-inset variable so it adapts to the nav's
+          real rendered height and the device safe area. */}
+      <div className="sticky z-30" style={{ bottom: 'calc(var(--app-bottom-inset, 0px) + 0.5rem)' }}>
         <AnimatePresence>
           {(dirty || savedAt) && (
             <motion.div

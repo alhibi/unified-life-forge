@@ -166,7 +166,7 @@ export default function GamesPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-background pb-28 pt-14">
+    <div className="min-h-screen bg-background pb-app pt-14">
       <SEO title="الألعاب — SmartHub" description="مجموعة ألعاب ذهنية: سودوكو، شطرنج، ألغاز، ذاكرة، تركيز ونرد. أنماط متعددة وذكاء اصطناعي متقدم." path="/games" />
 
       {/* Header */}

@@ -186,7 +186,7 @@ export default function TafsirPage() {
 
   // ─── RENDER ─────────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-background pb-24" dir="rtl">
+    <div className="min-h-screen bg-background pb-app" dir="rtl">
       <SEO title="التفسير — SmartHub" description="تفسير القرآن الكريم باللغة العربية" path="/tafsir" />
 
       {/* Header */}

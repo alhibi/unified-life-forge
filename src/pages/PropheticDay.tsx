@@ -106,7 +106,7 @@ export default function PropheticDay() {
   const isAr = language === 'ar';
 
   return (
-    <div className="min-h-screen bg-background pb-24" dir={dir}>
+    <div className="min-h-screen bg-background pb-app" dir={dir}>
       <SEO title="اليوم النبوي — هدي النبي ﷺ — SmartHub" description="يوم النبي ﷺ مقسماً إلى ثماني فترات مع السنن والأذكار المتعلقة بكل فترة." path="/section/prophetic-day" />
       {/* Header */}
       <div className="sticky top-0 z-30 bg-background/90 backdrop-blur-md border-b border-border/40">
