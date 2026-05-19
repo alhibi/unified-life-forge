@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Feather, Network, Clock, ScrollText } from 'lucide-react';
+import { Feather, Network, Clock, ScrollText, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import SEO from '@/components/SEO';
 import BackButton from '@/components/BackButton';
@@ -9,6 +9,7 @@ import PoemCard from '@/components/diwan/library/PoemCard';
 import PoetTimeline from '@/components/diwan/PoetTimeline';
 import { useDiwanPoet, useDiwanPoetPoems } from '@/lib/diwan/hooks';
 import { poetTimelines } from '@/data/poetTimelines';
+import type { DiwanPoemSummary } from '@/lib/diwan/types';
 
 const PAGE = 30;
 
@@ -29,11 +30,51 @@ export default function LibraryPoetPage() {
     poetSlug: slug ?? '', q: q || null, page, pageSize: PAGE,
   });
 
-  React.useEffect(() => { setPage(0); }, [q]);
+  // قائمة مُجمَّعة عبر الصفحات (نفس نمط LibraryPoets) — قبل هذا الإصلاح
+  // كان "تحميل المزيد" يستبدل الصفحة الحالية بدلاً من الإلحاق، فيرى
+  // المستخدم 30 قصيدة كحدّ أقصى رغم وجود المزيد.
+  const [items, setItems] = useState<DiwanPoemSummary[]>([]);
+  const [reachedEnd, setReachedEnd] = useState(false);
 
-  const list = poems.data ?? [];
-  const hasTimeline = !!(slug && poetTimelines[slug]);
-  const showLoadMore = list.length === PAGE;
+  // عند تغيّر البحث أو الشاعر، صفّر كل شيء
+  useEffect(() => {
+    setPage(0);
+    setItems([]);
+    setReachedEnd(false);
+  }, [q, slug]);
+
+  // دمج صفحة جديدة مع المُجمَّع، مع منع التكرار عبر slug
+  useEffect(() => {
+    const data = poems.data;
+    if (!data) return;
+    setItems(prev => {
+      if (page === 0) return data;
+      const seen = new Set(prev.map(p => p.slug));
+      const merged = [...prev];
+      for (const p of data) if (!seen.has(p.slug)) merged.push(p);
+      return merged;
+    });
+    if (data.length < PAGE) setReachedEnd(true);
+  }, [poems.data, page]);
+
+  // تحميل تلقائي عند الاقتراب من النهاية
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+  const showLoadMore = !reachedEnd && items.length > 0;
+  useEffect(() => {
+    if (!showLoadMore) return;
+    const el = sentinelRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      entries => {
+        if (entries[0]?.isIntersecting && !poems.isFetching) {
+          setPage(p => p + 1);
+        }
+      },
+      { rootMargin: '400px 0px' },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [showLoadMore, poems.isFetching]);
 
   if (poet.isLoading) {
     return (
@@ -54,6 +95,7 @@ export default function LibraryPoetPage() {
   }
 
   const p = poet.data;
+  const hasTimeline = !!(slug && poetTimelines[slug]);
   const lifespan = p.birth_year && p.death_year
     ? `${p.birth_year}–${p.death_year}م`
     : p.death_year ? `ت ${p.death_year}م` : null;
@@ -179,21 +221,31 @@ export default function LibraryPoetPage() {
           <div className="space-y-2.5">
             {[0,1,2].map(i => <div key={i} className="skeleton h-24 rounded-2xl" />)}
           </div>
-        ) : list.length === 0 ? (
+        ) : items.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground text-[12px]">
             {q ? 'لا قصائد مطابقة.' : 'لا قصائد متاحة بعد.'}
           </div>
         ) : (
           <div className="space-y-2.5">
-            {list.map((pm, i) => <PoemCard key={pm.slug} poem={pm} index={i} />)}
+            {items.map((pm, i) => <PoemCard key={pm.slug} poem={pm} index={i} />)}
             {showLoadMore && (
-              <button
-                onClick={() => setPage(pg => pg + 1)}
-                disabled={poems.isFetching}
-                className="w-full mt-2 py-3 rounded-2xl bg-card border border-border/40 text-[12px] font-semibold text-primary hover:bg-primary/5 active:scale-[0.98] transition disabled:opacity-50"
-              >
-                {poems.isFetching ? 'يحمّل…' : 'تحميل المزيد'}
-              </button>
+              <>
+                <div ref={sentinelRef} aria-hidden className="h-1" />
+                <button
+                  onClick={() => setPage(pg => pg + 1)}
+                  disabled={poems.isFetching}
+                  className="w-full mt-2 py-3 rounded-2xl bg-card border border-border/40 text-[12px] font-semibold text-primary hover:bg-primary/5 active:scale-[0.98] transition disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {poems.isFetching ? (
+                    <><Loader2 className="w-3.5 h-3.5 animate-spin" /> يحمّل…</>
+                  ) : 'تحميل المزيد'}
+                </button>
+              </>
+            )}
+            {reachedEnd && items.length > PAGE && (
+              <p className="text-center text-[10.5px] text-muted-foreground/70 pt-2">
+                وصلت إلى نهاية القائمة
+              </p>
             )}
           </div>
         )}

@@ -79,6 +79,7 @@ export const poetNodes: PoetNode[] = [
   { id: 'sharif-radhi', name: 'الشريف الرضي', era: 'abbasi', eraAr: 'العباسي', birth: '970م', death: '1016م', title: 'جامع نهج البلاغة', color: eraColors.abbasi },
 
   // العصر الأندلسي
+  { id: 'ibn-hani', name: 'ابن هانئ الأندلسي', era: 'andalusi', eraAr: 'الأندلسي', birth: '936م', death: '973م', title: 'متنبي المغرب', color: eraColors.andalusi },
   { id: 'ibn-zaydun', name: 'ابن زيدون', era: 'andalusi', eraAr: 'الأندلسي', birth: '1003م', death: '1071م', title: 'بحتري المغرب', color: eraColors.andalusi },
   { id: 'wallada', name: 'ولّادة بنت المستكفي', era: 'andalusi', eraAr: 'الأندلسي', birth: '1001م', death: '1091م', title: 'أميرة الشعر', color: eraColors.andalusi },
   { id: 'ibn-khafaja', name: 'ابن خفاجة', era: 'andalusi', eraAr: 'الأندلسي', birth: '1058م', death: '1139م', title: 'صنوبري الأندلس', color: eraColors.andalusi },
