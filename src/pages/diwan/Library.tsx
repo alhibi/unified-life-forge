@@ -8,7 +8,7 @@ import {
 import SEO from '@/components/SEO';
 import BackButton from '@/components/BackButton';
 import { useApp } from '@/contexts/AppContext';
-import { useDiwanEras, useDiwanStats } from '@/lib/diwan/hooks';
+import { useDiwanStats } from '@/lib/diwan/hooks';
 
 /**
  * صفحة المكتبة الكبرى الرئيسية (Hub).
@@ -20,7 +20,6 @@ export default function DiwanLibraryPage() {
   const Chevron = dir === 'rtl' ? ChevronLeft : ChevronRight;
 
   const stats = useDiwanStats();
-  const eras  = useDiwanEras();
 
   const numFmt = (n: number | undefined) =>
     typeof n === 'number' ? n.toLocaleString('ar-EG') : '—';
@@ -82,48 +81,6 @@ export default function DiwanLibraryPage() {
             chev={Chevron}
           />
         </div>
-
-        {/* Eras grid */}
-        <h2 className="text-[14px] font-bold text-foreground mb-3 flex items-center gap-1.5">
-          <BookOpen className="w-3.5 h-3.5 text-primary" />
-          العصور الأدبية
-        </h2>
-        {eras.isLoading ? (
-          <div className="space-y-2">
-            {[0, 1, 2, 3].map(i => <div key={i} className="skeleton h-14 w-full rounded-2xl" />)}
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 gap-2.5">
-            {(eras.data ?? []).map((era, i) => (
-              <motion.div
-                key={era.id}
-                initial={{ opacity: 0, x: dir === 'rtl' ? -10 : 10 }}
-                animate={{ opacity: 1, x: 0, transition: { delay: i * 0.05 } }}
-              >
-                <Link
-                  to={`/diwan/library/poets?era=${era.id}`}
-                  className="block rounded-2xl bg-card border border-border/40 p-3.5 active:scale-[0.99] transition-transform"
-                >
-                  <div className="flex items-center gap-3">
-                    <div
-                      className="w-1 self-stretch rounded-full"
-                      style={{ background: era.color ?? '#6366f1' }}
-                    />
-                    <div className="flex-1">
-                      <p className="font-semibold text-[14px] text-foreground">
-                        {era.name_ar}
-                      </p>
-                      <p className="text-[11px] text-muted-foreground mt-0.5">
-                        {era.period_label ?? ''}
-                      </p>
-                    </div>
-                    <Chevron className="w-4 h-4 text-muted-foreground" />
-                  </div>
-                </Link>
-              </motion.div>
-            ))}
-          </div>
-        )}
       </div>
     </div>
   );
