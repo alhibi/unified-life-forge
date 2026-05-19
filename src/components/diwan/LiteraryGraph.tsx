@@ -26,6 +26,20 @@ interface SimLink {
   relation: LiteraryRelation;
 }
 
+// خريطة موحَّدة لأسماء العصور بالعربية — تُستخدم في الأسطورة وشريط
+// الزمن أسفل الـ graph. إضافة عصر جديد تكفي بسطر واحد هنا.
+const ERA_LABELS_AR: Record<string, string> = {
+  jahili: 'الجاهلي',
+  mukhadram: 'المخضرم',
+  islami: 'الإسلامي',
+  umawi: 'الأموي',
+  abbasi: 'العباسي',
+  andalusi: 'الأندلسي',
+  ayyubi: 'الأيوبي',
+  mamluki: 'المملوكي',
+  uthmani: 'العثماني',
+};
+
 // ─── Force simulation ────────────────────────────────────────────────
 const REPULSION = 4200;
 const ATTRACTION = 0.005;
@@ -365,7 +379,7 @@ export default function LiteraryGraph({ onSelectPoet, initialPoetId }: Props) {
             <div key={era} className="flex items-center gap-1.5">
               <span className="w-2.5 h-2.5 rounded-full shadow-sm" style={{ backgroundColor: color }} />
               <span className="text-[9px] text-muted-foreground">
-                {era === 'jahili' ? 'الجاهلي' : era === 'mukhadram' ? 'المخضرم' : era === 'islami' ? 'الإسلامي' : era === 'umawi' ? 'الأموي' : era === 'abbasi' ? 'العباسي' : 'الأندلسي'}
+                {ERA_LABELS_AR[era] ?? era}
               </span>
             </div>
           ))}
@@ -492,9 +506,9 @@ export default function LiteraryGraph({ onSelectPoet, initialPoetId }: Props) {
       <div className="ui-panel absolute bottom-4 start-4 end-4 z-10">
         <div className="bg-card/80 backdrop-blur-xl border border-border/30 rounded-2xl px-3 py-2.5 shadow-lg">
           <div className="flex items-center gap-1">
-            {(['jahili', 'mukhadram', 'islami', 'umawi', 'abbasi', 'andalusi'] as const).map((eraId) => {
+            {(['jahili', 'mukhadram', 'islami', 'umawi', 'abbasi', 'andalusi', 'ayyubi', 'mamluki', 'uthmani'] as const).map((eraId) => {
               const color = eraColors[eraId];
-              const label = eraId === 'jahili' ? 'الجاهلي' : eraId === 'mukhadram' ? 'المخضرم' : eraId === 'islami' ? 'الإسلامي' : eraId === 'umawi' ? 'الأموي' : eraId === 'abbasi' ? 'العباسي' : 'الأندلسي';
+              const label = ERA_LABELS_AR[eraId] ?? eraId;
               const eraNodeIds = nodes.filter(n => n.era === eraId).map(n => n.id);
               const isHighlighted = focusIds.size === 0 || eraNodeIds.some(id => focusIds.has(id));
               return (

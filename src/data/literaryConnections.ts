@@ -35,6 +35,9 @@ export const eraColors: Record<string, string> = {
   umawi: '#7c3aed',       // violet
   abbasi: '#dc2626',      // red
   andalusi: '#2563eb',    // blue
+  ayyubi: '#ea580c',      // orange
+  mamluki: '#9333ea',     // purple
+  uthmani: '#0d9488',     // teal
 };
 
 export const poetNodes: PoetNode[] = [
@@ -85,6 +88,24 @@ export const poetNodes: PoetNode[] = [
   { id: 'mutamid', name: 'المعتمد بن عبّاد', era: 'andalusi', eraAr: 'الأندلسي', birth: '1040م', death: '1095م', title: 'الملك الشاعر', color: eraColors.andalusi },
   { id: 'rundi', name: 'أبو البقاء الرندي', era: 'andalusi', eraAr: 'الأندلسي', birth: '1204م', death: '1285م', title: 'راثي الأندلس', color: eraColors.andalusi },
   { id: 'ibn-hazm', name: 'ابن حزم', era: 'andalusi', eraAr: 'الأندلسي', birth: '994م', death: '1064م', title: 'صاحب طوق الحمامة', color: eraColors.andalusi },
+
+  // العصر الأيوبي
+  { id: 'ibn-faridh', name: 'ابن الفارض', era: 'ayyubi', eraAr: 'الأيوبي', birth: '1181م', death: '1235م', title: 'سلطان العاشقين', color: eraColors.ayyubi },
+  { id: 'usama-munqidh', name: 'أسامة بن منقذ', era: 'ayyubi', eraAr: 'الأيوبي', birth: '1095م', death: '1188م', title: 'فارس الأدب', color: eraColors.ayyubi },
+  { id: 'baha-zuhayr', name: 'بهاء الدين زهير', era: 'ayyubi', eraAr: 'الأيوبي', birth: '1186م', death: '1258م', title: 'شاعر بلاط الأيوبيين', color: eraColors.ayyubi },
+  { id: 'ibn-sana-mulk', name: 'ابن سناء الملك', era: 'ayyubi', eraAr: 'الأيوبي', birth: '1155م', death: '1211م', title: 'إمام الموشحين', color: eraColors.ayyubi },
+
+  // العصر المملوكي
+  { id: 'safi-din-hilli', name: 'صفي الدين الحلّي', era: 'mamluki', eraAr: 'المملوكي', birth: '1278م', death: '1349م', title: 'شاعر البديع', color: eraColors.mamluki },
+  { id: 'busiri', name: 'البوصيري', era: 'mamluki', eraAr: 'المملوكي', birth: '1213م', death: '1294م', title: 'صاحب البُردة', color: eraColors.mamluki },
+  { id: 'ibn-wardi', name: 'ابن الوردي', era: 'mamluki', eraAr: 'المملوكي', birth: '1292م', death: '1349م', title: 'صاحب اللامية', color: eraColors.mamluki },
+  { id: 'ibn-nubata-misri', name: 'ابن نباتة المصري', era: 'mamluki', eraAr: 'المملوكي', birth: '1287م', death: '1366م', title: 'شاعر زمانه', color: eraColors.mamluki },
+  { id: 'shab-zarif', name: 'الشاب الظريف', era: 'mamluki', eraAr: 'المملوكي', birth: '1263م', death: '1289م', title: 'شاعر الغزل العذب', color: eraColors.mamluki },
+
+  // العصر العثماني
+  { id: 'aisha-bauniyya', name: 'عائشة الباعونيّة', era: 'uthmani', eraAr: 'العثماني', birth: '1460م', death: '1517م', title: 'عالمة دمشق', color: eraColors.uthmani },
+  { id: 'nabulsi', name: 'عبد الغني النابلسي', era: 'uthmani', eraAr: 'العثماني', birth: '1641م', death: '1731م', title: 'صوفيّ الشام', color: eraColors.uthmani },
+  { id: 'shihab-khafaji', name: 'شهاب الدين الخفاجي', era: 'uthmani', eraAr: 'العثماني', birth: '1569م', death: '1659م', title: 'قاضي قضاة مصر', color: eraColors.uthmani },
 ];
 
 
@@ -143,6 +164,31 @@ export const literaryRelations: LiteraryRelation[] = [
   { source: 'imru-alqays', target: 'abu-tammam', type: 'influenced', description: 'استلهم أبو تمام من فنّ امرئ القيس في وصف الطبيعة' },
   { source: 'antara', target: 'abu-firas', type: 'influenced', description: 'تأثّر أبو فراس بفروسية عنترة ومزج الشعر بالبطولة' },
   { source: 'khansa', target: 'rundi', type: 'influenced', description: 'ارتقى الرندي بفنّ الرثاء الذي أسّسته الخنساء' },
+
+  // === العصر الأيوبي ===
+  { source: 'ibn-faridh', target: 'usama-munqidh', type: 'contemporary', description: 'عاصرا عصر صلاح الدين الأيوبي وكتبا في زمنه' },
+  { source: 'ibn-sana-mulk', target: 'ibn-faridh', type: 'contemporary', description: 'شاعرا مصر في الفترة الأيوبية المبكرة' },
+  { source: 'baha-zuhayr', target: 'ibn-faridh', type: 'contemporary', description: 'شاعرا البلاط الأيوبي والقاهرة' },
+  { source: 'sharif-radhi', target: 'ibn-faridh', type: 'influenced', description: 'تأثّر شعر ابن الفارض الصوفي بحكمة الشريف الرضي' },
+
+  // === الأيوبي → المملوكي ===
+  { source: 'kaab', target: 'busiri', type: 'influenced', description: 'البوصيري تابعَ سُنّة كعب بن زهير في مدح النبي ﷺ بـ"البردة"' },
+  { source: 'ibn-faridh', target: 'busiri', type: 'influenced', description: 'تأثّر البوصيري بأسلوب ابن الفارض في الإلهيّات والمدائح النبوية' },
+
+  // === العصر المملوكي ===
+  { source: 'safi-din-hilli', target: 'ibn-nubata-misri', type: 'rival', description: 'تنافسا على إمارة الشعر في القرن الثامن الهجري' },
+  { source: 'mutanabbi', target: 'safi-din-hilli', type: 'influenced', description: 'تأثّر صفي الدين بفخامة المتنبي وبنى عليه في "الكافية البديعية"' },
+  { source: 'busiri', target: 'ibn-wardi', type: 'contemporary', description: 'عاصرا أواخر العصر المملوكي المبكر، وكتب كلٌّ منهما في الزهد والوعظ' },
+  { source: 'shab-zarif', target: 'ibn-nubata-misri', type: 'contemporary', description: 'شاعرا غزل في زمن واحد ورحلتْ قصائدهما معاً' },
+  { source: 'maarri', target: 'ibn-wardi', type: 'family', description: 'كلاهما من معرّة النعمان وينتمي إلى تقاليدها الأدبية' },
+
+  // === المملوكي → العثماني ===
+  { source: 'busiri', target: 'aisha-bauniyya', type: 'influenced', description: 'سارت الباعونية على درب البوصيري في المدائح النبوية' },
+  { source: 'ibn-faridh', target: 'nabulsi', type: 'influenced', description: 'النابلسي شارح ديوان ابن الفارض ووارث مدرسته الصوفية' },
+
+  // === العصر العثماني ===
+  { source: 'aisha-bauniyya', target: 'nabulsi', type: 'influenced', description: 'تأثّر النابلسي بمدرسة الباعونية في التصوف الدمشقي' },
+  { source: 'shihab-khafaji', target: 'nabulsi', type: 'contemporary', description: 'عاصران كبيران في أدب العصر العثماني' },
 ];
 
 // Relationship type labels in Arabic

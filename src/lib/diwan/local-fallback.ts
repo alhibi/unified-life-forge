@@ -48,6 +48,9 @@ function buildIdx(): Idx {
     umawi:     { sort: 4, color: '#7c3aed', period: '661-750م',  start: 661,  end: 750 },
     abbasi:    { sort: 5, color: '#dc2626', period: '750-1258م', start: 750,  end: 1258 },
     andalusi:  { sort: 6, color: '#2563eb', period: '711-1492م', start: 711,  end: 1492 },
+    ayyubi:    { sort: 7, color: '#ea580c', period: '1171-1250م',start: 1171, end: 1250 },
+    mamluki:   { sort: 8, color: '#9333ea', period: '1250-1517م',start: 1250, end: 1517 },
+    uthmani:   { sort: 9, color: '#0d9488', period: '1517-1850م',start: 1517, end: 1850 },
   };
   const eras: DiwanEra[] = poetryEras.map(e => ({
     id: e.id,
