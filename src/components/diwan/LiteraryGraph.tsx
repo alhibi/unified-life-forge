@@ -26,6 +26,15 @@ interface SimLink {
   relation: LiteraryRelation;
 }
 
+// ─── Stable simulation viewport ──────────────────────────────────────
+// كانت المحاكاة سابقاً تعمل بأبعاد container الفعلية (w/h) فتتأثّر
+// بكل resize، فتُعيد 220 iter × O(N²) باستمرار. نُحسّبها الآن في فضاء
+// ثابت (SIM_W × SIM_H) ونتركة SVG viewBox يُسقطه على الـ container.
+// النتيجة: المحاكاة تعمل مرّة واحدة في عمر الجلسة، والـ resize يصبح
+// مجرد scale CSS بلا حساب فيزيائي.
+const SIM_W = 800;
+const SIM_H = 600;
+
 // ─── Force simulation ────────────────────────────────────────────────
 const REPULSION = 4200;
 const ATTRACTION = 0.005;
@@ -89,7 +98,6 @@ interface Props {
 
 export default function LiteraryGraph({ onSelectPoet, initialPoetId }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [dims, setDims] = useState({ w: 800, h: 600 });
   const [transform, setTransform] = useState({ x: 0, y: 0, s: 1 });
   const [selected, setSelected] = useState<SimNode | null>(null);
   const [hovered, setHovered] = useState<string | null>(null);
@@ -99,31 +107,23 @@ export default function LiteraryGraph({ onSelectPoet, initialPoetId }: Props) {
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [lastPinch, setLastPinch] = useState<number | null>(null);
 
-  // Resize
-  useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-    const obs = new ResizeObserver(([e]) => setDims({ w: e.contentRect.width || 800, h: e.contentRect.height || 600 }));
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, []);
-
-  // Build graph
+  // Build graph — يحدث مرّة واحدة فقط (deps فارغ) لأنّ poetNodes/
+  // literaryRelations ثابتة وفضاء المحاكاة (SIM_W × SIM_H) مستقلّ عن
+  // أبعاد الـ container. ResizeObserver لم يعد ضرورياً.
   const { nodes, links } = useMemo(() => {
-    const { w, h } = dims;
     const simNodes: SimNode[] = poetNodes.map((p, i) => ({
       ...p,
-      x: w / 2 + Math.cos((i / poetNodes.length) * Math.PI * 2) * (w * 0.32),
-      y: h / 2 + Math.sin((i / poetNodes.length) * Math.PI * 2) * (h * 0.32),
+      x: SIM_W / 2 + Math.cos((i / poetNodes.length) * Math.PI * 2) * (SIM_W * 0.32),
+      y: SIM_H / 2 + Math.sin((i / poetNodes.length) * Math.PI * 2) * (SIM_H * 0.32),
       vx: 0, vy: 0,
     }));
     const map = new Map(simNodes.map(n => [n.id, n]));
     const simLinks: SimLink[] = literaryRelations
       .filter(r => map.has(r.source) && map.has(r.target))
       .map(r => ({ source: map.get(r.source)!, target: map.get(r.target)!, relation: r }));
-    simulate(simNodes, simLinks, w, h);
+    simulate(simNodes, simLinks, SIM_W, SIM_H);
     return { nodes: simNodes, links: simLinks };
-  }, [dims]);
+  }, []);
 
   // Connection count per node
   const connectionCount = useMemo(() => {
@@ -154,15 +154,32 @@ export default function LiteraryGraph({ onSelectPoet, initialPoetId }: Props) {
   }, [selected, visibleLinks]);
 
   // Interactions
+  // ملاحظة: viewBox الثابت (SIM_W × SIM_H) يجعل SVG-user-units مختلفة
+  // عن screen-pixels. لذا نُحوِّل pointer deltas من screen-space إلى
+  // user-space بقسمة على نسبة container/SIM، وإلا يبدو الـ drag أسرع
+  // أو أبطأ من المتوقّع على شاشات لا تطابق 800×600.
+  const screenToUserScale = useCallback((): number => {
+    const el = containerRef.current;
+    if (!el) return 1;
+    const cw = el.clientWidth || SIM_W;
+    return cw / SIM_W;
+  }, []);
+
   const handleDown = useCallback((e: React.PointerEvent) => {
     if ((e.target as HTMLElement).closest('.ui-panel, .graph-node')) return;
     setDragging(true);
-    setDragStart({ x: e.clientX - transform.x, y: e.clientY - transform.y });
-  }, [transform]);
+    const k = screenToUserScale();
+    setDragStart({ x: e.clientX - transform.x * k, y: e.clientY - transform.y * k });
+  }, [transform, screenToUserScale]);
   const handleMove = useCallback((e: React.PointerEvent) => {
     if (!dragging) return;
-    setTransform(t => ({ ...t, x: e.clientX - dragStart.x, y: e.clientY - dragStart.y }));
-  }, [dragging, dragStart]);
+    const k = screenToUserScale();
+    setTransform(t => ({
+      ...t,
+      x: (e.clientX - dragStart.x) / k,
+      y: (e.clientY - dragStart.y) / k,
+    }));
+  }, [dragging, dragStart, screenToUserScale]);
   const handleUp = useCallback(() => setDragging(false), []);
   const doZoom = useCallback((d: number) => setTransform(t => ({ ...t, s: Math.max(0.3, Math.min(3, t.s + d)) })), []);
   const handleWheel = useCallback((e: React.WheelEvent) => { e.preventDefault(); doZoom(e.deltaY > 0 ? -0.12 : 0.12); }, [doZoom]);
@@ -178,15 +195,17 @@ export default function LiteraryGraph({ onSelectPoet, initialPoetId }: Props) {
   useEffect(() => {
     if (initialPoetId) {
       const n = nodes.find(nd => nd.id === initialPoetId);
-      if (n) { setSelected(n); setTransform({ x: dims.w / 2 - n.x, y: dims.h / 2 - n.y, s: 1.3 }); }
+      if (n) { setSelected(n); setTransform({ x: SIM_W / 2 - n.x, y: SIM_H / 2 - n.y, s: 1.3 }); }
     }
-  }, [initialPoetId, nodes, dims]);
+  }, [initialPoetId, nodes]);
 
   return (
     <div ref={containerRef} className="relative w-full h-[72vh] min-h-[420px] rounded-3xl overflow-hidden border border-border/30 bg-gradient-to-br from-slate-950/5 via-background to-slate-950/5 dark:from-slate-900/30 dark:via-background dark:to-slate-900/30">
       {/* Canvas */}
       <svg
         className="w-full h-full cursor-grab active:cursor-grabbing select-none"
+        viewBox={`0 0 ${SIM_W} ${SIM_H}`}
+        preserveAspectRatio="xMidYMid meet"
         onPointerDown={handleDown}
         onPointerMove={handleMove}
         onPointerUp={handleUp}
@@ -221,7 +240,7 @@ export default function LiteraryGraph({ onSelectPoet, initialPoetId }: Props) {
 
         <g transform={`translate(${transform.x},${transform.y}) scale(${transform.s})`}>
           {/* Ambient center glow */}
-          <circle cx={dims.w / 2} cy={dims.h / 2} r={dims.w * 0.4} fill="url(#center-glow)" />
+          <circle cx={SIM_W / 2} cy={SIM_H / 2} r={SIM_W * 0.4} fill="url(#center-glow)" />
 
           {/* Links — curved bezier paths */}
           {visibleLinks.map((l, i) => {
@@ -535,7 +554,7 @@ export default function LiteraryGraph({ onSelectPoet, initialPoetId }: Props) {
                     const firstNode = nodes.find(n => n.era === eraId);
                     if (firstNode) {
                       setSelected(firstNode);
-                      setTransform({ x: dims.w / 2 - firstNode.x, y: dims.h / 2 - firstNode.y, s: 1.2 });
+                      setTransform({ x: SIM_W / 2 - firstNode.x, y: SIM_H / 2 - firstNode.y, s: 1.2 });
                     }
                   }}
                   className={`flex-1 flex flex-col items-center gap-1 py-1 px-1 rounded-xl transition-all ${isHighlighted ? 'opacity-100' : 'opacity-40'} hover:opacity-100 active:scale-95`}
