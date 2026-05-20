@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ZoomIn, ZoomOut, Maximize2, Filter, Sparkles } from 'lucide-react';
+import { X, ZoomIn, ZoomOut, Maximize2, Filter } from 'lucide-react';
 import {
   poetNodes,
   literaryRelations,
@@ -401,24 +401,6 @@ export default function LiteraryGraph({ onSelectPoet, initialPoetId }: Props) {
         <button onClick={() => setShowFilters(!showFilters)} className={`w-10 h-10 rounded-2xl backdrop-blur-xl border border-border/30 flex items-center justify-center shadow-lg active:scale-90 transition-all ${showFilters ? 'bg-primary/15 border-primary/30' : 'bg-card/80 hover:bg-card'}`}>
           <Filter className={`w-4.5 h-4.5 ${showFilters ? 'text-primary' : 'text-foreground'}`} />
         </button>
-      </div>
-
-      {/* Era legend — top end */}
-      <div className="ui-panel absolute top-4 end-4 bg-card/80 backdrop-blur-xl border border-border/30 rounded-2xl px-3 py-2.5 shadow-lg z-10">
-        <div className="flex items-center gap-1.5 mb-2">
-          <Sparkles className="w-3 h-3 text-primary" />
-          <span className="text-[10px] font-bold text-foreground">العصور</span>
-        </div>
-        <div className="grid grid-cols-2 gap-x-3 gap-y-1">
-          {Object.entries(eraColors).map(([era, color]) => (
-            <div key={era} className="flex items-center gap-1.5">
-              <span className="w-2.5 h-2.5 rounded-full shadow-sm" style={{ backgroundColor: color }} />
-              <span className="text-[9px] text-muted-foreground">
-                {era === 'jahili' ? 'الجاهلي' : era === 'mukhadram' ? 'المخضرم' : era === 'islami' ? 'الإسلامي' : era === 'umawi' ? 'الأموي' : era === 'abbasi' ? 'العباسي' : 'الأندلسي'}
-              </span>
-            </div>
-          ))}
-        </div>
       </div>
 
       {/* Filter panel */}

@@ -1,6 +1,6 @@
-import React, { lazy, Suspense, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { Search, ScrollText, Quote, ChevronDown, ChevronUp, X, Filter, History, Network, Loader2 } from 'lucide-react';
+import { Search, ScrollText, Quote, X, Filter, History, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import SEO from '@/components/SEO';
 import BackButton from '@/components/BackButton';
@@ -15,11 +15,6 @@ import {
 } from '@/lib/diwan/hooks';
 import { KNOWN_METERS, KNOWN_KINDS, RHYME_LETTERS } from '@/lib/diwan/constants';
 import type { DiwanPoemSearchResult, DiwanVerseSearchResult } from '@/lib/diwan/types';
-
-// LiteraryGraph ضخم (~527 سطر + force-simulation + framer-motion)
-// والمستخدم لا يفتحه إلا أحيانًا، لذلك نُحمّله بكسلًا فقط عند توسيع
-// القسم. هذا يقتطع ~40-50KB gzipped من حزمة بحث الديوان الأولى.
-const LiteraryGraph = lazy(() => import('@/components/diwan/LiteraryGraph'));
 
 type Mode = 'poems' | 'verses';
 
@@ -42,12 +37,6 @@ export default function LibrarySearchPage() {
   const [kind, setKind]   = useState<string | null>(params.get('kind'));
   const [page, setPage]   = useState(0);
   const [showFilters, setShowFilters] = useState(false);
-
-  // الشجرة الأدبية — انتقلت من /diwan إلى هنا كقسم قابل للطيّ.
-  // ملاحظة: نفتحها تلقائيًا حين يصل المستخدم برابط ?graph=<poet-slug>
-  // (يأتي عادةً من زرّ "علاقاته الأدبية" في صفحة الشاعر).
-  const initialGraphPoet = params.get('graph');
-  const [showGraph, setShowGraph] = useState(!!initialGraphPoet);
 
   const eras = useDiwanEras();
 
@@ -339,67 +328,6 @@ export default function LibrarySearchPage() {
           )
         )}
 
-        {/* ═════ الشجرة الأدبية — قسم قابل للطيّ تحت البحث ═════ */}
-        <section className="mt-8">
-          <button
-            onClick={() => setShowGraph(s => !s)}
-            className={`w-full flex items-center justify-between gap-3 px-4 py-3 rounded-2xl border transition ${
-              showGraph
-                ? 'bg-primary/10 border-primary/30 text-primary'
-                : 'bg-card border-border/40 text-foreground hover:border-primary/30'
-            }`}
-            aria-expanded={showGraph}
-          >
-            <div className="flex items-center gap-2.5">
-              <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${showGraph ? 'bg-primary/20' : 'bg-primary/10'}`}>
-                <Network className="w-4.5 h-4.5 text-primary" />
-              </div>
-              <div className="text-start">
-                <p className="font-bold text-[13px] leading-tight">الشجرة الأدبية</p>
-                <p className="text-[10.5px] mt-0.5 text-muted-foreground">
-                  علاقات الشعراء عبر العصور
-                </p>
-              </div>
-            </div>
-            {showGraph
-              ? <ChevronUp   className="w-4 h-4 shrink-0 opacity-70" />
-              : <ChevronDown className="w-4 h-4 shrink-0 opacity-70" />}
-          </button>
-
-          <AnimatePresence initial={false}>
-            {showGraph && (
-              <motion.div
-                key="graph-wrap"
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-                className="overflow-hidden"
-              >
-                <div className="mt-3">
-                  <Suspense
-                    fallback={
-                      <div className="w-full h-[72vh] min-h-[420px] rounded-3xl border border-border/30 bg-card/30 flex items-center justify-center">
-                        <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                          <Loader2 className="w-5 h-5 animate-spin" />
-                          <span className="text-[11px]">يحمّل الشجرة الأدبية…</span>
-                        </div>
-                      </div>
-                    }
-                  >
-                    <LiteraryGraph
-                      initialPoetId={initialGraphPoet ?? undefined}
-                      onSelectPoet={(id) => navigate(`/diwan/library/poet/${id}`)}
-                    />
-                  </Suspense>
-                  <p className="text-[10px] text-muted-foreground/80 text-center mt-2">
-                    اضغط على شاعر لرؤية علاقاته، أو على زر "عرض قصائد" للانتقال إلى صفحته.
-                  </p>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </section>
       </div>
     </div>
   );

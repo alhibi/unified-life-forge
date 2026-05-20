@@ -234,7 +234,7 @@ export async function fetchFavoritePoems(): Promise<DiwanPoemSearchResult[]> {
     .from('diwan_poets')
     .select('id, slug, name_ar')
     .in('id', poetIds);
-  const poetMap = new Map(
+  const poetMap = new Map<string, { id: string; slug: string; name_ar: string }>(
     (poets ?? []).map((p: { id: string; slug: string; name_ar: string }) =>
       [p.id, p] as const,
     ),

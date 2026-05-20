@@ -1,15 +1,20 @@
-import React from 'react';
+import React, { lazy, Suspense, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Library as LibraryIcon, Users, Search, ChevronLeft, ChevronRight,
-  ScrollText, Feather, Sparkles, BookOpen, Heart,
+  ScrollText, Feather, Sparkles, BookOpen, Heart, Network, ChevronDown, ChevronUp, Loader2,
 } from 'lucide-react';
 import SEO from '@/components/SEO';
 import BackButton from '@/components/BackButton';
 import FallbackBadge from '@/components/diwan/library/FallbackBadge';
 import { useApp } from '@/contexts/AppContext';
 import { useDiwanStats } from '@/lib/diwan/hooks';
+
+// LiteraryGraph ضخم (~527 سطر + force-simulation + framer-motion)
+// والمستخدم لا يفتحه إلا أحيانًا، لذلك نُحمّله بكسلًا فقط عند توسيع
+// القسم.
+const LiteraryGraph = lazy(() => import('@/components/diwan/LiteraryGraph'));
 
 interface Props {
   /**
@@ -29,6 +34,7 @@ export default function DiwanLibraryPage({ tab = false }: Props) {
   const Chevron = dir === 'rtl' ? ChevronLeft : ChevronRight;
 
   const stats = useDiwanStats();
+  const [showGraph, setShowGraph] = useState(false);
 
   const numFmt = (n: number | undefined) =>
     typeof n === 'number' ? n.toLocaleString('ar-EG') : '—';
@@ -100,6 +106,67 @@ export default function DiwanLibraryPage({ tab = false }: Props) {
             chev={Chevron}
           />
         </div>
+
+        {/* ═════ الشجرة الأدبية ═════ */}
+        <section className="mt-6">
+          <button
+            onClick={() => setShowGraph(s => !s)}
+            className={`w-full flex items-center justify-between gap-3 px-4 py-3 rounded-2xl border transition ${
+              showGraph
+                ? 'bg-primary/10 border-primary/30 text-primary'
+                : 'bg-card border-border/40 text-foreground hover:border-primary/30'
+            }`}
+            aria-expanded={showGraph}
+          >
+            <div className="flex items-center gap-2.5">
+              <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${showGraph ? 'bg-primary/20' : 'bg-primary/10'}`}>
+                <Network className="w-4 h-4 text-primary" />
+              </div>
+              <div className="text-start">
+                <p className="font-bold text-[13px] leading-tight">الشجرة الأدبية</p>
+                <p className="text-[10.5px] mt-0.5 text-muted-foreground">
+                  علاقات الشعراء عبر العصور
+                </p>
+              </div>
+            </div>
+            {showGraph
+              ? <ChevronUp   className="w-4 h-4 shrink-0 opacity-70" />
+              : <ChevronDown className="w-4 h-4 shrink-0 opacity-70" />}
+          </button>
+
+          <AnimatePresence initial={false}>
+            {showGraph && (
+              <motion.div
+                key="graph-wrap"
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                className="overflow-hidden"
+              >
+                <div className="mt-3">
+                  <Suspense
+                    fallback={
+                      <div className="w-full h-[72vh] min-h-[420px] rounded-3xl border border-border/30 bg-card/30 flex items-center justify-center">
+                        <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                          <span className="text-[11px]">يحمّل الشجرة الأدبية…</span>
+                        </div>
+                      </div>
+                    }
+                  >
+                    <LiteraryGraph
+                      onSelectPoet={(id) => navigate(`/diwan/library/poet/${id}`)}
+                    />
+                  </Suspense>
+                  <p className="text-[10px] text-muted-foreground/80 text-center mt-2">
+                    اضغط على شاعر لرؤية علاقاته، أو على زر "عرض قصائد" للانتقال إلى صفحته.
+                  </p>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </section>
       </div>
     </div>
   );
