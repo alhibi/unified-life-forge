@@ -1,6 +1,6 @@
-import React, { lazy, Suspense, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { Search, ScrollText, Quote, ChevronDown, ChevronUp, X, Filter, History, Network, Loader2 } from 'lucide-react';
+import { Search, ScrollText, Quote, X, Filter, History } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import SEO from '@/components/SEO';
 import BackButton from '@/components/BackButton';
@@ -15,11 +15,6 @@ import {
 } from '@/lib/diwan/hooks';
 import { KNOWN_METERS, KNOWN_KINDS, RHYME_LETTERS } from '@/lib/diwan/constants';
 import type { DiwanPoemSearchResult, DiwanVerseSearchResult } from '@/lib/diwan/types';
-
-// LiteraryGraph ضخم (~527 سطر + force-simulation + framer-motion)
-// والمستخدم لا يفتحه إلا أحيانًا، لذلك نُحمّله بكسلًا فقط عند توسيع
-// القسم. هذا يقتطع ~40-50KB gzipped من حزمة بحث الديوان الأولى.
-const LiteraryGraph = lazy(() => import('@/components/diwan/LiteraryGraph'));
 
 type Mode = 'poems' | 'verses';
 
@@ -42,12 +37,6 @@ export default function LibrarySearchPage() {
   const [kind, setKind]   = useState<string | null>(params.get('kind'));
   const [page, setPage]   = useState(0);
   const [showFilters, setShowFilters] = useState(false);
-
-  // الشجرة الأدبية — انتقلت من /diwan إلى هنا كقسم قابل للطيّ.
-  // ملاحظة: نفتحها تلقائيًا حين يصل المستخدم برابط ?graph=<poet-slug>
-  // (يأتي عادةً من زرّ "علاقاته الأدبية" في صفحة الشاعر).
-  const initialGraphPoet = params.get('graph');
-  const [showGraph, setShowGraph] = useState(!!initialGraphPoet);
 
   const eras = useDiwanEras();
 
