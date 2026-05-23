@@ -410,6 +410,16 @@
     from { opacity: 0; transform: scale(0.96); }
     to   { opacity: 1; transform: scale(1); }
   }
+
+  /* ── Bottom-nav arc popup ──
+     Branches fly out along the arc from the group button. The final
+     transform is set inline (translate calc(-50% + Xpx), Ypx). The
+     keyframe animates the *opacity + scale* layer that wraps it so we
+     don't fight the layout transform. */
+  @keyframes arcIn {
+    from { opacity: 0; transform: translate(var(--arc-x, 0), 24px) scale(0.6); }
+    to   { opacity: 1; }
+  }
   .empty-state,
   [data-empty="true"],
   [data-state="empty"] {
