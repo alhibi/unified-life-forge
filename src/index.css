@@ -417,7 +417,7 @@
      keyframe animates the *opacity + scale* layer that wraps it so we
      don't fight the layout transform. */
   @keyframes arcIn {
-    from { opacity: 0; transform: translate(var(--arc-x, 0), 24px) scale(0.6); }
+    from { opacity: 0; }
     to   { opacity: 1; }
   }
   .empty-state,
