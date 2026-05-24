@@ -146,7 +146,16 @@ import { useEffect, useState, useSyncExternalStore } from 'react';
 
 const subscribers = new Set<() => void>();
 
+// Cached snapshot for useSyncExternalStore — it requires a STABLE
+// reference between calls when nothing changed, otherwise React
+// bails out with "Maximum update depth exceeded".
+let subsSnapshot: SubscribedPodcast[] = getSubscriptions();
+function refreshSubsSnapshot() {
+  subsSnapshot = getSubscriptions();
+}
+
 function notify() {
+  refreshSubsSnapshot();
   subscribers.forEach(fn => fn());
 }
 
@@ -154,7 +163,10 @@ function notify() {
 // localStorage changes, so we also notify locally after each writer.
 if (typeof window !== 'undefined') {
   window.addEventListener('storage', e => {
-    if (e.key === SUBS_KEY || e.key === PLAY_KEY || e.key === LAST_KEY) notify();
+    if (e.key === SUBS_KEY || e.key === PLAY_KEY || e.key === LAST_KEY) {
+      refreshSubsSnapshot();
+      subscribers.forEach(fn => fn());
+    }
   });
 }
 
@@ -178,7 +190,7 @@ function subscribeStore(cb: () => void) {
 }
 
 export function useSubscriptions(): SubscribedPodcast[] {
-  return useSyncExternalStore(subscribeStore, getSubscriptions, () => []);
+  return useSyncExternalStore(subscribeStore, () => subsSnapshot, () => subsSnapshot);
 }
 
 export function useIsSubscribed(origin: string | undefined): boolean {
