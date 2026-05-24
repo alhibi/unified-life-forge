@@ -177,6 +177,48 @@ export default function PodcastDetail() {
   const isLongDescription = (feed.data?.description?.length ?? 0) > COLLAPSE_THRESHOLD_CHARS;
   const [descExpanded, setDescExpanded] = useState(false);
 
+  // Build a `PodcastSeries` JSON-LD blob so search engines can index
+  // the page as a real podcast (instead of a generic web page). We
+  // emit it only after the feed loads and we have actual values to
+  // expose — schema.org markup with empty fields is worse than no
+  // markup at all because crawlers may demote it.
+  const jsonLd = useMemo(() => {
+    if (!feed.data) return null;
+    const ld = {
+      '@context': 'https://schema.org',
+      '@type': 'PodcastSeries',
+      name: displayTitle || feed.data.title,
+      description: feed.data.description?.slice(0, 500) || undefined,
+      image: displayImage || undefined,
+      author: displayAuthor ? { '@type': 'Person', name: displayAuthor } : undefined,
+      url: typeof window !== 'undefined' ? window.location.href : undefined,
+      // The RSS feed URL itself, exposed as `webFeed` per schema.org —
+      // helps podcatchers and search-engine crawlers locate the feed
+      // without having to scrape the page for `<link rel="alternate">`.
+      webFeed: feed.data.origin,
+      // Inline the latest 10 episodes — enough for rich-result
+      // eligibility, not so many that the head bloat hurts initial paint.
+      hasPart: feed.data.episodes.slice(0, 10).map(ep => ({
+        '@type': 'PodcastEpisode',
+        name: ep.title,
+        url: ep.link || undefined,
+        datePublished: ep.pubDate ? new Date(ep.pubDate).toISOString() : undefined,
+        // `timeRequired` follows ISO 8601 duration (`PT45M`) which is
+        // what schema.org wants. We omit when the feed didn't supply
+        // a duration (a `PT-1S` would be invalid).
+        timeRequired: ep.duration > 0
+          ? `PT${Math.round(ep.duration)}S`
+          : undefined,
+        associatedMedia: ep.audioUrl
+          ? { '@type': 'AudioObject', contentUrl: ep.audioUrl, encodingFormat: ep.audioMime || 'audio/mpeg' }
+          : undefined,
+      })),
+    };
+    // Strip undefined keys before serializing — JSON-LD with `null`
+    // values trips up some validators.
+    return JSON.stringify(ld, (_, v) => (v === undefined ? undefined : v));
+  }, [feed.data, displayTitle, displayAuthor, displayImage]);
+
   return (
     <DynamicPodcastTheme
       seedH={seed?.h ?? null}
@@ -190,6 +232,18 @@ export default function PodcastDetail() {
             description={feed.data?.description?.slice(0, 160) ?? ''}
             path={`/podcasts/${routeId}`}
           />
+          {jsonLd && (
+            // JSON-LD goes inside the body (not Helmet) so we don't
+            // need to wire a separate Helmet child. React renders the
+            // string content of `<script>` verbatim — DOMPurify is not
+            // appropriate here because the markup is OURS, not user
+            // input, and applying it would strip the `@context` keys
+            // that schema.org requires.
+            <script
+              type="application/ld+json"
+              dangerouslySetInnerHTML={{ __html: jsonLd }}
+            />
+          )}
 
           {/* Backdrop: blurred full-bleed cover, fading into the page
               background. Sits at the absolute top so the title/cover
@@ -406,6 +460,7 @@ export default function PodcastDetail() {
                     seedH={seed?.h ?? null}
                     seedS={seed?.s ?? null}
                     seedL={seed?.l ?? null}
+                    episodes={feed.data!.episodes}
                   />
                 ))}
               </div>

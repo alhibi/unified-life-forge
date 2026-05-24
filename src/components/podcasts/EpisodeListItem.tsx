@@ -29,6 +29,14 @@ interface EpisodeListItemProps {
   seedH: number | null;
   seedS: number | null;
   seedL: number | null;
+  /**
+   * Full ordered episode list of the parent podcast. Forwarded into
+   * the player as the auto-play-next queue. Optional because the
+   * mini-player and other surfaces that don't have a feed in scope
+   * can play a single track without it; auto-play-next just won't
+   * fire in that case.
+   */
+  episodes?: PodcastEpisode[];
 }
 
 function formatRelativeDate(ms: number, lang: 'ar' | 'de'): string {
@@ -62,7 +70,7 @@ function formatDuration(durationSec: number): string {
 }
 
 const EpisodeListItem = memo(function EpisodeListItem({
-  episode, podcastTitle, podcastImageUrl, seedH, seedS, seedL,
+  episode, podcastTitle, podcastImageUrl, seedH, seedS, seedL, episodes,
 }: EpisodeListItemProps) {
   const { language } = useApp();
   const lang = language === 'de' ? 'de' : 'ar';
@@ -101,6 +109,7 @@ const EpisodeListItem = memo(function EpisodeListItem({
       podcastTitle,
       podcastImageUrl,
       seedH, seedS, seedL,
+      episodes,
     };
     void player.play(meta);
   };

@@ -184,17 +184,123 @@ export function setLastPlayed(record: LastPlayedRecord | null) {
 }
 
 /* -------------------------------------------------------------------------- */
-/*  Subscriber model — three independent sets, one per slice                  */
+/*  Recent listening (Continue Listening)                                     */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * One entry in the "Continue Listening" rail. Captures everything the
+ * UI needs to render the row AND everything the player needs to resume
+ * playback without going back through the RSS feed. It is essentially
+ * `PlayingEpisodeMeta` + a position snapshot + a timestamp.
+ *
+ * We keep these separate from `LastPlayedRecord` (one entry, the very
+ * last track) because users want a list, not just the most recent.
+ */
+export interface RecentEpisode {
+  episode: PodcastEpisode;
+  podcastTitle: string;
+  podcastImageUrl: string;
+  seedH: number | null;
+  seedS: number | null;
+  seedL: number | null;
+  /** Resume position in seconds. */
+  position: number;
+  /** Best-known duration when last touched. */
+  duration: number;
+  /** ms since epoch — drives the sort. */
+  updatedAt: number;
+}
+
+const RECENTS_KEY = 'podcasts.recents';
+/**
+ * Cap on stored recents. localStorage has a ~5 MB hard cap per origin
+ * across the whole app; a single recent record is ~1 KB worst case
+ * (long titles + descriptions), so 30 entries is comfortably under
+ * 30 KB while still giving the user enough history to scroll through.
+ */
+const RECENTS_LIMIT = 30;
+
+export function getRecents(): RecentEpisode[] {
+  return read<RecentEpisode[]>(RECENTS_KEY, []);
+}
+
+/**
+ * Insert / update a recent episode, keeping the list deduped by
+ * episode id and sorted newest-first. Capped at `RECENTS_LIMIT` —
+ * older entries silently fall off the end.
+ */
+export function upsertRecent(record: Omit<RecentEpisode, 'updatedAt'>) {
+  const list = getRecents().filter(r => r.episode.id !== record.episode.id);
+  list.unshift({ ...record, updatedAt: Date.now() });
+  if (list.length > RECENTS_LIMIT) list.length = RECENTS_LIMIT;
+  write(RECENTS_KEY, list);
+}
+
+export function removeRecent(episodeId: string) {
+  const list = getRecents().filter(r => r.episode.id !== episodeId);
+  write(RECENTS_KEY, list);
+}
+
+export function clearRecents() {
+  try { localStorage.removeItem(RECENTS_KEY); } catch { /* ignore */ }
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Discovery preferences (recent searches + recent countries)                */
+/* -------------------------------------------------------------------------- */
+
+const RECENT_SEARCHES_KEY = 'podcasts.recentSearches';
+const RECENT_COUNTRIES_KEY = 'podcasts.recentCountries';
+const RECENT_SEARCHES_LIMIT = 8;
+const RECENT_COUNTRIES_LIMIT = 5;
+
+export function getRecentSearches(): string[] {
+  return read<string[]>(RECENT_SEARCHES_KEY, []);
+}
+
+export function pushRecentSearch(term: string) {
+  const trimmed = term.trim();
+  if (trimmed.length < 2) return;
+  // Case-preserving but case-insensitive dedupe — "Tech" and "tech"
+  // collapse to the most recently used casing.
+  const list = getRecentSearches().filter(
+    s => s.toLowerCase() !== trimmed.toLowerCase()
+  );
+  list.unshift(trimmed);
+  if (list.length > RECENT_SEARCHES_LIMIT) list.length = RECENT_SEARCHES_LIMIT;
+  write(RECENT_SEARCHES_KEY, list);
+}
+
+export function clearRecentSearches() {
+  try { localStorage.removeItem(RECENT_SEARCHES_KEY); } catch { /* ignore */ }
+}
+
+export function getRecentCountries(): string[] {
+  return read<string[]>(RECENT_COUNTRIES_KEY, []);
+}
+
+export function pushRecentCountry(code: string) {
+  const cc = code.toLowerCase();
+  if (!cc) return;
+  const list = getRecentCountries().filter(c => c !== cc);
+  list.unshift(cc);
+  if (list.length > RECENT_COUNTRIES_LIMIT) list.length = RECENT_COUNTRIES_LIMIT;
+  write(RECENT_COUNTRIES_KEY, list);
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Subscriber model — independent sets, one per slice                        */
 /* -------------------------------------------------------------------------- */
 
 import { useEffect, useState, useSyncExternalStore } from 'react';
 
-type Slice = 'subs' | 'play' | 'last';
+type Slice = 'subs' | 'play' | 'last' | 'recents';
 
 const subscribers: Record<Slice, Set<() => void>> = {
   subs: new Set(),
   play: new Set(),
   last: new Set(),
+  recents: new Set(),
 };
 
 // Cached snapshot for `useSubscriptions` — `useSyncExternalStore`
@@ -211,9 +317,15 @@ function refreshLastPlayedSnapshot() {
   lastPlayedSnapshot = getLastPlayed();
 }
 
+let recentsSnapshot: RecentEpisode[] = getRecents();
+function refreshRecentsSnapshot() {
+  recentsSnapshot = getRecents();
+}
+
 function notify(slice: Slice) {
   if (slice === 'subs') refreshSubsSnapshot();
   if (slice === 'last') refreshLastPlayedSnapshot();
+  if (slice === 'recents') refreshRecentsSnapshot();
   subscribers[slice].forEach(fn => fn());
 }
 
@@ -229,6 +341,9 @@ if (typeof window !== 'undefined') {
     } else if (e.key === LAST_KEY) {
       refreshLastPlayedSnapshot();
       subscribers.last.forEach(fn => fn());
+    } else if (e.key === RECENTS_KEY) {
+      refreshRecentsSnapshot();
+      subscribers.recents.forEach(fn => fn());
     }
   });
 }
@@ -253,6 +368,9 @@ export const unsubscribeWithNotify      = wrapWithNotify(unsubscribe, 'subs');
 export const savePlayStateWithNotify    = wrapWithNotify(savePlayState, 'play');
 export const markEpisodePlayedWithNotify = wrapWithNotify(markEpisodePlayed, 'play');
 export const setLastPlayedWithNotify    = wrapWithNotify(setLastPlayed, 'last');
+export const upsertRecentWithNotify     = wrapWithNotify(upsertRecent, 'recents');
+export const removeRecentWithNotify     = wrapWithNotify(removeRecent, 'recents');
+export const clearRecentsWithNotify     = wrapWithNotify(clearRecents, 'recents');
 
 function subscribeToSlice(slice: Slice, cb: () => void) {
   subscribers[slice].add(cb);
@@ -303,6 +421,20 @@ export function useLastPlayed(): LastPlayedRecord | null {
     cb => subscribeToSlice('last', cb),
     () => lastPlayedSnapshot,
     () => lastPlayedSnapshot,
+  );
+}
+
+/**
+ * Reactive list of recently-played episodes (newest first), used to
+ * render the "Continue Listening" rail. Subscribers are invalidated
+ * only when the recents slice changes — playback ticks do not trigger
+ * re-render here.
+ */
+export function useRecents(): RecentEpisode[] {
+  return useSyncExternalStore(
+    cb => subscribeToSlice('recents', cb),
+    () => recentsSnapshot,
+    () => recentsSnapshot,
   );
 }
 

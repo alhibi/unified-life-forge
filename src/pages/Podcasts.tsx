@@ -27,7 +27,15 @@ import { useApp } from '@/contexts/AppContext';
 import { fetchTopPodcasts, searchPodcasts, upgradeArtwork, type PodcastPreview } from '@/lib/podcasts/itunes';
 import { podcastGenres } from '@/data/podcastGenres';
 import { podcastCountries, findCountry, type PodcastCountry } from '@/data/podcastCountries';
-import { useSubscriptions } from '@/lib/podcasts/store';
+import {
+  useSubscriptions,
+  getRecentSearches,
+  pushRecentSearch,
+  clearRecentSearches,
+  getRecentCountries,
+  pushRecentCountry,
+} from '@/lib/podcasts/store';
+import ContinueListeningRow from '@/components/podcasts/ContinueListeningRow';
 
 const COUNTRY_KEY = 'podcasts.country';
 const GENRE_KEY = 'podcasts.genre';
@@ -46,6 +54,14 @@ function CountryDialog({
 }) {
   const { language } = useApp();
   const [query, setQuery] = useState('');
+  // Recents are read once when the dialog mounts (or `open` flips).
+  // We deliberately don't use a reactive hook here — the list only
+  // changes when the user picks something, at which point we close
+  // the dialog anyway.
+  const [recentCodes, setRecentCodes] = useState<string[]>([]);
+  useEffect(() => {
+    if (open) setRecentCodes(getRecentCountries());
+  }, [open]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -57,6 +73,14 @@ function CountryDialog({
       c.nameDe.toLowerCase().includes(q)
     );
   }, [query]);
+
+  // Only show the recents section when the user hasn't started typing
+  // a search — once they're searching, the filtered list is what they
+  // care about and a separate "recent" header would confuse the layout.
+  const recents = recentCodes
+    .map(cc => podcastCountries.find(c => c.code === cc))
+    .filter((c): c is PodcastCountry => Boolean(c));
+  const showRecents = !query.trim() && recents.length > 0;
 
   if (!open) return null;
   return createPortal(
@@ -93,6 +117,35 @@ function CountryDialog({
             </div>
           </div>
           <div className="flex-1 overflow-y-auto px-2 pb-3">
+            {showRecents && (
+              <>
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold px-3 pt-2 pb-1">
+                  {language === 'ar' ? 'مستخدمة مؤخراً' : 'Zuletzt verwendet'}
+                </p>
+                {recents.map(c => {
+                  const active = c.code === value;
+                  const localized = language === 'ar' ? c.nameAr : c.nameDe;
+                  return (
+                    <button
+                      key={`recent-${c.code}`}
+                      onClick={() => { onSelect(c.code); onClose(); }}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors text-start ${active ? 'bg-primary/10' : 'hover:bg-muted/60'}`}
+                    >
+                      <span className="text-2xl leading-none" aria-hidden>{c.flag}</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-foreground truncate">{localized}</p>
+                        <p className="text-[11px] text-muted-foreground truncate">{c.name} · {c.code.toUpperCase()}</p>
+                      </div>
+                      {active && <Check className="w-4 h-4 text-primary shrink-0" />}
+                    </button>
+                  );
+                })}
+                <div className="my-2 mx-3 h-px bg-border/50" />
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold px-3 pt-2 pb-1">
+                  {language === 'ar' ? 'كل الدول' : 'Alle Länder'}
+                </p>
+              </>
+            )}
             {filtered.map(c => {
               const active = c.code === value;
               const localized = language === 'ar' ? c.nameAr : c.nameDe;
@@ -212,8 +265,25 @@ export default function PodcastsPage() {
 
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [searchFocused, setSearchFocused] = useState(false);
+  // Recent searches — read once at mount, refreshed only when we
+  // ourselves push a new term. Local state (not a hook) because the
+  // value rarely changes and sub-millisecond freshness isn't required.
+  const [recentSearches, setRecentSearches] = useState<string[]>(() => getRecentSearches());
+
   useEffect(() => {
-    const id = setTimeout(() => setDebouncedSearch(search.trim()), 350);
+    const id = setTimeout(() => {
+      const trimmed = search.trim();
+      setDebouncedSearch(trimmed);
+      // Persist any term the user actually committed to (debounced =
+      // they stopped typing for 350 ms with at least 2 chars). We
+      // don't push partial typing to avoid filling the recents list
+      // with single-letter junk.
+      if (trimmed.length >= 2) {
+        pushRecentSearch(trimmed);
+        setRecentSearches(getRecentSearches());
+      }
+    }, 350);
     return () => clearTimeout(id);
   }, [search]);
 
@@ -304,6 +374,11 @@ export default function PodcastsPage() {
             <input
               value={search}
               onChange={e => setSearch(e.target.value)}
+              onFocus={() => setSearchFocused(true)}
+              // Defer the unfocus a hair so a tap on a suggestion
+              // registers before the dropdown unmounts. Without this
+              // the click is swallowed by the blur → unmount cycle.
+              onBlur={() => setTimeout(() => setSearchFocused(false), 150)}
               placeholder={language === 'ar' ? 'ابحث' : 'Suchen'}
               className="w-full h-10 ps-9 pe-9 rounded-full bg-muted/40 border border-border/40 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
               aria-label={language === 'ar' ? 'بحث عن بودكاست' : 'Podcasts suchen'}
@@ -316,6 +391,40 @@ export default function PodcastsPage() {
               >
                 <X className="w-3.5 h-3.5 text-foreground" />
               </button>
+            )}
+            {/* Recent searches dropdown — only when the input is focused
+                AND empty AND we actually have history. Picked from the
+                store on first render; refreshed on every commit. */}
+            {searchFocused && !search && recentSearches.length > 0 && (
+              <div className="absolute top-full mt-1.5 left-0 right-0 z-40 bg-popover border border-border/60 rounded-2xl shadow-xl p-2">
+                <div className="flex items-center justify-between px-2 pt-1 pb-1.5">
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">
+                    {language === 'ar' ? 'عمليات البحث الأخيرة' : 'Zuletzt gesucht'}
+                  </p>
+                  <button
+                    type="button"
+                    onMouseDown={(e) => e.preventDefault() /* keep input focus */}
+                    onClick={() => { clearRecentSearches(); setRecentSearches([]); }}
+                    className="text-[10px] text-muted-foreground hover:text-foreground"
+                  >
+                    {language === 'ar' ? 'مسح' : 'Löschen'}
+                  </button>
+                </div>
+                <div className="flex flex-col">
+                  {recentSearches.map(term => (
+                    <button
+                      key={term}
+                      type="button"
+                      onMouseDown={(e) => e.preventDefault() /* keep input focus */}
+                      onClick={() => { setSearch(term); setSearchFocused(false); }}
+                      className="text-start px-3 py-2 rounded-lg text-[13px] hover:bg-muted/60 flex items-center gap-2"
+                    >
+                      <Search className="w-3.5 h-3.5 text-muted-foreground" />
+                      <span className="truncate">{term}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
             )}
           </div>
           <button
@@ -367,15 +476,22 @@ export default function PodcastsPage() {
       </div>
 
       {/* Body */}
-      <div className="max-w-lg mx-auto px-4 pt-4">
-        {/* Selected country pill */}
-        <div className="flex items-center justify-between mb-4">
-          <p className="text-[12px] text-muted-foreground">
-            {isSearching
-              ? (language === 'ar' ? 'نتائج البحث في' : 'Suchergebnisse in') + ` ${localizedCountry}`
-              : t(activeGenre.labelKey) + ' · ' + localizedCountry}
-          </p>
-        </div>
+      <div className="max-w-lg mx-auto pt-4">
+        {/* Continue Listening — only visible when the recents store
+            has entries; otherwise it self-hides. Lives above the
+            country/genre header so it's the very first thing returning
+            users see. */}
+        {!isSearching && <ContinueListeningRow />}
+
+        <div className="px-4">
+          {/* Selected country pill */}
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-[12px] text-muted-foreground">
+              {isSearching
+                ? (language === 'ar' ? 'نتائج البحث في' : 'Suchergebnisse in') + ` ${localizedCountry}`
+                : t(activeGenre.labelKey) + ' · ' + localizedCountry}
+            </p>
+          </div>
 
         {active.isLoading ? (
           <GridSkeleton />
@@ -414,6 +530,7 @@ export default function PodcastsPage() {
             ))}
           </motion.div>
         )}
+        </div>
       </div>
 
       {/* Floating "Powered by" pill */}
@@ -427,7 +544,12 @@ export default function PodcastsPage() {
         open={showCountry}
         onClose={() => setShowCountry(false)}
         value={country.code}
-        onSelect={cc => setCountry(findCountry(cc))}
+        onSelect={cc => {
+          setCountry(findCountry(cc));
+          // Track recent country picks for the dialog's "Recent" group
+          // — write-only here, the dialog reads on its own open.
+          pushRecentCountry(cc);
+        }}
       />
     </div>
   );

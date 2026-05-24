@@ -38,6 +38,7 @@ import {
   markEpisodePlayedWithNotify as markEpisodePlayed,
   getLastPlayed,
   setLastPlayedWithNotify as setLastPlayed,
+  upsertRecentWithNotify as upsertRecent,
   type LastPlayedRecord,
 } from '@/lib/podcasts/store';
 import type { PodcastEpisode } from '@/lib/podcasts/rss';
@@ -55,7 +56,36 @@ export interface PlayingEpisodeMeta {
   seedH: number | null;
   seedS: number | null;
   seedL: number | null;
+  /**
+   * Optional "what comes next" array — typically the full episode list
+   * from the same podcast feed, in RSS order (newest first). When
+   * present and `autoPlayNext` is on, the player advances to the next
+   * OLDER episode (i.e. `episodes[currentIndex + 1]`) on `ended`. This
+   * matches the chronological "catching up on a show" pattern Spotify
+   * defaults to. Not persisted to `lastPlayed` storage; queues are
+   * session-scoped — the user has to revisit the podcast detail page
+   * to repopulate them after a reload.
+   */
+  episodes?: PodcastEpisode[];
 }
+
+/**
+ * Sleep timer settings. `kind` is the dimension along which the timer
+ * fires:
+ *   • `time`     — exact `Date.now()` cutoff in ms (15/30/45/60 min etc.)
+ *   • `episode`  — pause when the current episode reaches `ended`
+ *
+ * Both modes set `kind` AND `endsAt` (for `time`) so the UI can render
+ * a live countdown. `episode` mode's `endsAt` is `null` — there's no
+ * monotonic countdown, just a wait for the natural episode end.
+ */
+export type SleepTimerSetting =
+  | { kind: 'time'; endsAt: number }
+  | { kind: 'episode' };
+
+const SPEED_KEY = 'podcasts.playbackSpeed';
+const AUTO_PLAY_NEXT_KEY = 'podcasts.autoPlayNext';
+const SKIP_SECONDS = 15;
 
 interface PodcastPlayerContextValue {
   /** The track currently bound to (or staged for) the audio element.
@@ -68,6 +98,16 @@ interface PodcastPlayerContextValue {
   /** Current playback rate (1.0 by default). */
   speed: number;
   error: string | null;
+
+  /** When true, the player advances to the next OLDER episode in the
+   *  current `episodes` queue when one finishes. Persisted. */
+  autoPlayNext: boolean;
+  setAutoPlayNext: (v: boolean) => void;
+
+  /** Active sleep timer setting, or `null` when none is armed. */
+  sleepTimer: SleepTimerSetting | null;
+  /** Set or replace the sleep timer. Pass `null` to cancel. */
+  setSleepTimer: (s: SleepTimerSetting | null) => void;
 
   play: (meta?: PlayingEpisodeMeta) => Promise<void>;
   pause: () => void;
@@ -95,9 +135,6 @@ interface PodcastPlayerProgressValue {
 const PodcastPlayerContext = createContext<PodcastPlayerContextValue | undefined>(undefined);
 const PodcastPlayerProgressContext = createContext<PodcastPlayerProgressValue | undefined>(undefined);
 
-const SPEED_KEY = 'podcasts.playbackSpeed';
-const SKIP_SECONDS = 15;
-
 export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -120,6 +157,28 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
   });
   const [error, setError] = useState<string | null>(null);
 
+  // Auto-play-next preference. Default ON to match the user expectation
+  // set by Spotify / Pocket Casts of "keep playing the show". Persisted
+  // so the choice survives reloads.
+  const [autoPlayNext, setAutoPlayNextState] = useState<boolean>(() => {
+    const saved = localStorage.getItem(AUTO_PLAY_NEXT_KEY);
+    if (saved === null) return true;
+    return saved === '1' || saved === 'true';
+  });
+  const setAutoPlayNext = useCallback((v: boolean) => {
+    setAutoPlayNextState(v);
+    localStorage.setItem(AUTO_PLAY_NEXT_KEY, v ? '1' : '0');
+  }, []);
+
+  // Sleep timer is intentionally NOT persisted — a timer that survives
+  // a tab close would surprise the user the next time they open the
+  // app ("why did playback stop after 7 minutes?"). It's a per-session
+  // affordance.
+  const [sleepTimer, setSleepTimerState] = useState<SleepTimerSetting | null>(null);
+  const setSleepTimer = useCallback((s: SleepTimerSetting | null) => {
+    setSleepTimerState(s);
+  }, []);
+
   /* -------------------------------- refs ----------------------------------- */
   // We keep refs of mutable state so the audio listeners and the
   // memoized `play` callback don't have to recreate on every state
@@ -131,6 +190,12 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
 
   const speedRef = useRef(speed);
   useEffect(() => { speedRef.current = speed; }, [speed]);
+
+  const autoPlayNextRef = useRef(autoPlayNext);
+  useEffect(() => { autoPlayNextRef.current = autoPlayNext; }, [autoPlayNext]);
+
+  const sleepTimerRef = useRef(sleepTimer);
+  useEffect(() => { sleepTimerRef.current = sleepTimer; }, [sleepTimer]);
 
   /**
    * Tracks which episode id is bound to the audio element's `src`.
@@ -154,6 +219,15 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
    */
   const metaCleanupRef = useRef<(() => void) | null>(null);
 
+  /**
+   * Forward declaration of `play()`. The audio listeners (set up once
+   * at mount) need to call `play()` on `ended` to advance to the next
+   * episode, but `play()` is defined as a `useCallback` further down.
+   * We store the latest version in this ref so listeners always reach
+   * the up-to-date closure without re-binding the listeners themselves.
+   */
+  const playRef = useRef<(meta?: PlayingEpisodeMeta) => Promise<void>>(async () => {});
+
   /* ----------------------------- audio listeners ----------------------------- */
   // Bound once on mount, never recreated. `speed` is applied in a
   // separate effect below — including it here would re-attach all
@@ -176,8 +250,33 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
     const onEnded = () => {
       setIsPlaying(false);
       const cur = currentRef.current;
-      if (cur) {
-        markEpisodePlayed(cur.episode.id, audio.duration || cur.episode.duration || 0, true);
+      if (!cur) return;
+
+      // Mark the episode played first — this commits the "fully
+      // listened" state regardless of what we do next.
+      markEpisodePlayed(cur.episode.id, audio.duration || cur.episode.duration || 0, true);
+
+      // Episode-mode sleep timer fires here: the user asked us to stop
+      // at the end of the current episode, so don't auto-advance.
+      if (sleepTimerRef.current?.kind === 'episode') {
+        setSleepTimerState(null);
+        return;
+      }
+
+      // Auto-advance: only when the user has the preference on AND
+      // the current track was loaded with an episodes queue (typically
+      // the full feed from the podcast detail page). RSS feeds are
+      // newest-first, so "the next one" in the array is the next
+      // older episode — that's the chronological-catch-up direction.
+      if (autoPlayNextRef.current && cur.episodes && cur.episodes.length > 0) {
+        const idx = cur.episodes.findIndex(e => e.id === cur.episode.id);
+        const next = idx >= 0 ? cur.episodes[idx + 1] : null;
+        if (next) {
+          void playRef.current({
+            ...cur,
+            episode: next,
+          });
+        }
       }
     };
     const onError = () => {
@@ -214,6 +313,25 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
     if (audio) audio.playbackRate = speed;
   }, [speed]);
 
+  /* ----------------------------- sleep timer (time mode) -------------------- */
+
+  // Wall-clock monitor for the time-mode sleep timer. Runs once a
+  // second only while a time-mode timer is armed and audio is playing
+  // — episode-mode is handled inline in the `ended` listener above,
+  // which doesn't need a tick. We use 1 s granularity because the
+  // user only ever sees minute-level countdown labels in the UI;
+  // sub-second precision would burn cycles for nothing.
+  useEffect(() => {
+    if (!sleepTimer || sleepTimer.kind !== 'time') return;
+    const id = window.setInterval(() => {
+      if (Date.now() >= sleepTimer.endsAt) {
+        audioRef.current?.pause();
+        setSleepTimerState(null);
+      }
+    }, 1000);
+    return () => window.clearInterval(id);
+  }, [sleepTimer]);
+
   /* ----------------------------- persist position ---------------------------- */
 
   // Persist position once a second while the track is playing. We don't
@@ -225,12 +343,26 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
       const audio = audioRef.current;
       const cur = currentRef.current;
       if (!audio || !cur) return;
+      const dur = audio.duration || cur.episode.duration || 0;
       savePlayState({
         episodeId: cur.episode.id,
         position: audio.currentTime,
-        duration: audio.duration || cur.episode.duration || 0,
+        duration: dur,
         played: false,
         updatedAt: Date.now(),
+      });
+      // Mirror the live position into the recents list so the
+      // "Continue Listening" rail can show an up-to-date progress
+      // bar without re-reading playState (which is per-id, not per-list).
+      upsertRecent({
+        episode: cur.episode,
+        podcastTitle: cur.podcastTitle,
+        podcastImageUrl: cur.podcastImageUrl,
+        seedH: cur.seedH,
+        seedS: cur.seedS,
+        seedL: cur.seedL,
+        position: audio.currentTime,
+        duration: dur,
       });
     }, 1000);
     return () => window.clearInterval(id);
@@ -243,12 +375,23 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
     const audio = audioRef.current;
     const cur = currentRef.current;
     if (!audio || !cur || audio.currentTime === 0) return;
+    const dur = audio.duration || cur.episode.duration || 0;
     savePlayState({
       episodeId: cur.episode.id,
       position: audio.currentTime,
-      duration: audio.duration || cur.episode.duration || 0,
+      duration: dur,
       played: false,
       updatedAt: Date.now(),
+    });
+    upsertRecent({
+      episode: cur.episode,
+      podcastTitle: cur.podcastTitle,
+      podcastImageUrl: cur.podcastImageUrl,
+      seedH: cur.seedH,
+      seedS: cur.seedS,
+      seedL: cur.seedL,
+      position: audio.currentTime,
+      duration: dur,
     });
   }, [isPlaying]);
 
@@ -333,6 +476,12 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
       // next visit, then point the audio element at the new URL and
       // seek to the saved resume position.
       //
+      // We also record the track in the rolling "recents" list now —
+      // not on first play of the very same episode (that's a continuation,
+      // tracked via play state ticks below), but on every NEW track —
+      // so users can jump back to anything they've recently sampled
+      // even if they didn't subscribe.
+      //
       // `audio.src` is set to the publisher's *original* enclosure URL
       // straight from the RSS `<enclosure url="...">`. The browser
       // streams it natively at the publisher's encoded bitrate — we
@@ -348,6 +497,17 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
       // Plain `<audio src=...>` playback works without CORS.
       if (target !== currentRef.current) setCurrent(target);
       setLastPlayed(metaToRecord(target));
+      const savedForRecents = getPlayState(target.episode.id);
+      upsertRecent({
+        episode: target.episode,
+        podcastTitle: target.podcastTitle,
+        podcastImageUrl: target.podcastImageUrl,
+        seedH: target.seedH,
+        seedS: target.seedS,
+        seedL: target.seedL,
+        position: savedForRecents?.position ?? 0,
+        duration: savedForRecents?.duration ?? target.episode.duration ?? 0,
+      });
       audio.src = target.episode.audioUrl;
       audio.preload = 'auto';
       audio.playbackRate = speedRef.current;
@@ -392,6 +552,12 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  // Keep `playRef` pointed at the latest `play` so stable listeners
+  // (e.g. `onEnded`, registered once on mount) can call into the most
+  // recent closure — including its `setCurrent` reference, etc. —
+  // without us having to put `play` in their dependency arrays.
+  useEffect(() => { playRef.current = play; }, [play]);
+
   const pause = useCallback(() => {
     audioRef.current?.pause();
   }, []);
@@ -432,8 +598,12 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
   // 4 Hz during playback.
   const commandValue = useMemo<PodcastPlayerContextValue>(() => ({
     current, isPlaying, isLoading, speed, error,
+    autoPlayNext, setAutoPlayNext,
+    sleepTimer, setSleepTimer,
     play, pause, toggle, seek, skip, setSpeed, close, isLoadingEpisode,
   }), [current, isPlaying, isLoading, speed, error,
+      autoPlayNext, setAutoPlayNext,
+      sleepTimer, setSleepTimer,
       play, pause, toggle, seek, skip, setSpeed, close, isLoadingEpisode]);
 
   const progressValue = useMemo<PodcastPlayerProgressValue>(() => ({
