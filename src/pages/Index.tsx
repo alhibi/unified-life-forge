@@ -4,6 +4,7 @@ import { createPortal } from 'react-dom';
 import { useApp } from '@/contexts/AppContext';
 import { useAuth } from '@/hooks/useAuth';
 import { useUnreadMessages } from '@/hooks/useUnreadMessages';
+import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 import LocationSaver from '@/components/LocationSaver';
 import PrayerTimes from '@/components/PrayerTimes';
 import { motion } from 'framer-motion';
@@ -26,21 +27,16 @@ const item = {
 };
 
 export default function Index() {
-  // Auto-detect location on first load and save for all widgets
+  // Auto-request the device's location on first homepage visit *iff* there
+  // is nothing cached yet. Routed through the singleton hook so the prayer-
+  // times card and weather widget see the same coordinates on the same
+  // tick. Anything beyond `idle` (cached / requesting / granted / denied)
+  // means another widget already kicked things off — don't double-prompt.
+  const { status: locationStatus, requestLocation } = useDeviceLocation();
   useEffect(() => {
-    const saved = localStorage.getItem('lastLocation');
-    if (!saved && navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          localStorage.setItem('lastLocation', JSON.stringify({ lat: pos.coords.latitude, lng: pos.coords.longitude }));
-          // Dispatch storage event so widgets re-fetch with new location
-          window.dispatchEvent(new Event('locationUpdated'));
-        },
-        () => { /* user denied or error — keep Makkah default */ },
-        { enableHighAccuracy: true, timeout: 10000 }
-      );
-    }
-  }, []);
+    if (locationStatus === 'idle') void requestLocation();
+  }, [locationStatus, requestLocation]);
+
   const { t, language } = useApp();
   const { user } = useAuth();
   const now = new Date();

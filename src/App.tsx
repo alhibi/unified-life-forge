@@ -19,14 +19,17 @@ import { navStart } from "@/lib/navPerf";
 
 // Eager load the main page
 import Index from "./pages/Index";
-// Tab pages are eager-loaded and stay mounted across navigation so
+// Tab pages that stay mounted across navigation are eager-imported so
 // switching between bottom-nav tabs feels instant (no remount/refetch).
+// `/wellness` and `/diwan` are deliberately NOT in this set: their data
+// modules (`wellnessData.ts`, `exerciseCatalog.ts`, `foodAtlas.ts`,
+// `calisthenicsAtlas.ts`, `poetryData.ts`) total ~10 000 lines and their
+// import cost dominated cold-paint of the homepage even when the user
+// never opened those tabs. They are routed lazily below.
 import GamesPage from "./pages/Games";
 import SettingsPage from "./pages/Settings";
 import DuasPage from "./pages/Duas";
-import DiwanPage from "./pages/Diwan";
 import ChatPage from "./pages/Chat";
-import WellnessPage from "./pages/Wellness";
 
 function AutoPrayerThemeRunner() {
   useAutoPrayerTheme();
@@ -65,6 +68,13 @@ const loadUntimed = () => import("./pages/UntimedSunnah");
 const loadVirtues = () => import("./pages/QuranVirtues");
 const loadTafsir = () => import("./pages/Tafsir");
 const loadNotFound = () => import("./pages/NotFound");
+// Wellness and Diwan tabs are lazy because their static data files
+// (~10k lines combined) make eager-loading them measurable on cold
+// homepage paint. The bottom nav still highlights them and the tap
+// switches the route normally — first visit pays a brief skeleton,
+// subsequent visits hit React.lazy's module cache and are instant.
+const loadWellness = () => import("./pages/Wellness");
+const loadDiwan = () => import("./pages/Diwan");
 // Diwan library — adab.com integration
 const loadLibrary = () => import("./pages/diwan/Library");
 const loadLibraryPoets = () => import("./pages/diwan/LibraryPoets");
@@ -97,6 +107,8 @@ const UntimedSunnahPage = lazy(loadUntimed);
 const QuranVirtuesPage = lazy(loadVirtues);
 const TafsirPage = lazy(loadTafsir);
 const NotFound = lazy(loadNotFound);
+const WellnessPage = lazy(loadWellness);
+const DiwanPage = lazy(loadDiwan);
 const DiwanLibraryPage = lazy(loadLibrary);
 const DiwanLibraryPoetsPage = lazy(loadLibraryPoets);
 const DiwanLibraryPoetPage = lazy(loadLibraryPoet);
@@ -106,6 +118,8 @@ const DiwanLibraryFavoritesPage = lazy(loadLibraryFavorites);
 
 // Tab pages are now eager (always mounted), so the idle prefetch warms
 // the next most-likely sub-routes instead of the tabs themselves.
+// Wellness and Diwan are lazy now too, so we prefetch them on idle so the
+// first tap doesn't pay the network/parse cost in the foreground.
 function useIdlePrefetch() {
   useEffect(() => {
     const ric: (cb: () => void) => number =
@@ -113,6 +127,7 @@ function useIdlePrefetch() {
       ((cb) => window.setTimeout(cb, 1500));
     const id = ric(() => {
       loadTheme(); loadProfile(); loadPrayer(); loadReading();
+      loadWellness(); loadDiwan();
     });
     return () => {
       const cic = (window as any).cancelIdleCallback;
@@ -147,7 +162,11 @@ const PageSkeleton = () => (
 // Tab routes that stay mounted across navigation. Their components are
 // rendered once in <PersistentTabs/> and toggled with display:none — never
 // unmounted. This makes bottom-nav switching feel native and instant.
-const TAB_PATHS = ['/', '/games', '/chat', '/settings', '/duas', '/diwan', '/wellness'] as const;
+//
+// Wellness and Diwan are intentionally NOT here — see the comment on
+// `loadWellness` / `loadDiwan` above. They appear as regular lazy routes
+// in <Routes> below and the bottom-nav still works the same way.
+const TAB_PATHS = ['/', '/games', '/chat', '/settings', '/duas'] as const;
 type TabPath = typeof TAB_PATHS[number];
 
 function PersistentTabs({ active }: { active: TabPath | null }) {
@@ -182,8 +201,6 @@ function PersistentTabs({ active }: { active: TabPath | null }) {
       {slot('/chat',     <ChatPage />)}
       {slot('/settings', <SettingsPage />)}
       {slot('/duas',     <DuasPage />)}
-      {slot('/diwan',    <DiwanPage />)}
-      {slot('/wellness', <WellnessPage />)}
     </div>
   );
 }
@@ -212,8 +229,11 @@ function AnimatedRoutes() {
             <Route path="/chat" element={null} />
             <Route path="/settings" element={null} />
             <Route path="/duas" element={null} />
-            <Route path="/diwan" element={null} />
-            <Route path="/wellness" element={null} />
+            {/* Wellness and Diwan tabs are lazy routes (see notes near
+                `loadWellness`/`loadDiwan` above). They still appear in
+                the bottom nav. */}
+            <Route path="/wellness" element={<ErrorBoundary><PageTransition><WellnessPage /></PageTransition></ErrorBoundary>} />
+            <Route path="/diwan" element={<ErrorBoundary><PageTransition><DiwanPage /></PageTransition></ErrorBoundary>} />
             <Route path="/games/sudoku" element={<ErrorBoundary><PageTransition><SudokuPage /></PageTransition></ErrorBoundary>} />
             <Route path="/games/chess" element={<ErrorBoundary><PageTransition><ChessPage /></PageTransition></ErrorBoundary>} />
             <Route path="/games/chess/puzzles" element={<ErrorBoundary><PageTransition><ChessPuzzlePage /></PageTransition></ErrorBoundary>} />

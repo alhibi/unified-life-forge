@@ -4,6 +4,7 @@ import { Check, Sunrise as SunriseIcon, CalendarDays, ChevronLeft, ChevronRight 
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '@/contexts/AppContext';
 import { fetchPrayerTimings as fetchPrayerTimingsCached } from '@/hooks/usePrayerTimesCache';
+import { useDeviceLocation, MECCA_FALLBACK } from '@/hooks/useDeviceLocation';
 import {
   getUpcomingOccasions,
   getDaysUntil,
@@ -380,99 +381,30 @@ export default function PrayerTimes() {
     [schoolParam, latAdjParam, dstEnabled, language, t]
   );
 
-  // Resolve location, then fetch prayer times.
-  // Strategy (mirrors what other widgets in this app do):
-  //   1. If `lastLocation` is already saved (by LocationSaver, Index, or
-  //      another widget) → use it immediately.
-  //   2. Otherwise actively request the device's geolocation.
-  //   3. If permission is denied or geolocation unavailable → fall back to Mecca.
-  //   4. Always listen for `locationUpdated` events so we re-fetch whenever
-  //      the user changes their saved location elsewhere in the app.
+  // Resolve location through the singleton hook. The hook bootstraps from
+  // `localStorage.lastLocation` synchronously, so on warm visits the very
+  // first render already has coords. On cold visits Index.tsx fires the
+  // permission prompt; we just react to whatever the hook hands us.
+  // Cross-tab updates and `locationUpdated` events are handled inside the
+  // hook itself — no per-component listeners needed.
+  const { location, status: locationStatus, requestLocation } = useDeviceLocation();
+
   useEffect(() => {
-    let cancelled = false;
-
-    const useCoords = (lat: number, lng: number, persist: boolean) => {
-      if (cancelled) return;
-      if (persist) {
-        try {
-          localStorage.setItem('lastLocation', JSON.stringify({ lat, lng }));
-        } catch { /* ignore quota / privacy errors */ }
-      }
-      fetchPrayers(lat, lng);
-    };
-
-    const fallbackToMecca = () => useCoords(21.4225, 39.8262, false);
-
-    const cached = localStorage.getItem('lastLocation');
-    if (cached) {
-      try {
-        const { lat, lng } = JSON.parse(cached);
-        if (typeof lat === 'number' && typeof lng === 'number') {
-          useCoords(lat, lng, false);
-        } else {
-          fallbackToMecca();
-        }
-      } catch {
-        fallbackToMecca();
-      }
-    } else if (typeof navigator !== 'undefined' && navigator.geolocation) {
-      // Ask the browser for the current position. We don't block on this —
-      // a fallback timer kicks in after 8 s so the card never stays in the
-      // loading state forever (some browsers stall silently).
-      let timedOut = false;
-      const timeout = setTimeout(() => {
-        timedOut = true;
-        fallbackToMecca();
-      }, 8000);
-
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          if (timedOut) return;
-          clearTimeout(timeout);
-          const lat = pos.coords.latitude;
-          const lng = pos.coords.longitude;
-          useCoords(lat, lng, true);
-          // Notify the rest of the app so other widgets (Weather, Sunnah, …)
-          // can re-fetch with the same coordinates.
-          window.dispatchEvent(new Event('locationUpdated'));
-        },
-        () => {
-          // Permission denied / position unavailable
-          if (timedOut) return;
-          clearTimeout(timeout);
-          fallbackToMecca();
-        },
-        { enableHighAccuracy: false, maximumAge: 5 * 60_000, timeout: 7000 }
-      );
-    } else {
-      fallbackToMecca();
+    // Cold start with no cached coordinates — kick off our own prompt
+    // (Index.tsx covers the homepage, but this card may also be embedded
+    // elsewhere). The hook coalesces concurrent requests into one.
+    if (locationStatus === 'idle') {
+      void requestLocation();
+      return;
     }
 
-    // Listen for location updates from other widgets (e.g. user picks a
-    // saved location, Index re-detects, etc.)
-    const handleLocationUpdate = () => {
-      const updated = localStorage.getItem('lastLocation');
-      if (!updated) return;
-      try {
-        const { lat, lng } = JSON.parse(updated);
-        if (typeof lat === 'number' && typeof lng === 'number') {
-          fetchPrayers(lat, lng);
-        }
-      } catch { /* ignore */ }
-    };
-    window.addEventListener('locationUpdated', handleLocationUpdate);
-    // Also listen to cross-tab storage events
-    const handleStorage = (e: StorageEvent) => {
-      if (e.key === 'lastLocation') handleLocationUpdate();
-    };
-    window.addEventListener('storage', handleStorage);
+    // While the request is in flight don't pre-fetch with a stale value;
+    // wait for the resolution. PrayerTimes already shows a skeleton.
+    if (locationStatus === 'requesting' && !location) return;
 
-    return () => {
-      cancelled = true;
-      window.removeEventListener('locationUpdated', handleLocationUpdate);
-      window.removeEventListener('storage', handleStorage);
-    };
-  }, [fetchPrayers]);
+    const { lat, lng } = location ?? MECCA_FALLBACK;
+    fetchPrayers(lat, lng);
+  }, [location?.lat, location?.lng, locationStatus, requestLocation, fetchPrayers]);
 
   // Tick once per second so the arc, sun and any inside-makruh tinting stay live.
   useEffect(() => {

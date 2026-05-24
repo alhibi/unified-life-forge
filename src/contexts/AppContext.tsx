@@ -1,9 +1,10 @@
 import React, { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 import type { User } from '@supabase/supabase-js';
 import { themePresets, generateThemeTokens, applyThemeTokens, generateMD3Tokens, type ThemeStyle } from '@/utils/themeEngine';
+import { translate, type Language } from '@/i18n';
 
-type Language = 'ar' | 'de';
 type Theme = 'light' | 'dark' | 'system';
 type PaletteStyle = 'tonal' | 'vibrant' | 'expressive' | 'neutral' | 'rainbow';
 type ColorTheme = 'default' | 'midnight' | 'rose' | 'emerald' | 'lavender' | 'sunset' | 'ocean' | 'neon' | 'coffee' | 'mono' | 'cherry' | 'gold' | 'aurora' | 'sakura' | 'arctic' | 'volcano' | 'matcha' | 'nebula' | 'copper' | 'mint' | 'sandstone' | 'dusk' | 'moss' | 'clay' | 'storm' | 'silk' | 'amber' | 'fog' | 'obsidian' | 'terracotta' | 'dynamic';
@@ -46,221 +47,6 @@ interface AppContextType {
   setDstEnabled: (v: boolean) => void;
 }
 
-const translations: Record<string, Record<Language, string>> = {
-  'app.title': { ar: 'تطبيقي الذكي', de: 'Meine Smart App' },
-  'greeting.morning': { ar: 'صباح الخير', de: 'Guten Morgen' },
-  'greeting.afternoon': { ar: 'نهارك جميل', de: 'Guten Tag' },
-  'greeting.evening': { ar: 'مساء الخير', de: 'Guten Abend' },
-  'nav.home': { ar: 'الرئيسية', de: 'Start' },
-  'nav.games': { ar: 'الألعاب', de: 'Spiele' },
-  'nav.settings': { ar: 'الإعدادات', de: 'Einstellungen' },
-  'nav.duas': { ar: 'الأدعية', de: 'Bittgebete' },
-  'nav.diwan': { ar: 'ديوان', de: 'Diwan' },
-  'nav.chat': { ar: 'الدردشة', de: 'Chat' },
- 'nav.wellness': { ar: 'العافية', de: 'Wellness' },
- 'nav.reading': { ar: 'القراءة', de: 'Lesen' },
- 'nav.sunnah': { ar: 'السنن', de: 'Sunan' },
- 'nav.spirit': { ar: 'روح', de: 'Seele' },
- 'nav.mind': { ar: 'عقل', de: 'Geist' },
- 'nav.life': { ar: 'حياة', de: 'Leben' },
- 'nav.close': { ar: 'إغلاق', de: 'Schließen' },
-  'calendar.title': { ar: 'التقويم', de: 'Kalender' },
-  'calendar.today': { ar: 'اليوم', de: 'Heute' },
-  'calendar.hijri': { ar: 'هجري', de: 'Hijri' },
-  'calendar.gregorian': { ar: 'ميلادي', de: 'Gregorianisch' },
-  'audio.title': { ar: 'مشغل الصوت', de: 'Audio-Player' },
-  'audio.select': { ar: 'اختر ملفاً صوتياً', de: 'Audiodatei auswählen' },
-  'audio.noFile': { ar: 'لم يتم اختيار ملف', de: 'Keine Datei ausgewählt' },
-  'audio.playing': { ar: 'قيد التشغيل', de: 'Wird abgespielt' },
-  'audio.paused': { ar: 'متوقف', de: 'Pausiert' },
-  'location.title': { ar: 'حفظ الموقع', de: 'Standort speichern' },
-  'location.save': { ar: 'حفظ موقعي الحالي', de: 'Aktuellen Standort speichern' },
-  'location.saved': { ar: 'المواقع المحفوظة', de: 'Gespeicherte Standorte' },
-  'location.empty': { ar: 'لا توجد مواقع محفوظة', de: 'Keine gespeicherten Standorte' },
-  'location.description': { ar: 'الوصف', de: 'Beschreibung' },
-  'location.label': { ar: 'العنوان', de: 'Bezeichnung' },
-  'location.delete': { ar: 'حذف', de: 'Löschen' },
-  'location.saving': { ar: 'جاري الحفظ...', de: 'Wird gespeichert...' },
-  'location.lat': { ar: 'خط العرض', de: 'Breitengrad' },
-  'location.lng': { ar: 'خط الطول', de: 'Längengrad' },
-  'settings.title': { ar: 'الإعدادات', de: 'Einstellungen' },
-  'settings.theme': { ar: 'المظهر', de: 'Erscheinungsbild' },
-  'settings.light': { ar: 'فاتح', de: 'Hell' },
-  'settings.dark': { ar: 'داكن', de: 'Dunkel' },
-  'settings.language': { ar: 'اللغة', de: 'Sprache' },
-  'settings.arabic': { ar: 'العربية', de: 'Arabisch' },
-  'settings.german': { ar: 'الألمانية', de: 'Deutsch' },
-  'settings.colors': { ar: 'الألوان', de: 'Farben' },
-  'games.title': { ar: 'الألعاب', de: 'Spiele' },
-  'games.sudoku': { ar: 'سودوكو', de: 'Sudoku' },
-  'games.sudoku.desc': { ar: 'تحدي العقل الكلاسيكي', de: 'Das klassische Denkspiel' },
-  'games.chess': { ar: 'شطرنج', de: 'Schach' },
-  'games.chess.desc': { ar: 'شطرنج مبسط', de: 'Minimalistisches Schach' },
-  'games.memory': { ar: 'أزواج الذاكرة', de: 'Memory Pairs' },
-  'games.memory.desc': { ar: 'اختبر ذاكرتك بمطابقة الأيقونات', de: 'Trainiere dein Gedächtnis' },
-  'games.dice': { ar: 'النرد', de: 'Würfel' },
-  'games.dice.desc': { ar: 'تحدَّ الخصم في رمي النرد', de: 'Fordere den Gegner im Würfeln heraus' },
-  'games.focus': { ar: 'التركيز', de: 'Fokus' },
-  'games.focus.desc': { ar: 'اختبر سرعة ردة فعلك', de: 'Teste deine Reaktionszeit' },
-  'games.back': { ar: 'رجوع', de: 'Zurück' },
-  'sudoku.new': { ar: 'لعبة جديدة', de: 'Neues Spiel' },
-  'sudoku.easy': { ar: 'سهل', de: 'Leicht' },
-  'sudoku.medium': { ar: 'متوسط', de: 'Mittel' },
-  'sudoku.hard': { ar: 'صعب', de: 'Schwer' },
-  'sudoku.check': { ar: 'تحقق', de: 'Prüfen' },
-  'sudoku.hint': { ar: 'تلميح', de: 'Hinweis' },
-  'sudoku.reset': { ar: 'إعادة', de: 'Zurücksetzen' },
-  'sudoku.solved': { ar: '🎉 أحسنت! حللت اللغز', de: '🎉 Bravo! Rätsel gelöst' },
-  'sudoku.errors': { ar: 'يوجد أخطاء', de: 'Es gibt Fehler' },
-  'sudoku.timer': { ar: 'الوقت', de: 'Zeit' },
-  'chess.white': { ar: 'الأبيض', de: 'Weiß' },
-  'chess.black': { ar: 'الأسود', de: 'Schwarz' },
-  'chess.turn': { ar: 'دور', de: 'Am Zug' },
-  'chess.newGame': { ar: 'لعبة جديدة', de: 'Neues Spiel' },
-  'chess.check': { ar: 'كش!', de: 'Schach!' },
-  'chess.checkmate': { ar: 'كش ملك!', de: 'Schachmatt!' },
-  'chess.captured': { ar: 'القطع المأسورة', de: 'Geschlagene Figuren' },
-  'stats.title': { ar: 'الإحصائيات', de: 'Statistiken' },
-  'stats.wins': { ar: 'فوز', de: 'Siege' },
-  'stats.winRate': { ar: 'نسبة الفوز', de: 'Siegquote' },
-  'stats.streak': { ar: 'أفضل سلسلة', de: 'Beste Serie' },
-  'stats.best': { ar: 'أفضل وقت', de: 'Bestzeit' },
-  'stats.played': { ar: 'مباريات', de: 'Spiele' },
-  'stats.moves': { ar: 'نقلات', de: 'Züge' },
-  'location.openMap': { ar: 'فتح الخريطة', de: 'Karte öffnen' },
-  'audio.selectFolder': { ar: 'اختر مجلد الموسيقى', de: 'Musikordner auswählen' },
-  'calendar.daysLeft': { ar: 'يوم متبقي', de: 'Tage übrig' },
-  'calendar.daysAgo': { ar: 'يوم مضى', de: 'Tage her' },
-  'calendar.isToday': { ar: 'هذا هو اليوم!', de: 'Das ist heute!' },
-  'calendar.tomorrow': { ar: 'غداً', de: 'Morgen' },
-  'calendar.yesterday': { ar: 'أمس', de: 'Gestern' },
-  'audio.selectHint': { ar: 'اختر مجلداً لعرض جميع الملفات الصوتية', de: 'Wähle einen Ordner um alle Audiodateien anzuzeigen' },
-  'months.1': { ar: 'يناير', de: 'Januar' },
-  'months.2': { ar: 'فبراير', de: 'Februar' },
-  'months.3': { ar: 'مارس', de: 'März' },
-  'months.4': { ar: 'أبريل', de: 'April' },
-  'months.5': { ar: 'مايو', de: 'Mai' },
-  'months.6': { ar: 'يونيو', de: 'Juni' },
-  'months.7': { ar: 'يوليو', de: 'Juli' },
-  'months.8': { ar: 'أغسطس', de: 'August' },
-  'months.9': { ar: 'سبتمبر', de: 'September' },
-  'months.10': { ar: 'أكتوبر', de: 'Oktober' },
-  'months.11': { ar: 'نوفمبر', de: 'November' },
-  'months.12': { ar: 'ديسمبر', de: 'Dezember' },
-  'hijriMonths.1': { ar: 'محرم', de: 'Muharram' },
-  'hijriMonths.2': { ar: 'صفر', de: 'Safar' },
-  'hijriMonths.3': { ar: 'ربيع الأول', de: 'Rabīʿ al-Awwal' },
-  'hijriMonths.4': { ar: 'ربيع الثاني', de: 'Rabīʿ ath-Thānī' },
-  'hijriMonths.5': { ar: 'جمادى الأولى', de: 'Dschumādā l-Ūlā' },
-  'hijriMonths.6': { ar: 'جمادى الآخرة', de: 'Dschumādā th-Thāniya' },
-  'hijriMonths.7': { ar: 'رجب', de: 'Radschab' },
-  'hijriMonths.8': { ar: 'شعبان', de: 'Schaʿbān' },
-  'hijriMonths.9': { ar: 'رمضان', de: 'Ramadan' },
-  'hijriMonths.10': { ar: 'شوال', de: 'Schawwāl' },
-  'hijriMonths.11': { ar: 'ذو القعدة', de: 'Dhū l-Qaʿda' },
-  'hijriMonths.12': { ar: 'ذو الحجة', de: 'Dhū l-Hiddscha' },
-  'days.0': { ar: 'الأحد', de: 'So' },
-  'days.1': { ar: 'الاثنين', de: 'Mo' },
-  'days.2': { ar: 'الثلاثاء', de: 'Di' },
-  'days.3': { ar: 'الأربعاء', de: 'Mi' },
-  'days.4': { ar: 'الخميس', de: 'Do' },
-  'days.5': { ar: 'الجمعة', de: 'Fr' },
-  'days.6': { ar: 'السبت', de: 'Sa' },
-  'daysShort.0': { ar: 'أح', de: 'So' },
-  'daysShort.1': { ar: 'اث', de: 'Mo' },
-  'daysShort.2': { ar: 'ثل', de: 'Di' },
-  'daysShort.3': { ar: 'أر', de: 'Mi' },
-  'daysShort.4': { ar: 'خم', de: 'Do' },
-  'daysShort.5': { ar: 'جم', de: 'Fr' },
-  'daysShort.6': { ar: 'سب', de: 'Sa' },
-  // Prayer times
-  'prayer.next': { ar: 'الصلاة القادمة', de: 'Nächstes Gebet' },
-  'prayer.next.short': { ar: 'القادمة', de: 'NÄCHST' },
-  'prayer.current': { ar: 'الصلاة الحالية', de: 'Aktuelles Gebet' },
-  'prayer.endsIn': { ar: 'تنتهي خلال', de: 'Endet in' },
-  'prayer.beginsIn': { ar: 'تبدأ خلال', de: 'Beginnt in' },
-  'prayer.remaining': { ar: 'متبقي', de: 'verbleibend' },
-  'prayer.hour': { ar: 'ساعة', de: 'Std' },
-  'prayer.and': { ar: 'و', de: 'und' },
-  'prayer.minute': { ar: 'دقيقة', de: 'Min' },
-  'prayer.error': { ar: 'تعذر جلب مواقيت الصلاة', de: 'Gebetszeiten konnten nicht geladen werden' },
-  'prayer.connectionError': { ar: 'تعذر الاتصال بالخادم', de: 'Verbindung zum Server fehlgeschlagen' },
-  'prayer.fajr': { ar: 'الفجر', de: 'Fajr' },
-  'prayer.dhuhr': { ar: 'الظهر', de: 'Dhuhr' },
-  'prayer.asr': { ar: 'العصر', de: 'Asr' },
-  'prayer.maghrib': { ar: 'المغرب', de: 'Maghrib' },
-  'prayer.isha': { ar: 'العشاء', de: 'Isha' },
-  'prayer.am': { ar: 'ص', de: 'AM' },
-  'prayer.pm': { ar: 'م', de: 'PM' },
-  // Prayer — khushu-style additions
-  'prayer.local': { ar: 'محلي', de: 'Lokal' },
-  'prayer.locationFallback': { ar: 'موقعك', de: 'Dein Ort' },
-  'prayer.todaysPrayers': { ar: 'صلوات اليوم', de: 'Heutige Gebete' },
-  'prayer.of': { ar: 'من', de: 'von' },
-  'prayer.pray': { ar: 'صلِّ', de: 'Beten' },
-  'prayer.tapDismiss': { ar: 'اضغط للإغلاق', de: 'Zum Schließen tippen' },
-  'prayer.makruh': { ar: 'مكروه', de: 'Makruh' },
-  'prayer.makruh.sunrise': { ar: 'الشروق', de: 'Sonnenaufgang' },
-  'prayer.makruh.zawal': { ar: 'الزوال', de: 'Zawāl' },
-  'prayer.makruh.sunset': { ar: 'الغروب', de: 'Sonnenuntergang' },
-  'prayer.makruh.desc.sunrise': {
-    ar: 'يُكره التطوع حتى ترتفع الشمس قِيد رمح (نحو 20 دقيقة بعد الشروق). "من أدرك ركعة من الفجر قبل أن تطلع الشمس فقد أدرك الفجر." — البخاري ٥٧٩، مسلم ٦٠٨',
-    de: 'Es ist verpönt zu beten, bis die Sonne eine Speerlänge gestiegen ist (~20 Min). „Wer eine Rakʿa des Fadschr vor Sonnenaufgang erreicht, hat das Fadschr erreicht." — Buchari 579, Muslim 608',
-  },
-  'prayer.makruh.desc.zawal': {
-    ar: 'الشمس في كبد السماء — تُمنع الصلاة في هذه اللحظة. "نهى رسول الله ﷺ عن الصلاة وقت زوال الشمس حتى تزول." — مسلم ٨٣١',
-    de: 'Die Sonne steht im Zenit — Gebet ist in diesem Augenblick verboten. „Der Prophet ﷺ verbot das Gebet, wenn die Sonne in ihrem Höchststand (Zawāl) steht, bis sie abnimmt." — Muslim 831',
-  },
-  'prayer.makruh.desc.sunset': {
-    ar: 'يُكره التطوع عند تَدلِّي الشمس للغروب. "من أدرك ركعة من العصر قبل أن تغرب الشمس فقد أدرك العصر." — البخاري ٥٥٦، مسلم ٦٠٨',
-    de: 'Es ist verpönt zu beten, während die Sonne untergeht. „Wer eine Rakʿa des ʿAsr vor Sonnenuntergang erreicht, hat das ʿAsr erreicht." — Buchari 556, Muslim 608',
-  },
-  // Islamic sections
-  'sections.more': { ar: 'المزيد من', de: 'Mehr entdecken' },
-  'sections.timedSunnah': { ar: 'سنن موقوتة', de: 'Zeitgebundene Sunna' },
-  'sections.untimedSunnah': { ar: 'سنن غير موقوتة', de: 'Freiwillige Sunna' },
-  'sections.propheticDay': { ar: 'اليوم النبوي', de: 'Prophetischer Tag' },
-  'sections.quranVirtues': { ar: 'فضائل القرآن', de: 'Quran-Vorzüge' },
-  'sections.selections': { ar: 'قطوف', de: 'Auswahl' },
-  'sections.propheticBadges': { ar: 'الأوسمة النبوية', de: 'Prophetische Auszeichnungen' },
-  // Timed Sunnah page
-  'timed.title': { ar: 'السنن الموقوتة', de: 'Zeitgebundene Sunna' },
-  'timed.sunnah': { ar: 'سنة', de: 'Sunna' },
-  'timed.fajr': { ar: 'الفجر', de: 'Fajr' },
-  'timed.beforeFajr': { ar: 'قبل الفجر', de: 'Vor Fajr' },
-  'timed.dhuhr': { ar: 'الظهر', de: 'Dhuhr' },
-  'timed.duha': { ar: 'الضحى', de: 'Duha' },
-  'timed.asr': { ar: 'العصر', de: 'Asr' },
-  'timed.maghrib': { ar: 'المغرب', de: 'Maghrib' },
-  'timed.isha': { ar: 'العشاء', de: 'Isha' },
-  'timed.friday': { ar: 'يوم الجمعة', de: 'Freitag' },
-  // Sunnah detail
-  'sunnah.sunnahs': { ar: 'السنن', de: 'Sunna-Handlungen' },
-  'sunnah.sunnahUnit': { ar: 'سنة', de: 'Sunna' },
-  'sunnah.copied': { ar: 'تم النسخ', de: 'Kopiert' },
-  // Occasions
-  'occasions.title': { ar: 'مناسبات دينية', de: 'Religiöse Anlässe' },
-  'occasions.showAll': { ar: 'عرض الكل', de: 'Alle anzeigen' },
-'occasions.today': { ar: 'اليوم', de: 'Heute' },
-  'occasions.after': { ar: 'بعد', de: 'in' },
-  'occasions.day': { ar: 'يوم', de: 'Tagen' },
-  'occasions.past': { ar: 'مضت', de: 'Vergangen' },
-  'occasions.upcoming': { ar: 'المناسبات القادمة', de: 'Kommende Anlässe' },
-  'occasions.pastTitle': { ar: 'المناسبات الماضية', de: 'Vergangene Anlässe' },
-  // Footer
-  'footer.madeBy': { ar: 'صنع بواسطة', de: 'Erstellt von' },
-  'footer.and': { ar: 'و', de: 'und' },
-  // Tafsir
-  'tafsir.title': { ar: 'التفسير', de: 'Tafsir' },
-  'tafsir.subtitle': { ar: 'ابحث في سور القرآن واقرأ التفسير الموثّق من كبار العلماء', de: 'Durchsuche Suren und lies gelehrte Kommentare' },
-  'tafsir.allSurahs': { ar: 'كل السور', de: 'Alle Suren' },
-  'tafsir.ayah': { ar: 'الآية', de: 'Ayah' },
-  // Wellness entry point
-  'wellness.title': { ar: 'العافية', de: 'Wellness' },
-  'wellness.subtitle': { ar: 'المكملات والتغذية والبشرة', de: 'Supplemente, Ernährung, Haut' },
-  'wellness.cta': { ar: 'تتبّع ذكي وخاص بالكامل', de: 'Smartes, privates Tracking' },
-  'wellness.settingsLabel': { ar: 'العافية والمكملات', de: 'Wellness & Supplemente' },
-};
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
@@ -315,7 +101,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     localStorage.getItem('app-dst-enabled') !== 'false'
   );
 
-  const [authUser, setAuthUser] = useState<User | null>(null);
   const authUserRef = useRef<User | null>(null);
   const syncRef = useRef(false);
   const initialLoadDone = useRef(false);
@@ -345,30 +130,24 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setTimeout(() => { syncRef.current = false; }, 100);
   };
 
-  // Listen for auth changes
+  // Auth state — pulled from the singleton `useAuth` hook so this component
+  // and every other consumer (BottomNav, Settings, ProfileEdit, …) share
+  // one underlying `onAuthStateChange` subscription. Previously this
+  // provider ran its OWN parallel subscription; that meant every auth
+  // change triggered two profile fetches and the two stores could
+  // momentarily disagree.
+  const { user: authUser } = useAuth();
+  const prevAuthUserRef = useRef<User | null>(null);
+
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      // Use a ref instead of `authUser` from the effect closure — the closure
-      // is created once (deps: []) so reading state directly here would always
-      // see the initial value and miss the SIGNED_OUT case for sessions that
-      // expired silently.
-      const prevUser = authUserRef.current;
-      const nextUser = session?.user ?? null;
-      authUserRef.current = nextUser;
-      setAuthUser(nextUser);
-      // Reset to defaults on logout (explicit SIGNED_OUT, or session lost
-      // for a previously-logged-in user).
-      if (event === 'SIGNED_OUT' || (!nextUser && prevUser)) {
-        resetToDefaults();
-      }
-    });
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      const initialUser = session?.user ?? null;
-      authUserRef.current = initialUser;
-      setAuthUser(initialUser);
-    });
-    return () => subscription.unsubscribe();
-  }, []);
+    authUserRef.current = authUser;
+    const prev = prevAuthUserRef.current;
+    prevAuthUserRef.current = authUser;
+    // Only the user → null transition counts as a sign-out worth
+    // resetting preferences for. Initial mount when the user starts out
+    // null must NOT clobber any locally-saved settings.
+    if (prev && !authUser) resetToDefaults();
+  }, [authUser]);
 
   // Load settings from DB when user logs in
   useEffect(() => {
@@ -557,7 +336,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     scheduleSave();
   };
 
-  const t = (key: string): string => translations[key]?.[language] || key;
+  const t = (key: string): string => translate(language, key);
   const dir = language === 'ar' ? 'rtl' : 'ltr';
 
   useEffect(() => {

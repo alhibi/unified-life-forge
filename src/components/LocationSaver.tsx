@@ -3,6 +3,7 @@ import { useApp } from '@/contexts/AppContext';
 import { MapPin, Plus, Trash2, Navigation, Clock, ChevronDown, ChevronUp, X, ExternalLink } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { reverseGeocode as reverseGeocodeCached } from '@/lib/reverseGeocode';
+import { requestDeviceLocation } from '@/hooks/useDeviceLocation';
 
 interface SavedLocation {
   id: string;
@@ -42,27 +43,23 @@ export default function LocationSaver() {
 
   const saveCurrentLocation = async () => {
     setSaving(true);
-    navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-        setPendingCoords(coords);
-        const geo = await reverseGeocode(coords.lat, coords.lng);
-        setPendingGeo(geo);
-        setLabel(geo.street || geo.city || '');
-        setShowForm(true);
-        setSaving(false);
-      },
-      async () => {
-        const coords = { lat: 52.52, lng: 13.405 };
-        setPendingCoords(coords);
-        const geo = await reverseGeocode(coords.lat, coords.lng);
-        setPendingGeo(geo);
-        setLabel(geo.street || geo.city || '');
-        setShowForm(true);
-        setSaving(false);
-      },
-      { enableHighAccuracy: true }
-    );
+    // Route through the singleton hook so the same coordinates are
+    // persisted to `lastLocation` (and broadcast to weather / prayer
+    // widgets) without us having to manage a parallel
+    // `getCurrentPosition` call. The hook handles permission denial,
+    // OS errors, and the 8 s soft timeout for us.
+    const granted = await requestDeviceLocation();
+    // If the user denied / the request timed out, the hook returns the
+    // last cached value (or Mecca). Either way we still want to seed
+    // the form so the user can manually edit — preserve historic
+    // behavior of falling back to Berlin in the totally-cold case.
+    const coords = granted ?? { lat: 52.52, lng: 13.405 };
+    setPendingCoords(coords);
+    const geo = await reverseGeocode(coords.lat, coords.lng);
+    setPendingGeo(geo);
+    setLabel(geo.street || geo.city || '');
+    setShowForm(true);
+    setSaving(false);
   };
 
   const confirmSave = () => {
