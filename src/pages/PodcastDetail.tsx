@@ -25,7 +25,7 @@ import { useQuery } from '@tanstack/react-query';
 import DOMPurify from 'dompurify';
 import { motion } from 'framer-motion';
 import {
-  Check, ExternalLink, Globe, Loader2, Plus, Rss,
+  Check, ChevronDown, ChevronUp, ExternalLink, Globe, Loader2, Plus, Rss,
 } from 'lucide-react';
 import SEO from '@/components/SEO';
 import BackButton from '@/components/BackButton';
@@ -167,6 +167,16 @@ export default function PodcastDetail() {
     });
   }, [feed.data?.description]);
 
+  // Show-more / show-less for the description card. We collapse to a
+  // line-clamped preview when the raw text is "long enough that it
+  // would crowd the page" (≈ four lines on a phone) and let the user
+  // expand on tap. The threshold is on character count rather than DOM
+  // height so we don't have to measure the rendered height — character
+  // count is reliable enough for a binary collapse decision.
+  const COLLAPSE_THRESHOLD_CHARS = 280;
+  const isLongDescription = (feed.data?.description?.length ?? 0) > COLLAPSE_THRESHOLD_CHARS;
+  const [descExpanded, setDescExpanded] = useState(false);
+
   return (
     <DynamicPodcastTheme
       seedH={seed?.h ?? null}
@@ -295,10 +305,32 @@ export default function PodcastDetail() {
                 transition={{ duration: 0.25 }}
                 className="rounded-2xl bg-card/80 backdrop-blur-sm border border-border/40 p-4"
               >
-                <p
-                  className="text-[13px] text-foreground/85 leading-relaxed podcast-html"
+                <div
+                  className={`text-[13px] text-foreground/85 leading-relaxed podcast-html ${
+                    isLongDescription && !descExpanded ? 'line-clamp-4' : ''
+                  }`}
                   dangerouslySetInnerHTML={{ __html: safeDescription }}
                 />
+                {isLongDescription && (
+                  <button
+                    type="button"
+                    onClick={() => setDescExpanded(v => !v)}
+                    aria-expanded={descExpanded}
+                    className="mt-2 inline-flex items-center gap-1 text-[12px] font-semibold transition-colors"
+                    style={{
+                      color: 'var(--podcast-primary, hsl(var(--primary)))',
+                    }}
+                  >
+                    <span>
+                      {descExpanded
+                        ? (lang === 'ar' ? 'عرض أقل' : 'Weniger anzeigen')
+                        : (lang === 'ar' ? 'عرض المزيد' : 'Mehr anzeigen')}
+                    </span>
+                    {descExpanded
+                      ? <ChevronUp className="w-3.5 h-3.5" />
+                      : <ChevronDown className="w-3.5 h-3.5" />}
+                  </button>
+                )}
               </motion.div>
             )}
 

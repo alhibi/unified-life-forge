@@ -13,10 +13,22 @@
 // `JSON.stringify` of the whole world per state mutation):
 //   `podcasts.subs`         → SubscribedPodcast[]
 //   `podcasts.playState`    → Record<episodeId, PlayState>
-//   `podcasts.lastPlayed`   → episodeId | null  (boots the mini-player)
+//   `podcasts.lastPlayed`   → LastPlayedRecord | null  (boots the mini-player)
 //
 // Cross-tab sync is wired via the `storage` event so opening the app
 // in two tabs and subscribing in one updates the other's library.
+//
+// Subscriber model:
+// We keep three INDEPENDENT subscriber sets — one per slice. A write
+// to `playState` (which happens once a second during playback) only
+// notifies components that opted into the play-state slice; it does
+// not re-render the library page or the country-search dialog. This
+// matters because before the split we re-rendered every consumer of
+// `useSubscriptions()` 1Hz the whole time audio was playing. With 50
+// `EpisodeListItem`s on a podcast detail page, that was a measurable
+// scroll-jank source.
+
+import type { PodcastEpisode } from './rss';
 
 export interface SubscribedPodcast {
   /** RSS feed URL — same value used as `PodcastModel.origin` in Podium. */
@@ -42,6 +54,22 @@ export interface PlayState {
   played: boolean;
   /** ms since epoch — drives the "Continue listening" sort. */
   updatedAt: number;
+}
+
+/**
+ * Snapshot of the most-recently-active track so the mini-player can
+ * reappear (paused) after the tab is closed and reopened. Same shape
+ * as `PlayingEpisodeMeta` in `PodcastPlayerContext` minus the optional
+ * auto-play queue (we don't persist queues; the player can rebuild one
+ * on demand if the user navigates back to the podcast detail page).
+ */
+export interface LastPlayedRecord {
+  episode: PodcastEpisode;
+  podcastTitle: string;
+  podcastImageUrl: string;
+  seedH: number | null;
+  seedS: number | null;
+  seedL: number | null;
 }
 
 const SUBS_KEY = 'podcasts.subs';
@@ -130,67 +158,117 @@ export function markEpisodePlayed(episodeId: string, duration: number, played: b
 /*  Last played episode (mini-player resume)                                  */
 /* -------------------------------------------------------------------------- */
 
-export function getLastPlayedId(): string | null {
-  return read<string | null>(LAST_KEY, null);
+/**
+ * Read the persisted "what was the user last listening to" record.
+ *
+ * Tolerant of legacy data: an earlier version of this file stored just
+ * the episode id (`string`) under the same key. Returning `null` for
+ * any non-object value is the migration — the worst that happens is a
+ * one-time loss of the resume mini-player for users upgrading.
+ */
+export function getLastPlayed(): LastPlayedRecord | null {
+  const raw = read<unknown>(LAST_KEY, null);
+  if (!raw || typeof raw !== 'object') return null;
+  const candidate = raw as Partial<LastPlayedRecord>;
+  if (!candidate.episode || typeof candidate.episode !== 'object') return null;
+  if (!candidate.episode.id || !candidate.episode.audioUrl) return null;
+  return candidate as LastPlayedRecord;
 }
 
-export function setLastPlayedId(id: string | null) {
-  write(LAST_KEY, id);
+export function setLastPlayed(record: LastPlayedRecord | null) {
+  if (record === null) {
+    try { localStorage.removeItem(LAST_KEY); } catch { /* ignore */ }
+    return;
+  }
+  write(LAST_KEY, record);
 }
 
 /* -------------------------------------------------------------------------- */
-/*  React hook                                                                */
+/*  Subscriber model — three independent sets, one per slice                  */
 /* -------------------------------------------------------------------------- */
 
 import { useEffect, useState, useSyncExternalStore } from 'react';
 
-const subscribers = new Set<() => void>();
+type Slice = 'subs' | 'play' | 'last';
 
-// Cached snapshot for useSyncExternalStore — it requires a STABLE
-// reference between calls when nothing changed, otherwise React
-// bails out with "Maximum update depth exceeded".
+const subscribers: Record<Slice, Set<() => void>> = {
+  subs: new Set(),
+  play: new Set(),
+  last: new Set(),
+};
+
+// Cached snapshot for `useSubscriptions` — `useSyncExternalStore`
+// requires a STABLE reference between getSnapshot calls when nothing
+// has changed, otherwise React bails out with "Maximum update depth
+// exceeded".
 let subsSnapshot: SubscribedPodcast[] = getSubscriptions();
 function refreshSubsSnapshot() {
   subsSnapshot = getSubscriptions();
 }
 
-function notify() {
-  refreshSubsSnapshot();
-  subscribers.forEach(fn => fn());
+let lastPlayedSnapshot: LastPlayedRecord | null = getLastPlayed();
+function refreshLastPlayedSnapshot() {
+  lastPlayedSnapshot = getLastPlayed();
+}
+
+function notify(slice: Slice) {
+  if (slice === 'subs') refreshSubsSnapshot();
+  if (slice === 'last') refreshLastPlayedSnapshot();
+  subscribers[slice].forEach(fn => fn());
 }
 
 // Cross-tab sync. The `storage` event fires only on OTHER tabs when
 // localStorage changes, so we also notify locally after each writer.
 if (typeof window !== 'undefined') {
   window.addEventListener('storage', e => {
-    if (e.key === SUBS_KEY || e.key === PLAY_KEY || e.key === LAST_KEY) {
+    if (e.key === SUBS_KEY) {
       refreshSubsSnapshot();
-      subscribers.forEach(fn => fn());
+      subscribers.subs.forEach(fn => fn());
+    } else if (e.key === PLAY_KEY) {
+      subscribers.play.forEach(fn => fn());
+    } else if (e.key === LAST_KEY) {
+      refreshLastPlayedSnapshot();
+      subscribers.last.forEach(fn => fn());
     }
   });
 }
 
-function wrapWithNotify<F extends (...a: never[]) => unknown>(fn: F): F {
-  return ((...args: never[]) => {
+/**
+ * Wrap a writer with a slice-targeted notify. Generic over the writer's
+ * argument tuple so we don't lose its parameter types at the call site.
+ */
+function wrapWithNotify<TArgs extends unknown[], TRet>(
+  fn: (...args: TArgs) => TRet,
+  slice: Slice,
+): (...args: TArgs) => TRet {
+  return (...args: TArgs) => {
     const result = fn(...args);
-    notify();
+    notify(slice);
     return result;
-  }) as F;
+  };
 }
 
-export const subscribeWithNotify = wrapWithNotify(subscribe);
-export const unsubscribeWithNotify = wrapWithNotify(unsubscribe);
-export const savePlayStateWithNotify = wrapWithNotify(savePlayState);
-export const markEpisodePlayedWithNotify = wrapWithNotify(markEpisodePlayed);
-export const setLastPlayedIdWithNotify = wrapWithNotify(setLastPlayedId);
+export const subscribeWithNotify        = wrapWithNotify(subscribe, 'subs');
+export const unsubscribeWithNotify      = wrapWithNotify(unsubscribe, 'subs');
+export const savePlayStateWithNotify    = wrapWithNotify(savePlayState, 'play');
+export const markEpisodePlayedWithNotify = wrapWithNotify(markEpisodePlayed, 'play');
+export const setLastPlayedWithNotify    = wrapWithNotify(setLastPlayed, 'last');
 
-function subscribeStore(cb: () => void) {
-  subscribers.add(cb);
-  return () => { subscribers.delete(cb); };
+function subscribeToSlice(slice: Slice, cb: () => void) {
+  subscribers[slice].add(cb);
+  return () => { subscribers[slice].delete(cb); };
 }
+
+/* -------------------------------------------------------------------------- */
+/*  React hooks                                                               */
+/* -------------------------------------------------------------------------- */
 
 export function useSubscriptions(): SubscribedPodcast[] {
-  return useSyncExternalStore(subscribeStore, () => subsSnapshot, () => subsSnapshot);
+  return useSyncExternalStore(
+    cb => subscribeToSlice('subs', cb),
+    () => subsSnapshot,
+    () => subsSnapshot,
+  );
 }
 
 export function useIsSubscribed(origin: string | undefined): boolean {
@@ -203,14 +281,29 @@ export function useIsSubscribed(origin: string | undefined): boolean {
  * synthesized "fresh" record (position=0, played=false) if there's no
  * entry yet — that way the UI can always render a progress ring without
  * a null check on every consumer.
+ *
+ * Subscribes only to the `play` slice, so subscription/last-played
+ * mutations don't trigger `setState` here.
  */
 export function usePlayState(episodeId: string | undefined, durationHint = 0): PlayState {
   const [state, setState] = useState<PlayState>(() => readOrSynth(episodeId, durationHint));
   useEffect(() => {
     setState(readOrSynth(episodeId, durationHint));
-    return subscribeStore(() => setState(readOrSynth(episodeId, durationHint)));
+    return subscribeToSlice('play', () => setState(readOrSynth(episodeId, durationHint)));
   }, [episodeId, durationHint]);
   return state;
+}
+
+/**
+ * Reactive snapshot of the persisted "last played" record. Used by the
+ * player provider to bootstrap the mini-player on first mount.
+ */
+export function useLastPlayed(): LastPlayedRecord | null {
+  return useSyncExternalStore(
+    cb => subscribeToSlice('last', cb),
+    () => lastPlayedSnapshot,
+    () => lastPlayedSnapshot,
+  );
 }
 
 function readOrSynth(episodeId: string | undefined, durationHint: number): PlayState {

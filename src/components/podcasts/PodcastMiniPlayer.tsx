@@ -12,23 +12,42 @@
 import { memo, useState } from 'react';
 import { Loader2, Pause, Play } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { usePodcastPlayer } from '@/contexts/PodcastPlayerContext';
+import { usePodcastPlayer, usePodcastPlayerProgress } from '@/contexts/PodcastPlayerContext';
 import PlayerSheet from './PlayerSheet';
 
 const MINI_PLAYER_HEIGHT = 64;
+
+/**
+ * Tiny child component dedicated to the live progress bar so the
+ * surrounding `PodcastMiniPlayer` doesn't have to subscribe to the
+ * 4 Hz progress context. Splitting it out keeps the parent's
+ * artwork / title / play-button subtree from reconciling on every
+ * `timeupdate`. The child is a single `<div>` with an inline width,
+ * so its render is essentially free.
+ */
+function MiniProgressBar() {
+  const { position, duration } = usePodcastPlayerProgress();
+  const pct = duration > 0
+    ? Math.min(100, Math.max(0, (position / duration) * 100))
+    : 0;
+  return (
+    <div className="mt-1 h-1 rounded-full bg-foreground/10 overflow-hidden">
+      <div
+        className="h-full transition-[width] duration-200"
+        style={{
+          width: `${pct}%`,
+          background: 'var(--podcast-primary, hsl(var(--primary)))',
+        }}
+      />
+    </div>
+  );
+}
 
 const PodcastMiniPlayer = memo(function PodcastMiniPlayer() {
   const player = usePodcastPlayer();
   const [sheetOpen, setSheetOpen] = useState(false);
 
   const visible = !!player.current && !sheetOpen;
-
-  // Progress bar fill percent. We use the live position state which
-  // updates ~4Hz — fast enough for a smooth bar without being so
-  // frequent it tanks rendering.
-  const pct = player.duration > 0
-    ? Math.min(100, Math.max(0, (player.position / player.duration) * 100))
-    : 0;
 
   const Icon = player.isLoading ? Loader2 : player.isPlaying ? Pause : Play;
 
@@ -89,15 +108,7 @@ const PodcastMiniPlayer = memo(function PodcastMiniPlayer() {
                 <p className="text-[11px] opacity-80 leading-tight truncate">
                   {player.current?.podcastTitle}
                 </p>
-                <div className="mt-1 h-1 rounded-full bg-foreground/10 overflow-hidden">
-                  <div
-                    className="h-full transition-[width] duration-200"
-                    style={{
-                      width: `${pct}%`,
-                      background: 'var(--podcast-primary, hsl(var(--primary)))',
-                    }}
-                  />
-                </div>
+                <MiniProgressBar />
               </div>
 
               {/* Play / Pause toggle */}

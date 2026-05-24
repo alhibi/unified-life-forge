@@ -24,7 +24,7 @@ import { Globe, Search, X, Info, Check, LibraryBig } from 'lucide-react';
 import SEO from '@/components/SEO';
 import BackButton from '@/components/BackButton';
 import { useApp } from '@/contexts/AppContext';
-import { fetchTopPodcasts, searchPodcasts, type PodcastPreview } from '@/lib/podcasts/itunes';
+import { fetchTopPodcasts, searchPodcasts, upgradeArtwork, type PodcastPreview } from '@/lib/podcasts/itunes';
 import { podcastGenres } from '@/data/podcastGenres';
 import { podcastCountries, findCountry, type PodcastCountry } from '@/data/podcastCountries';
 import { useSubscriptions } from '@/lib/podcasts/store';
@@ -142,15 +142,23 @@ function PoweredByApplePodcasts() {
 /* -------------------------------------------------------------------------- */
 
 function PodcastCard({ podcast, onOpen }: { podcast: PodcastPreview; onOpen: (p: PodcastPreview) => void }) {
+  // Discovery grid renders cards at ~110px wide on a phone (3 cols on a
+  // 360px viewport, minus padding). Loading the 600px artwork the API
+  // returns wastes ~36× the bytes the user actually needs, ~50KB per
+  // card across 50 cards. We rewrite the URL to request the 200px
+  // variant from Apple's CDN — same path template, ~5KB per card.
+  // The full-size cover is still used by `PodcastDetail` (which
+  // re-fetches from `lookupPodcast` or the RSS feed).
+  const thumb = podcast.artworkUrl ? upgradeArtwork(podcast.artworkUrl, 200) : '';
   return (
     <button
       onClick={() => onOpen(podcast)}
       className="flex flex-col gap-1.5 text-start active:scale-[0.97] transition-transform"
     >
       <div className="aspect-square w-full rounded-2xl overflow-hidden bg-muted/40 border border-border/40">
-        {podcast.artworkUrl ? (
+        {thumb ? (
           <img
-            src={podcast.artworkUrl}
+            src={thumb}
             alt=""
             loading="lazy"
             decoding="async"
