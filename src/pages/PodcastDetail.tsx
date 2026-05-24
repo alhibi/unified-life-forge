@@ -25,7 +25,8 @@ import { useQuery } from '@tanstack/react-query';
 import DOMPurify from 'dompurify';
 import { motion } from 'framer-motion';
 import {
-  Check, ChevronDown, ChevronUp, ExternalLink, Globe, Loader2, Plus, Rss,
+  ArrowDownNarrowWide, ArrowUpNarrowWide, Check, ChevronDown, ChevronUp,
+  ExternalLink, Globe, Loader2, Plus, Rss, Search, Share2, X,
 } from 'lucide-react';
 import SEO from '@/components/SEO';
 import BackButton from '@/components/BackButton';
@@ -131,6 +132,9 @@ export default function PodcastDetail() {
   // with localStorage / other tabs.
   const subscribed = useIsSubscribed(feedUrl);
 
+  // Briefly flash a "Link copied" badge when the share fallback runs.
+  const [copiedLink, setCopiedLink] = useState(false);
+
   const handleSubscribeToggle = () => {
     if (!feed.data || !meta.data) return;
     if (isSubscribedSync(feed.data.origin)) {
@@ -147,6 +151,32 @@ export default function PodcastDetail() {
         seedL: seed?.l ?? 50,
       });
     }
+  };
+
+  /**
+   * Share the podcast itself (channel-level URL). Mirrors the share
+   * helper in `PlayerSheet`, but with the channel's web link as the
+   * payload instead of an episode link. Falls back to clipboard
+   * when `navigator.share` isn't available.
+   */
+  const handleShare = async () => {
+    const title = feed.data?.title || meta.data?.title || '';
+    const url = feed.data?.link || meta.data?.link || feedUrl || '';
+    if (!url) return;
+    const shareData = { title, text: title, url };
+    try {
+      if (typeof navigator.share === 'function') {
+        await navigator.share(shareData);
+        return;
+      }
+    } catch {
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopiedLink(true);
+      window.setTimeout(() => setCopiedLink(false), 1800);
+    } catch { /* ignore */ }
   };
 
   const isLoading = meta.isLoading || (!!feedUrl && feed.isLoading);
@@ -176,6 +206,53 @@ export default function PodcastDetail() {
   const COLLAPSE_THRESHOLD_CHARS = 280;
   const isLongDescription = (feed.data?.description?.length ?? 0) > COLLAPSE_THRESHOLD_CHARS;
   const [descExpanded, setDescExpanded] = useState(false);
+
+  /* ---------------- episode list state: search / sort / pagination ----------- */
+
+  // Filter, sort and paginate the episode list. With long-running
+  // shows (e.g. weekly podcasts running for years → 500+ episodes)
+  // rendering everything at once turns the detail page into a 1.5 s
+  // mount + several seconds of scroll-jank. Capping at PAGE_SIZE
+  // and exposing a "Load more" button keeps the initial mount under
+  // 100 ms even on the longest feeds.
+  const PAGE_SIZE = 30;
+  const [episodeQuery, setEpisodeQuery] = useState('');
+  const [debouncedEpisodeQuery, setDebouncedEpisodeQuery] = useState('');
+  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+
+  // Debounce the search input — typing one char per ~80 ms shouldn't
+  // re-filter on every keystroke when the haystack is 500 items.
+  useEffect(() => {
+    const id = setTimeout(() => setDebouncedEpisodeQuery(episodeQuery.trim().toLowerCase()), 220);
+    return () => clearTimeout(id);
+  }, [episodeQuery]);
+
+  // Reset pagination whenever the filter inputs change so the user
+  // doesn't see "Load more" at the bottom of a 3-item filtered list.
+  useEffect(() => { setVisibleCount(PAGE_SIZE); }, [debouncedEpisodeQuery, sortOrder, feedUrl]);
+
+  const filteredSortedEpisodes = useMemo(() => {
+    const all = feed.data?.episodes ?? [];
+    const filtered = debouncedEpisodeQuery
+      ? all.filter(ep =>
+          ep.title.toLowerCase().includes(debouncedEpisodeQuery) ||
+          (ep.description ?? '').toLowerCase().includes(debouncedEpisodeQuery)
+        )
+      : all;
+    // Most podcast RSS feeds list newest-first already, but a small
+    // minority don't, so sort defensively. Items without a parseable
+    // pubDate (=0) sink to the bottom in newest mode and to the top
+    // in oldest mode — better than scattering them randomly.
+    const sorted = [...filtered].sort((a, b) => {
+      if (sortOrder === 'newest') return (b.pubDate || 0) - (a.pubDate || 0);
+      return (a.pubDate || Number.MAX_SAFE_INTEGER) - (b.pubDate || Number.MAX_SAFE_INTEGER);
+    });
+    return sorted;
+  }, [feed.data?.episodes, debouncedEpisodeQuery, sortOrder]);
+
+  const visibleEpisodes = filteredSortedEpisodes.slice(0, visibleCount);
+  const hasMore = filteredSortedEpisodes.length > visibleCount;
 
   return (
     <DynamicPodcastTheme
@@ -215,27 +292,40 @@ export default function PodcastDetail() {
           {/* Top bar */}
           <div className="sticky top-0 z-30 px-4 pt-3 pb-2 flex items-center justify-between">
             <BackButton />
-            <button
-              onClick={handleSubscribeToggle}
-              disabled={!feed.data}
-              className="flex items-center gap-1.5 h-10 px-4 rounded-full text-[13px] font-bold transition-colors active:scale-95 disabled:opacity-50"
-              style={{
-                background: subscribed
-                  ? 'transparent'
-                  : 'var(--podcast-primary, hsl(var(--primary)))',
-                color: subscribed
-                  ? 'var(--podcast-primary, hsl(var(--primary)))'
-                  : 'var(--podcast-primary-fg, hsl(var(--primary-foreground)))',
-                border: subscribed ? '1.5px solid var(--podcast-primary, hsl(var(--primary)))' : 'none',
-              }}
-            >
-              {subscribed ? <Check className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
-              <span>
-                {subscribed
-                  ? (lang === 'ar' ? 'مشترك' : 'Abonniert')
-                  : (lang === 'ar' ? 'اشترك' : 'Abonnieren')}
-              </span>
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleShare}
+                disabled={!feed.data && !meta.data?.link}
+                aria-label={lang === 'ar' ? 'مشاركة' : 'Teilen'}
+                title={copiedLink ? (lang === 'ar' ? 'تم نسخ الرابط' : 'Link kopiert') : undefined}
+                className="w-10 h-10 rounded-full flex items-center justify-center bg-secondary/60 hover:bg-secondary active:scale-95 transition-transform disabled:opacity-50"
+              >
+                {copiedLink
+                  ? <Check className="w-4 h-4" />
+                  : <Share2 className="w-4 h-4" />}
+              </button>
+              <button
+                onClick={handleSubscribeToggle}
+                disabled={!feed.data}
+                className="flex items-center gap-1.5 h-10 px-4 rounded-full text-[13px] font-bold transition-colors active:scale-95 disabled:opacity-50"
+                style={{
+                  background: subscribed
+                    ? 'transparent'
+                    : 'var(--podcast-primary, hsl(var(--primary)))',
+                  color: subscribed
+                    ? 'var(--podcast-primary, hsl(var(--primary)))'
+                    : 'var(--podcast-primary-fg, hsl(var(--primary-foreground)))',
+                  border: subscribed ? '1.5px solid var(--podcast-primary, hsl(var(--primary)))' : 'none',
+                }}
+              >
+                {subscribed ? <Check className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+                <span>
+                  {subscribed
+                    ? (lang === 'ar' ? 'مشترك' : 'Abonniert')
+                    : (lang === 'ar' ? 'اشترك' : 'Abonnieren')}
+                </span>
+              </button>
+            </div>
           </div>
 
           {/* Header — cover, title, author */}
@@ -306,9 +396,21 @@ export default function PodcastDetail() {
                 className="rounded-2xl bg-card/80 backdrop-blur-sm border border-border/40 p-4"
               >
                 <div
-                  className={`text-[13px] text-foreground/85 leading-relaxed podcast-html ${
-                    isLongDescription && !descExpanded ? 'line-clamp-4' : ''
+                  // When `<p>` blocks are present `line-clamp-N` doesn't
+                  // collapse reliably across browsers — Safari treats
+                  // each block as its own clamp context and shows more
+                  // than the requested lines. Falling back to a fixed
+                  // `max-height` with a fade gradient gives a
+                  // predictable preview height regardless of inner
+                  // markup. Once expanded we drop the cap entirely.
+                  className={`text-[13px] text-foreground/85 leading-relaxed podcast-html relative ${
+                    isLongDescription && !descExpanded ? 'overflow-hidden' : ''
                   }`}
+                  style={
+                    isLongDescription && !descExpanded
+                      ? { maxHeight: '6.5em', maskImage: 'linear-gradient(to bottom, #000 70%, transparent)' }
+                      : undefined
+                  }
                   dangerouslySetInnerHTML={{ __html: safeDescription }}
                 />
                 {isLongDescription && (
@@ -373,15 +475,63 @@ export default function PodcastDetail() {
               </div>
             )}
 
-            {/* Episodes section heading */}
+            {/* Episodes section heading + controls (search & sort).
+                Visible only when there are episodes to act on; if the
+                feed only has 1-2 items the controls would clutter the
+                screen for no real benefit. */}
             {feed.data && feed.data.episodes.length > 0 && (
-              <div className="flex items-center justify-between pt-2">
-                <h2 className="text-sm font-bold text-foreground">
-                  {lang === 'ar' ? 'الحلقات' : 'Folgen'}
-                </h2>
-                <span className="text-[11px] text-muted-foreground">
-                  {feed.data.episodes.length}
-                </span>
+              <div className="space-y-3 pt-2">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-sm font-bold text-foreground">
+                    {lang === 'ar' ? 'الحلقات' : 'Folgen'}
+                  </h2>
+                  <span className="text-[11px] text-muted-foreground tabular-nums">
+                    {debouncedEpisodeQuery
+                      ? `${filteredSortedEpisodes.length} / ${feed.data.episodes.length}`
+                      : feed.data.episodes.length}
+                  </span>
+                </div>
+                {feed.data.episodes.length > 5 && (
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 relative">
+                      <Search className="absolute top-1/2 -translate-y-1/2 start-3 w-3.5 h-3.5 text-muted-foreground" />
+                      <input
+                        value={episodeQuery}
+                        onChange={e => setEpisodeQuery(e.target.value)}
+                        placeholder={lang === 'ar' ? 'ابحث في الحلقات' : 'Folgen durchsuchen'}
+                        className="w-full h-9 ps-8 pe-8 rounded-full bg-muted/40 border border-border/40 text-[12.5px] placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
+                        aria-label={lang === 'ar' ? 'بحث في الحلقات' : 'Folgen durchsuchen'}
+                      />
+                      {episodeQuery && (
+                        <button
+                          onClick={() => setEpisodeQuery('')}
+                          className="absolute top-1/2 -translate-y-1/2 end-2 w-5 h-5 rounded-full bg-muted-foreground/20 flex items-center justify-center"
+                          aria-label={lang === 'ar' ? 'مسح' : 'Leeren'}
+                        >
+                          <X className="w-3 h-3 text-foreground" />
+                        </button>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setSortOrder(o => (o === 'newest' ? 'oldest' : 'newest'))}
+                      className="h-9 px-3 rounded-full bg-muted/40 border border-border/40 text-[12px] font-semibold flex items-center gap-1.5 active:scale-95 transition-transform"
+                      aria-label={lang === 'ar' ? 'تبديل الترتيب' : 'Sortierung umschalten'}
+                      title={sortOrder === 'newest'
+                        ? (lang === 'ar' ? 'الأحدث أولاً' : 'Neueste zuerst')
+                        : (lang === 'ar' ? 'الأقدم أولاً' : 'Älteste zuerst')}
+                    >
+                      {sortOrder === 'newest'
+                        ? <ArrowDownNarrowWide className="w-3.5 h-3.5" />
+                        : <ArrowUpNarrowWide className="w-3.5 h-3.5" />}
+                      <span className="text-[11.5px] hidden sm:inline">
+                        {sortOrder === 'newest'
+                          ? (lang === 'ar' ? 'الأحدث' : 'Neueste')
+                          : (lang === 'ar' ? 'الأقدم' : 'Älteste')}
+                      </span>
+                    </button>
+                  </div>
+                )}
               </div>
             )}
 
@@ -397,7 +547,7 @@ export default function PodcastDetail() {
 
             {feed.data && (
               <div className="space-y-3">
-                {feed.data.episodes.map(ep => (
+                {visibleEpisodes.map(ep => (
                   <EpisodeListItem
                     key={ep.id}
                     episode={ep}
@@ -406,8 +556,29 @@ export default function PodcastDetail() {
                     seedH={seed?.h ?? null}
                     seedS={seed?.s ?? null}
                     seedL={seed?.l ?? null}
+                    allEpisodes={filteredSortedEpisodes}
                   />
                 ))}
+                {hasMore && (
+                  <button
+                    type="button"
+                    onClick={() => setVisibleCount(c => c + PAGE_SIZE)}
+                    className="w-full py-3 rounded-2xl text-[13px] font-semibold border border-border/50 bg-card/50 hover:bg-muted/40 active:scale-[0.98] transition"
+                    style={{ color: 'var(--podcast-primary, hsl(var(--primary)))' }}
+                  >
+                    {lang === 'ar'
+                      ? `تحميل المزيد (${filteredSortedEpisodes.length - visibleCount})`
+                      : `Mehr laden (${filteredSortedEpisodes.length - visibleCount})`}
+                  </button>
+                )}
+                {/* Empty filter result */}
+                {debouncedEpisodeQuery && filteredSortedEpisodes.length === 0 && (
+                  <div className="text-center py-8">
+                    <p className="text-sm text-muted-foreground">
+                      {lang === 'ar' ? 'لا توجد حلقات تطابق بحثك' : 'Keine Folgen gefunden'}
+                    </p>
+                  </div>
+                )}
               </div>
             )}
 

@@ -399,9 +399,23 @@ export default function PodcastsPage() {
             <p className="text-sm font-semibold text-foreground mb-1">
               {language === 'ar' ? 'لا توجد نتائج' : 'Keine Treffer'}
             </p>
-            <p className="text-[12px] text-muted-foreground">
-              {language === 'ar' ? 'جرّب كلمة بحث أخرى أو غيّر الدولة.' : 'Versuche es mit anderen Stichwörtern.'}
+            <p className="text-[12px] text-muted-foreground mb-5">
+              {isSearching
+                ? (language === 'ar'
+                    ? `لم نجد بودكاست بعنوان "${debouncedSearch}" في ${localizedCountry}.`
+                    : `Keine Podcasts mit "${debouncedSearch}" in ${localizedCountry}.`)
+                : (language === 'ar'
+                    ? 'جرّب فئة أخرى أو غيّر الدولة.'
+                    : 'Versuche eine andere Kategorie oder ein anderes Land.')}
             </p>
+            {isSearching && (
+              <button
+                onClick={() => setSearch('')}
+                className="px-4 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-semibold active:scale-95"
+              >
+                {language === 'ar' ? 'مسح البحث' : 'Suche leeren'}
+              </button>
+            )}
           </div>
         ) : (
           <motion.div
