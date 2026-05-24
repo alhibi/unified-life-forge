@@ -24,7 +24,8 @@ type Group = {
   branches: Branch[];
 };
 
-// Three top-level groups. Tapping a group opens a 3-icon arc above it.
+// Three top-level groups. Tapping a group reveals a horizontal pill
+// above the bar with the group's three branches.
 const groups: Group[] = [
   {
     key: 'spirit', labelKey: 'nav.spirit', icon: Heart,
@@ -69,7 +70,7 @@ export default function BottomNav() {
   const [openGroup, setOpenGroup] = useState<GroupKey | null>(null);
 
   // ── Auto-close behaviors ───────────────────────────────────────────────
-  // Close the arc whenever the route changes or Escape is pressed.
+  // Close the popup whenever the route changes or Escape is pressed.
   useEffect(() => { setOpenGroup(null); }, [location.pathname]);
   useEffect(() => {
     if (!openGroup) return;
@@ -105,14 +106,14 @@ export default function BottomNav() {
   const openGroupObj = groups.find(g => g.key === open) ?? null;
 
   // The "you are here" pill rides the active group, but momentarily
-  // jumps to whichever group is currently open so the arc reads as a
-  // confident preview, not a disconnected popup.
+  // jumps to whichever group is currently open so the popup reads as a
+  // confident preview, not a disconnected layer.
   const pillGroupKey: GroupKey | null = open ?? activeGroupKey;
 
   return (
     <>
       {/* Soft dim + tap-out scrim. Sits below the nav but above the page
-          so the open arc gets visual focus without obscuring the bar. */}
+          so the open popup gets visual focus without obscuring the bar. */}
       <AnimatePresence>
         {open && (
           <motion.button
@@ -128,18 +129,106 @@ export default function BottomNav() {
         )}
       </AnimatePresence>
 
+      {/* ── Branch popup ───────────────────────────────────────────────────
+          A horizontal pill above the bar with the group's three branches
+          as icon-over-label tiles. Rendered as a fixed sibling of <nav>
+          (not a child) so the nav's contain/transform/backdrop-filter
+          stack can't clip or distort it, and so it inherits the page's
+          natural direction (RTL for Arabic). All colors come from the
+          design-token palette so the popup looks like part of the app
+          in both light and dark themes. */}
+      <AnimatePresence>
+        {open && openGroupObj && (
+          <motion.div
+            key={`pop-${openGroupObj.key}`}
+            className="fixed left-1/2 -translate-x-1/2 z-[55] pointer-events-none px-4"
+            // Lift the popup well clear of the nav so there's no visual
+            // collision with the bar's chrome or its active-tab pill.
+            // 96px ≈ nav height (~62px) + safe-area + a generous gap.
+            style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 96px)' }}
+            initial={{ opacity: 0, y: 14, scale: 0.94 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 10, scale: 0.94 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+          >
+            <div
+              className="pointer-events-auto flex items-stretch gap-1 p-1.5 rounded-full bg-popover border border-border"
+              style={{
+                // Token-based shadow — adapts naturally to dark mode by
+                // keying off --foreground instead of hard-coded black.
+                boxShadow:
+                  '0 10px 28px -10px hsl(var(--foreground) / 0.20), 0 2px 8px -3px hsl(var(--foreground) / 0.10)',
+              }}
+            >
+              {openGroupObj.branches.map((b, i) => {
+                const branchActive = isBranchActive(b.path);
+                const showBadge = b.key === 'chat' && unreadCount > 0;
+                const BIcon = b.icon;
+
+                return (
+                  <motion.button
+                    key={b.key}
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setOpenGroup(null);
+                      navigate(b.path);
+                    }}
+                    // Active state mirrors the bottom-nav's sliding pill:
+                    // primary/15 background + primary text. Same visual
+                    // language across the whole nav surface.
+                    className={`relative flex flex-col items-center justify-center gap-1.5 px-5 py-2.5 rounded-full min-w-[84px] transition-colors ${
+                      branchActive
+                        ? 'bg-primary/15'
+                        : 'hover:bg-muted/60 active:bg-muted/80'
+                    }`}
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.04 + i * 0.04, duration: 0.18 }}
+                    aria-label={t(b.labelKey)}
+                    aria-current={branchActive ? 'page' : undefined}
+                  >
+                    <div className="relative">
+                      <BIcon
+                        className={`w-[22px] h-[22px] ${
+                          branchActive ? 'text-primary' : 'text-muted-foreground'
+                        }`}
+                        strokeWidth={branchActive ? 2.2 : 1.8}
+                      />
+                      {showBadge && (
+                        <span className="absolute -top-1.5 -right-2 min-w-[16px] h-[16px] px-1 rounded-full bg-destructive text-destructive-foreground text-[9.5px] font-bold flex items-center justify-center leading-none shadow-sm">
+                          {unreadCount > 99 ? '99+' : unreadCount}
+                        </span>
+                      )}
+                    </div>
+                    <span
+                      className={`text-[11px] leading-none whitespace-nowrap ${
+                        branchActive
+                          ? 'font-semibold text-primary'
+                          : 'font-medium text-muted-foreground'
+                      }`}
+                    >
+                      {t(b.labelKey)}
+                    </span>
+                  </motion.button>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <nav
         data-bottom-nav
         className="bottom-nav fixed bottom-0 left-0 right-0 z-50 bg-card/85 backdrop-blur-2xl border-t border-border/40"
         dir="ltr"
         style={{
-          contain: 'layout style',
           willChange: 'transform',
           transform: 'translateZ(0)',
           paddingBottom: 'env(safe-area-inset-bottom, 0px)',
           // Hairline + soft glow instead of a heavy box-shadow.
           boxShadow:
-            '0 -1px 0 hsl(var(--border) / 0.4), 0 -10px 28px -12px rgba(0,0,0,0.22)',
+            '0 -1px 0 hsl(var(--border) / 0.4), 0 -10px 28px -12px hsl(var(--foreground) / 0.18)',
         }}
       >
         <div className="relative px-2 pt-2 pb-1.5 flex items-stretch justify-around">
@@ -159,86 +248,6 @@ export default function BottomNav() {
 
             return (
               <div key={group.key} className="relative flex-1 flex justify-center">
-                {/* Arc popup — 3 branches fan upward in a 90° arc */}
-                <AnimatePresence>
-                  {isOpen && openGroupObj?.key === group.key && (
-                    <motion.div
-                      key="arc"
-                      className="absolute left-1/2 -translate-x-1/2 bottom-1/2 pointer-events-none"
-                      style={{ width: 1, height: 1 }}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.15 }}
-                    >
-                      {group.branches.map((b, i) => {
-                        // Classic fan-menu: 3 circular icons spring out
-                        // from the group center along a 90° arc. Order
-                        // 135°/90°/45° keeps the active branch (always
-                        // index-bound to the data, not the route) in a
-                        // predictable position.
-                        const angles = [135, 90, 45];
-                        const angle = (angles[i] * Math.PI) / 180;
-                        const R = 74;
-                        const x = Math.cos(angle) * R;
-                        const y = -Math.sin(angle) * R;
-                        const branchActive = isBranchActive(b.path);
-                        const showBadge = b.key === 'chat' && unreadCount > 0;
-                        const BIcon = b.icon;
-
-                        return (
-                          <motion.div
-                            key={b.key}
-                            className="absolute pointer-events-none"
-                            style={{ left: 0, top: 0 }}
-                            initial={{ x: 0, y: 0, scale: 0.4, opacity: 0 }}
-                            animate={{ x, y, scale: 1, opacity: 1 }}
-                            exit={{ x: 0, y: 0, scale: 0.4, opacity: 0 }}
-                            transition={{
-                              type: 'spring',
-                              stiffness: 340,
-                              damping: 22,
-                              delay: i * 0.035,
-                            }}
-                          >
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setOpenGroup(null);
-                                navigate(b.path);
-                              }}
-                              className="pointer-events-auto absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center"
-                              aria-label={t(b.labelKey)}
-                              aria-current={branchActive ? 'page' : undefined}
-                            >
-                              <div className={`relative w-12 h-12 rounded-full flex items-center justify-center border ${
-                                branchActive
-                                  ? 'bg-primary text-primary-foreground border-primary shadow-[0_10px_28px_-6px_hsl(var(--primary)/0.55)]'
-                                  : 'bg-card text-foreground border-border/40 shadow-[0_10px_24px_-8px_rgba(0,0,0,0.4)]'
-                              }`}>
-                                <BIcon
-                                  className="w-[20px] h-[20px]"
-                                  strokeWidth={branchActive ? 2.2 : 1.8}
-                                />
-                                {showBadge && (
-                                  <span className="absolute -top-1 -right-1 min-w-[16px] h-[16px] px-1 rounded-full bg-destructive text-destructive-foreground text-[9.5px] font-bold flex items-center justify-center leading-none shadow">
-                                    {unreadCount > 99 ? '99+' : unreadCount}
-                                  </span>
-                                )}
-                              </div>
-                              {/* Floating label under the branch icon */}
-                              <span className="absolute top-[52px] px-1.5 py-0.5 rounded-md bg-popover/95 text-popover-foreground text-[10px] font-medium whitespace-nowrap shadow-sm border border-border/40 leading-none">
-                                {t(b.labelKey)}
-                              </span>
-                            </button>
-                          </motion.div>
-                        );
-                      })}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-
                 <button
                   type="button"
                   onClick={() => setOpenGroup(isOpen ? null : group.key)}
