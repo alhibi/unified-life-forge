@@ -109,6 +109,10 @@ export default function BottomNav() {
   // confident preview, not a disconnected popup.
   const pillGroupKey: GroupKey | null = open ?? activeGroupKey;
 
+  // Y-offset of the popup above the nav (in px). Includes safe-area
+  // bottom padding so the pill clears the home indicator on iOS.
+  const POPUP_LIFT = 'calc(env(safe-area-inset-bottom, 0px) + 72px)';
+
   return (
     <>
       {/* Soft dim + tap-out scrim. Sits below the nav but above the page
@@ -128,12 +132,96 @@ export default function BottomNav() {
         )}
       </AnimatePresence>
 
+      {/* ── Neumorphic pill popup ──────────────────────────────────────────
+          Lifted OUT of <nav> on purpose: the nav uses contain/transform/
+          backdrop-filter which together establish a containing block and
+          stacking context that was clipping or distorting the popup.
+          Rendering it as a fixed sibling above the nav guarantees the
+          three tiles are visible, centered, and unaffected by the nav's
+          forced LTR direction (so labels read naturally in RTL). */}
+      <AnimatePresence>
+        {open && openGroupObj && (
+          <motion.div
+            key={`pop-${openGroupObj.key}`}
+            className="fixed left-1/2 -translate-x-1/2 z-[55] pointer-events-none px-3"
+            style={{ bottom: POPUP_LIFT }}
+            initial={{ opacity: 0, y: 14, scale: 0.94 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 10, scale: 0.94 }}
+            transition={{ type: 'spring', stiffness: 380, damping: 28 }}
+          >
+            <div
+              className="pointer-events-auto flex items-stretch gap-2 p-2 rounded-[26px] bg-card border border-border/50"
+              style={{
+                boxShadow:
+                  '0 18px 40px -14px rgba(0,0,0,0.30), 0 4px 10px -4px rgba(0,0,0,0.10), inset 0 1px 0 hsl(var(--background))',
+              }}
+            >
+              {openGroupObj.branches.map((b, i) => {
+                const branchActive = isBranchActive(b.path);
+                const showBadge = b.key === 'chat' && unreadCount > 0;
+                const BIcon = b.icon;
+
+                return (
+                  <motion.button
+                    key={b.key}
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setOpenGroup(null);
+                      navigate(b.path);
+                    }}
+                    className="relative flex flex-col items-center justify-center gap-1.5 px-5 py-3 rounded-[20px] min-w-[88px]"
+                    style={
+                      branchActive
+                        ? {
+                            background: 'hsl(var(--muted) / 0.7)',
+                            boxShadow:
+                              'inset 0 3px 6px -1px rgba(0,0,0,0.14), inset 0 -1px 0 hsl(var(--background) / 0.7)',
+                          }
+                        : undefined
+                    }
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.04 + i * 0.04, duration: 0.18 }}
+                    aria-label={t(b.labelKey)}
+                    aria-current={branchActive ? 'page' : undefined}
+                  >
+                    <div className="relative">
+                      <BIcon
+                        className={`w-[24px] h-[24px] ${
+                          branchActive ? 'text-foreground' : 'text-muted-foreground'
+                        }`}
+                        strokeWidth={branchActive ? 2.2 : 1.8}
+                      />
+                      {showBadge && (
+                        <span className="absolute -top-1.5 -right-2 min-w-[16px] h-[16px] px-1 rounded-full bg-destructive text-destructive-foreground text-[9.5px] font-bold flex items-center justify-center leading-none shadow">
+                          {unreadCount > 99 ? '99+' : unreadCount}
+                        </span>
+                      )}
+                    </div>
+                    <span
+                      className={`text-[12px] leading-none whitespace-nowrap ${
+                        branchActive
+                          ? 'font-semibold text-foreground'
+                          : 'font-medium text-muted-foreground'
+                      }`}
+                    >
+                      {t(b.labelKey)}
+                    </span>
+                  </motion.button>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <nav
         data-bottom-nav
         className="bottom-nav fixed bottom-0 left-0 right-0 z-50 bg-card/85 backdrop-blur-2xl border-t border-border/40"
         dir="ltr"
         style={{
-          contain: 'layout style',
           willChange: 'transform',
           transform: 'translateZ(0)',
           paddingBottom: 'env(safe-area-inset-bottom, 0px)',
@@ -159,86 +247,6 @@ export default function BottomNav() {
 
             return (
               <div key={group.key} className="relative flex-1 flex justify-center">
-                {/* Arc popup — 3 branches fan upward in a 90° arc */}
-                <AnimatePresence>
-                  {isOpen && openGroupObj?.key === group.key && (
-                    <motion.div
-                      key="arc"
-                      className="absolute left-1/2 -translate-x-1/2 bottom-1/2 pointer-events-none"
-                      style={{ width: 1, height: 1 }}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.15 }}
-                    >
-                      {group.branches.map((b, i) => {
-                        // Classic fan-menu: 3 circular icons spring out
-                        // from the group center along a 90° arc. Order
-                        // 135°/90°/45° keeps the active branch (always
-                        // index-bound to the data, not the route) in a
-                        // predictable position.
-                        const angles = [135, 90, 45];
-                        const angle = (angles[i] * Math.PI) / 180;
-                        const R = 74;
-                        const x = Math.cos(angle) * R;
-                        const y = -Math.sin(angle) * R;
-                        const branchActive = isBranchActive(b.path);
-                        const showBadge = b.key === 'chat' && unreadCount > 0;
-                        const BIcon = b.icon;
-
-                        return (
-                          <motion.div
-                            key={b.key}
-                            className="absolute pointer-events-none"
-                            style={{ left: 0, top: 0 }}
-                            initial={{ x: 0, y: 0, scale: 0.4, opacity: 0 }}
-                            animate={{ x, y, scale: 1, opacity: 1 }}
-                            exit={{ x: 0, y: 0, scale: 0.4, opacity: 0 }}
-                            transition={{
-                              type: 'spring',
-                              stiffness: 340,
-                              damping: 22,
-                              delay: i * 0.035,
-                            }}
-                          >
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setOpenGroup(null);
-                                navigate(b.path);
-                              }}
-                              className="pointer-events-auto absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center"
-                              aria-label={t(b.labelKey)}
-                              aria-current={branchActive ? 'page' : undefined}
-                            >
-                              <div className={`relative w-12 h-12 rounded-full flex items-center justify-center border ${
-                                branchActive
-                                  ? 'bg-primary text-primary-foreground border-primary shadow-[0_10px_28px_-6px_hsl(var(--primary)/0.55)]'
-                                  : 'bg-card text-foreground border-border/40 shadow-[0_10px_24px_-8px_rgba(0,0,0,0.4)]'
-                              }`}>
-                                <BIcon
-                                  className="w-[20px] h-[20px]"
-                                  strokeWidth={branchActive ? 2.2 : 1.8}
-                                />
-                                {showBadge && (
-                                  <span className="absolute -top-1 -right-1 min-w-[16px] h-[16px] px-1 rounded-full bg-destructive text-destructive-foreground text-[9.5px] font-bold flex items-center justify-center leading-none shadow">
-                                    {unreadCount > 99 ? '99+' : unreadCount}
-                                  </span>
-                                )}
-                              </div>
-                              {/* Floating label under the branch icon */}
-                              <span className="absolute top-[52px] px-1.5 py-0.5 rounded-md bg-popover/95 text-popover-foreground text-[10px] font-medium whitespace-nowrap shadow-sm border border-border/40 leading-none">
-                                {t(b.labelKey)}
-                              </span>
-                            </button>
-                          </motion.div>
-                        );
-                      })}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-
                 <button
                   type="button"
                   onClick={() => setOpenGroup(isOpen ? null : group.key)}
