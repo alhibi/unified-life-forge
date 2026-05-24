@@ -20,7 +20,7 @@
 // children can pull `var(--podcast-primary)` for tinting.
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import DOMPurify from 'dompurify';
 import { motion } from 'framer-motion';
@@ -46,18 +46,47 @@ import EpisodeListItem from '@/components/podcasts/EpisodeListItem';
 /** Decode is shared with the Library page via `lib/podcasts/route.ts`
  *  so the two ends of the round-trip stay in sync. */
 
+/** Shape of the `state` object the discovery page passes via
+ *  `<Link state={...}>` when it already knows the RSS feed URL.
+ *  Lets us skip the iTunes lookup round-trip and go straight to
+ *  the publisher's RSS — significant for podcasts whose Apple
+ *  metadata is incomplete or unavailable in the user's region. */
+interface RouteHint {
+  feedUrl?: string;
+  title?: string;
+  author?: string;
+  artworkUrl?: string;
+  link?: string;
+}
+
 export default function PodcastDetail() {
   const { id: routeId = '' } = useParams<{ id: string }>();
   const decoded = useMemo(() => decodeRouteId(routeId), [routeId]);
+  const location = useLocation();
+  const hint = (location.state ?? null) as RouteHint | null;
   const { language } = useApp();
   const lang = language === 'de' ? 'de' : 'ar';
 
   // Step 1 — get podcast metadata.
-  // Apple-id route: `lookup` for feedUrl + nice metadata.
-  // Feed-url route: skip the round-trip; we'll trust the feed itself.
+  // Three branches in order of preference:
+  //   • Route hint with feedUrl  → use that, no network round-trip.
+  //   • Feed-url route token     → decoded URL becomes the feedUrl.
+  //   • Apple-id route           → iTunes `lookup` for feedUrl.
+  // The first two are zero-network and bulletproof; only the third
+  // can fail (lookup occasionally returns no result).
   const meta = useQuery({
-    queryKey: ['podcast-meta', decoded],
+    queryKey: ['podcast-meta', decoded, hint?.feedUrl ?? null],
     queryFn: ({ signal }) => {
+      if (hint?.feedUrl) {
+        return Promise.resolve<PodcastPreview & { feedUrl: string }>({
+          id: routeId,
+          title: hint.title ?? '',
+          author: hint.author ?? '',
+          artworkUrl: hint.artworkUrl ?? '',
+          link: hint.link,
+          feedUrl: hint.feedUrl,
+        });
+      }
       if (decoded.kind === 'apple-id') return lookupPodcast({ id: decoded.id, signal });
       // For feed-url routes we synthesize a placeholder; the real
       // metadata comes from the RSS feed below.
@@ -222,19 +251,40 @@ export default function PodcastDetail() {
           {/* Body */}
           <div className="relative max-w-lg mx-auto px-4 space-y-4">
             {error && !feed.data && (
-              <div className="rounded-2xl bg-destructive/10 border border-destructive/30 p-4 text-center">
-                <p className="text-sm font-semibold text-foreground mb-1">
+              <div className="rounded-2xl bg-destructive/10 border border-destructive/30 p-5 text-center">
+                <p className="text-sm font-bold text-foreground mb-1.5">
                   {lang === 'ar' ? 'تعذّر تحميل البودكاست' : 'Podcast konnte nicht geladen werden'}
                 </p>
-                <p className="text-[12px] text-muted-foreground mb-3">
-                  {(error as Error).message}
+                <p className="text-[12px] text-muted-foreground mb-4 leading-relaxed">
+                  {lang === 'ar'
+                    ? 'قد يكون البودكاست محجوباً في منطقتك أو تغيّر رابط RSS الخاص به. حاول تحديث الصفحة أو ابحث عنه باسمه مباشرةً.'
+                    : 'Der Podcast ist eventuell in deiner Region nicht verfügbar oder seine RSS-URL hat sich geändert. Lade die Seite neu oder suche ihn nach Namen.'}
                 </p>
-                <button
-                  onClick={() => { meta.refetch(); feed.refetch(); }}
-                  className="px-4 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-semibold"
-                >
-                  {lang === 'ar' ? 'إعادة المحاولة' : 'Erneut versuchen'}
-                </button>
+                <div className="flex items-center justify-center gap-2">
+                  <button
+                    onClick={() => { void meta.refetch(); void feed.refetch(); }}
+                    className="px-4 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-semibold active:scale-95"
+                  >
+                    {lang === 'ar' ? 'إعادة المحاولة' : 'Erneut versuchen'}
+                  </button>
+                  {meta.data?.link && (
+                    <a
+                      href={meta.data.link}
+                      target="_blank" rel="noopener noreferrer"
+                      className="px-4 py-2 rounded-xl bg-muted text-foreground text-sm font-semibold"
+                    >
+                      {lang === 'ar' ? 'فتح في Apple Podcasts' : 'In Apple Podcasts öffnen'}
+                    </a>
+                  )}
+                </div>
+                <details className="mt-3 text-start">
+                  <summary className="text-[10px] text-muted-foreground/70 cursor-pointer">
+                    {lang === 'ar' ? 'تفاصيل تقنية' : 'Technische Details'}
+                  </summary>
+                  <p className="text-[11px] text-muted-foreground mt-1 break-words" dir="ltr">
+                    {(error as Error).message}
+                  </p>
+                </details>
               </div>
             )}
 

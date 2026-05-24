@@ -254,9 +254,16 @@ export default function PodcastsPage() {
 
   const handleOpen = (p: PodcastPreview) => {
     // Navigate to the detail page using the Apple Podcasts collection
-    // id. The detail page will resolve it to a feed URL via the iTunes
-    // lookup endpoint, fetch the RSS, and let the user subscribe.
-    navigate(`/podcasts/${encodeURIComponent(p.id)}`);
+    // id. When the discovery card already has the publisher's RSS
+    // feed URL (search results expose it directly), pass it via
+    // history state — that lets the detail page skip the iTunes
+    // lookup round-trip and avoids one common failure mode where
+    // `/lookup` returns no result for region-restricted podcasts.
+    navigate(`/podcasts/${encodeURIComponent(p.id)}`, {
+      state: p.feedUrl
+        ? { feedUrl: p.feedUrl, title: p.title, author: p.author, artworkUrl: p.artworkUrl, link: p.link }
+        : undefined,
+    });
   };
 
   const localizedCountry = language === 'ar' ? country.nameAr : country.nameDe;
