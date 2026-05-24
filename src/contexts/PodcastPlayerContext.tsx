@@ -38,6 +38,8 @@ import {
   markEpisodePlayedWithNotify as markEpisodePlayed,
   getLastPlayed,
   setLastPlayedWithNotify as setLastPlayed,
+  pushRecentEpisodeWithNotify as pushRecentEpisode,
+  removeRecentEpisodeWithNotify as removeRecentEpisode,
   type LastPlayedRecord,
 } from '@/lib/podcasts/store';
 import type { PodcastEpisode } from '@/lib/podcasts/rss';
@@ -69,7 +71,23 @@ interface PodcastPlayerContextValue {
   speed: number;
   error: string | null;
 
-  play: (meta?: PlayingEpisodeMeta) => Promise<void>;
+  /** Auto-play the next queued episode when the current one ends.
+   *  Persisted to localStorage so the choice survives reloads. */
+  autoPlayNext: boolean;
+  setAutoPlayNext: (v: boolean) => void;
+
+  /** Sleep timer state. `null` = off; `secondsRemaining` ticks down
+   *  once a second while playing. When `mode === 'episode-end'` we
+   *  ignore `secondsRemaining` and just stop on the natural `ended`
+   *  event; the field is still tracked so the UI can surface the
+   *  "until end of episode" label. */
+  sleepTimer: { mode: 'timed' | 'episode-end'; secondsRemaining: number } | null;
+  /** `seconds` for a timed countdown, `'episode-end'` to stop after
+   *  the current track finishes, or `null` to cancel any active
+   *  timer. */
+  setSleepTimer: (value: number | 'episode-end' | null) => void;
+
+  play: (meta?: PlayingEpisodeMeta, queue?: PlayingEpisodeMeta[]) => Promise<void>;
   pause: () => void;
   toggle: () => void;
   seek: (seconds: number) => void;
@@ -96,6 +114,7 @@ const PodcastPlayerContext = createContext<PodcastPlayerContextValue | undefined
 const PodcastPlayerProgressContext = createContext<PodcastPlayerProgressValue | undefined>(undefined);
 
 const SPEED_KEY = 'podcasts.playbackSpeed';
+const AUTO_NEXT_KEY = 'podcasts.autoPlayNext';
 const SKIP_SECONDS = 15;
 
 export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
@@ -119,6 +138,27 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
     return Number.isFinite(saved) && saved > 0 ? saved : 1;
   });
   const [error, setError] = useState<string | null>(null);
+
+  /**
+   * Pending playback queue. When the user starts an episode from a
+   * podcast detail page we attach the remaining episodes after it (in
+   * the same display order); on `ended` we shift the head and play
+   * it if `autoPlayNext` is enabled. The queue is in-memory only —
+   * we deliberately do NOT persist it because the canonical source of
+   * truth is the RSS feed, and reconstructing the queue on reload
+   * would require re-fetching the feed anyway.
+   */
+  const queueRef = useRef<PlayingEpisodeMeta[]>([]);
+
+  const [autoPlayNext, setAutoPlayNextState] = useState<boolean>(() => {
+    return localStorage.getItem(AUTO_NEXT_KEY) === '1';
+  });
+  const autoPlayNextRef = useRef(autoPlayNext);
+  useEffect(() => { autoPlayNextRef.current = autoPlayNext; }, [autoPlayNext]);
+
+  const [sleepTimer, setSleepTimerState] = useState<
+    { mode: 'timed' | 'episode-end'; secondsRemaining: number } | null
+  >(null);
 
   /* -------------------------------- refs ----------------------------------- */
   // We keep refs of mutable state so the audio listeners and the
@@ -178,6 +218,24 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
       const cur = currentRef.current;
       if (cur) {
         markEpisodePlayed(cur.episode.id, audio.duration || cur.episode.duration || 0, true);
+        // An episode that finished naturally is no longer "in
+        // progress" — drop it from the Continue Listening rail so the
+        // user doesn't see a fully-completed track sitting at 100%.
+        removeRecentEpisode(cur.episode.id);
+      }
+      // Sleep timer set to "end of current episode" — honor it by
+      // refusing to auto-advance regardless of `autoPlayNext`. We
+      // clear the timer so the next manual play isn't constrained.
+      if (sleepTimerRef.current?.mode === 'episode-end') {
+        setSleepTimerState(null);
+        return;
+      }
+      // Auto-play next: pop the head of the queue and play it.
+      if (autoPlayNextRef.current && queueRef.current.length > 0) {
+        const next = queueRef.current.shift()!;
+        // Defer one tick so the `pause` event fired before `ended`
+        // settles before we reassign `audio.src`.
+        Promise.resolve().then(() => { void playRef.current(next); });
       }
     };
     const onError = () => {
@@ -213,6 +271,53 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
     const audio = audioRef.current;
     if (audio) audio.playbackRate = speed;
   }, [speed]);
+
+  /* ----------------------------- sleep timer --------------------------------- */
+
+  // Mirror the sleep-timer state in a ref so the audio listeners
+  // (registered once on mount, never re-created) and the queue path
+  // can read the latest value without recreating their callbacks.
+  const sleepTimerRef = useRef<typeof sleepTimer>(null);
+  useEffect(() => { sleepTimerRef.current = sleepTimer; }, [sleepTimer]);
+
+  // Tick the timed sleep countdown once a second while playback is
+  // active. We don't tick when paused (matches Pocket Casts / Apple
+  // behavior — pausing pauses the timer too) and we don't tick for
+  // 'episode-end' mode (the natural `ended` event drives that case).
+  useEffect(() => {
+    if (!isPlaying) return;
+    if (!sleepTimer || sleepTimer.mode !== 'timed') return;
+    const id = window.setInterval(() => {
+      setSleepTimerState(prev => {
+        if (!prev || prev.mode !== 'timed') return prev;
+        const next = prev.secondsRemaining - 1;
+        if (next <= 0) {
+          // Pause without unloading — the user can resume later if
+          // they hit play before the next mount drops the source.
+          audioRef.current?.pause();
+          return null;
+        }
+        return { ...prev, secondsRemaining: next };
+      });
+    }, 1000);
+    return () => window.clearInterval(id);
+  }, [isPlaying, sleepTimer]);
+
+  const setSleepTimer = useCallback((value: number | 'episode-end' | null) => {
+    if (value === null) { setSleepTimerState(null); return; }
+    if (value === 'episode-end') {
+      setSleepTimerState({ mode: 'episode-end', secondsRemaining: 0 });
+      return;
+    }
+    if (Number.isFinite(value) && value > 0) {
+      setSleepTimerState({ mode: 'timed', secondsRemaining: Math.round(value) });
+    }
+  }, []);
+
+  const setAutoPlayNext = useCallback((v: boolean) => {
+    setAutoPlayNextState(v);
+    try { localStorage.setItem(AUTO_NEXT_KEY, v ? '1' : '0'); } catch { /* ignore */ }
+  }, []);
 
   /* ----------------------------- persist position ---------------------------- */
 
@@ -292,6 +397,9 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
 
   const skipRef = useRef<(d: number) => void>(() => {});
   const seekRef = useRef<(s: number) => void>(() => {});
+  const playRef = useRef<(meta?: PlayingEpisodeMeta, queue?: PlayingEpisodeMeta[]) => Promise<void>>(
+    async () => {}
+  );
 
   const seek = useCallback((seconds: number) => {
     const audio = audioRef.current;
@@ -307,7 +415,7 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
   }, [seek]);
   skipRef.current = skip;
 
-  const play = useCallback(async (meta?: PlayingEpisodeMeta) => {
+  const play = useCallback(async (meta?: PlayingEpisodeMeta, queue?: PlayingEpisodeMeta[]) => {
     const audio = audioRef.current;
     if (!audio) return;
     setError(null);
@@ -318,6 +426,17 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
     // track that isn't bound yet".
     const target = meta ?? currentRef.current;
     if (!target) return;
+
+    // Update the auto-play queue. A caller passing a queue replaces
+    // the old one wholesale (the new context is the most recent
+    // intent); a caller that doesn't pass one leaves the existing
+    // queue untouched so the toggle path keeps the rail intact.
+    if (queue !== undefined) {
+      // Filter out the target episode itself in case the caller
+      // passed the current podcast's full episode list — we don't
+      // want to "auto-advance" to ourselves.
+      queueRef.current = queue.filter(q => q.episode.id !== target.episode.id);
+    }
 
     const needsLoad = boundEpisodeIdRef.current !== target.episode.id;
     if (needsLoad) {
@@ -348,6 +467,11 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
       // Plain `<audio src=...>` playback works without CORS.
       if (target !== currentRef.current) setCurrent(target);
       setLastPlayed(metaToRecord(target));
+      // Surface the episode in the Continue Listening rail. Pushing
+      // here (not on `play` resolve) means the row appears even if
+      // playback is blocked by autoplay policy — the user already
+      // committed to the track by tapping play.
+      pushRecentEpisode(metaToRecord(target));
       audio.src = target.episode.audioUrl;
       audio.preload = 'auto';
       audio.playbackRate = speedRef.current;
@@ -391,6 +515,7 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
       setError(e instanceof Error ? e.message : 'Playback blocked');
     }
   }, []);
+  playRef.current = play;
 
   const pause = useCallback(() => {
     audioRef.current?.pause();
@@ -416,6 +541,8 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
     metaCleanupRef.current?.();
     metaCleanupRef.current = null;
     boundEpisodeIdRef.current = null;
+    queueRef.current = [];
+    setSleepTimerState(null);
     setCurrent(null);
     setIsPlaying(false);
     setPosition(0);
@@ -432,8 +559,10 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
   // 4 Hz during playback.
   const commandValue = useMemo<PodcastPlayerContextValue>(() => ({
     current, isPlaying, isLoading, speed, error,
+    autoPlayNext, setAutoPlayNext, sleepTimer, setSleepTimer,
     play, pause, toggle, seek, skip, setSpeed, close, isLoadingEpisode,
   }), [current, isPlaying, isLoading, speed, error,
+      autoPlayNext, setAutoPlayNext, sleepTimer, setSleepTimer,
       play, pause, toggle, seek, skip, setSpeed, close, isLoadingEpisode]);
 
   const progressValue = useMemo<PodcastPlayerProgressValue>(() => ({
