@@ -138,3 +138,54 @@ export async function searchPodcasts(opts: {
     feedUrl: r.feedUrl,
   }));
 }
+
+/* -------------------------------------------------------------------------- */
+/*  Lookup                                                                    */
+/* -------------------------------------------------------------------------- */
+
+interface LookupItem {
+  collectionId?: number;
+  collectionName?: string;
+  artistName?: string;
+  feedUrl?: string;
+  artworkUrl600?: string;
+  artworkUrl100?: string;
+  collectionViewUrl?: string;
+  primaryGenreName?: string;
+  trackCount?: number;
+  releaseDate?: string;
+}
+
+interface LookupResponse {
+  resultCount?: number;
+  results?: LookupItem[];
+}
+
+/**
+ * Resolve an Apple Podcasts collection id (`im:id` from the top-charts
+ * RSS feed) to the publisher's RSS feed URL plus the rich metadata Apple
+ * has on it. The discovery page only stores the id (not the feed URL)
+ * because top-charts JSON omits it; this is the bridge to the actual
+ * podcast.
+ */
+export async function lookupPodcast(opts: {
+  id: string;
+  signal?: AbortSignal;
+}): Promise<PodcastPreview & { feedUrl: string }> {
+  const { id, signal } = opts;
+  const res = await fetch(`https://itunes.apple.com/lookup?id=${encodeURIComponent(id)}`, { signal });
+  if (!res.ok) throw new Error(`iTunes lookup failed: ${res.status}`);
+  const data = (await res.json()) as LookupResponse;
+  const r = data.results?.[0];
+  if (!r || !r.feedUrl) {
+    throw new Error('Podcast not found or has no public RSS feed');
+  }
+  return {
+    id: String(r.collectionId ?? id),
+    title: r.collectionName ?? '',
+    author: r.artistName ?? '',
+    artworkUrl: r.artworkUrl600 ?? r.artworkUrl100 ?? '',
+    link: r.collectionViewUrl,
+    feedUrl: r.feedUrl,
+  };
+}

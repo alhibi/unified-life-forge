@@ -747,3 +747,56 @@ html.theme-transition *::after {
   background: hsl(var(--md3-primary-container));
   color: hsl(var(--md3-on-primary-container));
 }
+
+
+
+/* ──────────────────────────────────────────────────────────────────────
+   Podcast section
+   ──────────────────────────────────────────────────────────────────────
+   Mirrors Podium's typography for episode descriptions and gives the
+   <input type="range"> in `PlayerSheet` a clean cross-browser look.
+   Scoped via `.podcast-html` and `.podcast-seek` so nothing leaks. */
+
+.podcast-html a {
+  color: var(--podcast-primary, hsl(var(--primary)));
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.podcast-html p { margin: 0 0 0.5em; }
+.podcast-html p:last-child { margin-bottom: 0; }
+
+/* Seek bar: hide the native track and only style the thumb. The track
+   color is set inline (`background: linear-gradient(...)`) so it can
+   reflect the live progress without a state-driven re-render. */
+input.podcast-seek {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  outline: none;
+  cursor: pointer;
+}
+input.podcast-seek::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--podcast-primary, hsl(var(--primary)));
+  border: 2px solid hsl(var(--background));
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+}
+input.podcast-seek::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--podcast-primary, hsl(var(--primary)));
+  border: 2px solid hsl(var(--background));
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+}
+input.podcast-seek::-moz-range-track {
+  height: 6px;
+  border-radius: 999px;
+  background: transparent;
+}
