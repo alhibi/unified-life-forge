@@ -420,6 +420,18 @@
     from { opacity: 0; }
     to   { opacity: 1; }
   }
+  /* Fan-menu spring: branches scale-out from the group center to their
+     final (tx, ty) offset on the arc. The inline style sets --tx/--ty. */
+  @keyframes fanIn {
+    from {
+      opacity: 0;
+      transform: translate(-50%, -50%) translate(0, 0) scale(0.4);
+    }
+    to {
+      opacity: 1;
+      transform: translate(-50%, -50%) translate(var(--tx, 0), var(--ty, 0)) scale(1);
+    }
+  }
   .empty-state,
   [data-empty="true"],
   [data-state="empty"] {

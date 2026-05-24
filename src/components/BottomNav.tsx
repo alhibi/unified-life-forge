@@ -160,15 +160,16 @@ export default function BottomNav() {
               {/* Arc popup — 3 branches fan upward in a 180° arc */}
               {isOpen && openGroupObj?.key === group.key && (
                 <div
-                  className="absolute left-1/2 -translate-x-1/2 pointer-events-none"
-                  style={{ bottom: 'calc(100% + 6px)', width: 180, height: 110 }}
+                  className="absolute left-1/2 -translate-x-1/2 bottom-1/2 pointer-events-none"
+                  style={{ width: 1, height: 1 }}
                 >
                   {group.branches.map((b, i) => {
-                    // Tight 60° fan (120°→90°→60°) keeps the arc inside
-                    // narrow phone viewports even for the edge groups.
-                    const angles = [120, 90, 60];
+                    // Classic fan-menu: 3 circular icons spring out from
+                    // the button center. 60° spread keeps the arc inside
+                    // narrow viewports even for edge groups.
+                    const angles = [135, 90, 45];
                     const angle = (angles[i] * Math.PI) / 180;
-                    const R = 78;
+                    const R = 70;
                     const x = Math.cos(angle) * R;
                     const y = -Math.sin(angle) * R;
                     const branchActive = isBranchActive(b.path);
@@ -182,29 +183,28 @@ export default function BottomNav() {
                           setOpenGroup(null);
                           navigate(b.path);
                         }}
-                        className="pointer-events-auto absolute flex flex-col items-center gap-1 group/branch"
+                        className="pointer-events-auto absolute"
                         style={{
-                          left: '50%',
-                          bottom: 0,
-                          transform: `translate(calc(-50% + ${x}px), ${y}px)`,
-                          animation: `arcIn 280ms cubic-bezier(0.34, 1.56, 0.64, 1) both`,
-                          animationDelay: `${i * 40}ms`,
+                          left: 0,
+                          top: 0,
+                          ['--tx' as any]: `${x}px`,
+                          ['--ty' as any]: `${y}px`,
+                          transform: `translate(-50%, -50%) translate(${x}px, ${y}px)`,
+                          animation: `fanIn 320ms cubic-bezier(0.34, 1.56, 0.64, 1) both`,
+                          animationDelay: `${i * 45}ms`,
                         }}
                         aria-label={t(b.labelKey)}
                       >
-                        <div className={`relative w-11 h-11 rounded-2xl flex items-center justify-center shadow-[0_8px_24px_rgba(0,0,0,0.35)] border border-border/40 ${
+                        <div className={`relative w-12 h-12 rounded-full flex items-center justify-center shadow-[0_10px_28px_rgba(0,0,0,0.45)] border border-border/40 ${
                           branchActive ? 'bg-primary text-primary-foreground' : 'bg-card text-foreground'
                         }`}>
-                          <BIcon className="w-[18px] h-[18px]" strokeWidth={branchActive ? 2.2 : 1.8} />
+                          <BIcon className="w-[20px] h-[20px]" strokeWidth={branchActive ? 2.2 : 1.8} />
                           {showBadge && (
                             <span className="absolute -top-1 -right-1 min-w-[16px] h-[16px] px-1 rounded-full bg-destructive text-destructive-foreground text-[9.5px] font-bold flex items-center justify-center leading-none shadow">
                               {unreadCount > 99 ? '99+' : unreadCount}
                             </span>
                           )}
                         </div>
-                        <span className="text-[9.5px] font-medium text-foreground/90 bg-card/85 backdrop-blur px-1.5 py-0.5 rounded-md border border-border/30 whitespace-nowrap">
-                          {t(b.labelKey)}
-                        </span>
                       </button>
                     );
                   })}
