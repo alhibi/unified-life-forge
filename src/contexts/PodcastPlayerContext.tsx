@@ -256,6 +256,20 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
       // Loading a new episode. Persist the last-played id so we can
       // restore the mini-player on next visit, then point the audio
       // element at the new URL and seek to the saved resume position.
+      //
+      // `audio.src` is set to the publisher's *original* enclosure URL
+      // straight from the RSS `<enclosure url="...">`. The browser
+      // streams it natively at the publisher's encoded bitrate — we
+      // never re-encode, transcode, or proxy the audio bytes (only
+      // RSS XML goes through the proxy fallback when needed). That
+      // keeps playback lossless: whatever quality the producer
+      // uploaded is what plays in the browser.
+      //
+      // We deliberately do NOT set `audio.crossOrigin`. Most podcast
+      // CDNs (anchor.fm, libsyn, megaphone, ArtNouveau) don't send
+      // `Access-Control-Allow-Origin` on audio responses, and setting
+      // `crossOrigin` would make the browser refuse to play those.
+      // Plain `<audio src=...>` playback works without CORS.
       setCurrent(meta);
       setLastPlayedId(meta.episode.id);
       audio.src = meta.episode.audioUrl;

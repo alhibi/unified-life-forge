@@ -6,22 +6,22 @@
 // namespace shim. No third-party RSS library — podcast feeds use ~10
 // fields and we only need to read them.
 //
-// Network strategy:
-//   1. First try the feed URL directly. A surprising number of major
-//      podcast hosts (simplecast, megaphone, libsyn, rss.com, BBC) send
-//      `Access-Control-Allow-Origin: *` and we can avoid the proxy
-//      entirely. That keeps latency down and means we don't hit the
-//      proxy's rate limit on subscribed-feed refreshes.
-//   2. If the direct request fails (CORS, network, opaque error), we
-//      retry through `api.codetabs.com/v1/proxy` which is free, has no
-//      key, returns the raw body with `Access-Control-Allow-Origin: *`,
-//      and was the only public proxy we could find still working as of
-//      this writing.
-//
-// The two responses are byte-equivalent so the rest of the parser
-// doesn't care which path won.
+// Network strategy (in order; first to succeed wins):
+//   1. Direct fetch — a surprising number of major podcast hosts
+//      (simplecast, megaphone, libsyn, rss.com, BBC) send
+//      `Access-Control-Allow-Origin: *`. Skipping the proxy keeps
+//      latency low and avoids rate limits on subscribed-feed refresh.
+//   2. `api.codetabs.com/v1/proxy` — free, no key, fast (~150ms),
+//      returns raw XML with `Access-Control-Allow-Origin: *`. This
+//      handles the long tail of hosts without CORS (anchor.fm,
+//      podbean, feedburner, NPR's strict variant).
+//   3. `api.rss2json.com/v1/api.json` — final fallback. Returns a
+//      pre-parsed JSON envelope rather than raw XML, so the success
+//      path branches into `parseRss2Json` instead of the XML parser.
+//      Used only when codetabs is rate-limited or 5xxs.
 
-const PROXY_ENDPOINT = 'https://api.codetabs.com/v1/proxy/?quest=';
+const CODETABS_PROXY = 'https://api.codetabs.com/v1/proxy/?quest=';
+const RSS2JSON_PROXY = 'https://api.rss2json.com/v1/api.json?rss_url=';
 
 export interface PodcastFeed {
   /** RSS feed URL — used as the stable id for subscriptions. */
@@ -56,23 +56,133 @@ export interface PodcastEpisode {
 /*  Network                                                                   */
 /* -------------------------------------------------------------------------- */
 
-async function fetchText(url: string, signal?: AbortSignal): Promise<string> {
-  // Try direct first. We can't read CORS errors as a distinct error type
-  // — they surface as a generic `TypeError: Failed to fetch` — so we
-  // just catch any throw and fall through to the proxy.
+/** Result of `fetchText`: either raw XML, or a pre-parsed object that
+ *  rss2json gave us. The caller branches on `kind`. */
+type FetchResult =
+  | { kind: 'xml'; xml: string }
+  | { kind: 'json'; json: Rss2JsonEnvelope };
+
+async function tryFetch(url: string, signal?: AbortSignal): Promise<string> {
+  const res = await fetch(url, { signal, redirect: 'follow' });
+  if (!res.ok) throw new Error(`status ${res.status}`);
+  return await res.text();
+}
+
+async function fetchFeedAny(feedUrl: string, signal?: AbortSignal): Promise<FetchResult> {
+  // 1. Direct.
   try {
-    const res = await fetch(url, { signal, redirect: 'follow' });
-    if (res.ok) return await res.text();
-    // Some hosts answer HEAD with 200 but GET with 301 to a no-CORS host;
-    // treat any non-2xx as a reason to try the proxy.
-    throw new Error(`direct fetch returned ${res.status}`);
-  } catch (e) {
-    if (signal?.aborted) throw e;
-    const proxied = `${PROXY_ENDPOINT}${encodeURIComponent(url)}`;
-    const res = await fetch(proxied, { signal });
-    if (!res.ok) throw new Error(`RSS proxy returned ${res.status}`);
-    return await res.text();
+    const xml = await tryFetch(feedUrl, signal);
+    if (xml.length > 50) return { kind: 'xml', xml };
+  } catch {
+    // CORS / network / non-2xx — fall through.
+    if (signal?.aborted) throw new Error('aborted');
   }
+
+  // 2. codetabs.
+  try {
+    const xml = await tryFetch(`${CODETABS_PROXY}${encodeURIComponent(feedUrl)}`, signal);
+    if (xml.length > 50) return { kind: 'xml', xml };
+  } catch {
+    if (signal?.aborted) throw new Error('aborted');
+  }
+
+  // 3. rss2json — different shape, parsed downstream.
+  const text = await tryFetch(`${RSS2JSON_PROXY}${encodeURIComponent(feedUrl)}`, signal);
+  let env: Rss2JsonEnvelope;
+  try {
+    env = JSON.parse(text) as Rss2JsonEnvelope;
+  } catch {
+    throw new Error('Podcast feed is unreachable');
+  }
+  if (env.status !== 'ok') {
+    throw new Error(env.message || 'Podcast feed is unreachable');
+  }
+  return { kind: 'json', json: env };
+}
+
+/* -------------------------------------------------------------------------- */
+/*  rss2json fallback                                                         */
+/* -------------------------------------------------------------------------- */
+
+/** Minimal slice of api.rss2json.com's response we actually read.
+ *  Their docs claim more fields but only these are reliable in
+ *  practice across the feeds we've tested. */
+interface Rss2JsonEnvelope {
+  status: string;
+  message?: string;
+  feed?: {
+    url?: string;
+    title?: string;
+    link?: string;
+    author?: string;
+    description?: string;
+    image?: string;
+  };
+  items?: Array<{
+    guid?: string;
+    title?: string;
+    link?: string;
+    pubDate?: string;
+    description?: string;
+    content?: string;
+    thumbnail?: string;
+    enclosure?: {
+      link?: string;
+      type?: string;
+      thumbnail?: string;
+      duration?: number | string;
+      length?: number | string;
+    };
+  }>;
+}
+
+function parseRss2Json(env: Rss2JsonEnvelope, origin: string): PodcastFeed {
+  const feed = env.feed ?? {};
+  const items = env.items ?? [];
+
+  const episodes: PodcastEpisode[] = items
+    .map((it): PodcastEpisode => {
+      const guid = it.guid || it.link || '';
+      const audioUrl = it.enclosure?.link ?? '';
+      // rss2json sometimes returns duration as a number of seconds and
+      // sometimes as a HH:MM:SS string; reuse the same parser as the
+      // XML path so both branches stay consistent.
+      const durationRaw = it.enclosure?.duration;
+      const duration = typeof durationRaw === 'number'
+        ? durationRaw
+        : parseDuration(String(durationRaw ?? ''));
+      const lengthRaw = it.enclosure?.length;
+      const audioBytes = typeof lengthRaw === 'number'
+        ? lengthRaw
+        : parseInt(String(lengthRaw ?? '0'), 10) || 0;
+
+      return {
+        id: `${origin}:${guid}`,
+        guid,
+        title: it.title ?? '',
+        // Prefer `content` (HTML) over `description` (often plain).
+        description: it.content || it.description || '',
+        imageUrl: it.thumbnail || it.enclosure?.thumbnail || feed.image || '',
+        pubDate: parsePubDate(it.pubDate ?? ''),
+        duration,
+        audioUrl,
+        audioMime: it.enclosure?.type ?? '',
+        audioBytes,
+        link: it.link ?? '',
+      };
+    })
+    .filter(e => e.audioUrl);
+
+  return {
+    origin,
+    title: feed.title ?? '',
+    link: feed.link ?? '',
+    description: feed.description ?? '',
+    author: feed.author ?? '',
+    imageUrl: feed.image ?? '',
+    languageCode: '', // rss2json doesn't return language in its public schema
+    episodes,
+  };
 }
 
 /* -------------------------------------------------------------------------- */
@@ -199,6 +309,7 @@ export async function fetchPodcastFeed(opts: {
   feedUrl: string;
   signal?: AbortSignal;
 }): Promise<PodcastFeed> {
-  const xml = await fetchText(opts.feedUrl, opts.signal);
-  return parseFeed(xml, opts.feedUrl);
+  const result = await fetchFeedAny(opts.feedUrl, opts.signal);
+  if (result.kind === 'json') return parseRss2Json(result.json, opts.feedUrl);
+  return parseFeed(result.xml, opts.feedUrl);
 }
