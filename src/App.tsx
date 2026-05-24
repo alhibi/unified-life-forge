@@ -6,6 +6,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppProvider } from "@/contexts/AppContext";
 import { VoicePlayerProvider } from "@/contexts/VoicePlayerContext";
 import { ImageUploadProvider } from "@/contexts/ImageUploadContext";
+import { PodcastPlayerProvider } from "@/contexts/PodcastPlayerContext";
+import PodcastMiniPlayer from "@/components/podcasts/PodcastMiniPlayer";
 import { AnimatePresence } from "framer-motion";
 import BottomNav from "@/components/BottomNav";
 import PageTransition from "@/components/PageTransition";
@@ -68,6 +70,8 @@ const loadUntimed = () => import("./pages/UntimedSunnah");
 const loadVirtues = () => import("./pages/QuranVirtues");
 const loadTafsir = () => import("./pages/Tafsir");
 const loadPodcasts = () => import("./pages/Podcasts");
+const loadPodcastDetail = () => import("./pages/PodcastDetail");
+const loadPodcastLibrary = () => import("./pages/PodcastLibrary");
 const loadNotFound = () => import("./pages/NotFound");
 // Wellness and Diwan tabs are lazy because their static data files
 // (~10k lines combined) make eager-loading them measurable on cold
@@ -108,6 +112,8 @@ const UntimedSunnahPage = lazy(loadUntimed);
 const QuranVirtuesPage = lazy(loadVirtues);
 const TafsirPage = lazy(loadTafsir);
 const PodcastsPage = lazy(loadPodcasts);
+const PodcastDetailPage = lazy(loadPodcastDetail);
+const PodcastLibraryPage = lazy(loadPodcastLibrary);
 const NotFound = lazy(loadNotFound);
 const WellnessPage = lazy(loadWellness);
 const DiwanPage = lazy(loadDiwan);
@@ -260,6 +266,8 @@ function AnimatedRoutes() {
             <Route path="/section/quran-virtues" element={<ErrorBoundary><PageTransition><QuranVirtuesPage /></PageTransition></ErrorBoundary>} />
             <Route path="/tafsir" element={<ErrorBoundary><PageTransition><TafsirPage /></PageTransition></ErrorBoundary>} />
             <Route path="/podcasts" element={<ErrorBoundary><PageTransition><PodcastsPage /></PageTransition></ErrorBoundary>} />
+            <Route path="/podcasts/library" element={<ErrorBoundary><PageTransition><PodcastLibraryPage /></PageTransition></ErrorBoundary>} />
+            <Route path="/podcasts/:id" element={<ErrorBoundary><PageTransition><PodcastDetailPage /></PageTransition></ErrorBoundary>} />
             {/* Diwan Library — adab.com */}
             <Route path="/diwan/library"               element={<ErrorBoundary><PageTransition><DiwanLibraryPage /></PageTransition></ErrorBoundary>} />
             <Route path="/diwan/library/search"        element={<ErrorBoundary><PageTransition><DiwanLibrarySearchPage /></PageTransition></ErrorBoundary>} />
@@ -280,6 +288,7 @@ const App = () => (
     <AppProvider>
       <VoicePlayerProvider>
         <ImageUploadProvider>
+        <PodcastPlayerProvider>
         <TooltipProvider>
           <ErrorBoundary>
             <Toaster />
@@ -289,9 +298,11 @@ const App = () => (
               <PresenceRunner />
               <AnimatedRoutes />
               <BottomNav />
+              <PodcastMiniPlayer />
             </BrowserRouter>
           </ErrorBoundary>
         </TooltipProvider>
+        </PodcastPlayerProvider>
         </ImageUploadProvider>
       </VoicePlayerProvider>
     </AppProvider>

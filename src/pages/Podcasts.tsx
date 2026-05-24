@@ -16,16 +16,18 @@
 // coming back should reset the user to the chart they were browsing.
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { createPortal } from 'react-dom';
-import { Globe, Search, X, Info, Check } from 'lucide-react';
+import { Globe, Search, X, Info, Check, LibraryBig } from 'lucide-react';
 import SEO from '@/components/SEO';
 import BackButton from '@/components/BackButton';
 import { useApp } from '@/contexts/AppContext';
 import { fetchTopPodcasts, searchPodcasts, type PodcastPreview } from '@/lib/podcasts/itunes';
 import { podcastGenres } from '@/data/podcastGenres';
 import { podcastCountries, findCountry, type PodcastCountry } from '@/data/podcastCountries';
+import { useSubscriptions } from '@/lib/podcasts/store';
 
 const COUNTRY_KEY = 'podcasts.country';
 const GENRE_KEY = 'podcasts.genre';
@@ -186,6 +188,8 @@ function GridSkeleton() {
 
 export default function PodcastsPage() {
   const { language, t } = useApp();
+  const navigate = useNavigate();
+  const subs = useSubscriptions();
 
   // Persisted prefs — read once, written on change.
   const [country, setCountry] = useState<PodcastCountry>(() =>
@@ -249,9 +253,10 @@ export default function PodcastsPage() {
   }, [genreKey]);
 
   const handleOpen = (p: PodcastPreview) => {
-    // Defer to the native Apple Podcasts page for now — opening an
-    // in-app player is out of scope for this section.
-    if (p.link) window.open(p.link, '_blank', 'noopener,noreferrer');
+    // Navigate to the detail page using the Apple Podcasts collection
+    // id. The detail page will resolve it to a feed URL via the iTunes
+    // lookup endpoint, fetch the RSS, and let the user subscribe.
+    navigate(`/podcasts/${encodeURIComponent(p.id)}`);
   };
 
   const localizedCountry = language === 'ar' ? country.nameAr : country.nameDe;
@@ -298,6 +303,19 @@ export default function PodcastsPage() {
               </button>
             )}
           </div>
+          <button
+            type="button"
+            onClick={() => navigate('/podcasts/library')}
+            className="relative flex items-center justify-center w-10 h-10 rounded-2xl bg-secondary/60 active:scale-95 transition-transform"
+            aria-label={language === 'ar' ? 'مكتبتي' : 'Bibliothek'}
+          >
+            <LibraryBig className="w-4 h-4 text-foreground" />
+            {subs.length > 0 && (
+              <span className="absolute -top-1 -end-1 min-w-[16px] h-4 px-1 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">
+                {subs.length > 99 ? '99+' : subs.length}
+              </span>
+            )}
+          </button>
         </div>
 
         {/* Genre tabs */}
