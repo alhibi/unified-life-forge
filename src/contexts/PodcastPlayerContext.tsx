@@ -210,7 +210,14 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
       title: current.episode.title,
       artist: current.podcastTitle,
       album: current.podcastTitle,
-      artwork: [{ src: current.podcastImageUrl, sizes: '512x512', type: 'image/jpeg' }],
+      // Prefer episode-specific artwork — same precedence as the
+      // mini-player and player sheet — so the lock-screen poster
+      // matches what the user sees in-app.
+      artwork: [{
+        src: current.episode.imageUrl || current.podcastImageUrl,
+        sizes: '512x512',
+        type: 'image/jpeg',
+      }],
     });
     ms.setActionHandler('play', () => audioRef.current?.play().catch(() => {}));
     ms.setActionHandler('pause', () => audioRef.current?.pause());

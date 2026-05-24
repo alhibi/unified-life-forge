@@ -243,11 +243,17 @@ function parseFeed(xml: string, origin: string): PodcastFeed {
   const channel = doc.getElementsByTagName('channel')[0];
   if (!channel) throw new Error('Podcast feed has no <channel>');
 
-  // Channel-level image. iTunes puts it in `<itunes:image href="...">`,
-  // standard RSS uses `<image><url>...</url></image>`.
-  const itunesImg = channel.getElementsByTagName('itunes:image')[0]?.getAttribute('href') ?? '';
-  const stdImg = channel.getElementsByTagName('image')[0]?.getElementsByTagName('url')[0]?.textContent?.trim() ?? '';
-  const imageUrl = itunesImg || stdImg;
+  // Channel-level image. The iTunes podcast spec uses
+  // `<itunes:image href="...">`, standard RSS uses
+  // `<image><url>...</url></image>`. A handful of feeds also include
+  // `<media:thumbnail url="..."/>` from the Yahoo Media RSS spec.
+  // Each value gets `.trim()` because some feeds include line
+  // breaks/whitespace inside the attribute (the XML parser keeps
+  // them verbatim).
+  const itunesImg = (channel.getElementsByTagName('itunes:image')[0]?.getAttribute('href') ?? '').trim();
+  const stdImg = (channel.getElementsByTagName('image')[0]?.getElementsByTagName('url')[0]?.textContent ?? '').trim();
+  const mediaThumb = (channel.getElementsByTagName('media:thumbnail')[0]?.getAttribute('url') ?? '').trim();
+  const imageUrl = itunesImg || stdImg || mediaThumb;
 
   const author = text(channel, 'itunes:author') || text(channel, 'managingEditor');
   const description = text(channel, 'itunes:summary') || text(channel, 'description');
@@ -264,7 +270,15 @@ function parseFeed(xml: string, origin: string): PodcastFeed {
     const audioMime = enclosure?.getAttribute('type') ?? '';
     const audioBytes = parseInt(enclosure?.getAttribute('length') ?? '0', 10) || 0;
 
-    const itemImage = item.getElementsByTagName('itunes:image')[0]?.getAttribute('href') ?? '';
+    // Episode-level artwork. Try the iTunes attribute first, then
+    // Media-RSS thumbnail, then the rare `<image><url>...</url></image>`
+    // some publishers nest inside an `<item>`. Whichever wins gets
+    // trimmed for the same whitespace reasons as the channel image.
+    const itemImage =
+      (item.getElementsByTagName('itunes:image')[0]?.getAttribute('href') ?? '').trim() ||
+      (item.getElementsByTagName('media:thumbnail')[0]?.getAttribute('url') ?? '').trim() ||
+      (item.getElementsByTagName('media:content')[0]?.getAttribute('url') ?? '').trim() ||
+      (item.getElementsByTagName('image')[0]?.getElementsByTagName('url')[0]?.textContent ?? '').trim();
     // `<content:encoded>` carries the full HTML description on most
     // modern feeds; standard `<description>` is the short summary.
     const fullDescription =

@@ -5,10 +5,11 @@
 // a wide seekable progress bar, skip-back / play-pause / skip-forward
 // transport, and a row of secondary controls (speed, close).
 
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { ChevronDown, Gauge, Loader2, Pause, Play, RotateCcw, RotateCw, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
+import DOMPurify from 'dompurify';
 import { usePodcastPlayer } from '@/contexts/PodcastPlayerContext';
 import { useApp } from '@/contexts/AppContext';
 
@@ -43,7 +44,34 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
     return () => { document.body.style.overflow = prev; };
   }, [open]);
 
+  // Sanitize the episode description once per render. Computed here
+  // (above the early return) because hooks must run in the same order
+  // on every render. The RSS parser forwards `<content:encoded>` (HTML)
+  // when available and the plainer `<description>` otherwise; either
+  // can carry markup we don't want to inject blindly. DOMPurify keeps
+  // a safe subset.
+  //
+  // We pull `description` into a separate local so the useMemo
+  // dependency list is a primitive — adding the whole `player` object
+  // would re-sanitize on every position tick.
+  const rawDescription = player.current?.episode.description ?? '';
+  const safeDescription = useMemo(() => {
+    if (!rawDescription) return '';
+    return DOMPurify.sanitize(rawDescription.replace(/\n/g, '<br>'), {
+      ALLOWED_TAGS: ['a', 'b', 'br', 'em', 'i', 'p', 'span', 'strong', 'u', 'ul', 'ol', 'li'],
+      ALLOWED_ATTR: ['href', 'target', 'rel'],
+    });
+  }, [rawDescription]);
+
   if (!player.current) return null;
+
+  // Prefer the episode-specific artwork (set on every `<item>` in
+  // RSS feeds that ship per-episode covers — e.g. interview shows
+  // with guest photos). Falls back to the channel-level cover if
+  // the episode didn't override it. The same precedence is what
+  // Apple Podcasts and Spotify use.
+  const episodeArtwork = player.current.episode.imageUrl
+    || player.current.podcastImageUrl;
 
   const Icon = player.isLoading ? Loader2 : player.isPlaying ? Pause : Play;
   const pct = player.duration > 0
@@ -92,11 +120,12 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
               </button>
             </div>
 
-            {/* Artwork */}
+            {/* Artwork — episode-specific cover if the feed provided
+                one, otherwise the podcast's channel cover. */}
             <div className="px-6 pt-3 pb-4">
               <div className="aspect-square rounded-3xl overflow-hidden shadow-2xl">
                 <img
-                  src={player.current.podcastImageUrl}
+                  src={episodeArtwork}
                   alt=""
                   className="w-full h-full object-cover"
                 />
@@ -112,6 +141,28 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
                 {player.current.podcastTitle}
               </p>
             </div>
+
+            {/* Episode description card.
+                Capped at ~6rem visible height with internal scroll — long
+                show notes (Spotify-style transcripts, sponsor-link dumps)
+                won't push the transport off-screen. The container itself
+                receives momentum scrolling on iOS via overflow-y-auto. */}
+            {safeDescription && (
+              <div className="px-6 mt-3">
+                <div
+                  className="rounded-2xl bg-muted/30 border border-border/30 px-4 py-3 max-h-24 overflow-y-auto"
+                  // The actual scrollable region for show notes — touch
+                  // scrolling stays inside this box and doesn't fight
+                  // the bottom-sheet's own gesture handler.
+                  onTouchMove={e => e.stopPropagation()}
+                >
+                  <div
+                    className="text-[12px] text-foreground/75 leading-relaxed podcast-html"
+                    dangerouslySetInnerHTML={{ __html: safeDescription }}
+                  />
+                </div>
+              </div>
+            )}
 
             {/* Progress slider */}
             <div className="px-6 mt-5">
