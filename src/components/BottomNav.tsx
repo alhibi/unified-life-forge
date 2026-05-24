@@ -16,6 +16,16 @@ import { useNavigate, useLocation } from 'react-router-dom';
  * and label all share the active tab's accent color, so the bar feels
  * alive and breathing rather than mechanical.
  *
+ * Floating + theme-aware:
+ *   • Surface uses hsl(var(--card)) + backdrop-blur so the bar adapts
+ *     to light / dark / MD3 themes instead of being hard-coded dark.
+ *   • Sits ~10px above the screen bottom (above safe-area inset) with
+ *     a soft two-layer shadow → feels like it's hovering, not glued.
+ *   • Inactive icons use the app's `--muted-foreground` token so they
+ *     read correctly in every theme.
+ *   • Easing tokens (--ease-spring, --ease-out-expo) are reused so the
+ *     bar's physics match the rest of the app.
+ *
  * Routing logic (where the bar appears, which tab is active, navigation,
  * unread chat badge, RTL visual ordering) is preserved 1:1 with the
  * previous BottomNav implementation.
@@ -47,7 +57,11 @@ const tabs: Tab[] = [
 // Show the bar only on these top-level destinations (same gate as before).
 const TAB_PATHS = new Set<string>(tabs.map(t => t.path));
 
-const SPRING = 'cubic-bezier(0.34, 1.56, 0.64, 1)';
+// Reuse the app's easing tokens so the bar speaks the same motion
+// dialect as cards, sheets, and the sidebar. Inline fallbacks keep the
+// curve identical even on browsers that mis-resolve var() in transitions.
+const SPRING   = 'var(--ease-spring, cubic-bezier(0.34, 1.56, 0.64, 1))';
+const OUT_EXPO = 'var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1))';
 
 /**
  * Bell-curve cubic bezier that lifts the wave under the active tab.
@@ -129,21 +143,36 @@ export default function TideBar() {
   return (
     <nav
       data-bottom-nav
-      className="bottom-nav fixed bottom-0 left-0 right-0 z-50"
+      data-tide-bar
+      className="bottom-nav fixed bottom-0 left-0 right-0 z-50 pointer-events-none"
       style={{
-        paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+        // Lift the floating bar above the safe-area inset, then add a
+        // small breathing gap. Padding (not margin) so the safe-area
+        // grows the wrapper rather than pushing the bar off-screen.
+        paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 10px)',
+        paddingInline: '12px',
         willChange: 'transform',
         transform: 'translateZ(0)',
       }}
     >
       <div
         ref={containerRef}
-        className="relative w-full overflow-hidden"
+        className="tide-bar-surface relative w-full pointer-events-auto"
         style={{
-          height: 72,
-          background: '#050510',
-          borderRadius: 26,
-          border: '1px solid #ffffff07',
+          height: 68,
+          // Theme-aware translucent surface. We layer a tiny tonal
+          // overlay so the wave gradient still has contrast even on
+          // light themes (where --card is near-white).
+          background:
+            'linear-gradient(hsl(var(--foreground) / 0.04), hsl(var(--foreground) / 0.04)), hsl(var(--card) / 0.82)',
+          WebkitBackdropFilter: 'blur(18px) saturate(160%)',
+          backdropFilter: 'blur(18px) saturate(160%)',
+          borderRadius: 22,
+          border: '1px solid hsl(var(--border) / 0.6)',
+          // Soft two-layer elevation — present, never shouting.
+          boxShadow:
+            '0 8px 24px -12px hsl(var(--foreground) / 0.18), 0 2px 6px -2px hsl(var(--foreground) / 0.08)',
+          overflow: 'hidden',
         }}
       >
         {/* ── Top hairline ──────────────────────────────────────────── */}
@@ -229,15 +258,18 @@ export default function TideBar() {
                   transform: active
                     ? 'translateY(-10px) scale(1.08)'
                     : 'translateY(0) scale(1)',
-                  opacity: active ? 1 : 0.3,
-                  transition: `transform 0.45s ${SPRING}, opacity 0.45s ${SPRING}`,
+                  opacity: active ? 1 : 0.45,
+                  transition: `transform 0.45s ${SPRING}, opacity 0.35s ${OUT_EXPO}`,
                 }}
               >
                 <Icon
                   size={22}
                   strokeWidth={active ? 2.2 : 1.8}
                   style={{
-                    color: active ? tab.color : '#aaaacc',
+                    // Active picks up the per-tab accent; inactive uses
+                    // the app's muted-foreground token so it adapts to
+                    // light/dark/MD3 themes instead of being fixed.
+                    color: active ? tab.color : 'hsl(var(--muted-foreground))',
                     transition: 'color 0.4s ease',
                   }}
                 />

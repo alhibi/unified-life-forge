@@ -502,6 +502,17 @@ a:active {
   opacity: 0.92;
 }
 
+/* TideBar tab buttons handle their own active-state physics (the icon
+   lifts and scales above the wave). Keep press feedback subtle so it
+   doesn't compete with the wave / lift animation. */
+[data-tide-bar] button {
+  transition: opacity 120ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+[data-tide-bar] button:active {
+  transform: none;
+  opacity: 0.85;
+}
+
 /* Disable browser context menu on UI elements */
 nav, button, [role="button"], .no-context-menu {
   -webkit-touch-callout: none;
@@ -693,10 +704,12 @@ html.theme-transition *::after {
 }
 
 /* ── 5. Bottom navigation → MD3 navigation-bar look ────────
-   Indicator pill behind active tab + 80dp height feel. */
-[data-md3="true"] nav[aria-label*="bottom" i],
-[data-md3="true"] nav.bottom-nav,
-[data-md3="true"] [data-bottom-nav] {
+   Indicator pill behind active tab + 80dp height feel.
+   Skip the new TideBar — it has its own floating shape that we
+   don't want flattened into a full-bleed rectangle. */
+[data-md3="true"] nav[aria-label*="bottom" i]:not([data-tide-bar]),
+[data-md3="true"] nav.bottom-nav:not([data-tide-bar]),
+[data-md3="true"] [data-bottom-nav]:not([data-tide-bar]) {
   background: linear-gradient(
       hsl(var(--md3-surface-tint) / 0.08),
       hsl(var(--md3-surface-tint) / 0.08)
