@@ -67,6 +67,7 @@ const loadProphetic = () => import("./pages/PropheticDay");
 const loadUntimed = () => import("./pages/UntimedSunnah");
 const loadVirtues = () => import("./pages/QuranVirtues");
 const loadTafsir = () => import("./pages/Tafsir");
+const loadPodcasts = () => import("./pages/Podcasts");
 const loadNotFound = () => import("./pages/NotFound");
 // Wellness and Diwan tabs are lazy because their static data files
 // (~10k lines combined) make eager-loading them measurable on cold
@@ -106,6 +107,7 @@ const PropheticDayPage = lazy(loadProphetic);
 const UntimedSunnahPage = lazy(loadUntimed);
 const QuranVirtuesPage = lazy(loadVirtues);
 const TafsirPage = lazy(loadTafsir);
+const PodcastsPage = lazy(loadPodcasts);
 const NotFound = lazy(loadNotFound);
 const WellnessPage = lazy(loadWellness);
 const DiwanPage = lazy(loadDiwan);
@@ -257,6 +259,7 @@ function AnimatedRoutes() {
             <Route path="/section/prophetic-day" element={<ErrorBoundary><PageTransition><PropheticDayPage /></PageTransition></ErrorBoundary>} />
             <Route path="/section/quran-virtues" element={<ErrorBoundary><PageTransition><QuranVirtuesPage /></PageTransition></ErrorBoundary>} />
             <Route path="/tafsir" element={<ErrorBoundary><PageTransition><TafsirPage /></PageTransition></ErrorBoundary>} />
+            <Route path="/podcasts" element={<ErrorBoundary><PageTransition><PodcastsPage /></PageTransition></ErrorBoundary>} />
             {/* Diwan Library — adab.com */}
             <Route path="/diwan/library"               element={<ErrorBoundary><PageTransition><DiwanLibraryPage /></PageTransition></ErrorBoundary>} />
             <Route path="/diwan/library/search"        element={<ErrorBoundary><PageTransition><DiwanLibrarySearchPage /></PageTransition></ErrorBoundary>} />

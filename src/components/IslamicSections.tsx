@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '@/contexts/AppContext';
 import { motion } from 'framer-motion';
-import { Clock, Timer, CalendarDays, Sparkles, Trophy, Leaf, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Clock, Timer, CalendarDays, Sparkles, Trophy, Leaf, Mic, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const sections = [
   { key: 'timed-sunnah', labelKey: 'sections.timedSunnah', icon: Clock, color: 'text-primary', bg: 'bg-primary/10' },
   { key: 'untimed-sunnah', labelKey: 'sections.untimedSunnah', icon: Timer, color: 'text-primary', bg: 'bg-primary/10' },
   { key: 'prophetic-day', labelKey: 'sections.propheticDay', icon: CalendarDays, color: 'text-primary', bg: 'bg-primary/10' },
   { key: 'quran-virtues', labelKey: 'sections.quranVirtues', icon: Sparkles, color: 'text-primary', bg: 'bg-primary/10' },
+  { key: 'podcasts', labelKey: 'sections.podcasts', icon: Mic, color: 'text-primary', bg: 'bg-primary/10' },
   { key: 'selections', labelKey: 'sections.selections', icon: Leaf, color: 'text-primary', bg: 'bg-primary/10' },
   { key: 'prophetic-badges', labelKey: 'sections.propheticBadges', icon: Trophy, color: 'text-primary', bg: 'bg-primary/10' },
 ];
@@ -34,6 +35,8 @@ function SectionButton({ section, Arrow }: { section: typeof sections[0]; Arrow:
     if (isComingSoon) {
       setShowSoon(true);
       setTimeout(() => setShowSoon(false), 1200);
+    } else if (section.key === 'podcasts') {
+      navigate('/podcasts');
     } else {
       navigate(`/section/${section.key}`);
     }
