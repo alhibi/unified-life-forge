@@ -32,6 +32,14 @@ const PodcastMiniPlayer = memo(function PodcastMiniPlayer() {
 
   const Icon = player.isLoading ? Loader2 : player.isPlaying ? Pause : Play;
 
+  // Use the episode-specific cover when the feed provides one,
+  // falling back to the podcast's channel cover. Matches the same
+  // precedence used by the full player sheet and the OS media-session
+  // metadata, so the artwork stays consistent across every surface.
+  const artwork = player.current?.episode.imageUrl
+    || player.current?.podcastImageUrl
+    || '';
+
   return (
     <>
       <AnimatePresence>
@@ -65,9 +73,10 @@ const PodcastMiniPlayer = memo(function PodcastMiniPlayer() {
                 WebkitBackdropFilter: 'blur(20px)',
               }}
             >
-              {/* Artwork */}
+              {/* Artwork — episode-specific if the feed shipped one,
+                  otherwise the podcast cover. */}
               <img
-                src={player.current?.podcastImageUrl ?? ''}
+                src={artwork}
                 alt=""
                 className="w-12 h-12 rounded-full object-cover bg-muted/40 shrink-0"
               />
