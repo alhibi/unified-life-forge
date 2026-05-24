@@ -18,7 +18,7 @@ import { CheckCircle2, Loader2, Pause, Play, RotateCcw } from 'lucide-react';
 import { motion } from 'framer-motion';
 import type { PodcastEpisode } from '@/lib/podcasts/rss';
 import { usePodcastPlayer, type PlayingEpisodeMeta } from '@/contexts/PodcastPlayerContext';
-import { markEpisodePlayedWithNotify, usePlayState } from '@/lib/podcasts/store';
+import { markEpisodePlayedWithNotify, removeRecentEpisodeWithNotify, usePlayState } from '@/lib/podcasts/store';
 import { useApp } from '@/contexts/AppContext';
 
 interface EpisodeListItemProps {
@@ -29,6 +29,12 @@ interface EpisodeListItemProps {
   seedH: number | null;
   seedS: number | null;
   seedL: number | null;
+  /** Full list of episodes in the current display order. Used to
+   *  build an auto-play queue (the episodes that come AFTER this one
+   *  in the same order) when the user taps play. Pass it from the
+   *  parent so the queue reflects whatever sort/filter the user
+   *  picked. */
+  allEpisodes?: PodcastEpisode[];
 }
 
 function formatRelativeDate(ms: number, lang: 'ar' | 'de'): string {
@@ -43,6 +49,15 @@ function formatRelativeDate(ms: number, lang: 'ar' | 'de'): string {
     year: 'numeric', month: 'short', day: 'numeric',
   }).format(date);
 }
+
+/**
+ * "Recent" window for the NEW badge. Match Podium/Spotify/Apple
+ * Podcasts: an episode is "new" only if published in the last 14
+ * days. The previous logic (`!played && position === 0`) painted
+ * every untouched archive episode as new — a 5-year-old back
+ * catalog would light up the entire list.
+ */
+const NEW_BADGE_WINDOW_MS = 14 * 86_400_000;
 
 function formatRemaining(durationSec: number, positionSec: number, lang: 'ar' | 'de'): string {
   const remaining = Math.max(0, Math.round(durationSec - positionSec));
@@ -62,7 +77,7 @@ function formatDuration(durationSec: number): string {
 }
 
 const EpisodeListItem = memo(function EpisodeListItem({
-  episode, podcastTitle, podcastImageUrl, seedH, seedS, seedL,
+  episode, podcastTitle, podcastImageUrl, seedH, seedS, seedL, allEpisodes,
 }: EpisodeListItemProps) {
   const { language } = useApp();
   const lang = language === 'de' ? 'de' : 'ar';
@@ -91,6 +106,22 @@ const EpisodeListItem = memo(function EpisodeListItem({
     ? Math.min(100, Math.max(0, (playState.position / duration) * 100))
     : 0;
 
+  // "In progress" means the listener has played past the first few
+  // seconds but hasn't finished. We use this to show a progress strip
+  // along the bottom of the row + the "X min remaining" label inside
+  // the play button.
+  const isInProgress = !playState.played && playState.position > 5 && progressPct < 99;
+
+  // The NEW badge should only fire for genuinely recent episodes that
+  // haven't been touched — combining the pubDate window with the play
+  // state. Episodes from years ago should never show "NEU" / "جديد"
+  // even if they're in the user's "haven't played yet" pile.
+  const isFreshUnplayed =
+    !playState.played &&
+    playState.position === 0 &&
+    episode.pubDate > 0 &&
+    Date.now() - episode.pubDate < NEW_BADGE_WINDOW_MS;
+
   const handlePlay = () => {
     if (isCurrent) {
       player.toggle();
@@ -102,15 +133,37 @@ const EpisodeListItem = memo(function EpisodeListItem({
       podcastImageUrl,
       seedH, seedS, seedL,
     };
-    void player.play(meta);
+    // Build the auto-play queue: every episode AFTER this one in the
+    // currently-displayed list order. Skipped when `allEpisodes`
+    // wasn't provided — the player simply won't auto-advance.
+    let queue: PlayingEpisodeMeta[] | undefined;
+    if (allEpisodes && allEpisodes.length > 1) {
+      const idx = allEpisodes.findIndex(e => e.id === episode.id);
+      if (idx >= 0 && idx < allEpisodes.length - 1) {
+        queue = allEpisodes.slice(idx + 1).map(ep => ({
+          episode: ep,
+          podcastTitle,
+          podcastImageUrl,
+          seedH, seedS, seedL,
+        }));
+      }
+    }
+    void player.play(meta, queue);
   };
 
   const handleMarkPlayed = () => {
+    const willBePlayed = !playState.played;
     markEpisodePlayedWithNotify(
       episode.id,
       duration,
-      !playState.played,
+      willBePlayed,
     );
+    // When the user marks an episode played, also evict it from the
+    // Continue Listening rail. When they UN-mark a played episode we
+    // leave the rail alone — un-marking is a "I want to listen again"
+    // signal and the natural place for that is the podcast detail
+    // page, not the rail.
+    if (willBePlayed) removeRecentEpisodeWithNotify(episode.id);
   };
 
   // PlayIcon picks based on three states (loading, playing, idle).
@@ -132,7 +185,7 @@ const EpisodeListItem = memo(function EpisodeListItem({
       }}
     >
       <header className="flex items-center gap-2 mb-2">
-        {!playState.played && playState.position === 0 && (
+        {isFreshUnplayed && (
           <span
             className="text-[10px] font-bold tracking-wider px-1.5 py-0.5 rounded-md"
             style={{
@@ -141,6 +194,12 @@ const EpisodeListItem = memo(function EpisodeListItem({
             }}
           >
             {lang === 'ar' ? 'جديد' : 'NEU'}
+          </span>
+        )}
+        {playState.played && (
+          <span className="text-[10px] font-bold tracking-wider px-1.5 py-0.5 rounded-md bg-muted/60 text-muted-foreground inline-flex items-center gap-1">
+            <CheckCircle2 className="w-3 h-3" />
+            {lang === 'ar' ? 'تم' : 'Erledigt'}
           </span>
         )}
         <p className="text-[11px] text-muted-foreground">
@@ -175,26 +234,19 @@ const EpisodeListItem = memo(function EpisodeListItem({
           onClick={handlePlay}
           disabled={!episode.audioUrl}
           aria-label={isThisPlaying ? 'Pause' : 'Play'}
-          className="relative flex items-center gap-2 ps-1.5 pe-3 py-1.5 rounded-full text-[12.5px] font-semibold transition-colors active:scale-95"
+          className="relative flex items-center gap-2 ps-1.5 pe-3 py-1.5 rounded-full text-[12.5px] font-semibold transition-colors active:scale-95 overflow-hidden"
           style={{
             background: 'var(--podcast-primary, hsl(var(--primary)))',
             color: 'var(--podcast-primary-fg, hsl(var(--primary-foreground)))',
           }}
         >
-          {/* Progress ring overlay — uses an inline SVG circle so we
-              don't need to ship a chart lib for ~80 bytes of geometry. */}
-          {progressPct > 1 && progressPct < 99 && !isThisPlaying && !isThisLoading && (
-            <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none">
-              <rect x="0" y="0" width={progressPct} height="100" fill="rgba(255,255,255,0.18)" />
-            </svg>
-          )}
           <span className="relative w-7 h-7 rounded-full bg-white/15 flex items-center justify-center">
             <PlayIcon className={`w-4 h-4 ${isThisLoading ? 'animate-spin' : ''}`} fill={isThisPlaying ? 'currentColor' : 'none'} />
           </span>
           <span className="relative">
             {playState.played
               ? (lang === 'ar' ? 'تم الاستماع' : 'Gehört')
-              : playState.position > 5
+              : isInProgress
               ? formatRemaining(duration, playState.position, lang)
               : formatDuration(duration) || (lang === 'ar' ? 'تشغيل' : 'Abspielen')}
           </span>
@@ -210,6 +262,23 @@ const EpisodeListItem = memo(function EpisodeListItem({
             : <CheckCircle2 className="w-4 h-4" />}
         </button>
       </footer>
+
+      {/* Bottom progress strip for in-progress episodes. Visible only
+          when the listener has actually started the episode but hasn't
+          finished — gives the row a glanceable continuation cue
+          without depending on the live player tick (we read from the
+          persisted play state, which is updated 1 Hz during playback). */}
+      {isInProgress && (
+        <div className="mt-3 -mx-1 h-1 rounded-full bg-muted/40 overflow-hidden">
+          <div
+            className="h-full rounded-full transition-[width] duration-300"
+            style={{
+              width: `${progressPct}%`,
+              background: 'var(--podcast-primary, hsl(var(--primary)))',
+            }}
+          />
+        </div>
+      )}
     </motion.article>
   );
 });
