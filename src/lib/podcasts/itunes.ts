@@ -11,8 +11,7 @@
 //       GET https://itunes.apple.com/{cc}/rss/toppodcasts/limit={N}/genre={id}/explicit=true/json
 //   - Search (per country, free-text):
 //       GET https://itunes.apple.com/search?media=podcast&country={cc}&term={q}&limit={N}
-//   - Lookup (RSS feed url for a collection id — kept for completeness;
-//     the discovery UI doesn't need it but episode pages would):
+//   - Lookup (RSS feed url for a collection id — used by the episode page):
 //       GET https://itunes.apple.com/lookup?id={id}
 //
 // We only model the fields the UI actually renders. The raw responses are
@@ -21,6 +20,12 @@
 // and isolates us from the two endpoints disagreeing on naming
 // (top-charts uses `im:name`/`im:artist`/`im:image`, search uses
 // `collectionName`/`artistName`/`artworkUrlXXX`).
+//
+// Two limits to be aware of:
+//   - Apple silently caps `limit` at 200 on every endpoint above. We
+//     default to it.
+//   - The aggregated fan-out helpers cap concurrency at 4 to be polite
+//     to Apple's CDN and to avoid bursting browser connection pools.
 
 export interface PodcastPreview {
   /** Stable id — `collectionId` from search, or `im:id` from RSS feed. */
@@ -35,6 +40,29 @@ export interface PodcastPreview {
   summary?: string;
   /** Optional RSS feed URL; only the search endpoint exposes it directly. */
   feedUrl?: string;
+}
+
+/** Apple's documented and silently-enforced ceiling on `limit` for the
+ *  RSS top-charts and Search endpoints. Requesting 500 just gets you
+ *  200; we make that the default. */
+export const ITUNES_MAX_LIMIT = 200;
+
+/* -------------------------------------------------------------------------- */
+/*  Artwork URL rewriter                                                      */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Replace the `170x170bb.png` thumbnail Apple ships in the RSS feed with a
+ * different-sized variant. The path is templated — the size is just a folder
+ * segment, so we can hot-swap it client-side without another round trip.
+ *
+ * Exported so callers can pick a size appropriate to where they're
+ * rendering (e.g. 200px for a 3-column grid card, 600px for a hero
+ * cover). Calling this on an already-upgraded URL works too — it just
+ * rewrites the size segment.
+ */
+export function upgradeArtwork(url: string, size = 600): string {
+  return url.replace(/\/\d+x\d+(bb)?(-?\d+)?\.(jpg|png|webp)$/i, `/${size}x${size}bb.$3`);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -54,30 +82,20 @@ interface RssResponse {
   feed?: { entry?: RssEntry[] };
 }
 
-/**
- * Replace the `170x170bb.png` thumbnail Apple ships in the RSS feed with a
- * different-sized variant. The path is templated — the size is just a folder
- * segment, so we can hot-swap it client-side without another round trip.
- *
- * Exported so callers can pick a size appropriate to where they're
- * rendering (e.g. 200px for a 3-column grid card, 600px for a hero
- * cover). Calling this on an already-upgraded URL works too — it just
- * rewrites the size segment.
- */
-export function upgradeArtwork(url: string, size = 600): string {
-  return url.replace(/\/\d+x\d+(bb)?(-?\d+)?\.(jpg|png|webp)$/i, `/${size}x${size}bb.$3`);
-}
-
 export async function fetchTopPodcasts(opts: {
   countryCode: string;
   genreId?: number | null;
   limit?: number;
   signal?: AbortSignal;
 }): Promise<PodcastPreview[]> {
-  const { countryCode, genreId, limit = 50, signal } = opts;
+  const { countryCode, genreId, limit = ITUNES_MAX_LIMIT, signal } = opts;
   const cc = countryCode.toLowerCase();
   const genrePart = genreId ? `genre=${genreId}/` : '';
-  const url = `https://itunes.apple.com/${cc}/rss/toppodcasts/limit=${limit}/${genrePart}explicit=true/json`;
+  // Clamp the user-requested limit. Anything above 200 is silently
+  // truncated by Apple anyway, but being explicit keeps the URL
+  // honest in network-tab inspections.
+  const cappedLimit = Math.max(1, Math.min(limit, ITUNES_MAX_LIMIT));
+  const url = `https://itunes.apple.com/${cc}/rss/toppodcasts/limit=${cappedLimit}/${genrePart}explicit=true/json`;
 
   const res = await fetch(url, { signal });
   if (!res.ok) throw new Error(`iTunes top podcasts failed: ${res.status}`);
@@ -123,12 +141,13 @@ export async function searchPodcasts(opts: {
   limit?: number;
   signal?: AbortSignal;
 }): Promise<PodcastPreview[]> {
-  const { term, countryCode, limit = 50, signal } = opts;
+  const { term, countryCode, limit = ITUNES_MAX_LIMIT, signal } = opts;
+  const cappedLimit = Math.max(1, Math.min(limit, ITUNES_MAX_LIMIT));
   const params = new URLSearchParams({
     media: 'podcast',
     country: countryCode.toLowerCase(),
     term,
-    limit: String(limit),
+    limit: String(cappedLimit),
   });
   const res = await fetch(`https://itunes.apple.com/search?${params.toString()}`, { signal });
   if (!res.ok) throw new Error(`iTunes search failed: ${res.status}`);
@@ -142,6 +161,130 @@ export async function searchPodcasts(opts: {
     link: r.collectionViewUrl,
     feedUrl: r.feedUrl,
   }));
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Aggregated (multi-country) helpers                                        */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Run a list of async tasks with a fixed concurrency window. Used by
+ * the multi-country fan-out helpers to be polite to Apple's CDN — we
+ * cap to 4 in-flight requests at a time, which still lights up a 12-
+ * country region in ~3 sequential rounds.
+ *
+ * `Promise.allSettled`-shaped because a single failed locale shouldn't
+ * blow up an entire region's chart — the merged result just lacks
+ * that contribution.
+ */
+async function runWithConcurrency<T>(
+  tasks: Array<() => Promise<T>>,
+  concurrency: number,
+  signal?: AbortSignal,
+): Promise<Array<PromiseSettledResult<T>>> {
+  const results: Array<PromiseSettledResult<T>> = new Array(tasks.length);
+  let nextIndex = 0;
+
+  async function worker() {
+    while (nextIndex < tasks.length) {
+      const i = nextIndex++;
+      if (signal?.aborted) {
+        results[i] = { status: 'rejected', reason: new DOMException('Aborted', 'AbortError') };
+        continue;
+      }
+      try {
+        results[i] = { status: 'fulfilled', value: await tasks[i]() };
+      } catch (err) {
+        results[i] = { status: 'rejected', reason: err };
+      }
+    }
+  }
+
+  const workerCount = Math.min(concurrency, tasks.length);
+  await Promise.all(Array.from({ length: workerCount }, worker));
+  return results;
+}
+
+/**
+ * Merge several podcast lists, dropping duplicates by `id`. Earlier
+ * lists win — that lets callers prioritize a region's "anchor" country
+ * (e.g. SA for Arabic, US for English) so the merged chart looks like
+ * the anchor's top followed by extras pulled in from siblings.
+ */
+function dedupeById(lists: PodcastPreview[][]): PodcastPreview[] {
+  const seen = new Set<string>();
+  const out: PodcastPreview[] = [];
+  for (const list of lists) {
+    for (const p of list) {
+      if (!p.id || seen.has(p.id)) continue;
+      seen.add(p.id);
+      out.push(p);
+    }
+  }
+  return out;
+}
+
+/**
+ * Aggregated top chart across multiple countries. Fans out one
+ * top-charts request per country (capped at concurrency=4) and merges
+ * the results, deduplicated by `collectionId`. Failed locales are
+ * skipped silently — Apple occasionally returns 503 on a single
+ * country's chart and we'd rather show 11 charts' worth of podcasts
+ * than fail the whole render.
+ *
+ * The merge is order-preserving by country, so the first country's
+ * top-N stays at the top of the result.
+ */
+export async function fetchTopPodcastsAggregated(opts: {
+  countryCodes: string[];
+  genreId?: number | null;
+  /** Limit per country — total returned is up to N × countries.length
+   *  before dedup. Caller can further slice the result. */
+  limitPerCountry?: number;
+  signal?: AbortSignal;
+}): Promise<PodcastPreview[]> {
+  const { countryCodes, genreId, limitPerCountry = ITUNES_MAX_LIMIT, signal } = opts;
+  if (countryCodes.length === 0) return [];
+
+  const tasks = countryCodes.map(cc => () => fetchTopPodcasts({
+    countryCode: cc,
+    genreId,
+    limit: limitPerCountry,
+    signal,
+  }));
+  const settled = await runWithConcurrency(tasks, 4, signal);
+  const lists = settled
+    .filter((r): r is PromiseFulfilledResult<PodcastPreview[]> => r.status === 'fulfilled')
+    .map(r => r.value);
+  return dedupeById(lists);
+}
+
+/**
+ * Aggregated free-text search across multiple countries. Same shape as
+ * `fetchTopPodcastsAggregated` but for the search endpoint — useful
+ * for "find me anything matching X across the entire Arabic-speaking
+ * world" without forcing the user to flip through each country.
+ */
+export async function searchPodcastsAggregated(opts: {
+  term: string;
+  countryCodes: string[];
+  limitPerCountry?: number;
+  signal?: AbortSignal;
+}): Promise<PodcastPreview[]> {
+  const { term, countryCodes, limitPerCountry = ITUNES_MAX_LIMIT, signal } = opts;
+  if (countryCodes.length === 0 || !term.trim()) return [];
+
+  const tasks = countryCodes.map(cc => () => searchPodcasts({
+    term,
+    countryCode: cc,
+    limit: limitPerCountry,
+    signal,
+  }));
+  const settled = await runWithConcurrency(tasks, 4, signal);
+  const lists = settled
+    .filter((r): r is PromiseFulfilledResult<PodcastPreview[]> => r.status === 'fulfilled')
+    .map(r => r.value);
+  return dedupeById(lists);
 }
 
 /* -------------------------------------------------------------------------- */
