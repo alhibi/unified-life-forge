@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Cloud, Sun, CloudRain, CloudSnow, CloudLightning, CloudDrizzle, Cloudy, CloudFog, MoonStar, Droplets } from 'lucide-react';
+import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 
 interface HourForecast {
   hour: number;
@@ -107,22 +108,19 @@ export default function WeatherWidget() {
     } catch { /* silent */ }
   }, []);
 
+  // Re-fetch whenever the singleton location changes. Includes initial
+  // mount (the hook bootstraps from `localStorage.lastLocation`), explicit
+  // user re-prompts via LocationSaver, and cross-tab updates.
+  const { location } = useDeviceLocation();
   useEffect(() => {
-    let interval: ReturnType<typeof setInterval>;
-
-    // Use cached location; don't request geolocation on page load
-    const cached = loadCache();
-    const lastLoc = localStorage.getItem('lastLocation');
-    if (cached) {
-      fetchWeather(cached.lat, cached.lon);
-      interval = setInterval(() => fetchWeather(cached.lat, cached.lon), REFRESH_INTERVAL);
-    } else if (lastLoc) {
-      const { lat, lng } = JSON.parse(lastLoc);
-      fetchWeather(lat, lng);
-      interval = setInterval(() => fetchWeather(lat, lng), REFRESH_INTERVAL);
-    }
+    if (!location) return;
+    fetchWeather(location.lat, location.lng);
+    const interval = setInterval(
+      () => fetchWeather(location.lat, location.lng),
+      REFRESH_INTERVAL,
+    );
     return () => clearInterval(interval);
-  }, [fetchWeather]);
+  }, [location?.lat, location?.lng, fetchWeather]);
 
   if (!forecast.length || currentTemp === null) return null;
 

@@ -6,6 +6,7 @@ import { ChevronDown, Leaf } from 'lucide-react';
 import { sunnahDetailData } from '@/data/sunnahDetailData';
 import type { SunnahDetailItem } from '@/data/sunnahDetailData';
 import { fetchPrayerTimings } from '@/hooks/usePrayerTimesCache';
+import { useDeviceLocation, MECCA_FALLBACK } from '@/hooks/useDeviceLocation';
 
 interface PrayerTimings {
   Fajr: string;
@@ -61,6 +62,7 @@ export default function CurrentTimeSunnah() {
   const [open, setOpen] = useState(false);
   const [timings, setTimings] = useState<PrayerTimings | null>(null);
   const [current, setCurrent] = useState(() => getCurrentPrayerKey(null));
+  const { location } = useDeviceLocation();
 
   useEffect(() => {
     const load = async (lat: number, lng: number) => {
@@ -73,14 +75,9 @@ export default function CurrentTimeSunnah() {
       }
     };
 
-    const cached = localStorage.getItem('lastLocation');
-    if (cached) {
-      const { lat, lng } = JSON.parse(cached);
-      load(lat, lng);
-    } else {
-      load(21.4225, 39.8262);
-    }
-  }, [prayerMadhab, latitudeAdjMethod]);
+    const { lat, lng } = location ?? MECCA_FALLBACK;
+    load(lat, lng);
+  }, [prayerMadhab, latitudeAdjMethod, location?.lat, location?.lng]);
 
   useEffect(() => {
     const isFriday = new Date().getDay() === 5;

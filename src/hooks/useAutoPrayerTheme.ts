@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { fetchPrayerTimings } from './usePrayerTimesCache';
+import { getCurrentDeviceLocation } from './useDeviceLocation';
 
 export type PrayerSlot = 'fajr' | 'sunrise' | 'dhuhr' | 'asr' | 'maghrib' | 'isha';
 
@@ -85,18 +86,14 @@ export function useAutoPrayerTheme() {
     const applyForCurrentTime = async () => {
       if (!enabledRef.current) return;
 
-      // Get cached location (saved by WeatherWidget / PrayerTimes)
-      let lat: number | null = null;
-      let lng: number | null = null;
-      try {
-        const loc = localStorage.getItem('lastLocation');
-        if (loc) {
-          const parsed = JSON.parse(loc);
-          lat = parsed.lat;
-          lng = parsed.lng;
-        }
-      } catch {}
-      if (lat == null || lng == null) return;
+      // Read whatever coordinates the singleton hook currently has —
+      // populated by the homepage / prayer-times widget on first visit.
+      // Auto-prayer-theme is opportunistic: if we have nothing, just
+      // skip this tick and try again in 60 s.
+      const { location } = getCurrentDeviceLocation();
+      if (!location) return;
+      const lat = location.lat;
+      const lng = location.lng;
 
       const school = prayerMadhab === 'hanafi' ? 1 : 0;
       const latAdj = latitudeAdjMethod === 'middle' ? 1 : latitudeAdjMethod === 'seventh' ? 2 : 3;

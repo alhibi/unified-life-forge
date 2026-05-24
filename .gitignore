@@ -12,6 +12,19 @@ dist
 dist-ssr
 *.local
 
+# This project uses bun.lock (text format). The legacy binary bun.lockb
+# and npm's package-lock.json are intentionally NOT tracked — committing
+# them in parallel led to three-way drift between package managers.
+bun.lockb
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Test/build artefacts
+playwright-report
+test-results
+coverage
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
