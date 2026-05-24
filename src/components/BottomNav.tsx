@@ -149,7 +149,7 @@ export default function BottomNav() {
         paddingBottom: 'env(safe-area-inset-bottom, 0px)',
       }}
     >
-      <div className="relative px-2 py-2 flex items-center justify-around">
+      <div className="relative px-1.5 py-1.5 flex items-stretch justify-around">
         {groups.map(group => {
           const active = activeGroupKey === group.key;
           const isOpen = open === group.key;
@@ -161,13 +161,14 @@ export default function BottomNav() {
               {isOpen && openGroupObj?.key === group.key && (
                 <div
                   className="absolute left-1/2 -translate-x-1/2 pointer-events-none"
-                  style={{ bottom: '100%', width: 220, height: 130 }}
+                  style={{ bottom: 'calc(100% + 6px)', width: 180, height: 110 }}
                 >
                   {group.branches.map((b, i) => {
-                    // 3 items spread 30°→90°→150° (i.e. upper-right, top, upper-left).
-                    const angles = [150, 90, 30]; // degrees, left → middle → right
+                    // Tight 60° fan (120°→90°→60°) keeps the arc inside
+                    // narrow phone viewports even for the edge groups.
+                    const angles = [120, 90, 60];
                     const angle = (angles[i] * Math.PI) / 180;
-                    const R = 88;
+                    const R = 78;
                     const x = Math.cos(angle) * R;
                     const y = -Math.sin(angle) * R;
                     const branchActive = isBranchActive(b.path);
@@ -191,17 +192,17 @@ export default function BottomNav() {
                         }}
                         aria-label={t(b.labelKey)}
                       >
-                        <div className={`relative w-12 h-12 rounded-2xl flex items-center justify-center shadow-[0_8px_24px_rgba(0,0,0,0.35)] border border-border/40 ${
+                        <div className={`relative w-11 h-11 rounded-2xl flex items-center justify-center shadow-[0_8px_24px_rgba(0,0,0,0.35)] border border-border/40 ${
                           branchActive ? 'bg-primary text-primary-foreground' : 'bg-card text-foreground'
                         }`}>
-                          <BIcon className="w-5 h-5" strokeWidth={branchActive ? 2.2 : 1.8} />
+                          <BIcon className="w-[18px] h-[18px]" strokeWidth={branchActive ? 2.2 : 1.8} />
                           {showBadge && (
                             <span className="absolute -top-1 -right-1 min-w-[16px] h-[16px] px-1 rounded-full bg-destructive text-destructive-foreground text-[9.5px] font-bold flex items-center justify-center leading-none shadow">
                               {unreadCount > 99 ? '99+' : unreadCount}
                             </span>
                           )}
                         </div>
-                        <span className="text-[10px] font-medium text-foreground/90 bg-card/80 backdrop-blur px-1.5 py-0.5 rounded-md border border-border/30">
+                        <span className="text-[9.5px] font-medium text-foreground/90 bg-card/85 backdrop-blur px-1.5 py-0.5 rounded-md border border-border/30 whitespace-nowrap">
                           {t(b.labelKey)}
                         </span>
                       </button>
@@ -212,7 +213,7 @@ export default function BottomNav() {
 
               <button
                 onClick={() => setOpenGroup(isOpen ? null : group.key)}
-                className="relative flex flex-col items-center gap-0.5 py-1.5 px-3 rounded-xl"
+                className="relative w-full flex flex-col items-center justify-center gap-1 py-1.5 px-1 rounded-xl"
                 aria-label={t(group.labelKey)}
                 aria-expanded={isOpen}
                 aria-current={active ? 'page' : undefined}
@@ -226,7 +227,7 @@ export default function BottomNav() {
                     filter: (active || isOpen) ? 'drop-shadow(0 0 6px hsl(var(--primary) / 0.5))' : undefined,
                   }}
                 >
-                  <Icon className={`relative z-10 w-[22px] h-[22px] ${
+                  <Icon className={`relative z-10 w-[22px] h-[22px] mx-auto ${
                     (active || isOpen) ? 'text-primary stroke-[2.2]' : 'text-muted-foreground/70 stroke-[1.6]'
                   }`} />
                   {!isOpen && groupUnread > 0 && (
@@ -238,13 +239,13 @@ export default function BottomNav() {
                     </span>
                   )}
                 </div>
-                <span className={`relative z-10 text-[10px] ${
+                <span className={`relative z-10 text-[10.5px] leading-none ${
                   (active || isOpen) ? 'font-semibold text-primary' : 'font-medium text-muted-foreground/70'
                 }`}>
                   {t(group.labelKey)}
                 </span>
                 {active && !isOpen && (
-                  <div className="absolute -bottom-0.5 w-1 h-1 rounded-full bg-primary" />
+                  <div className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary" />
                 )}
               </button>
             </div>
