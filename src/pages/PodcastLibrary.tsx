@@ -13,6 +13,7 @@ import BackButton from '@/components/BackButton';
 import { useApp } from '@/contexts/AppContext';
 import { useSubscriptions } from '@/lib/podcasts/store';
 import { encodeFeedUrl } from '@/lib/podcasts/route';
+import { upgradeArtwork } from '@/lib/podcasts/itunes';
 
 export default function PodcastLibrary() {
   const navigate = useNavigate();
@@ -75,7 +76,7 @@ export default function PodcastLibrary() {
               >
                 <div className="aspect-square w-full rounded-2xl overflow-hidden bg-muted/40 border border-border/40">
                   {p.imageUrl
-                    ? <img src={p.imageUrl} alt="" loading="lazy" className="w-full h-full object-cover" />
+                    ? <img src={upgradeArtwork(p.imageUrl, 200)} alt="" loading="lazy" className="w-full h-full object-cover" />
                     : null}
                 </div>
                 <p className="text-[12.5px] font-bold text-foreground leading-tight line-clamp-2">{p.title}</p>

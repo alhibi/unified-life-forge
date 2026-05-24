@@ -23,6 +23,15 @@
 const CODETABS_PROXY = 'https://api.codetabs.com/v1/proxy/?quest=';
 const RSS2JSON_PROXY = 'https://api.rss2json.com/v1/api.json?rss_url=';
 
+/**
+ * Per-fetch timeout. Picked empirically: feed responses that haven't
+ * started streaming bytes within 15 s are almost always truly stuck
+ * (slow origin, broken proxy, network blackhole). Without this the UI
+ * could sit on its loading spinner indefinitely while React Query held
+ * the request open.
+ */
+const FETCH_TIMEOUT_MS = 15_000;
+
 export interface PodcastFeed {
   /** RSS feed URL — used as the stable id for subscriptions. */
   origin: string;
@@ -63,9 +72,41 @@ type FetchResult =
   | { kind: 'json'; json: Rss2JsonEnvelope };
 
 async function tryFetch(url: string, signal?: AbortSignal): Promise<string> {
-  const res = await fetch(url, { signal, redirect: 'follow' });
+  // Compose the caller's optional signal with our own timeout. If
+  // either trips first, the request aborts. `AbortSignal.any` is
+  // available in all evergreen browsers (Chrome 116+, Firefox 124+,
+  // Safari 17.4+); for older runtimes we fall back to manual linkage.
+  const timeoutSignal = AbortSignal.timeout(FETCH_TIMEOUT_MS);
+  const composed: AbortSignal = signal
+    ? (typeof AbortSignal.any === 'function'
+        ? AbortSignal.any([signal, timeoutSignal])
+        : linkSignals(signal, timeoutSignal))
+    : timeoutSignal;
+  const res = await fetch(url, { signal: composed, redirect: 'follow' });
   if (!res.ok) throw new Error(`status ${res.status}`);
   return await res.text();
+}
+
+/**
+ * Manual fallback for environments without `AbortSignal.any`. Returns
+ * a fresh controller's signal that aborts whenever ANY of the inputs
+ * abort. Listeners are removed once the controller fires so we don't
+ * accumulate references to long-lived parent signals.
+ */
+function linkSignals(...signals: AbortSignal[]): AbortSignal {
+  const controller = new AbortController();
+  const onAbort = (e: Event) => {
+    controller.abort((e.target as AbortSignal | null)?.reason);
+    signals.forEach(s => s.removeEventListener('abort', onAbort));
+  };
+  for (const s of signals) {
+    if (s.aborted) {
+      controller.abort(s.reason);
+      break;
+    }
+    s.addEventListener('abort', onAbort);
+  }
+  return controller.signal;
 }
 
 async function fetchFeedAny(feedUrl: string, signal?: AbortSignal): Promise<FetchResult> {

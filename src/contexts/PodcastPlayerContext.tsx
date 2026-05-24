@@ -16,8 +16,18 @@
 //   • Mark episode as played on `ended` (sets position = duration)
 //   • Variable speed (0.5x – 3x) — also persisted
 //   • Skip forward/back (15s default like most podcast apps)
-//   • Auto-restore the *last* episode on page load so the mini-player
-//     reappears with a paused track ready to resume
+//   • Auto-restore the last episode on page load: the persisted record
+//     hydrates `current` so the floating mini-player is visible the
+//     instant the app boots, paused, ready to resume on tap
+//
+// Context split:
+// We expose TWO contexts. `usePodcastPlayer()` returns the slow-changing
+// command surface (current track, isPlaying, isLoading, speed, error,
+// the action callbacks). `usePodcastPlayerProgress()` returns just
+// `{ position, duration }` and updates ~4 Hz during playback. Splitting
+// keeps the 50+ `EpisodeListItem`s on a podcast detail page from
+// re-rendering on every progress tick — they only need the command
+// slice.
 
 import {
   createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, ReactNode,
@@ -26,8 +36,9 @@ import {
   getPlayState,
   savePlayStateWithNotify as savePlayState,
   markEpisodePlayedWithNotify as markEpisodePlayed,
-  getLastPlayedId,
-  setLastPlayedIdWithNotify as setLastPlayedId,
+  getLastPlayed,
+  setLastPlayedWithNotify as setLastPlayed,
+  type LastPlayedRecord,
 } from '@/lib/podcasts/store';
 import type { PodcastEpisode } from '@/lib/podcasts/rss';
 
@@ -47,15 +58,13 @@ export interface PlayingEpisodeMeta {
 }
 
 interface PodcastPlayerContextValue {
-  /** The track currently bound to the audio element. Null before any
-   *  episode has been activated this session. */
+  /** The track currently bound to (or staged for) the audio element.
+   *  Null before any episode has been activated AND no persisted track
+   *  exists. After hydration this points at the last-played track even
+   *  before the user has tapped play. */
   current: PlayingEpisodeMeta | null;
   isPlaying: boolean;
   isLoading: boolean;
-  /** Live playhead position in seconds. Throttled to 4 Hz of state
-   *  updates to avoid re-rendering the world while audio is playing. */
-  position: number;
-  duration: number;
   /** Current playback rate (1.0 by default). */
   speed: number;
   error: string | null;
@@ -76,14 +85,31 @@ interface PodcastPlayerContextValue {
   isLoadingEpisode: (id: string) => boolean;
 }
 
+interface PodcastPlayerProgressValue {
+  /** Live playhead position in seconds. Throttled to 4 Hz of state
+   *  updates to avoid re-rendering the world while audio is playing. */
+  position: number;
+  duration: number;
+}
+
 const PodcastPlayerContext = createContext<PodcastPlayerContextValue | undefined>(undefined);
+const PodcastPlayerProgressContext = createContext<PodcastPlayerProgressValue | undefined>(undefined);
 
 const SPEED_KEY = 'podcasts.playbackSpeed';
 const SKIP_SECONDS = 15;
 
 export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const [current, setCurrent] = useState<PlayingEpisodeMeta | null>(null);
+
+  // Hydrate `current` from the last-played record stored in
+  // localStorage. We do this in the `useState` initializer so the
+  // first paint already shows the mini-player — no flash of "nothing"
+  // followed by it sliding in. The audio element is NOT yet bound to
+  // a src; that happens lazily on the first `play()`.
+  const [current, setCurrent] = useState<PlayingEpisodeMeta | null>(() => {
+    const restored = getLastPlayed();
+    return restored ? recordToMeta(restored) : null;
+  });
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [position, setPosition] = useState(0);
@@ -94,23 +120,48 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
   });
   const [error, setError] = useState<string | null>(null);
 
-  // Restore the last played episode on first mount so the mini-player
-  // reappears (paused) when the user returns to the app. We only know
-  // the episodeId here — we can't fully reconstruct `PlayingEpisodeMeta`
-  // without re-fetching the RSS feed. So we leave `current = null` and
-  // let the relevant podcast detail page rehydrate it on visit. (The
-  // mini-player simply doesn't appear until the user interacts.)
-  useEffect(() => {
-    void getLastPlayedId(); // touch — keeps the value warm in our import graph
-  }, []);
+  /* -------------------------------- refs ----------------------------------- */
+  // We keep refs of mutable state so the audio listeners and the
+  // memoized `play` callback don't have to recreate on every state
+  // change — recreating them re-attaches DOM listeners and cancels
+  // in-flight `play()` promises.
+
+  const currentRef = useRef(current);
+  useEffect(() => { currentRef.current = current; }, [current]);
+
+  const speedRef = useRef(speed);
+  useEffect(() => { speedRef.current = speed; }, [speed]);
+
+  /**
+   * Tracks which episode id is bound to the audio element's `src`.
+   * Different from `current.episode.id` because hydrating from
+   * localStorage sets `current` without binding any audio yet — the
+   * first `play()` call notices the mismatch and binds lazily. This
+   * also makes the "is loading" branch in `play()` decisive instead
+   * of relying on string comparison of (potentially URL-normalized)
+   * `audio.src` values.
+   */
+  const boundEpisodeIdRef = useRef<string | null>(null);
+
+  /**
+   * Cleanup function for the most recent `loadedmetadata` listener
+   * registered by `play()`. We need this because rapid track switching
+   * can replace `audio.src` before the previous load fires its
+   * `loadedmetadata` — the listener would otherwise stay attached
+   * forever and seek the wrong track when a *future* metadata event
+   * fired. The new `play()` invokes the previous cleanup before
+   * registering its own listener.
+   */
+  const metaCleanupRef = useRef<(() => void) | null>(null);
 
   /* ----------------------------- audio listeners ----------------------------- */
+  // Bound once on mount, never recreated. `speed` is applied in a
+  // separate effect below — including it here would re-attach all
+  // eight listeners on every speed change.
 
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
-
-    audio.playbackRate = speed;
 
     const onTimeUpdate = () => {
       setPosition(audio.currentTime);
@@ -154,12 +205,14 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
       audio.removeEventListener('ended', onEnded);
       audio.removeEventListener('error', onError);
     };
-  }, [speed]);
+  }, []);
 
-  // Keep a ref of the current track for use inside listeners that
-  // shouldn't recreate every time `current` updates.
-  const currentRef = useRef(current);
-  useEffect(() => { currentRef.current = current; }, [current]);
+  // Apply `speed` to the audio element whenever it changes. Tiny effect
+  // so we don't drag the listener attachments through this dep.
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (audio) audio.playbackRate = speed;
+  }, [speed]);
 
   /* ----------------------------- persist position ---------------------------- */
 
@@ -259,10 +312,26 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
     if (!audio) return;
     setError(null);
 
-    if (meta && (!current || current.episode.id !== meta.episode.id)) {
-      // Loading a new episode. Persist the last-played id so we can
-      // restore the mini-player on next visit, then point the audio
-      // element at the new URL and seek to the saved resume position.
+    // If no meta is provided we play whatever's currently staged. This
+    // is the mini-player's pause→play toggle path; on first play after
+    // hydration it also covers "the user tapped resume on a restored
+    // track that isn't bound yet".
+    const target = meta ?? currentRef.current;
+    if (!target) return;
+
+    const needsLoad = boundEpisodeIdRef.current !== target.episode.id;
+    if (needsLoad) {
+      // Switching episodes: drop any pending `loadedmetadata` listener
+      // from the previous load. Without this, rapid clicks on
+      // different episodes leak listeners that fire days later when
+      // an unrelated track happens to dispatch the same event.
+      metaCleanupRef.current?.();
+      metaCleanupRef.current = null;
+
+      // Loading a new episode. Persist the last-played record (full
+      // meta, not just an id) so the mini-player can rehydrate on
+      // next visit, then point the audio element at the new URL and
+      // seek to the saved resume position.
       //
       // `audio.src` is set to the publisher's *original* enclosure URL
       // straight from the RSS `<enclosure url="...">`. The browser
@@ -277,20 +346,38 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
       // `Access-Control-Allow-Origin` on audio responses, and setting
       // `crossOrigin` would make the browser refuse to play those.
       // Plain `<audio src=...>` playback works without CORS.
-      setCurrent(meta);
-      setLastPlayedId(meta.episode.id);
-      audio.src = meta.episode.audioUrl;
+      if (target !== currentRef.current) setCurrent(target);
+      setLastPlayed(metaToRecord(target));
+      audio.src = target.episode.audioUrl;
       audio.preload = 'auto';
-      audio.playbackRate = speed;
-      const saved = getPlayState(meta.episode.id);
+      audio.playbackRate = speedRef.current;
+      // Reset live progress so the mini-player's bar doesn't show
+      // stale values from the previous track until `timeupdate` fires.
+      setPosition(0);
+      setDuration(0);
+      boundEpisodeIdRef.current = target.episode.id;
+
+      const saved = getPlayState(target.episode.id);
       if (saved && saved.position > 0 && !saved.played) {
         // `loadedmetadata` fires before we can seek, so we wait for it
         // before assigning currentTime — assigning before metadata is
-        // ready is a no-op on most browsers.
-        const onMeta = () => {
-          audio.currentTime = saved.position;
+        // ready is a no-op on most browsers. Both the listener and
+        // its remover live behind a stable cleanup function we can
+        // re-invoke from the next `play()` if this load gets canceled.
+        const cleanup = () => {
           audio.removeEventListener('loadedmetadata', onMeta);
+          if (metaCleanupRef.current === cleanup) metaCleanupRef.current = null;
         };
+        const onMeta = () => {
+          // Guard against a stale listener firing on a new track
+          // (defense-in-depth — should be unreachable thanks to the
+          // pre-cleanup above, but cheap to verify).
+          if (boundEpisodeIdRef.current === target.episode.id) {
+            audio.currentTime = saved.position;
+          }
+          cleanup();
+        };
+        metaCleanupRef.current = cleanup;
         audio.addEventListener('loadedmetadata', onMeta);
       }
     }
@@ -303,7 +390,7 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
       // crashing.
       setError(e instanceof Error ? e.message : 'Playback blocked');
     }
-  }, [current, speed]);
+  }, []);
 
   const pause = useCallback(() => {
     audioRef.current?.pause();
@@ -326,36 +413,95 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
       audio.removeAttribute('src');
       audio.load();
     }
+    metaCleanupRef.current?.();
+    metaCleanupRef.current = null;
+    boundEpisodeIdRef.current = null;
     setCurrent(null);
     setIsPlaying(false);
     setPosition(0);
     setDuration(0);
-    setLastPlayedId(null);
+    setLastPlayed(null);
   }, []);
 
   const isLoadingEpisode = useCallback((id: string) =>
     isLoading && current?.episode.id === id, [isLoading, current]);
 
-  const value = useMemo<PodcastPlayerContextValue>(() => ({
-    current, isPlaying, isLoading, position, duration, speed, error,
+  // Command slice — does NOT include position/duration. Splitting these
+  // out from the progress slice keeps EpisodeListItem (and any other
+  // consumer that doesn't care about live playhead) from re-rendering
+  // 4 Hz during playback.
+  const commandValue = useMemo<PodcastPlayerContextValue>(() => ({
+    current, isPlaying, isLoading, speed, error,
     play, pause, toggle, seek, skip, setSpeed, close, isLoadingEpisode,
-  }), [current, isPlaying, isLoading, position, duration, speed, error,
+  }), [current, isPlaying, isLoading, speed, error,
       play, pause, toggle, seek, skip, setSpeed, close, isLoadingEpisode]);
 
+  const progressValue = useMemo<PodcastPlayerProgressValue>(() => ({
+    position, duration,
+  }), [position, duration]);
+
   return (
-    <PodcastPlayerContext.Provider value={value}>
-      {/* Single hidden audio element shared by every consumer. Hidden
-          via inline display:none — `controls={false}` is the default
-          but some browsers leak a 0-px-tall layout box without the
-          explicit none. */}
-      <audio ref={audioRef} preload="none" style={{ display: 'none' }} />
-      {children}
+    <PodcastPlayerContext.Provider value={commandValue}>
+      <PodcastPlayerProgressContext.Provider value={progressValue}>
+        {/* Single hidden audio element shared by every consumer. Hidden
+            via inline display:none — `controls={false}` is the default
+            but some browsers leak a 0-px-tall layout box without the
+            explicit none. */}
+        <audio ref={audioRef} preload="none" style={{ display: 'none' }} />
+        {children}
+      </PodcastPlayerProgressContext.Provider>
     </PodcastPlayerContext.Provider>
   );
 }
+
+/* -------------------------------------------------------------------------- */
+/*  Hooks                                                                     */
+/* -------------------------------------------------------------------------- */
 
 export function usePodcastPlayer(): PodcastPlayerContextValue {
   const ctx = useContext(PodcastPlayerContext);
   if (!ctx) throw new Error('usePodcastPlayer must be used inside <PodcastPlayerProvider>');
   return ctx;
+}
+
+/**
+ * Subscribe to the live playhead. Updates ~4 Hz during playback. Use
+ * this only in components that actually visualize progress (mini-player
+ * progress bar, full-player slider, time labels) — pulling it into a
+ * list-item or a screen-level component will tank your render budget.
+ */
+export function usePodcastPlayerProgress(): PodcastPlayerProgressValue {
+  const ctx = useContext(PodcastPlayerProgressContext);
+  if (!ctx) throw new Error('usePodcastPlayerProgress must be used inside <PodcastPlayerProvider>');
+  return ctx;
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Conversions                                                               */
+/* -------------------------------------------------------------------------- */
+
+/** `LastPlayedRecord` and `PlayingEpisodeMeta` have identical shapes
+ *  on disk — the conversion is a pass-through. We keep both names
+ *  (and these explicit converters) so the storage type is allowed to
+ *  diverge later without a hunt for callsites. */
+function metaToRecord(m: PlayingEpisodeMeta): LastPlayedRecord {
+  return {
+    episode: m.episode,
+    podcastTitle: m.podcastTitle,
+    podcastImageUrl: m.podcastImageUrl,
+    seedH: m.seedH,
+    seedS: m.seedS,
+    seedL: m.seedL,
+  };
+}
+
+function recordToMeta(r: LastPlayedRecord): PlayingEpisodeMeta {
+  return {
+    episode: r.episode,
+    podcastTitle: r.podcastTitle,
+    podcastImageUrl: r.podcastImageUrl,
+    seedH: r.seedH,
+    seedS: r.seedS,
+    seedL: r.seedL,
+  };
 }

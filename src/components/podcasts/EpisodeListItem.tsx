@@ -12,7 +12,7 @@
 // of this project) so feeds with markup like <a>, <em>, <p> show
 // correctly without opening an XSS hole.
 
-import { memo, useState } from 'react';
+import { memo, useMemo } from 'react';
 import DOMPurify from 'dompurify';
 import { CheckCircle2, Loader2, Pause, Play, RotateCcw } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -69,15 +69,19 @@ const EpisodeListItem = memo(function EpisodeListItem({
   const player = usePodcastPlayer();
   const playState = usePlayState(episode.id, episode.duration);
 
-  // Description sanitization — done inline (cheap) and tagged with the
-  // episode id to ensure DOMPurify's cache reuses results across
-  // re-renders within the same item.
-  const safeDescription = useState(() =>
-    DOMPurify.sanitize(episode.description ?? '', {
+  // Description sanitization — memoized on the description string so it
+  // re-runs only when the actual content changes (cheap — DOMPurify is
+  // ~5KB sync). Previously this used `useState(() => sanitize(...))`
+  // which would freeze the result to whatever description was on the
+  // FIRST render and ignore prop changes — a real bug when the same
+  // memoized list-item slot got reused for a different episode.
+  const safeDescription = useMemo(
+    () => DOMPurify.sanitize(episode.description ?? '', {
       ALLOWED_TAGS: ['a', 'b', 'br', 'em', 'i', 'p', 'span', 'strong', 'u'],
       ALLOWED_ATTR: ['href', 'target', 'rel'],
-    })
-  )[0];
+    }),
+    [episode.description],
+  );
 
   const isCurrent = player.current?.episode.id === episode.id;
   const isThisLoading = isCurrent && player.isLoading;
@@ -115,6 +119,11 @@ const EpisodeListItem = memo(function EpisodeListItem({
   return (
     <motion.article
       layout
+      // `aria-current="true"` lets screen readers announce the row that
+      // matches the audio bound to the global player. Combined with the
+      // tinted border this gives both visual and assistive-tech cues
+      // about which episode is the active one.
+      aria-current={isCurrent ? 'true' : undefined}
       className="rounded-3xl border border-border/40 bg-card/70 backdrop-blur-sm p-4"
       style={{
         // Tint the active row's border with the seed color so the

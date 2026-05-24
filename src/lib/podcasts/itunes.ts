@@ -56,10 +56,15 @@ interface RssResponse {
 
 /**
  * Replace the `170x170bb.png` thumbnail Apple ships in the RSS feed with a
- * 600x600 variant. The path is templated — the size is just a folder
+ * different-sized variant. The path is templated — the size is just a folder
  * segment, so we can hot-swap it client-side without another round trip.
+ *
+ * Exported so callers can pick a size appropriate to where they're
+ * rendering (e.g. 200px for a 3-column grid card, 600px for a hero
+ * cover). Calling this on an already-upgraded URL works too — it just
+ * rewrites the size segment.
  */
-function upgradeArtwork(url: string, size = 600): string {
+export function upgradeArtwork(url: string, size = 600): string {
   return url.replace(/\/\d+x\d+(bb)?(-?\d+)?\.(jpg|png|webp)$/i, `/${size}x${size}bb.$3`);
 }
 

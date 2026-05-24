@@ -10,7 +10,7 @@ import { createPortal } from 'react-dom';
 import { ChevronDown, Gauge, Loader2, Pause, Play, RotateCcw, RotateCw, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import DOMPurify from 'dompurify';
-import { usePodcastPlayer } from '@/contexts/PodcastPlayerContext';
+import { usePodcastPlayer, usePodcastPlayerProgress } from '@/contexts/PodcastPlayerContext';
 import { useApp } from '@/contexts/AppContext';
 
 const SKIP = 15;
@@ -28,6 +28,51 @@ function formatTime(s: number): string {
 interface PlayerSheetProps {
   open: boolean;
   onClose: () => void;
+}
+
+/**
+ * Live seek bar — its own component so the surrounding `PlayerSheet`
+ * doesn't have to subscribe to the 4 Hz progress context. The slider's
+ * value, gradient fill, and time labels are the only things that need
+ * to repaint on `timeupdate`; everything else (artwork, title, transport
+ * buttons, speed pills) stays stable across position ticks.
+ */
+function PlayerSheetSeek({
+  ariaLabel, onSeek,
+}: {
+  ariaLabel: string;
+  onSeek: (s: number) => void;
+}) {
+  const { position, duration } = usePodcastPlayerProgress();
+  const pct = duration > 0 ? (position / duration) * 100 : 0;
+  return (
+    <div className="px-6 mt-5">
+      <input
+        type="range"
+        min={0}
+        max={Math.max(1, duration)}
+        step={1}
+        value={Math.min(position, duration || 0)}
+        onChange={e => onSeek(parseFloat(e.target.value))}
+        className="w-full appearance-none bg-transparent podcast-seek"
+        style={{
+          // Inline gradient is easier to tint than ::-webkit-slider-runnable-track.
+          background: `linear-gradient(to right,
+            var(--podcast-primary, hsl(var(--primary))) 0%,
+            var(--podcast-primary, hsl(var(--primary))) ${pct}%,
+            hsl(var(--muted) / 0.5) ${pct}%,
+            hsl(var(--muted) / 0.5) 100%)`,
+          height: 6,
+          borderRadius: 999,
+        }}
+        aria-label={ariaLabel}
+      />
+      <div className="flex justify-between mt-2 text-[11px] tabular-nums text-muted-foreground">
+        <span>{formatTime(position)}</span>
+        <span>-{formatTime(Math.max(0, duration - position))}</span>
+      </div>
+    </div>
+  );
 }
 
 export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
@@ -74,9 +119,6 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
     || player.current.podcastImageUrl;
 
   const Icon = player.isLoading ? Loader2 : player.isPlaying ? Pause : Play;
-  const pct = player.duration > 0
-    ? (player.position / player.duration) * 100
-    : 0;
 
   return createPortal(
     <AnimatePresence>
@@ -165,32 +207,10 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
             )}
 
             {/* Progress slider */}
-            <div className="px-6 mt-5">
-              <input
-                type="range"
-                min={0}
-                max={Math.max(1, player.duration)}
-                step={1}
-                value={Math.min(player.position, player.duration || 0)}
-                onChange={e => player.seek(parseFloat(e.target.value))}
-                className="w-full appearance-none bg-transparent podcast-seek"
-                style={{
-                  // Inline gradient is easier to tint than ::-webkit-slider-runnable-track.
-                  background: `linear-gradient(to right,
-                    var(--podcast-primary, hsl(var(--primary))) 0%,
-                    var(--podcast-primary, hsl(var(--primary))) ${pct}%,
-                    hsl(var(--muted) / 0.5) ${pct}%,
-                    hsl(var(--muted) / 0.5) 100%)`,
-                  height: 6,
-                  borderRadius: 999,
-                }}
-                aria-label={lang === 'ar' ? 'الانتقال داخل الحلقة' : 'Position'}
-              />
-              <div className="flex justify-between mt-2 text-[11px] tabular-nums text-muted-foreground">
-                <span>{formatTime(player.position)}</span>
-                <span>-{formatTime(Math.max(0, player.duration - player.position))}</span>
-              </div>
-            </div>
+            <PlayerSheetSeek
+              ariaLabel={lang === 'ar' ? 'الانتقال داخل الحلقة' : 'Position'}
+              onSeek={player.seek}
+            />
 
             {/* Transport controls */}
             <div className="flex items-center justify-center gap-6 px-6 mt-4">
