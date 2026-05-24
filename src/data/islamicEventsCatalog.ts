@@ -1,9 +1,9 @@
 /**
- * Comprehensive Hijri-calendar events catalog.
+ * Comprehensive Hijri-calendar events catalog (Sunni / Universal only).
  *
- * Sourced from the Khushu open-source project
+ * Originally adapted from the Khushu open-source project
  * (https://github.com/greykaizen/khushu — `app/src/main/assets/catalogs/islamic-month-events.json`)
- * and ported to TypeScript with Arabic translations for bilingual display.
+ * and trimmed to events recognised in mainstream Sunni Islamic tradition.
  *
  * Each event is keyed by Hijri (month, day) so it recurs every Hijri year.
  * Consecutive days with identical content (e.g. Ayyam al-Bid 13-14-15) are
@@ -18,7 +18,12 @@ export type EventType =
   | 'BIRTH'
   | 'DEATH';
 
-export type EventPerspective = 'UNIVERSAL' | 'SUNNI' | 'SHIA';
+/**
+ * Perspective tag retained for type-compatibility with downstream code.
+ * The catalog only ever uses `UNIVERSAL` or `SUNNI` — sectarian/Shia events
+ * are intentionally excluded from this build.
+ */
+export type EventPerspective = 'UNIVERSAL' | 'SUNNI';
 
 export interface RawIslamicEvent {
   /** Hijri day (1-30) */
@@ -94,30 +99,6 @@ export const ISLAMIC_EVENTS_CATALOG: RawIslamicMonth[] = [
         perspective: 'UNIVERSAL',
       },
       {
-        day: 2,
-        title: 'Arrival of Al-Hussain at Karbala',
-        titleAr: 'وصول الحسين إلى كربلاء',
-        description:
-          'Imam Hussain ibn Ali (RA) arrived at the plain of Karbala in 61 AH after being intercepted by a cavalry unit. His caravan of around 72 fighters and their families was halted near the Euphrates, far from Makkah or Madinah.',
-        descriptionAr:
-          'وصل الإمام الحسين بن علي رضي الله عنه إلى أرض كربلاء سنة 61هـ بعد أن اعترضته كتيبة من الفرسان بقيادة الحر بن يزيد الرياحي. كان قد خرج من مكة رافضًا مبايعة يزيد، استجابةً لرسائل أهل الكوفة، فأُجبِر على النزول قرب الفرات بعيدًا عن أمن مكة والمدينة.',
-        type: 'HISTORICAL',
-        yearAh: 61,
-        perspective: 'UNIVERSAL',
-      },
-      {
-        day: 7,
-        title: 'Water Access Cut in Karbala',
-        titleAr: 'منع الماء في كربلاء',
-        description:
-          'On Muharram 7, the Umayyad army blocked Imam Hussain\'s camp from the Euphrates, cutting their water supply for the final three days before Ashura.',
-        descriptionAr:
-          'في السابع من محرم منع جيشُ بني أمية بقيادة عمر بن سعد، بأمر من عبيد الله بن زياد، الإمامَ الحسينَ ومن معه من الوصول إلى ماء الفرات، فاحتمل النساء والأطفال والأصحاب شدة العطش في حر الصحراء قبل يوم عاشوراء بثلاث ليالٍ.',
-        type: 'HISTORICAL',
-        yearAh: 61,
-        perspective: 'SHIA',
-      },
-      {
         day: 7,
         title: 'The Conquest of Khaybar',
         titleAr: 'فتح خيبر',
@@ -130,33 +111,31 @@ export const ISLAMIC_EVENTS_CATALOG: RawIslamicMonth[] = [
         perspective: 'UNIVERSAL',
       },
       {
+        day: 9,
+        title: 'Day of Tasua',
+        titleAr: 'يوم تاسوعاء',
+        description:
+          'The ninth of Muharram. The Prophet (PBUH) intended to fast it alongside Ashura to differ from the People of the Book.',
+        descriptionAr:
+          'اليوم التاسع من محرم. عزم النبي ﷺ على صيامه مع عاشوراء مخالفةً لأهل الكتاب، فيُستحب صيامه مع العاشر.',
+        type: 'RELIGIOUS',
+        perspective: 'UNIVERSAL',
+      },
+      {
         day: 10,
         title: 'The Day of Ashura',
         titleAr: 'يوم عاشوراء',
         description:
-          'A day of immense significance: the liberation of Prophet Musa and Bani Israel from Pharaoh, and the martyrdom of Imam Hussain ibn Ali in 61 AH.',
+          'A day of great virtue: Allah saved Prophet Musa and Bani Israel from Pharaoh on this day. The Prophet (PBUH) said its fast expiates the sins of the previous year.',
         descriptionAr:
-          'يوم عظيم القدر: نجَّى الله فيه نبيَّه موسى عليه السلام وبني إسرائيل من فرعون، وفيه استُشهد الإمام الحسين بن علي رضي الله عنه سنة 61هـ. صيامه مستحب.',
+          'يوم عظيم القدر: نجَّى الله فيه نبيَّه موسى عليه السلام وبني إسرائيل من فرعون. قال النبي ﷺ في صيامه: "أحتسب على الله أن يكفّر السنة التي قبله". صيامه مستحب.',
         type: 'RELIGIOUS',
-        yearAh: 61,
         isMajorHoliday: true,
         perspective: 'UNIVERSAL',
       },
       AYYAM_AL_BID(13),
       AYYAM_AL_BID(14),
       AYYAM_AL_BID(15),
-      {
-        day: 25,
-        title: 'Passing of Imam Ali ibn al-Hussain',
-        titleAr: 'وفاة الإمام علي زين العابدين',
-        description:
-          'The death of the fourth Imam, Zain al-Abidin, known for his piety and the collection of supplications As-Sahifa al-Sajjadiyya.',
-        descriptionAr:
-          'وفاة الإمام علي بن الحسين الملقَّب بزين العابدين، رابع أئمة أهل البيت عند الشيعة، المعروف بزهده وعبادته وبمجموعته الدعائية الصحيفة السجادية، سنة 95هـ.',
-        type: 'DEATH',
-        yearAh: 95,
-        perspective: 'SHIA',
-      },
     ],
   },
 
@@ -166,78 +145,9 @@ export const ISLAMIC_EVENTS_CATALOG: RawIslamicMonth[] = [
     monthName: 'Safar',
     monthNameAr: 'صفر',
     events: [
-      {
-        day: 1,
-        title: 'Battle of Siffin',
-        titleAr: 'موقعة صفين',
-        description:
-          'A prolonged confrontation in 37 AH between Caliph Ali ibn Abi Talib (RA) and Muawiyah on the banks of the Euphrates. The arbitration that followed deepened the political fracture in the Muslim community.',
-        descriptionAr:
-          'مواجهة طويلة سنة 37هـ بين الخليفة علي بن أبي طالب رضي الله عنه ومعاوية بن أبي سفيان والي الشام على ضفاف الفرات. رفع جيش معاوية المصاحف على الرماح طلبًا للتحكيم، فعمّق التحكيمُ الذي تلا ذلك الانقسامَ في الأمة وأدى إلى ظهور الخوارج.',
-        type: 'HISTORICAL',
-        yearAh: 37,
-        notes:
-          'The battle spanned Dhul Hijjah 36 AH through Safar 37 AH. The specific day within the month is not definitively recorded.',
-        notesAr:
-          'استمرت المعركة من ذي الحجة 36هـ إلى صفر 37هـ. اليوم المحدد من الشهر غير ثابت في المصادر الكلاسيكية.',
-        perspective: 'UNIVERSAL',
-      },
-      {
-        day: 7,
-        title: 'Birth of Imam Musa al-Kadhim',
-        titleAr: 'مولد الإمام موسى الكاظم',
-        description:
-          'Birth of the seventh Imam, known for his restraint of anger and deep scholarship, in 128 AH.',
-        descriptionAr:
-          'مولد الإمام موسى الكاظم سابع أئمة الإثني عشرية، المعروف بكظم الغيظ وعلمه العميق، سنة 128هـ.',
-        type: 'BIRTH',
-        yearAh: 128,
-        perspective: 'SHIA',
-      },
       AYYAM_AL_BID(13),
       AYYAM_AL_BID(14),
       AYYAM_AL_BID(15),
-      {
-        day: 17,
-        title: 'Passing of Imam Ali al-Rida',
-        titleAr: 'وفاة الإمام علي الرضا',
-        description:
-          'The eighth Imam passed away in Tus (modern-day Mashhad) in 203 AH.',
-        descriptionAr:
-          'توفي الإمام علي بن موسى الرضا، ثامن أئمة أهل البيت عند الشيعة، في طوس (مشهد حالياً) سنة 203هـ.',
-        type: 'DEATH',
-        yearAh: 203,
-        perspective: 'SHIA',
-      },
-      {
-        day: 20,
-        title: "Arba'een",
-        titleAr: 'الأربعين',
-        description:
-          'The fortieth day following the martyrdom of Imam Hussain, marking the return of the household of the Prophet to Karbala.',
-        descriptionAr:
-          'اليوم الأربعون من شهادة الإمام الحسين رضي الله عنه، ويُحيي فيه الشيعةُ ذكرى عودة أهل بيت النبي إلى كربلاء.',
-        type: 'HISTORICAL',
-        yearAh: 61,
-        perspective: 'SHIA',
-      },
-      {
-        day: 28,
-        title: 'Wafat of Prophet Muhammad (PBUH)',
-        titleAr: 'وفاة النبي محمد ﷺ',
-        description:
-          'The passing of the Final Messenger of Allah in 11 AH, as observed in Shia tradition.',
-        descriptionAr:
-          'وفاة خاتم الرسل ﷺ سنة 11هـ، كما هو معروف في الرواية الشيعية. توفي ﷺ في المدينة بعد مرض قصير.',
-        type: 'DEATH',
-        yearAh: 11,
-        isMajorHoliday: true,
-        notes:
-          '28 Safar is the date preserved in Shia tradition. The majority of Sunni scholars cite 12 Rabi\' al-Awwal.',
-        notesAr:
-          '28 صفر هو التاريخ المحفوظ في الرواية الشيعية، بينما يذكر جمهور علماء أهل السنة 12 ربيع الأول. كلا التاريخين يُحييان بالحزن والذكر.',
-        perspective: 'SHIA',
-      },
       {
         day: 29,
         title: 'Hijra: Departure from Makkah',
@@ -264,30 +174,16 @@ export const ISLAMIC_EVENTS_CATALOG: RawIslamicMonth[] = [
     monthNameAr: 'ربيع الأول',
     events: [
       {
-        day: 1,
-        title: 'Laylat al-Mabit',
-        titleAr: 'ليلة المبيت',
-        description:
-          "Ali ibn Abi Talib slept in the Prophet's bed to deceive the assassins while the Prophet (PBUH) migrated.",
-        descriptionAr:
-          'نام الإمام علي بن أبي طالب رضي الله عنه في فراش النبي ﷺ ليلة الهجرة ليُضلِّل المتربصين بقتله بينما خرج النبي ﷺ مهاجرًا.',
-        type: 'HISTORICAL',
-        yearAh: 1,
-        notes:
-          'This event occurred the night immediately before the Prophet\'s departure from Makkah.',
-        notesAr:
-          'وقعت هذه الحادثة في الليلة التي سبقت خروج النبي ﷺ من مكة، وموضعها بين أواخر صفر وأوائل ربيع الأول.',
-        perspective: 'UNIVERSAL',
-      },
-      {
         day: 8,
-        title: 'Passing of Imam Hasan al-Askari',
-        titleAr: 'وفاة الإمام حسن العسكري',
-        description: 'The death of the eleventh Imam in Samarra in 260 AH.',
-        descriptionAr: 'وفاة الإمام حسن العسكري، الحادي عشر من أئمة الإثني عشرية، في سامراء سنة 260هـ.',
-        type: 'DEATH',
-        yearAh: 260,
-        perspective: 'SHIA',
+        title: "Battle of Mu'tah",
+        titleAr: 'غزوة مؤتة',
+        description:
+          'The first major engagement between the Muslims and the Byzantine-allied forces in 8 AH. Three commanders fell in succession before Khalid ibn al-Walid took command and preserved the army.',
+        descriptionAr:
+          'أول مواجهة كبرى بين المسلمين والقوات البيزنطية وحلفائها سنة 8هـ قرب مؤتة في الأردن الحالية. سقط ثلاثة قادة تباعًا: زيد بن حارثة، ثم جعفر بن أبي طالب، ثم عبد الله بن رواحة رضي الله عنهم. تولى خالد بن الوليد القيادة فحفظ الجيش بانسحابه التكتيكي البارع، فلقَّبه النبي ﷺ بـ"سيف الله".',
+        type: 'HISTORICAL',
+        yearAh: 8,
+        perspective: 'UNIVERSAL',
       },
       {
         day: 12,
@@ -316,7 +212,7 @@ export const ISLAMIC_EVENTS_CATALOG: RawIslamicMonth[] = [
       {
         day: 12,
         title: 'Wafat of Prophet Muhammad (PBUH)',
-        titleAr: 'وفاة النبي محمد ﷺ (الرواية السنية)',
+        titleAr: 'وفاة النبي محمد ﷺ',
         description:
           'The passing of the Final Messenger of Allah in 11 AH in Madinah, as established by the majority of Sunni scholars.',
         descriptionAr:
@@ -333,30 +229,6 @@ export const ISLAMIC_EVENTS_CATALOG: RawIslamicMonth[] = [
       AYYAM_AL_BID(13),
       AYYAM_AL_BID(14),
       AYYAM_AL_BID(15),
-      {
-        day: 17,
-        title: 'Birth of Prophet Muhammad (PBUH) — Shia tradition',
-        titleAr: 'مولد النبي ﷺ (الرواية الشيعية)',
-        description:
-          'The date traditionally observed for the birth of the Prophet (PBUH) in Shia history.',
-        descriptionAr:
-          'التاريخ المتبع في الرواية الشيعية لمولد النبي محمد ﷺ.',
-        type: 'BIRTH',
-        isMajorHoliday: true,
-        perspective: 'SHIA',
-      },
-      {
-        day: 17,
-        title: "Birth of Imam Ja'far al-Sadiq",
-        titleAr: 'مولد الإمام جعفر الصادق',
-        description:
-          "Birth of the sixth Imam and the founder of the Ja'fari school of jurisprudence in 83 AH.",
-        descriptionAr:
-          'مولد الإمام جعفر الصادق سادس أئمة أهل البيت ومؤسس المذهب الجعفري في الفقه، سنة 83هـ.',
-        type: 'BIRTH',
-        yearAh: 83,
-        perspective: 'SHIA',
-      },
       {
         day: 18,
         title: 'Construction of Al-Masjid an-Nabawi',
@@ -378,30 +250,6 @@ export const ISLAMIC_EVENTS_CATALOG: RawIslamicMonth[] = [
     monthName: "Rabi' al-Thani",
     monthNameAr: 'ربيع الآخر',
     events: [
-      {
-        day: 8,
-        title: 'Birth of Imam Hasan al-Askari',
-        titleAr: 'مولد الإمام حسن العسكري',
-        description:
-          'Alternative date for the birth of the eleventh Imam in Madinah, 232 AH.',
-        descriptionAr:
-          'تاريخ بديل لمولد الإمام حسن العسكري، الحادي عشر من أئمة الإثني عشرية، في المدينة سنة 232هـ.',
-        type: 'BIRTH',
-        yearAh: 232,
-        perspective: 'SHIA',
-      },
-      {
-        day: 10,
-        title: 'Passing of Fatima bint Musa',
-        titleAr: 'وفاة فاطمة بنت موسى المعصومة',
-        description:
-          "Death of the daughter of the seventh Imam, known as Bibi Ma'sumah Qom, in 201 AH.",
-        descriptionAr:
-          'وفاة السيدة فاطمة بنت موسى الكاظم، أخت الإمام الرضا، المعروفة بفاطمة المعصومة، في قم سنة 201هـ.',
-        type: 'DEATH',
-        yearAh: 201,
-        perspective: 'SHIA',
-      },
       AYYAM_AL_BID(13),
       AYYAM_AL_BID(14),
       AYYAM_AL_BID(15),
@@ -414,73 +262,9 @@ export const ISLAMIC_EVENTS_CATALOG: RawIslamicMonth[] = [
     monthName: 'Jumada al-Awwal',
     monthNameAr: 'جمادى الأولى',
     events: [
-      {
-        day: 5,
-        title: 'Birth of Zainab bint Ali (RA)',
-        titleAr: 'مولد السيدة زينب بنت علي',
-        description:
-          "Birth of the granddaughter of the Prophet (PBUH), known for her eloquence and pivotal role in preserving the message of Islam post-Karbala.",
-        descriptionAr:
-          'مولد السيدة زينب بنت علي بن أبي طالب رضي الله عنها، حفيدة النبي ﷺ، المعروفة ببلاغتها ودورها العظيم في حفظ رسالة الإسلام بعد كربلاء.',
-        type: 'BIRTH',
-        yearAh: 5,
-        perspective: 'UNIVERSAL',
-      },
-      {
-        day: 8,
-        title: "Battle of Mu'tah",
-        titleAr: 'غزوة مؤتة',
-        description:
-          'The first major engagement between the Muslims and the Byzantine-allied forces in 8 AH. Three commanders fell in succession before Khalid ibn al-Walid took command and preserved the army.',
-        descriptionAr:
-          'أول مواجهة كبرى بين المسلمين والقوات البيزنطية وحلفائها سنة 8هـ قرب مؤتة في الأردن الحالية. سقط ثلاثة قادة تباعًا: زيد بن حارثة، ثم جعفر بن أبي طالب، ثم عبد الله بن رواحة رضي الله عنهم. تولى خالد بن الوليد القيادة فحفظ الجيش بانسحابه التكتيكي البارع، فلقَّبه النبي ﷺ بـ"سيف الله".',
-        type: 'HISTORICAL',
-        yearAh: 8,
-        perspective: 'UNIVERSAL',
-      },
-      {
-        day: 10,
-        title: 'Passing of Fatima az-Zahra (RA) — Sunni narration',
-        titleAr: 'وفاة فاطمة الزهراء (الرواية السنية)',
-        description:
-          "One of the narrated dates for the passing of the Prophet's daughter in 11 AH.",
-        descriptionAr:
-          'أحد التواريخ الواردة في بعض روايات أهل السنة لوفاة السيدة فاطمة الزهراء بنت النبي ﷺ سنة 11هـ.',
-        type: 'DEATH',
-        yearAh: 11,
-        notes:
-          'The Shia consensus places her passing on 3 Jumada al-Thani, 75 days after the Prophet\'s Wafat.',
-        notesAr:
-          'الإجماع الشيعي يضع وفاتها في 3 جمادى الآخرة، أي بعد 75 يومًا من وفاة النبي ﷺ في 28 صفر.',
-        perspective: 'SUNNI',
-      },
       AYYAM_AL_BID(13),
       AYYAM_AL_BID(14),
       AYYAM_AL_BID(15),
-      {
-        day: 15,
-        title: 'Birth of Imam Ali ibn al-Hussain (Zain al-Abidin)',
-        titleAr: 'مولد الإمام علي زين العابدين',
-        description:
-          "Birth of the fourth Imam in the Ahl al-Bayt lineage, renowned for his asceticism and the collection of prayers known as As-Sahifa al-Sajjadiyya.",
-        descriptionAr:
-          'مولد الإمام علي بن الحسين زين العابدين، رابع أئمة أهل البيت، المعروف بزهده وكتاب الأدعية الصحيفة السجادية. سنة 38هـ.',
-        type: 'BIRTH',
-        yearAh: 38,
-        perspective: 'SHIA',
-      },
-      {
-        day: 17,
-        title: 'The Battle of Jamal',
-        titleAr: 'موقعة الجمل',
-        description:
-          'A civil conflict in 36 AH near Basra, named after the camel upon which Aisha (RA) was mounted.',
-        descriptionAr:
-          'فتنة داخلية سنة 36هـ قرب البصرة، سُمِّيت بالجمل نسبةً إلى الجمل الذي كانت تركبه السيدة عائشة رضي الله عنها. خرج طلحة والزبير وعائشة رضي الله عنهم يطالبون بالقصاص لقتلة عثمان قبل مبايعة علي رضي الله عنه. انتصر علي رضي الله عنه فيها، وقُتل طلحة والزبير، ورد عائشة إلى المدينة معززة مكرَّمة.',
-        type: 'HISTORICAL',
-        yearAh: 36,
-        perspective: 'UNIVERSAL',
-      },
     ],
   },
 
@@ -490,49 +274,9 @@ export const ISLAMIC_EVENTS_CATALOG: RawIslamicMonth[] = [
     monthName: 'Jumada al-Thani',
     monthNameAr: 'جمادى الآخرة',
     events: [
-      {
-        day: 3,
-        title: 'Passing of Fatima az-Zahra (RA)',
-        titleAr: 'وفاة فاطمة الزهراء (الرواية الشيعية)',
-        description:
-          "The date most widely observed by the Ahl al-Bayt for the martyrdom and passing of the daughter of the Prophet.",
-        descriptionAr:
-          'التاريخ الأكثر اعتمادًا عند أهل البيت لشهادة ووفاة السيدة فاطمة الزهراء بنت النبي ﷺ، بعد 75 يومًا من وفاة أبيها ﷺ في 28 صفر سنة 11هـ.',
-        type: 'DEATH',
-        yearAh: 11,
-        notes:
-          'A separate date in Jumada al-Awwal is cited in certain Sunni narrations.',
-        notesAr:
-          'هناك تاريخ آخر في جمادى الأولى مذكور في بعض روايات أهل السنة. اختلاف التاريخ مسألة تاريخية لا تنقص من قدر السيدة الزهراء رضي الله عنها.',
-        perspective: 'SHIA',
-      },
       AYYAM_AL_BID(13),
-      {
-        day: 13,
-        title: 'Death of Umm ul-Banin',
-        titleAr: 'وفاة أم البنين',
-        description:
-          'Passing of Fatima bint Hizam, the wife of Ali ibn Abi Talib and mother of Abbas ibn Ali, known for her immense loyalty and devotion to the family of the Prophet.',
-        descriptionAr:
-          'وفاة السيدة فاطمة بنت حزام أم البنين، زوجة الإمام علي بن أبي طالب وأم العباس بن علي، المعروفة بشدة وفائها وحبها لأهل بيت النبي ﷺ. سنة 64هـ.',
-        type: 'DEATH',
-        yearAh: 64,
-        perspective: 'SHIA',
-      },
       AYYAM_AL_BID(14),
       AYYAM_AL_BID(15),
-      {
-        day: 20,
-        title: 'Birth of Fatima az-Zahra (RA)',
-        titleAr: 'مولد فاطمة الزهراء',
-        description:
-          "The birth of the 'Leader of the Women of Paradise' in Makkah, five years before the official start of the Prophetic mission.",
-        descriptionAr:
-          'مولد سيدة نساء أهل الجنة فاطمة الزهراء بنت النبي ﷺ في مكة، قبل البعثة بخمس سنوات.',
-        type: 'BIRTH',
-        yearAh: -5,
-        perspective: 'UNIVERSAL',
-      },
       {
         day: 22,
         title: 'Passing of Caliph Abu Bakr as-Siddiq (RA)',
@@ -566,49 +310,9 @@ export const ISLAMIC_EVENTS_CATALOG: RawIslamicMonth[] = [
         type: 'RELIGIOUS',
         perspective: 'UNIVERSAL',
       },
-      {
-        day: 1,
-        title: 'Birth of Imam Muhammad al-Baqir',
-        titleAr: 'مولد الإمام محمد الباقر',
-        description:
-          "Birth of the fifth Imam, known as 'the splitter of knowledge' for his vast contributions to Islamic law and science.",
-        descriptionAr:
-          'مولد الإمام محمد الباقر، خامس أئمة أهل البيت، الملقَّب بباقر العلم لعظيم إسهاماته في الفقه والعلوم الإسلامية، سنة 57هـ.',
-        type: 'BIRTH',
-        yearAh: 57,
-        perspective: 'SHIA',
-      },
-      {
-        day: 13,
-        title: 'Birth of Ali ibn Abi Talib (RA)',
-        titleAr: 'مولد علي بن أبي طالب',
-        description:
-          "The birth of the Prophet's cousin, son-in-law, and the fourth Rightly Guided Caliph, in the precinct of the Kaaba in Makkah, 23 years before the Hijra.",
-        descriptionAr:
-          'مولد الإمام علي بن أبي طالب رضي الله عنه، ابن عم النبي ﷺ وزوج ابنته، رابع الخلفاء الراشدين، في جوف الكعبة المشرَّفة قبل الهجرة بـ 23 سنة.',
-        type: 'BIRTH',
-        yearAh: -23,
-        notes:
-          'The detail of birth at the Kaaba is recorded in classical biographical works and holds particular significance in Shia tradition.',
-        notesAr:
-          'تفصيل ولادته داخل الكعبة أو عندها مذكور في كتب السيرة الكلاسيكية كابن إسحاق، وله مكانة خاصة في الرواية الشيعية.',
-        perspective: 'UNIVERSAL',
-      },
       AYYAM_AL_BID(13),
       AYYAM_AL_BID(14),
       AYYAM_AL_BID(15),
-      {
-        day: 25,
-        title: 'Martyrdom of Imam Musa al-Kadhim',
-        titleAr: 'استشهاد الإمام موسى الكاظم',
-        description:
-          'The passing of the seventh Imam in Baghdad after years of imprisonment during the Abbasid Caliphate in 183 AH.',
-        descriptionAr:
-          'وفاة الإمام موسى الكاظم سابع أئمة أهل البيت في بغداد بعد سنوات من السجن في عهد الخلافة العباسية، سنة 183هـ.',
-        type: 'DEATH',
-        yearAh: 183,
-        perspective: 'SHIA',
-      },
       {
         day: 27,
         title: "Al-Isra' wal-Mi'raj",
@@ -643,30 +347,6 @@ export const ISLAMIC_EVENTS_CATALOG: RawIslamicMonth[] = [
     monthName: "Sha'ban",
     monthNameAr: 'شعبان',
     events: [
-      {
-        day: 3,
-        title: 'Birth of Imam Hussain ibn Ali (RA)',
-        titleAr: 'مولد الإمام الحسين بن علي',
-        description:
-          "The birth of the Prophet's second grandson and the martyr of Karbala in 4 AH.",
-        descriptionAr:
-          'مولد سبط النبي ﷺ الإمام الحسين بن علي رضي الله عنه، سيد شباب أهل الجنة وشهيد كربلاء، سنة 4هـ.',
-        type: 'BIRTH',
-        yearAh: 4,
-        perspective: 'UNIVERSAL',
-      },
-      {
-        day: 4,
-        title: 'Birth of Abbas ibn Ali (RA)',
-        titleAr: 'مولد العباس بن علي',
-        description:
-          'Birth of the son of Ali ibn Abi Talib and Umm ul-Banin, celebrated for his peerless bravery and loyalty in 26 AH.',
-        descriptionAr:
-          'مولد العباس بن علي بن أبي طالب وأمه أم البنين، صاحب اللواء يوم كربلاء، المشهور بشجاعته الفائقة ووفائه، سنة 26هـ.',
-        type: 'BIRTH',
-        yearAh: 26,
-        perspective: 'SHIA',
-      },
       AYYAM_AL_BID(13),
       AYYAM_AL_BID(14),
       {
@@ -693,18 +373,6 @@ export const ISLAMIC_EVENTS_CATALOG: RawIslamicMonth[] = [
         type: 'RELIGIOUS',
         yearAh: 2,
         perspective: 'UNIVERSAL',
-      },
-      {
-        day: 15,
-        title: 'Birth of Imam Muhammad al-Mahdi',
-        titleAr: 'مولد الإمام محمد المهدي',
-        description:
-          'The birth of the twelfth and final Imam of the Twelver lineage in Samarra, 255 AH.',
-        descriptionAr:
-          'مولد الإمام محمد المهدي، الثاني عشر والأخير من أئمة الإثني عشرية، في سامراء سنة 255هـ.',
-        type: 'BIRTH',
-        yearAh: 255,
-        perspective: 'SHIA',
       },
     ],
   },
@@ -744,25 +412,13 @@ export const ISLAMIC_EVENTS_CATALOG: RawIslamicMonth[] = [
       AYYAM_AL_BID(14),
       AYYAM_AL_BID(15),
       {
-        day: 15,
-        title: 'Birth of Al-Hasan ibn Ali',
-        titleAr: 'مولد الإمام الحسن بن علي',
-        description:
-          'The birth of the eldest son of Ali ibn Abi Talib and Fatimah az-Zahra, and the first grandson of Prophet Muhammad (PBUH) in 3 AH.',
-        descriptionAr:
-          'مولد الإمام الحسن بن علي بن أبي طالب وفاطمة الزهراء، أكبر أحفاد النبي ﷺ، سنة 3هـ.',
-        type: 'BIRTH',
-        yearAh: 3,
-        perspective: 'UNIVERSAL',
-      },
-      {
         day: 17,
         title: 'Nuzool al-Quran (First Revelation)',
         titleAr: 'نزول القرآن (بدء الوحي)',
         description:
           'The first verses of the Quran were revealed to Prophet Muhammad (PBUH) through Jibreel (AS) in the Cave of Hira during Ramadan.',
         descriptionAr:
-          'نزل أول الوحي على النبي محمد ﷺ بواسطة جبريل عليه السلام في غار حراء بقوله: «اقرأ باسم ربك الذي خلق» (العلق:1). فعاد ﷺ مرتعدًا إلى السيدة خديجة التي كانت أول من آمن به وقالت له: "والله لا يخزيك الله أبدًا". بدأت بهذا اللحظة رحلة الوحي التي امتدت 23 عامًا.',
+          'نزل أول الوحي على النبي محمد ﷺ بواسطة جبريل عليه السلام في غار حراء بقوله: «اقرأ باسم ربك الذي خلق» (العلق:1). فعاد ﷺ مرتعدًا إلى السيدة خديجة التي كانت أول من آمن به وقالت له: "والله لا يخزيك الله أبدًا". بدأت بهذه اللحظة رحلة الوحي التي امتدت 23 عامًا.',
         type: 'RELIGIOUS',
         isMajorHoliday: true,
         notes:
@@ -797,14 +453,13 @@ export const ISLAMIC_EVENTS_CATALOG: RawIslamicMonth[] = [
       },
       {
         day: 21,
-        title: 'Martyrdom of Ali ibn Abi Talib',
-        titleAr: 'استشهاد علي بن أبي طالب',
+        title: 'Last Ten Nights of Ramadan',
+        titleAr: 'العشر الأواخر من رمضان',
         description:
-          'The death of the fourth Rightly Guided Caliph following the assassination by Abd al-Rahman ibn Muljam in Kufa, 40 AH.',
+          'The last ten nights of Ramadan, in which Laylat al-Qadr is sought. The Prophet (PBUH) used to intensify worship and observe i\'tikaf during these nights.',
         descriptionAr:
-          'استشهاد الإمام علي بن أبي طالب رضي الله عنه، رابع الخلفاء الراشدين، إثر طعنه على يد عبد الرحمن بن ملجم في الكوفة سنة 40هـ.',
-        type: 'DEATH',
-        yearAh: 40,
+          'العشر الأواخر من شهر رمضان، يلتمس فيها المسلمون ليلة القدر. كان النبي ﷺ يجتهد فيها في العبادة ويعتكف، ويوقظ أهله لقيام الليل.',
+        type: 'RECURRING_RITUAL',
         perspective: 'UNIVERSAL',
       },
       {
@@ -908,18 +563,6 @@ export const ISLAMIC_EVENTS_CATALOG: RawIslamicMonth[] = [
       AYYAM_AL_BID(13),
       AYYAM_AL_BID(14),
       AYYAM_AL_BID(15),
-      {
-        day: 25,
-        title: "Passing of Imam Ja'far al-Sadiq",
-        titleAr: 'وفاة الإمام جعفر الصادق',
-        description:
-          "The death of the sixth Imam of the Ahl al-Bayt and the polymath founder of the Ja'fari school of law in 148 AH.",
-        descriptionAr:
-          'وفاة الإمام جعفر الصادق سادس أئمة أهل البيت ومؤسس المذهب الجعفري في الفقه، سنة 148هـ.',
-        type: 'DEATH',
-        yearAh: 148,
-        perspective: 'SHIA',
-      },
     ],
   },
 
@@ -930,18 +573,6 @@ export const ISLAMIC_EVENTS_CATALOG: RawIslamicMonth[] = [
     monthNameAr: 'ذو القعدة',
     isSacred: true,
     events: [
-      {
-        day: 1,
-        title: "Birth of Fatima bint Musa (Al-Ma'sumah)",
-        titleAr: 'مولد فاطمة المعصومة',
-        description:
-          'The birth of the daughter of the seventh Imam and sister of Imam Ali al-Rida, revered for her scholarship and piety, in 173 AH.',
-        descriptionAr:
-          'مولد السيدة فاطمة المعصومة بنت الإمام موسى الكاظم وأخت الإمام علي الرضا، سنة 173هـ.',
-        type: 'BIRTH',
-        yearAh: 173,
-        perspective: 'SHIA',
-      },
       {
         day: 5,
         title: 'Treaty of Hudaybiyyah',
@@ -954,44 +585,9 @@ export const ISLAMIC_EVENTS_CATALOG: RawIslamicMonth[] = [
         yearAh: 6,
         perspective: 'UNIVERSAL',
       },
-      {
-        day: 11,
-        title: 'Birth of Imam Ali al-Rida',
-        titleAr: 'مولد الإمام علي الرضا',
-        description:
-          'The birth of the eighth Imam of the Ahl al-Bayt in Madinah, 148 AH, known for his theological debates.',
-        descriptionAr:
-          'مولد الإمام علي بن موسى الرضا، ثامن أئمة أهل البيت، في المدينة سنة 148هـ، اشتُهر بمناظراته العلمية ودوره في البلاط العباسي.',
-        type: 'BIRTH',
-        yearAh: 148,
-        perspective: 'SHIA',
-      },
       AYYAM_AL_BID(13),
       AYYAM_AL_BID(14),
       AYYAM_AL_BID(15),
-      {
-        day: 25,
-        title: 'Dahw al-Ard',
-        titleAr: 'دحو الأرض',
-        description:
-          'A day marking the traditional spreading of the earth from beneath the Kaaba and the birth of Prophet Ibrahim and Prophet Isa.',
-        descriptionAr:
-          'يوم له معنى ديني: تُذكر فيه روايةُ بسط الأرض من تحت الكعبة، ومولد النبيين إبراهيم وعيسى عليهما السلام.',
-        type: 'RELIGIOUS',
-        perspective: 'SHIA',
-      },
-      {
-        day: 29,
-        title: 'Passing of Imam Muhammad al-Jawad',
-        titleAr: 'وفاة الإمام محمد الجواد',
-        description:
-          'The martyrdom of the ninth Imam, also known as At-Taqi, in Baghdad at the age of 25 in 220 AH.',
-        descriptionAr:
-          'استشهاد الإمام محمد الجواد المعروف بالتقي، تاسع أئمة أهل البيت، في بغداد وعمره خمسة وعشرون عامًا، سنة 220هـ.',
-        type: 'DEATH',
-        yearAh: 220,
-        perspective: 'SHIA',
-      },
     ],
   },
 
@@ -1004,18 +600,6 @@ export const ISLAMIC_EVENTS_CATALOG: RawIslamicMonth[] = [
     events: [
       {
         day: 1,
-        title: 'Marriage of Ali ibn Abi Talib and Fatima az-Zahra',
-        titleAr: 'زواج علي وفاطمة الزهراء',
-        description:
-          "The sacred union of the Prophet's daughter and cousin in 2 AH, which established the lineage of the Ahl al-Bayt.",
-        descriptionAr:
-          'الزواج الميمون بين الإمام علي بن أبي طالب والسيدة فاطمة الزهراء بنت النبي ﷺ سنة 2هـ، وهو الزواج الذي تأسست به ذرية أهل البيت.',
-        type: 'HISTORICAL',
-        yearAh: 2,
-        perspective: 'UNIVERSAL',
-      },
-      {
-        day: 1,
         title: 'First Ten Days of Dhu al-Hijjah',
         titleAr: 'العشر الأوائل من ذي الحجة',
         description:
@@ -1024,18 +608,6 @@ export const ISLAMIC_EVENTS_CATALOG: RawIslamicMonth[] = [
           'العشر الأوائل من ذي الحجة، أفضل أيام الدنيا. مستحب فيها الإكثار من العبادة والذكر والصيام والصدقة.',
         type: 'RECURRING_RITUAL',
         perspective: 'UNIVERSAL',
-      },
-      {
-        day: 7,
-        title: 'Passing of Imam Muhammad al-Baqir',
-        titleAr: 'وفاة الإمام محمد الباقر',
-        description:
-          'The death of the fifth Imam in Madinah, 114 AH, a pivotal figure in the codification of Islamic law and traditions.',
-        descriptionAr:
-          'وفاة الإمام محمد الباقر، خامس أئمة أهل البيت، في المدينة سنة 114هـ. شخصية محورية في تدوين الفقه والحديث.',
-        type: 'DEATH',
-        yearAh: 114,
-        perspective: 'SHIA',
       },
       {
         day: 8,
@@ -1080,31 +652,6 @@ export const ISLAMIC_EVENTS_CATALOG: RawIslamicMonth[] = [
       AYYAM_AT_TASHRIQ(13),
       AYYAM_AL_BID(14),
       AYYAM_AL_BID(15),
-      {
-        day: 18,
-        title: 'Eid al-Ghadir',
-        titleAr: 'عيد الغدير',
-        description:
-          "The declaration at Ghadir Khumm where Prophet Muhammad announced Ali ibn Abi Talib as the 'Mawla' (master) of the believers in 10 AH.",
-        descriptionAr:
-          'إعلان غدير خم، حيث قال النبي ﷺ لعلي بن أبي طالب رضي الله عنه: "من كنت مولاه فعلي مولاه"، سنة 10هـ بعد عودته من حجة الوداع.',
-        type: 'HISTORICAL',
-        yearAh: 10,
-        isMajorHoliday: true,
-        perspective: 'SHIA',
-      },
-      {
-        day: 24,
-        title: 'Event of Mubahala',
-        titleAr: 'حادثة المباهلة',
-        description:
-          'The formal challenge of mutual imprecation between the Prophet and the Christians of Najran in 10 AH.',
-        descriptionAr:
-          'دعوة المباهلة بين النبي ﷺ ونصارى نجران سنة 10هـ، بحضور علي وفاطمة والحسنين عليهم السلام، ونزول قوله تعالى: "فمن حاجَّك فيه من بعد ما جاءك من العلم..." (آل عمران: 61).',
-        type: 'HISTORICAL',
-        yearAh: 10,
-        perspective: 'SHIA',
-      },
       {
         day: 26,
         title: 'Assassination of Caliph Umar ibn al-Khattab',

@@ -222,16 +222,7 @@ function mergeConsecutiveSpans(events: ResolvedIslamicEvent[]): ResolvedIslamicE
 // we anchor them to `referenceYear + 1` so they appear as upcoming.
 // ───────────────────────────────────────────────────────────────────────────
 
-function filterByPerspective(perspective: EventPerspective, allowed: EventPerspective | 'ALL'): boolean {
-  if (allowed === 'ALL') return true;
-  if (allowed === 'UNIVERSAL') return perspective === 'UNIVERSAL';
-  // SUNNI/SHIA see UNIVERSAL + their own track
-  return perspective === 'UNIVERSAL' || perspective === allowed;
-}
-
 interface ResolveOptions {
-  /** Filter by perspective. 'ALL' includes everything. Default: 'ALL'. */
-  perspective?: EventPerspective | 'ALL';
   /** Date used to compute Hijri 'today' and "in N days" labels. Default: now. */
   referenceDate?: Date;
 }
@@ -241,13 +232,12 @@ interface ResolveOptions {
  * next Hijri year so the soonest occurrence is returned.
  */
 export function getAllEvents(opts: ResolveOptions = {}): ResolvedIslamicEvent[] {
-  const { perspective = 'ALL', referenceDate = new Date() } = opts;
+  const { referenceDate = new Date() } = opts;
   const todayHijri = toHijri(referenceDate);
 
   const resolved: ResolvedIslamicEvent[] = [];
   for (const month of ISLAMIC_EVENTS_CATALOG) {
     for (const ev of month.events) {
-      if (!filterByPerspective(ev.perspective, perspective)) continue;
 
       // Determine the Hijri year to anchor this event to. If its (month, day)
       // is strictly before today within the current Hijri year, push it to
@@ -365,14 +355,14 @@ function toLegacy(ev: ResolvedIslamicEvent): IslamicOccasion {
 
 /**
  * Snapshot of the catalog as legacy occasions, anchored to the current/next
- * Hijri year and filtered to the universal perspective by default.
+ * Hijri year.
  *
  * Note: this is a getter rather than a constant because the resolved Hijri
  * year shifts as time passes. Treat it as `islamicOccasions` was treated
  * before.
  */
 export const islamicOccasions: IslamicOccasion[] =
-  getAllEvents({ perspective: 'UNIVERSAL' }).map(toLegacy);
+  getAllEvents().map(toLegacy);
 
 // ───────────────────────────────────────────────────────────────────────────
 // Helpers preserved verbatim from the old API.

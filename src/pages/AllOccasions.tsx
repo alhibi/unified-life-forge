@@ -4,14 +4,12 @@ import BackButton from '@/components/BackButton';
 import { useApp } from '@/contexts/AppContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  getAllEvents,
   getEventsForMonth,
   getTodayHijri,
   formatGregorianDate,
   HIJRI_MONTHS,
   HIJRI_MONTHS_EN,
   type ResolvedIslamicEvent,
-  type EventPerspective,
 } from '@/data/islamicOccasions';
 
 // Accent palette for occasion cards (mirrors PrayerTimes.tsx accents).
@@ -27,32 +25,21 @@ const ACCENT: Record<string, string> = {
   'border-l-slate-500': '#64748b',
 };
 
-type PerspectiveFilter = 'UNIVERSAL' | 'SUNNI' | 'SHIA' | 'ALL';
-
 export default function AllOccasions() {
   const { language } = useApp();
   const isAr = language === 'ar';
   const today = useMemo(() => getTodayHijri(), []);
 
-  const [perspective, setPerspective] = useState<PerspectiveFilter>('UNIVERSAL');
   const [selectedMonth, setSelectedMonth] = useState<number>(today.month);
   const [selectedDay, setSelectedDay] = useState<number>(today.day);
   const [selectedEvent, setSelectedEvent] = useState<ResolvedIslamicEvent | null>(null);
 
-  // All events, anchored to current/next Hijri year, filtered by perspective.
-  const allEvents = useMemo(
-    () => getAllEvents({ perspective }),
-    [perspective],
-  );
-
-  // Group by Hijri month, with each month's list sorted by day (not by year).
+  // Each month's events, sorted by day. Stable across re-renders.
   const byMonth = useMemo(() => {
     const map: Record<number, ResolvedIslamicEvent[]> = {};
-    for (let m = 1; m <= 12; m++) {
-      map[m] = getEventsForMonth(m, { perspective });
-    }
+    for (let m = 1; m <= 12; m++) map[m] = getEventsForMonth(m);
     return map;
-  }, [perspective, allEvents]);
+  }, []);
 
   const monthEvents = byMonth[selectedMonth] || [];
   const daysWithEvents = useMemo(() => {
@@ -69,24 +56,25 @@ export default function AllOccasions() {
 
   const days = Array.from({ length: 30 }, (_, i) => i + 1);
 
-  const monthName = (idx: number) => (isAr ? HIJRI_MONTHS[idx - 1] : HIJRI_MONTHS_EN[idx - 1]);
-
-  const perspectiveOptions: { id: PerspectiveFilter; labelAr: string; labelEn: string }[] = [
-    { id: 'UNIVERSAL', labelAr: 'مشترك', labelEn: 'Universal' },
-    { id: 'SUNNI', labelAr: 'سنّي', labelEn: 'Sunni' },
-    { id: 'SHIA', labelAr: 'شيعي', labelEn: 'Shia' },
-    { id: 'ALL', labelAr: 'الكل', labelEn: 'All' },
-  ];
+  const monthName = (idx: number) =>
+    isAr ? HIJRI_MONTHS[idx - 1] : HIJRI_MONTHS_EN[idx - 1];
 
   return (
-    <div className="min-h-screen bg-background pb-28 px-4 pt-6" dir={isAr ? 'rtl' : 'ltr'}>
+    <div
+      className="min-h-screen bg-background pb-28 px-4 pt-6"
+      dir={isAr ? 'rtl' : 'ltr'}
+    >
       <SEO
         title={isAr ? 'التقويم الهجري — SmartHub' : 'Hijri Calendar — SmartHub'}
-        description={isAr ? 'تصفح المناسبات الإسلامية حسب الشهر الهجري.' : 'Browse Islamic occasions by Hijri month.'}
+        description={
+          isAr
+            ? 'تصفح المناسبات الإسلامية حسب الشهر الهجري.'
+            : 'Browse Islamic occasions by Hijri month.'
+        }
         path="/occasions"
       />
-      <div className="max-w-lg mx-auto space-y-6">
-        {/* Header */}
+      <div className="max-w-lg mx-auto space-y-5">
+        {/* ── Header ──────────────────────────────────────────────── */}
         <div className="flex items-center gap-3">
           <BackButton />
           <div className="flex-1 min-w-0 text-end">
@@ -99,28 +87,18 @@ export default function AllOccasions() {
           </div>
         </div>
 
-        {/* ── Perspective filter ─────────────────────────────────────── */}
-        <div className="flex gap-1.5 overflow-x-auto scrollbar-none -mx-1 px-1">
-          {perspectiveOptions.map((opt) => {
-            const active = opt.id === perspective;
-            return (
-              <button
-                key={opt.id}
-                onClick={() => setPerspective(opt.id)}
-                className={`flex-shrink-0 px-3.5 py-1.5 rounded-full text-[12px] font-semibold transition-colors ${
-                  active
-                    ? 'bg-primary text-primary-foreground shadow-sm'
-                    : 'bg-card/60 text-muted-foreground border border-border/50 hover:bg-card'
-                }`}
-              >
-                {isAr ? opt.labelAr : opt.labelEn}
-              </button>
-            );
-          })}
+        {/* ── Today indicator ────────────────────────────────────── */}
+        <div className="rounded-2xl bg-primary/5 border border-primary/15 px-4 py-2.5 flex items-center justify-between">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-primary/70">
+            {isAr ? 'اليوم' : 'Today'}
+          </span>
+          <span className="text-[13px] font-semibold text-foreground">
+            {today.day} {monthName(today.month)} {today.year}
+          </span>
         </div>
 
-        {/* ── Months grid ────────────────────────────────────────────── */}
-        <div className="grid grid-cols-3 gap-2.5">
+        {/* ── Months grid ────────────────────────────────────────── */}
+        <div className="grid grid-cols-3 gap-2">
           {HIJRI_MONTHS.map((_, i) => {
             const monthIdx = i + 1;
             const count = (byMonth[monthIdx] || []).length;
@@ -134,41 +112,54 @@ export default function AllOccasions() {
                   setSelectedDay(monthIdx === today.month ? today.day : 1);
                 }}
                 whileTap={{ scale: 0.96 }}
-                className={`relative rounded-2xl border p-3 text-start transition-all ${
+                className={`relative rounded-xl border px-2.5 py-2 text-start transition-all ${
                   active
                     ? 'bg-primary/15 border-primary/40 shadow-sm'
                     : 'bg-card/60 border-border/50 hover:bg-card'
                 }`}
               >
-                <span className="absolute top-2 end-2 text-[11px] font-bold text-muted-foreground/70 tabular-nums">
-                  {monthIdx}
-                </span>
-                <p className={`text-[13px] font-bold leading-tight mt-3 ${active ? 'text-primary' : 'text-foreground'}`}>
-                  {monthName(monthIdx)}
-                </p>
-                <p className="text-[10px] text-muted-foreground mt-1">
-                  {isAr ? `${count} مناسبة` : `${count} event${count === 1 ? '' : 's'}`}
-                </p>
-                {isCurrent && (
-                  <span className="absolute bottom-2 end-2 w-1.5 h-1.5 rounded-full bg-primary" />
-                )}
+                <div className="flex items-baseline justify-between mb-0.5">
+                  <p
+                    className={`text-[12px] font-bold leading-tight truncate ${
+                      active ? 'text-primary' : 'text-foreground'
+                    }`}
+                  >
+                    {monthName(monthIdx)}
+                  </p>
+                  <span className="text-[10px] font-bold text-muted-foreground/60 tabular-nums shrink-0">
+                    {monthIdx}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <span className="text-[9px] text-muted-foreground tabular-nums">
+                    {count}
+                  </span>
+                  <span className="text-[9px] text-muted-foreground/70">
+                    {isAr ? 'مناسبة' : count === 1 ? 'event' : 'events'}
+                  </span>
+                  {isCurrent && (
+                    <span className="ms-auto w-1.5 h-1.5 rounded-full bg-primary" />
+                  )}
+                </div>
               </motion.button>
             );
           })}
         </div>
 
-        {/* ── Selected month header ─────────────────────────────────── */}
+        {/* ── Selected month header ─────────────────────────────── */}
         <div className="flex items-baseline justify-between pt-1">
-          <h2 className="text-[18px] font-black text-foreground">
+          <h2 className="text-[16px] font-black text-foreground">
             {monthName(selectedMonth)}
           </h2>
-          <span className="text-[14px] font-bold text-muted-foreground/70 tabular-nums">
-            {selectedMonth}
+          <span className="text-[11px] font-medium text-muted-foreground/70">
+            {isAr
+              ? `${monthEvents.length} مناسبة`
+              : `${monthEvents.length} ${monthEvents.length === 1 ? 'event' : 'events'}`}
           </span>
         </div>
 
-        {/* ── Days grid ─────────────────────────────────────────────── */}
-        <div className="grid grid-cols-5 gap-2">
+        {/* ── Days grid (compact: 6 cols × 5 rows = 30 days) ────── */}
+        <div className="grid grid-cols-6 gap-1.5">
           {days.map((d) => {
             const hasEvent = daysWithEvents.has(d);
             const isToday = selectedMonth === today.month && d === today.day;
@@ -178,37 +169,41 @@ export default function AllOccasions() {
                 key={d}
                 whileTap={{ scale: 0.92 }}
                 onClick={() => setSelectedDay(d)}
-                className={`relative aspect-square rounded-2xl border flex items-start justify-end p-2 transition-all ${
+                className={`relative aspect-square rounded-lg border flex items-center justify-center transition-all ${
                   isSelected
-                    ? 'bg-primary/20 border-primary/50'
-                    : hasEvent
-                      ? 'bg-card/70 border-border/60'
-                      : 'bg-card/30 border-border/30'
+                    ? 'bg-primary/20 border-primary/50 shadow-sm'
+                    : isToday
+                      ? 'bg-primary/8 border-primary/30'
+                      : hasEvent
+                        ? 'bg-card/70 border-border/60'
+                        : 'bg-card/30 border-border/25'
                 }`}
               >
                 <span
-                  className={`text-[14px] tabular-nums ${
-                    isSelected ? 'font-bold text-primary' : hasEvent ? 'font-semibold text-foreground' : 'font-light text-muted-foreground/60'
+                  className={`text-[12px] tabular-nums ${
+                    isSelected
+                      ? 'font-bold text-primary'
+                      : hasEvent
+                        ? 'font-semibold text-foreground'
+                        : 'font-light text-muted-foreground/55'
                   }`}
                 >
                   {d}
                 </span>
-                {isToday && (
-                  <span className="absolute top-1.5 start-1.5 text-[7px] font-bold uppercase text-primary tracking-wide">
-                    {isAr ? 'اليوم' : 'today'}
-                  </span>
+                {hasEvent && !isSelected && (
+                  <span className="absolute bottom-0.5 start-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary/60" />
                 )}
-                {hasEvent && (
-                  <span className="absolute bottom-2 start-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-primary/70" />
+                {isToday && !isSelected && (
+                  <span className="absolute top-0.5 end-0.5 w-1 h-1 rounded-full bg-primary" />
                 )}
               </motion.button>
             );
           })}
         </div>
 
-        {/* ── Events for selected day ───────────────────────────────── */}
-        <div className="space-y-3 pt-2">
-          <h3 className="text-[13px] font-bold text-muted-foreground">
+        {/* ── Events for selected day ───────────────────────────── */}
+        <div className="space-y-2.5 pt-2">
+          <h3 className="text-[12px] font-bold text-muted-foreground/80 uppercase tracking-wider">
             {isAr
               ? `مناسبات ${selectedDay} ${HIJRI_MONTHS[selectedMonth - 1]}`
               : `Events on ${selectedDay} ${HIJRI_MONTHS_EN[selectedMonth - 1]}`}
@@ -221,7 +216,7 @@ export default function AllOccasions() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="rounded-2xl border border-border/40 bg-card/40 px-4 py-6 text-center"
+                className="rounded-xl border border-border/40 bg-card/40 px-4 py-5 text-center"
               >
                 <p className="text-[12px] text-muted-foreground">
                   {isAr ? 'لا توجد مناسبات في هذا اليوم' : 'No events on this day'}
@@ -241,7 +236,7 @@ export default function AllOccasions() {
         </div>
       </div>
 
-      {/* ── Event details modal ───────────────────────────────────── */}
+      {/* ── Event details modal ─────────────────────────────── */}
       <EventDetailDialog
         event={selectedEvent}
         isAr={isAr}
@@ -268,7 +263,8 @@ function EventListCard({
   const monthLabel = isAr
     ? HIJRI_MONTHS[event.month - 1]
     : HIJRI_MONTHS_EN[event.month - 1];
-  const dayLabel = event.day === event.endDay ? `${event.day}` : `${event.day}-${event.endDay}`;
+  const dayLabel =
+    event.day === event.endDay ? `${event.day}` : `${event.day}-${event.endDay}`;
   const title = isAr ? event.titleAr : event.title;
   const description = isAr ? event.descriptionAr : event.description;
 
@@ -280,15 +276,15 @@ function EventListCard({
       exit={{ opacity: 0, y: -8 }}
       transition={{ duration: 0.25 }}
       onClick={onOpen}
-      className="w-full text-start rounded-2xl border p-4 transition-colors"
-      style={{ background: `${accent}14`, borderColor: `${accent}40` }}
+      className="w-full text-start rounded-xl border p-3.5 transition-colors"
+      style={{ background: `${accent}10`, borderColor: `${accent}33` }}
     >
-      <div className="flex items-center justify-between mb-1.5">
+      <div className="flex items-center justify-between mb-1">
         <span
           className="text-[9px] font-bold uppercase tracking-wider"
           style={{ color: accent }}
         >
-          {isAr ? `${monthLabel} ${dayLabel}` : `${monthLabel} ${dayLabel}`}
+          {monthLabel} {dayLabel}
         </span>
         {event.isMajorHoliday && (
           <span
@@ -299,13 +295,13 @@ function EventListCard({
           </span>
         )}
       </div>
-      <h4 className="text-[15px] font-bold text-foreground leading-snug mb-1">
+      <h4 className="text-[14px] font-bold text-foreground leading-snug mb-1">
         {title}
       </h4>
-      <p className="text-[11px] text-muted-foreground leading-relaxed line-clamp-3">
+      <p className="text-[11px] text-muted-foreground leading-relaxed line-clamp-2">
         {description}
       </p>
-      <p className="text-[10px] text-muted-foreground/60 mt-2">
+      <p className="text-[10px] text-muted-foreground/60 mt-1.5">
         {formatGregorianDate(event.gregorianDate, isAr ? 'ar' : 'en')}
       </p>
     </motion.button>
@@ -355,7 +351,13 @@ function EventDetailDialog({
   );
 }
 
-function DetailContent({ event, isAr }: { event: ResolvedIslamicEvent; isAr: boolean }) {
+function DetailContent({
+  event,
+  isAr,
+}: {
+  event: ResolvedIslamicEvent;
+  isAr: boolean;
+}) {
   const accent = ACCENT[event.color] ?? '#10b981';
   const monthLabel = isAr
     ? HIJRI_MONTHS[event.month - 1]
@@ -368,19 +370,25 @@ function DetailContent({ event, isAr }: { event: ResolvedIslamicEvent; isAr: boo
 
   const typeLabel = (() => {
     const ar: Record<string, string> = {
-      HISTORICAL: 'تاريخي', RELIGIOUS: 'ديني', RECURRING_RITUAL: 'عبادة دورية',
-      BIRTH: 'مولد', DEATH: 'وفاة',
+      HISTORICAL: 'تاريخي',
+      RELIGIOUS: 'ديني',
+      RECURRING_RITUAL: 'عبادة دورية',
+      BIRTH: 'مولد',
+      DEATH: 'وفاة',
     };
     const en: Record<string, string> = {
-      HISTORICAL: 'Historical', RELIGIOUS: 'Religious', RECURRING_RITUAL: 'Recurring',
-      BIRTH: 'Birth', DEATH: 'Death',
+      HISTORICAL: 'Historical',
+      RELIGIOUS: 'Religious',
+      RECURRING_RITUAL: 'Recurring',
+      BIRTH: 'Birth',
+      DEATH: 'Death',
     };
     return isAr ? ar[event.type] : en[event.type];
   })();
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 flex-wrap">
         <span
           className="text-[10px] font-bold uppercase tracking-wider"
           style={{ color: accent }}
@@ -413,15 +421,23 @@ function DetailContent({ event, isAr }: { event: ResolvedIslamicEvent; isAr: boo
           <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wide mb-1">
             {isAr ? 'ملاحظة' : 'Note'}
           </p>
-          <p className="text-[12px] text-muted-foreground leading-relaxed">{notes}</p>
+          <p className="text-[12px] text-muted-foreground leading-relaxed">
+            {notes}
+          </p>
         </div>
       )}
 
       {event.yearAh !== undefined && (
         <p className="text-[11px] text-muted-foreground/70">
           {isAr
-            ? `السنة الهجرية: ${event.yearAh > 0 ? event.yearAh : Math.abs(event.yearAh)}${event.yearAh < 0 ? ' قبل الهجرة' : ' هـ'}`
-            : `Year: ${event.yearAh > 0 ? `${event.yearAh} AH` : `${Math.abs(event.yearAh)} BH`}`}
+            ? `السنة الهجرية: ${
+                event.yearAh > 0 ? event.yearAh : Math.abs(event.yearAh)
+              }${event.yearAh < 0 ? ' قبل الهجرة' : ' هـ'}`
+            : `Year: ${
+                event.yearAh > 0
+                  ? `${event.yearAh} AH`
+                  : `${Math.abs(event.yearAh)} BH`
+              }`}
         </p>
       )}
 
