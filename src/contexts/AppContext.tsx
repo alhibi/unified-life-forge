@@ -63,6 +63,7 @@ const translations: Record<string, Record<Language, string>> = {
  'nav.spirit': { ar: 'روح', de: 'Seele' },
  'nav.mind': { ar: 'عقل', de: 'Geist' },
  'nav.life': { ar: 'حياة', de: 'Leben' },
+ 'nav.close': { ar: 'إغلاق', de: 'Schließen' },
   'calendar.title': { ar: 'التقويم', de: 'Kalender' },
   'calendar.today': { ar: 'اليوم', de: 'Heute' },
   'calendar.hijri': { ar: 'هجري', de: 'Hijri' },
