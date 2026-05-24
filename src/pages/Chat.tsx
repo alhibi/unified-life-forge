@@ -1,9 +1,9 @@
-import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
+import { lazy, Suspense, useCallback } from 'react';
 import SEO from '@/components/SEO';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '@/contexts/AppContext';
 import { useAuth } from '@/hooks/useAuth';
-import { supabase } from '@/integrations/supabase/client';
+import { useUnreadMessages } from '@/hooks/useUnreadMessages';
 import { Button } from '@/components/ui/button';
 import ErrorBoundary from '@/components/ErrorBoundary';
 
@@ -38,41 +38,8 @@ export default function ChatPage() {
   const isAr = language === 'ar';
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const [unreadCount, setUnreadCount] = useState(0);
-
-  // Mirror the unread-badge wiring that used to live on the homepage so
-  // the new dedicated page is self-contained.
-  const fetchUnread = useCallback(async () => {
-    if (!user) { setUnreadCount(0); return; }
-    const { data: convs } = await supabase
-      .from('conversations')
-      .select('id')
-      .or(`user1_id.eq.${user.id},user2_id.eq.${user.id}`);
-    if (!convs || convs.length === 0) { setUnreadCount(0); return; }
-    const ids = convs.map(c => c.id);
-    const { count } = await supabase
-      .from('messages')
-      .select('*', { count: 'exact', head: true })
-      .in('conversation_id', ids)
-      .neq('sender_id', user.id)
-      .eq('read', false);
-    setUnreadCount(count || 0);
-  }, [user]);
-
-  useEffect(() => {
-    fetchUnread();
-    const id = setInterval(fetchUnread, 60_000);
-    return () => clearInterval(id);
-  }, [fetchUnread]);
-
-  useEffect(() => {
-    if (!user) return;
-    const ch = supabase
-      .channel('chat-page-unread')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, () => fetchUnread())
-      .subscribe();
-    return () => { supabase.removeChannel(ch); };
-  }, [user, fetchUnread]);
+  // Singleton hook — same value (and same network cost) as BottomNav and Index.
+  const { unreadCount, refresh: refreshUnread } = useUnreadMessages();
 
   // The drawer asks to "close" via onOpenChange(false). On the dedicated
   // page that is a router-level back-navigation — fall back to the home
@@ -114,7 +81,11 @@ export default function ChatPage() {
           open
           onOpenChange={handleClose}
           unreadCount={unreadCount}
-          onUnreadChange={setUnreadCount}
+          // The drawer fires onUnreadChange when it marks messages read;
+          // realtime UPDATE will already pick that up, but we also poke
+          // the singleton for an instant refresh so the badge updates
+          // without waiting for the 800ms debounce.
+          onUnreadChange={() => refreshUnread()}
         />
       </Suspense>
     </ErrorBoundary>

@@ -1,8 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '@/contexts/AppContext';
-import { useAuth } from '@/hooks/useAuth';
-import { supabase } from '@/integrations/supabase/client';
+import { useUnreadMessages } from '@/hooks/useUnreadMessages';
 import {
   House, Dices, SlidersHorizontal, HandHeart, Feather, MessageCircle,
   HeartPulse, Newspaper, Moon, Heart, Brain, Sparkles,
@@ -64,56 +63,10 @@ const TAB_PATHS = new Set<string>([
 
 export default function BottomNav() {
   const { t } = useApp();
-  const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [unreadCount, setUnreadCount] = useState(0);
+  const { unreadCount } = useUnreadMessages();
   const [openGroup, setOpenGroup] = useState<GroupKey | null>(null);
-
-  // ── Chat unread badge ──────────────────────────────────────────────────
-  // The data already lives in postgres so we pull it once and then re-pull
-  // on every realtime INSERT/UPDATE. Identical behavior to the previous
-  // homepage badge, just lifted to the global nav.
-  const fetchUnread = useCallback(async () => {
-    if (!user) { setUnreadCount(0); return; }
-    const { data: convs } = await supabase
-      .from('conversations')
-      .select('id')
-      .or(`user1_id.eq.${user.id},user2_id.eq.${user.id}`);
-    if (!convs || convs.length === 0) { setUnreadCount(0); return; }
-    const ids = convs.map(c => c.id);
-    const { count } = await supabase
-      .from('messages')
-      .select('*', { count: 'exact', head: true })
-      .in('conversation_id', ids)
-      .neq('sender_id', user.id)
-      .eq('read', false);
-    setUnreadCount(count || 0);
-  }, [user]);
-
-  useEffect(() => {
-    fetchUnread();
-    const id = setInterval(fetchUnread, 60_000);
-    return () => clearInterval(id);
-  }, [fetchUnread]);
-
-  useEffect(() => {
-    if (!user) return;
-    let timer: ReturnType<typeof setTimeout> | null = null;
-    const debounced = () => {
-      if (timer) clearTimeout(timer);
-      timer = setTimeout(() => fetchUnread(), 800);
-    };
-    const ch = supabase
-      .channel('bottomnav-unread')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, debounced)
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'messages' }, debounced)
-      .subscribe();
-    return () => {
-      if (timer) clearTimeout(timer);
-      supabase.removeChannel(ch);
-    };
-  }, [user, fetchUnread]);
 
   // ── Auto-close behaviors ───────────────────────────────────────────────
   // Close the arc whenever the route changes or Escape is pressed.
