@@ -375,6 +375,85 @@ export type AuthResult =
   | { ok: true; serviceRole: true; token: string; userId?: undefined }
   | { ok: false; status: number; error: string };
 
+/**
+ * Public-friendly auth resolver used by edge functions whose underlying
+ * resource is openly readable (e.g. `rss_articles` carries an
+ * "Anyone can read articles" RLS policy and the `search_rss_articles`
+ * RPC is `GRANT EXECUTE ... TO anon`).
+ *
+ * Unlike `requireUser`, this never rejects anonymous callers — it just
+ * reports whether a real session JWT was presented and forwards
+ * whatever bearer the platform passed through (anon key, session JWT,
+ * or service-role key) so the downstream supabase-js client honors
+ * the same RLS context as the caller.
+ */
+export type OptionalAuthResult = {
+  ok: true;
+  /** Original bearer (anon key, session JWT, or service role). May be
+   *  null when the request arrived without an Authorization header at
+   *  all (only possible when `verify_jwt = false` in config.toml). */
+  token: string | null;
+  /** Resolved auth.users id when a session JWT was presented. */
+  userId?: string;
+  /** True when the bearer matches `SUPABASE_SERVICE_ROLE_KEY`. */
+  serviceRole: boolean;
+  /** True when the caller is anonymous (no session, no service role). */
+  anonymous: boolean;
+};
+
+export async function optionalUser(req: Request): Promise<OptionalAuthResult> {
+  const authHeader = req.headers.get("authorization") ||
+    req.headers.get("Authorization");
+
+  // No bearer at all → still allow as anonymous. The platform is
+  // expected to gate this with `verify_jwt = false` for genuinely
+  // public functions; otherwise the platform would have already
+  // returned 401 before we got here.
+  if (!authHeader || !authHeader.toLowerCase().startsWith("bearer ")) {
+    return { ok: true, token: null, serviceRole: false, anonymous: true };
+  }
+  const token = authHeader.slice(7).trim();
+  if (!token) {
+    return { ok: true, token: null, serviceRole: false, anonymous: true };
+  }
+
+  // Internal callers (cron / fetch-rss-cron) authenticate with the
+  // service-role key directly. Compare against the env var so a
+  // forged JWT claim can't elevate.
+  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (serviceKey && token === serviceKey) {
+    return { ok: true, token, serviceRole: true, anonymous: false };
+  }
+
+  // Try to resolve as a real user JWT. If `auth.getUser` rejects (the
+  // bearer is the anon key, an expired session, or anything else
+  // that doesn't represent a user), we treat the caller as anonymous
+  // rather than failing the whole request — public archive reads do
+  // not require an account.
+  try {
+    const { createClient } = await import(
+      "https://esm.sh/@supabase/supabase-js@2"
+    );
+    const sb = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_ANON_KEY")!,
+      { global: { headers: { Authorization: `Bearer ${token}` } } },
+    );
+    const { data, error } = await sb.auth.getUser(token);
+    if (!error && data?.user) {
+      return {
+        ok: true,
+        token,
+        userId: data.user.id,
+        serviceRole: false,
+        anonymous: false,
+      };
+    }
+  } catch { /* network / parse glitch — fall through to anonymous */ }
+
+  return { ok: true, token, serviceRole: false, anonymous: true };
+}
+
 export async function requireUser(req: Request): Promise<AuthResult> {
   const auth = req.headers.get("authorization") ||
     req.headers.get("Authorization");

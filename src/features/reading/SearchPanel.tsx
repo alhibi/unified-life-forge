@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  ChevronLeft, Clock, Loader2, Search, TrendingUp, X,
+  ChevronLeft, Clock, Loader2, RefreshCw, Search, TrendingUp, X,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
@@ -58,6 +58,53 @@ function rangeToSinceIso(r: Range): string | undefined {
   return undefined;
 }
 
+/**
+ * Extract a readable message from a `supabase.functions.invoke` error.
+ *
+ * For non-2xx responses, supabase-js raises `FunctionsHttpError` whose
+ * `.message` is the literal string "Edge Function returned a non-2xx
+ * status code". The actual error body is on `.context` (a `Response`).
+ * We try the JSON body first, then text, then fall back.
+ *
+ * The reason this matters: without unpacking `context`, every server
+ * failure looks identical to the user, which is what made the search
+ * panel feel broken whenever the backend hiccuped.
+ */
+async function readFunctionsError(
+  err: unknown,
+  fallback: string,
+): Promise<string> {
+  if (!err) return fallback;
+  const e = err as { message?: string; context?: unknown };
+  const ctx = e?.context;
+  if (ctx && typeof ctx === 'object') {
+    const r = ctx as Response & { json?: () => Promise<unknown>; text?: () => Promise<string> };
+    // Only the *first* read of a Response body succeeds, so we clone
+    // before reading. supabase-js may have read it already; in that
+    // case .clone() throws and we fall through.
+    try {
+      const cloned = typeof (r as Response).clone === 'function'
+        ? (r as Response).clone()
+        : null;
+      if (cloned) {
+        const text = await cloned.text();
+        if (text) {
+          try {
+            const parsed = JSON.parse(text) as { error?: string; message?: string; note?: string };
+            return parsed.error || parsed.message || parsed.note || text.slice(0, 200);
+          } catch {
+            return text.slice(0, 200);
+          }
+        }
+      }
+    } catch { /* ignore — body already consumed */ }
+  }
+  if (typeof e?.message === 'string' && e.message && !/non-2xx status code/i.test(e.message)) {
+    return e.message;
+  }
+  return fallback;
+}
+
 export function SearchPanel({
   isAr,
   language,
@@ -78,6 +125,13 @@ export function SearchPanel({
   const [error, setError] = useState('');
   const [range, setRange] = useState<Range>('all');
   const [history, setHistory] = useState<SearchHistoryEntry[]>(getSearchHistory);
+  // Bumping this triggers a re-fetch of the *current* debounced query
+  // even if neither the query nor the filters changed — used by the
+  // Retry button after a transient failure.
+  const [retryNonce, setRetryNonce] = useState(0);
+  // Track in-flight requests so we ignore stale results when the user
+  // types fast or hits Retry mid-request.
+  const reqIdRef = useRef(0);
 
   // Debounce keyboard input by 350 ms.
   useEffect(() => {
@@ -87,10 +141,12 @@ export function SearchPanel({
 
   useEffect(() => {
     let cancelled = false;
+    const myReqId = ++reqIdRef.current;
     const run = async () => {
       if (debounced.length < 2) {
         setHits([]);
         setError('');
+        setLoading(false);
         return;
       }
       setLoading(true);
@@ -107,11 +163,28 @@ export function SearchPanel({
             },
           },
         );
-        if (cancelled) return;
-        if (error) throw error;
-        const payload = data as { results: SearchHit[]; error?: string };
-        if (payload.error) throw new Error(payload.error);
-        const results = payload.results || [];
+        // A newer request started — drop this result on the floor.
+        if (cancelled || myReqId !== reqIdRef.current) return;
+        if (error) {
+          const msg = await readFunctionsError(
+            error,
+            isAr ? 'تعذّر البحث' : 'Search failed',
+          );
+          setError(msg);
+          setHits([]);
+          return;
+        }
+        const payload = data as
+          | { results?: SearchHit[]; error?: string; note?: string }
+          | null;
+        if (payload?.error) {
+          // The function decided to return 200 with an error string
+          // (or an explanatory note). Treat both uniformly.
+          setError(payload.error);
+          setHits([]);
+          return;
+        }
+        const results = payload?.results || [];
         setHits(results);
         // Persist as history once a debounced query has resolved
         // (avoids storing every keystroke). We only push on the
@@ -121,25 +194,33 @@ export function SearchPanel({
           pushSearchHistory(debounced, results.length);
           setHistory(getSearchHistory());
         }
-      } catch (e: any) {
-        if (cancelled) return;
-        setError(e?.message || (isAr ? 'تعذّر البحث' : 'Search failed'));
+      } catch (e: unknown) {
+        if (cancelled || myReqId !== reqIdRef.current) return;
+        const msg = await readFunctionsError(
+          e,
+          isAr ? 'تعذّر البحث' : 'Search failed',
+        );
+        setError(msg);
         setHits([]);
       } finally {
-        if (!cancelled) setLoading(false);
+        if (!cancelled && myReqId === reqIdRef.current) setLoading(false);
       }
     };
     run();
     return () => {
       cancelled = true;
     };
-  }, [debounced, isAr, restrictTo, range]);
+  }, [debounced, isAr, restrictTo, range, retryNonce]);
 
   const headline = useMemo(() => {
     if (q.length === 0 || debounced.length < 2) return '';
     if (loading) {
       return isAr ? 'جاري البحث...' : 'Searching...';
     }
+    // When an error is set the dedicated error block below explains
+    // what happened — don't *also* claim "no results", that's a
+    // confusing double-message (the original UX bug from the report).
+    if (error) return '';
     if (hits.length === 0) {
       return isAr
         ? `لا نتائج لـ "${debounced}"`
@@ -148,7 +229,7 @@ export function SearchPanel({
     return isAr
       ? `${hits.length} نتيجة لـ "${debounced}"`
       : `${hits.length} match${hits.length === 1 ? '' : 'es'} for “${debounced}”`;
-  }, [q.length, debounced, loading, hits.length, isAr]);
+  }, [q.length, debounced, loading, hits.length, error, isAr]);
 
   return (
     <motion.div
@@ -259,8 +340,26 @@ export function SearchPanel({
         )}
 
         {!loading && error && (
-          <div className="flex flex-col items-center justify-center py-20 gap-2 text-center px-6">
-            <p className="text-sm text-destructive">{error}</p>
+          <div className="flex flex-col items-center justify-center py-16 gap-3 text-center px-6">
+            <div className="h-12 w-12 rounded-2xl bg-destructive/10 flex items-center justify-center">
+              <Search className="h-5 w-5 text-destructive" />
+            </div>
+            <div className="space-y-1">
+              <p className="text-sm font-medium text-foreground">
+                {isAr ? 'تعذّر إكمال البحث' : 'Search could not complete'}
+              </p>
+              <p className="text-xs text-muted-foreground max-w-xs leading-relaxed">
+                {error}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setRetryNonce((n) => n + 1)}
+              className="mt-1 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary text-xs font-medium transition-colors active:scale-95"
+            >
+              <RefreshCw className="h-3.5 w-3.5" />
+              {isAr ? 'إعادة المحاولة' : 'Try again'}
+            </button>
           </div>
         )}
 

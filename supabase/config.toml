@@ -5,3 +5,10 @@ project_id = "nmrckgzmluoavgucqvjh"
 # requires a valid user for `store=true` writes.
 [functions.fetch-rss]
 verify_jwt = false
+
+# Archive search reads from `rss_articles` which is publicly readable
+# (RLS policy "Anyone can read articles" + RPC granted to anon). The
+# handler resolves session info opportunistically via `optionalUser`
+# rather than rejecting unsigned-in browsers.
+[functions.search-articles]
+verify_jwt = false
