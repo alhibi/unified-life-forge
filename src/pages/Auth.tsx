@@ -102,18 +102,6 @@ export default function AuthPage() {
 
     setLoading(true);
     try {
-      // Fail fast with a clear message instead of letting Supabase return
-      // a 503 that we'd then translate as "wrong credentials".
-      if (!isSupabaseConfigured) {
-        toast.error(
-          isAr
-            ? 'الخادم غير مُهيأ. يرجى تعيين متغيرات Supabase في ملف .env'
-            : 'Server nicht konfiguriert. Bitte Supabase-Variablen in .env setzen.',
-          { duration: 6000 },
-        );
-        return;
-      }
-
       if (isLogin) {
         const { error } = await signIn(username, password);
         if (error) {
@@ -151,6 +139,13 @@ export default function AuthPage() {
         </motion.div>
 
         <motion.div variants={item} className="premium-card-elevated p-5">
+          {!isSupabaseConfigured && (
+            <div className="mb-4 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-[12px] leading-relaxed text-amber-200">
+              {isAr
+                ? 'وضع محلي: الخادم غير مُهيأ، فتُحفظ حساباتك على هذا الجهاز فقط (مشفّرة) ولن تتم المزامنة. لتفعيل المزامنة عبر الأجهزة، عيّن متغيرات Supabase في ملف .env.'
+                : 'Lokaler Modus: Der Server ist nicht konfiguriert, deine Konten werden nur auf diesem Gerät verschlüsselt gespeichert (keine Synchronisierung). Setze Supabase-Variablen in .env, um die Geräte-Synchronisierung zu aktivieren.'}
+            </div>
+          )}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <label className="text-sm font-medium text-foreground">
