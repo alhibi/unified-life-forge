@@ -4,7 +4,7 @@ import {
   ChevronLeft, Clock, Loader2, RefreshCw, Search, TrendingUp, X,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase, isSupabaseConfigured } from '@/integrations/supabase/client';
 import type { FeedItem } from './types';
 import { SourcePill } from './SourcePill';
 import { timeAgo } from './utils';
@@ -152,6 +152,18 @@ export function SearchPanel({
       setLoading(true);
       setError('');
       try {
+        // Backend not wired (env vars missing in this build). Avoid the
+        // noisy raw English error from the noop fetch and show a
+        // localized, friendly message instead.
+        if (!isSupabaseConfigured) {
+          setError(
+            isAr
+              ? 'خدمة البحث غير متاحة حاليًا. حاول مجدّدًا لاحقًا.'
+              : 'Search service is unavailable right now. Please try again later.',
+          );
+          setHits([]);
+          return;
+        }
         const { data, error } = await supabase.functions.invoke(
           'search-articles',
           {
@@ -170,7 +182,15 @@ export function SearchPanel({
             error,
             isAr ? 'تعذّر البحث' : 'Search failed',
           );
-          setError(msg);
+          // Map the well-known "not configured" 503 body to a friendly
+          // localized line — the raw English JSON used to leak into UI.
+          setError(
+            /supabase_not_configured|environment variables are missing/i.test(msg)
+              ? (isAr
+                  ? 'خدمة البحث غير متاحة حاليًا. حاول مجدّدًا لاحقًا.'
+                  : 'Search service is unavailable right now. Please try again later.')
+              : msg,
+          );
           setHits([]);
           return;
         }
