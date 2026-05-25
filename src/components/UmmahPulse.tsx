@@ -65,7 +65,7 @@ const CITIES: City[] = [
   { name: 'Riyadh',        nameAr: 'الرياض',       country: 'Saudi Arabia',  countryAr: 'السعودية',   flag: '🇸🇦', lat: 24.7136, lng: 46.6753, tz: 'Asia/Riyadh',       method: 'UmmAlQura', region: 'arab',     pop: 60 },
   { name: 'Cairo',         nameAr: 'القاهرة',      country: 'Egypt',         countryAr: 'مصر',        flag: '🇪🇬', lat: 30.0444, lng: 31.2357, tz: 'Africa/Cairo',      method: 'Egyptian',  region: 'arab',     pop: 100 },
   { name: 'Baghdad',       nameAr: 'بغداد',        country: 'Iraq',          countryAr: 'العراق',     flag: '🇮🇶', lat: 33.3152, lng: 44.3661, tz: 'Asia/Baghdad',      method: 'Karachi',   region: 'arab',     pop: 65, asrShadow: 2 },
-  { name: 'Damascus',      nameAr: 'دمشق',         country: 'Syria',         countryAr: 'سوريا',      flag: '🇸🇾', lat: 33.5138, lng: 36.2765, tz: 'Asia/Damascus',     method: 'MWL',       region: 'arab',     pop: 30 },
+  { name: 'Damascus',      nameAr: 'دمشق',         country: 'Syria',         countryAr: 'سوريا',      flag: '🇸🇾', lat: 33.5138, lng: 36.2765, tz: 'Asia/Damascus',     method: 'Egyptian',  region: 'arab',     pop: 30 },
   { name: 'Amman',         nameAr: 'عمّان',        country: 'Jordan',        countryAr: 'الأردن',     flag: '🇯🇴', lat: 31.9539, lng: 35.9106, tz: 'Asia/Amman',        method: 'Jordan',    region: 'arab',     pop: 25 },
   { name: 'Sanaa',         nameAr: 'صنعاء',        country: 'Yemen',         countryAr: 'اليمن',      flag: '🇾🇪', lat: 15.3694, lng: 44.1910, tz: 'Asia/Aden',         method: 'MWL',       region: 'arab',     pop: 30 },
   { name: 'Dubai',         nameAr: 'دبي',          country: 'UAE',           countryAr: 'الإمارات',   flag: '🇦🇪', lat: 25.2048, lng: 55.2708, tz: 'Asia/Dubai',        method: 'Dubai',     region: 'arab',     pop: 9 },
@@ -73,10 +73,10 @@ const CITIES: City[] = [
   { name: 'Kuwait City',   nameAr: 'الكويت',       country: 'Kuwait',        countryAr: 'الكويت',     flag: '🇰🇼', lat: 29.3759, lng: 47.9774, tz: 'Asia/Kuwait',       method: 'Kuwait',    region: 'arab',     pop: 4 },
   { name: 'Manama',        nameAr: 'المنامة',      country: 'Bahrain',       countryAr: 'البحرين',    flag: '🇧🇭', lat: 26.2285, lng: 50.5860, tz: 'Asia/Bahrain',      method: 'Kuwait',    region: 'arab',     pop: 1.4 },
   { name: 'Muscat',        nameAr: 'مسقط',         country: 'Oman',          countryAr: 'عُمان',      flag: '🇴🇲', lat: 23.5880, lng: 58.3829, tz: 'Asia/Muscat',       method: 'Kuwait',    region: 'arab',     pop: 4 },
-  { name: 'Beirut',        nameAr: 'بيروت',        country: 'Lebanon',       countryAr: 'لبنان',      flag: '🇱🇧', lat: 33.8938, lng: 35.5018, tz: 'Asia/Beirut',       method: 'MWL',       region: 'arab',     pop: 3 },
-  { name: 'Jerusalem',     nameAr: 'القدس',        country: 'Palestine',     countryAr: 'فلسطين',     flag: '🇵🇸', lat: 31.7683, lng: 35.2137, tz: 'Asia/Hebron',       method: 'MWL',       region: 'arab',     pop: 5 },
-  { name: 'Gaza',          nameAr: 'غزة',          country: 'Palestine',     countryAr: 'فلسطين',     flag: '🇵🇸', lat: 31.5018, lng: 34.4668, tz: 'Asia/Gaza',         method: 'MWL',       region: 'arab',     pop: 2 },
-  { name: 'Khartoum',      nameAr: 'الخرطوم',      country: 'Sudan',         countryAr: 'السودان',    flag: '🇸🇩', lat: 15.5007, lng: 32.5599, tz: 'Africa/Khartoum',   method: 'MWL',       region: 'africa',   pop: 45 },
+  { name: 'Beirut',        nameAr: 'بيروت',        country: 'Lebanon',       countryAr: 'لبنان',      flag: '🇱🇧', lat: 33.8938, lng: 35.5018, tz: 'Asia/Beirut',       method: 'Egyptian',  region: 'arab',     pop: 3 },
+  { name: 'Jerusalem',     nameAr: 'القدس',        country: 'Palestine',     countryAr: 'فلسطين',     flag: '🇵🇸', lat: 31.7683, lng: 35.2137, tz: 'Asia/Hebron',       method: 'Egyptian',  region: 'arab',     pop: 5 },
+  { name: 'Gaza',          nameAr: 'غزة',          country: 'Palestine',     countryAr: 'فلسطين',     flag: '🇵🇸', lat: 31.5018, lng: 34.4668, tz: 'Asia/Gaza',         method: 'Egyptian',  region: 'arab',     pop: 2 },
+  { name: 'Khartoum',      nameAr: 'الخرطوم',      country: 'Sudan',         countryAr: 'السودان',    flag: '🇸🇩', lat: 15.5007, lng: 32.5599, tz: 'Africa/Khartoum',   method: 'Egyptian',  region: 'africa',   pop: 45 },
   { name: 'Tripoli',       nameAr: 'طرابلس',       country: 'Libya',         countryAr: 'ليبيا',      flag: '🇱🇾', lat: 32.8872, lng: 13.1913, tz: 'Africa/Tripoli',    method: 'MWL',       region: 'africa',   pop: 6 },
   { name: 'Tunis',         nameAr: 'تونس',         country: 'Tunisia',       countryAr: 'تونس',       flag: '🇹🇳', lat: 36.8065, lng: 10.1815, tz: 'Africa/Tunis',      method: 'Tunisia',   region: 'africa',   pop: 11 },
   { name: 'Algiers',       nameAr: 'الجزائر',      country: 'Algeria',       countryAr: 'الجزائر',    flag: '🇩🇿', lat: 36.7538, lng: 3.0588,  tz: 'Africa/Algiers',    method: 'Algerian',  region: 'africa',   pop: 42 },
@@ -194,14 +194,14 @@ function buildNightPaths(date: Date): string[] {
 // UI meta
 // ─────────────────────────────────────────────────────────────────────────────
 const SLOT_META: Record<PrayerSlot, { ar: string; de: string; color: string }> = {
-  fajr:    { ar: 'الفجر',   de: 'Fadschr',     color: 'hsl(42, 100%, 62%)' },
-  shuruq:  { ar: 'الشروق',  de: 'Sonnenaufg.', color: 'hsl(28, 95%, 60%)'  },
-  duha:    { ar: 'الضحى',   de: 'Duha',        color: 'hsl(48, 90%, 55%)'  },
-  dhuhr:   { ar: 'الظهر',   de: 'Dhuhr',       color: 'hsl(200, 78%, 58%)' },
-  asr:     { ar: 'العصر',   de: 'Asr',         color: 'hsl(22, 75%, 55%)'  },
-  maghrib: { ar: 'المغرب',  de: 'Maghrib',     color: 'hsl(340, 72%, 55%)' },
-  isha:    { ar: 'العشاء',  de: 'Ischa',       color: 'hsl(250, 60%, 58%)' },
-  night:   { ar: 'الليل',   de: 'Nacht',       color: 'hsl(220, 30%, 45%)' },
+  fajr:    { ar: 'الفجر',   de: 'Fadschr',     color: 'hsl(43, 96%, 66%)'  },
+  shuruq:  { ar: 'الشروق',  de: 'Sonnenaufg.', color: 'hsl(32, 95%, 64%)'  },
+  duha:    { ar: 'الضحى',   de: 'Duha',        color: 'hsl(48, 92%, 60%)'  },
+  dhuhr:   { ar: 'الظهر',   de: 'Dhuhr',       color: 'hsl(196, 78%, 62%)' },
+  asr:     { ar: 'العصر',   de: 'Asr',         color: 'hsl(18, 78%, 60%)'  },
+  maghrib: { ar: 'المغرب',  de: 'Maghrib',     color: 'hsl(348, 76%, 62%)' },
+  isha:    { ar: 'العشاء',  de: 'Ischa',       color: 'hsl(252, 62%, 66%)' },
+  night:   { ar: 'الليل',   de: 'Nacht',       color: 'hsl(220, 25%, 55%)' },
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -366,72 +366,86 @@ function UmmahPulse() {
         )}
       >
         <defs>
-          {/* Deep ocean — radial darker center → lighter edge for that "globe" feel */}
-          <radialGradient id={`ocean${idSuffix}`} cx="50%" cy="55%" r="75%">
-            <stop offset="0%"   stopColor="hsl(218, 55%, 14%)" stopOpacity="0.92" />
-            <stop offset="55%"  stopColor="hsl(220, 60%, 10%)" stopOpacity="0.97" />
-            <stop offset="100%" stopColor="hsl(225, 70%, 5%)"  stopOpacity="1"    />
+          {/* ── Google-Maps-Dark inspired palette ─────────────────────────
+             Deep navy water, dark slate land, paper-thin borders, refined
+             dawn/dusk accents. Tuned for a "ذوق رفيع" elegant feel. */}
+
+          {/* Ocean — graphite navy with a faint center glow */}
+          <radialGradient id={`ocean${idSuffix}`} cx="50%" cy="50%" r="78%">
+            <stop offset="0%"   stopColor="hsl(216, 36%, 12%)" />
+            <stop offset="55%"  stopColor="hsl(220, 42%, 8%)"  />
+            <stop offset="100%" stopColor="hsl(225, 50%, 4%)"  />
           </radialGradient>
-          {/* Subtle vignette at top/bottom for atmospheric depth */}
+
+          {/* Soft top/bottom vignette for cinematic depth */}
           <linearGradient id={`vignette${idSuffix}`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%"   stopColor="hsl(225, 80%, 4%)"  stopOpacity="0.55" />
-            <stop offset="30%"  stopColor="hsl(225, 80%, 4%)"  stopOpacity="0"    />
-            <stop offset="70%"  stopColor="hsl(225, 80%, 4%)"  stopOpacity="0"    />
-            <stop offset="100%" stopColor="hsl(225, 80%, 4%)"  stopOpacity="0.55" />
+            <stop offset="0%"   stopColor="hsl(225, 70%, 3%)"  stopOpacity="0.55" />
+            <stop offset="22%"  stopColor="hsl(225, 70%, 3%)"  stopOpacity="0"    />
+            <stop offset="78%"  stopColor="hsl(225, 70%, 3%)"  stopOpacity="0"    />
+            <stop offset="100%" stopColor="hsl(225, 70%, 3%)"  stopOpacity="0.55" />
           </linearGradient>
-          {/* Fajr glow — golden dawn band */}
+
+          {/* Land (day side) — refined dark slate, slight top-light */}
+          <linearGradient id={`landFill${idSuffix}`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%"   stopColor="hsl(214, 16%, 28%)" />
+            <stop offset="55%"  stopColor="hsl(216, 18%, 23%)" />
+            <stop offset="100%" stopColor="hsl(220, 22%, 18%)" />
+          </linearGradient>
+
+          {/* Land (night side) — same family but darker, almost ink */}
+          <linearGradient id={`landNight${idSuffix}`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%"   stopColor="hsl(220, 24%, 14%)" />
+            <stop offset="100%" stopColor="hsl(224, 30%, 9%)"  />
+          </linearGradient>
+
+          {/* Fajr — warm gold dawn band */}
           <radialGradient id={`fajrGlow${idSuffix}`} cx="50%" cy="50%" r="50%">
-            <stop offset="0%"   stopColor="hsl(45, 100%, 72%)" stopOpacity="0.95" />
-            <stop offset="35%"  stopColor="hsl(32, 95%, 58%)"  stopOpacity="0.65" />
-            <stop offset="70%"  stopColor="hsl(18, 90%, 45%)"  stopOpacity="0.25" />
-            <stop offset="100%" stopColor="hsl(10, 80%, 35%)"  stopOpacity="0"    />
+            <stop offset="0%"   stopColor="hsl(46, 100%, 78%)" stopOpacity="0.85" />
+            <stop offset="35%"  stopColor="hsl(38, 95%, 62%)"  stopOpacity="0.45" />
+            <stop offset="70%"  stopColor="hsl(28, 88%, 48%)"  stopOpacity="0.15" />
+            <stop offset="100%" stopColor="hsl(20, 80%, 35%)"  stopOpacity="0"    />
           </radialGradient>
-          {/* Maghrib glow — pink/rose dusk band */}
+
+          {/* Maghrib — coral / rose dusk band */}
           <radialGradient id={`maghribGlow${idSuffix}`} cx="50%" cy="50%" r="50%">
-            <stop offset="0%"   stopColor="hsl(340, 90%, 68%)" stopOpacity="0.8"  />
-            <stop offset="45%"  stopColor="hsl(310, 75%, 52%)" stopOpacity="0.45" />
-            <stop offset="85%"  stopColor="hsl(265, 70%, 38%)" stopOpacity="0.1"  />
-            <stop offset="100%" stopColor="hsl(245, 60%, 25%)" stopOpacity="0"    />
+            <stop offset="0%"   stopColor="hsl(8, 88%, 70%)"   stopOpacity="0.7"  />
+            <stop offset="45%"  stopColor="hsl(345, 70%, 52%)" stopOpacity="0.32" />
+            <stop offset="85%"  stopColor="hsl(290, 50%, 38%)" stopOpacity="0.08" />
+            <stop offset="100%" stopColor="hsl(245, 55%, 22%)" stopOpacity="0"    />
           </radialGradient>
-          {/* Sun corona + core */}
+
+          {/* Sun corona + bright core */}
           <radialGradient id={`sunCorona${idSuffix}`} cx="50%" cy="50%" r="50%">
-            <stop offset="0%"   stopColor="hsl(48, 100%, 92%)" stopOpacity="1"    />
-            <stop offset="25%"  stopColor="hsl(48, 100%, 78%)" stopOpacity="0.9"  />
-            <stop offset="55%"  stopColor="hsl(38, 100%, 55%)" stopOpacity="0.55" />
-            <stop offset="100%" stopColor="hsl(28, 95%, 40%)"  stopOpacity="0"    />
+            <stop offset="0%"   stopColor="hsl(48, 100%, 95%)" stopOpacity="1"    />
+            <stop offset="22%"  stopColor="hsl(46, 100%, 78%)" stopOpacity="0.85" />
+            <stop offset="55%"  stopColor="hsl(36, 98%, 55%)"  stopOpacity="0.45" />
+            <stop offset="100%" stopColor="hsl(26, 92%, 38%)"  stopOpacity="0"    />
           </radialGradient>
           <radialGradient id={`sunCore${idSuffix}`} cx="50%" cy="50%" r="50%">
-            <stop offset="0%"  stopColor="hsl(50, 100%, 96%)" stopOpacity="1" />
-            <stop offset="100%" stopColor="hsl(45, 100%, 70%)" stopOpacity="1" />
+            <stop offset="0%"   stopColor="hsl(50, 100%, 97%)" stopOpacity="1" />
+            <stop offset="100%" stopColor="hsl(45, 100%, 72%)" stopOpacity="1" />
           </radialGradient>
+
           {/* Moon */}
           <radialGradient id={`moonGrad${idSuffix}`} cx="40%" cy="40%" r="60%">
-            <stop offset="0%"   stopColor="hsl(220, 25%, 92%)" stopOpacity="1"   />
-            <stop offset="70%"  stopColor="hsl(220, 30%, 70%)" stopOpacity="0.9" />
-            <stop offset="100%" stopColor="hsl(220, 40%, 45%)" stopOpacity="0"   />
+            <stop offset="0%"   stopColor="hsl(220, 22%, 94%)" stopOpacity="1"    />
+            <stop offset="70%"  stopColor="hsl(220, 28%, 72%)" stopOpacity="0.85" />
+            <stop offset="100%" stopColor="hsl(220, 35%, 45%)" stopOpacity="0"    />
           </radialGradient>
-          {/* Soft blur filter for glows */}
+
+          {/* Soft blur filters */}
           <filter id={`softBlur${idSuffix}`}>
-            <feGaussianBlur stdDeviation="2.5" />
+            <feGaussianBlur stdDeviation="2.2" />
           </filter>
           <filter id={`bigBlur${idSuffix}`}>
-            <feGaussianBlur stdDeviation="4" />
+            <feGaussianBlur stdDeviation="3.4" />
           </filter>
-          {/* Land — emerald/teal fill with subtle inner highlight */}
-          <linearGradient id={`landFill${idSuffix}`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%"   stopColor="hsl(165, 38%, 38%)" stopOpacity="0.95" />
-            <stop offset="50%"  stopColor="hsl(170, 42%, 30%)" stopOpacity="0.92" />
-            <stop offset="100%" stopColor="hsl(175, 50%, 22%)" stopOpacity="0.9"  />
-          </linearGradient>
-          {/* Land used on the night hemisphere — much darker and bluer */}
-          <linearGradient id={`landNight${idSuffix}`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%"   stopColor="hsl(220, 50%, 18%)" stopOpacity="1" />
-            <stop offset="100%" stopColor="hsl(225, 55%, 12%)" stopOpacity="1" />
-          </linearGradient>
+
           {/* Clip path for night-only rendering */}
           <clipPath id={`nightClip${idSuffix}`}>
             {nightPaths.map((d, i) => <path key={i} d={d} />)}
           </clipPath>
+
           {/* 8-pointed star sparkle for the brightest stars */}
           <symbol id={`sparkle${idSuffix}`} viewBox="-3 -3 6 6">
             <path d="M0,-3 L0.4,-0.4 L3,0 L0.4,0.4 L0,3 L-0.4,0.4 L-3,0 L-0.4,-0.4 Z"
@@ -471,37 +485,37 @@ function UmmahPulse() {
           })}
         </g>
 
-        {/* Subtle latitude/longitude grid */}
-        <g stroke="hsl(var(--border))" fill="none" strokeWidth="0.25">
+        {/* Subtle latitude/longitude grid — Google-Maps-dark style */}
+        <g stroke="hsl(216, 22%, 32%)" fill="none" strokeWidth="0.22">
           {/* Equator slightly stronger */}
           <line x1={0} y1={H / 2} x2={W} y2={H / 2}
-                strokeOpacity="0.32" strokeWidth="0.35" />
+                strokeOpacity="0.28" strokeWidth="0.32" />
           {[66.5, 23.5, -23.5, -66.5].map((lat) => (
             <line key={lat} x1={0} y1={((90 - lat) / 180) * H} x2={W} y2={((90 - lat) / 180) * H}
-                  strokeOpacity="0.18" strokeDasharray="2 3" />
+                  strokeOpacity="0.14" strokeDasharray="2 3" />
           ))}
           {[-150, -120, -90, -60, -30, 0, 30, 60, 90, 120, 150].map((lng) => (
             <line key={lng} x1={((lng + 180) / 360) * W} y1={0} x2={((lng + 180) / 360) * W} y2={H}
-                  strokeOpacity="0.1" strokeDasharray="1.5 3" />
+                  strokeOpacity="0.08" strokeDasharray="1.5 3" />
           ))}
         </g>
 
-        {/* Continents — daytime layer (warm emerald), then night overlay clipped */}
+        {/* Continents — daytime layer (dark slate), then night overlay clipped */}
         <g>
           <path d={CONTINENTS} fill={`url(#landFill${idSuffix})`} />
           <path d={CONTINENTS} fill="none"
-                stroke="hsl(170, 40%, 55%)" strokeOpacity="0.55" strokeWidth="0.35" />
+                stroke="hsl(214, 22%, 42%)" strokeOpacity="0.55" strokeWidth="0.28" />
         </g>
         <g clipPath={`url(#nightClip${idSuffix})`}>
           <path d={CONTINENTS} fill={`url(#landNight${idSuffix})`} />
           <path d={CONTINENTS} fill="none"
-                stroke="hsl(220, 60%, 55%)" strokeOpacity="0.4" strokeWidth="0.3" />
+                stroke="hsl(220, 28%, 38%)" strokeOpacity="0.4" strokeWidth="0.24" />
         </g>
 
-        {/* Night veil — soft, layered for depth (no harsh edge) */}
+        {/* Night veil — single soft layer, no harsh edge */}
         <g>
           {nightPaths.map((d, i) => (
-            <path key={`nt-${i}`} d={d} fill="hsl(225, 60%, 6%)" fillOpacity="0.35" />
+            <path key={`nt-${i}`} d={d} fill="hsl(225, 58%, 4%)" fillOpacity="0.32" />
           ))}
         </g>
 
@@ -512,28 +526,28 @@ function UmmahPulse() {
           return (
             <motion.g key={`mag-${Math.round(p.x / 4)}`}>
               <motion.ellipse
-                cx={p.x} cy={H / 2} rx={26} ry={H / 2 + 6}
+                cx={p.x} cy={H / 2} rx={20} ry={H / 2 + 4}
                 fill={`url(#maghribGlow${idSuffix})`}
                 filter={`url(#bigBlur${idSuffix})`}
-                animate={{ opacity: [0.55, 0.85, 0.55] }}
+                animate={{ opacity: [0.4, 0.7, 0.4] }}
                 transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
               />
               {/* duplicate for horizontal wrap */}
-              {p.x < 32 && (
+              {p.x < 26 && (
                 <motion.ellipse
-                  cx={p.x + W} cy={H / 2} rx={26} ry={H / 2 + 6}
+                  cx={p.x + W} cy={H / 2} rx={20} ry={H / 2 + 4}
                   fill={`url(#maghribGlow${idSuffix})`}
                   filter={`url(#bigBlur${idSuffix})`}
-                  animate={{ opacity: [0.55, 0.85, 0.55] }}
+                  animate={{ opacity: [0.4, 0.7, 0.4] }}
                   transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
                 />
               )}
-              {p.x > W - 32 && (
+              {p.x > W - 26 && (
                 <motion.ellipse
-                  cx={p.x - W} cy={H / 2} rx={26} ry={H / 2 + 6}
+                  cx={p.x - W} cy={H / 2} rx={20} ry={H / 2 + 4}
                   fill={`url(#maghribGlow${idSuffix})`}
                   filter={`url(#bigBlur${idSuffix})`}
-                  animate={{ opacity: [0.55, 0.85, 0.55] }}
+                  animate={{ opacity: [0.4, 0.7, 0.4] }}
                   transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
                 />
               )}
@@ -544,18 +558,18 @@ function UmmahPulse() {
         {/* Fajr band (dawn side) */}
         <motion.g
           key={`fajr-${Math.round(fajrCenter.x / 3)}`}
-          initial={{ opacity: 0.7 }}
-          animate={{ opacity: [0.7, 1, 0.85] }}
+          initial={{ opacity: 0.55 }}
+          animate={{ opacity: [0.55, 0.85, 0.7] }}
           transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
         >
-          <ellipse cx={fajrCenter.x} cy={H / 2} rx={34} ry={H / 2 + 6}
+          <ellipse cx={fajrCenter.x} cy={H / 2} rx={26} ry={H / 2 + 4}
                    fill={`url(#fajrGlow${idSuffix})`} filter={`url(#bigBlur${idSuffix})`} />
-          {fajrCenter.x < 36 && (
-            <ellipse cx={fajrCenter.x + W} cy={H / 2} rx={34} ry={H / 2 + 6}
+          {fajrCenter.x < 30 && (
+            <ellipse cx={fajrCenter.x + W} cy={H / 2} rx={26} ry={H / 2 + 4}
                      fill={`url(#fajrGlow${idSuffix})`} filter={`url(#bigBlur${idSuffix})`} />
           )}
-          {fajrCenter.x > W - 36 && (
-            <ellipse cx={fajrCenter.x - W} cy={H / 2} rx={34} ry={H / 2 + 6}
+          {fajrCenter.x > W - 30 && (
+            <ellipse cx={fajrCenter.x - W} cy={H / 2} rx={26} ry={H / 2 + 4}
                      fill={`url(#fajrGlow${idSuffix})`} filter={`url(#bigBlur${idSuffix})`} />
           )}
         </motion.g>
@@ -647,7 +661,7 @@ function UmmahPulse() {
           const isFajr = slot === 'fajr';
           const isSelected = c.name === selectedCity;
           const isMakkah = c.name === 'Makkah';
-          const baseR = isMakkah ? 2.4 : isActive ? 1.8 : 1.3;
+          const baseR = isMakkah ? 2.4 : isActive ? 1.7 : 1.25;
           return (
             <g key={`${c.name}-${c.lat}-${c.lng}`}
                style={{ cursor: 'pointer' }}
@@ -661,8 +675,8 @@ function UmmahPulse() {
                 <motion.circle
                   cx={x} cy={y} r={baseR + 1.2}
                   fill={color}
-                  fillOpacity={0.18}
-                  animate={{ r: [baseR + 1, baseR + 3.5, baseR + 1], opacity: [0.35, 0, 0.35] }}
+                  fillOpacity={0.16}
+                  animate={{ r: [baseR + 0.8, baseR + 3.4, baseR + 0.8], opacity: [0.32, 0, 0.32] }}
                   transition={{
                     duration: isFajr ? 2.2 : 3,
                     repeat: Infinity,
@@ -675,10 +689,10 @@ function UmmahPulse() {
               <circle
                 cx={x} cy={y}
                 r={baseR}
-                fill={isMakkah ? 'hsl(48, 100%, 70%)' : color}
-                stroke={isSelected ? 'hsl(var(--foreground))' : isMakkah ? 'hsl(48,100%,95%)' : 'hsl(0,0%,100%)'}
-                strokeOpacity={isSelected ? 1 : isMakkah ? 0.9 : 0.35}
-                strokeWidth={isSelected ? 0.7 : isMakkah ? 0.4 : 0.25}
+                fill={isMakkah ? 'hsl(48, 100%, 72%)' : color}
+                stroke={isSelected ? 'hsl(0, 0%, 100%)' : isMakkah ? 'hsl(48,100%,95%)' : 'hsl(220, 30%, 96%)'}
+                strokeOpacity={isSelected ? 1 : isMakkah ? 0.9 : 0.4}
+                strokeWidth={isSelected ? 0.7 : isMakkah ? 0.4 : 0.22}
               />
               {/* Makkah extra: rotating golden ring */}
               {isMakkah && (
@@ -686,7 +700,7 @@ function UmmahPulse() {
                   <motion.circle
                     cx={x} cy={y} r={4}
                     fill="none"
-                    stroke="hsl(48, 100%, 70%)"
+                    stroke="hsl(48, 100%, 72%)"
                     strokeWidth="0.5"
                     strokeDasharray="1.8 1"
                     animate={{ rotate: 360 }}
@@ -696,7 +710,7 @@ function UmmahPulse() {
                   <motion.circle
                     cx={x} cy={y} r={3.6}
                     fill="none"
-                    stroke="hsl(48, 100%, 70%)"
+                    stroke="hsl(48, 100%, 72%)"
                     strokeWidth="0.4"
                     animate={{ r: [3.6, 7, 3.6], opacity: [0.85, 0, 0.85] }}
                     transition={{ duration: 3.2, repeat: Infinity, ease: 'easeOut' }}
@@ -730,9 +744,9 @@ function UmmahPulse() {
                     strokeDasharray="1 1" />
               {/* card */}
               <rect x={tx} y={ty} width={tipW} height={tipH} rx={3.5}
-                    fill="hsl(220, 40%, 8%)" fillOpacity="0.78" />
+                    fill="hsl(220, 36%, 6%)" fillOpacity="0.85" />
               <rect x={tx} y={ty} width={tipW} height={tipH} rx={3.5}
-                    fill="none" stroke={slotColor} strokeOpacity="0.85" strokeWidth="0.6" />
+                    fill="none" stroke={slotColor} strokeOpacity="0.85" strokeWidth="0.55" />
               {/* accent bar */}
               <rect x={tx} y={ty} width={1.4} height={tipH} rx={0.7} fill={slotColor} />
               <text x={tx + 4} y={ty + 7.5}
