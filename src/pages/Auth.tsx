@@ -3,67 +3,65 @@ import SEO from '@/components/SEO';
 import { useApp } from '@/contexts/AppContext';
 import { useAuth } from '@/hooks/useAuth';
 import { isSupabaseConfigured } from '@/integrations/supabase/client';
+import { localHasAnyAccount } from '@/lib/auth/localAuthStore';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { UserCircle, Lock, ArrowRight } from 'lucide-react';
+import { UserCircle, Lock, ArrowRight, Info } from 'lucide-react';
 import BackButton from '@/components/BackButton';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 
 /**
- * Translate a Supabase auth error into a localized, actionable message.
- * Covers the specific failure modes that all *used* to surface as a
- * misleading "wrong username/password": missing env vars, unconfirmed
- * emails, rate limits, and network issues.
+ * Translate an auth error into a localized, actionable message.
+ *
+ * Covers the failure modes that all *used* to surface as a misleading
+ * generic "wrong username/password": missing env vars, unconfirmed
+ * emails, rate limits, network issues, and — critically for local-only
+ * mode — the difference between "this username doesn't exist on this
+ * device" (you need to Sign Up) and "you typed the wrong password".
  */
 function describeAuthError(error: Error, isAr: boolean, mode: 'signIn' | 'signUp'): string {
   const msg = (error.message || '').toLowerCase();
 
-  // 1. Supabase not configured → noopFetch returns this exact code.
   if (msg.includes('supabase_not_configured') || msg.includes('not configured')) {
     return isAr
       ? 'الخادم غير مُهيأ. يرجى تعيين متغيرات Supabase في ملف .env'
       : 'Server nicht konfiguriert. Bitte Supabase-Variablen in .env setzen.';
   }
-
-  // 2. Email confirmation required (the @smartapp.local domain can never receive mail).
   if (msg.includes('email_not_confirmed') || msg.includes('not confirmed')) {
     return isAr
       ? 'تأكيد البريد الإلكتروني مفعّل في إعدادات الخادم. يرجى تعطيله من إعدادات Supabase.'
       : 'E-Mail-Bestätigung ist aktiviert. Bitte in den Supabase-Einstellungen deaktivieren.';
   }
-
-  // 3. Rate limiting.
   if (msg.includes('rate') || msg.includes('too many')) {
     return isAr
       ? 'محاولات كثيرة. يرجى الانتظار قليلاً ثم المحاولة مرة أخرى.'
       : 'Zu viele Versuche. Bitte kurz warten und erneut versuchen.';
   }
-
-  // 4. Network / fetch failure.
   if (msg.includes('failed to fetch') || msg.includes('network')) {
     return isAr
       ? 'تعذر الاتصال بالخادم. تحقق من اتصال الإنترنت.'
       : 'Verbindung zum Server fehlgeschlagen. Internetverbindung prüfen.';
   }
-
-  // 5. Username already taken (signup only).
   if (mode === 'signUp' && (msg.includes('already') || msg.includes('registered'))) {
     return isAr ? 'اسم المستخدم مستخدم بالفعل' : 'Benutzername bereits vergeben';
   }
-
-  // 6. Genuine bad credentials.
+  // Local-only "this account doesn't exist on this device" — the message
+  // explicitly tells the user to switch to Sign Up because guessing
+  // "wrong credentials" was the entire bug we're fixing.
+  if (msg.includes('user not found')) {
+    return isAr
+      ? 'لا يوجد حساب بهذا الاسم على هذا الجهاز. أنشئ حساباً جديداً أولاً.'
+      : 'Kein Konto mit diesem Namen auf diesem Gerät. Bitte zuerst ein Konto erstellen.';
+  }
   if (msg.includes('invalid login') || msg.includes('invalid credentials')) {
     return isAr
-      ? 'اسم المستخدم أو كلمة المرور غير صحيحة'
-      : 'Falscher Benutzername oder Passwort';
+      ? 'كلمة المرور غير صحيحة'
+      : 'Falsches Passwort';
   }
-
-  // 7. Fallback: surface the raw message so we never silently mislead the user again.
   return error.message || (isAr ? 'حدث خطأ غير متوقع' : 'Ein unerwarteter Fehler ist aufgetreten');
 }
-
 
 const stagger = {
   hidden: {},
@@ -78,12 +76,23 @@ export default function AuthPage() {
   const { language } = useApp();
   const { signIn, signUp } = useAuth();
   const navigate = useNavigate();
-  const [isLogin, setIsLogin] = useState(true);
+
+  // Default to *Sign Up* when in local-only mode and there are no
+  // accounts on this device yet. This single line fixes the headline
+  // bug: previously, first-time users on a non-configured backend were
+  // stuck on the Sign In form and every attempt produced "wrong
+  // credentials" because they had never created an account.
+  const [isLogin, setIsLogin] = useState<boolean>(() => {
+    if (!isSupabaseConfigured && !localHasAnyAccount()) return false;
+    return true;
+  });
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
   const isAr = language === 'ar';
+  const showLocalModeHint = !isSupabaseConfigured;
+  const showFirstTimeHint = !isSupabaseConfigured && !localHasAnyAccount();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -102,39 +111,38 @@ export default function AuthPage() {
 
     setLoading(true);
     try {
-      // Fail fast with a clear message instead of letting Supabase return
-      // a 503 that we'd then translate as "wrong credentials".
-      if (!isSupabaseConfigured) {
-        toast.error(
-          isAr
-            ? 'الخادم غير مُهيأ. يرجى تعيين متغيرات Supabase في ملف .env'
-            : 'Server nicht konfiguriert. Bitte Supabase-Variablen in .env setzen.',
-          { duration: 6000 },
-        );
-        return;
-      }
-
       if (isLogin) {
         const { error } = await signIn(username, password);
         if (error) {
           toast.error(describeAuthError(error, isAr, 'signIn'), { duration: 5000 });
-        } else {
-          toast.success(isAr ? 'تم تسجيل الدخول بنجاح' : 'Erfolgreich angemeldet', { duration: 2000 });
-          navigate('/settings');
+          // If the username doesn't exist on this device, the *only*
+          // useful next step is signing up. Flip the form for them so
+          // they don't have to figure that out from the error text.
+          if ((error.message || '').toLowerCase().includes('user not found')) {
+            setIsLogin(false);
+          }
+          return;
         }
+        toast.success(isAr ? 'تم تسجيل الدخول بنجاح' : 'Erfolgreich angemeldet', { duration: 2000 });
+        navigate('/settings');
       } else {
         const { error } = await signUp(username, password);
         if (error) {
           toast.error(describeAuthError(error, isAr, 'signUp'), { duration: 5000 });
-        } else {
-          toast.success(isAr ? 'تم إنشاء الحساب بنجاح' : 'Konto erfolgreich erstellt');
-          navigate('/settings');
+          return;
         }
+        toast.success(isAr ? 'تم إنشاء الحساب بنجاح' : 'Konto erfolgreich erstellt');
+        navigate('/settings');
       }
     } finally {
       setLoading(false);
     }
   };
+
+  // Title reflects the current mode, not just the page name.
+  const headingText = isLogin
+    ? (isAr ? 'تسجيل الدخول' : 'Anmelden')
+    : (isAr ? 'إنشاء حساب' : 'Konto erstellen');
 
   return (
     <div className="min-h-screen bg-background pb-28 px-5 pt-14">
@@ -146,11 +154,28 @@ export default function AuthPage() {
             <UserCircle className="w-5 h-5 text-primary stroke-[1.8]" />
           </div>
           <h1 className="text-[26px] font-bold tracking-tight text-foreground">
-            {isLogin ? (isAr ? 'تسجيل الدخول' : 'Anmelden') : (isAr ? 'إنشاء حساب' : 'Konto erstellen')}
+            {headingText}
           </h1>
         </motion.div>
 
         <motion.div variants={item} className="premium-card-elevated p-5">
+          {showFirstTimeHint && (
+            <div className="mb-4 rounded-xl border border-primary/30 bg-primary/10 p-3 text-[13px] leading-relaxed text-primary-foreground/90 flex items-start gap-2">
+              <Info className="w-4 h-4 mt-0.5 shrink-0 text-primary" />
+              <span>
+                {isAr
+                  ? 'مرحباً 👋 لا يوجد حساب على هذا الجهاز بعد. أنشئ حساباً أولاً ثم سجّل الدخول.'
+                  : 'Willkommen 👋 Auf diesem Gerät existiert noch kein Konto. Erstelle zuerst eines und melde dich dann an.'}
+              </span>
+            </div>
+          )}
+          {showLocalModeHint && (
+            <div className="mb-4 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-[12px] leading-relaxed text-amber-200">
+              {isAr
+                ? 'وضع محلي: الخادم غير مُهيأ، فتُحفظ حساباتك على هذا الجهاز فقط (مشفّرة) ولن تتم المزامنة. لتفعيل المزامنة عبر الأجهزة، عيّن متغيرات Supabase في ملف .env.'
+                : 'Lokaler Modus: Der Server ist nicht konfiguriert, deine Konten werden nur auf diesem Gerät verschlüsselt gespeichert (keine Synchronisierung). Setze Supabase-Variablen in .env, um die Geräte-Synchronisierung zu aktivieren.'}
+            </div>
+          )}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <label className="text-sm font-medium text-foreground">
