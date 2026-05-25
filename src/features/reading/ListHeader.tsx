@@ -1,16 +1,30 @@
+import { useMemo } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-  Bell, Bookmark, CheckCheck, ChevronLeft, Newspaper,
+  Archive, Bell, Bookmark, CheckCheck, ChevronLeft, FolderOpen, Newspaper,
   RefreshCw, Search, Settings2, Type, Wifi, X,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import type { FeedSource, FilterTab } from './types';
+import type { ListPrefs } from './listPrefs';
+import { CATEGORIES } from './feeds';
 import { SourcePill } from './SourcePill';
+import { ReadingPrefsToolbar } from './ReadingPrefsToolbar';
 
 /**
  * Sticky page header for the list view: title, action icons, search
- * field (collapsible), filter chips. Kept stateless — all state lives
- * in the parent so it can be shared across views.
+ * field (collapsible), category-folder chips, source chips, and the
+ * filter row. Stateless — every value lives in the parent so it can
+ * be shared across views.
+ *
+ * Two filter rows borrowed from CapyReader's information hierarchy:
+ *  1. **Categories** (folders): All / News / Tech / … grouped by the
+ *     category each feed was added under.
+ *  2. **Sources**: the actual feeds inside the selected category.
+ *
+ * Selecting "All" categories shows every source. Picking a category
+ * narrows the source row to just feeds in that bucket *and* filters
+ * the article list to those sources.
  */
 export function ListHeader({
   isAr,
@@ -31,11 +45,15 @@ export function ListHeader({
   setFilterTab,
   sourceFilter,
   setSourceFilter,
+  categoryFilter,
+  setCategoryFilter,
   enabledFeeds,
   sourceCounts,
   articleCount,
   unreadCount,
   bookmarksCount,
+  listPrefs,
+  onListPrefsChange,
 }: {
   isAr: boolean;
   onBack: () => void;
@@ -55,12 +73,33 @@ export function ListHeader({
   setFilterTab: (t: FilterTab) => void;
   sourceFilter: string;
   setSourceFilter: (s: string) => void;
+  categoryFilter: string;
+  setCategoryFilter: (c: string) => void;
   enabledFeeds: FeedSource[];
   sourceCounts: Record<string, number>;
   articleCount: number;
   unreadCount: number;
   bookmarksCount: number;
+  listPrefs: ListPrefs;
+  onListPrefsChange: (next: Partial<ListPrefs>) => void;
 }) {
+  // Build the set of *populated* categories from the user's enabled
+  // feeds. We never show a chip for a category nobody is subscribed
+  // to (e.g. "Sports" if you have no sports feeds).
+  const populatedCategories = useMemo(() => {
+    const ids = new Set<string>();
+    for (const f of enabledFeeds) ids.add(f.category || 'other');
+    return CATEGORIES.filter((c) => ids.has(c.id));
+  }, [enabledFeeds]);
+
+  // Filter source chips by active category so the row stays scannable.
+  const visibleSources = useMemo(() => {
+    if (categoryFilter === 'all') return enabledFeeds;
+    return enabledFeeds.filter((f) => (f.category || 'other') === categoryFilter);
+  }, [enabledFeeds, categoryFilter]);
+
+  const showCategoryRow = populatedCategories.length > 1;
+
   return (
     <div className="px-4 py-3 border-b border-border/40 bg-card/90 backdrop-blur-md sticky top-0 z-10">
       <div className="flex items-center justify-between mb-2.5">
@@ -83,12 +122,27 @@ export function ListHeader({
         <div className="flex items-center gap-1">
           <button
             type="button"
+            onClick={() => setShowSearch(!showSearch)}
+            className={`p-2.5 rounded-xl active:scale-95 transition-all ${
+              showSearch
+                ? 'bg-primary/15 text-primary'
+                : 'hover:bg-accent/50 text-muted-foreground'
+            }`}
+            aria-label={isAr ? 'بحث في القائمة' : 'Filter list'}
+            title={isAr ? 'بحث في القائمة الحالية' : 'Filter the current list'}
+            aria-pressed={showSearch}
+          >
+            <Search className={`h-4 w-4 ${showSearch ? 'text-primary' : ''}`} />
+          </button>
+          <div className="w-px h-5 bg-border/50 mx-0.5" />
+          <button
+            type="button"
             onClick={onOpenArchiveSearch}
             className="p-2.5 rounded-xl hover:bg-accent/50 active:scale-95 transition-all"
             aria-label={isAr ? 'بحث الأرشيف' : 'Search archive'}
             title={isAr ? 'بحث الأرشيف الكامل' : 'Search full archive'}
           >
-            <Search className="h-4 w-4 text-muted-foreground" />
+            <Archive className="h-4 w-4 text-muted-foreground" />
           </button>
           <button
             type="button"
@@ -111,6 +165,11 @@ export function ListHeader({
           >
             <Type className="h-4 w-4 text-muted-foreground" />
           </button>
+          <ReadingPrefsToolbar
+            isAr={isAr}
+            prefs={listPrefs}
+            onChange={onListPrefsChange}
+          />
           <div className="w-px h-5 bg-border/50 mx-0.5" />
           {unreadCount > 0 && (
             <button
@@ -177,6 +236,33 @@ export function ListHeader({
         )}
       </AnimatePresence>
 
+      {/* Category folder row (only when ≥ 2 distinct categories) */}
+      {showCategoryRow && (
+        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar mb-2">
+          <CategoryChip
+            active={categoryFilter === 'all'}
+            onClick={() => {
+              setCategoryFilter('all');
+              setSourceFilter('all');
+            }}
+            label={isAr ? 'كل الأقسام' : 'All folders'}
+            icon={<FolderOpen className="h-3 w-3" />}
+          />
+          {populatedCategories.map((c) => (
+            <CategoryChip
+              key={c.id}
+              active={categoryFilter === c.id}
+              onClick={() => {
+                setCategoryFilter(c.id === categoryFilter ? 'all' : c.id);
+                // Clear source when switching folders
+                setSourceFilter('all');
+              }}
+              label={isAr ? c.ar : c.en}
+            />
+          ))}
+        </div>
+      )}
+
       {/* Filter / source chips */}
       <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
         <Chip
@@ -188,7 +274,7 @@ export function ListHeader({
           label={isAr ? 'الكل' : 'All'}
           count={articleCount}
         />
-        {enabledFeeds.map((source) => (
+        {visibleSources.map((source) => (
           <Chip
             key={source.url}
             active={filterTab === 'all' && sourceFilter === source.name}
@@ -253,6 +339,33 @@ function Chip({
           {count}
         </span>
       )}
+    </button>
+  );
+}
+
+function CategoryChip({
+  active,
+  onClick,
+  label,
+  icon,
+}: {
+  active: boolean;
+  onClick: () => void;
+  label: string;
+  icon?: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`px-3 py-1 rounded-lg text-[11px] font-semibold transition-all shrink-0 active:scale-95 inline-flex items-center gap-1.5 ${
+        active
+          ? 'bg-foreground text-background'
+          : 'bg-transparent text-muted-foreground hover:bg-accent/40 border border-border/40'
+      }`}
+    >
+      {icon}
+      {label}
     </button>
   );
 }

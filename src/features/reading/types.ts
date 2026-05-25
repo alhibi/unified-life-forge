@@ -46,3 +46,14 @@ export interface ReaderPrefs {
   theme: 'system' | 'sepia' | 'dim';
   fontFamily: 'sans' | 'serif';
 }
+
+/**
+ * Renderable item in the article list. Either a section header (used
+ * when grouping is on, e.g. "Today" / "Yesterday") or a regular
+ * article row. Inserting headers as first-class items lets us window
+ * a heterogeneous list cleanly.
+ */
+export type ArticleListItem =
+  | { kind: 'header'; id: string; label: string; count: number }
+  | { kind: 'article'; article: FeedItem; index: number };
+
