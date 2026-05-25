@@ -19,22 +19,25 @@ const FETCH_TIMEOUT = 12_000;
 /** Attempt fetch through CORS proxies, falling back to the next one on failure. */
 async function fetchViaProxy(url: string, signal?: AbortSignal): Promise<string | null> {
   for (const proxy of CORS_PROXIES) {
-    try {
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT);
-      const mergedSignal = signal
-        ? new AbortController() // we'll listen to both
-        : controller;
-
-      if (signal) {
-        signal.addEventListener('abort', () => controller.abort());
+    // Each proxy attempt gets its own AbortController so a timeout on
+    // proxy A doesn't prevent us from trying proxy B. We forward the
+    // outer `signal`'s abort signal to the inner controller so
+    // user-initiated cancellation still tears down the in-flight
+    // request immediately.
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT);
+    const onOuterAbort = () => controller.abort();
+    if (signal) {
+      if (signal.aborted) {
+        clearTimeout(timer);
+        return null;
       }
-
+      signal.addEventListener('abort', onOuterAbort, { once: true });
+    }
+    try {
       const res = await fetch(`${proxy}${encodeURIComponent(url)}`, {
         signal: controller.signal,
       });
-      clearTimeout(timer);
-
       if (!res.ok) continue;
       const text = await res.text();
       // Basic check: does it look like XML?
@@ -42,7 +45,11 @@ async function fetchViaProxy(url: string, signal?: AbortSignal): Promise<string 
         return text;
       }
     } catch {
+      // Either timeout, network error, or CORS fail — try the next proxy.
       continue;
+    } finally {
+      clearTimeout(timer);
+      if (signal) signal.removeEventListener('abort', onOuterAbort);
     }
   }
   return null;
@@ -83,14 +90,64 @@ function getAttr(block: string, tag: string, attr: string): string {
   return m ? m[1] : '';
 }
 
+/**
+ * For Atom entries: pick the most appropriate <link> element.
+ *
+ * An entry can have multiple links with different `rel` attributes.
+ * We want `rel="alternate"` (the human-readable article URL) and not
+ * `rel="self"` (the feed URL itself) or `rel="enclosure"` (media).
+ *
+ * Order of preference:
+ *   1. <link rel="alternate" href="…"/>   ← canonical article link
+ *   2. <link href="…"/>                   ← rel attribute omitted ⇒ alternate by spec
+ *   3. <link href="…"/> as a last resort
+ */
+function getAtomEntryLink(entryBlock: string): string {
+  const linkTags = entryBlock.match(/<link\s[^>]*\/?>/gi) || [];
+  let alternate = '';
+  let fallback = '';
+  for (const tag of linkTags) {
+    const hrefMatch = tag.match(/\shref=["']([^"']+)["']/i);
+    if (!hrefMatch) continue;
+    const href = hrefMatch[1];
+    const relMatch = tag.match(/\srel=["']([^"']+)["']/i);
+    const rel = (relMatch?.[1] || '').toLowerCase();
+    if (!rel || rel === 'alternate') {
+      // Empty rel → spec says "alternate". Prefer text/html types.
+      const typeMatch = tag.match(/\stype=["']([^"']+)["']/i);
+      const isHtml = !typeMatch || /html/i.test(typeMatch[1]);
+      if (isHtml && !alternate) alternate = href;
+      else if (!fallback) fallback = href;
+    } else if (rel !== 'self' && rel !== 'enclosure' && rel !== 'edit' && !fallback) {
+      fallback = href;
+    }
+  }
+  return alternate || fallback;
+}
+
 function extractImages(html: string): string[] {
   const imgs: string[] = [];
   const re = /<img[^>]*?(?:src|data-src)\s*=\s*["']([^"']+)["']/gi;
   let m;
   while ((m = re.exec(html)) !== null) {
-    if (m[1].startsWith('http') && !imgs.includes(m[1])) imgs.push(m[1]);
+    const u = m[1];
+    if (!u) continue;
+    // Accept absolute http(s) URLs and protocol-relative URLs
+    // (which we promote to https). Skip data: URIs, blob:, etc.
+    let abs = u;
+    if (u.startsWith('//')) abs = `https:${u}`;
+    else if (!/^https?:\/\//i.test(u)) continue;
+    if (!imgs.includes(abs)) imgs.push(abs);
   }
   return imgs;
+}
+
+/** Validate a date string and return its ISO form, or '' if invalid. */
+function safeDate(s: string): string {
+  if (!s) return '';
+  const t = new Date(s).getTime();
+  if (Number.isNaN(t)) return '';
+  return new Date(t).toISOString();
 }
 
 function parseXML(xml: string, sourceName: string, maxItems = 50): FeedItem[] {
@@ -103,17 +160,21 @@ function parseXML(xml: string, sourceName: string, maxItems = 50): FeedItem[] {
     while ((m = entryRe.exec(xml)) !== null && items.length < maxItems) {
       const e = m[0];
       const title = decodeEntities(stripTags(getTag(e, 'title')));
-      const link = getAttr(e, 'link', 'href');
+      const link = getAtomEntryLink(e);
       const content = getTag(e, 'content') || getTag(e, 'summary');
-      const pubDate = getTag(e, 'published') || getTag(e, 'updated');
+      const pubDate = safeDate(getTag(e, 'published') || getTag(e, 'updated'));
+      const author = decodeEntities(stripTags(getTag(e, 'name'))) || undefined;
       const images = extractImages(content);
+      if (!title && !link) continue; // skip empty entries
       items.push({
         title,
         link,
         description: decodeEntities(stripTags(content)).slice(0, 400),
+        fullContent: content || undefined,
         pubDate,
         image: images[0] || null,
         images,
+        author,
         source: sourceName,
       });
     }
@@ -131,17 +192,20 @@ function parseXML(xml: string, sourceName: string, maxItems = 50): FeedItem[] {
       const contentEncoded = getTag(it, 'content:encoded');
       const desc = getTag(it, 'description');
       const fullContent = contentEncoded || desc;
-      const pubDate = getTag(it, 'pubDate') || getTag(it, 'dc:date');
+      const pubDate = safeDate(getTag(it, 'pubDate') || getTag(it, 'dc:date'));
       const enclosure = getAttr(it, 'enclosure', 'url');
       const mediaContent = getAttr(it, 'media:content', 'url');
       const mediaThumb = getAttr(it, 'media:thumbnail', 'url');
       const inlineImgs = extractImages(fullContent);
+      const author = decodeEntities(stripTags(getTag(it, 'author') || getTag(it, 'dc:creator'))) || undefined;
 
       const images: string[] = [];
-      if (enclosure && /\.(jpg|jpeg|png|webp|gif)/i.test(enclosure)) images.push(enclosure);
+      if (enclosure && /\.(jpg|jpeg|png|webp|gif|avif)/i.test(enclosure)) images.push(enclosure);
       if (mediaContent && !images.includes(mediaContent)) images.push(mediaContent);
       if (mediaThumb && !images.includes(mediaThumb)) images.push(mediaThumb);
       for (const img of inlineImgs) { if (!images.includes(img)) images.push(img); }
+
+      if (!title && !link) continue; // skip empty items
 
       items.push({
         title,
@@ -151,6 +215,7 @@ function parseXML(xml: string, sourceName: string, maxItems = 50): FeedItem[] {
         pubDate,
         image: images[0] || null,
         images,
+        author,
         source: sourceName,
       });
     }
@@ -171,6 +236,10 @@ export interface ClientFetchResult {
 /**
  * Fetch multiple RSS feeds client-side via CORS proxy.
  * Returns results for each feed (items or error).
+ *
+ * A "fetched but empty parse" outcome is reported as an error so the
+ * caller can surface it (instead of treating an unparseable feed as
+ * a feed that just happens to have nothing new).
  */
 export async function fetchFeedsClientSide(
   feeds: FeedSource[],
@@ -190,6 +259,14 @@ export async function fetchFeedsClientSide(
           return { source: feed.name, url: feed.url, items: [], error: 'Failed to fetch' };
         }
         const items = parseXML(xml, feed.name);
+        if (items.length === 0) {
+          return {
+            source: feed.name,
+            url: feed.url,
+            items: [],
+            error: 'No parseable items',
+          };
+        }
         return { source: feed.name, url: feed.url, items };
       }),
     );
@@ -198,7 +275,12 @@ export async function fetchFeedsClientSide(
       if (r.status === 'fulfilled') {
         results.push(r.value);
       } else {
-        results.push({ source: '', url: '', items: [], error: r.reason?.message || 'Unknown error' });
+        results.push({
+          source: '',
+          url: '',
+          items: [],
+          error: (r.reason as { message?: string })?.message || 'Unknown error',
+        });
       }
     }
   }
@@ -210,8 +292,9 @@ export async function fetchFeedsClientSide(
  * Check if Supabase is properly configured and reachable.
  */
 export function isSupabaseAvailable(): boolean {
-  const url = (import.meta as any).env?.VITE_SUPABASE_URL || '';
-  const key = (import.meta as any).env?.VITE_SUPABASE_PUBLISHABLE_KEY || '';
+  const env = (import.meta as ImportMeta).env as Record<string, string | undefined>;
+  const url = env?.VITE_SUPABASE_URL || '';
+  const key = env?.VITE_SUPABASE_PUBLISHABLE_KEY || '';
   // If using placeholder values from our fix, treat as unavailable
   if (!url || url.includes('placeholder') || !key || key.includes('placeholder')) {
     return false;

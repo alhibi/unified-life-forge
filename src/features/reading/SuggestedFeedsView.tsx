@@ -1,23 +1,44 @@
+import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Check, ChevronLeft, Plus, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 import type { FeedSource } from './types';
 import { CATEGORIES, SUGGESTED_FEEDS } from './feeds';
 import { SourcePill } from './SourcePill';
-import { useState, useMemo } from 'react';
 
+/**
+ * Curated feed catalogue with category chips and a multi-select
+ * bulk-add flow.
+ *
+ * Why bulk-add matters:
+ *  Adding 5 feeds one at a time previously fired 5 separate edge
+ *  function invocations and 5 toasts. With multi-select the user
+ *  picks all the feeds they want, hits "Add N", and we fire ONE
+ *  refresh covering all of them — orders of magnitude less network
+ *  traffic and a single, summary toast at the end.
+ *
+ * Falls back to per-row add when the parent didn't supply onAddBulk
+ * (older call-sites).
+ */
 export function SuggestedFeedsView({
   feedSources,
   isAr,
   onBack,
   onAddSuggested,
+  onAddBulk,
 }: {
   feedSources: FeedSource[];
   isAr: boolean;
   onBack: () => void;
   onAddSuggested: (feed: FeedSource) => void;
+  onAddBulk?: (
+    feeds: ReadonlyArray<{ url: string; name: string; category: string; enabled?: boolean }>,
+  ) => Promise<{ added: number; skipped: number }>;
 }) {
   const [activeCat, setActiveCat] = useState<string>('all');
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [committing, setCommitting] = useState(false);
 
   const available = useMemo(
     () => SUGGESTED_FEEDS.filter(
@@ -45,6 +66,55 @@ export function SuggestedFeedsView({
     return c ? (isAr ? c.ar : c.en) : id;
   };
 
+  const toggleSelect = (url: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(url)) next.delete(url);
+      else next.add(url);
+      return next;
+    });
+  };
+
+  const selectAllInView = () => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      filtered.forEach((f) => next.add(f.url));
+      return next;
+    });
+  };
+
+  const clearSelection = () => setSelected(new Set());
+
+  const commitBulk = async () => {
+    if (selected.size === 0) return;
+    const toAdd = available.filter((f) => selected.has(f.url));
+    if (toAdd.length === 0) return;
+    setCommitting(true);
+    try {
+      if (onAddBulk) {
+        const { added } = await onAddBulk(toAdd);
+        toast.success(
+          isAr
+            ? `تمت إضافة ${added} ${added === 1 ? 'مصدر' : 'مصادر'}`
+            : `Added ${added} feed${added === 1 ? '' : 's'}`,
+        );
+      } else {
+        // Fallback: serial add. Avoids the parallel-invocation storm
+        // by spacing each add one frame apart.
+        for (const f of toAdd) {
+          onAddSuggested(f);
+          await new Promise<void>((r) => requestAnimationFrame(() => r()));
+        }
+        toast.success(
+          isAr ? `تمت إضافة ${toAdd.length}` : `Added ${toAdd.length}`,
+        );
+      }
+      clearSelection();
+    } finally {
+      setCommitting(false);
+    }
+  };
+
   return (
     <motion.div
       key="suggested"
@@ -67,6 +137,17 @@ export function SuggestedFeedsView({
         <h3 className="text-base font-bold text-foreground flex-1">
           {isAr ? 'مصادر مقترحة' : 'Suggested Feeds'}
         </h3>
+        {available.length > 0 && (
+          <button
+            type="button"
+            onClick={selected.size === filtered.length ? clearSelection : selectAllInView}
+            className="text-[11px] font-semibold text-primary px-2 py-1 rounded-lg hover:bg-primary/10"
+          >
+            {selected.size === filtered.length && filtered.length > 0
+              ? (isAr ? 'إلغاء التحديد' : 'Clear')
+              : (isAr ? 'تحديد الكل' : 'Select all')}
+          </button>
+        )}
       </div>
 
       {/* Category filter chips */}
@@ -77,6 +158,7 @@ export function SuggestedFeedsView({
               key={id}
               type="button"
               onClick={() => setActiveCat(id)}
+              aria-pressed={activeCat === id}
               className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all shrink-0 active:scale-95 ${
                 activeCat === id
                   ? 'bg-primary text-primary-foreground'
@@ -89,7 +171,7 @@ export function SuggestedFeedsView({
         </div>
       )}
 
-      <div className="flex-1 p-4 overflow-y-auto">
+      <div className="flex-1 p-4 overflow-y-auto pb-24">
         {filtered.length === 0
           ? (
             <div className="flex flex-col items-center justify-center py-16 gap-3">
@@ -101,37 +183,82 @@ export function SuggestedFeedsView({
           )
           : (
             <div className="space-y-2">
-              {filtered.map((feed, i) => (
-                <motion.div
-                  key={feed.url}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.03 }}
-                  className="flex items-center gap-3 p-3.5 rounded-2xl bg-accent/20 hover:bg-accent/30 transition-colors"
-                >
-                  <SourcePill name={feed.name} size="md" />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-foreground truncate">
-                      {feed.name}
-                    </p>
-                    <p className="text-[11px] text-muted-foreground mt-0.5">
-                      {catLabel(feed.category)}
-                    </p>
-                  </div>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => onAddSuggested(feed)}
-                    className="shrink-0 h-9 w-9 p-0 rounded-xl"
-                    aria-label={isAr ? 'إضافة' : 'Add'}
+              {filtered.map((feed, i) => {
+                const isSelected = selected.has(feed.url);
+                return (
+                  <motion.button
+                    type="button"
+                    key={feed.url}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: Math.min(i * 0.02, 0.2) }}
+                    onClick={() => toggleSelect(feed.url)}
+                    aria-pressed={isSelected}
+                    className={`w-full flex items-center gap-3 p-3.5 rounded-2xl transition-colors text-start ${
+                      isSelected
+                        ? 'bg-primary/10 ring-1 ring-primary/30'
+                        : 'bg-accent/20 hover:bg-accent/30'
+                    }`}
                   >
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                </motion.div>
-              ))}
+                    <SourcePill name={feed.name} size="md" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-foreground truncate" dir="auto">
+                        {feed.name}
+                      </p>
+                      <p className="text-[11px] text-muted-foreground mt-0.5">
+                        {catLabel(feed.category)}
+                      </p>
+                    </div>
+                    <span
+                      className={`shrink-0 w-6 h-6 rounded-full inline-flex items-center justify-center transition-colors ${
+                        isSelected
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-accent/40 text-muted-foreground'
+                      }`}
+                      aria-hidden
+                    >
+                      {isSelected ? <Check className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
+                    </span>
+                  </motion.button>
+                );
+              })}
             </div>
           )}
       </div>
+
+      {/* Sticky bulk-add footer */}
+      {selected.size > 0 && (
+        <motion.div
+          initial={{ y: 80, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: 80, opacity: 0 }}
+          className="sticky bottom-0 inset-x-0 px-4 py-3 border-t border-border/40 bg-card/95 backdrop-blur-md flex items-center gap-3 z-10"
+        >
+          <span className="text-sm font-semibold flex-1">
+            {isAr
+              ? `تم اختيار ${selected.size} ${selected.size === 1 ? 'مصدر' : 'مصادر'}`
+              : `${selected.size} selected`}
+          </span>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={clearSelection}
+            disabled={committing}
+            className="rounded-xl"
+          >
+            {isAr ? 'مسح' : 'Clear'}
+          </Button>
+          <Button
+            size="sm"
+            onClick={commitBulk}
+            disabled={committing}
+            className="rounded-xl"
+          >
+            <Plus className="h-3.5 w-3.5 me-1" />
+            {isAr ? 'إضافة' : 'Add'}
+          </Button>
+        </motion.div>
+      )}
     </motion.div>
   );
 }

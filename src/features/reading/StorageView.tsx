@@ -4,7 +4,6 @@ import {
   ChevronLeft, Database, HardDrive, Image as ImageIcon,
   RefreshCw, Trash2,
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { offlineDb } from './offlineDb';
 import {
@@ -12,6 +11,7 @@ import {
   getOfflinePrefs,
   storeOfflinePrefs,
 } from './storage';
+import { ConfirmDialog } from './ConfirmDialog';
 
 /**
  * StorageView — the "manage what's saved on this device" panel for
@@ -21,13 +21,16 @@ import {
  *   1. Live storage gauge: bytes used vs. quota (StorageManager API),
  *      with a coloured progress bar so heavy users notice when they're
  *      pushing the browser limit.
- *   2. Counts: how many articles + images are in the offline cache.
+ *   2. Counts: how many articles + cached images are in the offline
+ *      store. The image count comes from the Service Worker's Cache
+ *      Storage (queried via `reading:estimate` postMessage).
  *   3. Auto-cache controls: "always keep last N unread offline" + an
  *      opt-in for image bytes (off by default since images are 90 %
  *      of the cache).
  *   4. Actions: "Clear cached images" (preserves saved articles),
  *      "Clear archive" (preserves bookmarks list, only blanks the
- *      IDB store), "Re-cache now" (forces an immediate sync).
+ *      IDB store), "Re-cache now" (forces an immediate sync). All
+ *      destructive actions ask for confirmation first.
  *
  * Bookmarks themselves live in localStorage and are NEVER touched by
  * any of the destructive actions — clearing the offline cache is a
@@ -38,7 +41,13 @@ interface Stats {
   articles: number;
   quotaBytes: number;
   usageBytes: number;
+  /** Cross-origin images cached by the SW. -1 if SW unavailable. */
+  imageCount: number;
+  /** App-shell entries in the SW runtime cache. */
+  runtimeCount: number;
 }
+
+type ConfirmAction = 'clear-images' | 'clear-archive' | null;
 
 export function StorageView({
   isAr,
@@ -54,18 +63,73 @@ export function StorageView({
   const [stats, setStats] = useState<Stats | null>(null);
   const [busy, setBusy] = useState(false);
   const [prefs, setPrefs] = useState<OfflinePrefs>(() => getOfflinePrefs());
+  const [confirmAction, setConfirmAction] = useState<ConfirmAction>(null);
+
+  /**
+   * Round-trip a `reading:estimate` postMessage to the Service Worker
+   * to get cross-origin image counts (which `navigator.storage.estimate`
+   * does not expose directly). Resolves to null if no SW is active.
+   */
+  const querySwEstimate = (): Promise<{ imageCount: number; runtimeCount: number } | null> => {
+    return new Promise((resolve) => {
+      if (typeof navigator === 'undefined' || !navigator.serviceWorker?.controller) {
+        resolve(null);
+        return;
+      }
+      const channel = new MessageChannel();
+      const timer = setTimeout(() => resolve(null), 1500);
+      channel.port1.onmessage = (e) => {
+        clearTimeout(timer);
+        const data = e.data as {
+          type?: string;
+          imageCount?: number;
+          runtimeCount?: number;
+        };
+        if (data?.type === 'reading:estimate-result') {
+          resolve({
+            imageCount: data.imageCount ?? 0,
+            runtimeCount: data.runtimeCount ?? 0,
+          });
+        } else {
+          resolve(null);
+        }
+      };
+      try {
+        navigator.serviceWorker.controller.postMessage(
+          { type: 'reading:estimate' },
+          [channel.port2],
+        );
+      } catch {
+        clearTimeout(timer);
+        resolve(null);
+      }
+    });
+  };
 
   const reload = async () => {
     try {
-      const s = await offlineDb.storageEstimate();
-      setStats(s);
+      const base = await offlineDb.storageEstimate();
+      const sw = await querySwEstimate();
+      setStats({
+        articles: base.articles,
+        quotaBytes: base.quotaBytes,
+        usageBytes: base.usageBytes,
+        imageCount: sw?.imageCount ?? -1,
+        runtimeCount: sw?.runtimeCount ?? -1,
+      });
     } catch {
-      setStats({ articles: 0, quotaBytes: 0, usageBytes: 0 });
+      setStats({
+        articles: 0,
+        quotaBytes: 0,
+        usageBytes: 0,
+        imageCount: -1,
+        runtimeCount: -1,
+      });
     }
   };
 
   useEffect(() => {
-    reload();
+    void reload();
   }, []);
 
   function patch(p: Partial<OfflinePrefs>) {
@@ -161,7 +225,14 @@ export function StorageView({
               {stats ? `${formatBytes(stats.usageBytes)} / ${formatBytes(stats.quotaBytes) || '—'}` : '—'}
             </span>
           </div>
-          <div className="h-2 rounded-full bg-foreground/8 overflow-hidden">
+          <div
+            className="h-2 rounded-full bg-foreground/8 overflow-hidden"
+            role="progressbar"
+            aria-valuenow={Math.round(usagePct)}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-label={isAr ? 'استهلاك المساحة' : 'Storage usage'}
+          >
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: `${usagePct}%` }}
@@ -183,17 +254,33 @@ export function StorageView({
           </p>
         </section>
 
-        {/* Counts grid */}
+        {/* Counts grid — two rows of two on phones, four-up on tablets */}
         <section className="grid grid-cols-2 gap-3">
           <Stat
             icon={<Database className="h-4 w-4" />}
-            label={isAr ? 'مقال مخزن' : 'Articles cached'}
+            label={isAr ? 'مقالات مخزنة' : 'Articles cached'}
             value={stats?.articles ?? 0}
           />
           <Stat
             icon={<Database className="h-4 w-4" />}
-            label={isAr ? 'مرجعية محفوظة' : 'Bookmarked'}
+            label={isAr ? 'مرجعيات محفوظة' : 'Bookmarked'}
             value={bookmarksCount}
+          />
+          <Stat
+            icon={<ImageIcon className="h-4 w-4" />}
+            label={isAr ? 'صور مخبأة' : 'Images cached'}
+            value={stats && stats.imageCount >= 0 ? stats.imageCount : '—'}
+            hint={stats && stats.imageCount < 0
+              ? (isAr ? 'بدون Service Worker' : 'no SW')
+              : undefined}
+          />
+          <Stat
+            icon={<HardDrive className="h-4 w-4" />}
+            label={isAr ? 'ملفات التطبيق' : 'App shell files'}
+            value={stats && stats.runtimeCount >= 0 ? stats.runtimeCount : '—'}
+            hint={stats && stats.runtimeCount < 0
+              ? (isAr ? 'بدون Service Worker' : 'no SW')
+              : undefined}
           />
         </section>
 
@@ -219,6 +306,7 @@ export function StorageView({
                   key={n}
                   type="button"
                   onClick={() => patch({ autoCacheCount: n })}
+                  aria-pressed={prefs.autoCacheCount === n}
                   className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
                     prefs.autoCacheCount === n
                       ? 'bg-primary text-primary-foreground'
@@ -249,6 +337,7 @@ export function StorageView({
                   key={d}
                   type="button"
                   onClick={() => patch({ retentionDays: d })}
+                  aria-pressed={prefs.retentionDays === d}
                   className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors tabular-nums ${
                     prefs.retentionDays === d
                       ? 'bg-primary text-primary-foreground'
@@ -286,7 +375,7 @@ export function StorageView({
             description={isAr
               ? 'يبقي نصوص المقالات. عادةً يحرر الجزء الأكبر من المساحة.'
               : 'Keeps article text. Usually frees the bulk of the space.'}
-            onClick={clearImagesCache}
+            onClick={() => setConfirmAction('clear-images')}
             busy={busy}
             destructive
           />
@@ -296,12 +385,39 @@ export function StorageView({
             description={isAr
               ? 'لا يحذف المرجعيات (قائمة الحفظ في الإعدادات).'
               : 'Bookmarks list is preserved.'}
-            onClick={clearArchive}
+            onClick={() => setConfirmAction('clear-archive')}
             busy={busy}
             destructive
           />
         </section>
       </div>
+
+      <ConfirmDialog
+        open={confirmAction !== null}
+        isAr={isAr}
+        title={confirmAction === 'clear-archive'
+          ? { ar: 'مسح كل المقالات المخزّنة؟', en: 'Clear all cached articles?' }
+          : { ar: 'مسح الصور المخبأة؟', en: 'Clear image cache?' }}
+        description={confirmAction === 'clear-archive'
+          ? {
+              ar: 'سيتم حذف نصوص المقالات الموجودة دون اتصال. قائمة المرجعيات في الإعدادات لن تتأثر.',
+              en: 'Article text saved offline will be removed. Your bookmarks list is preserved.',
+            }
+          : {
+              ar: 'سيُعاد تنزيل الصور تلقائيًا عند الحاجة في حال توفّر الإنترنت.',
+              en: 'Images will be re-downloaded on demand the next time you’re online.',
+            }}
+        confirmLabel={{ ar: 'مسح', en: 'Clear' }}
+        onConfirm={async () => {
+          const action = confirmAction;
+          setConfirmAction(null);
+          if (action === 'clear-archive') await clearArchive();
+          else if (action === 'clear-images') await clearImagesCache();
+        }}
+        onOpenChange={(open) => {
+          if (!open) setConfirmAction(null);
+        }}
+      />
     </motion.div>
   );
 }
@@ -312,10 +428,12 @@ function Stat({
   icon,
   label,
   value,
+  hint,
 }: {
   icon: React.ReactNode;
   label: string;
-  value: number;
+  value: number | string;
+  hint?: string;
 }) {
   return (
     <div className="rounded-2xl bg-card border border-border/50 p-3.5">
@@ -328,6 +446,9 @@ function Stat({
         </span>
       </div>
       <p className="text-2xl font-bold tabular-nums">{value}</p>
+      {hint && (
+        <p className="text-[9px] text-muted-foreground/70 mt-0.5">{hint}</p>
+      )}
     </div>
   );
 }
@@ -349,6 +470,8 @@ function ToggleRow({
     <button
       type="button"
       onClick={() => onChange(!on)}
+      role="switch"
+      aria-checked={on}
       className="w-full flex items-center gap-3 -mx-1 px-1 py-1.5 text-start"
     >
       <span className="w-7 h-7 rounded-xl bg-primary/10 text-primary inline-flex items-center justify-center shrink-0">
@@ -397,7 +520,7 @@ function ActionRow({
       type="button"
       onClick={() => { void onClick(); }}
       disabled={busy}
-      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-accent/15 transition-colors text-start"
+      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-accent/15 transition-colors text-start disabled:opacity-50"
     >
       <span
         className={`w-8 h-8 rounded-xl inline-flex items-center justify-center shrink-0 ${

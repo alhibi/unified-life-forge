@@ -1,17 +1,28 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Bookmark, Newspaper, RefreshCw, Search } from 'lucide-react';
+import { Bookmark, Newspaper, Plus, RefreshCw, Search, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import type { FeedItem, FilterTab } from './types';
 import { ArticleCard, HeroArticleCard } from './ArticleCard';
 import { ArticleListSkeleton } from './Skeletons';
 import { getScrollPos, storeScrollPos } from './storage';
+import { throttle } from './utils';
 
 /**
  * Renders the filtered article list. The first unread article is
  * promoted into a hero card; everything else falls into the standard
  * row layout. Scroll position is remembered per filter+source so going
  * into an article and back lands the user where they were.
+ *
+ * Performance:
+ *  - Scroll-position localStorage writes are throttled to 250 ms so
+ *    a long, fast scroll doesn't write 60 times/sec to localStorage
+ *    (which is synchronous and main-thread-blocking on every call).
+ *
+ * UX:
+ *  - When the user has zero enabled feeds, the empty state offers an
+ *    "Add feeds" CTA — refreshing wouldn't do anything in that case,
+ *    so the old "Refresh now" button was a dead end.
  */
 export function ArticleList({
   articles,
@@ -25,9 +36,11 @@ export function ArticleList({
   bookmarks,
   readArticles,
   cachedLinks,
+  hasFeeds,
   onOpenArticle,
   onToggleBookmark,
   onRefresh,
+  onAddFeeds,
 }: {
   articles: FeedItem[];
   loading: boolean;
@@ -40,35 +53,41 @@ export function ArticleList({
   bookmarks: string[];
   readArticles: string[];
   cachedLinks?: ReadonlySet<string>;
+  /** Whether the user has at least one enabled feed source. */
+  hasFeeds?: boolean;
   onOpenArticle: (a: FeedItem) => void;
   onToggleBookmark: (link: string) => void;
   onRefresh: () => void;
+  onAddFeeds?: () => void;
 }) {
   const scrollKey = `${filterTab}|${sourceFilter}`;
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Restore scroll on mount / when scrollKey changes
+  // Restore scroll on mount / when scrollKey changes; throttle writes.
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
     const y = getScrollPos(scrollKey);
     if (y > 0) {
-      // Defer until after children paint
       requestAnimationFrame(() => {
         el.scrollTop = y;
       });
     }
-    const onScroll = () => storeScrollPos(scrollKey, el.scrollTop);
-    el.addEventListener('scroll', onScroll, { passive: true });
-    return () => el.removeEventListener('scroll', onScroll);
+    const throttledStore = throttle(
+      () => storeScrollPos(scrollKey, el.scrollTop),
+      250,
+    );
+    el.addEventListener('scroll', throttledStore, { passive: true });
+    return () => {
+      el.removeEventListener('scroll', throttledStore);
+      // One final write on unmount so we capture the user's final
+      // scroll position even if it landed during the throttle window.
+      storeScrollPos(scrollKey, el.scrollTop);
+    };
   }, [scrollKey]);
 
   const heroAndRest = useMemo(() => {
     if (articles.length === 0) return { hero: null, rest: [] };
-    // Promote the first unread article with an image to the hero slot;
-    // fall back to the first unread article overall, then to the very
-    // first article. Hero only when on the "all" tab and no source
-    // filter — otherwise the layout feels noisy.
     if (filterTab !== 'all' || sourceFilter !== 'all' || searchQuery.trim()) {
       return { hero: null, rest: articles };
     }
@@ -96,7 +115,9 @@ export function ArticleList({
           searchQuery={searchQuery}
           isAr={isAr}
           refreshing={refreshing}
+          hasFeeds={hasFeeds ?? true}
           onRefresh={onRefresh}
+          onAddFeeds={onAddFeeds}
         />
       </div>
     );
@@ -137,13 +158,17 @@ function EmptyState({
   searchQuery,
   isAr,
   refreshing,
+  hasFeeds,
   onRefresh,
+  onAddFeeds,
 }: {
   filterTab: FilterTab;
   searchQuery: string;
   isAr: boolean;
   refreshing: boolean;
+  hasFeeds: boolean;
   onRefresh: () => void;
+  onAddFeeds?: () => void;
 }) {
   let icon: JSX.Element;
   let label: string;
@@ -155,6 +180,26 @@ function EmptyState({
   } else if (searchQuery) {
     icon = <Search className="h-10 w-10 text-muted-foreground/30" />;
     label = isAr ? 'لا توجد نتائج' : 'No matches';
+  } else if (!hasFeeds) {
+    // No enabled feeds — refreshing does nothing here. Offer
+    // suggestions or OPML import instead.
+    icon = <Star className="h-10 w-10 text-primary/40" />;
+    label = isAr
+      ? 'أضف مصادرك لتبدأ القراءة'
+      : 'Add feeds to start reading';
+    cta = onAddFeeds
+      ? (
+        <Button
+          variant="default"
+          size="sm"
+          onClick={onAddFeeds}
+          className="rounded-xl mt-2"
+        >
+          <Plus className="h-3.5 w-3.5 me-1.5" />
+          {isAr ? 'تصفح المقترحات' : 'Browse suggestions'}
+        </Button>
+      )
+      : null;
   } else {
     icon = <Newspaper className="h-10 w-10 text-muted-foreground/30" />;
     label = isAr ? 'لا توجد مقالات بعد' : 'Nothing here yet';
