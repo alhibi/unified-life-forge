@@ -2,8 +2,7 @@ import React, { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { useUnreadMessages } from '@/hooks/useUnreadMessages';
 import {
-  House, Dices, SlidersHorizontal, HandHeart, Feather, MessageCircle,
-  HeartPulse,
+  House, Dices, Compass, BookOpen, MessageCircle, HeartPulse,
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -50,18 +49,26 @@ type Tab = {
   color: string;
 };
 
-// Visual order, left → right. In the previous flex+RTL layout `diwan`
-// landed on the far right and `settings` on the far left; with absolute
-// `left` positioning we keep that exact visual layout by ordering the
-// array left → right.
+// Visual order, left → right. The previous (7-tab) layout has been
+// retired in favour of 6 hub destinations that mirror the user's
+// mental modes (now / play / talk / body / discover / reflect):
+//   • settings, duas, diwan are no longer top-level tabs:
+//       – Settings is now reached via the avatar shortcut on Home.
+//       – Duas content lives under /mihrab → Dhikr.
+//       – Diwan content lives under /mihrab → Literature.
+//   • New tabs: `mihrab` (gold) consolidates Quran/Dhikr/Sunnah/
+//     Literature; `browse` (violet) consolidates Podcasts + Articles.
+//
+// Right-most slot is the most prominent in RTL (the user's eye lands
+// there first), so we put `mihrab` at the right and keep `home`
+// near the centre as the anchor.
 const tabs: Tab[] = [
-  { key: 'settings', path: '/settings', icon: SlidersHorizontal, labelKey: 'nav.settings', color: '#94a3b8' },
-  { key: 'games',    path: '/games',    icon: Dices,             labelKey: 'nav.games',    color: '#fb923c' },
-  { key: 'chat',     path: '/chat',     icon: MessageCircle,     labelKey: 'nav.chat',     color: '#7dd3fc' },
-  { key: 'home',     path: '/',         icon: House,             labelKey: 'nav.home',     color: '#c4b5fd' },
-  { key: 'wellness', path: '/wellness', icon: HeartPulse,        labelKey: 'nav.wellness', color: '#34d399' },
-  { key: 'duas',     path: '/duas',     icon: HandHeart,         labelKey: 'nav.duas',     color: '#fcd34d' },
-  { key: 'diwan',    path: '/diwan',    icon: Feather,           labelKey: 'nav.diwan',    color: '#f9a8d4' },
+  { key: 'games',    path: '/games',    icon: Dices,         labelKey: 'nav.games',    color: '#fb923c' },
+  { key: 'chat',     path: '/chat',     icon: MessageCircle, labelKey: 'nav.chat',     color: '#7dd3fc' },
+  { key: 'wellness', path: '/wellness', icon: HeartPulse,    labelKey: 'nav.wellness', color: '#34d399' },
+  { key: 'home',     path: '/',         icon: House,         labelKey: 'nav.home',     color: '#c4b5fd' },
+  { key: 'browse',   path: '/browse',   icon: Compass,       labelKey: 'nav.browse',   color: '#a78bfa' },
+  { key: 'mihrab',   path: '/mihrab',   icon: BookOpen,      labelKey: 'nav.mihrab',   color: '#fcd34d' },
 ];
 
 // Show the bar only on these top-level destinations (same gate as before).

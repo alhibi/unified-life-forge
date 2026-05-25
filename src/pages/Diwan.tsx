@@ -1,19 +1,20 @@
-import React from 'react';
-import DiwanLibraryPage from './diwan/Library';
+import React, { useEffect } from 'react';
+import { Navigate } from 'react-router-dom';
 
 /**
- * نقطة دخول قسم الديوان.
+ * مسار /diwan — توافق عكسي.
  *
- * تاريخياً كانت هذه الصفحة تعرض "ديوان الشعر" المحلّي (شجرة عصور
- * + Literary Graph) وكانت "المكتبة الكبرى" تابعة في `/diwan/library`.
- * الآن المكتبة الكبرى هي الواجهة الأم لقسم الديوان: نُمرّر الـ Library
- * مباشرة كـ tab (بلا زر رجوع) لأنّ هذا التبويب نفسه هو الجذر.
+ * المكتبة الكبرى انتقلت لتكون تبويب "الأدب" داخل /mihrab. أمّا
+ * المسارات التفصيلية (/diwan/library, /diwan/library/poets, …)
+ * فلا تزال تعمل وتُعرض كصفحات عميقة بزر رجوع.
  *
- * • الشجرة الأدبية انتقلت إلى داخل صفحة "البحث المتقدّم"
- *   (`/diwan/library/search`) كقسم قابل للطيّ.
- * • مسار `/diwan/library` لا يزال مدعوماً (alias لنفس الواجهة) للحفاظ
- *   على الروابط القديمة من خارج التطبيق.
+ * نضبط هنا آخر تبويب مفتوح في mihrab على "الأدب" قبل التحويل، حتى
+ * يهبط المستخدم على المكان الصحيح مباشرة. `replace` يحافظ على نظافة
+ * الـhistory.
  */
 export default function DiwanPage() {
-  return <DiwanLibraryPage tab />;
+  useEffect(() => {
+    try { localStorage.setItem('mihrab:lastTab', 'literature'); } catch { /* noop */ }
+  }, []);
+  return <Navigate to="/mihrab" replace />;
 }

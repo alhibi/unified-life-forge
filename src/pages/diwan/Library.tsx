@@ -18,8 +18,10 @@ const LiteraryGraph = lazy(() => import('@/components/diwan/LiteraryGraph'));
 
 interface Props {
   /**
-   * عند تركيبها كصفحة الـ tab الرئيسية لقسم الديوان، نخفي زر الرجوع
-   * لأنّ التبويب نفسه هو الجذر. الافتراضي عبر الراوتر هو page-mode.
+   * عند تركيبها كصفحة الـ tab الرئيسية لقسم الديوان أو محتوًى مدمج
+   * داخل تبويب أكبر (مثل تبويب "الأدب" داخل /mihrab)، نخفي زرّ
+   * الرجوع وكذلك الإطار الخارجي (`min-h-screen`، الحشو، SEO) لأنّ
+   * الصفحة الأم هي مَن يُوفّرها. الافتراضي عبر الراوتر هو page-mode.
    */
   tab?: boolean;
 }
@@ -40,13 +42,15 @@ export default function DiwanLibraryPage({ tab = false }: Props) {
     typeof n === 'number' ? n.toLocaleString('ar-EG') : '—';
 
   return (
-    <div className="min-h-screen bg-background pb-28 px-5 pt-14">
-      <SEO
-        title="المكتبة الكبرى — الديوان العربي الكلاسيكي"
-        description="آلاف الشعراء وعشرات الآلاف من القصائد عبر العصور: الجاهلي، الأموي، العباسي، الأندلسي وما بعدها."
-        path={tab ? '/diwan' : '/diwan/library'}
-      />
-      <div className="max-w-lg mx-auto">
+    <div className={tab ? '' : 'min-h-screen bg-background pb-28 px-5 pt-14'}>
+      {!tab && (
+        <SEO
+          title="المكتبة الكبرى — الديوان العربي الكلاسيكي"
+          description="آلاف الشعراء وعشرات الآلاف من القصائد عبر العصور: الجاهلي، الأموي، العباسي، الأندلسي وما بعدها."
+          path="/diwan/library"
+        />
+      )}
+      <div className={tab ? '' : 'max-w-lg mx-auto'}>
         {/* Header */}
         <div className="flex items-center gap-3 mb-5">
           {!tab && <BackButton onClick={() => navigate('/')} />}
