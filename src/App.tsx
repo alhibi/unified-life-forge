@@ -55,6 +55,13 @@ const loadDiceTournament = () => import("./pages/DiceTournament");
 const loadFocusDecathlon = () => import("./pages/FocusDecathlon");
 const loadSettings = () => import("./pages/Settings");
 const loadDuas = () => import("./pages/Duas");
+// Wave-1 chat surface — three new lazy pages backed by the new
+// data layer. Kept off the eager bundle since group/channel chats
+// and chat settings are reachable only via deep-link or via the
+// "Groups & Channels" entry in the legacy chat list.
+const loadGroupsIndex   = () => import("./pages/GroupsIndex");
+const loadGroupChat     = () => import("./pages/GroupChat");
+const loadChatSettings  = () => import("./pages/ChatSettings");
 const loadTheme = () => import("./pages/ThemeSettings");
 const loadAuth = () => import("./pages/Auth");
 const loadProfile = () => import("./pages/ProfileEdit");
@@ -106,6 +113,9 @@ const DiceTournamentPage = lazy(loadDiceTournament);
 const FocusDecathlonPage = lazy(loadFocusDecathlon);
 const SettingsPage = lazy(loadSettings);
 const DuasPage = lazy(loadDuas);
+const GroupsIndexPage   = lazy(loadGroupsIndex);
+const GroupChatPage     = lazy(loadGroupChat);
+const ChatSettingsPage  = lazy(loadChatSettings);
 const ThemeSettingsPage = lazy(loadTheme);
 const AuthPage = lazy(loadAuth);
 const ProfileEditPage = lazy(loadProfile);
@@ -146,6 +156,10 @@ function useIdlePrefetch() {
     const id = ric(() => {
       loadTheme(); loadProfile(); loadPrayer(); loadReading();
       loadWellness(); loadDiwan();
+      // Wave-1 chat surfaces. The groups index is one tap away from the
+      // chat tab and the chat settings page is one tap away from there;
+      // pre-warming both keeps the first navigation instant.
+      loadGroupsIndex(); loadChatSettings();
       // The new IA hubs are the most likely first taps on every cold
       // session, so warm them up alongside the existing tabs. Settings
       // is now reached from the home avatar shortcut, so prefetch it
@@ -255,6 +269,18 @@ function AnimatedRoutes() {
             <Route path="/" element={null} />
             <Route path="/games" element={null} />
             <Route path="/chat" element={null} />
+            {/* New chat surfaces (groups/channels + dedicated settings).
+                These layer on top of /chat without touching the legacy
+                drawer; the user reaches them via the "Groups & Channels"
+                row inside the conversation list, the in-chat header
+                "settings" affordance, or by deep-link.
+
+                NOTE: order matters. /chat/groups must be matched
+                BEFORE /chat/g/:chatId so a literal "groups" segment
+                isn't captured as a chat id. */}
+            <Route path="/chat/groups"   element={<ErrorBoundary><PageTransition><GroupsIndexPage /></PageTransition></ErrorBoundary>} />
+            <Route path="/chat/settings" element={<ErrorBoundary><PageTransition><ChatSettingsPage /></PageTransition></ErrorBoundary>} />
+            <Route path="/chat/g/:chatId" element={<ErrorBoundary><PageTransition><GroupChatPage /></PageTransition></ErrorBoundary>} />
             {/* /settings is no longer a top-level tab. It is reached
                 from the avatar shortcut on the home page and rendered
                 as a regular lazy route. */}

@@ -1,13 +1,15 @@
 import React, { useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, useMotionValue, useTransform, AnimatePresence, LayoutGroup } from 'framer-motion';
 import {
   MessageCircle, Pencil, Pin, BellOff, Archive, Check, CheckCheck,
-  Image as ImageIcon, Mic, FileText, ArchiveRestore,
+  Image as ImageIcon, Mic, FileText, ArchiveRestore, Users, ChevronRight, ChevronLeft,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { isEmojiAvatarValue, getAppleEmojiUrl } from '@/utils/emojiAvatar';
 import { getDefaultAvatarForUser } from '@/utils/defaultAvatar';
+import { useChats } from '@/lib/chat';
 import { formatTime, stripMarkers } from './chatUtils';
 import type { Conversation, ConversationFilter } from './types';
 
@@ -140,6 +142,12 @@ const ConversationList: React.FC<ConversationListProps> = ({
 
   const hasContent = conversations.length > 0;
   const fabRef = useRef<HTMLButtonElement>(null);
+  const navigate = useNavigate();
+  // Surface a tiny entry-point to the new groups index whenever the user
+  // has any groups/channels (or always, when no chats exist yet, so they
+  // can discover the feature).
+  const { chats } = useChats();
+  const groupsCount = chats.filter(c => c.kind !== 'dm').length;
 
   return (
     <div className="relative h-full flex flex-col">
@@ -169,6 +177,29 @@ const ConversationList: React.FC<ConversationListProps> = ({
           );
         })}
       </div>
+
+      {/* Groups & channels entry-point — always visible so the feature is
+          discoverable, even when the legacy 1-to-1 list is empty. */}
+      <button
+        type="button"
+        onClick={() => navigate('/chat/groups')}
+        className="flex items-center gap-3 px-4 py-2.5 mx-3 mb-1 rounded-2xl bg-muted/15 hover:bg-muted/25 active:bg-muted/35 border border-border/15 transition-colors text-start"
+      >
+        <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+          <Users className="w-4 h-4 text-primary" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-[13.5px] font-semibold text-foreground">
+            {isAr ? 'المجموعات والقنوات' : 'Gruppen & Kanäle'}
+          </p>
+          <p className="text-[11px] text-muted-foreground">
+            {groupsCount > 0
+              ? (isAr ? `${groupsCount} ${groupsCount === 1 ? 'محادثة' : 'محادثات'}` : `${groupsCount} aktiv`)
+              : (isAr ? 'إنشاء مجموعة جديدة' : 'Neue Gruppe erstellen')}
+          </p>
+        </div>
+        {isAr ? <ChevronLeft className="w-4 h-4 text-muted-foreground shrink-0" /> : <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />}
+      </button>
 
       {/* Conversations */}
       <div className="flex-1 overflow-y-auto">
