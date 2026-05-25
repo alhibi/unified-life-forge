@@ -1,33 +1,47 @@
 /**
- * Workouts tab — log strength and cardio sessions, track PRs and per-muscle volume.
+ * WorkoutsTab — premium edition.
  *
- * Composition:
- *  • Active session header   — start/finish a session, total volume, RPE
- *  • Exercise list           — picker + set logger + per-set rest timer
- *  • Templates strip         — 8 starter sessions (push/pull/leg/full-body/hiit/mobility)
- *  • Weekly volume bars      — per-muscle-group tonnage rollup
- *  • Personal records strip  — best e1RM per big lift
- *  • Session history         — collapsible past sessions
+ * Five sub-sections:
+ *   1. Train      — readiness, active session, last-session card, programs hint
+ *   2. Programs   — full library, start/swap programs
+ *   3. Records    — strength standards + 1RM trends per lift
+ *   4. Volume     — per-muscle weekly volume vs MEV/MAV/MRV
+ *   5. History    — past sessions list
+ *
+ * Composition is intentional — each sub-tab is a self-contained component
+ * exported from `training/components/`. This file is a thin orchestrator
+ * that owns the active-session draft and triggers the PR detector.
  */
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Activity, Check, ChevronDown, Dumbbell, Flame, History,
-  Pause, Play, Plus, RotateCcw, Search, Star, Trash2, Trophy, X, Zap,
+  Activity, BarChart3, Calendar, Dumbbell, Flame, History,
+  Library, Play, TrendingUp, Trophy,
 } from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
-import type { ExerciseEntry, SetEntry, WorkoutSession, UUID, AthleteProfile } from '../wellnessDb';
-import { todayIso } from '../wellnessDb';
+import type { AthleteProfile, UUID, WorkoutSession } from '../wellnessDb';
+import { EXERCISES } from '../exerciseCatalog';
 import {
-  EXERCISES, EXERCISE_LIST, MUSCLE_LABELS, TEMPLATES, resolveExercise,
-  type MuscleGroup, type Exercise,
-} from '../exerciseCatalog';
-import {
-  bestE1RMFromSets, sessionVolumeKg, sessionLoad,
-} from '../athleticEngine';
-import { PremiumCard, SectionHeader, EmptyState, SegmentedControl, AnimatedNumber } from './primitives';
-import ExerciseDetailSheet from '@/components/ExerciseDetailSheet';
+  bestE1RMFromSets,
+  sessionVolumeKg,
+} from '../training/progressionEngine';
+import { detectPrs } from '../training/prDetector';
+import { topExercises, sessionStats, activityStreak } from '../training/analyticsEngine';
+import type { PersonalRecord } from '../training/types';
+import { programByKey } from '../training/programsLibrary';
+
+// UI components
+import SessionPlayer from '../training/components/SessionPlayer';
+import PrCelebration from '../training/components/PrCelebration';
+import VolumeBars, { VolumeZoneLegend } from '../training/components/VolumeBars';
+import OneRmTrendChart from '../training/components/OneRmTrendChart';
+import FrequencyHeatmap from '../training/components/FrequencyHeatmap';
+import StrengthStandardsView from '../training/components/StrengthStandardsView';
+import HistoryList from '../training/components/HistoryList';
+import DeloadAdvisor from '../training/components/DeloadAdvisor';
+import ProgramsLibraryView from '../training/components/ProgramsLibraryView';
+import PlateCalculator from '../training/components/PlateCalculator';
 
 interface Props {
   workouts: WorkoutSession[];
@@ -36,822 +50,324 @@ interface Props {
   onDelete: (id: UUID) => Promise<void>;
 }
 
-const item = {
-  hidden: { opacity: 0, y: 14 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] as const } },
-};
-const stagger = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.06 } },
-};
+type Section = 'train' | 'programs' | 'records' | 'volume' | 'history';
 
 const T = {
-  noProfile: { ar: 'سجّل وزنك في الملف لتقدير الحجم بدقة.', de: 'Erfasse dein Gewicht im Profil für genauere Volumen.' },
   startSession: { ar: 'ابدأ تمريناً', de: 'Training starten' },
-  empty: { ar: 'لا توجد تمارين بعد', de: 'Noch keine Trainings' },
-  emptyDesc: { ar: 'سجّل تمرينك الأول وستتعقّب الأرقام لك.', de: 'Logge dein erstes Training, der Rest läuft automatisch.' },
-  templates: { ar: 'قوالب', de: 'Vorlagen' },
-  exercises: { ar: 'تمارين', de: 'Übungen' },
-  inProgress: { ar: 'تمرين جارٍ', de: 'Aktive Session' },
-  finish: { ar: 'إنهاء', de: 'Beenden' },
-  cancel: { ar: 'إلغاء', de: 'Abbrechen' },
-  totalVolume: { ar: 'الحمل الكلي', de: 'Gesamtvolumen' },
-  duration: { ar: 'المدة', de: 'Dauer' },
-  rpe: { ar: 'صعوبة', de: 'RPE' },
-  sets: { ar: 'مجموعات', de: 'Sätze' },
-  reps: { ar: 'تكرار', de: 'Wdh' },
-  weight: { ar: 'وزن', de: 'kg' },
-  add: { ar: 'إضافة', de: 'Hinzufügen' },
-  addExercise: { ar: 'إضافة تمرين', de: 'Übung hinzufügen' },
-  searchExercise: { ar: 'ابحث عن تمرين...', de: 'Übung suchen...' },
-  custom: { ar: 'تمرين مخصص', de: 'Eigene Übung' },
-  rest: { ar: 'راحة', de: 'Pause' },
-  restDone: { ar: 'انتهت الراحة!', de: 'Pause vorbei!' },
-  weeklyVolume: { ar: 'حجم الأسبوع', de: 'Wochenvolumen' },
-  weeklyVolumeDesc: { ar: 'مجموع الحمل لكل عضلة في 7 أيام', de: 'Tonnage pro Muskel in 7 Tagen' },
-  prs: { ar: 'الأرقام القياسية', de: 'Persönliche Rekorde' },
+  resumeSession: { ar: 'متابعة', de: 'Fortsetzen' },
+  emptyState: { ar: 'لا تمارين بعد — ابدأ أول جلسة لتبدأ القصة.', de: 'Noch keine Trainings — starte deine erste Session.' },
+  emptyAfter: { ar: 'سترى تطورك ينمو هنا تلقائياً.', de: 'Dein Fortschritt wird hier automatisch dokumentiert.' },
+  lastSession: { ar: 'آخر تمرين', de: 'Letztes Training' },
+  topPrs: { ar: 'أعلى 1RM', de: 'Top 1RM' },
+  topMuscles: { ar: 'الأكثر تدريباً', de: 'Am meisten trainiert' },
+  totalSessions: { ar: 'جلسات', de: 'Sessions' },
+  streak: { ar: 'سلسلة', de: 'Streak' },
+  weekVolume: { ar: 'حجم 7 أيام', de: '7-Tage-Volumen' },
+  noProfile: { ar: 'سجّل وزنك في الملف لتفعيل المعايير.', de: 'Gewicht im Profil eintragen.' },
+  pickLift: { ar: 'اختر تمريناً لعرض التقدم', de: 'Lift auswählen für Trend' },
+  noPrChart: { ar: 'لا أرقام كافية لعرض الرسم البياني.', de: 'Noch zu wenige Daten für Trends.' },
+  // Sub-tabs
+  train: { ar: 'تدريب', de: 'Training' },
+  programs: { ar: 'برامج', de: 'Programme' },
+  records: { ar: 'الأرقام', de: 'Rekorde' },
+  volume: { ar: 'الحجم', de: 'Volumen' },
   history: { ar: 'السجل', de: 'Verlauf' },
-  e1rm: { ar: '1RM مقدّر', de: 'gesch. 1RM' },
-  noPrs: { ar: 'لم تسجل بعد. ارفع وستسجَّل أرقامك.', de: 'Noch keine Rekorde. Hebe los — sie werden automatisch erfasst.' },
-  pickType: { ar: 'النوع', de: 'Typ' },
-  strength: { ar: 'قوة', de: 'Kraft' },
-  cardio: { ar: 'كارديو', de: 'Cardio' },
-  hiit: { ar: 'هيت', de: 'HIIT' },
-  mobility: { ar: 'مرونة', de: 'Mobilität' },
-  templateStart: { ar: 'بدء', de: 'Start' },
-  exercisesIn: { ar: 'تمرين', de: 'Übungen' },
-  saved: { ar: 'حُفظ ✓', de: 'Gespeichert ✓' },
-  delete: { ar: 'حذف', de: 'Löschen' },
-  newPr: { ar: 'رقم قياسي جديد!', de: 'Neuer Rekord!' },
-  noEntries: { ar: 'لم تُضف تمارين بعد', de: 'Noch keine Übungen' },
-  notes: { ar: 'ملاحظات', de: 'Notizen' },
-  optional: { ar: 'اختياري', de: 'optional' },
-  filter: { ar: 'تصفية', de: 'Filter' },
-  all: { ar: 'الكل', de: 'Alle' },
+  toolPlate: { ar: 'حاسبة الأوزان', de: 'Plate-Rechner' },
+  weekTotal: { ar: 'حمل الأسبوع', de: 'Wochenlast' },
+  sessionsTotal: { ar: 'إجمالي الجلسات', de: 'Sessions gesamt' },
+  longestStreak: { ar: 'أطول سلسلة', de: 'Längster Streak' },
+  programActive: { ar: 'برنامجك الحالي', de: 'Aktives Programm' },
+  changeProgram: { ar: 'تغيير', de: 'Wechseln' },
 };
 
-const TYPE_OPTS = ['strength', 'cardio', 'hiit', 'mobility'] as const;
-type SessionType = typeof TYPE_OPTS[number];
+const SECTIONS: { key: Section; ar: string; de: string; icon: typeof Activity }[] = [
+  { key: 'train',    ar: 'تدريب',  de: 'Training',  icon: Dumbbell },
+  { key: 'programs', ar: 'برامج',  de: 'Programme', icon: Library },
+  { key: 'records',  ar: 'الأرقام', de: 'Rekorde',   icon: Trophy },
+  { key: 'volume',   ar: 'الحجم',  de: 'Volumen',   icon: BarChart3 },
+  { key: 'history',  ar: 'السجل',  de: 'Verlauf',   icon: History },
+];
 
-/* ─────────────────── Active session draft ─────────────────── */
+const ACTIVE_PROG_KEY = 'training:activeProgram';
+const STD_LIFTS = ['squat', 'bench', 'deadlift', 'ohp'] as const;
 
-interface Draft {
-  id?: UUID;
-  date: string;
-  startedAt: number;
-  type: SessionType;
-  title?: string;
-  exercises: ExerciseEntry[];
-  sessionRpe?: number;
-  notes?: string;
-}
-
-function blankDraft(type: SessionType = 'strength', title?: string): Draft {
-  return {
-    date: todayIso(),
-    startedAt: Date.now(),
-    type,
-    title,
-    exercises: [],
-  };
-}
-
-function fmtDuration(ms: number, lang: 'ar' | 'de'): string {
-  const sec = Math.max(0, Math.floor(ms / 1000));
-  const m = Math.floor(sec / 60);
-  const s = sec % 60;
-  if (m === 0) return `${s}${lang === 'ar' ? 'ث' : 's'}`;
-  return `${m}${lang === 'ar' ? 'د' : 'm'} ${String(s).padStart(2, '0')}`;
-}
-
-/* ─────────────────── Rest timer ─────────────────── */
-
-function RestTimer({ defaultSec, lang }: { defaultSec: number; lang: 'ar' | 'de' }) {
-  const [secLeft, setSecLeft] = useState(defaultSec);
-  const [running, setRunning] = useState(false);
+export default function WorkoutsTab({ workouts, profile, onSave, onDelete }: Props) {
+  const { language } = useApp();
+  const lang = language as 'ar' | 'de';
+  const [section, setSection] = useState<Section>('train');
+  const [showPlayer, setShowPlayer] = useState(false);
+  const [recentPrs, setRecentPrs] = useState<PersonalRecord[] | null>(null);
+  const [pickedLift, setPickedLift] = useState<string>('squat');
+  const [activeProgram, setActiveProgram] = useState<string | null>(null);
+  const [showPlate, setShowPlate] = useState(false);
 
   useEffect(() => {
-    if (!running) return;
-    const id = window.setInterval(() => {
-      setSecLeft((s) => {
-        if (s <= 1) {
-          setRunning(false);
-          if ('vibrate' in navigator) navigator.vibrate?.(100);
-          return 0;
-        }
-        return s - 1;
-      });
-    }, 1000);
-    return () => window.clearInterval(id);
-  }, [running]);
+    try {
+      const k = localStorage.getItem(ACTIVE_PROG_KEY);
+      if (k) setActiveProgram(k);
+    } catch { /* noop */ }
+  }, []);
 
-  const reset = () => { setSecLeft(defaultSec); setRunning(false); };
-
-  return (
-    <div className="flex items-center gap-2 bg-muted/40 rounded-full px-2 py-1">
-      <button
-        type="button"
-        onClick={() => setRunning((r) => !r)}
-        className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center"
-      >
-        {running ? <Pause className="w-3 h-3" /> : <Play className="w-3 h-3" />}
-      </button>
-      <span className="text-[12px] font-bold tabular-nums text-foreground" dir="ltr">
-        {String(Math.floor(secLeft / 60)).padStart(1, '0')}:{String(secLeft % 60).padStart(2, '0')}
-      </span>
-      <button type="button" onClick={reset} className="text-muted-foreground">
-        <RotateCcw className="w-3.5 h-3.5" />
-      </button>
-      <span className="text-[10px] text-muted-foreground/70 ms-1">{T.rest[lang]}</span>
-    </div>
-  );
-}
-
-/* ─────────────────── Exercise picker sheet ─────────────────── */
-
-function ExercisePicker({
-  open,
-  onClose,
-  onPick,
-  lang,
-}: {
-  open: boolean;
-  onClose: () => void;
-  onPick: (key: string) => void;
-  lang: 'ar' | 'de';
-}) {
-  const [q, setQ] = useState('');
-  const [muscle, setMuscle] = useState<MuscleGroup | 'all'>('all');
-  const [detailExercise, setDetailExercise] = useState<Exercise | null>(null);
-
-  const filtered = useMemo(() => {
-    const query = q.trim().toLowerCase();
-    return EXERCISE_LIST.filter((e) => {
-      if (muscle !== 'all' && e.primary !== muscle && !(e.secondary?.includes(muscle))) return false;
-      if (!query) return true;
-      return (
-        e.label.ar.toLowerCase().includes(query) ||
-        e.label.de.toLowerCase().includes(query) ||
-        e.key.includes(query)
-      );
-    });
-  }, [q, muscle]);
-
-  const muscleOptions: (MuscleGroup | 'all')[] = [
-    'all', 'chest', 'back', 'shoulders', 'biceps', 'triceps', 'quads',
-    'hamstrings', 'glutes', 'calves', 'core', 'cardio',
-  ];
-
-  return (
-    <AnimatePresence>
-      {open && (
-        <motion.div
-          initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center"
-          onClick={onClose}
-        >
-          <motion.div
-            initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
-            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            className="w-full sm:max-w-lg bg-background rounded-t-3xl sm:rounded-3xl max-h-[80vh] overflow-y-auto"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex justify-center pt-3 pb-1">
-              <div className="w-10 h-1 rounded-full bg-muted-foreground/30" />
-            </div>
-            <div className="px-4 pb-6 space-y-3">
-              <div className="flex items-center justify-between">
-                <h3 className="text-base font-bold text-foreground">{T.addExercise[lang]}</h3>
-                <button onClick={onClose} className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-
-              {/* Search */}
-              <div className="relative">
-                <Search className="absolute top-1/2 -translate-y-1/2 start-3 w-4 h-4 text-muted-foreground pointer-events-none" />
-                <input
-                  value={q}
-                  onChange={(e) => setQ(e.target.value)}
-                  placeholder={T.searchExercise[lang]}
-                  className="w-full bg-card border border-border/40 rounded-xl ps-9 pe-3 py-2.5 text-base text-foreground outline-none focus:border-primary/50"
-                />
-              </div>
-
-              {/* Muscle filter */}
-              <div className="flex gap-1.5 overflow-x-auto pb-1 -mx-1 px-1">
-                {muscleOptions.map((m) => {
-                  const active = muscle === m;
-                  const label = m === 'all' ? T.all[lang] : MUSCLE_LABELS[m as MuscleGroup][lang];
-                  return (
-                    <button
-                      key={m}
-                      onClick={() => setMuscle(m)}
-                      className={`shrink-0 text-[11px] font-semibold px-2.5 py-1.5 rounded-full border transition-colors ${
-                        active
-                          ? 'bg-primary text-primary-foreground border-primary'
-                          : 'bg-card text-muted-foreground border-border/40'
-                      }`}
-                    >
-                      {label}
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Results */}
-              <div className="space-y-1">
-                {filtered.map((e) => (
-                  <div
-                    key={e.key}
-                    className="w-full text-start rounded-xl bg-card border border-border/40 p-3 flex items-center justify-between gap-2"
-                  >
-                    <button
-                      onClick={() => setDetailExercise(e)}
-                      className="min-w-0 flex-1 text-start active:opacity-70 transition-opacity"
-                    >
-                      <p className="text-[13px] font-bold text-foreground truncate">{e.label[lang]}</p>
-                      <p className="text-[10px] text-muted-foreground mt-0.5">
-                        {MUSCLE_LABELS[e.primary][lang]}
-                        {e.secondary && e.secondary.length > 0 && (
-                          <span className="opacity-60"> · {e.secondary.map(m => MUSCLE_LABELS[m][lang]).join(', ')}</span>
-                        )}
-                        {e.isBigLift && <span className="ms-1.5 text-amber-500">★</span>}
-                      </p>
-                    </button>
-                    <button
-                      onClick={() => { onPick(e.key); onClose(); }}
-                      className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 active:scale-95 transition-transform"
-                    >
-                      <Plus className="w-4 h-4 text-primary" />
-                    </button>
-                  </div>
-                ))}
-                {q.trim() && filtered.length === 0 && (
-                  <button
-                    onClick={() => { onPick(`custom:${q.trim()}`); onClose(); }}
-                    className="w-full p-3 rounded-xl bg-primary/10 border border-primary/30 text-primary text-[12px] font-semibold"
-                  >
-                    + {T.custom[lang]}: "{q.trim()}"
-                  </button>
-                )}
-              </div>
-
-              {/* Exercise Detail Sheet */}
-              <ExerciseDetailSheet
-                exercise={detailExercise}
-                open={!!detailExercise}
-                onClose={() => setDetailExercise(null)}
-                lang={lang}
-              />
-            </div>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  );
-}
-
-
-
-/* ─────────────────── Single exercise row in the active session ─────────────────── */
-
-function ExerciseRow({
-  entry,
-  onChange,
-  onRemove,
-  lang,
-}: {
-  entry: ExerciseEntry;
-  onChange: (e: ExerciseEntry) => void;
-  onRemove: () => void;
-  lang: 'ar' | 'de';
-}) {
-  const ex = resolveExercise(entry.exerciseKey);
-  const isCustom = 'isCustom' in ex && ex.isCustom;
-  const isCardio = !isCustom && (ex as Exercise).type === 'cardio';
-
-  const updateSet = (i: number, patch: Partial<SetEntry>) => {
-    onChange({ ...entry, sets: entry.sets.map((s, idx) => (idx === i ? { ...s, ...patch } : s)) });
-  };
-  const addSet = () => {
-    const last = entry.sets[entry.sets.length - 1];
-    onChange({
-      ...entry,
-      sets: [...entry.sets, isCardio
-        ? { durationSec: last?.durationSec ?? 600, distanceKm: last?.distanceKm ?? 0 }
-        : { reps: last?.reps ?? 10, weightKg: last?.weightKg ?? 20 }],
-    });
-  };
-  const removeSet = (i: number) => {
-    onChange({ ...entry, sets: entry.sets.filter((_, idx) => idx !== i) });
-  };
-
-  return (
-    <PremiumCard className="p-3 space-y-2.5">
-      <div className="flex items-center justify-between gap-2">
-        <div className="min-w-0">
-          <p className="text-[13px] font-bold text-foreground truncate">{ex.label[lang]}</p>
-          {!isCustom && (
-            <p className="text-[10px] text-muted-foreground mt-0.5">
-              {MUSCLE_LABELS[(ex as Exercise).primary][lang]}
-            </p>
-          )}
-        </div>
-        <button onClick={onRemove} className="p-1.5 rounded-lg bg-destructive/10 text-destructive">
-          <Trash2 className="w-3.5 h-3.5" />
-        </button>
-      </div>
-
-      {/* Sets header */}
-      <div className="grid grid-cols-12 gap-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70 px-1" dir="ltr">
-        <span className="col-span-1">#</span>
-        {isCardio ? (
-          <>
-            <span className="col-span-5">{lang === 'ar' ? 'مدة' : 'Dauer'}</span>
-            <span className="col-span-5">{lang === 'ar' ? 'كم' : 'km'}</span>
-          </>
-        ) : (
-          <>
-            <span className="col-span-5">{T.weight[lang]}</span>
-            <span className="col-span-5">{T.reps[lang]}</span>
-          </>
-        )}
-        <span className="col-span-1" />
-      </div>
-
-      {/* Sets */}
-      <div className="space-y-1.5">
-        {entry.sets.map((s, i) => (
-          <div key={i} className="grid grid-cols-12 gap-1 items-center" dir="ltr">
-            <span className="col-span-1 text-[12px] font-bold text-muted-foreground tabular-nums">{i + 1}</span>
-            {isCardio ? (
-              <>
-                <input
-                  type="number" inputMode="numeric"
-                  value={s.durationSec ? Math.round(s.durationSec / 60) : ''}
-                  onChange={(e) => updateSet(i, { durationSec: Math.max(0, parseInt(e.target.value, 10) || 0) * 60 })}
-                  placeholder={lang === 'ar' ? 'دقيقة' : 'Min'}
-                  className="col-span-5 bg-card border border-border/40 rounded-lg px-2 py-1.5 text-[16px] tabular-nums text-foreground focus:outline-none focus:border-primary/40"
-                />
-                <input
-                  type="number" inputMode="decimal" step="0.1"
-                  value={s.distanceKm ?? ''}
-                  onChange={(e) => updateSet(i, { distanceKm: parseFloat(e.target.value) || 0 })}
-                  placeholder="km"
-                  className="col-span-5 bg-card border border-border/40 rounded-lg px-2 py-1.5 text-[16px] tabular-nums text-foreground focus:outline-none focus:border-primary/40"
-                />
-              </>
-            ) : (
-              <>
-                <input
-                  type="number" inputMode="decimal" step="0.5"
-                  value={s.weightKg ?? ''}
-                  onChange={(e) => updateSet(i, { weightKg: parseFloat(e.target.value) || 0 })}
-                  placeholder="kg"
-                  className="col-span-5 bg-card border border-border/40 rounded-lg px-2 py-1.5 text-[16px] tabular-nums text-foreground focus:outline-none focus:border-primary/40"
-                />
-                <input
-                  type="number" inputMode="numeric"
-                  value={s.reps ?? ''}
-                  onChange={(e) => updateSet(i, { reps: parseInt(e.target.value, 10) || 0 })}
-                  placeholder={T.reps[lang]}
-                  className="col-span-5 bg-card border border-border/40 rounded-lg px-2 py-1.5 text-[16px] tabular-nums text-foreground focus:outline-none focus:border-primary/40"
-                />
-              </>
-            )}
-            <button onClick={() => removeSet(i)} className="col-span-1 p-1 text-muted-foreground/50">
-              <X className="w-3.5 h-3.5" />
-            </button>
-          </div>
-        ))}
-      </div>
-
-      <div className="flex items-center justify-between gap-2 pt-1">
-        <button
-          onClick={addSet}
-          className="text-[11px] font-semibold text-primary px-2.5 py-1 rounded-lg bg-primary/10 active:scale-95 transition-transform"
-        >
-          + {T.sets[lang]}
-        </button>
-        <RestTimer defaultSec={isCardio ? 60 : 90} lang={lang} />
-      </div>
-    </PremiumCard>
-  );
-}
-
-/* ─────────────────── Active session card ─────────────────── */
-
-function ActiveSession({
-  draft,
-  setDraft,
-  onSave,
-  onCancel,
-  lang,
-}: {
-  draft: Draft;
-  setDraft: (d: Draft) => void;
-  onSave: () => void;
-  onCancel: () => void;
-  lang: 'ar' | 'de';
-}) {
-  const [pickerOpen, setPickerOpen] = useState(false);
-
-  const totalVol = useMemo(() => {
-    let total = 0;
-    for (const e of draft.exercises) {
-      for (const s of e.sets) {
-        if (s.weightKg && s.reps) total += s.weightKg * s.reps;
+  const lastByExercise = useMemo(() => {
+    const map = new Map<string, { weightKg?: number; reps?: number }>();
+    for (const w of workouts) {
+      for (const ex of w.exercises) {
+        if (map.has(ex.exerciseKey)) continue;
+        const last = ex.sets[ex.sets.length - 1];
+        if (last) map.set(ex.exerciseKey, { weightKg: last.weightKg, reps: last.reps });
       }
     }
-    return Math.round(total);
-  }, [draft.exercises]);
+    return map;
+  }, [workouts]);
 
-  const elapsed = Date.now() - draft.startedAt;
+  const recentExercises = useMemo(() => {
+    const arr: string[] = [];
+    const seen = new Set<string>();
+    for (const w of workouts) {
+      for (const ex of w.exercises) {
+        if (seen.has(ex.exerciseKey)) continue;
+        seen.add(ex.exerciseKey);
+        arr.push(ex.exerciseKey);
+        if (arr.length >= 8) break;
+      }
+      if (arr.length >= 8) break;
+    }
+    return arr;
+  }, [workouts]);
 
-  const addExercise = (key: string) => {
-    const ex = resolveExercise(key);
-    const isCardio = 'isCustom' in ex ? false : (ex as Exercise).type === 'cardio';
-    const sets: SetEntry[] = isCardio
-      ? [{ durationSec: 600, distanceKm: 0 }]
-      : Array.from({ length: ('isCustom' in ex ? 3 : ((ex as Exercise).defaultSets ?? 3)) }, () => ({
-          weightKg: 20,
-          reps: ('isCustom' in ex ? 10 : ((ex as Exercise).defaultReps ?? 10)),
-        }));
-    setDraft({ ...draft, exercises: [...draft.exercises, { exerciseKey: key, sets }] });
+  const stats = useMemo(() => sessionStats(workouts, 7), [workouts]);
+  const allTime = useMemo(() => sessionStats(workouts), [workouts]);
+  const streak = useMemo(() => activityStreak(workouts), [workouts]);
+
+  const activeProgramDef = useMemo(() => activeProgram ? programByKey(activeProgram) : null, [activeProgram]);
+
+  const handleFinish = async (s: Omit<WorkoutSession, 'id'> & { id?: UUID }) => {
+    await onSave(s);
+    // Detect PRs against existing history
+    const prs = detectPrs(
+      { ...s, id: s.id ?? 'new' } as WorkoutSession,
+      workouts,
+    );
+    setShowPlayer(false);
+    if (prs.length > 0) setRecentPrs(prs);
   };
 
-  const updateExercise = (i: number, patch: ExerciseEntry) => {
-    setDraft({ ...draft, exercises: draft.exercises.map((e, idx) => (idx === i ? patch : e)) });
+  const handlePickProgram = (key: string) => {
+    setActiveProgram(key);
+    try { localStorage.setItem(ACTIVE_PROG_KEY, key); } catch { /* noop */ }
+    setSection('train');
   };
-  const removeExercise = (i: number) => {
-    setDraft({ ...draft, exercises: draft.exercises.filter((_, idx) => idx !== i) });
-  };
+
+  const liftOptions = useMemo(() => {
+    const opts = STD_LIFTS.filter((k) => workouts.some((w) => w.exercises.some((e) => e.exerciseKey === k)));
+    if (opts.length === 0) return STD_LIFTS.slice(0, 1);
+    return opts;
+  }, [workouts]);
 
   return (
-    <PremiumCard gradient accent="hsl(var(--primary))" className="p-4 space-y-3">
-      <div className="flex items-start justify-between gap-2">
-        <div className="min-w-0 flex-1">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-primary">
-            {T.inProgress[lang]}
-          </p>
-          {draft.title && (
-            <p className="text-[15px] font-bold text-foreground mt-0.5">{draft.title}</p>
-          )}
-          <SegmentedControl
-            segments={TYPE_OPTS.map((t) => ({ value: t, label: T[t][lang] }))}
-            value={draft.type}
-            onChange={(v) => setDraft({ ...draft, type: v })}
-            size="sm"
-          />
-        </div>
-        <button
-          onClick={onCancel}
-          className="w-7 h-7 rounded-full bg-muted flex items-center justify-center shrink-0"
-        >
-          <X className="w-4 h-4" />
-        </button>
-      </div>
-
-      {/* Stats row */}
-      <div className="grid grid-cols-3 gap-2">
-        <div className="bg-muted/30 rounded-xl p-2 text-center">
-          <div className="text-[9px] uppercase tracking-wider text-muted-foreground/70 font-semibold">
-            {T.duration[lang]}
-          </div>
-          <div className="text-[14px] font-bold tabular-nums text-foreground" dir="ltr">
-            {fmtDuration(elapsed, lang)}
-          </div>
-        </div>
-        <div className="bg-muted/30 rounded-xl p-2 text-center">
-          <div className="text-[9px] uppercase tracking-wider text-muted-foreground/70 font-semibold">
-            {T.totalVolume[lang]}
-          </div>
-          <div className="text-[14px] font-bold tabular-nums text-foreground" dir="ltr">
-            <AnimatedNumber value={totalVol} digits={0} /> kg
-          </div>
-        </div>
-        <div className="bg-muted/30 rounded-xl p-2 text-center">
-          <div className="text-[9px] uppercase tracking-wider text-muted-foreground/70 font-semibold">
-            {T.exercises[lang]}
-          </div>
-          <div className="text-[14px] font-bold tabular-nums text-foreground" dir="ltr">
-            {draft.exercises.length}
-          </div>
-        </div>
-      </div>
-
-      {/* Exercise rows */}
-      <div className="space-y-2">
-        {draft.exercises.length === 0 ? (
-          <div className="text-center py-6 text-[12px] text-muted-foreground">
-            {T.noEntries[lang]}
-          </div>
-        ) : (
-          draft.exercises.map((e, i) => (
-            <ExerciseRow
-              key={i}
-              entry={e}
-              onChange={(p) => updateExercise(i, p)}
-              onRemove={() => removeExercise(i)}
-              lang={lang}
-            />
-          ))
-        )}
-      </div>
-
-      <button
-        onClick={() => setPickerOpen(true)}
-        className="w-full py-2.5 rounded-xl bg-primary/10 border border-dashed border-primary/30 text-primary text-[12px] font-semibold flex items-center justify-center gap-1 active:scale-[0.98] transition-transform"
-      >
-        <Plus className="w-4 h-4" /> {T.addExercise[lang]}
-      </button>
-
-      {/* Session RPE */}
-      <div className="bg-muted/30 rounded-xl p-3">
-        <div className="flex items-center justify-between mb-1.5">
-          <span className="text-[11px] font-semibold text-foreground">{T.rpe[lang]} (1-10)</span>
-          <span className="text-[12px] font-bold text-primary tabular-nums">{draft.sessionRpe ?? '—'}</span>
-        </div>
-        <input
-          type="range" min={1} max={10} step={1}
-          value={draft.sessionRpe ?? 5}
-          onChange={(e) => setDraft({ ...draft, sessionRpe: parseInt(e.target.value, 10) })}
-          className="w-full accent-primary"
-          dir="ltr"
-        />
-      </div>
-
-      {/* Notes */}
-      <textarea
-        value={draft.notes ?? ''}
-        onChange={(e) => setDraft({ ...draft, notes: e.target.value })}
-        rows={2}
-        placeholder={`${T.notes[lang]} (${T.optional[lang]})`}
-        className="w-full bg-card border border-border/40 rounded-xl px-3 py-2.5 text-sm text-foreground outline-none focus:border-primary/50 resize-none"
+    <div className="space-y-3">
+      {/* Hero stats — always visible */}
+      <HeroStats
+        totalSessions={allTime.count}
+        currentStreak={streak.current}
+        longestStreak={streak.longest}
+        weekVolume={stats.totalVolumeKg}
+        lang={lang}
       />
 
-      {/* Actions */}
-      <div className="flex gap-2">
-        <button
-          onClick={onCancel}
-          className="flex-1 py-2.5 rounded-xl bg-secondary text-secondary-foreground text-sm font-medium"
-        >
-          {T.cancel[lang]}
-        </button>
-        <button
-          onClick={onSave}
-          disabled={draft.exercises.length === 0}
-          className="flex-[2] py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold disabled:opacity-50 active:scale-[0.98] transition-transform flex items-center justify-center gap-1.5"
-        >
-          <Check className="w-4 h-4" /> {T.finish[lang]}
-        </button>
-      </div>
-
-      <ExercisePicker open={pickerOpen} onClose={() => setPickerOpen(false)} onPick={addExercise} lang={lang} />
-    </PremiumCard>
-  );
-}
-
-
-
-/* ─────────────────── Templates strip ─────────────────── */
-
-function Templates({
-  onPick,
-  lang,
-}: {
-  onPick: (templateKey: string) => void;
-  lang: 'ar' | 'de';
-}) {
-  return (
-    <PremiumCard className="p-4 space-y-3">
-      <SectionHeader title={T.templates[lang]} icon={Star} />
-      <div className="grid grid-cols-2 gap-2">
-        {TEMPLATES.map((t) => {
-          const Icon =
-            t.type === 'strength' ? Dumbbell
-            : t.type === 'cardio'   ? Activity
-            : t.type === 'hiit'     ? Zap
-            : Flame;
-          const accent =
-            t.type === 'strength' ? '#3b82f6'
-            : t.type === 'cardio'   ? '#06b6d4'
-            : t.type === 'hiit'     ? '#ef4444'
-            : '#a855f7';
+      {/* Sub-nav */}
+      <nav className="flex gap-0.5 p-1 bg-card/80 border border-border/40 rounded-xl overflow-x-auto scrollbar-none" dir="ltr">
+        {SECTIONS.map((s) => {
+          const Icon = s.icon;
+          const active = section === s.key;
           return (
             <button
-              key={t.key}
-              onClick={() => onPick(t.key)}
-              className="text-start bg-card border border-border/40 rounded-2xl p-3 active:scale-[0.98] transition-transform overflow-hidden relative"
+              key={s.key}
+              onClick={() => setSection(s.key)}
+              aria-pressed={active}
+              className={`relative shrink-0 flex items-center gap-1 px-2.5 h-8 rounded-lg text-[11px] font-semibold transition-colors ${
+                active ? 'text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
+              }`}
             >
-              <div
-                aria-hidden
-                className="absolute -top-8 -end-8 w-20 h-20 rounded-full blur-2xl pointer-events-none"
-                style={{ background: accent, opacity: 0.12 }}
-              />
-              <div
-                className="w-7 h-7 rounded-lg flex items-center justify-center mb-2"
-                style={{ background: `${accent}1f` }}
-              >
-                <Icon className="w-3.5 h-3.5" style={{ color: accent }} />
-              </div>
-              <p className="text-[12px] font-bold text-foreground leading-tight">{t.name[lang]}</p>
-              <p className="text-[10px] text-muted-foreground mt-0.5 leading-snug line-clamp-2">
-                {t.description[lang]}
-              </p>
-              <p className="text-[10px] text-muted-foreground/70 mt-1.5 tabular-nums" dir="ltr">
-                {t.exerciseKeys.length} {T.exercisesIn[lang]} · {t.durationMin}min
-              </p>
+              {active && (
+                <motion.span
+                  layoutId="workouts-pill"
+                  className="absolute inset-0 rounded-lg bg-primary"
+                  transition={{ type: 'spring', stiffness: 480, damping: 36 }}
+                />
+              )}
+              <span className="relative inline-flex items-center gap-1">
+                <Icon className="w-3.5 h-3.5" />
+                {lang === 'ar' ? s.ar : s.de}
+              </span>
             </button>
           );
         })}
-      </div>
-    </PremiumCard>
-  );
-}
+      </nav>
 
-/* ─────────────────── Weekly volume per muscle ─────────────────── */
+      {/* Section content */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={section}
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -4 }}
+          transition={{ duration: 0.18 }}
+          className="space-y-3"
+        >
+          {section === 'train' && (
+            <>
+              <DeloadAdvisor workouts={workouts} lang={lang} />
 
-function WeeklyVolume({ workouts, lang }: { workouts: WorkoutSession[]; lang: 'ar' | 'de' }) {
-  const data = useMemo(() => {
-    const cutoff = Date.now() - 7 * 86_400_000;
-    const byMuscle = new Map<MuscleGroup, number>();
-    for (const w of workouts) {
-      if (w.startedAt < cutoff) continue;
-      for (const ex of w.exercises) {
-        const def = EXERCISES[ex.exerciseKey];
-        if (!def) continue;
-        const muscles: MuscleGroup[] = [def.primary, ...(def.secondary ?? [])];
-        let exVol = 0;
-        for (const s of ex.sets) {
-          if (s.weightKg && s.reps) exVol += s.weightKg * s.reps;
-        }
-        if (exVol === 0) continue;
-        for (const m of muscles) {
-          byMuscle.set(m, (byMuscle.get(m) ?? 0) + exVol * (m === def.primary ? 1 : 0.5));
-        }
-      }
-    }
-    const arr = Array.from(byMuscle.entries())
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 8);
-    const max = Math.max(...arr.map((r) => r[1]), 1);
-    return { rows: arr, max };
-  }, [workouts]);
-
-  if (data.rows.length === 0) return null;
-
-  return (
-    <PremiumCard gradient accent="#3b82f6" className="p-4 space-y-3">
-      <SectionHeader title={T.weeklyVolume[lang]} subtitle={T.weeklyVolumeDesc[lang]} icon={Trophy} />
-      <div className="space-y-2">
-        {data.rows.map(([muscle, vol]) => {
-          const pct = (vol / data.max) * 100;
-          return (
-            <div key={muscle} className="flex items-center gap-2">
-              <span className="w-20 shrink-0 text-[11px] font-semibold text-foreground">
-                {MUSCLE_LABELS[muscle][lang]}
-              </span>
-              <div className="flex-1 h-2.5 bg-muted/40 rounded-full overflow-hidden" dir="ltr">
-                <motion.div
-                  className="h-full rounded-full bg-gradient-to-r from-blue-500 to-cyan-400"
-                  initial={{ width: 0 }}
-                  animate={{ width: `${pct}%` }}
-                  transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+              {showPlayer ? (
+                <SessionPlayer
+                  onCancel={() => setShowPlayer(false)}
+                  onFinish={handleFinish}
+                  recentExercises={recentExercises}
+                  lastByExercise={lastByExercise}
+                  lang={lang}
                 />
-              </div>
-              <span className="text-[11px] tabular-nums text-muted-foreground shrink-0" dir="ltr">
-                {Math.round(vol).toLocaleString()} kg
-              </span>
-            </div>
-          );
-        })}
-      </div>
-    </PremiumCard>
-  );
-}
+              ) : (
+                <>
+                  <button
+                    onClick={() => setShowPlayer(true)}
+                    className="w-full py-4 rounded-2xl bg-primary text-primary-foreground text-sm font-bold inline-flex items-center justify-center gap-2 active:scale-[0.99] transition-transform"
+                  >
+                    <Play className="w-5 h-5" /> {T.startSession[lang]}
+                  </button>
 
-/* ─────────────────── Personal records ─────────────────── */
+                  {activeProgramDef && (
+                    <div className="rounded-2xl bg-primary/8 border border-primary/30 p-3 flex items-center justify-between gap-2">
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[10px] uppercase tracking-wider text-primary font-semibold">{T.programActive[lang]}</p>
+                        <p className="text-[13px] font-bold text-foreground truncate">{activeProgramDef.name[lang]}</p>
+                      </div>
+                      <button
+                        onClick={() => setSection('programs')}
+                        className="text-[11px] font-semibold text-primary px-3 py-1.5 rounded-lg bg-primary/10"
+                      >
+                        {T.changeProgram[lang]}
+                      </button>
+                    </div>
+                  )}
 
-function PersonalRecords({ workouts, lang }: { workouts: WorkoutSession[]; lang: 'ar' | 'de' }) {
-  const prs = useMemo(() => {
-    const map = new Map<string, { e1rm: number; date: string }>();
-    for (const w of workouts) {
-      for (const ex of w.exercises) {
-        if (ex.exerciseKey.startsWith('custom:')) continue;
-        const def = EXERCISES[ex.exerciseKey];
-        if (!def || def.type !== 'strength') continue;
-        const e = bestE1RMFromSets(ex.sets);
-        if (e == null) continue;
-        const cur = map.get(ex.exerciseKey);
-        if (!cur || e > cur.e1rm) map.set(ex.exerciseKey, { e1rm: e, date: w.date });
-      }
-    }
-    return Array.from(map.entries())
-      .map(([key, v]) => ({ key, ...v, def: EXERCISES[key] }))
-      .sort((a, b) => (b.def?.isBigLift ? 1 : 0) - (a.def?.isBigLift ? 1 : 0))
-      .slice(0, 6);
-  }, [workouts]);
+                  {workouts.length === 0 ? (
+                    <EmptyState lang={lang} />
+                  ) : (
+                    <LastSessionCard session={workouts[0]} lang={lang} />
+                  )}
 
-  return (
-    <PremiumCard gradient accent="#fbbf24" className="p-4 space-y-3">
-      <SectionHeader title={T.prs[lang]} icon={Trophy} />
-      {prs.length === 0 ? (
-        <p className="text-[12px] text-muted-foreground text-center py-3">{T.noPrs[lang]}</p>
-      ) : (
-        <div className="grid grid-cols-2 gap-2">
-          {prs.map((p) => (
-            <div key={p.key} className="rounded-xl bg-muted/30 border border-border/30 p-2.5">
-              <div className="flex items-center gap-1.5">
-                {p.def?.isBigLift && <Star className="w-3 h-3 text-amber-500 fill-amber-500" />}
-                <p className="text-[11px] font-bold text-foreground truncate">
-                  {p.def?.label[lang] ?? p.key}
-                </p>
-              </div>
-              <p className="text-[18px] font-bold tabular-nums text-amber-600 dark:text-amber-400 mt-0.5" dir="ltr">
-                {p.e1rm.toFixed(1)} <span className="text-[10px] text-muted-foreground">kg</span>
-              </p>
-              <p className="text-[9px] text-muted-foreground/70 tabular-nums" dir="ltr">{p.date}</p>
-            </div>
-          ))}
-        </div>
-      )}
-    </PremiumCard>
-  );
-}
+                  {/* Plate calculator quick tool */}
+                  <button
+                    onClick={() => setShowPlate(true)}
+                    className="w-full text-start rounded-2xl bg-card border border-border/40 p-3 flex items-center gap-3 active:scale-[0.99]"
+                  >
+                    <div className="w-10 h-10 rounded-xl bg-blue-500/15 flex items-center justify-center">
+                      <Dumbbell className="w-5 h-5 text-blue-500" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-[12px] font-bold text-foreground">{T.toolPlate[lang]}</p>
+                      <p className="text-[10px] text-muted-foreground">
+                        {lang === 'ar' ? 'احسب الأقراص لكل وزن — مرئي.' : 'Plate-Aufteilung visualisiert.'}
+                      </p>
+                    </div>
+                  </button>
 
-/* ─────────────────── History ─────────────────── */
+                  {workouts.length > 0 && (
+                    <TopExercisesCard workouts={workouts} lang={lang} />
+                  )}
+                </>
+              )}
+            </>
+          )}
 
-function HistoryRow({
-  w,
-  onDelete,
-  lang,
-}: {
-  w: WorkoutSession;
-  onDelete: () => void;
-  lang: 'ar' | 'de';
-}) {
-  const [open, setOpen] = useState(false);
-  const vol = sessionVolumeKg(w);
-  const dur = w.endedAt ? Math.round((w.endedAt - w.startedAt) / 60000) : null;
+          {section === 'programs' && (
+            <ProgramsLibraryView
+              activeKey={activeProgram}
+              onPickProgram={handlePickProgram}
+              lang={lang}
+            />
+          )}
 
-  return (
-    <div className="rounded-xl bg-card border border-border/40 overflow-hidden">
-      <button
-        onClick={() => setOpen((o) => !o)}
-        className="w-full p-3 flex items-center justify-between gap-2 active:scale-[0.99] transition-transform text-start"
-      >
-        <div className="flex-1 min-w-0">
-          <p className="text-[12px] font-bold text-foreground truncate">
-            {w.title ?? T[w.type as SessionType]?.[lang] ?? w.type}
-          </p>
-          <p className="text-[10px] text-muted-foreground tabular-nums" dir="ltr">
-            {w.date}
-            {dur != null && <> · {dur}min</>}
-            {vol > 0 && <> · {Math.round(vol).toLocaleString()} kg</>}
-          </p>
-        </div>
-        <motion.span animate={{ rotate: open ? 180 : 0 }} transition={{ duration: 0.2 }}>
-          <ChevronDown className="w-4 h-4 text-muted-foreground" />
-        </motion.span>
-      </button>
-      <AnimatePresence initial={false}>
-        {open && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.22 }}
-            className="overflow-hidden border-t border-border/30"
-          >
-            <div className="p-3 space-y-2">
-              {w.exercises.map((ex, i) => {
-                const def = resolveExercise(ex.exerciseKey);
-                return (
-                  <div key={i} className="text-[11px] text-muted-foreground">
-                    <span className="font-semibold text-foreground">{def.label[lang]}: </span>
-                    <span dir="ltr">
-                      {ex.sets
-                        .map((s) =>
-                          s.weightKg && s.reps
-                            ? `${s.weightKg}×${s.reps}`
-                            : s.durationSec
-                            ? `${Math.round(s.durationSec / 60)}min`
-                            : '—',
-                        )
-                        .join(' · ')}
-                    </span>
+          {section === 'records' && (
+            <>
+              <StrengthStandardsView workouts={workouts} profile={profile} lang={lang} />
+              {workouts.length > 0 && (
+                <>
+                  <div className="flex gap-1.5 overflow-x-auto scrollbar-none">
+                    {liftOptions.map((k) => (
+                      <button
+                        key={k}
+                        onClick={() => setPickedLift(k)}
+                        className={`shrink-0 text-[11px] font-semibold px-3 py-1.5 rounded-full border ${
+                          pickedLift === k
+                            ? 'bg-primary text-primary-foreground border-primary'
+                            : 'bg-card text-muted-foreground border-border/40'
+                        }`}
+                      >
+                        {EXERCISES[k]?.label[lang] ?? k}
+                      </button>
+                    ))}
                   </div>
-                );
-              })}
-              <button
-                onClick={onDelete}
-                className="text-[11px] font-semibold text-destructive flex items-center gap-1 mt-2"
-              >
-                <Trash2 className="w-3 h-3" /> {T.delete[lang]}
-              </button>
-            </div>
+                  <OneRmTrendChart workouts={workouts} exerciseKey={pickedLift} lang={lang} />
+                </>
+              )}
+            </>
+          )}
+
+          {section === 'volume' && (
+            <>
+              <VolumeBars workouts={workouts} windowDays={7} lang={lang} />
+              <div className="bg-card border border-border/40 rounded-xl p-3 space-y-1.5">
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-semibold">
+                  {lang === 'ar' ? 'مفتاح المناطق' : 'Zonen-Legende'}
+                </p>
+                <VolumeZoneLegend lang={lang} />
+              </div>
+              <FrequencyHeatmap workouts={workouts} lang={lang} />
+            </>
+          )}
+
+          {section === 'history' && (
+            <HistoryList workouts={workouts} onDelete={onDelete} lang={lang} />
+          )}
+        </motion.div>
+      </AnimatePresence>
+
+      {/* PR celebration */}
+      <PrCelebration
+        records={recentPrs ?? []}
+        open={recentPrs != null}
+        onClose={() => setRecentPrs(null)}
+        lang={lang}
+      />
+
+      {/* Plate calculator sheet */}
+      <AnimatePresence>
+        {showPlate && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center"
+            onClick={() => setShowPlate(false)}
+          >
+            <motion.div
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ duration: 0.3 }}
+              className="w-full sm:max-w-md bg-background rounded-t-3xl sm:rounded-3xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex justify-center pt-3 pb-1">
+                <div className="w-10 h-1 rounded-full bg-muted-foreground/30" />
+              </div>
+              <div className="px-4 pb-6 space-y-3">
+                <h3 className="text-base font-bold text-foreground">{T.toolPlate[lang]}</h3>
+                <PlateCalculator initialKg={60} lang={lang} />
+              </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -859,136 +375,94 @@ function HistoryRow({
   );
 }
 
-/* ─────────────────── Main component ─────────────────── */
+/* ──────────────── Sub-components ──────────────── */
 
-export default function WorkoutsTab({ workouts, profile, onSave, onDelete }: Props) {
-  const { language } = useApp();
-  const lang = language as 'ar' | 'de';
-
-  const [draft, setDraft] = useState<Draft | null>(null);
-  const [pickerOpen, setPickerOpen] = useState(false);
-
-  // Restore draft from sessionStorage so a tab switch doesn't lose work.
-  useEffect(() => {
-    try {
-      const raw = sessionStorage.getItem('wellness:draft');
-      if (raw) setDraft(JSON.parse(raw));
-    } catch { /* noop */ }
-  }, []);
-  useEffect(() => {
-    try {
-      if (draft) sessionStorage.setItem('wellness:draft', JSON.stringify(draft));
-      else sessionStorage.removeItem('wellness:draft');
-    } catch { /* noop */ }
-  }, [draft]);
-
-  const startBlank = (type: SessionType = 'strength') => setDraft(blankDraft(type));
-  const startFromTemplate = (templateKey: string) => {
-    const t = TEMPLATES.find((x) => x.key === templateKey);
-    if (!t) return;
-    const exercises: ExerciseEntry[] = t.exerciseKeys.map((k) => {
-      const ex = EXERCISES[k];
-      const isCardio = ex?.type === 'cardio';
-      const sets: SetEntry[] = isCardio
-        ? [{ durationSec: 600, distanceKm: 0 }]
-        : Array.from({ length: ex?.defaultSets ?? 3 }, () => ({
-            weightKg: 20,
-            reps: ex?.defaultReps ?? 10,
-          }));
-      return { exerciseKey: k, sets };
-    });
-    setDraft({
-      ...blankDraft(t.type === 'mobility' ? 'mobility' : t.type),
-      title: t.name[lang],
-      exercises,
-    });
-  };
-
-  const finish = async () => {
-    if (!draft) return;
-    await onSave({
-      id: draft.id,
-      date: draft.date,
-      startedAt: draft.startedAt,
-      endedAt: Date.now(),
-      type: draft.type,
-      title: draft.title,
-      exercises: draft.exercises,
-      sessionRpe: draft.sessionRpe,
-      notes: draft.notes,
-    });
-    setDraft(null);
-  };
-
+function HeroStats({
+  totalSessions, currentStreak, longestStreak, weekVolume, lang,
+}: { totalSessions: number; currentStreak: number; longestStreak: number; weekVolume: number; lang: 'ar' | 'de' }) {
   return (
-    <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-4">
-      {!profile?.weightKg && (
-        <motion.div variants={item}>
-          <p className="text-[11px] text-muted-foreground/70 leading-relaxed text-center px-2">
-            {T.noProfile[lang]}
-          </p>
-        </motion.div>
-      )}
-
-      {draft ? (
-        <motion.div variants={item}>
-          <ActiveSession
-            draft={draft}
-            setDraft={setDraft}
-            onSave={finish}
-            onCancel={() => setDraft(null)}
-            lang={lang}
-          />
-        </motion.div>
-      ) : (
-        <motion.div variants={item}>
-          <PremiumCard gradient accent="hsl(var(--primary))" className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-primary/15 flex items-center justify-center shrink-0">
-                <Dumbbell className="w-6 h-6 text-primary" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-[14px] font-bold text-foreground">{T.startSession[lang]}</p>
-                <p className="text-[11px] text-muted-foreground mt-0.5">
-                  {workouts.length} {T.history[lang]}
-                </p>
-              </div>
-              <button
-                onClick={() => startBlank()}
-                className="px-3 py-2 rounded-xl bg-primary text-primary-foreground text-[12px] font-semibold flex items-center gap-1 active:scale-[0.98] transition-transform"
-              >
-                <Plus className="w-4 h-4" /> {T.add[lang]}
-              </button>
-            </div>
-          </PremiumCard>
-        </motion.div>
-      )}
-
-      <motion.div variants={item}>
-        <Templates onPick={startFromTemplate} lang={lang} />
-      </motion.div>
-
-      <motion.div variants={item}>
-        <WeeklyVolume workouts={workouts} lang={lang} />
-      </motion.div>
-
-      <motion.div variants={item}>
-        <PersonalRecords workouts={workouts} lang={lang} />
-      </motion.div>
-
-      {/* History */}
-      <motion.div variants={item} className="space-y-2">
-        <SectionHeader title={T.history[lang]} icon={History} />
-        {workouts.length === 0 ? (
-          <EmptyState icon={Dumbbell} title={T.empty[lang]} description={T.emptyDesc[lang]} />
-        ) : (
-          <div className="space-y-2">
-            {workouts.slice(0, 12).map((w) => (
-              <HistoryRow key={w.id} w={w} onDelete={() => onDelete(w.id)} lang={lang} />
-            ))}
-          </div>
-        )}
-      </motion.div>
+    <motion.div
+      initial={{ y: 6, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      className="rounded-2xl p-3 bg-gradient-to-br from-primary/8 to-primary/2 border border-primary/20"
+    >
+      <div className="grid grid-cols-4 gap-1.5">
+        <BubbleStat icon={<Calendar className="w-3 h-3" />} value={`${totalSessions}`} label={lang === 'ar' ? 'جلسات' : 'Sessions'} color="#3b82f6" />
+        <BubbleStat icon={<Flame className="w-3 h-3" />} value={`${currentStreak}d`} label={lang === 'ar' ? 'سلسلة' : 'Streak'} color="#f97316" />
+        <BubbleStat icon={<Trophy className="w-3 h-3" />} value={`${longestStreak}d`} label={lang === 'ar' ? 'أطول' : 'Längster'} color="#fbbf24" />
+        <BubbleStat icon={<TrendingUp className="w-3 h-3" />} value={`${Math.round(weekVolume / 1000)}t`} label={lang === 'ar' ? 'الأسبوع' : 'Woche'} color="#10b981" />
+      </div>
     </motion.div>
+  );
+}
+
+function BubbleStat({ icon, value, label, color }: { icon: React.ReactNode; value: string; label: string; color: string }) {
+  return (
+    <div className="rounded-xl bg-card/60 border border-border/30 p-1.5 text-center">
+      <div className="flex items-center justify-center" style={{ color }}>
+        {icon}
+      </div>
+      <div className="text-[14px] font-bold leading-none mt-0.5 tabular-nums" style={{ color }}>{value}</div>
+      <div className="text-[8.5px] text-muted-foreground uppercase tracking-tight mt-0.5">{label}</div>
+    </div>
+  );
+}
+
+function EmptyState({ lang }: { lang: 'ar' | 'de' }) {
+  return (
+    <div className="bg-card border border-dashed border-border/50 rounded-2xl p-6 text-center space-y-2">
+      <Dumbbell className="w-7 h-7 text-muted-foreground mx-auto" />
+      <p className="text-[12px] font-semibold text-foreground">{T.emptyState[lang]}</p>
+      <p className="text-[10px] text-muted-foreground">{T.emptyAfter[lang]}</p>
+    </div>
+  );
+}
+
+function LastSessionCard({ session, lang }: { session: WorkoutSession; lang: 'ar' | 'de' }) {
+  const vol = sessionVolumeKg(session);
+  const dur = session.endedAt ? session.endedAt - session.startedAt : 0;
+  return (
+    <div className="rounded-2xl bg-card border border-border/40 p-3 space-y-2">
+      <div className="flex items-center justify-between">
+        <p className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-semibold">{T.lastSession[lang]}</p>
+        <span className="text-[10px] text-muted-foreground tabular-nums" dir="ltr">{session.date}</span>
+      </div>
+      {session.title && <p className="text-[13px] font-bold text-foreground">{session.title}</p>}
+      <div className="flex items-center gap-2 text-[10px] tabular-nums text-muted-foreground" dir="ltr">
+        {vol > 0 && <span>{Math.round(vol)} kg</span>}
+        <span>·</span>
+        <span>{Math.round(dur / 60_000)} min</span>
+        <span>·</span>
+        <span>{session.exercises.length} ex</span>
+        {session.sessionRpe && <><span>·</span><span>RPE {session.sessionRpe}</span></>}
+      </div>
+    </div>
+  );
+}
+
+function TopExercisesCard({ workouts, lang }: { workouts: WorkoutSession[]; lang: 'ar' | 'de' }) {
+  const top = useMemo(() => topExercises(workouts, 5), [workouts]);
+  if (top.length === 0) return null;
+  return (
+    <div className="rounded-2xl bg-card border border-border/40 p-3 space-y-2">
+      <p className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-semibold flex items-center gap-1.5">
+        <Activity className="w-3 h-3" /> {T.topMuscles[lang]}
+      </p>
+      <div className="space-y-1.5">
+        {top.map((t) => {
+          const def = EXERCISES[t.exerciseKey];
+          const e1rm = bestE1RMFromSets(workouts.flatMap((w) => w.exercises.find((e) => e.exerciseKey === t.exerciseKey)?.sets ?? []));
+          return (
+            <div key={t.exerciseKey} className="flex items-baseline justify-between gap-2">
+              <span className="text-[11px] font-semibold text-foreground truncate">{def?.label[lang] ?? t.exerciseKey}</span>
+              <span className="text-[10px] tabular-nums text-muted-foreground" dir="ltr">
+                {t.sessions} sessions
+                {e1rm != null && <span className="ms-1.5 text-amber-500">· {e1rm} kg</span>}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
   );
 }
