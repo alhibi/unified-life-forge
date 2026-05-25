@@ -19,21 +19,34 @@ import type { Database } from '@/integrations/supabase/types';
 
 type RssArticleRow = Database['public']['Tables']['rss_articles']['Row'];
 
+// ─── Constants for stability & memory management ───────────────────────────
+/** Max articles held in memory at once. Beyond this we trim the oldest. */
+const MAX_ARTICLES_IN_MEMORY = 1000;
+/** Base auto-refresh interval (ms). Adapts based on consecutive failures. */
+const BASE_REFRESH_INTERVAL = 60 * 60 * 1000; // 1 hour
+/** Minimum refresh interval even with exponential backoff. */
+const MIN_REFRESH_INTERVAL = 5 * 60 * 1000; // 5 min
+/** Maximum refresh interval on repeated failures. */
+const MAX_REFRESH_INTERVAL = 4 * 60 * 60 * 1000; // 4 hours
+/** Staleness threshold — auto-refresh on mount if older than this. */
+const STALE_THRESHOLD = 30 * 60 * 1000; // 30 min
+
 /**
  * Centralised data layer for the reading feature.
  *
  *  - Loads and caches feeds + articles from Supabase.
- *  - Performs background refresh on a configurable cadence.
+ *  - Performs background refresh on an adaptive cadence.
  *  - Owns bookmarks + read state, persists them to localStorage.
  *  - Exposes `refresh`, `addFeed`, `removeFeed`, etc. as stable callbacks.
+ *  - Caps in-memory articles to prevent unbounded growth.
+ *  - Tracks consecutive refresh failures for adaptive backoff.
+ *  - Monitors online/offline state for smart refresh decisions.
  *
  * **Stability invariant**: every public callback (refreshFeeds,
  * addFeed, removeFeed, …) is stable across renders. They read the
  * current feed list from a ref, not from a closure-captured variable,
  * so callers can keep them in `useEffect` deps without retriggering
- * on every state change. This also fixes a real bug: the auto-refresh
- * interval used to be torn down + rebuilt on every feed toggle,
- * because `refreshFeeds` had `enabledFeeds` in its deps.
+ * on every state change.
  */
 export function useReadingData(opts: { isAr: boolean }) {
   const { isAr } = opts;
@@ -52,6 +65,10 @@ export function useReadingData(opts: { isAr: boolean }) {
   const [lastRefresh, setLastRefresh] = useState<string | null>(
     typeof window !== 'undefined' ? localStorage.getItem(LAST_REFRESH_KEY) : null,
   );
+  /** Consecutive refresh failures — drives adaptive backoff. */
+  const [consecutiveFailures, setConsecutiveFailures] = useState(0);
+  /** Last error message for UI feedback. */
+  const [lastError, setLastError] = useState<string | null>(null);
 
   // Refs that mirror state so stable callbacks below can always read
   // the latest value without participating in a dep array.
@@ -68,6 +85,9 @@ export function useReadingData(opts: { isAr: boolean }) {
 
   const autoRefreshRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const autoCacheTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const consecutiveFailuresRef = useRef(0);
+  /** Track whether the tab is visible — skip refresh when hidden. */
+  const visibleRef = useRef(typeof document !== 'undefined' ? !document.hidden : true);
 
   const enabledFeeds = useMemo(
     () => feedSources.filter((f) => f.enabled),
@@ -86,18 +106,38 @@ export function useReadingData(opts: { isAr: boolean }) {
     return counts;
   }, [articles]);
 
+  /** Cap article list to MAX_ARTICLES_IN_MEMORY, keeping newest. */
+  const capArticles = useCallback((list: FeedItem[]): FeedItem[] => {
+    if (list.length <= MAX_ARTICLES_IN_MEMORY) return list;
+    return list
+      .sort((a, b) => {
+        const da = a.pubDate ? new Date(a.pubDate).getTime() : 0;
+        const db = b.pubDate ? new Date(b.pubDate).getTime() : 0;
+        return db - da;
+      })
+      .slice(0, MAX_ARTICLES_IN_MEMORY);
+  }, []);
+
+  /** Compute adaptive refresh interval based on consecutive failures. */
+  const getAdaptiveInterval = useCallback((): number => {
+    const failures = consecutiveFailuresRef.current;
+    if (failures === 0) return BASE_REFRESH_INTERVAL;
+    // Exponential backoff: 1h, 2h, 4h... capped at MAX_REFRESH_INTERVAL
+    const interval = BASE_REFRESH_INTERVAL * Math.pow(2, Math.min(failures, 3));
+    return Math.min(interval, MAX_REFRESH_INTERVAL);
+  }, []);
+
   // ─── Load articles from DB ────────────────────────────────────────────
   const loadFromDB = useCallback(async (): Promise<void> => {
     const enabled = feedSourcesRef.current.filter((f) => f.enabled);
     const names = enabled.map((f) => f.name);
     if (names.length === 0) {
-      // Even without enabled feeds, surface anything the user has
-      // archived offline so the Saved tab still shows content.
       try {
         const offline = await offlineDb.listArticles();
-        setArticles(offline);
+        setArticles(capArticles(offline));
         setTotalInDB(offline.length);
-      } catch {
+      } catch (e) {
+        console.warn('Reading: offline DB read failed', e);
         setArticles([]);
         setTotalInDB(0);
       }
@@ -107,12 +147,15 @@ export function useReadingData(opts: { isAr: boolean }) {
     let onlineCount = 0;
     let onlineFailed = false;
     try {
-      const { data, count } = await supabase
+      const { data, count, error: queryError } = await supabase
         .from('rss_articles')
         .select('*', { count: 'exact' })
         .in('source_name', names)
         .order('pub_date', { ascending: false })
         .limit(500);
+      if (queryError) {
+        throw queryError;
+      }
       if (data) {
         online = data.map((r: RssArticleRow) => ({
           title: r.title,
@@ -130,23 +173,26 @@ export function useReadingData(opts: { isAr: boolean }) {
     } catch (e) {
       console.error('Reading: DB load failed', e);
       onlineFailed = true;
+      // Set last error for UI feedback but don't crash
+      setLastError(
+        e instanceof Error ? e.message : 'Database load failed',
+      );
     }
 
-    // Always merge in offline archive (saved articles, plus anything
-    // cached for offline reading) so we have content even when the
-    // network is down. De-dupe by link, keeping online's metadata
-    // when both sources have the same article.
+    // Always merge in offline archive so we have content even offline
     let offline: FeedItem[] = [];
     try {
       offline = await offlineDb.listArticles();
-    } catch { /* IDB unavailable */ }
+    } catch (e) {
+      console.warn('Reading: IndexedDB read failed during merge', e);
+    }
 
     if (onlineFailed && offline.length === 0 && online.length === 0) {
-      // Hard offline + nothing cached. Leave articles empty so the
-      // empty state shows; don't blow away whatever was already
-      // in state from a prior render.
       return;
     }
+
+    // Clear error on successful load
+    if (!onlineFailed) setLastError(null);
 
     const seen = new Set<string>();
     const merged: FeedItem[] = [];
@@ -162,9 +208,9 @@ export function useReadingData(opts: { isAr: boolean }) {
         merged.push(a);
       }
     }
-    setArticles(merged);
+    setArticles(capArticles(merged));
     setTotalInDB(onlineCount || merged.length);
-  }, []);
+  }, [capArticles]);
 
   // ─── Refresh from edge function (with client-side fallback) ─────────────
   // `overrideFeeds` lets bulk-add pass the *just-committed* feed list
@@ -252,7 +298,7 @@ export function useReadingData(opts: { isAr: boolean }) {
                 const db = b.pubDate ? new Date(b.pubDate).getTime() : 0;
                 return db - da;
               });
-              return merged;
+              return capArticles(merged);
             });
             // Cache for offline use
             for (const a of freshArticles.slice(0, 25)) {
@@ -275,44 +321,85 @@ export function useReadingData(opts: { isAr: boolean }) {
           setLastRefresh(now);
           try { localStorage.setItem(LAST_REFRESH_KEY, now); } catch { /* quota or private mode */ }
           if (!silent) toast.success(ar ? 'تم التحديث' : 'Refreshed');
+          // Reset consecutive failures on success
+          consecutiveFailuresRef.current = 0;
+          setConsecutiveFailures(0);
+          setLastError(null);
         } else if (!silent) {
           toast.error(ar ? 'فشل التحديث — تحقق من اتصال الإنترنت' : 'Refresh failed — check your connection');
+          consecutiveFailuresRef.current += 1;
+          setConsecutiveFailures(consecutiveFailuresRef.current);
+          setLastError(ar ? 'فشل التحديث' : 'Refresh failed');
+        } else {
+          // Silent failure: still track for backoff
+          consecutiveFailuresRef.current += 1;
+          setConsecutiveFailures(consecutiveFailuresRef.current);
         }
       } catch (e) {
         console.error('Reading: refresh failed', e);
+        consecutiveFailuresRef.current += 1;
+        setConsecutiveFailures(consecutiveFailuresRef.current);
+        setLastError(e instanceof Error ? e.message : 'Refresh failed');
         if (!silent) toast.error(ar ? 'فشل التحديث' : 'Refresh failed');
       } finally {
         setRefreshing(false);
       }
     },
-    [loadFromDB],
+    [loadFromDB, capArticles],
   );
 
   // ─── Lifecycle (mount-only) ────────────────────────────────────────────
-  // Initial load + a single auto-refresh interval that lives for the
-  // entire lifetime of the hook. Previously the effect depended on
-  // loadFromDB / refreshFeeds (which depended on enabledFeeds), so
-  // every feed toggle would tear down and rebuild the interval —
-  // shifting the next tick by up to an hour. With stable callbacks we
-  // can wire it once.
+  // Initial load + adaptive auto-refresh. The interval recalculates
+  // based on consecutive failures (exponential backoff) and pauses
+  // when the tab is hidden to avoid wasting resources.
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
+
+    // Track visibility so we skip refreshes while the tab is hidden
+    const onVisChange = () => {
+      visibleRef.current = !document.hidden;
+      // When becoming visible after being hidden, do a staleness check
+      if (!document.hidden) {
+        const last = localStorage.getItem(LAST_REFRESH_KEY);
+        const stale = !last ||
+          Date.now() - new Date(last).getTime() > STALE_THRESHOLD;
+        if (stale) void refreshFeeds(true);
+      }
+    };
+    document.addEventListener('visibilitychange', onVisChange);
+
     loadFromDB().finally(() => {
       if (cancelled) return;
       setLoading(false);
       const last = localStorage.getItem(LAST_REFRESH_KEY);
       const stale = !last ||
-        Date.now() - new Date(last).getTime() > 30 * 60 * 1000;
+        Date.now() - new Date(last).getTime() > STALE_THRESHOLD;
       if (stale) void refreshFeeds(true);
     });
-    autoRefreshRef.current = setInterval(
-      () => { void refreshFeeds(true); },
-      60 * 60 * 1000,
-    );
+
+    // Adaptive interval: reschedules itself based on failure count
+    const scheduleNext = () => {
+      if (autoRefreshRef.current) clearTimeout(autoRefreshRef.current as unknown as number);
+      const interval = getAdaptiveInterval();
+      autoRefreshRef.current = setTimeout(() => {
+        // Only refresh if tab is visible and we're online
+        if (visibleRef.current && (typeof navigator === 'undefined' || navigator.onLine)) {
+          void refreshFeeds(true).finally(scheduleNext);
+        } else {
+          // Skip this tick but schedule next at normal interval
+          scheduleNext();
+        }
+      }, interval) as unknown as ReturnType<typeof setInterval>;
+    };
+    scheduleNext();
+
     return () => {
       cancelled = true;
-      if (autoRefreshRef.current) clearInterval(autoRefreshRef.current);
+      document.removeEventListener('visibilitychange', onVisChange);
+      if (autoRefreshRef.current) {
+        clearTimeout(autoRefreshRef.current as unknown as number);
+      }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -662,6 +749,8 @@ export function useReadingData(opts: { isAr: boolean }) {
     lastRefresh,
     sourceCounts,
     cachedLinks,
+    consecutiveFailures,
+    lastError,
     // actions
     refreshFeeds,
     toggleBookmark,
