@@ -20,8 +20,10 @@ import type { Database } from '@/integrations/supabase/types';
 type RssArticleRow = Database['public']['Tables']['rss_articles']['Row'];
 
 // ─── Constants for stability & memory management ───────────────────────────
-/** Max articles held in memory at once. Beyond this we trim the oldest. */
-const MAX_ARTICLES_IN_MEMORY = 1000;
+/** Max articles held in memory at once — no hard limit; we rely on
+ *  the DB query's own LIMIT (500) and browser memory. The user should
+ *  never lose access to articles just because the list grew large. */
+const MAX_ARTICLES_IN_MEMORY = 2000;
 /** Base auto-refresh interval (ms). Adapts based on consecutive failures. */
 const BASE_REFRESH_INTERVAL = 60 * 60 * 1000; // 1 hour
 /** Minimum refresh interval even with exponential backoff. */
@@ -30,8 +32,6 @@ const MIN_REFRESH_INTERVAL = 5 * 60 * 1000; // 5 min
 const MAX_REFRESH_INTERVAL = 4 * 60 * 60 * 1000; // 4 hours
 /** Staleness threshold — auto-refresh on mount if older than this. */
 const STALE_THRESHOLD = 15 * 60 * 1000; // 15 min
-/** How many articles to auto-save to IndexedDB after a client-side fetch. */
-const AUTO_SAVE_BATCH_SIZE = 100;
 
 /**
  * Centralised data layer for the reading feature.
@@ -274,9 +274,7 @@ export function useReadingData(opts: { isAr: boolean }) {
               // We do this in the background — no need to await.
               const currentArticlesSnapshot = articlesRef.current;
               if (currentArticlesSnapshot.length > 0) {
-                void offlineDb.saveArticlesBatch(
-                  currentArticlesSnapshot.slice(0, AUTO_SAVE_BATCH_SIZE),
-                ).catch(() => {});
+                void offlineDb.saveArticlesBatch(currentArticlesSnapshot).catch(() => {});
               }
               succeeded = true;
             }
@@ -314,9 +312,7 @@ export function useReadingData(opts: { isAr: boolean }) {
             // Auto-save ALL fetched articles to IndexedDB for offline access.
             // Uses batch write for performance — the user should always be
             // able to return to previously-fetched articles even offline.
-            void offlineDb.saveArticlesBatch(
-              freshArticles.slice(0, AUTO_SAVE_BATCH_SIZE),
-            ).catch(() => {});
+            void offlineDb.saveArticlesBatch(freshArticles).catch(() => {});
             succeeded = true;
           }
 
