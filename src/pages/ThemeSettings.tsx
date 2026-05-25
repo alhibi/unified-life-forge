@@ -119,14 +119,19 @@ export default function ThemeSettingsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-28 px-5 pt-6">
+    <div className="min-h-screen bg-background pb-28 px-5 pt-14">
       <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-4 max-w-lg mx-auto">
         {/* Header */}
         <motion.div variants={item} className="flex items-center gap-3 mb-2">
           <BackButton to="/settings" />
-          <h1 className="text-[22px] font-bold tracking-tight text-foreground">
-            {isAr ? 'المظهر والألوان' : 'Appearance'}
-          </h1>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center">
+              <Palette className="w-5 h-5 text-primary stroke-[1.8]" />
+            </div>
+            <h1 className="text-[22px] font-bold tracking-tight text-foreground">
+              {isAr ? 'المظهر والألوان' : 'Appearance'}
+            </h1>
+          </div>
         </motion.div>
 
         {/* ─── Material Design 3 — Indigo Night ─── */}

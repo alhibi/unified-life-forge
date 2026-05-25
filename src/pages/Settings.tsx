@@ -4,10 +4,11 @@ import { useApp } from '@/contexts/AppContext';
 import { getAppleEmojiUrl, isEmojiAvatarValue } from '@/utils/emojiAvatar';
 import { getDefaultAvatarForUser } from '@/utils/defaultAvatar';
 import { useAuth } from '@/hooks/useAuth';
-import { Languages, Palette, ChevronLeft, Settings as SettingsIcon, UserCircle, LogOut, Type, BookOpen, AlertTriangle } from 'lucide-react';
+import { Languages, Palette, ChevronLeft, UserCircle, LogOut, Type, BookOpen, AlertTriangle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import packageJson from '../../package.json';
 
 const stagger = {
   hidden: {},
@@ -148,9 +149,12 @@ export default function SettingsPage() {
                 </button>
 
                 {/* Info */}
-                <button onClick={() => navigate('/settings/profile')} className="flex-1 text-start active:opacity-70 transition-opacity">
-                  <h2 className="text-[17px] font-bold text-foreground">{profile?.display_name || username || (isAr ? 'المستخدم' : 'Benutzer')}</h2>
-                  <p className="text-[12px] text-muted-foreground mt-0.5">@{username} • {isAr ? 'تعديل الملف الشخصي' : 'Profil bearbeiten'}</p>
+                <button onClick={() => navigate('/settings/profile')} className="flex-1 text-start active:opacity-70 transition-opacity min-w-0">
+                  <h2 className="text-[17px] font-bold text-foreground truncate">{profile?.display_name || username || (isAr ? 'المستخدم' : 'Benutzer')}</h2>
+                  {user.email ? (
+                    <p className="text-[12px] text-muted-foreground mt-0.5 truncate">{user.email}</p>
+                  ) : null}
+                  <p className="text-[11px] text-muted-foreground/70 mt-0.5 truncate">@{username} · {isAr ? 'تعديل الملف الشخصي' : 'Profil bearbeiten'}</p>
                 </button>
 
                 {/* Logout */}
@@ -191,7 +195,7 @@ export default function SettingsPage() {
 
         {/* Version */}
         <motion.div variants={item} className="text-center pt-2 pb-4">
-          <p className="text-[11px] text-muted-foreground/50">{isAr ? 'الإصدار' : 'Version'} 1.5.0</p>
+          <p className="text-[11px] text-muted-foreground/50">{isAr ? 'الإصدار' : 'Version'} {packageJson.version}</p>
         </motion.div>
       </motion.div>
 
