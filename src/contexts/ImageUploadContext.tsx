@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { compressForChat, compressionRatio } from '@/lib/chat/imageCompression';
 
 export interface PendingUpload {
   tempId: string;
@@ -7,9 +8,30 @@ export interface PendingUpload {
   senderId: string;
   localPreviewUrl: string;
   fileName: string;
+  /**
+   * 0–100 byte-progress for the network leg. While `status === 'compressing'`
+   * this is meaningless (we don't have a stable progress signal from the
+   * compression library); the UI should render an indeterminate spinner
+   * during that phase.
+   */
   progress: number;
-  status: 'uploading' | 'done' | 'error';
+  /**
+   * Lifecycle:
+   *   compressing → uploading → done
+   *                          ↘ error (re-tryable from any branch)
+   * We add `compressing` so the UI can disambiguate "still preparing" from
+   * "stuck on the network", which used to render identically as 0% progress.
+   */
+  status: 'compressing' | 'uploading' | 'done' | 'error';
   storagePath?: string;
+  /**
+   * Diagnostic — the byte size we actually uploaded after client-side
+   * compression. Lets the UI render "saved 78%" badges. NULL when we
+   * skipped compression (file already small / non-image).
+   */
+  compressedBytes?: number;
+  /** Original file size in bytes, before compression. */
+  originalBytes?: number;
 }
 
 interface ImageUploadContextType {
@@ -40,7 +62,37 @@ export function ImageUploadProvider({ children }: { children: React.ReactNode })
   }, []);
 
   const doUpload = useCallback(async (tempId: string, file: File, conversationId: string, senderId: string) => {
-    const ext = file.name.split('.').pop() || 'jpg';
+    const originalBytes = file.size;
+
+    // ── Compression step ──────────────────────────────────────────────────
+    // Runs in a Web Worker, so it doesn't block the UI thread. The result
+    // is a (possibly) smaller File we'll pass to the XHR. Compression is
+    // best-effort: any failure falls back to the original file.
+    let uploadFile: File = file;
+    try {
+      const compressed = await compressForChat(file);
+      uploadFile = compressed.original;
+    } catch (err) {
+      console.warn('[image-upload] compression failed, uploading original', err);
+    }
+
+    setUploads(prev => prev.map(u => u.tempId === tempId ? {
+      ...u,
+      status: 'uploading' as const,
+      progress: 0,
+      originalBytes,
+      compressedBytes: uploadFile.size,
+    } : u));
+
+    // ── Network upload ────────────────────────────────────────────────────
+    // Preserve the user's intended extension so downloads carry the right
+    // suffix. Compression always emits JPEG; if we changed the type we
+    // also override the extension to `.jpg` so the server's MIME sniffing
+    // and the storage key agree.
+    const intendedExt = file.name.split('.').pop() || 'jpg';
+    const ext = uploadFile.type === 'image/jpeg' && intendedExt.toLowerCase() !== 'jpg' && intendedExt.toLowerCase() !== 'jpeg'
+      ? 'jpg'
+      : intendedExt;
     const path = `${senderId}/${conversationId}/${Date.now()}.${ext}`;
 
     // Get token first, then upload
@@ -71,11 +123,20 @@ export function ImageUploadProvider({ children }: { children: React.ReactNode })
       xhr.setRequestHeader('Authorization', `Bearer ${token}`);
       xhr.setRequestHeader('apikey', anonKey);
       xhr.setRequestHeader('x-upsert', 'false');
-      xhr.send(file);
+      // Keep Content-Type accurate so Supabase Storage stores it correctly
+      // for future GETs (the CDN sniffs it back as the response header).
+      if (uploadFile.type) xhr.setRequestHeader('Content-Type', uploadFile.type);
+      xhr.send(uploadFile);
     });
 
     try {
       const storagePath = await uploadPromise;
+      const ratio = compressionRatio(originalBytes, uploadFile.size);
+      if (ratio > 0) {
+        // Lightweight diagnostics — only log meaningful saves so the
+        // console isn't flooded for tiny pass-through files.
+        console.info(`[image-upload] compressed ${ratio}% (${originalBytes} → ${uploadFile.size} bytes)`);
+      }
       setUploads(prev => prev.map(u => u.tempId === tempId ? { ...u, status: 'done', progress: 100, storagePath } : u));
       onCompleteRef.current?.(tempId, storagePath, file.name, conversationId);
     } catch {
@@ -96,7 +157,12 @@ export function ImageUploadProvider({ children }: { children: React.ReactNode })
       localPreviewUrl,
       fileName: file.name,
       progress: 0,
-      status: 'uploading',
+      // Compression runs first inside doUpload; flip to 'uploading' once
+      // the bytes are on the wire. This gives the UI a hook to render an
+      // indeterminate spinner instead of a stuck-at-0% progress bar
+      // during the (potentially 1–2 s) Web Worker compression step.
+      status: 'compressing',
+      originalBytes: file.size,
     };
 
     setUploads(prev => [...prev, pending]);
@@ -108,7 +174,10 @@ export function ImageUploadProvider({ children }: { children: React.ReactNode })
     const upload = uploads.find(u => u.tempId === tempId);
     const file = fileCache.current.get(tempId);
     if (!upload || !file) return;
-    setUploads(prev => prev.map(u => u.tempId === tempId ? { ...u, status: 'uploading', progress: 0 } : u));
+    // Re-enter at the compression step so the retry path is identical
+    // to the original send, including any compression that failed (or
+    // wasn't needed) the first time.
+    setUploads(prev => prev.map(u => u.tempId === tempId ? { ...u, status: 'compressing', progress: 0 } : u));
     doUpload(tempId, file, upload.conversationId, upload.senderId);
   }, [uploads, doUpload]);
 

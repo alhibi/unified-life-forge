@@ -50,8 +50,13 @@ export function SwipeableMessage({ children, isMine, deleted, disabled, onSwipeR
 
 // ─────────────────────────────────────────────────────────────────────────────
 // TypingDots – 3 bouncing dots for "is typing" indicator.
+//
+// Wrapped in React.memo because the dots are pure (only `size` changes its
+// output, and that's typically stable per-call-site). When rendered inside
+// a virtualized chat, this component would otherwise re-run its motion
+// component setup on every scroll-driven parent render.
 // ─────────────────────────────────────────────────────────────────────────────
-export function TypingDots({ size = 5 }: { size?: number }) {
+export const TypingDots = React.memo(function TypingDots({ size = 5 }: { size?: number }) {
   return (
     <div className="flex items-center gap-[3px] py-0.5">
       {[0, 1, 2].map(i => (
@@ -65,7 +70,7 @@ export function TypingDots({ size = 5 }: { size?: number }) {
       ))}
     </div>
   );
-}
+});
 
 // ─────────────────────────────────────────────────────────────────────────────
 // MessageTicks — Telegram-style delivery status indicator.
@@ -88,7 +93,7 @@ interface MessageTicksProps {
   isAr?: boolean;
 }
 
-export function MessageTicks({ status, read, dimmed, onRetry, isAr }: MessageTicksProps) {
+export const MessageTicks = React.memo(function MessageTicks({ status, read, dimmed, onRetry, isAr }: MessageTicksProps) {
   // Resolve effective status. Legacy rows have no `status`; default to read
   // when read=true, otherwise 'sent'.
   const eff: MessageStatus = status ?? (read ? 'read' : 'sent');
@@ -117,7 +122,19 @@ export function MessageTicks({ status, read, dimmed, onRetry, isAr }: MessageTic
   }
   // sent
   return <Check className={cn('h-[11px] w-[11px]', dimmed ? 'text-primary-foreground/70' : 'text-muted-foreground/60')} aria-label={isAr ? 'أُرسلت' : 'Gesendet'} />;
-}
+}, (prev, next) => {
+  // Custom comparator. We deliberately ignore `onRetry` identity because
+  // call sites typically pass an inline arrow `() => retry(msg)` that
+  // changes reference every parent render. The handler is only invoked
+  // on a click — at which point it captures the latest props via
+  // closure of the parent scope, so the staleness window is at most
+  // one render and the retry call itself is idempotent (same outcome
+  // regardless of which version of the closure runs).
+  return prev.status === next.status
+      && prev.read === next.read
+      && prev.dimmed === next.dimmed
+      && prev.isAr === next.isAr;
+});
 
 // ─────────────────────────────────────────────────────────────────────────────
 // ReactionPill — pill that shows an emoji + count, plus a subtle outline if
@@ -133,7 +150,7 @@ interface ReactionPillProps {
   ariaLabel?: string;
 }
 
-export function ReactionPill({ emoji, count, reactedByMe, onClick, ariaLabel }: ReactionPillProps) {
+export const ReactionPill = React.memo(function ReactionPill({ emoji, count, reactedByMe, onClick, ariaLabel }: ReactionPillProps) {
   return (
     <button
       type="button"
@@ -150,12 +167,23 @@ export function ReactionPill({ emoji, count, reactedByMe, onClick, ariaLabel }: 
       {count > 1 && <span className="text-[9px] text-muted-foreground font-medium">{count}</span>}
     </button>
   );
-}
+}, (prev, next) => {
+  // Same trade-off as MessageTicks: callers typically inline
+  // `() => toggleReaction(msg.id, emoji)` so onClick identity churns each
+  // render. The handler closes over stable refs (msg.id + emoji are stable
+  // strings) so any closure version we hold onto resolves to the same
+  // mutation. We compare every prop except onClick so the visual content
+  // drives re-renders, not handler identity.
+  return prev.emoji === next.emoji
+      && prev.count === next.count
+      && prev.reactedByMe === next.reactedByMe
+      && prev.ariaLabel === next.ariaLabel;
+});
 
 // ─────────────────────────────────────────────────────────────────────────────
 // ForwardedBadge — the small "Forwarded from X" header inside a bubble.
 // ─────────────────────────────────────────────────────────────────────────────
-export function ForwardedBadge({ name, isAr }: { name?: string | null; isAr: boolean }) {
+export const ForwardedBadge = React.memo(function ForwardedBadge({ name, isAr }: { name?: string | null; isAr: boolean }) {
   return (
     <div className="flex items-center gap-1 mb-0.5 text-[11px] text-muted-foreground/80 italic">
       <Reply className="w-3 h-3 -scale-x-100" />
@@ -165,7 +193,7 @@ export function ForwardedBadge({ name, isAr }: { name?: string | null; isAr: boo
       </span>
     </div>
   );
-}
+});
 
 // Re-export Message type for consumers that import from this module.
 export type { Message };

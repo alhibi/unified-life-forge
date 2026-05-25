@@ -35,6 +35,7 @@ import ForwardPicker from './chat/ForwardPicker';
 import WallpaperPicker from './chat/WallpaperPicker';
 import MessageInfo from './chat/MessageInfo';
 import { haptic } from './chat/sounds';
+import { VirtualMessageList, type VirtualMessageListHandle } from './chat/VirtualMessageList';
 import type { ChatDrawerProps, ActionMenuState, Message } from './chat/types';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -294,6 +295,12 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
   const [showConvSearch, setShowConvSearch] = React.useState(false);
   const [messageInfoTarget, setMessageInfoTarget] = React.useState<Message | null>(null);
 
+  // Imperative handle for the virtualized message list. Lets us route
+  // scroll-to-id (reply jumps, search hops) and scroll-to-bottom through
+  // the virtualizer when active. NULL when the eager (non-virtualized)
+  // path is used — callers should fall back to getElementById in that case.
+  const virtualListRef = React.useRef<VirtualMessageListHandle | null>(null);
+
   // Escape key collapses one layer at a time: overlays first, then the
   // active conversation, finally leaves the page. Matches what users
   // already get from clicking the in-app back arrows.
@@ -506,6 +513,23 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
   const currentWallpaperId = chat.chatPrefs.getWallpaper(chat.activeConv?.id);
   const currentWallpaper = WALLPAPERS.find(w => w.id === currentWallpaperId) || WALLPAPERS[0];
   const isDarkBg = currentWallpaper.isDark;
+
+  // ── Reactions index ───────────────────────────────────────────────────────
+  // The render loop used to call `chat.reactions.filter(...)` for every
+  // message — O(N·M) per render where N is rendered messages and M is the
+  // total reaction count. Indexing once per render brings that to O(N+M)
+  // and recomputes only when the reactions array reference changes. With
+  // virtualization this is the difference between a smooth scroll and
+  // dropped frames in chats with thousands of reactions.
+  const reactionsByMsgId = useMemo(() => {
+    const map = new Map<string, typeof chat.reactions>();
+    for (const r of chat.reactions) {
+      const list = map.get(r.message_id);
+      if (list) list.push(r);
+      else map.set(r.message_id, [r]);
+    }
+    return map;
+  }, [chat.reactions]);
 
   if (!chat.user) {
     const signInPrompt = (
@@ -1141,9 +1165,14 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                 </div>
               )}
 
-              {chat.messages.map((msg, idx) => {
+              {chat.messages.length > 0 && (
+                <VirtualMessageList
+                  messages={chat.messages}
+                  scrollElementRef={chat.messagesContainerRef}
+                  handleRef={virtualListRef}
+                  renderRow={(msg, idx) => {
                 const isMine = msg.sender_id === chat.user!.id;
-                const msgReactions = chat.reactions.filter(r => r.message_id === msg.id);
+                const msgReactions = reactionsByMsgId.get(msg.id) ?? [];
                 const { sameSenderAsPrev, sameSenderAsNext, showDate } = chat.getMessageMeta(idx);
                 const fadeOpacity = chat.getMessageOpacity(msg);
                 const isFading = msg.expires_at && fadeOpacity < 1;
@@ -1152,7 +1181,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                 const isFirstUnread = msg.id === chat.firstUnreadId;
 
                 return (
-                  <React.Fragment key={msg.id}>
+                  <>
                     {/* Date separator */}
                     {showDate && (
                       <div className="flex justify-center py-4">
@@ -1244,14 +1273,21 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                                   className={cn('w-full mx-0 mt-1.5 px-2 text-start')}
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    if (msg.reply_to_id) {
-                                      const el = document.getElementById(`msg-${msg.reply_to_id}`);
-                                      if (el) {
-                                        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                                        el.classList.add('animate-pulse');
-                                        setTimeout(() => el.classList.remove('animate-pulse'), 1500);
+                                    if (!msg.reply_to_id) return;
+                                    // Route through the virtualizer when active so the target row
+                                    // is brought into the rendered window before we try to pulse it.
+                                    // Falls back to getElementById internally for the eager path.
+                                    virtualListRef.current?.scrollToMessage(msg.reply_to_id, { align: 'center', behavior: 'smooth' });
+                                    // Apply the pulse on the next frame, by which time the target
+                                    // row's DOM node exists (whether via virtualizer remount or
+                                    // because it was already in the eager output).
+                                    requestAnimationFrame(() => {
+                                      const target = document.getElementById(`msg-${msg.reply_to_id}`);
+                                      if (target) {
+                                        target.classList.add('animate-pulse');
+                                        setTimeout(() => target.classList.remove('animate-pulse'), 1500);
                                       }
-                                    }
+                                    });
                                   }}
                                 >
                                   <div className={cn('rounded-lg border-s-2 px-2.5 py-1.5', isMine ? 'bg-primary/10 border-primary' : 'bg-muted/40 border-primary/70')}>
@@ -1382,9 +1418,11 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                         </div>
                       </SwipeableMessage>
                     </div>
-                  </React.Fragment>
+                  </>
                 );
-              })}
+              }}
+                />
+              )}
 
               {/* Typing indicator */}
               <AnimatePresence>
@@ -1401,7 +1439,15 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
               {chat.activeConv && chat.imageUpload.uploads.filter(u => u.conversationId === chat.activeConv!.id).map(upload => (
                 <div key={upload.tempId} className="flex justify-end mt-2">
                   <div className="relative max-w-[75%] overflow-hidden bg-primary/15" style={{ borderRadius: '18px 18px 4px 18px' }}>
-                    <img src={upload.localPreviewUrl} alt="" className={cn('max-w-full max-h-60 object-cover transition-all duration-500', upload.status === 'uploading' && 'blur-[2px] brightness-75', upload.status === 'done' && 'blur-0 brightness-100')} />
+                    <img src={upload.localPreviewUrl} alt="" className={cn('max-w-full max-h-60 object-cover transition-all duration-500', (upload.status === 'uploading' || upload.status === 'compressing') && 'blur-[2px] brightness-75', upload.status === 'done' && 'blur-0 brightness-100')} />
+                    {upload.status === 'compressing' && (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <svg className="w-12 h-12 animate-spin" viewBox="0 0 48 48">
+                          <circle cx="24" cy="24" r="20" fill="none" stroke="white" strokeOpacity="0.2" strokeWidth="3" />
+                          <circle cx="24" cy="24" r="20" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeDasharray={`${2 * Math.PI * 20}`} strokeDashoffset={`${2 * Math.PI * 20 * 0.7}`} />
+                        </svg>
+                      </div>
+                    )}
                     {upload.status === 'uploading' && (
                       <div className="absolute inset-0 flex items-center justify-center">
                         <svg className="w-12 h-12 -rotate-90" viewBox="0 0 48 48"><circle cx="24" cy="24" r="20" fill="none" stroke="white" strokeOpacity="0.2" strokeWidth="3" /><circle cx="24" cy="24" r="20" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeDasharray={`${2 * Math.PI * 20}`} strokeDashoffset={`${2 * Math.PI * 20 * (1 - upload.progress / 100)}`} className="transition-all duration-300" /></svg>
