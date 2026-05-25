@@ -23,14 +23,11 @@ import { navStart } from "@/lib/navPerf";
 import Index from "./pages/Index";
 // Tab pages that stay mounted across navigation are eager-imported so
 // switching between bottom-nav tabs feels instant (no remount/refetch).
-// `/wellness` and `/diwan` are deliberately NOT in this set: their data
-// modules (`wellnessData.ts`, `exerciseCatalog.ts`, `foodAtlas.ts`,
-// `calisthenicsAtlas.ts`, `poetryData.ts`) total ~10 000 lines and their
-// import cost dominated cold-paint of the homepage even when the user
-// never opened those tabs. They are routed lazily below.
+// The new IA reorganisation kept only three persistent tabs (Home,
+// Games, Chat). Heavier hubs (Wellness, Mihrab, Browse) and the
+// `/diwan` redirect are routed lazily below — see the comments on
+// `loadWellness` / `loadMihrab` / `loadBrowse`.
 import GamesPage from "./pages/Games";
-import SettingsPage from "./pages/Settings";
-import DuasPage from "./pages/Duas";
 import ChatPage from "./pages/Chat";
 
 function AutoPrayerThemeRunner() {
@@ -56,6 +53,8 @@ const loadChessCareer = () => import("./pages/ChessCareer");
 const loadMemoryAdventure = () => import("./pages/MemoryAdventure");
 const loadDiceTournament = () => import("./pages/DiceTournament");
 const loadFocusDecathlon = () => import("./pages/FocusDecathlon");
+const loadSettings = () => import("./pages/Settings");
+const loadDuas = () => import("./pages/Duas");
 const loadTheme = () => import("./pages/ThemeSettings");
 const loadAuth = () => import("./pages/Auth");
 const loadProfile = () => import("./pages/ProfileEdit");
@@ -80,6 +79,13 @@ const loadNotFound = () => import("./pages/NotFound");
 // subsequent visits hit React.lazy's module cache and are instant.
 const loadWellness = () => import("./pages/Wellness");
 const loadDiwan = () => import("./pages/Diwan");
+// Hubs introduced by the IA reorganisation: `/browse` ("اطلاع")
+// groups Podcasts + Articles, `/mihrab` groups Quran/Dhikr/Sunnah/
+// Literature. Both are lightweight landings on top of the existing
+// deep pages, so they're lazy-loaded — they should not pay any
+// cost on cold home paint.
+const loadBrowse = () => import("./pages/Browse");
+const loadMihrab = () => import("./pages/Mihrab");
 // Diwan library — adab.com integration
 const loadLibrary = () => import("./pages/diwan/Library");
 const loadLibraryPoets = () => import("./pages/diwan/LibraryPoets");
@@ -98,6 +104,8 @@ const ChessCareerPage = lazy(loadChessCareer);
 const MemoryAdventurePage = lazy(loadMemoryAdventure);
 const DiceTournamentPage = lazy(loadDiceTournament);
 const FocusDecathlonPage = lazy(loadFocusDecathlon);
+const SettingsPage = lazy(loadSettings);
+const DuasPage = lazy(loadDuas);
 const ThemeSettingsPage = lazy(loadTheme);
 const AuthPage = lazy(loadAuth);
 const ProfileEditPage = lazy(loadProfile);
@@ -117,6 +125,8 @@ const PodcastLibraryPage = lazy(loadPodcastLibrary);
 const NotFound = lazy(loadNotFound);
 const WellnessPage = lazy(loadWellness);
 const DiwanPage = lazy(loadDiwan);
+const BrowsePage = lazy(loadBrowse);
+const MihrabPage = lazy(loadMihrab);
 const DiwanLibraryPage = lazy(loadLibrary);
 const DiwanLibraryPoetsPage = lazy(loadLibraryPoets);
 const DiwanLibraryPoetPage = lazy(loadLibraryPoet);
@@ -136,6 +146,11 @@ function useIdlePrefetch() {
     const id = ric(() => {
       loadTheme(); loadProfile(); loadPrayer(); loadReading();
       loadWellness(); loadDiwan();
+      // The new IA hubs are the most likely first taps on every cold
+      // session, so warm them up alongside the existing tabs. Settings
+      // is now reached from the home avatar shortcut, so prefetch it
+      // too — the user is one tap away.
+      loadBrowse(); loadMihrab(); loadSettings();
     });
     return () => {
       const cic = (window as any).cancelIdleCallback;
@@ -171,10 +186,14 @@ const PageSkeleton = () => (
 // rendered once in <PersistentTabs/> and toggled with display:none — never
 // unmounted. This makes bottom-nav switching feel native and instant.
 //
-// Wellness and Diwan are intentionally NOT here — see the comment on
-// `loadWellness` / `loadDiwan` above. They appear as regular lazy routes
-// in <Routes> below and the bottom-nav still works the same way.
-const TAB_PATHS = ['/', '/games', '/chat', '/settings', '/duas'] as const;
+// The IA reorganisation reduced this set to the three small, hot tabs
+// the user touches all the time: Home, Games, Chat. Wellness, Browse,
+// and Mihrab are top-level destinations too (they appear in the bottom
+// nav) but are heavier; they are lazy non-persistent routes below so
+// their cold-paint cost stays off the home page. Their `display:none`
+// on first paint would have kept their data fetches running anyway,
+// so making them route-rendered is the right trade-off.
+const TAB_PATHS = ['/', '/games', '/chat'] as const;
 type TabPath = typeof TAB_PATHS[number];
 
 function PersistentTabs({ active }: { active: TabPath | null }) {
@@ -204,11 +223,9 @@ function PersistentTabs({ active }: { active: TabPath | null }) {
   );
   return (
     <div style={{ display: visible ? 'block' : 'none' }}>
-      {slot('/',         <Index />)}
-      {slot('/games',    <GamesPage />)}
-      {slot('/chat',     <ChatPage />)}
-      {slot('/settings', <SettingsPage />)}
-      {slot('/duas',     <DuasPage />)}
+      {slot('/',      <Index />)}
+      {slot('/games', <GamesPage />)}
+      {slot('/chat',  <ChatPage />)}
     </div>
   );
 }
@@ -225,7 +242,10 @@ function AnimatedRoutes() {
   return (
     <main id="main-content">
       <ScrollToTop />
-      {/* Persistent layer — all 6 tab pages mounted once, toggled by display */}
+      {/* Persistent layer — three small hot tabs (Home, Games, Chat)
+          mounted once and toggled by display. The other bottom-nav
+          destinations (Wellness, Browse, Mihrab) are heavier and ride
+          the lazy non-persistent route path below. */}
       <PersistentTabs active={activeTab} />
       {/* Non-tab routes (sub-pages, settings details, games, etc.) */}
       <Suspense fallback={activeTab ? null : <PageSkeleton />}>
@@ -235,13 +255,25 @@ function AnimatedRoutes() {
             <Route path="/" element={null} />
             <Route path="/games" element={null} />
             <Route path="/chat" element={null} />
-            <Route path="/settings" element={null} />
-            <Route path="/duas" element={null} />
+            {/* /settings is no longer a top-level tab. It is reached
+                from the avatar shortcut on the home page and rendered
+                as a regular lazy route. */}
+            <Route path="/settings" element={<ErrorBoundary><PageTransition><SettingsPage /></PageTransition></ErrorBoundary>} />
+            {/* /duas is now a redirect to /mihrab → Dhikr (kept for
+                backward-compat with old links). */}
+            <Route path="/duas" element={<ErrorBoundary><DuasPage /></ErrorBoundary>} />
             {/* Wellness and Diwan tabs are lazy routes (see notes near
-                `loadWellness`/`loadDiwan` above). They still appear in
-                the bottom nav. */}
+                `loadWellness`/`loadDiwan` above). Wellness is a
+                bottom-nav tab; /diwan is now a redirect to /mihrab →
+                Literature. */}
             <Route path="/wellness" element={<ErrorBoundary><PageTransition><WellnessPage /></PageTransition></ErrorBoundary>} />
-            <Route path="/diwan" element={<ErrorBoundary><PageTransition><DiwanPage /></PageTransition></ErrorBoundary>} />
+            <Route path="/diwan" element={<ErrorBoundary><DiwanPage /></ErrorBoundary>} />
+            {/* New IA hubs (Phase 1+2 of the reorganisation). They
+                gate every other entry that the bottom nav previously
+                exposed individually, so they live with the other
+                lazy tab-class routes. */}
+            <Route path="/browse" element={<ErrorBoundary><PageTransition><BrowsePage /></PageTransition></ErrorBoundary>} />
+            <Route path="/mihrab" element={<ErrorBoundary><PageTransition><MihrabPage /></PageTransition></ErrorBoundary>} />
             <Route path="/games/sudoku" element={<ErrorBoundary><PageTransition><SudokuPage /></PageTransition></ErrorBoundary>} />
             <Route path="/games/chess" element={<ErrorBoundary><PageTransition><ChessPage /></PageTransition></ErrorBoundary>} />
             <Route path="/games/chess/puzzles" element={<ErrorBoundary><PageTransition><ChessPuzzlePage /></PageTransition></ErrorBoundary>} />

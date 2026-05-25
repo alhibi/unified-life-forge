@@ -9,13 +9,14 @@ import LocationSaver from '@/components/LocationSaver';
 import PrayerTimes from '@/components/PrayerTimes';
 import { motion } from 'framer-motion';
 import WeatherWidget from '@/components/WeatherWidget';
-import IslamicSections from '@/components/IslamicSections';
 import CurrentTimeSunnah from '@/components/CurrentTimeSunnah';
 import UmmahPulse from '@/components/UmmahPulse';
 import { useNavigate } from 'react-router-dom';
-import { Sunrise, Sun, Moon, MessageCircle, Newspaper, ClipboardList, X, Trash2, BookOpen, ArrowRight } from 'lucide-react';
+import { Sunrise, Sun, Moon, MessageCircle, ClipboardList, X, Trash2, BookOpen, UserCircle } from 'lucide-react';
 import { AnimatePresence } from 'framer-motion';
 import { useClipboard } from '@/hooks/useClipboard';
+import { getAppleEmojiUrl, isEmojiAvatarValue } from '@/utils/emojiAvatar';
+import { getDefaultAvatarForUser } from '@/utils/defaultAvatar';
 
 const stagger = {
   hidden: {},
@@ -38,7 +39,7 @@ export default function Index() {
   }, [locationStatus, requestLocation]);
 
   const { t, language } = useApp();
-  const { user } = useAuth();
+  const { user, username, profile } = useAuth();
   const now = new Date();
   const hour = now.getHours();
   const isMorning = hour >= 5 && hour < 12;
@@ -84,12 +85,6 @@ export default function Index() {
                   </span>
                 )}
               </button>
-              <button
-                onClick={() => navigate('/reading')}
-                className="p-2.5 rounded-xl bg-accent/50 hover:bg-accent transition-colors" aria-label="الأخبار"
-              >
-                <Newspaper className="h-5 w-5 text-foreground" />
-              </button>
               {user && (
                 <button
                   onClick={() => navigate('/chat')}
@@ -103,6 +98,34 @@ export default function Index() {
                   )}
                 </button>
               )}
+              {/* Avatar shortcut → /settings.
+                  Replaces the previous Newspaper button (which moved
+                  into the new /browse hub) and the Settings tab in
+                  the bottom nav (which was retired in the IA reorg).
+                  Signed-in users see their actual avatar; signed-out
+                  users see a generic UserCircle that still navigates
+                  to /settings (where the auth flow lives). */}
+              <button
+                onClick={() => navigate('/settings')}
+                className="relative w-10 h-10 rounded-full ring-2 ring-primary/20 overflow-hidden active:scale-95 transition-transform"
+                aria-label={language === 'ar' ? 'الإعدادات' : 'Einstellungen'}
+              >
+                {user ? (
+                  profile?.avatar_url && profile.avatar_url.startsWith('http') ? (
+                    <img src={profile.avatar_url} alt="" className="w-full h-full object-cover object-top" />
+                  ) : profile?.avatar_url && isEmojiAvatarValue(profile.avatar_url) ? (
+                    <span className="w-full h-full flex items-center justify-center bg-accent/40">
+                      <img src={getAppleEmojiUrl(profile.avatar_url) || ''} alt="" className="w-6 h-6" />
+                    </span>
+                  ) : (
+                    <img src={getDefaultAvatarForUser(username || 'U')} alt="" className="w-full h-full object-cover" />
+                  )
+                ) : (
+                  <span className="w-full h-full flex items-center justify-center bg-accent/40">
+                    <UserCircle className="h-5 w-5 text-foreground" />
+                  </span>
+                )}
+              </button>
             </div>
           </div>
         </motion.div>
@@ -111,37 +134,13 @@ export default function Index() {
         <motion.div variants={item}><PrayerTimes /></motion.div>
         <motion.div variants={item}><CurrentTimeSunnah /></motion.div>
         <motion.div variants={item}><UmmahPulse /></motion.div>
-        {/* Tafsir Feature Card — Gold Shimmer */}
-        <motion.div variants={item}>
-          <button
-            onClick={() => navigate('/tafsir')}
-            className="w-full group relative overflow-hidden rounded-xl border border-amber-300/30 dark:border-amber-500/20 bg-gradient-to-bl from-amber-50 via-card to-amber-50/30 dark:from-amber-950/20 dark:via-card dark:to-amber-950/10 px-4 py-3.5 text-right transition-all hover:shadow-[0_4px_24px_rgba(217,167,62,0.12)] hover:border-amber-400/50 active:scale-[0.98]"
-          >
-            {/* Gold shimmer sweep animation */}
-            <div
-              className="absolute inset-0 pointer-events-none opacity-60"
-              style={{
-                background: 'linear-gradient(105deg, transparent 40%, rgba(217,167,62,0.15) 50%, transparent 60%)',
-                backgroundSize: '200% 100%',
-                animation: 'shimmer 3s ease-in-out infinite',
-              }}
-            />
-            <div className="relative flex items-center gap-3">
-              <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-400/20 to-amber-600/10 dark:from-amber-500/15 dark:to-amber-700/10 flex items-center justify-center shrink-0 border border-amber-300/30 dark:border-amber-500/20">
-                <BookOpen className="w-5 h-5 text-amber-600 dark:text-amber-400" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="text-sm font-bold text-foreground">{t('tafsir.title')}</h3>
-                <p className="text-[11px] text-muted-foreground leading-snug mt-0.5 line-clamp-1">{t('tafsir.subtitle')}</p>
-              </div>
-              <div className="shrink-0 w-6 h-6 rounded-full bg-amber-400/10 dark:bg-amber-500/10 flex items-center justify-center">
-                <ArrowRight className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 rotate-180" />
-              </div>
-            </div>
-          </button>
-        </motion.div>
-
-        <motion.div variants={item}><IslamicSections /></motion.div>
+        {/* Tafsir feature card and the IslamicSections grid that used
+            to live here have been retired in the IA reorganisation.
+            Their content now lives under /mihrab (Quran/Dhikr/Sunnah/
+            Literature) which is one tap away in the bottom nav. The
+            home page is back to answering only "what should I do
+            right now?" — prayer times, weather, current sunnah,
+            ummah pulse, and saved locations. */}
         <motion.div variants={item}><LocationSaver /></motion.div>
 
         {/* Made by Amer */}

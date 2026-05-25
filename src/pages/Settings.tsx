@@ -8,6 +8,7 @@ import { Languages, Palette, ChevronLeft, UserCircle, LogOut, Type, BookOpen, Al
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import BackButton from '@/components/BackButton';
 import packageJson from '../../package.json';
 
 const stagger = {
@@ -118,6 +119,17 @@ export default function SettingsPage() {
     <div className="min-h-screen bg-background pb-28 px-5 pt-10">
       <SEO title="الإعدادات — SmartHub" description="تخصيص اللغة، السمة، الخط، حساب الصلاة والملف الشخصي في SmartHub." path="/settings" />
       <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-5 max-w-lg mx-auto">
+
+        {/* Header — settings is no longer a bottom-nav tab; the user
+            reaches it from the avatar shortcut on Home, so we need a
+            visible Back affordance to close the loop. */}
+        <motion.div variants={item} className="flex items-center justify-between">
+          <BackButton />
+          <h1 className="text-[17px] font-bold tracking-tight text-foreground">
+            {t('settings.title')}
+          </h1>
+          <div className="w-10" />
+        </motion.div>
 
         {/* Profile / Account Card */}
         <motion.div variants={item}>
