@@ -262,9 +262,35 @@ export function ReaderView({
       // it visible — the network refresh failed but the user can read
       // the cached copy.
       if (!article) {
+        // supabase-js wraps non-2xx responses in a generic
+        // "Edge Function returned a non-2xx status code" error. Try to
+        // read the JSON body the function actually returned so we can
+        // surface a meaningful message instead of that opaque string.
+        let detail = '';
+        try {
+          const ctx = e?.context;
+          if (ctx && typeof ctx.json === 'function') {
+            const parsed = await ctx.json();
+            if (parsed && typeof parsed.error === 'string') detail = parsed.error;
+          } else if (ctx && typeof ctx.text === 'function') {
+            const txt = await ctx.text();
+            try {
+              const parsed = JSON.parse(txt);
+              if (parsed && typeof parsed.error === 'string') detail = parsed.error;
+              else detail = txt;
+            } catch { detail = txt; }
+          }
+        } catch { /* ignore body parse failures */ }
+        const raw = (detail || e?.message || '').trim();
+        const looksGeneric =
+          /non-2xx status code/i.test(raw) ||
+          /failed to fetch/i.test(raw) ||
+          /supabase_not_configured/i.test(raw) ||
+          /environment variables are missing/i.test(raw);
         setError(
-          e?.message ||
-            (isAr ? 'تعذّر استخراج المقال' : 'Could not extract article'),
+          looksGeneric || !raw
+            ? (isAr ? 'تعذّر استخراج المقال من هذا الرابط' : 'Could not extract this article')
+            : raw,
         );
       }
     } finally {

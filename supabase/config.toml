@@ -12,3 +12,9 @@ verify_jwt = false
 # rather than rejecting unsigned-in browsers.
 [functions.search-articles]
 verify_jwt = false
+
+# Reader View accepts anonymous callers: the function only scrapes a
+# public URL and never touches the database. Keeping JWT verification
+# on caused signed-out browsers to receive a generic non-2xx error.
+[functions.extract-article]
+verify_jwt = false
