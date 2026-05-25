@@ -17,9 +17,10 @@ import {
   storeReaderPrefs,
   getOfflinePrefs,
 } from '@/features/reading/storage';
+import { useListPrefs } from '@/features/reading/listPrefs';
 import { useReadingData } from '@/features/reading/useReadingData';
 import { ListHeader } from '@/features/reading/ListHeader';
-import { ArticleList } from '@/features/reading/ArticleList';
+import { ArticleListGrouped } from '@/features/reading/ArticleListGrouped';
 import { PullToRefresh } from '@/features/reading/PullToRefresh';
 import { ReadingErrorBoundary } from '@/features/reading/ReadingErrorBoundary';
 import { timeAgo } from '@/features/reading/utils';
@@ -51,6 +52,15 @@ const SubviewFallback = () => (
  * components in `src/features/reading/`. The heavy lifting (data
  * fetching, persistence, animations, layouts) lives in the feature
  * folder so this file stays scannable.
+ *
+ * Layout-mode awareness (added in the ReadYou/CapyReader inspired
+ * upgrade):
+ *  - On lg+ screens with `twoPaneOnDesktop` enabled, the article
+ *    view renders alongside the list as a split pane (35/65). On
+ *    smaller screens we keep the single-pane stacked behaviour.
+ *  - All non-article subviews (manage, search, alerts…) stay
+ *    single-pane regardless of screen size — those are flow-
+ *    disrupting and benefit from focus.
  */
 export default function ReadingPage() {
   const { language } = useApp();
@@ -73,6 +83,8 @@ export default function ReadingPage() {
     refreshFeeds,
     toggleBookmark,
     markAsRead,
+    markAsUnread,
+    markManyRead,
     markAllRead,
     addFeed,
     addSuggestedFeed,
@@ -83,17 +95,45 @@ export default function ReadingPage() {
     recacheNow,
   } = data;
 
+  // ─── List display preferences (persisted) ────────────────────────────
+  const [listPrefs, updateListPrefs] = useListPrefs();
+
   // ─── View state ───────────────────────────────────────────────────────
   const [view, setView] = useState<View>('list');
   const [selectedArticle, setSelectedArticle] = useState<FeedItem | null>(null);
   const [filterTab, setFilterTab] = useState<FilterTab>('all');
   const [sourceFilter, setSourceFilter] = useState<string>('all');
+  const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearch, setShowSearch] = useState(false);
   const [unseenAlerts, setUnseenAlerts] = useState(0);
   const [isOnline, setIsOnline] = useState(
     typeof navigator !== 'undefined' ? navigator.onLine : true,
   );
+
+  // ─── Wide-screen detection (for two-pane layout) ─────────────────────
+  // We watch `lg` breakpoint via matchMedia rather than relying on CSS
+  // alone because the rendering branch (split vs stacked) depends on
+  // it. Updates whenever the viewport crosses 1024 px.
+  const [isWideScreen, setIsWideScreen] = useState(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return false;
+    return window.matchMedia('(min-width: 1024px)').matches;
+  });
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return;
+    const mq = window.matchMedia('(min-width: 1024px)');
+    const onChange = (e: MediaQueryListEvent) => setIsWideScreen(e.matches);
+    if (mq.addEventListener) mq.addEventListener('change', onChange);
+    else mq.addListener(onChange);
+    return () => {
+      if (mq.removeEventListener) mq.removeEventListener('change', onChange);
+      else mq.removeListener(onChange);
+    };
+  }, []);
+
+  /** True when we should render article alongside list, not on top. */
+  const useTwoPane =
+    isWideScreen && listPrefs.twoPaneOnDesktop && view === 'article';
 
   // ─── Reader prefs (persisted) ─────────────────────────────────────────
   const [readerPrefs, setReaderPrefs] = useState<ReaderPrefs>(getReaderPrefs);
@@ -103,30 +143,17 @@ export default function ReadingPage() {
   useEffect(() => {
     void registerReadingServiceWorker();
     // Periodic prune of stale archived articles (run once per session).
-    // Honor the user's "Retention" preference from StorageView — the
-    // chip choice is now actually wired through to the prune cutoff.
-    // Pass the current bookmarks so explicit saves are never deleted
-    // by the age-based sweep, regardless of how long ago they were
-    // archived.
     const retentionDays = getOfflinePrefs().retentionDays;
     const maxAgeMs = retentionDays * 24 * 60 * 60 * 1000;
     void offlineDb.pruneOlderThan(maxAgeMs, bookmarks).catch(() => undefined);
-    // Intentionally only depends on the *initial* bookmarks snapshot:
-    // we want this to fire once per session, not every time the user
-    // toggles a bookmark.
+    // Intentionally only depends on the *initial* bookmarks snapshot.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // ─── Online/offline tracking ──────────────────────────────────────────
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    const onOn = () => {
-      setIsOnline(true);
-      // When connectivity is restored, trigger a refresh so the user
-      // immediately gets fresh content without manual intervention.
-      // The useReadingData hook also listens for 'online', but the page
-      // shell needs to update its own isOnline state for the UI banner.
-    };
+    const onOn = () => setIsOnline(true);
     const onOff = () => setIsOnline(false);
     window.addEventListener('online', onOn);
     window.addEventListener('offline', onOff);
@@ -137,22 +164,12 @@ export default function ReadingPage() {
   }, []);
 
   // ─── Cache bookmarked articles for offline reading ────────────────────
-  // Whenever an article is bookmarked we save its full content + image
-  // to IndexedDB. We only write articles we haven't already saved this
-  // session — a re-render with the same bookmark list shouldn't replay
-  // dozens of IDB writes. We also remove un-bookmarked articles when
-  // the user toggles them off so the offline store mirrors intent.
-  //
-  // For URLs that came from outside the feed list (e.g. a keyword-alert
-  // hit opened in ReaderView), we synthesise a minimal stub so they
-  // still get persisted.
   const savedThisSession = useRef<Set<string>>(new Set());
   useEffect(() => {
     if (!offlineDb.available()) return;
     const bookmarkSet = new Set(bookmarks);
     const articleByLink = new Map(articles.map((a) => [a.link, a] as const));
 
-    // Collect articles that need saving in this render cycle
     const toSave: typeof articles = [];
     for (const link of bookmarkSet) {
       if (savedThisSession.current.has(link)) continue;
@@ -161,7 +178,6 @@ export default function ReadingPage() {
       if (article) {
         toSave.push(article);
       } else {
-        // Stub for stranded bookmarks
         toSave.push({
           title: link,
           link,
@@ -174,12 +190,10 @@ export default function ReadingPage() {
       }
     }
 
-    // Batch save all new bookmarked articles at once
     if (toSave.length > 0) {
       void offlineDb.saveArticlesBatch(toSave).catch(() => undefined);
     }
 
-    // Remove from offline store anything the user has un-bookmarked
     const toRemove: string[] = [];
     for (const link of Array.from(savedThisSession.current)) {
       if (!bookmarkSet.has(link)) {
@@ -193,10 +207,6 @@ export default function ReadingPage() {
   }, [bookmarks, articles]);
 
   // ─── Unseen keyword alert count ───────────────────────────────────────
-  // Refreshes when the user signs in or out (auth state change), so the
-  // badge always reflects the *current* user — not the user we saw at
-  // mount. Realtime subscription is rebuilt with the correct user-id
-  // filter on every transition.
   useEffect(() => {
     let cancelled = false;
     let chan: ReturnType<typeof supabase.channel> | null = null;
@@ -215,11 +225,9 @@ export default function ReadingPage() {
           .eq('user_id', userId)
           .eq('seen', false);
         if (!cancelled && typeof count === 'number') setUnseenAlerts(count);
-      } catch { /* network blip; keep last value */ }
+      } catch { /* network blip */ }
     };
 
-    // Coalesce burst-of-events from a multi-row UPDATE (mark-all-read
-    // on 50 rows triggers 50 events). We just want one re-count.
     let recountTimer: ReturnType<typeof setTimeout> | null = null;
     const scheduleRecount = (userId: string) => {
       if (recountTimer) clearTimeout(recountTimer);
@@ -254,7 +262,6 @@ export default function ReadingPage() {
       if (session?.user) {
         subscribe(session.user.id);
       } else {
-        // Signed out — drop the count and any subscription.
         tearDown();
         setUnseenAlerts(0);
       }
@@ -269,13 +276,10 @@ export default function ReadingPage() {
   }, []);
 
   // ─── Filtered article view ────────────────────────────────────────────
+  // Now layered: filter tab → category folder → source → search query.
   const filtered = useMemo(() => {
     let list = articles;
     if (filterTab === 'bookmarks') {
-      // Show every bookmark — including stranded ones that aren't in
-      // the current article list. We render them with a synthetic
-      // FeedItem stub so the user can still tap and open them in the
-      // reader (ArticleReader will fall back to the offline cache).
       const articleByLink = new Map(articles.map((a) => [a.link, a] as const));
       list = bookmarks.map((link): FeedItem =>
         articleByLink.get(link) ?? {
@@ -290,6 +294,17 @@ export default function ReadingPage() {
       );
     } else if (filterTab === 'unread') {
       list = list.filter((a) => !readArticles.includes(a.link));
+    }
+    // Category filter (folder): keep only articles whose source feed
+    // belongs to the selected category. This requires a source→category
+    // lookup since articles only carry the source name.
+    if (categoryFilter !== 'all') {
+      const allowedSources = new Set(
+        enabledFeeds
+          .filter((f) => (f.category || 'other') === categoryFilter)
+          .map((f) => f.name),
+      );
+      list = list.filter((a) => allowedSources.has(a.source));
     }
     if (sourceFilter !== 'all') {
       list = list.filter((a) => a.source === sourceFilter);
@@ -307,10 +322,12 @@ export default function ReadingPage() {
   }, [
     articles,
     filterTab,
+    categoryFilter,
     sourceFilter,
     searchQuery,
     bookmarks,
     readArticles,
+    enabledFeeds,
   ]);
 
   const unreadCount = useMemo(
@@ -323,9 +340,6 @@ export default function ReadingPage() {
     [enabledFeeds],
   );
 
-  // For SearchPanel: undefined = search every source, [] = no enabled
-  // feeds (we'd return zero results regardless, so pass undefined for
-  // a graceful "search the whole archive" fallback).
   const searchRestrict = enabledNames.length > 0 ? enabledNames : undefined;
 
   // ─── Navigation handlers ──────────────────────────────────────────────
@@ -340,13 +354,11 @@ export default function ReadingPage() {
     title: string,
     source: string | null,
   ) => {
-    // If the link matches an article we already have, open it inline.
     const known = articles.find((a) => a.link === link);
     if (known) {
       openArticle(known);
       return;
     }
-    // Otherwise treat it as an external URL and open the Reader View.
     setSelectedArticle({
       title,
       link,
@@ -384,13 +396,118 @@ export default function ReadingPage() {
 
   const refreshTimeAgo = lastRefresh ? timeAgo(lastRefresh, language) : null;
 
-  // Toggling the search bar off should also clear the active query —
-  // otherwise the list stays filtered with no visible input, leaving
-  // the user wondering why they're seeing "no results".
   const toggleSearch = (next: boolean) => {
     setShowSearch(next);
     if (!next) setSearchQuery('');
   };
+
+  // ─── Reusable list-pane (used in both single- and two-pane modes) ────
+  const listPane = (
+    <div className="flex flex-col flex-1 min-h-screen">
+      <ListHeader
+        isAr={isAr}
+        onBack={goBack}
+        showSearch={showSearch}
+        setShowSearch={toggleSearch}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        refreshing={refreshing}
+        onRefresh={() => refreshFeeds(false)}
+        onManage={() => setView('manage')}
+        onMarkAllRead={markAllRead}
+        onOpenArchiveSearch={() => setView('search')}
+        onOpenAlerts={() => setView('alerts')}
+        onOpenReader={() => {
+          setSelectedArticle(null);
+          setView('reader');
+        }}
+        unseenAlerts={unseenAlerts}
+        filterTab={filterTab}
+        setFilterTab={setFilterTab}
+        sourceFilter={sourceFilter}
+        setSourceFilter={setSourceFilter}
+        categoryFilter={categoryFilter}
+        setCategoryFilter={setCategoryFilter}
+        enabledFeeds={enabledFeeds}
+        sourceCounts={sourceCounts}
+        articleCount={articles.length}
+        unreadCount={unreadCount}
+        bookmarksCount={bookmarks.length}
+        listPrefs={listPrefs}
+        onListPrefsChange={updateListPrefs}
+      />
+
+      <PullToRefresh
+        refreshing={refreshing}
+        onRefresh={() => refreshFeeds(false)}
+      >
+        <ArticleListGrouped
+          articles={filtered}
+          loading={loading}
+          refreshing={refreshing}
+          isAr={isAr}
+          language={language}
+          filterTab={filterTab}
+          sourceFilter={sourceFilter}
+          searchQuery={searchQuery}
+          bookmarks={bookmarks}
+          readArticles={readArticles}
+          cachedLinks={cachedLinks}
+          hasFeeds={enabledFeeds.length > 0}
+          prefs={listPrefs}
+          onOpenArticle={openArticle}
+          onToggleBookmark={toggleBookmark}
+          onRefresh={() => refreshFeeds(false)}
+          onAddFeeds={() => setView('suggested')}
+          onMarkRead={markAsRead}
+          onMarkUnread={markAsUnread}
+          onMarkManyRead={markManyRead}
+        />
+      </PullToRefresh>
+
+      <div className="px-4 py-2.5 border-t border-border/30 flex items-center justify-between text-[11px] text-muted-foreground">
+        <button
+          type="button"
+          onClick={() => setView('storage')}
+          className="flex items-center gap-1.5 hover:text-foreground transition-colors"
+          title={isAr ? 'إدارة التخزين دون اتصال' : 'Manage offline storage'}
+        >
+          <Database className="h-3 w-3" />
+          {isAr
+            ? `${totalInDB} ${totalInDB === 1 ? 'مقال' : 'مقالاً'} محفوظ${totalInDB === 1 ? '' : 'ة'}`
+            : `${totalInDB} archived`}
+        </button>
+        <button
+          type="button"
+          onClick={() => setView('cron')}
+          className="flex items-center gap-1.5 hover:text-foreground transition-colors"
+          title={isAr ? 'حالة التحديث التلقائي' : 'Refresh status'}
+        >
+          {!isOnline
+            ? (<>
+                <WifiOff className="h-3 w-3 text-amber-500" />
+                {isAr ? 'بدون اتصال' : 'Offline'}
+              </>)
+            : refreshing
+              ? (<>
+                  <Wifi className="h-3 w-3 animate-pulse text-primary" />
+                  {isAr ? 'جاري التحديث...' : 'Syncing...'}
+                </>)
+              : refreshTimeAgo
+                ? (<>
+                    <Clock className="h-3 w-3" />
+                    {isAr
+                      ? `آخر تحديث ${refreshTimeAgo}`
+                      : `Updated ${refreshTimeAgo}`}
+                  </>)
+                : (<>
+                    <Clock className="h-3 w-3" />
+                    {isAr ? 'لم يتم التحديث بعد' : 'Not synced yet'}
+                  </>)}
+        </button>
+      </div>
+    </div>
+  );
 
   return (
     <ReadingErrorBoundary lang={language}>
@@ -434,223 +551,157 @@ export default function ReadingPage() {
           </button>
         </div>
       )}
-      <AnimatePresence mode="wait">
-        {view === 'article' && selectedArticle && (
-         <Suspense key="article-s" fallback={<SubviewFallback />}>
-          <ArticleReader
-            key="article"
-            article={selectedArticle}
-            isBookmarked={bookmarks.includes(selectedArticle.link)}
-            prefs={readerPrefs}
-            isAr={isAr}
-            language={language}
-            onBack={goBack}
-            onToggleBookmark={() => toggleBookmark(selectedArticle.link)}
-            onChangePrefs={setReaderPrefs}
-          />
-         </Suspense>
-        )}
 
-        {view === 'reader' && (
-         <Suspense key="reader-s" fallback={<SubviewFallback />}>
-          <ReaderView
-            key="reader"
-            isAr={isAr}
-            language={language}
-            prefs={readerPrefs}
-            onChangePrefs={setReaderPrefs}
-            onBack={goBack}
-            initialUrl={selectedArticle?.link}
-            isBookmarked={
-              selectedArticle ? bookmarks.includes(selectedArticle.link) : false
-            }
-            onToggleBookmark={toggleBookmark}
-          />
-         </Suspense>
-        )}
-
-        {view === 'suggested' && (
-         <Suspense key="sugg-s" fallback={<SubviewFallback />}>
-          <SuggestedFeedsView
-            key="suggested"
-            feedSources={feedSources}
-            isAr={isAr}
-            onBack={goBack}
-            onAddSuggested={addSuggestedFeed}
-            onAddBulk={addFeedsBulk}
-          />
-         </Suspense>
-        )}
-
-        {view === 'manage' && (
-         <Suspense key="manage-s" fallback={<SubviewFallback />}>
-          <ManageFeedsView
-            key="manage"
-            feedSources={feedSources}
-            statuses={statuses}
-            totalInDB={totalInDB}
-            isAr={isAr}
-            sourceCounts={sourceCounts}
-            onBack={goBack}
-            onSuggested={() => setView('suggested')}
-            onAdd={addFeed}
-            onAddBulk={addFeedsBulk}
-            onRemove={removeFeed}
-            onToggleEnabled={toggleFeedEnabled}
-          />
-         </Suspense>
-        )}
-
-        {view === 'search' && (
-         <Suspense key="search-s" fallback={<SubviewFallback />}>
-          <SearchPanel
-            key="search"
-            isAr={isAr}
-            language={language}
-            restrictTo={searchRestrict}
-            onBack={goBack}
-            onOpenArticle={openArticle}
-          />
-         </Suspense>
-        )}
-
-        {view === 'alerts' && (
-         <Suspense key="alerts-s" fallback={<SubviewFallback />}>
-          <KeywordAlertsView
-            key="alerts"
-            isAr={isAr}
-            language={language}
-            enabledFeeds={enabledFeeds}
-            onBack={goBack}
-            onOpenLink={openLinkInReader}
-            onSignIn={() => navigate('/auth')}
-          />
-         </Suspense>
-        )}
-
-        {view === 'storage' && (
-         <Suspense key="storage-s" fallback={<SubviewFallback />}>
-          <StorageView
-            key="storage"
-            isAr={isAr}
-            bookmarksCount={bookmarks.length}
-            onBack={goBack}
-            onRecacheNow={recacheNow}
-          />
-         </Suspense>
-        )}
-
-        {view === 'cron' && (
-         <Suspense key="cron-s" fallback={<SubviewFallback />}>
-          <CronView
-            key="cron"
-            isAr={isAr}
-            language={language}
-            feedSources={feedSources}
-            onBack={goBack}
-          />
-         </Suspense>
-        )}
-
-        {view === 'list' && (
-          <div key="list" className="flex flex-col flex-1 min-h-screen">
-            <ListHeader
-              isAr={isAr}
-              onBack={goBack}
-              showSearch={showSearch}
-              setShowSearch={toggleSearch}
-              searchQuery={searchQuery}
-              setSearchQuery={setSearchQuery}
-              refreshing={refreshing}
-              onRefresh={() => refreshFeeds(false)}
-              onManage={() => setView('manage')}
-              onMarkAllRead={markAllRead}
-              onOpenArchiveSearch={() => setView('search')}
-              onOpenAlerts={() => setView('alerts')}
-              onOpenReader={() => {
-                setSelectedArticle(null);
-                setView('reader');
-              }}
-              unseenAlerts={unseenAlerts}
-              filterTab={filterTab}
-              setFilterTab={setFilterTab}
-              sourceFilter={sourceFilter}
-              setSourceFilter={setSourceFilter}
-              enabledFeeds={enabledFeeds}
-              sourceCounts={sourceCounts}
-              articleCount={articles.length}
-              unreadCount={unreadCount}
-              bookmarksCount={bookmarks.length}
-            />
-
-            <PullToRefresh
-              refreshing={refreshing}
-              onRefresh={() => refreshFeeds(false)}
-            >
-              <ArticleList
-                articles={filtered}
-                loading={loading}
-                refreshing={refreshing}
+      {/* Two-pane desktop layout — list + article side by side */}
+      {useTwoPane && selectedArticle && (
+        <div className="flex flex-1 min-h-screen">
+          <aside className="w-[40%] max-w-[480px] border-e border-border/40 flex-shrink-0">
+            {listPane}
+          </aside>
+          <main className="flex-1 min-w-0">
+            <Suspense fallback={<SubviewFallback />}>
+              <ArticleReader
+                article={selectedArticle}
+                isBookmarked={bookmarks.includes(selectedArticle.link)}
+                prefs={readerPrefs}
                 isAr={isAr}
                 language={language}
-                filterTab={filterTab}
-                sourceFilter={sourceFilter}
-                searchQuery={searchQuery}
-                bookmarks={bookmarks}
-                readArticles={readArticles}
-                cachedLinks={cachedLinks}
-                hasFeeds={enabledFeeds.length > 0}
-                onOpenArticle={openArticle}
-                onToggleBookmark={toggleBookmark}
-                onRefresh={() => refreshFeeds(false)}
-                onAddFeeds={() => setView('suggested')}
+                onBack={goBack}
+                onToggleBookmark={() => toggleBookmark(selectedArticle.link)}
+                onChangePrefs={setReaderPrefs}
               />
-            </PullToRefresh>
+            </Suspense>
+          </main>
+        </div>
+      )}
 
-            <div className="px-4 py-2.5 border-t border-border/30 flex items-center justify-between text-[11px] text-muted-foreground">
-              <button
-                type="button"
-                onClick={() => setView('storage')}
-                className="flex items-center gap-1.5 hover:text-foreground transition-colors"
-                title={isAr ? 'إدارة التخزين دون اتصال' : 'Manage offline storage'}
-              >
-                <Database className="h-3 w-3" />
-                {isAr
-                  ? `${totalInDB} ${totalInDB === 1 ? 'مقال' : 'مقالاً'} محفوظ${totalInDB === 1 ? '' : 'ة'}`
-                  : `${totalInDB} archived`}
-              </button>
-              <button
-                type="button"
-                onClick={() => setView('cron')}
-                className="flex items-center gap-1.5 hover:text-foreground transition-colors"
-                title={isAr ? 'حالة التحديث التلقائي' : 'Refresh status'}
-              >
-                {!isOnline
-                  ? (<>
-                      <WifiOff className="h-3 w-3 text-amber-500" />
-                      {isAr ? 'بدون اتصال' : 'Offline'}
-                    </>)
-                  : refreshing
-                    ? (<>
-                        <Wifi className="h-3 w-3 animate-pulse text-primary" />
-                        {isAr ? 'جاري التحديث...' : 'Syncing...'}
-                      </>)
-                    : refreshTimeAgo
-                      ? (<>
-                          <Clock className="h-3 w-3" />
-                          {isAr
-                            ? `آخر تحديث ${refreshTimeAgo}`
-                            : `Updated ${refreshTimeAgo}`}
-                        </>)
-                      : (<>
-                          <Clock className="h-3 w-3" />
-                          {isAr ? 'لم يتم التحديث بعد' : 'Not synced yet'}
-                        </>)}
-              </button>
+      {/* Single-pane (mobile, or two-pane disabled) */}
+      {!useTwoPane && (
+        <AnimatePresence mode="wait">
+          {view === 'article' && selectedArticle && (
+            <Suspense key="article-s" fallback={<SubviewFallback />}>
+              <ArticleReader
+                key="article"
+                article={selectedArticle}
+                isBookmarked={bookmarks.includes(selectedArticle.link)}
+                prefs={readerPrefs}
+                isAr={isAr}
+                language={language}
+                onBack={goBack}
+                onToggleBookmark={() => toggleBookmark(selectedArticle.link)}
+                onChangePrefs={setReaderPrefs}
+              />
+            </Suspense>
+          )}
+
+          {view === 'reader' && (
+            <Suspense key="reader-s" fallback={<SubviewFallback />}>
+              <ReaderView
+                key="reader"
+                isAr={isAr}
+                language={language}
+                prefs={readerPrefs}
+                onChangePrefs={setReaderPrefs}
+                onBack={goBack}
+                initialUrl={selectedArticle?.link}
+                isBookmarked={
+                  selectedArticle ? bookmarks.includes(selectedArticle.link) : false
+                }
+                onToggleBookmark={toggleBookmark}
+              />
+            </Suspense>
+          )}
+
+          {view === 'suggested' && (
+            <Suspense key="sugg-s" fallback={<SubviewFallback />}>
+              <SuggestedFeedsView
+                key="suggested"
+                feedSources={feedSources}
+                isAr={isAr}
+                onBack={goBack}
+                onAddSuggested={addSuggestedFeed}
+                onAddBulk={addFeedsBulk}
+              />
+            </Suspense>
+          )}
+
+          {view === 'manage' && (
+            <Suspense key="manage-s" fallback={<SubviewFallback />}>
+              <ManageFeedsView
+                key="manage"
+                feedSources={feedSources}
+                statuses={statuses}
+                totalInDB={totalInDB}
+                isAr={isAr}
+                sourceCounts={sourceCounts}
+                onBack={goBack}
+                onSuggested={() => setView('suggested')}
+                onAdd={addFeed}
+                onAddBulk={addFeedsBulk}
+                onRemove={removeFeed}
+                onToggleEnabled={toggleFeedEnabled}
+              />
+            </Suspense>
+          )}
+
+          {view === 'search' && (
+            <Suspense key="search-s" fallback={<SubviewFallback />}>
+              <SearchPanel
+                key="search"
+                isAr={isAr}
+                language={language}
+                restrictTo={searchRestrict}
+                onBack={goBack}
+                onOpenArticle={openArticle}
+              />
+            </Suspense>
+          )}
+
+          {view === 'alerts' && (
+            <Suspense key="alerts-s" fallback={<SubviewFallback />}>
+              <KeywordAlertsView
+                key="alerts"
+                isAr={isAr}
+                language={language}
+                enabledFeeds={enabledFeeds}
+                onBack={goBack}
+                onOpenLink={openLinkInReader}
+                onSignIn={() => navigate('/auth')}
+              />
+            </Suspense>
+          )}
+
+          {view === 'storage' && (
+            <Suspense key="storage-s" fallback={<SubviewFallback />}>
+              <StorageView
+                key="storage"
+                isAr={isAr}
+                bookmarksCount={bookmarks.length}
+                onBack={goBack}
+                onRecacheNow={recacheNow}
+              />
+            </Suspense>
+          )}
+
+          {view === 'cron' && (
+            <Suspense key="cron-s" fallback={<SubviewFallback />}>
+              <CronView
+                key="cron"
+                isAr={isAr}
+                language={language}
+                feedSources={feedSources}
+                onBack={goBack}
+              />
+            </Suspense>
+          )}
+
+          {view === 'list' && (
+            <div key="list" className="contents">
+              {listPane}
             </div>
-          </div>
-        )}
-      </AnimatePresence>
+          )}
+        </AnimatePresence>
+      )}
     </div>
     </ReadingErrorBoundary>
   );

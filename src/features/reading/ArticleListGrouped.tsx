@@ -1,0 +1,588 @@
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { motion } from 'framer-motion';
+import { Bookmark, Newspaper, Plus, RefreshCw, Search, Star } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import type { FeedItem, FilterTab } from './types';
+import type { ListPrefs } from './listPrefs';
+import { BUCKET_ORDER as _BUCKET_ORDER, bucketLabel, bucketOf, type DateBucket } from './listPrefs';
+import { ArticleCard, HeroArticleCard } from './ArticleCard';
+import { ArticleListSkeleton } from './Skeletons';
+import { getScrollPos, storeScrollPos } from './storage';
+import { throttle } from './utils';
+
+/**
+ * Enhanced article list: time-grouping, sort modes, auto-mark on
+ * scroll, density variants, swipe and long-press context menus.
+ *
+ * Behaviour parity points with ReadYou and CapyReader:
+ *
+ *  - **Sort modes**: newest, oldest, unread-first. The "unread-first"
+ *    mode keeps unread items at the top and shoves already-read ones
+ *    to the bottom (still ordered by date within each band) — useful
+ *    when you have lots of half-cleared backlog.
+ *
+ *  - **Date grouping**: when `prefs.group === 'date'` we insert
+ *    sticky-ish section headers (Today / Yesterday / This week / This
+ *    month / Older) between the rows. Buckets are computed in the
+ *    user's local time so a 23:55 publication doesn't get bumped into
+ *    "yesterday" on a UTC+ device.
+ *
+ *  - **Auto-mark-on-scroll**: an IntersectionObserver watches every
+ *    rendered row. When a row exits the viewport upward (bottom edge
+ *    rises above the viewport top), we mark it as read. Ignores rows
+ *    that scrolled out *downward* during initial mount so a fresh
+ *    page load doesn't mark everything below the fold.
+ *
+ *  - **Mark above/below as read**: handed down via context menu.
+ *    Operates on the *visible-list* index so it respects the active
+ *    sort and filters — what you see is what gets touched.
+ */
+
+const ESTIMATED_ROW_HEIGHT_COMFORT = 112;
+const ESTIMATED_ROW_HEIGHT_COMPACT = 44;
+const ESTIMATED_ROW_HEIGHT_CARDS = 280;
+const VIRTUALIZATION_THRESHOLD = 60;
+const OVERSCAN = 8;
+
+export function ArticleListGrouped({
+  articles,
+  loading,
+  refreshing,
+  isAr,
+  language,
+  filterTab,
+  sourceFilter,
+  searchQuery,
+  bookmarks,
+  readArticles,
+  cachedLinks,
+  hasFeeds,
+  prefs,
+  onOpenArticle,
+  onToggleBookmark,
+  onRefresh,
+  onAddFeeds,
+  onMarkRead,
+  onMarkUnread,
+  onMarkManyRead,
+}: {
+  articles: FeedItem[];
+  loading: boolean;
+  refreshing: boolean;
+  isAr: boolean;
+  language: string;
+  filterTab: FilterTab;
+  sourceFilter: string;
+  searchQuery: string;
+  bookmarks: string[];
+  readArticles: string[];
+  cachedLinks?: ReadonlySet<string>;
+  hasFeeds?: boolean;
+  prefs: ListPrefs;
+  onOpenArticle: (a: FeedItem) => void;
+  onToggleBookmark: (link: string) => void;
+  onRefresh: () => void;
+  onAddFeeds?: () => void;
+  onMarkRead: (link: string) => void;
+  onMarkUnread: (link: string) => void;
+  onMarkManyRead: (links: ReadonlyArray<string>) => void;
+}) {
+  const scrollKey = `${filterTab}|${sourceFilter}|${prefs.sort}|${prefs.group}`;
+  const containerRef = useRef<HTMLDivElement>(null);
+  const scrollRestoredRef = useRef(false);
+
+  // Set of article links that are read at hook level — O(1) lookup.
+  const readSet = useMemo(() => new Set(readArticles), [readArticles]);
+
+  // ─── Sorted articles ──────────────────────────────────────────────────
+  const sorted = useMemo(() => {
+    const list = articles.slice();
+    const tsOf = (a: FeedItem): number => {
+      if (!a.pubDate) return 0;
+      const t = new Date(a.pubDate).getTime();
+      return Number.isNaN(t) ? 0 : t;
+    };
+    switch (prefs.sort) {
+      case 'oldest':
+        list.sort((a, b) => tsOf(a) - tsOf(b));
+        break;
+      case 'unread-first':
+        list.sort((a, b) => {
+          const ar = readSet.has(a.link) ? 1 : 0;
+          const br = readSet.has(b.link) ? 1 : 0;
+          if (ar !== br) return ar - br;
+          return tsOf(b) - tsOf(a);
+        });
+        break;
+      case 'newest':
+      default:
+        list.sort((a, b) => tsOf(b) - tsOf(a));
+    }
+    return list;
+  }, [articles, prefs.sort, readSet]);
+
+  // ─── Hero card (only for default view; never with non-newest sort) ────
+  const heroAndRest = useMemo(() => {
+    const isFiltered =
+      filterTab !== 'all' ||
+      sourceFilter !== 'all' ||
+      searchQuery.trim().length > 0 ||
+      prefs.sort !== 'newest' ||
+      prefs.group === 'date' ||
+      prefs.density !== 'comfortable';
+    if (sorted.length === 0 || isFiltered) {
+      return { hero: null, rest: sorted };
+    }
+    const unreadWithImage = sorted.find(
+      (a) => !readSet.has(a.link) && !!a.image,
+    );
+    const hero = unreadWithImage || sorted[0];
+    const rest = sorted.filter((a) => a.link !== hero.link);
+    return { hero, rest };
+  }, [
+    sorted,
+    filterTab,
+    sourceFilter,
+    searchQuery,
+    prefs.sort,
+    prefs.group,
+    prefs.density,
+    readSet,
+  ]);
+
+  // ─── Grouping into buckets (when enabled) ─────────────────────────────
+  // Returns a flat list of "items" — either headers or article rows —
+  // so we can window over a single homogeneous array.
+  type Row =
+    | { kind: 'header'; bucket: DateBucket; label: string; count: number }
+    | { kind: 'article'; article: FeedItem; visibleIndex: number };
+
+  const rows: Row[] = useMemo(() => {
+    const list = heroAndRest.rest;
+    if (prefs.group !== 'date') {
+      return list.map((article, i) => ({
+        kind: 'article',
+        article,
+        visibleIndex: i,
+      }));
+    }
+    // Bucket the list while preserving the active sort within each
+    // bucket. We recompute bucket boundaries linearly — the input is
+    // already sorted by date in the relevant direction.
+    const out: Row[] = [];
+    const counts = new Map<DateBucket, number>();
+    for (const a of list) counts.set(
+      bucketOf(a.pubDate),
+      (counts.get(bucketOf(a.pubDate)) || 0) + 1,
+    );
+    let visibleIndex = 0;
+    let lastBucket: DateBucket | null = null;
+    for (const a of list) {
+      const b = bucketOf(a.pubDate);
+      if (b !== lastBucket) {
+        out.push({
+          kind: 'header',
+          bucket: b,
+          label: bucketLabel(b, isAr),
+          count: counts.get(b) || 0,
+        });
+        lastBucket = b;
+      }
+      out.push({ kind: 'article', article: a, visibleIndex });
+      visibleIndex++;
+    }
+    // If sort is `oldest`, the bucket order is naturally reversed by
+    // input order; if not, we reorder headers via BUCKET_ORDER. The
+    // simpler approach here: trust the input. The user picked the
+    // sort.
+    return out;
+  }, [heroAndRest.rest, prefs.group, isAr]);
+
+  // Used by context menu's mark-above/below to enumerate links.
+  const visibleArticles = useMemo(
+    () => heroAndRest.rest,
+    [heroAndRest.rest],
+  );
+
+  // ─── Auto-mark on scroll (IntersectionObserver) ───────────────────────
+  // Track the *initial* set of links rendered so we don't mark
+  // everything that was already off-screen below the fold at mount.
+  // Only rows that were visible at some point and *then* scrolled out
+  // upward get marked.
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const elByLinkRef = useRef<Map<string, HTMLElement>>(new Map());
+  const seenLinksRef = useRef<Set<string>>(new Set());
+  const pendingMarkRef = useRef<Set<string>>(new Set());
+  const flushTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const flushPendingMarks = useCallback(() => {
+    flushTimerRef.current = null;
+    const pending = pendingMarkRef.current;
+    if (pending.size === 0) return;
+    const links = Array.from(pending);
+    pending.clear();
+    onMarkManyRead(links);
+  }, [onMarkManyRead]);
+
+  useEffect(() => {
+    if (!prefs.autoMarkOnScroll) return;
+    const root = containerRef.current;
+    if (!root) return;
+
+    const obs = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          const el = entry.target as HTMLElement;
+          const link = el.dataset.link;
+          if (!link) continue;
+          // Once an article has been seen (visible at least once) we
+          // queue it for marking when it leaves upward.
+          if (entry.isIntersecting) {
+            seenLinksRef.current.add(link);
+            continue;
+          }
+          if (!seenLinksRef.current.has(link)) continue;
+          // Only mark when the row scrolled *out the top*: the row's
+          // bottom is above the root's top.
+          const rootBounds = entry.rootBounds;
+          if (!rootBounds) continue;
+          if (entry.boundingClientRect.bottom <= rootBounds.top + 4) {
+            if (!readSet.has(link)) pendingMarkRef.current.add(link);
+          }
+        }
+        if (pendingMarkRef.current.size > 0 && !flushTimerRef.current) {
+          flushTimerRef.current = setTimeout(flushPendingMarks, 600);
+        }
+      },
+      {
+        root,
+        // Slight buffer so a half-visible row doesn't oscillate.
+        rootMargin: '0px 0px 0px 0px',
+        threshold: [0, 1],
+      },
+    );
+    observerRef.current = obs;
+
+    // Re-observe every currently-registered element.
+    for (const el of elByLinkRef.current.values()) obs.observe(el);
+
+    return () => {
+      obs.disconnect();
+      observerRef.current = null;
+      if (flushTimerRef.current) {
+        clearTimeout(flushTimerRef.current);
+        flushTimerRef.current = null;
+      }
+      // Flush whatever we'd accumulated before unmount.
+      flushPendingMarks();
+    };
+  }, [prefs.autoMarkOnScroll, flushPendingMarks, readSet]);
+
+  /** Stable ref-callback handed to each ArticleCard. */
+  const registerEl = useCallback(
+    (link: string) => (el: HTMLElement | null) => {
+      const map = elByLinkRef.current;
+      const obs = observerRef.current;
+      const prev = map.get(link);
+      if (prev && prev !== el) {
+        if (obs) obs.unobserve(prev);
+        map.delete(link);
+      }
+      if (el) {
+        map.set(link, el);
+        if (obs) obs.observe(el);
+      }
+    },
+    [],
+  );
+
+  // ─── Scroll-position persistence ──────────────────────────────────────
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    scrollRestoredRef.current = false;
+
+    const savedY = getScrollPos(scrollKey);
+    if (savedY > 0) {
+      requestAnimationFrame(() => {
+        if (el && !scrollRestoredRef.current) {
+          el.scrollTop = savedY;
+          scrollRestoredRef.current = true;
+          requestAnimationFrame(() => {
+            if (el && Math.abs(el.scrollTop - savedY) > 10) {
+              el.scrollTop = savedY;
+            }
+          });
+        }
+      });
+    }
+
+    const throttledStore = throttle(
+      () => storeScrollPos(scrollKey, el.scrollTop),
+      250,
+    );
+
+    const handleScroll = () => {
+      throttledStore();
+      if (rows.length > VIRTUALIZATION_THRESHOLD) {
+        recomputeVisible();
+      }
+    };
+
+    el.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      el.removeEventListener('scroll', handleScroll);
+      storeScrollPos(scrollKey, el.scrollTop);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scrollKey, rows.length]);
+
+  // ─── Windowed rendering ───────────────────────────────────────────────
+  const rowHeight =
+    prefs.density === 'compact'
+      ? ESTIMATED_ROW_HEIGHT_COMPACT
+      : prefs.density === 'cards'
+        ? ESTIMATED_ROW_HEIGHT_CARDS
+        : ESTIMATED_ROW_HEIGHT_COMFORT;
+
+  const useVirtualization = rows.length > VIRTUALIZATION_THRESHOLD;
+
+  const [visibleRange, setVisibleRange] = useState({ start: 0, end: 50 });
+
+  const recomputeVisible = useCallback(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const scrollTop = el.scrollTop;
+    const viewportHeight = el.clientHeight;
+    const start = Math.max(
+      0,
+      Math.floor(scrollTop / rowHeight) - OVERSCAN,
+    );
+    const visibleCount = Math.ceil(viewportHeight / rowHeight);
+    const end = Math.min(rows.length, start + visibleCount + OVERSCAN * 2);
+    setVisibleRange({ start, end });
+  }, [rowHeight, rows.length]);
+
+  useEffect(() => {
+    if (useVirtualization) recomputeVisible();
+    else setVisibleRange({ start: 0, end: rows.length });
+  }, [useVirtualization, recomputeVisible, rows.length]);
+
+  const renderRows = useMemo(() => {
+    if (!useVirtualization) return rows;
+    return rows.slice(visibleRange.start, visibleRange.end);
+  }, [rows, useVirtualization, visibleRange]);
+
+  // ─── Mark-above / mark-below handlers ────────────────────────────────
+  const onMarkAboveRead = useCallback(
+    (article: FeedItem) => {
+      const idx = visibleArticles.findIndex((a) => a.link === article.link);
+      if (idx <= 0) return;
+      const above = visibleArticles
+        .slice(0, idx)
+        .map((a) => a.link)
+        .filter((l) => l && !readSet.has(l));
+      if (above.length > 0) onMarkManyRead(above);
+    },
+    [visibleArticles, readSet, onMarkManyRead],
+  );
+  const onMarkBelowRead = useCallback(
+    (article: FeedItem) => {
+      const idx = visibleArticles.findIndex((a) => a.link === article.link);
+      if (idx < 0 || idx >= visibleArticles.length - 1) return;
+      const below = visibleArticles
+        .slice(idx + 1)
+        .map((a) => a.link)
+        .filter((l) => l && !readSet.has(l));
+      if (below.length > 0) onMarkManyRead(below);
+    },
+    [visibleArticles, readSet, onMarkManyRead],
+  );
+
+  // ─── Render ───────────────────────────────────────────────────────────
+  if (loading && articles.length === 0) {
+    return (
+      <div ref={containerRef} className="flex-1 overflow-y-auto">
+        <ArticleListSkeleton count={6} />
+      </div>
+    );
+  }
+
+  if (articles.length === 0) {
+    return (
+      <div ref={containerRef} className="flex-1 overflow-y-auto">
+        <EmptyState
+          filterTab={filterTab}
+          searchQuery={searchQuery}
+          isAr={isAr}
+          refreshing={refreshing}
+          hasFeeds={hasFeeds ?? true}
+          onRefresh={onRefresh}
+          onAddFeeds={onAddFeeds}
+        />
+      </div>
+    );
+  }
+
+  const topSpacer = useVirtualization ? visibleRange.start * rowHeight : 0;
+  const bottomSpacer = useVirtualization
+    ? Math.max(0, (rows.length - visibleRange.end) * rowHeight)
+    : 0;
+
+  return (
+    <div ref={containerRef} className="flex-1 overflow-y-auto">
+      {heroAndRest.hero && (
+        <HeroArticleCard
+          article={heroAndRest.hero}
+          isBookmarked={bookmarks.includes(heroAndRest.hero.link)}
+          language={language}
+          onOpen={() => onOpenArticle(heroAndRest.hero!)}
+          onToggleBookmark={() => onToggleBookmark(heroAndRest.hero!.link)}
+        />
+      )}
+
+      {topSpacer > 0 && <div style={{ height: topSpacer }} aria-hidden />}
+
+      <div
+        className={
+          prefs.density === 'cards'
+            ? 'space-y-1 pb-2'
+            : 'divide-y divide-border/20'
+        }
+      >
+        {renderRows.map((row, i) => {
+          if (row.kind === 'header') {
+            return (
+              <BucketHeader
+                key={`hdr-${row.bucket}-${i}`}
+                label={row.label}
+                count={row.count}
+                isAr={isAr}
+              />
+            );
+          }
+          const a = row.article;
+          const idx = row.visibleIndex;
+          const isRead = readSet.has(a.link);
+          return (
+            <ArticleCard
+              key={`${a.link}-${idx}`}
+              article={a}
+              index={idx}
+              isRead={isRead}
+              isBookmarked={bookmarks.includes(a.link)}
+              cached={cachedLinks?.has(a.link)}
+              language={language}
+              isAr={isAr}
+              density={prefs.density}
+              hasAbove={idx > 0}
+              hasBelow={idx < visibleArticles.length - 1}
+              registerEl={prefs.autoMarkOnScroll ? registerEl(a.link) : undefined}
+              onOpen={() => onOpenArticle(a)}
+              onToggleBookmark={() => onToggleBookmark(a.link)}
+              onMarkRead={() => onMarkRead(a.link)}
+              onMarkUnread={() => onMarkUnread(a.link)}
+              onMarkAboveRead={() => onMarkAboveRead(a)}
+              onMarkBelowRead={() => onMarkBelowRead(a)}
+            />
+          );
+        })}
+      </div>
+
+      {bottomSpacer > 0 && <div style={{ height: bottomSpacer }} aria-hidden />}
+    </div>
+  );
+}
+
+function BucketHeader({
+  label,
+  count,
+  isAr,
+}: { label: string; count: number; isAr: boolean }) {
+  return (
+    <div className="px-4 pt-4 pb-1 bg-background/95 backdrop-blur-sm sticky top-0 z-[1] flex items-baseline justify-between border-b border-border/20">
+      <h5 className="text-[11px] font-bold tracking-wide uppercase text-muted-foreground">
+        {label}
+      </h5>
+      <span className="text-[10px] text-muted-foreground/60 tabular-nums">
+        {isAr ? `${count} مقالة` : `${count}`}
+      </span>
+    </div>
+  );
+}
+
+function EmptyState({
+  filterTab,
+  searchQuery,
+  isAr,
+  refreshing,
+  hasFeeds,
+  onRefresh,
+  onAddFeeds,
+}: {
+  filterTab: FilterTab;
+  searchQuery: string;
+  isAr: boolean;
+  refreshing: boolean;
+  hasFeeds: boolean;
+  onRefresh: () => void;
+  onAddFeeds?: () => void;
+}) {
+  let icon: JSX.Element;
+  let label: string;
+  let cta: JSX.Element | null = null;
+
+  if (filterTab === 'bookmarks') {
+    icon = <Bookmark className="h-10 w-10 text-muted-foreground/30" />;
+    label = isAr ? 'لا توجد مقالات محفوظة' : 'No saved articles';
+  } else if (searchQuery) {
+    icon = <Search className="h-10 w-10 text-muted-foreground/30" />;
+    label = isAr ? 'لا توجد نتائج' : 'No matches';
+  } else if (!hasFeeds) {
+    icon = <Star className="h-10 w-10 text-primary/40" />;
+    label = isAr ? 'أضف مصادرك لتبدأ القراءة' : 'Add feeds to start reading';
+    cta = onAddFeeds
+      ? (
+        <Button
+          variant="default"
+          size="sm"
+          onClick={onAddFeeds}
+          className="rounded-xl mt-2"
+        >
+          <Plus className="h-3.5 w-3.5 me-1.5" />
+          {isAr ? 'تصفح المقترحات' : 'Browse suggestions'}
+        </Button>
+      )
+      : null;
+  } else {
+    icon = <Newspaper className="h-10 w-10 text-muted-foreground/30" />;
+    label = isAr ? 'لا توجد مقالات بعد' : 'Nothing here yet';
+    cta = (
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={onRefresh}
+        className="rounded-xl mt-2"
+        disabled={refreshing}
+      >
+        <RefreshCw
+          className={`h-3.5 w-3.5 me-1.5 ${refreshing ? 'animate-spin' : ''}`}
+        />
+        {isAr ? 'تحديث الآن' : 'Refresh now'}
+      </Button>
+    );
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className="flex flex-col items-center justify-center py-24 px-6 gap-3 text-center"
+    >
+      {icon}
+      <p className="text-sm text-muted-foreground">{label}</p>
+      {cta}
+    </motion.div>
+  );
+}
