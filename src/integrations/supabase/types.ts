@@ -220,6 +220,7 @@ export type Database = {
           message_type: string
           read: boolean
           reply_to_id: string | null
+          search_vector: unknown | null
           sender_id: string
         }
         Insert: {
@@ -812,6 +813,24 @@ export type Database = {
       remove_chat_member: {
         Args: { p_chat_id: string; p_user_id: string }
         Returns: undefined
+      }
+      search_chat_messages: {
+        Args: {
+          p_query: string
+          p_chat_id?: string | null
+          p_limit?: number
+        }
+        Returns: {
+          message_id: string
+          chat_id: string | null
+          conversation_id: string
+          sender_id: string
+          content: string
+          message_type: string
+          created_at: string
+          snippet: string
+          rank: number
+        }[]
       }
       search_rss_articles: {
         Args: {

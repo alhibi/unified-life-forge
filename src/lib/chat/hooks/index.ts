@@ -14,3 +14,6 @@ export { useDraft, type UseDraftResult } from './useDraft';
 export { useSelfDestruct, type UseSelfDestructResult, SELF_DESTRUCT_PRESETS } from './useSelfDestruct';
 export { useComposer, type UseComposerResult } from './useComposer';
 export { useChatScroll, type UseChatScrollResult } from './useChatScroll';
+export { useChatSearch, parseSnippet,
+  type UseChatSearchResult, type UseChatSearchOptions, type ChatSearchHit, type SnippetSegment,
+} from './useChatSearch';
