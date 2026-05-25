@@ -3,7 +3,7 @@ import SEO from '@/components/SEO';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   BookOpen, Brain, ChevronRight, Download, Dumbbell,
-  Library, ShieldCheck, Trash2, Utensils, X,
+  Library, ShieldCheck, Trash2, Utensils, X, Apple,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useApp } from '@/contexts/AppContext';
@@ -19,11 +19,14 @@ import WorkoutsTab from '@/features/wellness/premium/WorkoutsTab';
 import CalisthenicsTab from '@/features/wellness/premium/CalisthenicsTab';
 import EncyclopediaTab from '@/features/wellness/EncyclopediaTab';
 
+// Revolutionary Nutrition Module
+import { NutritionTab } from '@/features/wellness/nutrition/components';
+
 import { exportAll } from '@/features/wellness/wellnessDb';
 
 type TabKey =
   | 'workouts' | 'cali'
-  | 'diet'
+  | 'diet' | 'nutrition'
   | 'insights' | 'atlas' | 'encyclopedia';
 
 const STORAGE_KEY = 'wellness:lastTab';
@@ -67,7 +70,8 @@ interface TabDef {
 const TABS: TabDef[] = [
   { key: 'workouts',    labelAr: 'التمارين',     labelDe: 'Training',      icon: Dumbbell,   group: 0 },
   { key: 'cali',        labelAr: 'كاليستنيكس',   labelDe: 'Calisthenics',  icon: Dumbbell,   group: 0 },
-  { key: 'diet',        labelAr: 'التغذية',      labelDe: 'Essen',         icon: Utensils,   group: 1 },
+  { key: 'nutrition',   labelAr: 'التغذية الذكية', labelDe: 'Smart-Ernährung', icon: Apple,   group: 1 },
+  { key: 'diet',        labelAr: 'سجل الطعام',   labelDe: 'Essen-Log',     icon: Utensils,   group: 1 },
   { key: 'insights',    labelAr: 'التحليلات',    labelDe: 'Insights',      icon: Brain,      group: 1 },
   { key: 'atlas',       labelAr: 'الأطلس',       labelDe: 'Atlas',         icon: BookOpen,   group: 1 },
   { key: 'encyclopedia',labelAr: 'الموسوعة',     labelDe: 'Wissen',        icon: Library,    group: 1 },
@@ -183,6 +187,8 @@ export default function WellnessPage() {
             onPatch={data.patchDiet}
           />
         );
+      case 'nutrition':
+        return <NutritionTab />;
       case 'insights':
         return (
           <InsightsTab

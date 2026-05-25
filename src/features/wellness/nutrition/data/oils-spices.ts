@@ -1,0 +1,228 @@
+/**
+ * Oils, Fats, Spices & Herbs Database — Comprehensive nutritional data per 100g
+ * Sources: USDA FoodData Central, German BLS 3.02
+ */
+import type { NutritionFoodItem } from '../types';
+
+export const OILS_SPICES_DATA: NutritionFoodItem[] = [
+  {
+    id: 'olive_oil_extra_virgin',
+    name: { ar: 'زيت زيتون بكر ممتاز', de: 'Natives Olivenöl extra' },
+    category: 'oils_fats',
+    subCategory: 'plant_oils',
+    emoji: '🫒',
+    color: '#6b8e23',
+    nutrition: {
+      kcal: 884, protein: 0, carbs: 0, fat: 100, fiber: 0,
+      saturatedFat: 13.8, monoFat: 73.0, polyFat: 10.5,
+      vitamins: { vitE: 14.4, vitK: 60.2 },
+      minerals: { iron: 0.56, calcium: 1, potassium: 1 },
+    },
+    servings: [
+      { description: { ar: 'ملعقة كبيرة', de: 'Esslöffel' }, grams: 14 },
+      { description: { ar: 'ملعقة صغيرة', de: 'Teelöffel' }, grams: 5 },
+    ],
+    tags: ['vegan', 'gluten_free', 'heart_healthy', 'anti_inflammatory', 'brain_food', 'keto_friendly'],
+    allergens: [],
+    glycemicIndex: 0,
+    benefits: {
+      ar: ['أوليوكانثال مضاد التهاب مثل الإيبوبروفين', 'بوليفينولات تحمي القلب', 'يحسن صحة الدماغ', 'حجر الأساس في حمية البحر المتوسط'],
+      de: ['Oleocanthal entzündungshemmend wie Ibuprofen', 'Polyphenole schützen Herz', 'Verbessert Gehirngesundheit', 'Grundlage der Mittelmeerdiät'],
+    },
+  },
+  {
+    id: 'coconut_oil',
+    name: { ar: 'زيت جوز هند', de: 'Kokosöl' },
+    category: 'oils_fats',
+    subCategory: 'plant_oils',
+    emoji: '🥥',
+    color: '#f7fafc',
+    nutrition: {
+      kcal: 862, protein: 0, carbs: 0, fat: 100, fiber: 0,
+      saturatedFat: 82.5, monoFat: 6.3, polyFat: 1.7,
+      vitamins: { vitE: 0.09, vitK: 0.5 },
+      minerals: { iron: 0.04 },
+    },
+    servings: [
+      { description: { ar: 'ملعقة كبيرة', de: 'Esslöffel' }, grams: 14 },
+    ],
+    tags: ['vegan', 'gluten_free', 'keto_friendly', 'energy_boost'],
+    allergens: [],
+    glycemicIndex: 0,
+    benefits: {
+      ar: ['MCT سريع التحويل لطاقة', 'يدعم الأداء الذهني', 'حمض اللوريك مضاد للبكتيريا', 'ثبات حراري عالي للطبخ'],
+      de: ['MCT schnell zu Energie umgewandelt', 'Unterstützt mentale Leistung', 'Laurinsäure antibakteriell', 'Hohe thermische Stabilität'],
+    },
+  },
+  {
+    id: 'ghee',
+    name: { ar: 'سمن بلدي (غي)', de: 'Ghee (Butterschmalz)' },
+    category: 'oils_fats',
+    subCategory: 'animal_fats',
+    emoji: '🧈',
+    color: '#f6e05e',
+    nutrition: {
+      kcal: 900, protein: 0, carbs: 0, fat: 100, fiber: 0,
+      saturatedFat: 62.0, monoFat: 28.7, polyFat: 3.7, cholesterol: 256,
+      vitamins: { vitA: 840, vitE: 2.8, vitD: 1.5, vitK: 8.6 },
+      minerals: { calcium: 4, sodium: 2 },
+    },
+    servings: [
+      { description: { ar: 'ملعقة كبيرة', de: 'Esslöffel' }, grams: 14 },
+      { description: { ar: 'ملعقة صغيرة', de: 'Teelöffel' }, grams: 5 },
+    ],
+    tags: ['gluten_free', 'keto_friendly', 'halal'],
+    allergens: [],
+    glycemicIndex: 0,
+    benefits: {
+      ar: ['خالي من اللاكتوز والكازين', 'فيتامين أ عالي', 'نقطة دخان عالية (250°م)', 'حمض البوتيريك يدعم الأمعاء'],
+      de: ['Frei von Laktose & Kasein', 'Hoher Vitamin-A-Gehalt', 'Hoher Rauchpunkt (250°C)', 'Buttersäure unterstützt Darm'],
+    },
+  },
+  {
+    id: 'turmeric',
+    name: { ar: 'كركم', de: 'Kurkuma' },
+    category: 'spices_herbs',
+    subCategory: 'spices',
+    emoji: '🟡',
+    color: '#f6ad55',
+    nutrition: {
+      kcal: 354, protein: 7.8, carbs: 64.9, fat: 9.9, fiber: 21.1,
+      vitamins: { vitC: 25.9, vitB6: 1.8, vitE: 3.1, vitK: 13.4, vitB3: 5.1 },
+      minerals: { iron: 41.4, manganese: 7.8, potassium: 2525, calcium: 183, magnesium: 193, phosphorus: 268, copper: 0.6, zinc: 4.4 },
+    },
+    servings: [
+      { description: { ar: 'ملعقة صغيرة', de: 'Teelöffel' }, grams: 3 },
+      { description: { ar: 'ملعقة كبيرة', de: 'Esslöffel' }, grams: 7 },
+    ],
+    tags: ['vegan', 'gluten_free', 'anti_inflammatory', 'brain_food', 'immune_boost', 'halal'],
+    allergens: [],
+    glycemicIndex: 0,
+    benefits: {
+      ar: ['كركمين أقوى مضاد التهاب طبيعي', 'يحمي الدماغ من الزهايمر', 'يمتص 2000% أفضل مع الفلفل الأسود', 'مضاد أكسدة فائق القوة'],
+      de: ['Curcumin stärkster natürlicher Entzündungshemmer', 'Schützt Gehirn vor Alzheimer', '2000% besser mit schwarzem Pfeffer', 'Superstarkes Antioxidans'],
+    },
+  },
+  {
+    id: 'ginger_fresh',
+    name: { ar: 'زنجبيل طازج', de: 'Frischer Ingwer' },
+    category: 'spices_herbs',
+    subCategory: 'spices',
+    emoji: '🫚',
+    color: '#f6e05e',
+    nutrition: {
+      kcal: 80, protein: 1.8, carbs: 17.8, fat: 0.8, fiber: 2.0, sugar: 1.7,
+      water: 78.9,
+      vitamins: { vitC: 5.0, vitB6: 0.16, vitB3: 0.75 },
+      minerals: { potassium: 415, magnesium: 43, manganese: 0.23, phosphorus: 34, iron: 0.6, copper: 0.23 },
+    },
+    servings: [
+      { description: { ar: 'ملعقة مبشورة', de: 'Teelöffel gerieben' }, grams: 5 },
+      { description: { ar: 'قطعة (2 سم)', de: 'Stück (2 cm)' }, grams: 11 },
+    ],
+    tags: ['vegan', 'gluten_free', 'anti_inflammatory', 'gut_health', 'immune_boost', 'halal'],
+    allergens: [],
+    glycemicIndex: 0,
+    benefits: {
+      ar: ['جينجيرول مضاد غثيان قوي', 'يقلل ألم العضلات بعد التمرين', 'يحسن الهضم والامتصاص', 'يخفض السكر والكوليسترول'],
+      de: ['Gingerol starkes Anti-Übelkeitsmittel', 'Reduziert Muskelkater', 'Verbessert Verdauung', 'Senkt Zucker & Cholesterin'],
+    },
+  },
+  {
+    id: 'cinnamon',
+    name: { ar: 'قرفة', de: 'Zimt' },
+    category: 'spices_herbs',
+    subCategory: 'spices',
+    emoji: '🟤',
+    color: '#a0522d',
+    nutrition: {
+      kcal: 247, protein: 4.0, carbs: 80.6, fat: 1.2, fiber: 53.1,
+      vitamins: { vitK: 31.2, vitE: 2.3, vitA: 15 },
+      minerals: { calcium: 1002, iron: 8.3, manganese: 17.5, potassium: 431, magnesium: 60, zinc: 1.8 },
+    },
+    servings: [
+      { description: { ar: 'ملعقة صغيرة', de: 'Teelöffel' }, grams: 3 },
+    ],
+    tags: ['vegan', 'gluten_free', 'anti_inflammatory', 'heart_healthy', 'halal'],
+    allergens: [],
+    glycemicIndex: 0,
+    benefits: {
+      ar: ['يحسن حساسية الإنسولين', 'يخفض سكر الدم', 'مضاد أكسدة أقوى من معظم التوابل', 'كالسيوم ومنغنيز عاليان'],
+      de: ['Verbessert Insulinsensitivität', 'Senkt Blutzucker', 'Stärkeres Antioxidans als meiste Gewürze', 'Kalzium & Mangan hoch'],
+    },
+  },
+  {
+    id: 'black_seed',
+    name: { ar: 'حبة البركة (الحبة السوداء)', de: 'Schwarzkümmel' },
+    category: 'spices_herbs',
+    subCategory: 'seeds_spice',
+    emoji: '⚫',
+    color: '#1a202c',
+    nutrition: {
+      kcal: 375, protein: 17.8, carbs: 44.2, fat: 22.3, fiber: 8.4,
+      vitamins: { vitB1: 0.63, vitB6: 0.5, vitB9: 36, vitC: 7.7 },
+      minerals: { iron: 12.5, calcium: 570, magnesium: 265, phosphorus: 401, potassium: 805, zinc: 4.8 },
+    },
+    servings: [
+      { description: { ar: 'ملعقة صغيرة', de: 'Teelöffel' }, grams: 4 },
+      { description: { ar: 'ملعقة كبيرة', de: 'Esslöffel' }, grams: 8 },
+    ],
+    tags: ['vegan', 'gluten_free', 'immune_boost', 'anti_inflammatory', 'halal'],
+    allergens: [],
+    glycemicIndex: 0,
+    benefits: {
+      ar: ['ثيموكينون مضاد قوي للالتهابات والأورام', 'يقوي المناعة بشكل استثنائي', 'ذُكرت في الطب النبوي', 'مضاد أكسدة وبكتيريا وفطريات'],
+      de: ['Thymochinon stark entzündungs- & tumorhemmend', 'Stärkt Immunsystem außergewöhnlich', 'In prophetischer Medizin erwähnt', 'Antioxidativ, antibakteriell, antifungal'],
+    },
+  },
+  {
+    id: 'honey_raw',
+    name: { ar: 'عسل خام', de: 'Roher Honig' },
+    category: 'sweets_desserts',
+    subCategory: 'natural_sweeteners',
+    emoji: '🍯',
+    color: '#f6ad55',
+    nutrition: {
+      kcal: 304, protein: 0.3, carbs: 82.4, fat: 0, fiber: 0.2, sugar: 82.1,
+      water: 17.1,
+      vitamins: { vitC: 0.5, vitB2: 0.04, vitB3: 0.12, vitB5: 0.07, vitB6: 0.02 },
+      minerals: { potassium: 52, calcium: 6, phosphorus: 4, sodium: 4, magnesium: 2, iron: 0.42, zinc: 0.22, manganese: 0.08 },
+    },
+    servings: [
+      { description: { ar: 'ملعقة كبيرة', de: 'Esslöffel' }, grams: 21 },
+      { description: { ar: 'ملعقة صغيرة', de: 'Teelöffel' }, grams: 7 },
+    ],
+    tags: ['gluten_free', 'dairy_free', 'immune_boost', 'energy_boost', 'halal'],
+    allergens: [],
+    glycemicIndex: 58,
+    benefits: {
+      ar: ['مضاد بكتيري وفيروسي طبيعي', 'إنزيمات حية في العسل الخام', 'يسرع شفاء الجروح', 'بريبيوتيك طبيعي'],
+      de: ['Natürliches Antibiotikum & Antiviral', 'Lebende Enzyme im Rohhonig', 'Beschleunigt Wundheilung', 'Natürliches Präbiotikum'],
+    },
+  },
+  {
+    id: 'dark_chocolate_85',
+    name: { ar: 'شوكولاتة داكنة 85%', de: 'Dunkle Schokolade 85%' },
+    category: 'sweets_desserts',
+    subCategory: 'chocolate',
+    emoji: '🍫',
+    color: '#3c1e1e',
+    nutrition: {
+      kcal: 593, protein: 12.0, carbs: 22.6, fat: 46.3, fiber: 13.0, sugar: 11.2,
+      saturatedFat: 27.3, cholesterol: 3, water: 1.4,
+      vitamins: { vitK: 7.2, vitB2: 0.08, vitE: 0.6 },
+      minerals: { iron: 11.9, magnesium: 228, copper: 1.8, manganese: 1.9, phosphorus: 308, zinc: 3.3, potassium: 715, selenium: 6.8 },
+    },
+    servings: [
+      { description: { ar: 'مربعان (20غ)', de: 'Zwei Stücke (20g)' }, grams: 20 },
+      { description: { ar: 'قطعة (40غ)', de: 'Riegel (40g)' }, grams: 40 },
+    ],
+    tags: ['vegetarian', 'gluten_free', 'brain_food', 'heart_healthy', 'anti_inflammatory', 'energy_boost'],
+    allergens: ['dairy'],
+    glycemicIndex: 23,
+    benefits: {
+      ar: ['فلافانول يحسن تدفق الدم للدماغ', 'مغنيسيوم وحديد عاليان', 'مضادات أكسدة أقوى من معظم الفواكه', 'يحسن المزاج (ثيوبرومين)'],
+      de: ['Flavanole verbessern Hirndurchblutung', 'Magnesium & Eisen hoch', 'Stärkere Antioxidantien als meiste Früchte', 'Verbessert Stimmung (Theobromin)'],
+    },
+  },
+];

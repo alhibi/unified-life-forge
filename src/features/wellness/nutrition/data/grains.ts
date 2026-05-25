@@ -1,0 +1,253 @@
+/**
+ * Grains, Cereals & Breads Database — Comprehensive nutritional data per 100g
+ * Sources: USDA FoodData Central, German BLS 3.02
+ */
+import type { NutritionFoodItem } from '../types';
+
+export const GRAINS_DATA: NutritionFoodItem[] = [
+  {
+    id: 'oats_rolled',
+    name: { ar: 'شوفان ملفوف', de: 'Haferflocken' },
+    category: 'grains_cereals',
+    subCategory: 'whole_grains',
+    emoji: '🌾',
+    color: '#d69e2e',
+    nutrition: {
+      kcal: 389, protein: 16.9, carbs: 66.3, fat: 6.9, fiber: 10.6, sugar: 1.0,
+      saturatedFat: 1.2, water: 8.2,
+      vitamins: { vitB1: 0.76, vitB5: 1.35, vitB9: 56, vitB6: 0.12, vitE: 0.42 },
+      minerals: { manganese: 4.9, phosphorus: 523, magnesium: 177, iron: 4.7, zinc: 3.6, copper: 0.63, selenium: 34 },
+    },
+    servings: [
+      { description: { ar: 'نصف كوب جاف', de: 'Halbe Tasse trocken' }, grams: 40 },
+      { description: { ar: 'كوب مطبوخ', de: 'Tasse gekocht' }, grams: 234 },
+    ],
+    tags: ['vegan', 'high_fiber', 'heart_healthy', 'energy_boost', 'gut_health', 'muscle_building'],
+    allergens: ['gluten'],
+    glycemicIndex: 55,
+    benefits: {
+      ar: ['بيتا جلوكان يخفض الكوليسترول', 'ألياف قابلة للذوبان تشبع طويلاً', 'طاقة مستدامة بطيئة الإطلاق', 'مغنيسيوم ومنغنيز عاليان'],
+      de: ['Beta-Glucan senkt Cholesterin', 'Lösliche Ballaststoffe sättigen lang', 'Nachhaltige langsame Energie', 'Magnesium & Mangan hoch'],
+    },
+  },
+  {
+    id: 'quinoa',
+    name: { ar: 'كينوا', de: 'Quinoa' },
+    category: 'grains_cereals',
+    subCategory: 'pseudo_grains',
+    emoji: '🌾',
+    color: '#d69e2e',
+    nutrition: {
+      kcal: 368, protein: 14.1, carbs: 64.2, fat: 6.1, fiber: 7.0, sugar: 0,
+      water: 13.3,
+      vitamins: { vitB9: 184, vitB6: 0.49, vitB1: 0.36, vitB2: 0.32, vitE: 2.44 },
+      minerals: { manganese: 2.0, magnesium: 197, phosphorus: 457, iron: 4.6, zinc: 3.1, potassium: 563, copper: 0.59 },
+    },
+    servings: [
+      { description: { ar: 'كوب مطبوخ', de: 'Tasse gekocht' }, grams: 185 },
+      { description: { ar: 'ربع كوب جاف', de: 'Viertel Tasse trocken' }, grams: 45 },
+    ],
+    tags: ['vegan', 'gluten_free', 'high_protein', 'high_fiber', 'muscle_building', 'energy_boost'],
+    allergens: [],
+    glycemicIndex: 53,
+    benefits: {
+      ar: ['بروتين كامل (كل الأحماض الأمينية الأساسية)', 'خالي من الغلوتين', 'حديد ومغنيسيوم عاليان', 'فولات طبيعي عالي'],
+      de: ['Vollständiges Protein (alle essentiellen AS)', 'Glutenfrei', 'Eisen & Magnesium hoch', 'Hoher natürlicher Folatgehalt'],
+    },
+  },
+
+  {
+    id: 'brown_rice',
+    name: { ar: 'أرز بني', de: 'Brauner Reis' },
+    category: 'grains_cereals',
+    subCategory: 'whole_grains',
+    emoji: '🍚',
+    color: '#a0522d',
+    nutrition: {
+      kcal: 370, protein: 7.9, carbs: 77.2, fat: 2.9, fiber: 3.5, sugar: 0.7,
+      water: 10.4,
+      vitamins: { vitB1: 0.4, vitB3: 5.1, vitB6: 0.51, vitB9: 20, vitE: 0.6 },
+      minerals: { manganese: 3.7, magnesium: 143, phosphorus: 333, selenium: 23.4, zinc: 2.0, iron: 1.5, potassium: 223 },
+    },
+    servings: [
+      { description: { ar: 'كوب مطبوخ', de: 'Tasse gekocht' }, grams: 195 },
+    ],
+    tags: ['vegan', 'gluten_free', 'energy_boost', 'gut_health', 'heart_healthy'],
+    allergens: [],
+    glycemicIndex: 50,
+    benefits: {
+      ar: ['ألياف ومغذيات أكثر من الأرز الأبيض', 'منغنيز ومغنيسيوم عاليان', 'طاقة مستدامة', 'يحسن حساسية الإنسولين'],
+      de: ['Mehr Ballaststoffe & Nährstoffe als weißer Reis', 'Mangan & Magnesium hoch', 'Nachhaltige Energie', 'Verbessert Insulinsensitivität'],
+    },
+  },
+  {
+    id: 'white_rice',
+    name: { ar: 'أرز أبيض', de: 'Weißer Reis' },
+    category: 'grains_cereals',
+    subCategory: 'refined_grains',
+    emoji: '🍚',
+    color: '#f7fafc',
+    nutrition: {
+      kcal: 365, protein: 7.1, carbs: 80.0, fat: 0.7, fiber: 1.3, sugar: 0.1,
+      water: 11.6,
+      vitamins: { vitB1: 0.07, vitB3: 1.6, vitB9: 8 },
+      minerals: { manganese: 1.1, phosphorus: 115, magnesium: 25, selenium: 15.1, iron: 0.8, zinc: 1.1 },
+    },
+    servings: [
+      { description: { ar: 'كوب مطبوخ', de: 'Tasse gekocht' }, grams: 186 },
+    ],
+    tags: ['vegan', 'gluten_free', 'energy_boost'],
+    allergens: [],
+    glycemicIndex: 73,
+    benefits: {
+      ar: ['سهل الهضم', 'مصدر طاقة سريعة بعد التمرين', 'لا يسبب حساسية', 'مناسب للمعدة الحساسة'],
+      de: ['Leicht verdaulich', 'Schnelle Energie nach Training', 'Allergenarm', 'Für empfindlichen Magen'],
+    },
+  },
+  {
+    id: 'whole_wheat_bread',
+    name: { ar: 'خبز قمح كامل', de: 'Vollkornbrot' },
+    category: 'grains_cereals',
+    subCategory: 'breads',
+    emoji: '🍞',
+    color: '#a0522d',
+    nutrition: {
+      kcal: 247, protein: 13.0, carbs: 41.3, fat: 3.4, fiber: 6.8, sugar: 5.7,
+      water: 38.3,
+      vitamins: { vitB1: 0.4, vitB3: 4.4, vitB9: 42, vitB6: 0.19, vitE: 0.4 },
+      minerals: { manganese: 2.2, selenium: 36.6, phosphorus: 212, magnesium: 75, iron: 2.5, zinc: 1.8, potassium: 254 },
+    },
+    servings: [
+      { description: { ar: 'شريحة', de: 'Scheibe' }, grams: 43 },
+      { description: { ar: 'شريحتان', de: 'Zwei Scheiben' }, grams: 86 },
+    ],
+    tags: ['vegan', 'high_fiber', 'energy_boost', 'gut_health', 'heart_healthy'],
+    allergens: ['gluten'],
+    glycemicIndex: 51,
+    benefits: {
+      ar: ['ألياف عالية تشبع طويلاً', 'فيتامينات ب للطاقة', 'سيلينيوم مضاد أكسدة', 'أفضل من الخبز الأبيض بكثير'],
+      de: ['Hohe Ballaststoffe sättigen', 'B-Vitamine für Energie', 'Selen als Antioxidans', 'Viel besser als Weißbrot'],
+    },
+  },
+  {
+    id: 'bulgur',
+    name: { ar: 'برغل', de: 'Bulgur' },
+    category: 'grains_cereals',
+    subCategory: 'whole_grains',
+    emoji: '🌾',
+    color: '#d69e2e',
+    nutrition: {
+      kcal: 342, protein: 12.3, carbs: 75.9, fat: 1.3, fiber: 12.5, sugar: 0.4,
+      water: 9.0,
+      vitamins: { vitB3: 5.1, vitB6: 0.34, vitB1: 0.23, vitB9: 27 },
+      minerals: { manganese: 3.0, magnesium: 164, phosphorus: 300, iron: 2.5, zinc: 1.9, potassium: 410 },
+    },
+    servings: [
+      { description: { ar: 'كوب مطبوخ', de: 'Tasse gekocht' }, grams: 182 },
+    ],
+    tags: ['vegan', 'high_fiber', 'heart_healthy', 'energy_boost', 'gut_health', 'halal'],
+    allergens: ['gluten'],
+    glycemicIndex: 48,
+    benefits: {
+      ar: ['ألياف أعلى من أي حبوب أخرى', 'مؤشر جلايسيمي منخفض', 'تقليد عربي ومتوسطي عريق', 'مغنيسيوم ومنغنيز عاليان'],
+      de: ['Höchster Ballaststoffgehalt aller Getreide', 'Niedriger GI', 'Traditionelles Mittelmeergetreide', 'Magnesium & Mangan hoch'],
+    },
+  },
+  {
+    id: 'freekeh',
+    name: { ar: 'فريكة', de: 'Freekeh' },
+    category: 'grains_cereals',
+    subCategory: 'whole_grains',
+    emoji: '🌾',
+    color: '#6b8e23',
+    nutrition: {
+      kcal: 325, protein: 12.6, carbs: 72.0, fat: 2.7, fiber: 16.5, sugar: 0,
+      water: 11.0,
+      vitamins: { vitB3: 4.5, vitB1: 0.3, vitB6: 0.3, vitB9: 40 },
+      minerals: { manganese: 2.5, magnesium: 130, phosphorus: 280, iron: 3.6, zinc: 2.8, selenium: 22, potassium: 350 },
+    },
+    servings: [
+      { description: { ar: 'كوب مطبوخ', de: 'Tasse gekocht' }, grams: 180 },
+    ],
+    tags: ['vegan', 'high_fiber', 'high_protein', 'gut_health', 'energy_boost', 'halal'],
+    allergens: ['gluten'],
+    glycemicIndex: 43,
+    benefits: {
+      ar: ['ألياف بريبيوتيك استثنائية', 'بروتين أعلى من الأرز والقمح', 'مؤشر جلايسيمي منخفض جداً', 'تراث عربي غذائي فريد'],
+      de: ['Außergewöhnliche präbiotische Ballaststoffe', 'Mehr Protein als Reis & Weizen', 'Sehr niedriger GI', 'Einzigartiges arabisches Erbe'],
+    },
+  },
+  {
+    id: 'pasta_whole_wheat',
+    name: { ar: 'معكرونة قمح كامل', de: 'Vollkorn-Pasta' },
+    category: 'grains_cereals',
+    subCategory: 'pasta',
+    emoji: '🍝',
+    color: '#a0522d',
+    nutrition: {
+      kcal: 348, protein: 14.6, carbs: 73.4, fat: 1.4, fiber: 8.0, sugar: 2.7,
+      water: 8.9,
+      vitamins: { vitB1: 0.5, vitB3: 5.1, vitB6: 0.22, vitB9: 44 },
+      minerals: { manganese: 3.1, magnesium: 128, phosphorus: 258, iron: 3.6, zinc: 2.4, selenium: 73.7 },
+    },
+    servings: [
+      { description: { ar: 'كوب مطبوخ', de: 'Tasse gekocht' }, grams: 140 },
+      { description: { ar: '80غ جاف', de: '80g trocken' }, grams: 80 },
+    ],
+    tags: ['vegan', 'high_fiber', 'energy_boost', 'muscle_building'],
+    allergens: ['gluten'],
+    glycemicIndex: 42,
+    benefits: {
+      ar: ['سيلينيوم أعلى من أي طعام آخر', 'ألياف وبروتين أكثر من المعكرونة البيضاء', 'طاقة مستدامة للرياضيين', 'مؤشر جلايسيمي معتدل'],
+      de: ['Höchster Selengehalt aller Lebensmittel', 'Mehr Ballaststoffe & Protein als weiße Pasta', 'Nachhaltige Energie für Sportler', 'Moderater GI'],
+    },
+  },
+  {
+    id: 'barley',
+    name: { ar: 'شعير', de: 'Gerste' },
+    category: 'grains_cereals',
+    subCategory: 'whole_grains',
+    emoji: '🌾',
+    color: '#b7791f',
+    nutrition: {
+      kcal: 354, protein: 12.5, carbs: 73.5, fat: 2.3, fiber: 17.3, sugar: 0.8,
+      water: 9.4,
+      vitamins: { vitB3: 4.6, vitB6: 0.32, vitB1: 0.65, vitB9: 19 },
+      minerals: { selenium: 37.7, manganese: 1.9, phosphorus: 264, magnesium: 133, iron: 3.6, zinc: 2.8, copper: 0.5, potassium: 452 },
+    },
+    servings: [
+      { description: { ar: 'كوب مطبوخ', de: 'Tasse gekocht' }, grams: 157 },
+    ],
+    tags: ['vegan', 'high_fiber', 'heart_healthy', 'gut_health'],
+    allergens: ['gluten'],
+    glycemicIndex: 28,
+    benefits: {
+      ar: ['أقل الحبوب في المؤشر الجلايسيمي', 'ألياف بيتا جلوكان تخفض الكوليسترول', 'سيلينيوم عالي', 'يغذي بكتيريا الأمعاء النافعة'],
+      de: ['Niedrigster GI aller Getreide', 'Beta-Glucan senkt Cholesterin', 'Hoher Selengehalt', 'Nährt gute Darmbakterien'],
+    },
+  },
+  {
+    id: 'couscous',
+    name: { ar: 'كسكس', de: 'Couscous' },
+    category: 'grains_cereals',
+    subCategory: 'processed_grains',
+    emoji: '🌾',
+    color: '#ecc94b',
+    nutrition: {
+      kcal: 376, protein: 12.8, carbs: 77.4, fat: 0.6, fiber: 5.0, sugar: 0,
+      water: 8.6,
+      vitamins: { vitB3: 3.5, vitB1: 0.16, vitB9: 20 },
+      minerals: { selenium: 27.5, phosphorus: 170, magnesium: 44, potassium: 166, iron: 1.1, zinc: 0.8 },
+    },
+    servings: [
+      { description: { ar: 'كوب مطبوخ', de: 'Tasse gekocht' }, grams: 157 },
+    ],
+    tags: ['vegan', 'energy_boost', 'halal'],
+    allergens: ['gluten'],
+    glycemicIndex: 65,
+    benefits: {
+      ar: ['سريع التحضير', 'سيلينيوم مضاد أكسدة', 'مصدر طاقة جيد', 'تقليد مغاربي عريق'],
+      de: ['Schnell zubereitet', 'Selen als Antioxidans', 'Gute Energiequelle', 'Nordafrikanische Tradition'],
+    },
+  },
+];
