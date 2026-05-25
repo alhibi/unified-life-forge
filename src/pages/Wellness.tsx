@@ -2,8 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import SEO from '@/components/SEO';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Activity, BookOpen, Brain, ChevronRight, Download, Dumbbell, HeartPulse,
-  Library, Pill, ShieldCheck, Sparkles, Target, Trash2, User, Utensils, X,
+  BookOpen, Brain, ChevronRight, Download, Dumbbell,
+  Library, ShieldCheck, Trash2, Utensils, X,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useApp } from '@/contexts/AppContext';
@@ -11,28 +11,21 @@ import BackButton from '@/components/BackButton';
 import { useWellnessData } from '@/features/wellness/useWellnessData';
 
 // Existing tabs
-import SupplementsTab from '@/features/wellness/SupplementsTab';
 import DietTab from '@/features/wellness/DietTab';
-import SkinHairTab from '@/features/wellness/SkinHairTab';
-import VitalsTab from '@/features/wellness/VitalsTab';
 import InsightsTab from '@/features/wellness/InsightsTab';
 import AtlasTab from '@/features/wellness/AtlasTab';
 
 // Premium tabs
-import TodayTab from '@/features/wellness/premium/TodayTab';
-import AthleticHubTab from '@/features/wellness/premium/AthleticHubTab';
 import WorkoutsTab from '@/features/wellness/premium/WorkoutsTab';
-import GoalsTab from '@/features/wellness/premium/GoalsTab';
-import ProfileTab from '@/features/wellness/premium/ProfileTab';
 import CalisthenicsTab from '@/features/wellness/premium/CalisthenicsTab';
 import EncyclopediaTab from '@/features/wellness/EncyclopediaTab';
 
 import { exportAll } from '@/features/wellness/wellnessDb';
 
 type TabKey =
-  | 'today' | 'workouts' | 'cali' | 'hub' | 'goals'
-  | 'supplements' | 'diet' | 'vitals' | 'skin'
-  | 'insights' | 'atlas' | 'encyclopedia' | 'profile';
+  | 'workouts' | 'cali'
+  | 'diet'
+  | 'insights' | 'atlas' | 'encyclopedia';
 
 const STORAGE_KEY = 'wellness:lastTab';
 
@@ -73,19 +66,12 @@ interface TabDef {
 }
 
 const TABS: TabDef[] = [
-  { key: 'today',       labelAr: 'اليوم',        labelDe: 'Heute',         icon: Sparkles,   group: 0 },
   { key: 'workouts',    labelAr: 'التمارين',     labelDe: 'Training',      icon: Dumbbell,   group: 0 },
   { key: 'cali',        labelAr: 'كاليستنيكس',   labelDe: 'Calisthenics',  icon: Dumbbell,   group: 0 },
-  { key: 'hub',         labelAr: 'الأداء',       labelDe: 'Athletik',      icon: Activity,   group: 0 },
-  { key: 'goals',       labelAr: 'الأهداف',      labelDe: 'Ziele',         icon: Target,     group: 0 },
-  { key: 'supplements', labelAr: 'المكملات',     labelDe: 'Supps',         icon: Pill,       group: 1 },
   { key: 'diet',        labelAr: 'التغذية',      labelDe: 'Essen',         icon: Utensils,   group: 1 },
-  { key: 'vitals',      labelAr: 'العلامات',     labelDe: 'Vitale',        icon: HeartPulse, group: 1 },
-  { key: 'skin',        labelAr: 'الجسد',        labelDe: 'Körper',        icon: User,       group: 1 },
   { key: 'insights',    labelAr: 'التحليلات',    labelDe: 'Insights',      icon: Brain,      group: 1 },
   { key: 'atlas',       labelAr: 'الأطلس',       labelDe: 'Atlas',         icon: BookOpen,   group: 1 },
   { key: 'encyclopedia',labelAr: 'الموسوعة',     labelDe: 'Wissen',        icon: Library,    group: 1 },
-  { key: 'profile',     labelAr: 'ملفّي',        labelDe: 'Profil',        icon: User,       group: 2 },
 ];
 
 export default function WellnessPage() {
@@ -98,7 +84,7 @@ export default function WellnessPage() {
       const saved = localStorage.getItem(STORAGE_KEY) as TabKey | null;
       if (saved && TABS.some((t) => t.key === saved)) return saved;
     } catch { /* noop */ }
-    return 'today';
+    return 'workouts';
   });
   const [showPrivacy, setShowPrivacy] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -134,10 +120,10 @@ export default function WellnessPage() {
     return () => window.removeEventListener('keydown', onKey);
   }, [showPrivacy, showOnboarding]);
 
-  const dismissOnboarding = (gotoProfile: boolean) => {
+  const dismissOnboarding = (gotoWorkouts: boolean) => {
     setShowOnboarding(false);
     try { localStorage.setItem('wellness:onboarded', '1'); } catch { /* noop */ }
-    if (gotoProfile) setTab('profile');
+    if (gotoWorkouts) setTab('workouts');
   };
 
   const handleExport = async () => {
@@ -177,24 +163,6 @@ export default function WellnessPage() {
       );
     }
     switch (tab) {
-      case 'today':
-        return (
-          <TodayTab
-            profile={data.profile}
-            supplements={data.supplements}
-            intakeLogs={data.intakeLogs}
-            vitals={data.vitals}
-            skinHair={data.skinHair}
-            workouts={data.workouts}
-            hydration={data.hydration}
-            activeFasting={data.activeFasting}
-            onLogHydration={(ml) => data.addHydration(ml)}
-            onStartFasting={(hours, protocol) => data.beginFasting(hours, protocol)}
-            onEndFasting={() => data.stopFasting()}
-            onSaveVital={data.saveVital}
-            onJump={(k) => setTab(k as TabKey)}
-          />
-        );
       case 'workouts':
         return (
           <WorkoutsTab
@@ -206,39 +174,6 @@ export default function WellnessPage() {
         );
       case 'cali':
         return <CalisthenicsTab onJump={(k) => setTab(k as TabKey)} />;
-      case 'hub':
-        return (
-          <AthleticHubTab
-            profile={data.profile}
-            vitals={data.vitals}
-            workouts={data.workouts}
-            onJump={(k) => setTab(k as TabKey)}
-          />
-        );
-      case 'goals':
-        return (
-          <GoalsTab
-            profile={data.profile}
-            goals={data.goals}
-            vitals={data.vitals}
-            workouts={data.workouts}
-            hydration={data.hydration}
-            skinHair={data.skinHair}
-            dietLogs={data.dietLogs}
-            onSave={data.saveUserGoal}
-            onDelete={data.removeUserGoal}
-          />
-        );
-      case 'supplements':
-        return (
-          <SupplementsTab
-            supplements={data.supplements}
-            intakeLogs={data.intakeLogs}
-            onSave={data.addOrUpdateSupplement}
-            onDelete={data.removeSupplement}
-            onLogIntake={data.addIntake}
-          />
-        );
       case 'diet':
         return (
           <DietTab
@@ -249,10 +184,6 @@ export default function WellnessPage() {
             onPatch={data.patchDiet}
           />
         );
-      case 'vitals':
-        return <VitalsTab vitals={data.vitals} onSave={data.saveVital} />;
-      case 'skin':
-        return <SkinHairTab skinHair={data.skinHair} onSave={data.saveSkinHair} />;
       case 'insights':
         return (
           <InsightsTab
@@ -266,14 +197,6 @@ export default function WellnessPage() {
         return <AtlasTab />;
       case 'encyclopedia':
         return <EncyclopediaTab />;
-      case 'profile':
-        return (
-          <ProfileTab
-            profile={data.profile}
-            vitals={data.vitals}
-            onSave={data.saveAthleteProfile}
-          />
-        );
       default:
         return null;
     }
@@ -297,17 +220,6 @@ export default function WellnessPage() {
             {T.title[language]}
           </h1>
           <div className="flex items-center gap-1">
-            <button
-              onClick={() => setTab('profile')}
-              className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all duration-150 ${
-                tab === 'profile'
-                  ? 'bg-primary/15 text-primary'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-              aria-label="Profile"
-            >
-              <User className="w-3.5 h-3.5" />
-            </button>
             <button
               onClick={() => setShowPrivacy(true)}
               className="w-7 h-7 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
@@ -469,7 +381,7 @@ export default function WellnessPage() {
 
               <div className="flex justify-center">
                 <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                  <Sparkles className="w-5 h-5 text-primary" />
+                  <Dumbbell className="w-5 h-5 text-primary" />
                 </div>
               </div>
 
@@ -488,7 +400,7 @@ export default function WellnessPage() {
               <ul className="space-y-1.5">
                 {[T.feat1[language], T.feat2[language], T.feat3[language], T.feat4[language]].map(
                   (txt, i) => {
-                    const icons = [Dumbbell, Activity, HeartPulse, Target];
+                    const icons = [Dumbbell, Dumbbell, Dumbbell, Utensils];
                     const Icon = icons[i];
                     return (
                       <li key={i} className="flex items-center gap-2 text-[10px] text-foreground/80">
