@@ -736,7 +736,7 @@ export const UmmahGlobe = forwardRef<UmmahGlobeHandle, UmmahGlobeProps>(
         }
       >
         <defs>
-          {/* Outer atmosphere — anchored at the sun, so day side glows */}
+          {/* Outer atmosphere — anchored at the sun, day side glows */}
           <radialGradient
             id="dayAtmo"
             gradientUnits="userSpaceOnUse"
@@ -747,13 +747,13 @@ export const UmmahGlobe = forwardRef<UmmahGlobeHandle, UmmahGlobeProps>(
             <stop offset="55%" stopColor="hsl(200, 90%, 75%)" stopOpacity="0" />
             <stop
               offset="78%"
-              stopColor="hsl(205, 85%, 70%)"
-              stopOpacity="0.32"
+              stopColor="hsl(205, 80%, 68%)"
+              stopOpacity="0.28"
             />
             <stop
               offset="92%"
-              stopColor="hsl(215, 75%, 55%)"
-              stopOpacity="0.1"
+              stopColor="hsl(215, 70%, 50%)"
+              stopOpacity="0.08"
             />
             <stop
               offset="100%"
@@ -762,32 +762,32 @@ export const UmmahGlobe = forwardRef<UmmahGlobeHandle, UmmahGlobeProps>(
             />
           </radialGradient>
 
-          {/* Ocean — cool radial gradient, slightly darker at the rim */}
+          {/* Ocean — Google-Maps-Dark navy graphite */}
           <radialGradient id="oceanGrad" cx="50%" cy="48%" r="58%">
-            <stop offset="0%" stopColor="hsl(207, 75%, 30%)" />
-            <stop offset="55%" stopColor="hsl(212, 78%, 20%)" />
-            <stop offset="100%" stopColor="hsl(220, 80%, 10%)" />
+            <stop offset="0%" stopColor="hsl(216, 38%, 13%)" />
+            <stop offset="55%" stopColor="hsl(220, 46%, 8%)" />
+            <stop offset="100%" stopColor="hsl(225, 56%, 4%)" />
           </radialGradient>
 
-          {/* Land — per-band gradients */}
+          {/* Land — refined dark slate, very subtle band variation */}
           <linearGradient id="bandPolar" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="hsl(205, 30%, 94%)" />
-            <stop offset="100%" stopColor="hsl(210, 20%, 78%)" />
+            <stop offset="0%" stopColor="hsl(214, 14%, 36%)" />
+            <stop offset="100%" stopColor="hsl(216, 16%, 28%)" />
           </linearGradient>
           <linearGradient id="bandBoreal" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="hsl(150, 30%, 38%)" />
-            <stop offset="60%" stopColor="hsl(155, 35%, 28%)" />
-            <stop offset="100%" stopColor="hsl(160, 40%, 20%)" />
+            <stop offset="0%" stopColor="hsl(214, 16%, 30%)" />
+            <stop offset="60%" stopColor="hsl(216, 18%, 25%)" />
+            <stop offset="100%" stopColor="hsl(220, 20%, 20%)" />
           </linearGradient>
           <linearGradient id="bandTemperate" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="hsl(95, 38%, 42%)" />
-            <stop offset="50%" stopColor="hsl(75, 38%, 36%)" />
-            <stop offset="100%" stopColor="hsl(40, 35%, 38%)" />
+            <stop offset="0%" stopColor="hsl(214, 16%, 28%)" />
+            <stop offset="50%" stopColor="hsl(216, 18%, 23%)" />
+            <stop offset="100%" stopColor="hsl(220, 20%, 18%)" />
           </linearGradient>
           <linearGradient id="bandTropical" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="hsl(85, 50%, 40%)" />
-            <stop offset="60%" stopColor="hsl(75, 55%, 32%)" />
-            <stop offset="100%" stopColor="hsl(55, 45%, 28%)" />
+            <stop offset="0%" stopColor="hsl(214, 16%, 26%)" />
+            <stop offset="60%" stopColor="hsl(216, 18%, 21%)" />
+            <stop offset="100%" stopColor="hsl(220, 20%, 17%)" />
           </linearGradient>
 
           {/* Bright wash that follows the sub-solar point */}
@@ -801,12 +801,12 @@ export const UmmahGlobe = forwardRef<UmmahGlobeHandle, UmmahGlobeProps>(
             <stop
               offset="0%"
               stopColor="hsl(48, 100%, 92%)"
-              stopOpacity="0.5"
+              stopOpacity="0.35"
             />
             <stop
               offset="35%"
               stopColor="hsl(40, 100%, 75%)"
-              stopOpacity="0.22"
+              stopOpacity="0.16"
             />
             <stop
               offset="70%"
@@ -815,8 +815,8 @@ export const UmmahGlobe = forwardRef<UmmahGlobeHandle, UmmahGlobeProps>(
             />
             <stop
               offset="100%"
-              stopColor="hsl(220, 80%, 6%)"
-              stopOpacity="0.4"
+              stopColor="hsl(220, 80%, 4%)"
+              stopOpacity="0.45"
             />
           </radialGradient>
 
@@ -830,17 +830,17 @@ export const UmmahGlobe = forwardRef<UmmahGlobeHandle, UmmahGlobeProps>(
           >
             <stop
               offset="0%"
-              stopColor="hsl(225, 90%, 4%)"
-              stopOpacity="0.55"
+              stopColor="hsl(225, 90%, 3%)"
+              stopOpacity="0.6"
             />
             <stop
               offset="55%"
-              stopColor="hsl(225, 80%, 6%)"
-              stopOpacity="0.18"
+              stopColor="hsl(225, 80%, 5%)"
+              stopOpacity="0.2"
             />
             <stop
               offset="100%"
-              stopColor="hsl(225, 80%, 8%)"
+              stopColor="hsl(225, 80%, 6%)"
               stopOpacity="0"
             />
           </radialGradient>
@@ -853,8 +853,8 @@ export const UmmahGlobe = forwardRef<UmmahGlobeHandle, UmmahGlobeProps>(
             cy={dayCy}
             r={R * 0.45}
           >
-            <stop offset="0%" stopColor="white" stopOpacity="0.22" />
-            <stop offset="40%" stopColor="white" stopOpacity="0.08" />
+            <stop offset="0%" stopColor="white" stopOpacity="0.18" />
+            <stop offset="40%" stopColor="white" stopOpacity="0.06" />
             <stop offset="100%" stopColor="white" stopOpacity="0" />
           </radialGradient>
 
@@ -868,13 +868,13 @@ export const UmmahGlobe = forwardRef<UmmahGlobeHandle, UmmahGlobeProps>(
           >
             <stop
               offset="78%"
-              stopColor="hsl(225, 80%, 4%)"
+              stopColor="hsl(225, 80%, 3%)"
               stopOpacity="0"
             />
             <stop
               offset="100%"
-              stopColor="hsl(225, 80%, 4%)"
-              stopOpacity="0.6"
+              stopColor="hsl(225, 80%, 3%)"
+              stopOpacity="0.65"
             />
           </radialGradient>
 
@@ -935,12 +935,12 @@ export const UmmahGlobe = forwardRef<UmmahGlobeHandle, UmmahGlobeProps>(
 
         {/* Globe contents — clipped to the disc */}
         <g clipPath="url(#globeClip)">
-          {/* Graticule */}
+          {/* Graticule — paper-thin, Google-Maps-dark vibe */}
           <path
             d={graticulePath}
-            stroke="hsl(200, 50%, 75%)"
-            strokeOpacity="0.1"
-            strokeWidth="0.4"
+            stroke="hsl(214, 28%, 50%)"
+            strokeOpacity="0.08"
+            strokeWidth="0.35"
             fill="none"
             pointerEvents="none"
           />
@@ -950,36 +950,36 @@ export const UmmahGlobe = forwardRef<UmmahGlobeHandle, UmmahGlobeProps>(
             d={landByBand.tropical}
             fill="url(#bandTropical)"
             fillRule="evenodd"
-            stroke="hsl(60, 30%, 55%)"
-            strokeOpacity="0.3"
-            strokeWidth="0.3"
+            stroke="hsl(214, 22%, 44%)"
+            strokeOpacity="0.45"
+            strokeWidth="0.28"
             pointerEvents="none"
           />
           <path
             d={landByBand.temperate}
             fill="url(#bandTemperate)"
             fillRule="evenodd"
-            stroke="hsl(80, 32%, 55%)"
-            strokeOpacity="0.35"
-            strokeWidth="0.3"
+            stroke="hsl(214, 22%, 46%)"
+            strokeOpacity="0.5"
+            strokeWidth="0.28"
             pointerEvents="none"
           />
           <path
             d={landByBand.boreal}
             fill="url(#bandBoreal)"
             fillRule="evenodd"
-            stroke="hsl(150, 30%, 55%)"
-            strokeOpacity="0.4"
-            strokeWidth="0.3"
+            stroke="hsl(214, 22%, 48%)"
+            strokeOpacity="0.5"
+            strokeWidth="0.28"
             pointerEvents="none"
           />
           <path
             d={landByBand.polar}
             fill="url(#bandPolar)"
             fillRule="evenodd"
-            stroke="hsl(205, 35%, 90%)"
-            strokeOpacity="0.6"
-            strokeWidth="0.3"
+            stroke="hsl(210, 22%, 60%)"
+            strokeOpacity="0.55"
+            strokeWidth="0.28"
             pointerEvents="none"
           />
 
@@ -1030,9 +1030,9 @@ export const UmmahGlobe = forwardRef<UmmahGlobeHandle, UmmahGlobeProps>(
           cy={VIEW_CY}
           r={R}
           fill="none"
-          stroke="hsl(200, 80%, 80%)"
-          strokeOpacity="0.4"
-          strokeWidth="0.7"
+          stroke="hsl(205, 70%, 78%)"
+          strokeOpacity="0.32"
+          strokeWidth="0.6"
           pointerEvents="none"
         />
 
