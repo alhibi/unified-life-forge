@@ -33,13 +33,11 @@ import AppDatePicker from './AppDatePicker';
 import { SoftSurface, withAlpha } from './premium/surfaces';
 import { ProgressRing, AnimatedNumber, SectionHeader } from './premium/primitives';
 import { athleticSummary } from './athleticEngine';
-import { resolveWeight, type WellnessSources } from './wellnessLink';
 import { macroFor, macrosForDate, hasMacros, portionGramsFor } from './foodMacros';
 
 interface Props {
   dietLogs: DietLog[];
   profile?: AthleteProfile | null;
-  sources?: WellnessSources;
   onAdd: (date: string, foodKey: string, portion?: number) => Promise<void>;
   onRemove: (id: UUID) => Promise<void>;
   onPatch?: (id: UUID, patch: { portion?: number }) => Promise<void>;

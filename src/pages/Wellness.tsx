@@ -48,11 +48,11 @@ const T = {
     ar: 'نظام متكامل لتتبّع صحتك وأدائك الرياضي. كل بياناتك محلية وآمنة تماماً.',
     de: 'Gesundheit & sportliche Leistung. Alle Daten lokal & sicher.',
   },
-  feat1: { ar: 'تتبّع التمارين والأرقام القياسية', de: 'Workouts & Rekorde tracken' },
-  feat2: { ar: 'حاسبات متقدمة (BMR, TDEE, VO₂max, 1RM)', de: 'Profi-Rechner (BMR, TDEE, VO₂max, 1RM)' },
-  feat3: { ar: 'نقاط التعافي والجاهزية الذكية', de: 'Intelligente Recovery & Readiness' },
-  feat4: { ar: 'ترطيب، صيام، مكملات، وتغذية', de: 'Hydration, Fasten, Supplemente & Ernährung' },
-  setupCta: { ar: 'إعداد الملف الشخصي', de: 'Profil einrichten' },
+  feat1: { ar: 'تتبّع التمارين والأرقام القياسية (1RM)', de: 'Workouts & Rekorde tracken (1RM)' },
+  feat2: { ar: 'تمارين كاليستنيكس متدرّجة', de: 'Progressives Calisthenics' },
+  feat3: { ar: 'تغذية وحساب الماكروز', de: 'Ernährung & Makros' },
+  feat4: { ar: 'أطلس وموسوعة معرفية', de: 'Atlas & Wissens-Lexikon' },
+  setupCta: { ar: 'استكشف الآن', de: 'Jetzt erkunden' },
   later: { ar: 'لاحقاً', de: 'Später' },
 };
 
@@ -206,8 +206,8 @@ export default function WellnessPage() {
       <SEO
         title={isAr ? 'الصحة والعافية — SmartHub' : 'Wellness — SmartHub'}
         description={isAr
-          ? 'تطبيق العافية المتكامل: تمارين، حاسبات، تعافٍ، تغذية، مكملات — كل البيانات محلية وآمنة.'
-          : 'Premium-Wellness-App: Workouts, Rechner, Recovery, Ernährung, Supplemente — alle Daten lokal.'}
+          ? 'تطبيق العافية: تمارين، كاليستنيكس، تغذية، أطلس، وموسوعة — كل البيانات محلية وآمنة.'
+          : 'Wellness-App: Workouts, Calisthenics, Ernährung, Atlas & Lexikon — alle Daten lokal.'}
         path="/wellness"
       />
 
@@ -403,7 +403,7 @@ export default function WellnessPage() {
               <ul className="space-y-1.5">
                 {[T.feat1[language], T.feat2[language], T.feat3[language], T.feat4[language]].map(
                   (txt, i) => {
-                    const icons = [Dumbbell, Dumbbell, Dumbbell, Utensils];
+                    const icons = [Dumbbell, Dumbbell, Utensils, Library];
                     const Icon = icons[i];
                     return (
                       <li key={i} className="flex items-center gap-2 text-[10px] text-foreground/80">
