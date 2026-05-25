@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
-import { Clock, Database, Wifi, WifiOff } from 'lucide-react';
+import { AlertTriangle, Clock, Database, RefreshCw, Wifi, WifiOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import SEO from '@/components/SEO';
 import { useApp } from '@/contexts/AppContext';
@@ -21,6 +21,7 @@ import { useReadingData } from '@/features/reading/useReadingData';
 import { ListHeader } from '@/features/reading/ListHeader';
 import { ArticleList } from '@/features/reading/ArticleList';
 import { PullToRefresh } from '@/features/reading/PullToRefresh';
+import { ReadingErrorBoundary } from '@/features/reading/ReadingErrorBoundary';
 import { timeAgo } from '@/features/reading/utils';
 import { offlineDb } from '@/features/reading/offlineDb';
 import { registerReadingServiceWorker } from '@/features/reading/registerSw';
@@ -382,6 +383,7 @@ export default function ReadingPage() {
   };
 
   return (
+    <ReadingErrorBoundary lang={language}>
     <div className="min-h-screen bg-background flex flex-col pb-20">
       <SEO
         title={isAr ? 'إطلاع — قارئ الأخبار — SmartHub' : 'Reading — RSS — SmartHub'}
@@ -390,6 +392,38 @@ export default function ReadingPage() {
           : 'Full-content RSS reader with bookmarks and reading mode.'}
         path="/reading"
       />
+
+      {/* Connection recovery banner */}
+      {!isOnline && view === 'list' && (
+        <div className="px-4 py-2 bg-amber-500/10 border-b border-amber-500/20 flex items-center gap-2 text-xs text-amber-700 dark:text-amber-400">
+          <WifiOff className="h-3.5 w-3.5 shrink-0" />
+          <span className="flex-1">
+            {isAr
+              ? 'لا يوجد اتصال — يتم عرض المحتوى المحفوظ'
+              : 'No connection — showing cached content'}
+          </span>
+        </div>
+      )}
+
+      {/* Consecutive failure warning */}
+      {data.consecutiveFailures >= 3 && isOnline && view === 'list' && (
+        <div className="px-4 py-2 bg-destructive/5 border-b border-destructive/10 flex items-center gap-2 text-xs text-destructive/80">
+          <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+          <span className="flex-1">
+            {isAr
+              ? 'تعذّر التحديث عدة مرات — سيُعاد المحاولة تلقائياً'
+              : 'Multiple refresh failures — will retry automatically'}
+          </span>
+          <button
+            type="button"
+            onClick={() => refreshFeeds(false)}
+            className="shrink-0 p-1 rounded hover:bg-destructive/10 transition-colors"
+            aria-label={isAr ? 'إعادة المحاولة' : 'Retry now'}
+          >
+            <RefreshCw className="h-3 w-3" />
+          </button>
+        </div>
+      )}
       <AnimatePresence mode="wait">
         {view === 'article' && selectedArticle && (
          <Suspense key="article-s" fallback={<SubviewFallback />}>
@@ -608,5 +642,6 @@ export default function ReadingPage() {
         )}
       </AnimatePresence>
     </div>
+    </ReadingErrorBoundary>
   );
 }

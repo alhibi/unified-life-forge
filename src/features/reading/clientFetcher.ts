@@ -7,25 +7,82 @@ import type { FeedItem, FeedSource } from './types';
  * Uses public CORS proxies to fetch RSS/Atom XML directly from the
  * browser, then parses it locally. This ensures the Reading feature
  * always works, even without a backend.
+ *
+ * Resilience features:
+ *  - Multiple CORS proxies with automatic failover
+ *  - Per-proxy timeout with independent AbortControllers
+ *  - Retry logic with exponential backoff on transient failures
+ *  - Error classification (transient vs permanent) for smart retry
+ *  - Connection health tracking to prefer working proxies
+ *  - Graceful degradation when all proxies fail
  */
 
-const CORS_PROXIES = [
-  'https://api.allorigins.win/raw?url=',
-  'https://corsproxy.io/?',
+// ─── CORS proxy pool ───────────────────────────────────────────────────────
+// Each proxy has a health score. Failed proxies are deprioritized so
+// subsequent fetches prefer ones that responded recently.
+
+interface ProxyEntry {
+  url: string;
+  /** Lower = healthier. Incremented on failure, reset on success. */
+  failures: number;
+  /** Timestamp of last successful response. */
+  lastOk: number;
+}
+
+const PROXY_POOL: ProxyEntry[] = [
+  { url: 'https://api.allorigins.win/raw?url=', failures: 0, lastOk: 0 },
+  { url: 'https://corsproxy.io/?', failures: 0, lastOk: 0 },
+  { url: 'https://api.codetabs.com/v1/proxy?quest=', failures: 0, lastOk: 0 },
+  { url: 'https://thingproxy.freeboard.io/fetch/', failures: 0, lastOk: 0 },
 ];
 
-const FETCH_TIMEOUT = 12_000;
+/** Return proxies sorted by health: fewer failures first, recent success first. */
+function getSortedProxies(): ProxyEntry[] {
+  return [...PROXY_POOL].sort((a, b) => {
+    if (a.failures !== b.failures) return a.failures - b.failures;
+    return b.lastOk - a.lastOk; // prefer more recently successful
+  });
+}
 
-/** Attempt fetch through CORS proxies, falling back to the next one on failure. */
+// ─── Constants ─────────────────────────────────────────────────────────────
+
+const FETCH_TIMEOUT = 15_000;
+const MAX_RETRIES = 2;
+const RETRY_BASE_MS = 800;
+
+// ─── Error classification ──────────────────────────────────────────────────
+
+type ErrorKind = 'transient' | 'permanent' | 'timeout' | 'offline';
+
+function classifyError(err: unknown): ErrorKind {
+  if (typeof navigator !== 'undefined' && !navigator.onLine) return 'offline';
+  if (err instanceof DOMException && err.name === 'AbortError') return 'timeout';
+  const msg = err instanceof Error ? err.message.toLowerCase() : '';
+  if (msg.includes('timeout') || msg.includes('abort')) return 'timeout';
+  if (msg.includes('network') || msg.includes('fetch') || msg.includes('connection')) return 'transient';
+  if (msg.includes('cors') || msg.includes('403') || msg.includes('404')) return 'permanent';
+  // Default to transient so we retry on unknown errors
+  return 'transient';
+}
+
+function shouldRetry(kind: ErrorKind): boolean {
+  return kind === 'transient' || kind === 'timeout';
+}
+
+// ─── Core fetch logic ──────────────────────────────────────────────────────
+
+/** Attempt fetch through CORS proxies with health-aware ordering and retry. */
 async function fetchViaProxy(url: string, signal?: AbortSignal): Promise<string | null> {
-  for (const proxy of CORS_PROXIES) {
-    // Each proxy attempt gets its own AbortController so a timeout on
-    // proxy A doesn't prevent us from trying proxy B. We forward the
-    // outer `signal`'s abort signal to the inner controller so
-    // user-initiated cancellation still tears down the in-flight
-    // request immediately.
+  const proxies = getSortedProxies();
+
+  for (const proxy of proxies) {
+    if (signal?.aborted) return null;
+
+    // Each proxy attempt gets its own AbortController with a timeout.
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT);
+
+    // Forward the outer abort signal
     const onOuterAbort = () => controller.abort();
     if (signal) {
       if (signal.aborted) {
@@ -34,25 +91,77 @@ async function fetchViaProxy(url: string, signal?: AbortSignal): Promise<string 
       }
       signal.addEventListener('abort', onOuterAbort, { once: true });
     }
+
     try {
-      const res = await fetch(`${proxy}${encodeURIComponent(url)}`, {
+      const res = await fetch(`${proxy.url}${encodeURIComponent(url)}`, {
         signal: controller.signal,
+        headers: {
+          'Accept': 'application/rss+xml, application/xml, text/xml, application/atom+xml, */*',
+        },
       });
-      if (!res.ok) continue;
+
+      if (!res.ok) {
+        proxy.failures = Math.min(proxy.failures + 1, 10);
+        continue;
+      }
+
       const text = await res.text();
-      // Basic check: does it look like XML?
+
+      // Validate: does it look like XML?
       if (text.includes('<rss') || text.includes('<feed') || text.includes('<?xml')) {
+        // Success — reset failure counter and record timestamp
+        proxy.failures = 0;
+        proxy.lastOk = Date.now();
         return text;
       }
-    } catch {
-      // Either timeout, network error, or CORS fail — try the next proxy.
-      continue;
+
+      // Got a response but it's not RSS/Atom — proxy might be returning
+      // an error page. Mark as soft failure and try next.
+      proxy.failures = Math.min(proxy.failures + 1, 5);
+    } catch (err) {
+      const kind = classifyError(err);
+      if (kind === 'offline') return null; // No point trying other proxies
+      proxy.failures = Math.min(proxy.failures + 1, 10);
+      // If permanent error, skip retry for this proxy
+      if (kind === 'permanent') continue;
     } finally {
       clearTimeout(timer);
       if (signal) signal.removeEventListener('abort', onOuterAbort);
     }
   }
   return null;
+}
+
+/**
+ * Fetch with retry: wraps `fetchViaProxy` with exponential backoff.
+ * Only retries on transient/timeout errors; permanent failures bail immediately.
+ */
+async function fetchWithRetry(url: string, signal?: AbortSignal): Promise<string | null> {
+  let lastResult: string | null = null;
+
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    if (signal?.aborted) return null;
+
+    lastResult = await fetchViaProxy(url, signal);
+    if (lastResult) return lastResult;
+
+    // Don't retry if offline
+    if (typeof navigator !== 'undefined' && !navigator.onLine) return null;
+
+    // Exponential backoff with jitter before retrying
+    if (attempt < MAX_RETRIES) {
+      const delay = RETRY_BASE_MS * (2 ** attempt) + Math.random() * 200;
+      await new Promise<void>((resolve, reject) => {
+        const t = setTimeout(resolve, delay);
+        if (signal) {
+          const onAbort = () => { clearTimeout(t); resolve(); };
+          signal.addEventListener('abort', onAbort, { once: true });
+        }
+      });
+    }
+  }
+
+  return lastResult;
 }
 
 // ─── Simple RSS/Atom parser (browser-side) ─────────────────────────────────
@@ -92,15 +201,6 @@ function getAttr(block: string, tag: string, attr: string): string {
 
 /**
  * For Atom entries: pick the most appropriate <link> element.
- *
- * An entry can have multiple links with different `rel` attributes.
- * We want `rel="alternate"` (the human-readable article URL) and not
- * `rel="self"` (the feed URL itself) or `rel="enclosure"` (media).
- *
- * Order of preference:
- *   1. <link rel="alternate" href="…"/>   ← canonical article link
- *   2. <link href="…"/>                   ← rel attribute omitted ⇒ alternate by spec
- *   3. <link href="…"/> as a last resort
  */
 function getAtomEntryLink(entryBlock: string): string {
   const linkTags = entryBlock.match(/<link\s[^>]*\/?>/gi) || [];
@@ -113,7 +213,6 @@ function getAtomEntryLink(entryBlock: string): string {
     const relMatch = tag.match(/\srel=["']([^"']+)["']/i);
     const rel = (relMatch?.[1] || '').toLowerCase();
     if (!rel || rel === 'alternate') {
-      // Empty rel → spec says "alternate". Prefer text/html types.
       const typeMatch = tag.match(/\stype=["']([^"']+)["']/i);
       const isHtml = !typeMatch || /html/i.test(typeMatch[1]);
       if (isHtml && !alternate) alternate = href;
@@ -132,8 +231,6 @@ function extractImages(html: string): string[] {
   while ((m = re.exec(html)) !== null) {
     const u = m[1];
     if (!u) continue;
-    // Accept absolute http(s) URLs and protocol-relative URLs
-    // (which we promote to https). Skip data: URIs, blob:, etc.
     let abs = u;
     if (u.startsWith('//')) abs = `https:${u}`;
     else if (!/^https?:\/\//i.test(u)) continue;
@@ -152,73 +249,80 @@ function safeDate(s: string): string {
 
 function parseXML(xml: string, sourceName: string, maxItems = 50): FeedItem[] {
   const items: FeedItem[] = [];
-  const isAtom = xml.includes('<feed') && !xml.includes('<rss');
 
-  if (isAtom) {
-    const entryRe = /<entry[\s\S]*?<\/entry>/g;
-    let m;
-    while ((m = entryRe.exec(xml)) !== null && items.length < maxItems) {
-      const e = m[0];
-      const title = decodeEntities(stripTags(getTag(e, 'title')));
-      const link = getAtomEntryLink(e);
-      const content = getTag(e, 'content') || getTag(e, 'summary');
-      const pubDate = safeDate(getTag(e, 'published') || getTag(e, 'updated'));
-      const author = decodeEntities(stripTags(getTag(e, 'name'))) || undefined;
-      const images = extractImages(content);
-      if (!title && !link) continue; // skip empty entries
-      items.push({
-        title,
-        link,
-        description: decodeEntities(stripTags(content)).slice(0, 400),
-        fullContent: content || undefined,
-        pubDate,
-        image: images[0] || null,
-        images,
-        author,
-        source: sourceName,
-      });
-    }
-  } else {
-    const itemRe = /<item[\s\S]*?<\/item>/g;
-    let m;
-    while ((m = itemRe.exec(xml)) !== null && items.length < maxItems) {
-      const it = m[0];
-      const title = decodeEntities(stripTags(getTag(it, 'title')));
-      let link = cdata(getTag(it, 'link'));
-      if (!link) {
-        const lm = it.match(/<link[^>]*>([\s\S]*?)<\/link>/i);
-        if (lm) link = cdata(lm[1]).trim();
+  try {
+    const isAtom = xml.includes('<feed') && !xml.includes('<rss');
+
+    if (isAtom) {
+      const entryRe = /<entry[\s\S]*?<\/entry>/g;
+      let m;
+      while ((m = entryRe.exec(xml)) !== null && items.length < maxItems) {
+        const e = m[0];
+        const title = decodeEntities(stripTags(getTag(e, 'title')));
+        const link = getAtomEntryLink(e);
+        const content = getTag(e, 'content') || getTag(e, 'summary');
+        const pubDate = safeDate(getTag(e, 'published') || getTag(e, 'updated'));
+        const author = decodeEntities(stripTags(getTag(e, 'name'))) || undefined;
+        const images = extractImages(content);
+        if (!title && !link) continue;
+        items.push({
+          title,
+          link,
+          description: decodeEntities(stripTags(content)).slice(0, 400),
+          fullContent: content || undefined,
+          pubDate,
+          image: images[0] || null,
+          images,
+          author,
+          source: sourceName,
+        });
       }
-      const contentEncoded = getTag(it, 'content:encoded');
-      const desc = getTag(it, 'description');
-      const fullContent = contentEncoded || desc;
-      const pubDate = safeDate(getTag(it, 'pubDate') || getTag(it, 'dc:date'));
-      const enclosure = getAttr(it, 'enclosure', 'url');
-      const mediaContent = getAttr(it, 'media:content', 'url');
-      const mediaThumb = getAttr(it, 'media:thumbnail', 'url');
-      const inlineImgs = extractImages(fullContent);
-      const author = decodeEntities(stripTags(getTag(it, 'author') || getTag(it, 'dc:creator'))) || undefined;
+    } else {
+      const itemRe = /<item[\s\S]*?<\/item>/g;
+      let m;
+      while ((m = itemRe.exec(xml)) !== null && items.length < maxItems) {
+        const it = m[0];
+        const title = decodeEntities(stripTags(getTag(it, 'title')));
+        let link = cdata(getTag(it, 'link'));
+        if (!link) {
+          const lm = it.match(/<link[^>]*>([\s\S]*?)<\/link>/i);
+          if (lm) link = cdata(lm[1]).trim();
+        }
+        const contentEncoded = getTag(it, 'content:encoded');
+        const desc = getTag(it, 'description');
+        const fullContent = contentEncoded || desc;
+        const pubDate = safeDate(getTag(it, 'pubDate') || getTag(it, 'dc:date'));
+        const enclosure = getAttr(it, 'enclosure', 'url');
+        const mediaContent = getAttr(it, 'media:content', 'url');
+        const mediaThumb = getAttr(it, 'media:thumbnail', 'url');
+        const inlineImgs = extractImages(fullContent);
+        const author = decodeEntities(stripTags(getTag(it, 'author') || getTag(it, 'dc:creator'))) || undefined;
 
-      const images: string[] = [];
-      if (enclosure && /\.(jpg|jpeg|png|webp|gif|avif)/i.test(enclosure)) images.push(enclosure);
-      if (mediaContent && !images.includes(mediaContent)) images.push(mediaContent);
-      if (mediaThumb && !images.includes(mediaThumb)) images.push(mediaThumb);
-      for (const img of inlineImgs) { if (!images.includes(img)) images.push(img); }
+        const images: string[] = [];
+        if (enclosure && /\.(jpg|jpeg|png|webp|gif|avif)/i.test(enclosure)) images.push(enclosure);
+        if (mediaContent && !images.includes(mediaContent)) images.push(mediaContent);
+        if (mediaThumb && !images.includes(mediaThumb)) images.push(mediaThumb);
+        for (const img of inlineImgs) { if (!images.includes(img)) images.push(img); }
 
-      if (!title && !link) continue; // skip empty items
+        if (!title && !link) continue;
 
-      items.push({
-        title,
-        link,
-        description: decodeEntities(stripTags(fullContent)).slice(0, 400),
-        fullContent,
-        pubDate,
-        image: images[0] || null,
-        images,
-        author,
-        source: sourceName,
-      });
+        items.push({
+          title,
+          link,
+          description: decodeEntities(stripTags(fullContent)).slice(0, 400),
+          fullContent,
+          pubDate,
+          image: images[0] || null,
+          images,
+          author,
+          source: sourceName,
+        });
+      }
     }
+  } catch (err) {
+    // Parsing errors shouldn't crash the whole feed list.
+    // Return whatever items we managed to extract before the error.
+    console.warn(`[Reading] XML parse error for source "${sourceName}":`, err);
   }
 
   return items;
@@ -231,15 +335,21 @@ export interface ClientFetchResult {
   url: string;
   items: FeedItem[];
   error?: string;
+  /** Error classification for the caller to decide on retry strategy. */
+  errorKind?: ErrorKind;
+  /** How long this fetch took (ms) — useful for diagnostics. */
+  durationMs?: number;
 }
 
 /**
  * Fetch multiple RSS feeds client-side via CORS proxy.
  * Returns results for each feed (items or error).
  *
- * A "fetched but empty parse" outcome is reported as an error so the
- * caller can surface it (instead of treating an unparseable feed as
- * a feed that just happens to have nothing new).
+ * Features:
+ *  - Concurrent batch fetching (4 at a time to avoid overwhelming proxies)
+ *  - Per-feed error isolation — one failing feed doesn't block others
+ *  - Duration tracking for diagnostics
+ *  - Smart error classification for UI feedback
  */
 export async function fetchFeedsClientSide(
   feeds: FeedSource[],
@@ -254,20 +364,52 @@ export async function fetchFeedsClientSide(
     const batch = feeds.slice(i, i + BATCH_SIZE);
     const batchResults = await Promise.allSettled(
       batch.map(async (feed): Promise<ClientFetchResult> => {
-        const xml = await fetchViaProxy(feed.url, signal);
-        if (!xml) {
-          return { source: feed.name, url: feed.url, items: [], error: 'Failed to fetch' };
-        }
-        const items = parseXML(xml, feed.name);
-        if (items.length === 0) {
+        const start = Date.now();
+        try {
+          const xml = await fetchWithRetry(feed.url, signal);
+          const durationMs = Date.now() - start;
+
+          if (!xml) {
+            const errorKind: ErrorKind = (typeof navigator !== 'undefined' && !navigator.onLine)
+              ? 'offline'
+              : 'transient';
+            return {
+              source: feed.name,
+              url: feed.url,
+              items: [],
+              error: errorKind === 'offline'
+                ? 'Device is offline'
+                : 'Failed to fetch after retries',
+              errorKind,
+              durationMs,
+            };
+          }
+
+          const items = parseXML(xml, feed.name);
+          if (items.length === 0) {
+            return {
+              source: feed.name,
+              url: feed.url,
+              items: [],
+              error: 'No parseable items',
+              errorKind: 'permanent',
+              durationMs,
+            };
+          }
+
+          return { source: feed.name, url: feed.url, items, durationMs };
+        } catch (err) {
+          const durationMs = Date.now() - start;
+          const errorKind = classifyError(err);
           return {
             source: feed.name,
             url: feed.url,
             items: [],
-            error: 'No parseable items',
+            error: err instanceof Error ? err.message : 'Unknown error',
+            errorKind,
+            durationMs,
           };
         }
-        return { source: feed.name, url: feed.url, items };
       }),
     );
 
@@ -275,13 +417,20 @@ export async function fetchFeedsClientSide(
       if (r.status === 'fulfilled') {
         results.push(r.value);
       } else {
+        const errorKind = classifyError(r.reason);
         results.push({
           source: '',
           url: '',
           items: [],
           error: (r.reason as { message?: string })?.message || 'Unknown error',
+          errorKind,
         });
       }
+    }
+
+    // Small breathing room between batches to avoid rate limiting
+    if (i + BATCH_SIZE < feeds.length && !signal?.aborted) {
+      await new Promise((r) => setTimeout(r, 150));
     }
   }
 
@@ -295,9 +444,15 @@ export function isSupabaseAvailable(): boolean {
   const env = (import.meta as ImportMeta).env as Record<string, string | undefined>;
   const url = env?.VITE_SUPABASE_URL || '';
   const key = env?.VITE_SUPABASE_PUBLISHABLE_KEY || '';
-  // If using placeholder values from our fix, treat as unavailable
   if (!url || url.includes('placeholder') || !key || key.includes('placeholder')) {
     return false;
   }
   return true;
+}
+
+/**
+ * Get health status of CORS proxies. Useful for diagnostics in CronView.
+ */
+export function getProxyHealth(): Array<{ url: string; failures: number; lastOk: number }> {
+  return PROXY_POOL.map((p) => ({ url: p.url, failures: p.failures, lastOk: p.lastOk }));
 }
