@@ -28,9 +28,6 @@ let recoveryAttempted = false;
 
 // ─── Database connection with corruption recovery ──────────────────────────
 
-/** Max articles to keep in IndexedDB before pruning oldest non-bookmarked. */
-const MAX_OFFLINE_ARTICLES = 500;
-
 function openDb(): Promise<IDBDatabase> {
   if (dbPromise) return dbPromise;
 
@@ -254,13 +251,18 @@ export const offlineDb = {
   /**
    * Save multiple articles in a single transaction (batch write).
    * Much faster than calling saveArticle() in a loop.
+   * Only skips if the device is critically low on disk space.
    */
   async saveArticlesBatch(items: ReadonlyArray<FeedItem>): Promise<number> {
     if (!this.available() || items.length === 0) return 0;
 
-    const hasSpace = await this.hasQuota(items.length * 50 * 1024);
+    // Only check quota once per batch — not per-item. We check for 10MB
+    // free space regardless of batch size. If the device is that low,
+    // we skip entirely; otherwise we trust IndexedDB to throw QuotaExceeded
+    // on individual puts (which batchTx handles gracefully).
+    const hasSpace = await this.hasQuota(10 * 1024 * 1024);
     if (!hasSpace) {
-      console.warn('[Reading/offlineDb] Low quota, skipping batch save');
+      console.warn('[Reading/offlineDb] Low quota (<10MB free), skipping batch save');
       return 0;
     }
 
@@ -468,10 +470,13 @@ export const offlineDb = {
   },
 
   /**
-   * Sync the offline archive: ADD missing articles, but only REMOVE
-   * articles if the store exceeds MAX_OFFLINE_ARTICLES (preserving
-   * bookmarked ones). This ensures the user can always go back to
-   * previously-fetched articles without them being aggressively purged.
+   * Sync the offline archive: ADD missing articles from the given list.
+   * Does NOT remove any existing articles — the user's offline archive
+   * only grows. Cleanup is handled separately by `pruneOlderThan` which
+   * respects the user's retention-days preference.
+   *
+   * This ensures the user can always go back to previously-fetched
+   * articles without them being aggressively purged.
    */
   async syncArticles(
     items: ReadonlyArray<FeedItem>,
@@ -493,7 +498,6 @@ export const offlineDb = {
     }
 
     const have = new Set(existing.map((a) => a.link));
-    const keepSet = new Set(keepLinks);
 
     // ADD: save articles we want but don't have yet
     const toAdd: FeedItem[] = [];
@@ -507,35 +511,13 @@ export const offlineDb = {
       }
     }
 
-    // REMOVE: only prune if we're OVER the max cap, and only remove
-    // the oldest non-bookmarked articles. Never remove bookmarks or
-    // articles the user explicitly wants to keep.
-    const toRemove: string[] = [];
-    const totalAfterAdd = existing.length + toAdd.length;
-    if (totalAfterAdd > MAX_OFFLINE_ARTICLES) {
-      const excess = totalAfterAdd - MAX_OFFLINE_ARTICLES;
-      // Sort existing by archivedAt ascending (oldest first)
-      const removable = existing
-        .filter((a) => !keepSet.has(a.link) && !want.has(a.link))
-        .sort((a, b) => a.archivedAt - b.archivedAt);
-      for (let i = 0; i < Math.min(excess, removable.length); i++) {
-        toRemove.push(removable[i].link);
-      }
-    }
-
-    // Batch add
+    // Batch add — no removals
     let added = 0;
     if (toAdd.length > 0) {
       added = await this.saveArticlesBatch(toAdd);
     }
 
-    // Batch remove (only excess)
-    let removed = 0;
-    if (toRemove.length > 0) {
-      removed = await this.removeArticlesBatch(toRemove);
-    }
-
-    return { added, kept, removed };
+    return { added, kept, removed: 0 };
   },
 
   /**
