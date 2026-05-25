@@ -15,6 +15,7 @@ import { NUTS_SEEDS_DATA } from './nuts-seeds';
 import { OILS_SPICES_DATA } from './oils-spices';
 import { BEVERAGES_DATA } from './beverages';
 import { PREPARED_FOODS_DATA } from './prepared-foods';
+import { SNACKS_CONDIMENTS_DATA } from './snacks-condiments';
 
 import type { NutritionFoodItem, NutritionCategory } from '../types';
 
@@ -30,6 +31,7 @@ export const NUTRITION_DATABASE: NutritionFoodItem[] = [
   ...OILS_SPICES_DATA,
   ...BEVERAGES_DATA,
   ...PREPARED_FOODS_DATA,
+  ...SNACKS_CONDIMENTS_DATA,
 ];
 
 /** Index by ID for O(1) lookup */
@@ -67,12 +69,12 @@ export const CATEGORY_INFO: Record<NutritionCategory, { emoji: string; color: st
   sweets_desserts: { emoji: '🍯', color: '#f6ad55', label: { ar: 'حلويات', de: 'Süßigkeiten' }, count: OILS_SPICES_DATA.filter(f => f.category === 'sweets_desserts').length },
   prepared_foods: { emoji: '🍽️', color: '#4a5568', label: { ar: 'أطعمة محضرة', de: 'Fertiggerichte' }, count: PREPARED_FOODS_DATA.length },
   breads_bakery: { emoji: '🍞', color: '#a0522d', label: { ar: 'خبز ومخبوزات', de: 'Brot & Backwaren' }, count: 0 },
-  condiments_sauces: { emoji: '🥫', color: '#e53e3e', label: { ar: 'صلصات وبهارات', de: 'Saucen & Würzmittel' }, count: 0 },
-  snacks: { emoji: '🍿', color: '#ecc94b', label: { ar: 'وجبات خفيفة', de: 'Snacks' }, count: 0 },
+  condiments_sauces: { emoji: '🥫', color: '#e53e3e', label: { ar: 'صلصات وبهارات', de: 'Saucen & Würzmittel' }, count: SNACKS_CONDIMENTS_DATA.filter(f => f.category === 'condiments_sauces').length },
+  snacks: { emoji: '🍿', color: '#ecc94b', label: { ar: 'وجبات خفيفة', de: 'Snacks' }, count: SNACKS_CONDIMENTS_DATA.filter(f => f.category === 'snacks').length },
 };
 
 /** Get total food count */
 export const TOTAL_FOOD_COUNT = NUTRITION_DATABASE.length;
 
 // Re-export individual databases
-export { FRUITS_DATA, VEGETABLES_DATA, PROTEINS_DATA, DAIRY_DATA, GRAINS_DATA, LEGUMES_DATA, NUTS_SEEDS_DATA, OILS_SPICES_DATA, BEVERAGES_DATA, PREPARED_FOODS_DATA };
+export { FRUITS_DATA, VEGETABLES_DATA, PROTEINS_DATA, DAIRY_DATA, GRAINS_DATA, LEGUMES_DATA, NUTS_SEEDS_DATA, OILS_SPICES_DATA, BEVERAGES_DATA, PREPARED_FOODS_DATA, SNACKS_CONDIMENTS_DATA };
