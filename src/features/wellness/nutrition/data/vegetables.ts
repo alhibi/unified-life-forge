@@ -498,4 +498,704 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
     },
     season: ['all_year'],
   },
+
+
+  {
+    id: 'bok_choy',
+    name: { ar: 'باك تشوي', de: 'Pak Choi' },
+    category: 'vegetables',
+    subCategory: 'leafy_greens',
+    emoji: '🥬',
+    color: '#38a169',
+    nutrition: {
+      kcal: 13, protein: 1.5, carbs: 2.2, fat: 0.2, fiber: 1.0, sugar: 1.2,
+      water: 95.3,
+      vitamins: { vitC: 45, vitA: 223, vitK: 45.5, vitB6: 0.19, vitB9: 66, vitE: 0.09 },
+      minerals: { calcium: 105, potassium: 252, magnesium: 19, phosphorus: 37, iron: 0.8, zinc: 0.19, manganese: 0.16, sodium: 65 },
+    },
+    servings: [
+      { description: { ar: 'كوب مقطع', de: 'Tasse gehackt' }, grams: 70 },
+      { description: { ar: 'حبة متوسطة', de: 'Mittelgroßer Kopf' }, grams: 250 },
+    ],
+    tags: ['vegan', 'gluten_free', 'low_carb', 'bone_health', 'immune_boost', 'anti_inflammatory'],
+    allergens: [],
+    glycemicIndex: 15,
+    benefits: {
+      ar: ['غني بالكالسيوم لصحة العظام', 'فيتامين سي يعزز المناعة', 'مضاد للالتهابات', 'منخفض السعرات الحرارية لفقدان الوزن'],
+      de: ['Reich an Kalzium für Knochengesundheit', 'Vitamin C stärkt das Immunsystem', 'Entzündungshemmend', 'Kalorienarm für Gewichtsverlust'],
+    },
+    season: ['spring', 'autumn'],
+  },
+
+
+  {
+    id: 'swiss_chard',
+    name: { ar: 'سلق', de: 'Mangold' },
+    category: 'vegetables',
+    subCategory: 'leafy_greens',
+    emoji: '🥬',
+    color: '#e53e3e',
+    nutrition: {
+      kcal: 19, protein: 1.8, carbs: 3.7, fat: 0.2, fiber: 1.6, sugar: 1.1,
+      water: 92.7,
+      vitamins: { vitK: 830, vitA: 306, vitC: 30, vitB9: 14, vitE: 1.89, vitB6: 0.1 },
+      minerals: { magnesium: 81, iron: 1.8, potassium: 379, calcium: 51, phosphorus: 46, manganese: 0.37, zinc: 0.36 },
+    },
+    servings: [
+      { description: { ar: 'كوب مقطع', de: 'Tasse gehackt' }, grams: 36 },
+      { description: { ar: 'كوب مطبوخ', de: 'Tasse gekocht' }, grams: 175 },
+    ],
+    tags: ['vegan', 'gluten_free', 'low_carb', 'bone_health', 'anti_inflammatory', 'heart_healthy'],
+    allergens: [],
+    glycemicIndex: 15,
+    benefits: {
+      ar: ['أعلى مصدر نباتي لفيتامين ك', 'غني بالمغنيسيوم لصحة القلب', 'يحتوي على مضادات الأكسدة', 'يدعم صحة العظام'],
+      de: ['Höchste pflanzliche Vitamin-K-Quelle', 'Reich an Magnesium für Herzgesundheit', 'Enthält Antioxidantien', 'Unterstützt Knochengesundheit'],
+    },
+    season: ['summer', 'autumn'],
+  },
+
+
+  {
+    id: 'watercress',
+    name: { ar: 'جرجير مائي', de: 'Brunnenkresse' },
+    category: 'vegetables',
+    subCategory: 'leafy_greens',
+    emoji: '🌿',
+    color: '#2f855a',
+    nutrition: {
+      kcal: 11, protein: 2.3, carbs: 1.3, fat: 0.1, fiber: 0.5, sugar: 0.2,
+      water: 95.1,
+      vitamins: { vitK: 250, vitC: 43, vitA: 160, vitE: 1.0, vitB6: 0.13, vitB9: 9, vitB2: 0.12 },
+      minerals: { calcium: 120, potassium: 330, phosphorus: 60, magnesium: 21, iron: 0.2, manganese: 0.24, zinc: 0.11 },
+    },
+    servings: [
+      { description: { ar: 'كوب طازج', de: 'Tasse frisch' }, grams: 34 },
+      { description: { ar: 'حزمة', de: 'Bund' }, grams: 85 },
+    ],
+    tags: ['vegan', 'gluten_free', 'low_carb', 'keto_friendly', 'immune_boost', 'bone_health', 'skin_health'],
+    allergens: [],
+    glycemicIndex: 15,
+    benefits: {
+      ar: ['أكثر الأطعمة كثافة بالمغذيات', 'يعزز صحة الجلد والبشرة', 'فيتامين ك لصحة العظام', 'مضاد أكسدة قوي'],
+      de: ['Nährstoffdichtestes Lebensmittel', 'Fördert Haut- und Hautgesundheit', 'Vitamin K für Knochengesundheit', 'Starkes Antioxidans'],
+    },
+    season: ['spring', 'summer'],
+  },
+
+
+  {
+    id: 'artichoke',
+    name: { ar: 'خرشوف', de: 'Artischocke' },
+    category: 'vegetables',
+    subCategory: 'flower_vegetables',
+    emoji: '🌼',
+    color: '#68d391',
+    nutrition: {
+      kcal: 47, protein: 3.3, carbs: 10.5, fat: 0.2, fiber: 5.4, sugar: 1.0,
+      water: 84.9,
+      vitamins: { vitC: 11.7, vitK: 14.8, vitB9: 68, vitB6: 0.12, vitB3: 1.05, vitB5: 0.34 },
+      minerals: { potassium: 370, magnesium: 60, phosphorus: 90, calcium: 44, iron: 1.3, zinc: 0.49, manganese: 0.26, copper: 0.23 },
+    },
+    servings: [
+      { description: { ar: 'حبة متوسطة', de: 'Mittelgroße Artischocke' }, grams: 128 },
+      { description: { ar: 'قلب خرشوف', de: 'Artischockenherz' }, grams: 36 },
+    ],
+    tags: ['vegan', 'gluten_free', 'high_fiber', 'gut_health', 'heart_healthy', 'weight_loss'],
+    allergens: [],
+    glycemicIndex: 20,
+    benefits: {
+      ar: ['ألياف عالية جداً لصحة الأمعاء', 'يدعم وظائف الكبد', 'غني بمضادات الأكسدة', 'يخفض الكوليسترول'],
+      de: ['Sehr ballaststoffreich für Darmgesundheit', 'Unterstützt Leberfunktion', 'Reich an Antioxidantien', 'Senkt Cholesterin'],
+    },
+    season: ['spring', 'summer'],
+  },
+
+
+  {
+    id: 'fennel',
+    name: { ar: 'شمر', de: 'Fenchel' },
+    category: 'vegetables',
+    subCategory: 'bulb_vegetables',
+    emoji: '🌱',
+    color: '#c6f6d5',
+    nutrition: {
+      kcal: 31, protein: 1.2, carbs: 7.3, fat: 0.2, fiber: 3.1, sugar: 3.9,
+      water: 90.2,
+      vitamins: { vitC: 12, vitB9: 27, vitB3: 0.64, vitB6: 0.05, vitK: 6.3, vitA: 7 },
+      minerals: { potassium: 414, calcium: 49, manganese: 0.19, magnesium: 17, phosphorus: 50, iron: 0.73, zinc: 0.2 },
+    },
+    servings: [
+      { description: { ar: 'بصلة متوسطة', de: 'Mittelgroße Knolle' }, grams: 234 },
+      { description: { ar: 'كوب مقطع', de: 'Tasse geschnitten' }, grams: 87 },
+    ],
+    tags: ['vegan', 'gluten_free', 'gut_health', 'anti_inflammatory', 'weight_loss'],
+    allergens: [],
+    glycemicIndex: 15,
+    benefits: {
+      ar: ['يحسن الهضم ويقلل الانتفاخ', 'مضاد للالتهابات', 'غني بالبوتاسيوم لصحة القلب', 'يدعم صحة العظام'],
+      de: ['Verbessert Verdauung und reduziert Blähungen', 'Entzündungshemmend', 'Reich an Kalium für Herzgesundheit', 'Unterstützt Knochengesundheit'],
+    },
+    season: ['autumn', 'winter'],
+  },
+
+
+  {
+    id: 'leek',
+    name: { ar: 'كراث', de: 'Lauch' },
+    category: 'vegetables',
+    subCategory: 'allium',
+    emoji: '🧅',
+    color: '#9ae6b4',
+    nutrition: {
+      kcal: 61, protein: 1.5, carbs: 14.2, fat: 0.3, fiber: 1.8, sugar: 3.9,
+      water: 83.0,
+      vitamins: { vitK: 47, vitB9: 64, vitC: 12, vitA: 83, vitB6: 0.23, vitE: 0.92 },
+      minerals: { manganese: 0.48, potassium: 180, iron: 2.1, calcium: 59, magnesium: 28, phosphorus: 35 },
+    },
+    servings: [
+      { description: { ar: 'حبة متوسطة', de: 'Mittelgroße Stange' }, grams: 89 },
+      { description: { ar: 'كوب مقطع', de: 'Tasse geschnitten' }, grams: 104 },
+    ],
+    tags: ['vegan', 'gluten_free', 'gut_health', 'heart_healthy', 'immune_boost'],
+    allergens: [],
+    glycemicIndex: 15,
+    benefits: {
+      ar: ['يحتوي على مركبات الكبريت المفيدة', 'يدعم صحة القلب', 'غني بفيتامين ك للعظام', 'يعزز صحة الأمعاء'],
+      de: ['Enthält nützliche Schwefelverbindungen', 'Unterstützt Herzgesundheit', 'Reich an Vitamin K für Knochen', 'Fördert Darmgesundheit'],
+    },
+    season: ['autumn', 'winter'],
+  },
+
+
+  {
+    id: 'turnip',
+    name: { ar: 'لفت', de: 'Rübe' },
+    category: 'vegetables',
+    subCategory: 'root_vegetables',
+    emoji: '🟣',
+    color: '#e9d8fd',
+    nutrition: {
+      kcal: 28, protein: 0.9, carbs: 6.4, fat: 0.1, fiber: 1.8, sugar: 3.8,
+      water: 91.9,
+      vitamins: { vitC: 21, vitB9: 15, vitB6: 0.09, vitK: 0.1, vitB3: 0.4, vitB5: 0.2 },
+      minerals: { potassium: 191, calcium: 30, phosphorus: 27, magnesium: 11, iron: 0.3, sodium: 67, manganese: 0.13 },
+    },
+    servings: [
+      { description: { ar: 'حبة متوسطة', de: 'Mittelgroße Rübe' }, grams: 122 },
+      { description: { ar: 'كوب مكعبات', de: 'Tasse gewürfelt' }, grams: 130 },
+    ],
+    tags: ['vegan', 'gluten_free', 'low_carb', 'weight_loss', 'immune_boost', 'gut_health'],
+    allergens: [],
+    glycemicIndex: 62,
+    benefits: {
+      ar: ['منخفض السعرات الحرارية', 'غني بفيتامين سي', 'يدعم صحة الجهاز الهضمي', 'مصدر جيد للألياف'],
+      de: ['Kalorienarm', 'Reich an Vitamin C', 'Unterstützt Verdauungsgesundheit', 'Gute Ballaststoffquelle'],
+    },
+    season: ['autumn', 'winter'],
+  },
+
+
+  {
+    id: 'parsnip',
+    name: { ar: 'جزر أبيض', de: 'Pastinake' },
+    category: 'vegetables',
+    subCategory: 'root_vegetables',
+    emoji: '🥕',
+    color: '#fefcbf',
+    nutrition: {
+      kcal: 75, protein: 1.2, carbs: 18.0, fat: 0.3, fiber: 4.9, sugar: 4.8,
+      water: 79.5,
+      vitamins: { vitC: 17, vitB9: 67, vitK: 22.5, vitE: 1.49, vitB6: 0.09, vitB1: 0.09, vitB5: 0.6 },
+      minerals: { potassium: 375, manganese: 0.56, phosphorus: 71, magnesium: 29, calcium: 36, iron: 0.59, zinc: 0.59 },
+    },
+    servings: [
+      { description: { ar: 'حبة متوسطة', de: 'Mittelgroße Pastinake' }, grams: 133 },
+      { description: { ar: 'كوب مقطع', de: 'Tasse geschnitten' }, grams: 133 },
+    ],
+    tags: ['vegan', 'gluten_free', 'high_fiber', 'gut_health', 'energy_boost', 'heart_healthy'],
+    allergens: [],
+    glycemicIndex: 52,
+    benefits: {
+      ar: ['ألياف عالية لصحة الأمعاء', 'مصدر جيد للطاقة', 'غني بحمض الفوليك', 'يدعم صحة القلب'],
+      de: ['Ballaststoffreich für Darmgesundheit', 'Gute Energiequelle', 'Reich an Folsäure', 'Unterstützt Herzgesundheit'],
+    },
+    season: ['autumn', 'winter'],
+  },
+
+
+  {
+    id: 'rutabaga',
+    name: { ar: 'لفت سويدي', de: 'Steckrübe' },
+    category: 'vegetables',
+    subCategory: 'root_vegetables',
+    emoji: '🟡',
+    color: '#f6e05e',
+    nutrition: {
+      kcal: 37, protein: 1.1, carbs: 8.6, fat: 0.2, fiber: 2.3, sugar: 4.5,
+      water: 89.4,
+      vitamins: { vitC: 25, vitB9: 21, vitB6: 0.1, vitB1: 0.09, vitE: 0.3, vitK: 0.3 },
+      minerals: { potassium: 305, magnesium: 20, phosphorus: 53, calcium: 43, iron: 0.44, zinc: 0.24, manganese: 0.13 },
+    },
+    servings: [
+      { description: { ar: 'حبة متوسطة', de: 'Mittelgroße Steckrübe' }, grams: 386 },
+      { description: { ar: 'كوب مكعبات', de: 'Tasse gewürfelt' }, grams: 140 },
+    ],
+    tags: ['vegan', 'gluten_free', 'low_carb', 'weight_loss', 'immune_boost', 'gut_health'],
+    allergens: [],
+    glycemicIndex: 72,
+    benefits: {
+      ar: ['مصدر جيد لفيتامين سي', 'غني بالبوتاسيوم', 'منخفض السعرات ومشبع', 'يدعم صحة الجهاز الهضمي'],
+      de: ['Gute Vitamin-C-Quelle', 'Reich an Kalium', 'Kalorienarm und sättigend', 'Unterstützt Verdauungsgesundheit'],
+    },
+    season: ['autumn', 'winter'],
+  },
+
+
+  {
+    id: 'kohlrabi',
+    name: { ar: 'كولرابي', de: 'Kohlrabi' },
+    category: 'vegetables',
+    subCategory: 'cruciferous',
+    emoji: '🟢',
+    color: '#c6f6d5',
+    nutrition: {
+      kcal: 27, protein: 1.7, carbs: 6.2, fat: 0.1, fiber: 3.6, sugar: 2.6,
+      water: 91.0,
+      vitamins: { vitC: 62, vitB6: 0.15, vitB9: 16, vitB1: 0.05, vitB5: 0.17, vitK: 0.1 },
+      minerals: { potassium: 350, phosphorus: 46, calcium: 24, magnesium: 19, iron: 0.4, copper: 0.13, manganese: 0.14 },
+    },
+    servings: [
+      { description: { ar: 'حبة متوسطة', de: 'Mittelgroßer Kohlrabi' }, grams: 135 },
+      { description: { ar: 'كوب مقطع', de: 'Tasse geschnitten' }, grams: 135 },
+    ],
+    tags: ['vegan', 'gluten_free', 'high_fiber', 'immune_boost', 'weight_loss', 'gut_health'],
+    allergens: [],
+    glycemicIndex: 20,
+    benefits: {
+      ar: ['غني جداً بفيتامين سي', 'ألياف عالية لصحة الأمعاء', 'منخفض السعرات الحرارية', 'يدعم صحة الجهاز المناعي'],
+      de: ['Sehr reich an Vitamin C', 'Ballaststoffreich für Darmgesundheit', 'Kalorienarm', 'Unterstützt Immunsystem'],
+    },
+    season: ['spring', 'summer', 'autumn'],
+  },
+
+
+  {
+    id: 'daikon',
+    name: { ar: 'فجل أبيض', de: 'Rettich' },
+    category: 'vegetables',
+    subCategory: 'root_vegetables',
+    emoji: '⬜',
+    color: '#f7fafc',
+    nutrition: {
+      kcal: 18, protein: 0.6, carbs: 4.1, fat: 0.1, fiber: 1.6, sugar: 2.5,
+      water: 94.6,
+      vitamins: { vitC: 22, vitB9: 28, vitB6: 0.05, vitB5: 0.14, vitB3: 0.2, vitK: 0.3 },
+      minerals: { potassium: 227, calcium: 27, phosphorus: 23, magnesium: 16, iron: 0.4, sodium: 21, copper: 0.12 },
+    },
+    servings: [
+      { description: { ar: 'حبة متوسطة', de: 'Mittelgroßer Rettich' }, grams: 338 },
+      { description: { ar: 'كوب مقطع', de: 'Tasse geschnitten' }, grams: 116 },
+    ],
+    tags: ['vegan', 'gluten_free', 'low_carb', 'weight_loss', 'gut_health', 'keto_friendly'],
+    allergens: [],
+    glycemicIndex: 15,
+    benefits: {
+      ar: ['يحسن الهضم', 'منخفض السعرات جداً', 'يدعم إزالة السموم', 'غني بفيتامين سي'],
+      de: ['Verbessert Verdauung', 'Sehr kalorienarm', 'Unterstützt Entgiftung', 'Reich an Vitamin C'],
+    },
+    season: ['autumn', 'winter'],
+  },
+
+
+  {
+    id: 'okra',
+    name: { ar: 'بامية', de: 'Okra' },
+    category: 'vegetables',
+    subCategory: 'fruit_vegetables',
+    emoji: '🌿',
+    color: '#68d391',
+    nutrition: {
+      kcal: 33, protein: 1.9, carbs: 7.5, fat: 0.2, fiber: 3.2, sugar: 1.5,
+      water: 89.6,
+      vitamins: { vitC: 23, vitK: 31.3, vitB9: 60, vitA: 36, vitB6: 0.22, vitB1: 0.2 },
+      minerals: { magnesium: 57, potassium: 299, calcium: 82, phosphorus: 61, iron: 0.62, manganese: 0.79, zinc: 0.58 },
+    },
+    servings: [
+      { description: { ar: 'كوب مقطع', de: 'Tasse geschnitten' }, grams: 100 },
+      { description: { ar: '٨ حبات', de: '8 Stück' }, grams: 85 },
+    ],
+    tags: ['vegan', 'gluten_free', 'high_fiber', 'gut_health', 'heart_healthy', 'bone_health'],
+    allergens: [],
+    glycemicIndex: 20,
+    benefits: {
+      ar: ['ألياف قابلة للذوبان لصحة الأمعاء', 'غني بالكالسيوم والمغنيسيوم', 'يساعد في تنظيم سكر الدم', 'يدعم صحة العظام'],
+      de: ['Lösliche Ballaststoffe für Darmgesundheit', 'Reich an Kalzium und Magnesium', 'Hilft bei Blutzuckerregulierung', 'Unterstützt Knochengesundheit'],
+    },
+    season: ['summer'],
+  },
+
+
+  {
+    id: 'endive',
+    name: { ar: 'هندباء', de: 'Endivie' },
+    category: 'vegetables',
+    subCategory: 'leafy_greens',
+    emoji: '🥬',
+    color: '#f0fff4',
+    nutrition: {
+      kcal: 17, protein: 1.3, carbs: 3.4, fat: 0.2, fiber: 3.1, sugar: 0.3,
+      water: 93.8,
+      vitamins: { vitA: 108, vitK: 231, vitB9: 142, vitC: 6.5, vitB5: 0.9, vitE: 0.44 },
+      minerals: { potassium: 314, calcium: 52, phosphorus: 28, magnesium: 15, iron: 0.83, zinc: 0.79, manganese: 0.42 },
+    },
+    servings: [
+      { description: { ar: 'كوب مقطع', de: 'Tasse gehackt' }, grams: 50 },
+      { description: { ar: 'رأس متوسط', de: 'Mittelgroßer Kopf' }, grams: 513 },
+    ],
+    tags: ['vegan', 'gluten_free', 'low_carb', 'high_fiber', 'gut_health', 'bone_health', 'weight_loss'],
+    allergens: [],
+    glycemicIndex: 15,
+    benefits: {
+      ar: ['غني جداً بحمض الفوليك', 'ألياف عالية لصحة الهضم', 'فيتامين ك لصحة العظام', 'منخفض السعرات الحرارية'],
+      de: ['Sehr reich an Folsäure', 'Ballaststoffreich für Verdauung', 'Vitamin K für Knochengesundheit', 'Kalorienarm'],
+    },
+    season: ['autumn', 'winter'],
+  },
+
+
+  {
+    id: 'radicchio',
+    name: { ar: 'راديكيو', de: 'Radicchio' },
+    category: 'vegetables',
+    subCategory: 'leafy_greens',
+    emoji: '🟣',
+    color: '#9b2c2c',
+    nutrition: {
+      kcal: 23, protein: 1.4, carbs: 4.5, fat: 0.3, fiber: 0.9, sugar: 0.6,
+      water: 93.1,
+      vitamins: { vitK: 255, vitB9: 60, vitE: 2.3, vitC: 8, vitB5: 0.28, vitB6: 0.06 },
+      minerals: { potassium: 302, calcium: 19, phosphorus: 40, magnesium: 13, iron: 0.57, zinc: 0.62, copper: 0.3 },
+    },
+    servings: [
+      { description: { ar: 'كوب مقطع', de: 'Tasse gehackt' }, grams: 40 },
+      { description: { ar: 'رأس متوسط', de: 'Mittelgroßer Kopf' }, grams: 206 },
+    ],
+    tags: ['vegan', 'gluten_free', 'low_carb', 'bone_health', 'heart_healthy', 'anti_inflammatory'],
+    allergens: [],
+    glycemicIndex: 15,
+    benefits: {
+      ar: ['مضادات أكسدة قوية', 'فيتامين ك لصحة العظام', 'يدعم صحة القلب', 'فيتامين إي لصحة البشرة'],
+      de: ['Starke Antioxidantien', 'Vitamin K für Knochengesundheit', 'Unterstützt Herzgesundheit', 'Vitamin E für Hautgesundheit'],
+    },
+    season: ['autumn', 'winter'],
+  },
+
+
+  {
+    id: 'collard_greens',
+    name: { ar: 'كرنب ورقي', de: 'Collard Greens' },
+    category: 'vegetables',
+    subCategory: 'leafy_greens',
+    emoji: '🥬',
+    color: '#22543d',
+    nutrition: {
+      kcal: 32, protein: 3.0, carbs: 5.4, fat: 0.6, fiber: 4.0, sugar: 0.5,
+      water: 89.6,
+      vitamins: { vitK: 437, vitA: 251, vitC: 35.3, vitB9: 129, vitE: 2.26, vitB6: 0.17, vitB2: 0.13 },
+      minerals: { calcium: 232, potassium: 213, magnesium: 27, phosphorus: 25, iron: 0.47, manganese: 0.66, copper: 0.05 },
+    },
+    servings: [
+      { description: { ar: 'كوب مقطع', de: 'Tasse gehackt' }, grams: 36 },
+      { description: { ar: 'كوب مطبوخ', de: 'Tasse gekocht' }, grams: 190 },
+    ],
+    tags: ['vegan', 'gluten_free', 'high_fiber', 'bone_health', 'anti_inflammatory', 'heart_healthy', 'high_protein'],
+    allergens: [],
+    glycemicIndex: 15,
+    benefits: {
+      ar: ['أعلى مصدر نباتي للكالسيوم', 'فيتامين ك لتخثر الدم', 'مضاد قوي للالتهابات', 'يدعم صحة العظام'],
+      de: ['Höchste pflanzliche Kalziumquelle', 'Vitamin K für Blutgerinnung', 'Stark entzündungshemmend', 'Unterstützt Knochengesundheit'],
+    },
+    season: ['winter', 'spring'],
+  },
+
+
+  {
+    id: 'butternut_squash',
+    name: { ar: 'قرع الجوز', de: 'Butternut-Kürbis' },
+    category: 'vegetables',
+    subCategory: 'squash',
+    emoji: '🎃',
+    color: '#ed8936',
+    nutrition: {
+      kcal: 45, protein: 1.0, carbs: 11.7, fat: 0.1, fiber: 2.0, sugar: 2.2,
+      water: 86.4,
+      vitamins: { vitA: 532, vitC: 21, vitE: 1.44, vitB9: 27, vitB6: 0.15, vitB3: 1.2, vitK: 1.1 },
+      minerals: { potassium: 352, magnesium: 34, calcium: 48, phosphorus: 33, iron: 0.7, manganese: 0.2, zinc: 0.15 },
+    },
+    servings: [
+      { description: { ar: 'كوب مكعبات', de: 'Tasse gewürfelt' }, grams: 140 },
+      { description: { ar: 'نصف حبة', de: 'Halber Kürbis' }, grams: 500 },
+    ],
+    tags: ['vegan', 'gluten_free', 'immune_boost', 'skin_health', 'heart_healthy', 'anti_inflammatory'],
+    allergens: [],
+    glycemicIndex: 51,
+    benefits: {
+      ar: ['غني جداً بفيتامين أ لصحة البصر', 'مضاد أكسدة قوي', 'يدعم صحة البشرة', 'فيتامين سي لتعزيز المناعة'],
+      de: ['Sehr reich an Vitamin A für Sehkraft', 'Starkes Antioxidans', 'Unterstützt Hautgesundheit', 'Vitamin C stärkt Immunsystem'],
+    },
+    season: ['autumn', 'winter'],
+  },
+
+
+  {
+    id: 'acorn_squash',
+    name: { ar: 'قرع بلوطي', de: 'Eichelkürbis' },
+    category: 'vegetables',
+    subCategory: 'squash',
+    emoji: '🎃',
+    color: '#c05621',
+    nutrition: {
+      kcal: 40, protein: 0.8, carbs: 10.4, fat: 0.1, fiber: 1.5, sugar: 3.1,
+      water: 87.8,
+      vitamins: { vitC: 11, vitB1: 0.17, vitB9: 17, vitB6: 0.15, vitA: 18, vitB5: 0.4 },
+      minerals: { potassium: 347, magnesium: 32, calcium: 33, phosphorus: 36, iron: 0.7, manganese: 0.17, zinc: 0.13 },
+    },
+    servings: [
+      { description: { ar: 'كوب مكعبات', de: 'Tasse gewürfelt' }, grams: 140 },
+      { description: { ar: 'نصف حبة', de: 'Halber Kürbis' }, grams: 325 },
+    ],
+    tags: ['vegan', 'gluten_free', 'energy_boost', 'heart_healthy', 'gut_health'],
+    allergens: [],
+    glycemicIndex: 55,
+    benefits: {
+      ar: ['مصدر جيد للطاقة', 'غني بالبوتاسيوم لصحة القلب', 'يحتوي على فيتامين ب1 للأعصاب', 'ألياف لصحة الهضم'],
+      de: ['Gute Energiequelle', 'Reich an Kalium für Herzgesundheit', 'Enthält Vitamin B1 für Nerven', 'Ballaststoffe für Verdauung'],
+    },
+    season: ['autumn', 'winter'],
+  },
+
+
+  {
+    id: 'celeriac',
+    name: { ar: 'كرفس جذري', de: 'Knollensellerie' },
+    category: 'vegetables',
+    subCategory: 'root_vegetables',
+    emoji: '🟤',
+    color: '#d4a574',
+    nutrition: {
+      kcal: 42, protein: 1.5, carbs: 9.2, fat: 0.3, fiber: 1.8, sugar: 1.6,
+      water: 88.0,
+      vitamins: { vitK: 41, vitC: 8, vitB6: 0.17, vitB5: 0.35, vitB9: 8, vitB3: 0.7 },
+      minerals: { phosphorus: 115, potassium: 300, calcium: 43, magnesium: 20, iron: 0.7, manganese: 0.16, zinc: 0.33 },
+    },
+    servings: [
+      { description: { ar: 'كوب مقطع', de: 'Tasse geschnitten' }, grams: 156 },
+      { description: { ar: 'حبة متوسطة', de: 'Mittelgroße Knolle' }, grams: 312 },
+    ],
+    tags: ['vegan', 'gluten_free', 'low_carb', 'bone_health', 'gut_health', 'weight_loss'],
+    allergens: ['celery'],
+    glycemicIndex: 35,
+    benefits: {
+      ar: ['غني بفيتامين ك لصحة العظام', 'مصدر جيد للفوسفور', 'منخفض السعرات الحرارية', 'يدعم صحة الجهاز الهضمي'],
+      de: ['Reich an Vitamin K für Knochengesundheit', 'Gute Phosphorquelle', 'Kalorienarm', 'Unterstützt Verdauungsgesundheit'],
+    },
+    season: ['autumn', 'winter'],
+  },
+
+
+  {
+    id: 'jicama',
+    name: { ar: 'خيكاما', de: 'Jicama' },
+    category: 'vegetables',
+    subCategory: 'root_vegetables',
+    emoji: '🥔',
+    color: '#faf089',
+    nutrition: {
+      kcal: 38, protein: 0.7, carbs: 8.8, fat: 0.1, fiber: 4.9, sugar: 1.8,
+      water: 90.1,
+      vitamins: { vitC: 20.2, vitB9: 12, vitB6: 0.04, vitB3: 0.2, vitB5: 0.14, vitE: 0.46 },
+      minerals: { potassium: 150, iron: 0.6, calcium: 12, magnesium: 12, phosphorus: 18, zinc: 0.16, copper: 0.05 },
+    },
+    servings: [
+      { description: { ar: 'كوب مقطع', de: 'Tasse geschnitten' }, grams: 120 },
+      { description: { ar: 'حبة صغيرة', de: 'Kleine Knolle' }, grams: 180 },
+    ],
+    tags: ['vegan', 'gluten_free', 'high_fiber', 'gut_health', 'weight_loss', 'low_carb'],
+    allergens: [],
+    glycemicIndex: 35,
+    benefits: {
+      ar: ['ألياف بريبيوتيك لصحة الأمعاء', 'منخفض السعرات ومشبع', 'غني بفيتامين سي', 'مقرمش ومنعش كوجبة خفيفة'],
+      de: ['Präbiotische Ballaststoffe für Darmgesundheit', 'Kalorienarm und sättigend', 'Reich an Vitamin C', 'Knackig und erfrischend als Snack'],
+    },
+    season: ['all_year'],
+  },
+
+
+  {
+    id: 'taro',
+    name: { ar: 'قلقاس', de: 'Taro' },
+    category: 'vegetables',
+    subCategory: 'root_vegetables',
+    emoji: '🟤',
+    color: '#a0522d',
+    nutrition: {
+      kcal: 112, protein: 1.5, carbs: 26.5, fat: 0.2, fiber: 4.1, sugar: 0.4,
+      water: 71.6,
+      vitamins: { vitB6: 0.28, vitC: 4.5, vitE: 2.38, vitB9: 22, vitB5: 0.3, vitB1: 0.1 },
+      minerals: { potassium: 591, manganese: 0.38, magnesium: 33, phosphorus: 84, iron: 0.55, zinc: 0.23, copper: 0.17 },
+    },
+    servings: [
+      { description: { ar: 'كوب مقطع', de: 'Tasse geschnitten' }, grams: 132 },
+      { description: { ar: 'حبة متوسطة', de: 'Mittelgroße Knolle' }, grams: 104 },
+    ],
+    tags: ['vegan', 'gluten_free', 'energy_boost', 'gut_health', 'high_fiber'],
+    allergens: [],
+    glycemicIndex: 53,
+    benefits: {
+      ar: ['مصدر ممتاز للطاقة', 'ألياف عالية لصحة الهضم', 'غني بالبوتاسيوم', 'خالٍ من الغلوتين بطبيعته'],
+      de: ['Hervorragende Energiequelle', 'Ballaststoffreich für Verdauung', 'Reich an Kalium', 'Von Natur aus glutenfrei'],
+    },
+    season: ['all_year'],
+  },
+
+
+  {
+    id: 'water_chestnut',
+    name: { ar: 'كستناء مائية', de: 'Wasserkastanie' },
+    category: 'vegetables',
+    subCategory: 'root_vegetables',
+    emoji: '🌰',
+    color: '#8b4513',
+    nutrition: {
+      kcal: 97, protein: 1.4, carbs: 23.9, fat: 0.1, fiber: 3.0, sugar: 4.8,
+      water: 73.5,
+      vitamins: { vitB6: 0.33, vitB2: 0.2, vitB3: 1.0, vitC: 4, vitB9: 16, vitE: 1.2 },
+      minerals: { potassium: 584, manganese: 0.33, copper: 0.33, phosphorus: 63, magnesium: 22, iron: 0.06, zinc: 0.5 },
+    },
+    servings: [
+      { description: { ar: 'كوب مقطع', de: 'Tasse geschnitten' }, grams: 124 },
+      { description: { ar: '١٠ حبات', de: '10 Stück' }, grams: 90 },
+    ],
+    tags: ['vegan', 'gluten_free', 'energy_boost', 'heart_healthy', 'gut_health'],
+    allergens: [],
+    glycemicIndex: 55,
+    benefits: {
+      ar: ['مقرمش وغني بالبوتاسيوم', 'مصدر جيد للطاقة', 'خالٍ من الدهون تقريباً', 'يدعم صحة القلب'],
+      de: ['Knackig und kaliumreich', 'Gute Energiequelle', 'Nahezu fettfrei', 'Unterstützt Herzgesundheit'],
+    },
+    season: ['autumn', 'winter'],
+  },
+
+
+  {
+    id: 'bamboo_shoots',
+    name: { ar: 'براعم الخيزران', de: 'Bambussprossen' },
+    category: 'vegetables',
+    subCategory: 'stem_vegetables',
+    emoji: '🎋',
+    color: '#f6e05e',
+    nutrition: {
+      kcal: 27, protein: 2.6, carbs: 5.2, fat: 0.3, fiber: 2.2, sugar: 3.0,
+      water: 91.0,
+      vitamins: { vitB6: 0.24, vitB2: 0.07, vitB3: 0.6, vitC: 4, vitB9: 7, vitE: 1.0 },
+      minerals: { potassium: 533, phosphorus: 59, manganese: 0.26, magnesium: 3, calcium: 13, iron: 0.5, zinc: 1.1, copper: 0.19 },
+    },
+    servings: [
+      { description: { ar: 'كوب مقطع', de: 'Tasse geschnitten' }, grams: 120 },
+      { description: { ar: 'كوب مطبوخ', de: 'Tasse gekocht' }, grams: 155 },
+    ],
+    tags: ['vegan', 'gluten_free', 'low_carb', 'weight_loss', 'heart_healthy', 'high_protein'],
+    allergens: [],
+    glycemicIndex: 20,
+    benefits: {
+      ar: ['غني بالبوتاسيوم لصحة القلب', 'منخفض السعرات والدهون', 'بروتين مرتفع نسبياً للخضروات', 'يدعم فقدان الوزن'],
+      de: ['Reich an Kalium für Herzgesundheit', 'Kalorien- und fettarm', 'Relativ hoher Proteingehalt für Gemüse', 'Unterstützt Gewichtsverlust'],
+    },
+    season: ['spring'],
+  },
+
+
+  {
+    id: 'lotus_root',
+    name: { ar: 'جذر اللوتس', de: 'Lotuswurzel' },
+    category: 'vegetables',
+    subCategory: 'root_vegetables',
+    emoji: '🪷',
+    color: '#fbd38d',
+    nutrition: {
+      kcal: 74, protein: 2.6, carbs: 17.2, fat: 0.1, fiber: 4.9, sugar: 0.5,
+      water: 79.1,
+      vitamins: { vitC: 44, vitB6: 0.26, vitB9: 13, vitB1: 0.16, vitB2: 0.22, vitB3: 0.4, vitB5: 0.38 },
+      minerals: { potassium: 556, copper: 0.26, manganese: 0.26, phosphorus: 100, magnesium: 23, iron: 1.2, zinc: 0.39 },
+    },
+    servings: [
+      { description: { ar: 'كوب مقطع', de: 'Tasse geschnitten' }, grams: 120 },
+      { description: { ar: '١٠ شرائح', de: '10 Scheiben' }, grams: 80 },
+    ],
+    tags: ['vegan', 'gluten_free', 'high_fiber', 'energy_boost', 'immune_boost', 'gut_health'],
+    allergens: [],
+    glycemicIndex: 45,
+    benefits: {
+      ar: ['غني بفيتامين سي لتعزيز المناعة', 'ألياف عالية لصحة الهضم', 'مصدر جيد للنحاس والمنغنيز', 'يدعم إنتاج الطاقة'],
+      de: ['Reich an Vitamin C für Immunstärkung', 'Ballaststoffreich für Verdauung', 'Gute Kupfer- und Manganquelle', 'Unterstützt Energieproduktion'],
+    },
+    season: ['autumn', 'winter'],
+  },
+
+
+  {
+    id: 'chayote',
+    name: { ar: 'شايوت', de: 'Chayote' },
+    category: 'vegetables',
+    subCategory: 'fruit_vegetables',
+    emoji: '🥒',
+    color: '#9ae6b4',
+    nutrition: {
+      kcal: 19, protein: 0.8, carbs: 4.5, fat: 0.1, fiber: 1.7, sugar: 1.7,
+      water: 94.2,
+      vitamins: { vitC: 7.7, vitB9: 93, vitB6: 0.08, vitK: 4.1, vitB5: 0.25, vitB3: 0.47 },
+      minerals: { potassium: 125, zinc: 0.74, calcium: 17, magnesium: 12, phosphorus: 18, iron: 0.34, manganese: 0.19, copper: 0.12 },
+    },
+    servings: [
+      { description: { ar: 'حبة متوسطة', de: 'Mittelgroße Chayote' }, grams: 203 },
+      { description: { ar: 'كوب مقطع', de: 'Tasse geschnitten' }, grams: 132 },
+    ],
+    tags: ['vegan', 'gluten_free', 'low_carb', 'weight_loss', 'gut_health', 'keto_friendly'],
+    allergens: [],
+    glycemicIndex: 25,
+    benefits: {
+      ar: ['غني بحمض الفوليك', 'منخفض السعرات جداً', 'يدعم صحة الحامل', 'مصدر جيد للزنك'],
+      de: ['Reich an Folsäure', 'Sehr kalorienarm', 'Unterstützt Schwangerschaftsgesundheit', 'Gute Zinkquelle'],
+    },
+    season: ['summer', 'autumn'],
+  },
+
+
+  {
+    id: 'romanesco',
+    name: { ar: 'رومانسكو', de: 'Romanesco' },
+    category: 'vegetables',
+    subCategory: 'cruciferous',
+    emoji: '🥦',
+    color: '#68d391',
+    nutrition: {
+      kcal: 25, protein: 2.0, carbs: 4.7, fat: 0.3, fiber: 2.4, sugar: 1.6,
+      water: 92.0,
+      vitamins: { vitC: 55, vitK: 15.5, vitB9: 57, vitB6: 0.18, vitB5: 0.67, vitE: 0.08 },
+      minerals: { potassium: 300, manganese: 0.16, phosphorus: 44, magnesium: 15, calcium: 22, iron: 0.44, zinc: 0.28 },
+    },
+    servings: [
+      { description: { ar: 'كوب زهيرات', de: 'Tasse Röschen' }, grams: 100 },
+      { description: { ar: 'رأس صغير', de: 'Kleiner Kopf' }, grams: 350 },
+    ],
+    tags: ['vegan', 'gluten_free', 'low_carb', 'immune_boost', 'anti_inflammatory', 'weight_loss', 'high_fiber'],
+    allergens: [],
+    glycemicIndex: 15,
+    benefits: {
+      ar: ['غني بفيتامين سي لتعزيز المناعة', 'مضادات أكسدة من عائلة الصليبيات', 'ألياف لصحة الهضم', 'منخفض السعرات الحرارية'],
+      de: ['Reich an Vitamin C für Immunstärkung', 'Antioxidantien aus Kreuzblütlerfamilie', 'Ballaststoffe für Verdauung', 'Kalorienarm'],
+    },
+    season: ['autumn', 'winter'],
+  },
 ];
