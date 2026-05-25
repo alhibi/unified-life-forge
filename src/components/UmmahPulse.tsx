@@ -1,10 +1,10 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '@/contexts/AppContext';
 import {
   Globe2, X, Maximize2, Search, Sparkles, Sun, MapPin,
-  Clock, Compass, Info, Plus, Minus, Locate,
+  Clock, Compass, Info,
 } from 'lucide-react';
 import {
   getCityPrayerInfo,
@@ -18,7 +18,7 @@ import {
   PRAYER_SLOT_ORDER,
 } from '@/utils/prayerAstronomy';
 import { WORLD_LAND_PATH } from './UmmahPulse.worldPath';
-import { UmmahGlobe, type GlobeCity, type UmmahGlobeHandle } from './UmmahGlobe';
+// Globe removed — full flat map with relief texture is used instead
 
 /**
  * Ummah Pulse — a live planetary view of Islamic prayer across the world.
@@ -238,7 +238,6 @@ function UmmahPulse() {
   const [expanded, setExpanded] = useState(false);
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
   const [filter, setFilter] = useState<PrayerSlot | 'all'>('all');
-  const globeRef = useRef<UmmahGlobeHandle | null>(null);
   const [regionFilter, setRegionFilter] = useState<Region | 'all'>('all');
   const [search, setSearch] = useState('');
   const userShadowFactor: 1 | 2 = prayerMadhab === 'hanafi' ? 2 : 1;
@@ -385,18 +384,30 @@ function UmmahPulse() {
             <stop offset="100%" stopColor="hsl(225, 70%, 3%)"  stopOpacity="0.55" />
           </linearGradient>
 
-          {/* Land (day side) — refined dark slate, slight top-light */}
+          {/* Land (day side) — refined dark slate with relief-like subtle tinting */}
           <linearGradient id={`landFill${idSuffix}`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%"   stopColor="hsl(214, 16%, 28%)" />
-            <stop offset="55%"  stopColor="hsl(216, 18%, 23%)" />
-            <stop offset="100%" stopColor="hsl(220, 22%, 18%)" />
+            <stop offset="0%"   stopColor="hsl(210, 12%, 30%)" />
+            <stop offset="20%"  stopColor="hsl(180, 14%, 26%)" />
+            <stop offset="45%"  stopColor="hsl(42, 12%, 24%)" />
+            <stop offset="65%"  stopColor="hsl(32, 14%, 22%)" />
+            <stop offset="85%"  stopColor="hsl(180, 12%, 24%)" />
+            <stop offset="100%" stopColor="hsl(210, 14%, 28%)" />
           </linearGradient>
 
-          {/* Land (night side) — same family but darker, almost ink */}
+          {/* Land (night side) — darker with same warm/cool band hints */}
           <linearGradient id={`landNight${idSuffix}`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%"   stopColor="hsl(220, 24%, 14%)" />
-            <stop offset="100%" stopColor="hsl(224, 30%, 9%)"  />
+            <stop offset="0%"   stopColor="hsl(215, 20%, 14%)" />
+            <stop offset="45%"  stopColor="hsl(30, 10%, 11%)" />
+            <stop offset="100%" stopColor="hsl(215, 22%, 10%)" />
           </linearGradient>
+
+          {/* Relief grain — subtle noise texture for topographic feel */}
+          <filter id={`reliefGrain${idSuffix}`} x="0%" y="0%" width="100%" height="100%">
+            <feTurbulence type="fractalNoise" baseFrequency="1.2" numOctaves="4" seed="7" result="noise" />
+            <feColorMatrix type="saturate" values="0" in="noise" result="grey" />
+            <feBlend in="SourceGraphic" in2="grey" mode="overlay" result="blended" />
+            <feComposite in="blended" in2="SourceGraphic" operator="in" />
+          </filter>
 
           {/* Fajr — warm gold dawn band */}
           <radialGradient id={`fajrGlow${idSuffix}`} cx="50%" cy="50%" r="50%">
@@ -500,8 +511,8 @@ function UmmahPulse() {
           ))}
         </g>
 
-        {/* Continents — daytime layer (dark slate), then night overlay clipped */}
-        <g>
+        {/* Continents — daytime layer with relief texture, then night overlay clipped */}
+        <g filter={`url(#reliefGrain${idSuffix})`}>
           <path d={CONTINENTS} fill={`url(#landFill${idSuffix})`} />
           <path d={CONTINENTS} fill="none"
                 stroke="hsl(214, 22%, 42%)" strokeOpacity="0.55" strokeWidth="0.28" />
@@ -1081,106 +1092,28 @@ function UmmahPulse() {
 
               {/* Scrollable content */}
               <div className="flex-1 overflow-y-auto pb-[max(env(safe-area-inset-bottom),1.5rem)]">
-                {/* Interactive 3D globe */}
+                {/* Full interactive map */}
                 <div className="px-4 pt-4">
                   <div
                     className="relative rounded-2xl overflow-hidden border border-border/30"
-                    style={{
-                      background:
-                        'radial-gradient(120% 90% at 50% 35%, hsl(225, 80%, 8%) 0%, hsl(228, 80%, 4%) 60%, #000 100%)',
-                    }}
                     onClick={() => setSelectedCity(null)}
                   >
-                    <UmmahGlobe
-                      ref={globeRef}
-                      cities={cityDetails.map<GlobeCity>((c) => ({
-                        name: c.name,
-                        nameAr: c.nameAr,
-                        lat: c.lat,
-                        lng: c.lng,
-                        flag: c.flag,
-                        pop: c.pop,
-                        color: SLOT_META[c.info.slot].color,
-                        active:
-                          c.info.slot === 'fajr' ||
-                          c.info.slot === 'maghrib' ||
-                          c.info.slot === 'isha',
-                        qibla: c.name === 'Makkah',
-                      }))}
-                      subSolarLng={subLng}
-                      subSolarLat={subLat}
-                      language={language === 'ar' ? 'ar' : 'de'}
-                      selectedCity={selectedCity}
-                      onCityClick={(name) => {
-                        setSelectedCity((cur) => (cur === name ? null : name));
-                        const c = cityDetails.find((x) => x.name === name);
-                        if (c) {
-                          globeRef.current?.flyTo({
-                            lng: c.lng,
-                            lat: c.lat,
-                            zoom: Math.max(1.4, Math.min(2.2, 1.6)),
-                            duration: 700,
-                          });
-                        }
-                      }}
-                      onBackgroundClick={() => setSelectedCity(null)}
-                      idleRotate={2.5}
-                    />
+                    {renderMapSvg({ large: true })}
+
+                    {/* LIVE badge */}
+                    <div className="absolute top-2 left-2 flex items-center gap-1 px-2 py-0.5 rounded-full bg-background/80 backdrop-blur-md border border-border/40 pointer-events-none">
+                      <span className="relative flex w-1.5 h-1.5">
+                        <span className="absolute inline-flex w-full h-full rounded-full bg-red-500 opacity-75 animate-ping" />
+                        <span className="relative inline-flex rounded-full w-1.5 h-1.5 bg-red-500" />
+                      </span>
+                      <span className="text-[9px] font-bold tracking-wide text-foreground">LIVE</span>
+                    </div>
 
                     {/* Sub-solar coordinates badge */}
-                    <div className="absolute top-2 left-2 flex items-center gap-1.5 px-2 py-1 rounded-lg bg-background/80 backdrop-blur-md border border-border/40 pointer-events-none">
+                    <div className="absolute top-2 right-2 flex items-center gap-1.5 px-2 py-1 rounded-lg bg-background/80 backdrop-blur-md border border-border/40 pointer-events-none">
                       <Sun className="w-3 h-3 text-amber-500" />
                       <span className="text-[10px] font-semibold text-foreground tabular-nums">
                         {subLat.toFixed(1)}°, {((subLng + 540) % 360 - 180).toFixed(1)}°
-                      </span>
-                    </div>
-
-                    {/* Globe controls */}
-                    <div
-                      className="absolute top-2 right-2 flex flex-col gap-1.5"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <button
-                        onClick={() => globeRef.current?.zoomBy(1.35)}
-                        className="w-8 h-8 rounded-lg bg-background/80 backdrop-blur-md border border-border/40 flex items-center justify-center active:scale-95 transition-transform"
-                        aria-label={t('تكبير', 'Vergrößern')}
-                      >
-                        <Plus className="w-3.5 h-3.5 text-foreground" />
-                      </button>
-                      <button
-                        onClick={() => globeRef.current?.zoomBy(1 / 1.35)}
-                        className="w-8 h-8 rounded-lg bg-background/80 backdrop-blur-md border border-border/40 flex items-center justify-center active:scale-95 transition-transform"
-                        aria-label={t('تصغير', 'Verkleinern')}
-                      >
-                        <Minus className="w-3.5 h-3.5 text-foreground" />
-                      </button>
-                      <button
-                        onClick={() =>
-                          globeRef.current?.flyTo({
-                            lng: 39.8262,
-                            lat: 21.4225,
-                            zoom: 1,
-                            duration: 900,
-                          })
-                        }
-                        className="w-8 h-8 rounded-lg bg-amber-500/15 backdrop-blur-md border border-amber-500/40 flex items-center justify-center active:scale-95 transition-transform"
-                        aria-label={t('العودة إلى مكة', 'Zurück nach Mekka')}
-                        title={t('العودة إلى مكة', 'Zurück nach Mekka')}
-                      >
-                        <Locate className="w-3.5 h-3.5 text-amber-600" />
-                      </button>
-                    </div>
-
-                    {/* Hint badge */}
-                    <div
-                      className="absolute bottom-2 left-1/2 -translate-x-1/2 px-2.5 py-1 rounded-full bg-background/70 backdrop-blur-md border border-border/40 pointer-events-none"
-                      dir={language === 'ar' ? 'rtl' : 'ltr'}
-                    >
-                      <span className="text-[10px] font-semibold text-muted-foreground">
-                        {t(
-                          'اسحب • قرّص للتكبير • انقر مرّتين',
-                          'Ziehen · Pinch · Doppelklick zum Zoomen'
-                        )}
                       </span>
                     </div>
                   </div>
