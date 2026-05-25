@@ -93,6 +93,8 @@ export default function ReadingPage() {
     toggleFeedEnabled,
     cachedLinks,
     recacheNow,
+    ensureFullContent,
+    cancelFullContentFetch,
   } = data;
 
   // ─── List display preferences (persisted) ────────────────────────────
@@ -343,10 +345,55 @@ export default function ReadingPage() {
   const searchRestrict = enabledNames.length > 0 ? enabledNames : undefined;
 
   // ─── Navigation handlers ──────────────────────────────────────────────
-  const openArticle = (article: FeedItem) => {
-    setSelectedArticle(article);
-    markAsRead(article.link);
+  /**
+   * Open an article. Hardened path:
+   *   1. Mark it read (which also persists to IDB immediately via the
+   *      hook).
+   *   2. If the article we have in memory is just a stub or excerpt,
+   *      look in the offline DB for a richer cached copy and use that
+   *      as the initial render seed. The reader will further upgrade
+   *      it via extract-article if still short.
+   *
+   * Result: the user always sees the best version we've ever managed
+   * to capture for this article — never a regression from a stale
+   * memory copy when IDB has the full body.
+   */
+  const openArticle = async (article: FeedItem): Promise<void> => {
+    let toOpen = article;
+    // If our memory copy is a stub or short excerpt, prefer a cached
+    // upgrade if one exists. Run synchronously *before* the view
+    // transition so the reader doesn't briefly show a blank.
+    if (
+      offlineDb.available() &&
+      (!article.fullContent || article.fullContent.length < 400)
+    ) {
+      try {
+        const cached = await offlineDb.getArticle(article.link);
+        if (
+          cached &&
+          (cached.fullContent || '').length > (article.fullContent || '').length
+        ) {
+          toOpen = {
+            ...article,
+            fullContent: cached.fullContent,
+            description: cached.description || article.description,
+            image: cached.image || article.image,
+            images: cached.images?.length ? cached.images : article.images,
+            author: cached.author || article.author,
+            pubDate: cached.pubDate || article.pubDate,
+          };
+        }
+      } catch { /* IDB unavailable; fall back to in-memory copy */ }
+    }
+    setSelectedArticle(toOpen);
+    markAsRead(toOpen.link);
     setView('article');
+  };
+
+  /** Cancel any in-flight content upgrade when the article view closes. */
+  const onArticleBack = () => {
+    if (selectedArticle) cancelFullContentFetch(selectedArticle.link);
+    goBack();
   };
 
   const openLinkInReader = (
@@ -566,9 +613,10 @@ export default function ReadingPage() {
                 prefs={readerPrefs}
                 isAr={isAr}
                 language={language}
-                onBack={goBack}
+                onBack={onArticleBack}
                 onToggleBookmark={() => toggleBookmark(selectedArticle.link)}
                 onChangePrefs={setReaderPrefs}
+                onUpgradeContent={ensureFullContent}
               />
             </Suspense>
           </main>
@@ -587,9 +635,10 @@ export default function ReadingPage() {
                 prefs={readerPrefs}
                 isAr={isAr}
                 language={language}
-                onBack={goBack}
+                onBack={onArticleBack}
                 onToggleBookmark={() => toggleBookmark(selectedArticle.link)}
                 onChangePrefs={setReaderPrefs}
+                onUpgradeContent={ensureFullContent}
               />
             </Suspense>
           )}
