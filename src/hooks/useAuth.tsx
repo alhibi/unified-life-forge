@@ -22,8 +22,14 @@
 // call sites do not need any edits.
 
 import { useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase, isSupabaseConfigured } from '@/integrations/supabase/client';
 import type { User, Session } from '@supabase/supabase-js';
+import {
+  localGetSession,
+  localSignIn,
+  localSignOut,
+  localSignUp,
+} from '@/lib/auth/localAuthStore';
 
 interface Profile {
   username: string;
@@ -108,6 +114,18 @@ async function applySession(nextSession: Session | null): Promise<void> {
   currentUsername = nextSession.user.user_metadata?.username ?? null;
   emit();
 
+  // In local-only mode there is no `profiles` table — the user_metadata
+  // username is the canonical source.
+  if (!isSupabaseConfigured) {
+    const username = nextSession.user.user_metadata?.username ?? null;
+    currentProfile = username
+      ? { username, display_name: username, avatar_url: null, bio: null }
+      : null;
+    currentUsername = username;
+    emit();
+    return;
+  }
+
   const { data } = await supabase
     .from('profiles')
     .select('username, display_name, avatar_url, bio')
@@ -137,6 +155,15 @@ async function syncAuthState(nextSession: Session | null): Promise<void> {
 function bootstrap(): void {
   if (bootstrapped) return;
   bootstrapped = true;
+
+  // Local-only mode: no Supabase, no realtime auth changes — just rehydrate
+  // the persisted session (if any) and we're done. Sign-in/out propagate
+  // through `syncAuthState` directly from our local helpers below.
+  if (!isSupabaseConfigured) {
+    const session = localGetSession();
+    void syncAuthState(session);
+    return;
+  }
 
   // The subscription stays alive for the lifetime of the page — there's
   // no point unsubscribing when the last hook consumer unmounts because
@@ -174,6 +201,16 @@ async function signUp(username: string, password: string) {
       error: { name: 'ValidationError', message: validation } as Error,
     };
   }
+  if (!isSupabaseConfigured) {
+    const result = await localSignUp(username, password);
+    if (result.error) {
+      return { data: null, error: result.error as Error };
+    }
+    // Push the freshly-minted local session through the same pipeline
+    // Supabase would have used so listeners update in lock-step.
+    void syncAuthState(result.data?.session ?? null);
+    return { data: result.data, error: null };
+  }
   const email = usernameToEmail(username);
   return supabase.auth.signUp({
     email,
@@ -190,11 +227,24 @@ async function signIn(username: string, password: string) {
       error: { name: 'ValidationError', message: validation } as Error,
     };
   }
+  if (!isSupabaseConfigured) {
+    const result = await localSignIn(username, password);
+    if (result.error) {
+      return { data: null, error: result.error as Error };
+    }
+    void syncAuthState(result.data?.session ?? null);
+    return { data: result.data, error: null };
+  }
   const email = usernameToEmail(username);
   return supabase.auth.signInWithPassword({ email, password });
 }
 
 async function signOut(): Promise<void> {
+  if (!isSupabaseConfigured) {
+    await localSignOut();
+    void syncAuthState(null);
+    return;
+  }
   await supabase.auth.signOut();
 }
 
