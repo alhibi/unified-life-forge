@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import SEO from '@/components/SEO';
 import { useApp } from '@/contexts/AppContext';
 import { useAuth } from '@/hooks/useAuth';
+import { isSupabaseConfigured } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { UserCircle, Lock, ArrowRight } from 'lucide-react';
@@ -9,6 +10,59 @@ import BackButton from '@/components/BackButton';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+
+/**
+ * Translate a Supabase auth error into a localized, actionable message.
+ * Covers the specific failure modes that all *used* to surface as a
+ * misleading "wrong username/password": missing env vars, unconfirmed
+ * emails, rate limits, and network issues.
+ */
+function describeAuthError(error: Error, isAr: boolean, mode: 'signIn' | 'signUp'): string {
+  const msg = (error.message || '').toLowerCase();
+
+  // 1. Supabase not configured → noopFetch returns this exact code.
+  if (msg.includes('supabase_not_configured') || msg.includes('not configured')) {
+    return isAr
+      ? 'الخادم غير مُهيأ. يرجى تعيين متغيرات Supabase في ملف .env'
+      : 'Server nicht konfiguriert. Bitte Supabase-Variablen in .env setzen.';
+  }
+
+  // 2. Email confirmation required (the @smartapp.local domain can never receive mail).
+  if (msg.includes('email_not_confirmed') || msg.includes('not confirmed')) {
+    return isAr
+      ? 'تأكيد البريد الإلكتروني مفعّل في إعدادات الخادم. يرجى تعطيله من إعدادات Supabase.'
+      : 'E-Mail-Bestätigung ist aktiviert. Bitte in den Supabase-Einstellungen deaktivieren.';
+  }
+
+  // 3. Rate limiting.
+  if (msg.includes('rate') || msg.includes('too many')) {
+    return isAr
+      ? 'محاولات كثيرة. يرجى الانتظار قليلاً ثم المحاولة مرة أخرى.'
+      : 'Zu viele Versuche. Bitte kurz warten und erneut versuchen.';
+  }
+
+  // 4. Network / fetch failure.
+  if (msg.includes('failed to fetch') || msg.includes('network')) {
+    return isAr
+      ? 'تعذر الاتصال بالخادم. تحقق من اتصال الإنترنت.'
+      : 'Verbindung zum Server fehlgeschlagen. Internetverbindung prüfen.';
+  }
+
+  // 5. Username already taken (signup only).
+  if (mode === 'signUp' && (msg.includes('already') || msg.includes('registered'))) {
+    return isAr ? 'اسم المستخدم مستخدم بالفعل' : 'Benutzername bereits vergeben';
+  }
+
+  // 6. Genuine bad credentials.
+  if (msg.includes('invalid login') || msg.includes('invalid credentials')) {
+    return isAr
+      ? 'اسم المستخدم أو كلمة المرور غير صحيحة'
+      : 'Falscher Benutzername oder Passwort';
+  }
+
+  // 7. Fallback: surface the raw message so we never silently mislead the user again.
+  return error.message || (isAr ? 'حدث خطأ غير متوقع' : 'Ein unerwarteter Fehler ist aufgetreten');
+}
 
 
 const stagger = {
@@ -48,10 +102,22 @@ export default function AuthPage() {
 
     setLoading(true);
     try {
+      // Fail fast with a clear message instead of letting Supabase return
+      // a 503 that we'd then translate as "wrong credentials".
+      if (!isSupabaseConfigured) {
+        toast.error(
+          isAr
+            ? 'الخادم غير مُهيأ. يرجى تعيين متغيرات Supabase في ملف .env'
+            : 'Server nicht konfiguriert. Bitte Supabase-Variablen in .env setzen.',
+          { duration: 6000 },
+        );
+        return;
+      }
+
       if (isLogin) {
         const { error } = await signIn(username, password);
         if (error) {
-          toast.error(isAr ? 'اسم المستخدم أو كلمة المرور غير صحيحة' : 'Falscher Benutzername oder Passwort');
+          toast.error(describeAuthError(error, isAr, 'signIn'), { duration: 5000 });
         } else {
           toast.success(isAr ? 'تم تسجيل الدخول بنجاح' : 'Erfolgreich angemeldet', { duration: 2000 });
           navigate('/settings');
@@ -59,11 +125,7 @@ export default function AuthPage() {
       } else {
         const { error } = await signUp(username, password);
         if (error) {
-          if (error.message.includes('already')) {
-            toast.error(isAr ? 'اسم المستخدم مستخدم بالفعل' : 'Benutzername bereits vergeben');
-          } else {
-            toast.error(error.message);
-          }
+          toast.error(describeAuthError(error, isAr, 'signUp'), { duration: 5000 });
         } else {
           toast.success(isAr ? 'تم إنشاء الحساب بنجاح' : 'Konto erfolgreich erstellt');
           navigate('/settings');
