@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   Bookmark, BookmarkCheck, ChevronLeft, Clock, Copy,
-  ExternalLink, Share2,
+  ExternalLink, FileText, Loader2, Share2,
 } from 'lucide-react';
 import { notify } from '@/lib/notify';
 import { sanitizeRssHtml } from '@/utils/sanitizeRssHtml';
@@ -11,6 +11,8 @@ import { formatDate, readingMinutes, safeHref } from './utils';
 import { ReaderPrefsPopover } from './ReaderPrefsPopover';
 import { SourcePill } from './SourcePill';
 import { ArticleDetailSkeleton } from './Skeletons';
+import { offlineDb } from './offlineDb';
+import { needsContentUpgrade, plainTextLength } from './extractArticle';
 
 /**
  * Article reader view. Renders sanitized HTML body, exposes reading-
@@ -29,6 +31,22 @@ import { ArticleDetailSkeleton } from './Skeletons';
  * `dir="auto"` so a Latin headline inside an Arabic-RTL UI gets its
  * own bidi context — punctuation lands on the correct side and the
  * line wraps naturally.
+ *
+ * Stability hardening:
+ *  - **Offline-first body resolution**: when the article hands us a
+ *    short body, we first probe IndexedDB in case a previous session
+ *    already upgraded this article. Only if neither memory nor IDB
+ *    has a richer copy do we hit the network.
+ *  - **Auto full-content fetch**: feeds that ship excerpts (very
+ *    common for major news outlets) get transparently upgraded via
+ *    the `extract-article` edge function. The upgraded body is
+ *    persisted both in the parent's article list (via
+ *    `onUpgradeContent`) and in IndexedDB.
+ *  - **Manual retry**: if the auto-fetch failed, the user gets a
+ *    "Load full article" button to try again.
+ *  - **Abort on unmount**: a navigation away mid-fetch cancels the
+ *    in-flight scrape so no stale promise lands on an unmounted
+ *    component.
  */
 export function ArticleReader({
   article,
@@ -39,6 +57,7 @@ export function ArticleReader({
   onBack,
   onToggleBookmark,
   onChangePrefs,
+  onUpgradeContent,
 }: {
   article: FeedItem;
   isBookmarked: boolean;
@@ -48,16 +67,168 @@ export function ArticleReader({
   onBack: () => void;
   onToggleBookmark: () => void;
   onChangePrefs: (p: ReaderPrefs) => void;
+  /**
+   * Best-effort upgrade hook. The reader calls this when it manages
+   * to scrape a richer body (or hydrates from IndexedDB) so the
+   * parent can update its in-memory `articles[]` list and persist
+   * the upgrade. Optional — without it, the upgrade is rendered for
+   * the current view only.
+   */
+  onUpgradeContent?: (
+    link: string,
+  ) => Promise<{ fullContent: string; image: string | null } | null>;
 }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
   const [progress, setProgress] = useState(0);
   const [headerHeight, setHeaderHeight] = useState(57);
 
+  /**
+   * Local copy of the article body. Starts from props but gets upgraded
+   * in place when:
+   *   1. We find a richer copy in IndexedDB (offline-first hydration).
+   *   2. The `extract-article` edge function returns a longer body.
+   *
+   * Using local state means the reader stays responsive even if the
+   * parent's `articles[]` reducer is slow to flush — the user sees
+   * the upgraded text immediately.
+   */
+  const [bodyHtml, setBodyHtml] = useState<string>(article.fullContent || '');
+  const [bodyImage, setBodyImage] = useState<string | null>(article.image);
+  /** Status of the background full-content fetch. */
+  const [upgradeStatus, setUpgradeStatus] = useState<
+    'idle' | 'loading' | 'success' | 'error' | 'unavailable'
+  >('idle');
+  /** Whether the user explicitly clicked "Load full article". */
+  const manualUpgradeRef = useRef(false);
+
+  // Reset local body state whenever a different article is opened.
+  useEffect(() => {
+    setBodyHtml(article.fullContent || '');
+    setBodyImage(article.image);
+    setUpgradeStatus('idle');
+    manualUpgradeRef.current = false;
+  }, [article.link, article.fullContent, article.image]);
+
   const minutes = readingMinutes(
-    article.fullContent || article.description || article.title,
+    bodyHtml || article.description || article.title,
     language,
   );
+
+  /**
+   * Offline-first hydration + auto-upgrade pipeline.
+   *
+   * On every article change we walk through three escalating tiers:
+   *  1. **Offline DB**: the article may have been upgraded in a prior
+   *     session and saved to IndexedDB. Read from IDB first — much
+   *     faster than the network, and works without connectivity.
+   *  2. **Live scrape**: if neither prop nor IDB has a body that
+   *     clears the readability threshold, ask the parent (which owns
+   *     the data hook + abort registry) to fetch it via the
+   *     extract-article edge function.
+   *  3. **Manual retry**: if every automatic attempt failed, the
+   *     "Load full article" button below lets the user retry.
+   *
+   * All steps are bounded by a single AbortController tied to the
+   * article's lifetime in the reader, so navigating away mid-fetch
+   * is clean.
+   */
+  useEffect(() => {
+    if (!article.link || !/^https?:\/\//i.test(article.link)) return;
+
+    const controller = new AbortController();
+    let cancelled = false;
+
+    const run = async (): Promise<void> => {
+      // Tier 1 — offline-first hydration. If the article in our prop
+      // has a short body but the IDB has the full one (e.g. cached
+      // from a prior session), prefer the IDB copy.
+      if (
+        offlineDb.available() &&
+        plainTextLength(article.fullContent) < 400
+      ) {
+        try {
+          const cached = await offlineDb.getArticle(article.link);
+          if (cancelled) return;
+          if (
+            cached &&
+            plainTextLength(cached.fullContent) >
+              plainTextLength(article.fullContent)
+          ) {
+            setBodyHtml(cached.fullContent || '');
+            if (cached.image && !article.image) setBodyImage(cached.image);
+            // Falls through to tier 2 only if cache still doesn't
+            // clear the readability threshold.
+          }
+        } catch { /* IDB unavailable — fall through */ }
+      }
+
+      // Tier 2 — live upgrade via parent's extract-article wrapper.
+      // We re-read needsContentUpgrade against the *latest* bodyHtml
+      // (which may have just been hydrated from IDB above).
+      if (cancelled) return;
+      if (!onUpgradeContent) return;
+      // Use a setState callback to read the current body without a
+      // closure dep, so we don't re-fire when the body changes.
+      let currentBody = '';
+      setBodyHtml((cur) => { currentBody = cur; return cur; });
+      if (!needsContentUpgrade(currentBody, article.link)) return;
+
+      setUpgradeStatus('loading');
+      try {
+        const result = await onUpgradeContent(article.link);
+        if (cancelled) return;
+        if (result?.fullContent) {
+          setBodyHtml((cur) => {
+            // Don't downgrade if the parent already updated us via
+            // props during the await window.
+            return plainTextLength(result.fullContent) > plainTextLength(cur)
+              ? result.fullContent
+              : cur;
+          });
+          if (result.image) setBodyImage((cur) => cur || result.image);
+          setUpgradeStatus('success');
+        } else {
+          setUpgradeStatus('unavailable');
+        }
+      } catch (e) {
+        if (cancelled) return;
+        console.warn('[ArticleReader] upgrade failed', e);
+        setUpgradeStatus('error');
+      }
+    };
+
+    void run();
+
+    return () => {
+      cancelled = true;
+      controller.abort();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [article.link]);
+
+  /** Manual "load full article" handler — bypasses the attempted-set. */
+  const onManualUpgrade = async (): Promise<void> => {
+    if (!onUpgradeContent || !article.link) return;
+    manualUpgradeRef.current = true;
+    setUpgradeStatus('loading');
+    try {
+      const result = await onUpgradeContent(article.link);
+      if (result?.fullContent) {
+        setBodyHtml((cur) =>
+          plainTextLength(result.fullContent) > plainTextLength(cur)
+            ? result.fullContent
+            : cur,
+        );
+        if (result.image) setBodyImage((cur) => cur || result.image);
+        setUpgradeStatus('success');
+      } else {
+        setUpgradeStatus('unavailable');
+      }
+    } catch {
+      setUpgradeStatus('error');
+    }
+  };
 
   // Map prefs → CSS values
   const sizeMap: Record<ReaderPrefs['fontSize'], string> = {
@@ -283,10 +454,10 @@ export function ArticleReader({
         ref={scrollRef}
         className="flex-1 overflow-y-auto"
       >
-        {article.image && (
+        {bodyImage && (
           <div className="relative">
             <img
-              src={article.image}
+              src={bodyImage}
               alt=""
               className="w-full h-56 object-cover"
               loading="eager"
@@ -333,7 +504,7 @@ export function ArticleReader({
           </div>
           <div className="h-px bg-current opacity-10 mb-6" />
 
-          {article.fullContent && article.fullContent.length > 0
+          {bodyHtml && bodyHtml.length > 0
             ? (
               <div
                 dir="auto"
@@ -353,7 +524,7 @@ export function ArticleReader({
                   fontFamily: prefs.fontFamily === 'serif' ? 'Georgia, serif' : undefined,
                 }}
                 dangerouslySetInnerHTML={{
-                  __html: sanitizeRssHtml(article.fullContent),
+                  __html: sanitizeRssHtml(bodyHtml),
                 }}
               />
             )
@@ -370,7 +541,75 @@ export function ArticleReader({
                   {article.description}
                 </p>
               )
-              : <ArticleDetailSkeleton />}
+              : upgradeStatus === 'loading'
+                ? <ArticleDetailSkeleton />
+                : null}
+
+          {/* Full-content upgrade affordance.
+              Visible when the article body is shorter than the
+              readability threshold AND a content upgrade hook is
+              wired. Shows live status (loading / failed / success
+              tease) so the user understands what's happening. */}
+          {onUpgradeContent && needsContentUpgrade(bodyHtml, article.link) && (
+            <div
+              className="mt-6 px-4 py-3.5 rounded-2xl border border-current/10"
+              style={{
+                background: themePalette
+                  ? `${themePalette.chromeBg}66`
+                  : undefined,
+              }}
+            >
+              {upgradeStatus === 'loading'
+                ? (
+                  <div className="flex items-center gap-2 text-sm opacity-80">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span>
+                      {isAr
+                        ? 'يتم جلب المقال الكامل من الموقع الأصلي…'
+                        : 'Loading the full article from the source…'}
+                    </span>
+                  </div>
+                )
+                : upgradeStatus === 'error' || upgradeStatus === 'unavailable'
+                  ? (
+                    <div className="flex items-start gap-3">
+                      <FileText className="h-4 w-4 mt-0.5 opacity-60 shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium mb-0.5">
+                          {isAr
+                            ? 'يحتوي هذا المصدر على ملخص فقط'
+                            : 'This feed only ships an excerpt'}
+                        </p>
+                        <p className="text-xs opacity-70 mb-2.5">
+                          {isAr
+                            ? 'يمكن محاولة جلب النص الكامل من الموقع الأصلي.'
+                            : 'You can try loading the complete article body.'}
+                        </p>
+                        <button
+                          type="button"
+                          onClick={onManualUpgrade}
+                          className="px-3 py-1.5 rounded-xl bg-primary text-primary-foreground text-xs font-semibold hover:opacity-90 active:scale-95 transition-all inline-flex items-center gap-1.5"
+                        >
+                          <FileText className="h-3.5 w-3.5" />
+                          {isAr ? 'جلب المقال الكامل' : 'Load full article'}
+                        </button>
+                      </div>
+                    </div>
+                  )
+                  : !manualUpgradeRef.current && upgradeStatus !== 'success'
+                    ? (
+                      <button
+                        type="button"
+                        onClick={onManualUpgrade}
+                        className="w-full inline-flex items-center justify-center gap-2 text-sm font-medium opacity-75 hover:opacity-100 transition-opacity"
+                      >
+                        <FileText className="h-3.5 w-3.5" />
+                        {isAr ? 'جلب المقال الكامل' : 'Load full article'}
+                      </button>
+                    )
+                    : null}
+            </div>
+          )}
 
           <a
             href={safeHref(article.link)}

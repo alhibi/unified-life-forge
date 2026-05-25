@@ -15,6 +15,11 @@ import {
 } from './storage';
 import { fetchFeedsClientSide, isSupabaseAvailable } from './clientFetcher';
 import { dedupe, withRetry } from '@/lib/fetchRetry';
+import {
+  extractArticleBody,
+  needsContentUpgrade,
+  plainTextLength,
+} from './extractArticle';
 import type { Database } from '@/integrations/supabase/types';
 
 type RssArticleRow = Database['public']['Tables']['rss_articles']['Row'];
@@ -90,6 +95,26 @@ export function useReadingData(opts: { isAr: boolean }) {
   const consecutiveFailuresRef = useRef(0);
   /** Track whether the tab is visible — skip refresh when hidden. */
   const visibleRef = useRef(typeof document !== 'undefined' ? !document.hidden : true);
+
+  /**
+   * Links currently being upgraded via `extract-article`. Prevents the
+   * same article from triggering parallel scrape attempts when the user
+   * opens it twice in rapid succession or when a re-render fires the
+   * effect again before the first fetch resolved.
+   */
+  const upgradeInFlightRef = useRef<Set<string>>(new Set());
+  /**
+   * Links we've *already attempted* to upgrade (success or fail) this
+   * session. Without this, every navigation back into the article view
+   * would refire extract-article — wasteful for genuinely short
+   * articles (X/Twitter posts, photo galleries, paywalls) where the
+   * scraper has nothing to add. Cleared on full reload.
+   */
+  const upgradeAttemptedRef = useRef<Set<string>>(new Set());
+  /** AbortControllers for in-flight upgrades, keyed by link. */
+  const upgradeAbortRef = useRef<Map<string, AbortController>>(new Map());
+  /** Whether we've already shown the "low storage" toast this session. */
+  const lowQuotaWarnedRef = useRef(false);
 
   const enabledFeeds = useMemo(
     () => feedSources.filter((f) => f.enabled),
@@ -256,10 +281,29 @@ export function useReadingData(opts: { isAr: boolean }) {
             );
 
             if (!error && data) {
-              if (Array.isArray(data?.statuses)) {
-                setStatuses(data.statuses as FeedStatus[]);
-                // Track failed feeds for user notification
-                const failedFeeds = (data.statuses as FeedStatus[]).filter(s => s.status === 'error');
+              const statusesArr: FeedStatus[] = Array.isArray(data?.statuses)
+                ? (data.statuses as FeedStatus[])
+                : [];
+              if (statusesArr.length) setStatuses(statusesArr);
+
+              // Last-resort fallback: if every requested feed errored
+              // server-side (Supabase egress blocked, regional outage,
+              // CDN-level shadow-ban), don't mark this refresh as
+              // "succeeded" — fall through to the client-side proxy
+              // path. The browser can sometimes reach feeds the edge
+              // function can't, especially on networks where the user
+              // sits behind a captive portal whitelisting only their
+              // own region.
+              const allFailed = statusesArr.length > 0
+                && statusesArr.every((s) => s.status === 'error');
+
+              if (allFailed) {
+                console.warn(
+                  '[Reading] All feeds errored server-side, retrying client-side',
+                );
+                // Leave succeeded=false; client-side block runs next.
+              } else {
+                const failedFeeds = statusesArr.filter((s) => s.status === 'error');
                 if (failedFeeds.length > 0 && !silent) {
                   toast.warning(
                     ar
@@ -267,16 +311,16 @@ export function useReadingData(opts: { isAr: boolean }) {
                       : `Refreshed, but ${failedFeeds.length} feed(s) failed`,
                   );
                 }
+                await loadFromDB();
+                // After loadFromDB updates state, auto-save the freshly
+                // loaded articles to IndexedDB so they're available offline.
+                // We do this in the background — no need to await.
+                const currentArticlesSnapshot = articlesRef.current;
+                if (currentArticlesSnapshot.length > 0) {
+                  void offlineDb.saveArticlesBatch(currentArticlesSnapshot).catch(() => {});
+                }
+                succeeded = true;
               }
-              await loadFromDB();
-              // After loadFromDB updates state, auto-save the freshly
-              // loaded articles to IndexedDB so they're available offline.
-              // We do this in the background — no need to await.
-              const currentArticlesSnapshot = articlesRef.current;
-              if (currentArticlesSnapshot.length > 0) {
-                void offlineDb.saveArticlesBatch(currentArticlesSnapshot).catch(() => {});
-              }
-              succeeded = true;
             }
           } catch (e) {
             console.warn('Reading: Supabase refresh failed, falling back to client-side', e);
@@ -436,16 +480,170 @@ export function useReadingData(opts: { isAr: boolean }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabledNames.join('|')]);
 
+  // ─── Persist-on-demand & full-content upgrade ─────────────────────────
+  // Save an article to IndexedDB *immediately* when the user interacts
+  // with it (open / bookmark) so it's available offline even if the
+  // debounced auto-cache reconciliation hasn't fired yet. Without this,
+  // a user opening an article and then going offline within ~600 ms
+  // would lose access to it.
+  //
+  // Failures are non-fatal — the offline DB might be at quota or
+  // closed; we just won't have the offline copy. We surface a one-time
+  // toast so the user understands why offline reading might be
+  // unreliable on this device.
+  const persistOpenedArticle = useCallback(async (link: string): Promise<void> => {
+    if (!offlineDb.available() || !link) return;
+    const article = articlesRef.current.find((a) => a.link === link);
+    if (!article) return;
+    try {
+      await offlineDb.saveArticle(article);
+    } catch (e) {
+      console.warn('Reading: persist-on-open failed', e);
+    }
+    // Surface low-quota once per session so the user knows offline
+    // reading is degraded.
+    if (!lowQuotaWarnedRef.current) {
+      try {
+        const ok = await offlineDb.hasQuota(50 * 1024);
+        if (!ok) {
+          lowQuotaWarnedRef.current = true;
+          const ar = isArRef.current;
+          toast.warning(
+            ar
+              ? 'مساحة التخزين منخفضة — قد لا تُحفظ مقالات جديدة دون اتصال'
+              : 'Storage low — new articles may not save offline',
+            { duration: 7000 },
+          );
+        }
+      } catch { /* ignore */ }
+    }
+  }, []);
+
+  /**
+   * Patch an article's `fullContent` (and optionally its hero image) in
+   * memory and persist the upgraded copy to IndexedDB. Used by the
+   * extract-article flow when we discover a richer body for a feed
+   * that only ships excerpts. Idempotent: only writes when the new
+   * body is genuinely longer than what we already have.
+   */
+  const upgradeArticleContent = useCallback(
+    async (link: string, fullContent: string, image?: string | null): Promise<void> => {
+      if (!link || !fullContent) return;
+      let upgraded: FeedItem | null = null;
+      setArticles((prev) => {
+        const idx = prev.findIndex((a) => a.link === link);
+        if (idx < 0) return prev;
+        const cur = prev[idx];
+        const curLen = plainTextLength(cur.fullContent);
+        const newLen = plainTextLength(fullContent);
+        // Only upgrade when the new body is actually richer. Some
+        // feeds carry an image-heavy excerpt that's already long.
+        if (newLen <= curLen) return prev;
+        const next = prev.slice();
+        const merged: FeedItem = {
+          ...cur,
+          fullContent,
+          description: cur.description?.length
+            ? cur.description
+            : fullContent.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 400),
+          image: cur.image || image || null,
+          images: cur.images && cur.images.length > 0
+            ? cur.images
+            : image
+              ? [image]
+              : [],
+        };
+        next[idx] = merged;
+        upgraded = merged;
+        return next;
+      });
+      // Persist the upgraded copy outside the setState callback so we
+      // don't write inside React's render phase.
+      if (upgraded && offlineDb.available()) {
+        try {
+          await offlineDb.saveArticle(upgraded);
+        } catch (e) {
+          console.warn('Reading: upgrade persist failed', e);
+        }
+      }
+    },
+    [],
+  );
+
+  /**
+   * Trigger a background full-content fetch for an article whose
+   * current body is too short. Aborts any in-flight upgrade for the
+   * same link, dedupes against attempts already made this session,
+   * and silently no-ops if extract-article isn't available.
+   *
+   * The returned promise resolves with the upgraded content if the
+   * fetch succeeded, or null in every other case (no fetch needed,
+   * already attempted, fetch failed, scraper returned nothing). Never
+   * throws.
+   */
+  const ensureFullContent = useCallback(
+    async (link: string): Promise<{ fullContent: string; image: string | null } | null> => {
+      if (!link) return null;
+      const article = articlesRef.current.find((a) => a.link === link);
+      if (!article) return null;
+      if (!needsContentUpgrade(article.fullContent, link)) return null;
+      // Already in flight — let the caller wait on the existing one.
+      if (upgradeInFlightRef.current.has(link)) return null;
+      // Already attempted (success or fail) — don't hammer the scraper.
+      if (upgradeAttemptedRef.current.has(link)) return null;
+
+      const ctrl = new AbortController();
+      upgradeInFlightRef.current.add(link);
+      upgradeAbortRef.current.set(link, ctrl);
+      try {
+        const extracted = await extractArticleBody(link, ctrl.signal);
+        upgradeAttemptedRef.current.add(link);
+        if (!extracted || !extracted.html) return null;
+        await upgradeArticleContent(link, extracted.html, extracted.image);
+        return { fullContent: extracted.html, image: extracted.image };
+      } finally {
+        upgradeInFlightRef.current.delete(link);
+        upgradeAbortRef.current.delete(link);
+      }
+    },
+    [upgradeArticleContent],
+  );
+
+  /** Cancel any in-flight upgrade for a given link (e.g. user navigated away). */
+  const cancelFullContentFetch = useCallback((link: string): void => {
+    const ctrl = upgradeAbortRef.current.get(link);
+    if (ctrl) {
+      ctrl.abort();
+      upgradeAbortRef.current.delete(link);
+      upgradeInFlightRef.current.delete(link);
+    }
+  }, []);
+
   // ─── Bookmark / read mutations ────────────────────────────────────────
   const toggleBookmark = useCallback((link: string) => {
+    let nowBookmarked = false;
     setBookmarks((prev) => {
-      const next = prev.includes(link)
-        ? prev.filter((b) => b !== link)
-        : [...prev, link];
+      const exists = prev.includes(link);
+      nowBookmarked = !exists;
+      const next = exists ? prev.filter((b) => b !== link) : [...prev, link];
       storeBookmarks(next);
       return next;
     });
-  }, []);
+    // After *adding* a bookmark we immediately persist the article body
+    // so the bookmark survives going offline a moment later. The
+    // debounced auto-cache reconciliation (~600 ms) wouldn't — there's
+    // a window during which a brand-new bookmark exists in localStorage
+    // but not in IDB. Skip on un-bookmark — the article may still be
+    // wanted by the rolling auto-cache window.
+    if (nowBookmarked) {
+      void persistOpenedArticle(link);
+      // If the bookmarked article only has a teaser, also kick off a
+      // best-effort full-content fetch in the background so when the
+      // user comes back to it offline, they actually have something
+      // to read.
+      void ensureFullContent(link);
+    }
+  }, [persistOpenedArticle, ensureFullContent]);
 
   const markAsRead = useCallback((link: string) => {
     setReadArticles((prev) => {
@@ -454,7 +652,13 @@ export function useReadingData(opts: { isAr: boolean }) {
       storeReadArticles(next);
       return next;
     });
-  }, []);
+    // Persist on open (markAsRead is called from the click-to-open
+    // handler in Reading.tsx). This guarantees that any article the
+    // user actually engages with has an offline copy by the time
+    // the next render commits — no debounce window where they could
+    // lose it by going offline.
+    void persistOpenedArticle(link);
+  }, [persistOpenedArticle]);
 
   const markAllRead = useCallback(() => {
     setReadArticles((prev) => {
@@ -542,6 +746,26 @@ export function useReadingData(opts: { isAr: boolean }) {
       const ar = isArRef.current;
       const trimmed = url.trim();
       if (!trimmed) return false;
+      // Hard-validate the URL before persisting. A malformed feed URL
+      // (typo, copy-paste from rich text, accidental space) silently
+      // sat in localStorage on the previous version, then errored on
+      // every refresh forever. Reject upfront so the user sees the
+      // problem at add-time, when they can correct it.
+      let parsed: URL;
+      try {
+        parsed = new URL(trimmed);
+      } catch {
+        toast.error(ar ? 'الرابط غير صالح' : 'Invalid URL');
+        return false;
+      }
+      if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+        toast.error(
+          ar
+            ? 'يجب أن يبدأ الرابط بـ http:// أو https://'
+            : 'URL must use http:// or https://',
+        );
+        return false;
+      }
       const current = feedSourcesRef.current;
       if (current.some((f) => f.url === trimmed)) {
         toast.error(ar ? 'هذا المصدر موجود' : 'Feed already exists');
@@ -549,9 +773,7 @@ export function useReadingData(opts: { isAr: boolean }) {
       }
       const feed: FeedSource = {
         url: trimmed,
-        name: name.trim() || (() => {
-          try { return new URL(trimmed).hostname; } catch { return 'Feed'; }
-        })(),
+        name: name.trim() || parsed.hostname,
         category: category || 'news',
         enabled: true,
       };
@@ -609,13 +831,24 @@ export function useReadingData(opts: { isAr: boolean }) {
           skipped++;
           continue;
         }
+        // Validate URL before queuing — bad URLs in OPML imports
+        // would otherwise sit in localStorage failing forever.
+        let parsed: URL;
+        try {
+          parsed = new URL(url);
+        } catch {
+          skipped++;
+          continue;
+        }
+        if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+          skipped++;
+          continue;
+        }
         if (existingByUrl.has(url)) {
           skipped++;
           continue;
         }
-        const name = f.name.trim() || (() => {
-          try { return new URL(url).hostname; } catch { return 'Feed'; }
-        })();
+        const name = f.name.trim() || parsed.hostname;
         const newFeed: FeedSource = {
           url,
           name,
@@ -787,6 +1020,10 @@ export function useReadingData(opts: { isAr: boolean }) {
     removeFeed,
     toggleFeedEnabled,
     recacheNow,
+    persistOpenedArticle,
+    upgradeArticleContent,
+    ensureFullContent,
+    cancelFullContentFetch,
   };
 }
 
