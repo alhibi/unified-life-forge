@@ -53,7 +53,7 @@ export default function DiwanLibraryPage({ tab = false }: Props) {
       <div className={tab ? '' : 'max-w-lg mx-auto'}>
         {/* Header */}
         <div className="flex items-center gap-3 mb-5">
-          {!tab && <BackButton onClick={() => navigate('/')} />}
+          {!tab && <BackButton fallback="/" />}
           <div className="flex-1">
             <h1 className="text-[22px] font-bold tracking-tight text-foreground flex items-center gap-2">
               <LibraryIcon className="w-5 h-5 text-primary" />

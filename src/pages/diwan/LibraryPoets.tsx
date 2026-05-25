@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { Loader2, Users } from 'lucide-react';
 import SEO from '@/components/SEO';
 import BackButton from '@/components/BackButton';
@@ -17,7 +17,6 @@ const PAGE = 30;
  * عبر زر "تحميل المزيد".
  */
 export default function LibraryPoetsPage() {
-  const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
   const era = params.get('era');
   const [q, setQ] = useState<string>(params.get('q') ?? '');
@@ -93,7 +92,7 @@ export default function LibraryPoetsPage() {
       <div className="max-w-lg mx-auto">
         {/* Header */}
         <div className="flex items-center gap-3 mb-4">
-          <BackButton onClick={() => navigate('/diwan')} />
+          <BackButton fallback="/mihrab" />
           <div className="flex-1">
             <h1 className="text-[20px] font-bold tracking-tight text-foreground flex items-center gap-2">
               <Users className="w-5 h-5 text-primary" />

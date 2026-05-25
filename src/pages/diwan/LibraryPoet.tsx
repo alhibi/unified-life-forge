@@ -89,7 +89,7 @@ export default function LibraryPoetPage() {
   if (!poet.data) {
     return (
       <div className="min-h-screen bg-background pt-14 px-5 text-center">
-        <BackButton onClick={() => navigate('/diwan')} />
+        <BackButton fallback="/mihrab" />
         <p className="text-muted-foreground mt-8">لم يُعثر على هذا الشاعر.</p>
       </div>
     );
@@ -111,7 +111,7 @@ export default function LibraryPoetPage() {
       <div className="max-w-lg mx-auto">
         {/* Header */}
         <div className="flex items-center gap-3 mb-4">
-          <BackButton onClick={() => navigate(-1)} />
+          <BackButton fallback="/mihrab" />
           <div className="flex-1 min-w-0">
             <h1
               className="text-[20px] font-bold text-foreground truncate"

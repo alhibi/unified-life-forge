@@ -151,7 +151,7 @@ export default function LibraryPoemPage() {
   if (!poem.data) {
     return (
       <div className="min-h-screen bg-background pt-14 px-5 text-center">
-        <BackButton onClick={() => navigate('/diwan')} />
+        <BackButton fallback="/mihrab" />
         <p className="text-muted-foreground mt-8">لم يُعثر على هذه القصيدة.</p>
       </div>
     );
@@ -201,7 +201,7 @@ export default function LibraryPoemPage() {
       <div className="max-w-lg mx-auto">
         {/* Header */}
         <div className="flex items-center gap-3 mb-4">
-          <BackButton onClick={() => navigate(-1)} />
+          <BackButton fallback="/mihrab" />
           <div className="flex-1 min-w-0">
             <h1 className="text-[18px] font-bold tracking-tight text-foreground line-clamp-1 flex items-center gap-2">
               <ScrollText className="w-4 h-4 text-primary shrink-0" />

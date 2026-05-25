@@ -38,7 +38,7 @@ export default function LibraryFavoritesPage() {
       <div className="max-w-lg mx-auto">
         {/* Header */}
         <div className="flex items-center gap-3 mb-4">
-          <BackButton onClick={() => navigate('/diwan')} />
+          <BackButton fallback="/mihrab" />
           <div className="flex-1 min-w-0">
             <h1 className="text-[20px] font-bold tracking-tight text-foreground flex items-center gap-2">
               <Heart className="w-5 h-5 text-rose-500" fill="currentColor" />

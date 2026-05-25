@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Search, ScrollText, Quote, X, Filter, History, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import SEO from '@/components/SEO';
@@ -26,7 +26,6 @@ const PAGE = 30;
  *   - أبيات: q + era (للبحث عن بيت سمعته)
  */
 export default function LibrarySearchPage() {
-  const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
 
   const [mode, setMode]   = useState<Mode>((params.get('mode') as Mode) ?? 'poems');
@@ -155,7 +154,7 @@ export default function LibrarySearchPage() {
       <div className="max-w-lg mx-auto">
         {/* Header */}
         <div className="flex items-center gap-3 mb-4">
-          <BackButton onClick={() => navigate('/diwan')} />
+          <BackButton fallback="/mihrab" />
           <div className="flex-1">
             <h1 className="text-[20px] font-bold tracking-tight text-foreground flex items-center gap-2">
               <Search className="w-5 h-5 text-primary" />
