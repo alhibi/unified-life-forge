@@ -7,7 +7,6 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useApp } from '@/contexts/AppContext';
-import BackButton from '@/components/BackButton';
 import { useWellnessData } from '@/features/wellness/useWellnessData';
 
 // Existing tabs
@@ -214,8 +213,12 @@ export default function WellnessPage() {
 
       <div className="max-w-lg mx-auto px-3 pt-6">
         {/* ─── Minimal Header ─── */}
+        {/* No back button: /wellness is a top-level bottom-nav tab.
+            Showing one would conflict with the tab contract (the user
+            already has the bottom bar to switch destinations) and pull
+            them to wherever they happened to come from. The privacy
+            shortcut stays on the right. */}
         <header className="flex items-center justify-between mb-3">
-          <BackButton />
           <h1 className="text-[17px] font-medium tracking-tight text-foreground">
             {T.title[language]}
           </h1>

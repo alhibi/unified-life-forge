@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useApp } from '@/contexts/AppContext';
 import { useAuth } from '@/hooks/useAuth';
 import { useUnreadMessages } from '@/hooks/useUnreadMessages';
+import { useSmartBack } from '@/hooks/useSmartBack';
 import { Button } from '@/components/ui/button';
 import ErrorBoundary from '@/components/ErrorBoundary';
 
@@ -42,13 +43,13 @@ export default function ChatPage() {
   const { unreadCount, refresh: refreshUnread } = useUnreadMessages();
 
   // The drawer asks to "close" via onOpenChange(false). On the dedicated
-  // page that is a router-level back-navigation — fall back to the home
-  // route when there is no history (deep-linked entry).
+  // page that is a router-level back-navigation — `useSmartBack` handles
+  // the deep-link case (no in-app history) by replacing into '/'.
+  const goBack = useSmartBack('/');
   const handleClose = useCallback((open: boolean) => {
     if (open) return;
-    if (window.history.length > 1) navigate(-1);
-    else navigate('/', { replace: true });
-  }, [navigate]);
+    goBack();
+  }, [goBack]);
 
   if (authLoading) {
     return <ChatSkeleton />;

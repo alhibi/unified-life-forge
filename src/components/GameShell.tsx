@@ -59,11 +59,19 @@ export default function GameShell({ title, icon: Icon, accentColor, rules, stats
   return (
     <div className="min-h-screen pb-28 pt-4" style={{ background: `linear-gradient(180deg, #0a0a0f 0%, ${accentColor}08 40%, #0a0a0f 100%)` }}>
       <div className="px-5">
-        <BackButton to="/games" />
-
-        {/* Header */}
-        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center justify-between mt-3 mb-3 gap-2">
+        {/* Header — back, title, and game-feedback toggles all sit on
+            a single row. Previously the back button lived on its own
+            row above the title, which doubled the vertical space the
+            chrome occupied for no real benefit. The back button uses
+            the unified compact ghost style; even on the dark game
+            background the foreground/4 tint stays readable. */}
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex items-center justify-between mb-4 gap-2"
+        >
           <div className="flex items-center gap-2.5 min-w-0">
+            <BackButton to="/games" />
             <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: `${accentColor}20` }}>
               <Icon className="w-4.5 h-4.5" style={{ color: accentColor }} />
             </div>
