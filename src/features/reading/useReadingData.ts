@@ -672,6 +672,46 @@ export function useReadingData(opts: { isAr: boolean }) {
     toast.success(isArRef.current ? 'تم التحديد كمقروء' : 'Marked as read');
   }, []);
 
+  /** Restore an article to "unread". Used by the article context menu. */
+  const markAsUnread = useCallback((link: string) => {
+    setReadArticles((prev) => {
+      if (!prev.includes(link)) return prev;
+      const next = prev.filter((l) => l !== link);
+      storeReadArticles(next);
+      return next;
+    });
+  }, []);
+
+  /**
+   * Mark every link in `links` as read in a single state update — used
+   * by the "Mark above as read" / "Mark below as read" actions in the
+   * article context menu. Treating it as one transaction avoids 50
+   * separate setReadArticles calls when the user marks 50 rows.
+   */
+  const markManyRead = useCallback((links: ReadonlyArray<string>) => {
+    if (links.length === 0) return;
+    setReadArticles((prev) => {
+      const set = new Set(prev);
+      let added = 0;
+      for (const l of links) {
+        if (l && !set.has(l)) {
+          set.add(l);
+          added++;
+        }
+      }
+      if (added === 0) return prev;
+      const next = Array.from(set);
+      storeReadArticles(next);
+      return next;
+    });
+    const ar = isArRef.current;
+    toast.success(
+      ar
+        ? `تم تحديد ${links.length} مقالة كمقروءة`
+        : `Marked ${links.length} as read`,
+    );
+  }, []);
+
   // ─── Feed CRUD ─────────────────────────────────────────────────────────
   const fetchSingleFeed = useCallback(
     async (feed: FeedSource) => {
@@ -1013,6 +1053,8 @@ export function useReadingData(opts: { isAr: boolean }) {
     refreshFeeds,
     toggleBookmark,
     markAsRead,
+    markAsUnread,
+    markManyRead,
     markAllRead,
     addFeed,
     addSuggestedFeed,
