@@ -11,7 +11,15 @@ export function safeHref(url: string | null | undefined): string {
   return /^https?:\/\//i.test(url.trim()) ? url : '#';
 }
 
-/** Relative-time string like "2h ago" / "منذ ساعتين". */
+/**
+ * Relative-time string like "2h ago" / "منذ ساعتين".
+ *
+ * Robust against clock-skewed feeds: a date 30 seconds in the *future*
+ * (which can happen when a publisher's clock is slightly ahead) clamps
+ * to "now" instead of rendering as "منذ -1 شهر". For dates further in
+ * the future we render "in 2h" / "بعد ٢س" rather than the absurd
+ * negative-month string the previous implementation produced.
+ */
 export function timeAgo(dateStr: string, lang: string): string {
   if (!dateStr) return '';
   const isAr = lang === 'ar';
@@ -19,15 +27,39 @@ export function timeAgo(dateStr: string, lang: string): string {
     const date = new Date(dateStr);
     if (Number.isNaN(date.getTime())) return '';
     const diffMs = Date.now() - date.getTime();
-    const diffMin = Math.floor(diffMs / 60_000);
-    if (diffMin < 1) return isAr ? 'الآن' : 'now';
-    if (diffMin < 60) return isAr ? `منذ ${diffMin} د` : `${diffMin}m ago`;
-    const diffHr = Math.floor(diffMin / 60);
-    if (diffHr < 24) return isAr ? `منذ ${diffHr} س` : `${diffHr}h ago`;
-    const diffDay = Math.floor(diffHr / 24);
-    if (diffDay < 30) return isAr ? `منذ ${diffDay} ي` : `${diffDay}d ago`;
-    const diffMo = Math.floor(diffDay / 30);
-    return isAr ? `منذ ${diffMo} شهر` : `${diffMo}mo ago`;
+    const future = diffMs < 0;
+    // Clamp tiny clock skew (≤ 60s) to "now" so a publisher whose
+    // server is 30 seconds ahead doesn't show "in 30 seconds".
+    if (Math.abs(diffMs) < 60_000) return isAr ? 'الآن' : 'now';
+    const abs = Math.abs(diffMs);
+    const min = Math.floor(abs / 60_000);
+    if (min < 60) {
+      return future
+        ? (isAr ? `بعد ${min} د` : `in ${min}m`)
+        : (isAr ? `منذ ${min} د` : `${min}m ago`);
+    }
+    const hr = Math.floor(min / 60);
+    if (hr < 24) {
+      return future
+        ? (isAr ? `بعد ${hr} س` : `in ${hr}h`)
+        : (isAr ? `منذ ${hr} س` : `${hr}h ago`);
+    }
+    const day = Math.floor(hr / 24);
+    if (day < 30) {
+      return future
+        ? (isAr ? `بعد ${day} ي` : `in ${day}d`)
+        : (isAr ? `منذ ${day} ي` : `${day}d ago`);
+    }
+    const mo = Math.floor(day / 30);
+    if (mo < 12) {
+      return future
+        ? (isAr ? `بعد ${mo} شهر` : `in ${mo}mo`)
+        : (isAr ? `منذ ${mo} شهر` : `${mo}mo ago`);
+    }
+    const yr = Math.floor(day / 365);
+    return future
+      ? (isAr ? `بعد ${yr} سنة` : `in ${yr}y`)
+      : (isAr ? `منذ ${yr} سنة` : `${yr}y ago`);
   } catch { return ''; }
 }
 
@@ -36,7 +68,7 @@ export function formatDate(dateStr: string, lang: string): string {
   if (!dateStr) return '';
   try {
     const date = new Date(dateStr);
-    if (Number.isNaN(date.getTime())) return dateStr;
+    if (Number.isNaN(date.getTime())) return '';
     return date.toLocaleDateString(
       lang === 'ar' ? 'ar' : 'en-US',
       {
@@ -48,7 +80,7 @@ export function formatDate(dateStr: string, lang: string): string {
         minute: '2-digit',
       },
     );
-  } catch { return dateStr; }
+  } catch { return ''; }
 }
 
 /** Strip HTML tags for plain-text length / preview computations. */
@@ -93,4 +125,40 @@ export function hashHue(input: string): number {
     hash = (hash * 31 + input.charCodeAt(i)) | 0;
   }
   return Math.abs(hash) % 360;
+}
+
+/**
+ * Throttle helper — run `fn` at most once every `wait` ms. The trailing
+ * call (if one was suppressed during the wait window) fires after the
+ * cooldown so the final state is never lost. Used by the article-list
+ * scroll handler so dragging a long list doesn't write 60 localStorage
+ * entries per second.
+ */
+export function throttle<Args extends unknown[]>(
+  fn: (...args: Args) => void,
+  wait: number,
+): (...args: Args) => void {
+  let last = 0;
+  let pending: ReturnType<typeof setTimeout> | null = null;
+  let pendingArgs: Args | null = null;
+  return (...args: Args) => {
+    const now = Date.now();
+    const remaining = wait - (now - last);
+    if (remaining <= 0) {
+      last = now;
+      fn(...args);
+    } else {
+      pendingArgs = args;
+      if (!pending) {
+        pending = setTimeout(() => {
+          last = Date.now();
+          pending = null;
+          if (pendingArgs) {
+            fn(...pendingArgs);
+            pendingArgs = null;
+          }
+        }, remaining);
+      }
+    }
+  };
 }

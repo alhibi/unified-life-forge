@@ -35,7 +35,6 @@ export type View =
   | 'search'
   | 'alerts'
   | 'reader'
-  | 'archive'
   | 'storage'
   | 'cron';
 export type FilterTab = 'all' | 'bookmarks' | 'unread';

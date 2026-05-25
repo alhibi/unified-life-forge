@@ -55,6 +55,7 @@ export function ArticleCard({
       >
         <div className="flex-1 min-w-0">
           <h4
+            dir="auto"
             className={`text-[14px] leading-snug line-clamp-2 ${
               isRead
                 ? 'font-normal text-foreground/70'
@@ -64,7 +65,10 @@ export function ArticleCard({
             {article.title}
           </h4>
           {article.description && (
-            <p className="text-xs text-muted-foreground mt-1.5 line-clamp-2 leading-relaxed">
+            <p
+              dir="auto"
+              className="text-xs text-muted-foreground mt-1.5 line-clamp-2 leading-relaxed"
+            >
               {article.description}
             </p>
           )}
@@ -200,7 +204,10 @@ export function HeroArticleCard({
           : <Bookmark className="h-4 w-4 text-white/85" />}
       </button>
       <div className="absolute inset-x-0 bottom-0 px-4 pb-4 pt-12">
-        <h2 className="text-white text-[18px] font-bold leading-tight line-clamp-3 drop-shadow-sm">
+        <h2
+          dir="auto"
+          className="text-white text-[18px] font-bold leading-tight line-clamp-3 drop-shadow-sm"
+        >
           {article.title}
         </h2>
         <div className="flex items-center gap-2 mt-2 text-white/85 text-[11px]">

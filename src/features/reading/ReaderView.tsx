@@ -47,6 +47,28 @@ import { toast } from 'sonner';
  *    connection. Same as before, just kept here for completeness.
  */
 
+/**
+ * Extract every absolute http(s) image URL from the rendered article
+ * body so we can pass them to the Service Worker pre-cache. Reuses
+ * the same conservative URL filter as `clientFetcher.extractImages`
+ * (no data:, blob:, or javascript: URLs make it through).
+ */
+function extractImagesFromHtml(html: string): string[] {
+  if (!html) return [];
+  const imgs: string[] = [];
+  const re = /<img[^>]*?(?:src|data-src)\s*=\s*["']([^"']+)["']/gi;
+  let m;
+  while ((m = re.exec(html)) !== null) {
+    const u = m[1];
+    if (!u) continue;
+    let abs = u;
+    if (u.startsWith('//')) abs = `https:${u}`;
+    else if (!/^https?:\/\//i.test(u)) continue;
+    if (!imgs.includes(abs)) imgs.push(abs);
+  }
+  return imgs;
+}
+
 interface ExtractedArticle {
   url: string;
   title: string;
@@ -222,8 +244,19 @@ export function ReaderView({
         dismissedClipboardRef.current.add(url);
         setClipboardSuggestion(null);
       }
-      // Auto-cache the hero image so offline rendering works.
-      if (payload.image) void offlineDb.cacheImage(payload.image);
+      // Auto-cache every image referenced in the article body so the
+      // user can re-read offline. We hand the list to the SW which
+      // does the actual fetching with mode:'no-cors'.
+      const allImages = Array.from(new Set([
+        ...(payload.image ? [payload.image] : []),
+        ...extractImagesFromHtml(payload.html || ''),
+      ]));
+      if (allImages.length > 0 && typeof navigator !== 'undefined') {
+        try {
+          const reg = await navigator.serviceWorker?.ready;
+          reg?.active?.postMessage({ type: 'reading:precache', urls: allImages });
+        } catch { /* SW unavailable; the offline save still works on next refresh */ }
+      }
     } catch (e: any) {
       // If we already populated `article` from the cache above, keep
       // it visible — the network refresh failed but the user can read
@@ -255,6 +288,14 @@ export function ReaderView({
       toast.success(isAr ? 'أُزيل من المحفوظات' : 'Removed from saved');
       return;
     }
+    // Extract every <img> URL from the sanitised body so the SW can
+    // pre-cache them. Without this, only the hero image survives going
+    // offline — inline figures inside the article would 404.
+    const inlineImages = extractImagesFromHtml(article.html);
+    const images = Array.from(new Set([
+      ...(article.image ? [article.image] : []),
+      ...inlineImages,
+    ]));
     await offlineDb.saveArticle({
       title: article.title,
       link: article.url,
@@ -262,7 +303,7 @@ export function ReaderView({
       fullContent: article.html,
       pubDate: new Date().toISOString(),
       image: article.image,
-      images: article.image ? [article.image] : [],
+      images,
       source: article.siteName ||
         (() => {
           try { return new URL(article.url).hostname; } catch { return ''; }
@@ -441,6 +482,7 @@ export function ReaderView({
         {article && (
           <article className="px-5 pt-5 pb-16 max-w-prose mx-auto">
             <h2
+              dir="auto"
               className="text-xl font-bold leading-snug mb-3"
               style={{
                 fontFamily: prefs.fontFamily === 'serif' ? 'Georgia, serif' : undefined,
@@ -448,7 +490,7 @@ export function ReaderView({
             >
               {article.title}
             </h2>
-            <div className="flex items-center gap-2 mb-5 flex-wrap text-xs opacity-70">
+            <div className="flex items-center gap-2 mb-5 flex-wrap text-xs opacity-70" dir="auto">
               {article.siteName && <span>{article.siteName}</span>}
               {article.siteName && minutes > 0 && (
                 <span className="w-1 h-1 rounded-full bg-current opacity-30" />
@@ -469,6 +511,7 @@ export function ReaderView({
               />
             )}
             <div
+              dir="auto"
               className="prose prose-sm dark:prose-invert max-w-none
                 [&_img]:rounded-xl [&_img]:my-4 [&_img]:w-full [&_img]:max-h-[420px] [&_img]:object-cover
                 [&_a]:text-primary [&_a]:no-underline [&_a]:font-medium [&_a:hover]:underline

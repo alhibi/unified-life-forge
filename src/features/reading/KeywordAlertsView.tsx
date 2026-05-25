@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Bell, BellOff, BellRing, ChevronLeft, ChevronDown, ExternalLink,
-  Loader2, Moon, Plus, Settings2, Trash2,
+  Loader2, LogIn, Moon, Pencil, Plus, Trash2, X,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,6 +12,7 @@ import type { FeedSource } from './types';
 import { timeAgo } from './utils';
 import { SourcePill } from './SourcePill';
 import { useNotifications } from './useNotifications';
+import { ConfirmDialog } from './ConfirmDialog';
 
 /**
  * KeywordAlertsView — manages a per-user list of keywords. The cron
@@ -68,21 +69,33 @@ export function KeywordAlertsView({
   enabledFeeds,
   onBack,
   onOpenLink,
+  onSignIn,
 }: {
   isAr: boolean;
   language: string;
   enabledFeeds: FeedSource[];
   onBack: () => void;
   onOpenLink: (link: string, title: string, source: string | null) => void;
+  /** Optional handler invoked when an unauthenticated user taps the
+   *  sign-in CTA. The parent typically navigates to /auth. When
+   *  omitted, the CTA falls back to a `window.location.href` jump. */
+  onSignIn?: () => void;
 }) {
   const [alerts, setAlerts] = useState<AlertRow[]>([]);
   const [hits, setHits] = useState<AlertHit[]>([]);
   const [loading, setLoading] = useState(true);
+  /** null while we haven't checked yet; '' when explicitly anonymous. */
+  const [authUserId, setAuthUserId] = useState<string | null>(null);
   const [keyword, setKeyword] = useState('');
   const [matchMode, setMatchMode] = useState<MatchMode>('any');
   const [creating, setCreating] = useState(false);
   const [filteredSources, setFilteredSources] = useState<string[]>([]);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  /** Alert currently being edited, if any. Editing reuses the same
+   *  form fields as creation but commits via UPDATE instead of INSERT. */
+  const [editingAlert, setEditingAlert] = useState<AlertRow | null>(null);
+  /** Pending alert deletion — shown in a confirmation dialog. */
+  const [pendingDelete, setPendingDelete] = useState<AlertRow | null>(null);
 
   const notifications = useNotifications();
   const { prefs: notifPrefs, permission, request, notify, mute, setPrefs: setNotifPrefs } =
@@ -103,12 +116,13 @@ export function KeywordAlertsView({
         const { data: userData } = await supabase.auth.getUser();
         if (!userData.user) {
           if (!cancelled) {
+            setAuthUserId('');
             setLoading(false);
-            toast.error(isAr ? 'يلزم تسجيل الدخول' : 'Sign in required');
           }
           return;
         }
         const userId = userData.user.id;
+        if (!cancelled) setAuthUserId(userId);
         const [aRes, hRes] = await Promise.all([
           supabase.from('keyword_alerts')
             .select('*')
@@ -202,7 +216,9 @@ export function KeywordAlertsView({
   }
 
   // ─── Alert mutations ────────────────────────────────────────────────────
-  async function addAlert() {
+  /** Create a new alert with the form values, OR commit an edit to
+   *  the alert currently in `editingAlert`. */
+  async function commitAlert() {
     const k = keyword.trim();
     if (k.length < 2) return;
     setCreating(true);
@@ -212,26 +228,77 @@ export function KeywordAlertsView({
         toast.error(isAr ? 'يلزم تسجيل الدخول' : 'Sign in required');
         return;
       }
-      const { data, error } = await supabase.from('keyword_alerts')
-        .insert({
-          user_id: userData.user.id,
-          keyword: k,
-          match_mode: matchMode,
-          source_filter: filteredSources.length > 0 ? filteredSources : null,
-          enabled: true,
-        })
-        .select()
-        .single();
-      if (error) throw error;
-      setAlerts((prev) => [data as AlertRow, ...prev]);
+      const sources = filteredSources.length > 0 ? filteredSources : null;
+      if (editingAlert) {
+        const { data, error } = await supabase.from('keyword_alerts')
+          .update({
+            keyword: k,
+            match_mode: matchMode,
+            source_filter: sources,
+          })
+          .eq('id', editingAlert.id)
+          .select()
+          .single();
+        if (error) throw error;
+        setAlerts((prev) =>
+          prev.map((a) => (a.id === editingAlert.id ? (data as AlertRow) : a))
+        );
+        setEditingAlert(null);
+        toast.success(isAr ? 'تم التحديث' : 'Updated');
+      } else {
+        const { data, error } = await supabase.from('keyword_alerts')
+          .insert({
+            user_id: userData.user.id,
+            keyword: k,
+            match_mode: matchMode,
+            source_filter: sources,
+            enabled: true,
+          })
+          .select()
+          .single();
+        if (error) throw error;
+        setAlerts((prev) => [data as AlertRow, ...prev]);
+        toast.success(isAr ? 'تم إنشاء التنبيه' : 'Alert created');
+      }
       setKeyword('');
+      setMatchMode('any');
       setFilteredSources([]);
-      toast.success(isAr ? 'تم إنشاء التنبيه' : 'Alert created');
-    } catch (e: any) {
-      toast.error(e?.message || (isAr ? 'تعذّر الإنشاء' : 'Could not create'));
+    } catch (e: unknown) {
+      // Wrap raw Postgres errors in a friendlier message — the user
+      // doesn't need to see "duplicate key value violates unique
+      // constraint" as a literal toast.
+      const raw = e instanceof Error ? e.message : '';
+      const friendly = /duplicate|unique/i.test(raw)
+        ? (isAr ? 'هذا التنبيه موجود مسبقاً' : 'This alert already exists')
+        : raw || (isAr ? 'تعذّر الحفظ' : 'Could not save');
+      toast.error(friendly);
     } finally {
       setCreating(false);
     }
+  }
+
+  /** Discard the current edit and reset the form. */
+  function cancelEdit() {
+    setEditingAlert(null);
+    setKeyword('');
+    setMatchMode('any');
+    setFilteredSources([]);
+  }
+
+  /** Begin editing an existing alert — populates the form with its
+   *  current values. The user can then commit via the same flow as
+   *  creation. */
+  function startEdit(alert: AlertRow) {
+    setEditingAlert(alert);
+    setKeyword(alert.keyword);
+    setMatchMode(alert.match_mode);
+    setFilteredSources(alert.source_filter || []);
+    // Scroll the form into view so the user sees the populated values.
+    setTimeout(() => {
+      const el = document.getElementById('keyword-alert-input');
+      el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      (el as HTMLInputElement | null)?.focus();
+    }, 50);
   }
 
   async function toggleEnabled(alert: AlertRow) {
@@ -244,8 +311,12 @@ export function KeywordAlertsView({
       .eq('id', alert.id);
   }
 
-  async function deleteAlert(id: string) {
+  async function confirmDeleteAlert() {
+    if (!pendingDelete) return;
+    const id = pendingDelete.id;
+    setPendingDelete(null);
     setAlerts((prev) => prev.filter((a) => a.id !== id));
+    if (editingAlert?.id === id) cancelEdit();
     await supabase.from('keyword_alerts').delete().eq('id', id);
     toast.success(isAr ? 'تم الحذف' : 'Deleted');
   }
@@ -325,8 +396,42 @@ export function KeywordAlertsView({
         </button>
       </div>
 
-      {/* Notification status strip */}
-      <div className="px-4 py-2.5 border-b border-border/30 bg-card/40">
+      {/* Auth gate — replaces all controls below the header until the
+          user signs in. Without this the keyword form and inbox were
+          showing in a non-functional state, leaving users with a
+          dead-end "Sign in required" toast they couldn't act on. */}
+      {!loading && authUserId === '' && (
+        <div className="flex-1 flex flex-col items-center justify-center gap-4 p-8 text-center">
+          <span className="w-14 h-14 rounded-2xl bg-primary/10 inline-flex items-center justify-center">
+            <Bell className="h-7 w-7 text-primary" />
+          </span>
+          <div className="space-y-1.5 max-w-xs">
+            <h4 className="text-base font-bold">
+              {isAr ? 'سجّل الدخول لاستخدام التنبيهات' : 'Sign in to use alerts'}
+            </h4>
+            <p className="text-[12px] text-muted-foreground leading-relaxed">
+              {isAr
+                ? 'تنبيهات الكلمات تحتاج إلى حسابك حتى نحفظها بأمان عبر الأجهزة.'
+                : 'Keyword alerts need your account so we can sync them securely across devices.'}
+            </p>
+          </div>
+          <Button
+            onClick={() => {
+              if (onSignIn) onSignIn();
+              else if (typeof window !== 'undefined') window.location.href = '/auth';
+            }}
+            className="rounded-xl"
+            size="sm"
+          >
+            <LogIn className="h-3.5 w-3.5 me-1.5" />
+            {isAr ? 'تسجيل الدخول' : 'Sign in'}
+          </Button>
+        </div>
+      )}
+
+      {/* Notification status strip (only visible when authed) */}
+      {authUserId && (
+        <div className="px-4 py-2.5 border-b border-border/30 bg-card/40">
         <button
           type="button"
           onClick={() => setSettingsOpen((v) => !v)}
@@ -531,28 +636,58 @@ export function KeywordAlertsView({
           )}
         </AnimatePresence>
       </div>
+      )}
 
-      {/* Add new alert */}
+      {/* Add new alert (or edit existing) */}
+      {authUserId && (
       <div className="px-4 py-3 border-b border-border/30 space-y-2.5">
+        {editingAlert && (
+          <div className="flex items-center justify-between gap-2 px-3 py-2 rounded-xl bg-primary/10 border border-primary/20">
+            <span className="text-[12px] font-bold text-primary inline-flex items-center gap-1.5 truncate">
+              <Pencil className="h-3.5 w-3.5 shrink-0" />
+              <span className="truncate">
+                {isAr
+                  ? `تعديل: ${editingAlert.keyword}`
+                  : `Editing: ${editingAlert.keyword}`}
+              </span>
+            </span>
+            <button
+              type="button"
+              onClick={cancelEdit}
+              className="p-1 rounded-md hover:bg-primary/15"
+              aria-label={isAr ? 'إلغاء التعديل' : 'Cancel edit'}
+            >
+              <X className="h-3.5 w-3.5 text-primary" />
+            </button>
+          </div>
+        )}
         <div className="flex gap-2">
           <Input
+            id="keyword-alert-input"
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === 'Enter' && keyword.trim().length >= 2) addAlert();
+              if (e.key === 'Enter' && keyword.trim().length >= 2) commitAlert();
+              if (e.key === 'Escape' && editingAlert) cancelEdit();
             }}
             placeholder={isAr ? 'كلمة للمراقبة...' : 'Watch a keyword...'}
             className="flex-1 h-10 text-sm rounded-xl"
             disabled={creating}
+            dir="auto"
           />
           <Button
-            onClick={addAlert}
+            onClick={commitAlert}
             disabled={keyword.trim().length < 2 || creating}
             className="h-10 rounded-xl"
+            aria-label={editingAlert
+              ? (isAr ? 'حفظ' : 'Save')
+              : (isAr ? 'إنشاء تنبيه' : 'Create alert')}
           >
             {creating
               ? <Loader2 className="h-4 w-4 animate-spin" />
-              : <Plus className="h-4 w-4" />}
+              : editingAlert
+                ? <Pencil className="h-4 w-4" />
+                : <Plus className="h-4 w-4" />}
           </Button>
         </div>
         <div className="flex flex-wrap gap-1.5 items-center">
@@ -615,8 +750,10 @@ export function KeywordAlertsView({
           </div>
         )}
       </div>
+      )}
 
       {/* Alerts + hits */}
+      {authUserId && (
       <div className="flex-1 overflow-y-auto">
         {loading && (
           <div className="flex items-center justify-center py-10">
@@ -679,6 +816,11 @@ export function KeywordAlertsView({
                         ? 'text-primary hover:bg-primary/10'
                         : 'text-muted-foreground hover:bg-accent/40'
                     }`}
+                    aria-label={alert.enabled
+                      ? (isAr ? 'إيقاف التنبيه' : 'Disable alert')
+                      : (isAr ? 'تفعيل التنبيه' : 'Enable alert')}
+                    role="switch"
+                    aria-checked={alert.enabled}
                   >
                     {alert.enabled
                       ? (isAr ? 'مفعّل' : 'On')
@@ -686,7 +828,16 @@ export function KeywordAlertsView({
                   </button>
                   <button
                     type="button"
-                    onClick={() => deleteAlert(alert.id)}
+                    onClick={() => startEdit(alert)}
+                    className="p-1.5 rounded-lg hover:bg-accent/40"
+                    aria-label={isAr ? 'تعديل' : 'Edit'}
+                    title={isAr ? 'تعديل' : 'Edit'}
+                  >
+                    <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPendingDelete(alert)}
                     className="p-1.5 rounded-lg hover:bg-destructive/10"
                     aria-label={isAr ? 'حذف' : 'Delete'}
                   >
@@ -749,6 +900,24 @@ export function KeywordAlertsView({
           </div>
         )}
       </div>
+      )}
+
+      <ConfirmDialog
+        open={pendingDelete !== null}
+        isAr={isAr}
+        title={{ ar: 'حذف هذا التنبيه؟', en: 'Delete this alert?' }}
+        description={pendingDelete
+          ? {
+              ar: `سيتم حذف تنبيه "${pendingDelete.keyword}" بشكل دائم. التطابقات الحالية في الصندوق لن تتأثر.`,
+              en: `“${pendingDelete.keyword}” will be permanently removed. Existing matches in your inbox are not affected.`,
+            }
+          : undefined}
+        confirmLabel={{ ar: 'حذف', en: 'Delete' }}
+        onConfirm={confirmDeleteAlert}
+        onOpenChange={(open) => {
+          if (!open) setPendingDelete(null);
+        }}
+      />
     </motion.div>
   );
 }

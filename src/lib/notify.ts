@@ -6,55 +6,66 @@
  * so wording, duration and tone stay uniform.
  *
  * Language is auto-detected from `<html dir>` (rtl ⇒ Arabic, otherwise
- * German — the app's two locales). Pass `lang` explicitly to override.
+ * English — the app's two locales). Pass `lang` explicitly to override.
+ *
+ * Note: callers may still pass the legacy 'de' string for backward
+ * compatibility — it's silently treated as 'en'. This avoids touching
+ * every legacy call-site while we migrate the codebase.
  */
 import { toast } from 'sonner';
 
-type Lang = 'ar' | 'de';
-type Pair = { ar: string; de: string };
+type Lang = 'ar' | 'en';
+type LegacyLang = Lang | 'de';
+type Pair = { ar: string; en: string };
+
+function normaliseLang(lang?: LegacyLang): Lang {
+  if (lang === 'ar') return 'ar';
+  if (lang === 'en' || lang === 'de') return 'en';
+  return detectLang();
+}
 
 function detectLang(): Lang {
   if (typeof document === 'undefined') return 'ar';
-  return document.documentElement.dir === 'rtl' ? 'ar' : 'de';
+  return document.documentElement.dir === 'rtl' ? 'ar' : 'en';
 }
 
-function pick(p: Pair, lang?: Lang): string {
-  return p[lang ?? detectLang()];
+function pick(p: Pair, lang?: LegacyLang): string {
+  return p[normaliseLang(lang)];
 }
 
 const M = {
-  copied:           { ar: 'تم النسخ',                       de: 'Kopiert' },
-  linkCopied:       { ar: 'تم نسخ الرابط',                  de: 'Link kopiert' },
-  copyFailed:       { ar: 'تعذر النسخ',                     de: 'Kopieren fehlgeschlagen' },
-  savedToClipboard: { ar: 'تم الحفظ في الحافظة',            de: 'In Zwischenablage gespeichert' },
-  alreadySaved:     { ar: 'محفوظ مسبقاً',                   de: 'Bereits gespeichert' },
-  deleted:          { ar: 'تم الحذف',                       de: 'Gelöscht' },
-  refreshed:        { ar: 'تم التحديث',                     de: 'Aktualisiert' },
-  refreshFailed:    { ar: 'فشل التحديث',                    de: 'Aktualisierung fehlgeschlagen' },
-  networkOffline:   { ar: 'لا يوجد اتصال بالإنترنت',         de: 'Keine Internetverbindung' },
-  signInRequired:   { ar: 'يلزم تسجيل الدخول',              de: 'Anmeldung erforderlich' },
-  duplicateFeed:    { ar: 'هذا المصدر موجود بالفعل',        de: 'Diese Quelle ist bereits vorhanden' },
-  feedAdded:        { ar: 'تمت إضافة المصدر',               de: 'Quelle hinzugefügt' },
-  feedRemoved:      { ar: 'تم حذف المصدر',                  de: 'Quelle entfernt' },
+  copied:           { ar: 'تم النسخ',                       en: 'Copied' },
+  linkCopied:       { ar: 'تم نسخ الرابط',                  en: 'Link copied' },
+  copyFailed:       { ar: 'تعذر النسخ',                     en: 'Copy failed' },
+  savedToClipboard: { ar: 'تم الحفظ في الحافظة',            en: 'Saved to clipboard' },
+  alreadySaved:     { ar: 'محفوظ مسبقاً',                   en: 'Already saved' },
+  deleted:          { ar: 'تم الحذف',                       en: 'Deleted' },
+  refreshed:        { ar: 'تم التحديث',                     en: 'Refreshed' },
+  refreshFailed:    { ar: 'فشل التحديث',                    en: 'Refresh failed' },
+  networkOffline:   { ar: 'لا يوجد اتصال بالإنترنت',         en: 'No internet connection' },
+  signInRequired:   { ar: 'يلزم تسجيل الدخول',              en: 'Sign-in required' },
+  duplicateFeed:    { ar: 'هذا المصدر موجود بالفعل',        en: 'This feed already exists' },
+  feedAdded:        { ar: 'تمت إضافة المصدر',               en: 'Feed added' },
+  feedRemoved:      { ar: 'تم حذف المصدر',                  en: 'Feed removed' },
 } as const;
 
 export const notify = {
-  copied:           (lang?: Lang) => toast.success(pick(M.copied, lang)),
-  linkCopied:       (lang?: Lang) => toast.success(pick(M.linkCopied, lang)),
-  copyFailed:       (lang?: Lang) => toast.error(pick(M.copyFailed, lang)),
-  savedToClipboard: (lang?: Lang) => toast.success(pick(M.savedToClipboard, lang)),
-  alreadySaved:     (lang?: Lang) => toast.info(pick(M.alreadySaved, lang)),
-  deleted:          (lang?: Lang) => toast.success(pick(M.deleted, lang)),
-  refreshed:        (lang?: Lang) => toast.success(pick(M.refreshed, lang)),
-  refreshFailed:    (lang?: Lang) => toast.error(pick(M.refreshFailed, lang)),
-  networkOffline:   (lang?: Lang) => toast.error(pick(M.networkOffline, lang)),
-  signInRequired:   (lang?: Lang) => toast.error(pick(M.signInRequired, lang)),
-  duplicateFeed:    (lang?: Lang) => toast.error(pick(M.duplicateFeed, lang)),
-  feedAdded:        (lang?: Lang) => toast.success(pick(M.feedAdded, lang)),
-  feedRemoved:      (lang?: Lang) => toast.success(pick(M.feedRemoved, lang)),
+  copied:           (lang?: LegacyLang) => toast.success(pick(M.copied, lang)),
+  linkCopied:       (lang?: LegacyLang) => toast.success(pick(M.linkCopied, lang)),
+  copyFailed:       (lang?: LegacyLang) => toast.error(pick(M.copyFailed, lang)),
+  savedToClipboard: (lang?: LegacyLang) => toast.success(pick(M.savedToClipboard, lang)),
+  alreadySaved:     (lang?: LegacyLang) => toast.info(pick(M.alreadySaved, lang)),
+  deleted:          (lang?: LegacyLang) => toast.success(pick(M.deleted, lang)),
+  refreshed:        (lang?: LegacyLang) => toast.success(pick(M.refreshed, lang)),
+  refreshFailed:    (lang?: LegacyLang) => toast.error(pick(M.refreshFailed, lang)),
+  networkOffline:   (lang?: LegacyLang) => toast.error(pick(M.networkOffline, lang)),
+  signInRequired:   (lang?: LegacyLang) => toast.error(pick(M.signInRequired, lang)),
+  duplicateFeed:    (lang?: LegacyLang) => toast.error(pick(M.duplicateFeed, lang)),
+  feedAdded:        (lang?: LegacyLang) => toast.success(pick(M.feedAdded, lang)),
+  feedRemoved:      (lang?: LegacyLang) => toast.success(pick(M.feedRemoved, lang)),
 
   /** Escape hatch — free-form bilingual message. */
-  success: (pair: Pair, lang?: Lang) => toast.success(pick(pair, lang)),
-  error:   (pair: Pair, lang?: Lang) => toast.error(pick(pair, lang)),
-  info:    (pair: Pair, lang?: Lang) => toast.info(pick(pair, lang)),
+  success: (pair: Pair, lang?: LegacyLang) => toast.success(pick(pair, lang)),
+  error:   (pair: Pair, lang?: LegacyLang) => toast.error(pick(pair, lang)),
+  info:    (pair: Pair, lang?: LegacyLang) => toast.info(pick(pair, lang)),
 };

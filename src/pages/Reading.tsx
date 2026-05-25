@@ -15,6 +15,7 @@ import type {
 import {
   getReaderPrefs,
   storeReaderPrefs,
+  getOfflinePrefs,
 } from '@/features/reading/storage';
 import { useReadingData } from '@/features/reading/useReadingData';
 import { ListHeader } from '@/features/reading/ListHeader';
@@ -101,10 +102,14 @@ export default function ReadingPage() {
   useEffect(() => {
     void registerReadingServiceWorker();
     // Periodic prune of stale archived articles (run once per session).
+    // Honor the user's "Retention" preference from StorageView — the
+    // chip choice is now actually wired through to the prune cutoff.
     // Pass the current bookmarks so explicit saves are never deleted
     // by the age-based sweep, regardless of how long ago they were
     // archived.
-    void offlineDb.pruneOlderThan(undefined, bookmarks).catch(() => undefined);
+    const retentionDays = getOfflinePrefs().retentionDays;
+    const maxAgeMs = retentionDays * 24 * 60 * 60 * 1000;
+    void offlineDb.pruneOlderThan(maxAgeMs, bookmarks).catch(() => undefined);
     // Intentionally only depends on the *initial* bookmarks snapshot:
     // we want this to fire once per session, not every time the user
     // toggles a bookmark.
@@ -130,11 +135,15 @@ export default function ReadingPage() {
   // session — a re-render with the same bookmark list shouldn't replay
   // dozens of IDB writes. We also remove un-bookmarked articles when
   // the user toggles them off so the offline store mirrors intent.
+  //
+  // For URLs that came from outside the feed list (e.g. a keyword-alert
+  // hit opened in ReaderView), we synthesise a minimal stub so they
+  // still get persisted. The full body will be filled in by ReaderView's
+  // own save flow when the user actually reads the article.
   const savedThisSession = useRef<Set<string>>(new Set());
   useEffect(() => {
     if (!offlineDb.available()) return;
     const bookmarkSet = new Set(bookmarks);
-    // Save anything newly bookmarked + currently visible
     const articleByLink = new Map(articles.map((a) => [a.link, a] as const));
     for (const link of bookmarkSet) {
       if (savedThisSession.current.has(link)) continue;
@@ -142,6 +151,24 @@ export default function ReadingPage() {
       if (article) {
         savedThisSession.current.add(link);
         void offlineDb.saveArticle(article).catch(() => undefined);
+      } else {
+        // No article in the current list, but bookmarked — check if we
+        // already have it offline; if not, create a minimal stub so the
+        // bookmarks tab can show *something* even when the source feed
+        // has been removed or the article rolled off the list.
+        savedThisSession.current.add(link);
+        void offlineDb.getArticle(link).then((existing) => {
+          if (existing) return;
+          void offlineDb.saveArticle({
+            title: link,
+            link,
+            description: '',
+            pubDate: '',
+            image: null,
+            images: [],
+            source: '',
+          }).catch(() => undefined);
+        }).catch(() => undefined);
       }
     }
     // Remove from offline store anything the user has un-bookmarked
@@ -155,45 +182,78 @@ export default function ReadingPage() {
   }, [bookmarks, articles]);
 
   // ─── Unseen keyword alert count ───────────────────────────────────────
+  // Refreshes when the user signs in or out (auth state change), so the
+  // badge always reflects the *current* user — not the user we saw at
+  // mount. Realtime subscription is rebuilt with the correct user-id
+  // filter on every transition.
   useEffect(() => {
     let cancelled = false;
     let chan: ReturnType<typeof supabase.channel> | null = null;
-    const load = async () => {
-      const { data: userData } = await supabase.auth.getUser();
-      if (!userData.user || cancelled) return;
-      const { count } = await supabase.from('keyword_alert_hits')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', userData.user.id)
-        .eq('seen', false);
-      if (!cancelled && typeof count === 'number') setUnseenAlerts(count);
 
+    const tearDown = () => {
+      if (chan) {
+        supabase.removeChannel(chan);
+        chan = null;
+      }
+    };
+
+    const recount = async (userId: string) => {
+      try {
+        const { count } = await supabase.from('keyword_alert_hits')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', userId)
+          .eq('seen', false);
+        if (!cancelled && typeof count === 'number') setUnseenAlerts(count);
+      } catch { /* network blip; keep last value */ }
+    };
+
+    // Coalesce burst-of-events from a multi-row UPDATE (mark-all-read
+    // on 50 rows triggers 50 events). We just want one re-count.
+    let recountTimer: ReturnType<typeof setTimeout> | null = null;
+    const scheduleRecount = (userId: string) => {
+      if (recountTimer) clearTimeout(recountTimer);
+      recountTimer = setTimeout(() => { void recount(userId); }, 250);
+    };
+
+    const subscribe = (userId: string) => {
+      tearDown();
+      void recount(userId);
       chan = supabase
-        .channel(`alert-hits-badge-${userData.user.id}`)
+        .channel(`alert-hits-badge-${userId}`)
         .on(
           'postgres_changes',
           {
             event: '*',
             schema: 'public',
             table: 'keyword_alert_hits',
-            filter: `user_id=eq.${userData.user.id}`,
+            filter: `user_id=eq.${userId}`,
           },
-          () => {
-            // Re-count on any change (insert / mark-read).
-            supabase.from('keyword_alert_hits')
-              .select('*', { count: 'exact', head: true })
-              .eq('user_id', userData.user.id)
-              .eq('seen', false)
-              .then(({ count }) => {
-                if (typeof count === 'number') setUnseenAlerts(count);
-              });
-          },
+          () => scheduleRecount(userId),
         )
         .subscribe();
     };
-    load();
+
+    void supabase.auth.getUser().then(({ data: userData }) => {
+      if (cancelled) return;
+      if (userData.user) subscribe(userData.user.id);
+    });
+
+    const { data: authSub } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (cancelled) return;
+      if (session?.user) {
+        subscribe(session.user.id);
+      } else {
+        // Signed out — drop the count and any subscription.
+        tearDown();
+        setUnseenAlerts(0);
+      }
+    });
+
     return () => {
       cancelled = true;
-      if (chan) supabase.removeChannel(chan);
+      if (recountTimer) clearTimeout(recountTimer);
+      tearDown();
+      authSub.subscription.unsubscribe();
     };
   }, []);
 
@@ -201,7 +261,22 @@ export default function ReadingPage() {
   const filtered = useMemo(() => {
     let list = articles;
     if (filterTab === 'bookmarks') {
-      list = list.filter((a) => bookmarks.includes(a.link));
+      // Show every bookmark — including stranded ones that aren't in
+      // the current article list. We render them with a synthetic
+      // FeedItem stub so the user can still tap and open them in the
+      // reader (ArticleReader will fall back to the offline cache).
+      const articleByLink = new Map(articles.map((a) => [a.link, a] as const));
+      list = bookmarks.map((link): FeedItem =>
+        articleByLink.get(link) ?? {
+          title: link,
+          link,
+          description: '',
+          pubDate: '',
+          image: null,
+          images: [],
+          source: '',
+        },
+      );
     } else if (filterTab === 'unread') {
       list = list.filter((a) => !readArticles.includes(a.link));
     }
@@ -236,6 +311,11 @@ export default function ReadingPage() {
     () => enabledFeeds.map((f) => f.name),
     [enabledFeeds],
   );
+
+  // For SearchPanel: undefined = search every source, [] = no enabled
+  // feeds (we'd return zero results regardless, so pass undefined for
+  // a graceful "search the whole archive" fallback).
+  const searchRestrict = enabledNames.length > 0 ? enabledNames : undefined;
 
   // ─── Navigation handlers ──────────────────────────────────────────────
   const openArticle = (article: FeedItem) => {
@@ -293,6 +373,14 @@ export default function ReadingPage() {
 
   const refreshTimeAgo = lastRefresh ? timeAgo(lastRefresh, language) : null;
 
+  // Toggling the search bar off should also clear the active query —
+  // otherwise the list stays filtered with no visible input, leaving
+  // the user wondering why they're seeing "no results".
+  const toggleSearch = (next: boolean) => {
+    setShowSearch(next);
+    if (!next) setSearchQuery('');
+  };
+
   return (
     <div className="min-h-screen bg-background flex flex-col pb-20">
       <SEO
@@ -345,6 +433,7 @@ export default function ReadingPage() {
             isAr={isAr}
             onBack={goBack}
             onAddSuggested={addSuggestedFeed}
+            onAddBulk={addFeedsBulk}
           />
          </Suspense>
         )}
@@ -374,7 +463,7 @@ export default function ReadingPage() {
             key="search"
             isAr={isAr}
             language={language}
-            restrictTo={enabledNames}
+            restrictTo={searchRestrict}
             onBack={goBack}
             onOpenArticle={openArticle}
           />
@@ -390,6 +479,7 @@ export default function ReadingPage() {
             enabledFeeds={enabledFeeds}
             onBack={goBack}
             onOpenLink={openLinkInReader}
+            onSignIn={() => navigate('/auth')}
           />
          </Suspense>
         )}
@@ -424,7 +514,7 @@ export default function ReadingPage() {
               isAr={isAr}
               onBack={goBack}
               showSearch={showSearch}
-              setShowSearch={setShowSearch}
+              setShowSearch={toggleSearch}
               searchQuery={searchQuery}
               setSearchQuery={setSearchQuery}
               refreshing={refreshing}
@@ -465,9 +555,11 @@ export default function ReadingPage() {
                 bookmarks={bookmarks}
                 readArticles={readArticles}
                 cachedLinks={cachedLinks}
+                hasFeeds={enabledFeeds.length > 0}
                 onOpenArticle={openArticle}
                 onToggleBookmark={toggleBookmark}
                 onRefresh={() => refreshFeeds(false)}
+                onAddFeeds={() => setView('suggested')}
               />
             </PullToRefresh>
 
@@ -479,7 +571,9 @@ export default function ReadingPage() {
                 title={isAr ? 'إدارة التخزين دون اتصال' : 'Manage offline storage'}
               >
                 <Database className="h-3 w-3" />
-                {isAr ? `${totalInDB} مقال محفوظ` : `${totalInDB} archived`}
+                {isAr
+                  ? `${totalInDB} ${totalInDB === 1 ? 'مقال' : 'مقالاً'} محفوظ${totalInDB === 1 ? '' : 'ة'}`
+                  : `${totalInDB} archived`}
               </button>
               <button
                 type="button"

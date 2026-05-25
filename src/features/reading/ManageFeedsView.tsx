@@ -13,6 +13,7 @@ import { SourcePill } from './SourcePill';
 import { downloadOpml } from './opml';
 import { AddFeedDialog } from './AddFeedDialog';
 import { OpmlImportDialog } from './OpmlImportDialog';
+import { ConfirmDialog } from './ConfirmDialog';
 
 /**
  * Lets the user add, remove, enable/disable feeds and shows per-feed
@@ -51,6 +52,7 @@ export function ManageFeedsView({
   const [newCategory, setNewCategory] = useState('news');
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showOpmlDialog, setShowOpmlDialog] = useState(false);
+  const [pendingRemove, setPendingRemove] = useState<FeedSource | null>(null);
 
   const statusByUrl = new Map(statuses.map((s) => [s.url, s] as const));
   const existingUrls = new Set(feedSources.map((f) => f.url));
@@ -252,7 +254,7 @@ export function ManageFeedsView({
                     <button
                       type="button"
                       onClick={() => onToggleEnabled(feed.url)}
-                      className={`p-1.5 rounded-lg transition-colors ${
+                      className={`p-2 rounded-lg transition-colors ${
                         feed.enabled
                           ? 'text-primary hover:bg-primary/10'
                           : 'text-muted-foreground hover:bg-accent'
@@ -260,13 +262,15 @@ export function ManageFeedsView({
                       aria-label={feed.enabled
                         ? (isAr ? 'إيقاف' : 'Disable')
                         : (isAr ? 'تفعيل' : 'Enable')}
+                      role="switch"
+                      aria-checked={feed.enabled}
                     >
                       {feed.enabled ? <Check className="h-4 w-4" /> : <X className="h-4 w-4" />}
                     </button>
                     <button
                       type="button"
-                      onClick={() => onRemove(feed.url)}
-                      className="p-1.5 rounded-lg hover:bg-destructive/10 transition-colors"
+                      onClick={() => setPendingRemove(feed)}
+                      className="p-2 rounded-lg hover:bg-destructive/10 transition-colors"
                       aria-label={isAr ? 'حذف' : 'Remove'}
                     >
                       <Trash2 className="h-4 w-4 text-destructive" />
@@ -325,6 +329,26 @@ export function ManageFeedsView({
             else skipped++;
           }
           return { added, skipped };
+        }}
+      />
+
+      <ConfirmDialog
+        open={pendingRemove !== null}
+        isAr={isAr}
+        title={{ ar: 'حذف هذا المصدر؟', en: 'Remove this feed?' }}
+        description={pendingRemove
+          ? {
+              ar: `سيتم إزالة "${pendingRemove.name}" من قائمتك. المقالات الموجودة في الأرشيف لن تتأثر.`,
+              en: `“${pendingRemove.name}” will be removed from your list. Already-archived articles are not affected.`,
+            }
+          : undefined}
+        confirmLabel={{ ar: 'حذف', en: 'Remove' }}
+        onConfirm={() => {
+          if (pendingRemove) onRemove(pendingRemove.url);
+          setPendingRemove(null);
+        }}
+        onOpenChange={(open) => {
+          if (!open) setPendingRemove(null);
         }}
       />
     </motion.div>
