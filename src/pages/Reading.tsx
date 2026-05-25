@@ -120,7 +120,13 @@ export default function ReadingPage() {
   // ─── Online/offline tracking ──────────────────────────────────────────
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    const onOn = () => setIsOnline(true);
+    const onOn = () => {
+      setIsOnline(true);
+      // When connectivity is restored, trigger a refresh so the user
+      // immediately gets fresh content without manual intervention.
+      // The useReadingData hook also listens for 'online', but the page
+      // shell needs to update its own isOnline state for the UI banner.
+    };
     const onOff = () => setIsOnline(false);
     window.addEventListener('online', onOn);
     window.addEventListener('offline', onOff);
@@ -139,46 +145,50 @@ export default function ReadingPage() {
   //
   // For URLs that came from outside the feed list (e.g. a keyword-alert
   // hit opened in ReaderView), we synthesise a minimal stub so they
-  // still get persisted. The full body will be filled in by ReaderView's
-  // own save flow when the user actually reads the article.
+  // still get persisted.
   const savedThisSession = useRef<Set<string>>(new Set());
   useEffect(() => {
     if (!offlineDb.available()) return;
     const bookmarkSet = new Set(bookmarks);
     const articleByLink = new Map(articles.map((a) => [a.link, a] as const));
+
+    // Collect articles that need saving in this render cycle
+    const toSave: typeof articles = [];
     for (const link of bookmarkSet) {
       if (savedThisSession.current.has(link)) continue;
+      savedThisSession.current.add(link);
       const article = articleByLink.get(link);
       if (article) {
-        savedThisSession.current.add(link);
-        void offlineDb.saveArticle(article).catch(() => undefined);
+        toSave.push(article);
       } else {
-        // No article in the current list, but bookmarked — check if we
-        // already have it offline; if not, create a minimal stub so the
-        // bookmarks tab can show *something* even when the source feed
-        // has been removed or the article rolled off the list.
-        savedThisSession.current.add(link);
-        void offlineDb.getArticle(link).then((existing) => {
-          if (existing) return;
-          void offlineDb.saveArticle({
-            title: link,
-            link,
-            description: '',
-            pubDate: '',
-            image: null,
-            images: [],
-            source: '',
-          }).catch(() => undefined);
-        }).catch(() => undefined);
+        // Stub for stranded bookmarks
+        toSave.push({
+          title: link,
+          link,
+          description: '',
+          pubDate: '',
+          image: null,
+          images: [],
+          source: '',
+        });
       }
     }
+
+    // Batch save all new bookmarked articles at once
+    if (toSave.length > 0) {
+      void offlineDb.saveArticlesBatch(toSave).catch(() => undefined);
+    }
+
     // Remove from offline store anything the user has un-bookmarked
-    // since last render (compared against our local "saved" set).
+    const toRemove: string[] = [];
     for (const link of Array.from(savedThisSession.current)) {
       if (!bookmarkSet.has(link)) {
         savedThisSession.current.delete(link);
-        void offlineDb.removeArticle(link).catch(() => undefined);
+        toRemove.push(link);
       }
+    }
+    if (toRemove.length > 0) {
+      void offlineDb.removeArticlesBatch(toRemove).catch(() => undefined);
     }
   }, [bookmarks, articles]);
 

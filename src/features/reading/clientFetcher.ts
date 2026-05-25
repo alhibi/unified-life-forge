@@ -20,6 +20,10 @@ import type { FeedItem, FeedSource } from './types';
 // ─── CORS proxy pool ───────────────────────────────────────────────────────
 // Each proxy has a health score. Failed proxies are deprioritized so
 // subsequent fetches prefer ones that responded recently.
+// Health scores are persisted to sessionStorage so they survive
+// in-page navigations (but reset on new browser sessions).
+
+const PROXY_HEALTH_KEY = 'rss-proxy-health';
 
 interface ProxyEntry {
   url: string;
@@ -29,12 +33,33 @@ interface ProxyEntry {
   lastOk: number;
 }
 
-const PROXY_POOL: ProxyEntry[] = [
-  { url: 'https://api.allorigins.win/raw?url=', failures: 0, lastOk: 0 },
-  { url: 'https://corsproxy.io/?', failures: 0, lastOk: 0 },
-  { url: 'https://api.codetabs.com/v1/proxy?quest=', failures: 0, lastOk: 0 },
-  { url: 'https://thingproxy.freeboard.io/fetch/', failures: 0, lastOk: 0 },
-];
+function loadProxyHealth(): ProxyEntry[] {
+  const defaults: ProxyEntry[] = [
+    { url: 'https://api.allorigins.win/raw?url=', failures: 0, lastOk: 0 },
+    { url: 'https://corsproxy.io/?', failures: 0, lastOk: 0 },
+    { url: 'https://api.codetabs.com/v1/proxy?quest=', failures: 0, lastOk: 0 },
+    { url: 'https://thingproxy.freeboard.io/fetch/', failures: 0, lastOk: 0 },
+  ];
+  try {
+    const raw = sessionStorage.getItem(PROXY_HEALTH_KEY);
+    if (!raw) return defaults;
+    const saved = JSON.parse(raw) as ProxyEntry[];
+    if (!Array.isArray(saved) || saved.length === 0) return defaults;
+    // Merge saved scores into defaults (handles added/removed proxies)
+    const savedMap = new Map(saved.map((p) => [p.url, p]));
+    return defaults.map((d) => savedMap.get(d.url) ?? d);
+  } catch {
+    return defaults;
+  }
+}
+
+function persistProxyHealth(pool: ProxyEntry[]): void {
+  try {
+    sessionStorage.setItem(PROXY_HEALTH_KEY, JSON.stringify(pool));
+  } catch { /* sessionStorage unavailable or full */ }
+}
+
+const PROXY_POOL: ProxyEntry[] = loadProxyHealth();
 
 /** Return proxies sorted by health: fewer failures first, recent success first. */
 function getSortedProxies(): ProxyEntry[] {
@@ -112,16 +137,19 @@ async function fetchViaProxy(url: string, signal?: AbortSignal): Promise<string 
         // Success — reset failure counter and record timestamp
         proxy.failures = 0;
         proxy.lastOk = Date.now();
+        persistProxyHealth(PROXY_POOL);
         return text;
       }
 
       // Got a response but it's not RSS/Atom — proxy might be returning
       // an error page. Mark as soft failure and try next.
       proxy.failures = Math.min(proxy.failures + 1, 5);
+      persistProxyHealth(PROXY_POOL);
     } catch (err) {
       const kind = classifyError(err);
       if (kind === 'offline') return null; // No point trying other proxies
       proxy.failures = Math.min(proxy.failures + 1, 10);
+      persistProxyHealth(PROXY_POOL);
       // If permanent error, skip retry for this proxy
       if (kind === 'permanent') continue;
     } finally {

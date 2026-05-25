@@ -28,35 +28,8 @@ let recoveryAttempted = false;
 
 // ─── Database connection with corruption recovery ──────────────────────────
 
-function runMigrations(db: IDBDatabase, oldVersion: number): void {
-  // v1 → create base stores
-  if (oldVersion < 1) {
-    if (!db.objectStoreNames.contains(STORE_ARTICLES)) {
-      const store = db.createObjectStore(STORE_ARTICLES, { keyPath: 'link' });
-      store.createIndex('archivedAt', 'archivedAt');
-      store.createIndex('source', 'source');
-    }
-    if (!db.objectStoreNames.contains(STORE_IMAGES)) {
-      db.createObjectStore(STORE_IMAGES, { keyPath: 'url' });
-    }
-  }
-  // v2 → add source index if missing (for per-feed queries)
-  if (oldVersion < 2) {
-    if (db.objectStoreNames.contains(STORE_ARTICLES)) {
-      const tx = (db as any).transaction?.objectStore?.(STORE_ARTICLES);
-      // During upgrade, the store is accessible via the versionchange transaction
-      // We check via objectStoreNames, then re-get from the implicit transaction
-      try {
-        const store = (event as any)?.target?.transaction?.objectStore(STORE_ARTICLES);
-        if (store && !store.indexNames.contains('source')) {
-          store.createIndex('source', 'source');
-        }
-      } catch {
-        // If we can't add the index during upgrade, it's non-critical
-      }
-    }
-  }
-}
+/** Max articles to keep in IndexedDB before pruning oldest non-bookmarked. */
+const MAX_OFFLINE_ARTICLES = 500;
 
 function openDb(): Promise<IDBDatabase> {
   if (dbPromise) return dbPromise;
@@ -143,31 +116,40 @@ function resetConnection(): void {
 
 /**
  * Run a single-store transaction with automatic error handling.
- * Returns the result of the IDBRequest produced by `fn`.
+ * Retries once on transient failures (e.g. tab-backgrounding aborts).
  */
 function tx<T>(
   store: string,
   mode: IDBTransactionMode,
   fn: (s: IDBObjectStore) => IDBRequest<T>,
 ): Promise<T> {
-  return openDb().then(
-    (db) =>
-      new Promise<T>((resolve, reject) => {
-        try {
-          const t = db.transaction(store, mode);
-          const s = t.objectStore(store);
-          const req = fn(s);
-          req.onsuccess = () => resolve(req.result);
-          req.onerror = () => reject(req.error);
-          t.onerror = () => reject(t.error);
-        } catch (e) {
-          // Transaction creation can throw if the DB connection is stale
-          // (e.g. after a versionchange event from another tab).
-          resetConnection();
-          reject(e);
-        }
-      }),
-  );
+  const attempt = (): Promise<T> =>
+    openDb().then(
+      (db) =>
+        new Promise<T>((resolve, reject) => {
+          try {
+            const t = db.transaction(store, mode);
+            const s = t.objectStore(store);
+            const req = fn(s);
+            req.onsuccess = () => resolve(req.result);
+            req.onerror = () => reject(req.error);
+            t.onerror = () => reject(t.error);
+          } catch (e) {
+            resetConnection();
+            reject(e);
+          }
+        }),
+    );
+
+  // Retry once on transient failure (AbortError from tab backgrounding)
+  return attempt().catch((err) => {
+    const msg = err instanceof Error ? err.message.toLowerCase() : '';
+    const isTransient = msg.includes('abort') || msg.includes('inactive');
+    if (isTransient) {
+      return new Promise<T>((resolve) => setTimeout(resolve, 50)).then(attempt);
+    }
+    throw err;
+  });
 }
 
 /**
@@ -486,9 +468,10 @@ export const offlineDb = {
   },
 
   /**
-   * Replace the current archive with exactly the given articles.
-   * Uses batch transactions for both adds and deletes — dramatically
-   * faster than the old item-by-item approach for large sets.
+   * Sync the offline archive: ADD missing articles, but only REMOVE
+   * articles if the store exceeds MAX_OFFLINE_ARTICLES (preserving
+   * bookmarked ones). This ensures the user can always go back to
+   * previously-fetched articles without them being aggressively purged.
    */
   async syncArticles(
     items: ReadonlyArray<FeedItem>,
@@ -510,8 +493,9 @@ export const offlineDb = {
     }
 
     const have = new Set(existing.map((a) => a.link));
+    const keepSet = new Set(keepLinks);
 
-    // Determine what to add and what to remove
+    // ADD: save articles we want but don't have yet
     const toAdd: FeedItem[] = [];
     let kept = 0;
     for (const link of want) {
@@ -523,9 +507,20 @@ export const offlineDb = {
       }
     }
 
+    // REMOVE: only prune if we're OVER the max cap, and only remove
+    // the oldest non-bookmarked articles. Never remove bookmarks or
+    // articles the user explicitly wants to keep.
     const toRemove: string[] = [];
-    for (const a of existing) {
-      if (!want.has(a.link)) toRemove.push(a.link);
+    const totalAfterAdd = existing.length + toAdd.length;
+    if (totalAfterAdd > MAX_OFFLINE_ARTICLES) {
+      const excess = totalAfterAdd - MAX_OFFLINE_ARTICLES;
+      // Sort existing by archivedAt ascending (oldest first)
+      const removable = existing
+        .filter((a) => !keepSet.has(a.link) && !want.has(a.link))
+        .sort((a, b) => a.archivedAt - b.archivedAt);
+      for (let i = 0; i < Math.min(excess, removable.length); i++) {
+        toRemove.push(removable[i].link);
+      }
     }
 
     // Batch add
@@ -534,7 +529,7 @@ export const offlineDb = {
       added = await this.saveArticlesBatch(toAdd);
     }
 
-    // Batch remove
+    // Batch remove (only excess)
     let removed = 0;
     if (toRemove.length > 0) {
       removed = await this.removeArticlesBatch(toRemove);
