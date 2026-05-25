@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useId, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { useUnreadMessages } from '@/hooks/useUnreadMessages';
 import {
@@ -74,9 +74,6 @@ const tabs: Tab[] = [
 // Show the bar only on these top-level destinations (same gate as before).
 const TAB_PATHS = new Set<string>(tabs.map(t => t.path));
 
-// Reuse the app's easing tokens so the bar speaks the same motion
-// dialect as cards, sheets, and the sidebar. Inline fallbacks keep the
-// curve identical even on browsers that mis-resolve var() in transitions.
 const SPRING   = 'var(--ease-spring, cubic-bezier(0.34, 1.56, 0.64, 1))';
 const OUT_EXPO = 'var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1))';
 
@@ -85,29 +82,6 @@ const OUT_EXPO = 'var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1))';
 // onClick handles navigation cleanly.
 const TAP_SLOP = 4;
 
-/**
- * Bell-curve cubic bezier that lifts the wave under the active tab.
- * The baseline sits at y=22 inside a 64px tall SVG; the fill area
- * extends down to y=64 (bottom of SVG).
- */
-function buildPath(cx: number, containerWidth: number, itemWidth: number, lift = 26) {
-  const left  = Math.max(0, cx - itemWidth * 1.6);
-  const right = Math.min(containerWidth, cx + itemWidth * 1.6);
-  return `
-    M0,22
-    L${left},22
-    Q${cx - itemWidth * 0.8},22
-      ${cx - itemWidth * 0.28},${22 - lift * 0.55}
-    Q${cx},${22 - lift}
-      ${cx + itemWidth * 0.28},${22 - lift * 0.55}
-    Q${cx + itemWidth * 0.8},22
-      ${right},22
-    L${containerWidth},22
-    L${containerWidth},64
-    L0,64
-    Z
-  `;
-}
 
 type DragState = {
   /** Where the gesture started, relative to the bar's left edge (CSS px). */
@@ -165,7 +139,7 @@ export default function TideBar() {
 
   const totalTabs = tabs.length;
   const itemWidth = containerWidth / totalTabs;
-  const lift = 26;
+
 
   const computeIndexFromX = useCallback(
     (x: number) => {
@@ -262,20 +236,7 @@ export default function TideBar() {
 
   // ── Visual layer: drag preview overrides location-based active ────────
   const dragging = drag !== null;
-  // While dragging, the wave/icons reflect the *previewed* tab so the
-  // user gets immediate feedback. aria-current still mirrors the route.
   const visualIndex = drag ? drag.index : safeActiveIndex;
-  const visualColor = tabs[visualIndex].color;
-  const visualCx = drag
-    ? Math.max(itemWidth * 0.5, Math.min(containerWidth - itemWidth * 0.5, drag.x))
-    : (visualIndex + 0.5) * itemWidth;
-  const wavePath = buildPath(visualCx, containerWidth, itemWidth, lift);
-
-  // Regenerate the gradient id when the previewed tab changes so the
-  // SVG forces a fresh paint of the fill instead of relying purely on
-  // stop interpolation.
-  const baseId = useId();
-  const gradientId = `${baseId}-tide-${visualIndex}`;
 
   // Visibility gate (preserved): only show on top-level destinations.
   if (!TAB_PATHS.has(location.pathname)) return null;
@@ -324,59 +285,6 @@ export default function TideBar() {
           cursor: dragging ? 'grabbing' : undefined,
         }}
       >
-        {/* ── Top hairline ──────────────────────────────────────────── */}
-        <div
-          aria-hidden
-          className="absolute left-0 right-0 top-0 pointer-events-none"
-          style={{
-            height: 1,
-            background: `linear-gradient(to right, transparent, ${visualColor}55, ${visualColor}80, ${visualColor}55, transparent)`,
-            transition: dragging ? 'none' : 'background 0.5s ease',
-            zIndex: 3,
-          }}
-        />
-
-        {/* ── Wave layer ────────────────────────────────────────────── */}
-        <svg
-          className="absolute inset-0 pointer-events-none"
-          width="100%"
-          height="100%"
-          viewBox={`0 0 ${containerWidth} 64`}
-          preserveAspectRatio="none"
-          aria-hidden
-          style={{ zIndex: 1 }}
-        >
-          <defs>
-            <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%"   stopColor={visualColor} stopOpacity="0.18" />
-              <stop offset="100%" stopColor={visualColor} stopOpacity="0.04" />
-            </linearGradient>
-          </defs>
-
-          <path
-            d={wavePath}
-            fill={`url(#${gradientId})`}
-            style={{
-              // No transition during drag → wave follows the finger 1:1.
-              // On release the spring eases re-engage for a snap-to-rest.
-              transition: dragging ? 'none' : `d 0.5s ${SPRING}, fill 0.4s ease`,
-            }}
-          />
-
-          {/* Crest glow that slides horizontally with the wave peak. */}
-          <ellipse
-            cx={visualCx}
-            cy={22 - lift}
-            rx={Math.max(itemWidth * 0.6, 12)}
-            ry={3}
-            fill={visualColor}
-            opacity={0.35}
-            style={{
-              transition: dragging ? 'none' : `cx 0.5s ${SPRING}, fill 0.4s ease`,
-            }}
-          />
-        </svg>
-
         {/* ── Icons (absolutely positioned, NOT a flex row) ────────── */}
         {tabs.map((tab, i) => {
           // visuallyActive drives the lift / color so the user sees the
