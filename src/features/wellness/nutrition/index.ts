@@ -2,7 +2,7 @@
  * Nutrition Module — Public API
  * 
  * This module provides the comprehensive nutrition system including:
- * - 80+ food items with full nutritional profiles
+ * - 479+ food items with full nutritional profiles (v2: extended with 171+ new items)
  * - Search, filter, and recommendation utilities
  * - Meal logging and tracking
  * - Daily intake analysis
@@ -28,6 +28,9 @@ export {
   DAIRY_DATA, GRAINS_DATA, LEGUMES_DATA,
   NUTS_SEEDS_DATA, OILS_SPICES_DATA, BEVERAGES_DATA,
   PREPARED_FOODS_DATA,
+  // Extended (v2)
+  FRUITS_EXTENDED_DATA, VEGETABLES_EXTENDED_DATA, PROTEINS_EXTENDED_DATA,
+  DAIRY_EXTENDED_DATA, GRAINS_LEGUMES_EXTENDED_DATA, NUTS_SEEDS_EXTENDED_DATA,
 } from './data';
 
 // Utilities
