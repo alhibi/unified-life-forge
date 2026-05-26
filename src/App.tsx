@@ -95,6 +95,11 @@ const loadDiwan = () => import("./pages/Diwan");
 // cost on cold home paint.
 const loadBrowse = () => import("./pages/Browse");
 const loadMihrab = () => import("./pages/Mihrab");
+// Weather hub — comprehensive 7-day forecast + details view reachable
+// from the bottom nav. Lazy because the home page already shows a tiny
+// `WeatherWidget` and most users won't drill into the full hub on every
+// session; the prefetch on idle warms it up so the first tap is fast.
+const loadWeather = () => import("./pages/Weather");
 // Diwan library — adab.com integration
 const loadLibrary = () => import("./pages/diwan/Library");
 const loadLibraryPoets = () => import("./pages/diwan/LibraryPoets");
@@ -139,6 +144,7 @@ const WellnessPage = lazy(loadWellness);
 const DiwanPage = lazy(loadDiwan);
 const BrowsePage = lazy(loadBrowse);
 const MihrabPage = lazy(loadMihrab);
+const WeatherPage = lazy(loadWeather);
 const DiwanLibraryPage = lazy(loadLibrary);
 const DiwanLibraryPoetsPage = lazy(loadLibraryPoets);
 const DiwanLibraryPoetPage = lazy(loadLibraryPoet);
@@ -167,6 +173,9 @@ function useIdlePrefetch() {
       // is now reached from the home avatar shortcut, so prefetch it
       // too — the user is one tap away.
       loadBrowse(); loadMihrab(); loadSettings();
+      // Weather hub is in the bottom nav alongside Browse/Mihrab; warm
+      // it up on idle so the first tap renders instantly.
+      loadWeather();
     });
     return () => {
       const cic = (window as any).cancelIdleCallback;
@@ -404,6 +413,7 @@ function AnimatedRoutes() {
                 lazy tab-class routes. */}
             <Route path="/browse" element={<ErrorBoundary><PageTransition><BrowsePage /></PageTransition></ErrorBoundary>} />
             <Route path="/mihrab" element={<ErrorBoundary><PageTransition><MihrabPage /></PageTransition></ErrorBoundary>} />
+            <Route path="/weather" element={<ErrorBoundary><PageTransition><WeatherPage /></PageTransition></ErrorBoundary>} />
             <Route path="/games/sudoku" element={<ErrorBoundary><PageTransition><SudokuPage /></PageTransition></ErrorBoundary>} />
             <Route path="/games/chess" element={<ErrorBoundary><PageTransition><ChessPage /></PageTransition></ErrorBoundary>} />
             <Route path="/games/chess/puzzles" element={<ErrorBoundary><PageTransition><ChessPuzzlePage /></PageTransition></ErrorBoundary>} />
