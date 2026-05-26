@@ -1,6 +1,7 @@
 import React from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { Message } from './types';
+import { renderTextWithAppleEmoji, onAppleEmojiReady } from './appleEmoji';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Date / time formatters
@@ -216,15 +217,21 @@ function tokenizeStyles(text: string): RichToken[] {
 function renderToken(t: RichToken, key: number | string): React.ReactNode {
   switch (t.kind) {
     case 'bold': {
-      const children = 'children' in t ? t.children.map((c, i) => renderToken(c, i)) : t.value;
+      const children = 'children' in t
+        ? t.children.map((c, i) => renderToken(c, `${key}.${i}`))
+        : renderTextWithAppleEmoji(t.value, `${key}b`);
       return React.createElement('strong', { key, className: 'font-semibold' }, children);
     }
     case 'italic': {
-      const children = 'children' in t ? t.children.map((c, i) => renderToken(c, i)) : t.value;
+      const children = 'children' in t
+        ? t.children.map((c, i) => renderToken(c, `${key}.${i}`))
+        : renderTextWithAppleEmoji(t.value, `${key}i`);
       return React.createElement('em', { key, className: 'italic' }, children);
     }
     case 'strike': {
-      const children = 'children' in t ? t.children.map((c, i) => renderToken(c, i)) : t.value;
+      const children = 'children' in t
+        ? t.children.map((c, i) => renderToken(c, `${key}.${i}`))
+        : renderTextWithAppleEmoji(t.value, `${key}s`);
       return React.createElement('span', { key, className: 'line-through opacity-70' }, children);
     }
     case 'code':
@@ -232,7 +239,7 @@ function renderToken(t: RichToken, key: number | string): React.ReactNode {
     case 'link':
       return React.createElement('a', { key, href: t.href, target: '_blank', rel: 'noopener noreferrer', className: 'underline underline-offset-2 text-primary break-all', onClick: (e: React.MouseEvent) => e.stopPropagation() }, t.value);
     default:
-      return React.createElement(React.Fragment, { key }, t.value);
+      return React.createElement(React.Fragment, { key }, ...renderTextWithAppleEmoji(t.value, `${key}t`));
   }
 }
 
@@ -249,6 +256,11 @@ function renderRichTextUncached(raw: string): React.ReactNode[] {
 // nodes themselves are tiny stable references.
 const RICH_TEXT_CACHE_MAX = 500;
 const richTextCache = new Map<string, React.ReactNode[]>();
+
+// When the Apple-emoji map finishes loading, drop every cached render so
+// subsequent calls re-tokenize through `renderTextWithAppleEmoji` and emit
+// <img> tags instead of the native unicode they captured initially.
+onAppleEmojiReady(() => richTextCache.clear());
 
 export function renderRichText(raw: string): React.ReactNode[] {
   if (!raw) return [];

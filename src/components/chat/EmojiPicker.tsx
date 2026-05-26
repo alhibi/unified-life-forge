@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useApp } from '@/contexts/AppContext';
+import { preloadAppleEmoji } from './appleEmoji';
 
 interface EmojiPickerProps {
   isAr: boolean;
@@ -51,6 +52,10 @@ const EmojiPicker: React.FC<EmojiPickerProps> = ({ isAr, onPick, compact }) => {
   // Lazy-load emoji-mart and mount its picker once.
   useEffect(() => {
     let cancelled = false;
+    // The picker and the message renderer share `@emoji-mart/data`. Kicking
+    // the preload off here means message bodies get their Apple-emoji
+    // upgrade as soon as the user has opened the picker once.
+    preloadAppleEmoji();
     const mount = async () => {
       try {
         const [{ Picker }, dataMod, i18nMod] = await Promise.all([
@@ -68,6 +73,13 @@ const EmojiPicker: React.FC<EmojiPickerProps> = ({ isAr, onPick, compact }) => {
           i18n: (i18nMod as { default: unknown }).default ?? i18nMod,
           // 'apple' = iPhone-style emoji artwork (sprite via jsDelivr CDN).
           set: 'apple',
+          // Pin the exact CDN URL emoji-mart should use so it matches the
+          // PNGs we use to render emojis in message bodies (see
+          // ./appleEmoji.tsx) and avatar emojis (see utils/emojiAvatar.ts).
+          // Using a fixed `emoji-datasource-apple` version also avoids
+          // version drift between the picker and the message renderer.
+          getImageURL: (set: string, name: string) =>
+            `https://cdn.jsdelivr.net/npm/emoji-datasource-${set}@16.0.0/img/${set}/64/${name}.png`,
           theme: resolvedTheme,
           locale: isAr ? 'ar' : 'de',
           // iOS-keyboard layout: nav at the top, search sticky just below,
