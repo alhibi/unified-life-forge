@@ -4,6 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useApp } from '@/contexts/AppContext';
 import { useImageUpload } from '@/contexts/ImageUploadContext';
 import { packImageMeta } from '@/lib/chat/imageMeta';
+import { looksLikeHeic, canDecodeHeicNatively, convertHeicToJpeg } from '@/lib/chat/heic';
 import { useOtherUserPresence, useUserOnline, useOnlineUserIds, formatLastSeen, useTick } from '@/hooks/usePresence';
 import { getSignedFileUrl, getMessagePreview } from './chatUtils';
 import { playChatSound, primeAudio, haptic } from './sounds';
@@ -1281,16 +1282,52 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     }
   }, [user, reactions, isAr]);
 
+  // Pre-flight HEIC handling. Returns the list of files we should
+  // actually stage — converting to JPEG up front when the browser can
+  // decode HEIC natively (Safari / iOS), and toasting + skipping when
+  // it cannot (Chrome / Firefox / Edge desktop). Doing this at staging
+  // time means:
+  //   • The thumbnail preview tile renders the real image instead of a
+  //     broken-image icon (Chrome can't paint <img src=blob:heic>).
+  //   • The user finds out instantly that an unsupported file was
+  //     dropped, instead of after they tap Send.
+  // The function is async because the canvas re-encode runs there;
+  // callers should not block their UI on it (we only do it for ≤ 10
+  // files at a time).
+  const stageableFromImages = useCallback(async (files: File[]): Promise<File[]> => {
+    if (files.length === 0) return [];
+    const heicCapable = await canDecodeHeicNatively();
+    const out: File[] = [];
+    for (const f of files) {
+      if (!looksLikeHeic(f)) {
+        out.push(f);
+        continue;
+      }
+      if (!heicCapable) {
+        chatError('heicUnsupported', isAr);
+        continue;
+      }
+      try {
+        const jpeg = await convertHeicToJpeg(f);
+        out.push(jpeg);
+      } catch {
+        chatError('heicUnsupported', isAr);
+      }
+    }
+    return out;
+  }, [isAr]);
+
   // ── Files + staged images ─────────────────────────────────────────────────
   const handleFileUpload = useCallback(async (e: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (!files.length || !user || !activeConv) return;
 
-    const images = files.filter(f => f.type.startsWith('image/'));
-    const others = files.filter(f => !f.type.startsWith('image/'));
+    const images = files.filter(f => f.type.startsWith('image/') || looksLikeHeic(f));
+    const others = files.filter(f => !f.type.startsWith('image/') && !looksLikeHeic(f));
 
     if (images.length > 0) {
-      const validImages = images.filter(f => validateFile(f, 'image', isAr));
+      const stageable = await stageableFromImages(images);
+      const validImages = stageable.filter(f => validateFile(f, 'image', isAr));
       const currentCount = stagedImages.length;
       const room = Math.max(0, MAX_STAGED_IMAGES - currentCount);
       if (validImages.length > room) chatError('tooManyImages', isAr);
@@ -1314,12 +1351,13 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
       await sendMessage('file', path, file.name);
     }
     if (fileInputRef.current) fileInputRef.current.value = '';
-  }, [user, activeConv, sendMessage, isAr, stagedImages.length]);
+  }, [user, activeConv, sendMessage, isAr, stagedImages.length, stageableFromImages]);
 
-  const addImagesFromFiles = useCallback((files: File[]) => {
-    const images = files.filter(f => f.type.startsWith('image/'));
+  const addImagesFromFiles = useCallback(async (files: File[]) => {
+    const images = files.filter(f => f.type.startsWith('image/') || looksLikeHeic(f));
     if (images.length === 0) return;
-    const valid = images.filter(f => validateFile(f, 'image', isAr));
+    const stageable = await stageableFromImages(images);
+    const valid = stageable.filter(f => validateFile(f, 'image', isAr));
     const room = Math.max(0, MAX_STAGED_IMAGES - stagedImages.length);
     if (valid.length > room) chatError('tooManyImages', isAr);
     const toStage = valid.slice(0, room);
@@ -1327,13 +1365,13 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     const previews = toStage.map(f => URL.createObjectURL(f));
     setStagedImages(prev => [...prev, ...toStage]);
     setStagedPreviews(prev => [...prev, ...previews]);
-  }, [isAr, stagedImages.length]);
+  }, [isAr, stagedImages.length, stageableFromImages]);
 
   const addFilesFromDrop = useCallback(async (files: File[]) => {
     if (!files.length || !user || !activeConv) return;
-    const images = files.filter(f => f.type.startsWith('image/'));
-    const others = files.filter(f => !f.type.startsWith('image/'));
-    if (images.length > 0) addImagesFromFiles(images);
+    const images = files.filter(f => f.type.startsWith('image/') || looksLikeHeic(f));
+    const others = files.filter(f => !f.type.startsWith('image/') && !looksLikeHeic(f));
+    if (images.length > 0) await addImagesFromFiles(images);
     for (const file of others) {
       if (!validateFile(file, 'file', isAr)) continue;
       setUploading(true);

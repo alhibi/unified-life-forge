@@ -1496,33 +1496,76 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
               </AnimatePresence>
 
               {/* Image uploads in progress */}
-              {chat.activeConv && chat.imageUpload.uploads.filter(u => u.conversationId === chat.activeConv!.id).map(upload => (
+              {chat.activeConv && chat.imageUpload.uploads.filter(u => u.conversationId === chat.activeConv!.id).map(upload => {
+                const saving = upload.originalBytes && upload.compressedBytes && upload.originalBytes > upload.compressedBytes
+                  ? Math.round(((upload.originalBytes - upload.compressedBytes) / upload.originalBytes) * 100)
+                  : 0;
+                const aspect = upload.width && upload.height ? `${upload.width} / ${upload.height}` : '4 / 3';
+                return (
                 <div key={upload.tempId} className="flex justify-end mt-2">
                   <div className="relative max-w-[75%] overflow-hidden bg-primary/15" style={{ borderRadius: '18px 18px 4px 18px' }}>
-                    <img src={upload.localPreviewUrl} alt="" className={cn('max-w-full max-h-60 object-cover transition-all duration-500', (upload.status === 'uploading' || upload.status === 'compressing') && 'blur-[2px] brightness-75', upload.status === 'done' && 'blur-0 brightness-100')} />
-                    {upload.status === 'compressing' && (
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <svg className="w-12 h-12 animate-spin" viewBox="0 0 48 48">
-                          <circle cx="24" cy="24" r="20" fill="none" stroke="white" strokeOpacity="0.2" strokeWidth="3" />
-                          <circle cx="24" cy="24" r="20" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeDasharray={`${2 * Math.PI * 20}`} strokeDashoffset={`${2 * Math.PI * 20 * 0.7}`} />
-                        </svg>
-                      </div>
-                    )}
-                    {upload.status === 'uploading' && (
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <svg className="w-12 h-12 -rotate-90" viewBox="0 0 48 48"><circle cx="24" cy="24" r="20" fill="none" stroke="white" strokeOpacity="0.2" strokeWidth="3" /><circle cx="24" cy="24" r="20" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeDasharray={`${2 * Math.PI * 20}`} strokeDashoffset={`${2 * Math.PI * 20 * (1 - upload.progress / 100)}`} className="transition-all duration-300" /></svg>
-                        <span className="absolute text-white text-[11px] font-bold">{upload.progress}%</span>
-                      </div>
-                    )}
-                    {upload.status === 'error' && (
-                      <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-                        <button onClick={() => chat.imageUpload.retryUpload(upload.tempId)} className="px-4 py-2 rounded-full bg-destructive text-white text-sm font-medium active:scale-95 transition-transform">{chat.isAr ? 'إعادة المحاولة' : 'Wiederholen'}</button>
-                      </div>
-                    )}
+                    <div className="relative" style={{ aspectRatio: aspect, maxHeight: 240, background: upload.dominantColor ?? undefined }}>
+                      <img
+                        src={upload.localPreviewUrl}
+                        alt=""
+                        className={cn(
+                          'absolute inset-0 w-full h-full object-cover transition-all duration-500',
+                          (upload.status === 'uploading' || upload.status === 'compressing') && 'blur-[2px] brightness-75',
+                          upload.status === 'done' && 'blur-0 brightness-100',
+                        )}
+                      />
+                      {upload.status === 'compressing' && (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <svg className="w-12 h-12 animate-spin" viewBox="0 0 48 48">
+                            <circle cx="24" cy="24" r="20" fill="none" stroke="white" strokeOpacity="0.2" strokeWidth="3" />
+                            <circle cx="24" cy="24" r="20" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeDasharray={`${2 * Math.PI * 20}`} strokeDashoffset={`${2 * Math.PI * 20 * 0.7}`} />
+                          </svg>
+                        </div>
+                      )}
+                      {upload.status === 'uploading' && (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <svg className="w-12 h-12 -rotate-90" viewBox="0 0 48 48"><circle cx="24" cy="24" r="20" fill="none" stroke="white" strokeOpacity="0.2" strokeWidth="3" /><circle cx="24" cy="24" r="20" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeDasharray={`${2 * Math.PI * 20}`} strokeDashoffset={`${2 * Math.PI * 20 * (1 - upload.progress / 100)}`} className="transition-all duration-300" /></svg>
+                          <span className="absolute text-white text-[11px] font-bold">{upload.progress}%</span>
+                        </div>
+                      )}
+                      {upload.status === 'error' && (
+                        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/65 px-3 text-center">
+                          {upload.errorMessage && (
+                            <p className="text-white text-[12px] font-medium leading-tight max-w-[200px]" dir="auto">
+                              {upload.errorMessage}
+                            </p>
+                          )}
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => chat.imageUpload.retryUpload(upload.tempId)}
+                              className="px-3.5 py-1.5 rounded-full bg-destructive text-white text-[12px] font-medium active:scale-95 transition-transform"
+                            >
+                              {chat.isAr ? 'إعادة المحاولة' : 'Wiederholen'}
+                            </button>
+                            <button
+                              onClick={() => chat.imageUpload.clearUpload(upload.tempId)}
+                              aria-label={chat.isAr ? 'تجاهل' : 'Verwerfen'}
+                              className="px-3.5 py-1.5 rounded-full bg-white/15 text-white text-[12px] font-medium active:scale-95 transition-transform"
+                            >
+                              {chat.isAr ? 'تجاهل' : 'Verwerfen'}
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                      {/* Compression badge — Telegram shows this in the
+                          upload tile so users know their photo was optimized
+                          before being sent. Hidden during error state. */}
+                      {saving >= 15 && upload.status !== 'error' && (
+                        <span className="absolute bottom-1.5 start-1.5 px-1.5 py-0.5 rounded-md bg-black/45 backdrop-blur-sm text-white text-[10px] font-semibold">
+                          −{saving}%
+                        </span>
+                      )}
+                    </div>
                     <div className="px-3 py-1.5"><div className="flex items-center justify-end gap-[3px] text-[11px] leading-none text-muted-foreground/60" dir="ltr"><span>{formatClockTime(new Date().toISOString())}</span></div></div>
                   </div>
                 </div>
-              ))}
+                );
+              })}
 
               <div ref={chat.messagesEndRef} />
             </div>

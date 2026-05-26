@@ -65,7 +65,7 @@ interface ChatInputProps {
   scrollToBottom: () => void;
   activeConvOtherName?: string;
   userId?: string;
-  onPasteFiles?: (files: File[]) => void;
+  onPasteFiles?: (files: File[]) => void | Promise<void>;
   /** When true, bare Enter sends; Shift+Enter inserts newline. When false, Enter always inserts a newline. */
   enterToSend?: boolean;
   /** Mention suggestions for @-mentions in groups */
