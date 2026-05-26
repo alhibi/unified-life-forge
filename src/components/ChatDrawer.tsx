@@ -39,6 +39,7 @@ import { haptic } from './chat/sounds';
 import { VirtualMessageList, type VirtualMessageListHandle } from './chat/VirtualMessageList';
 import { MessageRowErrorBoundary } from './chat/MessageRowErrorBoundary';
 import { unpackFileName, readableFileName } from '@/lib/chat/imageMeta';
+import { setInChatConversation } from '@/lib/inChatConversation';
 import type { ChatDrawerProps, ActionMenuState, Message } from './chat/types';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -366,6 +367,32 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [inline, actionMenu, showConvSearch, chat, onOpenChange, messageInfoTarget]);
+
+  // Hide the global BottomNav while the user is inside an active 1:1
+  // conversation on the dedicated /chat page. The legacy surface keeps
+  // the same URL whether you're on the list or in a thread, so a path
+  // gate isn't enough — we toggle a small external signal that BottomNav
+  // subscribes to. Only the inline (full-page) path participates; the
+  // sheet/drawer mode is layered on top of the regular UI and shouldn't
+  // change the host page's chrome.
+  //
+  // We deliberately split the sync from the unmount-cleanup so that
+  // navigating between conversations doesn't briefly flip the bar back
+  // on (`setInChatConversation(false)` running between effect tear-down
+  // and re-run would unhide → rehide within the same paint).
+  React.useEffect(() => {
+    if (!inline) return;
+    const insideConversation = !!chat.activeConv && !chat.showNewChat;
+    setInChatConversation(insideConversation);
+  }, [inline, chat.activeConv, chat.showNewChat]);
+  React.useEffect(() => {
+    if (!inline) return;
+    return () => {
+      // Restore the bar when the page unmounts (history pop, route change,
+      // logout, etc.). Idempotent — safe even if the bar is already shown.
+      setInChatConversation(false);
+    };
+  }, [inline]);
 
   const BackIcon = chat.isAr ? ChevronRight : ChevronLeft;
 
@@ -1826,13 +1853,21 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
     // fixed-positioned descendants — trapping them inside a zero-height
     // box. A regular flex column anchored to the dynamic viewport height
     // works on every browser and respects the persistent BottomNav.
+    //
+    // While the user is inside an active 1:1 conversation we drop the
+    // 64px nav-reserve and let the composer hug the safe-area, matching
+    // WhatsApp / Telegram chrome (the BottomNav itself is hidden via
+    // `setInChatConversation`, see the effect above).
+    const insideConversation = !!chat.activeConv && !chat.showNewChat;
     return (
       <>
         <div
           className="flex flex-col bg-background w-full"
           style={{
             height: '100dvh',
-            paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 64px)',
+            paddingBottom: insideConversation
+              ? 'env(safe-area-inset-bottom, 0px)'
+              : 'calc(env(safe-area-inset-bottom, 0px) + 64px)',
           }}
         >
           {body}

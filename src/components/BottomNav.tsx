@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { useUnreadMessages } from '@/hooks/useUnreadMessages';
+import { useInChatConversation } from '@/lib/inChatConversation';
 import {
   House, Dices, Compass, BookOpen, MessageCircle, HeartPulse,
 } from 'lucide-react';
@@ -98,6 +99,11 @@ export default function TideBar() {
   const { t } = useApp();
   const navigate = useNavigate();
   const location = useLocation();
+  // True while the user is inside an active 1:1 conversation (the legacy
+  // surface that lives at the same `/chat` URL as the conversation list).
+  // We hide the bar in that case so the chat composer can sit flush at the
+  // bottom safe-area, matching WhatsApp / Telegram / Signal chrome.
+  const inChatConversation = useInChatConversation();
   const { unreadCount } = useUnreadMessages();
 
   // ── Live container width ──────────────────────────────────────────────
@@ -239,7 +245,9 @@ export default function TideBar() {
   const visualIndex = drag ? drag.index : safeActiveIndex;
 
   // Visibility gate (preserved): only show on top-level destinations.
-  if (!TAB_PATHS.has(location.pathname)) return null;
+  // Additionally hide while inside an active 1:1 conversation so the
+  // composer can use the full bottom safe-area (popular-messenger UX).
+  if (!TAB_PATHS.has(location.pathname) || inChatConversation) return null;
 
   return (
     <nav
