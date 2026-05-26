@@ -10,13 +10,14 @@ import { PodcastPlayerProvider } from "@/contexts/PodcastPlayerContext";
 import PodcastMiniPlayer from "@/components/podcasts/PodcastMiniPlayer";
 import { AnimatePresence } from "framer-motion";
 import BottomNav from "@/components/BottomNav";
-import PageTransition from "@/components/PageTransition";
+import PageTransition, { NavModeContext } from "@/components/PageTransition";
 import ScrollToTop from "@/components/ScrollToTop";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { lazy, Suspense, useEffect } from "react";
 import { useAutoPrayerTheme } from "@/hooks/useAutoPrayerTheme";
 import { usePresence } from "@/hooks/usePresence";
 import { useAuth } from "@/hooks/useAuth";
+import { useNavDirection } from "@/hooks/useNavDirection";
 import { navStart } from "@/lib/navPerf";
 
 // Eager load the main page
@@ -250,11 +251,24 @@ function AnimatedRoutes() {
   // Mark the navigation start timestamp synchronously on every route change.
   // PageTransition then closes the measurement after mount + paint.
   navStart(location.pathname);
+  // Classify the navigation as push / pop / tab / replace / initial so
+  // PageTransition can pick the right slide direction (and so OUTGOING
+  // pages know whether to leave to the left or right with parallax).
+  const { mode } = useNavDirection();
   const activeTab = (TAB_PATHS as readonly string[]).includes(location.pathname)
     ? (location.pathname as TabPath)
     : null;
   return (
-    <main id="main-content" style={{ paddingBottom: 'calc(62px + env(safe-area-inset-bottom, 0px))' }}>
+    <main
+      id="main-content"
+      style={{
+        paddingBottom: 'calc(62px + env(safe-area-inset-bottom, 0px))',
+        // popLayout takes the exiting page out of normal flow; the
+        // entering and exiting pages must share the same coordinate
+        // system, so the wrapper is positioned and stacks them.
+        position: 'relative',
+      }}
+    >
       <ScrollToTop />
       {/* Persistent layer — three small hot tabs (Home, Games, Chat)
           mounted once and toggled by display. The other bottom-nav
@@ -263,8 +277,14 @@ function AnimatedRoutes() {
       <PersistentTabs active={activeTab} />
       {/* Non-tab routes (sub-pages, settings details, games, etc.) */}
       <Suspense fallback={activeTab ? null : <PageSkeleton />}>
-        <AnimatePresence mode="wait" initial={false}>
-          <Routes location={location} key={activeTab ?? location.pathname}>
+        {/* NavModeContext flows the current direction down to every
+            <PageTransition>; AnimatePresence forwards the same value as
+            `custom` to exiting children. mode='popLayout' lets the
+            outgoing page leave the layout flow so push/pop slides
+            run simultaneously instead of sequentially. */}
+        <NavModeContext.Provider value={mode}>
+          <AnimatePresence mode="popLayout" initial={false} custom={mode}>
+            <Routes location={location} key={activeTab ?? location.pathname}>
             {/* Tab paths render null — the persistent layer handles them. */}
             <Route path="/" element={null} />
             <Route path="/games" element={null} />
@@ -336,6 +356,7 @@ function AnimatedRoutes() {
             <Route path="*" element={<ErrorBoundary><PageTransition><NotFound /></PageTransition></ErrorBoundary>} />
           </Routes>
         </AnimatePresence>
+        </NavModeContext.Provider>
       </Suspense>
     </main>
   );

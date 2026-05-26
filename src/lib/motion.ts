@@ -1,19 +1,45 @@
 /**
- * Shared motion language for SmartHub.
+ * Motion language for SmartHub — single source of truth.
  *
- * Applies the project's "Obsidian Depth" rules:
- *  - No bounce / overshoot on press feedback (opacity only — handled in CSS).
- *  - Dropdowns & collapsibles use smooth ease-out tweens, never springs.
- *  - UI weight scales duration with element size (small = fast, large = slow).
- *  - Stagger uses an ease-out curve on the delay itself so list reveals feel
- *    organic instead of metronomic.
- *  - Exits mirror enters (spatial consistency) — provided as helpers.
+ * ╔═══════════════════════════════════════════════════════════════════╗
+ * ║ STRICT MOTION SYSTEM                                              ║
+ * ║                                                                   ║
+ * ║ This file is the ONE central animation config. Import MOTION      ║
+ * ║ from here for every duration / easing / spring / parallax value.  ║
+ * ║ Never hardcode timings or curves at the call site.                ║
+ * ║                                                                   ║
+ * ║   FORWARD (push):  300ms ease-out-quad, slide R→L + fade,        ║
+ * ║                    outgoing screen parallax 35%                  ║
+ * ║   BACKWARD (pop):  260ms ease-out-quad, slide L→R + fade,        ║
+ * ║                    outgoing screen parallax 35%                  ║
+ * ║   MODAL/SHEET:     320ms ease-out-cubic enter,                   ║
+ * ║                    260ms ease-in-cubic  exit                     ║
+ * ║   FADE:            200ms ease-in-out                              ║
+ * ║   SPRING (micro):  stiffness 400, damping 20, mass 1             ║
+ * ║                                                                   ║
+ * ║ All animated values must be GPU-composited: transform + opacity. ║
+ * ║ Never animate width / height / top / left / margin / padding.    ║
+ * ╚═══════════════════════════════════════════════════════════════════╝
+ *
+ * Web-platform notes:
+ *   • framer-motion drives every animation through requestAnimationFrame,
+ *     so motion is automatically synced to the browser's vsync — there
+ *     is no setInterval/setTimeout-driven animation anywhere in the app.
+ *   • transform + opacity are the only properties we touch, so the
+ *     compositor runs them off the main thread (the web equivalent of
+ *     the spec's "UI thread only" rule).
+ *   • will-change: transform, opacity is applied per-layer in PageTransition.
+ *   • prefers-reduced-motion is honored — every transition collapses
+ *     to a near-instant cross-fade when the user opts in.
  */
 
 import type { Transition, Variants } from 'framer-motion';
 
-// ── Duration & easing tokens (Linear-app inspired) ────────
-// Durations match CSS custom properties in index.css.
+/* ─────────────────────────────────────────────────────────────────────
+ * 1. PRIMITIVE TOKENS — durations & cubic-bezier easings
+ * ───────────────────────────────────────────────────────────────────── */
+
+/** Numeric durations in **seconds** (framer-motion units). */
 export const DURATION = {
   instant: 0.08,
   fast:    0.15,
@@ -21,52 +47,163 @@ export const DURATION = {
   slow:    0.35,
 } as const;
 
-// Easings:
-//   • EASE_LINEAR_APP — Linear's signature curve (UI default)
-//   • EASE_OUT_EXPO   — element ENTER (fast start, soft finish)
-//   • EASE_IN         — element EXIT  (soft start, fast finish)
-//   • EASE_SPRING     — user INTERACT (lively, elastic)
-export const EASE_LINEAR_APP = [0.25, 0.1, 0.25, 1] as const;
-export const EASE_OUT_EXPO   = [0.16, 1, 0.3, 1]   as const;
-export const EASE_IN         = [0.4, 0, 1, 1]      as const;
-export const EASE_SPRING     = [0.34, 1.56, 0.64, 1] as const;
-export const SPRING_SNAPPY   = EASE_SPRING;
+/** Tuple type used by framer-motion's `ease` field. */
+export type EaseTuple = readonly [number, number, number, number];
+
+// ── Spec easings ────────────────────────────────────────────────────
+// `cubic-bezier(0.25, 0.46, 0.45, 0.94)` = ease-out-quad — the
+// signature curve for native iOS / Material navigation transitions.
+export const EASE_OUT_QUAD:  EaseTuple = [0.25, 0.46, 0.45, 0.94];
+export const EASE_OUT_CUBIC: EaseTuple = [0.215, 0.61, 0.355, 1];
+export const EASE_IN_CUBIC:  EaseTuple = [0.55, 0.055, 0.675, 0.19];
+export const EASE_LINEAR_APP: EaseTuple = [0.25, 0.1, 0.25, 1];
+export const EASE_OUT_EXPO:   EaseTuple = [0.16, 1, 0.3, 1];
+export const EASE_IN:         EaseTuple = [0.4, 0, 1, 1];
+export const EASE_IN_OUT:     EaseTuple = [0.65, 0, 0.35, 1];
+export const EASE_SPRING:     EaseTuple = [0.34, 1.56, 0.64, 1];
 
 // Aliases — kept for backward compatibility across the codebase.
+export const SPRING_SNAPPY = EASE_SPRING;
 export const EASE_OUT      = EASE_OUT_EXPO;
-export const EASE_IN_OUT   = [0.65, 0, 0.35, 1] as const;
 export const SPRING_ENTER  = EASE_OUT_EXPO;
 export const SPRING_EXIT   = EASE_IN;
-export const SPRING_IOS    = SPRING_SNAPPY;
-// Expanding/collapsing elements: open with ease-out-expo, close with ease-in.
+export const SPRING_IOS    = EASE_SPRING;
 export const BOUNCE_OPEN   = EASE_OUT_EXPO;
 export const BOUNCE_CLOSE  = EASE_IN;
 
-// ── Weight scale ──────────────────────────────────────────
-// Pair element size with motion duration. Heavier surfaces move slower so the
-// UI feels physical without being slow overall.
-export const motionWeight = {
-  micro:  { duration: DURATION.instant, ease: EASE_OUT_EXPO },  // ripple, badge, tooltip
-  small:  { duration: DURATION.fast,    ease: EASE_OUT_EXPO },  // dropdown, snackbar, menu item
-  medium: { duration: DURATION.normal,  ease: EASE_OUT_EXPO },  // card, accordion, tab content
-  large:  { duration: DURATION.slow,    ease: EASE_OUT_EXPO },  // sheet, modal, full-screen panel
-  hero:   { duration: 0.5,              ease: EASE_OUT_EXPO },  // page transition, lightbox
-} as const satisfies Record<string, Transition>;
+/* ─────────────────────────────────────────────────────────────────────
+ * 2. MOTION — the strict spec config object
+ *
+ * Every screen transition / modal / micro-interaction in the app MUST
+ * read from this object. Do not hardcode durations or easings at the
+ * call site. If you need a new motion archetype, add it here.
+ * ───────────────────────────────────────────────────────────────────── */
+export const MOTION = {
+  /** Forward (push / enter new screen). */
+  push: {
+    duration: 0.30,        // 300ms — within the 280–320ms spec band
+    ease: EASE_OUT_QUAD,
+  } as Transition,
 
-// ── Stagger ───────────────────────────────────────────────
-// Ease-out on the delay itself — first items appear quickly, later items
-// breathe a little. Feels more like a group of people entering a room than a
-// metronome.
+  /** Backward (pop / go back). Slightly faster than push. */
+  pop: {
+    duration: 0.26,        // 260ms — within the 240–280ms spec band
+    ease: EASE_OUT_QUAD,
+  } as Transition,
+
+  /** Modal / bottom-sheet enter (320ms, ease-out-cubic). */
+  modalIn: {
+    duration: 0.32,
+    ease: EASE_OUT_CUBIC,
+  } as Transition,
+
+  /** Modal / bottom-sheet exit (260ms, ease-in-cubic). */
+  modalOut: {
+    duration: 0.26,
+    ease: EASE_IN_CUBIC,
+  } as Transition,
+
+  /** Generic fade / cross-fade (200ms, ease-in-out). */
+  fade: {
+    duration: 0.20,
+    ease: EASE_IN_OUT,
+  } as Transition,
+
+  /**
+   * Toast / snackbar enter (200ms, fade + 8px translateY upward).
+   * The 8px offset is consumed by the toast component as `y: -8 → 0`.
+   */
+  toast: {
+    duration: 0.20,
+    ease: EASE_OUT_CUBIC,
+  } as Transition,
+
+  /** Tap feedback — press-in. */
+  pressIn: {
+    duration: 0.08,
+    ease: EASE_OUT_CUBIC,
+  } as Transition,
+
+  /**
+   * Tap feedback — press-out. Spring back to rest with iOS bounce.
+   * Spec: stiffness 400, damping 20, mass 1.
+   */
+  pressOut: {
+    type: 'spring',
+    stiffness: 400,
+    damping: 20,
+    mass: 1,
+  } as Transition,
+
+  /**
+   * Generic micro-interaction spring (cards, switches, buttons).
+   * Same numbers as pressOut — kept separate so they can diverge.
+   */
+  spring: {
+    type: 'spring',
+    stiffness: 400,
+    damping: 20,
+    mass: 1,
+  } as Transition,
+
+  /**
+   * Swipe-back gesture release spring. Spec calls for stiffness 300,
+   * damping 30 — softer than press feedback so the page settles, not snaps.
+   */
+  swipeBack: {
+    type: 'spring',
+    stiffness: 300,
+    damping: 30,
+    mass: 1,
+  } as Transition,
+
+  /**
+   * Outgoing-screen travel ratio for parallax depth on push/pop.
+   * The screen leaving the viewport moves at 35% of the incoming
+   * screen's distance — that is what makes a layered iOS push feel
+   * physical instead of flat.
+   */
+  parallax: 0.35,
+
+  /**
+   * Tap-feedback target scale (1.0 → 0.96 on press-in).
+   */
+  pressScale: 0.96,
+
+  /**
+   * Threshold for a swipe-back gesture: progress past this point on
+   * release commits the navigation, otherwise it snaps back.
+   */
+  swipeBackCommit: 0.5,
+} as const;
+
+/* ─────────────────────────────────────────────────────────────────────
+ * 3. WEIGHT SCALE — element size → duration
+ * ───────────────────────────────────────────────────────────────────── */
+// Pair element size with motion duration. Heavier surfaces move slower
+// so the UI feels physical without being slow overall.
+export const motionWeight = {
+  micro:  { duration: DURATION.instant, ease: EASE_OUT_EXPO } as Transition,
+  small:  { duration: DURATION.fast,    ease: EASE_OUT_EXPO } as Transition,
+  medium: { duration: DURATION.normal,  ease: EASE_OUT_EXPO } as Transition,
+  large:  { duration: DURATION.slow,    ease: EASE_OUT_EXPO } as Transition,
+  hero:   { duration: 0.5,              ease: EASE_OUT_EXPO } as Transition,
+} as const;
+
+/* ─────────────────────────────────────────────────────────────────────
+ * 4. STAGGER HELPERS
+ * ───────────────────────────────────────────────────────────────────── */
+// Ease-out on the delay itself — first items appear quickly, later
+// items breathe a little. Feels organic, not metronomic.
 export function easeOutStagger(index: number, total: number, max = 220): number {
   if (total <= 1) return 0;
   const t = index / (total - 1);
-  return t * t * max; // quadratic ease-out on the delay
+  return t * t * max;
 }
 
 /**
  * Tight list stagger — 20ms per item, capped at the 5th item.
  * Long lists are NOT punished: items beyond `cap` use the cap delay.
- * Pair with duration 250ms, ease cubic-bezier(0.16, 1, 0.3, 1).
  */
 export function tightStagger(index: number, step = 20, cap = 4): number {
   return Math.min(index, cap) * step;
@@ -81,41 +218,41 @@ export function tightStaggerStyle(index: number) {
   };
 }
 
-// ── Variants ──────────────────────────────────────────────
-// Use these instead of redeclaring identical stagger objects across pages.
+/* ─────────────────────────────────────────────────────────────────────
+ * 5. REUSABLE VARIANTS
+ * ───────────────────────────────────────────────────────────────────── */
 export const fadeUp: Variants = {
   hidden: { opacity: 0, y: 12 },
-  show: { opacity: 1, y: 0, transition: motionWeight.medium },
+  show:   { opacity: 1, y: 0, transition: motionWeight.medium },
 };
 
 export const fadeIn: Variants = {
   hidden: { opacity: 0 },
-  show: { opacity: 1, transition: motionWeight.small },
+  show:   { opacity: 1, transition: motionWeight.small },
 };
 
-// Container that staggers children with a tight cadence — 20ms per item,
-// no penalty for long lists (framer-motion repeats the same step but our
-// per-item variants should cap their own delay via `tightStagger`).
+// Container that staggers children with a tight cadence — 20ms per item.
 export const organicStagger = (_total?: number): Variants => ({
   hidden: {},
   show: {
     transition: {
-      staggerChildren: 0.02,   // 20ms
+      staggerChildren: 0.02,
       delayChildren: 0,
       when: 'beforeChildren',
     },
   },
 });
 
-// ── Spatial consistency ───────────────────────────────────
-// Dropdowns / popovers exit in the same direction they entered.
+/* ─────────────────────────────────────────────────────────────────────
+ * 6. SPATIAL CONSISTENCY (popovers / dropdowns)
+ * ───────────────────────────────────────────────────────────────────── */
 export type Direction = 'down' | 'up' | 'left' | 'right';
 
 const offsetFor = (dir: Direction, px = 8) => {
   switch (dir) {
-    case 'down': return { y: -px };
-    case 'up': return { y: px };
-    case 'left': return { x: px };
+    case 'down':  return { y: -px };
+    case 'up':    return { y:  px };
+    case 'left':  return { x:  px };
     case 'right': return { x: -px };
   }
 };
@@ -124,7 +261,78 @@ export const spatialPopover = (dir: Direction = 'down'): Variants => {
   const off = offsetFor(dir);
   return {
     hidden: { opacity: 0, ...off },
-    show: { opacity: 1, x: 0, y: 0, transition: { duration: 0.22, ease: EASE_OUT_EXPO } },
-    exit: { opacity: 0, ...off, transition: { duration: 0.18, ease: EASE_IN } },
+    show:   { opacity: 1, x: 0, y: 0, transition: { duration: 0.22, ease: EASE_OUT_EXPO } },
+    exit:   { opacity: 0, ...off,    transition: { duration: 0.18, ease: EASE_IN } },
   };
+};
+
+/* ─────────────────────────────────────────────────────────────────────
+ * 7. PUSH / POP VARIANT FACTORIES
+ *
+ * Used by <PageTransition/>. Direction-aware (LTR/RTL) and parallax-
+ * compliant. The `kind` arg picks between full slide (incoming, x=±100%)
+ * and parallax slide (outgoing, x=±MOTION.parallax * 100%).
+ * ───────────────────────────────────────────────────────────────────── */
+export type NavMode = 'push' | 'pop' | 'replace' | 'tab' | 'initial';
+
+/**
+ * Build framer-motion variants for the incoming page in a push/pop.
+ *
+ *   rtl   — true if the document direction is right-to-left. iOS mirrors
+ *           navigation in RTL locales: "forward" comes from the LEFT,
+ *           "back" comes from the RIGHT. We mirror that here.
+ *   mode  — 'push' or 'pop'.
+ */
+export function buildPageEnterVariants(rtl: boolean, mode: 'push' | 'pop'): Variants {
+  // Forward push: incoming slides in from RIGHT in LTR, from LEFT in RTL.
+  // Backward pop: incoming slides in from LEFT in LTR, from RIGHT in RTL.
+  const sign = mode === 'push' ? (rtl ? -1 : 1) : (rtl ? 1 : -1);
+  const transition = mode === 'push' ? MOTION.push : MOTION.pop;
+  return {
+    initial: { x: `${sign * 100}%`, opacity: 0 },
+    animate: { x: '0%',             opacity: 1, transition },
+    // Exit isn't used by the incoming page — AnimatePresence runs exit
+    // on the OUTgoing page only. Defined for completeness.
+    exit:    { x: `${-sign * MOTION.parallax * 100}%`, opacity: 0, transition },
+  };
+}
+
+/**
+ * Build framer-motion variants for the OUTGOING page in a push/pop.
+ * Outgoing travels at `MOTION.parallax` of the incoming distance to
+ * create the layered-depth iOS feel.
+ */
+export function buildPageExitVariants(rtl: boolean, mode: 'push' | 'pop'): Variants {
+  const sign = mode === 'push' ? (rtl ? -1 : 1) : (rtl ? 1 : -1);
+  const transition = mode === 'push' ? MOTION.push : MOTION.pop;
+  const ratio = MOTION.parallax * 100;
+  return {
+    // Outgoing starts at rest...
+    initial: { x: '0%',                            opacity: 1 },
+    // ...stays at rest on its own animate cycle...
+    animate: { x: '0%',                            opacity: 1, transition },
+    // ...and exits in the opposite direction at parallax ratio.
+    exit:    { x: `${-sign * ratio}%`,             opacity: 0, transition },
+  };
+}
+
+/**
+ * Vertical fade-up used for tab switches and replace navigations.
+ * Horizontal slide on tab switches feels distracting on repeated taps,
+ * so we keep tabs to a fast vertical micro-motion that still reads as
+ * a navigation event without competing with the page content.
+ */
+export const tabFadeUpVariants: Variants = {
+  initial: { opacity: 0, y: 6 },
+  animate: { opacity: 1, y: 0, transition: { duration: 0.22, ease: EASE_OUT_EXPO } },
+  exit:    { opacity: 0, y: 0, transition: { duration: 0.14, ease: EASE_IN } },
+};
+
+/**
+ * Reduced-motion fallback — instant cross-fade.
+ */
+export const reducedMotionVariants: Variants = {
+  initial: { opacity: 0 },
+  animate: { opacity: 1, transition: { duration: 0.10, ease: 'linear' as const } },
+  exit:    { opacity: 0, transition: { duration: 0.07, ease: 'linear' as const } },
 };
