@@ -1,8 +1,10 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
 import {
   Send, Mic, X, Pencil, Check, Trash2, Plus, Smile, Lock,
-  Play, Pause, Loader2,
+  Play, Pause, Loader2, Camera, FileText, MapPin, Clock,
+  AtSign, Hash, Calendar, Paperclip, Image as ImageIcon,
+  Video, Sticker, GripVertical,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Textarea } from '@/components/ui/textarea';
@@ -60,7 +62,147 @@ interface ChatInputProps {
   onPasteFiles?: (files: File[]) => void;
   /** When true, bare Enter sends; Shift+Enter inserts newline. When false, Enter always inserts a newline. */
   enterToSend?: boolean;
+  /** Mention suggestions for @-mentions in groups */
+  mentionSuggestions?: Array<{ userId: string; username: string; displayName?: string; avatarUrl?: string | null }>;
+  /** Callback when message should be scheduled */
+  onSchedule?: (date: Date) => void;
+  /** Whether scheduling is supported */
+  canSchedule?: boolean;
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// AttachmentMenu — Telegram-style bottom sheet with attachment type options.
+// ─────────────────────────────────────────────────────────────────────────────
+const ATTACHMENT_OPTIONS = (isAr: boolean) => [
+  { id: 'photo', icon: ImageIcon, label: isAr ? 'صورة' : 'Foto', color: 'bg-blue-500' },
+  { id: 'camera', icon: Camera, label: isAr ? 'كاميرا' : 'Kamera', color: 'bg-pink-500' },
+  { id: 'file', icon: FileText, label: isAr ? 'ملف' : 'Datei', color: 'bg-purple-500' },
+  { id: 'location', icon: MapPin, label: isAr ? 'موقع' : 'Standort', color: 'bg-green-500' },
+] as const;
+
+interface AttachmentMenuProps {
+  isAr: boolean;
+  onSelect: (type: string) => void;
+  onClose: () => void;
+}
+
+const AttachmentMenu = React.memo(function AttachmentMenu({ isAr, onSelect, onClose }: AttachmentMenuProps) {
+  const options = useMemo(() => ATTACHMENT_OPTIONS(isAr), [isAr]);
+  return (
+    <motion.div
+      className="absolute bottom-full mb-2 start-2 z-50"
+      initial={{ opacity: 0, scale: 0.8, y: 10 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.8, y: 10 }}
+      transition={{ type: 'spring', damping: 20, stiffness: 350 }}
+    >
+      <div className="bg-card/95 backdrop-blur-lg rounded-2xl border border-border/30 shadow-2xl p-3 min-w-[200px]">
+        <div className="grid grid-cols-4 gap-3">
+          {options.map((opt, i) => (
+            <motion.button
+              key={opt.id}
+              type="button"
+              className="flex flex-col items-center gap-1.5"
+              onClick={() => { onSelect(opt.id); onClose(); }}
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: i * 0.05, type: 'spring', damping: 15 }}
+              whileTap={{ scale: 0.9 }}
+            >
+              <div className={cn('w-11 h-11 rounded-full flex items-center justify-center', opt.color)}>
+                <opt.icon className="w-5 h-5 text-white" />
+              </div>
+              <span className="text-[10px] text-muted-foreground font-medium">{opt.label}</span>
+            </motion.button>
+          ))}
+        </div>
+      </div>
+      {/* Click-away backdrop */}
+      <div className="fixed inset-0 -z-10" onClick={onClose} />
+    </motion.div>
+  );
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MentionSuggestionList — popup showing matching users when typing @
+// ─────────────────────────────────────────────────────────────────────────────
+interface MentionSuggestionListProps {
+  suggestions: Array<{ userId: string; username: string; displayName?: string; avatarUrl?: string | null }>;
+  query: string;
+  onSelect: (username: string) => void;
+  isAr: boolean;
+}
+
+const MentionSuggestionList = React.memo(function MentionSuggestionList({ suggestions, query, onSelect, isAr }: MentionSuggestionListProps) {
+  const filtered = useMemo(() => {
+    if (!query) return suggestions.slice(0, 5);
+    const q = query.toLowerCase();
+    return suggestions
+      .filter(s => s.username.toLowerCase().includes(q) || (s.displayName?.toLowerCase().includes(q)))
+      .slice(0, 5);
+  }, [suggestions, query]);
+
+  if (!filtered.length) return null;
+
+  return (
+    <motion.div
+      className="absolute bottom-full mb-1 start-0 end-0 mx-3 z-50"
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 8 }}
+    >
+      <div className="bg-card/95 backdrop-blur-lg rounded-xl border border-border/30 shadow-xl overflow-hidden">
+        {filtered.map((user, i) => (
+          <motion.button
+            key={user.userId}
+            type="button"
+            className="w-full flex items-center gap-2.5 px-3 py-2 hover:bg-muted/30 active:bg-muted/40 transition-colors text-start"
+            onClick={() => onSelect(user.username)}
+            initial={{ opacity: 0, x: -8 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: i * 0.03 }}
+          >
+            <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden">
+              {user.avatarUrl ? (
+                <img src={user.avatarUrl} alt="" className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-[11px] font-bold text-primary">{(user.username || '?')[0].toUpperCase()}</span>
+              )}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-[13px] font-medium text-foreground truncate">{user.displayName || user.username}</p>
+              <p className="text-[11px] text-muted-foreground">@{user.username}</p>
+            </div>
+          </motion.button>
+        ))}
+      </div>
+    </motion.div>
+  );
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CharacterCounter — shows remaining chars when approaching limit.
+// ─────────────────────────────────────────────────────────────────────────────
+const MAX_CHARS = 4096;
+const WARN_THRESHOLD = 3800;
+
+const CharacterCounter = React.memo(function CharacterCounter({ count }: { count: number }) {
+  if (count < WARN_THRESHOLD) return null;
+  const remaining = MAX_CHARS - count;
+  const isOver = remaining < 0;
+  return (
+    <motion.span
+      initial={{ opacity: 0, scale: 0.8 }}
+      animate={{ opacity: 1, scale: 1 }}
+      className={cn(
+        'absolute top-1 end-2 text-[10px] font-mono tabular-nums',
+        isOver ? 'text-destructive font-bold' : remaining < 100 ? 'text-orange-500' : 'text-muted-foreground/50',
+      )}
+    >
+      {remaining}
+    </motion.span>
+  );
+});
 
 /**
  * WhatsApp/Telegram-class composer with:
@@ -82,6 +224,9 @@ const ChatInput: React.FC<ChatInputProps> = ({
   resizeComposer, broadcastTyping, scrollToBottom,
   activeConvOtherName, userId, onPasteFiles,
   enterToSend = true,
+  mentionSuggestions,
+  onSchedule,
+  canSchedule,
 }) => {
   // Drag state for slide-to-cancel / drag-to-lock overlay.
   const drag = useMotionValue(0);
@@ -92,8 +237,15 @@ const ChatInput: React.FC<ChatInputProps> = ({
   // Track the mic button rect so the overlay anchors correctly.
   const micWrapperRef = useRef<HTMLDivElement | null>(null);
 
+  // Attachment menu state
+  const [showAttachMenu, setShowAttachMenu] = useState(false);
+
+  // Mention detection state
+  const [mentionQuery, setMentionQuery] = useState<string | null>(null);
+  const [showMentions, setShowMentions] = useState(false);
+
   // Preview playback for recorded voice message.
-  const [previewPlaying, setPreviewPlaying] = React.useState(false);
+  const [previewPlaying, setPreviewPlaying] = useState(false);
   const previewAudioRef = useRef<HTMLAudioElement | null>(null);
   useEffect(() => {
     if (!previewUrl) { setPreviewPlaying(false); return; }
@@ -192,11 +344,96 @@ const ChatInput: React.FC<ChatInputProps> = ({
     });
   };
 
+  // ── Mention detection ──────────────────────────────────────────────────────
+  const detectMention = useCallback((text: string, cursorPos: number) => {
+    if (!mentionSuggestions?.length) { setShowMentions(false); return; }
+    const before = text.slice(0, cursorPos);
+    const match = before.match(/@(\w*)$/);
+    if (match) {
+      setMentionQuery(match[1]);
+      setShowMentions(true);
+    } else {
+      setShowMentions(false);
+      setMentionQuery(null);
+    }
+  }, [mentionSuggestions]);
+
+  const insertMention = useCallback((username: string) => {
+    const el = inputRef.current;
+    if (!el) return;
+    const cursorPos = el.selectionStart ?? newMessage.length;
+    const before = newMessage.slice(0, cursorPos);
+    const after = newMessage.slice(cursorPos);
+    const mentionStart = before.lastIndexOf('@');
+    if (mentionStart === -1) return;
+    const next = before.slice(0, mentionStart) + `@${username} ` + after;
+    setNewMessage(next);
+    setShowMentions(false);
+    setMentionQuery(null);
+    requestAnimationFrame(() => {
+      el.focus();
+      const caret = mentionStart + username.length + 2;
+      el.setSelectionRange(caret, caret);
+      resizeComposer(el);
+    });
+  }, [newMessage, inputRef, setNewMessage, resizeComposer]);
+
+  // ── Attachment menu handler ─────────────────────────────────────────────────
+  const handleAttachmentSelect = useCallback((type: string) => {
+    switch (type) {
+      case 'photo':
+      case 'camera':
+        fileInputRef.current?.click();
+        break;
+      case 'file':
+        fileInputRef.current?.click();
+        break;
+      case 'location':
+        // Location sharing - get current position and send as text
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            (pos) => {
+              const { latitude, longitude } = pos.coords;
+              const locationText = `📍 https://maps.google.com/?q=${latitude},${longitude}`;
+              setNewMessage(locationText);
+            },
+            () => {
+              setNewMessage(isAr ? '📍 لم يتم تحديد الموقع' : '📍 Standort nicht verfügbar');
+            }
+          );
+        }
+        break;
+    }
+  }, [fileInputRef, setNewMessage, isAr]);
+
   const showPreviewBar = !!previewBlob;
   const disableTextUI = isRecording || showPreviewBar;
 
   return (
-    <div className="border-t border-border/15 bg-background pb-[env(safe-area-inset-bottom)]">
+    <div className="border-t border-border/15 bg-background pb-[env(safe-area-inset-bottom)] relative">
+      {/* Mention suggestions popup */}
+      <AnimatePresence>
+        {showMentions && mentionSuggestions && mentionQuery !== null && (
+          <MentionSuggestionList
+            suggestions={mentionSuggestions}
+            query={mentionQuery}
+            onSelect={insertMention}
+            isAr={isAr}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Attachment menu */}
+      <AnimatePresence>
+        {showAttachMenu && (
+          <AttachmentMenu
+            isAr={isAr}
+            onSelect={handleAttachmentSelect}
+            onClose={() => setShowAttachMenu(false)}
+          />
+        )}
+      </AnimatePresence>
+
       {/* Staged images preview */}
       <AnimatePresence>
         {stagedPreviews.length > 0 && !disableTextUI && (
@@ -398,20 +635,29 @@ const ChatInput: React.FC<ChatInputProps> = ({
             <button
               type="button"
               onPointerDown={(e) => e.preventDefault()}
-              onClick={() => fileInputRef.current?.click()}
+              onClick={() => setShowAttachMenu(!showAttachMenu)}
               disabled={uploading}
-              className="shrink-0 w-10 h-10 rounded-full flex items-center justify-center active:bg-accent/40 transition-colors self-end"
+              className={cn(
+                'shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-colors self-end',
+                showAttachMenu ? 'bg-primary/15 text-primary' : 'active:bg-accent/40 text-muted-foreground'
+              )}
               aria-label={isAr ? 'مرفق' : 'Anhang'}
             >
               {uploading ? (
                 <div className="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
               ) : (
-                <Plus className="h-5 w-5 text-muted-foreground" />
+                <motion.div
+                  animate={{ rotate: showAttachMenu ? 45 : 0 }}
+                  transition={{ type: 'spring', damping: 15 }}
+                >
+                  <Plus className="h-5 w-5" />
+                </motion.div>
               )}
             </button>
 
             {/* Text input */}
-            <div className="flex-1 flex items-end bg-muted/15 border border-border/15 rounded-2xl overflow-hidden transition-colors focus-within:border-primary/20">
+            <div className="flex-1 relative flex items-end bg-muted/15 border border-border/15 rounded-2xl overflow-hidden transition-colors focus-within:border-primary/20 focus-within:bg-muted/5">
+              <CharacterCounter count={newMessage.length} />
               <Textarea
                 ref={inputRef}
                 placeholder={
@@ -430,12 +676,18 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 inputMode="text"
                 data-form-type="other"
                 onChange={e => {
-                  setNewMessage(e.target.value);
+                  const val = e.target.value;
+                  if (val.length <= MAX_CHARS) {
+                    setNewMessage(val);
+                  }
                   resizeComposer(e.currentTarget);
-                  if (e.target.value.trim()) broadcastTyping();
+                  if (val.trim()) broadcastTyping();
+                  // Detect @mentions
+                  detectMention(val, e.currentTarget.selectionStart ?? val.length);
                 }}
                 onFocus={() => {
                   if (showEmojiPicker) setShowEmojiPicker(false);
+                  if (showAttachMenu) setShowAttachMenu(false);
                   resizeComposer();
                   setTimeout(scrollToBottom, 120);
                 }}
@@ -443,9 +695,16 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 onKeyDown={e => {
                   if (e.key === 'Enter' && enterToSend && !e.shiftKey && !e.nativeEvent.isComposing) {
                     e.preventDefault();
+                    if (showMentions) return; // Let mention list handle it
                     if (editingMessage) saveEditMessage();
                     else if (stagedImagesCount > 0) sendStagedImages();
                     else sendMessage();
+                  }
+                  // Escape to close mentions/emoji
+                  if (e.key === 'Escape') {
+                    if (showMentions) { setShowMentions(false); e.preventDefault(); }
+                    if (showEmojiPicker) { setShowEmojiPicker(false); e.preventDefault(); }
+                    if (showAttachMenu) { setShowAttachMenu(false); e.preventDefault(); }
                   }
                 }}
                 dir="auto"
@@ -466,8 +725,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 onClick={() => {
                   if (editingMessage) { saveEditMessage(); return; }
                   if (stagedImagesCount > 0) {
-                    // Staged images consume any typed text as a caption; do
-                    // not also fire a standalone text message.
                     sendStagedImages();
                     return;
                   }
@@ -483,7 +740,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 <motion.button
                   type="button"
                   className="h-10 w-10 rounded-full flex items-center justify-center text-muted-foreground active:bg-accent/30 transition-colors"
-                  
+                  whileTap={{ scale: 1.1 }}
                   onPointerDown={handleMicPointerDown}
                   onPointerMove={handleMicPointerMove}
                   onPointerUp={handleMicPointerUp}

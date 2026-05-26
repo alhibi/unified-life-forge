@@ -12,3 +12,5 @@ export * from './settings';
 export * from './hooks';
 export * as api from './api';
 export * as idbCache from './idbCache';
+export * as notifications from './notifications';
+export * as performance from './performance';
