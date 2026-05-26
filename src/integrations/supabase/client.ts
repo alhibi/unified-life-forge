@@ -18,70 +18,49 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || '';
-const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || '';
+// Hard-coded fallbacks for the project's *publishable* (a.k.a. anon) key
+// and URL. These values are safe to ship in client bundles — they are
+// designed to be public and are protected by Row-Level-Security on the
+// database side. Baking them in keeps the app working in three scenarios
+// that previously broke login with "supabase_not_configured":
+//
+//   1. Published bundles built before the env vars were injected.
+//   2. Clones of the GitHub repo by external tools (e.g. Claude) that
+//      don't have a copy of the (gitignored) `.env` file.
+//   3. Local `bun run dev` without a `.env` file.
+//
+// Env vars still take precedence so a fork pointing at a different
+// Supabase project keeps working.
+const FALLBACK_SUPABASE_URL = 'https://nmrckgzmluoavgucqvjh.supabase.co';
+const FALLBACK_SUPABASE_PUBLISHABLE_KEY =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5tcmNrZ3ptbHVvYXZndWNxdmpoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3Mjc5MjQsImV4cCI6MjA5MDMwMzkyNH0.Gye2-aLOB6eTMrrrDErB5m2MVHQbjAgUrhHYicKIW4g';
+
+const SUPABASE_URL =
+  import.meta.env.VITE_SUPABASE_URL || FALLBACK_SUPABASE_URL;
+const SUPABASE_PUBLISHABLE_KEY =
+  import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
+  FALLBACK_SUPABASE_PUBLISHABLE_KEY;
 
 /**
- * `true` only when both env vars are populated. Feature code should gate
- * any Supabase-dependent work on this so the UI degrades gracefully when
- * the app is run without a backend.
+ * `true` when we have *some* working Supabase credentials — either from
+ * env vars or the baked-in publishable fallbacks. Because the fallbacks
+ * are always present, this is effectively always `true` in production.
+ * The flag is kept for backwards compatibility with feature code that
+ * branches on it.
  */
 export const isSupabaseConfigured: boolean =
   Boolean(SUPABASE_URL) && Boolean(SUPABASE_PUBLISHABLE_KEY);
 
-if (!isSupabaseConfigured) {
-  // One bold message at boot — much easier to spot than dozens of 401s.
-  // eslint-disable-next-line no-console
-  console.error(
-    '%c[Supabase] Not configured%c\n' +
-    'Set VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY in your .env file ' +
-    '(see .env.example).\n' +
-    'Until you do, every Supabase request will resolve to a 503 ' +
-    '"supabase_not_configured" response and realtime subscriptions are disabled. ' +
-    'Local-only features (prayer times, weather, games, static Diwan content) ' +
-    'will continue to work.',
-    'background:#7f1d1d;color:#fff;padding:2px 8px;border-radius:4px;font-weight:bold',
-    'color:inherit',
-  );
-}
-
-// Short-circuit fetch: returns a well-formed JSON 503 instead of letting
-// the request go to a placeholder host. Keeps the network panel clean and
-// callers see a deterministic error body.
-const noopFetch: typeof fetch = async () =>
-  new Response(
-    JSON.stringify({
-      code: 'supabase_not_configured',
-      message:
-        'Supabase environment variables are missing. Set VITE_SUPABASE_URL ' +
-        'and VITE_SUPABASE_PUBLISHABLE_KEY to enable backend features.',
-    }),
-    {
-      status: 503,
-      statusText: 'Service Unavailable',
-      headers: { 'Content-Type': 'application/json' },
-    },
-  );
-
-// Use the reserved `.invalid` TLD so even leakage paths (realtime ws,
-// storage, edge functions) fail DNS quickly rather than reaching a real
-// `placeholder.supabase.co` host that someone else owns.
-const PLACEHOLDER_URL = 'https://supabase-not-configured.invalid';
-const PLACEHOLDER_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.placeholder';
-
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 export const supabase = createClient<Database>(
-  SUPABASE_URL || PLACEHOLDER_URL,
-  SUPABASE_PUBLISHABLE_KEY || PLACEHOLDER_KEY,
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY,
   {
     auth: {
       storage: localStorage,
       persistSession: true,
       autoRefreshToken: true,
     },
-    ...(isSupabaseConfigured
-      ? {}
-      : { global: { fetch: noopFetch } }),
   },
 );
