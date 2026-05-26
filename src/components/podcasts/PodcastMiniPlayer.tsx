@@ -20,13 +20,18 @@
 // We render this only when there's a current track AND the player
 // sheet isn't already open — same gating logic Podium uses.
 
-import { memo, useState } from 'react';
-import { Loader2, Pause, Play } from 'lucide-react';
+import { memo, KeyboardEvent, MouseEvent, useState } from 'react';
+import { Loader2, Pause, Play, RotateCcw, RotateCw } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { usePodcastPlayer, usePodcastPlayerProgress } from '@/contexts/PodcastPlayerContext';
 import PlayerSheet from './PlayerSheet';
 
 const MINI_PLAYER_HEIGHT = 64;
+/** Mini-player skip increment, in seconds. Mirrors the full sheet
+ *  (`SKIP` constant in PlayerSheet.tsx) so muscle memory transfers
+ *  between the two surfaces. Industry standard across Apple Podcasts,
+ *  Pocket Casts, Spotify. */
+const MINI_SKIP_SECONDS = 15;
 
 /**
  * Tiny child component dedicated to the live progress bar so the
@@ -55,6 +60,51 @@ function MiniProgressBar() {
         }}
       />
     </div>
+  );
+}
+
+/**
+ * Inline transport control rendered inside the outer mini-player
+ * button. Modeled as `role="button"` rather than a real `<button>`
+ * because nested interactive content is invalid HTML — the outer
+ * mini-player is itself a button (it opens the full sheet on tap).
+ *
+ * Stops propagation on every activation path (click, Enter, Space)
+ * so tapping a control invokes only that action; the outer "open
+ * sheet" gesture is reserved for the artwork / title area.
+ */
+function InlineControl({
+  onActivate, ariaLabel, size, style, children,
+}: {
+  onActivate: () => void;
+  ariaLabel: string;
+  size: number;
+  style?: React.CSSProperties;
+  children: React.ReactNode;
+}) {
+  const handleClick = (e: MouseEvent<HTMLSpanElement>) => {
+    e.stopPropagation();
+    onActivate();
+  };
+  const handleKeyDown = (e: KeyboardEvent<HTMLSpanElement>) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.stopPropagation();
+      e.preventDefault();
+      onActivate();
+    }
+  };
+  return (
+    <span
+      role="button"
+      tabIndex={0}
+      aria-label={ariaLabel}
+      onClick={handleClick}
+      onKeyDown={handleKeyDown}
+      className="rounded-full flex items-center justify-center shrink-0 hover:bg-foreground/10 active:scale-90 transition-all cursor-pointer"
+      style={{ width: size, height: size, ...style }}
+    >
+      {children}
+    </span>
   );
 }
 
@@ -95,7 +145,7 @@ const PodcastMiniPlayer = memo(function PodcastMiniPlayer() {
             <button
               type="button"
               onClick={() => setSheetOpen(true)}
-              className="podcast-mini-glow pointer-events-auto w-full max-w-md mx-auto flex items-center gap-3 ps-2 pe-3 rounded-full overflow-hidden border"
+              className="podcast-mini-glow pointer-events-auto w-full max-w-md mx-auto flex items-center gap-2 ps-2 pe-2 rounded-full overflow-hidden border"
               data-playing={isActive ? 'true' : 'false'}
               style={{
                 height: MINI_PLAYER_HEIGHT,
@@ -155,12 +205,30 @@ const PodcastMiniPlayer = memo(function PodcastMiniPlayer() {
                 <MiniProgressBar />
               </div>
 
-              {/* Play / Pause toggle — keeps the radial gradient look
-                  used on the full sheet so the two surfaces feel like
-                  one consistent player. */}
-              <span
-                onClick={(e) => { e.stopPropagation(); player.toggle(); }}
-                className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 active:scale-95 transition-transform"
+              {/* Inline transport cluster: skip-back, play/pause, skip-
+                  forward. Compact (32–40px tap targets) so the title
+                  area still gets the lion's share of horizontal space.
+                  Each control has to call `stopPropagation` because the
+                  outer element is itself a button (it opens the full
+                  sheet); without it, tapping skip would also expand
+                  the sheet.
+
+                  We model the inline buttons as `role="button"` spans
+                  rather than nested `<button>` elements — nested
+                  interactive content is invalid HTML. The same pattern
+                  the original play button already used. */}
+              <InlineControl
+                onActivate={() => player.skip(-MINI_SKIP_SECONDS)}
+                ariaLabel={`-${MINI_SKIP_SECONDS}s`}
+                size={32}
+              >
+                <RotateCcw className="w-4 h-4" strokeWidth={2.25} />
+              </InlineControl>
+
+              <InlineControl
+                onActivate={() => player.toggle()}
+                ariaLabel={player.isPlaying ? 'Pause' : 'Play'}
+                size={40}
                 style={{
                   background: `radial-gradient(circle at 30% 30%,
                     var(--podcast-primary, hsl(var(--primary))) 0%,
@@ -168,14 +236,20 @@ const PodcastMiniPlayer = memo(function PodcastMiniPlayer() {
                   color: 'var(--podcast-primary-fg, hsl(var(--primary-foreground)))',
                   boxShadow: '0 4px 12px -2px var(--podcast-primary-soft, rgba(0,0,0,0.25))',
                 }}
-                role="button"
-                aria-label={player.isPlaying ? 'Pause' : 'Play'}
               >
                 <Icon
                   className={`w-4 h-4 ${player.isLoading ? 'animate-spin' : ''}`}
                   fill={isActive ? 'currentColor' : 'none'}
                 />
-              </span>
+              </InlineControl>
+
+              <InlineControl
+                onActivate={() => player.skip(MINI_SKIP_SECONDS)}
+                ariaLabel={`+${MINI_SKIP_SECONDS}s`}
+                size={32}
+              >
+                <RotateCw className="w-4 h-4" strokeWidth={2.25} />
+              </InlineControl>
             </button>
           </motion.div>
         )}
