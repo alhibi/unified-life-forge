@@ -2,6 +2,7 @@ import React from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { Message } from './types';
 import { renderTextWithAppleEmoji, onAppleEmojiReady } from './appleEmoji';
+import { readableFileName } from '@/lib/chat/imageMeta';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Date / time formatters
@@ -93,7 +94,7 @@ export function getMessagePreview(
   switch (msg.message_type) {
     case 'image': return '📷 ' + (isAr ? 'صورة' : 'Foto');
     case 'voice': return '🎤 ' + (isAr ? 'رسالة صوتية' : 'Sprachnachricht');
-    case 'file':  return '📎 ' + (msg.file_name || (isAr ? 'ملف' : 'Datei'));
+    case 'file':  return '📎 ' + (readableFileName(msg.file_name) || (isAr ? 'ملف' : 'Datei'));
     default:      return msg.content || '';
   }
 }
@@ -104,7 +105,7 @@ export function getReplyPreviewText(msg: Message | undefined, isAr: boolean): st
   if (msg.deleted) return isAr ? 'رسالة محذوفة' : 'Gelöschte Nachricht';
   if (msg.message_type === 'image') return '📷 ' + (isAr ? 'صورة' : 'Foto');
   if (msg.message_type === 'voice') return '🎤 ' + (isAr ? 'رسالة صوتية' : 'Sprachnachricht');
-  if (msg.message_type === 'file')  return '📎 ' + (msg.file_name || '');
+  if (msg.message_type === 'file')  return '📎 ' + (readableFileName(msg.file_name) || '');
   return msg.content.length > 80 ? msg.content.slice(0, 80) + '…' : msg.content;
 }
 

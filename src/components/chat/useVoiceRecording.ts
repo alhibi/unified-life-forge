@@ -6,6 +6,7 @@ import {
   chatError, reportMicError, validateFile,
   MAX_VOICE_SECONDS,
 } from './chatNotify';
+import { startMicAnalyser, ANALYSER_BAR_COUNT, type MicAnalyserHandle } from '@/lib/chat/micAnalyser';
 
 interface UseVoiceRecordingOptions {
   activeConvId: string | null;
@@ -74,6 +75,12 @@ export function useVoiceRecording({ activeConvId, userId, isAr, sendMessage }: U
   const [previewExt, setPreviewExt] = useState<string>('webm');
   const [previewMime, setPreviewMime] = useState<string>('audio/webm');
   const [uploadingVoice, setUploadingVoice] = useState(false);
+  // Live amplitude bars (0..1, oldest → newest). Updated at ~30 Hz while
+  // recording; null when not recording. We persist a captured envelope on
+  // stop so the preview pill renders the *real* waveform of what the user
+  // just said instead of a generic seeded fallback.
+  const [liveBars, setLiveBars] = useState<number[] | null>(null);
+  const [capturedBars, setCapturedBars] = useState<number[] | null>(null);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -81,6 +88,11 @@ export function useVoiceRecording({ activeConvId, userId, isAr, sendMessage }: U
   const recordingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const maxDurationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const cancelModeRef = useRef<'send' | 'cancel' | 'preview'>('send');
+  const analyserRef = useRef<MicAnalyserHandle | null>(null);
+  // Keep the latest bar snapshot in a ref so we can capture an envelope
+  // for the preview without depending on state-update timing (the
+  // analyser keeps emitting after stop() until cleanupRecorder runs).
+  const latestBarsRef = useRef<number[]>([]);
 
   // Keep latest callbacks/ids in refs so the long-lived onstop closure
   // always uses current values (recordings can outlive several re-renders).
@@ -106,6 +118,8 @@ export function useVoiceRecording({ activeConvId, userId, isAr, sendMessage }: U
     return () => {
       if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
       if (maxDurationTimerRef.current) clearTimeout(maxDurationTimerRef.current);
+      analyserRef.current?.stop();
+      analyserRef.current = null;
       streamRef.current?.getTracks().forEach(t => t.stop());
       if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
         try { mediaRecorderRef.current.stop(); } catch { /* no-op */ }
@@ -125,6 +139,9 @@ export function useVoiceRecording({ activeConvId, userId, isAr, sendMessage }: U
     setRecordingTime(0);
     setIsRecording(false);
     setLocked(false);
+    setLiveBars(null);
+    analyserRef.current?.stop();
+    analyserRef.current = null;
     streamRef.current?.getTracks().forEach(t => t.stop());
     streamRef.current = null;
   }, []);
@@ -193,6 +210,19 @@ export function useVoiceRecording({ activeConvId, userId, isAr, sendMessage }: U
       });
       streamRef.current = stream;
 
+      // Spin up the live amplitude analyser BEFORE MediaRecorder.start so
+      // the first frame is on screen by the time the user's finger has
+      // settled on the mic button. Throttle React updates to ~30 Hz —
+      // smoother than the underlying RAF (~60 Hz) while still feeling
+      // perfectly responsive to voice changes.
+      latestBarsRef.current = new Array(ANALYSER_BAR_COUNT).fill(0.06);
+      analyserRef.current = startMicAnalyser(stream, {
+        onFrame: (frameIdx, bars) => {
+          latestBarsRef.current = bars;
+          if (frameIdx % 2 === 0) setLiveBars(bars);
+        },
+      });
+
       const mimeType = pickRecorderMime();
 
       const options: MediaRecorderOptions = {
@@ -218,6 +248,12 @@ export function useVoiceRecording({ activeConvId, userId, isAr, sendMessage }: U
         const ext = extFromMime(finalMime);
         const blob = new Blob(recordingChunksRef.current, { type: finalMime });
         const mode = cancelModeRef.current;
+        // Capture the live envelope BEFORE cleanupRecorder tears the
+        // analyser down, so the preview pill paints the real waveform of
+        // what the user just said.
+        const envelopeSnapshot = latestBarsRef.current.length
+          ? Array.from(latestBarsRef.current)
+          : null;
         cleanupRecorder();
 
         if (mode === 'cancel') return;
@@ -229,6 +265,7 @@ export function useVoiceRecording({ activeConvId, userId, isAr, sendMessage }: U
           setPreviewUrl(url);
           setPreviewExt(ext);
           setPreviewMime(finalMime);
+          setCapturedBars(envelopeSnapshot);
           return;
         }
 
@@ -241,6 +278,7 @@ export function useVoiceRecording({ activeConvId, userId, isAr, sendMessage }: U
           setPreviewUrl(url);
           setPreviewExt(ext);
           setPreviewMime(finalMime);
+          setCapturedBars(envelopeSnapshot);
         }
       };
 
@@ -312,6 +350,7 @@ export function useVoiceRecording({ activeConvId, userId, isAr, sendMessage }: U
     if (previewUrl) URL.revokeObjectURL(previewUrl);
     setPreviewBlob(null);
     setPreviewUrl('');
+    setCapturedBars(null);
   }, [previewUrl]);
 
   const sendPreview = useCallback(async () => {
@@ -328,6 +367,7 @@ export function useVoiceRecording({ activeConvId, userId, isAr, sendMessage }: U
 
   return {
     isRecording, recordingTime, locked, uploadingVoice,
+    liveBars, capturedBars,
     startRecording,
     stopRecording,       // legacy: (cancel?: boolean) => void
     stopAndSend,

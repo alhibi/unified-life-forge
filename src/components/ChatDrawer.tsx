@@ -37,6 +37,8 @@ import WallpaperPicker from './chat/WallpaperPicker';
 import MessageInfo from './chat/MessageInfo';
 import { haptic } from './chat/sounds';
 import { VirtualMessageList, type VirtualMessageListHandle } from './chat/VirtualMessageList';
+import { MessageRowErrorBoundary } from './chat/MessageRowErrorBoundary';
+import { unpackFileName, readableFileName } from '@/lib/chat/imageMeta';
 import type { ChatDrawerProps, ActionMenuState, Message } from './chat/types';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -174,6 +176,35 @@ function VoiceBubble({
     voicePlayer.seek(Math.max(0, Math.min(1, fraction)));
   };
 
+  // ── Pointer-drag scrubber (Telegram-style "drag the playhead") ──────────
+  // The bare click-to-seek above stays for desktop quick-jumps. On top of
+  // it, we layer a pointer-capture flow so users can grab the waveform
+  // and slide along — far more accurate than tapping the right position.
+  const isMineActiveRef = React.useRef(false);
+  const trackRectRef = React.useRef<DOMRect | null>(null);
+  const handleScrubStart = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (voicePlayer.state.msgId !== msg.id) return;
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    e.stopPropagation();
+    e.preventDefault();
+    isMineActiveRef.current = true;
+    (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId);
+    trackRectRef.current = e.currentTarget.getBoundingClientRect();
+    const r = trackRectRef.current;
+    voicePlayer.seek(Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)));
+  };
+  const handleScrubMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isMineActiveRef.current || !trackRectRef.current) return;
+    const r = trackRectRef.current;
+    voicePlayer.seek(Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)));
+  };
+  const handleScrubEnd = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isMineActiveRef.current) return;
+    isMineActiveRef.current = false;
+    trackRectRef.current = null;
+    try { (e.currentTarget as HTMLElement).releasePointerCapture?.(e.pointerId); } catch { /* no-op */ }
+  };
+
   return (
     <div ref={containerRef} className="min-w-[220px] px-3 py-2.5">
       <div className="flex items-center gap-3">
@@ -190,7 +221,7 @@ function VoiceBubble({
         </button>
         <div className="flex-1 flex flex-col gap-1.5">
           <div
-            className="flex items-center gap-[2px] h-[20px] cursor-pointer"
+            className="flex items-center gap-[2px] h-[20px] cursor-pointer touch-none select-none"
             dir="ltr"
             role={voicePlayer.state.msgId === msg.id ? 'slider' : undefined}
             aria-label={isAr ? 'شريط تقدم الصوت' : 'Audio-Fortschritt'}
@@ -198,6 +229,10 @@ function VoiceBubble({
             aria-valuemax={voicePlayer.state.msgId === msg.id ? 100 : undefined}
             aria-valuenow={voicePlayer.state.msgId === msg.id ? Math.round(progress * 100) : undefined}
             onClick={handleSeek}
+            onPointerDown={handleScrubStart}
+            onPointerMove={handleScrubMove}
+            onPointerUp={handleScrubEnd}
+            onPointerCancel={handleScrubEnd}
           >
             {bars.map((h, i) => {
               const barProgress = i / bars.length;
@@ -714,14 +749,14 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                           >
                             <ChatImage
                               src={chat.getFileUrl(m)}
-                              alt={m.file_name || ''}
+                              alt={readableFileName(m.file_name) || ''}
                               isAr={chat.isAr}
                               refreshUrl={() => chat.refreshSignedUrl(m)}
                               className="w-full h-full"
                             />
                           </button>
                         ) : (
-                          <div key={m.id} className="aspect-square bg-muted/20 flex flex-col items-center justify-center gap-1.5 p-2"><FileText className="w-6 h-6 text-muted-foreground" /><span className="text-[9px] text-muted-foreground truncate w-full text-center">{m.file_name}</span></div>
+                          <div key={m.id} className="aspect-square bg-muted/20 flex flex-col items-center justify-center gap-1.5 p-2"><FileText className="w-6 h-6 text-muted-foreground" /><span className="text-[9px] text-muted-foreground truncate w-full text-center">{readableFileName(m.file_name)}</span></div>
                         ))}
                       </div>
                     )}
@@ -1190,7 +1225,8 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                 const isFirstUnread = msg.id === chat.firstUnreadId;
 
                 return (
-                  <>
+                  <MessageRowErrorBoundary isMine={isMine} isAr={chat.isAr}>
+                    <>
                     {/* Date separator */}
                     {showDate && (
                       <div className="flex justify-center py-4">
@@ -1310,38 +1346,52 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                             {msg.deleted ? (
                               <p className="px-3 py-2 text-[13px]">{chat.isAr ? '🚫 تم حذف هذه الرسالة' : '🚫 Diese Nachricht wurde gelöscht'}</p>
                             ) : msg.message_type === 'image' ? (
-                              <div className="relative">
-                                <ChatImage
-                                  src={chat.getFileUrl(msg)}
-                                  alt={msg.file_name || 'image'}
-                                  isAr={chat.isAr}
-                                  refreshUrl={() => chat.refreshSignedUrl(msg)}
-                                  className="max-w-full max-h-60 aspect-[4/3] cursor-pointer"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    if (chat.selectionMode) { chat.toggleSelect(msg.id); return; }
-                                    const url = chat.getFileUrl(msg);
-                                    if (!url) return;
-                                    const rect = (e.target as HTMLElement).getBoundingClientRect();
-                                    chat.setLightboxRect(rect);
-                                    chat.setLightboxSrc(url);
-                                    chat.setLightboxOpen(true);
-                                  }}
-                                />
-                                <div className="px-3 py-1.5">
-                                  {msg.content && msg.content !== msg.file_name && (
-                                    <p className="break-words whitespace-pre-wrap text-[15px] leading-[1.45] [overflow-wrap:anywhere] [unicode-bidi:plaintext]" dir="auto">
-                                      {renderRichText(msg.content)}
-                                    </p>
-                                  )}
-                                  <div className={cn('mt-0.5 flex items-center justify-end gap-[3px] text-[11px] leading-none', isDarkBg && isMine ? 'text-primary-foreground/70' : 'text-muted-foreground/60')} dir="ltr">
-                                    {msg.edited_at && <span className="text-[9px] italic">{chat.isAr ? 'معدّلة' : 'bearb.'}</span>}
-                                    {isFading && <Timer className="h-[10px] w-[10px] animate-pulse" />}
-                                    <span>{formatClockTime(msg.created_at)}</span>
-                                    {isMine && <MessageTicks status={msg.status} read={msg.read} dimmed={isDarkBg} isAr={chat.isAr} onRetry={() => chat.retryFailedMessage(msg)} />}
+                              (() => {
+                                // Decode any inline metadata (dims, dominant
+                                // colour, LQIP thumbnail) so the bubble paints
+                                // a stable Telegram-style placeholder while
+                                // the full-size streams in.
+                                const meta = unpackFileName(msg.file_name).meta;
+                                return (
+                                  <div className="relative">
+                                    <ChatImage
+                                      src={chat.getFileUrl(msg)}
+                                      alt={readableFileName(msg.file_name) || 'image'}
+                                      isAr={chat.isAr}
+                                      refreshUrl={() => chat.refreshSignedUrl(msg)}
+                                      width={meta?.w}
+                                      height={meta?.h}
+                                      thumbnailDataUrl={meta?.t}
+                                      dominantColor={meta?.c}
+                                      maxHeight={240}
+                                      className="max-w-full cursor-pointer"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        if (chat.selectionMode) { chat.toggleSelect(msg.id); return; }
+                                        const url = chat.getFileUrl(msg);
+                                        if (!url) return;
+                                        const rect = (e.target as HTMLElement).getBoundingClientRect();
+                                        chat.setLightboxRect(rect);
+                                        chat.setLightboxSrc(url);
+                                        chat.setLightboxOpen(true);
+                                      }}
+                                    />
+                                    <div className="px-3 py-1.5">
+                                      {msg.content && msg.content !== readableFileName(msg.file_name) && (
+                                        <p className="break-words whitespace-pre-wrap text-[15px] leading-[1.45] [overflow-wrap:anywhere] [unicode-bidi:plaintext]" dir="auto">
+                                          {renderRichText(msg.content)}
+                                        </p>
+                                      )}
+                                      <div className={cn('mt-0.5 flex items-center justify-end gap-[3px] text-[11px] leading-none', isDarkBg && isMine ? 'text-primary-foreground/70' : 'text-muted-foreground/60')} dir="ltr">
+                                        {msg.edited_at && <span className="text-[9px] italic">{chat.isAr ? 'معدّلة' : 'bearb.'}</span>}
+                                        {isFading && <Timer className="h-[10px] w-[10px] animate-pulse" />}
+                                        <span>{formatClockTime(msg.created_at)}</span>
+                                        {isMine && <MessageTicks status={msg.status} read={msg.read} dimmed={isDarkBg} isAr={chat.isAr} onRetry={() => chat.retryFailedMessage(msg)} />}
+                                      </div>
+                                    </div>
                                   </div>
-                                </div>
-                              </div>
+                                );
+                              })()
                             ) : msg.message_type === 'voice' ? (
                               <VoiceBubble
                                 msg={msg}
@@ -1359,7 +1409,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                             ) : msg.message_type === 'file' ? (
                               <div className="px-3 py-2">
                                 <a href={chat.getFileUrl(msg)} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-foreground" onClick={e => e.stopPropagation()}>
-                                  <FileText className="h-5 w-5 shrink-0 text-muted-foreground" /><span className="flex-1 truncate text-[13px]">{msg.file_name}</span><Download className="h-4 w-4 shrink-0 opacity-50" />
+                                  <FileText className="h-5 w-5 shrink-0 text-muted-foreground" /><span className="flex-1 truncate text-[13px]">{readableFileName(msg.file_name)}</span><Download className="h-4 w-4 shrink-0 opacity-50" />
                                 </a>
                                 <div className={cn('mt-1 flex items-center justify-end gap-[3px] text-[11px] leading-none', isDarkBg && isMine ? 'text-primary-foreground/70' : 'text-muted-foreground/60')} dir="ltr">
                                   {isFading && <Timer className="h-[10px] w-[10px] animate-pulse" />}
@@ -1427,7 +1477,8 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                         </div>
                       </SwipeableMessage>
                     </div>
-                  </>
+                    </>
+                  </MessageRowErrorBoundary>
                 );
               }}
                 />
@@ -1445,33 +1496,76 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
               </AnimatePresence>
 
               {/* Image uploads in progress */}
-              {chat.activeConv && chat.imageUpload.uploads.filter(u => u.conversationId === chat.activeConv!.id).map(upload => (
+              {chat.activeConv && chat.imageUpload.uploads.filter(u => u.conversationId === chat.activeConv!.id).map(upload => {
+                const saving = upload.originalBytes && upload.compressedBytes && upload.originalBytes > upload.compressedBytes
+                  ? Math.round(((upload.originalBytes - upload.compressedBytes) / upload.originalBytes) * 100)
+                  : 0;
+                const aspect = upload.width && upload.height ? `${upload.width} / ${upload.height}` : '4 / 3';
+                return (
                 <div key={upload.tempId} className="flex justify-end mt-2">
                   <div className="relative max-w-[75%] overflow-hidden bg-primary/15" style={{ borderRadius: '18px 18px 4px 18px' }}>
-                    <img src={upload.localPreviewUrl} alt="" className={cn('max-w-full max-h-60 object-cover transition-all duration-500', (upload.status === 'uploading' || upload.status === 'compressing') && 'blur-[2px] brightness-75', upload.status === 'done' && 'blur-0 brightness-100')} />
-                    {upload.status === 'compressing' && (
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <svg className="w-12 h-12 animate-spin" viewBox="0 0 48 48">
-                          <circle cx="24" cy="24" r="20" fill="none" stroke="white" strokeOpacity="0.2" strokeWidth="3" />
-                          <circle cx="24" cy="24" r="20" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeDasharray={`${2 * Math.PI * 20}`} strokeDashoffset={`${2 * Math.PI * 20 * 0.7}`} />
-                        </svg>
-                      </div>
-                    )}
-                    {upload.status === 'uploading' && (
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <svg className="w-12 h-12 -rotate-90" viewBox="0 0 48 48"><circle cx="24" cy="24" r="20" fill="none" stroke="white" strokeOpacity="0.2" strokeWidth="3" /><circle cx="24" cy="24" r="20" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeDasharray={`${2 * Math.PI * 20}`} strokeDashoffset={`${2 * Math.PI * 20 * (1 - upload.progress / 100)}`} className="transition-all duration-300" /></svg>
-                        <span className="absolute text-white text-[11px] font-bold">{upload.progress}%</span>
-                      </div>
-                    )}
-                    {upload.status === 'error' && (
-                      <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-                        <button onClick={() => chat.imageUpload.retryUpload(upload.tempId)} className="px-4 py-2 rounded-full bg-destructive text-white text-sm font-medium active:scale-95 transition-transform">{chat.isAr ? 'إعادة المحاولة' : 'Wiederholen'}</button>
-                      </div>
-                    )}
+                    <div className="relative" style={{ aspectRatio: aspect, maxHeight: 240, background: upload.dominantColor ?? undefined }}>
+                      <img
+                        src={upload.localPreviewUrl}
+                        alt=""
+                        className={cn(
+                          'absolute inset-0 w-full h-full object-cover transition-all duration-500',
+                          (upload.status === 'uploading' || upload.status === 'compressing') && 'blur-[2px] brightness-75',
+                          upload.status === 'done' && 'blur-0 brightness-100',
+                        )}
+                      />
+                      {upload.status === 'compressing' && (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <svg className="w-12 h-12 animate-spin" viewBox="0 0 48 48">
+                            <circle cx="24" cy="24" r="20" fill="none" stroke="white" strokeOpacity="0.2" strokeWidth="3" />
+                            <circle cx="24" cy="24" r="20" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeDasharray={`${2 * Math.PI * 20}`} strokeDashoffset={`${2 * Math.PI * 20 * 0.7}`} />
+                          </svg>
+                        </div>
+                      )}
+                      {upload.status === 'uploading' && (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <svg className="w-12 h-12 -rotate-90" viewBox="0 0 48 48"><circle cx="24" cy="24" r="20" fill="none" stroke="white" strokeOpacity="0.2" strokeWidth="3" /><circle cx="24" cy="24" r="20" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeDasharray={`${2 * Math.PI * 20}`} strokeDashoffset={`${2 * Math.PI * 20 * (1 - upload.progress / 100)}`} className="transition-all duration-300" /></svg>
+                          <span className="absolute text-white text-[11px] font-bold">{upload.progress}%</span>
+                        </div>
+                      )}
+                      {upload.status === 'error' && (
+                        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/65 px-3 text-center">
+                          {upload.errorMessage && (
+                            <p className="text-white text-[12px] font-medium leading-tight max-w-[200px]" dir="auto">
+                              {upload.errorMessage}
+                            </p>
+                          )}
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => chat.imageUpload.retryUpload(upload.tempId)}
+                              className="px-3.5 py-1.5 rounded-full bg-destructive text-white text-[12px] font-medium active:scale-95 transition-transform"
+                            >
+                              {chat.isAr ? 'إعادة المحاولة' : 'Wiederholen'}
+                            </button>
+                            <button
+                              onClick={() => chat.imageUpload.clearUpload(upload.tempId)}
+                              aria-label={chat.isAr ? 'تجاهل' : 'Verwerfen'}
+                              className="px-3.5 py-1.5 rounded-full bg-white/15 text-white text-[12px] font-medium active:scale-95 transition-transform"
+                            >
+                              {chat.isAr ? 'تجاهل' : 'Verwerfen'}
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                      {/* Compression badge — Telegram shows this in the
+                          upload tile so users know their photo was optimized
+                          before being sent. Hidden during error state. */}
+                      {saving >= 15 && upload.status !== 'error' && (
+                        <span className="absolute bottom-1.5 start-1.5 px-1.5 py-0.5 rounded-md bg-black/45 backdrop-blur-sm text-white text-[10px] font-semibold">
+                          −{saving}%
+                        </span>
+                      )}
+                    </div>
                     <div className="px-3 py-1.5"><div className="flex items-center justify-end gap-[3px] text-[11px] leading-none text-muted-foreground/60" dir="ltr"><span>{formatClockTime(new Date().toISOString())}</span></div></div>
                   </div>
                 </div>
-              ))}
+                );
+              })}
 
               <div ref={chat.messagesEndRef} />
             </div>
@@ -1529,15 +1623,23 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                               </span>
                             </div>
                           )}
-                          {actionMenu.msg.message_type === 'image' && (
-                            <ChatImage
-                              src={chat.getFileUrl(actionMenu.msg)}
-                              alt={actionMenu.msg.file_name || ''}
-                              isAr={chat.isAr}
-                              refreshUrl={() => chat.refreshSignedUrl(actionMenu.msg)}
-                              className="max-w-full aspect-[4/3] max-h-40"
-                            />
-                          )}
+                          {actionMenu.msg.message_type === 'image' && (() => {
+                            const m = unpackFileName(actionMenu.msg.file_name).meta;
+                            return (
+                              <ChatImage
+                                src={chat.getFileUrl(actionMenu.msg)}
+                                alt={readableFileName(actionMenu.msg.file_name) || ''}
+                                isAr={chat.isAr}
+                                refreshUrl={() => chat.refreshSignedUrl(actionMenu.msg)}
+                                width={m?.w}
+                                height={m?.h}
+                                thumbnailDataUrl={m?.t}
+                                dominantColor={m?.c}
+                                maxHeight={160}
+                                className="max-w-full"
+                              />
+                            );
+                          })()}
                         </div>
 
                         {/* Emoji bar + actions */}
@@ -1644,6 +1746,8 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
               previewBlob={voice.previewBlob}
               previewUrl={voice.previewUrl}
               uploadingVoice={voice.uploadingVoice}
+              liveBars={voice.liveBars}
+              capturedBars={voice.capturedBars}
               startRecording={voice.startRecording}
               stopAndSend={voice.stopAndSend}
               stopAndCancel={voice.stopAndCancel}

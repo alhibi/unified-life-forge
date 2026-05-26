@@ -42,6 +42,8 @@ const M = {
   copied:            { ar: 'تم النسخ', de: 'Kopiert' },
   linkCopyFailed:    { ar: 'تعذر النسخ', de: 'Kopieren fehlgeschlagen' },
   conversationGone:  { ar: 'المحادثة غير متاحة', de: 'Chat nicht verfügbar' },
+  heicUnsupported:   { ar: 'لا يدعم متصفحك صور iPhone (HEIC). يرجى تصدير الصورة بصيغة JPEG.', de: 'HEIC-Bilder werden hier nicht unterstützt. Bitte als JPEG exportieren.' },
+  imageDecodeFailed: { ar: 'تعذر قراءة الصورة', de: 'Bild konnte nicht gelesen werden' },
 } as const;
 
 type Key = keyof typeof M;
