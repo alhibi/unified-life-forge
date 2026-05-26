@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useApp } from '@/contexts/AppContext';
 import { useImageUpload } from '@/contexts/ImageUploadContext';
+import { packImageMeta } from '@/lib/chat/imageMeta';
 import { useOtherUserPresence, useUserOnline, useOnlineUserIds, formatLastSeen, useTick } from '@/hooks/usePresence';
 import { getSignedFileUrl, getMessagePreview } from './chatUtils';
 import { playChatSound, primeAudio, haptic } from './sounds';
@@ -1383,13 +1384,22 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
   }, [stagedPreviews]);
 
   useEffect(() => {
-    imageUpload.setOnUploadComplete((tempId: string, storagePath: string, fileName: string, conversationId: string) => {
-      if (user) {
-        const caption = pendingCaptionsRef.current.get(tempId);
-        if (caption !== undefined) pendingCaptionsRef.current.delete(tempId);
-        sendMessage('image', storagePath, fileName, caption, conversationId);
-        setTimeout(() => imageUpload.clearUpload(tempId), 500);
-      }
+    imageUpload.setOnUploadComplete((tempId, storagePath, fileName, conversationId, metadata) => {
+      if (!user) return;
+      const caption = pendingCaptionsRef.current.get(tempId);
+      if (caption !== undefined) pendingCaptionsRef.current.delete(tempId);
+      // Pack inline metadata (dims / dominant colour / LQIP thumbnail)
+      // into the file_name envelope so the recipient bubble can paint
+      // a stable layout + LQIP placeholder before the full image streams
+      // in. Falls back to the raw filename if no metadata was captured.
+      const packedName = packImageMeta(fileName, {
+        w: metadata?.width,
+        h: metadata?.height,
+        c: metadata?.dominantColor,
+        t: metadata?.thumbnailDataUrl ?? undefined,
+      });
+      sendMessage('image', storagePath, packedName, caption, conversationId);
+      setTimeout(() => imageUpload.clearUpload(tempId), 500);
     });
     return () => imageUpload.setOnUploadComplete(undefined);
   }, [user, sendMessage, imageUpload]);

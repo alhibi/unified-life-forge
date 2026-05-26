@@ -12,6 +12,7 @@ import { WAVEFORM_HEIGHTS } from './constants';
 import { formatRecordingTime } from './chatUtils';
 import type { Message } from './types';
 import EmojiPicker from './EmojiPicker';
+import LiveWaveform from './LiveWaveform';
 
 interface ChatInputProps {
   isAr: boolean;
@@ -37,6 +38,11 @@ interface ChatInputProps {
   previewBlob: Blob | null;
   previewUrl: string;
   uploadingVoice: boolean;
+  /** Live amplitude bars during recording. NULL when not recording. */
+  liveBars?: number[] | null;
+  /** Captured envelope from the just-finished recording, used to render
+   *  the preview pill's static waveform. NULL when no preview is active. */
+  capturedBars?: number[] | null;
   startRecording: () => void;
   stopAndSend: () => void;
   stopAndCancel: () => void;
@@ -218,6 +224,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
   stagedPreviews, stagedImagesCount, uploading,
   inputRef, fileInputRef,
   isRecording, recordingTime, locked, previewBlob, previewUrl, uploadingVoice,
+  liveBars, capturedBars,
   startRecording, stopAndSend, stopAndCancel, stopForPreview, lockRecording, sendPreview, discardPreview,
   sendMessage, saveEditMessage, sendStagedImages, removeStagedImage, clearStagedImages,
   showEmojiPicker, setShowEmojiPicker,
@@ -530,15 +537,17 @@ const ChatInput: React.FC<ChatInputProps> = ({
               >
                 {previewPlaying ? <Pause className="w-4 h-4 text-primary" /> : <Play className="w-4 h-4 text-primary ms-0.5" />}
               </button>
-              <div className="flex-1 flex items-center gap-[2.5px] h-5" dir="ltr">
-                {Array.from({ length: 26 }).map((_, i) => (
-                  <motion.div
-                    key={i}
-                    animate={previewPlaying ? { height: [2, WAVEFORM_HEIGHTS[i % WAVEFORM_HEIGHTS.length], 2] } : { height: WAVEFORM_HEIGHTS[i % WAVEFORM_HEIGHTS.length] }}
-                    transition={previewPlaying ? { duration: 0.4 + Math.random() * 0.3, repeat: Infinity, delay: i * 0.03 } : { duration: 0 }}
-                    className="w-[2.5px] rounded-full bg-primary/50"
-                  />
-                ))}
+              {/* Captured envelope of the actual recording. Falls back to
+                  the seeded fallback bars when the analyser was disabled
+                  (Web Audio missing) so the pill always renders. */}
+              <div className="flex-1 text-primary/60">
+                <LiveWaveform
+                  bars={capturedBars ?? WAVEFORM_HEIGHTS.map(h => h / 22)}
+                  height={20}
+                  barWidth={2.5}
+                  gap={2.5}
+                  emphasizeFresh={false}
+                />
               </div>
               <span className="shrink-0 text-[11px] font-mono tabular-nums text-muted-foreground/70 pe-1">
                 {formatRecordingTime(recordingTime)}
@@ -581,15 +590,11 @@ const ChatInput: React.FC<ChatInputProps> = ({
                   <span>{isAr ? 'اسحب للإلغاء' : 'Zum Abbrechen wischen'}</span>
                 </div>
               ) : (
-                <div className="flex-1 flex items-center justify-center gap-[2.5px]" dir="ltr">
-                  {Array.from({ length: 22 }).map((_, i) => (
-                    <motion.div
-                      key={i}
-                      animate={{ height: [2, WAVEFORM_HEIGHTS[i] ?? 10, 2] }}
-                      transition={{ duration: 0.4 + Math.random() * 0.3, repeat: Infinity, delay: i * 0.04, ease: 'easeInOut' }}
-                      className="w-[2.5px] bg-primary/50 rounded-full"
-                    />
-                  ))}
+                /* Live amplitude bars — the user sees their voice in real
+                   time. Bars fall back to a quiet floor when the analyser
+                   isn't ready or Web Audio is unsupported. */
+                <div className="flex-1 text-primary/55">
+                  <LiveWaveform bars={liveBars ?? null} height={20} barWidth={2.5} gap={2.5} />
                 </div>
               )}
             </div>
