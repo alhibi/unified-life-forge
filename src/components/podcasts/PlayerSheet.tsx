@@ -24,8 +24,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import {
-  ChevronDown, Gauge, Loader2, Moon, Pause, Play, Repeat, RotateCcw, RotateCw,
-  Share2, X,
+  ChevronDown, ChevronUp, FileText, Gauge, Loader2, Moon, Pause, Play, Repeat,
+  RotateCcw, RotateCw, Share2, X,
 } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import DOMPurify from 'dompurify';
@@ -149,6 +149,11 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
   // a compact chip + on-demand picker, freeing horizontal space for
   // the transport row to breathe.
   const [speedOpen, setSpeedOpen] = useState(false);
+  // Show-notes panel. Hidden by default — long descriptions used to
+  // crowd the hero, push the transport down, and steal touch focus
+  // from the seek bar. Now they live behind a discreet "Show notes"
+  // toggle that expands an animated panel on demand.
+  const [descOpen, setDescOpen] = useState(false);
   // Briefly flash a "Link copied" badge after the share fallback.
   const [copiedLink, setCopiedLink] = useState(false);
 
@@ -166,9 +171,18 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
     if (!open) {
       setSleepOpen(false);
       setSpeedOpen(false);
+      setDescOpen(false);
       setCopiedLink(false);
     }
   }, [open]);
+
+  // Collapse the show-notes panel whenever the active episode changes
+  // — the previously-expanded panel almost certainly held content for
+  // a different episode, and a fresh track should land on the clean
+  // hero view rather than carrying over the previous reader state.
+  useEffect(() => {
+    setDescOpen(false);
+  }, [player.current?.episode.id]);
 
   // Sanitize the episode description once per render. Computed here
   // (above the early return) because hooks must run in the same order
@@ -392,26 +406,77 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
                 </p>
               </div>
 
-              {/* ── Episode description card ──────────────────────────
-                  Capped at ~6rem visible height with internal scroll —
-                  long show notes (Spotify-style transcripts, sponsor-
-                  link dumps) won't push the transport off-screen. */}
+              {/* ── Show-notes toggle + collapsible panel ─────────────
+                  The episode description used to be permanently
+                  visible right below the title, which crowded the
+                  hero and made long show-notes (sponsor blocks,
+                  transcripts) feel intrusive. It now lives behind a
+                  small chip that expands a height-animated panel only
+                  when the listener asks for it.
+
+                  Uses framer-motion's `height: 'auto'` enter/exit so
+                  the layout below (seek bar, transport, secondary row)
+                  reflows smoothly instead of snapping. Tapping the
+                  chip a second time collapses the panel; we also
+                  reset `descOpen` whenever the sheet closes or the
+                  active episode changes (see the effect above) so the
+                  panel never carries stale state. */}
               {safeDescription && (
                 <div className="px-6 mt-3">
-                  <div
-                    className="rounded-2xl border border-border/40 px-4 py-3 max-h-24 overflow-y-auto"
-                    style={{
-                      background: 'hsl(var(--card) / 0.55)',
-                      backdropFilter: 'blur(10px)',
-                      WebkitBackdropFilter: 'blur(10px)',
-                    }}
-                    onTouchMove={e => e.stopPropagation()}
-                  >
-                    <div
-                      className="text-[12px] text-foreground/80 leading-relaxed podcast-html"
-                      dangerouslySetInnerHTML={{ __html: safeDescription }}
-                    />
+                  <div className="flex justify-center">
+                    <button
+                      type="button"
+                      onClick={() => setDescOpen(o => !o)}
+                      aria-expanded={descOpen}
+                      aria-controls="podcast-show-notes-panel"
+                      className="flex items-center gap-1.5 px-3 h-8 rounded-full text-[12px] font-semibold text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-colors"
+                    >
+                      <FileText className="w-3.5 h-3.5" />
+                      <span>
+                        {descOpen
+                          ? (lang === 'ar' ? 'إخفاء الوصف' : 'Beschreibung ausblenden')
+                          : (lang === 'ar' ? 'عرض الوصف'   : 'Beschreibung anzeigen')}
+                      </span>
+                      {descOpen
+                        ? <ChevronUp   className="w-3.5 h-3.5" />
+                        : <ChevronDown className="w-3.5 h-3.5" />}
+                    </button>
                   </div>
+
+                  <AnimatePresence initial={false}>
+                    {descOpen && (
+                      <motion.div
+                        id="podcast-show-notes-panel"
+                        key="show-notes"
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+                        // `overflow-hidden` is required for the height
+                        // animation to clip the inner content cleanly
+                        // while it's collapsing.
+                        className="overflow-hidden"
+                      >
+                        <div
+                          className="mt-2 rounded-2xl border border-border/40 px-4 py-3 max-h-40 overflow-y-auto"
+                          style={{
+                            background: 'hsl(var(--card) / 0.55)',
+                            backdropFilter: 'blur(10px)',
+                            WebkitBackdropFilter: 'blur(10px)',
+                          }}
+                          // Touch scroll stays inside the panel — keeps
+                          // the bottom-sheet's own gesture handler from
+                          // fighting the show-notes scroll.
+                          onTouchMove={e => e.stopPropagation()}
+                        >
+                          <div
+                            className="text-[12px] text-foreground/80 leading-relaxed podcast-html"
+                            dangerouslySetInnerHTML={{ __html: safeDescription }}
+                          />
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
               )}
 
