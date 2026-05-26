@@ -42,7 +42,13 @@ const tabs: Tab[] = [
 ];
 
 const TAB_PATHS = new Set<string>(tabs.map(t => t.path));
-const TAP_SLOP = 6;
+// A drag must travel at least this many pixels before we treat it as
+// a "swipe between tabs" gesture. Lower than this and we still let
+// the underlying button receive the click. Set well above the iOS
+// click-suppression slop (≈10px) so the user has to commit to a
+// horizontal sweep — otherwise tiny finger drift across a tab boundary
+// while tapping fires an unwanted navigation.
+const DRAG_COMMIT_SLOP = 14;
 
 type DragState = {
   startX: number;
@@ -52,11 +58,12 @@ type DragState = {
 };
 
 export default function BottomNav() {
-  const { t } = useApp();
+  const { t, dir } = useApp();
   const navigate = useNavigate();
   const location = useLocation();
   const inChatConversation = useInChatConversation();
   const { unreadCount } = useUnreadMessages();
+  const rtl = dir === 'rtl';
 
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [containerWidth, setContainerWidth] = useState<number>(() =>
@@ -97,9 +104,17 @@ export default function BottomNav() {
     (x: number) => {
       if (containerWidth <= 0 || totalTabs === 0) return 0;
       const slot = Math.floor(x / itemWidth);
-      return Math.max(0, Math.min(totalTabs - 1, slot));
+      const clamped = Math.max(0, Math.min(totalTabs - 1, slot));
+      // Flexbox with `flex-direction: row` reverses the visual order of
+      // children when the container is RTL: the rightmost slot in
+      // physical pixels corresponds to `tabs[0]`, and the leftmost to
+      // `tabs[N-1]`. Because we measure x from the physical left, we
+      // must mirror the index in RTL — otherwise dragging "right"
+      // (toward the visually-next tab in Arabic) snaps to the wrong
+      // logical tab and navigates somewhere unrelated.
+      return rtl ? totalTabs - 1 - clamped : clamped;
     },
-    [containerWidth, itemWidth, totalTabs],
+    [containerWidth, itemWidth, totalTabs, rtl],
   );
 
   const onPointerDown = useCallback(
@@ -131,7 +146,7 @@ export default function BottomNav() {
         ...prev,
         x,
         index: newIndex,
-        moved: prev.moved || Math.abs(x - prev.startX) > TAP_SLOP,
+        moved: prev.moved || Math.abs(x - prev.startX) > DRAG_COMMIT_SLOP,
       });
     },
     [computeIndexFromX, setDragState],

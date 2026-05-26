@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { ChevronLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useApp } from '@/contexts/AppContext';
@@ -39,7 +39,12 @@ interface BackButtonProps {
  * Behaviour, in priority order:
  *   1. `onClick`  → call the handler (custom back-stacks)
  *   2. `to`       → `navigate(to)` (hard destination)
- *   3. otherwise  → `navigate(-1)` if history exists, else `navigate(fallback, {replace:true})`
+ *   3. otherwise  → `navigate(-1)` if there is in-app history
+ *      (`location.key !== 'default'`), else `navigate(fallback,
+ *      {replace:true})`. We deliberately do NOT use
+ *      `window.history.length > 1` because that counts cross-origin
+ *      entries too — pressing back would then leave the app entirely
+ *      when the user reached us from another website.
  *
  * RTL: a single ChevronLeft is mirrored via `rtl:rotate-180`, so we
  * don't ship two icons or branch on context. The component still reads
@@ -53,18 +58,24 @@ export default function BackButton({
   ariaLabel,
 }: BackButtonProps) {
   const navigate = useNavigate();
+  const location = useLocation();
   const { language } = useApp();
   const label = ariaLabel ?? (language === 'ar' ? 'رجوع' : 'Back');
 
   const handleClick = useCallback(() => {
     if (onClick) { onClick(); return; }
     if (to) { navigate(to); return; }
-    if (typeof window !== 'undefined' && window.history.length > 1) {
+    // `location.key === 'default'` means this is the very first entry
+    // in the browser tab's session for this app — i.e. the user
+    // landed here via deep-link / refresh / external link and has no
+    // in-app history. In that case `navigate(-1)` would leave the app,
+    // so we replace with the safe in-app fallback instead.
+    if (location.key !== 'default') {
       navigate(-1);
       return;
     }
     navigate(fallback, { replace: true });
-  }, [onClick, to, fallback, navigate]);
+  }, [onClick, to, fallback, navigate, location.key]);
 
   return (
     <button
