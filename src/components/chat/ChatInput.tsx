@@ -618,20 +618,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
         ) : (
           /* ── Text composer ── */
           <motion.div key="input" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="px-2.5 py-2 flex items-end gap-1.5">
-            {/* Emoji toggle */}
-            <button
-              type="button"
-              onClick={() => { setShowEmojiPicker(!showEmojiPicker); }}
-              className={cn(
-                'shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-colors self-end',
-                showEmojiPicker ? 'bg-primary/15 text-primary' : 'active:bg-accent/40 text-muted-foreground'
-              )}
-              aria-label={isAr ? 'رموز تعبيرية' : 'Emoji'}
-            >
-              <Smile className="h-5 w-5" />
-            </button>
-
-            {/* Attach */}
+            {/* Attach (+) — kept outside the pill so the menu anchors cleanly. */}
             <button
               type="button"
               onPointerDown={(e) => e.preventDefault()}
@@ -655,9 +642,27 @@ const ChatInput: React.FC<ChatInputProps> = ({
               )}
             </button>
 
-            {/* Text input */}
-            <div className="flex-1 relative flex items-end bg-muted/15 border border-border/15 rounded-2xl overflow-hidden transition-colors focus-within:border-primary/20 focus-within:bg-muted/5">
+            {/* Text input — iOS-style pill with the emoji button tucked inside. */}
+            <div className="flex-1 relative flex items-end bg-muted/15 border border-border/15 rounded-3xl overflow-visible transition-all duration-200 focus-within:border-primary/25 focus-within:bg-muted/5 focus-within:shadow-[0_0_0_3px_hsl(var(--primary)/0.06)]">
               <CharacterCounter count={newMessage.length} />
+
+              {/* Emoji toggle — sits inside the pill on the start edge,
+                  bottom-aligned so it stays put while the textarea grows. */}
+              <button
+                type="button"
+                onClick={() => { setShowEmojiPicker(!showEmojiPicker); }}
+                className={cn(
+                  'shrink-0 self-end mb-1 ms-1 w-8 h-8 rounded-full flex items-center justify-center transition-colors',
+                  showEmojiPicker
+                    ? 'bg-primary/15 text-primary'
+                    : 'text-muted-foreground/70 active:bg-accent/40'
+                )}
+                aria-label={isAr ? 'رموز تعبيرية' : 'Emoji'}
+                aria-pressed={showEmojiPicker}
+              >
+                <Smile className="h-[18px] w-[18px]" />
+              </button>
+
               <Textarea
                 ref={inputRef}
                 placeholder={
@@ -708,7 +713,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                   }
                 }}
                 dir="auto"
-                className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 min-h-[40px] max-h-[140px] resize-none px-4 py-[10px] text-[15px] leading-relaxed placeholder:text-muted-foreground/40"
+                className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 min-h-[40px] max-h-[140px] resize-none ps-1.5 pe-3.5 py-[10px] text-[15px] leading-relaxed placeholder:text-muted-foreground/40"
               />
             </div>
 
