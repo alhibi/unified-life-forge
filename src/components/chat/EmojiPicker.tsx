@@ -5,20 +5,25 @@ import { useApp } from '@/contexts/AppContext';
 interface EmojiPickerProps {
   isAr: boolean;
   onPick: (emoji: string) => void;
-  /** When true, picker is shorter (260px). Default is 320px. */
+  /** When true, picker is shorter (300px). Default is 380px. */
   compact?: boolean;
 }
 
 /**
  * Apple-style emoji picker (iPhone artwork from emoji-datasource-apple via CDN).
  *
- * Renders the full official Unicode emoji set, grouped into categories with
- * search, recents and skin-tone variants. We lazy-load the picker library
- * and its data the first time the component mounts so the initial bundle
- * stays small.
+ * Renders the full official Unicode emoji set, grouped into 9 categories
+ * (Frequent, Smileys & People, Animals & Nature, Food & Drink, Activities,
+ *  Travel & Places, Objects, Symbols, Flags) with search, recents, and
+ * skin-tone variants — matching what you get on an iPhone keyboard.
  *
- * Wraps `@emoji-mart/react`'s `<Picker>` and adapts it to the app theme,
- * locale (ar/de) and the chat composer's onPick contract.
+ * We lazy-load the picker library and its data the first time the component
+ * mounts so the initial bundle stays small.
+ *
+ * Wraps `@emoji-mart/react`'s `<Picker>` and adapts it to the app theme
+ * tokens (HSL design tokens are converted to RGB CSS vars that emoji-mart
+ * understands), the active locale (ar/de) and the chat composer's onPick
+ * contract.
  */
 const EmojiPicker: React.FC<EmojiPickerProps> = ({ isAr, onPick, compact }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -58,30 +63,55 @@ const EmojiPicker: React.FC<EmojiPickerProps> = ({ isAr, onPick, compact }) => {
         if (cancelled || !containerRef.current) return;
 
         const picker = new (Picker as unknown as new (props: Record<string, unknown>) => HTMLElement)({
+          // Full official Unicode emoji dataset.
           data: (dataMod as { default: unknown }).default ?? dataMod,
           i18n: (i18nMod as { default: unknown }).default ?? i18nMod,
+          // 'apple' = iPhone-style emoji artwork (sprite via jsDelivr CDN).
           set: 'apple',
           theme: resolvedTheme,
           locale: isAr ? 'ar' : 'de',
+          // iOS-keyboard layout: nav at the top, search sticky just below,
+          // skin-tone selector tucked next to search, no preview row at the
+          // bottom (saves vertical space on phones).
           navPosition: 'top',
           previewPosition: 'none',
           searchPosition: 'sticky',
           skinTonePosition: 'search',
+          // perLine is auto-computed because dynamicWidth is true; we still
+          // hint a sensible default for the very first paint.
           perLine: 9,
-          emojiSize: 22,
-          emojiButtonSize: 34,
+          emojiSize: 24,
+          emojiButtonSize: 38,
           emojiButtonRadius: '12px',
           maxFrequentRows: 2,
           dynamicWidth: true,
           autoFocus: false,
+          // Default category order matches the iPhone keyboard exactly:
+          // frequent → people → nature → foods → activity → places →
+          // objects → symbols → flags. We pass it explicitly so a future
+          // dataset change can't reorder the keyboard on us.
+          categories: [
+            'frequent',
+            'people',
+            'nature',
+            'foods',
+            'activity',
+            'places',
+            'objects',
+            'symbols',
+            'flags',
+          ],
           onEmojiSelect: (emoji: { native?: string; src?: string; shortcodes?: string }) => {
-            // Native unicode (e.g. "😀") is what we insert; emoji-mart hands us
-            // its Apple-image src for display, but the actual character we send.
+            // Native unicode (e.g. "😀") is what we insert into the message;
+            // emoji-mart hands us its Apple-image src for *display*, but the
+            // actual character we send is unicode so it renders correctly on
+            // the recipient's device.
             if (emoji?.native) onPickRef.current(emoji.native);
           },
         });
 
         pickerHostRef.current = picker;
+        applyThemeVars(picker, resolvedTheme);
         containerRef.current.appendChild(picker);
         setReady(true);
       } catch (e) {
@@ -100,20 +130,22 @@ const EmojiPicker: React.FC<EmojiPickerProps> = ({ isAr, onPick, compact }) => {
         pickerHostRef.current = null;
       }
     };
-    // Re-mount when locale changes (different i18n bundle, different category labels).
-    // We don't include `onPick` because it's stable per parent render and changing
-    // it shouldn't tear down the picker; the closure captures the latest via ref-like
-    // behaviour from the parent if it memos onPick.
+    // Re-mount when locale changes (different i18n bundle, different
+    // category labels). We don't include `onPick` because we proxy it
+    // through `onPickRef`, so a changing parent callback never tears the
+    // picker down.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAr]);
 
-  // Hot-swap theme without remounting (emoji-mart watches the `theme` attribute).
+  // Hot-swap theme without remounting (emoji-mart watches the `theme`
+  // attribute) and re-apply our CSS vars so colors track app theme.
   useEffect(() => {
     const el = pickerHostRef.current;
     if (!el) return;
     try {
       (el as unknown as { theme?: string }).theme = resolvedTheme;
       el.setAttribute('theme', resolvedTheme);
+      applyThemeVars(el, resolvedTheme);
     } catch {
       /* noop */
     }
@@ -123,7 +155,7 @@ const EmojiPicker: React.FC<EmojiPickerProps> = ({ isAr, onPick, compact }) => {
     <div
       className={cn(
         'bg-background border-t border-border/15 flex flex-col relative',
-        compact ? 'h-[300px]' : 'h-[360px]'
+        compact ? 'h-[300px]' : 'h-[380px]'
       )}
       dir="ltr"
     >
@@ -148,5 +180,44 @@ const EmojiPicker: React.FC<EmojiPickerProps> = ({ isAr, onPick, compact }) => {
     </div>
   );
 };
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Theme vars
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Bridge our HSL design tokens to the RGB CSS variables that emoji-mart
+ * exposes on its `<em-emoji-picker>` host element. Without this the picker
+ * uses hard-coded greys that look out of place against the app's surface.
+ *
+ * Public emoji-mart vars we override:
+ *   --rgb-background  surface behind the grid + nav
+ *   --rgb-color       primary text/icon color
+ *   --rgb-input       search-field background
+ *   --rgb-accent      active category indicator + hover state
+ *   --color-border / --color-border-over   divider lines
+ *   --shadow          drop shadow on the host
+ *   --font-family     so labels match the app font
+ */
+function applyThemeVars(host: HTMLElement, mode: 'light' | 'dark') {
+  const styles = host.style;
+  if (mode === 'dark') {
+    styles.setProperty('--rgb-background', '20, 20, 24');
+    styles.setProperty('--rgb-color', '230, 230, 235');
+    styles.setProperty('--rgb-input', '38, 38, 44');
+    styles.setProperty('--rgb-accent', '120, 120, 130');
+    styles.setProperty('--color-border', 'rgba(255, 255, 255, 0.07)');
+    styles.setProperty('--color-border-over', 'rgba(255, 255, 255, 0.12)');
+  } else {
+    styles.setProperty('--rgb-background', '255, 255, 255');
+    styles.setProperty('--rgb-color', '24, 24, 28');
+    styles.setProperty('--rgb-input', '244, 244, 247');
+    styles.setProperty('--rgb-accent', '90, 90, 100');
+    styles.setProperty('--color-border', 'rgba(0, 0, 0, 0.06)');
+    styles.setProperty('--color-border-over', 'rgba(0, 0, 0, 0.10)');
+  }
+  styles.setProperty('--shadow', 'none');
+  styles.setProperty('--font-family', 'inherit');
+}
 
 export default EmojiPicker;
