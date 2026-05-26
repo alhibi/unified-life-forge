@@ -1,14 +1,19 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import {
   Cloud, Sun, CloudRain, CloudSnow, CloudLightning, CloudDrizzle, Cloudy, CloudFog, MoonStar,
-  Droplets, Wind, Gauge, Eye, ThermometerSun, Sunrise, Sunset, Compass,
-  RefreshCw, MapPin, AlertCircle, CloudOff, Activity, CloudHail,
+  Droplets, Wind, Gauge, ThermometerSun, Sunrise, Sunset, Compass,
+  RefreshCw, MapPin, AlertCircle, CloudOff, Activity, CloudHail, Key,
+  ExternalLink, Check, X,
 } from 'lucide-react';
 import SEO from '@/components/SEO';
 import PageHeader from '@/components/PageHeader';
 import { useApp } from '@/contexts/AppContext';
 import { useDeviceLocation, requestDeviceLocation } from '@/hooks/useDeviceLocation';
 import { useWeatherData, type DailyEntry, type HourlyEntry, type WeatherData } from '@/hooks/useWeatherData';
+import {
+  listProviders, readOwmApiKey, writeOwmApiKey, writeProviderPref,
+  type ProviderId,
+} from '@/lib/weather';
 
 /**
  * /weather — comprehensive weather hub.
@@ -18,22 +23,30 @@ import { useWeatherData, type DailyEntry, type HourlyEntry, type WeatherData } f
  * dense grid alongside prayer times, occasions, and Ummah pulse.
  *
  * This hub is the inverse: a full destination accessible from the bottom
- * nav that surfaces every dimension Open-Meteo exposes — hourly &
- * 7-day forecasts, sun timings, wind, UV, humidity, pressure, visibility,
- * cloud cover, dew point, and air quality — laid out so the user can scan
- * the day at a glance and drill into any block.
+ * nav that surfaces every dimension the active provider exposes —
+ * hourly & daily forecasts, sun timings, wind, UV, humidity, pressure,
+ * cloud cover, dew point, and air quality — laid out so the user can
+ * scan the day at a glance and drill into any block.
+ *
+ * Two providers are interchangeable from inside the page:
+ *   • Open-Meteo (default, no key)
+ *   • OpenWeatherMap (BYOK — user-supplied free-tier key)
+ *
+ * Switching providers shows an immediate refetch with the previous
+ * data kept on screen (stale-while-revalidate) so the UI doesn't flash
+ * a skeleton on every toggle. Provider-specific gaps (e.g. OWM has no
+ * UV) flow through `data.meta.unsupportedFields` and the affected tile
+ * is simply hidden.
  *
  * Design language:
- *   • Card → grid → list cadence matches the Wellness and Mihrab hubs so
- *     the visual style is consistent across the bottom-nav tabs.
- *   • Bilingual (ar/de) like the rest of the app, using the AppContext
- *     `language` flag rather than the `t()` table — each component renders
- *     long localized strings inline because translation keys would balloon
- *     the i18n JSON for a single page.
- *   • RTL is implicit (the app sets `dir` on the root). Anything we lay
- *     out horizontally that has a logical "before/after" direction (e.g.
- *     the daily range bar) is rendered with `dir="ltr"` so it always
- *     reads cold→hot left-to-right regardless of language.
+ *   • Card → grid → list cadence matches Wellness and Mihrab hubs.
+ *   • Bilingual (ar/de) using inline localization rather than i18n keys
+ *     for long descriptive strings — translation files would balloon
+ *     for a single page.
+ *   • RTL is implicit. Anything horizontal that has a logical
+ *     "before/after" direction (e.g. the daily range bar, the AQ meter,
+ *     and the sun arc) is rendered with `dir="ltr"` so it always reads
+ *     cold→hot left-to-right regardless of language.
  */
 
 // ────────────────────────────────────────────────────────────────────────
@@ -102,9 +115,8 @@ const formatHour12 = (hour: number, lang: 'ar' | 'de') => {
 };
 
 const formatTimeFromIso = (iso: string, lang: 'ar' | 'de') => {
-  // Open-Meteo returns ISO strings in the location's local time, no zone
-  // suffix. Parse the H:M directly so we don't accidentally shift through
-  // the device's timezone.
+  // Parse the H:M directly so we don't accidentally shift through the
+  // device's timezone — the ISO carries no zone suffix.
   const [, time] = iso.split('T');
   if (!time) return '';
   const [hStr, mStr] = time.split(':');
@@ -142,7 +154,6 @@ const dateLabel = (dateMs: number, lang: 'ar' | 'de') => {
 };
 
 const compassDir = (deg: number, lang: 'ar' | 'de') => {
-  // 8-point compass, RTL-safe label set.
   const names = lang === 'ar'
     ? ['شمال', 'شمال شرق', 'شرق', 'جنوب شرق', 'جنوب', 'جنوب غرب', 'غرب', 'شمال غرب']
     : ['N', 'NO', 'O', 'SO', 'S', 'SW', 'W', 'NW'];
@@ -161,8 +172,6 @@ const uvLevel = (uv: number): UvLevel => {
 interface AqiLevel { ar: string; de: string; tone: string; bg: string; }
 const aqiLevel = (aqi: number | null): AqiLevel | null => {
   if (aqi == null) return null;
-  // European AQI bands (Open-Meteo): 0–20 good, 20–40 fair, 40–60
-  // moderate, 60–80 poor, 80–100 very poor, >100 extremely poor.
   if (aqi < 20)  return { ar: 'جيّد جداً',     de: 'Sehr gut',          tone: 'text-emerald-400', bg: 'bg-emerald-500/10' };
   if (aqi < 40)  return { ar: 'جيّد',          de: 'Gut',               tone: 'text-lime-400',    bg: 'bg-lime-500/10'    };
   if (aqi < 60)  return { ar: 'متوسط',        de: 'Mäßig',             tone: 'text-yellow-400',  bg: 'bg-yellow-500/10'  };
@@ -171,9 +180,6 @@ const aqiLevel = (aqi: number | null): AqiLevel | null => {
   return            { ar: 'خطير',          de: 'Extrem schlecht',   tone: 'text-fuchsia-400', bg: 'bg-fuchsia-500/10' };
 };
 
-// Colour gradient for the hero card driven by the WMO code & day/night.
-// We pick from a curated palette rather than computing from hue so that
-// dark/light theme contrast stays predictable.
 const heroGradient = (code: number, isDay: boolean): string => {
   if (!isDay) return 'from-indigo-900/50 via-slate-900/40 to-slate-950/30';
   if (code === 0 || code === 1) return 'from-amber-400/35 via-orange-400/25 to-sky-400/20';
@@ -201,14 +207,11 @@ function HeroCard({ data, lang, city, onRefresh, isRefreshing }: {
 
   return (
     <div className={`relative overflow-hidden rounded-3xl border border-border/40 p-5 bg-gradient-to-br ${grad}`}>
-      {/* Decorative blurred orb to give the hero some depth without
-          loading a real image. */}
       <div
         aria-hidden
         className="absolute -top-12 -right-10 w-48 h-48 rounded-full bg-white/10 blur-3xl pointer-events-none"
       />
       <div className="relative">
-        {/* Top row: location + refresh */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-1.5 min-w-0">
             <MapPin className="w-3.5 h-3.5 shrink-0 text-foreground/70" />
@@ -226,7 +229,6 @@ function HeroCard({ data, lang, city, onRefresh, isRefreshing }: {
           </button>
         </div>
 
-        {/* Big temp + icon */}
         <div className="flex items-end justify-between gap-4">
           <div className="min-w-0">
             <div className="text-[64px] font-bold tracking-tight leading-none text-foreground">
@@ -242,7 +244,6 @@ function HeroCard({ data, lang, city, onRefresh, isRefreshing }: {
           <Icon className="w-20 h-20 stroke-[1.4] text-foreground/85 shrink-0" />
         </div>
 
-        {/* High / Low for today */}
         {today && (
           <div className="mt-4 flex items-center gap-3 text-[12px] text-foreground/85">
             <span className="inline-flex items-center gap-1">
@@ -263,7 +264,6 @@ function HeroCard({ data, lang, city, onRefresh, isRefreshing }: {
 
 function HourlyStrip({ hourly, lang }: { hourly: HourlyEntry[]; lang: 'ar' | 'de' }) {
   if (!hourly.length) return null;
-  // Range used to draw the temperature curve markers.
   const min = Math.min(...hourly.map(h => h.temperature));
   const max = Math.max(...hourly.map(h => h.temperature));
 
@@ -277,8 +277,6 @@ function HourlyStrip({ hourly, lang }: { hourly: HourlyEntry[]; lang: 'ar' | 'de
           {hourly.map((h, i) => {
             const Icon = ICON_BY_CODE(h.weatherCode, h.isDay);
             const isNow = i === 0;
-            // Normalised position (0..1) for a tiny inline indicator bar
-            // under each hour — gives the curve a sense without a chart.
             const pct = max === min ? 0.5 : (h.temperature - min) / (max - min);
             const dotColor = isNow ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground) / 0.5)';
             return (
@@ -305,7 +303,6 @@ function HourlyStrip({ hourly, lang }: { hourly: HourlyEntry[]; lang: 'ar' | 'de
                 }`}>
                   {h.temperature}°
                 </span>
-                {/* Range marker dot — 28px tall track with a dot at pct */}
                 <div className="relative w-1 h-7 rounded-full bg-foreground/[0.06] mt-0.5">
                   <span
                     aria-hidden
@@ -331,7 +328,9 @@ function DailyList({ daily, weekRange, lang }: {
   return (
     <section className="rounded-2xl bg-card border border-border/40 p-4">
       <h2 className="text-[13px] font-semibold text-foreground mb-3">
-        {lang === 'ar' ? 'الأيام السبعة القادمة' : 'Nächste 7 Tage'}
+        {lang === 'ar'
+          ? `الأيام الـ${daily.length} القادمة`
+          : `Nächste ${daily.length} Tage`}
       </h2>
       <div className="space-y-1">
         {daily.map((d, i) => {
@@ -343,7 +342,6 @@ function DailyList({ daily, weekRange, lang }: {
               key={d.date}
               className="grid grid-cols-[64px_28px_1fr_72px] items-center gap-2 py-2 border-b border-border/20 last:border-b-0"
             >
-              {/* Day name */}
               <div className="min-w-0">
                 <div className="text-[12.5px] font-semibold text-foreground truncate">
                   {dayName(d.date, lang, i === 0)}
@@ -353,7 +351,6 @@ function DailyList({ daily, weekRange, lang }: {
                 </div>
               </div>
 
-              {/* Icon + precip prob below */}
               <div className="flex flex-col items-center gap-0.5">
                 <Icon className="w-4 h-4 stroke-[1.7] text-foreground/80" />
                 {d.precipitationProbabilityMax > 10 && (
@@ -363,8 +360,6 @@ function DailyList({ daily, weekRange, lang }: {
                 )}
               </div>
 
-              {/* Range bar — always LTR so cold→hot flows the same way for
-                  both Arabic and German. */}
               <div dir="ltr" className="relative h-1.5 rounded-full bg-foreground/[0.06] mx-1">
                 <div
                   className="absolute h-full rounded-full"
@@ -376,7 +371,6 @@ function DailyList({ daily, weekRange, lang }: {
                 />
               </div>
 
-              {/* Min / Max */}
               <div dir="ltr" className="text-right">
                 <span className="text-[12px] text-muted-foreground">{d.tempMin}°</span>
                 <span className="mx-1.5 text-foreground/30">·</span>
@@ -413,10 +407,9 @@ function MetricTile({
 
 function DetailsGrid({ data, lang }: { data: WeatherData; lang: 'ar' | 'de' }) {
   const c = data.current;
+  const unsupported = new Set(data.meta.unsupportedFields ?? []);
   const uv = uvLevel(c.uvIndex);
-  const rotateDeg = c.windDirection; // meteorological "from" — we point the
-                                     // arrow IN that direction so it visually
-                                     // shows where the wind is coming from.
+  const rotateDeg = c.windDirection;
   const pressureHint = c.pressure < 1000
     ? (lang === 'ar' ? 'منخفض جوي' : 'Tiefdruck')
     : c.pressure > 1020
@@ -425,15 +418,16 @@ function DetailsGrid({ data, lang }: { data: WeatherData; lang: 'ar' | 'de' }) {
 
   return (
     <section className="grid grid-cols-2 gap-2.5">
-      {/* UV Index */}
-      <MetricTile
-        icon={ThermometerSun}
-        label={lang === 'ar' ? 'الأشعة فوق البنفسجية' : 'UV-Index'}
-        value={<span className={uv.tone}>{c.uvIndex}</span>}
-        hint={uv[lang]}
-      />
+      {/* UV — hidden when the active provider can't supply it */}
+      {!unsupported.has('uvIndex') && (
+        <MetricTile
+          icon={ThermometerSun}
+          label={lang === 'ar' ? 'الأشعة فوق البنفسجية' : 'UV-Index'}
+          value={<span className={uv.tone}>{c.uvIndex}</span>}
+          hint={uv[lang]}
+        />
+      )}
 
-      {/* Humidity */}
       <MetricTile
         icon={Droplets}
         label={lang === 'ar' ? 'الرطوبة' : 'Luftfeuchte'}
@@ -445,7 +439,6 @@ function DetailsGrid({ data, lang }: { data: WeatherData; lang: 'ar' | 'de' }) {
         }
       />
 
-      {/* Wind — with directional compass */}
       <div className="rounded-2xl bg-card border border-border/40 p-3.5">
         <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
           <Wind className="w-3.5 h-3.5" />
@@ -478,7 +471,6 @@ function DetailsGrid({ data, lang }: { data: WeatherData; lang: 'ar' | 'de' }) {
         </div>
       </div>
 
-      {/* Pressure */}
       <MetricTile
         icon={Gauge}
         label={lang === 'ar' ? 'الضغط الجوي' : 'Luftdruck'}
@@ -486,7 +478,6 @@ function DetailsGrid({ data, lang }: { data: WeatherData; lang: 'ar' | 'de' }) {
         hint={pressureHint}
       />
 
-      {/* Cloud cover */}
       <MetricTile
         icon={CloudOff}
         label={lang === 'ar' ? 'الغطاء السحابي' : 'Bewölkung'}
@@ -498,25 +489,25 @@ function DetailsGrid({ data, lang }: { data: WeatherData; lang: 'ar' | 'de' }) {
         }
       />
 
-      {/* Wind gusts */}
-      <MetricTile
-        icon={Activity}
-        label={lang === 'ar' ? 'هبّات الرياح' : 'Windböen'}
-        value={<>{c.windGusts}<span className="text-[12px] text-muted-foreground ms-1">km/h</span></>}
-        hint={
-          c.windGusts > 60 ? (lang === 'ar' ? 'قوية جداً' : 'Sehr stark')
-          : c.windGusts > 30 ? (lang === 'ar' ? 'قوية' : 'Stark')
-          : (lang === 'ar' ? 'هادئة' : 'Schwach')
-        }
-      />
+      {!unsupported.has('windGusts') && (
+        <MetricTile
+          icon={Activity}
+          label={lang === 'ar' ? 'هبّات الرياح' : 'Windböen'}
+          value={<>{c.windGusts}<span className="text-[12px] text-muted-foreground ms-1">km/h</span></>}
+          hint={
+            c.windGusts > 60 ? (lang === 'ar' ? 'قوية جداً' : 'Sehr stark')
+            : c.windGusts > 30 ? (lang === 'ar' ? 'قوية' : 'Stark')
+            : (lang === 'ar' ? 'هادئة' : 'Schwach')
+          }
+        />
+      )}
     </section>
   );
 }
 
 function SunCard({ daily, lang }: { daily: DailyEntry[]; lang: 'ar' | 'de' }) {
   const today = daily[0];
-  if (!today) return null;
-  // Convert sunrise/sunset to position along a day-progress arc.
+  if (!today || !today.sunrise || !today.sunset) return null;
   const isoToMin = (iso: string) => {
     const [, time] = iso.split('T');
     const [h, m] = (time ?? '0:0').split(':').map(Number);
@@ -526,8 +517,6 @@ function SunCard({ daily, lang }: { daily: DailyEntry[]; lang: 'ar' | 'de' }) {
   const sunsetMin  = isoToMin(today.sunset);
   const now = new Date();
   const nowMin = now.getHours() * 60 + now.getMinutes();
-  // Progress within the daylight window. Clamp outside the window so the
-  // marker rests at the edge instead of looping around.
   const progress = sunsetMin <= sunriseMin
     ? 0
     : Math.min(1, Math.max(0, (nowMin - sunriseMin) / (sunsetMin - sunriseMin)));
@@ -538,28 +527,12 @@ function SunCard({ daily, lang }: { daily: DailyEntry[]; lang: 'ar' | 'de' }) {
         {lang === 'ar' ? 'الشمس' : 'Sonne'}
       </h2>
 
-      {/* Arc */}
       <div className="relative h-20 mb-3" dir="ltr">
-        <svg
-          viewBox="0 0 200 100"
-          preserveAspectRatio="none"
-          className="absolute inset-0 w-full h-full"
-        >
+        <svg viewBox="0 0 200 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full">
+          <path d="M 10 90 Q 100 -10 190 90" fill="none" stroke="hsl(var(--border))" strokeWidth="1.5" strokeDasharray="3 3" />
           <path
-            d="M 10 90 Q 100 -10 190 90"
-            fill="none"
-            stroke="hsl(var(--border))"
-            strokeWidth="1.5"
-            strokeDasharray="3 3"
-          />
-          <path
-            d="M 10 90 Q 100 -10 190 90"
-            fill="none"
-            stroke="url(#sunGrad)"
-            strokeWidth="2"
-            strokeDasharray="600"
-            strokeDashoffset={600 - progress * 600}
-            strokeLinecap="round"
+            d="M 10 90 Q 100 -10 190 90" fill="none" stroke="url(#sunGrad)" strokeWidth="2"
+            strokeDasharray="600" strokeDashoffset={600 - progress * 600} strokeLinecap="round"
           />
           <defs>
             <linearGradient id="sunGrad" x1="0" y1="0" x2="1" y2="0">
@@ -568,7 +541,6 @@ function SunCard({ daily, lang }: { daily: DailyEntry[]; lang: 'ar' | 'de' }) {
             </linearGradient>
           </defs>
         </svg>
-        {/* Sun marker — quadratic bezier sample at t = progress */}
         {(() => {
           const t = progress;
           const x = (1 - t) * (1 - t) * 10 + 2 * (1 - t) * t * 100 + t * t * 190;
@@ -615,9 +587,6 @@ function AirQualityCard({ data, lang }: { data: WeatherData; lang: 'ar' | 'de' }
   const aqi = Math.round(data.airQuality.europeanAqi);
   const level = aqiLevel(aqi);
   if (!level) return null;
-  // The AQI bar caps at 100 visually — values above 100 simply pin to the
-  // far end with the most severe colour, which already communicates
-  // "off the chart bad" without making the meter unreadable.
   const pct = Math.min(100, aqi);
 
   return (
@@ -648,6 +617,145 @@ function AirQualityCard({ data, lang }: { data: WeatherData; lang: 'ar' | 'de' }
         {data.airQuality.pm10 != null && (
           <span>PM10 <span className="text-foreground/85 font-medium">{data.airQuality.pm10.toFixed(1)}</span></span>
         )}
+      </div>
+    </section>
+  );
+}
+
+// ────────────────────────────────────────────────────────────────────────
+// Provider switcher + API key input
+// ────────────────────────────────────────────────────────────────────────
+
+function ProviderSwitcher({ activeId, lang }: { activeId: ProviderId; lang: 'ar' | 'de' }) {
+  const providers = listProviders();
+  return (
+    <section className="rounded-2xl bg-card border border-border/40 p-3">
+      <div className="flex items-center justify-between mb-2.5">
+        <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">
+          {lang === 'ar' ? 'مصدر البيانات' : 'Datenquelle'}
+        </span>
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        {providers.map(p => {
+          const active = p.id === activeId;
+          return (
+            <button
+              key={p.id}
+              type="button"
+              onClick={() => writeProviderPref(p.id)}
+              aria-pressed={active}
+              className={`relative rounded-xl border px-3 py-2.5 text-start transition ${
+                active
+                  ? 'border-primary/60 bg-primary/10'
+                  : 'border-border/40 bg-foreground/[0.02] hover:bg-foreground/[0.05]'
+              }`}
+            >
+              <div className="flex items-center gap-1.5">
+                {active && <Check className="w-3 h-3 text-primary shrink-0" />}
+                <span className={`text-[12.5px] font-semibold ${active ? 'text-primary' : 'text-foreground'}`}>
+                  {p.name[lang]}
+                </span>
+              </div>
+              {p.notes && (
+                <p className="mt-1 text-[10.5px] text-muted-foreground leading-snug">
+                  {p.notes[lang]}
+                </p>
+              )}
+              {p.requiresApiKey && (
+                <span className="mt-1.5 inline-flex items-center gap-1 text-[9.5px] text-amber-400/90">
+                  <Key className="w-2.5 h-2.5" />
+                  {lang === 'ar' ? 'يتطلّب مفتاحاً' : 'API-Key erforderlich'}
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+function ApiKeyPrompt({ lang, hasExistingKey }: { lang: 'ar' | 'de'; hasExistingKey: boolean }) {
+  const [value, setValue] = useState('');
+  const [savedFlash, setSavedFlash] = useState(false);
+
+  const onSave = () => {
+    const trimmed = value.trim();
+    if (!trimmed) return;
+    writeOwmApiKey(trimmed);
+    setValue('');
+    setSavedFlash(true);
+    setTimeout(() => setSavedFlash(false), 1200);
+  };
+
+  return (
+    <section className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-4">
+      <div className="flex items-start gap-2.5 mb-3">
+        <Key className="w-4 h-4 mt-0.5 text-amber-400 shrink-0" />
+        <div className="min-w-0">
+          <h2 className="text-[14px] font-semibold text-foreground">
+            {lang === 'ar' ? 'أدخِل مفتاح OpenWeatherMap' : 'OpenWeatherMap-Key eingeben'}
+          </h2>
+          <p className="mt-1 text-[11.5px] text-muted-foreground leading-relaxed">
+            {lang === 'ar'
+              ? 'يخزَّن المفتاح محلياً على جهازك فقط ولا يُرسَل لأي خادم سواه. اشترك مجاناً للحصول عليه.'
+              : 'Der Schlüssel wird ausschließlich lokal auf deinem Gerät gespeichert. Registriere dich kostenlos um einen zu erhalten.'}
+          </p>
+        </div>
+      </div>
+
+      <div className="flex items-stretch gap-2">
+        <input
+          type="text"
+          value={value}
+          onChange={e => setValue(e.target.value)}
+          onKeyDown={e => { if (e.key === 'Enter') onSave(); }}
+          placeholder={hasExistingKey
+            ? (lang === 'ar' ? 'تحديث المفتاح…' : 'Schlüssel aktualisieren …')
+            : (lang === 'ar' ? 'مفتاح API' : 'API-Key')}
+          dir="ltr"
+          autoComplete="off"
+          spellCheck={false}
+          className="flex-1 min-w-0 h-10 rounded-xl bg-background border border-border/50 px-3 text-[12px] font-mono text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-primary/60"
+        />
+        <button
+          type="button"
+          onClick={onSave}
+          disabled={!value.trim()}
+          className="inline-flex items-center justify-center gap-1.5 px-3 h-10 rounded-xl bg-primary text-primary-foreground text-[12.5px] font-semibold disabled:opacity-50 hover:opacity-90 transition"
+        >
+          {savedFlash ? <Check className="w-3.5 h-3.5" /> : null}
+          {lang === 'ar' ? 'حفظ' : 'Speichern'}
+        </button>
+      </div>
+
+      <div className="mt-3 flex items-center gap-3 text-[11px]">
+        <a
+          href="https://home.openweathermap.org/users/sign_up"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1 text-primary hover:underline"
+        >
+          <ExternalLink className="w-3 h-3" />
+          {lang === 'ar' ? 'تسجيل مجاني' : 'Kostenlos registrieren'}
+        </a>
+        {hasExistingKey && (
+          <button
+            type="button"
+            onClick={() => writeOwmApiKey('')}
+            className="inline-flex items-center gap-1 text-muted-foreground hover:text-destructive transition"
+          >
+            <X className="w-3 h-3" />
+            {lang === 'ar' ? 'حذف المفتاح' : 'Schlüssel entfernen'}
+          </button>
+        )}
+        <button
+          type="button"
+          onClick={() => writeProviderPref('open-meteo')}
+          className="ms-auto inline-flex items-center gap-1 text-muted-foreground hover:text-foreground transition"
+        >
+          {lang === 'ar' ? 'العودة إلى Open-Meteo' : 'Zurück zu Open-Meteo'}
+        </button>
       </div>
     </section>
   );
@@ -697,7 +805,7 @@ function NoLocationCard({ lang }: { lang: 'ar' | 'de' }) {
   );
 }
 
-function ErrorCard({ lang, onRetry }: { lang: 'ar' | 'de'; onRetry: () => void }) {
+function ErrorCard({ lang, error, onRetry }: { lang: 'ar' | 'de'; error: string | null; onRetry: () => void }) {
   return (
     <div className="rounded-2xl bg-card border border-border/40 p-6 text-center">
       <AlertCircle className="w-8 h-8 mx-auto mb-3 text-destructive" />
@@ -705,7 +813,9 @@ function ErrorCard({ lang, onRetry }: { lang: 'ar' | 'de'; onRetry: () => void }
         {lang === 'ar' ? 'تعذّر جلب الطقس' : 'Wetter nicht verfügbar'}
       </h2>
       <p className="text-[12px] text-muted-foreground mb-4 leading-relaxed">
-        {lang === 'ar'
+        {error
+          ? error
+          : lang === 'ar'
           ? 'تأكّد من اتصالك بالإنترنت وحاول مرّة أخرى.'
           : 'Prüfe deine Internetverbindung und versuche es erneut.'}
       </p>
@@ -729,7 +839,24 @@ export default function WeatherPage() {
   const { language } = useApp();
   const lang: 'ar' | 'de' = language === 'ar' ? 'ar' : 'de';
   const { location, status: locStatus } = useDeviceLocation();
-  const { data, status, error, refresh, isRefreshing } = useWeatherData(lang);
+  const {
+    data, status, error, needsApiKey, providerId, refresh, isRefreshing,
+  } = useWeatherData(lang);
+
+  // The OWM key prompt needs to know whether a (now-incorrect) key
+  // already exists, so it can offer "remove" instead of just "save".
+  // We mirror the localStorage value into local state so saving updates
+  // the UI immediately.
+  const [hasExistingKey, setHasExistingKey] = useState(() => !!readOwmApiKey());
+  useEffect(() => {
+    const sync = () => setHasExistingKey(!!readOwmApiKey());
+    sync();
+    // The hook's prefs subscription doesn't expose this, so we listen
+    // to storage events for cross-tab parity and run sync on every
+    // render via the providerId dep below as a cheap fallback.
+    window.addEventListener('storage', sync);
+    return () => window.removeEventListener('storage', sync);
+  }, [providerId, needsApiKey]);
 
   const lastUpdatedLabel = useMemo(() => {
     if (!data?.fetchedAt) return null;
@@ -741,6 +868,11 @@ export default function WeatherPage() {
 
   const showNoLocation =
     !location && (locStatus === 'idle' || locStatus === 'denied' || locStatus === 'unavailable');
+
+  // Resolve the active provider's attribution dynamically so the link
+  // and label always match what produced the on-screen data.
+  const attribution = listProviders().find(p => p.id === providerId)?.attribution
+    ?? { label: 'Open-Meteo', url: 'https://open-meteo.com/' };
 
   return (
     <div className="min-h-screen bg-background pb-28">
@@ -761,42 +893,61 @@ export default function WeatherPage() {
       <div className="max-w-lg mx-auto px-4 pt-3 space-y-3">
         {showNoLocation ? (
           <NoLocationCard lang={lang} />
-        ) : status === 'loading' && !data ? (
-          <WeatherSkeleton />
-        ) : status === 'error' && !data ? (
-          <ErrorCard lang={lang} onRetry={refresh} />
-        ) : data ? (
-          <>
-            <HeroCard data={data} lang={lang} city={data.city} onRefresh={refresh} isRefreshing={isRefreshing} />
-            <HourlyStrip hourly={data.hourly} lang={lang} />
-            <DailyList daily={data.daily} weekRange={data.weekRange} lang={lang} />
-            <DetailsGrid data={data} lang={lang} />
-            <SunCard daily={data.daily} lang={lang} />
-            <AirQualityCard data={data} lang={lang} />
-
-            {/* Attribution — Open-Meteo's free tier requires it. */}
-            <p className="text-center text-[10px] text-muted-foreground/70 pt-1">
-              {lang === 'ar' ? 'البيانات من ' : 'Daten von '}
-              <a
-                href="https://open-meteo.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline hover:text-muted-foreground"
-              >
-                Open-Meteo
-              </a>
-              {error && (
-                <>
-                  {' • '}
-                  <span className="text-destructive/70">
-                    {lang === 'ar' ? 'تحديث جزئي فشل' : 'Teilweises Update fehlgeschlagen'}
-                  </span>
-                </>
-              )}
-            </p>
-          </>
         ) : (
-          <WeatherSkeleton />
+          <>
+            {/* Provider switcher always at top — the user can flip
+                between sources without leaving the page. */}
+            <ProviderSwitcher activeId={providerId} lang={lang} />
+
+            {/* If the user picked OWM but hasn't supplied a key yet,
+                show the prompt instead of a useless skeleton. The
+                previous source's data is preserved in the hook so when
+                the key is saved we paint the new fetch on top of that. */}
+            {needsApiKey ? (
+              <ApiKeyPrompt lang={lang} hasExistingKey={hasExistingKey} />
+            ) : status === 'loading' && !data ? (
+              <WeatherSkeleton />
+            ) : status === 'error' && !data ? (
+              <ErrorCard lang={lang} error={error} onRetry={refresh} />
+            ) : data ? (
+              <>
+                <HeroCard data={data} lang={lang} city={data.city} onRefresh={refresh} isRefreshing={isRefreshing} />
+                <HourlyStrip hourly={data.hourly} lang={lang} />
+                <DailyList daily={data.daily} weekRange={data.weekRange} lang={lang} />
+                <DetailsGrid data={data} lang={lang} />
+                <SunCard daily={data.daily} lang={lang} />
+                <AirQualityCard data={data} lang={lang} />
+
+                {/* Inline "manage OWM key" when actively using it */}
+                {providerId === 'openweathermap' && (
+                  <ApiKeyPrompt lang={lang} hasExistingKey={hasExistingKey} />
+                )}
+
+                {/* Attribution reflects the active provider */}
+                <p className="text-center text-[10px] text-muted-foreground/70 pt-1">
+                  {lang === 'ar' ? 'البيانات من ' : 'Daten von '}
+                  <a
+                    href={attribution.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline hover:text-muted-foreground"
+                  >
+                    {attribution.label}
+                  </a>
+                  {error && (
+                    <>
+                      {' • '}
+                      <span className="text-destructive/70">
+                        {lang === 'ar' ? 'تحديث جزئي فشل' : 'Teilweises Update fehlgeschlagen'}
+                      </span>
+                    </>
+                  )}
+                </p>
+              </>
+            ) : (
+              <WeatherSkeleton />
+            )}
+          </>
         )}
       </div>
     </div>
