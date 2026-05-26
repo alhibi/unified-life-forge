@@ -813,3 +813,172 @@ input.podcast-seek::-moz-range-track {
   border-radius: 999px;
   background: transparent;
 }
+
+
+/* ──────────────────────────────────────────────────────────────────────
+   Podcast player — modern visual polish
+   ──────────────────────────────────────────────────────────────────────
+   These rules layer on top of the basic `.podcast-seek` / `.podcast-html`
+   defined above. They power the enhanced `PlayerSheet` and
+   `PodcastMiniPlayer` (animated equalizer indicator, breathing artwork
+   glow, drifting ambient blobs, glowing seek thumb on hover/active).
+   Every animation respects `prefers-reduced-motion`. */
+
+/* Animated equalizer bars — used both in the mini-player and the full
+   sheet to indicate active playback. Three bars at slightly different
+   tempos so the pattern never looks mechanical. */
+@keyframes podcast-eq-bar-a {
+  0%, 100% { transform: scaleY(0.35); }
+  20%      { transform: scaleY(1.00); }
+  45%      { transform: scaleY(0.55); }
+  70%      { transform: scaleY(0.90); }
+}
+@keyframes podcast-eq-bar-b {
+  0%, 100% { transform: scaleY(0.55); }
+  25%      { transform: scaleY(1.00); }
+  50%      { transform: scaleY(0.40); }
+  75%      { transform: scaleY(0.85); }
+}
+@keyframes podcast-eq-bar-c {
+  0%, 100% { transform: scaleY(0.45); }
+  15%      { transform: scaleY(0.80); }
+  40%      { transform: scaleY(1.00); }
+  65%      { transform: scaleY(0.50); }
+}
+
+.podcast-eq {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 14px;
+}
+.podcast-eq > span {
+  display: block;
+  width: 3px;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--podcast-primary, hsl(var(--primary)));
+  transform-origin: bottom center;
+  will-change: transform;
+}
+.podcast-eq[data-playing="true"] > span:nth-child(1) {
+  animation: podcast-eq-bar-a 0.95s ease-in-out infinite;
+}
+.podcast-eq[data-playing="true"] > span:nth-child(2) {
+  animation: podcast-eq-bar-b 1.10s ease-in-out infinite;
+  animation-delay: 0.12s;
+}
+.podcast-eq[data-playing="true"] > span:nth-child(3) {
+  animation: podcast-eq-bar-c 0.85s ease-in-out infinite;
+  animation-delay: 0.20s;
+}
+.podcast-eq[data-playing="false"] > span {
+  transform: scaleY(0.45);
+  opacity: 0.55;
+}
+
+/* Breathing rim around the cover art — gives the artwork a sense of
+   life when audio is actually playing. Combined with a tiny scale
+   transition driven from React (so the cover "compresses" when paused
+   like Apple Music's vinyl/cover behavior). */
+@keyframes podcast-art-pulse {
+  0%, 100% {
+    box-shadow:
+      0 30px 60px -20px rgba(0, 0, 0, 0.55),
+      0 0 0 0 var(--podcast-primary-soft, transparent);
+  }
+  50% {
+    box-shadow:
+      0 30px 60px -20px rgba(0, 0, 0, 0.55),
+      0 0 70px 6px var(--podcast-primary-soft, transparent);
+  }
+}
+.podcast-art-pulse {
+  animation: podcast-art-pulse 4s ease-in-out infinite;
+}
+
+/* Slow drifting gradient blobs that fill the ambient backdrop. They
+   share the same drift keyframe but are offset in duration / direction
+   so the underlying motion is never in lockstep. */
+@keyframes podcast-blob-drift {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1);     }
+  33%      { transform: translate3d(8%, -6%, 0) scale(1.08); }
+  66%      { transform: translate3d(-6%, 8%, 0) scale(0.95); }
+}
+.podcast-blob {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(60px);
+  opacity: 0.55;
+  pointer-events: none;
+  will-change: transform;
+}
+.podcast-blob-a { animation: podcast-blob-drift 22s ease-in-out infinite;        }
+.podcast-blob-b { animation: podcast-blob-drift 28s ease-in-out infinite reverse; }
+
+/* Mini-player glow shadow that breathes with playback. Subtle — we
+   don't want to draw attention away from page content, just hint that
+   audio is alive. */
+@keyframes podcast-mini-glow {
+  0%, 100% { box-shadow: 0 12px 28px -10px var(--podcast-primary-soft, rgba(0,0,0,0.25)),
+                         0 4px 12px -4px rgba(0,0,0,0.18); }
+  50%      { box-shadow: 0 18px 40px -12px var(--podcast-primary-soft, rgba(0,0,0,0.30)),
+                         0 4px 12px -4px rgba(0,0,0,0.18); }
+}
+.podcast-mini-glow[data-playing="true"] {
+  animation: podcast-mini-glow 3.6s ease-in-out infinite;
+}
+
+/* Seek bar refinements — the basic styles above stay intact; we only
+   add hover/active states (thumb scale + ring glow) and a slightly
+   nicer focus ring for keyboard users. */
+input.podcast-seek::-webkit-slider-thumb {
+  transition: transform var(--duration-fast, 150ms) var(--ease-spring),
+              box-shadow var(--duration-normal, 250ms) ease;
+}
+input.podcast-seek::-moz-range-thumb {
+  transition: transform var(--duration-fast, 150ms) var(--ease-spring),
+              box-shadow var(--duration-normal, 250ms) ease;
+}
+input.podcast-seek:hover::-webkit-slider-thumb,
+input.podcast-seek:focus-visible::-webkit-slider-thumb,
+input.podcast-seek:active::-webkit-slider-thumb {
+  transform: scale(1.25);
+  box-shadow:
+    0 1px 4px rgba(0, 0, 0, 0.25),
+    0 0 0 6px var(--podcast-primary-soft, rgba(0, 0, 0, 0.10));
+}
+input.podcast-seek:hover::-moz-range-thumb,
+input.podcast-seek:focus-visible::-moz-range-thumb,
+input.podcast-seek:active::-moz-range-thumb {
+  transform: scale(1.25);
+  box-shadow:
+    0 1px 4px rgba(0, 0, 0, 0.25),
+    0 0 0 6px var(--podcast-primary-soft, rgba(0, 0, 0, 0.10));
+}
+
+/* Play button glow — when audio is actively playing the primary
+   transport button picks up a soft halo from the seed color. Painted
+   via `box-shadow` so we don't need an extra DOM node. */
+@keyframes podcast-play-glow {
+  0%, 100% { box-shadow: 0 8px 24px -6px var(--podcast-primary-soft, rgba(0,0,0,0.25)); }
+  50%      { box-shadow: 0 14px 36px -8px var(--podcast-primary-soft, rgba(0,0,0,0.40)); }
+}
+.podcast-play-button[data-playing="true"] {
+  animation: podcast-play-glow 3.2s ease-in-out infinite;
+}
+
+/* Honor the user's reduced-motion preference for every animation we
+   added above. Static fallbacks already look correct (the equalizer
+   freezes on a sensible mid-amplitude pose, the blobs hold position,
+   and the artwork keeps its idle shadow). */
+@media (prefers-reduced-motion: reduce) {
+  .podcast-eq[data-playing="true"] > span,
+  .podcast-art-pulse,
+  .podcast-blob-a,
+  .podcast-blob-b,
+  .podcast-mini-glow[data-playing="true"],
+  .podcast-play-button[data-playing="true"] {
+    animation: none !important;
+  }
+}
