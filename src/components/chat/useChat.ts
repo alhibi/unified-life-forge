@@ -1,11 +1,5 @@
 import { useState, useEffect, useRef, useCallback, useMemo, type ChangeEvent } from 'react';
-import { supabase as _supabaseTyped } from '@/integrations/supabase/client';
-// The chat module was written against a richer schema (chats, chat_members,
-// blocked_users, plus a long list of RPCs) than the current generated
-// `Database` type knows about. Until the migration catches up, treat the
-// client as untyped here so the build doesn't fail on rpc/from name unions.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const supabase: any = _supabaseTyped;
+import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useApp } from '@/contexts/AppContext';
 import { useImageUpload } from '@/contexts/ImageUploadContext';
