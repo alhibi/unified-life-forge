@@ -529,6 +529,20 @@ ol.cv > li {
   --motion-parallax: 0.35;
 }
 
+/* ── Document-level GPU promotion ─────────────────────────────
+   Declarative twin of bootMotion.ts — applied even if JS init
+   is delayed. translate3d(0,0,0) is the canonical hint that
+   forces a compositor surface on Safari/iOS, where transform:
+   translateZ(0) alone can be ignored under specific layout
+   contexts. backface-visibility: hidden eliminates sub-pixel
+   re-rasterization during the slide. */
+html, body {
+  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
 /* ── Native press feedback — strict spec ─────────────────────
    • Press-in:  scale 1 → 0.96, 80ms ease-out-cubic.
                 Active-state rule below provides the timing
@@ -599,7 +613,74 @@ a:active {
    the slide. We deliberately avoid `contain` here so sticky/fixed
    children (like sub-page headers) keep working. */
 main#main-content {
+  /* Strict clip on BOTH axes' off-screen pixels:
+       • overflow-x: clip — primary defense; prevents the parallax
+         tail from painting outside the viewport during slide.
+       • overflow-clip-margin: 0 — pinches the clip to the box edge
+         so a sub-page that briefly translates 100% past the edge
+         does NOT trigger a horizontal scrollbar on Chromium even
+         for a single frame.
+     Both properties are widely supported (Safari ≥ 16, Chromium
+     ≥ 90). On older engines `overflow-x: clip` falls back to
+     `hidden`, which is acceptable but does still scroll-restore. */
   overflow-x: clip;
+  overflow-clip-margin: 0;
+  /* GPU layer (also set by bootMotion at runtime — declarative
+     fallback in case bootMotion is delayed or skipped). */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  /* Pin layout + paint inside the route container so an outgoing
+     page exiting at parallax doesn't repaint the whole tree. */
+  contain: layout paint;
+}
+
+/* ── Strict native-feel motion lockdown ────────────────────────
+   These rules guarantee that no stylesheet or third-party
+   component can introduce a non-GPU property animation on the
+   page surface. They are scoped narrowly so they don't fight
+   intentional content animations.
+
+   1. The route container and its direct flex/grid children must
+      composite via GPU. translate3d on the parent + GPU hints on
+      the immediate page wrapper keep the transition layer cold-
+      cache-friendly on iOS Safari. */
+main#main-content > div {
+  /* PageTransition emits a motion.div as the only direct child of
+     <main>. Reinforce GPU promotion declaratively in case inline
+     styles are stripped by an extension or HTML sanitizer. */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+/*  2. Suppress any legacy `transition: all` declarations that
+       sneak in from third-party CSS — they would force
+       non-GPU properties (width, top, etc.) to animate alongside
+       transform during a slide and produce visible jitter. */
+@media (prefers-reduced-motion: no-preference) {
+  main#main-content [data-page-surface] {
+    transition: transform var(--motion-push, 300ms) var(--motion-ease-out-quad),
+                opacity   var(--motion-push, 300ms) var(--motion-ease-out-quad);
+  }
+}
+
+/*  3. iOS Safari: hint the rendering engine to keep the
+       compositor on a 120 Hz cadence by opening a tiny perspective
+       on the route ancestor. This is a no-op on engines without
+       a high-refresh display path; on ProMotion devices it stops
+       the engine from clamping animations to 60 Hz. */
+main#main-content {
+  perspective: 1px;
+  -webkit-perspective: 1px;
+}
+
+/*  4. Tab layer (PersistentTabs) — promote to its own surface so
+       its slide-off doesn't repaint the route container. */
+main#main-content [data-tab-layer="true"] {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  will-change: transform, opacity;
 }
 
 /* TideBar tab buttons handle their own active-state physics (the icon

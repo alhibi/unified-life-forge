@@ -91,6 +91,27 @@ export const MOTION = {
     ease: EASE_OUT_QUAD,
   } as Transition,
 
+  /**
+   * Tab cross-fade. Used when switching between top-level
+   * destinations (Home/Games/Chat/...). Vertical micro-motion only —
+   * a horizontal slide on every bottom-nav tap is exhausting.
+   * 200ms keeps the change instant-feeling without competing with
+   * page content.
+   */
+  tab: {
+    duration: 0.20,
+    ease: EASE_OUT_EXPO,
+  } as Transition,
+
+  /**
+   * Tab exit — slightly faster than enter so the outgoing tab gets
+   * out of the way while the incoming one settles.
+   */
+  tabExit: {
+    duration: 0.14,
+    ease: EASE_IN,
+  } as Transition,
+
   /** Modal / bottom-sheet enter (320ms, ease-out-cubic). */
   modalIn: {
     duration: 0.32,
@@ -336,3 +357,66 @@ export const reducedMotionVariants: Variants = {
   animate: { opacity: 1, transition: { duration: 0.10, ease: 'linear' as const } },
   exit:    { opacity: 0, transition: { duration: 0.07, ease: 'linear' as const } },
 };
+
+/* ─────────────────────────────────────────────────────────────────────
+ * 8. PERSISTENT TAB LAYER VARIANTS
+ *
+ * The bottom-nav exposes three small, hot tabs (Home / Games / Chat)
+ * that stay mounted via display:none for instant switching. When the
+ * user navigates AWAY from a tab to a deep sub-page, this whole layer
+ * has to leave the viewport — and it MUST follow the same strict push
+ * / pop slide rule as every other page, otherwise the user sees an
+ * inconsistent fade-while-slide overlap.
+ *
+ * These variants are applied via AnimatePresence in <PersistentTabs>
+ * in App.tsx. They mirror buildVariants() in PageTransition.tsx so the
+ * outgoing layer slides out at the parallax ratio (35%) — the same
+ * physical depth cue iOS uses on UINavigationController push.
+ * ───────────────────────────────────────────────────────────────────── */
+export function buildTabLayerVariants(rtl: boolean): Variants {
+  // Same sign convention as the page transition: positive x = "from
+  // right". For RTL we mirror so push enters from the LEFT.
+  const exitSign = (m: NavMode): number => {
+    if (m === 'push') return rtl ?  1 : -1;
+    if (m === 'pop')  return rtl ? -1 :  1;
+    return 0;
+  };
+  const enterSign = (m: NavMode): number => {
+    if (m === 'push') return rtl ? -1 :  1;
+    if (m === 'pop')  return rtl ?  1 : -1;
+    return 0;
+  };
+
+  return {
+    initial: (m: NavMode) => {
+      // First mount of the layer — render at rest. Tab→tab swaps stay
+      // here too because we keep the AnimatePresence key stable.
+      if (m === 'initial' || m === 'tab' || m === 'replace') {
+        return { opacity: 1, x: 0 };
+      }
+      // Re-entering the tab layer from a sub-page (pop). Slide back in
+      // from the appropriate edge at parallax ratio so the entrance
+      // mirrors the way we left.
+      return { opacity: 0, x: `${enterSign(m) * MOTION.parallax * 100}%` };
+    },
+    animate: (m: NavMode) => ({
+      opacity: 1,
+      x: '0%',
+      transition: m === 'pop' ? MOTION.pop : MOTION.push,
+    }),
+    exit: (m: NavMode) => {
+      // Tab/replace/initial don't slide — instant.
+      if (m === 'tab' || m === 'replace' || m === 'initial') {
+        return { opacity: 0, x: 0, transition: MOTION.fade };
+      }
+      // Push/pop — the tab layer leaves at parallax ratio in the
+      // direction OPPOSITE the incoming page. This is what gives the
+      // layered iOS depth feel without any opacity-fade overlap.
+      return {
+        opacity: 0,
+        x: `${exitSign(m) * MOTION.parallax * 100}%`,
+        transition: m === 'push' ? MOTION.push : MOTION.pop,
+      };
+    },
+  };
+}
