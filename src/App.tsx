@@ -13,7 +13,7 @@ import BottomNav from "@/components/BottomNav";
 import PageTransition, { NavModeContext } from "@/components/PageTransition";
 import ScrollToTop from "@/components/ScrollToTop";
 import ErrorBoundary from "@/components/ErrorBoundary";
-import { lazy, Suspense, useEffect } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { useAutoPrayerTheme } from "@/hooks/useAutoPrayerTheme";
 import { usePresence } from "@/hooks/usePresence";
 import { useAuth } from "@/hooks/useAuth";
@@ -212,19 +212,61 @@ const TAB_PATHS = ['/', '/games', '/chat'] as const;
 type TabPath = typeof TAB_PATHS[number];
 
 function PersistentTabs({ active }: { active: TabPath | null }) {
-  // Hide the entire layer when the user is on a non-tab route so it
-  // doesn't fight for the viewport with the active sub-page.
-  const visible = active !== null;
+  // ────────────────────────────────────────────────────────────────
+  // Smooth tab → sub-page transition.
+  //
+  // The previous implementation toggled the entire persistent layer
+  // with a hard `display: block/none`. That made tab→sub-page pushes
+  // look broken: at t=0 the tab content snapped off, but the
+  // incoming sub-page is keyframed from `x: 100%, opacity: 0` (off
+  // the right edge), so the left half of the screen showed an empty
+  // background for ~150 ms until the sub-page reached `x: 0`.
+  //
+  // Fix: keep the previously-active tab rendered (and visible) for
+  // the duration of the page-slide, fading it out via opacity. While
+  // it fades, we also flip it to `position: absolute` so it doesn't
+  // push the entering sub-page out of <main>'s flow. After the fade
+  // window we collapse to `display: none` so the layer takes no
+  // layout space when the user is deep on a sub-page.
+  //
+  // The three tab components (Home / Games / Chat) are still
+  // mounted at all times — only the wrapper toggles. That keeps the
+  // "instant tab switch" guarantee from the original design.
+  // ────────────────────────────────────────────────────────────────
+  const [showing, setShowing] = useState<TabPath | null>(active);
+  const fadingOut = active === null && showing !== null;
+  // Final resting state — no tab to show and the fade-out window
+  // has elapsed. We collapse to `display: none` here so the layer
+  // doesn't reserve any layout space behind the active sub-page.
+  const layerHidden = active === null && showing === null;
+
+  useEffect(() => {
+    if (active !== null) {
+      // Switching to / between tabs — show immediately. Tabs that
+      // toggle within the layer animate via their own slot's
+      // `tab-zoom-in` keyframe.
+      setShowing(active);
+      return;
+    }
+    // We just left the persistent layer for a sub-page. Hold the
+    // last visible tab on screen for the duration of the sub-page
+    // slide-in so the user never sees a flash of empty background.
+    // 280 ms is slightly longer than MOTION.push (300 ms is plenty)
+    // and matches the opacity transition below.
+    const t = window.setTimeout(() => setShowing(null), 280);
+    return () => window.clearTimeout(t);
+  }, [active]);
+
   const slot = (path: TabPath, node: React.ReactNode) => (
     <div
       key={path}
-      style={{ display: active === path ? 'block' : 'none' }}
-      aria-hidden={active !== path}
+      style={{ display: showing === path ? 'block' : 'none' }}
+      aria-hidden={showing !== path}
     >
       <ErrorBoundary>
-        {active === path ? (
+        {showing === path && !fadingOut ? (
           <div
-            key={`tab-anim-${path}-${active}`}
+            key={`tab-anim-${path}-${showing}`}
             className="tab-zoom-in"
             style={{ transformOrigin: 'center center', willChange: 'opacity, transform' }}
           >
@@ -237,7 +279,26 @@ function PersistentTabs({ active }: { active: TabPath | null }) {
     </div>
   );
   return (
-    <div style={{ display: visible ? 'block' : 'none' }}>
+    <div
+      style={{
+        // Collapse out of layout when we have nothing to show.
+        display: layerHidden ? 'none' : 'block',
+        // While fading out we take ourselves out of <main>'s flow so
+        // the entering sub-page can occupy the viewport unhindered.
+        // While in steady state we sit in normal flow so our content
+        // drives <main>'s height.
+        position: fadingOut ? 'absolute' : 'static',
+        top: 0,
+        left: 0,
+        right: 0,
+        opacity: fadingOut ? 0 : 1,
+        transition: 'opacity 240ms cubic-bezier(0.16, 1, 0.3, 1)',
+        pointerEvents: fadingOut ? 'none' : 'auto',
+        // The AnimatePresence wrapper below us in JSX paints on top
+        // by default; this is just an explicit hint for clarity.
+        zIndex: 0,
+      }}
+    >
       {slot('/',      <Index />)}
       {slot('/games', <GamesPage />)}
       {slot('/chat',  <ChatPage />)}
