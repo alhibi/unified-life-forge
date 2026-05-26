@@ -142,7 +142,10 @@ export type DietaryTag =
   | 'weight_loss'
   | 'gut_health'
   | 'immune_boost'
-  | 'skin_health';
+  | 'skin_health'
+  | 'hormone_balance'
+  | 'whole_grain'
+  | 'low_fat';
 
 export type AllergenType =
   | 'gluten'

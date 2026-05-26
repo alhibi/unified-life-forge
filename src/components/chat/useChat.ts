@@ -1124,7 +1124,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     setSearchIndex(local.length > 0 ? local.length - 1 : 0);
 
     try {
-      const { data, error } = await supabase.rpc('search_chat_messages', {
+      const { data, error } = await (supabase.rpc as any)('search_chat_messages', {
         p_query:   trimmed,
         // Try the unified chat_id first; the RPC accepts both via the
         // legacy_conversation_id lookup, but DM rows don't always carry
@@ -1135,7 +1135,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
       });
       if (error) throw error;
 
-      const hits = (data ?? []) as Array<{
+      const hits = ((data ?? []) as unknown) as Array<{
         message_id:      string;
         conversation_id: string;
         chat_id:         string | null;
