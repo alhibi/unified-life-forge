@@ -8,6 +8,7 @@
  */
 
 import type { PlateBreakdown, PlateInventory } from './types';
+export type { PlateInventory } from './types';
 
 export const KG_PLATES_FULL: number[] = [25, 20, 15, 10, 5, 2.5, 1.25, 0.5];
 export const KG_PLATES_MINIMAL: number[] = [20, 15, 10, 5, 2.5];
