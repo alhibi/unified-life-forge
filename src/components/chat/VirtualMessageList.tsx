@@ -51,15 +51,18 @@ const VIRTUALIZE_THRESHOLD = 60;
 
 /** Initial size estimate (px) for a not-yet-measured row. Picked at the
  *  middle of the empirical distribution: most rows are 36–80 px (single
- *  line text) but some go to 280+ (image). Choosing 80 keeps initial
+ *  line text) but some go to 280+ (image). Choosing 72 keeps initial
  *  scroll positioning closer to truth than the library default of 50. */
-const DEFAULT_ROW_HEIGHT = 80;
+const DEFAULT_ROW_HEIGHT = 72;
 
 /** Number of rows to render outside the visible window. Higher values
- *  mask measureElement jitter at the cost of a larger DOM. 6 is enough
+ *  mask measureElement jitter at the cost of a larger DOM. 8 is enough
  *  to absorb fast-flick scrolling without the user catching the empty
- *  zone, while staying lean. */
-const OVERSCAN = 6;
+ *  zone, while staying lean on lower-end devices. */
+const OVERSCAN = 8;
+
+/** Distance from bottom (px) to consider "near bottom" for auto-follow. */
+const NEAR_BOTTOM_PX = 250;
 
 export interface VirtualMessageListHandle {
   /**
@@ -70,6 +73,10 @@ export interface VirtualMessageListHandle {
   scrollToMessage: (id: string, opts?: { align?: 'start' | 'center' | 'end'; behavior?: 'auto' | 'smooth' }) => void;
   /** Scroll to the very last message. Used after send / receive. */
   scrollToBottom: (opts?: { behavior?: 'auto' | 'smooth' }) => void;
+  /** Returns true if the user is currently near the bottom of the chat. */
+  isNearBottom: () => boolean;
+  /** Get the current scroll position for restoration. */
+  getScrollOffset: () => number;
 }
 
 interface VirtualMessageListProps {
@@ -95,6 +102,10 @@ interface VirtualMessageListProps {
   handleRef?: React.MutableRefObject<VirtualMessageListHandle | null>;
   /** Override the activation threshold. Useful for tests. */
   threshold?: number;
+  /** Callback when user scrolls away from bottom (to show "scroll down" FAB). */
+  onScrollAwayFromBottom?: (away: boolean) => void;
+  /** Callback when user reaches the top (for loading older messages). */
+  onReachTop?: () => void;
 }
 
 export function VirtualMessageList({
@@ -103,6 +114,8 @@ export function VirtualMessageList({
   renderRow,
   handleRef,
   threshold = VIRTUALIZE_THRESHOLD,
+  onScrollAwayFromBottom,
+  onReachTop,
 }: VirtualMessageListProps) {
   // ── Virtualizer setup ──────────────────────────────────────────────────────
   // We always create the virtualizer (cheap when count is small) so the
@@ -149,10 +162,6 @@ export function VirtualMessageList({
             align: opts?.align ?? 'center',
             behavior: opts?.behavior ?? 'smooth',
           });
-          // After the virtualizer brings the row into the window, the
-          // DOM node exists; legacy callers expecting to add classes
-          // (e.g. animate-pulse) on the matching #msg-<id> element
-          // can still do so on the next frame.
         } else {
           const el = document.getElementById(`msg-${id}`);
           if (el) el.scrollIntoView({
@@ -177,6 +186,16 @@ export function VirtualMessageList({
           });
         }
       },
+      isNearBottom: () => {
+        const el = scrollElementRef.current;
+        if (!el) return true;
+        const distFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+        return distFromBottom < NEAR_BOTTOM_PX;
+      },
+      getScrollOffset: () => {
+        const el = scrollElementRef.current;
+        return el?.scrollTop ?? 0;
+      },
     };
     return () => {
       if (handleRef.current) handleRef.current = null;
@@ -186,10 +205,6 @@ export function VirtualMessageList({
   // ── Bottom-anchor on append ────────────────────────────────────────────────
   // When a new row appends to the end AND the user is already near the
   // bottom, we follow it. Detection is by comparing the previous count.
-  // This is best-effort — ChatDrawer's existing imperative scroll calls
-  // still drive the primary anchoring behaviour; this just prevents the
-  // virtualizer from "stranding" the viewer one row up after measureElement
-  // resolves a taller-than-estimate new bubble.
   const prevCountRef = useRef(messages.length);
   useLayoutEffect(() => {
     const prev = prevCountRef.current;
@@ -199,10 +214,33 @@ export function VirtualMessageList({
     const el = scrollElementRef.current;
     if (!el) return;
     const distFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
-    if (distFromBottom < 200) {
+    if (distFromBottom < NEAR_BOTTOM_PX) {
       virtualizer.scrollToIndex(messages.length - 1, { align: 'end', behavior: 'auto' });
     }
   }, [messages.length, shouldVirtualize, scrollElementRef, virtualizer]);
+
+  // ── Scroll position monitoring ─────────────────────────────────────────────
+  // Report scroll-away-from-bottom and reach-top events to the parent.
+  useEffect(() => {
+    const el = scrollElementRef.current;
+    if (!el) return;
+    let ticking = false;
+    const handleScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        ticking = false;
+        const distFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+        onScrollAwayFromBottom?.(distFromBottom > NEAR_BOTTOM_PX);
+        // Trigger load-more when scrolled to the top
+        if (el.scrollTop < 80 && onReachTop) {
+          onReachTop();
+        }
+      });
+    };
+    el.addEventListener('scroll', handleScroll, { passive: true });
+    return () => el.removeEventListener('scroll', handleScroll);
+  }, [scrollElementRef, onScrollAwayFromBottom, onReachTop]);
 
   // ── Render ─────────────────────────────────────────────────────────────────
   if (!shouldVirtualize) {

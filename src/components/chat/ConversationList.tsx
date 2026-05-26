@@ -1,9 +1,10 @@
-import React, { useRef } from 'react';
+import React, { useMemo, useRef, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, useMotionValue, useTransform, AnimatePresence, LayoutGroup } from 'framer-motion';
 import {
   MessageCircle, Pencil, Pin, BellOff, Archive, Check, CheckCheck,
   Image as ImageIcon, Mic, FileText, ArchiveRestore, Users, ChevronRight, ChevronLeft,
+  Search, X, Settings, Phone, Video, Star, Trash2, Bell,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -36,6 +37,14 @@ interface ConversationListProps {
   typingByConv?: Record<string, boolean>;
   /** Set of user ids currently online (from realtime presence). */
   onlineUserIds?: Set<string>;
+  /** Callback when search query changes (for parent-level searching). */
+  onSearchChange?: (query: string) => void;
+  /** Callback to navigate to chat settings */
+  onOpenSettings?: () => void;
+  /** Callback to delete a conversation */
+  onDelete?: (id: string) => void;
+  /** Whether to show the search bar (header integration) */
+  showSearchBar?: boolean;
 }
 
 function renderAvatar(username?: string, avatarUrl?: string | null, size: string = 'h-[52px] w-[52px]') {
@@ -70,31 +79,59 @@ function HighlightText({ text, query }: { text: string; query?: string }) {
   );
 }
 
-// A row that supports a horizontal swipe revealing actions on the end side.
+// A row that supports a horizontal swipe revealing action indicators.
 function SwipeRow({
-  id, children, onSwipeLeft, onSwipeRight,
+  id, children, onSwipeLeft, onSwipeRight, leftLabel, rightLabel, isAr,
 }: {
   id: string;
   children: React.ReactNode;
   onSwipeLeft?: () => void;
   onSwipeRight?: () => void;
+  leftLabel?: string;
+  rightLabel?: string;
+  isAr?: boolean;
 }) {
   const x = useMotionValue(0);
-  const bg = useTransform(x, [-120, -40, 0, 40, 120], [
-    'hsl(var(--primary) / 0.18)',
-    'hsl(var(--primary) / 0.08)',
+  const leftBg = useTransform(x, [-120, -40, 0], [
+    'hsl(var(--primary) / 0.15)',
+    'hsl(var(--primary) / 0.06)',
     'transparent',
-    'hsl(var(--primary) / 0.08)',
-    'hsl(var(--primary) / 0.18)',
   ]);
+  const rightBg = useTransform(x, [0, 40, 120], [
+    'transparent',
+    'hsl(var(--primary) / 0.06)',
+    'hsl(var(--primary) / 0.15)',
+  ]);
+  const leftIconOp = useTransform(x, [-100, -50, 0], [1, 0.5, 0]);
+  const rightIconOp = useTransform(x, [0, 50, 100], [0, 0.5, 1]);
+
   return (
     <motion.div
       layout="position"
       key={id}
-      className="relative"
-      style={{ background: bg }}
+      className="relative overflow-hidden"
       transition={{ layout: { type: 'spring', damping: 30, stiffness: 350 } }}
     >
+      {/* Swipe reveal indicators */}
+      <motion.div
+        className="absolute inset-y-0 end-0 flex items-center pe-4 pointer-events-none"
+        style={{ opacity: leftIconOp }}
+      >
+        <div className="flex items-center gap-1.5 text-primary">
+          <Archive className="w-4 h-4" />
+          <span className="text-[11px] font-medium">{leftLabel}</span>
+        </div>
+      </motion.div>
+      <motion.div
+        className="absolute inset-y-0 start-0 flex items-center ps-4 pointer-events-none"
+        style={{ opacity: rightIconOp }}
+      >
+        <div className="flex items-center gap-1.5 text-primary">
+          <Pin className="w-4 h-4" />
+          <span className="text-[11px] font-medium">{rightLabel}</span>
+        </div>
+      </motion.div>
+
       <motion.div
         style={{ x, touchAction: 'pan-y' }}
         drag="x"
@@ -132,58 +169,166 @@ const ConversationList: React.FC<ConversationListProps> = ({
   conversations, isAr, currentUserId, filter, onFilterChange, totalUnread,
   onSelect, onNewChat, isPinned, isMuted, isArchived,
   togglePinned, toggleMuted, toggleArchived, getDraft, searchQuery, isLoading,
-  typingByConv, onlineUserIds,
+  typingByConv, onlineUserIds, onSearchChange, onOpenSettings, onDelete, showSearchBar,
 }) => {
-  const tabs: Array<{ id: ConversationFilter; labelAr: string; labelDe: string }> = [
+  const tabs: Array<{ id: ConversationFilter; labelAr: string; labelDe: string; icon?: React.ReactNode }> = [
     { id: 'all',      labelAr: 'الكل',      labelDe: 'Alle' },
     { id: 'unread',   labelAr: 'غير مقروءة', labelDe: 'Ungelesen' },
     { id: 'archived', labelAr: 'المؤرشفة',   labelDe: 'Archiviert' },
   ];
 
+  const [localSearch, setLocalSearch] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
   const hasContent = conversations.length > 0;
   const fabRef = useRef<HTMLButtonElement>(null);
   const navigate = useNavigate();
-  // Surface a tiny entry-point to the new groups index whenever the user
-  // has any groups/channels (or always, when no chats exist yet, so they
-  // can discover the feature).
+
   const { chats } = useChats();
   const groupsCount = chats.filter(c => c.kind !== 'dm').length;
 
+  // Sort conversations: pinned first, then by time
+  const sortedConversations = useMemo(() => {
+    const pinned = conversations.filter(c => isPinned(c.id));
+    const unpinned = conversations.filter(c => !isPinned(c.id));
+    return [...pinned, ...unpinned];
+  }, [conversations, isPinned]);
+
+  // Local search filtering
+  const filteredConversations = useMemo(() => {
+    if (!localSearch.trim()) return sortedConversations;
+    const q = localSearch.toLowerCase();
+    return sortedConversations.filter(c => {
+      const name = (c.otherDisplayName || c.otherUsername || '').toLowerCase();
+      const msg = (c.lastMessage || '').toLowerCase();
+      return name.includes(q) || msg.includes(q);
+    });
+  }, [sortedConversations, localSearch]);
+
+  const handleSearchToggle = useCallback(() => {
+    setIsSearching(prev => {
+      if (!prev) {
+        setTimeout(() => searchInputRef.current?.focus(), 100);
+      } else {
+        setLocalSearch('');
+        onSearchChange?.('');
+      }
+      return !prev;
+    });
+  }, [onSearchChange]);
+
+  const effectiveSearchQuery = localSearch || searchQuery;
+
   return (
     <div className="relative h-full flex flex-col">
-      {/* Filter tabs */}
-      <div className="flex items-center gap-1.5 px-4 py-2 overflow-x-auto scrollbar-none shrink-0">
-        {tabs.map(tab => {
-          const active = filter === tab.id;
-          const showBadge = tab.id === 'unread' && totalUnread > 0;
-          return (
+      {/* Search bar (expandable) */}
+      <AnimatePresence>
+        {isSearching && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ type: 'spring', damping: 25, stiffness: 350 }}
+            className="overflow-hidden shrink-0"
+          >
+            <div className="px-3 pt-2 pb-1">
+              <div className="flex items-center gap-2 bg-muted/20 border border-border/20 rounded-xl px-3 h-10 focus-within:border-primary/30 transition-colors">
+                <Search className="w-4 h-4 text-muted-foreground/60 shrink-0" />
+                <input
+                  ref={searchInputRef}
+                  type="text"
+                  value={localSearch}
+                  onChange={e => {
+                    setLocalSearch(e.target.value);
+                    onSearchChange?.(e.target.value);
+                  }}
+                  placeholder={isAr ? 'بحث في المحادثات...' : 'Chats durchsuchen...'}
+                  className="flex-1 bg-transparent text-[14px] text-foreground placeholder:text-muted-foreground/50 outline-none"
+                  dir="auto"
+                />
+                {localSearch && (
+                  <motion.button
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    type="button"
+                    onClick={() => { setLocalSearch(''); onSearchChange?.(''); }}
+                    className="w-5 h-5 rounded-full bg-muted/40 flex items-center justify-center"
+                  >
+                    <X className="w-3 h-3 text-muted-foreground" />
+                  </motion.button>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Filter tabs + actions row */}
+      <div className="flex items-center gap-1.5 px-3 py-2 overflow-x-auto scrollbar-none shrink-0">
+        <div className="flex items-center gap-1.5 flex-1 overflow-x-auto scrollbar-none">
+          {tabs.map(tab => {
+            const active = filter === tab.id;
+            const showBadge = tab.id === 'unread' && totalUnread > 0;
+            return (
+              <motion.button
+                key={tab.id}
+                onClick={() => onFilterChange(tab.id)}
+                className={cn(
+                  'h-8 px-3.5 rounded-full text-[12.5px] font-medium whitespace-nowrap flex items-center gap-1.5 transition-all',
+                  active
+                    ? 'bg-primary text-primary-foreground shadow-sm'
+                    : 'bg-muted/30 text-muted-foreground active:bg-muted/50'
+                )}
+                whileTap={{ scale: 0.95 }}
+              >
+                {isAr ? tab.labelAr : tab.labelDe}
+                {showBadge && !active && (
+                  <motion.span
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    className="bg-primary text-primary-foreground text-[10px] font-bold rounded-full min-w-[16px] h-[16px] flex items-center justify-center px-1"
+                  >
+                    {totalUnread > 99 ? '99+' : totalUnread}
+                  </motion.span>
+                )}
+              </motion.button>
+            );
+          })}
+        </div>
+
+        {/* Action buttons */}
+        <div className="flex items-center gap-0.5 shrink-0">
+          <button
+            type="button"
+            onClick={handleSearchToggle}
+            className={cn(
+              'w-8 h-8 rounded-full flex items-center justify-center transition-colors',
+              isSearching ? 'bg-primary/15 text-primary' : 'text-muted-foreground active:bg-muted/40'
+            )}
+            aria-label={isAr ? 'بحث' : 'Suchen'}
+          >
+            <Search className="w-4 h-4" />
+          </button>
+          {onOpenSettings && (
             <button
-              key={tab.id}
-              onClick={() => onFilterChange(tab.id)}
-              className={cn(
-                'h-8 px-3.5 rounded-full text-[12.5px] font-medium transition-all whitespace-nowrap flex items-center gap-1.5',
-                active
-                  ? 'bg-primary text-primary-foreground shadow-sm'
-                  : 'bg-muted/30 text-muted-foreground active:bg-muted/50'
-              )}
+              type="button"
+              onClick={onOpenSettings}
+              className="w-8 h-8 rounded-full flex items-center justify-center text-muted-foreground active:bg-muted/40 transition-colors"
+              aria-label={isAr ? 'الإعدادات' : 'Einstellungen'}
             >
-              {isAr ? tab.labelAr : tab.labelDe}
-              {showBadge && !active && (
-                <span className="bg-primary text-primary-foreground text-[10px] font-bold rounded-full min-w-[16px] h-[16px] flex items-center justify-center px-1">
-                  {totalUnread}
-                </span>
-              )}
+              <Settings className="w-4 h-4" />
             </button>
-          );
-        })}
+          )}
+        </div>
       </div>
 
-      {/* Groups & channels entry-point — always visible so the feature is
-          discoverable, even when the legacy 1-to-1 list is empty. */}
-      <button
+      {/* Groups & channels entry-point */}
+      <motion.button
         type="button"
         onClick={() => navigate('/chat/groups')}
         className="flex items-center gap-3 px-4 py-2.5 mx-3 mb-1 rounded-2xl bg-muted/15 hover:bg-muted/25 active:bg-muted/35 border border-border/15 transition-colors text-start"
+        whileTap={{ scale: 0.98 }}
       >
         <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
           <Users className="w-4 h-4 text-primary" />
@@ -199,10 +344,10 @@ const ConversationList: React.FC<ConversationListProps> = ({
           </p>
         </div>
         {isAr ? <ChevronLeft className="w-4 h-4 text-muted-foreground shrink-0" /> : <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />}
-      </button>
+      </motion.button>
 
       {/* Conversations */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto overscroll-contain">
         {isLoading ? (
           <div className="divide-y divide-border/10" aria-hidden="true">
             {[0, 1, 2, 3, 4, 5].map(i => (
@@ -218,13 +363,18 @@ const ConversationList: React.FC<ConversationListProps> = ({
               </div>
             ))}
           </div>
-        ) : !hasContent ? (
+        ) : !hasContent && !localSearch ? (
           <div className="flex flex-col items-center justify-center h-full text-muted-foreground gap-4 px-8">
-            <div className="w-20 h-20 rounded-full bg-primary/5 flex items-center justify-center">
+            <motion.div
+              className="w-20 h-20 rounded-full bg-primary/5 flex items-center justify-center"
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ type: 'spring', damping: 15 }}
+            >
               {filter === 'archived'
                 ? <Archive className="h-9 w-9 text-primary/30" />
                 : <MessageCircle className="h-9 w-9 text-primary/30" />}
-            </div>
+            </motion.div>
             <div className="text-center space-y-1">
               <p className="text-[15px] font-semibold text-foreground/60">
                 {filter === 'archived'
@@ -238,17 +388,35 @@ const ConversationList: React.FC<ConversationListProps> = ({
               </p>
             </div>
           </div>
+        ) : filteredConversations.length === 0 && localSearch ? (
+          <div className="flex flex-col items-center justify-center py-16 text-muted-foreground gap-3 px-8">
+            <Search className="h-10 w-10 text-muted-foreground/20" />
+            <p className="text-[14px] text-center text-muted-foreground/60">
+              {isAr ? `لا توجد نتائج لـ "${localSearch}"` : `Keine Ergebnisse für "${localSearch}"`}
+            </p>
+          </div>
         ) : (
           <LayoutGroup>
             <div className="divide-y divide-border/10">
-              {conversations.map((conv, idx) => {
+              {/* Pinned section header */}
+              {filteredConversations.some(c => isPinned(c.id)) && (
+                <div className="px-4 py-1.5">
+                  <span className="text-[11px] font-medium text-muted-foreground/60 uppercase tracking-wider">
+                    {isAr ? 'المثبتة' : 'Angepinnt'}
+                  </span>
+                </div>
+              )}
+              {filteredConversations.map((conv, idx) => {
               const pinned = isPinned(conv.id);
               const muted = isMuted(conv.id);
               const archived = isArchived(conv.id);
               const draft = getDraft(conv.id);
               const unread = conv.unreadCount ?? 0;
 
-              // Last message preview
+              // Show divider between pinned and unpinned
+              const isPrevPinned = idx > 0 && isPinned(filteredConversations[idx - 1].id);
+              const showUnpinnedHeader = !pinned && isPrevPinned;
+
               const nameToShow = conv.otherDisplayName || conv.otherUsername || '';
               let previewBody: React.ReactNode = null;
               let previewIcon: React.ReactNode = null;
@@ -269,12 +437,11 @@ const ConversationList: React.FC<ConversationListProps> = ({
                   <span className="text-destructive font-medium">
                     {isAr ? 'مسودة: ' : 'Entwurf: '}
                     <span className="text-foreground/70 font-normal">
-                      <HighlightText text={stripMarkers(draft.slice(0, 60))} query={searchQuery} />
+                      <HighlightText text={stripMarkers(draft.slice(0, 60))} query={effectiveSearchQuery} />
                     </span>
                   </span>
                 );
               } else if (conv.lastMessage) {
-                // Media icon
                 if (conv.lastMessageType === 'image') previewIcon = <ImageIcon className="w-3.5 h-3.5 text-muted-foreground/70 shrink-0" />;
                 else if (conv.lastMessageType === 'voice') previewIcon = <Mic className="w-3.5 h-3.5 text-muted-foreground/70 shrink-0" />;
                 else if (conv.lastMessageType === 'file') previewIcon = <FileText className="w-3.5 h-3.5 text-muted-foreground/70 shrink-0" />;
@@ -287,7 +454,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
                         {isAr ? 'أنت: ' : 'Du: '}
                       </span>
                     )}
-                    <HighlightText text={body} query={searchQuery} />
+                    <HighlightText text={body} query={effectiveSearchQuery} />
                   </>
                 );
               } else {
@@ -299,89 +466,102 @@ const ConversationList: React.FC<ConversationListProps> = ({
               }
 
               return (
-                <SwipeRow
-                  key={conv.id}
-                  id={conv.id}
-                  // Swipe end-wards (left in LTR, right in RTL) → archive/unarchive
-                  onSwipeLeft={() => (isAr ? togglePinned(conv.id) : toggleArchived(conv.id))}
-                  // Swipe start-wards → pin/unpin (or opposite when RTL)
-                  onSwipeRight={() => (isAr ? toggleArchived(conv.id) : togglePinned(conv.id))}
-                >
-                  <motion.button
-                    initial={{ opacity: 0, y: 4 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: Math.min(idx * 0.015, 0.3), duration: 0.2 }}
-                    onClick={() => onSelect(conv)}
-                    className={cn(
-                      'w-full flex items-center gap-3 px-4 py-3 transition-colors text-start bg-background',
-                      'active:bg-accent/40',
-                      unread > 0 && !muted && 'bg-primary/[0.02]'
-                    )}
+                <React.Fragment key={conv.id}>
+                  {showUnpinnedHeader && (
+                    <div className="px-4 py-1.5">
+                      <span className="text-[11px] font-medium text-muted-foreground/60 uppercase tracking-wider">
+                        {isAr ? 'المحادثات' : 'Chats'}
+                      </span>
+                    </div>
+                  )}
+                  <SwipeRow
+                    id={conv.id}
+                    onSwipeLeft={() => (isAr ? togglePinned(conv.id) : toggleArchived(conv.id))}
+                    onSwipeRight={() => (isAr ? toggleArchived(conv.id) : togglePinned(conv.id))}
+                    leftLabel={isAr ? (pinned ? 'إلغاء التثبيت' : 'تثبيت') : (archived ? 'Entarchivieren' : 'Archivieren')}
+                    rightLabel={isAr ? (archived ? 'إلغاء الأرشفة' : 'أرشفة') : (pinned ? 'Lösen' : 'Anpinnen')}
+                    isAr={isAr}
                   >
-                    <div className="relative shrink-0">
-                      {renderAvatar(conv.otherUsername, conv.otherAvatarUrl, 'h-[52px] w-[52px]')}
-                      {conv.otherUserId && onlineUserIds?.has(conv.otherUserId) && (
-                        <span
-                          aria-label={isAr ? 'متصل الآن' : 'Online'}
-                          className="absolute bottom-0 end-0 block h-3 w-3 rounded-full bg-green-500 ring-2 ring-background"
-                        />
+                    <motion.button
+                      initial={{ opacity: 0, y: 4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: Math.min(idx * 0.015, 0.3), duration: 0.2 }}
+                      onClick={() => onSelect(conv)}
+                      className={cn(
+                        'w-full flex items-center gap-3 px-4 py-3 transition-colors text-start bg-background',
+                        'active:bg-accent/40',
+                        unread > 0 && !muted && 'bg-primary/[0.02]',
+                        pinned && 'bg-muted/[0.04]'
                       )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-1.5 min-w-0">
-                          {pinned && <Pin className="w-3 h-3 text-muted-foreground/60 shrink-0 rotate-45" />}
-                          <span className={cn(
-                            'text-[15px] text-foreground truncate',
-                            unread > 0 && !muted ? 'font-bold' : 'font-semibold'
-                          )}>
-                            <HighlightText text={nameToShow} query={searchQuery} />
-                          </span>
-                          {muted && <BellOff className="w-3 h-3 text-muted-foreground/50 shrink-0" />}
-                        </div>
-                        <span className={cn(
-                          'text-[11px] shrink-0 tabular-nums',
-                          unread > 0 && !muted ? 'text-primary font-semibold' : 'text-muted-foreground/50'
-                        )}>
-                          {conv.lastMessageTime && formatTime(conv.lastMessageTime, isAr)}
-                        </span>
+                    >
+                      <div className="relative shrink-0">
+                        {renderAvatar(conv.otherUsername, conv.otherAvatarUrl, 'h-[52px] w-[52px]')}
+                        {conv.otherUserId && onlineUserIds?.has(conv.otherUserId) && (
+                          <motion.span
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            aria-label={isAr ? 'متصل الآن' : 'Online'}
+                            className="absolute bottom-0 end-0 block h-3 w-3 rounded-full bg-green-500 ring-2 ring-background"
+                          />
+                        )}
                       </div>
-                      <div className="flex items-center justify-between gap-2 mt-0.5">
-                        <div className={cn(
-                          'text-[13px] truncate leading-relaxed flex items-center gap-1.5 min-w-0',
-                          unread > 0 && !muted ? 'text-foreground/75 font-medium' : 'text-muted-foreground/65'
-                        )}>
-                          {/* Own delivery/read tick (WhatsApp/Telegram-style):
-                              single grey check  → only sent
-                              double grey check  → delivered to recipient
-                              double primary     → recipient read it */}
-                          {conv.lastMessageFromMe && !conv.lastMessageDeleted && !draft && !otherTyping && (
-                            conv.lastMessageRead
-                              ? <CheckCheck className="w-3.5 h-3.5 shrink-0 text-primary" />
-                              : conv.lastMessageDelivered
-                                ? <CheckCheck className="w-3.5 h-3.5 shrink-0 text-muted-foreground/55" />
-                                : <Check className="w-3.5 h-3.5 shrink-0 text-muted-foreground/55" />
-                          )}
-                          {previewIcon}
-                          <span className="truncate" dir="auto">{previewBody}</span>
-                        </div>
-                        <div className="flex items-center gap-1 shrink-0">
-                          {archived && filter !== 'archived' && <ArchiveRestore className="w-3.5 h-3.5 text-muted-foreground/40" />}
-                          {unread > 0 && (
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-1.5 min-w-0">
+                            {pinned && <Pin className="w-3 h-3 text-primary/60 shrink-0 rotate-45" />}
                             <span className={cn(
-                              'text-[11px] rounded-full min-w-[20px] h-[20px] flex items-center justify-center px-1.5 font-bold',
-                              muted
-                                ? 'bg-muted/60 text-muted-foreground'
-                                : 'bg-primary text-primary-foreground'
+                              'text-[15px] text-foreground truncate',
+                              unread > 0 && !muted ? 'font-bold' : 'font-semibold'
                             )}>
-                              {unread > 99 ? '99+' : unread}
+                              <HighlightText text={nameToShow} query={effectiveSearchQuery} />
                             </span>
-                          )}
+                            {muted && <BellOff className="w-3 h-3 text-muted-foreground/50 shrink-0" />}
+                          </div>
+                          <span className={cn(
+                            'text-[11px] shrink-0 tabular-nums',
+                            unread > 0 && !muted ? 'text-primary font-semibold' : 'text-muted-foreground/50'
+                          )}>
+                            {conv.lastMessageTime && formatTime(conv.lastMessageTime, isAr)}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between gap-2 mt-0.5">
+                          <div className={cn(
+                            'text-[13px] truncate leading-relaxed flex items-center gap-1.5 min-w-0',
+                            unread > 0 && !muted ? 'text-foreground/75 font-medium' : 'text-muted-foreground/65'
+                          )}>
+                            {conv.lastMessageFromMe && !conv.lastMessageDeleted && !draft && !otherTyping && (
+                              conv.lastMessageRead
+                                ? <CheckCheck className="w-3.5 h-3.5 shrink-0 text-primary" />
+                                : conv.lastMessageDelivered
+                                  ? <CheckCheck className="w-3.5 h-3.5 shrink-0 text-muted-foreground/55" />
+                                  : <Check className="w-3.5 h-3.5 shrink-0 text-muted-foreground/55" />
+                            )}
+                            {previewIcon}
+                            <span className="truncate" dir="auto">{previewBody}</span>
+                          </div>
+                          <div className="flex items-center gap-1 shrink-0">
+                            {archived && filter !== 'archived' && <ArchiveRestore className="w-3.5 h-3.5 text-muted-foreground/40" />}
+                            {unread > 0 && (
+                              <motion.span
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                transition={{ type: 'spring', damping: 12 }}
+                                className={cn(
+                                  'text-[11px] rounded-full min-w-[20px] h-[20px] flex items-center justify-center px-1.5 font-bold',
+                                  muted
+                                    ? 'bg-muted/60 text-muted-foreground'
+                                    : 'bg-primary text-primary-foreground'
+                                )}
+                              >
+                                {unread > 99 ? '99+' : unread}
+                              </motion.span>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </motion.button>
-                </SwipeRow>
+                    </motion.button>
+                  </SwipeRow>
+                </React.Fragment>
               );
             })}
             </div>
