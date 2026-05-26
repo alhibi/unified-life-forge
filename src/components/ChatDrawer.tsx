@@ -23,6 +23,7 @@ import {
   getSignedFileUrl, formatClockTime, formatDateSeparator, formatSelfDestructLabel,
   renderRichText, stripMarkers, renderHighlighted,
 } from './chat/chatUtils';
+import { useAppleEmojiReady } from './chat/appleEmoji';
 import { QUICK_EMOJIS, WALLPAPERS, SELF_DESTRUCT_OPTIONS, MUTE_DURATION_OPTIONS } from './chat/constants';
 import { useChat } from './chat/useChat';
 import { useVoiceRecording } from './chat/useVoiceRecording';
@@ -253,6 +254,14 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
     sendMessage: chat.sendMessage,
   });
   const voicePlayer = useVoicePlayer();
+
+  // Trigger the Apple-emoji map preload (lazy-loads `@emoji-mart/data` and
+  // builds the native→unified lookup used by `renderRichText`). The boolean
+  // return value flips once the map is ready, which causes this component
+  // to re-render so messages already on screen swap from native unicode
+  // emojis to <img>-based Apple artwork. Reading the value (even if unused
+  // syntactically) is what subscribes us — keep the assignment.
+  const _appleEmojiReady = useAppleEmojiReady();
 
   // Auto-advance voice playback within the active conversation, just like
   // Telegram. The resolver looks up the next non-deleted voice message AFTER

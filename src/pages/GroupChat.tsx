@@ -25,6 +25,7 @@ import GroupInfoSheet from '@/components/chat/groups/GroupInfoSheet';
 import MemberListSheet from '@/components/chat/groups/MemberListSheet';
 import { TypingDots } from '@/components/chat/MessageBubble';
 import { formatDateSeparator } from '@/components/chat/chatUtils';
+import { useAppleEmojiReady } from '@/components/chat/appleEmoji';
 import { QUICK_EMOJIS } from '@/components/chat/constants';
 import { toast } from 'sonner';
 
@@ -56,6 +57,11 @@ export default function GroupChatPage() {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const goBack = useSmartBack('/chat/groups');
+
+  // Trigger the Apple-emoji map preload + re-render on ready (see
+  // ../components/chat/appleEmoji.tsx) so message bodies in this group
+  // chat upgrade from native unicode emojis to iPhone artwork.
+  const _appleEmojiReady = useAppleEmojiReady();
 
   const { settings } = useChatSettings();
 
