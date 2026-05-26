@@ -3,7 +3,7 @@ import { ReactNode, createContext, memo, useContext, useLayoutEffect, useMemo } 
 import { useLocation } from 'react-router-dom';
 import { navLoaded } from '@/lib/navPerf';
 import { useApp } from '@/contexts/AppContext';
-import { MOTION, EASE_OUT_EXPO, EASE_IN, type NavMode } from '@/lib/motion';
+import { MOTION, type NavMode } from '@/lib/motion';
 
 /**
  * PageTransition — strict iOS push / pop with parallax.
@@ -97,7 +97,7 @@ function buildVariants(rtl: boolean): Variants {
       const transition =
         m === 'push'    ? MOTION.push :
         m === 'pop'     ? MOTION.pop  :
-        m === 'tab'     ? { duration: 0.22, ease: EASE_OUT_EXPO } :
+        m === 'tab'     ? MOTION.tab  :
         m === 'replace' ? MOTION.fade :
         /* initial */     { duration: 0 };
       return { opacity: 1, x: '0%', y: 0, transition };
@@ -107,7 +107,7 @@ function buildVariants(rtl: boolean): Variants {
       const transition =
         m === 'push' ? MOTION.push :
         m === 'pop'  ? MOTION.pop  :
-        m === 'tab'  ? { duration: 0.14, ease: EASE_IN } :
+        m === 'tab'  ? MOTION.tabExit :
         /* replace / initial */ MOTION.fade;
 
       // Tab / replace / initial — no horizontal slide on exit.
@@ -152,6 +152,7 @@ export default memo(function PageTransition({ children }: { children: ReactNode 
 
   return (
     <motion.div
+      data-page-surface
       // `custom` is read by the variant resolvers above for the
       // initial+animate cycle of THIS instance. For the EXIT cycle,
       // framer-motion reads `custom` from <AnimatePresence custom={mode}>
@@ -162,17 +163,42 @@ export default memo(function PageTransition({ children }: { children: ReactNode 
       animate="animate"
       exit="exit"
       style={{
-        // GPU compositing hints. Touching only transform + opacity
-        // keeps everything off the main thread on the web compositor.
-        willChange: 'opacity, transform',
-        transformOrigin: 'center top',
+        // ── GPU compositing (ProMotion / 120 Hz friendly) ──
+        // We touch ONLY transform + opacity — both compositor-thread
+        // properties — so animations run on the GPU at the display's
+        // native vsync (60 Hz on standard panels, 120 Hz on iPhone Pro
+        // ProMotion / iPad Pro / Pixel 7+ etc.). The hints below give
+        // the browser everything it needs to keep this layer on its
+        // own GPU surface for the entire animation:
+        //
+        //   • will-change: transform, opacity — promotes to a
+        //     compositor layer eagerly, before the first frame.
+        //   • transformStyle: preserve-3d + a translateZ(0) baseline
+        //     on translate (via framer's percent-x converted to a 3d
+        //     transform under the hood) — forces the layer onto its
+        //     own GPU surface even on engines that don't honor
+        //     will-change alone (older Safari).
+        //   • backfaceVisibility: hidden — eliminates sub-pixel
+        //     re-rasterization jitter during the slide.
+        //   • perspective: 1px — opens a 3d rendering context so the
+        //     compositor doesn't fall back to CPU painting on iOS.
+        willChange: 'transform, opacity',
+        transform: 'translateZ(0)',
+        transformStyle: 'preserve-3d',
         backfaceVisibility: 'hidden',
+        perspective: 1,
+        transformOrigin: 'center top',
         // popLayout (set on AnimatePresence) takes the exiting element
         // out of flow; this width/min-height ensures both pages occupy
         // the same coordinate space during the overlap so the slide
         // looks correct rather than reflowing.
         width: '100%',
         minHeight: '100%',
+        // The page slide carries the layer past the viewport edge.
+        // Without contain, off-screen pixels can repaint when the
+        // outgoing page reflows during exit; pinning paint here keeps
+        // the GPU compositor in charge end-to-end.
+        contain: 'layout paint',
       }}
     >
       {children}

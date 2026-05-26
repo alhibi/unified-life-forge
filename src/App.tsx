@@ -3,22 +3,23 @@ import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { AppProvider } from "@/contexts/AppContext";
+import { AppProvider, useApp } from "@/contexts/AppContext";
 import { VoicePlayerProvider } from "@/contexts/VoicePlayerContext";
 import { ImageUploadProvider } from "@/contexts/ImageUploadContext";
 import { PodcastPlayerProvider } from "@/contexts/PodcastPlayerContext";
 import PodcastMiniPlayer from "@/components/podcasts/PodcastMiniPlayer";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import BottomNav from "@/components/BottomNav";
 import PageTransition, { NavModeContext } from "@/components/PageTransition";
 import ScrollToTop from "@/components/ScrollToTop";
 import ErrorBoundary from "@/components/ErrorBoundary";
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { useAutoPrayerTheme } from "@/hooks/useAutoPrayerTheme";
 import { usePresence } from "@/hooks/usePresence";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavDirection } from "@/hooks/useNavDirection";
 import { navStart } from "@/lib/navPerf";
+import { buildTabLayerVariants, type NavMode } from "@/lib/motion";
 
 // Eager load the main page
 import Index from "./pages/Index";
@@ -211,51 +212,62 @@ const PageSkeleton = () => (
 const TAB_PATHS = ['/', '/games', '/chat'] as const;
 type TabPath = typeof TAB_PATHS[number];
 
-function PersistentTabs({ active }: { active: TabPath | null }) {
+function PersistentTabs({ active, mode }: { active: TabPath | null; mode: NavMode }) {
   // ────────────────────────────────────────────────────────────────
-  // Smooth tab → sub-page transition.
+  // Strict push/pop tab layer
   //
-  // The previous implementation toggled the entire persistent layer
-  // with a hard `display: block/none`. That made tab→sub-page pushes
-  // look broken: at t=0 the tab content snapped off, but the
-  // incoming sub-page is keyframed from `x: 100%, opacity: 0` (off
-  // the right edge), so the left half of the screen showed an empty
-  // background for ~150 ms until the sub-page reached `x: 0`.
+  // Previously we toggled the persistent tab layer with a manual
+  // opacity transition while the incoming sub-page slid in from the
+  // edge — that produced a visible "fade-while-slide" overlap which
+  // breaks the strict L→R / R→L navigation rule.
   //
-  // Fix: keep the previously-active tab rendered (and visible) for
-  // the duration of the page-slide, fading it out via opacity. While
-  // it fades, we also flip it to `position: absolute` so it doesn't
-  // push the entering sub-page out of <main>'s flow. After the fade
-  // window we collapse to `display: none` so the layer takes no
-  // layout space when the user is deep on a sub-page.
+  // The new approach plugs the tab layer into AnimatePresence with
+  // the same push/pop variants we use for any other page. When the
+  // user pushes from a tab to a sub-page, the layer slides off at the
+  // parallax ratio in the OPPOSITE direction of the incoming page —
+  // exactly like a native UINavigationController push. When the user
+  // pops back, the layer slides in from the same edge with the
+  // appropriate parallax. Tab→tab swaps stay instant because the
+  // AnimatePresence key never changes (only the inner slot toggles
+  // via display:none).
   //
-  // The three tab components (Home / Games / Chat) are still
-  // mounted at all times — only the wrapper toggles. That keeps the
-  // "instant tab switch" guarantee from the original design.
+  // Key invariants:
+  //   • the AnimatePresence key is the constant string "tab-layer".
+  //     This is what keeps the wrapper alive across tab→tab swaps.
+  //   • the inner slot for the currently-shown tab is rendered with
+  //     display:block; siblings are display:none so they stay
+  //     mounted (instant return on next visit).
+  //   • the wrapper exits ONLY when active becomes null (i.e., the
+  //     user navigated to a deep sub-page). On unmount it follows the
+  //     push/pop slide rule via motion variants.
+  //   • Tab→tab swaps trigger the `tab-zoom-in` keyframe on the
+  //     newly-shown slot — a tiny 200 ms vertical fade-up so the
+  //     change registers without a horizontal slide.
   // ────────────────────────────────────────────────────────────────
-  const [showing, setShowing] = useState<TabPath | null>(active);
-  const fadingOut = active === null && showing !== null;
-  // Final resting state — no tab to show and the fade-out window
-  // has elapsed. We collapse to `display: none` here so the layer
-  // doesn't reserve any layout space behind the active sub-page.
-  const layerHidden = active === null && showing === null;
-
+  const { dir } = useApp();
+  const rtl = dir === 'rtl';
+  const prefersReducedMotion = useReducedMotion();
+  // Track which tab to display while the layer is mounted. We keep a
+  // ref-like memo of the last non-null `active` so during the exit
+  // animation (active just became null) we still render the tab the
+  // user came from instead of flashing empty content.
+  const [lastTab, setLastTab] = useState<TabPath | null>(active);
   useEffect(() => {
-    if (active !== null) {
-      // Switching to / between tabs — show immediately. Tabs that
-      // toggle within the layer animate via their own slot's
-      // `tab-zoom-in` keyframe.
-      setShowing(active);
-      return;
-    }
-    // We just left the persistent layer for a sub-page. Hold the
-    // last visible tab on screen for the duration of the sub-page
-    // slide-in so the user never sees a flash of empty background.
-    // 280 ms is slightly longer than MOTION.push (300 ms is plenty)
-    // and matches the opacity transition below.
-    const t = window.setTimeout(() => setShowing(null), 280);
-    return () => window.clearTimeout(t);
+    if (active !== null) setLastTab(active);
   }, [active]);
+
+  const variants = useMemo(
+    () => (prefersReducedMotion
+      ? {
+          initial: { opacity: 0, x: 0 },
+          animate: { opacity: 1, x: 0, transition: { duration: 0.10, ease: 'linear' as const } },
+          exit:    { opacity: 0, x: 0, transition: { duration: 0.07, ease: 'linear' as const } },
+        }
+      : buildTabLayerVariants(rtl)),
+    [rtl, prefersReducedMotion],
+  );
+
+  const showing: TabPath | null = active ?? lastTab;
 
   const slot = (path: TabPath, node: React.ReactNode) => (
     <div
@@ -264,11 +276,13 @@ function PersistentTabs({ active }: { active: TabPath | null }) {
       aria-hidden={showing !== path}
     >
       <ErrorBoundary>
-        {showing === path && !fadingOut ? (
+        {showing === path && active !== null ? (
+          // Tab→tab swap micro-motion. Skipped during the exit phase
+          // (active === null) so we don't fight the wrapper's slide.
           <div
-            key={`tab-anim-${path}-${showing}`}
+            key={`tab-anim-${path}`}
             className="tab-zoom-in"
-            style={{ transformOrigin: 'center center', willChange: 'opacity, transform' }}
+            style={{ willChange: 'opacity, transform' }}
           >
             {node}
           </div>
@@ -278,31 +292,40 @@ function PersistentTabs({ active }: { active: TabPath | null }) {
       </ErrorBoundary>
     </div>
   );
+
   return (
-    <div
-      style={{
-        // Collapse out of layout when we have nothing to show.
-        display: layerHidden ? 'none' : 'block',
-        // While fading out we take ourselves out of <main>'s flow so
-        // the entering sub-page can occupy the viewport unhindered.
-        // While in steady state we sit in normal flow so our content
-        // drives <main>'s height.
-        position: fadingOut ? 'absolute' : 'static',
-        top: 0,
-        left: 0,
-        right: 0,
-        opacity: fadingOut ? 0 : 1,
-        transition: 'opacity 240ms cubic-bezier(0.16, 1, 0.3, 1)',
-        pointerEvents: fadingOut ? 'none' : 'auto',
-        // The AnimatePresence wrapper below us in JSX paints on top
-        // by default; this is just an explicit hint for clarity.
-        zIndex: 0,
-      }}
-    >
-      {slot('/',      <Index />)}
-      {slot('/games', <GamesPage />)}
-      {slot('/chat',  <ChatPage />)}
-    </div>
+    <AnimatePresence initial={false} custom={mode}>
+      {active !== null && (
+        <motion.div
+          key="tab-layer"
+          data-tab-layer="true"
+          custom={mode}
+          variants={variants}
+          initial="initial"
+          animate="animate"
+          exit="exit"
+          style={{
+            // Layout: take normal flow while present so child content
+            // drives <main>'s height. AnimatePresence handles unmount.
+            position: 'relative',
+            top: 0,
+            left: 0,
+            right: 0,
+            // Lock GPU compositing — same hints as PageTransition so
+            // the layer rides the same fast-path on iOS Safari /
+            // ProMotion displays.
+            willChange: 'transform, opacity',
+            transformStyle: 'preserve-3d',
+            backfaceVisibility: 'hidden',
+            zIndex: 0,
+          }}
+        >
+          {slot('/',      <Index />)}
+          {slot('/games', <GamesPage />)}
+          {slot('/chat',  <ChatPage />)}
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
 
@@ -335,7 +358,7 @@ function AnimatedRoutes() {
           mounted once and toggled by display. The other bottom-nav
           destinations (Wellness, Browse, Mihrab) are heavier and ride
           the lazy non-persistent route path below. */}
-      <PersistentTabs active={activeTab} />
+      <PersistentTabs active={activeTab} mode={mode} />
       {/* Non-tab routes (sub-pages, settings details, games, etc.) */}
       <Suspense fallback={activeTab ? null : <PageSkeleton />}>
         {/* NavModeContext flows the current direction down to every
