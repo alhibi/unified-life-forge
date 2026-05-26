@@ -8,37 +8,20 @@ import {
 import { useNavigate, useLocation } from 'react-router-dom';
 
 /**
- * TideBar
- * ──────────────────────────────────────────────────────────────────────────
- * A bottom navigation bar with no chips, pills, or backgrounds.
- * Instead, an SVG wave rises beneath the active icon, the way water is
- * pulled up by gravity. Wave fill, crest glow, top hairline, active icon
- * and label all share the active tab's accent color, so the bar feels
- * alive and breathing rather than mechanical.
- *
- * Floating + theme-aware:
- *   • Surface uses hsl(var(--card)) + backdrop-blur so the bar adapts
- *     to light / dark / MD3 themes instead of being hard-coded dark.
- *   • Sits ~10px above the screen bottom (above safe-area inset) with
- *     a soft two-layer shadow → feels like it's hovering, not glued.
- *   • Inactive icons use the app's `--muted-foreground` token so they
- *     read correctly in every theme.
- *   • Easing tokens (--ease-spring, --ease-out-expo) are reused so the
- *     bar's physics match the rest of the app.
- *
- * Touch interactions:
- *   • TAP a tab → navigate (button onClick).
- *   • DRAG horizontally on the bar → the wave follows the finger and
- *     the icon under the finger lifts in real time. Release to commit
- *     the destination, even if the finger crossed multiple tabs. CSS
- *     transitions are switched off during the drag so the wave moves
- *     at exactly finger-speed; on release the spring eases re-engage.
- *   • `touch-action: pan-y` on the surface so vertical page scroll
- *     still passes through when the gesture starts on the bar.
- *
- * Routing logic (where the bar appears, which tab is active, navigation,
- * unread chat badge, RTL visual ordering) is preserved 1:1 with the
- * previous BottomNav implementation.
+ * BottomNav — native-feel tab bar
+ * ─────────────────────────────────────────────────────────────────────
+ * Design principles:
+ *   • Full-width, flush to the screen bottom — no floating, no margin.
+ *     Sits right at the bottom edge like iOS Tab Bar / Android Nav Bar.
+ *   • Clean translucent surface: backdrop-blur + a very subtle top
+ *     border separator, no rounded corners, no drop shadow.
+ *   • Active tab: icon scales up + color accent + label appears below.
+ *   • Inactive tabs: muted icon, no label.
+ *   • Indicator dot above active icon for a modern polished feel.
+ *   • Smooth spring transitions on activation — icon lifts, label fades in.
+ *   • Haptic feedback on drag across tabs (Android Vibration API).
+ *   • Touch drag: swipe left/right on the bar to switch tabs.
+ *   • RTL-aware layout.
  */
 
 type Tab = {
@@ -46,23 +29,9 @@ type Tab = {
   path: string;
   icon: typeof House;
   labelKey: string;
-  /** Curated per-tab accent color — drives wave, crest, hairline, label. */
   color: string;
 };
 
-// Visual order, left → right. The previous (7-tab) layout has been
-// retired in favour of 6 hub destinations that mirror the user's
-// mental modes (now / play / talk / body / discover / reflect):
-//   • settings, duas, diwan are no longer top-level tabs:
-//       – Settings is now reached via the avatar shortcut on Home.
-//       – Duas content lives under /mihrab → Dhikr.
-//       – Diwan content lives under /mihrab → Literature.
-//   • New tabs: `mihrab` (gold) consolidates Quran/Dhikr/Sunnah/
-//     Literature; `browse` (violet) consolidates Podcasts + Articles.
-//
-// Right-most slot is the most prominent in RTL (the user's eye lands
-// there first), so we put `mihrab` at the right and keep `home`
-// near the centre as the anchor.
 const tabs: Tab[] = [
   { key: 'games',    path: '/games',    icon: Dices,         labelKey: 'nav.games',    color: '#fb923c' },
   { key: 'chat',     path: '/chat',     icon: MessageCircle, labelKey: 'nav.chat',     color: '#7dd3fc' },
@@ -72,44 +41,26 @@ const tabs: Tab[] = [
   { key: 'mihrab',   path: '/mihrab',   icon: BookOpen,      labelKey: 'nav.mihrab',   color: '#fcd34d' },
 ];
 
-// Show the bar only on these top-level destinations (same gate as before).
 const TAB_PATHS = new Set<string>(tabs.map(t => t.path));
-
-const SPRING   = 'var(--ease-spring, cubic-bezier(0.34, 1.56, 0.64, 1))';
-const OUT_EXPO = 'var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1))';
-
-// Pointer must move past this distance for us to treat the gesture as
-// a swipe instead of a tap. Below the threshold, the inner button's
-// onClick handles navigation cleanly.
-const TAP_SLOP = 4;
-
+const TAP_SLOP = 6;
 
 type DragState = {
-  /** Where the gesture started, relative to the bar's left edge (CSS px). */
   startX: number;
-  /** Latest finger X relative to the bar's left edge. */
   x: number;
-  /** Tab slot under the finger (clamped 0..totalTabs-1). */
   index: number;
-  /** True once the finger has moved past TAP_SLOP. */
   moved: boolean;
 };
 
-export default function TideBar() {
+export default function BottomNav() {
   const { t } = useApp();
   const navigate = useNavigate();
   const location = useLocation();
-  // True while the user is inside an active 1:1 conversation (the legacy
-  // surface that lives at the same `/chat` URL as the conversation list).
-  // We hide the bar in that case so the chat composer can sit flush at the
-  // bottom safe-area, matching WhatsApp / Telegram / Signal chrome.
   const inChatConversation = useInChatConversation();
   const { unreadCount } = useUnreadMessages();
 
-  // ── Live container width ──────────────────────────────────────────────
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [containerWidth, setContainerWidth] = useState<number>(() =>
-    typeof window !== 'undefined' ? window.innerWidth : 360,
+    typeof window !== 'undefined' ? window.innerWidth : 390,
   );
 
   useEffect(() => {
@@ -122,7 +73,6 @@ export default function TideBar() {
     return () => ro.disconnect();
   }, []);
 
-  // ── Active tab resolution (unchanged from previous behavior) ──────────
   const isActive = useCallback(
     (path: string) =>
       path === '/' ? location.pathname === '/' : location.pathname.startsWith(path),
@@ -132,9 +82,6 @@ export default function TideBar() {
   const activeIndex = tabs.findIndex(tab => isActive(tab.path));
   const safeActiveIndex = activeIndex < 0 ? tabs.findIndex(t => t.key === 'home') : activeIndex;
 
-  // ── Swipe-to-switch state ─────────────────────────────────────────────
-  // dragRef mirrors `drag` so high-frequency pointer handlers can read
-  // the latest value without recreating the callback on every move.
   const [drag, setDrag] = useState<DragState | null>(null);
   const dragRef = useRef<DragState | null>(null);
 
@@ -146,7 +93,6 @@ export default function TideBar() {
   const totalTabs = tabs.length;
   const itemWidth = containerWidth / totalTabs;
 
-
   const computeIndexFromX = useCallback(
     (x: number) => {
       if (containerWidth <= 0 || totalTabs === 0) return 0;
@@ -156,28 +102,15 @@ export default function TideBar() {
     [containerWidth, itemWidth, totalTabs],
   );
 
-  // ── Pointer handlers ──────────────────────────────────────────────────
   const onPointerDown = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {
-      // Right/middle mouse-click should not start a drag.
       if (e.pointerType === 'mouse' && e.button !== 0) return;
       const surface = containerRef.current;
       if (!surface) return;
       const rect = surface.getBoundingClientRect();
       const x = e.clientX - rect.left;
-      setDragState({
-        startX: x,
-        x,
-        index: computeIndexFromX(x),
-        moved: false,
-      });
-      // Capture so we keep getting move/up events even if the finger
-      // leaves the bar (e.g., overshoots the right edge mid-drag).
-      try {
-        surface.setPointerCapture(e.pointerId);
-      } catch {
-        /* iOS Safari may throw on edge cases — gesture still works. */
-      }
+      setDragState({ startX: x, x, index: computeIndexFromX(x), moved: false });
+      try { surface.setPointerCapture(e.pointerId); } catch { /* noop */ }
     },
     [computeIndexFromX, setDragState],
   );
@@ -191,11 +124,8 @@ export default function TideBar() {
       const rect = surface.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const newIndex = computeIndexFromX(x);
-      // Tiny haptic when the finger crosses into a new tab slot — gives
-      // the gesture physical "click" feedback on Android. Silently
-      // ignored on iOS Safari (no Vibration API).
       if (newIndex !== prev.index) {
-        try { navigator.vibrate?.(3); } catch { /* noop */ }
+        try { navigator.vibrate?.(4); } catch { /* noop */ }
       }
       setDragState({
         ...prev,
@@ -213,15 +143,10 @@ export default function TideBar() {
       if (!prev) return;
       const surface = containerRef.current;
       if (surface && pointerId !== undefined) {
-        try {
-          surface.releasePointerCapture(pointerId);
-        } catch { /* noop */ }
+        try { surface.releasePointerCapture(pointerId); } catch { /* noop */ }
       }
       setDragState(null);
       if (commit && prev.moved) {
-        // Only navigate via the drag path when the user actually moved.
-        // For pure taps (moved=false), let the inner button's onClick
-        // handle navigation so we don't fight its press feedback.
         const target = tabs[prev.index];
         if (target && location.pathname !== target.path) {
           navigate(target.path);
@@ -231,144 +156,160 @@ export default function TideBar() {
     [navigate, location.pathname, setDragState],
   );
 
-  const onPointerUp = useCallback(
-    (e: React.PointerEvent<HTMLDivElement>) => endDrag(true, e.pointerId),
-    [endDrag],
-  );
-  const onPointerCancel = useCallback(
-    (e: React.PointerEvent<HTMLDivElement>) => endDrag(false, e.pointerId),
-    [endDrag],
-  );
+  const onPointerUp     = useCallback((e: React.PointerEvent<HTMLDivElement>) => endDrag(true,  e.pointerId), [endDrag]);
+  const onPointerCancel = useCallback((e: React.PointerEvent<HTMLDivElement>) => endDrag(false, e.pointerId), [endDrag]);
 
-  // ── Visual layer: drag preview overrides location-based active ────────
-  const dragging = drag !== null;
+  const dragging    = drag !== null;
   const visualIndex = drag ? drag.index : safeActiveIndex;
 
-  // Visibility gate (preserved): only show on top-level destinations.
-  // Additionally hide while inside an active 1:1 conversation so the
-  // composer can use the full bottom safe-area (popular-messenger UX).
   if (!TAB_PATHS.has(location.pathname) || inChatConversation) return null;
 
   return (
     <nav
       data-bottom-nav
       data-tide-bar
-      className="bottom-nav fixed bottom-0 left-0 right-0 z-50 pointer-events-none"
+      className="bottom-nav"
       style={{
-        // Lift the floating bar above the safe-area inset, then add a
-        // small breathing gap. Padding (not margin) so the safe-area
-        // grows the wrapper rather than pushing the bar off-screen.
-        paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 10px)',
-        paddingInline: '12px',
+        position: 'fixed',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        zIndex: 50,
+        /* Full-width flush bar — no floating, no rounded corners */
+        paddingBottom: 'env(safe-area-inset-bottom, 0px)',
         willChange: 'transform',
         transform: 'translateZ(0)',
       }}
     >
+      {/* Top separator line — clean edge between content and nav */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 1,
+          background: 'hsl(var(--border) / 0.5)',
+          zIndex: 1,
+        }}
+      />
+
       <div
         ref={containerRef}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
         onPointerCancel={onPointerCancel}
-        className="tide-bar-surface relative w-full pointer-events-auto"
         style={{
-          height: 68,
-          // Theme-aware translucent surface. We layer a tiny tonal
-          // overlay so the wave gradient still has contrast even on
-          // light themes (where --card is near-white).
-          background:
-            'linear-gradient(hsl(var(--foreground) / 0.04), hsl(var(--foreground) / 0.04)), hsl(var(--card) / 0.82)',
-          WebkitBackdropFilter: 'blur(18px) saturate(160%)',
-          backdropFilter: 'blur(18px) saturate(160%)',
-          borderRadius: 22,
-          border: '1px solid hsl(var(--border) / 0.6)',
-          // Soft two-layer elevation — present, never shouting.
-          boxShadow:
-            '0 8px 24px -12px hsl(var(--foreground) / 0.18), 0 2px 6px -2px hsl(var(--foreground) / 0.08)',
-          overflow: 'hidden',
-          // Allow native vertical page-scroll to pass through when the
-          // gesture starts on the bar; capture horizontal moves for
-          // our swipe-to-switch logic.
+          display: 'flex',
+          alignItems: 'stretch',
+          height: 62,
+          background: 'hsl(var(--card) / 0.92)',
+          WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+          backdropFilter: 'blur(24px) saturate(180%)',
           touchAction: 'pan-y',
           cursor: dragging ? 'grabbing' : undefined,
+          position: 'relative',
         }}
       >
-        {/* ── Icons (absolutely positioned, NOT a flex row) ────────── */}
         {tabs.map((tab, i) => {
-          // visuallyActive drives the lift / color so the user sees the
-          // preview while dragging. routeActive drives ARIA so screen
-          // readers report the real current page.
           const visuallyActive = i === visualIndex;
           const routeActive    = i === safeActiveIndex;
           const Icon = tab.icon;
           const showBadge = tab.key === 'chat' && unreadCount > 0;
-          const slotPercent = ((i + 0.5) / totalTabs) * 100;
 
           return (
             <button
               key={tab.key}
               type="button"
               onClick={() => {
-                // If the user just released a drag, our pointer-up
-                // handler has already navigated; calling navigate again
-                // with the same path is a no-op so this stays safe.
                 if (location.pathname !== tab.path) navigate(tab.path);
               }}
               aria-label={t(tab.labelKey)}
               aria-current={routeActive ? 'page' : undefined}
-              className="absolute top-0 bottom-0 flex flex-col items-center justify-center"
               style={{
-                left: `calc(${slotPercent}% - 24px)`,
-                width: 48,
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 0,
                 background: 'transparent',
                 border: 'none',
-                padding: 0,
+                padding: '8px 0 6px',
                 cursor: 'pointer',
-                zIndex: 4,
-                // Inherit the parent's gesture policy so a drag that
-                // starts on top of an icon still bubbles cleanly.
+                position: 'relative',
                 touchAction: 'pan-y',
+                minWidth: 0,
               }}
             >
-              {/* Icon — lifted up out of the wave when active */}
+              {/* Active indicator dot — top of icon slot */}
+              <span
+                style={{
+                  position: 'absolute',
+                  top: 6,
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  width: visuallyActive ? 20 : 4,
+                  height: 3,
+                  borderRadius: 999,
+                  background: visuallyActive ? tab.color : 'transparent',
+                  transition: dragging
+                    ? 'none'
+                    : 'width 0.35s cubic-bezier(0.34,1.56,0.64,1), background 0.25s ease',
+                }}
+              />
+
+              {/* Icon container */}
               <div
                 className="relative flex items-center justify-center"
                 style={{
-                  transform: visuallyActive
-                    ? 'translateY(-10px) scale(1.08)'
-                    : 'translateY(0) scale(1)',
-                  opacity: visuallyActive ? 1 : 0.45,
-                  // During a drag, snap instantly as the finger crosses
-                  // tab boundaries so the lift mirrors the wave; ease
-                  // back into spring physics once the gesture ends.
+                  marginTop: 8,
+                  width: 44,
+                  height: 32,
+                  borderRadius: 10,
+                  background: visuallyActive
+                    ? `${tab.color}18`
+                    : 'transparent',
+                  transform: visuallyActive ? 'scale(1.05)' : 'scale(1)',
                   transition: dragging
                     ? 'none'
-                    : `transform 0.45s ${SPRING}, opacity 0.35s ${OUT_EXPO}`,
+                    : [
+                        'transform 0.38s cubic-bezier(0.34,1.56,0.64,1)',
+                        'background 0.3s ease',
+                      ].join(', '),
                 }}
               >
                 <Icon
-                  size={22}
-                  strokeWidth={visuallyActive ? 2.2 : 1.8}
+                  size={21}
+                  strokeWidth={visuallyActive ? 2.25 : 1.75}
                   style={{
                     color: visuallyActive
                       ? tab.color
-                      : 'hsl(var(--muted-foreground))',
-                    transition: dragging ? 'none' : 'color 0.4s ease',
+                      : 'hsl(var(--muted-foreground) / 0.7)',
+                    transition: dragging ? 'none' : 'color 0.3s ease, stroke-width 0.3s ease',
                   }}
                 />
 
                 {showBadge && (
                   <span
                     aria-label={`${unreadCount} ${t('nav.chat')}`}
-                    className="absolute -top-1.5 -right-2 flex items-center justify-center font-bold leading-none"
                     style={{
+                      position: 'absolute',
+                      top: -4,
+                      right: -2,
                       minWidth: 16,
                       height: 16,
                       padding: '0 4px',
                       borderRadius: 999,
-                      fontSize: 9.5,
+                      fontSize: 9,
+                      fontWeight: 700,
+                      lineHeight: '16px',
                       background: '#ef4444',
                       color: '#ffffff',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
                     }}
                   >
                     {unreadCount > 99 ? '99+' : unreadCount}
@@ -376,24 +317,27 @@ export default function TideBar() {
                 )}
               </div>
 
-              {/* Label — only visible for the previewed/active tab */}
+              {/* Label */}
               <span
                 aria-hidden={!visuallyActive}
-                className="absolute"
                 style={{
-                  bottom: 8,
-                  fontSize: '8.5px',
-                  fontWeight: 800,
+                  marginTop: 3,
+                  fontSize: '9.5px',
+                  fontWeight: 600,
+                  letterSpacing: 0,
                   direction: 'rtl',
                   color: tab.color,
                   opacity: visuallyActive ? 1 : 0,
-                  transform: visuallyActive ? 'translateY(0)' : 'translateY(4px)',
+                  transform: visuallyActive ? 'translateY(0) scale(1)' : 'translateY(3px) scale(0.9)',
                   transition: dragging
                     ? 'none'
-                    : 'opacity 0.3s ease, transform 0.3s ease',
+                    : [
+                        'opacity 0.28s cubic-bezier(0.16,1,0.3,1)',
+                        'transform 0.32s cubic-bezier(0.34,1.56,0.64,1)',
+                      ].join(', '),
                   pointerEvents: 'none',
                   whiteSpace: 'nowrap',
-                  letterSpacing: 0,
+                  lineHeight: 1,
                 }}
               >
                 {t(tab.labelKey)}

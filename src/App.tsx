@@ -254,7 +254,7 @@ function AnimatedRoutes() {
     ? (location.pathname as TabPath)
     : null;
   return (
-    <main id="main-content">
+    <main id="main-content" style={{ paddingBottom: 'calc(62px + env(safe-area-inset-bottom, 0px))' }}>
       <ScrollToTop />
       {/* Persistent layer — three small hot tabs (Home, Games, Chat)
           mounted once and toggled by display. The other bottom-nav
