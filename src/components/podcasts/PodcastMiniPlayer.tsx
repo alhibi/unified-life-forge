@@ -6,6 +6,17 @@
 // trailing edge). Lives just above the bottom navigation; tapping it
 // expands the full `PlayerSheet`.
 //
+// Visual design:
+//   • Frosted-glass surface tinted by the active podcast's seed color.
+//   • A subtle breathing shadow halo hints that audio is alive without
+//     fighting page content for attention.
+//   • Square artwork (instead of a circle) so the cover art reads at
+//     a glance — modern podcast apps moved away from circular avatars
+//     for the same reason; LP/CD covers were never round.
+//   • A small animated equalizer overlay sits over the artwork
+//     whenever audio is actively playing, replacing the previously-
+//     static play indicator.
+//
 // We render this only when there's a current track AND the player
 // sheet isn't already open — same gating logic Podium uses.
 
@@ -31,12 +42,16 @@ function MiniProgressBar() {
     ? Math.min(100, Math.max(0, (position / duration) * 100))
     : 0;
   return (
-    <div className="mt-1 h-1 rounded-full bg-foreground/10 overflow-hidden">
+    <div className="mt-1 h-[3px] rounded-full bg-foreground/10 overflow-hidden">
       <div
-        className="h-full transition-[width] duration-200"
+        className="h-full rounded-full transition-[width] duration-200"
         style={{
           width: `${pct}%`,
           background: 'var(--podcast-primary, hsl(var(--primary)))',
+          // A faint glow at the head of the fill makes the bar read as
+          // luminous rather than flat — matches the player sheet's
+          // gradient seek bar.
+          boxShadow: '0 0 6px var(--podcast-primary-soft, transparent)',
         }}
       />
     </div>
@@ -50,6 +65,7 @@ const PodcastMiniPlayer = memo(function PodcastMiniPlayer() {
   const visible = !!player.current && !sheetOpen;
 
   const Icon = player.isLoading ? Loader2 : player.isPlaying ? Pause : Play;
+  const isActive = player.isPlaying && !player.isLoading;
 
   // Use the episode-specific cover when the feed provides one,
   // falling back to the podcast's channel cover. Matches the same
@@ -70,7 +86,7 @@ const PodcastMiniPlayer = memo(function PodcastMiniPlayer() {
             transition={{ type: 'spring', stiffness: 360, damping: 32 }}
             className="fixed left-2 right-2 z-40 pointer-events-none"
             // Position above the bottom nav (which is roughly 64px tall
-            // with insets). We use bottom: env(safe-area...) + 72 so the
+            // with insets). We use bottom: env(safe-area...) + 76 so the
             // bar nudges up to clear iOS home-indicator + nav.
             style={{
               bottom: 'calc(env(safe-area-inset-bottom, 0px) + 76px)',
@@ -79,52 +95,85 @@ const PodcastMiniPlayer = memo(function PodcastMiniPlayer() {
             <button
               type="button"
               onClick={() => setSheetOpen(true)}
-              className="pointer-events-auto w-full max-w-md mx-auto flex items-center gap-3 ps-2 pe-3 rounded-full border shadow-lg overflow-hidden"
+              className="podcast-mini-glow pointer-events-auto w-full max-w-md mx-auto flex items-center gap-3 ps-2 pe-3 rounded-full overflow-hidden border"
+              data-playing={isActive ? 'true' : 'false'}
               style={{
                 height: MINI_PLAYER_HEIGHT,
-                // Theme tint: the mini-player uses the active podcast's
-                // seed color when one is available, otherwise falls
-                // back to the app's surface tokens.
-                background: 'var(--podcast-primary-subtle, hsl(var(--card)))',
-                borderColor: 'var(--podcast-primary, hsl(var(--border)))',
+                // Frosted-glass card, tinted by the seed color via the
+                // `--podcast-primary-subtle` token. We layer the tint
+                // OVER the card token so the surface stays readable
+                // even when the seed is very saturated.
+                background: `linear-gradient(135deg,
+                  var(--podcast-primary-subtle, transparent) 0%,
+                  hsl(var(--card)) 100%)`,
+                borderColor: 'hsl(var(--border) / 0.6)',
                 color: 'hsl(var(--foreground))',
-                backdropFilter: 'blur(20px)',
-                WebkitBackdropFilter: 'blur(20px)',
+                backdropFilter: 'blur(20px) saturate(1.4)',
+                WebkitBackdropFilter: 'blur(20px) saturate(1.4)',
               }}
             >
-              {/* Artwork — episode-specific if the feed shipped one,
-                  otherwise the podcast cover. */}
-              <img
-                src={artwork}
-                alt=""
-                className="w-12 h-12 rounded-full object-cover bg-muted/40 shrink-0"
-              />
+              {/* Square artwork with rounded corners — modern podcast-
+                  app convention (LP covers were never circular) and
+                  reads more legibly at small sizes than a circular
+                  thumbnail. The equalizer overlay paints over the
+                  artwork while audio is playing. */}
+              <span className="relative w-12 h-12 rounded-2xl overflow-hidden bg-muted/40 shrink-0">
+                <img
+                  src={artwork}
+                  alt=""
+                  className="w-full h-full object-cover"
+                />
+                <span className="absolute inset-0 rounded-2xl pointer-events-none"
+                      style={{ boxShadow: 'inset 0 0 0 1px hsl(var(--foreground) / 0.06)' }} />
+                {/* Eq overlay; passing `playing` keeps the static
+                    artwork visible whenever playback is paused. */}
+                <span
+                  className="absolute inset-0 flex items-center justify-center pointer-events-none rounded-2xl"
+                  style={{
+                    background: isActive ? 'rgba(0, 0, 0, 0.35)' : 'transparent',
+                    opacity: isActive ? 1 : 0,
+                    transition: 'opacity 200ms ease',
+                  }}
+                  aria-hidden="true"
+                >
+                  <span className="podcast-eq" data-playing="true" style={{ height: 12 }}>
+                    <span style={{ background: '#fff' }} />
+                    <span style={{ background: '#fff' }} />
+                    <span style={{ background: '#fff' }} />
+                  </span>
+                </span>
+              </span>
 
               {/* Title / subtitle / progress */}
               <div className="flex-1 min-w-0 text-start">
                 <p className="text-[13px] font-bold leading-tight truncate">
                   {player.current?.episode.title}
                 </p>
-                <p className="text-[11px] opacity-80 leading-tight truncate">
+                <p className="text-[11px] opacity-75 leading-tight truncate">
                   {player.current?.podcastTitle}
                 </p>
                 <MiniProgressBar />
               </div>
 
-              {/* Play / Pause toggle */}
+              {/* Play / Pause toggle — keeps the radial gradient look
+                  used on the full sheet so the two surfaces feel like
+                  one consistent player. */}
               <span
                 onClick={(e) => { e.stopPropagation(); player.toggle(); }}
                 className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 active:scale-95 transition-transform"
                 style={{
-                  background: 'var(--podcast-primary, hsl(var(--primary)))',
+                  background: `radial-gradient(circle at 30% 30%,
+                    var(--podcast-primary, hsl(var(--primary))) 0%,
+                    color-mix(in srgb, var(--podcast-primary, hsl(var(--primary))) 80%, #000 20%) 100%)`,
                   color: 'var(--podcast-primary-fg, hsl(var(--primary-foreground)))',
+                  boxShadow: '0 4px 12px -2px var(--podcast-primary-soft, rgba(0,0,0,0.25))',
                 }}
                 role="button"
                 aria-label={player.isPlaying ? 'Pause' : 'Play'}
               >
                 <Icon
                   className={`w-4 h-4 ${player.isLoading ? 'animate-spin' : ''}`}
-                  fill={player.isPlaying && !player.isLoading ? 'currentColor' : 'none'}
+                  fill={isActive ? 'currentColor' : 'none'}
                 />
               </span>
             </button>
