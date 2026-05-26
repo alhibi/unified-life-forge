@@ -92,7 +92,7 @@ interface VirtualMessageListProps {
    */
   renderRow: (msg: Message, index: number) => ReactNode;
   /** Imperative handle so callers can scroll-to-id / scroll-to-bottom. */
-  handleRef?: React.RefObject<VirtualMessageListHandle | null>;
+  handleRef?: React.MutableRefObject<VirtualMessageListHandle | null>;
   /** Override the activation threshold. Useful for tests. */
   threshold?: number;
 }
