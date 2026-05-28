@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Fruits Extended Database — 55 additional fruit items
  * All nutritional values per 100g

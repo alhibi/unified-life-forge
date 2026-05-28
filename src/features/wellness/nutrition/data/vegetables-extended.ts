@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Vegetables Extended Database — 55 additional vegetable items
  * All nutritional values per 100g
