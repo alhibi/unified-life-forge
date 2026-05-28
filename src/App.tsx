@@ -372,10 +372,8 @@ function AnimatedRoutes() {
         paddingBottom: navVisible
           ? `calc(${BOTTOM_NAV_HEIGHT}px + env(safe-area-inset-bottom, 0px))`
           : 0,
-        // popLayout takes the exiting page out of normal flow; the
-        // entering and exiting pages must share the same coordinate
-        // system, so the wrapper is positioned and stacks them.
-        position: 'relative',
+        // Minimum height ensures content fills viewport even on short pages
+        minHeight: '100dvh',
       }}
     >
       <ScrollToTop />

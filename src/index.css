@@ -530,15 +530,15 @@ ol.cv > li {
 }
 
 /* ── Document-level GPU promotion ─────────────────────────────
-   Declarative twin of bootMotion.ts — applied even if JS init
-   is delayed. translate3d(0,0,0) is the canonical hint that
-   forces a compositor surface on Safari/iOS, where transform:
-   translateZ(0) alone can be ignored under specific layout
-   contexts. backface-visibility: hidden eliminates sub-pixel
-   re-rasterization during the slide. */
+   NOTE: We intentionally do NOT apply transform to <html> or <body>
+   because any transform on an ancestor of a position:fixed element
+   breaks its viewport-relative positioning (fixed elements become
+   relative to the transformed ancestor instead of the viewport).
+   This was causing the BottomNav to scroll with content instead of
+   staying pinned at the bottom.
+   GPU promotion is instead applied only to #main-content and
+   specific animation surfaces via will-change and contain. */
 html, body {
-  -webkit-transform: translate3d(0, 0, 0);
-  transform: translate3d(0, 0, 0);
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
 }
@@ -625,13 +625,15 @@ main#main-content {
      `hidden`, which is acceptable but does still scroll-restore. */
   overflow-x: clip;
   overflow-clip-margin: 0;
-  /* GPU layer (also set by bootMotion at runtime — declarative
-     fallback in case bootMotion is delayed or skipped). */
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  /* Pin layout + paint inside the route container so an outgoing
-     page exiting at parallax doesn't repaint the whole tree. */
-  contain: layout paint;
+  /* Pin paint inside the route container so an outgoing
+     page exiting at parallax doesn't repaint the whole tree.
+     NOTE: we use `contain: paint` only (not `layout paint`)
+     to avoid creating a containing block that breaks fixed
+     positioning of elements that may be inside. */
+  contain: paint;
+  /* Ensure content fills at minimum the viewport minus the
+     bottom nav, so page content always fills the screen. */
+  min-height: 100dvh;
 }
 
 /* ── Strict native-feel motion lockdown ────────────────────────
@@ -646,10 +648,9 @@ main#main-content {
       cache-friendly on iOS Safari. */
 main#main-content > div {
   /* PageTransition emits a motion.div as the only direct child of
-     <main>. Reinforce GPU promotion declaratively in case inline
-     styles are stripped by an extension or HTML sanitizer. */
-  -webkit-transform: translateZ(0);
-  transform: translateZ(0);
+     <main>. GPU promotion via will-change (avoids creating a
+     containing block unlike transform: translateZ(0)). */
+  will-change: transform, opacity;
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
 }
@@ -666,14 +667,11 @@ main#main-content > div {
 }
 
 /*  3. iOS Safari: hint the rendering engine to keep the
-       compositor on a 120 Hz cadence by opening a tiny perspective
-       on the route ancestor. This is a no-op on engines without
-       a high-refresh display path; on ProMotion devices it stops
-       the engine from clamping animations to 60 Hz. */
-main#main-content {
-  perspective: 1px;
-  -webkit-perspective: 1px;
-}
+       compositor on a 120 Hz cadence. The perspective property
+       on main is removed because it creates a containing block
+       that can interfere with fixed positioning of children.
+       Instead, individual page surfaces handle their own 3D
+       context via PageTransition inline styles. */
 
 /*  4. Tab layer (PersistentTabs) — promote to its own surface so
        its slide-off doesn't repaint the route container. */
@@ -700,15 +698,13 @@ main#main-content [data-tab-layer="true"] {
    unpredictably.  The `env()` padding is declared here in CSS as
    a fallback; the component also sets it inline for SSR/JSX paths. */
 nav.bottom-nav {
-  /* Guarantee the nav is below every page layer but above content. */
-  z-index: 50;
+  /* Guarantee the nav is above every page layer. */
+  z-index: 9999;
   /* Safe-area: fills the iPhone home-indicator region with the same
      background as the nav, so there's no bleed of page content. */
   padding-bottom: env(safe-area-inset-bottom, 0px);
-  /* GPU layer — eliminates iOS Safari repaint on scroll. */
-  -webkit-transform: translateZ(0);
-  transform: translateZ(0);
-  will-change: transform;
+  /* Isolate stacking context so no ancestor transform can capture it */
+  isolation: isolate;
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
 }
