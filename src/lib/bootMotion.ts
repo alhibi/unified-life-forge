@@ -70,41 +70,43 @@ export function bootMotion(): void {
     mq.addEventListener('change', (e) => apply(e.matches));
   }
 
-  // ── 2. Promote <html> + <body> + <main> to GPU layers ──
-  // We push three different elements onto their own compositor surfaces:
+  // ── 2. Promote <main> to its own GPU layer ──
   //
-  //   • <html>  — root paint container; isolates the rest of the
-  //               document so theme transitions / scroll / sticky
-  //               headers don't cause whole-tree repaints.
-  //   • <body>  — covers any direct-children that aren't promoted
-  //               themselves (legacy DOM trees from third-party SDKs).
-  //   • <main>  — the route container. Page transitions live inside
-  //               <main>, and promoting it ensures the slide always
-  //               composites against a stable surface even if a slow
-  //               sub-page paints late (no flash of un-composited
-  //               background).
+  // IMPORTANT: We intentionally do NOT apply transform to <html> or
+  // <body>. Setting transform (even translateZ(0)) on either root
+  // element creates a new containing block for position:fixed children.
+  // This means every position:fixed element in the app (BottomNav,
+  // modals, toasts, PodcastMiniPlayer) would be fixed relative to the
+  // scrolling <body> instead of the viewport — causing them to scroll
+  // off-screen with the page content. That was the root cause of the
+  // BottomNav "disappears until you scroll to the bottom" bug.
   //
-  // Done via inline style (not CSS) so it's resilient to stylesheet
-  // ordering / theme overrides that touch these elements.
+  // Only <main id="main-content"> gets GPU promotion because:
+  //   • It is the route container — page transitions animate inside it.
+  //   • It does NOT contain position:fixed children (BottomNav et al.
+  //     are siblings rendered outside <main> by App.tsx).
+  //   • Promoting it keeps slide transitions on the compositor thread
+  //     without breaking any fixed-position chrome.
+  //
+  // <html> and <body> only get text-size-adjust and backface hints
+  // (no transform) — these do not create a new fixed-pos containing
+  // block, so fixed children keep their viewport anchor.
   const html = document.documentElement;
   if (html) {
-    html.style.transform = html.style.transform || 'translateZ(0)';
-    html.style.backfaceVisibility = 'hidden';
-    // -webkit-text-size-adjust prevents iOS from re-laying-out text
-    // when the layer is recomposited under a transform — without
-    // this, a sub-pixel font reflow can race with the slide and
-    // produce a one-frame jitter at the start of the animation.
+    // Prevent iOS from re-flowing text during a composited slide.
     (html.style as CSSStyleDeclaration & { webkitTextSizeAdjust?: string })
       .webkitTextSizeAdjust = '100%';
+    // backface-visibility:hidden alone does NOT create a new containing
+    // block for fixed-pos elements — safe to apply to html/body.
+    html.style.backfaceVisibility = 'hidden';
   }
   const body = document.body;
   if (body) {
-    body.style.transform = body.style.transform || 'translateZ(0)';
     body.style.backfaceVisibility = 'hidden';
   }
+
   // <main> may not exist on first paint if the React tree hasn't
-  // mounted yet. Promote it as soon as it shows up — IntersectionObserver
-  // would be overkill for a one-shot setup, so we use a tiny rAF retry
+  // mounted yet. Promote it as soon as it shows up — a tiny rAF retry
   // loop bounded to ~10 frames (~160 ms at 60 Hz, ~80 ms at 120 Hz).
   let attempts = 0;
   const promoteMain = () => {
@@ -112,9 +114,11 @@ export function bootMotion(): void {
     if (main) {
       main.style.transform = main.style.transform || 'translateZ(0)';
       main.style.backfaceVisibility = 'hidden';
-      // contain:layout-paint pins the surface so off-screen content
-      // during a slide doesn't repaint the whole route tree.
-      main.style.contain = main.style.contain || 'layout paint';
+      // contain:paint (not layout) — clips off-screen paint without
+      // creating a fixed-pos containing block. 'layout' was previously
+      // included here but it also acts as a containing block for fixed
+      // descendants inside <main>; dropping it is safer.
+      if (!main.style.contain) main.style.contain = 'paint';
       return;
     }
     if (++attempts < 10) requestAnimationFrame(promoteMain);

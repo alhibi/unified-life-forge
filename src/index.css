@@ -529,16 +529,20 @@ ol.cv > li {
   --motion-parallax: 0.35;
 }
 
-/* ── Document-level GPU promotion ─────────────────────────────
-   Declarative twin of bootMotion.ts — applied even if JS init
-   is delayed. translate3d(0,0,0) is the canonical hint that
-   forces a compositor surface on Safari/iOS, where transform:
-   translateZ(0) alone can be ignored under specific layout
-   contexts. backface-visibility: hidden eliminates sub-pixel
-   re-rasterization during the slide. */
+/* ── Document-level GPU hints ─────────────────────────────────
+   IMPORTANT: We deliberately do NOT apply transform to <html> or
+   <body>. Any CSS transform on a scroll ancestor (including the
+   root) creates a new containing block for position:fixed children
+   — this causes every fixed element (BottomNav, modals, toasts)
+   to scroll with the page instead of staying fixed to the viewport.
+   That was the root cause of the BottomNav "invisible until scroll"
+   bug.
+
+   backface-visibility:hidden is safe on html/body — it does NOT
+   create a new fixed-pos containing block. GPU promotion (translateZ)
+   is applied only to <main id="main-content"> which is the actual
+   animation root and contains no fixed-position children. */
 html, body {
-  -webkit-transform: translate3d(0, 0, 0);
-  transform: translate3d(0, 0, 0);
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
 }
@@ -607,57 +611,45 @@ a:active {
 }
 
 /* ── Page transition wrapper — performance hints ──────────────
-   PageTransition adds will-change inline. We only need to clip
-   the horizontal overflow on the route container so the off-screen
-   edge of the parallax doesn't paint a horizontal scrollbar during
-   the slide. We deliberately avoid `contain` here so sticky/fixed
-   children (like sub-page headers) keep working. */
+   <main id="main-content"> is the ONLY element that gets GPU
+   promotion (translateZ). It is the route container — page slides
+   animate inside it — and critically it has NO position:fixed
+   children (BottomNav/toasts/modals are siblings rendered outside
+   <main> by App.tsx). Promoting only <main> keeps transitions on
+   the compositor thread without breaking fixed chrome.
+
+   contain:paint (NOT layout) — clips off-screen paint during a
+   slide without creating a new fixed-pos containing block. The
+   previous 'layout paint' value also acted as a containing block
+   which would trap any fixed element inside <main>. */
 main#main-content {
-  /* Strict clip on BOTH axes' off-screen pixels:
-       • overflow-x: clip — primary defense; prevents the parallax
-         tail from painting outside the viewport during slide.
-       • overflow-clip-margin: 0 — pinches the clip to the box edge
-         so a sub-page that briefly translates 100% past the edge
-         does NOT trigger a horizontal scrollbar on Chromium even
-         for a single frame.
-     Both properties are widely supported (Safari ≥ 16, Chromium
-     ≥ 90). On older engines `overflow-x: clip` falls back to
-     `hidden`, which is acceptable but does still scroll-restore. */
+  /* Clip horizontal parallax tail — prevents a momentary horizontal
+     scrollbar when the outgoing page slides past the viewport edge.
+     overflow-x:clip does not trigger scroll restoration (unlike
+     overflow:hidden), so back/forward nav keeps its position. */
   overflow-x: clip;
   overflow-clip-margin: 0;
-  /* GPU layer (also set by bootMotion at runtime — declarative
-     fallback in case bootMotion is delayed or skipped). */
+  /* GPU layer — declarative fallback for bootMotion.ts. */
   transform: translateZ(0);
+  -webkit-transform: translateZ(0);
   backface-visibility: hidden;
-  /* Pin layout + paint inside the route container so an outgoing
-     page exiting at parallax doesn't repaint the whole tree. */
-  contain: layout paint;
+  -webkit-backface-visibility: hidden;
+  /* contain:paint only — clips paint without creating a fixed-pos
+     containing block (which 'layout' would have added). */
+  contain: paint;
 }
 
 /* ── Strict native-feel motion lockdown ────────────────────────
-   These rules guarantee that no stylesheet or third-party
-   component can introduce a non-GPU property animation on the
-   page surface. They are scoped narrowly so they don't fight
-   intentional content animations.
-
-   1. The route container and its direct flex/grid children must
-      composite via GPU. translate3d on the parent + GPU hints on
-      the immediate page wrapper keep the transition layer cold-
-      cache-friendly on iOS Safari. */
+   1. Direct children of the route container (PageTransition wrappers)
+      get GPU promotion so the slide composites cleanly. */
 main#main-content > div {
-  /* PageTransition emits a motion.div as the only direct child of
-     <main>. Reinforce GPU promotion declaratively in case inline
-     styles are stripped by an extension or HTML sanitizer. */
   -webkit-transform: translateZ(0);
   transform: translateZ(0);
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
 }
 
-/*  2. Suppress any legacy `transition: all` declarations that
-       sneak in from third-party CSS — they would force
-       non-GPU properties (width, top, etc.) to animate alongside
-       transform during a slide and produce visible jitter. */
+/*  2. Suppress legacy `transition: all` from third-party CSS. */
 @media (prefers-reduced-motion: no-preference) {
   main#main-content [data-page-surface] {
     transition: transform var(--motion-push, 300ms) var(--motion-ease-out-quad),
@@ -665,18 +657,7 @@ main#main-content > div {
   }
 }
 
-/*  3. iOS Safari: hint the rendering engine to keep the
-       compositor on a 120 Hz cadence by opening a tiny perspective
-       on the route ancestor. This is a no-op on engines without
-       a high-refresh display path; on ProMotion devices it stops
-       the engine from clamping animations to 60 Hz. */
-main#main-content {
-  perspective: 1px;
-  -webkit-perspective: 1px;
-}
-
-/*  4. Tab layer (PersistentTabs) — promote to its own surface so
-       its slide-off doesn't repaint the route container. */
+/*  3. Tab layer (PersistentTabs) — own compositor surface. */
 main#main-content [data-tab-layer="true"] {
   transform: translateZ(0);
   backface-visibility: hidden;
@@ -694,20 +675,19 @@ main#main-content [data-tab-layer="true"] {
   opacity: 0.85;
 }
 
-/* ── BottomNav — solid positioning layer ─────────────────────
-   Ensures the bar is always flush to the physical bottom of the
-   viewport (including safe-area), never floats or overlaps content
-   unpredictably.  The `env()` padding is declared here in CSS as
-   a fallback; the component also sets it inline for SSR/JSX paths. */
+/* ── BottomNav — fixed to viewport, never scrolls ────────────
+   The nav uses position:fixed (set inline in BottomNav.tsx).
+   We must NOT apply any CSS transform here — transform on a
+   fixed element creates its own stacking/compositing layer but
+   more importantly breaks sub-pixel rendering on some iOS
+   versions. will-change:transform is enough to get a compositor
+   layer without the fixed-pos side-effects.
+
+   Safe-area padding fills the iPhone home-indicator notch with
+   the same background so page content never bleeds through. */
 nav.bottom-nav {
-  /* Guarantee the nav is below every page layer but above content. */
   z-index: 50;
-  /* Safe-area: fills the iPhone home-indicator region with the same
-     background as the nav, so there's no bleed of page content. */
   padding-bottom: env(safe-area-inset-bottom, 0px);
-  /* GPU layer — eliminates iOS Safari repaint on scroll. */
-  -webkit-transform: translateZ(0);
-  transform: translateZ(0);
   will-change: transform;
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;

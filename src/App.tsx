@@ -31,7 +31,7 @@ import Index from "./pages/Index";
 // `loadWellness` / `loadMihrab` / `loadBrowse`.
 import GamesPage from "./pages/Games";
 import ChatPage from "./pages/Chat";
-import { BOTTOM_NAV_HEIGHT } from "@/components/BottomNav";
+import { BOTTOM_NAV_HEIGHT, BOTTOM_NAV_PATHS } from "@/components/BottomNav";
 
 function AutoPrayerThemeRunner() {
   useAutoPrayerTheme();
@@ -208,13 +208,6 @@ const PageSkeleton = () => (
   </div>
 );
 
-// All paths where BottomNav is visible — used to decide whether
-// <main> should reserve space at the bottom for the nav bar.
-// Must stay in sync with the `tabs` array in BottomNav.tsx.
-const ALL_NAV_PATHS = new Set([
-  '/', '/games', '/chat', '/wellness', '/weather', '/browse', '/mihrab',
-]);
-
 // Tab routes that stay mounted across navigation. Their components are
 // rendered once in <PersistentTabs/> and toggled with display:none — never
 // unmounted. This makes bottom-nav switching feel native and instant.
@@ -359,22 +352,18 @@ function AnimatedRoutes() {
   const activeTab = (TAB_PATHS as readonly string[]).includes(location.pathname)
     ? (location.pathname as TabPath)
     : null;
-  // Show bottom padding on ALL nav-tab routes (not just persistent tabs)
-  // so the BottomNav never overlaps page content.
-  const navVisible = ALL_NAV_PATHS.has(location.pathname);
+  // BottomNav renders on every path in BOTTOM_NAV_PATHS (the full
+  // tabs array). Reserve bottom padding whenever it's visible so
+  // content is never obscured by the bar. BOTTOM_NAV_PATHS is the
+  // single source of truth — derived from the tabs array in BottomNav.tsx.
+  const navVisible = BOTTOM_NAV_PATHS.has(location.pathname);
   return (
     <main
       id="main-content"
       style={{
-        // Reserve space for the bottom nav on all routes where it is
-        // visible. Sub-pages (non-nav routes) do NOT render BottomNav
-        // so they don't need the bottom padding.
         paddingBottom: navVisible
           ? `calc(${BOTTOM_NAV_HEIGHT}px + env(safe-area-inset-bottom, 0px))`
           : 0,
-        // popLayout takes the exiting page out of normal flow; the
-        // entering and exiting pages must share the same coordinate
-        // system, so the wrapper is positioned and stacks them.
         position: 'relative',
       }}
     >

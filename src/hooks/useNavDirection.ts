@@ -41,6 +41,7 @@ const TAB_PATHS: ReadonlyArray<string> = [
   '/games',
   '/chat',
   '/wellness',
+  '/weather',
   '/browse',
   '/mihrab',
 ];

@@ -64,6 +64,10 @@ type DragState = {
 /** Height of the nav bar content row (excluding safe-area padding). */
 export const BOTTOM_NAV_HEIGHT = 62;
 
+/** All paths where BottomNav renders — exported so App.tsx can reserve
+ *  the correct paddingBottom without duplicating the list. */
+export const BOTTOM_NAV_PATHS = new Set(tabs.map(t => t.path));
+
 export default function BottomNav() {
   const { t, dir } = useApp();
   const navigate = useNavigate();
@@ -197,10 +201,12 @@ export default function BottomNav() {
         left: 0,
         right: 0,
         zIndex: 50,
-        /* Full-width flush bar — no floating, no rounded corners */
+        /* Safe-area fills the home-indicator notch with the bar bg.
+           No transform here — any transform on a fixed element can
+           break sub-pixel rendering on iOS Safari. will-change is
+           enough to get a compositor layer. */
         paddingBottom: 'env(safe-area-inset-bottom, 0px)',
         willChange: 'transform',
-        transform: 'translateZ(0)',
       }}
     >
       {/* Top separator line — clean edge between content and nav */}
