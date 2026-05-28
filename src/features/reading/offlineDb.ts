@@ -402,29 +402,16 @@ export const offlineDb = {
   },
 
   /**
-   * Clear stale data older than `maxAgeMs`.
-   * Articles in `keepLinks` are preserved regardless of age.
-   * Uses batch delete for performance.
+   * DEPRECATED: Articles are now stored permanently and never auto-deleted.
+   * This method is kept for API compatibility but is a no-op.
+   * The user's archive only grows — content is never lost.
    */
   async pruneOlderThan(
-    maxAgeMs = 60 * 24 * 60 * 60 * 1000,
-    keepLinks: ReadonlyArray<string> = [],
+    _maxAgeMs = 60 * 24 * 60 * 60 * 1000,
+    _keepLinks: ReadonlyArray<string> = [],
   ): Promise<number> {
-    if (!this.available()) return 0;
-    const cutoff = Date.now() - maxAgeMs;
-    try {
-      const all = await this.listArticles();
-      const keep = new Set(keepLinks);
-      const toDelete = all
-        .filter((a) => a.archivedAt < cutoff && !keep.has(a.link))
-        .map((a) => a.link);
-
-      if (toDelete.length === 0) return 0;
-      return await this.removeArticlesBatch(toDelete);
-    } catch (e) {
-      console.warn('[Reading/offlineDb] pruneOlderThan failed:', e);
-      return 0;
-    }
+    // No-op: articles are permanent. Never auto-delete user content.
+    return 0;
   },
 
   /**
@@ -472,11 +459,10 @@ export const offlineDb = {
   /**
    * Sync the offline archive: ADD missing articles from the given list.
    * Does NOT remove any existing articles — the user's offline archive
-   * only grows. Cleanup is handled separately by `pruneOlderThan` which
-   * respects the user's retention-days preference.
+   * only grows. Articles are stored permanently and never auto-deleted.
    *
    * This ensures the user can always go back to previously-fetched
-   * articles without them being aggressively purged.
+   * articles without them ever being purged.
    */
   async syncArticles(
     items: ReadonlyArray<FeedItem>,

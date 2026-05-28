@@ -115,6 +115,18 @@ export const podcastGenres: PodcastGenre[] = [
   { key: 'physics',                   id: 1539, labelKey: 'podcasts.genre.physics',         parent: 'science' },
   { key: 'social-sciences',           id: 1540, labelKey: 'podcasts.genre.socialSciences',  parent: 'science' },
 
+  /* ----- Technology subgenres ----- */
+  { key: 'tech-news-sub',             id: 1448, labelKey: 'podcasts.genre.techNewsSub',     parent: 'technology' },
+
+  /* ----- History subgenres ----- */
+  { key: 'natural-history',           id: 1538, labelKey: 'podcasts.genre.naturalHistory',  parent: 'history' },
+
+  /* ----- True Crime subgenres ----- */
+  { key: 'true-crime-mystery',        id: 1489, labelKey: 'podcasts.genre.mystery',         parent: 'true-crime' },
+
+  /* ----- Government subgenres ----- */
+  { key: 'non-profit-gov',            id: 1476, labelKey: 'podcasts.genre.nonProfitGov',    parent: 'government' },
+
   /* ----- Sports subgenres ----- */
   { key: 'football',                  id: 1546, labelKey: 'podcasts.genre.football',        parent: 'sports' },
   { key: 'basketball',                id: 1547, labelKey: 'podcasts.genre.basketball',      parent: 'sports' },
@@ -170,6 +182,16 @@ export const podcastGenres: PodcastGenre[] = [
   { key: 'hobbies',                   id: 1414, labelKey: 'podcasts.genre.hobbies',         parent: 'leisure' },
   { key: 'home-and-garden',           id: 1415, labelKey: 'podcasts.genre.homeAndGarden',   parent: 'leisure' },
   { key: 'video-games',               id: 1416, labelKey: 'podcasts.genre.videoGames',      parent: 'leisure' },
+
+  /* ----- Additional deep categories for power users ----- */
+  { key: 'daily-devotional',          id: 1443, labelKey: 'podcasts.genre.dailyDevotional', parent: 'religion-and-spirituality' },
+  { key: 'investing-sub',             id: 1473, labelKey: 'podcasts.genre.investingSub',    parent: 'business' },
+  { key: 'tech-podcasts',             id: 1318, labelKey: 'podcasts.genre.techPodcasts',    parent: 'technology' },
+  { key: 'documentary-sub',           id: 1543, labelKey: 'podcasts.genre.documentarySub', parent: 'society-and-culture' },
+  { key: 'sports-commentary',         id: 1557, labelKey: 'podcasts.genre.sportsCommentary', parent: 'sports' },
+  { key: 'wilderness',                id: 1560, labelKey: 'podcasts.genre.wilderness',      parent: 'sports' },
+  { key: 'swimming',                  id: 1561, labelKey: 'podcasts.genre.swimming',        parent: 'sports' },
+  { key: 'martial-arts',              id: 1562, labelKey: 'podcasts.genre.martialArts',     parent: 'sports' },
 ];
 
 /** Quick lookup by key — used by the Podcasts page to resolve the

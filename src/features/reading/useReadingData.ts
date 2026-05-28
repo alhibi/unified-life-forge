@@ -25,18 +25,19 @@ import type { Database } from '@/integrations/supabase/types';
 type RssArticleRow = Database['public']['Tables']['rss_articles']['Row'];
 
 // ─── Constants for stability & memory management ───────────────────────────
-/** Max articles held in memory at once — no hard limit; we rely on
- *  the DB query's own LIMIT (500) and browser memory. The user should
- *  never lose access to articles just because the list grew large. */
-const MAX_ARTICLES_IN_MEMORY = 2000;
+/** Max articles held in memory at once. With 150+ feeds producing
+ *  content continuously, we need generous headroom. The browser can
+ *  handle 10K lightweight objects easily; the bottleneck is rendering,
+ *  which is already virtualized. */
+const MAX_ARTICLES_IN_MEMORY = 10000;
 /** Base auto-refresh interval (ms). Adapts based on consecutive failures. */
-const BASE_REFRESH_INTERVAL = 60 * 60 * 1000; // 1 hour
+const BASE_REFRESH_INTERVAL = 30 * 60 * 1000; // 30 min (more feeds = fresher)
 /** Minimum refresh interval even with exponential backoff. */
 const MIN_REFRESH_INTERVAL = 5 * 60 * 1000; // 5 min
 /** Maximum refresh interval on repeated failures. */
 const MAX_REFRESH_INTERVAL = 4 * 60 * 60 * 1000; // 4 hours
 /** Staleness threshold — auto-refresh on mount if older than this. */
-const STALE_THRESHOLD = 15 * 60 * 1000; // 15 min
+const STALE_THRESHOLD = 10 * 60 * 1000; // 10 min
 
 /**
  * Centralised data layer for the reading feature.
@@ -179,7 +180,7 @@ export function useReadingData(opts: { isAr: boolean }) {
         .select('*', { count: 'exact' })
         .in('source_name', names)
         .order('pub_date', { ascending: false })
-        .limit(500);
+        .limit(2000);
       if (queryError) {
         throw queryError;
       }

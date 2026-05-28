@@ -301,7 +301,7 @@ export function StorageView({
               {isAr ? 'العدد' : 'Count'}
             </p>
             <div className="flex flex-wrap gap-1.5">
-              {([0, 10, 25, 50, 100] as const).map((n) => (
+              {([0, 10, 25, 50, 100, 250, 500] as const).map((n) => (
                 <button
                   key={n}
                   type="button"
@@ -331,29 +331,15 @@ export function StorageView({
             <p className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground mb-2">
               {isAr ? 'مدة الاحتفاظ' : 'Retention'}
             </p>
-            <div className="flex flex-wrap gap-1.5">
-              {([30, 60, 90, 180, 365] as const).map((d) => (
-                <button
-                  key={d}
-                  type="button"
-                  onClick={() => patch({ retentionDays: d })}
-                  aria-pressed={prefs.retentionDays === d}
-                  className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors tabular-nums ${
-                    prefs.retentionDays === d
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-accent/30 text-muted-foreground hover:bg-accent/50'
-                  }`}
-                >
-                  {isAr
-                    ? d >= 365 ? 'سنة' : `${d} يوم`
-                    : d >= 365 ? '1 year' : `${d} days`}
-                </button>
-              ))}
+            <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+              <span className="text-emerald-600 dark:text-emerald-400 text-xs font-bold">
+                {isAr ? 'دائم — لا تُحذف المقالات أبداً' : 'Permanent — articles are never deleted'}
+              </span>
             </div>
             <p className="text-[10px] text-muted-foreground/70 mt-2">
               {isAr
-                ? 'المقالات المرجعية محمية ولا تُحذف بالعمر.'
-                : 'Bookmarked articles are exempt from age pruning.'}
+                ? 'كل المقالات تُحفظ للأبد. أرشيفك ينمو باستمرار ولا يُفقد أي محتوى.'
+                : 'All articles are stored forever. Your archive only grows — no content is ever lost.'}
             </p>
           </div>
         </section>

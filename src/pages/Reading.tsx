@@ -144,11 +144,7 @@ export default function ReadingPage() {
   // ─── Service worker + offline cache lifecycle ────────────────────────
   useEffect(() => {
     void registerReadingServiceWorker();
-    // Periodic prune of stale archived articles (run once per session).
-    const retentionDays = getOfflinePrefs().retentionDays;
-    const maxAgeMs = retentionDays * 24 * 60 * 60 * 1000;
-    void offlineDb.pruneOlderThan(maxAgeMs, bookmarks).catch(() => undefined);
-    // Intentionally only depends on the *initial* bookmarks snapshot.
+    // Articles are stored permanently — no pruning. The archive only grows.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
