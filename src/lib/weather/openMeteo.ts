@@ -100,7 +100,7 @@ async function fetchAirQualityImpl(lat: number, lon: number): Promise<AirQuality
   const url =
     `https://air-quality-api.open-meteo.com/v1/air-quality` +
     `?latitude=${lat}&longitude=${lon}` +
-    `&current=european_aqi,pm2_5,pm10&timezone=auto`;
+    `&current=european_aqi,european_aqi_pm2_5,european_aqi_pm10,european_aqi_no2,european_aqi_o3,european_aqi_so2,pm2_5,pm10,alder_pollen,birch_pollen,grass_pollen,mugwort_pollen,olive_pollen,ragweed_pollen&timezone=auto`;
   const res = await fetch(url);
   if (!res.ok) throw new Error(`Open-Meteo air-quality HTTP ${res.status}`);
   const json = await res.json();
@@ -109,6 +109,21 @@ async function fetchAirQualityImpl(lat: number, lon: number): Promise<AirQuality
     europeanAqi: c.european_aqi ?? null,
     pm2_5:       c.pm2_5 ?? null,
     pm10:        c.pm10 ?? null,
+    subIndices: {
+      pm2_5: c.european_aqi_pm2_5 ?? null,
+      pm10:  c.european_aqi_pm10  ?? null,
+      no2:   c.european_aqi_no2   ?? null,
+      o3:    c.european_aqi_o3    ?? null,
+      so2:   c.european_aqi_so2   ?? null,
+    },
+    pollen: {
+      alder:   c.alder_pollen   ?? null,
+      birch:   c.birch_pollen   ?? null,
+      grass:   c.grass_pollen   ?? null,
+      mugwort: c.mugwort_pollen ?? null,
+      olive:   c.olive_pollen   ?? null,
+      ragweed: c.ragweed_pollen ?? null,
+    },
   };
 }
 

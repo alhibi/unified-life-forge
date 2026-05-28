@@ -71,6 +71,24 @@ export interface AirQuality {
   europeanAqi: number | null;
   pm2_5: number | null;
   pm10: number | null;
+  /** Optional pollutant sub-indices (European AQI scale). Used to pick
+   *  the "critical component" displayed alongside the AQI gauge. */
+  subIndices?: {
+    pm2_5?: number | null;
+    pm10?: number | null;
+    no2?: number | null;
+    o3?: number | null;
+    so2?: number | null;
+  };
+  /** Pollen grains/m³ — Open-Meteo only (European service). */
+  pollen?: {
+    alder?: number | null;
+    birch?: number | null;
+    grass?: number | null;
+    mugwort?: number | null;
+    olive?: number | null;
+    ragweed?: number | null;
+  };
 }
 
 export interface WeatherDataMeta {
