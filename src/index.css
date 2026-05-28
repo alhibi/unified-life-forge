@@ -694,6 +694,25 @@ main#main-content [data-tab-layer="true"] {
   opacity: 0.85;
 }
 
+/* ── BottomNav — solid positioning layer ─────────────────────
+   Ensures the bar is always flush to the physical bottom of the
+   viewport (including safe-area), never floats or overlaps content
+   unpredictably.  The `env()` padding is declared here in CSS as
+   a fallback; the component also sets it inline for SSR/JSX paths. */
+nav.bottom-nav {
+  /* Guarantee the nav is below every page layer but above content. */
+  z-index: 50;
+  /* Safe-area: fills the iPhone home-indicator region with the same
+     background as the nav, so there's no bleed of page content. */
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  /* GPU layer — eliminates iOS Safari repaint on scroll. */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  will-change: transform;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
 /* Disable browser context menu on UI elements */
 nav, button, [role="button"], .no-context-menu {
   -webkit-touch-callout: none;
