@@ -73,8 +73,9 @@ export function getReadArticles(): string[] {
 
 export function storeReadArticles(r: string[]): void {
   try {
-    // Cap the read-list at 5 000 entries to avoid unbounded growth.
-    const capped = r.length > 5000 ? r.slice(-5000) : r;
+    // Cap the read-list at 50 000 entries — generous enough to track
+    // read state across months of heavy usage without ever losing data.
+    const capped = r.length > 50000 ? r.slice(-50000) : r;
     localStorage.setItem(READ_KEY, JSON.stringify(capped));
   } catch { /* quota */ }
 }
@@ -208,7 +209,7 @@ export interface SearchHistoryEntry {
   hits?: number;
 }
 
-const SEARCH_HISTORY_LIMIT = 20;
+const SEARCH_HISTORY_LIMIT = 50;
 
 export function getSearchHistory(): SearchHistoryEntry[] {
   try {
@@ -261,7 +262,7 @@ export interface ReaderHistoryEntry {
   at: number;
 }
 
-const READER_HISTORY_LIMIT = 20;
+const READER_HISTORY_LIMIT = 50;
 
 export function getReaderHistory(): ReaderHistoryEntry[] {
   try {
@@ -308,17 +309,17 @@ export function clearReaderHistory(): void {
 
 export interface OfflinePrefs {
   /** Auto-cache the most recent N unread articles in the background. */
-  autoCacheCount: 0 | 10 | 25 | 50 | 100;
+  autoCacheCount: 0 | 10 | 25 | 50 | 100 | 250 | 500;
   /** Also pre-cache the article images, not just the text. */
   cacheImages: boolean;
-  /** Articles older than this age (days) are pruned on next session. */
-  retentionDays: 30 | 60 | 90 | 180 | 365;
+  /** DEPRECATED: Articles are now stored permanently. Kept for compat. */
+  retentionDays: 'forever' | 30 | 60 | 90 | 180 | 365;
 }
 
 const DEFAULT_OFFLINE_PREFS: OfflinePrefs = {
-  autoCacheCount: 25,
+  autoCacheCount: 100,
   cacheImages: true,
-  retentionDays: 60,
+  retentionDays: 'forever',
 };
 
 export function getOfflinePrefs(): OfflinePrefs {

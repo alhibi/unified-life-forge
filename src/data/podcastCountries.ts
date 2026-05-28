@@ -183,9 +183,24 @@ export const podcastCountries: PodcastCountry[] = [
   { code: 'zw', name: 'Zimbabwe',             nameAr: 'زيمبابوي',         nameDe: 'Simbabwe',              flag: '🇿🇼', lang: 'en' },
   { code: 'bw', name: 'Botswana',             nameAr: 'بوتسوانا',         nameDe: 'Botswana',              flag: '🇧🇼', lang: 'en' },
   { code: 'mu', name: 'Mauritius',            nameAr: 'موريشيوس',         nameDe: 'Mauritius',             flag: '🇲🇺', lang: 'fr' },
+  { code: 'et', name: 'Ethiopia',             nameAr: 'إثيوبيا',          nameDe: 'Äthiopien',             flag: '🇪🇹', lang: 'am' },
+  { code: 'rw', name: 'Rwanda',               nameAr: 'رواندا',           nameDe: 'Ruanda',                flag: '🇷🇼', lang: 'rw' },
+  { code: 'cm', name: 'Cameroon',             nameAr: 'الكاميرون',        nameDe: 'Kamerun',               flag: '🇨🇲', lang: 'fr' },
+  { code: 'cd', name: 'DR Congo',             nameAr: 'الكونغو',          nameDe: 'DR Kongo',              flag: '🇨🇩', lang: 'fr' },
+  { code: 'mg', name: 'Madagascar',           nameAr: 'مدغشقر',           nameDe: 'Madagaskar',            flag: '🇲🇬', lang: 'mg' },
+  { code: 'na', name: 'Namibia',              nameAr: 'ناميبيا',          nameDe: 'Namibia',               flag: '🇳🇦', lang: 'en' },
+
+  /* ============== Caribbean & Central America ============================== */
+  { code: 'tt', name: 'Trinidad & Tobago',    nameAr: 'ترينيداد وتوباغو', nameDe: 'Trinidad & Tobago',     flag: '🇹🇹', lang: 'en' },
+  { code: 'bs', name: 'Bahamas',              nameAr: 'الباهاما',         nameDe: 'Bahamas',               flag: '🇧🇸', lang: 'en' },
+  { code: 'bb', name: 'Barbados',             nameAr: 'بربادوس',          nameDe: 'Barbados',              flag: '🇧🇧', lang: 'en' },
+  { code: 'bz', name: 'Belize',              nameAr: 'بليز',             nameDe: 'Belize',                flag: '🇧🇿', lang: 'en' },
+  { code: 'cu', name: 'Cuba',                 nameAr: 'كوبا',             nameDe: 'Kuba',                  flag: '🇨🇺', lang: 'es' },
 
   /* ============== Other ==================================================== */
   { code: 'il', name: 'Israel',               nameAr: 'إسرائيل',          nameDe: 'Israel',                flag: '🇮🇱', lang: 'he' },
+  { code: 'ir', name: 'Iran',                 nameAr: 'إيران',            nameDe: 'Iran',                  flag: '🇮🇷', lang: 'fa' },
+  { code: 'af', name: 'Afghanistan',          nameAr: 'أفغانستان',        nameDe: 'Afghanistan',           flag: '🇦🇫', lang: 'fa' },
 ];
 
 /**
@@ -218,7 +233,7 @@ export const podcastRegions: PodcastRegion[] = [
     key: 'english',
     labelKey: 'podcasts.region.english',
     flag: '🌐',
-    countries: ['us', 'gb', 'ca', 'au', 'ie', 'nz', 'za', 'sg', 'in', 'ng', 'ke', 'ph'],
+    countries: ['us', 'gb', 'ca', 'au', 'ie', 'nz', 'za', 'sg', 'in', 'ng', 'ke', 'ph', 'gh', 'jm', 'tt', 'na', 'bw', 'zw'],
   },
   {
     key: 'german',
@@ -230,13 +245,13 @@ export const podcastRegions: PodcastRegion[] = [
     key: 'french',
     labelKey: 'podcasts.region.french',
     flag: '🇫🇷',
-    countries: ['fr', 'be', 'ca', 'ci', 'sn'],
+    countries: ['fr', 'be', 'ca', 'ci', 'sn', 'cm', 'cd', 'mu', 'mg'],
   },
   {
     key: 'spanish',
     labelKey: 'podcasts.region.spanish',
     flag: '🌎',
-    countries: ['es', 'mx', 'ar', 'cl', 'co', 'pe', 've', 'uy', 'ec', 'cr', 'do', 'gt', 'pa'],
+    countries: ['es', 'mx', 'ar', 'cl', 'co', 'pe', 've', 'uy', 'ec', 'cr', 'do', 'gt', 'pa', 'bo', 'hn', 'ni', 'py', 'sv', 'cu'],
   },
   {
     key: 'portuguese',
@@ -266,13 +281,13 @@ export const podcastRegions: PodcastRegion[] = [
     key: 'eastern-europe',
     labelKey: 'podcasts.region.easternEurope',
     flag: '🇪🇺',
-    countries: ['pl', 'cz', 'sk', 'hu', 'ro', 'bg', 'hr', 'ua', 'ru'],
+    countries: ['pl', 'cz', 'sk', 'hu', 'ro', 'bg', 'hr', 'ua', 'ru', 'si', 'ee', 'lv', 'lt', 'by'],
   },
   {
     key: 'east-asia',
     labelKey: 'podcasts.region.eastAsia',
     flag: '🌏',
-    countries: ['jp', 'kr', 'cn', 'tw', 'hk'],
+    countries: ['jp', 'kr', 'cn', 'tw', 'hk', 'mo'],
   },
   {
     key: 'south-asia',
@@ -284,22 +299,38 @@ export const podcastRegions: PodcastRegion[] = [
     key: 'southeast-asia',
     labelKey: 'podcasts.region.southeastAsia',
     flag: '🌏',
-    countries: ['id', 'my', 'th', 'vn', 'ph', 'sg'],
+    countries: ['id', 'my', 'th', 'vn', 'ph', 'sg', 'mm', 'kh', 'la'],
   },
   {
     key: 'turkic',
     labelKey: 'podcasts.region.turkic',
     flag: '🇹🇷',
-    countries: ['tr', 'az', 'kz', 'uz', 'kg'],
+    countries: ['tr', 'az', 'kz', 'uz', 'kg', 'tm', 'tj'],
+  },
+  {
+    key: 'persian',
+    labelKey: 'podcasts.region.persian',
+    flag: '🇮🇷',
+    countries: ['ir', 'af', 'tj'],
+  },
+  {
+    key: 'african',
+    labelKey: 'podcasts.region.african',
+    flag: '🌍',
+    countries: ['ng', 'ke', 'gh', 'za', 'tz', 'ug', 'et', 'rw', 'cm', 'sn', 'ci', 'zw', 'bw', 'na'],
+  },
+  {
+    key: 'caribbean',
+    labelKey: 'podcasts.region.caribbean',
+    flag: '🏝️',
+    countries: ['jm', 'tt', 'bs', 'bb', 'bz', 'do', 'cu'],
   },
   {
     key: 'worldwide',
     labelKey: 'podcasts.region.worldwide',
     flag: '🌍',
-    // Picking the largest 12 podcast markets across all languages —
-    // dedup is happy to accept overlap with single-language regions
-    // since every result keys on collectionId.
-    countries: ['us', 'gb', 'de', 'fr', 'es', 'it', 'br', 'mx', 'jp', 'in', 'sa', 'ae'],
+    // Picking the largest 15 podcast markets across all languages
+    countries: ['us', 'gb', 'de', 'fr', 'es', 'it', 'br', 'mx', 'jp', 'in', 'sa', 'ae', 'kr', 'au', 'ca'],
   },
 ];
 

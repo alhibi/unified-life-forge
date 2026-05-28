@@ -89,9 +89,9 @@ const SUBS_KEY = 'podcasts.subs';
 const PLAY_KEY = 'podcasts.playState';
 const LAST_KEY = 'podcasts.lastPlayed';
 const RECENTS_KEY = 'podcasts.recents';
-/** Cap for the recents rail. 8 is enough headroom for power users
- *  switching between 3-4 podcasts without bloating localStorage. */
-const RECENTS_LIMIT = 8;
+/** Cap for the recents rail. 20 gives power users plenty of headroom
+ *  for switching between many podcasts without bloating localStorage. */
+const RECENTS_LIMIT = 20;
 
 function read<T>(key: string, fallback: T): T {
   try {
