@@ -61,6 +61,9 @@ type DragState = {
   moved: boolean;
 };
 
+/** Height of the nav bar content row (excluding safe-area padding). */
+export const BOTTOM_NAV_HEIGHT = 62;
+
 export default function BottomNav() {
   const { t, dir } = useApp();
   const navigate = useNavigate();

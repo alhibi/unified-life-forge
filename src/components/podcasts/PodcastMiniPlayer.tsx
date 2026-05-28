@@ -25,6 +25,7 @@ import { Loader2, Pause, Play, RotateCcw, RotateCw } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { usePodcastPlayer, usePodcastPlayerProgress } from '@/contexts/PodcastPlayerContext';
 import PlayerSheet from './PlayerSheet';
+import { BOTTOM_NAV_HEIGHT } from '@/components/BottomNav';
 
 const MINI_PLAYER_HEIGHT = 64;
 /** Mini-player skip increment, in seconds. Mirrors the full sheet
@@ -135,11 +136,11 @@ const PodcastMiniPlayer = memo(function PodcastMiniPlayer() {
             exit={{ y: 80, opacity: 0 }}
             transition={{ type: 'spring', stiffness: 360, damping: 32 }}
             className="fixed left-2 right-2 z-40 pointer-events-none"
-            // Position above the bottom nav (which is roughly 64px tall
-            // with insets). We use bottom: env(safe-area...) + 76 so the
-            // bar nudges up to clear iOS home-indicator + nav.
+            // Position above the bottom nav precisely: nav height +
+            // safe-area inset + 8px breathing room so the mini-player
+            // doesn't sit flush against the nav bar on tall devices.
             style={{
-              bottom: 'calc(env(safe-area-inset-bottom, 0px) + 76px)',
+              bottom: `calc(env(safe-area-inset-bottom, 0px) + ${BOTTOM_NAV_HEIGHT + 8}px)`,
             }}
           >
             <button
