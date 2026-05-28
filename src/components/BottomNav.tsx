@@ -196,11 +196,11 @@ export default function BottomNav() {
         bottom: 0,
         left: 0,
         right: 0,
-        zIndex: 50,
+        zIndex: 9999,
         /* Full-width flush bar — no floating, no rounded corners */
         paddingBottom: 'env(safe-area-inset-bottom, 0px)',
-        willChange: 'transform',
-        transform: 'translateZ(0)',
+        /* Isolate this element from any ancestor transforms/contain */
+        isolation: 'isolate',
       }}
     >
       {/* Top separator line — clean edge between content and nav */}
