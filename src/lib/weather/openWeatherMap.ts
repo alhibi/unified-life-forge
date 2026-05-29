@@ -252,7 +252,12 @@ function buildDailyFromForecast(
     const precipSum =
       items.reduce((sum, it) => sum + (it.rain?.['3h'] ?? 0) + (it.snow?.['3h'] ?? 0), 0);
     const windMaxMs = items.reduce((m, it) => Math.max(m, it.wind?.speed ?? 0), 0);
+    const windGustMaxMs = items.reduce((m, it) => Math.max(m, it.wind?.gust ?? 0), 0);
     const windDeg = noonItem.wind?.deg ?? 0;
+    const humidityMax = Math.round(items.reduce((m, it) => Math.max(m, it.main?.humidity ?? 0), 0));
+    const cloudCoverMean = Math.round(
+      items.reduce((s, it) => s + (it.clouds?.all ?? 0), 0) / items.length,
+    );
 
     // Convert "YYYY-MM-DD" to Unix-ms at local midnight. We use
     // `Date.UTC(...)` for the date marker because the hub formats
@@ -274,7 +279,10 @@ function buildDailyFromForecast(
       precipitationSum: Math.round(precipSum * 10) / 10,
       precipitationProbabilityMax: popMax,
       windSpeedMax: Math.round(windMaxMs * 3.6),     // m/s → km/h
+      windGustsMax: Math.round(windGustMaxMs * 3.6) || undefined, // m/s → km/h
       windDirectionDominant: Math.round(windDeg),
+      humidityMax,
+      cloudCoverMean,
     };
   });
 }
