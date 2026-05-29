@@ -62,6 +62,15 @@ export interface DailyEntry {
   precipitationProbabilityMax: number;
   windSpeedMax: number;
   windDirectionDominant: number;
+  /** Per-day maximum wind gusts (km/h). Drives the "gusts" insight chip. */
+  windGustsMax?: number;
+  /** Per-day maximum relative humidity (%). Computed from hourly humidity
+   *  when the provider doesn't expose a daily aggregate. Drives the
+   *  "high humidity" insight chip. */
+  humidityMax?: number;
+  /** Per-day mean cloud cover (%). Computed from hourly cloud cover.
+   *  Drives the "heavily cloudy" insight chip. */
+  cloudCoverMean?: number;
 }
 
 export interface AirQuality {

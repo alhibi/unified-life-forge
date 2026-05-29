@@ -1,51 +1,102 @@
 import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import {
-  Cloud, Sun, CloudRain, CloudSnow, CloudLightning, CloudDrizzle, Cloudy, CloudFog,
-  Droplets, Wind, Gauge, Sunrise, Sunset, MapPin, AlertCircle, CloudHail, RefreshCw,
-  Share2, CalendarDays, ChevronDown, Key, ExternalLink, Check, ThermometerSun, MoonStar,
-  Leaf, Wind as WindIcon,
+  Cloud, Sun, CloudRain, CloudSnow, CloudLightning, CloudDrizzle, CloudFog,
+  CloudHail, CloudSun, MoonStar, Moon, Droplet, Droplets, Wind, Flag, Gauge,
+  Sunrise, Sunset, MapPin, AlertCircle, RefreshCw, Share2, CalendarDays, ChevronRight,
+  Key, ExternalLink, Contrast, type LucideIcon,
 } from 'lucide-react';
 import SEO from '@/components/SEO';
 import { useApp } from '@/contexts/AppContext';
 import { useDeviceLocation, requestDeviceLocation } from '@/hooks/useDeviceLocation';
-import { useWeatherData, type DailyEntry, type HourlyEntry, type WeatherData, type AirQuality } from '@/hooks/useWeatherData';
+import { useWeatherData, type DailyEntry, type WeatherData } from '@/hooks/useWeatherData';
 import {
-  listProviders, readOwmApiKey, writeOwmApiKey, writeProviderPref, type ProviderId,
+  listProviders, readOwmApiKey, writeOwmApiKey, writeProviderPref,
 } from '@/lib/weather';
 import { getMoonPhase } from '@/lib/weather/moonPhase';
-import {
-  describeWeatherCode, uvBand, aqiBand, criticalPollutant, pollenLevel, POLLEN_LABEL,
-} from '@/lib/weather/describe';
+import { describeWeatherCode } from '@/lib/weather/describe';
 
 /**
- * /weather — Forecast view designed to mirror the user's reference exactly:
- * compact header (share + calendar tile + "Forecast" + city + pin), a row
- * of vertical-capsule temperature bars with weather glyphs & precipitation,
- * a "Next 7 days" grid of colored insight chips, and a "Sun & Moon" block
- * with two expandable rows (Sunrise & Sunset + Moon Phases).
+ * /weather — Forecast view designed to mirror the reference design 1:1:
+ *
+ *   • a minimal header (a single share affordance, then a calendar tile +
+ *     "Forecast" title + city in the accent colour + a location pin);
+ *   • a horizontally-scrollable row of vertical temperature capsules with
+ *     a continuous warm→cool colour scale on the high/low numbers, weekend
+ *     columns subtly highlighted, a weather glyph and precipitation %;
+ *   • a "Next 7 days" grid of insight chips (UV / rain / gusts / wind /
+ *     humidity / pressure / cloudiness) with the exact fill + accent
+ *     treatment from the reference;
+ *   • a "Sun & Moon" block with two expandable rows.
+ *
+ * Data still comes from the provider-agnostic `useWeatherData` hook
+ * (Open-Meteo by default, OpenWeatherMap as an optional BYOK source).
  */
 
-// ── Code → icon ─────────────────────────────────────────────────────────
+// ── WMO code → icon ───────────────────────────────────────────────────────
 
-const ICON_BY_CODE = (code: number, isDay = true) => {
-  if (code === 0 || code === 1) return isDay ? Sun : MoonStar;
-  if (code === 2)                return Cloudy;
-  if (code === 3)                return Cloud;
+const ICON_BY_CODE = (code: number, isDay = true): LucideIcon => {
+  if (code === 0)                 return isDay ? Sun : MoonStar;
+  if (code === 1 || code === 2)   return isDay ? CloudSun : MoonStar;
+  if (code === 3)                 return Cloud;
   if (code === 45 || code === 48) return CloudFog;
-  if (code >= 51 && code <= 57)  return CloudDrizzle;
-  if (code >= 61 && code <= 67)  return CloudRain;
-  if (code >= 71 && code <= 77)  return CloudSnow;
-  if (code >= 80 && code <= 82)  return CloudRain;
-  if (code >= 85 && code <= 86)  return CloudSnow;
+  if (code >= 51 && code <= 57)   return CloudDrizzle;
+  if (code >= 61 && code <= 67)   return CloudRain;
+  if (code >= 71 && code <= 77)   return CloudSnow;
+  if (code >= 80 && code <= 82)   return CloudRain;
+  if (code >= 85 && code <= 86)   return CloudSnow;
   if (code === 96 || code === 99) return CloudHail;
-  if (code >= 95)                return CloudLightning;
+  if (code >= 95)                 return CloudLightning;
   return Sun;
 };
 
-const isCloudyCode = (code: number) =>
-  code === 2 || code === 3 || code === 45 || code === 48;
+/** Sunny/partly-cloudy glyphs keep a warm tint; everything else is the
+ *  neutral grey used across the reference's forecast row. */
+const iconColorForCode = (code: number) =>
+  code <= 2 ? 'text-amber-400' : 'text-foreground/55';
 
-// ── Formatting ──────────────────────────────────────────────────────────
+// ── Continuous temperature colour scale ──────────────────────────────────
+//
+// Matches the reference: deep red for hot highs, sliding through orange /
+// amber to green for mild values and blue for the coldest lows.
+
+const tempColorClass = (t: number): string => {
+  if (t >= 28) return 'text-red-500';
+  if (t >= 23) return 'text-orange-500';
+  if (t >= 20) return 'text-orange-400';
+  if (t >= 16) return 'text-amber-400';
+  if (t >= 11) return 'text-emerald-400';
+  if (t >= 6)  return 'text-sky-400';
+  return 'text-sky-300';
+};
+
+const precipColorClass = (p: number): string => {
+  if (p <= 0)  return 'text-foreground/55';
+  if (p < 50)  return 'text-sky-400/90';
+  return 'text-sky-400';
+};
+
+// ── Formatting helpers ────────────────────────────────────────────────────
+//
+// Daily `date` values are UTC-midnight markers, so every formatter reads
+// the UTC calendar fields to avoid off-by-one drift near midnight.
+
+const localeFor = (isAr: boolean) => (isAr ? 'ar' : 'en-US');
+
+const weekdayShort = (ms: number, isAr: boolean) =>
+  new Intl.DateTimeFormat(localeFor(isAr), { weekday: 'short', timeZone: 'UTC' }).format(new Date(ms));
+
+const weekdayLong = (ms: number, isAr: boolean) =>
+  new Intl.DateTimeFormat(localeFor(isAr), { weekday: 'long', timeZone: 'UTC' }).format(new Date(ms));
+
+const dateShort = (ms: number) => {
+  const d = new Date(ms);
+  return `${d.getUTCMonth() + 1}/${d.getUTCDate()}`;
+};
+
+const isWeekend = (ms: number) => {
+  const day = new Date(ms).getUTCDay();
+  return day === 0 || day === 6;
+};
 
 const formatTimeFromIso = (iso: string) => {
   const [, time] = iso.split('T');
@@ -54,440 +105,110 @@ const formatTimeFromIso = (iso: string) => {
   return `${h}:${m}`;
 };
 
-const compassDir = (deg: number, lang: 'ar' | 'de') => {
-  const names = lang === 'ar'
+const compassDir = (deg: number, isAr: boolean) => {
+  const names = isAr
     ? ['شمال', 'شمال شرق', 'شرق', 'جنوب شرق', 'جنوب', 'جنوب غرب', 'غرب', 'شمال غرب']
-    : ['N', 'NO', 'O', 'SO', 'S', 'SW', 'W', 'NW'];
+    : ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
   return names[Math.round(((deg % 360) + 360) % 360 / 45) % 8];
 };
 
-const dayShort = (dateMs: number, lang: 'ar' | 'de') => {
-  const d = new Date(dateMs);
-  const locale = lang === 'ar' ? 'ar' : 'de-DE';
-  return new Intl.DateTimeFormat(locale, { weekday: 'short' }).format(d);
-};
-const dateShort = (dateMs: number) => {
-  const d = new Date(dateMs);
-  return `${d.getMonth() + 1}/${d.getDate()}`;
-};
+// ── Header ────────────────────────────────────────────────────────────────
 
-// ── Header ──────────────────────────────────────────────────────────────
-
-function ForecastHeader({ lang, city, lastUpdatedLabel, onShare, onLocate, onRefresh, isRefreshing }: {
-  lang: 'ar' | 'de'; city: string | null; lastUpdatedLabel: string | null;
-  onShare: () => void; onLocate: () => void; onRefresh: () => void; isRefreshing: boolean;
+function ForecastHeader({ isAr, city, onShare, onLocate }: {
+  isAr: boolean; city: string | null; onShare: () => void; onLocate: () => void;
 }) {
   return (
-    <header className="pt-2 pb-1">
-      <div className="flex items-center justify-between mb-5">
+    <header className="pt-3 pb-1">
+      <div className="flex items-center mb-4">
         <button
           type="button"
           onClick={onShare}
-          aria-label={lang === 'ar' ? 'مشاركة' : 'Teilen'}
+          aria-label={isAr ? 'مشاركة' : 'Share'}
           className="w-9 h-9 -ms-1 inline-flex items-center justify-center text-foreground/80 active:scale-95 transition-transform"
         >
-          <Share2 className="w-4 h-4" />
-        </button>
-        <button
-          type="button"
-          onClick={onRefresh}
-          aria-label={lang === 'ar' ? 'تحديث' : 'Aktualisieren'}
-          className="w-9 h-9 -me-1 inline-flex items-center justify-center text-foreground/80 active:scale-95 transition-transform"
-        >
-          <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+          <Share2 className="w-[18px] h-[18px]" />
         </button>
       </div>
 
       <div className="flex items-center gap-3">
-        <div className="w-12 h-12 rounded-2xl bg-foreground/[0.08] border border-border/40 inline-flex items-center justify-center shrink-0">
-          <CalendarDays className="w-5 h-5 text-foreground/85" />
+        <div className="w-12 h-12 rounded-2xl bg-indigo-400/15 border border-indigo-300/20 inline-flex items-center justify-center shrink-0">
+          <CalendarDays className="w-5 h-5 text-indigo-200/90" />
         </div>
         <div className="flex-1 min-w-0">
           <h1 className="text-[28px] font-semibold text-foreground leading-tight">
-            {lang === 'ar' ? 'التوقّع' : 'Forecast'}
+            {isAr ? 'التوقّع' : 'Forecast'}
           </h1>
           <p className="text-[14px] text-primary truncate">
-            {city || (lang === 'ar' ? 'موقعك' : 'Standort')}
+            {city || (isAr ? 'موقعك' : 'Your location')}
           </p>
         </div>
         <button
           type="button"
           onClick={onLocate}
-          aria-label={lang === 'ar' ? 'تحديث الموقع' : 'Standort aktualisieren'}
+          aria-label={isAr ? 'تحديث الموقع' : 'Update location'}
           className="w-9 h-9 inline-flex items-center justify-center text-primary active:scale-95 transition-transform"
         >
           <MapPin className="w-5 h-5" />
         </button>
       </div>
-
-      {lastUpdatedLabel && (
-        <p className="text-[10.5px] text-muted-foreground mt-2" style={{ paddingInlineStart: 60 }}>
-          {lastUpdatedLabel}
-        </p>
-      )}
     </header>
   );
 }
 
-// ── Current conditions hero ─────────────────────────────────────────────
+// ── Forecast capsules ─────────────────────────────────────────────────────
 
-interface Metric {
-  key: string;
-  label: string;
-  value: string;
-  icon: typeof Wind;
-  accent?: string;
-}
-
-function buildMetrics(data: WeatherData, lang: 'ar' | 'de'): Metric[] {
-  const c = data.current;
-  const unsupported = data.meta.unsupportedFields ?? [];
-  const m: Metric[] = [];
-
-  m.push({
-    key: 'humidity',
-    label: lang === 'ar' ? 'الرطوبة' : 'Luftfeuchte',
-    value: `${c.humidity}%`,
-    icon: Droplets,
-  });
-
-  const dir = compassDir(c.windDirection, lang);
-  m.push({
-    key: 'wind',
-    label: lang === 'ar' ? 'الرياح' : 'Wind',
-    value: lang === 'ar' ? `${c.windSpeed} كم/س ${dir}` : `${c.windSpeed} km/h ${dir}`,
-    icon: Wind,
-  });
-
-  if (!unsupported.includes('windGusts') && c.windGusts > c.windSpeed) {
-    m.push({
-      key: 'gusts',
-      label: lang === 'ar' ? 'الهبّات' : 'Böen',
-      value: lang === 'ar' ? `${c.windGusts} كم/س` : `${c.windGusts} km/h`,
-      icon: WindIcon,
-    });
-  }
-
-  if (!unsupported.includes('pressure')) {
-    m.push({
-      key: 'pressure',
-      label: lang === 'ar' ? 'الضغط' : 'Luftdruck',
-      value: lang === 'ar' ? `${c.pressure} هـ.ب` : `${c.pressure} hPa`,
-      icon: Gauge,
-    });
-  }
-
-  if (!unsupported.includes('uvIndex')) {
-    const ub = uvBand(c.uvIndex, lang);
-    m.push({
-      key: 'uv',
-      label: lang === 'ar' ? 'الأشعة فوق البنفسجية' : 'UV-Index',
-      value: `${c.uvIndex} · ${ub.label}`,
-      icon: ThermometerSun,
-      accent: ub.textClass,
-    });
-  }
-
-  if (!unsupported.includes('cloudCover')) {
-    m.push({
-      key: 'cloud',
-      label: lang === 'ar' ? 'الغيوم' : 'Bewölkung',
-      value: `${c.cloudCover}%`,
-      icon: Cloud,
-    });
-  }
-
-  return m;
-}
-
-function CurrentConditions({ data, lang }: { data: WeatherData; lang: 'ar' | 'de' }) {
-  const c = data.current;
-  const today = data.daily[0];
-  const Icon = ICON_BY_CODE(c.weatherCode, c.isDay);
-  const cloudy = isCloudyCode(c.weatherCode);
-  const metrics = useMemo(() => buildMetrics(data, lang), [data, lang]);
-
-  return (
-    <section className="rounded-3xl border border-border/40 bg-gradient-to-br from-foreground/[0.06] to-foreground/[0.02] p-5 mt-2">
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <div className="flex items-start gap-1">
-            <span className="text-[64px] leading-[0.9] font-extralight text-foreground tabular-nums">
-              {c.temperature}
-            </span>
-            <span className="text-[24px] font-light text-foreground/70 mt-1.5">°</span>
-          </div>
-          <p className="text-[15px] font-medium text-foreground mt-1">
-            {describeWeatherCode(c.weatherCode, lang)}
-          </p>
-          <p className="text-[12px] text-muted-foreground mt-0.5">
-            {lang === 'ar' ? 'الإحساس الفعلي' : 'Gefühlt'} {c.apparentTemperature}°
-          </p>
-        </div>
-        <div className="flex flex-col items-center shrink-0">
-          <Icon
-            className={`w-16 h-16 ${cloudy ? 'text-foreground/55' : 'text-amber-400'}`}
-            strokeWidth={1.4}
-          />
-          {today && (
-            <div className="flex items-center gap-2 mt-1 text-[12.5px] tabular-nums">
-              <span className="text-rose-400 font-semibold">{Math.round(today.tempMax)}°</span>
-              <span className="text-sky-400 font-semibold">{Math.round(today.tempMin)}°</span>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {metrics.length > 0 && (
-        <div className="grid grid-cols-2 gap-2.5 mt-5">
-          {metrics.map(mt => (
-            <div
-              key={mt.key}
-              className="flex items-center gap-2.5 rounded-2xl bg-background/40 border border-border/30 px-3 py-2.5"
-            >
-              <mt.icon className={`w-4 h-4 shrink-0 ${mt.accent ?? 'text-muted-foreground'}`} strokeWidth={1.8} />
-              <div className="min-w-0">
-                <p className="text-[10px] text-muted-foreground leading-tight truncate">{mt.label}</p>
-                <p className={`text-[12.5px] font-semibold leading-tight truncate ${mt.accent ?? 'text-foreground'}`}>
-                  {mt.value}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </section>
-  );
-}
-
-// ── Hourly forecast strip ───────────────────────────────────────────────
-
-function HourlyStrip({ hourly, lang }: { hourly: HourlyEntry[]; lang: 'ar' | 'de' }) {
-  if (!hourly.length) return null;
-
-  const formatHour = (h: number, idx: number) => {
-    if (idx === 0) return lang === 'ar' ? 'الآن' : 'Jetzt';
-    if (lang === 'ar') {
-      const period = h < 12 ? 'ص' : 'م';
-      const display = h === 0 ? 12 : h > 12 ? h - 12 : h;
-      return `${display}${period}`;
-    }
-    return `${h}`;
-  };
-
-  // Temperature range across the window, for the mini sparkline dots.
-  const temps = hourly.map(h => h.temperature);
-  const lo = Math.min(...temps);
-  const hi = Math.max(...temps);
-  const span = Math.max(1, hi - lo);
-
-  return (
-    <section className="pt-5">
-      <h2 className="text-[18px] font-semibold text-foreground mb-3">
-        {lang === 'ar' ? 'خلال 24 ساعة' : 'Nächste 24 Stunden'}
-      </h2>
-      <div className="rounded-2xl border border-border/40 bg-card py-3">
-        <div className="overflow-x-auto no-scrollbar px-3" dir="ltr">
-          <div className="flex items-stretch gap-1 min-w-fit">
-            {hourly.map((h, idx) => {
-              const Icon = ICON_BY_CODE(h.weatherCode, h.isDay);
-              const cloudy = isCloudyCode(h.weatherCode);
-              const dotPct = (h.temperature - lo) / span;
-              const isNow = idx === 0;
-              return (
-                <div
-                  key={h.time}
-                  className={`flex flex-col items-center gap-1.5 min-w-[46px] rounded-xl py-2 ${isNow ? 'bg-primary/10' : ''}`}
-                >
-                  <span className={`text-[10.5px] ${isNow ? 'font-bold text-primary' : 'text-muted-foreground'}`}>
-                    {formatHour(h.hour, idx)}
-                  </span>
-                  <Icon className={`w-4 h-4 ${cloudy ? 'text-foreground/55' : 'text-amber-400'}`} strokeWidth={1.7} />
-                  <span className="flex items-center gap-0.5 text-[8.5px] text-sky-400/80 h-2.5">
-                    {h.precipitationProbability >= 10 && (
-                      <>
-                        <Droplets className="w-2 h-2" />
-                        {h.precipitationProbability}%
-                      </>
-                    )}
-                  </span>
-                  <div className="relative w-full h-6 flex items-end justify-center">
-                    <span
-                      className="absolute w-1.5 h-1.5 rounded-full bg-foreground/40"
-                      style={{ bottom: `${dotPct * 100}%` }}
-                    />
-                  </div>
-                  <span className="text-[12px] font-semibold text-foreground tabular-nums">
-                    {h.temperature}°
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// ── Air quality card ────────────────────────────────────────────────────
-
-function AirQualityCard({ aq, lang }: { aq: AirQuality; lang: 'ar' | 'de' }) {
-  if (aq.europeanAqi == null) return null;
-  const band = aqiBand(aq.europeanAqi, lang);
-  const critical = criticalPollutant(aq.subIndices, lang);
-
-  const pmRows: { label: string; value: number | null; unit: string }[] = [
-    { label: 'PM2.5', value: aq.pm2_5, unit: 'µg/m³' },
-    { label: 'PM10',  value: aq.pm10,  unit: 'µg/m³' },
-  ];
-
-  return (
-    <section className="pt-6">
-      <h2 className="text-[18px] font-semibold text-foreground mb-3">
-        {lang === 'ar' ? 'جودة الهواء' : 'Luftqualität'}
-      </h2>
-      <div className="rounded-2xl border border-border/40 bg-card p-4">
-        <div className="flex items-center gap-4">
-          <div className="relative w-16 h-16 shrink-0 inline-flex items-center justify-center">
-            <svg viewBox="0 0 36 36" className="w-16 h-16 -rotate-90">
-              <circle cx="18" cy="18" r="15.5" fill="none" className="stroke-foreground/10" strokeWidth="3" />
-              <circle
-                cx="18" cy="18" r="15.5" fill="none"
-                stroke={band.hex}
-                strokeWidth="3" strokeLinecap="round"
-                strokeDasharray={`${band.fill * 97.4} 97.4`}
-              />
-            </svg>
-            <span className="absolute text-[16px] font-bold text-foreground tabular-nums">
-              {Math.round(aq.europeanAqi)}
-            </span>
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className={`text-[16px] font-semibold ${band.textClass}`}>{band.label}</p>
-            <p className="text-[11.5px] text-muted-foreground mt-0.5">
-              {lang === 'ar' ? 'مؤشر الجودة الأوروبي' : 'Europäischer Luftqualitätsindex'}
-            </p>
-            {critical && (
-              <p className="text-[11px] text-muted-foreground/90 mt-1">
-                {lang === 'ar' ? 'الملوّث الأبرز: ' : 'Leitschadstoff: '}
-                <span className="text-foreground/90 font-medium">{critical.label}</span>
-              </p>
-            )}
-          </div>
-        </div>
-
-        {(aq.pm2_5 != null || aq.pm10 != null) && (
-          <div className="grid grid-cols-2 gap-2.5 mt-4">
-            {pmRows.filter(r => r.value != null).map(r => (
-              <div key={r.label} className="rounded-xl bg-background/40 border border-border/30 px-3 py-2">
-                <p className="text-[10px] text-muted-foreground">{r.label}</p>
-                <p className="text-[13px] font-semibold text-foreground tabular-nums">
-                  {Math.round(r.value as number)} <span className="text-[9px] font-normal text-muted-foreground">{r.unit}</span>
-                </p>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </section>
-  );
-}
-
-// ── Pollen card ─────────────────────────────────────────────────────────
-
-function PollenCard({ aq, lang }: { aq: AirQuality; lang: 'ar' | 'de' }) {
-  const pollen = aq.pollen;
-  if (!pollen) return null;
-
-  const entries = Object.entries(pollen)
-    .filter(([, v]) => typeof v === 'number' && (v as number) > 0)
-    .map(([k, v]) => ({ key: k, value: v as number }))
-    .sort((a, b) => b.value - a.value);
-
-  if (!entries.length) return null;
-
-  return (
-    <section className="pt-6">
-      <h2 className="text-[18px] font-semibold text-foreground mb-3 inline-flex items-center gap-2">
-        <Leaf className="w-4 h-4 text-emerald-400" />
-        {lang === 'ar' ? 'حبوب اللقاح' : 'Pollen'}
-      </h2>
-      <div className="rounded-2xl border border-border/40 bg-card p-4 space-y-3">
-        {entries.map(e => {
-          const lvl = pollenLevel(e.value, lang);
-          const label = POLLEN_LABEL[e.key]?.[lang] ?? e.key;
-          return (
-            <div key={e.key}>
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-[12.5px] text-foreground">{label}</span>
-                <span className={`text-[11.5px] font-semibold ${lvl.textClass}`}>{lvl.label}</span>
-              </div>
-              <div className="h-1.5 rounded-full bg-foreground/[0.08] overflow-hidden">
-                <div
-                  className={`h-full rounded-full ${lvl.barClass}`}
-                  style={{ width: `${Math.max(6, lvl.fill * 100)}%` }}
-                />
-              </div>
-            </div>
-          );
-        })}
-        <p className="text-[10px] text-muted-foreground/70 pt-1">
-          {lang === 'ar' ? 'القيم بوحدة حبة/م³' : 'Werte in Körner/m³'}
-        </p>
-      </div>
-    </section>
-  );
-}
-
-// ── Forecast bars ───────────────────────────────────────────────────────
-
-function ForecastBars({ daily, weekRange, lang }: {
-  daily: DailyEntry[]; weekRange: { min: number; max: number }; lang: 'ar' | 'de';
+function ForecastBars({ daily, weekRange, isAr }: {
+  daily: DailyEntry[]; weekRange: { min: number; max: number }; isAr: boolean;
 }) {
   if (!daily.length) return null;
   const span = Math.max(1, weekRange.max - weekRange.min);
   const BAR_PX = 150;
-  const BAR_W = 14;
+  const BAR_W = 24;
 
   return (
-    <section className="pt-2 pb-6">
-      <div className="overflow-x-auto no-scrollbar -mx-4 px-4" dir="ltr">
-        <div className="flex items-stretch gap-3 min-w-fit">
+    <section className="pt-5 pb-6">
+      <div className="overflow-x-auto no-scrollbar -mx-4 px-4">
+        <div className="flex items-stretch gap-1.5 min-w-fit">
           {daily.map((d) => {
             const Icon = ICON_BY_CODE(d.weatherCode, true);
             const topPct    = (weekRange.max - d.tempMax) / span;
             const bottomPct = (d.tempMin - weekRange.min) / span;
             const top    = topPct    * (BAR_PX - 14);
             const bottom = bottomPct * (BAR_PX - 14);
-            const iconCloudy = isCloudyCode(d.weatherCode);
+            const weekend = isWeekend(d.date);
+            const pop = d.precipitationProbabilityMax ?? 0;
             return (
-              <div key={d.date} className="flex flex-col items-center min-w-[44px]">
-                <span className="text-[11.5px] font-medium text-foreground/85 leading-tight">
-                  {dayShort(d.date, lang)}
+              <div
+                key={d.date}
+                className={`flex flex-col items-center min-w-[46px] rounded-2xl px-1 pt-2 pb-2.5 ${
+                  weekend ? 'bg-foreground/[0.05]' : ''
+                }`}
+              >
+                <span className="text-[14px] font-semibold text-foreground leading-tight">
+                  {weekdayShort(d.date, isAr)}
                 </span>
-                <span className="text-[10px] text-muted-foreground mb-3">
+                <span className="text-[11px] text-muted-foreground mb-2.5">
                   {dateShort(d.date)}
                 </span>
 
-                <span className="text-[13px] font-semibold text-rose-400 mb-1 tabular-nums">
+                <span className={`text-[15px] font-bold mb-1.5 tabular-nums ${tempColorClass(d.tempMax)}`}>
                   {Math.round(d.tempMax)}°
                 </span>
 
                 <div className="relative" style={{ width: BAR_W, height: BAR_PX }}>
                   <div
-                    className="absolute left-0 right-0 rounded-full bg-foreground/30"
+                    className="absolute left-0 right-0 rounded-full bg-foreground/35"
                     style={{ top, bottom }}
                   />
                 </div>
 
-                <span className="text-[13px] font-semibold text-sky-400 mt-1 tabular-nums">
+                <span className={`text-[15px] font-bold mt-1.5 tabular-nums ${tempColorClass(d.tempMin)}`}>
                   {Math.round(d.tempMin)}°
                 </span>
 
-                <Icon className={`w-6 h-6 mt-4 ${iconCloudy ? 'text-foreground/55' : 'text-amber-400'}`} strokeWidth={1.6} />
-                <span className="text-[10.5px] text-muted-foreground mt-1 tabular-nums">
-                  {d.precipitationProbabilityMax ?? 0}%
+                <Icon className={`w-7 h-7 mt-3.5 ${iconColorForCode(d.weatherCode)}`} strokeWidth={1.6} />
+                <span className={`text-[12px] mt-1.5 tabular-nums ${precipColorClass(pop)}`}>
+                  {pop}%
                 </span>
               </div>
             );
@@ -498,127 +219,168 @@ function ForecastBars({ daily, weekRange, lang }: {
   );
 }
 
-// ── Insight pills ───────────────────────────────────────────────────────
+// ── "Next 7 days" insight chips ───────────────────────────────────────────
 
-type Tone = 'neutral' | 'warm' | 'hot' | 'cool';
-const toneClasses: Record<Tone, string> = {
-  neutral: 'bg-foreground/[0.06] text-foreground/90 border-border/30',
-  warm:    'bg-amber-200/15 text-amber-100 border-amber-300/20',
-  hot:     'bg-orange-500/90 text-white border-transparent shadow-sm',
-  cool:    'bg-foreground/[0.06] text-foreground/90 border-border/30',
-};
+interface ChipStyle { card: string; text: string; }
+const STYLE_UV:    ChipStyle = { card: 'bg-orange-500 border-transparent',  text: 'text-neutral-900' };
+const STYLE_RAIN:  ChipStyle = { card: 'bg-sky-300 border-transparent',     text: 'text-neutral-900' };
+const STYLE_CLOUD: ChipStyle = { card: 'bg-slate-300 border-transparent',   text: 'text-neutral-900' };
+const STYLE_DARK:  ChipStyle = { card: 'bg-foreground/[0.06] border-border/30', text: 'text-foreground' };
 
 interface Insight {
   key: string;
-  text: string;
-  icon: typeof Wind;
-  tone: Tone;
+  label: string;
+  Icon: LucideIcon;
+  style: ChipStyle;
+  iconColor: string;
+  colStart2?: boolean;
 }
 
-function buildInsights(data: WeatherData, lang: 'ar' | 'de'): Insight[] {
+function buildInsights(data: WeatherData, isAr: boolean): Insight[] {
   const ins: Insight[] = [];
   const daily = data.daily;
   const c = data.current;
+  if (!daily.length) return ins;
 
-  // UV
-  let maxUv = 0, uvDayMs = 0;
+  // 1 ─ UV index (highlighted orange when high)
+  let maxUv = 0, uvDay = 0;
   for (const d of daily) {
-    if ((d.uvIndexMax ?? 0) > maxUv) { maxUv = d.uvIndexMax ?? 0; uvDayMs = d.date; }
+    if ((d.uvIndexMax ?? 0) > maxUv) { maxUv = d.uvIndexMax ?? 0; uvDay = d.date; }
   }
   if (maxUv > 0) {
-    const dayName = uvDayMs ? dayShort(uvDayMs, lang) : '';
-    const isHigh = maxUv >= 6;
+    const high = maxUv >= 6;
+    const head = isAr ? (high ? 'مؤشر UV مرتفع' : 'مؤشر UV') : (high ? 'High UV index' : 'UV index');
     ins.push({
       key: 'uv',
-      text: lang === 'ar'
-        ? `${isHigh ? 'مؤشر UV مرتفع' : 'مؤشر UV'} (${maxUv.toFixed(1)}) ${dayName}`
-        : `${isHigh ? 'Hoher UV-Index' : 'UV-Index'} (${maxUv.toFixed(1)}) ${dayName}`,
-      icon: ThermometerSun,
-      tone: isHigh ? 'hot' : 'warm',
+      label: `${head} (${maxUv.toFixed(1)}) ${weekdayLong(uvDay, isAr)}`,
+      Icon: Sun,
+      style: STYLE_UV,
+      iconColor: 'text-neutral-900',
     });
   }
 
-  // Rain
+  // 2 ─ Total rain expected (light blue)
   const totalRain = daily.reduce((s, d) => s + (d.precipitationSum ?? 0), 0);
-  if (totalRain < 0.5) {
-    ins.push({
-      key: 'rain',
-      text: lang === 'ar' ? 'لا أمطار متوقّعة' : 'Kein Regen erwartet',
-      icon: Droplets,
-      tone: 'cool',
-    });
-  } else {
-    let maxDay = daily[0];
-    for (const d of daily) if ((d.precipitationSum ?? 0) > (maxDay.precipitationSum ?? 0)) maxDay = d;
-    ins.push({
-      key: 'rain',
-      text: lang === 'ar'
-        ? `أمطار ${(maxDay.precipitationSum ?? 0).toFixed(1)} مم ${dayShort(maxDay.date, lang)}`
-        : `${(maxDay.precipitationSum ?? 0).toFixed(1)} mm Regen ${dayShort(maxDay.date, lang)}`,
-      icon: Droplets,
-      tone: 'cool',
-    });
-  }
+  ins.push({
+    key: 'rain',
+    label: totalRain >= 0.5
+      ? (isAr ? `${Math.round(totalRain)} مم أمطار متوقّعة` : `${Math.round(totalRain)} mm rain expected`)
+      : (isAr ? 'لا أمطار متوقّعة' : 'No rain expected'),
+    Icon: Droplet,
+    style: STYLE_RAIN,
+    iconColor: 'text-neutral-900',
+  });
 
-  // Wind
-  let maxWindDay = daily[0];
-  for (const d of daily) if ((d.windSpeedMax ?? 0) > (maxWindDay.windSpeedMax ?? 0)) maxWindDay = d;
-  if (maxWindDay && maxWindDay.windSpeedMax) {
-    const dir = compassDir(maxWindDay.windDirectionDominant ?? 0, lang);
-    ins.push({
-      key: 'wind',
-      text: lang === 'ar'
-        ? `${Math.round(maxWindDay.windSpeedMax)} كم/س رياح ${dayShort(maxWindDay.date, lang)} (${dir})`
-        : `${Math.round(maxWindDay.windSpeedMax)} km/h Wind ${dayShort(maxWindDay.date, lang)} (${dir})`,
-      icon: Wind,
-      tone: 'neutral',
-    });
+  // 3 ─ Wind gusts (dark, green accent)
+  let gustVal = 0, gustDay = 0;
+  for (const d of daily) {
+    if ((d.windGustsMax ?? 0) > gustVal) { gustVal = d.windGustsMax ?? 0; gustDay = d.date; }
   }
-
-  // Gusts — derived from current windGusts; if missing, skip
-  if (c.windGusts && c.windGusts > 5) {
+  if (gustVal >= 20) {
     ins.push({
       key: 'gusts',
-      text: lang === 'ar'
-        ? `${Math.round(c.windGusts)} كم/س عواصف`
-        : `${Math.round(c.windGusts)} km/h Böen`,
-      icon: Wind,
-      tone: 'neutral',
+      label: isAr
+        ? `هبّات ${Math.round(gustVal)} كم/س ${weekdayLong(gustDay, isAr)}`
+        : `${Math.round(gustVal)} km/h gusts ${weekdayLong(gustDay, isAr)}`,
+      Icon: Flag,
+      style: STYLE_DARK,
+      iconColor: 'text-emerald-400',
     });
   }
 
-  // Pressure
+  // 4 ─ Strongest wind (dark, violet accent)
+  let windVal = 0; let windDayEntry: DailyEntry | null = null;
+  for (const d of daily) {
+    if ((d.windSpeedMax ?? 0) > windVal) { windVal = d.windSpeedMax ?? 0; windDayEntry = d; }
+  }
+  if (windDayEntry && windVal > 0) {
+    const dir = compassDir(windDayEntry.windDirectionDominant ?? 0, isAr);
+    ins.push({
+      key: 'wind',
+      label: isAr
+        ? `رياح ${Math.round(windVal)} كم/س ${weekdayLong(windDayEntry.date, isAr)} (${dir})`
+        : `${Math.round(windVal)} km/h wind ${weekdayLong(windDayEntry.date, isAr)} (${dir})`,
+      Icon: Wind,
+      style: STYLE_DARK,
+      iconColor: 'text-violet-400',
+    });
+  }
+
+  // 5 ─ High humidity (dark, teal accent)
+  let humVal = 0, humDay = 0;
+  for (const d of daily) {
+    if ((d.humidityMax ?? 0) > humVal) { humVal = d.humidityMax ?? 0; humDay = d.date; }
+  }
+  if (humVal >= 60) {
+    ins.push({
+      key: 'humidity',
+      label: isAr
+        ? `رطوبة عالية ${weekdayShort(humDay, isAr)} (${Math.round(humVal)}%)`
+        : `High humidity ${weekdayShort(humDay, isAr)} (${Math.round(humVal)}%)`,
+      Icon: Droplets,
+      style: STYLE_DARK,
+      iconColor: 'text-teal-400',
+    });
+  }
+
+  // 6 ─ Air pressure (dark, amber accent)
   if (c.pressure) {
-    const high = c.pressure >= 1020;
+    let label: string;
+    if (c.pressure >= 1023) {
+      label = isAr ? `ضغط مرتفع (${c.pressure} هـ.ب)` : `High air pressure (${c.pressure} hPa)`;
+    } else if (c.pressure <= 1005) {
+      label = isAr ? `ضغط منخفض (${c.pressure} هـ.ب)` : `Low air pressure (${c.pressure} hPa)`;
+    } else {
+      label = isAr ? 'ضغط الهواء ضمن المعدّل' : 'Air pressure in normal range';
+    }
     ins.push({
       key: 'pressure',
-      text: lang === 'ar'
-        ? `${high ? 'ضغط مرتفع' : 'الضغط'} (${Math.round(c.pressure)} هـ.ب)`
-        : `${high ? 'Hoher Luftdruck' : 'Luftdruck'} (${Math.round(c.pressure)} hPa)`,
-      icon: Gauge,
-      tone: 'warm',
+      label,
+      Icon: Gauge,
+      style: STYLE_DARK,
+      iconColor: 'text-orange-300',
+    });
+  }
+
+  // 7 ─ Heavily cloudy (light grey, alone in the right column)
+  let cloudVal = 0, cloudDay = 0;
+  for (const d of daily) {
+    if ((d.cloudCoverMean ?? 0) > cloudVal) { cloudVal = d.cloudCoverMean ?? 0; cloudDay = d.date; }
+  }
+  if (cloudVal >= 70) {
+    ins.push({
+      key: 'cloud',
+      label: isAr
+        ? `غائم بكثافة ${weekdayLong(cloudDay, isAr)} (${Math.round(cloudVal)}%)`
+        : `Heavily cloudy ${weekdayLong(cloudDay, isAr)} (${Math.round(cloudVal)}%)`,
+      Icon: Cloud,
+      style: STYLE_CLOUD,
+      iconColor: 'text-neutral-900',
+      colStart2: true,
     });
   }
 
   return ins;
 }
 
-function NextSevenDays({ data, lang }: { data: WeatherData; lang: 'ar' | 'de' }) {
-  const insights = useMemo(() => buildInsights(data, lang), [data, lang]);
+function NextSevenDays({ data, isAr }: { data: WeatherData; isAr: boolean }) {
+  const insights = useMemo(() => buildInsights(data, isAr), [data, isAr]);
   if (!insights.length) return null;
   return (
-    <section className="pt-5 border-t border-border/30">
-      <h2 className="text-[18px] font-semibold text-foreground mb-3">
-        {lang === 'ar' ? 'الأيام السبعة القادمة' : 'Next 7 days'}
+    <section className="pt-5 mt-2 border-t border-border/40">
+      <h2 className="text-[22px] font-semibold text-foreground mb-4">
+        {isAr ? 'الأيام السبعة القادمة' : 'Next 7 days'}
       </h2>
-      <div className="grid grid-cols-2 gap-2.5">
+      <div className="grid grid-cols-2 gap-3">
         {insights.map(i => (
           <div
             key={i.key}
-            className={`flex items-start justify-between gap-2 rounded-2xl border px-3.5 py-3 ${toneClasses[i.tone]}`}
+            className={`flex items-start justify-between gap-2 rounded-3xl border px-4 py-3.5 ${i.style.card} ${i.colStart2 ? 'col-start-2' : ''}`}
           >
-            <span className="text-[12.5px] font-medium leading-snug flex-1">{i.text}</span>
-            <i.icon className="w-4 h-4 mt-0.5 shrink-0 opacity-90" />
+            <span className={`text-[13.5px] font-medium leading-snug flex-1 ${i.style.text}`}>
+              {i.label}
+            </span>
+            <i.Icon className={`w-5 h-5 mt-0.5 shrink-0 ${i.iconColor}`} strokeWidth={1.8} />
           </div>
         ))}
       </div>
@@ -626,11 +388,10 @@ function NextSevenDays({ data, lang }: { data: WeatherData; lang: 'ar' | 'de' })
   );
 }
 
-// ── Sun & Moon collapsibles ─────────────────────────────────────────────
+// ── Sun & Moon ─────────────────────────────────────────────────────────────
 
 function CollapsibleRow({ open, onToggle, label, icon: Icon, children }: {
-  open: boolean; onToggle: () => void;
-  label: string; icon: typeof Sun; children: React.ReactNode;
+  open: boolean; onToggle: () => void; label: string; icon: LucideIcon; children: React.ReactNode;
 }) {
   return (
     <div className="rounded-2xl border border-border/40 bg-card overflow-hidden">
@@ -641,13 +402,13 @@ function CollapsibleRow({ open, onToggle, label, icon: Icon, children }: {
         className="w-full flex items-center justify-between gap-3 px-4 py-4 text-start"
       >
         <span className="inline-flex items-center gap-3 flex-1 min-w-0">
-          <ChevronDown
-            className={`w-4 h-4 text-muted-foreground transition-transform ${open ? 'rotate-180' : '-rotate-90 rtl:rotate-90'}`}
+          <ChevronRight
+            className={`w-4 h-4 text-muted-foreground transition-transform ${open ? 'rotate-90' : 'rtl:rotate-180'}`}
           />
-          <span className="text-[15px] font-medium text-foreground">{label}</span>
+          <span className="text-[16px] font-medium text-foreground">{label}</span>
         </span>
-        <span className="w-9 h-9 rounded-full bg-primary/15 border border-primary/30 inline-flex items-center justify-center shrink-0">
-          <Icon className="w-4 h-4 text-primary" />
+        <span className="w-10 h-10 rounded-full bg-indigo-200 inline-flex items-center justify-center shrink-0">
+          <Icon className="w-[18px] h-[18px] text-indigo-950" strokeWidth={2} />
         </span>
       </button>
       {open && <div className="px-4 pb-4 pt-1">{children}</div>}
@@ -655,7 +416,7 @@ function CollapsibleRow({ open, onToggle, label, icon: Icon, children }: {
   );
 }
 
-function SunriseSunsetBody({ today, lang }: { today: DailyEntry; lang: 'ar' | 'de' }) {
+function SunriseSunsetBody({ today, isAr }: { today: DailyEntry; isAr: boolean }) {
   const isoMin = (iso: string) => {
     const [, t] = iso.split('T');
     const [h, m] = (t ?? '0:0').split(':').map(Number);
@@ -677,9 +438,7 @@ function SunriseSunsetBody({ today, lang }: { today: DailyEntry; lang: 'ar' | 'd
         <div className="flex items-center gap-2.5">
           <Sunrise className="w-5 h-5 text-amber-400" />
           <div>
-            <p className="text-[10.5px] text-muted-foreground">
-              {lang === 'ar' ? 'الشروق' : 'Sunrise'}
-            </p>
+            <p className="text-[10.5px] text-muted-foreground">{isAr ? 'الشروق' : 'Sunrise'}</p>
             <p className="text-[14px] font-semibold text-foreground tabular-nums">
               {formatTimeFromIso(today.sunrise)}
             </p>
@@ -688,9 +447,7 @@ function SunriseSunsetBody({ today, lang }: { today: DailyEntry; lang: 'ar' | 'd
         <div className="flex items-center gap-2.5">
           <Sunset className="w-5 h-5 text-orange-500" />
           <div>
-            <p className="text-[10.5px] text-muted-foreground">
-              {lang === 'ar' ? 'الغروب' : 'Sunset'}
-            </p>
+            <p className="text-[10.5px] text-muted-foreground">{isAr ? 'الغروب' : 'Sunset'}</p>
             <p className="text-[14px] font-semibold text-foreground tabular-nums">
               {formatTimeFromIso(today.sunset)}
             </p>
@@ -705,13 +462,13 @@ function SunriseSunsetBody({ today, lang }: { today: DailyEntry; lang: 'ar' | 'd
       </div>
       <p className="text-[11px] text-muted-foreground">
         <span className="tabular-nums">{hh}:{mm}</span>{' '}
-        {lang === 'ar' ? 'متبقّية حتى الغروب' : 'verbleibend bis Sonnenuntergang'}
+        {isAr ? 'متبقّية حتى الغروب' : 'remaining until sunset'}
       </p>
     </div>
   );
 }
 
-function MoonBody({ lang }: { lang: 'ar' | 'de' }) {
+function MoonBody({ isAr }: { isAr: boolean }) {
   const m = getMoonPhase();
   const pct = Math.round(m.illumination * 100);
   const k = Math.cos(2 * Math.PI * m.phase);
@@ -726,91 +483,53 @@ function MoonBody({ lang }: { lang: 'ar' | 'de' }) {
         />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-[15px] font-semibold text-foreground">{m.name[lang]}</p>
+        <p className="text-[15px] font-semibold text-foreground">{m.name[isAr ? 'ar' : 'de']}</p>
         <p className="text-[11.5px] text-muted-foreground mt-0.5">
-          {lang === 'ar' ? `${pct}٪ مضاءة · ${m.waxing ? 'متزايد' : 'متناقص'}` : `${pct}% Beleuchtung · ${m.waxing ? 'zunehmend' : 'abnehmend'}`}
+          {isAr
+            ? `${pct}٪ مضاءة · ${m.waxing ? 'متزايد' : 'متناقص'}`
+            : `${pct}% illuminated · ${m.waxing ? 'waxing' : 'waning'}`}
         </p>
       </div>
     </div>
   );
 }
 
-function SunMoon({ data, lang }: { data: WeatherData; lang: 'ar' | 'de' }) {
+function SunMoon({ data, isAr }: { data: WeatherData; isAr: boolean }) {
   const today = data.daily[0];
   const [openSun, setOpenSun] = useState(false);
   const [openMoon, setOpenMoon] = useState(false);
   return (
-    <section className="pt-6">
-      <h2 className="text-[18px] font-semibold text-foreground mb-3">
-        {lang === 'ar' ? 'الشمس والقمر' : 'Sun & Moon'}
+    <section className="pt-7">
+      <h2 className="text-[22px] font-semibold text-foreground mb-4">
+        {isAr ? 'الشمس والقمر' : 'Sun & Moon'}
       </h2>
       <div className="space-y-3">
         {today?.sunrise && today?.sunset && (
           <CollapsibleRow
             open={openSun}
             onToggle={() => setOpenSun(o => !o)}
-            label={lang === 'ar' ? 'الشروق والغروب' : 'Sunrise & Sunset'}
-            icon={Sun}
+            label={isAr ? 'الشروق والغروب' : 'Sunrise & Sunset'}
+            icon={Contrast}
           >
-            <SunriseSunsetBody today={today} lang={lang} />
+            <SunriseSunsetBody today={today} isAr={isAr} />
           </CollapsibleRow>
         )}
         <CollapsibleRow
           open={openMoon}
           onToggle={() => setOpenMoon(o => !o)}
-          label={lang === 'ar' ? 'أطوار القمر' : 'Moon Phases'}
-          icon={MoonStar}
+          label={isAr ? 'أطوار القمر' : 'Moon Phases'}
+          icon={Moon}
         >
-          <MoonBody lang={lang} />
+          <MoonBody isAr={isAr} />
         </CollapsibleRow>
       </div>
     </section>
   );
 }
 
-// ── Provider switcher / OWM key ─────────────────────────────────────────
+// ── OWM API-key prompt (only surfaced when the user opted into OWM) ────────
 
-function ProviderSwitcher({ activeId, lang }: { activeId: ProviderId; lang: 'ar' | 'de' }) {
-  const providers = listProviders();
-  return (
-    <section className="rounded-2xl bg-card border border-border/40 p-3">
-      <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide block mb-2.5">
-        {lang === 'ar' ? 'مصدر البيانات' : 'Datenquelle'}
-      </span>
-      <div className="grid grid-cols-2 gap-2">
-        {providers.map(p => {
-          const active = p.id === activeId;
-          return (
-            <button
-              key={p.id}
-              type="button"
-              onClick={() => writeProviderPref(p.id)}
-              aria-pressed={active}
-              className={`relative rounded-xl border px-3 py-2.5 text-start transition ${
-                active ? 'border-primary/60 bg-primary/10' : 'border-border/40 bg-foreground/[0.02]'
-              }`}
-            >
-              <div className="flex items-center gap-1.5">
-                {active && <Check className="w-3 h-3 text-primary shrink-0" />}
-                <span className={`text-[12.5px] font-semibold ${active ? 'text-primary' : 'text-foreground'}`}>
-                  {p.name[lang]}
-                </span>
-              </div>
-              {p.requiresApiKey && (
-                <span className="mt-1.5 inline-flex items-center gap-1 text-[9.5px] text-amber-400/90">
-                  <Key className="w-2.5 h-2.5" />
-                  {lang === 'ar' ? 'يتطلّب مفتاحاً' : 'API-Key erforderlich'}
-                </span>
-              )}
-            </button>
-          );
-        })}
-      </div>
-    </section>
-  );
-}
-
-function ApiKeyPrompt({ lang, hasExistingKey }: { lang: 'ar' | 'de'; hasExistingKey: boolean }) {
+function ApiKeyPrompt({ isAr, hasExistingKey }: { isAr: boolean; hasExistingKey: boolean }) {
   const [value, setValue] = useState('');
   return (
     <section className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-4">
@@ -818,10 +537,10 @@ function ApiKeyPrompt({ lang, hasExistingKey }: { lang: 'ar' | 'de'; hasExisting
         <Key className="w-4 h-4 mt-0.5 text-amber-400 shrink-0" />
         <div className="min-w-0">
           <h2 className="text-[14px] font-semibold text-foreground">
-            {lang === 'ar' ? 'مفتاح OpenWeatherMap' : 'OpenWeatherMap-Key'}
+            {isAr ? 'مفتاح OpenWeatherMap' : 'OpenWeatherMap key'}
           </h2>
           <p className="mt-1 text-[11.5px] text-muted-foreground leading-relaxed">
-            {lang === 'ar' ? 'يخزَّن محلياً على جهازك فقط.' : 'Wird ausschließlich lokal gespeichert.'}
+            {isAr ? 'يخزَّن محلياً على جهازك فقط.' : 'Stored locally on your device only.'}
           </p>
         </div>
       </div>
@@ -831,7 +550,7 @@ function ApiKeyPrompt({ lang, hasExistingKey }: { lang: 'ar' | 'de'; hasExisting
           value={value}
           onChange={e => setValue(e.target.value)}
           onKeyDown={e => { if (e.key === 'Enter') { writeOwmApiKey(value.trim()); setValue(''); } }}
-          placeholder={hasExistingKey ? (lang === 'ar' ? 'تحديث…' : 'Aktualisieren …') : 'API key'}
+          placeholder={hasExistingKey ? (isAr ? 'تحديث…' : 'Update …') : 'API key'}
           dir="ltr"
           className="flex-1 min-w-0 h-10 rounded-xl bg-background border border-border/50 px-3 text-[16px] font-mono text-foreground"
         />
@@ -841,46 +560,46 @@ function ApiKeyPrompt({ lang, hasExistingKey }: { lang: 'ar' | 'de'; hasExisting
           disabled={!value.trim()}
           className="px-3 h-10 rounded-xl bg-primary text-primary-foreground text-[12.5px] font-semibold disabled:opacity-50"
         >
-          {lang === 'ar' ? 'حفظ' : 'Speichern'}
+          {isAr ? 'حفظ' : 'Save'}
         </button>
       </div>
       <div className="mt-3 flex items-center gap-3 text-[11px]">
         <a href="https://home.openweathermap.org/users/sign_up" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-primary hover:underline">
           <ExternalLink className="w-3 h-3" />
-          {lang === 'ar' ? 'تسجيل مجاني' : 'Kostenlos registrieren'}
+          {isAr ? 'تسجيل مجاني' : 'Sign up free'}
         </a>
         <button type="button" onClick={() => writeProviderPref('open-meteo')} className="ms-auto text-muted-foreground hover:text-foreground">
-          {lang === 'ar' ? 'العودة إلى Open-Meteo' : 'Zurück zu Open-Meteo'}
+          {isAr ? 'العودة إلى Open-Meteo' : 'Back to Open-Meteo'}
         </button>
       </div>
     </section>
   );
 }
 
-// ── States ──────────────────────────────────────────────────────────────
+// ── Loading / empty / error states ─────────────────────────────────────────
 
 function WeatherSkeleton() {
   return (
     <div className="space-y-4">
       <div className="h-14 rounded-2xl bg-muted/30 animate-pulse" />
-      <div className="h-56 rounded-2xl bg-muted/25 animate-pulse" />
+      <div className="h-52 rounded-2xl bg-muted/25 animate-pulse" />
       <div className="h-40 rounded-2xl bg-muted/25 animate-pulse" />
       <div className="h-36 rounded-2xl bg-muted/25 animate-pulse" />
     </div>
   );
 }
 
-function NoLocationCard({ lang }: { lang: 'ar' | 'de' }) {
+function NoLocationCard({ isAr }: { isAr: boolean }) {
   return (
     <div className="rounded-2xl bg-card border border-border/40 p-6 text-center">
       <MapPin className="w-8 h-8 mx-auto mb-3 text-muted-foreground" />
       <h2 className="text-[14px] font-semibold text-foreground mb-1.5">
-        {lang === 'ar' ? 'يحتاج إلى موقعك' : 'Standort benötigt'}
+        {isAr ? 'يحتاج إلى موقعك' : 'Location needed'}
       </h2>
       <p className="text-[12px] text-muted-foreground mb-4 leading-relaxed">
-        {lang === 'ar'
+        {isAr
           ? 'لتقديم طقسٍ دقيق، نحتاج إلى الوصول لموقعك الحالي.'
-          : 'Für genaue Wetterdaten benötigen wir Zugriff auf deinen Standort.'}
+          : 'We need access to your location for an accurate forecast.'}
       </p>
       <button
         type="button"
@@ -888,37 +607,38 @@ function NoLocationCard({ lang }: { lang: 'ar' | 'de' }) {
         className="inline-flex items-center justify-center gap-1.5 px-4 h-9 rounded-xl bg-primary text-primary-foreground text-[12.5px] font-semibold"
       >
         <MapPin className="w-3.5 h-3.5" />
-        {lang === 'ar' ? 'مشاركة الموقع' : 'Standort freigeben'}
+        {isAr ? 'مشاركة الموقع' : 'Share location'}
       </button>
     </div>
   );
 }
 
-function ErrorCard({ lang, error, onRetry }: { lang: 'ar' | 'de'; error: string | null; onRetry: () => void }) {
+function ErrorCard({ isAr, error, onRetry }: { isAr: boolean; error: string | null; onRetry: () => void }) {
   return (
     <div className="rounded-2xl bg-card border border-border/40 p-6 text-center">
       <AlertCircle className="w-8 h-8 mx-auto mb-3 text-destructive" />
       <h2 className="text-[14px] font-semibold text-foreground mb-1.5">
-        {lang === 'ar' ? 'تعذّر جلب الطقس' : 'Wetter nicht verfügbar'}
+        {isAr ? 'تعذّر جلب الطقس' : 'Weather unavailable'}
       </h2>
       <p className="text-[12px] text-muted-foreground mb-4 leading-relaxed">
-        {error || (lang === 'ar' ? 'تأكّد من اتصالك.' : 'Internetverbindung prüfen.')}
+        {error || (isAr ? 'تأكّد من اتصالك.' : 'Check your connection.')}
       </p>
       <button type="button" onClick={onRetry} className="inline-flex items-center gap-1.5 px-4 h-9 rounded-xl bg-foreground/[0.08] text-foreground text-[12.5px] font-semibold">
         <RefreshCw className="w-3.5 h-3.5" />
-        {lang === 'ar' ? 'إعادة المحاولة' : 'Erneut versuchen'}
+        {isAr ? 'إعادة المحاولة' : 'Retry'}
       </button>
     </div>
   );
 }
 
-// ── Page ────────────────────────────────────────────────────────────────
+// ── Page ────────────────────────────────────────────────────────────────────
 
 export default function WeatherPage() {
   const { language } = useApp();
-  const lang: 'ar' | 'de' = language === 'ar' ? 'ar' : 'de';
+  const isAr = language === 'ar';
+  const dataLang: 'ar' | 'de' = isAr ? 'ar' : 'de';
   const { location, status: locStatus } = useDeviceLocation();
-  const { data, status, error, needsApiKey, providerId, refresh, isRefreshing } = useWeatherData(lang);
+  const { data, status, error, needsApiKey, providerId, refresh } = useWeatherData(dataLang);
 
   const [hasExistingKey, setHasExistingKey] = useState(() => !!readOwmApiKey());
   useEffect(() => {
@@ -928,33 +648,22 @@ export default function WeatherPage() {
     return () => window.removeEventListener('storage', sync);
   }, [providerId, needsApiKey]);
 
-  const lastUpdatedLabel = useMemo(() => {
-    if (!data?.fetchedAt) return null;
-    const d = new Date(data.fetchedAt);
-    const locale = lang === 'ar' ? 'ar' : 'de-DE';
-    const time = new Intl.DateTimeFormat(locale, { hour: '2-digit', minute: '2-digit' }).format(d);
-    return lang === 'ar' ? `آخر تحديث ${time}` : `Aktualisiert ${time}`;
-  }, [data?.fetchedAt, lang]);
-
-  // Share the current snapshot via the Web Share API, falling back to the
-  // clipboard. Best-effort — a user cancelling the share sheet (AbortError)
-  // is not an error worth surfacing.
   const handleShare = useCallback(async () => {
     if (!data) return;
     const c = data.current;
-    const place = data.city ?? (lang === 'ar' ? 'موقعي' : 'mein Standort');
-    const cond = describeWeatherCode(c.weatherCode, lang);
-    const text = lang === 'ar'
+    const place = data.city ?? (isAr ? 'موقعي' : 'my location');
+    const cond = describeWeatherCode(c.weatherCode, dataLang);
+    const text = isAr
       ? `الطقس في ${place}: ${c.temperature}° (${cond})، الإحساس ${c.apparentTemperature}°، الرطوبة ${c.humidity}٪، الرياح ${c.windSpeed} كم/س.`
-      : `Wetter in ${place}: ${c.temperature}° (${cond}), gefühlt ${c.apparentTemperature}°, Luftfeuchte ${c.humidity}%, Wind ${c.windSpeed} km/h.`;
+      : `Weather in ${place}: ${c.temperature}° (${cond}), feels like ${c.apparentTemperature}°, humidity ${c.humidity}%, wind ${c.windSpeed} km/h.`;
     try {
       if (typeof navigator !== 'undefined' && navigator.share) {
-        await navigator.share({ title: lang === 'ar' ? 'الطقس' : 'Wetter', text });
+        await navigator.share({ title: isAr ? 'الطقس' : 'Weather', text });
       } else if (typeof navigator !== 'undefined' && navigator.clipboard) {
         await navigator.clipboard.writeText(text);
       }
     } catch { /* user cancelled or unsupported — silent */ }
-  }, [data, lang]);
+  }, [data, isAr, dataLang]);
 
   const handleLocate = useCallback(() => { void requestDeviceLocation(); }, []);
 
@@ -967,56 +676,40 @@ export default function WeatherPage() {
   return (
     <div className="min-h-screen bg-background pb-28">
       <SEO
-        title={lang === 'ar' ? 'الطقس — SmartHub' : 'Wetter — SmartHub'}
-        description={lang === 'ar'
+        title={isAr ? 'الطقس — SmartHub' : 'Weather — SmartHub'}
+        description={isAr
           ? 'توقّعات الطقس لسبعة أيام، الشروق والغروب وأطوار القمر.'
-          : '7-Tage-Wettervorhersage, Sonnenauf-/-untergang und Mondphasen.'}
+          : '7-day weather forecast, sunrise/sunset and moon phases.'}
         path="/weather"
       />
 
       <div className="max-w-lg mx-auto px-4">
         {showNoLocation ? (
-          <div className="pt-6"><NoLocationCard lang={lang} /></div>
+          <div className="pt-6"><NoLocationCard isAr={isAr} /></div>
         ) : needsApiKey ? (
-          <div className="pt-6 space-y-4">
-            <ProviderSwitcher activeId={providerId} lang={lang} />
-            <ApiKeyPrompt lang={lang} hasExistingKey={hasExistingKey} />
-          </div>
+          <div className="pt-6"><ApiKeyPrompt isAr={isAr} hasExistingKey={hasExistingKey} /></div>
         ) : status === 'loading' && !data ? (
           <div className="pt-6"><WeatherSkeleton /></div>
         ) : status === 'error' && !data ? (
-          <div className="pt-6"><ErrorCard lang={lang} error={error} onRetry={refresh} /></div>
+          <div className="pt-6"><ErrorCard isAr={isAr} error={error} onRetry={refresh} /></div>
         ) : data ? (
           <>
             <ForecastHeader
-              lang={lang}
+              isAr={isAr}
               city={data.city}
-              lastUpdatedLabel={lastUpdatedLabel}
               onShare={handleShare}
               onLocate={handleLocate}
-              onRefresh={refresh}
-              isRefreshing={isRefreshing}
             />
-            <CurrentConditions data={data} lang={lang} />
-            <HourlyStrip hourly={data.hourly} lang={lang} />
-            <ForecastBars daily={data.daily} weekRange={data.weekRange} lang={lang} />
-            <NextSevenDays data={data} lang={lang} />
-            {data.airQuality && <AirQualityCard aq={data.airQuality} lang={lang} />}
-            {data.airQuality && <PollenCard aq={data.airQuality} lang={lang} />}
-            <SunMoon data={data} lang={lang} />
+            <ForecastBars daily={data.daily} weekRange={data.weekRange} isAr={isAr} />
+            <NextSevenDays data={data} isAr={isAr} />
+            <SunMoon data={data} isAr={isAr} />
 
-            <div className="pt-6 space-y-3">
-              <ProviderSwitcher activeId={providerId} lang={lang} />
-              {providerId === 'openweathermap' && (
-                <ApiKeyPrompt lang={lang} hasExistingKey={hasExistingKey} />
-              )}
-              <p className="text-center text-[10px] text-muted-foreground/70 pt-1">
-                {lang === 'ar' ? 'البيانات من ' : 'Daten von '}
-                <a href={attribution.url} target="_blank" rel="noopener noreferrer" className="underline hover:text-muted-foreground">
-                  {attribution.label}
-                </a>
-              </p>
-            </div>
+            <p className="text-center text-[10px] text-muted-foreground/60 pt-8 pb-2">
+              {isAr ? 'البيانات من ' : 'Weather data by '}
+              <a href={attribution.url} target="_blank" rel="noopener noreferrer" className="underline hover:text-muted-foreground">
+                {attribution.label}
+              </a>
+            </p>
           </>
         ) : (
           <div className="pt-6"><WeatherSkeleton /></div>

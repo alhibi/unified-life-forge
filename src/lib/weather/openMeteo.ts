@@ -1,6 +1,6 @@
 // Open-Meteo provider.
 //
-// No API key required. Returns 7 days of daily, 24 hours of hourly, and
+// No API key required. Returns 8 days of daily, 24 hours of hourly, and
 // a separate air-quality endpoint for European AQI + PM. This is the
 // default provider and what the legacy `WeatherWidget` also uses.
 
@@ -16,9 +16,9 @@ async function fetchForecastImpl(
     `https://api.open-meteo.com/v1/forecast` +
     `?latitude=${lat}&longitude=${lon}` +
     `&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,weather_code,cloud_cover,pressure_msl,wind_speed_10m,wind_direction_10m,wind_gusts_10m,uv_index` +
-    `&hourly=temperature_2m,weather_code,is_day,precipitation_probability,precipitation` +
-    `&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,uv_index_max,precipitation_sum,precipitation_probability_max,wind_speed_10m_max,wind_direction_10m_dominant` +
-    `&timezone=auto&forecast_days=7`;
+    `&hourly=temperature_2m,relative_humidity_2m,cloud_cover,weather_code,is_day,precipitation_probability,precipitation` +
+    `&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,uv_index_max,precipitation_sum,precipitation_probability_max,wind_speed_10m_max,wind_gusts_10m_max,wind_direction_10m_dominant` +
+    `&timezone=auto&forecast_days=8`;
 
   const res = await fetch(url);
   if (!res.ok) throw new Error(`Open-Meteo HTTP ${res.status}`);
@@ -65,19 +65,49 @@ async function fetchForecastImpl(
   }
 
   const d = json.daily;
-  const daily: DailyEntry[] = (d.time as string[]).slice(0, 7).map((dIso, i) => ({
-    date:                          new Date(dIso).getTime(),
-    weatherCode:                   d.weather_code[i],
-    tempMax:                       Math.round(d.temperature_2m_max[i]),
-    tempMin:                       Math.round(d.temperature_2m_min[i]),
-    sunrise:                       d.sunrise[i],
-    sunset:                        d.sunset[i],
-    uvIndexMax:                    Math.round(d.uv_index_max?.[i] ?? 0),
-    precipitationSum:              d.precipitation_sum?.[i] ?? 0,
-    precipitationProbabilityMax:   d.precipitation_probability_max?.[i] ?? 0,
-    windSpeedMax:                  Math.round(d.wind_speed_10m_max?.[i] ?? 0),
-    windDirectionDominant:         Math.round(d.wind_direction_10m_dominant?.[i] ?? 0),
-  }));
+
+  // Per-day humidity (max) and cloud cover (mean) aren't in Open-Meteo's
+  // daily aggregation set, so we derive them by grouping the FULL hourly
+  // arrays by calendar date. This is independent of the 24-entry hourly
+  // slice we keep above — it walks every forecast hour the API returned.
+  const allHourTimes: string[] = json.hourly.time ?? [];
+  const hHum: number[]   = json.hourly.relative_humidity_2m ?? [];
+  const hCloud: number[] = json.hourly.cloud_cover ?? [];
+  const humMaxByDay = new Map<string, number>();
+  const cloudAggByDay = new Map<string, { sum: number; n: number }>();
+  for (let i = 0; i < allHourTimes.length; i++) {
+    const day = allHourTimes[i].split('T')[0];
+    if (typeof hHum[i] === 'number') {
+      humMaxByDay.set(day, Math.max(humMaxByDay.get(day) ?? 0, hHum[i]));
+    }
+    if (typeof hCloud[i] === 'number') {
+      const e = cloudAggByDay.get(day) ?? { sum: 0, n: 0 };
+      e.sum += hCloud[i];
+      e.n += 1;
+      cloudAggByDay.set(day, e);
+    }
+  }
+
+  const daily: DailyEntry[] = (d.time as string[]).slice(0, 8).map((dIso, i) => {
+    const dayKey = dIso.split('T')[0];
+    const cloudAgg = cloudAggByDay.get(dayKey);
+    return {
+      date:                          new Date(dIso).getTime(),
+      weatherCode:                   d.weather_code[i],
+      tempMax:                       Math.round(d.temperature_2m_max[i]),
+      tempMin:                       Math.round(d.temperature_2m_min[i]),
+      sunrise:                       d.sunrise[i],
+      sunset:                        d.sunset[i],
+      uvIndexMax:                    Math.round((d.uv_index_max?.[i] ?? 0) * 10) / 10,
+      precipitationSum:              d.precipitation_sum?.[i] ?? 0,
+      precipitationProbabilityMax:   d.precipitation_probability_max?.[i] ?? 0,
+      windSpeedMax:                  Math.round(d.wind_speed_10m_max?.[i] ?? 0),
+      windGustsMax:                  Math.round(d.wind_gusts_10m_max?.[i] ?? 0) || undefined,
+      windDirectionDominant:         Math.round(d.wind_direction_10m_dominant?.[i] ?? 0),
+      humidityMax:                   humMaxByDay.has(dayKey) ? Math.round(humMaxByDay.get(dayKey)!) : undefined,
+      cloudCoverMean:                cloudAgg ? Math.round(cloudAgg.sum / cloudAgg.n) : undefined,
+    };
+  });
 
   const allMin = Math.min(...daily.map(x => x.tempMin));
   const allMax = Math.max(...daily.map(x => x.tempMax));
