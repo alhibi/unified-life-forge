@@ -101,6 +101,10 @@ const loadMihrab = () => import("./pages/Mihrab");
 // `WeatherWidget` and most users won't drill into the full hub on every
 // session; the prefetch on idle warms it up so the first tap is fast.
 const loadWeather = () => import("./pages/Weather");
+// Standalone hard-coded 7-day forecast UI (design showcase). Self-contained
+// component with its own dark theme + recharts charts; reachable at
+// /weather/forecast without touching the live-data /weather page.
+const loadWeatherForecast = () => import("./components/WeatherForecast");
 // Diwan library — adab.com integration
 const loadLibrary = () => import("./pages/diwan/Library");
 const loadLibraryPoets = () => import("./pages/diwan/LibraryPoets");
@@ -146,6 +150,7 @@ const DiwanPage = lazy(loadDiwan);
 const BrowsePage = lazy(loadBrowse);
 const MihrabPage = lazy(loadMihrab);
 const WeatherPage = lazy(loadWeather);
+const WeatherForecastPage = lazy(loadWeatherForecast);
 const DiwanLibraryPage = lazy(loadLibrary);
 const DiwanLibraryPoetsPage = lazy(loadLibraryPoets);
 const DiwanLibraryPoetPage = lazy(loadLibraryPoet);
@@ -428,6 +433,7 @@ function AnimatedRoutes() {
             <Route path="/browse" element={<ErrorBoundary><PageTransition><BrowsePage /></PageTransition></ErrorBoundary>} />
             <Route path="/mihrab" element={<ErrorBoundary><PageTransition><MihrabPage /></PageTransition></ErrorBoundary>} />
             <Route path="/weather" element={<ErrorBoundary><PageTransition><WeatherPage /></PageTransition></ErrorBoundary>} />
+            <Route path="/weather/forecast" element={<ErrorBoundary><PageTransition><WeatherForecastPage /></PageTransition></ErrorBoundary>} />
             <Route path="/games/sudoku" element={<ErrorBoundary><PageTransition><SudokuPage /></PageTransition></ErrorBoundary>} />
             <Route path="/games/chess" element={<ErrorBoundary><PageTransition><ChessPage /></PageTransition></ErrorBoundary>} />
             <Route path="/games/chess/puzzles" element={<ErrorBoundary><PageTransition><ChessPuzzlePage /></PageTransition></ErrorBoundary>} />
