@@ -1,17 +1,21 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import {
   Cloud, Sun, CloudRain, CloudSnow, CloudLightning, CloudDrizzle, Cloudy, CloudFog,
   Droplets, Wind, Gauge, Sunrise, Sunset, MapPin, AlertCircle, CloudHail, RefreshCw,
   Share2, CalendarDays, ChevronDown, Key, ExternalLink, Check, ThermometerSun, MoonStar,
+  Leaf, Wind as WindIcon,
 } from 'lucide-react';
 import SEO from '@/components/SEO';
 import { useApp } from '@/contexts/AppContext';
 import { useDeviceLocation, requestDeviceLocation } from '@/hooks/useDeviceLocation';
-import { useWeatherData, type DailyEntry, type WeatherData } from '@/hooks/useWeatherData';
+import { useWeatherData, type DailyEntry, type HourlyEntry, type WeatherData, type AirQuality } from '@/hooks/useWeatherData';
 import {
   listProviders, readOwmApiKey, writeOwmApiKey, writeProviderPref, type ProviderId,
 } from '@/lib/weather';
 import { getMoonPhase } from '@/lib/weather/moonPhase';
+import {
+  describeWeatherCode, uvBand, aqiBand, criticalPollutant, pollenLevel, POLLEN_LABEL,
+} from '@/lib/weather/describe';
 
 /**
  * /weather — Forecast view designed to mirror the user's reference exactly:
@@ -69,18 +73,28 @@ const dateShort = (dateMs: number) => {
 
 // ── Header ──────────────────────────────────────────────────────────────
 
-function ForecastHeader({ lang, city, lastUpdatedLabel }: {
+function ForecastHeader({ lang, city, lastUpdatedLabel, onShare, onLocate, onRefresh, isRefreshing }: {
   lang: 'ar' | 'de'; city: string | null; lastUpdatedLabel: string | null;
+  onShare: () => void; onLocate: () => void; onRefresh: () => void; isRefreshing: boolean;
 }) {
   return (
     <header className="pt-2 pb-1">
-      <div className="flex items-center justify-start mb-5">
+      <div className="flex items-center justify-between mb-5">
         <button
           type="button"
+          onClick={onShare}
           aria-label={lang === 'ar' ? 'مشاركة' : 'Teilen'}
-          className="w-9 h-9 -ms-1 inline-flex items-center justify-center text-foreground/80"
+          className="w-9 h-9 -ms-1 inline-flex items-center justify-center text-foreground/80 active:scale-95 transition-transform"
         >
           <Share2 className="w-4 h-4" />
+        </button>
+        <button
+          type="button"
+          onClick={onRefresh}
+          aria-label={lang === 'ar' ? 'تحديث' : 'Aktualisieren'}
+          className="w-9 h-9 -me-1 inline-flex items-center justify-center text-foreground/80 active:scale-95 transition-transform"
+        >
+          <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
         </button>
       </div>
 
@@ -98,19 +112,331 @@ function ForecastHeader({ lang, city, lastUpdatedLabel }: {
         </div>
         <button
           type="button"
-          aria-label={lang === 'ar' ? 'الموقع' : 'Standort'}
-          className="w-9 h-9 inline-flex items-center justify-center text-primary"
+          onClick={onLocate}
+          aria-label={lang === 'ar' ? 'تحديث الموقع' : 'Standort aktualisieren'}
+          className="w-9 h-9 inline-flex items-center justify-center text-primary active:scale-95 transition-transform"
         >
           <MapPin className="w-5 h-5" />
         </button>
       </div>
 
       {lastUpdatedLabel && (
-        <p className="text-[10.5px] text-muted-foreground mt-2 ms-15 ps-15" style={{ paddingInlineStart: 60 }}>
+        <p className="text-[10.5px] text-muted-foreground mt-2" style={{ paddingInlineStart: 60 }}>
           {lastUpdatedLabel}
         </p>
       )}
     </header>
+  );
+}
+
+// ── Current conditions hero ─────────────────────────────────────────────
+
+interface Metric {
+  key: string;
+  label: string;
+  value: string;
+  icon: typeof Wind;
+  accent?: string;
+}
+
+function buildMetrics(data: WeatherData, lang: 'ar' | 'de'): Metric[] {
+  const c = data.current;
+  const unsupported = data.meta.unsupportedFields ?? [];
+  const m: Metric[] = [];
+
+  m.push({
+    key: 'humidity',
+    label: lang === 'ar' ? 'الرطوبة' : 'Luftfeuchte',
+    value: `${c.humidity}%`,
+    icon: Droplets,
+  });
+
+  const dir = compassDir(c.windDirection, lang);
+  m.push({
+    key: 'wind',
+    label: lang === 'ar' ? 'الرياح' : 'Wind',
+    value: lang === 'ar' ? `${c.windSpeed} كم/س ${dir}` : `${c.windSpeed} km/h ${dir}`,
+    icon: Wind,
+  });
+
+  if (!unsupported.includes('windGusts') && c.windGusts > c.windSpeed) {
+    m.push({
+      key: 'gusts',
+      label: lang === 'ar' ? 'الهبّات' : 'Böen',
+      value: lang === 'ar' ? `${c.windGusts} كم/س` : `${c.windGusts} km/h`,
+      icon: WindIcon,
+    });
+  }
+
+  if (!unsupported.includes('pressure')) {
+    m.push({
+      key: 'pressure',
+      label: lang === 'ar' ? 'الضغط' : 'Luftdruck',
+      value: lang === 'ar' ? `${c.pressure} هـ.ب` : `${c.pressure} hPa`,
+      icon: Gauge,
+    });
+  }
+
+  if (!unsupported.includes('uvIndex')) {
+    const ub = uvBand(c.uvIndex, lang);
+    m.push({
+      key: 'uv',
+      label: lang === 'ar' ? 'الأشعة فوق البنفسجية' : 'UV-Index',
+      value: `${c.uvIndex} · ${ub.label}`,
+      icon: ThermometerSun,
+      accent: ub.textClass,
+    });
+  }
+
+  if (!unsupported.includes('cloudCover')) {
+    m.push({
+      key: 'cloud',
+      label: lang === 'ar' ? 'الغيوم' : 'Bewölkung',
+      value: `${c.cloudCover}%`,
+      icon: Cloud,
+    });
+  }
+
+  return m;
+}
+
+function CurrentConditions({ data, lang }: { data: WeatherData; lang: 'ar' | 'de' }) {
+  const c = data.current;
+  const today = data.daily[0];
+  const Icon = ICON_BY_CODE(c.weatherCode, c.isDay);
+  const cloudy = isCloudyCode(c.weatherCode);
+  const metrics = useMemo(() => buildMetrics(data, lang), [data, lang]);
+
+  return (
+    <section className="rounded-3xl border border-border/40 bg-gradient-to-br from-foreground/[0.06] to-foreground/[0.02] p-5 mt-2">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <div className="flex items-start gap-1">
+            <span className="text-[64px] leading-[0.9] font-extralight text-foreground tabular-nums">
+              {c.temperature}
+            </span>
+            <span className="text-[24px] font-light text-foreground/70 mt-1.5">°</span>
+          </div>
+          <p className="text-[15px] font-medium text-foreground mt-1">
+            {describeWeatherCode(c.weatherCode, lang)}
+          </p>
+          <p className="text-[12px] text-muted-foreground mt-0.5">
+            {lang === 'ar' ? 'الإحساس الفعلي' : 'Gefühlt'} {c.apparentTemperature}°
+          </p>
+        </div>
+        <div className="flex flex-col items-center shrink-0">
+          <Icon
+            className={`w-16 h-16 ${cloudy ? 'text-foreground/55' : 'text-amber-400'}`}
+            strokeWidth={1.4}
+          />
+          {today && (
+            <div className="flex items-center gap-2 mt-1 text-[12.5px] tabular-nums">
+              <span className="text-rose-400 font-semibold">{Math.round(today.tempMax)}°</span>
+              <span className="text-sky-400 font-semibold">{Math.round(today.tempMin)}°</span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {metrics.length > 0 && (
+        <div className="grid grid-cols-2 gap-2.5 mt-5">
+          {metrics.map(mt => (
+            <div
+              key={mt.key}
+              className="flex items-center gap-2.5 rounded-2xl bg-background/40 border border-border/30 px-3 py-2.5"
+            >
+              <mt.icon className={`w-4 h-4 shrink-0 ${mt.accent ?? 'text-muted-foreground'}`} strokeWidth={1.8} />
+              <div className="min-w-0">
+                <p className="text-[10px] text-muted-foreground leading-tight truncate">{mt.label}</p>
+                <p className={`text-[12.5px] font-semibold leading-tight truncate ${mt.accent ?? 'text-foreground'}`}>
+                  {mt.value}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
+
+// ── Hourly forecast strip ───────────────────────────────────────────────
+
+function HourlyStrip({ hourly, lang }: { hourly: HourlyEntry[]; lang: 'ar' | 'de' }) {
+  if (!hourly.length) return null;
+
+  const formatHour = (h: number, idx: number) => {
+    if (idx === 0) return lang === 'ar' ? 'الآن' : 'Jetzt';
+    if (lang === 'ar') {
+      const period = h < 12 ? 'ص' : 'م';
+      const display = h === 0 ? 12 : h > 12 ? h - 12 : h;
+      return `${display}${period}`;
+    }
+    return `${h}`;
+  };
+
+  // Temperature range across the window, for the mini sparkline dots.
+  const temps = hourly.map(h => h.temperature);
+  const lo = Math.min(...temps);
+  const hi = Math.max(...temps);
+  const span = Math.max(1, hi - lo);
+
+  return (
+    <section className="pt-5">
+      <h2 className="text-[18px] font-semibold text-foreground mb-3">
+        {lang === 'ar' ? 'خلال 24 ساعة' : 'Nächste 24 Stunden'}
+      </h2>
+      <div className="rounded-2xl border border-border/40 bg-card py-3">
+        <div className="overflow-x-auto no-scrollbar px-3" dir="ltr">
+          <div className="flex items-stretch gap-1 min-w-fit">
+            {hourly.map((h, idx) => {
+              const Icon = ICON_BY_CODE(h.weatherCode, h.isDay);
+              const cloudy = isCloudyCode(h.weatherCode);
+              const dotPct = (h.temperature - lo) / span;
+              const isNow = idx === 0;
+              return (
+                <div
+                  key={h.time}
+                  className={`flex flex-col items-center gap-1.5 min-w-[46px] rounded-xl py-2 ${isNow ? 'bg-primary/10' : ''}`}
+                >
+                  <span className={`text-[10.5px] ${isNow ? 'font-bold text-primary' : 'text-muted-foreground'}`}>
+                    {formatHour(h.hour, idx)}
+                  </span>
+                  <Icon className={`w-4 h-4 ${cloudy ? 'text-foreground/55' : 'text-amber-400'}`} strokeWidth={1.7} />
+                  <span className="flex items-center gap-0.5 text-[8.5px] text-sky-400/80 h-2.5">
+                    {h.precipitationProbability >= 10 && (
+                      <>
+                        <Droplets className="w-2 h-2" />
+                        {h.precipitationProbability}%
+                      </>
+                    )}
+                  </span>
+                  <div className="relative w-full h-6 flex items-end justify-center">
+                    <span
+                      className="absolute w-1.5 h-1.5 rounded-full bg-foreground/40"
+                      style={{ bottom: `${dotPct * 100}%` }}
+                    />
+                  </div>
+                  <span className="text-[12px] font-semibold text-foreground tabular-nums">
+                    {h.temperature}°
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── Air quality card ────────────────────────────────────────────────────
+
+function AirQualityCard({ aq, lang }: { aq: AirQuality; lang: 'ar' | 'de' }) {
+  if (aq.europeanAqi == null) return null;
+  const band = aqiBand(aq.europeanAqi, lang);
+  const critical = criticalPollutant(aq.subIndices, lang);
+
+  const pmRows: { label: string; value: number | null; unit: string }[] = [
+    { label: 'PM2.5', value: aq.pm2_5, unit: 'µg/m³' },
+    { label: 'PM10',  value: aq.pm10,  unit: 'µg/m³' },
+  ];
+
+  return (
+    <section className="pt-6">
+      <h2 className="text-[18px] font-semibold text-foreground mb-3">
+        {lang === 'ar' ? 'جودة الهواء' : 'Luftqualität'}
+      </h2>
+      <div className="rounded-2xl border border-border/40 bg-card p-4">
+        <div className="flex items-center gap-4">
+          <div className="relative w-16 h-16 shrink-0 inline-flex items-center justify-center">
+            <svg viewBox="0 0 36 36" className="w-16 h-16 -rotate-90">
+              <circle cx="18" cy="18" r="15.5" fill="none" className="stroke-foreground/10" strokeWidth="3" />
+              <circle
+                cx="18" cy="18" r="15.5" fill="none"
+                stroke={band.hex}
+                strokeWidth="3" strokeLinecap="round"
+                strokeDasharray={`${band.fill * 97.4} 97.4`}
+              />
+            </svg>
+            <span className="absolute text-[16px] font-bold text-foreground tabular-nums">
+              {Math.round(aq.europeanAqi)}
+            </span>
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className={`text-[16px] font-semibold ${band.textClass}`}>{band.label}</p>
+            <p className="text-[11.5px] text-muted-foreground mt-0.5">
+              {lang === 'ar' ? 'مؤشر الجودة الأوروبي' : 'Europäischer Luftqualitätsindex'}
+            </p>
+            {critical && (
+              <p className="text-[11px] text-muted-foreground/90 mt-1">
+                {lang === 'ar' ? 'الملوّث الأبرز: ' : 'Leitschadstoff: '}
+                <span className="text-foreground/90 font-medium">{critical.label}</span>
+              </p>
+            )}
+          </div>
+        </div>
+
+        {(aq.pm2_5 != null || aq.pm10 != null) && (
+          <div className="grid grid-cols-2 gap-2.5 mt-4">
+            {pmRows.filter(r => r.value != null).map(r => (
+              <div key={r.label} className="rounded-xl bg-background/40 border border-border/30 px-3 py-2">
+                <p className="text-[10px] text-muted-foreground">{r.label}</p>
+                <p className="text-[13px] font-semibold text-foreground tabular-nums">
+                  {Math.round(r.value as number)} <span className="text-[9px] font-normal text-muted-foreground">{r.unit}</span>
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+// ── Pollen card ─────────────────────────────────────────────────────────
+
+function PollenCard({ aq, lang }: { aq: AirQuality; lang: 'ar' | 'de' }) {
+  const pollen = aq.pollen;
+  if (!pollen) return null;
+
+  const entries = Object.entries(pollen)
+    .filter(([, v]) => typeof v === 'number' && (v as number) > 0)
+    .map(([k, v]) => ({ key: k, value: v as number }))
+    .sort((a, b) => b.value - a.value);
+
+  if (!entries.length) return null;
+
+  return (
+    <section className="pt-6">
+      <h2 className="text-[18px] font-semibold text-foreground mb-3 inline-flex items-center gap-2">
+        <Leaf className="w-4 h-4 text-emerald-400" />
+        {lang === 'ar' ? 'حبوب اللقاح' : 'Pollen'}
+      </h2>
+      <div className="rounded-2xl border border-border/40 bg-card p-4 space-y-3">
+        {entries.map(e => {
+          const lvl = pollenLevel(e.value, lang);
+          const label = POLLEN_LABEL[e.key]?.[lang] ?? e.key;
+          return (
+            <div key={e.key}>
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[12.5px] text-foreground">{label}</span>
+                <span className={`text-[11.5px] font-semibold ${lvl.textClass}`}>{lvl.label}</span>
+              </div>
+              <div className="h-1.5 rounded-full bg-foreground/[0.08] overflow-hidden">
+                <div
+                  className={`h-full rounded-full ${lvl.barClass}`}
+                  style={{ width: `${Math.max(6, lvl.fill * 100)}%` }}
+                />
+              </div>
+            </div>
+          );
+        })}
+        <p className="text-[10px] text-muted-foreground/70 pt-1">
+          {lang === 'ar' ? 'القيم بوحدة حبة/م³' : 'Werte in Körner/m³'}
+        </p>
+      </div>
+    </section>
   );
 }
 
@@ -592,7 +918,7 @@ export default function WeatherPage() {
   const { language } = useApp();
   const lang: 'ar' | 'de' = language === 'ar' ? 'ar' : 'de';
   const { location, status: locStatus } = useDeviceLocation();
-  const { data, status, error, needsApiKey, providerId, refresh } = useWeatherData(lang);
+  const { data, status, error, needsApiKey, providerId, refresh, isRefreshing } = useWeatherData(lang);
 
   const [hasExistingKey, setHasExistingKey] = useState(() => !!readOwmApiKey());
   useEffect(() => {
@@ -609,6 +935,28 @@ export default function WeatherPage() {
     const time = new Intl.DateTimeFormat(locale, { hour: '2-digit', minute: '2-digit' }).format(d);
     return lang === 'ar' ? `آخر تحديث ${time}` : `Aktualisiert ${time}`;
   }, [data?.fetchedAt, lang]);
+
+  // Share the current snapshot via the Web Share API, falling back to the
+  // clipboard. Best-effort — a user cancelling the share sheet (AbortError)
+  // is not an error worth surfacing.
+  const handleShare = useCallback(async () => {
+    if (!data) return;
+    const c = data.current;
+    const place = data.city ?? (lang === 'ar' ? 'موقعي' : 'mein Standort');
+    const cond = describeWeatherCode(c.weatherCode, lang);
+    const text = lang === 'ar'
+      ? `الطقس في ${place}: ${c.temperature}° (${cond})، الإحساس ${c.apparentTemperature}°، الرطوبة ${c.humidity}٪، الرياح ${c.windSpeed} كم/س.`
+      : `Wetter in ${place}: ${c.temperature}° (${cond}), gefühlt ${c.apparentTemperature}°, Luftfeuchte ${c.humidity}%, Wind ${c.windSpeed} km/h.`;
+    try {
+      if (typeof navigator !== 'undefined' && navigator.share) {
+        await navigator.share({ title: lang === 'ar' ? 'الطقس' : 'Wetter', text });
+      } else if (typeof navigator !== 'undefined' && navigator.clipboard) {
+        await navigator.clipboard.writeText(text);
+      }
+    } catch { /* user cancelled or unsupported — silent */ }
+  }, [data, lang]);
+
+  const handleLocate = useCallback(() => { void requestDeviceLocation(); }, []);
 
   const showNoLocation =
     !location && (locStatus === 'idle' || locStatus === 'denied' || locStatus === 'unavailable');
@@ -640,9 +988,21 @@ export default function WeatherPage() {
           <div className="pt-6"><ErrorCard lang={lang} error={error} onRetry={refresh} /></div>
         ) : data ? (
           <>
-            <ForecastHeader lang={lang} city={data.city} lastUpdatedLabel={lastUpdatedLabel} />
+            <ForecastHeader
+              lang={lang}
+              city={data.city}
+              lastUpdatedLabel={lastUpdatedLabel}
+              onShare={handleShare}
+              onLocate={handleLocate}
+              onRefresh={refresh}
+              isRefreshing={isRefreshing}
+            />
+            <CurrentConditions data={data} lang={lang} />
+            <HourlyStrip hourly={data.hourly} lang={lang} />
             <ForecastBars daily={data.daily} weekRange={data.weekRange} lang={lang} />
             <NextSevenDays data={data} lang={lang} />
+            {data.airQuality && <AirQualityCard aq={data.airQuality} lang={lang} />}
+            {data.airQuality && <PollenCard aq={data.airQuality} lang={lang} />}
             <SunMoon data={data} lang={lang} />
 
             <div className="pt-6 space-y-3">
