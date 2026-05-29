@@ -1,31 +1,29 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import {
-  Cloud, Sun, CloudRain, CloudSnow, CloudLightning, CloudDrizzle, Cloudy, CloudFog, MoonStar,
-  Droplets, Wind, Gauge, ThermometerSun, Sunrise, Sunset, Search, MapPin, AlertCircle,
-  CloudHail, RefreshCw, ArrowUp, ArrowDown, Navigation2, Key, ExternalLink, Check, X,
-  Bell, Leaf,
+  Cloud, Sun, CloudRain, CloudSnow, CloudLightning, CloudDrizzle, Cloudy, CloudFog,
+  Droplets, Wind, Gauge, Sunrise, Sunset, MapPin, AlertCircle, CloudHail, RefreshCw,
+  Share2, CalendarDays, ChevronDown, Key, ExternalLink, Check, ThermometerSun, MoonStar,
 } from 'lucide-react';
 import SEO from '@/components/SEO';
-import PageHeader from '@/components/PageHeader';
 import { useApp } from '@/contexts/AppContext';
 import { useDeviceLocation, requestDeviceLocation } from '@/hooks/useDeviceLocation';
-import { useWeatherData, type DailyEntry, type HourlyEntry, type WeatherData } from '@/hooks/useWeatherData';
+import { useWeatherData, type DailyEntry, type WeatherData } from '@/hooks/useWeatherData';
 import {
   listProviders, readOwmApiKey, writeOwmApiKey, writeProviderPref, type ProviderId,
 } from '@/lib/weather';
 import { getMoonPhase } from '@/lib/weather/moonPhase';
 
 /**
- * /weather — full-screen weather hub redesigned to match the user's
- * reference mocks: hero (city / temp / feels / glyph / range chip),
- * map preview, hourly strip, 7-day vertical-bar forecast, environment
- * block (AQI donut + pollen grid) and a sun & moon section
- * (waxing-gibbous moon card + daytime progress).
+ * /weather — Forecast view designed to mirror the user's reference exactly:
+ * compact header (share + calendar tile + "Forecast" + city + pin), a row
+ * of vertical-capsule temperature bars with weather glyphs & precipitation,
+ * a "Next 7 days" grid of colored insight chips, and a "Sun & Moon" block
+ * with two expandable rows (Sunrise & Sunset + Moon Phases).
  */
 
-// ── Code → icon / label / palette ───────────────────────────────────────
+// ── Code → icon ─────────────────────────────────────────────────────────
 
-const ICON_BY_CODE = (code: number, isDay: boolean) => {
+const ICON_BY_CODE = (code: number, isDay = true) => {
   if (code === 0 || code === 1) return isDay ? Sun : MoonStar;
   if (code === 2)                return Cloudy;
   if (code === 3)                return Cloud;
@@ -37,46 +35,13 @@ const ICON_BY_CODE = (code: number, isDay: boolean) => {
   if (code >= 85 && code <= 86)  return CloudSnow;
   if (code === 96 || code === 99) return CloudHail;
   if (code >= 95)                return CloudLightning;
-  return isDay ? Sun : MoonStar;
+  return Sun;
 };
 
-interface CodeLabel { ar: string; de: string; }
-const CODE_LABELS: Record<number, CodeLabel> = {
-  0:  { ar: 'صحو',                de: 'Klar' },
-  1:  { ar: 'صافٍ في الغالب',      de: 'Überwiegend klar' },
-  2:  { ar: 'غائم جزئياً',         de: 'Teilweise bewölkt' },
-  3:  { ar: 'غائم',                de: 'Bewölkt' },
-  45: { ar: 'ضباب',               de: 'Nebel' },
-  48: { ar: 'ضباب متجمّد',         de: 'Reifnebel' },
-  51: { ar: 'رذاذ خفيف',           de: 'Leichter Sprühregen' },
-  53: { ar: 'رذاذ متوسط',          de: 'Mäßiger Sprühregen' },
-  55: { ar: 'رذاذ كثيف',           de: 'Starker Sprühregen' },
-  56: { ar: 'رذاذ متجمّد خفيف',     de: 'Leichter gefrierender Sprühregen' },
-  57: { ar: 'رذاذ متجمّد كثيف',     de: 'Starker gefrierender Sprühregen' },
-  61: { ar: 'مطر خفيف',            de: 'Leichter Regen' },
-  63: { ar: 'مطر متوسط',           de: 'Mäßiger Regen' },
-  65: { ar: 'مطر غزير',            de: 'Starker Regen' },
-  66: { ar: 'مطر متجمّد خفيف',      de: 'Leichter gefrierender Regen' },
-  67: { ar: 'مطر متجمّد غزير',      de: 'Starker gefrierender Regen' },
-  71: { ar: 'ثلج خفيف',            de: 'Leichter Schneefall' },
-  73: { ar: 'ثلج متوسط',           de: 'Mäßiger Schneefall' },
-  75: { ar: 'ثلج كثيف',            de: 'Starker Schneefall' },
-  77: { ar: 'حبيبات ثلجية',        de: 'Schneegriesel' },
-  80: { ar: 'زخات مطر خفيفة',      de: 'Leichte Regenschauer' },
-  81: { ar: 'زخات مطر متوسطة',     de: 'Mäßige Regenschauer' },
-  82: { ar: 'زخات مطر غزيرة',      de: 'Starke Regenschauer' },
-  85: { ar: 'زخات ثلج خفيفة',      de: 'Leichte Schneeschauer' },
-  86: { ar: 'زخات ثلج كثيفة',      de: 'Starke Schneeschauer' },
-  95: { ar: 'عاصفة رعدية',         de: 'Gewitter' },
-  96: { ar: 'عاصفة رعدية مع برَد خفيف', de: 'Gewitter mit leichtem Hagel' },
-  99: { ar: 'عاصفة رعدية مع برَد غزير', de: 'Gewitter mit starkem Hagel' },
-};
-const labelFor = (code: number, lang: 'ar' | 'de') =>
-  CODE_LABELS[code]?.[lang] ?? (lang === 'ar' ? 'غير معروف' : 'Unbekannt');
+const isCloudyCode = (code: number) =>
+  code === 2 || code === 3 || code === 45 || code === 48;
 
 // ── Formatting ──────────────────────────────────────────────────────────
-
-const formatHour = (hour: number) => `${hour.toString().padStart(2, '0')}:00`;
 
 const formatTimeFromIso = (iso: string) => {
   const [, time] = iso.split('T');
@@ -102,182 +67,101 @@ const dateShort = (dateMs: number) => {
   return `${d.getMonth() + 1}/${d.getDate()}`;
 };
 
-// AQI band — matches the European AQI colour scale used by Open-Meteo.
-interface AqiBand { ar: string; de: string; tone: string; stroke: string; }
-const aqiBand = (aqi: number): AqiBand => {
-  if (aqi < 20)  return { ar: 'جيّد جداً', de: 'Sehr gut',  tone: 'text-emerald-400', stroke: '#34d399' };
-  if (aqi < 40)  return { ar: 'جيّد',      de: 'Gut',       tone: 'text-lime-400',    stroke: '#a3e635' };
-  if (aqi < 60)  return { ar: 'متوسط',    de: 'Mäßig',     tone: 'text-amber-400',   stroke: '#fbbf24' };
-  if (aqi < 80)  return { ar: 'سيّئ',      de: 'Schlecht',  tone: 'text-orange-400',  stroke: '#fb923c' };
-  if (aqi < 100) return { ar: 'سيّئ جداً',  de: 'Sehr schlecht', tone: 'text-red-400', stroke: '#f87171' };
-  return            { ar: 'خطير',      de: 'Extrem',     tone: 'text-fuchsia-400', stroke: '#e879f9' };
-};
+// ── Header ──────────────────────────────────────────────────────────────
 
-const pollenLevel = (grains: number | null | undefined): { color: string; high: boolean } => {
-  if (grains == null) return { color: 'bg-muted-foreground/40', high: false };
-  if (grains < 1)   return { color: 'bg-emerald-500',  high: false };
-  if (grains < 5)   return { color: 'bg-lime-500',     high: false };
-  if (grains < 20)  return { color: 'bg-amber-500',    high: true };
-  if (grains < 50)  return { color: 'bg-orange-500',   high: true };
-  return                  { color: 'bg-red-500',       high: true };
-};
-
-// ── Hero ────────────────────────────────────────────────────────────────
-
-function HeroCard({ data, lang, city, onRefresh, isRefreshing }: {
-  data: WeatherData; lang: 'ar' | 'de'; city: string | null;
-  onRefresh: () => void; isRefreshing: boolean;
+function ForecastHeader({ lang, city, lastUpdatedLabel }: {
+  lang: 'ar' | 'de'; city: string | null; lastUpdatedLabel: string | null;
 }) {
-  const c = data.current;
-  const today = data.daily[0];
-  const Icon = ICON_BY_CODE(c.weatherCode, c.isDay);
-
   return (
-    <section className="px-1 pt-1">
-      <div className="flex items-start justify-between gap-3 mb-4">
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            aria-label={lang === 'ar' ? 'بحث' : 'Suche'}
-            className="w-11 h-11 rounded-2xl bg-card border border-border/40 inline-flex items-center justify-center text-foreground/80"
-          >
-            <Search className="w-4 h-4" />
-          </button>
-          <h1 className="text-[26px] font-bold leading-tight text-foreground truncate max-w-[200px]">
-            {city || (lang === 'ar' ? 'موقعك' : 'Standort')}
-          </h1>
-        </div>
+    <header className="pt-2 pb-1">
+      <div className="flex items-center justify-start mb-5">
         <button
           type="button"
-          onClick={onRefresh}
-          className="inline-flex items-center gap-1 text-[11px] text-primary/90 hover:text-primary mt-3"
+          aria-label={lang === 'ar' ? 'مشاركة' : 'Teilen'}
+          className="w-9 h-9 -ms-1 inline-flex items-center justify-center text-foreground/80"
         >
-          <Navigation2 className={`w-3 h-3 ${isRefreshing ? 'animate-spin' : ''}`} />
-          {lang === 'ar' ? 'الآن' : 'Currently'}
+          <Share2 className="w-4 h-4" />
         </button>
       </div>
 
-      <div className="flex items-center justify-center gap-6 mb-2">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full bg-primary/15 border border-primary/30 inline-flex items-center justify-center">
-            <Cloud className="w-4 h-4 text-primary" />
-          </div>
-          <div className="flex flex-col items-start">
-            <span dir="ltr" className="text-[68px] font-bold leading-none text-foreground tracking-tight">
-              {c.temperature}°
-            </span>
-            <span className="text-[11.5px] text-muted-foreground mt-1">
-              {lang === 'ar' ? `تشعر ${c.apparentTemperature}°` : `Gefühlt ${c.apparentTemperature}°`}
-            </span>
-          </div>
+      <div className="flex items-center gap-3">
+        <div className="w-12 h-12 rounded-2xl bg-foreground/[0.08] border border-border/40 inline-flex items-center justify-center shrink-0">
+          <CalendarDays className="w-5 h-5 text-foreground/85" />
         </div>
-        <Icon className="w-24 h-24 stroke-[1.3] text-muted-foreground/80 shrink-0" />
-      </div>
-
-      <p className="text-center text-[15px] text-foreground/85 mb-3">
-        {labelFor(c.weatherCode, lang)}
-      </p>
-
-      {today && (
-        <div className="mx-auto inline-flex items-center gap-3 px-4 py-1.5 rounded-full bg-card border border-border/40 text-[12px] text-foreground/85 w-fit">
-          <span className="inline-flex items-center gap-1">
-            <span dir="ltr">{(c.precipitation ?? 0).toFixed(0)} mm</span>
-            <Droplets className="w-3 h-3 text-sky-400" />
-          </span>
-          <span className="inline-flex items-center gap-0.5">
-            <span dir="ltr">{today.tempMin}°</span>
-            <ArrowDown className="w-3 h-3 text-sky-400" />
-          </span>
-          <span className="inline-flex items-center gap-0.5">
-            <span dir="ltr">{today.tempMax}°</span>
-            <ArrowUp className="w-3 h-3 text-rose-400" />
-          </span>
-        </div>
-      )}
-    </section>
-  );
-}
-
-// ── Map preview ─────────────────────────────────────────────────────────
-
-function MapCard({ lat, lon, lang, precipMm }: {
-  lat: number; lon: number; lang: 'ar' | 'de'; precipMm: number;
-}) {
-  // Lightweight OSM embed — no extra dependency. Bbox = ±0.3° around the
-  // location for a city-region view similar to the reference.
-  const d = 0.3;
-  const bbox = `${lon - d},${lat - d},${lon + d},${lat + d}`;
-  const src = `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${lat},${lon}`;
-  const noPrecip = (precipMm ?? 0) < 0.1;
-
-  return (
-    <section className="relative h-44 rounded-2xl overflow-hidden border border-border/40 bg-card">
-      <iframe
-        title="map"
-        src={src}
-        className="absolute inset-0 w-full h-full grayscale-[0.3] contrast-[0.9] brightness-[0.85]"
-        loading="lazy"
-        referrerPolicy="no-referrer-when-downgrade"
-      />
-      <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-background/40 via-transparent to-transparent" />
-      <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between gap-2 pointer-events-none">
-        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-background/85 backdrop-blur text-[11px] font-medium text-foreground border border-border/40">
-          <Droplets className="w-3 h-3 text-sky-400" />
-          {noPrecip
-            ? (lang === 'ar' ? 'لا أمطار متوقعة' : 'Kein Niederschlag erwartet')
-            : (lang === 'ar' ? `هطول ${precipMm.toFixed(1)} مم` : `${precipMm.toFixed(1)} mm Niederschlag`)}
-        </span>
-      </div>
-    </section>
-  );
-}
-
-// ── Hourly strip ────────────────────────────────────────────────────────
-
-function HourlyStrip({ hourly, lang, windSpeed, windDirection }: {
-  hourly: HourlyEntry[]; lang: 'ar' | 'de'; windSpeed: number; windDirection: number;
-}) {
-  if (!hourly.length) return null;
-  return (
-    <section>
-      <div className="flex items-center gap-2 mb-3">
-        <div className="w-8 h-8 rounded-xl bg-primary/15 border border-primary/30 inline-flex items-center justify-center">
-          <Cloud className="w-4 h-4 text-primary" />
-        </div>
-        <div>
-          <h2 className="text-[15px] font-semibold text-foreground leading-tight">
-            {lang === 'ar' ? 'التوقّع الساعي' : 'Hourly forecast'}
-          </h2>
-          <p className="text-[11px] text-muted-foreground">
-            {lang === 'ar' ? 'الـ 24 ساعة القادمة' : 'Next 24 hours'}
+        <div className="flex-1 min-w-0">
+          <h1 className="text-[28px] font-semibold text-foreground leading-tight">
+            {lang === 'ar' ? 'التوقّع' : 'Forecast'}
+          </h1>
+          <p className="text-[14px] text-primary truncate">
+            {city || (lang === 'ar' ? 'موقعك' : 'Standort')}
           </p>
         </div>
+        <button
+          type="button"
+          aria-label={lang === 'ar' ? 'الموقع' : 'Standort'}
+          className="w-9 h-9 inline-flex items-center justify-center text-primary"
+        >
+          <MapPin className="w-5 h-5" />
+        </button>
       </div>
+
+      {lastUpdatedLabel && (
+        <p className="text-[10.5px] text-muted-foreground mt-2 ms-15 ps-15" style={{ paddingInlineStart: 60 }}>
+          {lastUpdatedLabel}
+        </p>
+      )}
+    </header>
+  );
+}
+
+// ── Forecast bars ───────────────────────────────────────────────────────
+
+function ForecastBars({ daily, weekRange, lang }: {
+  daily: DailyEntry[]; weekRange: { min: number; max: number }; lang: 'ar' | 'de';
+}) {
+  if (!daily.length) return null;
+  const span = Math.max(1, weekRange.max - weekRange.min);
+  const BAR_PX = 150;
+  const BAR_W = 14;
+
+  return (
+    <section className="pt-2 pb-6">
       <div className="overflow-x-auto no-scrollbar -mx-4 px-4" dir="ltr">
-        <div className="flex items-stretch gap-2 min-w-fit">
-          {hourly.map((h, i) => {
-            const Icon = ICON_BY_CODE(h.weatherCode, h.isDay);
+        <div className="flex items-stretch gap-3 min-w-fit">
+          {daily.map((d) => {
+            const Icon = ICON_BY_CODE(d.weatherCode, true);
+            const topPct    = (weekRange.max - d.tempMax) / span;
+            const bottomPct = (d.tempMin - weekRange.min) / span;
+            const top    = topPct    * (BAR_PX - 14);
+            const bottom = bottomPct * (BAR_PX - 14);
+            const iconCloudy = isCloudyCode(d.weatherCode);
             return (
-              <div
-                key={h.time}
-                className="flex flex-col items-center gap-2 min-w-[68px] rounded-2xl border border-border/40 bg-card py-3 px-2"
-              >
-                <span className="text-[11px] text-muted-foreground font-medium">
-                  {i === 0 ? (lang === 'ar' ? 'الآن' : 'Now') : formatHour(h.hour)}
+              <div key={d.date} className="flex flex-col items-center min-w-[44px]">
+                <span className="text-[11.5px] font-medium text-foreground/85 leading-tight">
+                  {dayShort(d.date, lang)}
                 </span>
-                <Icon className={`w-7 h-7 stroke-[1.5] ${h.isDay ? 'text-amber-400' : 'text-amber-300/90'}`} />
-                <span className="text-[18px] font-bold text-rose-400 leading-none">{h.temperature}°</span>
-                <div className="w-full border-t border-border/30 my-0.5" />
-                <span className="inline-flex items-center gap-1 text-[10.5px] text-muted-foreground">
-                  <Droplets className="w-2.5 h-2.5" />
-                  {h.precipitationProbability}%
+                <span className="text-[10px] text-muted-foreground mb-3">
+                  {dateShort(d.date)}
                 </span>
-                <span className="inline-flex items-center gap-1 text-[10.5px] text-muted-foreground">
-                  <Navigation2
-                    className="w-2.5 h-2.5"
-                    style={{ transform: `rotate(${windDirection}deg)` }}
+
+                <span className="text-[13px] font-semibold text-rose-400 mb-1 tabular-nums">
+                  {Math.round(d.tempMax)}°
+                </span>
+
+                <div className="relative" style={{ width: BAR_W, height: BAR_PX }}>
+                  <div
+                    className="absolute left-0 right-0 rounded-full bg-foreground/30"
+                    style={{ top, bottom }}
                   />
-                  <span dir="ltr">{windSpeed}</span>
+                </div>
+
+                <span className="text-[13px] font-semibold text-sky-400 mt-1 tabular-nums">
+                  {Math.round(d.tempMin)}°
+                </span>
+
+                <Icon className={`w-6 h-6 mt-4 ${iconCloudy ? 'text-foreground/55' : 'text-amber-400'}`} strokeWidth={1.6} />
+                <span className="text-[10.5px] text-muted-foreground mt-1 tabular-nums">
+                  {d.precipitationProbabilityMax ?? 0}%
                 </span>
               </div>
             );
@@ -288,244 +172,164 @@ function HourlyStrip({ hourly, lang, windSpeed, windDirection }: {
   );
 }
 
-// ── 7-day vertical bars forecast ────────────────────────────────────────
+// ── Insight pills ───────────────────────────────────────────────────────
 
-function ForecastBars({ daily, weekRange, lang }: {
-  daily: DailyEntry[]; weekRange: { min: number; max: number }; lang: 'ar' | 'de';
-}) {
-  if (!daily.length) return null;
-  const span = Math.max(1, weekRange.max - weekRange.min);
-  const BAR_PX = 110;
+type Tone = 'neutral' | 'warm' | 'hot' | 'cool';
+const toneClasses: Record<Tone, string> = {
+  neutral: 'bg-foreground/[0.06] text-foreground/90 border-border/30',
+  warm:    'bg-amber-200/15 text-amber-100 border-amber-300/20',
+  hot:     'bg-orange-500/90 text-white border-transparent shadow-sm',
+  cool:    'bg-foreground/[0.06] text-foreground/90 border-border/30',
+};
 
+interface Insight {
+  key: string;
+  text: string;
+  icon: typeof Wind;
+  tone: Tone;
+}
+
+function buildInsights(data: WeatherData, lang: 'ar' | 'de'): Insight[] {
+  const ins: Insight[] = [];
+  const daily = data.daily;
+  const c = data.current;
+
+  // UV
+  let maxUv = 0, uvDayMs = 0;
+  for (const d of daily) {
+    if ((d.uvIndexMax ?? 0) > maxUv) { maxUv = d.uvIndexMax ?? 0; uvDayMs = d.date; }
+  }
+  if (maxUv > 0) {
+    const dayName = uvDayMs ? dayShort(uvDayMs, lang) : '';
+    const isHigh = maxUv >= 6;
+    ins.push({
+      key: 'uv',
+      text: lang === 'ar'
+        ? `${isHigh ? 'مؤشر UV مرتفع' : 'مؤشر UV'} (${maxUv.toFixed(1)}) ${dayName}`
+        : `${isHigh ? 'Hoher UV-Index' : 'UV-Index'} (${maxUv.toFixed(1)}) ${dayName}`,
+      icon: ThermometerSun,
+      tone: isHigh ? 'hot' : 'warm',
+    });
+  }
+
+  // Rain
+  const totalRain = daily.reduce((s, d) => s + (d.precipitationSum ?? 0), 0);
+  if (totalRain < 0.5) {
+    ins.push({
+      key: 'rain',
+      text: lang === 'ar' ? 'لا أمطار متوقّعة' : 'Kein Regen erwartet',
+      icon: Droplets,
+      tone: 'cool',
+    });
+  } else {
+    let maxDay = daily[0];
+    for (const d of daily) if ((d.precipitationSum ?? 0) > (maxDay.precipitationSum ?? 0)) maxDay = d;
+    ins.push({
+      key: 'rain',
+      text: lang === 'ar'
+        ? `أمطار ${(maxDay.precipitationSum ?? 0).toFixed(1)} مم ${dayShort(maxDay.date, lang)}`
+        : `${(maxDay.precipitationSum ?? 0).toFixed(1)} mm Regen ${dayShort(maxDay.date, lang)}`,
+      icon: Droplets,
+      tone: 'cool',
+    });
+  }
+
+  // Wind
+  let maxWindDay = daily[0];
+  for (const d of daily) if ((d.windSpeedMax ?? 0) > (maxWindDay.windSpeedMax ?? 0)) maxWindDay = d;
+  if (maxWindDay && maxWindDay.windSpeedMax) {
+    const dir = compassDir(maxWindDay.windDirectionDominant ?? 0, lang);
+    ins.push({
+      key: 'wind',
+      text: lang === 'ar'
+        ? `${Math.round(maxWindDay.windSpeedMax)} كم/س رياح ${dayShort(maxWindDay.date, lang)} (${dir})`
+        : `${Math.round(maxWindDay.windSpeedMax)} km/h Wind ${dayShort(maxWindDay.date, lang)} (${dir})`,
+      icon: Wind,
+      tone: 'neutral',
+    });
+  }
+
+  // Gusts — derived from current windGusts; if missing, skip
+  if (c.windGusts && c.windGusts > 5) {
+    ins.push({
+      key: 'gusts',
+      text: lang === 'ar'
+        ? `${Math.round(c.windGusts)} كم/س عواصف`
+        : `${Math.round(c.windGusts)} km/h Böen`,
+      icon: Wind,
+      tone: 'neutral',
+    });
+  }
+
+  // Pressure
+  if (c.pressure) {
+    const high = c.pressure >= 1020;
+    ins.push({
+      key: 'pressure',
+      text: lang === 'ar'
+        ? `${high ? 'ضغط مرتفع' : 'الضغط'} (${Math.round(c.pressure)} هـ.ب)`
+        : `${high ? 'Hoher Luftdruck' : 'Luftdruck'} (${Math.round(c.pressure)} hPa)`,
+      icon: Gauge,
+      tone: 'warm',
+    });
+  }
+
+  return ins;
+}
+
+function NextSevenDays({ data, lang }: { data: WeatherData; lang: 'ar' | 'de' }) {
+  const insights = useMemo(() => buildInsights(data, lang), [data, lang]);
+  if (!insights.length) return null;
   return (
-    <section>
-      <div className="flex items-center gap-2 mb-3">
-        <div className="w-8 h-8 rounded-xl bg-primary/15 border border-primary/30 inline-flex items-center justify-center">
-          <Sun className="w-4 h-4 text-primary" />
-        </div>
-        <div>
-          <h2 className="text-[15px] font-semibold text-foreground leading-tight">
-            {lang === 'ar' ? 'التوقّع الأسبوعي' : 'Forecast'}
-          </h2>
-          <p className="text-[11px] text-muted-foreground">
-            {lang === 'ar' ? 'الأيام السبعة القادمة' : 'Next 7 days'}
-          </p>
-        </div>
-      </div>
-
-      <div className="rounded-2xl bg-card border border-border/40 p-4">
-        <div className="overflow-x-auto no-scrollbar -mx-2 px-2" dir="ltr">
-          <div className="flex items-end gap-4 min-w-fit pb-1">
-            {daily.map((d, i) => {
-              const Icon = ICON_BY_CODE(d.weatherCode, true);
-              const top = ((weekRange.max - d.tempMax) / span) * (BAR_PX - 20);
-              const bottom = ((d.tempMin - weekRange.min) / span) * (BAR_PX - 20);
-              return (
-                <div key={d.date} className="flex flex-col items-center gap-2 min-w-[44px]">
-                  <span className="text-[11.5px] font-semibold text-foreground/90">
-                    {i === 0 ? (lang === 'ar' ? 'اليوم' : (lang === 'de' ? 'Heute' : 'Today')) : dayShort(d.date, lang)}
-                  </span>
-                  <span className="text-[10px] text-muted-foreground">{dateShort(d.date)}</span>
-                  <div className="relative" style={{ width: 10, height: BAR_PX }}>
-                    <div
-                      className="absolute left-0 right-0 rounded-full bg-gradient-to-b from-rose-400/80 via-amber-400/60 to-sky-400/80"
-                      style={{ top, bottom }}
-                    />
-                    <span className="absolute -top-5 left-1/2 -translate-x-1/2 text-[11px] font-semibold text-rose-400">
-                      {d.tempMax}°
-                    </span>
-                    <span className="absolute -bottom-5 left-1/2 -translate-x-1/2 text-[11px] font-semibold text-sky-400">
-                      {d.tempMin}°
-                    </span>
-                  </div>
-                  <Icon className="w-5 h-5 text-amber-400 mt-3" />
-                  <span className="text-[10px] text-muted-foreground">
-                    {d.precipitationProbabilityMax}%
-                  </span>
-                </div>
-              );
-            })}
+    <section className="pt-5 border-t border-border/30">
+      <h2 className="text-[18px] font-semibold text-foreground mb-3">
+        {lang === 'ar' ? 'الأيام السبعة القادمة' : 'Next 7 days'}
+      </h2>
+      <div className="grid grid-cols-2 gap-2.5">
+        {insights.map(i => (
+          <div
+            key={i.key}
+            className={`flex items-start justify-between gap-2 rounded-2xl border px-3.5 py-3 ${toneClasses[i.tone]}`}
+          >
+            <span className="text-[12.5px] font-medium leading-snug flex-1">{i.text}</span>
+            <i.icon className="w-4 h-4 mt-0.5 shrink-0 opacity-90" />
           </div>
-        </div>
+        ))}
       </div>
     </section>
   );
 }
 
-// ── Environment ─────────────────────────────────────────────────────────
+// ── Sun & Moon collapsibles ─────────────────────────────────────────────
 
-function AirQualityCard({ data, lang }: { data: WeatherData; lang: 'ar' | 'de' }) {
-  if (!data.airQuality || data.airQuality.europeanAqi == null) return null;
-  const aqi = Math.round(data.airQuality.europeanAqi);
-  const band = aqiBand(aqi);
-
-  // Critical component: highest sub-index.
-  const sub = data.airQuality.subIndices ?? {};
-  const labels: Record<string, { ar: string; de: string }> = {
-    pm2_5: { ar: 'PM2.5', de: 'PM2,5' },
-    pm10:  { ar: 'PM10',  de: 'PM10' },
-    no2:   { ar: 'NO₂',   de: 'NO₂' },
-    o3:    { ar: 'الأوزون', de: 'Ozon' },
-    so2:   { ar: 'SO₂',   de: 'SO₂' },
-  };
-  let critKey: string | null = null;
-  let critVal = -Infinity;
-  for (const [k, v] of Object.entries(sub)) {
-    if (typeof v === 'number' && v > critVal) { critKey = k; critVal = v; }
-  }
-
-  // Half-donut: 180° arc, fill proportional to AQI/100.
-  const pct = Math.min(1, aqi / 100);
-  const radius = 50;
-  const circumference = Math.PI * radius;       // half circle
-  const dash = circumference * pct;
-
+function CollapsibleRow({ open, onToggle, label, icon: Icon, children }: {
+  open: boolean; onToggle: () => void;
+  label: string; icon: typeof Sun; children: React.ReactNode;
+}) {
   return (
-    <div className="rounded-2xl bg-card border border-border/40 p-4">
-      <div className="flex items-center gap-2 mb-3">
-        <div className="w-8 h-8 rounded-xl bg-primary/15 border border-primary/30 inline-flex items-center justify-center">
-          <Wind className="w-4 h-4 text-primary" />
-        </div>
-        <h3 className="text-[14px] font-semibold text-foreground">
-          {lang === 'ar' ? 'جودة الهواء' : 'Air quality'}
-        </h3>
-      </div>
-
-      <div className="grid grid-cols-[1fr_auto] items-center gap-3">
-        <div className="space-y-3">
-          <div>
-            <p className="text-[10.5px] uppercase tracking-wide text-muted-foreground mb-0.5">
-              {lang === 'ar' ? 'التقييم' : 'Rating'}
-            </p>
-            <p className={`text-[18px] font-bold ${band.tone}`}>{band[lang]}</p>
-          </div>
-          {critKey && (
-            <div>
-              <p className="text-[10.5px] uppercase tracking-wide text-muted-foreground mb-1.5">
-                {lang === 'ar' ? 'مكوّن حرج' : 'Critical components'}
-              </p>
-              <span className={`inline-flex items-center px-3 py-1 rounded-full text-[11.5px] font-semibold bg-rose-500/15 ${band.tone}`}>
-                {labels[critKey][lang]}
-              </span>
-            </div>
-          )}
-        </div>
-
-        <div className="relative w-[130px] h-[80px]" dir="ltr">
-          <svg viewBox="0 0 120 70" className="absolute inset-0 w-full h-full">
-            <path
-              d="M 10 60 A 50 50 0 0 1 110 60"
-              fill="none"
-              stroke="hsl(var(--muted) / 0.6)"
-              strokeWidth="10"
-              strokeLinecap="round"
-            />
-            <path
-              d="M 10 60 A 50 50 0 0 1 110 60"
-              fill="none"
-              stroke={band.stroke}
-              strokeWidth="10"
-              strokeLinecap="round"
-              strokeDasharray={`${dash} ${circumference}`}
-            />
-          </svg>
-          <div className="absolute inset-0 flex flex-col items-center justify-end pb-1">
-            <span className="text-[22px] font-bold text-foreground leading-none">{aqi}</span>
-            <span className="text-[8.5px] text-muted-foreground text-center leading-tight">
-              {lang === 'ar' ? 'مؤشر جودة الهواء' : 'Air Quality Index'}
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function PollenCard({ data, lang }: { data: WeatherData; lang: 'ar' | 'de' }) {
-  const pollen = data.airQuality?.pollen;
-  if (!pollen) return null;
-  const labels = {
-    birch:   { ar: 'البتولا',   de: 'Birke' },
-    grass:   { ar: 'الأعشاب',   de: 'Gräser' },
-    alder:   { ar: 'الجار',     de: 'Erle' },
-    mugwort: { ar: 'الشيح',     de: 'Beifuß' },
-    olive:   { ar: 'الزيتون',   de: 'Olive' },
-    ragweed: { ar: 'الرَّجيد',   de: 'Ragweed' },
-  } as const;
-  const order: (keyof typeof labels)[] = ['birch', 'grass', 'alder', 'mugwort', 'olive', 'ragweed'];
-  // Only render if at least one value is non-null.
-  if (!order.some(k => pollen[k] != null)) return null;
-
-  return (
-    <div className="rounded-2xl bg-card border border-border/40 p-4">
-      <div className="flex items-center gap-2 mb-3">
-        <div className="w-8 h-8 rounded-xl bg-primary/15 border border-primary/30 inline-flex items-center justify-center">
-          <Leaf className="w-4 h-4 text-primary" />
-        </div>
-        <h3 className="text-[14px] font-semibold text-foreground">
-          {lang === 'ar' ? 'حبوب اللقاح' : 'Pollen'}
-        </h3>
-      </div>
-      <div className="grid grid-cols-2 gap-2">
-        {order.map(k => {
-          const v = pollen[k];
-          const level = pollenLevel(v);
-          return (
-            <div key={k} className="flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl border border-border/30 bg-foreground/[0.02]">
-              <span className="inline-flex items-center gap-2 min-w-0">
-                <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${level.color}`} />
-                <span className="text-[12px] text-foreground/90 truncate">{labels[k][lang]}</span>
-              </span>
-              {level.high ? (
-                <Leaf className="w-3 h-3 text-amber-400 shrink-0" />
-              ) : (
-                <Bell className="w-3 h-3 text-muted-foreground/60 shrink-0" />
-              )}
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-// ── Sun & Moon ──────────────────────────────────────────────────────────
-
-function MoonCard({ lang }: { lang: 'ar' | 'de' }) {
-  const m = getMoonPhase();
-  const pct = Math.round(m.illumination * 100);
-
-  // Render the moon as two overlapping circles for an accurate crescent
-  // approximation. The offset comes from |cos(2π·phase)|.
-  const k = Math.cos(2 * Math.PI * m.phase); // -1..1
-  const offset = k * 22; // px, shifts shadow disc horizontally
-
-  return (
-    <div className="rounded-2xl bg-card border border-border/40 p-4">
-      <div className="flex items-center justify-between mb-3">
-        <span className="text-[12px] text-muted-foreground">
-          {lang === 'ar' ? 'طور القمر' : 'Moon phase'}
-        </span>
-        <div className="w-9 h-9 rounded-full bg-slate-900 border border-border/40 relative overflow-hidden" aria-hidden>
-          <div className="absolute inset-0 rounded-full bg-amber-100" />
-          <div
-            className="absolute inset-0 rounded-full bg-slate-900"
-            style={{ transform: `translateX(${offset}px)` }}
+    <div className="rounded-2xl border border-border/40 bg-card overflow-hidden">
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-expanded={open}
+        className="w-full flex items-center justify-between gap-3 px-4 py-4 text-start"
+      >
+        <span className="inline-flex items-center gap-3 flex-1 min-w-0">
+          <ChevronDown
+            className={`w-4 h-4 text-muted-foreground transition-transform ${open ? 'rotate-180' : '-rotate-90 rtl:rotate-90'}`}
           />
-        </div>
-      </div>
-      <p className="text-[15px] font-semibold text-foreground mb-3">{m.name[lang]}</p>
-      <div className="flex items-center justify-between text-[11px] text-muted-foreground">
-        <span>{lang === 'ar' ? `${pct}٪ مضاءة` : `${pct}% Beleuchtung`}</span>
-        <span className="text-foreground/70">{m.waxing ? '↗' : '↘'}</span>
-      </div>
+          <span className="text-[15px] font-medium text-foreground">{label}</span>
+        </span>
+        <span className="w-9 h-9 rounded-full bg-primary/15 border border-primary/30 inline-flex items-center justify-center shrink-0">
+          <Icon className="w-4 h-4 text-primary" />
+        </span>
+      </button>
+      {open && <div className="px-4 pb-4 pt-1">{children}</div>}
     </div>
   );
 }
 
-function DaytimeCard({ daily, lang }: { daily: DailyEntry[]; lang: 'ar' | 'de' }) {
-  const today = daily[0];
-  if (!today?.sunrise || !today?.sunset) return null;
+function SunriseSunsetBody({ today, lang }: { today: DailyEntry; lang: 'ar' | 'de' }) {
   const isoMin = (iso: string) => {
     const [, t] = iso.split('T');
     const [h, m] = (t ?? '0:0').split(':').map(Number);
@@ -542,96 +346,99 @@ function DaytimeCard({ daily, lang }: { daily: DailyEntry[]; lang: 'ar' | 'de' }
   const mm = (remaining % 60).toString().padStart(2, '0');
 
   return (
-    <div className="rounded-2xl bg-card border border-border/40 p-4">
-      <div className="flex items-center justify-between mb-3">
-        <span className="text-[12px] text-muted-foreground">
-          {lang === 'ar' ? 'النهار' : 'Daytime'}
-        </span>
-        <div className="w-9 h-9 rounded-full bg-primary/15 border border-primary/30 inline-flex items-center justify-center">
-          <Sun className="w-4 h-4 text-primary" />
+    <div className="space-y-3" dir="ltr">
+      <div className="grid grid-cols-2 gap-3">
+        <div className="flex items-center gap-2.5">
+          <Sunrise className="w-5 h-5 text-amber-400" />
+          <div>
+            <p className="text-[10.5px] text-muted-foreground">
+              {lang === 'ar' ? 'الشروق' : 'Sunrise'}
+            </p>
+            <p className="text-[14px] font-semibold text-foreground tabular-nums">
+              {formatTimeFromIso(today.sunrise)}
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2.5">
+          <Sunset className="w-5 h-5 text-orange-500" />
+          <div>
+            <p className="text-[10.5px] text-muted-foreground">
+              {lang === 'ar' ? 'الغروب' : 'Sunset'}
+            </p>
+            <p className="text-[14px] font-semibold text-foreground tabular-nums">
+              {formatTimeFromIso(today.sunset)}
+            </p>
+          </div>
         </div>
       </div>
-      <p dir="ltr" className="text-[15px] font-semibold text-foreground mb-3 tabular-nums">
-        {formatTimeFromIso(today.sunrise)} – {formatTimeFromIso(today.sunset)}
-      </p>
-      <div className="h-1.5 rounded-full bg-foreground/[0.08] overflow-hidden mb-2" dir="ltr">
+      <div className="h-1.5 rounded-full bg-foreground/[0.08] overflow-hidden">
         <div
           className="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-400 transition-all"
           style={{ width: `${progress * 100}%` }}
         />
       </div>
       <p className="text-[11px] text-muted-foreground">
-        <span dir="ltr" className="tabular-nums">{hh}:{mm}</span>{' '}
-        {lang === 'ar' ? 'متبقّية' : 'verbleibend'}
+        <span className="tabular-nums">{hh}:{mm}</span>{' '}
+        {lang === 'ar' ? 'متبقّية حتى الغروب' : 'verbleibend bis Sonnenuntergang'}
       </p>
     </div>
   );
 }
 
-function SunriseSunsetCard({ daily, lang }: { daily: DailyEntry[]; lang: 'ar' | 'de' }) {
-  const today = daily[0];
-  if (!today?.sunrise || !today?.sunset) return null;
+function MoonBody({ lang }: { lang: 'ar' | 'de' }) {
+  const m = getMoonPhase();
+  const pct = Math.round(m.illumination * 100);
+  const k = Math.cos(2 * Math.PI * m.phase);
+  const offset = k * 22;
   return (
-    <div className="rounded-2xl bg-card border border-border/40 p-4 col-span-2 grid grid-cols-2 gap-4" dir="ltr">
-      <div className="flex items-center gap-3">
-        <Sunrise className="w-5 h-5 text-amber-400" />
-        <div>
-          <p className="text-[10.5px] text-muted-foreground">
-            {lang === 'ar' ? 'الشروق' : 'Sunrise'}
-          </p>
-          <p className="text-[14px] font-semibold text-foreground tabular-nums">
-            {formatTimeFromIso(today.sunrise)}
-          </p>
-        </div>
+    <div className="flex items-center gap-4">
+      <div className="w-14 h-14 rounded-full bg-slate-900 border border-border/40 relative overflow-hidden shrink-0" aria-hidden>
+        <div className="absolute inset-0 rounded-full bg-amber-100" />
+        <div
+          className="absolute inset-0 rounded-full bg-slate-900"
+          style={{ transform: `translateX(${offset}px)` }}
+        />
       </div>
-      <div className="flex items-center gap-3">
-        <Sunset className="w-5 h-5 text-orange-500" />
-        <div>
-          <p className="text-[10.5px] text-muted-foreground">
-            {lang === 'ar' ? 'الغروب' : 'Sunset'}
-          </p>
-          <p className="text-[14px] font-semibold text-foreground tabular-nums">
-            {formatTimeFromIso(today.sunset)}
-          </p>
-        </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-[15px] font-semibold text-foreground">{m.name[lang]}</p>
+        <p className="text-[11.5px] text-muted-foreground mt-0.5">
+          {lang === 'ar' ? `${pct}٪ مضاءة · ${m.waxing ? 'متزايد' : 'متناقص'}` : `${pct}% Beleuchtung · ${m.waxing ? 'zunehmend' : 'abnehmend'}`}
+        </p>
       </div>
     </div>
   );
 }
 
-// ── Details (compact) ───────────────────────────────────────────────────
-
-function ConditionsGrid({ data, lang }: { data: WeatherData; lang: 'ar' | 'de' }) {
-  const c = data.current;
-  const unsupported = new Set(data.meta.unsupportedFields ?? []);
-  const tiles: { icon: typeof Wind; label: string; value: React.ReactNode }[] = [
-    { icon: Droplets, label: lang === 'ar' ? 'الرطوبة' : 'Luftfeuchte', value: <>{c.humidity}<span className="text-muted-foreground text-[12px]">%</span></> },
-    { icon: Wind,     label: lang === 'ar' ? 'الرياح'  : 'Wind',        value: <span dir="ltr">{c.windSpeed} <span className="text-muted-foreground text-[11px]">km/h {compassDir(c.windDirection, lang)}</span></span> },
-    { icon: Gauge,    label: lang === 'ar' ? 'الضغط'   : 'Luftdruck',   value: <span dir="ltr">{c.pressure} <span className="text-muted-foreground text-[11px]">hPa</span></span> },
-  ];
-  if (!unsupported.has('uvIndex')) {
-    tiles.unshift({ icon: ThermometerSun, label: 'UV', value: <>{c.uvIndex}</> });
-  }
+function SunMoon({ data, lang }: { data: WeatherData; lang: 'ar' | 'de' }) {
+  const today = data.daily[0];
+  const [openSun, setOpenSun] = useState(false);
+  const [openMoon, setOpenMoon] = useState(false);
   return (
-    <div className="grid grid-cols-2 gap-2.5">
-      {tiles.map(t => (
-        <div key={t.label} className="rounded-2xl bg-card border border-border/40 p-3.5">
-          <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
-            <t.icon className="w-3.5 h-3.5" />
-            <span className="text-[10.5px] font-medium uppercase tracking-wide">{t.label}</span>
-          </div>
-          <div className="text-[18px] font-bold text-foreground leading-none">{t.value}</div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-// ── Section label ───────────────────────────────────────────────────────
-
-function SectionLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <h2 className="text-[20px] font-bold text-foreground mt-2 mb-1">{children}</h2>
+    <section className="pt-6">
+      <h2 className="text-[18px] font-semibold text-foreground mb-3">
+        {lang === 'ar' ? 'الشمس والقمر' : 'Sun & Moon'}
+      </h2>
+      <div className="space-y-3">
+        {today?.sunrise && today?.sunset && (
+          <CollapsibleRow
+            open={openSun}
+            onToggle={() => setOpenSun(o => !o)}
+            label={lang === 'ar' ? 'الشروق والغروب' : 'Sunrise & Sunset'}
+            icon={Sun}
+          >
+            <SunriseSunsetBody today={today} lang={lang} />
+          </CollapsibleRow>
+        )}
+        <CollapsibleRow
+          open={openMoon}
+          onToggle={() => setOpenMoon(o => !o)}
+          label={lang === 'ar' ? 'أطوار القمر' : 'Moon Phases'}
+          icon={MoonStar}
+        >
+          <MoonBody lang={lang} />
+        </CollapsibleRow>
+      </div>
+    </section>
   );
 }
 
@@ -688,9 +495,7 @@ function ApiKeyPrompt({ lang, hasExistingKey }: { lang: 'ar' | 'de'; hasExisting
             {lang === 'ar' ? 'مفتاح OpenWeatherMap' : 'OpenWeatherMap-Key'}
           </h2>
           <p className="mt-1 text-[11.5px] text-muted-foreground leading-relaxed">
-            {lang === 'ar'
-              ? 'يخزَّن محلياً على جهازك فقط.'
-              : 'Wird ausschließlich lokal gespeichert.'}
+            {lang === 'ar' ? 'يخزَّن محلياً على جهازك فقط.' : 'Wird ausschließlich lokal gespeichert.'}
           </p>
         </div>
       </div>
@@ -731,10 +536,10 @@ function ApiKeyPrompt({ lang, hasExistingKey }: { lang: 'ar' | 'de'; hasExisting
 function WeatherSkeleton() {
   return (
     <div className="space-y-4">
-      <div className="h-52 rounded-2xl bg-muted/30 animate-pulse" />
-      <div className="h-44 rounded-2xl bg-muted/25 animate-pulse" />
-      <div className="h-32 rounded-2xl bg-muted/25 animate-pulse" />
+      <div className="h-14 rounded-2xl bg-muted/30 animate-pulse" />
       <div className="h-56 rounded-2xl bg-muted/25 animate-pulse" />
+      <div className="h-40 rounded-2xl bg-muted/25 animate-pulse" />
+      <div className="h-36 rounded-2xl bg-muted/25 animate-pulse" />
     </div>
   );
 }
@@ -787,7 +592,7 @@ export default function WeatherPage() {
   const { language } = useApp();
   const lang: 'ar' | 'de' = language === 'ar' ? 'ar' : 'de';
   const { location, status: locStatus } = useDeviceLocation();
-  const { data, status, error, needsApiKey, providerId, refresh, isRefreshing } = useWeatherData(lang);
+  const { data, status, error, needsApiKey, providerId, refresh } = useWeatherData(lang);
 
   const [hasExistingKey, setHasExistingKey] = useState(() => !!readOwmApiKey());
   useEffect(() => {
@@ -816,64 +621,45 @@ export default function WeatherPage() {
       <SEO
         title={lang === 'ar' ? 'الطقس — SmartHub' : 'Wetter — SmartHub'}
         description={lang === 'ar'
-          ? 'حالة الطقس الحالية، التوقعات الساعية والأسبوعية، جودة الهواء وحبوب اللقاح.'
-          : 'Aktuelles Wetter, stündliche und 7-Tage-Vorhersage, Luftqualität und Pollen.'}
+          ? 'توقّعات الطقس لسبعة أيام، الشروق والغروب وأطوار القمر.'
+          : '7-Tage-Wettervorhersage, Sonnenauf-/-untergang und Mondphasen.'}
         path="/weather"
       />
 
-      <PageHeader title={lang === 'ar' ? 'الطقس' : 'Wetter'} subtitle={lastUpdatedLabel ?? undefined} sticky />
-
-      <div className="max-w-lg mx-auto px-4 pt-3 space-y-5">
+      <div className="max-w-lg mx-auto px-4">
         {showNoLocation ? (
-          <NoLocationCard lang={lang} />
+          <div className="pt-6"><NoLocationCard lang={lang} /></div>
         ) : needsApiKey ? (
-          <>
+          <div className="pt-6 space-y-4">
             <ProviderSwitcher activeId={providerId} lang={lang} />
             <ApiKeyPrompt lang={lang} hasExistingKey={hasExistingKey} />
-          </>
+          </div>
         ) : status === 'loading' && !data ? (
-          <WeatherSkeleton />
+          <div className="pt-6"><WeatherSkeleton /></div>
         ) : status === 'error' && !data ? (
-          <ErrorCard lang={lang} error={error} onRetry={refresh} />
-        ) : data && location ? (
+          <div className="pt-6"><ErrorCard lang={lang} error={error} onRetry={refresh} /></div>
+        ) : data ? (
           <>
-            <HeroCard data={data} lang={lang} city={data.city} onRefresh={refresh} isRefreshing={isRefreshing} />
-            <MapCard lat={location.lat} lon={location.lng} lang={lang} precipMm={data.current.precipitation ?? 0} />
-            <HourlyStrip
-              hourly={data.hourly}
-              lang={lang}
-              windSpeed={data.current.windSpeed}
-              windDirection={data.current.windDirection}
-            />
+            <ForecastHeader lang={lang} city={data.city} lastUpdatedLabel={lastUpdatedLabel} />
             <ForecastBars daily={data.daily} weekRange={data.weekRange} lang={lang} />
+            <NextSevenDays data={data} lang={lang} />
+            <SunMoon data={data} lang={lang} />
 
-            <SectionLabel>{lang === 'ar' ? 'البيئة' : 'Environment'}</SectionLabel>
-            <AirQualityCard data={data} lang={lang} />
-            <PollenCard data={data} lang={lang} />
-
-            <SectionLabel>{lang === 'ar' ? 'الشمس والقمر' : 'Sun & Moon'}</SectionLabel>
-            <div className="grid grid-cols-2 gap-2.5">
-              <MoonCard lang={lang} />
-              <DaytimeCard daily={data.daily} lang={lang} />
-              <SunriseSunsetCard daily={data.daily} lang={lang} />
+            <div className="pt-6 space-y-3">
+              <ProviderSwitcher activeId={providerId} lang={lang} />
+              {providerId === 'openweathermap' && (
+                <ApiKeyPrompt lang={lang} hasExistingKey={hasExistingKey} />
+              )}
+              <p className="text-center text-[10px] text-muted-foreground/70 pt-1">
+                {lang === 'ar' ? 'البيانات من ' : 'Daten von '}
+                <a href={attribution.url} target="_blank" rel="noopener noreferrer" className="underline hover:text-muted-foreground">
+                  {attribution.label}
+                </a>
+              </p>
             </div>
-
-            <ConditionsGrid data={data} lang={lang} />
-
-            <ProviderSwitcher activeId={providerId} lang={lang} />
-            {providerId === 'openweathermap' && (
-              <ApiKeyPrompt lang={lang} hasExistingKey={hasExistingKey} />
-            )}
-
-            <p className="text-center text-[10px] text-muted-foreground/70 pt-1">
-              {lang === 'ar' ? 'البيانات من ' : 'Daten von '}
-              <a href={attribution.url} target="_blank" rel="noopener noreferrer" className="underline hover:text-muted-foreground">
-                {attribution.label}
-              </a>
-            </p>
           </>
         ) : (
-          <WeatherSkeleton />
+          <div className="pt-6"><WeatherSkeleton /></div>
         )}
       </div>
     </div>
