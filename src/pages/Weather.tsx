@@ -6,6 +6,8 @@ import {
   Key, ExternalLink, Contrast, type LucideIcon,
 } from 'lucide-react';
 import SEO from '@/components/SEO';
+import { Drawer, DrawerContent, DrawerTitle } from '@/components/ui/drawer';
+import * as VisuallyHidden from '@radix-ui/react-visually-hidden';
 import { useApp } from '@/contexts/AppContext';
 import { useDeviceLocation, requestDeviceLocation } from '@/hooks/useDeviceLocation';
 import { useWeatherData, type DailyEntry, type WeatherData } from '@/hooks/useWeatherData';
@@ -363,9 +365,448 @@ function buildInsights(data: WeatherData, isAr: boolean): Insight[] {
   return ins;
 }
 
+// ── Metric detail definitions for the drawer ───────────────────────────────
+
+type MetricKey = 'uv' | 'rain' | 'gusts' | 'wind' | 'humidity' | 'pressure' | 'cloud';
+
+interface MetricSeriesPoint { date: number; value: number; }
+
+interface MetricDef {
+  key: MetricKey;
+  chipLabel: string;
+  chipIcon: LucideIcon;
+  banner: { label: string; style: ChipStyle; iconColor: string; Icon: LucideIcon };
+  chart: 'bar' | 'line';
+  series: MetricSeriesPoint[];
+  format: (v: number) => string;
+  unit: string;
+  yAxisFmt: (v: number) => string;
+  yMax?: number;
+  yMin?: number;
+  yStep?: number;
+  /** Optional per-value bar colour (UV's graded colour scale). */
+  barColor?: (v: number) => string;
+  /** Tailwind text colour for value labels above bars / points. */
+  valueColor?: (v: number) => string;
+  /** Fixed line/point colour. */
+  lineColor?: string;
+  /** Dashed threshold reference line value, e.g. peak. */
+  threshold?: number;
+}
+
+function uvBarColor(v: number): string {
+  if (v >= 8) return 'bg-red-500';
+  if (v >= 6) return 'bg-orange-500';
+  if (v >= 3) return 'bg-amber-400';
+  return 'bg-emerald-400';
+}
+function uvValueColor(v: number): string {
+  if (v >= 8) return 'text-red-500';
+  if (v >= 6) return 'text-orange-500';
+  if (v >= 3) return 'text-amber-400';
+  return 'text-emerald-400';
+}
+
+function buildMetricDefs(data: WeatherData, isAr: boolean): MetricDef[] {
+  const daily = data.daily;
+  const defs: MetricDef[] = [];
+  if (!daily.length) return defs;
+
+  // helper: max + day
+  const peak = (sel: (d: DailyEntry) => number) => {
+    let v = -Infinity, day = daily[0].date;
+    for (const d of daily) { const x = sel(d); if (x > v) { v = x; day = d.date; } }
+    return { value: v, day };
+  };
+
+  // ── UV ─────────────────────────────────────────────────────
+  const uvSeries = daily.map(d => ({ date: d.date, value: d.uvIndexMax ?? 0 }));
+  const uvPeak = peak(d => d.uvIndexMax ?? 0);
+  if (uvPeak.value > 0) {
+    defs.push({
+      key: 'uv',
+      chipLabel: isAr ? 'مؤشر UV' : 'UV index',
+      chipIcon: Sun,
+      banner: {
+        label: isAr
+          ? `مؤشر UV يصل إلى ${uvPeak.value.toFixed(1)} (${uvPeak.value >= 6 ? 'مرتفع' : 'متوسّط'}) ${weekdayLong(uvPeak.day, isAr)}`
+          : `UV index up to ${uvPeak.value.toFixed(1)} (${uvPeak.value >= 6 ? 'high' : 'moderate'}) on ${weekdayLong(uvPeak.day, isAr)}`,
+        style: STYLE_UV, iconColor: 'text-neutral-900', Icon: Sun,
+      },
+      chart: 'bar',
+      series: uvSeries,
+      format: v => v.toFixed(1),
+      unit: '',
+      yAxisFmt: v => (isAr ? ['منخفض', 'متوسّط', 'مرتفع', 'مرتفع جداً', 'متطرّف'] : ['Low','Medium','High','Very high','Extreme'])[Math.min(4, Math.max(0, Math.round(v)))],
+      yMax: 11, yMin: 0,
+      barColor: uvBarColor,
+      valueColor: uvValueColor,
+    });
+  }
+
+  // ── Precipitation ─────────────────────────────────────────
+  const rainSeries = daily.map(d => ({ date: d.date, value: d.precipitationSum ?? 0 }));
+  const totalRain = daily.reduce((s, d) => s + (d.precipitationSum ?? 0), 0);
+  defs.push({
+    key: 'rain',
+    chipLabel: isAr ? 'الهطول' : 'Precipitation',
+    chipIcon: Droplet,
+    banner: {
+      label: totalRain >= 0.5
+        ? (isAr ? `${Math.round(totalRain)} مم أمطار متوقّعة` : `${Math.round(totalRain)} mm rain expected`)
+        : (isAr ? 'لا أمطار متوقّعة' : 'No rain expected'),
+      style: STYLE_RAIN, iconColor: 'text-neutral-900', Icon: Droplet,
+    },
+    chart: 'bar',
+    series: rainSeries,
+    format: v => `${v.toFixed(v < 10 ? 1 : 0)}`,
+    unit: 'mm',
+    yAxisFmt: v => `${Math.round(v)} mm`,
+    yMin: 0,
+    barColor: () => 'bg-sky-300',
+    valueColor: () => 'text-foreground/75',
+  });
+
+  // ── Wind (line) ───────────────────────────────────────────
+  const windSeries = daily.map(d => ({ date: d.date, value: d.windSpeedMax ?? 0 }));
+  const windPeak = peak(d => d.windSpeedMax ?? 0);
+  if (windPeak.value > 0) {
+    const dir = compassDir(daily.find(d => d.date === windPeak.day)?.windDirectionDominant ?? 0, isAr);
+    defs.push({
+      key: 'wind',
+      chipLabel: isAr ? 'الرياح (كم/س)' : 'Wind (km/h)',
+      chipIcon: Wind,
+      banner: {
+        label: isAr
+          ? `الرياح حتى ${Math.round(windPeak.value)} كم/س من ${dir} ${weekdayLong(windPeak.day, isAr)}`
+          : `Wind speed up to ${Math.round(windPeak.value)} km/h from ${dir} on ${weekdayLong(windPeak.day, isAr)}`,
+        style: STYLE_DARK, iconColor: 'text-violet-400', Icon: Wind,
+      },
+      chart: 'line',
+      series: windSeries,
+      format: v => `${Math.round(v)}`,
+      unit: 'km/h',
+      yAxisFmt: v => `${Math.round(v)}`,
+      yMin: 0,
+      lineColor: 'hsl(258 90% 80%)',
+      threshold: windPeak.value,
+      valueColor: () => 'text-foreground/85',
+    });
+  }
+
+  // ── Gusts (line) ──────────────────────────────────────────
+  const gustSeries = daily.map(d => ({ date: d.date, value: d.windGustsMax ?? 0 }));
+  const gustPeak = peak(d => d.windGustsMax ?? 0);
+  if (gustPeak.value > 0) {
+    defs.push({
+      key: 'gusts',
+      chipLabel: isAr ? 'الهبّات (كم/س)' : 'Gusts (km/h)',
+      chipIcon: Flag,
+      banner: {
+        label: isAr
+          ? `هبّات حتى ${Math.round(gustPeak.value)} كم/س ${weekdayLong(gustPeak.day, isAr)}`
+          : `Gusts up to ${Math.round(gustPeak.value)} km/h on ${weekdayLong(gustPeak.day, isAr)}`,
+        style: STYLE_DARK, iconColor: 'text-emerald-400', Icon: Flag,
+      },
+      chart: 'line',
+      series: gustSeries,
+      format: v => `${Math.round(v)}`,
+      unit: 'km/h',
+      yAxisFmt: v => `${Math.round(v)}`,
+      yMin: 0,
+      lineColor: 'hsl(258 90% 80%)',
+      threshold: gustPeak.value,
+      valueColor: () => 'text-foreground/85',
+    });
+  }
+
+  // ── Humidity (bar) ────────────────────────────────────────
+  const humSeries = daily.map(d => ({ date: d.date, value: d.humidityMax ?? 0 }));
+  const humPeak = peak(d => d.humidityMax ?? 0);
+  if (humPeak.value > 0) {
+    defs.push({
+      key: 'humidity',
+      chipLabel: isAr ? 'الرطوبة' : 'Humidity',
+      chipIcon: Droplets,
+      banner: {
+        label: isAr
+          ? `رطوبة عالية ${weekdayLong(humPeak.day, isAr)} حتى ${Math.round(humPeak.value)}٪`
+          : `High humidity on ${weekdayLong(humPeak.day, isAr)} up to ${Math.round(humPeak.value)}%`,
+        style: STYLE_DARK, iconColor: 'text-teal-400', Icon: Droplets,
+      },
+      chart: 'bar',
+      series: humSeries,
+      format: v => `${Math.round(v)}%`,
+      unit: '%',
+      yAxisFmt: v => `${Math.round(v)} %`,
+      yMin: 0, yMax: 100, yStep: 20,
+      barColor: () => 'bg-teal-400',
+      valueColor: () => 'text-teal-300',
+    });
+  }
+
+  // ── Pressure (line) ───────────────────────────────────────
+  if (data.current.pressure) {
+    // Open-Meteo daily doesn't carry pressure; use current as flat reference
+    const pSeries = daily.map(d => ({ date: d.date, value: data.current.pressure }));
+    defs.push({
+      key: 'pressure',
+      chipLabel: isAr ? 'الضغط (هـ.ب)' : 'Pressure (hPa)',
+      chipIcon: Gauge,
+      banner: {
+        label: data.current.pressure >= 1023
+          ? (isAr ? `ضغط مرتفع (${data.current.pressure} هـ.ب)` : `High air pressure (${data.current.pressure} hPa)`)
+          : data.current.pressure <= 1005
+            ? (isAr ? `ضغط منخفض (${data.current.pressure} هـ.ب)` : `Low air pressure (${data.current.pressure} hPa)`)
+            : (isAr ? 'ضغط الهواء ضمن المعدّل' : 'Air pressure in normal range'),
+        style: STYLE_DARK, iconColor: 'text-orange-300', Icon: Gauge,
+      },
+      chart: 'line',
+      series: pSeries,
+      format: v => `${Math.round(v)}`,
+      unit: 'hPa',
+      yAxisFmt: v => `${Math.round(v)}`,
+      lineColor: 'hsl(28 90% 70%)',
+      valueColor: () => 'text-foreground/85',
+    });
+  }
+
+  // ── Cloudiness (bar) ──────────────────────────────────────
+  const cloudSeries = daily.map(d => ({ date: d.date, value: d.cloudCoverMean ?? 0 }));
+  const cloudPeak = peak(d => d.cloudCoverMean ?? 0);
+  if (cloudPeak.value > 0) {
+    defs.push({
+      key: 'cloud',
+      chipLabel: isAr ? 'الغيوم' : 'Cloudiness',
+      chipIcon: Cloud,
+      banner: {
+        label: isAr
+          ? `غائم بكثافة ${weekdayLong(cloudPeak.day, isAr)} حتى ${Math.round(cloudPeak.value)}٪`
+          : `Heavily cloudy on ${weekdayLong(cloudPeak.day, isAr)} with up to ${Math.round(cloudPeak.value)}% coverage`,
+        style: STYLE_CLOUD, iconColor: 'text-neutral-900', Icon: Cloud,
+      },
+      chart: 'bar',
+      series: cloudSeries,
+      format: v => `${Math.round(v)}%`,
+      unit: '%',
+      yAxisFmt: v => `${Math.round(v)} %`,
+      yMin: 0, yMax: 100, yStep: 20,
+      barColor: () => 'bg-foreground/30',
+      valueColor: () => 'text-foreground/70',
+    });
+  }
+
+  return defs;
+}
+
+// ── Bar / line chart renderers ─────────────────────────────────────────────
+
+function niceMax(raw: number, fixedMax?: number, step = 10): number {
+  if (fixedMax != null) return fixedMax;
+  if (raw <= 0) return step;
+  return Math.ceil(raw / step) * step;
+}
+
+function BarChart({ def, isAr }: { def: MetricDef; isAr: boolean }) {
+  const max = niceMax(Math.max(...def.series.map(p => p.value), 1), def.yMax, def.yStep ?? 10);
+  const step = def.yStep ?? Math.max(1, Math.round(max / 5));
+  const ticks: number[] = [];
+  for (let v = max; v >= 0; v -= step) ticks.push(v);
+  return (
+    <div className="relative pl-12 pr-2 pt-4 pb-7 h-[260px]" dir="ltr">
+      {/* grid */}
+      <div className="absolute inset-y-4 left-12 right-2 bottom-7 top-4 flex flex-col justify-between pointer-events-none">
+        {ticks.map((t, i) => (
+          <div key={i} className="flex items-center gap-2">
+            <span className="text-[10px] text-muted-foreground/70 -ml-12 w-10 text-right tabular-nums">
+              {def.yAxisFmt(t)}
+            </span>
+            <div className="flex-1 border-t border-border/30" />
+          </div>
+        ))}
+      </div>
+      {/* bars */}
+      <div className="relative h-full flex items-end gap-1.5">
+        {def.series.map(p => {
+          const h = Math.max(2, (p.value / max) * 100);
+          const showVal = p.value > 0 || def.key === 'humidity' || def.key === 'cloud';
+          return (
+            <div key={p.date} className="flex-1 flex flex-col items-center justify-end h-full relative">
+              {showVal && (
+                <span className={`absolute text-[10.5px] font-medium tabular-nums ${def.valueColor?.(p.value) ?? 'text-foreground/75'}`}
+                      style={{ bottom: `calc(${h}% + 4px)` }}>
+                  {def.format(p.value)}
+                </span>
+              )}
+              <div
+                className={`w-full max-w-[26px] rounded-t-md ${def.barColor?.(p.value) ?? 'bg-primary'}`}
+                style={{ height: `${h}%` }}
+              />
+              <span className="absolute -bottom-6 text-[10.5px] text-muted-foreground">
+                {weekdayShort(p.date, isAr)}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function LineChart({ def, isAr }: { def: MetricDef; isAr: boolean }) {
+  const vals = def.series.map(p => p.value);
+  const rawMax = Math.max(...vals, 1);
+  const rawMin = Math.min(...vals, 0);
+  const max = def.yMax ?? Math.ceil(rawMax / 10) * 10;
+  const min = def.yMin ?? Math.floor(rawMin / 10) * 10;
+  const step = def.yStep ?? Math.max(1, Math.round((max - min) / 5));
+  const ticks: number[] = [];
+  for (let v = max; v >= min; v -= step) ticks.push(v);
+  const W = 320, H = 200;
+  const padX = 16;
+  const innerW = W - padX * 2;
+  const innerH = H;
+  const n = def.series.length;
+  const xFor = (i: number) => padX + (n <= 1 ? innerW / 2 : (i * innerW) / (n - 1));
+  const yFor = (v: number) => ((max - v) / (max - min)) * innerH;
+  const path = def.series.map((p, i) => `${i === 0 ? 'M' : 'L'} ${xFor(i)} ${yFor(p.value)}`).join(' ');
+  const stroke = def.lineColor ?? 'hsl(var(--primary))';
+  return (
+    <div className="relative pl-12 pr-2 pt-4 pb-7 h-[260px]" dir="ltr">
+      <div className="absolute inset-y-4 left-12 right-2 bottom-7 top-4 flex flex-col justify-between pointer-events-none">
+        {ticks.map((t, i) => (
+          <div key={i} className="flex items-center gap-2">
+            <span className="text-[10px] text-muted-foreground/70 -ml-12 w-10 text-right tabular-nums">
+              {def.yAxisFmt(t)}
+            </span>
+            <div className="flex-1 border-t border-border/30" />
+          </div>
+        ))}
+      </div>
+      <div className="relative h-full">
+        <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className="w-full h-full overflow-visible">
+          {def.threshold != null && (
+            <line
+              x1={padX} x2={W - padX}
+              y1={yFor(def.threshold)} y2={yFor(def.threshold)}
+              stroke={stroke} strokeDasharray="4 4" strokeOpacity="0.5" strokeWidth={1}
+            />
+          )}
+          <path d={path} fill="none" stroke={stroke} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+          {def.series.map((p, i) => (
+            <g key={p.date}>
+              <circle cx={xFor(i)} cy={yFor(p.value)} r={5} fill="hsl(var(--background))" stroke={stroke} strokeWidth={2} />
+              <text x={xFor(i)} y={yFor(p.value) - 10} textAnchor="middle" className="fill-foreground" fontSize="11" fontWeight="500">
+                {def.format(p.value)}
+              </text>
+            </g>
+          ))}
+        </svg>
+        <div className="absolute left-0 right-0 -bottom-6 flex justify-between px-3">
+          {def.series.map(p => (
+            <span key={p.date} className="text-[10.5px] text-muted-foreground flex-1 text-center">
+              {weekdayShort(p.date, isAr)}
+            </span>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Detail drawer ──────────────────────────────────────────────────────────
+
+function MetricDetailDrawer({
+  open, onOpenChange, defs, activeKey, setActiveKey, city, isAr,
+}: {
+  open: boolean;
+  onOpenChange: (o: boolean) => void;
+  defs: MetricDef[];
+  activeKey: MetricKey | null;
+  setActiveKey: (k: MetricKey) => void;
+  city: string | null;
+  isAr: boolean;
+}) {
+  const def = defs.find(d => d.key === activeKey) ?? defs[0];
+  if (!def) return null;
+  return (
+    <Drawer open={open} onOpenChange={onOpenChange}>
+      <DrawerContent className="max-h-[92vh]">
+        <VisuallyHidden.Root>
+          <DrawerTitle>{def.chipLabel}</DrawerTitle>
+        </VisuallyHidden.Root>
+        <div className="px-4 pb-6 overflow-y-auto">
+          <header className="pt-1 pb-4">
+            <h2 className="text-[26px] font-semibold text-foreground leading-tight">
+              {isAr ? 'الأيام السبعة القادمة' : 'Next 7 days'}
+            </h2>
+            <div className="flex items-center justify-between gap-2 mt-1">
+              <p className="text-[14px] text-primary truncate">
+                {city || (isAr ? 'موقعك' : 'Your location')}
+              </p>
+              <MapPin className="w-5 h-5 text-primary shrink-0" />
+            </div>
+          </header>
+
+          {/* Chip selector */}
+          <div className="overflow-x-auto no-scrollbar -mx-4 px-4 mb-4">
+            <div className="flex items-center gap-2 min-w-fit">
+              {defs.map(d => {
+                const active = d.key === def.key;
+                return (
+                  <button
+                    key={d.key}
+                    type="button"
+                    onClick={() => setActiveKey(d.key)}
+                    className={`inline-flex items-center gap-1.5 h-9 px-3 rounded-xl border text-[12.5px] font-medium whitespace-nowrap transition-colors ${
+                      active
+                        ? 'bg-indigo-400/20 border-indigo-300/40 text-foreground'
+                        : 'bg-transparent border-border/50 text-muted-foreground'
+                    }`}
+                  >
+                    <span>{d.chipLabel}</span>
+                    <d.chipIcon className={`w-4 h-4 ${active ? 'text-indigo-300' : 'text-muted-foreground'}`} strokeWidth={1.8} />
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Banner */}
+          <div className={`flex items-center justify-between gap-2 rounded-3xl border px-4 py-3.5 mb-4 ${def.banner.style.card}`}>
+            <span className={`text-[13.5px] font-medium leading-snug flex-1 ${def.banner.style.text}`}>
+              {def.banner.label}
+            </span>
+            <def.banner.Icon className={`w-5 h-5 shrink-0 ${def.banner.iconColor}`} strokeWidth={1.8} />
+          </div>
+
+          {/* Chart card */}
+          <div className="rounded-3xl bg-foreground/[0.04] border border-border/30 p-3">
+            {def.chart === 'bar'
+              ? <BarChart def={def} isAr={isAr} />
+              : <LineChart def={def} isAr={isAr} />}
+          </div>
+        </div>
+      </DrawerContent>
+    </Drawer>
+  );
+}
+
 function NextSevenDays({ data, isAr }: { data: WeatherData; isAr: boolean }) {
   const insights = useMemo(() => buildInsights(data, isAr), [data, isAr]);
+  const defs = useMemo(() => buildMetricDefs(data, isAr), [data, isAr]);
+  const [open, setOpen] = useState(false);
+  const [activeKey, setActiveKey] = useState<MetricKey | null>(null);
+
   if (!insights.length) return null;
+
+  // Map insight chip key → metric key (same vocab).
+  const openMetric = (k: string) => {
+    const has = defs.find(d => d.key === (k as MetricKey));
+    setActiveKey((has?.key ?? defs[0]?.key) ?? null);
+    setOpen(true);
+  };
+
   return (
     <section className="pt-5 mt-2 border-t border-border/40">
       <h2 className="text-[22px] font-semibold text-foreground mb-4">
@@ -373,17 +814,29 @@ function NextSevenDays({ data, isAr }: { data: WeatherData; isAr: boolean }) {
       </h2>
       <div className="grid grid-cols-2 gap-3">
         {insights.map(i => (
-          <div
+          <button
+            type="button"
             key={i.key}
-            className={`flex items-start justify-between gap-2 rounded-3xl border px-4 py-3.5 ${i.style.card} ${i.colStart2 ? 'col-start-2' : ''}`}
+            onClick={() => openMetric(i.key)}
+            className={`flex items-start justify-between gap-2 rounded-3xl border px-4 py-3.5 text-start active:scale-[0.98] transition-transform ${i.style.card} ${i.colStart2 ? 'col-start-2' : ''}`}
           >
             <span className={`text-[13.5px] font-medium leading-snug flex-1 ${i.style.text}`}>
               {i.label}
             </span>
             <i.Icon className={`w-5 h-5 mt-0.5 shrink-0 ${i.iconColor}`} strokeWidth={1.8} />
-          </div>
+          </button>
         ))}
       </div>
+
+      <MetricDetailDrawer
+        open={open}
+        onOpenChange={setOpen}
+        defs={defs}
+        activeKey={activeKey}
+        setActiveKey={setActiveKey}
+        city={data.city}
+        isAr={isAr}
+      />
     </section>
   );
 }
