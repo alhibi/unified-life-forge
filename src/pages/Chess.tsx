@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Crown, RotateCcw, Undo2, Flag, Clock, Play, Lightbulb } from 'lucide-react';
+import { Crown, RotateCcw, Undo2, Flag, Clock, Play, Lightbulb } from '@/lib/icons';
 import { motion, AnimatePresence } from 'framer-motion';
 import GameShell from '@/components/GameShell';
 import { playSfx, vibrate } from '@/utils/gameFeedback';

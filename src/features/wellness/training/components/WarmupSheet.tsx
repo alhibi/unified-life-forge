@@ -8,7 +8,7 @@
 
 import React, { useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, ChevronRight, Flame, Target, X } from 'lucide-react';
+import { Check, ChevronRight, Flame, Target, X } from '@/lib/icons';
 import { generateWarmup, mobilityFor } from '../warmupRamp';
 import type { WarmupSet } from '../types';
 

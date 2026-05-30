@@ -4,7 +4,7 @@ import { useUnreadMessages } from '@/hooks/useUnreadMessages';
 import { useInChatConversation } from '@/lib/inChatConversation';
 import {
   House, Dices, Compass, BookOpen, MessageCircle, HeartPulse, CloudSun,
-} from 'lucide-react';
+} from '@/lib/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 /**

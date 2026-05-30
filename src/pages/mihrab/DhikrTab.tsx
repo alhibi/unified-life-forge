@@ -8,7 +8,7 @@ import {
   ChevronLeft, ChevronRight, Copy, Check, X, Moon, Sun, Plane, Home,
   HelpCircle, Car, DoorOpen, Building, Users, Globe, Droplets, Zap,
   Shield, Star, Leaf, Flag, Heart, CloudRain, BookOpen,
-} from 'lucide-react';
+} from '@/lib/icons';
 import { notify } from '@/lib/notify';
 
 /**

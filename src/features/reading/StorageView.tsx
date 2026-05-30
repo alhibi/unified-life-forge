@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import {
   ChevronLeft, Database, HardDrive, Image as ImageIcon,
   RefreshCw, Trash2,
-} from 'lucide-react';
+} from '@/lib/icons';
 import { toast } from 'sonner';
 import { offlineDb } from './offlineDb';
 import {

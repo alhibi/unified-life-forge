@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, Search, BookOpen } from 'lucide-react';
+import { ChevronDown, Search, BookOpen } from '@/lib/icons';
 import { nutrientsAtlas } from './nutrientsAtlas';
 import { useApp } from '@/contexts/AppContext';
 

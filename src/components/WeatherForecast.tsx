@@ -11,7 +11,7 @@ import {
   Flag,
   Gauge,
   type LucideIcon,
-} from 'lucide-react';
+} from '@/lib/icons';
 import {
   ResponsiveContainer,
   BarChart,

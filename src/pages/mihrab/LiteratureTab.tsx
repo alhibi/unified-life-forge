@@ -1,7 +1,7 @@
 import React, { useState, lazy, Suspense } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { motion } from 'framer-motion';
-import { Leaf, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Leaf, ChevronLeft, ChevronRight } from '@/lib/icons';
 
 /**
  * Mihrab → Literature tab.

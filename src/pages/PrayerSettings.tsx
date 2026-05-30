@@ -1,6 +1,6 @@
 import React from 'react';
 import { useApp } from '@/contexts/AppContext';
-import { BookOpen, RotateCcw, Info, Check } from 'lucide-react';
+import { BookOpen, RotateCcw, Info, Check } from '@/lib/icons';
 import { motion } from 'framer-motion';
 import { Switch } from '@/components/ui/switch';
 import BackButton from '@/components/BackButton';

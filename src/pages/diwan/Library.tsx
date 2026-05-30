@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Library as LibraryIcon, Users, Search, ChevronLeft, ChevronRight,
   ScrollText, Feather, Sparkles, BookOpen, Heart, Network, ChevronDown, ChevronUp, Loader2,
-} from 'lucide-react';
+} from '@/lib/icons';
 import SEO from '@/components/SEO';
 import BackButton from '@/components/BackButton';
 import FallbackBadge from '@/components/diwan/library/FallbackBadge';

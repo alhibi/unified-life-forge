@@ -7,7 +7,7 @@ import { motion } from 'framer-motion';
 import {
   Star, TrendingUp, Zap, Brain, Heart, Shield,
   Leaf, Dumbbell, Sparkles, Award,
-} from 'lucide-react';
+} from '@/lib/icons';
 import { useApp } from '@/contexts/AppContext';
 import {
   mostNutrientDense, bestProteinSources, highestFiberFoods,

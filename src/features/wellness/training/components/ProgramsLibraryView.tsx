@@ -7,7 +7,7 @@
 
 import React, { useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calendar, ChevronRight, Clock, Filter, Library, Users, X } from 'lucide-react';
+import { Calendar, ChevronRight, Clock, Filter, Library, Users, X } from '@/lib/icons';
 import {
   EXPERIENCE_LABELS,
   GOAL_LABELS,

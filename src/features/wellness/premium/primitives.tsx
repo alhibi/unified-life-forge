@@ -22,7 +22,7 @@
 
 import React, { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import { motion } from 'framer-motion';
-import type { LucideIcon } from 'lucide-react';
+import type { LucideIcon } from '@/lib/icons';
 import { SoftSurface, MeshGlow, withAlpha, softRadial } from './surfaces';
 
 /* ─────────────────────── ProgressRing ─────────────────────── */

@@ -17,7 +17,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Activity, Award, BookOpen, ChevronLeft, Flame, Library, Play,
   Target, Timer, TrendingUp, Trophy,
-} from 'lucide-react';
+} from '@/lib/icons';
 import { useApp } from '@/contexts/AppContext';
 
 // Data

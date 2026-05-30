@@ -18,7 +18,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   BookOpen, Calculator, Flame, Plus, Save,
   Trash2, X,
-} from 'lucide-react';
+} from '@/lib/icons';
 import type {
   ExerciseEntry,
   SetEntry,

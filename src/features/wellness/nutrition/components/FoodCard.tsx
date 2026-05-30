@@ -3,7 +3,7 @@
  */
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Flame, Heart } from 'lucide-react';
+import { Flame, Heart } from '@/lib/icons';
 import type { NutritionFoodItem } from '../types';
 import { isFavorite } from '../utils';
 

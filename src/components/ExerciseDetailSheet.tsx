@@ -12,7 +12,7 @@
 
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Dumbbell, Target, Zap } from 'lucide-react';
+import { X, Dumbbell, Target, Zap } from '@/lib/icons';
 import MuscleBodyMap from '@/components/MuscleBodyMap';
 import {
   MUSCLE_LABELS, EQUIPMENT_LABELS, TYPE_LABELS,

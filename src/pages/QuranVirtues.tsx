@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import SEO from '@/components/SEO';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BookOpen, Sparkles } from 'lucide-react';
+import { BookOpen, Sparkles } from '@/lib/icons';
 import BackButton from '@/components/BackButton';
 import { useApp } from '@/contexts/AppContext';
 

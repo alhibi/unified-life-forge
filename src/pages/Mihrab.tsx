@@ -4,7 +4,7 @@ import { useApp } from '@/contexts/AppContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   BookOpen, HandHeart, Moon, Feather,
-} from 'lucide-react';
+} from '@/lib/icons';
 
 /**
  * /mihrab — "محراب" hub.

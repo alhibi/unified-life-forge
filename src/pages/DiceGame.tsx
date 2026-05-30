@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useApp } from '@/contexts/AppContext';
 import GameShell from '@/components/GameShell';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Dices, RotateCcw, Crown, Bot, User as UserIcon, PiggyBank, Swords, Trophy, Flame } from 'lucide-react';
+import { Dices, RotateCcw, Crown, Bot, User as UserIcon, PiggyBank, Swords, Trophy, Flame } from '@/lib/icons';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { playSfx, vibrate } from '@/utils/gameFeedback';
 import {

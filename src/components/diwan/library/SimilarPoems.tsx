@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ScrollText, Sparkles } from 'lucide-react';
+import { ScrollText, Sparkles } from '@/lib/icons';
 import { useDiwanSimilarPoems, useDiwanPrefetch } from '@/lib/diwan/hooks';
 
 interface Props { slug: string; }

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
-import { RefreshCw, WifiOff } from 'lucide-react';
+import { RefreshCw, WifiOff } from '@/lib/icons';
 
 /**
  * Touch-only pull-to-refresh wrapper with improved reliability.

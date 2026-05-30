@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
   ScrollText, ClipboardCopy, Feather, ChevronLeft, ChevronRight,
   ExternalLink, Sparkles, Heart,
-} from 'lucide-react';
+} from '@/lib/icons';
 import { motion } from 'framer-motion';
 import SEO from '@/components/SEO';
 import BackButton from '@/components/BackButton';

@@ -34,7 +34,7 @@ import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { createPortal } from 'react-dom';
-import { Globe, Search, X, Info, Check, LibraryBig, Languages } from 'lucide-react';
+import { Globe, Search, X, Info, Check, LibraryBig, Languages } from '@/lib/icons';
 import SEO from '@/components/SEO';
 import BackButton from '@/components/BackButton';
 import { useApp } from '@/contexts/AppContext';

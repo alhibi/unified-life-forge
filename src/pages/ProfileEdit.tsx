@@ -3,7 +3,7 @@ import { useApp } from '@/contexts/AppContext';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { UserCircle, Check, Pencil, Camera, ImagePlus } from 'lucide-react';
+import { UserCircle, Check, Pencil, Camera, ImagePlus } from '@/lib/icons';
 import BackButton from '@/components/BackButton';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';

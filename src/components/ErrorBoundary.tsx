@@ -1,5 +1,5 @@
 import React, { Component, type ReactNode } from 'react';
-import { RefreshCw, Home } from 'lucide-react';
+import { RefreshCw, Home } from '@/lib/icons';
 
 interface Props {
   children: ReactNode;

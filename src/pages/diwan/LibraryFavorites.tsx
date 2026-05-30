@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Heart, Loader2, LogIn, ScrollText } from 'lucide-react';
+import { Heart, Loader2, LogIn, ScrollText } from '@/lib/icons';
 import SEO from '@/components/SEO';
 import BackButton from '@/components/BackButton';
 import FallbackBadge from '@/components/diwan/library/FallbackBadge';

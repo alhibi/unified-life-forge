@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, ChevronDown, Zap, FlaskConical, Utensils, AlertTriangle, Check } from 'lucide-react';
+import { Sparkles, ChevronDown, Zap, FlaskConical, Utensils, AlertTriangle, Check } from '@/lib/icons';
 import { useApp } from '@/contexts/AppContext';
 import {
   NUTRIENTS,

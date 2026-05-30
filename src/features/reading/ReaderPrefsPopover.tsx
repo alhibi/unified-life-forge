@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { Type } from 'lucide-react';
+import { Type } from '@/lib/icons';
 import { useState, useRef, useEffect } from 'react';
 import type { ReaderPrefs } from './types';
 

@@ -4,7 +4,7 @@ import {
   Phone, PhoneOff, Video, VideoOff, Mic, MicOff,
   Volume2, VolumeX, MoreVertical, Maximize2, Minimize2,
   PhoneIncoming, PhoneOutgoing, X,
-} from 'lucide-react';
+} from '@/lib/icons';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { getDefaultAvatarForUser } from '@/utils/defaultAvatar';

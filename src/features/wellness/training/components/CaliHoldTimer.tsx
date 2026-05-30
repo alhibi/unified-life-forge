@@ -8,7 +8,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Pause, Play, RotateCcw, Trophy, X } from 'lucide-react';
+import { Pause, Play, RotateCcw, Trophy, X } from '@/lib/icons';
 
 export interface CaliHoldTimerProps {
   open: boolean;

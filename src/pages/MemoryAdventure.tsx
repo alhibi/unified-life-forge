@@ -3,7 +3,7 @@ import { useApp } from '@/contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
 import GameShell from '@/components/GameShell';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Map, Star, Lock, Crown, ChevronRight, Sparkles, Flame } from 'lucide-react';
+import { Map, Star, Lock, Crown, ChevronRight, Sparkles, Flame } from '@/lib/icons';
 import { STAGES, loadAdventure, isStageUnlocked, AdventureStage } from '@/data/memoryAdventure';
 import { playSfx, vibrate } from '@/utils/gameFeedback';
 

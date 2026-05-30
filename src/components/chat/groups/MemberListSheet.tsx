@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   X, ChevronRight, ChevronLeft, UserPlus, MoreHorizontal, Shield,
   ShieldOff, UserMinus, AlertTriangle,
-} from 'lucide-react';
+} from '@/lib/icons';
 import { cn } from '@/lib/utils';
 import {
   useChatMembers, useChatMutations,

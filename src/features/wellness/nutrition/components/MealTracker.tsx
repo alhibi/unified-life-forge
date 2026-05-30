@@ -8,7 +8,7 @@ import {
   Plus, Trash2, Flame, Calendar, Coffee, Sun, Moon,
   Dumbbell, UtensilsCrossed, Cookie, ChevronRight,
   TrendingUp, Droplets,
-} from 'lucide-react';
+} from '@/lib/icons';
 import { useApp } from '@/contexts/AppContext';
 import type { NutritionFoodItem, MealType, MealEntry, FullNutrition } from '../types';
 import {

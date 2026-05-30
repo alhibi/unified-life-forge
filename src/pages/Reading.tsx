@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
-import { AlertTriangle, Clock, Database, RefreshCw, Wifi, WifiOff } from 'lucide-react';
+import { AlertTriangle, Clock, Database, RefreshCw, Wifi, WifiOff } from '@/lib/icons';
 import { useNavigate } from 'react-router-dom';
 import SEO from '@/components/SEO';
 import { useApp } from '@/contexts/AppContext';

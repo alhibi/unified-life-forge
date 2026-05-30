@@ -16,7 +16,7 @@ import {
   Trophy, Flame, AlertCircle, Target, Lightbulb, Clock,
   ChevronRight, Activity, Heart, Brain, Moon, Sparkles,
   Filter,
-} from 'lucide-react';
+} from '@/lib/icons';
 import { useApp } from '@/contexts/AppContext';
 
 import {

@@ -3,7 +3,7 @@ import { motion, useMotionValue, useTransform, AnimatePresence } from 'framer-mo
 import {
   Reply, Check, CheckCheck, Clock, AlertCircle, RotateCw,
   Star, Pin, Bookmark, Heart, ThumbsUp, Sparkles,
-} from 'lucide-react';
+} from '@/lib/icons';
 import { cn } from '@/lib/utils';
 import type { Message, MessageStatus } from './types';
 

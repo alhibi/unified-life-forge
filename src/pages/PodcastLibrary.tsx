@@ -17,7 +17,7 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowDownAZ, Clock, LibraryBig, MoreHorizontal, Play, Trash2, X } from 'lucide-react';
+import { ArrowDownAZ, Clock, LibraryBig, MoreHorizontal, Play, Trash2, X } from '@/lib/icons';
 import SEO from '@/components/SEO';
 import BackButton from '@/components/BackButton';
 import { useApp } from '@/contexts/AppContext';

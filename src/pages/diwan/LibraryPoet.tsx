@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Feather, Network, Clock, ScrollText, Loader2 } from 'lucide-react';
+import { Feather, Network, Clock, ScrollText, Loader2 } from '@/lib/icons';
 import { motion, AnimatePresence } from 'framer-motion';
 import SEO from '@/components/SEO';
 import BackButton from '@/components/BackButton';

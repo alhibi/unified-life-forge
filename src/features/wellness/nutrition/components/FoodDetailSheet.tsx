@@ -7,7 +7,7 @@ import { motion } from 'framer-motion';
 import {
   X, Heart, Plus, Flame, Droplets, Info, Sparkles,
   Clock, Shield, Zap, ChevronDown, ChevronUp,
-} from 'lucide-react';
+} from '@/lib/icons';
 import type { NutritionFoodItem, VitaminProfile, MineralProfile } from '../types';
 import { RDA_MALE } from '../types';
 import { toggleFavorite, isFavorite, addToRecent, nutrientDensityScore } from '../utils';

@@ -2,7 +2,7 @@ import React, { useState, useEffect, ReactNode } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import BackButton from '@/components/BackButton';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Info, Settings2, BarChart3, ChevronDown, X, Volume2, VolumeX, Vibrate, type LucideIcon } from 'lucide-react';
+import { Info, Settings2, BarChart3, ChevronDown, X, Volume2, VolumeX, Vibrate, type LucideIcon } from '@/lib/icons';
 import { isHapticsOff, isMuted, setHapticsOff, setMuted } from '@/utils/gameFeedback';
 
 interface GameStats {

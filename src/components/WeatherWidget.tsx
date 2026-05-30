@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Cloud, Sun, CloudRain, CloudSnow, CloudLightning, CloudDrizzle, Cloudy, CloudFog, MoonStar, Droplets } from 'lucide-react';
+import { Cloud, Sun, CloudRain, CloudSnow, CloudLightning, CloudDrizzle, Cloudy, CloudFog, MoonStar, Droplets } from '@/lib/icons';
 import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 
 interface HourForecast {

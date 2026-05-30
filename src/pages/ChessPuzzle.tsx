@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import GameShell from '@/components/GameShell';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Puzzle, Check, X, RotateCcw, ArrowRight, Sparkles, Lightbulb } from 'lucide-react';
+import { Puzzle, Check, X, RotateCcw, ArrowRight, Sparkles, Lightbulb } from '@/lib/icons';
 import { playSfx, vibrate } from '@/utils/gameFeedback';
 import {
   PUZZLES,

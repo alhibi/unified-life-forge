@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   X, ChevronRight, ChevronLeft, Users, Pencil, Check, BellOff, Bell, Pin, PinOff,
   Archive, ArchiveRestore, LogOut, Trash2, Hash, Eye, MessageSquareText, Shield,
-} from 'lucide-react';
+} from '@/lib/icons';
 import { cn } from '@/lib/utils';
 import {
   useChatMembers, useChatMutations,

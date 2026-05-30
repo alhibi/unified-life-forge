@@ -11,7 +11,7 @@
 
 import React, { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { TrendingUp } from 'lucide-react';
+import { TrendingUp } from '@/lib/icons';
 import { e1rmRunningMaxSeriesFor, e1rmSeriesFor } from '../analyticsEngine';
 import type { WorkoutSession } from '../../wellnessDb';
 import { resolveExercise, type Exercise } from '../../exerciseCatalog';

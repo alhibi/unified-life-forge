@@ -10,7 +10,7 @@ import {
   Search, X, Heart, Clock, Sparkles, Filter, ChevronLeft,
   Flame, Beef, Wheat, Droplets, Apple, Leaf, TrendingUp,
   Star, Zap, Brain, Shield, Dumbbell,
-} from 'lucide-react';
+} from '@/lib/icons';
 import { useApp } from '@/contexts/AppContext';
 import {
   NUTRITION_DATABASE, FOODS_BY_CATEGORY, CATEGORY_INFO,

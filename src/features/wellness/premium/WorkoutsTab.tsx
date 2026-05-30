@@ -18,7 +18,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Activity, BarChart3, Calendar, Dumbbell, Flame, History,
   Library, Play, TrendingUp, Trophy,
-} from 'lucide-react';
+} from '@/lib/icons';
 import { useApp } from '@/contexts/AppContext';
 import type { AthleteProfile, UUID, WorkoutSession } from '../wellnessDb';
 import { EXERCISES } from '../exerciseCatalog';

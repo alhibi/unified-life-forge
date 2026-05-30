@@ -4,7 +4,7 @@ import {
   CloudHail, CloudSun, MoonStar, Moon, Droplet, Droplets, Wind, Flag, Gauge,
   Sunrise, Sunset, MapPin, AlertCircle, RefreshCw, Share2, CalendarDays, ChevronRight,
   Key, ExternalLink, Contrast, type LucideIcon,
-} from 'lucide-react';
+} from '@/lib/icons';
 import SEO from '@/components/SEO';
 import { Drawer, DrawerContent, DrawerTitle } from '@/components/ui/drawer';
 import * as VisuallyHidden from '@radix-ui/react-visually-hidden';

@@ -7,7 +7,7 @@
 
 import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trophy, X } from 'lucide-react';
+import { Trophy, X } from '@/lib/icons';
 import type { PersonalRecord } from '../types';
 import { resolveExercise, type Exercise } from '../../exerciseCatalog';
 

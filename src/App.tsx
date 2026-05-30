@@ -14,6 +14,7 @@ import PageTransition, { NavModeContext } from "@/components/PageTransition";
 import ScrollToTop from "@/components/ScrollToTop";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
+import { IconProvider } from "@/lib/icons";
 import { useAutoPrayerTheme } from "@/hooks/useAutoPrayerTheme";
 import { usePresence } from "@/hooks/usePresence";
 import { useAuth } from "@/hooks/useAuth";
@@ -479,6 +480,7 @@ function AnimatedRoutes() {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AppProvider>
+      <IconProvider>
       <VoicePlayerProvider>
         <ImageUploadProvider>
         <PodcastPlayerProvider>
@@ -498,6 +500,7 @@ const App = () => (
         </PodcastPlayerProvider>
         </ImageUploadProvider>
       </VoicePlayerProvider>
+      </IconProvider>
     </AppProvider>
   </QueryClientProvider>
 );

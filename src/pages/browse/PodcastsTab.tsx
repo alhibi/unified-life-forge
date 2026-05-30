@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '@/contexts/AppContext';
 import { motion } from 'framer-motion';
-import { Mic, LibraryBig, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
+import { Mic, LibraryBig, ChevronLeft, ChevronRight, Sparkles } from '@/lib/icons';
 
 /**
  * Browse → Podcasts tab.

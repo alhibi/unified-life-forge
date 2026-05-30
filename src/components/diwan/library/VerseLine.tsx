@@ -1,5 +1,5 @@
 import React, { useMemo, useRef } from 'react';
-import { Check, Copy } from 'lucide-react';
+import { Check, Copy } from '@/lib/icons';
 import { motion } from 'framer-motion';
 import type { DiwanVerse } from '@/lib/diwan/types';
 

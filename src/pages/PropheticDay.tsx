@@ -2,7 +2,7 @@ import React from 'react';
 import SEO from '@/components/SEO';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '@/contexts/AppContext';
-import { Moon, Sunrise, Sun, BookOpen, CloudSun, SunDim, Sunset, MoonStar } from 'lucide-react';
+import { Moon, Sunrise, Sun, BookOpen, CloudSun, SunDim, Sunset, MoonStar } from '@/lib/icons';
 import BackButton from '@/components/BackButton';
 import { motion } from 'framer-motion';
 

@@ -4,7 +4,7 @@ import { useApp } from '@/contexts/AppContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Mic, Newspaper,
-} from 'lucide-react';
+} from '@/lib/icons';
 
 import PodcastsTab from './browse/PodcastsTab';
 import ArticlesTab from './browse/ArticlesTab';

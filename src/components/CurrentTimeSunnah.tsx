@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '@/contexts/AppContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, Leaf } from 'lucide-react';
+import { ChevronDown, Leaf } from '@/lib/icons';
 import { sunnahDetailData } from '@/data/sunnahDetailData';
 import type { SunnahDetailItem } from '@/data/sunnahDetailData';
 import { fetchPrayerTimings } from '@/hooks/usePrayerTimesCache';

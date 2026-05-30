@@ -12,7 +12,7 @@ import WeatherWidget from '@/components/WeatherWidget';
 import CurrentTimeSunnah from '@/components/CurrentTimeSunnah';
 import UmmahPulse from '@/components/UmmahPulse';
 import { useNavigate } from 'react-router-dom';
-import { Sunrise, Sun, Moon, MessageCircle, ClipboardList, X, Trash2, BookOpen, UserCircle } from 'lucide-react';
+import { Sunrise, Sun, Moon, MessageCircle, ClipboardList, X, Trash2, BookOpen, UserCircle } from '@/lib/icons';
 import { AnimatePresence } from 'framer-motion';
 import { useClipboard } from '@/hooks/useClipboard';
 import { getAppleEmojiUrl, isEmojiAvatarValue } from '@/utils/emojiAvatar';

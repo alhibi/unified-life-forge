@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   BookOpen, Brain, ChevronRight, Download, Dumbbell,
   Library, ShieldCheck, Trash2, Utensils, X, Apple,
-} from 'lucide-react';
+} from '@/lib/icons';
 import { toast } from 'sonner';
 import { useApp } from '@/contexts/AppContext';
 import { useWellnessData } from '@/features/wellness/useWellnessData';

@@ -8,7 +8,7 @@
 
 import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Award, ChevronRight, Trophy } from 'lucide-react';
+import { Award, ChevronRight, Trophy } from '@/lib/icons';
 import {
   classifyLift,
   LEVEL_COLORS,
