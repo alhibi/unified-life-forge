@@ -168,7 +168,24 @@ export default function BottomNav() {
         try { surface.releasePointerCapture(pointerId); } catch { /* noop */ }
       }
       setDragState(null);
-      if (commit && prev.moved) {
+      // Navigate on ANY committed pointer interaction — both a plain tap
+      // (no movement) and a horizontal swipe land here on pointerup.
+      //
+      // Why we navigate from the pointer flow instead of relying on the
+      // per-button `onClick`: the container calls `setPointerCapture`
+      // for smooth drag tracking, and the Pointer Events spec lets the
+      // browser dispatch the follow-up compatibility `click` to the
+      // CAPTURE TARGET (this container) rather than the <button> the
+      // finger lifted over. On Chromium / Android that means a tab tap
+      // never reaches the button's onClick, so taps silently did
+      // nothing. Handling navigation here makes every tap and swipe
+      // work; the button's onClick is reduced to keyboard-only (see the
+      // `e.detail === 0` guard there) so we never double-navigate.
+      //
+      // `onPointerCancel` passes commit=false (e.g. the gesture turned
+      // into a vertical page scroll under `touch-action: pan-y`), so
+      // scrolling the page from the bar never triggers a navigation.
+      if (commit) {
         const target = tabs[prev.index];
         if (target && location.pathname !== target.path) {
           navigate(target.path);
@@ -244,7 +261,17 @@ export default function BottomNav() {
             <button
               key={tab.key}
               type="button"
-              onClick={() => {
+              onClick={(e) => {
+                // Pointer taps and swipes are handled in the pointer
+                // flow (see `endDrag`), because pointer capture on the
+                // container can retarget the synthetic mouse `click`
+                // away from this button. A pointer-generated click has
+                // `detail >= 1`; a keyboard activation (Enter / Space on
+                // the focused button) has `detail === 0`. We therefore
+                // only navigate here for keyboard clicks — this keeps
+                // the tab bar fully keyboard-accessible without
+                // double-navigating on pointer interactions.
+                if (e.detail !== 0) return;
                 if (location.pathname !== tab.path) navigate(tab.path);
               }}
               aria-label={t(tab.labelKey)}
