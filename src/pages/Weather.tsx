@@ -6,6 +6,8 @@ import {
   Key, ExternalLink, Contrast, type LucideIcon,
 } from 'lucide-react';
 import SEO from '@/components/SEO';
+import { Drawer, DrawerContent, DrawerTitle } from '@/components/ui/drawer';
+import * as VisuallyHidden from '@radix-ui/react-visually-hidden';
 import { useApp } from '@/contexts/AppContext';
 import { useDeviceLocation, requestDeviceLocation } from '@/hooks/useDeviceLocation';
 import { useWeatherData, type DailyEntry, type WeatherData } from '@/hooks/useWeatherData';
