@@ -2,7 +2,7 @@ import { useRef } from 'react';
 import { motion, useMotionValue, useTransform, type PanInfo } from 'framer-motion';
 import {
   Bookmark, BookmarkCheck, CircleCheck, Clock,
-} from 'lucide-react';
+} from '@/lib/icons';
 import type { FeedItem } from './types';
 import type { Density } from './listPrefs';
 import { readingMinutes, timeAgo } from './utils';

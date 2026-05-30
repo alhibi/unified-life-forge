@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Search, ScrollText, Quote, X, Filter, History, ChevronDown } from 'lucide-react';
+import { Search, ScrollText, Quote, X, Filter, History, ChevronDown } from '@/lib/icons';
 import { motion, AnimatePresence } from 'framer-motion';
 import SEO from '@/components/SEO';
 import BackButton from '@/components/BackButton';

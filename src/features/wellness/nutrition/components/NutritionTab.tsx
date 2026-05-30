@@ -5,7 +5,7 @@
  */
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, UtensilsCrossed, Sparkles, BarChart3 } from 'lucide-react';
+import { Search, UtensilsCrossed, Sparkles, BarChart3 } from '@/lib/icons';
 import { useApp } from '@/contexts/AppContext';
 import NutritionExplorer from './NutritionExplorer';
 import MealTracker from './MealTracker';

@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { AlertCircle, Calendar, CheckCircle2, Lightbulb, Trophy, Wrench, X, Zap } from 'lucide-react';
+import { AlertCircle, Calendar, CheckCircle2, Lightbulb, Trophy, Wrench, X, Zap } from '@/lib/icons';
 import { knowledgeFor } from '../caliKnowledge';
 import { skillByKey } from '../caliSkillTree';
 

@@ -14,7 +14,7 @@ import {
   Share2, BellOff, Bell, Archive, ArchiveRestore, Volume2, VolumeX,
   Palette as WallpaperIcon, Forward as ForwardIcon,
   CornerDownLeft, Upload, EyeOff,
-} from 'lucide-react';
+} from '@/lib/icons';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { isEmojiAvatarValue, getAppleEmojiUrl } from '@/utils/emojiAvatar';

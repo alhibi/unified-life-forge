@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { isEmojiAvatarValue, getAppleEmojiUrl } from '@/utils/emojiAvatar';
 import { cn } from '@/lib/utils';
-import { Hash, Users } from 'lucide-react';
+import { Hash, Users } from '@/lib/icons';
 import type { ChatKind, ChatSummary } from '@/lib/chat';
 import { chatAvatar, chatDisplayName } from '@/lib/chat';
 

@@ -2,7 +2,7 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   X, Camera, ChevronRight, ChevronLeft, Users, Hash, ArrowRight, ArrowLeft,
-} from 'lucide-react';
+} from '@/lib/icons';
 import { cn } from '@/lib/utils';
 import { useChatMutations, useUserSearch, type UserSearchResult, type ChatSummary } from '@/lib/chat';
 import GroupAvatar from './GroupAvatar';

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ScrollText } from 'lucide-react';
+import { ScrollText } from '@/lib/icons';
 import { motion } from 'framer-motion';
 import type { DiwanPoemSummary, DiwanPoemSearchResult } from '@/lib/diwan/types';
 import { useDiwanPrefetch } from '@/lib/diwan/hooks';

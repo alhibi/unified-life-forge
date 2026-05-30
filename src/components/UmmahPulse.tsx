@@ -5,7 +5,7 @@ import { useApp } from '@/contexts/AppContext';
 import {
   Globe2, X, Maximize2, Search, Sparkles, Sun, MapPin,
   Clock, Compass, Info, Plus, Minus, Locate,
-} from 'lucide-react';
+} from '@/lib/icons';
 import {
   getCityPrayerInfo,
   qiblaBearing,

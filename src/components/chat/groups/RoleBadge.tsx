@@ -1,5 +1,5 @@
 import React from 'react';
-import { Crown, Shield, User } from 'lucide-react';
+import { Crown, Shield, User } from '@/lib/icons';
 import { cn } from '@/lib/utils';
 import type { ChatRole } from '@/lib/chat';
 

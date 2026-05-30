@@ -22,7 +22,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Trash2, Calendar as CalIcon, Search, Beef, Wheat, Salad, Flame,
   Minus, Plus, Info, Sparkles,
-} from 'lucide-react';
+} from '@/lib/icons';
 import { useApp } from '@/contexts/AppContext';
 import { FOOD_LIST, FOODS, type Lang } from './wellnessData';
 import type { AthleteProfile, DietLog, UUID } from './wellnessDb';

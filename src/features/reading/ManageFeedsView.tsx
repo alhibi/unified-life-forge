@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import {
   AlertCircle, Check, ChevronLeft, Database, Download, Plus,
   Rss, Settings2, Star, Trash2, Upload, X,
-} from 'lucide-react';
+} from '@/lib/icons';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';

@@ -3,7 +3,7 @@ import { useApp } from '@/contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
 import GameShell from '@/components/GameShell';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Dices, Trophy, Sparkles, Zap, ChevronRight, Play, RotateCcw, User as UserIcon } from 'lucide-react';
+import { Dices, Trophy, Sparkles, Zap, ChevronRight, Play, RotateCcw, User as UserIcon } from '@/lib/icons';
 import {
   DICE_BOTS, DicePersonality,
   TournamentState, TournamentMatch,

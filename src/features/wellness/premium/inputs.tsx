@@ -31,8 +31,8 @@
 
 import React, { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, ChevronDown, Minus, Plus, Search, X } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
+import { Check, ChevronDown, Minus, Plus, Search, X } from '@/lib/icons';
+import type { LucideIcon } from '@/lib/icons';
 import { withAlpha, softLinear } from './surfaces';
 
 const haptic = (ms = 8) => {

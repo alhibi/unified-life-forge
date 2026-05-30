@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft } from '@/lib/icons';
 import { cn } from '@/lib/utils';
 import { useApp } from '@/contexts/AppContext';
 

@@ -4,7 +4,7 @@ import { useApp } from '@/contexts/AppContext';
 import { motion } from 'framer-motion';
 import {
   BookMarked, Sparkles, ChevronLeft, ChevronRight, RotateCcw,
-} from 'lucide-react';
+} from '@/lib/icons';
 
 /**
  * Mihrab → Quran tab.

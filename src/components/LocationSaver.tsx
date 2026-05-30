@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '@/contexts/AppContext';
-import { MapPin, Plus, Trash2, Navigation, Clock, ChevronDown, ChevronUp, X, ExternalLink } from 'lucide-react';
+import { MapPin, Plus, Trash2, Navigation, Clock, ChevronDown, ChevronUp, X, ExternalLink } from '@/lib/icons';
 import { motion, AnimatePresence } from 'framer-motion';
 import { reverseGeocode as reverseGeocodeCached } from '@/lib/reverseGeocode';
 import { requestDeviceLocation } from '@/hooks/useDeviceLocation';

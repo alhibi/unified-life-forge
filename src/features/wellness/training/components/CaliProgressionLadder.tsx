@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ArrowDown, BookOpen, Check, ChevronRight, Lock, Target } from 'lucide-react';
+import { ArrowDown, BookOpen, Check, ChevronRight, Lock, Target } from '@/lib/icons';
 import { skillByKey } from '../caliSkillTree';
 import { weeksToNextStep } from '../caliVolumeMath';
 import type { SkillProgressionStep } from '../types';

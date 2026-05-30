@@ -10,7 +10,7 @@
 
 import React, { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Minus, Plus } from 'lucide-react';
+import { Minus, Plus } from '@/lib/icons';
 import {
   DEFAULT_INVENTORY_KG,
   groupPlates,

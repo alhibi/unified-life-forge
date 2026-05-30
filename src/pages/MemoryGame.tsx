@@ -4,7 +4,7 @@ import GameShell from '@/components/GameShell';
 import {
   RefreshCw, Play, Pause, Eye, Shuffle as ShuffleIcon, Sparkles, Trophy, Brain,
   Timer as TimerIcon, Calendar, Zap, Award, Flame, Lock,
-} from 'lucide-react';
+} from '@/lib/icons';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { playSfx, vibrate } from '@/utils/gameFeedback';

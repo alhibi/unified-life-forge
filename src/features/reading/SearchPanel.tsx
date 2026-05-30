@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ChevronLeft, Clock, Loader2, RefreshCw, Search, TrendingUp, X,
-} from 'lucide-react';
+} from '@/lib/icons';
 import { Input } from '@/components/ui/input';
 import { supabase, isSupabaseConfigured } from '@/integrations/supabase/client';
 import type { FeedItem } from './types';

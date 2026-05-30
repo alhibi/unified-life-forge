@@ -4,7 +4,7 @@ import { useApp } from '@/contexts/AppContext';
 import { getAppleEmojiUrl, isEmojiAvatarValue } from '@/utils/emojiAvatar';
 import { getDefaultAvatarForUser } from '@/utils/defaultAvatar';
 import { useAuth } from '@/hooks/useAuth';
-import { Languages, Palette, ChevronLeft, UserCircle, LogOut, Type, BookOpen, AlertTriangle } from 'lucide-react';
+import { Languages, Palette, ChevronLeft, UserCircle, LogOut, Type, BookOpen, AlertTriangle } from '@/lib/icons';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';

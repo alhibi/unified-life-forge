@@ -1,7 +1,7 @@
 import {
   ArrowDownAZ, ArrowDownWideNarrow, ArrowUpWideNarrow,
   CalendarDays, LayoutGrid, List, Rows3, SlidersHorizontal,
-} from 'lucide-react';
+} from '@/lib/icons';
 import {
   Popover,
   PopoverContent,

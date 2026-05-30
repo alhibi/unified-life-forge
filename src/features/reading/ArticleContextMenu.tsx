@@ -2,7 +2,7 @@ import { ReactNode } from 'react';
 import {
   Bookmark, BookmarkCheck, ChevronsDown, ChevronsUp, Circle,
   CircleCheck, Copy, ExternalLink, Share2,
-} from 'lucide-react';
+} from '@/lib/icons';
 import { toast } from 'sonner';
 import {
   ContextMenu,

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { format, parse } from 'date-fns';
 import { ar, de } from 'date-fns/locale';
-import { CalendarIcon } from 'lucide-react';
+import { CalendarIcon } from '@/lib/icons';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';

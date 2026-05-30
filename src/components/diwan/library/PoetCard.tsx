@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Feather, ScrollText } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Feather, ScrollText } from '@/lib/icons';
 import { motion } from 'framer-motion';
 import { useApp } from '@/contexts/AppContext';
 import type { DiwanPoetSummary } from '@/lib/diwan/types';

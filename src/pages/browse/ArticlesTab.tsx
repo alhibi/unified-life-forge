@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import {
   Newspaper, BookmarkCheck, Search, Settings2, Bell, BookOpen,
   ChevronLeft, ChevronRight,
-} from 'lucide-react';
+} from '@/lib/icons';
 
 /**
  * Browse → Articles tab ("اقرأ").

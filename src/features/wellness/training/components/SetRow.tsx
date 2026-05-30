@@ -5,7 +5,7 @@
  */
 
 import React from 'react';
-import { Check, X } from 'lucide-react';
+import { Check, X } from '@/lib/icons';
 import RpeRirPicker from './RpeRirPicker';
 import type { SetEntry } from '../../wellnessDb';
 

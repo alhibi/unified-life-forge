@@ -4,7 +4,7 @@ import { useApp } from '@/contexts/AppContext';
 import { motion } from 'framer-motion';
 import {
   Clock, Timer, CalendarDays, Trophy, ChevronLeft, ChevronRight,
-} from 'lucide-react';
+} from '@/lib/icons';
 
 /**
  * Mihrab → Sunnah tab.

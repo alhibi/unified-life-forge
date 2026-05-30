@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Search, X, Check, Users } from 'lucide-react';
+import { Search, X, Check, Users } from '@/lib/icons';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { isEmojiAvatarValue, getAppleEmojiUrl } from '@/utils/emojiAvatar';

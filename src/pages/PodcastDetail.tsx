@@ -27,7 +27,7 @@ import { motion } from 'framer-motion';
 import {
   ArrowDownNarrowWide, ArrowUpNarrowWide, Check, ChevronDown, ChevronUp,
   ExternalLink, Globe, Loader2, Plus, Rss, Search, Share2, X,
-} from 'lucide-react';
+} from '@/lib/icons';
 import SEO from '@/components/SEO';
 import BackButton from '@/components/BackButton';
 import { useApp } from '@/contexts/AppContext';

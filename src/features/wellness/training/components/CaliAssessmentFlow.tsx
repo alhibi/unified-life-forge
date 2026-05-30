@@ -7,7 +7,7 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Award, Check, ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { Award, Check, ChevronLeft, ChevronRight, X } from '@/lib/icons';
 import {
   ASSESSMENT_QUESTIONS,
   computeAssessment,

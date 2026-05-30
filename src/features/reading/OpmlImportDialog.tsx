@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Check, ChevronDown, FileText, FolderOpen, Loader2, Plus, Upload, X,
-} from 'lucide-react';
+} from '@/lib/icons';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import type { FeedSource } from './types';

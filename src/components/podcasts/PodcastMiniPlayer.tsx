@@ -21,7 +21,7 @@
 // sheet isn't already open — same gating logic Podium uses.
 
 import { memo, KeyboardEvent, MouseEvent, useState } from 'react';
-import { Loader2, Pause, Play, RotateCcw, RotateCw } from 'lucide-react';
+import { Loader2, Pause, Play, RotateCcw, RotateCw } from '@/lib/icons';
 import { AnimatePresence, motion } from 'framer-motion';
 import { usePodcastPlayer, usePodcastPlayerProgress } from '@/contexts/PodcastPlayerContext';
 import PlayerSheet from './PlayerSheet';

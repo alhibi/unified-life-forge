@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft, ArrowRight, Info, Users, MessageCircle,
   Loader2, Reply, Pencil, Trash2, EyeOff, Copy as CopyIcon, Smile,
-} from 'lucide-react';
+} from '@/lib/icons';
 import { cn } from '@/lib/utils';
 import { useApp } from '@/contexts/AppContext';
 import { useAuth } from '@/hooks/useAuth';

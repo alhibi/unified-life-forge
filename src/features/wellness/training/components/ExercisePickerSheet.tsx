@@ -12,7 +12,7 @@
 
 import React, { useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Search, Star, X } from 'lucide-react';
+import { Plus, Search, Star, X } from '@/lib/icons';
 import {
   EXERCISE_LIST,
   MUSCLE_LABELS,

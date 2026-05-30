@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import SEO from '@/components/SEO';
 import { useApp } from '@/contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
-import { Grid3X3, Swords, Gamepad2, Trophy, Brain, Dices, Crosshair, Puzzle, Flame, Target, Zap, Crown, Map, Award, Sparkles } from 'lucide-react';
+import { Grid3X3, Swords, Gamepad2, Trophy, Brain, Dices, Crosshair, Puzzle, Flame, Target, Zap, Crown, Map, Award, Sparkles } from '@/lib/icons';
 import { motion } from 'framer-motion';
 
 interface GameCardData {

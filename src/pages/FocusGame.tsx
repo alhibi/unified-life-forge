@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useApp } from '@/contexts/AppContext';
 import GameShell from '@/components/GameShell';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Crosshair, Zap, Brain, Hash, RotateCcw, Target, Layers, TrendingUp } from 'lucide-react';
+import { Crosshair, Zap, Brain, Hash, RotateCcw, Target, Layers, TrendingUp } from '@/lib/icons';
 import { playSfx, vibrate } from '@/utils/gameFeedback';
 
 // =============================================================================

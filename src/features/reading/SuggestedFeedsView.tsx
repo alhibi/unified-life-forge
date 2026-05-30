@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Check, ChevronLeft, Plus, Star } from 'lucide-react';
+import { Check, ChevronLeft, Plus, Star } from '@/lib/icons';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import type { FeedSource } from './types';

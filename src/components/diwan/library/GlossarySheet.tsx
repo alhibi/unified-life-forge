@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BookOpen, X, Quote } from 'lucide-react';
+import { BookOpen, X, Quote } from '@/lib/icons';
 import type { DiwanGlossaryEntry } from '@/lib/diwan/types';
 
 interface Props {

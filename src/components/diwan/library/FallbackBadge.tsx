@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { WifiOff, FlaskConical } from 'lucide-react';
+import { WifiOff, FlaskConical } from '@/lib/icons';
 import { useFallbackStatus } from '@/lib/diwan/fallback-status';
 
 /**

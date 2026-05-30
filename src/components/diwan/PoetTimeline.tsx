@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ChevronDown } from 'lucide-react';
+import { X, ChevronDown } from '@/lib/icons';
 import { poetTimelines, eventTypeConfig } from '@/data/poetTimelines';
 
 interface PoetTimelineProps {

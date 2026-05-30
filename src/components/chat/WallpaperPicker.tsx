@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, X, ChevronRight, ChevronLeft } from 'lucide-react';
+import { Check, X, ChevronRight, ChevronLeft } from '@/lib/icons';
 import { cn } from '@/lib/utils';
 import { WALLPAPERS } from './constants';
 

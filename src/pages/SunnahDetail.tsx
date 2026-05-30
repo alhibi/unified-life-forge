@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronRight, ChevronLeft, Heart, Share2, Copy, BookOpen } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Heart, Share2, Copy, BookOpen } from '@/lib/icons';
 import { sunnahDetailData, SunnahDetailItem } from '@/data/sunnahDetailData';
 import { useApp } from '@/contexts/AppContext';
 import { notify } from '@/lib/notify';

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { Send, Smile, X, Reply, Pencil } from 'lucide-react';
+import { Send, Smile, X, Reply, Pencil } from '@/lib/icons';
 import { cn } from '@/lib/utils';
 import type { ChatMessage } from '@/lib/chat';
 

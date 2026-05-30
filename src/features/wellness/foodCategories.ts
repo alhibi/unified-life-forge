@@ -7,7 +7,7 @@ import {
   Apple, Citrus, Cherry, Carrot, Leaf, Salad, Beef, Fish, Egg,
   Milk, Bean, Nut, Wheat, CupSoda, Droplet, Droplets, Sprout, Cookie,
   type LucideIcon,
-} from 'lucide-react';
+} from '@/lib/icons';
 import type { Lang } from './wellnessData';
 
 export type FoodCategory =

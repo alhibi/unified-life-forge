@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import {
   Archive, Bell, Bookmark, CheckCheck, ChevronLeft, FolderOpen, Newspaper,
   RefreshCw, Search, Settings2, Type, Wifi, X,
-} from 'lucide-react';
+} from '@/lib/icons';
 import { Input } from '@/components/ui/input';
 import type { FeedSource, FilterTab } from './types';
 import type { ListPrefs } from './listPrefs';

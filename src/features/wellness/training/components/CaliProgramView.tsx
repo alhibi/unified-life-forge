@@ -4,7 +4,7 @@
 
 import React, { useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calendar, ChevronRight, Clock, Library, Users, X } from 'lucide-react';
+import { Calendar, ChevronRight, Clock, Library, Users, X } from '@/lib/icons';
 import { CALI_EXP_LABELS, CALI_PROGRAMS, caliProgramByKey, caliProgramsForExperience } from '../caliPrograms';
 import type { CaliProgramDef, ProgramExperience } from '../types';
 import { skillByKey } from '../caliSkillTree';

@@ -14,7 +14,7 @@
 
 import { memo, useMemo } from 'react';
 import DOMPurify from 'dompurify';
-import { CheckCircle2, Loader2, Pause, Play, RotateCcw } from 'lucide-react';
+import { CheckCircle2, Loader2, Pause, Play, RotateCcw } from '@/lib/icons';
 import { motion } from 'framer-motion';
 import type { PodcastEpisode } from '@/lib/podcasts/rss';
 import { usePodcastPlayer, type PlayingEpisodeMeta } from '@/contexts/PodcastPlayerContext';

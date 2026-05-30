@@ -8,7 +8,7 @@
 
 import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { TrendingUp, TrendingDown, Minus } from '@/lib/icons';
 import {
   classifyVolume,
   VOLUME_LANDMARKS,

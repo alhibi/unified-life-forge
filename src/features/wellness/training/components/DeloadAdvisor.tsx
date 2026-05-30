@@ -6,7 +6,7 @@
 
 import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { ShieldAlert, Sparkles, Activity, AlertTriangle } from 'lucide-react';
+import { ShieldAlert, Sparkles, Activity, AlertTriangle } from '@/lib/icons';
 import {
   acwr,
   readinessLabel,

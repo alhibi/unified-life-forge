@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Bookmark, Newspaper, Plus, RefreshCw, Search, Star } from 'lucide-react';
+import { Bookmark, Newspaper, Plus, RefreshCw, Search, Star } from '@/lib/icons';
 import { Button } from '@/components/ui/button';
 import type { FeedItem, FilterTab } from './types';
 import type { ListPrefs } from './listPrefs';

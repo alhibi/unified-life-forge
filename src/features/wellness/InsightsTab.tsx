@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { AlertTriangle, Info, ShieldCheck, Sparkles, Utensils, Activity, Clock } from 'lucide-react';
+import { AlertTriangle, Info, ShieldCheck, Sparkles, Utensils, Activity, Clock } from '@/lib/icons';
 import { useApp } from '@/contexts/AppContext';
 import { DISCLAIMER, type Lang } from './wellnessData';
 import { runAllInsights, type Insight } from './wellnessAnalysis';

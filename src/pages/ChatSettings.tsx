@@ -6,7 +6,7 @@ import {
   Type, Palette, RefreshCcw, Database, Image as ImageIcon, FileText, Mic,
   Send, Globe, ShieldOff, Trash2, Download, Upload, CheckCircle2,
   AlertTriangle, ChevronDown, RotateCcw,
-} from 'lucide-react';
+} from '@/lib/icons';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { useApp } from '@/contexts/AppContext';

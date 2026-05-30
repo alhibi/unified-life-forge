@@ -26,7 +26,7 @@ import { createPortal } from 'react-dom';
 import {
   ChevronDown, ChevronUp, FileText, Gauge, Loader2, Moon, Pause, Play, Repeat,
   RotateCcw, RotateCw, Share2, X,
-} from 'lucide-react';
+} from '@/lib/icons';
 import { AnimatePresence, motion } from 'framer-motion';
 import DOMPurify from 'dompurify';
 import { usePodcastPlayer, usePodcastPlayerProgress } from '@/contexts/PodcastPlayerContext';

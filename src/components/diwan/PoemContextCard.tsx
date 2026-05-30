@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { BookOpen, Calendar, MapPin } from 'lucide-react';
+import { BookOpen, Calendar, MapPin } from '@/lib/icons';
 import { poemContexts } from '@/data/poetTimelines';
 
 interface PoemContextCardProps {

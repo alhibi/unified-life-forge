@@ -4,7 +4,7 @@ import {
   Shield, Users, MessageSquareText, Image as ImageIcon,
   Link2, Pin, UserPlus, Pencil, Eye, Lock, Unlock,
   ChevronDown, Check, Crown,
-} from 'lucide-react';
+} from '@/lib/icons';
 import { cn } from '@/lib/utils';
 import { useChatMutations, type ChatSummary } from '@/lib/chat';
 import { toast } from 'sonner';

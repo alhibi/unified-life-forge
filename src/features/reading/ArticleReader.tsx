@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import {
   Bookmark, BookmarkCheck, ChevronLeft, Clock, Copy,
   ExternalLink, FileText, Loader2, Share2,
-} from 'lucide-react';
+} from '@/lib/icons';
 import { notify } from '@/lib/notify';
 import { sanitizeRssHtml } from '@/utils/sanitizeRssHtml';
 import type { FeedItem, ReaderPrefs } from './types';

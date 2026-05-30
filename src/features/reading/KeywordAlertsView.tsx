@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Bell, BellOff, BellRing, ChevronLeft, ChevronDown, ExternalLink,
   Loader2, LogIn, Moon, Pencil, Plus, Trash2, X,
-} from 'lucide-react';
+} from '@/lib/icons';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';

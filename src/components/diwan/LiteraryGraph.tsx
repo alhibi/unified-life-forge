@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ZoomIn, ZoomOut, Maximize2, Filter } from 'lucide-react';
+import { X, ZoomIn, ZoomOut, Maximize2, Filter } from '@/lib/icons';
 import {
   poetNodes,
   literaryRelations,

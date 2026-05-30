@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BookOpen, Search, ChevronDown, ArrowRight, Loader2, BookMarked, X, Copy, Check, Minus, Plus, Bookmark, BookmarkCheck, ChevronUp } from 'lucide-react';
+import { BookOpen, Search, ChevronDown, ArrowRight, Loader2, BookMarked, X, Copy, Check, Minus, Plus, Bookmark, BookmarkCheck, ChevronUp } from '@/lib/icons';
 import BackButton from '@/components/BackButton';
 import SEO from '@/components/SEO';
 import { useApp } from '@/contexts/AppContext';

@@ -5,7 +5,7 @@
 
 import React, { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Award, ChevronRight, Lock } from 'lucide-react';
+import { Award, ChevronRight, Lock } from '@/lib/icons';
 import { CATEGORY_LABEL, isUnlocked, SKILLS, skillsByCategory } from '../caliSkillTree';
 import type { SkillDef } from '../types';
 

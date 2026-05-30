@@ -1,6 +1,6 @@
 import React from 'react';
 import { useApp } from '@/contexts/AppContext';
-import { Check, Type, ALargeSmall, Bold, Eye } from 'lucide-react';
+import { Check, Type, ALargeSmall, Bold, Eye } from '@/lib/icons';
 import BackButton from '@/components/BackButton';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';

@@ -3,7 +3,7 @@ import SEO from '@/components/SEO';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '@/contexts/AppContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, Volume2, Droplet, User, Star, Users, UtensilsCrossed, Shirt, Copy, Bookmark, BookOpen } from 'lucide-react';
+import { ChevronDown, Volume2, Droplet, User, Star, Users, UtensilsCrossed, Shirt, Copy, Bookmark, BookOpen } from '@/lib/icons';
 import { untimedSunnahData } from '@/data/untimedSunnahData';
 import BackButton from '@/components/BackButton';
 import { useClipboard } from '@/hooks/useClipboard';

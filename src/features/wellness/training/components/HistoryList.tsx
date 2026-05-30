@@ -9,7 +9,7 @@
 
 import React, { useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calendar, ChevronDown, History, Search, Trash2 } from 'lucide-react';
+import { Calendar, ChevronDown, History, Search, Trash2 } from '@/lib/icons';
 import { resolveExercise, type Exercise } from '../../exerciseCatalog';
 import type { UUID, WorkoutSession } from '../../wellnessDb';
 import { sessionVolumeKg } from '../progressionEngine';

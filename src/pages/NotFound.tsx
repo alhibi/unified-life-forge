@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Compass, Home } from "lucide-react";
+import { Compass, Home } from "@/lib/icons";
 import BackButton from "@/components/BackButton";
 import SEO from "@/components/SEO";
 import { useApp } from "@/contexts/AppContext";

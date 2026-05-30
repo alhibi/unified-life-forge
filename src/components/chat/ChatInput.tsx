@@ -5,7 +5,7 @@ import {
   Play, Pause, Loader2, Camera, FileText, MapPin, Clock,
   AtSign, Hash, Calendar, Paperclip, Image as ImageIcon,
   Video, Sticker, GripVertical,
-} from 'lucide-react';
+} from '@/lib/icons';
 import { cn } from '@/lib/utils';
 import { Textarea } from '@/components/ui/textarea';
 import { WAVEFORM_HEIGHTS } from './constants';

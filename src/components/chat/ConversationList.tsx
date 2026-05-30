@@ -5,7 +5,7 @@ import {
   MessageCircle, Pencil, Pin, BellOff, Archive, Check, CheckCheck,
   Image as ImageIcon, Mic, FileText, ArchiveRestore, Users, ChevronRight, ChevronLeft,
   Search, X, Settings, Phone, Video, Star, Trash2, Bell,
-} from 'lucide-react';
+} from '@/lib/icons';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { isEmojiAvatarValue, getAppleEmojiUrl } from '@/utils/emojiAvatar';

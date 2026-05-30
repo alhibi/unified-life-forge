@@ -5,7 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { isSupabaseConfigured } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { UserCircle, Lock, ArrowRight } from 'lucide-react';
+import { UserCircle, Lock, ArrowRight } from '@/lib/icons';
 import BackButton from '@/components/BackButton';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
