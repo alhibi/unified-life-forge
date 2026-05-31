@@ -102,6 +102,11 @@ const loadMihrab = () => import("./pages/Mihrab");
 // `WeatherWidget` and most users won't drill into the full hub on every
 // session; the prefetch on idle warms it up so the first tap is fast.
 const loadWeather = () => import("./pages/Weather");
+// Knowledge hub — "المعرفة": a self-contained luxury catalog (cars,
+// perfumes, watches, fashion, sweets). Lazy because its rich static
+// data set should not weigh on the cold home paint; it's prefetched on
+// idle so the first tap from the bottom nav renders instantly.
+const loadKnowledge = () => import("./pages/Knowledge");
 // Standalone hard-coded 7-day forecast UI (design showcase). Self-contained
 // component with its own dark theme + recharts charts; reachable at
 // /weather/forecast without touching the live-data /weather page.
@@ -151,6 +156,7 @@ const DiwanPage = lazy(loadDiwan);
 const BrowsePage = lazy(loadBrowse);
 const MihrabPage = lazy(loadMihrab);
 const WeatherPage = lazy(loadWeather);
+const KnowledgePage = lazy(loadKnowledge);
 const WeatherForecastPage = lazy(loadWeatherForecast);
 const DiwanLibraryPage = lazy(loadLibrary);
 const DiwanLibraryPoetsPage = lazy(loadLibraryPoets);
@@ -183,6 +189,9 @@ function useIdlePrefetch() {
       // Weather hub is in the bottom nav alongside Browse/Mihrab; warm
       // it up on idle so the first tap renders instantly.
       loadWeather();
+      // Knowledge hub is a bottom-nav tab too — prefetch it so the
+      // first tap doesn't pay the chunk download in the foreground.
+      loadKnowledge();
     });
     return () => {
       const cic = (window as any).cancelIdleCallback;
@@ -218,7 +227,7 @@ const PageSkeleton = () => (
 // <main> should reserve space at the bottom for the nav bar.
 // Must stay in sync with the `tabs` array in BottomNav.tsx.
 const ALL_NAV_PATHS = new Set([
-  '/', '/games', '/chat', '/wellness', '/weather', '/browse', '/mihrab',
+  '/', '/games', '/chat', '/wellness', '/weather', '/browse', '/mihrab', '/knowledge',
 ]);
 
 // Tab routes that stay mounted across navigation. Their components are
@@ -434,6 +443,7 @@ function AnimatedRoutes() {
             <Route path="/browse" element={<ErrorBoundary><PageTransition><BrowsePage /></PageTransition></ErrorBoundary>} />
             <Route path="/mihrab" element={<ErrorBoundary><PageTransition><MihrabPage /></PageTransition></ErrorBoundary>} />
             <Route path="/weather" element={<ErrorBoundary><PageTransition><WeatherPage /></PageTransition></ErrorBoundary>} />
+            <Route path="/knowledge" element={<ErrorBoundary><PageTransition><KnowledgePage /></PageTransition></ErrorBoundary>} />
             <Route path="/weather/forecast" element={<ErrorBoundary><PageTransition><WeatherForecastPage /></PageTransition></ErrorBoundary>} />
             <Route path="/games/sudoku" element={<ErrorBoundary><PageTransition><SudokuPage /></PageTransition></ErrorBoundary>} />
             <Route path="/games/chess" element={<ErrorBoundary><PageTransition><ChessPage /></PageTransition></ErrorBoundary>} />

@@ -3,7 +3,7 @@ import { useApp } from '@/contexts/AppContext';
 import { useUnreadMessages } from '@/hooks/useUnreadMessages';
 import { useInChatConversation } from '@/lib/inChatConversation';
 import {
-  House, Dices, Compass, BookOpen, MessageCircle, HeartPulse, CloudSun,
+  House, Dices, Compass, BookOpen, MessageCircle, HeartPulse, CloudSun, Crown,
 } from '@/lib/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -42,6 +42,10 @@ const tabs: Tab[] = [
   // the right (weather, browse, mihrab).
   { key: 'weather',  path: '/weather',  icon: CloudSun,      labelKey: 'nav.weather',  color: '#22d3ee' },
   { key: 'browse',   path: '/browse',   icon: Compass,       labelKey: 'nav.browse',   color: '#a78bfa' },
+  // "المعرفة" — luxury knowledge catalog. Sits next to Browse since it
+  // is also a discovery/exploration surface; the crown signals its
+  // premium content (cars, perfumes, watches, fashion, sweets).
+  { key: 'knowledge', path: '/knowledge', icon: Crown,        labelKey: 'nav.knowledge', color: '#d8b26a' },
   { key: 'mihrab',   path: '/mihrab',   icon: BookOpen,      labelKey: 'nav.mihrab',   color: '#fcd34d' },
 ];
 
