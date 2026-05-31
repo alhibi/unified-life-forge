@@ -608,7 +608,7 @@ export default function Knowledge() {
 
   return (
     <div dir="rtl" className="min-h-screen bg-[#080808] text-neutral-100">
-      <SEO title="موسوعة الرقي — معرفة منتقاة" description="موسوعة فاخرة: السيارات، العطور، الساعات، الأزياء والحلويات." />
+      <SEO path="/knowledge" title="موسوعة الرقي — معرفة منتقاة" description="موسوعة فاخرة: السيارات، العطور، الساعات، الأزياء والحلويات." />
       <BackButton />
 
       <div className="mx-auto max-w-5xl px-4 pt-20 pb-24">
