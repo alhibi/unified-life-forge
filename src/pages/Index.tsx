@@ -11,6 +11,7 @@ import { motion } from 'framer-motion';
 import WeatherWidget from '@/components/WeatherWidget';
 import CurrentTimeSunnah from '@/components/CurrentTimeSunnah';
 import UmmahPulse from '@/components/UmmahPulse';
+import LivingRibbon from '@/components/LivingRibbon';
 import { useNavigate } from 'react-router-dom';
 import { Sunrise, Sun, Moon, MessageCircle, ClipboardList, X, Trash2, BookOpen, UserCircle } from '@/lib/icons';
 import { AnimatePresence } from 'framer-motion';
@@ -130,6 +131,7 @@ export default function Index() {
           </div>
         </motion.div>
 
+        <motion.div variants={item}><LivingRibbon /></motion.div>
         <motion.div variants={item}><WeatherWidget /></motion.div>
         <motion.div variants={item}><PrayerTimes /></motion.div>
         <motion.div variants={item}><CurrentTimeSunnah /></motion.div>
