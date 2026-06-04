@@ -23,7 +23,7 @@ import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 import { useWeatherData } from '@/hooks/useWeatherData';
 import { fetchPrayerTimings } from '@/hooks/usePrayerTimesCache';
 import {
-  Sunrise, Sun, Moon, CloudRain, Snowflake, Flame, BookOpen, X,
+  Sunrise, Sun, Moon, CloudRain, CloudSnow, Flame, BookOpen, X,
 } from '@/lib/icons';
 
 type IconCmp = typeof Sun;
@@ -185,7 +185,7 @@ export default function LivingRibbon() {
       cands.push({
         id: 'cold-morning',
         priority: 50,
-        icon: Snowflake,
+        icon: CloudSnow,
         tone: 'sky',
         title: ar ? 'صباح بارد' : 'Kalter Morgen',
         subtitle: ar
