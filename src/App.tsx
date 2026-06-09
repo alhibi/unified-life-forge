@@ -403,88 +403,71 @@ function AnimatedRoutes() {
       <PersistentTabs active={activeTab} mode={mode} />
       {/* Non-tab routes (sub-pages, settings details, games, etc.) */}
       <Suspense fallback={activeTab ? null : <PageSkeleton />}>
-        {/* NavModeContext flows the current direction down to every
-            <PageTransition>; AnimatePresence forwards the same value as
-            `custom` to exiting children. mode='popLayout' lets the
-            outgoing page leave the layout flow so push/pop slides
-            run simultaneously instead of sequentially. */}
+        {/* AnimatePresence must own PageTransition directly. Wrapping
+            <Routes> itself breaks popLayout because Routes cannot receive
+            the ref Framer needs to remove the outgoing screen from layout. */}
         <NavModeContext.Provider value={mode}>
           <AnimatePresence mode="popLayout" initial={false} custom={mode}>
-            <Routes location={location} key={activeTab ?? location.pathname}>
-            {/* Tab paths render null — the persistent layer handles them. */}
-            <Route path="/" element={null} />
-            <Route path="/games" element={null} />
-            <Route path="/chat" element={null} />
-            {/* New chat surfaces (groups/channels + dedicated settings).
-                These layer on top of /chat without touching the legacy
-                drawer; the user reaches them via the "Groups & Channels"
-                row inside the conversation list, the in-chat header
-                "settings" affordance, or by deep-link.
-
-                NOTE: order matters. /chat/groups must be matched
-                BEFORE /chat/g/:chatId so a literal "groups" segment
-                isn't captured as a chat id. */}
-            <Route path="/chat/groups"   element={<ErrorBoundary><PageTransition><GroupsIndexPage /></PageTransition></ErrorBoundary>} />
-            <Route path="/chat/settings" element={<ErrorBoundary><PageTransition><ChatSettingsPage /></PageTransition></ErrorBoundary>} />
-            <Route path="/chat/g/:chatId" element={<ErrorBoundary><PageTransition><GroupChatPage /></PageTransition></ErrorBoundary>} />
-            {/* /settings is no longer a top-level tab. It is reached
-                from the avatar shortcut on the home page and rendered
-                as a regular lazy route. */}
-            <Route path="/settings" element={<ErrorBoundary><PageTransition><SettingsPage /></PageTransition></ErrorBoundary>} />
-            {/* /duas is now a redirect to /mihrab → Dhikr (kept for
-                backward-compat with old links). */}
-            <Route path="/duas" element={<ErrorBoundary><DuasPage /></ErrorBoundary>} />
-            {/* Wellness and Diwan tabs are lazy routes (see notes near
-                `loadWellness`/`loadDiwan` above). Wellness is a
-                bottom-nav tab; /diwan is now a redirect to /mihrab →
-                Literature. */}
-            <Route path="/wellness" element={<ErrorBoundary><PageTransition><WellnessPage /></PageTransition></ErrorBoundary>} />
-            <Route path="/diwan" element={<ErrorBoundary><DiwanPage /></ErrorBoundary>} />
-            {/* New IA hubs (Phase 1+2 of the reorganisation). They
-                gate every other entry that the bottom nav previously
-                exposed individually, so they live with the other
-                lazy tab-class routes. */}
-            <Route path="/browse" element={<ErrorBoundary><PageTransition><BrowsePage /></PageTransition></ErrorBoundary>} />
-            <Route path="/mihrab" element={<ErrorBoundary><PageTransition><MihrabPage /></PageTransition></ErrorBoundary>} />
-            <Route path="/weather" element={<ErrorBoundary><PageTransition><WeatherPage /></PageTransition></ErrorBoundary>} />
-            <Route path="/knowledge" element={<ErrorBoundary><PageTransition><KnowledgePage /></PageTransition></ErrorBoundary>} />
-            <Route path="/weather/forecast" element={<ErrorBoundary><PageTransition><WeatherForecastPage /></PageTransition></ErrorBoundary>} />
-            <Route path="/games/sudoku" element={<ErrorBoundary><PageTransition><SudokuPage /></PageTransition></ErrorBoundary>} />
-            <Route path="/games/chess" element={<ErrorBoundary><PageTransition><ChessPage /></PageTransition></ErrorBoundary>} />
-            <Route path="/games/chess/puzzles" element={<ErrorBoundary><PageTransition><ChessPuzzlePage /></PageTransition></ErrorBoundary>} />
-            <Route path="/games/chess/career" element={<ErrorBoundary><PageTransition><ChessCareerPage /></PageTransition></ErrorBoundary>} />
-            <Route path="/games/memory" element={<ErrorBoundary><PageTransition><MemoryGame /></PageTransition></ErrorBoundary>} />
-            <Route path="/games/memory/adventure" element={<ErrorBoundary><PageTransition><MemoryAdventurePage /></PageTransition></ErrorBoundary>} />
-            <Route path="/games/dice" element={<ErrorBoundary><PageTransition><DiceGamePage /></PageTransition></ErrorBoundary>} />
-            <Route path="/games/dice/tournament" element={<ErrorBoundary><PageTransition><DiceTournamentPage /></PageTransition></ErrorBoundary>} />
-            <Route path="/games/focus" element={<ErrorBoundary><PageTransition><FocusGamePage /></PageTransition></ErrorBoundary>} />
-            <Route path="/games/focus/decathlon" element={<ErrorBoundary><PageTransition><FocusDecathlonPage /></PageTransition></ErrorBoundary>} />
-            <Route path="/occasions" element={<ErrorBoundary><PageTransition><AllOccasionsPage /></PageTransition></ErrorBoundary>} />
-            <Route path="/reading" element={<ErrorBoundary><PageTransition><ReadingPage /></PageTransition></ErrorBoundary>} />
-            <Route path="/settings/theme" element={<ErrorBoundary><PageTransition><ThemeSettingsPage /></PageTransition></ErrorBoundary>} />
-            <Route path="/auth" element={<ErrorBoundary><PageTransition><AuthPage /></PageTransition></ErrorBoundary>} />
-            <Route path="/settings/profile" element={<ErrorBoundary><PageTransition><ProfileEditPage /></PageTransition></ErrorBoundary>} />
-            <Route path="/settings/font" element={<ErrorBoundary><PageTransition><FontSettingsPage /></PageTransition></ErrorBoundary>} />
-            <Route path="/settings/prayer" element={<ErrorBoundary><PageTransition><PrayerSettingsPage /></PageTransition></ErrorBoundary>} />
-            <Route path="/section/timed-sunnah" element={<ErrorBoundary><PageTransition><TimedSunnahPage /></PageTransition></ErrorBoundary>} />
-            <Route path="/section/timed-sunnah/:categoryId" element={<ErrorBoundary><PageTransition><SunnahDetailPage /></PageTransition></ErrorBoundary>} />
-            <Route path="/section/untimed-sunnah" element={<ErrorBoundary><PageTransition><UntimedSunnahPage /></PageTransition></ErrorBoundary>} />
-            <Route path="/section/prophetic-day" element={<ErrorBoundary><PageTransition><PropheticDayPage /></PageTransition></ErrorBoundary>} />
-            <Route path="/section/quran-virtues" element={<ErrorBoundary><PageTransition><QuranVirtuesPage /></PageTransition></ErrorBoundary>} />
-            <Route path="/tafsir" element={<ErrorBoundary><PageTransition><TafsirPage /></PageTransition></ErrorBoundary>} />
-            <Route path="/podcasts" element={<ErrorBoundary><PageTransition><PodcastsPage /></PageTransition></ErrorBoundary>} />
-            <Route path="/podcasts/library" element={<ErrorBoundary><PageTransition><PodcastLibraryPage /></PageTransition></ErrorBoundary>} />
-            <Route path="/podcasts/:id" element={<ErrorBoundary><PageTransition><PodcastDetailPage /></PageTransition></ErrorBoundary>} />
-            {/* Diwan Library — adab.com */}
-            <Route path="/diwan/library"               element={<ErrorBoundary><PageTransition><DiwanLibraryPage /></PageTransition></ErrorBoundary>} />
-            <Route path="/diwan/library/search"        element={<ErrorBoundary><PageTransition><DiwanLibrarySearchPage /></PageTransition></ErrorBoundary>} />
-            <Route path="/diwan/library/poets"         element={<ErrorBoundary><PageTransition><DiwanLibraryPoetsPage /></PageTransition></ErrorBoundary>} />
-            <Route path="/diwan/library/poet/:slug"    element={<ErrorBoundary><PageTransition><DiwanLibraryPoetPage /></PageTransition></ErrorBoundary>} />
-            <Route path="/diwan/library/poem/:slug"    element={<ErrorBoundary><PageTransition><DiwanLibraryPoemPage /></PageTransition></ErrorBoundary>} />
-            <Route path="/diwan/library/favorites"     element={<ErrorBoundary><PageTransition><DiwanLibraryFavoritesPage /></PageTransition></ErrorBoundary>} />
-            <Route path="*" element={<ErrorBoundary><PageTransition><NotFound /></PageTransition></ErrorBoundary>} />
-          </Routes>
-        </AnimatePresence>
+            {activeTab === null && (
+              <PageTransition key={location.pathname}>
+                <Routes location={location}>
+                  {/* Persistent tab paths are handled by <PersistentTabs/>. */}
+                  <Route path="/" element={null} />
+                  <Route path="/games" element={null} />
+                  <Route path="/chat" element={null} />
+                  {/* New chat surfaces (groups/channels + dedicated settings).
+                      NOTE: order matters. /chat/groups must be matched BEFORE
+                      /chat/g/:chatId so a literal "groups" segment isn't captured. */}
+                  <Route path="/chat/groups" element={<ErrorBoundary><GroupsIndexPage /></ErrorBoundary>} />
+                  <Route path="/chat/settings" element={<ErrorBoundary><ChatSettingsPage /></ErrorBoundary>} />
+                  <Route path="/chat/g/:chatId" element={<ErrorBoundary><GroupChatPage /></ErrorBoundary>} />
+                  <Route path="/settings" element={<ErrorBoundary><SettingsPage /></ErrorBoundary>} />
+                  <Route path="/duas" element={<ErrorBoundary><DuasPage /></ErrorBoundary>} />
+                  <Route path="/wellness" element={<ErrorBoundary><WellnessPage /></ErrorBoundary>} />
+                  <Route path="/diwan" element={<ErrorBoundary><DiwanPage /></ErrorBoundary>} />
+                  <Route path="/browse" element={<ErrorBoundary><BrowsePage /></ErrorBoundary>} />
+                  <Route path="/mihrab" element={<ErrorBoundary><MihrabPage /></ErrorBoundary>} />
+                  <Route path="/weather" element={<ErrorBoundary><WeatherPage /></ErrorBoundary>} />
+                  <Route path="/knowledge" element={<ErrorBoundary><KnowledgePage /></ErrorBoundary>} />
+                  <Route path="/weather/forecast" element={<ErrorBoundary><WeatherForecastPage /></ErrorBoundary>} />
+                  <Route path="/games/sudoku" element={<ErrorBoundary><SudokuPage /></ErrorBoundary>} />
+                  <Route path="/games/chess" element={<ErrorBoundary><ChessPage /></ErrorBoundary>} />
+                  <Route path="/games/chess/puzzles" element={<ErrorBoundary><ChessPuzzlePage /></ErrorBoundary>} />
+                  <Route path="/games/chess/career" element={<ErrorBoundary><ChessCareerPage /></ErrorBoundary>} />
+                  <Route path="/games/memory" element={<ErrorBoundary><MemoryGame /></ErrorBoundary>} />
+                  <Route path="/games/memory/adventure" element={<ErrorBoundary><MemoryAdventurePage /></ErrorBoundary>} />
+                  <Route path="/games/dice" element={<ErrorBoundary><DiceGamePage /></ErrorBoundary>} />
+                  <Route path="/games/dice/tournament" element={<ErrorBoundary><DiceTournamentPage /></ErrorBoundary>} />
+                  <Route path="/games/focus" element={<ErrorBoundary><FocusGamePage /></ErrorBoundary>} />
+                  <Route path="/games/focus/decathlon" element={<ErrorBoundary><FocusDecathlonPage /></ErrorBoundary>} />
+                  <Route path="/occasions" element={<ErrorBoundary><AllOccasionsPage /></ErrorBoundary>} />
+                  <Route path="/reading" element={<ErrorBoundary><ReadingPage /></ErrorBoundary>} />
+                  <Route path="/settings/theme" element={<ErrorBoundary><ThemeSettingsPage /></ErrorBoundary>} />
+                  <Route path="/auth" element={<ErrorBoundary><AuthPage /></ErrorBoundary>} />
+                  <Route path="/settings/profile" element={<ErrorBoundary><ProfileEditPage /></ErrorBoundary>} />
+                  <Route path="/settings/font" element={<ErrorBoundary><FontSettingsPage /></ErrorBoundary>} />
+                  <Route path="/settings/prayer" element={<ErrorBoundary><PrayerSettingsPage /></ErrorBoundary>} />
+                  <Route path="/section/timed-sunnah" element={<ErrorBoundary><TimedSunnahPage /></ErrorBoundary>} />
+                  <Route path="/section/timed-sunnah/:categoryId" element={<ErrorBoundary><SunnahDetailPage /></ErrorBoundary>} />
+                  <Route path="/section/untimed-sunnah" element={<ErrorBoundary><UntimedSunnahPage /></ErrorBoundary>} />
+                  <Route path="/section/prophetic-day" element={<ErrorBoundary><PropheticDayPage /></ErrorBoundary>} />
+                  <Route path="/section/quran-virtues" element={<ErrorBoundary><QuranVirtuesPage /></ErrorBoundary>} />
+                  <Route path="/tafsir" element={<ErrorBoundary><TafsirPage /></ErrorBoundary>} />
+                  <Route path="/podcasts" element={<ErrorBoundary><PodcastsPage /></ErrorBoundary>} />
+                  <Route path="/podcasts/library" element={<ErrorBoundary><PodcastLibraryPage /></ErrorBoundary>} />
+                  <Route path="/podcasts/:id" element={<ErrorBoundary><PodcastDetailPage /></ErrorBoundary>} />
+                  {/* Diwan Library — adab.com */}
+                  <Route path="/diwan/library" element={<ErrorBoundary><DiwanLibraryPage /></ErrorBoundary>} />
+                  <Route path="/diwan/library/search" element={<ErrorBoundary><DiwanLibrarySearchPage /></ErrorBoundary>} />
+                  <Route path="/diwan/library/poets" element={<ErrorBoundary><DiwanLibraryPoetsPage /></ErrorBoundary>} />
+                  <Route path="/diwan/library/poet/:slug" element={<ErrorBoundary><DiwanLibraryPoetPage /></ErrorBoundary>} />
+                  <Route path="/diwan/library/poem/:slug" element={<ErrorBoundary><DiwanLibraryPoemPage /></ErrorBoundary>} />
+                  <Route path="/diwan/library/favorites" element={<ErrorBoundary><DiwanLibraryFavoritesPage /></ErrorBoundary>} />
+                  <Route path="*" element={<ErrorBoundary><NotFound /></ErrorBoundary>} />
+                </Routes>
+              </PageTransition>
+            )}
+          </AnimatePresence>
         </NavModeContext.Provider>
       </Suspense>
     </main>
