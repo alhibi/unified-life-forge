@@ -128,7 +128,16 @@ function buildVariants(rtl: boolean): Variants {
       // the subtle fade-up. This prevents Weather/Browse/etc. from ever
       // stacking vertically during bottom-nav swaps.
       if (m === 'tab') {
-        return { ...positional, opacity: 0, x: 0, y: 0, pointerEvents: 'none', transition: { duration: 0 } };
+        return {
+          ...positional,
+          display: 'none',
+          visibility: 'hidden',
+          opacity: 0,
+          x: 0,
+          y: 0,
+          pointerEvents: 'none',
+          transition: { duration: 0 },
+        };
       }
 
       // Replace / initial — no horizontal slide on exit.

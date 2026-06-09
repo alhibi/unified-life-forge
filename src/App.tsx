@@ -407,7 +407,7 @@ function AnimatedRoutes() {
             <Routes> itself breaks popLayout because Routes cannot receive
             the ref Framer needs to remove the outgoing screen from layout. */}
         <NavModeContext.Provider value={mode}>
-          <AnimatePresence mode="popLayout" initial={false} custom={mode}>
+          <AnimatePresence mode={mode === 'tab' ? 'wait' : 'popLayout'} initial={false} custom={mode}>
             {activeTab === null && (
               <PageTransition key={location.pathname}>
                 <Routes location={location}>
