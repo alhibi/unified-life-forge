@@ -1,5 +1,5 @@
 import { motion, useReducedMotion, type Variants } from 'framer-motion';
-import { ReactNode, createContext, memo, useContext, useLayoutEffect, useMemo } from 'react';
+import { ReactNode, createContext, forwardRef, memo, useContext, useLayoutEffect, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { navLoaded } from '@/lib/navPerf';
 import { useApp } from '@/contexts/AppContext';
@@ -143,7 +143,10 @@ const REDUCED_MOTION_VARIANTS: Variants = {
 
 /* ── Component ────────────────────────────────────────────────────── */
 
-export default memo(function PageTransition({ children }: { children: ReactNode }) {
+const PageTransition = memo(forwardRef<HTMLDivElement, { children: ReactNode }>(function PageTransition(
+  { children },
+  ref,
+) {
   const location = useLocation();
   const prefersReducedMotion = useReducedMotion();
   const { dir } = useApp();
@@ -165,6 +168,7 @@ export default memo(function PageTransition({ children }: { children: ReactNode 
 
   return (
     <motion.div
+      ref={ref}
       data-page-surface
       // `custom` is read by the variant resolvers above for the
       // initial+animate cycle of THIS instance. For the EXIT cycle,
@@ -217,4 +221,8 @@ export default memo(function PageTransition({ children }: { children: ReactNode 
       {children}
     </motion.div>
   );
-});
+}));
+
+PageTransition.displayName = 'PageTransition';
+
+export default PageTransition;
