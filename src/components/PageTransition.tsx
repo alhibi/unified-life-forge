@@ -1,5 +1,5 @@
 import { motion, useReducedMotion, type Variants } from 'framer-motion';
-import { ReactNode, createContext, memo, useContext, useLayoutEffect, useMemo } from 'react';
+import { ReactNode, createContext, forwardRef, memo, useContext, useLayoutEffect, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { navLoaded } from '@/lib/navPerf';
 import { useApp } from '@/contexts/AppContext';
@@ -123,8 +123,25 @@ function buildVariants(rtl: boolean): Variants {
         right: 0,
       };
 
-      // Tab / replace / initial — no horizontal slide on exit.
-      if (m === 'tab' || m === 'replace' || m === 'initial') {
+      // Tab switches must never leave the old top-level screen in the
+      // scroll flow. Hide it immediately; the incoming tab still performs
+      // the subtle fade-up. This prevents Weather/Browse/etc. from ever
+      // stacking vertically during bottom-nav swaps.
+      if (m === 'tab') {
+        return {
+          ...positional,
+          display: 'none',
+          visibility: 'hidden',
+          opacity: 0,
+          x: 0,
+          y: 0,
+          pointerEvents: 'none',
+          transition: { duration: 0 },
+        };
+      }
+
+      // Replace / initial — no horizontal slide on exit.
+      if (m === 'replace' || m === 'initial') {
         return { ...positional, opacity: 0, x: 0, y: 0, transition };
       }
       // Push / pop — outgoing screen exits at parallax ratio of viewport width.
@@ -143,7 +160,10 @@ const REDUCED_MOTION_VARIANTS: Variants = {
 
 /* ── Component ────────────────────────────────────────────────────── */
 
-export default memo(function PageTransition({ children }: { children: ReactNode }) {
+const PageTransition = memo(forwardRef<HTMLDivElement, { children: ReactNode }>(function PageTransition(
+  { children },
+  ref,
+) {
   const location = useLocation();
   const prefersReducedMotion = useReducedMotion();
   const { dir } = useApp();
@@ -165,6 +185,7 @@ export default memo(function PageTransition({ children }: { children: ReactNode 
 
   return (
     <motion.div
+      ref={ref}
       data-page-surface
       // `custom` is read by the variant resolvers above for the
       // initial+animate cycle of THIS instance. For the EXIT cycle,
@@ -217,4 +238,8 @@ export default memo(function PageTransition({ children }: { children: ReactNode 
       {children}
     </motion.div>
   );
-});
+}));
+
+PageTransition.displayName = 'PageTransition';
+
+export default PageTransition;
