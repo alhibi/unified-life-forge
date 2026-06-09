@@ -381,6 +381,10 @@ function AnimatedRoutes() {
     <main
       id="main-content"
       style={{
+        // Provide a positioning context so the exiting PageTransition
+        // (which sets `position: absolute` during exit) is pinned to
+        // <main>'s box and never stacks above the incoming page.
+        position: 'relative',
         // Reserve space for the bottom nav on all routes where it is
         // visible. Sub-pages (non-nav routes) do NOT render BottomNav
         // so they don't need the bottom padding.

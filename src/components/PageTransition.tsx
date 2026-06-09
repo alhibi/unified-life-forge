@@ -110,13 +110,26 @@ function buildVariants(rtl: boolean): Variants {
         m === 'tab'  ? MOTION.tabExit :
         /* replace / initial */ MOTION.fade;
 
+      // While exiting, take the page out of normal flow so the incoming
+      // page can occupy the same coordinate space instead of stacking
+      // below it. AnimatePresence's `mode="popLayout"` only does this
+      // automatically for direct motion children, and our motion.div is
+      // nested inside <Routes>/<ErrorBoundary>, so we apply the position
+      // ourselves via the exit variant.
+      const positional = {
+        position: 'absolute' as const,
+        top: 0,
+        left: 0,
+        right: 0,
+      };
+
       // Tab / replace / initial — no horizontal slide on exit.
       if (m === 'tab' || m === 'replace' || m === 'initial') {
-        return { opacity: 0, x: 0, y: 0, transition };
+        return { ...positional, opacity: 0, x: 0, y: 0, transition };
       }
       // Push / pop — outgoing screen exits at parallax ratio of viewport width.
       const offsetPct = exitSign(m) * MOTION.parallax * 100;
-      return { opacity: 0, x: `${offsetPct}%`, y: 0, transition };
+      return { ...positional, opacity: 0, x: `${offsetPct}%`, y: 0, transition };
     },
   };
 }
