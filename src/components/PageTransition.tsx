@@ -123,8 +123,16 @@ function buildVariants(rtl: boolean): Variants {
         right: 0,
       };
 
-      // Tab / replace / initial — no horizontal slide on exit.
-      if (m === 'tab' || m === 'replace' || m === 'initial') {
+      // Tab switches must never leave the old top-level screen in the
+      // scroll flow. Hide it immediately; the incoming tab still performs
+      // the subtle fade-up. This prevents Weather/Browse/etc. from ever
+      // stacking vertically during bottom-nav swaps.
+      if (m === 'tab') {
+        return { ...positional, opacity: 0, x: 0, y: 0, pointerEvents: 'none', transition: { duration: 0 } };
+      }
+
+      // Replace / initial — no horizontal slide on exit.
+      if (m === 'replace' || m === 'initial') {
         return { ...positional, opacity: 0, x: 0, y: 0, transition };
       }
       // Push / pop — outgoing screen exits at parallax ratio of viewport width.
