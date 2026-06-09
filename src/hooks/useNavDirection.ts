@@ -43,6 +43,8 @@ const TAB_PATHS: ReadonlyArray<string> = [
   '/wellness',
   '/browse',
   '/mihrab',
+  '/weather',
+  '/knowledge',
 ];
 
 function isTabPath(pathname: string): boolean {
