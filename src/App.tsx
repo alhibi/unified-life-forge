@@ -326,7 +326,7 @@ function PersistentTabs({ active, mode }: { active: TabPath | null; mode: NavMod
   );
 
   return (
-    <AnimatePresence custom={mode}>
+    <AnimatePresence initial={false} custom={mode}>
       {active !== null && (
         <motion.div
           key="tab-layer"
