@@ -81,6 +81,20 @@ export default function BottomNav() {
     typeof window !== 'undefined' ? window.innerWidth : 390,
   );
 
+  // Block rapid-fire tab taps while a navigation is still in flight.
+  // Without this, hammering different tabs confuses AnimatePresence and
+  // can leave ghost pages stacked. We open a short cooldown window on
+  // every navigation and ignore taps/swipes that land inside it.
+  const navLockUntilRef = useRef<number>(0);
+  const isNavLocked = useCallback(() => Date.now() < navLockUntilRef.current, []);
+  const lockNav = useCallback(() => {
+    // Match the longest tab transition (~360ms tab-layer slide).
+    navLockUntilRef.current = Date.now() + 380;
+  }, []);
+  useEffect(() => {
+    lockNav();
+  }, [location.pathname, lockNav]);
+
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
@@ -191,12 +205,13 @@ export default function BottomNav() {
       // scrolling the page from the bar never triggers a navigation.
       if (commit) {
         const target = tabs[prev.index];
-        if (target && location.pathname !== target.path) {
+        if (target && location.pathname !== target.path && !isNavLocked()) {
           navigate(target.path);
+          lockNav();
         }
       }
     },
-    [navigate, location.pathname, setDragState],
+    [navigate, location.pathname, setDragState, isNavLocked, lockNav],
   );
 
   const onPointerUp     = useCallback((e: React.PointerEvent<HTMLDivElement>) => endDrag(true,  e.pointerId), [endDrag]);
@@ -276,7 +291,10 @@ export default function BottomNav() {
                 // the tab bar fully keyboard-accessible without
                 // double-navigating on pointer interactions.
                 if (e.detail !== 0) return;
-                if (location.pathname !== tab.path) navigate(tab.path);
+                if (location.pathname !== tab.path && !isNavLocked()) {
+                  navigate(tab.path);
+                  lockNav();
+                }
               }}
               aria-label={t(tab.labelKey)}
               aria-current={routeActive ? 'page' : undefined}
