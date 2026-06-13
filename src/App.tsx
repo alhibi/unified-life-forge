@@ -410,7 +410,7 @@ function AnimatedRoutes() {
           <AnimatePresence mode={mode === 'tab' ? 'wait' : 'popLayout'} initial={false} custom={mode}>
             {activeTab === null && (
               <PageTransition key={location.pathname}>
-                <Routes location={location}>
+                <Routes location={location} key={location.pathname}>
                   {/* Persistent tab paths are handled by <PersistentTabs/>. */}
                   <Route path="/" element={null} />
                   <Route path="/games" element={null} />
