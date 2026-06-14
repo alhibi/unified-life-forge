@@ -356,35 +356,7 @@ export default function BottomNav() {
                     className="nav-icon-edge-trace"
                     size={18}
                     weight="regular"
-                    style={{
-                      ['--nav-icon-gradient' as string]: `url(#nav-icon-edge-${tab.key})`,
-                    }}
-                  >
-                    <defs>
-                      <linearGradient
-                        id={`nav-icon-edge-${tab.key}`}
-                        gradientUnits="userSpaceOnUse"
-                        x1="-180"
-                        y1="0"
-                        x2="76"
-                        y2="256"
-                      >
-                        <stop offset="0%" stopColor="hsl(var(--live))" stopOpacity="0" />
-                        <stop offset="42%" stopColor="hsl(var(--live-glow))" stopOpacity="0" />
-                        <stop offset="50%" stopColor="hsl(var(--live))" stopOpacity="1" />
-                        <stop offset="58%" stopColor="hsl(var(--live-glow))" stopOpacity="0" />
-                        <stop offset="100%" stopColor="hsl(var(--live))" stopOpacity="0" />
-                        <animateTransform
-                          attributeName="gradientTransform"
-                          type="translate"
-                          from="-320 0"
-                          to="520 0"
-                          dur="1.35s"
-                          repeatCount="indefinite"
-                        />
-                      </linearGradient>
-                    </defs>
-                  </Icon>
+                  />
                 )}
 
                 {showBadge && (
