@@ -10,7 +10,7 @@
  * the dock is purely presentational. Active tab gets the copper
  * `--live` accent + a soft pill background, matching the reference.
  */
-import { CalendarDots, Map, MapPin, MoonStar, type LucideIcon } from '@/lib/icons';
+import { CalendarDays, Map, MapPin, MoonStar, type LucideIcon } from '@/lib/icons';
 
 export type WeatherTab = 'today' | 'radar' | 'forecast' | 'places';
 
@@ -23,7 +23,7 @@ interface TabDef {
 const TABS: TabDef[] = [
   { key: 'today',    icon: MoonStar,     label: { ar: 'اليوم',   de: 'Today'    } },
   { key: 'radar',    icon: Map,          label: { ar: 'الرادار', de: 'Radar'    } },
-  { key: 'forecast', icon: CalendarDots, label: { ar: 'التوقّع',  de: 'Forecast' } },
+  { key: 'forecast', icon: CalendarDays, label: { ar: 'التوقّع',  de: 'Forecast' } },
   { key: 'places',   icon: MapPin,       label: { ar: 'الأماكن', de: 'Places'   } },
 ];
 
