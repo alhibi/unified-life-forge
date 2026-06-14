@@ -2,7 +2,7 @@ import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import {
   Cloud, Sun, CloudRain, CloudSnow, CloudLightning, CloudDrizzle, CloudFog,
   CloudHail, CloudSun, MoonStar, Moon, Droplet, Droplets, Wind, Flag, Gauge,
-  Sunrise, Sunset, MapPin, AlertCircle, RefreshCw, Share2, CalendarDays, ChevronRight,
+  MapPin, AlertCircle, RefreshCw, Share2, CalendarDays, ChevronRight,
   Key, ExternalLink, Contrast, type LucideIcon,
 } from '@/lib/icons';
 import SEO from '@/components/SEO';
@@ -14,7 +14,6 @@ import { useWeatherData, type DailyEntry, type WeatherData } from '@/hooks/useWe
 import {
   listProviders, readOwmApiKey, writeOwmApiKey, writeProviderPref,
 } from '@/lib/weather';
-import { getMoonPhase } from '@/lib/weather/moonPhase';
 import { describeWeatherCode } from '@/lib/weather/describe';
 import WeatherDock, { type WeatherTab, WEATHER_DOCK_RESERVE } from '@/components/weather/WeatherDock';
 import DayDetailSheet from '@/components/weather/DayDetailSheet';
