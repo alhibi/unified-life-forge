@@ -109,11 +109,11 @@ export default function WarmupSheet({
                             setDoneMob(next);
                           }}
                           className={`w-full flex items-start gap-3 p-2.5 rounded-xl border transition-colors ${
-                            done ? 'bg-emerald-500/10 border-emerald-500/40' : 'bg-card border-border/40'
+                            done ? 'bg-success/10 border-success/40' : 'bg-card border-border/40'
                           }`}
                         >
                           <div className={`w-5 h-5 rounded-md flex items-center justify-center shrink-0 ${
-                            done ? 'bg-emerald-500 text-white' : 'border-2 border-border'
+                            done ? 'bg-success text-success-foreground' : 'border-2 border-border'
                           }`}>
                             {done && <Check className="w-3 h-3" />}
                           </div>
@@ -156,11 +156,11 @@ export default function WarmupSheet({
                               setDoneSets(next);
                             }}
                             className={`w-full flex items-center gap-3 p-3 rounded-xl border transition-colors ${
-                              done ? 'bg-emerald-500/10 border-emerald-500/40' : 'bg-card border-border/40'
+                              done ? 'bg-success/10 border-success/40' : 'bg-card border-border/40'
                             }`}
                           >
                             <div className={`w-5 h-5 rounded-md flex items-center justify-center shrink-0 ${
-                              done ? 'bg-emerald-500 text-white' : 'border-2 border-border'
+                              done ? 'bg-success text-success-foreground' : 'border-2 border-border'
                             }`}>
                               {done && <Check className="w-3 h-3" />}
                             </div>

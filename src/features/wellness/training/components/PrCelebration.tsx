@@ -129,7 +129,7 @@ export default function PrCelebration({ records, open, onClose, lang }: PrCelebr
               )}
               <button
                 onClick={onClose}
-                className="w-full py-2.5 rounded-xl bg-amber-500 text-white text-sm font-bold mt-2 active:scale-[0.98]"
+                className="w-full py-2.5 rounded-xl bg-warning text-warning-foreground text-sm font-bold mt-2 active:scale-[0.98]"
               >
                 {T.close[lang]}
               </button>

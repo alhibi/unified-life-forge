@@ -48,13 +48,13 @@ export default function SetRow({
     <div
       className={`rounded-xl border p-2.5 space-y-2 transition-colors ${
         isCompleted
-          ? 'bg-emerald-500/10 border-emerald-500/40'
+          ? 'bg-success/10 border-success/40'
           : 'bg-muted/30 border-border/30'
       }`}
     >
       <div className="flex items-center gap-2" dir="ltr">
         <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-[12px] font-bold tabular-nums ${
-          isCompleted ? 'bg-emerald-500 text-white' : 'bg-muted text-muted-foreground'
+          isCompleted ? 'bg-success text-success-foreground' : 'bg-muted text-muted-foreground'
         }`}>
           {index + 1}
         </div>
@@ -112,7 +112,7 @@ export default function SetRow({
             onClick={() => onComplete(!isCompleted)}
             className={`shrink-0 w-9 h-9 rounded-lg flex items-center justify-center transition-colors ${
               isCompleted
-                ? 'bg-emerald-500 text-white'
+                ? 'bg-success text-success-foreground'
                 : 'bg-muted text-muted-foreground hover:text-foreground'
             }`}
             aria-label={T.done[lang]}

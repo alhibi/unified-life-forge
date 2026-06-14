@@ -67,24 +67,41 @@ export function describeWeatherCode(code: number, lang: Lang): string {
 
 export interface Band {
   label: string;
-  /** Tailwind text colour token. */
+  /** Tailwind text colour utility — routed through --sev-* tokens. */
   textClass: string;
-  /** Tailwind background token (for meters / chips). */
+  /** Tailwind background utility — routed through --sev-* tokens. */
   barClass: string;
-  /** Raw CSS colour (hex) for inline styling, e.g. SVG strokes where
-   *  Tailwind's JIT can't see a dynamically-built class name. */
+  /** Raw CSS colour expression for inline styling, e.g. SVG strokes
+   *  where Tailwind's JIT can't see a dynamically-built class name.
+   *  Resolves the matching --sev-* token at use site. */
   hex: string;
   /** 0..1 position used to fill a linear meter. */
   fill: number;
 }
 
+// Severity slot → matching --sev-* token. Each slot has a fixed literal
+// Tailwind class so JIT can pick it up at build time.
+const SEV = {
+  good:      { text: 'text-[hsl(var(--sev-good))]',      bg: 'bg-[hsl(var(--sev-good))]',      hex: 'hsl(var(--sev-good))' },
+  low:       { text: 'text-[hsl(var(--sev-low))]',       bg: 'bg-[hsl(var(--sev-low))]',       hex: 'hsl(var(--sev-low))' },
+  moderate:  { text: 'text-[hsl(var(--sev-moderate))]',  bg: 'bg-[hsl(var(--sev-moderate))]',  hex: 'hsl(var(--sev-moderate))' },
+  high:      { text: 'text-[hsl(var(--sev-high))]',      bg: 'bg-[hsl(var(--sev-high))]',      hex: 'hsl(var(--sev-high))' },
+  veryHigh:  { text: 'text-[hsl(var(--sev-very-high))]', bg: 'bg-[hsl(var(--sev-very-high))]', hex: 'hsl(var(--sev-very-high))' },
+  extreme:   { text: 'text-[hsl(var(--sev-extreme))]',   bg: 'bg-[hsl(var(--sev-extreme))]',   hex: 'hsl(var(--sev-extreme))' },
+} as const;
+
+function band(label: string, slot: keyof typeof SEV, fill: number): Band {
+  const s = SEV[slot];
+  return { label, textClass: s.text, barClass: s.bg, hex: s.hex, fill };
+}
+
 export function uvBand(uv: number, lang: Lang): Band {
   const fill = Math.max(0, Math.min(1, uv / 11));
-  if (uv < 3)  return { label: lang === 'ar' ? 'منخفض' : 'Niedrig',     textClass: 'text-emerald-400', barClass: 'bg-emerald-400', hex: '#34d399', fill };
-  if (uv < 6)  return { label: lang === 'ar' ? 'معتدل' : 'Mäßig',       textClass: 'text-amber-400',   barClass: 'bg-amber-400',   hex: '#fbbf24', fill };
-  if (uv < 8)  return { label: lang === 'ar' ? 'مرتفع' : 'Hoch',        textClass: 'text-orange-400',  barClass: 'bg-orange-400',  hex: '#fb923c', fill };
-  if (uv < 11) return { label: lang === 'ar' ? 'مرتفع جداً' : 'Sehr hoch', textClass: 'text-rose-400', barClass: 'bg-rose-400', hex: '#fb7185', fill };
-  return { label: lang === 'ar' ? 'شديد' : 'Extrem', textClass: 'text-fuchsia-400', barClass: 'bg-fuchsia-400', hex: '#e879f9', fill };
+  if (uv < 3)  return band(lang === 'ar' ? 'منخفض'    : 'Niedrig',  'good',     fill);
+  if (uv < 6)  return band(lang === 'ar' ? 'معتدل'    : 'Mäßig',    'moderate', fill);
+  if (uv < 8)  return band(lang === 'ar' ? 'مرتفع'    : 'Hoch',     'high',     fill);
+  if (uv < 11) return band(lang === 'ar' ? 'مرتفع جداً' : 'Sehr hoch', 'veryHigh', fill);
+  return band(lang === 'ar' ? 'شديد' : 'Extrem', 'extreme', fill);
 }
 
 // ── European Air Quality Index band ──────────────────────────────────────
@@ -95,12 +112,12 @@ export function uvBand(uv: number, lang: Lang): Band {
 
 export function aqiBand(aqi: number, lang: Lang): Band {
   const fill = Math.max(0, Math.min(1, aqi / 100));
-  if (aqi <= 20)  return { label: lang === 'ar' ? 'جيّد' : 'Gut',            textClass: 'text-emerald-400', barClass: 'bg-emerald-400', hex: '#34d399', fill };
-  if (aqi <= 40)  return { label: lang === 'ar' ? 'مقبول' : 'Akzeptabel',    textClass: 'text-lime-400',    barClass: 'bg-lime-400',    hex: '#a3e635', fill };
-  if (aqi <= 60)  return { label: lang === 'ar' ? 'متوسّط' : 'Mäßig',        textClass: 'text-amber-400',   barClass: 'bg-amber-400',   hex: '#fbbf24', fill };
-  if (aqi <= 80)  return { label: lang === 'ar' ? 'سيّئ' : 'Schlecht',       textClass: 'text-orange-400',  barClass: 'bg-orange-400',  hex: '#fb923c', fill };
-  if (aqi <= 100) return { label: lang === 'ar' ? 'سيّئ جداً' : 'Sehr schlecht', textClass: 'text-rose-400', barClass: 'bg-rose-400', hex: '#fb7185', fill };
-  return { label: lang === 'ar' ? 'خطير' : 'Extrem', textClass: 'text-fuchsia-400', barClass: 'bg-fuchsia-400', hex: '#e879f9', fill };
+  if (aqi <= 20)  return band(lang === 'ar' ? 'جيّد'     : 'Gut',          'good',     fill);
+  if (aqi <= 40)  return band(lang === 'ar' ? 'مقبول'    : 'Akzeptabel',   'low',      fill);
+  if (aqi <= 60)  return band(lang === 'ar' ? 'متوسّط'   : 'Mäßig',        'moderate', fill);
+  if (aqi <= 80)  return band(lang === 'ar' ? 'سيّئ'     : 'Schlecht',     'high',     fill);
+  if (aqi <= 100) return band(lang === 'ar' ? 'سيّئ جداً' : 'Sehr schlecht', 'veryHigh', fill);
+  return band(lang === 'ar' ? 'خطير' : 'Extrem', 'extreme', fill);
 }
 
 // ── Critical pollutant ───────────────────────────────────────────────────
@@ -149,9 +166,15 @@ export const POLLEN_LABEL: Record<string, { ar: string; de: string }> = {
 
 export function pollenLevel(value: number, lang: Lang): Band {
   const fill = Math.max(0, Math.min(1, value / 100));
-  if (value <= 0)  return { label: lang === 'ar' ? 'لا يوجد' : 'Keine',  textClass: 'text-muted-foreground', barClass: 'bg-muted-foreground/40', hex: '#94a3b8', fill };
-  if (value < 20)  return { label: lang === 'ar' ? 'منخفض' : 'Niedrig',  textClass: 'text-emerald-400', barClass: 'bg-emerald-400', hex: '#34d399', fill };
-  if (value < 50)  return { label: lang === 'ar' ? 'معتدل' : 'Mäßig',    textClass: 'text-amber-400',   barClass: 'bg-amber-400',   hex: '#fbbf24', fill };
-  if (value < 100) return { label: lang === 'ar' ? 'مرتفع' : 'Hoch',     textClass: 'text-orange-400',  barClass: 'bg-orange-400',  hex: '#fb923c', fill };
-  return { label: lang === 'ar' ? 'مرتفع جداً' : 'Sehr hoch', textClass: 'text-rose-400', barClass: 'bg-rose-400', hex: '#fb7185', fill };
+  if (value <= 0)  return {
+    label: lang === 'ar' ? 'لا يوجد' : 'Keine',
+    textClass: 'text-muted-foreground',
+    barClass: 'bg-muted-foreground/40',
+    hex: 'hsl(var(--muted-foreground))',
+    fill,
+  };
+  if (value < 20)  return band(lang === 'ar' ? 'منخفض'   : 'Niedrig',  'good',     fill);
+  if (value < 50)  return band(lang === 'ar' ? 'معتدل'   : 'Mäßig',    'moderate', fill);
+  if (value < 100) return band(lang === 'ar' ? 'مرتفع'   : 'Hoch',     'high',     fill);
+  return band(lang === 'ar' ? 'مرتفع جداً' : 'Sehr hoch', 'veryHigh', fill);
 }
