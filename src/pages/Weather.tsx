@@ -16,7 +16,11 @@ import {
 } from '@/lib/weather';
 import { getMoonPhase } from '@/lib/weather/moonPhase';
 import { describeWeatherCode } from '@/lib/weather/describe';
-import SmartInsightsCard from '@/components/weather/SmartInsightsCard';
+import WeatherDock, { type WeatherTab, WEATHER_DOCK_RESERVE } from '@/components/weather/WeatherDock';
+import DayDetailSheet from '@/components/weather/DayDetailSheet';
+import RadarView from '@/components/weather/RadarView';
+import PlacesView from '@/components/weather/PlacesView';
+import { SunriseSunsetList, MoonPhasesList } from '@/components/weather/SunMoonExpanded';
 
 /**
  * /weather — Forecast view designed to mirror the reference design 1:1:
