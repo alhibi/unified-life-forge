@@ -237,13 +237,18 @@
      stays subtle and clean.
      ────────────────────────────────────────────────────────────── */
   .surface-depth {
-    background-color: transparent;
-    border: 0;
-    box-shadow: none;
+    background-color: hsl(var(--card));
+    border: 1px solid hsl(var(--border) / 0.45);
+    box-shadow:
+      inset 0 1px 0 0 hsl(0 0% 100% / 0.04),
+      inset 0 -1px 0 0 hsl(0 0% 0% / 0.25),
+      0 1px 2px 0 hsl(0 0% 0% / 0.18);
   }
   .dark .surface-depth,
   :root[data-theme-mode="true-black"] .surface-depth {
-    background-image: none;
+    background-image: linear-gradient(180deg,
+      hsl(0 0% 100% / 0.018) 0%,
+      hsl(0 0% 0% / 0.06) 100%);
   }
   .surface-depth-pressable {
     transition: transform 120ms cubic-bezier(0.34, 1.56, 0.64, 1),
@@ -252,26 +257,9 @@
   }
   .surface-depth-pressable:active {
     transform: scale(0.98);
-    box-shadow: none;
-  }
-
-  /* ──────────────────────────────────────────────────────────────
-     Flat Surfaces — every content card across the app reads as a
-     flat region of the page rather than a raised box. We override
-     the Tailwind `bg-card` family (and matching borders) so that
-     content containers fuse with the page background. Popovers,
-     dialogs and dropdowns use `bg-popover` and remain unaffected,
-     so menus/sheets still float correctly.
-     ────────────────────────────────────────────────────────────── */
-  .bg-card,
-  [class*="bg-card/"] {
-    background-color: transparent !important;
-    background-image: none !important;
-  }
-  .border-border\/40,
-  .border-border\/30,
-  .border-border\/50 {
-    border-color: transparent !important;
+    box-shadow:
+      inset 0 1px 2px 0 hsl(0 0% 0% / 0.35),
+      inset 0 -1px 0 0 hsl(0 0% 100% / 0.02);
   }
 
   /* ──────────────────────────────────────────────────────────────

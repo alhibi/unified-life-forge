@@ -1,76 +1,107 @@
-# تطوير قسم الطقس
 
-اخترت ثلاثة محاور: **ميزات جديدة**، **تحليلات أعمق**، و**رؤى ذكية**. سأنفذها على دفعات يمكنك مراجعتها.
+# خطة تطوير قسم الديوان — المحاور (1) المحتوى (3) البحث (6) الأداء
 
-## المحور 1 — ميزات جديدة
+## الوضع الحالي
+- **محتوى**: يعتمد على `poetryData.ts` (Fallback) + جداول `diwan_poets/poems/verses` مع RPCs (`diwan_search_poems`, `diwan_search_verses`).
+- **بحث**: نصّي عبر `tsvector` + `normalize_arabic` + فلاتر (عصر/بحر/قافية/غرض/وسم).
+- **فهارس**: GIN على جميع جداول البحث + B-tree على الـ FKs والفلاتر. **البنية ممتازة أصلاً.**
+- **واجهة**: 5 صفحات (Library, Poets, Poet, Poem, Search) — تستخدم React Query لكن بلا virtualization ولا prefetch.
 
-1. **تنبيهات الطقس القاسي** (Severe Weather Alerts)
-   - استخدام Open-Meteo Warnings API + كشف داخلي للعتبات (رياح > 60 كم/س، حرارة > 38°، صقيع < 0°، أمطار غزيرة > 10مم/س)
-   - شارة حمراء/برتقالية في أعلى صفحة الطقس + بطاقة قابلة للطي بالتفاصيل
-   - دفع بطاقة فورية في `LivingRibbon` عند وجود تحذير نشط
+---
 
-2. **رادار الأمطار التفاعلي**
-   - طبقة RainViewer (مجانية، بدون مفتاح) على خريطة Leaflet خفيفة (موجودة في bundle بالفعل لو استخدمناها — وإلا سأستخدم Canvas مع tiles بسيطة)
-   - Timeline سحب أفقي يعرض آخر 90 دقيقة + توقع 30 دقيقة قادمة
-   - تشغيل/إيقاف، تكبير، تحديد الموقع الحالي
+## المحور 1 — المحتوى والبيانات
 
-3. **مقارنة المدن المتعددة**
-   - إضافة حتى 4 مدن مفضلة (تُحفظ في `localStorage` + مزامنة `user_settings`)
-   - شريط أفقي قابل للسحب يعرض: الحرارة الحالية، رمز الطقس، الفرق عن مدينتك
-   - النقر يفتح تفاصيل المدينة في drawer
+### 1.1 إثراء البيانات (سكربتات)
+- **توسيع `seed-from-local.ts`**: حقن كامل لـ `poetryData.ts` إلى السحابة (يبدو أنه ناقص).
+- **سكربت `enrich-meters.ts` جديد**: استدلال البحر تلقائياً من نمط التفعيلات لكل بيت غير مصنّف، باستخدام `LOVABLE_API_KEY` (gemini-2.5-flash-lite) دفعة واحدة لكل قصيدة.
+- **سكربت `enrich-glossary.ts` جديد**: استخراج 3-5 مفردات صعبة لكل قصيدة + شرحها، تخزينها في جدول جديد `diwan_glossary`.
 
-## المحور 2 — تحليلات أعمق
+### 1.2 جداول جديدة
+```sql
+-- شرح المفردات
+CREATE TABLE diwan_glossary (
+  id uuid PRIMARY KEY,
+  poem_id uuid REFERENCES diwan_poems,
+  word text NOT NULL,            -- بصيغته في القصيدة
+  word_normalized text NOT NULL, -- normalize_arabic
+  meaning text NOT NULL,
+  verse_position int             -- البيت الذي ورد فيه
+);
+CREATE INDEX ON diwan_glossary (poem_id);
+CREATE INDEX ON diwan_glossary (word_normalized);
 
-4. **رسم بياني تفاعلي 48 ساعة**
-   - Recharts (موجود): خط الحرارة + شريط احتمال المطر + ظل الشعور الحراري
-   - سحب أفقي مع crosshair يعرض القيم الدقيقة
-   - يحل محل الـ hourly strip الحالي
+-- التشكيل (اختياري - مخزّن مع البيت)
+ALTER TABLE diwan_verses
+  ADD COLUMN hemistich1_diacritized text,
+  ADD COLUMN hemistich2_diacritized text;
+```
 
-5. **اتجاهات الأسبوع**
-   - رسم بياني عمودي للأسبوع: max/min/متوسط + خط الشذوذ مقارنة بالمعدل التاريخي (Open-Meteo Climate API)
-   - مؤشرات: "أبرد من المعتاد بـ 3°"، "أمطار أعلى بـ 40%"
+### 1.3 واجهة
+- في `LibraryPoem.tsx`: زر تبديل **"تشكيل/بلا تشكيل"** (يستخدم الحقول الجديدة إن وُجدت).
+- في `LibraryPoem.tsx`: **long-press على أي كلمة** → bottom-sheet يعرض الشرح من `diwan_glossary` (مطابقة بـ `word_normalized`).
 
-6. **تحليل جودة الهواء التفصيلي**
-   - تفكيك المكونات (PM2.5, PM10, NO₂, O₃) في رسم رادار
-   - توقع AQI لـ 24 ساعة القادمة
-   - التلوين حسب EPA bands مع تفسير صحي
+---
 
-## المحور 3 — رؤى ذكية وتوصيات
+## المحور 3 — البحث والاكتشاف
 
-7. **بطاقات "اللحظة" الذكية** (Smart Moments)
-   - "أفضل وقت للخروج اليوم: 4-6 مساءً" (يحسب من temp + AQI + احتمال مطر + UV)
-   - "نافذة للرياضة في الخارج: غداً 7-9 صباحاً"
-   - "وقت تهوية المنزل: الآن لمدة 25 دقيقة" (يقارن temp/humidity داخل-خارج تقديرياً)
+### 3.1 RPC جديدة `diwan_smart_search`
+- توحيد البحث في القصائد والأبيات والشعراء في استدعاء واحد، مع تجميع النتائج حسب النوع (لإطلاق Universal Search).
+- يستخدم `ts_rank_cd` + boost للعنوان (weight A) ولمطابقات الشاعر.
 
-8. **توصية اللباس**
-   - أيقونات نصية (معطف، مظلة، نظارة شمسية، قبعة) بناءً على temp + wind + precip + UV
-   - رسالة قصيرة بالعربية/الألمانية: "اخرج بسترة خفيفة، لا حاجة للمظلة"
+### 3.2 فلاتر متقدّمة
+- **فلتر الحقبة الزمنية بالسنة** (slider من -500 إلى 1500 هـ) بدل القائمة الجامدة → يستفيد من `birth_year/death_year` في `diwan_poets`.
+- **فلتر "عدد الأبيات"** (قصيدة/مقطوعة/قصيرة جداً) بإضافة `verses_count >= ?`.
 
-9. **تأثير الطقس على الصلاة والصحة**
-   - تنبيه: "صلاة الفجر باردة (-2°)، البس دافئاً" 
-   - "اشرب 2 لتر إضافي اليوم — حرارة شديدة"
-   - "UV عالي وقت الظهر، تجنب الخروج بين 12-2"
-   - تكامل مع `prayerTimings` الموجود
+### 3.3 اقتراحات ذكية (بدون pgvector)
+- RPC `diwan_similar_poems(poem_slug, limit)`: يرجع 5 قصائد بنفس البحر + الغرض + من نفس العصر (ترتيب حسب overlap في `tags`).
+- يُعرض كقسم "قصائد مشابهة" أسفل `LibraryPoem.tsx`.
 
-## التنفيذ — مراحل
+### 3.4 اقتراحات أثناء الكتابة (Autocomplete)
+- RPC `diwan_suggest(prefix)`: يرجع أهم 8 شعراء/قصائد تبدأ بالـ prefix، يُستخدم في `SearchBar`.
 
-**المرحلة A (الأساس + المحور 3):** بطاقات اللحظة الذكية + توصية اللباس + تأثير على الصلاة. لا حاجة لـ APIs جديدة.
+### 3.5 سجل البحث المحلي
+- آخر 8 عمليات بحث في `localStorage` → chips قابلة للنقر تحت شريط البحث في `LibrarySearch.tsx`.
 
-**المرحلة B (التحليلات):** رسم Recharts 48س + اتجاهات الأسبوع + رادار جودة الهواء.
+---
 
-**المرحلة C (الميزات الكبرى):** تنبيهات الطقس القاسي + مقارنة المدن المتعددة.
+## المحور 6 — الأداء
 
-**المرحلة D (الرادار):** رادار RainViewer التفاعلي (الأثقل، آخر مرحلة).
+### 6.1 Virtualization
+- إضافة `@tanstack/react-virtual` (لو غير موجود) لقوائم:
+  - `LibraryPoets.tsx` (قد تتعدى 1000 شاعر).
+  - `LibrarySearch.tsx` نتائج الأبيات.
+- العتبة: تفعيل فقط لو عدد العناصر > 50.
 
-## تفاصيل تقنية
+### 6.2 Prefetch
+- في `PoetCard.tsx` و`PoemCard.tsx`: `onPointerEnter` (desktop) و`onTouchStart` (mobile) → `queryClient.prefetchQuery` للصفحة المقصودة.
 
-- كل المنطق في `src/lib/weather/insights.ts` (جديد) و `src/lib/weather/severity.ts` (جديد)
-- مكونات جديدة: `WeatherInsightsCard.tsx`, `OutfitRecommendation.tsx`, `HourlyChart.tsx`, `WeeklyTrends.tsx`, `AirQualityRadar.tsx`, `SevereAlertBanner.tsx`, `CitiesCompare.tsx`, `RainRadar.tsx`
-- تخزين المدن المفضلة في `user_settings.settings.favoriteCities` (jsonb موجود)
-- لا APIs مدفوعة، لا مفاتيح جديدة — كله Open-Meteo + RainViewer مجاناً
-- التوطين كامل عربي/ألماني، RTL آمن، أرقام عالمية (123) بالعربية كالعادة
-- استخدام `--live` accent والـ obsidian depth surfaces الحالية
+### 6.3 تقليل حجم الـ payload
+- في `diwan_search_poems`: عدم إرجاع `full_text` (الموجود حالياً يبدو خفيفاً لكن نتأكد).
+- إرجاع `opening` فقط (مطلع ≤ 200 حرف) لبطاقات النتائج.
 
-## السؤال قبل البدء
+### 6.4 Cache layer
+- ضبط `staleTime: 5 * 60_000` للـ `useDiwanEras` و`useDiwanLibraryStats` (لا تتغيّر كثيراً).
+- ضبط `staleTime: 60_000` لنتائج البحث + `keepPreviousData: true` لتجربة pagination سلسة.
 
-هل أبدأ بـ **المرحلة A** فقط (الرؤى الذكية + اللباس + الصلاة — أسرع تأثير مرئي)، أم تريد كل المراحل دفعة واحدة؟ أنصح بـ A → B → C → D على رسائل متتالية حتى تتمكن من المراجعة والتعديل بين المراحل.
+### 6.5 Skeletons دقيقة
+- استبدال `<div class="skeleton h-20" />` بـ skeleton matches للبطاقة الحقيقية (يقلّل CLS).
+
+---
+
+## التقنيات
+- **DB**: 3 migrations جديدة (`diwan_glossary` + RPC الاقتراحات + RPC المتشابهات + diacritized columns).
+- **Frontend**: تعديل `LibraryPoem`, `LibrarySearch`, `LibraryPoets`, `SearchBar`, `PoetCard`, `PoemCard` + hooks جديدة.
+- **Scripts**: 2 سكربتات إثراء (ingest يدوي عبر `bun run`).
+- **بدون pgvector** لأنه يتطلب extension + رفع ميزانية → سنحقّق "البحث الذكي" بالتركيب الذكي للفلاتر + اقتراحات بنفس البحر/الغرض.
+
+---
+
+## الترتيب المقترح للتنفيذ
+1. **Migration**: `diwan_glossary` + columns تشكيل + RPCs (similar_poems, suggest).
+2. **Frontend الأداء**: virtualization + prefetch + cache (مكسب فوري).
+3. **Frontend البحث**: autocomplete + سجل البحث + قسم "قصائد مشابهة" + فلاتر متقدّمة.
+4. **Frontend المحتوى**: زر التشكيل + long-press للشرح.
+5. **سكربتات الإثراء** (تشغّلها أنت محلياً عند الحاجة).
+
+تقدير الحجم: ~12 ملفاً جديداً/معدّلاً + migration واحدة.
+
