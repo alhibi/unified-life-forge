@@ -70,6 +70,23 @@
     --shadow-intense: none;
     --font-display: 'Inter', 'Noto Sans Arabic', system-ui, -apple-system, sans-serif;
     --font-body: 'Inter', 'Noto Sans Arabic', system-ui, -apple-system, sans-serif;
+
+    /* ──────────────────────────────────────────────────────────────
+       UNIFIED LIVE ACCENT — single warm copper that pulses across
+       the entire application. The ONLY chromatic note in the UI.
+       Every per-section color (orange games, blue chat, green wellness,
+       cyan weather, purple browse, gold knowledge, yellow mihrab,
+       lavender home) has been retired in favour of this one token.
+       Use it on: active tab indicator, next prayer marker, unread
+       message dot, current selection, "now" hotspots. Never on
+       inert chrome, borders, or decorative surfaces.
+
+       Theme-independent on purpose — same lantern warmth across all
+       28 themes so the brand stays coherent regardless of skin.
+       ────────────────────────────────────────────────────────────── */
+    --live: 32 58% 62%;          /* warm copper / lantern light */
+    --live-soft: 32 45% 70%;     /* for translucent halos */
+    --live-glow: 32 80% 68%;     /* for the breathing aura */
   }
 }
 
