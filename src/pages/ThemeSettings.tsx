@@ -46,7 +46,9 @@ const themeStyles: { id: ThemeStyle; icon: typeof Palette; name: string; nameEn:
 ];
 
 export default function ThemeSettingsPage() {
-  const { language, theme, setTheme, blackMode, setBlackMode, md3Mode, setMd3Mode, colorTheme, setColorTheme, paletteStyle, setPaletteStyle } = useApp();
+  const { language, theme, setTheme, blackMode, setBlackMode, colorTheme, setColorTheme, paletteStyle, setPaletteStyle } = useApp();
+  // MD3 mode retired — kept locally as a no-op to minimise diff in this file's UI.
+  const md3Mode = false;
   const navigate = useNavigate();
   const isAr = language === 'ar';
 
