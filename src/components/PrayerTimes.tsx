@@ -1248,23 +1248,6 @@ function HijriCalendarStrip({
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 /** True if the current effective theme is dark. */
-function useIsDark(theme: 'light' | 'dark' | 'system'): boolean {
-  const [isDark, setIsDark] = useState(() => {
-    if (theme === 'dark') return true;
-    if (theme === 'light') return false;
-    if (typeof window !== 'undefined' && window.matchMedia) {
-      return window.matchMedia('(prefers-color-scheme: dark)').matches;
-    }
-    return false;
-  });
-  useEffect(() => {
-    if (theme === 'dark') return setIsDark(true);
-    if (theme === 'light') return setIsDark(false);
-    const mq = window.matchMedia('(prefers-color-scheme: dark)');
-    setIsDark(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setIsDark(e.matches);
-    mq.addEventListener('change', handler);
-    return () => mq.removeEventListener('change', handler);
-  }, [theme]);
-  return isDark;
+function useIsDark(theme: 'light' | 'dark'): boolean {
+  return theme === 'dark';
 }
