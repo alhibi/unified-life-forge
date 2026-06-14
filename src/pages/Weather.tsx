@@ -104,13 +104,6 @@ const isWeekend = (ms: number) => {
   return day === 0 || day === 6;
 };
 
-const formatTimeFromIso = (iso: string) => {
-  const [, time] = iso.split('T');
-  if (!time) return '';
-  const [h, m] = time.split(':');
-  return `${h}:${m}`;
-};
-
 const compassDir = (deg: number, isAr: boolean) => {
   const names = isAr
     ? ['شمال', 'شمال شرق', 'شرق', 'جنوب شرق', 'جنوب', 'جنوب غرب', 'غرب', 'شمال غرب']
