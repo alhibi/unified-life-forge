@@ -30,25 +30,30 @@ type Tab = {
   path: string;
   icon: typeof House;
   labelKey: string;
-  color: string;
 };
 
+// UNIFIED VISUAL LANGUAGE
+// ─────────────────────────────────────────────────────────────────
+// Per-tab colors retired. The entire bar reads as one cohesive
+// neutral surface; only the ACTIVE tab earns the single chromatic
+// note — `hsl(var(--live))`, the app-wide warm copper. Inactive
+// icons sit on `muted-foreground`. This is the "محايد بالكامل +
+// نبضة لون واحدة" direction the user chose.
 const tabs: Tab[] = [
-  { key: 'games',    path: '/games',    icon: Dices,         labelKey: 'nav.games',    color: '#fb923c' },
-  { key: 'chat',     path: '/chat',     icon: MessageCircle, labelKey: 'nav.chat',     color: '#7dd3fc' },
-  { key: 'wellness', path: '/wellness', icon: HeartPulse,    labelKey: 'nav.wellness', color: '#34d399' },
-  { key: 'home',     path: '/',         icon: House,         labelKey: 'nav.home',     color: '#c4b5fd' },
-  // Weather sits between Home and Browse so the bar groups by mental
-  // mode: utility/social on the left → home anchor → utility/info on
-  // the right (weather, browse, mihrab).
-  { key: 'weather',  path: '/weather',  icon: CloudSun,      labelKey: 'nav.weather',  color: '#22d3ee' },
-  { key: 'browse',   path: '/browse',   icon: Compass,       labelKey: 'nav.browse',   color: '#a78bfa' },
-  // "المعرفة" — luxury knowledge catalog. Sits next to Browse since it
-  // is also a discovery/exploration surface; the crown signals its
-  // premium content (cars, perfumes, watches, fashion, sweets).
-  { key: 'knowledge', path: '/knowledge', icon: Crown,        labelKey: 'nav.knowledge', color: '#d8b26a' },
-  { key: 'mihrab',   path: '/mihrab',   icon: BookOpen,      labelKey: 'nav.mihrab',   color: '#fcd34d' },
+  { key: 'games',     path: '/games',     icon: Dices,         labelKey: 'nav.games'     },
+  { key: 'chat',      path: '/chat',      icon: MessageCircle, labelKey: 'nav.chat'      },
+  { key: 'wellness',  path: '/wellness',  icon: HeartPulse,    labelKey: 'nav.wellness'  },
+  { key: 'home',      path: '/',          icon: House,         labelKey: 'nav.home'      },
+  { key: 'weather',   path: '/weather',   icon: CloudSun,      labelKey: 'nav.weather'   },
+  { key: 'browse',    path: '/browse',    icon: Compass,       labelKey: 'nav.browse'    },
+  { key: 'knowledge', path: '/knowledge', icon: Crown,         labelKey: 'nav.knowledge' },
+  { key: 'mihrab',    path: '/mihrab',    icon: BookOpen,      labelKey: 'nav.mihrab'    },
 ];
+
+// The ONE accent — referenced as a CSS expression so it follows the
+// theme token (always warm copper, theme-independent by design).
+const LIVE = 'hsl(var(--live))';
+const LIVE_SOFT = 'hsl(var(--live) / 0.14)';
 
 const TAB_PATHS = new Set<string>(tabs.map(t => t.path));
 // A drag must travel at least this many pixels before we treat it as
@@ -333,7 +338,8 @@ export default function BottomNav() {
                   width: visuallyActive ? 20 : 4,
                   height: 3,
                   borderRadius: 999,
-                  background: visuallyActive ? tab.color : 'transparent',
+                  background: visuallyActive ? LIVE : 'transparent',
+                  boxShadow: visuallyActive ? `0 0 8px 0 hsl(var(--live-glow) / 0.5)` : undefined,
                   transition: dragging
                     ? 'none'
                     : 'width 0.35s cubic-bezier(0.34,1.56,0.64,1), background 0.25s ease',
@@ -349,7 +355,7 @@ export default function BottomNav() {
                   height: 32,
                   borderRadius: 10,
                   background: visuallyActive
-                    ? `${tab.color}18`
+                    ? LIVE_SOFT
                     : 'transparent',
                   transform: visuallyActive ? 'scale(1.05)' : 'scale(1)',
                   transition: dragging
@@ -365,7 +371,7 @@ export default function BottomNav() {
                   strokeWidth={visuallyActive ? 2.25 : 1.75}
                   style={{
                     color: visuallyActive
-                      ? tab.color
+                      ? LIVE
                       : 'hsl(var(--muted-foreground) / 0.7)',
                     transition: dragging ? 'none' : 'color 0.3s ease, stroke-width 0.3s ease',
                   }}
@@ -406,7 +412,7 @@ export default function BottomNav() {
                   fontWeight: 600,
                   letterSpacing: 0,
                   direction: 'rtl',
-                  color: tab.color,
+                  color: LIVE,
                   opacity: visuallyActive ? 1 : 0,
                   transform: visuallyActive ? 'translateY(0) scale(1)' : 'translateY(3px) scale(0.9)',
                   transition: dragging

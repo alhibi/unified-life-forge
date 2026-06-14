@@ -70,6 +70,23 @@
     --shadow-intense: none;
     --font-display: 'Inter', 'Noto Sans Arabic', system-ui, -apple-system, sans-serif;
     --font-body: 'Inter', 'Noto Sans Arabic', system-ui, -apple-system, sans-serif;
+
+    /* ──────────────────────────────────────────────────────────────
+       UNIFIED LIVE ACCENT — single warm copper that pulses across
+       the entire application. The ONLY chromatic note in the UI.
+       Every per-section color (orange games, blue chat, green wellness,
+       cyan weather, purple browse, gold knowledge, yellow mihrab,
+       lavender home) has been retired in favour of this one token.
+       Use it on: active tab indicator, next prayer marker, unread
+       message dot, current selection, "now" hotspots. Never on
+       inert chrome, borders, or decorative surfaces.
+
+       Theme-independent on purpose — same lantern warmth across all
+       28 themes so the brand stays coherent regardless of skin.
+       ────────────────────────────────────────────────────────────── */
+    --live: 32 58% 62%;          /* warm copper / lantern light */
+    --live-soft: 32 45% 70%;     /* for translucent halos */
+    --live-glow: 32 80% 68%;     /* for the breathing aura */
   }
 }
 
@@ -243,6 +260,60 @@
     box-shadow:
       inset 0 1px 2px 0 hsl(0 0% 0% / 0.35),
       inset 0 -1px 0 0 hsl(0 0% 100% / 0.02);
+  }
+
+  /* ──────────────────────────────────────────────────────────────
+     AMBIENT BREATH — single global radial halo anchored to the
+     top-center of the viewport, gently breathing 6s. Tinted with
+     the unified --live token at very low alpha so the entire app
+     reads as "alive but quiet" — the user's chosen direction. Lives
+     on a fixed, pointer-events:none pseudo-element on <body>, so
+     every route inherits the same heartbeat without any per-page
+     code. Pure opacity → compositor-only, 0 layout cost.
+     ────────────────────────────────────────────────────────────── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background:
+      radial-gradient(
+        ellipse 70% 45% at 50% -5%,
+        hsl(var(--live-glow) / 0.10) 0%,
+        hsl(var(--live-glow) / 0.04) 35%,
+        transparent 70%
+      );
+    animation: ambient-breath 6s ease-in-out infinite;
+    will-change: opacity;
+  }
+  @keyframes ambient-breath {
+    0%, 100% { opacity: 0.55; }
+    50%      { opacity: 1; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    body::before { animation: none; opacity: 0.7; }
+  }
+
+  /* ──────────────────────────────────────────────────────────────
+     LIVE PULSE — the single chromatic note. A tiny copper dot or
+     accent that breathes in sync with the ambient layer. Use it
+     on the "now" element of any screen (next prayer, unread,
+     active tab indicator). Never decorative.
+     ────────────────────────────────────────────────────────────── */
+  .live-dot {
+    background-color: hsl(var(--live));
+    box-shadow: 0 0 8px 0 hsl(var(--live-glow) / 0.55);
+    animation: live-pulse 6s ease-in-out infinite;
+  }
+  .live-text  { color: hsl(var(--live)); }
+  .live-ring  { box-shadow: 0 0 0 1px hsl(var(--live) / 0.35), 0 0 12px 0 hsl(var(--live-glow) / 0.25); }
+  @keyframes live-pulse {
+    0%, 100% { opacity: 0.7; }
+    50%      { opacity: 1; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .live-dot { animation: none; opacity: 0.9; }
   }
 
   /* ── Sidebar: shrink, never disappear ──
