@@ -9,6 +9,14 @@
   <url><loc>https://amv.life/reading</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://amv.life/wellness</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://amv.life/section/timed-sunnah</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://amv.life/section/timed-sunnah/fajr</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://amv.life/section/timed-sunnah/before-fajr</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://amv.life/section/timed-sunnah/dhuhr</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://amv.life/section/timed-sunnah/duha</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://amv.life/section/timed-sunnah/asr</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://amv.life/section/timed-sunnah/maghrib</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://amv.life/section/timed-sunnah/isha</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://amv.life/section/timed-sunnah/friday</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
   <url><loc>https://amv.life/section/untimed-sunnah</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://amv.life/section/prophetic-day</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://amv.life/section/quran-virtues</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
@@ -27,6 +35,9 @@
   <url><loc>https://amv.life/chat/settings</loc><changefreq>monthly</changefreq><priority>0.3</priority></url>
   <url><loc>https://amv.life/browse</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://amv.life/mihrab</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://amv.life/weather</loc><changefreq>daily</changefreq><priority>0.6</priority></url>
+  <url><loc>https://amv.life/weather/forecast</loc><changefreq>daily</changefreq><priority>0.5</priority></url>
+  <url><loc>https://amv.life/knowledge</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://amv.life/auth</loc><changefreq>monthly</changefreq><priority>0.4</priority></url>
   <url><loc>https://amv.life/settings/theme</loc><changefreq>monthly</changefreq><priority>0.3</priority></url>
   <url><loc>https://amv.life/settings/profile</loc><changefreq>monthly</changefreq><priority>0.3</priority></url>
