@@ -32,21 +32,12 @@ interface RibbonCard {
   id: string;
   priority: number;          // higher wins
   icon: IconCmp;
-  /** accent color used for the icon halo + left bar (HSL tokens). */
-  tone: 'amber' | 'sky' | 'rose' | 'emerald' | 'violet';
   title: string;
   subtitle?: string;
   cta: string;
   to: string;
 }
 
-const TONES: Record<RibbonCard['tone'], { ring: string; bar: string; ic: string }> = {
-  amber:   { ring: 'shadow-[0_0_24px_hsl(38_92%_55%/0.18)]',  bar: 'bg-amber-400/70',   ic: 'text-amber-300' },
-  sky:     { ring: 'shadow-[0_0_24px_hsl(200_92%_55%/0.18)]', bar: 'bg-sky-400/70',     ic: 'text-sky-300' },
-  rose:    { ring: 'shadow-[0_0_24px_hsl(0_85%_60%/0.18)]',   bar: 'bg-rose-400/70',    ic: 'text-rose-300' },
-  emerald: { ring: 'shadow-[0_0_24px_hsl(150_70%_45%/0.18)]', bar: 'bg-emerald-400/70', ic: 'text-emerald-300' },
-  violet:  { ring: 'shadow-[0_0_24px_hsl(265_75%_60%/0.18)]', bar: 'bg-violet-400/70',  ic: 'text-violet-300' },
-};
 
 const DISMISS_KEY = 'livingRibbon.dismissed';
 function todayStamp() {
@@ -136,7 +127,6 @@ export default function LivingRibbon() {
             id: `prayer-${name}-${Math.ceil(mins / 5) * 5}`,
             priority: 100,
             icon: name === 'Fajr' ? Sunrise : name === 'Isha' ? Moon : Sun,
-            tone: name === 'Fajr' ? 'sky' : name === 'Isha' ? 'violet' : 'amber',
             title: ar ? `${arName} بعد ${mins} دقيقة` : `${deName} in ${mins} Min.`,
             subtitle: ar ? 'استعد للوضوء' : 'Bereite dich vor',
             cta: ar ? 'افتح' : 'Öffnen',
@@ -153,7 +143,6 @@ export default function LivingRibbon() {
         id: 'kahf-friday',
         priority: 80,
         icon: BookOpen,
-        tone: 'emerald',
         title: ar ? 'اليوم جمعة • سورة الكهف' : 'Freitag • Sure Al-Kahf',
         subtitle: ar ? 'نور بين الجمعتين' : 'Licht zwischen den Freitagen',
         cta: ar ? 'اقرأ' : 'Lesen',
@@ -169,7 +158,6 @@ export default function LivingRibbon() {
           id: `rain-${Math.floor(now / (60 * 60_000))}`,
           priority: 70,
           icon: CloudRain,
-          tone: 'sky',
           title: ar ? 'مطر متوقع خلال ساعة' : 'Regen in einer Stunde erwartet',
           subtitle: ar
             ? `احتمال ${next.precipitationProbability}٪`
@@ -186,7 +174,6 @@ export default function LivingRibbon() {
         id: 'cold-morning',
         priority: 50,
         icon: CloudSnow,
-        tone: 'sky',
         title: ar ? 'صباح بارد' : 'Kalter Morgen',
         subtitle: ar
           ? `${Math.round(weather.current.temperature)}° • أذكار الصباح`
@@ -202,7 +189,6 @@ export default function LivingRibbon() {
         id: 'hot-day',
         priority: 50,
         icon: Flame,
-        tone: 'rose',
         title: ar ? 'حرارة شديدة • اشرب الماء' : 'Sehr heiß • Trink Wasser',
         subtitle: ar
           ? `${Math.round(weather.current.temperature)}° الآن`
@@ -218,7 +204,6 @@ export default function LivingRibbon() {
         id: 'azkar-morning',
         priority: 30,
         icon: Sunrise,
-        tone: 'amber',
         title: ar ? 'أذكار الصباح' : 'Morgengebete',
         subtitle: ar ? 'ابدأ يومك بنور' : 'Beginne deinen Tag mit Licht',
         cta: ar ? 'الأذكار' : 'Öffnen',
@@ -229,7 +214,6 @@ export default function LivingRibbon() {
         id: 'azkar-evening',
         priority: 30,
         icon: Sun,
-        tone: 'amber',
         title: ar ? 'أذكار المساء' : 'Abendgebete',
         subtitle: ar ? 'حصّن نفسك حتى الفجر' : 'Schütze dich bis zum Fajr',
         cta: ar ? 'الأذكار' : 'Öffnen',
@@ -240,7 +224,6 @@ export default function LivingRibbon() {
         id: 'azkar-night',
         priority: 30,
         icon: Moon,
-        tone: 'violet',
         title: ar ? 'أذكار النوم' : 'Schlafgebete',
         subtitle: ar ? 'نم على ذكر الله' : 'Schlafe mit Gottes Gedenken',
         cta: ar ? 'الأذكار' : 'Öffnen',
@@ -265,21 +248,26 @@ export default function LivingRibbon() {
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: -6, scale: 0.97, transition: { duration: 0.18 } }}
           transition={{ duration: 0.42, ease: [0.16, 1, 0.3, 1] }}
-          className={`group relative w-full text-start overflow-hidden rounded-2xl
-            bg-gradient-to-br from-card via-card to-background/60
-            border border-border/40 ${TONES[card.tone].ring}
-            shadow-[inset_0_1px_0_hsl(0_0%_100%/0.04),inset_0_-1px_0_hsl(0_0%_0%/0.4)]
-            px-3.5 py-3 active:scale-[0.98] transition-transform`}
+          className="group relative w-full text-start overflow-hidden rounded-2xl
+            surface-depth surface-depth-pressable
+            px-3.5 py-3"
+          style={{
+            boxShadow:
+              'inset 0 1px 0 0 hsl(0 0% 100% / 0.04),' +
+              'inset 0 -1px 0 0 hsl(0 0% 0% / 0.25),' +
+              '0 1px 2px 0 hsl(0 0% 0% / 0.18),' +
+              '0 0 28px -8px hsl(var(--live-glow) / 0.28)',
+          }}
         >
-          {/* Tone accent bar (start side, RTL-safe via logical inset). */}
+          {/* Single copper accent bar — the only chromatic note. */}
           <span
-            className={`pointer-events-none absolute inset-y-2 w-[3px] rounded-full ${TONES[card.tone].bar}`}
-            style={{ insetInlineStart: 8 }}
+            className="pointer-events-none absolute inset-y-2 w-[2px] rounded-full live-dot"
+            style={{ insetInlineStart: 8, boxShadow: '0 0 8px 0 hsl(var(--live-glow) / 0.6)' }}
             aria-hidden
           />
           <div className="flex items-center gap-3 ps-3">
-            <span className={`shrink-0 w-10 h-10 rounded-xl flex items-center justify-center
-              bg-background/60 border border-border/40 ${TONES[card.tone].ic}`}>
+            <span className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center
+              bg-background/60 border border-border/40 live-text">
               <card.icon className="w-5 h-5" />
             </span>
             <div className="flex-1 min-w-0">
@@ -292,7 +280,14 @@ export default function LivingRibbon() {
                 </p>
               )}
             </div>
-            <span className="text-[11px] font-bold text-primary/90 px-2.5 py-1 rounded-lg bg-primary/10 shrink-0">
+            <span
+              className="text-[11px] font-bold px-2.5 py-1 rounded-lg shrink-0"
+              style={{
+                color: 'hsl(var(--live))',
+                backgroundColor: 'hsl(var(--live) / 0.10)',
+                border: '1px solid hsl(var(--live) / 0.20)',
+              }}
+            >
               {card.cta}
             </span>
             <button
