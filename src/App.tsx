@@ -108,6 +108,10 @@ const loadWeather = () => import("./pages/Weather");
 // data set should not weigh on the cold home paint; it's prefetched on
 // idle so the first tap from the bottom nav renders instantly.
 const loadKnowledge = () => import("./pages/Knowledge");
+// Long-form SEO guide to Islamic prayer (Salah). Lightweight static
+// page reachable from /mihrab — kept lazy because it's only loaded
+// when a user (or a crawler) drills in from the Mihrab hub.
+const loadPrayerGuide = () => import("./pages/PrayerGuide");
 // Standalone hard-coded 7-day forecast UI (design showcase). Self-contained
 // component with its own dark theme + recharts charts; reachable at
 // /weather/forecast without touching the live-data /weather page.
@@ -158,6 +162,7 @@ const BrowsePage = lazy(loadBrowse);
 const MihrabPage = lazy(loadMihrab);
 const WeatherPage = lazy(loadWeather);
 const KnowledgePage = lazy(loadKnowledge);
+const PrayerGuidePage = lazy(loadPrayerGuide);
 const WeatherForecastPage = lazy(loadWeatherForecast);
 const DiwanLibraryPage = lazy(loadLibrary);
 const DiwanLibraryPoetsPage = lazy(loadLibraryPoets);
@@ -441,6 +446,7 @@ function AnimatedRoutes() {
                   <Route path="/diwan" element={<ErrorBoundary><DiwanPage /></ErrorBoundary>} />
                   <Route path="/browse" element={<ErrorBoundary><BrowsePage /></ErrorBoundary>} />
                   <Route path="/mihrab" element={<ErrorBoundary><MihrabPage /></ErrorBoundary>} />
+                  <Route path="/mihrab/prayer-guide" element={<ErrorBoundary><PrayerGuidePage /></ErrorBoundary>} />
                   <Route path="/weather" element={<ErrorBoundary><WeatherPage /></ErrorBoundary>} />
                   <Route path="/knowledge" element={<ErrorBoundary><KnowledgePage /></ErrorBoundary>} />
                   <Route path="/weather/forecast" element={<ErrorBoundary><WeatherForecastPage /></ErrorBoundary>} />
