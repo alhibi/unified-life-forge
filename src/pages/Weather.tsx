@@ -164,8 +164,9 @@ function ForecastHeader({ isAr, city, onShare, onLocate }: {
 
 // ── Forecast capsules ─────────────────────────────────────────────────────
 
-function ForecastBars({ daily, weekRange, isAr }: {
+function ForecastBars({ daily, weekRange, isAr, onSelectDay }: {
   daily: DailyEntry[]; weekRange: { min: number; max: number }; isAr: boolean;
+  onSelectDay: (i: number) => void;
 }) {
   if (!daily.length) return null;
   const span = Math.max(1, weekRange.max - weekRange.min);
@@ -176,7 +177,7 @@ function ForecastBars({ daily, weekRange, isAr }: {
     <section className="pt-5 pb-6">
       <div className="overflow-x-auto no-scrollbar -mx-4 px-4">
         <div className="flex items-stretch gap-1.5 min-w-fit">
-          {daily.map((d) => {
+          {daily.map((d, idx) => {
             const Icon = ICON_BY_CODE(d.weatherCode, true);
             const topPct    = (weekRange.max - d.tempMax) / span;
             const bottomPct = (d.tempMin - weekRange.min) / span;
@@ -185,9 +186,12 @@ function ForecastBars({ daily, weekRange, isAr }: {
             const weekend = isWeekend(d.date);
             const pop = d.precipitationProbabilityMax ?? 0;
             return (
-              <div
+              <button
                 key={d.date}
-                className={`flex flex-col items-center min-w-[46px] rounded-2xl px-1 pt-2 pb-2.5 ${
+                type="button"
+                onClick={() => onSelectDay(idx)}
+                aria-label={weekdayShort(d.date, isAr)}
+                className={`flex flex-col items-center min-w-[46px] rounded-2xl px-1 pt-2 pb-2.5 active:scale-[0.97] transition-transform ${
                   weekend ? 'bg-foreground/[0.05]' : ''
                 }`}
               >
@@ -217,7 +221,7 @@ function ForecastBars({ daily, weekRange, isAr }: {
                 <span className={`text-[12px] mt-1.5 tabular-nums ${precipColorClass(pop)}`}>
                   {pop}%
                 </span>
-              </div>
+              </button>
             );
           })}
         </div>
