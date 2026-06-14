@@ -301,27 +301,19 @@
     0%, 100% { opacity: 0.85; transform: scale(1); }
     50%      { opacity: 1;    transform: scale(1.06); }
   }
-  /* Organic bioluminescent halo — a soft liquid drop of copper light
-     that breathes and slowly morphs its silhouette behind the active
-     icon. Inspired by deep-sea bioluminescence: alive, never sharp,
-     never geometric. Two layered blobs rotate against each other and
-     reshape their border-radius corners, producing a perpetual organic
-     deformation without ever revealing a hard edge. */
-  @keyframes organic-morph-a {
-    0%, 100% { border-radius: 62% 38% 55% 45% / 50% 60% 40% 50%; transform: rotate(0deg)   scale(1);    }
-    33%      { border-radius: 45% 55% 40% 60% / 55% 45% 60% 45%; transform: rotate(120deg) scale(1.05); }
-    66%      { border-radius: 55% 45% 60% 40% / 40% 55% 45% 60%; transform: rotate(240deg) scale(0.97); }
+  /* Traveling hairline — a short copper arc continuously glides around
+     the perimeter of the active icon. Driven by stroke-dashoffset on a
+     pathLength=100 circle (so 100 units == one full loop). */
+  @keyframes nav-edge-trace {
+    from { stroke-dashoffset: 0;    }
+    to   { stroke-dashoffset: -100; }
   }
-  @keyframes organic-morph-b {
-    0%, 100% { border-radius: 40% 60% 55% 45% / 55% 45% 60% 40%; transform: rotate(0deg)    scale(1);    }
-    50%      { border-radius: 60% 40% 45% 55% / 45% 60% 40% 55%; transform: rotate(-180deg) scale(1.08); }
-  }
-  @keyframes organic-glow {
-    0%, 100% { opacity: 0.75; filter: blur(4px); }
-    50%      { opacity: 1;    filter: blur(6px); }
+  .nav-edge-trace {
+    animation: nav-edge-trace 2.8s linear infinite;
+    will-change: stroke-dashoffset;
   }
   @media (prefers-reduced-motion: reduce) {
-    .nav-aurora, .nav-halo-breath, .nav-organic-a, .nav-organic-b, .nav-organic-glow { animation: none !important; }
+    .nav-aurora, .nav-halo-breath, .nav-edge-trace { animation: none !important; }
   }
   @media (prefers-reduced-motion: reduce) {
     body::before { animation: none; opacity: 0.7; }
