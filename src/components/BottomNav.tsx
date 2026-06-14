@@ -6,6 +6,7 @@ import {
   House, Dices, Compass, BookOpen, MessageCircle, HeartPulse, CloudSun, Crown,
 } from '@/lib/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { prefetchRoute } from '@/lib/routePrefetch';
 
 /**
  * BottomNav — native-feel tab bar
@@ -149,7 +150,13 @@ export default function BottomNav() {
       if (!surface) return;
       const rect = surface.getBoundingClientRect();
       const x = e.clientX - rect.left;
-      setDragState({ startX: x, x, index: computeIndexFromX(x), moved: false });
+      const idx = computeIndexFromX(x);
+      setDragState({ startX: x, x, index: idx, moved: false });
+      // Warm the target tab's module the instant the finger lands —
+      // by the time pointerup fires (~150–300ms later) the chunk has
+      // usually arrived, so the navigation feels free.
+      const target = tabs[idx];
+      if (target) prefetchRoute(target.path);
       try { surface.setPointerCapture(e.pointerId); } catch { /* noop */ }
     },
     [computeIndexFromX, setDragState],
@@ -166,6 +173,8 @@ export default function BottomNav() {
       const newIndex = computeIndexFromX(x);
       if (newIndex !== prev.index) {
         try { navigator.vibrate?.(4); } catch { /* noop */ }
+        const t = tabs[newIndex];
+        if (t) prefetchRoute(t.path);
       }
       setDragState({
         ...prev,
