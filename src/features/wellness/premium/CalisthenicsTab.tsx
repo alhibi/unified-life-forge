@@ -549,7 +549,7 @@ function RecordsView({ holdPRs, progress, lang }: { holdPRs: Record<string, numb
           </p>
           <div className="grid grid-cols-3 gap-1.5">
             {masteredArr.map((s) => (
-              <div key={s.key} className="bg-amber-50/50 dark:bg-amber-900/20 rounded-lg p-1.5 text-center">
+              <div key={s.key} className="bg-warning/10 rounded-lg p-1.5 text-center">
                 <span className="text-lg">{s.emoji}</span>
                 <p className="text-[10px] font-bold text-foreground line-clamp-1">{s.name[lang]}</p>
               </div>

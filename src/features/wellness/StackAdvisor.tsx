@@ -267,7 +267,7 @@ export default function StackAdvisor({ supplements }: Props) {
                       {EVIDENCE_LABEL[syn.evidence][lang]}
                     </span>
                     {!isFull && (
-                      <span className="text-amber-600 dark:text-amber-400 font-semibold">
+                      <span className="text-warning font-semibold">
                         {isAr
                           ? `ينقص ${missing.length}`
                           : `noch ${missing.length}`}
@@ -324,7 +324,7 @@ export default function StackAdvisor({ supplements }: Props) {
                       {/* Missing nutrients to complete */}
                       {!isFull && (
                         <div>
-                          <p className="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider mb-1.5">
+                          <p className="text-[10px] font-bold text-warning uppercase tracking-wider mb-1.5">
                             {isAr ? 'لإكمال التركيبة أضف' : 'Zum Vervollständigen'}
                           </p>
                           <div className="flex flex-wrap gap-1.5">
@@ -332,7 +332,7 @@ export default function StackAdvisor({ supplements }: Props) {
                               <button
                                 key={k}
                                 onClick={() => toggle(k)}
-                                className="text-[11px] px-2 py-1 rounded-full bg-amber-500/10 border border-amber-500/40 text-amber-700 dark:text-amber-400 font-semibold"
+                                className="text-[11px] px-2 py-1 rounded-full bg-warning/10 border border-warning/40 text-warning font-semibold"
                               >
                                 + {NUTRIENTS[k]?.label[lang] ?? k}
                               </button>
