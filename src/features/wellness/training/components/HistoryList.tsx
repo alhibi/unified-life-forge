@@ -13,6 +13,7 @@ import { Calendar, ChevronDown, History, Search, Trash2 } from '@/lib/icons';
 import { resolveExercise, type Exercise } from '../../exerciseCatalog';
 import type { UUID, WorkoutSession } from '../../wellnessDb';
 import { sessionVolumeKg } from '../progressionEngine';
+import { confirmDialog } from '@/lib/confirmDialog';
 
 export interface HistoryListProps {
   workouts: WorkoutSession[];
@@ -217,7 +218,12 @@ function SessionRow({
               )}
               <button
                 onClick={async () => {
-                  if (window.confirm(T.confirmDelete[lang])) await onDelete(session.id);
+                  const ok = await confirmDialog({
+                    message: T.confirmDelete[lang],
+                    confirmLabel: T.delete[lang],
+                    destructive: true,
+                  });
+                  if (ok) await onDelete(session.id);
                 }}
                 className="w-full mt-2 py-2 rounded-lg bg-destructive/10 text-destructive text-[11px] font-semibold inline-flex items-center justify-center gap-1"
               >

@@ -23,6 +23,7 @@ import EncyclopediaTab from '@/features/wellness/EncyclopediaTab';
 import { NutritionTab } from '@/features/wellness/nutrition/components';
 
 import { exportAll } from '@/features/wellness/wellnessDb';
+import { confirmDialog } from '@/lib/confirmDialog';
 
 type TabKey =
   | 'workouts' | 'cali'
@@ -146,7 +147,13 @@ export default function WellnessPage() {
   };
 
   const handleWipe = async () => {
-    if (!window.confirm(T.wipeConfirm[language])) return;
+    const ok = await confirmDialog({
+      message: T.wipeConfirm[language],
+      confirmLabel: T.wipe[language],
+      cancelLabel: T.close[language],
+      destructive: true,
+    });
+    if (!ok) return;
     await data.wipe();
     // Also reset the onboarding flag so a freshly-cleared user gets the
     // welcome modal again.
