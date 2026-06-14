@@ -1,107 +1,130 @@
+# خطة تطوير SmartHub الشاملة
 
-# خطة تطوير قسم الديوان — المحاور (1) المحتوى (3) البحث (6) الأداء
-
-## الوضع الحالي
-- **محتوى**: يعتمد على `poetryData.ts` (Fallback) + جداول `diwan_poets/poems/verses` مع RPCs (`diwan_search_poems`, `diwan_search_verses`).
-- **بحث**: نصّي عبر `tsvector` + `normalize_arabic` + فلاتر (عصر/بحر/قافية/غرض/وسم).
-- **فهارس**: GIN على جميع جداول البحث + B-tree على الـ FKs والفلاتر. **البنية ممتازة أصلاً.**
-- **واجهة**: 5 صفحات (Library, Poets, Poet, Poem, Search) — تستخدم React Query لكن بلا virtualization ولا prefetch.
+رؤية موحّدة: تطبيق يومي يشعر المستخدم أنه "حي يتنفس معه"، بأداء أصيل (Native-feel)، هوية بصرية ناضجة، ومحتوى ذكي يتكيّف مع الوقت والمكان والحالة.
 
 ---
 
-## المحور 1 — المحتوى والبيانات
+## 1. الهوية البصرية والنظام التصميمي (Visual Foundation)
 
-### 1.1 إثراء البيانات (سكربتات)
-- **توسيع `seed-from-local.ts`**: حقن كامل لـ `poetryData.ts` إلى السحابة (يبدو أنه ناقص).
-- **سكربت `enrich-meters.ts` جديد**: استدلال البحر تلقائياً من نمط التفعيلات لكل بيت غير مصنّف، باستخدام `LOVABLE_API_KEY` (gemini-2.5-flash-lite) دفعة واحدة لكل قصيدة.
-- **سكربت `enrich-glossary.ts` جديد**: استخراج 3-5 مفردات صعبة لكل قصيدة + شرحها، تخزينها في جدول جديد `diwan_glossary`.
+**الهدف:** تجربة بصرية متماسكة تشبه تطبيقات Apple/Arc/Linear بدل المظهر العام.
 
-### 1.2 جداول جديدة
-```sql
--- شرح المفردات
-CREATE TABLE diwan_glossary (
-  id uuid PRIMARY KEY,
-  poem_id uuid REFERENCES diwan_poems,
-  word text NOT NULL,            -- بصيغته في القصيدة
-  word_normalized text NOT NULL, -- normalize_arabic
-  meaning text NOT NULL,
-  verse_position int             -- البيت الذي ورد فيه
-);
-CREATE INDEX ON diwan_glossary (poem_id);
-CREATE INDEX ON diwan_glossary (word_normalized);
+- **توحيد رموز التصميم (Design Tokens):** مراجعة شاملة لـ `index.css` و`tailwind.config.ts` لإزالة أي ألوان مكتوبة يدوياً في المكونات واستبدالها بـ semantic tokens (`--primary`, `--surface-1/2/3`, `--live`, `--ink`, `--whisper`).
+- **نظام طبقات Obsidian Depth v2:** ثلاث طبقات عمق فقط (`surface-base`, `surface-raised`, `surface-floating`) مع ظلال inset/outset محددة، يطبَّق على كل البطاقات والـ drawers.
+- **نظام Motion موحّد:** توسيع `src/lib/motion.ts` ليكون المصدر الوحيد للحركة (durations, easings, spring presets). إزالة كل `transition-all` العشوائية.
+- **Typography Scale:** سُلّم خطوط ثابت (display/title/body/caption/micro) بأحجام ووزن وleading محددة، مع IBM Plex Arabic + Inter.
+- **Iconography:** مراجعة `src/lib/icons.tsx` لتوحيد سُمك الخط (1.5px) والحجم الافتراضي، وإزالة أي أيقونات خارج النظام.
 
--- التشكيل (اختياري - مخزّن مع البيت)
-ALTER TABLE diwan_verses
-  ADD COLUMN hemistich1_diacritized text,
-  ADD COLUMN hemistich2_diacritized text;
+## 2. هندسة المعلومات والتنقّل (IA & Navigation)
+
+- **تبسيط شريط التنقل:** التأكد من 5 تبويبات قصوى (Home, Mihrab, Knowledge, Chat, More) مع نقل الباقي إلى صفحة Browse hub.
+- **شريط علوي ذكي:** PageHeader موحّد عبر كل الصفحات الفرعية مع BackButton + عنوان + إجراء واحد فقط (no clutter).
+- **Deep-linking كامل:** كل drawer/sheet/modal لها route خاص يدعم زر الرجوع للنظام (مهم للـ PWA).
+- **Prefetch ذكي:** تحسين `routePrefetch.ts` ليجلب الصفحة التالية المتوقعة عند الـ hover/focus.
+
+## 3. الصفحة الرئيسية: Living Home
+
+**الهدف:** كل ثانية على الـ Home تعطي قيمة فورية.
+
+- **Living Ribbon v2:** بطاقة سياق ديناميكية واحدة في الأعلى تتحول حسب الوقت: قبل الفجر → دعاء، عند الصلاة → مؤقت، بعد العصر → سورة الكهف، ليلاً → ورد المساء.
+- **Greeting ذكي:** يستخدم اسم المستخدم + حالة الطقس + أقرب صلاة في جملة واحدة طبيعية.
+- **ترتيب الأقسام حسب الوقت:** الصلاة أعلى عند اقترابها، الطقس أعلى صباحاً، السنة الحالية تظهر فقط في وقتها.
+- **Skeleton states أنيقة:** لكل widget shimmer مخصص بدل blank flashes.
+
+## 4. تجربة الصلاة (Prayer Experience)
+
+- **عدّاد تنازلي بصري:** حلقة تقدّم دائرية حول الصلاة القادمة مع نبض خفيف في آخر 10 دقائق.
+- **وضع الصلاة (Prayer Mode):** عند الأذان، شاشة تتعتم تلقائياً، تكبّر الخط، وتعرض الأذكار بعد الصلاة.
+- **خريطة القبلة:** بوصلة دقيقة باستخدام DeviceOrientation API مع animation سلس.
+- **تنبيهات ذكية:** notification 10 دقائق قبل + عند الأذان + تذكير سنن بعدية.
+
+## 5. المراسلة (Chat) — الصقل النهائي
+
+- **أداء قائمة الرسائل:** virtualization كامل (react-virtual) للمحادثات الطويلة (>200 رسالة).
+- **Reactions:** نظام ردود فعل (👍 ❤️ 🤲) مع long-press menu.
+- **Reply quoting:** swipe-to-reply موجود، لكن تحسين عرض الاقتباس داخل الفقاعة.
+- **Read receipts متقدّمة:** عرض من قرأ ومتى في group chats.
+- **Voice messages 2.0:** تسريع 1.5x/2x، waveform تفاعلي، transcript تلقائي اختياري عبر Lovable AI.
+- **Offline queue:** الرسائل المرسلة بدون شبكة تُحفظ وتُرسل تلقائياً عند العودة.
+
+## 6. المعرفة والمحتوى (Knowledge & Content)
+
+- **بحث موحّد:** Command Palette (⌘K) يبحث في القرآن، الأذكار، الشعر، RSS، الرسائل، الأماكن — كله في مكان واحد.
+- **Reading mode عالمي:** أي محتوى طويل (RSS، شعر، أحاديث) يفتح في reader موحّد بنفس tokens الطباعة.
+- **Bookmarks موحّدة:** الحافظة الحالية تتطوّر لتشمل tags، folders، وبحث داخلي.
+- **AI Companion:** زر "اشرح" / "لخّص" / "ترجم" على أي نص (آية، حديث، خبر) عبر Lovable AI Gateway.
+
+## 7. الإشعارات والتنبيهات (Smart Notifications)
+
+- **مركز إشعارات داخلي:** Inbox واحد يجمع: رسائل، أذان، أخبار من keywords، تذكيرات صلاة.
+- **Quiet hours:** إعدادات صامتة (مثلاً ليلاً) تطبَّق على كل المصادر.
+- **Per-source controls:** المستخدم يتحكم بكل مصدر إشعار على حدة.
+
+## 8. الأداء (Performance Pass)
+
+- **Bundle audit:** تحليل bundle size عبر `rollup-plugin-visualizer`، تقسيم code-splitting للصفحات الثقيلة (Diwan, Wellness, Games).
+- **Image pipeline:** كل الصور عبر `<img loading="lazy" decoding="async">` + srcset، وضغط WebP.
+- **Critical CSS:** استخراج CSS الرئيسي للصفحة الأولى inline في `index.html`.
+- **Font loading:** `font-display: swap` + preload للخط الأساسي فقط.
+- **PWA upgrade:** service worker كامل (workbox) للـ offline-first على الصفحات الرئيسية.
+- **Web Vitals target:** LCP < 1.5s، INP < 100ms، CLS < 0.05.
+
+## 9. الوصولية والـ i18n
+
+- **ARIA audit شامل:** كل button/dialog/menu لها aria-label عربي وألماني صحيح.
+- **Keyboard navigation:** Tab/Esc/Enter يعمل في كل drawer وmodal.
+- **Color contrast:** التأكد من 4.5:1 في كل الثيمات الـ 28.
+- **RTL polish:** مراجعة كل صفحة في RTL خاصة الـ charts والـ timelines.
+- **Screen reader testing:** اختبار مع VoiceOver/TalkBack.
+
+## 10. الأمان والـ Backend
+
+- **RLS audit:** مراجعة كل policy في Supabase والتأكد من عدم وجود ثغرات.
+- **Rate limiting:** على edge functions الحساسة (RSS fetch, search).
+- **Input sanitization:** خاصة في الرسائل و RSS HTML.
+- **Session management:** refresh tokens، logout على كل الأجهزة.
+
+## 11. تجربة الانطباع الأول (Onboarding)
+
+- **Welcome flow:** 3 شاشات قصيرة (اللغة → الموقع → الإشعارات) بدلاً من رمي المستخدم في الواجهة.
+- **Empty states:** كل قائمة فارغة لها رسم/أيقونة ودعوة واضحة للإجراء.
+- **First-run hints:** tooltips خفيفة على الميزات الرئيسية تظهر مرة واحدة.
+
+## 12. القياس والتحسين المستمر
+
+- **Analytics خفيفة:** تتبّع أي ميزات تُستخدم فعلاً (privacy-first، بدون tracking خارجي).
+- **Error boundary موحّد:** كل route محاط بـ ErrorBoundary مع رسالة عربية لطيفة + زر "أعد المحاولة".
+- **Feedback channel:** زر "أرسل ملاحظة" في الإعدادات يفتح composer مباشر.
+
+---
+
+## خريطة التنفيذ المقترحة (مراحل)
+
+```text
+Phase 1 — Foundation (الأساس)
+  ├─ Design tokens audit + Motion system
+  ├─ Typography scale + Icon system
+  └─ Navigation polish + PageHeader unification
+
+Phase 2 — Core Experience (الجوهر)
+  ├─ Living Home v2 + Prayer Mode
+  ├─ Command Palette + Universal Search
+  └─ Bookmarks v2 + AI Companion
+
+Phase 3 — Communication (التواصل)
+  ├─ Chat virtualization + Reactions
+  ├─ Voice 2.0 + Offline queue
+  └─ Notification center
+
+Phase 4 — Polish (الصقل)
+  ├─ Performance pass (bundle, images, PWA)
+  ├─ Accessibility + RTL audit
+  └─ Onboarding + Empty states + Error boundaries
 ```
 
-### 1.3 واجهة
-- في `LibraryPoem.tsx`: زر تبديل **"تشكيل/بلا تشكيل"** (يستخدم الحقول الجديدة إن وُجدت).
-- في `LibraryPoem.tsx`: **long-press على أي كلمة** → bottom-sheet يعرض الشرح من `diwan_glossary` (مطابقة بـ `word_normalized`).
-
 ---
 
-## المحور 3 — البحث والاكتشاف
+## ملاحظة
 
-### 3.1 RPC جديدة `diwan_smart_search`
-- توحيد البحث في القصائد والأبيات والشعراء في استدعاء واحد، مع تجميع النتائج حسب النوع (لإطلاق Universal Search).
-- يستخدم `ts_rank_cd` + boost للعنوان (weight A) ولمطابقات الشاعر.
+هذه خطة مرجعية شاملة. لن أنفّذ شيئاً قبل أن تختار من أين نبدأ. اقترح أن نبدأ بـ **Phase 1** (الأساس البصري) لأنه يرفع جودة كل ما يأتي بعده تلقائياً، ثم ننتقل لما تراه الأولوية.
 
-### 3.2 فلاتر متقدّمة
-- **فلتر الحقبة الزمنية بالسنة** (slider من -500 إلى 1500 هـ) بدل القائمة الجامدة → يستفيد من `birth_year/death_year` في `diwan_poets`.
-- **فلتر "عدد الأبيات"** (قصيدة/مقطوعة/قصيرة جداً) بإضافة `verses_count >= ?`.
-
-### 3.3 اقتراحات ذكية (بدون pgvector)
-- RPC `diwan_similar_poems(poem_slug, limit)`: يرجع 5 قصائد بنفس البحر + الغرض + من نفس العصر (ترتيب حسب overlap في `tags`).
-- يُعرض كقسم "قصائد مشابهة" أسفل `LibraryPoem.tsx`.
-
-### 3.4 اقتراحات أثناء الكتابة (Autocomplete)
-- RPC `diwan_suggest(prefix)`: يرجع أهم 8 شعراء/قصائد تبدأ بالـ prefix، يُستخدم في `SearchBar`.
-
-### 3.5 سجل البحث المحلي
-- آخر 8 عمليات بحث في `localStorage` → chips قابلة للنقر تحت شريط البحث في `LibrarySearch.tsx`.
-
----
-
-## المحور 6 — الأداء
-
-### 6.1 Virtualization
-- إضافة `@tanstack/react-virtual` (لو غير موجود) لقوائم:
-  - `LibraryPoets.tsx` (قد تتعدى 1000 شاعر).
-  - `LibrarySearch.tsx` نتائج الأبيات.
-- العتبة: تفعيل فقط لو عدد العناصر > 50.
-
-### 6.2 Prefetch
-- في `PoetCard.tsx` و`PoemCard.tsx`: `onPointerEnter` (desktop) و`onTouchStart` (mobile) → `queryClient.prefetchQuery` للصفحة المقصودة.
-
-### 6.3 تقليل حجم الـ payload
-- في `diwan_search_poems`: عدم إرجاع `full_text` (الموجود حالياً يبدو خفيفاً لكن نتأكد).
-- إرجاع `opening` فقط (مطلع ≤ 200 حرف) لبطاقات النتائج.
-
-### 6.4 Cache layer
-- ضبط `staleTime: 5 * 60_000` للـ `useDiwanEras` و`useDiwanLibraryStats` (لا تتغيّر كثيراً).
-- ضبط `staleTime: 60_000` لنتائج البحث + `keepPreviousData: true` لتجربة pagination سلسة.
-
-### 6.5 Skeletons دقيقة
-- استبدال `<div class="skeleton h-20" />` بـ skeleton matches للبطاقة الحقيقية (يقلّل CLS).
-
----
-
-## التقنيات
-- **DB**: 3 migrations جديدة (`diwan_glossary` + RPC الاقتراحات + RPC المتشابهات + diacritized columns).
-- **Frontend**: تعديل `LibraryPoem`, `LibrarySearch`, `LibraryPoets`, `SearchBar`, `PoetCard`, `PoemCard` + hooks جديدة.
-- **Scripts**: 2 سكربتات إثراء (ingest يدوي عبر `bun run`).
-- **بدون pgvector** لأنه يتطلب extension + رفع ميزانية → سنحقّق "البحث الذكي" بالتركيب الذكي للفلاتر + اقتراحات بنفس البحر/الغرض.
-
----
-
-## الترتيب المقترح للتنفيذ
-1. **Migration**: `diwan_glossary` + columns تشكيل + RPCs (similar_poems, suggest).
-2. **Frontend الأداء**: virtualization + prefetch + cache (مكسب فوري).
-3. **Frontend البحث**: autocomplete + سجل البحث + قسم "قصائد مشابهة" + فلاتر متقدّمة.
-4. **Frontend المحتوى**: زر التشكيل + long-press للشرح.
-5. **سكربتات الإثراء** (تشغّلها أنت محلياً عند الحاجة).
-
-تقدير الحجم: ~12 ملفاً جديداً/معدّلاً + migration واحدة.
-
+أي مرحلة/بند تريد البدء به؟
