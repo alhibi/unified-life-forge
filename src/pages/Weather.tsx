@@ -133,8 +133,8 @@ function ForecastHeader({ isAr, city, onShare, onLocate }: {
       </div>
 
       <div className="flex items-center gap-3">
-        <div className="w-12 h-12 rounded-2xl bg-indigo-400/15 border border-indigo-300/20 inline-flex items-center justify-center shrink-0">
-          <CalendarDays className="w-5 h-5 text-indigo-200/90" />
+        <div className="w-12 h-12 rounded-2xl bg-muted/50 border border-border/40 inline-flex items-center justify-center shrink-0">
+          <CalendarDays className="w-5 h-5 text-foreground/80" />
         </div>
         <div className="flex-1 min-w-0">
           <h1 className="text-[28px] font-semibold text-foreground leading-tight">
