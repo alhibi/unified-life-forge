@@ -301,8 +301,27 @@
     0%, 100% { opacity: 0.85; transform: scale(1); }
     50%      { opacity: 1;    transform: scale(1.06); }
   }
+  /* Cymatic ripple — concentric copper rings emanating outward from the
+     active tab icon, like ripples on still water. A 1px hairline scales
+     up while its opacity decays, then disappears. Three rings staggered
+     create a continuous, calm pulse that reads as "resonance". */
+  @keyframes cymatic-ripple {
+    0% {
+      transform: scale(0.45);
+      opacity: 0;
+      border-width: 1.25px;
+    }
+    18% {
+      opacity: 0.7;
+    }
+    100% {
+      transform: scale(1.65);
+      opacity: 0;
+      border-width: 0.5px;
+    }
+  }
   @media (prefers-reduced-motion: reduce) {
-    .nav-aurora, .nav-halo-breath { animation: none !important; }
+    .nav-aurora, .nav-halo-breath, .nav-cymatic { animation: none !important; }
   }
   @media (prefers-reduced-motion: reduce) {
     body::before { animation: none; opacity: 0.7; }
