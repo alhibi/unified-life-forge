@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useRef, ReactNod
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import type { User } from '@supabase/supabase-js';
-import { themePresets, generateThemeTokens, applyThemeTokens, generateMD3Tokens, type ThemeStyle } from '@/utils/themeEngine';
+import { themePresets, generateThemeTokens, applyThemeTokens, type ThemeStyle } from '@/utils/themeEngine';
 import { translate, type Language } from '@/i18n';
 
 type Theme = 'light' | 'dark' | 'system';
@@ -27,8 +27,6 @@ interface AppContextType {
   setColorTheme: (t: ColorTheme) => void;
   blackMode: boolean;
   setBlackMode: (v: boolean) => void;
-  md3Mode: boolean;
-  setMd3Mode: (v: boolean) => void;
   fontFamily: string;
   setFontFamily: (f: string) => void;
   fontSize: string;
@@ -69,9 +67,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
   );
   const [blackMode, setBlackModeState] = useState<boolean>(() =>
     localStorage.getItem('app-black-mode') === 'true'
-  );
-  const [md3Mode, setMd3ModeState] = useState<boolean>(() =>
-    localStorage.getItem('app-md3-mode') === 'true'
   );
   const [colorTheme, setColorThemeState] = useState<ColorTheme>(() =>
     (localStorage.getItem('app-color-theme') as ColorTheme) || 'default'
@@ -114,7 +109,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setAccentHueState(152); localStorage.setItem('app-accent-hue', '152');
     setPaletteStyleState('vibrant'); localStorage.setItem('app-palette-style', 'vibrant');
     setBlackModeState(false); localStorage.setItem('app-black-mode', 'false');
-    setMd3ModeState(false); localStorage.setItem('app-md3-mode', 'false');
     setColorThemeState('default'); localStorage.setItem('app-color-theme', 'default');
     setFontFamilyState('default'); localStorage.setItem('app-font-family', 'default');
     setFontSizeState('medium'); localStorage.setItem('app-font-size', 'medium');
@@ -169,7 +163,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
         if (s.accentHue !== undefined) { setAccentHueState(s.accentHue); localStorage.setItem('app-accent-hue', String(s.accentHue)); }
         if (s.paletteStyle) { setPaletteStyleState(s.paletteStyle); localStorage.setItem('app-palette-style', s.paletteStyle); }
         if (s.blackMode !== undefined) { setBlackModeState(s.blackMode); localStorage.setItem('app-black-mode', String(s.blackMode)); }
-        if (s.md3Mode !== undefined) { setMd3ModeState(s.md3Mode); localStorage.setItem('app-md3-mode', String(s.md3Mode)); }
         if (s.colorTheme) { setColorThemeState(s.colorTheme); localStorage.setItem('app-color-theme', s.colorTheme); }
         if (s.fontFamily) { setFontFamilyState(s.fontFamily); localStorage.setItem('app-font-family', s.fontFamily); }
         if (s.fontSize) { setFontSizeState(s.fontSize); localStorage.setItem('app-font-size', s.fontSize); }
@@ -203,7 +196,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
       accentHue: parseInt(localStorage.getItem('app-accent-hue') || '152', 10),
       paletteStyle: localStorage.getItem('app-palette-style'),
       blackMode: localStorage.getItem('app-black-mode') === 'true',
-      md3Mode: localStorage.getItem('app-md3-mode') === 'true',
       colorTheme: localStorage.getItem('app-color-theme') || 'default',
       fontFamily: localStorage.getItem('app-font-family') || 'default',
       fontSize: localStorage.getItem('app-font-size') || 'medium',
@@ -273,12 +265,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const setBlackMode = (v: boolean) => {
     setBlackModeState(v);
     localStorage.setItem('app-black-mode', v.toString());
-    scheduleSave();
-  };
-
-  const setMd3Mode = (v: boolean) => {
-    setMd3ModeState(v);
-    localStorage.setItem('app-md3-mode', v.toString());
     scheduleSave();
   };
 
@@ -359,16 +345,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
     if (!preset) preset = themePresets[0];
 
-    // MD3 mode overrides the dynamic palette engine entirely.
-    if (md3Mode) {
-      root.setAttribute('data-md3', 'true');
-      const mdTokens = generateMD3Tokens(isDark, isDark && blackMode);
-      applyThemeTokens(mdTokens);
-    } else {
-      root.removeAttribute('data-md3');
-      const tokens = generateThemeTokens(preset, paletteStyle as ThemeStyle, isDark, isDark && blackMode);
-      applyThemeTokens(tokens);
-    }
+    // Single canonical palette engine — MD3 mode retired.
+    root.removeAttribute('data-md3');
+    const tokens = generateThemeTokens(preset, paletteStyle as ThemeStyle, isDark, isDark && blackMode);
+    applyThemeTokens(tokens);
 
     const timeout = setTimeout(() => root.classList.remove('theme-transition'), 600);
 
@@ -376,18 +356,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const mq = window.matchMedia('(prefers-color-scheme: dark)');
       const handler = (e: MediaQueryListEvent) => {
         root.classList.toggle('dark', e.matches);
-        if (md3Mode) {
-          applyThemeTokens(generateMD3Tokens(e.matches, e.matches && blackMode));
-        } else {
-          const t2 = generateThemeTokens(preset!, paletteStyle as ThemeStyle, e.matches, e.matches && blackMode);
-          applyThemeTokens(t2);
-        }
+        const t2 = generateThemeTokens(preset!, paletteStyle as ThemeStyle, e.matches, e.matches && blackMode);
+        applyThemeTokens(t2);
       };
       mq.addEventListener('change', handler);
       return () => { clearTimeout(timeout); mq.removeEventListener('change', handler); };
     }
     return () => clearTimeout(timeout);
-  }, [theme, dir, language, accentHue, paletteStyle, blackMode, colorTheme, md3Mode]);
+  }, [theme, dir, language, accentHue, paletteStyle, blackMode, colorTheme]);
 
   // Apply font family, size, weight & opacity
   useEffect(() => {
@@ -408,7 +384,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [fontFamily, fontSize, fontWeight, fontOpacity]);
 
   return (
-    <AppContext.Provider value={{ language, setLanguage, theme, setTheme, t, dir, accentHue, setAccentHue, paletteStyle, setPaletteStyle, colorTheme, setColorTheme, blackMode, setBlackMode, md3Mode, setMd3Mode, fontFamily, setFontFamily, fontSize, setFontSize, fontWeight, setFontWeight, fontOpacity, setFontOpacity, prayerMadhab, setPrayerMadhab, midnightMode, setMidnightMode, latitudeAdjMethod, setLatitudeAdjMethod, dstEnabled, setDstEnabled }}>
+    <AppContext.Provider value={{ language, setLanguage, theme, setTheme, t, dir, accentHue, setAccentHue, paletteStyle, setPaletteStyle, colorTheme, setColorTheme, blackMode, setBlackMode, fontFamily, setFontFamily, fontSize, setFontSize, fontWeight, setFontWeight, fontOpacity, setFontOpacity, prayerMadhab, setPrayerMadhab, midnightMode, setMidnightMode, latitudeAdjMethod, setLatitudeAdjMethod, dstEnabled, setDstEnabled }}>
       {children}
     </AppContext.Provider>
   );
