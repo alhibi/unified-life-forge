@@ -314,11 +314,14 @@
   }
   .nav-icon-edge-trace path {
     fill: none !important;
-    stroke: var(--nav-icon-gradient) !important;
-    stroke-width: 26;
+    stroke: hsl(var(--live)) !important;
+    stroke-width: 18;
     stroke-linecap: round;
     stroke-linejoin: round;
-    filter: drop-shadow(0 0 3px hsl(var(--live) / 0.95));
+    stroke-dasharray: 42 300;
+    animation: nav-glyph-edge-trace 1.65s linear infinite;
+    filter: drop-shadow(0 0 2.5px hsl(var(--live) / 0.85));
+    will-change: stroke-dashoffset;
   }
   @media (prefers-reduced-motion: reduce) {
     .nav-aurora, .nav-halo-breath { animation: none !important; }
