@@ -58,6 +58,12 @@ export default function Index() {
   return (
     <div className="min-h-screen bg-background pb-28 px-5 pt-14">
       <SEO title="SmartHub — أوقات الصلاة والأذكار والقرآن" description="الصفحة الرئيسية لـ SmartHub: أوقات الصلاة، التقويم الهجري، الطقس، الأذكار وروابط سريعة لكل الأقسام." path="/" />
+      {/* Descriptive H1 for SEO & a11y; visual greeting below acts as a styled subhead */}
+      <h1 className="sr-only">
+        {language === 'ar'
+          ? 'SmartHub — لوحتك اليومية لأوقات الصلاة، القرآن، الأذكار، الطقس والتقويم الهجري'
+          : 'SmartHub — Dein tägliches Dashboard für Gebetszeiten, Quran, Adhkar, Wetter und Hidschri-Kalender'}
+      </h1>
       <motion.div
         variants={stagger}
         initial="hidden"
@@ -67,9 +73,9 @@ export default function Index() {
         <motion.div variants={item}>
           <div className="flex items-center justify-between gap-3">
             <div className="min-w-0">
-              <h1 className="text-[22px] font-bold tracking-tight text-foreground leading-tight">
+              <p className="text-[22px] font-bold tracking-tight text-foreground leading-tight">
                 {greeting}
-              </h1>
+              </p>
               <p className="text-[12px] text-muted-foreground mt-0.5">
                 {now.toLocaleDateString(language === 'ar' ? 'ar' : 'de', { weekday: 'long', month: 'long', day: 'numeric' })}
               </p>
@@ -132,10 +138,22 @@ export default function Index() {
         </motion.div>
 
         <motion.div variants={item}><LivingRibbon /></motion.div>
-        <motion.div variants={item}><WeatherWidget /></motion.div>
-        <motion.div variants={item}><PrayerTimes /></motion.div>
-        <motion.div variants={item}><CurrentTimeSunnah /></motion.div>
-        <motion.div variants={item}><UmmahPulse /></motion.div>
+        <motion.section variants={item} aria-labelledby="home-weather-h">
+          <h2 id="home-weather-h" className="sr-only">{language === 'ar' ? 'الطقس' : 'Wetter'}</h2>
+          <WeatherWidget />
+        </motion.section>
+        <motion.section variants={item} aria-labelledby="home-prayer-h">
+          <h2 id="home-prayer-h" className="sr-only">{language === 'ar' ? 'أوقات الصلاة' : 'Gebetszeiten'}</h2>
+          <PrayerTimes />
+        </motion.section>
+        <motion.section variants={item} aria-labelledby="home-sunnah-h">
+          <h2 id="home-sunnah-h" className="sr-only">{language === 'ar' ? 'سنة الوقت الحالي' : 'Sunnah dieser Zeit'}</h2>
+          <CurrentTimeSunnah />
+        </motion.section>
+        <motion.section variants={item} aria-labelledby="home-ummah-h">
+          <h2 id="home-ummah-h" className="sr-only">{language === 'ar' ? 'نبض الأمة' : 'Ummah-Puls'}</h2>
+          <UmmahPulse />
+        </motion.section>
         {/* Tafsir feature card and the IslamicSections grid that used
             to live here have been retired in the IA reorganisation.
             Their content now lives under /mihrab (Quran/Dhikr/Sunnah/
@@ -143,7 +161,10 @@ export default function Index() {
             home page is back to answering only "what should I do
             right now?" — prayer times, weather, current sunnah,
             ummah pulse, and saved locations. */}
-        <motion.div variants={item}><LocationSaver /></motion.div>
+        <motion.section variants={item} aria-labelledby="home-locations-h">
+          <h2 id="home-locations-h" className="sr-only">{language === 'ar' ? 'المواقع المحفوظة' : 'Gespeicherte Orte'}</h2>
+          <LocationSaver />
+        </motion.section>
 
         {/* Made by Amer */}
         <motion.div variants={item} className="flex items-center justify-center gap-2 py-6 mt-4">
