@@ -965,8 +965,8 @@ function UmmahPulse() {
 
             <div className="absolute top-2 left-2 z-10 flex items-center gap-1 px-2 py-0.5 rounded-full bg-background/75 backdrop-blur-md border border-border/40">
               <span className="relative flex w-1.5 h-1.5">
-                <span className="absolute inline-flex w-full h-full rounded-full bg-red-500 opacity-75 animate-ping" />
-                <span className="relative inline-flex rounded-full w-1.5 h-1.5 bg-red-500" />
+                <span className="absolute inline-flex w-full h-full rounded-full bg-[hsl(var(--live))] opacity-75 animate-ping" />
+                <span className="relative inline-flex rounded-full w-1.5 h-1.5 bg-[hsl(var(--live))]" />
               </span>
               <span className="text-[9px] font-bold tracking-wide text-foreground">LIVE</span>
             </div>

@@ -308,7 +308,7 @@ function DetailSheet({
                   <h4 className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-semibold">{T.prereq[lang]}</h4>
                   <ul className="space-y-1">
                     {program.prerequisites.map((h: LocalizedString, i: number) => (
-                      <li key={i} className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-2 text-[12px] text-amber-700 dark:text-amber-400">
+                      <li key={i} className="bg-warning/10 border border-warning/30 rounded-lg p-2 text-[12px] text-warning">
                         • {h[lang]}
                       </li>
                     ))}

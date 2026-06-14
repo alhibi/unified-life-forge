@@ -543,8 +543,8 @@ function RecordsView({ holdPRs, progress, lang }: { holdPRs: Record<string, numb
     <div className="space-y-3">
       {/* Mastered skills */}
       {masteredArr.length > 0 && (
-        <div className="rounded-2xl bg-amber-500/10 border border-amber-500/30 p-3 space-y-2">
-          <p className="text-[10px] uppercase tracking-wider text-amber-600 font-semibold inline-flex items-center gap-1">
+        <div className="rounded-2xl bg-warning/10 border border-warning/30 p-3 space-y-2">
+          <p className="text-[10px] uppercase tracking-wider text-warning font-semibold inline-flex items-center gap-1">
             <Trophy className="w-3 h-3" /> {T.mastered[lang]}
           </p>
           <div className="grid grid-cols-3 gap-1.5">
