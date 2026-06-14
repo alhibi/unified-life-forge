@@ -608,7 +608,27 @@ export default function Knowledge() {
 
   return (
     <div dir="rtl" className="min-h-screen bg-[#080808] text-neutral-100">
-      <SEO path="/knowledge" title="موسوعة الرقي — معرفة منتقاة" description="موسوعة فاخرة: السيارات، العطور، الساعات، الأزياء والحلويات." />
+      <SEO
+        path="/knowledge"
+        title="موسوعة الرقي — معرفة منتقاة"
+        description="موسوعة فاخرة: السيارات، العطور، الساعات، الأزياء والحلويات."
+        jsonLd={{
+          '@context': 'https://schema.org',
+          '@type': 'CollectionPage',
+          '@id': 'https://amv.life/knowledge',
+          url: 'https://amv.life/knowledge',
+          name: 'موسوعة الرقي',
+          inLanguage: 'ar',
+          description: 'موسوعة فاخرة منتقاة: السيارات، العطور، الساعات، الأزياء والحلويات.',
+          about: [
+            { '@type': 'Thing', name: 'السيارات' },
+            { '@type': 'Thing', name: 'العطور' },
+            { '@type': 'Thing', name: 'الساعات' },
+            { '@type': 'Thing', name: 'الأزياء' },
+            { '@type': 'Thing', name: 'الحلويات' },
+          ],
+        }}
+      />
       <BackButton />
 
       <div className="mx-auto max-w-5xl px-4 pt-20 pb-24">
