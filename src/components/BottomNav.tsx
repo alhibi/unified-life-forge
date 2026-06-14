@@ -334,61 +334,50 @@ export default function BottomNav() {
                   height: 32,
                 }}
               >
-                {/* Organic bioluminescent halo — two soft copper blobs
-                    that breathe and slowly morph behind the active icon.
-                    No geometry, no rings — just living light. */}
+                {/* Traveling hairline — a single very thin copper arc
+                    glides continuously around the perimeter of the active
+                    icon. SVG circle with a short dash + animated
+                    stroke-dashoffset produces a precise, jewel-like loop. */}
                 {visuallyActive && (
-                  <>
-                    {/* Outer halo glow — wider, softer, pulses in opacity */}
-                    <span
-                      aria-hidden
-                      className="nav-organic-glow"
+                  <svg
+                    aria-hidden
+                    width={28}
+                    height={28}
+                    viewBox="0 0 28 28"
+                    style={{
+                      position: 'absolute',
+                      overflow: 'visible',
+                      pointerEvents: 'none',
+                    }}
+                  >
+                    {/* Faint full-perimeter track so the arc reads as
+                        traveling along an edge, not floating in space. */}
+                    <circle
+                      cx={14}
+                      cy={14}
+                      r={12}
+                      fill="none"
+                      stroke="hsl(var(--live) / 0.12)"
+                      strokeWidth={0.75}
+                    />
+                    {/* The moving arc — ~18% of the circumference (≈14px),
+                        sliding around the ring once every 2.8s. */}
+                    <circle
+                      className="nav-edge-trace"
+                      cx={14}
+                      cy={14}
+                      r={12}
+                      fill="none"
+                      stroke="hsl(var(--live))"
+                      strokeWidth={1}
+                      strokeLinecap="round"
+                      pathLength={100}
+                      strokeDasharray="18 82"
                       style={{
-                        position: 'absolute',
-                        width: 34,
-                        height: 34,
-                        borderRadius: '50%',
-                        background:
-                          'radial-gradient(circle at center, hsl(var(--live) / 0.55) 0%, hsl(var(--live) / 0.18) 55%, transparent 78%)',
-                        animation: 'organic-glow 5.2s ease-in-out infinite',
-                        pointerEvents: 'none',
-                        willChange: 'opacity, filter',
+                        filter: 'drop-shadow(0 0 2px hsl(var(--live) / 0.55))',
                       }}
                     />
-                    {/* Morphing blob A — denser inner light */}
-                    <span
-                      aria-hidden
-                      className="nav-organic-a"
-                      style={{
-                        position: 'absolute',
-                        width: 26,
-                        height: 26,
-                        background:
-                          'radial-gradient(circle at 40% 45%, hsl(var(--live) / 0.7) 0%, hsl(var(--live) / 0.25) 55%, transparent 80%)',
-                        filter: 'blur(2px)',
-                        animation: 'organic-morph-a 7s ease-in-out infinite',
-                        pointerEvents: 'none',
-                        willChange: 'transform, border-radius',
-                      }}
-                    />
-                    {/* Morphing blob B — counter-rotating highlight */}
-                    <span
-                      aria-hidden
-                      className="nav-organic-b"
-                      style={{
-                        position: 'absolute',
-                        width: 22,
-                        height: 22,
-                        background:
-                          'radial-gradient(circle at 60% 55%, hsl(var(--live-glow, var(--live)) / 0.55) 0%, transparent 70%)',
-                        filter: 'blur(2.5px)',
-                        mixBlendMode: 'screen',
-                        animation: 'organic-morph-b 9s ease-in-out infinite',
-                        pointerEvents: 'none',
-                        willChange: 'transform, border-radius',
-                      }}
-                    />
-                  </>
+                  </svg>
                 )}
 
                 <Icon
