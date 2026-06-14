@@ -819,7 +819,7 @@ function UmmahPulse() {
                   {language === 'ar' ? c.nameAr : c.name}
                 </h3>
                 {c.name === 'Makkah' && (
-                  <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-600 font-bold">
+                  <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-[hsl(var(--live))]/15 text-[hsl(var(--live))] font-bold">
                     ★ {t('قبلة', 'Qibla')}
                   </span>
                 )}
@@ -1129,7 +1129,7 @@ function UmmahPulse() {
 
                     {/* Sub-solar coordinates badge */}
                     <div className="absolute top-2 left-2 flex items-center gap-1.5 px-2 py-1 rounded-lg bg-background/80 backdrop-blur-md border border-border/40 pointer-events-none">
-                      <Sun className="w-3 h-3 text-amber-500" />
+                      <Sun className="w-3 h-3 text-[hsl(var(--live))]" />
                       <span className="text-[10px] font-semibold text-foreground tabular-nums">
                         {subLat.toFixed(1)}°, {((subLng + 540) % 360 - 180).toFixed(1)}°
                       </span>
@@ -1163,11 +1163,11 @@ function UmmahPulse() {
                             duration: 900,
                           })
                         }
-                        className="w-8 h-8 rounded-lg bg-amber-500/15 backdrop-blur-md border border-amber-500/40 flex items-center justify-center active:scale-95 transition-transform"
+                        className="w-8 h-8 rounded-lg bg-[hsl(var(--live))]/15 backdrop-blur-md border border-[hsl(var(--live))]/40 flex items-center justify-center active:scale-95 transition-transform"
                         aria-label={t('العودة إلى مكة', 'Zurück nach Mekka')}
                         title={t('العودة إلى مكة', 'Zurück nach Mekka')}
                       >
-                        <Locate className="w-3.5 h-3.5 text-amber-600" />
+                        <Locate className="w-3.5 h-3.5 text-[hsl(var(--live))]" />
                       </button>
                     </div>
 
@@ -1315,7 +1315,7 @@ function UmmahPulse() {
                               <p className="text-[13px] font-semibold text-foreground truncate leading-tight">
                                 {language === 'ar' ? c.nameAr : c.name}
                                 {c.name === 'Makkah' && (
-                                  <span className="ml-1.5 text-[9px] px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-600 font-bold align-middle">
+                                  <span className="ml-1.5 text-[9px] px-1.5 py-0.5 rounded-full bg-[hsl(var(--live))]/15 text-[hsl(var(--live))] font-bold align-middle">
                                     ★
                                   </span>
                                 )}
