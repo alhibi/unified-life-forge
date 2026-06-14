@@ -334,46 +334,43 @@ export default function BottomNav() {
                   height: 32,
                 }}
               >
-                {/* L1 — Conic aurora. Sub-perceptible 18s rotation gives the
-                    active tab a living, "ahead-of-its-time" shimmer without
-                    ever crossing into decoration. */}
-                <span
-                  aria-hidden
-                  className={visuallyActive ? 'nav-aurora' : undefined}
-                  style={{
-                    position: 'absolute',
-                    width: 48,
-                    height: 48,
-                    borderRadius: '50%',
-                    background:
-                      'conic-gradient(from 0deg, hsl(var(--live) / 0.55) 0deg, hsl(var(--live-glow) / 0.18) 90deg, hsl(var(--live) / 0.45) 180deg, hsl(var(--live-glow) / 0.10) 270deg, hsl(var(--live) / 0.55) 360deg)',
-                    WebkitMaskImage:
-                      'radial-gradient(circle at center, black 18%, rgba(0,0,0,0.55) 42%, transparent 70%)',
-                    maskImage:
-                      'radial-gradient(circle at center, black 18%, rgba(0,0,0,0.55) 42%, transparent 70%)',
-                    filter: 'blur(4px)',
-                    opacity: visuallyActive ? 0.9 : 0,
-                    transform: visuallyActive ? 'scale(1)' : 'scale(0.55)',
-                    transition: dragging
-                      ? 'none'
-                      : 'opacity 0.42s cubic-bezier(0.34,1.56,0.64,1), transform 0.42s cubic-bezier(0.34,1.56,0.64,1)',
-                    animation: visuallyActive ? 'aurora-spin 18s linear infinite' : 'none',
-                    pointerEvents: 'none',
-                  }}
-                />
+                {/* Cymatic resonance — three concentric copper rings that
+                    ripple outward continuously from the active icon, like
+                    a stone dropped in still water. Each ring is a 1px
+                    hairline; staggered delays produce a calm, perpetual
+                    pulse that reads as "resonance" rather than decoration. */}
+                {visuallyActive && [0, 1.3, 2.6].map((delay, i) => (
+                  <span
+                    key={i}
+                    aria-hidden
+                    className="nav-cymatic"
+                    style={{
+                      position: 'absolute',
+                      width: 26,
+                      height: 26,
+                      borderRadius: '50%',
+                      border: '1.25px solid hsl(var(--live) / 0.55)',
+                      boxShadow: '0 0 6px 0 hsl(var(--live-glow) / 0.25)',
+                      opacity: 0,
+                      animation: `cymatic-ripple 3.9s cubic-bezier(0.22, 1, 0.36, 1) ${delay}s infinite`,
+                      pointerEvents: 'none',
+                      willChange: 'transform, opacity',
+                    }}
+                  />
+                ))}
 
-                {/* L2 — Inner copper core. Soft breath layered on top of the
-                    aurora to anchor the icon and warm the center. */}
+                {/* Inner copper core — soft warm anchor under the icon so
+                    the rings have something to emanate from. */}
                 <span
                   aria-hidden
                   className={visuallyActive ? 'nav-halo-breath' : undefined}
                   style={{
                     position: 'absolute',
-                    width: 34,
-                    height: 34,
+                    width: 26,
+                    height: 26,
                     borderRadius: '50%',
                     background:
-                      'radial-gradient(circle at center, hsl(var(--live) / 0.42) 0%, hsl(var(--live) / 0.14) 55%, transparent 80%)',
+                      'radial-gradient(circle at center, hsl(var(--live) / 0.45) 0%, hsl(var(--live) / 0.12) 60%, transparent 82%)',
                     filter: 'blur(2px)',
                     opacity: visuallyActive ? 1 : 0,
                     transform: visuallyActive ? 'scale(1)' : 'scale(0.55)',
@@ -381,27 +378,6 @@ export default function BottomNav() {
                       ? 'none'
                       : 'opacity 0.42s cubic-bezier(0.34,1.56,0.64,1), transform 0.42s cubic-bezier(0.34,1.56,0.64,1)',
                     animation: visuallyActive ? 'halo-breath 5s ease-in-out infinite' : 'none',
-                    pointerEvents: 'none',
-                  }}
-                />
-
-                {/* L3 — Hairline aperture ring. A single 1px copper edge that
-                    appears only when active. The precision that marks the
-                    design as engineered, not decorated. */}
-                <span
-                  aria-hidden
-                  style={{
-                    position: 'absolute',
-                    width: 30,
-                    height: 30,
-                    borderRadius: '50%',
-                    border: '1px solid hsl(var(--live) / 0.55)',
-                    boxShadow: '0 0 8px 0 hsl(var(--live-glow) / 0.35), inset 0 0 4px 0 hsl(var(--live-glow) / 0.20)',
-                    opacity: visuallyActive ? 1 : 0,
-                    transform: visuallyActive ? 'scale(1)' : 'scale(0.6) rotate(-12deg)',
-                    transition: dragging
-                      ? 'none'
-                      : 'opacity 0.38s cubic-bezier(0.34,1.56,0.64,1), transform 0.42s cubic-bezier(0.34,1.56,0.64,1)',
                     pointerEvents: 'none',
                   }}
                 />
