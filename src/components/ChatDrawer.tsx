@@ -928,7 +928,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
             <div className="sticky top-0 z-30 h-14 px-3 flex items-center gap-2 bg-background border-b border-border/20 shrink-0">
               {chat.selectionMode ? (
                 <>
-                  <button onClick={chat.clearSelection} className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40 transition-colors shrink-0">
+                  <button onClick={chat.clearSelection} aria-label={chat.isAr ? 'إلغاء التحديد' : 'Auswahl aufheben'} className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40 transition-colors shrink-0">
                     <X className="w-5 h-5 text-foreground" />
                   </button>
                   <span className="font-semibold text-[15px]">
@@ -1383,7 +1383,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                                   <div className="relative">
                                     <ChatImage
                                       src={chat.getFileUrl(msg)}
-                                      alt={readableFileName(msg.file_name) || 'image'}
+                                      alt={readableFileName(msg.file_name) || (chat.isAr ? 'صورة في المحادثة' : 'Foto im Chat')}
                                       isAr={chat.isAr}
                                       refreshUrl={() => chat.refreshSignedUrl(msg)}
                                       width={meta?.w}

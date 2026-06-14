@@ -5,13 +5,14 @@ interface SEOProps {
   description: string;
   path: string;
   type?: "website" | "article";
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
 }
 
 /**
  * Per-route SEO tags. Overrides the static head in index.html
  * with route-specific title, description, canonical, and og:* tags.
  */
-export default function SEO({ title, description, path, type = "website" }: SEOProps) {
+export default function SEO({ title, description, path, type = "website", jsonLd }: SEOProps) {
   const url = `https://amv.life${path}`;
   return (
     <Helmet>
@@ -24,6 +25,9 @@ export default function SEO({ title, description, path, type = "website" }: SEOP
       <meta property="og:type" content={type} />
       <meta name="twitter:title" content={title} />
       <meta name="twitter:description" content={description} />
+      {jsonLd && (
+        <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
+      )}
     </Helmet>
   );
 }

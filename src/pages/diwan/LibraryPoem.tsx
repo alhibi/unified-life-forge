@@ -197,6 +197,20 @@ export default function LibraryPoemPage() {
         title={`${p.title} — ${p.poet_name}`}
         description={p.opening ?? ''}
         path={`/diwan/library/poem/${p.slug}`}
+        type="article"
+        jsonLd={{
+          '@context': 'https://schema.org',
+          '@type': 'CreativeWork',
+          '@id': `https://amv.life/diwan/library/poem/${p.slug}`,
+          url: `https://amv.life/diwan/library/poem/${p.slug}`,
+          headline: p.title,
+          name: p.title,
+          author: { '@type': 'Person', name: p.poet_name },
+          inLanguage: 'ar',
+          genre: 'Poetry',
+          ...(p.era_name ? { temporalCoverage: p.era_name } : {}),
+          ...(p.opening ? { description: p.opening } : {}),
+        }}
       />
       <div className="max-w-lg mx-auto">
         {/* Header */}
