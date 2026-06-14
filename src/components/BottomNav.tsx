@@ -234,6 +234,9 @@ export default function BottomNav() {
   const visualIndex = drag ? drag.index : safeActiveIndex;
 
   if (!TAB_PATHS.has(location.pathname) || inChatConversation) return null;
+  // Weather hub owns its own bottom dock (Today / Radar / Forecast / Places).
+  // Hide the app bar on every /weather* route so only the weather dock shows.
+  if (location.pathname === '/weather' || location.pathname.startsWith('/weather/')) return null;
 
   return (
     <nav

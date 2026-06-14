@@ -2,7 +2,7 @@ import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import {
   Cloud, Sun, CloudRain, CloudSnow, CloudLightning, CloudDrizzle, CloudFog,
   CloudHail, CloudSun, MoonStar, Moon, Droplet, Droplets, Wind, Flag, Gauge,
-  Sunrise, Sunset, MapPin, AlertCircle, RefreshCw, Share2, CalendarDays, ChevronRight,
+  MapPin, AlertCircle, RefreshCw, Share2, CalendarDays, ChevronRight,
   Key, ExternalLink, Contrast, type LucideIcon,
 } from '@/lib/icons';
 import SEO from '@/components/SEO';
@@ -14,9 +14,12 @@ import { useWeatherData, type DailyEntry, type WeatherData } from '@/hooks/useWe
 import {
   listProviders, readOwmApiKey, writeOwmApiKey, writeProviderPref,
 } from '@/lib/weather';
-import { getMoonPhase } from '@/lib/weather/moonPhase';
 import { describeWeatherCode } from '@/lib/weather/describe';
-import SmartInsightsCard from '@/components/weather/SmartInsightsCard';
+import WeatherDock, { type WeatherTab, WEATHER_DOCK_RESERVE } from '@/components/weather/WeatherDock';
+import DayDetailSheet from '@/components/weather/DayDetailSheet';
+import RadarView from '@/components/weather/RadarView';
+import PlacesView from '@/components/weather/PlacesView';
+import { SunriseSunsetList, MoonPhasesList } from '@/components/weather/SunMoonExpanded';
 
 /**
  * /weather — Forecast view designed to mirror the reference design 1:1:
@@ -101,13 +104,6 @@ const isWeekend = (ms: number) => {
   return day === 0 || day === 6;
 };
 
-const formatTimeFromIso = (iso: string) => {
-  const [, time] = iso.split('T');
-  if (!time) return '';
-  const [h, m] = time.split(':');
-  return `${h}:${m}`;
-};
-
 const compassDir = (deg: number, isAr: boolean) => {
   const names = isAr
     ? ['شمال', 'شمال شرق', 'شرق', 'جنوب شرق', 'جنوب', 'جنوب غرب', 'غرب', 'شمال غرب']
@@ -160,8 +156,9 @@ function ForecastHeader({ isAr, city, onShare, onLocate }: {
 
 // ── Forecast capsules ─────────────────────────────────────────────────────
 
-function ForecastBars({ daily, weekRange, isAr }: {
+function ForecastBars({ daily, weekRange, isAr, onSelectDay }: {
   daily: DailyEntry[]; weekRange: { min: number; max: number }; isAr: boolean;
+  onSelectDay: (i: number) => void;
 }) {
   if (!daily.length) return null;
   const span = Math.max(1, weekRange.max - weekRange.min);
@@ -172,7 +169,7 @@ function ForecastBars({ daily, weekRange, isAr }: {
     <section className="pt-5 pb-6">
       <div className="overflow-x-auto no-scrollbar -mx-4 px-4">
         <div className="flex items-stretch gap-1.5 min-w-fit">
-          {daily.map((d) => {
+          {daily.map((d, idx) => {
             const Icon = ICON_BY_CODE(d.weatherCode, true);
             const topPct    = (weekRange.max - d.tempMax) / span;
             const bottomPct = (d.tempMin - weekRange.min) / span;
@@ -181,9 +178,12 @@ function ForecastBars({ daily, weekRange, isAr }: {
             const weekend = isWeekend(d.date);
             const pop = d.precipitationProbabilityMax ?? 0;
             return (
-              <div
+              <button
                 key={d.date}
-                className={`flex flex-col items-center min-w-[46px] rounded-2xl px-1 pt-2 pb-2.5 ${
+                type="button"
+                onClick={() => onSelectDay(idx)}
+                aria-label={weekdayShort(d.date, isAr)}
+                className={`flex flex-col items-center min-w-[46px] rounded-2xl px-1 pt-2 pb-2.5 active:scale-[0.97] transition-transform ${
                   weekend ? 'bg-foreground/[0.05]' : ''
                 }`}
               >
@@ -213,7 +213,7 @@ function ForecastBars({ daily, weekRange, isAr }: {
                 <span className={`text-[12px] mt-1.5 tabular-nums ${precipColorClass(pop)}`}>
                   {pop}%
                 </span>
-              </div>
+              </button>
             );
           })}
         </div>
@@ -870,84 +870,6 @@ function CollapsibleRow({ open, onToggle, label, icon: Icon, children }: {
   );
 }
 
-function SunriseSunsetBody({ today, isAr }: { today: DailyEntry; isAr: boolean }) {
-  const isoMin = (iso: string) => {
-    const [, t] = iso.split('T');
-    const [h, m] = (t ?? '0:0').split(':').map(Number);
-    return h * 60 + m;
-  };
-  const sr = isoMin(today.sunrise);
-  const ss = isoMin(today.sunset);
-  const now = new Date();
-  const nowMin = now.getHours() * 60 + now.getMinutes();
-  const total = Math.max(1, ss - sr);
-  const progress = Math.min(1, Math.max(0, (nowMin - sr) / total));
-  const remaining = Math.max(0, ss - nowMin);
-  const hh = Math.floor(remaining / 60).toString().padStart(2, '0');
-  const mm = (remaining % 60).toString().padStart(2, '0');
-
-  return (
-    <div className="space-y-3" dir="ltr">
-      <div className="grid grid-cols-2 gap-3">
-        <div className="flex items-center gap-2.5">
-          <Sunrise className="w-5 h-5 text-amber-400" />
-          <div>
-            <p className="text-[10.5px] text-muted-foreground">{isAr ? 'الشروق' : 'Sunrise'}</p>
-            <p className="text-[14px] font-semibold text-foreground tabular-nums">
-              {formatTimeFromIso(today.sunrise)}
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2.5">
-          <Sunset className="w-5 h-5 text-orange-500" />
-          <div>
-            <p className="text-[10.5px] text-muted-foreground">{isAr ? 'الغروب' : 'Sunset'}</p>
-            <p className="text-[14px] font-semibold text-foreground tabular-nums">
-              {formatTimeFromIso(today.sunset)}
-            </p>
-          </div>
-        </div>
-      </div>
-      <div className="h-1.5 rounded-full bg-foreground/[0.08] overflow-hidden">
-        <div
-          className="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-400 transition-all"
-          style={{ width: `${progress * 100}%` }}
-        />
-      </div>
-      <p className="text-[11px] text-muted-foreground">
-        <span className="tabular-nums">{hh}:{mm}</span>{' '}
-        {isAr ? 'متبقّية حتى الغروب' : 'remaining until sunset'}
-      </p>
-    </div>
-  );
-}
-
-function MoonBody({ isAr }: { isAr: boolean }) {
-  const m = getMoonPhase();
-  const pct = Math.round(m.illumination * 100);
-  const k = Math.cos(2 * Math.PI * m.phase);
-  const offset = k * 22;
-  return (
-    <div className="flex items-center gap-4">
-      <div className="w-14 h-14 rounded-full bg-slate-900 border border-border/40 relative overflow-hidden shrink-0" aria-hidden>
-        <div className="absolute inset-0 rounded-full bg-amber-100" />
-        <div
-          className="absolute inset-0 rounded-full bg-slate-900"
-          style={{ transform: `translateX(${offset}px)` }}
-        />
-      </div>
-      <div className="flex-1 min-w-0">
-        <p className="text-[15px] font-semibold text-foreground">{m.name[isAr ? 'ar' : 'de']}</p>
-        <p className="text-[11.5px] text-muted-foreground mt-0.5">
-          {isAr
-            ? `${pct}٪ مضاءة · ${m.waxing ? 'متزايد' : 'متناقص'}`
-            : `${pct}% illuminated · ${m.waxing ? 'waxing' : 'waning'}`}
-        </p>
-      </div>
-    </div>
-  );
-}
-
 function SunMoon({ data, isAr }: { data: WeatherData; isAr: boolean }) {
   const today = data.daily[0];
   const [openSun, setOpenSun] = useState(false);
@@ -965,7 +887,7 @@ function SunMoon({ data, isAr }: { data: WeatherData; isAr: boolean }) {
             label={isAr ? 'الشروق والغروب' : 'Sunrise & Sunset'}
             icon={Contrast}
           >
-            <SunriseSunsetBody today={today} isAr={isAr} />
+            <SunriseSunsetList daily={data.daily} isAr={isAr} />
           </CollapsibleRow>
         )}
         <CollapsibleRow
@@ -974,7 +896,7 @@ function SunMoon({ data, isAr }: { data: WeatherData; isAr: boolean }) {
           label={isAr ? 'أطوار القمر' : 'Moon Phases'}
           icon={Moon}
         >
-          <MoonBody isAr={isAr} />
+          <MoonPhasesList daily={data.daily} isAr={isAr} />
         </CollapsibleRow>
       </div>
     </section>
@@ -1127,8 +1049,27 @@ export default function WeatherPage() {
   const attribution = listProviders().find(p => p.id === providerId)?.attribution
     ?? { label: 'Open-Meteo', url: 'https://open-meteo.com/' };
 
+  // ── Hub tab state (Today / Radar / Forecast / Places) ──────────────
+  const [tab, setTab] = useState<WeatherTab>('forecast');
+  // ── Day detail overlay (opened from a Forecast capsule) ────────────
+  const [dayIdx, setDayIdx] = useState<number | null>(null);
+
+  const openDay = useCallback((i: number) => setDayIdx(i), []);
+  const closeDay = useCallback(() => setDayIdx(null), []);
+
+  // Tap "Today" → open the day-detail overlay for today's entry.
+  useEffect(() => {
+    if (tab === 'today' && data && data.daily.length) {
+      setDayIdx(0);
+      setTab('forecast');
+    }
+  }, [tab, data]);
+
   return (
-    <div className="min-h-screen bg-background pb-28">
+    <div
+      className="min-h-screen bg-background"
+      style={{ paddingBottom: WEATHER_DOCK_RESERVE }}
+    >
       <SEO
         title={isAr ? 'الطقس — SmartHub' : 'Weather — SmartHub'}
         description={isAr
@@ -1147,29 +1088,53 @@ export default function WeatherPage() {
         ) : status === 'error' && !data ? (
           <div className="pt-6"><ErrorCard isAr={isAr} error={error} onRetry={refresh} /></div>
         ) : data ? (
-          <>
-            <ForecastHeader
-              isAr={isAr}
-              city={data.city}
-              onShare={handleShare}
-              onLocate={handleLocate}
-            />
-            <ForecastBars daily={data.daily} weekRange={data.weekRange} isAr={isAr} />
-            <SmartInsightsCard data={data} />
-            <NextSevenDays data={data} isAr={isAr} />
-            <SunMoon data={data} isAr={isAr} />
+          tab === 'radar' ? (
+            <RadarView data={data} isAr={isAr} />
+          ) : tab === 'places' ? (
+            <PlacesView data={data} isAr={isAr} />
+          ) : (
+            <>
+              <ForecastHeader
+                isAr={isAr}
+                city={data.city}
+                onShare={handleShare}
+                onLocate={handleLocate}
+              />
+              <ForecastBars
+                daily={data.daily}
+                weekRange={data.weekRange}
+                isAr={isAr}
+                onSelectDay={openDay}
+              />
+              <NextSevenDays data={data} isAr={isAr} />
+              <SunMoon data={data} isAr={isAr} />
 
-            <p className="text-center text-[10px] text-muted-foreground/60 pt-8 pb-2">
-              {isAr ? 'البيانات من ' : 'Weather data by '}
-              <a href={attribution.url} target="_blank" rel="noopener noreferrer" className="underline hover:text-muted-foreground">
-                {attribution.label}
-              </a>
-            </p>
-          </>
+              <p className="text-center text-[10px] text-muted-foreground/60 pt-8 pb-2">
+                {isAr ? 'البيانات من ' : 'Weather data by '}
+                <a href={attribution.url} target="_blank" rel="noopener noreferrer" className="underline hover:text-muted-foreground">
+                  {attribution.label}
+                </a>
+              </p>
+            </>
+          )
         ) : (
           <div className="pt-6"><WeatherSkeleton /></div>
         )}
       </div>
+
+      {/* Floating hub dock — replaces the app BottomNav while inside /weather */}
+      <WeatherDock active={tab} onChange={setTab} isAr={isAr} />
+
+      {/* Day detail overlay — opened from a Forecast capsule or the "Today" tab */}
+      {data && dayIdx != null && (
+        <DayDetailSheet
+          open={dayIdx != null}
+          onClose={closeDay}
+          data={data}
+          dayIndex={dayIdx}
+          isAr={isAr}
+        />
+      )}
     </div>
   );
 }
