@@ -52,12 +52,12 @@ export default function GamesPage() {
       icon: Crosshair,
       title: t('games.focus'),
       badge: focusStats.bestAvg?.reaction ? `${focusStats.bestAvg.reaction}ms` : undefined,
-      badgeColor: '#06b6d4',
+      badgeColor: LIVE,
       modes: isAr
         ? ['ردة فعل', 'ستروب', 'تسلسل', 'N-back', 'هدف']
         : ['Reaktion', 'Stroop', 'Sequenz', 'N-back', 'Ziel'],
       path: '/games/focus',
-      primaryStat: { label: isAr ? 'مباريات' : 'Spiele', value: focusStats.gamesPlayed || 0, accent: '#06b6d4' },
+      primaryStat: { label: isAr ? 'مباريات' : 'Spiele', value: focusStats.gamesPlayed || 0, accent: LIVE },
       secondaryStat: focusStats.bestNback?.level ? { label: 'N-back', value: `${focusStats.bestNback.level}` } : undefined,
       gradient: LIVE_GRADIENT,
     },
