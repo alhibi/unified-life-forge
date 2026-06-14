@@ -301,27 +301,27 @@
     0%, 100% { opacity: 0.85; transform: scale(1); }
     50%      { opacity: 1;    transform: scale(1.06); }
   }
-  /* Cymatic ripple — concentric copper rings emanating outward from the
-     active tab icon, like ripples on still water. A 1px hairline scales
-     up while its opacity decays, then disappears. Three rings staggered
-     create a continuous, calm pulse that reads as "resonance". */
-  @keyframes cymatic-ripple {
-    0% {
-      transform: scale(0.4);
-      opacity: 0;
-      border-width: 1.5px;
-    }
-    15% {
-      opacity: 0.9;
-    }
-    100% {
-      transform: scale(2);
-      opacity: 0;
-      border-width: 0.5px;
-    }
+  /* Organic bioluminescent halo — a soft liquid drop of copper light
+     that breathes and slowly morphs its silhouette behind the active
+     icon. Inspired by deep-sea bioluminescence: alive, never sharp,
+     never geometric. Two layered blobs rotate against each other and
+     reshape their border-radius corners, producing a perpetual organic
+     deformation without ever revealing a hard edge. */
+  @keyframes organic-morph-a {
+    0%, 100% { border-radius: 62% 38% 55% 45% / 50% 60% 40% 50%; transform: rotate(0deg)   scale(1);    }
+    33%      { border-radius: 45% 55% 40% 60% / 55% 45% 60% 45%; transform: rotate(120deg) scale(1.05); }
+    66%      { border-radius: 55% 45% 60% 40% / 40% 55% 45% 60%; transform: rotate(240deg) scale(0.97); }
+  }
+  @keyframes organic-morph-b {
+    0%, 100% { border-radius: 40% 60% 55% 45% / 55% 45% 60% 40%; transform: rotate(0deg)    scale(1);    }
+    50%      { border-radius: 60% 40% 45% 55% / 45% 60% 40% 55%; transform: rotate(-180deg) scale(1.08); }
+  }
+  @keyframes organic-glow {
+    0%, 100% { opacity: 0.75; filter: blur(4px); }
+    50%      { opacity: 1;    filter: blur(6px); }
   }
   @media (prefers-reduced-motion: reduce) {
-    .nav-aurora, .nav-halo-breath, .nav-cymatic { animation: none !important; }
+    .nav-aurora, .nav-halo-breath, .nav-organic-a, .nav-organic-b, .nav-organic-glow { animation: none !important; }
   }
   @media (prefers-reduced-motion: reduce) {
     body::before { animation: none; opacity: 0.7; }
