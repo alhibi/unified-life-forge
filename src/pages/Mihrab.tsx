@@ -1,5 +1,6 @@
 import React, { Suspense, lazy, useEffect, useState } from 'react';
 import SEO from '@/components/SEO';
+import PageHeader from '@/components/PageHeader';
 import { useApp } from '@/contexts/AppContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { EASE_OUT_EXPO, EASE_IN } from '@/lib/motion';
@@ -115,12 +116,12 @@ export default function MihrabPage() {
       />
 
       <div className="max-w-lg mx-auto space-y-4">
-        {/* Title */}
-        <header className="flex items-center justify-between">
-          <h1 className="text-[22px] font-bold tracking-tight text-foreground">
-            {isAr ? 'محراب' : 'Mihrab'}
-          </h1>
-        </header>
+        {/* Title — unified PageHeader (top-level hub, no back) */}
+        <PageHeader
+          hideBack
+          title={isAr ? 'محراب' : 'Mihrab'}
+          className="px-0 py-0"
+        />
 
         {/* Horizontal tab dock */}
         <nav aria-label={isAr ? 'تبويبات المحراب' : 'Mihrab tabs'}>

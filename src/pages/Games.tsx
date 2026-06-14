@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import SEO from '@/components/SEO';
+import PageHeader from '@/components/PageHeader';
 import { useApp } from '@/contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
 import { Grid3X3, Swords, Gamepad2, Trophy, Brain, Dices, Crosshair, Puzzle, Flame, Target, Zap, Crown, Map, Award, Sparkles } from '@/lib/icons';
@@ -175,22 +176,24 @@ export default function GamesPage() {
     <div className="min-h-screen bg-background pb-28 pt-14">
       <SEO title="الألعاب — SmartHub" description="مجموعة ألعاب ذهنية: سودوكو، شطرنج، ألغاز، ذاكرة، تركيز ونرد. أنماط متعددة وذكاء اصطناعي متقدم." path="/games" />
 
-      {/* Header */}
+      {/* Header — unified PageHeader (top-level tab, no back) */}
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-        className="flex items-center gap-3 mb-3 px-5"
+        className="mb-3"
       >
-        <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center">
-          <Gamepad2 className="w-5 h-5 text-primary" />
-        </div>
-        <div className="flex-1">
-          <h1 className="text-[26px] font-bold tracking-tight text-foreground leading-tight">{t('games.title')}</h1>
-          <p className="text-[11px] text-muted-foreground">
-            {isAr ? '6 ألعاب · 4 عوالم · 25+ نمط' : '6 Spiele · 4 Welten · 25+ Modi'}
-          </p>
-        </div>
+        <PageHeader
+          hideBack
+          icon={
+            <span className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center">
+              <Gamepad2 className="w-5 h-5 text-primary" />
+            </span>
+          }
+          title={t('games.title')}
+          subtitle={isAr ? '6 ألعاب · 4 عوالم · 25+ نمط' : '6 Spiele · 4 Welten · 25+ Modi'}
+          className="px-5"
+        />
       </motion.div>
 
       {/* Overall progress strip */}
