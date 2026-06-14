@@ -5,7 +5,10 @@ import type { User } from '@supabase/supabase-js';
 import { themePresets, generateThemeTokens, applyThemeTokens, type ThemeStyle } from '@/utils/themeEngine';
 import { translate, type Language } from '@/i18n';
 
-type Theme = 'light' | 'dark' | 'system';
+// 'system' was intentionally removed from the public theme API — users
+// pick Light or Dark explicitly. Any stale localStorage value is
+// migrated to 'light' on read below.
+type Theme = 'light' | 'dark';
 type PaletteStyle = 'tonal' | 'vibrant' | 'expressive' | 'neutral' | 'rainbow';
 type ColorTheme = 'default' | 'midnight' | 'rose' | 'emerald' | 'lavender' | 'sunset' | 'ocean' | 'neon' | 'coffee' | 'mono' | 'cherry' | 'gold' | 'aurora' | 'sakura' | 'arctic' | 'volcano' | 'matcha' | 'nebula' | 'copper' | 'mint' | 'sandstone' | 'dusk' | 'moss' | 'clay' | 'storm' | 'silk' | 'amber' | 'fog' | 'obsidian' | 'terracotta' | 'dynamic';
 
@@ -56,9 +59,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [language, setLanguageState] = useState<Language>(() =>
     (localStorage.getItem('app-language') as Language) || 'ar'
   );
-  const [theme, setThemeState] = useState<Theme>(() =>
-    (localStorage.getItem('app-theme') as Theme) || 'light'
-  );
+  const [theme, setThemeState] = useState<Theme>(() => {
+    const raw = localStorage.getItem('app-theme');
+    return raw === 'dark' ? 'dark' : 'light';
+  });
   const [accentHue, setAccentHueState] = useState<number>(() =>
     parseInt(localStorage.getItem('app-accent-hue') || '152', 10)
   );
@@ -329,8 +333,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const root = document.documentElement;
     root.classList.add('theme-transition');
 
-    const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const isDark = theme === 'dark' || (theme === 'system' && systemDark);
+    const isDark = theme === 'dark';
     root.classList.toggle('dark', isDark);
     root.dir = dir;
     root.lang = language;
@@ -352,16 +355,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
     const timeout = setTimeout(() => root.classList.remove('theme-transition'), 600);
 
-    if (theme === 'system') {
-      const mq = window.matchMedia('(prefers-color-scheme: dark)');
-      const handler = (e: MediaQueryListEvent) => {
-        root.classList.toggle('dark', e.matches);
-        const t2 = generateThemeTokens(preset!, paletteStyle as ThemeStyle, e.matches, e.matches && blackMode);
-        applyThemeTokens(t2);
-      };
-      mq.addEventListener('change', handler);
-      return () => { clearTimeout(timeout); mq.removeEventListener('change', handler); };
-    }
     return () => clearTimeout(timeout);
   }, [theme, dir, language, accentHue, paletteStyle, blackMode, colorTheme]);
 

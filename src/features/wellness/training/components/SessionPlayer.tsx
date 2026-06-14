@@ -40,6 +40,7 @@ import RestTimer from './RestTimer';
 import RpeRirPicker from './RpeRirPicker';
 import SetRow from './SetRow';
 import PlateCalculator from './PlateCalculator';
+import { confirmDialog } from '@/lib/confirmDialog';
 
 export type SessionType = 'strength' | 'cardio' | 'hiit' | 'mobility' | 'sport';
 
@@ -246,10 +247,13 @@ export default function SessionPlayer({
     });
   };
 
-  const handleCancel = () => {
-    if (draft.exercises.length === 0 || window.confirm(T.cancelConfirm[lang])) {
-      onCancel();
-    }
+  const handleCancel = async () => {
+    if (draft.exercises.length === 0) { onCancel(); return; }
+    const ok = await confirmDialog({
+      message: T.cancelConfirm[lang],
+      destructive: true,
+    });
+    if (ok) onCancel();
   };
 
   /* ────────── Render ────────── */
