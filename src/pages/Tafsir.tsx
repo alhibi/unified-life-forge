@@ -187,7 +187,7 @@ export default function TafsirPage() {
   // ─── RENDER ─────────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-background pb-24" dir="rtl">
-      <SEO title="التفسير — SmartHub" description="تفسير القرآن الكريم باللغة العربية" path="/tafsir" />
+      <SEO title="التفسير — SmartHub" description="تفسير القرآن الكريم باللغة العربية: استكشف معاني الآيات والسور مع تفسير ميسر وشامل لكل أجزاء المصحف الشريف." path="/tafsir" />
 
       {/* Header */}
       <div className="sticky top-0 z-20 bg-background/80 backdrop-blur-md border-b border-border/30">
@@ -199,9 +199,9 @@ export default function TafsirPage() {
           </h1>
           {/* Font size controls */}
           <div className="flex items-center gap-1">
-            <button onClick={() => setFontSize(s => Math.max(12, s - 1))} className="w-7 h-7 rounded-full bg-muted/50 flex items-center justify-center"><Minus className="w-3 h-3 text-muted-foreground" /></button>
+            <button aria-label="تصغير حجم الخط" onClick={() => setFontSize(s => Math.max(12, s - 1))} className="w-7 h-7 rounded-full bg-muted/50 flex items-center justify-center"><Minus className="w-3 h-3 text-muted-foreground" /></button>
             <span className="text-[10px] text-muted-foreground w-5 text-center">{fontSize}</span>
-            <button onClick={() => setFontSize(s => Math.min(24, s + 1))} className="w-7 h-7 rounded-full bg-muted/50 flex items-center justify-center"><Plus className="w-3 h-3 text-muted-foreground" /></button>
+            <button aria-label="تكبير حجم الخط" onClick={() => setFontSize(s => Math.min(24, s + 1))} className="w-7 h-7 rounded-full bg-muted/50 flex items-center justify-center"><Plus className="w-3 h-3 text-muted-foreground" /></button>
           </div>
         </div>
       </div>
@@ -261,7 +261,7 @@ export default function TafsirPage() {
           <div className="relative">
             <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <input type="text" value={ayahSearch} onChange={e => setAyahSearch(e.target.value)} placeholder="ابحث في آيات السورة..." className="w-full pr-10 pl-4 py-2.5 rounded-xl bg-card border border-border/50 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/30" />
-            {ayahSearch && <button onClick={() => setAyahSearch('')} className="absolute left-3 top-1/2 -translate-y-1/2"><X className="w-4 h-4 text-muted-foreground" /></button>}
+            {ayahSearch && <button aria-label="مسح البحث" onClick={() => setAyahSearch('')} className="absolute left-3 top-1/2 -translate-y-1/2"><X className="w-4 h-4 text-muted-foreground" /></button>}
           </div>
         )}
 
@@ -272,7 +272,7 @@ export default function TafsirPage() {
               <div className="relative">
                 <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <input type="text" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder="ابحث عن سورة..." className="w-full pr-10 pl-4 py-3 rounded-xl bg-card border border-border/50 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/30" />
-                {searchQuery && <button onClick={() => setSearchQuery('')} className="absolute left-3 top-1/2 -translate-y-1/2"><X className="w-4 h-4 text-muted-foreground" /></button>}
+                {searchQuery && <button aria-label="مسح البحث" onClick={() => setSearchQuery('')} className="absolute left-3 top-1/2 -translate-y-1/2"><X className="w-4 h-4 text-muted-foreground" /></button>}
               </div>
               <motion.div variants={container} initial="hidden" animate="show" className="grid grid-cols-3 gap-2">
                 {filteredSurahs.map(({ name, index }) => {

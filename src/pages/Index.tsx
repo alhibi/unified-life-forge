@@ -203,7 +203,7 @@ export default function Index() {
                     <h2 className="text-base font-bold text-foreground">
                       {language === 'ar' ? 'الحافظة' : 'Clipboard'}
                     </h2>
-                    <button onClick={() => setShowClipboard(false)} className="w-8 h-8 rounded-full bg-card/80 flex items-center justify-center">
+                    <button aria-label={language === 'ar' ? 'إغلاق الحافظة' : 'Schließen'} onClick={() => setShowClipboard(false)} className="w-8 h-8 rounded-full bg-card/80 flex items-center justify-center">
                       <X className="w-4 h-4 text-muted-foreground" />
                     </button>
                   </div>
