@@ -2,6 +2,7 @@ import React, { Suspense, lazy, useEffect, useState } from 'react';
 import SEO from '@/components/SEO';
 import { useApp } from '@/contexts/AppContext';
 import { motion, AnimatePresence } from 'framer-motion';
+import { EASE_OUT_EXPO, EASE_IN } from '@/lib/motion';
 import {
   BookOpen, HandHeart, Moon, Feather,
 } from '@/lib/icons';
@@ -73,8 +74,9 @@ const TabSkeleton = () => (
 );
 
 export default function MihrabPage() {
-  const { language } = useApp();
+  const { language, dir } = useApp();
   const isAr = language === 'ar';
+  const rtl = dir === 'rtl';
 
   const [tab, setTab] = useState<TabKey>(() => {
     try {
@@ -84,9 +86,23 @@ export default function MihrabPage() {
     return 'quran';
   });
 
+  // Track previous tab so the body can slide in from the correct side.
+  // Spatial cue: moving "right" in the dock slides content in from the
+  // trailing edge, moving "left" from the leading edge. Mirrored in RTL.
+  const [prevTab, setPrevTab] = useState<TabKey>(tab);
+  const idxOf = (k: TabKey) => TABS.findIndex(t => t.key === k);
+  const goingForward = idxOf(tab) > idxOf(prevTab);
+  const slideSign = (goingForward ? 1 : -1) * (rtl ? -1 : 1);
+
   useEffect(() => {
     try { localStorage.setItem(STORAGE_KEY, tab); } catch { /* noop */ }
   }, [tab]);
+
+  const handleTabChange = (next: TabKey) => {
+    if (next === tab) return;
+    setPrevTab(tab);
+    setTab(next);
+  };
 
   return (
     <div className="min-h-screen bg-background pb-28 px-5 pt-10">
@@ -118,7 +134,7 @@ export default function MihrabPage() {
               return (
                 <button
                   key={t.key}
-                  onClick={() => setTab(t.key)}
+                  onClick={() => handleTabChange(t.key)}
                   aria-pressed={active}
                   aria-label={isAr ? t.labelAr : t.labelDe}
                   className={`relative flex-1 inline-flex items-center justify-center gap-1.5 h-10 px-2 rounded-xl transition-colors duration-150 ${
@@ -148,10 +164,9 @@ export default function MihrabPage() {
         <AnimatePresence mode="wait">
           <motion.section
             key={tab}
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -4 }}
-            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            initial={{ opacity: 0, x: slideSign * 16 }}
+            animate={{ opacity: 1, x: 0, transition: { duration: 0.26, ease: EASE_OUT_EXPO } }}
+            exit={{ opacity: 0, x: slideSign * -8, transition: { duration: 0.14, ease: EASE_IN } }}
             className="space-y-3"
           >
             <Suspense fallback={<TabSkeleton />}>

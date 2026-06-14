@@ -102,7 +102,7 @@ export default function QuranTab() {
       <motion.button
         variants={item}
         onClick={() => navigate('/tafsir')}
-        className="w-full flex items-center gap-3 p-4 rounded-2xl bg-card border border-border/40 hover:border-primary/30 active:scale-[0.98] transition-all duration-150 text-start"
+        className="surface-depth surface-depth-pressable w-full flex items-center gap-3 p-4 rounded-2xl hover:border-primary/30 text-start"
       >
         <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
           <BookMarked className="w-5 h-5 text-primary" />
@@ -124,7 +124,7 @@ export default function QuranTab() {
       <motion.button
         variants={item}
         onClick={() => navigate('/section/quran-virtues')}
-        className="w-full flex items-center gap-3 p-4 rounded-2xl bg-card border border-border/40 hover:border-primary/30 active:scale-[0.98] transition-all duration-150 text-start"
+        className="surface-depth surface-depth-pressable w-full flex items-center gap-3 p-4 rounded-2xl hover:border-primary/30 text-start"
       >
         <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
           <Sparkles className="w-5 h-5 text-primary" />
