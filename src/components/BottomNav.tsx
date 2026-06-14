@@ -325,34 +325,54 @@ export default function BottomNav() {
                 minWidth: 0,
               }}
             >
-              {/* Icon container */}
+              {/* Icon zone — no container; a soft copper halo breathes behind the active icon. */}
               <div
                 className="relative flex items-center justify-center"
                 style={{
                   marginTop: 2,
-                  width: 34,
-                  height: 26,
-                  borderRadius: 8,
-                  background: visuallyActive
-                    ? LIVE_SOFT
-                    : 'transparent',
-                  transform: visuallyActive ? 'scale(1.05)' : 'scale(1)',
-                  transition: dragging
-                    ? 'none'
-                    : [
-                        'transform 0.38s cubic-bezier(0.34,1.56,0.64,1)',
-                        'background 0.3s ease',
-                      ].join(', '),
+                  width: 40,
+                  height: 32,
                 }}
               >
+                {/* Copper halo — radial glow, gentle ambient breath. */}
+                <span
+                  aria-hidden
+                  style={{
+                    position: 'absolute',
+                    width: 44,
+                    height: 44,
+                    borderRadius: '50%',
+                    background:
+                      'radial-gradient(circle at center, hsl(var(--live) / 0.40) 0%, hsl(var(--live) / 0.16) 42%, transparent 72%)',
+                    opacity: visuallyActive ? 1 : 0,
+                    transform: visuallyActive ? 'scale(1)' : 'scale(0.55)',
+                    filter: 'blur(3px)',
+                    transition: dragging
+                      ? 'none'
+                      : [
+                          'opacity 0.42s cubic-bezier(0.34,1.56,0.64,1)',
+                          'transform 0.42s cubic-bezier(0.34,1.56,0.64,1)',
+                        ].join(', '),
+                    animation: visuallyActive
+                      ? 'ambient-breath 6s ease-in-out infinite'
+                      : 'none',
+                    pointerEvents: 'none',
+                  }}
+                />
+
                 <Icon
                   size={18}
                   strokeWidth={visuallyActive ? 2.25 : 1.75}
                   style={{
+                    position: 'relative',
+                    zIndex: 1,
                     color: visuallyActive
                       ? LIVE
                       : 'hsl(var(--muted-foreground) / 0.7)',
-                    transition: dragging ? 'none' : 'color 0.3s ease, stroke-width 0.3s ease',
+                    transform: visuallyActive ? 'scale(1.08)' : 'scale(1)',
+                    transition: dragging
+                      ? 'none'
+                      : 'color 0.3s ease, stroke-width 0.3s ease, transform 0.38s cubic-bezier(0.34,1.56,0.64,1)',
                   }}
                 />
 
