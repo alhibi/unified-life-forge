@@ -528,7 +528,7 @@ export default function ReadingPage() {
         >
           {!isOnline
             ? (<>
-                <WifiOff className="h-3 w-3 text-amber-500" />
+                <WifiOff className="h-3 w-3 text-warning" />
                 {isAr ? 'بدون اتصال' : 'Offline'}
               </>)
             : refreshing
@@ -565,7 +565,7 @@ export default function ReadingPage() {
 
       {/* Connection recovery banner */}
       {!isOnline && view === 'list' && (
-        <div className="px-4 py-2 bg-amber-500/10 border-b border-amber-500/20 flex items-center gap-2 text-xs text-amber-700 dark:text-amber-400">
+        <div className="px-4 py-2 bg-warning/10 border-b border-warning/20 flex items-center gap-2 text-xs text-warning">
           <WifiOff className="h-3.5 w-3.5 shrink-0" />
           <span className="flex-1">
             {isAr
