@@ -334,53 +334,62 @@ export default function BottomNav() {
                   height: 32,
                 }}
               >
-                {/* Cymatic resonance — three concentric copper rings that
-                    ripple outward continuously from the active icon, like
-                    a stone dropped in still water. Each ring is a 1px
-                    hairline; staggered delays produce a calm, perpetual
-                    pulse that reads as "resonance" rather than decoration. */}
-                {visuallyActive && [0, 1.3, 2.6].map((delay, i) => (
-                  <span
-                    key={i}
-                    aria-hidden
-                    className="nav-cymatic"
-                    style={{
-                      position: 'absolute',
-                      width: 28,
-                      height: 28,
-                      borderRadius: '50%',
-                      border: '1.5px solid hsl(var(--live) / 0.75)',
-                      boxShadow: '0 0 10px 0 hsl(var(--live-glow) / 0.4)',
-                      opacity: 0,
-                      animation: `cymatic-ripple 3.9s cubic-bezier(0.22, 1, 0.36, 1) ${delay}s infinite`,
-                      pointerEvents: 'none',
-                      willChange: 'transform, opacity',
-                    }}
-                  />
-                ))}
-
-                {/* Inner copper core — soft warm anchor under the icon so
-                    the rings have something to emanate from. */}
-                <span
-                  aria-hidden
-                  className={visuallyActive ? 'nav-halo-breath' : undefined}
-                  style={{
-                    position: 'absolute',
-                    width: 26,
-                    height: 26,
-                    borderRadius: '50%',
-                    background:
-                      'radial-gradient(circle at center, hsl(var(--live) / 0.45) 0%, hsl(var(--live) / 0.12) 60%, transparent 82%)',
-                    filter: 'blur(2px)',
-                    opacity: visuallyActive ? 1 : 0,
-                    transform: visuallyActive ? 'scale(1)' : 'scale(0.55)',
-                    transition: dragging
-                      ? 'none'
-                      : 'opacity 0.42s cubic-bezier(0.34,1.56,0.64,1), transform 0.42s cubic-bezier(0.34,1.56,0.64,1)',
-                    animation: visuallyActive ? 'halo-breath 5s ease-in-out infinite' : 'none',
-                    pointerEvents: 'none',
-                  }}
-                />
+                {/* Organic bioluminescent halo — two soft copper blobs
+                    that breathe and slowly morph behind the active icon.
+                    No geometry, no rings — just living light. */}
+                {visuallyActive && (
+                  <>
+                    {/* Outer halo glow — wider, softer, pulses in opacity */}
+                    <span
+                      aria-hidden
+                      className="nav-organic-glow"
+                      style={{
+                        position: 'absolute',
+                        width: 34,
+                        height: 34,
+                        borderRadius: '50%',
+                        background:
+                          'radial-gradient(circle at center, hsl(var(--live) / 0.55) 0%, hsl(var(--live) / 0.18) 55%, transparent 78%)',
+                        animation: 'organic-glow 5.2s ease-in-out infinite',
+                        pointerEvents: 'none',
+                        willChange: 'opacity, filter',
+                      }}
+                    />
+                    {/* Morphing blob A — denser inner light */}
+                    <span
+                      aria-hidden
+                      className="nav-organic-a"
+                      style={{
+                        position: 'absolute',
+                        width: 26,
+                        height: 26,
+                        background:
+                          'radial-gradient(circle at 40% 45%, hsl(var(--live) / 0.7) 0%, hsl(var(--live) / 0.25) 55%, transparent 80%)',
+                        filter: 'blur(2px)',
+                        animation: 'organic-morph-a 7s ease-in-out infinite',
+                        pointerEvents: 'none',
+                        willChange: 'transform, border-radius',
+                      }}
+                    />
+                    {/* Morphing blob B — counter-rotating highlight */}
+                    <span
+                      aria-hidden
+                      className="nav-organic-b"
+                      style={{
+                        position: 'absolute',
+                        width: 22,
+                        height: 22,
+                        background:
+                          'radial-gradient(circle at 60% 55%, hsl(var(--live-glow, var(--live)) / 0.55) 0%, transparent 70%)',
+                        filter: 'blur(2.5px)',
+                        mixBlendMode: 'screen',
+                        animation: 'organic-morph-b 9s ease-in-out infinite',
+                        pointerEvents: 'none',
+                        willChange: 'transform, border-radius',
+                      }}
+                    />
+                  </>
+                )}
 
                 <Icon
                   size={18}
