@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useApp } from '@/contexts/AppContext';
 
 /**
@@ -33,6 +33,7 @@ const Y_SLOP    = 60;    // px vertical drift kills the gesture
 
 export default function EdgeSwipeBack() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { dir } = useApp();
   const rtl = dir === 'rtl';
 
@@ -60,6 +61,9 @@ export default function EdgeSwipeBack() {
       if (dx >= COMMIT_PX) {
         fired = true;
         active = false;
+        // Refuse to swipe back off the first in-app entry — would eject
+        // the user out of the tab entirely. Matches useSmartBack rule.
+        if (location.key === 'default') return;
         try { navigator.vibrate?.(8); } catch { /* noop */ }
         // Defer one frame so the touch loop is clean before React Router
         // unmounts the current page.
