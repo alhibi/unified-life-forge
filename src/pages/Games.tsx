@@ -5,6 +5,12 @@ import { useNavigate } from 'react-router-dom';
 import { Grid3X3, Swords, Gamepad2, Trophy, Brain, Dices, Crosshair, Puzzle, Flame, Target, Zap, Crown, Map, Award, Sparkles } from '@/lib/icons';
 import { motion } from 'framer-motion';
 
+// Single-color unified surface — every game, world and progress tile now
+// reads with the same warm copper accent so the page renders as one
+// coherent surface instead of a rainbow grid.
+const LIVE = 'hsl(32 58% 62%)';
+const LIVE_GRADIENT = 'from-[hsl(32_58%_62%/0.18)] to-[hsl(32_58%_62%/0.04)]';
+
 interface GameCardData {
   key: string;
   icon: typeof Grid3X3;
@@ -53,33 +59,33 @@ export default function GamesPage() {
       path: '/games/focus',
       primaryStat: { label: isAr ? 'مباريات' : 'Spiele', value: focusStats.gamesPlayed || 0, accent: '#06b6d4' },
       secondaryStat: focusStats.bestNback?.level ? { label: 'N-back', value: `${focusStats.bestNback.level}` } : undefined,
-      gradient: 'from-cyan-500/20 to-cyan-500/5',
+      gradient: LIVE_GRADIENT,
     },
     {
       key: 'dice',
       icon: Dices,
       title: t('games.dice'),
       badge: diceStats.bestScore ? `${diceStats.bestScore}` : undefined,
-      badgeColor: '#f59e0b',
+      badgeColor: LIVE,
       modes: isAr ? ['يَتزي', 'الخنزير', 'رمية كبرى'] : ['Kniffel', 'Pig', 'Highroll'],
       path: '/games/dice',
-      primaryStat: { label: isAr ? 'انتصارات' : 'Siege', value: diceStats.gamesWon || 0, accent: '#f59e0b' },
+      primaryStat: { label: isAr ? 'انتصارات' : 'Siege', value: diceStats.gamesWon || 0, accent: LIVE },
       secondaryStat: diceStats.yatzeesRolled ? { label: isAr ? 'يَتزي' : 'Kniffel', value: diceStats.yatzeesRolled } : undefined,
-      gradient: 'from-amber-500/20 to-amber-500/5',
+      gradient: LIVE_GRADIENT,
     },
     {
       key: 'memory',
       icon: Brain,
       title: t('games.memory'),
       badge: memStats.level ? `Lv.${memStats.level}` : undefined,
-      badgeColor: '#ec4899',
+      badgeColor: LIVE,
       modes: isAr
         ? ['كلاسيكي', 'بلا نهاية', 'سباق وقت', 'يومي', 'ضد ذكاء']
         : ['Klassisch', 'Endlos', 'Zeitrennen', 'Daily', 'Vs KI'],
       path: '/games/memory',
-      primaryStat: { label: isAr ? 'فوز' : 'Siege', value: memStats.gamesWon || 0, accent: '#ec4899' },
+      primaryStat: { label: isAr ? 'فوز' : 'Siege', value: memStats.gamesWon || 0, accent: LIVE },
       secondaryStat: memStats.bestEndlessLevel ? { label: isAr ? 'مستوى ∞' : 'Endlos', value: memStats.bestEndlessLevel } : undefined,
-      gradient: 'from-pink-500/20 to-pink-500/5',
+      gradient: LIVE_GRADIENT,
     },
     {
       key: 'chess',
@@ -87,21 +93,21 @@ export default function GamesPage() {
       title: t('games.chess'),
       modes: isAr ? ['ضد لاعب', 'ضد ذكاء', 'ساعة'] : ['Spieler', 'KI', 'Uhr'],
       path: '/games/chess',
-      primaryStat: { label: isAr ? 'مباريات' : 'Partien', value: chessStats.gamesPlayed || 0, accent: '#8b5cf6' },
+      primaryStat: { label: isAr ? 'مباريات' : 'Partien', value: chessStats.gamesPlayed || 0, accent: LIVE },
       secondaryStat: { label: isAr ? 'فوز' : 'Siege', value: (chessStats.whiteWins || 0) + (chessStats.blackWins || 0) },
-      gradient: 'from-violet-500/20 to-violet-500/5',
+      gradient: LIVE_GRADIENT,
     },
     {
       key: 'chess-puzzles',
       icon: Puzzle,
       title: isAr ? 'ألغاز الشطرنج' : 'Schach-Puzzles',
       badge: puzzleStats.rating ? `${puzzleStats.rating}` : undefined,
-      badgeColor: '#a855f7',
+      badgeColor: LIVE,
       modes: isAr ? ['مات', 'شوكة', 'تثبيت', 'تضحية', 'هجوم مكشوف'] : ['Matt', 'Gabel', 'Fesselung', 'Opfer', 'Abzug'],
       path: '/games/chess/puzzles',
-      primaryStat: { label: isAr ? 'محلولة' : 'Gelöst', value: puzzleStats.solved || 0, accent: '#a855f7' },
+      primaryStat: { label: isAr ? 'محلولة' : 'Gelöst', value: puzzleStats.solved || 0, accent: LIVE },
       secondaryStat: puzzleStats.currentStreak ? { label: isAr ? 'سلسلة' : 'Serie', value: puzzleStats.currentStreak } : undefined,
-      gradient: 'from-purple-500/20 to-purple-500/5',
+      gradient: LIVE_GRADIENT,
     },
     {
       key: 'sudoku',
@@ -109,9 +115,9 @@ export default function GamesPage() {
       title: t('games.sudoku'),
       modes: isAr ? ['كلاسيكي', 'X-سودوكو', 'يومي'] : ['Klassisch', 'X-Sudoku', 'Daily'],
       path: '/games/sudoku',
-      primaryStat: { label: isAr ? 'فوز' : 'Siege', value: sudStats.gamesWon || 0, accent: '#3b82f6' },
+      primaryStat: { label: isAr ? 'فوز' : 'Siege', value: sudStats.gamesWon || 0, accent: LIVE },
       secondaryStat: sudStats.flawless ? { label: isAr ? 'إتقان' : 'Perfekt', value: sudStats.flawless } : undefined,
-      gradient: 'from-blue-500/20 to-blue-500/5',
+      gradient: LIVE_GRADIENT,
     },
   ], [t, isAr, memStats, diceStats, focusStats, chessStats, puzzleStats, sudStats]);
 
@@ -133,14 +139,14 @@ export default function GamesPage() {
       key: 'chess-career',
       title: isAr ? 'مسيرة الشطرنج' : 'Schachkarriere',
       subtitle: isAr ? `Elo ${careerStats.rating || 800} · ${careerRank}/8 بطل` : `Elo ${careerStats.rating || 800} · ${careerRank}/8 besiegt`,
-      icon: Crown, color: '#a855f7',
+      icon: Crown, color: LIVE,
       path: '/games/chess/career',
     },
     {
       key: 'memory-adventure',
       title: isAr ? 'مغامرة الذاكرة' : 'Memory-Abenteuer',
       subtitle: isAr ? `${adventureStats.highestCleared || 0}/15 محطة · ${adventureStars}★` : `${adventureStats.highestCleared || 0}/15 Etappen · ${adventureStars}★`,
-      icon: Map, color: '#ec4899',
+      icon: Map, color: LIVE,
       path: '/games/memory/adventure',
     },
     {
@@ -151,7 +157,7 @@ export default function GamesPage() {
         : tournamentStats.status === 'in-progress'
           ? (isAr ? 'بطولة قيد اللعب' : 'Turnier läuft')
           : (isAr ? '4 لاعبين · بطولة إقصاء' : '4 Spieler · K.-O.-Runde'),
-      icon: Trophy, color: '#f59e0b',
+      icon: Trophy, color: LIVE,
       path: '/games/dice/tournament',
     },
     {
@@ -160,7 +166,7 @@ export default function GamesPage() {
       subtitle: decathlonStats.best?.index
         ? (isAr ? `أفضل: ${decathlonStats.best.index}` : `Best: ${decathlonStats.best.index}`)
         : (isAr ? '5 محطات · مؤشر معرفي' : '5 Disziplinen · Cognitive Index'),
-      icon: Award, color: '#06b6d4',
+      icon: Award, color: LIVE,
       path: '/games/focus/decathlon',
     },
   ];
@@ -195,9 +201,9 @@ export default function GamesPage() {
         className="px-4 mb-4"
       >
         <div className="rounded-2xl border border-border/40 bg-card p-3 grid grid-cols-3 gap-2">
-          <ProgressTile icon={Trophy} value={totalWins} label={isAr ? 'انتصار' : 'Siege'} color="#fbbf24" />
-          <ProgressTile icon={Flame} value={`Lv.${memoryLevel}`} label={isAr ? 'الذاكرة' : 'Memory'} color="#ec4899" />
-          <ProgressTile icon={Target} value={puzzleStats.rating || 800} label={isAr ? 'تقييم ألغاز' : 'Puzzle Elo'} color="#a855f7" />
+          <ProgressTile icon={Trophy} value={totalWins} label={isAr ? 'انتصار' : 'Siege'} color={LIVE} />
+          <ProgressTile icon={Flame} value={`Lv.${memoryLevel}`} label={isAr ? 'الذاكرة' : 'Memory'} color={LIVE} />
+          <ProgressTile icon={Target} value={puzzleStats.rating || 800} label={isAr ? 'تقييم ألغاز' : 'Puzzle Elo'} color={LIVE} />
         </div>
       </motion.div>
 

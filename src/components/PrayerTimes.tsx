@@ -849,7 +849,7 @@ function ArcStrip({
       {/* Sunrise / Sunset corner labels */}
       {sunriseStr && (
         <div className="absolute bottom-1.5 left-3 flex items-center gap-1 pointer-events-none">
-          <SunriseIcon className="w-3 h-3 text-amber-400/85" />
+          <SunriseIcon className="w-3 h-3 text-muted-foreground/70" />
           <span className="text-[9px] font-medium text-muted-foreground/70 leading-none">
             {language === 'ar' ? 'شروق' : 'Sunrise'}
           </span>
@@ -866,7 +866,7 @@ function ArcStrip({
           <span className="text-[9px] font-medium text-muted-foreground/70 leading-none">
             {language === 'ar' ? 'غروب' : 'Sunset'}
           </span>
-          <SunriseIcon className="w-3 h-3 text-indigo-400/70 rotate-180" />
+          <SunriseIcon className="w-3 h-3 text-muted-foreground/70 rotate-180" />
         </div>
       )}
 
