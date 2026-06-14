@@ -72,7 +72,7 @@ type DragState = {
 };
 
 /** Height of the nav bar content row (excluding safe-area padding). */
-export const BOTTOM_NAV_HEIGHT = 62;
+export const BOTTOM_NAV_HEIGHT = 58;
 
 export default function BottomNav() {
   const { t, dir } = useApp();
@@ -243,29 +243,17 @@ export default function BottomNav() {
       className="bottom-nav"
       style={{
         position: 'fixed',
-        bottom: 0,
-        left: 0,
-        right: 0,
+        bottom: 'calc(env(safe-area-inset-bottom, 0px) + 10px)',
+        left: 10,
+        right: 10,
         zIndex: 9999,
-        /* Full-width flush bar — no floating, no rounded corners */
-        paddingBottom: 'env(safe-area-inset-bottom, 0px)',
         /* Isolate this element from any ancestor transforms/contain */
         isolation: 'isolate',
+        display: 'flex',
+        justifyContent: 'center',
+        pointerEvents: 'none',
       }}
     >
-      {/* Top separator line — clean edge between content and nav */}
-      <div
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          height: 1,
-          background: 'hsl(var(--border) / 0.5)',
-          zIndex: 1,
-        }}
-      />
-
       <div
         ref={containerRef}
         onPointerDown={onPointerDown}
@@ -275,13 +263,22 @@ export default function BottomNav() {
         style={{
           display: 'flex',
           alignItems: 'stretch',
-          height: 62,
-          background: 'hsl(var(--card) / 0.92)',
-          WebkitBackdropFilter: 'blur(24px) saturate(180%)',
-          backdropFilter: 'blur(24px) saturate(180%)',
+          height: 58,
+          width: '100%',
+          maxWidth: 520,
+          background: 'hsl(var(--card) / 0.78)',
+          WebkitBackdropFilter: 'blur(28px) saturate(180%)',
+          backdropFilter: 'blur(28px) saturate(180%)',
+          border: '1px solid hsl(var(--border) / 0.45)',
+          borderRadius: 999,
+          boxShadow:
+            '0 12px 32px -12px rgba(0,0,0,0.55), 0 2px 8px -2px rgba(0,0,0,0.35), inset 0 1px 0 hsl(var(--foreground) / 0.04)',
           touchAction: 'pan-y',
           cursor: dragging ? 'grabbing' : undefined,
           position: 'relative',
+          pointerEvents: 'auto',
+          overflow: 'hidden',
+          padding: '0 4px',
         }}
       >
         {tabs.map((tab, i) => {
@@ -321,39 +318,21 @@ export default function BottomNav() {
                 gap: 0,
                 background: 'transparent',
                 border: 'none',
-                padding: '8px 0 6px',
+                padding: '6px 0 5px',
                 cursor: 'pointer',
                 position: 'relative',
                 touchAction: 'pan-y',
                 minWidth: 0,
               }}
             >
-              {/* Active indicator dot — top of icon slot */}
-              <span
-                style={{
-                  position: 'absolute',
-                  top: 6,
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  width: visuallyActive ? 20 : 4,
-                  height: 3,
-                  borderRadius: 999,
-                  background: visuallyActive ? LIVE : 'transparent',
-                  boxShadow: visuallyActive ? `0 0 8px 0 hsl(var(--live-glow) / 0.5)` : undefined,
-                  transition: dragging
-                    ? 'none'
-                    : 'width 0.35s cubic-bezier(0.34,1.56,0.64,1), background 0.25s ease',
-                }}
-              />
-
               {/* Icon container */}
               <div
                 className="relative flex items-center justify-center"
                 style={{
-                  marginTop: 8,
-                  width: 44,
-                  height: 32,
-                  borderRadius: 10,
+                  marginTop: 2,
+                  width: 34,
+                  height: 26,
+                  borderRadius: 8,
                   background: visuallyActive
                     ? LIVE_SOFT
                     : 'transparent',
@@ -367,7 +346,7 @@ export default function BottomNav() {
                 }}
               >
                 <Icon
-                  size={21}
+                  size={18}
                   strokeWidth={visuallyActive ? 2.25 : 1.75}
                   style={{
                     color: visuallyActive
@@ -382,15 +361,15 @@ export default function BottomNav() {
                     aria-label={`${unreadCount} ${t('nav.chat')}`}
                     style={{
                       position: 'absolute',
-                      top: -4,
-                      right: -2,
-                      minWidth: 16,
-                      height: 16,
-                      padding: '0 4px',
+                      top: -5,
+                      right: -4,
+                      minWidth: 14,
+                      height: 14,
+                      padding: '0 3px',
                       borderRadius: 999,
-                      fontSize: 9,
+                      fontSize: 8,
                       fontWeight: 700,
-                      lineHeight: '16px',
+                      lineHeight: '14px',
                       background: '#ef4444',
                       color: '#ffffff',
                       display: 'flex',
@@ -403,24 +382,19 @@ export default function BottomNav() {
                 )}
               </div>
 
-              {/* Label */}
+              {/* Label — always visible, color denotes active */}
               <span
-                aria-hidden={!visuallyActive}
                 style={{
-                  marginTop: 3,
-                  fontSize: '9.5px',
-                  fontWeight: 600,
+                  marginTop: 2,
+                  fontSize: '9px',
+                  fontWeight: visuallyActive ? 700 : 500,
                   letterSpacing: 0,
                   direction: 'rtl',
-                  color: LIVE,
-                  opacity: visuallyActive ? 1 : 0,
-                  transform: visuallyActive ? 'translateY(0) scale(1)' : 'translateY(3px) scale(0.9)',
+                  color: visuallyActive ? LIVE : 'hsl(var(--muted-foreground) / 0.75)',
+                  opacity: 1,
                   transition: dragging
                     ? 'none'
-                    : [
-                        'opacity 0.28s cubic-bezier(0.16,1,0.3,1)',
-                        'transform 0.32s cubic-bezier(0.34,1.56,0.64,1)',
-                      ].join(', '),
+                    : 'color 0.28s ease, font-weight 0.2s ease',
                   pointerEvents: 'none',
                   whiteSpace: 'nowrap',
                   lineHeight: 1,
