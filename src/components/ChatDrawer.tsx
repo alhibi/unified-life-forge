@@ -1383,7 +1383,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                                   <div className="relative">
                                     <ChatImage
                                       src={chat.getFileUrl(msg)}
-                                      alt={readableFileName(msg.file_name) || 'image'}
+                                      alt={readableFileName(msg.file_name) || (chat.isAr ? `صورة من ${msg.sender_name || 'محادثة'}` : `Foto von ${msg.sender_name || 'Chat'}`)}
                                       isAr={chat.isAr}
                                       refreshUrl={() => chat.refreshSignedUrl(msg)}
                                       width={meta?.w}
