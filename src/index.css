@@ -303,6 +303,10 @@
   }
   /* Active bottom-nav glyph edge trace — the copper shimmer is painted on
      the icon SVG paths themselves, never on a surrounding circle/frame. */
+  @keyframes nav-glyph-edge-trace {
+    from { stroke-dashoffset: 0; }
+    to   { stroke-dashoffset: -342; }
+  }
   .nav-icon-edge-trace {
     position: absolute;
     z-index: 3;
@@ -324,7 +328,7 @@
     will-change: stroke-dashoffset;
   }
   @media (prefers-reduced-motion: reduce) {
-    .nav-aurora, .nav-halo-breath { animation: none !important; }
+    .nav-aurora, .nav-halo-breath, .nav-icon-edge-trace path { animation: none !important; }
   }
   @media (prefers-reduced-motion: reduce) {
     body::before { animation: none; opacity: 0.7; }
