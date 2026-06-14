@@ -12,8 +12,9 @@ import WeatherWidget from '@/components/WeatherWidget';
 import CurrentTimeSunnah from '@/components/CurrentTimeSunnah';
 import UmmahPulse from '@/components/UmmahPulse';
 import LivingRibbon from '@/components/LivingRibbon';
+import SmartGreeting from '@/components/SmartGreeting';
 import { useNavigate } from 'react-router-dom';
-import { Sunrise, Sun, Moon, MessageCircle, ClipboardList, X, Trash2, BookOpen, UserCircle } from '@/lib/icons';
+import { MessageCircle, ClipboardList, X, Trash2, BookOpen, UserCircle } from '@/lib/icons';
 import { AnimatePresence } from 'framer-motion';
 import { useClipboard } from '@/hooks/useClipboard';
 import { getAppleEmojiUrl, isEmojiAvatarValue } from '@/utils/emojiAvatar';
@@ -41,13 +42,6 @@ export default function Index() {
 
   const { t, language } = useApp();
   const { user, username, profile } = useAuth();
-  const now = new Date();
-  const hour = now.getHours();
-  const isMorning = hour >= 5 && hour < 12;
-  const isAfternoon = hour >= 12 && hour < 17;
-  const greeting = isMorning ? t('greeting.morning') : isAfternoon ? t('greeting.afternoon') : t('greeting.evening');
-  const GreetingIcon = isMorning ? Sunrise : isAfternoon ? Sun : Moon;
-  const greetingIconStyle = 'text-primary bg-primary/10';
 
   const navigate = useNavigate();
   const { unreadCount } = useUnreadMessages();
@@ -72,14 +66,7 @@ export default function Index() {
       >
         <motion.div variants={item}>
           <div className="flex items-center justify-between gap-3">
-            <div className="min-w-0">
-              <p className="text-[22px] font-bold tracking-tight text-foreground leading-tight">
-                {greeting}
-              </p>
-              <p className="text-[12px] text-muted-foreground mt-0.5">
-                {now.toLocaleDateString(language === 'ar' ? 'ar' : 'de', { weekday: 'long', month: 'long', day: 'numeric' })}
-              </p>
-            </div>
+            <SmartGreeting />
             <div className="flex items-center gap-2 shrink-0">
               <button
                 onClick={() => setShowClipboard(true)}
