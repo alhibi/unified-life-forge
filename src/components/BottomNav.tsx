@@ -53,7 +53,6 @@ const tabs: Tab[] = [
 // The ONE accent — referenced as a CSS expression so it follows the
 // theme token (always warm copper, theme-independent by design).
 const LIVE = 'hsl(var(--live))';
-const LIVE_SOFT = 'hsl(var(--live) / 0.14)';
 
 const TAB_PATHS = new Set<string>(tabs.map(t => t.path));
 // A drag must travel at least this many pixels before we treat it as
@@ -325,7 +324,7 @@ export default function BottomNav() {
                 minWidth: 0,
               }}
             >
-              {/* Icon zone — no container; a soft copper halo breathes behind the active icon. */}
+              {/* Icon zone — no container; active trace is clipped to the icon glyph itself. */}
               <div
                 className="relative flex items-center justify-center"
                 style={{
@@ -334,60 +333,15 @@ export default function BottomNav() {
                   height: 32,
                 }}
               >
-                {/* Traveling hairline — a single very thin copper arc
-                    glides continuously around the perimeter of the active
-                    icon. SVG circle with a short dash + animated
-                    stroke-dashoffset produces a precise, jewel-like loop. */}
-                {visuallyActive && (
-                  <svg
-                    aria-hidden
-                    width={28}
-                    height={28}
-                    viewBox="0 0 28 28"
-                    style={{
-                      position: 'absolute',
-                      overflow: 'visible',
-                      pointerEvents: 'none',
-                    }}
-                  >
-                    {/* Faint full-perimeter track so the arc reads as
-                        traveling along an edge, not floating in space. */}
-                    <circle
-                      cx={14}
-                      cy={14}
-                      r={12}
-                      fill="none"
-                      stroke="hsl(var(--live) / 0.12)"
-                      strokeWidth={0.75}
-                    />
-                    {/* The moving arc — ~18% of the circumference (≈14px),
-                        sliding around the ring once every 2.8s. */}
-                    <circle
-                      className="nav-edge-trace"
-                      cx={14}
-                      cy={14}
-                      r={12}
-                      fill="none"
-                      stroke="hsl(var(--live))"
-                      strokeWidth={1}
-                      strokeLinecap="round"
-                      pathLength={100}
-                      strokeDasharray="18 82"
-                      style={{
-                        filter: 'drop-shadow(0 0 2px hsl(var(--live) / 0.55))',
-                      }}
-                    />
-                  </svg>
-                )}
-
                 <Icon
                   size={18}
+                  weight={visuallyActive ? 'regular' : undefined}
                   strokeWidth={visuallyActive ? 2.25 : 1.75}
                   style={{
                     position: 'relative',
                     zIndex: 2,
                     color: visuallyActive
-                      ? LIVE
+                      ? 'hsl(var(--live) / 0.48)'
                       : 'hsl(var(--muted-foreground) / 0.7)',
                     transform: visuallyActive ? 'scale(1.08)' : 'scale(1)',
                     transition: dragging
@@ -395,6 +349,43 @@ export default function BottomNav() {
                       : 'color 0.3s ease, stroke-width 0.3s ease, transform 0.38s cubic-bezier(0.34,1.56,0.64,1)',
                   }}
                 />
+
+                {visuallyActive && (
+                  <Icon
+                    aria-hidden
+                    className="nav-icon-edge-trace"
+                    size={18}
+                    weight="regular"
+                    style={{
+                      ['--nav-icon-gradient' as string]: `url(#nav-icon-edge-${tab.key})`,
+                    }}
+                  >
+                    <defs>
+                      <linearGradient
+                        id={`nav-icon-edge-${tab.key}`}
+                        gradientUnits="userSpaceOnUse"
+                        x1="-180"
+                        y1="0"
+                        x2="76"
+                        y2="256"
+                      >
+                        <stop offset="0%" stopColor="hsl(var(--live))" stopOpacity="0" />
+                        <stop offset="42%" stopColor="hsl(var(--live-glow))" stopOpacity="0" />
+                        <stop offset="50%" stopColor="hsl(var(--live))" stopOpacity="1" />
+                        <stop offset="58%" stopColor="hsl(var(--live-glow))" stopOpacity="0" />
+                        <stop offset="100%" stopColor="hsl(var(--live))" stopOpacity="0" />
+                        <animateTransform
+                          attributeName="gradientTransform"
+                          type="translate"
+                          from="-320 0"
+                          to="520 0"
+                          dur="1.35s"
+                          repeatCount="indefinite"
+                        />
+                      </linearGradient>
+                    </defs>
+                  </Icon>
+                )}
 
                 {showBadge && (
                   <span

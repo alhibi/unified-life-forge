@@ -301,19 +301,27 @@
     0%, 100% { opacity: 0.85; transform: scale(1); }
     50%      { opacity: 1;    transform: scale(1.06); }
   }
-  /* Traveling hairline — a short copper arc continuously glides around
-     the perimeter of the active icon. Driven by stroke-dashoffset on a
-     pathLength=100 circle (so 100 units == one full loop). */
-  @keyframes nav-edge-trace {
-    from { stroke-dashoffset: 0;    }
-    to   { stroke-dashoffset: -100; }
+  /* Active bottom-nav glyph edge trace — the copper shimmer is painted on
+     the icon SVG paths themselves, never on a surrounding circle/frame. */
+  .nav-icon-edge-trace {
+    position: absolute;
+    z-index: 3;
+    top: 50%;
+    left: 50%;
+    overflow: hidden;
+    pointer-events: none;
+    transform: translate(-50%, -50%) scale(1.08);
   }
-  .nav-edge-trace {
-    animation: nav-edge-trace 2.8s linear infinite;
-    will-change: stroke-dashoffset;
+  .nav-icon-edge-trace path {
+    fill: none !important;
+    stroke: var(--nav-icon-gradient) !important;
+    stroke-width: 26;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    filter: drop-shadow(0 0 3px hsl(var(--live) / 0.95));
   }
   @media (prefers-reduced-motion: reduce) {
-    .nav-aurora, .nav-halo-breath, .nav-edge-trace { animation: none !important; }
+    .nav-aurora, .nav-halo-breath { animation: none !important; }
   }
   @media (prefers-reduced-motion: reduce) {
     body::before { animation: none; opacity: 0.7; }
