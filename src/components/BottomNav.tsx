@@ -346,11 +346,11 @@ export default function BottomNav() {
                     className="nav-cymatic"
                     style={{
                       position: 'absolute',
-                      width: 26,
-                      height: 26,
+                      width: 28,
+                      height: 28,
                       borderRadius: '50%',
-                      border: '1.25px solid hsl(var(--live) / 0.55)',
-                      boxShadow: '0 0 6px 0 hsl(var(--live-glow) / 0.25)',
+                      border: '1.5px solid hsl(var(--live) / 0.75)',
+                      boxShadow: '0 0 10px 0 hsl(var(--live-glow) / 0.4)',
                       opacity: 0,
                       animation: `cymatic-ripple 3.9s cubic-bezier(0.22, 1, 0.36, 1) ${delay}s infinite`,
                       pointerEvents: 'none',
