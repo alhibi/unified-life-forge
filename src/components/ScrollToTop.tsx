@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigationType } from 'react-router-dom';
 
 /**
  * ScrollToTop — scroll management on route change.
@@ -27,7 +27,9 @@ import { useLocation } from 'react-router-dom';
 const PERSISTENT_TAB_PATHS = new Set<string>(['/', '/games', '/chat']);
 
 export default function ScrollToTop() {
-  const { pathname } = useLocation();
+  const location = useLocation();
+  const navType  = useNavigationType();
+  const { pathname, key } = location;
 
   // Per-tab scroll offsets. Only persistent-tab paths are ever stored.
   const positions = useRef<Map<string, number>>(new Map());
@@ -41,10 +43,21 @@ export default function ScrollToTop() {
     PERSISTENT_TAB_PATHS.has(pathname) ? pathname : null,
   );
 
+  // Sub-page scroll memory: keyed by react-router's per-entry `location.key`
+  // so it survives the back stack precisely. On a POP back to the same
+  // entry we restore exactly where the user was — even after intermediate
+  // pushes. On any PUSH we always land at the top (native behaviour).
+  const subPagePositions = useRef<Map<string, number>>(new Map());
+  const lastSubKeyRef = useRef<string | null>(
+    PERSISTENT_TAB_PATHS.has(pathname) ? null : key,
+  );
+
   useEffect(() => {
     const onScroll = () => {
       const owner = ownerRef.current;
       if (owner !== null) positions.current.set(owner, window.scrollY);
+      const subKey = lastSubKeyRef.current;
+      if (subKey !== null) subPagePositions.current.set(subKey, window.scrollY);
     };
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
@@ -52,13 +65,18 @@ export default function ScrollToTop() {
 
   useLayoutEffect(() => {
     const isTab = PERSISTENT_TAB_PATHS.has(pathname);
-    // Re-point the scroll owner BEFORE restoring so any reflow caused by
-    // toggling tab visibility attributes its scroll to the new route,
-    // never the tab we just left.
     ownerRef.current = isTab ? pathname : null;
-    const target = isTab ? positions.current.get(pathname) ?? 0 : 0;
+    lastSubKeyRef.current = isTab ? null : key;
+
+    let target = 0;
+    if (isTab) {
+      target = positions.current.get(pathname) ?? 0;
+    } else if (navType === 'POP') {
+      // Returning to a sub-page we've seen before — restore its offset.
+      target = subPagePositions.current.get(key) ?? 0;
+    }
     window.scrollTo({ top: target, left: 0, behavior: 'instant' as ScrollBehavior });
-  }, [pathname]);
+  }, [pathname, key, navType]);
 
   return null;
 }
