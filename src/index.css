@@ -291,6 +291,19 @@
     0%, 100% { opacity: 0.55; }
     50%      { opacity: 1; }
   }
+  /* Slow conic aurora rotation — sub-perceptible movement that makes
+     the active tab feel alive without ever drawing attention. */
+  @keyframes aurora-spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+  @keyframes halo-breath {
+    0%, 100% { opacity: 0.85; transform: scale(1); }
+    50%      { opacity: 1;    transform: scale(1.06); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .nav-aurora, .nav-halo-breath { animation: none !important; }
+  }
   @media (prefers-reduced-motion: reduce) {
     body::before { animation: none; opacity: 0.7; }
   }
