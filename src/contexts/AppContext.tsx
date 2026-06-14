@@ -105,9 +105,35 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const initialLoadDone = useRef(false);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Reset all state & localStorage to defaults
+  // Reset all state & localStorage to defaults.
+  //
+  // Called on the user → null auth transition (sign-out). The previous
+ // implementation only zeroed out the keys it personally knew about,
+  // which let scratch state from other features (mihrab tab, wellness,
+  // tafsir, dynamic preset, lastLocation, …) leak across accounts on
+  // shared devices. We now sweep every `app-*` key plus an explicit
+  // allowlist of feature-scoped scratch keys, then re-seed defaults.
+  const FEATURE_SCRATCH_KEYS = [
+    'game-stats', 'saved-locations', 'lastLocation',
+    'mihrab:lastTab', 'wellness:lastTab', 'wellness:onboarded',
+    'tafsir-state', 'reading:state', 'rss:lastFeed',
+    'clipboard:draft',
+  ];
   const resetToDefaults = () => {
     syncRef.current = true;
+    // Sweep every app-* preference key (covers app-dynamic-preset and
+    // any future app-prefixed setting we add without touching this list).
+    try {
+      const toRemove: string[] = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && k.startsWith('app-')) toRemove.push(k);
+      }
+      toRemove.forEach((k) => localStorage.removeItem(k));
+    } catch { /* storage may be blocked in private mode — ignore */ }
+    FEATURE_SCRATCH_KEYS.forEach((k) => { try { localStorage.removeItem(k); } catch {} });
+
+    // Re-seed default values + state.
     setLanguageState('ar'); localStorage.setItem('app-language', 'ar');
     setThemeState('light'); localStorage.setItem('app-theme', 'light');
     setAccentHueState(152); localStorage.setItem('app-accent-hue', '152');
@@ -122,9 +148,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setMidnightModeState(0); localStorage.setItem('app-midnight-mode', '0');
     setLatitudeAdjMethodState('angle'); localStorage.setItem('app-lat-adj-method', 'angle');
     setDstEnabledState(true); localStorage.setItem('app-dst-enabled', 'true');
-    localStorage.removeItem('game-stats');
-    localStorage.removeItem('saved-locations');
-    localStorage.removeItem('lastLocation');
     setTimeout(() => { syncRef.current = false; }, 100);
   };
 

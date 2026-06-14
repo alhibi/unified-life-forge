@@ -162,7 +162,7 @@ function DuaModal({ open, onClose, title, duas, lang }: {
                         className="p-1.5 rounded-lg hover:bg-muted transition-colors ms-auto"
                       >
                         {copiedId === dua.id ? (
-                          <Check className="w-4 h-4 text-green-500" />
+                          <Check className="w-4 h-4 text-success" />
                         ) : (
                           <Copy className="w-4 h-4 text-muted-foreground" />
                         )}
@@ -241,7 +241,7 @@ function NawawiModal({ open, onClose, hadith, lang }: {
                       className="p-1.5 rounded-lg hover:bg-muted transition-colors"
                     >
                       {copied ? (
-                        <Check className="w-4 h-4 text-green-500" />
+                        <Check className="w-4 h-4 text-success" />
                       ) : (
                         <Copy className="w-4 h-4 text-muted-foreground" />
                       )}
