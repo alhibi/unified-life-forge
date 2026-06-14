@@ -1146,6 +1146,3 @@ export default function WeatherPage() {
     </div>
   );
 }
-    </div>
-  );
-}
