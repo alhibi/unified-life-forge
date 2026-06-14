@@ -22,6 +22,8 @@ import { useNavDirection } from "@/hooks/useNavDirection";
 import { navStart } from "@/lib/navPerf";
 import { buildTabLayerVariants, type NavMode } from "@/lib/motion";
 import { useInChatConversation } from "@/lib/inChatConversation";
+import EdgeSwipeBack from "@/components/EdgeSwipeBack";
+import { registerRoute } from "@/lib/routePrefetch";
 
 // Eager load the main page
 import Index from "./pages/Index";
@@ -123,6 +125,60 @@ const loadLibraryPoet = () => import("./pages/diwan/LibraryPoet");
 const loadLibraryPoem = () => import("./pages/diwan/LibraryPoem");
 const loadLibrarySearch = () => import("./pages/diwan/LibrarySearch");
 const loadLibraryFavorites = () => import("./pages/diwan/LibraryFavorites");
+
+// ──────────────────────────────────────────────────────────────────────
+// Register every lazy route in the central prefetch registry so any
+// in-app intent surface (BottomNav pointerdown, NavLink hover, smart
+// back, etc.) can warm the module ahead of the actual navigation. The
+// registry de-dupes loaders, so this is safe to call from anywhere.
+// Persistent tab paths (`/`, `/games`, `/chat`) are intentionally NOT
+// registered — they are eager and already mounted.
+// ──────────────────────────────────────────────────────────────────────
+registerRoute('/settings',          loadSettings);
+registerRoute('/settings/theme',    loadTheme);
+registerRoute('/settings/profile',  loadProfile);
+registerRoute('/settings/font',     loadFont);
+registerRoute('/settings/prayer',   loadPrayer);
+registerRoute('/auth',              loadAuth);
+registerRoute('/duas',              loadDuas);
+registerRoute('/wellness',          loadWellness);
+registerRoute('/diwan',             loadDiwan);
+registerRoute('/browse',            loadBrowse);
+registerRoute('/mihrab',            loadMihrab);
+registerRoute('/mihrab/prayer-guide', loadPrayerGuide);
+registerRoute('/weather',           loadWeather);
+registerRoute('/weather/forecast',  loadWeatherForecast);
+registerRoute('/knowledge',         loadKnowledge);
+registerRoute('/reading',           loadReading);
+registerRoute('/occasions',         loadOccasions);
+registerRoute('/tafsir',            loadTafsir);
+registerRoute('/podcasts',          loadPodcasts);
+registerRoute('/podcasts/library',  loadPodcastLibrary);
+registerRoute('/podcasts/:id',      loadPodcastDetail);
+registerRoute('/chat/groups',       loadGroupsIndex);
+registerRoute('/chat/settings',     loadChatSettings);
+registerRoute('/chat/g/:chatId',    loadGroupChat);
+registerRoute('/section/timed-sunnah',         loadTimed);
+registerRoute('/section/timed-sunnah/:categoryId', loadSunnahDetail);
+registerRoute('/section/untimed-sunnah',       loadUntimed);
+registerRoute('/section/prophetic-day',        loadProphetic);
+registerRoute('/section/quran-virtues',        loadVirtues);
+registerRoute('/games/sudoku',            loadSudoku);
+registerRoute('/games/chess',             loadChess);
+registerRoute('/games/chess/puzzles',     loadChessPuzzle);
+registerRoute('/games/chess/career',      loadChessCareer);
+registerRoute('/games/memory',            loadMemory);
+registerRoute('/games/memory/adventure',  loadMemoryAdventure);
+registerRoute('/games/dice',              loadDice);
+registerRoute('/games/dice/tournament',   loadDiceTournament);
+registerRoute('/games/focus',             loadFocus);
+registerRoute('/games/focus/decathlon',   loadFocusDecathlon);
+registerRoute('/diwan/library',           loadLibrary);
+registerRoute('/diwan/library/search',    loadLibrarySearch);
+registerRoute('/diwan/library/poets',     loadLibraryPoets);
+registerRoute('/diwan/library/poet/:slug', loadLibraryPoet);
+registerRoute('/diwan/library/poem/:slug', loadLibraryPoem);
+registerRoute('/diwan/library/favorites', loadLibraryFavorites);
 
 const SudokuPage = lazy(loadSudoku);
 const ChessPage = lazy(loadChess);
@@ -508,6 +564,7 @@ const App = () => (
             <BrowserRouter>
               <AutoPrayerThemeRunner />
               <PresenceRunner />
+              <EdgeSwipeBack />
               <AnimatedRoutes />
               <BottomNav />
               <PodcastMiniPlayer />
