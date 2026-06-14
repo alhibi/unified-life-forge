@@ -307,15 +307,15 @@
      create a continuous, calm pulse that reads as "resonance". */
   @keyframes cymatic-ripple {
     0% {
-      transform: scale(0.45);
+      transform: scale(0.4);
       opacity: 0;
-      border-width: 1.25px;
+      border-width: 1.5px;
     }
-    18% {
-      opacity: 0.7;
+    15% {
+      opacity: 0.9;
     }
     100% {
-      transform: scale(1.65);
+      transform: scale(2);
       opacity: 0;
       border-width: 0.5px;
     }
