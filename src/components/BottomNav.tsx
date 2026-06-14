@@ -338,7 +338,8 @@ export default function BottomNav() {
                   width: visuallyActive ? 20 : 4,
                   height: 3,
                   borderRadius: 999,
-                  background: visuallyActive ? tab.color : 'transparent',
+                  background: visuallyActive ? LIVE : 'transparent',
+                  boxShadow: visuallyActive ? `0 0 8px 0 hsl(var(--live-glow) / 0.5)` : undefined,
                   transition: dragging
                     ? 'none'
                     : 'width 0.35s cubic-bezier(0.34,1.56,0.64,1), background 0.25s ease',
@@ -354,7 +355,7 @@ export default function BottomNav() {
                   height: 32,
                   borderRadius: 10,
                   background: visuallyActive
-                    ? `${tab.color}18`
+                    ? LIVE_SOFT
                     : 'transparent',
                   transform: visuallyActive ? 'scale(1.05)' : 'scale(1)',
                   transition: dragging
@@ -370,7 +371,7 @@ export default function BottomNav() {
                   strokeWidth={visuallyActive ? 2.25 : 1.75}
                   style={{
                     color: visuallyActive
-                      ? tab.color
+                      ? LIVE
                       : 'hsl(var(--muted-foreground) / 0.7)',
                     transition: dragging ? 'none' : 'color 0.3s ease, stroke-width 0.3s ease',
                   }}
@@ -411,7 +412,7 @@ export default function BottomNav() {
                   fontWeight: 600,
                   letterSpacing: 0,
                   direction: 'rtl',
-                  color: tab.color,
+                  color: LIVE,
                   opacity: visuallyActive ? 1 : 0,
                   transform: visuallyActive ? 'translateY(0) scale(1)' : 'translateY(3px) scale(0.9)',
                   transition: dragging
