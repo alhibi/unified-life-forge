@@ -878,84 +878,6 @@ function CollapsibleRow({ open, onToggle, label, icon: Icon, children }: {
   );
 }
 
-function SunriseSunsetBody({ today, isAr }: { today: DailyEntry; isAr: boolean }) {
-  const isoMin = (iso: string) => {
-    const [, t] = iso.split('T');
-    const [h, m] = (t ?? '0:0').split(':').map(Number);
-    return h * 60 + m;
-  };
-  const sr = isoMin(today.sunrise);
-  const ss = isoMin(today.sunset);
-  const now = new Date();
-  const nowMin = now.getHours() * 60 + now.getMinutes();
-  const total = Math.max(1, ss - sr);
-  const progress = Math.min(1, Math.max(0, (nowMin - sr) / total));
-  const remaining = Math.max(0, ss - nowMin);
-  const hh = Math.floor(remaining / 60).toString().padStart(2, '0');
-  const mm = (remaining % 60).toString().padStart(2, '0');
-
-  return (
-    <div className="space-y-3" dir="ltr">
-      <div className="grid grid-cols-2 gap-3">
-        <div className="flex items-center gap-2.5">
-          <Sunrise className="w-5 h-5 text-amber-400" />
-          <div>
-            <p className="text-[10.5px] text-muted-foreground">{isAr ? 'الشروق' : 'Sunrise'}</p>
-            <p className="text-[14px] font-semibold text-foreground tabular-nums">
-              {formatTimeFromIso(today.sunrise)}
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2.5">
-          <Sunset className="w-5 h-5 text-orange-500" />
-          <div>
-            <p className="text-[10.5px] text-muted-foreground">{isAr ? 'الغروب' : 'Sunset'}</p>
-            <p className="text-[14px] font-semibold text-foreground tabular-nums">
-              {formatTimeFromIso(today.sunset)}
-            </p>
-          </div>
-        </div>
-      </div>
-      <div className="h-1.5 rounded-full bg-foreground/[0.08] overflow-hidden">
-        <div
-          className="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-400 transition-all"
-          style={{ width: `${progress * 100}%` }}
-        />
-      </div>
-      <p className="text-[11px] text-muted-foreground">
-        <span className="tabular-nums">{hh}:{mm}</span>{' '}
-        {isAr ? 'متبقّية حتى الغروب' : 'remaining until sunset'}
-      </p>
-    </div>
-  );
-}
-
-function MoonBody({ isAr }: { isAr: boolean }) {
-  const m = getMoonPhase();
-  const pct = Math.round(m.illumination * 100);
-  const k = Math.cos(2 * Math.PI * m.phase);
-  const offset = k * 22;
-  return (
-    <div className="flex items-center gap-4">
-      <div className="w-14 h-14 rounded-full bg-slate-900 border border-border/40 relative overflow-hidden shrink-0" aria-hidden>
-        <div className="absolute inset-0 rounded-full bg-amber-100" />
-        <div
-          className="absolute inset-0 rounded-full bg-slate-900"
-          style={{ transform: `translateX(${offset}px)` }}
-        />
-      </div>
-      <div className="flex-1 min-w-0">
-        <p className="text-[15px] font-semibold text-foreground">{m.name[isAr ? 'ar' : 'de']}</p>
-        <p className="text-[11.5px] text-muted-foreground mt-0.5">
-          {isAr
-            ? `${pct}٪ مضاءة · ${m.waxing ? 'متزايد' : 'متناقص'}`
-            : `${pct}% illuminated · ${m.waxing ? 'waxing' : 'waning'}`}
-        </p>
-      </div>
-    </div>
-  );
-}
-
 function SunMoon({ data, isAr }: { data: WeatherData; isAr: boolean }) {
   const today = data.daily[0];
   const [openSun, setOpenSun] = useState(false);
@@ -973,7 +895,7 @@ function SunMoon({ data, isAr }: { data: WeatherData; isAr: boolean }) {
             label={isAr ? 'الشروق والغروب' : 'Sunrise & Sunset'}
             icon={Contrast}
           >
-            <SunriseSunsetBody today={today} isAr={isAr} />
+            <SunriseSunsetList daily={data.daily} isAr={isAr} />
           </CollapsibleRow>
         )}
         <CollapsibleRow
@@ -982,7 +904,7 @@ function SunMoon({ data, isAr }: { data: WeatherData; isAr: boolean }) {
           label={isAr ? 'أطوار القمر' : 'Moon Phases'}
           icon={Moon}
         >
-          <MoonBody isAr={isAr} />
+          <MoonPhasesList daily={data.daily} isAr={isAr} />
         </CollapsibleRow>
       </div>
     </section>
