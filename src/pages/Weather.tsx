@@ -16,6 +16,7 @@ import {
 } from '@/lib/weather';
 import { getMoonPhase } from '@/lib/weather/moonPhase';
 import { describeWeatherCode } from '@/lib/weather/describe';
+import SmartInsightsCard from '@/components/weather/SmartInsightsCard';
 
 /**
  * /weather — Forecast view designed to mirror the reference design 1:1:
@@ -1154,6 +1155,7 @@ export default function WeatherPage() {
               onLocate={handleLocate}
             />
             <ForecastBars daily={data.daily} weekRange={data.weekRange} isAr={isAr} />
+            <SmartInsightsCard data={data} />
             <NextSevenDays data={data} isAr={isAr} />
             <SunMoon data={data} isAr={isAr} />
 
