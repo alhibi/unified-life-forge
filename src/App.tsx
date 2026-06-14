@@ -13,7 +13,7 @@ import BottomNav from "@/components/BottomNav";
 import PageTransition, { NavModeContext } from "@/components/PageTransition";
 import ScrollToTop from "@/components/ScrollToTop";
 import ErrorBoundary from "@/components/ErrorBoundary";
-import { lazy, Suspense, useEffect, useMemo, useState } from "react";
+import { lazy, Suspense, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { IconProvider } from "@/lib/icons";
 import { useAutoPrayerTheme } from "@/hooks/useAutoPrayerTheme";
 import { usePresence } from "@/hooks/usePresence";
@@ -21,6 +21,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useNavDirection } from "@/hooks/useNavDirection";
 import { navStart } from "@/lib/navPerf";
 import { buildTabLayerVariants, type NavMode } from "@/lib/motion";
+import { useInChatConversation } from "@/lib/inChatConversation";
 
 // Eager load the main page
 import Index from "./pages/Index";
@@ -364,19 +365,28 @@ function PersistentTabs({ active, mode }: { active: TabPath | null; mode: NavMod
 function AnimatedRoutes() {
   const location = useLocation();
   useIdlePrefetch();
-  // Mark the navigation start timestamp synchronously on every route change.
-  // PageTransition then closes the measurement after mount + paint.
-  navStart(location.pathname);
+  // Mark the navigation start timestamp synchronously ONCE per route change.
+  // Calling navStart() in render fired on every re-render (theme tick,
+  // presence flip, etc.) and reset the baseline mid-flight — paint timings
+  // were polluted. useLayoutEffect runs exactly once per pathname change,
+  // before paint, which is what the perf logger expects.
+  useLayoutEffect(() => {
+    navStart(location.pathname);
+  }, [location.pathname]);
   // Classify the navigation as push / pop / tab / replace / initial so
   // PageTransition can pick the right slide direction (and so OUTGOING
   // pages know whether to leave to the left or right with parallax).
   const { mode } = useNavDirection();
+  const inChatConversation = useInChatConversation();
   const activeTab = (TAB_PATHS as readonly string[]).includes(location.pathname)
     ? (location.pathname as TabPath)
     : null;
   // Show bottom padding on ALL nav-tab routes (not just persistent tabs)
   // so the BottomNav never overlaps page content.
-  const navVisible = ALL_NAV_PATHS.has(location.pathname);
+  // ...except inside a 1:1 chat conversation, where the BottomNav is hidden
+  // by inChatConversation — without this guard <main> reserved a 62px dead
+  // strip below the chat composer.
+  const navVisible = ALL_NAV_PATHS.has(location.pathname) && !inChatConversation;
   return (
     <main
       id="main-content"
@@ -402,15 +412,19 @@ function AnimatedRoutes() {
           the lazy non-persistent route path below. */}
       <PersistentTabs active={activeTab} mode={mode} />
       {/* Non-tab routes (sub-pages, settings details, games, etc.) */}
-      <Suspense fallback={activeTab ? null : <PageSkeleton />}>
-        {/* AnimatePresence must own PageTransition directly. Wrapping
-            <Routes> itself breaks popLayout because Routes cannot receive
-            the ref Framer needs to remove the outgoing screen from layout. */}
-        <NavModeContext.Provider value={mode}>
-          <AnimatePresence mode={mode === 'tab' ? 'wait' : 'popLayout'} initial={false} custom={mode}>
-            {activeTab === null && (
-              <PageTransition key={location.pathname}>
-                <Routes location={location} key={location.pathname}>
+      {/* AnimatePresence must own PageTransition directly. Wrapping
+          <Routes> itself breaks popLayout because Routes cannot receive
+          the ref Framer needs to remove the outgoing screen from layout.
+          Suspense lives INSIDE PageTransition so a lazy chunk's fallback
+          renders within the animating layer instead of replacing it —
+          otherwise the first visit to a lazy page skipped the transition
+          entirely. */}
+      <NavModeContext.Provider value={mode}>
+        <AnimatePresence mode="popLayout" initial={false} custom={mode}>
+          {activeTab === null && (
+            <PageTransition key={location.pathname}>
+              <Suspense fallback={<PageSkeleton />}>
+                <Routes location={location}>
                   {/* Persistent tab paths are handled by <PersistentTabs/>. */}
                   <Route path="/" element={null} />
                   <Route path="/games" element={null} />
@@ -465,11 +479,11 @@ function AnimatedRoutes() {
                   <Route path="/diwan/library/favorites" element={<ErrorBoundary><DiwanLibraryFavoritesPage /></ErrorBoundary>} />
                   <Route path="*" element={<ErrorBoundary><NotFound /></ErrorBoundary>} />
                 </Routes>
-              </PageTransition>
-            )}
-          </AnimatePresence>
-        </NavModeContext.Provider>
-      </Suspense>
+              </Suspense>
+            </PageTransition>
+          )}
+        </AnimatePresence>
+      </NavModeContext.Provider>
     </main>
   );
 }

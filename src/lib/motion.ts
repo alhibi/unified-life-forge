@@ -405,9 +405,19 @@ export function buildTabLayerVariants(rtl: boolean): Variants {
       transition: m === 'pop' ? MOTION.pop : MOTION.push,
     }),
     exit: (m: NavMode) => {
-      // Tab/replace/initial don't slide — instant.
+      // Tab / replace / initial: the persistent layer leaves instantly so
+      // the incoming non-persistent page (Weather, Browse, Mihrab, …) can
+      // claim the viewport without a stacked-fade overlap. A 200ms fade
+      // here caused the old tab to remain visible while the new page
+      // started its own enter animation — visually "two screens at once".
       if (m === 'tab' || m === 'replace' || m === 'initial') {
-        return { opacity: 0, x: 0, transition: MOTION.fade };
+        return {
+          opacity: 0,
+          x: 0,
+          display: 'none',
+          pointerEvents: 'none',
+          transition: { duration: 0 },
+        };
       }
       // Push/pop — the tab layer leaves at parallax ratio in the
       // direction OPPOSITE the incoming page. This is what gives the
