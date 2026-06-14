@@ -15,6 +15,18 @@ export default {
         display: ["var(--font-display)"],
         body: ["var(--font-body)"],
       },
+      fontSize: {
+        // Canonical type scale — use these instead of arbitrary text-[Npx].
+        // micro/mini = chrome & meta. body = default. lead = inputs (≥16px min).
+        // title/display = headings. Line-heights tuned for Arabic + Latin parity.
+        micro:   ["11px", { lineHeight: "14px", letterSpacing: "0.005em" }],
+        mini:    ["12px", { lineHeight: "16px", letterSpacing: "0.003em" }],
+        meta:    ["13px", { lineHeight: "18px" }],
+        body:    ["14px", { lineHeight: "20px" }],
+        lead:    ["16px", { lineHeight: "24px" }],
+        title:   ["18px", { lineHeight: "24px", letterSpacing: "-0.005em" }],
+        display: ["24px", { lineHeight: "30px", letterSpacing: "-0.015em" }],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
