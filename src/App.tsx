@@ -13,7 +13,7 @@ import BottomNav from "@/components/BottomNav";
 import PageTransition, { NavModeContext } from "@/components/PageTransition";
 import ScrollToTop from "@/components/ScrollToTop";
 import ErrorBoundary from "@/components/ErrorBoundary";
-import { lazy, Suspense, useEffect, useMemo, useState } from "react";
+import { lazy, Suspense, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { IconProvider } from "@/lib/icons";
 import { useAutoPrayerTheme } from "@/hooks/useAutoPrayerTheme";
 import { usePresence } from "@/hooks/usePresence";
@@ -21,6 +21,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useNavDirection } from "@/hooks/useNavDirection";
 import { navStart } from "@/lib/navPerf";
 import { buildTabLayerVariants, type NavMode } from "@/lib/motion";
+import { useInChatConversation } from "@/lib/inChatConversation";
 
 // Eager load the main page
 import Index from "./pages/Index";
