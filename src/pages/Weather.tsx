@@ -1057,8 +1057,27 @@ export default function WeatherPage() {
   const attribution = listProviders().find(p => p.id === providerId)?.attribution
     ?? { label: 'Open-Meteo', url: 'https://open-meteo.com/' };
 
+  // ── Hub tab state (Today / Radar / Forecast / Places) ──────────────
+  const [tab, setTab] = useState<WeatherTab>('forecast');
+  // ── Day detail overlay (opened from a Forecast capsule) ────────────
+  const [dayIdx, setDayIdx] = useState<number | null>(null);
+
+  const openDay = useCallback((i: number) => setDayIdx(i), []);
+  const closeDay = useCallback(() => setDayIdx(null), []);
+
+  // Tap "Today" → open the day-detail overlay for today's entry.
+  useEffect(() => {
+    if (tab === 'today' && data && data.daily.length) {
+      setDayIdx(0);
+      setTab('forecast');
+    }
+  }, [tab, data]);
+
   return (
-    <div className="min-h-screen bg-background pb-28">
+    <div
+      className="min-h-screen bg-background"
+      style={{ paddingBottom: WEATHER_DOCK_RESERVE }}
+    >
       <SEO
         title={isAr ? 'الطقس — SmartHub' : 'Weather — SmartHub'}
         description={isAr
@@ -1077,29 +1096,56 @@ export default function WeatherPage() {
         ) : status === 'error' && !data ? (
           <div className="pt-6"><ErrorCard isAr={isAr} error={error} onRetry={refresh} /></div>
         ) : data ? (
-          <>
-            <ForecastHeader
-              isAr={isAr}
-              city={data.city}
-              onShare={handleShare}
-              onLocate={handleLocate}
-            />
-            <ForecastBars daily={data.daily} weekRange={data.weekRange} isAr={isAr} />
-            <SmartInsightsCard data={data} />
-            <NextSevenDays data={data} isAr={isAr} />
-            <SunMoon data={data} isAr={isAr} />
+          tab === 'radar' ? (
+            <RadarView data={data} isAr={isAr} />
+          ) : tab === 'places' ? (
+            <PlacesView data={data} isAr={isAr} />
+          ) : (
+            <>
+              <ForecastHeader
+                isAr={isAr}
+                city={data.city}
+                onShare={handleShare}
+                onLocate={handleLocate}
+              />
+              <ForecastBars
+                daily={data.daily}
+                weekRange={data.weekRange}
+                isAr={isAr}
+                onSelectDay={openDay}
+              />
+              <NextSevenDays data={data} isAr={isAr} />
+              <SunMoon data={data} isAr={isAr} />
 
-            <p className="text-center text-[10px] text-muted-foreground/60 pt-8 pb-2">
-              {isAr ? 'البيانات من ' : 'Weather data by '}
-              <a href={attribution.url} target="_blank" rel="noopener noreferrer" className="underline hover:text-muted-foreground">
-                {attribution.label}
-              </a>
-            </p>
-          </>
+              <p className="text-center text-[10px] text-muted-foreground/60 pt-8 pb-2">
+                {isAr ? 'البيانات من ' : 'Weather data by '}
+                <a href={attribution.url} target="_blank" rel="noopener noreferrer" className="underline hover:text-muted-foreground">
+                  {attribution.label}
+                </a>
+              </p>
+            </>
+          )
         ) : (
           <div className="pt-6"><WeatherSkeleton /></div>
         )}
       </div>
+
+      {/* Floating hub dock — replaces the app BottomNav while inside /weather */}
+      <WeatherDock active={tab} onChange={setTab} isAr={isAr} />
+
+      {/* Day detail overlay — opened from a Forecast capsule or the "Today" tab */}
+      {data && dayIdx != null && (
+        <DayDetailSheet
+          open={dayIdx != null}
+          onClose={closeDay}
+          data={data}
+          dayIndex={dayIdx}
+          isAr={isAr}
+        />
+      )}
+    </div>
+  );
+}
     </div>
   );
 }
