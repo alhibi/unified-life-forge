@@ -251,28 +251,17 @@
      ────────────────────────────────────────────────────────────── */
   .surface-depth {
     background-color: hsl(var(--card));
-    border: 1px solid hsl(var(--border) / 0.45);
-    box-shadow:
-      inset 0 1px 0 0 hsl(0 0% 100% / 0.04),
-      inset 0 -1px 0 0 hsl(0 0% 0% / 0.25),
-      0 1px 2px 0 hsl(0 0% 0% / 0.18);
-  }
-  .dark .surface-depth,
-  :root[data-theme-mode="true-black"] .surface-depth {
-    background-image: linear-gradient(180deg,
-      hsl(0 0% 100% / 0.018) 0%,
-      hsl(0 0% 0% / 0.06) 100%);
+    border: 1px solid hsl(var(--border) / 0.6);
+    box-shadow: none;
   }
   .surface-depth-pressable {
     transition: transform 120ms cubic-bezier(0.34, 1.56, 0.64, 1),
-                box-shadow 150ms cubic-bezier(0.16, 1, 0.3, 1),
+                background-color 150ms ease-out,
                 border-color 150ms ease-out;
   }
   .surface-depth-pressable:active {
     transform: scale(0.98);
-    box-shadow:
-      inset 0 1px 2px 0 hsl(0 0% 0% / 0.35),
-      inset 0 -1px 0 0 hsl(0 0% 100% / 0.02);
+    background-color: hsl(var(--accent) / 0.4);
   }
 
   /* ──────────────────────────────────────────────────────────────
@@ -284,22 +273,7 @@
      every route inherits the same heartbeat without any per-page
      code. Pure opacity → compositor-only, 0 layout cost.
      ────────────────────────────────────────────────────────────── */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
-    background:
-      radial-gradient(
-        ellipse 70% 45% at 50% -5%,
-        hsl(var(--live-glow) / 0.10) 0%,
-        hsl(var(--live-glow) / 0.04) 35%,
-        transparent 70%
-      );
-    animation: ambient-breath 6s ease-in-out infinite;
-    will-change: opacity;
-  }
+  body::before { content: none; }
   @keyframes ambient-breath {
     0%, 100% { opacity: 0.55; }
     50%      { opacity: 1; }
@@ -337,7 +311,6 @@
     stroke-linejoin: round;
     stroke-dasharray: 42 300;
     animation: nav-glyph-edge-trace 1.65s linear infinite;
-    filter: drop-shadow(0 0 2.5px hsl(var(--live) / 0.85));
     will-change: stroke-dashoffset;
   }
   @media (prefers-reduced-motion: reduce) {
@@ -355,11 +328,10 @@
      ────────────────────────────────────────────────────────────── */
   .live-dot {
     background-color: hsl(var(--live));
-    box-shadow: 0 0 8px 0 hsl(var(--live-glow) / 0.55);
     animation: live-pulse 6s ease-in-out infinite;
   }
   .live-text  { color: hsl(var(--live)); }
-  .live-ring  { box-shadow: 0 0 0 1px hsl(var(--live) / 0.35), 0 0 12px 0 hsl(var(--live-glow) / 0.25); }
+  .live-ring  { outline: 1px solid hsl(var(--live) / 0.55); outline-offset: 0; }
   @keyframes live-pulse {
     0%, 100% { opacity: 0.7; }
     50%      { opacity: 1; }
@@ -408,12 +380,9 @@
   .premium-card-elevated,
   .premium-card-intense {
     background-color: hsl(var(--card));
-    border: 1px solid hsl(var(--border) / 0.45);
+    border: 1px solid hsl(var(--border) / 0.6);
     border-radius: var(--radius);
-    box-shadow:
-      inset 0 1px 0 0 hsl(0 0% 100% / 0.04),
-      inset 0 -1px 0 0 hsl(0 0% 0% / 0.25),
-      0 1px 2px 0 hsl(0 0% 0% / 0.18);
+    box-shadow: none;
     contain: layout style;
     content-visibility: auto;
     contain-intrinsic-size: auto 200px;
@@ -432,40 +401,30 @@
      `.app-card-flat`    = no inset shadow chrome, for nested cards. */
   .app-card {
     background-color: hsl(var(--card));
-    border: 1px solid hsl(var(--border) / 0.45);
+    border: 1px solid hsl(var(--border) / 0.6);
     border-radius: 1rem;            /* 16px — matches rounded-2xl */
     padding: 1rem;                  /* 16px — matches p-4         */
-    box-shadow:
-      inset 0 1px 0 0 hsl(0 0% 100% / 0.04),
-      inset 0 -1px 0 0 hsl(0 0% 0% / 0.25),
-      0 1px 2px 0 hsl(0 0% 0% / 0.18);
+    box-shadow: none;
   }
   .app-card-compact { padding: 0.75rem; }      /* p-3 */
   .app-card-flat {
-    background-color: hsl(var(--card) / 0.6);
+    background-color: transparent;
+    border-color: hsl(var(--border) / 0.4);
     box-shadow: none;
-  }
-  .dark .app-card,
-  :root[data-theme-mode="true-black"] .app-card {
-    background-image: linear-gradient(180deg,
-      hsl(0 0% 100% / 0.018) 0%,
-      hsl(0 0% 0% / 0.06) 100%);
   }
 
   /* Pressable variant — adds the canonical 120ms spring press feedback. */
   .app-card-pressable {
     transition:
       transform 120ms var(--ease-spring),
-      box-shadow 150ms var(--ease-out-expo),
+      background-color 150ms var(--ease-out-expo),
       border-color 150ms ease-out;
     cursor: pointer;
     will-change: transform;
   }
   .app-card-pressable:active {
     transform: scale(0.98);
-    box-shadow:
-      inset 0 1px 2px 0 hsl(0 0% 0% / 0.35),
-      inset 0 -1px 0 0 hsl(0 0% 100% / 0.02);
+    background-color: hsl(var(--accent) / 0.4);
   }
 
   /* The canonical icon button used in headers/toolbars. 40x40, rounded-xl. */
@@ -525,16 +484,7 @@
     border-radius: calc(var(--radius) + 4px);
     contain-intrinsic-size: auto 260px;
   }
-  .dark .premium-card,
-  .dark .premium-card-elevated,
-  .dark .premium-card-intense,
-  :root[data-theme-mode="true-black"] .premium-card,
-  :root[data-theme-mode="true-black"] .premium-card-elevated,
-  :root[data-theme-mode="true-black"] .premium-card-intense {
-    background-image: linear-gradient(180deg,
-      hsl(0 0% 100% / 0.018) 0%,
-      hsl(0 0% 0% / 0.06) 100%);
-  }
+  /* Dark-mode gradient overlays removed — flat surfaces only. */
 
   /* ── Card interaction physics ──
      transform → spring • shadow → Linear curve • bg → instant linear.
@@ -545,17 +495,15 @@
   .premium-card-intense {
     transition:
       transform var(--duration-fast) var(--ease-spring),
-      box-shadow var(--duration-fast) var(--ease-linear-app),
       background-color var(--duration-instant) linear,
-      background var(--duration-instant) linear;
+      border-color var(--duration-fast) var(--ease-linear-app);
     will-change: transform;
   }
   .card:hover,
   .premium-card:hover,
   .premium-card-elevated:hover,
   .premium-card-intense:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    border-color: hsl(var(--border));
   }
   .card:active,
   .premium-card:active,
@@ -606,18 +554,12 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      hsl(var(--foreground) / 0.06) 50%,
-      transparent 100%
-    );
-    transform: translateX(-100%);
-    animation: skeleton-shimmer 1.5s linear infinite;
-    will-change: transform;
+    background-color: hsl(var(--foreground) / 0.04);
+    animation: skeleton-pulse 1.4s ease-in-out infinite;
   }
-  @keyframes skeleton-shimmer {
-    100% { transform: translateX(100%); }
+  @keyframes skeleton-pulse {
+    0%, 100% { opacity: 0; }
+    50%      { opacity: 1; }
   }
 
   @keyframes shimmer {
