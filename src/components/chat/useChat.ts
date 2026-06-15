@@ -1054,7 +1054,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
   const pinMessage = useCallback(async (msg: Message) => {
     if (!activeConv) return;
     const newPinId = pinnedMessage?.id === msg.id ? null : msg.id;
-    const { error } = await supabase.from('conversations').update({ pinned_message_id: newPinId } as Record<string, unknown>).eq('id', activeConv.id);
+    const { error } = await supabase.from('conversations').update({ pinned_message_id: newPinId }).eq('id', activeConv.id);
     if (error) { chatError('editFailed', isAr, describeError(error, isAr)); return; }
     setPinnedMessage(newPinId ? msg : null);
   }, [activeConv, pinnedMessage, isAr]);
@@ -1076,7 +1076,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     const { error } = await supabase.from('messages').update({
       content,
       edited_at: new Date().toISOString(),
-    } as Record<string, unknown>).eq('id', msgToEdit.id);
+    }).eq('id', msgToEdit.id);
     if (error) {
       chatError('editFailed', isAr, describeError(error, isAr));
       setEditingMessage(msgToEdit);
@@ -1207,7 +1207,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
   // ── Self-destruct ─────────────────────────────────────────────────────────
   const toggleSelfDestruct = useCallback(async (seconds: number | null) => {
     if (!activeConv) return;
-    const { error } = await supabase.from('conversations').update({ self_destruct_seconds: seconds } as Record<string, unknown>).eq('id', activeConv.id);
+    const { error } = await supabase.from('conversations').update({ self_destruct_seconds: seconds }).eq('id', activeConv.id);
     if (error) { chatError('editFailed', isAr, describeError(error, isAr)); return; }
     setSelfDestructSeconds(seconds);
     setShowSelfDestructMenu(false);
