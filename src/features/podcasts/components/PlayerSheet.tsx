@@ -260,6 +260,7 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
   const speedLabel = `${player.speed.toFixed(2).replace(/\.?0+$/, '')}x`;
 
   return createPortal(
+    <>
     <AnimatePresence>
       {open && (
         <motion.div
