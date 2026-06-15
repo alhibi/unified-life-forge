@@ -28,13 +28,13 @@
 // renders without that block.
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useDeviceLocation } from './useDeviceLocation';
+import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 import {
   getProvider, readOwmApiKey, readProviderPref, subscribeWeatherPrefs,
-} from '@/lib/weather';
+} from '@/features/weather/lib';
 import type {
   AirQuality, ProviderId, WeatherData,
-} from '@/lib/weather/types';
+} from '@/features/weather/lib/types';
 
 // Re-export the data shapes so existing imports from this module keep
 // working. Weather.tsx imports `HourlyEntry`, `DailyEntry`, `WeatherData`
@@ -42,7 +42,7 @@ import type {
 export type {
   AirQuality, CurrentWeather, DailyEntry, HourlyEntry,
   ProviderId, UnsupportedField, WeatherData, WeatherDataMeta,
-} from '@/lib/weather/types';
+} from '@/features/weather/lib/types';
 
 // ── Module-level cache ───────────────────────────────────────────────────
 

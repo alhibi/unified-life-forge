@@ -104,7 +104,7 @@ const loadMihrab = () => import("./pages/Mihrab");
 // from the bottom nav. Lazy because the home page already shows a tiny
 // `WeatherWidget` and most users won't drill into the full hub on every
 // session; the prefetch on idle warms it up so the first tap is fast.
-const loadWeather = () => import("./pages/Weather");
+const loadWeather = () => import("./features/weather/pages/Weather");
 // Knowledge hub — "المعرفة": a self-contained luxury catalog (cars,
 // perfumes, watches, fashion, sweets). Lazy because its rich static
 // data set should not weigh on the cold home paint; it's prefetched on
@@ -117,7 +117,7 @@ const loadPrayerGuide = () => import("./pages/PrayerGuide");
 // Standalone hard-coded 7-day forecast UI (design showcase). Self-contained
 // component with its own dark theme + recharts charts; reachable at
 // /weather/forecast without touching the live-data /weather page.
-const loadWeatherForecast = () => import("./components/WeatherForecast");
+const loadWeatherForecast = () => import("./features/weather/components/WeatherForecast");
 // Diwan library — adab.com integration
 const loadLibrary = () => import("./pages/diwan/Library");
 const loadLibraryPoets = () => import("./pages/diwan/LibraryPoets");
