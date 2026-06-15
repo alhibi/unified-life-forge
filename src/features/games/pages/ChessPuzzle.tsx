@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
-import GameShell from '@/components/GameShell';
+import GameShell from '@/features/games/components/GameShell';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Puzzle, Check, X, RotateCcw, ArrowRight, Sparkles, Lightbulb } from '@/lib/icons';
-import { playSfx, vibrate } from '@/utils/gameFeedback';
+import { playSfx, vibrate } from '@/features/games/utils/gameFeedback';
 import {
   PUZZLES,
   ChessPuzzle,
@@ -14,7 +14,7 @@ import {
   uciFromMove,
   PuzzlePiece,
   PuzzleBoard,
-} from '@/data/chessPuzzles';
+} from '@/features/games/data/chessPuzzles';
 
 // =============================================================================
 // Helpers

@@ -3,11 +3,11 @@ import { useApp } from '@/contexts/AppContext';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Crown, RotateCcw, Undo2, Flag, Clock, Play, Lightbulb } from '@/lib/icons';
 import { motion, AnimatePresence } from 'framer-motion';
-import GameShell from '@/components/GameShell';
-import { playSfx, vibrate } from '@/utils/gameFeedback';
-import { recognizeOpening } from '@/data/chessOpenings';
-import { botById, BotPersonality, BOTS } from '@/data/chessBots';
-import { recordCareerResult } from '@/pages/ChessCareer';
+import GameShell from '@/features/games/components/GameShell';
+import { playSfx, vibrate } from '@/features/games/utils/gameFeedback';
+import { recognizeOpening } from '@/features/games/data/chessOpenings';
+import { botById, BotPersonality, BOTS } from '@/features/games/data/chessBots';
+import { recordCareerResult } from '@/features/games/pages/ChessCareer';
 
 type Color = 'w' | 'b';
 type PieceType = 'K' | 'Q' | 'R' | 'B' | 'N' | 'P';
@@ -292,7 +292,7 @@ const PIECE_VALUES: Record<PieceType, number> = { P: 100, N: 320, B: 330, R: 500
 
 // Per-bot evaluation tweaks. The default profile reproduces the original
 // behaviour exactly (all multipliers = 1.0, no extras). Bots can override.
-import type { BotEvalWeights } from '@/data/chessBots';
+import type { BotEvalWeights } from '@/features/games/data/chessBots';
 const DEFAULT_WEIGHTS: BotEvalWeights = {
   material: 1.0, pst: 1.0, mobility: 0.0, kingAttack: 0.0,
   pawnPush: 0.0, tradeAversion: 0.0, blunderRate: 0.0, depthBonus: 0,
@@ -539,7 +539,7 @@ function minimax(board: BoardState, depth: number, alpha: number, beta: number, 
   }
 }
 
-import { bookContinuations } from '@/data/chessOpenings';
+import { bookContinuations } from '@/features/games/data/chessOpenings';
 
 // Convert a from→to square pair into UCI like "e2e4". Promotion is suffixed
 // with the lowercase piece character ("e7e8q"). Used for opening-book lookups.

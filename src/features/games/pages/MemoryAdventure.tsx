@@ -1,11 +1,11 @@
 import React, { useMemo, useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
-import GameShell from '@/components/GameShell';
+import GameShell from '@/features/games/components/GameShell';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Map, Star, Lock, Crown, ChevronRight, Sparkles, Flame } from '@/lib/icons';
-import { STAGES, loadAdventure, isStageUnlocked, AdventureStage } from '@/data/memoryAdventure';
-import { playSfx, vibrate } from '@/utils/gameFeedback';
+import { STAGES, loadAdventure, isStageUnlocked, AdventureStage } from '@/features/games/data/memoryAdventure';
+import { playSfx, vibrate } from '@/features/games/utils/gameFeedback';
 
 // =============================================================================
 // Stage select hub: a vertical island chain. Each stage is a pin with its

@@ -2,9 +2,9 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { Grid3X3, Lightbulb, Clock, Eraser, PenLine, Trophy, Undo2, Pause, Play, Calendar, Sparkles, X, Zap, Brain } from '@/lib/icons';
 import { motion, AnimatePresence } from 'framer-motion';
-import GameShell from '@/components/GameShell';
-import { playSfx, vibrate } from '@/utils/gameFeedback';
-import { nextHint, SolverHint, TECHNIQUE_LABELS } from '@/utils/sudokuSolver';
+import GameShell from '@/features/games/components/GameShell';
+import { playSfx, vibrate } from '@/features/games/utils/gameFeedback';
+import { nextHint, SolverHint, TECHNIQUE_LABELS } from '@/features/games/utils/sudokuSolver';
 
 type Board = (number | null)[][];
 type Difficulty = 'easy' | 'medium' | 'hard' | 'expert';
