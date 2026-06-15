@@ -4,6 +4,7 @@ import PageHeader from '@/components/PageHeader';
 import { useApp } from '@/contexts/AppContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { EASE_OUT_EXPO, EASE_IN } from '@/lib/motion';
+import { PageShell } from '@/components/ui/app-shell';
 import {
   BookOpen, HandHeart, Moon, Feather,
 } from '@/lib/icons';
@@ -68,9 +69,9 @@ const TABS: TabDef[] = [
 
 const TabSkeleton = () => (
   <div className="space-y-2 pt-1">
-    <div className="h-20 rounded-xl animate-pulse bg-muted/30" />
-    <div className="h-16 rounded-xl animate-pulse bg-muted/20" />
-    <div className="h-20 rounded-xl animate-pulse bg-muted/25" />
+    <div className="h-20 rounded-2xl skeleton" />
+    <div className="h-16 rounded-2xl skeleton" />
+    <div className="h-20 rounded-2xl skeleton" />
   </div>
 );
 
@@ -106,7 +107,7 @@ export default function MihrabPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-28 px-5 pt-10">
+    <PageShell flush className="pt-10">
       <SEO
         title={isAr ? 'محراب — قرآن وذكر وسنّة وأدب — SmartHub' : 'Mihrab — Quran, Dhikr, Sunna & Literatur — SmartHub'}
         description={isAr
@@ -115,7 +116,7 @@ export default function MihrabPage() {
         path="/mihrab"
       />
 
-      <div className="max-w-lg mx-auto space-y-4">
+      <div className="page-shell-inner app-stack">
         {/* Title — unified PageHeader (top-level hub, no back) */}
         <PageHeader
           hideBack
@@ -126,7 +127,7 @@ export default function MihrabPage() {
         {/* Horizontal tab dock */}
         <nav aria-label={isAr ? 'تبويبات المحراب' : 'Mihrab tabs'}>
           <div
-            className="bg-card/80 backdrop-blur border border-border/45 rounded-2xl p-1 flex items-center gap-0.5"
+            className="app-card p-1 flex items-center gap-0.5"
             dir="ltr"
           >
             {TABS.map(t => {
@@ -145,7 +146,7 @@ export default function MihrabPage() {
                   {active && (
                     <motion.span
                       layoutId="mihrab-dock-pill"
-                      className="absolute inset-0 rounded-xl bg-primary shadow-sm"
+                      className="absolute inset-0 rounded-xl bg-primary"
                       transition={{ type: 'spring', stiffness: 480, damping: 36 }}
                     />
                   )}
@@ -168,7 +169,7 @@ export default function MihrabPage() {
             initial={{ opacity: 0, x: slideSign * 16 }}
             animate={{ opacity: 1, x: 0, transition: { duration: 0.26, ease: EASE_OUT_EXPO } }}
             exit={{ opacity: 0, x: slideSign * -8, transition: { duration: 0.14, ease: EASE_IN } }}
-            className="space-y-3"
+            className="app-stack-sm"
           >
             <Suspense fallback={<TabSkeleton />}>
               {tab === 'quran'      && <QuranTab />}
@@ -179,6 +180,6 @@ export default function MihrabPage() {
           </motion.section>
         </AnimatePresence>
       </div>
-    </div>
+    </PageShell>
   );
 }
