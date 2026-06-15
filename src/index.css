@@ -484,16 +484,7 @@
     border-radius: calc(var(--radius) + 4px);
     contain-intrinsic-size: auto 260px;
   }
-  .dark .premium-card,
-  .dark .premium-card-elevated,
-  .dark .premium-card-intense,
-  :root[data-theme-mode="true-black"] .premium-card,
-  :root[data-theme-mode="true-black"] .premium-card-elevated,
-  :root[data-theme-mode="true-black"] .premium-card-intense {
-    background-image: linear-gradient(180deg,
-      hsl(0 0% 100% / 0.018) 0%,
-      hsl(0 0% 0% / 0.06) 100%);
-  }
+  /* Dark-mode gradient overlays removed — flat surfaces only. */
 
   /* ── Card interaction physics ──
      transform → spring • shadow → Linear curve • bg → instant linear.
@@ -504,17 +495,15 @@
   .premium-card-intense {
     transition:
       transform var(--duration-fast) var(--ease-spring),
-      box-shadow var(--duration-fast) var(--ease-linear-app),
       background-color var(--duration-instant) linear,
-      background var(--duration-instant) linear;
+      border-color var(--duration-fast) var(--ease-linear-app);
     will-change: transform;
   }
   .card:hover,
   .premium-card:hover,
   .premium-card-elevated:hover,
   .premium-card-intense:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    border-color: hsl(var(--border));
   }
   .card:active,
   .premium-card:active,
