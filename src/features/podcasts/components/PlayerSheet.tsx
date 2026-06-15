@@ -764,4 +764,3 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
   );
 }
 
-      <QueueSheet open={queueOpen} onClose={() => setQueueOpen(false)} />
