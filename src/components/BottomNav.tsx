@@ -3,7 +3,7 @@ import { useApp } from '@/contexts/AppContext';
 import { useUnreadMessages } from '@/hooks/useUnreadMessages';
 import { useInChatConversation } from '@/lib/inChatConversation';
 import {
-  House, Dices, Compass, BookOpen, MessageCircle, HeartPulse, CloudSun, Crown,
+  House, Dices, Compass, BookOpen, MessageCircle, CloudSun, Crown,
 } from '@/lib/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { prefetchRoute } from '@/lib/routePrefetch';
