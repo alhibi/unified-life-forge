@@ -42,6 +42,7 @@ import {
 } from '@/features/podcasts/lib/store';
 import { decodeRouteId } from '@/features/podcasts/lib/route';
 import { usePlayState } from '@/features/podcasts/lib/store';
+import { getPlayState } from '@/features/podcasts/lib/store';
 import DynamicPodcastTheme from '@/features/podcasts/components/DynamicPodcastTheme';
 import EpisodeListItem from '@/features/podcasts/components/EpisodeListItem';
 
@@ -253,9 +254,8 @@ export default function PodcastDetail() {
     // runs inside useMemo which forbids hooks, and we re-derive on
     // every render already.
     if (episodeFilter !== 'all') {
-      const { getPlayState: getPS } = require('@/features/podcasts/lib/store') as typeof import('@/features/podcasts/lib/store');
       filtered = filtered.filter(ep => {
-        const ps = getPS(ep.id);
+        const ps = getPlayState(ep.id);
         const duration = ep.duration || 0;
         const progress = ps?.position ?? 0;
         switch (episodeFilter) {
@@ -647,3 +647,4 @@ export default function PodcastDetail() {
     </DynamicPodcastTheme>
   );
 }
+
