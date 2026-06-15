@@ -124,7 +124,7 @@ export default function Index() {
           </div>
         </motion.div>
 
-        <motion.div variants={item}><LivingRibbon /></motion.div>
+        
         <motion.section variants={item} aria-labelledby="home-weather-h">
           <h2 id="home-weather-h" className="sr-only">{language === 'ar' ? 'الطقس' : 'Wetter'}</h2>
           <WeatherWidget />
