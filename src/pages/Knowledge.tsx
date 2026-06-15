@@ -7,6 +7,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import { PageShell, AppCard } from "@/components/ui/app-shell";
 
 /**
  * /knowledge — "موسوعة الرقي"
@@ -607,7 +608,7 @@ export default function Knowledge() {
   };
 
   return (
-    <div dir="rtl" className="min-h-screen bg-[#080808] text-neutral-100">
+    <PageShell flush>
       <SEO
         path="/knowledge"
         title="موسوعة الرقي — معرفة منتقاة"
@@ -631,17 +632,15 @@ export default function Knowledge() {
       />
       <BackButton />
 
-      <div className="mx-auto max-w-5xl px-4 pt-20 pb-24">
+      <div className="pt-20">
         {/* ── Header ── */}
         <header className="mb-8 text-center">
-          <h1 className="font-cormorant text-5xl sm:text-6xl tracking-wide">
-            <span className="text-neutral-100">موسوعة</span>{" "}
-            <span className="italic text-[#C8A96E]">الرقي</span>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">
+            موسوعة الرقي
           </h1>
-          <p className="font-amiri mt-3 text-sm sm:text-base text-neutral-400">
+          <p className="mt-2 text-sm text-muted-foreground">
             معرفة منتقاة — السيارات · العطور · الساعات · الأزياء · الحلويات
           </p>
-          <div className="mx-auto mt-5 h-px w-24 bg-gradient-to-r from-transparent via-[#C8A96E]/50 to-transparent" />
         </header>
 
         {/* ── Category strip ── */}
@@ -655,30 +654,20 @@ export default function Knowledge() {
               <button
                 key={c.id}
                 onClick={() => handleSelectCategory(c.id)}
-                className="group flex flex-col items-center justify-center rounded-2xl border px-2 py-3 transition-all duration-300"
-                style={{
-                  borderColor: active ? c.color : "rgba(255,255,255,0.08)",
-                  background: active ? hexToRgba(c.color, 0.08) : "rgba(255,255,255,0.02)",
-                  boxShadow: active ? `0 0 24px ${hexToRgba(c.color, 0.18)}` : undefined,
-                }}
+                className={`group flex flex-col items-center justify-center rounded-2xl border px-2 py-3 transition-colors ${
+                  active
+                    ? "border-primary bg-accent"
+                    : "border-border bg-card hover:bg-accent/50"
+                }`}
                 aria-pressed={active}
               >
-                <span
-                  className="text-2xl transition-all"
-                  style={{
-                    color: c.color,
-                    filter: active ? `drop-shadow(0 0 8px ${c.color})` : "none",
-                  }}
-                >
+                <span className={`text-2xl ${active ? "text-primary" : "text-foreground"}`}>
                   {c.icon}
                 </span>
-                <span
-                  className="font-cormorant mt-1 text-sm sm:text-base"
-                  style={{ color: active ? c.color : "#e5e5e5" }}
-                >
+                <span className={`mt-1 text-sm font-semibold ${active ? "text-primary" : "text-foreground"}`}>
                   {c.label}
                 </span>
-                <span className="mt-0.5 font-mono text-[9px] uppercase tracking-wider text-neutral-500">
+                <span className="mt-0.5 text-[9px] uppercase tracking-wider text-muted-foreground">
                   {c.labelEn}
                 </span>
               </button>
@@ -690,102 +679,77 @@ export default function Knowledge() {
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           {/* Brands list */}
           <section aria-label="الماركات" className="space-y-3">
-            <h2
-              className="font-cormorant mb-2 text-xl"
-              style={{ color: category.color }}
-            >
+            <h2 className="mb-2 text-base font-bold text-foreground">
               الماركات
             </h2>
             {brands.map((b) => {
               const isActive = activeBrandId === b.id;
               return (
-                <button
+                <AppCard
+                  as="button"
+                  pressable
                   key={b.id}
                   onClick={() => setActiveBrandId(b.id)}
-                  className="block w-full rounded-2xl border bg-white/[0.02] p-4 text-right transition-all duration-300 hover:bg-white/[0.04]"
-                  style={{
-                    borderColor: isActive ? category.color : "rgba(255,255,255,0.06)",
-                    boxShadow: isActive
-                      ? `inset 0 0 0 1px ${hexToRgba(category.color, 0.4)}, 0 6px 24px -8px ${hexToRgba(category.color, 0.25)}`
-                      : undefined,
-                  }}
+                  className={`block w-full text-right ${isActive ? "border-primary" : ""}`}
                 >
                   <div className="flex items-center gap-3">
-                    <div
-                      className="grid h-12 w-12 shrink-0 place-items-center rounded-xl border font-cormorant text-lg"
-                      style={{
-                        borderColor: hexToRgba(category.color, 0.4),
-                        color: category.color,
-                        background: hexToRgba(category.color, 0.06),
-                      }}
-                    >
+                    <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl border border-border bg-accent text-lg font-bold text-foreground">
                       {b.logo}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="font-cormorant text-base text-neutral-100">{b.name}</div>
-                      <div className="font-mono text-[10px] uppercase tracking-wider text-neutral-500">
+                      <div className="text-base font-semibold text-foreground">{b.name}</div>
+                      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
                         {b.origin} · {b.founded}
                       </div>
                     </div>
                   </div>
-                  <p className="font-amiri mt-2 text-sm leading-relaxed text-neutral-400">
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                     {b.desc}
                   </p>
-                </button>
+                </AppCard>
               );
             })}
           </section>
 
           {/* Models list */}
           <section aria-label="الطرازات" className="space-y-3">
-            <h2
-              className="font-cormorant mb-2 text-xl"
-              style={{ color: category.color }}
-            >
+            <h2 className="mb-2 text-base font-bold text-foreground">
               الطرازات
             </h2>
 
             {!activeBrand && (
-              <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-8 text-center">
-                <p className="font-amiri text-sm text-neutral-500">
+              <AppCard className="p-8 text-center">
+                <p className="text-sm text-muted-foreground">
                   اختر ماركة لاستعراض طرازاتها
                 </p>
-              </div>
+              </AppCard>
             )}
 
             {activeBrand && (
               <div key={activeBrand.id} className="animate-knowledge-fade-slide space-y-3">
                 {activeBrand.models.map((m) => (
-                  <button
+                  <AppCard
+                    as="button"
+                    pressable
                     key={m.id}
                     onClick={() => setActiveModel(m)}
-                    className="block w-full rounded-2xl border border-white/5 bg-white/[0.02] p-4 text-right transition-all duration-300 hover:bg-white/[0.04]"
-                    style={{
-                      boxShadow: `inset 0 0 0 1px ${hexToRgba(m.color, 0.18)}`,
-                    }}
+                    className="block w-full text-right"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
-                        <div className="font-cormorant text-lg text-neutral-100">{m.name}</div>
+                        <div className="text-base font-semibold text-foreground">{m.name}</div>
                         <div className="mt-1 flex flex-wrap items-center gap-2">
-                          <span
-                            className="rounded-full px-2 py-0.5 text-[10px]"
-                            style={{
-                              background: hexToRgba(m.color, 0.14),
-                              color: m.color,
-                              border: `1px solid ${hexToRgba(m.color, 0.35)}`,
-                            }}
-                          >
+                          <span className="rounded-full border border-border bg-accent px-2 py-0.5 text-[10px] text-foreground">
                             {m.type}
                           </span>
-                          <span className="font-mono text-[10px] text-neutral-500">
+                          <span className="text-[10px] text-muted-foreground">
                             {m.year} · {m.price}
                           </span>
                         </div>
                       </div>
                     </div>
 
-                    <p className="font-amiri mt-2 line-clamp-2 text-sm leading-relaxed text-neutral-400">
+                    <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-muted-foreground">
                       {m.desc.length > 90 ? m.desc.slice(0, 90) + "…" : m.desc}
                     </p>
 
@@ -793,20 +757,17 @@ export default function Knowledge() {
                       {m.tags.map((t) => (
                         <span
                           key={t}
-                          className="rounded-full border border-white/10 bg-white/[0.03] px-2 py-0.5 font-mono text-[9px] uppercase tracking-wider text-neutral-400"
+                          className="rounded-full border border-border bg-accent/50 px-2 py-0.5 text-[9px] uppercase tracking-wider text-muted-foreground"
                         >
                           {t}
                         </span>
                       ))}
                     </div>
 
-                    <div
-                      className="mt-3 text-left font-mono text-[11px]"
-                      style={{ color: m.color }}
-                    >
+                    <div className="mt-3 text-left text-[11px] text-primary">
                       اضغط للمزيد ↗
                     </div>
-                  </button>
+                  </AppCard>
                 ))}
               </div>
             )}
@@ -821,7 +782,7 @@ export default function Knowledge() {
         category={category}
         onClose={() => setActiveModel(null)}
       />
-    </div>
+    </PageShell>
   );
 }
 
@@ -839,7 +800,7 @@ function ModelDetailDialog({
   return (
     <Dialog open={model !== null} onOpenChange={(o) => { if (!o) onClose(); }}>
       <DialogContent
-        className="max-h-[90vh] max-w-2xl overflow-y-auto border-white/10 bg-[#0a0a0a] p-0 text-neutral-100 sm:rounded-2xl"
+        className="max-h-[90vh] max-w-2xl overflow-y-auto border-border bg-card p-0 text-foreground sm:rounded-2xl"
         dir="rtl"
       >
         <VisuallyHidden>
@@ -847,64 +808,43 @@ function ModelDetailDialog({
         </VisuallyHidden>
 
         {model && (
-          <div
-            className="relative"
-            style={{
-              background: `radial-gradient(120% 60% at 50% 0%, ${hexToRgba(model.color, 0.15)} 0%, transparent 60%)`,
-            }}
-          >
+          <div className="relative">
             {/* Header */}
             <div className="px-6 pt-8 pb-4">
               <div className="mb-3 flex flex-wrap items-center gap-2">
-                <span className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-neutral-300">
+                <span className="rounded-full border border-border bg-accent px-2.5 py-0.5 text-[10px] uppercase tracking-wider text-foreground">
                   {brand?.name}
                 </span>
-                <span
-                  className="rounded-full px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-wider"
-                  style={{
-                    background: hexToRgba(model.color, 0.14),
-                    color: model.color,
-                    border: `1px solid ${hexToRgba(model.color, 0.35)}`,
-                  }}
-                >
+                <span className="rounded-full border border-border bg-accent/60 px-2.5 py-0.5 text-[10px] uppercase tracking-wider text-foreground">
                   {model.type}
                 </span>
-                <span className="font-mono text-[10px] text-neutral-500">{model.year}</span>
+                <span className="text-[10px] text-muted-foreground">{model.year}</span>
               </div>
-              <h3 className="font-cormorant text-3xl sm:text-4xl text-neutral-100">
+              <h3 className="text-2xl font-bold text-foreground">
                 {model.name}
               </h3>
-              <div
-                className="mt-2 font-cormorant text-xl"
-                style={{ color: model.color }}
-              >
+              <div className="mt-2 text-lg font-semibold text-primary">
                 {model.price}
               </div>
             </div>
 
             {/* Description */}
             <div className="px-6">
-              <p
-                className="font-amiri border-r-2 pr-3 text-[15px] leading-loose text-neutral-300"
-                style={{ borderColor: model.color }}
-              >
+              <p className="border-r-2 border-border pr-3 text-[15px] leading-loose text-foreground/85">
                 {model.desc}
               </p>
             </div>
 
             {/* Highlights */}
             <div className="px-6 pt-6">
-              <h4 className="font-cormorant mb-3 text-base text-neutral-400">
+              <h4 className="mb-3 text-sm font-semibold text-muted-foreground">
                 أبرز المميزات
               </h4>
               <ul className="space-y-2">
                 {model.highlights.map((h, i) => (
                   <li key={i} className="flex items-start gap-3">
-                    <span
-                      className="mt-2 inline-block h-2 w-2 shrink-0 rounded-full"
-                      style={{ background: model.color, boxShadow: `0 0 8px ${model.color}` }}
-                    />
-                    <span className="font-amiri text-sm leading-relaxed text-neutral-200">{h}</span>
+                    <span className="mt-2 inline-block h-2 w-2 shrink-0 rounded-full bg-primary" />
+                    <span className="text-sm leading-relaxed text-foreground">{h}</span>
                   </li>
                 ))}
               </ul>
@@ -914,14 +854,11 @@ function ModelDetailDialog({
             <div className="px-6 pt-6">
               <div className="grid grid-cols-2 gap-2.5">
                 {category.fieldLabels.map((label, i) => (
-                  <div
-                    key={label}
-                    className="rounded-xl border border-white/5 bg-white/[0.02] p-3"
-                  >
-                    <div className="font-mono text-[9px] uppercase tracking-wider text-neutral-500">
+                  <div key={label} className="rounded-xl border border-border bg-accent/40 p-3">
+                    <div className="text-[9px] uppercase tracking-wider text-muted-foreground">
                       {label}
                     </div>
-                    <div className="font-amiri mt-1 text-sm text-neutral-100">
+                    <div className="mt-1 text-sm text-foreground">
                       {model.fields[i]}
                     </div>
                   </div>
@@ -931,19 +868,16 @@ function ModelDetailDialog({
 
             {/* Extras */}
             <div className="px-6 pt-6">
-              <h4 className="font-cormorant mb-3 text-base text-neutral-400">
+              <h4 className="mb-3 text-sm font-semibold text-muted-foreground">
                 تفاصيل إضافية
               </h4>
               <div className="grid grid-cols-3 gap-2">
                 {model.extras.map((e) => (
-                  <div
-                    key={e.label}
-                    className="rounded-xl border border-white/5 bg-white/[0.02] p-3 text-center"
-                  >
-                    <div className="font-mono text-[9px] uppercase tracking-wider text-neutral-500">
+                  <div key={e.label} className="rounded-xl border border-border bg-accent/40 p-3 text-center">
+                    <div className="text-[9px] uppercase tracking-wider text-muted-foreground">
                       {e.label}
                     </div>
-                    <div className="font-amiri mt-1 text-xs text-neutral-100">{e.value}</div>
+                    <div className="mt-1 text-xs text-foreground">{e.value}</div>
                   </div>
                 ))}
               </div>
@@ -952,22 +886,15 @@ function ModelDetailDialog({
             {/* Progress bar */}
             <div className="px-6 pt-6">
               <div className="mb-2 flex items-center justify-between">
-                <span className="font-amiri text-xs text-neutral-400">{category.barLabel}</span>
-                <span
-                  className="font-mono text-xs"
-                  style={{ color: model.color }}
-                >
+                <span className="text-xs text-muted-foreground">{category.barLabel}</span>
+                <span className="text-xs text-primary">
                   {model.barValue}%
                 </span>
               </div>
-              <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/5">
+              <div className="h-1.5 w-full overflow-hidden rounded-full bg-accent">
                 <div
-                  className="h-full rounded-full transition-all duration-700"
-                  style={{
-                    width: `${model.barValue}%`,
-                    background: `linear-gradient(90deg, ${hexToRgba(model.color, 0.4)}, ${model.color})`,
-                    boxShadow: `0 0 12px ${hexToRgba(model.color, 0.5)}`,
-                  }}
+                  className="h-full rounded-full bg-primary transition-all duration-700"
+                  style={{ width: `${model.barValue}%` }}
                 />
               </div>
             </div>
@@ -978,12 +905,7 @@ function ModelDetailDialog({
                 {model.tags.map((t) => (
                   <span
                     key={t}
-                    className="rounded-full px-2.5 py-1 font-mono text-[10px] uppercase tracking-wider"
-                    style={{
-                      background: hexToRgba(model.color, 0.10),
-                      color: model.color,
-                      border: `1px solid ${hexToRgba(model.color, 0.30)}`,
-                    }}
+                    className="rounded-full border border-border bg-accent/50 px-2.5 py-1 text-[10px] uppercase tracking-wider text-foreground"
                   >
                     {t}
                   </span>
