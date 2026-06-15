@@ -10,7 +10,7 @@ import {
   HIJRI_MONTHS,
   HIJRI_MONTHS_EN,
   type ResolvedIslamicEvent,
-} from '@/data/islamicOccasions';
+} from '@/features/calendar/data/islamicOccasions';
 
 // Accent palette for occasion cards (mirrors PrayerTimes.tsx accents).
 const ACCENT: Record<string, string> = {

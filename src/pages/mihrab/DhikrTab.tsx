@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useApp } from '@/contexts/AppContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { frequentDuas, duaCategories, type DuaCategory, type FrequentDua } from '@/data/duas';
+import { frequentDuas, duaCategories, type DuaCategory, type FrequentDua } from '@/features/duas/data/duas';
 import { nawawiHadiths, type NawawiHadith } from '@/data/nawawiHadiths';
 import {
   ChevronLeft, ChevronRight, Copy, Check, X, Moon, Sun, Plane, Home,

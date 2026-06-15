@@ -61,7 +61,7 @@ const loadMemoryAdventure = () => import("./pages/MemoryAdventure");
 const loadDiceTournament = () => import("./pages/DiceTournament");
 const loadFocusDecathlon = () => import("./pages/FocusDecathlon");
 const loadSettings = () => import("./pages/Settings");
-const loadDuas = () => import("./pages/Duas");
+const loadDuas = () => import("./features/duas/pages/Duas");
 // Wave-1 chat surface — three new lazy pages backed by the new
 // data layer. Kept off the eager bundle since group/channel chats
 // and chat settings are reachable only via deep-link or via the
@@ -74,7 +74,7 @@ const loadAuth = () => import("./pages/Auth");
 const loadProfile = () => import("./pages/ProfileEdit");
 const loadFont = () => import("./pages/FontSettings");
 const loadPrayer = () => import("./pages/PrayerSettings");
-const loadOccasions = () => import("./pages/AllOccasions");
+const loadOccasions = () => import("./features/calendar/pages/AllOccasions");
 const loadReading = () => import("./pages/Reading");
 const loadTimed = () => import("./pages/TimedSunnah");
 const loadSunnahDetail = () => import("./pages/SunnahDetail");
@@ -109,7 +109,7 @@ const loadWeather = () => import("./pages/Weather");
 // perfumes, watches, fashion, sweets). Lazy because its rich static
 // data set should not weigh on the cold home paint; it's prefetched on
 // idle so the first tap from the bottom nav renders instantly.
-const loadKnowledge = () => import("./pages/Knowledge");
+const loadKnowledge = () => import("./features/knowledge/pages/Knowledge");
 // Long-form SEO guide to Islamic prayer (Salah). Lightweight static
 // page reachable from /mihrab — kept lazy because it's only loaded
 // when a user (or a crawler) drills in from the Mihrab hub.

@@ -10,8 +10,8 @@ import {
   getDaysUntil,
   getTodayHijri,
   formatHijriDate,
-} from '@/data/islamicOccasions';
-import type { IslamicOccasion } from '@/data/islamicOccasions';
+} from '@/features/calendar/data/islamicOccasions';
+import type { IslamicOccasion } from '@/features/calendar/data/islamicOccasions';
 
 /**
  * PrayerTimes — a faithful re-implementation of khushu's Home prayer feature
