@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ChevronDown } from '@/lib/icons';
-import { poetTimelines, eventTypeConfig } from '@/data/poetTimelines';
+import { poetTimelines, eventTypeConfig } from '@/features/diwan/data/poetTimelines';
 
 interface PoetTimelineProps {
   poetId: string;

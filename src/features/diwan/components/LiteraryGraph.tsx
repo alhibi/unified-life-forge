@@ -10,7 +10,7 @@ import {
   type PoetNode,
   type LiteraryRelation,
   type RelationType,
-} from '@/data/literaryConnections';
+} from '@/features/diwan/data/literaryConnections';
 
 // ─── Types ───────────────────────────────────────────────────────────
 interface SimNode extends PoetNode {

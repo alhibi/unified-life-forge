@@ -14,15 +14,15 @@ import {
   useDiwanPoem,
   useDiwanFavoriteIds,
   useDiwanToggleFavorite,
-} from '@/lib/diwan/hooks';
-import { isSupabaseReady } from '@/lib/diwan/env';
+} from '@/features/diwan/lib/hooks';
+import { isSupabaseReady } from '@/features/diwan/lib/env';
 import { useAuth } from '@/hooks/useAuth';
-import PoemContextCard from '@/components/diwan/PoemContextCard';
-import SimilarPoems from '@/components/diwan/library/SimilarPoems';
-import VerseLine from '@/components/diwan/library/VerseLine';
-import GlossarySheet from '@/components/diwan/library/GlossarySheet';
-import FallbackBadge from '@/components/diwan/library/FallbackBadge';
-import type { DiwanGlossaryEntry, DiwanVerse } from '@/lib/diwan/types';
+import PoemContextCard from '@/features/diwan/components/PoemContextCard';
+import SimilarPoems from '@/features/diwan/components/library/SimilarPoems';
+import VerseLine from '@/features/diwan/components/library/VerseLine';
+import GlossarySheet from '@/features/diwan/components/library/GlossarySheet';
+import FallbackBadge from '@/features/diwan/components/library/FallbackBadge';
+import type { DiwanGlossaryEntry, DiwanVerse } from '@/features/diwan/lib/types';
 
 // ─── أدوات تطبيع عربية مشتركة بين الصفحة و VerseLine ─────────────────
 // المهم: نُعرّف نسخة بـ /g للاستبدال، ونسخة بدون /g للتفحّص. الـ /g

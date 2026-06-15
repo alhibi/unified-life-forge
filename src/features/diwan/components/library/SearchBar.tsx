@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Search, X, Feather, ScrollText } from '@/lib/icons';
 import { Link } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useDiwanSuggest } from '@/lib/diwan/hooks';
+import { useDiwanSuggest } from '@/features/diwan/lib/hooks';
 
 interface Props {
   value?: string;

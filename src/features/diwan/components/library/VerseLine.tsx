@@ -1,7 +1,7 @@
 import React, { useMemo, useRef } from 'react';
 import { Check, Copy } from '@/lib/icons';
 import { motion } from 'framer-motion';
-import type { DiwanVerse } from '@/lib/diwan/types';
+import type { DiwanVerse } from '@/features/diwan/lib/types';
 
 // طول الضغطة المطوّلة بالملي-ثانية. اخترنا 450ms كتسوية بين السرعة
 // والإحساس المتعمَّد. أقل من ذلك يصبح اكتشاف خاطئ، أكثر يبدو بطيئاً.

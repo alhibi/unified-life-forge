@@ -1,5 +1,5 @@
 import React from 'react';
-import type { DiwanEra } from '@/lib/diwan/types';
+import type { DiwanEra } from '@/features/diwan/lib/types';
 
 interface Props {
   eras: DiwanEra[];

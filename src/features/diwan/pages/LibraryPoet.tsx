@@ -4,13 +4,13 @@ import { Feather, Network, Clock, ScrollText, Loader2 } from '@/lib/icons';
 import { motion, AnimatePresence } from 'framer-motion';
 import SEO from '@/components/SEO';
 import BackButton from '@/components/BackButton';
-import SearchBar from '@/components/diwan/library/SearchBar';
-import PoemCard from '@/components/diwan/library/PoemCard';
-import PoetTimeline from '@/components/diwan/PoetTimeline';
-import FallbackBadge from '@/components/diwan/library/FallbackBadge';
-import { useDiwanPoet, useDiwanPoetPoems } from '@/lib/diwan/hooks';
-import { poetTimelines } from '@/data/poetTimelines';
-import type { DiwanPoemSummary } from '@/lib/diwan/types';
+import SearchBar from '@/features/diwan/components/library/SearchBar';
+import PoemCard from '@/features/diwan/components/library/PoemCard';
+import PoetTimeline from '@/features/diwan/components/PoetTimeline';
+import FallbackBadge from '@/features/diwan/components/library/FallbackBadge';
+import { useDiwanPoet, useDiwanPoetPoems } from '@/features/diwan/lib/hooks';
+import { poetTimelines } from '@/features/diwan/data/poetTimelines';
+import type { DiwanPoemSummary } from '@/features/diwan/lib/types';
 
 const PAGE = 30;
 

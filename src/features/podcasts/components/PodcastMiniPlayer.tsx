@@ -23,7 +23,7 @@
 import { memo, KeyboardEvent, MouseEvent, useState } from 'react';
 import { Loader2, Pause, Play, RotateCcw, RotateCw } from '@/lib/icons';
 import { AnimatePresence, motion } from 'framer-motion';
-import { usePodcastPlayer, usePodcastPlayerProgress } from '@/contexts/PodcastPlayerContext';
+import { usePodcastPlayer, usePodcastPlayerProgress } from '@/features/podcasts/contexts/PodcastPlayerContext';
 import PlayerSheet from './PlayerSheet';
 import { BOTTOM_NAV_HEIGHT } from '@/components/BottomNav';
 

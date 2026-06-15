@@ -3,12 +3,12 @@ import { useSearchParams } from 'react-router-dom';
 import { Loader2, Users } from '@/lib/icons';
 import SEO from '@/components/SEO';
 import BackButton from '@/components/BackButton';
-import SearchBar from '@/components/diwan/library/SearchBar';
-import EraPills from '@/components/diwan/library/EraPills';
-import PoetCard from '@/components/diwan/library/PoetCard';
-import FallbackBadge from '@/components/diwan/library/FallbackBadge';
-import { useDiwanEras, useDiwanPoets } from '@/lib/diwan/hooks';
-import type { DiwanPoetSummary } from '@/lib/diwan/types';
+import SearchBar from '@/features/diwan/components/library/SearchBar';
+import EraPills from '@/features/diwan/components/library/EraPills';
+import PoetCard from '@/features/diwan/components/library/PoetCard';
+import FallbackBadge from '@/features/diwan/components/library/FallbackBadge';
+import { useDiwanEras, useDiwanPoets } from '@/features/diwan/lib/hooks';
+import type { DiwanPoetSummary } from '@/features/diwan/lib/types';
 
 const PAGE = 30;
 

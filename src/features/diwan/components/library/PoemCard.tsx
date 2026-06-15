@@ -2,8 +2,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ScrollText } from '@/lib/icons';
 import { motion } from 'framer-motion';
-import type { DiwanPoemSummary, DiwanPoemSearchResult } from '@/lib/diwan/types';
-import { useDiwanPrefetch } from '@/lib/diwan/hooks';
+import type { DiwanPoemSummary, DiwanPoemSearchResult } from '@/features/diwan/lib/types';
+import { useDiwanPrefetch } from '@/features/diwan/lib/hooks';
 
 interface Props {
   poem: DiwanPoemSummary | DiwanPoemSearchResult;

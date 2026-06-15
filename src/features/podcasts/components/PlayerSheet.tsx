@@ -29,7 +29,7 @@ import {
 } from '@/lib/icons';
 import { AnimatePresence, motion } from 'framer-motion';
 import DOMPurify from 'dompurify';
-import { usePodcastPlayer, usePodcastPlayerProgress } from '@/contexts/PodcastPlayerContext';
+import { usePodcastPlayer, usePodcastPlayerProgress } from '@/features/podcasts/contexts/PodcastPlayerContext';
 import { useApp } from '@/contexts/AppContext';
 
 const SKIP = 15;

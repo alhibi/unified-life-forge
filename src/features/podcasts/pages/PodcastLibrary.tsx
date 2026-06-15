@@ -28,10 +28,10 @@ import {
   useSubscriptions,
   type RecentEpisodeRecord,
   type SubscribedPodcast,
-} from '@/lib/podcasts/store';
-import { encodeFeedUrl } from '@/lib/podcasts/route';
-import { upgradeArtwork } from '@/lib/podcasts/itunes';
-import { usePodcastPlayer, type PlayingEpisodeMeta } from '@/contexts/PodcastPlayerContext';
+} from '@/features/podcasts/lib/store';
+import { encodeFeedUrl } from '@/features/podcasts/lib/route';
+import { upgradeArtwork } from '@/features/podcasts/lib/itunes';
+import { usePodcastPlayer, type PlayingEpisodeMeta } from '@/features/podcasts/contexts/PodcastPlayerContext';
 
 const SORT_KEY = 'podcasts.library.sort';
 type SortMode = 'recent' | 'alpha';

@@ -41,8 +41,8 @@ import {
   pushRecentEpisodeWithNotify as pushRecentEpisode,
   removeRecentEpisodeWithNotify as removeRecentEpisode,
   type LastPlayedRecord,
-} from '@/lib/podcasts/store';
-import type { PodcastEpisode } from '@/lib/podcasts/rss';
+} from '@/features/podcasts/lib/store';
+import type { PodcastEpisode } from '@/features/podcasts/lib/rss';
 
 export interface PlayingEpisodeMeta {
   episode: PodcastEpisode;

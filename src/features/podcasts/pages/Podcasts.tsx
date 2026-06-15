@@ -42,13 +42,13 @@ import {
   fetchTopPodcasts, fetchTopPodcastsAggregated,
   searchPodcasts, searchPodcastsAggregated,
   upgradeArtwork, ITUNES_MAX_LIMIT, type PodcastPreview,
-} from '@/lib/podcasts/itunes';
-import { podcastGenres, findGenre } from '@/data/podcastGenres';
+} from '@/features/podcasts/lib/itunes';
+import { podcastGenres, findGenre } from '@/features/podcasts/lib/podcastGenres';
 import {
   podcastCountries, podcastRegions, findCountry, findRegion,
   type PodcastCountry, type PodcastRegion,
-} from '@/data/podcastCountries';
-import { useSubscriptions } from '@/lib/podcasts/store';
+} from '@/features/podcasts/lib/podcastCountries';
+import { useSubscriptions } from '@/features/podcasts/lib/store';
 
 const SCOPE_KEY = 'podcasts.scope';
 const COUNTRY_KEY = 'podcasts.country';

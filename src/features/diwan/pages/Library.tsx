@@ -7,14 +7,14 @@ import {
 } from '@/lib/icons';
 import SEO from '@/components/SEO';
 import BackButton from '@/components/BackButton';
-import FallbackBadge from '@/components/diwan/library/FallbackBadge';
+import FallbackBadge from '@/features/diwan/components/library/FallbackBadge';
 import { useApp } from '@/contexts/AppContext';
-import { useDiwanStats } from '@/lib/diwan/hooks';
+import { useDiwanStats } from '@/features/diwan/lib/hooks';
 
 // LiteraryGraph ضخم (~527 سطر + force-simulation + framer-motion)
 // والمستخدم لا يفتحه إلا أحيانًا، لذلك نُحمّله بكسلًا فقط عند توسيع
 // القسم.
-const LiteraryGraph = lazy(() => import('@/components/diwan/LiteraryGraph'));
+const LiteraryGraph = lazy(() => import('@/features/diwan/components/LiteraryGraph'));
 
 interface Props {
   /**

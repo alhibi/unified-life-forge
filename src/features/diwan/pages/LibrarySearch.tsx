@@ -4,17 +4,17 @@ import { Search, ScrollText, Quote, X, Filter, History, ChevronDown } from '@/li
 import { motion, AnimatePresence } from 'framer-motion';
 import SEO from '@/components/SEO';
 import BackButton from '@/components/BackButton';
-import SearchBar from '@/components/diwan/library/SearchBar';
-import EraPills from '@/components/diwan/library/EraPills';
-import PoemCard from '@/components/diwan/library/PoemCard';
-import FallbackBadge from '@/components/diwan/library/FallbackBadge';
+import SearchBar from '@/features/diwan/components/library/SearchBar';
+import EraPills from '@/features/diwan/components/library/EraPills';
+import PoemCard from '@/features/diwan/components/library/PoemCard';
+import FallbackBadge from '@/features/diwan/components/library/FallbackBadge';
 import {
   useDiwanEras,
   useDiwanSearchPoems,
   useDiwanSearchVerses,
-} from '@/lib/diwan/hooks';
-import { KNOWN_METERS, KNOWN_KINDS, RHYME_LETTERS } from '@/lib/diwan/constants';
-import type { DiwanPoemSearchResult, DiwanVerseSearchResult } from '@/lib/diwan/types';
+} from '@/features/diwan/lib/hooks';
+import { KNOWN_METERS, KNOWN_KINDS, RHYME_LETTERS } from '@/features/diwan/lib/constants';
+import type { DiwanPoemSearchResult, DiwanVerseSearchResult } from '@/features/diwan/lib/types';
 
 type Mode = 'poems' | 'verses';
 
@@ -428,7 +428,7 @@ function VerseRow({
   index,
   highlight,
 }: {
-  verse: import('@/lib/diwan/types').DiwanVerseSearchResult;
+  verse: import('@/features/diwan/lib/types').DiwanVerseSearchResult;
   index: number;
   highlight: string;
 }) {

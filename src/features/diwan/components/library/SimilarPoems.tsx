@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ScrollText, Sparkles } from '@/lib/icons';
-import { useDiwanSimilarPoems, useDiwanPrefetch } from '@/lib/diwan/hooks';
+import { useDiwanSimilarPoems, useDiwanPrefetch } from '@/features/diwan/lib/hooks';
 
 interface Props { slug: string; }
 

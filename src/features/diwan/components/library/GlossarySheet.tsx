@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BookOpen, X, Quote } from '@/lib/icons';
-import type { DiwanGlossaryEntry } from '@/lib/diwan/types';
+import type { DiwanGlossaryEntry } from '@/features/diwan/lib/types';
 
 interface Props {
   open: boolean;

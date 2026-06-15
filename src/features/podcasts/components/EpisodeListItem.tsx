@@ -16,9 +16,9 @@ import { memo, useMemo } from 'react';
 import DOMPurify from 'dompurify';
 import { CheckCircle2, Loader2, Pause, Play, RotateCcw } from '@/lib/icons';
 import { motion } from 'framer-motion';
-import type { PodcastEpisode } from '@/lib/podcasts/rss';
-import { usePodcastPlayer, type PlayingEpisodeMeta } from '@/contexts/PodcastPlayerContext';
-import { markEpisodePlayedWithNotify, removeRecentEpisodeWithNotify, usePlayState } from '@/lib/podcasts/store';
+import type { PodcastEpisode } from '@/features/podcasts/lib/rss';
+import { usePodcastPlayer, type PlayingEpisodeMeta } from '@/features/podcasts/contexts/PodcastPlayerContext';
+import { markEpisodePlayedWithNotify, removeRecentEpisodeWithNotify, usePlayState } from '@/features/podcasts/lib/store';
 import { useApp } from '@/contexts/AppContext';
 
 interface EpisodeListItemProps {

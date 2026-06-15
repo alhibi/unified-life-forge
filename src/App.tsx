@@ -6,8 +6,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppProvider, useApp } from "@/contexts/AppContext";
 import { VoicePlayerProvider } from "@/contexts/VoicePlayerContext";
 import { ImageUploadProvider } from "@/contexts/ImageUploadContext";
-import { PodcastPlayerProvider } from "@/contexts/PodcastPlayerContext";
-import PodcastMiniPlayer from "@/components/podcasts/PodcastMiniPlayer";
+import { PodcastPlayerProvider } from "@/features/podcasts/contexts/PodcastPlayerContext";
+import PodcastMiniPlayer from "@/features/podcasts/components/PodcastMiniPlayer";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import BottomNav from "@/components/BottomNav";
 import PageTransition, { NavModeContext } from "@/components/PageTransition";
@@ -82,9 +82,9 @@ const loadProphetic = () => import("./pages/PropheticDay");
 const loadUntimed = () => import("./pages/UntimedSunnah");
 const loadVirtues = () => import("./pages/QuranVirtues");
 const loadTafsir = () => import("./pages/Tafsir");
-const loadPodcasts = () => import("./pages/Podcasts");
-const loadPodcastDetail = () => import("./pages/PodcastDetail");
-const loadPodcastLibrary = () => import("./pages/PodcastLibrary");
+const loadPodcasts = () => import("./features/podcasts/pages/Podcasts");
+const loadPodcastDetail = () => import("./features/podcasts/pages/PodcastDetail");
+const loadPodcastLibrary = () => import("./features/podcasts/pages/PodcastLibrary");
 const loadNotFound = () => import("./pages/NotFound");
 // Wellness and Diwan tabs are lazy because their static data files
 // (~10k lines combined) make eager-loading them measurable on cold
@@ -92,7 +92,7 @@ const loadNotFound = () => import("./pages/NotFound");
 // switches the route normally — first visit pays a brief skeleton,
 // subsequent visits hit React.lazy's module cache and are instant.
 const loadWellness = () => import("./pages/Wellness");
-const loadDiwan = () => import("./pages/Diwan");
+const loadDiwan = () => import("./features/diwan/pages/Diwan");
 // Hubs introduced by the IA reorganisation: `/browse` ("اطلاع")
 // groups Podcasts + Articles, `/mihrab` groups Quran/Dhikr/Sunnah/
 // Literature. Both are lightweight landings on top of the existing
@@ -119,12 +119,12 @@ const loadPrayerGuide = () => import("./pages/PrayerGuide");
 // /weather/forecast without touching the live-data /weather page.
 const loadWeatherForecast = () => import("./features/weather/components/WeatherForecast");
 // Diwan library — adab.com integration
-const loadLibrary = () => import("./pages/diwan/Library");
-const loadLibraryPoets = () => import("./pages/diwan/LibraryPoets");
-const loadLibraryPoet = () => import("./pages/diwan/LibraryPoet");
-const loadLibraryPoem = () => import("./pages/diwan/LibraryPoem");
-const loadLibrarySearch = () => import("./pages/diwan/LibrarySearch");
-const loadLibraryFavorites = () => import("./pages/diwan/LibraryFavorites");
+const loadLibrary = () => import("./features/diwan/pages/Library");
+const loadLibraryPoets = () => import("./features/diwan/pages/LibraryPoets");
+const loadLibraryPoet = () => import("./features/diwan/pages/LibraryPoet");
+const loadLibraryPoem = () => import("./features/diwan/pages/LibraryPoem");
+const loadLibrarySearch = () => import("./features/diwan/pages/LibrarySearch");
+const loadLibraryFavorites = () => import("./features/diwan/pages/LibraryFavorites");
 
 // ──────────────────────────────────────────────────────────────────────
 // Register every lazy route in the central prefetch registry so any

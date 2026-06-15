@@ -31,18 +31,18 @@ import {
 import SEO from '@/components/SEO';
 import BackButton from '@/components/BackButton';
 import { useApp } from '@/contexts/AppContext';
-import { lookupPodcast, type PodcastPreview } from '@/lib/podcasts/itunes';
-import { fetchPodcastFeed } from '@/lib/podcasts/rss';
-import { extractSeedColor } from '@/lib/podcasts/colorExtract';
+import { lookupPodcast, type PodcastPreview } from '@/features/podcasts/lib/itunes';
+import { fetchPodcastFeed } from '@/features/podcasts/lib/rss';
+import { extractSeedColor } from '@/features/podcasts/lib/colorExtract';
 import {
   isSubscribed as isSubscribedSync,
   subscribeWithNotify,
   unsubscribeWithNotify,
   useIsSubscribed,
-} from '@/lib/podcasts/store';
-import { decodeRouteId } from '@/lib/podcasts/route';
-import DynamicPodcastTheme from '@/components/podcasts/DynamicPodcastTheme';
-import EpisodeListItem from '@/components/podcasts/EpisodeListItem';
+} from '@/features/podcasts/lib/store';
+import { decodeRouteId } from '@/features/podcasts/lib/route';
+import DynamicPodcastTheme from '@/features/podcasts/components/DynamicPodcastTheme';
+import EpisodeListItem from '@/features/podcasts/components/EpisodeListItem';
 
 /** Decode is shared with the Library page via `lib/podcasts/route.ts`
  *  so the two ends of the round-trip stay in sync. */

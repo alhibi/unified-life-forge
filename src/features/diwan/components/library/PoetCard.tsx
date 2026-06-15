@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Feather, ScrollText } from '@/lib/icons';
 import { motion } from 'framer-motion';
 import { useApp } from '@/contexts/AppContext';
-import type { DiwanPoetSummary } from '@/lib/diwan/types';
-import { useDiwanPrefetch } from '@/lib/diwan/hooks';
+import type { DiwanPoetSummary } from '@/features/diwan/lib/types';
+import { useDiwanPrefetch } from '@/features/diwan/lib/hooks';
 
 interface Props {
   poet: DiwanPoetSummary;

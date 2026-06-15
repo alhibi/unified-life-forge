@@ -3,11 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { Heart, Loader2, LogIn, ScrollText } from '@/lib/icons';
 import SEO from '@/components/SEO';
 import BackButton from '@/components/BackButton';
-import FallbackBadge from '@/components/diwan/library/FallbackBadge';
-import PoemCard from '@/components/diwan/library/PoemCard';
-import { useDiwanFavoritePoems } from '@/lib/diwan/hooks';
+import FallbackBadge from '@/features/diwan/components/library/FallbackBadge';
+import PoemCard from '@/features/diwan/components/library/PoemCard';
+import { useDiwanFavoritePoems } from '@/features/diwan/lib/hooks';
 import { useAuth } from '@/hooks/useAuth';
-import { isSupabaseReady } from '@/lib/diwan/env';
+import { isSupabaseReady } from '@/features/diwan/lib/env';
 
 /**
  * صفحة المفضّلة. تعتمد فعلياً على Supabase + auth — لا fallback محلّي

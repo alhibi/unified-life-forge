@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { WifiOff, FlaskConical } from '@/lib/icons';
-import { useFallbackStatus } from '@/lib/diwan/fallback-status';
+import { useFallbackStatus } from '@/features/diwan/lib/fallback-status';
 
 /**
  * شارة صغيرة تُعلم المستخدم متى يُعرض محتوى من البيانات المحلية بدلاً
