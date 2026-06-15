@@ -10,8 +10,8 @@ Legend: ✅ done · 🟡 partial · 🔴 not started · ⚪ N/A
 | **Chat / Messaging** | `pages/Chat.tsx`, `GroupChat.tsx`, `GroupsIndex.tsx`, `ChatSettings.tsx` | `components/chat/` + `ChatDrawer.tsx` | `lib/chat/` (canonical) + leak in `components/chat/useChat.ts` | 🟡 |
 | **Reading (RSS)** | `pages/Reading.tsx` | `features/reading/` | hooks colocated; page imports `supabase` directly | 🟡 |
 | **Wellness** | `pages/Wellness.tsx` | `features/wellness/` | local IndexedDB only | ✅ |
-| **Diwan (Poetry)** | `pages/Diwan.tsx`, `pages/diwan/*` | `components/diwan/` | `lib/diwan/` | 🟡 |
-| **Podcasts** | `pages/Podcasts.tsx`, `PodcastDetail.tsx`, `PodcastLibrary.tsx` | `components/podcasts/` | `lib/podcasts/` | 🟡 |
+| **Diwan (Poetry)** | `features/diwan/pages/` | `features/diwan/components/` | `features/diwan/lib/` + `features/diwan/data/` | ✅ |
+| **Podcasts** | `features/podcasts/pages/` | `features/podcasts/components/` | `features/podcasts/lib/` + colocated context | ✅ |
 | **Weather** | `features/weather/pages/Weather.tsx` | `features/weather/components/` | `features/weather/lib/` + `features/weather/hooks/useWeatherData.ts` | ✅ |
 | **Calendar / Occasions** | `features/calendar/pages/AllOccasions.tsx` | `features/calendar/components/ReligiousOccasions.tsx` | `features/calendar/data/` | ✅ |
 | **Duas** | `features/duas/pages/Duas.tsx` | — | `features/duas/data/duas.ts` | ✅ |
