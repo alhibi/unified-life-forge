@@ -759,7 +759,8 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
           </motion.div>
         </motion.div>
       )}
-    </AnimatePresence>,
+      </AnimatePresence>
+      <QueueSheet open={queueOpen} onClose={() => setQueueOpen(false)} />
     </>,
     document.body,
   );

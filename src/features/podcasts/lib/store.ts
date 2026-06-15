@@ -270,7 +270,12 @@ export function getQueue(): QueueItem[] {
 export function addToQueueBatch(items: Omit<QueueItem, 'addedAt'>[]): QueueItem[] {
   const existing = getQueue();
   const now = Date.now();
-  const newItems: QueueItem[] = items.map(i => ({ ...i, addedAt: now }));
+  // Dedupe against existing queue items by episode id so repeated taps
+  // on the same "+" button don't enqueue duplicate rows.
+  const existingIds = new Set(existing.map(q => q.episode.id));
+  const newItems: QueueItem[] = items
+    .filter(i => !existingIds.has(i.episode.id))
+    .map(i => ({ ...i, addedAt: now }));
   const merged = [...existing, ...newItems].slice(0, QUEUE_LIMIT);
   write(QUEUE_KEY, merged);
   return merged;
