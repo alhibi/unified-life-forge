@@ -10,12 +10,12 @@ import { Drawer, DrawerContent, DrawerTitle } from '@/components/ui/drawer';
 import * as VisuallyHidden from '@radix-ui/react-visually-hidden';
 import { useApp } from '@/contexts/AppContext';
 import { useDeviceLocation, requestDeviceLocation } from '@/hooks/useDeviceLocation';
-import { useWeatherData, type DailyEntry, type WeatherData } from '@/hooks/useWeatherData';
+import { useWeatherData, type DailyEntry, type WeatherData } from '@/features/weather/hooks/useWeatherData';
 import {
   listProviders, readOwmApiKey, writeOwmApiKey, writeProviderPref,
-} from '@/lib/weather';
-import { getMoonPhase } from '@/lib/weather/moonPhase';
-import { describeWeatherCode } from '@/lib/weather/describe';
+} from '@/features/weather/lib';
+import { getMoonPhase } from '@/features/weather/lib/moonPhase';
+import { describeWeatherCode } from '@/features/weather/lib/describe';
 
 /**
  * /weather — Forecast view designed to mirror the reference design 1:1:

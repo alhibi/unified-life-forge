@@ -20,7 +20,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '@/contexts/AppContext';
 import { useDeviceLocation } from '@/hooks/useDeviceLocation';
-import { useWeatherData } from '@/hooks/useWeatherData';
+import { useWeatherData } from '@/features/weather/hooks/useWeatherData';
 import { fetchPrayerTimings } from '@/hooks/usePrayerTimesCache';
 import {
   Sunrise, Sun, Moon, CloudRain, CloudSnow, Flame, BookOpen, X,

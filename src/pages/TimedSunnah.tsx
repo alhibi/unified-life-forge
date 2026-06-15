@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, Moon, Sun, CloudSun, Cloud, Calendar, Copy, Bookmark, BookOpen } from '@/lib/icons';
 import { sunnahDetailData } from '@/data/sunnahDetailData';
 import BackButton from '@/components/BackButton';
-import { useClipboard } from '@/hooks/useClipboard';
+import { useClipboard } from '@/features/clipboard/hooks/useClipboard';
 import { notify } from '@/lib/notify';
 
 export default function TimedSunnah() {

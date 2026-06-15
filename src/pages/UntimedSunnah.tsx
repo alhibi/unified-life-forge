@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, Volume2, Droplet, User, Star, Users, UtensilsCrossed, Shirt, Copy, Bookmark, BookOpen } from '@/lib/icons';
 import { untimedSunnahData } from '@/data/untimedSunnahData';
 import BackButton from '@/components/BackButton';
-import { useClipboard } from '@/hooks/useClipboard';
+import { useClipboard } from '@/features/clipboard/hooks/useClipboard';
 import { notify } from '@/lib/notify';
 
 const iconMap: Record<string, React.ElementType> = {
