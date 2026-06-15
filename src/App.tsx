@@ -87,12 +87,10 @@ const loadPodcastDetail = () => import("./features/podcasts/pages/PodcastDetail"
 const loadPodcastLibrary = () => import("./features/podcasts/pages/PodcastLibrary");
 const loadPodcastHistory = () => import("./features/podcasts/pages/History");
 const loadNotFound = () => import("./pages/NotFound");
-// Wellness and Diwan tabs are lazy because their static data files
-// (~10k lines combined) make eager-loading them measurable on cold
-// homepage paint. The bottom nav still highlights them and the tap
-// switches the route normally — first visit pays a brief skeleton,
-// subsequent visits hit React.lazy's module cache and are instant.
-const loadWellness = () => import("./pages/Wellness");
+// Diwan tab is lazy because its static poetry data file (~3k lines)
+// makes eager-loading it measurable on cold homepage paint. First
+// visit pays a brief skeleton; subsequent visits hit React.lazy's
+// module cache and are instant.
 const loadDiwan = () => import("./features/diwan/pages/Diwan");
 // Hubs introduced by the IA reorganisation: `/browse` ("اطلاع")
 // groups Podcasts + Articles, `/mihrab` groups Quran/Dhikr/Sunnah/
@@ -142,7 +140,6 @@ registerRoute('/settings/font',     loadFont);
 registerRoute('/settings/prayer',   loadPrayer);
 registerRoute('/auth',              loadAuth);
 registerRoute('/duas',              loadDuas);
-registerRoute('/wellness',          loadWellness);
 registerRoute('/diwan',             loadDiwan);
 registerRoute('/browse',            loadBrowse);
 registerRoute('/mihrab',            loadMihrab);
@@ -215,7 +212,6 @@ const PodcastDetailPage = lazy(loadPodcastDetail);
 const PodcastLibraryPage = lazy(loadPodcastLibrary);
 const PodcastHistoryPage = lazy(loadPodcastHistory);
 const NotFound = lazy(loadNotFound);
-const WellnessPage = lazy(loadWellness);
 const DiwanPage = lazy(loadDiwan);
 const BrowsePage = lazy(loadBrowse);
 const MihrabPage = lazy(loadMihrab);
@@ -232,8 +228,8 @@ const DiwanLibraryFavoritesPage = lazy(loadLibraryFavorites);
 
 // Tab pages are now eager (always mounted), so the idle prefetch warms
 // the next most-likely sub-routes instead of the tabs themselves.
-// Wellness and Diwan are lazy now too, so we prefetch them on idle so the
-// first tap doesn't pay the network/parse cost in the foreground.
+// Diwan is lazy too, so we prefetch it on idle so the first tap
+// doesn't pay the network/parse cost in the foreground.
 function useIdlePrefetch() {
   useEffect(() => {
     const ric: (cb: () => void) => number =
@@ -241,7 +237,7 @@ function useIdlePrefetch() {
       ((cb) => window.setTimeout(cb, 1500));
     const id = ric(() => {
       loadTheme(); loadProfile(); loadPrayer(); loadReading();
-      loadWellness(); loadDiwan();
+      loadDiwan();
       // Wave-1 chat surfaces. The groups index is one tap away from the
       // chat tab and the chat settings page is one tap away from there;
       // pre-warming both keeps the first navigation instant.
@@ -292,7 +288,7 @@ const PageSkeleton = () => (
 // <main> should reserve space at the bottom for the nav bar.
 // Must stay in sync with the `tabs` array in BottomNav.tsx.
 const ALL_NAV_PATHS = new Set([
-  '/', '/games', '/chat', '/wellness', '/weather', '/browse', '/mihrab', '/knowledge',
+  '/', '/games', '/chat', '/weather', '/browse', '/mihrab', '/knowledge',
 ]);
 
 // Tab routes that stay mounted across navigation. Their components are
@@ -300,8 +296,8 @@ const ALL_NAV_PATHS = new Set([
 // unmounted. This makes bottom-nav switching feel native and instant.
 //
 // The IA reorganisation reduced this set to the three small, hot tabs
-// the user touches all the time: Home, Games, Chat. Wellness, Browse,
-// and Mihrab are top-level destinations too (they appear in the bottom
+// the user touches all the time: Home, Games, Chat. Browse and
+// Mihrab are top-level destinations too (they appear in the bottom
 // nav) but are heavier; they are lazy non-persistent routes below so
 // their cold-paint cost stays off the home page. Their `display:none`
 // on first paint would have kept their data fetches running anyway,
@@ -472,8 +468,8 @@ function AnimatedRoutes() {
       <ScrollToTop />
       {/* Persistent layer — three small hot tabs (Home, Games, Chat)
           mounted once and toggled by display. The other bottom-nav
-          destinations (Wellness, Browse, Mihrab) are heavier and ride
-          the lazy non-persistent route path below. */}
+          destinations (Browse, Mihrab) are heavier and ride the lazy
+          non-persistent route path below. */}
       <PersistentTabs active={activeTab} mode={mode} />
       {/* Non-tab routes (sub-pages, settings details, games, etc.) */}
       {/* AnimatePresence must own PageTransition directly. Wrapping
@@ -501,7 +497,6 @@ function AnimatedRoutes() {
                   <Route path="/chat/g/:chatId" element={<ErrorBoundary><GroupChatPage /></ErrorBoundary>} />
                   <Route path="/settings" element={<ErrorBoundary><SettingsPage /></ErrorBoundary>} />
                   <Route path="/duas" element={<ErrorBoundary><DuasPage /></ErrorBoundary>} />
-                  <Route path="/wellness" element={<ErrorBoundary><WellnessPage /></ErrorBoundary>} />
                   <Route path="/diwan" element={<ErrorBoundary><DiwanPage /></ErrorBoundary>} />
                   <Route path="/browse" element={<ErrorBoundary><BrowsePage /></ErrorBoundary>} />
                   <Route path="/mihrab" element={<ErrorBoundary><MihrabPage /></ErrorBoundary>} />
