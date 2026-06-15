@@ -13,9 +13,9 @@ Legend: ✅ done · 🟡 partial · 🔴 not started · ⚪ N/A
 | **Diwan (Poetry)** | `pages/Diwan.tsx`, `pages/diwan/*` | `components/diwan/` | `lib/diwan/` | 🟡 |
 | **Podcasts** | `pages/Podcasts.tsx`, `PodcastDetail.tsx`, `PodcastLibrary.tsx` | `components/podcasts/` | `lib/podcasts/` | 🟡 |
 | **Weather** | `pages/Weather.tsx` | `components/WeatherWidget.tsx`, `WeatherForecast.tsx` (root) | `lib/weather/` + `hooks/useWeatherData.ts` | 🔴 |
-| **Calendar / Occasions** | `pages/AllOccasions.tsx` | `components/ReligiousOccasions.tsx` (root) | `data/islamicOccasions.ts`, `islamicEventsCatalog.ts` | 🔴 |
-| **Duas** | `pages/Duas.tsx` | — | `data/duas.ts` | 🔴 |
-| **Knowledge** | `pages/Knowledge.tsx` | embedded | embedded | 🔴 |
+| **Calendar / Occasions** | `features/calendar/pages/AllOccasions.tsx` | `features/calendar/components/ReligiousOccasions.tsx` | `features/calendar/data/` | ✅ |
+| **Duas** | `features/duas/pages/Duas.tsx` | — | `features/duas/data/duas.ts` | ✅ |
+| **Knowledge** | `features/knowledge/pages/Knowledge.tsx` | embedded | embedded | ✅ |
 | **Settings** | `Settings.tsx`, `ThemeSettings.tsx`, `FontSettings.tsx`, `PrayerSettings.tsx`, `ProfileEdit.tsx` | embedded | `contexts/AppContext.tsx` (god-context) + raw Supabase in `ProfileEdit` | 🔴 |
 | **Games** | `Games.tsx`, `Chess*.tsx`, `Dice*.tsx`, `Focus*.tsx`, `Memory*.tsx`, `Sudoku.tsx` (11 pages) | `components/GameShell.tsx` (root) | `data/chess*.ts`, `diceTournament.ts`, `memoryAdventure.ts`, `utils/sudokuSolver.ts`, `gameFeedback.ts` | 🔴 |
 | **Mihrab / Prayer Practice** | `pages/Mihrab.tsx`, `pages/mihrab/*` | `components/PrayerTimes.tsx` (1253 lines, root), `CurrentTimeSunnah.tsx` (root) | `lib/prayerTimes.ts`, `utils/prayerAstronomy.ts`, `hooks/usePrayerTimesCache.ts`, `useAutoPrayerTheme.ts` | 🔴 |
