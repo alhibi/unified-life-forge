@@ -33,7 +33,7 @@ import Index from "./pages/Index";
 // Games, Chat). Heavier hubs (Wellness, Mihrab, Browse) and the
 // `/diwan` redirect are routed lazily below — see the comments on
 // `loadWellness` / `loadMihrab` / `loadBrowse`.
-import GamesPage from "./pages/Games";
+import GamesPage from "./features/games/pages/Games";
 import ChatPage from "./pages/Chat";
 import { BOTTOM_NAV_HEIGHT } from "@/components/BottomNav";
 
@@ -50,16 +50,16 @@ function PresenceRunner() {
 
 // Lazy load all non-tab pages
 // Lazy loaders are kept as named factories so we can prefetch them on idle.
-const loadSudoku = () => import("./pages/Sudoku");
-const loadChess = () => import("./pages/Chess");
-const loadMemory = () => import("./pages/MemoryGame");
-const loadDice = () => import("./pages/DiceGame");
-const loadFocus = () => import("./pages/FocusGame");
-const loadChessPuzzle = () => import("./pages/ChessPuzzle");
-const loadChessCareer = () => import("./pages/ChessCareer");
-const loadMemoryAdventure = () => import("./pages/MemoryAdventure");
-const loadDiceTournament = () => import("./pages/DiceTournament");
-const loadFocusDecathlon = () => import("./pages/FocusDecathlon");
+const loadSudoku = () => import("./features/games/pages/Sudoku");
+const loadChess = () => import("./features/games/pages/Chess");
+const loadMemory = () => import("./features/games/pages/MemoryGame");
+const loadDice = () => import("./features/games/pages/DiceGame");
+const loadFocus = () => import("./features/games/pages/FocusGame");
+const loadChessPuzzle = () => import("./features/games/pages/ChessPuzzle");
+const loadChessCareer = () => import("./features/games/pages/ChessCareer");
+const loadMemoryAdventure = () => import("./features/games/pages/MemoryAdventure");
+const loadDiceTournament = () => import("./features/games/pages/DiceTournament");
+const loadFocusDecathlon = () => import("./features/games/pages/FocusDecathlon");
 const loadSettings = () => import("./pages/Settings");
 const loadDuas = () => import("./features/duas/pages/Duas");
 // Wave-1 chat surface — three new lazy pages backed by the new
