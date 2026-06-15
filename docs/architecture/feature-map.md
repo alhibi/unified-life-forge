@@ -12,7 +12,7 @@ Legend: ✅ done · 🟡 partial · 🔴 not started · ⚪ N/A
 | **Wellness** | `pages/Wellness.tsx` | `features/wellness/` | local IndexedDB only | ✅ |
 | **Diwan (Poetry)** | `pages/Diwan.tsx`, `pages/diwan/*` | `components/diwan/` | `lib/diwan/` | 🟡 |
 | **Podcasts** | `pages/Podcasts.tsx`, `PodcastDetail.tsx`, `PodcastLibrary.tsx` | `components/podcasts/` | `lib/podcasts/` | 🟡 |
-| **Weather** | `pages/Weather.tsx` | `components/WeatherWidget.tsx`, `WeatherForecast.tsx` (root) | `lib/weather/` + `hooks/useWeatherData.ts` | 🔴 |
+| **Weather** | `features/weather/pages/Weather.tsx` | `features/weather/components/` | `features/weather/lib/` + `features/weather/hooks/useWeatherData.ts` | ✅ |
 | **Calendar / Occasions** | `features/calendar/pages/AllOccasions.tsx` | `features/calendar/components/ReligiousOccasions.tsx` | `features/calendar/data/` | ✅ |
 | **Duas** | `features/duas/pages/Duas.tsx` | — | `features/duas/data/duas.ts` | ✅ |
 | **Knowledge** | `features/knowledge/pages/Knowledge.tsx` | embedded | embedded | ✅ |
@@ -20,7 +20,7 @@ Legend: ✅ done · 🟡 partial · 🔴 not started · ⚪ N/A
 | **Games** | `Games.tsx`, `Chess*.tsx`, `Dice*.tsx`, `Focus*.tsx`, `Memory*.tsx`, `Sudoku.tsx` (11 pages) | `components/GameShell.tsx` (root) | `data/chess*.ts`, `diceTournament.ts`, `memoryAdventure.ts`, `utils/sudokuSolver.ts`, `gameFeedback.ts` | 🔴 |
 | **Mihrab / Prayer Practice** | `pages/Mihrab.tsx`, `pages/mihrab/*` | `components/PrayerTimes.tsx` (1253 lines, root), `CurrentTimeSunnah.tsx` (root) | `lib/prayerTimes.ts`, `utils/prayerAstronomy.ts`, `hooks/usePrayerTimesCache.ts`, `useAutoPrayerTheme.ts` | 🔴 |
 | **Prayer Guide / Sunnah** | `PrayerGuide.tsx`, `PropheticDay.tsx`, `TimedSunnah.tsx`, `UntimedSunnah.tsx`, `SunnahDetail.tsx` | embedded | `data/sunnahDetailData.ts`, `untimedSunnahData.ts`, `nawawiHadiths.ts` | 🔴 |
-| **Clipboard / Locations** | inline in `Index.tsx` | `components/LocationSaver.tsx` (root) | `hooks/useClipboard.ts` (raw Supabase) | 🔴 |
+| **Clipboard / Locations** | inline in `Index.tsx` | `features/clipboard/components/LocationSaver.tsx` | `features/clipboard/hooks/useClipboard.ts` (api.ts pending) | 🟡 |
 | **Home Dashboard** | `pages/Index.tsx` | `UmmahPulse.tsx`, `UmmahGlobe.tsx`, `LivingRibbon.tsx`, `SmartGreeting.tsx` (all root, 1363+1208+ lines) | — | 🔴 |
 | **Auth** | `pages/Auth.tsx` | — | `hooks/useAuth.tsx`, `lib/auth/localAuthStore.ts` | 🟡 |
 | **Tafsir / QuranVirtues** | `pages/Tafsir.tsx`, `QuranVirtues.tsx` | embedded | embedded | 🔴 |
