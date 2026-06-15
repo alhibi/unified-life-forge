@@ -14,7 +14,7 @@
 
 import { memo, useMemo } from 'react';
 import DOMPurify from 'dompurify';
-import { CheckCircle2, Loader2, Pause, Play, RotateCcw } from '@/lib/icons';
+import { CheckCircle2, ListPlus, Loader2, Pause, Play, RotateCcw } from '@/lib/icons';
 import { motion } from 'framer-motion';
 import type { PodcastEpisode } from '@/features/podcasts/lib/rss';
 import { usePodcastPlayer, type PlayingEpisodeMeta } from '@/features/podcasts/contexts/PodcastPlayerContext';
@@ -250,6 +250,27 @@ const EpisodeListItem = memo(function EpisodeListItem({
               ? formatRemaining(duration, playState.position, lang)
               : formatDuration(duration) || (lang === 'ar' ? 'تشغيل' : 'Abspielen')}
           </span>
+        </button>
+
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            player.addEpisodeToQueue(
+              episode,
+              podcastTitle,
+              podcastImageUrl,
+              seedH, seedS, seedL
+            );
+            // Brief success flash handled by CSS animation
+            const el = e.currentTarget;
+            el.classList.add('scale-110');
+            setTimeout(() => el.classList.remove('scale-110'), 200);
+          }}
+          aria-label={lang === 'ar' ? 'أضف إلى قائمة التشغيل' : 'Zur Warteschlange'}
+          className="w-9 h-9 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
+        >
+          <ListPlus className="w-4 h-4" />
         </button>
 
         <button

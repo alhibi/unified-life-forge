@@ -21,7 +21,7 @@
 // sheet isn't already open — same gating logic Podium uses.
 
 import { memo, KeyboardEvent, MouseEvent, useState } from 'react';
-import { Loader2, Pause, Play, RotateCcw, RotateCw } from '@/lib/icons';
+import { ListMusic, Loader2, Pause, Play, RotateCcw, RotateCw } from '@/lib/icons';
 import { AnimatePresence, motion } from 'framer-motion';
 import { usePodcastPlayer, usePodcastPlayerProgress } from '@/features/podcasts/contexts/PodcastPlayerContext';
 import PlayerSheet from './PlayerSheet';
@@ -205,6 +205,20 @@ const PodcastMiniPlayer = memo(function PodcastMiniPlayer() {
                 </p>
                 <MiniProgressBar />
               </div>
+
+              {/* Queue count badge */}
+              {player.queueCount > 0 && (
+                <span
+                  className="shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold"
+                  style={{
+                    background: 'var(--podcast-primary-soft, hsl(var(--primary)/0.2))',
+                    color: 'var(--podcast-primary, hsl(var(--primary)))',
+                  }}
+                  title={player.queueCount + ' in queue'}
+                >
+                  {player.queueCount > 99 ? '99+' : player.queueCount}
+                </span>
+              )}
 
               {/* Inline transport cluster: skip-back, play/pause, skip-
                   forward. Compact (32–40px tap targets) so the title

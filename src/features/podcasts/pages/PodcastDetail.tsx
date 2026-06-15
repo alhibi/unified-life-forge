@@ -25,8 +25,8 @@ import { useQuery } from '@tanstack/react-query';
 import DOMPurify from 'dompurify';
 import { motion } from 'framer-motion';
 import {
-  ArrowDownNarrowWide, ArrowUpNarrowWide, Check, ChevronDown, ChevronUp,
-  ExternalLink, Globe, Loader2, Plus, Rss, Search, Share2, X,
+  ArrowDownNarrowWide, ArrowUpNarrowWide, Check, CheckCircle2, ChevronDown, ChevronUp,
+  ExternalLink, Filter, Globe, Loader2, Play, Plus, Rss, Search, Share2, X,
 } from '@/lib/icons';
 import SEO from '@/components/SEO';
 import BackButton from '@/components/BackButton';
@@ -41,6 +41,7 @@ import {
   useIsSubscribed,
 } from '@/features/podcasts/lib/store';
 import { decodeRouteId } from '@/features/podcasts/lib/route';
+import { usePlayState } from '@/features/podcasts/lib/store';
 import DynamicPodcastTheme from '@/features/podcasts/components/DynamicPodcastTheme';
 import EpisodeListItem from '@/features/podcasts/components/EpisodeListItem';
 
@@ -219,6 +220,12 @@ export default function PodcastDetail() {
   const [episodeQuery, setEpisodeQuery] = useState('');
   const [debouncedEpisodeQuery, setDebouncedEpisodeQuery] = useState('');
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
+  type EpisodeFilter = 'all' | 'unplayed' | 'in-progress' | 'played';
+  const [episodeFilter, setEpisodeFilter] = useState<EpisodeFilter>('all');
+  // We need play states for all episodes to determine filter counts.
+  // getPlayState is fast (reads from localStorage once), so calling it
+  // per episode in the filter below is acceptable for the list sizes
+  // we typically render (capped at visibleCount).
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
   // Debounce the search input — typing one char per ~80 ms shouldn't
@@ -230,16 +237,35 @@ export default function PodcastDetail() {
 
   // Reset pagination whenever the filter inputs change so the user
   // doesn't see "Load more" at the bottom of a 3-item filtered list.
-  useEffect(() => { setVisibleCount(PAGE_SIZE); }, [debouncedEpisodeQuery, sortOrder, feedUrl]);
+  useEffect(() => { setVisibleCount(PAGE_SIZE); }, [debouncedEpisodeQuery, sortOrder, episodeFilter, feedUrl]);
 
   const filteredSortedEpisodes = useMemo(() => {
     const all = feed.data?.episodes ?? [];
-    const filtered = debouncedEpisodeQuery
+    // Text search first
+    let filtered = debouncedEpisodeQuery
       ? all.filter(ep =>
           ep.title.toLowerCase().includes(debouncedEpisodeQuery) ||
           (ep.description ?? '').toLowerCase().includes(debouncedEpisodeQuery)
         )
       : all;
+    // Episode status filter — reads from persisted play states.
+    // Using the imperative getPlayState (not the hook) because this
+    // runs inside useMemo which forbids hooks, and we re-derive on
+    // every render already.
+    if (episodeFilter !== 'all') {
+      const { getPlayState: getPS } = require('@/features/podcasts/lib/store') as typeof import('@/features/podcasts/lib/store');
+      filtered = filtered.filter(ep => {
+        const ps = getPS(ep.id);
+        const duration = ep.duration || 0;
+        const progress = ps?.position ?? 0;
+        switch (episodeFilter) {
+          case 'unplayed':   return !ps?.played && progress === 0;
+          case 'in-progress': return !ps?.played && progress > 5 && (duration > 0 ? (progress / duration) < 0.99 : true);
+          case 'played':     return !!ps?.played;
+        }
+        return true;
+      });
+    }
     // Most podcast RSS feeds list newest-first already, but a small
     // minority don't, so sort defensively. Items without a parseable
     // pubDate (=0) sink to the bottom in newest mode and to the top
@@ -249,7 +275,7 @@ export default function PodcastDetail() {
       return (a.pubDate || Number.MAX_SAFE_INTEGER) - (b.pubDate || Number.MAX_SAFE_INTEGER);
     });
     return sorted;
-  }, [feed.data?.episodes, debouncedEpisodeQuery, sortOrder]);
+  }, [feed.data?.episodes, debouncedEpisodeQuery, sortOrder, episodeFilter]);
 
   const visibleEpisodes = filteredSortedEpisodes.slice(0, visibleCount);
   const hasMore = filteredSortedEpisodes.length > visibleCount;
@@ -491,6 +517,32 @@ export default function PodcastDetail() {
                       : feed.data.episodes.length}
                   </span>
                 </div>
+                {/* Episode filter tabs */}
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  {([
+                    { key: 'all', labelAr: 'الكل', labelDe: 'Alle', icon: Filter },
+                    { key: 'unplayed', labelAr: 'غير مستمعة', labelDe: 'Ungehort', icon: Play },
+                    { key: 'in-progress', labelAr: 'قيد التقدم', labelDe: 'In Arbeit', icon: Loader2 },
+                    { key: 'played', labelAr: 'مستمع', labelDe: 'Gehort', icon: CheckCircle2 },
+                  ] as const).map(f => {
+                    const active = episodeFilter === f.key;
+                    const Icon = f.icon;
+                    return (
+                      <button
+                        key={f.key}
+                        type="button"
+                        onClick={() => setEpisodeFilter(f.key)}
+                        className={`flex items-center gap-1 px-2.5 h-7 rounded-full text-[11px] font-semibold transition-colors ${
+                          active ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:text-foreground'
+                        }`}
+                      >
+                        <Icon className="w-3 h-3" />
+                        <span>{lang === 'ar' ? f.labelAr : f.labelDe}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+
                 {feed.data.episodes.length > 5 && (
                   <div className="flex items-center gap-2">
                     <div className="flex-1 relative">
