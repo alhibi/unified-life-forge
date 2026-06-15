@@ -273,22 +273,7 @@
      every route inherits the same heartbeat without any per-page
      code. Pure opacity → compositor-only, 0 layout cost.
      ────────────────────────────────────────────────────────────── */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
-    background:
-      radial-gradient(
-        ellipse 70% 45% at 50% -5%,
-        hsl(var(--live-glow) / 0.10) 0%,
-        hsl(var(--live-glow) / 0.04) 35%,
-        transparent 70%
-      );
-    animation: ambient-breath 6s ease-in-out infinite;
-    will-change: opacity;
-  }
+  body::before { content: none; }
   @keyframes ambient-breath {
     0%, 100% { opacity: 0.55; }
     50%      { opacity: 1; }
