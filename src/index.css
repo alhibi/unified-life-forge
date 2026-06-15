@@ -420,16 +420,14 @@
   .app-card-pressable {
     transition:
       transform 120ms var(--ease-spring),
-      box-shadow 150ms var(--ease-out-expo),
+      background-color 150ms var(--ease-out-expo),
       border-color 150ms ease-out;
     cursor: pointer;
     will-change: transform;
   }
   .app-card-pressable:active {
     transform: scale(0.98);
-    box-shadow:
-      inset 0 1px 2px 0 hsl(0 0% 0% / 0.35),
-      inset 0 -1px 0 0 hsl(0 0% 100% / 0.02);
+    background-color: hsl(var(--accent) / 0.4);
   }
 
   /* The canonical icon button used in headers/toolbars. 40x40, rounded-xl. */
