@@ -554,18 +554,12 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      hsl(var(--foreground) / 0.06) 50%,
-      transparent 100%
-    );
-    transform: translateX(-100%);
-    animation: skeleton-shimmer 1.5s linear infinite;
-    will-change: transform;
+    background-color: hsl(var(--foreground) / 0.04);
+    animation: skeleton-pulse 1.4s ease-in-out infinite;
   }
-  @keyframes skeleton-shimmer {
-    100% { transform: translateX(100%); }
+  @keyframes skeleton-pulse {
+    0%, 100% { opacity: 0; }
+    50%      { opacity: 1; }
   }
 
   @keyframes shimmer {
