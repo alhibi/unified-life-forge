@@ -12,10 +12,9 @@
 //   • Empty state: illustration + "Queue is empty" message
 //   • Add-to-queue CTA when queue is empty: "Browse podcasts"
 
-import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ListMusic, Trash2, X, Music } from '@/lib/icons';
+import { ListMusic, Trash2, X, Music, ChevronUp, ChevronDown } from '@/lib/icons';
 import { usePodcastPlayer } from '@/features/podcasts/contexts/PodcastPlayerContext';
 import { useApp } from '@/contexts/AppContext';
 import { upgradeArtwork } from '@/features/podcasts/lib/itunes';
@@ -37,10 +36,6 @@ export default function QueueSheet({ open, onClose }: QueueSheetProps) {
   const player = usePodcastPlayer();
   const { language } = useApp();
   const lang = language === 'de' ? 'de' : 'ar';
-  
-  // Drag state for reorder. Simple tap-and-hold with visual feedback.
-  const [dragIndex, setDragIndex] = useState<number | null>(null);
-  const [dropIndex, setDropIndex] = useState<number | null>(null);
 
   const items = player.queueItems;
 
@@ -50,24 +45,6 @@ export default function QueueSheet({ open, onClose }: QueueSheetProps) {
 
   const handleClear = () => {
     player.clearQueue();
-  };
-
-  const handleDragStart = (index: number) => {
-    setDragIndex(index);
-  };
-
-  const handleDragOver = (index: number) => {
-    if (dragIndex !== null && dragIndex !== index) {
-      setDropIndex(index);
-    }
-  };
-
-  const handleDragEnd = () => {
-    if (dragIndex !== null && dropIndex !== null && dragIndex !== dropIndex) {
-      player.reorderQueue(dragIndex, dropIndex);
-    }
-    setDragIndex(null);
-    setDropIndex(null);
   };
 
   if (!open) return null;
