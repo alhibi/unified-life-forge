@@ -19,6 +19,7 @@ import { AnimatePresence } from 'framer-motion';
 import { useClipboard } from '@/hooks/useClipboard';
 import { getAppleEmojiUrl, isEmojiAvatarValue } from '@/utils/emojiAvatar';
 import { getDefaultAvatarForUser } from '@/utils/defaultAvatar';
+import { PageShell, IconButton } from '@/components/ui/app-shell';
 
 const stagger = {
   hidden: {},
@@ -50,7 +51,7 @@ export default function Index() {
   const { items: saved, removeItem } = useClipboard('sunnah');
 
   return (
-    <div className="min-h-screen bg-background pb-28 px-5 pt-14">
+    <PageShell>
       <SEO title="SmartHub — أوقات الصلاة والأذكار والقرآن" description="الصفحة الرئيسية لـ SmartHub: أوقات الصلاة، التقويم الهجري، الطقس، الأذكار وروابط سريعة لكل الأقسام." path="/" />
       {/* Descriptive H1 for SEO & a11y; visual greeting below acts as a styled subhead */}
       <h1 className="sr-only">
@@ -58,39 +59,28 @@ export default function Index() {
           ? 'SmartHub — لوحتك اليومية لأوقات الصلاة، القرآن، الأذكار، الطقس والتقويم الهجري'
           : 'SmartHub — Dein tägliches Dashboard für Gebetszeiten, Quran, Adhkar, Wetter und Hidschri-Kalender'}
       </h1>
-      <motion.div
-        variants={stagger}
-        initial="hidden"
-        animate="show"
-        className="space-y-5 max-w-lg mx-auto"
-      >
+      <motion.div variants={stagger} initial="hidden" animate="show" className="contents">
         <motion.div variants={item}>
           <div className="flex items-center justify-between gap-3">
             <SmartGreeting />
             <div className="flex items-center gap-2 shrink-0">
-              <button
-                onClick={() => setShowClipboard(true)}
-                className="relative p-2.5 rounded-xl bg-accent/50 hover:bg-accent transition-colors" aria-label="الحافظة"
-              >
-                <ClipboardList className="h-5 w-5 text-foreground" />
+              <IconButton onClick={() => setShowClipboard(true)} aria-label="الحافظة">
+                <ClipboardList className="h-5 w-5" />
                 {saved.length > 0 && (
                   <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">
                     {saved.length}
                   </span>
                 )}
-              </button>
+              </IconButton>
               {user && (
-                <button
-                  onClick={() => navigate('/chat')}
-                  className="relative p-2.5 rounded-xl bg-accent/50 hover:bg-accent transition-colors" aria-label="المحادثات"
-                >
-                  <MessageCircle className="h-5 w-5 text-foreground" />
+                <IconButton onClick={() => navigate('/chat')} aria-label="المحادثات">
+                  <MessageCircle className="h-5 w-5" />
                   {unreadCount > 0 && (
                     <span className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground text-[10px] rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 font-bold animate-pulse">
                       {unreadCount}
                     </span>
                   )}
-                </button>
+                </IconButton>
               )}
               {/* Avatar shortcut → /settings.
                   Replaces the previous Newspaper button (which moved
@@ -239,6 +229,6 @@ export default function Index() {
         </>,
         document.body
       )}
-    </div>
+    </PageShell>
   );
 }
