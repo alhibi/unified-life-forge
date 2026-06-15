@@ -137,23 +137,38 @@ export default function QueueSheet({ open, onClose }: QueueSheetProps) {
                   </div>
                 )}
                 {items.map((item, index) => {
-                  const isDragging = dragIndex === index;
-                  const isDropTarget = dropIndex === index && dragIndex !== null;
                   const artwork = item.episode.imageUrl || item.podcastImageUrl;
+                  const canMoveUp = index > 0;
+                  const canMoveDown = index < items.length - 1;
                   return (
                     <div
                       key={item.episode.id}
-                      draggable
-                      onDragStart={() => handleDragStart(index)}
-                      onDragOver={() => handleDragOver(index)}
-                      onDragEnd={handleDragEnd}
-                      className={`flex items-center gap-3 px-4 py-2.5 transition-all ${
-                        isDragging ? 'opacity-50 scale-[0.97]' : ''
-                      } ${
-                        isDropTarget ? 'border-t-2 border-primary' : ''
-                      }`}
+                      className="flex items-center gap-3 px-4 py-2.5 transition-all"
                     >
-                      {/* Drag handle + index */}
+                      {/* Move up / down — touch-friendly replacement
+                          for HTML5 drag (which doesn't fire on mobile). */}
+                      <div className="flex flex-col items-center justify-center shrink-0 -my-1">
+                        <button
+                          type="button"
+                          onClick={() => canMoveUp && player.reorderQueue(index, index - 1)}
+                          disabled={!canMoveUp}
+                          aria-label={lang === 'ar' ? 'تحريك للأعلى' : 'Nach oben'}
+                          className="w-6 h-6 rounded-md flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/60 disabled:opacity-30 disabled:pointer-events-none"
+                        >
+                          <ChevronUp className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => canMoveDown && player.reorderQueue(index, index + 1)}
+                          disabled={!canMoveDown}
+                          aria-label={lang === 'ar' ? 'تحريك للأسفل' : 'Nach unten'}
+                          className="w-6 h-6 rounded-md flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/60 disabled:opacity-30 disabled:pointer-events-none"
+                        >
+                          <ChevronDown className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+
+                      {/* Index */}
                       <span className="text-[11px] text-muted-foreground tabular-nums w-5 text-center shrink-0">
                         {index + 1}
                       </span>
