@@ -11,7 +11,7 @@ import { motion } from 'framer-motion';
 import WeatherWidget from '@/components/WeatherWidget';
 import CurrentTimeSunnah from '@/components/CurrentTimeSunnah';
 import UmmahPulse from '@/components/UmmahPulse';
-import LivingRibbon from '@/components/LivingRibbon';
+
 import SmartGreeting from '@/components/SmartGreeting';
 import { useNavigate } from 'react-router-dom';
 import { MessageCircle, ClipboardList, X, Trash2, BookOpen, UserCircle } from '@/lib/icons';
