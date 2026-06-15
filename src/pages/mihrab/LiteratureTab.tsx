@@ -18,7 +18,7 @@ import { Leaf, ChevronLeft, ChevronRight } from '@/lib/icons';
 
 // Lazy because the library data is large; defer until the user
 // actually opens the Literature tab.
-const DiwanLibraryPage = lazy(() => import('../diwan/Library'));
+const DiwanLibraryPage = lazy(() => import('@/features/diwan/pages/Library'));
 
 const LibrarySkeleton = () => (
   <div className="space-y-2 pt-1">

@@ -16,7 +16,7 @@ import {
   extractRhyme,
   splitVerse,
   extractYears,
-} from '../../../scripts/diwan/normalize.ts';
+} from '../../../../scripts/diwan/normalize.ts';
 
 describe('normalizeArabic', () => {
   it('returns empty string for null/undefined/empty', () => {
