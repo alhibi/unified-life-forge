@@ -1,11 +1,11 @@
 import React, { useMemo, useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
-import GameShell from '@/components/GameShell';
+import GameShell from '@/features/games/components/GameShell';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Crown, Lock, Check, Swords, ChevronRight, Trophy, Sparkles } from '@/lib/icons';
-import { BOTS, BotPersonality } from '@/data/chessBots';
-import { playSfx, vibrate } from '@/utils/gameFeedback';
+import { BOTS, BotPersonality } from '@/features/games/data/chessBots';
+import { playSfx, vibrate } from '@/features/games/utils/gameFeedback';
 
 // =============================================================================
 // Career-mode storage

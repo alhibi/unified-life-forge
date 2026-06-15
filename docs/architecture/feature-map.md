@@ -17,7 +17,7 @@ Legend: ✅ done · 🟡 partial · 🔴 not started · ⚪ N/A
 | **Duas** | `features/duas/pages/Duas.tsx` | — | `features/duas/data/duas.ts` | ✅ |
 | **Knowledge** | `features/knowledge/pages/Knowledge.tsx` | embedded | embedded | ✅ |
 | **Settings** | `Settings.tsx`, `ThemeSettings.tsx`, `FontSettings.tsx`, `PrayerSettings.tsx`, `ProfileEdit.tsx` | embedded | `contexts/AppContext.tsx` (god-context) + raw Supabase in `ProfileEdit` | 🔴 |
-| **Games** | `Games.tsx`, `Chess*.tsx`, `Dice*.tsx`, `Focus*.tsx`, `Memory*.tsx`, `Sudoku.tsx` (11 pages) | `components/GameShell.tsx` (root) | `data/chess*.ts`, `diceTournament.ts`, `memoryAdventure.ts`, `utils/sudokuSolver.ts`, `gameFeedback.ts` | 🔴 |
+| **Games** | `features/games/pages/` (11 pages) | `features/games/components/GameShell.tsx` | `features/games/data/` + `features/games/utils/` | ✅ |
 | **Mihrab / Prayer Practice** | `pages/Mihrab.tsx`, `pages/mihrab/*` | `components/PrayerTimes.tsx` (1253 lines, root), `CurrentTimeSunnah.tsx` (root) | `lib/prayerTimes.ts`, `utils/prayerAstronomy.ts`, `hooks/usePrayerTimesCache.ts`, `useAutoPrayerTheme.ts` | 🔴 |
 | **Prayer Guide / Sunnah** | `PrayerGuide.tsx`, `PropheticDay.tsx`, `TimedSunnah.tsx`, `UntimedSunnah.tsx`, `SunnahDetail.tsx` | embedded | `data/sunnahDetailData.ts`, `untimedSunnahData.ts`, `nawawiHadiths.ts` | 🔴 |
 | **Clipboard / Locations** | inline in `Index.tsx` | `features/clipboard/components/LocationSaver.tsx` | `features/clipboard/hooks/useClipboard.ts` (api.ts pending) | 🟡 |

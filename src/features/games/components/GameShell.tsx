@@ -3,7 +3,7 @@ import { useApp } from '@/contexts/AppContext';
 import BackButton from '@/components/BackButton';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Info, Settings2, BarChart3, ChevronDown, X, Volume2, VolumeX, Vibrate, type LucideIcon } from '@/lib/icons';
-import { isHapticsOff, isMuted, setHapticsOff, setMuted } from '@/utils/gameFeedback';
+import { isHapticsOff, isMuted, setHapticsOff, setMuted } from '@/features/games/utils/gameFeedback';
 
 interface GameStats {
   label: string;

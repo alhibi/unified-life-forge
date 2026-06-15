@@ -1,15 +1,15 @@
 import React, { useMemo, useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
-import GameShell from '@/components/GameShell';
+import GameShell from '@/features/games/components/GameShell';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Dices, Trophy, Sparkles, Zap, ChevronRight, Play, RotateCcw, User as UserIcon } from '@/lib/icons';
 import {
   DICE_BOTS, DicePersonality,
   TournamentState, TournamentMatch,
   loadTournament, buildTournament, clearTournament, saveTournament, simulateMatch,
-} from '@/data/diceTournament';
-import { playSfx, vibrate } from '@/utils/gameFeedback';
+} from '@/features/games/data/diceTournament';
+import { playSfx, vibrate } from '@/features/games/utils/gameFeedback';
 
 // =============================================================================
 // Bracket page: shows the 4-player tree, the tournament's status, and a CTA

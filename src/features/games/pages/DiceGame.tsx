@@ -1,14 +1,14 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
-import GameShell from '@/components/GameShell';
+import GameShell from '@/features/games/components/GameShell';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Dices, RotateCcw, Crown, Bot, User as UserIcon, PiggyBank, Swords, Trophy, Flame } from '@/lib/icons';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { playSfx, vibrate } from '@/utils/gameFeedback';
+import { playSfx, vibrate } from '@/features/games/utils/gameFeedback';
 import {
   DICE_BOTS, DicePersonality, effectiveThreshold,
   loadTournament, saveTournament, recordPlayerMatch, TournamentState,
-} from '@/data/diceTournament';
+} from '@/features/games/data/diceTournament';
 
 // =============================================================================
 // Dice rendering

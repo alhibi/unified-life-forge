@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useApp } from '@/contexts/AppContext';
-import GameShell from '@/components/GameShell';
+import GameShell from '@/features/games/components/GameShell';
 import {
   RefreshCw, Play, Pause, Eye, Shuffle as ShuffleIcon, Sparkles, Trophy, Brain,
   Timer as TimerIcon, Calendar, Zap, Award, Flame, Lock,
 } from '@/lib/icons';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { playSfx, vibrate } from '@/utils/gameFeedback';
-import { STAGES, AdventureStage, gradeStage, recordStageResult } from '@/data/memoryAdventure';
+import { playSfx, vibrate } from '@/features/games/utils/gameFeedback';
+import { STAGES, AdventureStage, gradeStage, recordStageResult } from '@/features/games/data/memoryAdventure';
 
 type Difficulty = 'easy' | 'medium' | 'hard' | 'expert';
 type Mode = 'classic' | 'endless' | 'timeattack' | 'daily' | 'versus' | 'adventure';
