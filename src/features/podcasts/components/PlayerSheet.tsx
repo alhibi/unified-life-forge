@@ -24,13 +24,14 @@
 import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import {
-  ChevronDown, ChevronUp, FileText, Gauge, Loader2, Moon, Pause, Play, Repeat,
+  ChevronDown, ChevronUp, FileText, Gauge, ListMusic, Loader2, Moon, Pause, Play, Repeat,
   RotateCcw, RotateCw, Share2, X,
 } from '@/lib/icons';
 import { AnimatePresence, motion } from 'framer-motion';
 import DOMPurify from 'dompurify';
 import { usePodcastPlayer, usePodcastPlayerProgress } from '@/features/podcasts/contexts/PodcastPlayerContext';
 import { useApp } from '@/contexts/AppContext';
+import QueueSheet from './QueueSheet';
 
 const SKIP = 15;
 const SPEEDS = [0.75, 1.0, 1.25, 1.5, 1.75, 2.0];
@@ -145,6 +146,7 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
   // Sleep-timer popover open/close. Kept here (not inside the popover
   // component) so tapping elsewhere on the sheet collapses it.
   const [sleepOpen, setSleepOpen] = useState(false);
+  const [queueOpen, setQueueOpen] = useState(false);
   // Speed popover — replaces the previous always-on row of pills with
   // a compact chip + on-demand picker, freeing horizontal space for
   // the transport row to breathe.
@@ -172,6 +174,7 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
       setSleepOpen(false);
       setSpeedOpen(false);
       setDescOpen(false);
+      setQueueOpen(false);
       setCopiedLink(false);
     }
   }, [open]);
@@ -609,6 +612,28 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
                   </span>
                 </button>
 
+                {/* Queue / Up Next */}
+                <button
+                  type="button"
+                  onClick={() => { setQueueOpen(true); setSleepOpen(false); setSpeedOpen(false); }}
+                  aria-label={lang === 'ar' ? 'قائمة التشغيل' : 'Warteschlange'}
+                  className={`flex items-center gap-1.5 px-3 h-9 rounded-full text-[12px] font-semibold transition-colors ${
+                    player.queueCount > 0 ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                  style={{
+                    background: player.queueCount > 0
+                      ? 'var(--podcast-primary-soft, hsl(var(--primary)/0.15))'
+                      : 'transparent',
+                  }}
+                >
+                  <ListMusic className="w-4 h-4" />
+                  <span>
+                    {player.queueCount > 0
+                      ? player.queueCount
+                      : (lang === 'ar' ? 'التالي' : 'Nächste')}
+                  </span>
+                </button>
+
                 {/* Share */}
                 <button
                   type="button"
@@ -737,3 +762,5 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
     document.body,
   );
 }
+
+      <QueueSheet open={queueOpen} onClose={() => setQueueOpen(false)} />

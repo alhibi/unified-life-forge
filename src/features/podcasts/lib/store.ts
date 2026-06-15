@@ -238,19 +238,162 @@ export function removeRecentEpisode(episodeId: string): RecentEpisodeRecord[] {
   return next;
 }
 
+
 /* -------------------------------------------------------------------------- */
-/*  Subscriber model — four independent sets, one per slice                    */
+/*  Queue (Up Next)                                                            */
+/* -------------------------------------------------------------------------- */
+
+export interface QueueItem {
+  episode: PodcastEpisode;
+  podcastTitle: string;
+  podcastImageUrl: string;
+  seedH: number | null;
+  seedS: number | null;
+  seedL: number | null;
+  addedAt: number;
+}
+
+const QUEUE_KEY = 'podcasts.queue';
+const QUEUE_LIMIT = 100;
+
+export function getQueue(): QueueItem[] {
+  const raw = read<unknown>(QUEUE_KEY, []);
+  if (!Array.isArray(raw)) return [];
+  return raw.filter((r): r is QueueItem =>
+    !!r && typeof r === 'object' &&
+    !!(r as QueueItem).episode &&
+    !!(r as QueueItem).episode.id &&
+    !!(r as QueueItem).episode.audioUrl
+  );
+}
+
+export function addToQueueBatch(items: Omit<QueueItem, 'addedAt'>[]): QueueItem[] {
+  const existing = getQueue();
+  const now = Date.now();
+  const newItems: QueueItem[] = items.map(i => ({ ...i, addedAt: now }));
+  const merged = [...existing, ...newItems].slice(0, QUEUE_LIMIT);
+  write(QUEUE_KEY, merged);
+  return merged;
+}
+
+export function addToQueue(item: Omit<QueueItem, 'addedAt'>): QueueItem[] {
+  return addToQueueBatch([item]);
+}
+
+export function removeFromQueue(episodeId: string): QueueItem[] {
+  const next = getQueue().filter(q => q.episode.id !== episodeId);
+  write(QUEUE_KEY, next);
+  return next;
+}
+
+export function reorderQueue(fromIndex: number, toIndex: number): QueueItem[] {
+  const list = [...getQueue()];
+  if (fromIndex < 0 || fromIndex >= list.length) return list;
+  if (toIndex < 0 || toIndex >= list.length) return list;
+  const [item] = list.splice(fromIndex, 1);
+  list.splice(toIndex, 0, item);
+  write(QUEUE_KEY, list);
+  return list;
+}
+
+export function clearQueue(): void {
+  write(QUEUE_KEY, []);
+}
+
+export function popNextFromQueue(): QueueItem | null {
+  const list = getQueue();
+  if (list.length === 0) return null;
+  const [next, ...rest] = list;
+  write(QUEUE_KEY, rest);
+  return next;
+}
+
+export function shiftQueue(count: number): QueueItem[] {
+  const list = getQueue();
+  const rest = list.slice(count);
+  write(QUEUE_KEY, rest);
+  return list.slice(0, count);
+}
+
+export function getQueueCount(): number {
+  return getQueue().length;
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Listening History                                                          */
+/* -------------------------------------------------------------------------- */
+
+export interface HistoryEntry {
+  episodeId: string;
+  episodeTitle: string;
+  podcastTitle: string;
+  podcastImageUrl: string;
+  /** RSS feed URL so we can link back to the podcast detail page. */
+  feedOrigin: string;
+  position: number;
+  duration: number;
+  /** Whether the episode was marked as fully listened. */
+  completed: boolean;
+  /** ms since epoch when this entry was recorded. */
+  listenedAt: number;
+}
+
+const HISTORY_KEY = 'podcasts.history';
+const HISTORY_LIMIT = 200;
+
+export function getHistory(): HistoryEntry[] {
+  const raw = read<unknown>(HISTORY_KEY, []);
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .filter((r): r is HistoryEntry =>
+      !!r && typeof r === 'object' && !!(r as HistoryEntry).episodeId)
+    .sort((a, b) => (b as HistoryEntry).listenedAt - (a as HistoryEntry).listenedAt);
+}
+
+export function addHistoryEntry(entry: Omit<HistoryEntry, 'listenedAt'>): HistoryEntry[] {
+  const existing = getHistory().filter(h => h.episodeId !== entry.episodeId);
+  existing.unshift({ ...entry, listenedAt: Date.now() });
+  const trimmed = existing.slice(0, HISTORY_LIMIT);
+  write(HISTORY_KEY, trimmed);
+  return trimmed;
+}
+
+export function addHistoryEntries(entries: Omit<HistoryEntry, 'listenedAt'>[]): HistoryEntry[] {
+  let list = getHistory();
+  for (const entry of entries) {
+    list = list.filter(h => h.episodeId !== entry.episodeId);
+    list.unshift({ ...entry, listenedAt: Date.now() });
+  }
+  list = list.slice(0, HISTORY_LIMIT);
+  write(HISTORY_KEY, list);
+  return list;
+}
+
+export function removeHistoryEntry(episodeId: string): HistoryEntry[] {
+  const next = getHistory().filter(h => h.episodeId !== episodeId);
+  write(HISTORY_KEY, next);
+  return next;
+}
+
+export function clearHistory(): void {
+  write(HISTORY_KEY, []);
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Subscriber model — six independent sets, one per slice                     */
 /* -------------------------------------------------------------------------- */
 
 import { useEffect, useState, useSyncExternalStore } from 'react';
 
-type Slice = 'subs' | 'play' | 'last' | 'recents';
+type Slice = 'subs' | 'play' | 'last' | 'recents' | 'queue' | 'history';
 
 const subscribers: Record<Slice, Set<() => void>> = {
   subs: new Set(),
   play: new Set(),
   last: new Set(),
   recents: new Set(),
+  queue: new Set(),
+  history: new Set(),
 };
 
 // Cached snapshot for `useSubscriptions` — `useSyncExternalStore`
@@ -268,14 +411,24 @@ function refreshLastPlayedSnapshot() {
 }
 
 let recentsSnapshot: RecentEpisodeRecord[] = getRecentEpisodes();
+let queueSnapshot: QueueItem[] = getQueue();
+let historySnapshot: HistoryEntry[] = getHistory();
 function refreshRecentsSnapshot() {
   recentsSnapshot = getRecentEpisodes();
+}
+function refreshQueueSnapshot() {
+  queueSnapshot = getQueue();
+}
+function refreshHistorySnapshot() {
+  historySnapshot = getHistory();
 }
 
 function notify(slice: Slice) {
   if (slice === 'subs') refreshSubsSnapshot();
   if (slice === 'last') refreshLastPlayedSnapshot();
   if (slice === 'recents') refreshRecentsSnapshot();
+  if (slice === 'queue') refreshQueueSnapshot();
+  if (slice === 'history') refreshHistorySnapshot();
   subscribers[slice].forEach(fn => fn());
 }
 
@@ -294,6 +447,12 @@ if (typeof window !== 'undefined') {
     } else if (e.key === RECENTS_KEY) {
       refreshRecentsSnapshot();
       subscribers.recents.forEach(fn => fn());
+    } else if (e.key === QUEUE_KEY) {
+      refreshQueueSnapshot();
+      subscribers.queue.forEach(fn => fn());
+    } else if (e.key === HISTORY_KEY) {
+      refreshHistorySnapshot();
+      subscribers.history.forEach(fn => fn());
     }
   });
 }
@@ -320,6 +479,17 @@ export const markEpisodePlayedWithNotify = wrapWithNotify(markEpisodePlayed, 'pl
 export const setLastPlayedWithNotify    = wrapWithNotify(setLastPlayed, 'last');
 export const pushRecentEpisodeWithNotify = wrapWithNotify(pushRecentEpisode, 'recents');
 export const removeRecentEpisodeWithNotify = wrapWithNotify(removeRecentEpisode, 'recents');
+export const addToQueueWithNotify          = wrapWithNotify(addToQueue, 'queue');
+export const addToQueueBatchWithNotify     = wrapWithNotify(addToQueueBatch, 'queue');
+export const removeFromQueueWithNotify     = wrapWithNotify(removeFromQueue, 'queue');
+export const reorderQueueWithNotify        = wrapWithNotify(reorderQueue, 'queue');
+export const clearQueueWithNotify          = wrapWithNotify(clearQueue, 'queue');
+export const popNextFromQueueWithNotify    = wrapWithNotify(popNextFromQueue, 'queue');
+export const shiftQueueWithNotify          = wrapWithNotify(shiftQueue, 'queue');
+export const addHistoryEntryWithNotify     = wrapWithNotify(addHistoryEntry, 'history');
+export const addHistoryEntriesWithNotify   = wrapWithNotify(addHistoryEntries, 'history');
+export const removeHistoryEntryWithNotify  = wrapWithNotify(removeHistoryEntry, 'history');
+export const clearHistoryWithNotify        = wrapWithNotify(clearHistory, 'history');
 
 function subscribeToSlice(slice: Slice, cb: () => void) {
   subscribers[slice].add(cb);
@@ -384,6 +554,38 @@ export function useRecentEpisodes(): RecentEpisodeRecord[] {
     cb => subscribeToSlice('recents', cb),
     () => recentsSnapshot,
     () => recentsSnapshot,
+  );
+}
+
+
+/**
+ * Reactive snapshot of the persisted queue. Used by the QueueSheet
+ * and the mini-player badge. Read-only; use the wrapped writers
+ * above to mutate.
+ */
+export function useQueue(): QueueItem[] {
+  return useSyncExternalStore(
+    cb => subscribeToSlice('queue', cb),
+    () => queueSnapshot,
+    () => queueSnapshot,
+  );
+}
+
+export function useQueueCount(): number {
+  const queue = useQueue();
+  return queue.length;
+}
+
+/**
+ * Reactive snapshot of the listening history. Drives the
+ * History page. Read-only; use the wrapped writers above to
+ * mutate.
+ */
+export function useHistory(): HistoryEntry[] {
+  return useSyncExternalStore(
+    cb => subscribeToSlice('history', cb),
+    () => historySnapshot,
+    () => historySnapshot,
   );
 }
 

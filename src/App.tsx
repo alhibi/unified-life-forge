@@ -85,6 +85,7 @@ const loadTafsir = () => import("./pages/Tafsir");
 const loadPodcasts = () => import("./features/podcasts/pages/Podcasts");
 const loadPodcastDetail = () => import("./features/podcasts/pages/PodcastDetail");
 const loadPodcastLibrary = () => import("./features/podcasts/pages/PodcastLibrary");
+const loadPodcastHistory = () => import("./features/podcasts/pages/History");
 const loadNotFound = () => import("./pages/NotFound");
 // Wellness and Diwan tabs are lazy because their static data files
 // (~10k lines combined) make eager-loading them measurable on cold
@@ -155,6 +156,7 @@ registerRoute('/tafsir',            loadTafsir);
 registerRoute('/podcasts',          loadPodcasts);
 registerRoute('/podcasts/library',  loadPodcastLibrary);
 registerRoute('/podcasts/:id',      loadPodcastDetail);
+registerRoute('/podcasts/history', loadPodcastHistory);
 registerRoute('/chat/groups',       loadGroupsIndex);
 registerRoute('/chat/settings',     loadChatSettings);
 registerRoute('/chat/g/:chatId',    loadGroupChat);
@@ -211,6 +213,7 @@ const TafsirPage = lazy(loadTafsir);
 const PodcastsPage = lazy(loadPodcasts);
 const PodcastDetailPage = lazy(loadPodcastDetail);
 const PodcastLibraryPage = lazy(loadPodcastLibrary);
+const PodcastHistoryPage = lazy(loadPodcastHistory);
 const NotFound = lazy(loadNotFound);
 const WellnessPage = lazy(loadWellness);
 const DiwanPage = lazy(loadDiwan);
@@ -531,6 +534,7 @@ function AnimatedRoutes() {
                   <Route path="/tafsir" element={<ErrorBoundary><TafsirPage /></ErrorBoundary>} />
                   <Route path="/podcasts" element={<ErrorBoundary><PodcastsPage /></ErrorBoundary>} />
                   <Route path="/podcasts/library" element={<ErrorBoundary><PodcastLibraryPage /></ErrorBoundary>} />
+                  <Route path="/podcasts/history" element={<ErrorBoundary><PodcastHistoryPage /></ErrorBoundary>} />
                   <Route path="/podcasts/:id" element={<ErrorBoundary><PodcastDetailPage /></ErrorBoundary>} />
                   {/* Diwan Library — adab.com */}
                   <Route path="/diwan/library" element={<ErrorBoundary><DiwanLibraryPage /></ErrorBoundary>} />

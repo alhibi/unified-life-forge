@@ -40,6 +40,15 @@ import {
   setLastPlayedWithNotify as setLastPlayed,
   pushRecentEpisodeWithNotify as pushRecentEpisode,
   removeRecentEpisodeWithNotify as removeRecentEpisode,
+  addToQueueWithNotify as addToQueueStore,
+  removeFromQueueWithNotify as removeFromQueueStore,
+  reorderQueueWithNotify as reorderQueueStore,
+  clearQueueWithNotify as clearQueueStore,
+  popNextFromQueueWithNotify as popNextFromQueueStore,
+  addHistoryEntryWithNotify as addHistoryEntryStore,
+  useQueue,
+  useQueueCount,
+  type QueueItem,
   type LastPlayedRecord,
 } from '@/features/podcasts/lib/store';
 import type { PodcastEpisode } from '@/features/podcasts/lib/rss';
@@ -100,6 +109,16 @@ interface PodcastPlayerContextValue {
   /** True for the brief window between `play(meta)` being called for a
    *  new track and `loadeddata` firing — used by per-episode play
    *  buttons to show a spinner instead of a play icon. */
+  /** Persistent Up Next queue items. */
+  queueItems: QueueItem[];
+  queueCount: number;
+  addToQueue: (item: Omit<QueueItem, 'addedAt'>) => void;
+  addEpisodeToQueue: (episode: PodcastEpisode, podcastTitle: string, podcastImageUrl: string, seedH: number | null, seedS: number | null, seedL: number | null) => void;
+  removeFromQueue: (episodeId: string) => void;
+  reorderQueue: (fromIndex: number, toIndex: number) => void;
+  clearQueue: () => void;
+  playNextFromQueue: () => void;
+
   isLoadingEpisode: (id: string) => boolean;
 }
 
@@ -218,6 +237,17 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
       const cur = currentRef.current;
       if (cur) {
         markEpisodePlayed(cur.episode.id, audio.duration || cur.episode.duration || 0, true);
+        // Record in listening history
+        addHistoryEntryStore({
+          episodeId: cur.episode.id,
+          episodeTitle: cur.episode.title,
+          podcastTitle: cur.podcastTitle,
+          podcastImageUrl: cur.podcastImageUrl,
+          feedOrigin: cur.episode.id.split(':')[0] || '',
+          position: audio.duration || cur.episode.duration || 0,
+          duration: audio.duration || cur.episode.duration || 0,
+          completed: true,
+        });
         // An episode that finished naturally is no longer "in
         // progress" — drop it from the Continue Listening rail so the
         // user doesn't see a fully-completed track sitting at 100%.
@@ -230,12 +260,24 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
         setSleepTimerState(null);
         return;
       }
-      // Auto-play next: pop the head of the queue and play it.
-      if (autoPlayNextRef.current && queueRef.current.length > 0) {
-        const next = queueRef.current.shift()!;
-        // Defer one tick so the `pause` event fired before `ended`
-        // settles before we reassign `audio.src`.
-        Promise.resolve().then(() => { void playRef.current(next); });
+      // Auto-play next: try the persistent queue first, then
+      // fall back to the in-memory queueRef passed from the detail page.
+      if (autoPlayNextRef.current) {
+        const persistedNext = popNextFromQueueStore();
+        if (persistedNext) {
+          const meta: PlayingEpisodeMeta = {
+            episode: persistedNext.episode,
+            podcastTitle: persistedNext.podcastTitle,
+            podcastImageUrl: persistedNext.podcastImageUrl,
+            seedH: persistedNext.seedH,
+            seedS: persistedNext.seedS,
+            seedL: persistedNext.seedL,
+          };
+          Promise.resolve().then(() => { void playRef.current(meta); });
+        } else if (queueRef.current.length > 0) {
+          const next = queueRef.current.shift()!;
+          Promise.resolve().then(() => { void playRef.current(next); });
+        }
       }
     };
     const onError = () => {
@@ -553,15 +595,72 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
   const isLoadingEpisode = useCallback((id: string) =>
     isLoading && current?.episode.id === id, [isLoading, current]);
 
-  // Command slice — does NOT include position/duration. Splitting these
+  
+  /* ----------------------------- queue management ---------------------------- */
+
+  const queueItems = useQueue();
+  const queueCount = useQueueCount();
+
+  const addToQueue = useCallback((item: Omit<QueueItem, 'addedAt'>) => {
+    addToQueueStore(item);
+  }, []);
+
+  const addEpisodeToQueue = useCallback((
+    episode: PodcastEpisode,
+    podcastTitle: string,
+    podcastImageUrl: string,
+    seedH: number | null,
+    seedS: number | null,
+    seedL: number | null,
+  ) => {
+    addToQueueStore({
+      episode,
+      podcastTitle,
+      podcastImageUrl,
+      seedH,
+      seedS,
+      seedL,
+    });
+  }, []);
+
+  const removeFromQueue = useCallback((episodeId: string) => {
+    removeFromQueueStore(episodeId);
+  }, []);
+
+  const reorderQueue = useCallback((fromIndex: number, toIndex: number) => {
+    reorderQueueStore(fromIndex, toIndex);
+  }, []);
+
+  const clearQueue = useCallback(() => {
+    clearQueueStore();
+  }, []);
+
+  const playNextFromQueue = useCallback(() => {
+    const next = popNextFromQueueStore();
+    if (next) {
+      const meta: PlayingEpisodeMeta = {
+        episode: next.episode,
+        podcastTitle: next.podcastTitle,
+        podcastImageUrl: next.podcastImageUrl,
+        seedH: next.seedH,
+        seedS: next.seedS,
+        seedL: next.seedL,
+      };
+      void playRef.current(meta);
+    }
+  }, []);
+
+// Command slice — does NOT include position/duration. Splitting these
   // out from the progress slice keeps EpisodeListItem (and any other
   // consumer that doesn't care about live playhead) from re-rendering
   // 4 Hz during playback.
   const commandValue = useMemo<PodcastPlayerContextValue>(() => ({
     current, isPlaying, isLoading, speed, error,
-    autoPlayNext, setAutoPlayNext, sleepTimer, setSleepTimer,
+    queueItems, queueCount, addToQueue, addEpisodeToQueue, removeFromQueue, reorderQueue, clearQueue, playNextFromQueue,
+      autoPlayNext, setAutoPlayNext, sleepTimer, setSleepTimer,
     play, pause, toggle, seek, skip, setSpeed, close, isLoadingEpisode,
   }), [current, isPlaying, isLoading, speed, error,
+      queueItems, queueCount, addToQueue, addEpisodeToQueue, removeFromQueue, reorderQueue, clearQueue, playNextFromQueue,
       autoPlayNext, setAutoPlayNext, sleepTimer, setSleepTimer,
       play, pause, toggle, seek, skip, setSpeed, close, isLoadingEpisode]);
 
