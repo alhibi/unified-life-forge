@@ -28,7 +28,7 @@
 // renders without that block.
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useDeviceLocation } from './useDeviceLocation';
+import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 import {
   getProvider, readOwmApiKey, readProviderPref, subscribeWeatherPrefs,
 } from '@/features/weather/lib';
