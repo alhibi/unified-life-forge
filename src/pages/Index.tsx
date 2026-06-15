@@ -11,7 +11,7 @@ import { motion } from 'framer-motion';
 import WeatherWidget from '@/components/WeatherWidget';
 import CurrentTimeSunnah from '@/components/CurrentTimeSunnah';
 import UmmahPulse from '@/components/UmmahPulse';
-import LivingRibbon from '@/components/LivingRibbon';
+
 import SmartGreeting from '@/components/SmartGreeting';
 import { useNavigate } from 'react-router-dom';
 import { MessageCircle, ClipboardList, X, Trash2, BookOpen, UserCircle } from '@/lib/icons';
@@ -124,7 +124,7 @@ export default function Index() {
           </div>
         </motion.div>
 
-        <motion.div variants={item}><LivingRibbon /></motion.div>
+        
         <motion.section variants={item} aria-labelledby="home-weather-h">
           <h2 id="home-weather-h" className="sr-only">{language === 'ar' ? 'الطقس' : 'Wetter'}</h2>
           <WeatherWidget />
