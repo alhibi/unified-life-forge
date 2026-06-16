@@ -1090,9 +1090,9 @@ function UmmahPulse() {
                     }}
                     onClick={() => setSelectedCity(null)}
                   >
-                    <UmmahGlobe
+                    <UmmahNetwork
                       ref={globeRef}
-                      cities={cityDetails.map<GlobeCity>((c) => ({
+                      cities={cityDetails.map<NetworkCity>((c) => ({
                         name: c.name,
                         nameAr: c.nameAr,
                         lat: c.lat,
@@ -1110,7 +1110,7 @@ function UmmahPulse() {
                       subSolarLat={subLat}
                       language={language === 'ar' ? 'ar' : 'de'}
                       selectedCity={selectedCity}
-                      onCityClick={(name) => {
+                      onCityClick={(name: string) => {
                         setSelectedCity((cur) => (cur === name ? null : name));
                         const c = cityDetails.find((x) => x.name === name);
                         if (c) {
@@ -1123,7 +1123,6 @@ function UmmahPulse() {
                         }
                       }}
                       onBackgroundClick={() => setSelectedCity(null)}
-                      idleRotate={2.5}
                     />
 
                     {/* Sub-solar coordinates badge */}
