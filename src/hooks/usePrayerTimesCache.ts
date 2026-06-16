@@ -1,5 +1,14 @@
-// Shared prayer times cache to avoid duplicate API calls
-// Both PrayerTimes and CurrentTimeSunnah use this
+// Shared prayer-times cache + hybrid resolver.
+//
+// Strategy:
+//   1. Pick an authoritative Aladhan calculation method per region
+//      (caller may override; otherwise we auto-detect by lat/lng).
+//   2. Try Aladhan API for the most accurate timings (country-tuned).
+//   3. If the API is unreachable, fall back to a LOCAL adhan.js
+//      computation using equivalent parameters — guaranteeing we
+//      always return valid timings worldwide, even offline.
+
+import { pickMethodForLocation, computeLocalTimings, type AladhanMethod } from '@/lib/prayerCalculationMethod';
 
 interface CachedPrayer {
   timings: Record<string, string>;
@@ -8,6 +17,7 @@ interface CachedPrayer {
   lng: number;
   school: number;
   latAdj: number;
+  method: number;
 }
 
 const CACHE_KEY = 'prayer_times_cache';
@@ -16,8 +26,8 @@ const CACHE_TTL = 30 * 60 * 1000; // 30 min
 let inFlightPromise: Promise<Record<string, string> | null> | null = null;
 let inFlightKey = '';
 
-function getCacheKey(lat: number, lng: number, school: number, latAdj: number): string {
-  return `${lat.toFixed(4)}_${lng.toFixed(4)}_${school}_${latAdj}`;
+function getCacheKey(lat: number, lng: number, school: number, latAdj: number, method: number): string {
+  return `${lat.toFixed(4)}_${lng.toFixed(4)}_${school}_${latAdj}_${method}`;
 }
 
 function loadCache(key: string): Record<string, string> | null {
@@ -25,7 +35,7 @@ function loadCache(key: string): Record<string, string> | null {
     const raw = localStorage.getItem(CACHE_KEY);
     if (!raw) return null;
     const cached: CachedPrayer = JSON.parse(raw);
-    const cachedKey = getCacheKey(cached.lat, cached.lng, cached.school, cached.latAdj);
+    const cachedKey = getCacheKey(cached.lat, cached.lng, cached.school, cached.latAdj, cached.method ?? 4);
     if (cachedKey === key && Date.now() - cached.timestamp < CACHE_TTL) {
       return cached.timings;
     }
@@ -37,9 +47,12 @@ export async function fetchPrayerTimings(
   lat: number,
   lng: number,
   school: number,
-  latAdj: number
+  latAdj: number,
+  /** Aladhan method id; if omitted we auto-pick the regionally-accurate one. */
+  method?: AladhanMethod,
 ): Promise<Record<string, string> | null> {
-  const key = getCacheKey(lat, lng, school, latAdj);
+  const resolvedMethod = method ?? pickMethodForLocation(lat, lng).method;
+  const key = getCacheKey(lat, lng, school, latAdj, resolvedMethod);
 
   // Check cache first
   const cached = loadCache(key);
@@ -51,13 +64,31 @@ export async function fetchPrayerTimings(
   }
 
   const doFetch = async (): Promise<Record<string, string> | null> => {
+    // Always have a local hybrid result ready as fallback so we never return null.
+    const localFallback = (): Record<string, string> | null => {
+      try {
+        const timings = computeLocalTimings(
+          lat, lng,
+          resolvedMethod,
+          (school === 1 ? 1 : 0) as 0 | 1,
+          (latAdj === 1 || latAdj === 2 ? latAdj : 3) as 1 | 2 | 3,
+        );
+        try {
+          localStorage.setItem(CACHE_KEY, JSON.stringify({
+            timings, timestamp: Date.now(), lat, lng, school, latAdj, method: resolvedMethod,
+          }));
+        } catch { /* ignore */ }
+        return timings;
+      } catch { return null; }
+    };
+
     try {
       const today = new Date();
       const dd = today.getDate();
       const mm = today.getMonth() + 1;
       const yyyy = today.getFullYear();
       const res = await fetch(
-        `https://api.aladhan.com/v1/timings/${dd}-${mm}-${yyyy}?latitude=${lat}&longitude=${lng}&method=4&school=${school}&latitudeAdjustmentMethod=${latAdj}`
+        `https://api.aladhan.com/v1/timings/${dd}-${mm}-${yyyy}?latitude=${lat}&longitude=${lng}&method=${resolvedMethod}&school=${school}&latitudeAdjustmentMethod=${latAdj}`
       );
       const data = await res.json();
       if (data.code === 200) {
@@ -65,13 +96,13 @@ export async function fetchPrayerTimings(
         // Save to cache
         try {
           localStorage.setItem(CACHE_KEY, JSON.stringify({
-            timings, timestamp: Date.now(), lat, lng, school, latAdj
+            timings, timestamp: Date.now(), lat, lng, school, latAdj, method: resolvedMethod,
           }));
         } catch { /* ignore */ }
         return timings;
       }
-    } catch { /* silent */ }
-    return null;
+    } catch { /* silent — fall through to local */ }
+    return localFallback();
   };
 
   inFlightKey = key;
