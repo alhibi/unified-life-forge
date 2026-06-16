@@ -524,7 +524,7 @@ export default function PrayerTimes() {
  transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
  className="space-y-4"
  >
- {/* ═══ Card 1: Prayer hero + arc ═══════════════════════════════════ */}
+ {/* ═══ Card 1: Prayer hero + arc + hidden prayers list ═════════════ */}
  <div className="rounded-3xl border border-border bg-card text-card-foreground relative overflow-hidden">
  <Hero
  currentPrayer={currentPrayer}
@@ -547,28 +547,26 @@ export default function PrayerTimes() {
  language={language}
  t={t}
  />
+  <div className="border-t border-border/60">
+    <Slab
+      prayers={prayers}
+      doneStates={doneStates}
+      doneCount={doneCount}
+      activeName={slot.current}
+      shakeCounter={shakeCounter}
+      guideCounter={guideCounter}
+      onToggle={handleToggle}
+      isDark={isDark}
+      language={language}
+      t={t}
+    />
+  </div>
  </div>
 
  {/* ═══ Card 2: Hijri occasions strip ═══════════════════════════════ */}
  <div className="rounded-3xl border border-border bg-card overflow-hidden">
  <HijriCalendarStrip language={language} t={t} />
  </div>
-
- {/* ═══ Card 3: Today's prayers list ════════════════════════════════ */}
-      <div className="rounded-3xl border border-border bg-card text-card-foreground overflow-hidden ">
-        <Slab
-          prayers={prayers}
-          doneStates={doneStates}
-          doneCount={doneCount}
-          activeName={slot.current}
-          shakeCounter={shakeCounter}
-          guideCounter={guideCounter}
-          onToggle={handleToggle}
-          isDark={isDark}
-          language={language}
-          t={t}
-        />
-      </div>
     </motion.div>
   );
 }
@@ -958,18 +956,9 @@ function Slab({
   // First not-yet-done prayer (suggested next)
   const nextToPray = PRAYER_KEYS.find((k) => !doneStates[k]) ?? null;
 
-  // Collapsed by default — user reveals the per-prayer list via the
-  // chevron. Persisted so the choice survives reloads.
-  const [expanded, setExpanded] = useState<boolean>(() => {
-    try { return localStorage.getItem('prayer_slab_expanded') === '1'; } catch { return false; }
-  });
-  const toggleExpanded = () => {
-    setExpanded((v) => {
-      const next = !v;
-      try { localStorage.setItem('prayer_slab_expanded', next ? '1' : '0'); } catch { /* ignore */ }
-      return next;
-    });
-  };
+  // Collapsed by default — user reveals the per-prayer list via the chevron.
+  const [expanded, setExpanded] = useState(false);
+  const toggleExpanded = () => setExpanded((v) => !v);
 
   return (
     <div className="px-4 pt-4 pb-4">
