@@ -8,10 +8,10 @@ import { useDeviceLocation, MECCA_FALLBACK } from '@/hooks/useDeviceLocation';
 import {
   getUpcomingOccasions,
   getDaysUntil,
-  getTodayHijri,
   formatHijriDate,
 } from '@/features/calendar/data/islamicOccasions';
 import type { IslamicOccasion } from '@/features/calendar/data/islamicOccasions';
+import { useLiveHijriDate } from '@/features/calendar/hooks/useLiveHijriDate';
 
 /**
  * PrayerTimes — a faithful re-implementation of khushu's Home prayer feature
@@ -1148,8 +1148,12 @@ function HijriCalendarStrip({
   t: (k: string) => string;
 }) {
   const navigate = useNavigate();
-  const hijri = useMemo(() => getTodayHijri(), []);
-  const occasions = useMemo(() => getUpcomingOccasions(6), []);
+  const { hijri, todayISO, offset } = useLiveHijriDate();
+  // Recompute when the day flips OR when the Saudi offset changes.
+  const occasions = useMemo(
+    () => getUpcomingOccasions(6),
+    [todayISO, offset],
+  );
 
   // Accent hex per color class
   const accentMap: Record<string, string> = {
