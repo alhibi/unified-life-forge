@@ -80,7 +80,7 @@ export default function ArticlesTab() {
       <motion.button
         variants={item}
         onClick={primary.onClick}
-        className="w-full relative overflow-hidden rounded-2xl border border-sky-300/30 dark:border-sky-500/20 bg-gradient-to-bl from-sky-50 via-card to-sky-50/30 dark:from-sky-950/20 dark:via-card dark:to-sky-950/10 px-4 py-4 text-start active:scale-[0.99] transition-transform"
+        className="w-full relative overflow-hidden rounded-2xl border border-sky-300/30 dark:border-sky-500/20 px-4 py-4 text-start active:scale-[0.99] transition-transform"
       >
         <div className="relative flex items-center gap-3">
           <div className="w-11 h-11 rounded-xl bg-sky-500/15 flex items-center justify-center shrink-0">

@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils';
  *
  * Every full-screen route should be wrapped in <PageShell> and use
  * <AppCard> for every visible "card" surface. This guarantees identical
- * background, radius, padding, border, shadow, and pressable physics
+ * background, radius, padding, border, , and pressable physics
  * across the entire app, regardless of which screen the user is on.
  *
  * Do NOT add bespoke bg-card / rounded-* / border-border combos in

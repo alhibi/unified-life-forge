@@ -175,7 +175,7 @@ export function AddFeedDialog({
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 24, opacity: 0 }}
           transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-          className="relative w-full sm:max-w-lg bg-card border border-border/60 rounded-t-3xl sm:rounded-3xl shadow-xl max-h-[88vh] flex flex-col"
+          className="relative w-full sm:max-w-lg bg-card border border-border/60 rounded-t-3xl sm:rounded-3xl max-h-[88vh] flex flex-col"
         >
           <div className="flex items-center gap-3 px-5 pt-5 pb-3 border-b border-border/40">
             <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">

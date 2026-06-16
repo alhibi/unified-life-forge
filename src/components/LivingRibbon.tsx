@@ -12,7 +12,7 @@
  *    localStorage, so the same card doesn't nag the user the same day.
  *  • If no card qualifies, the ribbon renders nothing (zero footprint).
  *
- * Styling: Obsidian Depth skeuomorphic — inset shadow + subtle gradient,
+ * Styling: Obsidian Depth skeuomorphic — inset  + subtle gradient,
  * organic stagger entry, bouncy spring close on dismiss.
  */
 import { useEffect, useMemo, useState, useCallback } from 'react';
@@ -251,18 +251,11 @@ export default function LivingRibbon() {
           className="group relative w-full text-start overflow-hidden rounded-2xl
             surface-depth surface-depth-pressable
             px-3.5 py-3"
-          style={{
-            boxShadow:
-              'inset 0 1px 0 0 hsl(0 0% 100% / 0.04),' +
-              'inset 0 -1px 0 0 hsl(0 0% 0% / 0.25),' +
-              '0 1px 2px 0 hsl(0 0% 0% / 0.18),' +
-              '0 0 28px -8px hsl(var(--live-glow) / 0.28)',
-          }}
         >
           {/* Single copper accent bar — the only chromatic note. */}
           <span
             className="pointer-events-none absolute inset-y-2 w-[2px] rounded-full live-dot"
-            style={{ insetInlineStart: 8, boxShadow: '0 0 8px 0 hsl(var(--live-glow) / 0.6)' }}
+            style={{ insetInlineStart: 8, }}
             aria-hidden
           />
           <div className="flex items-center gap-3 ps-3">

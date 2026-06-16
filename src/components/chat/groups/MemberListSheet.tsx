@@ -73,17 +73,17 @@ const MemberListSheet: React.FC<MemberListSheetProps> = ({
       <motion.div
         initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
         transition={{ type: 'spring', damping: 30, stiffness: 320 }}
-        className="absolute inset-x-0 bottom-0 z-[81] bg-background rounded-t-3xl flex flex-col max-h-[92%] shadow-2xl"
-        onClick={e => e.stopPropagation()}
-        role="dialog"
-        aria-modal="true"
-      >
-        <div className="mx-auto w-10 h-1 rounded-full bg-border/40 mt-2 mb-1" />
+ className="absolute inset-x-0 bottom-0 z-[81] bg-background rounded-t-3xl flex flex-col max-h-[92%]"
+ onClick={e => e.stopPropagation()}
+ role="dialog"
+ aria-modal="true"
+ >
+ <div className="mx-auto w-10 h-1 rounded-full bg-border/40 mt-2 mb-1" />
 
-        <div className="px-4 h-14 flex items-center gap-2 border-b border-border/15">
-          <button
-            type="button"
-            onClick={() => view === 'add' ? setView('list') : close()}
+ <div className="px-4 h-14 flex items-center gap-2 border-b border-border/15">
+ <button
+ type="button"
+ onClick={() => view === 'add' ? setView('list') : close()}
             className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40"
             aria-label={isAr ? 'رجوع' : 'Zurück'}
           >
@@ -183,11 +183,11 @@ const MemberListSheet: React.FC<MemberListSheetProps> = ({
               <motion.div
                 initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
                 transition={{ type: 'spring', damping: 26, stiffness: 320 }}
-                className="absolute inset-x-6 top-1/3 z-[91] bg-background rounded-3xl p-5 shadow-2xl"
-              >
-                <div className="flex items-start gap-3 mb-3">
-                  <div className={cn(
-                    'h-10 w-10 rounded-full flex items-center justify-center shrink-0',
+ className="absolute inset-x-6 top-1/3 z-[91] bg-background rounded-3xl p-5"
+ >
+ <div className="flex items-start gap-3 mb-3">
+ <div className={cn(
+ 'h-10 w-10 rounded-full flex items-center justify-center shrink-0',
                     confirm.kind === 'remove' ? 'bg-destructive/15 text-destructive' : 'bg-primary/15 text-primary',
                   )}>
                     {confirm.kind === 'remove' ? <AlertTriangle className="w-5 h-5" /> : <Shield className="w-5 h-5" />}
@@ -301,18 +301,18 @@ function MemberRow({ member, isAr, isMe, canManage, callerRole, onPromote, onDem
           onClick={() => setOpen(o => !o)}
           className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40"
           aria-label={isAr ? 'إجراءات' : 'Aktionen'}
-        >
-          <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
-        </button>
-      )}
+ >
+ <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
+ </button>
+ )}
 
-      {/* Inline action menu (no portal — keeps the sheet self-contained). */}
-      {open && (
-        <div
-          className="absolute end-3 top-12 z-10 min-w-[180px] bg-popover border border-border/30 rounded-xl shadow-lg py-1 overflow-hidden"
-          onClick={() => setOpen(false)}
-        >
-          {member.role === 'member' ? (
+ {/* Inline action menu (no portal — keeps the sheet self-contained). */}
+ {open && (
+ <div
+ className="absolute end-3 top-12 z-10 min-w-[180px] bg-popover border border-border/30 rounded-xl py-1 overflow-hidden"
+ onClick={() => setOpen(false)}
+ >
+ {member.role === 'member' ? (
             <RowAction
               icon={<Shield className="w-4 h-4" />}
               label={isAr ? 'ترقية إلى مشرف' : 'Zum Admin machen'}

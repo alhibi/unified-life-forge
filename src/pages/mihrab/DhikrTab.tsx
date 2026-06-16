@@ -278,7 +278,7 @@ export default function DhikrTab() {
         <motion.div variants={item}>
           <button
             onClick={() => setShowNawawiList(true)}
-            className="w-full flex items-center gap-3 p-4 rounded-2xl bg-gradient-to-r from-primary/15 to-primary/5 border border-primary/30 hover:border-primary/50 active:scale-[0.98] transition-all duration-150"
+            className="w-full flex items-center gap-3 p-4 rounded-2xl border border-primary/30 hover:border-primary/50 active:scale-[0.98] transition-all duration-150"
           >
             <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center shrink-0">
               <BookOpen className="w-6 h-6 text-primary" />

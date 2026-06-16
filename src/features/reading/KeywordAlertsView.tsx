@@ -19,7 +19,7 @@ import { ConfirmDialog } from './ConfirmDialog';
  * job (check-keyword-alerts edge function) scans new articles every
  * 30 minutes against these and writes hits into keyword_alert_hits.
  *
- * What this view delivers, end-to-end:
+ * What this view delivers, end-:
  *   - Alert CRUD (create / enable-toggle / delete) with source filter
  *     + match-mode (any / whole_word / phrase).
  *   - "Check now" button to trigger the edge function manually.
@@ -935,7 +935,7 @@ function Toggle({ on, onChange }: { on: boolean; onChange: (v: boolean) => void 
       aria-pressed={on}
     >
       <motion.span
-        className="absolute top-0.5 w-4 h-4 rounded-full bg-white shadow-sm"
+        className="absolute top-0.5 w-4 h-4 rounded-full bg-white "
         initial={false}
         animate={{ left: on ? 'calc(100% - 1.125rem)' : '0.125rem' }}
         transition={{ type: 'spring', stiffness: 500, damping: 32 }}

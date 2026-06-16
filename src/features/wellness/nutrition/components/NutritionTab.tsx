@@ -40,10 +40,10 @@ export default function NutritionTab() {
             key={key}
             onClick={() => setSubTab(key)}
             className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-[11px] font-medium transition-all ${
-              subTab === key
-                ? 'bg-background shadow-sm text-foreground'
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
+ subTab === key
+ ? 'bg-background text-foreground'
+ : 'text-muted-foreground hover:text-foreground'
+ }`}
           >
             <Icon className="w-3.5 h-3.5" />
             {label[lang]}

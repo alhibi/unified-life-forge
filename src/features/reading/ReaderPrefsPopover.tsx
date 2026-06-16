@@ -79,9 +79,9 @@ export function ReaderPrefsPopover({
             transition={{ duration: 0.15 }}
             role="dialog"
             aria-label={isAr ? 'إعدادات القراءة' : 'Reading preferences'}
-            className="absolute end-0 top-full mt-2 w-64 z-30 rounded-2xl border border-border/60 bg-card shadow-lg p-3 space-y-3"
-          >
-            <PrefRow label={isAr ? 'حجم الخط' : 'Font size'}>
+ className="absolute end-0 top-full mt-2 w-64 z-30 rounded-2xl border border-border/60 bg-card p-3 space-y-3"
+ >
+ <PrefRow label={isAr ? 'حجم الخط' : 'Font size'}>
               {(['sm', 'md', 'lg', 'xl'] as const).map((s) => (
                 <SegBtn
                   key={s}

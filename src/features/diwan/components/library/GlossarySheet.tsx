@@ -93,7 +93,7 @@ export default function GlossarySheet({ open, word, entries, versePreview, onClo
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', stiffness: 360, damping: 32 }}
-            className="fixed inset-x-0 bottom-0 z-50 max-h-[78vh] overflow-hidden rounded-t-3xl bg-card border-t border-border/40 shadow-2xl"
+            className="fixed inset-x-0 bottom-0 z-50 max-h-[78vh] overflow-hidden rounded-t-3xl bg-card border-t border-border/40 "
             style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
           >
             {/* Drag handle */}

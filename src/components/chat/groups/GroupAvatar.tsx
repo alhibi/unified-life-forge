@@ -94,7 +94,7 @@ const GroupAvatar: React.FC<GroupAvatarProps> = ({
           <AvatarFallback
             className="text-primary-foreground font-semibold tracking-wider"
             style={{
-              background: `linear-gradient(135deg, ${palette[0]} 0%, ${palette[1]} 100%)`,
+              
             }}
           >
             {init}
@@ -107,7 +107,7 @@ const GroupAvatar: React.FC<GroupAvatarProps> = ({
           className={cn(
             'absolute -bottom-0.5 -end-0.5 rounded-full bg-background flex items-center justify-center',
             'h-[40%] w-[40%] min-h-[14px] min-w-[14px] max-h-[20px] max-w-[20px]',
-            'shadow-sm ring-1 ring-border/30',
+            ' ring-1 ring-border/30',
           )}
           aria-hidden="true"
         >

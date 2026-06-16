@@ -278,7 +278,7 @@ export default function WellnessPage() {
                     {active && (
                       <motion.span
                         layoutId="wellness-dock-pill"
-                        className="absolute inset-0 rounded-xl bg-primary shadow-sm"
+                        className="absolute inset-0 rounded-xl bg-primary "
                         transition={{ type: 'spring', stiffness: 480, damping: 36 }}
                       />
                     )}

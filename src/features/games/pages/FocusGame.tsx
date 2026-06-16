@@ -301,7 +301,7 @@ function ReactionMode({ diff, rounds, isAr, onFinish }: { diff: DifficultyMeta; 
         {state === 'ready' && (
           <motion.div initial={{ scale: 0.5 }} animate={{ scale: 1 }} className="flex flex-col items-center">
             <motion.div animate={{ scale: [1, 1.15, 1] }} transition={{ duration: 0.25, repeat: Infinity }}
-              className="w-20 h-20 rounded-full bg-emerald-400 mb-3 shadow-2xl shadow-emerald-500/40" />
+              className="w-20 h-20 rounded-full bg-emerald-400 mb-3 " />
             <p className="text-3xl font-black text-emerald-300">{isAr ? 'الآن!' : 'JETZT!'}</p>
           </motion.div>
         )}
@@ -398,7 +398,7 @@ function ChoiceMode({ diff, rounds, isAr, onFinish }: { diff: DifficultyMeta; ro
         <p className="text-xl font-black text-white mb-2">{isAr ? 'اضغط اللون المطلوب' : 'Tippe die Zielfarbe'}</p>
         <p className="text-xs text-zinc-400 mb-6">{isAr ? `${diff.choiceCount} ألوان · ${rounds} جولات` : `${diff.choiceCount} Farben · ${rounds} Runden`}</p>
         <button onClick={nextRound} className="px-8 py-3 rounded-2xl font-black text-cyan-950"
-          style={{ background: 'linear-gradient(135deg, #22d3ee, #06b6d4)' }}>
+          style={{ }}>
           {isAr ? 'ابدأ' : 'Start'}
         </button>
       </div>
@@ -434,8 +434,8 @@ function ChoiceMode({ diff, rounds, isAr, onFinish }: { diff: DifficultyMeta; ro
           const c = COLORS.find(x => x.id === id)!;
           return (
             <motion.button key={id} onClick={() => handleTap(id)}
-              className="w-20 h-20 rounded-2xl border-2 border-white/15 shadow-lg"
-              style={{ background: c.hex, boxShadow: `0 6px 24px ${c.hex}44` }} />
+              className="w-20 h-20 rounded-2xl border-2 border-white/15 "
+              style={{ background: c.hex, }} />
           );
         })}
       </div>
@@ -503,7 +503,7 @@ function StroopMode({ diff, rounds, isAr, onFinish }: { diff: DifficultyMeta; ro
         <p className="text-xl font-black text-white mb-2">{isAr ? 'اختبار ستروب' : 'Stroop-Test'}</p>
         <p className="text-xs text-zinc-400 mb-6 max-w-[300px] mx-auto">{isAr ? 'الكلمة قد تكون بلون مغاير. اختر اللون الذي تعنيه الكلمة، ليس لون النص.' : 'Wähle die Farbe, die das WORT meint — nicht seine Schriftfarbe.'}</p>
         <button onClick={nextRound} className="px-8 py-3 rounded-2xl font-black text-cyan-950"
-          style={{ background: 'linear-gradient(135deg, #22d3ee, #06b6d4)' }}>
+          style={{ }}>
           {isAr ? 'ابدأ' : 'Start'}
         </button>
       </div>
@@ -617,7 +617,7 @@ function SequenceMode({ diff, isAr, onFinish }: { diff: DifficultyMeta; isAr: bo
         <p className="text-xl font-black text-white mb-2">{isAr ? 'تذكُّر السلسلة' : 'Sequenz merken'}</p>
         <p className="text-xs text-zinc-400 mb-6">{isAr ? 'احفظ الترتيب ثم كرّره' : 'Merke dir die Reihenfolge'}</p>
         <button onClick={startGame} className="px-8 py-3 rounded-2xl font-black text-cyan-950"
-          style={{ background: 'linear-gradient(135deg, #22d3ee, #06b6d4)' }}>
+          style={{ }}>
           {isAr ? 'ابدأ' : 'Start'}
         </button>
       </div>
@@ -644,8 +644,8 @@ function SequenceMode({ diff, isAr, onFinish }: { diff: DifficultyMeta; isAr: bo
           <motion.button key={c.id} disabled={state !== 'input'} onClick={() => handleTap(i)}
             animate={activeIdx === i ? { scale: 1.08, opacity: 1 } : { scale: 1, opacity: state === 'showing' ? 0.6 : 0.9 }}
             transition={{ duration: 0.2 }}
-            className="w-28 h-28 rounded-3xl border-2 border-white/15 shadow-xl"
-            style={{ background: c.hex, boxShadow: activeIdx === i ? `0 0 32px ${c.hex}` : `0 4px 16px ${c.hex}44` }} />
+            className="w-28 h-28 rounded-3xl border-2 border-white/15 "
+            style={{ background: c.hex }} />
         ))}
       </div>
       <p className="text-[10px] text-zinc-400">{seq.length} {isAr ? 'خطوات' : 'Schritte'}</p>
@@ -757,7 +757,7 @@ function NBackMode({ diff, isAr, onFinish }: { diff: DifficultyMeta; isAr: boole
                 : `Ein Quadrat erscheint in 9 Positionen. Tippe "Match" wenn die Position gleich wie vor ${N} Schritt(en) ist. ${TOTAL_TRIALS} Versuche.`}
         </p>
         <button onClick={start} className="px-8 py-3 rounded-2xl font-black text-cyan-950"
-          style={{ background: 'linear-gradient(135deg, #22d3ee, #06b6d4)' }}>
+          style={{ }}>
           {isAr ? 'ابدأ' : 'Start'}
         </button>
       </div>
@@ -801,7 +801,6 @@ function NBackMode({ diff, isAr, onFinish }: { diff: DifficultyMeta; isAr: boole
               width: 80, height: 80,
               background: currentPos === i ? '#06b6d4' : 'rgba(255,255,255,0.04)',
               borderColor: currentPos === i ? '#22d3ee' : 'rgba(255,255,255,0.06)',
-              boxShadow: currentPos === i ? '0 0 24px rgba(6,182,212,0.6)' : 'none',
             }} />
         ))}
       </div>
@@ -809,7 +808,7 @@ function NBackMode({ diff, isAr, onFinish }: { diff: DifficultyMeta; isAr: boole
       <button onClick={onMatchTap} disabled={matched !== null}
         className="mt-6 w-full max-w-[280px] py-4 rounded-2xl font-black text-lg transition-all disabled:opacity-40"
         style={{
-          background: matched === true ? 'rgba(16,185,129,0.3)' : matched === false ? 'rgba(244,63,94,0.3)' : 'linear-gradient(135deg, #22d3ee, #06b6d4)',
+          background: matched === true ? 'rgba(16,185,129,0.3)' : matched === false ? 'rgba(244,63,94,0.3)' : '#06b6d4',
           color: matched === null ? '#082f49' : '#fff',
           border: `2px solid ${matched === true ? '#10b981' : matched === false ? '#ef4444' : '#22d3ee'}`,
         }}>
@@ -847,28 +846,28 @@ function AimMode({ diff, isAr, onFinish }: { diff: DifficultyMeta; isAr: boolean
 
   const start = () => {
     setState('playing'); setScore(0); setHits(0); setMissTaps(0); setTimeLeft(diff.aimDuration);
-    hitsRef.current = 0; missRef.current = 0; scoreRef.current = 0;
-    setTimeout(spawnTarget, 200);
-    timerRef.current = setInterval(() => {
-      setTimeLeft(t => {
-        if (t <= 1) {
-          if (timerRef.current) clearInterval(timerRef.current);
-          return 0;
-        }
-        return t - 1;
-      });
-    }, 1000);
-  };
+ hitsRef.current = 0; missRef.current = 0; scoreRef.current = 0;
+ setTimeout(spawnTarget, 200);
+ timerRef.current = setInterval(() => {
+ setTimeLeft(t => {
+ if (t <= 1) {
+ if (timerRef.current) clearInterval(timerRef.current);
+ return 0;
+ }
+ return t - 1;
+ });
+ }, 1000);
+ };
 
-  // Need to use refs because of stale closure in timer
-  const hitsRef = useRef(0); const missRef = useRef(0); const scoreRef = useRef(0);
-  useEffect(() => { hitsRef.current = hits; }, [hits]);
-  useEffect(() => { missRef.current = missTaps; }, [missTaps]);
-  useEffect(() => { scoreRef.current = score; }, [score]);
+ // Need to use refs because of stale closure in timer
+ const hitsRef = useRef(0); const missRef = useRef(0); const scoreRef = useRef(0);
+ useEffect(() => { hitsRef.current = hits; }, [hits]);
+ useEffect(() => { missRef.current = missTaps; }, [missTaps]);
+ useEffect(() => { scoreRef.current = score; }, [score]);
 
-  // When timeLeft hits 0, finalize stats with up-to-date refs
-  useEffect(() => {
-    if (state === 'playing' && timeLeft === 0) {
+ // When timeLeft hits 0, finalize stats with up- refs
+ useEffect(() => {
+ if (state === 'playing' && timeLeft === 0) {
       setState('done');
       setTarget(null);
       const totalTaps = hitsRef.current + missRef.current;
@@ -919,7 +918,7 @@ function AimMode({ diff, isAr, onFinish }: { diff: DifficultyMeta; isAr: boolean
           {isAr ? `${diff.aimDuration} ثانية، اضغط الأهداف بسرعة ودقة` : `${diff.aimDuration}s, triff Ziele schnell und präzise`}
         </p>
         <button onClick={start} className="px-8 py-3 rounded-2xl font-black text-cyan-950"
-          style={{ background: 'linear-gradient(135deg, #22d3ee, #06b6d4)' }}>
+          style={{ }}>
           {isAr ? 'ابدأ' : 'Start'}
         </button>
       </div>
@@ -955,7 +954,7 @@ function AimMode({ diff, isAr, onFinish }: { diff: DifficultyMeta; isAr: boolean
         onMouseDown={handleAreaClick}
         onTouchStart={handleAreaClick}
         className="relative w-full max-w-[400px] rounded-3xl border-2 border-cyan-500/15 overflow-hidden"
-        style={{ height: '60vh', background: 'radial-gradient(circle at 50% 50%, rgba(6,182,212,0.04) 0%, rgba(0,0,0,0.4) 70%)' }}>
+        style={{ height: '60vh', }}>
         <AnimatePresence>
           {target && (
             <motion.div
@@ -968,8 +967,8 @@ function AimMode({ diff, isAr, onFinish }: { diff: DifficultyMeta; isAr: boolean
               style={{
                 left: target.x - target.r, top: target.y - target.r,
                 width: target.r * 2, height: target.r * 2,
-                background: 'radial-gradient(circle, #fbbf24 0%, #f59e0b 50%, #b45309 100%)',
-                boxShadow: '0 0 24px rgba(245,158,11,0.6)',
+                
+                
               }}>
               <div className="absolute inset-2 rounded-full border-2 border-white/30" />
               <div className="absolute inset-1/3 rounded-full bg-rose-500" />

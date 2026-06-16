@@ -693,7 +693,7 @@ export default function MemoryGame() {
           </div>
         </div>
         <div className="h-1.5 rounded-full bg-zinc-800 overflow-hidden">
-          <motion.div className="h-full rounded-full bg-gradient-to-r from-pink-500 to-rose-400"
+          <motion.div className="h-full rounded-full "
             animate={{ width: `${xp.pct}%` }} transition={{ duration: 0.5 }} />
         </div>
       </div>
@@ -775,7 +775,7 @@ export default function MemoryGame() {
                   style={{ transformStyle: 'preserve-3d' }}>
                   <div className="absolute inset-0 rounded-2xl flex items-center justify-center border"
                     style={{ backfaceVisibility: 'hidden',
-                      background: bombArmed ? 'linear-gradient(135deg, #f59e0b40, #f59e0b18)' : 'linear-gradient(135deg, rgba(236,72,153,0.25), rgba(236,72,153,0.05))',
+                      background: bombArmed ? '#f59e0b30' : 'rgba(236,72,153,0.18)',
                       borderColor: bombArmed ? '#f59e0b66' : 'rgba(236,72,153,0.25)' }}>
                     <div className="text-pink-300/40 text-2xl">?</div>
                   </div>
@@ -842,7 +842,7 @@ export default function MemoryGame() {
                 <button
                   onClick={() => navigate(`/games/memory?adventure=${adventureStage.id + 1}`)}
                   className="flex-1 py-2.5 rounded-xl font-black text-pink-950 text-sm"
-                  style={{ background: 'linear-gradient(135deg, #f472b6, #ec4899)' }}
+                  style={{ }}
                 >
                   {isAr ? 'التالية ←' : 'Weiter →'}
                 </button>
@@ -851,7 +851,7 @@ export default function MemoryGame() {
                 <button
                   onClick={() => navigate('/games/memory/adventure')}
                   className="flex-1 py-2.5 rounded-xl font-black text-amber-950 text-sm"
-                  style={{ background: 'linear-gradient(135deg, #fbbf24, #f59e0b)' }}
+                  style={{ }}
                 >
                   {isAr ? '🏆 إنهاء' : '🏆 Ende'}
                 </button>
@@ -915,24 +915,24 @@ export default function MemoryGame() {
                 style={{
                   background: unlocked ? 'rgba(236,72,153,0.12)' : 'rgba(255,255,255,0.02)',
                   borderColor: unlocked ? 'rgba(236,72,153,0.35)' : 'rgba(255,255,255,0.05)',
-                  opacity: unlocked ? 1 : 0.45,
-                }}>
-                <span className="text-lg leading-none mb-0.5">{unlocked ? def.icon : <Lock className="w-3.5 h-3.5 text-zinc-500" />}</span>
-                <span className="text-[8px] font-semibold text-zinc-300 leading-tight line-clamp-2">{isAr ? def.ar : def.de}</span>
-              </div>
-            );
-          })}
-        </div>
-      </div>
+ opacity: unlocked ? 1 : 0.45,
+ }}>
+ <span className="text-lg leading-none mb-0.5">{unlocked ? def.icon : <Lock className="w-3.5 h-3.5 text-zinc-500" />}</span>
+ <span className="text-[8px] font-semibold text-zinc-300 leading-tight line-clamp-2">{isAr ? def.ar : def.de}</span>
+ </div>
+ );
+ })}
+ </div>
+ </div>
 
-      {/* Achievement toast */}
-      <AnimatePresence>
-        {achievementToast && (
-          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 30 }}
-            className="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 rounded-2xl px-4 py-3 border border-pink-500/40 bg-pink-500/15 backdrop-blur-md shadow-2xl shadow-pink-500/30 flex items-center gap-3">
-            <span className="text-2xl">{achievementToast.icon}</span>
-            <div>
-              <p className="text-[10px] text-pink-200 font-semibold uppercase tracking-wider">{isAr ? 'إنجاز جديد' : 'Erfolg'}</p>
+ {/* Achievement toast */}
+ <AnimatePresence>
+ {achievementToast && (
+ <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 30 }}
+ className="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 rounded-2xl px-4 py-3 border border-pink-500/40 bg-pink-500/15 backdrop-blur-md flex items-center gap-3">
+ <span className="text-2xl">{achievementToast.icon}</span>
+ <div>
+ <p className="text-[10px] text-pink-200 font-semibold uppercase tracking-wider">{isAr ? 'إنجاز جديد' : 'Erfolg'}</p>
               <p className="text-sm font-black text-white">{isAr ? achievementToast.ar : achievementToast.de}</p>
             </div>
           </motion.div>
@@ -1031,7 +1031,6 @@ function PowerUpButton({ icon: Icon, count, onClick, color, label, disabled, act
       style={{
         background: active ? `${color}30` : `${color}14`,
         border: `1px solid ${active ? color : `${color}40`}`,
-        boxShadow: active ? `0 0 12px ${color}80` : undefined,
       }}>
       <Icon className="w-4 h-4" style={{ color }} />
       {count > 0 && (

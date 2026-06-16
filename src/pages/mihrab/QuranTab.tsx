@@ -70,12 +70,12 @@ export default function QuranTab() {
         <motion.button
           variants={item}
           onClick={() => navigate('/tafsir')}
-          className="w-full relative overflow-hidden rounded-2xl border border-amber-300/30 dark:border-amber-500/20 bg-gradient-to-bl from-amber-50 via-card to-amber-50/30 dark:from-amber-950/20 dark:via-card dark:to-amber-950/10 px-4 py-4 text-start active:scale-[0.99] transition-transform"
+          className="w-full relative overflow-hidden rounded-2xl border border-amber-300/30 dark:border-amber-500/20 px-4 py-4 text-start active:scale-[0.99] transition-transform"
         >
           <div
             className="absolute inset-0 pointer-events-none opacity-50"
             style={{
-              background: 'linear-gradient(105deg, transparent 40%, rgba(217,167,62,0.18) 50%, transparent 60%)',
+              
               backgroundSize: '200% 100%',
               animation: 'shimmer 3.5s ease-in-out infinite',
             }}

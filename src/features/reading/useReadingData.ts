@@ -291,7 +291,7 @@ export function useReadingData(opts: { isAr: boolean }) {
 
               // Last-resort fallback: if every requested feed errored
               // server-side (Supabase egress blocked, regional outage,
-              // CDN-level shadow-ban), don't mark this refresh as
+              // CDN-level ), don't mark this refresh as
               // "succeeded" — fall through to the client-side proxy
               // path. The browser can sometimes reach feeds the edge
               // function can't, especially on networks where the user
@@ -667,7 +667,7 @@ export function useReadingData(opts: { isAr: boolean }) {
       storeReadArticles(next);
       return next;
     });
-    // Persist on open (markAsRead is called from the click-to-open
+    // Persist on open (markAsRead is called from the click-
     // handler in Reading.tsx). This guarantees that any article the
     // user actually engages with has an offline copy by the time
     // the next render commits — no debounce window where they could

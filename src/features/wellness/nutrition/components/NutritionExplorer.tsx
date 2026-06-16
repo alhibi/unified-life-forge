@@ -190,7 +190,7 @@ export default function NutritionExplorer() {
             className="space-y-5"
           >
             {/* Stats banner */}
-            <div className="flex items-center justify-between bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 rounded-xl p-3 border border-emerald-500/20">
+            <div className="flex items-center justify-between rounded-xl p-3 border border-emerald-500/20">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center">
                   <Apple className="w-4 h-4 text-emerald-500" />

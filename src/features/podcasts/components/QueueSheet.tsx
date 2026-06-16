@@ -1,7 +1,7 @@
 // Queue (Up Next) management sheet.
 //
 // Slid up from the bottom of the full player sheet. Shows the
-// current queue with drag-to-reorder, swipe-to-remove, and a
+// current queue with drag-, swipe-, and a
 // "Clear all" action. Designed as a companion to `PlayerSheet`
 // — the two share the same ambient backdrop and theme tokens.
 //
@@ -10,7 +10,7 @@
 //   • List: stack of episode rows, each with artwork, title,
 //     podcast name, and a remove (✕) button
 //   • Empty state: illustration + "Queue is empty" message
-//   • Add-to-queue CTA when queue is empty: "Browse podcasts"
+//   • Add- CTA when queue is empty: "Browse podcasts"
 
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';

@@ -62,7 +62,7 @@ const ForwardPicker: React.FC<ForwardPickerProps> = ({ isAr, messages, conversat
       <motion.div
         initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
         transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-        className="absolute inset-x-0 bottom-0 z-[71] bg-background rounded-t-3xl flex flex-col max-h-[85%] shadow-2xl"
+        className="absolute inset-x-0 bottom-0 z-[71] bg-background rounded-t-3xl flex flex-col max-h-[85%] "
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mx-auto w-10 h-1 rounded-full bg-border/40 mt-2 mb-1" />

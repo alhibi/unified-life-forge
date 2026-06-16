@@ -244,7 +244,7 @@ export default function TafsirPage() {
             </button>
             <AnimatePresence>
               {showTafsirPicker && (
-                <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} className="mt-1 rounded-xl bg-card border border-border/50 shadow-xl absolute left-0 right-0 z-20 overflow-hidden">
+                <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} className="mt-1 rounded-xl bg-card border border-border/50 absolute left-0 right-0 z-20 overflow-hidden">
                   {TAFSIRS.map(tf => (
                     <button key={tf.id} onClick={() => { setSelectedTafsir(tf); setShowTafsirPicker(false); }} className={`w-full text-right px-4 py-3 text-sm font-medium transition-colors hover:bg-accent/30 ${tf.id === selectedTafsir.id ? 'text-primary bg-primary/5' : 'text-foreground'}`}>
                       {tf.name}
@@ -327,7 +327,7 @@ export default function TafsirPage() {
                         <AnimatePresence>
                           {isSelected && (
                             <motion.div ref={tafsirRef} initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }} className="overflow-hidden">
-                              <div className="rounded-b-xl border border-t-0 border-primary/30 bg-gradient-to-b from-primary/5 to-card">
+                              <div className="rounded-b-xl border border-t-0 border-primary/30 ">
                                 {/* Toolbar */}
                                 <div className="px-3 py-2 flex items-center gap-1.5 border-b border-primary/10 flex-wrap">
                                   <BookMarked className="w-3.5 h-3.5 text-primary shrink-0" />

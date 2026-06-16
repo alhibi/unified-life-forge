@@ -143,7 +143,7 @@ function CalisthenicsSection({ lang, query }: { lang: 'ar' | 'de'; query: string
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: i * 0.05 }}
-              className="shrink-0 w-[200px] p-2.5 rounded-xl bg-gradient-to-br from-card via-card to-primary/5 border border-border/40"
+              className="shrink-0 w-[200px] p-2.5 rounded-xl border border-border/40"
             >
               <div className="text-base mb-1">{p.emoji}</div>
               <h4 className="text-[11px] font-semibold mb-1 text-foreground">{p.title[lang]}</h4>

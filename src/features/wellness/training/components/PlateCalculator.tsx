@@ -188,11 +188,11 @@ function BarrellSvg({
             style={{
               width: plateThickness,
               height: `${heightPct}%`,
-              background: `linear-gradient(90deg, ${plateColor(p)} 0%, ${plateColor(p)}cc 50%, ${plateColor(p)} 100%)`,
+              
               border: p === 5 ? '1.5px solid #94a3b8' : 'none',
               borderRadius: 2,
               marginInline: 0.5,
-              boxShadow: 'inset 0 0 0 1px rgba(0,0,0,0.15)',
+              
             }}
             title={`${p}kg`}
           />
@@ -213,7 +213,7 @@ function BarrellSvg({
           <div
             className="absolute inset-0"
             style={{
-              background: 'linear-gradient(180deg, #6b7280 0%, #4b5563 50%, #1f2937 100%)',
+              
               borderRadius: 4,
             }}
           />

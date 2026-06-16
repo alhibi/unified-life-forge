@@ -99,7 +99,7 @@ function ContinueListeningRow({ items }: { items: RecentEpisodeRecord[] }) {
                   {/* Play overlay — visual affordance that this is a
                       playable card, not a navigation tile. */}
                   <span
-                    className="absolute bottom-2 end-2 w-9 h-9 rounded-full flex items-center justify-center shadow-lg"
+                    className="absolute bottom-2 end-2 w-9 h-9 rounded-full flex items-center justify-center "
                     style={{
                       background: 'var(--podcast-primary, hsl(var(--primary)))',
                       color: 'var(--podcast-primary-fg, hsl(var(--primary-foreground)))',
@@ -312,7 +312,7 @@ export default function PodcastLibrary() {
                   onClick={() => setSortAndPersist('recent')}
                   aria-pressed={sortMode === 'recent'}
                   className={`px-2.5 h-7 rounded-full text-[11.5px] font-semibold inline-flex items-center gap-1 transition-colors ${
-                    sortMode === 'recent' ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground'
+                    sortMode === 'recent' ? 'bg-card  text-foreground' : 'text-muted-foreground'
                   }`}
                 >
                   <Clock className="w-3 h-3" />
@@ -323,7 +323,7 @@ export default function PodcastLibrary() {
                   onClick={() => setSortAndPersist('alpha')}
                   aria-pressed={sortMode === 'alpha'}
                   className={`px-2.5 h-7 rounded-full text-[11.5px] font-semibold inline-flex items-center gap-1 transition-colors ${
-                    sortMode === 'alpha' ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground'
+                    sortMode === 'alpha' ? 'bg-card  text-foreground' : 'text-muted-foreground'
                   }`}
                 >
                   <ArrowDownAZ className="w-3 h-3" />

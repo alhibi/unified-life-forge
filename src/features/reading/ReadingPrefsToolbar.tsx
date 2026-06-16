@@ -178,7 +178,7 @@ function Segmented<T extends string>({
             onClick={() => onChange(opt.value)}
             className={`min-h-9 px-2 rounded-lg text-[11px] font-medium inline-flex items-center justify-center gap-1.5 transition-all ${
               active
-                ? 'bg-background text-foreground shadow-sm'
+                ? 'bg-background text-foreground '
                 : 'text-muted-foreground hover:text-foreground'
             }`}
             aria-pressed={active}

@@ -511,46 +511,46 @@ export default function PrayerTimes() {
     ? formatTime12(extraTimings.Sunset, { am: t('prayer.am'), pm: t('prayer.pm') })
     : '';
 
-  // ─── Layout ───────────────────────────────────────────────────────────────
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-      className="space-y-4"
-    >
-      {/* ═══ Card 1: Prayer hero + arc ═══════════════════════════════════ */}
-      <div className="rounded-3xl border border-border bg-card text-card-foreground relative overflow-hidden shadow-sm">
-        <Hero
-          currentPrayer={currentPrayer}
-          nextPrayer={nextPrayer}
-          locationLabel={locationName || t('prayer.locationFallback')}
-          language={language}
-          t={t}
-        />
-        <ArcStrip
-          prayers={prayers}
-          sunT={sunT}
-          nextName={slot.next}
-          makruhZones={makruhZones}
-          currentMakruh={currentMakruh}
-          arcGeom={arcGeom}
-          isNight={isNight}
-          isDark={isDark}
-          sunriseStr={sunriseStr}
-          sunsetStr={sunsetStr}
-          language={language}
-          t={t}
-        />
-      </div>
+ // ─── Layout ───────────────────────────────────────────────────────────────
+ return (
+ <motion.div
+ initial={{ opacity: 0, y: 12 }}
+ animate={{ opacity: 1, y: 0 }}
+ transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+ className="space-y-4"
+ >
+ {/* ═══ Card 1: Prayer hero + arc ═══════════════════════════════════ */}
+ <div className="rounded-3xl border border-border bg-card text-card-foreground relative overflow-hidden">
+ <Hero
+ currentPrayer={currentPrayer}
+ nextPrayer={nextPrayer}
+ locationLabel={locationName || t('prayer.locationFallback')}
+ language={language}
+ t={t}
+ />
+ <ArcStrip
+ prayers={prayers}
+ sunT={sunT}
+ nextName={slot.next}
+ makruhZones={makruhZones}
+ currentMakruh={currentMakruh}
+ arcGeom={arcGeom}
+ isNight={isNight}
+ isDark={isDark}
+ sunriseStr={sunriseStr}
+ sunsetStr={sunsetStr}
+ language={language}
+ t={t}
+ />
+ </div>
 
-      {/* ═══ Card 2: Hijri occasions strip ═══════════════════════════════ */}
-      <div className="rounded-3xl border border-border bg-card overflow-hidden shadow-sm">
-        <HijriCalendarStrip language={language} t={t} />
-      </div>
+ {/* ═══ Card 2: Hijri occasions strip ═══════════════════════════════ */}
+ <div className="rounded-3xl border border-border bg-card overflow-hidden">
+ <HijriCalendarStrip language={language} t={t} />
+ </div>
 
-      {/* ═══ Card 3: Today's prayers list ════════════════════════════════ */}
-      <div className="rounded-3xl border border-border bg-card text-card-foreground overflow-hidden shadow-sm">
+ {/* ═══ Card 3: Today's prayers list ════════════════════════════════ */}
+      <div className="rounded-3xl border border-border bg-card text-card-foreground overflow-hidden ">
         <Slab
           prayers={prayers}
           doneStates={doneStates}

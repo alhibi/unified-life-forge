@@ -102,7 +102,7 @@ function CallButton({
         'rounded-full flex items-center justify-center transition-colors',
         large ? 'w-16 h-16' : 'w-12 h-12',
         danger
-          ? 'bg-red-500 text-white shadow-lg shadow-red-500/30'
+          ? 'bg-red-500 text-white '
           : active
             ? 'bg-white/20 text-white'
             : 'bg-white/10 text-white/80 active:bg-white/20'
@@ -150,12 +150,12 @@ const CallUI: React.FC<CallUIProps> = ({
       exit={{ opacity: 0 }}
     >
       {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900" />
+      <div className="absolute inset-0 " />
 
       {/* Blur backdrop when video is off */}
       {(type === 'voice' || isVideoOff) && (
         <div className="absolute inset-0 backdrop-blur-3xl">
-          <div className="absolute inset-0 bg-gradient-to-b from-primary/10 to-transparent" />
+          <div className="absolute inset-0 " />
         </div>
       )}
 
@@ -236,7 +236,7 @@ const CallUI: React.FC<CallUIProps> = ({
               <button
                 type="button"
                 onClick={onAccept}
-                className="w-16 h-16 rounded-full bg-green-500 text-white flex items-center justify-center shadow-lg shadow-green-500/30"
+                className="w-16 h-16 rounded-full bg-green-500 text-white flex items-center justify-center "
               >
                 {type === 'video' ? <Video className="w-7 h-7" /> : <Phone className="w-7 h-7" />}
               </button>

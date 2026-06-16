@@ -85,7 +85,7 @@ export default function MemoryAdventurePage() {
         </div>
         <div className="h-1.5 rounded-full bg-zinc-800 overflow-hidden">
           <motion.div
-            className="h-full rounded-full bg-gradient-to-r from-pink-500 via-rose-400 to-amber-400"
+            className="h-full rounded-full "
             animate={{ width: `${(totalStars / maxStars) * 100}%` }}
             transition={{ duration: 0.7 }}
           />
@@ -95,7 +95,7 @@ export default function MemoryAdventurePage() {
       {/* Island chain — each stage is a row with a connector line drawn behind */}
       <div className="relative pl-3">
         {/* Vertical guide line */}
-        <div className="absolute left-[18px] top-3 bottom-3 w-px bg-gradient-to-b from-pink-500/40 via-pink-500/20 to-pink-500/5" />
+        <div className="absolute left-[18px] top-3 bottom-3 w-px " />
 
         {STAGES.map((stage, idx) => {
           const unlocked = isStageUnlocked(stage.id, save);
@@ -123,16 +123,16 @@ export default function MemoryAdventurePage() {
             >
               {/* Pin */}
               <div className={`relative w-9 h-9 rounded-full flex items-center justify-center shrink-0 z-10 ${
-                stage.isBoss
-                  ? 'bg-gradient-to-br from-amber-400 to-amber-600 ring-2 ring-amber-300/40'
-                  : isCurrent
-                    ? 'bg-pink-500 ring-2 ring-pink-300/40 shadow-lg shadow-pink-500/40'
-                    : stars > 0
-                      ? 'bg-emerald-500/30 ring-1 ring-emerald-400/40'
-                      : unlocked
-                        ? 'bg-pink-500/15 ring-1 ring-pink-400/30'
-                        : 'bg-zinc-800'
-              }`}>
+ stage.isBoss
+ ? ' ring-2 ring-amber-300/40'
+ : isCurrent
+ ? 'bg-pink-500 ring-2 ring-pink-300/40 '
+ : stars > 0
+ ? 'bg-emerald-500/30 ring-1 ring-emerald-400/40'
+ : unlocked
+ ? 'bg-pink-500/15 ring-1 ring-pink-400/30'
+ : 'bg-zinc-800'
+ }`}>
                 {!unlocked
                   ? <Lock className="w-4 h-4 text-zinc-500" />
                   : <span className={`text-xs font-black ${stage.isBoss ? 'text-amber-950' : isCurrent ? 'text-white' : 'text-foreground'}`}>{stage.id}</span>
@@ -186,15 +186,15 @@ export default function MemoryAdventurePage() {
               transition={{ type: 'spring', stiffness: 320, damping: 30 }}
               onClick={e => e.stopPropagation()}
               className={`w-full max-w-sm rounded-3xl border p-5 ${
-                selected.isBoss
-                  ? 'border-amber-500/40 bg-gradient-to-br from-amber-500/10 to-card'
-                  : 'border-pink-500/30 bg-card'
-              }`}
+ selected.isBoss
+ ? 'border-amber-500/40 '
+ : 'border-pink-500/30 bg-card'
+ }`}
             >
               <div className="flex items-start gap-3 mb-4">
                 <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shrink-0 ${
-                  selected.isBoss ? 'bg-gradient-to-br from-amber-400 to-amber-600' : 'bg-pink-500/20'
-                }`}>
+ selected.isBoss ? ' ' : 'bg-pink-500/20'
+ }`}>
                   {selected.isBoss ? '👑' : selected.id}
                 </div>
                 <div className="flex-1">
@@ -253,8 +253,8 @@ export default function MemoryAdventurePage() {
                   }`}
                   style={{
                     background: selected.isBoss
-                      ? 'linear-gradient(135deg, #fbbf24, #f59e0b)'
-                      : 'linear-gradient(135deg, #f472b6, #ec4899)',
+                      ? '#fbbf24'
+                      : '#ec4899',
                   }}
                 >
                   <Sparkles className="w-4 h-4" />

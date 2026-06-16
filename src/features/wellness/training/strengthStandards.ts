@@ -2,12 +2,12 @@
  * Strength standards table.
  *
  * Cross-referenced from ExRx, Greg Nuckols' surveys, Symmetric Strength,
- * and the Stronger By Science 2024 update. Numbers are 1RM-to-bodyweight
+ * and the Stronger By Science 2024 update. Numbers are 1RM-
  * ratios at six tiers, with female ratios derived from a 0.7 multiplier
  * (matches the empirical mean across the four sources within ±5 %).
  *
  * For lifts not in this table, the function `interpolateStandard()` falls
- * back to a "compound vs accessory" heuristic so the UI never shows blanks.
+ * back to a"compound vs accessory" heuristic so the UI never shows blanks.
  */
 
 import type { Sex } from '../wellnessDb';

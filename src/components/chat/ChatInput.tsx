@@ -101,78 +101,78 @@ const AttachmentMenu = React.memo(function AttachmentMenu({ isAr, onSelect, onCl
       animate={{ opacity: 1, scale: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.8, y: 10 }}
       transition={{ type: 'spring', damping: 20, stiffness: 350 }}
-    >
-      <div className="bg-card/95 backdrop-blur-lg rounded-2xl border border-border/30 shadow-2xl p-3 min-w-[200px]">
-        <div className="grid grid-cols-4 gap-3">
-          {options.map((opt, i) => (
-            <motion.button
-              key={opt.id}
-              type="button"
-              className="flex flex-col items-center gap-1.5"
-              onClick={() => { onSelect(opt.id); onClose(); }}
-              initial={{ scale: 0, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: i * 0.05, type: 'spring', damping: 15 }}
+ >
+ <div className="bg-card/95 backdrop-blur-lg rounded-2xl border border-border/30 p-3 min-w-[200px]">
+ <div className="grid grid-cols-4 gap-3">
+ {options.map((opt, i) => (
+ <motion.button
+ key={opt.id}
+ type="button"
+ className="flex flex-col items-center gap-1.5"
+ onClick={() => { onSelect(opt.id); onClose(); }}
+ initial={{ scale: 0, opacity: 0 }}
+ animate={{ scale: 1, opacity: 1 }}
+ transition={{ delay: i * 0.05, type: 'spring', damping: 15 }}
               whileTap={{ scale: 0.9 }}
             >
               <div className={cn('w-11 h-11 rounded-full flex items-center justify-center', opt.color)}>
-                <opt.icon className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-[10px] text-muted-foreground font-medium">{opt.label}</span>
-            </motion.button>
-          ))}
-        </div>
-      </div>
-      {/* Click-away backdrop */}
-      <div className="fixed inset-0 -z-10" onClick={onClose} />
-    </motion.div>
-  );
+ <opt.icon className="w-5 h-5 text-white" />
+ </div>
+ <span className="text-[10px] text-muted-foreground font-medium">{opt.label}</span>
+ </motion.button>
+ ))}
+ </div>
+ </div>
+ {/* Click-away backdrop */}
+ <div className="fixed inset-0 -z-10" onClick={onClose} />
+ </motion.div>
+ );
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
 // MentionSuggestionList — popup showing matching users when typing @
 // ─────────────────────────────────────────────────────────────────────────────
 interface MentionSuggestionListProps {
-  suggestions: Array<{ userId: string; username: string; displayName?: string; avatarUrl?: string | null }>;
-  query: string;
-  onSelect: (username: string) => void;
-  isAr: boolean;
+ suggestions: Array<{ userId: string; username: string; displayName?: string; avatarUrl?: string | null }>;
+ query: string;
+ onSelect: (username: string) => void;
+ isAr: boolean;
 }
 
 const MentionSuggestionList = React.memo(function MentionSuggestionList({ suggestions, query, onSelect, isAr }: MentionSuggestionListProps) {
-  const filtered = useMemo(() => {
-    if (!query) return suggestions.slice(0, 5);
-    const q = query.toLowerCase();
-    return suggestions
-      .filter(s => s.username.toLowerCase().includes(q) || (s.displayName?.toLowerCase().includes(q)))
-      .slice(0, 5);
-  }, [suggestions, query]);
+ const filtered = useMemo(() => {
+ if (!query) return suggestions.slice(0, 5);
+ const q = query.toLowerCase();
+ return suggestions
+ .filter(s => s.username.toLowerCase().includes(q) || (s.displayName?.toLowerCase().includes(q)))
+ .slice(0, 5);
+ }, [suggestions, query]);
 
-  if (!filtered.length) return null;
+ if (!filtered.length) return null;
 
-  return (
-    <motion.div
-      className="absolute bottom-full mb-1 start-0 end-0 mx-3 z-50"
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: 8 }}
-    >
-      <div className="bg-card/95 backdrop-blur-lg rounded-xl border border-border/30 shadow-xl overflow-hidden">
-        {filtered.map((user, i) => (
-          <motion.button
-            key={user.userId}
-            type="button"
-            className="w-full flex items-center gap-2.5 px-3 py-2 hover:bg-muted/30 active:bg-muted/40 transition-colors text-start"
-            onClick={() => onSelect(user.username)}
-            initial={{ opacity: 0, x: -8 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: i * 0.03 }}
-          >
-            <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden">
-              {user.avatarUrl ? (
-                <img src={user.avatarUrl} alt="" className="w-full h-full object-cover" />
-              ) : (
-                <span className="text-[11px] font-bold text-primary">{(user.username || '?')[0].toUpperCase()}</span>
+ return (
+ <motion.div
+ className="absolute bottom-full mb-1 start-0 end-0 mx-3 z-50"
+ initial={{ opacity: 0, y: 8 }}
+ animate={{ opacity: 1, y: 0 }}
+ exit={{ opacity: 0, y: 8 }}
+ >
+ <div className="bg-card/95 backdrop-blur-lg rounded-xl border border-border/30 overflow-hidden">
+ {filtered.map((user, i) => (
+ <motion.button
+ key={user.userId}
+ type="button"
+ className="w-full flex items-center gap-2.5 px-3 py-2 hover:bg-muted/30 active:bg-muted/40 transition-colors text-start"
+ onClick={() => onSelect(user.username)}
+ initial={{ opacity: 0, x: -8 }}
+ animate={{ opacity: 1, x: 0 }}
+ transition={{ delay: i * 0.03 }}
+ >
+ <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden">
+ {user.avatarUrl ? (
+ <img src={user.avatarUrl} alt="" className="w-full h-full object-cover" />
+ ) : (
+ <span className="text-[11px] font-bold text-primary">{(user.username || '?')[0].toUpperCase()}</span>
               )}
             </div>
             <div className="flex-1 min-w-0">
@@ -203,64 +203,64 @@ const CharacterCounter = React.memo(function CharacterCounter({ count }: { count
       className={cn(
         'absolute top-1 end-2 text-[10px] font-mono tabular-nums',
         isOver ? 'text-destructive font-bold' : remaining < 100 ? 'text-orange-500' : 'text-muted-foreground/50',
-      )}
-    >
-      {remaining}
-    </motion.span>
-  );
+ )}
+ >
+ {remaining}
+ </motion.span>
+ );
 });
 
 /**
  * WhatsApp/Telegram-class composer with:
- *  - staged image previews
- *  - reply / edit preview cards
- *  - categorized emoji picker (toggle)
- *  - press-and-hold voice with slide-to-cancel + drag-up to lock + preview
- *  - paste image support
+ * - staged image previews
+ * - reply / edit preview cards
+ * - categorized emoji picker (toggle)
+ * - press-and-hold voice with slide- + drag-up to lock + preview
+ * - paste image support
  */
 const ChatInput: React.FC<ChatInputProps> = ({
-  isAr, newMessage, setNewMessage,
-  replyTo, setReplyTo, editingMessage, cancelEdit,
-  stagedPreviews, stagedImagesCount, uploading,
-  inputRef, fileInputRef,
-  isRecording, recordingTime, locked, previewBlob, previewUrl, uploadingVoice,
-  liveBars, capturedBars,
-  startRecording, stopAndSend, stopAndCancel, stopForPreview, lockRecording, sendPreview, discardPreview,
-  sendMessage, saveEditMessage, sendStagedImages, removeStagedImage, clearStagedImages,
-  showEmojiPicker, setShowEmojiPicker,
-  resizeComposer, broadcastTyping, scrollToBottom,
-  activeConvOtherName, userId, onPasteFiles,
-  enterToSend = true,
-  mentionSuggestions,
-  onSchedule,
-  canSchedule,
+ isAr, newMessage, setNewMessage,
+ replyTo, setReplyTo, editingMessage, cancelEdit,
+ stagedPreviews, stagedImagesCount, uploading,
+ inputRef, fileInputRef,
+ isRecording, recordingTime, locked, previewBlob, previewUrl, uploadingVoice,
+ liveBars, capturedBars,
+ startRecording, stopAndSend, stopAndCancel, stopForPreview, lockRecording, sendPreview, discardPreview,
+ sendMessage, saveEditMessage, sendStagedImages, removeStagedImage, clearStagedImages,
+ showEmojiPicker, setShowEmojiPicker,
+ resizeComposer, broadcastTyping, scrollToBottom,
+ activeConvOtherName, userId, onPasteFiles,
+ enterToSend = true,
+ mentionSuggestions,
+ onSchedule,
+ canSchedule,
 }) => {
-  // Drag state for slide-to-cancel / drag-to-lock overlay.
-  const drag = useMotionValue(0);
-  const dragY = useMotionValue(0);
-  const cancelOpacity = useTransform(drag, [-120, -60, 0], [1, 0.6, 0]);
-  const lockOpacity = useTransform(dragY, [-80, -30, 0], [1, 0.7, 0.3]);
+ // Drag state for slide- / drag- overlay.
+ const drag = useMotionValue(0);
+ const dragY = useMotionValue(0);
+ const cancelOpacity = useTransform(drag, [-120, -60, 0], [1, 0.6, 0]);
+ const lockOpacity = useTransform(dragY, [-80, -30, 0], [1, 0.7, 0.3]);
 
-  // Track the mic button rect so the overlay anchors correctly.
-  const micWrapperRef = useRef<HTMLDivElement | null>(null);
+ // Track the mic button rect so the overlay anchors correctly.
+ const micWrapperRef = useRef<HTMLDivElement | null>(null);
 
-  // Attachment menu state
-  const [showAttachMenu, setShowAttachMenu] = useState(false);
+ // Attachment menu state
+ const [showAttachMenu, setShowAttachMenu] = useState(false);
 
-  // Mention detection state
-  const [mentionQuery, setMentionQuery] = useState<string | null>(null);
-  const [showMentions, setShowMentions] = useState(false);
+ // Mention detection state
+ const [mentionQuery, setMentionQuery] = useState<string | null>(null);
+ const [showMentions, setShowMentions] = useState(false);
 
-  // Preview playback for recorded voice message.
-  const [previewPlaying, setPreviewPlaying] = useState(false);
-  const previewAudioRef = useRef<HTMLAudioElement | null>(null);
-  useEffect(() => {
-    if (!previewUrl) { setPreviewPlaying(false); return; }
-    if (!previewAudioRef.current) previewAudioRef.current = new Audio();
-    const audio = previewAudioRef.current;
-    audio.src = previewUrl;
-    audio.onended = () => setPreviewPlaying(false);
-    return () => { audio.pause(); audio.src = ''; };
+ // Preview playback for recorded voice message.
+ const [previewPlaying, setPreviewPlaying] = useState(false);
+ const previewAudioRef = useRef<HTMLAudioElement | null>(null);
+ useEffect(() => {
+ if (!previewUrl) { setPreviewPlaying(false); return; }
+ if (!previewAudioRef.current) previewAudioRef.current = new Audio();
+ const audio = previewAudioRef.current;
+ audio.src = previewUrl;
+ audio.onended = () => setPreviewPlaying(false);
+ return () => { audio.pause(); audio.src = ''; };
   }, [previewUrl]);
   const togglePreviewPlay = () => {
     const audio = previewAudioRef.current;
@@ -558,12 +558,12 @@ const ChatInput: React.FC<ChatInputProps> = ({
               onClick={uploadingVoice ? undefined : sendPreview}
               disabled={uploadingVoice}
               aria-label={isAr ? 'إرسال الرسالة الصوتية' : 'Sprachnachricht senden'}
-              aria-busy={uploadingVoice}
-              className="shrink-0 w-11 h-11 rounded-full bg-primary flex items-center justify-center shadow-md shadow-primary/20 disabled:opacity-90"
-            >
-              {uploadingVoice
-                ? <Loader2 className="w-5 h-5 text-primary-foreground animate-spin" />
-                : <Send className="w-5 h-5 text-primary-foreground" style={{ marginInlineStart: '2px' }} />}
+ aria-busy={uploadingVoice}
+ className="shrink-0 w-11 h-11 rounded-full bg-primary flex items-center justify-center disabled:opacity-90"
+ >
+ {uploadingVoice
+ ? <Loader2 className="w-5 h-5 text-primary-foreground animate-spin" />
+ : <Send className="w-5 h-5 text-primary-foreground" style={{ marginInlineStart: '2px' }} />}
             </motion.button>
           </motion.div>
         ) : isRecording ? (
@@ -601,17 +601,17 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
             {/* Lock / Send buttons */}
             {locked ? (
-              <motion.button onClick={stopAndSend}  aria-label={isAr ? 'إرسال الرسالة الصوتية' : 'Sprachnachricht senden'} className="shrink-0 w-10 h-10 rounded-full bg-primary flex items-center justify-center shadow-md shadow-primary/20">
+              <motion.button onClick={stopAndSend}  aria-label={isAr ? 'إرسال الرسالة الصوتية' : 'Sprachnachricht senden'} className="shrink-0 w-10 h-10 rounded-full bg-primary flex items-center justify-center ">
                 <Send className="w-5 h-5 text-primary-foreground" style={{ marginInlineStart: '2px' }} />
               </motion.button>
             ) : (
               <>
                 {/* Lock hint above mic */}
-                <motion.div className="absolute -top-14 end-3 w-10 h-12 rounded-full bg-card border border-border/30 flex items-center justify-center shadow-md pointer-events-none" style={{ opacity: lockOpacity }}>
+                <motion.div className="absolute -top-14 end-3 w-10 h-12 rounded-full bg-card border border-border/30 flex items-center justify-center pointer-events-none" style={{ opacity: lockOpacity }}>
                   <Lock className="w-4 h-4 text-muted-foreground" />
                 </motion.div>
                 <motion.div
-                  className="shrink-0 w-11 h-11 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/25 relative"
+                  className="shrink-0 w-11 h-11 rounded-full bg-primary flex items-center justify-center relative"
                   animate={{ scale: [1, 1.08, 1] }}
                   transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
                 >
@@ -648,7 +648,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
             </button>
 
             {/* Text input — iOS-style pill with the emoji button tucked inside. */}
-            <div className="flex-1 relative flex items-end bg-muted/15 border border-border/15 rounded-3xl overflow-visible transition-all duration-200 focus-within:border-primary/25 focus-within:bg-muted/5 focus-within:shadow-[0_0_0_3px_hsl(var(--primary)/0.06)]">
+            <div className="flex-1 relative flex items-end bg-muted/15 border border-border/15 rounded-3xl overflow-visible transition-all duration-200 focus-within:border-primary/25 focus-within:bg-muted/5 ">
               <CharacterCounter count={newMessage.length} />
 
               {/* Emoji toggle — sits inside the pill on the start edge,
@@ -728,7 +728,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 initial={{ scale: 0.5, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ type: 'spring', damping: 15, stiffness: 400 }}
-                className="shrink-0 w-10 h-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground shadow-md shadow-primary/20 self-end"
+                className="shrink-0 w-10 h-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground self-end"
                 type="button"
                 aria-label={editingMessage ? (isAr ? 'حفظ التعديل' : 'Änderung speichern') : (isAr ? 'إرسال' : 'Senden')}
                 onPointerDown={(e) => e.preventDefault()}

@@ -93,13 +93,13 @@ export default function BrowsePage() {
                   aria-label={isAr ? t.labelAr : t.labelDe}
                   className={`relative flex-1 inline-flex items-center justify-center gap-1.5 h-10 px-3 rounded-xl transition-colors duration-150 ${
                     active ? 'text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                >
-                  {active && (
-                    <motion.span
-                      layoutId="browse-dock-pill"
-                      className="absolute inset-0 rounded-xl bg-primary shadow-sm"
-                      transition={{ type: 'spring', stiffness: 480, damping: 36 }}
+ }`}
+ >
+ {active && (
+ <motion.span
+ layoutId="browse-dock-pill"
+ className="absolute inset-0 rounded-xl bg-primary"
+ transition={{ type: 'spring', stiffness: 480, damping: 36 }}
                     />
                   )}
                   <span className="relative inline-flex items-center gap-1.5">

@@ -39,26 +39,26 @@ export default function AppDatePicker({ value, onChange, className }: Props) {
             'text-sm font-medium text-foreground outline-none transition-all',
             'hover:bg-muted active:scale-[0.97] duration-150',
             'focus-visible:ring-2 focus-visible:ring-primary/40',
-            className,
-          )}
-          dir="ltr"
-        >
-          <CalendarIcon className="w-3.5 h-3.5 text-primary" />
-          <span className="tabular-nums">{label}</span>
-        </button>
-      </PopoverTrigger>
-      <PopoverContent
-        align="end"
-        sideOffset={8}
-        className="w-auto p-0 rounded-2xl border-border/50 bg-card/95 backdrop-blur-xl shadow-2xl"
-        dir={dir}
-      >
-        <Calendar
-          mode="single"
-          selected={selected}
-          onSelect={(d) => {
-            if (d) {
-              onChange(format(d, 'yyyy-MM-dd'));
+ className,
+ )}
+ dir="ltr"
+ >
+ <CalendarIcon className="w-3.5 h-3.5 text-primary" />
+ <span className="tabular-nums">{label}</span>
+ </button>
+ </PopoverTrigger>
+ <PopoverContent
+ align="end"
+ sideOffset={8}
+ className="w-auto p-0 rounded-2xl border-border/50 bg-card/95 backdrop-blur-xl"
+ dir={dir}
+ >
+ <Calendar
+ mode="single"
+ selected={selected}
+ onSelect={(d) => {
+ if (d) {
+ onChange(format(d, 'yyyy-MM-dd'));
               setOpen(false);
             }
           }}
@@ -88,7 +88,7 @@ export default function AppDatePicker({ value, onChange, className }: Props) {
               'aria-selected:opacity-100 tabular-nums',
             ),
             day_selected:
-              'bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary shadow-[0_0_0_3px_hsl(var(--primary)/0.15)]',
+              'bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary ',
             day_today: 'ring-1 ring-primary/40 text-primary font-bold',
             day_outside: 'text-muted-foreground/40',
             day_disabled: 'text-muted-foreground/30',

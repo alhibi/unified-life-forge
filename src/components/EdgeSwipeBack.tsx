@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useApp } from '@/contexts/AppContext';
 
 /**
- * EdgeSwipeBack — global iOS-style edge-swipe-to-go-back gesture.
+ * EdgeSwipeBack — global iOS-style edge-swipe- gesture.
  *
  * Listens for a touch that starts within `EDGE_PX` of the leading edge
  * (left in LTR, right in RTL) and commits the gesture when the finger

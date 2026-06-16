@@ -220,7 +220,7 @@ export default function FoodDetailSheet({ food, lang, onClose, onAddToLog }: Pro
           </div>
 
           {/* ─── Nutrient Density Score ─── */}
-          <div className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20">
+          <div className="flex items-center gap-3 p-3 rounded-xl border border-amber-500/20">
             <Sparkles className="w-5 h-5 text-amber-500" />
             <div className="flex-1">
               <p className="text-[11px] text-muted-foreground">{T.density[lang]}</p>
@@ -231,7 +231,7 @@ export default function FoodDetailSheet({ food, lang, onClose, onAddToLog }: Pro
             </div>
             <div className="w-16 h-2 rounded-full bg-muted overflow-hidden">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-amber-500 to-orange-500 transition-all"
+                className="h-full rounded-full transition-all"
                 style={{ width: `${Math.min(100, densityScore)}%` }}
               />
             </div>

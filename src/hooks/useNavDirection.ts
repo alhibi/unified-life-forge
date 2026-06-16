@@ -81,7 +81,7 @@ export function useNavDirection(): NavDirection {
     // Same path (e.g., search-param change) — no directional motion.
     if (fromPath === toPath) return 'replace';
 
-    // Tab-to-tab navigation: both endpoints are top-level destinations.
+    // Tab- navigation: both endpoints are top-level destinations.
     if (fromPath && isTabPath(fromPath) && isTabPath(toPath)) return 'tab';
 
     if (navType === 'POP')     return 'pop';

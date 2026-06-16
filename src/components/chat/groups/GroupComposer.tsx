@@ -129,7 +129,7 @@ const GroupComposer: React.FC<GroupComposerProps> = ({
             'h-10 w-10 rounded-full flex items-center justify-center transition-all shrink-0',
             'active:scale-90',
             canSend
-              ? 'bg-primary text-primary-foreground shadow-md shadow-primary/25'
+              ? 'bg-primary text-primary-foreground '
               : 'bg-muted text-muted-foreground/40',
           )}
           aria-label={isAr ? 'إرسال' : 'Senden'}

@@ -255,7 +255,7 @@ export function StatTile({
           <motion.div
             className="h-full rounded-full"
             style={{
-              background: `linear-gradient(90deg, ${withAlpha(accent, 0.55)}, ${accent})`,
+              
             }}
             initial={{ width: 0 }}
             animate={{ width: `${Math.max(0, Math.min(1, progress)) * 100}%` }}

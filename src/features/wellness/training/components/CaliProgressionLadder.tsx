@@ -56,7 +56,7 @@ export default function CaliProgressionLadder({
       <div
         className="rounded-2xl p-4 border"
         style={{
-          background: `linear-gradient(135deg, ${skill.color}20 0%, ${skill.color}05 60%)`,
+          
           borderColor: `${skill.color}40`,
         }}
       >

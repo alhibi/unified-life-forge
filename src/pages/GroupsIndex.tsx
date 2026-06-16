@@ -148,7 +148,7 @@ export default function GroupsIndexPage() {
                 className={cn(
                   'h-8 px-3.5 rounded-full text-[12.5px] font-medium transition-all whitespace-nowrap inline-flex items-center gap-1.5',
                   active
-                    ? 'bg-primary text-primary-foreground shadow-sm'
+                    ? 'bg-primary text-primary-foreground '
                     : 'bg-muted/30 text-muted-foreground active:bg-muted/50',
                 )}
               >
@@ -219,7 +219,7 @@ export default function GroupsIndexPage() {
                   exit={{ opacity: 0, y: 10, scale: 0.9 }}
                   transition={{ type: 'spring', damping: 22, stiffness: 320, delay: 0.05 }}
                   onClick={() => { setShowCreatorMenu(false); setCreatorKind('channel'); setCreatorOpen(true); }}
-                  className="z-[10] inline-flex items-center gap-2.5 rounded-full bg-card border border-border/30 shadow-lg px-3.5 h-10 active:scale-95"
+                  className="z-[10] inline-flex items-center gap-2.5 rounded-full bg-card border border-border/30 px-3.5 h-10 active:scale-95"
                 >
                   <Hash className="w-4 h-4 text-primary" />
                   <span className="text-[13px] font-semibold">{isAr ? 'قناة جديدة' : 'Neuer Kanal'}</span>
@@ -231,7 +231,7 @@ export default function GroupsIndexPage() {
                   exit={{ opacity: 0, y: 10, scale: 0.9 }}
                   transition={{ type: 'spring', damping: 22, stiffness: 320 }}
                   onClick={() => { setShowCreatorMenu(false); setCreatorKind('group'); setCreatorOpen(true); }}
-                  className="z-[10] inline-flex items-center gap-2.5 rounded-full bg-card border border-border/30 shadow-lg px-3.5 h-10 active:scale-95"
+                  className="z-[10] inline-flex items-center gap-2.5 rounded-full bg-card border border-border/30 px-3.5 h-10 active:scale-95"
                 >
                   <Users className="w-4 h-4 text-primary" />
                   <span className="text-[13px] font-semibold">{isAr ? 'مجموعة جديدة' : 'Neue Gruppe'}</span>
@@ -242,7 +242,7 @@ export default function GroupsIndexPage() {
           <button
             type="button"
             onClick={() => setShowCreatorMenu(s => !s)}
-            className="z-[10] w-14 h-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg shadow-primary/25 active:scale-90 transition-transform"
+            className="z-[10] w-14 h-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center active:scale-90 transition-transform"
             aria-label={isAr ? 'إنشاء جديد' : 'Neu erstellen'}
           >
             <motion.span

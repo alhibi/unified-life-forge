@@ -129,7 +129,7 @@ export default function ChessCareerPage() {
       {/* Player rating banner */}
       <motion.div
         initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-        className="rounded-2xl border border-purple-500/25 bg-gradient-to-br from-purple-500/15 to-purple-500/5 p-4 mb-4"
+        className="rounded-2xl border border-purple-500/25 p-4 mb-4"
       >
         <div className="flex items-center justify-between">
           <div>
@@ -150,7 +150,7 @@ export default function ChessCareerPage() {
           </div>
           <div className="h-1.5 rounded-full bg-zinc-800 overflow-hidden">
             <motion.div
-              className="h-full rounded-full bg-gradient-to-r from-purple-500 via-pink-500 to-amber-400"
+              className="h-full rounded-full "
               animate={{ width: `${(trophiesWon / BOTS.length) * 100}%` }}
               transition={{ duration: 0.6 }}
             />
@@ -177,14 +177,14 @@ export default function ChessCareerPage() {
               onClick={() => unlocked && setSelected(bot)}
               disabled={!unlocked}
               className={`w-full text-left rounded-2xl border p-3 transition-all ${
-                isCurrent
-                  ? 'border-purple-400 bg-purple-500/15 shadow-lg shadow-purple-500/25 ring-1 ring-purple-400/30'
-                  : beaten
-                    ? 'border-emerald-500/25 bg-emerald-500/5'
-                    : unlocked
-                      ? 'border-border/40 bg-card hover:bg-purple-500/5'
-                      : 'border-border/30 bg-card/40 opacity-50 cursor-not-allowed'
-              } ${unlocked ? 'active:scale-[0.98]' : ''}`}
+ isCurrent
+ ? 'border-purple-400 bg-purple-500/15 ring-1 ring-purple-400/30'
+ : beaten
+ ? 'border-emerald-500/25 bg-emerald-500/5'
+ : unlocked
+ ? 'border-border/40 bg-card hover:bg-purple-500/5'
+ : 'border-border/30 bg-card/40 opacity-50 cursor-not-allowed'
+ } ${unlocked ? 'active:scale-[0.98]' : ''}`}
             >
               <div className="flex items-center gap-3">
                 {/* Rank pill */}
@@ -294,7 +294,7 @@ export default function ChessCareerPage() {
                 <button
                   onClick={() => startMatch(selected)}
                   className="flex-1 py-3 rounded-xl font-black text-purple-950 text-sm flex items-center justify-center gap-1.5"
-                  style={{ background: 'linear-gradient(135deg, #c084fc, #a855f7)' }}
+                  style={{ }}
                 >
                   <Swords className="w-4 h-4" />
                   {isAr ? 'تحدّيه' : 'Herausfordern'}
@@ -308,7 +308,7 @@ export default function ChessCareerPage() {
       {allBeaten && (
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-          className="mt-5 rounded-2xl p-4 border border-amber-500/40 bg-gradient-to-br from-amber-500/15 to-amber-500/5 text-center"
+          className="mt-5 rounded-2xl p-4 border border-amber-500/40 text-center"
         >
           <Sparkles className="w-7 h-7 text-amber-300 mx-auto mb-1" />
           <p className="text-amber-300 font-black text-base">

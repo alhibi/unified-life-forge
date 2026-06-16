@@ -277,7 +277,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
                 className={cn(
                   'h-8 px-3.5 rounded-full text-[12.5px] font-medium whitespace-nowrap flex items-center gap-1.5 transition-all',
                   active
-                    ? 'bg-primary text-primary-foreground shadow-sm'
+                    ? 'bg-primary text-primary-foreground '
                     : 'bg-muted/30 text-muted-foreground active:bg-muted/50'
                 )}
                 whileTap={{ scale: 0.95 }}
@@ -575,7 +575,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
           <motion.button
             ref={fabRef}
             onClick={onNewChat}
-            className="absolute bottom-6 end-5 w-14 h-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg shadow-primary/25 z-10"
+            className="absolute bottom-6 end-5 w-14 h-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center z-10"
             
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}

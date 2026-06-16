@@ -8,7 +8,7 @@ import {
 /**
  * Pure-function tests for the extractArticle module. The network-bound
  * `extractArticleBody` is deliberately not covered here — it lives
- * behind dedupe/retry/abort plumbing and is exercised end-to-end by
+ * behind dedupe/retry/abort plumbing and is exercised end- by
  * the article reader integration; mocking the supabase client just to
  * confirm "we called it once" wouldn't add behavioural coverage.
  */

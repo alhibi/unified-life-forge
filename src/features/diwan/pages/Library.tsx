@@ -73,7 +73,7 @@ export default function DiwanLibraryPage({ tab = false }: Props) {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-          className="rounded-2xl bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border border-primary/15 p-3.5 mb-4"
+          className="rounded-2xl border border-primary/15 p-3.5 mb-4"
         >
           <div className="flex items-center gap-1.5 mb-2.5">
             <Sparkles className="w-3 h-3 text-primary" />

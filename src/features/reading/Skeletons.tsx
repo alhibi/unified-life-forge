@@ -67,8 +67,7 @@ export function ShimmerBar({
       <motion.div
         className="absolute inset-0"
         style={{
-          background:
-            'linear-gradient(90deg, transparent, hsl(var(--foreground) / 0.06), transparent)',
+          
         }}
         animate={{ x: ['-100%', '100%'] }}
         transition={{

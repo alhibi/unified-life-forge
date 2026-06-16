@@ -106,20 +106,20 @@ const GroupCreatorSheet: React.FC<GroupCreatorSheetProps> = ({
       <motion.div
         initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
         transition={{ type: 'spring', damping: 30, stiffness: 320 }}
-        className="absolute inset-x-0 bottom-0 z-[81] bg-background rounded-t-3xl flex flex-col max-h-[92%] shadow-2xl"
-        onClick={e => e.stopPropagation()}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="group-creator-title"
-      >
-        <div className="mx-auto w-10 h-1 rounded-full bg-border/40 mt-2 mb-1" />
+ className="absolute inset-x-0 bottom-0 z-[81] bg-background rounded-t-3xl flex flex-col max-h-[92%]"
+ onClick={e => e.stopPropagation()}
+ role="dialog"
+ aria-modal="true"
+ aria-labelledby="group-creator-title"
+ >
+ <div className="mx-auto w-10 h-1 rounded-full bg-border/40 mt-2 mb-1" />
 
-        {/* Header */}
-        <div className="px-4 h-14 flex items-center gap-2 border-b border-border/15">
-          <button
-            type="button"
-            onClick={() => {
-              if (step === 'fill-meta' && kind === 'group') { setStep('pick-members'); return; }
+ {/* Header */}
+ <div className="px-4 h-14 flex items-center gap-2 border-b border-border/15">
+ <button
+ type="button"
+ onClick={() => {
+ if (step === 'fill-meta' && kind === 'group') { setStep('pick-members'); return; }
               close();
             }}
             className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40"
@@ -207,15 +207,15 @@ const GroupCreatorSheet: React.FC<GroupCreatorSheetProps> = ({
                 <GroupAvatar
                   kind={kind}
                   title={title || (kind === 'group' ? '?' : '#')}
-                  className="h-24 w-24"
-                  showKindBadge={false}
-                />
-                <div className="absolute inset-0 rounded-full flex items-center justify-center bg-black/0 hover:bg-black/10 transition-colors">
-                  <Camera className="w-6 h-6 text-white drop-shadow" />
-                </div>
-              </button>
-              <p className="text-[11px] text-muted-foreground">
-                {isAr ? 'اختياري' : 'Optional'}
+ className="h-24 w-24"
+ showKindBadge={false}
+ />
+ <div className="absolute inset-0 rounded-full flex items-center justify-center bg-black/0 hover:bg-black/10 transition-colors">
+ <Camera className="w-6 h-6 text-white" />
+ </div>
+ </button>
+ <p className="text-[11px] text-muted-foreground">
+ {isAr ? 'اختياري' : 'Optional'}
               </p>
             </div>
 
@@ -315,7 +315,7 @@ function KindChip({ active, onClick, icon, label }: KindChipProps) {
       className={cn(
         'inline-flex items-center gap-1.5 rounded-full px-3 h-8 text-[12.5px] font-medium transition-all',
         active
-          ? 'bg-primary text-primary-foreground shadow-sm'
+          ? 'bg-primary text-primary-foreground '
           : 'bg-muted/30 text-muted-foreground active:bg-muted/50',
       )}
     >

@@ -128,7 +128,7 @@ export function unpackFileName(fileName: string | null | undefined): UnpackedFil
 /**
  * Convenience getter — returns the human-readable filename only.
  * Used everywhere the user sees the filename (download tooltips,
- * "shared media" tabs, copy-to-clipboard handlers).
+ * "shared media" tabs, copy- handlers).
  */
 export function readableFileName(fileName: string | null | undefined): string {
   return unpackFileName(fileName).name;

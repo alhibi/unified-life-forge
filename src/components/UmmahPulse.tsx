@@ -871,12 +871,12 @@ function UmmahPulse() {
                 key={key}
                 className={`rounded-lg px-1.5 py-2 text-center transition-all ${
                   isCurrent
-                    ? 'shadow-sm'
+                    ? ''
                     : 'bg-muted/30'
                 }`}
                 style={isCurrent ? {
                   background: m.color.replace('hsl(', 'hsla(').replace(')', ', 0.15)'),
-                  boxShadow: `inset 0 0 0 1px ${m.color}`,
+                  
                 } : undefined}
               >
                 <p className="text-[9px] font-semibold leading-tight"
@@ -903,29 +903,29 @@ function UmmahPulse() {
               title={t('مذهب العصر الرسمي للبلد', 'Offizielles Asr-Madhab des Landes')}
             >
               {c.shadowUsed === 2 ? t('عصر حنفي', 'Asr Hanafi') : t('عصر جمهور', 'Asr Mehrheit')}
-            </span>
-          </div>
-          <div className="flex items-center gap-1.5 text-muted-foreground shrink-0">
-            <Compass className="w-3 h-3" />
-            <span className="tabular-nums">
-              {qibla.toFixed(0)}° · {bearingToCompass(qibla)}
-            </span>
-          </div>
-        </div>
-      </motion.div>
-    );
-  };
+ </span>
+ </div>
+ <div className="flex items-center gap-1.5 text-muted-foreground shrink-0">
+ <Compass className="w-3 h-3" />
+ <span className="tabular-nums">
+ {qibla.toFixed(0)}° · {bearingToCompass(qibla)}
+ </span>
+ </div>
+ </div>
+ </motion.div>
+ );
+ };
 
-  // ── Main render ───────────────────────────────────────────────────────────
-  return (
-    <div
-      dir="ltr"
-      className="relative rounded-3xl overflow-hidden border border-border/40 bg-gradient-to-b from-card via-card to-background shadow-lg"
-    >
-      {/* Header */}
-      <div
-        className="flex items-center justify-between px-4 pt-4 pb-2"
-        dir={language === 'ar' ? 'rtl' : 'ltr'}
+ // ── Main render ───────────────────────────────────────────────────────────
+ return (
+ <div
+ dir="ltr"
+ className="relative rounded-3xl overflow-hidden border border-border/40"
+ >
+ {/* Header */}
+ <div
+ className="flex items-center justify-between px-4 pt-4 pb-2"
+ dir={language === 'ar' ? 'rtl' : 'ltr'}
       >
         <div className="flex items-center gap-2.5">
           <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
@@ -1086,8 +1086,7 @@ function UmmahPulse() {
                   <div
                     className="relative rounded-2xl overflow-hidden border border-border/30"
                     style={{
-                      background:
-                        'radial-gradient(120% 90% at 50% 35%, hsl(225, 80%, 8%) 0%, hsl(228, 80%, 4%) 60%, #000 100%)',
+                      
                     }}
                     onClick={() => setSelectedCity(null)}
                   >
@@ -1210,7 +1209,7 @@ function UmmahPulse() {
                           onClick={() => setFilter(s)}
                           className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-[11px] font-semibold transition-all ${
                             active
-                              ? 'bg-primary text-primary-foreground border-primary shadow-sm'
+                              ? 'bg-primary text-primary-foreground border-primary '
                               : 'bg-card border-border/40 text-foreground hover:bg-muted/40'
                           }`}
                         >
@@ -1298,7 +1297,7 @@ function UmmahPulse() {
                           onClick={() => setSelectedCity(isSelected ? null : c.name)}
                           className={`w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl border transition-all text-start ${
                             isSelected
-                              ? 'bg-primary/5 border-primary/40 shadow-sm'
+                              ? 'bg-primary/5 border-primary/40 '
                               : 'bg-card border-border/30 active:scale-[0.99]'
                           }`}
                         >
@@ -1308,7 +1307,6 @@ function UmmahPulse() {
                               className="w-2 h-2 rounded-full shrink-0"
                               style={{
                                 background: meta.color,
-                                boxShadow: c.info.slot === 'fajr' ? `0 0 8px ${meta.color}` : 'none',
                               }}
                             />
                             <div className="min-w-0 flex-1">

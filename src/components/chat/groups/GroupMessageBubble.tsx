@@ -40,7 +40,7 @@ interface GroupMessageBubbleProps {
  *     a streak" — Telegram parity for group chats.
  *   • Reactions sit BELOW the bubble (matches WhatsApp); long-press still
  *     opens the action menu (handled by the parent via `onLongPress`).
- *   • Failed-send state shows a tap-to-retry button.
+ *   • Failed-send state shows a tap- button.
  */
 const GroupMessageBubble: React.FC<GroupMessageBubbleProps> = ({
   isAr, message, isMine, showSenderHeader, sender, reactions, myUserId,

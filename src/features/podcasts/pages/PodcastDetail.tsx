@@ -10,7 +10,7 @@
 //   1. Sticky top bar — back button, subscribe button, more menu
 //   2. Backdrop: full-bleed blurred cover image with a vertical fade
 //      into the page background, plus the foreground square cover with
-//      shadow on top of it
+//       on top of it
 //   3. Title (large, auto-shrinks if very long), author
 //   4. Description in a card (HTML-sanitized)
 //   5. Source link / RSS URL / language code metadata rows
@@ -308,7 +308,7 @@ export default function PodcastDetail() {
               <div
                 className="absolute inset-0"
                 style={{
-                  background: 'linear-gradient(to bottom, rgba(0,0,0,0.25), hsl(var(--background)))',
+                  
                 }}
               />
             </div>
@@ -348,16 +348,16 @@ export default function PodcastDetail() {
                   {subscribed
                     ? (lang === 'ar' ? 'مشترك' : 'Abonniert')
                     : (lang === 'ar' ? 'اشترك' : 'Abonnieren')}
-                </span>
-              </button>
-            </div>
-          </div>
+ </span>
+ </button>
+ </div>
+ </div>
 
-          {/* Header — cover, title, author */}
-          <header className="relative px-6 pt-2 pb-4 flex flex-col items-center text-center">
-            <div
-              className="w-40 h-40 rounded-3xl overflow-hidden bg-muted/40 shadow-2xl mb-5"
-              style={{ boxShadow: '0 20px 50px -10px rgba(0,0,0,0.5)' }}
+ {/* Header — cover, title, author */}
+ <header className="relative px-6 pt-2 pb-4 flex flex-col items-center text-center">
+ <div
+ className="w-40 h-40 rounded-3xl overflow-hidden bg-muted/40 mb-5"
+ style={{ }}
             >
               {displayImage
                 ? <img src={displayImage} alt="" className="w-full h-full object-cover" />
@@ -433,7 +433,7 @@ export default function PodcastDetail() {
                   }`}
                   style={
                     isLongDescription && !descExpanded
-                      ? { maxHeight: '6.5em', maskImage: 'linear-gradient(to bottom, #000 70%, transparent)' }
+                      ? { maxHeight: '6.5em', overflow: 'hidden' as const }
                       : undefined
                   }
                   dangerouslySetInnerHTML={{ __html: safeDescription }}

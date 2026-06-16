@@ -13,7 +13,7 @@
 //   - Per-conversation mute respect
 //   - Badge count management
 //   - Notification grouping (collapse multiple from same sender)
-//   - Reply-from-notification (planned for service worker integration)
+//   - Reply- (planned for service worker integration)
 //
 // All methods are safe to call even when notifications are not supported
 // or not permitted — they degrade to no-ops.

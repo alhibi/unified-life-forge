@@ -44,7 +44,7 @@ function migratePrefs(raw: unknown): ChatPrefs {
 /**
  * Per-user, client-side chat preferences stored in localStorage.
  * Handles: pin / mute (with expiry) / archive, drafts, scroll memory,
- * wallpapers, sound toggle, enter-to-send. All mutations are synchronous
+ * wallpapers, sound toggle, enter-. All mutations are synchronous
  * (no network) and reflected to Web Audio mute flag.
  */
 export function useChatPrefs(userId: string | undefined) {

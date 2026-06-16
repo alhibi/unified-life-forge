@@ -23,10 +23,10 @@ export default function PoetTimeline({ poetId, poetName, onClose }: PoetTimeline
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 30 }}
       transition={{ type: 'spring', stiffness: 320, damping: 30 }}
-      className="w-full rounded-2xl bg-card border border-border/40 overflow-hidden shadow-lg"
+      className="w-full rounded-2xl bg-card border border-border/40 overflow-hidden "
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-border/30 bg-gradient-to-l from-primary/5 to-transparent">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-border/30 ">
         <div>
           <h3
             className="font-bold text-[15px] text-foreground"
@@ -49,7 +49,7 @@ export default function PoetTimeline({ poetId, poetName, onClose }: PoetTimeline
       {/* Timeline */}
       <div className="relative px-4 py-4">
         {/* Vertical line */}
-        <div className="absolute top-4 bottom-4 start-[30px] w-[2px] bg-gradient-to-b from-primary/30 via-primary/15 to-transparent rounded-full" />
+        <div className="absolute top-4 bottom-4 start-[30px] w-[2px] rounded-full" />
 
         <div className="space-y-1">
           {events.map((event, index) => {

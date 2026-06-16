@@ -92,7 +92,7 @@ export default function MealTracker() {
   return (
     <div className="space-y-4">
       {/* Daily totals header */}
-      <div className="bg-gradient-to-r from-primary/10 to-emerald-500/10 rounded-2xl p-4 border border-primary/20">
+      <div className=" rounded-2xl p-4 border border-primary/20">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-xs font-semibold text-muted-foreground">{T.totalToday[lang]}</h3>
           <div className="flex items-center gap-1 text-[10px] text-muted-foreground">

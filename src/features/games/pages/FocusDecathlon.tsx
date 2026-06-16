@@ -6,7 +6,7 @@ import { Crosshair, Brain, Zap, Hash, Layers, Target, Award, RotateCcw, ChevronR
 import { playSfx, vibrate } from '@/features/games/utils/gameFeedback';
 
 // =============================================================================
-// Focus Decathlon — five back-to-back micro-tests run in a fixed sequence.
+// Focus Decathlon — five back- micro-tests run in a fixed sequence.
 // At the end we combine the per-test scaled scores (mean 100, sd 15 — IQ-style)
 // into a single "Cognitive Index" that the player can chase day after day.
 //
@@ -228,8 +228,8 @@ export default function FocusDecathlonPage() {
 
         <button
           onClick={startDecathlon}
-          className="w-full py-4 rounded-2xl font-black text-cyan-950 shadow-lg shadow-cyan-500/30"
-          style={{ background: 'linear-gradient(135deg, #22d3ee, #06b6d4)' }}
+          className="w-full py-4 rounded-2xl font-black text-cyan-950 "
+          style={{ }}
         >
           <Zap className="w-5 h-5 inline mr-1.5" />
           {isAr ? 'ابدأ العشاري' : 'Decathlon starten'}
@@ -293,7 +293,7 @@ export default function FocusDecathlonPage() {
     >
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
-        className="rounded-2xl border border-cyan-500/30 bg-gradient-to-br from-cyan-500/15 to-card p-5 text-center mb-4"
+        className="rounded-2xl border border-cyan-500/30 p-5 text-center mb-4"
       >
         <Trophy className="w-10 h-10 text-amber-300 mx-auto mb-2" />
         <p className="text-[10px] uppercase tracking-wider text-cyan-200/80 font-bold">
@@ -356,7 +356,7 @@ export default function FocusDecathlonPage() {
         <button
           onClick={startDecathlon}
           className="flex-1 py-3 rounded-xl font-black text-cyan-950 text-sm flex items-center justify-center gap-1.5"
-          style={{ background: 'linear-gradient(135deg, #22d3ee, #06b6d4)' }}
+          style={{ }}
         >
           <RotateCcw className="w-4 h-4" />
           {isAr ? 'كرّر' : 'Wiederholen'}
@@ -574,7 +574,6 @@ function MemoryEvent({ isAr, onDone }: { isAr: boolean; onDone: (raw: number) =>
               background: c,
               opacity: active === i ? 1 : (s === 'showing' ? 0.6 : 0.85),
               transform: active === i ? 'scale(1.1)' : 'scale(1)',
-              boxShadow: active === i ? `0 0 28px ${c}` : 'none',
             }}
           />
         ))}
@@ -641,7 +640,6 @@ function NBackEvent({ isAr, onDone }: { isAr: boolean; onDone: (raw: number) => 
               width: 64, height: 64,
               background: pos === i ? '#06b6d4' : 'rgba(255,255,255,0.04)',
               borderColor: pos === i ? '#22d3ee' : 'rgba(255,255,255,0.06)',
-              boxShadow: pos === i ? '0 0 20px rgba(6,182,212,0.6)' : 'none',
             }}
           />
         ))}
@@ -649,7 +647,7 @@ function NBackEvent({ isAr, onDone }: { isAr: boolean; onDone: (raw: number) => 
       <button
         onClick={onMatch} disabled={done}
         className="mt-3 w-full max-w-[240px] py-3 rounded-2xl font-black text-cyan-950 disabled:opacity-50"
-        style={{ background: 'linear-gradient(135deg, #22d3ee, #06b6d4)' }}
+        style={{ }}
       >
         {isAr ? 'تطابق' : 'MATCH'}
       </button>
@@ -736,7 +734,7 @@ function AimEvent({ isAr, onDone }: { isAr: boolean; onDone: (raw: number) => vo
         ref={ref}
         onMouseDown={click} onTouchStart={click}
         className="relative w-full max-w-[400px] rounded-3xl border-2 border-cyan-500/15 overflow-hidden"
-        style={{ height: '50vh', background: 'radial-gradient(circle at 50% 50%, rgba(6,182,212,0.04) 0%, rgba(0,0,0,0.4) 70%)' }}
+        style={{ height: '50vh', }}
       >
         <AnimatePresence>
           {target && (
@@ -748,8 +746,8 @@ function AimEvent({ isAr, onDone }: { isAr: boolean; onDone: (raw: number) => vo
               style={{
                 left: target.x - target.r, top: target.y - target.r,
                 width: target.r * 2, height: target.r * 2,
-                background: 'radial-gradient(circle, #fbbf24 0%, #f59e0b 50%, #b45309 100%)',
-                boxShadow: '0 0 24px rgba(245,158,11,0.6)',
+                
+                
               }}
             >
               <div className="absolute inset-1/3 rounded-full bg-rose-500" />

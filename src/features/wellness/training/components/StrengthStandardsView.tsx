@@ -82,40 +82,40 @@ export default function StrengthStandardsView({
     const sq = bests.get('squat')?.maxE1rm ?? 0;
     const bp = bests.get('bench')?.maxE1rm ?? 0;
     const dl = bests.get('deadlift')?.maxE1rm ?? 0;
-    if (sq <= 0 || bp <= 0 || dl <= 0) return null;
-    const t = powerliftingTotal({
-      squat: sq, bench: bp, deadlift: dl, bodyweightKg: profile.weightKg, sex: profile.sex,
-    });
-    const w = wilks(t.total, profile.weightKg, profile.sex);
-    return { ...t, wilks: w };
-  }, [bests, profile]);
+ if (sq <= 0 || bp <= 0 || dl <= 0) return null;
+ const t = powerliftingTotal({
+ squat: sq, bench: bp, deadlift: dl, bodyweightKg: profile.weightKg, sex: profile.sex,
+ });
+ const w = wilks(t.total, profile.weightKg, profile.sex);
+ return { ...t, wilks: w };
+ }, [bests, profile]);
 
-  if (!profile?.weightKg) {
-    return (
-      <div className={`bg-card border border-border/40 rounded-2xl p-6 text-center ${className}`}>
-        <Award className="w-6 h-6 text-muted-foreground mx-auto mb-2" />
-        <p className="text-[12px] text-muted-foreground">{T.noProfile[lang]}</p>
-      </div>
-    );
-  }
+ if (!profile?.weightKg) {
+ return (
+ <div className={`bg-card border border-border/40 rounded-2xl p-6 text-center ${className}`}>
+ <Award className="w-6 h-6 text-muted-foreground mx-auto mb-2" />
+ <p className="text-[12px] text-muted-foreground">{T.noProfile[lang]}</p>
+ </div>
+ );
+ }
 
-  return (
-    <div className={`space-y-3 ${className}`}>
-      {/* Powerlifting total card */}
-      {total && (
-        <motion.div
-          initial={{ y: 10, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          className="rounded-2xl p-4 bg-gradient-to-br from-amber-500/15 via-orange-500/10 to-rose-500/10 border border-amber-500/30"
-        >
-          <div className="flex items-baseline justify-between mb-2">
-            <div>
-              <p className="text-[10px] uppercase tracking-wider text-amber-600 font-semibold">{T.total[lang]}</p>
-              <p className="text-[24px] font-bold tabular-nums text-foreground" dir="ltr">{total.total} kg</p>
-            </div>
-            <div className="text-end">
-              <p className="text-[10px] uppercase tracking-wider text-amber-600 font-semibold">{T.wilks[lang]}</p>
-              <p className="text-[18px] font-bold tabular-nums text-foreground" dir="ltr">{total.wilks ?? '—'}</p>
+ return (
+ <div className={`space-y-3 ${className}`}>
+ {/* Powerlifting total card */}
+ {total && (
+ <motion.div
+ initial={{ y: 10, opacity: 0 }}
+ animate={{ y: 0, opacity: 1 }}
+ className="rounded-2xl p-4 border border-amber-500/30"
+ >
+ <div className="flex items-baseline justify-between mb-2">
+ <div>
+ <p className="text-[10px] uppercase tracking-wider text-amber-600 font-semibold">{T.total[lang]}</p>
+ <p className="text-[24px] font-bold tabular-nums text-foreground" dir="ltr">{total.total} kg</p>
+ </div>
+ <div className="text-end">
+ <p className="text-[10px] uppercase tracking-wider text-amber-600 font-semibold">{T.wilks[lang]}</p>
+ <p className="text-[18px] font-bold tabular-nums text-foreground" dir="ltr">{total.wilks ?? '—'}</p>
             </div>
           </div>
           <div className="grid grid-cols-3 gap-1.5 mt-2">

@@ -178,7 +178,7 @@ function VoiceBubble({
   };
 
   // ── Pointer-drag scrubber (Telegram-style "drag the playhead") ──────────
-  // The bare click-to-seek above stays for desktop quick-jumps. On top of
+  // The bare click- above stays for desktop quick-jumps. On top of
   // it, we layer a pointer-capture flow so users can grab the waveform
   // and slide along — far more accurate than tapping the right position.
   const isMineActiveRef = React.useRef(false);
@@ -341,7 +341,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
   const [messageInfoTarget, setMessageInfoTarget] = React.useState<Message | null>(null);
 
   // Imperative handle for the virtualized message list. Lets us route
-  // scroll-to-id (reply jumps, search hops) and scroll-to-bottom through
+  // scroll- (reply jumps, search hops) and scroll- through
   // the virtualizer when active. NULL when the eager (non-virtualized)
   // path is used — callers should fall back to getElementById in that case.
   const virtualListRef = React.useRef<VirtualMessageListHandle | null>(null);
@@ -715,7 +715,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
               </div>
 
               <div className="flex mx-4 bg-muted/30 rounded-xl p-1 gap-1">
-                <button onClick={() => chat.setProfileTab('info')} className={cn('flex-1 py-2 rounded-lg text-[13px] font-medium transition-all', chat.profileTab === 'info' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground')}>
+                <button onClick={() => chat.setProfileTab('info')} className={cn('flex-1 py-2 rounded-lg text-[13px] font-medium transition-all', chat.profileTab === 'info' ? 'bg-background text-foreground ' : 'text-muted-foreground')}>
                   {chat.isAr ? 'المعلومات' : 'Info'}
                 </button>
                 <button onClick={() => {
@@ -723,7 +723,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                   if (chat.activeConv) {
                     supabase.from('messages').select('*').eq('conversation_id', chat.activeConv.id).in('message_type', ['image', 'file']).eq('deleted', false).order('created_at', { ascending: false }).limit(50).then(({ data }) => chat.setSharedMedia((data || []) as Message[]));
                   }
-                }} className={cn('flex-1 py-2 rounded-lg text-[13px] font-medium transition-all', chat.profileTab === 'media' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground')}>
+                }} className={cn('flex-1 py-2 rounded-lg text-[13px] font-medium transition-all', chat.profileTab === 'media' ? 'bg-background text-foreground ' : 'text-muted-foreground')}>
                   {chat.isAr ? 'الوسائط' : 'Medien'}
                 </button>
               </div>
@@ -1020,7 +1020,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.95 }}
                             transition={{ duration: 0.15 }}
-                            className={cn('absolute top-full mt-1 bg-card border border-border/30 rounded-xl z-20 min-w-[200px] overflow-hidden shadow-lg', chat.isAr ? 'left-0' : 'right-0')}
+                            className={cn('absolute top-full mt-1 bg-card border border-border/30 rounded-xl z-20 min-w-[200px] overflow-hidden ', chat.isAr ? 'left-0' : 'right-0')}
                           >
                             <button className="w-full flex items-center gap-3 px-4 py-2.5 active:bg-accent/30 transition-colors text-[13px] text-start" onClick={() => { chat.setShowSearch(true); chat.setShowChatMenu(false); }}>
                               <Search className="w-4 h-4 text-muted-foreground" />{chat.isAr ? 'بحث في المحادثة' : 'Im Chat suchen'}
@@ -1117,7 +1117,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                                 chat.chatPrefs.prefs.enterToSend ? 'bg-primary' : 'bg-muted/50'
                               )}>
                                 <span className={cn(
-                                  'absolute top-[2px] w-[14px] h-[14px] rounded-full bg-background shadow-sm transition-all',
+                                  'absolute top-[2px] w-[14px] h-[14px] rounded-full bg-background transition-all',
                                   chat.chatPrefs.prefs.enterToSend ? 'start-[16px]' : 'start-[2px]'
                                 )} />
                               </span>
@@ -1257,7 +1257,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                     {/* Date separator */}
                     {showDate && (
                       <div className="flex justify-center py-4">
-                        <span className="text-[11px] text-muted-foreground/70 bg-background/60 backdrop-blur-sm px-3 py-1 rounded-full font-medium shadow-sm">
+                        <span className="text-[11px] text-muted-foreground/70 bg-background/60 backdrop-blur-sm px-3 py-1 rounded-full font-medium ">
                           {formatDateSeparator(msg.created_at, chat.isAr)}
                         </span>
                       </div>
@@ -1607,15 +1607,15 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                   transition={{ type: 'spring', damping: 20, stiffness: 400 }}
                   onClick={() => chat.scrollToBottom()}
                   aria-label={chat.isAr ? 'الانتقال للأسفل' : 'Nach unten scrollen'}
-                  className="absolute bottom-24 end-4 z-10 w-10 h-10 rounded-full bg-card border border-border/20 flex items-center justify-center active:scale-90 transition-transform shadow-md"
-                >
-                  <ArrowDown className="w-4 h-4 text-muted-foreground" />
-                  {(() => {
-                    const unread = chat.activeConv?.unreadCount || 0;
-                    if (!unread) return null;
-                    return (
-                      <span className="absolute -top-1 -end-1 bg-primary text-primary-foreground text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 shadow">
-                        {unread > 99 ? '99+' : unread}
+ className="absolute bottom-24 end-4 z-10 w-10 h-10 rounded-full bg-card border border-border/20 flex items-center justify-center active:scale-90 transition-transform"
+ >
+ <ArrowDown className="w-4 h-4 text-muted-foreground" />
+ {(() => {
+ const unread = chat.activeConv?.unreadCount || 0;
+ if (!unread) return null;
+ return (
+ <span className="absolute -top-1 -end-1 bg-primary text-primary-foreground text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
+ {unread > 99 ? '99+' : unread}
                       </span>
                     );
                   })()}
@@ -1656,33 +1656,33 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                               <ChatImage
                                 src={chat.getFileUrl(actionMenu.msg)}
                                 alt={readableFileName(actionMenu.msg.file_name) || ''}
-                                isAr={chat.isAr}
-                                refreshUrl={() => chat.refreshSignedUrl(actionMenu.msg)}
-                                width={m?.w}
-                                height={m?.h}
-                                thumbnailDataUrl={m?.t}
-                                dominantColor={m?.c}
-                                maxHeight={160}
-                                className="max-w-full"
-                              />
-                            );
-                          })()}
-                        </div>
+ isAr={chat.isAr}
+ refreshUrl={() => chat.refreshSignedUrl(actionMenu.msg)}
+ width={m?.w}
+ height={m?.h}
+ thumbnailDataUrl={m?.t}
+ dominantColor={m?.c}
+ maxHeight={160}
+ className="max-w-full"
+ />
+ );
+ })()}
+ </div>
 
-                        {/* Emoji bar + actions */}
-                        <div className={cn("bg-card border border-border/20 rounded-2xl overflow-hidden shadow-lg", showAbove ? "mb-1.5" : "mt-1.5")}>
-                          {/* Quick emojis */}
-                          <div className="flex items-center justify-center gap-1 px-3 py-2" dir="ltr">
-                            {QUICK_EMOJIS.map(emoji => (
-                              <button key={emoji} onClick={() => { chat.toggleReaction(actionMenu.msg.id, emoji); setActionMenu(null); chat.setShowExtraEmojis(false); }} className="text-[22px] active:scale-125 transition-transform px-[2px]" aria-label={`React with ${emoji}`}>{emoji}</button>
-                            ))}
-                            <button onClick={() => chat.setShowExtraEmojis(!chat.showExtraEmojis)} className={cn("w-7 h-7 rounded-full flex items-center justify-center transition-all ms-1", chat.showExtraEmojis ? "bg-primary text-primary-foreground" : "bg-muted/30 text-muted-foreground")} aria-label="More emojis">
-                              <ChevronDown className={cn("w-3.5 h-3.5 transition-transform duration-200", chat.showExtraEmojis && "rotate-180")} />
-                            </button>
-                          </div>
-                          <AnimatePresence>
-                            {chat.showExtraEmojis && (
-                              <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }} transition={{ duration: 0.2 }} className="overflow-hidden">
+ {/* Emoji bar + actions */}
+ <div className={cn("bg-card border border-border/20 rounded-2xl overflow-hidden", showAbove ?"mb-1.5" :"mt-1.5")}>
+ {/* Quick emojis */}
+ <div className="flex items-center justify-center gap-1 px-3 py-2" dir="ltr">
+ {QUICK_EMOJIS.map(emoji => (
+ <button key={emoji} onClick={() => { chat.toggleReaction(actionMenu.msg.id, emoji); setActionMenu(null); chat.setShowExtraEmojis(false); }} className="text-[22px] active:scale-125 transition-transform px-[2px]" aria-label={`React with ${emoji}`}>{emoji}</button>
+ ))}
+ <button onClick={() => chat.setShowExtraEmojis(!chat.showExtraEmojis)} className={cn("w-7 h-7 rounded-full flex items-center justify-center transition-all ms-1", chat.showExtraEmojis ?"bg-primary text-primary-foreground" :"bg-muted/30 text-muted-foreground")} aria-label="More emojis">
+ <ChevronDown className={cn("w-3.5 h-3.5 transition-transform duration-200", chat.showExtraEmojis &&"rotate-180")} />
+ </button>
+ </div>
+ <AnimatePresence>
+ {chat.showExtraEmojis && (
+ <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }} transition={{ duration: 0.2 }} className="overflow-hidden">
                                 <div className="h-px bg-border/15 mx-3" />
                                 <div className="px-1 pt-1 pb-2">
                                   <EmojiPicker
