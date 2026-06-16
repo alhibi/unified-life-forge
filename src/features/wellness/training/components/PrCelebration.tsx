@@ -68,8 +68,8 @@ export default function PrCelebration({ records, open, onClose, lang }: PrCelebr
             onClick={(e) => e.stopPropagation()}
             className="relative w-full max-w-sm rounded-3xl overflow-hidden"
             style={{
-              background: 'linear-gradient(135deg, #fde047 0%, #facc15 30%, #f59e0b 100%)',
-              boxShadow: '0 30px 80px rgba(245,158,11,0.4)',
+              
+              
             }}
           >
             <button
@@ -85,7 +85,7 @@ export default function PrCelebration({ records, open, onClose, lang }: PrCelebr
                 initial={{ scale: 0, rotate: -30 }}
                 animate={{ scale: 1, rotate: 0 }}
                 transition={{ type: 'spring', stiffness: 220, damping: 18, delay: 0.1 }}
-                className="inline-flex w-16 h-16 rounded-full bg-white items-center justify-center mb-3 shadow-md"
+                className="inline-flex w-16 h-16 rounded-full bg-white items-center justify-center mb-3 "
               >
                 <Trophy className="w-9 h-9 text-amber-500" />
               </motion.div>

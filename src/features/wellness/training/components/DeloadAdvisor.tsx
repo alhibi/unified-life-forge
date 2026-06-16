@@ -74,7 +74,7 @@ export default function DeloadAdvisor({
       animate={{ y: 0, opacity: 1 }}
       className={`rounded-2xl border p-4 space-y-3 ${className}`}
       style={{
-        background: `linear-gradient(135deg, ${color}10 0%, ${color}00 60%)`,
+        
         borderColor: `${color}40`,
       }}
     >

@@ -468,11 +468,11 @@ export function ArticleReader({
             />
             <div
               className={`absolute inset-x-0 bottom-0 h-16 ${
-                themePalette ? '' : 'bg-gradient-to-t from-background to-transparent'
-              }`}
+ themePalette ? '' : ' '
+ }`}
               style={themePalette
                 ? {
-                    background: `linear-gradient(to top, ${themePalette.gradientTo}, ${themePalette.gradientFrom})`,
+                    
                   }
                 : undefined}
             />

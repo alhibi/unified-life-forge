@@ -97,7 +97,7 @@ const GroupInfoSheet: React.FC<GroupInfoSheetProps> = ({
       <motion.div
         initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
         transition={{ type: 'spring', damping: 30, stiffness: 320 }}
-        className="absolute inset-x-0 bottom-0 z-[81] bg-background rounded-t-3xl flex flex-col max-h-[92%] shadow-2xl"
+        className="absolute inset-x-0 bottom-0 z-[81] bg-background rounded-t-3xl flex flex-col max-h-[92%] "
         onClick={e => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
@@ -361,7 +361,7 @@ function ToggleRow({ icon, label, value, onChange }: ToggleRowProps) {
         value ? 'bg-primary' : 'bg-muted',
       )}>
         <span className={cn(
-          'absolute top-0.5 h-4 w-4 rounded-full bg-background shadow transition-all',
+          'absolute top-0.5 h-4 w-4 rounded-full bg-background transition-all',
           value ? 'start-[18px]' : 'start-0.5',
         )} />
       </span>

@@ -77,7 +77,7 @@ function StatusAvatar({
         className={cn(
           'rounded-full p-[3px]',
           hasUnviewed
-            ? 'bg-gradient-to-tr from-primary via-purple-500 to-pink-500'
+            ? ' '
             : isOwn
               ? 'bg-border/30'
               : 'bg-muted/30'

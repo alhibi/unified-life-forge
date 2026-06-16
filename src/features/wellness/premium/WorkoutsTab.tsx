@@ -384,7 +384,7 @@ function HeroStats({
     <motion.div
       initial={{ y: 6, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      className="rounded-2xl p-3 bg-gradient-to-br from-primary/8 to-primary/2 border border-primary/20"
+      className="rounded-2xl p-3 border border-primary/20"
     >
       <div className="grid grid-cols-4 gap-1.5">
         <BubbleStat icon={<Calendar className="w-3 h-3" />} value={`${totalSessions}`} label={lang === 'ar' ? 'جلسات' : 'Sessions'} color="#3b82f6" />

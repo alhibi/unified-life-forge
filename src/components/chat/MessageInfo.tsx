@@ -41,15 +41,15 @@ const MessageInfo: React.FC<MessageInfoProps> = ({ isAr, isOpen, onClose, messag
           <motion.div
             initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 320 }}
-            className="absolute inset-x-0 bottom-0 z-[81] bg-background rounded-t-3xl flex flex-col max-h-[70%] shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="message-info-title"
-          >
-            <div className="mx-auto w-10 h-1 rounded-full bg-border/40 mt-2 mb-1" />
-            <div className="px-4 h-14 flex items-center gap-2 border-b border-border/15">
-              <button onClick={onClose} className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40 transition-colors" aria-label={isAr ? 'إغلاق' : 'Schließen'}>
+ className="absolute inset-x-0 bottom-0 z-[81] bg-background rounded-t-3xl flex flex-col max-h-[70%]"
+ onClick={(e) => e.stopPropagation()}
+ role="dialog"
+ aria-modal="true"
+ aria-labelledby="message-info-title"
+ >
+ <div className="mx-auto w-10 h-1 rounded-full bg-border/40 mt-2 mb-1" />
+ <div className="px-4 h-14 flex items-center gap-2 border-b border-border/15">
+ <button onClick={onClose} className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40 transition-colors" aria-label={isAr ? 'إغلاق' : 'Schließen'}>
                 <BackIcon className="w-5 h-5 text-foreground" />
               </button>
               <h2 id="message-info-title" className="text-[16px] font-semibold">{isAr ? 'معلومات الرسالة' : 'Nachrichteninfo'}</h2>

@@ -88,7 +88,7 @@ export const DoubleTapHeart = React.memo(function DoubleTapHeart({ children, dis
             exit={{ scale: 0.8, opacity: 0, y: -20 }}
             transition={{ type: 'spring', damping: 10, stiffness: 200 }}
           >
-            <Heart className="w-10 h-10 text-red-500 fill-red-500 drop-shadow-lg" />
+            <Heart className="w-10 h-10 text-red-500 fill-red-500 " />
           </motion.div>
         )}
       </AnimatePresence>

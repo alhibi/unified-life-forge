@@ -252,8 +252,7 @@ export default function LivingRibbon() {
             surface-depth surface-depth-pressable
             px-3.5 py-3"
           style={{
-            boxShadow:
-              'inset 0 1px 0 0 hsl(0 0% 100% / 0.04),' +
+            +
               'inset 0 -1px 0 0 hsl(0 0% 0% / 0.25),' +
               '0 1px 2px 0 hsl(0 0% 0% / 0.18),' +
               '0 0 28px -8px hsl(var(--live-glow) / 0.28)',
@@ -262,7 +261,7 @@ export default function LivingRibbon() {
           {/* Single copper accent bar — the only chromatic note. */}
           <span
             className="pointer-events-none absolute inset-y-2 w-[2px] rounded-full live-dot"
-            style={{ insetInlineStart: 8, boxShadow: '0 0 8px 0 hsl(var(--live-glow) / 0.6)' }}
+            style={{ insetInlineStart: 8, }}
             aria-hidden
           />
           <div className="flex items-center gap-3 ps-3">

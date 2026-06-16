@@ -73,23 +73,23 @@ export function softRadial(
   alpha: number,
   shape = 'ellipse 75% 100% at 50% 0%',
 ): string {
-  return `radial-gradient(${shape},
-    ${withAlpha(color, alpha)} 0%,
-    ${withAlpha(color, alpha * 0.78)} 18%,
-    ${withAlpha(color, alpha * 0.46)} 38%,
-    ${withAlpha(color, alpha * 0.18)} 62%,
-    ${withAlpha(color, alpha * 0.05)} 82%,
-    ${withAlpha(color, 0)} 100%)`;
+ return `radial-gradient(${shape},
+ ${withAlpha(color, alpha)} 0%,
+ ${withAlpha(color, alpha * 0.78)} 18%,
+ ${withAlpha(color, alpha * 0.46)} 38%,
+ ${withAlpha(color, alpha * 0.18)} 62%,
+ ${withAlpha(color, alpha * 0.05)} 82%,
+ ${withAlpha(color, 0)} 100%)`;
 }
 
 /**
  * Smooth linear gradient with same five-stop curve.
- * Direction defaults to top-to-bottom.
+ * Direction defaults to top-.
  */
 export function softLinear(
-  color: string,
-  alpha: number,
-  direction = '180deg',
+ color: string,
+ alpha: number,
+ direction = '180deg',
 ): string {
   return `linear-gradient(${direction},
     ${withAlpha(color, alpha)} 0%,
@@ -321,8 +321,7 @@ export function SoftSurface({
           aria-hidden
           className="absolute inset-x-0 top-0 h-px pointer-events-none"
           style={{
-            background:
-              'linear-gradient(90deg, transparent 0%, hsl(0 0% 100% / 0.08) 50%, transparent 100%)',
+            
           }}
         />
       )}
@@ -418,8 +417,7 @@ export function SmoothBar({
         aria-hidden
         className="absolute inset-0 rounded-full pointer-events-none"
         style={{
-          background:
-            'linear-gradient(180deg, hsl(0 0% 0% / 0.08), transparent 60%)',
+          
         }}
       />
       {marker != null && (
@@ -431,8 +429,7 @@ export function SmoothBar({
             height: 16,
             borderRadius: '50%',
             background: markerColor ?? '#fff',
-            boxShadow:
-              '0 0 0 2px hsl(var(--card)), 0 1px 4px hsl(0 0% 0% / 0.25)',
+            
           }}
         />
       )}
@@ -508,7 +505,7 @@ export function GlassSurface({
         WebkitBackdropFilter: `blur(${blur}px) saturate(1.4)`,
         borderRadius: '1.25rem',
         border: '1px solid hsl(var(--border) / 0.3)',
-        boxShadow: `0 4px 32px -8px ${withAlpha(accent, 0.08)}, inset 0 1px 0 hsl(0 0% 100% / 0.06)`,
+        
         transform: 'translateZ(0)',
       }}
     >
@@ -518,7 +515,7 @@ export function GlassSurface({
           aria-hidden
           className="absolute inset-x-0 top-0 h-px pointer-events-none"
           style={{
-            background: 'linear-gradient(90deg, transparent 10%, hsl(0 0% 100% / 0.12) 50%, transparent 90%)',
+            
           }}
         />
       )}
@@ -608,7 +605,7 @@ export function AuroraCard({
         background: 'hsl(var(--card))',
         borderRadius: '1.5rem',
         border: '1px solid hsl(var(--border) / 0.35)',
-        boxShadow: `0 8px 40px -12px ${withAlpha(colors[0], 0.12)}`,
+        
         transform: 'translateZ(0)',
       }}
     >
@@ -618,7 +615,7 @@ export function AuroraCard({
         aria-hidden
         className="absolute inset-x-0 top-0 h-px pointer-events-none"
         style={{
-          background: `linear-gradient(90deg, transparent 5%, ${withAlpha(colors[0], 0.15)} 30%, ${withAlpha(colors[1], 0.12)} 60%, transparent 95%)`,
+          
         }}
       />
       <DitherLayer opacity={0.02} />
@@ -669,7 +666,7 @@ export function ElevatedCard({
         background: 'hsl(var(--card))',
         borderRadius: '1.25rem',
         border: '1px solid hsl(var(--border) / 0.3)',
-        boxShadow: shadows[elevation],
+        
         transform: 'translateZ(0)',
       }}
     >

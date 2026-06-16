@@ -112,128 +112,128 @@ export const METHOD_LABELS: Record<CalculationMethodId, { ar: string; de: string
 
 // ─── Julian day ──────────────────────────────────────────────────────────────
 export function julianDay(year: number, month: number, day: number): number {
-  if (month <= 2) { year -= 1; month += 12; }
-  const A = Math.floor(year / 100);
-  const B = 2 - A + Math.floor(A / 4);
-  return Math.floor(365.25 * (year + 4716))
-       + Math.floor(30.6001 * (month + 1))
-       + day + B - 1524.5;
+ if (month <= 2) { year -= 1; month += 12; }
+ const A = Math.floor(year / 100);
+ const B = 2 - A + Math.floor(A / 4);
+ return Math.floor(365.25 * (year + 4716))
+ + Math.floor(30.6001 * (month + 1))
+ + day + B - 1524.5;
 }
 
 // ─── Sun position (Meeus 25) ────────────────────────────────────────────────
 export function sunPosition(jd: number): { declination: number; equationOfTime: number } {
-  const D = jd - 2451545.0;              // days since J2000
-  const g = ((357.529 + 0.98560028 * D) % 360 + 360) % 360;  // mean anomaly
-  const q = ((280.459 + 0.98564736 * D) % 360 + 360) % 360;  // mean longitude
-  const L = (q + 1.915 * Math.sin(g * RAD) + 0.020 * Math.sin(2 * g * RAD)) % 360;
-  const e = 23.439 - 0.00000036 * D;     // obliquity
-  const RA = Math.atan2(Math.cos(e * RAD) * Math.sin(L * RAD), Math.cos(L * RAD)) * DEG / 15;
-  const decl = Math.asin(Math.sin(e * RAD) * Math.sin(L * RAD)) * DEG;
-  let eot = q / 15 - ((RA + 24) % 24);
-  if (eot > 12)  eot -= 24;
-  if (eot < -12) eot += 24;
-  return { declination: decl, equationOfTime: eot * 60 }; // minutes
+ const D = jd - 2451545.0; // days since J2000
+ const g = ((357.529 + 0.98560028 * D) % 360 + 360) % 360; // mean anomaly
+ const q = ((280.459 + 0.98564736 * D) % 360 + 360) % 360; // mean longitude
+ const L = (q + 1.915 * Math.sin(g * RAD) + 0.020 * Math.sin(2 * g * RAD)) % 360;
+ const e = 23.439 - 0.00000036 * D; // obliquity
+ const RA = Math.atan2(Math.cos(e * RAD) * Math.sin(L * RAD), Math.cos(L * RAD)) * DEG / 15;
+ const decl = Math.asin(Math.sin(e * RAD) * Math.sin(L * RAD)) * DEG;
+ let eot = q / 15 - ((RA + 24) % 24);
+ if (eot > 12) eot -= 24;
+ if (eot < -12) eot += 24;
+ return { declination: decl, equationOfTime: eot * 60 }; // minutes
 }
 
 // ─── Core time helpers (hours from solar noon) ──────────────────────────────
 /** Hours the sun takes to move between the horizon and the given depression. */
 function timeForAngle(alpha: number, lat: number, decl: number): number {
-  const cosH = (-Math.sin(alpha * RAD) - Math.sin(lat * RAD) * Math.sin(decl * RAD))
-             / (Math.cos(lat * RAD) * Math.cos(decl * RAD));
-  if (cosH > 1 || cosH < -1) return NaN;
-  return (Math.acos(cosH) * DEG) / 15;
+ const cosH = (-Math.sin(alpha * RAD) - Math.sin(lat * RAD) * Math.sin(decl * RAD))
+ / (Math.cos(lat * RAD) * Math.cos(decl * RAD));
+ if (cosH > 1 || cosH < -1) return NaN;
+ return (Math.acos(cosH) * DEG) / 15;
 }
 
-/** Asr: hours after solar noon when shadow = factor + noon shadow. */
+/** Asr: hours after solar noon when = factor + noon shadow. */
 function asrTime(factor: 1 | 2, lat: number, decl: number): number {
-  const alpha = -Math.atan(1 / (factor + Math.tan(Math.abs(lat - decl) * RAD))) * DEG;
-  return timeForAngle(alpha, lat, decl);
+ const alpha = -Math.atan(1 / (factor + Math.tan(Math.abs(lat - decl) * RAD))) * DEG;
+ return timeForAngle(alpha, lat, decl);
 }
 
 // ─── Prayer time result ─────────────────────────────────────────────────────
 export interface PrayerTimesResult {
-  /** minutes since 00:00 UTC of the input (year, month, day) */
-  fajr: number;
-  sunrise: number;
-  dhuhr: number;
-  asr: number;
-  maghrib: number;
-  isha: number;
-  /** islamic midnight (minutes from 00:00 UTC, possibly > 1440 if past midnight UTC) */
-  midnight: number;
+ /** minutes since 00:00 UTC of the input (year, month, day) */
+ fajr: number;
+ sunrise: number;
+ dhuhr: number;
+ asr: number;
+ maghrib: number;
+ isha: number;
+ /** islamic midnight (minutes from 00:00 UTC, possibly > 1440 if past midnight UTC) */
+ midnight: number;
 }
 
 export function computePrayerTimes(
-  year: number,
-  month: number,
-  day: number,
-  lat: number,
-  lng: number,
-  method: CalculationMethodId,
-  asrShadowFactor: 1 | 2 = 1,
-  extraAdjustments?: PrayerAdjustments
+ year: number,
+ month: number,
+ day: number,
+ lat: number,
+ lng: number,
+ method: CalculationMethodId,
+ asrShadowFactor: 1 | 2 = 1,
+ extraAdjustments?: PrayerAdjustments
 ): PrayerTimesResult {
-  const params = METHODS[method];
-  const adj: Required<PrayerAdjustments> = {
-    fajr:    (params.adjustments?.fajr    ?? 0) + (extraAdjustments?.fajr    ?? 0),
-    sunrise: (params.adjustments?.sunrise ?? 0) + (extraAdjustments?.sunrise ?? 0),
-    dhuhr:   (params.adjustments?.dhuhr   ?? 0) + (extraAdjustments?.dhuhr   ?? 0),
-    asr:     (params.adjustments?.asr     ?? 0) + (extraAdjustments?.asr     ?? 0),
-    maghrib: (params.adjustments?.maghrib ?? 0) + (extraAdjustments?.maghrib ?? 0),
-    isha:    (params.adjustments?.isha    ?? 0) + (extraAdjustments?.isha    ?? 0),
-  };
-  // Approximate jd at solar noon for this location to stabilize declination.
-  const jdNoon = julianDay(year, month, day) + 0.5 - lng / 360;
-  const { declination: decl, equationOfTime: eqt } = sunPosition(jdNoon);
+ const params = METHODS[method];
+ const adj: Required<PrayerAdjustments> = {
+ fajr: (params.adjustments?.fajr ?? 0) + (extraAdjustments?.fajr ?? 0),
+ sunrise: (params.adjustments?.sunrise ?? 0) + (extraAdjustments?.sunrise ?? 0),
+ dhuhr: (params.adjustments?.dhuhr ?? 0) + (extraAdjustments?.dhuhr ?? 0),
+ asr: (params.adjustments?.asr ?? 0) + (extraAdjustments?.asr ?? 0),
+ maghrib: (params.adjustments?.maghrib ?? 0) + (extraAdjustments?.maghrib ?? 0),
+ isha: (params.adjustments?.isha ?? 0) + (extraAdjustments?.isha ?? 0),
+ };
+ // Approximate jd at solar noon for this location to stabilize declination.
+ const jdNoon = julianDay(year, month, day) + 0.5 - lng / 360;
+ const { declination: decl, equationOfTime: eqt } = sunPosition(jdNoon);
 
-  // Dhuhr (solar noon, UTC hours)
-  const dhuhr = 12 - eqt / 60 - lng / 15;
+ // Dhuhr (solar noon, UTC hours)
+ const dhuhr = 12 - eqt / 60 - lng / 15;
 
-  // Sunrise / sunset at standard refraction-adjusted horizon
-  const tSunrise = timeForAngle(0.833, lat, decl);
-  const sunrise = dhuhr - tSunrise;
-  const sunset  = dhuhr + tSunrise;
+ // Sunrise / sunset at standard refraction-adjusted horizon
+ const tSunrise = timeForAngle(0.833, lat, decl);
+ const sunrise = dhuhr - tSunrise;
+ const sunset = dhuhr + tSunrise;
 
-  // Asr
-  const tAsr = asrTime(asrShadowFactor, lat, decl);
-  const asr  = dhuhr + (isNaN(tAsr) ? 3 : tAsr);
+ // Asr
+ const tAsr = asrTime(asrShadowFactor, lat, decl);
+ const asr = dhuhr + (isNaN(tAsr) ? 3 : tAsr);
 
-  // Fajr (angle-based with high-latitude fallback)
-  const tFajr = timeForAngle(params.fajrAngle, lat, decl);
-  let fajr: number;
-  if (!isNaN(tFajr)) {
-    fajr = dhuhr - tFajr;
-  } else {
-    const nightTime = 24 - (isNaN(tSunrise) ? 0 : 2 * tSunrise);
-    fajr = sunrise - (params.fajrAngle / 60) * nightTime;
-  }
+ // Fajr (angle-based with high-latitude fallback)
+ const tFajr = timeForAngle(params.fajrAngle, lat, decl);
+ let fajr: number;
+ if (!isNaN(tFajr)) {
+ fajr = dhuhr - tFajr;
+ } else {
+ const nightTime = 24 - (isNaN(tSunrise) ? 0 : 2 * tSunrise);
+ fajr = sunrise - (params.fajrAngle / 60) * nightTime;
+ }
 
-  // Maghrib (majority: at sunset; Shia: after 4°–4.5° depression)
-  let maghrib = sunset;
-  if (params.maghribAngle !== undefined) {
-    const tM = timeForAngle(params.maghribAngle, lat, decl);
-    if (!isNaN(tM)) maghrib = dhuhr + tM;
-  }
+ // Maghrib (majority: at sunset; Shia: after 4°–4.5° depression)
+ let maghrib = sunset;
+ if (params.maghribAngle !== undefined) {
+ const tM = timeForAngle(params.maghribAngle, lat, decl);
+ if (!isNaN(tM)) maghrib = dhuhr + tM;
+ }
 
-  // Isha
-  let isha: number;
-  if (params.ishaMinutesAfterMaghrib !== undefined) {
-    isha = maghrib + params.ishaMinutesAfterMaghrib / 60;
-  } else if (params.ishaAngle !== undefined) {
-    const tIsha = timeForAngle(params.ishaAngle, lat, decl);
-    if (!isNaN(tIsha)) {
-      isha = dhuhr + tIsha;
-    } else {
-      const nightTime = 24 - (isNaN(tSunrise) ? 0 : 2 * tSunrise);
-      isha = maghrib + (params.ishaAngle / 60) * nightTime;
-    }
-  } else {
-    isha = maghrib + 1.5;
-  }
+ // Isha
+ let isha: number;
+ if (params.ishaMinutesAfterMaghrib !== undefined) {
+ isha = maghrib + params.ishaMinutesAfterMaghrib / 60;
+ } else if (params.ishaAngle !== undefined) {
+ const tIsha = timeForAngle(params.ishaAngle, lat, decl);
+ if (!isNaN(tIsha)) {
+ isha = dhuhr + tIsha;
+ } else {
+ const nightTime = 24 - (isNaN(tSunrise) ? 0 : 2 * tSunrise);
+ isha = maghrib + (params.ishaAngle / 60) * nightTime;
+ }
+ } else {
+ isha = maghrib + 1.5;
+ }
 
-  // Islamic midnight
-  const nextFajrAbs = fajr + 24;
-  const midnight = params.midnightMode === 'Jafari'
+ // Islamic midnight
+ const nextFajrAbs = fajr + 24;
+ const midnight = params.midnightMode === 'Jafari'
     ? (maghrib + nextFajrAbs) / 2
     : (maghrib + (sunrise + 24)) / 2;
 

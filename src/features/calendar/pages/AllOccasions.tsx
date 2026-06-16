@@ -333,9 +333,9 @@ function EventDetailDialog({
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 24, opacity: 0 }}
             transition={{ type: 'spring', damping: 24, stiffness: 260 }}
-            onClick={(e) => e.stopPropagation()}
-            className="relative w-full max-w-md rounded-3xl bg-card border border-border/60 shadow-xl p-6 max-h-[85vh] overflow-y-auto"
-            dir={isAr ? 'rtl' : 'ltr'}
+ onClick={(e) => e.stopPropagation()}
+ className="relative w-full max-w-md rounded-3xl bg-card border border-border/60 p-6 max-h-[85vh] overflow-y-auto"
+ dir={isAr ? 'rtl' : 'ltr'}
           >
             <DetailContent event={event} isAr={isAr} />
             <button

@@ -328,7 +328,7 @@ export function NumberSlider({
         style={{
           left: 0,
           width: `${pct}%`,
-          background: `linear-gradient(90deg, ${withAlpha(accent, 0.5)}, ${accent})`,
+          
         }}
       />
       <input
@@ -339,18 +339,18 @@ export function NumberSlider({
         value={value}
         onChange={(e) => onChange(parseFloat(e.target.value))}
         className="absolute inset-0 w-full h-full appearance-none bg-transparent cursor-pointer
-                   [&::-webkit-slider-thumb]:appearance-none
-                   [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5
-                   [&::-webkit-slider-thumb]:rounded-full
-                   [&::-webkit-slider-thumb]:border-2
-                   [&::-webkit-slider-thumb]:border-card
-                   [&::-webkit-slider-thumb]:shadow-md
-                   [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5
-                   [&::-moz-range-thumb]:rounded-full
-                   [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-card
-                   [&::-moz-range-thumb]:shadow-md
-                   [&::-moz-range-thumb]:bg-[var(--thumb)]
-                   [&::-webkit-slider-thumb]:bg-[var(--thumb)]"
+ [&::-webkit-slider-thumb]:appearance-none
+ [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5
+ [&::-webkit-slider-thumb]:rounded-full
+ [&::-webkit-slider-thumb]:border-2
+ [&::-webkit-slider-thumb]:border-card
+ [&::-webkit-slider-thumb]:
+ [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5
+ [&::-moz-range-thumb]:rounded-full
+ [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-card
+ [&::-moz-range-thumb]:
+ [&::-moz-range-thumb]:bg-[var(--thumb)]
+ [&::-webkit-slider-thumb]:bg-[var(--thumb)]"
         style={{ ['--thumb' as any]: accent }}
       />
     </div>
@@ -472,7 +472,7 @@ export function ChoiceCardGrid<T extends string>({
             style={{
               background: active ? withAlpha(accent, 0.10) : 'hsl(var(--card))',
               border: `1px solid ${active ? withAlpha(accent, 0.45) : 'hsl(var(--border) / 0.45)'}`,
-              boxShadow: active ? `0 8px 24px -16px ${withAlpha(accent, 0.6)}` : undefined,
+               0.6)}` : undefined,
             }}
           >
             {/* Soft top wash on active */}
@@ -586,14 +586,14 @@ export function YearWheel({
         aria-hidden
         className="absolute inset-x-0 top-0 h-10 z-10 pointer-events-none"
         style={{
-          background: 'linear-gradient(180deg, hsl(var(--card)) 0%, transparent 100%)',
+          
         }}
       />
       <div
         aria-hidden
         className="absolute inset-x-0 bottom-0 h-10 z-10 pointer-events-none"
         style={{
-          background: 'linear-gradient(0deg, hsl(var(--card)) 0%, transparent 100%)',
+          
         }}
       />
       {/* Centre highlight strip */}
@@ -931,8 +931,8 @@ export function Toggle({
         <motion.span
           layout
           transition={{ type: 'spring', stiffness: 500, damping: 36 }}
-          className="absolute top-0.5 w-5 h-5 rounded-full bg-white shadow"
-          style={{ [value ? 'right' : 'left']: 2 }}
+ className="absolute top-0.5 w-5 h-5 rounded-full bg-white"
+ style={{ [value ? 'right' : 'left']: 2 }}
         />
       </span>
     </button>

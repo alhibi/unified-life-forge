@@ -590,14 +590,14 @@ function ToggleRow({ icon, label, description, value, onChange, disabled }: Togg
         className={cn(
           'w-[44px] h-[24px] rounded-full transition-colors duration-200 relative shrink-0 mt-0.5',
           value ? 'bg-primary' : 'bg-muted',
-        )}
-        dir="ltr"
-      >
-        <motion.span
-          className="absolute top-[2px] h-[20px] w-[20px] rounded-full bg-primary-foreground shadow-sm"
-          initial={false}
-          animate={{ left: value ? 22 : 2 }}
-          transition={{ type: 'spring', damping: 25, stiffness: 350 }}
+ )}
+ dir="ltr"
+ >
+ <motion.span
+ className="absolute top-[2px] h-[20px] w-[20px] rounded-full bg-primary-foreground"
+ initial={false}
+ animate={{ left: value ? 22 : 2 }}
+ transition={{ type: 'spring', damping: 25, stiffness: 350 }}
         />
       </span>
     </button>
@@ -745,12 +745,12 @@ function QuietHoursRow({ isAr, start, end, onChange, disabled }: QuietHoursRowPr
           )}
           dir="ltr"
           aria-label={isAr ? 'تفعيل وضع الهدوء' : 'Ruhezeiten aktivieren'}
-        >
-          <motion.span
-            className="absolute top-[2px] h-[20px] w-[20px] rounded-full bg-primary-foreground shadow-sm"
-            initial={false}
-            animate={{ left: enabled ? 22 : 2 }}
-            transition={{ type: 'spring', damping: 25, stiffness: 350 }}
+ >
+ <motion.span
+ className="absolute top-[2px] h-[20px] w-[20px] rounded-full bg-primary-foreground"
+ initial={false}
+ animate={{ left: enabled ? 22 : 2 }}
+ transition={{ type: 'spring', damping: 25, stiffness: 350 }}
           />
         </button>
       </div>

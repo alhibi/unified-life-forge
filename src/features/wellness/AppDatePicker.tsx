@@ -39,26 +39,26 @@ export default function AppDatePicker({ value, onChange, className }: Props) {
             'text-sm font-medium text-foreground outline-none transition-all',
             'hover:bg-muted active:scale-[0.97] duration-150',
             'focus-visible:ring-2 focus-visible:ring-primary/40',
-            className,
-          )}
-          dir="ltr"
-        >
-          <CalendarIcon className="w-3.5 h-3.5 text-primary" />
-          <span className="tabular-nums">{label}</span>
-        </button>
-      </PopoverTrigger>
-      <PopoverContent
-        align="end"
-        sideOffset={8}
-        className="w-auto p-0 rounded-2xl border-border/50 bg-card/95 backdrop-blur-xl shadow-2xl"
-        dir={dir}
-      >
-        <Calendar
-          mode="single"
-          selected={selected}
-          onSelect={(d) => {
-            if (d) {
-              onChange(format(d, 'yyyy-MM-dd'));
+ className,
+ )}
+ dir="ltr"
+ >
+ <CalendarIcon className="w-3.5 h-3.5 text-primary" />
+ <span className="tabular-nums">{label}</span>
+ </button>
+ </PopoverTrigger>
+ <PopoverContent
+ align="end"
+ sideOffset={8}
+ className="w-auto p-0 rounded-2xl border-border/50 bg-card/95 backdrop-blur-xl"
+ dir={dir}
+ >
+ <Calendar
+ mode="single"
+ selected={selected}
+ onSelect={(d) => {
+ if (d) {
+ onChange(format(d, 'yyyy-MM-dd'));
               setOpen(false);
             }
           }}

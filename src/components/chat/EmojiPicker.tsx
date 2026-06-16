@@ -176,7 +176,7 @@ const EmojiPicker: React.FC<EmojiPickerProps> = ({ isAr, onPick, compact }) => {
         className={cn(
           'flex-1 min-h-0 overflow-hidden',
           // Style the Picker host element to fill the container.
-          '[&_em-emoji-picker]:!w-full [&_em-emoji-picker]:!h-full [&_em-emoji-picker]:!min-h-0 [&_em-emoji-picker]:!max-h-none [&_em-emoji-picker]:!border-0 [&_em-emoji-picker]:!shadow-none [&_em-emoji-picker]:!rounded-none [&_em-emoji-picker]:!font-sans'
+          '[&_em-emoji-picker]:!w-full [&_em-emoji-picker]:!h-full [&_em-emoji-picker]:!min-h-0 [&_em-emoji-picker]:!max-h-none [&_em-emoji-picker]:!border-0 [&_em-emoji-picker]:! [&_em-emoji-picker]:!rounded-none [&_em-emoji-picker]:!font-sans'
         )}
       />
       {!ready && !error && (
@@ -203,13 +203,13 @@ const EmojiPicker: React.FC<EmojiPickerProps> = ({ isAr, onPick, compact }) => {
  * uses hard-coded greys that look out of place against the app's surface.
  *
  * Public emoji-mart vars we override:
- *   --rgb-background  surface behind the grid + nav
- *   --rgb-color       primary text/icon color
- *   --rgb-input       search-field background
- *   --rgb-accent      active category indicator + hover state
- *   --color-border / --color-border-over   divider lines
- *   --shadow          drop shadow on the host
- *   --font-family     so labels match the app font
+ * --rgb-background surface behind the grid + nav
+ * --rgb-color primary text/icon color
+ * --rgb-input search-field background
+ * --rgb-accent active category indicator + hover state
+ * --color-border / --color-border-over divider lines
+ * -- drop on the host
+ * --font-family so labels match the app font
  */
 function applyThemeVars(host: HTMLElement, mode: 'light' | 'dark') {
   const styles = host.style;

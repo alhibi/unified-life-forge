@@ -227,7 +227,7 @@ export default function CalisthenicsTab(_props: Props) {
             <>
               {/* No progress → assessment CTA */}
               {Object.keys(progress).length === 0 ? (
-                <div className="rounded-2xl bg-gradient-to-br from-primary/10 to-primary/3 border border-primary/30 p-4 space-y-3">
+                <div className="rounded-2xl border border-primary/30 p-4 space-y-3">
                   <div className="flex items-center gap-2">
                     <div className="w-9 h-9 rounded-xl bg-primary/15 flex items-center justify-center">
                       <Target className="w-5 h-5 text-primary" />
@@ -426,44 +426,44 @@ export default function CalisthenicsTab(_props: Props) {
 /* ──────────────── Hero ──────────────── */
 
 function CaliHero({ xp, mastered, inProgress, lang }: { xp: number; mastered: number; inProgress: number; lang: 'ar' | 'de' }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 6 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="rounded-2xl p-3 bg-gradient-to-br from-primary/10 to-primary/3 border border-primary/30"
-    >
-      <div className="flex items-center gap-2 mb-2">
-        <div className="w-8 h-8 rounded-lg bg-primary/15 flex items-center justify-center">
-          <Flame className="w-4 h-4 text-primary" />
-        </div>
-        <div>
-          <h2 className="text-[14px] font-bold text-foreground leading-tight">{T.title[lang]}</h2>
-          <p className="text-[9px] text-muted-foreground">{T.tagline[lang]}</p>
-        </div>
-      </div>
-      <div className="grid grid-cols-3 gap-1.5">
-        <Bubble icon={<TrendingUp className="w-3 h-3" />} value={`${xp}`} label={T.totalXp[lang]} color="#3b82f6" />
-        <Bubble icon={<Award className="w-3 h-3" />} value={`${mastered}`} label={T.mastered[lang]} color="#a855f7" />
-        <Bubble icon={<Activity className="w-3 h-3" />} value={`${inProgress}`} label={T.inProgress[lang]} color="#10b981" />
-      </div>
-    </motion.div>
-  );
+ return (
+ <motion.div
+ initial={{ opacity: 0, y: 6 }}
+ animate={{ opacity: 1, y: 0 }}
+ className="rounded-2xl p-3 border border-primary/30"
+ >
+ <div className="flex items-center gap-2 mb-2">
+ <div className="w-8 h-8 rounded-lg bg-primary/15 flex items-center justify-center">
+ <Flame className="w-4 h-4 text-primary" />
+ </div>
+ <div>
+ <h2 className="text-[14px] font-bold text-foreground leading-tight">{T.title[lang]}</h2>
+ <p className="text-[9px] text-muted-foreground">{T.tagline[lang]}</p>
+ </div>
+ </div>
+ <div className="grid grid-cols-3 gap-1.5">
+ <Bubble icon={<TrendingUp className="w-3 h-3" />} value={`${xp}`} label={T.totalXp[lang]} color="#3b82f6" />
+ <Bubble icon={<Award className="w-3 h-3" />} value={`${mastered}`} label={T.mastered[lang]} color="#a855f7" />
+ <Bubble icon={<Activity className="w-3 h-3" />} value={`${inProgress}`} label={T.inProgress[lang]} color="#10b981" />
+ </div>
+ </motion.div>
+ );
 }
 
 function Bubble({ icon, value, label, color }: { icon: React.ReactNode; value: string; label: string; color: string }) {
-  return (
-    <div className="rounded-xl bg-card/60 border border-border/30 p-1.5 text-center">
-      <div className="flex items-center justify-center" style={{ color }}>{icon}</div>
-      <div className="text-[14px] font-bold leading-none mt-0.5 tabular-nums" style={{ color }}>{value}</div>
-      <div className="text-[8.5px] text-muted-foreground uppercase tracking-tight mt-0.5">{label}</div>
-    </div>
-  );
+ return (
+ <div className="rounded-xl bg-card/60 border border-border/30 p-1.5 text-center">
+ <div className="flex items-center justify-center" style={{ color }}>{icon}</div>
+ <div className="text-[14px] font-bold leading-none mt-0.5 tabular-nums" style={{ color }}>{value}</div>
+ <div className="text-[8.5px] text-muted-foreground uppercase tracking-tight mt-0.5">{label}</div>
+ </div>
+ );
 }
 
 /* ──────────────── Suggested Next ──────────────── */
 
 function SuggestedNext({
-  skillKey, stepIdx, weeksToNext, onTrain, onView, lang,
+ skillKey, stepIdx, weeksToNext, onTrain, onView, lang,
 }: { skillKey: string; stepIdx: number; weeksToNext: number; onTrain: (sk: string, idx: number) => void; onView: (sk: string) => void; lang: 'ar' | 'de' }) {
   const skill = skillByKey(skillKey);
   if (!skill) return null;
@@ -475,7 +475,7 @@ function SuggestedNext({
       animate={{ y: 0, opacity: 1 }}
       className="rounded-2xl border p-3.5 space-y-2"
       style={{
-        background: `linear-gradient(135deg, ${skill.color}15 0%, ${skill.color}05 60%)`,
+        
         borderColor: `${skill.color}40`,
       }}
     >

@@ -24,7 +24,7 @@ export default function PoemContextCard({ poemTitle, poetId }: PoemContextCardPr
       transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
       className="overflow-hidden"
     >
-      <div className="rounded-xl bg-gradient-to-br from-amber-500/5 via-transparent to-primary/5 border border-amber-500/20 p-3.5 mb-4">
+      <div className="rounded-xl border border-amber-500/20 p-3.5 mb-4">
         {/* Header */}
         <div className="flex items-center gap-2 mb-2.5">
           <div className="w-6 h-6 rounded-lg bg-amber-500/10 flex items-center justify-center">

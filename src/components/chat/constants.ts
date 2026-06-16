@@ -50,56 +50,56 @@ export const WALLPAPERS: Wallpaper[] = [
     id: 'cream',
     labelAr: 'كريمي',
     label: 'Cream',
-    background: 'linear-gradient(180deg, hsl(40 40% 97%) 0%, hsl(35 35% 94%) 100%)',
+    
   },
   {
     id: 'sky',
     labelAr: 'سماوي',
     label: 'Sky',
-    background: 'linear-gradient(180deg, hsl(210 60% 97%) 0%, hsl(215 55% 93%) 100%)',
+    
   },
   {
     id: 'sage',
     labelAr: 'أخضر فاتح',
     label: 'Sage',
-    background: 'linear-gradient(180deg, hsl(145 35% 96%) 0%, hsl(150 30% 92%) 100%)',
+    
   },
   {
     id: 'peach',
     labelAr: 'خوخي',
     label: 'Peach',
-    background: 'linear-gradient(180deg, hsl(20 60% 96%) 0%, hsl(15 55% 92%) 100%)',
+    
   },
   {
     id: 'lavender',
     labelAr: 'لافندر',
     label: 'Lavender',
-    background: 'linear-gradient(180deg, hsl(270 40% 97%) 0%, hsl(275 35% 93%) 100%)',
+    
   },
   {
     id: 'mist',
     labelAr: 'ضباب',
     label: 'Mist',
-    background: 'linear-gradient(180deg, hsl(220 15% 96%) 0%, hsl(220 12% 92%) 100%)',
+    
   },
   {
     id: 'sunset',
     labelAr: 'غروب',
     label: 'Sunset',
-    background: 'linear-gradient(180deg, hsl(30 85% 92%) 0%, hsl(345 75% 90%) 100%)',
+    
   },
   {
     id: 'midnight',
     labelAr: 'منتصف الليل',
     label: 'Midnight',
-    background: 'linear-gradient(180deg, hsl(220 30% 10%) 0%, hsl(225 35% 6%) 100%)',
+    
     isDark: true,
   },
   {
     id: 'forest',
     labelAr: 'غابة',
     label: 'Forest',
-    background: 'linear-gradient(180deg, hsl(150 30% 12%) 0%, hsl(155 35% 8%) 100%)',
+    
     isDark: true,
   },
 ];

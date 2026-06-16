@@ -57,7 +57,7 @@ function MiniProgressBar() {
           // A faint glow at the head of the fill makes the bar read as
           // luminous rather than flat — matches the player sheet's
           // gradient seek bar.
-          boxShadow: '0 0 6px var(--podcast-primary-soft, transparent)',
+          
         }}
       />
     </div>
@@ -154,9 +154,7 @@ const PodcastMiniPlayer = memo(function PodcastMiniPlayer() {
                 // `--podcast-primary-subtle` token. We layer the tint
                 // OVER the card token so the surface stays readable
                 // even when the seed is very saturated.
-                background: `linear-gradient(135deg,
-                  var(--podcast-primary-subtle, transparent) 0%,
-                  hsl(var(--card)) 100%)`,
+                
                 borderColor: 'hsl(var(--border) / 0.6)',
                 color: 'hsl(var(--foreground))',
                 backdropFilter: 'blur(20px) saturate(1.4)',
@@ -175,7 +173,7 @@ const PodcastMiniPlayer = memo(function PodcastMiniPlayer() {
                   className="w-full h-full object-cover"
                 />
                 <span className="absolute inset-0 rounded-2xl pointer-events-none"
-                      style={{ boxShadow: 'inset 0 0 0 1px hsl(var(--foreground) / 0.06)' }} />
+                      style={{ }} />
                 {/* Eq overlay; passing `playing` keeps the static
                     artwork visible whenever playback is paused. */}
                 <span
@@ -245,11 +243,9 @@ const PodcastMiniPlayer = memo(function PodcastMiniPlayer() {
                 ariaLabel={player.isPlaying ? 'Pause' : 'Play'}
                 size={40}
                 style={{
-                  background: `radial-gradient(circle at 30% 30%,
-                    var(--podcast-primary, hsl(var(--primary))) 0%,
-                    color-mix(in srgb, var(--podcast-primary, hsl(var(--primary))) 80%, #000 20%) 100%)`,
+                  
                   color: 'var(--podcast-primary-fg, hsl(var(--primary-foreground)))',
-                  boxShadow: '0 4px 12px -2px var(--podcast-primary-soft, rgba(0,0,0,0.25))',
+                  
                 }}
               >
                 <Icon

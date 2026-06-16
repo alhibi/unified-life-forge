@@ -211,11 +211,11 @@ export function PullToRefresh({
         }}
       >
         <div
-          className={`rounded-full shadow-md border p-2.5 transition-all duration-200 ${
-            crossed
-              ? 'bg-primary/10 border-primary/30 scale-110'
-              : 'bg-card border-border/50'
-          }`}
+          className={`rounded-full border p-2.5 transition-all duration-200 ${
+ crossed
+ ? 'bg-primary/10 border-primary/30 scale-110'
+ : 'bg-card border-border/50'
+ }`}
           style={{
             transform: `rotate(${ratio * 360}deg) scale(${0.75 + ratio * 0.35})`,
           }}

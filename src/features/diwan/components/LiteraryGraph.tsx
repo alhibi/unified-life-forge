@@ -200,7 +200,7 @@ export default function LiteraryGraph({ onSelectPoet, initialPoetId }: Props) {
   }, [initialPoetId, nodes]);
 
   return (
-    <div ref={containerRef} className="relative w-full h-[72vh] min-h-[420px] rounded-3xl overflow-hidden border border-border/30 bg-gradient-to-br from-slate-950/5 via-background to-slate-950/5 dark:from-slate-900/30 dark:via-background dark:to-slate-900/30">
+    <div ref={containerRef} className="relative w-full h-[72vh] min-h-[420px] rounded-3xl overflow-hidden border border-border/30 ">
       {/* Canvas */}
       <svg
         className="w-full h-full cursor-grab active:cursor-grabbing select-none"
@@ -225,7 +225,7 @@ export default function LiteraryGraph({ onSelectPoet, initialPoetId }: Props) {
           النقاط، ثم Enter لتحديد شاعر وعرض علاقاته.
         </desc>
         <defs>
-          <filter id="node-shadow">
+          <filter id="node-">
             <feDropShadow dx="0" dy="2" stdDeviation="4" floodOpacity="0.15" />
           </filter>
           <filter id="glow-strong">
@@ -389,16 +389,16 @@ export default function LiteraryGraph({ onSelectPoet, initialPoetId }: Props) {
 
       {/* Zoom controls */}
       <div className="ui-panel absolute top-4 start-4 flex flex-col gap-1.5 z-10">
-        <button onClick={() => doZoom(0.25)} className="w-10 h-10 rounded-2xl bg-card/80 backdrop-blur-xl border border-border/30 flex items-center justify-center shadow-lg active:scale-90 transition-all hover:bg-card">
+        <button onClick={() => doZoom(0.25)} className="w-10 h-10 rounded-2xl bg-card/80 backdrop-blur-xl border border-border/30 flex items-center justify-center active:scale-90 transition-all hover:bg-card">
           <ZoomIn className="w-4.5 h-4.5 text-foreground" />
         </button>
-        <button onClick={() => doZoom(-0.25)} className="w-10 h-10 rounded-2xl bg-card/80 backdrop-blur-xl border border-border/30 flex items-center justify-center shadow-lg active:scale-90 transition-all hover:bg-card">
+        <button onClick={() => doZoom(-0.25)} className="w-10 h-10 rounded-2xl bg-card/80 backdrop-blur-xl border border-border/30 flex items-center justify-center active:scale-90 transition-all hover:bg-card">
           <ZoomOut className="w-4.5 h-4.5 text-foreground" />
         </button>
-        <button onClick={() => setTransform({ x: 0, y: 0, s: 1 })} className="w-10 h-10 rounded-2xl bg-card/80 backdrop-blur-xl border border-border/30 flex items-center justify-center shadow-lg active:scale-90 transition-all hover:bg-card">
+        <button onClick={() => setTransform({ x: 0, y: 0, s: 1 })} className="w-10 h-10 rounded-2xl bg-card/80 backdrop-blur-xl border border-border/30 flex items-center justify-center active:scale-90 transition-all hover:bg-card">
           <Maximize2 className="w-4.5 h-4.5 text-foreground" />
         </button>
-        <button onClick={() => setShowFilters(!showFilters)} className={`w-10 h-10 rounded-2xl backdrop-blur-xl border border-border/30 flex items-center justify-center shadow-lg active:scale-90 transition-all ${showFilters ? 'bg-primary/15 border-primary/30' : 'bg-card/80 hover:bg-card'}`}>
+        <button onClick={() => setShowFilters(!showFilters)} className={`w-10 h-10 rounded-2xl backdrop-blur-xl border border-border/30 flex items-center justify-center active:scale-90 transition-all ${showFilters ? 'bg-primary/15 border-primary/30' : 'bg-card/80 hover:bg-card'}`}>
           <Filter className={`w-4.5 h-4.5 ${showFilters ? 'text-primary' : 'text-foreground'}`} />
         </button>
       </div>
@@ -411,7 +411,7 @@ export default function LiteraryGraph({ onSelectPoet, initialPoetId }: Props) {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: -10 }}
             transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-            className="ui-panel absolute top-[200px] start-4 bg-card/90 backdrop-blur-xl border border-border/30 rounded-2xl p-3.5 shadow-xl z-10 w-[170px]"
+            className="ui-panel absolute top-[200px] start-4 bg-card/90 backdrop-blur-xl border border-border/30 rounded-2xl p-3.5 z-10 w-[170px]"
           >
             <p className="text-[11px] font-bold text-foreground mb-2.5">نوع العلاقة</p>
             <div className="space-y-1">
@@ -429,7 +429,7 @@ export default function LiteraryGraph({ onSelectPoet, initialPoetId }: Props) {
                     }}
                     className={`flex items-center gap-2.5 w-full px-2.5 py-2 rounded-xl text-[11px] font-medium transition-all ${isActive ? 'bg-muted/60 text-foreground' : 'text-muted-foreground/50 hover:text-muted-foreground'}`}
                   >
-                    <span className="w-3 h-3 rounded-full shadow-sm ring-1 ring-black/5" style={{ backgroundColor: relationColors[type], opacity: isActive ? 1 : 0.3 }} />
+                    <span className="w-3 h-3 rounded-full ring-1 ring-black/5" style={{ backgroundColor: relationColors[type], opacity: isActive ? 1 : 0.3 }} />
                     {label}
                   </button>
                 );
@@ -452,12 +452,12 @@ export default function LiteraryGraph({ onSelectPoet, initialPoetId }: Props) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 30, scale: 0.95 }}
             transition={{ type: 'spring', stiffness: 350, damping: 28 }}
-            className="ui-panel absolute bottom-[85px] start-4 end-4 max-h-[38%] overflow-y-auto bg-card/90 backdrop-blur-xl border border-border/30 rounded-3xl p-5 shadow-2xl z-20"
+            className="ui-panel absolute bottom-[85px] start-4 end-4 max-h-[38%] overflow-y-auto bg-card/90 backdrop-blur-xl border border-border/30 rounded-3xl p-5 z-20"
           >
             {/* Header */}
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-md" style={{ background: `linear-gradient(135deg, ${selected.color}30, ${selected.color}10)`, border: `2px solid ${selected.color}40` }}>
+                <div className="w-12 h-12 rounded-2xl flex items-center justify-center " style={{  border: `2px solid ${selected.color}40` }}>
                   <div className="w-5 h-5 rounded-full" style={{ backgroundColor: selected.color }} />
                 </div>
                 <div>
@@ -521,7 +521,7 @@ export default function LiteraryGraph({ onSelectPoet, initialPoetId }: Props) {
 
       {/* ─── Mini Timeline Bar ─── */}
       <div className="ui-panel absolute bottom-4 start-4 end-4 z-10">
-        <div className="bg-card/80 backdrop-blur-xl border border-border/30 rounded-2xl px-3 py-2.5 shadow-lg">
+        <div className="bg-card/80 backdrop-blur-xl border border-border/30 rounded-2xl px-3 py-2.5 ">
           <div className="flex items-center gap-1">
             {(['jahili', 'mukhadram', 'islami', 'umawi', 'abbasi', 'andalusi'] as const).map((eraId) => {
               const color = eraColors[eraId];

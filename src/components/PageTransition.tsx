@@ -228,11 +228,11 @@ const PageTransition = memo(forwardRef<HTMLDivElement, { children: ReactNode }>(
         // looks correct rather than reflowing.
         width: '100%',
         minHeight: '100%',
-        // The page slide carries the layer past the viewport edge.
-        // Without contain, off-screen pixels can repaint when the
-        // outgoing page reflows during exit; pinning paint here keeps
-        // the GPU compositor in charge end-to-end.
-        contain: 'layout paint',
+ // The page slide carries the layer past the viewport edge.
+ // Without contain, off-screen pixels can repaint when the
+ // outgoing page reflows during exit; pinning paint here keeps
+ // the GPU compositor in charge end-.
+ contain: 'layout paint',
       }}
     >
       {children}

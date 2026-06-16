@@ -534,23 +534,23 @@ export function HeroArticleCard({
           <div
             className="absolute inset-0"
             style={{
-              background: 'linear-gradient(160deg, hsl(var(--primary) / 0.18), hsl(var(--primary) / 0.06))',
-            }}
-          />
-        )}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent" />
-      <div className="absolute top-3 start-3 flex items-center gap-2">
-        <SourcePill name={article.source} size="md" />
-        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-black/40 text-white/95 backdrop-blur-sm">
-          {article.source}
-        </span>
-      </div>
-      <button
-        type="button"
-        onClick={(e) => { e.stopPropagation(); onToggleBookmark(); }}
-        className="absolute top-3 end-3 p-2 rounded-full bg-black/40 backdrop-blur-sm hover:bg-black/55 transition-colors"
-        aria-label={isBookmarked
-          ? (isAr ? 'إلغاء الحفظ' : 'Remove bookmark')
+              
+ }}
+ />
+ )}
+ <div className="absolute inset-0" />
+ <div className="absolute top-3 start-3 flex items-center gap-2">
+ <SourcePill name={article.source} size="md" />
+ <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-black/40 text-white/95 backdrop-blur-sm">
+ {article.source}
+ </span>
+ </div>
+ <button
+ type="button"
+ onClick={(e) => { e.stopPropagation(); onToggleBookmark(); }}
+ className="absolute top-3 end-3 p-2 rounded-full bg-black/40 backdrop-blur-sm hover:bg-black/55 transition-colors"
+ aria-label={isBookmarked
+ ? (isAr ? 'إلغاء الحفظ' : 'Remove bookmark')
           : (isAr ? 'حفظ' : 'Bookmark')}
       >
         {isBookmarked
@@ -560,7 +560,7 @@ export function HeroArticleCard({
       <div className="absolute inset-x-0 bottom-0 px-4 pb-4 pt-12">
         <h2
           dir="auto"
-          className="text-white text-[18px] font-bold leading-tight line-clamp-3 drop-shadow-sm"
+          className="text-white text-[18px] font-bold leading-tight line-clamp-3 "
         >
           {article.title}
         </h2>

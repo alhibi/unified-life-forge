@@ -901,20 +901,20 @@ function SunriseSunsetBody({ today, isAr }: { today: DailyEntry; isAr: boolean }
           <Sunset className="w-5 h-5 text-orange-500" />
           <div>
             <p className="text-[10.5px] text-muted-foreground">{isAr ? 'الغروب' : 'Sunset'}</p>
-            <p className="text-[14px] font-semibold text-foreground tabular-nums">
-              {formatTimeFromIso(today.sunset)}
-            </p>
-          </div>
-        </div>
-      </div>
-      <div className="h-1.5 rounded-full bg-foreground/[0.08] overflow-hidden">
-        <div
-          className="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-400 transition-all"
-          style={{ width: `${progress * 100}%` }}
-        />
-      </div>
-      <p className="text-[11px] text-muted-foreground">
-        <span className="tabular-nums">{hh}:{mm}</span>{' '}
+ <p className="text-[14px] font-semibold text-foreground tabular-nums">
+ {formatTimeFromIso(today.sunset)}
+ </p>
+ </div>
+ </div>
+ </div>
+ <div className="h-1.5 rounded-full bg-foreground/[0.08] overflow-hidden">
+ <div
+ className="h-full rounded-full transition-all"
+ style={{ width: `${progress * 100}%` }}
+ />
+ </div>
+ <p className="text-[11px] text-muted-foreground">
+ <span className="tabular-nums">{hh}:{mm}</span>{' '}
         {isAr ? 'متبقّية حتى الغروب' : 'remaining until sunset'}
       </p>
     </div>

@@ -102,11 +102,7 @@ function PlayerSheetSeek({
           // Inline gradient is easier to tint than ::-webkit-slider-runnable-track.
           // We add a soft 20% drop at the head of the filled portion so the
           // bar reads as a smooth ribbon rather than a hard pill.
-          background: `linear-gradient(to right,
-            var(--podcast-primary, hsl(var(--primary))) 0%,
-            var(--podcast-primary, hsl(var(--primary))) ${pct}%,
-            hsl(var(--muted-foreground) / 0.25) ${pct}%,
-            hsl(var(--muted-foreground) / 0.25) 100%)`,
+          
           height: 6,
           borderRadius: 999,
         }}
@@ -278,11 +274,11 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 32, stiffness: 320 }}
-            className="relative w-full max-w-md max-h-[100dvh] overflow-hidden rounded-t-3xl shadow-2xl flex flex-col text-foreground"
-            style={{
-              // Surface tone — the ambient backdrop layer on top of
-              // this gives the sheet its tinted feel; the base color
-              // is the app's card token so the bottom edge still
+ className="relative w-full max-w-md max-h-[100dvh] overflow-hidden rounded-t-3xl flex flex-col text-foreground"
+ style={{
+ // Surface tone — the ambient backdrop layer on top of
+ // this gives the sheet its tinted feel; the base color
+ // is the app's card token so the bottom edge still
               // matches the theme cleanly.
               background: 'hsl(var(--card))',
               paddingBottom: 'env(safe-area-inset-bottom, 0px)',
@@ -326,10 +322,7 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
               <div
                 className="absolute inset-0"
                 style={{
-                  background: `linear-gradient(180deg,
-                    hsl(var(--card) / 0.55) 0%,
-                    hsl(var(--card) / 0.85) 55%,
-                    hsl(var(--card) / 0.96) 100%)`,
+                  
                   backdropFilter: 'blur(8px)',
                   WebkitBackdropFilter: 'blur(8px)',
                 }}
@@ -377,8 +370,7 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
                     isActive ? 'podcast-art-pulse' : ''
                   }`}
                   style={{
-                    boxShadow: isActive
-                      ? undefined  // handled by .podcast-art-pulse keyframes
+                    ? undefined  // handled by .podcast-art-pulse keyframes
                       : '0 25px 50px -12px rgba(0, 0, 0, 0.45)',
                   }}
                 >
@@ -392,7 +384,7 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
                       lit even on dark themes. */}
                   <span
                     className="absolute inset-0 rounded-3xl pointer-events-none"
-                    style={{ boxShadow: 'inset 0 0 0 1px hsl(var(--foreground) / 0.08)' }}
+                    style={{ }}
                     aria-hidden="true"
                   />
                 </motion.div>
@@ -520,9 +512,7 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
                     // back hsl() values keep things readable when the
                     // seed-color tokens haven't been set (e.g. before
                     // the cover art has loaded).
-                    background: `radial-gradient(circle at 30% 30%,
-                      var(--podcast-primary, hsl(var(--primary))) 0%,
-                      color-mix(in srgb, var(--podcast-primary, hsl(var(--primary))) 75%, #000 25%) 100%)`,
+                    
                     color: 'var(--podcast-primary-fg, hsl(var(--primary-foreground)))',
                   }}
                   aria-label={player.isPlaying ? 'Pause' : 'Play'}
@@ -647,22 +637,22 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
                     {copiedLink
                       ? (lang === 'ar' ? 'تم النسخ' : 'Kopiert')
                       : (lang === 'ar' ? 'مشاركة' : 'Teilen')}
-                  </span>
-                </button>
+ </span>
+ </button>
 
-                {/* ── Speed popover ─────────────────────────────────
-                    Anchored above the chip row so it floats over the
-                    transport without pushing the layout. */}
-                <AnimatePresence>
-                  {speedOpen && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                      transition={{ duration: 0.15 }}
-                      className="absolute bottom-full mb-2 left-4 right-4 mx-auto max-w-xs rounded-2xl border border-border/50 shadow-xl p-2 z-10"
-                      style={{
-                        background: 'hsl(var(--card) / 0.96)',
+ {/* ── Speed popover ─────────────────────────────────
+ Anchored above the chip row so it floats over the
+ transport without pushing the layout. */}
+ <AnimatePresence>
+ {speedOpen && (
+ <motion.div
+ initial={{ opacity: 0, y: 10, scale: 0.95 }}
+ animate={{ opacity: 1, y: 0, scale: 1 }}
+ exit={{ opacity: 0, y: 10, scale: 0.95 }}
+ transition={{ duration: 0.15 }}
+ className="absolute bottom-full mb-2 left-4 right-4 mx-auto max-w-xs rounded-2xl border border-border/50 p-2 z-10"
+ style={{
+ background: 'hsl(var(--card) / 0.96)',
                         backdropFilter: 'blur(20px)',
                         WebkitBackdropFilter: 'blur(20px)',
                       }}
@@ -687,28 +677,28 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
                                 color: active
                                   ? 'var(--podcast-primary-fg, hsl(var(--primary-foreground)))'
                                   : 'hsl(var(--foreground) / 0.85)',
-                              }}
-                            >
-                              {label}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+ }}
+ >
+ {label}
+ </button>
+ );
+ })}
+ </div>
+ </motion.div>
+ )}
+ </AnimatePresence>
 
-                {/* ── Sleep-timer popover ───────────────────────────── */}
-                <AnimatePresence>
-                  {sleepOpen && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                      transition={{ duration: 0.15 }}
-                      className="absolute bottom-full mb-2 left-4 right-4 mx-auto max-w-xs rounded-2xl border border-border/50 shadow-xl p-2 z-10"
-                      style={{
-                        background: 'hsl(var(--card) / 0.96)',
+ {/* ── Sleep-timer popover ───────────────────────────── */}
+ <AnimatePresence>
+ {sleepOpen && (
+ <motion.div
+ initial={{ opacity: 0, y: 10, scale: 0.95 }}
+ animate={{ opacity: 1, y: 0, scale: 1 }}
+ exit={{ opacity: 0, y: 10, scale: 0.95 }}
+ transition={{ duration: 0.15 }}
+ className="absolute bottom-full mb-2 left-4 right-4 mx-auto max-w-xs rounded-2xl border border-border/50 p-2 z-10"
+ style={{
+ background: 'hsl(var(--card) / 0.96)',
                         backdropFilter: 'blur(20px)',
                         WebkitBackdropFilter: 'blur(20px)',
                       }}

@@ -303,8 +303,7 @@ export default function BottomNav() {
           backdropFilter: 'blur(28px) saturate(180%)',
           border: '1px solid hsl(var(--border) / 0.45)',
           borderRadius: 999,
-          boxShadow:
-            '0 12px 32px -12px rgba(0,0,0,0.55), 0 2px 8px -2px rgba(0,0,0,0.35), inset 0 1px 0 hsl(var(--foreground) / 0.04)',
+          
           touchAction: 'pan-y',
           cursor: dragging ? 'grabbing' : undefined,
           position: 'relative',

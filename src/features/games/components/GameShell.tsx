@@ -57,7 +57,7 @@ export default function GameShell({ title, icon: Icon, accentColor, rules, stats
   ];
 
   return (
-    <div className="min-h-screen pb-28 pt-4" style={{ background: `linear-gradient(180deg, #0a0a0f 0%, ${accentColor}08 40%, #0a0a0f 100%)` }}>
+    <div className="min-h-screen pb-28 pt-4" style={{ }}>
       <div className="px-5">
         {/* Header — back, title, and game-feedback toggles all sit on
             a single row. Previously the back button lived on its own

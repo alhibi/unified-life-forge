@@ -935,7 +935,7 @@ function Toggle({ on, onChange }: { on: boolean; onChange: (v: boolean) => void 
       aria-pressed={on}
     >
       <motion.span
-        className="absolute top-0.5 w-4 h-4 rounded-full bg-white shadow-sm"
+        className="absolute top-0.5 w-4 h-4 rounded-full bg-white "
         initial={false}
         animate={{ left: on ? 'calc(100% - 1.125rem)' : '0.125rem' }}
         transition={{ type: 'spring', stiffness: 500, damping: 32 }}

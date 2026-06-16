@@ -223,66 +223,66 @@ export default function SessionPlayer({
       const exKey = draft.exercises[exIdx].exerciseKey;
       const def = resolveExercise(exKey);
       const isCompound = 'isCustom' in def ? false : (def as Exercise).isBigLift;
-      const restSec = isCompound ? 180 : 90;
-      setRestOpen({ sec: restSec });
-    } else {
-      next.delete(id);
-    }
-    setCompletedSets(next);
-  };
+ const restSec = isCompound ? 180 : 90;
+ setRestOpen({ sec: restSec });
+ } else {
+ next.delete(id);
+ }
+ setCompletedSets(next);
+ };
 
-  /* ────────── Finish ────────── */
+ /* ────────── Finish ────────── */
 
-  const handleFinish = async () => {
-    if (draft.exercises.length === 0) return;
-    await onFinish({
-      date: draft.date,
-      startedAt: draft.startedAt,
-      endedAt: Date.now(),
-      type: draft.type,
-      title: draft.title,
-      exercises: draft.exercises,
-      sessionRpe: draft.sessionRpe,
-      notes: draft.notes,
-    });
-  };
+ const handleFinish = async () => {
+ if (draft.exercises.length === 0) return;
+ await onFinish({
+ date: draft.date,
+ startedAt: draft.startedAt,
+ endedAt: Date.now(),
+ type: draft.type,
+ title: draft.title,
+ exercises: draft.exercises,
+ sessionRpe: draft.sessionRpe,
+ notes: draft.notes,
+ });
+ };
 
-  const handleCancel = async () => {
-    if (draft.exercises.length === 0) { onCancel(); return; }
-    const ok = await confirmDialog({
-      message: T.cancelConfirm[lang],
-      destructive: true,
-    });
-    if (ok) onCancel();
-  };
+ const handleCancel = async () => {
+ if (draft.exercises.length === 0) { onCancel(); return; }
+ const ok = await confirmDialog({
+ message: T.cancelConfirm[lang],
+ destructive: true,
+ });
+ if (ok) onCancel();
+ };
 
-  /* ────────── Render ────────── */
+ /* ────────── Render ────────── */
 
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.2 }}
-      className="rounded-2xl border-2 border-primary/30 bg-gradient-to-br from-primary/8 to-primary/3 p-4 space-y-3"
-    >
-      {/* Header */}
-      <div className="flex items-start justify-between gap-2">
-        <div className="min-w-0 flex-1">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-primary inline-flex items-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-            {T.active[lang]}
-          </p>
-          {draft.title && (
-            <p className="text-[15px] font-bold text-foreground mt-0.5 truncate">{draft.title}</p>
-          )}
-          {/* Type segmented */}
-          <div className="mt-2 inline-flex bg-muted/50 rounded-lg p-0.5">
-            {TYPE_OPTS.map((t) => (
-              <button
-                key={t}
-                onClick={() => setDraft((d) => ({ ...d, type: t }))}
-                className={`px-2.5 py-1 rounded-md text-[10px] font-semibold transition-colors ${
-                  draft.type === t ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground'
+ return (
+ <motion.div
+ initial={{ opacity: 0, y: 8 }}
+ animate={{ opacity: 1, y: 0 }}
+ transition={{ duration: 0.2 }}
+ className="rounded-2xl border-2 border-primary/30 p-4 space-y-3"
+ >
+ {/* Header */}
+ <div className="flex items-start justify-between gap-2">
+ <div className="min-w-0 flex-1">
+ <p className="text-[10px] font-semibold uppercase tracking-wider text-primary inline-flex items-center gap-1">
+ <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+ {T.active[lang]}
+ </p>
+ {draft.title && (
+ <p className="text-[15px] font-bold text-foreground mt-0.5 truncate">{draft.title}</p>
+ )}
+ {/* Type segmented */}
+ <div className="mt-2 inline-flex bg-muted/50 rounded-lg p-0.5">
+ {TYPE_OPTS.map((t) => (
+ <button
+ key={t}
+ onClick={() => setDraft((d) => ({ ...d, type: t }))}
+ className={`px-2.5 py-1 rounded-md text-[10px] font-semibold transition-colors ${
+ draft.type === t ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground'
                 }`}
               >
                 {(T as Record<string, { ar: string; de: string }>)[`type_${t}`][lang]}

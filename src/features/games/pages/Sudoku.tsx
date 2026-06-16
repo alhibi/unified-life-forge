@@ -841,7 +841,7 @@ export default function SudokuPage() {
                   <button
                     onClick={applySmartHint}
                     className="flex-1 py-2.5 rounded-xl font-black text-purple-950 text-sm"
-                    style={{ background: 'linear-gradient(135deg, #c084fc, #a855f7)' }}
+                    style={{ }}
                   >
                     {isAr ? 'طبّقها' : 'Anwenden'}
                   </button>

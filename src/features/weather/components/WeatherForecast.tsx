@@ -162,7 +162,7 @@ function DayStrip() {
                   : isAdjacent
                     ? C.cardAdjacent
                     : 'transparent',
-                boxShadow: isToday ? `inset 0 0 0 1px ${C.border}` : undefined,
+                }` : undefined,
               }}
             >
               {/* Day + date */}

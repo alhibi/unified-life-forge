@@ -36,14 +36,14 @@ function DiceFace({ value, held, rolling, onClick, color, size = 'md' }: {
       animate={rolling ? { rotate: [0, 90, 180, 270, 360], scale: [1, 0.95, 1] } : { rotate: 0, scale: 1 }}
       transition={rolling ? { duration: 0.45, ease: 'easeInOut' } : { type: 'spring', stiffness: 400, damping: 26 }}
       className={`relative ${dim} rounded-2xl border-2 grid grid-rows-3 grid-cols-3 p-2 transition-colors ${
-        isGold
-          ? held
-            ? 'border-amber-400 ring-2 ring-amber-400/40 shadow-lg shadow-amber-500/30 bg-gradient-to-br from-amber-100 to-yellow-200'
-            : 'border-amber-300/70 bg-gradient-to-br from-amber-50/90 to-yellow-100/90'
-          : held
-            ? 'border-rose-400 ring-2 ring-rose-400/30 shadow-lg shadow-rose-500/30 bg-gradient-to-br from-rose-900 to-red-950'
-            : 'border-rose-700/70 bg-gradient-to-br from-rose-900/95 to-red-950/95'
-      }`}
+ isGold
+ ? held
+ ? 'border-amber-400 ring-2 ring-amber-400/40 '
+ : 'border-amber-300/70 '
+ : held
+ ? 'border-rose-400 ring-2 ring-rose-400/30 '
+ : 'border-rose-700/70 '
+ }`}
     >
       {[0, 1, 2].map(r =>
         [0, 1, 2].map(c => (
@@ -522,19 +522,19 @@ function YatzyView({ isAr, aiLevel }: { isAr: boolean; aiLevel: 'easy' | 'hard' 
           <motion.div
             initial={{ opacity: 0, scale: 0.6 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 1.4 }}
             transition={{ type: 'spring', stiffness: 250, damping: 18 }}
-            className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none"
-          >
-            <div className="px-8 py-4 rounded-3xl bg-gradient-to-br from-amber-400 via-yellow-300 to-amber-500 text-amber-950 font-black text-3xl shadow-2xl shadow-amber-500/40 tracking-wider">
-              ★ YATZY ★
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+ className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none"
+ >
+ <div className="px-8 py-4 rounded-3xl text-amber-950 font-black text-3xl tracking-wider">
+ ★ YATZY ★
+ </div>
+ </motion.div>
+ )}
+ </AnimatePresence>
 
-      {/* Header */}
-      <div className="flex items-center justify-between mb-3 px-1">
-        <div className="flex items-center gap-2">
-          <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold ${turn === 'player' ? 'bg-amber-500/15 text-amber-300' : 'bg-white/4 text-zinc-500'}`}>
+ {/* Header */}
+ <div className="flex items-center justify-between mb-3 px-1">
+ <div className="flex items-center gap-2">
+ <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold ${turn === 'player' ? 'bg-amber-500/15 text-amber-300' : 'bg-white/4 text-zinc-500'}`}>
             <UserIcon className="w-3 h-3" /> {finalTotal}
           </div>
           <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold ${turn === 'ai' ? 'bg-rose-500/15 text-rose-300' : 'bg-white/4 text-zinc-500'}`}>
@@ -548,7 +548,7 @@ function YatzyView({ isAr, aiLevel }: { isAr: boolean; aiLevel: 'easy' | 'hard' 
 
       {/* Dice tray */}
       <div className="rounded-3xl p-4 mb-3 border border-amber-500/15"
-        style={{ background: 'radial-gradient(circle at 50% 30%, rgba(245,158,11,0.1) 0%, rgba(0,0,0,0.4) 70%)' }}>
+        style={{ }}>
         <div className="flex justify-center gap-2 mb-3">
           {dice.map((v, i) => (
             <DiceFace key={i} value={v} held={held[i]} rolling={rolling && !held[i]} onClick={() => toggleHold(i)} color="gold" />
@@ -557,9 +557,9 @@ function YatzyView({ isAr, aiLevel }: { isAr: boolean; aiLevel: 'easy' | 'hard' 
         <div className="flex justify-center items-center gap-3">
           <motion.button
             disabled={rolling || rollsLeft <= 0 || turn !== 'player' || gameOver}
-            onClick={rollDice}
-            className="px-6 py-2 rounded-2xl font-black text-amber-950 disabled:opacity-30 disabled:cursor-not-allowed shadow-lg shadow-amber-500/30"
-            style={{ background: 'linear-gradient(135deg, #fbbf24, #f59e0b)' }}
+ onClick={rollDice}
+ className="px-6 py-2 rounded-2xl font-black text-amber-950 disabled:opacity-30 disabled:cursor-not-allowed"
+ style={{ }}
           >
             <Dices className="w-4 h-4 inline mr-1.5" />
             {isAr ? 'رمية' : 'Wurf'} {3 - rollsLeft + 1}/3
@@ -596,7 +596,7 @@ function YatzyView({ isAr, aiLevel }: { isAr: boolean; aiLevel: 'easy' | 'hard' 
             <p className="text-amber-400 text-sm font-mono">{finalTotal} : {aiTotal}</p>
             <motion.button onClick={reset}
               className="mt-3 px-6 py-2 rounded-xl font-bold text-amber-950"
-              style={{ background: 'linear-gradient(135deg, #fbbf24, #f59e0b)' }}>
+              style={{ }}>
               <RotateCcw className="w-3.5 h-3.5 inline mr-1.5" /> {isAr ? 'مباراة جديدة' : 'Neue Partie'}
             </motion.button>
           </motion.div>
@@ -782,33 +782,33 @@ function PigView({ isAr, aiLevel, tournamentBot, onTournamentResult }: {
             <div className="flex items-center gap-1.5">
               <UserIcon className="w-3 h-3 text-amber-400" />
               <span className="font-bold text-amber-300">{isAr ? 'أنت' : 'Du'}</span>
-            </div>
-            <span className="font-mono font-black text-amber-300">{playerScore} / {TARGET}</span>
-          </div>
-          <div className="h-2 rounded-full bg-zinc-800 overflow-hidden">
-            <motion.div className="h-full rounded-full bg-gradient-to-r from-amber-400 to-yellow-300"
-              animate={{ width: `${playerProgress}%` }} transition={{ duration: 0.4 }} />
-          </div>
-        </div>
-        <div>
-          <div className="flex items-center justify-between text-[11px] mb-0.5 px-1">
-            <div className="flex items-center gap-1.5">
-              <Bot className="w-3 h-3 text-rose-400" />
-              <span className="font-bold text-rose-300">{isAr ? 'الذكاء' : 'KI'}</span>
-            </div>
-            <span className="font-mono font-black text-rose-300">{aiScore} / {TARGET}</span>
-          </div>
-          <div className="h-2 rounded-full bg-zinc-800 overflow-hidden">
-            <motion.div className="h-full rounded-full bg-gradient-to-r from-rose-500 to-red-400"
-              animate={{ width: `${aiProgress}%` }} transition={{ duration: 0.4 }} />
-          </div>
-        </div>
-      </div>
+ </div>
+ <span className="font-mono font-black text-amber-300">{playerScore} / {TARGET}</span>
+ </div>
+ <div className="h-2 rounded-full bg-zinc-800 overflow-hidden">
+ <motion.div className="h-full rounded-full"
+ animate={{ width: `${playerProgress}%` }} transition={{ duration: 0.4 }} />
+ </div>
+ </div>
+ <div>
+ <div className="flex items-center justify-between text-[11px] mb-0.5 px-1">
+ <div className="flex items-center gap-1.5">
+ <Bot className="w-3 h-3 text-rose-400" />
+ <span className="font-bold text-rose-300">{isAr ? 'الذكاء' : 'KI'}</span>
+ </div>
+ <span className="font-mono font-black text-rose-300">{aiScore} / {TARGET}</span>
+ </div>
+ <div className="h-2 rounded-full bg-zinc-800 overflow-hidden">
+ <motion.div className="h-full rounded-full"
+ animate={{ width: `${aiProgress}%` }} transition={{ duration: 0.4 }} />
+ </div>
+ </div>
+ </div>
 
-      {/* Round points */}
-      <div className="rounded-2xl border border-amber-500/15 bg-amber-500/5 p-4 mb-4">
-        <p className="text-[10px] text-amber-200/70 uppercase tracking-wider mb-1">
-          {isAr ? 'نقاط الجولة' : 'Runden-Punkte'}
+ {/* Round points */}
+ <div className="rounded-2xl border border-amber-500/15 bg-amber-500/5 p-4 mb-4">
+ <p className="text-[10px] text-amber-200/70 uppercase tracking-wider mb-1">
+ {isAr ? 'نقاط الجولة' : 'Runden-Punkte'}
         </p>
         <motion.p key={roundPoints} initial={{ scale: 0.8 }} animate={{ scale: 1 }}
           className="text-4xl font-black text-amber-300 mb-2">{roundPoints}</motion.p>
@@ -822,14 +822,14 @@ function PigView({ isAr, aiLevel, tournamentBot, onTournamentResult }: {
       {!gameOver && (
         <div className="flex justify-center gap-3">
           <motion.button onClick={playerRoll} disabled={turn !== 'player' || rolling}
-            className="flex-1 max-w-[160px] py-3 rounded-2xl font-black text-amber-950 disabled:opacity-30 shadow-lg shadow-amber-500/30"
-            style={{ background: 'linear-gradient(135deg, #fbbf24, #f59e0b)' }}>
+ className="flex-1 max-w-[160px] py-3 rounded-2xl font-black text-amber-950 disabled:opacity-30"
+ style={{ }}>
             <Dices className="w-5 h-5 inline mr-1.5" />
             {isAr ? 'ارمِ' : 'Würfeln'}
           </motion.button>
           <motion.button onClick={playerHold} disabled={turn !== 'player' || rolling || roundPoints === 0}
-            className="flex-1 max-w-[160px] py-3 rounded-2xl font-black text-emerald-950 disabled:opacity-30 shadow-lg shadow-emerald-500/30"
-            style={{ background: 'linear-gradient(135deg, #34d399, #10b981)' }}>
+ className="flex-1 max-w-[160px] py-3 rounded-2xl font-black text-emerald-950 disabled:opacity-30"
+ style={{ }}>
             <PiggyBank className="w-5 h-5 inline mr-1.5" />
             {isAr ? 'احتفظ' : 'Halten'}
           </motion.button>
@@ -950,12 +950,12 @@ function HighRollView({ isAr }: { isAr: boolean }) {
       {streak >= 2 && !finished && (
         <p className="text-[11px] text-amber-400 font-bold mb-2 flex items-center justify-center gap-1">
           <Flame className="w-3 h-3" /> {streak} {isAr ? 'فوز متتالي' : 'in Folge'}
-        </p>
-      )}
-      {!finished ? (
-        <motion.button onClick={rollOne} disabled={rolling}
-          className="px-9 py-3 rounded-2xl font-black text-amber-950 shadow-lg shadow-amber-500/30 disabled:opacity-40"
-          style={{ background: 'linear-gradient(135deg, #fbbf24, #f59e0b)' }}>
+ </p>
+ )}
+ {!finished ? (
+ <motion.button onClick={rollOne} disabled={rolling}
+ className="px-9 py-3 rounded-2xl font-black text-amber-950 disabled:opacity-40"
+ style={{ }}>
           <Dices className="w-5 h-5 inline mr-1.5" />
           {isAr ? 'ارمِ النرد' : 'Würfeln'}
         </motion.button>

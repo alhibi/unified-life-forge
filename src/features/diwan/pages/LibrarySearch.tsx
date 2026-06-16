@@ -338,10 +338,10 @@ function ModeBtn({ active, onClick, icon, label }: { active: boolean; onClick: (
     <button
       onClick={onClick}
       className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-[12px] font-semibold transition-all ${
-        active
-          ? 'bg-card text-foreground shadow-sm border border-border/30'
-          : 'text-muted-foreground hover:text-foreground'
-      }`}
+ active
+ ? 'bg-card text-foreground border border-border/30'
+ : 'text-muted-foreground hover:text-foreground'
+ }`}
     >
       {icon}
       {label}

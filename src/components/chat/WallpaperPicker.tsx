@@ -23,7 +23,7 @@ const WallpaperPicker: React.FC<WallpaperPickerProps> = ({ isAr, currentId, onCl
       <motion.div
         initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
         transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-        className="absolute inset-x-0 bottom-0 z-[71] bg-background rounded-t-3xl flex flex-col max-h-[75%] shadow-2xl"
+        className="absolute inset-x-0 bottom-0 z-[71] bg-background rounded-t-3xl flex flex-col max-h-[75%] "
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mx-auto w-10 h-1 rounded-full bg-border/40 mt-2 mb-1" />
@@ -49,7 +49,7 @@ const WallpaperPicker: React.FC<WallpaperPickerProps> = ({ isAr, currentId, onCl
                   onClick={() => onPick(wp.id)}
                   className={cn(
                     'relative aspect-[3/4] rounded-2xl overflow-hidden border-2 transition-all active:scale-95',
-                    selected ? 'border-primary shadow-lg shadow-primary/20' : 'border-border/15'
+                    selected ? 'border-primary ' : 'border-border/15'
                   )}
                   style={{ background: wp.background }}
                 >
@@ -63,7 +63,7 @@ const WallpaperPicker: React.FC<WallpaperPickerProps> = ({ isAr, currentId, onCl
                     </div>
                   </div>
                   {selected && (
-                    <div className="absolute top-1.5 end-1.5 w-6 h-6 rounded-full bg-primary flex items-center justify-center shadow">
+                    <div className="absolute top-1.5 end-1.5 w-6 h-6 rounded-full bg-primary flex items-center justify-center ">
                       <Check className="w-3.5 h-3.5 text-primary-foreground" />
                     </div>
                   )}

@@ -51,11 +51,11 @@ export default function PodcastsTab() {
     <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-3">
       {/* Hero teaser */}
       <motion.div variants={item}>
-        <div className="relative overflow-hidden rounded-2xl border border-violet-300/30 dark:border-violet-500/20 bg-gradient-to-bl from-violet-50 via-card to-violet-50/30 dark:from-violet-950/20 dark:via-card dark:to-violet-950/10 px-4 py-4">
+        <div className="relative overflow-hidden rounded-2xl border border-violet-300/30 dark:border-violet-500/20 px-4 py-4">
           <div
             className="absolute inset-0 pointer-events-none opacity-50"
             style={{
-              background: 'linear-gradient(105deg, transparent 40%, rgba(167,139,250,0.18) 50%, transparent 60%)',
+              
               backgroundSize: '200% 100%',
               animation: 'shimmer 3.5s ease-in-out infinite',
             }}

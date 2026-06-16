@@ -115,16 +115,16 @@ export default function DiceTournamentPage() {
               </div>
               <div className="text-right shrink-0">
                 <p className="text-[9px] text-amber-300 uppercase tracking-wider">{isAr ? 'حد التوقف' : 'Hold'}</p>
-                <p className="text-base font-black text-amber-300">{bot.baseHold}</p>
-              </div>
-            </div>
-          ))}
-        </div>
+ <p className="text-base font-black text-amber-300">{bot.baseHold}</p>
+ </div>
+ </div>
+ ))}
+ </div>
 
-        <button
-          onClick={start}
-          className="w-full py-4 rounded-2xl font-black text-amber-950 shadow-lg shadow-amber-500/30"
-          style={{ background: 'linear-gradient(135deg, #fbbf24, #f59e0b)' }}
+ <button
+ onClick={start}
+ className="w-full py-4 rounded-2xl font-black text-amber-950"
+ style={{ }}
         >
           <Sparkles className="w-5 h-5 inline mr-1.5" />
           {isAr ? 'ابدأ البطولة' : 'Turnier starten'}
@@ -175,10 +175,10 @@ export default function DiceTournamentPage() {
 
       {/* CTA */}
       {state.status === 'in-progress' && state.nextPlayerMatch && (
-        <button
-          onClick={playNext}
-          className="w-full py-4 rounded-2xl font-black text-amber-950 shadow-lg shadow-amber-500/30 flex items-center justify-center gap-2"
-          style={{ background: 'linear-gradient(135deg, #fbbf24, #f59e0b)' }}
+ <button
+ onClick={playNext}
+ className="w-full py-4 rounded-2xl font-black text-amber-950 flex items-center justify-center gap-2"
+ style={{ }}
         >
           <Play className="w-5 h-5" />
           {state.nextPlayerMatch === 'semi-A'
@@ -190,11 +190,11 @@ export default function DiceTournamentPage() {
       {/* End-state messages */}
       <AnimatePresence>
         {state.status === 'won' && (
-          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
-            className="rounded-2xl p-5 border border-amber-500/40 bg-gradient-to-br from-amber-500/15 to-card text-center">
-            <Trophy className="w-12 h-12 text-amber-300 mx-auto mb-2" />
-            <p className="text-2xl font-black text-amber-200 mb-1">
-              {isAr ? '🏆 بطل البطولة!' : '🏆 Turniersieger!'}
+ <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
+ className="rounded-2xl p-5 border border-amber-500/40 text-center">
+ <Trophy className="w-12 h-12 text-amber-300 mx-auto mb-2" />
+ <p className="text-2xl font-black text-amber-200 mb-1">
+ {isAr ? '🏆 بطل البطولة!' : '🏆 Turniersieger!'}
             </p>
             <p className="text-xs text-amber-200/70">
               {isAr ? 'سحقت جميع المنافسين' : 'Alle besiegt'}

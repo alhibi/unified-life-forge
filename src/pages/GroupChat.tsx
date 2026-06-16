@@ -381,7 +381,7 @@ export default function GroupChatPage() {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0, opacity: 0 }}
               transition={{ type: 'spring', damping: 18, stiffness: 320 }}
-              className="absolute bottom-24 end-4 w-11 h-11 rounded-full bg-card border border-border/30 shadow-lg flex items-center justify-center z-10"
+              className="absolute bottom-24 end-4 w-11 h-11 rounded-full bg-card border border-border/30 flex items-center justify-center z-10"
               aria-label={isAr ? 'انتقل إلى الأسفل' : 'Nach unten'}
             >
               <ArrowLeft className="w-4 h-4 text-foreground rotate-90" />
@@ -497,7 +497,7 @@ function ActionMenuOverlay({
         onClick={e => e.stopPropagation()}
       >
         {/* Quick reactions row */}
-        <div className="flex items-center justify-around bg-card border border-border/30 rounded-full px-2 py-1 shadow-lg">
+        <div className="flex items-center justify-around bg-card border border-border/30 rounded-full px-2 py-1 ">
           {QUICK_EMOJIS.map(emoji => (
             <button
               key={emoji}
@@ -519,7 +519,7 @@ function ActionMenuOverlay({
         </div>
 
         {/* Action list */}
-        <div className="bg-popover border border-border/30 rounded-2xl shadow-lg py-1 overflow-hidden">
+        <div className="bg-popover border border-border/30 rounded-2xl py-1 overflow-hidden">
           <ActionRow
             icon={<Reply className="w-4 h-4" />}
             label={isAr ? 'رد' : 'Antworten'}

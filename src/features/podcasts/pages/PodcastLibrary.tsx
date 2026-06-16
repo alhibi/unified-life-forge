@@ -99,7 +99,7 @@ function ContinueListeningRow({ items }: { items: RecentEpisodeRecord[] }) {
                   {/* Play overlay — visual affordance that this is a
                       playable card, not a navigation tile. */}
                   <span
-                    className="absolute bottom-2 end-2 w-9 h-9 rounded-full flex items-center justify-center shadow-lg"
+                    className="absolute bottom-2 end-2 w-9 h-9 rounded-full flex items-center justify-center "
                     style={{
                       background: 'var(--podcast-primary, hsl(var(--primary)))',
                       color: 'var(--podcast-primary-fg, hsl(var(--primary-foreground)))',
