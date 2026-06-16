@@ -253,8 +253,8 @@ export default function MemoryAdventurePage() {
                   }`}
                   style={{
                     background: selected.isBoss
-                      ? 'linear-gradient(135deg, #fbbf24, #f59e0b)'
-                      : 'linear-gradient(135deg, #f472b6, #ec4899)',
+                      ? '#fbbf24'
+                      : '#ec4899',
                   }}
                 >
                   <Sparkles className="w-4 h-4" />

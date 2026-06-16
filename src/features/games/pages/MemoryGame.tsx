@@ -775,7 +775,7 @@ export default function MemoryGame() {
                   style={{ transformStyle: 'preserve-3d' }}>
                   <div className="absolute inset-0 rounded-2xl flex items-center justify-center border"
                     style={{ backfaceVisibility: 'hidden',
-                      background: bombArmed ? 'linear-gradient(135deg, #f59e0b40, #f59e0b18)' : 'linear-gradient(135deg, rgba(236,72,153,0.25), rgba(236,72,153,0.05))',
+                      background: bombArmed ? '#f59e0b30' : 'rgba(236,72,153,0.18)',
                       borderColor: bombArmed ? '#f59e0b66' : 'rgba(236,72,153,0.25)' }}>
                     <div className="text-pink-300/40 text-2xl">?</div>
                   </div>

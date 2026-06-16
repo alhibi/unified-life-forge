@@ -433,7 +433,7 @@ export default function PodcastDetail() {
                   }`}
                   style={
                     isLongDescription && !descExpanded
-                      ? { maxHeight: '6.5em', maskImage: 'linear-gradient(to bottom, #000 70%, transparent)' }
+                      ? { maxHeight: '6.5em', overflow: 'hidden' as const }
                       : undefined
                   }
                   dangerouslySetInnerHTML={{ __html: safeDescription }}
