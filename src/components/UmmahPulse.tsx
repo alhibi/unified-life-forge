@@ -1307,7 +1307,6 @@ function UmmahPulse() {
                               className="w-2 h-2 rounded-full shrink-0"
                               style={{
                                 background: meta.color,
-                                }` : 'none',
                               }}
                             />
                             <div className="min-w-0 flex-1">

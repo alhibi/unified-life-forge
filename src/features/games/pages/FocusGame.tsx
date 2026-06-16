@@ -645,7 +645,7 @@ function SequenceMode({ diff, isAr, onFinish }: { diff: DifficultyMeta; isAr: bo
             animate={activeIdx === i ? { scale: 1.08, opacity: 1 } : { scale: 1, opacity: state === 'showing' ? 0.6 : 0.9 }}
             transition={{ duration: 0.2 }}
             className="w-28 h-28 rounded-3xl border-2 border-white/15 "
-            style={{ background: c.hex, }` : `0 4px 16px ${c.hex}44` }} />
+            style={{ background: c.hex }} />
         ))}
       </div>
       <p className="text-[10px] text-zinc-400">{seq.length} {isAr ? 'خطوات' : 'Schritte'}</p>
@@ -801,7 +801,6 @@ function NBackMode({ diff, isAr, onFinish }: { diff: DifficultyMeta; isAr: boole
               width: 80, height: 80,
               background: currentPos === i ? '#06b6d4' : 'rgba(255,255,255,0.04)',
               borderColor: currentPos === i ? '#22d3ee' : 'rgba(255,255,255,0.06)',
-              182,212,0.6)' : 'none',
             }} />
         ))}
       </div>
@@ -809,7 +808,7 @@ function NBackMode({ diff, isAr, onFinish }: { diff: DifficultyMeta; isAr: boole
       <button onClick={onMatchTap} disabled={matched !== null}
         className="mt-6 w-full max-w-[280px] py-4 rounded-2xl font-black text-lg transition-all disabled:opacity-40"
         style={{
-          background: matched === true ? 'rgba(16,185,129,0.3)' : matched === false ? 'rgba(244,63,94,0.3)' : 'linear-gradient(135deg, #22d3ee, #06b6d4)',
+          background: matched === true ? 'rgba(16,185,129,0.3)' : matched === false ? 'rgba(244,63,94,0.3)' : '#06b6d4',
           color: matched === null ? '#082f49' : '#fff',
           border: `2px solid ${matched === true ? '#10b981' : matched === false ? '#ef4444' : '#22d3ee'}`,
         }}>

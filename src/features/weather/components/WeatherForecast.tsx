@@ -162,7 +162,6 @@ function DayStrip() {
                   : isAdjacent
                     ? C.cardAdjacent
                     : 'transparent',
-                }` : undefined,
               }}
             >
               {/* Day + date */}

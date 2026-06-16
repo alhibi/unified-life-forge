@@ -369,10 +369,6 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
                   className={`relative aspect-square w-full max-w-[300px] rounded-3xl overflow-hidden ${
                     isActive ? 'podcast-art-pulse' : ''
                   }`}
-                  style={{
-                    ? undefined  // handled by .podcast-art-pulse keyframes
-                      : '0 25px 50px -12px rgba(0, 0, 0, 0.45)',
-                  }}
                 >
                   <img
                     src={episodeArtwork}

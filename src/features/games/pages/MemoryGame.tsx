@@ -1031,7 +1031,6 @@ function PowerUpButton({ icon: Icon, count, onClick, color, label, disabled, act
       style={{
         background: active ? `${color}30` : `${color}14`,
         border: `1px solid ${active ? color : `${color}40`}`,
-        }80` : undefined,
       }}>
       <Icon className="w-4 h-4" style={{ color }} />
       {count > 0 && (

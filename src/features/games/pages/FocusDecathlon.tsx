@@ -574,7 +574,6 @@ function MemoryEvent({ isAr, onDone }: { isAr: boolean; onDone: (raw: number) =>
               background: c,
               opacity: active === i ? 1 : (s === 'showing' ? 0.6 : 0.85),
               transform: active === i ? 'scale(1.1)' : 'scale(1)',
-              }` : 'none',
             }}
           />
         ))}
