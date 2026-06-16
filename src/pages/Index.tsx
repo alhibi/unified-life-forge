@@ -8,7 +8,6 @@ import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 import LocationSaver from '@/features/clipboard/components/LocationSaver';
 import PrayerTimes from '@/components/PrayerTimes';
 import { motion } from 'framer-motion';
-import WeatherWidget from '@/features/weather/components/WeatherWidget';
 import CurrentTimeSunnah from '@/components/CurrentTimeSunnah';
 import UmmahPulse from '@/components/UmmahPulse';
 
