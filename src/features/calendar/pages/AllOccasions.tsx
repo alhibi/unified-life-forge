@@ -5,12 +5,12 @@ import { useApp } from '@/contexts/AppContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   getEventsForMonth,
-  getTodayHijri,
   formatGregorianDate,
   HIJRI_MONTHS,
   HIJRI_MONTHS_EN,
   type ResolvedIslamicEvent,
 } from '@/features/calendar/data/islamicOccasions';
+import { useLiveHijriDate } from '@/features/calendar/hooks/useLiveHijriDate';
 
 // Accent palette for occasion cards (mirrors PrayerTimes.tsx accents).
 const ACCENT: Record<string, string> = {
@@ -28,18 +28,18 @@ const ACCENT: Record<string, string> = {
 export default function AllOccasions() {
   const { language } = useApp();
   const isAr = language === 'ar';
-  const today = useMemo(() => getTodayHijri(), []);
+  const { hijri: today, todayISO, offset } = useLiveHijriDate();
 
   const [selectedMonth, setSelectedMonth] = useState<number>(today.month);
   const [selectedDay, setSelectedDay] = useState<number>(today.day);
   const [selectedEvent, setSelectedEvent] = useState<ResolvedIslamicEvent | null>(null);
 
-  // Each month's events, sorted by day. Stable across re-renders.
+  // Recompute when the day flips or the Saudi offset changes.
   const byMonth = useMemo(() => {
     const map: Record<number, ResolvedIslamicEvent[]> = {};
     for (let m = 1; m <= 12; m++) map[m] = getEventsForMonth(m);
     return map;
-  }, []);
+  }, [todayISO, offset]);
 
   const monthEvents = byMonth[selectedMonth] || [];
   const daysWithEvents = useMemo(() => {

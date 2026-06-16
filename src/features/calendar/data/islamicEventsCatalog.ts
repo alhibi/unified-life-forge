@@ -149,6 +149,18 @@ export const ISLAMIC_EVENTS_CATALOG: RawIslamicMonth[] = [
       AYYAM_AL_BID(14),
       AYYAM_AL_BID(15),
       {
+        day: 27,
+        title: 'Passing of Salahuddin al-Ayyubi',
+        titleAr: 'وفاة السلطان صلاح الدين الأيوبي',
+        description:
+          'The death of Sultan Salahuddin al-Ayyubi in Damascus in 589 AH (1193 CE), the liberator of Jerusalem from the Crusaders and a model of Islamic chivalry and justice.',
+        descriptionAr:
+          'وفاة السلطان صلاح الدين الأيوبي في دمشق سنة 589هـ (1193م)، محرر بيت المقدس من الصليبيين، وأحد أعظم قادة الأمة في تاريخها، اشتُهر بعدله وزهده وشجاعته.',
+        type: 'DEATH',
+        yearAh: 589,
+        perspective: 'UNIVERSAL',
+      },
+      {
         day: 29,
         title: 'Hijra: Departure from Makkah',
         titleAr: 'الهجرة: الخروج من مكة',
@@ -265,6 +277,19 @@ export const ISLAMIC_EVENTS_CATALOG: RawIslamicMonth[] = [
       AYYAM_AL_BID(13),
       AYYAM_AL_BID(14),
       AYYAM_AL_BID(15),
+      {
+        day: 20,
+        title: 'Conquest of Constantinople',
+        titleAr: 'فتح القسطنطينية',
+        description:
+          'On 20 Jumada al-Awwal 857 AH (29 May 1453 CE), Sultan Mehmed II "al-Fatih" conquered Constantinople, fulfilling the Prophetic glad tiding: "Verily you shall conquer Constantinople. What a wonderful leader will her leader be, and what a wonderful army will that army be!" (Ahmad).',
+        descriptionAr:
+          'في 20 جمادى الأولى 857هـ (29 مايو 1453م) فتح السلطان محمد الثاني الفاتح القسطنطينية، عاصمة الدولة البيزنطية، تحقيقًا لبشارة النبي ﷺ: "لتُفتحنَّ القسطنطينية، فلَنِعمَ الأميرُ أميرُها، ولَنِعمَ الجيشُ ذلك الجيشُ" (رواه أحمد).',
+        type: 'HISTORICAL',
+        yearAh: 857,
+        isMajorHoliday: true,
+        perspective: 'UNIVERSAL',
+      },
     ],
   },
 
@@ -308,6 +333,18 @@ export const ISLAMIC_EVENTS_CATALOG: RawIslamicMonth[] = [
         descriptionAr:
           'بداية شهر رجب، أحد الأشهر الحرم الأربعة في التقويم الإسلامي، شهر له فضل ومكانة خاصة في الإسلام.',
         type: 'RELIGIOUS',
+        perspective: 'UNIVERSAL',
+      },
+      {
+        day: 5,
+        title: 'Battle of Yarmouk',
+        titleAr: 'معركة اليرموك',
+        description:
+          'In Rajab 15 AH (636 CE), the Muslim army under Khalid ibn al-Walid (RA) decisively defeated the Byzantine Empire on the Yarmouk River, ending Roman rule in the Levant.',
+        descriptionAr:
+          'في رجب 15هـ (636م) انتصر الجيش المسلم بقيادة سيف الله المسلول خالد بن الوليد رضي الله عنه انتصارًا حاسمًا على جيش الروم البيزنطي على نهر اليرموك، وأنهت المعركةُ الحكمَ الرومانيَّ في بلاد الشام.',
+        type: 'HISTORICAL',
+        yearAh: 15,
         perspective: 'UNIVERSAL',
       },
       AYYAM_AL_BID(13),
@@ -412,6 +449,18 @@ export const ISLAMIC_EVENTS_CATALOG: RawIslamicMonth[] = [
       AYYAM_AL_BID(14),
       AYYAM_AL_BID(15),
       {
+        day: 21,
+        title: 'Martyrdom of Caliph Ali ibn Abi Talib (RA)',
+        titleAr: 'استشهاد الخليفة علي بن أبي طالب',
+        description:
+          'The death of the fourth Rightly Guided Caliph, Ali ibn Abi Talib (RA), cousin and son-in-law of the Prophet (PBUH), after being struck by Ibn Muljam in Kufa in 40 AH.',
+        descriptionAr:
+          'استشهاد الخليفة الراشد الرابع أمير المؤمنين علي بن أبي طالب رضي الله عنه، ابن عم النبي ﷺ وزوج ابنته فاطمة، طعنًا على يد عبد الرحمن بن ملجم الخارجي في الكوفة، سنة 40هـ.',
+        type: 'DEATH',
+        yearAh: 40,
+        perspective: 'UNIVERSAL',
+      },
+      {
         day: 17,
         title: 'Nuzool al-Quran (First Revelation)',
         titleAr: 'نزول القرآن (بدء الوحي)',
@@ -460,6 +509,19 @@ export const ISLAMIC_EVENTS_CATALOG: RawIslamicMonth[] = [
         descriptionAr:
           'العشر الأواخر من شهر رمضان، يلتمس فيها المسلمون ليلة القدر. كان النبي ﷺ يجتهد فيها في العبادة ويعتكف، ويوقظ أهله لقيام الليل.',
         type: 'RECURRING_RITUAL',
+        perspective: 'UNIVERSAL',
+      },
+      {
+        day: 25,
+        title: 'Battle of Ain Jalut',
+        titleAr: 'معركة عين جالوت',
+        description:
+          'On 25 Ramadan 658 AH (3 September 1260 CE), the Mamluk army under Sultan Qutuz and the future Sultan Baybars halted the Mongol advance at Ain Jalut in Palestine — the first major defeat of the Mongol Empire and the salvation of the Muslim heartlands.',
+        descriptionAr:
+          'في 25 رمضان 658هـ (3 سبتمبر 1260م) انتصر الجيش المملوكي بقيادة السلطان قطز والقائد الظاهر بيبرس على جيش المغول في عين جالوت بفلسطين، وكانت أول هزيمة كبرى للمغول في التاريخ، وأنقذت ديار الإسلام من الاجتياح. قبيل المعركة قال قطز كلمته الشهيرة: "وا إسلاماه".',
+        type: 'HISTORICAL',
+        yearAh: 658,
+        isMajorHoliday: true,
         perspective: 'UNIVERSAL',
       },
       {
@@ -652,6 +714,18 @@ export const ISLAMIC_EVENTS_CATALOG: RawIslamicMonth[] = [
       AYYAM_AT_TASHRIQ(13),
       AYYAM_AL_BID(14),
       AYYAM_AL_BID(15),
+      {
+        day: 18,
+        title: 'Martyrdom of Caliph Uthman ibn Affan (RA)',
+        titleAr: 'استشهاد الخليفة عثمان بن عفان',
+        description:
+          'The murder of the third Rightly Guided Caliph, Uthman ibn Affan (RA) — the compiler of the Mushaf — in his home in Madinah in 35 AH while reading the Quran, by rebels who besieged him.',
+        descriptionAr:
+          'استشهاد الخليفة الراشد الثالث أمير المؤمنين عثمان بن عفان ذي النورين رضي الله عنه، جامع المصحف الشريف، في داره بالمدينة المنورة وهو يتلو القرآن، على يد البغاة الذين حاصروه، سنة 35هـ.',
+        type: 'DEATH',
+        yearAh: 35,
+        perspective: 'UNIVERSAL',
+      },
       {
         day: 26,
         title: 'Assassination of Caliph Umar ibn al-Khattab',
