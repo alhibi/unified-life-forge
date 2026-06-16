@@ -266,7 +266,7 @@ interface ResolveOptions {
  */
 export function getAllEvents(opts: ResolveOptions = {}): ResolvedIslamicEvent[] {
   const { referenceDate = new Date() } = opts;
-  const todayHijri = toHijri(referenceDate);
+  const todayHijri = toHijri(applyHijriOffset(referenceDate));
 
   const resolved: ResolvedIslamicEvent[] = [];
   for (const month of ISLAMIC_EVENTS_CATALOG) {
@@ -280,7 +280,7 @@ export function getAllEvents(opts: ResolveOptions = {}): ResolvedIslamicEvent[] 
         (month.monthId === todayHijri.month && ev.day < todayHijri.day);
       const hijriYear = isPastWithinYear ? todayHijri.year + 1 : todayHijri.year;
 
-      const gregorian = fromHijri(hijriYear, month.monthId, ev.day);
+      const gregorian = unapplyHijriOffset(fromHijri(hijriYear, month.monthId, ev.day));
       const gregorianISO = gregorian.toISOString().slice(0, 10);
 
       const isTodayEvent =
