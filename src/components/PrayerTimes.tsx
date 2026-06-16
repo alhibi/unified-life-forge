@@ -525,7 +525,7 @@ export default function PrayerTimes() {
  className="space-y-4"
  >
  {/* ═══ Card 1: Prayer hero + 1dp separator + day arc — merged ══════ */}
- <div className="rounded-3xl border border-border bg-card text-card-foreground relative overflow-hidden">
+  <div className="rounded-[24px] border border-foreground/[0.05] bg-card text-card-foreground relative overflow-hidden shadow-[0_18px_38px_-28px_hsl(var(--foreground)/0.55)]">
    <Hero
      currentPrayer={currentPrayer}
      nextPrayer={nextPrayer}
@@ -552,7 +552,7 @@ export default function PrayerTimes() {
  </div>
 
  {/* ═══ Card 2: Today's prayer slab (collapsible list) ══════════════ */}
- <div className="rounded-3xl border border-border bg-card text-card-foreground overflow-hidden">
+  <div className="rounded-[28px] border border-foreground/[0.05] bg-card text-card-foreground overflow-hidden shadow-[0_18px_38px_-30px_hsl(var(--foreground)/0.5)]">
    <Slab
      prayers={prayers}
      doneStates={doneStates}
