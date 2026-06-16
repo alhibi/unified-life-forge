@@ -61,13 +61,13 @@ export default function Index() {
       </h1>
       <motion.div variants={stagger} initial="hidden" animate="show" className="contents">
         <motion.div variants={item}>
-          <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center justify-between gap-2">
             <SmartGreeting />
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex items-center gap-1.5 shrink-0">
               <IconButton onClick={() => setShowClipboard(true)} aria-label="الحافظة">
                 <ClipboardList className="h-5 w-5" />
                 {saved.length > 0 && (
-                  <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-[hsl(var(--live))] text-background text-[10px] font-mono font-bold flex items-center justify-center">
                     {saved.length}
                   </span>
                 )}
@@ -76,7 +76,7 @@ export default function Index() {
                 <IconButton onClick={() => navigate('/chat')} aria-label="المحادثات">
                   <MessageCircle className="h-5 w-5" />
                   {unreadCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground text-[10px] rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 font-bold animate-pulse">
+                    <span className="absolute -top-1 -right-1 bg-[hsl(var(--live))] text-background text-[10px] font-mono rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 font-bold animate-pulse">
                       {unreadCount}
                     </span>
                   )}
@@ -91,7 +91,7 @@ export default function Index() {
                   to /settings (where the auth flow lives). */}
               <button
                 onClick={() => navigate('/settings')}
-                className="relative w-10 h-10 rounded-full ring-2 ring-primary/20 overflow-hidden active:scale-95 transition-transform"
+                className="relative w-10 h-10 rounded-full border border-border/60 overflow-hidden active:scale-[0.96] transition-transform duration-150"
                 aria-label={language === 'ar' ? 'الإعدادات' : 'Einstellungen'}
               >
                 {user ? (
@@ -144,12 +144,12 @@ export default function Index() {
         </motion.section>
 
         {/* Made by Amer */}
-        <motion.div variants={item} className="flex items-center justify-center gap-2 py-6 mt-4">
-          <div className="h-px flex-1 " />
-          <span className="text-[11px] text-muted-foreground font-medium tracking-wide">
-            {t('footer.madeBy')} <span className="text-primary font-semibold">عامر</span> {t('footer.and')} <span className="text-primary font-semibold">امولة</span> ✦
+        <motion.div variants={item} className="flex items-center justify-center gap-3 py-6 mt-4">
+          <div className="h-px flex-1 bg-border/50" />
+          <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground/80 font-mono">
+            {t('footer.madeBy')} <span className="text-foreground/90">عامر</span> {t('footer.and')} <span className="text-foreground/90">امولة</span>
           </span>
-          <div className="h-px flex-1 " />
+          <div className="h-px flex-1 bg-border/50" />
         </motion.div>
       </motion.div>
 
