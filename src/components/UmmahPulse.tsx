@@ -18,7 +18,7 @@ import {
   PRAYER_SLOT_ORDER,
 } from '@/utils/prayerAstronomy';
 import { WORLD_LAND_PATH } from './UmmahPulse.worldPath';
-import { UmmahGlobe, type GlobeCity, type UmmahGlobeHandle } from './UmmahGlobe';
+import { UmmahNetwork, type NetworkCity, type UmmahNetworkHandle } from './UmmahNetwork';
 
 /**
  * Ummah Pulse — a live planetary view of Islamic prayer across the world.
@@ -238,7 +238,7 @@ function UmmahPulse() {
   const [expanded, setExpanded] = useState(false);
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
   const [filter, setFilter] = useState<PrayerSlot | 'all'>('all');
-  const globeRef = useRef<UmmahGlobeHandle | null>(null);
+  const globeRef = useRef<UmmahNetworkHandle | null>(null);
   const [regionFilter, setRegionFilter] = useState<Region | 'all'>('all');
   const [search, setSearch] = useState('');
   const userShadowFactor: 1 | 2 = prayerMadhab === 'hanafi' ? 2 : 1;
