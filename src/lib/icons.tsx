@@ -239,12 +239,20 @@ export type { Icon as LucideIcon } from '@phosphor-icons/react';
 
 /**
  * Global stroke weight for every icon in the app. Phosphor ships six weights —
- * "thin" | "light" | "regular" | "bold" | "fill" | "duotone". We default to
- * "duotone" for a richer, more premium feel (a crisp full-opacity foreground
- * over a soft tinted fill). Change this single constant to restyle every icon
- * across the product (e.g. switch to "regular" for a flatter, lighter look).
+ * "thin" | "light" | "regular" | "bold" | "fill" | "duotone".
+ *
+ * REFINED MIX (active visual language):
+ *   • Default = "regular"  → crisp, light, Apple-grade outlines for ALL resting
+ *     icons. Reads as one calm, unified family across every screen.
+ *   • "fill"               → automatically applied to icons that pass a truthy
+ *     `fill` prop (saved bookmark, active Heart/Star, Play button, active
+ *     bottom-nav tab). This is the single emphatic note that makes active
+ *     state instantly readable without breaking the outline family.
+ *
+ * This pairing (Regular + Fill) keeps the whole product visually quiet and
+ * premium, while giving selected/active controls a clear, deliberate weight.
  */
-export const ICON_WEIGHT: NonNullable<IconProps['weight']> = 'duotone';
+export const ICON_WEIGHT: NonNullable<IconProps['weight']> = 'regular';
 
 /**
  * Default rendered size (px) for icons that don't set their own size via a
