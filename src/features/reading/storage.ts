@@ -73,9 +73,11 @@ export function getReadArticles(): string[] {
 
 export function storeReadArticles(r: string[]): void {
   try {
-    // Cap the read-list at 50 000 entries — generous enough to track
-    // read state across months of heavy usage without ever losing data.
-    const capped = r.length > 50000 ? r.slice(-50000) : r;
+    // Cap the read-list at 500 000 entries — effectively unlimited for
+    // any realistic usage (years of heavy reading). The cap is only a
+    // guardrail to keep a single localStorage key under the ~5 MB quota
+    // on the most restrictive browsers.
+    const capped = r.length > 500000 ? r.slice(-500000) : r;
     localStorage.setItem(READ_KEY, JSON.stringify(capped));
   } catch { /* quota */ }
 }
