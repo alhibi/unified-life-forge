@@ -1230,6 +1230,13 @@ function SlabRow({
           {language === 'ar' ? prayer.ar : t(`prayer.${prayer.name.toLowerCase()}`)}
         </span>
 
+        {/* NEXT badge — small uppercase tag for the next-to-pray row */}
+        {isNext && (
+          <span className="text-[7.5px] font-bold tracking-[0.1em] text-primary me-2 shrink-0">
+            {t('prayer.next.short')}
+          </span>
+        )}
+
         {/* "Pray" pill — for the active (current-window) prayer */}
         {isActive && (
           <button
