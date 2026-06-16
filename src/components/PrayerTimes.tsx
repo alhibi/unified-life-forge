@@ -589,7 +589,7 @@ function Hero({
     <div className="grid grid-cols-2 divide-x divide-border/40">
       {/* Current */}
       <div className="bg-card px-4 pt-3 pb-2.5">
-        <div className="flex items-center justify-between gap-2 mb-1.5">
+        <div className="flex items-center justify-between gap-2 mb-1.5 min-h-[12px]">
           <span className="text-[8.5px] font-semibold tracking-[0.09em] uppercase text-muted-foreground/80 truncate">
             {locationLabel}
           </span>
@@ -597,12 +597,12 @@ function Hero({
             {t('prayer.local')}
           </span>
         </div>
-        <div className="flex items-baseline justify-between gap-2">
-          <span className="text-[20px] font-medium leading-none truncate">
+        <div className="flex items-center justify-between gap-2">
+          <span className="text-[18px] font-semibold leading-none truncate">
             {nameOf(currentPrayer)}
           </span>
           <span
-            className="text-[17px] font-light tabular-nums text-muted-foreground/70 shrink-0"
+            className="text-[14px] font-medium tabular-nums text-muted-foreground/70 shrink-0"
             dir="ltr"
           >
             {currentPrayer?.time ?? '--:--'}
@@ -610,17 +610,22 @@ function Hero({
         </div>
       </div>
 
-      {/* Next — slightly darker bg using muted/30 to mimic surfaceContainer */}
-      <div className="bg-muted/30 px-4 pt-3 pb-2.5">
-        <div className="text-[8.5px] font-semibold tracking-[0.09em] uppercase text-muted-foreground/80 mb-1.5">
-          {t('prayer.next')}
+      {/* Next */}
+      <div className="bg-muted/[0.04] px-4 pt-3 pb-2.5">
+        <div className="flex items-center justify-between gap-2 mb-1.5 min-h-[12px]">
+          <span className="text-[8.5px] font-semibold tracking-[0.09em] uppercase text-muted-foreground/80">
+            {t('prayer.next')}
+          </span>
+          <span className="text-[8px] font-bold uppercase text-primary/75 shrink-0 opacity-0 select-none" aria-hidden="true">
+            {t('prayer.local')}
+          </span>
         </div>
-        <div className="flex items-baseline justify-between gap-2">
-          <span className="text-[17px] font-medium leading-none truncate">
+        <div className="flex items-center justify-between gap-2">
+          <span className="text-[18px] font-medium leading-none truncate">
             {nameOf(nextPrayer)}
           </span>
           <span
-            className="text-[13px] font-light tabular-nums text-muted-foreground/70 shrink-0"
+            className="text-[14px] font-medium tabular-nums text-muted-foreground/70 shrink-0"
             dir="ltr"
           >
             {nextPrayer?.time ?? '--:--'}
