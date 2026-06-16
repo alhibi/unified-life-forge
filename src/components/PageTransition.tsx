@@ -66,56 +66,44 @@ export const NavModeContext = createContext<NavMode>('initial');
  * and exit (from the AnimatePresence's `custom` prop).
  * ──────────────────────────────────────────────────────────────────── */
 
-function buildVariants(rtl: boolean): Variants {
-  // Sign convention: positive x = "from right". In LTR a forward push
-  // brings the new page from the right (sign = +1). In RTL we mirror.
-  const enterSign = (m: NavMode): number => {
-    if (m === 'push') return rtl ? -1 :  1;
-    if (m === 'pop')  return rtl ?  1 : -1;
-    return 0;
-  };
-  // The outgoing page goes the opposite way at parallax ratio.
-  const exitSign = (m: NavMode): number => {
-    if (m === 'push') return rtl ?  1 : -1;
-    if (m === 'pop')  return rtl ? -1 :  1;
-    return 0;
-  };
-
+function buildVariants(_rtl: boolean): Variants {
+  // Khushu / Material 3 Expressive spec (MainActivity.kt:968–1040).
+  // Every nav transition is a TWO-leg animation:
+  //   • opacity — short (150–350 ms) on decelerate/accelerate easing
+  //   • scale   — long  (500 ms) on M3 emphasized easing
+  // Scale ratios per mode:
+  //   push:   enter from 0.85, exit to 0.95
+  //   pop:    enter from 0.95, exit to 0.85
+  //   tab:    enter from 0.92, exit to 0.92  (delay 150ms on enter fade)
   return {
     initial: (m: NavMode) => {
-      // First paint — no animation, render at rest.
-      if (m === 'initial') return { opacity: 1, x: 0, y: 0 };
-      // Tab switch — quick vertical micro-motion only.
-      if (m === 'tab')     return { opacity: 0, x: 0, y: 6 };
-      // Replace — pure cross-fade.
-      if (m === 'replace') return { opacity: 0, x: 0, y: 0 };
-      // Push / pop — full slide from the appropriate edge.
-      return { opacity: 0, x: `${enterSign(m) * 100}%`, y: 0 };
+      if (m === 'initial') return { opacity: 1, scale: 1 };
+      if (m === 'replace') return { opacity: 0, scale: 1 };
+      if (m === 'tab')     return { opacity: 0, scale: MOTION.scaleTab };
+      if (m === 'pop')     return { opacity: 0, scale: MOTION.scalePopFrom };
+      /* push */           return { opacity: 0, scale: MOTION.scalePushFrom };
     },
 
     animate: (m: NavMode) => {
-      const transition =
-        m === 'push'    ? MOTION.push :
-        m === 'pop'     ? MOTION.pop  :
-        m === 'tab'     ? MOTION.tab  :
-        m === 'replace' ? MOTION.fade :
-        /* initial */     { duration: 0 };
-      return { opacity: 1, x: '0%', y: 0, transition };
+      if (m === 'initial')  return { opacity: 1, scale: 1, transition: { duration: 0 } };
+      if (m === 'replace')  return { opacity: 1, scale: 1, transition: MOTION.fade };
+      const opacityT =
+        m === 'tab' ? MOTION.navFadeTabEnter : MOTION.navFadeEnter;
+      return {
+        opacity: 1,
+        scale: 1,
+        transition: {
+          opacity: opacityT,
+          scale:   MOTION.navScale,
+        },
+      };
     },
 
     exit: (m: NavMode) => {
-      const transition =
-        m === 'push' ? MOTION.push :
-        m === 'pop'  ? MOTION.pop  :
-        m === 'tab'  ? MOTION.tabExit :
-        /* replace / initial */ MOTION.fade;
-
-      // While exiting, take the page out of normal flow so the incoming
-      // page can occupy the same coordinate space instead of stacking
-      // below it. AnimatePresence's `mode="popLayout"` only does this
-      // automatically for direct motion children, and our motion.div is
-      // nested inside <Routes>/<ErrorBoundary>, so we apply the position
-      // ourselves via the exit variant.
+      // Pull the exiting screen out of flow so the incoming one can
+      // occupy the same coordinate space. Required because our
+      // motion.div is nested inside <Routes>/<ErrorBoundary> and
+      // popLayout only does this for direct motion children.
       const positional = {
         position: 'absolute' as const,
         top: 0,
@@ -123,30 +111,41 @@ function buildVariants(rtl: boolean): Variants {
         right: 0,
       };
 
-      // Tab switches must never leave the old top-level screen in the
-      // scroll flow. Hide it immediately; the incoming tab still performs
-      // the subtle fade-up. This prevents Weather/Browse/etc. from ever
-      // stacking vertically during bottom-nav swaps.
       if (m === 'tab') {
+        // Tab→tab swap: drop the old top-level screen instantly so
+        // there's no double-render in the scroll flow. The incoming
+        // tab still plays the full Khushu tab-enter animation.
         return {
           ...positional,
           display: 'none',
           visibility: 'hidden',
           opacity: 0,
-          x: 0,
-          y: 0,
+          scale: 1,
           pointerEvents: 'none',
           transition: { duration: 0 },
         };
       }
 
-      // Replace / initial — no horizontal slide on exit.
       if (m === 'replace' || m === 'initial') {
-        return { ...positional, opacity: 0, x: 0, y: 0, transition };
+        return {
+          ...positional,
+          opacity: 0,
+          scale: 1,
+          transition: MOTION.fade,
+        };
       }
-      // Push / pop — outgoing screen exits at parallax ratio of viewport width.
-      const offsetPct = exitSign(m) * MOTION.parallax * 100;
-      return { ...positional, opacity: 0, x: `${offsetPct}%`, y: 0, transition };
+
+      // push → exit at 0.95, pop → exit at 0.85.
+      const target = m === 'push' ? MOTION.scalePushTo : MOTION.scalePopTo;
+      return {
+        ...positional,
+        opacity: 0,
+        scale: target,
+        transition: {
+          opacity: MOTION.navFadeExit,
+          scale:   MOTION.navScale,
+        },
+      };
     },
   };
 }
