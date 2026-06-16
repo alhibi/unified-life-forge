@@ -68,7 +68,7 @@
     --border: 240 6% 90%;
     --input: 240 6% 90%;
     --ring: 240 5% 26%;
-    --radius: 0.875rem;
+    --radius: 0.875rem; /* 14px — curium Radius.lg for cards/sheets */
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5% 26%;
     --sidebar-primary: 240 5% 26%;
@@ -402,8 +402,8 @@
   .app-card {
     background-color: hsl(var(--card));
     border: 1px solid hsl(var(--border) / 0.6);
-    border-radius: 1rem;            /* 16px — matches rounded-2xl */
-    padding: 1rem;                  /* 16px — matches p-4         */
+    border-radius: 0.875rem;        /* 14px — curium Radius.lg    */
+    padding: 1rem;                  /* 16px — curium Spacing.base */
     box-shadow: none;
   }
   .app-card-compact { padding: 0.75rem; }      /* p-3 */
@@ -512,8 +512,8 @@
     background-color: hsl(var(--background));
     padding-top: 3.5rem;             /* pt-14 */
     padding-bottom: 7rem;            /* pb-28 — clears bottom nav pill */
-    padding-left: 1.25rem;           /* px-5 */
-    padding-right: 1.25rem;
+    padding-left: 1rem;              /* px-4 — curium Spacing.base */
+    padding-right: 1rem;
   }
   .page-shell-flush {
     /* For pages with their own sticky PageHeader (no top padding). */
@@ -526,8 +526,9 @@
   }
 
   /* Canonical section gap. Every stack-of-cards uses this. */
-  .app-stack    { display: flex; flex-direction: column; gap: 1.25rem; } /* gap-5 */
-  .app-stack-sm { display: flex; flex-direction: column; gap: 0.75rem; } /* gap-3 */
+  .app-stack    { display: flex; flex-direction: column; gap: 0.75rem; } /* gap-3 — curium md */
+  .app-stack-sm { display: flex; flex-direction: column; gap: 0.5rem;  } /* gap-2 — curium sm */
+  .app-stack-lg { display: flex; flex-direction: column; gap: 1.5rem;  } /* gap-6 — curium xl */
 
   /* Canonical section heading — tiny uppercase tracking label above a group. */
   .app-section-label {
