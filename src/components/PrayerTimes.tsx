@@ -283,7 +283,7 @@ function saveDoneStates(stamp: string, states: Record<PrayerKey, boolean>) {
 
 // ─── Component ──────────────────────────────────────────────────────────────
 export default function PrayerTimes() {
-  const { prayerMadhab, latitudeAdjMethod, dstEnabled, t, language, theme } = useApp();
+  const { prayerMadhab, latitudeAdjMethod, dstEnabled, calcMethod, t, language, theme } = useApp();
   const isDark = useIsDark(theme);
 
   const [prayers, setPrayers] = useState<PrayerTime[]>([]);
@@ -323,7 +323,12 @@ export default function PrayerTimes() {
           }),
         );
 
-        const timings = await fetchPrayerTimingsCached(lat, lng, schoolParam, latAdjParam);
+        const { pickMethodForLocation } = await import('@/lib/prayerCalculationMethod');
+        const resolvedMethod =
+          calcMethod === 'auto' || typeof calcMethod !== 'number'
+            ? pickMethodForLocation(lat, lng).method
+            : (calcMethod as ReturnType<typeof pickMethodForLocation>['method']);
+        const timings = await fetchPrayerTimingsCached(lat, lng, schoolParam, latAdjParam, resolvedMethod);
         if (timings) {
           // Build PrayerTime[] with absolute epoch ms anchored to TODAY.
           // We anchor by parsing each HH:MM into today's date; the slot-detect
@@ -378,7 +383,7 @@ export default function PrayerTimes() {
         setLoading(false);
       }
     },
-    [schoolParam, latAdjParam, dstEnabled, language, t]
+    [schoolParam, latAdjParam, dstEnabled, calcMethod, language, t]
   );
 
   // Resolve location through the singleton hook. The hook bootstraps from
