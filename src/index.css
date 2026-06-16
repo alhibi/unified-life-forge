@@ -441,6 +441,67 @@
     position: relative;
   }
   .app-icon-btn:hover { background-color: hsl(var(--accent)); }
+
+  /* ──────────────────────────────────────────────────────────────
+     CURIUM PAPER & INK PRIMITIVES
+     Drop-in utilities that mirror curium's settings-screen vocab.
+     Use globally so every Section / Row / Icon reads identical.
+     ────────────────────────────────────────────────────────────── */
+
+  /* Section title — small caps, mono-bold, wide tracking, muted.
+     The thin top border replicates curium's `sectionWrap` hairline. */
+  .section-title {
+    font-family: 'IBM Plex Mono', 'IBM Plex Sans Arabic', monospace;
+    font-weight: 700;
+    font-size: 11px;
+    line-height: 1.4;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: hsl(var(--muted-foreground));
+    padding: 14px 4px 8px;
+    margin: 0;
+  }
+
+  /* Row icon — rounded square with primary tint at 12% alpha.
+     The icon inside should be `text-primary` (or `text-destructive`
+     for the danger variant). Matches curium's rowIcon exactly. */
+  .row-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: hsl(var(--primary) / 0.12);
+    color: hsl(var(--primary));
+    flex-shrink: 0;
+  }
+  .row-icon-danger {
+    background-color: hsl(var(--destructive) / 0.12);
+    color: hsl(var(--destructive));
+  }
+
+  /* ──────────────────────────────────────────────────────────────
+     FLATTEN — kill every shadow and gradient app-wide.
+     The bottom nav explicitly opts-out by carrying `.preserve-fx`
+     so its glyph-edge-trace and live aura stay intact.
+     ────────────────────────────────────────────────────────────── */
+}
+
+@layer utilities {
+  /* Nuke shadows globally — paper aesthetic is FLAT. */
+  *:not(.preserve-fx):not(.preserve-fx *) {
+    box-shadow: none !important;
+    text-shadow: none !important;
+    filter: none;
+  }
+  /* Nuke ALL gradient backgrounds. Keeps solid colors intact.
+     The bottom-nav pill + live aura are scoped under .preserve-fx. */
+  *:not(.preserve-fx):not(.preserve-fx *) {
+    background-image: none !important;
+  }
+  /* Re-allow image backgrounds explicitly via .has-image */
+  .has-image, .has-image * { background-image: revert !important; }
   .app-icon-btn:active { transform: scale(0.94); }
 
   /* Canonical page shell — every full-screen route uses these spacings.
