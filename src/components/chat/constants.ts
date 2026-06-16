@@ -50,56 +50,56 @@ export const WALLPAPERS: Wallpaper[] = [
     id: 'cream',
     labelAr: 'كريمي',
     label: 'Cream',
-    
+    background: '#f5efe6',
   },
   {
     id: 'sky',
     labelAr: 'سماوي',
     label: 'Sky',
-    
+    background: '#e3f0fb',
   },
   {
     id: 'sage',
     labelAr: 'أخضر فاتح',
     label: 'Sage',
-    
+    background: '#e8f1ea',
   },
   {
     id: 'peach',
     labelAr: 'خوخي',
     label: 'Peach',
-    
+    background: '#fbe6dc',
   },
   {
     id: 'lavender',
     labelAr: 'لافندر',
     label: 'Lavender',
-    
+    background: '#ebe6fb',
   },
   {
     id: 'mist',
     labelAr: 'ضباب',
     label: 'Mist',
-    
+    background: '#eef0f3',
   },
   {
     id: 'sunset',
     labelAr: 'غروب',
     label: 'Sunset',
-    
+    background: '#f4dcd0',
   },
   {
     id: 'midnight',
     labelAr: 'منتصف الليل',
     label: 'Midnight',
-    
+    background: '#101522',
     isDark: true,
   },
   {
     id: 'forest',
     labelAr: 'غابة',
     label: 'Forest',
-    
+    background: '#0f1d18',
     isDark: true,
   },
 ];
