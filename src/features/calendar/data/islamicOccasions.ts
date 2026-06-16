@@ -394,8 +394,18 @@ function toLegacy(ev: ResolvedIslamicEvent): IslamicOccasion {
  * year shifts as time passes. Treat it as `islamicOccasions` was treated
  * before.
  */
+/**
+ * Snapshot computed at module load. Prefer the live helpers
+ * (`getUpcomingOccasions`, `getPastOccasions`) which recompute on every call so
+ * they reflect the current day and any runtime Hijri offset.
+ */
 export const islamicOccasions: IslamicOccasion[] =
   getAllEvents().map(toLegacy);
+
+/** Live recompute — always reflects today + current Hijri day offset. */
+function liveLegacy(): IslamicOccasion[] {
+  return getAllEvents().map(toLegacy);
+}
 
 // ───────────────────────────────────────────────────────────────────────────
 // Helpers preserved verbatim from the old API.
@@ -404,7 +414,7 @@ export const islamicOccasions: IslamicOccasion[] =
 export function getUpcomingOccasions(limit?: number): IslamicOccasion[] {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  const upcoming = islamicOccasions
+  const upcoming = liveLegacy()
     .filter((o) => new Date(o.gregorianDate) >= today)
     .sort(
       (a, b) =>
@@ -416,7 +426,7 @@ export function getUpcomingOccasions(limit?: number): IslamicOccasion[] {
 export function getPastOccasions(): IslamicOccasion[] {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  return islamicOccasions
+  return liveLegacy()
     .filter((o) => new Date(o.gregorianDate) < today)
     .sort(
       (a, b) =>
