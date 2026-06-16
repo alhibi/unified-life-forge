@@ -17,6 +17,17 @@ export interface ThemePreset {
 // ─── Presets ────────────────────────────────────────────────
 export const themePresets: ThemePreset[] = [
   {
+    id: 'paper',
+    name: 'ورق وحبر',
+    nameEn: 'Paper & Ink',
+    // Neutral warm — actual paper/ink tokens are hard-coded in
+    // generateThemeTokens() override below (curium aesthetic).
+    primary: [34, 33, 11],
+    secondary: [34, 20, 33],
+    accent: [34, 33, 11],
+    neutral: [34, 12, 50],
+  },
+  {
     id: 'default',
     name: 'كلاسيك',
     nameEn: 'Classic',
@@ -320,6 +331,93 @@ export function generateThemeTokens(
   isDark: boolean,
   isBlack: boolean,
 ): Record<string, string> {
+  // ─── Paper & Ink override (curium aesthetic) ─────────────
+  // Hard-coded warm cream + ink tokens. Style modifiers are
+  // intentionally ignored to keep the paper-notebook identity
+  // pure across every UI control.
+  if (preset.id === 'paper') {
+    if (!isDark) {
+      // Light: paper canvas, ink text
+      return {
+        '--background':           '34 33% 93%',  // #f5f0e8 paper
+        '--foreground':           '240 8% 11%',  // #1a1a1f ink
+        '--card':                 '38 50% 97%',  // #fbf8f3
+        '--card-foreground':      '240 8% 11%',
+        '--popover':              '38 50% 97%',
+        '--popover-foreground':   '240 8% 11%',
+        '--primary':              '240 8% 11%',  // ink
+        '--primary-foreground':   '34 33% 93%',  // paper
+        '--secondary':            '36 22% 89%',  // #ebe6dd
+        '--secondary-foreground': '240 8% 11%',
+        '--muted':                '36 22% 89%',
+        '--muted-foreground':     '36 6% 33%',   // #5a5650
+        '--accent':               '36 22% 89%',
+        '--accent-foreground':    '240 8% 11%',
+        '--destructive':          '0 54% 50%',
+        '--destructive-foreground': '34 33% 96%',
+        '--success':              '128 49% 36%',
+        '--success-foreground':   '34 33% 96%',
+        '--warning':              '36 78% 39%',
+        '--warning-foreground':   '34 33% 96%',
+        '--error':                '0 54% 50%',
+        '--error-foreground':     '34 33% 96%',
+        '--border':               '36 21% 80%',  // #d6cfc1
+        '--input':                '36 21% 80%',
+        '--ring':                 '240 8% 11%',
+        '--sidebar-background':   '34 33% 93%',
+        '--sidebar-foreground':   '240 8% 11%',
+        '--sidebar-primary':      '240 8% 11%',
+        '--sidebar-primary-foreground': '34 33% 93%',
+        '--sidebar-accent':       '36 22% 89%',
+        '--sidebar-accent-foreground': '240 8% 11%',
+        '--sidebar-border':       '36 21% 80%',
+        '--sidebar-ring':         '240 8% 11%',
+        '--radius':               '0.625rem',
+      };
+    }
+    // Dark: black canvas, paper text
+    const bgL = isBlack ? 0 : 6;
+    const surfL = isBlack ? 4 : 9;
+    const surfOffL = isBlack ? 8 : 12;
+    const borderL = isBlack ? 12 : 17;
+    return {
+      '--background':           `240 6% ${bgL}%`,   // #0d0d0f
+      '--foreground':           '34 33% 93%',       // paper #f5f0e8
+      '--card':                 `240 4% ${surfL}%`, // #161618
+      '--card-foreground':      '34 33% 93%',
+      '--popover':              `240 4% ${surfL}%`,
+      '--popover-foreground':   '34 33% 93%',
+      '--primary':              '34 33% 93%',       // paper accent
+      '--primary-foreground':   `240 6% ${bgL}%`,
+      '--secondary':            `240 6% ${surfOffL}%`, // #1e1e21
+      '--secondary-foreground': '34 33% 93%',
+      '--muted':                `240 6% ${surfOffL}%`,
+      '--muted-foreground':     '36 8% 63%',        // #a8a39a
+      '--accent':               `240 6% ${surfOffL}%`,
+      '--accent-foreground':    '34 33% 93%',
+      '--destructive':          '0 100% 71%',       // #ff6b6b
+      '--destructive-foreground': `240 6% ${bgL}%`,
+      '--success':              '128 56% 66%',     // #7ad88a
+      '--success-foreground':   `240 6% ${bgL}%`,
+      '--warning':              '38 86% 69%',      // #f5c46a
+      '--warning-foreground':   `240 6% ${bgL}%`,
+      '--error':                '0 100% 71%',
+      '--error-foreground':     `240 6% ${bgL}%`,
+      '--border':               `240 6% ${borderL}%`, // #2a2a2e
+      '--input':                `240 6% ${borderL}%`,
+      '--ring':                 '34 33% 93%',
+      '--sidebar-background':   `240 6% ${bgL}%`,
+      '--sidebar-foreground':   '34 33% 93%',
+      '--sidebar-primary':      '34 33% 93%',
+      '--sidebar-primary-foreground': `240 6% ${bgL}%`,
+      '--sidebar-accent':       `240 6% ${surfOffL}%`,
+      '--sidebar-accent-foreground': '34 33% 93%',
+      '--sidebar-border':       `240 6% ${borderL}%`,
+      '--sidebar-ring':         '34 33% 93%',
+      '--radius':               '0.625rem',
+    };
+  }
+
   const mod = styleModifiers[style];
   const [pH, pS, pL] = preset.primary;
   const [sH, sS, _sL] = preset.secondary;
