@@ -516,6 +516,18 @@ export default function PrayerTimes() {
     ? formatTime12(extraTimings.Sunset, { am: t('prayer.am'), pm: t('prayer.pm') })
     : '';
 
+  // Period label for SUN PATH card (Morning / Afternoon / Evening / Night / Dawn)
+  const periodLabel = (() => {
+    if (sunT < arcGeom.dayStart) return language === 'ar' ? 'فجر' : 'Dawn';
+    if (sunT < 0.5) return language === 'ar' ? 'صباح' : 'Morning';
+    if (sunT < arcGeom.dayEnd - 0.05) return language === 'ar' ? 'ظهيرة' : 'Afternoon';
+    if (sunT <= arcGeom.dayEnd) return language === 'ar' ? 'غروب' : 'Sunset';
+    return language === 'ar' ? 'ليل' : 'Night';
+  })();
+
+  const nameOf = (p?: PrayerTime) =>
+    p ? (language === 'ar' ? p.ar : t(`prayer.${p.name.toLowerCase()}`)) : '—';
+
  // ─── Layout ───────────────────────────────────────────────────────────────
  return (
  <motion.div
@@ -524,46 +536,106 @@ export default function PrayerTimes() {
  transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
  className="space-y-4"
  >
- {/* ═══ Card 1: Prayer hero + arc + hidden prayers list ═════════════ */}
- <div className="rounded-3xl border border-border bg-card text-card-foreground relative overflow-hidden">
- <Hero
- currentPrayer={currentPrayer}
- nextPrayer={nextPrayer}
- locationLabel={locationName || t('prayer.locationFallback')}
- language={language}
- t={t}
- />
- <ArcStrip
- prayers={prayers}
- sunT={sunT}
- nextName={slot.next}
- makruhZones={makruhZones}
- currentMakruh={currentMakruh}
- arcGeom={arcGeom}
- isNight={isNight}
- isDark={isDark}
- sunriseStr={sunriseStr}
- sunsetStr={sunsetStr}
- language={language}
- t={t}
- />
-  <div className="border-t border-border/60">
-    <Slab
-      prayers={prayers}
-      doneStates={doneStates}
-      doneCount={doneCount}
-      activeName={slot.current}
-      shakeCounter={shakeCounter}
-      guideCounter={guideCounter}
-      onToggle={handleToggle}
-      isDark={isDark}
-      language={language}
-      t={t}
-    />
-  </div>
+ {/* ═══ Top row: Prayer info card  |  Sun path card ═════════════════ */}
+ <div className="grid grid-cols-[1.2fr_1fr] gap-3">
+   {/* Left — Current + Next prayer + pagination */}
+   <div className="rounded-3xl border border-border bg-card text-card-foreground p-4 flex flex-col">
+     {/* Current */}
+     <div>
+       <div className="flex items-center justify-between gap-2 mb-2 min-h-[12px]">
+         <span className="text-[8.5px] font-semibold tracking-[0.09em] uppercase text-muted-foreground/70 truncate">
+           {(locationName || t('prayer.locationFallback')).toUpperCase()}
+         </span>
+         <span className="text-[7.5px] font-bold uppercase tracking-wider px-1.5 py-[2px] rounded-md bg-muted/40 text-muted-foreground/80 shrink-0">
+           {t('prayer.local')}
+         </span>
+       </div>
+       <div className="flex items-end justify-between gap-2">
+         <span className="text-[22px] font-semibold leading-none truncate">
+           {nameOf(currentPrayer)}
+         </span>
+         <span className="text-[15px] font-medium tabular-nums text-muted-foreground/70 shrink-0" dir="ltr">
+           {currentPrayer?.time ?? '--:--'}
+         </span>
+       </div>
+     </div>
+
+     {/* Next */}
+     <div className="mt-4">
+       <div className="mb-1.5 text-[8.5px] font-semibold tracking-[0.09em] uppercase text-muted-foreground/70">
+         {t('prayer.next')}
+       </div>
+       <div className="flex items-end justify-between gap-2">
+         <span className="text-[17px] font-medium leading-none truncate">
+           {nameOf(nextPrayer)}
+         </span>
+         <span className="text-[13px] font-medium tabular-nums text-muted-foreground/70 shrink-0" dir="ltr">
+           {nextPrayer?.time ?? '--:--'}
+         </span>
+       </div>
+     </div>
+
+     {/* Pagination dots (decorative widget indicator) */}
+     <div className="mt-auto pt-3 flex items-center gap-1.5" dir="ltr">
+       <span className="text-[9px] font-medium text-muted-foreground/60 me-1 tabular-nums">1/5</span>
+       {[0, 1, 2, 3, 4].map((i) => (
+         <span
+           key={i}
+           className={`w-1.5 h-1.5 rounded-full ${i === 0 ? 'bg-primary' : 'bg-foreground/15'}`}
+         />
+       ))}
+     </div>
+   </div>
+
+   {/* Right — Sun path mini card */}
+   <div className="rounded-3xl border border-border bg-card text-card-foreground p-3 flex flex-col overflow-hidden">
+     <div className="flex items-center justify-between gap-2 mb-1">
+       <span className="text-[8.5px] font-semibold tracking-[0.09em] uppercase text-muted-foreground/70">
+         {language === 'ar' ? 'مسار الشمس' : 'SUN PATH'}
+       </span>
+       <span className="text-[9px] font-medium text-muted-foreground/70">
+         {periodLabel}
+       </span>
+     </div>
+     <div className="flex-1 -mx-3 min-h-0">
+       <ArcStrip
+         prayers={prayers}
+         sunT={sunT}
+         nextName={slot.next}
+         makruhZones={makruhZones}
+         currentMakruh={currentMakruh}
+         arcGeom={arcGeom}
+         isNight={isNight}
+         isDark={isDark}
+         sunriseStr={sunriseStr}
+         sunsetStr={sunsetStr}
+         language={language}
+         t={t}
+       />
+     </div>
+     <div className="mt-1 text-center text-[10.5px] font-medium text-muted-foreground/85" dir="rtl">
+       {formatHijriDate(hijriDate)}
+     </div>
+   </div>
  </div>
 
- {/* ═══ Card 2: Hijri occasions strip ═══════════════════════════════ */}
+ {/* ═══ Card 2: Today's prayer slab (collapsible list) ══════════════ */}
+ <div className="rounded-3xl border border-border bg-card text-card-foreground overflow-hidden">
+   <Slab
+     prayers={prayers}
+     doneStates={doneStates}
+     doneCount={doneCount}
+     activeName={slot.current}
+     shakeCounter={shakeCounter}
+     guideCounter={guideCounter}
+     onToggle={handleToggle}
+     isDark={isDark}
+     language={language}
+     t={t}
+   />
+ </div>
+
+  {/* ═══ Card 3: Hijri occasions strip ═══════════════════════════════ */}
  <div className="rounded-3xl border border-border bg-card overflow-hidden">
  <HijriCalendarStrip language={language} t={t} />
  </div>
