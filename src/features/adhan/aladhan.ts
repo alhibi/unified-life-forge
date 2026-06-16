@@ -24,7 +24,7 @@ export const ALADHAN_METHOD: Record<CalculationMethodId, number> = {
   Kuwait:     9,
   Turkey:     13,
   Tehran:     7,
-  Jafari:     0,
+  Jafari:     3, // unused in city catalog; fallback to MWL if ever invoked
   Jordan:     23,
   JAKIM:      17,
   Kemenag:    20,
