@@ -1032,7 +1032,6 @@ input.podcast-seek::-webkit-slider-thumb {
   border-radius: 50%;
   background: var(--podcast-primary, hsl(var(--primary)));
   border: 2px solid hsl(var(--background));
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
   cursor: pointer;
 }
 input.podcast-seek::-moz-range-thumb {
@@ -1041,7 +1040,6 @@ input.podcast-seek::-moz-range-thumb {
   border-radius: 50%;
   background: var(--podcast-primary, hsl(var(--primary)));
   border: 2px solid hsl(var(--background));
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
   cursor: pointer;
 }
 input.podcast-seek::-moz-range-track {
@@ -1118,16 +1116,8 @@ input.podcast-seek::-moz-range-track {
    transition driven from React (so the cover "compresses" when paused
    like Apple Music's vinyl/cover behavior). */
 @keyframes podcast-art-pulse {
-  0%, 100% {
-    box-shadow:
-      0 30px 60px -20px rgba(0, 0, 0, 0.55),
-      0 0 0 0 var(--podcast-primary-soft, transparent);
-  }
-  50% {
-    box-shadow:
-      0 30px 60px -20px rgba(0, 0, 0, 0.55),
-      0 0 70px 6px var(--podcast-primary-soft, transparent);
-  }
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 1; }
 }
 .podcast-art-pulse {
   animation: podcast-art-pulse 4s ease-in-out infinite;
@@ -1156,10 +1146,8 @@ input.podcast-seek::-moz-range-track {
    don't want to draw attention away from page content, just hint that
    audio is alive. */
 @keyframes podcast-mini-glow {
-  0%, 100% { box-shadow: 0 12px 28px -10px var(--podcast-primary-soft, rgba(0,0,0,0.25)),
-                         0 4px 12px -4px rgba(0,0,0,0.18); }
-  50%      { box-shadow: 0 18px 40px -12px var(--podcast-primary-soft, rgba(0,0,0,0.30)),
-                         0 4px 12px -4px rgba(0,0,0,0.18); }
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 1; }
 }
 .podcast-mini-glow[data-playing="true"] {
   animation: podcast-mini-glow 3.6s ease-in-out infinite;
@@ -1169,36 +1157,28 @@ input.podcast-seek::-moz-range-track {
    add hover/active states (thumb scale + ring glow) and a slightly
    nicer focus ring for keyboard users. */
 input.podcast-seek::-webkit-slider-thumb {
-  transition: transform var(--duration-fast, 150ms) var(--ease-spring),
-              box-shadow var(--duration-normal, 250ms) ease;
+  transition: transform var(--duration-fast, 150ms) var(--ease-spring);
 }
 input.podcast-seek::-moz-range-thumb {
-  transition: transform var(--duration-fast, 150ms) var(--ease-spring),
-              box-shadow var(--duration-normal, 250ms) ease;
+  transition: transform var(--duration-fast, 150ms) var(--ease-spring);
 }
 input.podcast-seek:hover::-webkit-slider-thumb,
 input.podcast-seek:focus-visible::-webkit-slider-thumb,
 input.podcast-seek:active::-webkit-slider-thumb {
   transform: scale(1.25);
-  box-shadow:
-    0 1px 4px rgba(0, 0, 0, 0.25),
-    0 0 0 6px var(--podcast-primary-soft, rgba(0, 0, 0, 0.10));
 }
 input.podcast-seek:hover::-moz-range-thumb,
 input.podcast-seek:focus-visible::-moz-range-thumb,
 input.podcast-seek:active::-moz-range-thumb {
   transform: scale(1.25);
-  box-shadow:
-    0 1px 4px rgba(0, 0, 0, 0.25),
-    0 0 0 6px var(--podcast-primary-soft, rgba(0, 0, 0, 0.10));
 }
 
 /* Play button glow — when audio is actively playing the primary
    transport button picks up a soft halo from the seed color. Painted
    via `box-shadow` so we don't need an extra DOM node. */
 @keyframes podcast-play-glow {
-  0%, 100% { box-shadow: 0 8px 24px -6px var(--podcast-primary-soft, rgba(0,0,0,0.25)); }
-  50%      { box-shadow: 0 14px 36px -8px var(--podcast-primary-soft, rgba(0,0,0,0.40)); }
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 1; }
 }
 .podcast-play-button[data-playing="true"] {
   animation: podcast-play-glow 3.2s ease-in-out infinite;
