@@ -1206,13 +1206,13 @@ function HijriCalendarStrip({
             <button
               key={occ.id}
               onClick={() => navigate('/occasions')}
-              className="flex-shrink-0 flex flex-col gap-0.5 rounded-xl px-3 py-2 min-w-[120px] max-w-[140px] text-right active:opacity-70 transition-opacity"
+              className="flex-shrink-0 flex flex-col gap-0.5 rounded-lg px-2 py-1.5 min-w-[96px] max-w-[112px] text-right active:opacity-70 transition-opacity"
               style={{ background: `${accent}12`, borderLeft: `2px solid ${accent}40` }}
             >
               {/* Days countdown + month */}
               <div className="flex items-center justify-between w-full">
                 <span
-                  className="text-[9px] font-bold uppercase tracking-wide"
+                  className="text-[8px] font-bold uppercase tracking-wide"
                   style={{ color: accent }}
                 >
                   {isToday
@@ -1221,13 +1221,13 @@ function HijriCalendarStrip({
                       ? `${daysLeft} يوم`
                       : `IN ${daysLeft}D`}
                 </span>
-                <span className="text-[8.5px] text-muted-foreground/70 tabular-nums">
+                <span className="text-[7.5px] text-muted-foreground/70 tabular-nums">
                   {occ.hijriDay} {occ.hijriMonth}
                 </span>
               </div>
 
               {/* Name */}
-              <p className="text-[11px] font-semibold text-foreground leading-snug line-clamp-2 w-full">
+              <p className="text-[10px] font-semibold text-foreground leading-snug line-clamp-1 w-full">
                 {occ.name}
               </p>
             </button>
@@ -1237,11 +1237,11 @@ function HijriCalendarStrip({
         {/* "Show all" terminal button */}
         <button
           onClick={() => navigate('/occasions')}
-          className="flex-shrink-0 flex flex-col items-center justify-center gap-1 rounded-xl px-3 py-2 min-w-[60px] active:opacity-70 transition-opacity"
+          className="flex-shrink-0 flex flex-col items-center justify-center gap-0.5 rounded-lg px-2 py-1.5 min-w-[48px] active:opacity-70 transition-opacity"
           style={{ background: 'hsl(var(--primary) / 0.08)' }}
         >
-          <ChevronLeft className="w-3.5 h-3.5 text-primary/70" />
-          <span className="text-[8.5px] font-bold text-primary/70 uppercase tracking-wide">
+          <ChevronLeft className="w-3 h-3 text-primary/70" />
+          <span className="text-[7.5px] font-bold text-primary/70 uppercase tracking-wide">
             {language === 'ar' ? 'الكل' : 'ALL'}
           </span>
         </button>
