@@ -580,7 +580,6 @@ function Hero({
   currentPrayer,
   nextPrayer,
   locationLabel,
-  language,
   t,
 }: {
   currentPrayer?: PrayerTime;
@@ -589,27 +588,26 @@ function Hero({
   language: string;
   t: (k: string) => string;
 }) {
-  const nameOf = (p?: PrayerTime) =>
-    p ? (language === 'ar' ? p.ar : p.name === 'Fajr' || p.name === 'Dhuhr' || p.name === 'Asr' || p.name === 'Maghrib' || p.name === 'Isha' ? t(`prayer.${p.name.toLowerCase()}`) : p.name) : '—';
+  const nameOf = (p?: PrayerTime) => (p ? p.name : '—');
 
   return (
-    <div className="grid grid-cols-2 divide-x divide-border/40">
+    <div className="grid min-h-[72px] grid-cols-2 divide-x divide-foreground/[0.08]">
       {/* Current */}
-      <div className="bg-card px-4 pt-3 pb-2.5">
-        <div className="flex items-center justify-between gap-2 mb-1.5 min-h-[12px]">
+      <div className="bg-card px-[18px] pb-2 pt-[13px]">
+        <div className="mb-[5px] flex min-h-[12px] items-center justify-between gap-2">
           <span className="text-[8.5px] font-semibold tracking-[0.09em] uppercase text-muted-foreground/80 truncate">
-            {locationLabel}
+            {(locationLabel || 'LOCATION').toUpperCase()}
           </span>
           <span className="text-[8px] font-bold uppercase text-primary/75 shrink-0">
-            {t('prayer.local')}
+            API
           </span>
         </div>
-        <div className="flex items-center justify-between gap-2">
-          <span className="text-[18px] font-semibold leading-none truncate">
+        <div className="flex items-end justify-between gap-2">
+          <span className="truncate text-[20px] font-semibold leading-none">
             {nameOf(currentPrayer)}
           </span>
           <span
-            className="text-[14px] font-medium tabular-nums text-muted-foreground/70 shrink-0"
+            className="shrink-0 pb-[3px] text-[17px] font-medium tabular-nums leading-none text-muted-foreground/70"
             dir="ltr"
           >
             {currentPrayer?.time ?? '--:--'}
@@ -618,21 +616,18 @@ function Hero({
       </div>
 
       {/* Next */}
-      <div className="bg-muted/[0.04] px-4 pt-3 pb-2.5">
-        <div className="flex items-center justify-between gap-2 mb-1.5 min-h-[12px]">
-          <span className="text-[8.5px] font-semibold tracking-[0.09em] uppercase text-muted-foreground/80">
-            {t('prayer.next')}
-          </span>
-          <span className="text-[8px] font-bold uppercase text-primary/75 shrink-0 opacity-0 select-none" aria-hidden="true">
-            {t('prayer.local')}
+      <div className="bg-muted/[0.08] px-[18px] pb-2 pt-[13px]">
+        <div className="mb-[5px] flex min-h-[12px] items-center">
+          <span className="text-[8.5px] font-semibold uppercase tracking-[0.09em] text-muted-foreground/80">
+            NEXT PRAYER
           </span>
         </div>
-        <div className="flex items-center justify-between gap-2">
-          <span className="text-[18px] font-medium leading-none truncate">
+        <div className="flex items-end justify-between gap-2">
+          <span className="truncate text-[17px] font-medium leading-none">
             {nameOf(nextPrayer)}
           </span>
           <span
-            className="text-[14px] font-medium tabular-nums text-muted-foreground/70 shrink-0"
+            className="shrink-0 pb-[3px] text-[13px] font-medium tabular-nums leading-none text-muted-foreground/70"
             dir="ltr"
           >
             {nextPrayer?.time ?? '--:--'}
