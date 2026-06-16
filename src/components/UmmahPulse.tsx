@@ -18,7 +18,7 @@ import {
   PRAYER_SLOT_ORDER,
 } from '@/utils/prayerAstronomy';
 import { WORLD_LAND_PATH } from './UmmahPulse.worldPath';
-import { UmmahGlobe, type GlobeCity, type UmmahGlobeHandle } from './UmmahGlobe';
+import { UmmahNetwork, type NetworkCity, type UmmahNetworkHandle } from './UmmahNetwork';
 
 /**
  * Ummah Pulse — a live planetary view of Islamic prayer across the world.
@@ -238,7 +238,7 @@ function UmmahPulse() {
   const [expanded, setExpanded] = useState(false);
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
   const [filter, setFilter] = useState<PrayerSlot | 'all'>('all');
-  const globeRef = useRef<UmmahGlobeHandle | null>(null);
+  const globeRef = useRef<UmmahNetworkHandle | null>(null);
   const [regionFilter, setRegionFilter] = useState<Region | 'all'>('all');
   const [search, setSearch] = useState('');
   const userShadowFactor: 1 | 2 = prayerMadhab === 'hanafi' ? 2 : 1;
@@ -1090,9 +1090,9 @@ function UmmahPulse() {
                     }}
                     onClick={() => setSelectedCity(null)}
                   >
-                    <UmmahGlobe
+                    <UmmahNetwork
                       ref={globeRef}
-                      cities={cityDetails.map<GlobeCity>((c) => ({
+                      cities={cityDetails.map<NetworkCity>((c) => ({
                         name: c.name,
                         nameAr: c.nameAr,
                         lat: c.lat,
@@ -1110,7 +1110,7 @@ function UmmahPulse() {
                       subSolarLat={subLat}
                       language={language === 'ar' ? 'ar' : 'de'}
                       selectedCity={selectedCity}
-                      onCityClick={(name) => {
+                      onCityClick={(name: string) => {
                         setSelectedCity((cur) => (cur === name ? null : name));
                         const c = cityDetails.find((x) => x.name === name);
                         if (c) {
@@ -1123,7 +1123,6 @@ function UmmahPulse() {
                         }
                       }}
                       onBackgroundClick={() => setSelectedCity(null)}
-                      idleRotate={2.5}
                     />
 
                     {/* Sub-solar coordinates badge */}
