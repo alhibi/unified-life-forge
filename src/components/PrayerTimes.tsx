@@ -516,6 +516,9 @@ export default function PrayerTimes() {
     ? formatTime12(extraTimings.Sunset, { am: t('prayer.am'), pm: t('prayer.pm') })
     : '';
 
+  // Hijri date for the SUN PATH card footer
+  const { hijri: hijriDate } = useLiveHijriDate();
+
   // Period label for SUN PATH card (Morning / Afternoon / Evening / Night / Dawn)
   const periodLabel = (() => {
     if (sunT < arcGeom.dayStart) return language === 'ar' ? 'فجر' : 'Dawn';
