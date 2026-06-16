@@ -40,7 +40,7 @@ const item = {
  *   • Privacy            — last-seen / bio visibility, read receipts, typing
  *   • Notifications      — master + sounds + vibrate + desktop + quiet hours
  *   • Appearance         — font scale, density, default wallpaper, layout
- *   • Behavior           — enter-to-send, emoji autocomplete, auto-download
+ *   • Behavior           — enter-, emoji autocomplete, auto-download
  *   • Storage            — cache cap, retention, compression, live usage gauge
  *   • Blocked users      — list with unblock; opens block-someone via username
  *   • Backup & data      — export all chats as JSON

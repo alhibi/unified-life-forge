@@ -10,8 +10,8 @@
  *   worldwide (MWL, Umm al-Qura, Egyptian, Karachi, Diyanet, ISNA, UOIF, …).
  * - Handles high-latitude degeneracies (polar summer / winter) by falling
  *   back to the Angle-Based rule where needed.
- * - Produces Asr according to either the majority (shadow-factor 1) or the
- *   Hanafi (shadow-factor 2) rule.
+ * - Produces Asr according to either the majority ( 1) or the
+ *   Hanafi ( 2) rule.
  *
  * All times returned are in *minutes since 00:00 UTC* of the input date so
  * the caller decides how to render them (local clock via IANA timezone).

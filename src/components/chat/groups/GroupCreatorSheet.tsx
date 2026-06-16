@@ -315,7 +315,7 @@ function KindChip({ active, onClick, icon, label }: KindChipProps) {
       className={cn(
         'inline-flex items-center gap-1.5 rounded-full px-3 h-8 text-[12.5px] font-medium transition-all',
         active
-          ? 'bg-primary text-primary-foreground shadow-sm'
+          ? 'bg-primary text-primary-foreground '
           : 'bg-muted/30 text-muted-foreground active:bg-muted/50',
       )}
     >

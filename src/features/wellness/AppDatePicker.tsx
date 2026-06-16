@@ -88,7 +88,7 @@ export default function AppDatePicker({ value, onChange, className }: Props) {
               'aria-selected:opacity-100 tabular-nums',
             ),
             day_selected:
-              'bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary shadow-[0_0_0_3px_hsl(var(--primary)/0.15)]',
+              'bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary ',
             day_today: 'ring-1 ring-primary/40 text-primary font-bold',
             day_outside: 'text-muted-foreground/40',
             day_disabled: 'text-muted-foreground/30',

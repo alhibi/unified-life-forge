@@ -21,7 +21,7 @@ import { WORLD_LAND_PATH } from './UmmahPulse.worldPath';
  *  • Asymmetric atmosphere: the bluish glow tracks the sub‑solar
  *    point, day side bright, night side dark – like the real limb.
  *  • A bright sub‑solar specular hot‑spot and a soft anti‑solar
- *    shadow mat together give the surface a real "lit sphere" feel.
+ *     mat together give the surface a real "lit sphere" feel.
  *  • Distant star field around the globe (clipped *outside* the
  *    silhouette) for a sense of being in space.
  *  • Smoother momentum: cubic decay, capped speed, snappier stop.
@@ -858,7 +858,7 @@ export const UmmahGlobe = forwardRef<UmmahGlobeHandle, UmmahGlobeProps>(
             <stop offset="100%" stopColor="white" stopOpacity="0" />
           </radialGradient>
 
-          {/* Inner rim shadow gives the disc its 3D bulge */}
+          {/* Inner rim  gives the disc its 3D bulge */}
           <radialGradient
             id="innerShadow"
             gradientUnits="userSpaceOnUse"
@@ -945,7 +945,7 @@ export const UmmahGlobe = forwardRef<UmmahGlobeHandle, UmmahGlobeProps>(
             pointerEvents="none"
           />
 
-          {/* Land — drawn back-to-front so polar ice caps sit on top */}
+          {/* Land — drawn back- so polar ice caps sit on top */}
           <path
             d={landByBand.tropical}
             fill="url(#bandTropical)"
@@ -1014,7 +1014,7 @@ export const UmmahGlobe = forwardRef<UmmahGlobeHandle, UmmahGlobeProps>(
             />
           )}
 
-          {/* Inner rim shadow (depth) */}
+          {/* Inner rim  (depth) */}
           <circle
             cx={VIEW_CX}
             cy={VIEW_CY}

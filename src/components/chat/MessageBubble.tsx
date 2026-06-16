@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils';
 import type { Message, MessageStatus } from './types';
 
 // ─────────────────────────────────────────────────────────────────────────────
-// SwipeableMessage: drag-to-reply wrapper. Drags in the "reply" direction only
+// SwipeableMessage: drag- wrapper. Drags in the "reply" direction only
 // (start-edge on LTR, end-edge on RTL) and crosses a 50px threshold to trigger.
 // ─────────────────────────────────────────────────────────────────────────────
 interface SwipeableMessageProps {
@@ -310,7 +310,7 @@ export const ReactionPill = React.memo(function ReactionPill({ emoji, count, rea
       className={cn(
         'inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[13px] border select-none',
         reactedByMe
-          ? 'bg-primary/15 border-primary/40 ring-1 ring-primary/20 shadow-sm shadow-primary/10'
+          ? 'bg-primary/15 border-primary/40 ring-1 ring-primary/20  '
           : 'bg-card border-border/20 hover:bg-muted/30',
       )}
       whileTap={{ scale: 0.85 }}
@@ -390,7 +390,7 @@ export const QuickReactionBar = React.memo(function QuickReactionBar({
   return (
     <motion.div
       className={cn(
-        'flex items-center gap-0.5 px-2 py-1.5 rounded-full bg-card/95 backdrop-blur-md shadow-xl border border-border/30',
+        'flex items-center gap-0.5 px-2 py-1.5 rounded-full bg-card/95 backdrop-blur-md  border border-border/30',
         isMine ? 'origin-bottom-right' : 'origin-bottom-left'
       )}
       initial={{ scale: 0.5, opacity: 0, y: 10 }}

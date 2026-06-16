@@ -1215,7 +1215,7 @@ export default function ChessPage() {
           {cell && (
             <motion.span
               className={`relative z-10 select-none leading-none
-                ${cell.color === 'w' ? 'text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]' : 'text-gray-900 drop-shadow-[0_1px_1px_rgba(255,255,255,0.2)]'}`}
+                ${cell.color === 'w' ? 'text-white ' : 'text-gray-900 '}`}
               style={{ fontSize: 'min(7.5vw, 32px)' }}
               initial={false}
               animate={{ scale: isSelected ? 1.12 : 1 }}

@@ -114,7 +114,7 @@ export default function AllOccasions() {
                 whileTap={{ scale: 0.96 }}
                 className={`relative rounded-xl border px-2.5 py-2 text-start transition-all ${
                   active
-                    ? 'bg-primary/15 border-primary/40 shadow-sm'
+                    ? 'bg-primary/15 border-primary/40 '
                     : 'bg-card/60 border-border/50 hover:bg-card'
                 }`}
               >
@@ -171,7 +171,7 @@ export default function AllOccasions() {
                 onClick={() => setSelectedDay(d)}
                 className={`relative aspect-square rounded-lg border flex items-center justify-center transition-all ${
                   isSelected
-                    ? 'bg-primary/20 border-primary/50 shadow-sm'
+                    ? 'bg-primary/20 border-primary/50 '
                     : isToday
                       ? 'bg-primary/8 border-primary/30'
                       : hasEvent

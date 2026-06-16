@@ -29,7 +29,7 @@ import type { Message } from './types';
 //   after layout and caches it per index, costing one rAF per new row
 //   and zero on already-measured rows.
 //
-// Scroll-to-id support
+// Scroll- support
 //   Replies, search hits, and "jump to message" all use a string `id`
 //   on a DOM node (`msg-<uuid>`). When a target row is OUTSIDE the
 //   currently-rendered window the DOM node doesn't exist, so the
@@ -98,7 +98,7 @@ interface VirtualMessageListProps {
    * divider, bubble, reactions. The wrapper does not interpret it.
    */
   renderRow: (msg: Message, index: number) => ReactNode;
-  /** Imperative handle so callers can scroll-to-id / scroll-to-bottom. */
+  /** Imperative handle so callers can scroll- / scroll-. */
   handleRef?: React.MutableRefObject<VirtualMessageListHandle | null>;
   /** Override the activation threshold. Useful for tests. */
   threshold?: number;
@@ -144,7 +144,7 @@ export function VirtualMessageList({
   const shouldVirtualize = messages.length >= threshold;
 
   // ── Imperative handle ──────────────────────────────────────────────────────
-  // Build a stable mapping id → index so scroll-to-id is O(1).
+  // Build a stable mapping id → index so scroll- is O(1).
   const idIndexMap = useMemo(() => {
     const m = new Map<string, number>();
     for (let i = 0; i < messages.length; i++) m.set(messages[i].id, i);
@@ -220,7 +220,7 @@ export function VirtualMessageList({
   }, [messages.length, shouldVirtualize, scrollElementRef, virtualizer]);
 
   // ── Scroll position monitoring ─────────────────────────────────────────────
-  // Report scroll-away-from-bottom and reach-top events to the parent.
+  // Report scroll-away- and reach-top events to the parent.
   useEffect(() => {
     const el = scrollElementRef.current;
     if (!el) return;

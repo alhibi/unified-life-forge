@@ -299,7 +299,7 @@ export type NavMode = 'push' | 'pop' | 'replace' | 'tab' | 'initial';
 /**
  * Build framer-motion variants for the incoming page in a push/pop.
  *
- *   rtl   — true if the document direction is right-to-left. iOS mirrors
+ *   rtl   — true if the document direction is right-. iOS mirrors
  *           navigation in RTL locales: "forward" comes from the LEFT,
  *           "back" comes from the RIGHT. We mirror that here.
  *   mode  — 'push' or 'pop'.

@@ -73,7 +73,7 @@ export default function ImageLightbox({ src, alt, open, onClose, originRect }: I
     }
   }, [handleDoubleTap]);
 
-  // Pinch-to-zoom via touch events
+  // Pinch- via touch events
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     if (e.touches.length === 2) {
       const dx = e.touches[0].clientX - e.touches[1].clientX;
@@ -166,7 +166,7 @@ export default function ImageLightbox({ src, alt, open, onClose, originRect }: I
             </button>
           </motion.div>
 
-          {/* Image container with swipe-to-dismiss */}
+          {/* Image container with swipe- */}
           <motion.div
             ref={containerRef}
             className="relative z-[1] w-full h-full flex items-center justify-center will-change-transform"

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { RefreshCw, WifiOff } from '@/lib/icons';
 
 /**
- * Touch-only pull-to-refresh wrapper with improved reliability.
+ * Touch-only pull- wrapper with improved reliability.
  *
  * Improvements over the previous implementation:
  *  - Uses non-passive touchmove when actively pulling (so we can

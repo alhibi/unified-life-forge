@@ -8,7 +8,7 @@
 //
 // Visual design:
 //   • Frosted-glass surface tinted by the active podcast's seed color.
-//   • A subtle breathing shadow halo hints that audio is alive without
+//   • A subtle breathing  halo hints that audio is alive without
 //     fighting page content for attention.
 //   • Square artwork (instead of a circle) so the cover art reads at
 //     a glance — modern podcast apps moved away from circular avatars

@@ -450,7 +450,7 @@ export default function ChessPuzzlePage() {
                       animate={{ opacity: [0.4, 1, 0.4] }} transition={{ duration: 1.2, repeat: Infinity }} />
                   )}
                   {cell && (
-                    <span className={`relative z-10 select-none leading-none ${cell.color === 'w' ? 'text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)]' : 'text-gray-900'}`}
+                    <span className={`relative z-10 select-none leading-none ${cell.color === 'w' ? 'text-white ' : 'text-gray-900'}`}
                       style={{ fontSize: 'min(7vw, 30px)' }}>
                       {PIECE_GLYPH[cell.color][cell.type]}
                     </span>

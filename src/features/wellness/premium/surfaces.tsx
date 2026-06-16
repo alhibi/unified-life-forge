@@ -412,7 +412,7 @@ export function SmoothBar({
           background: smoothSpectrum(spectrum, '90deg'),
         }}
       />
-      {/* Subtle inner shadow at the top for depth */}
+      {/* Subtle inner  at the top for depth */}
       <div
         aria-hidden
         className="absolute inset-0 rounded-full pointer-events-none"
@@ -639,7 +639,7 @@ export interface ElevatedCardProps {
 
 /**
  * Material-like elevated card with a coloured ambient shadow. The
- * shadow is split into two layers: one tight (definition) and one
+ *  is split into two layers: one tight (definition) and one
  * spread (ambient glow) — looks realistic on both light/dark themes.
  */
 export function ElevatedCard({

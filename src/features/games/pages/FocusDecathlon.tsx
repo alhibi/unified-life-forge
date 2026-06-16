@@ -6,7 +6,7 @@ import { Crosshair, Brain, Zap, Hash, Layers, Target, Award, RotateCcw, ChevronR
 import { playSfx, vibrate } from '@/features/games/utils/gameFeedback';
 
 // =============================================================================
-// Focus Decathlon — five back-to-back micro-tests run in a fixed sequence.
+// Focus Decathlon — five back- micro-tests run in a fixed sequence.
 // At the end we combine the per-test scaled scores (mean 100, sd 15 — IQ-style)
 // into a single "Cognitive Index" that the player can chase day after day.
 //

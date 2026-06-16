@@ -312,7 +312,7 @@ export default function PodcastLibrary() {
                   onClick={() => setSortAndPersist('recent')}
                   aria-pressed={sortMode === 'recent'}
                   className={`px-2.5 h-7 rounded-full text-[11.5px] font-semibold inline-flex items-center gap-1 transition-colors ${
-                    sortMode === 'recent' ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground'
+                    sortMode === 'recent' ? 'bg-card  text-foreground' : 'text-muted-foreground'
                   }`}
                 >
                   <Clock className="w-3 h-3" />
@@ -323,7 +323,7 @@ export default function PodcastLibrary() {
                   onClick={() => setSortAndPersist('alpha')}
                   aria-pressed={sortMode === 'alpha'}
                   className={`px-2.5 h-7 rounded-full text-[11.5px] font-semibold inline-flex items-center gap-1 transition-colors ${
-                    sortMode === 'alpha' ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground'
+                    sortMode === 'alpha' ? 'bg-card  text-foreground' : 'text-muted-foreground'
                   }`}
                 >
                   <ArrowDownAZ className="w-3 h-3" />

@@ -19,7 +19,7 @@ import { ConfirmDialog } from './ConfirmDialog';
  * job (check-keyword-alerts edge function) scans new articles every
  * 30 minutes against these and writes hits into keyword_alert_hits.
  *
- * What this view delivers, end-to-end:
+ * What this view delivers, end-:
  *   - Alert CRUD (create / enable-toggle / delete) with source filter
  *     + match-mode (any / whole_word / phrase).
  *   - "Check now" button to trigger the edge function manually.

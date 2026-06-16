@@ -82,7 +82,7 @@ export const ASSESSMENT_QUESTIONS: AssessmentQuestion[] = [
     options: [
       { label: { ar: 'لم أحاول.', de: 'Noch nie versucht.' }, stepIdx: 0 },
       { label: { ar: 'بلانك حائط 60 ث.', de: 'Wand-Plank 60s.' }, stepIdx: 0 },
-      { label: { ar: 'chest-to-wall 30 ث.', de: 'Brust an Wand 30s.' }, stepIdx: 1 },
+      { label: { ar: 'chest- 30 ث.', de: 'Brust an Wand 30s.' }, stepIdx: 1 },
       { label: { ar: 'وقوف حر 5-10 ث.', de: 'Freistand 5-10s.' }, stepIdx: 3 },
       { label: { ar: 'وقوف حر 30+ ث.', de: 'Freistand 30+s.' }, stepIdx: 4 },
       { label: { ar: 'HSPU بمدى كامل.', de: 'HSPU mit voller Range.' }, stepIdx: 7 },

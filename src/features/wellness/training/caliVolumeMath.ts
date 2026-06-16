@@ -8,7 +8,7 @@
  * calisthenics progress alongside their barbell progress.
  *
  * The multipliers are anchored: a standard push-up is "1.0x bodyweight at
- * 65% effective load" (the average chest-to-floor share). One-arm push-up
+ * 65% effective load" (the average chest- share). One-arm push-up
  * is ~6× harder. Numbers come from EMG studies and the Steven Low /
  * Eric Tronell intensity tables.
  */

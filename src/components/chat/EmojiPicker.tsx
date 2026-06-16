@@ -228,7 +228,7 @@ function applyThemeVars(host: HTMLElement, mode: 'light' | 'dark') {
     styles.setProperty('--color-border', 'rgba(0, 0, 0, 0.06)');
     styles.setProperty('--color-border-over', 'rgba(0, 0, 0, 0.10)');
   }
-  styles.setProperty('--shadow', 'none');
+  styles.setProperty('--', 'none');
   styles.setProperty('--font-family', 'inherit');
 }
 

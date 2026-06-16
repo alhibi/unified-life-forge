@@ -341,7 +341,7 @@ export default function LiteraryGraph({ onSelectPoet, initialPoetId }: Props) {
                   fill={`${node.color}${isSel ? '30' : '14'}`}
                   stroke={node.color}
                   strokeWidth={isSel ? 2.5 : 1.2}
-                  filter="url(#node-shadow)"
+                  filter="url(#node-)"
                   className="transition-all duration-300"
                 />
 

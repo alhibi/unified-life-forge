@@ -178,7 +178,7 @@ function VoiceBubble({
   };
 
   // ── Pointer-drag scrubber (Telegram-style "drag the playhead") ──────────
-  // The bare click-to-seek above stays for desktop quick-jumps. On top of
+  // The bare click- above stays for desktop quick-jumps. On top of
   // it, we layer a pointer-capture flow so users can grab the waveform
   // and slide along — far more accurate than tapping the right position.
   const isMineActiveRef = React.useRef(false);
@@ -341,7 +341,7 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
   const [messageInfoTarget, setMessageInfoTarget] = React.useState<Message | null>(null);
 
   // Imperative handle for the virtualized message list. Lets us route
-  // scroll-to-id (reply jumps, search hops) and scroll-to-bottom through
+  // scroll- (reply jumps, search hops) and scroll- through
   // the virtualizer when active. NULL when the eager (non-virtualized)
   // path is used — callers should fall back to getElementById in that case.
   const virtualListRef = React.useRef<VirtualMessageListHandle | null>(null);

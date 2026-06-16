@@ -12,7 +12,7 @@
  *    localStorage, so the same card doesn't nag the user the same day.
  *  • If no card qualifies, the ribbon renders nothing (zero footprint).
  *
- * Styling: Obsidian Depth skeuomorphic — inset shadow + subtle gradient,
+ * Styling: Obsidian Depth skeuomorphic — inset  + subtle gradient,
  * organic stagger entry, bouncy spring close on dismiss.
  */
 import { useEffect, useMemo, useState, useCallback } from 'react';

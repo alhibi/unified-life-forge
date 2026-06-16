@@ -7,7 +7,7 @@
 //     are 4032×3024 px. Uploading those raw to Supabase Storage burns the
 //     user's mobile data, the chat partner's CDN bandwidth, and our paid
 //     egress for *zero* visible quality benefit on a 414-px screen.
-//   • Lower latency-to-paint. By the time the upload completes the
+//   • Lower latency-. By the time the upload completes the
 //     compressed file is ~6× smaller, so the recipient sees the image
 //     6× sooner.
 //   • Privacy hygiene. Re-encoding through a Canvas strips EXIF metadata

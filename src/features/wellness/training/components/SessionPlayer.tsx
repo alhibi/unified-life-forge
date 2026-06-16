@@ -282,7 +282,7 @@ export default function SessionPlayer({
  key={t}
  onClick={() => setDraft((d) => ({ ...d, type: t }))}
  className={`px-2.5 py-1 rounded-md text-[10px] font-semibold transition-colors ${
- draft.type === t ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground'
+ draft.type === t ? 'bg-card text-foreground ' : 'text-muted-foreground'
                 }`}
               >
                 {(T as Record<string, { ar: string; de: string }>)[`type_${t}`][lang]}

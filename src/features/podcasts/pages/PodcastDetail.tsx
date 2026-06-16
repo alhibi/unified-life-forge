@@ -10,7 +10,7 @@
 //   1. Sticky top bar — back button, subscribe button, more menu
 //   2. Backdrop: full-bleed blurred cover image with a vertical fade
 //      into the page background, plus the foreground square cover with
-//      shadow on top of it
+//       on top of it
 //   3. Title (large, auto-shrinks if very long), author
 //   4. Description in a card (HTML-sanitized)
 //   5. Source link / RSS URL / language code metadata rows
