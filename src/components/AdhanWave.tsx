@@ -118,11 +118,18 @@ export function AdhanWave({
   // hero numbers re-render, the SVG strip only updates when minute
   // boundaries cross thanks to memoisation below.
   const [tickSec, setTickSec] = useState(0);
-  const mountedAt = useRef(Date.now());
   useEffect(() => {
     const id = setInterval(() => setTickSec((s) => s + 1), 1000);
     return () => clearInterval(id);
   }, []);
+
+  // Reset the seconds-counter whenever upstream cities update — the
+  // parent re-computes prayer info on a coarser tick (every ~60s),
+  // and our seconds bleed must restart from that fresh baseline so
+  // hero / countdown numbers stay monotonic.
+  useEffect(() => {
+    setTickSec(0);
+  }, [cities]);
 
   // Synthesise an "absolute seconds-since-mount" baseline so we can
   // bleed seconds out of integer-minute upstream values.
