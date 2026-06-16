@@ -293,6 +293,9 @@ export default function PrayerTimes() {
   const [locationName, setLocationName] = useState('');
   const [now, setNow] = useState(() => new Date());
 
+  // Hijri date — used in the SUN PATH card footer
+  const { hijri: hijriDate } = useLiveHijriDate();
+
   // Done-states keyed by yyyy-MM-dd, auto-reset on day rollover
   const [stamp, setStamp] = useState(todayStamp);
   const [doneStates, setDoneStates] = useState<Record<PrayerKey, boolean>>(() =>
