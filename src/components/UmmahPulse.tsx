@@ -19,6 +19,8 @@ import {
 } from '@/utils/prayerAstronomy';
 import { WORLD_LAND_PATH } from './UmmahPulse.worldPath';
 import { UmmahNetwork, type NetworkCity, type UmmahNetworkHandle } from './UmmahNetwork';
+import { AdhanWave, type WaveCity } from './AdhanWave';
+import { useAdhanCalibration, type CalibrationCity } from '@/features/adhan/useAdhanCalibration';
 
 /**
  * Ummah Pulse — a live planetary view of Islamic prayer across the world.
@@ -243,6 +245,28 @@ function UmmahPulse() {
   const [search, setSearch] = useState('');
   const userShadowFactor: 1 | 2 = prayerMadhab === 'hanafi' ? 2 : 1;
 
+  // ── Aladhan calibration ────────────────────────────────────────
+  // Build a stable list of cities (lat/lng/tz/method/school) and feed
+  // it to the calibration hook. The hook returns per-prayer minute
+  // deltas vs each country's official published timetable, cached
+  // for ~30h in localStorage so the wave stays accurate without any
+  // network cost during normal use.
+  const calibrationCities: CalibrationCity[] = useMemo(
+    () =>
+      CITIES.map((c) => ({
+        name: c.name,
+        lat: c.lat,
+        lng: c.lng,
+        tz: c.tz,
+        method: c.method,
+        school: ((c.asrShadow ?? userShadowFactor) === 2 ? 1 : 0) as 0 | 1,
+        asrShadow: c.asrShadow ?? userShadowFactor,
+        adj: c.adj,
+      })),
+    [userShadowFactor],
+  );
+  const calibration = useAdhanCalibration(calibrationCities);
+
   // Clock tick — every 15s in expanded view, every 60s compact
   useEffect(() => {
     const id = setInterval(() => setNow(new Date()), expanded ? 15_000 : 60_000);
@@ -282,9 +306,41 @@ function UmmahPulse() {
       CITIES.map((c) => {
         const cityShadow: 1 | 2 = c.asrShadow ?? userShadowFactor;
         const info = getCityPrayerInfo(c.lat, c.lng, c.tz, c.method, now, cityShadow, c.adj);
+        // Apply Aladhan-derived calibration on top of astronomy so
+        // every city matches its country's official timetable to the
+        // minute. Falls back to pure astronomy on first paint /
+        // offline. Recomputes localMinute-aware fields.
+        const off = calibration[c.name];
+        if (off) {
+          const shift = (v: number, d: number) => (((v + d) % 1440) + 1440) % 1440;
+          info.fajr    = shift(info.fajr,    off.fajr);
+          info.sunrise = shift(info.sunrise, off.sunrise);
+          info.dhuhr   = shift(info.dhuhr,   off.dhuhr);
+          info.asr     = shift(info.asr,     off.asr);
+          info.maghrib = shift(info.maghrib, off.maghrib);
+          info.isha    = shift(info.isha,    off.isha);
+          // Re-derive next-prayer countdown after calibration.
+          const events = [
+            { name: 'fajr' as const,    m: info.fajr    },
+            { name: 'dhuhr' as const,   m: info.dhuhr   },
+            { name: 'asr' as const,     m: info.asr     },
+            { name: 'maghrib' as const, m: info.maghrib },
+            { name: 'isha' as const,    m: info.isha    },
+          ];
+          const lm = info.localMinute;
+          let nx = events.find((e) => e.m > lm);
+          let mu: number;
+          if (nx) {
+            mu = nx.m - lm;
+          } else {
+            nx = events[0];
+            mu = (1440 - lm) + events[0].m;
+          }
+          info.next = { name: nx.name, minutesUntil: mu };
+        }
         return { ...c, info, shadowUsed: cityShadow };
       }),
-    [now, userShadowFactor]
+    [now, userShadowFactor, calibration]
   );
 
   const fajrCities = useMemo(
@@ -971,24 +1027,24 @@ function UmmahPulse() {
               <span className="text-[9px] font-bold tracking-wide text-foreground">LIVE</span>
             </div>
 
-            <UmmahNetwork
-              cities={cityDetails.map<NetworkCity>((c) => ({
+            <AdhanWave
+              cities={cityDetails.map<WaveCity>((c) => ({
                 name: c.name,
                 nameAr: c.nameAr,
+                flag: c.flag,
+                country: c.country,
+                countryAr: c.countryAr,
                 lat: c.lat,
                 lng: c.lng,
-                flag: c.flag,
                 pop: c.pop,
-                color: SLOT_META[c.info.slot].color,
-                active:
-                  c.info.slot === 'fajr' ||
-                  c.info.slot === 'maghrib' ||
-                  c.info.slot === 'isha',
-                qibla: c.name === 'Makkah',
+                slot: c.info.slot,
+                next: c.info.next,
+                localClock: c.info.localClock,
               }))}
               subSolarLng={subLng}
               subSolarLat={subLat}
               language={language === 'ar' ? 'ar' : 'de'}
+              onOpenMap={() => setExpanded(true)}
             />
 
             {fajrCities.length > 0 && (
