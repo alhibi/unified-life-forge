@@ -335,13 +335,13 @@ export default function BottomNav() {
               >
                 <Icon
                   size={18}
-                  weight={visuallyActive ? 'regular' : undefined}
+                  weight={visuallyActive ? 'fill' : 'regular'}
                   strokeWidth={visuallyActive ? 2.25 : 1.75}
                   style={{
                     position: 'relative',
                     zIndex: 2,
                     color: visuallyActive
-                      ? 'hsl(var(--live) / 0.48)'
+                      ? 'hsl(var(--live))'
                       : 'hsl(var(--muted-foreground) / 0.7)',
                     transform: visuallyActive ? 'scale(1.08)' : 'scale(1)',
                     transition: dragging
@@ -355,7 +355,7 @@ export default function BottomNav() {
                     aria-hidden
                     className="nav-icon-edge-trace"
                     size={18}
-                    weight="regular"
+                    weight="fill"
                   />
                 )}
 
