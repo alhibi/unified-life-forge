@@ -495,16 +495,12 @@
     box-shadow: none !important;
     text-shadow: none !important;
   }
-  /* Strip Tailwind gradient utilities only — leaves inline
-     style={{ backgroundImage: ... }} (avatars, attachments) intact. */
-  [class*="bg-gradient"]:not(.preserve-fx):not(.preserve-fx *),
-  [class*="from-"]:not(.preserve-fx):not(.preserve-fx *),
-  [class*="via-"]:not(.preserve-fx):not(.preserve-fx *),
-  [class*="to-"]:not(.preserve-fx):not(.preserve-fx *) {
+  /* Strip Tailwind gradient utilities. Targets only the `bg-gradient-*`
+     directional classes — color stops without a bg-gradient do nothing,
+     so this is enough. Inline backgroundImage (avatars, attachments)
+     stays intact. */
+  [class*="bg-gradient-"]:not(.preserve-fx):not(.preserve-fx *) {
     background-image: none !important;
-    --tw-gradient-from: transparent !important;
-    --tw-gradient-to: transparent !important;
-    --tw-gradient-stops: transparent !important;
   }
   .app-icon-btn:active { transform: scale(0.94); }
 
