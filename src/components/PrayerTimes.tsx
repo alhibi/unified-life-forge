@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, Sunrise as SunriseIcon, CalendarDays, ChevronLeft, ChevronRight, ChevronDown } from '@/lib/icons';
+import { Check, Sunrise as SunriseIcon, CalendarDays, ChevronLeft, ChevronDown } from '@/lib/icons';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '@/contexts/AppContext';
 import { fetchPrayerTimings as fetchPrayerTimingsCached } from '@/hooks/usePrayerTimesCache';
@@ -188,9 +188,9 @@ const STARS: { x: number; y: number; r: number; delayMs: number }[] = (() => {
 const ARC_W = 320;
 const ARC_H = 100;
 const ARC_PAD_X = 22;
-const ARC_LINE_Y = 56;        // horizon line baseline
-const ARC_DAY_AMPL = 22;      // upward bell amplitude during day
-const ARC_NIGHT_AMPL = 14;    // downward bump amplitude at night
+const ARC_LINE_Y = 40;        // khushu: horizon line baseline at 40dp
+const ARC_DAY_AMPL = 14;      // khushu: upward bell amplitude during day
+const ARC_NIGHT_AMPL = 9;     // khushu: downward bump amplitude at night
 
 interface ArcGeom {
   dayStart: number;
@@ -525,13 +525,11 @@ export default function PrayerTimes() {
  className="space-y-4"
  >
  {/* ═══ Card 1: Prayer hero + 1dp separator + day arc — merged ══════ */}
- <div className="rounded-3xl border border-border bg-card text-card-foreground relative overflow-hidden">
+  <div className="rounded-[24px] border border-foreground/[0.05] bg-card text-card-foreground relative overflow-hidden shadow-[0_18px_38px_-28px_hsl(var(--foreground)/0.55)]">
    <Hero
      currentPrayer={currentPrayer}
      nextPrayer={nextPrayer}
      locationLabel={locationName || t('prayer.locationFallback')}
-     language={language}
-     t={t}
    />
    {/* 1dp horizontal separator at ~6% alpha (matches reference) */}
    <div className="h-px bg-foreground/[0.06]" />
@@ -551,8 +549,13 @@ export default function PrayerTimes() {
    />
  </div>
 
- {/* ═══ Card 2: Today's prayer slab (collapsible list) ══════════════ */}
- <div className="rounded-3xl border border-border bg-card text-card-foreground overflow-hidden">
+   {/* ═══ Card 2: Hijri occasions strip ═══════════════════════════════ */}
+  <div className="rounded-3xl border border-border bg-card overflow-hidden">
+  <HijriCalendarStrip language={language} t={t} />
+  </div>
+
+  {/* ═══ Card 3: Today's prayer slab (collapsible list) ══════════════ */}
+  <div className="rounded-[28px] border border-foreground/[0.05] bg-card text-card-foreground overflow-hidden shadow-[0_18px_38px_-30px_hsl(var(--foreground)/0.5)]">
    <Slab
      prayers={prayers}
      doneStates={doneStates}
@@ -567,10 +570,6 @@ export default function PrayerTimes() {
    />
  </div>
 
-  {/* ═══ Card 3: Hijri occasions strip ═══════════════════════════════ */}
- <div className="rounded-3xl border border-border bg-card overflow-hidden">
- <HijriCalendarStrip language={language} t={t} />
- </div>
     </motion.div>
   );
 }
@@ -580,36 +579,31 @@ function Hero({
   currentPrayer,
   nextPrayer,
   locationLabel,
-  language,
-  t,
 }: {
   currentPrayer?: PrayerTime;
   nextPrayer?: PrayerTime;
   locationLabel: string;
-  language: string;
-  t: (k: string) => string;
 }) {
-  const nameOf = (p?: PrayerTime) =>
-    p ? (language === 'ar' ? p.ar : p.name === 'Fajr' || p.name === 'Dhuhr' || p.name === 'Asr' || p.name === 'Maghrib' || p.name === 'Isha' ? t(`prayer.${p.name.toLowerCase()}`) : p.name) : '—';
+  const nameOf = (p?: PrayerTime) => (p ? p.name : '—');
 
   return (
-    <div className="grid grid-cols-2 divide-x divide-border/40">
+    <div className="grid grid-cols-2 divide-x divide-foreground/[0.08]">
       {/* Current */}
-      <div className="bg-card px-4 pt-3 pb-2.5">
-        <div className="flex items-center justify-between gap-2 mb-1.5 min-h-[12px]">
+      <div className="bg-card px-[18px] pb-2 pt-[13px]">
+        <div className="mb-[5px] flex min-h-[12px] items-center justify-between gap-2">
           <span className="text-[8.5px] font-semibold tracking-[0.09em] uppercase text-muted-foreground/80 truncate">
-            {locationLabel}
+            {(locationLabel || 'LOCATION').toUpperCase()}
           </span>
           <span className="text-[8px] font-bold uppercase text-primary/75 shrink-0">
-            {t('prayer.local')}
+            API
           </span>
         </div>
-        <div className="flex items-center justify-between gap-2">
-          <span className="text-[18px] font-semibold leading-none truncate">
+        <div className="flex items-end justify-between gap-2">
+          <span className="truncate text-[20px] font-semibold leading-none">
             {nameOf(currentPrayer)}
           </span>
           <span
-            className="text-[14px] font-medium tabular-nums text-muted-foreground/70 shrink-0"
+            className="shrink-0 pb-[3px] text-[17px] font-medium tabular-nums leading-none text-muted-foreground/70"
             dir="ltr"
           >
             {currentPrayer?.time ?? '--:--'}
@@ -618,21 +612,18 @@ function Hero({
       </div>
 
       {/* Next */}
-      <div className="bg-muted/[0.04] px-4 pt-3 pb-2.5">
-        <div className="flex items-center justify-between gap-2 mb-1.5 min-h-[12px]">
-          <span className="text-[8.5px] font-semibold tracking-[0.09em] uppercase text-muted-foreground/80">
-            {t('prayer.next')}
-          </span>
-          <span className="text-[8px] font-bold uppercase text-primary/75 shrink-0 opacity-0 select-none" aria-hidden="true">
-            {t('prayer.local')}
+      <div className="bg-muted/[0.08] px-[18px] pb-2 pt-[13px]">
+        <div className="mb-[5px] flex min-h-[12px] items-center">
+          <span className="text-[8.5px] font-semibold uppercase tracking-[0.09em] text-muted-foreground/80">
+            NEXT PRAYER
           </span>
         </div>
-        <div className="flex items-center justify-between gap-2">
-          <span className="text-[18px] font-medium leading-none truncate">
+        <div className="flex items-end justify-between gap-2">
+          <span className="truncate text-[17px] font-medium leading-none">
             {nameOf(nextPrayer)}
           </span>
           <span
-            className="text-[14px] font-medium tabular-nums text-muted-foreground/70 shrink-0"
+            className="shrink-0 pb-[3px] text-[13px] font-medium tabular-nums leading-none text-muted-foreground/70"
             dir="ltr"
           >
             {nextPrayer?.time ?? '--:--'}
@@ -672,7 +663,7 @@ function ArcStrip({
   t: (k: string) => string;
 }) {
   const [expandedZone, setExpandedZone] = useState<number | null>(null);
-  const showStars = isDark && isNight;
+  const showStars = true;
 
   // Tint overlay when inside a makruh zone
   let tint = 'transparent';
@@ -693,16 +684,15 @@ function ArcStrip({
 
   return (
     <div
-      className="relative bg-muted/10"
+      className="relative h-[100px] overflow-hidden bg-card"
       style={{
         backgroundColor: tint === 'transparent' ? undefined : tint,
-        aspectRatio: `${ARC_W} / ${ARC_H}`,
       }}
     >
       <svg
         viewBox={`0 0 ${ARC_W} ${ARC_H}`}
         className="w-full h-full block select-none"
-        preserveAspectRatio="xMidYMid slice"
+        preserveAspectRatio="none"
         aria-hidden="true"
       >
         {/* Stars (only at night in dark mode) */}
@@ -716,9 +706,9 @@ function ArcStrip({
                   ARC_LINE_Y + ARC_NIGHT_AMPL,
                   ARC_LINE_Y - ARC_DAY_AMPL + (s.y / 60) * (ARC_DAY_AMPL + ARC_NIGHT_AMPL + 12)
                 )}
-                r={s.r * 1.1}
-                fill="white"
-                animate={{ opacity: [0.1, 0.5, 0.1] }}
+                r={s.r}
+                fill="currentColor"
+                animate={{ opacity: [isDark ? 0.1 : 0.05, isDark ? 0.5 : 0.25, isDark ? 0.1 : 0.05] }}
                 transition={{
                   duration: 1.8,
                   repeat: Infinity,
@@ -788,7 +778,6 @@ function ArcStrip({
           const isPast = sunT > p.arcT;
           const px = arcX(p.arcT);
           const py = arcCurveY(p.arcT, arcGeom);
-          const dotColor = isDark ? p.dotDark : p.dotLight;
           return (
             <g key={p.name}>
               {isNext && (
@@ -806,12 +795,12 @@ function ArcStrip({
                 cx={px}
                 cy={py}
                 r={isNext ? 4 : 3.5}
-                fill={dotColor}
-                fillOpacity={isNext ? 1 : isPast ? 0.85 : 0.4}
+                fill="currentColor"
+                fillOpacity={isNext ? 0.8 : isPast ? 0.6 : 0.25}
               />
               <text
                 x={px}
-                y={py + 14}
+                y={py + 18}
                 textAnchor="middle"
                 fontSize={isNext ? 7.5 : 7}
                 fontWeight={isNext ? 700 : 500}
@@ -860,25 +849,29 @@ function ArcStrip({
 
       {/* Sunrise / Sunset corner labels */}
       {sunriseStr && (
-        <div className="absolute bottom-1.5 left-3 flex items-center gap-1 pointer-events-none">
-          <SunriseIcon className="w-3 h-3 text-muted-foreground/70" />
-          <span className="text-[9px] font-medium text-muted-foreground/70 leading-none">
-            {language === 'ar' ? 'شروق' : 'Sunrise'}
-          </span>
-          <span className="text-[9px] font-medium tabular-nums leading-none" dir="ltr">
-            {sunriseStr}
-          </span>
+        <div className="absolute bottom-2 left-[18px] flex items-center gap-1 pointer-events-none">
+          <SunriseIcon className="h-[18px] w-[18px] text-[hsl(var(--primary))] opacity-70" />
+          <div className="flex flex-col leading-none">
+            <span className="text-[9px] font-medium leading-none text-muted-foreground/70">
+              Sunrise
+            </span>
+            <span className="mt-0.5 text-[9px] font-medium tabular-nums leading-none text-foreground" dir="ltr">
+              {sunriseStr}
+            </span>
+          </div>
         </div>
       )}
       {sunsetStr && (
-        <div className="absolute bottom-1.5 right-3 flex items-center gap-1 pointer-events-none">
-          <span className="text-[9px] font-medium tabular-nums leading-none" dir="ltr">
-            {sunsetStr}
-          </span>
-          <span className="text-[9px] font-medium text-muted-foreground/70 leading-none">
-            {language === 'ar' ? 'غروب' : 'Sunset'}
-          </span>
-          <SunriseIcon className="w-3 h-3 text-muted-foreground/70 rotate-180" />
+        <div className="absolute bottom-2 right-[18px] flex items-center gap-1 pointer-events-none">
+          <div className="flex flex-col items-end leading-none">
+            <span className="text-[9px] font-medium leading-none text-muted-foreground/70">
+              Sunset
+            </span>
+            <span className="mt-0.5 text-[9px] font-medium tabular-nums leading-none text-foreground" dir="ltr">
+              {sunsetStr}
+            </span>
+          </div>
+          <SunriseIcon className="h-[18px] w-[18px] rotate-180 text-primary opacity-70" />
         </div>
       )}
 
@@ -965,18 +958,18 @@ function Slab({
   const toggleExpanded = () => setExpanded((v) => !v);
 
   return (
-    <div className="px-4 pt-4 pb-4">
+    <div className="px-[22px] pb-8 pt-[22px]">
       {/* Header */}
       <button
         type="button"
         onClick={toggleExpanded}
         aria-expanded={expanded}
         aria-controls="prayer-slab-list"
-        className="group w-full flex items-center justify-between mb-2 -mx-1 px-1 py-1 rounded-lg
+        className="group w-full flex items-center justify-between mb-2 px-0 py-0 rounded-lg
           transition-colors hover:bg-foreground/[0.03] active:scale-[0.99]"
         style={{ transition: 'transform 120ms cubic-bezier(0.34,1.56,0.64,1), background-color 200ms ease' }}
       >
-        <span className="text-[10px] font-semibold tracking-[0.09em] uppercase text-muted-foreground">
+        <span className="text-[10px] font-semibold tracking-[0.09em] uppercase text-muted-foreground/90">
           {t('prayer.todaysPrayers')}
         </span>
         <span className="flex items-center gap-1.5">
