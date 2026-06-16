@@ -251,12 +251,6 @@ export default function LivingRibbon() {
           className="group relative w-full text-start overflow-hidden rounded-2xl
             surface-depth surface-depth-pressable
             px-3.5 py-3"
-          style={{
-            +
-              'inset 0 -1px 0 0 hsl(0 0% 0% / 0.25),' +
-              '0 1px 2px 0 hsl(0 0% 0% / 0.18),' +
-              '0 0 28px -8px hsl(var(--live-glow) / 0.28)',
-          }}
         >
           {/* Single copper accent bar — the only chromatic note. */}
           <span
