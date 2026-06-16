@@ -971,7 +971,25 @@ function UmmahPulse() {
               <span className="text-[9px] font-bold tracking-wide text-foreground">LIVE</span>
             </div>
 
-            {renderMapSvg()}
+            <UmmahNetwork
+              cities={cityDetails.map<NetworkCity>((c) => ({
+                name: c.name,
+                nameAr: c.nameAr,
+                lat: c.lat,
+                lng: c.lng,
+                flag: c.flag,
+                pop: c.pop,
+                color: SLOT_META[c.info.slot].color,
+                active:
+                  c.info.slot === 'fajr' ||
+                  c.info.slot === 'maghrib' ||
+                  c.info.slot === 'isha',
+                qibla: c.name === 'Makkah',
+              }))}
+              subSolarLng={subLng}
+              subSolarLat={subLat}
+              language={language === 'ar' ? 'ar' : 'de'}
+            />
 
             {fajrCities.length > 0 && (
               <div
