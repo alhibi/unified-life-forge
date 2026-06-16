@@ -539,87 +539,31 @@ export default function PrayerTimes() {
  transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
  className="space-y-4"
  >
- {/* ═══ Top row: Prayer info card  |  Sun path card ═════════════════ */}
- <div className="grid grid-cols-[1.2fr_1fr] gap-3">
-   {/* Left — Current + Next prayer + pagination */}
-   <div className="rounded-3xl border border-border bg-card text-card-foreground p-4 flex flex-col">
-     {/* Current */}
-     <div>
-       <div className="flex items-center justify-between gap-2 mb-2 min-h-[12px]">
-         <span className="text-[8.5px] font-semibold tracking-[0.09em] uppercase text-muted-foreground/70 truncate">
-           {(locationName || t('prayer.locationFallback')).toUpperCase()}
-         </span>
-         <span className="text-[7.5px] font-bold uppercase tracking-wider px-1.5 py-[2px] rounded-md bg-muted/40 text-muted-foreground/80 shrink-0">
-           {t('prayer.local')}
-         </span>
-       </div>
-       <div className="flex items-end justify-between gap-2">
-         <span className="text-[22px] font-semibold leading-none truncate">
-           {nameOf(currentPrayer)}
-         </span>
-         <span className="text-[15px] font-medium tabular-nums text-muted-foreground/70 shrink-0" dir="ltr">
-           {currentPrayer?.time ?? '--:--'}
-         </span>
-       </div>
-     </div>
-
-     {/* Next */}
-     <div className="mt-4">
-       <div className="mb-1.5 text-[8.5px] font-semibold tracking-[0.09em] uppercase text-muted-foreground/70">
-         {t('prayer.next')}
-       </div>
-       <div className="flex items-end justify-between gap-2">
-         <span className="text-[17px] font-medium leading-none truncate">
-           {nameOf(nextPrayer)}
-         </span>
-         <span className="text-[13px] font-medium tabular-nums text-muted-foreground/70 shrink-0" dir="ltr">
-           {nextPrayer?.time ?? '--:--'}
-         </span>
-       </div>
-     </div>
-
-     {/* Pagination dots (decorative widget indicator) */}
-     <div className="mt-auto pt-3 flex items-center gap-1.5" dir="ltr">
-       <span className="text-[9px] font-medium text-muted-foreground/60 me-1 tabular-nums">1/5</span>
-       {[0, 1, 2, 3, 4].map((i) => (
-         <span
-           key={i}
-           className={`w-1.5 h-1.5 rounded-full ${i === 0 ? 'bg-primary' : 'bg-foreground/15'}`}
-         />
-       ))}
-     </div>
-   </div>
-
-   {/* Right — Sun path mini card */}
-   <div className="rounded-3xl border border-border bg-card text-card-foreground p-3 flex flex-col overflow-hidden">
-     <div className="flex items-center justify-between gap-2 mb-1">
-       <span className="text-[8.5px] font-semibold tracking-[0.09em] uppercase text-muted-foreground/70">
-         {language === 'ar' ? 'مسار الشمس' : 'SUN PATH'}
-       </span>
-       <span className="text-[9px] font-medium text-muted-foreground/70">
-         {periodLabel}
-       </span>
-     </div>
-     <div className="flex-1 -mx-3 min-h-0">
-       <ArcStrip
-         prayers={prayers}
-         sunT={sunT}
-         nextName={slot.next}
-         makruhZones={makruhZones}
-         currentMakruh={currentMakruh}
-         arcGeom={arcGeom}
-         isNight={isNight}
-         isDark={isDark}
-         sunriseStr={sunriseStr}
-         sunsetStr={sunsetStr}
-         language={language}
-         t={t}
-       />
-     </div>
-     <div className="mt-1 text-center text-[10.5px] font-medium text-muted-foreground/85" dir="rtl">
-       {formatHijriDate(hijriDate)}
-     </div>
-   </div>
+ {/* ═══ Card 1: Prayer hero + 1dp separator + day arc — merged ══════ */}
+ <div className="rounded-3xl border border-border bg-card text-card-foreground relative overflow-hidden">
+   <Hero
+     currentPrayer={currentPrayer}
+     nextPrayer={nextPrayer}
+     locationLabel={locationName || t('prayer.locationFallback')}
+     language={language}
+     t={t}
+   />
+   {/* 1dp horizontal separator at ~6% alpha (matches reference) */}
+   <div className="h-px bg-foreground/[0.06]" />
+   <ArcStrip
+     prayers={prayers}
+     sunT={sunT}
+     nextName={slot.next}
+     makruhZones={makruhZones}
+     currentMakruh={currentMakruh}
+     arcGeom={arcGeom}
+     isNight={isNight}
+     isDark={isDark}
+     sunriseStr={sunriseStr}
+     sunsetStr={sunsetStr}
+     language={language}
+     t={t}
+   />
  </div>
 
  {/* ═══ Card 2: Today's prayer slab (collapsible list) ══════════════ */}
