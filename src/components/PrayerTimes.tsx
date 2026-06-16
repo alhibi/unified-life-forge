@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, Sunrise as SunriseIcon, CalendarDays, ChevronLeft, ChevronRight } from '@/lib/icons';
+import { Check, Sunrise as SunriseIcon, CalendarDays, ChevronLeft, ChevronRight, ChevronDown } from '@/lib/icons';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '@/contexts/AppContext';
 import { fetchPrayerTimings as fetchPrayerTimingsCached } from '@/hooks/usePrayerTimesCache';
@@ -958,17 +958,47 @@ function Slab({
   // First not-yet-done prayer (suggested next)
   const nextToPray = PRAYER_KEYS.find((k) => !doneStates[k]) ?? null;
 
+  // Collapsed by default — user reveals the per-prayer list via the
+  // chevron. Persisted so the choice survives reloads.
+  const [expanded, setExpanded] = useState<boolean>(() => {
+    try { return localStorage.getItem('prayer_slab_expanded') === '1'; } catch { return false; }
+  });
+  const toggleExpanded = () => {
+    setExpanded((v) => {
+      const next = !v;
+      try { localStorage.setItem('prayer_slab_expanded', next ? '1' : '0'); } catch { /* ignore */ }
+      return next;
+    });
+  };
+
   return (
     <div className="px-4 pt-4 pb-4">
       {/* Header */}
-      <div className="flex items-center justify-between mb-2">
+      <button
+        type="button"
+        onClick={toggleExpanded}
+        aria-expanded={expanded}
+        aria-controls="prayer-slab-list"
+        className="group w-full flex items-center justify-between mb-2 -mx-1 px-1 py-1 rounded-lg
+          transition-colors hover:bg-foreground/[0.03] active:scale-[0.99]"
+        style={{ transition: 'transform 120ms cubic-bezier(0.34,1.56,0.64,1), background-color 200ms ease' }}
+      >
         <span className="text-[10px] font-semibold tracking-[0.09em] uppercase text-muted-foreground">
           {t('prayer.todaysPrayers')}
         </span>
-        <span className="text-[10px] font-medium text-muted-foreground/75 tabular-nums">
-          {doneCount} {t('prayer.of')} 5
+        <span className="flex items-center gap-1.5">
+          <span className="text-[10px] font-medium text-muted-foreground/75 tabular-nums">
+            {doneCount} {t('prayer.of')} 5
+          </span>
+          <motion.span
+            animate={{ rotate: expanded ? 180 : 0 }}
+            transition={{ type: 'spring', stiffness: 380, damping: 26 }}
+            className="inline-flex items-center justify-center w-4 h-4 rounded-full text-muted-foreground/70 group-hover:text-foreground"
+          >
+            <ChevronDown size={12} weight="bold" />
+          </motion.span>
         </span>
-      </div>
+      </button>
 
       {/* Progress bar */}
       <div className="w-full h-[2.5px] rounded-sm bg-foreground/10 overflow-hidden">
@@ -980,30 +1010,63 @@ function Slab({
         />
       </div>
 
-      <div className="mt-3">
-        {prayers.map((p, idx) => {
-          const isPrayed = doneStates[p.name];
-          const isNext = !isPrayed && nextToPray === p.name;
-          const isActive = p.name === activeName;
-          const dotColor = isDark ? p.dotDark : p.dotLight;
-          return (
-            <SlabRow
-              key={p.name}
-              prayer={p}
-              isPrayed={isPrayed}
-              isNext={isNext}
-              isActive={isActive}
-              dotColor={dotColor}
-              shakeKey={shakeCounter[p.name]}
-              guideKey={guideCounter[p.name]}
-              onToggle={() => onToggle(p.name)}
-              language={language}
-              t={t}
-              showDivider={idx < prayers.length - 1}
-            />
-          );
-        })}
-      </div>
+      <AnimatePresence initial={false}>
+        {expanded && (
+          <motion.div
+            id="prayer-slab-list"
+            key="prayer-slab-list"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{
+              height: { duration: 0.42, ease: [0.16, 1, 0.3, 1] },
+              opacity: { duration: 0.28, ease: 'easeOut' },
+            }}
+            style={{ overflow: 'hidden' }}
+          >
+            <motion.div
+              className="mt-3"
+              initial={{ y: -6 }}
+              animate={{ y: 0 }}
+              exit={{ y: -6 }}
+              transition={{ duration: 0.36, ease: [0.16, 1, 0.3, 1] }}
+            >
+              {prayers.map((p, idx) => {
+                const isPrayed = doneStates[p.name];
+                const isNext = !isPrayed && nextToPray === p.name;
+                const isActive = p.name === activeName;
+                const dotColor = isDark ? p.dotDark : p.dotLight;
+                return (
+                  <motion.div
+                    key={p.name}
+                    initial={{ opacity: 0, y: -4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{
+                      delay: 0.05 + idx * 0.04,
+                      duration: 0.32,
+                      ease: [0.16, 1, 0.3, 1],
+                    }}
+                  >
+                    <SlabRow
+                      prayer={p}
+                      isPrayed={isPrayed}
+                      isNext={isNext}
+                      isActive={isActive}
+                      dotColor={dotColor}
+                      shakeKey={shakeCounter[p.name]}
+                      guideKey={guideCounter[p.name]}
+                      onToggle={() => onToggle(p.name)}
+                      language={language}
+                      t={t}
+                      showDivider={idx < prayers.length - 1}
+                    />
+                  </motion.div>
+                );
+              })}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
