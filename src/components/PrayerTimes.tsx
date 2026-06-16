@@ -853,25 +853,29 @@ function ArcStrip({
 
       {/* Sunrise / Sunset corner labels */}
       {sunriseStr && (
-        <div className="absolute bottom-1.5 left-3 flex items-center gap-1 pointer-events-none">
-          <SunriseIcon className="w-3 h-3 text-muted-foreground/70" />
-          <span className="text-[9px] font-medium text-muted-foreground/70 leading-none">
-            {language === 'ar' ? 'شروق' : 'Sunrise'}
-          </span>
-          <span className="text-[9px] font-medium tabular-nums leading-none" dir="ltr">
-            {sunriseStr}
-          </span>
+        <div className="absolute bottom-2 left-[18px] flex items-center gap-1 pointer-events-none">
+          <SunriseIcon className="h-[18px] w-[18px] text-[hsl(var(--primary))] opacity-70" />
+          <div className="flex flex-col leading-none">
+            <span className="text-[9px] font-medium leading-none text-muted-foreground/70">
+              Sunrise
+            </span>
+            <span className="mt-0.5 text-[9px] font-medium tabular-nums leading-none text-foreground" dir="ltr">
+              {sunriseStr}
+            </span>
+          </div>
         </div>
       )}
       {sunsetStr && (
-        <div className="absolute bottom-1.5 right-3 flex items-center gap-1 pointer-events-none">
-          <span className="text-[9px] font-medium tabular-nums leading-none" dir="ltr">
-            {sunsetStr}
-          </span>
-          <span className="text-[9px] font-medium text-muted-foreground/70 leading-none">
-            {language === 'ar' ? 'غروب' : 'Sunset'}
-          </span>
-          <SunriseIcon className="w-3 h-3 text-muted-foreground/70 rotate-180" />
+        <div className="absolute bottom-2 right-[18px] flex items-center gap-1 pointer-events-none">
+          <div className="flex flex-col items-end leading-none">
+            <span className="text-[9px] font-medium leading-none text-muted-foreground/70">
+              Sunset
+            </span>
+            <span className="mt-0.5 text-[9px] font-medium tabular-nums leading-none text-foreground" dir="ltr">
+              {sunsetStr}
+            </span>
+          </div>
+          <SunriseIcon className="h-[18px] w-[18px] rotate-180 text-primary opacity-70" />
         </div>
       )}
 
