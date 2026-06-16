@@ -472,7 +472,6 @@ export function ChoiceCardGrid<T extends string>({
             style={{
               background: active ? withAlpha(accent, 0.10) : 'hsl(var(--card))',
               border: `1px solid ${active ? withAlpha(accent, 0.45) : 'hsl(var(--border) / 0.45)'}`,
-               0.6)}` : undefined,
             }}
           >
             {/* Soft top wash on active */}

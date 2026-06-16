@@ -640,7 +640,6 @@ function NBackEvent({ isAr, onDone }: { isAr: boolean; onDone: (raw: number) => 
               width: 64, height: 64,
               background: pos === i ? '#06b6d4' : 'rgba(255,255,255,0.04)',
               borderColor: pos === i ? '#22d3ee' : 'rgba(255,255,255,0.06)',
-              182,212,0.6)' : 'none',
             }}
           />
         ))}
