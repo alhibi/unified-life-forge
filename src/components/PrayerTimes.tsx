@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, Sunrise as SunriseIcon, CalendarDays, ChevronLeft, ChevronRight, ChevronDown } from '@/lib/icons';
+import { Check, Sunrise as SunriseIcon, CalendarDays, ChevronLeft, ChevronDown } from '@/lib/icons';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '@/contexts/AppContext';
 import { fetchPrayerTimings as fetchPrayerTimingsCached } from '@/hooks/usePrayerTimesCache';
