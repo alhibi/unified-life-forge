@@ -8,7 +8,6 @@ import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 import LocationSaver from '@/features/clipboard/components/LocationSaver';
 import PrayerTimes from '@/components/PrayerTimes';
 import { motion } from 'framer-motion';
-import WeatherWidget from '@/features/weather/components/WeatherWidget';
 import CurrentTimeSunnah from '@/components/CurrentTimeSunnah';
 import UmmahPulse from '@/components/UmmahPulse';
 
@@ -122,10 +121,6 @@ export default function Index() {
         <motion.section variants={item} aria-labelledby="home-sunnah-h">
           <h2 id="home-sunnah-h" className="sr-only">{language === 'ar' ? 'سنة الوقت الحالي' : 'Sunnah dieser Zeit'}</h2>
           <CurrentTimeSunnah />
-        </motion.section>
-        <motion.section variants={item} aria-labelledby="home-weather-h">
-          <h2 id="home-weather-h" className="sr-only">{language === 'ar' ? 'الطقس' : 'Wetter'}</h2>
-          <WeatherWidget />
         </motion.section>
         <motion.section variants={item} aria-labelledby="home-ummah-h">
           <h2 id="home-ummah-h" className="sr-only">{language === 'ar' ? 'نبض الأمة' : 'Ummah-Puls'}</h2>
