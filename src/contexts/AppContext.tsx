@@ -10,7 +10,7 @@ import { translate, type Language } from '@/i18n';
 // migrated to 'light' on read below.
 type Theme = 'light' | 'dark';
 type PaletteStyle = 'tonal' | 'vibrant' | 'expressive' | 'neutral' | 'rainbow';
-type ColorTheme = 'default' | 'midnight' | 'rose' | 'emerald' | 'lavender' | 'sunset' | 'ocean' | 'neon' | 'coffee' | 'mono' | 'cherry' | 'gold' | 'aurora' | 'sakura' | 'arctic' | 'volcano' | 'matcha' | 'nebula' | 'copper' | 'mint' | 'sandstone' | 'dusk' | 'moss' | 'clay' | 'storm' | 'silk' | 'amber' | 'fog' | 'obsidian' | 'terracotta' | 'dynamic';
+type ColorTheme = 'paper' | 'default' | 'midnight' | 'rose' | 'emerald' | 'lavender' | 'sunset' | 'ocean' | 'neon' | 'coffee' | 'mono' | 'cherry' | 'gold' | 'aurora' | 'sakura' | 'arctic' | 'volcano' | 'matcha' | 'nebula' | 'copper' | 'mint' | 'sandstone' | 'dusk' | 'moss' | 'clay' | 'storm' | 'silk' | 'amber' | 'fog' | 'obsidian' | 'terracotta' | 'dynamic';
 
 type PrayerMadhab = 'shafii' | 'hanafi' | 'hanbali' | 'maliki';
 type LatitudeAdjMethod = 'middle' | 'seventh' | 'angle';
@@ -77,10 +77,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     localStorage.getItem('app-black-mode') === 'true'
   );
   const [colorTheme, setColorThemeState] = useState<ColorTheme>(() =>
-    (localStorage.getItem('app-color-theme') as ColorTheme) || 'default'
+    (localStorage.getItem('app-color-theme') as ColorTheme) || 'paper'
   );
   const [fontFamily, setFontFamilyState] = useState<string>(() =>
-    localStorage.getItem('app-font-family') || 'default'
+    localStorage.getItem('app-font-family') || 'plex-mono'
   );
   const [fontSize, setFontSizeState] = useState<string>(() =>
     localStorage.getItem('app-font-size') || 'medium'
@@ -149,8 +149,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setAccentHueState(152); localStorage.setItem('app-accent-hue', '152');
     setPaletteStyleState('vibrant'); localStorage.setItem('app-palette-style', 'vibrant');
     setBlackModeState(false); localStorage.setItem('app-black-mode', 'false');
-    setColorThemeState('default'); localStorage.setItem('app-color-theme', 'default');
-    setFontFamilyState('default'); localStorage.setItem('app-font-family', 'default');
+    setColorThemeState('paper'); localStorage.setItem('app-color-theme', 'paper');
+    setFontFamilyState('plex-mono'); localStorage.setItem('app-font-family', 'plex-mono');
     setFontSizeState('medium'); localStorage.setItem('app-font-size', 'medium');
     setFontWeightState(400); localStorage.setItem('app-font-weight', '400');
     setFontOpacityState(1); localStorage.setItem('app-font-opacity', '1');
@@ -407,7 +407,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // Apply font family, size, weight & opacity
   useEffect(() => {
     const fontMap: Record<string, string> = {
-      default: "'Inter', 'Noto Sans Arabic', system-ui, -apple-system, sans-serif",
+      default: "'IBM Plex Mono', 'IBM Plex Sans Arabic', 'Noto Sans Arabic', system-ui, -apple-system, monospace",
+      'plex-mono': "'IBM Plex Mono', 'IBM Plex Sans Arabic', 'Noto Sans Arabic', system-ui, -apple-system, monospace",
+      inter: "'Inter', 'Noto Sans Arabic', system-ui, -apple-system, sans-serif",
       cairo: "'Cairo', 'Inter', system-ui, -apple-system, sans-serif",
       tajawal: "'Tajawal', 'Inter', system-ui, -apple-system, sans-serif",
       'ibm-plex': "'IBM Plex Sans Arabic', 'Inter', system-ui, -apple-system, sans-serif",
