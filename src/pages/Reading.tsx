@@ -342,48 +342,46 @@ export default function ReadingPage() {
 
   // ─── Navigation handlers ──────────────────────────────────────────────
   /**
-   * Open an article. Hardened path:
-   *   1. Mark it read (which also persists to IDB immediately via the
-   *      hook).
-   *   2. If the article we have in memory is just a stub or excerpt,
-   *      look in the offline DB for a richer cached copy and use that
-   *      as the initial render seed. The reader will further upgrade
-   *      it via extract-article if still short.
+   * Open an article — INSTANT navigation.
    *
-   * Result: the user always sees the best version we've ever managed
-   * to capture for this article — never a regression from a stale
-   * memory copy when IDB has the full body.
+   * UX rule: the article view must appear within the same paint cycle
+   * as the tap. We never await IDB before navigating; the reader
+   * mounts with whatever we have in memory and we patch in the richer
+   * cached body asynchronously if one exists. The previous awaited
+   * version added 20–60 ms of blocking latency per open — perceptible
+   * on mid-range Android.
    */
-  const openArticle = async (article: FeedItem): Promise<void> => {
-    let toOpen = article;
-    // If our memory copy is a stub or short excerpt, prefer a cached
-    // upgrade if one exists. Run synchronously *before* the view
-    // transition so the reader doesn't briefly show a blank.
+  const openArticle = (article: FeedItem): void => {
+    setSelectedArticle(article);
+    markAsRead(article.link);
+    setView('article');
+
+    // Background upgrade from offline cache — never blocks the open.
     if (
       offlineDb.available() &&
       (!article.fullContent || article.fullContent.length < 400)
     ) {
-      try {
-        const cached = await offlineDb.getArticle(article.link);
+      void offlineDb.getArticle(article.link).then((cached) => {
         if (
           cached &&
           (cached.fullContent || '').length > (article.fullContent || '').length
         ) {
-          toOpen = {
-            ...article,
-            fullContent: cached.fullContent,
-            description: cached.description || article.description,
-            image: cached.image || article.image,
-            images: cached.images?.length ? cached.images : article.images,
-            author: cached.author || article.author,
-            pubDate: cached.pubDate || article.pubDate,
-          };
+          setSelectedArticle((prev) =>
+            prev && prev.link === article.link
+              ? {
+                  ...prev,
+                  fullContent: cached.fullContent,
+                  description: cached.description || prev.description,
+                  image: cached.image || prev.image,
+                  images: cached.images?.length ? cached.images : prev.images,
+                  author: cached.author || prev.author,
+                  pubDate: cached.pubDate || prev.pubDate,
+                }
+              : prev,
+          );
         }
-      } catch { /* IDB unavailable; fall back to in-memory copy */ }
+      }).catch(() => undefined);
     }
-    setSelectedArticle(toOpen);
-    markAsRead(toOpen.link);
-    setView('article');
   };
 
   /** Cancel any in-flight content upgrade when the article view closes. */
