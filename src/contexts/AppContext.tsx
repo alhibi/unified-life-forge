@@ -14,6 +14,8 @@ type ColorTheme = 'default' | 'midnight' | 'rose' | 'emerald' | 'lavender' | 'su
 
 type PrayerMadhab = 'shafii' | 'hanafi' | 'hanbali' | 'maliki';
 type LatitudeAdjMethod = 'middle' | 'seventh' | 'angle';
+/** 'auto' = pick per-country; otherwise an explicit Aladhan method id (Sunni-only). */
+type CalcMethod = 'auto' | number;
 
 interface AppContextType {
   language: Language;
@@ -46,6 +48,8 @@ interface AppContextType {
   setLatitudeAdjMethod: (m: LatitudeAdjMethod) => void;
   dstEnabled: boolean;
   setDstEnabled: (v: boolean) => void;
+  calcMethod: CalcMethod;
+  setCalcMethod: (m: CalcMethod) => void;
 }
 
 
@@ -99,6 +103,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [dstEnabled, setDstEnabledState] = useState<boolean>(() =>
     localStorage.getItem('app-dst-enabled') !== 'false'
   );
+  const [calcMethod, setCalcMethodState] = useState<CalcMethod>(() => {
+    const raw = localStorage.getItem('app-calc-method');
+    if (!raw || raw === 'auto') return 'auto';
+    const n = parseInt(raw, 10);
+    return Number.isFinite(n) ? n : 'auto';
+  });
 
   const authUserRef = useRef<User | null>(null);
   const syncRef = useRef(false);
@@ -148,6 +158,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setMidnightModeState(0); localStorage.setItem('app-midnight-mode', '0');
     setLatitudeAdjMethodState('angle'); localStorage.setItem('app-lat-adj-method', 'angle');
     setDstEnabledState(true); localStorage.setItem('app-dst-enabled', 'true');
+    setCalcMethodState('auto'); localStorage.setItem('app-calc-method', 'auto');
     setTimeout(() => { syncRef.current = false; }, 100);
   };
 
@@ -199,6 +210,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
         if (s.midnightMode !== undefined) { setMidnightModeState(s.midnightMode); localStorage.setItem('app-midnight-mode', String(s.midnightMode)); }
         if (s.latitudeAdjMethod) { setLatitudeAdjMethodState(s.latitudeAdjMethod); localStorage.setItem('app-lat-adj-method', s.latitudeAdjMethod); }
         if (s.dstEnabled !== undefined) { setDstEnabledState(s.dstEnabled); localStorage.setItem('app-dst-enabled', String(s.dstEnabled)); }
+        if (s.calcMethod !== undefined) {
+          const cm: CalcMethod = s.calcMethod === 'auto' ? 'auto' : Number(s.calcMethod);
+          setCalcMethodState(cm);
+          localStorage.setItem('app-calc-method', String(cm));
+        }
         // Also load game stats and locations if stored
         if (s.gameStats) localStorage.setItem('game-stats', JSON.stringify(s.gameStats));
         if (s.savedLocations) localStorage.setItem('saved-locations', JSON.stringify(s.savedLocations));
@@ -232,6 +248,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       midnightMode: parseInt(localStorage.getItem('app-midnight-mode') || '0', 10),
       latitudeAdjMethod: localStorage.getItem('app-lat-adj-method') || 'angle',
       dstEnabled: localStorage.getItem('app-dst-enabled') !== 'false',
+      calcMethod: (localStorage.getItem('app-calc-method') ?? 'auto'),
     };
     // Also save game stats and locations
     try { settings.gameStats = JSON.parse(localStorage.getItem('game-stats') || '{}'); } catch { /* noop */ }
@@ -349,6 +366,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
     scheduleSave();
   };
 
+  const setCalcMethod = (m: CalcMethod) => {
+    setCalcMethodState(m);
+    localStorage.setItem('app-calc-method', String(m));
+    scheduleSave();
+  };
+
   const t = (key: string): string => translate(language, key);
   const dir = language === 'ar' ? 'rtl' : 'ltr';
 
@@ -400,7 +423,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [fontFamily, fontSize, fontWeight, fontOpacity]);
 
   return (
-    <AppContext.Provider value={{ language, setLanguage, theme, setTheme, t, dir, accentHue, setAccentHue, paletteStyle, setPaletteStyle, colorTheme, setColorTheme, blackMode, setBlackMode, fontFamily, setFontFamily, fontSize, setFontSize, fontWeight, setFontWeight, fontOpacity, setFontOpacity, prayerMadhab, setPrayerMadhab, midnightMode, setMidnightMode, latitudeAdjMethod, setLatitudeAdjMethod, dstEnabled, setDstEnabled }}>
+    <AppContext.Provider value={{ language, setLanguage, theme, setTheme, t, dir, accentHue, setAccentHue, paletteStyle, setPaletteStyle, colorTheme, setColorTheme, blackMode, setBlackMode, fontFamily, setFontFamily, fontSize, setFontSize, fontWeight, setFontWeight, fontOpacity, setFontOpacity, prayerMadhab, setPrayerMadhab, midnightMode, setMidnightMode, latitudeAdjMethod, setLatitudeAdjMethod, dstEnabled, setDstEnabled, calcMethod, setCalcMethod }}>
       {children}
     </AppContext.Provider>
   );
