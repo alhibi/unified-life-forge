@@ -3,7 +3,7 @@ import { useApp } from '@/contexts/AppContext';
 import { useUnreadMessages } from '@/hooks/useUnreadMessages';
 import { useInChatConversation } from '@/lib/inChatConversation';
 import {
-  House, Dices, Compass, BookOpen, MessageCircle, HeartPulse, CloudSun, Crown,
+  House, Dices, Compass, BookOpen, MessageCircle, HeartPulse, Crown,
 } from '@/lib/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { prefetchRoute } from '@/lib/routePrefetch';
@@ -44,7 +44,6 @@ const tabs: Tab[] = [
   { key: 'chat',      path: '/chat',      icon: MessageCircle, labelKey: 'nav.chat'      },
   { key: 'wellness',  path: '/wellness',  icon: HeartPulse,    labelKey: 'nav.wellness'  },
   { key: 'home',      path: '/',          icon: House,         labelKey: 'nav.home'      },
-  { key: 'weather',   path: '/weather',   icon: CloudSun,      labelKey: 'nav.weather'   },
   { key: 'browse',    path: '/browse',    icon: Compass,       labelKey: 'nav.browse'    },
   { key: 'knowledge', path: '/knowledge', icon: Crown,         labelKey: 'nav.knowledge' },
   { key: 'mihrab',    path: '/mihrab',    icon: BookOpen,      labelKey: 'nav.mihrab'    },
