@@ -489,19 +489,23 @@
 }
 
 @layer utilities {
-  /* Nuke shadows globally — paper aesthetic is FLAT. */
+  /* Nuke shadows globally — paper aesthetic is FLAT.
+     The bottom nav opts out via `.preserve-fx`. */
   *:not(.preserve-fx):not(.preserve-fx *) {
     box-shadow: none !important;
     text-shadow: none !important;
-    filter: none;
   }
-  /* Nuke ALL gradient backgrounds. Keeps solid colors intact.
-     The bottom-nav pill + live aura are scoped under .preserve-fx. */
-  *:not(.preserve-fx):not(.preserve-fx *) {
+  /* Strip Tailwind gradient utilities only — leaves inline
+     style={{ backgroundImage: ... }} (avatars, attachments) intact. */
+  [class*="bg-gradient"]:not(.preserve-fx):not(.preserve-fx *),
+  [class*="from-"]:not(.preserve-fx):not(.preserve-fx *),
+  [class*="via-"]:not(.preserve-fx):not(.preserve-fx *),
+  [class*="to-"]:not(.preserve-fx):not(.preserve-fx *) {
     background-image: none !important;
+    --tw-gradient-from: transparent !important;
+    --tw-gradient-to: transparent !important;
+    --tw-gradient-stops: transparent !important;
   }
-  /* Re-allow image backgrounds explicitly via .has-image */
-  .has-image, .has-image * { background-image: revert !important; }
   .app-icon-btn:active { transform: scale(0.94); }
 
   /* Canonical page shell — every full-screen route uses these spacings.
