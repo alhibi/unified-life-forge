@@ -667,7 +667,7 @@ function ArcStrip({
   t: (k: string) => string;
 }) {
   const [expandedZone, setExpandedZone] = useState<number | null>(null);
-  const showStars = isDark && isNight;
+  const showStars = true;
 
   // Tint overlay when inside a makruh zone
   let tint = 'transparent';
@@ -688,16 +688,15 @@ function ArcStrip({
 
   return (
     <div
-      className="relative bg-muted/10"
+      className="relative h-[100px] overflow-hidden bg-card"
       style={{
         backgroundColor: tint === 'transparent' ? undefined : tint,
-        aspectRatio: `${ARC_W} / ${ARC_H}`,
       }}
     >
       <svg
         viewBox={`0 0 ${ARC_W} ${ARC_H}`}
         className="w-full h-full block select-none"
-        preserveAspectRatio="xMidYMid slice"
+        preserveAspectRatio="none"
         aria-hidden="true"
       >
         {/* Stars (only at night in dark mode) */}
@@ -711,9 +710,9 @@ function ArcStrip({
                   ARC_LINE_Y + ARC_NIGHT_AMPL,
                   ARC_LINE_Y - ARC_DAY_AMPL + (s.y / 60) * (ARC_DAY_AMPL + ARC_NIGHT_AMPL + 12)
                 )}
-                r={s.r * 1.1}
-                fill="white"
-                animate={{ opacity: [0.1, 0.5, 0.1] }}
+                r={s.r}
+                fill="currentColor"
+                animate={{ opacity: [isDark ? 0.1 : 0.05, isDark ? 0.5 : 0.25, isDark ? 0.1 : 0.05] }}
                 transition={{
                   duration: 1.8,
                   repeat: Infinity,
@@ -783,7 +782,6 @@ function ArcStrip({
           const isPast = sunT > p.arcT;
           const px = arcX(p.arcT);
           const py = arcCurveY(p.arcT, arcGeom);
-          const dotColor = isDark ? p.dotDark : p.dotLight;
           return (
             <g key={p.name}>
               {isNext && (
@@ -801,12 +799,12 @@ function ArcStrip({
                 cx={px}
                 cy={py}
                 r={isNext ? 4 : 3.5}
-                fill={dotColor}
-                fillOpacity={isNext ? 1 : isPast ? 0.85 : 0.4}
+                fill="currentColor"
+                fillOpacity={isNext ? 0.8 : isPast ? 0.6 : 0.25}
               />
               <text
                 x={px}
-                y={py + 14}
+                y={py + 18}
                 textAnchor="middle"
                 fontSize={isNext ? 7.5 : 7}
                 fontWeight={isNext ? 700 : 500}
