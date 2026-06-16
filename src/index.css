@@ -530,6 +530,41 @@
   .app-stack-sm { display: flex; flex-direction: column; gap: 0.5rem;  } /* gap-2 — curium sm */
   .app-stack-lg { display: flex; flex-direction: column; gap: 1.5rem;  } /* gap-6 — curium xl */
 
+  /* ──────────────────────────────────────────────────────────────
+     GLOBAL UNIFORMITY LAYER
+     Forces every full-screen page to share the same column width,
+     edge gutter, and card corner radius — except chat surfaces
+     which keep their Signal-style bubble identity.
+     ────────────────────────────────────────────────────────────── */
+
+  /* Center any direct page-shell child into the canonical column.
+     Sticky / fixed / absolute children are skipped so floating
+     headers, drawers, and overlays still span edge-to-edge. */
+  .page-shell > div:not(.page-shell-inner):not([class*="sticky"]):not([class*="absolute"]):not([class*="fixed"]):not([data-fullbleed]),
+  .page-shell > section:not([class*="sticky"]):not([class*="absolute"]):not([class*="fixed"]):not([data-fullbleed]),
+  .page-shell > main:not([class*="sticky"]):not([class*="absolute"]):not([class*="fixed"]):not([data-fullbleed]) {
+    max-width: 32rem;       /* max-w-lg */
+    margin-inline: auto;
+    width: 100%;
+  }
+
+  /* Uniform card corners — every card-like surface uses 14px (--radius).
+     Scoped to surfaces that explicitly carry a card / muted / secondary
+     background so avatars, pills, and chat bubbles are untouched. */
+  :where(
+    [class*="bg-card"][class*="rounded-xl"],
+    [class*="bg-card"][class*="rounded-2xl"],
+    [class*="bg-card"][class*="rounded-3xl"],
+    [class*="bg-muted"][class*="rounded-2xl"],
+    [class*="bg-muted"][class*="rounded-3xl"],
+    [class*="bg-secondary"][class*="rounded-2xl"],
+    [class*="bg-secondary"][class*="rounded-3xl"],
+    [class*="bg-accent"][class*="rounded-2xl"],
+    [class*="bg-accent"][class*="rounded-3xl"]
+  ):not([data-chat]):not([data-chat] *):not([data-bubble]) {
+    border-radius: var(--radius);
+  }
+
   /* Canonical section heading — tiny uppercase tracking label above a group. */
   .app-section-label {
     font-size: 11px;
