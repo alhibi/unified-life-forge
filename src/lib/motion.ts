@@ -91,37 +91,39 @@ export const BOUNCE_CLOSE  = EASE_IN;
  * call site. If you need a new motion archetype, add it here.
  * ───────────────────────────────────────────────────────────────────── */
 export const MOTION = {
-  /** Forward (push / enter new screen). */
+  /* ── Khushu / Material 3 Expressive nav transitions ─────────────────
+   * Mirrors MainActivity.kt:968–1040 of the reference Compose app.
+   * Each transition is composed of TWO curves running in parallel:
+   *   • opacity   — short (150ms exit / 350ms enter) on decelerate/accelerate
+   *   • scale     — long  (500ms) on M3 emphasized
+   * Framer-motion reads `scale.transition` / `opacity.transition` from
+   * the variants in PageTransition / buildTabLayerVariants. The values
+   * below are kept here as the canonical durations so any other code
+   * that wants to mirror these numbers (e.g., reduced-motion fall-back)
+   * can read them from a single place. */
+
+  /** Forward push — incoming sub-screen. */
   push: {
-    duration: 0.30,        // 300ms — within the 280–320ms spec band
-    ease: EASE_OUT_QUAD,
+    duration: 0.5,
+    ease: EASE_M3_EMPHASIZED,
   } as Transition,
 
-  /** Backward (pop / go back). Slightly faster than push. */
+  /** Backward pop — outgoing sub-screen. */
   pop: {
-    duration: 0.26,        // 260ms — within the 240–280ms spec band
-    ease: EASE_OUT_QUAD,
+    duration: 0.5,
+    ease: EASE_M3_EMPHASIZED,
   } as Transition,
 
-  /**
-   * Tab cross-fade. Used when switching between top-level
-   * destinations (Home/Games/Chat/...). Vertical micro-motion only —
-   * a horizontal slide on every bottom-nav tap is exhausting.
-   * 200ms keeps the change instant-feeling without competing with
-   * page content.
-   */
+  /** Tab swap — between top-level destinations. */
   tab: {
-    duration: 0.20,
-    ease: EASE_OUT_EXPO,
+    duration: 0.5,
+    ease: EASE_M3_EMPHASIZED,
   } as Transition,
 
-  /**
-   * Tab exit — slightly faster than enter so the outgoing tab gets
-   * out of the way while the incoming one settles.
-   */
+  /** Tab exit — paired with `tab`. */
   tabExit: {
-    duration: 0.14,
-    ease: EASE_IN,
+    duration: 0.5,
+    ease: EASE_M3_EMPHASIZED,
   } as Transition,
 
   /** Modal / bottom-sheet enter (320ms, ease-out-cubic). */
@@ -191,12 +193,42 @@ export const MOTION = {
   } as Transition,
 
   /**
-   * Outgoing-screen travel ratio for parallax depth on push/pop.
-   * The screen leaving the viewport moves at 35% of the incoming
-   * screen's distance — that is what makes a layered iOS push feel
-   * physical instead of flat.
+   * Legacy parallax ratio — retained for backward compatibility with
+   * any caller that still reads `MOTION.parallax`. The active push/pop
+   * uses scale+fade (Khushu spec), not horizontal parallax.
    */
   parallax: 0.35,
+
+  /* ── Khushu nav-transition primitives (per-property) ────────────── */
+  /** Subscreen ENTER — fade leg. */
+  navFadeEnter: {
+    duration: 0.35,
+    delay: 0.10,
+    ease: EASE_M3_DECELERATE,
+  } as Transition,
+  /** Subscreen EXIT — fade leg. */
+  navFadeExit: {
+    duration: 0.15,
+    ease: EASE_M3_ACCELERATE,
+  } as Transition,
+  /** Tab ENTER — fade leg (delay 150ms per spec). */
+  navFadeTabEnter: {
+    duration: 0.35,
+    delay: 0.15,
+    ease: EASE_M3_DECELERATE,
+  } as Transition,
+  /** Scale leg shared by every nav transition (500 ms emphasized). */
+  navScale: {
+    duration: 0.5,
+    ease: EASE_M3_EMPHASIZED,
+  } as Transition,
+
+  /* ── Khushu scale ratios (MainActivity.kt:980, 991, 1004, 1015, 1027, 1038) */
+  scalePushFrom: 0.85,
+  scalePushTo:   0.95,
+  scalePopFrom:  0.95,
+  scalePopTo:    0.85,
+  scaleTab:      0.92,
 
   /**
    * Tap-feedback target scale (1.0 → 0.96 on press-in).
