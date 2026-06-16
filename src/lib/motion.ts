@@ -62,6 +62,18 @@ export const EASE_IN:         EaseTuple = [0.4, 0, 1, 1];
 export const EASE_IN_OUT:     EaseTuple = [0.65, 0, 0.35, 1];
 export const EASE_SPRING:     EaseTuple = [0.34, 1.56, 0.64, 1];
 
+/* ── Khushu / Material 3 Expressive easings ─────────────────────────
+ * Mirrors the reference Compose app exactly (MainActivity.kt:968):
+ *   EmphasizedEasing       = cubic-bezier(0.2, 0.0, 0.0, 1.0)
+ *   EnterEasing (decelerate) = cubic-bezier(0.0, 0.0, 0.2, 1.0)
+ *   ExitEasing  (accelerate) = cubic-bezier(0.4, 0.0, 1.0, 1.0)
+ * The 500 ms scale runs on EmphasizedEasing while the 150/350 ms
+ * fade runs on Enter / Exit easings — same dual-curve composition
+ * Compose's M3 nav animations use. */
+export const EASE_M3_EMPHASIZED: EaseTuple = [0.2, 0.0, 0.0, 1.0];
+export const EASE_M3_DECELERATE: EaseTuple = [0.0, 0.0, 0.2, 1.0];
+export const EASE_M3_ACCELERATE: EaseTuple = [0.4, 0.0, 1.0, 1.0];
+
 // Aliases — kept for backward compatibility across the codebase.
 export const SPRING_SNAPPY = EASE_SPRING;
 export const EASE_OUT      = EASE_OUT_EXPO;
@@ -79,37 +91,39 @@ export const BOUNCE_CLOSE  = EASE_IN;
  * call site. If you need a new motion archetype, add it here.
  * ───────────────────────────────────────────────────────────────────── */
 export const MOTION = {
-  /** Forward (push / enter new screen). */
+  /* ── Khushu / Material 3 Expressive nav transitions ─────────────────
+   * Mirrors MainActivity.kt:968–1040 of the reference Compose app.
+   * Each transition is composed of TWO curves running in parallel:
+   *   • opacity   — short (150ms exit / 350ms enter) on decelerate/accelerate
+   *   • scale     — long  (500ms) on M3 emphasized
+   * Framer-motion reads `scale.transition` / `opacity.transition` from
+   * the variants in PageTransition / buildTabLayerVariants. The values
+   * below are kept here as the canonical durations so any other code
+   * that wants to mirror these numbers (e.g., reduced-motion fall-back)
+   * can read them from a single place. */
+
+  /** Forward push — incoming sub-screen. */
   push: {
-    duration: 0.30,        // 300ms — within the 280–320ms spec band
-    ease: EASE_OUT_QUAD,
+    duration: 0.5,
+    ease: EASE_M3_EMPHASIZED,
   } as Transition,
 
-  /** Backward (pop / go back). Slightly faster than push. */
+  /** Backward pop — outgoing sub-screen. */
   pop: {
-    duration: 0.26,        // 260ms — within the 240–280ms spec band
-    ease: EASE_OUT_QUAD,
+    duration: 0.5,
+    ease: EASE_M3_EMPHASIZED,
   } as Transition,
 
-  /**
-   * Tab cross-fade. Used when switching between top-level
-   * destinations (Home/Games/Chat/...). Vertical micro-motion only —
-   * a horizontal slide on every bottom-nav tap is exhausting.
-   * 200ms keeps the change instant-feeling without competing with
-   * page content.
-   */
+  /** Tab swap — between top-level destinations. */
   tab: {
-    duration: 0.20,
-    ease: EASE_OUT_EXPO,
+    duration: 0.5,
+    ease: EASE_M3_EMPHASIZED,
   } as Transition,
 
-  /**
-   * Tab exit — slightly faster than enter so the outgoing tab gets
-   * out of the way while the incoming one settles.
-   */
+  /** Tab exit — paired with `tab`. */
   tabExit: {
-    duration: 0.14,
-    ease: EASE_IN,
+    duration: 0.5,
+    ease: EASE_M3_EMPHASIZED,
   } as Transition,
 
   /** Modal / bottom-sheet enter (320ms, ease-out-cubic). */
@@ -179,12 +193,42 @@ export const MOTION = {
   } as Transition,
 
   /**
-   * Outgoing-screen travel ratio for parallax depth on push/pop.
-   * The screen leaving the viewport moves at 35% of the incoming
-   * screen's distance — that is what makes a layered iOS push feel
-   * physical instead of flat.
+   * Legacy parallax ratio — retained for backward compatibility with
+   * any caller that still reads `MOTION.parallax`. The active push/pop
+   * uses scale+fade (Khushu spec), not horizontal parallax.
    */
   parallax: 0.35,
+
+  /* ── Khushu nav-transition primitives (per-property) ────────────── */
+  /** Subscreen ENTER — fade leg. */
+  navFadeEnter: {
+    duration: 0.35,
+    delay: 0.10,
+    ease: EASE_M3_DECELERATE,
+  } as Transition,
+  /** Subscreen EXIT — fade leg. */
+  navFadeExit: {
+    duration: 0.15,
+    ease: EASE_M3_ACCELERATE,
+  } as Transition,
+  /** Tab ENTER — fade leg (delay 150ms per spec). */
+  navFadeTabEnter: {
+    duration: 0.35,
+    delay: 0.15,
+    ease: EASE_M3_DECELERATE,
+  } as Transition,
+  /** Scale leg shared by every nav transition (500 ms emphasized). */
+  navScale: {
+    duration: 0.5,
+    ease: EASE_M3_EMPHASIZED,
+  } as Transition,
+
+  /* ── Khushu scale ratios (MainActivity.kt:980, 991, 1004, 1015, 1027, 1038) */
+  scalePushFrom: 0.85,
+  scalePushTo:   0.95,
+  scalePopFrom:  0.95,
+  scalePopTo:    0.85,
+  scaleTab:      0.92,
 
   /**
    * Tap-feedback target scale (1.0 → 0.96 on press-in).
@@ -373,59 +417,51 @@ export const reducedMotionVariants: Variants = {
  * outgoing layer slides out at the parallax ratio (35%) — the same
  * physical depth cue iOS uses on UINavigationController push.
  * ───────────────────────────────────────────────────────────────────── */
-export function buildTabLayerVariants(rtl: boolean): Variants {
-  // Same sign convention as the page transition: positive x = "from
-  // right". For RTL we mirror so push enters from the LEFT.
-  const exitSign = (m: NavMode): number => {
-    if (m === 'push') return rtl ?  1 : -1;
-    if (m === 'pop')  return rtl ? -1 :  1;
-    return 0;
-  };
-  const enterSign = (m: NavMode): number => {
-    if (m === 'push') return rtl ? -1 :  1;
-    if (m === 'pop')  return rtl ?  1 : -1;
-    return 0;
-  };
-
+export function buildTabLayerVariants(_rtl: boolean): Variants {
+  // Khushu spec (MainActivity.kt:996–1040): nav transitions are scale
+  // + fade, not horizontal slide — so RTL/LTR direction is irrelevant
+  // here. The persistent tab layer follows the SUBSCREEN curve when
+  // pushing to / popping from a sub-page so it stays visually in sync
+  // with whatever non-persistent page is taking over.
   return {
     initial: (m: NavMode) => {
-      // First mount of the layer — render at rest. Tab→tab swaps stay
-      // here too because we keep the AnimatePresence key stable.
       if (m === 'initial' || m === 'tab' || m === 'replace') {
-        return { opacity: 1, x: 0 };
+        return { opacity: 1, scale: 1 };
       }
-      // Re-entering the tab layer from a sub-page (pop). Slide back in
-      // from the appropriate edge at parallax ratio so the entrance
-      // mirrors the way we left.
-      return { opacity: 0, x: `${enterSign(m) * MOTION.parallax * 100}%` };
+      // pop back to a tab from a sub-page → start at popEnter (0.95).
+      if (m === 'pop') return { opacity: 0, scale: MOTION.scalePopFrom };
+      // push into the tab layer from somewhere else → start at pushEnter (0.85).
+      return { opacity: 0, scale: MOTION.scalePushFrom };
     },
-    animate: (m: NavMode) => ({
+    animate: () => ({
       opacity: 1,
-      x: '0%',
-      transition: m === 'pop' ? MOTION.pop : MOTION.push,
+      scale: 1,
+      transition: {
+        opacity: MOTION.navFadeEnter,
+        scale:   MOTION.navScale,
+      },
     }),
     exit: (m: NavMode) => {
-      // Tab / replace / initial: the persistent layer leaves instantly so
-      // the incoming non-persistent page (Weather, Browse, Mihrab, …) can
-      // claim the viewport without a stacked-fade overlap. A 200ms fade
-      // here caused the old tab to remain visible while the new page
-      // started its own enter animation — visually "two screens at once".
+      // Tab → non-persistent tab swap: leave instantly so the incoming
+      // page can claim the viewport without a stacked overlap.
       if (m === 'tab' || m === 'replace' || m === 'initial') {
         return {
           opacity: 0,
-          x: 0,
+          scale: 1,
           display: 'none',
           pointerEvents: 'none',
           transition: { duration: 0 },
         };
       }
-      // Push/pop — the tab layer leaves at parallax ratio in the
-      // direction OPPOSITE the incoming page. This is what gives the
-      // layered iOS depth feel without any opacity-fade overlap.
+      // push → subscreen exit (scale to 0.95). pop → pop exit (0.85).
+      const target = m === 'push' ? MOTION.scalePushTo : MOTION.scalePopTo;
       return {
         opacity: 0,
-        x: `${exitSign(m) * MOTION.parallax * 100}%`,
-        transition: m === 'push' ? MOTION.push : MOTION.pop,
+        scale: target,
+        transition: {
+          opacity: MOTION.navFadeExit,
+          scale:   MOTION.navScale,
+        },
       };
     },
   };
