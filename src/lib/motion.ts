@@ -62,6 +62,18 @@ export const EASE_IN:         EaseTuple = [0.4, 0, 1, 1];
 export const EASE_IN_OUT:     EaseTuple = [0.65, 0, 0.35, 1];
 export const EASE_SPRING:     EaseTuple = [0.34, 1.56, 0.64, 1];
 
+/* ── Khushu / Material 3 Expressive easings ─────────────────────────
+ * Mirrors the reference Compose app exactly (MainActivity.kt:968):
+ *   EmphasizedEasing       = cubic-bezier(0.2, 0.0, 0.0, 1.0)
+ *   EnterEasing (decelerate) = cubic-bezier(0.0, 0.0, 0.2, 1.0)
+ *   ExitEasing  (accelerate) = cubic-bezier(0.4, 0.0, 1.0, 1.0)
+ * The 500 ms scale runs on EmphasizedEasing while the 150/350 ms
+ * fade runs on Enter / Exit easings — same dual-curve composition
+ * Compose's M3 nav animations use. */
+export const EASE_M3_EMPHASIZED: EaseTuple = [0.2, 0.0, 0.0, 1.0];
+export const EASE_M3_DECELERATE: EaseTuple = [0.0, 0.0, 0.2, 1.0];
+export const EASE_M3_ACCELERATE: EaseTuple = [0.4, 0.0, 1.0, 1.0];
+
 // Aliases — kept for backward compatibility across the codebase.
 export const SPRING_SNAPPY = EASE_SPRING;
 export const EASE_OUT      = EASE_OUT_EXPO;
