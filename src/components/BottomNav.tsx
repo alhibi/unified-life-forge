@@ -70,6 +70,25 @@ type DragState = {
   moved: boolean;
 };
 
+/**
+ * Resolve the tab index that the pointer is physically over, by hit-testing
+ * the actual button element under the lift point. This is far more reliable
+ * than dividing the container width by tab count, because the container has
+ * horizontal padding, the pill has a max-width, RTL flips visual order, and
+ * any rounding error at a tab boundary can otherwise misroute a clean tap to
+ * a neighbouring tab. We read `data-tab-index` off the closest button.
+ */
+function hitTestTabIndex(clientX: number, clientY: number): number | null {
+  const el = document.elementFromPoint(clientX, clientY) as HTMLElement | null;
+  if (!el) return null;
+  const btn = el.closest('[data-tab-index]') as HTMLElement | null;
+  if (!btn) return null;
+  const raw = btn.getAttribute('data-tab-index');
+  if (raw == null) return null;
+  const n = Number(raw);
+  return Number.isFinite(n) ? n : null;
+}
+
 /** Height of the nav bar content row (excluding safe-area padding). */
 export const BOTTOM_NAV_HEIGHT = 58;
 
@@ -154,7 +173,11 @@ export default function BottomNav() {
       if (!surface) return;
       const rect = surface.getBoundingClientRect();
       const x = e.clientX - rect.left;
-      const idx = computeIndexFromX(x);
+      // Prefer hit-testing the actual button under the finger — it's
+      // immune to container padding, max-width centering, and RTL flips.
+      // Fall back to the math-based estimate only if the hit-test misses
+      // (e.g. the finger landed on the pill background between buttons).
+      const idx = hitTestTabIndex(e.clientX, e.clientY) ?? computeIndexFromX(x);
       setDragState({ startX: x, x, index: idx, moved: false });
       // Warm the target tab's module the instant the finger lands —
       // by the time pointerup fires (~150–300ms later) the chunk has
@@ -174,7 +197,7 @@ export default function BottomNav() {
       if (!surface) return;
       const rect = surface.getBoundingClientRect();
       const x = e.clientX - rect.left;
-      const newIndex = computeIndexFromX(x);
+      const newIndex = hitTestTabIndex(e.clientX, e.clientY) ?? computeIndexFromX(x);
       if (newIndex !== prev.index) {
         try { navigator.vibrate?.(4); } catch { /* noop */ }
         const t = tabs[newIndex];
@@ -191,7 +214,7 @@ export default function BottomNav() {
   );
 
   const endDrag = useCallback(
-    (commit: boolean, pointerId?: number) => {
+    (commit: boolean, pointerId?: number, clientX?: number, clientY?: number) => {
       const prev = dragRef.current;
       if (!prev) return;
       const surface = containerRef.current;
@@ -217,7 +240,17 @@ export default function BottomNav() {
       // into a vertical page scroll under `touch-action: pan-y`), so
       // scrolling the page from the bar never triggers a navigation.
       if (commit) {
-        const target = tabs[prev.index];
+        // For the final navigation, re-hit-test at the actual lift point.
+        // For a still tap, `prev.index` may be stale if any reflow happened
+        // between down and up; for a swipe, the last move event may have
+        // fired a few pixels before the finger lifted. Hit-testing at the
+        // exact release coordinates is the source of truth.
+        const liftIndex =
+          clientX !== undefined && clientY !== undefined
+            ? hitTestTabIndex(clientX, clientY)
+            : null;
+        const targetIndex = liftIndex ?? prev.index;
+        const target = tabs[targetIndex];
         if (target && location.pathname !== target.path && !isNavLocked()) {
           navigate(target.path);
           lockNav();
@@ -227,7 +260,7 @@ export default function BottomNav() {
     [navigate, location.pathname, setDragState, isNavLocked, lockNav],
   );
 
-  const onPointerUp     = useCallback((e: React.PointerEvent<HTMLDivElement>) => endDrag(true,  e.pointerId), [endDrag]);
+  const onPointerUp     = useCallback((e: React.PointerEvent<HTMLDivElement>) => endDrag(true,  e.pointerId, e.clientX, e.clientY), [endDrag]);
   const onPointerCancel = useCallback((e: React.PointerEvent<HTMLDivElement>) => endDrag(false, e.pointerId), [endDrag]);
 
   const dragging    = drag !== null;
@@ -290,6 +323,7 @@ export default function BottomNav() {
             <button
               key={tab.key}
               type="button"
+              data-tab-index={i}
               onClick={(e) => {
                 // Pointer taps and swipes are handled in the pointer
                 // flow (see `endDrag`), because pointer capture on the
