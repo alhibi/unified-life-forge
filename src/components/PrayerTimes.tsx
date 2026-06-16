@@ -1119,7 +1119,7 @@ function SlabRow({
       <div
         ref={shakeRef}
         onClick={onToggle}
-        className="relative flex items-center gap-2.5 py-2 cursor-pointer rounded-2xl transition-colors px-2"
+        className="relative flex items-center gap-2.5 py-[8.5px] cursor-pointer rounded-[18px] transition-colors"
         style={{
           backgroundColor: guideAlpha > 0 ? `hsl(var(--primary) / ${guideAlpha})` : 'transparent',
           transition: 'background-color 420ms ease',
@@ -1155,13 +1155,6 @@ function SlabRow({
           {language === 'ar' ? prayer.ar : t(`prayer.${prayer.name.toLowerCase()}`)}
         </span>
 
-        {/* NEXT badge */}
-        {isNext && (
-          <span className="text-[7.5px] font-bold tracking-[0.1em] text-primary me-2 shrink-0">
-            {t('prayer.next.short')}
-          </span>
-        )}
-
         {/* "Pray" pill — for the active (current-window) prayer */}
         {isActive && (
           <button
@@ -1170,7 +1163,7 @@ function SlabRow({
               e.stopPropagation();
               // Just acknowledge tap; could open a Qibla / pray-tracker modal
             }}
-            className="px-2.5 py-1 rounded-full text-[9px] font-semibold tracking-wide bg-primary/10 text-primary shrink-0"
+            className="px-2.5 py-[5px] me-2 rounded-full text-[9px] font-semibold tracking-[0.06em] bg-primary/[0.12] text-primary shrink-0"
           >
             {t('prayer.pray')}
           </button>
@@ -1178,7 +1171,7 @@ function SlabRow({
 
         {/* Arabic name (only when UI lang is not Arabic) */}
         {language !== 'ar' && (
-          <span className="text-[14px] text-foreground/50 shrink-0">
+          <span className="text-[14px] text-foreground/50 shrink-0 me-2">
             {prayer.ar}
           </span>
         )}
@@ -1191,7 +1184,7 @@ function SlabRow({
           {prayer.time}
         </span>
       </div>
-      {showDivider && <div className="h-px bg-foreground/5 mx-2" />}
+      {showDivider && <div className="h-px bg-foreground/5" />}
     </>
   );
 }
