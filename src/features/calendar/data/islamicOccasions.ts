@@ -107,11 +107,44 @@ export function fromHijri(year: number, month: number, day: number): Date {
 }
 
 export function getTodayHijri(): HijriDate {
-  return toHijri(new Date());
+  return toHijri(applyHijriOffset(new Date()));
 }
 
 export function formatHijriDate(h: HijriDate): string {
   return `${h.day} ${h.monthName} ${h.year}`;
+}
+
+// ───────────────────────────────────────────────────────────────────────────
+// Hijri day offset — allows aligning with the official Umm al-Qura (Saudi)
+// calendar at runtime. The tabular Kuwaiti algorithm can differ from the
+// Saudi official date by ±1-2 days. `setHijriDayOffset(n)` lets a runtime
+// hook (see `useLiveHijriDate`) shift every Hijri computation by `n` days so
+// today's display and resolved Gregorian dates align with Umm al-Qura.
+// ───────────────────────────────────────────────────────────────────────────
+let HIJRI_DAY_OFFSET = 0;
+
+export function setHijriDayOffset(n: number) {
+  HIJRI_DAY_OFFSET = Number.isFinite(n) ? Math.trunc(n) : 0;
+}
+
+export function getHijriDayOffset(): number {
+  return HIJRI_DAY_OFFSET;
+}
+
+/** Returns a new Date shifted by the configured Hijri offset (in days). */
+export function applyHijriOffset(d: Date): Date {
+  if (!HIJRI_DAY_OFFSET) return d;
+  const out = new Date(d);
+  out.setDate(out.getDate() + HIJRI_DAY_OFFSET);
+  return out;
+}
+
+/** Inverse of {@link applyHijriOffset}: shift Gregorian back by the offset. */
+export function unapplyHijriOffset(d: Date): Date {
+  if (!HIJRI_DAY_OFFSET) return d;
+  const out = new Date(d);
+  out.setDate(out.getDate() - HIJRI_DAY_OFFSET);
+  return out;
 }
 
 // ───────────────────────────────────────────────────────────────────────────
