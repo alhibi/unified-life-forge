@@ -293,9 +293,6 @@ export default function PrayerTimes() {
   const [locationName, setLocationName] = useState('');
   const [now, setNow] = useState(() => new Date());
 
-  // Hijri date — used in the SUN PATH card footer
-  const { hijri: hijriDate } = useLiveHijriDate();
-
   // Done-states keyed by yyyy-MM-dd, auto-reset on day rollover
   const [stamp, setStamp] = useState(todayStamp);
   const [doneStates, setDoneStates] = useState<Record<PrayerKey, boolean>>(() =>
@@ -518,18 +515,6 @@ export default function PrayerTimes() {
   const sunsetStr = extraTimings.Sunset
     ? formatTime12(extraTimings.Sunset, { am: t('prayer.am'), pm: t('prayer.pm') })
     : '';
-
-  // Period label for SUN PATH card (Morning / Afternoon / Evening / Night / Dawn)
-  const periodLabel = (() => {
-    if (sunT < arcGeom.dayStart) return language === 'ar' ? 'فجر' : 'Dawn';
-    if (sunT < 0.5) return language === 'ar' ? 'صباح' : 'Morning';
-    if (sunT < arcGeom.dayEnd - 0.05) return language === 'ar' ? 'ظهيرة' : 'Afternoon';
-    if (sunT <= arcGeom.dayEnd) return language === 'ar' ? 'غروب' : 'Sunset';
-    return language === 'ar' ? 'ليل' : 'Night';
-  })();
-
-  const nameOf = (p?: PrayerTime) =>
-    p ? (language === 'ar' ? p.ar : t(`prayer.${p.name.toLowerCase()}`)) : '—';
 
  // ─── Layout ───────────────────────────────────────────────────────────────
  return (
