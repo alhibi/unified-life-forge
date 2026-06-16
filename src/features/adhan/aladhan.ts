@@ -24,6 +24,7 @@ export const ALADHAN_METHOD: Record<CalculationMethodId, number> = {
   Kuwait:     9,
   Turkey:     13,
   Tehran:     7,
+  Jafari:     0,
   Jordan:     23,
   JAKIM:      17,
   Kemenag:    20,
