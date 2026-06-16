@@ -502,6 +502,35 @@
   [class*="bg-gradient-"]:not(.preserve-fx):not(.preserve-fx *) {
     background-image: none !important;
   }
+
+  /* ──────────────────────────────────────────────────────────────
+     CURIUM RADIUS NORMALIZATION
+     Every card-ish element across the app converges to curium's
+     two-radius scale: 14px (cards/sheets) and 10px (controls).
+     Tailwind classes are remapped via a utility override so we
+     don't have to touch dozens of files. `.preserve-fx` (bottom
+     nav, intentional shapes) opts out.
+     ────────────────────────────────────────────────────────────── */
+  .rounded-3xl:not(.preserve-fx):not(.preserve-fx *),
+  .rounded-2xl:not(.preserve-fx):not(.preserve-fx *) {
+    border-radius: 0.875rem !important;   /* 14px — curium Radius.lg */
+  }
+  .rounded-xl:not(.preserve-fx):not(.preserve-fx *),
+  .rounded-lg:not(.preserve-fx):not(.preserve-fx *) {
+    border-radius: 10px !important;       /* curium Radius.md */
+  }
+
+  /* ──────────────────────────────────────────────────────────────
+     CURIUM INPUT NORMALIZATION
+     Raw <input>/<textarea>/<select> not wrapped in shadcn Input
+     still inherit curium's 10px / hairline / mono / surface-offset
+     vocabulary. Scoped so chat composer & search bars stay sane.
+     ────────────────────────────────────────────────────────────── */
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]):not(.preserve-fx):not(.preserve-fx *),
+  textarea:not(.preserve-fx):not(.preserve-fx *),
+  select:not(.preserve-fx):not(.preserve-fx *) {
+    border-radius: 10px;
+  }
   .app-icon-btn:active { transform: scale(0.94); }
 
   /* Canonical page shell — every full-screen route uses these spacings.
