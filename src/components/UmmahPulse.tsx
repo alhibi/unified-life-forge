@@ -1009,25 +1009,7 @@ function UmmahPulse() {
 
       {/* Map (click to expand) */}
       <div className="relative px-3 pb-3">
-        <button
-          onClick={() => setExpanded(true)}
-          className="block w-full text-left active:scale-[0.985] transition-transform focus:outline-none focus:ring-2 focus:ring-primary/40 rounded-2xl"
-          aria-label={t('فتح الخريطة بحجم كامل', 'Karte im Vollbild öffnen')}
-        >
-          <div className="relative rounded-2xl overflow-hidden bg-[hsl(var(--muted))]/30 group">
-            <div className="absolute top-2 right-2 z-10 w-7 h-7 rounded-lg bg-background/75 backdrop-blur-md border border-border/40 flex items-center justify-center opacity-90 group-hover:opacity-100 transition-opacity">
-              <Maximize2 className="w-3.5 h-3.5 text-foreground" />
-            </div>
-
-            <div className="absolute top-2 left-2 z-10 flex items-center gap-1 px-2 py-0.5 rounded-full bg-background/75 backdrop-blur-md border border-border/40">
-              <span className="relative flex w-1.5 h-1.5">
-                <span className="absolute inline-flex w-full h-full rounded-full bg-[hsl(var(--live))] opacity-75 animate-ping" />
-                <span className="relative inline-flex rounded-full w-1.5 h-1.5 bg-[hsl(var(--live))]" />
-              </span>
-              <span className="text-[9px] font-bold tracking-wide text-foreground">LIVE</span>
-            </div>
-
-            <AdhanWave
+        <AdhanWave
               cities={cityDetails.map<WaveCity>((c) => ({
                 name: c.name,
                 nameAr: c.nameAr,
@@ -1046,72 +1028,6 @@ function UmmahPulse() {
               language={language === 'ar' ? 'ar' : 'de'}
               onOpenMap={() => setExpanded(true)}
             />
-
-            {fajrCities.length > 0 && (
-              <div
-                className="absolute bottom-2 left-2 right-2 flex flex-wrap gap-1.5 justify-center"
-                dir={language === 'ar' ? 'rtl' : 'ltr'}
-              >
-                {fajrCities.slice(0, 6).map((c) => (
-                  <motion.span
-                    key={c.name}
-                    initial={{ opacity: 0, y: 4 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-[9.5px] font-semibold px-2 py-0.5 rounded-full bg-primary/20 text-primary backdrop-blur-sm border border-primary/30 inline-flex items-center gap-1"
-                  >
-                    <span>{c.flag}</span>
-                    {language === 'ar' ? c.nameAr : c.name}
-                  </motion.span>
-                ))}
-                {fajrCities.length > 6 && (
-                  <span className="text-[9.5px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary/80 backdrop-blur-sm border border-primary/20">
-                    +{fajrCities.length - 6}
-                  </span>
-                )}
-              </div>
-            )}
-          </div>
-        </button>
-
-        {/* Quick stats row — 5 prayer summaries */}
-        <div
-          className="grid grid-cols-5 gap-1.5 mt-2.5"
-          dir={language === 'ar' ? 'rtl' : 'ltr'}
-        >
-          {([
-            ['fajr',    fajrCities.length],
-            ['dhuhr',   cityDetails.filter(c => c.info.slot === 'dhuhr').length],
-            ['asr',     cityDetails.filter(c => c.info.slot === 'asr').length],
-            ['maghrib', maghribCities.length],
-            ['isha',    cityDetails.filter(c => c.info.slot === 'isha').length],
-          ] as [PrayerSlot, number][]).map(([slot, count]) => (
-            <button
-              key={slot}
-              onClick={() => { setFilter(slot); setExpanded(true); }}
-              className="flex flex-col items-center justify-center py-1.5 px-1 rounded-xl bg-card border border-border/30 active:scale-95 transition-transform"
-            >
-              <div className="flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full" style={{ background: SLOT_META[slot].color }} />
-                <span className="text-[10px] font-semibold text-foreground">
-                  {language === 'ar' ? SLOT_META[slot].ar : SLOT_META[slot].de}
-                </span>
-              </div>
-              <span className="text-[11px] font-bold tabular-nums text-foreground mt-0.5">
-                {count}
-              </span>
-            </button>
-          ))}
-        </div>
-
-        <p
-          className="text-[10.5px] text-muted-foreground text-center mt-2.5 leading-relaxed px-2"
-          dir={language === 'ar' ? 'rtl' : 'ltr'}
-        >
-          {t(
-            'اضغط على الخريطة لعرض كل المدن ومواقيتها الرسمية',
-            'Tippe die Karte für offizielle Gebetszeiten aller Städte'
-          )}
-        </p>
       </div>
 
       {/* Fullscreen modal */}
