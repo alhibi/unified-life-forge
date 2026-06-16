@@ -417,59 +417,51 @@ export const reducedMotionVariants: Variants = {
  * outgoing layer slides out at the parallax ratio (35%) — the same
  * physical depth cue iOS uses on UINavigationController push.
  * ───────────────────────────────────────────────────────────────────── */
-export function buildTabLayerVariants(rtl: boolean): Variants {
-  // Same sign convention as the page transition: positive x = "from
-  // right". For RTL we mirror so push enters from the LEFT.
-  const exitSign = (m: NavMode): number => {
-    if (m === 'push') return rtl ?  1 : -1;
-    if (m === 'pop')  return rtl ? -1 :  1;
-    return 0;
-  };
-  const enterSign = (m: NavMode): number => {
-    if (m === 'push') return rtl ? -1 :  1;
-    if (m === 'pop')  return rtl ?  1 : -1;
-    return 0;
-  };
-
+export function buildTabLayerVariants(_rtl: boolean): Variants {
+  // Khushu spec (MainActivity.kt:996–1040): nav transitions are scale
+  // + fade, not horizontal slide — so RTL/LTR direction is irrelevant
+  // here. The persistent tab layer follows the SUBSCREEN curve when
+  // pushing to / popping from a sub-page so it stays visually in sync
+  // with whatever non-persistent page is taking over.
   return {
     initial: (m: NavMode) => {
-      // First mount of the layer — render at rest. Tab→tab swaps stay
-      // here too because we keep the AnimatePresence key stable.
       if (m === 'initial' || m === 'tab' || m === 'replace') {
-        return { opacity: 1, x: 0 };
+        return { opacity: 1, scale: 1 };
       }
-      // Re-entering the tab layer from a sub-page (pop). Slide back in
-      // from the appropriate edge at parallax ratio so the entrance
-      // mirrors the way we left.
-      return { opacity: 0, x: `${enterSign(m) * MOTION.parallax * 100}%` };
+      // pop back to a tab from a sub-page → start at popEnter (0.95).
+      if (m === 'pop') return { opacity: 0, scale: MOTION.scalePopFrom };
+      // push into the tab layer from somewhere else → start at pushEnter (0.85).
+      return { opacity: 0, scale: MOTION.scalePushFrom };
     },
-    animate: (m: NavMode) => ({
+    animate: () => ({
       opacity: 1,
-      x: '0%',
-      transition: m === 'pop' ? MOTION.pop : MOTION.push,
+      scale: 1,
+      transition: {
+        opacity: MOTION.navFadeEnter,
+        scale:   MOTION.navScale,
+      },
     }),
     exit: (m: NavMode) => {
-      // Tab / replace / initial: the persistent layer leaves instantly so
-      // the incoming non-persistent page (Weather, Browse, Mihrab, …) can
-      // claim the viewport without a stacked-fade overlap. A 200ms fade
-      // here caused the old tab to remain visible while the new page
-      // started its own enter animation — visually "two screens at once".
+      // Tab → non-persistent tab swap: leave instantly so the incoming
+      // page can claim the viewport without a stacked overlap.
       if (m === 'tab' || m === 'replace' || m === 'initial') {
         return {
           opacity: 0,
-          x: 0,
+          scale: 1,
           display: 'none',
           pointerEvents: 'none',
           transition: { duration: 0 },
         };
       }
-      // Push/pop — the tab layer leaves at parallax ratio in the
-      // direction OPPOSITE the incoming page. This is what gives the
-      // layered iOS depth feel without any opacity-fade overlap.
+      // push → subscreen exit (scale to 0.95). pop → pop exit (0.85).
+      const target = m === 'push' ? MOTION.scalePushTo : MOTION.scalePopTo;
       return {
         opacity: 0,
-        x: `${exitSign(m) * MOTION.parallax * 100}%`,
-        transition: m === 'push' ? MOTION.push : MOTION.pop,
+        scale: target,
+        transition: {
+          opacity: MOTION.navFadeExit,
+          scale:   MOTION.navScale,
+        },
       };
     },
   };
