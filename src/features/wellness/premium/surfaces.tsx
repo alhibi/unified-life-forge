@@ -73,13 +73,9 @@ export function softRadial(
   alpha: number,
   shape = 'ellipse 75% 100% at 50% 0%',
 ): string {
- return `radial-gradient(${shape},
- ${withAlpha(color, alpha)} 0%,
- ${withAlpha(color, alpha * 0.78)} 18%,
- ${withAlpha(color, alpha * 0.46)} 38%,
- ${withAlpha(color, alpha * 0.18)} 62%,
- ${withAlpha(color, alpha * 0.05)} 82%,
- ${withAlpha(color, 0)} 100%)`;
+  // Gradients disabled project-wide — return a flat translucent wash.
+  void shape;
+  return withAlpha(color, alpha * 0.18);
 }
 
 /**
@@ -91,13 +87,8 @@ export function softLinear(
  alpha: number,
  direction = '180deg',
 ): string {
-  return `linear-gradient(${direction},
-    ${withAlpha(color, alpha)} 0%,
-    ${withAlpha(color, alpha * 0.78)} 18%,
-    ${withAlpha(color, alpha * 0.46)} 38%,
-    ${withAlpha(color, alpha * 0.18)} 62%,
-    ${withAlpha(color, alpha * 0.05)} 82%,
-    ${withAlpha(color, 0)} 100%)`;
+  void direction;
+  return withAlpha(color, alpha * 0.18);
 }
 
 /**
@@ -107,20 +98,9 @@ export function softLinear(
  * instead of four hard rectangles.
  */
 export function smoothSpectrum(stops: { color: string; at: number }[], direction = '90deg'): string {
-  // Insert intermediate easing stops between each pair so segments feel
-  // soft. We add an extra mid-stop at the colour mid-point so the eye
-  // never sees a sharp colour-A→colour-B contour line.
-  const out: string[] = [];
-  for (let i = 0; i < stops.length; i++) {
-    const s = stops[i];
-    out.push(`${s.color} ${s.at}%`);
-    const next = stops[i + 1];
-    if (next) {
-      const mid = (s.at + next.at) / 2;
-      out.push(`color-mix(in oklab, ${s.color}, ${next.color}) ${mid}%`);
-    }
-  }
-  return `linear-gradient(${direction}, ${out.join(', ')})`;
+  // Gradients disabled — use the first stop as a solid fill.
+  void direction;
+  return stops[0]?.color ?? 'transparent';
 }
 
 /* ─────────────────────────── DitherLayer ─────────────────────────── */
@@ -700,17 +680,15 @@ export function ShimmerBorder({
   className,
   radius = '1.25rem',
 }: ShimmerBorderProps) {
-  const gradient = `conic-gradient(from var(--shimmer-angle, 0deg), ${colors.join(', ')})`;
-
+  // Gradients disabled — render a flat bordered container instead.
+  const borderColor = colors[0] ?? 'hsl(var(--border))';
   return (
     <div
       className={`relative ${className ?? ''}`}
       style={{
         borderRadius: radius,
         padding: width,
-        background: gradient,
-        // CSS custom property animated via @property in a <style>
-        animation: 'shimmer-rotate 4s linear infinite',
+        background: borderColor,
       }}
     >
       <div
@@ -722,17 +700,6 @@ export function ShimmerBorder({
       >
         {children}
       </div>
-      {/* Inject the keyframe animation */}
-      <style>{`
-        @property --shimmer-angle {
-          syntax: '<angle>';
-          initial-value: 0deg;
-          inherits: false;
-        }
-        @keyframes shimmer-rotate {
-          to { --shimmer-angle: 360deg; }
-        }
-      `}</style>
     </div>
   );
 }
