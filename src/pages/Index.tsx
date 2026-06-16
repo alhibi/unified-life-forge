@@ -122,10 +122,6 @@ export default function Index() {
           <h2 id="home-sunnah-h" className="sr-only">{language === 'ar' ? 'سنة الوقت الحالي' : 'Sunnah dieser Zeit'}</h2>
           <CurrentTimeSunnah />
         </motion.section>
-        <motion.section variants={item} aria-labelledby="home-weather-h">
-          <h2 id="home-weather-h" className="sr-only">{language === 'ar' ? 'الطقس' : 'Wetter'}</h2>
-          <WeatherWidget />
-        </motion.section>
         <motion.section variants={item} aria-labelledby="home-ummah-h">
           <h2 id="home-ummah-h" className="sr-only">{language === 'ar' ? 'نبض الأمة' : 'Ummah-Puls'}</h2>
           <UmmahPulse />
