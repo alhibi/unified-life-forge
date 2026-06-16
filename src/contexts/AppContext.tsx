@@ -77,10 +77,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     localStorage.getItem('app-black-mode') === 'true'
   );
   const [colorTheme, setColorThemeState] = useState<ColorTheme>(() =>
-    (localStorage.getItem('app-color-theme') as ColorTheme) || 'default'
+    (localStorage.getItem('app-color-theme') as ColorTheme) || 'paper'
   );
   const [fontFamily, setFontFamilyState] = useState<string>(() =>
-    localStorage.getItem('app-font-family') || 'default'
+    localStorage.getItem('app-font-family') || 'plex-mono'
   );
   const [fontSize, setFontSizeState] = useState<string>(() =>
     localStorage.getItem('app-font-size') || 'medium'
@@ -149,8 +149,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setAccentHueState(152); localStorage.setItem('app-accent-hue', '152');
     setPaletteStyleState('vibrant'); localStorage.setItem('app-palette-style', 'vibrant');
     setBlackModeState(false); localStorage.setItem('app-black-mode', 'false');
-    setColorThemeState('default'); localStorage.setItem('app-color-theme', 'default');
-    setFontFamilyState('default'); localStorage.setItem('app-font-family', 'default');
+    setColorThemeState('paper'); localStorage.setItem('app-color-theme', 'paper');
+    setFontFamilyState('plex-mono'); localStorage.setItem('app-font-family', 'plex-mono');
     setFontSizeState('medium'); localStorage.setItem('app-font-size', 'medium');
     setFontWeightState(400); localStorage.setItem('app-font-weight', '400');
     setFontOpacityState(1); localStorage.setItem('app-font-opacity', '1');
