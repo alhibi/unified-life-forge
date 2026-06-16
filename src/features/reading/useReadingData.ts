@@ -440,13 +440,25 @@ export function useReadingData(opts: { isAr: boolean }) {
     loadFromDB().finally(() => {
       if (cancelled) return;
       setLoading(false);
-      // ALWAYS attempt a refresh on mount — the user expects to see
-      // the latest articles when they open إطلاع. We only skip if
-      // the last refresh was very recent (< 5 min).
+      // Defer the first network refresh past the initial paint so the
+      // list renders instantly from cache. The user sees content
+      // immediately; the refresh fires in the background a moment
+      // later. Skip entirely when the last refresh was very recent.
       const last = localStorage.getItem(LAST_REFRESH_KEY);
       const recent = last &&
         Date.now() - new Date(last).getTime() < MIN_REFRESH_INTERVAL;
-      if (!recent) void refreshFeeds(true);
+      if (!recent) {
+        const schedule: (cb: () => void) => void =
+          typeof window !== 'undefined' &&
+          'requestIdleCallback' in window
+            ? (cb) => (window as unknown as {
+                requestIdleCallback: (cb: () => void, opts?: { timeout: number }) => void;
+              }).requestIdleCallback(cb, { timeout: 1500 })
+            : (cb) => setTimeout(cb, 400);
+        schedule(() => {
+          if (!cancelled) void refreshFeeds(true);
+        });
+      }
     });
 
     // Adaptive interval: reschedules itself based on failure count
