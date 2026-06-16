@@ -530,8 +530,6 @@ export default function PrayerTimes() {
      currentPrayer={currentPrayer}
      nextPrayer={nextPrayer}
      locationLabel={locationName || t('prayer.locationFallback')}
-     language={language}
-     t={t}
    />
    {/* 1dp horizontal separator at ~6% alpha (matches reference) */}
    <div className="h-px bg-foreground/[0.06]" />
@@ -580,13 +578,10 @@ function Hero({
   currentPrayer,
   nextPrayer,
   locationLabel,
-  t,
 }: {
   currentPrayer?: PrayerTime;
   nextPrayer?: PrayerTime;
   locationLabel: string;
-  language: string;
-  t: (k: string) => string;
 }) {
   const nameOf = (p?: PrayerTime) => (p ? p.name : '—');
 
