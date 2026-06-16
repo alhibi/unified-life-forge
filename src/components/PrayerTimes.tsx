@@ -188,9 +188,9 @@ const STARS: { x: number; y: number; r: number; delayMs: number }[] = (() => {
 const ARC_W = 320;
 const ARC_H = 100;
 const ARC_PAD_X = 22;
-const ARC_LINE_Y = 56;        // horizon line baseline
-const ARC_DAY_AMPL = 22;      // upward bell amplitude during day
-const ARC_NIGHT_AMPL = 14;    // downward bump amplitude at night
+const ARC_LINE_Y = 40;        // khushu: horizon line baseline at 40dp
+const ARC_DAY_AMPL = 14;      // khushu: upward bell amplitude during day
+const ARC_NIGHT_AMPL = 9;     // khushu: downward bump amplitude at night
 
 interface ArcGeom {
   dayStart: number;
