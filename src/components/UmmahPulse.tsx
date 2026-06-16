@@ -18,9 +18,7 @@ import {
   PRAYER_SLOT_ORDER,
 } from '@/utils/prayerAstronomy';
 import { WORLD_LAND_PATH } from './UmmahPulse.worldPath';
-import { UmmahNetwork, type NetworkCity, type UmmahNetworkHandle } from './UmmahNetwork';
-import { AdhanWave, type WaveCity } from './AdhanWave';
-import { useAdhanCalibration, type CalibrationCity } from '@/features/adhan/useAdhanCalibration';
+import { UmmahGlobe, type GlobeCity, type UmmahGlobeHandle } from './UmmahGlobe';
 
 /**
  * Ummah Pulse — a live planetary view of Islamic prayer across the world.
@@ -240,32 +238,10 @@ function UmmahPulse() {
   const [expanded, setExpanded] = useState(false);
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
   const [filter, setFilter] = useState<PrayerSlot | 'all'>('all');
-  const globeRef = useRef<UmmahNetworkHandle | null>(null);
+  const globeRef = useRef<UmmahGlobeHandle | null>(null);
   const [regionFilter, setRegionFilter] = useState<Region | 'all'>('all');
   const [search, setSearch] = useState('');
   const userShadowFactor: 1 | 2 = prayerMadhab === 'hanafi' ? 2 : 1;
-
-  // ── Aladhan calibration ────────────────────────────────────────
-  // Build a stable list of cities (lat/lng/tz/method/school) and feed
-  // it to the calibration hook. The hook returns per-prayer minute
-  // deltas vs each country's official published timetable, cached
-  // for ~30h in localStorage so the wave stays accurate without any
-  // network cost during normal use.
-  const calibrationCities: CalibrationCity[] = useMemo(
-    () =>
-      CITIES.map((c) => ({
-        name: c.name,
-        lat: c.lat,
-        lng: c.lng,
-        tz: c.tz,
-        method: c.method,
-        school: ((c.asrShadow ?? userShadowFactor) === 2 ? 1 : 0) as 0 | 1,
-        asrShadow: c.asrShadow ?? userShadowFactor,
-        adj: c.adj,
-      })),
-    [userShadowFactor],
-  );
-  const calibration = useAdhanCalibration(calibrationCities);
 
   // Clock tick — every 15s in expanded view, every 60s compact
   useEffect(() => {
@@ -306,41 +282,9 @@ function UmmahPulse() {
       CITIES.map((c) => {
         const cityShadow: 1 | 2 = c.asrShadow ?? userShadowFactor;
         const info = getCityPrayerInfo(c.lat, c.lng, c.tz, c.method, now, cityShadow, c.adj);
-        // Apply Aladhan-derived calibration on top of astronomy so
-        // every city matches its country's official timetable to the
-        // minute. Falls back to pure astronomy on first paint /
-        // offline. Recomputes localMinute-aware fields.
-        const off = calibration[c.name];
-        if (off) {
-          const shift = (v: number, d: number) => (((v + d) % 1440) + 1440) % 1440;
-          info.fajr    = shift(info.fajr,    off.fajr);
-          info.sunrise = shift(info.sunrise, off.sunrise);
-          info.dhuhr   = shift(info.dhuhr,   off.dhuhr);
-          info.asr     = shift(info.asr,     off.asr);
-          info.maghrib = shift(info.maghrib, off.maghrib);
-          info.isha    = shift(info.isha,    off.isha);
-          // Re-derive next-prayer countdown after calibration.
-          const events = [
-            { name: 'fajr' as const,    m: info.fajr    },
-            { name: 'dhuhr' as const,   m: info.dhuhr   },
-            { name: 'asr' as const,     m: info.asr     },
-            { name: 'maghrib' as const, m: info.maghrib },
-            { name: 'isha' as const,    m: info.isha    },
-          ];
-          const lm = info.localMinute;
-          let nx = events.find((e) => e.m > lm);
-          let mu: number;
-          if (nx) {
-            mu = nx.m - lm;
-          } else {
-            nx = events[0];
-            mu = (1440 - lm) + events[0].m;
-          }
-          info.next = { name: nx.name, minutesUntil: mu };
-        }
         return { ...c, info, shadowUsed: cityShadow };
       }),
-    [now, userShadowFactor, calibration]
+    [now, userShadowFactor]
   );
 
   const fajrCities = useMemo(
@@ -1009,25 +953,91 @@ function UmmahPulse() {
 
       {/* Map (click to expand) */}
       <div className="relative px-3 pb-3">
-        <AdhanWave
-              cities={cityDetails.map<WaveCity>((c) => ({
-                name: c.name,
-                nameAr: c.nameAr,
-                flag: c.flag,
-                country: c.country,
-                countryAr: c.countryAr,
-                lat: c.lat,
-                lng: c.lng,
-                pop: c.pop,
-                slot: c.info.slot,
-                next: c.info.next,
-                localClock: c.info.localClock,
-              }))}
-              subSolarLng={subLng}
-              subSolarLat={subLat}
-              language={language === 'ar' ? 'ar' : 'de'}
-              onOpenMap={() => setExpanded(true)}
-            />
+        <button
+          onClick={() => setExpanded(true)}
+          className="block w-full text-left active:scale-[0.985] transition-transform focus:outline-none focus:ring-2 focus:ring-primary/40 rounded-2xl"
+          aria-label={t('فتح الخريطة بحجم كامل', 'Karte im Vollbild öffnen')}
+        >
+          <div className="relative rounded-2xl overflow-hidden bg-[hsl(var(--muted))]/30 group">
+            <div className="absolute top-2 right-2 z-10 w-7 h-7 rounded-lg bg-background/75 backdrop-blur-md border border-border/40 flex items-center justify-center opacity-90 group-hover:opacity-100 transition-opacity">
+              <Maximize2 className="w-3.5 h-3.5 text-foreground" />
+            </div>
+
+            <div className="absolute top-2 left-2 z-10 flex items-center gap-1 px-2 py-0.5 rounded-full bg-background/75 backdrop-blur-md border border-border/40">
+              <span className="relative flex w-1.5 h-1.5">
+                <span className="absolute inline-flex w-full h-full rounded-full bg-[hsl(var(--live))] opacity-75 animate-ping" />
+                <span className="relative inline-flex rounded-full w-1.5 h-1.5 bg-[hsl(var(--live))]" />
+              </span>
+              <span className="text-[9px] font-bold tracking-wide text-foreground">LIVE</span>
+            </div>
+
+            {renderMapSvg()}
+
+            {fajrCities.length > 0 && (
+              <div
+                className="absolute bottom-2 left-2 right-2 flex flex-wrap gap-1.5 justify-center"
+                dir={language === 'ar' ? 'rtl' : 'ltr'}
+              >
+                {fajrCities.slice(0, 6).map((c) => (
+                  <motion.span
+                    key={c.name}
+                    initial={{ opacity: 0, y: 4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-[9.5px] font-semibold px-2 py-0.5 rounded-full bg-primary/20 text-primary backdrop-blur-sm border border-primary/30 inline-flex items-center gap-1"
+                  >
+                    <span>{c.flag}</span>
+                    {language === 'ar' ? c.nameAr : c.name}
+                  </motion.span>
+                ))}
+                {fajrCities.length > 6 && (
+                  <span className="text-[9.5px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary/80 backdrop-blur-sm border border-primary/20">
+                    +{fajrCities.length - 6}
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
+        </button>
+
+        {/* Quick stats row — 5 prayer summaries */}
+        <div
+          className="grid grid-cols-5 gap-1.5 mt-2.5"
+          dir={language === 'ar' ? 'rtl' : 'ltr'}
+        >
+          {([
+            ['fajr',    fajrCities.length],
+            ['dhuhr',   cityDetails.filter(c => c.info.slot === 'dhuhr').length],
+            ['asr',     cityDetails.filter(c => c.info.slot === 'asr').length],
+            ['maghrib', maghribCities.length],
+            ['isha',    cityDetails.filter(c => c.info.slot === 'isha').length],
+          ] as [PrayerSlot, number][]).map(([slot, count]) => (
+            <button
+              key={slot}
+              onClick={() => { setFilter(slot); setExpanded(true); }}
+              className="flex flex-col items-center justify-center py-1.5 px-1 rounded-xl bg-card border border-border/30 active:scale-95 transition-transform"
+            >
+              <div className="flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full" style={{ background: SLOT_META[slot].color }} />
+                <span className="text-[10px] font-semibold text-foreground">
+                  {language === 'ar' ? SLOT_META[slot].ar : SLOT_META[slot].de}
+                </span>
+              </div>
+              <span className="text-[11px] font-bold tabular-nums text-foreground mt-0.5">
+                {count}
+              </span>
+            </button>
+          ))}
+        </div>
+
+        <p
+          className="text-[10.5px] text-muted-foreground text-center mt-2.5 leading-relaxed px-2"
+          dir={language === 'ar' ? 'rtl' : 'ltr'}
+        >
+          {t(
+            'اضغط على الخريطة لعرض كل المدن ومواقيتها الرسمية',
+            'Tippe die Karte für offizielle Gebetszeiten aller Städte'
+          )}
+        </p>
       </div>
 
       {/* Fullscreen modal */}
@@ -1080,9 +1090,9 @@ function UmmahPulse() {
                     }}
                     onClick={() => setSelectedCity(null)}
                   >
-                    <UmmahNetwork
+                    <UmmahGlobe
                       ref={globeRef}
-                      cities={cityDetails.map<NetworkCity>((c) => ({
+                      cities={cityDetails.map<GlobeCity>((c) => ({
                         name: c.name,
                         nameAr: c.nameAr,
                         lat: c.lat,
@@ -1100,7 +1110,7 @@ function UmmahPulse() {
                       subSolarLat={subLat}
                       language={language === 'ar' ? 'ar' : 'de'}
                       selectedCity={selectedCity}
-                      onCityClick={(name: string) => {
+                      onCityClick={(name) => {
                         setSelectedCity((cur) => (cur === name ? null : name));
                         const c = cityDetails.find((x) => x.name === name);
                         if (c) {
@@ -1113,6 +1123,7 @@ function UmmahPulse() {
                         }
                       }}
                       onBackgroundClick={() => setSelectedCity(null)}
+                      idleRotate={2.5}
                     />
 
                     {/* Sub-solar coordinates badge */}
