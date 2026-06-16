@@ -549,7 +549,12 @@ export default function PrayerTimes() {
    />
  </div>
 
- {/* ═══ Card 2: Today's prayer slab (collapsible list) ══════════════ */}
+   {/* ═══ Card 2: Hijri occasions strip ═══════════════════════════════ */}
+  <div className="rounded-3xl border border-border bg-card overflow-hidden">
+  <HijriCalendarStrip language={language} t={t} />
+  </div>
+
+  {/* ═══ Card 3: Today's prayer slab (collapsible list) ══════════════ */}
   <div className="rounded-[28px] border border-foreground/[0.05] bg-card text-card-foreground overflow-hidden shadow-[0_18px_38px_-30px_hsl(var(--foreground)/0.5)]">
    <Slab
      prayers={prayers}
@@ -565,10 +570,6 @@ export default function PrayerTimes() {
    />
  </div>
 
-  {/* ═══ Card 3: Hijri occasions strip ═══════════════════════════════ */}
- <div className="rounded-3xl border border-border bg-card overflow-hidden">
- <HijriCalendarStrip language={language} t={t} />
- </div>
     </motion.div>
   );
 }
@@ -586,7 +587,7 @@ function Hero({
   const nameOf = (p?: PrayerTime) => (p ? p.name : '—');
 
   return (
-    <div className="grid min-h-[72px] grid-cols-2 divide-x divide-foreground/[0.08]">
+    <div className="grid grid-cols-2 divide-x divide-foreground/[0.08]">
       {/* Current */}
       <div className="bg-card px-[18px] pb-2 pt-[13px]">
         <div className="mb-[5px] flex min-h-[12px] items-center justify-between gap-2">
