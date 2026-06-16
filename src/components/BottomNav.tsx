@@ -272,7 +272,7 @@ export default function BottomNav() {
     <nav
       data-bottom-nav
       data-tide-bar
-      className="bottom-nav"
+      className="bottom-nav preserve-fx"
       style={{
         position: 'fixed',
         bottom: 'calc(env(safe-area-inset-bottom, 0px) + 10px)',
