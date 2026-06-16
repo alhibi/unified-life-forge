@@ -74,6 +74,7 @@ export default function PrayerSettings() {
     language, prayerMadhab, setPrayerMadhab,
     latitudeAdjMethod, setLatitudeAdjMethod,
     dstEnabled, setDstEnabled,
+    calcMethod, setCalcMethod,
   } = useApp();
   const isAr = language === 'ar';
 
@@ -81,6 +82,7 @@ export default function PrayerSettings() {
     setPrayerMadhab('shafii');
     setLatitudeAdjMethod('angle');
     setDstEnabled(true);
+    setCalcMethod('auto');
   };
 
   const madhabs: { id: PrayerMadhab; labelAr: string; labelDe: string; hintAr: string; hintDe: string }[] = [
@@ -138,6 +140,48 @@ export default function PrayerSettings() {
     },
   ];
 
+  // Sunni-only calculation methods (Aladhan IDs). Shia methods (0, 7) excluded.
+  type CalcOption = { id: 'auto' | number; labelAr: string; labelDe: string; hintAr: string; hintDe: string };
+  const calcOptions: CalcOption[] = [
+    { id: 'auto', labelAr: 'تلقائي (موصى به)', labelDe: 'Automatisch (empfohlen)',
+      hintAr: 'يختار الطريقة الأنسب لبلدك حسب الموقع', hintDe: 'Wählt die passende Methode je nach Land' },
+    { id: 4,  labelAr: 'أم القرى (السعودية)', labelDe: 'Umm al-Qura (Saudi-Arabien)',
+      hintAr: 'الطريقة الرسمية في المملكة العربية السعودية', hintDe: 'Offizielle Methode Saudi-Arabiens' },
+    { id: 5,  labelAr: 'الهيئة المصرية العامة للمساحة', labelDe: 'Ägyptische Generalbehörde',
+      hintAr: 'مصر، السودان، وكثير من إفريقيا', hintDe: 'Ägypten, Sudan, Teile Afrikas' },
+    { id: 3,  labelAr: 'رابطة العالم الإسلامي', labelDe: 'Muslim World League',
+      hintAr: 'الأكثر استخداماً عالمياً', hintDe: 'Weltweit am häufigsten verwendet' },
+    { id: 2,  labelAr: 'ISNA (أمريكا الشمالية)', labelDe: 'ISNA (Nordamerika)',
+      hintAr: 'الجمعية الإسلامية لأمريكا الشمالية', hintDe: 'Islamic Society of North America' },
+    { id: 1,  labelAr: 'جامعة كراتشي', labelDe: 'Universität Karatschi',
+      hintAr: 'باكستان، الهند، بنغلاديش، أفغانستان', hintDe: 'Pakistan, Indien, Bangladesch' },
+    { id: 13, labelAr: 'دياناتا (تركيا)', labelDe: 'Diyanet (Türkei)',
+      hintAr: 'الرئاسة التركية للشؤون الدينية', hintDe: 'Türkische Religionsbehörde' },
+    { id: 16, labelAr: 'الإمارات (دبي)', labelDe: 'VAE (Dubai)',
+      hintAr: 'الإمارات العربية المتحدة', hintDe: 'Vereinigte Arabische Emirate' },
+    { id: 8,  labelAr: 'منطقة الخليج', labelDe: 'Golfregion',
+      hintAr: 'البحرين، عُمان وما حولها', hintDe: 'Bahrain, Oman, Golfstaaten' },
+    { id: 9,  labelAr: 'الكويت', labelDe: 'Kuwait', hintAr: 'وزارة الأوقاف الكويتية', hintDe: 'Kuwaitisches Awqaf-Ministerium' },
+    { id: 10, labelAr: 'قطر', labelDe: 'Katar', hintAr: 'دولة قطر', hintDe: 'Staat Katar' },
+    { id: 23, labelAr: 'الأردن', labelDe: 'Jordanien', hintAr: 'وزارة الأوقاف الأردنية', hintDe: 'Jordanisches Awqaf-Ministerium' },
+    { id: 17, labelAr: 'جاكيم (ماليزيا)', labelDe: 'JAKIM (Malaysia)',
+      hintAr: 'ماليزيا، بروناي، الفلبين', hintDe: 'Malaysia, Brunei, Philippinen' },
+    { id: 20, labelAr: 'كيمناڠ (إندونيسيا)', labelDe: 'KEMENAG (Indonesien)',
+      hintAr: 'وزارة الشؤون الدينية الإندونيسية', hintDe: 'Indonesisches Religionsministerium' },
+    { id: 11, labelAr: 'مويس (سنغافورة)', labelDe: 'MUIS (Singapur)',
+      hintAr: 'مجلس علماء سنغافورة', hintDe: 'Islamischer Rat von Singapur' },
+    { id: 18, labelAr: 'تونس', labelDe: 'Tunesien', hintAr: 'الجمهورية التونسية', hintDe: 'Tunesische Republik' },
+    { id: 19, labelAr: 'الجزائر', labelDe: 'Algerien', hintAr: 'الجمهورية الجزائرية', hintDe: 'Algerische Republik' },
+    { id: 21, labelAr: 'المغرب', labelDe: 'Marokko', hintAr: 'المملكة المغربية', hintDe: 'Königreich Marokko' },
+    { id: 22, labelAr: 'لشبونة (البرتغال)', labelDe: 'Lissabon (Portugal)',
+      hintAr: 'الجالية الإسلامية بلشبونة', hintDe: 'Islamische Gemeinschaft Lissabon' },
+    { id: 12, labelAr: 'فرنسا (UOIF)', labelDe: 'Frankreich (UOIF)',
+      hintAr: 'اتحاد المنظمات الإسلامية بفرنسا', hintDe: 'Französischer Muslim-Dachverband' },
+    { id: 14, labelAr: 'روسيا', labelDe: 'Russland', hintAr: 'الإدارة الروحية لمسلمي روسيا', hintDe: 'Geistliche Verwaltung Russlands' },
+    { id: 15, labelAr: 'لجنة رؤية الهلال العالمية', labelDe: 'Moonsighting Committee',
+      hintAr: 'موصى بها لخطوط العرض العالية', hintDe: 'Empfohlen für hohe Breiten' },
+  ];
+
   return (
     <div className="min-h-screen bg-background pb-28 px-5 pt-14">
       <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-5 max-w-lg mx-auto">
@@ -171,6 +215,35 @@ export default function PrayerSettings() {
               />
             ))}
           </div>
+        </motion.div>
+
+        {/* Calculation Method (Sunni only) */}
+        <motion.div variants={item}>
+          <p className="text-[13px] font-medium text-muted-foreground mb-2.5 px-1">
+            {isAr ? 'طريقة حساب التواقيت' : 'Berechnungsmethode'}
+          </p>
+          <div role="radiogroup" aria-label={isAr ? 'طريقة الحساب' : 'Berechnungsmethode'} className="premium-card-elevated overflow-hidden">
+            {calcOptions.map((m, idx) => (
+              <RadioRow
+                key={String(m.id)}
+                selected={calcMethod === m.id}
+                onSelect={() => setCalcMethod(m.id)}
+                label={isAr ? m.labelAr : m.labelDe}
+                hint={isAr ? m.hintAr : m.hintDe}
+                isLast={idx === calcOptions.length - 1}
+              />
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Hybrid note */}
+        <motion.div variants={item} className="flex gap-3 rounded-2xl bg-primary/5 border border-primary/15 p-4">
+          <Info className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+          <p className="text-[12px] text-muted-foreground leading-relaxed">
+            {isAr
+              ? 'يستخدم التطبيق نظاماً هجيناً: حساب رسمي عبر الإنترنت مع توقيت محلي احتياطي عبر معادلات فلكية، ليعمل بدقة في جميع دول العالم وحتى دون اتصال.'
+              : 'Die App nutzt einen Hybrid-Ansatz: offizielle Online-Berechnung mit lokalem astronomischem Fallback — präzise weltweit, auch offline.'}
+          </p>
         </motion.div>
 
         {/* Info note */}
