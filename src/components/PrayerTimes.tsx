@@ -962,18 +962,18 @@ function Slab({
   const toggleExpanded = () => setExpanded((v) => !v);
 
   return (
-    <div className="px-4 pt-4 pb-4">
+    <div className="px-[22px] pb-8 pt-[22px]">
       {/* Header */}
       <button
         type="button"
         onClick={toggleExpanded}
         aria-expanded={expanded}
         aria-controls="prayer-slab-list"
-        className="group w-full flex items-center justify-between mb-2 -mx-1 px-1 py-1 rounded-lg
+        className="group w-full flex items-center justify-between mb-2 px-0 py-0 rounded-lg
           transition-colors hover:bg-foreground/[0.03] active:scale-[0.99]"
         style={{ transition: 'transform 120ms cubic-bezier(0.34,1.56,0.64,1), background-color 200ms ease' }}
       >
-        <span className="text-[10px] font-semibold tracking-[0.09em] uppercase text-muted-foreground">
+        <span className="text-[10px] font-semibold tracking-[0.09em] uppercase text-muted-foreground/90">
           {t('prayer.todaysPrayers')}
         </span>
         <span className="flex items-center gap-1.5">
