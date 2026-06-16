@@ -81,8 +81,8 @@
     --shadow-card: none;
     --shadow-elevated: none;
     --shadow-intense: none;
-    --font-display: 'Inter', 'Noto Sans Arabic', system-ui, -apple-system, sans-serif;
-    --font-body: 'Inter', 'Noto Sans Arabic', system-ui, -apple-system, sans-serif;
+    --font-display: 'IBM Plex Mono', 'IBM Plex Sans Arabic', 'Noto Sans Arabic', system-ui, -apple-system, monospace;
+    --font-body: 'IBM Plex Mono', 'IBM Plex Sans Arabic', 'Noto Sans Arabic', system-ui, -apple-system, monospace;
 
     /* ──────────────────────────────────────────────────────────────
        UNIFIED LIVE ACCENT — single warm copper that pulses across
