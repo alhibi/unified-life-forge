@@ -336,7 +336,446 @@ function UmmahPulse() {
 
   const t = (ar: string, de: string) => (language === 'ar' ? ar : de);
 
-  // __EDITORIAL_INSERT_HERE__
+  // ── Editorial data layer ──────────────────────────────────────────────────
+  // "Praying right now" — total Muslim pop currently inside an active prayer
+  // window. Weighted so window-start (fajr/maghrib) carries full weight and
+  // mid-windows carry partial weight, matching real-world participation curves.
+  const prayingNow = useMemo(() => {
+    const w: Record<PrayerSlot, number> = {
+      fajr: 1.0, shuruq: 0.15, duha: 0.18, dhuhr: 0.55, asr: 0.45,
+      maghrib: 0.9, isha: 0.65, night: 0.02,
+    };
+    let total = 0;
+    cityDetails.forEach((c) => { total += c.pop * (w[c.info.slot] ?? 0); });
+    return total; // in millions
+  }, [cityDetails]);
+
+  const totalUmmahPop = useMemo(
+    () => cityDetails.reduce((s, c) => s + c.pop, 0),
+    [cityDetails]
+  );
+
+  // Regional breakdown — per region, dominant slot + slot share by pop.
+  const regionStats = useMemo(() => {
+    const regions: Region[] = ['arab', 'africa', 'asia', 'europe', 'americas', 'oceania'];
+    return regions.map((r) => {
+      const inR = cityDetails.filter((c) => c.region === r);
+      const pop = inR.reduce((s, c) => s + c.pop, 0);
+      const bySlot: Record<PrayerSlot, number> = {
+        fajr: 0, shuruq: 0, duha: 0, dhuhr: 0, asr: 0, maghrib: 0, isha: 0, night: 0,
+      };
+      inR.forEach((c) => { bySlot[c.info.slot] += c.pop; });
+      let topSlot: PrayerSlot = 'night';
+      let topVal = -1;
+      (Object.keys(bySlot) as PrayerSlot[]).forEach((k) => {
+        if (bySlot[k] > topVal) { topVal = bySlot[k]; topSlot = k; }
+      });
+      return { region: r, pop, bySlot, topSlot, cityCount: inR.length };
+    });
+  }, [cityDetails]);
+
+  // 24-hour prayer wave — for each UTC hour, share of global Muslim pop in
+  // an active prayer window (excludes shuruq/duha/night, weights as above).
+  const waveData = useMemo(() => {
+    // Slot from local hour (matches slotBands in detail rendering).
+    const slotFromHour = (h: number): PrayerSlot => {
+      const x = ((h % 24) + 24) % 24;
+      if (x >= 4  && x < 6)  return 'fajr';
+      if (x >= 6  && x < 7)  return 'shuruq';
+      if (x >= 7  && x < 11) return 'duha';
+      if (x >= 11 && x < 14) return 'dhuhr';
+      if (x >= 14 && x < 17) return 'asr';
+      if (x >= 17 && x < 19) return 'maghrib';
+      if (x >= 19 && x < 22) return 'isha';
+      return 'night';
+    };
+    const weight: Record<PrayerSlot, number> = {
+      fajr: 1.0, shuruq: 0.15, duha: 0.18, dhuhr: 0.55, asr: 0.45,
+      maghrib: 0.9, isha: 0.65, night: 0.02,
+    };
+    const utcNow = now.getUTCHours() + now.getUTCMinutes() / 60;
+    // approximate per-city UTC offset from current local clock
+    const offsets = cityDetails.map((c) => {
+      const m = c.info.localClock.match(/(\d{1,2}):(\d{2})/);
+      const local = m ? parseInt(m[1], 10) + parseInt(m[2], 10) / 60 : 0;
+      let off = local - utcNow;
+      if (off > 14)  off -= 24;
+      if (off < -12) off += 24;
+      return { pop: c.pop, off };
+    });
+    const totalPop = offsets.reduce((s, o) => s + o.pop, 0) || 1;
+    const points: number[] = [];
+    for (let H = 0; H < 24; H++) {
+      let sum = 0;
+      offsets.forEach(({ pop, off }) => {
+        sum += pop * weight[slotFromHour(H + off)];
+      });
+      points.push(sum / totalPop);
+    }
+    return points;
+  }, [cityDetails, now]);
+
+  const utcHourNow = now.getUTCHours() + now.getUTCMinutes() / 60;
+
+  // Slot distribution — share of global Muslim pop per slot right now.
+  const slotShare = useMemo(() => {
+    const total = totalUmmahPop || 1;
+    return PRAYER_SLOT_ORDER.map((s) => ({
+      slot: s,
+      share: (slotPop[s] || 0) / total,
+      pop: slotPop[s] || 0,
+    }));
+  }, [slotPop, totalUmmahPop]);
+
+  // Live event log — detect cities transitioning into a new prayer slot.
+  type LogEntry = { id: string; cityName: string; cityNameAr: string; flag: string; slot: PrayerSlot; ts: number };
+  const prevSlotsRef = useRef<Map<string, PrayerSlot>>(new Map());
+  const [eventLog, setEventLog] = useState<LogEntry[]>([]);
+  useEffect(() => {
+    const next = new Map<string, PrayerSlot>();
+    const additions: LogEntry[] = [];
+    cityDetails.forEach((c) => {
+      next.set(c.name, c.info.slot);
+      const prev = prevSlotsRef.current.get(c.name);
+      if (prev && prev !== c.info.slot && (c.info.slot === 'fajr' || c.info.slot === 'maghrib' || c.info.slot === 'dhuhr' || c.info.slot === 'asr' || c.info.slot === 'isha')) {
+        additions.push({
+          id: `${c.name}-${c.info.slot}-${Date.now()}`,
+          cityName: c.name, cityNameAr: c.nameAr, flag: c.flag,
+          slot: c.info.slot, ts: Date.now(),
+        });
+      }
+    });
+    prevSlotsRef.current = next;
+    if (additions.length) {
+      setEventLog((log) => [...additions, ...log].slice(0, 12));
+    }
+  }, [cityDetails]);
+
+  // Seed event log on first mount with a few active cities so it's not empty
+  useEffect(() => {
+    if (eventLog.length > 0) return;
+    const seed = cityDetails
+      .filter((c) => c.info.slot === 'fajr' || c.info.slot === 'maghrib' || c.info.slot === 'isha')
+      .sort((a, b) => b.pop - a.pop)
+      .slice(0, 6)
+      .map((c, i) => ({
+        id: `seed-${c.name}`,
+        cityName: c.name, cityNameAr: c.nameAr, flag: c.flag,
+        slot: c.info.slot,
+        ts: Date.now() - (i + 1) * 47_000,
+      }));
+    if (seed.length) setEventLog(seed);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Smooth-counter for hero number — eases display number toward target
+  const [displayPraying, setDisplayPraying] = useState(prayingNow);
+  useEffect(() => {
+    let raf = 0;
+    const start = displayPraying;
+    const target = prayingNow;
+    const t0 = performance.now();
+    const dur = 900;
+    const tick = (t: number) => {
+      const k = Math.min(1, (t - t0) / dur);
+      const eased = 1 - Math.pow(1 - k, 3);
+      setDisplayPraying(start + (target - start) * eased);
+      if (k < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [prayingNow]);
+
+  // Number formatting — locale-aware, with M/B suffix (Latin digits always
+  // per project rule: global numbers in Arabic too).
+  const formatBig = (millions: number): { num: string; unit: string } => {
+    if (millions >= 1000) {
+      return { num: (millions / 1000).toFixed(2), unit: t('مليار', 'Mrd') };
+    }
+    if (millions >= 100) return { num: millions.toFixed(0), unit: t('مليون', 'Mio') };
+    return { num: millions.toFixed(1), unit: t('مليون', 'Mio') };
+  };
+  const formatRel = (ms: number) => {
+    const s = Math.max(1, Math.round((Date.now() - ms) / 1000));
+    if (s < 60)    return t(`قبل ${s}ث`,  `vor ${s}s`);
+    const m = Math.round(s / 60);
+    if (m < 60)   return t(`قبل ${m}د`,  `vor ${m}m`);
+    const h = Math.round(m / 60);
+    return t(`قبل ${h}س`, `vor ${h}h`);
+  };
+  const REGION_FLAG: Record<Region, string> = {
+    arab: '🕌', africa: '🌍', asia: '🌏', europe: '🌍', americas: '🌎', oceania: '🌏',
+  };
+
+  // ── Editorial dashboard render ────────────────────────────────────────────
+  const renderEditorial = (opts: { large?: boolean } = {}) => {
+    const large = !!opts.large;
+    const big = formatBig(displayPraying);
+    const utcHH = String(now.getUTCHours()).padStart(2, '0');
+    const utcMM = String(now.getUTCMinutes()).padStart(2, '0');
+    const waveMax = Math.max(...waveData, 0.0001);
+    const tickerCities = cityDetails
+      .filter((c) => c.info.slot === 'fajr' || c.info.slot === 'maghrib' || c.info.slot === 'isha')
+      .sort((a, b) => b.pop - a.pop);
+
+    return (
+      <div
+        className="w-full text-foreground"
+        style={{ background: 'radial-gradient(120% 80% at 50% 0%, hsl(28 22% 9% / 0.9), hsl(230 18% 5% / 0.95) 65%, hsl(232 22% 3%))' }}
+        dir={language === 'ar' ? 'rtl' : 'ltr'}
+      >
+        {/* Engrave overlay */}
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.05] mix-blend-overlay"
+          style={{
+            backgroundImage:
+              'repeating-linear-gradient(45deg, hsl(var(--live)) 0 1px, transparent 1px 6px)',
+          }}
+        />
+
+        {/* ── HERO NUMBER ─────────────────────────────────────────────── */}
+        <div className={`relative px-5 ${large ? 'pt-6 pb-5' : 'pt-5 pb-4'}`}>
+          <div className="flex items-center justify-between mb-2" dir="ltr">
+            <div className="flex items-center gap-1.5 text-[10px] font-bold tracking-[0.18em] text-[hsl(var(--live))]">
+              <span className="relative inline-flex w-1.5 h-1.5">
+                <span className="absolute inset-0 rounded-full bg-[hsl(var(--live))] opacity-70 animate-ping" />
+                <span className="relative inline-flex w-full h-full rounded-full bg-[hsl(var(--live))]" />
+              </span>
+              <span>LIVE · {utcHH}:{utcMM} UTC</span>
+            </div>
+            <div className="text-[9.5px] uppercase tracking-[0.2em] text-muted-foreground font-semibold">
+              {t('نبض الأمة', 'Puls der Ummah')}
+            </div>
+          </div>
+
+          <div className="flex items-baseline gap-2.5" dir="ltr">
+            <span
+              className={`font-bold text-foreground tabular-nums leading-[0.85] ${large ? 'text-[72px] md:text-[96px]' : 'text-[56px]'}`}
+              style={{
+                fontFamily: '"Instrument Serif", "DM Serif Display", ui-serif, Georgia, serif',
+                letterSpacing: '-0.03em',
+                background: 'linear-gradient(180deg, hsl(38 60% 88%), hsl(28 50% 62%) 70%, hsl(22 40% 38%))',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+              }}
+            >
+              {big.num}
+            </span>
+            <span className={`font-semibold text-[hsl(var(--live))] tabular-nums ${large ? 'text-[22px]' : 'text-[17px]'}`}>
+              {big.unit}
+            </span>
+          </div>
+          <p className={`mt-1 text-muted-foreground ${large ? 'text-[13px]' : 'text-[11.5px]'}`}>
+            {t('مسلم يصلّون الآن حول العالم', 'Muslime beten gerade weltweit')}
+            <span className="inline-block mx-1.5 w-1 h-1 rounded-full bg-muted-foreground/60 align-middle" />
+            <span className="text-foreground/80">{cityDetails.length} {t('مدينة', 'Städte')}</span>
+          </p>
+        </div>
+
+        {/* ── 24H PRAYER WAVE ─────────────────────────────────────────── */}
+        <div className="px-5 pb-3">
+          <div className="flex items-center justify-between mb-2" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+            <span className="text-[10px] uppercase tracking-[0.18em] font-bold text-muted-foreground">
+              {t('موجة الصلاة · 24 ساعة', 'Gebets­welle · 24 h')}
+            </span>
+            <span className="text-[10px] text-muted-foreground tabular-nums" dir="ltr">UTC</span>
+          </div>
+          <div className={`relative w-full ${large ? 'h-20' : 'h-14'}`} dir="ltr">
+            {/* Bars */}
+            <div className="absolute inset-x-0 bottom-3 top-0 flex items-end gap-[2px]">
+              {waveData.map((v, i) => {
+                const h = Math.max(4, (v / waveMax) * 100);
+                const isNow = i === Math.floor(utcHourNow);
+                return (
+                  <div key={i} className="flex-1 flex flex-col justify-end">
+                    <div
+                      className="w-full rounded-[1.5px] transition-all"
+                      style={{
+                        height: `${h}%`,
+                        background: isNow
+                          ? 'linear-gradient(180deg, hsl(var(--live)), hsl(28 60% 40%))'
+                          : 'linear-gradient(180deg, hsl(38 35% 55% / 0.55), hsl(28 30% 28% / 0.85))',
+                        boxShadow: isNow ? '0 0 12px hsl(var(--live) / 0.55)' : undefined,
+                      }}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+            {/* Now-line */}
+            <div
+              className="absolute top-0 bottom-3 w-px bg-[hsl(var(--live))]"
+              style={{ left: `${(utcHourNow / 24) * 100}%`, boxShadow: '0 0 6px hsl(var(--live))' }}
+            />
+            {/* Hour ticks */}
+            <div className="absolute inset-x-0 bottom-0 flex justify-between text-[8.5px] tabular-nums text-muted-foreground/80 font-semibold">
+              {[0, 6, 12, 18, 24].map((h) => (
+                <span key={h}>{String(h).padStart(2, '0')}</span>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* ── SLOT DISTRIBUTION BAR ──────────────────────────────────── */}
+        <div className="px-5 pb-3">
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="text-[10px] uppercase tracking-[0.18em] font-bold text-muted-foreground">
+              {t('التوزيع الحالي', 'Aktuelle Verteilung')}
+            </span>
+          </div>
+          <div className="flex h-2 rounded-full overflow-hidden bg-card/60 border border-border/30" dir="ltr">
+            {slotShare.map(({ slot, share }) => (
+              share > 0 ? (
+                <div
+                  key={slot}
+                  title={`${SLOT_META[slot].ar} · ${(share * 100).toFixed(1)}%`}
+                  style={{ width: `${share * 100}%`, background: SLOT_META[slot].color }}
+                />
+              ) : null
+            ))}
+          </div>
+          <div className={`mt-2 grid ${large ? 'grid-cols-4' : 'grid-cols-4'} gap-x-3 gap-y-1`}>
+            {slotShare.filter(s => s.share > 0.005).slice(0, large ? 8 : 4).map(({ slot, share }) => (
+              <div key={slot} className="flex items-center gap-1.5 min-w-0">
+                <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: SLOT_META[slot].color }} />
+                <span className="text-[10px] font-semibold text-foreground/90 truncate">
+                  {language === 'ar' ? SLOT_META[slot].ar : SLOT_META[slot].de}
+                </span>
+                <span className="text-[10px] tabular-nums text-muted-foreground ms-auto" dir="ltr">
+                  {(share * 100).toFixed(0)}%
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ── LIVE TICKER (compact only) ─────────────────────────────── */}
+        {!large && tickerCities.length > 0 && (
+          <div className="relative overflow-hidden border-t border-[hsl(var(--live))]/15 bg-[hsl(var(--live))]/[0.04] py-2">
+            <div
+              className="flex gap-6 whitespace-nowrap"
+              style={{
+                animation: `umm-ticker ${Math.max(18, tickerCities.length * 4)}s linear infinite`,
+              }}
+              dir="ltr"
+            >
+              {[...tickerCities, ...tickerCities].map((c, i) => (
+                <span key={`${c.name}-${i}`} className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-foreground/90">
+                  <span className="text-[13px] leading-none">{c.flag}</span>
+                  <span>{language === 'ar' ? c.nameAr : c.name}</span>
+                  <span
+                    className="px-1.5 py-px rounded-full text-[9.5px] font-bold"
+                    style={{
+                      color: SLOT_META[c.info.slot].color,
+                      background: SLOT_META[c.info.slot].color.replace('hsl(', 'hsla(').replace(')', ', 0.14)'),
+                    }}
+                  >
+                    {language === 'ar' ? SLOT_META[c.info.slot].ar : SLOT_META[c.info.slot].de}
+                  </span>
+                  <span className="text-[10px] tabular-nums text-muted-foreground">{c.info.localClock}</span>
+                </span>
+              ))}
+            </div>
+            <style>{`@keyframes umm-ticker { from { transform: translateX(0) } to { transform: translateX(-50%) } }`}</style>
+          </div>
+        )}
+
+        {/* ── EXPANDED-ONLY: REGIONS + EVENT LOG ─────────────────────── */}
+        {large && (
+          <>
+            <div className="px-5 pb-4 pt-1">
+              <div className="text-[10px] uppercase tracking-[0.18em] font-bold text-muted-foreground mb-2">
+                {t('القارات', 'Regionen')}
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                {regionStats.map(({ region, pop, bySlot, topSlot, cityCount }) => {
+                  const meta = SLOT_META[topSlot];
+                  return (
+                    <div key={region} className="rounded-xl bg-card/60 border border-border/40 px-3 py-2.5">
+                      <div className="flex items-center justify-between gap-2 mb-1.5">
+                        <span className="text-[12px] font-bold text-foreground">
+                          {language === 'ar' ? REGION_LABELS[region].ar : REGION_LABELS[region].de}
+                        </span>
+                        <span className="text-[9.5px] tabular-nums text-muted-foreground" dir="ltr">{cityCount}</span>
+                      </div>
+                      <div className="flex items-center gap-1.5 mb-2">
+                        <span className="w-1.5 h-1.5 rounded-full" style={{ background: meta.color }} />
+                        <span className="text-[10.5px] font-semibold" style={{ color: meta.color }}>
+                          {language === 'ar' ? meta.ar : meta.de}
+                        </span>
+                        <span className="text-[10px] tabular-nums text-muted-foreground ms-auto" dir="ltr">
+                          ~{pop.toFixed(0)}M
+                        </span>
+                      </div>
+                      {/* Stacked breakdown bar */}
+                      <div className="flex h-1 rounded-full overflow-hidden bg-background/60" dir="ltr">
+                        {PRAYER_SLOT_ORDER.map((s) => {
+                          const v = bySlot[s];
+                          if (!v) return null;
+                          return (
+                            <div key={s}
+                                 style={{ width: `${(v / Math.max(pop, 1)) * 100}%`, background: SLOT_META[s].color }} />
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Event log */}
+            <div className="px-5 pb-5">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[10px] uppercase tracking-[0.18em] font-bold text-muted-foreground">
+                  {t('السجل الحي', 'Live-Verlauf')}
+                </span>
+                <span className="text-[9.5px] text-muted-foreground">{eventLog.length}</span>
+              </div>
+              <ul className="space-y-1">
+                <AnimatePresence initial={false}>
+                  {eventLog.slice(0, 8).map((ev) => {
+                    const meta = SLOT_META[ev.slot];
+                    return (
+                      <motion.li
+                        key={ev.id}
+                        layout
+                        initial={{ opacity: 0, x: language === 'ar' ? 16 : -16 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: language === 'ar' ? -16 : 16 }}
+                        transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+                        className="flex items-center gap-2.5 px-3 py-2 rounded-lg bg-card/40 border border-border/30"
+                      >
+                        <span className="text-[14px] leading-none">{ev.flag}</span>
+                        <span className="w-1 h-6 rounded-full" style={{ background: meta.color }} />
+                        <div className="flex-1 min-w-0">
+                          <div className="text-[12px] font-semibold text-foreground truncate">
+                            {language === 'ar'
+                              ? `بدأ ${meta.ar} في ${ev.cityNameAr}`
+                              : `${meta.de} begann in ${ev.cityName}`}
+                          </div>
+                        </div>
+                        <span className="text-[10px] tabular-nums text-muted-foreground shrink-0">
+                          {formatRel(ev.ts)}
+                        </span>
+                      </motion.li>
+                    );
+                  })}
+                </AnimatePresence>
+                {eventLog.length === 0 && (
+                  <li className="text-[11px] text-muted-foreground text-center py-3">
+                    {t('في انتظار التحديثات الحيّة…', 'Warte auf Live-Updates …')}
+                  </li>
+                )}
+              </ul>
+            </div>
+          </>
+        )}
+      </div>
+    );
+  };
 
 
   // ── Detail panel (expanded-modal) ─────────────────────────────────────────
