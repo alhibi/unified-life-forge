@@ -7,6 +7,8 @@ import {
 } from 'lucide-react';
 import {
   getCityPrayerInfo,
+  qiblaBearing,
+  bearingToCompass,
   formatLocalMinutes,
   type CalculationMethodId,
   type PrayerAdjustments,
@@ -912,66 +914,22 @@ function UmmahPulse() {
       >
         <div className="flex items-center gap-2.5">
           <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
-            <Globe2 className="w-4.5 h-4.5 text-primary" strokeWidth={2} />
+            <Compass className="w-4.5 h-4.5 text-primary" strokeWidth={2} />
           </div>
           <div>
             <h3 className="text-[14px] font-bold text-foreground leading-tight">
-              {t('نبض الأمة', 'Puls der Ummah')}
+              {t('بوصلة القبلة', 'Qibla-Kompass')}
             </h3>
             <p className="text-[11px] text-muted-foreground leading-tight mt-0.5">
-              {t('مواقيت الصلاة حول العالم', 'Gebetszeiten weltweit')}
+              {t('اتجاه مكة مع مواقيت مدن العالم', 'Richtung Mekka mit Weltgebetszeiten')}
             </p>
           </div>
         </div>
       </div>
 
-      {/* Map (click to expand) */}
+      {/* Qibla compass replaces the old map/globe visual */}
       <div className="relative px-3 pb-3">
-        <button
-          onClick={() => setExpanded(true)}
-          className="block w-full text-left active:scale-[0.985] transition-transform focus:outline-none focus:ring-2 focus:ring-primary/40 rounded-2xl"
-          aria-label={t('فتح الخريطة بحجم كامل', 'Karte im Vollbild öffnen')}
-        >
-          <div className="relative rounded-2xl overflow-hidden bg-[hsl(var(--muted))]/30 group">
-            <div className="absolute top-2 right-2 z-10 w-7 h-7 rounded-lg bg-background/75 backdrop-blur-md border border-border/40 flex items-center justify-center opacity-90 group-hover:opacity-100 transition-opacity">
-              <Maximize2 className="w-3.5 h-3.5 text-foreground" />
-            </div>
-
-            <div className="absolute top-2 left-2 z-10 flex items-center gap-1 px-2 py-0.5 rounded-full bg-background/75 backdrop-blur-md border border-border/40">
-              <span className="relative flex w-1.5 h-1.5">
-                <span className="absolute inline-flex w-full h-full rounded-full bg-red-500 opacity-75 animate-ping" />
-                <span className="relative inline-flex rounded-full w-1.5 h-1.5 bg-red-500" />
-              </span>
-              <span className="text-[9px] font-bold tracking-wide text-foreground">LIVE</span>
-            </div>
-
-            {renderMapSvg()}
-
-            {fajrCities.length > 0 && (
-              <div
-                className="absolute bottom-2 left-2 right-2 flex flex-wrap gap-1.5 justify-center"
-                dir={language === 'ar' ? 'rtl' : 'ltr'}
-              >
-                {fajrCities.slice(0, 6).map((c) => (
-                  <motion.span
-                    key={c.name}
-                    initial={{ opacity: 0, y: 4 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-[9.5px] font-semibold px-2 py-0.5 rounded-full bg-primary/20 text-primary backdrop-blur-sm border border-primary/30 inline-flex items-center gap-1"
-                  >
-                    <span>{c.flag}</span>
-                    {language === 'ar' ? c.nameAr : c.name}
-                  </motion.span>
-                ))}
-                {fajrCities.length > 6 && (
-                  <span className="text-[9.5px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary/80 backdrop-blur-sm border border-primary/20">
-                    +{fajrCities.length - 6}
-                  </span>
-                )}
-              </div>
-            )}
-          </div>
-        </button>
+        <QiblaCompass />
 
         {/* Quick stats row — 5 prayer summaries */}
         <div
@@ -1008,8 +966,8 @@ function UmmahPulse() {
           dir={language === 'ar' ? 'rtl' : 'ltr'}
         >
           {t(
-            'اضغط على الخريطة لعرض كل المدن ومواقيتها الرسمية',
-            'Tippe die Karte für offizielle Gebetszeiten aller Städte'
+            'اضغط على أي وقت صلاة لعرض كل المدن ومواقيتها الرسمية',
+            'Tippe eine Gebetszeit für offizielle Zeiten aller Städte'
           )}
         </p>
       </div>
