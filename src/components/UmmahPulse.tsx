@@ -1,10 +1,9 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '@/contexts/AppContext';
 import {
-  Globe2, X, Maximize2, Search, Sparkles, Sun, MapPin,
-  Clock, Compass, Info, Plus, Minus, Locate,
+  X, Search, MapPin, Clock, Compass, Info,
 } from 'lucide-react';
 import {
   getCityPrayerInfo,
@@ -18,7 +17,7 @@ import {
   PRAYER_SLOT_ORDER,
 } from '@/utils/prayerAstronomy';
 import { WORLD_LAND_PATH } from './UmmahPulse.worldPath';
-import { UmmahGlobe, type GlobeCity, type UmmahGlobeHandle } from './UmmahGlobe';
+import QiblaCompass from './QiblaCompass';
 
 /**
  * Ummah Pulse — a live planetary view of Islamic prayer across the world.
@@ -36,7 +35,7 @@ import { UmmahGlobe, type GlobeCity, type UmmahGlobeHandle } from './UmmahGlobe'
  */
 
 // ─────────────────────────────────────────────────────────────────────────────
-// City registry — each carries IANA tz, official method, flag, region, Muslim pop
+// City registry — each carries IANA tz, official method, flag, and region.
 // ─────────────────────────────────────────────────────────────────────────────
 type Region = 'arab' | 'africa' | 'asia' | 'europe' | 'americas' | 'oceania';
 
@@ -51,8 +50,6 @@ interface City {
   tz: string;
   method: CalculationMethodId;
   region: Region;
-  /** approx Muslim population (millions) in the metro / surrounding region */
-  pop: number;
   /** Asr school officially followed by the country (Shafi'i = 1, Hanafi = 2). */
   asrShadow?: 1 | 2;
   /** Extra per-city minute adjustments on top of method defaults. */
@@ -60,62 +57,62 @@ interface City {
 }
 
 const CITIES: City[] = [
-  { name: 'Makkah',        nameAr: 'مكة المكرمة',  country: 'Saudi Arabia',  countryAr: 'السعودية',   flag: '🇸🇦', lat: 21.4225, lng: 39.8262, tz: 'Asia/Riyadh',       method: 'UmmAlQura', region: 'arab',     pop: 90 },
-  { name: 'Madinah',       nameAr: 'المدينة',      country: 'Saudi Arabia',  countryAr: 'السعودية',   flag: '🇸🇦', lat: 24.4672, lng: 39.6142, tz: 'Asia/Riyadh',       method: 'UmmAlQura', region: 'arab',     pop: 15 },
-  { name: 'Riyadh',        nameAr: 'الرياض',       country: 'Saudi Arabia',  countryAr: 'السعودية',   flag: '🇸🇦', lat: 24.7136, lng: 46.6753, tz: 'Asia/Riyadh',       method: 'UmmAlQura', region: 'arab',     pop: 60 },
-  { name: 'Cairo',         nameAr: 'القاهرة',      country: 'Egypt',         countryAr: 'مصر',        flag: '🇪🇬', lat: 30.0444, lng: 31.2357, tz: 'Africa/Cairo',      method: 'Egyptian',  region: 'arab',     pop: 100 },
-  { name: 'Baghdad',       nameAr: 'بغداد',        country: 'Iraq',          countryAr: 'العراق',     flag: '🇮🇶', lat: 33.3152, lng: 44.3661, tz: 'Asia/Baghdad',      method: 'Karachi',   region: 'arab',     pop: 65, asrShadow: 2 },
-  { name: 'Damascus',      nameAr: 'دمشق',         country: 'Syria',         countryAr: 'سوريا',      flag: '🇸🇾', lat: 33.5138, lng: 36.2765, tz: 'Asia/Damascus',     method: 'Egyptian',  region: 'arab',     pop: 30 },
-  { name: 'Amman',         nameAr: 'عمّان',        country: 'Jordan',        countryAr: 'الأردن',     flag: '🇯🇴', lat: 31.9539, lng: 35.9106, tz: 'Asia/Amman',        method: 'Jordan',    region: 'arab',     pop: 25 },
-  { name: 'Sanaa',         nameAr: 'صنعاء',        country: 'Yemen',         countryAr: 'اليمن',      flag: '🇾🇪', lat: 15.3694, lng: 44.1910, tz: 'Asia/Aden',         method: 'MWL',       region: 'arab',     pop: 30 },
-  { name: 'Dubai',         nameAr: 'دبي',          country: 'UAE',           countryAr: 'الإمارات',   flag: '🇦🇪', lat: 25.2048, lng: 55.2708, tz: 'Asia/Dubai',        method: 'Dubai',     region: 'arab',     pop: 9 },
-  { name: 'Doha',          nameAr: 'الدوحة',       country: 'Qatar',         countryAr: 'قطر',        flag: '🇶🇦', lat: 25.2854, lng: 51.5310, tz: 'Asia/Qatar',        method: 'Qatar',     region: 'arab',     pop: 3 },
-  { name: 'Kuwait City',   nameAr: 'الكويت',       country: 'Kuwait',        countryAr: 'الكويت',     flag: '🇰🇼', lat: 29.3759, lng: 47.9774, tz: 'Asia/Kuwait',       method: 'Kuwait',    region: 'arab',     pop: 4 },
-  { name: 'Manama',        nameAr: 'المنامة',      country: 'Bahrain',       countryAr: 'البحرين',    flag: '🇧🇭', lat: 26.2285, lng: 50.5860, tz: 'Asia/Bahrain',      method: 'Kuwait',    region: 'arab',     pop: 1.4 },
-  { name: 'Muscat',        nameAr: 'مسقط',         country: 'Oman',          countryAr: 'عُمان',      flag: '🇴🇲', lat: 23.5880, lng: 58.3829, tz: 'Asia/Muscat',       method: 'Kuwait',    region: 'arab',     pop: 4 },
-  { name: 'Beirut',        nameAr: 'بيروت',        country: 'Lebanon',       countryAr: 'لبنان',      flag: '🇱🇧', lat: 33.8938, lng: 35.5018, tz: 'Asia/Beirut',       method: 'Egyptian',  region: 'arab',     pop: 3 },
-  { name: 'Jerusalem',     nameAr: 'القدس',        country: 'Palestine',     countryAr: 'فلسطين',     flag: '🇵🇸', lat: 31.7683, lng: 35.2137, tz: 'Asia/Hebron',       method: 'Egyptian',  region: 'arab',     pop: 5 },
-  { name: 'Gaza',          nameAr: 'غزة',          country: 'Palestine',     countryAr: 'فلسطين',     flag: '🇵🇸', lat: 31.5018, lng: 34.4668, tz: 'Asia/Gaza',         method: 'Egyptian',  region: 'arab',     pop: 2 },
-  { name: 'Khartoum',      nameAr: 'الخرطوم',      country: 'Sudan',         countryAr: 'السودان',    flag: '🇸🇩', lat: 15.5007, lng: 32.5599, tz: 'Africa/Khartoum',   method: 'Egyptian',  region: 'africa',   pop: 45 },
-  { name: 'Tripoli',       nameAr: 'طرابلس',       country: 'Libya',         countryAr: 'ليبيا',      flag: '🇱🇾', lat: 32.8872, lng: 13.1913, tz: 'Africa/Tripoli',    method: 'MWL',       region: 'africa',   pop: 6 },
-  { name: 'Tunis',         nameAr: 'تونس',         country: 'Tunisia',       countryAr: 'تونس',       flag: '🇹🇳', lat: 36.8065, lng: 10.1815, tz: 'Africa/Tunis',      method: 'Tunisia',   region: 'africa',   pop: 11 },
-  { name: 'Algiers',       nameAr: 'الجزائر',      country: 'Algeria',       countryAr: 'الجزائر',    flag: '🇩🇿', lat: 36.7538, lng: 3.0588,  tz: 'Africa/Algiers',    method: 'Algerian',  region: 'africa',   pop: 42 },
-  { name: 'Casablanca',    nameAr: 'الدار البيضاء',country: 'Morocco',       countryAr: 'المغرب',     flag: '🇲🇦', lat: 33.5731, lng: -7.5898, tz: 'Africa/Casablanca', method: 'Morocco',   region: 'africa',   pop: 34 },
-  { name: 'Nouakchott',    nameAr: 'نواكشوط',      country: 'Mauritania',    countryAr: 'موريتانيا',  flag: '🇲🇷', lat: 18.0735, lng: -15.9582,tz: 'Africa/Nouakchott', method: 'MWL',       region: 'africa',   pop: 4 },
-  { name: 'Dakar',         nameAr: 'داكار',        country: 'Senegal',       countryAr: 'السنغال',    flag: '🇸🇳', lat: 14.7167, lng: -17.4677,tz: 'Africa/Dakar',      method: 'MWL',       region: 'africa',   pop: 14 },
-  { name: 'Lagos',         nameAr: 'لاغوس',        country: 'Nigeria',       countryAr: 'نيجيريا',    flag: '🇳🇬', lat: 6.5244,  lng: 3.3792,  tz: 'Africa/Lagos',      method: 'MWL',       region: 'africa',   pop: 55 },
-  { name: 'Mogadishu',     nameAr: 'مقديشو',       country: 'Somalia',       countryAr: 'الصومال',    flag: '🇸🇴', lat: 2.0469,  lng: 45.3182, tz: 'Africa/Mogadishu',  method: 'MWL',       region: 'africa',   pop: 15 },
-  { name: 'Istanbul',      nameAr: 'إسطنبول',      country: 'Türkiye',       countryAr: 'تركيا',      flag: '🇹🇷', lat: 41.0082, lng: 28.9784, tz: 'Europe/Istanbul',   method: 'Turkey',    region: 'europe',   pop: 85, asrShadow: 2 },
-  { name: 'Ankara',        nameAr: 'أنقرة',        country: 'Türkiye',       countryAr: 'تركيا',      flag: '🇹🇷', lat: 39.9334, lng: 32.8597, tz: 'Europe/Istanbul',   method: 'Turkey',    region: 'europe',   pop: 6,  asrShadow: 2 },
-  { name: 'Tehran',        nameAr: 'طهران',        country: 'Iran',          countryAr: 'إيران',      flag: '🇮🇷', lat: 35.6892, lng: 51.3890, tz: 'Asia/Tehran',       method: 'Tehran',    region: 'asia',     pop: 70 },
-  { name: 'Kabul',         nameAr: 'كابول',        country: 'Afghanistan',   countryAr: 'أفغانستان',  flag: '🇦🇫', lat: 34.5553, lng: 69.2075, tz: 'Asia/Kabul',        method: 'Karachi',   region: 'asia',     pop: 45, asrShadow: 2 },
-  { name: 'Tashkent',      nameAr: 'طشقند',        country: 'Uzbekistan',    countryAr: 'أوزبكستان',  flag: '🇺🇿', lat: 41.2995, lng: 69.2401, tz: 'Asia/Tashkent',     method: 'Karachi',   region: 'asia',     pop: 35, asrShadow: 2 },
-  { name: 'Baku',          nameAr: 'باكو',         country: 'Azerbaijan',    countryAr: 'أذربيجان',   flag: '🇦🇿', lat: 40.4093, lng: 49.8671, tz: 'Asia/Baku',         method: 'Tehran',    region: 'asia',     pop: 10 },
-  { name: 'Karachi',       nameAr: 'كراتشي',       country: 'Pakistan',      countryAr: 'باكستان',    flag: '🇵🇰', lat: 24.8607, lng: 67.0011, tz: 'Asia/Karachi',      method: 'Karachi',   region: 'asia',     pop: 200, asrShadow: 2 },
-  { name: 'Lahore',        nameAr: 'لاهور',        country: 'Pakistan',      countryAr: 'باكستان',    flag: '🇵🇰', lat: 31.5497, lng: 74.3436, tz: 'Asia/Karachi',      method: 'Karachi',   region: 'asia',     pop: 130, asrShadow: 2 },
-  { name: 'Islamabad',     nameAr: 'إسلام آباد',   country: 'Pakistan',      countryAr: 'باكستان',    flag: '🇵🇰', lat: 33.6844, lng: 73.0479, tz: 'Asia/Karachi',      method: 'Karachi',   region: 'asia',     pop: 12, asrShadow: 2 },
-  { name: 'Dhaka',         nameAr: 'دكا',          country: 'Bangladesh',    countryAr: 'بنغلاديش',   flag: '🇧🇩', lat: 23.8103, lng: 90.4125, tz: 'Asia/Dhaka',        method: 'Karachi',   region: 'asia',     pop: 165, asrShadow: 2 },
-  { name: 'Delhi',         nameAr: 'دلهي',         country: 'India',         countryAr: 'الهند',      flag: '🇮🇳', lat: 28.6139, lng: 77.2090, tz: 'Asia/Kolkata',      method: 'Karachi',   region: 'asia',     pop: 45, asrShadow: 2 },
-  { name: 'Mumbai',        nameAr: 'مومباي',       country: 'India',         countryAr: 'الهند',      flag: '🇮🇳', lat: 19.0760, lng: 72.8777, tz: 'Asia/Kolkata',      method: 'Karachi',   region: 'asia',     pop: 70, asrShadow: 2 },
-  { name: 'Hyderabad',     nameAr: 'حيدر آباد',    country: 'India',         countryAr: 'الهند',      flag: '🇮🇳', lat: 17.3850, lng: 78.4867, tz: 'Asia/Kolkata',      method: 'Karachi',   region: 'asia',     pop: 30, asrShadow: 2 },
-  { name: 'Jakarta',       nameAr: 'جاكرتا',       country: 'Indonesia',     countryAr: 'إندونيسيا',  flag: '🇮🇩', lat: -6.2088, lng: 106.8456,tz: 'Asia/Jakarta',      method: 'Kemenag',   region: 'asia',     pop: 230 },
-  { name: 'Surabaya',      nameAr: 'سورابايا',     country: 'Indonesia',     countryAr: 'إندونيسيا',  flag: '🇮🇩', lat: -7.2575, lng: 112.7521,tz: 'Asia/Jakarta',      method: 'Kemenag',   region: 'asia',     pop: 40 },
-  { name: 'Kuala Lumpur',  nameAr: 'كوالالمبور',   country: 'Malaysia',      countryAr: 'ماليزيا',    flag: '🇲🇾', lat: 3.1390,  lng: 101.6869,tz: 'Asia/Kuala_Lumpur', method: 'JAKIM',     region: 'asia',     pop: 60 },
-  { name: 'Singapore',     nameAr: 'سنغافورة',     country: 'Singapore',     countryAr: 'سنغافورة',   flag: '🇸🇬', lat: 1.3521,  lng: 103.8198,tz: 'Asia/Singapore',    method: 'Singapore', region: 'asia',     pop: 0.9 },
-  { name: 'Brunei',        nameAr: 'بروناي',       country: 'Brunei',        countryAr: 'بروناي',     flag: '🇧🇳', lat: 4.9031,  lng: 114.9398,tz: 'Asia/Brunei',       method: 'JAKIM',     region: 'asia',     pop: 0.4 },
-  { name: 'Moscow',        nameAr: 'موسكو',        country: 'Russia',        countryAr: 'روسيا',      flag: '🇷🇺', lat: 55.7558, lng: 37.6173, tz: 'Europe/Moscow',     method: 'Russia',    region: 'europe',   pop: 20, asrShadow: 2 },
-  { name: 'Sarajevo',      nameAr: 'سراييفو',      country: 'Bosnia',        countryAr: 'البوسنة',    flag: '🇧🇦', lat: 43.8563, lng: 18.4131, tz: 'Europe/Sarajevo',   method: 'MWL',       region: 'europe',   pop: 2,  asrShadow: 2 },
-  { name: 'Tirana',        nameAr: 'تيرانا',       country: 'Albania',       countryAr: 'ألبانيا',    flag: '🇦🇱', lat: 41.3275, lng: 19.8187, tz: 'Europe/Tirane',     method: 'MWL',       region: 'europe',   pop: 2 },
-  { name: 'London',        nameAr: 'لندن',         country: 'United Kingdom',countryAr: 'بريطانيا',   flag: '🇬🇧', lat: 51.5074, lng: -0.1278, tz: 'Europe/London',     method: 'MWL',       region: 'europe',   pop: 12 },
-  { name: 'Paris',         nameAr: 'باريس',        country: 'France',        countryAr: 'فرنسا',      flag: '🇫🇷', lat: 48.8566, lng: 2.3522,  tz: 'Europe/Paris',      method: 'UOIF',      region: 'europe',   pop: 10 },
-  { name: 'Berlin',        nameAr: 'برلين',        country: 'Germany',       countryAr: 'ألمانيا',    flag: '🇩🇪', lat: 52.5200, lng: 13.4050, tz: 'Europe/Berlin',     method: 'MWL',       region: 'europe',   pop: 8 },
-  { name: 'Rome',          nameAr: 'روما',         country: 'Italy',         countryAr: 'إيطاليا',    flag: '🇮🇹', lat: 41.9028, lng: 12.4964, tz: 'Europe/Rome',       method: 'MWL',       region: 'europe',   pop: 3 },
-  { name: 'Madrid',        nameAr: 'مدريد',        country: 'Spain',         countryAr: 'إسبانيا',    flag: '🇪🇸', lat: 40.4168, lng: -3.7038, tz: 'Europe/Madrid',     method: 'MWL',       region: 'europe',   pop: 2 },
-  { name: 'New York',      nameAr: 'نيويورك',      country: 'United States', countryAr: 'أمريكا',     flag: '🇺🇸', lat: 40.7128, lng: -74.0060,tz: 'America/New_York',  method: 'ISNA',      region: 'americas', pop: 12 },
-  { name: 'Chicago',       nameAr: 'شيكاغو',       country: 'United States', countryAr: 'أمريكا',     flag: '🇺🇸', lat: 41.8781, lng: -87.6298,tz: 'America/Chicago',   method: 'ISNA',      region: 'americas', pop: 4 },
-  { name: 'Los Angeles',   nameAr: 'لوس أنجلوس',   country: 'United States', countryAr: 'أمريكا',     flag: '🇺🇸', lat: 34.0522, lng: -118.2437,tz:'America/Los_Angeles',method: 'ISNA',      region: 'americas', pop: 3 },
-  { name: 'Toronto',       nameAr: 'تورنتو',       country: 'Canada',        countryAr: 'كندا',       flag: '🇨🇦', lat: 43.6532, lng: -79.3832,tz: 'America/Toronto',   method: 'ISNA',      region: 'americas', pop: 5 },
-  { name: 'Sydney',        nameAr: 'سيدني',        country: 'Australia',     countryAr: 'أستراليا',   flag: '🇦🇺', lat: -33.8688,lng: 151.2093,tz: 'Australia/Sydney',  method: 'MWL',       region: 'oceania',  pop: 3 },
+  { name: 'Makkah',        nameAr: 'مكة المكرمة',  country: 'Saudi Arabia',  countryAr: 'السعودية',   flag: '🇸🇦', lat: 21.4225, lng: 39.8262, tz: 'Asia/Riyadh',       method: 'UmmAlQura', region: 'arab' },
+  { name: 'Madinah',       nameAr: 'المدينة',      country: 'Saudi Arabia',  countryAr: 'السعودية',   flag: '🇸🇦', lat: 24.4672, lng: 39.6142, tz: 'Asia/Riyadh',       method: 'UmmAlQura', region: 'arab' },
+  { name: 'Riyadh',        nameAr: 'الرياض',       country: 'Saudi Arabia',  countryAr: 'السعودية',   flag: '🇸🇦', lat: 24.7136, lng: 46.6753, tz: 'Asia/Riyadh',       method: 'UmmAlQura', region: 'arab' },
+  { name: 'Cairo',         nameAr: 'القاهرة',      country: 'Egypt',         countryAr: 'مصر',        flag: '🇪🇬', lat: 30.0444, lng: 31.2357, tz: 'Africa/Cairo',      method: 'Egyptian',  region: 'arab' },
+  { name: 'Baghdad',       nameAr: 'بغداد',        country: 'Iraq',          countryAr: 'العراق',     flag: '🇮🇶', lat: 33.3152, lng: 44.3661, tz: 'Asia/Baghdad',      method: 'Karachi',   region: 'arab', asrShadow: 2 },
+  { name: 'Damascus',      nameAr: 'دمشق',         country: 'Syria',         countryAr: 'سوريا',      flag: '🇸🇾', lat: 33.5138, lng: 36.2765, tz: 'Asia/Damascus',     method: 'Egyptian',  region: 'arab' },
+  { name: 'Amman',         nameAr: 'عمّان',        country: 'Jordan',        countryAr: 'الأردن',     flag: '🇯🇴', lat: 31.9539, lng: 35.9106, tz: 'Asia/Amman',        method: 'Jordan',    region: 'arab' },
+  { name: 'Sanaa',         nameAr: 'صنعاء',        country: 'Yemen',         countryAr: 'اليمن',      flag: '🇾🇪', lat: 15.3694, lng: 44.1910, tz: 'Asia/Aden',         method: 'MWL',       region: 'arab' },
+  { name: 'Dubai',         nameAr: 'دبي',          country: 'UAE',           countryAr: 'الإمارات',   flag: '🇦🇪', lat: 25.2048, lng: 55.2708, tz: 'Asia/Dubai',        method: 'Dubai',     region: 'arab' },
+  { name: 'Doha',          nameAr: 'الدوحة',       country: 'Qatar',         countryAr: 'قطر',        flag: '🇶🇦', lat: 25.2854, lng: 51.5310, tz: 'Asia/Qatar',        method: 'Qatar',     region: 'arab' },
+  { name: 'Kuwait City',   nameAr: 'الكويت',       country: 'Kuwait',        countryAr: 'الكويت',     flag: '🇰🇼', lat: 29.3759, lng: 47.9774, tz: 'Asia/Kuwait',       method: 'Kuwait',    region: 'arab' },
+  { name: 'Manama',        nameAr: 'المنامة',      country: 'Bahrain',       countryAr: 'البحرين',    flag: '🇧🇭', lat: 26.2285, lng: 50.5860, tz: 'Asia/Bahrain',      method: 'Kuwait',    region: 'arab' },
+  { name: 'Muscat',        nameAr: 'مسقط',         country: 'Oman',          countryAr: 'عُمان',      flag: '🇴🇲', lat: 23.5880, lng: 58.3829, tz: 'Asia/Muscat',       method: 'Kuwait',    region: 'arab' },
+  { name: 'Beirut',        nameAr: 'بيروت',        country: 'Lebanon',       countryAr: 'لبنان',      flag: '🇱🇧', lat: 33.8938, lng: 35.5018, tz: 'Asia/Beirut',       method: 'Egyptian',  region: 'arab' },
+  { name: 'Jerusalem',     nameAr: 'القدس',        country: 'Palestine',     countryAr: 'فلسطين',     flag: '🇵🇸', lat: 31.7683, lng: 35.2137, tz: 'Asia/Hebron',       method: 'Egyptian',  region: 'arab' },
+  { name: 'Gaza',          nameAr: 'غزة',          country: 'Palestine',     countryAr: 'فلسطين',     flag: '🇵🇸', lat: 31.5018, lng: 34.4668, tz: 'Asia/Gaza',         method: 'Egyptian',  region: 'arab' },
+  { name: 'Khartoum',      nameAr: 'الخرطوم',      country: 'Sudan',         countryAr: 'السودان',    flag: '🇸🇩', lat: 15.5007, lng: 32.5599, tz: 'Africa/Khartoum',   method: 'Egyptian',  region: 'africa' },
+  { name: 'Tripoli',       nameAr: 'طرابلس',       country: 'Libya',         countryAr: 'ليبيا',      flag: '🇱🇾', lat: 32.8872, lng: 13.1913, tz: 'Africa/Tripoli',    method: 'MWL',       region: 'africa' },
+  { name: 'Tunis',         nameAr: 'تونس',         country: 'Tunisia',       countryAr: 'تونس',       flag: '🇹🇳', lat: 36.8065, lng: 10.1815, tz: 'Africa/Tunis',      method: 'Tunisia',   region: 'africa' },
+  { name: 'Algiers',       nameAr: 'الجزائر',      country: 'Algeria',       countryAr: 'الجزائر',    flag: '🇩🇿', lat: 36.7538, lng: 3.0588,  tz: 'Africa/Algiers',    method: 'Algerian',  region: 'africa' },
+  { name: 'Casablanca',    nameAr: 'الدار البيضاء',country: 'Morocco',       countryAr: 'المغرب',     flag: '🇲🇦', lat: 33.5731, lng: -7.5898, tz: 'Africa/Casablanca', method: 'Morocco',   region: 'africa' },
+  { name: 'Nouakchott',    nameAr: 'نواكشوط',      country: 'Mauritania',    countryAr: 'موريتانيا',  flag: '🇲🇷', lat: 18.0735, lng: -15.9582,tz: 'Africa/Nouakchott', method: 'MWL',       region: 'africa' },
+  { name: 'Dakar',         nameAr: 'داكار',        country: 'Senegal',       countryAr: 'السنغال',    flag: '🇸🇳', lat: 14.7167, lng: -17.4677,tz: 'Africa/Dakar',      method: 'MWL',       region: 'africa' },
+  { name: 'Lagos',         nameAr: 'لاغوس',        country: 'Nigeria',       countryAr: 'نيجيريا',    flag: '🇳🇬', lat: 6.5244,  lng: 3.3792,  tz: 'Africa/Lagos',      method: 'MWL',       region: 'africa' },
+  { name: 'Mogadishu',     nameAr: 'مقديشو',       country: 'Somalia',       countryAr: 'الصومال',    flag: '🇸🇴', lat: 2.0469,  lng: 45.3182, tz: 'Africa/Mogadishu',  method: 'MWL',       region: 'africa' },
+  { name: 'Istanbul',      nameAr: 'إسطنبول',      country: 'Türkiye',       countryAr: 'تركيا',      flag: '🇹🇷', lat: 41.0082, lng: 28.9784, tz: 'Europe/Istanbul',   method: 'Turkey',    region: 'europe', asrShadow: 2 },
+  { name: 'Ankara',        nameAr: 'أنقرة',        country: 'Türkiye',       countryAr: 'تركيا',      flag: '🇹🇷', lat: 39.9334, lng: 32.8597, tz: 'Europe/Istanbul',   method: 'Turkey',    region: 'europe',  asrShadow: 2 },
+  { name: 'Tehran',        nameAr: 'طهران',        country: 'Iran',          countryAr: 'إيران',      flag: '🇮🇷', lat: 35.6892, lng: 51.3890, tz: 'Asia/Tehran',       method: 'Tehran',    region: 'asia' },
+  { name: 'Kabul',         nameAr: 'كابول',        country: 'Afghanistan',   countryAr: 'أفغانستان',  flag: '🇦🇫', lat: 34.5553, lng: 69.2075, tz: 'Asia/Kabul',        method: 'Karachi',   region: 'asia', asrShadow: 2 },
+  { name: 'Tashkent',      nameAr: 'طشقند',        country: 'Uzbekistan',    countryAr: 'أوزبكستان',  flag: '🇺🇿', lat: 41.2995, lng: 69.2401, tz: 'Asia/Tashkent',     method: 'Karachi',   region: 'asia', asrShadow: 2 },
+  { name: 'Baku',          nameAr: 'باكو',         country: 'Azerbaijan',    countryAr: 'أذربيجان',   flag: '🇦🇿', lat: 40.4093, lng: 49.8671, tz: 'Asia/Baku',         method: 'Tehran',    region: 'asia' },
+  { name: 'Karachi',       nameAr: 'كراتشي',       country: 'Pakistan',      countryAr: 'باكستان',    flag: '🇵🇰', lat: 24.8607, lng: 67.0011, tz: 'Asia/Karachi',      method: 'Karachi',   region: 'asia', asrShadow: 2 },
+  { name: 'Lahore',        nameAr: 'لاهور',        country: 'Pakistan',      countryAr: 'باكستان',    flag: '🇵🇰', lat: 31.5497, lng: 74.3436, tz: 'Asia/Karachi',      method: 'Karachi',   region: 'asia', asrShadow: 2 },
+  { name: 'Islamabad',     nameAr: 'إسلام آباد',   country: 'Pakistan',      countryAr: 'باكستان',    flag: '🇵🇰', lat: 33.6844, lng: 73.0479, tz: 'Asia/Karachi',      method: 'Karachi',   region: 'asia', asrShadow: 2 },
+  { name: 'Dhaka',         nameAr: 'دكا',          country: 'Bangladesh',    countryAr: 'بنغلاديش',   flag: '🇧🇩', lat: 23.8103, lng: 90.4125, tz: 'Asia/Dhaka',        method: 'Karachi',   region: 'asia', asrShadow: 2 },
+  { name: 'Delhi',         nameAr: 'دلهي',         country: 'India',         countryAr: 'الهند',      flag: '🇮🇳', lat: 28.6139, lng: 77.2090, tz: 'Asia/Kolkata',      method: 'Karachi',   region: 'asia', asrShadow: 2 },
+  { name: 'Mumbai',        nameAr: 'مومباي',       country: 'India',         countryAr: 'الهند',      flag: '🇮🇳', lat: 19.0760, lng: 72.8777, tz: 'Asia/Kolkata',      method: 'Karachi',   region: 'asia', asrShadow: 2 },
+  { name: 'Hyderabad',     nameAr: 'حيدر آباد',    country: 'India',         countryAr: 'الهند',      flag: '🇮🇳', lat: 17.3850, lng: 78.4867, tz: 'Asia/Kolkata',      method: 'Karachi',   region: 'asia', asrShadow: 2 },
+  { name: 'Jakarta',       nameAr: 'جاكرتا',       country: 'Indonesia',     countryAr: 'إندونيسيا',  flag: '🇮🇩', lat: -6.2088, lng: 106.8456,tz: 'Asia/Jakarta',      method: 'Kemenag',   region: 'asia' },
+  { name: 'Surabaya',      nameAr: 'سورابايا',     country: 'Indonesia',     countryAr: 'إندونيسيا',  flag: '🇮🇩', lat: -7.2575, lng: 112.7521,tz: 'Asia/Jakarta',      method: 'Kemenag',   region: 'asia' },
+  { name: 'Kuala Lumpur',  nameAr: 'كوالالمبور',   country: 'Malaysia',      countryAr: 'ماليزيا',    flag: '🇲🇾', lat: 3.1390,  lng: 101.6869,tz: 'Asia/Kuala_Lumpur', method: 'JAKIM',     region: 'asia' },
+  { name: 'Singapore',     nameAr: 'سنغافورة',     country: 'Singapore',     countryAr: 'سنغافورة',   flag: '🇸🇬', lat: 1.3521,  lng: 103.8198,tz: 'Asia/Singapore',    method: 'Singapore', region: 'asia' },
+  { name: 'Brunei',        nameAr: 'بروناي',       country: 'Brunei',        countryAr: 'بروناي',     flag: '🇧🇳', lat: 4.9031,  lng: 114.9398,tz: 'Asia/Brunei',       method: 'JAKIM',     region: 'asia' },
+  { name: 'Moscow',        nameAr: 'موسكو',        country: 'Russia',        countryAr: 'روسيا',      flag: '🇷🇺', lat: 55.7558, lng: 37.6173, tz: 'Europe/Moscow',     method: 'Russia',    region: 'europe', asrShadow: 2 },
+  { name: 'Sarajevo',      nameAr: 'سراييفو',      country: 'Bosnia',        countryAr: 'البوسنة',    flag: '🇧🇦', lat: 43.8563, lng: 18.4131, tz: 'Europe/Sarajevo',   method: 'MWL',       region: 'europe',  asrShadow: 2 },
+  { name: 'Tirana',        nameAr: 'تيرانا',       country: 'Albania',       countryAr: 'ألبانيا',    flag: '🇦🇱', lat: 41.3275, lng: 19.8187, tz: 'Europe/Tirane',     method: 'MWL',       region: 'europe' },
+  { name: 'London',        nameAr: 'لندن',         country: 'United Kingdom',countryAr: 'بريطانيا',   flag: '🇬🇧', lat: 51.5074, lng: -0.1278, tz: 'Europe/London',     method: 'MWL',       region: 'europe' },
+  { name: 'Paris',         nameAr: 'باريس',        country: 'France',        countryAr: 'فرنسا',      flag: '🇫🇷', lat: 48.8566, lng: 2.3522,  tz: 'Europe/Paris',      method: 'UOIF',      region: 'europe' },
+  { name: 'Berlin',        nameAr: 'برلين',        country: 'Germany',       countryAr: 'ألمانيا',    flag: '🇩🇪', lat: 52.5200, lng: 13.4050, tz: 'Europe/Berlin',     method: 'MWL',       region: 'europe' },
+  { name: 'Rome',          nameAr: 'روما',         country: 'Italy',         countryAr: 'إيطاليا',    flag: '🇮🇹', lat: 41.9028, lng: 12.4964, tz: 'Europe/Rome',       method: 'MWL',       region: 'europe' },
+  { name: 'Madrid',        nameAr: 'مدريد',        country: 'Spain',         countryAr: 'إسبانيا',    flag: '🇪🇸', lat: 40.4168, lng: -3.7038, tz: 'Europe/Madrid',     method: 'MWL',       region: 'europe' },
+  { name: 'New York',      nameAr: 'نيويورك',      country: 'United States', countryAr: 'أمريكا',     flag: '🇺🇸', lat: 40.7128, lng: -74.0060,tz: 'America/New_York',  method: 'ISNA',      region: 'americas' },
+  { name: 'Chicago',       nameAr: 'شيكاغو',       country: 'United States', countryAr: 'أمريكا',     flag: '🇺🇸', lat: 41.8781, lng: -87.6298,tz: 'America/Chicago',   method: 'ISNA',      region: 'americas' },
+  { name: 'Los Angeles',   nameAr: 'لوس أنجلوس',   country: 'United States', countryAr: 'أمريكا',     flag: '🇺🇸', lat: 34.0522, lng: -118.2437,tz:'America/Los_Angeles',method: 'ISNA',      region: 'americas' },
+  { name: 'Toronto',       nameAr: 'تورنتو',       country: 'Canada',        countryAr: 'كندا',       flag: '🇨🇦', lat: 43.6532, lng: -79.3832,tz: 'America/Toronto',   method: 'ISNA',      region: 'americas' },
+  { name: 'Sydney',        nameAr: 'سيدني',        country: 'Australia',     countryAr: 'أستراليا',   flag: '🇦🇺', lat: -33.8688,lng: 151.2093,tz: 'Australia/Sydney',  method: 'MWL',       region: 'oceania' },
 ];
 
 const REGION_LABELS: Record<Region, { ar: string; de: string }> = {
@@ -238,7 +235,6 @@ function UmmahPulse() {
   const [expanded, setExpanded] = useState(false);
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
   const [filter, setFilter] = useState<PrayerSlot | 'all'>('all');
-  const globeRef = useRef<UmmahGlobeHandle | null>(null);
   const [regionFilter, setRegionFilter] = useState<Region | 'all'>('all');
   const [search, setSearch] = useState('');
   const userShadowFactor: 1 | 2 = prayerMadhab === 'hanafi' ? 2 : 1;
@@ -296,17 +292,6 @@ function UmmahPulse() {
     [cityDetails]
   );
 
-  // Aggregate Muslim pop per slot
-  const slotPop = useMemo(() => {
-    const agg: Record<PrayerSlot, number> = {
-      fajr: 0, shuruq: 0, duha: 0, dhuhr: 0, asr: 0, maghrib: 0, isha: 0, night: 0,
-    };
-    cityDetails.forEach((c) => { agg[c.info.slot] += c.pop; });
-    return agg;
-  }, [cityDetails]);
-
-  const fajrPop = slotPop.fajr;
-
   // Fajr band center (~15° east of terminator, sunrise side)
   const fajrCenterLng = ((subLng + 105 + 540) % 360) - 180;
   const fajrCenter = project(0, fajrCenterLng);
@@ -328,7 +313,7 @@ function UmmahPulse() {
       })
       .sort((a, b) => {
         const oi = PRAYER_SLOT_ORDER.indexOf(a.info.slot) - PRAYER_SLOT_ORDER.indexOf(b.info.slot);
-        return oi !== 0 ? oi : b.pop - a.pop;
+        return oi !== 0 ? oi : a.name.localeCompare(b.name);
       });
   }, [cityDetails, filter, regionFilter, search]);
 
@@ -352,7 +337,7 @@ function UmmahPulse() {
     // animated qibla arcs from the map to Makkah for an extra wow factor.
     const activeForArcs = cityDetails
       .filter(c => (c.info.slot === 'fajr' || c.info.slot === 'maghrib') && c.name !== 'Makkah')
-      .sort((a, b) => b.pop - a.pop)
+      .sort((a, b) => a.name.localeCompare(b.name))
       .slice(0, large ? 8 : 4);
 
     return (
@@ -929,66 +914,22 @@ function UmmahPulse() {
       >
         <div className="flex items-center gap-2.5">
           <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
-            <Globe2 className="w-4.5 h-4.5 text-primary" strokeWidth={2} />
+            <Compass className="w-4.5 h-4.5 text-primary" strokeWidth={2} />
           </div>
           <div>
             <h3 className="text-[14px] font-bold text-foreground leading-tight">
-              {t('نبض الأمة', 'Puls der Ummah')}
+              {t('بوصلة القبلة', 'Qibla-Kompass')}
             </h3>
             <p className="text-[11px] text-muted-foreground leading-tight mt-0.5">
-              {t('مواقيت الصلاة حول العالم', 'Gebetszeiten weltweit')}
+              {t('اتجاه مكة مع مواقيت مدن العالم', 'Richtung Mekka mit Weltgebetszeiten')}
             </p>
           </div>
         </div>
       </div>
 
-      {/* Map (click to expand) */}
+      {/* Qibla compass replaces the old map/globe visual */}
       <div className="relative px-3 pb-3">
-        <button
-          onClick={() => setExpanded(true)}
-          className="block w-full text-left active:scale-[0.985] transition-transform focus:outline-none focus:ring-2 focus:ring-primary/40 rounded-2xl"
-          aria-label={t('فتح الخريطة بحجم كامل', 'Karte im Vollbild öffnen')}
-        >
-          <div className="relative rounded-2xl overflow-hidden bg-[hsl(var(--muted))]/30 group">
-            <div className="absolute top-2 right-2 z-10 w-7 h-7 rounded-lg bg-background/75 backdrop-blur-md border border-border/40 flex items-center justify-center opacity-90 group-hover:opacity-100 transition-opacity">
-              <Maximize2 className="w-3.5 h-3.5 text-foreground" />
-            </div>
-
-            <div className="absolute top-2 left-2 z-10 flex items-center gap-1 px-2 py-0.5 rounded-full bg-background/75 backdrop-blur-md border border-border/40">
-              <span className="relative flex w-1.5 h-1.5">
-                <span className="absolute inline-flex w-full h-full rounded-full bg-red-500 opacity-75 animate-ping" />
-                <span className="relative inline-flex rounded-full w-1.5 h-1.5 bg-red-500" />
-              </span>
-              <span className="text-[9px] font-bold tracking-wide text-foreground">LIVE</span>
-            </div>
-
-            {renderMapSvg()}
-
-            {fajrCities.length > 0 && (
-              <div
-                className="absolute bottom-2 left-2 right-2 flex flex-wrap gap-1.5 justify-center"
-                dir={language === 'ar' ? 'rtl' : 'ltr'}
-              >
-                {fajrCities.slice(0, 6).map((c) => (
-                  <motion.span
-                    key={c.name}
-                    initial={{ opacity: 0, y: 4 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-[9.5px] font-semibold px-2 py-0.5 rounded-full bg-primary/20 text-primary backdrop-blur-sm border border-primary/30 inline-flex items-center gap-1"
-                  >
-                    <span>{c.flag}</span>
-                    {language === 'ar' ? c.nameAr : c.name}
-                  </motion.span>
-                ))}
-                {fajrCities.length > 6 && (
-                  <span className="text-[9.5px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary/80 backdrop-blur-sm border border-primary/20">
-                    +{fajrCities.length - 6}
-                  </span>
-                )}
-              </div>
-            )}
-          </div>
-        </button>
+        <QiblaCompass />
 
         {/* Quick stats row — 5 prayer summaries */}
         <div
@@ -1025,8 +966,8 @@ function UmmahPulse() {
           dir={language === 'ar' ? 'rtl' : 'ltr'}
         >
           {t(
-            'اضغط على الخريطة لعرض كل المدن ومواقيتها الرسمية',
-            'Tippe die Karte für offizielle Gebetszeiten aller Städte'
+            'اضغط على أي وقت صلاة لعرض كل المدن ومواقيتها الرسمية',
+            'Tippe eine Gebetszeit für offizielle Zeiten aller Städte'
           )}
         </p>
       </div>
@@ -1047,11 +988,11 @@ function UmmahPulse() {
               <div className="flex items-center justify-between px-5 pt-[max(env(safe-area-inset-top),1rem)] pb-3 border-b border-border/30">
                 <div className="flex items-center gap-2.5">
                   <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
-                    <Globe2 className="w-5 h-5 text-primary" />
+                    <Compass className="w-5 h-5 text-primary" />
                   </div>
                   <div>
                     <h2 className="text-[15px] font-bold text-foreground leading-tight">
-                      {t('نبض الأمة', 'Puls der Ummah')}
+                      {t('بوصلة القبلة', 'Qibla-Kompass')}
                     </h2>
                     <p className="text-[11px] text-muted-foreground leading-tight mt-0.5">
                       {t('مواقيت الصلاة في مدن العالم', 'Gebetszeiten in Städten weltweit')}
@@ -1069,109 +1010,9 @@ function UmmahPulse() {
 
               {/* Scrollable content */}
               <div className="flex-1 overflow-y-auto pb-[max(env(safe-area-inset-bottom),1.5rem)]">
-                {/* Interactive 3D globe */}
+                {/* Qibla compass */}
                 <div className="px-4 pt-4">
-                  <div
-                    className="relative rounded-2xl overflow-hidden border border-border/30"
-                    style={{
-                      background:
-                        'radial-gradient(120% 90% at 50% 35%, hsl(225, 80%, 8%) 0%, hsl(228, 80%, 4%) 60%, #000 100%)',
-                    }}
-                    onClick={() => setSelectedCity(null)}
-                  >
-                    <UmmahGlobe
-                      ref={globeRef}
-                      cities={cityDetails.map<GlobeCity>((c) => ({
-                        name: c.name,
-                        nameAr: c.nameAr,
-                        lat: c.lat,
-                        lng: c.lng,
-                        flag: c.flag,
-                        pop: c.pop,
-                        color: SLOT_META[c.info.slot].color,
-                        active:
-                          c.info.slot === 'fajr' ||
-                          c.info.slot === 'maghrib' ||
-                          c.info.slot === 'isha',
-                        qibla: c.name === 'Makkah',
-                      }))}
-                      subSolarLng={subLng}
-                      subSolarLat={subLat}
-                      language={language === 'ar' ? 'ar' : 'de'}
-                      selectedCity={selectedCity}
-                      onCityClick={(name) => {
-                        setSelectedCity((cur) => (cur === name ? null : name));
-                        const c = cityDetails.find((x) => x.name === name);
-                        if (c) {
-                          globeRef.current?.flyTo({
-                            lng: c.lng,
-                            lat: c.lat,
-                            zoom: Math.max(1.4, Math.min(2.2, 1.6)),
-                            duration: 700,
-                          });
-                        }
-                      }}
-                      onBackgroundClick={() => setSelectedCity(null)}
-                      idleRotate={2.5}
-                    />
-
-                    {/* Sub-solar coordinates badge */}
-                    <div className="absolute top-2 left-2 flex items-center gap-1.5 px-2 py-1 rounded-lg bg-background/80 backdrop-blur-md border border-border/40 pointer-events-none">
-                      <Sun className="w-3 h-3 text-amber-500" />
-                      <span className="text-[10px] font-semibold text-foreground tabular-nums">
-                        {subLat.toFixed(1)}°, {((subLng + 540) % 360 - 180).toFixed(1)}°
-                      </span>
-                    </div>
-
-                    {/* Globe controls */}
-                    <div
-                      className="absolute top-2 right-2 flex flex-col gap-1.5"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <button
-                        onClick={() => globeRef.current?.zoomBy(1.35)}
-                        className="w-8 h-8 rounded-lg bg-background/80 backdrop-blur-md border border-border/40 flex items-center justify-center active:scale-95 transition-transform"
-                        aria-label={t('تكبير', 'Vergrößern')}
-                      >
-                        <Plus className="w-3.5 h-3.5 text-foreground" />
-                      </button>
-                      <button
-                        onClick={() => globeRef.current?.zoomBy(1 / 1.35)}
-                        className="w-8 h-8 rounded-lg bg-background/80 backdrop-blur-md border border-border/40 flex items-center justify-center active:scale-95 transition-transform"
-                        aria-label={t('تصغير', 'Verkleinern')}
-                      >
-                        <Minus className="w-3.5 h-3.5 text-foreground" />
-                      </button>
-                      <button
-                        onClick={() =>
-                          globeRef.current?.flyTo({
-                            lng: 39.8262,
-                            lat: 21.4225,
-                            zoom: 1,
-                            duration: 900,
-                          })
-                        }
-                        className="w-8 h-8 rounded-lg bg-amber-500/15 backdrop-blur-md border border-amber-500/40 flex items-center justify-center active:scale-95 transition-transform"
-                        aria-label={t('العودة إلى مكة', 'Zurück nach Mekka')}
-                        title={t('العودة إلى مكة', 'Zurück nach Mekka')}
-                      >
-                        <Locate className="w-3.5 h-3.5 text-amber-600" />
-                      </button>
-                    </div>
-
-                    {/* Hint badge */}
-                    <div
-                      className="absolute bottom-2 left-1/2 -translate-x-1/2 px-2.5 py-1 rounded-full bg-background/70 backdrop-blur-md border border-border/40 pointer-events-none"
-                      dir={language === 'ar' ? 'rtl' : 'ltr'}
-                    >
-                      <span className="text-[10px] font-semibold text-muted-foreground">
-                        {t(
-                          'اسحب • قرّص للتكبير • انقر مرّتين',
-                          'Ziehen · Pinch · Doppelklick zum Zoomen'
-                        )}
-                      </span>
-                    </div>
-                  </div>
+                  <QiblaCompass />
                 </div>
 
                 {/* Selected city detail */}
