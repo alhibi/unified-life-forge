@@ -951,44 +951,11 @@ function UmmahPulse() {
           className="block w-full text-left active:scale-[0.985] transition-transform focus:outline-none focus:ring-2 focus:ring-primary/40 rounded-2xl"
           aria-label={t('فتح الخريطة بحجم كامل', 'Karte im Vollbild öffnen')}
         >
-          <div className="relative rounded-2xl overflow-hidden bg-[hsl(var(--muted))]/30 group">
-            <div className="absolute top-2 right-2 z-10 w-7 h-7 rounded-lg bg-background/75 backdrop-blur-md border border-border/40 flex items-center justify-center opacity-90 group-hover:opacity-100 transition-opacity">
+          <div className="relative rounded-2xl overflow-hidden border border-border/30 group">
+            <div className="absolute top-3 end-3 z-10 w-7 h-7 rounded-lg bg-background/70 backdrop-blur-md border border-border/40 flex items-center justify-center opacity-80 group-hover:opacity-100 transition-opacity">
               <Maximize2 className="w-3.5 h-3.5 text-foreground" />
             </div>
-
-            <div className="absolute top-2 left-2 z-10 flex items-center gap-1 px-2 py-0.5 rounded-full bg-background/75 backdrop-blur-md border border-border/40">
-              <span className="relative flex w-1.5 h-1.5">
-                <span className="absolute inline-flex w-full h-full rounded-full bg-[hsl(var(--live))] opacity-75 animate-ping" />
-                <span className="relative inline-flex rounded-full w-1.5 h-1.5 bg-[hsl(var(--live))]" />
-              </span>
-              <span className="text-[9px] font-bold tracking-wide text-foreground">LIVE</span>
-            </div>
-
-            {renderAstrolabe()}
-
-            {fajrCities.length > 0 && (
-              <div
-                className="absolute bottom-2 left-2 right-2 flex flex-wrap gap-1.5 justify-center"
-                dir={language === 'ar' ? 'rtl' : 'ltr'}
-              >
-                {fajrCities.slice(0, 6).map((c) => (
-                  <motion.span
-                    key={c.name}
-                    initial={{ opacity: 0, y: 4 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-[9.5px] font-semibold px-2 py-0.5 rounded-full bg-primary/20 text-primary backdrop-blur-sm border border-primary/30 inline-flex items-center gap-1"
-                  >
-                    <span>{c.flag}</span>
-                    {language === 'ar' ? c.nameAr : c.name}
-                  </motion.span>
-                ))}
-                {fajrCities.length > 6 && (
-                  <span className="text-[9.5px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary/80 backdrop-blur-sm border border-primary/20">
-                    +{fajrCities.length - 6}
-                  </span>
-                )}
-              </div>
-            )}
+            {renderEditorial()}
           </div>
         </button>
 
@@ -1077,40 +1044,8 @@ function UmmahPulse() {
               {/* Scrollable content */}
               <div className="flex-1 overflow-y-auto pb-[max(env(safe-area-inset-bottom),1.5rem)]">
                 {/* Engraved heritage world map */}
-                <div className="px-4 pt-4">
-                  <div
-                    className="relative rounded-2xl overflow-hidden border border-[hsl(var(--live))]/25 shadow-[inset_0_0_0_1px_hsl(var(--live)/0.08),0_8px_24px_-12px_hsl(0_0%_0%/0.5)]"
-                    onClick={() => setSelectedCity(null)}
-                  >
-                    {renderAstrolabe({ large: true })}
-
-                    {/* Sub-solar coordinates badge */}
-                    <div className="absolute top-2 left-2 flex items-center gap-1.5 px-2 py-1 rounded-lg bg-background/80 backdrop-blur-md border border-border/40 pointer-events-none">
-                      <Sun className="w-3 h-3 text-[hsl(var(--live))]" />
-                      <span className="text-[10px] font-semibold text-foreground tabular-nums">
-                        {subLat.toFixed(1)}°, {((subLng + 540) % 360 - 180).toFixed(1)}°
-                      </span>
-                    </div>
-
-                    {/* Heritage corner ornaments — copper hairlines */}
-                    <span className="pointer-events-none absolute top-1.5 right-1.5 w-3 h-3 border-t border-r border-[hsl(var(--live))]/55" />
-                    <span className="pointer-events-none absolute bottom-1.5 left-1.5 w-3 h-3 border-b border-l border-[hsl(var(--live))]/55" />
-                    <span className="pointer-events-none absolute bottom-1.5 right-1.5 w-3 h-3 border-b border-r border-[hsl(var(--live))]/55" />
-                    <span className="pointer-events-none absolute top-1.5 left-1.5 w-3 h-3 border-t border-l border-[hsl(var(--live))]/55" />
-
-                    {/* Hint badge */}
-                    <div
-                      className="absolute bottom-2 left-1/2 -translate-x-1/2 px-2.5 py-1 rounded-full bg-background/70 backdrop-blur-md border border-border/40 pointer-events-none"
-                      dir={language === 'ar' ? 'rtl' : 'ltr'}
-                    >
-                      <span className="text-[10px] font-semibold text-muted-foreground">
-                        {t(
-                          'انقر على مدينة لعرض تفاصيلها',
-                          'Stadt antippen für Details'
-                        )}
-                      </span>
-                    </div>
-                  </div>
+                <div className="relative">
+                  {renderEditorial({ large: true })}
                 </div>
 
                 {/* Selected city detail */}
