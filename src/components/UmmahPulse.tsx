@@ -925,9 +925,11 @@ function UmmahPulse() {
  className="flex items-center justify-between px-4 pt-4 pb-2"
  dir={language === 'ar' ? 'rtl' : 'ltr'}
       >
-        <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
-            <Globe2 className="w-4.5 h-4.5 text-primary" strokeWidth={2} />
+          <div className="flex items-center gap-2.5">
+          <div className="relative w-9 h-9 rounded-xl bg-[hsl(var(--live))]/10 border border-[hsl(var(--live))]/25 flex items-center justify-center shadow-[inset_0_0_0_1px_hsl(var(--live)/0.08)] overflow-hidden">
+            <span className="absolute inset-x-1 top-1 border-t border-[hsl(var(--live))]/35" />
+            <span className="absolute inset-y-1 right-1 border-r border-[hsl(var(--live))]/25" />
+            <Map className="w-4.5 h-4.5 text-[hsl(var(--live))]" strokeWidth={2} />
           </div>
           <div>
             <h3 className="text-[14px] font-bold text-foreground leading-tight">
@@ -1053,8 +1055,10 @@ function UmmahPulse() {
               {/* Top bar */}
               <div className="flex items-center justify-between px-5 pt-[max(env(safe-area-inset-top),1rem)] pb-3 border-b border-border/30">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
-                    <Globe2 className="w-5 h-5 text-primary" />
+                  <div className="relative w-9 h-9 rounded-xl bg-[hsl(var(--live))]/10 border border-[hsl(var(--live))]/25 flex items-center justify-center shadow-[inset_0_0_0_1px_hsl(var(--live)/0.08)] overflow-hidden">
+                    <span className="absolute inset-x-1 top-1 border-t border-[hsl(var(--live))]/35" />
+                    <span className="absolute inset-y-1 right-1 border-r border-[hsl(var(--live))]/25" />
+                    <Map className="w-5 h-5 text-[hsl(var(--live))]" />
                   </div>
                   <div>
                     <h2 className="text-[15px] font-bold text-foreground leading-tight">
