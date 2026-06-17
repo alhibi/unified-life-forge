@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '@/contexts/AppContext';
 import {
-  Map, X, Maximize2, Search, Sparkles, MapPin,
+  Map, X, Maximize2, Search, Sparkles, Sun, Moon, MapPin,
   Clock, Compass, Info,
 } from '@/lib/icons';
 import {
