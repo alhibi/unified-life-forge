@@ -936,17 +936,8 @@ function UmmahPulse() {
               {t('نبض الأمة', 'Puls der Ummah')}
             </h3>
             <p className="text-[11px] text-muted-foreground leading-tight mt-0.5">
-              {t('أين يُصلَّى الفجر الآن', 'Wo Fadschr jetzt gebetet wird')}
+              {t('مواقيت الصلاة حول العالم', 'Gebetszeiten weltweit')}
             </p>
-          </div>
-        </div>
-        <div className="text-right">
-          <div className="text-[15px] font-bold text-primary tabular-nums leading-tight flex items-center gap-1 justify-end">
-            <Sparkles className="w-3 h-3" />
-            ~{fajrPop}M
-          </div>
-          <div className="text-[10px] text-muted-foreground leading-tight">
-            {t('مسلم في الفجر', 'in Fadschr')}
           </div>
         </div>
       </div>
@@ -1063,10 +1054,7 @@ function UmmahPulse() {
                       {t('نبض الأمة', 'Puls der Ummah')}
                     </h2>
                     <p className="text-[11px] text-muted-foreground leading-tight mt-0.5">
-                      {t(
-                        `~${fajrPop} مليون مسلم في الفجر الآن`,
-                        `~${fajrPop} Mio. Muslime beten jetzt Fadschr`
-                      )}
+                      {t('مواقيت الصلاة في مدن العالم', 'Gebetszeiten in Städten weltweit')}
                     </p>
                   </div>
                 </div>
