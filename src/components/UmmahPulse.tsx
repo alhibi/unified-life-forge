@@ -1,15 +1,12 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '@/contexts/AppContext';
 import {
-  Globe2, X, Maximize2, Search, Sparkles, Sun, MapPin,
-  Clock, Compass, Info, Plus, Minus, Locate,
+  X, Search, MapPin, Clock, Compass, Info,
 } from 'lucide-react';
 import {
   getCityPrayerInfo,
-  qiblaBearing,
-  bearingToCompass,
   formatLocalMinutes,
   type CalculationMethodId,
   type PrayerAdjustments,
@@ -18,7 +15,7 @@ import {
   PRAYER_SLOT_ORDER,
 } from '@/utils/prayerAstronomy';
 import { WORLD_LAND_PATH } from './UmmahPulse.worldPath';
-import { UmmahGlobe, type GlobeCity, type UmmahGlobeHandle } from './UmmahGlobe';
+import QiblaCompass from './QiblaCompass';
 
 /**
  * Ummah Pulse — a live planetary view of Islamic prayer across the world.
@@ -36,7 +33,7 @@ import { UmmahGlobe, type GlobeCity, type UmmahGlobeHandle } from './UmmahGlobe'
  */
 
 // ─────────────────────────────────────────────────────────────────────────────
-// City registry — each carries IANA tz, official method, flag, region, Muslim pop
+// City registry — each carries IANA tz, official method, flag, and region.
 // ─────────────────────────────────────────────────────────────────────────────
 type Region = 'arab' | 'africa' | 'asia' | 'europe' | 'americas' | 'oceania';
 
@@ -51,8 +48,6 @@ interface City {
   tz: string;
   method: CalculationMethodId;
   region: Region;
-  /** approx Muslim population (millions) in the metro / surrounding region */
-  pop: number;
   /** Asr school officially followed by the country (Shafi'i = 1, Hanafi = 2). */
   asrShadow?: 1 | 2;
   /** Extra per-city minute adjustments on top of method defaults. */
