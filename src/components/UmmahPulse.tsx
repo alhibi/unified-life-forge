@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '@/contexts/AppContext';
 import {
-  Globe2, X, Maximize2, Search, Sparkles, Sun, MapPin,
+  Map, X, Maximize2, Search, Sparkles, Sun, MapPin,
   Clock, Compass, Info,
 } from '@/lib/icons';
 import {
@@ -20,7 +20,7 @@ import {
 import { WORLD_LAND_PATH } from './UmmahPulse.worldPath';
 
 /**
- * Ummah Pulse — a live planetary view of Islamic prayer across the world.
+ * Ummah Pulse — a live engraved map view of Islamic prayer across the world.
  *
  * Accuracy model (this version):
  *  - Every city carries its *official calculation method* (MWL, Umm al-Qura,
@@ -29,7 +29,7 @@ import { WORLD_LAND_PATH } from './UmmahPulse.worldPath';
  *    method's angle parameters, matched against the city's real local clock.
  *  - The "current slot" for a city is therefore aligned with that city's
  *    official timetable — not just a sun-altitude approximation.
- *  - The terminator/sun glyph on the globe still uses solar geometry
+ *  - The terminator/sun glyph on the map still uses solar geometry
  *    (that IS the truth underlying every method), but all city badges
  *    are driven by the actual prayer times.
  */
