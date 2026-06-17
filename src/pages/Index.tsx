@@ -128,7 +128,7 @@ export default function Index() {
           <WeatherWidget />
         </motion.section>
         <motion.section variants={item} aria-labelledby="home-ummah-h">
-          <h2 id="home-ummah-h" className="sr-only">{language === 'ar' ? 'نبض الأمة' : 'Ummah-Puls'}</h2>
+          <h2 id="home-ummah-h" className="sr-only">{language === 'ar' ? 'بوصلة القبلة' : 'Qibla-Kompass'}</h2>
           <UmmahPulse />
         </motion.section>
         {/* Tafsir feature card and the IslamicSections grid that used
