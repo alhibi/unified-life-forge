@@ -429,14 +429,14 @@ function UmmahPulse() {
 
   // Live event log — detect cities transitioning into a new prayer slot.
   type LogEntry = { id: string; cityName: string; cityNameAr: string; flag: string; slot: PrayerSlot; ts: number };
-  const prevSlotsRef = useRef<Map<string, PrayerSlot>>(new Map());
+  const prevSlotsRef = useRef<Record<string, PrayerSlot>>({});
   const [eventLog, setEventLog] = useState<LogEntry[]>([]);
   useEffect(() => {
-    const next = new Map<string, PrayerSlot>();
+    const next: Record<string, PrayerSlot> = {};
     const additions: LogEntry[] = [];
     cityDetails.forEach((c) => {
-      next.set(c.name, c.info.slot);
-      const prev = prevSlotsRef.current.get(c.name);
+      next[c.name] = c.info.slot;
+      const prev = prevSlotsRef.current[c.name];
       if (prev && prev !== c.info.slot && (c.info.slot === 'fajr' || c.info.slot === 'maghrib' || c.info.slot === 'dhuhr' || c.info.slot === 'asr' || c.info.slot === 'isha')) {
         additions.push({
           id: `${c.name}-${c.info.slot}-${Date.now()}`,
