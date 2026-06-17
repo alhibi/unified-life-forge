@@ -368,11 +368,11 @@ function UmmahPulse() {
              Deep navy water, dark slate land, paper-thin borders, refined
              dawn/dusk accents. Tuned for a "ذوق رفيع" elegant feel. */}
 
-          {/* Ocean — graphite navy with a faint center glow */}
+          {/* Obsidian parchment sea — flat engraved heritage map, not a globe */}
           <radialGradient id={`ocean${idSuffix}`} cx="50%" cy="50%" r="78%">
-            <stop offset="0%"   stopColor="hsl(216, 36%, 12%)" />
-            <stop offset="55%"  stopColor="hsl(220, 42%, 8%)"  />
-            <stop offset="100%" stopColor="hsl(225, 50%, 4%)"  />
+            <stop offset="0%"   stopColor="hsl(28, 18%, 13%)" />
+            <stop offset="55%"  stopColor="hsl(230, 14%, 8%)"  />
+            <stop offset="100%" stopColor="hsl(240, 16%, 5%)"  />
           </radialGradient>
 
           {/* Soft top/bottom vignette for cinematic depth */}
@@ -383,17 +383,21 @@ function UmmahPulse() {
             <stop offset="100%" stopColor="hsl(225, 70%, 3%)"  stopOpacity="0.55" />
           </linearGradient>
 
+          <pattern id={`engrave${idSuffix}`} width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(35)">
+            <line x1="0" y1="0" x2="0" y2="7" stroke="hsl(var(--live))" strokeOpacity="0.055" strokeWidth="0.35" />
+          </pattern>
+
           {/* Land (day side) — refined dark slate, slight top-light */}
           <linearGradient id={`landFill${idSuffix}`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%"   stopColor="hsl(214, 16%, 28%)" />
-            <stop offset="55%"  stopColor="hsl(216, 18%, 23%)" />
-            <stop offset="100%" stopColor="hsl(220, 22%, 18%)" />
+            <stop offset="0%"   stopColor="hsl(32, 21%, 34%)" />
+            <stop offset="55%"  stopColor="hsl(28, 16%, 25%)" />
+            <stop offset="100%" stopColor="hsl(230, 12%, 17%)" />
           </linearGradient>
 
           {/* Land (night side) — same family but darker, almost ink */}
           <linearGradient id={`landNight${idSuffix}`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%"   stopColor="hsl(220, 24%, 14%)" />
-            <stop offset="100%" stopColor="hsl(224, 30%, 9%)"  />
+            <stop offset="0%"   stopColor="hsl(28, 14%, 16%)" />
+            <stop offset="100%" stopColor="hsl(235, 18%, 8%)"  />
           </linearGradient>
 
           {/* Fajr — warm gold dawn band */}
@@ -453,6 +457,9 @@ function UmmahPulse() {
 
         {/* Background ocean */}
         <rect width={W} height={H} fill={`url(#ocean${idSuffix})`} />
+        <rect width={W} height={H} fill={`url(#engrave${idSuffix})`} />
+        <rect x="2" y="2" width={W - 4} height={H - 4} rx="3" fill="none" stroke="hsl(var(--live))" strokeOpacity="0.22" strokeWidth="0.45" />
+        <rect x="6" y="6" width={W - 12} height={H - 12} rx="2" fill="none" stroke="hsl(var(--live))" strokeOpacity="0.12" strokeWidth="0.3" />
 
         {/* Star field — only visible inside the night region thanks to clipPath */}
         <g clipPath={`url(#nightClip${idSuffix})`}>
