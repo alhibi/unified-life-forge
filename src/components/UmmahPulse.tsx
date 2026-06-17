@@ -1,10 +1,10 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '@/contexts/AppContext';
 import {
   Globe2, X, Maximize2, Search, Sparkles, Sun, MapPin,
-  Clock, Compass, Info, Plus, Minus, Locate,
+  Clock, Compass, Info,
 } from '@/lib/icons';
 import {
   getCityPrayerInfo,
@@ -18,7 +18,6 @@ import {
   PRAYER_SLOT_ORDER,
 } from '@/utils/prayerAstronomy';
 import { WORLD_LAND_PATH } from './UmmahPulse.worldPath';
-import { UmmahGlobe, type GlobeCity, type UmmahGlobeHandle } from './UmmahGlobe';
 
 /**
  * Ummah Pulse — a live planetary view of Islamic prayer across the world.
