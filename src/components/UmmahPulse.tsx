@@ -368,7 +368,7 @@ function UmmahPulse() {
              Deep navy water, dark slate land, paper-thin borders, refined
              dawn/dusk accents. Tuned for a "ذوق رفيع" elegant feel. */}
 
-          {/* Obsidian parchment sea — flat engraved heritage map, not a globe */}
+          {/* Obsidian parchment sea — flat engraved heritage map */}
           <radialGradient id={`ocean${idSuffix}`} cx="50%" cy="50%" r="78%">
             <stop offset="0%"   stopColor="hsl(28, 18%, 13%)" />
             <stop offset="55%"  stopColor="hsl(230, 14%, 8%)"  />
@@ -1093,7 +1093,7 @@ function UmmahPulse() {
 
               {/* Scrollable content */}
               <div className="flex-1 overflow-y-auto pb-[max(env(safe-area-inset-bottom),1.5rem)]">
-                {/* Engraved heritage world map (replaces the 3D globe) */}
+                {/* Engraved heritage world map */}
                 <div className="px-4 pt-4">
                   <div
                     className="relative rounded-2xl overflow-hidden border border-[hsl(var(--live))]/25 shadow-[inset_0_0_0_1px_hsl(var(--live)/0.08),0_8px_24px_-12px_hsl(0_0%_0%/0.5)]"
