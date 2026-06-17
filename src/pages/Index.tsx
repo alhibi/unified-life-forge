@@ -11,6 +11,7 @@ import { motion } from 'framer-motion';
 import CurrentTimeSunnah from '@/components/CurrentTimeSunnah';
 import WeatherWidget from '@/features/weather/components/WeatherWidget';
 import UmmahPulse from '@/components/UmmahPulse';
+import QiblaCompass from '@/components/QiblaCompass';
 
 import SmartGreeting from '@/components/SmartGreeting';
 import { useNavigate } from 'react-router-dom';
@@ -127,8 +128,12 @@ export default function Index() {
           <h2 id="home-weather-h" className="sr-only">{language === 'ar' ? 'الطقس' : 'Wetter'}</h2>
           <WeatherWidget />
         </motion.section>
+        <motion.section variants={item} aria-labelledby="home-qibla-h">
+          <h2 id="home-qibla-h" className="sr-only">{language === 'ar' ? 'بوصلة القبلة' : 'Qibla-Kompass'}</h2>
+          <QiblaCompass />
+        </motion.section>
         <motion.section variants={item} aria-labelledby="home-ummah-h">
-          <h2 id="home-ummah-h" className="sr-only">{language === 'ar' ? 'بوصلة القبلة' : 'Qibla-Kompass'}</h2>
+          <h2 id="home-ummah-h" className="sr-only">{language === 'ar' ? 'مواقيت الصلاة حول العالم' : 'Gebetszeiten weltweit'}</h2>
           <UmmahPulse />
         </motion.section>
         {/* Tafsir feature card and the IslamicSections grid that used
