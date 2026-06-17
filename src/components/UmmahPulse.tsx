@@ -988,11 +988,11 @@ function UmmahPulse() {
               <div className="flex items-center justify-between px-5 pt-[max(env(safe-area-inset-top),1rem)] pb-3 border-b border-border/30">
                 <div className="flex items-center gap-2.5">
                   <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
-                    <Globe2 className="w-5 h-5 text-primary" />
+                    <Compass className="w-5 h-5 text-primary" />
                   </div>
                   <div>
                     <h2 className="text-[15px] font-bold text-foreground leading-tight">
-                      {t('نبض الأمة', 'Puls der Ummah')}
+                      {t('بوصلة القبلة', 'Qibla-Kompass')}
                     </h2>
                     <p className="text-[11px] text-muted-foreground leading-tight mt-0.5">
                       {t('مواقيت الصلاة في مدن العالم', 'Gebetszeiten in Städten weltweit')}
@@ -1010,109 +1010,9 @@ function UmmahPulse() {
 
               {/* Scrollable content */}
               <div className="flex-1 overflow-y-auto pb-[max(env(safe-area-inset-bottom),1.5rem)]">
-                {/* Interactive 3D globe */}
+                {/* Qibla compass */}
                 <div className="px-4 pt-4">
-                  <div
-                    className="relative rounded-2xl overflow-hidden border border-border/30"
-                    style={{
-                      background:
-                        'radial-gradient(120% 90% at 50% 35%, hsl(225, 80%, 8%) 0%, hsl(228, 80%, 4%) 60%, #000 100%)',
-                    }}
-                    onClick={() => setSelectedCity(null)}
-                  >
-                    <UmmahGlobe
-                      ref={globeRef}
-                      cities={cityDetails.map<GlobeCity>((c) => ({
-                        name: c.name,
-                        nameAr: c.nameAr,
-                        lat: c.lat,
-                        lng: c.lng,
-                        flag: c.flag,
-                        pop: c.pop,
-                        color: SLOT_META[c.info.slot].color,
-                        active:
-                          c.info.slot === 'fajr' ||
-                          c.info.slot === 'maghrib' ||
-                          c.info.slot === 'isha',
-                        qibla: c.name === 'Makkah',
-                      }))}
-                      subSolarLng={subLng}
-                      subSolarLat={subLat}
-                      language={language === 'ar' ? 'ar' : 'de'}
-                      selectedCity={selectedCity}
-                      onCityClick={(name) => {
-                        setSelectedCity((cur) => (cur === name ? null : name));
-                        const c = cityDetails.find((x) => x.name === name);
-                        if (c) {
-                          globeRef.current?.flyTo({
-                            lng: c.lng,
-                            lat: c.lat,
-                            zoom: Math.max(1.4, Math.min(2.2, 1.6)),
-                            duration: 700,
-                          });
-                        }
-                      }}
-                      onBackgroundClick={() => setSelectedCity(null)}
-                      idleRotate={2.5}
-                    />
-
-                    {/* Sub-solar coordinates badge */}
-                    <div className="absolute top-2 left-2 flex items-center gap-1.5 px-2 py-1 rounded-lg bg-background/80 backdrop-blur-md border border-border/40 pointer-events-none">
-                      <Sun className="w-3 h-3 text-amber-500" />
-                      <span className="text-[10px] font-semibold text-foreground tabular-nums">
-                        {subLat.toFixed(1)}°, {((subLng + 540) % 360 - 180).toFixed(1)}°
-                      </span>
-                    </div>
-
-                    {/* Globe controls */}
-                    <div
-                      className="absolute top-2 right-2 flex flex-col gap-1.5"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <button
-                        onClick={() => globeRef.current?.zoomBy(1.35)}
-                        className="w-8 h-8 rounded-lg bg-background/80 backdrop-blur-md border border-border/40 flex items-center justify-center active:scale-95 transition-transform"
-                        aria-label={t('تكبير', 'Vergrößern')}
-                      >
-                        <Plus className="w-3.5 h-3.5 text-foreground" />
-                      </button>
-                      <button
-                        onClick={() => globeRef.current?.zoomBy(1 / 1.35)}
-                        className="w-8 h-8 rounded-lg bg-background/80 backdrop-blur-md border border-border/40 flex items-center justify-center active:scale-95 transition-transform"
-                        aria-label={t('تصغير', 'Verkleinern')}
-                      >
-                        <Minus className="w-3.5 h-3.5 text-foreground" />
-                      </button>
-                      <button
-                        onClick={() =>
-                          globeRef.current?.flyTo({
-                            lng: 39.8262,
-                            lat: 21.4225,
-                            zoom: 1,
-                            duration: 900,
-                          })
-                        }
-                        className="w-8 h-8 rounded-lg bg-amber-500/15 backdrop-blur-md border border-amber-500/40 flex items-center justify-center active:scale-95 transition-transform"
-                        aria-label={t('العودة إلى مكة', 'Zurück nach Mekka')}
-                        title={t('العودة إلى مكة', 'Zurück nach Mekka')}
-                      >
-                        <Locate className="w-3.5 h-3.5 text-amber-600" />
-                      </button>
-                    </div>
-
-                    {/* Hint badge */}
-                    <div
-                      className="absolute bottom-2 left-1/2 -translate-x-1/2 px-2.5 py-1 rounded-full bg-background/70 backdrop-blur-md border border-border/40 pointer-events-none"
-                      dir={language === 'ar' ? 'rtl' : 'ltr'}
-                    >
-                      <span className="text-[10px] font-semibold text-muted-foreground">
-                        {t(
-                          'اسحب • قرّص للتكبير • انقر مرّتين',
-                          'Ziehen · Pinch · Doppelklick zum Zoomen'
-                        )}
-                      </span>
-                    </div>
-                  </div>
+                  <QiblaCompass />
                 </div>
 
                 {/* Selected city detail */}
