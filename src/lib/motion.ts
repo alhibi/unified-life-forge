@@ -104,25 +104,25 @@ export const MOTION = {
 
   /** Forward push — incoming sub-screen. */
   push: {
-    duration: 0.5,
+    duration: 0.35,
     ease: EASE_M3_EMPHASIZED,
   } as Transition,
 
   /** Backward pop — outgoing sub-screen. */
   pop: {
-    duration: 0.5,
+    duration: 0.35,
     ease: EASE_M3_EMPHASIZED,
   } as Transition,
 
   /** Tab swap — between top-level destinations. */
   tab: {
-    duration: 0.5,
+    duration: 0.35,
     ease: EASE_M3_EMPHASIZED,
   } as Transition,
 
   /** Tab exit — paired with `tab`. */
   tabExit: {
-    duration: 0.5,
+    duration: 0.35,
     ease: EASE_M3_EMPHASIZED,
   } as Transition,
 
@@ -202,24 +202,24 @@ export const MOTION = {
   /* ── Khushu nav-transition primitives (per-property) ────────────── */
   /** Subscreen ENTER — fade leg. */
   navFadeEnter: {
-    duration: 0.35,
-    delay: 0.10,
+    duration: 0.24,
+    delay: 0.07,
     ease: EASE_M3_DECELERATE,
   } as Transition,
   /** Subscreen EXIT — fade leg. */
   navFadeExit: {
-    duration: 0.15,
+    duration: 0.10,
     ease: EASE_M3_ACCELERATE,
   } as Transition,
   /** Tab ENTER — fade leg (delay 150ms per spec). */
   navFadeTabEnter: {
-    duration: 0.35,
-    delay: 0.15,
+    duration: 0.24,
+    delay: 0.10,
     ease: EASE_M3_DECELERATE,
   } as Transition,
   /** Scale leg shared by every nav transition (500 ms emphasized). */
   navScale: {
-    duration: 0.5,
+    duration: 0.35,
     ease: EASE_M3_EMPHASIZED,
   } as Transition,
 

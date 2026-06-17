@@ -760,8 +760,8 @@
   }
   .tab-zoom-in {
     animation:
-      tab-enter-scale 500ms cubic-bezier(0.2, 0, 0, 1) both,
-      tab-enter-fade  350ms cubic-bezier(0, 0, 0.2, 1) 150ms both;
+      tab-enter-scale 350ms cubic-bezier(0.2, 0, 0, 1) both,
+      tab-enter-fade  240ms cubic-bezier(0, 0, 0.2, 1) 100ms both;
     transform-origin: center center;
   }
   @media (prefers-reduced-motion: reduce) {
