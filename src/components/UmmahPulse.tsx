@@ -1344,7 +1344,7 @@ function UmmahPulse() {
               <span className="text-[9px] font-bold tracking-wide text-foreground">LIVE</span>
             </div>
 
-            {renderMapSvg()}
+            {renderAstrolabe()}
 
             {fajrCities.length > 0 && (
               <div
@@ -1462,7 +1462,7 @@ function UmmahPulse() {
                     className="relative rounded-2xl overflow-hidden border border-[hsl(var(--live))]/25 shadow-[inset_0_0_0_1px_hsl(var(--live)/0.08),0_8px_24px_-12px_hsl(0_0%_0%/0.5)]"
                     onClick={() => setSelectedCity(null)}
                   >
-                    {renderMapSvg({ large: true })}
+                    {renderAstrolabe({ large: true })}
 
                     {/* Sub-solar coordinates badge */}
                     <div className="absolute top-2 left-2 flex items-center gap-1.5 px-2 py-1 rounded-lg bg-background/80 backdrop-blur-md border border-border/40 pointer-events-none">
