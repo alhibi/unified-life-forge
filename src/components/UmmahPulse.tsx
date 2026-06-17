@@ -1,10 +1,10 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '@/contexts/AppContext';
 import {
   Globe2, X, Maximize2, Search, Sparkles, Sun, MapPin,
-  Clock, Compass, Info, Plus, Minus, Locate,
+  Clock, Compass, Info,
 } from '@/lib/icons';
 import {
   getCityPrayerInfo,
@@ -18,7 +18,6 @@ import {
   PRAYER_SLOT_ORDER,
 } from '@/utils/prayerAstronomy';
 import { WORLD_LAND_PATH } from './UmmahPulse.worldPath';
-import { UmmahGlobe, type GlobeCity, type UmmahGlobeHandle } from './UmmahGlobe';
 
 /**
  * Ummah Pulse — a live planetary view of Islamic prayer across the world.
@@ -238,7 +237,6 @@ function UmmahPulse() {
   const [expanded, setExpanded] = useState(false);
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
   const [filter, setFilter] = useState<PrayerSlot | 'all'>('all');
-  const globeRef = useRef<UmmahGlobeHandle | null>(null);
   const [regionFilter, setRegionFilter] = useState<Region | 'all'>('all');
   const [search, setSearch] = useState('');
   const userShadowFactor: 1 | 2 = prayerMadhab === 'hanafi' ? 2 : 1;
@@ -1081,50 +1079,13 @@ function UmmahPulse() {
 
               {/* Scrollable content */}
               <div className="flex-1 overflow-y-auto pb-[max(env(safe-area-inset-bottom),1.5rem)]">
-                {/* Interactive 3D globe */}
+                {/* Engraved heritage world map (replaces the 3D globe) */}
                 <div className="px-4 pt-4">
                   <div
-                    className="relative rounded-2xl overflow-hidden border border-border/30"
-                    style={{
-                      
-                    }}
+                    className="relative rounded-2xl overflow-hidden border border-[hsl(var(--live))]/25 shadow-[inset_0_0_0_1px_hsl(var(--live)/0.08),0_8px_24px_-12px_hsl(0_0%_0%/0.5)]"
                     onClick={() => setSelectedCity(null)}
                   >
-                    <UmmahGlobe
-                      ref={globeRef}
-                      cities={cityDetails.map<GlobeCity>((c) => ({
-                        name: c.name,
-                        nameAr: c.nameAr,
-                        lat: c.lat,
-                        lng: c.lng,
-                        flag: c.flag,
-                        pop: c.pop,
-                        color: SLOT_META[c.info.slot].color,
-                        active:
-                          c.info.slot === 'fajr' ||
-                          c.info.slot === 'maghrib' ||
-                          c.info.slot === 'isha',
-                        qibla: c.name === 'Makkah',
-                      }))}
-                      subSolarLng={subLng}
-                      subSolarLat={subLat}
-                      language={language === 'ar' ? 'ar' : 'de'}
-                      selectedCity={selectedCity}
-                      onCityClick={(name) => {
-                        setSelectedCity((cur) => (cur === name ? null : name));
-                        const c = cityDetails.find((x) => x.name === name);
-                        if (c) {
-                          globeRef.current?.flyTo({
-                            lng: c.lng,
-                            lat: c.lat,
-                            zoom: Math.max(1.4, Math.min(2.2, 1.6)),
-                            duration: 700,
-                          });
-                        }
-                      }}
-                      onBackgroundClick={() => setSelectedCity(null)}
-                      idleRotate={2.5}
-                    />
+                    {renderMapSvg({ large: true })}
 
                     {/* Sub-solar coordinates badge */}
                     <div className="absolute top-2 left-2 flex items-center gap-1.5 px-2 py-1 rounded-lg bg-background/80 backdrop-blur-md border border-border/40 pointer-events-none">
@@ -1134,41 +1095,11 @@ function UmmahPulse() {
                       </span>
                     </div>
 
-                    {/* Globe controls */}
-                    <div
-                      className="absolute top-2 right-2 flex flex-col gap-1.5"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <button
-                        onClick={() => globeRef.current?.zoomBy(1.35)}
-                        className="w-8 h-8 rounded-lg bg-background/80 backdrop-blur-md border border-border/40 flex items-center justify-center active:scale-95 transition-transform"
-                        aria-label={t('تكبير', 'Vergrößern')}
-                      >
-                        <Plus className="w-3.5 h-3.5 text-foreground" />
-                      </button>
-                      <button
-                        onClick={() => globeRef.current?.zoomBy(1 / 1.35)}
-                        className="w-8 h-8 rounded-lg bg-background/80 backdrop-blur-md border border-border/40 flex items-center justify-center active:scale-95 transition-transform"
-                        aria-label={t('تصغير', 'Verkleinern')}
-                      >
-                        <Minus className="w-3.5 h-3.5 text-foreground" />
-                      </button>
-                      <button
-                        onClick={() =>
-                          globeRef.current?.flyTo({
-                            lng: 39.8262,
-                            lat: 21.4225,
-                            zoom: 1,
-                            duration: 900,
-                          })
-                        }
-                        className="w-8 h-8 rounded-lg bg-[hsl(var(--live))]/15 backdrop-blur-md border border-[hsl(var(--live))]/40 flex items-center justify-center active:scale-95 transition-transform"
-                        aria-label={t('العودة إلى مكة', 'Zurück nach Mekka')}
-                        title={t('العودة إلى مكة', 'Zurück nach Mekka')}
-                      >
-                        <Locate className="w-3.5 h-3.5 text-[hsl(var(--live))]" />
-                      </button>
-                    </div>
+                    {/* Heritage corner ornaments — copper hairlines */}
+                    <span className="pointer-events-none absolute top-1.5 right-1.5 w-3 h-3 border-t border-r border-[hsl(var(--live))]/55" />
+                    <span className="pointer-events-none absolute bottom-1.5 left-1.5 w-3 h-3 border-b border-l border-[hsl(var(--live))]/55" />
+                    <span className="pointer-events-none absolute bottom-1.5 right-1.5 w-3 h-3 border-b border-r border-[hsl(var(--live))]/55" />
+                    <span className="pointer-events-none absolute top-1.5 left-1.5 w-3 h-3 border-t border-l border-[hsl(var(--live))]/55" />
 
                     {/* Hint badge */}
                     <div
@@ -1177,8 +1108,8 @@ function UmmahPulse() {
                     >
                       <span className="text-[10px] font-semibold text-muted-foreground">
                         {t(
-                          'اسحب • قرّص للتكبير • انقر مرّتين',
-                          'Ziehen · Pinch · Doppelklick zum Zoomen'
+                          'انقر على مدينة لعرض تفاصيلها',
+                          'Stadt antippen für Details'
                         )}
                       </span>
                     </div>
