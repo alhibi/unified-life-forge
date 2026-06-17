@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '@/contexts/AppContext';
 import {
-  Globe2, X, Maximize2, Search, Sparkles, Sun, MapPin,
+  Map, X, Maximize2, Search, Sparkles, Sun, MapPin,
   Clock, Compass, Info,
 } from '@/lib/icons';
 import {
@@ -20,7 +20,7 @@ import {
 import { WORLD_LAND_PATH } from './UmmahPulse.worldPath';
 
 /**
- * Ummah Pulse — a live planetary view of Islamic prayer across the world.
+ * Ummah Pulse — a live engraved map view of Islamic prayer across the world.
  *
  * Accuracy model (this version):
  *  - Every city carries its *official calculation method* (MWL, Umm al-Qura,
@@ -29,7 +29,7 @@ import { WORLD_LAND_PATH } from './UmmahPulse.worldPath';
  *    method's angle parameters, matched against the city's real local clock.
  *  - The "current slot" for a city is therefore aligned with that city's
  *    official timetable — not just a sun-altitude approximation.
- *  - The terminator/sun glyph on the globe still uses solar geometry
+ *  - The terminator/sun glyph on the map still uses solar geometry
  *    (that IS the truth underlying every method), but all city badges
  *    are driven by the actual prayer times.
  */
@@ -368,11 +368,11 @@ function UmmahPulse() {
              Deep navy water, dark slate land, paper-thin borders, refined
              dawn/dusk accents. Tuned for a "ذوق رفيع" elegant feel. */}
 
-          {/* Ocean — graphite navy with a faint center glow */}
+          {/* Obsidian parchment sea — flat engraved heritage map */}
           <radialGradient id={`ocean${idSuffix}`} cx="50%" cy="50%" r="78%">
-            <stop offset="0%"   stopColor="hsl(216, 36%, 12%)" />
-            <stop offset="55%"  stopColor="hsl(220, 42%, 8%)"  />
-            <stop offset="100%" stopColor="hsl(225, 50%, 4%)"  />
+            <stop offset="0%"   stopColor="hsl(28, 18%, 13%)" />
+            <stop offset="55%"  stopColor="hsl(230, 14%, 8%)"  />
+            <stop offset="100%" stopColor="hsl(240, 16%, 5%)"  />
           </radialGradient>
 
           {/* Soft top/bottom vignette for cinematic depth */}
@@ -383,17 +383,21 @@ function UmmahPulse() {
             <stop offset="100%" stopColor="hsl(225, 70%, 3%)"  stopOpacity="0.55" />
           </linearGradient>
 
+          <pattern id={`engrave${idSuffix}`} width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(35)">
+            <line x1="0" y1="0" x2="0" y2="7" stroke="hsl(var(--live))" strokeOpacity="0.055" strokeWidth="0.35" />
+          </pattern>
+
           {/* Land (day side) — refined dark slate, slight top-light */}
           <linearGradient id={`landFill${idSuffix}`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%"   stopColor="hsl(214, 16%, 28%)" />
-            <stop offset="55%"  stopColor="hsl(216, 18%, 23%)" />
-            <stop offset="100%" stopColor="hsl(220, 22%, 18%)" />
+            <stop offset="0%"   stopColor="hsl(32, 21%, 34%)" />
+            <stop offset="55%"  stopColor="hsl(28, 16%, 25%)" />
+            <stop offset="100%" stopColor="hsl(230, 12%, 17%)" />
           </linearGradient>
 
           {/* Land (night side) — same family but darker, almost ink */}
           <linearGradient id={`landNight${idSuffix}`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%"   stopColor="hsl(220, 24%, 14%)" />
-            <stop offset="100%" stopColor="hsl(224, 30%, 9%)"  />
+            <stop offset="0%"   stopColor="hsl(28, 14%, 16%)" />
+            <stop offset="100%" stopColor="hsl(235, 18%, 8%)"  />
           </linearGradient>
 
           {/* Fajr — warm gold dawn band */}
@@ -453,6 +457,9 @@ function UmmahPulse() {
 
         {/* Background ocean */}
         <rect width={W} height={H} fill={`url(#ocean${idSuffix})`} />
+        <rect width={W} height={H} fill={`url(#engrave${idSuffix})`} />
+        <rect x="2" y="2" width={W - 4} height={H - 4} rx="3" fill="none" stroke="hsl(var(--live))" strokeOpacity="0.22" strokeWidth="0.45" />
+        <rect x="6" y="6" width={W - 12} height={H - 12} rx="2" fill="none" stroke="hsl(var(--live))" strokeOpacity="0.12" strokeWidth="0.3" />
 
         {/* Star field — only visible inside the night region thanks to clipPath */}
         <g clipPath={`url(#nightClip${idSuffix})`}>
@@ -498,16 +505,19 @@ function UmmahPulse() {
           ))}
         </g>
 
-        {/* Continents — daytime layer (dark slate), then night overlay clipped */}
+        {/* Continents — engraved copper plate, then night overlay clipped */}
         <g>
           <path d={CONTINENTS} fill={`url(#landFill${idSuffix})`} />
+          <path d={CONTINENTS} fill={`url(#engrave${idSuffix})`} opacity="0.9" />
           <path d={CONTINENTS} fill="none"
-                stroke="hsl(214, 22%, 42%)" strokeOpacity="0.55" strokeWidth="0.28" />
+                stroke="hsl(var(--live))" strokeOpacity="0.62" strokeWidth="0.34" />
+          <path d={CONTINENTS} fill="none"
+                stroke="hsl(42, 56%, 78%)" strokeOpacity="0.12" strokeWidth="0.9" />
         </g>
         <g clipPath={`url(#nightClip${idSuffix})`}>
           <path d={CONTINENTS} fill={`url(#landNight${idSuffix})`} />
           <path d={CONTINENTS} fill="none"
-                stroke="hsl(220, 28%, 38%)" strokeOpacity="0.4" strokeWidth="0.24" />
+                stroke="hsl(var(--live))" strokeOpacity="0.34" strokeWidth="0.28" />
         </g>
 
         {/* Night veil — single soft layer, no harsh edge */}
@@ -925,9 +935,11 @@ function UmmahPulse() {
  className="flex items-center justify-between px-4 pt-4 pb-2"
  dir={language === 'ar' ? 'rtl' : 'ltr'}
       >
-        <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
-            <Globe2 className="w-4.5 h-4.5 text-primary" strokeWidth={2} />
+          <div className="flex items-center gap-2.5">
+          <div className="relative w-9 h-9 rounded-xl bg-[hsl(var(--live))]/10 border border-[hsl(var(--live))]/25 flex items-center justify-center shadow-[inset_0_0_0_1px_hsl(var(--live)/0.08)] overflow-hidden">
+            <span className="absolute inset-x-1 top-1 border-t border-[hsl(var(--live))]/35" />
+            <span className="absolute inset-y-1 right-1 border-r border-[hsl(var(--live))]/25" />
+            <Map className="w-4.5 h-4.5 text-[hsl(var(--live))]" strokeWidth={2} />
           </div>
           <div>
             <h3 className="text-[14px] font-bold text-foreground leading-tight">
@@ -1053,8 +1065,10 @@ function UmmahPulse() {
               {/* Top bar */}
               <div className="flex items-center justify-between px-5 pt-[max(env(safe-area-inset-top),1rem)] pb-3 border-b border-border/30">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
-                    <Globe2 className="w-5 h-5 text-primary" />
+                  <div className="relative w-9 h-9 rounded-xl bg-[hsl(var(--live))]/10 border border-[hsl(var(--live))]/25 flex items-center justify-center shadow-[inset_0_0_0_1px_hsl(var(--live)/0.08)] overflow-hidden">
+                    <span className="absolute inset-x-1 top-1 border-t border-[hsl(var(--live))]/35" />
+                    <span className="absolute inset-y-1 right-1 border-r border-[hsl(var(--live))]/25" />
+                    <Map className="w-5 h-5 text-[hsl(var(--live))]" />
                   </div>
                   <div>
                     <h2 className="text-[15px] font-bold text-foreground leading-tight">
@@ -1079,7 +1093,7 @@ function UmmahPulse() {
 
               {/* Scrollable content */}
               <div className="flex-1 overflow-y-auto pb-[max(env(safe-area-inset-bottom),1.5rem)]">
-                {/* Engraved heritage world map (replaces the 3D globe) */}
+                {/* Engraved heritage world map */}
                 <div className="px-4 pt-4">
                   <div
                     className="relative rounded-2xl overflow-hidden border border-[hsl(var(--live))]/25 shadow-[inset_0_0_0_1px_hsl(var(--live)/0.08),0_8px_24px_-12px_hsl(0_0%_0%/0.5)]"
