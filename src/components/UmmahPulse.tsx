@@ -336,6 +336,369 @@ function UmmahPulse() {
 
   const t = (ar: string, de: string) => (language === 'ar' ? ar : de);
 
+  // ── Astrolabe render ──────────────────────────────────────────────────────
+  // A heritage copper astrolabe dial. Cities orbit the dial by their *local*
+  // hour: noon at top, midnight at bottom. Sun glyph is fixed at noon, moon
+  // at midnight. A Qibla needle rotates to point at Makkah's current dial
+  // position. Slot color-bands mark the prayer windows of the day.
+  const renderAstrolabe = (opts: { large?: boolean } = {}) => {
+    const large = !!opts.large;
+    const idSuffix = large ? 'AstLg' : 'AstSm';
+    const VW = 400, VH = 240;
+    const cx = 200, cy = 122;
+
+    const R_PLATE   = 116;
+    const R_OUTER   = 108;
+    const R_TICKS   = 102;
+    const R_INNER   = 94;
+    const R_SLOT_O  = 88;
+    const R_SLOT_I  = 74;
+    const R_CITIES  = 62;
+    const R_CORE    = 22;
+
+    const polar = (r: number, ang: number) => {
+      const a = (ang - 90) * RAD;
+      return { x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) };
+    };
+    // hour 12 -> 0° (top), 18 -> 90°, 0/24 -> 180°, 6 -> 270°
+    const hourAng = (h: number) => ((h * 15) + 180) % 360;
+
+    const arcSweep = (rOut: number, rIn: number, startAng: number, endAng: number) => {
+      let delta = endAng - startAng;
+      while (delta <= 0) delta += 360;
+      const largeFlag = delta > 180 ? 1 : 0;
+      const p1 = polar(rOut, startAng);
+      const p2 = polar(rOut, startAng + delta);
+      const p3 = polar(rIn,  startAng + delta);
+      const p4 = polar(rIn,  startAng);
+      return `M${p1.x},${p1.y} A${rOut},${rOut} 0 ${largeFlag} 1 ${p2.x},${p2.y} L${p3.x},${p3.y} A${rIn},${rIn} 0 ${largeFlag} 0 ${p4.x},${p4.y} Z`;
+    };
+
+    const parseHour = (s: string): number => {
+      const m = s && s.match(/(\d{1,2}):(\d{2})/);
+      if (!m) return 0;
+      return (parseInt(m[1], 10) + parseInt(m[2], 10) / 60) % 24;
+    };
+
+    const slotBands: { slot: PrayerSlot; sH: number; eH: number }[] = [
+      { slot: 'night',   sH: 22, eH: 28 }, // wraps midnight
+      { slot: 'fajr',    sH: 4,  eH: 6 },
+      { slot: 'shuruq',  sH: 6,  eH: 7 },
+      { slot: 'duha',    sH: 7,  eH: 11 },
+      { slot: 'dhuhr',   sH: 11, eH: 14 },
+      { slot: 'asr',     sH: 14, eH: 17 },
+      { slot: 'maghrib', sH: 17, eH: 19 },
+      { slot: 'isha',    sH: 19, eH: 22 },
+    ];
+
+    const makkah = cityDetails.find(c => c.name === 'Makkah');
+    const makkahHour = makkah ? parseHour(makkah.info.localClock) : 12;
+    const needleAng = hourAng(makkahHour);
+    const needleTip  = polar(R_INNER - 4, needleAng);
+    const needleTail = polar(R_CORE - 4, (needleAng + 180) % 360);
+
+    return (
+      <svg
+        viewBox={`0 0 ${VW} ${VH}`}
+        className="w-full h-auto block select-none"
+        preserveAspectRatio="xMidYMid meet"
+        aria-label={t('قبة فلكية تعرض الصلاة عبر العالم', 'Astrolab der Gebete weltweit')}
+      >
+        <defs>
+          <radialGradient id={`astBg${idSuffix}`} cx="50%" cy="48%" r="70%">
+            <stop offset="0%"   stopColor="hsl(28, 14%, 11%)" />
+            <stop offset="60%"  stopColor="hsl(230, 16%, 6%)"  />
+            <stop offset="100%" stopColor="hsl(240, 22%, 3%)"  />
+          </radialGradient>
+          <radialGradient id={`astPlate${idSuffix}`} cx="50%" cy="35%" r="75%">
+            <stop offset="0%"   stopColor="hsl(34, 32%, 24%)" />
+            <stop offset="55%"  stopColor="hsl(28, 22%, 14%)" />
+            <stop offset="100%" stopColor="hsl(230, 18%, 6%)"  />
+          </radialGradient>
+          <linearGradient id={`astCopper${idSuffix}`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%"   stopColor="hsl(38, 72%, 76%)" />
+            <stop offset="50%"  stopColor="hsl(28, 60%, 54%)" />
+            <stop offset="100%" stopColor="hsl(22, 50%, 32%)" />
+          </linearGradient>
+          <radialGradient id={`astCore${idSuffix}`} cx="50%" cy="40%" r="60%">
+            <stop offset="0%"   stopColor="hsl(32, 28%, 18%)" />
+            <stop offset="100%" stopColor="hsl(232, 24%, 5%)" />
+          </radialGradient>
+          <pattern id={`astEngrave${idSuffix}`} width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+            <line x1="0" y1="0" x2="0" y2="5" stroke="hsl(var(--live))" strokeOpacity="0.06" strokeWidth="0.3" />
+          </pattern>
+          <filter id={`astGlow${idSuffix}`}>
+            <feGaussianBlur stdDeviation="1.6" />
+          </filter>
+          <radialGradient id={`astStar${idSuffix}`} cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="hsl(var(--live))" stopOpacity="0.55" />
+            <stop offset="100%" stopColor="hsl(var(--live))" stopOpacity="0" />
+          </radialGradient>
+        </defs>
+
+        {/* Background */}
+        <rect width={VW} height={VH} fill={`url(#astBg${idSuffix})`} />
+        <rect width={VW} height={VH} fill={`url(#astEngrave${idSuffix})`} />
+
+        {/* Faint background stars */}
+        <g>
+          {STARS.slice(0, 90).map((s, i) => {
+            const sx = (s.x / W) * VW;
+            const sy = (s.y / H) * VH;
+            return (
+              <circle key={i} cx={sx} cy={sy} r={s.r * 0.7}
+                      fill="hsl(220, 30%, 88%)" fillOpacity={s.o * 0.35} />
+            );
+          })}
+        </g>
+
+        {/* Plate */}
+        <circle cx={cx} cy={cy} r={R_PLATE} fill={`url(#astPlate${idSuffix})`} />
+        <circle cx={cx} cy={cy} r={R_PLATE} fill={`url(#astEngrave${idSuffix})`} />
+        <circle cx={cx} cy={cy} r={R_PLATE} fill="none"
+                stroke={`url(#astCopper${idSuffix})`} strokeWidth="1.6" />
+        <circle cx={cx} cy={cy} r={R_PLATE - 3} fill="none"
+                stroke="hsl(var(--live))" strokeOpacity="0.25" strokeWidth="0.4" />
+        <circle cx={cx} cy={cy} r={R_OUTER} fill="none"
+                stroke="hsl(var(--live))" strokeOpacity="0.55" strokeWidth="0.6" />
+        <circle cx={cx} cy={cy} r={R_INNER} fill="none"
+                stroke="hsl(var(--live))" strokeOpacity="0.32" strokeWidth="0.4" />
+
+        {/* Hour ticks — 48 marks (every 30 min) */}
+        <g>
+          {Array.from({ length: 48 }).map((_, i) => {
+            const ang = i * 7.5;
+            const isMajor = i % 2 === 0;
+            const isCardinal = i % 12 === 0; // every 6 hours
+            const r1 = isCardinal ? R_TICKS - 9 : isMajor ? R_TICKS - 5 : R_TICKS - 2.5;
+            const p1 = polar(r1, ang);
+            const p2 = polar(R_TICKS, ang);
+            return (
+              <line key={i} x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y}
+                    stroke="hsl(var(--live))"
+                    strokeOpacity={isCardinal ? 0.85 : isMajor ? 0.5 : 0.28}
+                    strokeWidth={isCardinal ? 0.85 : 0.4} />
+            );
+          })}
+        </g>
+
+        {/* Cardinal hour numerals (Arabic-Indic numerals optional, keep Latin for clarity) */}
+        {[
+          { h: 12, label: '12' },
+          { h: 18, label: '18' },
+          { h: 0,  label: '24' },
+          { h: 6,  label: '06' },
+        ].map(({ h, label }) => {
+          const p = polar(R_TICKS - 16, hourAng(h));
+          return (
+            <text key={h} x={p.x} y={p.y + 2.8} fontSize="7.5"
+                  fill="hsl(var(--live))" fillOpacity="0.9"
+                  textAnchor="middle" fontWeight="700"
+                  style={{ letterSpacing: '0.6px', fontFamily: 'ui-serif, Georgia, serif' }}>
+              {label}
+            </text>
+          );
+        })}
+
+        {/* Slot color band */}
+        <g>
+          <circle cx={cx} cy={cy} r={R_SLOT_O} fill="none"
+                  stroke="hsl(var(--live))" strokeOpacity="0.2" strokeWidth="0.3" />
+          <circle cx={cx} cy={cy} r={R_SLOT_I} fill="none"
+                  stroke="hsl(var(--live))" strokeOpacity="0.2" strokeWidth="0.3" />
+          {slotBands.map(({ slot, sH, eH }) => {
+            const sa = hourAng(sH);
+            const ea = hourAng(eH % 24 === 0 ? 24 : eH);
+            const color = SLOT_META[slot].color;
+            return (
+              <path key={slot} d={arcSweep(R_SLOT_O, R_SLOT_I, sa, ea)}
+                    fill={color} fillOpacity="0.16"
+                    stroke={color} strokeOpacity="0.42" strokeWidth="0.4" />
+            );
+          })}
+          {/* Slot labels (only on large) */}
+          {large && slotBands.map(({ slot, sH, eH }) => {
+            const midH = ((sH + eH) / 2) % 24;
+            const p = polar((R_SLOT_O + R_SLOT_I) / 2, hourAng(midH));
+            return (
+              <text key={`lbl-${slot}`} x={p.x} y={p.y + 2}
+                    fontSize="4.2" textAnchor="middle"
+                    fill={SLOT_META[slot].color} fillOpacity="0.95"
+                    fontWeight="700">
+                {language === 'ar' ? SLOT_META[slot].ar : SLOT_META[slot].de}
+              </text>
+            );
+          })}
+        </g>
+
+        {/* Cities orbit ring guide */}
+        <circle cx={cx} cy={cy} r={R_CITIES} fill="none"
+                stroke="hsl(var(--live))" strokeOpacity="0.18"
+                strokeWidth="0.35" strokeDasharray="0.8 2" />
+
+        {/* Qibla needle — rotates with Makkah's dial position */}
+        <g>
+          <line x1={needleTail.x} y1={needleTail.y} x2={needleTip.x} y2={needleTip.y}
+                stroke={`url(#astCopper${idSuffix})`} strokeWidth="1.2" strokeLinecap="round" />
+          {/* arrowhead */}
+          {(() => {
+            const back = polar(R_INNER - 9, needleAng);
+            const left  = polar(R_INNER - 9, (needleAng - 3 + 360) % 360);
+            const right = polar(R_INNER - 9, (needleAng + 3) % 360);
+            return (
+              <polygon
+                points={`${needleTip.x},${needleTip.y} ${left.x},${left.y} ${back.x},${back.y} ${right.x},${right.y}`}
+                fill="hsl(38, 72%, 70%)" stroke="hsl(28, 60%, 40%)" strokeWidth="0.25"
+              />
+            );
+          })()}
+          {/* counterweight */}
+          <circle cx={needleTail.x} cy={needleTail.y} r={2.4}
+                  fill="hsl(28, 58%, 50%)" stroke="hsl(38, 72%, 78%)" strokeWidth="0.3" />
+        </g>
+
+        {/* Core — Kaaba glyph */}
+        <g>
+          <circle cx={cx} cy={cy} r={R_CORE + 3} fill={`url(#astCore${idSuffix})`} />
+          <circle cx={cx} cy={cy} r={R_CORE + 3} fill="none"
+                  stroke="hsl(var(--live))" strokeOpacity="0.55" strokeWidth="0.5" />
+          <circle cx={cx} cy={cy} r={R_CORE - 2} fill="none"
+                  stroke="hsl(var(--live))" strokeOpacity="0.3" strokeWidth="0.3" />
+          {/* Kaaba cube */}
+          <rect x={cx - 8} y={cy - 8} width={16} height={16} rx="1.2"
+                fill="hsl(225, 18%, 7%)" stroke="hsl(38, 70%, 68%)" strokeWidth="0.55" />
+          <rect x={cx - 8} y={cy - 3} width={16} height={1.4} fill="hsl(38, 78%, 62%)" fillOpacity="0.85" />
+          <rect x={cx + 2.5} y={cy - 1} width={3.5} height={5} fill="hsl(38, 78%, 62%)" fillOpacity="0.7" />
+        </g>
+
+        {/* Sun glyph (fixed at noon = top) */}
+        {(() => {
+          const p = polar((R_INNER + R_SLOT_O) / 2, hourAng(12));
+          return (
+            <g>
+              <motion.circle
+                cx={p.x} cy={p.y} r={6.5}
+                fill="hsl(46, 95%, 70%)" fillOpacity="0.25"
+                filter={`url(#astGlow${idSuffix})`}
+                animate={{ scale: [1, 1.18, 1] }}
+                transition={{ duration: 3.6, repeat: Infinity, ease: 'easeInOut' }}
+                style={{ transformOrigin: `${p.x}px ${p.y}px` }}
+              />
+              <motion.g
+                style={{ transformOrigin: `${p.x}px ${p.y}px` }}
+                animate={{ rotate: 360 }}
+                transition={{ duration: 80, repeat: Infinity, ease: 'linear' }}
+              >
+                {[0, 45, 90, 135, 180, 225, 270, 315].map((d) => {
+                  const a = d * RAD;
+                  const x1 = p.x + Math.cos(a) * 3.6;
+                  const y1 = p.y + Math.sin(a) * 3.6;
+                  const x2 = p.x + Math.cos(a) * 6.4;
+                  const y2 = p.y + Math.sin(a) * 6.4;
+                  return <line key={d} x1={x1} y1={y1} x2={x2} y2={y2}
+                               stroke="hsl(46, 95%, 80%)" strokeOpacity="0.85" strokeWidth="0.5" strokeLinecap="round" />;
+                })}
+              </motion.g>
+              <circle cx={p.x} cy={p.y} r={2.6} fill="hsl(48, 100%, 88%)" />
+            </g>
+          );
+        })()}
+
+        {/* Moon glyph (fixed at midnight = bottom) */}
+        {(() => {
+          const p = polar((R_INNER + R_SLOT_O) / 2, hourAng(0));
+          return (
+            <g>
+              <circle cx={p.x} cy={p.y} r={4.5}
+                      fill="hsl(220, 22%, 88%)" fillOpacity="0.18"
+                      filter={`url(#astGlow${idSuffix})`} />
+              <circle cx={p.x} cy={p.y} r={3} fill="hsl(220, 22%, 88%)" />
+              <circle cx={p.x + 1} cy={p.y - 0.6} r={2.2} fill="hsl(230, 18%, 6%)" />
+            </g>
+          );
+        })()}
+
+        {/* City stars on orbit ring */}
+        {cityDetails.map((c) => {
+          const h = parseHour(c.info.localClock);
+          const ang = hourAng(h);
+          const p = polar(R_CITIES, ang);
+          const color = SLOT_META[c.info.slot].color;
+          const isMakkah = c.name === 'Makkah';
+          const isSelected = c.name === selectedCity;
+          const baseR = isMakkah ? 2.4 : Math.max(1.1, Math.min(2.6, Math.sqrt(c.pop) * 0.34));
+          const isActive = c.info.slot === 'fajr' || c.info.slot === 'maghrib' || c.info.slot === 'isha';
+          return (
+            <g key={`${c.name}-${c.lat}`}
+               style={{ cursor: 'pointer' }}
+               onClick={(e) => {
+                 e.stopPropagation();
+                 setSelectedCity(c.name === selectedCity ? null : c.name);
+               }}>
+              {/* Hit target */}
+              <circle cx={p.x} cy={p.y} r={5.5} fill="transparent" />
+              {/* Soft star glow */}
+              <circle cx={p.x} cy={p.y} r={baseR + 3}
+                      fill={`url(#astStar${idSuffix})`} opacity={isActive ? 0.8 : 0.45} />
+              {isActive && (
+                <motion.circle
+                  cx={p.x} cy={p.y} r={baseR + 1}
+                  fill={color}
+                  fillOpacity={0.18}
+                  animate={{ r: [baseR + 0.6, baseR + 3.2, baseR + 0.6], opacity: [0.32, 0, 0.32] }}
+                  transition={{
+                    duration: c.info.slot === 'fajr' ? 2.2 : 3,
+                    repeat: Infinity, ease: 'easeInOut',
+                    delay: (c.name.charCodeAt(0) % 5) * 0.18,
+                  }}
+                />
+              )}
+              <circle
+                cx={p.x} cy={p.y} r={baseR}
+                fill={isMakkah ? 'hsl(48, 100%, 78%)' : color}
+                stroke={isSelected ? 'hsl(0, 0%, 100%)' : 'hsl(38, 70%, 86%)'}
+                strokeOpacity={isSelected ? 1 : 0.55}
+                strokeWidth={isSelected ? 0.8 : 0.28}
+              />
+              {/* Selection ring */}
+              {isSelected && (
+                <circle cx={p.x} cy={p.y} r={baseR + 2.4}
+                        fill="none" stroke="hsl(var(--live))" strokeOpacity="0.9"
+                        strokeWidth="0.5" strokeDasharray="1.4 1.2" />
+              )}
+              {/* Leader line outward for selected (large only) */}
+              {large && isSelected && (() => {
+                const outer = polar(R_OUTER + 2, ang);
+                const labelPos = polar(R_OUTER + 8, ang);
+                const flip = labelPos.x > cx;
+                return (
+                  <g pointerEvents="none">
+                    <line x1={p.x} y1={p.y} x2={outer.x} y2={outer.y}
+                          stroke="hsl(var(--live))" strokeOpacity="0.7" strokeWidth="0.35" />
+                    <text x={labelPos.x} y={labelPos.y + 2}
+                          fontSize="5" fontWeight="700"
+                          fill="hsl(var(--live))"
+                          textAnchor={flip ? 'start' : 'end'}>
+                      {c.flag} {language === 'ar' ? c.nameAr : c.name} · {c.info.localClock}
+                    </text>
+                  </g>
+                );
+              })()}
+            </g>
+          );
+        })}
+
+        {/* Decorative arabesque corner flourishes (copper hairlines) */}
+        <g stroke="hsl(var(--live))" strokeOpacity="0.35" strokeWidth="0.35" fill="none">
+          <path d={`M 14,14 Q 28,14 28,28 M 14,14 L 14,28 M 14,14 L 28,14`} />
+          <path d={`M ${VW - 14},14 Q ${VW - 28},14 ${VW - 28},28 M ${VW - 14},14 L ${VW - 14},28 M ${VW - 14},14 L ${VW - 28},14`} />
+          <path d={`M 14,${VH - 14} Q 28,${VH - 14} 28,${VH - 28} M 14,${VH - 14} L 14,${VH - 28} M 14,${VH - 14} L 28,${VH - 14}`} />
+          <path d={`M ${VW - 14},${VH - 14} Q ${VW - 28},${VH - 14} ${VW - 28},${VH - 28} M ${VW - 14},${VH - 14} L ${VW - 14},${VH - 28} M ${VW - 14},${VH - 14} L ${VW - 28},${VH - 14}`} />
+        </g>
+      </svg>
+    );
+  };
+
   // ── Map render ────────────────────────────────────────────────────────────
   const renderMapSvg = (opts: { large?: boolean } = {}) => {
     const large = !!opts.large;
@@ -981,7 +1344,7 @@ function UmmahPulse() {
               <span className="text-[9px] font-bold tracking-wide text-foreground">LIVE</span>
             </div>
 
-            {renderMapSvg()}
+            {renderAstrolabe()}
 
             {fajrCities.length > 0 && (
               <div
@@ -1099,7 +1462,7 @@ function UmmahPulse() {
                     className="relative rounded-2xl overflow-hidden border border-[hsl(var(--live))]/25 shadow-[inset_0_0_0_1px_hsl(var(--live)/0.08),0_8px_24px_-12px_hsl(0_0%_0%/0.5)]"
                     onClick={() => setSelectedCity(null)}
                   >
-                    {renderMapSvg({ large: true })}
+                    {renderAstrolabe({ large: true })}
 
                     {/* Sub-solar coordinates badge */}
                     <div className="absolute top-2 left-2 flex items-center gap-1.5 px-2 py-1 rounded-lg bg-background/80 backdrop-blur-md border border-border/40 pointer-events-none">
