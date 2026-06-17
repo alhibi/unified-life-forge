@@ -233,7 +233,6 @@ function UmmahPulse() {
   const [expanded, setExpanded] = useState(false);
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
   const [filter, setFilter] = useState<PrayerSlot | 'all'>('all');
-  const globeRef = useRef<UmmahGlobeHandle | null>(null);
   const [regionFilter, setRegionFilter] = useState<Region | 'all'>('all');
   const [search, setSearch] = useState('');
   const userShadowFactor: 1 | 2 = prayerMadhab === 'hanafi' ? 2 : 1;
@@ -291,17 +290,6 @@ function UmmahPulse() {
     [cityDetails]
   );
 
-  // Aggregate Muslim pop per slot
-  const slotPop = useMemo(() => {
-    const agg: Record<PrayerSlot, number> = {
-      fajr: 0, shuruq: 0, duha: 0, dhuhr: 0, asr: 0, maghrib: 0, isha: 0, night: 0,
-    };
-    cityDetails.forEach((c) => { agg[c.info.slot] += c.pop; });
-    return agg;
-  }, [cityDetails]);
-
-  const fajrPop = slotPop.fajr;
-
   // Fajr band center (~15° east of terminator, sunrise side)
   const fajrCenterLng = ((subLng + 105 + 540) % 360) - 180;
   const fajrCenter = project(0, fajrCenterLng);
@@ -323,7 +311,7 @@ function UmmahPulse() {
       })
       .sort((a, b) => {
         const oi = PRAYER_SLOT_ORDER.indexOf(a.info.slot) - PRAYER_SLOT_ORDER.indexOf(b.info.slot);
-        return oi !== 0 ? oi : b.pop - a.pop;
+        return oi !== 0 ? oi : a.name.localeCompare(b.name);
       });
   }, [cityDetails, filter, regionFilter, search]);
 
@@ -347,7 +335,7 @@ function UmmahPulse() {
     // animated qibla arcs from the map to Makkah for an extra wow factor.
     const activeForArcs = cityDetails
       .filter(c => (c.info.slot === 'fajr' || c.info.slot === 'maghrib') && c.name !== 'Makkah')
-      .sort((a, b) => b.pop - a.pop)
+      .sort((a, b) => a.name.localeCompare(b.name))
       .slice(0, large ? 8 : 4);
 
     return (
