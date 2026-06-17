@@ -505,16 +505,19 @@ function UmmahPulse() {
           ))}
         </g>
 
-        {/* Continents — daytime layer (dark slate), then night overlay clipped */}
+        {/* Continents — engraved copper plate, then night overlay clipped */}
         <g>
           <path d={CONTINENTS} fill={`url(#landFill${idSuffix})`} />
+          <path d={CONTINENTS} fill={`url(#engrave${idSuffix})`} opacity="0.9" />
           <path d={CONTINENTS} fill="none"
-                stroke="hsl(214, 22%, 42%)" strokeOpacity="0.55" strokeWidth="0.28" />
+                stroke="hsl(var(--live))" strokeOpacity="0.62" strokeWidth="0.34" />
+          <path d={CONTINENTS} fill="none"
+                stroke="hsl(42, 56%, 78%)" strokeOpacity="0.12" strokeWidth="0.9" />
         </g>
         <g clipPath={`url(#nightClip${idSuffix})`}>
           <path d={CONTINENTS} fill={`url(#landNight${idSuffix})`} />
           <path d={CONTINENTS} fill="none"
-                stroke="hsl(220, 28%, 38%)" strokeOpacity="0.4" strokeWidth="0.24" />
+                stroke="hsl(var(--live))" strokeOpacity="0.34" strokeWidth="0.28" />
         </g>
 
         {/* Night veil — single soft layer, no harsh edge */}
