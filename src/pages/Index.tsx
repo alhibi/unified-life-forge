@@ -11,6 +11,7 @@ import { motion } from 'framer-motion';
 import CurrentTimeSunnah from '@/components/CurrentTimeSunnah';
 import WeatherWidget from '@/features/weather/components/WeatherWidget';
 import UmmahPulse from '@/components/UmmahPulse';
+import LivingRibbon from '@/components/LivingRibbon';
 
 import SmartGreeting from '@/components/SmartGreeting';
 import { useNavigate } from 'react-router-dom';
@@ -67,7 +68,7 @@ export default function Index() {
               <IconButton onClick={() => setShowClipboard(true)} aria-label="الحافظة">
                 <ClipboardList className="h-5 w-5" />
                 {saved.length > 0 && (
-                  <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">
+                  <span className="absolute -top-1 -end-1 w-5 h-5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">
                     {saved.length}
                   </span>
                 )}
@@ -76,7 +77,7 @@ export default function Index() {
                 <IconButton onClick={() => navigate('/chat')} aria-label="المحادثات">
                   <MessageCircle className="h-5 w-5" />
                   {unreadCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground text-[10px] rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 font-bold animate-pulse">
+                    <span className="absolute -top-1 -end-1 bg-destructive text-destructive-foreground text-[10px] rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 font-bold animate-pulse">
                       {unreadCount}
                     </span>
                   )}
@@ -114,7 +115,10 @@ export default function Index() {
           </div>
         </motion.div>
 
-        
+        <motion.section variants={item} aria-labelledby="home-ribbon-h">
+          <h2 id="home-ribbon-h" className="sr-only">{language === 'ar' ? 'تنبيه مباشر' : 'Live-Hinweis'}</h2>
+          <LivingRibbon />
+        </motion.section>
         <motion.section variants={item} aria-labelledby="home-prayer-h">
           <h2 id="home-prayer-h" className="sr-only">{language === 'ar' ? 'أوقات الصلاة' : 'Gebetszeiten'}</h2>
           <PrayerTimes />
@@ -145,11 +149,11 @@ export default function Index() {
 
         {/* Made by Amer */}
         <motion.div variants={item} className="flex items-center justify-center gap-2 py-6 mt-4">
-          <div className="h-px flex-1 " />
+          <div className="h-px flex-1 bg-border/40" />
           <span className="text-[11px] text-muted-foreground font-medium tracking-wide">
             {t('footer.madeBy')} <span className="text-primary font-semibold">عامر</span> {t('footer.and')} <span className="text-primary font-semibold">امولة</span> ✦
           </span>
-          <div className="h-px flex-1 " />
+          <div className="h-px flex-1 bg-border/40" />
         </motion.div>
       </motion.div>
 

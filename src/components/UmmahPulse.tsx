@@ -1010,11 +1010,6 @@ function UmmahPulse() {
 
               {/* Scrollable content */}
               <div className="flex-1 overflow-y-auto pb-[max(env(safe-area-inset-bottom),1.5rem)]">
-                {/* Qibla compass */}
-                <div className="px-4 pt-4">
-                  <QiblaCompass />
-                </div>
-
                 {/* Selected city detail */}
                 <AnimatePresence mode="wait">
                   {selectedCityDetails && (
