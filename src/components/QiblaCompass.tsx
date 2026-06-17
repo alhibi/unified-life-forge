@@ -280,7 +280,7 @@ export default function QiblaCompass() {
                   </div>
                   <button
                     onClick={() => setExpanded(false)}
-                    aria-label="close"
+                    aria-label={language === 'ar' ? 'إغلاق' : 'Schließen'}
                     className="w-8 h-8 rounded-full bg-card/80 flex items-center justify-center"
                   >
                     <X className="w-4 h-4 text-muted-foreground" />

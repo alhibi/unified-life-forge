@@ -163,7 +163,7 @@ export default function LivingRibbon() {
             ? `احتمال ${next.precipitationProbability}٪`
             : `Wahrscheinlichkeit ${next.precipitationProbability}%`,
           cta: ar ? 'الطقس' : 'Wetter',
-          to: '/weather',
+          to: '/browse',
         });
       }
     }
@@ -179,7 +179,7 @@ export default function LivingRibbon() {
           ? `${Math.round(weather.current.temperature)}° • أذكار الصباح`
           : `${Math.round(weather.current.temperature)}° • Morgengebete`,
         cta: ar ? 'الأذكار' : 'Gebete',
-        to: '/duas',
+        to: '/mihrab',
       });
     }
 
@@ -194,7 +194,7 @@ export default function LivingRibbon() {
           ? `${Math.round(weather.current.temperature)}° الآن`
           : `${Math.round(weather.current.temperature)}° jetzt`,
         cta: ar ? 'الطقس' : 'Wetter',
-        to: '/weather',
+        to: '/browse',
       });
     }
 
@@ -207,7 +207,7 @@ export default function LivingRibbon() {
         title: ar ? 'أذكار الصباح' : 'Morgengebete',
         subtitle: ar ? 'ابدأ يومك بنور' : 'Beginne deinen Tag mit Licht',
         cta: ar ? 'الأذكار' : 'Öffnen',
-        to: '/duas',
+        to: '/mihrab',
       });
     } else if (hour >= 16 && hour < 19) {
       cands.push({
@@ -217,7 +217,7 @@ export default function LivingRibbon() {
         title: ar ? 'أذكار المساء' : 'Abendgebete',
         subtitle: ar ? 'حصّن نفسك حتى الفجر' : 'Schütze dich bis zum Fajr',
         cta: ar ? 'الأذكار' : 'Öffnen',
-        to: '/duas',
+        to: '/mihrab',
       });
     } else if (hour >= 21 || hour < 1) {
       cands.push({
@@ -227,7 +227,7 @@ export default function LivingRibbon() {
         title: ar ? 'أذكار النوم' : 'Schlafgebete',
         subtitle: ar ? 'نم على ذكر الله' : 'Schlafe mit Gottes Gedenken',
         cta: ar ? 'الأذكار' : 'Öffnen',
-        to: '/duas',
+        to: '/mihrab',
       });
     }
 

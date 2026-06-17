@@ -424,7 +424,7 @@ export default function BottomNav() {
                   fontSize: '9px',
                   fontWeight: visuallyActive ? 700 : 500,
                   letterSpacing: 0,
-                  direction: 'rtl',
+                  direction: rtl ? 'rtl' : 'ltr',
                   color: visuallyActive ? LIVE : 'hsl(var(--muted-foreground) / 0.75)',
                   opacity: 1,
                   transition: dragging
