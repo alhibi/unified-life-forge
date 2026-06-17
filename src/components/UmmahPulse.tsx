@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '@/contexts/AppContext';
@@ -336,827 +336,447 @@ function UmmahPulse() {
 
   const t = (ar: string, de: string) => (language === 'ar' ? ar : de);
 
-  // ── Astrolabe render ──────────────────────────────────────────────────────
-  // A heritage copper astrolabe dial. Cities orbit the dial by their *local*
-  // hour: noon at top, midnight at bottom. Sun glyph is fixed at noon, moon
-  // at midnight. A Qibla needle rotates to point at Makkah's current dial
-  // position. Slot color-bands mark the prayer windows of the day.
-  const renderAstrolabe = (opts: { large?: boolean } = {}) => {
-    const large = !!opts.large;
-    const idSuffix = large ? 'AstLg' : 'AstSm';
-    const VW = 400, VH = 240;
-    const cx = 200, cy = 122;
-
-    const R_PLATE   = 116;
-    const R_OUTER   = 108;
-    const R_TICKS   = 102;
-    const R_INNER   = 94;
-    const R_SLOT_O  = 88;
-    const R_SLOT_I  = 74;
-    const R_CITIES  = 62;
-    const R_CORE    = 22;
-
-    const polar = (r: number, ang: number) => {
-      const a = (ang - 90) * RAD;
-      return { x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) };
+  // ── Editorial data layer ──────────────────────────────────────────────────
+  // "Praying right now" — total Muslim pop currently inside an active prayer
+  // window. Weighted so window-start (fajr/maghrib) carries full weight and
+  // mid-windows carry partial weight, matching real-world participation curves.
+  const prayingNow = useMemo(() => {
+    const w: Record<PrayerSlot, number> = {
+      fajr: 1.0, shuruq: 0.15, duha: 0.18, dhuhr: 0.55, asr: 0.45,
+      maghrib: 0.9, isha: 0.65, night: 0.02,
     };
-    // hour 12 -> 0° (top), 18 -> 90°, 0/24 -> 180°, 6 -> 270°
-    const hourAng = (h: number) => ((h * 15) + 180) % 360;
+    let total = 0;
+    cityDetails.forEach((c) => { total += c.pop * (w[c.info.slot] ?? 0); });
+    return total; // in millions
+  }, [cityDetails]);
 
-    const arcSweep = (rOut: number, rIn: number, startAng: number, endAng: number) => {
-      let delta = endAng - startAng;
-      while (delta <= 0) delta += 360;
-      const largeFlag = delta > 180 ? 1 : 0;
-      const p1 = polar(rOut, startAng);
-      const p2 = polar(rOut, startAng + delta);
-      const p3 = polar(rIn,  startAng + delta);
-      const p4 = polar(rIn,  startAng);
-      return `M${p1.x},${p1.y} A${rOut},${rOut} 0 ${largeFlag} 1 ${p2.x},${p2.y} L${p3.x},${p3.y} A${rIn},${rIn} 0 ${largeFlag} 0 ${p4.x},${p4.y} Z`;
+  const totalUmmahPop = useMemo(
+    () => cityDetails.reduce((s, c) => s + c.pop, 0),
+    [cityDetails]
+  );
+
+  // Regional breakdown — per region, dominant slot + slot share by pop.
+  const regionStats = useMemo(() => {
+    const regions: Region[] = ['arab', 'africa', 'asia', 'europe', 'americas', 'oceania'];
+    return regions.map((r) => {
+      const inR = cityDetails.filter((c) => c.region === r);
+      const pop = inR.reduce((s, c) => s + c.pop, 0);
+      const bySlot: Record<PrayerSlot, number> = {
+        fajr: 0, shuruq: 0, duha: 0, dhuhr: 0, asr: 0, maghrib: 0, isha: 0, night: 0,
+      };
+      inR.forEach((c) => { bySlot[c.info.slot] += c.pop; });
+      let topSlot: PrayerSlot = 'night';
+      let topVal = -1;
+      (Object.keys(bySlot) as PrayerSlot[]).forEach((k) => {
+        if (bySlot[k] > topVal) { topVal = bySlot[k]; topSlot = k; }
+      });
+      return { region: r, pop, bySlot, topSlot, cityCount: inR.length };
+    });
+  }, [cityDetails]);
+
+  // 24-hour prayer wave — for each UTC hour, share of global Muslim pop in
+  // an active prayer window (excludes shuruq/duha/night, weights as above).
+  const waveData = useMemo(() => {
+    // Slot from local hour (matches slotBands in detail rendering).
+    const slotFromHour = (h: number): PrayerSlot => {
+      const x = ((h % 24) + 24) % 24;
+      if (x >= 4  && x < 6)  return 'fajr';
+      if (x >= 6  && x < 7)  return 'shuruq';
+      if (x >= 7  && x < 11) return 'duha';
+      if (x >= 11 && x < 14) return 'dhuhr';
+      if (x >= 14 && x < 17) return 'asr';
+      if (x >= 17 && x < 19) return 'maghrib';
+      if (x >= 19 && x < 22) return 'isha';
+      return 'night';
     };
-
-    const parseHour = (s: string): number => {
-      const m = s && s.match(/(\d{1,2}):(\d{2})/);
-      if (!m) return 0;
-      return (parseInt(m[1], 10) + parseInt(m[2], 10) / 60) % 24;
+    const weight: Record<PrayerSlot, number> = {
+      fajr: 1.0, shuruq: 0.15, duha: 0.18, dhuhr: 0.55, asr: 0.45,
+      maghrib: 0.9, isha: 0.65, night: 0.02,
     };
+    const utcNow = now.getUTCHours() + now.getUTCMinutes() / 60;
+    // approximate per-city UTC offset from current local clock
+    const offsets = cityDetails.map((c) => {
+      const m = c.info.localClock.match(/(\d{1,2}):(\d{2})/);
+      const local = m ? parseInt(m[1], 10) + parseInt(m[2], 10) / 60 : 0;
+      let off = local - utcNow;
+      if (off > 14)  off -= 24;
+      if (off < -12) off += 24;
+      return { pop: c.pop, off };
+    });
+    const totalPop = offsets.reduce((s, o) => s + o.pop, 0) || 1;
+    const points: number[] = [];
+    for (let H = 0; H < 24; H++) {
+      let sum = 0;
+      offsets.forEach(({ pop, off }) => {
+        sum += pop * weight[slotFromHour(H + off)];
+      });
+      points.push(sum / totalPop);
+    }
+    return points;
+  }, [cityDetails, now]);
 
-    const slotBands: { slot: PrayerSlot; sH: number; eH: number }[] = [
-      { slot: 'night',   sH: 22, eH: 28 }, // wraps midnight
-      { slot: 'fajr',    sH: 4,  eH: 6 },
-      { slot: 'shuruq',  sH: 6,  eH: 7 },
-      { slot: 'duha',    sH: 7,  eH: 11 },
-      { slot: 'dhuhr',   sH: 11, eH: 14 },
-      { slot: 'asr',     sH: 14, eH: 17 },
-      { slot: 'maghrib', sH: 17, eH: 19 },
-      { slot: 'isha',    sH: 19, eH: 22 },
-    ];
+  const utcHourNow = now.getUTCHours() + now.getUTCMinutes() / 60;
 
-    const makkah = cityDetails.find(c => c.name === 'Makkah');
-    const makkahHour = makkah ? parseHour(makkah.info.localClock) : 12;
-    const needleAng = hourAng(makkahHour);
-    const needleTip  = polar(R_INNER - 4, needleAng);
-    const needleTail = polar(R_CORE - 4, (needleAng + 180) % 360);
+  // Slot distribution — share of global Muslim pop per slot right now.
+  const slotShare = useMemo(() => {
+    const total = totalUmmahPop || 1;
+    return PRAYER_SLOT_ORDER.map((s) => ({
+      slot: s,
+      share: (slotPop[s] || 0) / total,
+      pop: slotPop[s] || 0,
+    }));
+  }, [slotPop, totalUmmahPop]);
 
-    return (
-      <svg
-        viewBox={`0 0 ${VW} ${VH}`}
-        className="w-full h-auto block select-none"
-        preserveAspectRatio="xMidYMid meet"
-        aria-label={t('قبة فلكية تعرض الصلاة عبر العالم', 'Astrolab der Gebete weltweit')}
-      >
-        <defs>
-          <radialGradient id={`astBg${idSuffix}`} cx="50%" cy="48%" r="70%">
-            <stop offset="0%"   stopColor="hsl(28, 14%, 11%)" />
-            <stop offset="60%"  stopColor="hsl(230, 16%, 6%)"  />
-            <stop offset="100%" stopColor="hsl(240, 22%, 3%)"  />
-          </radialGradient>
-          <radialGradient id={`astPlate${idSuffix}`} cx="50%" cy="35%" r="75%">
-            <stop offset="0%"   stopColor="hsl(34, 32%, 24%)" />
-            <stop offset="55%"  stopColor="hsl(28, 22%, 14%)" />
-            <stop offset="100%" stopColor="hsl(230, 18%, 6%)"  />
-          </radialGradient>
-          <linearGradient id={`astCopper${idSuffix}`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%"   stopColor="hsl(38, 72%, 76%)" />
-            <stop offset="50%"  stopColor="hsl(28, 60%, 54%)" />
-            <stop offset="100%" stopColor="hsl(22, 50%, 32%)" />
-          </linearGradient>
-          <radialGradient id={`astCore${idSuffix}`} cx="50%" cy="40%" r="60%">
-            <stop offset="0%"   stopColor="hsl(32, 28%, 18%)" />
-            <stop offset="100%" stopColor="hsl(232, 24%, 5%)" />
-          </radialGradient>
-          <pattern id={`astEngrave${idSuffix}`} width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-            <line x1="0" y1="0" x2="0" y2="5" stroke="hsl(var(--live))" strokeOpacity="0.06" strokeWidth="0.3" />
-          </pattern>
-          <filter id={`astGlow${idSuffix}`}>
-            <feGaussianBlur stdDeviation="1.6" />
-          </filter>
-          <radialGradient id={`astStar${idSuffix}`} cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="hsl(var(--live))" stopOpacity="0.55" />
-            <stop offset="100%" stopColor="hsl(var(--live))" stopOpacity="0" />
-          </radialGradient>
-        </defs>
+  // Live event log — detect cities transitioning into a new prayer slot.
+  type LogEntry = { id: string; cityName: string; cityNameAr: string; flag: string; slot: PrayerSlot; ts: number };
+  const prevSlotsRef = useRef<Record<string, PrayerSlot>>({});
+  const [eventLog, setEventLog] = useState<LogEntry[]>([]);
+  useEffect(() => {
+    const next: Record<string, PrayerSlot> = {};
+    const additions: LogEntry[] = [];
+    cityDetails.forEach((c) => {
+      next[c.name] = c.info.slot;
+      const prev = prevSlotsRef.current[c.name];
+      if (prev && prev !== c.info.slot && (c.info.slot === 'fajr' || c.info.slot === 'maghrib' || c.info.slot === 'dhuhr' || c.info.slot === 'asr' || c.info.slot === 'isha')) {
+        additions.push({
+          id: `${c.name}-${c.info.slot}-${Date.now()}`,
+          cityName: c.name, cityNameAr: c.nameAr, flag: c.flag,
+          slot: c.info.slot, ts: Date.now(),
+        });
+      }
+    });
+    prevSlotsRef.current = next;
+    if (additions.length) {
+      setEventLog((log) => [...additions, ...log].slice(0, 12));
+    }
+  }, [cityDetails]);
 
-        {/* Background */}
-        <rect width={VW} height={VH} fill={`url(#astBg${idSuffix})`} />
-        <rect width={VW} height={VH} fill={`url(#astEngrave${idSuffix})`} />
-
-        {/* Faint background stars */}
-        <g>
-          {STARS.slice(0, 90).map((s, i) => {
-            const sx = (s.x / W) * VW;
-            const sy = (s.y / H) * VH;
-            return (
-              <circle key={i} cx={sx} cy={sy} r={s.r * 0.7}
-                      fill="hsl(220, 30%, 88%)" fillOpacity={s.o * 0.35} />
-            );
-          })}
-        </g>
-
-        {/* Plate */}
-        <circle cx={cx} cy={cy} r={R_PLATE} fill={`url(#astPlate${idSuffix})`} />
-        <circle cx={cx} cy={cy} r={R_PLATE} fill={`url(#astEngrave${idSuffix})`} />
-        <circle cx={cx} cy={cy} r={R_PLATE} fill="none"
-                stroke={`url(#astCopper${idSuffix})`} strokeWidth="1.6" />
-        <circle cx={cx} cy={cy} r={R_PLATE - 3} fill="none"
-                stroke="hsl(var(--live))" strokeOpacity="0.25" strokeWidth="0.4" />
-        <circle cx={cx} cy={cy} r={R_OUTER} fill="none"
-                stroke="hsl(var(--live))" strokeOpacity="0.55" strokeWidth="0.6" />
-        <circle cx={cx} cy={cy} r={R_INNER} fill="none"
-                stroke="hsl(var(--live))" strokeOpacity="0.32" strokeWidth="0.4" />
-
-        {/* Hour ticks — 48 marks (every 30 min) */}
-        <g>
-          {Array.from({ length: 48 }).map((_, i) => {
-            const ang = i * 7.5;
-            const isMajor = i % 2 === 0;
-            const isCardinal = i % 12 === 0; // every 6 hours
-            const r1 = isCardinal ? R_TICKS - 9 : isMajor ? R_TICKS - 5 : R_TICKS - 2.5;
-            const p1 = polar(r1, ang);
-            const p2 = polar(R_TICKS, ang);
-            return (
-              <line key={i} x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y}
-                    stroke="hsl(var(--live))"
-                    strokeOpacity={isCardinal ? 0.85 : isMajor ? 0.5 : 0.28}
-                    strokeWidth={isCardinal ? 0.85 : 0.4} />
-            );
-          })}
-        </g>
-
-        {/* Cardinal hour numerals (Arabic-Indic numerals optional, keep Latin for clarity) */}
-        {[
-          { h: 12, label: '12' },
-          { h: 18, label: '18' },
-          { h: 0,  label: '24' },
-          { h: 6,  label: '06' },
-        ].map(({ h, label }) => {
-          const p = polar(R_TICKS - 16, hourAng(h));
-          return (
-            <text key={h} x={p.x} y={p.y + 2.8} fontSize="7.5"
-                  fill="hsl(var(--live))" fillOpacity="0.9"
-                  textAnchor="middle" fontWeight="700"
-                  style={{ letterSpacing: '0.6px', fontFamily: 'ui-serif, Georgia, serif' }}>
-              {label}
-            </text>
-          );
-        })}
-
-        {/* Slot color band */}
-        <g>
-          <circle cx={cx} cy={cy} r={R_SLOT_O} fill="none"
-                  stroke="hsl(var(--live))" strokeOpacity="0.2" strokeWidth="0.3" />
-          <circle cx={cx} cy={cy} r={R_SLOT_I} fill="none"
-                  stroke="hsl(var(--live))" strokeOpacity="0.2" strokeWidth="0.3" />
-          {slotBands.map(({ slot, sH, eH }) => {
-            const sa = hourAng(sH);
-            const ea = hourAng(eH % 24 === 0 ? 24 : eH);
-            const color = SLOT_META[slot].color;
-            return (
-              <path key={slot} d={arcSweep(R_SLOT_O, R_SLOT_I, sa, ea)}
-                    fill={color} fillOpacity="0.16"
-                    stroke={color} strokeOpacity="0.42" strokeWidth="0.4" />
-            );
-          })}
-          {/* Slot labels (only on large) */}
-          {large && slotBands.map(({ slot, sH, eH }) => {
-            const midH = ((sH + eH) / 2) % 24;
-            const p = polar((R_SLOT_O + R_SLOT_I) / 2, hourAng(midH));
-            return (
-              <text key={`lbl-${slot}`} x={p.x} y={p.y + 2}
-                    fontSize="4.2" textAnchor="middle"
-                    fill={SLOT_META[slot].color} fillOpacity="0.95"
-                    fontWeight="700">
-                {language === 'ar' ? SLOT_META[slot].ar : SLOT_META[slot].de}
-              </text>
-            );
-          })}
-        </g>
-
-        {/* Cities orbit ring guide */}
-        <circle cx={cx} cy={cy} r={R_CITIES} fill="none"
-                stroke="hsl(var(--live))" strokeOpacity="0.18"
-                strokeWidth="0.35" strokeDasharray="0.8 2" />
-
-        {/* Qibla needle — rotates with Makkah's dial position */}
-        <g>
-          <line x1={needleTail.x} y1={needleTail.y} x2={needleTip.x} y2={needleTip.y}
-                stroke={`url(#astCopper${idSuffix})`} strokeWidth="1.2" strokeLinecap="round" />
-          {/* arrowhead */}
-          {(() => {
-            const back = polar(R_INNER - 9, needleAng);
-            const left  = polar(R_INNER - 9, (needleAng - 3 + 360) % 360);
-            const right = polar(R_INNER - 9, (needleAng + 3) % 360);
-            return (
-              <polygon
-                points={`${needleTip.x},${needleTip.y} ${left.x},${left.y} ${back.x},${back.y} ${right.x},${right.y}`}
-                fill="hsl(38, 72%, 70%)" stroke="hsl(28, 60%, 40%)" strokeWidth="0.25"
-              />
-            );
-          })()}
-          {/* counterweight */}
-          <circle cx={needleTail.x} cy={needleTail.y} r={2.4}
-                  fill="hsl(28, 58%, 50%)" stroke="hsl(38, 72%, 78%)" strokeWidth="0.3" />
-        </g>
-
-        {/* Core — Kaaba glyph */}
-        <g>
-          <circle cx={cx} cy={cy} r={R_CORE + 3} fill={`url(#astCore${idSuffix})`} />
-          <circle cx={cx} cy={cy} r={R_CORE + 3} fill="none"
-                  stroke="hsl(var(--live))" strokeOpacity="0.55" strokeWidth="0.5" />
-          <circle cx={cx} cy={cy} r={R_CORE - 2} fill="none"
-                  stroke="hsl(var(--live))" strokeOpacity="0.3" strokeWidth="0.3" />
-          {/* Kaaba cube */}
-          <rect x={cx - 8} y={cy - 8} width={16} height={16} rx="1.2"
-                fill="hsl(225, 18%, 7%)" stroke="hsl(38, 70%, 68%)" strokeWidth="0.55" />
-          <rect x={cx - 8} y={cy - 3} width={16} height={1.4} fill="hsl(38, 78%, 62%)" fillOpacity="0.85" />
-          <rect x={cx + 2.5} y={cy - 1} width={3.5} height={5} fill="hsl(38, 78%, 62%)" fillOpacity="0.7" />
-        </g>
-
-        {/* Sun glyph (fixed at noon = top) */}
-        {(() => {
-          const p = polar((R_INNER + R_SLOT_O) / 2, hourAng(12));
-          return (
-            <g>
-              <motion.circle
-                cx={p.x} cy={p.y} r={6.5}
-                fill="hsl(46, 95%, 70%)" fillOpacity="0.25"
-                filter={`url(#astGlow${idSuffix})`}
-                animate={{ scale: [1, 1.18, 1] }}
-                transition={{ duration: 3.6, repeat: Infinity, ease: 'easeInOut' }}
-                style={{ transformOrigin: `${p.x}px ${p.y}px` }}
-              />
-              <motion.g
-                style={{ transformOrigin: `${p.x}px ${p.y}px` }}
-                animate={{ rotate: 360 }}
-                transition={{ duration: 80, repeat: Infinity, ease: 'linear' }}
-              >
-                {[0, 45, 90, 135, 180, 225, 270, 315].map((d) => {
-                  const a = d * RAD;
-                  const x1 = p.x + Math.cos(a) * 3.6;
-                  const y1 = p.y + Math.sin(a) * 3.6;
-                  const x2 = p.x + Math.cos(a) * 6.4;
-                  const y2 = p.y + Math.sin(a) * 6.4;
-                  return <line key={d} x1={x1} y1={y1} x2={x2} y2={y2}
-                               stroke="hsl(46, 95%, 80%)" strokeOpacity="0.85" strokeWidth="0.5" strokeLinecap="round" />;
-                })}
-              </motion.g>
-              <circle cx={p.x} cy={p.y} r={2.6} fill="hsl(48, 100%, 88%)" />
-            </g>
-          );
-        })()}
-
-        {/* Moon glyph (fixed at midnight = bottom) */}
-        {(() => {
-          const p = polar((R_INNER + R_SLOT_O) / 2, hourAng(0));
-          return (
-            <g>
-              <circle cx={p.x} cy={p.y} r={4.5}
-                      fill="hsl(220, 22%, 88%)" fillOpacity="0.18"
-                      filter={`url(#astGlow${idSuffix})`} />
-              <circle cx={p.x} cy={p.y} r={3} fill="hsl(220, 22%, 88%)" />
-              <circle cx={p.x + 1} cy={p.y - 0.6} r={2.2} fill="hsl(230, 18%, 6%)" />
-            </g>
-          );
-        })()}
-
-        {/* City stars on orbit ring */}
-        {cityDetails.map((c) => {
-          const h = parseHour(c.info.localClock);
-          const ang = hourAng(h);
-          const p = polar(R_CITIES, ang);
-          const color = SLOT_META[c.info.slot].color;
-          const isMakkah = c.name === 'Makkah';
-          const isSelected = c.name === selectedCity;
-          const baseR = isMakkah ? 2.4 : Math.max(1.1, Math.min(2.6, Math.sqrt(c.pop) * 0.34));
-          const isActive = c.info.slot === 'fajr' || c.info.slot === 'maghrib' || c.info.slot === 'isha';
-          return (
-            <g key={`${c.name}-${c.lat}`}
-               style={{ cursor: 'pointer' }}
-               onClick={(e) => {
-                 e.stopPropagation();
-                 setSelectedCity(c.name === selectedCity ? null : c.name);
-               }}>
-              {/* Hit target */}
-              <circle cx={p.x} cy={p.y} r={5.5} fill="transparent" />
-              {/* Soft star glow */}
-              <circle cx={p.x} cy={p.y} r={baseR + 3}
-                      fill={`url(#astStar${idSuffix})`} opacity={isActive ? 0.8 : 0.45} />
-              {isActive && (
-                <motion.circle
-                  cx={p.x} cy={p.y} r={baseR + 1}
-                  fill={color}
-                  fillOpacity={0.18}
-                  animate={{ r: [baseR + 0.6, baseR + 3.2, baseR + 0.6], opacity: [0.32, 0, 0.32] }}
-                  transition={{
-                    duration: c.info.slot === 'fajr' ? 2.2 : 3,
-                    repeat: Infinity, ease: 'easeInOut',
-                    delay: (c.name.charCodeAt(0) % 5) * 0.18,
-                  }}
-                />
-              )}
-              <circle
-                cx={p.x} cy={p.y} r={baseR}
-                fill={isMakkah ? 'hsl(48, 100%, 78%)' : color}
-                stroke={isSelected ? 'hsl(0, 0%, 100%)' : 'hsl(38, 70%, 86%)'}
-                strokeOpacity={isSelected ? 1 : 0.55}
-                strokeWidth={isSelected ? 0.8 : 0.28}
-              />
-              {/* Selection ring */}
-              {isSelected && (
-                <circle cx={p.x} cy={p.y} r={baseR + 2.4}
-                        fill="none" stroke="hsl(var(--live))" strokeOpacity="0.9"
-                        strokeWidth="0.5" strokeDasharray="1.4 1.2" />
-              )}
-              {/* Leader line outward for selected (large only) */}
-              {large && isSelected && (() => {
-                const outer = polar(R_OUTER + 2, ang);
-                const labelPos = polar(R_OUTER + 8, ang);
-                const flip = labelPos.x > cx;
-                return (
-                  <g pointerEvents="none">
-                    <line x1={p.x} y1={p.y} x2={outer.x} y2={outer.y}
-                          stroke="hsl(var(--live))" strokeOpacity="0.7" strokeWidth="0.35" />
-                    <text x={labelPos.x} y={labelPos.y + 2}
-                          fontSize="5" fontWeight="700"
-                          fill="hsl(var(--live))"
-                          textAnchor={flip ? 'start' : 'end'}>
-                      {c.flag} {language === 'ar' ? c.nameAr : c.name} · {c.info.localClock}
-                    </text>
-                  </g>
-                );
-              })()}
-            </g>
-          );
-        })}
-
-        {/* Decorative arabesque corner flourishes (copper hairlines) */}
-        <g stroke="hsl(var(--live))" strokeOpacity="0.35" strokeWidth="0.35" fill="none">
-          <path d={`M 14,14 Q 28,14 28,28 M 14,14 L 14,28 M 14,14 L 28,14`} />
-          <path d={`M ${VW - 14},14 Q ${VW - 28},14 ${VW - 28},28 M ${VW - 14},14 L ${VW - 14},28 M ${VW - 14},14 L ${VW - 28},14`} />
-          <path d={`M 14,${VH - 14} Q 28,${VH - 14} 28,${VH - 28} M 14,${VH - 14} L 14,${VH - 28} M 14,${VH - 14} L 28,${VH - 14}`} />
-          <path d={`M ${VW - 14},${VH - 14} Q ${VW - 28},${VH - 14} ${VW - 28},${VH - 28} M ${VW - 14},${VH - 14} L ${VW - 14},${VH - 28} M ${VW - 14},${VH - 14} L ${VW - 28},${VH - 14}`} />
-        </g>
-      </svg>
-    );
-  };
-
-  // ── Map render ────────────────────────────────────────────────────────────
-  const renderMapSvg = (opts: { large?: boolean } = {}) => {
-    const large = !!opts.large;
-    const idSuffix = large ? 'Lg' : 'Sm';
-    // Antipodal (moon-side) point — useful for the night hemisphere glyph
-    const moonLng = ((subLng + 180 + 540) % 360) - 180;
-    const moonLat = -subLat;
-    const moonPoint = project(moonLat, moonLng);
-    const makkahPoint = project(21.4225, 39.8262);
-
-    // Cities currently in an "active" prayer (fajr/maghrib) — these get
-    // animated qibla arcs from the map to Makkah for an extra wow factor.
-    const activeForArcs = cityDetails
-      .filter(c => (c.info.slot === 'fajr' || c.info.slot === 'maghrib') && c.name !== 'Makkah')
+  // Seed event log on first mount with a few active cities so it's not empty
+  useEffect(() => {
+    if (eventLog.length > 0) return;
+    const seed = cityDetails
+      .filter((c) => c.info.slot === 'fajr' || c.info.slot === 'maghrib' || c.info.slot === 'isha')
       .sort((a, b) => b.pop - a.pop)
-      .slice(0, large ? 8 : 4);
+      .slice(0, 6)
+      .map((c, i) => ({
+        id: `seed-${c.name}`,
+        cityName: c.name, cityNameAr: c.nameAr, flag: c.flag,
+        slot: c.info.slot,
+        ts: Date.now() - (i + 1) * 47_000,
+      }));
+    if (seed.length) setEventLog(seed);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Smooth-counter for hero number — eases display number toward target
+  const [displayPraying, setDisplayPraying] = useState(prayingNow);
+  useEffect(() => {
+    let raf = 0;
+    const start = displayPraying;
+    const target = prayingNow;
+    const t0 = performance.now();
+    const dur = 900;
+    const tick = (t: number) => {
+      const k = Math.min(1, (t - t0) / dur);
+      const eased = 1 - Math.pow(1 - k, 3);
+      setDisplayPraying(start + (target - start) * eased);
+      if (k < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [prayingNow]);
+
+  // Number formatting — locale-aware, with M/B suffix (Latin digits always
+  // per project rule: global numbers in Arabic too).
+  const formatBig = (millions: number): { num: string; unit: string } => {
+    if (millions >= 1000) {
+      return { num: (millions / 1000).toFixed(2), unit: t('مليار', 'Mrd') };
+    }
+    if (millions >= 100) return { num: millions.toFixed(0), unit: t('مليون', 'Mio') };
+    return { num: millions.toFixed(1), unit: t('مليون', 'Mio') };
+  };
+  const formatRel = (ms: number) => {
+    const s = Math.max(1, Math.round((Date.now() - ms) / 1000));
+    if (s < 60)    return t(`قبل ${s}ث`,  `vor ${s}s`);
+    const m = Math.round(s / 60);
+    if (m < 60)   return t(`قبل ${m}د`,  `vor ${m}m`);
+    const h = Math.round(m / 60);
+    return t(`قبل ${h}س`, `vor ${h}h`);
+  };
+  const REGION_FLAG: Record<Region, string> = {
+    arab: '🕌', africa: '🌍', asia: '🌏', europe: '🌍', americas: '🌎', oceania: '🌏',
+  };
+
+  // ── Editorial dashboard render ────────────────────────────────────────────
+  const renderEditorial = (opts: { large?: boolean } = {}) => {
+    const large = !!opts.large;
+    const big = formatBig(displayPraying);
+    const utcHH = String(now.getUTCHours()).padStart(2, '0');
+    const utcMM = String(now.getUTCMinutes()).padStart(2, '0');
+    const waveMax = Math.max(...waveData, 0.0001);
+    const tickerCities = cityDetails
+      .filter((c) => c.info.slot === 'fajr' || c.info.slot === 'maghrib' || c.info.slot === 'isha')
+      .sort((a, b) => b.pop - a.pop);
 
     return (
-      <svg
-        viewBox={`0 0 ${W} ${H}`}
-        className="w-full h-auto block select-none"
-        preserveAspectRatio="xMidYMid meet"
-        aria-label={t(
-          'خريطة العالم مع موجة الفجر الحية',
-          'Weltkarte mit Live-Fadschr-Welle'
-        )}
+      <div
+        className="w-full text-foreground"
+        style={{ background: 'radial-gradient(120% 80% at 50% 0%, hsl(28 22% 9% / 0.9), hsl(230 18% 5% / 0.95) 65%, hsl(232 22% 3%))' }}
+        dir={language === 'ar' ? 'rtl' : 'ltr'}
       >
-        <defs>
-          {/* ── Google-Maps-Dark inspired palette ─────────────────────────
-             Deep navy water, dark slate land, paper-thin borders, refined
-             dawn/dusk accents. Tuned for a "ذوق رفيع" elegant feel. */}
+        {/* Engrave overlay */}
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.05] mix-blend-overlay"
+          style={{
+            backgroundImage:
+              'repeating-linear-gradient(45deg, hsl(var(--live)) 0 1px, transparent 1px 6px)',
+          }}
+        />
 
-          {/* Obsidian parchment sea — flat engraved heritage map */}
-          <radialGradient id={`ocean${idSuffix}`} cx="50%" cy="50%" r="78%">
-            <stop offset="0%"   stopColor="hsl(28, 18%, 13%)" />
-            <stop offset="55%"  stopColor="hsl(230, 14%, 8%)"  />
-            <stop offset="100%" stopColor="hsl(240, 16%, 5%)"  />
-          </radialGradient>
+        {/* ── HERO NUMBER ─────────────────────────────────────────────── */}
+        <div className={`relative px-5 ${large ? 'pt-6 pb-5' : 'pt-5 pb-4'}`}>
+          <div className="flex items-center justify-between mb-2" dir="ltr">
+            <div className="flex items-center gap-1.5 text-[10px] font-bold tracking-[0.18em] text-[hsl(var(--live))]">
+              <span className="relative inline-flex w-1.5 h-1.5">
+                <span className="absolute inset-0 rounded-full bg-[hsl(var(--live))] opacity-70 animate-ping" />
+                <span className="relative inline-flex w-full h-full rounded-full bg-[hsl(var(--live))]" />
+              </span>
+              <span>LIVE · {utcHH}:{utcMM} UTC</span>
+            </div>
+            <div className="text-[9.5px] uppercase tracking-[0.2em] text-muted-foreground font-semibold">
+              {t('نبض الأمة', 'Puls der Ummah')}
+            </div>
+          </div>
 
-          {/* Soft top/bottom vignette for cinematic depth */}
-          <linearGradient id={`vignette${idSuffix}`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%"   stopColor="hsl(225, 70%, 3%)"  stopOpacity="0.55" />
-            <stop offset="22%"  stopColor="hsl(225, 70%, 3%)"  stopOpacity="0"    />
-            <stop offset="78%"  stopColor="hsl(225, 70%, 3%)"  stopOpacity="0"    />
-            <stop offset="100%" stopColor="hsl(225, 70%, 3%)"  stopOpacity="0.55" />
-          </linearGradient>
+          <div className="flex items-baseline gap-2.5" dir="ltr">
+            <span
+              className={`font-bold text-foreground tabular-nums leading-[0.85] ${large ? 'text-[72px] md:text-[96px]' : 'text-[56px]'}`}
+              style={{
+                fontFamily: '"Instrument Serif", "DM Serif Display", ui-serif, Georgia, serif',
+                letterSpacing: '-0.03em',
+                background: 'linear-gradient(180deg, hsl(38 60% 88%), hsl(28 50% 62%) 70%, hsl(22 40% 38%))',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+              }}
+            >
+              {big.num}
+            </span>
+            <span className={`font-semibold text-[hsl(var(--live))] tabular-nums ${large ? 'text-[22px]' : 'text-[17px]'}`}>
+              {big.unit}
+            </span>
+          </div>
+          <p className={`mt-1 text-muted-foreground ${large ? 'text-[13px]' : 'text-[11.5px]'}`}>
+            {t('مسلم يصلّون الآن حول العالم', 'Muslime beten gerade weltweit')}
+            <span className="inline-block mx-1.5 w-1 h-1 rounded-full bg-muted-foreground/60 align-middle" />
+            <span className="text-foreground/80">{cityDetails.length} {t('مدينة', 'Städte')}</span>
+          </p>
+        </div>
 
-          <pattern id={`engrave${idSuffix}`} width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(35)">
-            <line x1="0" y1="0" x2="0" y2="7" stroke="hsl(var(--live))" strokeOpacity="0.055" strokeWidth="0.35" />
-          </pattern>
-
-          {/* Land (day side) — refined dark slate, slight top-light */}
-          <linearGradient id={`landFill${idSuffix}`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%"   stopColor="hsl(32, 21%, 34%)" />
-            <stop offset="55%"  stopColor="hsl(28, 16%, 25%)" />
-            <stop offset="100%" stopColor="hsl(230, 12%, 17%)" />
-          </linearGradient>
-
-          {/* Land (night side) — same family but darker, almost ink */}
-          <linearGradient id={`landNight${idSuffix}`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%"   stopColor="hsl(28, 14%, 16%)" />
-            <stop offset="100%" stopColor="hsl(235, 18%, 8%)"  />
-          </linearGradient>
-
-          {/* Fajr — warm gold dawn band */}
-          <radialGradient id={`fajrGlow${idSuffix}`} cx="50%" cy="50%" r="50%">
-            <stop offset="0%"   stopColor="hsl(46, 100%, 78%)" stopOpacity="0.85" />
-            <stop offset="35%"  stopColor="hsl(38, 95%, 62%)"  stopOpacity="0.45" />
-            <stop offset="70%"  stopColor="hsl(28, 88%, 48%)"  stopOpacity="0.15" />
-            <stop offset="100%" stopColor="hsl(20, 80%, 35%)"  stopOpacity="0"    />
-          </radialGradient>
-
-          {/* Maghrib — coral / rose dusk band */}
-          <radialGradient id={`maghribGlow${idSuffix}`} cx="50%" cy="50%" r="50%">
-            <stop offset="0%"   stopColor="hsl(8, 88%, 70%)"   stopOpacity="0.7"  />
-            <stop offset="45%"  stopColor="hsl(345, 70%, 52%)" stopOpacity="0.32" />
-            <stop offset="85%"  stopColor="hsl(290, 50%, 38%)" stopOpacity="0.08" />
-            <stop offset="100%" stopColor="hsl(245, 55%, 22%)" stopOpacity="0"    />
-          </radialGradient>
-
-          {/* Sun corona + bright core */}
-          <radialGradient id={`sunCorona${idSuffix}`} cx="50%" cy="50%" r="50%">
-            <stop offset="0%"   stopColor="hsl(48, 100%, 95%)" stopOpacity="1"    />
-            <stop offset="22%"  stopColor="hsl(46, 100%, 78%)" stopOpacity="0.85" />
-            <stop offset="55%"  stopColor="hsl(36, 98%, 55%)"  stopOpacity="0.45" />
-            <stop offset="100%" stopColor="hsl(26, 92%, 38%)"  stopOpacity="0"    />
-          </radialGradient>
-          <radialGradient id={`sunCore${idSuffix}`} cx="50%" cy="50%" r="50%">
-            <stop offset="0%"   stopColor="hsl(50, 100%, 97%)" stopOpacity="1" />
-            <stop offset="100%" stopColor="hsl(45, 100%, 72%)" stopOpacity="1" />
-          </radialGradient>
-
-          {/* Moon */}
-          <radialGradient id={`moonGrad${idSuffix}`} cx="40%" cy="40%" r="60%">
-            <stop offset="0%"   stopColor="hsl(220, 22%, 94%)" stopOpacity="1"    />
-            <stop offset="70%"  stopColor="hsl(220, 28%, 72%)" stopOpacity="0.85" />
-            <stop offset="100%" stopColor="hsl(220, 35%, 45%)" stopOpacity="0"    />
-          </radialGradient>
-
-          {/* Soft blur filters */}
-          <filter id={`softBlur${idSuffix}`}>
-            <feGaussianBlur stdDeviation="2.2" />
-          </filter>
-          <filter id={`bigBlur${idSuffix}`}>
-            <feGaussianBlur stdDeviation="3.4" />
-          </filter>
-
-          {/* Clip path for night-only rendering */}
-          <clipPath id={`nightClip${idSuffix}`}>
-            {nightPaths.map((d, i) => <path key={i} d={d} />)}
-          </clipPath>
-
-          {/* 8-pointed star sparkle for the brightest stars */}
-          <symbol id={`sparkle${idSuffix}`} viewBox="-3 -3 6 6">
-            <path d="M0,-3 L0.4,-0.4 L3,0 L0.4,0.4 L0,3 L-0.4,0.4 L-3,0 L-0.4,-0.4 Z"
-                  fill="hsl(48, 100%, 96%)" />
-          </symbol>
-        </defs>
-
-        {/* Background ocean */}
-        <rect width={W} height={H} fill={`url(#ocean${idSuffix})`} />
-        <rect width={W} height={H} fill={`url(#engrave${idSuffix})`} />
-        <rect x="2" y="2" width={W - 4} height={H - 4} rx="3" fill="none" stroke="hsl(var(--live))" strokeOpacity="0.22" strokeWidth="0.45" />
-        <rect x="6" y="6" width={W - 12} height={H - 12} rx="2" fill="none" stroke="hsl(var(--live))" strokeOpacity="0.12" strokeWidth="0.3" />
-
-        {/* Star field — only visible inside the night region thanks to clipPath */}
-        <g clipPath={`url(#nightClip${idSuffix})`}>
-          {STARS.map((s, i) => (
-            <motion.circle
-              key={i}
-              cx={s.x} cy={s.y} r={s.r}
-              fill="hsl(220, 40%, 95%)"
-              fillOpacity={s.o}
-              animate={i % 7 === 0 ? { opacity: [s.o, s.o * 0.35, s.o] } : undefined}
-              transition={i % 7 === 0 ? { duration: 2.5 + (i % 5) * 0.6, repeat: Infinity, ease: 'easeInOut' } : undefined}
+        {/* ── 24H PRAYER WAVE ─────────────────────────────────────────── */}
+        <div className="px-5 pb-3">
+          <div className="flex items-center justify-between mb-2" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+            <span className="text-[10px] uppercase tracking-[0.18em] font-bold text-muted-foreground">
+              {t('موجة الصلاة · 24 ساعة', 'Gebets­welle · 24 h')}
+            </span>
+            <span className="text-[10px] text-muted-foreground tabular-nums" dir="ltr">UTC</span>
+          </div>
+          <div className={`relative w-full ${large ? 'h-20' : 'h-14'}`} dir="ltr">
+            {/* Bars */}
+            <div className="absolute inset-x-0 bottom-3 top-0 flex items-end gap-[2px]">
+              {waveData.map((v, i) => {
+                const h = Math.max(4, (v / waveMax) * 100);
+                const isNow = i === Math.floor(utcHourNow);
+                return (
+                  <div key={i} className="flex-1 flex flex-col justify-end">
+                    <div
+                      className="w-full rounded-[1.5px] transition-all"
+                      style={{
+                        height: `${h}%`,
+                        background: isNow
+                          ? 'linear-gradient(180deg, hsl(var(--live)), hsl(28 60% 40%))'
+                          : 'linear-gradient(180deg, hsl(38 35% 55% / 0.55), hsl(28 30% 28% / 0.85))',
+                        boxShadow: isNow ? '0 0 12px hsl(var(--live) / 0.55)' : undefined,
+                      }}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+            {/* Now-line */}
+            <div
+              className="absolute top-0 bottom-3 w-px bg-[hsl(var(--live))]"
+              style={{ left: `${(utcHourNow / 24) * 100}%`, boxShadow: '0 0 6px hsl(var(--live))' }}
             />
-          ))}
-          {/* a few standout sparkle stars */}
-          {[0, 47, 113, 178, 219].map((i) => {
-            const s = STARS[i];
-            return s ? (
-              <motion.use
-                key={`spk-${i}`}
-                href={`#sparkle${idSuffix}`}
-                x={s.x - 3} y={s.y - 3}
-                width={6} height={6}
-                opacity={0.85}
-                animate={{ opacity: [0.85, 0.25, 0.85] }}
-                transition={{ duration: 3.5 + (i % 4), repeat: Infinity, ease: 'easeInOut' }}
-              />
-            ) : null;
-          })}
-        </g>
+            {/* Hour ticks */}
+            <div className="absolute inset-x-0 bottom-0 flex justify-between text-[8.5px] tabular-nums text-muted-foreground/80 font-semibold">
+              {[0, 6, 12, 18, 24].map((h) => (
+                <span key={h}>{String(h).padStart(2, '0')}</span>
+              ))}
+            </div>
+          </div>
+        </div>
 
-        {/* Subtle latitude/longitude grid — Google-Maps-dark style */}
-        <g stroke="hsl(216, 22%, 32%)" fill="none" strokeWidth="0.22">
-          {/* Equator slightly stronger */}
-          <line x1={0} y1={H / 2} x2={W} y2={H / 2}
-                strokeOpacity="0.28" strokeWidth="0.32" />
-          {[66.5, 23.5, -23.5, -66.5].map((lat) => (
-            <line key={lat} x1={0} y1={((90 - lat) / 180) * H} x2={W} y2={((90 - lat) / 180) * H}
-                  strokeOpacity="0.14" strokeDasharray="2 3" />
-          ))}
-          {[-150, -120, -90, -60, -30, 0, 30, 60, 90, 120, 150].map((lng) => (
-            <line key={lng} x1={((lng + 180) / 360) * W} y1={0} x2={((lng + 180) / 360) * W} y2={H}
-                  strokeOpacity="0.08" strokeDasharray="1.5 3" />
-          ))}
-        </g>
-
-        {/* Continents — engraved copper plate, then night overlay clipped */}
-        <g>
-          <path d={CONTINENTS} fill={`url(#landFill${idSuffix})`} />
-          <path d={CONTINENTS} fill={`url(#engrave${idSuffix})`} opacity="0.9" />
-          <path d={CONTINENTS} fill="none"
-                stroke="hsl(var(--live))" strokeOpacity="0.62" strokeWidth="0.34" />
-          <path d={CONTINENTS} fill="none"
-                stroke="hsl(42, 56%, 78%)" strokeOpacity="0.12" strokeWidth="0.9" />
-        </g>
-        <g clipPath={`url(#nightClip${idSuffix})`}>
-          <path d={CONTINENTS} fill={`url(#landNight${idSuffix})`} />
-          <path d={CONTINENTS} fill="none"
-                stroke="hsl(var(--live))" strokeOpacity="0.34" strokeWidth="0.28" />
-        </g>
-
-        {/* Night veil — single soft layer, no harsh edge */}
-        <g>
-          {nightPaths.map((d, i) => (
-            <path key={`nt-${i}`} d={d} fill="hsl(225, 58%, 4%)" fillOpacity="0.32" />
-          ))}
-        </g>
-
-        {/* Maghrib band (dusk side) */}
-        {(() => {
-          const mLng = ((subLng - 95 + 540) % 360) - 180;
-          const p = project(0, mLng);
-          return (
-            <motion.g key={`mag-${Math.round(p.x / 4)}`}>
-              <motion.ellipse
-                cx={p.x} cy={H / 2} rx={20} ry={H / 2 + 4}
-                fill={`url(#maghribGlow${idSuffix})`}
-                filter={`url(#bigBlur${idSuffix})`}
-                animate={{ opacity: [0.4, 0.7, 0.4] }}
-                transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
-              />
-              {/* duplicate for horizontal wrap */}
-              {p.x < 26 && (
-                <motion.ellipse
-                  cx={p.x + W} cy={H / 2} rx={20} ry={H / 2 + 4}
-                  fill={`url(#maghribGlow${idSuffix})`}
-                  filter={`url(#bigBlur${idSuffix})`}
-                  animate={{ opacity: [0.4, 0.7, 0.4] }}
-                  transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
+        {/* ── SLOT DISTRIBUTION BAR ──────────────────────────────────── */}
+        <div className="px-5 pb-3">
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="text-[10px] uppercase tracking-[0.18em] font-bold text-muted-foreground">
+              {t('التوزيع الحالي', 'Aktuelle Verteilung')}
+            </span>
+          </div>
+          <div className="flex h-2 rounded-full overflow-hidden bg-card/60 border border-border/30" dir="ltr">
+            {slotShare.map(({ slot, share }) => (
+              share > 0 ? (
+                <div
+                  key={slot}
+                  title={`${SLOT_META[slot].ar} · ${(share * 100).toFixed(1)}%`}
+                  style={{ width: `${share * 100}%`, background: SLOT_META[slot].color }}
                 />
-              )}
-              {p.x > W - 26 && (
-                <motion.ellipse
-                  cx={p.x - W} cy={H / 2} rx={20} ry={H / 2 + 4}
-                  fill={`url(#maghribGlow${idSuffix})`}
-                  filter={`url(#bigBlur${idSuffix})`}
-                  animate={{ opacity: [0.4, 0.7, 0.4] }}
-                  transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
-                />
-              )}
-            </motion.g>
-          );
-        })()}
+              ) : null
+            ))}
+          </div>
+          <div className={`mt-2 grid ${large ? 'grid-cols-4' : 'grid-cols-4'} gap-x-3 gap-y-1`}>
+            {slotShare.filter(s => s.share > 0.005).slice(0, large ? 8 : 4).map(({ slot, share }) => (
+              <div key={slot} className="flex items-center gap-1.5 min-w-0">
+                <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: SLOT_META[slot].color }} />
+                <span className="text-[10px] font-semibold text-foreground/90 truncate">
+                  {language === 'ar' ? SLOT_META[slot].ar : SLOT_META[slot].de}
+                </span>
+                <span className="text-[10px] tabular-nums text-muted-foreground ms-auto" dir="ltr">
+                  {(share * 100).toFixed(0)}%
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
 
-        {/* Fajr band (dawn side) */}
-        <motion.g
-          key={`fajr-${Math.round(fajrCenter.x / 3)}`}
-          initial={{ opacity: 0.55 }}
-          animate={{ opacity: [0.55, 0.85, 0.7] }}
-          transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-        >
-          <ellipse cx={fajrCenter.x} cy={H / 2} rx={26} ry={H / 2 + 4}
-                   fill={`url(#fajrGlow${idSuffix})`} filter={`url(#bigBlur${idSuffix})`} />
-          {fajrCenter.x < 30 && (
-            <ellipse cx={fajrCenter.x + W} cy={H / 2} rx={26} ry={H / 2 + 4}
-                     fill={`url(#fajrGlow${idSuffix})`} filter={`url(#bigBlur${idSuffix})`} />
-          )}
-          {fajrCenter.x > W - 30 && (
-            <ellipse cx={fajrCenter.x - W} cy={H / 2} rx={26} ry={H / 2 + 4}
-                     fill={`url(#fajrGlow${idSuffix})`} filter={`url(#bigBlur${idSuffix})`} />
-          )}
-        </motion.g>
+        {/* ── LIVE TICKER (compact only) ─────────────────────────────── */}
+        {!large && tickerCities.length > 0 && (
+          <div className="relative overflow-hidden border-t border-[hsl(var(--live))]/15 bg-[hsl(var(--live))]/[0.04] py-2">
+            <div
+              className="flex gap-6 whitespace-nowrap"
+              style={{
+                animation: `umm-ticker ${Math.max(18, tickerCities.length * 4)}s linear infinite`,
+              }}
+              dir="ltr"
+            >
+              {[...tickerCities, ...tickerCities].map((c, i) => (
+                <span key={`${c.name}-${i}`} className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-foreground/90">
+                  <span className="text-[13px] leading-none">{c.flag}</span>
+                  <span>{language === 'ar' ? c.nameAr : c.name}</span>
+                  <span
+                    className="px-1.5 py-px rounded-full text-[9.5px] font-bold"
+                    style={{
+                      color: SLOT_META[c.info.slot].color,
+                      background: SLOT_META[c.info.slot].color.replace('hsl(', 'hsla(').replace(')', ', 0.14)'),
+                    }}
+                  >
+                    {language === 'ar' ? SLOT_META[c.info.slot].ar : SLOT_META[c.info.slot].de}
+                  </span>
+                  <span className="text-[10px] tabular-nums text-muted-foreground">{c.info.localClock}</span>
+                </span>
+              ))}
+            </div>
+            <style>{`@keyframes umm-ticker { from { transform: translateX(0) } to { transform: translateX(-50%) } }`}</style>
+          </div>
+        )}
 
-        {/* Vignette overlay (top/bottom) */}
-        <rect width={W} height={H} fill={`url(#vignette${idSuffix})`} pointerEvents="none" />
+        {/* ── EXPANDED-ONLY: REGIONS + EVENT LOG ─────────────────────── */}
+        {large && (
+          <>
+            <div className="px-5 pb-4 pt-1">
+              <div className="text-[10px] uppercase tracking-[0.18em] font-bold text-muted-foreground mb-2">
+                {t('القارات', 'Regionen')}
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                {regionStats.map(({ region, pop, bySlot, topSlot, cityCount }) => {
+                  const meta = SLOT_META[topSlot];
+                  return (
+                    <div key={region} className="rounded-xl bg-card/60 border border-border/40 px-3 py-2.5">
+                      <div className="flex items-center justify-between gap-2 mb-1.5">
+                        <span className="text-[12px] font-bold text-foreground">
+                          {language === 'ar' ? REGION_LABELS[region].ar : REGION_LABELS[region].de}
+                        </span>
+                        <span className="text-[9.5px] tabular-nums text-muted-foreground" dir="ltr">{cityCount}</span>
+                      </div>
+                      <div className="flex items-center gap-1.5 mb-2">
+                        <span className="w-1.5 h-1.5 rounded-full" style={{ background: meta.color }} />
+                        <span className="text-[10.5px] font-semibold" style={{ color: meta.color }}>
+                          {language === 'ar' ? meta.ar : meta.de}
+                        </span>
+                        <span className="text-[10px] tabular-nums text-muted-foreground ms-auto" dir="ltr">
+                          ~{pop.toFixed(0)}M
+                        </span>
+                      </div>
+                      {/* Stacked breakdown bar */}
+                      <div className="flex h-1 rounded-full overflow-hidden bg-background/60" dir="ltr">
+                        {PRAYER_SLOT_ORDER.map((s) => {
+                          const v = bySlot[s];
+                          if (!v) return null;
+                          return (
+                            <div key={s}
+                                 style={{ width: `${(v / Math.max(pop, 1)) * 100}%`, background: SLOT_META[s].color }} />
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
 
-        {/* Animated qibla arcs from active cities → Makkah */}
-        <g pointerEvents="none">
-          {activeForArcs.map((c) => {
-            const a = project(c.lat, c.lng);
-            const b = makkahPoint;
-            // skip arcs that wrap the antimeridian (visually jarring on a flat map)
-            const dx = b.x - a.x;
-            if (Math.abs(dx) > W / 2) return null;
-            const mx = (a.x + b.x) / 2;
-            const my = (a.y + b.y) / 2 - 18 - Math.abs(dx) * 0.08;
-            const slotColor = SLOT_META[c.info.slot].color;
-            return (
-              <motion.path
-                key={`arc-${c.name}`}
-                d={`M${a.x},${a.y} Q${mx},${my} ${b.x},${b.y}`}
-                fill="none"
-                stroke={slotColor}
-                strokeWidth={0.55}
-                strokeOpacity={0.55}
-                strokeDasharray="1.6 2.4"
-                strokeLinecap="round"
-                initial={{ pathLength: 0, opacity: 0 }}
-                animate={{ pathLength: 1, opacity: [0, 0.7, 0.4] }}
-                transition={{
-                  duration: 4.5,
-                  repeat: Infinity,
-                  ease: 'easeInOut',
-                  delay: (c.name.charCodeAt(0) % 7) * 0.25,
-                }}
-              />
-            );
-          })}
-        </g>
-
-        {/* Moon (antipodal to sun) */}
-        <g>
-          <circle cx={moonPoint.x} cy={moonPoint.y} r={5.5}
-                  fill={`url(#moonGrad${idSuffix})`} filter={`url(#softBlur${idSuffix})`} opacity="0.85" />
-          <circle cx={moonPoint.x} cy={moonPoint.y} r={2.1}
-                  fill="hsl(220, 20%, 95%)" />
-          <circle cx={moonPoint.x - 0.6} cy={moonPoint.y - 0.5} r={0.5} fill="hsl(220, 30%, 70%)" />
-          <circle cx={moonPoint.x + 0.4} cy={moonPoint.y + 0.6} r={0.4} fill="hsl(220, 30%, 65%)" />
-        </g>
-
-        {/* Subsolar sun — corona + rays + bright core */}
-        <g>
-          <motion.circle
-            cx={sunPoint.x} cy={sunPoint.y} r={11}
-            fill={`url(#sunCorona${idSuffix})`}
-            animate={{ scale: [1, 1.15, 1] }}
-            transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
-            style={{ transformOrigin: `${sunPoint.x}px ${sunPoint.y}px` }}
-          />
-          <motion.g
-            style={{ transformOrigin: `${sunPoint.x}px ${sunPoint.y}px` }}
-            animate={{ rotate: 360 }}
-            transition={{ duration: 60, repeat: Infinity, ease: 'linear' }}
-          >
-            {[0, 45, 90, 135, 180, 225, 270, 315].map((deg) => {
-              const r1 = 4, r2 = 7.5;
-              const a = (deg * Math.PI) / 180;
-              const x1 = sunPoint.x + Math.cos(a) * r1;
-              const y1 = sunPoint.y + Math.sin(a) * r1;
-              const x2 = sunPoint.x + Math.cos(a) * r2;
-              const y2 = sunPoint.y + Math.sin(a) * r2;
-              return (
-                <line key={deg} x1={x1} y1={y1} x2={x2} y2={y2}
-                      stroke="hsl(48, 100%, 88%)" strokeOpacity="0.85"
-                      strokeWidth="0.6" strokeLinecap="round" />
-              );
-            })}
-          </motion.g>
-          <circle cx={sunPoint.x} cy={sunPoint.y} r={2.4} fill={`url(#sunCore${idSuffix})`} />
-        </g>
-
-        {/* City dots */}
-        {cityDetails.map((c) => {
-          const { x, y } = project(c.lat, c.lng);
-          const color = SLOT_META[c.info.slot].color;
-          const slot = c.info.slot;
-          const isActive = slot === 'fajr' || slot === 'maghrib' || slot === 'isha';
-          const isFajr = slot === 'fajr';
-          const isSelected = c.name === selectedCity;
-          const isMakkah = c.name === 'Makkah';
-          const baseR = isMakkah ? 2.4 : isActive ? 1.7 : 1.25;
-          return (
-            <g key={`${c.name}-${c.lat}-${c.lng}`}
-               style={{ cursor: 'pointer' }}
-               onClick={(e) => {
-                 e.stopPropagation();
-                 setSelectedCity(c.name === selectedCity ? null : c.name);
-               }}>
-              <circle cx={x} cy={y} r={5} fill="transparent" />
-              {/* outer halo for any active prayer */}
-              {isActive && (
-                <motion.circle
-                  cx={x} cy={y} r={baseR + 1.2}
-                  fill={color}
-                  fillOpacity={0.16}
-                  animate={{ r: [baseR + 0.8, baseR + 3.4, baseR + 0.8], opacity: [0.32, 0, 0.32] }}
-                  transition={{
-                    duration: isFajr ? 2.2 : 3,
-                    repeat: Infinity,
-                    ease: 'easeInOut',
-                    delay: (c.name.charCodeAt(0) % 5) * 0.15,
-                  }}
-                />
-              )}
-              {/* solid dot */}
-              <circle
-                cx={x} cy={y}
-                r={baseR}
-                fill={isMakkah ? 'hsl(48, 100%, 72%)' : color}
-                stroke={isSelected ? 'hsl(0, 0%, 100%)' : isMakkah ? 'hsl(48,100%,95%)' : 'hsl(220, 30%, 96%)'}
-                strokeOpacity={isSelected ? 1 : isMakkah ? 0.9 : 0.4}
-                strokeWidth={isSelected ? 0.7 : isMakkah ? 0.4 : 0.22}
-              />
-              {/* Makkah extra: rotating golden ring */}
-              {isMakkah && (
-                <>
-                  <motion.circle
-                    cx={x} cy={y} r={4}
-                    fill="none"
-                    stroke="hsl(48, 100%, 72%)"
-                    strokeWidth="0.5"
-                    strokeDasharray="1.8 1"
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-                    style={{ transformOrigin: `${x}px ${y}px` }}
-                  />
-                  <motion.circle
-                    cx={x} cy={y} r={3.6}
-                    fill="none"
-                    stroke="hsl(48, 100%, 72%)"
-                    strokeWidth="0.4"
-                    animate={{ r: [3.6, 7, 3.6], opacity: [0.85, 0, 0.85] }}
-                    transition={{ duration: 3.2, repeat: Infinity, ease: 'easeOut' }}
-                  />
-                </>
-              )}
-            </g>
-          );
-        })}
-
-        {/* Tooltip for selected city (glassmorphic) */}
-        {large && selectedCityDetails && (() => {
-          const p = project(selectedCityDetails.lat, selectedCityDetails.lng);
-          const tipW = 86;
-          const tipH = 30;
-          const flip = p.x > W - tipW - 4;
-          const tx = flip ? p.x - tipW - 6 : p.x + 6;
-          const ty = Math.max(2, Math.min(H - tipH - 2, p.y - tipH / 2));
-          const c = selectedCityDetails;
-          const slotColor = SLOT_META[c.info.slot].color;
-          const nextName = SLOT_META[c.info.next.name].ar;
-          const nextDe = SLOT_META[c.info.next.name].de;
-          const rem = c.info.next.minutesUntil;
-          const hh = Math.floor(rem / 60);
-          const mm = rem % 60;
-          return (
-            <g pointerEvents="none">
-              {/* leader line */}
-              <line x1={p.x} y1={p.y} x2={flip ? tx + tipW : tx} y2={ty + tipH / 2}
-                    stroke={slotColor} strokeWidth="0.4" strokeOpacity="0.7"
-                    strokeDasharray="1 1" />
-              {/* card */}
-              <rect x={tx} y={ty} width={tipW} height={tipH} rx={3.5}
-                    fill="hsl(220, 36%, 6%)" fillOpacity="0.85" />
-              <rect x={tx} y={ty} width={tipW} height={tipH} rx={3.5}
-                    fill="none" stroke={slotColor} strokeOpacity="0.85" strokeWidth="0.55" />
-              {/* accent bar */}
-              <rect x={tx} y={ty} width={1.4} height={tipH} rx={0.7} fill={slotColor} />
-              <text x={tx + 4} y={ty + 7.5}
-                    fontSize="5" fill="hsl(0, 0%, 98%)" fontWeight="700">
-                {language === 'ar' ? c.nameAr : c.name}
-              </text>
-              <text x={tx + 4} y={ty + 14.5} fontSize="4"
-                    fill={slotColor} fontWeight="700">
-                {language === 'ar' ? SLOT_META[c.info.slot].ar : SLOT_META[c.info.slot].de}
-              </text>
-              <text x={tx + tipW - 4} y={ty + 14.5} fontSize="4.5"
-                    fill="hsl(0, 0%, 98%)" textAnchor="end" fontWeight="700" letterSpacing="0.3">
-                {c.info.localClock}
-              </text>
-              <text x={tx + 4} y={ty + 23} fontSize="3.5"
-                    fill="hsl(220, 15%, 75%)">
-                {language === 'ar'
-                  ? `→ ${nextName} بعد ${hh ? hh + 'س ' : ''}${mm}د`
-                  : `→ ${nextDe} in ${hh ? hh + 'h ' : ''}${mm}m`}
-              </text>
-              <text x={tx + tipW - 4} y={ty + 23} fontSize="3.2"
-                    fill="hsl(220, 15%, 65%)" textAnchor="end">
-                {c.flag} {language === 'ar' ? c.countryAr : c.country}
-              </text>
-            </g>
-          );
-        })()}
-
-        {/* Compass cardinals on map edges */}
-        <g pointerEvents="none" fill="hsl(0, 0%, 98%)" fillOpacity="0.55"
-           fontSize="4.5" fontWeight="700" fontFamily="ui-sans-serif, system-ui">
-          <text x={W / 2} y={6} textAnchor="middle">N</text>
-          <text x={W / 2} y={H - 2} textAnchor="middle">S</text>
-          <text x={3} y={H / 2 + 1.5}>W</text>
-          <text x={W - 7} y={H / 2 + 1.5}>E</text>
-        </g>
-      </svg>
+            {/* Event log */}
+            <div className="px-5 pb-5">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[10px] uppercase tracking-[0.18em] font-bold text-muted-foreground">
+                  {t('السجل الحي', 'Live-Verlauf')}
+                </span>
+                <span className="text-[9.5px] text-muted-foreground">{eventLog.length}</span>
+              </div>
+              <ul className="space-y-1">
+                <AnimatePresence initial={false}>
+                  {eventLog.slice(0, 8).map((ev) => {
+                    const meta = SLOT_META[ev.slot];
+                    return (
+                      <motion.li
+                        key={ev.id}
+                        layout
+                        initial={{ opacity: 0, x: language === 'ar' ? 16 : -16 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: language === 'ar' ? -16 : 16 }}
+                        transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+                        className="flex items-center gap-2.5 px-3 py-2 rounded-lg bg-card/40 border border-border/30"
+                      >
+                        <span className="text-[14px] leading-none">{ev.flag}</span>
+                        <span className="w-1 h-6 rounded-full" style={{ background: meta.color }} />
+                        <div className="flex-1 min-w-0">
+                          <div className="text-[12px] font-semibold text-foreground truncate">
+                            {language === 'ar'
+                              ? `بدأ ${meta.ar} في ${ev.cityNameAr}`
+                              : `${meta.de} begann in ${ev.cityName}`}
+                          </div>
+                        </div>
+                        <span className="text-[10px] tabular-nums text-muted-foreground shrink-0">
+                          {formatRel(ev.ts)}
+                        </span>
+                      </motion.li>
+                    );
+                  })}
+                </AnimatePresence>
+                {eventLog.length === 0 && (
+                  <li className="text-[11px] text-muted-foreground text-center py-3">
+                    {t('في انتظار التحديثات الحيّة…', 'Warte auf Live-Updates …')}
+                  </li>
+                )}
+              </ul>
+            </div>
+          </>
+        )}
+      </div>
     );
   };
+
 
   // ── Detail panel (expanded-modal) ─────────────────────────────────────────
   const renderCityDetailPanel = (c: NonNullable<typeof selectedCityDetails>) => {
@@ -1331,44 +951,11 @@ function UmmahPulse() {
           className="block w-full text-left active:scale-[0.985] transition-transform focus:outline-none focus:ring-2 focus:ring-primary/40 rounded-2xl"
           aria-label={t('فتح الخريطة بحجم كامل', 'Karte im Vollbild öffnen')}
         >
-          <div className="relative rounded-2xl overflow-hidden bg-[hsl(var(--muted))]/30 group">
-            <div className="absolute top-2 right-2 z-10 w-7 h-7 rounded-lg bg-background/75 backdrop-blur-md border border-border/40 flex items-center justify-center opacity-90 group-hover:opacity-100 transition-opacity">
+          <div className="relative rounded-2xl overflow-hidden border border-border/30 group">
+            <div className="absolute top-3 end-3 z-10 w-7 h-7 rounded-lg bg-background/70 backdrop-blur-md border border-border/40 flex items-center justify-center opacity-80 group-hover:opacity-100 transition-opacity">
               <Maximize2 className="w-3.5 h-3.5 text-foreground" />
             </div>
-
-            <div className="absolute top-2 left-2 z-10 flex items-center gap-1 px-2 py-0.5 rounded-full bg-background/75 backdrop-blur-md border border-border/40">
-              <span className="relative flex w-1.5 h-1.5">
-                <span className="absolute inline-flex w-full h-full rounded-full bg-[hsl(var(--live))] opacity-75 animate-ping" />
-                <span className="relative inline-flex rounded-full w-1.5 h-1.5 bg-[hsl(var(--live))]" />
-              </span>
-              <span className="text-[9px] font-bold tracking-wide text-foreground">LIVE</span>
-            </div>
-
-            {renderAstrolabe()}
-
-            {fajrCities.length > 0 && (
-              <div
-                className="absolute bottom-2 left-2 right-2 flex flex-wrap gap-1.5 justify-center"
-                dir={language === 'ar' ? 'rtl' : 'ltr'}
-              >
-                {fajrCities.slice(0, 6).map((c) => (
-                  <motion.span
-                    key={c.name}
-                    initial={{ opacity: 0, y: 4 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-[9.5px] font-semibold px-2 py-0.5 rounded-full bg-primary/20 text-primary backdrop-blur-sm border border-primary/30 inline-flex items-center gap-1"
-                  >
-                    <span>{c.flag}</span>
-                    {language === 'ar' ? c.nameAr : c.name}
-                  </motion.span>
-                ))}
-                {fajrCities.length > 6 && (
-                  <span className="text-[9.5px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary/80 backdrop-blur-sm border border-primary/20">
-                    +{fajrCities.length - 6}
-                  </span>
-                )}
-              </div>
-            )}
+            {renderEditorial()}
           </div>
         </button>
 
@@ -1457,40 +1044,8 @@ function UmmahPulse() {
               {/* Scrollable content */}
               <div className="flex-1 overflow-y-auto pb-[max(env(safe-area-inset-bottom),1.5rem)]">
                 {/* Engraved heritage world map */}
-                <div className="px-4 pt-4">
-                  <div
-                    className="relative rounded-2xl overflow-hidden border border-[hsl(var(--live))]/25 shadow-[inset_0_0_0_1px_hsl(var(--live)/0.08),0_8px_24px_-12px_hsl(0_0%_0%/0.5)]"
-                    onClick={() => setSelectedCity(null)}
-                  >
-                    {renderAstrolabe({ large: true })}
-
-                    {/* Sub-solar coordinates badge */}
-                    <div className="absolute top-2 left-2 flex items-center gap-1.5 px-2 py-1 rounded-lg bg-background/80 backdrop-blur-md border border-border/40 pointer-events-none">
-                      <Sun className="w-3 h-3 text-[hsl(var(--live))]" />
-                      <span className="text-[10px] font-semibold text-foreground tabular-nums">
-                        {subLat.toFixed(1)}°, {((subLng + 540) % 360 - 180).toFixed(1)}°
-                      </span>
-                    </div>
-
-                    {/* Heritage corner ornaments — copper hairlines */}
-                    <span className="pointer-events-none absolute top-1.5 right-1.5 w-3 h-3 border-t border-r border-[hsl(var(--live))]/55" />
-                    <span className="pointer-events-none absolute bottom-1.5 left-1.5 w-3 h-3 border-b border-l border-[hsl(var(--live))]/55" />
-                    <span className="pointer-events-none absolute bottom-1.5 right-1.5 w-3 h-3 border-b border-r border-[hsl(var(--live))]/55" />
-                    <span className="pointer-events-none absolute top-1.5 left-1.5 w-3 h-3 border-t border-l border-[hsl(var(--live))]/55" />
-
-                    {/* Hint badge */}
-                    <div
-                      className="absolute bottom-2 left-1/2 -translate-x-1/2 px-2.5 py-1 rounded-full bg-background/70 backdrop-blur-md border border-border/40 pointer-events-none"
-                      dir={language === 'ar' ? 'rtl' : 'ltr'}
-                    >
-                      <span className="text-[10px] font-semibold text-muted-foreground">
-                        {t(
-                          'انقر على مدينة لعرض تفاصيلها',
-                          'Stadt antippen für Details'
-                        )}
-                      </span>
-                    </div>
-                  </div>
+                <div className="relative">
+                  {renderEditorial({ large: true })}
                 </div>
 
                 {/* Selected city detail */}
