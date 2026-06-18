@@ -7,13 +7,6 @@ import { useNavigate } from 'react-router-dom';
 import { Slider } from '@/components/ui/slider';
 
 const stagger = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.05 } },
-};
-const item = {
-  hidden: { opacity: 0, y: 12 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] as const } },
-};
 
 const FONTS = [
   { id: 'default', nameAr: 'الافتراضي', nameDe: 'Standard', family: "'Inter', 'Noto Sans Arabic', system-ui, sans-serif", sampleAr: 'بسم الله الرحمن الرحيم', sampleDe: 'Hallo Welt – 0123' },
