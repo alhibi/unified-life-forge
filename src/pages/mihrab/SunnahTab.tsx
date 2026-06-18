@@ -116,7 +116,14 @@ export default function SunnahTab() {
               <Icon className="w-5 h-5 text-primary" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-bold text-foreground transition-all duration-200">{title}</p>
+              <div className="flex items-center gap-1.5">
+                <p className="text-sm font-bold text-foreground transition-all duration-200">{title}</p>
+                {isPlaceholder && !showSoon && (
+                  <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-muted/60 text-muted-foreground font-semibold tracking-wide">
+                    {isAr ? 'قريباً' : 'BALD'}
+                  </span>
+                )}
+              </div>
               {!showSoon && (
                 <p className="text-[11px] text-muted-foreground leading-snug mt-0.5 line-clamp-2">{desc}</p>
               )}

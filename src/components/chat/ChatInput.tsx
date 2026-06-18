@@ -485,7 +485,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                   </span>
                   <p className="text-[11px] text-muted-foreground truncate" dir="auto">{editingMessage.content}</p>
                 </div>
-                <button onClick={cancelEdit} aria-label={isAr ? 'إلغاء التعديل' : 'Bearbeitung abbrechen'} className="shrink-0 w-6 h-6 rounded-full flex items-center justify-center active:bg-muted/60 transition-colors">
+                <button onClick={cancelEdit} aria-label={isAr ? 'إلغاء التعديل' : 'Bearbeitung abbrechen'} className="shrink-0 w-9 h-9 -m-1.5 rounded-full flex items-center justify-center active:bg-muted/60 transition-colors">
                   <X className="w-3.5 h-3.5 text-muted-foreground" />
                 </button>
               </div>
@@ -511,7 +511,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                       : replyTo.content}
                   </p>
                 </div>
-                <button onClick={() => setReplyTo(null)} aria-label={isAr ? 'إلغاء الرد' : 'Antwort abbrechen'} className="shrink-0 w-6 h-6 rounded-full flex items-center justify-center active:bg-muted/60 transition-colors">
+                <button onClick={() => setReplyTo(null)} aria-label={isAr ? 'إلغاء الرد' : 'Antwort abbrechen'} className="shrink-0 w-9 h-9 -m-1.5 rounded-full flex items-center justify-center active:bg-muted/60 transition-colors">
                   <X className="w-3.5 h-3.5 text-muted-foreground" />
                 </button>
               </div>
