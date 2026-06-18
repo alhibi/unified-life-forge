@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
-import { Gauge, Zap, RotateCcw, Info, Activity, Waves, Sparkles } from '@/lib/icons';
+import { Gauge, Zap, RotateCcw, Info, Activity, Sparkles, ArrowDown } from '@/lib/icons';
 import { motion } from 'framer-motion';
 import { Slider } from '@/components/ui/slider';
 import BackButton from '@/components/BackButton';
@@ -452,7 +452,7 @@ export default function MotionSettings() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
-                  <Waves className="w-[18px] h-[18px] text-primary" />
+                  <ArrowDown className="w-[18px] h-[18px] text-primary rotate-90" />
                 </div>
                 <div>
                   <p className="text-[14px] font-medium text-foreground">
