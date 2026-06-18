@@ -22,7 +22,7 @@
  *      On a 60Hz screen, picking 120 Hz is identical to 'auto'.
  */
 
-import { MOTION, motionWeight, DURATION } from './motion';
+import { MOTION, motionWeight, DURATION, pageItem, fadeUp } from './motion';
 
 /* ──────────────────────────────────────────────────────────────────────
  * Baselines — captured once on first apply so repeated applies don't
@@ -40,6 +40,7 @@ let baseline: {
   weight: Record<string, number | undefined>;
   duration: Record<string, number>;
   springs: Record<string, { stiffness: number; damping: number }>;
+  amplitude: { pageItemY: number; fadeUpY: number; parallax: number };
 } | null = null;
 
 function captureBaseline() {
@@ -67,6 +68,11 @@ function captureBaseline() {
     weight: w,
     duration: { ...DURATION },
     springs,
+    amplitude: {
+      pageItemY: (pageItem.hidden as { y?: number })?.y ?? 12,
+      fadeUpY:   (fadeUp.hidden   as { y?: number })?.y ?? 12,
+      parallax:  MOTION.parallax,
+    },
   };
 }
 
@@ -115,6 +121,70 @@ export function applyMotionSpeed(speed: number): void {
   if (typeof document !== 'undefined') {
     document.documentElement.style.setProperty('--motion-scale', String(inv));
     document.documentElement.style.setProperty('--motion-speed', String(s));
+  }
+  // Re-apply bounce / amplitude after speed changes, because both
+  // mutate the same spring + variant objects this function touches.
+  applyMotionBounce(currentBounce);
+  applyMotionAmplitude(currentAmplitude);
+}
+
+/* ──────────────────────────────────────────────────────────────────────
+ * AMPLITUDE — how far things travel.
+ *
+ * Multiplies the translate offsets on pageItem / fadeUp variants and
+ * the global push/pop parallax ratio. Distances are mutated in place
+ * so framer-motion reads the new values the next time it constructs
+ * a tween from `hidden → show`.
+ *
+ * amp = 1 → spec defaults. amp = 0 → no translate (pure cross-fade,
+ * great on slow devices). amp = 1.5 → exaggerated cinematic depth.
+ * ──────────────────────────────────────────────────────────────────── */
+let currentAmplitude = 1;
+export function applyMotionAmplitude(amp: number): void {
+  captureBaseline();
+  const a = Math.max(0, Math.min(1.5, Number.isFinite(amp) ? amp : 1));
+  currentAmplitude = a;
+  if (!baseline) return;
+  (pageItem.hidden as { y?: number }).y = baseline.amplitude.pageItemY * a;
+  (fadeUp.hidden   as { y?: number }).y = baseline.amplitude.fadeUpY   * a;
+  // MOTION is `as const` at the type level but mutable at runtime; the
+  // parallax field drives push/pop depth across the whole nav system.
+  (MOTION as unknown as { parallax: number }).parallax = baseline.amplitude.parallax * a;
+  if (typeof document !== 'undefined') {
+    document.documentElement.style.setProperty('--motion-amp', String(a));
+  }
+}
+
+/* ──────────────────────────────────────────────────────────────────────
+ * BOUNCE — spring damping ratio.
+ *
+ * `bounce = 0` keeps the spec's damping (critically-damped feel, no
+ * overshoot). `bounce = 1` lowers damping aggressively, producing a
+ * pronounced overshoot/oscillation. Damping ratio ζ = c / (2√(km));
+ * we lerp ζ from its baseline down toward 0.25 as bounce grows.
+ * ──────────────────────────────────────────────────────────────────── */
+let currentBounce = 0;
+export function applyMotionBounce(bounce: number): void {
+  captureBaseline();
+  const b = Math.max(0, Math.min(1, Number.isFinite(bounce) ? bounce : 0));
+  currentBounce = b;
+  if (!baseline) return;
+  for (const [k, base] of Object.entries(baseline.springs)) {
+    const target = (MOTION as unknown as Record<string, SpringHolder>)[k];
+    if (!target || target.type !== 'spring') continue;
+    // Current live stiffness already reflects the speed multiplier; we
+    // recompute damping against THAT stiffness so the bounce ratio is
+    // honored regardless of how fast the spring is running.
+    const liveK = typeof target.stiffness === 'number' ? target.stiffness : base.stiffness;
+    const m     = typeof target.mass === 'number' ? target.mass : 1;
+    const critical = 2 * Math.sqrt(liveK * m);
+    // Baseline damping ratio (relative to its own critical at baseline k).
+    const baseRatio = base.damping / (2 * Math.sqrt(base.stiffness * m));
+    const targetRatio = baseRatio * (1 - b) + 0.25 * b;
+    target.damping = critical * targetRatio;
+  }
+  if (typeof document !== 'undefined') {
+    document.documentElement.style.setProperty('--motion-bounce', String(b));
   }
 }
 
