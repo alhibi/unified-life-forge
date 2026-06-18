@@ -29,18 +29,31 @@ import { MOTION, motionWeight, DURATION } from './motion';
  * compound (apply 0.5x then 1.0x should restore originals, not 2.0x).
  * ────────────────────────────────────────────────────────────────────── */
 type DurHolder = { duration?: number } & Record<string, unknown>;
+type SpringHolder = {
+  type?: string;
+  stiffness?: number;
+  damping?: number;
+  mass?: number;
+} & Record<string, unknown>;
 let baseline: {
   motion: Record<string, number | undefined>;
   weight: Record<string, number | undefined>;
   duration: Record<string, number>;
+  springs: Record<string, { stiffness: number; damping: number }>;
 } | null = null;
 
 function captureBaseline() {
   if (baseline) return;
   const m: Record<string, number | undefined> = {};
+  const springs: Record<string, { stiffness: number; damping: number }> = {};
   for (const [k, v] of Object.entries(MOTION as Record<string, unknown>)) {
-    if (v && typeof v === 'object' && 'duration' in (v as DurHolder)) {
+    if (!v || typeof v !== 'object') continue;
+    if ('duration' in (v as DurHolder)) {
       m[k] = (v as DurHolder).duration;
+    }
+    const s = v as SpringHolder;
+    if (s.type === 'spring' && typeof s.stiffness === 'number' && typeof s.damping === 'number') {
+      springs[k] = { stiffness: s.stiffness, damping: s.damping };
     }
   }
   const w: Record<string, number | undefined> = {};
@@ -53,6 +66,7 @@ function captureBaseline() {
     motion: m,
     weight: w,
     duration: { ...DURATION },
+    springs,
   };
 }
 
@@ -83,6 +97,17 @@ export function applyMotionSpeed(speed: number): void {
     }
     for (const [k, base] of Object.entries(baseline.duration)) {
       (DURATION as unknown as Record<string, number>)[k] = base * inv;
+    }
+    // Springs: natural frequency ω = √(k/m). To make a spring resolve
+    // `s` times faster we scale stiffness by s² and damping by s so the
+    // damping ratio ζ = c / (2√(km)) stays constant — the bounce
+    // character is preserved, only the duration changes.
+    for (const [k, base] of Object.entries(baseline.springs)) {
+      const target = (MOTION as unknown as Record<string, SpringHolder>)[k];
+      if (target && target.type === 'spring') {
+        target.stiffness = base.stiffness * s * s;
+        target.damping   = base.damping * s;
+      }
     }
   }
 
