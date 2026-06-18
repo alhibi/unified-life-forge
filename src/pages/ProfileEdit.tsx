@@ -12,14 +12,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 import { EMOJI_AVATARS, isEmojiAvatarValue, getAppleEmojiUrl } from '@/utils/emojiAvatar';
 
-const stagger = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.06 } },
-};
-const item = {
-  hidden: { opacity: 0, y: 12 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] as const } },
-};
+import { pageStagger as stagger, pageItem as item } from '@/lib/motion';
 
 export default function ProfileEditPage() {
   const { language } = useApp();

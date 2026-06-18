@@ -20,11 +20,7 @@ import {
  * which is the right default.
  */
 
-const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.05 } } };
-const item = {
-  hidden: { opacity: 0, y: 10 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.32, ease: [0.16, 1, 0.3, 1] as const } },
-};
+import { pageStagger as stagger, pageItem as item } from '@/lib/motion';
 
 export default function ArticlesTab() {
   const { language, dir } = useApp();

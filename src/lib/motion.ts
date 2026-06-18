@@ -296,6 +296,29 @@ export const fadeIn: Variants = {
   show:   { opacity: 1, transition: motionWeight.small },
 };
 
+/* ─────────────────────────────────────────────────────────────────────
+ * Canonical page-level stagger primitives.
+ *
+ * Every top-level page (Home, Settings, Auth, Mihrab tabs, Browse tabs…)
+ * was duplicating the same `stagger` + `item` variants with slightly
+ * different durations (0.2 → 0.45) and an ad-hoc ease tuple. That meant
+ * navigating between pages produced visually inconsistent entrances and
+ * occasional jank when two pages with different timings cross-faded.
+ *
+ * `pageStagger` / `pageItem` are the ONE allowed shape. Import them by
+ * alias (`pageStagger as stagger`, `pageItem as item`) so existing JSX
+ * `variants={stagger}` / `variants={item}` references keep working.
+ * ───────────────────────────────────────────────────────────────────── */
+export const pageStagger: Variants = {
+  hidden: {},
+  show:   { transition: { staggerChildren: 0.05, when: 'beforeChildren' } },
+};
+
+export const pageItem: Variants = {
+  hidden: { opacity: 0, y: 12 },
+  show:   { opacity: 1, y: 0, transition: motionWeight.medium },
+};
+
 // Container that staggers children with a tight cadence — 20ms per item.
 export const organicStagger = (_total?: number): Variants => ({
   hidden: {},

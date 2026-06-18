@@ -22,14 +22,7 @@ import { getAppleEmojiUrl, isEmojiAvatarValue } from '@/utils/emojiAvatar';
 import { getDefaultAvatarForUser } from '@/utils/defaultAvatar';
 import { PageShell, IconButton } from '@/components/ui/app-shell';
 
-const stagger = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.08 } },
-};
-const item = {
-  hidden: { opacity: 0, y: 14 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] as const } },
-};
+import { pageStagger as stagger, pageItem as item } from '@/lib/motion';
 
 export default function Index() {
   // Auto-request the device's location on first homepage visit *iff* there

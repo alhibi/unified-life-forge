@@ -31,11 +31,7 @@ const quranVirtues = [
   'أن البيت الذي يقرأ فيه القرآن تحصل فيه الخيرات والبركات ويحفظ الله تعالى أهل هذا البيت من كل سوء',
 ];
 
-const container = { hidden: {}, show: { transition: { staggerChildren: 0.03 } } };
-const itemAnim = {
-  hidden: { opacity: 0, y: 8 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] as const } },
-};
+import { pageStagger as container, pageItem as itemAnim } from '@/lib/motion';
 
 export default function QuranVirtues() {
   const [tappedSurah, setTappedSurah] = useState<number | null>(null);

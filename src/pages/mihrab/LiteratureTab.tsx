@@ -2,6 +2,7 @@ import React, { useState, lazy, Suspense } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { motion } from 'framer-motion';
 import { Leaf, ChevronLeft, ChevronRight } from '@/lib/icons';
+import { motionWeight } from '@/lib/motion';
 
 /**
  * Mihrab → Literature tab.
@@ -45,7 +46,7 @@ export default function LiteratureTab() {
       <motion.button
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
+        transition={motionWeight.medium}
         onClick={onSelectionsClick}
         className="surface-depth surface-depth-pressable w-full flex items-center gap-3 p-4 rounded-2xl opacity-80 text-start"
       >
