@@ -4,7 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import type { User } from '@supabase/supabase-js';
 import { themePresets, generateThemeTokens, applyThemeTokens, type ThemeStyle } from '@/utils/themeEngine';
 import { translate, type Language } from '@/i18n';
-import { applyMotionSpeed, installFpsCap } from '@/lib/motionRuntime';
+import { applyMotionSpeed, installFpsCap, applyMotionAmplitude, applyMotionBounce } from '@/lib/motionRuntime';
 
 // 'system' was intentionally removed from the public theme API — users
 // pick Light or Dark explicitly. Any stale localStorage value is
@@ -59,6 +59,12 @@ interface AppContextType {
   /** Hard rAF cap. 'auto' = uncapped (browser native). */
   fpsCap: FpsCap;
   setFpsCap: (f: FpsCap) => void;
+  /** Global motion amplitude (translate distance + parallax). 0 = none, 1 = spec, 1.5 = cinematic. */
+  motionAmplitude: number;
+  setMotionAmplitude: (a: number) => void;
+  /** Spring bounce 0..1. 0 = critically damped, 1 = pronounced overshoot. */
+  springBounce: number;
+  setSpringBounce: (b: number) => void;
 }
 
 
@@ -127,6 +133,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (raw === '60' || raw === '90' || raw === '120') return Number(raw) as FpsCap;
     return 'auto';
   });
+  const [motionAmplitude, setMotionAmplitudeState] = useState<number>(() => {
+    const raw = parseFloat(localStorage.getItem('app-motion-amplitude') || '1');
+    return Number.isFinite(raw) && raw >= 0 ? raw : 1;
+  });
+  const [springBounce, setSpringBounceState] = useState<number>(() => {
+    const raw = parseFloat(localStorage.getItem('app-spring-bounce') || '0');
+    return Number.isFinite(raw) && raw >= 0 ? raw : 0;
+  });
 
   const authUserRef = useRef<User | null>(null);
   const syncRef = useRef(false);
@@ -179,6 +193,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setCalcMethodState('auto'); localStorage.setItem('app-calc-method', 'auto');
     setMotionSpeedState(1); localStorage.setItem('app-motion-speed', '1');
     setFpsCapState('auto'); localStorage.setItem('app-fps-cap', 'auto');
+    setMotionAmplitudeState(1); localStorage.setItem('app-motion-amplitude', '1');
+    setSpringBounceState(0); localStorage.setItem('app-spring-bounce', '0');
     setTimeout(() => { syncRef.current = false; }, 100);
   };
 
@@ -243,6 +259,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
           setFpsCapState(s.fpsCap as FpsCap);
           localStorage.setItem('app-fps-cap', String(s.fpsCap));
         }
+        if (typeof s.motionAmplitude === 'number' && s.motionAmplitude >= 0) {
+          setMotionAmplitudeState(s.motionAmplitude);
+          localStorage.setItem('app-motion-amplitude', String(s.motionAmplitude));
+        }
+        if (typeof s.springBounce === 'number' && s.springBounce >= 0) {
+          setSpringBounceState(s.springBounce);
+          localStorage.setItem('app-spring-bounce', String(s.springBounce));
+        }
         // Also load game stats and locations if stored
         if (s.gameStats) localStorage.setItem('game-stats', JSON.stringify(s.gameStats));
         if (s.savedLocations) localStorage.setItem('saved-locations', JSON.stringify(s.savedLocations));
@@ -280,6 +304,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     };
     settings.motionSpeed = parseFloat(localStorage.getItem('app-motion-speed') || '1');
     settings.fpsCap = localStorage.getItem('app-fps-cap') || 'auto';
+    settings.motionAmplitude = parseFloat(localStorage.getItem('app-motion-amplitude') || '1');
+    settings.springBounce = parseFloat(localStorage.getItem('app-spring-bounce') || '0');
     // Also save game stats and locations
     try { settings.gameStats = JSON.parse(localStorage.getItem('game-stats') || '{}'); } catch { /* noop */ }
     try { settings.savedLocations = JSON.parse(localStorage.getItem('saved-locations') || '[]'); } catch { /* noop */ }
@@ -415,6 +441,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
     scheduleSave();
   };
 
+  const setMotionAmplitude = (a: number) => {
+    const clamped = Math.max(0, Math.min(1.5, a));
+    setMotionAmplitudeState(clamped);
+    localStorage.setItem('app-motion-amplitude', String(clamped));
+    scheduleSave();
+  };
+
+  const setSpringBounce = (b: number) => {
+    const clamped = Math.max(0, Math.min(1, b));
+    setSpringBounceState(clamped);
+    localStorage.setItem('app-spring-bounce', String(clamped));
+    scheduleSave();
+  };
+
   const t = (key: string): string => translate(language, key);
   const dir = language === 'ar' ? 'rtl' : 'ltr';
 
@@ -473,6 +513,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
     applyMotionSpeed(motionSpeed);
   }, [motionSpeed]);
 
+  // Amplitude (translate distance + push/pop parallax).
+  useEffect(() => {
+    applyMotionAmplitude(motionAmplitude);
+  }, [motionAmplitude]);
+
+  // Spring bounce (damping ratio).
+  useEffect(() => {
+    applyMotionBounce(springBounce);
+  }, [springBounce]);
+
   // Install / refresh the global rAF cap.
   useEffect(() => {
     installFpsCap(fpsCap === 'auto' ? null : fpsCap);
@@ -480,7 +530,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [fpsCap]);
 
   return (
-    <AppContext.Provider value={{ language, setLanguage, theme, setTheme, t, dir, accentHue, setAccentHue, paletteStyle, setPaletteStyle, colorTheme, setColorTheme, blackMode, setBlackMode, fontFamily, setFontFamily, fontSize, setFontSize, fontWeight, setFontWeight, fontOpacity, setFontOpacity, prayerMadhab, setPrayerMadhab, midnightMode, setMidnightMode, latitudeAdjMethod, setLatitudeAdjMethod, dstEnabled, setDstEnabled, calcMethod, setCalcMethod, motionSpeed, setMotionSpeed, fpsCap, setFpsCap }}>
+    <AppContext.Provider value={{ language, setLanguage, theme, setTheme, t, dir, accentHue, setAccentHue, paletteStyle, setPaletteStyle, colorTheme, setColorTheme, blackMode, setBlackMode, fontFamily, setFontFamily, fontSize, setFontSize, fontWeight, setFontWeight, fontOpacity, setFontOpacity, prayerMadhab, setPrayerMadhab, midnightMode, setMidnightMode, latitudeAdjMethod, setLatitudeAdjMethod, dstEnabled, setDstEnabled, calcMethod, setCalcMethod, motionSpeed, setMotionSpeed, fpsCap, setFpsCap, motionAmplitude, setMotionAmplitude, springBounce, setSpringBounce }}>
       {children}
     </AppContext.Provider>
   );
