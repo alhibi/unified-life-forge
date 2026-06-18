@@ -4,9 +4,7 @@ import { BookOpen, RotateCcw, Info, Check } from '@/lib/icons';
 import { motion } from 'framer-motion';
 import { Switch } from '@/components/ui/switch';
 import BackButton from '@/components/BackButton';
-
-const stagger = {
-  hidden: {},
+import { pageStagger as stagger, pageItem as item } from '@/lib/motion';
 
 type PrayerMadhab = 'shafii' | 'hanafi' | 'hanbali' | 'maliki';
 type LatMethod = 'middle' | 'seventh' | 'angle';
