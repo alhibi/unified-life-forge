@@ -4,7 +4,7 @@ import { useApp } from '@/contexts/AppContext';
 import { getAppleEmojiUrl, isEmojiAvatarValue } from '@/utils/emojiAvatar';
 import { getDefaultAvatarForUser } from '@/utils/defaultAvatar';
 import { useAuth } from '@/hooks/useAuth';
-import { Languages, Palette, ChevronLeft, UserCircle, LogOut, Type, BookOpen, AlertTriangle } from '@/lib/icons';
+import { Languages, Palette, ChevronLeft, UserCircle, LogOut, Type, BookOpen, AlertTriangle, Gauge } from '@/lib/icons';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -46,6 +46,13 @@ export default function SettingsPage() {
       title: isAr ? 'الخط' : 'Schriftart',
       value: isAr ? 'نوع وحجم' : 'Art & Größe',
       onClick: () => navigate('/settings/font'),
+    },
+    {
+      key: 'motion',
+      icon: Gauge,
+      title: isAr ? 'الحركة والأداء' : 'Bewegung & Leistung',
+      value: isAr ? 'سرعة وحد إطارات' : 'Speed & FPS',
+      onClick: () => navigate('/settings/motion'),
     },
   ];
 

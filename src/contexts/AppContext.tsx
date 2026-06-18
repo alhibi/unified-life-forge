@@ -4,6 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import type { User } from '@supabase/supabase-js';
 import { themePresets, generateThemeTokens, applyThemeTokens, type ThemeStyle } from '@/utils/themeEngine';
 import { translate, type Language } from '@/i18n';
+import { applyMotionSpeed, installFpsCap } from '@/lib/motionRuntime';
 
 // 'system' was intentionally removed from the public theme API — users
 // pick Light or Dark explicitly. Any stale localStorage value is
@@ -16,6 +17,8 @@ type PrayerMadhab = 'shafii' | 'hanafi' | 'hanbali' | 'maliki';
 type LatitudeAdjMethod = 'middle' | 'seventh' | 'angle';
 /** 'auto' = pick per-country; otherwise an explicit Aladhan method id (Sunni-only). */
 type CalcMethod = 'auto' | number;
+/** rAF throttle cap. 'auto' = native refresh (no throttle). */
+export type FpsCap = 'auto' | 60 | 90 | 120;
 
 interface AppContextType {
   language: Language;
@@ -50,6 +53,12 @@ interface AppContextType {
   setDstEnabled: (v: boolean) => void;
   calcMethod: CalcMethod;
   setCalcMethod: (m: CalcMethod) => void;
+  /** Global animation-duration multiplier. 1 = normal, <1 = slower, >1 = faster. */
+  motionSpeed: number;
+  setMotionSpeed: (s: number) => void;
+  /** Hard rAF cap. 'auto' = uncapped (browser native). */
+  fpsCap: FpsCap;
+  setFpsCap: (f: FpsCap) => void;
 }
 
 
@@ -109,6 +118,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const n = parseInt(raw, 10);
     return Number.isFinite(n) ? n : 'auto';
   });
+  const [motionSpeed, setMotionSpeedState] = useState<number>(() => {
+    const raw = parseFloat(localStorage.getItem('app-motion-speed') || '1');
+    return Number.isFinite(raw) && raw > 0 ? raw : 1;
+  });
+  const [fpsCap, setFpsCapState] = useState<FpsCap>(() => {
+    const raw = localStorage.getItem('app-fps-cap');
+    if (raw === '60' || raw === '90' || raw === '120') return Number(raw) as FpsCap;
+    return 'auto';
+  });
 
   const authUserRef = useRef<User | null>(null);
   const syncRef = useRef(false);
@@ -159,6 +177,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setLatitudeAdjMethodState('angle'); localStorage.setItem('app-lat-adj-method', 'angle');
     setDstEnabledState(true); localStorage.setItem('app-dst-enabled', 'true');
     setCalcMethodState('auto'); localStorage.setItem('app-calc-method', 'auto');
+    setMotionSpeedState(1); localStorage.setItem('app-motion-speed', '1');
+    setFpsCapState('auto'); localStorage.setItem('app-fps-cap', 'auto');
     setTimeout(() => { syncRef.current = false; }, 100);
   };
 
@@ -215,6 +235,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
           setCalcMethodState(cm);
           localStorage.setItem('app-calc-method', String(cm));
         }
+        if (typeof s.motionSpeed === 'number' && s.motionSpeed > 0) {
+          setMotionSpeedState(s.motionSpeed);
+          localStorage.setItem('app-motion-speed', String(s.motionSpeed));
+        }
+        if (s.fpsCap === 'auto' || s.fpsCap === 60 || s.fpsCap === 90 || s.fpsCap === 120) {
+          setFpsCapState(s.fpsCap as FpsCap);
+          localStorage.setItem('app-fps-cap', String(s.fpsCap));
+        }
         // Also load game stats and locations if stored
         if (s.gameStats) localStorage.setItem('game-stats', JSON.stringify(s.gameStats));
         if (s.savedLocations) localStorage.setItem('saved-locations', JSON.stringify(s.savedLocations));
@@ -250,6 +278,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       dstEnabled: localStorage.getItem('app-dst-enabled') !== 'false',
       calcMethod: (localStorage.getItem('app-calc-method') ?? 'auto'),
     };
+    settings.motionSpeed = parseFloat(localStorage.getItem('app-motion-speed') || '1');
+    settings.fpsCap = localStorage.getItem('app-fps-cap') || 'auto';
     // Also save game stats and locations
     try { settings.gameStats = JSON.parse(localStorage.getItem('game-stats') || '{}'); } catch { /* noop */ }
     try { settings.savedLocations = JSON.parse(localStorage.getItem('saved-locations') || '[]'); } catch { /* noop */ }
@@ -372,6 +402,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
     scheduleSave();
   };
 
+  const setMotionSpeed = (s: number) => {
+    const clamped = Math.max(0.25, Math.min(3, s));
+    setMotionSpeedState(clamped);
+    localStorage.setItem('app-motion-speed', String(clamped));
+    scheduleSave();
+  };
+
+  const setFpsCap = (f: FpsCap) => {
+    setFpsCapState(f);
+    localStorage.setItem('app-fps-cap', String(f));
+    scheduleSave();
+  };
+
   const t = (key: string): string => translate(language, key);
   const dir = language === 'ar' ? 'rtl' : 'ltr';
 
@@ -424,8 +467,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
     document.documentElement.style.setProperty('--text-opacity', String(fontOpacity));
   }, [fontFamily, fontSize, fontWeight, fontOpacity]);
 
+  // Apply motion speed scale (mutates MOTION/motionWeight/DURATION
+  // baselines and exposes --motion-scale CSS var).
+  useEffect(() => {
+    applyMotionSpeed(motionSpeed);
+  }, [motionSpeed]);
+
+  // Install / refresh the global rAF cap.
+  useEffect(() => {
+    installFpsCap(fpsCap === 'auto' ? null : fpsCap);
+    return () => { /* keep cap across unmount — provider lives for the app lifetime */ };
+  }, [fpsCap]);
+
   return (
-    <AppContext.Provider value={{ language, setLanguage, theme, setTheme, t, dir, accentHue, setAccentHue, paletteStyle, setPaletteStyle, colorTheme, setColorTheme, blackMode, setBlackMode, fontFamily, setFontFamily, fontSize, setFontSize, fontWeight, setFontWeight, fontOpacity, setFontOpacity, prayerMadhab, setPrayerMadhab, midnightMode, setMidnightMode, latitudeAdjMethod, setLatitudeAdjMethod, dstEnabled, setDstEnabled, calcMethod, setCalcMethod }}>
+    <AppContext.Provider value={{ language, setLanguage, theme, setTheme, t, dir, accentHue, setAccentHue, paletteStyle, setPaletteStyle, colorTheme, setColorTheme, blackMode, setBlackMode, fontFamily, setFontFamily, fontSize, setFontSize, fontWeight, setFontWeight, fontOpacity, setFontOpacity, prayerMadhab, setPrayerMadhab, midnightMode, setMidnightMode, latitudeAdjMethod, setLatitudeAdjMethod, dstEnabled, setDstEnabled, calcMethod, setCalcMethod, motionSpeed, setMotionSpeed, fpsCap, setFpsCap }}>
       {children}
     </AppContext.Provider>
   );

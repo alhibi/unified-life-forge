@@ -73,6 +73,7 @@ const loadTheme = () => import("./pages/ThemeSettings");
 const loadAuth = () => import("./pages/Auth");
 const loadProfile = () => import("./pages/ProfileEdit");
 const loadFont = () => import("./pages/FontSettings");
+const loadMotion = () => import("./pages/MotionSettings");
 const loadPrayer = () => import("./pages/PrayerSettings");
 const loadOccasions = () => import("./features/calendar/pages/AllOccasions");
 const loadReading = () => import("./pages/Reading");
@@ -139,6 +140,7 @@ registerRoute('/settings',          loadSettings);
 registerRoute('/settings/theme',    loadTheme);
 registerRoute('/settings/profile',  loadProfile);
 registerRoute('/settings/font',     loadFont);
+registerRoute('/settings/motion',   loadMotion);
 registerRoute('/settings/prayer',   loadPrayer);
 registerRoute('/auth',              loadAuth);
 registerRoute('/duas',              loadDuas);
@@ -201,6 +203,7 @@ const ThemeSettingsPage = lazy(loadTheme);
 const AuthPage = lazy(loadAuth);
 const ProfileEditPage = lazy(loadProfile);
 const FontSettingsPage = lazy(loadFont);
+const MotionSettingsPage = lazy(loadMotion);
 const PrayerSettingsPage = lazy(loadPrayer);
 const AllOccasionsPage = lazy(loadOccasions);
 const ReadingPage = lazy(loadReading);
@@ -525,6 +528,7 @@ function AnimatedRoutes() {
                   <Route path="/auth" element={<ErrorBoundary><AuthPage /></ErrorBoundary>} />
                   <Route path="/settings/profile" element={<ErrorBoundary><ProfileEditPage /></ErrorBoundary>} />
                   <Route path="/settings/font" element={<ErrorBoundary><FontSettingsPage /></ErrorBoundary>} />
+                  <Route path="/settings/motion" element={<ErrorBoundary><MotionSettingsPage /></ErrorBoundary>} />
                   <Route path="/settings/prayer" element={<ErrorBoundary><PrayerSettingsPage /></ErrorBoundary>} />
                   <Route path="/section/timed-sunnah" element={<ErrorBoundary><TimedSunnahPage /></ErrorBoundary>} />
                   <Route path="/section/timed-sunnah/:categoryId" element={<ErrorBoundary><SunnahDetailPage /></ErrorBoundary>} />
