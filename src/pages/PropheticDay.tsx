@@ -94,11 +94,7 @@ const sections: TimeSection[] = [
   },
 ];
 
-const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.025 } } };
-const fadeItem = {
-  hidden: { opacity: 0, y: 6 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.2, ease: [0.16, 1, 0.3, 1] as const } },
-};
+import { pageStagger as stagger, pageItem as fadeItem } from '@/lib/motion';
 
 export default function PropheticDay() {
   const navigate = useNavigate();
