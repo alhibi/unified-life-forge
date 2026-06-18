@@ -81,8 +81,8 @@
     --shadow-card: none;
     --shadow-elevated: none;
     --shadow-intense: none;
-    --font-display: 'IBM Plex Mono', 'IBM Plex Sans Arabic', 'Noto Sans Arabic', system-ui, -apple-system, monospace;
-    --font-body: 'IBM Plex Mono', 'IBM Plex Sans Arabic', 'Noto Sans Arabic', system-ui, -apple-system, monospace;
+    --font-display: 'IBM Plex Sans Arabic', 'Noto Sans Arabic', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --font-body: 'IBM Plex Sans Arabic', 'Noto Sans Arabic', system-ui, -apple-system, 'Segoe UI', sans-serif;
 
     /* ──────────────────────────────────────────────────────────────
        UNIFIED LIVE ACCENT — single warm copper that pulses across
@@ -451,7 +451,7 @@
   /* Section title — small caps, mono-bold, wide tracking, muted.
      The thin top border replicates curium's `sectionWrap` hairline. */
   .section-title {
-    font-family: 'IBM Plex Mono', 'IBM Plex Sans Arabic', monospace;
+    font-family: 'IBM Plex Sans Arabic', system-ui, -apple-system, sans-serif;
     font-weight: 700;
     font-size: 11px;
     line-height: 1.4;

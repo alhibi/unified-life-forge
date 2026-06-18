@@ -407,7 +407,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // Apply font family, size, weight & opacity
   useEffect(() => {
     const fontMap: Record<string, string> = {
-      default: "'IBM Plex Mono', 'IBM Plex Sans Arabic', 'Noto Sans Arabic', system-ui, -apple-system, monospace",
+      default: "'IBM Plex Sans Arabic', 'Noto Sans Arabic', system-ui, -apple-system, 'Segoe UI', sans-serif",
       'plex-mono': "'IBM Plex Mono', 'IBM Plex Sans Arabic', 'Noto Sans Arabic', system-ui, -apple-system, monospace",
       inter: "'Inter', 'Noto Sans Arabic', system-ui, -apple-system, sans-serif",
       cairo: "'Cairo', 'Inter', system-ui, -apple-system, sans-serif",
