@@ -5,8 +5,7 @@ import BackButton from '@/components/BackButton';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Slider } from '@/components/ui/slider';
-
-const stagger = {
+import { pageStagger as stagger, pageItem as item } from '@/lib/motion';
 
 const FONTS = [
   { id: 'default', nameAr: 'الافتراضي', nameDe: 'Standard', family: "'Inter', 'Noto Sans Arabic', system-ui, sans-serif", sampleAr: 'بسم الله الرحمن الرحيم', sampleDe: 'Hallo Welt – 0123' },
