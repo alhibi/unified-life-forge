@@ -203,6 +203,7 @@ const ThemeSettingsPage = lazy(loadTheme);
 const AuthPage = lazy(loadAuth);
 const ProfileEditPage = lazy(loadProfile);
 const FontSettingsPage = lazy(loadFont);
+const MotionSettingsPage = lazy(loadMotion);
 const PrayerSettingsPage = lazy(loadPrayer);
 const AllOccasionsPage = lazy(loadOccasions);
 const ReadingPage = lazy(loadReading);
@@ -527,6 +528,7 @@ function AnimatedRoutes() {
                   <Route path="/auth" element={<ErrorBoundary><AuthPage /></ErrorBoundary>} />
                   <Route path="/settings/profile" element={<ErrorBoundary><ProfileEditPage /></ErrorBoundary>} />
                   <Route path="/settings/font" element={<ErrorBoundary><FontSettingsPage /></ErrorBoundary>} />
+                  <Route path="/settings/motion" element={<ErrorBoundary><MotionSettingsPage /></ErrorBoundary>} />
                   <Route path="/settings/prayer" element={<ErrorBoundary><PrayerSettingsPage /></ErrorBoundary>} />
                   <Route path="/section/timed-sunnah" element={<ErrorBoundary><TimedSunnahPage /></ErrorBoundary>} />
                   <Route path="/section/timed-sunnah/:categoryId" element={<ErrorBoundary><SunnahDetailPage /></ErrorBoundary>} />
