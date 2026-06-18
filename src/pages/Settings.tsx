@@ -11,14 +11,7 @@ import { toast } from 'sonner';
 import BackButton from '@/components/BackButton';
 import packageJson from '../../package.json';
 
-const stagger = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.05 } },
-};
-const item = {
-  hidden: { opacity: 0, y: 14 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] as const } },
-};
+import { pageStagger as stagger, pageItem as item } from '@/lib/motion';
 
 export default function SettingsPage() {
   const { t, theme, language, setLanguage, prayerMadhab } = useApp();
