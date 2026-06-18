@@ -347,7 +347,9 @@ export default function MotionSettings() {
                   </p>
                 </div>
               </div>
-              <FpsMonitor active={true} />
+              <div className="text-[10px] font-mono text-muted-foreground tabular-nums">
+                {isAr ? 'الهدف' : 'target'} {budgetHz} Hz
+              </div>
             </div>
 
             <div className="grid grid-cols-4 gap-1.5">
