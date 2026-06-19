@@ -467,14 +467,14 @@ export class WeatherEngine {
         urban_heat_island_effect_c: null,
         microclimate_note: null,
       },
-      radar: (radar as WeatherSnapshot['radar']) ?? {
-        tiles_available: false,
-        past_timestamps: [],
-        future_timestamps: [],
-        tile_url_template: '',
-        satellite_tile_url_template: null,
-        snowcover_tile_url_template: null,
-        last_radar_update_unix: 0,
+      radar: {
+        tiles_available: radar?.tiles_available ?? false,
+        past_timestamps: radar?.past_timestamps ?? [],
+        future_timestamps: radar?.future_timestamps ?? [],
+        tile_url_template: radar?.tile_url_template ?? '',
+        satellite_tile_url_template: radar?.satellite_tile_url_template ?? null,
+        snowcover_tile_url_template: radar?.snowcover_tile_url_template ?? null,
+        last_radar_update_unix: radar?.last_radar_update_unix ?? 0,
       },
     } satisfies WeatherSnapshot;
   }
