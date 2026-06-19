@@ -14,6 +14,8 @@ export default {
       fontFamily: {
         display: ["var(--font-display)"],
         body: ["var(--font-body)"],
+        cormorant: ['"Cormorant Garamond"', 'serif'],
+        montserrat: ['"Montserrat"', 'system-ui', 'sans-serif'],
       },
       fontSize: {
         // Canonical type scale — use these instead of arbitrary text-[Npx].
