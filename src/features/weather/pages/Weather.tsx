@@ -10,7 +10,7 @@ import { Drawer, DrawerContent, DrawerTitle } from '@/components/ui/drawer';
 import * as VisuallyHidden from '@radix-ui/react-visually-hidden';
 import { useApp } from '@/contexts/AppContext';
 import { useDeviceLocation, requestDeviceLocation } from '@/hooks/useDeviceLocation';
-import { useWeatherData, type DailyEntry, type WeatherData } from '@/features/weather/hooks/useWeatherData';
+import { useWeatherData, type DailyEntry, type WeatherData } from '@/weather/hooks/useWeatherData';
 import {
   listProviders, readOwmApiKey, writeOwmApiKey, writeProviderPref,
 } from '@/features/weather/lib';

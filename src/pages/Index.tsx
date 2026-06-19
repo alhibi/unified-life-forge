@@ -9,7 +9,7 @@ import LocationSaver from '@/features/clipboard/components/LocationSaver';
 import PrayerTimes from '@/components/PrayerTimes';
 import { motion } from 'framer-motion';
 import CurrentTimeSunnah from '@/components/CurrentTimeSunnah';
-import WeatherWidget from '@/features/weather/components/WeatherWidget';
+import WeatherWidget from '@/weather/components/WeatherWidget';
 import UmmahPulse from '@/components/UmmahPulse';
 import LivingRibbon from '@/components/LivingRibbon';
 
