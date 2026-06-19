@@ -467,7 +467,7 @@ export class WeatherEngine {
         urban_heat_island_effect_c: null,
         microclimate_note: null,
       },
-      radar: radar ?? {
+      radar: (radar as WeatherSnapshot['radar']) ?? {
         tiles_available: false,
         past_timestamps: [],
         future_timestamps: [],
