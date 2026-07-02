@@ -106,7 +106,17 @@ function rowToChatMember(row: DbMembersRow): ChatMember {
 export async function listMyChats(): Promise<ChatSummary[]> {
   ensureConfigured();
   const { data, error } = await supabase.rpc('list_my_chats');
-  if (error) throw new Error(error.message);
+  if (error) {
+    // Groups schema (chats/chat_members/list_my_chats) hasn't been rolled
+    // out on this project yet. Legacy 1-to-1 chat is handled by
+    // `useChat.ts` directly against `conversations` — return empty here
+    // instead of throwing so React Query doesn't retry-loop the 404 on
+    // every realtime event.
+    if ((error as { code?: string }).code === 'PGRST202' || /not find|schema cache/i.test(error.message ?? '')) {
+      return [];
+    }
+    throw new Error(error.message);
+  }
   return (data ?? []).map(rowToChatSummary);
 }
 
