@@ -63,6 +63,10 @@ export function useChats(): UseChatsResult {
     enabled: !!userId && isSupabaseConfigured,
     staleTime: 30_000,
     gcTime: 10 * 60_000,
+    // Groups RPC may be missing on some environments; listMyChats returns
+    // [] gracefully in that case. Avoid the automatic exponential retry.
+    retry: false,
+    refetchOnWindowFocus: false,
     queryFn: async () => {
       const list = await api.listMyChats();
       // Side-effect: keep IDB warm.
@@ -89,8 +93,6 @@ export function useChats(): UseChatsResult {
 
     channel
       .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' },        schedule)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'chat_members' },    schedule)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'chats' },           schedule)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'conversations' },   schedule)
       .subscribe();
 
