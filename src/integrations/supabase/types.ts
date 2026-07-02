@@ -202,14 +202,17 @@ export type Database = {
       }
       messages: {
         Row: {
+          client_id: string | null
           content: string
           conversation_id: string
           created_at: string
           deleted: boolean
+          delivered_at: string | null
           edited_at: string | null
           expires_at: string | null
           file_name: string | null
           file_url: string | null
+          hidden_for: string[]
           id: string
           message_type: string
           read: boolean
@@ -217,14 +220,17 @@ export type Database = {
           sender_id: string
         }
         Insert: {
+          client_id?: string | null
           content: string
           conversation_id: string
           created_at?: string
           deleted?: boolean
+          delivered_at?: string | null
           edited_at?: string | null
           expires_at?: string | null
           file_name?: string | null
           file_url?: string | null
+          hidden_for?: string[]
           id?: string
           message_type?: string
           read?: boolean
@@ -232,14 +238,17 @@ export type Database = {
           sender_id: string
         }
         Update: {
+          client_id?: string | null
           content?: string
           conversation_id?: string
           created_at?: string
           deleted?: boolean
+          delivered_at?: string | null
           edited_at?: string | null
           expires_at?: string | null
           file_name?: string | null
           file_url?: string | null
+          hidden_for?: string[]
           id?: string
           message_type?: string
           read?: boolean
@@ -414,6 +423,10 @@ export type Database = {
         Returns: number
       }
       mark_message_read: { Args: { p_message_id: string }; Returns: undefined }
+      mark_messages_delivered: {
+        Args: { p_conversation_id: string }
+        Returns: undefined
+      }
       mark_messages_read: {
         Args: { p_conversation_id: string }
         Returns: undefined
