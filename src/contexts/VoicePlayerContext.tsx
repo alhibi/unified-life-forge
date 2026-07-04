@@ -249,9 +249,26 @@ export const VoicePlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
     };
 
     audio.onloadedmetadata = () => {
-      if (isFinite(audio.duration)) {
+      if (isFinite(audio.duration) && audio.duration > 0) {
         setState(prev => prev.msgId === msgId ? { ...prev, duration: audio.duration } : prev);
+        return;
       }
+      // Chromium's MediaRecorder produces webm/opus without a duration
+      // header, so `audio.duration` is `Infinity` until we seek past the
+      // end. Force a seek to a huge offset — the browser then rewinds
+      // and reports the true duration via a second `durationchange`.
+      try {
+        const onDurationFix = () => {
+          if (isFinite(audio.duration) && audio.duration > 0) {
+            audio.removeEventListener('durationchange', onDurationFix);
+            const dur = audio.duration;
+            audio.currentTime = 0;
+            setState(prev => prev.msgId === msgId ? { ...prev, duration: dur } : prev);
+          }
+        };
+        audio.addEventListener('durationchange', onDurationFix);
+        audio.currentTime = 1e9;
+      } catch { /* no-op */ }
     };
 
     audio.oncanplaythrough = () => doPlay();

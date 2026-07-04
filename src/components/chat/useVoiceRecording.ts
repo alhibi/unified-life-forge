@@ -43,12 +43,15 @@ function extFromMime(mime: string): string {
   return 'webm';
 }
 
-// Opus encodes intelligible speech at 24 kbps and is transparent at ~32
-// kbps mono; raising it to 128 kbps just wastes bandwidth. AAC needs a
-// little more headroom (~64 kbps) for the same perceptual quality.
+// Voice quality:
+//   • Opus 64 kbps mono @ 48 kHz is broadcast-clear for speech (WhatsApp
+//     uses ~32 kbps; we go higher because our users care about fidelity).
+//   • AAC needs more headroom for the same perceptual quality.
+// If bandwidth becomes a concern later, we can drop these back to
+// 32 kbps / 64 kbps without any code change beyond this function.
 function targetBitrate(mime: string): number {
-  if (mime.includes('opus') || mime.includes('webm') || mime.includes('ogg')) return 32_000;
-  return 64_000;
+  if (mime.includes('opus') || mime.includes('webm') || mime.includes('ogg')) return 64_000;
+  return 96_000;
 }
 
 /**

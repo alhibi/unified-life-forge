@@ -259,14 +259,29 @@ const ChatInput: React.FC<ChatInputProps> = ({
  if (!previewAudioRef.current) previewAudioRef.current = new Audio();
  const audio = previewAudioRef.current;
  audio.src = previewUrl;
- audio.onended = () => setPreviewPlaying(false);
+    // Reset to the start on end so the user can tap Play again without a
+    // stuck playhead (previously the audio stayed at `duration` and Play
+    // did nothing on the second tap).
+    audio.onended = () => {
+      setPreviewPlaying(false);
+      try { audio.currentTime = 0; } catch { /* no-op */ }
+    };
  return () => { audio.pause(); audio.src = ''; };
   }, [previewUrl]);
   const togglePreviewPlay = () => {
     const audio = previewAudioRef.current;
     if (!audio) return;
-    if (previewPlaying) { audio.pause(); setPreviewPlaying(false); }
-    else { audio.play().then(() => setPreviewPlaying(true)).catch(() => {}); }
+    if (previewPlaying) {
+      audio.pause();
+      setPreviewPlaying(false);
+      return;
+    }
+    // If the previous play finished, the currentTime may be at duration;
+    // rewind so tapping Play always starts audible playback.
+    if (audio.ended || (audio.duration && audio.currentTime >= audio.duration - 0.05)) {
+      try { audio.currentTime = 0; } catch { /* no-op */ }
+    }
+    audio.play().then(() => setPreviewPlaying(true)).catch(() => {});
   };
 
   // ── Paste handler ──────────────────────────────────────────────────────────
@@ -750,7 +765,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 <motion.button
                   type="button"
                   className="h-10 w-10 rounded-full flex items-center justify-center text-muted-foreground active:bg-accent/30 transition-colors"
-                  whileTap={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
                   onPointerDown={handleMicPointerDown}
                   onPointerMove={handleMicPointerMove}
                   onPointerUp={handleMicPointerUp}
