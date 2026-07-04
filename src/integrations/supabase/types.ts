@@ -212,6 +212,8 @@ export type Database = {
           expires_at: string | null
           file_name: string | null
           file_url: string | null
+          forwarded_from_message_id: string | null
+          forwarded_from_sender_id: string | null
           hidden_for: string[]
           id: string
           message_type: string
@@ -230,6 +232,8 @@ export type Database = {
           expires_at?: string | null
           file_name?: string | null
           file_url?: string | null
+          forwarded_from_message_id?: string | null
+          forwarded_from_sender_id?: string | null
           hidden_for?: string[]
           id?: string
           message_type?: string
@@ -248,6 +252,8 @@ export type Database = {
           expires_at?: string | null
           file_name?: string | null
           file_url?: string | null
+          forwarded_from_message_id?: string | null
+          forwarded_from_sender_id?: string | null
           hidden_for?: string[]
           id?: string
           message_type?: string
@@ -261,6 +267,13 @@ export type Database = {
             columns: ["conversation_id"]
             isOneToOne: false
             referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_forwarded_from_message_id_fkey"
+            columns: ["forwarded_from_message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
             referencedColumns: ["id"]
           },
           {
