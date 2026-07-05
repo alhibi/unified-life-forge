@@ -66,7 +66,7 @@ async function callJSON<T>(model: string, system: string, user: string, maxToken
 
 function outlinePrompt(topic: string, depth: Depth) {
   const p = POLICY[depth];
-  const system = `أنت رئيس تحرير أبحاث في أرشيف معرفي راقٍ. مهمتك تصميم هيكل بحث طويل ومعمّق قبل أن تُكتب كلمة واحدة من المتن.
+  const system = `أنت رئيس تحرير أبحاث في أرشيف معرفي راقٍ. مهمتك تصميم هيكل بحث طويل ومعمّق قبل أن تُكتب كلمة واحدة.
 
 لأي موضوع، استعِن بأي من هذه الأبعاد المناسبة (لا تُقحم بُعداً لا يخدم الموضوع):
 - الأصول التاريخية والسياق
@@ -76,7 +76,7 @@ function outlinePrompt(topic: string, depth: Depth) {
 - التفكيك النقدي والأساطير والحدود
 
 الشكل المطلوب: بالضبط ${p.sections} أقسام رئيسية، لكل قسم بالضبط ${p.subs} أقسام فرعية.
-كل قسم فرعي يجب أن يحمل "زاوية" (angle) — جملة واحدة تحدد الادّعاء أو النمط الحقائقي الذي يخصّه وحده، لا يشاركه غيره في الهيكل. هذا حاسم: كل قسم فرعي سيُكتب لاحقاً بمعزل عن الآخرين.
+كل قسم فرعي يجب أن يحمل "زاوية" (angle) — جملة واحدة تحدد الادّعاء أو النمط الحقائقي الذي يخصّه وحده.
 
 أعِد فقط JSON خام (بدون سياج markdown) بهذا الشكل:
 {"title":"...","synopsis":"جملتان أو ثلاث","sections":[{"id":"kebab-case","title":"...","dimension":"...","subsections":[{"id":"kebab-case","title":"...","angle":"..."}]}]}`;
@@ -86,7 +86,7 @@ function outlinePrompt(topic: string, depth: Depth) {
 
 function expansionPrompt(outline: any, section: any, sub: any, prev: string, idx: number, total: number) {
   const map = outline.sections.map((s: any) => `${s.title}: ${s.subsections.map((x: any) => x.title).join("، ")}`).join("\n");
-  const system = `أنت تكتب القسم الفرعي رقم ${idx} من ${total} في بحث طويل بعنوان "${outline.title}". اكتب بسلطة كاتب مقالات طويلة، ودقّة خبير في الموضوع — لا حشو ولا صياغة عامة ولا ملخص ويكيبيديا.
+  const system = `أنت تكتب القسم الفرعي رقم ${idx} من ${total} في بحث طويل بعنوان "${outline.title}". اكتب بسلطة كاتب مقالات طويلة.
 
 خريطة كامل البحث — للسياق فقط. لا تُكرّر هذه، ولا تنجرف إلى غير قسمك:
 ${map}
@@ -133,7 +133,7 @@ function compile(outline: any, generated: any[]): string {
   return `# ${outline.title}\n\n${body}`;
 }
 
-// ─── main ─────────────────────────────────────────────────────────────────
+// ─── main ───────────────────────────────────────────────────────────────────
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
