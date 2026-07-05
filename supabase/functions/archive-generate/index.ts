@@ -1,4 +1,4 @@
-// Archive generator — sequential 3-stage pipeline via OpenAI API.
+// Archive generator — sequential 3-stage pipeline via OpenRouter.
 // Streams SSE progress events, saves final document to `archive_documents`.
 import { createClient } from "npm:@supabase/supabase-js@2";
 
@@ -9,21 +9,53 @@ const corsHeaders = {
 };
 
 type Depth = "standard" | "deep" | "deepest";
+type Stage = "outline" | "expansion" | "synthesis";
 
-const POLICY: Record<Depth, { sections: number; subs: number; words: number; model: string; complexity: string }> = {
-  standard: { sections: 4, subs: 2, words: 350, model: "gpt-4o-mini", complexity: "قياسي" },
-  deep:     { sections: 5, subs: 3, words: 550, model: "gpt-4-turbo", complexity: "متعمّق" },
-  deepest:  { sections: 6, subs: 4, words: 750, model: "gpt-4o", complexity: "أقصى عمق" },
+interface ModelConfig {
+  [key: string]: string; // model: name
+}
+
+const AVAILABLE_MODELS: ModelConfig = {
+  "gpt-4o": "openai/gpt-4o",
+  "gpt-4-turbo": "openai/gpt-4-turbo",
+  "gpt-4o-mini": "openai/gpt-4o-mini",
+  "claude-3.5-sonnet": "anthropic/claude-3.5-sonnet-20241022",
+  "claude-3.5-haiku": "anthropic/claude-3.5-haiku-20241022",
 };
 
-const OPENAI_KEY = Deno.env.get("OPENAI_API_KEY");
+interface PolicyConfig {
+  sections: number;
+  subs: number;
+  words: number;
+  complexity: string;
+}
 
-async function callOpenAI(model: string, system: string, user: string, maxTokens: number, json = false): Promise<string> {
-  const r = await fetch("https://api.openai.com/v1/chat/completions", {
+const DEFAULT_POLICY: Record<Depth, PolicyConfig> = {
+  standard: { sections: 4, subs: 2, words: 350, complexity: "قياسي" },
+  deep:     { sections: 5, subs: 3, words: 550, complexity: "متعمّق" },
+  deepest:  { sections: 6, subs: 4, words: 750, complexity: "أقصى عمق" },
+};
+
+const OPENROUTER_KEY = Deno.env.get("OPENROUTER_API_KEY");
+
+interface RequestBody {
+  topic: string;
+  depth: Depth;
+  models?: {
+    outline?: string;   // نموذج تصميم الهيكل
+    expansion?: string; // نموذج التوسيع والكتابة
+    synthesis?: string; // نموذج التلخيص والوسوم
+  };
+}
+
+async function callOpenRouter(model: string, system: string, user: string, maxTokens: number, json = false): Promise<string> {
+  const r = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${OPENAI_KEY}`,
+      Authorization: `Bearer ${OPENROUTER_KEY}`,
+      "HTTP-Referer": "https://amv.life",
+      "X-Title": "SmartHub Archive",
     },
     body: JSON.stringify({
       model,
@@ -39,16 +71,16 @@ async function callOpenAI(model: string, system: string, user: string, maxTokens
   });
   if (!r.ok) {
     const t = await r.text();
-    throw new Error(`OpenAI ${r.status}: ${t.slice(0, 400)}`);
+    throw new Error(`OpenRouter ${r.status}: ${t.slice(0, 400)}`);
   }
   const j = await r.json();
   const txt = j?.choices?.[0]?.message?.content;
-  if (typeof txt !== "string") throw new Error("No text in OpenAI response");
+  if (typeof txt !== "string") throw new Error("No text in OpenRouter response");
   return txt;
 }
 
 async function callJSON<T>(model: string, system: string, user: string, maxTokens: number): Promise<T> {
-  const raw = await callOpenAI(model, system, user, maxTokens, true);
+  const raw = await callOpenRouter(model, system, user, maxTokens, true);
   const clean = raw.replace(/^```(?:json)?/i, "").replace(/```$/, "").trim();
   try {
     return JSON.parse(clean) as T;
@@ -62,8 +94,7 @@ async function callJSON<T>(model: string, system: string, user: string, maxToken
 
 // ─── prompts (Arabic) ─────────────────────────────────────────────────────
 
-function outlinePrompt(topic: string, depth: Depth) {
-  const p = POLICY[depth];
+function outlinePrompt(topic: string, depth: Depth, policy: PolicyConfig) {
   const system = `أنت رئيس تحرير أبحاث في أرشيف معرفي راقٍ. مهمتك تصميم هيكل بحث طويل ومعمّق قبل أن تُكتب كلمة واحدة.
 
 لأي موضوع، استعِن بأي من هذه الأبعاد المناسبة (لا تُقحم بُعداً لا يخدم الموضوع):
@@ -73,7 +104,7 @@ function outlinePrompt(topic: string, depth: Depth) {
 - الإرث الجمالي والثقافي والرمزي
 - التفكيك النقدي والأساطير والحدود
 
-الشكل المطلوب: بالضبط ${p.sections} أقسام رئيسية، لكل قسم بالضبط ${p.subs} أقسام فرعية.
+الشكل المطلوب: بالضبط ${policy.sections} أقسام رئيسية، لكل قسم بالضبط ${policy.subs} أقسام فرعية.
 كل قسم فرعي يجب أن يحمل "زاوية" (angle) — جملة واحدة تحدد الادّعاء أو النمط الحقائقي الذي يخصّه وحده.
 
 أعِد فقط JSON خام (بدون سياج markdown) بهذا الشكل:
@@ -137,7 +168,7 @@ Deno.serve(async (req) => {
 
   const authHeader = req.headers.get("Authorization");
   if (!authHeader) return new Response(JSON.stringify({ error: "unauthenticated" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-  if (!OPENAI_KEY) return new Response(JSON.stringify({ error: "OPENAI_API_KEY not configured" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+  if (!OPENROUTER_KEY) return new Response(JSON.stringify({ error: "OPENROUTER_API_KEY not configured" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
   const supabaseKey = Deno.env.get("SUPABASE_ANON_KEY")!;
@@ -149,15 +180,31 @@ Deno.serve(async (req) => {
   const user = userRes?.user;
   if (!user) return new Response(JSON.stringify({ error: "unauthenticated" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
-  let body: { topic: string; depth: Depth };
+  let body: RequestBody;
   try { body = await req.json(); } catch { return new Response(JSON.stringify({ error: "bad json" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }); }
+  
   const topic = (body.topic || "").trim();
   const depth: Depth = (["standard", "deep", "deepest"].includes(body.depth) ? body.depth : "standard") as Depth;
+  
   if (!topic || topic.length < 3 || topic.length > 500) {
     return new Response(JSON.stringify({ error: "topic must be 3-500 chars" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
   }
 
-  const policy = POLICY[depth];
+  // تحديد النماذج - استخدم المخصص أو الافتراضي
+  const modelNames = {
+    outline: body.models?.outline || "gpt-4o-mini",
+    expansion: body.models?.expansion || "gpt-4-turbo",
+    synthesis: body.models?.synthesis || "gpt-4o",
+  };
+
+  // تحويل أسماء النماذج إلى full model IDs من OpenRouter
+  const models = {
+    outline: AVAILABLE_MODELS[modelNames.outline] || modelNames.outline,
+    expansion: AVAILABLE_MODELS[modelNames.expansion] || modelNames.expansion,
+    synthesis: AVAILABLE_MODELS[modelNames.synthesis] || modelNames.synthesis,
+  };
+
+  const policy = DEFAULT_POLICY[depth];
 
   const stream = new ReadableStream({
     async start(controller) {
@@ -166,9 +213,9 @@ Deno.serve(async (req) => {
 
       try {
         // Stage 1: Outline
-        send({ stage: "outline", message: "تصميم الهيكل والتصنيف…" });
-        const op = outlinePrompt(topic, depth);
-        const outlineRaw = await callJSON<any>(policy.model, op.system, op.user, 3000);
+        send({ stage: "outline", message: "تصميم الهيكل والتصنيف…", model: modelNames.outline });
+        const op = outlinePrompt(topic, depth, policy);
+        const outlineRaw = await callJSON<any>(models.outline, op.system, op.user, 3000);
         if (!outlineRaw?.sections?.length) throw new Error("outline invalid");
         const outline = {
           title: outlineRaw.title,
@@ -188,22 +235,22 @@ Deno.serve(async (req) => {
         for (const section of outline.sections) {
           for (const sub of section.subsections) {
             done++;
-            send({ stage: "expansion", message: `توسيع: ${section.title} ← ${sub.title}`, current: done, total: totalSubs });
+            send({ stage: "expansion", message: `توسيع: ${section.title} ← ${sub.title}`, current: done, total: totalSubs, model: modelNames.expansion });
             const ep = expansionPrompt(outline, section, sub, prev, done, totalSubs);
             const maxTok = Math.min(4096, Math.max(600, Math.round(policy.words * 1.8)));
-            const md = await callOpenAI(policy.model, ep.system, ep.user, maxTok);
+            const md = await callOpenRouter(models.expansion, ep.system, ep.user, maxTok);
             generated.push({ sectionId: section.id, subsectionId: sub.id, title: sub.title, markdown: md, wordCount: countWords(md) });
             prev = lastSentences(md, 2);
           }
         }
 
         // Stage 3: Synthesis + metadata
-        send({ stage: "synthesis", message: "تجميع الأقسام واستخراج الوسوم…" });
+        send({ stage: "synthesis", message: "تجميع الأقسام واستخراج الوسوم…", model: modelNames.synthesis });
         const content = compile(outline, generated);
         const mp = metaPrompt(outline, content.slice(0, 1200));
         let meta: { tags: string[]; abstract: string } = { tags: [], abstract: "" };
         try {
-          meta = await callJSON<{ tags: string[]; abstract: string }>(policy.model, mp.system, mp.user, 400);
+          meta = await callJSON<{ tags: string[]; abstract: string }>(models.synthesis, mp.system, mp.user, 400);
         } catch (e) {
           console.error("metadata failed", e);
         }
@@ -222,6 +269,7 @@ Deno.serve(async (req) => {
             content,
             outline,
             word_count: countWords(content),
+            models_used: models, // حفظ النماذج المستخدمة
           })
           .select("id, accession_number, title, word_count")
           .single();
