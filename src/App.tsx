@@ -127,6 +127,11 @@ const loadLibraryPoet = () => import("./features/diwan/pages/LibraryPoet");
 const loadLibraryPoem = () => import("./features/diwan/pages/LibraryPoem");
 const loadLibrarySearch = () => import("./features/diwan/pages/LibrarySearch");
 const loadLibraryFavorites = () => import("./features/diwan/pages/LibraryFavorites");
+// Universal Knowledge Archive — long-form AI-generated monographs, filed
+// with an accession number, searchable, and rendered in a serif reader.
+const loadArchiveHome   = () => import("./features/archive/pages/ArchiveHome");
+const loadArchiveNew    = () => import("./features/archive/pages/ArchiveNew");
+const loadArchiveReader = () => import("./features/archive/pages/ArchiveReader");
 
 // ──────────────────────────────────────────────────────────────────────
 // Register every lazy route in the central prefetch registry so any
@@ -183,6 +188,9 @@ registerRoute('/diwan/library/poets',     loadLibraryPoets);
 registerRoute('/diwan/library/poet/:slug', loadLibraryPoet);
 registerRoute('/diwan/library/poem/:slug', loadLibraryPoem);
 registerRoute('/diwan/library/favorites', loadLibraryFavorites);
+registerRoute('/archive',        loadArchiveHome);
+registerRoute('/archive/new',    loadArchiveNew);
+registerRoute('/archive/:id',    loadArchiveReader);
 
 const SudokuPage = lazy(loadSudoku);
 const ChessPage = lazy(loadChess);
@@ -232,6 +240,9 @@ const DiwanLibraryPoetPage = lazy(loadLibraryPoet);
 const DiwanLibraryPoemPage = lazy(loadLibraryPoem);
 const DiwanLibrarySearchPage = lazy(loadLibrarySearch);
 const DiwanLibraryFavoritesPage = lazy(loadLibraryFavorites);
+const ArchiveHomePage   = lazy(loadArchiveHome);
+const ArchiveNewPage    = lazy(loadArchiveNew);
+const ArchiveReaderPage = lazy(loadArchiveReader);
 
 // Tab pages are now eager (always mounted), so the idle prefetch warms
 // the next most-likely sub-routes instead of the tabs themselves.
@@ -547,6 +558,11 @@ function AnimatedRoutes() {
                   <Route path="/diwan/library/poet/:slug" element={<ErrorBoundary><DiwanLibraryPoetPage /></ErrorBoundary>} />
                   <Route path="/diwan/library/poem/:slug" element={<ErrorBoundary><DiwanLibraryPoemPage /></ErrorBoundary>} />
                   <Route path="/diwan/library/favorites" element={<ErrorBoundary><DiwanLibraryFavoritesPage /></ErrorBoundary>} />
+                  {/* Universal Knowledge Archive — order matters: /archive/new
+                      must match before /archive/:id. */}
+                  <Route path="/archive"       element={<ErrorBoundary><ArchiveHomePage /></ErrorBoundary>} />
+                  <Route path="/archive/new"   element={<ErrorBoundary><ArchiveNewPage /></ErrorBoundary>} />
+                  <Route path="/archive/:id"   element={<ErrorBoundary><ArchiveReaderPage /></ErrorBoundary>} />
                   <Route path="*" element={<ErrorBoundary><NotFound /></ErrorBoundary>} />
                 </Routes>
               </Suspense>
