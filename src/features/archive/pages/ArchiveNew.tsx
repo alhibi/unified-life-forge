@@ -4,8 +4,8 @@ import { motion } from 'framer-motion';
 import { PageShell, AppCard } from '@/components/ui/app-shell';
 import BackButton from '@/components/BackButton';
 import SEO from '@/components/SEO';
-import { Sparkles, X, Check, AlertCircle } from '@/lib/icons';
-import { archiveApi } from '../api';
+import { Sparkles, X, Check, AlertCircle, ChevronDown } from '@/lib/icons';
+import { archiveApi, type ModelConfig } from '../api';
 import type { ArchiveDepth, ProgressEvent } from '../types';
 
 const DEPTHS: { key: ArchiveDepth; title: string; subtitle: string; est: string }[] = [
@@ -13,6 +13,20 @@ const DEPTHS: { key: ArchiveDepth; title: string; subtitle: string; est: string 
   { key: 'deep',     title: 'متعمّق', subtitle: '5 × 3 · ~8250 كلمة', est: '~5 دقائق' },
   { key: 'deepest',  title: 'أقصى عمق', subtitle: '6 × 4 · ~18000 كلمة', est: '~12 دقيقة' },
 ];
+
+const AVAILABLE_MODELS = [
+  'gpt-4o',
+  'gpt-4-turbo',
+  'gpt-4o-mini',
+  'claude-3.5-sonnet',
+  'claude-3.5-haiku',
+];
+
+const DEFAULT_MODELS: ModelConfig = {
+  outline: 'gpt-4o-mini',
+  expansion: 'gpt-4-turbo',
+  synthesis: 'gpt-4o',
+};
 
 type StageKey = 'idle' | 'outline' | 'expansion' | 'synthesis' | 'filed' | 'error';
 
@@ -24,6 +38,8 @@ export default function ArchiveNew() {
   const [message, setMessage] = useState('');
   const [progress, setProgress] = useState({ current: 0, total: 0 });
   const [error, setError] = useState<string | null>(null);
+  const [showModels, setShowModels] = useState(false);
+  const [models, setModels] = useState<ModelConfig>(DEFAULT_MODELS);
   const abortRef = useRef<AbortController | null>(null);
 
   const running = stage !== 'idle' && stage !== 'error' && stage !== 'filed';
@@ -39,7 +55,7 @@ export default function ArchiveNew() {
     abortRef.current = ctrl;
 
     try {
-      for await (const ev of archiveApi.generate(topic.trim(), depth, ctrl.signal)) {
+      for await (const ev of archiveApi.generate(topic.trim(), depth, models, ctrl.signal)) {
         applyEvent(ev);
       }
     } catch (e: any) {
@@ -130,11 +146,54 @@ export default function ArchiveNew() {
         </div>
       </AppCard>
 
+      <AppCard>
+        <button
+          onClick={() => setShowModels(!showModels)}
+          disabled={running}
+          className="w-full flex items-center justify-between rounded-xl border border-border/40 bg-muted/20 p-3 text-start text-[13px] font-semibold text-foreground hover:bg-muted/40 transition-all"
+        >
+          <span>⚙️ إعدادات النماذج</span>
+          <ChevronDown className={`w-4 h-4 transition-transform ${showModels ? 'rotate-180' : ''}`} />
+        </button>
+
+        {showModels && (
+          <div className="mt-3 space-y-3 pt-3 border-t border-border/20">
+            {(['outline', 'expansion', 'synthesis'] as const).map(stage => (
+              <div key={stage}>
+                <label className="block text-[12px] font-semibold text-foreground mb-2 capitalize">
+                  {stage === 'outline' && '📋 نموذج الهيكل'}
+                  {stage === 'expansion' && '✍️ نموذج التوسيع والكتابة'}
+                  {stage === 'synthesis' && '🏷️ نموذج التلخيص والوسوم'}
+                </label>
+                <select
+                  value={models[stage] || DEFAULT_MODELS[stage]}
+                  onChange={e => setModels({ ...models, [stage]: e.target.value })}
+                  disabled={running}
+                  className="w-full bg-muted/40 border border-border/40 rounded-lg p-2 text-[12px] outline-none focus:border-primary/50"
+                >
+                  {AVAILABLE_MODELS.map(m => (
+                    <option key={m} value={m}>{m}</option>
+                  ))}
+                </select>
+              </div>
+            ))}
+
+            <button
+              onClick={() => setModels(DEFAULT_MODELS)}
+              disabled={running}
+              className="w-full text-[12px] text-muted-foreground hover:text-foreground transition-colors py-2 border-t border-border/20 mt-2 pt-2"
+            >
+              إعادة تعيين للإعدادات الافتراضية
+            </button>
+          </div>
+        )}
+      </AppCard>
+
       {stage === 'idle' && (
         <button
           onClick={start}
           disabled={topic.trim().length < 3}
-          className="w-full flex items-center justify-center gap-2 rounded-full bg-primary text-primary-foreground py-3 text-[15px] font-bold disabled:opacity-50 disabled:pointer-events-none active:scale-[0.98] transition-transform"
+          className="w-full flex items-center justify-center gap-2 rounded-full bg-primary text-primary-foreground py-3 text-[15px] font-bold disabled:opacity-50 disabled:pointer-events-none active:scale-95 transition-transform"
         >
           <Sparkles className="w-4 h-4" />
           ابدأ التوليد
