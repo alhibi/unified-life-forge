@@ -3,6 +3,12 @@ import type { ArchiveDocument, ArchiveDocumentSummary, ArchiveDepth, ProgressEve
 
 const FN_URL = `${(import.meta as any).env.VITE_SUPABASE_URL || 'https://nmrckgzmluoavgucqvjh.supabase.co'}/functions/v1/archive-generate`;
 
+export interface ModelConfig {
+  outline?: string;   // نموذج تصميم الهيكل
+  expansion?: string; // نموذج التوسيع والكتابة
+  synthesis?: string; // نموذج التلخيص والوسوم
+}
+
 export const archiveApi = {
   async list(): Promise<ArchiveDocumentSummary[]> {
     const { data, error } = await supabase
@@ -35,9 +41,14 @@ export const archiveApi = {
     return (data ?? []) as ArchiveDocumentSummary[];
   },
 
-  async *generate(topic: string, depth: ArchiveDepth, signal?: AbortSignal): AsyncGenerator<ProgressEvent> {
+  async *generate(topic: string, depth: ArchiveDepth, models?: ModelConfig, signal?: AbortSignal): AsyncGenerator<ProgressEvent> {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session?.access_token) throw new Error('يجب تسجيل الدخول أولاً');
+
+    const requestBody: any = { topic, depth };
+    if (models) {
+      requestBody.models = models;
+    }
 
     const res = await fetch(FN_URL, {
       method: 'POST',
@@ -46,7 +57,7 @@ export const archiveApi = {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${session.access_token}`,
       },
-      body: JSON.stringify({ topic, depth }),
+      body: JSON.stringify(requestBody),
     });
     if (!res.ok || !res.body) {
       const t = await res.text().catch(() => '');
