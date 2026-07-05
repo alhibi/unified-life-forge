@@ -1,4 +1,4 @@
-// Archive generator — sequential 3-stage pipeline via OpenRouter.
+// Archive generator — sequential 3-stage pipeline via OpenAI API.
 // Streams SSE progress events, saves final document to `archive_documents`.
 import { createClient } from "npm:@supabase/supabase-js@2";
 
@@ -11,21 +11,19 @@ const corsHeaders = {
 type Depth = "standard" | "deep" | "deepest";
 
 const POLICY: Record<Depth, { sections: number; subs: number; words: number; model: string; complexity: string }> = {
-  standard: { sections: 4, subs: 2, words: 350, model: "openai/gpt-4o-mini", complexity: "قياسي" },
-  deep:     { sections: 5, subs: 3, words: 550, model: "openai/gpt-4-turbo", complexity: "متعمّق" },
-  deepest:  { sections: 6, subs: 4, words: 750, model: "openai/gpt-4o", complexity: "أقصى عمق" },
+  standard: { sections: 4, subs: 2, words: 350, model: "gpt-4o-mini", complexity: "قياسي" },
+  deep:     { sections: 5, subs: 3, words: 550, model: "gpt-4-turbo", complexity: "متعمّق" },
+  deepest:  { sections: 6, subs: 4, words: 750, model: "gpt-4o", complexity: "أقصى عمق" },
 };
 
-const OPENROUTER_KEY = Deno.env.get("OPENROUTER_API_KEY");
+const OPENAI_KEY = Deno.env.get("OPENAI_API_KEY");
 
-async function callOpenRouter(model: string, system: string, user: string, maxTokens: number, json = false): Promise<string> {
-  const r = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+async function callOpenAI(model: string, system: string, user: string, maxTokens: number, json = false): Promise<string> {
+  const r = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${OPENROUTER_KEY}`,
-      "HTTP-Referer": "https://amv.life",
-      "X-Title": "SmartHub Archive",
+      Authorization: `Bearer ${OPENAI_KEY}`,
     },
     body: JSON.stringify({
       model,
@@ -41,16 +39,16 @@ async function callOpenRouter(model: string, system: string, user: string, maxTo
   });
   if (!r.ok) {
     const t = await r.text();
-    throw new Error(`OpenRouter ${r.status}: ${t.slice(0, 400)}`);
+    throw new Error(`OpenAI ${r.status}: ${t.slice(0, 400)}`);
   }
   const j = await r.json();
   const txt = j?.choices?.[0]?.message?.content;
-  if (typeof txt !== "string") throw new Error("No text in OpenRouter response");
+  if (typeof txt !== "string") throw new Error("No text in OpenAI response");
   return txt;
 }
 
 async function callJSON<T>(model: string, system: string, user: string, maxTokens: number): Promise<T> {
-  const raw = await callOpenRouter(model, system, user, maxTokens, true);
+  const raw = await callOpenAI(model, system, user, maxTokens, true);
   const clean = raw.replace(/^```(?:json)?/i, "").replace(/```$/, "").trim();
   try {
     return JSON.parse(clean) as T;
@@ -139,7 +137,7 @@ Deno.serve(async (req) => {
 
   const authHeader = req.headers.get("Authorization");
   if (!authHeader) return new Response(JSON.stringify({ error: "unauthenticated" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-  if (!OPENROUTER_KEY) return new Response(JSON.stringify({ error: "OPENROUTER_API_KEY not configured" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+  if (!OPENAI_KEY) return new Response(JSON.stringify({ error: "OPENAI_API_KEY not configured" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
   const supabaseKey = Deno.env.get("SUPABASE_ANON_KEY")!;
@@ -193,7 +191,7 @@ Deno.serve(async (req) => {
             send({ stage: "expansion", message: `توسيع: ${section.title} ← ${sub.title}`, current: done, total: totalSubs });
             const ep = expansionPrompt(outline, section, sub, prev, done, totalSubs);
             const maxTok = Math.min(4096, Math.max(600, Math.round(policy.words * 1.8)));
-            const md = await callOpenRouter(policy.model, ep.system, ep.user, maxTok);
+            const md = await callOpenAI(policy.model, ep.system, ep.user, maxTok);
             generated.push({ sectionId: section.id, subsectionId: sub.id, title: sub.title, markdown: md, wordCount: countWords(md) });
             prev = lastSentences(md, 2);
           }
