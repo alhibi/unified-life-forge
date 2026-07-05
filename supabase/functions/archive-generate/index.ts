@@ -16,8 +16,8 @@ interface ModelConfig {
 }
 
 const AVAILABLE_MODELS: ModelConfig = {
-  "gpt-4o": "openai/gpt-4o",
-  "gpt-4-turbo": "openai/gpt-4-turbo",
+  "gpt-4o": "openai/gpt-4o-2024-08-06",
+  "gpt-4-turbo": "openai/gpt-4-turbo-2024-04-09",
   "gpt-4o-mini": "openai/gpt-4o-mini",
   "claude-3.5-sonnet": "anthropic/claude-3.5-sonnet-20241022",
   "claude-3.5-haiku": "anthropic/claude-3.5-haiku-20241022",
@@ -49,6 +49,7 @@ interface RequestBody {
 }
 
 async function callOpenRouter(model: string, system: string, user: string, maxTokens: number, json = false): Promise<string> {
+  console.log(`[archive-generate] Calling ${model} with ${maxTokens} max tokens`);
   const r = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -71,6 +72,7 @@ async function callOpenRouter(model: string, system: string, user: string, maxTo
   });
   if (!r.ok) {
     const t = await r.text();
+    console.error(`[archive-generate] OpenRouter error: ${r.status} - ${t.slice(0, 200)}`);
     throw new Error(`OpenRouter ${r.status}: ${t.slice(0, 400)}`);
   }
   const j = await r.json();
@@ -120,7 +122,7 @@ function expansionPrompt(outline: any, section: any, sub: any, prev: string, idx
 خريطة كامل البحث — للسياق فقط. لا تُكرّر هذه، ولا تنجرف إلى غير قسمك:
 ${map}
 
-الاستمرارية — آخر ما كُتب. اجعل جملتك الأولى امتداداً طبيعياً لها دون الإشارة إليها أو الإعلان عن انتقال:
+الاستمرارية — آخر ما كُتب. اجعل جملتك الأولى امتداراً طبيعياً لها دون الإشارة إليها أو الإعلان عن انتقال:
 "${prev}"
 
 قواعد صارمة:
