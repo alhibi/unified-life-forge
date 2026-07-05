@@ -14,6 +14,60 @@ export type Database = {
   }
   public: {
     Tables: {
+      archive_documents: {
+        Row: {
+          abstract: string
+          accession_number: number
+          complexity: string
+          content: string
+          created_at: string
+          depth: string
+          id: string
+          outline: Json
+          search_vector: unknown
+          tags: string[]
+          title: string
+          topic: string
+          updated_at: string
+          user_id: string
+          word_count: number
+        }
+        Insert: {
+          abstract?: string
+          accession_number?: number
+          complexity: string
+          content: string
+          created_at?: string
+          depth: string
+          id?: string
+          outline?: Json
+          search_vector?: unknown
+          tags?: string[]
+          title: string
+          topic: string
+          updated_at?: string
+          user_id: string
+          word_count?: number
+        }
+        Update: {
+          abstract?: string
+          accession_number?: number
+          complexity?: string
+          content?: string
+          created_at?: string
+          depth?: string
+          id?: string
+          outline?: Json
+          search_vector?: unknown
+          tags?: string[]
+          title?: string
+          topic?: string
+          updated_at?: string
+          user_id?: string
+          word_count?: number
+        }
+        Relationships: []
+      }
       clipboard_items: {
         Row: {
           clipboard_type: string
@@ -453,6 +507,20 @@ export type Database = {
           return_message: string
           start_time: string
           status: string
+        }[]
+      }
+      search_archive: {
+        Args: { max_rows?: number; q: string }
+        Returns: {
+          abstract: string
+          accession_number: number
+          created_at: string
+          depth: string
+          id: string
+          rank: number
+          tags: string[]
+          title: string
+          word_count: number
         }[]
       }
       search_rss_articles: {

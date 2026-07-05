@@ -15,7 +15,7 @@ import LivingRibbon from '@/components/LivingRibbon';
 
 import SmartGreeting from '@/components/SmartGreeting';
 import { useNavigate } from 'react-router-dom';
-import { MessageCircle, ClipboardList, X, Trash2, BookOpen, UserCircle } from '@/lib/icons';
+import { MessageCircle, ClipboardList, X, Trash2, BookOpen, UserCircle, Sparkles, ChevronLeft } from '@/lib/icons';
 import { AnimatePresence } from 'framer-motion';
 import { useClipboard } from '@/features/clipboard/hooks/useClipboard';
 import { getAppleEmojiUrl, isEmojiAvatarValue } from '@/utils/emojiAvatar';
@@ -138,6 +138,31 @@ export default function Index() {
         <motion.section variants={item} aria-labelledby="home-locations-h">
           <h2 id="home-locations-h" className="sr-only">{language === 'ar' ? 'المواقع المحفوظة' : 'Gespeicherte Orte'}</h2>
           <LocationSaver />
+        </motion.section>
+
+        {/* Universal Knowledge Archive — entry card */}
+        <motion.section variants={item} aria-labelledby="home-archive-h">
+          <h2 id="home-archive-h" className="sr-only">الأرشيف المعرفي</h2>
+          <button
+            onClick={() => navigate('/archive')}
+            className="w-full text-start rounded-2xl p-4 border border-primary/25 bg-gradient-to-br from-primary/10 via-transparent to-transparent active:scale-[0.98] transition-transform"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 rounded-xl bg-primary/15 flex items-center justify-center shrink-0">
+                <Sparkles className="w-5 h-5 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <h3 className="font-bold text-foreground">الأرشيف المعرفي</h3>
+                  <span className="font-mono text-[9px] text-primary/60 tracking-wider">№ 000001</span>
+                </div>
+                <p className="text-[12px] text-muted-foreground leading-relaxed mt-0.5">
+                  اقترح موضوعاً، اختر عمقاً، واحصل على مونوغراف كامل مفهرس.
+                </p>
+              </div>
+              <ChevronLeft className="w-4 h-4 text-muted-foreground shrink-0" />
+            </div>
+          </button>
         </motion.section>
 
         {/* Made by Amer */}
