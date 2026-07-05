@@ -11,9 +11,9 @@ const corsHeaders = {
 type Depth = "standard" | "deep" | "deepest";
 
 const POLICY: Record<Depth, { sections: number; subs: number; words: number; model: string; complexity: string }> = {
-  standard: { sections: 4, subs: 2, words: 350, model: Deno.env.get("ARCHIVE_MODEL_FAST") || "openai/gpt-4o-mini", complexity: "قياسي" },
-  deep:     { sections: 5, subs: 3, words: 550, model: Deno.env.get("ARCHIVE_MODEL_BALANCED") || "anthropic/claude-3.5-haiku", complexity: "متعمّق" },
-  deepest:  { sections: 6, subs: 4, words: 750, model: Deno.env.get("ARCHIVE_MODEL_FRONTIER") || "anthropic/claude-3.5-sonnet", complexity: "أقصى عمق" },
+  standard: { sections: 4, subs: 2, words: 350, model: "openai/gpt-4o-mini", complexity: "قياسي" },
+  deep:     { sections: 5, subs: 3, words: 550, model: "openai/gpt-4-turbo", complexity: "متعمّق" },
+  deepest:  { sections: 6, subs: 4, words: 750, model: "openai/gpt-4o", complexity: "أقصى عمق" },
 };
 
 const OPENROUTER_KEY = Deno.env.get("OPENROUTER_API_KEY");
@@ -31,6 +31,7 @@ async function callOpenRouter(model: string, system: string, user: string, maxTo
       model,
       max_tokens: maxTokens,
       temperature: 0.7,
+      top_p: 0.9,
       messages: [
         { role: "system", content: system },
         { role: "user", content: user },
