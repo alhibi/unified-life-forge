@@ -9,7 +9,7 @@ const corsHeaders = {
 };
 
 type Depth = "standard" | "deep" | "deepest";
-type Stage = "outline" | "expansion" | "synthesis";
+type Stage = "research" | "outline" | "critique" | "expansion" | "polish" | "synthesis";
 
 interface ModelConfig {
   [key: string]: string; // model: name
@@ -32,12 +32,15 @@ interface PolicyConfig {
   subs: number;
   words: number;
   complexity: string;
+  critique: boolean;      // نقد الهيكل وتحسينه
+  microResearch: boolean; // بحث دقيق قبل كل قسم فرعي
+  polish: boolean;        // تلميع نهائي لكل قسم فرعي
 }
 
 const DEFAULT_POLICY: Record<Depth, PolicyConfig> = {
-  standard: { sections: 4, subs: 2, words: 350, complexity: "قياسي" },
-  deep:     { sections: 5, subs: 3, words: 550, complexity: "متعمّق" },
-  deepest:  { sections: 6, subs: 4, words: 750, complexity: "أقصى عمق" },
+  standard: { sections: 4, subs: 2, words: 550,  complexity: "قياسي",     critique: false, microResearch: false, polish: false },
+  deep:     { sections: 5, subs: 3, words: 900,  complexity: "متعمّق",    critique: true,  microResearch: false, polish: true  },
+  deepest:  { sections: 6, subs: 4, words: 1300, complexity: "أقصى عمق", critique: true,  microResearch: true,  polish: true  },
 };
 
 const OPENROUTER_KEY = Deno.env.get("OPENROUTER_API_KEY");
@@ -52,7 +55,9 @@ interface RequestBody {
   };
 }
 
-async function callOpenRouter(model: string, system: string, user: string, maxTokens: number, json = false): Promise<string> {
+// `online` = true يُلحق ":online" بمعرّف النموذج ليفعّل بحث الويب الهجين في OpenRouter.
+async function callOpenRouter(model: string, system: string, user: string, maxTokens: number, json = false, online = false): Promise<string> {
+  const fullModel = online && !model.endsWith(":online") ? `${model}:online` : model;
   console.log(`[archive-generate] Calling ${model} with ${maxTokens} max tokens`);
   const r = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
@@ -63,7 +68,7 @@ async function callOpenRouter(model: string, system: string, user: string, maxTo
       "X-Title": "SmartHub Archive",
     },
     body: JSON.stringify({
-      model,
+      model: fullModel,
       max_tokens: maxTokens,
       temperature: 0.7,
       top_p: 0.9,
@@ -85,8 +90,8 @@ async function callOpenRouter(model: string, system: string, user: string, maxTo
   return txt;
 }
 
-async function callJSON<T>(model: string, system: string, user: string, maxTokens: number): Promise<T> {
-  const raw = await callOpenRouter(model, system, user, maxTokens, true);
+async function callJSON<T>(model: string, system: string, user: string, maxTokens: number, online = false): Promise<T> {
+  const raw = await callOpenRouter(model, system, user, maxTokens, true, online);
   const clean = raw.replace(/^```(?:json)?/i, "").replace(/```$/, "").trim();
   try {
     return JSON.parse(clean) as T;
@@ -100,7 +105,23 @@ async function callJSON<T>(model: string, system: string, user: string, maxToken
 
 // ─── prompts (Arabic) ─────────────────────────────────────────────────────
 
-function outlinePrompt(topic: string, depth: Depth, policy: PolicyConfig) {
+function researchPrompt(topic: string, depth: Depth) {
+  const system = `أنت باحث ميداني في مؤسسة بحثية. مهمّتك جمع "لُبّ المعرفة" حول موضوع قبل الكتابة عنه.
+استعن بأدوات البحث المتاحة (تصفّح الويب) لاستخراج: تعريفات مختصرة، أرقام ووقائع، أسماء بارزة، تواريخ محورية، تيارات فكرية، جدالات مفتوحة، ومغالطات شائعة.
+
+أعِد JSON خام فقط بهذا الشكل:
+{"summary":"فقرة كثيفة 120-180 كلمة تختصر أهم ما يعرفه العالم عن الموضوع الآن",
+ "facts":["حقيقة رقمية أو تاريخية مصاغة كجملة","..."],
+ "figures":["اسم شخصية/كيان مع دور مقتضب","..."],
+ "debates":["جدل مفتوح أو سؤال مثير","..."],
+ "misconceptions":["اعتقاد شائع مُصحّح","..."],
+ "angles":["زاوية تحليل مقترحة لبحث طويل","..."]}
+المطلوب على الأقل: 6 حقائق، 4 شخصيات، 3 جدالات، 3 مغالطات، 6 زوايا. للعمق "${depth}" ضاعف الكمّ حيث أمكن.`;
+  const user = `الموضوع: "${topic}"`;
+  return { system, user };
+}
+
+function outlinePrompt(topic: string, depth: Depth, policy: PolicyConfig, research: any) {
   const system = `أنت رئيس تحرير أبحاث في أرشيف معرفي راقٍ. مهمتك تصميم هيكل بحث طويل ومعمّق قبل أن تُكتب كلمة واحدة.
 
 لأي موضوع، استعِن بأي من هذه الأبعاد المناسبة (لا تُقحم بُعداً لا يخدم الموضوع):
@@ -109,6 +130,9 @@ function outlinePrompt(topic: string, depth: Depth, policy: PolicyConfig) {
 - الدوافع الإنسانية والنفسية
 - الإرث الجمالي والثقافي والرمزي
 - التفكيك النقدي والأساطير والحدود
+
+وتحت يديك موجز بحث ميداني حديث (استعِنْ به لصياغة زوايا حقيقية وغير مبتذلة):
+${JSON.stringify(research).slice(0, 3500)}
 
 الشكل المطلوب: بالضبط ${policy.sections} أقسام رئيسية، لكل قسم بالضبط ${policy.subs} أقسام فرعية.
 كل قسم فرعي يجب أن يحمل "زاوية" (angle) — جملة واحدة تحدد الادّعاء أو النمط الحقائقي الذي يخصّه وحده.
@@ -119,22 +143,47 @@ function outlinePrompt(topic: string, depth: Depth, policy: PolicyConfig) {
   return { system, user };
 }
 
-function expansionPrompt(outline: any, section: any, sub: any, prev: string, idx: number, total: number) {
+function critiquePrompt(outline: any, research: any) {
+  const system = `أنت محكّم صارم. راجِع الهيكل التالي وحسِّنه: احذف الزوايا المتكرّرة، اجعل كل زاوية مميّزة وقابلة للإثبات، طوّر العناوين لتصير جذّابة ودقيقة، وأعد ترتيب الأقسام إن لزم لخدمة تدفّق سردي.
+حافظ على نفس عدد الأقسام والأقسام الفرعية بالضبط. أعِد JSON بنفس المخطط الأصلي — لا تضِف حقولاً جديدة.`;
+  const user = `الموجز البحثي:\n${JSON.stringify(research).slice(0, 2500)}\n\nالهيكل الحالي:\n${JSON.stringify(outline)}`;
+  return { system, user };
+}
+
+function microResearchPrompt(topic: string, sub: any) {
+  const system = `ابحث في الويب لتجميع مادة خام دقيقة لقسم فرعي بعنوان "${sub.title}" ضمن بحث عن "${topic}". أعِد JSON:
+{"facts":["...","..."],"names":["..."],"quotes":["اقتباس قصير موثوق إن وُجد"]}
+المطلوب 4-6 حقائق و2-4 أسماء. لا تُخترع.`;
+  const user = `الزاوية المطلوبة: ${sub.angle}`;
+  return { system, user };
+}
+
+function expansionPrompt(outline: any, section: any, sub: any, prev: string, idx: number, total: number, micro?: any) {
   const map = outline.sections.map((s: any) => `${s.title}: ${s.subsections.map((x: any) => x.title).join("، ")}`).join("\n");
+  const microBlock = micro
+    ? `\nمادة خام مُتحقّق منها لهذا القسم (وظّفها بلا تلفيق):\n${JSON.stringify(micro).slice(0, 1800)}`
+    : "";
   const system = `أنت تكتب القسم الفرعي رقم ${idx} من ${total} في بحث طويل بعنوان "${outline.title}". اكتب بسلطة كاتب مقالات طويلة.
 
 خريطة كامل البحث — للسياق فقط. لا تُكرّر هذه، ولا تنجرف إلى غير قسمك:
 ${map}
-
+${microBlock}
 الاستمرارية — آخر ما كُتب. اجعل جملتك الأولى امتداراً طبيعياً لها دون الإشارة إليها أو الإعلان عن انتقال:
 "${prev}"
 
 قواعد صارمة:
 - أخرِج المتن فقط. لا عنوان، لا "بالطبع، إليك…"، لا خاتمة تلخّص، لا تشويق لما بعد.
-- اكتب حوالي ${sub.targetWords ?? 500} كلمة (± 15%).
+- اكتب حوالي ${sub.targetWords ?? 700} كلمة (± 15%). لا تنقص عن ${Math.round((sub.targetWords ?? 700) * 0.85)}.
 - التزم بالزاوية المحدّدة: ${sub.angle}
 - بالعربية الفصحى، بأسلوب أدبي معرفي رصين.`;
   const user = `القسم: ${section.title}\nالقسم الفرعي: ${sub.title}\nالزاوية: ${sub.angle}`;
+  return { system, user };
+}
+
+function polishPrompt(sub: any, draft: string) {
+  const system = `أنت محرّر أدبي. لمّع النص التالي دون تغيير معناه أو إطالته: احذف الحشو، شدّ الجُمل، عزّز الإيقاع، صحّح النحو والصرف، وحافظ على المصطلحات التقنية.
+أخرِج المتن المُنقّح فقط، بدون أي تعليق أو عنوان.`;
+  const user = `عنوان الفقرة: ${sub.title}\nالزاوية: ${sub.angle}\n\nالمسوّدة:\n${draft}`;
   return { system, user };
 }
 
@@ -225,12 +274,23 @@ Deno.serve(async (req) => {
       const send = (obj: unknown) => controller.enqueue(enc.encode(`data: ${JSON.stringify(obj)}\n\n`));
 
       try {
-        // Stage 1: Outline
+        // Stage 0: Hybrid dynamic research — web-augmented for ALL depths.
+        send({ stage: "research", message: "بحث ميداني هجين على الويب…", model: modelNames.outline });
+        let research: any = { summary: "", facts: [], figures: [], debates: [], misconceptions: [], angles: [] };
+        try {
+          const rp = researchPrompt(topic, depth);
+          research = await callJSON<any>(models.outline, rp.system, rp.user, depth === "deepest" ? 2200 : 1400, true);
+        } catch (e) {
+          console.warn("[archive-generate] research failed, continuing without", e);
+        }
+        send({ stage: "research_done", research });
+
+        // Stage 1: Outline (informed by research)
         send({ stage: "outline", message: "تصميم الهيكل والتصنيف…", model: modelNames.outline });
-        const op = outlinePrompt(topic, depth, policy);
+        const op = outlinePrompt(topic, depth, policy, research);
         const outlineRaw = await callJSON<any>(models.outline, op.system, op.user, 3000);
         if (!outlineRaw?.sections?.length) throw new Error("outline invalid");
-        const outline = {
+        let outline: any = {
           title: outlineRaw.title,
           synopsis: outlineRaw.synopsis || "",
           sections: outlineRaw.sections.map((s: any) => ({
@@ -238,9 +298,29 @@ Deno.serve(async (req) => {
             subsections: s.subsections.map((sub: any) => ({ ...sub, targetWords: policy.words })),
           })),
         };
+
+        // Stage 1.5: Critique/refine outline (deep + deepest)
+        if (policy.critique) {
+          send({ stage: "critique", message: "مراجعة الهيكل ونقده…", model: modelNames.outline });
+          try {
+            const cp = critiquePrompt(outline, research);
+            const refined = await callJSON<any>(models.outline, cp.system, cp.user, 3000);
+            if (refined?.sections?.length === outline.sections.length) {
+              outline = {
+                title: refined.title || outline.title,
+                synopsis: refined.synopsis || outline.synopsis,
+                sections: refined.sections.map((s: any) => ({
+                  id: s.id, title: s.title, dimension: s.dimension,
+                  subsections: s.subsections.map((sub: any) => ({ ...sub, targetWords: policy.words })),
+                })),
+              };
+            }
+          } catch (e) { console.warn("[archive-generate] critique failed", e); }
+        }
+
         send({ stage: "outline_done", outline });
 
-        // Stage 2: Sequential expansion
+        // Stage 2: Sequential expansion (with optional per-subsection micro-research)
         const totalSubs = outline.sections.reduce((n: number, s: any) => n + s.subsections.length, 0);
         const generated: any[] = [];
         let prev = outline.synopsis || outline.title;
@@ -248,10 +328,28 @@ Deno.serve(async (req) => {
         for (const section of outline.sections) {
           for (const sub of section.subsections) {
             done++;
+            let micro: any = null;
+            if (policy.microResearch) {
+              send({ stage: "expansion", message: `بحث دقيق: ${sub.title}`, current: done, total: totalSubs, model: modelNames.outline });
+              try {
+                const mp = microResearchPrompt(topic, sub);
+                micro = await callJSON<any>(models.outline, mp.system, mp.user, 900, true);
+              } catch (e) { console.warn("micro-research failed", e); }
+            }
             send({ stage: "expansion", message: `توسيع: ${section.title} ← ${sub.title}`, current: done, total: totalSubs, model: modelNames.expansion });
-            const ep = expansionPrompt(outline, section, sub, prev, done, totalSubs);
-            const maxTok = Math.min(4096, Math.max(600, Math.round(policy.words * 1.8)));
-            const md = await callOpenRouter(models.expansion, ep.system, ep.user, maxTok);
+            const ep = expansionPrompt(outline, section, sub, prev, done, totalSubs, micro);
+            const maxTok = Math.min(6144, Math.max(900, Math.round(policy.words * 2.1)));
+            let md = await callOpenRouter(models.expansion, ep.system, ep.user, maxTok);
+
+            // Stage 2.5: polish pass (deep + deepest)
+            if (policy.polish) {
+              send({ stage: "polish", message: `تلميع: ${sub.title}`, current: done, total: totalSubs, model: modelNames.expansion });
+              try {
+                const pp = polishPrompt(sub, md);
+                md = await callOpenRouter(models.expansion, pp.system, pp.user, maxTok);
+              } catch (e) { console.warn("polish failed", e); }
+            }
+
             generated.push({ sectionId: section.id, subsectionId: sub.id, title: sub.title, markdown: md, wordCount: countWords(md) });
             prev = lastSentences(md, 2);
           }
