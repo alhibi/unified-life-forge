@@ -15,17 +15,29 @@ const DEPTHS: { key: ArchiveDepth; title: string; subtitle: string; est: string 
 ];
 
 const AVAILABLE_MODELS = [
-  'gpt-4o',
-  'gpt-4-turbo',
-  'gpt-4o-mini',
-  'claude-3.5-sonnet',
+  'gemini-2.5-flash',
+  'gemini-2.5-flash-lite',
+  'gemini-2.5-pro',
   'claude-3.5-haiku',
+  'claude-3.5-sonnet',
+  'gpt-4o-mini',
+  'gpt-4o',
+  'deepseek-chat',
 ];
 
+// Empty by default — backend picks the right model per depth level.
+// User overrides here take precedence server-side.
 const DEFAULT_MODELS: ModelConfig = {
-  outline: 'gpt-4o-mini',
-  expansion: 'gpt-4-turbo',
-  synthesis: 'gpt-4o',
+  outline: '',
+  expansion: '',
+  synthesis: '',
+};
+
+// Displayed placeholder per depth so users see which model will run.
+const DEPTH_AUTO_MODELS: Record<ArchiveDepth, ModelConfig> = {
+  standard: { outline: 'gemini-2.5-flash', expansion: 'gemini-2.5-flash', synthesis: 'gemini-2.5-flash' },
+  deep:     { outline: 'gemini-2.5-flash', expansion: 'gemini-2.5-flash', synthesis: 'gemini-2.5-pro'   },
+  deepest:  { outline: 'gemini-2.5-pro',   expansion: 'gemini-2.5-pro',   synthesis: 'gemini-2.5-pro'   },
 };
 
 type StageKey = 'idle' | 'outline' | 'expansion' | 'synthesis' | 'filed' | 'error';
@@ -55,7 +67,12 @@ export default function ArchiveNew() {
     abortRef.current = ctrl;
 
     try {
-      for await (const ev of archiveApi.generate(topic.trim(), depth, models, ctrl.signal)) {
+      // Send only explicitly overridden models; empty string = let backend pick per depth.
+      const overrides: ModelConfig = {};
+      (Object.keys(models) as (keyof ModelConfig)[]).forEach(k => {
+        if (models[k]) overrides[k] = models[k];
+      });
+      for await (const ev of archiveApi.generate(topic.trim(), depth, overrides, ctrl.signal)) {
         applyEvent(ev);
       }
     } catch (e: any) {
@@ -166,11 +183,12 @@ export default function ArchiveNew() {
                   {stage === 'synthesis' && '🏷️ نموذج التلخيص والوسوم'}
                 </label>
                 <select
-                  value={models[stage] || DEFAULT_MODELS[stage]}
+                  value={models[stage] || ''}
                   onChange={e => setModels({ ...models, [stage]: e.target.value })}
                   disabled={running}
                   className="w-full bg-muted/40 border border-border/40 rounded-lg p-2 text-[12px] outline-none focus:border-primary/50"
                 >
+                  <option value="">تلقائي — {DEPTH_AUTO_MODELS[depth][stage]}</option>
                   {AVAILABLE_MODELS.map(m => (
                     <option key={m} value={m}>{m}</option>
                   ))}
