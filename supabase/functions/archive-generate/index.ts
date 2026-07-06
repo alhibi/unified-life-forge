@@ -16,11 +16,15 @@ interface ModelConfig {
 }
 
 const AVAILABLE_MODELS: ModelConfig = {
-  "gpt-4o": "openai/gpt-4o-2024-08-06",
-  "gpt-4-turbo": "openai/gpt-4-turbo-2024-04-09",
-  "gpt-4o-mini": "openai/gpt-4o-mini",
-  "claude-3.5-sonnet": "anthropic/claude-3.5-sonnet-20241022",
-  "claude-3.5-haiku": "anthropic/claude-3.5-haiku-20241022",
+  // Verified OpenRouter slugs — high quality, reasonable cost.
+  "gemini-2.5-flash":     "google/gemini-2.5-flash",
+  "gemini-2.5-flash-lite":"google/gemini-2.5-flash-lite",
+  "gemini-2.5-pro":       "google/gemini-2.5-pro",
+  "claude-3.5-haiku":     "anthropic/claude-3.5-haiku",
+  "claude-3.5-sonnet":    "anthropic/claude-3.5-sonnet",
+  "gpt-4o-mini":          "openai/gpt-4o-mini",
+  "gpt-4o":               "openai/gpt-4o",
+  "deepseek-chat":        "deepseek/deepseek-chat",
 };
 
 interface PolicyConfig {
@@ -193,10 +197,17 @@ Deno.serve(async (req) => {
   }
 
   // تحديد النماذج - استخدم المخصص أو الافتراضي
+  // Depth-aware defaults: cheap+fast for standard, stronger models as depth grows.
+  const depthDefaults: Record<Depth, { outline: string; expansion: string; synthesis: string }> = {
+    standard: { outline: "gemini-2.5-flash",      expansion: "gemini-2.5-flash", synthesis: "gemini-2.5-flash" },
+    deep:     { outline: "gemini-2.5-flash",      expansion: "gemini-2.5-flash", synthesis: "gemini-2.5-pro"   },
+    deepest:  { outline: "gemini-2.5-pro",        expansion: "gemini-2.5-pro",   synthesis: "gemini-2.5-pro"   },
+  };
+  const def = depthDefaults[depth];
   const modelNames = {
-    outline: body.models?.outline || "gpt-4o-mini",
-    expansion: body.models?.expansion || "gpt-4-turbo",
-    synthesis: body.models?.synthesis || "gpt-4o",
+    outline:   body.models?.outline   || def.outline,
+    expansion: body.models?.expansion || def.expansion,
+    synthesis: body.models?.synthesis || def.synthesis,
   };
 
   // تحويل أسماء النماذج إلى full model IDs من OpenRouter
