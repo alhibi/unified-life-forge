@@ -38,9 +38,13 @@ export interface ArchiveDocument extends ArchiveDocumentSummary {
 }
 
 export type ProgressEvent =
+  | { stage: 'research'; message: string }
+  | { stage: 'research_done'; research: any }
   | { stage: 'outline'; message: string }
   | { stage: 'outline_done'; outline: ArchiveOutline }
+  | { stage: 'critique'; message: string }
   | { stage: 'expansion'; message: string; current: number; total: number }
+  | { stage: 'polish'; message: string; current: number; total: number }
   | { stage: 'synthesis'; message: string }
   | { stage: 'filed'; document: { id: string; accession_number: number; title: string; word_count: number } }
   | { stage: 'error'; message: string };
