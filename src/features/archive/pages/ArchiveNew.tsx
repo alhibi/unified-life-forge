@@ -42,8 +42,9 @@ const DEPTH_AUTO_MODELS: Record<ArchiveDepth, ModelConfig> = {
 
 type StageKey = 'idle' | 'research' | 'outline' | 'critique' | 'expansion' | 'polish' | 'synthesis' | 'filed' | 'error';
 
-const STAGE_ORDER: StageKey[] = ['research', 'outline', 'critique', 'expansion', 'polish', 'synthesis', 'filed'];
-const STAGE_LABEL: Record<Exclude<StageKey,'idle'|'error'>, string> = {
+type PipelineStage = Exclude<StageKey, 'idle' | 'error'>;
+const STAGE_ORDER: PipelineStage[] = ['research', 'outline', 'critique', 'expansion', 'polish', 'synthesis', 'filed'];
+const STAGE_LABEL: Record<PipelineStage, string> = {
   research: 'بحث',
   outline: 'هيكل',
   critique: 'نقد',
