@@ -9,9 +9,9 @@ import { archiveApi, type ModelConfig } from '../api';
 import type { ArchiveDepth, ProgressEvent } from '../types';
 
 const DEPTHS: { key: ArchiveDepth; title: string; subtitle: string; est: string }[] = [
-  { key: 'standard', title: 'قياسي', subtitle: '4 × 2 · ~2800 كلمة', est: '~2 دقيقة' },
-  { key: 'deep',     title: 'متعمّق', subtitle: '5 × 3 · ~8250 كلمة', est: '~5 دقائق' },
-  { key: 'deepest',  title: 'أقصى عمق', subtitle: '6 × 4 · ~18000 كلمة', est: '~12 دقيقة' },
+  { key: 'standard', title: 'قياسي',     subtitle: '4 × 2 · ~4400 كلمة · بحث + هيكل + كتابة',                       est: '~3 دقائق' },
+  { key: 'deep',     title: 'متعمّق',   subtitle: '5 × 3 · ~13500 كلمة · بحث + هيكل + نقد + كتابة + تلميع',        est: '~8 دقائق' },
+  { key: 'deepest',  title: 'أقصى عمق', subtitle: '6 × 4 · ~31000 كلمة · بحث موسّع + نقد + بحث دقيق لكل فقرة + تلميع', est: '~20 دقيقة' },
 ];
 
 const AVAILABLE_MODELS = [
@@ -40,7 +40,19 @@ const DEPTH_AUTO_MODELS: Record<ArchiveDepth, ModelConfig> = {
   deepest:  { outline: 'gemini-2.5-pro',   expansion: 'gemini-2.5-pro',   synthesis: 'gemini-2.5-pro'   },
 };
 
-type StageKey = 'idle' | 'outline' | 'expansion' | 'synthesis' | 'filed' | 'error';
+type StageKey = 'idle' | 'research' | 'outline' | 'critique' | 'expansion' | 'polish' | 'synthesis' | 'filed' | 'error';
+
+type PipelineStage = Exclude<StageKey, 'idle' | 'error'>;
+const STAGE_ORDER: PipelineStage[] = ['research', 'outline', 'critique', 'expansion', 'polish', 'synthesis', 'filed'];
+const STAGE_LABEL: Record<PipelineStage, string> = {
+  research: 'بحث',
+  outline: 'هيكل',
+  critique: 'نقد',
+  expansion: 'توسيع',
+  polish: 'تلميع',
+  synthesis: 'تجميع',
+  filed: 'حُفظ',
+};
 
 export default function ArchiveNew() {
   const navigate = useNavigate();
@@ -84,13 +96,13 @@ export default function ArchiveNew() {
   }
 
   function applyEvent(ev: ProgressEvent) {
-    if (ev.stage === 'outline' || ev.stage === 'synthesis') {
+    if (ev.stage === 'research' || ev.stage === 'outline' || ev.stage === 'critique' || ev.stage === 'synthesis') {
       setStage(ev.stage);
       setMessage(ev.message);
-    } else if (ev.stage === 'outline_done') {
+    } else if (ev.stage === 'outline_done' || ev.stage === 'research_done') {
       // no-op; keep spinner
-    } else if (ev.stage === 'expansion') {
-      setStage('expansion');
+    } else if (ev.stage === 'expansion' || ev.stage === 'polish') {
+      setStage(ev.stage);
       setMessage(ev.message);
       setProgress({ current: ev.current, total: ev.total });
     } else if (ev.stage === 'filed') {
@@ -109,9 +121,12 @@ export default function ArchiveNew() {
   }
 
   const stagePercent = (() => {
-    if (stage === 'outline') return 8;
-    if (stage === 'expansion' && progress.total > 0) return 10 + Math.round(80 * progress.current / progress.total);
-    if (stage === 'synthesis') return 95;
+    if (stage === 'research') return 4;
+    if (stage === 'outline') return 12;
+    if (stage === 'critique') return 18;
+    if (stage === 'expansion' && progress.total > 0) return 20 + Math.round(60 * progress.current / progress.total);
+    if (stage === 'polish' && progress.total > 0) return 80 + Math.round(12 * progress.current / progress.total);
+    if (stage === 'synthesis') return 96;
     if (stage === 'filed') return 100;
     return 0;
   })();
@@ -237,13 +252,12 @@ export default function ArchiveNew() {
             <span>{message}</span>
             {progress.total > 0 && <span>{progress.current}/{progress.total}</span>}
           </div>
-          <div className="mt-3 flex gap-1.5 text-[11px]">
-            {(['outline','expansion','synthesis','filed'] as const).map((s, i) => {
-              const done = ['outline','expansion','synthesis','filed'].indexOf(stage) >= i;
-              const labels = { outline: 'مخطط', expansion: 'توسيع', synthesis: 'تجميع', filed: 'حُفظ' };
+          <div className="mt-3 flex gap-1 text-[10px]">
+            {STAGE_ORDER.map((s, i) => {
+              const done = STAGE_ORDER.indexOf(stage as any) >= i;
               return (
                 <div key={s} className={`flex-1 py-1 rounded text-center ${done ? 'bg-primary/15 text-primary' : 'bg-muted/40 text-muted-foreground'}`}>
-                  {labels[s]}
+                  {STAGE_LABEL[s]}
                 </div>
               );
             })}
