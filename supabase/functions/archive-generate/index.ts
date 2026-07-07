@@ -380,7 +380,6 @@ Deno.serve(async (req) => {
             content,
             outline,
             word_count: countWords(content),
-            models_used: models, // حفظ النماذج المستخدمة
           })
           .select("id, accession_number, title, word_count")
           .single();
