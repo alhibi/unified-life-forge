@@ -4,7 +4,7 @@ import ReactMarkdown from 'react-markdown';
 import { PageShell, AppCard } from '@/components/ui/app-shell';
 import BackButton from '@/components/BackButton';
 import SEO from '@/components/SEO';
-import { Loader2, Clock, BookOpen, TextAa, List, Copy, Check, Sun, Moon, SunDim, Minus, Plus, SlidersHorizontal } from '@/lib/icons';
+import { Loader2, Clock, BookOpen, ALargeSmall, List, Copy, Check, Sun, Moon, SunDim, Minus, Plus, SlidersHorizontal } from '@/lib/icons';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
@@ -283,7 +283,7 @@ export default function ArchiveReader() {
                   {/* Font size */}
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <div className="text-[12px] text-muted-foreground flex items-center gap-1"><TextAa className="w-3.5 h-3.5" /> حجم الخط</div>
+                      <div className="text-[12px] text-muted-foreground flex items-center gap-1"><ALargeSmall className="w-3.5 h-3.5" /> حجم الخط</div>
                       <div className="text-[11px] tabular-nums text-muted-foreground">{prefs.size}px</div>
                     </div>
                     <div className="flex items-center gap-3">
