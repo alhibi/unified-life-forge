@@ -4,7 +4,7 @@ import ReactMarkdown from 'react-markdown';
 import { PageShell, AppCard } from '@/components/ui/app-shell';
 import BackButton from '@/components/BackButton';
 import SEO from '@/components/SEO';
-import { Loader2, Clock, BookOpen, ALargeSmall, List, Copy, Check, Sun, Moon, SunDim, Minus, Plus, SlidersHorizontal } from '@/lib/icons';
+import { Loader2, Clock, BookOpen, ALargeSmall, List, Copy, Check, Sun, Moon, SunDim, Minus, Plus, SlidersHorizontal, X } from '@/lib/icons';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
@@ -241,11 +241,29 @@ export default function ArchiveReader() {
                   <SlidersHorizontal className="w-4 h-4" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="bottom" className="rounded-t-3xl">
-                <SheetHeader>
-                  <SheetTitle className="text-right">خيارات القراءة</SheetTitle>
+              <SheetContent
+                side="bottom"
+                className="rounded-t-3xl max-h-[85dvh] p-0 flex flex-col"
+              >
+                {/* Drag handle — visual affordance that this can be swiped/tapped away */}
+                <button
+                  type="button"
+                  onClick={() => setSettingsOpen(false)}
+                  aria-label="إغلاق"
+                  className="mx-auto mt-2 mb-1 h-1.5 w-12 rounded-full bg-foreground/25 hover:bg-foreground/40 transition-colors"
+                />
+                <SheetHeader className="px-5 pt-2 pb-3 flex-row items-center justify-between space-y-0 border-b border-border/40">
+                  <SheetTitle className="text-right text-base">خيارات القراءة</SheetTitle>
+                  <button
+                    type="button"
+                    onClick={() => setSettingsOpen(false)}
+                    aria-label="إغلاق"
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-muted/60 hover:bg-muted active:scale-95 transition"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
                 </SheetHeader>
-                <div className="space-y-6 mt-5 pb-4">
+                <div className="space-y-6 px-5 pt-4 pb-6 overflow-y-auto flex-1">
                   {/* Theme */}
                   <div>
                     <div className="text-[12px] text-muted-foreground mb-2">السمة</div>
@@ -315,9 +333,9 @@ export default function ArchiveReader() {
                     </div>
                     <Slider min={520} max={960} step={20} value={[prefs.width]} onValueChange={([v]) => setPrefs(p => ({ ...p, width: v }))} />
                   </div>
-                  <div className="flex justify-between pt-2">
+                  <div className="flex items-center gap-3 pt-2 sticky bottom-0 -mx-5 px-5 py-3 bg-background/95 backdrop-blur border-t border-border/40">
                     <Button variant="ghost" size="sm" onClick={() => setPrefs(DEFAULT_PREFS)}>إعادة ضبط</Button>
-                    <Button size="sm" onClick={() => setSettingsOpen(false)}>تم</Button>
+                    <Button className="flex-1 h-10 rounded-xl" onClick={() => setSettingsOpen(false)}>تم القراءة</Button>
                   </div>
                 </div>
               </SheetContent>
