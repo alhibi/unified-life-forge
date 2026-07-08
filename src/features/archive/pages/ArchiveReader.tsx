@@ -170,7 +170,10 @@ export default function ArchiveReader() {
   const accentColor = prefs.theme === 'sepia' ? '#8a5a1a' : prefs.theme === 'night' ? '#d4b483' : undefined;
 
   return (
-    <div style={themeStyle} className="min-h-screen transition-colors duration-300">
+    <div
+      style={{ ...themeStyle, minHeight: '100dvh' }}
+      className="transition-colors duration-300 pt-14 pb-28 px-5"
+    >
       {/* Reading progress bar */}
       <div className="fixed top-0 inset-x-0 h-[2px] z-40 bg-transparent">
         <div
@@ -179,7 +182,7 @@ export default function ArchiveReader() {
         />
       </div>
 
-      <PageShell>
+      <div className="mx-auto" style={{ maxWidth: Math.max(prefs.width, 520) }}>
         <SEO title={`${doc.title} — الأرشيف`} description={doc.abstract || doc.topic} path={`/archive/${doc.id}`} />
 
         <div className="flex items-center justify-between gap-2 mb-2">
@@ -318,7 +321,7 @@ export default function ArchiveReader() {
           </div>
         </div>
 
-        <div className="mx-auto" style={{ maxWidth: prefs.width }}>
+        <div>
           <header className="py-4 mb-3 border-b" style={{ borderColor: borderColor ?? 'hsl(var(--border) / 0.3)' }}>
             <h1
               className="text-3xl font-bold leading-tight mb-3 tracking-tight"
@@ -417,7 +420,7 @@ export default function ArchiveReader() {
             </ReactMarkdown>
           </article>
         </div>
-      </PageShell>
+      </div>
     </div>
   );
 }
