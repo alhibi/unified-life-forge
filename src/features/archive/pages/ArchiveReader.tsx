@@ -171,8 +171,12 @@ export default function ArchiveReader() {
 
   return (
     <div
-      style={{ ...themeStyle, minHeight: '100dvh' }}
-      className="transition-colors duration-300 pt-14 pb-28 px-5"
+      style={{
+        ...themeStyle,
+        minHeight: '100dvh',
+        transition: 'background-color 400ms ease, background 400ms ease, color 400ms ease',
+      }}
+      className="pt-14 pb-28 px-5"
     >
       {/* Reading progress bar */}
       <div className="fixed top-0 inset-x-0 h-[2px] z-40 bg-transparent">
