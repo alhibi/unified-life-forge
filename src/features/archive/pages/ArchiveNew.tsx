@@ -245,29 +245,17 @@ export default function ArchiveNew() {
       )}
 
       <GenerationOverlay
-        open={running || stage === 'filed'}
-        stage={stage as PipelineStage}
+        open={running || stage === 'filed' || stage === 'error'}
+        stage={stage}
         message={message}
         progress={progress}
         percent={stagePercent}
         topic={topic}
+        error={error}
         onCancel={cancel}
+        onRetry={() => { setError(null); start(); }}
+        onDismiss={() => { setError(null); setStage('idle'); }}
       />
-
-      {stage === 'error' && error && (
-        <AppCard className="border-destructive/40 bg-destructive/5">
-          <div className="flex items-start gap-2 mb-3">
-            <AlertCircle className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
-            <div>
-              <p className="text-sm font-semibold text-destructive mb-1">فشل التوليد</p>
-              <p className="text-[12px] text-muted-foreground leading-relaxed">{error}</p>
-            </div>
-          </div>
-          <button onClick={() => setStage('idle')} className="text-[13px] font-semibold text-primary">
-            المحاولة مرة أخرى
-          </button>
-        </AppCard>
-      )}
     </PageShell>
   );
 }
@@ -275,16 +263,21 @@ export default function ArchiveNew() {
 // ─── Cinematic generation overlay ───────────────────────────────────────
 interface OverlayProps {
   open: boolean;
-  stage: PipelineStage;
+  stage: StageKey;
   message: string;
   progress: { current: number; total: number };
   percent: number;
   topic: string;
+  error: string | null;
   onCancel: () => void;
+  onRetry: () => void;
+  onDismiss: () => void;
 }
 
-function GenerationOverlay({ open, stage, message, progress, percent, topic, onCancel }: OverlayProps) {
+function GenerationOverlay({ open, stage, message, progress, percent, topic, error, onCancel, onRetry, onDismiss }: OverlayProps) {
   const isFiled = stage === 'filed';
+  const isError = stage === 'error';
+  const pipelineStage: PipelineStage = (stage === 'idle' || stage === 'error') ? 'research' : stage;
   return (
     <AnimatePresence>
       {open && (
@@ -296,11 +289,13 @@ function GenerationOverlay({ open, stage, message, progress, percent, topic, onC
           className="fixed inset-0 z-[80] flex flex-col items-center justify-center px-6 backdrop-blur-2xl"
           style={{
             background:
-              'radial-gradient(1200px 800px at 50% 20%, hsl(var(--live) / 0.18), transparent 60%), radial-gradient(900px 700px at 50% 90%, hsl(var(--primary) / 0.14), transparent 60%), hsl(var(--background) / 0.85)',
+              isError
+                ? 'radial-gradient(1200px 800px at 50% 20%, hsl(var(--destructive) / 0.22), transparent 60%), radial-gradient(900px 700px at 50% 90%, hsl(var(--destructive) / 0.12), transparent 60%), hsl(var(--background) / 0.9)'
+                : 'radial-gradient(1200px 800px at 50% 20%, hsl(var(--live) / 0.18), transparent 60%), radial-gradient(900px 700px at 50% 90%, hsl(var(--primary) / 0.14), transparent 60%), hsl(var(--background) / 0.85)',
           }}
         >
           {/* Breathing ambient rings */}
-          <div className="pointer-events-none absolute inset-0 overflow-hidden">
+          {!isError && <div className="pointer-events-none absolute inset-0 overflow-hidden">
             {[0, 1, 2].map(i => (
               <motion.div
                 key={i}
@@ -310,10 +305,10 @@ function GenerationOverlay({ open, stage, message, progress, percent, topic, onC
                 transition={{ duration: 4, repeat: Infinity, delay: i * 1.3, ease: 'easeOut' }}
               />
             ))}
-          </div>
+          </div>}
 
           {/* Cancel */}
-          {!isFiled && (
+          {!isFiled && !isError && (
             <button
               onClick={onCancel}
               className="absolute top-6 end-6 w-10 h-10 rounded-full bg-muted/60 backdrop-blur flex items-center justify-center active:scale-90 transition-transform"
@@ -323,6 +318,48 @@ function GenerationOverlay({ open, stage, message, progress, percent, topic, onC
             </button>
           )}
 
+          {isError ? (
+            <motion.div
+              initial={{ scale: 0.7, opacity: 0, y: 10 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              transition={{ type: 'spring', stiffness: 200, damping: 18 }}
+              className="relative flex flex-col items-center max-w-sm w-full"
+            >
+              <motion.div
+                className="relative w-24 h-24 rounded-full bg-destructive/15 border border-destructive/50 flex items-center justify-center mb-6"
+                animate={{ x: [0, -6, 6, -4, 4, 0] }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+              >
+                <AlertCircle className="w-11 h-11 text-destructive" strokeWidth={2} />
+              </motion.div>
+              <h2 className="text-center text-lg font-bold text-foreground mb-2 tracking-tight">
+                تعذّر إتمام التوليد
+              </h2>
+              <div className="max-w-sm text-center text-[12px] text-muted-foreground mb-2 line-clamp-2 px-4">
+                « {topic} »
+              </div>
+              <div className="w-full rounded-xl border border-destructive/30 bg-destructive/5 p-3 mb-5">
+                <p className="text-[12px] text-foreground/85 leading-relaxed text-center">
+                  {error || 'حدث خطأ غير متوقع أثناء الاتصال بالخادم.'}
+                </p>
+              </div>
+              <div className="w-full flex flex-col gap-2">
+                <button
+                  onClick={onRetry}
+                  className="w-full rounded-full bg-primary text-primary-foreground py-3 text-[14px] font-bold active:scale-95 transition-transform"
+                >
+                  إعادة المحاولة
+                </button>
+                <button
+                  onClick={onDismiss}
+                  className="w-full rounded-full bg-muted/60 text-foreground py-3 text-[13px] font-semibold active:scale-95 transition-transform"
+                >
+                  إغلاق
+                </button>
+              </div>
+            </motion.div>
+          ) : (
+          <>
           {/* Central orb */}
           <motion.div
             className="relative mb-8 flex items-center justify-center"
@@ -385,14 +422,14 @@ function GenerationOverlay({ open, stage, message, progress, percent, topic, onC
           {/* Headline */}
           <AnimatePresence mode="wait">
             <motion.h2
-              key={stage}
+              key={pipelineStage}
               initial={{ y: 12, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: -12, opacity: 0 }}
               transition={{ duration: 0.4 }}
               className="text-center text-lg font-bold text-foreground mb-1.5 tracking-tight"
             >
-              {STAGE_HEADLINE[stage] ?? '...'}
+              {STAGE_HEADLINE[pipelineStage] ?? '...'}
             </motion.h2>
           </AnimatePresence>
 
@@ -438,8 +475,8 @@ function GenerationOverlay({ open, stage, message, progress, percent, topic, onC
             {/* Stage stepper */}
             <div className="flex gap-1">
               {STAGE_ORDER.map((s, i) => {
-                const currentIdx = STAGE_ORDER.indexOf(stage);
-                const isActive = s === stage;
+                const currentIdx = STAGE_ORDER.indexOf(pipelineStage);
+                const isActive = s === pipelineStage;
                 const isDone = currentIdx > i;
                 return (
                   <div key={s} className="flex-1 flex flex-col items-center gap-1">
@@ -466,6 +503,8 @@ function GenerationOverlay({ open, stage, message, progress, percent, topic, onC
               })}
             </div>
           </div>
+          </>
+          )}
         </motion.div>
       )}
     </AnimatePresence>
