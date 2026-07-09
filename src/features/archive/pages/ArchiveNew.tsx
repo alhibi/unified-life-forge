@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { PageShell, AppCard } from '@/components/ui/app-shell';
 import BackButton from '@/components/BackButton';
 import SEO from '@/components/SEO';
@@ -52,6 +52,16 @@ const STAGE_LABEL: Record<PipelineStage, string> = {
   polish: 'تلميع',
   synthesis: 'تجميع',
   filed: 'حُفظ',
+};
+
+const STAGE_HEADLINE: Record<PipelineStage, string> = {
+  research: 'نمشّط الويب بحثاً عن الحقائق',
+  outline: 'نصمّم هيكل المعرفة',
+  critique: 'ننقد الهيكل ونشحذه',
+  expansion: 'نكتب الفصول واحداً تلو الآخر',
+  polish: 'نلمّع اللغة والإيقاع',
+  synthesis: 'نجمع الأرشيف ونفهرسه',
+  filed: 'اكتمل — نفتح الأرشيف',
 };
 
 export default function ArchiveNew() {
@@ -226,51 +236,23 @@ export default function ArchiveNew() {
         <button
           onClick={start}
           disabled={topic.trim().length < 3}
-          className="w-full flex items-center justify-center gap-2 rounded-full bg-primary text-primary-foreground py-3 text-[15px] font-bold disabled:opacity-50 disabled:pointer-events-none active:scale-95 transition-transform"
+          className="group relative w-full flex items-center justify-center gap-2 rounded-full bg-primary text-primary-foreground py-3 text-[15px] font-bold disabled:opacity-50 disabled:pointer-events-none active:scale-95 transition-transform overflow-hidden"
         >
+          <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
           <Sparkles className="w-4 h-4" />
           ابدأ التوليد
         </button>
       )}
 
-      {running && (
-        <AppCard>
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[13px] font-semibold text-foreground">جارٍ التوليد…</span>
-            <button onClick={cancel} className="text-[12px] text-destructive flex items-center gap-1">
-              <X className="w-3.5 h-3.5" /> إلغاء
-            </button>
-          </div>
-          <div className="h-1.5 rounded-full bg-muted overflow-hidden mb-3">
-            <motion.div
-              className="h-full bg-primary"
-              animate={{ width: `${stagePercent}%` }}
-              transition={{ duration: 0.4 }}
-            />
-          </div>
-          <div className="flex items-center justify-between text-[12px] text-muted-foreground">
-            <span>{message}</span>
-            {progress.total > 0 && <span>{progress.current}/{progress.total}</span>}
-          </div>
-          <div className="mt-3 flex gap-1 text-[10px]">
-            {STAGE_ORDER.map((s, i) => {
-              const done = STAGE_ORDER.indexOf(stage as any) >= i;
-              return (
-                <div key={s} className={`flex-1 py-1 rounded text-center ${done ? 'bg-primary/15 text-primary' : 'bg-muted/40 text-muted-foreground'}`}>
-                  {STAGE_LABEL[s]}
-                </div>
-              );
-            })}
-          </div>
-        </AppCard>
-      )}
-
-      {stage === 'filed' && (
-        <AppCard className="flex items-center gap-3 bg-primary/5 border-primary/30">
-          <Check className="w-5 h-5 text-primary" />
-          <span className="text-sm font-semibold text-foreground flex-1">{message}</span>
-        </AppCard>
-      )}
+      <GenerationOverlay
+        open={running || stage === 'filed'}
+        stage={stage as PipelineStage}
+        message={message}
+        progress={progress}
+        percent={stagePercent}
+        topic={topic}
+        onCancel={cancel}
+      />
 
       {stage === 'error' && error && (
         <AppCard className="border-destructive/40 bg-destructive/5">
@@ -287,5 +269,205 @@ export default function ArchiveNew() {
         </AppCard>
       )}
     </PageShell>
+  );
+}
+
+// ─── Cinematic generation overlay ───────────────────────────────────────
+interface OverlayProps {
+  open: boolean;
+  stage: PipelineStage;
+  message: string;
+  progress: { current: number; total: number };
+  percent: number;
+  topic: string;
+  onCancel: () => void;
+}
+
+function GenerationOverlay({ open, stage, message, progress, percent, topic, onCancel }: OverlayProps) {
+  const isFiled = stage === 'filed';
+  return (
+    <AnimatePresence>
+      {open && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.35 }}
+          className="fixed inset-0 z-[80] flex flex-col items-center justify-center px-6 backdrop-blur-2xl"
+          style={{
+            background:
+              'radial-gradient(1200px 800px at 50% 20%, hsl(var(--live) / 0.18), transparent 60%), radial-gradient(900px 700px at 50% 90%, hsl(var(--primary) / 0.14), transparent 60%), hsl(var(--background) / 0.85)',
+          }}
+        >
+          {/* Breathing ambient rings */}
+          <div className="pointer-events-none absolute inset-0 overflow-hidden">
+            {[0, 1, 2].map(i => (
+              <motion.div
+                key={i}
+                className="absolute left-1/2 top-1/2 rounded-full border border-primary/20"
+                style={{ width: 240, height: 240, marginLeft: -120, marginTop: -120 }}
+                animate={{ scale: [1, 2.6, 2.6], opacity: [0.5, 0, 0] }}
+                transition={{ duration: 4, repeat: Infinity, delay: i * 1.3, ease: 'easeOut' }}
+              />
+            ))}
+          </div>
+
+          {/* Cancel */}
+          {!isFiled && (
+            <button
+              onClick={onCancel}
+              className="absolute top-6 end-6 w-10 h-10 rounded-full bg-muted/60 backdrop-blur flex items-center justify-center active:scale-90 transition-transform"
+              aria-label="إلغاء"
+            >
+              <X className="w-4 h-4 text-foreground" />
+            </button>
+          )}
+
+          {/* Central orb */}
+          <motion.div
+            className="relative mb-8 flex items-center justify-center"
+            initial={{ scale: 0.6, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ type: 'spring', stiffness: 180, damping: 18 }}
+          >
+            {!isFiled ? (
+              <>
+                <motion.div
+                  className="absolute w-40 h-40 rounded-full"
+                  style={{
+                    background:
+                      'conic-gradient(from 0deg, hsl(var(--primary) / 0), hsl(var(--live) / 0.6), hsl(var(--primary) / 0.9), hsl(var(--primary) / 0))',
+                    filter: 'blur(2px)',
+                  }}
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 3.5, repeat: Infinity, ease: 'linear' }}
+                />
+                <motion.div
+                  className="absolute w-28 h-28 rounded-full border border-primary/40"
+                  animate={{ rotate: -360 }}
+                  transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
+                >
+                  <span className="absolute -top-1 left-1/2 w-2 h-2 -translate-x-1/2 rounded-full bg-primary shadow-[0_0_12px_hsl(var(--primary))]" />
+                </motion.div>
+                <motion.div
+                  className="relative w-20 h-20 rounded-full bg-primary/15 backdrop-blur flex items-center justify-center border border-primary/40"
+                  animate={{ scale: [1, 1.08, 1] }}
+                  transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
+                >
+                  <Sparkles className="w-7 h-7 text-primary" />
+                </motion.div>
+              </>
+            ) : (
+              <motion.div
+                className="relative w-24 h-24 rounded-full bg-primary/20 border border-primary/50 flex items-center justify-center"
+                initial={{ scale: 0.4, rotate: -30 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ type: 'spring', stiffness: 260, damping: 16 }}
+              >
+                <Check className="w-10 h-10 text-primary" strokeWidth={2.5} />
+                {[...Array(8)].map((_, i) => (
+                  <motion.span
+                    key={i}
+                    className="absolute w-1.5 h-1.5 rounded-full bg-primary"
+                    initial={{ x: 0, y: 0, opacity: 1 }}
+                    animate={{
+                      x: Math.cos((i / 8) * Math.PI * 2) * 70,
+                      y: Math.sin((i / 8) * Math.PI * 2) * 70,
+                      opacity: 0,
+                    }}
+                    transition={{ duration: 0.9, delay: 0.1, ease: 'easeOut' }}
+                  />
+                ))}
+              </motion.div>
+            )}
+          </motion.div>
+
+          {/* Headline */}
+          <AnimatePresence mode="wait">
+            <motion.h2
+              key={stage}
+              initial={{ y: 12, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: -12, opacity: 0 }}
+              transition={{ duration: 0.4 }}
+              className="text-center text-lg font-bold text-foreground mb-1.5 tracking-tight"
+            >
+              {STAGE_HEADLINE[stage] ?? '...'}
+            </motion.h2>
+          </AnimatePresence>
+
+          {/* Topic chip */}
+          <div className="max-w-sm text-center text-[12px] text-muted-foreground mb-6 line-clamp-2 px-4">
+            « {topic} »
+          </div>
+
+          {/* Progress bar */}
+          <div className="w-full max-w-sm">
+            <div className="relative h-1 rounded-full bg-muted/50 overflow-hidden mb-3">
+              <motion.div
+                className="absolute inset-y-0 left-0 rounded-full"
+                style={{
+                  background:
+                    'linear-gradient(90deg, hsl(var(--primary)), hsl(var(--live)), hsl(var(--primary)))',
+                  backgroundSize: '200% 100%',
+                }}
+                animate={{ width: `${percent}%`, backgroundPosition: ['0% 0%', '200% 0%'] }}
+                transition={{
+                  width: { duration: 0.6, ease: 'easeOut' },
+                  backgroundPosition: { duration: 2.5, repeat: Infinity, ease: 'linear' },
+                }}
+              />
+            </div>
+
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={message}
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                transition={{ duration: 0.3 }}
+                className="flex items-center justify-between text-[12px] text-muted-foreground mb-5"
+              >
+                <span className="truncate flex-1">{message}</span>
+                {progress.total > 0 && (
+                  <span className="tabular-nums shrink-0 ms-2">{progress.current}/{progress.total}</span>
+                )}
+              </motion.div>
+            </AnimatePresence>
+
+            {/* Stage stepper */}
+            <div className="flex gap-1">
+              {STAGE_ORDER.map((s, i) => {
+                const currentIdx = STAGE_ORDER.indexOf(stage);
+                const isActive = s === stage;
+                const isDone = currentIdx > i;
+                return (
+                  <div key={s} className="flex-1 flex flex-col items-center gap-1">
+                    <div className="relative w-full h-1 rounded-full bg-muted/40 overflow-hidden">
+                      <motion.div
+                        className="absolute inset-y-0 left-0 bg-primary rounded-full"
+                        initial={false}
+                        animate={{ width: isDone ? '100%' : isActive ? '60%' : '0%' }}
+                        transition={{ duration: 0.5 }}
+                      />
+                      {isActive && (
+                        <motion.div
+                          className="absolute inset-y-0 w-8 bg-gradient-to-r from-transparent via-primary to-transparent"
+                          animate={{ x: ['-100%', '400%'] }}
+                          transition={{ duration: 1.4, repeat: Infinity, ease: 'linear' }}
+                        />
+                      )}
+                    </div>
+                    <span className={`text-[9px] ${isActive ? 'text-primary font-bold' : isDone ? 'text-foreground/70' : 'text-muted-foreground/60'}`}>
+                      {STAGE_LABEL[s]}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
