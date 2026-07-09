@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { PageShell, AppCard } from '@/components/ui/app-shell';
 import BackButton from '@/components/BackButton';
 import SEO from '@/components/SEO';
@@ -52,6 +52,16 @@ const STAGE_LABEL: Record<PipelineStage, string> = {
   polish: 'تلميع',
   synthesis: 'تجميع',
   filed: 'حُفظ',
+};
+
+const STAGE_HEADLINE: Record<PipelineStage, string> = {
+  research: 'نمشّط الويب بحثاً عن الحقائق',
+  outline: 'نصمّم هيكل المعرفة',
+  critique: 'ننقد الهيكل ونشحذه',
+  expansion: 'نكتب الفصول واحداً تلو الآخر',
+  polish: 'نلمّع اللغة والإيقاع',
+  synthesis: 'نجمع الأرشيف ونفهرسه',
+  filed: 'اكتمل — نفتح الأرشيف',
 };
 
 export default function ArchiveNew() {
