@@ -236,51 +236,23 @@ export default function ArchiveNew() {
         <button
           onClick={start}
           disabled={topic.trim().length < 3}
-          className="w-full flex items-center justify-center gap-2 rounded-full bg-primary text-primary-foreground py-3 text-[15px] font-bold disabled:opacity-50 disabled:pointer-events-none active:scale-95 transition-transform"
+          className="group relative w-full flex items-center justify-center gap-2 rounded-full bg-primary text-primary-foreground py-3 text-[15px] font-bold disabled:opacity-50 disabled:pointer-events-none active:scale-95 transition-transform overflow-hidden"
         >
+          <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
           <Sparkles className="w-4 h-4" />
           ابدأ التوليد
         </button>
       )}
 
-      {running && (
-        <AppCard>
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[13px] font-semibold text-foreground">جارٍ التوليد…</span>
-            <button onClick={cancel} className="text-[12px] text-destructive flex items-center gap-1">
-              <X className="w-3.5 h-3.5" /> إلغاء
-            </button>
-          </div>
-          <div className="h-1.5 rounded-full bg-muted overflow-hidden mb-3">
-            <motion.div
-              className="h-full bg-primary"
-              animate={{ width: `${stagePercent}%` }}
-              transition={{ duration: 0.4 }}
-            />
-          </div>
-          <div className="flex items-center justify-between text-[12px] text-muted-foreground">
-            <span>{message}</span>
-            {progress.total > 0 && <span>{progress.current}/{progress.total}</span>}
-          </div>
-          <div className="mt-3 flex gap-1 text-[10px]">
-            {STAGE_ORDER.map((s, i) => {
-              const done = STAGE_ORDER.indexOf(stage as any) >= i;
-              return (
-                <div key={s} className={`flex-1 py-1 rounded text-center ${done ? 'bg-primary/15 text-primary' : 'bg-muted/40 text-muted-foreground'}`}>
-                  {STAGE_LABEL[s]}
-                </div>
-              );
-            })}
-          </div>
-        </AppCard>
-      )}
-
-      {stage === 'filed' && (
-        <AppCard className="flex items-center gap-3 bg-primary/5 border-primary/30">
-          <Check className="w-5 h-5 text-primary" />
-          <span className="text-sm font-semibold text-foreground flex-1">{message}</span>
-        </AppCard>
-      )}
+      <GenerationOverlay
+        open={running || stage === 'filed'}
+        stage={stage as PipelineStage}
+        message={message}
+        progress={progress}
+        percent={stagePercent}
+        topic={topic}
+        onCancel={cancel}
+      />
 
       {stage === 'error' && error && (
         <AppCard className="border-destructive/40 bg-destructive/5">
