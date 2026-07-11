@@ -89,6 +89,79 @@ export default function ArchiveReader() {
   const [tocOpen, setTocOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const articleRef = useRef<HTMLDivElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
+
+  // ── Cinematic engine ────────────────────────────────────────────
+  // IntersectionObserver toggles `.in` on every `.reveal` block as it
+  // enters the viewport. A single observer is reused for the article.
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const focusObserverRef = useRef<IntersectionObserver | null>(null);
+
+  useEffect(() => {
+    if (!prefs.cinematic) {
+      // If disabled, force every block visible so nothing stays hidden.
+      document.querySelectorAll('.archive-cinematic .reveal').forEach(el => el.classList.add('in'));
+      return;
+    }
+    observerRef.current?.disconnect();
+    focusObserverRef.current?.disconnect();
+
+    observerRef.current = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (e.isIntersecting) {
+          e.target.classList.add('in');
+          observerRef.current?.unobserve(e.target); // reveal once
+        }
+      }
+    }, { root: null, rootMargin: '0px 0px -12% 0px', threshold: 0.08 });
+
+    // Focus observer — track which block sits near viewport center.
+    focusObserverRef.current = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        e.target.classList.toggle('focus', e.isIntersecting && e.intersectionRatio > 0.55);
+      }
+    }, { root: null, rootMargin: '-38% 0px -38% 0px', threshold: [0, 0.6, 1] });
+
+    // Attach to all current blocks.
+    const nodes = stageRef.current?.querySelectorAll('.reveal') ?? [];
+    nodes.forEach(n => {
+      observerRef.current!.observe(n);
+      focusObserverRef.current!.observe(n);
+    });
+
+    return () => {
+      observerRef.current?.disconnect();
+      focusObserverRef.current?.disconnect();
+    };
+  }, [prefs.cinematic, doc?.id, doc?.content]);
+
+  // Reading-pace tracker — scroll velocity → --reading-pulse (0..1),
+  // decayed so the ambient layer breathes instead of flickering.
+  useEffect(() => {
+    if (!prefs.cinematic) {
+      stageRef.current?.style.setProperty('--reading-pulse', '0');
+      return;
+    }
+    let lastY = window.scrollY;
+    let lastT = performance.now();
+    let pulse = 0;
+    let raf = 0;
+    const tick = () => {
+      const now = performance.now();
+      const dy = Math.abs(window.scrollY - lastY);
+      const dt = Math.max(16, now - lastT);
+      const v = Math.min(1, dy / dt / 2); // ~2px/ms saturates
+      pulse = Math.max(v, pulse * 0.92);  // decay
+      const focusY = ((window.innerHeight * 0.5) / window.innerHeight) * 100;
+      stageRef.current?.style.setProperty('--reading-pulse', pulse.toFixed(3));
+      stageRef.current?.style.setProperty('--reading-focus-y', `${focusY}%`);
+      lastY = window.scrollY;
+      lastT = now;
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [prefs.cinematic, doc?.id]);
 
   useEffect(() => {
     try { localStorage.setItem(PREFS_KEY, JSON.stringify(prefs)); } catch {}
