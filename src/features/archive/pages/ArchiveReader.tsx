@@ -4,7 +4,7 @@ import ReactMarkdown from 'react-markdown';
 import { PageShell, AppCard } from '@/components/ui/app-shell';
 import BackButton from '@/components/BackButton';
 import SEO from '@/components/SEO';
-import { Loader2, Clock, BookOpen, ALargeSmall, List, Copy, Check, Sun, Moon, SunDim, Minus, Plus, SlidersHorizontal, X } from '@/lib/icons';
+import { Loader2, Clock, BookOpen, ALargeSmall, List, Copy, Check, Sun, Moon, SunDim, Minus, Plus, SlidersHorizontal, X, Sparkles } from '@/lib/icons';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
@@ -22,9 +22,10 @@ interface ReadPrefs {
   size: number;      // px
   lineHeight: number; // multiplier
   width: number;      // max-width px
+  cinematic: boolean;
 }
 
-const DEFAULT_PREFS: ReadPrefs = { theme: 'default', font: 'serif', size: 17, lineHeight: 1.9, width: 720 };
+const DEFAULT_PREFS: ReadPrefs = { theme: 'default', font: 'serif', size: 17, lineHeight: 1.9, width: 720, cinematic: true };
 const PREFS_KEY = 'archive.reader.prefs.v1';
 
 function loadPrefs(): ReadPrefs {
