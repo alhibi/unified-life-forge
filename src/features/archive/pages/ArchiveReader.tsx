@@ -4,7 +4,7 @@ import ReactMarkdown from 'react-markdown';
 import { PageShell, AppCard } from '@/components/ui/app-shell';
 import BackButton from '@/components/BackButton';
 import SEO from '@/components/SEO';
-import { Loader2, Clock, BookOpen, ALargeSmall, List, Copy, Check, Sun, Moon, SunDim, Minus, Plus, SlidersHorizontal, X } from '@/lib/icons';
+import { Loader2, Clock, BookOpen, ALargeSmall, List, Copy, Check, Sun, Moon, SunDim, Minus, Plus, SlidersHorizontal, X, Sparkles } from '@/lib/icons';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
@@ -22,9 +22,10 @@ interface ReadPrefs {
   size: number;      // px
   lineHeight: number; // multiplier
   width: number;      // max-width px
+  cinematic: boolean;
 }
 
-const DEFAULT_PREFS: ReadPrefs = { theme: 'default', font: 'serif', size: 17, lineHeight: 1.9, width: 720 };
+const DEFAULT_PREFS: ReadPrefs = { theme: 'default', font: 'serif', size: 17, lineHeight: 1.9, width: 720, cinematic: true };
 const PREFS_KEY = 'archive.reader.prefs.v1';
 
 function loadPrefs(): ReadPrefs {
@@ -88,6 +89,79 @@ export default function ArchiveReader() {
   const [tocOpen, setTocOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const articleRef = useRef<HTMLDivElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
+
+  // ── Cinematic engine ────────────────────────────────────────────
+  // IntersectionObserver toggles `.in` on every `.reveal` block as it
+  // enters the viewport. A single observer is reused for the article.
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const focusObserverRef = useRef<IntersectionObserver | null>(null);
+
+  useEffect(() => {
+    if (!prefs.cinematic) {
+      // If disabled, force every block visible so nothing stays hidden.
+      document.querySelectorAll('.archive-cinematic .reveal').forEach(el => el.classList.add('in'));
+      return;
+    }
+    observerRef.current?.disconnect();
+    focusObserverRef.current?.disconnect();
+
+    observerRef.current = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (e.isIntersecting) {
+          e.target.classList.add('in');
+          observerRef.current?.unobserve(e.target); // reveal once
+        }
+      }
+    }, { root: null, rootMargin: '0px 0px -12% 0px', threshold: 0.08 });
+
+    // Focus observer — track which block sits near viewport center.
+    focusObserverRef.current = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        e.target.classList.toggle('focus', e.isIntersecting && e.intersectionRatio > 0.55);
+      }
+    }, { root: null, rootMargin: '-38% 0px -38% 0px', threshold: [0, 0.6, 1] });
+
+    // Attach to all current blocks.
+    const nodes = stageRef.current?.querySelectorAll('.reveal') ?? [];
+    nodes.forEach(n => {
+      observerRef.current!.observe(n);
+      focusObserverRef.current!.observe(n);
+    });
+
+    return () => {
+      observerRef.current?.disconnect();
+      focusObserverRef.current?.disconnect();
+    };
+  }, [prefs.cinematic, doc?.id, doc?.content]);
+
+  // Reading-pace tracker — scroll velocity → --reading-pulse (0..1),
+  // decayed so the ambient layer breathes instead of flickering.
+  useEffect(() => {
+    if (!prefs.cinematic) {
+      stageRef.current?.style.setProperty('--reading-pulse', '0');
+      return;
+    }
+    let lastY = window.scrollY;
+    let lastT = performance.now();
+    let pulse = 0;
+    let raf = 0;
+    const tick = () => {
+      const now = performance.now();
+      const dy = Math.abs(window.scrollY - lastY);
+      const dt = Math.max(16, now - lastT);
+      const v = Math.min(1, dy / dt / 2); // ~2px/ms saturates
+      pulse = Math.max(v, pulse * 0.92);  // decay
+      const focusY = ((window.innerHeight * 0.5) / window.innerHeight) * 100;
+      stageRef.current?.style.setProperty('--reading-pulse', pulse.toFixed(3));
+      stageRef.current?.style.setProperty('--reading-focus-y', `${focusY}%`);
+      lastY = window.scrollY;
+      lastT = now;
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [prefs.cinematic, doc?.id]);
 
   useEffect(() => {
     try { localStorage.setItem(PREFS_KEY, JSON.stringify(prefs)); } catch {}
@@ -171,13 +245,22 @@ export default function ArchiveReader() {
 
   return (
     <div
+      ref={stageRef}
       style={{
         ...themeStyle,
         minHeight: '100dvh',
         transition: 'background-color 400ms ease, background 400ms ease, color 400ms ease',
+        ['--ambient-glow' as any]: prefs.theme === 'sepia'
+          ? 'rgba(138, 90, 26, 0.10)'
+          : prefs.theme === 'night'
+          ? 'rgba(212, 180, 131, 0.10)'
+          : 'hsl(var(--live, var(--primary)) / 0.10)',
+        ['--ambient-accent' as any]: accentColor ?? 'hsl(var(--live, var(--primary)))',
       }}
-      className="pt-14 pb-28 px-5"
+      className={`pt-14 pb-28 px-5 relative ${prefs.cinematic ? 'archive-cinematic' : ''}`}
     >
+      {prefs.cinematic && <div className="archive-ambient" aria-hidden="true" />}
+
       {/* Reading progress bar */}
       <div className="fixed top-0 inset-x-0 h-[2px] z-40 bg-transparent">
         <div
@@ -186,7 +269,7 @@ export default function ArchiveReader() {
         />
       </div>
 
-      <div className="mx-auto" style={{ maxWidth: Math.max(prefs.width, 520) }}>
+      <div className="mx-auto relative z-[1]" style={{ maxWidth: Math.max(prefs.width, 520) }}>
         <SEO title={`${doc.title} — الأرشيف`} description={doc.abstract || doc.topic} path={`/archive/${doc.id}`} />
 
         <div className="flex items-center justify-between gap-2 mb-2">
@@ -333,6 +416,28 @@ export default function ArchiveReader() {
                     </div>
                     <Slider min={520} max={960} step={20} value={[prefs.width]} onValueChange={([v]) => setPrefs(p => ({ ...p, width: v }))} />
                   </div>
+                  {/* Cinematic mode */}
+                  <button
+                    type="button"
+                    onClick={() => setPrefs(p => ({ ...p, cinematic: !p.cinematic }))}
+                    className={`w-full flex items-center justify-between gap-3 rounded-2xl border px-4 py-3 transition-all active:scale-[0.98] ${prefs.cinematic ? 'border-primary/50 bg-primary/5' : 'border-border/50'}`}
+                    aria-pressed={prefs.cinematic}
+                  >
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="w-4 h-4" style={{ color: accentColor ?? 'hsl(var(--live, var(--primary)))' }} />
+                      <div className="text-right">
+                        <div className="text-[13px] font-medium">القراءة السينمائية</div>
+                        <div className="text-[11px] text-muted-foreground">فقرات تتنفّس مع تمرير قراءتك</div>
+                      </div>
+                    </div>
+                    <span
+                      className={`relative w-9 h-5 rounded-full transition-colors ${prefs.cinematic ? 'bg-primary' : 'bg-muted'}`}
+                    >
+                      <span
+                        className={`absolute top-0.5 w-4 h-4 rounded-full bg-background transition-transform ${prefs.cinematic ? 'right-0.5' : 'right-[18px]'}`}
+                      />
+                    </span>
+                  </button>
                   <div className="flex items-center gap-3 pt-2 sticky bottom-0 -mx-5 px-5 py-3 bg-background/95 backdrop-blur border-t border-border/40">
                     <Button variant="ghost" size="sm" onClick={() => setPrefs(DEFAULT_PREFS)}>إعادة ضبط</Button>
                     <Button className="flex-1 h-10 rounded-xl" onClick={() => setSettingsOpen(false)}>تم القراءة</Button>
@@ -394,7 +499,7 @@ export default function ArchiveReader() {
                   return (
                     <h2
                       id={hid}
-                      className="font-bold mt-10 mb-3 pb-2 border-b scroll-mt-24"
+                      className="reveal font-bold mt-10 mb-3 pb-2 border-b scroll-mt-24"
                       style={{ fontSize: prefs.size + 6, borderColor: borderColor ?? 'hsl(var(--border) / 0.3)' }}
                       {...props}
                     >{children}</h2>
@@ -406,18 +511,18 @@ export default function ArchiveReader() {
                   return (
                     <h3
                       id={hid}
-                      className="font-semibold mt-7 mb-2 scroll-mt-24"
+                      className="reveal font-semibold mt-7 mb-2 scroll-mt-24"
                       style={{ fontSize: prefs.size + 3 }}
                       {...props}
                     >{children}</h3>
                   );
                 },
-                p: ({ node, ...props }) => <p className="mb-4" {...props} />,
-                ul: ({ node, ...props }) => <ul className="list-disc pr-6 mb-4 space-y-1" {...props} />,
-                ol: ({ node, ...props }) => <ol className="list-decimal pr-6 mb-4 space-y-1" {...props} />,
+                p: ({ node, ...props }) => <p className="reveal mb-4" {...props} />,
+                ul: ({ node, ...props }) => <ul className="reveal list-disc pr-6 mb-4 space-y-1" {...props} />,
+                ol: ({ node, ...props }) => <ol className="reveal list-decimal pr-6 mb-4 space-y-1" {...props} />,
                 blockquote: ({ node, ...props }) => (
                   <blockquote
-                    className="pr-3 my-4 italic"
+                    className="reveal pr-3 my-4 italic"
                     style={{
                       borderRight: `3px solid ${accentColor ?? 'hsl(var(--primary) / 0.5)'}`,
                       color: mutedColor ?? 'hsl(var(--muted-foreground))',
@@ -432,7 +537,7 @@ export default function ArchiveReader() {
                     {...props}
                   />
                 ),
-                hr: () => <hr className="my-8" style={{ borderColor: borderColor ?? 'hsl(var(--border) / 0.4)' }} />,
+                hr: () => <hr className="reveal my-8" style={{ borderColor: borderColor ?? 'hsl(var(--border) / 0.4)' }} />,
                 a: ({ node, ...props }) => (
                   <a {...props} className="underline underline-offset-2" style={{ color: accentColor ?? 'hsl(var(--primary))' }} target="_blank" rel="noopener noreferrer" />
                 ),
@@ -440,6 +545,9 @@ export default function ArchiveReader() {
             >
               {doc.content}
             </ReactMarkdown>
+            {prefs.cinematic && (
+              <div className="end-ornament reveal" aria-hidden="true"><span /></div>
+            )}
           </article>
         </div>
       </div>

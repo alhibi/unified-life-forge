@@ -1270,3 +1270,120 @@ input.podcast-seek:active::-moz-range-thumb {
   to   { opacity: 1; transform: translateY(0); }
 }
 .animate-knowledge-fade-slide { animation: knowledge-fade-slide-in 0.35s ease-out both; }
+
+/* ──────────────────────────────────────────────────────────────
+   ARCHIVE — Cinematic Reading Journey
+   Live, scroll-reactive reveals for the Archive reader only.
+   Scoped under `.archive-cinematic` so it never leaks elsewhere.
+   ────────────────────────────────────────────────────────────── */
+.archive-cinematic {
+  /* Live vars driven by JS: reading pace 0 → 1, current block anchor. */
+  --reading-pulse: 0;
+  --reading-focus-y: 50%;
+}
+
+/* Ambient reactive layer — a soft breathing vignette that intensifies
+   with reading pace. Fixed, non-interactive, respects theme colors. */
+.archive-ambient {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: calc(0.35 + var(--reading-pulse, 0) * 0.45);
+  background:
+    radial-gradient(
+      60% 40% at 50% var(--reading-focus-y, 50%),
+      var(--ambient-glow, hsl(var(--live, var(--primary)) / 0.10)) 0%,
+      transparent 70%
+    );
+  transition: opacity 900ms ease, background 900ms ease;
+  animation: archive-ambient-breath 9s ease-in-out infinite;
+  will-change: opacity, background;
+}
+@keyframes archive-ambient-breath {
+  0%, 100% { filter: blur(0px); }
+  50%      { filter: blur(2px); }
+}
+
+/* Every rendered block starts hidden then reveals when it enters
+   the viewport. `.in` is toggled by the IntersectionObserver. */
+.archive-cinematic .reveal {
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity 700ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    transform 700ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    filter 700ms ease;
+  filter: blur(4px);
+  will-change: opacity, transform, filter;
+}
+.archive-cinematic .reveal.in {
+  opacity: 1;
+  transform: translateY(0);
+  filter: blur(0);
+}
+
+/* Focus spotlight — the paragraph closest to viewport center reads
+   at full presence; siblings recede subtly. Very gentle, not harsh. */
+.archive-cinematic .reveal.in { opacity: 0.72; }
+.archive-cinematic .reveal.in.focus { opacity: 1; }
+
+/* Heading reveal — a hair-thin sweep line traces underneath h2 as
+   it enters. No shadow, pure gradient wash. */
+.archive-cinematic h2.reveal {
+  position: relative;
+}
+.archive-cinematic h2.reveal::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: -1px;
+  height: 1px;
+  background: linear-gradient(
+    to left,
+    transparent 0%,
+    var(--ambient-accent, hsl(var(--live, var(--primary)) / 0.55)) 50%,
+    transparent 100%
+  );
+  transform: scaleX(0);
+  transform-origin: right center;
+  transition: transform 1100ms cubic-bezier(0.22, 0.61, 0.36, 1) 120ms;
+}
+.archive-cinematic h2.reveal.in::after { transform: scaleX(1); }
+
+/* Drop-cap for the first paragraph after every heading. */
+.archive-cinematic h2 + p.reveal::first-letter,
+.archive-cinematic h3 + p.reveal::first-letter {
+  font-size: 2.6em;
+  line-height: 0.9;
+  float: right;
+  margin-left: 0.15em;
+  margin-top: 0.12em;
+  padding-left: 0.1em;
+  color: var(--ambient-accent, hsl(var(--live, var(--primary))));
+  font-weight: 600;
+}
+
+/* End-of-article ornament — a small breathing dot. */
+.archive-cinematic .end-ornament {
+  display: flex; justify-content: center;
+  margin: 3rem 0 1rem;
+  opacity: 0;
+  transition: opacity 900ms ease;
+}
+.archive-cinematic .end-ornament.in { opacity: 0.6; }
+.archive-cinematic .end-ornament > span {
+  width: 6px; height: 6px; border-radius: 999px;
+  background: var(--ambient-accent, hsl(var(--live, var(--primary))));
+  animation: archive-ambient-breath 3.2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .archive-cinematic .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+    transition: none !important;
+  }
+  .archive-ambient { animation: none !important; }
+  .archive-cinematic h2.reveal::after { transform: scaleX(1) !important; transition: none !important; }
+}
