@@ -477,7 +477,7 @@ export default function ArchiveReader() {
                   return (
                     <h2
                       id={hid}
-                      className="font-bold mt-10 mb-3 pb-2 border-b scroll-mt-24"
+                      className="reveal font-bold mt-10 mb-3 pb-2 border-b scroll-mt-24"
                       style={{ fontSize: prefs.size + 6, borderColor: borderColor ?? 'hsl(var(--border) / 0.3)' }}
                       {...props}
                     >{children}</h2>
@@ -489,18 +489,18 @@ export default function ArchiveReader() {
                   return (
                     <h3
                       id={hid}
-                      className="font-semibold mt-7 mb-2 scroll-mt-24"
+                      className="reveal font-semibold mt-7 mb-2 scroll-mt-24"
                       style={{ fontSize: prefs.size + 3 }}
                       {...props}
                     >{children}</h3>
                   );
                 },
-                p: ({ node, ...props }) => <p className="mb-4" {...props} />,
-                ul: ({ node, ...props }) => <ul className="list-disc pr-6 mb-4 space-y-1" {...props} />,
-                ol: ({ node, ...props }) => <ol className="list-decimal pr-6 mb-4 space-y-1" {...props} />,
+                p: ({ node, ...props }) => <p className="reveal mb-4" {...props} />,
+                ul: ({ node, ...props }) => <ul className="reveal list-disc pr-6 mb-4 space-y-1" {...props} />,
+                ol: ({ node, ...props }) => <ol className="reveal list-decimal pr-6 mb-4 space-y-1" {...props} />,
                 blockquote: ({ node, ...props }) => (
                   <blockquote
-                    className="pr-3 my-4 italic"
+                    className="reveal pr-3 my-4 italic"
                     style={{
                       borderRight: `3px solid ${accentColor ?? 'hsl(var(--primary) / 0.5)'}`,
                       color: mutedColor ?? 'hsl(var(--muted-foreground))',
@@ -515,7 +515,7 @@ export default function ArchiveReader() {
                     {...props}
                   />
                 ),
-                hr: () => <hr className="my-8" style={{ borderColor: borderColor ?? 'hsl(var(--border) / 0.4)' }} />,
+                hr: () => <hr className="reveal my-8" style={{ borderColor: borderColor ?? 'hsl(var(--border) / 0.4)' }} />,
                 a: ({ node, ...props }) => (
                   <a {...props} className="underline underline-offset-2" style={{ color: accentColor ?? 'hsl(var(--primary))' }} target="_blank" rel="noopener noreferrer" />
                 ),
@@ -523,6 +523,9 @@ export default function ArchiveReader() {
             >
               {doc.content}
             </ReactMarkdown>
+            {prefs.cinematic && (
+              <div className="end-ornament reveal" aria-hidden="true"><span /></div>
+            )}
           </article>
         </div>
       </div>
