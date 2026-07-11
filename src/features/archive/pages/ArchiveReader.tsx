@@ -245,13 +245,22 @@ export default function ArchiveReader() {
 
   return (
     <div
+      ref={stageRef}
       style={{
         ...themeStyle,
         minHeight: '100dvh',
         transition: 'background-color 400ms ease, background 400ms ease, color 400ms ease',
+        ['--ambient-glow' as any]: prefs.theme === 'sepia'
+          ? 'rgba(138, 90, 26, 0.10)'
+          : prefs.theme === 'night'
+          ? 'rgba(212, 180, 131, 0.10)'
+          : 'hsl(var(--live, var(--primary)) / 0.10)',
+        ['--ambient-accent' as any]: accentColor ?? 'hsl(var(--live, var(--primary)))',
       }}
-      className="pt-14 pb-28 px-5"
+      className={`pt-14 pb-28 px-5 relative ${prefs.cinematic ? 'archive-cinematic' : ''}`}
     >
+      {prefs.cinematic && <div className="archive-ambient" aria-hidden="true" />}
+
       {/* Reading progress bar */}
       <div className="fixed top-0 inset-x-0 h-[2px] z-40 bg-transparent">
         <div
@@ -260,7 +269,7 @@ export default function ArchiveReader() {
         />
       </div>
 
-      <div className="mx-auto" style={{ maxWidth: Math.max(prefs.width, 520) }}>
+      <div className="mx-auto relative z-[1]" style={{ maxWidth: Math.max(prefs.width, 520) }}>
         <SEO title={`${doc.title} — الأرشيف`} description={doc.abstract || doc.topic} path={`/archive/${doc.id}`} />
 
         <div className="flex items-center justify-between gap-2 mb-2">
