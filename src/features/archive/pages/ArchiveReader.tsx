@@ -416,6 +416,28 @@ export default function ArchiveReader() {
                     </div>
                     <Slider min={520} max={960} step={20} value={[prefs.width]} onValueChange={([v]) => setPrefs(p => ({ ...p, width: v }))} />
                   </div>
+                  {/* Cinematic mode */}
+                  <button
+                    type="button"
+                    onClick={() => setPrefs(p => ({ ...p, cinematic: !p.cinematic }))}
+                    className={`w-full flex items-center justify-between gap-3 rounded-2xl border px-4 py-3 transition-all active:scale-[0.98] ${prefs.cinematic ? 'border-primary/50 bg-primary/5' : 'border-border/50'}`}
+                    aria-pressed={prefs.cinematic}
+                  >
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="w-4 h-4" style={{ color: accentColor ?? 'hsl(var(--live, var(--primary)))' }} />
+                      <div className="text-right">
+                        <div className="text-[13px] font-medium">القراءة السينمائية</div>
+                        <div className="text-[11px] text-muted-foreground">فقرات تتنفّس مع تمرير قراءتك</div>
+                      </div>
+                    </div>
+                    <span
+                      className={`relative w-9 h-5 rounded-full transition-colors ${prefs.cinematic ? 'bg-primary' : 'bg-muted'}`}
+                    >
+                      <span
+                        className={`absolute top-0.5 w-4 h-4 rounded-full bg-background transition-transform ${prefs.cinematic ? 'right-0.5' : 'right-[18px]'}`}
+                      />
+                    </span>
+                  </button>
                   <div className="flex items-center gap-3 pt-2 sticky bottom-0 -mx-5 px-5 py-3 bg-background/95 backdrop-blur border-t border-border/40">
                     <Button variant="ghost" size="sm" onClick={() => setPrefs(DEFAULT_PREFS)}>إعادة ضبط</Button>
                     <Button className="flex-1 h-10 rounded-xl" onClick={() => setSettingsOpen(false)}>تم القراءة</Button>
