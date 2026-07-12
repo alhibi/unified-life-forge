@@ -92,47 +92,22 @@ export default function ArchiveReader() {
   const stageRef = useRef<HTMLDivElement>(null);
 
   // ── Cinematic engine ────────────────────────────────────────────
-  // IntersectionObserver toggles `.in` on every `.reveal` block as it
-  // enters the viewport. A single observer is reused for the article.
-  const observerRef = useRef<IntersectionObserver | null>(null);
+  // Entrance reveal is done in pure CSS (see .archive-cinematic .reveal)
+  // so text can never stay hidden on re-render. We only run a lightweight
+  // focus observer here to highlight the block near viewport center.
   const focusObserverRef = useRef<IntersectionObserver | null>(null);
 
   useEffect(() => {
-    if (!prefs.cinematic) {
-      // If disabled, force every block visible so nothing stays hidden.
-      document.querySelectorAll('.archive-cinematic .reveal').forEach(el => el.classList.add('in'));
-      return;
-    }
-    observerRef.current?.disconnect();
+    if (!prefs.cinematic) return;
     focusObserverRef.current?.disconnect();
-
-    observerRef.current = new IntersectionObserver((entries) => {
-      for (const e of entries) {
-        if (e.isIntersecting) {
-          e.target.classList.add('in');
-          observerRef.current?.unobserve(e.target); // reveal once
-        }
-      }
-    }, { root: null, rootMargin: '0px 0px -12% 0px', threshold: 0.08 });
-
-    // Focus observer — track which block sits near viewport center.
     focusObserverRef.current = new IntersectionObserver((entries) => {
       for (const e of entries) {
         e.target.classList.toggle('focus', e.isIntersecting && e.intersectionRatio > 0.55);
       }
     }, { root: null, rootMargin: '-38% 0px -38% 0px', threshold: [0, 0.6, 1] });
-
-    // Attach to all current blocks.
     const nodes = stageRef.current?.querySelectorAll('.reveal') ?? [];
-    nodes.forEach(n => {
-      observerRef.current!.observe(n);
-      focusObserverRef.current!.observe(n);
-    });
-
-    return () => {
-      observerRef.current?.disconnect();
-      focusObserverRef.current?.disconnect();
-    };
+    nodes.forEach(n => focusObserverRef.current!.observe(n));
+    return () => focusObserverRef.current?.disconnect();
   }, [prefs.cinematic, doc?.id, doc?.content]);
 
   // Reading-pace tracker — scroll velocity → --reading-pulse (0..1),
