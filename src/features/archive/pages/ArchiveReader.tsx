@@ -84,31 +84,16 @@ export default function ArchiveReader() {
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
   const [prefs, setPrefs] = useState<ReadPrefs>(() => loadPrefs());
-  const [progress, setProgress] = useState(0);
   const [copied, setCopied] = useState(false);
   const [tocOpen, setTocOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const articleRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
+  const progressBarRef = useRef<HTMLDivElement>(null);
 
   // ── Cinematic engine ────────────────────────────────────────────
-  // Entrance reveal is done in pure CSS (see .archive-cinematic .reveal)
-  // so text can never stay hidden on re-render. We only run a lightweight
-  // focus observer here to highlight the block near viewport center.
-  const focusObserverRef = useRef<IntersectionObserver | null>(null);
-
-  useEffect(() => {
-    if (!prefs.cinematic) return;
-    focusObserverRef.current?.disconnect();
-    focusObserverRef.current = new IntersectionObserver((entries) => {
-      for (const e of entries) {
-        e.target.classList.toggle('focus', e.isIntersecting && e.intersectionRatio > 0.55);
-      }
-    }, { root: null, rootMargin: '-38% 0px -38% 0px', threshold: [0, 0.6, 1] });
-    const nodes = stageRef.current?.querySelectorAll('.reveal') ?? [];
-    nodes.forEach(n => focusObserverRef.current!.observe(n));
-    return () => focusObserverRef.current?.disconnect();
-  }, [prefs.cinematic, doc?.id, doc?.content]);
+  // Text must remain raster-stable while scrolling: no blur filters, no
+  // scroll-time React re-renders, and no opacity spotlight toggling.
 
   // Reading-pace tracker — scroll velocity → --reading-pulse (0..1),
   // decayed so the ambient layer breathes instead of flickering.
@@ -153,12 +138,14 @@ export default function ArchiveReader() {
     return () => { alive = false; };
   }, [id]);
 
-  // Reading progress
+  // Reading progress — writes directly to the bar so scrolling does not
+  // re-render the markdown tree and restart text animations.
   useEffect(() => {
     const onScroll = () => {
       const h = document.documentElement;
       const total = h.scrollHeight - h.clientHeight;
-      setProgress(total > 0 ? Math.min(100, Math.max(0, (h.scrollTop / total) * 100)) : 0);
+      const next = total > 0 ? Math.min(100, Math.max(0, (h.scrollTop / total) * 100)) : 0;
+      if (progressBarRef.current) progressBarRef.current.style.width = `${next}%`;
     };
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
@@ -239,8 +226,9 @@ export default function ArchiveReader() {
       {/* Reading progress bar */}
       <div className="fixed top-0 inset-x-0 h-[2px] z-40 bg-transparent">
         <div
+          ref={progressBarRef}
           className="h-full transition-[width] duration-150"
-          style={{ width: `${progress}%`, background: accentColor ?? 'hsl(var(--live, var(--primary)))' }}
+          style={{ width: '0%', background: accentColor ?? 'hsl(var(--live, var(--primary)))' }}
         />
       </div>
 
