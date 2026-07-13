@@ -132,6 +132,8 @@ const loadLibraryFavorites = () => import("./features/diwan/pages/LibraryFavorit
 const loadArchiveHome   = () => import("./features/archive/pages/ArchiveHome");
 const loadArchiveNew    = () => import("./features/archive/pages/ArchiveNew");
 const loadArchiveReader = () => import("./features/archive/pages/ArchiveReader");
+// PKM — local-first personal knowledge base (MVP).
+const loadPKM = () => import("./features/pkm/pages/PKM");
 
 // ──────────────────────────────────────────────────────────────────────
 // Register every lazy route in the central prefetch registry so any
@@ -191,6 +193,7 @@ registerRoute('/diwan/library/favorites', loadLibraryFavorites);
 registerRoute('/archive',        loadArchiveHome);
 registerRoute('/archive/new',    loadArchiveNew);
 registerRoute('/archive/:id',    loadArchiveReader);
+registerRoute('/pkm',            loadPKM);
 
 const SudokuPage = lazy(loadSudoku);
 const ChessPage = lazy(loadChess);
@@ -243,6 +246,7 @@ const DiwanLibraryFavoritesPage = lazy(loadLibraryFavorites);
 const ArchiveHomePage   = lazy(loadArchiveHome);
 const ArchiveNewPage    = lazy(loadArchiveNew);
 const ArchiveReaderPage = lazy(loadArchiveReader);
+const PKMPage           = lazy(loadPKM);
 
 // Tab pages are now eager (always mounted), so the idle prefetch warms
 // the next most-likely sub-routes instead of the tabs themselves.
@@ -563,6 +567,8 @@ function AnimatedRoutes() {
                   <Route path="/archive"       element={<ErrorBoundary><ArchiveHomePage /></ErrorBoundary>} />
                   <Route path="/archive/new"   element={<ErrorBoundary><ArchiveNewPage /></ErrorBoundary>} />
                   <Route path="/archive/:id"   element={<ErrorBoundary><ArchiveReaderPage /></ErrorBoundary>} />
+                  {/* PKM — personal knowledge base (local-first MVP). */}
+                  <Route path="/pkm"           element={<ErrorBoundary><PKMPage /></ErrorBoundary>} />
                   <Route path="*" element={<ErrorBoundary><NotFound /></ErrorBoundary>} />
                 </Routes>
               </Suspense>
