@@ -15,7 +15,7 @@ import LivingRibbon from '@/components/LivingRibbon';
 
 import SmartGreeting from '@/components/SmartGreeting';
 import { useNavigate } from 'react-router-dom';
-import { MessageCircle, ClipboardList, X, Trash2, BookOpen, UserCircle, Sparkles, ChevronLeft } from '@/lib/icons';
+import { MessageCircle, ClipboardList, X, Trash2, BookOpen, UserCircle, Sparkles, ChevronLeft, FileText } from '@/lib/icons';
 import { AnimatePresence } from 'framer-motion';
 import { useClipboard } from '@/features/clipboard/hooks/useClipboard';
 import { getAppleEmojiUrl, isEmojiAvatarValue } from '@/utils/emojiAvatar';
@@ -158,6 +158,32 @@ export default function Index() {
                 </div>
                 <p className="text-[12px] text-muted-foreground leading-relaxed mt-0.5">
                   اقترح موضوعاً، اختر عمقاً، واحصل على مونوغراف كامل مفهرس.
+                </p>
+              </div>
+              <ChevronLeft className="w-4 h-4 text-muted-foreground shrink-0" />
+            </div>
+          </button>
+        </motion.section>
+
+        {/* PKM — personal knowledge base entry card */}
+        <motion.section variants={item} aria-labelledby="home-pkm-h">
+          <h2 id="home-pkm-h" className="sr-only">{language === 'ar' ? 'مذكّرتي' : 'Mein Wissen'}</h2>
+          <button
+            onClick={() => navigate('/pkm')}
+            className="w-full text-start rounded-2xl p-4 border border-border/50 bg-card active:scale-[0.98] transition-transform"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                <FileText className="w-5 h-5 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="font-bold text-foreground">
+                  {language === 'ar' ? 'مذكّرتي' : 'Mein Wissen'}
+                </h3>
+                <p className="text-[12px] text-muted-foreground leading-relaxed mt-0.5">
+                  {language === 'ar'
+                    ? 'ملاحظات محلية بوسم متداخل وبحث فوري.'
+                    : 'Lokale Notizen mit verschachtelten Tags und Sofortsuche.'}
                 </p>
               </div>
               <ChevronLeft className="w-4 h-4 text-muted-foreground shrink-0" />
