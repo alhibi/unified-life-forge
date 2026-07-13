@@ -6,7 +6,7 @@ import BackButton from '@/components/BackButton';
 import { useApp } from '@/contexts/AppContext';
 import { useNotes, type LocalNote, type NoteStatus } from '../hooks/useNotes';
 import { extractTags, buildTagTree, type TagNode } from '../lib/tagParser';
-import { Plus, Trash, Hash, FileText, Eye, Pencil, Search, CaretRight, CaretDown } from '@/lib/icons';
+import { Plus, Trash, Hash, FileText, Eye, Pencil, Search, ChevronRight, ChevronDown } from '@/lib/icons';
 import { cn } from '@/lib/utils';
 
 /**
@@ -323,7 +323,7 @@ function TagRow({
             className="w-5 h-5 flex items-center justify-center text-muted-foreground/60 hover:text-foreground"
             aria-label={open ? 'collapse' : 'expand'}
           >
-            {open ? <CaretDown className="w-3 h-3" /> : <CaretRight className="w-3 h-3" />}
+          {open ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
           </button>
         ) : (
           <span className="w-5 h-5 flex items-center justify-center">
