@@ -6,8 +6,11 @@ import BackButton from '@/components/BackButton';
 import { useApp } from '@/contexts/AppContext';
 import { useNotes, type LocalNote, type NoteStatus } from '../hooks/useNotes';
 import { extractTags, buildTagTree, type TagNode } from '../lib/tagParser';
-import { Plus, Trash, Hash, FileText, Eye, Pencil, Search, ChevronRight, ChevronDown } from '@/lib/icons';
+import { Plus, Trash, Hash, FileText, Eye, Pencil, Search, ChevronRight, ChevronDown, Sparkles } from '@/lib/icons';
 import { cn } from '@/lib/utils';
+import { useSyncEngine } from '../hooks/useSyncEngine';
+import OptimizerPanel from '../components/OptimizerPanel';
+import BacklinksPanel from '../components/BacklinksPanel';
 
 /**
  * PKM — local-first personal knowledge base (MVP).
@@ -48,6 +51,9 @@ export default function PKM() {
   const { language } = useApp();
   const isAr = language === 'ar';
   const { notes, loading, createNote, updateNote, deleteNote } = useNotes();
+  useSyncEngine();
+
+  const [optimizerOpen, setOptimizerOpen] = useState(false);
 
   const [activeId, setActiveId] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
@@ -243,14 +249,33 @@ export default function PKM() {
         {/* EDITOR */}
         <section className={cn('min-h-[60vh]', listOpen && 'hidden lg:block')}>
           {active ? (
-            <Editor
-              note={active}
-              preview={preview}
-              onTogglePreview={() => setPreview((p) => !p)}
-              onChange={(patch) => updateNote(active.id, patch)}
-              onDelete={() => handleDelete(active.id)}
-              isAr={isAr}
-            />
+            <>
+              <Editor
+                note={active}
+                preview={preview}
+                onTogglePreview={() => setPreview((p) => !p)}
+                onChange={(patch) => updateNote(active.id, patch)}
+                onDelete={() => handleDelete(active.id)}
+                onOptimize={() => setOptimizerOpen(true)}
+                isAr={isAr}
+              />
+              <div className="mt-3">
+                <BacklinksPanel
+                  note={active}
+                  notes={notes}
+                  onOpen={(id) => { setActiveId(id); setPreview(false); }}
+                  isAr={isAr}
+                />
+              </div>
+              <OptimizerPanel
+                open={optimizerOpen}
+                onClose={() => setOptimizerOpen(false)}
+                title={active.title}
+                body={active.contentMd}
+                onAccept={(next) => updateNote(active.id, { contentMd: next })}
+                isAr={isAr}
+              />
+            </>
           ) : (
             <div className="rounded-2xl bg-card border border-dashed border-border/50 p-10 text-center flex flex-col items-center gap-3">
               <FileText className="w-10 h-10 text-muted-foreground/40" />
