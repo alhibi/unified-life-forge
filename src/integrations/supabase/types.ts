@@ -339,6 +339,122 @@ export type Database = {
           },
         ]
       }
+      pkm_ai_generations: {
+        Row: {
+          created_at: string
+          generated_content: string | null
+          id: string
+          mode: string
+          model: string
+          note_id: string
+          original_content: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          generated_content?: string | null
+          id?: string
+          mode: string
+          model?: string
+          note_id: string
+          original_content: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          generated_content?: string | null
+          id?: string
+          mode?: string
+          model?: string
+          note_id?: string
+          original_content?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pkm_ai_generations_note_id_fkey"
+            columns: ["note_id"]
+            isOneToOne: false
+            referencedRelation: "pkm_notes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pkm_note_links: {
+        Row: {
+          created_at: string
+          id: string
+          link_text: string
+          source_note_id: string
+          target_note_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          link_text: string
+          source_note_id: string
+          target_note_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          link_text?: string
+          source_note_id?: string
+          target_note_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pkm_note_links_source_note_id_fkey"
+            columns: ["source_note_id"]
+            isOneToOne: false
+            referencedRelation: "pkm_notes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pkm_note_links_target_note_id_fkey"
+            columns: ["target_note_id"]
+            isOneToOne: false
+            referencedRelation: "pkm_notes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pkm_notes: {
+        Row: {
+          content_md: string
+          created_at: string
+          id: string
+          is_deleted: boolean
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+          version: number
+        }
+        Insert: {
+          content_md?: string
+          created_at?: string
+          id: string
+          is_deleted?: boolean
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id: string
+          version?: number
+        }
+        Update: {
+          content_md?: string
+          created_at?: string
+          id?: string
+          is_deleted?: boolean
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+          version?: number
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
