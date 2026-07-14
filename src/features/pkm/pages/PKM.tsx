@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import SEO from '@/components/SEO';
 import { PageShell } from '@/components/ui/app-shell';
@@ -366,6 +366,7 @@ function Editor({
   // Local buffer for smooth typing; debounced flush to Dexie.
   const [title, setTitle] = useState(note.title);
   const [body, setBody] = useState(note.contentMd);
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   // Reset buffers whenever the active note changes.
   useEffect(() => { setTitle(note.title); setBody(note.contentMd); }, [note.id]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -381,6 +382,147 @@ function Editor({
     }, 400);
     return () => clearTimeout(t);
   }, [title, body, note.title, note.contentMd, onChange]);
+
+  // ── Markdown edit helpers ─────────────────────────────────────────
+  const applyEdit = (fn: (sel: { before: string; sel: string; after: string }) => { text: string; selStart: number; selEnd: number }) => {
+    const ta = textareaRef.current;
+    if (!ta) return;
+    const start = ta.selectionStart;
+    const end = ta.selectionEnd;
+    const before = body.slice(0, start);
+    const sel = body.slice(start, end);
+    const after = body.slice(end);
+    const { text, selStart, selEnd } = fn({ before, sel, after });
+    setBody(text);
+    requestAnimationFrame(() => {
+      ta.focus();
+      ta.setSelectionRange(selStart, selEnd);
+    });
+  };
+
+  const wrap = (left: string, right = left, placeholder = '') =>
+    applyEdit(({ before, sel, after }) => {
+      const inner = sel || placeholder;
+      const text = before + left + inner + right + after;
+      const selStart = before.length + left.length;
+      const selEnd = selStart + inner.length;
+      return { text, selStart, selEnd };
+    });
+
+  const linePrefix = (prefix: string) =>
+    applyEdit(({ before, sel, after }) => {
+      // Expand selection to full lines
+      const lineStart = before.lastIndexOf('\n') + 1;
+      const trailing = after.indexOf('\n');
+      const lineEnd = trailing === -1 ? body.length : before.length + sel.length + trailing;
+      const fullBefore = body.slice(0, lineStart);
+      const block = body.slice(lineStart, lineEnd);
+      const fullAfter = body.slice(lineEnd);
+      const lines = block.split('\n');
+      const isNumbered = prefix === '1. ';
+      const transformed = lines
+        .map((l, i) => {
+          if (!l && lines.length > 1) return l;
+          const cleaned = l.replace(/^(\s*)([-*+]\s|\d+\.\s|>\s|#{1,6}\s|\[.\]\s)?/, '$1');
+          const p = isNumbered ? `${i + 1}. ` : prefix;
+          return p + cleaned;
+        })
+        .join('\n');
+      const text = fullBefore + transformed + fullAfter;
+      const selStart = fullBefore.length;
+      const selEnd = selStart + transformed.length;
+      return { text, selStart, selEnd };
+    });
+
+  const insertLink = () => {
+    const url = window.prompt(isAr ? 'الرابط:' : 'URL:', 'https://');
+    if (!url) return;
+    applyEdit(({ before, sel, after }) => {
+      const label = sel || (isAr ? 'رابط' : 'Link');
+      const text = before + `[${label}](${url})` + after;
+      const selStart = before.length + 1;
+      const selEnd = selStart + label.length;
+      return { text, selStart, selEnd };
+    });
+  };
+
+  const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    const mod = e.metaKey || e.ctrlKey;
+    if (mod && e.key.toLowerCase() === 'b') { e.preventDefault(); wrap('**', '**', isAr ? 'غامق' : 'fett'); return; }
+    if (mod && e.key.toLowerCase() === 'i') { e.preventDefault(); wrap('*', '*', isAr ? 'مائل' : 'kursiv'); return; }
+    if (mod && e.key.toLowerCase() === 'k') { e.preventDefault(); insertLink(); return; }
+    if (mod && e.key.toLowerCase() === 'e') { e.preventDefault(); wrap('`', '`', 'code'); return; }
+
+    // Tab → indent (or outdent with Shift)
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      const ta = e.currentTarget;
+      const start = ta.selectionStart;
+      const end = ta.selectionEnd;
+      if (e.shiftKey) {
+        // remove up to 2 leading spaces from each selected line
+        const lineStart = body.lastIndexOf('\n', start - 1) + 1;
+        const block = body.slice(lineStart, end);
+        const dedented = block.replace(/^ {1,2}/gm, '');
+        const diff = block.length - dedented.length;
+        const text = body.slice(0, lineStart) + dedented + body.slice(end);
+        setBody(text);
+        requestAnimationFrame(() => {
+          ta.setSelectionRange(Math.max(lineStart, start - Math.min(2, diff)), end - diff);
+        });
+      } else {
+        const text = body.slice(0, start) + '  ' + body.slice(end);
+        setBody(text);
+        requestAnimationFrame(() => ta.setSelectionRange(start + 2, start + 2));
+      }
+      return;
+    }
+
+    // Enter → auto-continue list / checkbox / quote
+    if (e.key === 'Enter' && !e.shiftKey) {
+      const ta = e.currentTarget;
+      const start = ta.selectionStart;
+      const lineStart = body.lastIndexOf('\n', start - 1) + 1;
+      const line = body.slice(lineStart, start);
+      const m = line.match(/^(\s*)([-*+]\s\[[ x]\]\s|[-*+]\s|\d+\.\s|>\s)(.*)$/);
+      if (m) {
+        const [, indent, marker, rest] = m;
+        // Empty item → break out of list
+        if (rest.trim() === '') {
+          e.preventDefault();
+          const text = body.slice(0, lineStart) + '\n' + body.slice(start);
+          setBody(text);
+          const pos = lineStart + 1;
+          requestAnimationFrame(() => ta.setSelectionRange(pos, pos));
+          return;
+        }
+        e.preventDefault();
+        let nextMarker = marker;
+        // increment numbered list
+        const num = marker.match(/^(\d+)\.\s$/);
+        if (num) nextMarker = `${parseInt(num[1], 10) + 1}. `;
+        // reset checkbox to unchecked
+        nextMarker = nextMarker.replace(/\[x\]/i, '[ ]');
+        const insert = '\n' + indent + nextMarker;
+        const text = body.slice(0, start) + insert + body.slice(start);
+        setBody(text);
+        const pos = start + insert.length;
+        requestAnimationFrame(() => ta.setSelectionRange(pos, pos));
+      }
+    }
+  };
+
+  // Word count + reading time
+  const stats = useMemo(() => {
+    const text = body.replace(/```[\s\S]*?```/g, '').replace(/[#*_`>[\]()\-]/g, ' ');
+    const words = text.trim().split(/\s+/).filter(Boolean).length;
+    const chars = body.length;
+    const minutes = Math.max(1, Math.round(words / 200));
+    return { words, chars, minutes };
+  }, [body]);
+
+  const toolbarBtn =
+    'h-8 min-w-8 px-2 rounded-lg bg-background/60 hover:bg-accent border border-border/40 text-xs font-semibold text-foreground/80 hover:text-foreground active:scale-95 transition-all flex items-center justify-center';
 
   return (
     <div className="rounded-2xl bg-card border border-border/50 p-4 flex flex-col gap-3 min-h-[60vh]">
@@ -421,6 +563,35 @@ function Editor({
         style={{ fontSize: 22 }}
       />
 
+      {/* Markdown formatting toolbar */}
+      {!preview && (
+        <div
+          className="flex items-center gap-1 flex-wrap pb-2 border-b border-border/40"
+          style={{ direction: 'ltr' }}
+        >
+          <button type="button" onClick={() => linePrefix('# ')} className={toolbarBtn} title="Heading 1">H1</button>
+          <button type="button" onClick={() => linePrefix('## ')} className={toolbarBtn} title="Heading 2">H2</button>
+          <button type="button" onClick={() => linePrefix('### ')} className={toolbarBtn} title="Heading 3">H3</button>
+          <span className="w-px h-5 bg-border/60 mx-0.5" />
+          <button type="button" onClick={() => wrap('**', '**', isAr ? 'غامق' : 'fett')} className={cn(toolbarBtn, 'font-bold')} title="Bold ⌘B">B</button>
+          <button type="button" onClick={() => wrap('*', '*', isAr ? 'مائل' : 'kursiv')} className={cn(toolbarBtn, 'italic')} title="Italic ⌘I">I</button>
+          <button type="button" onClick={() => wrap('~~', '~~', 'strike')} className={cn(toolbarBtn, 'line-through')} title="Strikethrough">S</button>
+          <button type="button" onClick={() => wrap('`', '`', 'code')} className={cn(toolbarBtn, 'font-mono')} title="Inline code ⌘E">{'<>'}</button>
+          <span className="w-px h-5 bg-border/60 mx-0.5" />
+          <button type="button" onClick={() => linePrefix('- ')} className={toolbarBtn} title="Bullet list">•</button>
+          <button type="button" onClick={() => linePrefix('1. ')} className={toolbarBtn} title="Numbered list">1.</button>
+          <button type="button" onClick={() => linePrefix('- [ ] ')} className={toolbarBtn} title="Checklist">☐</button>
+          <button type="button" onClick={() => linePrefix('> ')} className={toolbarBtn} title="Quote">”</button>
+          <button type="button" onClick={() => wrap('\n```\n', '\n```\n', 'code')} className={cn(toolbarBtn, 'font-mono')} title="Code block">```</button>
+          <span className="w-px h-5 bg-border/60 mx-0.5" />
+          <button type="button" onClick={insertLink} className={toolbarBtn} title="Link ⌘K">🔗</button>
+          <button type="button" onClick={() => applyEdit(({ before, sel, after }) => {
+            const insert = '\n---\n';
+            return { text: before + sel + insert + after, selStart: before.length + sel.length + insert.length, selEnd: before.length + sel.length + insert.length };
+          })} className={toolbarBtn} title="Divider">—</button>
+        </div>
+      )}
+
       {preview ? (
         <div className="prose prose-sm dark:prose-invert max-w-none flex-1 min-h-[40vh]">
           {body.trim() ? (
@@ -433,8 +604,10 @@ function Editor({
         </div>
       ) : (
         <textarea
+          ref={textareaRef}
           value={body}
           onChange={(e) => setBody(e.target.value)}
+          onKeyDown={onKeyDown}
           placeholder={isAr
             ? 'ابدأ الكتابة… يمكنك استخدام Markdown و#وسوم/متداخلة.'
             : 'Schreib los… Markdown und #verschachtelte/tags werden unterstützt.'}
@@ -443,6 +616,19 @@ function Editor({
           spellCheck={false}
         />
       )}
+
+      {/* stats + tags footer */}
+      <div className="flex items-center gap-3 text-[10px] uppercase tracking-wider text-muted-foreground/60 pt-2 border-t border-border/40">
+        <span>{stats.words} {isAr ? 'كلمة' : 'Wörter'}</span>
+        <span className="opacity-50">•</span>
+        <span>{stats.chars} {isAr ? 'حرف' : 'Zeichen'}</span>
+        <span className="opacity-50">•</span>
+        <span>{stats.minutes} {isAr ? 'د قراءة' : 'Min. Lesen'}</span>
+        <span className="flex-1" />
+        <span className="normal-case tracking-normal opacity-70">
+          {new Date(note.updatedAt).toLocaleString(isAr ? 'ar' : 'de', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' })}
+        </span>
+      </div>
 
       {/* tags footer */}
       <TagsFooter body={body} isAr={isAr} />
