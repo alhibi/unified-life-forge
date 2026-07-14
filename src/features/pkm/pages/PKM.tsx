@@ -379,6 +379,7 @@ function Editor({
   onTogglePreview,
   onChange,
   onDelete,
+  onOptimize,
   isAr,
 }: {
   note: LocalNote;
@@ -386,6 +387,7 @@ function Editor({
   onTogglePreview: () => void;
   onChange: (p: Partial<Pick<LocalNote, 'title' | 'contentMd' | 'status'>>) => void;
   onDelete: () => void;
+  onOptimize: () => void;
   isAr: boolean;
 }) {
   // Local buffer for smooth typing; debounced flush to Dexie.
@@ -570,6 +572,14 @@ function Editor({
         >
           {preview ? <Pencil className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
           {preview ? (isAr ? 'تحرير' : 'Bearbeiten') : (isAr ? 'معاينة' : 'Vorschau')}
+        </button>
+        <button
+          onClick={onOptimize}
+          className="h-8 px-3 rounded-full bg-primary/10 border border-primary/30 text-primary text-xs font-semibold flex items-center gap-1.5 active:scale-95 transition-transform"
+          aria-label={isAr ? 'محسِّن النص' : 'Optimierer'}
+        >
+          <Sparkles className="w-3.5 h-3.5" />
+          {isAr ? 'حسِّن' : 'Optimieren'}
         </button>
         <button
           onClick={onDelete}
