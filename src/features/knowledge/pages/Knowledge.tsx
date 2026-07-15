@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { AppCard } from "@/components/ui/app-shell";
-import { Car, Sparkle, Clock, TShirt, Cookie, BookOpen, ArrowUpRight } from "@/lib/icons";
+import { Car, Sparkle, Clock, Shirt, Cookie, BookOpen, ArrowUpRight } from "@/lib/icons";
 import { pageStagger as stagger, pageItem as item } from "@/lib/motion";
 
 /**
@@ -23,7 +23,7 @@ type CategoryId = "cars" | "perfumes" | "watches" | "fashion" | "sweets";
 
 interface Category {
   id: CategoryId;
-  icon: ComponentType<{ className?: string; weight?: string }>;
+  icon: ComponentType<{ className?: string }>;
   label: string;
   labelEn: string;
   color: string;
@@ -87,7 +87,7 @@ const CATEGORIES: Category[] = [
   },
   {
     id: "fashion",
-    icon: TShirt,
+    icon: Shirt,
     label: "الأزياء",
     labelEn: "Fashion",
     color: "#C9A87E",
