@@ -457,40 +457,11 @@ export default function PrayerTimes() {
   const isNight = sunT < arcGeom.dayStart || sunT > arcGeom.dayEnd;
   const currentMakruh = makruhZones.find((z) => sunT >= z.tStart && sunT <= z.tEnd);
 
-  // ─── Slab toggle logic ───────────────────────────────────────────────────
-  const handleToggle = useCallback(
-    (name: PrayerKey) => {
-      const ordered = PRAYER_KEYS;
-      // Tapped is already done → rewind it and every later prayer
-      if (doneStates[name]) {
-        const idx = ordered.indexOf(name);
-        const rewound = { ...doneStates };
-        for (let i = idx; i < ordered.length; i++) rewound[ordered[i]] = false;
-        setDoneStates(rewound);
-        saveDoneStates(stamp, rewound);
-        return;
-      }
-      // Find the first uncompleted prayer; if it isn't this one, REJECT
-      const firstPending = ordered.find((k) => !doneStates[k]);
-      if (firstPending == null) {
-        // All already done — rejection too-early (no guidance)
-        setShakeCounter((s) => ({ ...s, [name]: s[name] + 1 }));
-        return;
-      }
-      if (firstPending !== name) {
-        setShakeCounter((s) => ({ ...s, [name]: s[name] + 1 }));
-        setGuideCounter((g) => ({ ...g, [firstPending]: g[firstPending] + 1 }));
-        return;
-      }
-      // Accept: mark this one done
-      const updated = { ...doneStates, [name]: true };
-      setDoneStates(updated);
-      saveDoneStates(stamp, updated);
-    },
-    [doneStates, stamp]
-  );
-
-  const doneCount = Object.values(doneStates).filter(Boolean).length;
+  // Prayer-logging removed — the list is a read-only readout of today's
+  // times. `handleToggle` is intentionally a no-op so the slab rows stay
+  // inert (no persistence to localStorage, no shake, no guide-pulse).
+  const handleToggle = useCallback((_name: PrayerKey) => {}, []);
+  const doneCount = 0;
 
   // ─── Render guards ───────────────────────────────────────────────────────
   if (loading) {
@@ -973,9 +944,6 @@ function Slab({
           {t('prayer.todaysPrayers')}
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="text-[10px] font-medium text-muted-foreground/75 tabular-nums">
-            {doneCount} {t('prayer.of')} 5
-          </span>
           <motion.span
             animate={{ rotate: expanded ? 180 : 0 }}
             transition={{ type: 'spring', stiffness: 380, damping: 26 }}
@@ -985,16 +953,6 @@ function Slab({
           </motion.span>
         </span>
       </button>
-
-      {/* Progress bar */}
-      <div className="w-full h-[2.5px] rounded-sm bg-foreground/10 overflow-hidden">
-        <motion.div
-          className="h-full rounded-sm bg-primary"
-          initial={false}
-          animate={{ width: `${(doneCount / 5) * 100}%` }}
-          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-        />
-      </div>
 
       <AnimatePresence initial={false}>
         {expanded && (
@@ -1115,8 +1073,7 @@ function SlabRow({
     <>
       <div
         ref={shakeRef}
-        onClick={onToggle}
-        className="relative flex items-center gap-2.5 py-[8.5px] cursor-pointer rounded-[18px] transition-colors"
+        className="relative flex items-center gap-2.5 py-[8.5px] rounded-[18px] transition-colors"
         style={{
           backgroundColor: guideAlpha > 0 ? `hsl(var(--primary) / ${guideAlpha})` : 'transparent',
           transition: 'background-color 420ms ease',
@@ -1129,15 +1086,6 @@ function SlabRow({
             background: isPrayed ? 'hsl(var(--foreground) / 0.1)' : dotColor,
           }}
         />
-
-        {/* Checkbox */}
-        <div
-          className={`w-[18px] h-[18px] rounded-full border-[1.6px] flex items-center justify-center shrink-0 ${
-            isPrayed ? 'bg-foreground/10 border-foreground/20' : 'border-foreground/15'
-          }`}
-        >
-          {isPrayed && <Check className="w-3 h-3 text-foreground/65" strokeWidth={3} />}
-        </div>
 
         {/* Name (English/transliterated) */}
         <span
@@ -1157,20 +1105,6 @@ function SlabRow({
           <span className="text-[7.5px] font-bold tracking-[0.1em] text-primary me-2 shrink-0">
             {t('prayer.next.short')}
           </span>
-        )}
-
-        {/* "Pray" pill — for the active (current-window) prayer */}
-        {isActive && (
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              // Just acknowledge tap; could open a Qibla / pray-tracker modal
-            }}
-            className="px-2.5 py-[5px] me-2 rounded-full text-[9px] font-semibold tracking-[0.06em] bg-primary/[0.12] text-primary shrink-0"
-          >
-            {t('prayer.pray')}
-          </button>
         )}
 
         {/* Arabic name (only when UI lang is not Arabic) */}

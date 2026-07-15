@@ -4,7 +4,6 @@ import { useApp } from '@/contexts/AppContext';
 import { useAuth } from '@/hooks/useAuth';
 import { useUnreadMessages } from '@/hooks/useUnreadMessages';
 import { useDeviceLocation } from '@/hooks/useDeviceLocation';
-import LocationSaver from '@/features/clipboard/components/LocationSaver';
 import PrayerTimes from '@/components/PrayerTimes';
 import { motion } from 'framer-motion';
 import CurrentTimeSunnah from '@/components/CurrentTimeSunnah';
@@ -116,11 +115,6 @@ export default function Index() {
             home page is back to answering only "what should I do
             right now?" — prayer times, weather, current sunnah,
             ummah pulse, and saved locations. */}
-        <motion.section variants={item} aria-labelledby="home-locations-h">
-          <h2 id="home-locations-h" className="sr-only">{language === 'ar' ? 'المواقع المحفوظة' : 'Gespeicherte Orte'}</h2>
-          <LocationSaver />
-        </motion.section>
-
         {/* Universal Knowledge Archive — entry card */}
         <motion.section variants={item} aria-labelledby="home-archive-h">
           <h2 id="home-archive-h" className="sr-only">الأرشيف المعرفي</h2>
