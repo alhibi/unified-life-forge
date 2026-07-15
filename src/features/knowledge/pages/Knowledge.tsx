@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { AppCard } from "@/components/ui/app-shell";
-import { Car, Sparkle, Clock, TShirt, Cookie, BookOpen, ArrowSquareOut } from "@/lib/icons";
+import { Car, Sparkle, Clock, Shirt, Cookie, BookOpen, ArrowUpSquare } from "@/lib/icons";
 import { pageStagger as stagger, pageItem as item } from "@/lib/motion";
 
 /**
@@ -87,7 +87,7 @@ const CATEGORIES: Category[] = [
   },
   {
     id: "fashion",
-    icon: TShirt,
+    icon: Shirt,
     label: "الأزياء",
     labelEn: "Fashion",
     color: "#C9A87E",
@@ -756,7 +756,7 @@ export default function Knowledge() {
                         </span>
                       </div>
                     </div>
-                    <ArrowSquareOut className="w-4 h-4 text-muted-foreground shrink-0 mt-1" />
+                    <ArrowUpSquare className="w-4 h-4 text-muted-foreground shrink-0 mt-1" />
                   </div>
                   <p className="mt-2.5 line-clamp-2 text-[13px] leading-relaxed text-muted-foreground">
                     {m.desc}
