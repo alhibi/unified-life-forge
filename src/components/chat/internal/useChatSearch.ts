@@ -92,6 +92,14 @@ export function useChatSearch({ activeConv, messages }: UseChatSearchArgs) {
     el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }, [searchResults, searchIndex]);
 
+  /** Clear all search state — call when the active conversation changes. */
+  const resetSearch = useCallback(() => {
+    setShowSearch(false);
+    setChatSearchQuery('');
+    setSearchResults([]);
+    setSearchIndex(0);
+  }, []);
+
   return {
     showSearch, setShowSearch,
     chatSearchQuery,
@@ -99,5 +107,6 @@ export function useChatSearch({ activeConv, messages }: UseChatSearchArgs) {
     searchIndex,
     searchInChat,
     navigateSearch,
+    resetSearch,
   };
 }
