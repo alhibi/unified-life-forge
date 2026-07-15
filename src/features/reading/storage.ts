@@ -1,6 +1,7 @@
 import type { FeedItem, FeedSource, ReaderPrefs } from './types';
 import { DEFAULT_FEEDS } from './feeds';
 import * as cloud from './api';
+import { supabase } from '@/integrations/supabase/client';
 
 /**
  * Cloud-backed storage adapter for the reading feature.
@@ -115,6 +116,19 @@ export function resetReadingStorage(): void {
   };
   hydrated = false;
   notify();
+}
+
+// Watch auth changes so the mirror always reflects the signed-in user.
+// Signing in re-hydrates from that user's rows; signing out resets to
+// defaults so no previous-user data leaks across accounts.
+if (typeof window !== 'undefined') {
+  supabase.auth.onAuthStateChange((event) => {
+    if (event === 'SIGNED_OUT') {
+      resetReadingStorage();
+    } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+      void hydrateReadingFromCloud({ force: true });
+    }
+  });
 }
 
 // ─── Feeds ────────────────────────────────────────────────────────────
