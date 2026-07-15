@@ -13,7 +13,6 @@ export default function TimedSunnah() {
   const { t, dir } = useApp();
   const [openCatId, setOpenCatId] = useState<string | null>(null);
   const [openItemKey, setOpenItemKey] = useState<string | null>(null);
-  const { items: saved, addItem: addClipboardItem, isItemSaved } = useClipboard('sunnah');
 
   const categories = [
     { id: 'fajr', labelKey: 'timed.fajr', icon: CloudSun },
@@ -37,19 +36,6 @@ export default function TimedSunnah() {
     navigator.clipboard.writeText(text);
     notify.copied();
   };
-
-
-  const saveItem = (title: string, description: string, source: string, catLabel: string) => {
-    const id = `${title}-${catLabel}`;
-    if (isItemSaved(id)) {
-      notify.alreadySaved();
-      return;
-    }
-    addClipboardItem({ id, title, description, source, from: catLabel, savedAt: new Date().toISOString() });
-    notify.savedToClipboard();
-  };
-
-  const isSaved = (title: string, catLabel: string) => isItemSaved(`${title}-${catLabel}`);
 
   return (
     <div className="min-h-screen bg-background pb-24">
