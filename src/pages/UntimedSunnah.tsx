@@ -23,7 +23,6 @@ export default function UntimedSunnah() {
   const { dir } = useApp();
   const [openCatId, setOpenCatId] = useState<string | null>(null);
   const [openItemKey, setOpenItemKey] = useState<string | null>(null);
-  const { items: saved, addItem: addClipboardItem, isItemSaved } = useClipboard('untimed');
 
   const toggleCat = (id: string) => {
     setOpenCatId(prev => prev === id ? null : id);
@@ -36,18 +35,6 @@ export default function UntimedSunnah() {
     navigator.clipboard.writeText(text);
     notify.copied();
   };
-
-  const saveItem = (title: string, description: string, source: string, catLabel: string) => {
-    const id = `${title}-${catLabel}`;
-    if (isItemSaved(id)) {
-      notify.alreadySaved();
-      return;
-    }
-    addClipboardItem({ id, title, description, source, from: catLabel, savedAt: new Date().toISOString() });
-    notify.savedToClipboard();
-  };
-
-  const isSaved = (title: string, catLabel: string) => isItemSaved(`${title}-${catLabel}`);
 
   const categories = Object.entries(untimedSunnahData);
 
