@@ -3,13 +3,13 @@ import { motion } from "framer-motion";
 import SEO from "@/components/SEO";
 import BackButton from "@/components/BackButton";
 import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  Drawer,
+  DrawerContent,
+  DrawerTitle,
+} from "@/components/ui/drawer";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { AppCard } from "@/components/ui/app-shell";
-import { Car, Sparkle, Clock, Shirt, Cookie, BookOpen, ArrowUpSquare } from "@/lib/icons";
+import { Car, Sparkle, Clock, Shirt, Cookie, BookOpen, ArrowUpSquare, ChevronRight } from "@/lib/icons";
 import { pageStagger as stagger, pageItem as item } from "@/lib/motion";
 
 /**
