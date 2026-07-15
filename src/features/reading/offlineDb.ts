@@ -46,6 +46,10 @@ export const offlineDb = {
     /* no-op */
   },
 
+  async removeArticlesBatch(_links: ReadonlyArray<string>): Promise<number> {
+    return 0;
+  },
+
   async hasQuota(_requiredBytes: number): Promise<boolean> {
     return true;
   },
