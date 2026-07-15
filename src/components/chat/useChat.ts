@@ -19,6 +19,7 @@ import { newClientId } from './internal/clientId';
 import { useTypingChannel } from './internal/useTypingChannel';
 import { useChatSearch } from './internal/useChatSearch';
 import { fetchConversations } from './internal/conversationsQuery';
+import { fetchMessagesWithReactions } from './internal/messagesQuery';
 
 interface UseChatOptions {
   open: boolean;
@@ -335,50 +336,28 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     if (!activeConv || !user) return;
     setMessagesLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('messages')
-        .select('*')
-        .eq('conversation_id', activeConv.id)
-        .order('created_at', { ascending: true });
+      let result: { messages: Message[]; reactions: Reaction[] };
+      try {
+        result = await fetchMessagesWithReactions(activeConv.id, user.id);
+      } catch (err) {
+        chatError('conversationGone', isAr, describeError(err, isAr));
+        return;
+      }
 
-      if (error) { chatError('conversationGone', isAr, describeError(error, isAr)); return; }
+      setMessages(result.messages);
+      setReactions(result.reactions);
 
-      if (data) {
-        // Hydrate the client-side `status` field from server columns so
-        // every previously-loaded row renders the correct tick the moment
-        // it appears (read > delivered > sent), instead of waiting for the
-        // first realtime UPDATE.
-        const hydrated = (data as Message[]).map(m => {
-          if (m.sender_id !== user.id) return m;
-          let status: MessageStatus = 'sent';
-          if (m.read) status = 'read';
-          else if (m.delivered_at) status = 'delivered';
-          return { ...m, status };
-        });
-        setMessages(hydrated);
-        const msgIds = data.map(m => m.id);
+      // Mark in parallel: every undelivered "from them" row becomes
+      // delivered, every unread one becomes read. Both RPCs ignore
+      // already-stamped rows, so they are idempotent.
+      (supabase.rpc as any)('mark_messages_delivered', { p_conversation_id: activeConv.id }).then();
+      supabase.rpc('mark_messages_read',      { p_conversation_id: activeConv.id }).then();
 
-        // Mark in parallel: every undelivered "from them" row becomes
-        // delivered, every unread one becomes read. Both RPCs ignore
-        // already-stamped rows, so they are idempotent.
-        (supabase.rpc as any)('mark_messages_delivered', { p_conversation_id: activeConv.id }).then();
-        supabase.rpc('mark_messages_read',      { p_conversation_id: activeConv.id }).then();
-
-        if (msgIds.length > 0) {
-          const { data: rxns } = await supabase
-            .from('message_reactions')
-            .select('*')
-            .in('message_id', msgIds);
-          setReactions((rxns || []) as Reaction[]);
-        } else {
-          setReactions([]);
-        }
-
-        // Scroll restore: if we have a saved position, jump there. If not,
-        // and there is at least one unread incoming message, anchor at the
-        // first unread (Telegram-style "X new messages" entrypoint).
-        // Otherwise default to the bottom (latest message).
-        requestAnimationFrame(() => {
+      // Scroll restore: if we have a saved position, jump there. If not,
+      // and there is at least one unread incoming message, anchor at the
+      // first unread (Telegram-style "X new messages" entrypoint).
+      // Otherwise default to the bottom (latest message).
+      requestAnimationFrame(() => {
           const target = restoreScrollRef.current;
           if (target != null && messagesContainerRef.current) {
             messagesContainerRef.current.scrollTop = target;
@@ -392,7 +371,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
           // Find first unread message from the OTHER user — same logic as
           // the firstUnreadId memo, computed inline because that memo isn't
           // available yet on first paint.
-          const firstUnread = (data as Message[]).find(
+          const firstUnread = result.messages.find(
             m => !m.read && m.sender_id !== user.id && !m.deleted && !(m.hidden_for ?? []).includes(user.id),
           );
           if (firstUnread) {
@@ -404,7 +383,6 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
           }
           scrollToBottom(false);
         });
-      }
     } finally {
       setMessagesLoading(false);
     }
