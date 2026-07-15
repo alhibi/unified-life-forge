@@ -182,7 +182,7 @@ export function useReadingData(opts: { isAr: boolean }) {
         .select('*', { count: 'exact' })
         .in('source_name', names)
         .order('pub_date', { ascending: false })
-        .limit(10000);
+        .limit(1000);
       if (queryError) {
         throw queryError;
       }

@@ -41,8 +41,8 @@ import { throttle } from './utils';
 const ESTIMATED_ROW_HEIGHT_COMFORT = 112;
 const ESTIMATED_ROW_HEIGHT_COMPACT = 44;
 const ESTIMATED_ROW_HEIGHT_CARDS = 280;
-const VIRTUALIZATION_THRESHOLD = 60;
-const OVERSCAN = 8;
+const VIRTUALIZATION_THRESHOLD = 40;
+const OVERSCAN = 6;
 
 export function ArticleListGrouped({
   articles,
@@ -214,6 +214,12 @@ export function ArticleListGrouped({
   const seenLinksRef = useRef<Set<string>>(new Set());
   const pendingMarkRef = useRef<Set<string>>(new Set());
   const flushTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Cache of stable per-link ref callbacks so each ArticleCard receives the
+  // same function identity across renders. Without this, React invokes
+  // ref(null) then ref(el) on every render, forcing the IntersectionObserver
+  // to unobserve/observe every row on every keystroke or state tick — a
+  // major source of scroll jank on lists of 500+ items.
+  const registerElCacheRef = useRef<Map<string, (el: HTMLElement | null) => void>>(new Map());
 
   const flushPendingMarks = useCallback(() => {
     flushTimerRef.current = null;
@@ -278,9 +284,12 @@ export function ArticleListGrouped({
     };
   }, [prefs.autoMarkOnScroll, flushPendingMarks, readSet]);
 
-  /** Stable ref-callback handed to each ArticleCard. */
-  const registerEl = useCallback(
-    (link: string) => (el: HTMLElement | null) => {
+  /** Stable ref-callback handed to each ArticleCard — one function per link. */
+  const registerEl = useCallback((link: string) => {
+    const cache = registerElCacheRef.current;
+    const cached = cache.get(link);
+    if (cached) return cached;
+    const cb = (el: HTMLElement | null) => {
       const map = elByLinkRef.current;
       const obs = observerRef.current;
       const prev = map.get(link);
@@ -292,9 +301,10 @@ export function ArticleListGrouped({
         map.set(link, el);
         if (obs) obs.observe(el);
       }
-    },
-    [],
-  );
+    };
+    cache.set(link, cb);
+    return cb;
+  }, []);
 
   // ─── Scroll-position persistence ──────────────────────────────────────
   useEffect(() => {
@@ -322,10 +332,15 @@ export function ArticleListGrouped({
       250,
     );
 
+    let rafPending = false;
     const handleScroll = () => {
       throttledStore();
-      if (rows.length > VIRTUALIZATION_THRESHOLD) {
-        recomputeVisible();
+      if (rows.length > VIRTUALIZATION_THRESHOLD && !rafPending) {
+        rafPending = true;
+        requestAnimationFrame(() => {
+          rafPending = false;
+          recomputeVisible();
+        });
       }
     };
 
@@ -348,6 +363,14 @@ export function ArticleListGrouped({
   const useVirtualization = rows.length > VIRTUALIZATION_THRESHOLD;
 
   const [visibleRange, setVisibleRange] = useState({ start: 0, end: 50 });
+
+  // Reset the window to the top whenever the effective list identity
+  // changes (filter/sort/group switch). Without this, switching from a
+  // large list to a small one can leave `end` past the new length and
+  // produce a blank viewport until the user scrolls.
+  useEffect(() => {
+    setVisibleRange({ start: 0, end: Math.min(50, rows.length) });
+  }, [scrollKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const recomputeVisible = useCallback(() => {
     const el = containerRef.current;
@@ -466,7 +489,7 @@ export function ArticleListGrouped({
           const isRead = readSet.has(a.link);
           return (
             <ArticleCard
-              key={`${a.link}-${idx}`}
+              key={a.link}
               article={a}
               index={idx}
               isRead={isRead}
