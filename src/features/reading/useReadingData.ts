@@ -13,6 +13,10 @@ import {
   storeFeeds,
   storeReadArticles,
 } from './storage';
+import {
+  hydrateReadingFromCloud,
+  subscribeReadingStorage,
+} from './storage';
 import { fetchFeedsClientSide, isSupabaseAvailable } from './clientFetcher';
 import { dedupe, withRetry } from '@/lib/fetchRetry';
 import {
@@ -118,6 +122,28 @@ export function useReadingData(opts: { isAr: boolean }) {
   const upgradeAbortRef = useRef<Map<string, AbortController>>(new Map());
   /** Whether we've already shown the "low storage" toast this session. */
   const lowQuotaWarnedRef = useRef(false);
+
+  // ─── Cloud hydration ────────────────────────────────────────────────
+  // Feeds, bookmarks, read-state and reader prefs are cloud-backed.
+  // The initial useState calls above read from the in-memory mirror,
+  // which starts empty on cold boot. Once hydration finishes we
+  // re-read the mirror into React state so the UI reflects the user's
+  // real cloud data (and any changes made from another device).
+  //
+  // The subscription also catches auth changes: signing in refreshes
+  // the mirror with that user's rows, signing out resets it.
+  useEffect(() => {
+    let mounted = true;
+    const applyFromMirror = () => {
+      if (!mounted) return;
+      setFeedSources(getStoredFeeds());
+      setBookmarks(getBookmarks());
+      setReadArticles(getReadArticles());
+    };
+    void hydrateReadingFromCloud().then(applyFromMirror).catch(() => {});
+    const unsub = subscribeReadingStorage(applyFromMirror);
+    return () => { mounted = false; unsub(); };
+  }, []);
 
   const enabledFeeds = useMemo(
     () => feedSources.filter((f) => f.enabled),
