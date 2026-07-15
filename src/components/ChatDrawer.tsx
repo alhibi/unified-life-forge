@@ -1601,21 +1601,33 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
             <AnimatePresence>
               {chat.showScrollDown && (
                 <motion.button
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
-                  transition={{ type: 'spring', damping: 20, stiffness: 400 }}
+                  initial={{ opacity: 0, scale: 0.6, y: 8 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.6, y: 8 }}
+                  transition={{ type: 'spring', damping: 18, stiffness: 380 }}
+                  whileTap={{ scale: 0.9 }}
                   onClick={() => chat.scrollToBottom()}
                   aria-label={chat.isAr ? 'الانتقال للأسفل' : 'Nach unten scrollen'}
- className="absolute bottom-24 end-4 z-10 w-10 h-10 rounded-full bg-card border border-border/20 flex items-center justify-center active:scale-90 transition-transform"
- >
- <ArrowDown className="w-4 h-4 text-muted-foreground" />
- {(() => {
- const unread = chat.activeConv?.unreadCount || 0;
- if (!unread) return null;
- return (
- <span className="absolute -top-1 -end-1 bg-primary text-primary-foreground text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
- {unread > 99 ? '99+' : unread}
+                  className={cn(
+                    'absolute bottom-24 end-4 z-10 w-11 h-11 rounded-full flex items-center justify-center transition-colors',
+                    'bg-card/95 backdrop-blur-md border border-border/30',
+                    'shadow-[0_6px_20px_-6px_rgba(0,0,0,0.35),0_2px_6px_-2px_rgba(0,0,0,0.25)]',
+                    (chat.activeConv?.unreadCount ?? 0) > 0 && 'ring-2 ring-primary/40'
+                  )}
+                >
+                  <ArrowDown className="w-[18px] h-[18px] text-foreground/80" strokeWidth={2.25} />
+                  {(() => {
+                    const unread = chat.activeConv?.unreadCount || 0;
+                    if (!unread) return null;
+                    return (
+                      <motion.span
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ type: 'spring', damping: 12, stiffness: 500 }}
+                        className="absolute -top-1.5 -end-1.5 bg-primary text-primary-foreground text-[10px] font-bold rounded-full min-w-[20px] h-[20px] flex items-center justify-center px-1.5 shadow-[0_2px_8px_-2px_hsl(var(--primary)/0.6)] tabular-nums"
+                      >
+                        {unread > 99 ? '99+' : unread}
+                      </motion.span>
                       </span>
                     );
                   })()}
