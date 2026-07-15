@@ -6,7 +6,8 @@ import BackButton from '@/components/BackButton';
 import { useApp } from '@/contexts/AppContext';
 import { useNotes, type LocalNote, type NoteStatus } from '../hooks/useNotes';
 import { extractTags, buildTagTree, type TagNode } from '../lib/tagParser';
-import { Plus, Trash, Hash, FileText, Eye, Pencil, Search, ChevronRight, ChevronDown, Sparkles } from '@/lib/icons';
+import { Plus, Trash, Hash, FileText, Eye, Pencil, Search, ChevronRight, ChevronDown, Sparkles, Brain } from '@/lib/icons';
+import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useSyncEngine } from '../hooks/useSyncEngine';
 import OptimizerPanel from '../components/OptimizerPanel';
@@ -127,6 +128,14 @@ export default function PKM() {
         <h1 className="text-lg font-bold flex-1 truncate">
           {isAr ? 'مذكّرتي' : 'Mein Wissen'}
         </h1>
+        <Link
+          to="/pkm/mind"
+          className="h-9 w-9 rounded-full bg-card border border-border/60 flex items-center justify-center active:scale-95 transition-transform"
+          aria-label={isAr ? 'العقل الحيّ' : 'Living Mind'}
+          title={isAr ? 'العقل الحيّ' : 'Living Mind'}
+        >
+          <Brain className="w-4 h-4 text-primary" />
+        </Link>
         <button
           onClick={() => setListOpen((v) => !v)}
           className="lg:hidden h-9 px-3 rounded-full bg-card border border-border/60 text-xs font-medium active:scale-95 transition-transform"
