@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react';
 import SEO from '@/components/SEO';
 import { createPortal } from 'react-dom';
 import { useApp } from '@/contexts/AppContext';
-import { useAuth } from '@/hooks/useAuth';
-import { useUnreadMessages } from '@/hooks/useUnreadMessages';
 import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 import LocationSaver from '@/features/clipboard/components/LocationSaver';
 import PrayerTimes from '@/components/PrayerTimes';
@@ -14,13 +12,10 @@ import UmmahPulse from '@/components/UmmahPulse';
 import LivingRibbon from '@/components/LivingRibbon';
 
 import SmartGreeting from '@/components/SmartGreeting';
-import { useNavigate } from 'react-router-dom';
-import { MessageCircle, ClipboardList, X, Trash2, BookOpen, UserCircle, Sparkles, ChevronLeft, FileText } from '@/lib/icons';
+import { X, Trash2, BookOpen, Sparkles, ChevronLeft, FileText } from '@/lib/icons';
 import { AnimatePresence } from 'framer-motion';
 import { useClipboard } from '@/features/clipboard/hooks/useClipboard';
-import { getAppleEmojiUrl, isEmojiAvatarValue } from '@/utils/emojiAvatar';
-import { getDefaultAvatarForUser } from '@/utils/defaultAvatar';
-import { PageShell, IconButton } from '@/components/ui/app-shell';
+import { PageShell } from '@/components/ui/app-shell';
 
 import { pageStagger as stagger, pageItem as item } from '@/lib/motion';
 
