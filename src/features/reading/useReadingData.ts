@@ -597,15 +597,21 @@ export function useReadingData(opts: { isAr: boolean }) {
    * throws.
    */
   const ensureFullContent = useCallback(
-    async (link: string): Promise<{ fullContent: string; image: string | null } | null> => {
+    async (
+      link: string,
+      opts?: { force?: boolean },
+    ): Promise<{ fullContent: string; image: string | null } | null> => {
       if (!link) return null;
       const article = articlesRef.current.find((a) => a.link === link);
       if (!article) return null;
-      if (!needsContentUpgrade(article.fullContent, link)) return null;
+      const force = opts?.force === true;
+      if (!force && !needsContentUpgrade(article.fullContent, link)) return null;
       // Already in flight — let the caller wait on the existing one.
       if (upgradeInFlightRef.current.has(link)) return null;
-      // Already attempted (success or fail) — don't hammer the scraper.
-      if (upgradeAttemptedRef.current.has(link)) return null;
+      // Already attempted (success or fail) — don't hammer the scraper,
+      // unless the caller is explicitly retrying (e.g. user pressed
+      // "fetch full article" again).
+      if (!force && upgradeAttemptedRef.current.has(link)) return null;
 
       const ctrl = new AbortController();
       upgradeInFlightRef.current.add(link);
