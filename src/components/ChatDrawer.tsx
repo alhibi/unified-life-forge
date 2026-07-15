@@ -1628,7 +1628,6 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
                       >
                         {unread > 99 ? '99+' : unread}
                       </motion.span>
-                      </span>
                     );
                   })()}
                 </motion.button>
