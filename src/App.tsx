@@ -252,6 +252,7 @@ const ArchiveNewPage    = lazy(loadArchiveNew);
 const ArchiveReaderPage = lazy(loadArchiveReader);
 const PKMPage           = lazy(loadPKM);
 const MindPage          = lazy(loadMind);
+const OAuthConsentPage  = lazy(loadOAuthConsent);
 
 // Tab pages are now eager (always mounted), so the idle prefetch warms
 // the next most-likely sub-routes instead of the tabs themselves.
