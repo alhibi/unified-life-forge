@@ -808,24 +808,19 @@ function ModelDetailDialog({
   onClose: () => void;
 }) {
   return (
-    <Dialog open={model !== null} onOpenChange={(o) => { if (!o) onClose(); }}>
-      <DialogContent
-        className="max-h-[92vh] max-w-lg overflow-y-auto border border-border/60 bg-card p-0 text-foreground shadow-[0_-12px_40px_rgba(0,0,0,0.5)] sm:rounded-[2rem] rounded-t-[2rem]"
+    <Drawer open={model !== null} onOpenChange={(o: boolean) => { if (!o) onClose(); }}>
+      <DrawerContent
+        className="max-h-[88dvh] border-border/60 bg-card text-foreground shadow-[0_-12px_40px_rgba(0,0,0,0.5)]"
         dir="rtl"
       >
         <VisuallyHidden>
-          <DialogTitle>{model?.name ?? "تفاصيل"}</DialogTitle>
+          <DrawerTitle>{model?.name ?? "تفاصيل"}</DrawerTitle>
         </VisuallyHidden>
 
         {model && (
-          <div className="relative">
-            {/* Drag handle */}
-            <div className="flex justify-center pt-3 pb-1">
-              <div className="w-10 h-1 rounded-full bg-foreground/15" />
-            </div>
-
+          <div className="relative overflow-y-auto overscroll-contain pb-[calc(env(safe-area-inset-bottom)+1.5rem)]">
             {/* Header pills */}
-            <div className="px-6 pt-4 space-y-4">
+            <div className="px-6 pt-5 space-y-4">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-[10px] font-semibold tracking-wider text-primary">
                   {brand?.name}
