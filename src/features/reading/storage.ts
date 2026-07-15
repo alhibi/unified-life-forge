@@ -46,6 +46,51 @@ let prefsMirror: ReaderPrefs = {
 let hydrated = false;
 let hydratePromise: Promise<void> | null = null;
 
+// ─── Realtime channel (cross-device sync) ────────────────────────────
+// A single channel per signed-in user subscribes to changes on all
+// four reading tables. Any remote mutation triggers a debounced
+// re-hydrate so this device's mirror stays converged with the cloud.
+let realtimeChannel: ReturnType<typeof supabase.channel> | null = null;
+let realtimeDebounce: ReturnType<typeof setTimeout> | null = null;
+function scheduleRemoteResync(): void {
+  if (realtimeDebounce) clearTimeout(realtimeDebounce);
+  realtimeDebounce = setTimeout(() => {
+    void hydrateReadingFromCloud({ force: true });
+  }, 400);
+}
+function teardownRealtime(): void {
+  if (realtimeChannel) {
+    try { supabase.removeChannel(realtimeChannel); } catch { /* ignore */ }
+    realtimeChannel = null;
+  }
+  if (realtimeDebounce) {
+    clearTimeout(realtimeDebounce);
+    realtimeDebounce = null;
+  }
+}
+async function setupRealtime(): Promise<void> {
+  teardownRealtime();
+  const { data } = await supabase.auth.getUser();
+  const uid = data.user?.id;
+  if (!uid) return;
+  const filter = `user_id=eq.${uid}`;
+  realtimeChannel = supabase
+    .channel(`reading:${uid}`)
+    .on('postgres_changes',
+      { event: '*', schema: 'public', table: 'reading_feeds', filter },
+      scheduleRemoteResync)
+    .on('postgres_changes',
+      { event: '*', schema: 'public', table: 'reading_read_state', filter },
+      scheduleRemoteResync)
+    .on('postgres_changes',
+      { event: '*', schema: 'public', table: 'reading_bookmarks', filter },
+      scheduleRemoteResync)
+    .on('postgres_changes',
+      { event: '*', schema: 'public', table: 'reading_prefs', filter },
+      scheduleRemoteResync)
+    .subscribe();
+}
+
 /** Subscribers notified after each remote hydration so React state can
  *  re-sync without every consumer wiring up its own listener. */
 type Listener = () => void;
@@ -94,6 +139,10 @@ export async function hydrateReadingFromCloud(
       if (prefs) prefsMirror = prefs;
       hydrated = true;
       notify();
+      // Attach realtime on first successful hydrate too (covers the
+      // case where the session was already restored before this module
+      // loaded, so no SIGNED_IN event will fire).
+      if (!realtimeChannel) void setupRealtime();
     } finally {
       hydratePromise = null;
     }
@@ -115,6 +164,7 @@ export function resetReadingStorage(): void {
     fontFamily: 'sans',
   };
   hydrated = false;
+  teardownRealtime();
   notify();
 }
 
@@ -126,7 +176,9 @@ if (typeof window !== 'undefined') {
     if (event === 'SIGNED_OUT') {
       resetReadingStorage();
     } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-      void hydrateReadingFromCloud({ force: true });
+      void hydrateReadingFromCloud({ force: true }).then(() => {
+        void setupRealtime();
+      });
     }
   });
 }
