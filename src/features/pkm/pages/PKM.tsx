@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import SEO from '@/components/SEO';
-import { PageShell } from '@/components/ui/app-shell';
+import { PageShell, AppCard } from '@/components/ui/app-shell';
 import BackButton from '@/components/BackButton';
 import { useApp } from '@/contexts/AppContext';
 import { useNotes, type LocalNote, type NoteStatus } from '../hooks/useNotes';
@@ -286,7 +286,7 @@ export default function PKM() {
               />
             </>
           ) : (
-            <div className="rounded-2xl bg-card border border-dashed border-border/50 p-10 text-center flex flex-col items-center gap-3">
+            <AppCard className="p-10 text-center flex flex-col items-center gap-3 border-dashed">
               <FileText className="w-10 h-10 text-muted-foreground/40" />
               <p className="text-sm text-muted-foreground">
                 {isAr ? 'اختر ملاحظة أو أنشئ واحدة جديدة.' : 'Wähle eine Notiz oder erstelle eine neue.'}
@@ -298,7 +298,7 @@ export default function PKM() {
                 <Plus className="w-4 h-4" />
                 {isAr ? 'ملاحظة جديدة' : 'Neue Notiz'}
               </button>
-            </div>
+            </AppCard>
           )}
         </section>
       </div>
@@ -561,7 +561,7 @@ function Editor({
     'h-8 min-w-8 px-2 rounded-lg bg-background/60 hover:bg-accent border border-border/40 text-xs font-semibold text-foreground/80 hover:text-foreground active:scale-95 transition-all flex items-center justify-center';
 
   return (
-    <div className="rounded-2xl bg-card border border-border/50 p-4 flex flex-col gap-3 min-h-[60vh]">
+    <AppCard className="flex flex-col gap-3 min-h-[60vh]">
       {/* toolbar */}
       <div className="flex items-center gap-2">
         <select
@@ -676,7 +676,7 @@ function Editor({
 
       {/* tags footer */}
       <TagsFooter body={body} isAr={isAr} />
-    </div>
+    </AppCard>
   );
 }
 
