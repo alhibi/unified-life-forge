@@ -30,6 +30,7 @@ export default function Index() {
   }, [locationStatus, requestLocation]);
 
   const { t, language } = useApp();
+  const navigate = useNavigate();
 
   return (
     <PageShell>
