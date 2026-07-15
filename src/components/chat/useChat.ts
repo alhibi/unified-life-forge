@@ -755,8 +755,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
       setReplyTo(null);
       resizeComposer();
     }
-    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
-    typingChannelRef.current?.track({ typing: false });
+    stopTyping();
 
     const clientId = newClientId();
     const optimisticId = `optimistic_${clientId}`;
