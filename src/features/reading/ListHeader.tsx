@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-  Archive, Bell, Bookmark, CheckCheck, ChevronLeft, FolderOpen, Newspaper,
+  Archive, Bell, Bookmark, CheckCheck, ChevronLeft, Compass, FolderOpen, Newspaper,
   RefreshCw, Search, Settings2, Type, Wifi, X,
 } from '@/lib/icons';
 import { Input } from '@/components/ui/input';
@@ -36,6 +36,7 @@ export function ListHeader({
   refreshing,
   onRefresh,
   onManage,
+  onDiscoverFeeds,
   onMarkAllRead,
   onOpenArchiveSearch,
   onOpenAlerts,
@@ -64,6 +65,7 @@ export function ListHeader({
   refreshing: boolean;
   onRefresh: () => void;
   onManage: () => void;
+  onDiscoverFeeds: () => void;
   onMarkAllRead: () => void;
   onOpenArchiveSearch: () => void;
   onOpenAlerts: () => void;
@@ -164,6 +166,15 @@ export function ListHeader({
             title={isAr ? 'قراءة رابط من الويب' : 'Read a web link'}
           >
             <Type className="h-4 w-4 text-muted-foreground" />
+          </button>
+          <button
+            type="button"
+            onClick={onDiscoverFeeds}
+            className="p-2.5 rounded-xl hover:bg-primary/10 active:scale-95 transition-all"
+            aria-label={isAr ? 'اكتشاف مصادر' : 'Discover feeds'}
+            title={isAr ? 'اكتشاف وإضافة مصادر جديدة' : 'Discover & add feeds'}
+          >
+            <Compass className="h-4 w-4 text-primary" />
           </button>
           <ReadingPrefsToolbar
             isAr={isAr}
