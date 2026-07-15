@@ -136,6 +136,7 @@ const loadArchiveReader = () => import("./features/archive/pages/ArchiveReader")
 const loadPKM = () => import("./features/pkm/pages/PKM");
 // Living Mind — dedicated contemplative 3D destination for PKM.
 const loadMind = () => import("./features/mind/pages/Mind");
+const loadOAuthConsent = () => import("./pages/OAuthConsent");
 
 // ──────────────────────────────────────────────────────────────────────
 // Register every lazy route in the central prefetch registry so any
@@ -574,6 +575,8 @@ function AnimatedRoutes() {
                   {/* PKM — personal knowledge base (local-first MVP). */}
                   <Route path="/pkm"           element={<ErrorBoundary><PKMPage /></ErrorBoundary>} />
                   <Route path="/pkm/mind"      element={<ErrorBoundary><MindPage /></ErrorBoundary>} />
+                  {/* OAuth consent for external clients (MCP / Agent integrations). */}
+                  <Route path="/.lovable/oauth/consent" element={<ErrorBoundary><OAuthConsentPage /></ErrorBoundary>} />
                   <Route path="*" element={<ErrorBoundary><NotFound /></ErrorBoundary>} />
                 </Routes>
               </Suspense>
