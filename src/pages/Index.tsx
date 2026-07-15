@@ -11,7 +11,6 @@ import { motion } from 'framer-motion';
 import CurrentTimeSunnah from '@/components/CurrentTimeSunnah';
 import WeatherWidget from '@/weather/components/WeatherWidget';
 import UmmahPulse from '@/components/UmmahPulse';
-import LivingRibbon from '@/components/LivingRibbon';
 
 import SmartGreeting from '@/components/SmartGreeting';
 import { useNavigate } from 'react-router-dom';
@@ -108,10 +107,6 @@ export default function Index() {
           </div>
         </motion.div>
 
-        <motion.section variants={item} aria-labelledby="home-ribbon-h">
-          <h2 id="home-ribbon-h" className="sr-only">{language === 'ar' ? 'تنبيه مباشر' : 'Live-Hinweis'}</h2>
-          <LivingRibbon />
-        </motion.section>
         <motion.section variants={item} aria-labelledby="home-prayer-h">
           <h2 id="home-prayer-h" className="sr-only">{language === 'ar' ? 'أوقات الصلاة' : 'Gebetszeiten'}</h2>
           <PrayerTimes />
