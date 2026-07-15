@@ -108,7 +108,7 @@ function PlayerSheetSeek({
         }}
         aria-label={ariaLabel}
       />
-      <div className="flex justify-between mt-2 text-[11px] tabular-nums text-muted-foreground font-medium">
+      <div className="flex justify-between mt-2 text-[11px] tabular-nums text-foreground/70 font-semibold">
         <span>{formatTime(position)}</span>
         <span>-{formatTime(Math.max(0, duration - position))}</span>
       </div>
@@ -322,9 +322,10 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
               <div
                 className="absolute inset-0"
                 style={{
-                  
-                  backdropFilter: 'blur(8px)',
-                  WebkitBackdropFilter: 'blur(8px)',
+                  background:
+                    'linear-gradient(to bottom, hsl(var(--card) / 0.55) 0%, hsl(var(--card) / 0.85) 55%, hsl(var(--card) / 0.96) 100%)',
+                  backdropFilter: 'blur(10px) saturate(1.1)',
+                  WebkitBackdropFilter: 'blur(10px) saturate(1.1)',
                 }}
               />
             </div>
@@ -393,7 +394,7 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
                 <h2 className="text-lg font-bold leading-tight line-clamp-2">
                   {player.current.episode.title}
                 </h2>
-                <p className="text-sm text-muted-foreground mt-0.5 line-clamp-1">
+                <p className="text-sm text-foreground/70 mt-0.5 line-clamp-1 font-medium">
                   {player.current.podcastTitle}
                 </p>
               </div>
