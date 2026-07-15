@@ -15,7 +15,7 @@ import { useNavigate } from 'react-router-dom';
 import { MessageCircle, UserCircle, Sparkles, ChevronLeft, FileText } from '@/lib/icons';
 import { getAppleEmojiUrl, isEmojiAvatarValue } from '@/utils/emojiAvatar';
 import { getDefaultAvatarForUser } from '@/utils/defaultAvatar';
-import { PageShell, IconButton } from '@/components/ui/app-shell';
+import { PageShell, IconButton, AppCard } from '@/components/ui/app-shell';
 
 import { pageStagger as stagger, pageItem as item } from '@/lib/motion';
 
@@ -143,9 +143,11 @@ export default function Index() {
         {/* PKM — personal knowledge base entry card */}
         <motion.section variants={item} aria-labelledby="home-pkm-h">
           <h2 id="home-pkm-h" className="sr-only">{language === 'ar' ? 'مذكّرتي' : 'Mein Wissen'}</h2>
-          <button
+          <AppCard
+            as="button"
+            pressable
             onClick={() => navigate('/pkm')}
-            className="w-full text-start rounded-2xl p-4 border border-border/50 bg-card active:scale-[0.98] transition-transform"
+            className="w-full text-start"
           >
             <div className="flex items-center gap-3">
               <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
@@ -163,7 +165,7 @@ export default function Index() {
               </div>
               <ChevronLeft className="w-4 h-4 text-muted-foreground shrink-0" />
             </div>
-          </button>
+          </AppCard>
         </motion.section>
 
         {/* Made by Amer */}
