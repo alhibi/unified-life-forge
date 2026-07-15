@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import SEO from '@/components/SEO';
-import { createPortal } from 'react-dom';
 import { useApp } from '@/contexts/AppContext';
 import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 import LocationSaver from '@/features/clipboard/components/LocationSaver';
