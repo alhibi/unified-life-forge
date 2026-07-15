@@ -31,13 +31,6 @@ export default function Index() {
   }, [locationStatus, requestLocation]);
 
   const { t, language } = useApp();
-  const { user, username, profile } = useAuth();
-
-  const navigate = useNavigate();
-  const { unreadCount } = useUnreadMessages();
-  const [showClipboard, setShowClipboard] = useState(false);
-
-  const { items: saved, removeItem } = useClipboard('sunnah');
 
   return (
     <PageShell>
