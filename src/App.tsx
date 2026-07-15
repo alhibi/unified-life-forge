@@ -134,6 +134,8 @@ const loadArchiveNew    = () => import("./features/archive/pages/ArchiveNew");
 const loadArchiveReader = () => import("./features/archive/pages/ArchiveReader");
 // PKM — local-first personal knowledge base (MVP).
 const loadPKM = () => import("./features/pkm/pages/PKM");
+// Living Mind — dedicated contemplative 3D destination for PKM.
+const loadMind = () => import("./features/mind/pages/Mind");
 
 // ──────────────────────────────────────────────────────────────────────
 // Register every lazy route in the central prefetch registry so any
@@ -194,6 +196,7 @@ registerRoute('/archive',        loadArchiveHome);
 registerRoute('/archive/new',    loadArchiveNew);
 registerRoute('/archive/:id',    loadArchiveReader);
 registerRoute('/pkm',            loadPKM);
+registerRoute('/pkm/mind',       loadMind);
 
 const SudokuPage = lazy(loadSudoku);
 const ChessPage = lazy(loadChess);
@@ -247,6 +250,7 @@ const ArchiveHomePage   = lazy(loadArchiveHome);
 const ArchiveNewPage    = lazy(loadArchiveNew);
 const ArchiveReaderPage = lazy(loadArchiveReader);
 const PKMPage           = lazy(loadPKM);
+const MindPage          = lazy(loadMind);
 
 // Tab pages are now eager (always mounted), so the idle prefetch warms
 // the next most-likely sub-routes instead of the tabs themselves.
@@ -569,6 +573,7 @@ function AnimatedRoutes() {
                   <Route path="/archive/:id"   element={<ErrorBoundary><ArchiveReaderPage /></ErrorBoundary>} />
                   {/* PKM — personal knowledge base (local-first MVP). */}
                   <Route path="/pkm"           element={<ErrorBoundary><PKMPage /></ErrorBoundary>} />
+                  <Route path="/pkm/mind"      element={<ErrorBoundary><MindPage /></ErrorBoundary>} />
                   <Route path="*" element={<ErrorBoundary><NotFound /></ErrorBoundary>} />
                 </Routes>
               </Suspense>
