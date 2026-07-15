@@ -484,7 +484,7 @@ export function ArticleListGrouped({
           const isRead = readSet.has(a.link);
           return (
             <ArticleCard
-              key={`${a.link}-${idx}`}
+              key={a.link}
               article={a}
               index={idx}
               isRead={isRead}
