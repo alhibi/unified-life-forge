@@ -1,15 +1,21 @@
-import type { FeedSource, ReaderPrefs } from './types';
+import type { FeedItem, FeedSource, ReaderPrefs } from './types';
 import { DEFAULT_FEEDS } from './feeds';
+import * as cloud from './api';
 
 /**
- * localStorage adapter — every reader on this device shares the same
- * keyspace. Values are forward-compatible: an unknown shape is treated
- * as "not present" and replaced with defaults instead of crashing.
+ * Cloud-backed storage adapter for the reading feature.
  *
- * Each helper wraps the raw `localStorage` calls in try/catch because
- * Safari Private Mode + storage-quota errors throw, and a reader UI
- * crashing on a localStorage error would be a worse bug than silently
- * failing to persist a single setting.
+ * Feeds, read-state, bookmarks and reader preferences all live in
+ * Supabase. Because most callers read these synchronously (useState
+ * initializers), we keep an in-memory mirror hydrated at boot by
+ * `hydrateReadingFromCloud()`. Setters push to cloud in the
+ * background — UI feels instant, mutations converge across devices.
+ *
+ * Everything else (search history, reader history, scroll positions,
+ * notification prefs, feed frequency, offline prefs) remains
+ * device-local for now — those are per-device UX niceties, not
+ * user-visible data. The reading feature no longer holds any
+ * IndexedDB / Service Worker caches.
  */
 
 export const FEEDS_KEY = 'rss-reader-feeds-v2';
@@ -24,84 +30,191 @@ export const READER_HISTORY_KEY = 'rss-reader-reader-history-v1';
 export const OFFLINE_PREFS_KEY = 'rss-reader-offline-prefs-v1';
 export const FEED_FREQUENCY_KEY = 'rss-reader-feed-frequency-v1';
 
-// ─── Feeds ────────────────────────────────────────────────────────────
+// ─── In-memory mirrors (hydrated from cloud on boot) ────────────────
 
-export function getStoredFeeds(): FeedSource[] {
-  try {
-    const stored = localStorage.getItem(FEEDS_KEY);
-    if (!stored) return DEFAULT_FEEDS;
-    const parsed = JSON.parse(stored);
-    if (
-      Array.isArray(parsed) &&
-      parsed.length > 0 &&
-      typeof parsed[0] === 'object' &&
-      typeof parsed[0].url === 'string'
-    ) return parsed as FeedSource[];
-    return DEFAULT_FEEDS;
-  } catch {
-    return DEFAULT_FEEDS;
-  }
-}
-
-export function storeFeeds(feeds: FeedSource[]): void {
-  try { localStorage.setItem(FEEDS_KEY, JSON.stringify(feeds)); } catch { /* quota */ }
-}
-
-// ─── Bookmarks + read state ───────────────────────────────────────────
-
-export function getBookmarks(): string[] {
-  try {
-    const raw = localStorage.getItem(BOOKMARKS_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed.filter((s) => typeof s === 'string') : [];
-  } catch { return []; }
-}
-
-export function storeBookmarks(b: string[]): void {
-  try { localStorage.setItem(BOOKMARKS_KEY, JSON.stringify(b)); } catch { /* quota */ }
-}
-
-export function getReadArticles(): string[] {
-  try {
-    const raw = localStorage.getItem(READ_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed.filter((s) => typeof s === 'string') : [];
-  } catch { return []; }
-}
-
-export function storeReadArticles(r: string[]): void {
-  try {
-    // Cap the read-list at 500 000 entries — effectively unlimited for
-    // any realistic usage (years of heavy reading). The cap is only a
-    // guardrail to keep a single localStorage key under the ~5 MB quota
-    // on the most restrictive browsers.
-    const capped = r.length > 500000 ? r.slice(-500000) : r;
-    localStorage.setItem(READ_KEY, JSON.stringify(capped));
-  } catch { /* quota */ }
-}
-
-// ─── Reader prefs ─────────────────────────────────────────────────────
-
-const DEFAULT_PREFS: ReaderPrefs = {
+let feedsMirror: FeedSource[] = [];
+let readMirror: string[] = [];
+let bookmarksMirror: string[] = [];
+let bookmarkSnapshots: Record<string, FeedItem> = {};
+let prefsMirror: ReaderPrefs = {
   fontSize: 'md',
   lineHeight: 'normal',
   theme: 'system',
   fontFamily: 'sans',
 };
+let hydrated = false;
+let hydratePromise: Promise<void> | null = null;
+
+/** Subscribers notified after each remote hydration so React state can
+ *  re-sync without every consumer wiring up its own listener. */
+type Listener = () => void;
+const listeners = new Set<Listener>();
+export function subscribeReadingStorage(fn: Listener): () => void {
+  listeners.add(fn);
+  return () => listeners.delete(fn);
+}
+function notify(): void {
+  for (const l of listeners) {
+    try { l(); } catch { /* ignore */ }
+  }
+}
+
+/** Fetch feeds/read/bookmarks/prefs from cloud and populate mirrors.
+ *  Safe to call multiple times — subsequent calls are no-ops. Callers
+ *  can force a re-fetch by passing `{ force: true }`. */
+export async function hydrateReadingFromCloud(
+  opts: { force?: boolean } = {},
+): Promise<void> {
+  if (hydrated && !opts.force) return;
+  if (hydratePromise) return hydratePromise;
+  hydratePromise = (async () => {
+    try {
+      const [feeds, reads, bms, prefs] = await Promise.all([
+        cloud.listFeeds().catch(() => null),
+        cloud.listReadLinks().catch(() => null),
+        cloud.listBookmarks().catch(() => null),
+        cloud.loadReaderPrefs().catch(() => null),
+      ]);
+      // Feeds: fall back to defaults for a first-time signed-in user
+      // who has no cloud rows yet, OR when the user is signed out.
+      feedsMirror = feeds && feeds.length ? feeds : DEFAULT_FEEDS;
+      if (feeds !== null && feeds.length === 0) {
+        // First-time signed-in user: seed defaults into their cloud.
+        void cloud.replaceFeeds(DEFAULT_FEEDS).catch(() => {});
+      }
+      readMirror = reads ?? [];
+      if (bms) {
+        bookmarksMirror = bms.map((b) => b.link);
+        bookmarkSnapshots = Object.fromEntries(bms.map((b) => [b.link, b.snapshot]));
+      } else {
+        bookmarksMirror = [];
+        bookmarkSnapshots = {};
+      }
+      if (prefs) prefsMirror = prefs;
+      hydrated = true;
+      notify();
+    } finally {
+      hydratePromise = null;
+    }
+  })();
+  return hydratePromise;
+}
+
+/** Signed-out fallback: reset to defaults. Called on sign-out so a
+ *  subsequent sign-in re-hydrates fresh data. */
+export function resetReadingStorage(): void {
+  feedsMirror = DEFAULT_FEEDS;
+  readMirror = [];
+  bookmarksMirror = [];
+  bookmarkSnapshots = {};
+  prefsMirror = {
+    fontSize: 'md',
+    lineHeight: 'normal',
+    theme: 'system',
+    fontFamily: 'sans',
+  };
+  hydrated = false;
+  notify();
+}
+
+// ─── Feeds ────────────────────────────────────────────────────────────
+
+export function getStoredFeeds(): FeedSource[] {
+  // Prior to hydration or when signed-out we return DEFAULT_FEEDS so
+  // the reader has *something* to render — hydration replaces this
+  // with the user's real list a moment later.
+  return feedsMirror.length ? feedsMirror : DEFAULT_FEEDS;
+}
+
+export function storeFeeds(feeds: FeedSource[]): void {
+  feedsMirror = feeds;
+  void cloud.replaceFeeds(feeds).catch((e) => {
+    console.warn('[Reading/storage] failed to persist feeds', e);
+  });
+  notify();
+}
+
+// ─── Bookmarks + read state ───────────────────────────────────────────
+
+export function getBookmarks(): string[] {
+  return bookmarksMirror;
+}
+
+/** Bookmarks now require the article snapshot to persist server-side.
+ *  Callers that only had a link list should switch to
+ *  `setBookmarkArticle` / `deleteBookmark`. This shim keeps the old
+ *  string-array API alive: additions are silently ignored (no
+ *  snapshot available), removals are honored. */
+export function storeBookmarks(b: string[]): void {
+  const removed = bookmarksMirror.filter((l) => !b.includes(l));
+  bookmarksMirror = b.filter((l) => bookmarksMirror.includes(l));
+  for (const link of removed) {
+    delete bookmarkSnapshots[link];
+    void cloud.removeBookmark(link).catch(() => {});
+  }
+  notify();
+}
+
+/** Add or update a bookmark with its full article snapshot. */
+export function setBookmarkArticle(article: FeedItem): void {
+  if (!article.link) return;
+  bookmarkSnapshots[article.link] = article;
+  if (!bookmarksMirror.includes(article.link)) {
+    bookmarksMirror = [article.link, ...bookmarksMirror];
+  }
+  void cloud.addBookmark(article).catch((e) => {
+    console.warn('[Reading/storage] failed to persist bookmark', e);
+  });
+  notify();
+}
+
+export function deleteBookmark(link: string): void {
+  bookmarksMirror = bookmarksMirror.filter((l) => l !== link);
+  delete bookmarkSnapshots[link];
+  void cloud.removeBookmark(link).catch(() => {});
+  notify();
+}
+
+/** Retrieve a bookmarked article snapshot (or undefined). */
+export function getBookmarkArticle(link: string): FeedItem | undefined {
+  return bookmarkSnapshots[link];
+}
+
+/** All bookmarked article snapshots — used by the bookmark list view. */
+export function getBookmarkArticles(): FeedItem[] {
+  return bookmarksMirror
+    .map((l) => bookmarkSnapshots[l])
+    .filter((a): a is FeedItem => !!a);
+}
+
+export function getReadArticles(): string[] {
+  return readMirror;
+}
+
+export function storeReadArticles(r: string[]): void {
+  const capped = r.length > 500000 ? r.slice(-500000) : r;
+  const before = new Set(readMirror);
+  const after = new Set(capped);
+  const added = [...after].filter((l) => !before.has(l));
+  const removed = [...before].filter((l) => !after.has(l));
+  readMirror = capped;
+  if (added.length) void cloud.markRead(added).catch(() => {});
+  if (removed.length) void cloud.markUnread(removed).catch(() => {});
+  notify();
+}
+
+// ─── Reader prefs ─────────────────────────────────────────────────────
 
 export function getReaderPrefs(): ReaderPrefs {
-  try {
-    const raw = localStorage.getItem(READER_PREFS_KEY);
-    if (!raw) return DEFAULT_PREFS;
-    const parsed = JSON.parse(raw);
-    return { ...DEFAULT_PREFS, ...parsed } as ReaderPrefs;
-  } catch { return DEFAULT_PREFS; }
+  return prefsMirror;
 }
 
 export function storeReaderPrefs(p: ReaderPrefs): void {
-  try { localStorage.setItem(READER_PREFS_KEY, JSON.stringify(p)); } catch { /* quota */ }
+  prefsMirror = p;
+  void cloud.saveReaderPrefs(p).catch((e) => {
+    console.warn('[Reading/storage] failed to persist reader prefs', e);
+  });
+  notify();
 }
 
 /** Remember scroll position keyed by tab/source so navigation feels persistent. */
