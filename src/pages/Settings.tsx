@@ -228,8 +228,8 @@ export default function SettingsPage() {
         {/* Prayer Group */}
         {renderGroup(isAr ? 'الصلاة' : 'Gebet', prayerItems)}
 
-        {/* General Group */}
-        {renderGroup(isAr ? 'عام' : 'Allgemein', generalItems)}
+        {/* General Group — language segmented control */}
+        {renderLanguageSegmented()}
 
         {/* Version */}
         <motion.div variants={item} className="text-center pt-2 pb-4">
