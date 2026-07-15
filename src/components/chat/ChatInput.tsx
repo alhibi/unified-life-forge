@@ -11,6 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { WAVEFORM_HEIGHTS } from './constants';
 import { formatRecordingTime } from './chatUtils';
 import type { Message } from './types';
+import { readableFileName } from '@/lib/chat/imageMeta';
 import EmojiPicker from './EmojiPicker';
 import LiveWaveform from './LiveWaveform';
 
@@ -520,9 +521,10 @@ const ChatInput: React.FC<ChatInputProps> = ({
                     {replyTo.sender_id === userId ? (isAr ? 'أنت' : 'Du') : (activeConvOtherName || '')}
                   </span>
                   <p className="text-[11px] text-muted-foreground truncate" dir="auto">
-                    {replyTo.message_type === 'image' ? '📷 ' + (isAr ? 'صورة' : 'Foto')
+                    {replyTo.message_type === 'image'
+                      ? '📷 ' + ((replyTo.content || '').trim() || (isAr ? 'صورة' : 'Foto'))
                       : replyTo.message_type === 'voice' ? '🎤 ' + (isAr ? 'رسالة صوتية' : 'Sprachnachricht')
-                      : replyTo.message_type === 'file' ? '📎 ' + (replyTo.file_name || (isAr ? 'ملف' : 'Datei'))
+                      : replyTo.message_type === 'file' ? '📎 ' + (readableFileName(replyTo.file_name) || (isAr ? 'ملف' : 'Datei'))
                       : replyTo.content}
                   </p>
                 </div>

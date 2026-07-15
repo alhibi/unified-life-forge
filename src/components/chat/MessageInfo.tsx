@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Check, CheckCheck, Clock, Pencil, ChevronRight, ChevronLeft } from '@/lib/icons';
 import { cn } from '@/lib/utils';
 import type { Message } from './types';
+import { readableFileName } from '@/lib/chat/imageMeta';
 
 interface MessageInfoProps {
   isAr: boolean;
@@ -66,11 +67,11 @@ const MessageInfo: React.FC<MessageInfoProps> = ({ isAr, isOpen, onClose, messag
                   {message.deleted
                     ? (isAr ? '🚫 رسالة محذوفة' : '🚫 Gelöscht')
                     : message.message_type === 'image'
-                      ? '📷 ' + (isAr ? 'صورة' : 'Foto')
+                      ? '📷 ' + ((message.content || '').trim() || (isAr ? 'صورة' : 'Foto'))
                       : message.message_type === 'voice'
                         ? '🎤 ' + (isAr ? 'رسالة صوتية' : 'Sprachnachricht')
                         : message.message_type === 'file'
-                          ? '📎 ' + (message.file_name || (isAr ? 'ملف' : 'Datei'))
+                          ? '📎 ' + (readableFileName(message.file_name) || (isAr ? 'ملف' : 'Datei'))
                           : message.content}
                 </p>
               </div>
