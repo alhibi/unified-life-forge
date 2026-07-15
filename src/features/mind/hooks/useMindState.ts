@@ -89,13 +89,14 @@ export function useMindState(): MindState {
     (async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user || cancelled) return;
+      // RLS scopes both tables to the current user; no explicit user_id filter needed.
       const [{ data: gens }, { data: evts }] = await Promise.all([
-        supabase.from('pkm_ai_generations').select('note_id, status').eq('user_id', user.id).eq('status', 'accepted'),
-        supabase.from('pkm_mind_events').select('id,type,related_note_ids,summary,created_at').eq('user_id', user.id).order('created_at', { ascending: false }).limit(500),
+        supabase.from('pkm_ai_generations').select('note_id, status').eq('status', 'accepted'),
+        supabase.from('pkm_mind_events').select('id,type,related_note_ids,summary,created_at').order('created_at', { ascending: false }).limit(500),
       ]);
       if (cancelled) return;
       if (Array.isArray(gens)) {
-        setAiAcceptedIds(new Set(gens.map((g: { note_id: string }) => g.note_id).filter(Boolean)));
+        setAiAcceptedIds(new Set(gens.map((g: { note_id: string | null }) => g.note_id).filter((x): x is string => !!x)));
       }
       if (Array.isArray(evts)) {
         setEvents(evts.map((e) => ({
