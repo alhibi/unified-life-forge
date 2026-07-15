@@ -143,15 +143,6 @@ export default function TimedSunnah() {
                                           <Copy className="w-3.5 h-3.5 text-muted-foreground" />
                                           <span className="text-xs text-muted-foreground">{dir === 'rtl' ? 'نسخ' : 'Copy'}</span>
                                         </button>
-                                        <button
-                                          onClick={() => saveItem(item.title, desc, src, catLabel)}
-                                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors ${isSaved(item.title, catLabel) ? 'bg-primary/20' : 'bg-accent/30 hover:bg-accent/50'}`}
-                                        >
-                                          <Bookmark className={`w-3.5 h-3.5 ${isSaved(item.title, catLabel) ? 'text-primary fill-primary' : 'text-muted-foreground'}`} />
-                                          <span className={`text-xs ${isSaved(item.title, catLabel) ? 'text-primary' : 'text-muted-foreground'}`}>
-                                            {dir === 'rtl' ? 'حفظ' : 'Save'}
-                                          </span>
-                                        </button>
                                       </div>
                                     </div>
                                   </motion.div>
