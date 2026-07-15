@@ -27,11 +27,6 @@ self.addEventListener('activate', (event) => {
         await Promise.allSettled(
           names.filter(isReadingCache).map((n) => caches.delete(n)),
         );
-        await self.clients.claim();
-        const clients = await self.clients.matchAll({ type: 'window' });
-        await Promise.allSettled(
-          clients.map((c) => c.navigate(c.url).catch(() => {})),
-        );
       } finally {
         await self.registration.unregister();
       }
