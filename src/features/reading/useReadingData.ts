@@ -205,26 +205,32 @@ export function useReadingData(opts: { isAr: boolean }) {
     try {
       const { data, count, error: queryError } = await supabase
         .from('rss_articles')
-        .select('*', { count: 'exact' })
+        // List rows only — omit `full_content` (can be tens of KB per
+        // row of HTML). ArticleReader lazily fetches / extracts the
+        // body on demand when the user actually opens an article, so
+        // shipping full_content in the list payload is pure waste.
+        // Also drop `count: exact` — an unindexed COUNT over the whole
+        // table blocks the response for hundreds of ms on cold cache.
+        .select('title, link, description, pub_date, created_at, image, images, source_name')
         .in('source_name', names)
         .order('pub_date', { ascending: false })
-        .limit(1000);
+        .limit(300);
       if (queryError) {
         throw queryError;
       }
       if (data) {
-        online = data.map((r: RssArticleRow) => ({
+        online = data.map((r) => ({
           title: r.title,
           link: r.link,
           description: r.description || '',
-          fullContent: r.full_content || '',
+          fullContent: '',
           pubDate: r.pub_date || r.created_at || '',
           image: r.image ?? null,
           images: (r.images as FeedItem['images']) || [],
           author: undefined,
           source: r.source_name,
         }));
-        onlineCount = count || online.length;
+        onlineCount = count ?? online.length;
       }
     } catch (e) {
       console.error('Reading: DB load failed', e);
@@ -463,6 +469,13 @@ export function useReadingData(opts: { isAr: boolean }) {
     };
     window.addEventListener('online', onOnline);
 
+    // Pre-claim the current name signature *before* firing the load
+    // so the concurrent `enabledNames` effect below sees a matching
+    // sig and skips its own duplicate query.
+    lastLoadedNamesRef.current = feedSourcesRef.current
+      .filter((f) => f.enabled)
+      .map((f) => f.name)
+      .join('|');
     loadFromDB().finally(() => {
       if (cancelled) return;
       setLoading(false);
@@ -516,7 +529,14 @@ export function useReadingData(opts: { isAr: boolean }) {
 
   // When the *enabled set* changes (toggle a feed), reload from DB
   // without rebuilding the interval. Cheap; touches state only.
+  // Dedupe against the last-loaded signature so cloud hydration
+  // arriving right after mount doesn't re-fire the same query we
+  // already issued from the initial `loadFromDB()` call.
+  const lastLoadedNamesRef = useRef<string>('');
   useEffect(() => {
+    const sig = enabledNames.join('|');
+    if (sig === lastLoadedNamesRef.current) return;
+    lastLoadedNamesRef.current = sig;
     void loadFromDB();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabledNames.join('|')]);
