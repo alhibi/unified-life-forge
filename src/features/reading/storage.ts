@@ -161,10 +161,13 @@ if (typeof window !== 'undefined') {
   supabase.auth.onAuthStateChange((event) => {
     if (event === 'SIGNED_OUT') {
       resetReadingStorage();
-    } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-      void hydrateReadingFromCloud({ force: true }).then(() => {
-        void setupRealtime();
-      });
+    } else if (event === 'SIGNED_IN') {
+      // Only re-hydrate on an *actual* sign-in. TOKEN_REFRESHED fires
+      // periodically (and can be triggered by our own getUser calls),
+      // so re-hydrating on it produced a feedback loop of API calls
+      // and re-renders. Token refresh doesn't change what data the
+      // user should see — skip it.
+      void hydrateReadingFromCloud({ force: true });
     }
   });
 }
