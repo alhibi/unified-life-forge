@@ -698,13 +698,13 @@ export default function Weather() {
   const conf = snapshot.meta.ensemble_confidence_percent;
 
   return (
-    <div dir={ar ? 'rtl' : 'ltr'} className="min-h-screen pb-24 bg-background text-foreground">
+    <div dir={ar ? 'rtl' : 'ltr'} className="weather-theme min-h-screen pb-24">
       <Helmet>
         <title>{ar ? 'طقس SmartHub — لوحة الرصد' : 'SmartHub Wetter — Messpanel'}</title>
         <meta name="description" content={ar ? 'لوحة طقس تفصيلية برسوم بيانية للحرارة والرياح والرطوبة والضغط وجودة الهواء.' : 'Detailliertes Wetterpanel mit Diagrammen für Temperatur, Wind, Feuchte, Druck und Luftqualität.'} />
       </Helmet>
 
-      <div className="sticky top-0 z-20 border-b border-border/55 bg-background/86 backdrop-blur-xl">
+      <div className="sticky top-0 z-20 border-b border-border/50 bg-background/70 backdrop-blur-xl">
         <div className="px-4 py-3 flex items-center gap-3">
           <BackButton />
           <div className="flex-1 min-w-0 text-center">
