@@ -144,8 +144,6 @@ export function useReadingData(opts: { isAr: boolean }) {
     const unsub = subscribeReadingStorage(applyFromMirror);
     return () => { mounted = false; unsub(); };
   }, []);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const _keepImports = { getOfflinePrefs };
 
   const enabledFeeds = useMemo(
     () => feedSources.filter((f) => f.enabled),
