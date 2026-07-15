@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import SEO from '@/components/SEO';
-import { createPortal } from 'react-dom';
 import { useApp } from '@/contexts/AppContext';
 import { useAuth } from '@/hooks/useAuth';
 import { useUnreadMessages } from '@/hooks/useUnreadMessages';
@@ -14,9 +13,7 @@ import UmmahPulse from '@/components/UmmahPulse';
 
 import SmartGreeting from '@/components/SmartGreeting';
 import { useNavigate } from 'react-router-dom';
-import { MessageCircle, ClipboardList, X, Trash2, BookOpen, UserCircle, Sparkles, ChevronLeft, FileText } from '@/lib/icons';
-import { AnimatePresence } from 'framer-motion';
-import { useClipboard } from '@/features/clipboard/hooks/useClipboard';
+import { MessageCircle, UserCircle, Sparkles, ChevronLeft, FileText } from '@/lib/icons';
 import { getAppleEmojiUrl, isEmojiAvatarValue } from '@/utils/emojiAvatar';
 import { getDefaultAvatarForUser } from '@/utils/defaultAvatar';
 import { PageShell, IconButton } from '@/components/ui/app-shell';
