@@ -29,7 +29,8 @@ export default defineTool({
     const sb = supabaseForUser(ctx);
     let q = sb
       .from("pkm_notes")
-      .select("id,title,updated_at,tags")
+      .select("id,title,status,updated_at")
+      .eq("is_deleted", false)
       .order("updated_at", { ascending: false })
       .limit(limit ?? 20);
     if (search && search.trim()) q = q.ilike("title", `%${search.trim()}%`);
