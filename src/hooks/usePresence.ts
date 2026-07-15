@@ -366,15 +366,14 @@ export function useOtherUserPresence(
     if (!otherUserId) return;
 
     let cancelled = false;
+    // `last_seen` is no longer readable via a direct column select — the
+    // `get_last_seen` RPC returns it only when the caller shares a
+    // conversation with `otherUserId` (or is that user).
     void supabase
-      .from('profiles')
-      .select('last_seen')
-      .eq('user_id', otherUserId)
-      .maybeSingle()
+      .rpc('get_last_seen', { target_user_id: otherUserId })
       .then(({ data }) => {
         if (cancelled) return;
-        const ls = (data as { last_seen?: string | null } | null)?.last_seen ?? null;
-        callbackRef.current(ls);
+        callbackRef.current((data as string | null) ?? null);
       });
 
     const channel = supabase

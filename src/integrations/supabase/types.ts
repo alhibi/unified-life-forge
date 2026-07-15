@@ -628,6 +628,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_last_seen: { Args: { target_user_id: string }; Returns: string }
       invoke_edge_function: {
         Args: { fn_name: string; payload?: Json }
         Returns: number
