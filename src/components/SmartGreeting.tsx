@@ -33,25 +33,13 @@ function todayAt(hhmm: string): number | null {
   return d.getTime();
 }
 
-// Compact humaniser: 5 → "5د" / "5 Min", 95 → "1س 35د" / "1h 35m".
+// Compact humaniser: 5 → "5د" / "5 Min", 95 → "1:35س" / "1h 35".
 function fmtDuration(mins: number, ar: boolean): string {
   if (mins < 60) return ar ? `${mins}د` : `${mins} Min`;
   const h = Math.floor(mins / 60);
   const m = mins % 60;
   if (!m) return ar ? `${h}س` : `${h}h`;
   return ar ? `${h}س ${m}د` : `${h}h ${m}m`;
-}
-
-// Short mood descriptor for the current temperature. Kept intentionally
-// gentle — one word so the subtitle stays a glance, not a paragraph.
-function tempMood(temp: number, ar: boolean): string {
-  if (temp <= 0)  return ar ? 'قارس'   : 'eiskalt';
-  if (temp <= 8)  return ar ? 'بارد'   : 'kalt';
-  if (temp <= 15) return ar ? 'منعش'   : 'kühl';
-  if (temp <= 22) return ar ? 'لطيف'   : 'mild';
-  if (temp <= 28) return ar ? 'دافئ'   : 'warm';
-  if (temp <= 34) return ar ? 'حار'    : 'heiß';
-  return           ar ? 'شديد الحرارة' : 'sehr heiß';
 }
 
 export default function SmartGreeting() {
@@ -86,66 +74,33 @@ export default function SmartGreeting() {
     return t('greeting.evening');
   }, [now, t]);
 
-  // Comparative prayer window — the last prayer that already passed today
-  // AND the next one still ahead. Lets the greeting say "since Fajr … next
-  // Dhuhr" so the user feels where in the day they are.
-  const prayerWindow = useMemo(() => {
+  // Next upcoming prayer today — keep it to one signal so the subtitle
+  // stays a glance, not a paragraph.
+  const nextPrayer = useMemo(() => {
     if (!timings) return null;
     const order = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
-    let last: { name: string; mins: number } | null = null;
-    let next: { name: string; mins: number } | null = null;
     for (const name of order) {
       const raw = timings[name];
       if (!raw) continue;
       const ts = todayAt(raw.slice(0, 5));
       if (ts == null) continue;
       const delta = Math.round((ts - now) / 60_000);
-      if (delta <= 0) {
-        // Already passed — keep updating so we end on the most recent one.
-        last = { name, mins: -delta };
-      } else if (!next) {
-        next = { name, mins: delta };
-        break;
-      }
+      if (delta > 0) return { name, mins: delta };
     }
-    return { last, next };
+    return null;
   }, [timings, now]);
 
-  // Prayer line — comparative window "since X · until Y".
   const prayerLine = useMemo(() => {
-    if (!prayerWindow) return null;
-    const { last, next } = prayerWindow;
-    const bits: string[] = [];
-    if (last) {
-      const label = ar ? PRAYER_AR[last.name] : PRAYER_DE[last.name];
-      bits.push(ar
-        ? `مضى على ${label} ${fmtDuration(last.mins, true)}`
-        : `${fmtDuration(last.mins, false)} nach ${label}`);
-    }
-    if (next) {
-      const label = ar ? PRAYER_AR[next.name] : PRAYER_DE[next.name];
-      bits.push(ar
-        ? `${label} بعد ${fmtDuration(next.mins, true)}`
-        : `${label} in ${fmtDuration(next.mins, false)}`);
-    }
-    if (!bits.length) return null;
-    return bits.join(ar ? ' · ' : ' · ');
-  }, [prayerWindow, ar]);
+    if (!nextPrayer) return null;
+    const label = ar ? PRAYER_AR[nextPrayer.name] : PRAYER_DE[nextPrayer.name];
+    return ar
+      ? `${label} بعد ${fmtDuration(nextPrayer.mins, true)}`
+      : `${label} in ${fmtDuration(nextPrayer.mins, false)}`;
+  }, [nextPrayer, ar]);
 
-  // Weather line — "18° لطيف" and, when apparent temp diverges by 3°+,
-  // append "الإحساس 15°" so the user knows the wind/humidity bite.
-  const weatherLine = useMemo(() => {
-    const c = weather?.current;
-    if (!c) return null;
-    const temp = Math.round(c.temperature);
-    const feels = Math.round(c.apparentTemperature);
-    const mood = tempMood(temp, ar);
-    const base = `${temp}° ${mood}`;
-    if (Math.abs(feels - temp) >= 3) {
-      return ar ? `${base} · الإحساس ${feels}°` : `${base} · gefühlt ${feels}°`;
-    }
-    return base;
-  }, [weather?.current, ar]);
+  const weatherLine = weather?.current
+    ? `${Math.round(weather.current.temperature)}°`
+    : null;
 
   // Date fallback line if nothing else is ready yet (cold start).
   const dateLine = new Date(now).toLocaleDateString(ar ? 'ar' : 'de', {
@@ -158,8 +113,7 @@ export default function SmartGreeting() {
     ? (ar ? `${greeting}، ${username}` : `${greeting}, ${username}`)
     : greeting;
 
-  const sep = ' · ';
-  const primary = [weatherLine, prayerLine].filter(Boolean).join(sep) || dateLine;
+  const primary = [weatherLine, prayerLine].filter(Boolean).join(' · ') || dateLine;
 
   return (
     <div className="min-w-0" dir={ar ? 'rtl' : 'ltr'}>
