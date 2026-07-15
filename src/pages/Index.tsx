@@ -12,9 +12,8 @@ import UmmahPulse from '@/components/UmmahPulse';
 import LivingRibbon from '@/components/LivingRibbon';
 
 import SmartGreeting from '@/components/SmartGreeting';
-import { X, Trash2, BookOpen, Sparkles, ChevronLeft, FileText } from '@/lib/icons';
-import { AnimatePresence } from 'framer-motion';
-import { useClipboard } from '@/features/clipboard/hooks/useClipboard';
+import { useNavigate } from 'react-router-dom';
+import { Sparkles, ChevronLeft, FileText } from '@/lib/icons';
 import { PageShell } from '@/components/ui/app-shell';
 
 import { pageStagger as stagger, pageItem as item } from '@/lib/motion';
