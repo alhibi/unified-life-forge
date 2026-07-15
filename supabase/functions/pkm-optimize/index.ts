@@ -2,6 +2,8 @@
 // The system prompt is intentionally hardcoded here (server-side) so users cannot
 // tamper with it and so the model's behavior stays stable across the app.
 
+import { createClient } from "npm:@supabase/supabase-js@2";
+
 // Uses OpenRouter directly with the user's OPENROUTER_API_KEY secret.
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 
@@ -51,6 +53,24 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
+    // Require an authenticated Supabase session — this endpoint proxies to
+    // OpenRouter using a paid server-side API key, so unauthenticated callers
+    // must never reach the upstream request.
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return errorResponse(401, "unauthorized");
+    }
+    const authClient = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_ANON_KEY")!,
+      { global: { headers: { Authorization: authHeader } } },
+    );
+    const token = authHeader.replace("Bearer ", "");
+    const { data: claimsData, error: claimsError } = await authClient.auth.getClaims(token);
+    if (claimsError || !claimsData?.claims?.sub) {
+      return errorResponse(401, "unauthorized");
+    }
+
     const key = Deno.env.get("OPENROUTER_API_KEY");
     if (!key) return errorResponse(500, "missing_openrouter_api_key");
     const { content, title, tags, linkedNotes, mode } = await req.json();
