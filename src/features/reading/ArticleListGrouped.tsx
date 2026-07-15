@@ -332,10 +332,15 @@ export function ArticleListGrouped({
       250,
     );
 
+    let rafPending = false;
     const handleScroll = () => {
       throttledStore();
-      if (rows.length > VIRTUALIZATION_THRESHOLD) {
-        recomputeVisible();
+      if (rows.length > VIRTUALIZATION_THRESHOLD && !rafPending) {
+        rafPending = true;
+        requestAnimationFrame(() => {
+          rafPending = false;
+          recomputeVisible();
+        });
       }
     };
 
