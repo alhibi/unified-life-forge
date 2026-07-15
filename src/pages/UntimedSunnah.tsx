@@ -3,10 +3,9 @@ import SEO from '@/components/SEO';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '@/contexts/AppContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, Volume2, Droplet, User, Star, Users, UtensilsCrossed, Shirt, Copy, Bookmark, BookOpen } from '@/lib/icons';
+import { ChevronDown, Volume2, Droplet, User, Star, Users, UtensilsCrossed, Shirt, Copy, BookOpen } from '@/lib/icons';
 import { untimedSunnahData } from '@/data/untimedSunnahData';
 import BackButton from '@/components/BackButton';
-import { useClipboard } from '@/features/clipboard/hooks/useClipboard';
 import { notify } from '@/lib/notify';
 
 const iconMap: Record<string, React.ElementType> = {
@@ -24,7 +23,6 @@ export default function UntimedSunnah() {
   const { dir } = useApp();
   const [openCatId, setOpenCatId] = useState<string | null>(null);
   const [openItemKey, setOpenItemKey] = useState<string | null>(null);
-  const { items: saved, addItem: addClipboardItem, isItemSaved } = useClipboard('untimed');
 
   const toggleCat = (id: string) => {
     setOpenCatId(prev => prev === id ? null : id);
@@ -37,18 +35,6 @@ export default function UntimedSunnah() {
     navigator.clipboard.writeText(text);
     notify.copied();
   };
-
-  const saveItem = (title: string, description: string, source: string, catLabel: string) => {
-    const id = `${title}-${catLabel}`;
-    if (isItemSaved(id)) {
-      notify.alreadySaved();
-      return;
-    }
-    addClipboardItem({ id, title, description, source, from: catLabel, savedAt: new Date().toISOString() });
-    notify.savedToClipboard();
-  };
-
-  const isSaved = (title: string, catLabel: string) => isItemSaved(`${title}-${catLabel}`);
 
   const categories = Object.entries(untimedSunnahData);
 
@@ -155,15 +141,6 @@ export default function UntimedSunnah() {
                                         >
                                           <Copy className="w-3.5 h-3.5 text-muted-foreground" />
                                           <span className="text-xs text-muted-foreground">نسخ</span>
-                                        </button>
-                                        <button
-                                          onClick={() => saveItem(item.title, item.description || '', item.source || '', cat.label)}
-                                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors ${isSaved(item.title, cat.label) ? 'bg-primary/20' : 'bg-accent/30 hover:bg-accent/50'}`}
-                                        >
-                                          <Bookmark className={`w-3.5 h-3.5 ${isSaved(item.title, cat.label) ? 'text-primary fill-primary' : 'text-muted-foreground'}`} />
-                                          <span className={`text-xs ${isSaved(item.title, cat.label) ? 'text-primary' : 'text-muted-foreground'}`}>
-                                            حفظ
-                                          </span>
                                         </button>
                                       </div>
                                     </div>

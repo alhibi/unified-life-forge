@@ -1,7 +1,7 @@
 // Single source of truth for the current Supabase user / session / profile.
 //
-// Before this refactor every call to `useAuth()` (11 sites: App, Chat,
-// Index, Settings, ProfileEdit, useChat, useClipboard, useUnreadMessages,
+// Before this refactor every call to `useAuth()` (10 sites: App, Chat,
+// Index, Settings, ProfileEdit, useChat, useUnreadMessages,
 // the Diwan library pages, plus AppContext's own internal copy) created
 // an independent React state and an independent
 // `supabase.auth.onAuthStateChange` subscription. Each subscription
