@@ -825,12 +825,10 @@ export default function Weather() {
           ar={ar}
         />
 
-        <div className="grid grid-cols-2 gap-3">
-          <GaugeTile label={ar ? 'UV' : 'UV-Index'} value={snapshot.solar.uv_index.toFixed(1)} pctValue={snapshot.solar.uv_index / 11} hint={snapshot.solar.uv_category} icon={<Sun />} />
-          <GaugeTile label={ar ? 'الرطوبة' : 'Feuchte'} value={Math.round(snapshot.moisture.relative_humidity_percent)} unit="%" pctValue={snapshot.moisture.relative_humidity_percent / 100} hint={`${ar ? 'ندى' : 'Taupunkt'} ${Math.round(snapshot.temperature.dew_point_c)}°`} icon={<Droplets />} />
-          <GaugeTile label={ar ? 'الغيوم' : 'Wolken'} value={Math.round(snapshot.sky.cloud_cover_total_percent)} unit="%" pctValue={snapshot.sky.cloud_cover_total_percent / 100} hint={snapshot.sky.cloud_type} icon={<Cloud />} />
-          <GaugeTile label={ar ? 'الرؤية' : 'Sicht'} value={Math.round(snapshot.sky.visibility_km)} unit="km" pctValue={Math.min(1, snapshot.sky.visibility_km / 20)} icon={<Eye />} />
-        </div>
+        <div className="b-one"><GaugeTile label={ar ? 'UV' : 'UV-Index'} value={snapshot.solar.uv_index.toFixed(1)} pctValue={snapshot.solar.uv_index / 11} hint={snapshot.solar.uv_category} icon={<Sun />} /></div>
+        <div className="b-one"><GaugeTile label={ar ? 'الرطوبة' : 'Feuchte'} value={Math.round(snapshot.moisture.relative_humidity_percent)} unit="%" pctValue={snapshot.moisture.relative_humidity_percent / 100} hint={`${ar ? 'ندى' : 'Taupunkt'} ${Math.round(snapshot.temperature.dew_point_c)}°`} icon={<Droplets />} /></div>
+        <div className="b-one"><GaugeTile label={ar ? 'الغيوم' : 'Wolken'} value={Math.round(snapshot.sky.cloud_cover_total_percent)} unit="%" pctValue={snapshot.sky.cloud_cover_total_percent / 100} hint={snapshot.sky.cloud_type} icon={<Cloud />} /></div>
+        <div className="b-one"><GaugeTile label={ar ? 'الرؤية' : 'Sicht'} value={Math.round(snapshot.sky.visibility_km)} unit="km" pctValue={Math.min(1, snapshot.sky.visibility_km / 20)} icon={<Eye />} /></div>
 
         <LineChart
           title={ar ? 'الرياح والرطوبة والضغط' : 'Wind, Feuchte, Druck'}
