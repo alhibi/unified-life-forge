@@ -201,6 +201,17 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     return () => { revokeStagedPreviews(); };
   }, [revokeStagedPreviews]);
 
+  // ── Search (extracted) ────────────────────────────────────────────────────
+  const {
+    showSearch, setShowSearch,
+    chatSearchQuery,
+    searchResults,
+    searchIndex,
+    searchInChat,
+    navigateSearch,
+    resetSearch,
+  } = useChatSearch({ activeConv, messages });
+
   // Wrapped setActiveConv: save/restore drafts, reset ephemeral UI state.
   const setActiveConv = useCallback((conv: Conversation | null) => {
     if (activeConv && activeConv.id !== conv?.id) {
@@ -213,9 +224,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     setShowProfilePopup(false);
     setShowSelfDestructMenu(false);
     setShowMuteMenu(false);
-    setShowSearch(false);
-    setChatSearchQuery('');
-    setSearchResults([]);
+    resetSearch();
     setShowEmojiPicker(false);
     setSelectedIds(new Set());
     setSignedUrls({});
