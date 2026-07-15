@@ -676,7 +676,7 @@ function Editor({
 
       {/* tags footer */}
       <TagsFooter body={body} isAr={isAr} />
-    </div>
+    </AppCard>
   );
 }
 
