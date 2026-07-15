@@ -515,6 +515,99 @@ export type Database = {
         }
         Relationships: []
       }
+      reading_bookmarks: {
+        Row: {
+          article_link: string
+          created_at: string
+          snapshot: Json
+          user_id: string
+        }
+        Insert: {
+          article_link: string
+          created_at?: string
+          snapshot: Json
+          user_id: string
+        }
+        Update: {
+          article_link?: string
+          created_at?: string
+          snapshot?: Json
+          user_id?: string
+        }
+        Relationships: []
+      }
+      reading_feeds: {
+        Row: {
+          category: string
+          created_at: string
+          enabled: boolean
+          id: string
+          name: string
+          sort_order: number
+          updated_at: string
+          url: string
+          user_id: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          name: string
+          sort_order?: number
+          updated_at?: string
+          url: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          name?: string
+          sort_order?: number
+          updated_at?: string
+          url?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      reading_prefs: {
+        Row: {
+          prefs: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          prefs?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          prefs?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      reading_read_state: {
+        Row: {
+          article_link: string
+          read_at: string
+          user_id: string
+        }
+        Insert: {
+          article_link: string
+          read_at?: string
+          user_id: string
+        }
+        Update: {
+          article_link?: string
+          read_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       rss_articles: {
         Row: {
           created_at: string
