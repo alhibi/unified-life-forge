@@ -152,7 +152,21 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
 
   // ── Helpers ───────────────────────────────────────────────────────────────
   const scrollToBottom = useCallback((smooth = true) => {
-    messagesEndRef.current?.scrollIntoView({ behavior: smooth ? 'smooth' : 'instant' });
+    const behavior: ScrollBehavior = smooth ? 'smooth' : 'auto';
+    const jump = () => {
+      const el = messagesContainerRef.current;
+      if (el) {
+        el.scrollTo({ top: el.scrollHeight, behavior });
+      } else {
+        messagesEndRef.current?.scrollIntoView({ behavior });
+      }
+    };
+    jump();
+    // Virtualized rows measure asynchronously — re-anchor after paint so the
+    // final scrollHeight (post-measurement) is honoured. WhatsApp / Telegram
+    // do the same to guarantee the latest message is visible on entry.
+    requestAnimationFrame(jump);
+    setTimeout(jump, 120);
   }, []);
 
   const focusComposer = useCallback(() => {
@@ -357,32 +371,24 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
       // and there is at least one unread incoming message, anchor at the
       // first unread (Telegram-style "X new messages" entrypoint).
       // Otherwise default to the bottom (latest message).
+      // Anchor to latest message on entry (WhatsApp / Telegram behaviour).
+      // A saved scroll position is honoured only when the user was clearly
+      // mid-history (not near the bottom) — otherwise fresh messages win.
       requestAnimationFrame(() => {
-          const target = restoreScrollRef.current;
-          if (target != null && messagesContainerRef.current) {
-            messagesContainerRef.current.scrollTop = target;
-            isNearBottomRef.current =
-              (messagesContainerRef.current.scrollHeight
-                - messagesContainerRef.current.scrollTop
-                - messagesContainerRef.current.clientHeight) < 120;
-            restoreScrollRef.current = null;
+        const target = restoreScrollRef.current;
+        restoreScrollRef.current = null;
+        const container = messagesContainerRef.current;
+        if (target != null && container) {
+          const distFromBottom =
+            container.scrollHeight - target - container.clientHeight;
+          if (distFromBottom > 240) {
+            container.scrollTop = target;
+            isNearBottomRef.current = false;
             return;
           }
-          // Find first unread message from the OTHER user — same logic as
-          // the firstUnreadId memo, computed inline because that memo isn't
-          // available yet on first paint.
-          const firstUnread = result.messages.find(
-            m => !m.read && m.sender_id !== user.id && !m.deleted && !(m.hidden_for ?? []).includes(user.id),
-          );
-          if (firstUnread) {
-            const el = document.getElementById(`msg-${firstUnread.id}`);
-            if (el) {
-              el.scrollIntoView({ behavior: 'instant' as ScrollBehavior, block: 'center' });
-              return;
-            }
-          }
-          scrollToBottom(false);
-        });
+        }
+        scrollToBottom(false);
+      });
     } finally {
       setMessagesLoading(false);
     }
