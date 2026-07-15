@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, lazy, Suspense } from 'react';
 import SEO from '@/components/SEO';
 import { useApp } from '@/contexts/AppContext';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -6,8 +6,9 @@ import {
   Mic, Newspaper,
 } from '@/lib/icons';
 
-import PodcastsTab from './browse/PodcastsTab';
-import ArticlesTab from './browse/ArticlesTab';
+// Lazy — each tab pulls in its own data hook. Users usually pick one.
+const PodcastsTab = lazy(() => import('./browse/PodcastsTab'));
+const ArticlesTab = lazy(() => import('./browse/ArticlesTab'));
 
 /**
  * /browse — "اطلاع" hub.
@@ -124,7 +125,16 @@ export default function BrowsePage() {
             transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
             className="space-y-3"
           >
-            {tab === 'podcasts' ? <PodcastsTab /> : <ArticlesTab />}
+            <Suspense
+              fallback={
+                <div className="space-y-2 pt-2">
+                  <div className="h-24 rounded-2xl animate-pulse bg-muted/30" />
+                  <div className="h-24 rounded-2xl animate-pulse bg-muted/25" />
+                </div>
+              }
+            >
+              {tab === 'podcasts' ? <PodcastsTab /> : <ArticlesTab />}
+            </Suspense>
           </motion.section>
         </AnimatePresence>
       </div>
