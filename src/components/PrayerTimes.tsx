@@ -457,40 +457,11 @@ export default function PrayerTimes() {
   const isNight = sunT < arcGeom.dayStart || sunT > arcGeom.dayEnd;
   const currentMakruh = makruhZones.find((z) => sunT >= z.tStart && sunT <= z.tEnd);
 
-  // ─── Slab toggle logic ───────────────────────────────────────────────────
-  const handleToggle = useCallback(
-    (name: PrayerKey) => {
-      const ordered = PRAYER_KEYS;
-      // Tapped is already done → rewind it and every later prayer
-      if (doneStates[name]) {
-        const idx = ordered.indexOf(name);
-        const rewound = { ...doneStates };
-        for (let i = idx; i < ordered.length; i++) rewound[ordered[i]] = false;
-        setDoneStates(rewound);
-        saveDoneStates(stamp, rewound);
-        return;
-      }
-      // Find the first uncompleted prayer; if it isn't this one, REJECT
-      const firstPending = ordered.find((k) => !doneStates[k]);
-      if (firstPending == null) {
-        // All already done — rejection too-early (no guidance)
-        setShakeCounter((s) => ({ ...s, [name]: s[name] + 1 }));
-        return;
-      }
-      if (firstPending !== name) {
-        setShakeCounter((s) => ({ ...s, [name]: s[name] + 1 }));
-        setGuideCounter((g) => ({ ...g, [firstPending]: g[firstPending] + 1 }));
-        return;
-      }
-      // Accept: mark this one done
-      const updated = { ...doneStates, [name]: true };
-      setDoneStates(updated);
-      saveDoneStates(stamp, updated);
-    },
-    [doneStates, stamp]
-  );
-
-  const doneCount = Object.values(doneStates).filter(Boolean).length;
+  // Prayer-logging removed — the list is a read-only readout of today's
+  // times. `handleToggle` is intentionally a no-op so the slab rows stay
+  // inert (no persistence to localStorage, no shake, no guide-pulse).
+  const handleToggle = useCallback((_name: PrayerKey) => {}, []);
+  const doneCount = 0;
 
   // ─── Render guards ───────────────────────────────────────────────────────
   if (loading) {
