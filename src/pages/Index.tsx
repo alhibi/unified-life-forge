@@ -11,7 +11,6 @@ import { motion } from 'framer-motion';
 import CurrentTimeSunnah from '@/components/CurrentTimeSunnah';
 import WeatherWidget from '@/weather/components/WeatherWidget';
 import UmmahPulse from '@/components/UmmahPulse';
-import LivingRibbon from '@/components/LivingRibbon';
 
 import SmartGreeting from '@/components/SmartGreeting';
 import { useNavigate } from 'react-router-dom';
