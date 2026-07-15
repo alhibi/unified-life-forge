@@ -1,6 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import SEO from '@/components/SEO';
+import { createPortal } from 'react-dom';
 import { useApp } from '@/contexts/AppContext';
+import { useAuth } from '@/hooks/useAuth';
+import { useUnreadMessages } from '@/hooks/useUnreadMessages';
 import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 import LocationSaver from '@/features/clipboard/components/LocationSaver';
 import PrayerTimes from '@/components/PrayerTimes';
@@ -12,8 +15,12 @@ import LivingRibbon from '@/components/LivingRibbon';
 
 import SmartGreeting from '@/components/SmartGreeting';
 import { useNavigate } from 'react-router-dom';
-import { Sparkles, ChevronLeft, FileText } from '@/lib/icons';
-import { PageShell } from '@/components/ui/app-shell';
+import { MessageCircle, ClipboardList, X, Trash2, BookOpen, UserCircle, Sparkles, ChevronLeft, FileText } from '@/lib/icons';
+import { AnimatePresence } from 'framer-motion';
+import { useClipboard } from '@/features/clipboard/hooks/useClipboard';
+import { getAppleEmojiUrl, isEmojiAvatarValue } from '@/utils/emojiAvatar';
+import { getDefaultAvatarForUser } from '@/utils/defaultAvatar';
+import { PageShell, IconButton } from '@/components/ui/app-shell';
 
 import { pageStagger as stagger, pageItem as item } from '@/lib/motion';
 
@@ -29,7 +36,13 @@ export default function Index() {
   }, [locationStatus, requestLocation]);
 
   const { t, language } = useApp();
+  const { user, username, profile } = useAuth();
+
   const navigate = useNavigate();
+  const { unreadCount } = useUnreadMessages();
+  const [showClipboard, setShowClipboard] = useState(false);
+
+  const { items: saved, removeItem } = useClipboard('sunnah');
 
   return (
     <PageShell>
@@ -42,7 +55,57 @@ export default function Index() {
       </h1>
       <motion.div variants={stagger} initial="hidden" animate="show" className="contents">
         <motion.div variants={item}>
-          <SmartGreeting />
+          <div className="flex items-center justify-between gap-3">
+            <SmartGreeting />
+            <div className="flex items-center gap-2 shrink-0">
+              <IconButton onClick={() => setShowClipboard(true)} aria-label="الحافظة">
+                <ClipboardList className="h-5 w-5" />
+                {saved.length > 0 && (
+                  <span className="absolute -top-1 -end-1 w-5 h-5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">
+                    {saved.length}
+                  </span>
+                )}
+              </IconButton>
+              {user && (
+                <IconButton onClick={() => navigate('/chat')} aria-label="المحادثات">
+                  <MessageCircle className="h-5 w-5" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -end-1 bg-destructive text-destructive-foreground text-[10px] rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 font-bold animate-pulse">
+                      {unreadCount}
+                    </span>
+                  )}
+                </IconButton>
+              )}
+              {/* Avatar shortcut → /settings.
+                  Replaces the previous Newspaper button (which moved
+                  into the new /browse hub) and the Settings tab in
+                  the bottom nav (which was retired in the IA reorg).
+                  Signed-in users see their actual avatar; signed-out
+                  users see a generic UserCircle that still navigates
+                  to /settings (where the auth flow lives). */}
+              <button
+                onClick={() => navigate('/settings')}
+                className="relative w-10 h-10 rounded-full ring-2 ring-primary/20 overflow-hidden active:scale-95 transition-transform"
+                aria-label={language === 'ar' ? 'الإعدادات' : 'Einstellungen'}
+              >
+                {user ? (
+                  profile?.avatar_url && profile.avatar_url.startsWith('http') ? (
+                    <img src={profile.avatar_url} alt="" className="w-full h-full object-cover object-top" />
+                  ) : profile?.avatar_url && isEmojiAvatarValue(profile.avatar_url) ? (
+                    <span className="w-full h-full flex items-center justify-center bg-accent/40">
+                      <img src={getAppleEmojiUrl(profile.avatar_url) || ''} alt="" className="w-6 h-6" />
+                    </span>
+                  ) : (
+                    <img src={getDefaultAvatarForUser(username || 'U')} alt="" className="w-full h-full object-cover" />
+                  )
+                ) : (
+                  <span className="w-full h-full flex items-center justify-center bg-accent/40">
+                    <UserCircle className="h-5 w-5 text-foreground" />
+                  </span>
+                )}
+              </button>
+            </div>
+          </div>
         </motion.div>
 
         <motion.section variants={item} aria-labelledby="home-ribbon-h">
@@ -138,6 +201,82 @@ export default function Index() {
         </motion.div>
       </motion.div>
 
+      {createPortal(
+        <>
+          {/* Clipboard Drawer */}
+          <AnimatePresence>
+            {showClipboard && (
+              <>
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="fixed inset-0 z-50 bg-black/50"
+                  onClick={() => setShowClipboard(false)}
+                />
+                <motion.div
+                  initial={{ y: '100%' }}
+                  animate={{ y: 0 }}
+                  exit={{ y: '100%' }}
+                  transition={{ duration: 0.25, ease: 'easeOut' }}
+                  className="fixed bottom-0 left-0 right-0 z-50 max-h-[80vh] rounded-t-3xl bg-background border-t border-border/40 flex flex-col"
+                >
+                  <div className="flex justify-center pt-3 pb-1">
+                    <div className="w-10 h-1 rounded-full bg-muted-foreground/30" />
+                  </div>
+                  <div className="flex items-center justify-between px-5 py-3 border-b border-border/30">
+                    <h2 className="text-base font-bold text-foreground">
+                      {language === 'ar' ? 'الحافظة' : 'Clipboard'}
+                    </h2>
+                    <button aria-label={language === 'ar' ? 'إغلاق الحافظة' : 'Schließen'} onClick={() => setShowClipboard(false)} className="w-8 h-8 rounded-full bg-card/80 flex items-center justify-center">
+                      <X className="w-4 h-4 text-muted-foreground" />
+                    </button>
+                  </div>
+                  <div className="flex-1 overflow-y-auto px-4 py-3">
+                    {saved.length === 0 ? (
+                      <div className="flex flex-col items-center justify-center py-12 gap-3">
+                        <ClipboardList className="w-12 h-12 text-muted-foreground/30" />
+                        <p className="text-sm text-muted-foreground">
+                          {language === 'ar' ? 'لا توجد عناصر محفوظة' : 'No saved items'}
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col gap-2 pb-6">
+                        {saved.map((s: any) => (
+                          <div key={s.id} className="rounded-xl bg-card/80 border border-border/40 p-3">
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-bold text-foreground leading-relaxed mb-1">{s.title}</p>
+                                <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2 mb-2">{s.description}</p>
+                                <div className="flex items-center gap-3 flex-wrap">
+                                  <span className="text-[11px] text-primary font-medium flex items-center gap-1">
+                                    <BookOpen className="w-3 h-3" />
+                                    {s.source}
+                                  </span>
+                                  <span className="text-[11px] text-muted-foreground/60">
+                                    {language === 'ar' ? 'من:' : 'From:'} {s.from}
+                                  </span>
+                                </div>
+                              </div>
+                              <button
+                                onClick={() => removeItem(s.id)}
+                                className="shrink-0 w-8 h-8 rounded-lg bg-destructive/10 hover:bg-destructive/20 flex items-center justify-center transition-colors"
+                              >
+                                <Trash2 className="w-3.5 h-3.5 text-destructive" />
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              </>
+            )}
+          </AnimatePresence>
+        </>,
+        document.body
+      )}
     </PageShell>
   );
 }
