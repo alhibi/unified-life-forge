@@ -24,6 +24,7 @@ export default function SettingsPage() {
     setShowLogoutConfirm(false);
     await signOut();
     toast.success(isAr ? 'تم تسجيل الخروج' : 'Abgemeldet');
+    navigate('/', { replace: true });
   };
 
   const themeLabel = theme === 'dark' ? t('settings.dark') : t('settings.light');
@@ -44,14 +45,14 @@ export default function SettingsPage() {
       key: 'font',
       icon: Type,
       title: isAr ? 'الخط' : 'Schriftart',
-      value: isAr ? 'نوع وحجم' : 'Art & Größe',
+      value: '',
       onClick: () => navigate('/settings/font'),
     },
     {
       key: 'motion',
       icon: Gauge,
       title: isAr ? 'الحركة والأداء' : 'Bewegung & Leistung',
-      value: isAr ? 'سرعة وحد إطارات' : 'Speed & FPS',
+      value: '',
       onClick: () => navigate('/settings/motion'),
     },
   ];
@@ -60,22 +61,14 @@ export default function SettingsPage() {
     {
       key: 'prayer',
       icon: BookOpen,
-      title: isAr ? 'المذهب الفقهي' : 'Gebetsschule',
+      title: isAr ? 'إعدادات الصلاة' : 'Gebetseinstellungen',
       value: madhabLabel,
       onClick: () => navigate('/settings/prayer'),
     },
   ];
 
-  const generalItems: Array<{ key: string; icon: any; title: string; value: string; onClick: () => void; isToggle?: boolean }> = [
-    {
-      key: 'language',
-      icon: Languages,
-      title: t('settings.language'),
-      value: language === 'ar' ? 'العربية' : 'Deutsch',
-      onClick: () => setLanguage(language === 'ar' ? 'de' : 'ar'),
-      isToggle: true,
-    },
-  ];
+  // Language now uses a segmented control (AR / DE) rendered separately
+  // so both options remain visible and it's obvious which one is active.
 
   const renderGroup = (title: string, items: typeof generalItems) => (
     <motion.div variants={item} className="space-y-1">
