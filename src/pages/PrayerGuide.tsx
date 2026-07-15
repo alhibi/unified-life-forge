@@ -81,7 +81,7 @@ export default function PrayerGuide() {
 
   const title = isAr
     ? 'الدليل الشامل لأوقات الصلاة وطرق الحساب — SmartHub'
-    : 'Der vollständige Leitfaden zu islamischen Gebetszeiten — SmartHub';
+    : 'Leitfaden zu islamischen Gebetszeiten — SmartHub';
   const description = isAr
     ? 'دليل شامل لأوقات الصلاة الخمس، طرق الحساب الفلكية (أم القرى، رابطة العالم الإسلامي، ISNA)، اتجاه القبلة، وأسئلة شائعة عن الصلاة في الإسلام.'
     : 'Umfassender Leitfaden zu den fünf islamischen Gebetszeiten, astronomischen Berechnungsmethoden (Umm al-Qura, MWL, ISNA), Qibla-Richtung und häufigen Fragen.';
