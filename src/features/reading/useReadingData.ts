@@ -205,26 +205,32 @@ export function useReadingData(opts: { isAr: boolean }) {
     try {
       const { data, count, error: queryError } = await supabase
         .from('rss_articles')
-        .select('*', { count: 'exact' })
+        // List rows only — omit `full_content` (can be tens of KB per
+        // row of HTML). ArticleReader lazily fetches / extracts the
+        // body on demand when the user actually opens an article, so
+        // shipping full_content in the list payload is pure waste.
+        // Also drop `count: exact` — an unindexed COUNT over the whole
+        // table blocks the response for hundreds of ms on cold cache.
+        .select('title, link, description, pub_date, created_at, image, images, source_name')
         .in('source_name', names)
         .order('pub_date', { ascending: false })
-        .limit(1000);
+        .limit(300);
       if (queryError) {
         throw queryError;
       }
       if (data) {
-        online = data.map((r: RssArticleRow) => ({
+        online = data.map((r) => ({
           title: r.title,
           link: r.link,
           description: r.description || '',
-          fullContent: r.full_content || '',
+          fullContent: '',
           pubDate: r.pub_date || r.created_at || '',
           image: r.image ?? null,
           images: (r.images as FeedItem['images']) || [],
           author: undefined,
           source: r.source_name,
         }));
-        onlineCount = count || online.length;
+        onlineCount = count ?? online.length;
       }
     } catch (e) {
       console.error('Reading: DB load failed', e);
