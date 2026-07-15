@@ -46,7 +46,7 @@ export default function MindPage() {
   const BackIcon = isAr ? ArrowRight : ArrowLeft;
 
   return (
-    <div className="fixed inset-0 z-40 bg-[#0A0A0A] text-[color:#F2E7C9] overflow-hidden">
+    <div className="relative w-screen h-[100dvh] bg-[#0A0A0A] text-[color:#F2E7C9] overflow-hidden">
       <SEO
         title={isAr ? 'العقل الحيّ — الأرشيف العصبي' : 'Living Mind — Neural Archive'}
         description={isAr
