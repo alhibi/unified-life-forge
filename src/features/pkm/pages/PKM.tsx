@@ -561,7 +561,7 @@ function Editor({
     'h-8 min-w-8 px-2 rounded-lg bg-background/60 hover:bg-accent border border-border/40 text-xs font-semibold text-foreground/80 hover:text-foreground active:scale-95 transition-all flex items-center justify-center';
 
   return (
-    <div className="rounded-2xl bg-card border border-border/50 p-4 flex flex-col gap-3 min-h-[60vh]">
+    <AppCard className="flex flex-col gap-3 min-h-[60vh]">
       {/* toolbar */}
       <div className="flex items-center gap-2">
         <select
