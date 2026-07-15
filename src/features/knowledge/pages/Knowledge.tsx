@@ -818,7 +818,7 @@ function ModelDetailDialog({
         </VisuallyHidden>
 
         {model && (
-          <div className="relative overflow-y-auto overscroll-contain pb-[calc(env(safe-area-inset-bottom)+1.5rem)]">
+          <div className="relative overflow-y-auto overscroll-contain pb-[calc(env(safe-area-inset-bottom)+6rem)]">
             {/* Header pills */}
             <div className="px-6 pt-5 space-y-4">
               <div className="flex flex-wrap items-center gap-2">
