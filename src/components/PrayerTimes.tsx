@@ -525,22 +525,6 @@ export default function PrayerTimes() {
   <HijriCalendarStrip language={language} t={t} />
   </div>
 
-  {/* ═══ Card 3: Today's prayer slab (collapsible list) ══════════════ */}
-  <div className="rounded-[28px] border border-foreground/[0.05] bg-card text-card-foreground overflow-hidden shadow-[0_18px_38px_-30px_hsl(var(--foreground)/0.5)]">
-   <Slab
-     prayers={prayers}
-     doneStates={doneStates}
-     doneCount={doneCount}
-     activeName={slot.current}
-     shakeCounter={shakeCounter}
-     guideCounter={guideCounter}
-     onToggle={handleToggle}
-     isDark={isDark}
-     language={language}
-     t={t}
-   />
- </div>
-
     </motion.div>
   );
 }
