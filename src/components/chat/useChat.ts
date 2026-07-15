@@ -15,28 +15,13 @@ import {
   MAX_STAGED_IMAGES,
 } from './chatNotify';
 import type { Conversation, Message, Reaction, ConversationFilter, MessageStatus } from './types';
+import { newClientId } from './internal/clientId';
+import { useTypingChannel } from './internal/useTypingChannel';
+import { useChatSearch } from './internal/useChatSearch';
 
 interface UseChatOptions {
   open: boolean;
   onUnreadChange: (count: number) => void;
-}
-
-// Stable client UUID generator. `crypto.randomUUID` is available in modern
-// browsers (Safari 15.4+, all evergreens) but fall back gracefully so the
-// hook still works on the rare older engine. The id only needs to be
-// reasonably unique per user — the DB unique index is on
-// (sender_id, client_id), so even if two users happened to mint the same
-// uuid it wouldn't collide.
-function newClientId(): string {
-  const c = (typeof globalThis !== 'undefined' ? globalThis.crypto : undefined) as
-    | (Crypto & { randomUUID?: () => string })
-    | undefined;
-  if (c?.randomUUID) {
-    try { return c.randomUUID(); } catch { /* fall through */ }
-  }
-  // RFC4122 v4-ish fallback. Good enough for client-only idempotency.
-  const r = () => Math.random().toString(16).slice(2, 10);
-  return `${r()}-${r().slice(0, 4)}-${r().slice(0, 4)}-${r().slice(0, 4)}-${r()}${r().slice(0, 4)}`;
 }
 
 /**
@@ -86,18 +71,13 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
   const [conversationFilter, setConversationFilter] = useState<ConversationFilter>('all');
 
   // ── Realtime / network ────────────────────────────────────────────────────
-  const [typingUser, setTypingUser] = useState(false);
-  const [typingByConv, setTypingByConv] = useState<Record<string, boolean>>({});
   const [uploading, setUploading] = useState(false);
   const [messagesLoading, setMessagesLoading] = useState(false);
   const [conversationsLoading, setConversationsLoading] = useState(false);
   const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
 
   // ── Search ────────────────────────────────────────────────────────────────
-  const [showSearch, setShowSearch] = useState(false);
-  const [chatSearchQuery, setChatSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<Message[]>([]);
-  const [searchIndex, setSearchIndex] = useState(0);
+  // (extracted below once `messages` + `activeConv` are declared)
 
   // ── Pin / self-destruct (server) ──────────────────────────────────────────
   const [pinnedMessage, setPinnedMessage] = useState<Message | null>(null);
@@ -125,8 +105,6 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
   const [forwardedNames, setForwardedNames] = useState<Record<string, string>>({});
 
   // ── Refs ──────────────────────────────────────────────────────────────────
-  const typingChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
-  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -223,6 +201,17 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     return () => { revokeStagedPreviews(); };
   }, [revokeStagedPreviews]);
 
+  // ── Search (extracted) ────────────────────────────────────────────────────
+  const {
+    showSearch, setShowSearch,
+    chatSearchQuery,
+    searchResults,
+    searchIndex,
+    searchInChat,
+    navigateSearch,
+    resetSearch,
+  } = useChatSearch({ activeConv, messages });
+
   // Wrapped setActiveConv: save/restore drafts, reset ephemeral UI state.
   const setActiveConv = useCallback((conv: Conversation | null) => {
     if (activeConv && activeConv.id !== conv?.id) {
@@ -235,9 +224,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     setShowProfilePopup(false);
     setShowSelfDestructMenu(false);
     setShowMuteMenu(false);
-    setShowSearch(false);
-    setChatSearchQuery('');
-    setSearchResults([]);
+    resetSearch();
     setShowEmojiPicker(false);
     setSelectedIds(new Set());
     setSignedUrls({});
@@ -735,91 +722,13 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     };
   }, [user, open, scrollToBottom, bumpConversationLocally]);
 
-  // ── Typing presence ───────────────────────────────────────────────────────
-  const typingStaleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const typingThrottleRef   = useRef(0);
-  useEffect(() => {
-    if (!activeConv || !user) return;
-    setTypingUser(false);
-
-    const TYPING_STALE_MS = 6000;
-    const armStale = () => {
-      if (typingStaleTimerRef.current) clearTimeout(typingStaleTimerRef.current);
-      typingStaleTimerRef.current = setTimeout(() => setTypingUser(false), TYPING_STALE_MS);
-    };
-    const disarmStale = () => {
-      if (typingStaleTimerRef.current) {
-        clearTimeout(typingStaleTimerRef.current);
-        typingStaleTimerRef.current = null;
-      }
-    };
-
-    const handle = acquireTypingChannel(activeConv.id, user.id);
-    typingChannelRef.current = handle.channel;
-
-    const offChange = handle.onChange((state) => {
-      const others = Object.entries(state).filter(([k]) => k !== user.id);
-      const isTyping = others.some(([, presences]) =>
-        (presences as Array<Record<string, unknown>>).some(p => p.typing === true),
-      );
-      setTypingUser(isTyping);
-      if (isTyping) armStale(); else disarmStale();
-    });
-
-    return () => {
-      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
-      disarmStale();
-      try { handle.channel.track({ typing: false }); } catch { /* no-op */ }
-      try { handle.channel.untrack(); } catch { /* no-op */ }
-      typingChannelRef.current = null;
-      typingThrottleRef.current = 0;
-      offChange();
-      handle.release();
-    };
-  }, [activeConv, user]);
-
-  // ── Typing-in-conversation-list ──────────────────────────────────────────
-  const MAX_LIST_TYPING_CHANNELS = 40;
-  const convIdsForTyping = useMemo(
-    () => conversations.slice(0, MAX_LIST_TYPING_CHANNELS).map(c => c.id).sort().join(','),
-    [conversations],
-  );
-  useEffect(() => {
-    if (!open || !user || !convIdsForTyping) return;
-    const ids = convIdsForTyping.split(',').filter(Boolean);
-    const handles = ids.map(convId => {
-      const handle = acquireTypingChannel(convId, user.id);
-      const off = handle.onChange((state) => {
-        const others = Object.entries(state).filter(([k]) => k !== user.id);
-        const typing = others.some(([, entries]) =>
-          (entries as Array<Record<string, unknown>>).some(e => e.typing === true),
-        );
-        setTypingByConv(prev => {
-          if (prev[convId] === typing) return prev;
-          return { ...prev, [convId]: typing };
-        });
-      });
-      return { off, handle };
-    });
-    return () => {
-      handles.forEach(({ off, handle }) => { off(); handle.release(); });
-      setTypingByConv({});
-    };
-  }, [open, user, convIdsForTyping]);
-
-  const broadcastTyping = useCallback(() => {
-    if (!typingChannelRef.current) return;
-    const now = Date.now();
-    if (now - typingThrottleRef.current >= 1000) {
-      typingThrottleRef.current = now;
-      typingChannelRef.current.track({ typing: true });
-    }
-    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
-    typingTimeoutRef.current = setTimeout(() => {
-      typingChannelRef.current?.track({ typing: false });
-      typingThrottleRef.current = 0;
-    }, 1500);
-  }, []);
+  // ── Typing presence (extracted) ───────────────────────────────────────────
+  const {
+    typingUser,
+    typingByConv,
+    notifyTyping: broadcastTyping,
+    stopTyping,
+  } = useTypingChannel({ open, userId: user?.id, activeConv, conversations });
 
   // ── Send / edit / delete messages ─────────────────────────────────────────
   /**
@@ -853,8 +762,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
       setReplyTo(null);
       resizeComposer();
     }
-    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
-    typingChannelRef.current?.track({ typing: false });
+    stopTyping();
 
     const clientId = newClientId();
     const optimisticId = `optimistic_${clientId}`;
@@ -1104,117 +1012,6 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     setNewMessage('');
     resizeComposer();
   }, [resizeComposer]);
-
-  // ── In-chat search ────────────────────────────────────────────────────────
-  // Server-backed full-text search via the `search_chat_messages` RPC.
-  // Replaces the previous client-side `content.includes(q)` filter, which
-  // was blind to Arabic diacritic / hamza variants and limited to whatever
-  // happened to be in the in-memory `messages` array.
-  //
-  // Strategy
-  //   1. Call the RPC scoped to the active conversation (legacy `chat_id`
-  //      lookup via the chats backfill — RPC handles both paths).
-  //   2. Map RPC hits back onto the locally-loaded `messages` array so
-  //      the UI's existing `searchResults: Message[]` contract still
-  //      holds (drives navigation up/down + scroll-to).
-  //   3. Hits that aren't currently in memory (i.e. older history that
-  //      hasn't been paginated in) are skipped with a console warn —
-  //      pagination through search results is on the wave-2 follow-up.
-  //   4. On RPC error, fall back to the client-side filter so search
-  //      stays usable in offline / RPC-misconfigured environments.
-  const searchInChat = useCallback(async (query: string) => {
-    setChatSearchQuery(query);
-    const trimmed = query.trim();
-    if (!trimmed) { setSearchResults([]); setSearchIndex(0); return; }
-    if (!activeConv) { setSearchResults([]); setSearchIndex(0); return; }
-
-    // Local fallback used in two scenarios: RPC error, and as a synchronous
-    // first paint while the RPC is in flight.
-    const q = trimmed.toLowerCase();
-    const local = messages.filter(m =>
-      !m.deleted && m.message_type === 'text' && m.content.toLowerCase().includes(q),
-    );
-    setSearchResults(local);
-    setSearchIndex(local.length > 0 ? local.length - 1 : 0);
-
-    try {
-      const { data, error } = await (supabase.rpc as any)('search_chat_messages', {
-        p_query:   trimmed,
-        // Try the unified chat_id first; the RPC accepts both via the
-        // legacy_conversation_id lookup, but DM rows don't always carry
-        // a chat_id locally. Pass NULL to scope server-side to ALL the
-        // caller's conversations and then narrow client-side to this one.
-        p_chat_id: null,
-        p_limit:   200,
-      });
-      if (error) throw error;
-
-      const hits = ((data ?? []) as unknown) as Array<{
-        message_id:      string;
-        conversation_id: string;
-        chat_id:         string | null;
-      }>;
-      // Filter to the active conversation and translate hit IDs back onto
-      // the loaded `messages` array (preserving the RPC's rank order).
-      const byId = new Map<string, Message>();
-      for (const m of messages) byId.set(m.id, m);
-      const ranked: Message[] = [];
-      for (const h of hits) {
-        if (h.conversation_id !== activeConv.id) continue;
-        const found = byId.get(h.message_id);
-        if (!found || found.deleted) continue;
-        ranked.push(found);
-      }
-      // The RPC orders by rank DESC, but the search bar's mental model
-      // is "step through chronologically" via prev/next arrows. Sort by
-      // creation time so navigation feels natural; the rank order is
-      // available for a future "Top results" UI.
-      ranked.sort((a, b) => a.created_at.localeCompare(b.created_at));
-
-      // Replace local results only when the RPC produced something —
-      // an empty FTS result with a non-empty client-side match means the
-      // index hasn't ingested the just-sent row yet (search_vector is
-      // synchronous on insert via STORED, but realtime delivery + index
-      // rebuild can race by a tick or two on the recipient's side).
-      if (ranked.length > 0) {
-        setSearchResults(ranked);
-        setSearchIndex(ranked.length - 1);
-        const last = ranked[ranked.length - 1];
-        // Defer scroll until after the result-list state has rendered.
-        requestAnimationFrame(() => {
-          const el = document.getElementById(`msg-${last.id}`);
-          el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        });
-      } else if (local.length > 0) {
-        // Keep the local results we already showed. No-op here.
-        const last = local[local.length - 1];
-        requestAnimationFrame(() => {
-          const el = document.getElementById(`msg-${last.id}`);
-          el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        });
-      }
-    } catch (err) {
-      // RPC failure is non-fatal — the local fallback is already shown.
-      console.warn('[chat] search_chat_messages RPC failed', err);
-      if (local.length > 0) {
-        const last = local[local.length - 1];
-        requestAnimationFrame(() => {
-          const el = document.getElementById(`msg-${last.id}`);
-          el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        });
-      }
-    }
-  }, [activeConv, messages]);
-
-  const navigateSearch = useCallback((direction: 'up' | 'down') => {
-    if (searchResults.length === 0) return;
-    const newIdx = direction === 'up'
-      ? Math.max(0, searchIndex - 1)
-      : Math.min(searchResults.length - 1, searchIndex + 1);
-    setSearchIndex(newIdx);
-    const el = document.getElementById(`msg-${searchResults[newIdx].id}`);
-    el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }, [searchResults, searchIndex]);
 
   // ── Self-destruct ─────────────────────────────────────────────────────────
   const toggleSelfDestruct = useCallback(async (seconds: number | null) => {
