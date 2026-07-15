@@ -116,10 +116,6 @@ const loadKnowledge = () => import("./features/knowledge/pages/Knowledge");
 // page reachable from /mihrab — kept lazy because it's only loaded
 // when a user (or a crawler) drills in from the Mihrab hub.
 const loadPrayerGuide = () => import("./pages/PrayerGuide");
-// Standalone hard-coded 7-day forecast UI (design showcase). Self-contained
-// component with its own dark theme + recharts charts; reachable at
-// /weather/forecast without touching the live-data /weather page.
-const loadWeatherForecast = () => import("./weather/pages/Weather");
 // Diwan library — adab.com integration
 const loadLibrary = () => import("./features/diwan/pages/Library");
 const loadLibraryPoets = () => import("./features/diwan/pages/LibraryPoets");
