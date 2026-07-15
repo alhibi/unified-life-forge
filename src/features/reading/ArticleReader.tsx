@@ -76,6 +76,7 @@ export function ArticleReader({
    */
   onUpgradeContent?: (
     link: string,
+    opts?: { force?: boolean },
   ) => Promise<{ fullContent: string; image: string | null } | null>;
 }) {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -213,7 +214,7 @@ export function ArticleReader({
     manualUpgradeRef.current = true;
     setUpgradeStatus('loading');
     try {
-      const result = await onUpgradeContent(article.link);
+      const result = await onUpgradeContent(article.link, { force: true });
       if (result?.fullContent) {
         setBodyHtml((cur) =>
           plainTextLength(result.fullContent) > plainTextLength(cur)
