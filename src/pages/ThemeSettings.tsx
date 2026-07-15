@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { Sun, Moon, Contrast, Check, Palette, Sparkles, Droplets, Zap, Circle, ImageIcon, Clock, ChevronDown } from '@/lib/icons';
 import BackButton from '@/components/BackButton';
+import SEO from '@/components/SEO';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { themePresets, type ThemeStyle, createDynamicPreset, extractDominantColor } from '@/utils/themeEngine';
@@ -115,6 +116,11 @@ export default function ThemeSettingsPage() {
 
   return (
     <div className="min-h-screen bg-background pb-28 px-5 pt-14">
+      <SEO
+        title={isAr ? 'المظهر والألوان — SmartHub' : 'Erscheinungsbild & Farben — SmartHub'}
+        description={isAr ? 'اختر السمة والألوان ونمط اللوحة لتجربتك في SmartHub.' : 'Wähle Theme, Farben und Paletten für dein SmartHub-Erlebnis.'}
+        path="/settings/theme"
+      />
       <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-4 max-w-lg mx-auto">
         {/* Header */}
         <motion.div variants={item} className="flex items-center gap-3 mb-2">
