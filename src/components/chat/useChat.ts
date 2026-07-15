@@ -17,6 +17,7 @@ import {
 import type { Conversation, Message, Reaction, ConversationFilter, MessageStatus } from './types';
 import { newClientId } from './internal/clientId';
 import { useTypingChannel } from './internal/useTypingChannel';
+import { useChatSearch } from './internal/useChatSearch';
 
 interface UseChatOptions {
   open: boolean;
@@ -76,10 +77,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
   const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
 
   // ── Search ────────────────────────────────────────────────────────────────
-  const [showSearch, setShowSearch] = useState(false);
-  const [chatSearchQuery, setChatSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<Message[]>([]);
-  const [searchIndex, setSearchIndex] = useState(0);
+  // (extracted below once `messages` + `activeConv` are declared)
 
   // ── Pin / self-destruct (server) ──────────────────────────────────────────
   const [pinnedMessage, setPinnedMessage] = useState<Message | null>(null);
