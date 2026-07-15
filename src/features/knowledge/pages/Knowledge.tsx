@@ -1,5 +1,5 @@
 import { useMemo, useState, type ComponentType } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import SEO from "@/components/SEO";
 import BackButton from "@/components/BackButton";
 import {
@@ -686,17 +686,36 @@ export default function Knowledge() {
         </motion.nav>
 
         {/* Brands OR Models — mutually exclusive to avoid double scroll */}
-        {!activeBrand ? (
-          <motion.section variants={item} aria-label="الماركات" className="space-y-3">
+        <div className="relative">
+          <AnimatePresence mode="wait" initial={false}>
+          {!activeBrand ? (
+            <motion.section
+              key={`brands-${activeCat}`}
+              initial={{ opacity: 0, x: 12 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -12 }}
+              transition={{ duration: 0.28, ease: [0.22, 0.9, 0.32, 1] }}
+              aria-label="الماركات"
+              className="space-y-3"
+            >
             <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1">
               الماركات
             </h2>
-            <div className="space-y-2.5">
+            <motion.div
+              className="space-y-2.5"
+              initial="hidden"
+              animate="show"
+              variants={{ show: { transition: { staggerChildren: 0.04 } } }}
+            >
               {brands.map((b) => (
+                <motion.div
+                  key={b.id}
+                  variants={{ hidden: { opacity: 0, y: 8 }, show: { opacity: 1, y: 0 } }}
+                  transition={{ duration: 0.25, ease: [0.22, 0.9, 0.32, 1] }}
+                >
                 <AppCard
                   as="button"
                   pressable
-                  key={b.id}
                   onClick={() => setActiveBrandId(b.id)}
                   className="block w-full text-right"
                 >
@@ -715,15 +734,17 @@ export default function Knowledge() {
                     <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
                   </div>
                 </AppCard>
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
           </motion.section>
-        ) : (
+          ) : (
           <motion.section
-            key={activeBrand.id}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.25 }}
+            key={`models-${activeBrand.id}`}
+            initial={{ opacity: 0, x: -12 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 12 }}
+            transition={{ duration: 0.28, ease: [0.22, 0.9, 0.32, 1] }}
             aria-label="الطرازات"
             className="space-y-3"
           >
@@ -750,12 +771,21 @@ export default function Knowledge() {
             <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1 pt-1">
               الطرازات
             </h2>
-            <div className="space-y-2.5">
+            <motion.div
+              className="space-y-2.5"
+              initial="hidden"
+              animate="show"
+              variants={{ show: { transition: { staggerChildren: 0.05, delayChildren: 0.05 } } }}
+            >
               {activeBrand.models.map((m) => (
+                <motion.div
+                  key={m.id}
+                  variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }}
+                  transition={{ duration: 0.28, ease: [0.22, 0.9, 0.32, 1] }}
+                >
                 <AppCard
                   as="button"
                   pressable
-                  key={m.id}
                   onClick={() => setActiveModel(m)}
                   className="block w-full text-right"
                 >
@@ -779,10 +809,13 @@ export default function Knowledge() {
                     {m.desc}
                   </p>
                 </AppCard>
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
           </motion.section>
-        )}
+          )}
+          </AnimatePresence>
+        </div>
       </motion.div>
 
       {/* ── Detail dialog ── */}
