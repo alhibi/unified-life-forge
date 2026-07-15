@@ -298,7 +298,7 @@ export default function PKM() {
                 <Plus className="w-4 h-4" />
                 {isAr ? 'ملاحظة جديدة' : 'Neue Notiz'}
               </button>
-            </div>
+            </AppCard>
           )}
         </section>
       </div>
