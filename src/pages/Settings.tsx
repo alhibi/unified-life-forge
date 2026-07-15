@@ -24,6 +24,7 @@ export default function SettingsPage() {
     setShowLogoutConfirm(false);
     await signOut();
     toast.success(isAr ? 'تم تسجيل الخروج' : 'Abgemeldet');
+    navigate('/', { replace: true });
   };
 
   const themeLabel = theme === 'dark' ? t('settings.dark') : t('settings.light');
@@ -44,14 +45,14 @@ export default function SettingsPage() {
       key: 'font',
       icon: Type,
       title: isAr ? 'الخط' : 'Schriftart',
-      value: isAr ? 'نوع وحجم' : 'Art & Größe',
+      value: '',
       onClick: () => navigate('/settings/font'),
     },
     {
       key: 'motion',
       icon: Gauge,
       title: isAr ? 'الحركة والأداء' : 'Bewegung & Leistung',
-      value: isAr ? 'سرعة وحد إطارات' : 'Speed & FPS',
+      value: '',
       onClick: () => navigate('/settings/motion'),
     },
   ];
@@ -60,24 +61,23 @@ export default function SettingsPage() {
     {
       key: 'prayer',
       icon: BookOpen,
-      title: isAr ? 'المذهب الفقهي' : 'Gebetsschule',
+      title: isAr ? 'إعدادات الصلاة' : 'Gebetseinstellungen',
       value: madhabLabel,
       onClick: () => navigate('/settings/prayer'),
     },
   ];
 
-  const generalItems: Array<{ key: string; icon: any; title: string; value: string; onClick: () => void; isToggle?: boolean }> = [
-    {
-      key: 'language',
-      icon: Languages,
-      title: t('settings.language'),
-      value: language === 'ar' ? 'العربية' : 'Deutsch',
-      onClick: () => setLanguage(language === 'ar' ? 'de' : 'ar'),
-      isToggle: true,
-    },
-  ];
+  // Language now uses a segmented control (AR / DE) rendered separately
+  // so both options remain visible and it's obvious which one is active.
+  type SettingRow = {
+    key: string;
+    icon: any;
+    title: string;
+    value: string;
+    onClick: () => void;
+  };
 
-  const renderGroup = (title: string, items: typeof generalItems) => (
+  const renderGroup = (title: string, items: SettingRow[]) => (
     <motion.div variants={item} className="space-y-1">
       <p className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-wider px-1 mb-2">
         {title}
@@ -94,23 +94,49 @@ export default function SettingsPage() {
               <span className="text-[14px] font-medium text-foreground">{si.title}</span>
             </div>
             <div className="flex items-center gap-2">
-              {si.isToggle ? (
-                <div className={`relative w-[44px] h-[24px] rounded-full transition-colors duration-300 shrink-0 ${language === 'ar' ? 'bg-primary' : 'bg-muted'}`} dir="ltr">
-                  <motion.div
-                    className="absolute top-[2px] w-[20px] h-[20px] rounded-full bg-primary-foreground"
-                    animate={{ left: language === 'ar' ? 22 : 2 }}
-                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                  />
-                </div>
-              ) : (
-                <>
-                  <span className="text-[12px] text-muted-foreground">{si.value}</span>
-                  <ChevronLeft className="w-4 h-4 text-muted-foreground/40 ltr:rotate-180" />
-                </>
-              )}
+              {si.value ? (
+                <span className="text-[12px] text-muted-foreground">{si.value}</span>
+              ) : null}
+              <ChevronLeft className="w-4 h-4 text-muted-foreground/40 ltr:rotate-180" />
             </div>
           </button>
         ))}
+      </div>
+    </motion.div>
+  );
+
+  const renderLanguageSegmented = () => (
+    <motion.div variants={item} className="space-y-1">
+      <p className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-wider px-1 mb-2">
+        {isAr ? 'عام' : 'Allgemein'}
+      </p>
+      <div className="bg-card border border-border/40 rounded-2xl p-4">
+        <div className="flex items-center gap-3 mb-3">
+          <Languages className="w-[18px] h-[18px] text-primary stroke-[1.8]" />
+          <span className="text-[14px] font-medium text-foreground">
+            {t('settings.language')}
+          </span>
+        </div>
+        <div className="relative grid grid-cols-2 gap-1 rounded-xl bg-muted/50 p-1" dir="ltr">
+          <motion.div
+            aria-hidden
+            className="absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-lg bg-background shadow-sm"
+            animate={{ left: language === 'ar' ? 'calc(50% + 0px)' : '4px' }}
+            transition={{ type: 'spring', stiffness: 500, damping: 34 }}
+          />
+          <button
+            onClick={() => setLanguage('de')}
+            className={`relative z-10 py-2 rounded-lg text-[13px] font-semibold transition-colors ${language === 'de' ? 'text-foreground' : 'text-muted-foreground'}`}
+          >
+            Deutsch
+          </button>
+          <button
+            onClick={() => setLanguage('ar')}
+            className={`relative z-10 py-2 rounded-lg text-[13px] font-semibold transition-colors ${language === 'ar' ? 'text-foreground' : 'text-muted-foreground'}`}
+          >
+            العربية
+          </button>
+        </div>
       </div>
     </motion.div>
   );
@@ -202,8 +228,8 @@ export default function SettingsPage() {
         {/* Prayer Group */}
         {renderGroup(isAr ? 'الصلاة' : 'Gebet', prayerItems)}
 
-        {/* General Group */}
-        {renderGroup(isAr ? 'عام' : 'Allgemein', generalItems)}
+        {/* General Group — language segmented control */}
+        {renderLanguageSegmented()}
 
         {/* Version */}
         <motion.div variants={item} className="text-center pt-2 pb-4">
