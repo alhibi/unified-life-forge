@@ -26,8 +26,13 @@ const DEFAULT_PREFS: ReaderPrefs = {
 
 async function currentUserId(): Promise<string | null> {
   try {
-    const { data } = await supabase.auth.getUser();
-    return data.user?.id ?? null;
+    // Use getSession() (local, no network) instead of getUser() (calls
+    // /auth/v1/user on every invocation). The reading feature calls
+    // this on every mutation; a network round-trip per call would
+    // multiply latency and, worse, occasionally trigger TOKEN_REFRESHED
+    // events that other listeners react to.
+    const { data } = await supabase.auth.getSession();
+    return data.session?.user?.id ?? null;
   } catch {
     return null;
   }
