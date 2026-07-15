@@ -95,11 +95,12 @@ function pct(value: number, max: number) {
 
 function Panel({ title, sub, children }: { title?: string; sub?: string; children: ReactNode }) {
   return (
-    <section className="rounded-2xl border border-border/60 bg-card overflow-hidden">
+    <section className="relative rounded-[22px] border border-border/55 bg-card overflow-hidden shadow-[0_1px_0_hsl(var(--foreground)/0.04)_inset,0_18px_40px_-30px_hsl(var(--foreground)/0.45)]">
+      <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
       {(title || sub) && (
         <header className="px-4 pt-4 pb-3 flex items-end justify-between gap-3">
           {title && <h2 className="font-cormorant text-[24px] leading-none text-foreground">{title}</h2>}
-          {sub && <span className="text-[10px] tracking-[0.2em] uppercase text-primary/80 tabular-nums text-end">{sub}</span>}
+          {sub && <span className="text-[10px] tracking-[0.24em] uppercase text-primary/80 tabular-nums text-end">{sub}</span>}
         </header>
       )}
       <div className={title || sub ? 'px-4 pb-4' : 'p-4'}>{children}</div>
