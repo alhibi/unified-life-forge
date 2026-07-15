@@ -313,7 +313,17 @@ export default function WellnessPage() {
             transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
             className="space-y-2.5"
           >
-            {renderTab()}
+            <Suspense
+              fallback={
+                <div className="space-y-2 pt-1">
+                  <div className="h-20 rounded-xl animate-pulse bg-muted/30" />
+                  <div className="h-16 rounded-xl animate-pulse bg-muted/20" />
+                  <div className="h-20 rounded-xl animate-pulse bg-muted/25" />
+                </div>
+              }
+            >
+              {renderTab()}
+            </Suspense>
           </motion.main>
         </AnimatePresence>
       </div>
