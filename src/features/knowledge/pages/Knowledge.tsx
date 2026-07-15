@@ -941,7 +941,7 @@ function ModelDetailDialog({
             </div>
           </div>
         )}
-      </DialogContent>
-    </Dialog>
+      </DrawerContent>
+    </Drawer>
   );
 }
