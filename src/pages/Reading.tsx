@@ -455,6 +455,7 @@ export default function ReadingPage() {
         refreshing={refreshing}
         onRefresh={() => refreshFeeds(false)}
         onManage={() => setView('manage')}
+        onDiscoverFeeds={() => setView('suggested')}
         onMarkAllRead={markAllRead}
         onOpenArchiveSearch={() => setView('search')}
         onOpenAlerts={() => setView('alerts')}
