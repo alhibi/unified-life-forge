@@ -223,7 +223,7 @@ function BarChart({ title, sub, entries, values, unit, max = 100 }: { title: str
         {slice.map((entry, i) => (
           <div key={entry.timestamp_unix} className="flex-1 h-full flex flex-col justify-end gap-1 min-w-0">
             <motion.div
-              className="rounded-t-sm bg-primary/70 min-h-[2px]"
+              className="rounded-full bg-primary/70 min-h-[3px]"
               initial={{ height: 0, opacity: 0.3 }}
               animate={{ height: `${Math.max(3, pct(values[i] ?? 0, max) * 100)}%`, opacity: 1 }}
               transition={{ delay: i * 0.012, duration: 0.38, ease: [0.16, 1, 0.3, 1] }}
@@ -421,16 +421,16 @@ function WindCompass({ speed, gusts, dirDeg, cardinal, beaufort, ar }: { speed: 
         <div className="relative w-[120px] h-[120px] shrink-0" dir="ltr">
           <svg viewBox="0 0 120 120" className="absolute inset-0 w-full h-full">
             <circle cx="60" cy="60" r="54" fill="none" stroke="hsl(var(--foreground))" strokeOpacity="0.08" strokeWidth="1" />
-            <circle cx="60" cy="60" r="46" fill="none" stroke="hsl(var(--foreground))" strokeOpacity="0.05" strokeWidth="1" strokeDasharray="1 4" />
-            {Array.from({ length: 24 }).map((_, i) => {
-              const a = (i / 24) * Math.PI * 2 - Math.PI / 2;
-              const r1 = i % 6 === 0 ? 44 : 48;
-              const r2 = 52;
+            <circle cx="60" cy="60" r="46" fill="none" stroke="hsl(var(--foreground))" strokeOpacity="0.05" strokeWidth="1" />
+            {Array.from({ length: 4 }).map((_, i) => {
+              const a = (i / 4) * Math.PI * 2 - Math.PI / 2;
+              const r1 = 44;
+              const r2 = 50;
               return (
                 <line key={i}
                   x1={60 + Math.cos(a) * r1} y1={60 + Math.sin(a) * r1}
                   x2={60 + Math.cos(a) * r2} y2={60 + Math.sin(a) * r2}
-                  stroke="hsl(var(--foreground))" strokeOpacity={i % 6 === 0 ? 0.35 : 0.12} strokeWidth={i % 6 === 0 ? 1.4 : 0.8}
+                  stroke="hsl(var(--foreground))" strokeOpacity="0.22" strokeWidth="1.2" strokeLinecap="round"
                 />
               );
             })}
@@ -456,9 +456,16 @@ function WindCompass({ speed, gusts, dirDeg, cardinal, beaufort, ar }: { speed: 
                   <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0.15" />
                 </linearGradient>
               </defs>
-              <path d="M60 14 L66 60 L60 55 L54 60 Z" fill="url(#wind-needle)" />
-              <path d="M60 106 L64 66 L60 70 L56 66 Z" fill="hsl(var(--foreground))" fillOpacity="0.28" />
-              <circle cx="60" cy="60" r="3" fill="hsl(var(--primary))" />
+              {/* Soft teardrop needle — no sharp points */}
+              <path
+                d="M60 18 C 68 40, 68 52, 60 58 C 52 52, 52 40, 60 18 Z"
+                fill="url(#wind-needle)"
+              />
+              <path
+                d="M60 102 C 65 84, 65 74, 60 68 C 55 74, 55 84, 60 102 Z"
+                fill="hsl(var(--foreground))" fillOpacity="0.22"
+              />
+              <circle cx="60" cy="60" r="4" fill="hsl(var(--primary))" />
             </svg>
           </motion.div>
         </div>
