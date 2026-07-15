@@ -644,7 +644,7 @@ export default function Knowledge() {
           <BackButton />
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center">
-              <BookOpen className="w-5 h-5 text-primary" weight="duotone" />
+              <BookOpen className="w-5 h-5 text-primary" />
             </div>
             <h1 className="text-lg font-bold text-foreground">
               موسوعة الرقي
