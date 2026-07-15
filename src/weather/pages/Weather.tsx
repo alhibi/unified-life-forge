@@ -244,7 +244,7 @@ function GaugeTile({ label, value, unit, pctValue, hint, icon }: { label: string
   const clamped = Math.max(0, Math.min(1, pctValue));
   const circumference = 2 * Math.PI * 33;
   return (
-    <div className="rounded-2xl glass p-3 min-w-0 h-full">
+    <div className="rounded-2xl surface-depth p-3 min-w-0 h-full">
       <div className="flex items-center justify-between gap-2 text-muted-foreground">
         <span className="text-[10px] tracking-[0.16em] uppercase truncate">{label}</span>
         {icon && <span className="[&>svg]:w-4 [&>svg]:h-4 [&>svg]:text-primary shrink-0">{icon}</span>}
@@ -268,8 +268,8 @@ function GaugeTile({ label, value, unit, pctValue, hint, icon }: { label: string
         </svg>
         <div className="min-w-0">
           <div className="flex items-baseline gap-1 tabular-nums" dir="ltr">
-            <span className="text-[24px] font-medium leading-none text-foreground">{value}</span>
-            {unit && <span className="text-[10px] text-primary/85">{unit}</span>}
+            <span className="font-cormorant text-[28px] leading-none text-foreground">{value}</span>
+            {unit && <span className="text-[10px] text-primary/80">{unit}</span>}
           </div>
           {hint && <p className="mt-1 text-[10px] text-muted-foreground truncate">{hint}</p>}
         </div>
