@@ -244,13 +244,13 @@ function GaugeTile({ label, value, unit, pctValue, hint, icon }: { label: string
   const clamped = Math.max(0, Math.min(1, pctValue));
   const circumference = 2 * Math.PI * 33;
   return (
-    <div className="rounded-2xl border border-border/55 bg-background/35 p-3 min-w-0">
+    <div className="rounded-2xl glass p-3 min-w-0 h-full">
       <div className="flex items-center justify-between gap-2 text-muted-foreground">
         <span className="text-[10px] tracking-[0.16em] uppercase truncate">{label}</span>
         {icon && <span className="[&>svg]:w-4 [&>svg]:h-4 [&>svg]:text-primary shrink-0">{icon}</span>}
       </div>
-      <div className="mt-2 flex items-center gap-3">
-        <svg viewBox="0 0 80 80" className="w-16 h-16 shrink-0 -rotate-90">
+      <div className="mt-2 flex items-center gap-2">
+        <svg viewBox="0 0 80 80" className="w-14 h-14 shrink-0 -rotate-90">
           <circle cx="40" cy="40" r="33" fill="none" stroke="hsl(var(--foreground))" strokeOpacity="0.09" strokeWidth="7" />
           <motion.circle
             cx="40"
@@ -268,8 +268,8 @@ function GaugeTile({ label, value, unit, pctValue, hint, icon }: { label: string
         </svg>
         <div className="min-w-0">
           <div className="flex items-baseline gap-1 tabular-nums" dir="ltr">
-            <span className="font-cormorant text-[30px] leading-none text-foreground">{value}</span>
-            {unit && <span className="text-[11px] text-primary/80">{unit}</span>}
+            <span className="text-[24px] font-medium leading-none text-foreground">{value}</span>
+            {unit && <span className="text-[10px] text-primary/85">{unit}</span>}
           </div>
           {hint && <p className="mt-1 text-[10px] text-muted-foreground truncate">{hint}</p>}
         </div>
