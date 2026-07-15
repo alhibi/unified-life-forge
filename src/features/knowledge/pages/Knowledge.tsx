@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ComponentType } from "react";
+import { motion } from "framer-motion";
 import SEO from "@/components/SEO";
 import BackButton from "@/components/BackButton";
 import {
@@ -7,7 +8,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import { PageShell, AppCard } from "@/components/ui/app-shell";
+import { AppCard } from "@/components/ui/app-shell";
+import { Car, Sparkle, Clock, Shirt, Cookie, BookOpen, ArrowUpSquare } from "@/lib/icons";
+import { pageStagger as stagger, pageItem as item } from "@/lib/motion";
 
 /**
  * /knowledge — "موسوعة الرقي"
@@ -20,7 +23,7 @@ type CategoryId = "cars" | "perfumes" | "watches" | "fashion" | "sweets";
 
 interface Category {
   id: CategoryId;
-  icon: string;
+  icon: ComponentType<{ className?: string }>;
   label: string;
   labelEn: string;
   color: string;
@@ -57,7 +60,7 @@ interface Brand {
 const CATEGORIES: Category[] = [
   {
     id: "cars",
-    icon: "◈",
+    icon: Car,
     label: "السيارات",
     labelEn: "Automobiles",
     color: "#C8A96E",
@@ -66,7 +69,7 @@ const CATEGORIES: Category[] = [
   },
   {
     id: "perfumes",
-    icon: "◉",
+    icon: Sparkle,
     label: "العطور",
     labelEn: "Perfumery",
     color: "#D4A5C9",
@@ -75,7 +78,7 @@ const CATEGORIES: Category[] = [
   },
   {
     id: "watches",
-    icon: "◎",
+    icon: Clock,
     label: "الساعات",
     labelEn: "Horology",
     color: "#7EB8C9",
@@ -84,7 +87,7 @@ const CATEGORIES: Category[] = [
   },
   {
     id: "fashion",
-    icon: "◆",
+    icon: Shirt,
     label: "الأزياء",
     labelEn: "Fashion",
     color: "#C9A87E",
@@ -93,7 +96,7 @@ const CATEGORIES: Category[] = [
   },
   {
     id: "sweets",
-    icon: "◐",
+    icon: Cookie,
     label: "الحلويات",
     labelEn: "Confiserie",
     color: "#C97E8A",
@@ -608,7 +611,7 @@ export default function Knowledge() {
   };
 
   return (
-    <PageShell flush>
+    <div className="min-h-screen bg-background pb-28 px-5 pt-14">
       <SEO
         path="/knowledge"
         title="موسوعة الرقي — معرفة منتقاة"
@@ -630,58 +633,64 @@ export default function Knowledge() {
           ],
         }}
       />
-      <BackButton />
+      <motion.div
+        variants={stagger}
+        initial="hidden"
+        animate="show"
+        className="space-y-5 max-w-lg mx-auto"
+      >
+        {/* Header — matches Theme/Prayer settings pattern */}
+        <motion.div variants={item} className="flex items-center gap-3 mb-1">
+          <BackButton />
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center">
+              <BookOpen className="w-5 h-5 text-primary" />
+            </div>
+            <h1 className="text-lg font-bold text-foreground">
+              موسوعة الرقي
+            </h1>
+          </div>
+        </motion.div>
 
-      <div className="pt-20">
-        {/* ── Header ── */}
-        <header className="mb-8 text-center">
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">
-            موسوعة الرقي
-          </h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            معرفة منتقاة — السيارات · العطور · الساعات · الأزياء · الحلويات
-          </p>
-        </header>
-
-        {/* ── Category strip ── */}
-        <nav
-          className="mb-8 grid grid-cols-5 gap-2 sm:gap-3"
+        {/* Category strip */}
+        <motion.nav
+          variants={item}
+          className="grid grid-cols-5 gap-2"
           aria-label="الفئات"
         >
           {CATEGORIES.map((c) => {
             const active = c.id === activeCat;
+            const Icon = c.icon;
             return (
               <button
                 key={c.id}
                 onClick={() => handleSelectCategory(c.id)}
-                className={`group flex flex-col items-center justify-center rounded-2xl border px-2 py-3 transition-colors ${
-                  active
-                    ? "border-primary bg-accent"
-                    : "border-border bg-card hover:bg-accent/50"
+                className={`surface-depth-pressable flex flex-col items-center justify-center rounded-2xl px-1.5 py-3 transition-all ${
+                  active ? "ring-1 ring-primary/60" : ""
                 }`}
                 aria-pressed={active}
               >
-                <span className={`text-2xl ${active ? "text-primary" : "text-foreground"}`}>
-                  {c.icon}
-                </span>
-                <span className={`mt-1 text-sm font-semibold ${active ? "text-primary" : "text-foreground"}`}>
+                <Icon
+                  className={`w-5 h-5 ${active ? "text-primary" : "text-muted-foreground"}`}
+                />
+                <span
+                  className={`mt-1.5 text-[11px] font-semibold leading-tight text-center ${
+                    active ? "text-primary" : "text-foreground"
+                  }`}
+                >
                   {c.label}
-                </span>
-                <span className="mt-0.5 text-[9px] uppercase tracking-wider text-muted-foreground">
-                  {c.labelEn}
                 </span>
               </button>
             );
           })}
-        </nav>
+        </motion.nav>
 
-        {/* ── Two columns: brands / models ── */}
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          {/* Brands list */}
-          <section aria-label="الماركات" className="space-y-3">
-            <h2 className="mb-2 text-base font-bold text-foreground">
-              الماركات
-            </h2>
+        {/* Brands */}
+        <motion.section variants={item} aria-label="الماركات" className="space-y-3">
+          <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1">
+            الماركات
+          </h2>
+          <div className="space-y-2.5">
             {brands.map((b) => {
               const isActive = activeBrandId === b.id;
               return (
@@ -689,91 +698,75 @@ export default function Knowledge() {
                   as="button"
                   pressable
                   key={b.id}
-                  onClick={() => setActiveBrandId(b.id)}
-                  className={`block w-full text-right ${isActive ? "border-primary" : ""}`}
+                  onClick={() => setActiveBrandId(isActive ? null : b.id)}
+                  className={`block w-full text-right ${isActive ? "ring-1 ring-primary/60" : ""}`}
                 >
                   <div className="flex items-center gap-3">
-                    <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl border border-border bg-accent text-lg font-bold text-foreground">
+                    <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-base font-bold text-primary">
                       {b.logo}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="text-base font-semibold text-foreground">{b.name}</div>
-                      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                      <div className="text-[15px] font-semibold text-foreground truncate">
+                        {b.name}
+                      </div>
+                      <div className="text-[11px] text-muted-foreground truncate">
                         {b.origin} · {b.founded}
                       </div>
                     </div>
                   </div>
-                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                    {b.desc}
-                  </p>
                 </AppCard>
               );
             })}
-          </section>
+          </div>
+        </motion.section>
 
-          {/* Models list */}
-          <section aria-label="الطرازات" className="space-y-3">
-            <h2 className="mb-2 text-base font-bold text-foreground">
-              الطرازات
+        {/* Models */}
+        {activeBrand && (
+          <motion.section
+            key={activeBrand.id}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            aria-label="الطرازات"
+            className="space-y-3"
+          >
+            <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1">
+              طرازات {activeBrand.name}
             </h2>
-
-            {!activeBrand && (
-              <AppCard className="p-8 text-center">
-                <p className="text-sm text-muted-foreground">
-                  اختر ماركة لاستعراض طرازاتها
-                </p>
-              </AppCard>
-            )}
-
-            {activeBrand && (
-              <div key={activeBrand.id} className="animate-knowledge-fade-slide space-y-3">
-                {activeBrand.models.map((m) => (
-                  <AppCard
-                    as="button"
-                    pressable
-                    key={m.id}
-                    onClick={() => setActiveModel(m)}
-                    className="block w-full text-right"
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <div className="text-base font-semibold text-foreground">{m.name}</div>
-                        <div className="mt-1 flex flex-wrap items-center gap-2">
-                          <span className="rounded-full border border-border bg-accent px-2 py-0.5 text-[10px] text-foreground">
-                            {m.type}
-                          </span>
-                          <span className="text-[10px] text-muted-foreground">
-                            {m.year} · {m.price}
-                          </span>
-                        </div>
+            <div className="space-y-2.5">
+              {activeBrand.models.map((m) => (
+                <AppCard
+                  as="button"
+                  pressable
+                  key={m.id}
+                  onClick={() => setActiveModel(m)}
+                  className="block w-full text-right"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                      <div className="text-[15px] font-semibold text-foreground">
+                        {m.name}
+                      </div>
+                      <div className="mt-1 flex flex-wrap items-center gap-2">
+                        <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] text-primary">
+                          {m.type}
+                        </span>
+                        <span className="text-[10px] text-muted-foreground">
+                          {m.year} · {m.price}
+                        </span>
                       </div>
                     </div>
-
-                    <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-muted-foreground">
-                      {m.desc.length > 90 ? m.desc.slice(0, 90) + "…" : m.desc}
-                    </p>
-
-                    <div className="mt-3 flex flex-wrap gap-1.5">
-                      {m.tags.map((t) => (
-                        <span
-                          key={t}
-                          className="rounded-full border border-border bg-accent/50 px-2 py-0.5 text-[9px] uppercase tracking-wider text-muted-foreground"
-                        >
-                          {t}
-                        </span>
-                      ))}
-                    </div>
-
-                    <div className="mt-3 text-left text-[11px] text-primary">
-                      اضغط للمزيد ↗
-                    </div>
-                  </AppCard>
-                ))}
-              </div>
-            )}
-          </section>
-        </div>
-      </div>
+                    <ArrowUpSquare className="w-4 h-4 text-muted-foreground shrink-0 mt-1" />
+                  </div>
+                  <p className="mt-2.5 line-clamp-2 text-[13px] leading-relaxed text-muted-foreground">
+                    {m.desc}
+                  </p>
+                </AppCard>
+              ))}
+            </div>
+          </motion.section>
+        )}
+      </motion.div>
 
       {/* ── Detail dialog ── */}
       <ModelDetailDialog
@@ -782,7 +775,7 @@ export default function Knowledge() {
         category={category}
         onClose={() => setActiveModel(null)}
       />
-    </PageShell>
+    </div>
   );
 }
 
