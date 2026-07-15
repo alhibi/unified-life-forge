@@ -1,3 +1,2 @@
-// Public surface of the Clipboard / Locations feature.
+// Public surface of the Locations feature.
 export { default as LocationSaver } from './components/LocationSaver';
-export { useClipboard } from './hooks/useClipboard';
