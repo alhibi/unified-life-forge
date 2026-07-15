@@ -12,6 +12,7 @@ import BackButton from '@/components/BackButton';
 import packageJson from '../../package.json';
 
 import { pageStagger as stagger, pageItem as item } from '@/lib/motion';
+import { AppCard } from '@/components/ui/app-shell';
 
 export default function SettingsPage() {
   const { t, theme, language, setLanguage, prayerMadhab } = useApp();
@@ -82,7 +83,7 @@ export default function SettingsPage() {
       <p className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-wider px-1 mb-2">
         {title}
       </p>
-      <div className="bg-card border border-border/40 rounded-2xl overflow-hidden divide-y divide-border/30">
+      <AppCard className="p-0 overflow-hidden divide-y divide-border/30">
         {items.map((si) => (
           <button
             key={si.key}
@@ -101,7 +102,7 @@ export default function SettingsPage() {
             </div>
           </button>
         ))}
-      </div>
+      </AppCard>
     </motion.div>
   );
 
@@ -110,7 +111,7 @@ export default function SettingsPage() {
       <p className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-wider px-1 mb-2">
         {isAr ? 'عام' : 'Allgemein'}
       </p>
-      <div className="bg-card border border-border/40 rounded-2xl p-4">
+      <AppCard>
         <div className="flex items-center gap-3 mb-3">
           <Languages className="w-[18px] h-[18px] text-primary stroke-[1.8]" />
           <span className="text-[14px] font-medium text-foreground">
@@ -137,7 +138,7 @@ export default function SettingsPage() {
             العربية
           </button>
         </div>
-      </div>
+      </AppCard>
     </motion.div>
   );
 
@@ -163,7 +164,7 @@ export default function SettingsPage() {
         {/* Profile / Account Card */}
         <motion.div variants={item}>
           {loading ? (
-            <div className="bg-card border border-border/40 rounded-2xl p-5">
+            <AppCard className="p-5">
               <div className="flex items-center gap-4">
                 <div className="w-14 h-14 rounded-full bg-muted animate-pulse" />
                 <div className="flex-1 space-y-2">
@@ -171,9 +172,9 @@ export default function SettingsPage() {
                   <div className="h-3 w-36 bg-muted animate-pulse rounded" />
                 </div>
               </div>
-            </div>
+            </AppCard>
           ) : user ? (
-            <div className="bg-card border border-border/40 rounded-2xl p-5">
+            <AppCard className="p-5">
               <div className="flex items-center gap-4">
                 {/* Avatar */}
                 <button onClick={() => navigate('/settings/profile')} className="relative active:scale-95 transition-transform">
@@ -203,13 +204,13 @@ export default function SettingsPage() {
                   <LogOut className="w-4 h-4" />
                 </button>
               </div>
-            </div>
+            </AppCard>
           ) : (
             <button
               onClick={() => navigate('/auth')}
               className="w-full active:scale-[0.99] transition-transform"
             >
-              <div className="bg-card border border-border/40 rounded-2xl p-5">
+              <AppCard className="p-5">
                 <div className="flex items-center gap-4">
                   <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center ring-2 ring-primary/20">
                     <UserCircle className="w-7 h-7 text-primary stroke-[1.5]" />
@@ -220,7 +221,7 @@ export default function SettingsPage() {
                   </div>
                   <ChevronLeft className="w-5 h-5 text-muted-foreground/40 ltr:rotate-180" />
                 </div>
-              </div>
+              </AppCard>
             </button>
           )}
         </motion.div>
