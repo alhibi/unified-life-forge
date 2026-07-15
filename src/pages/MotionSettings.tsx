@@ -7,6 +7,7 @@ import BackButton from '@/components/BackButton';
 import { pageStagger as stagger, pageItem as item, motionWeight, MOTION } from '@/lib/motion';
 import { measureDisplayHz } from '@/lib/motionRuntime';
 import SEO from '@/components/SEO';
+import { AppCard } from '@/components/ui/app-shell';
 import type { FpsCap } from '@/contexts/AppContext';
 
 /**
@@ -174,7 +175,7 @@ function PerfHUD({ isAr, budgetHz }: { isAr: boolean; budgetHz: number }) {
   );
 
   return (
-    <div className="bg-card border border-border/40 rounded-2xl p-4 space-y-3">
+    <AppCard className="space-y-3">
       <div className="flex items-center justify-between">
         <p className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-wider">
           {isAr ? 'مقاييس الأداء الحيّة' : 'Live Performance'}
@@ -195,7 +196,7 @@ function PerfHUD({ isAr, budgetHz }: { isAr: boolean; budgetHz: number }) {
               unit={s.heapMB == null ? '' : 'MB'}
               hint={s.heapMB == null ? (isAr ? 'غير مدعوم' : 'unsupported') : 'JS'} />
       </div>
-    </div>
+    </AppCard>
   );
 }
 
@@ -275,7 +276,7 @@ export default function MotionSettings() {
           <p className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-wider px-1">
             {isAr ? 'سرعة الحركة' : 'Bewegungs­geschwindigkeit'}
           </p>
-          <div className="bg-card border border-border/40 rounded-2xl p-5 space-y-5">
+          <AppCard className="p-5 space-y-5">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
@@ -322,7 +323,7 @@ export default function MotionSettings() {
                 );
               })}
             </div>
-          </div>
+          </AppCard>
         </motion.div>
 
         {/* FPS CAP */}
@@ -330,7 +331,7 @@ export default function MotionSettings() {
           <p className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-wider px-1">
             {isAr ? 'حد الإطارات في الثانية' : 'Bildrate'}
           </p>
-          <div className="bg-card border border-border/40 rounded-2xl p-5 space-y-4">
+          <AppCard className="p-5 space-y-4">
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-3 min-w-0">
                 <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
@@ -384,7 +385,7 @@ export default function MotionSettings() {
                   : 'Die Begrenzung gilt für alle Animationen via requestAnimationFrame. Die native Bildwiederholrate kann nicht überschritten werden.'}
               </p>
             </div>
-          </div>
+          </AppCard>
         </motion.div>
 
         {/* AMPLITUDE */}
@@ -392,7 +393,7 @@ export default function MotionSettings() {
           <p className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-wider px-1">
             {isAr ? 'شدّة الحركة' : 'Bewegungs­amplitude'}
           </p>
-          <div className="bg-card border border-border/40 rounded-2xl p-5 space-y-5">
+          <AppCard className="p-5 space-y-5">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
@@ -440,7 +441,7 @@ export default function MotionSettings() {
                 );
               })}
             </div>
-          </div>
+          </AppCard>
         </motion.div>
 
         {/* BOUNCE */}
@@ -448,7 +449,7 @@ export default function MotionSettings() {
           <p className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-wider px-1">
             {isAr ? 'ارتداد النوابض' : 'Feder-Bounce'}
           </p>
-          <div className="bg-card border border-border/40 rounded-2xl p-5 space-y-5">
+          <AppCard className="p-5 space-y-5">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
@@ -483,7 +484,7 @@ export default function MotionSettings() {
                   : 'Berechnet die Dämpfung neu: 0% = trocken, 100% = deutliches Überschwingen (ζ ≈ 0.25).'}
               </p>
             </div>
-          </div>
+          </AppCard>
         </motion.div>
 
         {/* Status footer */}
