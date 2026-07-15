@@ -8,6 +8,7 @@
  */
 
 let ran = false;
+const CLEANUP_DONE_KEY = 'rss-reader-sw-cleanup-done';
 
 export async function registerReadingServiceWorker(): Promise<
   { ok: true } | { ok: false; reason: string }
@@ -20,6 +21,15 @@ export async function registerReadingServiceWorker(): Promise<
   if (typeof window !== 'undefined' && window.top !== window.self) {
     return { ok: false, reason: 'iframe' };
   }
+  // Once we've evicted the legacy worker on this device, never touch
+  // service workers again — the reading feature is fully cloud-backed
+  // and does not need one. Re-registering every visit would churn
+  // install/activate/unregister cycles wastefully.
+  try {
+    if (localStorage.getItem(CLEANUP_DONE_KEY) === '1') {
+      return { ok: false, reason: 'already-cleaned' };
+    }
+  } catch { /* storage unavailable */ }
   try {
     // 1) Register the kill-switch worker at the same path. On activate
     //    it wipes its caches, claims clients, then unregisters itself.
@@ -54,6 +64,7 @@ export async function registerReadingServiceWorker(): Promise<
           .map((k) => caches.delete(k)),
       );
     } catch { /* Cache Storage unavailable */ }
+    try { localStorage.setItem(CLEANUP_DONE_KEY, '1'); } catch { /* */ }
     return { ok: true };
   } catch (e) {
     return {
