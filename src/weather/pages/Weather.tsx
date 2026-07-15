@@ -815,11 +815,20 @@ export default function Weather() {
           </div>
         </Panel>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <GaugeTile label={ar ? 'الأشعة فوق البنفسجية' : 'UV-Index'} value={snapshot.solar.uv_index.toFixed(1)} pctValue={snapshot.solar.uv_index / 11} hint={snapshot.solar.uv_category} icon={<Sun />} />
-          <GaugeTile label={ar ? 'جودة الهواء' : 'Luftqualität'} value={Math.round(snapshot.airQuality.aqi_eu_caqi)} pctValue={snapshot.airQuality.aqi_eu_caqi / 100} hint={snapshot.airQuality.aqi_category.replace(/_/g, ' ')} icon={<Leaf />} />
-          <GaugeTile label={ar ? 'الرطوبة' : 'Feuchte'} value={Math.round(snapshot.moisture.relative_humidity_percent)} unit="%" pctValue={snapshot.moisture.relative_humidity_percent / 100} icon={<Droplets />} />
+        <WindCompass
+          speed={snapshot.wind.speed_kph}
+          gusts={snapshot.wind.gusts_kph}
+          dirDeg={snapshot.wind.direction_from_deg}
+          cardinal={snapshot.wind.direction_cardinal_16pt}
+          beaufort={snapshot.wind.beaufort_description}
+          ar={ar}
+        />
+
+        <div className="grid grid-cols-2 gap-3">
+          <GaugeTile label={ar ? 'UV' : 'UV-Index'} value={snapshot.solar.uv_index.toFixed(1)} pctValue={snapshot.solar.uv_index / 11} hint={snapshot.solar.uv_category} icon={<Sun />} />
+          <GaugeTile label={ar ? 'الرطوبة' : 'Feuchte'} value={Math.round(snapshot.moisture.relative_humidity_percent)} unit="%" pctValue={snapshot.moisture.relative_humidity_percent / 100} hint={`${ar ? 'ندى' : 'Taupunkt'} ${Math.round(snapshot.temperature.dew_point_c)}°`} icon={<Droplets />} />
           <GaugeTile label={ar ? 'الغيوم' : 'Wolken'} value={Math.round(snapshot.sky.cloud_cover_total_percent)} unit="%" pctValue={snapshot.sky.cloud_cover_total_percent / 100} hint={snapshot.sky.cloud_type} icon={<Cloud />} />
+          <GaugeTile label={ar ? 'الرؤية' : 'Sicht'} value={Math.round(snapshot.sky.visibility_km)} unit="km" pctValue={Math.min(1, snapshot.sky.visibility_km / 20)} icon={<Eye />} />
         </div>
 
         <LineChart
@@ -842,22 +851,31 @@ export default function Weather() {
           ]}
         />
 
-        <Panel title={ar ? 'الهواء والصحة' : 'Luft und Gesundheit'} sub={snapshot.airQuality.source_station_name ?? (ar ? 'نموذجي' : 'Modell')}>
-          <div className="grid grid-cols-3 gap-y-4 gap-x-3">
-            <Metric label="PM2.5" value={snapshot.airQuality.pm25_ugm3.toFixed(1)} unit="µg" />
-            <Metric label="PM10" value={snapshot.airQuality.pm10_ugm3.toFixed(1)} unit="µg" />
-            <Metric label="O₃" value={snapshot.airQuality.o3_ugm3.toFixed(1)} unit="µg" />
-            <Metric label="NO₂" value={snapshot.airQuality.no2_ugm3.toFixed(1)} unit="µg" />
-            <Metric label="SO₂" value={snapshot.airQuality.so2_ugm3.toFixed(1)} unit="µg" />
-            <Metric label="CO" value={snapshot.airQuality.co_mgm3.toFixed(2)} unit="mg" />
-          </div>
-          <div className="mt-4 pt-3 border-t border-border/50 flex items-center justify-between gap-3 text-[11px] text-muted-foreground">
-            <span className="leading-relaxed">{snapshot.airQuality.health_advisory}</span>
-            <span className="shrink-0 text-primary tabular-nums">{snapshot.biological.outdoor_health_score}/100</span>
-          </div>
-        </Panel>
+        <AQIGauge
+          caqi={snapshot.airQuality.aqi_eu_caqi}
+          category={snapshot.airQuality.aqi_category}
+          pm25={snapshot.airQuality.pm25_ugm3}
+          pm10={snapshot.airQuality.pm10_ugm3}
+          o3={snapshot.airQuality.o3_ugm3}
+          no2={snapshot.airQuality.no2_ugm3}
+          so2={snapshot.airQuality.so2_ugm3}
+          co={snapshot.airQuality.co_mgm3}
+          advisory={snapshot.airQuality.health_advisory}
+          healthScore={snapshot.biological.outdoor_health_score}
+          source={snapshot.airQuality.source_station_name}
+          ar={ar}
+        />
 
-        <SunArc sunrise={snapshot.astronomical.sunrise} noon={snapshot.astronomical.solar_noon} sunset={snapshot.astronomical.sunset} locale={locale} ar={ar} />
+        <LiveSunArc
+          sunrise={snapshot.astronomical.sunrise}
+          noon={snapshot.astronomical.solar_noon}
+          sunset={snapshot.astronomical.sunset}
+          elevationDeg={snapshot.solar.solar_elevation_deg}
+          azimuthDeg={snapshot.solar.solar_azimuth_deg}
+          dayLengthH={snapshot.astronomical.day_length_hours}
+          locale={locale}
+          ar={ar}
+        />
 
         <Panel title={ar ? 'الفلك والضوء' : 'Astronomie'} sub={ar ? 'تفاصيل' : 'Details'}>
           <div className="grid grid-cols-3 gap-y-5 gap-x-3">
@@ -870,23 +888,7 @@ export default function Weather() {
           </div>
         </Panel>
 
-        {forecast.daily.length > 0 && (
-          <Panel title={ar ? 'الأيام القادمة' : 'Nächste Tage'} sub={ar ? '7 أيام' : '7 Tage'}>
-            <div className="grid grid-cols-7 gap-1.5" dir="ltr">
-              {forecast.daily.slice(0, 7).map((d, i) => {
-                const DayIcon = iconForCode(d.weather_code, true);
-                return (
-                  <div key={d.date_unix} className="rounded-xl bg-background/45 border border-border/45 py-2 px-1 text-center min-w-0">
-                    <div className="text-[9px] text-muted-foreground truncate">{i === 0 ? (ar ? 'اليوم' : 'Heute') : new Date(d.date_unix).toLocaleDateString(locale, { weekday: 'short' })}</div>
-                    <DayIcon className="w-4 h-4 text-primary mx-auto my-1" strokeWidth={1.4} />
-                    <div className="font-cormorant text-[17px] leading-none text-foreground tabular-nums">{Math.round(d.high_c)}°</div>
-                    <div className="text-[10px] text-muted-foreground tabular-nums">{Math.round(d.low_c)}°</div>
-                  </div>
-                );
-              })}
-            </div>
-          </Panel>
-        )}
+        <DailyRangeStrip days={forecast.daily.slice(0, 7)} iconFor={iconForCode} locale={locale} ar={ar} />
 
         <Panel title={ar ? 'المؤشرات المشتقة' : 'Abgeleitete Werte'} sub={ar ? 'علم الغلاف' : 'Atmosphäre'}>
           <div className="grid grid-cols-2 gap-y-4 gap-x-4">
