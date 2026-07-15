@@ -145,11 +145,11 @@ export async function addBookmark(article: FeedItem): Promise<void> {
   const uid = await currentUserId();
   if (!uid || !article.link) return;
   const { error } = await supabase.from('reading_bookmarks').upsert(
-    {
+    [{
       user_id: uid,
       article_link: article.link,
       snapshot: article as unknown as Record<string, unknown>,
-    },
+    }],
     { onConflict: 'user_id,article_link' },
   );
   if (error) throw error;
@@ -185,10 +185,10 @@ export async function saveReaderPrefs(prefs: ReaderPrefs): Promise<void> {
   const uid = await currentUserId();
   if (!uid) return;
   const { error } = await supabase.from('reading_prefs').upsert(
-    {
+    [{
       user_id: uid,
       prefs: prefs as unknown as Record<string, unknown>,
-    },
+    }],
     { onConflict: 'user_id' },
   );
   if (error) throw error;
