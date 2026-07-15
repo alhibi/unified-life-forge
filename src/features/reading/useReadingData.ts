@@ -469,15 +469,15 @@ export function useReadingData(opts: { isAr: boolean }) {
     };
     window.addEventListener('online', onOnline);
 
+    // Pre-claim the current name signature *before* firing the load
+    // so the concurrent `enabledNames` effect below sees a matching
+    // sig and skips its own duplicate query.
+    lastLoadedNamesRef.current = feedSourcesRef.current
+      .filter((f) => f.enabled)
+      .map((f) => f.name)
+      .join('|');
     loadFromDB().finally(() => {
       if (cancelled) return;
-      // Remember which name-set we just loaded so the
-      // `enabledNames`-driven effect below doesn't re-fire the same
-      // query on the very next tick.
-      lastLoadedNamesRef.current = feedSourcesRef.current
-        .filter((f) => f.enabled)
-        .map((f) => f.name)
-        .join('|');
       setLoading(false);
       // Defer the first network refresh past the initial paint so the
       // list renders instantly from cache. The user sees content
