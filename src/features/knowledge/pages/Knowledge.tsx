@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ComponentType } from "react";
+import { motion } from "framer-motion";
 import SEO from "@/components/SEO";
 import BackButton from "@/components/BackButton";
 import {
@@ -7,7 +8,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import { PageShell, AppCard } from "@/components/ui/app-shell";
+import { AppCard } from "@/components/ui/app-shell";
+import { Car, Sparkle, Clock, TShirt, Cookie, BookOpen, ArrowUpRight } from "@/lib/icons";
+import { pageStagger as stagger, pageItem as item } from "@/lib/motion";
 
 /**
  * /knowledge — "موسوعة الرقي"
@@ -20,7 +23,7 @@ type CategoryId = "cars" | "perfumes" | "watches" | "fashion" | "sweets";
 
 interface Category {
   id: CategoryId;
-  icon: string;
+  icon: ComponentType<{ className?: string; weight?: string }>;
   label: string;
   labelEn: string;
   color: string;
@@ -57,7 +60,7 @@ interface Brand {
 const CATEGORIES: Category[] = [
   {
     id: "cars",
-    icon: "◈",
+    icon: Car,
     label: "السيارات",
     labelEn: "Automobiles",
     color: "#C8A96E",
@@ -66,7 +69,7 @@ const CATEGORIES: Category[] = [
   },
   {
     id: "perfumes",
-    icon: "◉",
+    icon: Sparkle,
     label: "العطور",
     labelEn: "Perfumery",
     color: "#D4A5C9",
@@ -75,7 +78,7 @@ const CATEGORIES: Category[] = [
   },
   {
     id: "watches",
-    icon: "◎",
+    icon: Clock,
     label: "الساعات",
     labelEn: "Horology",
     color: "#7EB8C9",
@@ -84,7 +87,7 @@ const CATEGORIES: Category[] = [
   },
   {
     id: "fashion",
-    icon: "◆",
+    icon: TShirt,
     label: "الأزياء",
     labelEn: "Fashion",
     color: "#C9A87E",
@@ -93,7 +96,7 @@ const CATEGORIES: Category[] = [
   },
   {
     id: "sweets",
-    icon: "◐",
+    icon: Cookie,
     label: "الحلويات",
     labelEn: "Confiserie",
     color: "#C97E8A",
