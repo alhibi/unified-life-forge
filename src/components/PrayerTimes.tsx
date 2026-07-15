@@ -973,9 +973,6 @@ function Slab({
           {t('prayer.todaysPrayers')}
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="text-[10px] font-medium text-muted-foreground/75 tabular-nums">
-            {doneCount} {t('prayer.of')} 5
-          </span>
           <motion.span
             animate={{ rotate: expanded ? 180 : 0 }}
             transition={{ type: 'spring', stiffness: 380, damping: 26 }}
@@ -985,16 +982,6 @@ function Slab({
           </motion.span>
         </span>
       </button>
-
-      {/* Progress bar */}
-      <div className="w-full h-[2.5px] rounded-sm bg-foreground/10 overflow-hidden">
-        <motion.div
-          className="h-full rounded-sm bg-primary"
-          initial={false}
-          animate={{ width: `${(doneCount / 5) * 100}%` }}
-          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-        />
-      </div>
 
       <AnimatePresence initial={false}>
         {expanded && (
