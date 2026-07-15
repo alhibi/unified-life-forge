@@ -4,6 +4,7 @@ import { BookOpen, RotateCcw, Info, Check } from '@/lib/icons';
 import { motion } from 'framer-motion';
 import { Switch } from '@/components/ui/switch';
 import BackButton from '@/components/BackButton';
+import SEO from '@/components/SEO';
 import { pageStagger as stagger, pageItem as item } from '@/lib/motion';
 
 type PrayerMadhab = 'shafii' | 'hanafi' | 'hanbali' | 'maliki';
@@ -176,6 +177,11 @@ export default function PrayerSettings() {
 
   return (
     <div className="min-h-screen bg-background pb-28 px-5 pt-14">
+      <SEO
+        title={isAr ? 'إعدادات الصلاة — SmartHub' : 'Gebetseinstellungen — SmartHub'}
+        description={isAr ? 'اختر المذهب وطريقة الحساب لأوقات الصلاة في SmartHub.' : 'Rechtsschule und Berechnungsmethode für Gebetszeiten in SmartHub anpassen.'}
+        path="/settings/prayer"
+      />
       <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-5 max-w-lg mx-auto">
         {/* Header */}
         <motion.div variants={item} className="flex items-center gap-3 mb-1">
