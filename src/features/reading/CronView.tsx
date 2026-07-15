@@ -68,9 +68,12 @@ export function CronView({
   async function load() {
     setLoading(true);
     try {
+      const feedUrls = feedSources.map((f) => f.url);
       const [runsRes, metaRes] = await Promise.all([
         supabase.rpc('reading_cron_status', { max_rows: 30 }),
-        supabase.from('rss_feed_meta').select('*'),
+        feedUrls.length > 0
+          ? supabase.from('rss_feed_meta').select('*').in('source_url', feedUrls)
+          : Promise.resolve({ data: [] as FeedMeta[] }),
       ]);
       if (runsRes.data) setRuns(runsRes.data as CronRun[]);
       if (metaRes.data) setMeta(metaRes.data as FeedMeta[]);
