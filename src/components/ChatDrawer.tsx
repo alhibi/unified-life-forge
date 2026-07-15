@@ -1514,8 +1514,16 @@ export default function ChatDrawer({ open, onOpenChange, unreadCount, onUnreadCh
               {/* Typing indicator */}
               <AnimatePresence>
                 {chat.typingUser && (
-                  <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 6 }} className="flex justify-start mt-2" aria-live="polite" aria-label={chat.isAr ? 'يكتب' : 'tippt'}>
-                    <div className="bg-card border border-border/15 px-4 py-2.5" style={{ borderRadius: '18px 18px 18px 4px' }}>
+                  <motion.div
+                    initial={{ opacity: 0, y: 6, scale: 0.9 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 4, scale: 0.9 }}
+                    transition={{ type: 'spring', damping: 20, stiffness: 380 }}
+                    className="flex justify-start mt-1.5"
+                    aria-live="polite"
+                    aria-label={chat.isAr ? 'يكتب' : 'tippt'}
+                  >
+                    <div className="bg-card border border-border/15 px-3.5 py-2 shadow-sm" style={{ borderRadius: '18px 18px 18px 4px' }}>
                       <TypingDots />
                     </div>
                   </motion.div>
