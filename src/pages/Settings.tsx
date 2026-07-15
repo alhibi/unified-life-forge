@@ -150,7 +150,10 @@ export default function SettingsPage() {
             reaches it from the avatar shortcut on Home, so we need a
             visible Back affordance to close the loop. */}
         <motion.div variants={item} className="flex items-center justify-between">
-          <BackButton />
+          {/* Settings is a hub reached from Home — force back to home so
+              the user never gets bounced back into a sub-setting they just
+              closed (e.g. /settings/theme → /settings → back = theme = loop). */}
+          <BackButton to="/" />
           <h1 className="text-[17px] font-bold tracking-tight text-foreground">
             {t('settings.title')}
           </h1>
