@@ -15,6 +15,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import type { FeedItem, FeedSource, ReaderPrefs } from './types';
+import type { Json } from '@/integrations/supabase/types';
 
 const DEFAULT_PREFS: ReaderPrefs = {
   fontSize: 'md',
@@ -148,7 +149,7 @@ export async function addBookmark(article: FeedItem): Promise<void> {
     [{
       user_id: uid,
       article_link: article.link,
-      snapshot: article as unknown as Record<string, unknown>,
+      snapshot: article as unknown as Json,
     }],
     { onConflict: 'user_id,article_link' },
   );
@@ -187,7 +188,7 @@ export async function saveReaderPrefs(prefs: ReaderPrefs): Promise<void> {
   const { error } = await supabase.from('reading_prefs').upsert(
     [{
       user_id: uid,
-      prefs: prefs as unknown as Record<string, unknown>,
+      prefs: prefs as unknown as Json,
     }],
     { onConflict: 'user_id' },
   );
