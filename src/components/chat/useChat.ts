@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useApp } from '@/contexts/AppContext';
 import { useImageUpload } from '@/contexts/ImageUploadContext';
-import { packImageMeta } from '@/lib/chat/imageMeta';
+import { packImageMeta, readableFileName } from '@/lib/chat/imageMeta';
 import { looksLikeHeic, canDecodeHeicNatively, convertHeicToJpeg } from '@/lib/chat/heic';
 import { useOtherUserPresence, useUserOnline, useOnlineUserIds, formatLastSeen, useTick } from '@/hooks/usePresence';
 import { getSignedFileUrl, getMessagePreview } from './chatUtils';
@@ -1149,9 +1149,18 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     const msg = messages.find(m => m.id === replyId);
     if (!msg) return null;
     if (msg.deleted) return isAr ? 'رسالة محذوفة' : 'Gelöschte Nachricht';
-    if (msg.message_type === 'image') return '📷 ' + (isAr ? 'صورة' : 'Foto');
+    if (msg.message_type === 'image') {
+      // If the sender included a caption, show it — feels more informative
+      // than the generic "Foto" tag. Never leak the packed metadata envelope
+      // stored in file_name (`ulfimg1:...`).
+      const caption = (msg.content || '').trim();
+      if (caption) return '📷 ' + (caption.length > 50 ? caption.slice(0, 50) + '…' : caption);
+      return '📷 ' + (isAr ? 'صورة' : 'Foto');
+    }
     if (msg.message_type === 'voice') return '🎤 ' + (isAr ? 'رسالة صوتية' : 'Sprachnachricht');
-    if (msg.message_type === 'file') return '📎 ' + msg.file_name;
+    if (msg.message_type === 'file') {
+      return '📎 ' + (readableFileName(msg.file_name) || (isAr ? 'ملف' : 'Datei'));
+    }
     return msg.content.length > 50 ? msg.content.slice(0, 50) + '…' : msg.content;
   }, [messages, isAr]);
 
