@@ -96,12 +96,12 @@ function pct(value: number, max: number) {
 
 function Panel({ title, sub, children }: { title?: string; sub?: string; children: ReactNode }) {
   return (
-    <section className="relative rounded-[22px] glass overflow-hidden">
-      <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+    <section className="relative rounded-[22px] surface-depth overflow-hidden">
+      <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
       {(title || sub) && (
         <header className="px-4 pt-4 pb-3 flex items-end justify-between gap-3">
-          {title && <h2 className="text-[19px] font-medium leading-none text-foreground">{title}</h2>}
-          {sub && <span className="text-[10px] tracking-[0.24em] uppercase text-primary/90 tabular-nums text-end">{sub}</span>}
+          {title && <h2 className="font-cormorant text-[24px] leading-none text-foreground">{title}</h2>}
+          {sub && <span className="text-[10px] tracking-[0.22em] uppercase text-primary/80 tabular-nums text-end">{sub}</span>}
         </header>
       )}
       <div className={title || sub ? 'px-4 pb-4' : 'p-4'}>{children}</div>
@@ -722,7 +722,7 @@ export default function Weather() {
       </div>
 
       <main className="px-4 pt-5 bento">
-        <section className="b-full relative rounded-[26px] glass-hero overflow-hidden">
+        <section className="relative rounded-[26px] surface-depth overflow-hidden">
           <AmbientBackdrop code={currentHour?.weather_code ?? 0} isDay={currentHour?.is_day ?? true} />
           <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/60 to-transparent" />
           <div className="relative p-5">
@@ -732,10 +732,10 @@ export default function Weather() {
                   {comfortLabel(snapshot.temperature.thermal_comfort_level, ar)}
                 </p>
                 <div className="mt-2 flex items-end gap-3" dir="ltr">
-                  <span className="text-[92px] font-light leading-[0.78] text-foreground tabular-nums drop-shadow-[0_4px_30px_hsl(var(--primary)/0.35)]">
+                  <span className="font-cormorant text-[92px] leading-[0.72] text-foreground tabular-nums drop-shadow-[0_2px_20px_hsl(var(--primary)/0.28)]">
                     {Math.round(snapshot.temperature.actual_c)}°
                   </span>
-                  <span className="mb-2 text-[24px] font-light leading-none text-primary/85 tabular-nums">
+                  <span className="mb-1 font-cormorant text-[26px] leading-none text-primary/80 tabular-nums">
                     /{Math.round(snapshot.temperature.apparent_c)}°
                   </span>
                 </div>
