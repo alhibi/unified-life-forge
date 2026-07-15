@@ -37,8 +37,6 @@ const M = {
   copied:           { ar: 'تم النسخ',                       en: 'Copied' },
   linkCopied:       { ar: 'تم نسخ الرابط',                  en: 'Link copied' },
   copyFailed:       { ar: 'تعذر النسخ',                     en: 'Copy failed' },
-  savedToClipboard: { ar: 'تم الحفظ في الحافظة',            en: 'Saved to clipboard' },
-  alreadySaved:     { ar: 'محفوظ مسبقاً',                   en: 'Already saved' },
   deleted:          { ar: 'تم الحذف',                       en: 'Deleted' },
   refreshed:        { ar: 'تم التحديث',                     en: 'Refreshed' },
   refreshFailed:    { ar: 'فشل التحديث',                    en: 'Refresh failed' },
