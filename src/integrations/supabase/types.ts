@@ -380,6 +380,33 @@ export type Database = {
           },
         ]
       }
+      pkm_mind_events: {
+        Row: {
+          created_at: string
+          id: string
+          related_note_ids: string[]
+          summary: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          related_note_ids: string[]
+          summary: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          related_note_ids?: string[]
+          summary?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       pkm_note_links: {
         Row: {
           created_at: string
