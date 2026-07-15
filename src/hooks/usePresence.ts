@@ -129,6 +129,11 @@ export function usePresence(userId: string | undefined) {
   const presenceChanRef  = useRef<ReturnType<typeof supabase.channel> | null>(null);
   const leaderReleaseRef = useRef<(() => void) | null>(null);
   const leaderRef        = useRef<LeaderState>(makeLeaderState());
+  // Pending "wait for shared channel to join" timers. If the component
+  // unmounts before the channel reaches `joined` state, we need to
+  // cancel both the polling interval and its 10s safety timeout so
+  // they don't outlive the effect.
+  const pendingJoinTimers = useRef<Array<{ interval: number; safety: number }>>([]);
 
   const heartbeat = useCallback(() => {
     if (!userId) return;
@@ -289,6 +294,13 @@ export function usePresence(userId: string | undefined) {
         leaderReleaseRef.current();
         leaderReleaseRef.current = null;
       }
+      // Cancel any pending join-wait timers so they can't fire after
+      // the effect tears down.
+      for (const t of pendingJoinTimers.current) {
+        window.clearInterval(t.interval);
+        window.clearTimeout(t.safety);
+      }
+      pendingJoinTimers.current = [];
     }
     return cleanup;
   }, [userId, becomeInactive, heartbeat]);
