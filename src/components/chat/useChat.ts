@@ -301,9 +301,9 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
       const otherIds = convs.map(c => c.user1_id === user.id ? c.user2_id : c.user1_id);
       const convIds = convs.map(c => c.id);
 
-      const [profilesRes, allMsgsRes, unreadMsgsRes] = await Promise.all([
+      const [profilesRes, allMsgsRes, unreadMsgsRes, lastSeenRes] = await Promise.all([
         supabase.from('profiles')
-          .select('user_id, username, display_name, avatar_url, bio, last_seen, created_at')
+          .select('user_id, username, display_name, avatar_url, bio, created_at')
           .in('user_id', otherIds),
         Promise.all(convIds.map(cid =>
           (supabase.from('messages') as any)
@@ -324,11 +324,21 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
           .neq('sender_id', user.id)
           .eq('read', false)
           .eq('deleted', false),
+        // `last_seen` is no longer a directly-readable profile column — it is
+        // scoped to conversation participants via the `get_last_seen` RPC. Fan
+        // out one call per partner and stitch the results into the same map.
+        Promise.all(otherIds.map(async (id) => {
+          const { data } = await supabase.rpc('get_last_seen', { target_user_id: id });
+          return { user_id: id, last_seen: (data as string | null) ?? null };
+        })),
       ]);
 
       const profiles = profilesRes.data || [];
       const allMsgs = allMsgsRes.data || [];
       const unreadMsgs = unreadMsgsRes.data || [];
+      const lastSeenMap = new Map<string, string | null>(
+        (lastSeenRes || []).map((r) => [r.user_id, r.last_seen]),
+      );
 
       const lastMsgMap = new Map<string, typeof allMsgs[0]>();
       for (const m of allMsgs) {
@@ -353,7 +363,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
           otherAvatarUrl: profile?.avatar_url ?? undefined,
           otherUserId: otherId,
           otherBio: (profile as unknown as { bio?: string | null })?.bio ?? null,
-          otherLastSeen: (profile as unknown as { last_seen?: string | null })?.last_seen ?? null,
+          otherLastSeen: lastSeenMap.get(otherId) ?? null,
           otherCreatedAt: (profile as unknown as { created_at?: string | null })?.created_at ?? null,
           lastMessage: lastMsg ? getMessagePreview(lastMsg, isAr, user.id) : undefined,
           lastMessageType: lastMsg?.message_type,
