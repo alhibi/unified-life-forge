@@ -156,7 +156,6 @@ registerRoute('/browse',            loadBrowse);
 registerRoute('/mihrab',            loadMihrab);
 registerRoute('/mihrab/prayer-guide', loadPrayerGuide);
 registerRoute('/weather',           loadWeather);
-registerRoute('/weather/forecast',  loadWeatherForecast);
 registerRoute('/knowledge',         loadKnowledge);
 registerRoute('/reading',           loadReading);
 registerRoute('/occasions',         loadOccasions);
@@ -236,7 +235,6 @@ const MihrabPage = lazy(loadMihrab);
 const WeatherPage = lazy(loadWeather);
 const KnowledgePage = lazy(loadKnowledge);
 const PrayerGuidePage = lazy(loadPrayerGuide);
-const WeatherForecastPage = lazy(loadWeatherForecast);
 const DiwanLibraryPage = lazy(loadLibrary);
 const DiwanLibraryPoetsPage = lazy(loadLibraryPoets);
 const DiwanLibraryPoetPage = lazy(loadLibraryPoet);
@@ -528,7 +526,6 @@ function AnimatedRoutes() {
                   <Route path="/mihrab/prayer-guide" element={<ErrorBoundary><PrayerGuidePage /></ErrorBoundary>} />
                   <Route path="/weather" element={<ErrorBoundary><WeatherPage /></ErrorBoundary>} />
                   <Route path="/knowledge" element={<ErrorBoundary><KnowledgePage /></ErrorBoundary>} />
-                  <Route path="/weather/forecast" element={<ErrorBoundary><WeatherForecastPage /></ErrorBoundary>} />
                   <Route path="/games/sudoku" element={<ErrorBoundary><SudokuPage /></ErrorBoundary>} />
                   <Route path="/games/chess" element={<ErrorBoundary><ChessPage /></ErrorBoundary>} />
                   <Route path="/games/chess/puzzles" element={<ErrorBoundary><ChessPuzzlePage /></ErrorBoundary>} />
