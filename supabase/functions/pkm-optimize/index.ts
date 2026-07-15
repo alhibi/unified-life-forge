@@ -2,7 +2,15 @@
 // The system prompt is intentionally hardcoded here (server-side) so users cannot
 // tamper with it and so the model's behavior stays stable across the app.
 
-import { LOVABLE_AI_URL, requireLovableKey, gatewayErrorResponse } from "../_shared/ai-gateway.ts";
+// Uses OpenRouter directly with the user's OPENROUTER_API_KEY secret.
+const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
+
+function errorResponse(status: number, message: string) {
+  return new Response(JSON.stringify({ error: message }), {
+    status,
+    headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
+  });
+}
 
 const SYSTEM_PROMPT = `You are an Advanced Personal Knowledge Management (PKM) Engine and Epistemic Architect. Your sole purpose is to restructure the user's raw input into highly optimized, interconnected Markdown notes.
 
@@ -30,7 +38,7 @@ Execute the following transformations strictly:
 
 Process the user's text immediately according to these constraints.`;
 
-const MODEL = "google/gemini-2.5-flash";
+const MODEL = Deno.env.get("OPENROUTER_MODEL") ?? "google/gemini-2.5-flash";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -43,7 +51,8 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const key = requireLovableKey();
+    const key = Deno.env.get("OPENROUTER_API_KEY");
+    if (!key) return errorResponse(500, "missing_openrouter_api_key");
     const { content, title, tags, linkedNotes, mode } = await req.json();
 
     if (!content || (mode !== "A" && mode !== "B")) {
@@ -66,11 +75,13 @@ Deno.serve(async (req) => {
       .filter(Boolean)
       .join("\n");
 
-    const upstream = await fetch(LOVABLE_AI_URL, {
+    const upstream = await fetch(OPENROUTER_URL, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${key}`,
         "Content-Type": "application/json",
+        "HTTP-Referer": req.headers.get("origin") ?? "https://amv.life",
+        "X-Title": "SmartHub PKM",
       },
       body: JSON.stringify({
         model: MODEL,
@@ -83,14 +94,14 @@ Deno.serve(async (req) => {
     });
 
     if (upstream.status === 429) {
-      return gatewayErrorResponse(429, "rate_limited");
+      return errorResponse(429, "rate_limited");
     }
     if (upstream.status === 402) {
-      return gatewayErrorResponse(402, "credits_exhausted");
+      return errorResponse(402, "credits_exhausted");
     }
     if (!upstream.ok || !upstream.body) {
       const text = await upstream.text().catch(() => "");
-      return gatewayErrorResponse(upstream.status || 500, text || "upstream_error");
+      return errorResponse(upstream.status || 500, text || "upstream_error");
     }
 
     return new Response(upstream.body, {
@@ -103,6 +114,6 @@ Deno.serve(async (req) => {
     });
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    return gatewayErrorResponse(500, msg);
+    return errorResponse(500, msg);
   }
 });
