@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import SEO from '@/components/SEO';
-import { PageShell } from '@/components/ui/app-shell';
+import { PageShell, AppCard } from '@/components/ui/app-shell';
 import BackButton from '@/components/BackButton';
 import { useApp } from '@/contexts/AppContext';
 import { useNotes, type LocalNote, type NoteStatus } from '../hooks/useNotes';
@@ -286,7 +286,7 @@ export default function PKM() {
               />
             </>
           ) : (
-            <div className="rounded-2xl bg-card border border-dashed border-border/50 p-10 text-center flex flex-col items-center gap-3">
+            <AppCard className="p-10 text-center flex flex-col items-center gap-3 border-dashed">
               <FileText className="w-10 h-10 text-muted-foreground/40" />
               <p className="text-sm text-muted-foreground">
                 {isAr ? 'اختر ملاحظة أو أنشئ واحدة جديدة.' : 'Wähle eine Notiz oder erstelle eine neue.'}
