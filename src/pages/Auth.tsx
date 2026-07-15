@@ -71,6 +71,19 @@ export default function AuthPage() {
   const { language } = useApp();
   const { signIn, signUp } = useAuth();
   const navigate = useNavigate();
+  // Preserve the OAuth consent `next` URL so users who arrive from an
+  // external MCP client return to `/.lovable/oauth/consent?...` after
+  // sign-in / sign-up instead of landing on `/settings`.
+  const rawNext = new URLSearchParams(
+    typeof window !== "undefined" ? window.location.search : "",
+  ).get("next");
+  const nextTarget = (() => {
+    if (!rawNext) return null;
+    // Only accept same-origin relative paths.
+    if (!rawNext.startsWith("/") || rawNext.startsWith("//")) return null;
+    return rawNext;
+  })();
+  const successTarget = nextTarget ?? "/settings";
   const [isLogin, setIsLogin] = useState(true);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -101,7 +114,7 @@ export default function AuthPage() {
           toast.error(describeAuthError(error, isAr, 'signIn'), { duration: 5000 });
         } else {
           toast.success(isAr ? 'تم تسجيل الدخول بنجاح' : 'Erfolgreich angemeldet', { duration: 2000 });
-          navigate('/settings');
+          navigate(successTarget);
         }
       } else {
         const { error } = await signUp(username, password);
@@ -109,7 +122,7 @@ export default function AuthPage() {
           toast.error(describeAuthError(error, isAr, 'signUp'), { duration: 5000 });
         } else {
           toast.success(isAr ? 'تم إنشاء الحساب بنجاح' : 'Konto erfolgreich erstellt');
-          navigate('/settings');
+          navigate(successTarget);
         }
       }
     } finally {
