@@ -51,14 +51,6 @@ export default function Index() {
           <div className="flex items-center justify-between gap-3">
             <SmartGreeting />
             <div className="flex items-center gap-2 shrink-0">
-              <IconButton onClick={() => setShowClipboard(true)} aria-label="الحافظة">
-                <ClipboardList className="h-5 w-5" />
-                {saved.length > 0 && (
-                  <span className="absolute -top-1 -end-1 w-5 h-5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">
-                    {saved.length}
-                  </span>
-                )}
-              </IconButton>
               {user && (
                 <IconButton onClick={() => navigate('/chat')} aria-label="المحادثات">
                   <MessageCircle className="h-5 w-5" />
