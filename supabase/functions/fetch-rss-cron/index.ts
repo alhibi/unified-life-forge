@@ -1,6 +1,12 @@
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { corsHeaders, jsonResponse } from "../_shared/rss-utils.ts";
+import { corsHeaders, jsonResponse, requireUser } from "../_shared/rss-utils.ts";
+
+// In-memory throttle for user-triggered manual runs. Survives for the
+// lifetime of the isolate; per-instance only, which is good enough as a
+// belt-and-braces guard against double-clicks / accidental spam.
+let lastUserTriggerAt = 0;
+const USER_TRIGGER_COOLDOWN_MS = 60_000;
 
 /**
  * fetch-rss-cron — invoked on a 30-minute schedule by pg_cron (see
@@ -20,15 +26,31 @@ serve(async (req) => {
   const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
   const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
-  // Only the service role (pg_cron via invoke_edge_function) may trigger
-  // this. Without this gate any anonymous caller could spam the cron and
-  // exhaust function-invocation / outbound-fetch budget.
-  const authHeader = req.headers.get("Authorization") ?? "";
-  const token = authHeader.toLowerCase().startsWith("bearer ")
-    ? authHeader.slice(7).trim()
-    : "";
-  if (!token || token !== serviceKey) {
-    return jsonResponse({ error: "Unauthorized" }, 401);
+  // Two accepted callers:
+  //   1. pg_cron (via invoke_edge_function) — bearer == service role key.
+  //   2. Authenticated user hitting the "Run now" button in CronView.
+  // requireUser() already handles both: it treats an exact service-role
+  // token match as ok+serviceRole, and validates any other JWT via
+  // supabase.auth.getUser().
+  const auth = await requireUser(req);
+  if (!auth.ok) {
+    return jsonResponse({ error: auth.error ?? "Unauthorized" }, auth.status ?? 401);
+  }
+  // Rate-limit only the manual/user-triggered path so a user can't spam
+  // the cron. The internal service-role caller is unaffected.
+  if (!auth.serviceRole) {
+    const now = Date.now();
+    const delta = now - lastUserTriggerAt;
+    if (delta < USER_TRIGGER_COOLDOWN_MS) {
+      return jsonResponse(
+        {
+          error: "Rate limited",
+          retryAfterMs: USER_TRIGGER_COOLDOWN_MS - delta,
+        },
+        429,
+      );
+    }
+    lastUserTriggerAt = now;
   }
 
   const sb = createClient(supabaseUrl, serviceKey);
