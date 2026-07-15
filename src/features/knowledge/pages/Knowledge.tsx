@@ -685,21 +685,20 @@ export default function Knowledge() {
           })}
         </motion.nav>
 
-        {/* Brands */}
-        <motion.section variants={item} aria-label="الماركات" className="space-y-3">
-          <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1">
-            الماركات
-          </h2>
-          <div className="space-y-2.5">
-            {brands.map((b) => {
-              const isActive = activeBrandId === b.id;
-              return (
+        {/* Brands OR Models — mutually exclusive to avoid double scroll */}
+        {!activeBrand ? (
+          <motion.section variants={item} aria-label="الماركات" className="space-y-3">
+            <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1">
+              الماركات
+            </h2>
+            <div className="space-y-2.5">
+              {brands.map((b) => (
                 <AppCard
                   as="button"
                   pressable
                   key={b.id}
-                  onClick={() => setActiveBrandId(isActive ? null : b.id)}
-                  className={`block w-full text-right ${isActive ? "ring-1 ring-primary/60" : ""}`}
+                  onClick={() => setActiveBrandId(b.id)}
+                  className="block w-full text-right"
                 >
                   <div className="flex items-center gap-3">
                     <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-base font-bold text-primary">
@@ -713,25 +712,43 @@ export default function Knowledge() {
                         {b.origin} · {b.founded}
                       </div>
                     </div>
+                    <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
                   </div>
                 </AppCard>
-              );
-            })}
-          </div>
-        </motion.section>
-
-        {/* Models */}
-        {activeBrand && (
+              ))}
+            </div>
+          </motion.section>
+        ) : (
           <motion.section
             key={activeBrand.id}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.25 }}
             aria-label="الطرازات"
             className="space-y-3"
           >
-            <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1">
-              طرازات {activeBrand.name}
+            <button
+              onClick={() => setActiveBrandId(null)}
+              className="surface-depth-pressable flex items-center gap-2 rounded-2xl px-3 py-2 text-[12px] text-muted-foreground"
+            >
+              <ChevronRight className="w-3.5 h-3.5" />
+              <span>عودة إلى الماركات</span>
+            </button>
+            <div className="flex items-center gap-3 px-1">
+              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-sm font-bold text-primary">
+                {activeBrand.logo}
+              </div>
+              <div className="min-w-0">
+                <div className="text-[15px] font-semibold text-foreground truncate">
+                  {activeBrand.name}
+                </div>
+                <div className="text-[11px] text-muted-foreground truncate">
+                  {activeBrand.origin} · {activeBrand.founded}
+                </div>
+              </div>
+            </div>
+            <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1 pt-1">
+              الطرازات
             </h2>
             <div className="space-y-2.5">
               {activeBrand.models.map((m) => (
