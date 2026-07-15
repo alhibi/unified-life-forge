@@ -745,7 +745,8 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 initial={{ scale: 0.5, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ type: 'spring', damping: 15, stiffness: 400 }}
-                className="shrink-0 w-10 h-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground self-end"
+                whileTap={{ scale: 0.88 }}
+                className="shrink-0 w-10 h-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground self-end shadow-[0_4px_12px_-3px_hsl(var(--primary)/0.55)]"
                 type="button"
                 aria-label={editingMessage ? (isAr ? 'حفظ التعديل' : 'Änderung speichern') : (isAr ? 'إرسال' : 'Senden')}
                 onPointerDown={(e) => e.preventDefault()}
