@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type CSSProperties, type ReactNode } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
+import './weather-theme.css';
 import BackButton from '@/components/BackButton';
 import { useApp } from '@/contexts/AppContext';
 import { useWeather } from '../hooks/useWeather';
@@ -95,12 +96,12 @@ function pct(value: number, max: number) {
 
 function Panel({ title, sub, children }: { title?: string; sub?: string; children: ReactNode }) {
   return (
-    <section className="relative rounded-[22px] border border-border/55 bg-card overflow-hidden shadow-[0_1px_0_hsl(var(--foreground)/0.04)_inset,0_18px_40px_-30px_hsl(var(--foreground)/0.45)]">
-      <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+    <section className="relative rounded-[22px] glass overflow-hidden">
+      <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
       {(title || sub) && (
         <header className="px-4 pt-4 pb-3 flex items-end justify-between gap-3">
-          {title && <h2 className="font-cormorant text-[24px] leading-none text-foreground">{title}</h2>}
-          {sub && <span className="text-[10px] tracking-[0.24em] uppercase text-primary/80 tabular-nums text-end">{sub}</span>}
+          {title && <h2 className="text-[19px] font-medium leading-none text-foreground">{title}</h2>}
+          {sub && <span className="text-[10px] tracking-[0.24em] uppercase text-primary/90 tabular-nums text-end">{sub}</span>}
         </header>
       )}
       <div className={title || sub ? 'px-4 pb-4' : 'p-4'}>{children}</div>
@@ -243,13 +244,13 @@ function GaugeTile({ label, value, unit, pctValue, hint, icon }: { label: string
   const clamped = Math.max(0, Math.min(1, pctValue));
   const circumference = 2 * Math.PI * 33;
   return (
-    <div className="rounded-2xl border border-border/55 bg-background/35 p-3 min-w-0">
+    <div className="rounded-2xl glass p-3 min-w-0 h-full">
       <div className="flex items-center justify-between gap-2 text-muted-foreground">
         <span className="text-[10px] tracking-[0.16em] uppercase truncate">{label}</span>
         {icon && <span className="[&>svg]:w-4 [&>svg]:h-4 [&>svg]:text-primary shrink-0">{icon}</span>}
       </div>
-      <div className="mt-2 flex items-center gap-3">
-        <svg viewBox="0 0 80 80" className="w-16 h-16 shrink-0 -rotate-90">
+      <div className="mt-2 flex items-center gap-2">
+        <svg viewBox="0 0 80 80" className="w-14 h-14 shrink-0 -rotate-90">
           <circle cx="40" cy="40" r="33" fill="none" stroke="hsl(var(--foreground))" strokeOpacity="0.09" strokeWidth="7" />
           <motion.circle
             cx="40"
@@ -267,8 +268,8 @@ function GaugeTile({ label, value, unit, pctValue, hint, icon }: { label: string
         </svg>
         <div className="min-w-0">
           <div className="flex items-baseline gap-1 tabular-nums" dir="ltr">
-            <span className="font-cormorant text-[30px] leading-none text-foreground">{value}</span>
-            {unit && <span className="text-[11px] text-primary/80">{unit}</span>}
+            <span className="text-[24px] font-medium leading-none text-foreground">{value}</span>
+            {unit && <span className="text-[10px] text-primary/85">{unit}</span>}
           </div>
           {hint && <p className="mt-1 text-[10px] text-muted-foreground truncate">{hint}</p>}
         </div>
@@ -697,13 +698,13 @@ export default function Weather() {
   const conf = snapshot.meta.ensemble_confidence_percent;
 
   return (
-    <div dir={ar ? 'rtl' : 'ltr'} className="min-h-screen pb-24 bg-background text-foreground">
+    <div dir={ar ? 'rtl' : 'ltr'} className="weather-theme min-h-screen pb-24">
       <Helmet>
         <title>{ar ? 'طقس SmartHub — لوحة الرصد' : 'SmartHub Wetter — Messpanel'}</title>
         <meta name="description" content={ar ? 'لوحة طقس تفصيلية برسوم بيانية للحرارة والرياح والرطوبة والضغط وجودة الهواء.' : 'Detailliertes Wetterpanel mit Diagrammen für Temperatur, Wind, Feuchte, Druck und Luftqualität.'} />
       </Helmet>
 
-      <div className="sticky top-0 z-20 border-b border-border/55 bg-background/86 backdrop-blur-xl">
+      <div className="sticky top-0 z-20 border-b border-border/50 bg-background/70 backdrop-blur-xl">
         <div className="px-4 py-3 flex items-center gap-3">
           <BackButton />
           <div className="flex-1 min-w-0 text-center">
@@ -720,8 +721,8 @@ export default function Weather() {
         </div>
       </div>
 
-      <main className="px-4 pt-5 space-y-4">
-        <section className="relative rounded-[26px] border border-border/55 bg-card overflow-hidden shadow-[0_1px_0_hsl(var(--foreground)/0.05)_inset,0_30px_60px_-40px_hsl(var(--foreground)/0.6)]">
+      <main className="px-4 pt-5 bento">
+        <section className="b-full relative rounded-[26px] glass-hero overflow-hidden">
           <AmbientBackdrop code={currentHour?.weather_code ?? 0} isDay={currentHour?.is_day ?? true} />
           <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/60 to-transparent" />
           <div className="relative p-5">
@@ -731,10 +732,10 @@ export default function Weather() {
                   {comfortLabel(snapshot.temperature.thermal_comfort_level, ar)}
                 </p>
                 <div className="mt-2 flex items-end gap-3" dir="ltr">
-                  <span className="font-cormorant text-[96px] leading-[0.72] text-foreground tabular-nums drop-shadow-[0_2px_20px_hsl(var(--primary)/0.25)]">
+                  <span className="text-[92px] font-light leading-[0.78] text-foreground tabular-nums drop-shadow-[0_4px_30px_hsl(var(--primary)/0.35)]">
                     {Math.round(snapshot.temperature.actual_c)}°
                   </span>
-                  <span className="mb-1 font-cormorant text-[28px] leading-none text-primary/80 tabular-nums">
+                  <span className="mb-2 text-[24px] font-light leading-none text-primary/85 tabular-nums">
                     /{Math.round(snapshot.temperature.apparent_c)}°
                   </span>
                 </div>
@@ -824,12 +825,10 @@ export default function Weather() {
           ar={ar}
         />
 
-        <div className="grid grid-cols-2 gap-3">
-          <GaugeTile label={ar ? 'UV' : 'UV-Index'} value={snapshot.solar.uv_index.toFixed(1)} pctValue={snapshot.solar.uv_index / 11} hint={snapshot.solar.uv_category} icon={<Sun />} />
-          <GaugeTile label={ar ? 'الرطوبة' : 'Feuchte'} value={Math.round(snapshot.moisture.relative_humidity_percent)} unit="%" pctValue={snapshot.moisture.relative_humidity_percent / 100} hint={`${ar ? 'ندى' : 'Taupunkt'} ${Math.round(snapshot.temperature.dew_point_c)}°`} icon={<Droplets />} />
-          <GaugeTile label={ar ? 'الغيوم' : 'Wolken'} value={Math.round(snapshot.sky.cloud_cover_total_percent)} unit="%" pctValue={snapshot.sky.cloud_cover_total_percent / 100} hint={snapshot.sky.cloud_type} icon={<Cloud />} />
-          <GaugeTile label={ar ? 'الرؤية' : 'Sicht'} value={Math.round(snapshot.sky.visibility_km)} unit="km" pctValue={Math.min(1, snapshot.sky.visibility_km / 20)} icon={<Eye />} />
-        </div>
+        <div className="b-one"><GaugeTile label={ar ? 'UV' : 'UV-Index'} value={snapshot.solar.uv_index.toFixed(1)} pctValue={snapshot.solar.uv_index / 11} hint={snapshot.solar.uv_category} icon={<Sun />} /></div>
+        <div className="b-one"><GaugeTile label={ar ? 'الرطوبة' : 'Feuchte'} value={Math.round(snapshot.moisture.relative_humidity_percent)} unit="%" pctValue={snapshot.moisture.relative_humidity_percent / 100} hint={`${ar ? 'ندى' : 'Taupunkt'} ${Math.round(snapshot.temperature.dew_point_c)}°`} icon={<Droplets />} /></div>
+        <div className="b-one"><GaugeTile label={ar ? 'الغيوم' : 'Wolken'} value={Math.round(snapshot.sky.cloud_cover_total_percent)} unit="%" pctValue={snapshot.sky.cloud_cover_total_percent / 100} hint={snapshot.sky.cloud_type} icon={<Cloud />} /></div>
+        <div className="b-one"><GaugeTile label={ar ? 'الرؤية' : 'Sicht'} value={Math.round(snapshot.sky.visibility_km)} unit="km" pctValue={Math.min(1, snapshot.sky.visibility_km / 20)} icon={<Eye />} /></div>
 
         <LineChart
           title={ar ? 'الرياح والرطوبة والضغط' : 'Wind, Feuchte, Druck'}
