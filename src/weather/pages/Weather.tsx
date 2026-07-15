@@ -818,7 +818,7 @@ export default function Weather() {
         <WindCompass
           speed={snapshot.wind.speed_kph}
           gusts={snapshot.wind.gusts_kph}
-          dirDeg={snapshot.wind.direction_from_deg}
+          dirDeg={snapshot.wind.direction_deg}
           cardinal={snapshot.wind.direction_cardinal_16pt}
           beaufort={snapshot.wind.beaufort_description}
           ar={ar}
