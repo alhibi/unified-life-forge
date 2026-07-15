@@ -69,26 +69,12 @@ function teardownRealtime(): void {
   }
 }
 async function setupRealtime(): Promise<void> {
+  // Realtime is intentionally disabled here. The reading tables are
+  // not part of the `supabase_realtime` publication, so subscribing
+  // adds nothing but a wasted WebSocket. If we ever want cross-device
+  // live sync, add the tables to the publication first, then restore
+  // the channel wiring in git history.
   teardownRealtime();
-  const { data } = await supabase.auth.getUser();
-  const uid = data.user?.id;
-  if (!uid) return;
-  const filter = `user_id=eq.${uid}`;
-  realtimeChannel = supabase
-    .channel(`reading:${uid}`)
-    .on('postgres_changes',
-      { event: '*', schema: 'public', table: 'reading_feeds', filter },
-      scheduleRemoteResync)
-    .on('postgres_changes',
-      { event: '*', schema: 'public', table: 'reading_read_state', filter },
-      scheduleRemoteResync)
-    .on('postgres_changes',
-      { event: '*', schema: 'public', table: 'reading_bookmarks', filter },
-      scheduleRemoteResync)
-    .on('postgres_changes',
-      { event: '*', schema: 'public', table: 'reading_prefs', filter },
-      scheduleRemoteResync)
-    .subscribe();
 }
 
 /** Subscribers notified after each remote hydration so React state can
