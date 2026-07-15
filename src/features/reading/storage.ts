@@ -139,6 +139,10 @@ export async function hydrateReadingFromCloud(
       if (prefs) prefsMirror = prefs;
       hydrated = true;
       notify();
+      // Attach realtime on first successful hydrate too (covers the
+      // case where the session was already restored before this module
+      // loaded, so no SIGNED_IN event will fire).
+      if (!realtimeChannel) void setupRealtime();
     } finally {
       hydratePromise = null;
     }
