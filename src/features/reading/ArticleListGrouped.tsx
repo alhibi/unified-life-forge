@@ -365,8 +365,6 @@ export function ArticleListGrouped({
   // produce a blank viewport until the user scrolls.
   useEffect(() => {
     setVisibleRange({ start: 0, end: Math.min(50, rows.length) });
-    const el = containerRef.current;
-    if (el) el.scrollTop = 0;
   }, [scrollKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const recomputeVisible = useCallback(() => {
