@@ -116,10 +116,6 @@ const loadKnowledge = () => import("./features/knowledge/pages/Knowledge");
 // page reachable from /mihrab — kept lazy because it's only loaded
 // when a user (or a crawler) drills in from the Mihrab hub.
 const loadPrayerGuide = () => import("./pages/PrayerGuide");
-// Standalone hard-coded 7-day forecast UI (design showcase). Self-contained
-// component with its own dark theme + recharts charts; reachable at
-// /weather/forecast without touching the live-data /weather page.
-const loadWeatherForecast = () => import("./weather/pages/Weather");
 // Diwan library — adab.com integration
 const loadLibrary = () => import("./features/diwan/pages/Library");
 const loadLibraryPoets = () => import("./features/diwan/pages/LibraryPoets");
@@ -160,7 +156,6 @@ registerRoute('/browse',            loadBrowse);
 registerRoute('/mihrab',            loadMihrab);
 registerRoute('/mihrab/prayer-guide', loadPrayerGuide);
 registerRoute('/weather',           loadWeather);
-registerRoute('/weather/forecast',  loadWeatherForecast);
 registerRoute('/knowledge',         loadKnowledge);
 registerRoute('/reading',           loadReading);
 registerRoute('/occasions',         loadOccasions);
@@ -240,7 +235,6 @@ const MihrabPage = lazy(loadMihrab);
 const WeatherPage = lazy(loadWeather);
 const KnowledgePage = lazy(loadKnowledge);
 const PrayerGuidePage = lazy(loadPrayerGuide);
-const WeatherForecastPage = lazy(loadWeatherForecast);
 const DiwanLibraryPage = lazy(loadLibrary);
 const DiwanLibraryPoetsPage = lazy(loadLibraryPoets);
 const DiwanLibraryPoetPage = lazy(loadLibraryPoet);
@@ -532,7 +526,6 @@ function AnimatedRoutes() {
                   <Route path="/mihrab/prayer-guide" element={<ErrorBoundary><PrayerGuidePage /></ErrorBoundary>} />
                   <Route path="/weather" element={<ErrorBoundary><WeatherPage /></ErrorBoundary>} />
                   <Route path="/knowledge" element={<ErrorBoundary><KnowledgePage /></ErrorBoundary>} />
-                  <Route path="/weather/forecast" element={<ErrorBoundary><WeatherForecastPage /></ErrorBoundary>} />
                   <Route path="/games/sudoku" element={<ErrorBoundary><SudokuPage /></ErrorBoundary>} />
                   <Route path="/games/chess" element={<ErrorBoundary><ChessPage /></ErrorBoundary>} />
                   <Route path="/games/chess/puzzles" element={<ErrorBoundary><ChessPuzzlePage /></ErrorBoundary>} />

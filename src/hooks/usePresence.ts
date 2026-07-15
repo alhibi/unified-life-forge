@@ -129,6 +129,11 @@ export function usePresence(userId: string | undefined) {
   const presenceChanRef  = useRef<ReturnType<typeof supabase.channel> | null>(null);
   const leaderReleaseRef = useRef<(() => void) | null>(null);
   const leaderRef        = useRef<LeaderState>(makeLeaderState());
+  // Pending "wait for shared channel to join" timers. If the component
+  // unmounts before the channel reaches `joined` state, we need to
+  // cancel both the polling interval and its 10s safety timeout so
+  // they don't outlive the effect.
+  const pendingJoinTimers = useRef<Array<{ interval: number; safety: number }>>([]);
 
   const heartbeat = useCallback(() => {
     if (!userId) return;
@@ -224,15 +229,19 @@ export function usePresence(userId: string | undefined) {
           if ((channel as unknown as { state: string }).state === 'joined') {
             trackNow();
           } else {
-            const interval = setInterval(() => {
+            const interval = window.setInterval(() => {
               if ((channel as unknown as { state: string }).state === 'joined') {
                 trackNow();
-                clearInterval(interval);
+                window.clearInterval(interval);
+                window.clearTimeout(safety);
               }
             }, 100);
             // Safety: give up after 10s and let the next user activity
             // trigger the track via resetInactivity().
-            setTimeout(() => clearInterval(interval), 10_000);
+            const safety = window.setTimeout(() => window.clearInterval(interval), 10_000);
+            // Register so the outer cleanup can cancel a pending election
+            // (component unmounted before the shared channel joined).
+            pendingJoinTimers.current.push({ interval, safety });
           }
         }
       }, 250);
@@ -258,13 +267,15 @@ export function usePresence(userId: string | undefined) {
     if ((channel as unknown as { state: string }).state === 'joined') {
       trackNow();
     } else {
-      const interval = setInterval(() => {
+      const interval = window.setInterval(() => {
         if ((channel as unknown as { state: string }).state === 'joined') {
           trackNow();
-          clearInterval(interval);
+          window.clearInterval(interval);
+          window.clearTimeout(safety);
         }
       }, 100);
-      setTimeout(() => clearInterval(interval), 10_000);
+      const safety = window.setTimeout(() => window.clearInterval(interval), 10_000);
+      pendingJoinTimers.current.push({ interval, safety });
     }
 
     function cleanup() {
@@ -283,6 +294,13 @@ export function usePresence(userId: string | undefined) {
         leaderReleaseRef.current();
         leaderReleaseRef.current = null;
       }
+      // Cancel any pending join-wait timers so they can't fire after
+      // the effect tears down.
+      for (const t of pendingJoinTimers.current) {
+        window.clearInterval(t.interval);
+        window.clearTimeout(t.safety);
+      }
+      pendingJoinTimers.current = [];
     }
     return cleanup;
   }, [userId, becomeInactive, heartbeat]);

@@ -623,8 +623,10 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
               // The conversation is open, so this message is BOTH delivered
               // AND about to be read. Stamp the timestamps in parallel —
               // each RPC ignores already-stamped rows so they stay idempotent.
-              (supabase.rpc as any)('mark_message_delivered', { p_message_id: msg.id }).then();
-              supabase.rpc('mark_message_read', { p_message_id: msg.id }).then();
+              // Fire-and-forget: swallow rejections (expired session, network
+              // blip) so they don't surface as unhandled-promise-rejection.
+              (supabase.rpc as any)('mark_message_delivered', { p_message_id: msg.id }).then(undefined, () => {});
+              supabase.rpc('mark_message_read', { p_message_id: msg.id }).then(undefined, () => {});
               if (!chatPrefsRef.current.isMuted(activeId)) {
                 const now = Date.now();
                 if (now - lastIncomingTsRef.current > 800) {
@@ -641,7 +643,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
             // the message is still delivered to this client even though
             // the user hasn't read it yet. This is exactly the "delivered
             // but unread" Telegram tick state.
-            (supabase.rpc as any)('mark_message_delivered', { p_message_id: msg.id }).then();
+            (supabase.rpc as any)('mark_message_delivered', { p_message_id: msg.id }).then(undefined, () => {});
             const conv = conversationsRef.current.find(c => c.id === msg.conversation_id);
             if (conv && !chatPrefsRef.current.isMuted(conv.id)) {
               const now = Date.now();
