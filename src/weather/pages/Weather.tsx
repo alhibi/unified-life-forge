@@ -721,8 +721,8 @@ export default function Weather() {
         </div>
       </div>
 
-      <main className="px-4 pt-5 space-y-4">
-        <section className="relative rounded-[26px] border border-border/55 bg-card overflow-hidden shadow-[0_1px_0_hsl(var(--foreground)/0.05)_inset,0_30px_60px_-40px_hsl(var(--foreground)/0.6)]">
+      <main className="px-4 pt-5 bento">
+        <section className="b-full relative rounded-[26px] glass-hero overflow-hidden">
           <AmbientBackdrop code={currentHour?.weather_code ?? 0} isDay={currentHour?.is_day ?? true} />
           <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/60 to-transparent" />
           <div className="relative p-5">
@@ -732,10 +732,10 @@ export default function Weather() {
                   {comfortLabel(snapshot.temperature.thermal_comfort_level, ar)}
                 </p>
                 <div className="mt-2 flex items-end gap-3" dir="ltr">
-                  <span className="font-cormorant text-[96px] leading-[0.72] text-foreground tabular-nums drop-shadow-[0_2px_20px_hsl(var(--primary)/0.25)]">
+                  <span className="text-[92px] font-light leading-[0.78] text-foreground tabular-nums drop-shadow-[0_4px_30px_hsl(var(--primary)/0.35)]">
                     {Math.round(snapshot.temperature.actual_c)}°
                   </span>
-                  <span className="mb-1 font-cormorant text-[28px] leading-none text-primary/80 tabular-nums">
+                  <span className="mb-2 text-[24px] font-light leading-none text-primary/85 tabular-nums">
                     /{Math.round(snapshot.temperature.apparent_c)}°
                   </span>
                 </div>
