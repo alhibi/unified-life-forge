@@ -142,15 +142,6 @@ export default function UntimedSunnah() {
                                           <Copy className="w-3.5 h-3.5 text-muted-foreground" />
                                           <span className="text-xs text-muted-foreground">نسخ</span>
                                         </button>
-                                        <button
-                                          onClick={() => saveItem(item.title, item.description || '', item.source || '', cat.label)}
-                                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors ${isSaved(item.title, cat.label) ? 'bg-primary/20' : 'bg-accent/30 hover:bg-accent/50'}`}
-                                        >
-                                          <Bookmark className={`w-3.5 h-3.5 ${isSaved(item.title, cat.label) ? 'text-primary fill-primary' : 'text-muted-foreground'}`} />
-                                          <span className={`text-xs ${isSaved(item.title, cat.label) ? 'text-primary' : 'text-muted-foreground'}`}>
-                                            حفظ
-                                          </span>
-                                        </button>
                                       </div>
                                     </div>
                                   </motion.div>
