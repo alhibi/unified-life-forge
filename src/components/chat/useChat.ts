@@ -715,91 +715,13 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     };
   }, [user, open, scrollToBottom, bumpConversationLocally]);
 
-  // ── Typing presence ───────────────────────────────────────────────────────
-  const typingStaleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const typingThrottleRef   = useRef(0);
-  useEffect(() => {
-    if (!activeConv || !user) return;
-    setTypingUser(false);
-
-    const TYPING_STALE_MS = 6000;
-    const armStale = () => {
-      if (typingStaleTimerRef.current) clearTimeout(typingStaleTimerRef.current);
-      typingStaleTimerRef.current = setTimeout(() => setTypingUser(false), TYPING_STALE_MS);
-    };
-    const disarmStale = () => {
-      if (typingStaleTimerRef.current) {
-        clearTimeout(typingStaleTimerRef.current);
-        typingStaleTimerRef.current = null;
-      }
-    };
-
-    const handle = acquireTypingChannel(activeConv.id, user.id);
-    typingChannelRef.current = handle.channel;
-
-    const offChange = handle.onChange((state) => {
-      const others = Object.entries(state).filter(([k]) => k !== user.id);
-      const isTyping = others.some(([, presences]) =>
-        (presences as Array<Record<string, unknown>>).some(p => p.typing === true),
-      );
-      setTypingUser(isTyping);
-      if (isTyping) armStale(); else disarmStale();
-    });
-
-    return () => {
-      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
-      disarmStale();
-      try { handle.channel.track({ typing: false }); } catch { /* no-op */ }
-      try { handle.channel.untrack(); } catch { /* no-op */ }
-      typingChannelRef.current = null;
-      typingThrottleRef.current = 0;
-      offChange();
-      handle.release();
-    };
-  }, [activeConv, user]);
-
-  // ── Typing-in-conversation-list ──────────────────────────────────────────
-  const MAX_LIST_TYPING_CHANNELS = 40;
-  const convIdsForTyping = useMemo(
-    () => conversations.slice(0, MAX_LIST_TYPING_CHANNELS).map(c => c.id).sort().join(','),
-    [conversations],
-  );
-  useEffect(() => {
-    if (!open || !user || !convIdsForTyping) return;
-    const ids = convIdsForTyping.split(',').filter(Boolean);
-    const handles = ids.map(convId => {
-      const handle = acquireTypingChannel(convId, user.id);
-      const off = handle.onChange((state) => {
-        const others = Object.entries(state).filter(([k]) => k !== user.id);
-        const typing = others.some(([, entries]) =>
-          (entries as Array<Record<string, unknown>>).some(e => e.typing === true),
-        );
-        setTypingByConv(prev => {
-          if (prev[convId] === typing) return prev;
-          return { ...prev, [convId]: typing };
-        });
-      });
-      return { off, handle };
-    });
-    return () => {
-      handles.forEach(({ off, handle }) => { off(); handle.release(); });
-      setTypingByConv({});
-    };
-  }, [open, user, convIdsForTyping]);
-
-  const broadcastTyping = useCallback(() => {
-    if (!typingChannelRef.current) return;
-    const now = Date.now();
-    if (now - typingThrottleRef.current >= 1000) {
-      typingThrottleRef.current = now;
-      typingChannelRef.current.track({ typing: true });
-    }
-    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
-    typingTimeoutRef.current = setTimeout(() => {
-      typingChannelRef.current?.track({ typing: false });
-      typingThrottleRef.current = 0;
-    }, 1500);
-  }, []);
+  // ── Typing presence (extracted) ───────────────────────────────────────────
+  const {
+    typingUser,
+    typingByConv,
+    notifyTyping: broadcastTyping,
+    stopTyping,
+  } = useTypingChannel({ open, userId: user?.id, activeConv, conversations });
 
   // ── Send / edit / delete messages ─────────────────────────────────────────
   /**
