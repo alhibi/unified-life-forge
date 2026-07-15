@@ -1,11 +1,30 @@
-import { useMemo, useState } from 'react';
+import { useDeferredValue, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Check, ChevronLeft, Plus, Star } from '@/lib/icons';
+import { Check, ChevronLeft, Plus, Search, Star, X } from '@/lib/icons';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import type { FeedSource } from './types';
-import { CATEGORIES, SUGGESTED_FEEDS } from './feeds';
+import {
+  CATEGORIES,
+  LANGUAGES,
+  SUGGESTED_FEEDS,
+  detectFeedLanguage,
+  normalizeSearch,
+} from './feeds';
 import { SourcePill } from './SourcePill';
+
+type LangId = (typeof LANGUAGES)[number]['id'];
+
+/** Build a stable per-feed search index (name + host + category label). */
+function buildIndex(feeds: ReadonlyArray<FeedSource>, isAr: boolean): string[] {
+  return feeds.map((f) => {
+    let host = '';
+    try { host = new URL(f.url).hostname.replace(/^www\./, ''); } catch { /* */ }
+    const cat = CATEGORIES.find((c) => c.id === f.category);
+    const catLabel = cat ? `${cat.ar} ${cat.en}` : f.category;
+    return normalizeSearch([f.name, host, catLabel].join(' '));
+  });
+}
 
 /**
  * Curated feed catalogue with category chips and a multi-select
@@ -37,8 +56,12 @@ export function SuggestedFeedsView({
   ) => Promise<{ added: number; skipped: number }>;
 }) {
   const [activeCat, setActiveCat] = useState<string>('all');
+  const [activeLang, setActiveLang] = useState<LangId>('all');
+  const [query, setQuery] = useState('');
+  const deferredQuery = useDeferredValue(query);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [committing, setCommitting] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   const available = useMemo(
     () => SUGGESTED_FEEDS.filter(
@@ -47,23 +70,83 @@ export function SuggestedFeedsView({
     [feedSources],
   );
 
-  const categoryIds = useMemo(() => {
-    const ids = new Set<string>();
-    available.forEach((f) => ids.add(f.category));
-    return ['all', ...Array.from(ids)];
-  }, [available]);
-
-  const filtered = useMemo(
-    () => activeCat === 'all'
-      ? available
-      : available.filter((f) => f.category === activeCat),
-    [activeCat, available],
+  // Precompute a searchable index per available feed so keystrokes
+  // stay smooth even at 300+ suggestions.
+  const searchIndex = useMemo(
+    () => buildIndex(available, isAr),
+    [available, isAr],
   );
+  const feedLangs = useMemo(
+    () => available.map((f) => detectFeedLanguage(f)),
+    [available],
+  );
+
+  const filtered = useMemo(() => {
+    const normalizedQuery = normalizeSearch(deferredQuery);
+    // Split multi-word queries so "bbc عربي" matches even when the
+    // words don't appear contiguously in the source name.
+    const terms = normalizedQuery.length > 0
+      ? normalizedQuery.split(/\s+/).filter(Boolean)
+      : [];
+    const out: FeedSource[] = [];
+    for (let i = 0; i < available.length; i++) {
+      const f = available[i];
+      if (activeCat !== 'all' && f.category !== activeCat) continue;
+      if (activeLang !== 'all' && feedLangs[i] !== activeLang) continue;
+      if (terms.length > 0) {
+        const hay = searchIndex[i];
+        let matched = true;
+        for (const t of terms) {
+          if (!hay.includes(t)) { matched = false; break; }
+        }
+        if (!matched) continue;
+      }
+      out.push(f);
+    }
+    return out;
+  }, [available, activeCat, activeLang, deferredQuery, searchIndex, feedLangs]);
+
+  // Category chips show only the ones with results under the current
+  // language + query filters, plus their live counts.
+  const categoryCounts = useMemo(() => {
+    const normalizedQuery = normalizeSearch(deferredQuery);
+    const terms = normalizedQuery.length > 0
+      ? normalizedQuery.split(/\s+/).filter(Boolean)
+      : [];
+    const counts: Record<string, number> = { all: 0 };
+    for (let i = 0; i < available.length; i++) {
+      const f = available[i];
+      if (activeLang !== 'all' && feedLangs[i] !== activeLang) continue;
+      if (terms.length > 0) {
+        const hay = searchIndex[i];
+        let matched = true;
+        for (const t of terms) {
+          if (!hay.includes(t)) { matched = false; break; }
+        }
+        if (!matched) continue;
+      }
+      counts.all = (counts.all || 0) + 1;
+      counts[f.category] = (counts[f.category] || 0) + 1;
+    }
+    return counts;
+  }, [available, activeLang, deferredQuery, searchIndex, feedLangs]);
+
+  const categoryIds = useMemo(() => {
+    const withCounts = Object.keys(categoryCounts).filter((id) => id !== 'all');
+    // Preserve the canonical CATEGORIES ordering, drop empty ones.
+    const ordered = CATEGORIES.map((c) => c.id).filter((id) => withCounts.includes(id));
+    return ['all', ...ordered];
+  }, [categoryCounts]);
 
   const catLabel = (id: string) => {
     if (id === 'all') return isAr ? 'الكل' : 'All';
     const c = CATEGORIES.find((x) => x.id === id);
     return c ? (isAr ? c.ar : c.en) : id;
+  };
+
+  const langLabel = (id: LangId) => {
+    const l = LANGUAGES.find((x) => x.id === id);
+    return l ? (isAr ? l.ar : l.en) : id;
   };
 
   const toggleSelect = (url: string) => {
@@ -84,6 +167,15 @@ export function SuggestedFeedsView({
   };
 
   const clearSelection = () => setSelected(new Set());
+  const clearQuery = () => {
+    setQuery('');
+    searchInputRef.current?.focus();
+  };
+  const resetFilters = () => {
+    setActiveCat('all');
+    setActiveLang('all');
+    setQuery('');
+  };
 
   const commitBulk = async () => {
     if (selected.size === 0) return;
@@ -150,24 +242,83 @@ export function SuggestedFeedsView({
         )}
       </div>
 
-      {/* Category filter chips */}
+      {/* Advanced search + filters */}
       {available.length > 0 && (
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar px-4 py-3 border-b border-border/30">
-          {categoryIds.map((id) => (
-            <button
-              key={id}
-              type="button"
-              onClick={() => setActiveCat(id)}
-              aria-pressed={activeCat === id}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all shrink-0 active:scale-95 ${
-                activeCat === id
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-accent/30 text-muted-foreground hover:bg-accent/50'
-              }`}
-            >
-              {catLabel(id)}
-            </button>
-          ))}
+        <div className="flex flex-col gap-2 px-4 py-3 border-b border-border/30 bg-card/60">
+          {/* Search input */}
+          <div className="relative">
+            <Search className="absolute top-1/2 -translate-y-1/2 start-3 h-4 w-4 text-muted-foreground pointer-events-none" />
+            <input
+              ref={searchInputRef}
+              type="search"
+              inputMode="search"
+              autoComplete="off"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Escape') clearQuery(); }}
+              placeholder={isAr
+                ? 'ابحث بالاسم أو النطاق أو الفئة…'
+                : 'Search by name, domain, or category…'}
+              aria-label={isAr ? 'بحث في المصادر' : 'Search feeds'}
+              className="w-full rounded-xl bg-accent/25 focus:bg-accent/40 focus:outline-none focus:ring-2 focus:ring-primary/40 text-sm ps-9 pe-9 py-2.5 placeholder:text-muted-foreground/70 text-foreground transition-colors"
+              dir="auto"
+            />
+            {query.length > 0 && (
+              <button
+                type="button"
+                onClick={clearQuery}
+                aria-label={isAr ? 'مسح البحث' : 'Clear search'}
+                className="absolute top-1/2 -translate-y-1/2 end-2 p-1 rounded-lg hover:bg-accent/50 text-muted-foreground"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
+
+          {/* Language chips */}
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+            {LANGUAGES.map((l) => (
+              <button
+                key={l.id}
+                type="button"
+                onClick={() => setActiveLang(l.id)}
+                aria-pressed={activeLang === l.id}
+                className={`px-3 py-1 rounded-full text-[11px] font-medium transition-all shrink-0 active:scale-95 ${
+                  activeLang === l.id
+                    ? 'bg-foreground/90 text-background'
+                    : 'bg-accent/25 text-muted-foreground hover:bg-accent/40'
+                }`}
+              >
+                {langLabel(l.id)}
+              </button>
+            ))}
+          </div>
+
+          {/* Category chips with counts */}
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+            {categoryIds.map((id) => {
+              const count = categoryCounts[id] ?? 0;
+              const isActive = activeCat === id;
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => setActiveCat(id)}
+                  aria-pressed={isActive}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all shrink-0 active:scale-95 ${
+                    isActive
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-accent/30 text-muted-foreground hover:bg-accent/50'
+                  }`}
+                >
+                  <span>{catLabel(id)}</span>
+                  <span className={`text-[10px] tabular-nums rounded-full px-1.5 py-0.5 ${
+                    isActive ? 'bg-primary-foreground/15' : 'bg-foreground/10'
+                  }`}>{count}</span>
+                </button>
+              );
+            })}
+          </div>
         </div>
       )}
 
@@ -175,10 +326,28 @@ export function SuggestedFeedsView({
         {filtered.length === 0
           ? (
             <div className="flex flex-col items-center justify-center py-16 gap-3">
-              <Check className="h-8 w-8 text-primary/40" />
-              <p className="text-sm text-muted-foreground">
-                {isAr ? 'تمت إضافة جميع المصادر المقترحة' : 'All suggestions added'}
-              </p>
+              {available.length === 0 ? (
+                <>
+                  <Check className="h-8 w-8 text-primary/40" />
+                  <p className="text-sm text-muted-foreground">
+                    {isAr ? 'تمت إضافة جميع المصادر المقترحة' : 'All suggestions added'}
+                  </p>
+                </>
+              ) : (
+                <>
+                  <Search className="h-8 w-8 text-muted-foreground/50" />
+                  <p className="text-sm text-muted-foreground text-center">
+                    {isAr ? 'لا نتائج مطابقة للبحث' : 'No matching feeds'}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={resetFilters}
+                    className="text-[12px] font-semibold text-primary px-3 py-1.5 rounded-lg hover:bg-primary/10"
+                  >
+                    {isAr ? 'مسح الفلاتر' : 'Clear filters'}
+                  </button>
+                </>
+              )}
             </div>
           )
           : (

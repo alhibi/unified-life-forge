@@ -2,26 +2,72 @@ import type { FeedSource } from './types';
 
 /**
  * Default feed sources seeded the first time a user opens the page.
- * Editing them here changes only future installs — existing users keep
- * whatever they have in localStorage.
+ *
+ * Curated for high signal: broad-coverage Arabic wires that publish
+ * every few minutes, two solid English world-news anchors, two tech
+ * bellwethers, and one respected Islamic source. Everything here is
+ * verified reachable and reasonably well-formed (RSS 2.0 / Atom).
+ * The full 150+ catalogue lives in `SUGGESTED_FEEDS` and is one tap
+ * away from the Suggested Feeds screen.
  */
 export const DEFAULT_FEEDS: FeedSource[] = [
-  // Arabic news — core defaults
+  // Arabic news — high-throughput wires
   { url: 'https://www.aljazeera.net/aljazeerarss/a7c186be-1baa-4bd4-9d80-a84db769f779/73d0e1b4-532f-45ef-b135-bba0b18ad1a2', name: 'الجزيرة نت', category: 'news', enabled: true },
   { url: 'https://www.sana.sy/?feed=rss2', name: 'سانا', category: 'news', enabled: true },
   { url: 'https://feeds.bbci.co.uk/arabic/rss.xml', name: 'BBC عربي', category: 'news', enabled: true },
-  { url: 'https://arabic.cnn.com/api/v1/rss/rss.xml', name: 'CNN بالعربية', category: 'news', enabled: true },
   { url: 'https://www.skynewsarabia.com/web/rss/4787', name: 'سكاي نيوز عربية', category: 'news', enabled: true },
-  { url: 'https://arabic.rt.com/rss/', name: 'RT عربي', category: 'news', enabled: true },
-  { url: 'https://www.alarabiya.net/.mrss/ar.xml', name: 'العربية', category: 'news', enabled: true },
-  // English news — core defaults
-  { url: 'https://rss.nytimes.com/services/xml/rss/nyt/World.xml', name: 'NYT World', category: 'news', enabled: true },
+  { url: 'https://www.france24.com/ar/rss', name: 'فرانس 24 عربي', category: 'news', enabled: true },
+  { url: 'https://www.dw.com/ar/rss', name: 'DW عربي', category: 'news', enabled: true },
+  // English world news — trusted anchors
   { url: 'https://feeds.bbci.co.uk/news/world/rss.xml', name: 'BBC World', category: 'news', enabled: true },
-  // Tech — core defaults
-  { url: 'https://feeds.feedburner.com/TechCrunch', name: 'TechCrunch', category: 'tech', enabled: true },
+  { url: 'https://rss.nytimes.com/services/xml/rss/nyt/World.xml', name: 'NYT World', category: 'news', enabled: true },
+  // Tech
   { url: 'https://www.theverge.com/rss/index.xml', name: 'The Verge', category: 'tech', enabled: true },
-  // Islamic — core defaults
+  { url: 'https://hnrss.org/frontpage', name: 'Hacker News', category: 'tech', enabled: true },
+  // Islamic
   { url: 'https://www.islamweb.net/ar/rss/news.xml', name: 'إسلام ويب', category: 'islamic', enabled: true },
+  // Science
+  { url: 'https://nasainarabic.net/main/feed', name: 'ناسا بالعربي', category: 'science', enabled: true },
+];
+
+// ─── Search helpers ─────────────────────────────────────────────────────
+//
+// The Suggested Feeds screen needs a search that is forgiving of the
+// three most common Arabic typing habits: diacritics dropped,
+// hamza / alef variants used interchangeably, and taa-marbuta typed as
+// haa. These helpers mirror `public.normalize_arabic` in the database
+// so client-side search matches server-side full-text search behaviour.
+
+const ARABIC_RE = /[\u0600-\u06FF]/;
+const GERMAN_KEYWORDS = /tages|spiegel|zeit|faz|welt|sued|deutsch/i;
+
+/** Fold diacritics, unify alef/yaa/taa forms, lowercase Latin. */
+export function normalizeSearch(input: string): string {
+  return (input || '')
+    .toLowerCase()
+    // strip Arabic diacritics + tatweel
+    .replace(/[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED\u0640]/g, '')
+    .replace(/[إأآا]/g, 'ا')
+    .replace(/ى/g, 'ي')
+    .replace(/ة/g, 'ه')
+    .trim();
+}
+
+/** Heuristic language classification used by the Suggested Feeds filter. */
+export function detectFeedLanguage(feed: FeedSource): 'ar' | 'de' | 'en' {
+  if (ARABIC_RE.test(feed.name)) return 'ar';
+  const host = (() => {
+    try { return new URL(feed.url).hostname; } catch { return ''; }
+  })();
+  if (host.endsWith('.de') || GERMAN_KEYWORDS.test(feed.name)) return 'de';
+  return 'en';
+}
+
+export const LANGUAGES: { id: 'all' | 'ar' | 'en' | 'de'; ar: string; en: string }[] = [
+  { id: 'all', ar: 'كل اللغات', en: 'All languages' },
+  { id: 'ar', ar: 'العربية', en: 'Arabic' },
+  { id: 'en', ar: 'الإنجليزية', en: 'English' },
+  { id: 'de', ar: 'الألمانية', en: 'German' },
 ];
 
 
