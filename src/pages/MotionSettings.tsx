@@ -244,7 +244,7 @@ export default function MotionSettings() {
 
         {/* Header */}
         <motion.div variants={item} className="flex items-center justify-between">
-          <BackButton />
+          <BackButton to="/settings" />
           <h1 className="text-[17px] font-bold tracking-tight text-foreground">
             {isAr ? 'الحركة والأداء' : 'Bewegung & Leistung'}
           </h1>
