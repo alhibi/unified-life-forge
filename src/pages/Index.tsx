@@ -107,10 +107,6 @@ export default function Index() {
           </div>
         </motion.div>
 
-        <motion.section variants={item} aria-labelledby="home-ribbon-h">
-          <h2 id="home-ribbon-h" className="sr-only">{language === 'ar' ? 'تنبيه مباشر' : 'Live-Hinweis'}</h2>
-          <LivingRibbon />
-        </motion.section>
         <motion.section variants={item} aria-labelledby="home-prayer-h">
           <h2 id="home-prayer-h" className="sr-only">{language === 'ar' ? 'أوقات الصلاة' : 'Gebetszeiten'}</h2>
           <PrayerTimes />
