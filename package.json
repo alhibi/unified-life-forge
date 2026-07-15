@@ -19,6 +19,7 @@
     "@fontsource/montserrat": "^5.2.8",
     "@hookform/resolvers": "^3.10.0",
     "@lovable.dev/cloud-auth-js": "^1.1.1",
+    "@lovable.dev/mcp-js": "^0.22.0",
     "@phosphor-icons/react": "^2.1.10",
     "@radix-ui/react-accordion": "^1.2.11",
     "@radix-ui/react-alert-dialog": "^1.1.14",
@@ -82,7 +83,7 @@
     "tailwindcss-animate": "^1.0.7",
     "three": "^0.185.1",
     "vaul": "^0.9.9",
-    "zod": "^3.25.76"
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.32.0",
