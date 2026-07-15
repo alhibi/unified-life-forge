@@ -16,6 +16,7 @@ import {
 } from './chatNotify';
 import type { Conversation, Message, Reaction, ConversationFilter, MessageStatus } from './types';
 import { newClientId } from './internal/clientId';
+import { useTypingChannel } from './internal/useTypingChannel';
 
 interface UseChatOptions {
   open: boolean;
@@ -69,8 +70,6 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
   const [conversationFilter, setConversationFilter] = useState<ConversationFilter>('all');
 
   // ── Realtime / network ────────────────────────────────────────────────────
-  const [typingUser, setTypingUser] = useState(false);
-  const [typingByConv, setTypingByConv] = useState<Record<string, boolean>>({});
   const [uploading, setUploading] = useState(false);
   const [messagesLoading, setMessagesLoading] = useState(false);
   const [conversationsLoading, setConversationsLoading] = useState(false);
@@ -108,8 +107,6 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
   const [forwardedNames, setForwardedNames] = useState<Record<string, string>>({});
 
   // ── Refs ──────────────────────────────────────────────────────────────────
-  const typingChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
-  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
