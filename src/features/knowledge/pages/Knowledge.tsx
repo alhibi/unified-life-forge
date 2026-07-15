@@ -793,7 +793,7 @@ function ModelDetailDialog({
   return (
     <Dialog open={model !== null} onOpenChange={(o) => { if (!o) onClose(); }}>
       <DialogContent
-        className="max-h-[90vh] max-w-2xl overflow-y-auto border-border bg-card p-0 text-foreground sm:rounded-2xl"
+        className="max-h-[92vh] max-w-lg overflow-y-auto border border-border/60 bg-card p-0 text-foreground shadow-[0_-12px_40px_rgba(0,0,0,0.5)] sm:rounded-[2rem] rounded-t-[2rem]"
         dir="rtl"
       >
         <VisuallyHidden>
@@ -802,56 +802,73 @@ function ModelDetailDialog({
 
         {model && (
           <div className="relative">
-            {/* Header */}
-            <div className="px-6 pt-8 pb-4">
-              <div className="mb-3 flex flex-wrap items-center gap-2">
-                <span className="rounded-full border border-border bg-accent px-2.5 py-0.5 text-[10px] uppercase tracking-wider text-foreground">
+            {/* Drag handle */}
+            <div className="flex justify-center pt-3 pb-1">
+              <div className="w-10 h-1 rounded-full bg-foreground/15" />
+            </div>
+
+            {/* Header pills */}
+            <div className="px-6 pt-4 space-y-4">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-[10px] font-semibold tracking-wider text-primary">
                   {brand?.name}
                 </span>
-                <span className="rounded-full border border-border bg-accent/60 px-2.5 py-0.5 text-[10px] uppercase tracking-wider text-foreground">
+                <span className="rounded-full border border-border/60 bg-foreground/[0.04] px-2.5 py-0.5 text-[10px] uppercase tracking-wider text-muted-foreground">
                   {model.type}
                 </span>
-                <span className="text-[10px] text-muted-foreground">{model.year}</span>
+                <span className="text-[10px] text-muted-foreground/80">{model.year}</span>
               </div>
-              <h3 className="text-2xl font-bold text-foreground">
-                {model.name}
-              </h3>
-              <div className="mt-2 text-lg font-semibold text-primary">
-                {model.price}
+
+              {/* Title + price */}
+              <div className="space-y-1.5">
+                <h3 className="text-[26px] font-bold tracking-tight text-foreground leading-tight">
+                  {model.name}
+                </h3>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-xl font-light text-primary">{model.price}</span>
+                </div>
               </div>
             </div>
 
+            {/* Hairline divider */}
+            <div className="mx-6 mt-6 h-px bg-gradient-to-l from-transparent via-border/60 to-transparent" />
+
             {/* Description */}
-            <div className="px-6">
-              <p className="border-r-2 border-border pr-3 text-[15px] leading-loose text-foreground/85">
+            <div className="px-6 pt-5">
+              <p className="text-[14px] font-light leading-loose text-muted-foreground">
                 {model.desc}
               </p>
             </div>
 
             {/* Highlights */}
-            <div className="px-6 pt-6">
-              <h4 className="mb-3 text-sm font-semibold text-muted-foreground">
+            <div className="px-6 pt-7">
+              <h4 className="mb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground/70">
                 أبرز المميزات
               </h4>
-              <ul className="space-y-2">
+              <ul className="space-y-2.5">
                 {model.highlights.map((h, i) => (
                   <li key={i} className="flex items-start gap-3">
-                    <span className="mt-2 inline-block h-2 w-2 shrink-0 rounded-full bg-primary" />
-                    <span className="text-sm leading-relaxed text-foreground">{h}</span>
+                    <span
+                      className="mt-[9px] inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-primary shadow-[0_0_8px_hsl(var(--primary)/0.7)]"
+                    />
+                    <span className="text-[13.5px] leading-relaxed text-foreground/90">{h}</span>
                   </li>
                 ))}
               </ul>
             </div>
 
             {/* 2x2 main fields */}
-            <div className="px-6 pt-6">
+            <div className="px-6 pt-7">
               <div className="grid grid-cols-2 gap-2.5">
                 {category.fieldLabels.map((label, i) => (
-                  <div key={label} className="rounded-xl border border-border bg-accent/40 p-3">
-                    <div className="text-[9px] uppercase tracking-wider text-muted-foreground">
+                  <div
+                    key={label}
+                    className="rounded-2xl border border-border/50 bg-foreground/[0.025] p-3.5"
+                  >
+                    <div className="text-[9px] font-semibold uppercase tracking-[0.16em] text-muted-foreground/70">
                       {label}
                     </div>
-                    <div className="mt-1 text-sm text-foreground">
+                    <div className="mt-1.5 text-[13.5px] font-medium text-foreground">
                       {model.fields[i]}
                     </div>
                   </div>
@@ -860,33 +877,38 @@ function ModelDetailDialog({
             </div>
 
             {/* Extras */}
-            <div className="px-6 pt-6">
-              <h4 className="mb-3 text-sm font-semibold text-muted-foreground">
+            <div className="px-6 pt-7">
+              <h4 className="mb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground/70">
                 تفاصيل إضافية
               </h4>
-              <div className="grid grid-cols-3 gap-2">
-                {model.extras.map((e) => (
-                  <div key={e.label} className="rounded-xl border border-border bg-accent/40 p-3 text-center">
-                    <div className="text-[9px] uppercase tracking-wider text-muted-foreground">
+              <div className="grid grid-cols-3 gap-0 rounded-2xl border border-border/50 bg-foreground/[0.025] py-3.5">
+                {model.extras.map((e, i) => (
+                  <div
+                    key={e.label}
+                    className={`px-2 text-center ${i > 0 ? "border-r border-border/40" : ""}`}
+                  >
+                    <div className="text-[9px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/70">
                       {e.label}
                     </div>
-                    <div className="mt-1 text-xs text-foreground">{e.value}</div>
+                    <div className="mt-1 text-[12px] font-medium text-foreground">{e.value}</div>
                   </div>
                 ))}
               </div>
             </div>
 
             {/* Progress bar */}
-            <div className="px-6 pt-6">
-              <div className="mb-2 flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">{category.barLabel}</span>
-                <span className="text-xs text-primary">
+            <div className="px-6 pt-7">
+              <div className="mb-2.5 flex items-center justify-between">
+                <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground/70">
+                  {category.barLabel}
+                </span>
+                <span className="text-[12px] font-semibold text-primary tabular-nums">
                   {model.barValue}%
                 </span>
               </div>
-              <div className="h-1.5 w-full overflow-hidden rounded-full bg-accent">
+              <div className="h-1 w-full overflow-hidden rounded-full bg-foreground/[0.06]">
                 <div
-                  className="h-full rounded-full bg-primary transition-all duration-700"
+                  className="h-full rounded-full bg-primary transition-all duration-700 shadow-[0_0_10px_hsl(var(--primary)/0.5)]"
                   style={{ width: `${model.barValue}%` }}
                 />
               </div>
@@ -898,9 +920,9 @@ function ModelDetailDialog({
                 {model.tags.map((t) => (
                   <span
                     key={t}
-                    className="rounded-full border border-border bg-accent/50 px-2.5 py-1 text-[10px] uppercase tracking-wider text-foreground"
+                    className="rounded-lg border border-border/50 bg-foreground/[0.025] px-2.5 py-1 text-[10px] font-medium tracking-wider text-muted-foreground"
                   >
-                    {t}
+                    #{t}
                   </span>
                 ))}
               </div>
