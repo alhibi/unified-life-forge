@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type CSSProperties, type ReactNode } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
+import './weather-theme.css';
 import BackButton from '@/components/BackButton';
 import { useApp } from '@/contexts/AppContext';
 import { useWeather } from '../hooks/useWeather';
