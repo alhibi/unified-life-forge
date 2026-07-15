@@ -302,13 +302,14 @@ export default function PodcastDetail() {
                 src={displayImage}
                 alt=""
                 className="w-full h-full object-cover scale-110"
-                style={{ filter: 'blur(40px) saturate(1.4)' }}
+                style={{ filter: 'blur(44px) saturate(1.35)', opacity: 0.7 }}
                 aria-hidden
               />
               <div
                 className="absolute inset-0"
                 style={{
-                  
+                  background:
+                    'linear-gradient(to bottom, hsl(var(--background) / 0.35) 0%, hsl(var(--background) / 0.75) 55%, hsl(var(--background)) 100%)',
                 }}
               />
             </div>
@@ -367,7 +368,7 @@ export default function PodcastDetail() {
               {displayTitle || <span className="inline-block h-7 w-48 skeleton rounded-md" />}
             </h1>
             {displayAuthor && (
-              <p className="text-sm text-muted-foreground mt-1.5 font-medium">
+              <p className="text-sm text-foreground/70 mt-1.5 font-semibold">
                 {displayAuthor}
               </p>
             )}
@@ -418,7 +419,7 @@ export default function PodcastDetail() {
               <motion.div
                 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.25 }}
-                className="rounded-2xl bg-card/80 backdrop-blur-sm border border-border/40 p-4"
+                className="rounded-2xl bg-card/90 backdrop-blur-md border border-border/60 p-4 shadow-sm"
               >
                 <div
                   // When `<p>` blocks are present `line-clamp-N` doesn't
@@ -428,7 +429,7 @@ export default function PodcastDetail() {
                   // `max-height` with a fade gradient gives a
                   // predictable preview height regardless of inner
                   // markup. Once expanded we drop the cap entirely.
-                  className={`text-[13px] text-foreground/85 leading-relaxed podcast-html relative ${
+                  className={`text-[13.5px] text-foreground/90 leading-relaxed podcast-html relative ${
                     isLongDescription && !descExpanded ? 'overflow-hidden' : ''
                   }`}
                   style={
@@ -463,7 +464,7 @@ export default function PodcastDetail() {
 
             {/* Metadata rows */}
             {feed.data && (
-              <div className="rounded-2xl bg-card/80 backdrop-blur-sm border border-border/40 divide-y divide-border/40 overflow-hidden">
+              <div className="rounded-2xl bg-card/90 backdrop-blur-md border border-border/60 divide-y divide-border/40 overflow-hidden shadow-sm">
                 {displayLink && (
                   <a
                     href={displayLink}

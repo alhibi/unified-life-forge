@@ -20,7 +20,7 @@
 // We render this only when there's a current track AND the player
 // sheet isn't already open — same gating logic Podium uses.
 
-import { memo, KeyboardEvent, MouseEvent, useState } from 'react';
+import { memo, KeyboardEvent, MouseEvent, useCallback, useState } from 'react';
 import { ListMusic, Loader2, Pause, Play, RotateCcw, RotateCw } from '@/lib/icons';
 import { AnimatePresence, motion } from 'framer-motion';
 import { usePodcastPlayer, usePodcastPlayerProgress } from '@/features/podcasts/contexts/PodcastPlayerContext';
@@ -74,7 +74,7 @@ function MiniProgressBar() {
  * so tapping a control invokes only that action; the outer "open
  * sheet" gesture is reserved for the artwork / title area.
  */
-function InlineControl({
+const InlineControl = memo(function InlineControl({
   onActivate, ariaLabel, size, style, children,
 }: {
   onActivate: () => void;
@@ -83,17 +83,17 @@ function InlineControl({
   style?: React.CSSProperties;
   children: React.ReactNode;
 }) {
-  const handleClick = (e: MouseEvent<HTMLSpanElement>) => {
+  const handleClick = useCallback((e: MouseEvent<HTMLSpanElement>) => {
     e.stopPropagation();
     onActivate();
-  };
-  const handleKeyDown = (e: KeyboardEvent<HTMLSpanElement>) => {
+  }, [onActivate]);
+  const handleKeyDown = useCallback((e: KeyboardEvent<HTMLSpanElement>) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.stopPropagation();
       e.preventDefault();
       onActivate();
     }
-  };
+  }, [onActivate]);
   return (
     <span
       role="button"
@@ -101,17 +101,23 @@ function InlineControl({
       aria-label={ariaLabel}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
-      className="rounded-full flex items-center justify-center shrink-0 hover:bg-foreground/10 active:scale-90 transition-all cursor-pointer"
-      style={{ width: size, height: size, ...style }}
+      className="rounded-full flex items-center justify-center shrink-0 hover:bg-foreground/10 active:scale-90 transition-transform duration-150 cursor-pointer select-none touch-manipulation"
+      style={{ width: size, height: size, willChange: 'transform', ...style }}
     >
       {children}
     </span>
   );
-}
+});
 
 const PodcastMiniPlayer = memo(function PodcastMiniPlayer() {
   const player = usePodcastPlayer();
   const [sheetOpen, setSheetOpen] = useState(false);
+
+  const openSheet   = useCallback(() => setSheetOpen(true),  []);
+  const closeSheet  = useCallback(() => setSheetOpen(false), []);
+  const skipBack    = useCallback(() => player.skip(-MINI_SKIP_SECONDS), [player]);
+  const skipForward = useCallback(() => player.skip(MINI_SKIP_SECONDS),  [player]);
+  const togglePlay  = useCallback(() => player.toggle(),                 [player]);
 
   const visible = !!player.current && !sheetOpen;
 
@@ -145,8 +151,8 @@ const PodcastMiniPlayer = memo(function PodcastMiniPlayer() {
           >
             <button
               type="button"
-              onClick={() => setSheetOpen(true)}
-              className="podcast-mini-glow pointer-events-auto w-full max-w-md mx-auto flex items-center gap-2 ps-2 pe-2 rounded-full overflow-hidden border"
+              onClick={openSheet}
+              className="podcast-mini-glow pointer-events-auto w-full max-w-md mx-auto flex items-center gap-2 ps-2 pe-2 rounded-full overflow-hidden border active:scale-[0.985] transition-transform duration-150 touch-manipulation"
               data-playing={isActive ? 'true' : 'false'}
               style={{
                 height: MINI_PLAYER_HEIGHT,
@@ -159,6 +165,8 @@ const PodcastMiniPlayer = memo(function PodcastMiniPlayer() {
                 color: 'hsl(var(--foreground))',
                 backdropFilter: 'blur(20px) saturate(1.4)',
                 WebkitBackdropFilter: 'blur(20px) saturate(1.4)',
+                willChange: 'transform',
+                contain: 'layout paint',
               }}
             >
               {/* Square artwork with rounded corners — modern podcast-
@@ -231,7 +239,7 @@ const PodcastMiniPlayer = memo(function PodcastMiniPlayer() {
                   interactive content is invalid HTML. The same pattern
                   the original play button already used. */}
               <InlineControl
-                onActivate={() => player.skip(-MINI_SKIP_SECONDS)}
+                onActivate={skipBack}
                 ariaLabel={`-${MINI_SKIP_SECONDS}s`}
                 size={32}
               >
@@ -239,7 +247,7 @@ const PodcastMiniPlayer = memo(function PodcastMiniPlayer() {
               </InlineControl>
 
               <InlineControl
-                onActivate={() => player.toggle()}
+                onActivate={togglePlay}
                 ariaLabel={player.isPlaying ? 'Pause' : 'Play'}
                 size={40}
                 style={{
@@ -255,7 +263,7 @@ const PodcastMiniPlayer = memo(function PodcastMiniPlayer() {
               </InlineControl>
 
               <InlineControl
-                onActivate={() => player.skip(MINI_SKIP_SECONDS)}
+                onActivate={skipForward}
                 ariaLabel={`+${MINI_SKIP_SECONDS}s`}
                 size={32}
               >
@@ -266,7 +274,7 @@ const PodcastMiniPlayer = memo(function PodcastMiniPlayer() {
         )}
       </AnimatePresence>
 
-      <PlayerSheet open={sheetOpen} onClose={() => setSheetOpen(false)} />
+      <PlayerSheet open={sheetOpen} onClose={closeSheet} />
     </>
   );
 });
