@@ -721,38 +721,66 @@ export default function Weather() {
       </div>
 
       <main className="px-4 pt-5 space-y-4">
-        <section className="rounded-2xl border border-border/60 bg-card overflow-hidden">
-          <div className="p-5">
+        <section className="relative rounded-[26px] border border-border/55 bg-card overflow-hidden shadow-[0_1px_0_hsl(var(--foreground)/0.05)_inset,0_30px_60px_-40px_hsl(var(--foreground)/0.6)]">
+          <AmbientBackdrop code={currentHour?.weather_code ?? 0} isDay={currentHour?.is_day ?? true} />
+          <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/60 to-transparent" />
+          <div className="relative p-5">
             <div className="flex items-start justify-between gap-4">
               <div className="min-w-0">
-                <p className="text-[10px] tracking-[0.24em] uppercase text-primary/80">
+                <p className="text-[10px] tracking-[0.28em] uppercase text-primary/85">
                   {comfortLabel(snapshot.temperature.thermal_comfort_level, ar)}
                 </p>
                 <div className="mt-2 flex items-end gap-3" dir="ltr">
-                  <span className="font-cormorant text-[86px] leading-[0.72] text-foreground tabular-nums">
+                  <span className="font-cormorant text-[96px] leading-[0.72] text-foreground tabular-nums drop-shadow-[0_2px_20px_hsl(var(--primary)/0.25)]">
                     {Math.round(snapshot.temperature.actual_c)}°
                   </span>
                   <span className="mb-1 font-cormorant text-[28px] leading-none text-primary/80 tabular-nums">
                     /{Math.round(snapshot.temperature.apparent_c)}°
                   </span>
                 </div>
-                <p className="mt-3 text-[12px] text-muted-foreground tabular-nums" dir="ltr">
-                  H {Math.round(snapshot.temperature.daily_high_c)}° · L {Math.round(snapshot.temperature.daily_low_c)}° · {weatherLabel(currentHour?.weather_code ?? 0, ar)}
+                <p className="mt-3 text-[13px] text-foreground/85">{weatherLabel(currentHour?.weather_code ?? 0, ar)}</p>
+                <p className="mt-1 text-[11px] text-muted-foreground tabular-nums" dir="ltr">
+                  ↑ {Math.round(snapshot.temperature.daily_high_c)}°  ·  ↓ {Math.round(snapshot.temperature.daily_low_c)}°  ·  {ar ? 'ندى' : 'Taupunkt'} {Math.round(snapshot.temperature.dew_point_c)}°
                 </p>
               </div>
               <div className="flex flex-col items-center gap-3 shrink-0">
-                <CurrentIcon className="w-16 h-16 text-primary" strokeWidth={1.1} />
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.85 }} animate={{ opacity: 1, scale: 1 }}
+                  transition={{ type: 'spring', stiffness: 180, damping: 16 }}
+                  className="relative"
+                >
+                  <div className="absolute inset-0 rounded-full bg-primary/20 blur-2xl" />
+                  <CurrentIcon className="relative w-20 h-20 text-primary" strokeWidth={1.05} />
+                </motion.div>
                 <div className="text-center">
-                  <div className="text-[10px] tracking-[0.18em] uppercase text-muted-foreground">{ar ? 'الثقة' : 'Vertrauen'}</div>
-                  <div className="font-cormorant text-[28px] leading-none text-foreground tabular-nums" dir="ltr">{conf}%</div>
+                  <div className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground">{ar ? 'الثقة' : 'Vertrauen'}</div>
+                  <div className="font-cormorant text-[26px] leading-none text-foreground tabular-nums" dir="ltr">{conf}%</div>
                 </div>
               </div>
             </div>
-            <div className="mt-5 h-1.5 rounded-full bg-foreground/10 overflow-hidden" dir="ltr">
-              <motion.div className="h-full rounded-full bg-primary" initial={{ width: 0 }} animate={{ width: `${conf}%` }} transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }} />
+            <div className="mt-5 h-1 rounded-full bg-foreground/10 overflow-hidden" dir="ltr">
+              <motion.div className="h-full rounded-full bg-gradient-to-r from-primary/40 via-primary to-primary/40" initial={{ width: 0 }} animate={{ width: `${conf}%` }} transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }} />
+            </div>
+            <div className="mt-4 grid grid-cols-4 gap-2 text-center" dir="ltr">
+              {[
+                { label: ar ? 'رياح' : 'Wind', value: `${Math.round(snapshot.wind.speed_kph)}`, unit: 'km/h' },
+                { label: ar ? 'رطوبة' : 'Feuchte', value: `${Math.round(snapshot.moisture.relative_humidity_percent)}`, unit: '%' },
+                { label: 'UV', value: snapshot.solar.uv_index.toFixed(1), unit: '' },
+                { label: ar ? 'ضغط' : 'Druck', value: `${Math.round(snapshot.pressure.msl_hpa)}`, unit: 'hPa' },
+              ].map(m => (
+                <div key={m.label} className="rounded-xl border border-border/40 bg-background/30 py-2 px-1">
+                  <div className="text-[9px] tracking-[0.14em] uppercase text-muted-foreground">{m.label}</div>
+                  <div className="mt-0.5 flex items-baseline justify-center gap-0.5 tabular-nums">
+                    <span className="font-cormorant text-[20px] leading-none text-foreground">{m.value}</span>
+                    {m.unit && <span className="text-[9px] text-primary/80">{m.unit}</span>}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </section>
+
+        <HourlyRibbon entries={hourly} iconFor={iconForCode} locale={locale} ar={ar} />
 
         <LineChart
           title={ar ? 'منحنى الحرارة' : 'Temperaturkurve'}
