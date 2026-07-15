@@ -522,7 +522,14 @@ export function useReadingData(opts: { isAr: boolean }) {
 
   // When the *enabled set* changes (toggle a feed), reload from DB
   // without rebuilding the interval. Cheap; touches state only.
+  // Dedupe against the last-loaded signature so cloud hydration
+  // arriving right after mount doesn't re-fire the same query we
+  // already issued from the initial `loadFromDB()` call.
+  const lastLoadedNamesRef = useRef<string>('');
   useEffect(() => {
+    const sig = enabledNames.join('|');
+    if (sig === lastLoadedNamesRef.current) return;
+    lastLoadedNamesRef.current = sig;
     void loadFromDB();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabledNames.join('|')]);
