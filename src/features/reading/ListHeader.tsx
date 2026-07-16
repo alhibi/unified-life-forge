@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   Archive, Bell, Bookmark, CheckCheck, ChevronLeft, Compass, FolderOpen, MoreHorizontal,
-  Newspaper, RefreshCw, Search, Settings2, Type, Wifi, X,
+  Newspaper, RefreshCw, Search, Settings2, Type, X,
 } from '@/lib/icons';
 import { Input } from '@/components/ui/input';
 import {
