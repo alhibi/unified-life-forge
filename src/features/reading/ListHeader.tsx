@@ -1,10 +1,18 @@
 import { useMemo } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-  Archive, Bell, Bookmark, CheckCheck, ChevronLeft, Compass, FolderOpen, Newspaper,
-  RefreshCw, Search, Settings2, Type, Wifi, X,
+  Archive, Bell, Bookmark, CheckCheck, ChevronLeft, Compass, FolderOpen, MoreHorizontal,
+  Newspaper, RefreshCw, Search, Settings2, Type, X,
 } from '@/lib/icons';
 import { Input } from '@/components/ui/input';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import type { FeedSource, FilterTab } from './types';
 import type { ListPrefs } from './listPrefs';
 import { CATEGORIES } from './feeds';
@@ -103,118 +111,117 @@ export function ListHeader({
   const showCategoryRow = populatedCategories.length > 1;
 
   return (
-    <div className="px-4 py-3 border-b border-border/40 bg-card/90 backdrop-blur-md sticky top-0 z-10">
-      <div className="flex items-center justify-between mb-2.5">
-        <div className="flex items-center gap-2.5">
+    <div
+      className="px-4 pt-3.5 pb-2.5 border-b border-border/40 sticky top-0 z-10 bg-card/85 backdrop-blur-xl"
+      style={{
+        backgroundImage:
+          'linear-gradient(180deg, hsl(var(--primary) / 0.04) 0%, transparent 100%)',
+      }}
+    >
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2.5 min-w-0">
           <button
             type="button"
             onClick={onBack}
-            className="p-2 rounded-xl hover:bg-accent/50 active:scale-95 transition-all"
+            className="p-2 -ms-1 rounded-xl hover:bg-accent/50 active:scale-95 transition-all shrink-0"
             aria-label={isAr ? 'رجوع' : 'Back'}
           >
             <ChevronLeft className="h-5 w-5 text-foreground rtl:rotate-180" />
           </button>
-          <h3 className="text-lg font-bold flex items-center gap-2.5">
-            <span className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <span className="w-9 h-9 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 ring-1 ring-primary/20 flex items-center justify-center shrink-0">
               <Newspaper className="h-4 w-4 text-primary" />
             </span>
-            {isAr ? 'إطلاع' : 'Reading'}
-          </h3>
+            <div className="flex flex-col leading-tight min-w-0">
+              <h3 className="text-[17px] font-bold truncate">
+                {isAr ? 'إطلاع' : 'Reading'}
+              </h3>
+              <span className="text-[10.5px] text-muted-foreground/80 tabular-nums truncate">
+                {isAr
+                  ? `${articleCount} مقالة · ${unreadCount} غير مقروء`
+                  : `${articleCount} articles · ${unreadCount} unread`}
+              </span>
+            </div>
+          </div>
         </div>
-        <div className="flex items-center gap-1">
-          <button
-            type="button"
+
+        <div className="flex items-center gap-0.5 shrink-0">
+          <IconBtn
             onClick={() => setShowSearch(!showSearch)}
-            className={`p-2.5 rounded-xl active:scale-95 transition-all ${
-              showSearch
-                ? 'bg-primary/15 text-primary'
-                : 'hover:bg-accent/50 text-muted-foreground'
-            }`}
+            active={showSearch}
             aria-label={isAr ? 'بحث في القائمة' : 'Filter list'}
             title={isAr ? 'بحث في القائمة الحالية' : 'Filter the current list'}
-            aria-pressed={showSearch}
           >
-            <Search className={`h-4 w-4 ${showSearch ? 'text-primary' : ''}`} />
-          </button>
-          <div className="w-px h-5 bg-border/50 mx-0.5" />
-          <button
-            type="button"
-            onClick={onOpenArchiveSearch}
-            className="p-2.5 rounded-xl hover:bg-accent/50 active:scale-95 transition-all"
-            aria-label={isAr ? 'بحث الأرشيف' : 'Search archive'}
-            title={isAr ? 'بحث الأرشيف الكامل' : 'Search full archive'}
+            <Search className="h-4 w-4" />
+          </IconBtn>
+          <IconBtn
+            onClick={onRefresh}
+            disabled={refreshing}
+            aria-label={isAr ? 'تحديث' : 'Refresh'}
+            title={isAr ? 'تحديث الآن' : 'Refresh now'}
           >
-            <Archive className="h-4 w-4 text-muted-foreground" />
-          </button>
-          <button
-            type="button"
-            onClick={onOpenAlerts}
-            className="p-2.5 rounded-xl hover:bg-accent/50 active:scale-95 transition-all relative"
-            aria-label={isAr ? 'التنبيهات' : 'Keyword alerts'}
-            title={isAr ? 'تنبيهات الكلمات' : 'Keyword alerts'}
-          >
-            <Bell className="h-4 w-4 text-muted-foreground" />
-            {unseenAlerts > 0 && (
-              <span className="absolute top-1 end-1 h-2 w-2 rounded-full bg-primary" />
-            )}
-          </button>
-          <button
-            type="button"
-            onClick={onOpenReader}
-            className="p-2.5 rounded-xl hover:bg-accent/50 active:scale-95 transition-all"
-            aria-label={isAr ? 'قراءة رابط' : 'Reader view'}
-            title={isAr ? 'قراءة رابط من الويب' : 'Read a web link'}
-          >
-            <Type className="h-4 w-4 text-muted-foreground" />
-          </button>
-          <button
-            type="button"
+            <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin text-primary' : ''}`} />
+          </IconBtn>
+          <IconBtn
             onClick={onDiscoverFeeds}
-            className="p-2.5 rounded-xl hover:bg-primary/10 active:scale-95 transition-all"
+            accent
             aria-label={isAr ? 'اكتشاف مصادر' : 'Discover feeds'}
             title={isAr ? 'اكتشاف وإضافة مصادر جديدة' : 'Discover & add feeds'}
           >
-            <Compass className="h-4 w-4 text-primary" />
-          </button>
+            <Compass className="h-4 w-4" />
+          </IconBtn>
           <ReadingPrefsToolbar
             isAr={isAr}
             prefs={listPrefs}
             onChange={onListPrefsChange}
           />
-          <div className="w-px h-5 bg-border/50 mx-0.5" />
-          {unreadCount > 0 && (
-            <button
-              type="button"
-              onClick={onMarkAllRead}
-              className="p-2.5 rounded-xl hover:bg-accent/50 active:scale-95 transition-all"
-              aria-label={isAr ? 'تحديد الكل كمقروء' : 'Mark all as read'}
-              title={isAr ? 'تحديد الكل كمقروء' : 'Mark all read'}
-            >
-              <CheckCheck className="h-4 w-4 text-muted-foreground" />
-            </button>
-          )}
-          <button
-            type="button"
-            onClick={onRefresh}
-            disabled={refreshing}
-            className="p-2.5 rounded-xl hover:bg-accent/50 active:scale-95 transition-all relative"
-            aria-label={isAr ? 'تحديث' : 'Refresh'}
-          >
-            <RefreshCw
-              className={`h-4 w-4 text-muted-foreground ${refreshing ? 'animate-spin' : ''}`}
-            />
-            {refreshing && (
-              <Wifi className="h-2.5 w-2.5 text-primary absolute top-1 end-1 animate-pulse" />
-            )}
-          </button>
-          <button
-            type="button"
-            onClick={onManage}
-            className="p-2.5 rounded-xl hover:bg-accent/50 active:scale-95 transition-all"
-            aria-label={isAr ? 'إدارة المصادر' : 'Manage feeds'}
-          >
-            <Settings2 className="h-4 w-4 text-muted-foreground" />
-          </button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                type="button"
+                className="p-2.5 rounded-xl hover:bg-accent/50 active:scale-95 transition-all relative"
+                aria-label={isAr ? 'المزيد' : 'More actions'}
+              >
+                <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
+                {unseenAlerts > 0 && (
+                  <span className="absolute top-1.5 end-1.5 h-2 w-2 rounded-full bg-primary ring-2 ring-card" />
+                )}
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" sideOffset={8} className="w-56 rounded-2xl">
+              <DropdownMenuLabel className="text-[11px] text-muted-foreground font-normal">
+                {isAr ? 'إجراءات' : 'Actions'}
+              </DropdownMenuLabel>
+              {unreadCount > 0 && (
+                <DropdownMenuItem onClick={onMarkAllRead} className="rounded-lg gap-2.5">
+                  <CheckCheck className="h-4 w-4 text-muted-foreground" />
+                  <span>{isAr ? 'تحديد الكل كمقروء' : 'Mark all as read'}</span>
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuItem onClick={onOpenArchiveSearch} className="rounded-lg gap-2.5">
+                <Archive className="h-4 w-4 text-muted-foreground" />
+                <span>{isAr ? 'بحث الأرشيف' : 'Search archive'}</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={onOpenAlerts} className="rounded-lg gap-2.5">
+                <Bell className="h-4 w-4 text-muted-foreground" />
+                <span className="flex-1">{isAr ? 'تنبيهات الكلمات' : 'Keyword alerts'}</span>
+                {unseenAlerts > 0 && (
+                  <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-primary text-primary-foreground tabular-nums">
+                    {unseenAlerts}
+                  </span>
+                )}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={onOpenReader} className="rounded-lg gap-2.5">
+                <Type className="h-4 w-4 text-muted-foreground" />
+                <span>{isAr ? 'قراءة رابط' : 'Reader view'}</span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={onManage} className="rounded-lg gap-2.5">
+                <Settings2 className="h-4 w-4 text-muted-foreground" />
+                <span>{isAr ? 'إدارة المصادر' : 'Manage feeds'}</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 
@@ -224,14 +231,14 @@ export function ListHeader({
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="relative mb-2.5 overflow-hidden"
+            className="relative mb-3 overflow-hidden"
           >
             <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder={isAr ? 'بحث في المقالات...' : 'Search articles...'}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="ps-10 h-10 text-sm rounded-xl"
+              className="ps-10 h-11 text-[15px] rounded-2xl bg-background/60 border-border/50"
             />
             {searchQuery && (
               <button
@@ -249,7 +256,7 @@ export function ListHeader({
 
       {/* Category folder row (only when ≥ 2 distinct categories) */}
       {showCategoryRow && (
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar mb-2">
+        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar mb-2.5 -mx-1 px-1">
           <CategoryChip
             active={categoryFilter === 'all'}
             onClick={() => {
@@ -275,7 +282,7 @@ export function ListHeader({
       )}
 
       {/* Filter / source chips */}
-      <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+      <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar -mx-1 px-1">
         <Chip
           active={filterTab === 'all' && sourceFilter === 'all'}
           onClick={() => {
@@ -285,6 +292,22 @@ export function ListHeader({
           label={isAr ? 'الكل' : 'All'}
           count={articleCount}
         />
+        <Chip
+          active={filterTab === 'unread'}
+          onClick={() => setFilterTab(filterTab === 'unread' ? 'all' : 'unread')}
+          label={isAr ? 'غير مقروء' : 'Unread'}
+          count={unreadCount}
+        />
+        <Chip
+          active={filterTab === 'bookmarks'}
+          onClick={() => setFilterTab(filterTab === 'bookmarks' ? 'all' : 'bookmarks')}
+          icon={<Bookmark className="h-3 w-3 inline" />}
+          label={isAr ? 'المحفوظات' : 'Saved'}
+          count={bookmarksCount > 0 ? bookmarksCount : undefined}
+        />
+        {visibleSources.length > 0 && (
+          <div className="w-px h-4 bg-border/40 shrink-0 mx-0.5" />
+        )}
         {visibleSources.map((source) => (
           <Chip
             key={source.url}
@@ -298,22 +321,38 @@ export function ListHeader({
             withPill={source.name}
           />
         ))}
-        <div className="w-px h-4 bg-border/40 shrink-0" />
-        <Chip
-          active={filterTab === 'unread'}
-          onClick={() => setFilterTab('unread')}
-          label={isAr ? 'غير مقروء' : 'Unread'}
-          count={unreadCount}
-        />
-        <Chip
-          active={filterTab === 'bookmarks'}
-          onClick={() => setFilterTab('bookmarks')}
-          icon={<Bookmark className="h-3 w-3 inline me-1" />}
-          label={isAr ? 'المحفوظات' : 'Saved'}
-          count={bookmarksCount > 0 ? bookmarksCount : undefined}
-        />
       </div>
     </div>
+  );
+}
+
+function IconBtn({
+  children,
+  onClick,
+  disabled,
+  active,
+  accent,
+  ...rest
+}: {
+  children: React.ReactNode;
+  onClick: () => void;
+  disabled?: boolean;
+  active?: boolean;
+  accent?: boolean;
+  'aria-label'?: string;
+  title?: string;
+}) {
+  const base =
+    'p-2.5 rounded-xl active:scale-95 transition-all disabled:opacity-50';
+  const tone = active
+    ? 'bg-primary/15 text-primary'
+    : accent
+      ? 'text-primary hover:bg-primary/10'
+      : 'text-muted-foreground hover:bg-accent/50';
+  return (
+    <button type="button" onClick={onClick} disabled={disabled} className={`${base} ${tone}`} {...rest}>
+      {children}
+    </button>
   );
 }
 
@@ -336,17 +375,17 @@ function Chip({
     <button
       type="button"
       onClick={onClick}
-      className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all shrink-0 active:scale-95 inline-flex items-center gap-1.5 ${
+      className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all shrink-0 active:scale-95 inline-flex items-center gap-1.5 ring-1 ${
         active
-          ? 'bg-primary text-primary-foreground'
-          : 'bg-accent/30 text-muted-foreground hover:bg-accent/50'
+          ? 'bg-primary text-primary-foreground ring-primary/30 shadow-sm shadow-primary/20'
+          : 'bg-accent/25 text-muted-foreground ring-border/30 hover:bg-accent/50 hover:text-foreground'
       }`}
     >
       {withPill && <SourcePill name={withPill} size="sm" />}
       {icon}
       {label}
       {count !== undefined && (
-        <span className={`opacity-${active ? '85' : '70'} tabular-nums`}>
+        <span className={`tabular-nums ${active ? 'opacity-90' : 'opacity-60'}`}>
           {count}
         </span>
       )}
@@ -369,10 +408,10 @@ function CategoryChip({
     <button
       type="button"
       onClick={onClick}
-      className={`px-3 py-1 rounded-lg text-[11px] font-semibold transition-all shrink-0 active:scale-95 inline-flex items-center gap-1.5 ${
+      className={`px-3 py-1.5 rounded-full text-[11px] font-semibold transition-all shrink-0 active:scale-95 inline-flex items-center gap-1.5 ${
         active
-          ? 'bg-foreground text-background'
-          : 'bg-transparent text-muted-foreground hover:bg-accent/40 border border-border/40'
+          ? 'bg-foreground text-background shadow-sm'
+          : 'bg-transparent text-muted-foreground hover:bg-accent/40 border border-border/50'
       }`}
     >
       {icon}
