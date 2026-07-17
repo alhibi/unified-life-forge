@@ -191,7 +191,8 @@ const TABLE = 'wellness_records';
 
 type Kind =
   | 'supplement' | 'intake' | 'diet' | 'skin_hair' | 'vital'
-  | 'profile' | 'workout' | 'goal' | 'hydration' | 'fasting';
+  | 'profile' | 'workout' | 'goal' | 'hydration' | 'fasting'
+  | 'kv';
 
 async function currentUserId(): Promise<string | null> {
   const { data } = await supabase.auth.getSession();
@@ -267,6 +268,22 @@ function uuid(): UUID {
     const v = c === 'x' ? r : (r & 0x3) | 0x8;
     return v.toString(16);
   });
+}
+
+/* ─────────────────── Generic KV (singleton per user) ───────────────────
+ * Used for small pieces of user state that don't warrant a full domain
+ * type (favorite food IDs, recent food IDs, quick meal log, active
+ * training program keys, calisthenics skill progress, …).                */
+
+export async function getKV<T>(name: string, fallback: T): Promise<T> {
+  const rec = await getRecord<{ v: T }>('kv', name);
+  return rec ? (rec.v ?? fallback) : fallback;
+}
+
+export async function setKV<T>(name: string, value: T): Promise<void> {
+  const uid = await currentUserId();
+  if (!uid) return; // fire-and-forget when signed out
+  await putRecord('kv', name, { v: value } as never);
 }
 
 /* ─────────────────── Supplements ─────────────────── */

@@ -14,7 +14,7 @@ import type { NutritionFoodItem, MealType, MealEntry, FullNutrition } from '../t
 import {
   getMealLogForDate, saveMealEntry, removeMealEntry, generateId,
   todayStr, calculateServing, sumNutrition, FOOD_BY_ID,
-  NUTRITION_DATABASE, searchFoods,
+  NUTRITION_DATABASE, searchFoods, useNutritionCache,
 } from '../index';
 
 type Lang = 'ar' | 'de';
@@ -46,6 +46,8 @@ const T = {
 export default function MealTracker() {
   const { language } = useApp();
   const lang: Lang = language === 'ar' ? 'ar' : 'de';
+  // Re-render when the cloud-backed meal log cache changes.
+  useNutritionCache();
   const [date] = useState(todayStr());
   const [showAddForm, setShowAddForm] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);

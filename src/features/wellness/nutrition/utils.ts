@@ -425,45 +425,97 @@ export function mostNutrientDense(limit = 20): (NutritionFoodItem & { densitySco
 
 
 /* ═══════════════════════════════════════════════════════
- *  FAVORITES & HISTORY
- * ═══════════════════════════════════════════════════════ */
+ *  FAVORITES & HISTORY  (cloud-backed via wellness_records → kind='kv')
+ *  ---------------------------------------------------------------------
+ *  These helpers keep their original synchronous signatures so the
+ *  many call sites don't need to change. Under the hood, values live
+ *  in an in-memory cache that hydrates from Cloud on first import
+ *  (and again whenever the auth session changes). Writes update the
+ *  cache immediately and are pushed to Cloud in the background.
+ *  ═══════════════════════════════════════════════════════ */
+
+import { getKV, setKV } from '@/features/wellness/wellnessDb';
+import { supabase } from '@/integrations/supabase/client';
 
 const FAVORITES_KEY = 'nutrition:favorites';
 const HISTORY_KEY = 'nutrition:recent';
 const MEAL_LOG_KEY = 'nutrition:mealLog';
 
+interface NutritionCache {
+  favorites: string[];
+  recent: string[];
+  mealLog: MealEntry[];
+  hydrated: boolean;
+}
+
+const cache: NutritionCache = {
+  favorites: [],
+  recent: [],
+  mealLog: [],
+  hydrated: false,
+};
+
+async function hydrate(): Promise<void> {
+  const [fav, rec, log] = await Promise.all([
+    getKV<string[]>(FAVORITES_KEY, []),
+    getKV<string[]>(HISTORY_KEY, []),
+    getKV<MealEntry[]>(MEAL_LOG_KEY, []),
+  ]);
+  cache.favorites = fav ?? [];
+  cache.recent = rec ?? [];
+  cache.mealLog = log ?? [];
+  cache.hydrated = true;
+  // Notify subscribers so React components can re-read.
+  for (const cb of subscribers) cb();
+}
+
+// Simple subscriber list so components can force a re-render once the
+// initial hydration completes (they render empty first, then real data).
+const subscribers = new Set<() => void>();
+export function subscribeNutritionCache(cb: () => void): () => void {
+  subscribers.add(cb);
+  return () => { subscribers.delete(cb); };
+}
+
+// Kick off hydration once. Re-hydrate on auth changes.
+if (typeof window !== 'undefined') {
+  void hydrate();
+  supabase.auth.onAuthStateChange(() => {
+    cache.favorites = [];
+    cache.recent = [];
+    cache.mealLog = [];
+    cache.hydrated = false;
+    for (const cb of subscribers) cb();
+    void hydrate();
+  });
+}
+
 export function getFavorites(): string[] {
-  try {
-    return JSON.parse(localStorage.getItem(FAVORITES_KEY) || '[]');
-  } catch { return []; }
+  return cache.favorites;
 }
 
 export function toggleFavorite(foodId: string): boolean {
-  const favs = getFavorites();
-  const idx = favs.indexOf(foodId);
-  if (idx >= 0) {
-    favs.splice(idx, 1);
-  } else {
-    favs.push(foodId);
-  }
-  localStorage.setItem(FAVORITES_KEY, JSON.stringify(favs));
-  return idx < 0; // returns true if now favorite
+  const idx = cache.favorites.indexOf(foodId);
+  if (idx >= 0) cache.favorites.splice(idx, 1);
+  else cache.favorites.push(foodId);
+  cache.favorites = [...cache.favorites];
+  void setKV(FAVORITES_KEY, cache.favorites);
+  for (const cb of subscribers) cb();
+  return idx < 0;
 }
 
 export function isFavorite(foodId: string): boolean {
-  return getFavorites().includes(foodId);
+  return cache.favorites.includes(foodId);
 }
 
 export function getRecentFoods(): string[] {
-  try {
-    return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
-  } catch { return []; }
+  return cache.recent;
 }
 
 export function addToRecent(foodId: string): void {
-  const recent = getRecentFoods().filter(id => id !== foodId);
-  recent.unshift(foodId);
-  localStorage.setItem(HISTORY_KEY, JSON.stringify(recent.slice(0, 30)));
+  cache.recent = [foodId, ...cache.recent.filter((id) => id !== foodId)].slice(0, 30);
+  void setKV(HISTORY_KEY, cache.recent);
+  for (const cb of subscribers) cb();
 }
 
 /** Get favorite food items */
@@ -481,32 +533,49 @@ export function getRecentFoodItems(): NutritionFoodItem[] {
 }
 
 /* ═══════════════════════════════════════════════════════
- *  MEAL LOG (localStorage-based for quick meals)
- * ═══════════════════════════════════════════════════════ */
+ *  MEAL LOG (cloud-backed via wellness_records → kind='kv')
+ *  ═══════════════════════════════════════════════════════ */
 
 export function getMealLog(): MealEntry[] {
-  try {
-    return JSON.parse(localStorage.getItem(MEAL_LOG_KEY) || '[]');
-  } catch { return []; }
+  return cache.mealLog;
 }
 
 export function saveMealEntry(entry: MealEntry): void {
-  const log = getMealLog();
-  log.push(entry);
-  localStorage.setItem(MEAL_LOG_KEY, JSON.stringify(log));
+  cache.mealLog = [...cache.mealLog, entry];
+  void setKV(MEAL_LOG_KEY, cache.mealLog);
+  for (const cb of subscribers) cb();
 }
 
 export function removeMealEntry(entryId: string): void {
-  const log = getMealLog().filter(e => e.id !== entryId);
-  localStorage.setItem(MEAL_LOG_KEY, JSON.stringify(log));
+  cache.mealLog = cache.mealLog.filter((e) => e.id !== entryId);
+  void setKV(MEAL_LOG_KEY, cache.mealLog);
+  for (const cb of subscribers) cb();
 }
 
 export function getMealLogForDate(date: string): MealEntry[] {
-  return getMealLog().filter(e => e.date === date);
+  return cache.mealLog.filter((e) => e.date === date);
 }
 
 export function clearMealLog(): void {
-  localStorage.removeItem(MEAL_LOG_KEY);
+  cache.mealLog = [];
+  void setKV(MEAL_LOG_KEY, []);
+  for (const cb of subscribers) cb();
+}
+
+/**
+ * React hook that forces a re-render whenever the nutrition cache
+ * (favorites, recent foods, meal log) changes — including the initial
+ * hydrate from Cloud and auth-change re-hydrates.
+ */
+import { useSyncExternalStore } from 'react';
+let version = 0;
+subscribers.add(() => { version += 1; });
+export function useNutritionCache(): number {
+  return useSyncExternalStore(
+    (cb) => subscribeNutritionCache(cb),
+    () => version,
+    () => version,
+  );
 }
 
 /** Generate unique ID */

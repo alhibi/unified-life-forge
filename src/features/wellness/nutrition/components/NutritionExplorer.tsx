@@ -17,7 +17,7 @@ import {
   TOTAL_FOOD_COUNT, FOOD_BY_ID,
   searchFoods, filterFoods, getFavoriteFoods, getRecentFoodItems,
   bestProteinSources, highestFiberFoods, lowestGIFoods,
-  mostNutrientDense, foodsByTag,
+  mostNutrientDense, foodsByTag, useNutritionCache,
 } from '../index';
 import type { NutritionFoodItem, NutritionCategory, DietaryTag } from '../types';
 import CategoryGrid from './CategoryGrid';
@@ -66,6 +66,9 @@ export default function NutritionExplorer() {
   const { language } = useApp();
   const lang: Lang = language === 'ar' ? 'ar' : 'de';
   const isAr = lang === 'ar';
+
+  // Re-render when the cloud-backed favorites / recents cache changes.
+  useNutritionCache();
 
   const [view, setView] = useState<View>('home');
   const [query, setQuery] = useState('');

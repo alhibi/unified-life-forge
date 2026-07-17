@@ -78,9 +78,11 @@ const SECTIONS: { key: Section; ar: string; de: string; icon: typeof Activity }[
   { key: 'records',  ar: 'أرقام',   de: 'Rekorde',   icon: Trophy },
 ];
 
-const LS_PROGRESS = 'cali:progress:v2';
-const LS_HOLD_PRS = 'cali:holdPRs';
-const LS_CALI_PROG = 'cali:activeProgram';
+import { getKV, setKV } from '@/features/wellness/wellnessDb';
+
+const KV_PROGRESS = 'cali:progress:v2';
+const KV_HOLD_PRS = 'cali:holdPRs';
+const KV_ACTIVE_PROG = 'cali:activeProgram';
 
 export default function CalisthenicsTab(_props: Props) {
   const { language } = useApp();
@@ -95,29 +97,38 @@ export default function CalisthenicsTab(_props: Props) {
   const [holdPRs, setHoldPRs] = useState<Record<string, number>>({});
   const [activeProgram, setActiveProgram] = useState<string | null>(null);
 
-  // Load persisted state
+  const hydratedRef = React.useRef(false);
+
+  // Hydrate persisted state from Cloud (per-user).
   useEffect(() => {
-    try {
-      const p = localStorage.getItem(LS_PROGRESS);
-      if (p) setProgress(JSON.parse(p));
-      const h = localStorage.getItem(LS_HOLD_PRS);
-      if (h) setHoldPRs(JSON.parse(h));
-      const ap = localStorage.getItem(LS_CALI_PROG);
-      if (ap) setActiveProgram(ap);
-    } catch { /* noop */ }
+    let cancelled = false;
+    (async () => {
+      const [p, h, ap] = await Promise.all([
+        getKV<Record<string, number>>(KV_PROGRESS, {}),
+        getKV<Record<string, number>>(KV_HOLD_PRS, {}),
+        getKV<string | null>(KV_ACTIVE_PROG, null),
+      ]);
+      if (cancelled) return;
+      setProgress(p);
+      setHoldPRs(h);
+      setActiveProgram(ap);
+      hydratedRef.current = true;
+    })();
+    return () => { cancelled = true; };
   }, []);
 
-  // Persist
+  // Persist to Cloud (skip until initial hydrate to avoid clobbering).
   useEffect(() => {
-    try { localStorage.setItem(LS_PROGRESS, JSON.stringify(progress)); } catch { /* noop */ }
+    if (!hydratedRef.current) return;
+    void setKV(KV_PROGRESS, progress);
   }, [progress]);
   useEffect(() => {
-    try { localStorage.setItem(LS_HOLD_PRS, JSON.stringify(holdPRs)); } catch { /* noop */ }
+    if (!hydratedRef.current) return;
+    void setKV(KV_HOLD_PRS, holdPRs);
   }, [holdPRs]);
   useEffect(() => {
-    if (activeProgram) {
-      try { localStorage.setItem(LS_CALI_PROG, activeProgram); } catch { /* noop */ }
-    }
+    if (!hydratedRef.current) return;
+    void setKV(KV_ACTIVE_PROG, activeProgram);
   }, [activeProgram]);
 
   const xp = useMemo(() => totalCaliXP(progress), [progress]);
