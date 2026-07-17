@@ -8,6 +8,8 @@ import {
 import { toast } from 'sonner';
 import { useApp } from '@/contexts/AppContext';
 import { useWellnessData } from '@/features/wellness/useWellnessData';
+import { useAuth } from '@/hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
 
 // ── Lazy-loaded tabs ──────────────────────────────────────────────────
 // Each tab drags in its own heavy static data (food catalog, skill tree,
@@ -41,8 +43,8 @@ const T = {
   privacy: { ar: 'الخصوصية', de: 'Privatsphäre' },
   privacyTitle: { ar: 'الخصوصية والتحكم', de: 'Datenschutz & Kontrolle' },
   privacyBody: {
-    ar: 'بيانات العافية تُخزّن محلياً على متصفحك فقط باستخدام IndexedDB. لا يتم رفعها إلى أي خادم. أنت المالك الوحيد.',
-    de: 'Wellness-Daten werden nur lokal im Browser (IndexedDB) gespeichert — nichts wird an Server übertragen. Du hast die volle Kontrolle.',
+    ar: 'بيانات العافية محفوظة في حسابك في السحابة، محمية بصلاحيات صارمة — لا يستطيع أحد غيرك رؤيتها أو تعديلها.',
+    de: 'Wellness-Daten liegen in deinem Konto in der Cloud, geschützt durch strenge Zugriffsregeln — niemand außer dir kann sie sehen.',
   },
   exportData: { ar: 'تصدير بياناتي', de: 'Daten exportieren' },
   wipe: { ar: 'حذف جميع البيانات', de: 'Alle Daten löschen' },
@@ -53,8 +55,8 @@ const T = {
   wipeOk: { ar: 'تم حذف جميع بيانات العافية', de: 'Alle Wellness-Daten gelöscht' },
   welcomeTitle: { ar: 'مرحباً في العافية', de: 'Willkommen bei Wellness' },
   welcomeBody: {
-    ar: 'نظام متكامل لتتبّع صحتك وأدائك الرياضي. كل بياناتك محلية وآمنة تماماً.',
-    de: 'Gesundheit & sportliche Leistung. Alle Daten lokal & sicher.',
+    ar: 'نظام متكامل لتتبّع صحتك وأدائك الرياضي. كل بياناتك محفوظة في حسابك وآمنة تماماً.',
+    de: 'Gesundheit & sportliche Leistung. Alle Daten in deinem Konto & sicher.',
   },
   feat1: { ar: 'تتبّع التمارين والأرقام القياسية (1RM)', de: 'Workouts & Rekorde tracken (1RM)' },
   feat2: { ar: 'تمارين كاليستنيكس متدرّجة', de: 'Progressives Calisthenics' },
@@ -62,6 +64,12 @@ const T = {
   feat4: { ar: 'أطلس وموسوعة معرفية', de: 'Atlas & Wissens-Lexikon' },
   setupCta: { ar: 'استكشف الآن', de: 'Jetzt erkunden' },
   later: { ar: 'لاحقاً', de: 'Später' },
+  signInRequired: { ar: 'سجّل دخولك لاستخدام قسم العافية', de: 'Melde dich an, um Wellness zu nutzen' },
+  signInBody: {
+    ar: 'قسم العافية بالكامل مرتبط بحسابك — التمارين، التغذية، المكملات، والأهداف تُحفظ في السحابة وتتزامن عبر أجهزتك.',
+    de: 'Wellness ist vollständig kontogebunden — Workouts, Ernährung, Supplemente und Ziele werden in der Cloud gespeichert und synchronisiert.',
+  },
+  signInCta: { ar: 'تسجيل الدخول', de: 'Anmelden' },
 };
 
 interface TabDef {
@@ -85,6 +93,8 @@ const TABS: TabDef[] = [
 export default function WellnessPage() {
   const { language } = useApp();
   const isAr = language === 'ar';
+  const { user, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
   const data = useWellnessData();
 
   const [tab, setTab] = useState<TabKey>(() => {
