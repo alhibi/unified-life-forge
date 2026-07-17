@@ -562,6 +562,22 @@ export function clearMealLog(): void {
   for (const cb of subscribers) cb();
 }
 
+/**
+ * React hook that forces a re-render whenever the nutrition cache
+ * (favorites, recent foods, meal log) changes — including the initial
+ * hydrate from Cloud and auth-change re-hydrates.
+ */
+import { useSyncExternalStore } from 'react';
+let version = 0;
+subscribers.add(() => { version += 1; });
+export function useNutritionCache(): number {
+  return useSyncExternalStore(
+    (cb) => subscribeNutritionCache(cb),
+    () => version,
+    () => version,
+  );
+}
+
 /** Generate unique ID */
 export function generateId(): string {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 9);
