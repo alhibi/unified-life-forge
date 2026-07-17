@@ -846,4 +846,12 @@ export const CATEGORY_LABELS_ENC: Record<EncyclopediaCategory, Record<Lang, stri
   recovery:  { ar: 'التعافي',        de: 'Recovery' },
   body_comp: { ar: 'تركيب الجسم',    de: 'Körper' },
   energy:    { ar: 'الطاقة',         de: 'Energie' },
+  gut:       { ar: 'الأمعاء والميكروبيوم', de: 'Darm & Mikrobiom' },
+  hydration: { ar: 'الترطيب',        de: 'Hydration' },
+  breath:    { ar: 'التنفس',          de: 'Atmung' },
+  light:     { ar: 'الضوء والساعة',   de: 'Licht & Rhythmus' },
+  cold_heat: { ar: 'البرد والحرارة',  de: 'Kälte & Hitze' },
+  mobility:  { ar: 'الحركة والمرونة', de: 'Mobilität' },
+  heart:     { ar: 'القلب والدورة',   de: 'Herz & Kreislauf' },
+  habits:    { ar: 'العادات والانضباط', de: 'Gewohnheiten' },
 };
