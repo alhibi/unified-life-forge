@@ -398,6 +398,9 @@ export default function FoodDetailSheet({ food, lang, onClose, onAddToLog }: Pro
       </motion.div>
     </motion.div>
   );
+
+  if (typeof document === 'undefined') return sheet;
+  return createPortal(sheet, document.body);
 }
 
 
