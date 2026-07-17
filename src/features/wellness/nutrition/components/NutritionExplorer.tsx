@@ -17,7 +17,7 @@ import {
   TOTAL_FOOD_COUNT, FOOD_BY_ID,
   searchFoods, filterFoods, getFavoriteFoods, getRecentFoodItems,
   bestProteinSources, highestFiberFoods, lowestGIFoods,
-  mostNutrientDense, foodsByTag,
+  mostNutrientDense, foodsByTag, useNutritionCache,
 } from '../index';
 import type { NutritionFoodItem, NutritionCategory, DietaryTag } from '../types';
 import CategoryGrid from './CategoryGrid';
