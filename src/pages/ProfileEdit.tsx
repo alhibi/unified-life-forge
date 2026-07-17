@@ -332,7 +332,7 @@ export default function ProfileEditPage() {
 
         {/* Back button anchored to the safe top */}
         <div className="absolute top-3 start-4 z-10">
-          <BackButton to="/settings" />
+          <BackButton fallback="/" />
         </div>
         {/* Copy link chip */}
         <button
