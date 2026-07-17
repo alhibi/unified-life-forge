@@ -20,7 +20,9 @@ export type Lang = 'ar' | 'de';
 
 export type EncyclopediaCategory =
   | 'sleep' | 'hormones' | 'stress' | 'mental'
-  | 'longevity' | 'recovery' | 'body_comp' | 'energy';
+  | 'longevity' | 'recovery' | 'body_comp' | 'energy'
+  | 'gut' | 'hydration' | 'breath' | 'light'
+  | 'cold_heat' | 'mobility' | 'heart' | 'habits';
 
 export interface KnowledgeFact {
   /** Concise headline */
@@ -829,6 +831,410 @@ export const HEALTH_ENCYCLOPEDIA: KnowledgeChapter[] = [
       },
     ],
   },
+
+  /* ─────────── GUT & MICROBIOME ─────────── */
+  {
+    category: 'gut',
+    emoji: '🌱',
+    color: '#84cc16',
+    title: { ar: 'الأمعاء — دماغك الثاني', de: 'Darm — dein zweites Gehirn' },
+    description: {
+      ar: 'أمعاؤك تحتوي 100 تريليون كائن يزن مجموعها 2 كغ — يصنعون 90% من السيروتونين، ينظّمون المناعة والوزن والمزاج. صحة الأمعاء = صحة الجسم.',
+      de: '100 Billionen Mikroben, 2 kg schwer — sie produzieren 90 % des Serotonins, steuern Immunsystem, Gewicht und Stimmung.',
+    },
+    facts: [
+      {
+        title: { ar: '30 نوع نبات أسبوعياً', de: '30 Pflanzen pro Woche' },
+        body: { ar: 'دراسة American Gut Project: من يأكل 30 نوع نبات (خضار/فواكه/بقوليات/توابل/مكسرات) أسبوعياً يملك تنوعاً ميكروبيّاً أعلى بـ70% ممن يأكل <10.', de: 'American Gut Project: 30 verschiedene Pflanzen/Woche → 70 % höhere mikrobielle Vielfalt als <10.' },
+        action: { ar: 'اكتب 30 نبات مختلف على الثلاجة واشطبهم أسبوعياً', de: 'Notiere 30 Pflanzen an den Kühlschrank und hake ab' },
+        impact: { ar: '+70% تنوّع ميكروبي', de: '+70 % Vielfalt' },
+      },
+      {
+        title: { ar: 'الألياف تُطعم الجراثيم النافعة', de: 'Ballaststoffe füttern gute Bakterien' },
+        body: { ar: 'الألياف تتحوّل في القولون إلى أحماض دهنية قصيرة السلسلة (SCFA) — تُقلّل الالتهاب، تُحسّن المزاج، وتحرق الدهون. الحد الأدنى: 30 غ/يوم.', de: 'Ballaststoffe → kurzkettige Fettsäuren (SCFA): weniger Entzündung, bessere Stimmung, Fettverbrennung. Ziel: 30 g/Tag.' },
+        action: { ar: 'أضف بذور شيا، شوفان، بقوليات، فاكهة بقشرها', de: 'Chia, Hafer, Hülsenfrüchte, Obst mit Schale' },
+        impact: { ar: '-40% التهاب معوي', de: '-40 % Darmentzündung' },
+      },
+      {
+        title: { ar: 'البروبيوتيك الطبيعي > الحبوب', de: 'Fermentierte Lebensmittel > Kapseln' },
+        body: { ar: 'دراسة ستانفورد: 6 أسابيع من الأطعمة المخمّرة (كفير، كيمتشي، مخلل ملفوف) رفعت التنوّع الميكروبي وخفضت مؤشرات الالتهاب أكثر من حبوب البروبيوتيك.', de: 'Stanford: 6 Wochen fermentierte Lebensmittel (Kefir, Kimchi, Sauerkraut) schlagen Kapseln bei Vielfalt und Entzündung.' },
+        action: { ar: 'حصة يومية من طعام مخمّر — كفير، لبن رائب حيّ، كيمتشي', de: 'Täglich fermentiertes: Kefir, Joghurt, Kimchi' },
+        impact: { ar: 'مناعة أقوى', de: 'Stärkeres Immunsystem' },
+      },
+      {
+        title: { ar: 'المحلّيات الصناعية تدمّر الفلورا', de: 'Süßstoffe zerstören die Flora' },
+        body: { ar: 'السكرالوز والأسبرتام يخفضون بكتيريا Bifidobacterium 40% خلال أسبوعين، ويرفعان مقاومة الأنسولين رغم صفر سعرات.', de: 'Sucralose/Aspartam senken Bifidobacterium 40 % in 2 Wochen — Insulinresistenz steigt trotz 0 kcal.' },
+        action: { ar: 'استبدل بالستيفيا أو راهبات الفاكهة (Monk fruit)', de: 'Stevia oder Mönchsfrucht statt Süßstoffe' },
+        myth: { ar: '"دايت زيرو" ليس بريئاً على الأمعاء', de: '"Zero"-Getränke sind nicht neutral' },
+        impact: { ar: '+40% بكتيريا نافعة', de: '+40 % gute Bakterien' },
+      },
+      {
+        title: { ar: 'الصيام يُصلح جدار الأمعاء', de: 'Fasten repariert die Darmwand' },
+        body: { ar: '14-16 ساعة صيام تنشّط MMC (موجات التنظيف المعوية) وتُصلح الخلايا الطلائية. النتيجة: أقل انتفاخ، أقل حساسية، امتصاص أفضل.', de: '14-16 h Fasten aktiviert MMC (Reinigungswellen) und repariert Epithel — weniger Blähungen, bessere Aufnahme.' },
+        action: { ar: 'توقّف عن الأكل بعد العشاء وامدد الفطور 14 ساعة', de: 'Kein Snack nach dem Abendessen — 14 h bis Frühstück' },
+        impact: { ar: '-60% انتفاخ', de: '-60 % Blähungen' },
+      },
+      {
+        title: { ar: 'الإجهاد يُسرِّب الأمعاء', de: 'Stress macht den Darm undicht' },
+        body: { ar: 'الكورتيزول المرتفع يفكّك البروتينات التي تربط خلايا الأمعاء (tight junctions) — يمرّ الطعام غير المهضوم للدم ويشعل الالتهاب الجهازي (Leaky Gut).', de: 'Cortisol lockert Tight Junctions — unverdaute Partikel gelangen ins Blut, systemische Entzündung (Leaky Gut).' },
+        action: { ar: '10 دقائق تنفس عميق قبل كل وجبة', de: '10 min tiefe Atmung vor jeder Mahlzeit' },
+        impact: { ar: 'أمعاء محكمة', de: 'Dichter Darm' },
+      },
+    ],
+  },
+
+  /* ─────────── HYDRATION ─────────── */
+  {
+    category: 'hydration',
+    emoji: '💧',
+    color: '#0ea5e9',
+    title: { ar: 'الترطيب — كل خلية تعطش', de: 'Hydration — jede Zelle dürstet' },
+    description: {
+      ar: 'الدماغ 76% ماء، العضلة 75%، الدم 82%. نقص 2% فقط يخفض الأداء 20% ويشوّه المزاج. الماء ليس رفاهية — إنه بروتوكول.',
+      de: 'Gehirn 76 %, Muskel 75 %, Blut 82 % Wasser. −2 % → −20 % Leistung. Wasser ist Protokoll, nicht Luxus.',
+    },
+    facts: [
+      {
+        title: { ar: 'قاعدة 35 مل/كغ', de: 'Regel: 35 ml/kg' },
+        body: { ar: 'الاحتياج الأساسي = 35 مل × وزنك بالكيلو. رياضي 80 كغ = 2.8 لتر + 500 مل لكل ساعة تمرين + 500 مل لكل ساعة حرارة.', de: 'Grundbedarf = 35 ml × kg. 80 kg → 2,8 l + 500 ml pro Trainingsstunde + 500 ml Hitze/h.' },
+        action: { ar: 'زجاجة 750 مل × 4 يومياً — واحدة قبل كل وجبة', de: '4× 750 ml täglich — eine vor jeder Mahlzeit' },
+        impact: { ar: '+20% أداء ذهني', de: '+20 % Kognition' },
+      },
+      {
+        title: { ar: 'الكهارل قبل الماء عند الاستيقاظ', de: 'Elektrolyte zuerst am Morgen' },
+        body: { ar: 'استيقظت مُجَفَّفاً بعد 8 ساعات صيام. ماء عادي فقط يخفف الصوديوم ويسبب دوخة. الحل: قرصة ملح بحر + عصير ليمون قبل القهوة.', de: 'Nach 8 h Fasten dehydriert — reines Wasser verdünnt Natrium. Lösung: Prise Meersalz + Zitrone vor dem Kaffee.' },
+        action: { ar: '500 مل ماء + ¼ ملعقة ملح + ليمون فور الاستيقاظ', de: '500 ml Wasser + ¼ TL Salz + Zitrone direkt nach dem Aufstehen' },
+        impact: { ar: 'يقظة فورية', de: 'Sofortige Wachheit' },
+      },
+      {
+        title: { ar: 'لون البول = المؤشر الصادق', de: 'Urinfarbe = ehrlicher Indikator' },
+        body: { ar: 'أصفر شاحب (limonade فاتحة) = مثالي. غامق = نقص. شفاف تماماً = إفراط قد يغسل الكهارل.', de: 'Hellgelb = optimal. Dunkel = Mangel. Farblos = Übermaß, wäscht Elektrolyte aus.' },
+        action: { ar: 'راقب لون البول 3 مرات يومياً وعدّل', de: 'Farbe 3× am Tag checken und anpassen' },
+        impact: { ar: 'تعديل دقيق', de: 'Feine Steuerung' },
+      },
+      {
+        title: { ar: 'العطش = تأخّرت', de: 'Durst = zu spät' },
+        body: { ar: 'حين تحس بالعطش تكون فقدت 1-2% من ماء الجسم — والأداء بدأ يتراجع فعلاً. اشرب بجدول، لا بشعور.', de: 'Wenn du Durst spürst, hast du bereits 1-2 % verloren — Leistung sinkt. Trink nach Plan, nicht Gefühl.' },
+        action: { ar: 'كل ساعة: 250 مل — منبّه على الساعة', de: 'Alle 60 min 250 ml — Timer nutzen' },
+        impact: { ar: 'ثبات أداء', de: 'Stabile Leistung' },
+      },
+      {
+        title: { ar: 'الكافيين ليس عدو الترطيب', de: 'Koffein ist nicht der Feind' },
+        body: { ar: 'الاعتقاد بأن القهوة تُجفّف قديم. الدراسات الحديثة: القهوة المعتدلة (<400 مغ) تُحسب ضمن الترطيب الصافي — لكن ليست بديلاً عن الماء.', de: 'Alter Mythos widerlegt: <400 mg Koffein zählt zur Netto-Hydration — kein Ersatz für Wasser.' },
+        action: { ar: 'قهوة صباحاً نعم، مع 500 مل ماء بجانبها', de: 'Kaffee ok, aber 500 ml Wasser dazu' },
+        myth: { ar: 'القهوة لا تُجفّف — تعتبر ماء', de: 'Kaffee zählt zur Wassermenge' },
+        impact: { ar: 'ترطيب صافي', de: 'Netto-Hydration' },
+      },
+      {
+        title: { ar: 'الماء البارد يحرق أكثر', de: 'Kaltes Wasser verbrennt mehr' },
+        body: { ar: 'شرب 500 مل ماء بارد يحرق 25 سعرة إضافية لتسخينه لدرجة الجسم، ويرفع الأيض 30% لمدة 40 دقيقة.', de: '500 ml kaltes Wasser: +25 kcal zum Aufheizen, +30 % Stoffwechsel für 40 min.' },
+        action: { ar: 'كوب ماء بارد قبل كل وجبة', de: 'Glas kaltes Wasser vor jeder Mahlzeit' },
+        impact: { ar: '+30% أيض 40 دقيقة', de: '+30 % Stoffwechsel/40 min' },
+      },
+    ],
+  },
+
+  /* ─────────── BREATH ─────────── */
+  {
+    category: 'breath',
+    emoji: '🌬️',
+    color: '#22d3ee',
+    title: { ar: 'التنفس — التحكم الوحيد بالجهاز العصبي', de: 'Atmung — der einzige Nerven-Fernbedienung' },
+    description: {
+      ar: 'التنفس هو الوظيفة الوحيدة الحيوية التي تعمل تلقائياً ويمكنك التحكم بها. كل شهيق يرفع ضربات القلب، وكل زفير يخفضها. أنت تملك مفتاح جهازك العصبي.',
+      de: 'Atmung ist die einzige vitale Funktion, die automatisch läuft und bewusst steuerbar ist. Einatmen ↑ Herzrate, Ausatmen ↓ — der Schalter für dein Nervensystem.',
+    },
+    facts: [
+      {
+        title: { ar: 'تنفّس بالأنف فقط', de: 'Nur durch die Nase atmen' },
+        body: { ar: 'الأنف يُرشّح، يُدفّئ، ويُنتج أكسيد النيتريك (NO) الذي يوسّع الأوعية ويرفع امتصاص الأكسجين 20%. التنفس بالفم = فقدان هذه المكاسب.', de: 'Nase filtert, wärmt, produziert NO → weitet Gefäße, +20 % O₂-Aufnahme. Mundatmung verliert das.' },
+        action: { ar: 'اقفل فمك حتى أثناء التمرين — إن اضطررت للفم، خفّف الشدّة', de: 'Mund zu, auch beim Training — sonst Intensität senken' },
+        impact: { ar: '+20% أكسجين خلوي', de: '+20 % O₂-Aufnahme' },
+      },
+      {
+        title: { ar: 'تنفس صندوقي 4-4-4-4', de: 'Box Breathing 4-4-4-4' },
+        body: { ar: 'يستخدمه القوات الخاصة الأمريكية. 4 ثوان شهيق، 4 حبس، 4 زفير، 4 حبس. 4 دقائق تكفي لخفض الكورتيزول 30% وتصفية الذهن.', de: 'US Navy SEALs Standard: 4-4-4-4. 4 min → Cortisol −30 %, klarer Kopf.' },
+        action: { ar: 'قبل أي موقف ضاغط: 4 جولات صندوقية', de: 'Vor Stresssituation: 4 Runden Box' },
+        impact: { ar: '-30% كورتيزول', de: '-30 % Cortisol' },
+      },
+      {
+        title: { ar: 'التنهيدة المزدوجة', de: 'Physiological Sigh' },
+        body: { ar: 'مختبر أندرو هيوبرمان: شهيقان متتاليان قصيران عبر الأنف + زفير طويل ممتد عبر الفم = الطريقة الأسرع لهدوء الجهاز العصبي (خلال 30 ثانية).', de: 'Huberman-Labor: 2 kurze Nasenzüge + langer Mundausatmer — schnellste Beruhigung (<30 s).' },
+        action: { ar: 'كرر 3 مرات عند القلق — مفعول فوري', de: '3× wiederholen bei Anspannung' },
+        impact: { ar: 'هدوء خلال 30 ث', de: 'Beruhigung in 30 s' },
+      },
+      {
+        title: { ar: 'الزفير أطول من الشهيق', de: 'Ausatmen länger als Einatmen' },
+        body: { ar: 'زفير أطول (2:1) ينشّط العصب المُبهم ويرفع HRV. مثال: شهيق 4 ثوان، زفير 8. هذه هي "قاعدة الاسترخاء".', de: 'Ausatmen doppelt so lang (2:1) aktiviert Vagusnerv, HRV steigt.' },
+        action: { ar: 'شهيق 4، زفير 8 — 5 دقائق قبل النوم', de: 'Ein 4, aus 8 — 5 min vor dem Schlaf' },
+        impact: { ar: '+40% HRV', de: '+40 % HRV' },
+      },
+      {
+        title: { ar: 'حبس النفس يبني CO₂ Tolerance', de: 'Atempausen bauen CO₂-Toleranz' },
+        body: { ar: 'قدرتك على تحمّل CO₂ العالي = ثباتك تحت الضغط. اختبار BOLT: بعد زفير عادي، احبس. <20 ث = ضعيف، >40 ث = ممتاز.', de: 'CO₂-Toleranz = Ruhe unter Druck. BOLT-Test: nach Ausatmen halten. <20 s schwach, >40 s exzellent.' },
+        action: { ar: 'يومياً: 5 جولات حبس 20-40 ث بعد زفير', de: 'Täglich 5 Runden halten (20-40 s)' },
+        impact: { ar: 'اتزان تحت ضغط', de: 'Ruhe unter Druck' },
+      },
+      {
+        title: { ar: 'Wim Hof للطاقة الصباحية', de: 'Wim Hof für Morgenenergie' },
+        body: { ar: '30 نفس عميق + حبس بعد الزفير + شهيق طويل × 3 جولات = يرفع الأدرينالين طبيعياً، يقوّي المناعة، ويوقظك أكثر من القهوة.', de: '30× tief + Halten + langer Ein × 3 → natürlich Adrenalin, Immunboost, wacher als Kaffee.' },
+        action: { ar: 'أول 15 دقيقة بعد الاستيقاظ — ليس بعد الأكل', de: 'Erste 15 min am Morgen, nicht nach dem Essen' },
+        impact: { ar: 'يقظة بلا كافيين', de: 'Wachheit ohne Kaffee' },
+      },
+    ],
+  },
+
+  /* ─────────── LIGHT & CIRCADIAN ─────────── */
+  {
+    category: 'light',
+    emoji: '☀️',
+    color: '#f59e0b',
+    title: { ar: 'الضوء — الساعة الرئيسية للجسم', de: 'Licht — die Hauptuhr deines Körpers' },
+    description: {
+      ar: 'الشمس ليست فقط فيتامين D. ضوء الصباح يضبط 24 ساعة قادمة: نوم، هرمونات، مزاج، جوع، أداء. أخطر ما فعلته الحداثة: عزلنا عن ضوء الشمس.',
+      de: 'Sonnenlicht = mehr als Vitamin D. Morgenlicht kalibriert 24 h: Schlaf, Hormone, Stimmung, Hunger, Leistung.',
+    },
+    facts: [
+      {
+        title: { ar: '10 دقائق شمس صباحية قبل 9 صباحاً', de: '10 min Sonne vor 9 Uhr' },
+        body: { ar: 'مختبر هيوبرمان: 10 دقائق ضوء شمس مباشر على العينين (بدون نظارة) خلال أول ساعة يقظة يضبط الميلاتونين والكورتيزول لبقية اليوم.', de: 'Huberman-Lab: 10 min direktes Sonnenlicht (ohne Brille) in der ersten Wachstunde kalibriert Melatonin & Cortisol.' },
+        action: { ar: 'امشِ خارجاً 10 دقائق فور الاستيقاظ — لا تنظر للشمس مباشرة', de: '10 min draußen laufen — nicht direkt in die Sonne schauen' },
+        impact: { ar: 'نوم أعمق ليلاً', de: 'Tieferer Schlaf abends' },
+      },
+      {
+        title: { ar: 'شمس الظهيرة تبني التستوستيرون', de: 'Mittagssonne baut Testosteron' },
+        body: { ar: 'دراسة: 15 دقيقة شمس بين 11-14 على الصدر والذراعين ترفع التستوستيرون 120% وفيتامين D بلا مكمّلات.', de: '15 min Sonne 11-14 Uhr auf Brust/Arme: Testosteron +120 %, Vitamin D ohne Kapseln.' },
+        action: { ar: 'استراحة غداء خارجية 15 دقيقة بأقل ملابس ممكنة', de: 'Mittagspause draußen mit möglichst freier Haut' },
+        impact: { ar: '+120% تستوستيرون', de: '+120 % Testosteron' },
+      },
+      {
+        title: { ar: 'الغروب يُشعر الدماغ بالاسترخاء', de: 'Sonnenuntergang signalisiert Ruhe' },
+        body: { ar: 'الضوء الأحمر/البرتقالي للغروب يُبطّئ إنتاج الكورتيزول ويبدأ الميلاتونين. تفويت الغروب = دماغ يظنّ الوقت ظهراً.', de: 'Rot/Orange des Sonnenuntergangs stoppt Cortisol, startet Melatonin. Verpasst = Gehirn glaubt Mittag.' },
+        action: { ar: 'دقيقتان نظر أفقي للغروب من نافذتك يكفيان', de: '2 min horizontal Richtung Sonnenuntergang schauen' },
+        impact: { ar: 'ميلاتونين طبيعي', de: 'Natürliches Melatonin' },
+      },
+      {
+        title: { ar: 'الإضاءة الليلية القوية تُشيخك', de: 'Helles Licht abends beschleunigt Alterung' },
+        body: { ar: 'الإضاءة السقفية القوية بعد الغروب تُثبّط الميلاتونين — الذي هو مضاد أكسدة أقوى من فيتامين C 200 مرة. الفقد اليومي = شيخوخة خلوية.', de: 'Grelles Deckenlicht nach Sonnenuntergang stoppt Melatonin (Antioxidans, 200× stärker als Vit. C). Tägl. Verlust = Zellalterung.' },
+        action: { ar: 'بعد الغروب: مصابيح دافئة منخفضة عند مستوى العين', de: 'Warmes, niedrig gesetztes Licht nach Sonnenuntergang' },
+        impact: { ar: 'ميلاتونين +40%', de: '+40 % Melatonin' },
+      },
+      {
+        title: { ar: 'الظلام أثناء النوم قاعدة صارمة', de: 'Absolute Dunkelheit beim Schlafen' },
+        body: { ar: 'أي ضوء (LED للشاحن، ضوء الشارع) على جلدك أثناء النوم يخفض جودة النوم العميق 20% ويرفع سكر الدم صباحاً.', de: 'Jedes Licht (LEDs, Straße) auf Haut senkt Tiefschlaf 20 % und erhöht Nüchternzucker.' },
+        action: { ar: 'قناع نوم + شرائط سوداء على أي LED في الغرفة', de: 'Schlafmaske + schwarzes Tape auf LEDs' },
+        impact: { ar: '+20% نوم عميق', de: '+20 % Tiefschlaf' },
+      },
+      {
+        title: { ar: 'شمس تحت العين في الشتاء', de: 'Wintersonne trotzdem holen' },
+        body: { ar: 'حتى في يوم غائم، الضوء الخارجي أقوى بـ100 ضعف من ضوء المكتب الداخلي. لا تعذر — 20 دقيقة خارج البيت شتاءً > ساعتان داخل.', de: 'Selbst bedeckt: draußen 100× heller als Büro. 20 min Winter draußen > 2 h drinnen.' },
+        action: { ar: 'مشية خارجية إجبارية يومياً حتى في البرد', de: 'Tägliche Pflicht: Draußen-Spaziergang, auch im Winter' },
+        impact: { ar: 'لا اكتئاب موسمي', de: 'Kein Winterblues' },
+      },
+    ],
+  },
+
+  /* ─────────── COLD & HEAT ─────────── */
+  {
+    category: 'cold_heat',
+    emoji: '🧊',
+    color: '#38bdf8',
+    title: { ar: 'البرد والحرارة — إجهاد نافع', de: 'Kälte & Hitze — heilsamer Stress' },
+    description: {
+      ar: 'التعرض المتحكّم للبرد والسخونة (Hormesis) يقوّي الميتوكوندريا، يرفع دوبامين النقي 250%، ويطيل العمر. أقوى أداتين مجانيتين.',
+      de: 'Kontrollierter Kälte/Hitze-Reiz (Hormesis) stärkt Mitochondrien, +250 % Dopamin, Langlebigkeit. Zwei mächtigste kostenlose Tools.',
+    },
+    facts: [
+      {
+        title: { ar: 'ماء بارد يرفع الدوبامين 250%', de: 'Kaltes Wasser +250 % Dopamin' },
+        body: { ar: 'دراسة: 3 دقائق في ماء 11°م ترفع الدوبامين 250% والنورأدرينالين 530% — أثر يدوم 6 ساعات بدون كافيين ولا سكر.', de: '3 min bei 11 °C: Dopamin +250 %, Noradrenalin +530 % — hält 6 h ohne Koffein.' },
+        action: { ar: 'ابدأ بـ 30 ث دش بارد نهاية استحمامك اليومي', de: 'Starte mit 30 s kalter Dusche am Ende' },
+        impact: { ar: '+250% دوبامين', de: '+250 % Dopamin' },
+      },
+      {
+        title: { ar: 'الساونا تخفض وفيات القلب 63%', de: 'Sauna −63 % Herztodesrisiko' },
+        body: { ar: 'دراسة فنلندية (KIHD, 2,315 رجل): 4-7 مرات ساونا أسبوعياً خفضت وفيات القلب 63% وكل الأسباب 40%.', de: 'KIHD-Studie: 4-7× Sauna/Woche → Herztod −63 %, Gesamtmortalität −40 %.' },
+        action: { ar: '20 دقيقة × 3-4 مرات/أسبوع عند 80°م', de: '20 min × 3-4×/Wo bei 80 °C' },
+        impact: { ar: '-63% وفيات قلبية', de: '-63 % Herztod' },
+      },
+      {
+        title: { ar: 'صدمة البرد تحرق الدهون البنية', de: 'Kälteschock aktiviert braunes Fett' },
+        body: { ar: 'دهون بنية = ميتوكوندريا كثيفة تحرق سعرات كتدفئة. 15 دقيقة برد أسبوعياً تضاعف كتلة الدهون البنية وترفع الحرق البازلي 15%.', de: 'Braunes Fett = Mitochondrien-reich, verbrennt Kalorien als Wärme. 15 min Kälte/Wo verdoppelt braunes Fett, +15 % Grundumsatz.' },
+        action: { ar: 'حمّام بارد 2-3 دقائق × 3/أسبوع', de: 'Kältebad 2-3 min × 3/Wo' },
+        impact: { ar: '+15% حرق بازلي', de: '+15 % Grundumsatz' },
+      },
+      {
+        title: { ar: 'الحرارة تُصلّب بروتينات الصدمة الحرارية', de: 'Hitze aktiviert Heat-Shock-Proteins' },
+        body: { ar: 'HSP70 يُصلح البروتينات التالفة ويحمي الخلايا. الساونا ترفعها 50% — نفس أثر تمرين مقاومة على العضلات.', de: 'HSP70 repariert Proteine, schützt Zellen. Sauna +50 % — wie Krafttraining für Muskeln.' },
+        action: { ar: 'ساونا بعد التمرين تُضاعف نمو العضل', de: 'Sauna nach Training verdoppelt Muskelwachstum' },
+        impact: { ar: '+50% HSP70', de: '+50 % HSP70' },
+      },
+      {
+        title: { ar: 'التوقيت مهم', de: 'Zeitpunkt ist entscheidend' },
+        body: { ar: 'برد بعد تمرين المقاومة يُقلّل النمو 30% (يوقف الالتهاب النافع). لكن برد قبل التمرين أو في يوم راحة = فوائد كاملة بلا خسارة.', de: 'Kälte NACH Krafttraining −30 % Wachstum (stoppt nützliche Entzündung). VOR oder Ruhetag = alle Vorteile.' },
+        action: { ar: 'برد قبل التمرين، وساونا بعده', de: 'Kälte vorher, Sauna nachher' },
+        myth: { ar: 'ليس كل برد بعد تمرين مفيداً', de: 'Nicht jeder Eis-Reiz nach Training gut' },
+        impact: { ar: 'نمو عضلي كامل', de: 'Voller Muskelaufbau' },
+      },
+      {
+        title: { ar: 'التبديل بارد↔ساخن يبني الأوعية', de: 'Kontrastbäder trainieren Gefäße' },
+        body: { ar: '3 دورات (3 دقائق ساخن + 30 ث بارد) تُدرّب الأوعية على التوسّع والانقباض — كتمرين قلب داخلي. يخفض ضغط الدم 12/8.', de: '3 Zyklen (3 min heiß + 30 s kalt) trainieren Gefäße wie Herztraining — Blutdruck −12/8.' },
+        action: { ar: 'نهاية استحمامك: 3 دورات ساخن-بارد', de: 'Am Duschende: 3 Zyklen heiß-kalt' },
+        impact: { ar: '-12 ضغط انقباضي', de: '-12 mmHg' },
+      },
+    ],
+  },
+
+  /* ─────────── MOBILITY ─────────── */
+  {
+    category: 'mobility',
+    emoji: '🌀',
+    color: '#a855f7',
+    title: { ar: 'الحركة والمرونة — العمر البيولوجي الحقيقي', de: 'Mobilität — dein biologisches Alter' },
+    description: {
+      ar: 'قوة العضلة تخدعك — قد تكون قوياً وأنت مُتيبّس. المرونة والمدى الحركي هما ما يفصل جسم 25 عن جسم 45. الجلوس هو العدو الأول.',
+      de: 'Kraft täuscht — man kann stark und starr sein. Beweglichkeit trennt einen 25er von einem 45er Körper. Sitzen ist Feind Nr. 1.',
+    },
+    facts: [
+      {
+        title: { ar: 'الجلوس يُقصّر ثنية الحوض', de: 'Sitzen verkürzt den Hüftbeuger' },
+        body: { ar: 'كل ساعة جلوس تقصّر عضلة Iliopsoas بضعة مليمترات — بعد سنوات: انحناء أمامي، آلام ظهر، ضعف تمديد الحوض في التمرين والجنس.', de: 'Jede Sitzstunde verkürzt Iliopsoas — Jahre später: Hyperlordose, Rückenschmerz, schwache Hüftstreckung.' },
+        action: { ar: 'Couch stretch يومياً — 2 دقيقة لكل جانب', de: 'Couch Stretch täglich — 2 min pro Seite' },
+        impact: { ar: 'ظهر خالٍ من الآلام', de: 'Rücken schmerzfrei' },
+      },
+      {
+        title: { ar: 'الجلوس القرفصائي العميق', de: 'Tiefe Hocke — Deep Squat' },
+        body: { ar: '95% من أطفال 3 سنوات يجلسون قرفصائياً كاملاً. 5% من بالغي الغرب يستطيعون. القدرة على الجلوس بكعب أرضي = مؤشر مرونة كامل.', de: '95 % der 3-Jährigen können tiefe Hocke, nur 5 % westlicher Erwachsener. Ferse am Boden = Mobilitätsmarker.' },
+        action: { ar: '5 دقائق يومياً قرفصاء عميق — قسّمها', de: '5 min täglich tiefe Hocke, verteilt' },
+        impact: { ar: 'حوض وكاحل حرّان', de: 'Hüfte + Sprunggelenk frei' },
+      },
+      {
+        title: { ar: 'الرقبة الأمامية = صداع مزمن', de: 'Vorwärts-Kopfhaltung = Kopfschmerz' },
+        body: { ar: 'كل 2.5 سم إمالة أمامية للرأس = 4.5 كغ ضغط إضافي على الفقرات العلوية. صداع، شد، دوار، وجيوب أنفية مسدودة.', de: 'Jeder 2,5 cm Kopf-Vorwärts = 4,5 kg extra Last. Kopfschmerz, Nackenverspannung, Sinusdruck.' },
+        action: { ar: 'شد ذقن (Chin tucks) 30 مرة يومياً', de: 'Chin Tucks 30× täglich' },
+        impact: { ar: '-70% صداع رقبي', de: '-70 % Nackenkopfschmerz' },
+      },
+      {
+        title: { ar: 'الكاحل مفتاح كل شيء', de: 'Sprunggelenk = Master-Schlüssel' },
+        body: { ar: 'كاحل مُتيبّس يجبر الركبة، الحوض، ثم الظهر على التعويض. اختبار: قف على بُعد 10 سم من جدار، حاول لمس الجدار بركبتك دون رفع الكعب.', de: 'Starres Sprunggelenk zwingt Knie, Hüfte, Rücken zum Kompensieren. Test: 10 cm zur Wand, Knie berühren ohne Ferse zu heben.' },
+        action: { ar: 'دلك الكاحل بكرة تنس + Ankle rocks 3 د/يوم', de: 'Tennisball + Ankle Rocks 3 min/Tag' },
+        impact: { ar: 'ركبة وظهر مرتاحان', de: 'Knie + Rücken entlastet' },
+      },
+      {
+        title: { ar: 'التنفس الحجابي يفتح الصدر', de: 'Zwerchfellatmung öffnet die Brust' },
+        body: { ar: '90% من الناس يتنفسون بأعلى الصدر — يشدّون الرقبة والكتف. تنفس بطن مع فتح ضلوع = يُطلق شد أوتار الرقبة تلقائياً.', de: '90 % atmen in die obere Brust — Nacken/Schulter verspannen. Bauch + Rippenweitung löst Nacken.' },
+        action: { ar: '5 دقائق تنفس بطني مستلقياً يدك على السرة', de: '5 min Bauchatmung liegend, Hand am Bauch' },
+        impact: { ar: 'كتف مسترخي', de: 'Entspannte Schultern' },
+      },
+      {
+        title: { ar: 'المرونة تحدث في الجهاز العصبي', de: 'Beweglichkeit sitzt im Nervensystem' },
+        body: { ar: 'العضلة ليست "قصيرة" — الدماغ يمنعها من الامتداد خوفاً. تدريب مرونة ناجح = تعليم الدماغ الأمان في المدى الجديد (PNF, load-stretch).', de: 'Der Muskel ist nicht "kurz" — das Gehirn bremst. Erfolg = neuen Bereich sicher lernen (PNF, Loaded Stretch).' },
+        action: { ar: 'استخدم Loaded stretching بأوزان خفيفة في المدى الأقصى', de: 'Loaded Stretching mit leichtem Gewicht in Endposition' },
+        impact: { ar: 'مدى دائم', de: 'Bleibender Zuwachs' },
+      },
+    ],
+  },
+
+  /* ─────────── HEART & CARDIO ─────────── */
+  {
+    category: 'heart',
+    emoji: '❤️',
+    color: '#ef4444',
+    title: { ar: 'القلب — العضلة التي تنسى تدريبها', de: 'Herz — der vergessene Muskel' },
+    description: {
+      ar: 'الرياضي في الجيم يبني الصدر لكنه ينسى القلب. VO₂max أقوى مؤشر مفرد للعمر — أعلى من التدخين والضغط والسكر. تدريب القلب ليس اختياراً.',
+      de: 'Gymgänger baut Brust, vergisst Herz. VO₂max = stärkster einzelner Lebenserwartungs-Marker — stärker als Rauchen/Druck/Zucker.',
+    },
+    facts: [
+      {
+        title: { ar: 'VO₂max أهم من الوزن', de: 'VO₂max wichtiger als Gewicht' },
+        body: { ar: 'دراسة كليفلاند (122k شخص): الفرق بين "مُنخفض" و"عالي" VO₂max = 5 أضعاف خطر الموت — أضخم من التدخين أو السكري.', de: 'Cleveland-Studie (122k): niedrig vs. hoch VO₂max = 5× Sterberisiko — größer als Rauchen oder Diabetes.' },
+        action: { ar: 'قِس VO₂max سنوياً — هدف >45 مل/كغ/د للرجل 20ي', de: 'VO₂max jährlich messen — Ziel >45 ml/kg/min für Männer 20+' },
+        impact: { ar: '5× خطر الوفاة', de: '5× Sterberisiko' },
+      },
+      {
+        title: { ar: 'Zone 2 يبني الميتوكوندريا', de: 'Zone 2 baut Mitochondrien' },
+        body: { ar: 'إيقاع تستطيع الكلام فيه لكن ليس الغناء (60-70% من الأقصى). ساعتان أسبوعياً تضاعف كثافة الميتوكوندريا في العضلة — طاقة، حرق دهون، صحة.', de: 'Sprechen ja, singen nein (60-70 % Max). 2 h/Wo verdoppelt Mitochondrien — Energie, Fettverbrennung, Gesundheit.' },
+        action: { ar: '3-4 جلسات × 45 د دراجة/جري خفيف/سباحة أسبوعياً', de: '3-4 Sitzungen × 45 min leichtes Radeln/Joggen/Schwimmen' },
+        impact: { ar: 'ميتوكوندريا 2×', de: '2× Mitochondrien' },
+      },
+      {
+        title: { ar: 'HRV = مؤشر التعافي', de: 'HRV = Regenerations-Indikator' },
+        body: { ar: 'تفاوت ضربات القلب (HRV) يقيس توازن العصب المُبهم. HRV عالي = تعافيت. منخفض = تدرّب بخفة اليوم. ساعة ذكية تكفي.', de: 'HRV misst Vagus-Balance. Hoch = erholt. Niedrig = leicht trainieren. Smartwatch reicht.' },
+        action: { ar: 'كل صباح: راقب HRV، خطط التمرين بناءً عليه', de: 'Jeden Morgen HRV checken → Trainingsplan anpassen' },
+        impact: { ar: 'تعافي دقيق', de: 'Präzise Regeneration' },
+      },
+      {
+        title: { ar: 'HIIT 4×4 يرفع VO₂max بسرعة', de: 'HIIT 4×4 pusht VO₂max' },
+        body: { ar: 'بروتوكول Tabata النرويجي: 4 دقائق شدة عالية (90% HRmax) + 3 راحة × 4 جولات، مرتان أسبوعياً. رفع VO₂max 13% خلال 8 أسابيع.', de: 'Norwegisches 4×4: 4 min hart (90 % HRmax) + 3 min Pause × 4 Runden, 2×/Wo. +13 % VO₂max in 8 Wochen.' },
+        action: { ar: 'مرة أسبوعياً 4×4 بعد أسبوعين من Zone 2', de: '1×/Wo 4×4 nach 2 Wochen Zone 2' },
+        impact: { ar: '+13% VO₂max', de: '+13 % VO₂max' },
+      },
+      {
+        title: { ar: 'المشي 8000 خطوة خط النجاة', de: '8000 Schritte = Überlebenslinie' },
+        body: { ar: 'دراسة JAMA (2023, 78k): 8000 خطوة يومية = تخفيض 51% في وفيات كل الأسباب. لا حاجة لـ10000 — 8000 كافية.', de: 'JAMA 2023 (78k): 8000 Schritte/Tag = −51 % Sterblichkeit. 10 000 nicht nötig.' },
+        action: { ar: 'أضف 3 مشية 10 دقائق بعد الوجبات', de: '3× 10 min Gehen nach Mahlzeiten' },
+        impact: { ar: '-51% وفيات', de: '-51 % Sterblichkeit' },
+      },
+      {
+        title: { ar: 'أفضل تمرين هو الذي تفعله', de: 'Beste Übung = die, die du machst' },
+        body: { ar: 'دراسة (يوهانس هوبكينز): الرياضيون الذين خلطوا نشاطات (سباحة+تنس+مشي) عاشوا أطول من مُتخصّصين نوع واحد. التنوع = حماية.', de: 'Johns Hopkins: Sportler, die mischten (Schwimmen+Tennis+Gehen), lebten länger als Spezialisten. Vielfalt schützt.' },
+        action: { ar: 'اختر 3 رياضات مختلفة تحبها بالتناوب', de: 'Wähle 3 verschiedene Sportarten im Wechsel' },
+        impact: { ar: '+2.5 سنوات عمر', de: '+2,5 Lebensjahre' },
+      },
+    ],
+  },
+
+  /* ─────────── HABITS & DISCIPLINE ─────────── */
+  {
+    category: 'habits',
+    emoji: '🎯',
+    color: '#f97316',
+    title: { ar: 'العادات — هندسة النسخة الأفضل منك', de: 'Gewohnheiten — Architektur deines besseren Ichs' },
+    description: {
+      ar: 'الانضباط ليس قوة إرادة — إنه بيئة وأنظمة. 40% من قراراتك اليومية عادات لا واعية. من يهندس عاداته يفوز؛ من يعتمد على "الحماس" يخسر.',
+      de: 'Disziplin ist keine Willenskraft — sie ist Umgebung + System. 40 % deiner Entscheidungen sind unbewusste Gewohnheiten.',
+    },
+    facts: [
+      {
+        title: { ar: 'قاعدة الدقيقتين', de: 'Zwei-Minuten-Regel' },
+        body: { ar: 'أي عادة جديدة اجعلها تستغرق دقيقتين لتبدأ. "أقرأ 10 صفحات" → "أفتح الكتاب". الدماغ يقاوم الحجم، لا الفعل. البداية أهم من الكمية.', de: 'Neue Gewohnheit auf 2 min schrumpfen. "10 Seiten lesen" → "Buch öffnen". Gehirn wehrt Größe, nicht Handlung.' },
+        action: { ar: 'اختر عادة جديدة، صغّرها لدقيقتين، افعلها 30 يوم', de: 'Neue Gewohnheit → 2 min → 30 Tage' },
+        impact: { ar: '90% احتمال الاستمرار', de: '90 % Durchhaltequote' },
+      },
+      {
+        title: { ar: 'التلقيح الظرفي (Habit Stacking)', de: 'Habit Stacking' },
+        body: { ar: 'اربط العادة الجديدة بعادة راسخة: "بعد ما أشرب قهوتي (راسخ)، أكتب هدفي اليومي (جديد)". العادة الراسخة تصبح مُطلق العادة الجديدة.', de: '"Nach [alter Gewohnheit], mache ich [neue]." Alte triggert neue automatisch.' },
+        action: { ar: 'اكتب: "بعد ___، سأفعل ___"', de: 'Formuliere: "Nach ___ mache ich ___"' },
+        impact: { ar: '3× ثبات', de: '3× stabiler' },
+      },
+      {
+        title: { ar: 'اجعل السيّئة صعبة', de: 'Mache Schlechtes schwer' },
+        body: { ar: 'الإرادة تخسر أمام الاحتكاك المنخفض. الشوكولاته في الدرج تُؤكل. الشوكولاته في السيارة تحت المقعد الخلفي لا تُؤكل. صمّم بيئتك، لا نفسك.', de: 'Wille verliert gegen niedrige Reibung. Schokolade in der Schublade wird gegessen — im Auto unterm Rücksitz nicht.' },
+        action: { ar: 'أزل الإغراءات بُعد 3 خطوات على الأقل', de: 'Versuchungen 3 Schritte weiter entfernen' },
+        impact: { ar: '-70% انزلاق', de: '-70 % Rückfälle' },
+      },
+      {
+        title: { ar: 'قاعدة عدم التفويت مرتين', de: 'Nie zweimal aussetzen' },
+        body: { ar: 'يوم واحد فوت التمرين = طبيعي. يومان = بداية عادة جديدة (سلبية). الأبطال يمتلكون قاعدة صارمة: never miss twice.', de: '1× ausfallen = normal. 2× = neue (schlechte) Gewohnheit beginnt. Regel der Champions: nie 2× hintereinander.' },
+        action: { ar: 'إن فوّت اليوم، تدرّب غداً حتى لو 10 دقائق', de: 'Nach Ausfall: nächster Tag mindestens 10 min' },
+        impact: { ar: 'استمرار 5+ سنوات', de: '5+ Jahre Konstanz' },
+      },
+      {
+        title: { ar: 'الهوية تسبق الفعل', de: 'Identität kommt vor Tun' },
+        body: { ar: 'الفرق بين "أحاول التوقف عن التدخين" و"أنا لست مدخّناً" هو الفرق بين الفشل والنجاح. العادات تنبع من هوية، ليس أهدافاً.', de: '"Ich versuche aufzuhören" vs. "Ich rauche nicht" — Unterschied zwischen Scheitern und Erfolg. Identität > Ziele.' },
+        action: { ar: 'اكتب: "أنا شخص ___" وكرّرها يومياً', de: 'Schreibe: "Ich bin ein Mensch, der ___" täglich' },
+        impact: { ar: 'تحوّل جذري', de: 'Radikaler Wandel' },
+      },
+      {
+        title: { ar: 'الإنجاز يولّد الدوبامين، الحلم يقتله', de: 'Erfolg gibt Dopamin, Träumen nimmt es' },
+        body: { ar: 'دراسة (NYU): إخبار الآخرين بأهدافك يفرز دوبامين "الإنجاز" قبل الفعل — فتخسر الدافع. الأهداف الصامتة تُنجَز، المُعلنة تُنسى.', de: 'NYU-Studie: Ziel anderen erzählen gibt "Erfolgs"-Dopamin vor der Tat — Motivation schwindet. Still gehalten wird erreicht.' },
+        action: { ar: 'لا تُعلن أهدافك — أعلن نتائجك', de: 'Ziele nicht ankündigen — nur Ergebnisse' },
+        myth: { ar: '"اجعل هدفك عاماً للمحاسبة" خرافة', de: '"Öffentlich = mehr Verantwortung" ist Mythos' },
+        impact: { ar: '2× معدل إنجاز', de: '2× Erfolgsquote' },
+      },
+    ],
+  },
 ];
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -844,4 +1250,12 @@ export const CATEGORY_LABELS_ENC: Record<EncyclopediaCategory, Record<Lang, stri
   recovery:  { ar: 'التعافي',        de: 'Recovery' },
   body_comp: { ar: 'تركيب الجسم',    de: 'Körper' },
   energy:    { ar: 'الطاقة',         de: 'Energie' },
+  gut:       { ar: 'الأمعاء والميكروبيوم', de: 'Darm & Mikrobiom' },
+  hydration: { ar: 'الترطيب',        de: 'Hydration' },
+  breath:    { ar: 'التنفس',          de: 'Atmung' },
+  light:     { ar: 'الضوء والساعة',   de: 'Licht & Rhythmus' },
+  cold_heat: { ar: 'البرد والحرارة',  de: 'Kälte & Hitze' },
+  mobility:  { ar: 'الحركة والمرونة', de: 'Mobilität' },
+  heart:     { ar: 'القلب والدورة',   de: 'Herz & Kreislauf' },
+  habits:    { ar: 'العادات والانضباط', de: 'Gewohnheiten' },
 };
