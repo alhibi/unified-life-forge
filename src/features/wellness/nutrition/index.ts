@@ -46,4 +46,5 @@ export {
   getRecentFoods, addToRecent, getFavoriteFoods, getRecentFoodItems,
   getMealLog, saveMealEntry, removeMealEntry, getMealLogForDate,
   clearMealLog, generateId, todayStr,
+  useNutritionCache, subscribeNutritionCache,
 } from './utils';
