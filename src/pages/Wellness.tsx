@@ -228,6 +228,34 @@ export default function WellnessPage() {
     }
   }, [tab, data]);
 
+  // Auth gate — the whole wellness section is account-based (cloud).
+  if (!authLoading && !user) {
+    return (
+      <div className="min-h-screen bg-background pb-24">
+        <SEO
+          title={isAr ? 'الصحة والعافية — SmartHub' : 'Wellness — SmartHub'}
+          description={isAr ? 'قسم العافية مرتبط بحسابك.' : 'Wellness ist kontogebunden.'}
+          path="/wellness"
+        />
+        <div className="max-w-md mx-auto px-4 pt-16 flex flex-col items-center text-center gap-4">
+          <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
+            <ShieldCheck className="w-7 h-7 text-primary" />
+          </div>
+          <h1 className="text-xl font-semibold text-foreground">{T.signInRequired[language]}</h1>
+          <p className="text-[13px] text-muted-foreground leading-relaxed max-w-sm">
+            {T.signInBody[language]}
+          </p>
+          <button
+            onClick={() => navigate('/settings')}
+            className="mt-2 px-6 py-2.5 rounded-xl bg-primary text-primary-foreground font-medium active:scale-[0.98] transition-transform"
+          >
+            {T.signInCta[language]}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background pb-24">
       <SEO
