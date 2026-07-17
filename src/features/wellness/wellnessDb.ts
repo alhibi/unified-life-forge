@@ -185,85 +185,77 @@ export interface FastingSession {
   notes?: string;
 }
 
-/* ─────────────────────── Storage layout ─────────────────────── */
+/* ─────────────────────── Cloud storage layer ─────────────────────── */
 
-const DB_NAME = 'wellness-db';
-const DB_VERSION = 3;
+const TABLE = 'wellness_records';
 
-const STORES = {
-  supplements: 'supplements',
-  intakeLogs: 'intake_logs',
-  dietLogs: 'diet_logs',
-  skinHair: 'skin_hair_logs',
-  vitals: 'vital_logs',
-  // ── premium ──
-  profile: 'athlete_profile',
-  workouts: 'workouts',
-  goals: 'goals',
-  hydration: 'hydration_events',
-  fasting: 'fasting_sessions',
-} as const;
+type Kind =
+  | 'supplement' | 'intake' | 'diet' | 'skin_hair' | 'vital'
+  | 'profile' | 'workout' | 'goal' | 'hydration' | 'fasting';
 
-let dbPromise: Promise<IDBDatabase> | null = null;
+async function currentUserId(): Promise<string | null> {
+  const { data } = await supabase.auth.getSession();
+  return data.session?.user?.id ?? null;
+}
 
-function openDb(): Promise<IDBDatabase> {
-  if (dbPromise) return dbPromise;
-  dbPromise = new Promise((resolve, reject) => {
-    if (typeof indexedDB === 'undefined') {
-      reject(new Error('IndexedDB not available'));
-      return;
-    }
-    const req = indexedDB.open(DB_NAME, DB_VERSION);
-    req.onupgradeneeded = () => {
-      const db = req.result;
-      // v1
-      if (!db.objectStoreNames.contains(STORES.supplements)) {
-        db.createObjectStore(STORES.supplements, { keyPath: 'id' });
-      }
-      if (!db.objectStoreNames.contains(STORES.intakeLogs)) {
-        const s = db.createObjectStore(STORES.intakeLogs, { keyPath: 'id' });
-        s.createIndex('by_supplement', 'supplementId', { unique: false });
-        s.createIndex('by_time', 'takenAt', { unique: false });
-      }
-      if (!db.objectStoreNames.contains(STORES.dietLogs)) {
-        const s = db.createObjectStore(STORES.dietLogs, { keyPath: 'id' });
-        s.createIndex('by_date', 'date', { unique: false });
-      }
-      if (!db.objectStoreNames.contains(STORES.skinHair)) {
-        const s = db.createObjectStore(STORES.skinHair, { keyPath: 'id' });
-        s.createIndex('by_date', 'date', { unique: true });
-      }
-      // v2
-      if (!db.objectStoreNames.contains(STORES.vitals)) {
-        const s = db.createObjectStore(STORES.vitals, { keyPath: 'id' });
-        s.createIndex('by_date', 'date', { unique: true });
-      }
-      // v3 — premium athletic stores
-      if (!db.objectStoreNames.contains(STORES.profile)) {
-        db.createObjectStore(STORES.profile, { keyPath: 'id' });
-      }
-      if (!db.objectStoreNames.contains(STORES.workouts)) {
-        const s = db.createObjectStore(STORES.workouts, { keyPath: 'id' });
-        s.createIndex('by_date', 'date', { unique: false });
-        s.createIndex('by_started', 'startedAt', { unique: false });
-      }
-      if (!db.objectStoreNames.contains(STORES.goals)) {
-        const s = db.createObjectStore(STORES.goals, { keyPath: 'id' });
-        s.createIndex('by_metric', 'metric', { unique: false });
-      }
-      if (!db.objectStoreNames.contains(STORES.hydration)) {
-        const s = db.createObjectStore(STORES.hydration, { keyPath: 'id' });
-        s.createIndex('by_date', 'date', { unique: false });
-      }
-      if (!db.objectStoreNames.contains(STORES.fasting)) {
-        const s = db.createObjectStore(STORES.fasting, { keyPath: 'id' });
-        s.createIndex('by_started', 'startedAt', { unique: false });
-      }
-    };
-    req.onsuccess = () => resolve(req.result);
-    req.onerror = () => reject(req.error);
-  });
-  return dbPromise;
+async function requireUserId(): Promise<string> {
+  const uid = await currentUserId();
+  if (!uid) throw new Error('wellness:not_signed_in');
+  return uid;
+}
+
+async function listByKind<T>(kind: Kind): Promise<T[]> {
+  const uid = await currentUserId();
+  if (!uid) return [];
+  const { data, error } = await supabase
+    .from(TABLE)
+    .select('data')
+    .eq('user_id', uid)
+    .eq('kind', kind);
+  if (error) throw error;
+  return (data ?? []).map((r: { data: T }) => r.data);
+}
+
+async function putRecord<T extends { id?: string }>(
+  kind: Kind,
+  recordId: string,
+  value: T,
+): Promise<T> {
+  const uid = await requireUserId();
+  const { error } = await supabase
+    .from(TABLE)
+    .upsert(
+      { user_id: uid, kind, record_id: recordId, data: value as unknown as object },
+      { onConflict: 'user_id,kind,record_id' },
+    );
+  if (error) throw error;
+  return value;
+}
+
+async function delRecord(kind: Kind, recordId: string): Promise<void> {
+  const uid = await currentUserId();
+  if (!uid) return;
+  const { error } = await supabase
+    .from(TABLE)
+    .delete()
+    .eq('user_id', uid)
+    .eq('kind', kind)
+    .eq('record_id', recordId);
+  if (error) throw error;
+}
+
+async function getRecord<T>(kind: Kind, recordId: string): Promise<T | undefined> {
+  const uid = await currentUserId();
+  if (!uid) return undefined;
+  const { data, error } = await supabase
+    .from(TABLE)
+    .select('data')
+    .eq('user_id', uid)
+    .eq('kind', kind)
+    .eq('record_id', recordId)
+    .maybeSingle();
+  if (error) throw error;
+  return (data?.data as T) ?? undefined;
 }
 
 function uuid(): UUID {
@@ -277,42 +269,10 @@ function uuid(): UUID {
   });
 }
 
-function tx(db: IDBDatabase, store: string, mode: IDBTransactionMode) {
-  return db.transaction(store, mode).objectStore(store);
-}
-
-function req<T>(r: IDBRequest<T>): Promise<T> {
-  return new Promise((resolve, reject) => {
-    r.onsuccess = () => resolve(r.result);
-    r.onerror = () => reject(r.error);
-  });
-}
-
-async function getAll<T>(store: string): Promise<T[]> {
-  const db = await openDb();
-  return req<T[]>(tx(db, store, 'readonly').getAll());
-}
-
-async function put<T>(store: string, value: T): Promise<T> {
-  const db = await openDb();
-  await req(tx(db, store, 'readwrite').put(value));
-  return value;
-}
-
-async function del(store: string, id: string): Promise<void> {
-  const db = await openDb();
-  await req(tx(db, store, 'readwrite').delete(id));
-}
-
-async function getOne<T>(store: string, id: string): Promise<T | undefined> {
-  const db = await openDb();
-  return req<T>(tx(db, store, 'readonly').get(id));
-}
-
 /* ─────────────────── Supplements ─────────────────── */
 
 export async function listSupplements(): Promise<Supplement[]> {
-  const all = await getAll<Supplement>(STORES.supplements);
+  const all = await listByKind<Supplement>('supplement');
   return all.sort((a, b) => a.createdAt - b.createdAt);
 }
 
@@ -331,17 +291,17 @@ export async function saveSupplement(
     active: input.active,
     createdAt: input.createdAt ?? Date.now(),
   };
-  return put(STORES.supplements, s);
+  return putRecord('supplement', s.id, s);
 }
 
 export async function deleteSupplement(id: UUID): Promise<void> {
-  await del(STORES.supplements, id);
+  await delRecord('supplement', id);
 }
 
 /* ─────────────────── Intake Logs ─────────────────── */
 
 export async function listIntakeLogs(): Promise<IntakeLog[]> {
-  const all = await getAll<IntakeLog>(STORES.intakeLogs);
+  const all = await listByKind<IntakeLog>('intake');
   return all.sort((a, b) => b.takenAt - a.takenAt);
 }
 
@@ -350,17 +310,17 @@ export async function logIntake(
   scheduledTime?: string,
 ): Promise<IntakeLog> {
   const entry: IntakeLog = { id: uuid(), supplementId, takenAt: Date.now(), scheduledTime };
-  return put(STORES.intakeLogs, entry);
+  return putRecord('intake', entry.id, entry);
 }
 
 export async function deleteIntakeLog(id: UUID): Promise<void> {
-  await del(STORES.intakeLogs, id);
+  await delRecord('intake', id);
 }
 
 /* ─────────────────── Diet Logs ─────────────────── */
 
 export async function listDietLogs(): Promise<DietLog[]> {
-  const all = await getAll<DietLog>(STORES.dietLogs);
+  const all = await listByKind<DietLog>('diet');
   return all.sort((a, b) => b.loggedAt - a.loggedAt);
 }
 
@@ -375,7 +335,7 @@ export async function logDiet(
   portion = 1,
 ): Promise<DietLog> {
   const entry: DietLog = { id: uuid(), date, foodKey, portion, loggedAt: Date.now() };
-  return put(STORES.dietLogs, entry);
+  return putRecord('diet', entry.id, entry);
 }
 
 /**
@@ -387,24 +347,24 @@ export async function updateDietLog(
   id: UUID,
   patch: Partial<Pick<DietLog, 'portion' | 'foodKey' | 'date'>>,
 ): Promise<DietLog | null> {
-  const cur = await getOne<DietLog>(STORES.dietLogs, id);
+  const cur = await getRecord<DietLog>('diet', id);
   if (!cur) return null;
   const updated: DietLog = {
     ...cur,
     ...patch,
     portion: patch.portion != null ? Math.max(0.25, patch.portion) : cur.portion,
   };
-  return put(STORES.dietLogs, updated);
+  return putRecord('diet', updated.id, updated);
 }
 
 export async function deleteDietLog(id: UUID): Promise<void> {
-  await del(STORES.dietLogs, id);
+  await delRecord('diet', id);
 }
 
 /* ─────────────────── Skin / Hair logs ─────────────────── */
 
 export async function listSkinHairLogs(): Promise<SkinHairLog[]> {
-  const all = await getAll<SkinHairLog>(STORES.skinHair);
+  const all = await listByKind<SkinHairLog>('skin_hair');
   return all.sort((a, b) => b.date.localeCompare(a.date));
 }
 
@@ -437,17 +397,17 @@ export async function upsertSkinHair(
     notes: entry.notes,
     loggedAt: Date.now(),
   };
-  return put(STORES.skinHair, out);
+  return putRecord('skin_hair', out.id, out);
 }
 
 export async function deleteSkinHair(id: UUID): Promise<void> {
-  await del(STORES.skinHair, id);
+  await delRecord('skin_hair', id);
 }
 
 /* ─────────────────── Vitals ─────────────────── */
 
 export async function listVitals(): Promise<VitalLog[]> {
-  const all = await getAll<VitalLog>(STORES.vitals);
+  const all = await listByKind<VitalLog>('vital');
   return all.sort((a, b) => b.date.localeCompare(a.date));
 }
 
@@ -477,17 +437,17 @@ export async function upsertVital(
     notes: entry.notes,
     loggedAt: Date.now(),
   };
-  return put(STORES.vitals, out);
+  return putRecord('vital', out.id, out);
 }
 
 export async function deleteVital(id: UUID): Promise<void> {
-  await del(STORES.vitals, id);
+  await delRecord('vital', id);
 }
 
 /* ─────────────────── Profile (singleton) ─────────────────── */
 
 export async function getProfile(): Promise<AthleteProfile | null> {
-  const p = await getOne<AthleteProfile>(STORES.profile, 'me');
+  const p = await getRecord<AthleteProfile>('profile', 'me');
   return p ?? null;
 }
 
@@ -495,13 +455,13 @@ export async function saveProfile(
   input: Omit<AthleteProfile, 'id' | 'updatedAt'>,
 ): Promise<AthleteProfile> {
   const out: AthleteProfile = { id: 'me', ...input, updatedAt: Date.now() };
-  return put(STORES.profile, out);
+  return putRecord('profile', 'me', out);
 }
 
 /* ─────────────────── Workouts ─────────────────── */
 
 export async function listWorkouts(): Promise<WorkoutSession[]> {
-  const all = await getAll<WorkoutSession>(STORES.workouts);
+  const all = await listByKind<WorkoutSession>('workout');
   return all.sort((a, b) => b.startedAt - a.startedAt);
 }
 
@@ -509,17 +469,17 @@ export async function saveWorkout(
   input: Omit<WorkoutSession, 'id'> & { id?: UUID },
 ): Promise<WorkoutSession> {
   const out: WorkoutSession = { id: input.id ?? uuid(), ...input };
-  return put(STORES.workouts, out);
+  return putRecord('workout', out.id, out);
 }
 
 export async function deleteWorkout(id: UUID): Promise<void> {
-  await del(STORES.workouts, id);
+  await delRecord('workout', id);
 }
 
 /* ─────────────────── Goals ─────────────────── */
 
 export async function listGoals(): Promise<Goal[]> {
-  const all = await getAll<Goal>(STORES.goals);
+  const all = await listByKind<Goal>('goal');
   return all.sort((a, b) => a.createdAt - b.createdAt);
 }
 
@@ -534,17 +494,17 @@ export async function saveGoal(
     active: input.active,
     createdAt: input.createdAt ?? Date.now(),
   };
-  return put(STORES.goals, out);
+  return putRecord('goal', out.id, out);
 }
 
 export async function deleteGoal(id: UUID): Promise<void> {
-  await del(STORES.goals, id);
+  await delRecord('goal', id);
 }
 
 /* ─────────────────── Hydration events ─────────────────── */
 
 export async function listHydration(): Promise<HydrationEvent[]> {
-  const all = await getAll<HydrationEvent>(STORES.hydration);
+  const all = await listByKind<HydrationEvent>('hydration');
   return all.sort((a, b) => b.ts - a.ts);
 }
 
@@ -555,17 +515,17 @@ export async function logHydration(
   const now = Date.now();
   const date = todayIso();
   const e: HydrationEvent = { id: uuid(), date, ts: now, amountMl, source };
-  return put(STORES.hydration, e);
+  return putRecord('hydration', e.id, e);
 }
 
 export async function deleteHydration(id: UUID): Promise<void> {
-  await del(STORES.hydration, id);
+  await delRecord('hydration', id);
 }
 
 /* ─────────────────── Fasting sessions ─────────────────── */
 
 export async function listFasting(): Promise<FastingSession[]> {
-  const all = await getAll<FastingSession>(STORES.fasting);
+  const all = await listByKind<FastingSession>('fasting');
   return all.sort((a, b) => b.startedAt - a.startedAt);
 }
 
@@ -584,18 +544,18 @@ export async function startFasting(
     targetHours,
     protocol,
   };
-  return put(STORES.fasting, f);
+  return putRecord('fasting', f.id, f);
 }
 
 export async function endFasting(id: UUID): Promise<FastingSession | null> {
-  const cur = await getOne<FastingSession>(STORES.fasting, id);
+  const cur = await getRecord<FastingSession>('fasting', id);
   if (!cur) return null;
   const updated: FastingSession = { ...cur, endedAt: Date.now() };
-  return put(STORES.fasting, updated);
+  return putRecord('fasting', updated.id, updated);
 }
 
 export async function deleteFasting(id: UUID): Promise<void> {
-  await del(STORES.fasting, id);
+  await delRecord('fasting', id);
 }
 
 /* ─────────────────── Export / Wipe ─────────────────── */
@@ -634,17 +594,13 @@ export async function exportAll(): Promise<{
 }
 
 export async function wipeAll(): Promise<void> {
-  const db = await openDb();
-  await Promise.all(
-    Object.values(STORES).map(
-      (s) =>
-        new Promise<void>((resolve, reject) => {
-          const r = db.transaction(s, 'readwrite').objectStore(s).clear();
-          r.onsuccess = () => resolve();
-          r.onerror = () => reject(r.error);
-        }),
-    ),
-  );
+  const uid = await currentUserId();
+  if (!uid) return;
+  const { error } = await supabase
+    .from(TABLE)
+    .delete()
+    .eq('user_id', uid);
+  if (error) throw error;
 }
 
 export function todayIso(): string {
