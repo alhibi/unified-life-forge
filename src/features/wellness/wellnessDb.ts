@@ -213,7 +213,7 @@ async function listByKind<T>(kind: Kind): Promise<T[]> {
     .eq('user_id', uid)
     .eq('kind', kind);
   if (error) throw error;
-  return (data ?? []).map((r: { data: T }) => r.data);
+  return (data ?? []).map((r) => r.data as unknown as T);
 }
 
 async function putRecord<T extends { id?: string }>(
@@ -225,7 +225,7 @@ async function putRecord<T extends { id?: string }>(
   const { error } = await supabase
     .from(TABLE)
     .upsert(
-      { user_id: uid, kind, record_id: recordId, data: value as unknown as object },
+      [{ user_id: uid, kind, record_id: recordId, data: value as never }],
       { onConflict: 'user_id,kind,record_id' },
     );
   if (error) throw error;
