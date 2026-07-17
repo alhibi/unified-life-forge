@@ -43,6 +43,8 @@ const ESTIMATED_ROW_HEIGHT_COMPACT = 44;
 const ESTIMATED_ROW_HEIGHT_CARDS = 280;
 const VIRTUALIZATION_THRESHOLD = 40;
 const OVERSCAN = 6;
+const PAGE_SIZE = 20;
+const INITIAL_PAGE_SIZE = 20;
 
 export function ArticleListGrouped({
   articles,
@@ -90,6 +92,13 @@ export function ArticleListGrouped({
   const scrollKey = `${filterTab}|${sourceFilter}|${prefs.sort}|${prefs.group}`;
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollRestoredRef = useRef(false);
+  const sentinelRef = useRef<HTMLDivElement>(null);
+
+  // ─── Infinite pagination ─────────────────────────────────────────────
+  // Progressive reveal — we hydrate the first PAGE_SIZE rows immediately
+  // then grow the window as the user approaches the bottom. Keeps the
+  // initial paint feather-light on large archives.
+  const [pageSize, setPageSize] = useState(INITIAL_PAGE_SIZE);
 
   // Set of article links that are read at hook level — O(1) lookup.
   const readSet = useMemo(() => new Set(readArticles), [readArticles]);
@@ -197,6 +206,53 @@ export function ArticleListGrouped({
     // sort.
     return out;
   }, [heroAndRest.rest, prefs.group, isAr]);
+
+  // Reset pagination whenever the effective list identity changes.
+  useEffect(() => {
+    setPageSize(INITIAL_PAGE_SIZE);
+  }, [scrollKey, heroAndRest.rest.length]);
+
+  // Slice rows to the currently revealed page window.
+  const pagedRows = useMemo(() => {
+    // Count article rows only; headers ride along with their bucket.
+    let count = 0;
+    const out: typeof rows = [];
+    for (const r of rows) {
+      if (r.kind === 'article') {
+        if (count >= pageSize) break;
+        count++;
+      }
+      out.push(r);
+    }
+    // Trim a trailing orphaned header (no articles after it).
+    while (out.length && out[out.length - 1].kind === 'header') out.pop();
+    return out;
+  }, [rows, pageSize]);
+
+  const totalArticleRows = useMemo(
+    () => rows.filter((r) => r.kind === 'article').length,
+    [rows],
+  );
+  const hasMore = pagedRows.filter((r) => r.kind === 'article').length < totalArticleRows;
+
+  // Sentinel-based infinite loader — grows pageSize when bottom nears.
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    const root = containerRef.current;
+    if (!sentinel || !root || !hasMore) return;
+    const obs = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) {
+            setPageSize((n) => n + PAGE_SIZE);
+          }
+        }
+      },
+      { root, rootMargin: '600px 0px 600px 0px' },
+    );
+    obs.observe(sentinel);
+    return () => obs.disconnect();
+  }, [hasMore, pagedRows.length]);
 
   // Used by context menu's mark-above/below to enumerate links.
   const visibleArticles = useMemo(
@@ -382,19 +438,19 @@ export function ArticleListGrouped({
       Math.floor(scrollTop / rowHeight) - OVERSCAN,
     );
     const visibleCount = Math.ceil(viewportHeight / rowHeight);
-    const end = Math.min(rows.length, start + visibleCount + OVERSCAN * 2);
+    const end = Math.min(pagedRows.length, start + visibleCount + OVERSCAN * 2);
     setVisibleRange({ start, end });
-  }, [rowHeight, rows.length]);
+  }, [rowHeight, pagedRows.length]);
 
   useEffect(() => {
     if (useVirtualization) recomputeVisible();
-    else setVisibleRange({ start: 0, end: rows.length });
-  }, [useVirtualization, recomputeVisible, rows.length]);
+    else setVisibleRange({ start: 0, end: pagedRows.length });
+  }, [useVirtualization, recomputeVisible, pagedRows.length]);
 
   const renderRows = useMemo(() => {
-    if (!useVirtualization) return rows;
-    return rows.slice(visibleRange.start, visibleRange.end);
-  }, [rows, useVirtualization, visibleRange]);
+    if (!useVirtualization) return pagedRows;
+    return pagedRows.slice(visibleRange.start, visibleRange.end);
+  }, [pagedRows, useVirtualization, visibleRange]);
 
   // ─── Mark-above / mark-below handlers ────────────────────────────────
   const onMarkAboveRead = useCallback(
@@ -449,7 +505,7 @@ export function ArticleListGrouped({
 
   const topSpacer = useVirtualization ? visibleRange.start * rowHeight : 0;
   const bottomSpacer = useVirtualization
-    ? Math.max(0, (rows.length - visibleRange.end) * rowHeight)
+    ? Math.max(0, (pagedRows.length - visibleRange.end) * rowHeight)
     : 0;
 
   return (
@@ -513,6 +569,20 @@ export function ArticleListGrouped({
       </div>
 
       {bottomSpacer > 0 && <div style={{ height: bottomSpacer }} aria-hidden />}
+
+      {/* Infinite-scroll sentinel + subtle loading pulse */}
+      {hasMore && (
+        <div ref={sentinelRef} className="py-6 flex items-center justify-center gap-1.5">
+          <span className="h-1.5 w-1.5 rounded-full bg-primary/50 animate-pulse" />
+          <span className="h-1.5 w-1.5 rounded-full bg-primary/40 animate-pulse [animation-delay:150ms]" />
+          <span className="h-1.5 w-1.5 rounded-full bg-primary/30 animate-pulse [animation-delay:300ms]" />
+        </div>
+      )}
+      {!hasMore && totalArticleRows > INITIAL_PAGE_SIZE && (
+        <div className="py-8 text-center text-[11px] text-muted-foreground/60 tracking-wide">
+          {isAr ? '— انتهت المقالات —' : '— End of articles —'}
+        </div>
+      )}
     </div>
   );
 }
