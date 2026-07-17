@@ -5,7 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { isSupabaseConfigured } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { UserCircle, Lock, ArrowRight, Eye, EyeSlash, Shield, X } from '@/lib/icons';
+import { UserCircle, Lock, ArrowRight, Eye, EyeOff, Shield, X } from '@/lib/icons';
 import { toast } from 'sonner';
 
 /**
@@ -411,7 +411,7 @@ export default function AuthPage() {
                     }
                   >
                     {showPassword
-                      ? <EyeSlash className="w-4 h-4" style={{ color: '#9ca3af' }} />
+                      ? <EyeOff className="w-4 h-4" style={{ color: '#9ca3af' }} />
                       : <Eye className="w-4 h-4" style={{ color: '#9ca3af' }} />}
                   </button>
                 </div>
