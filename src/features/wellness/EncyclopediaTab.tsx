@@ -15,7 +15,7 @@ import {
   Search, X, ChevronDown, Dumbbell, Apple, BookOpen, Zap,
   Trophy, Flame, AlertCircle, Target, Lightbulb, Clock,
   ChevronRight, Activity, Heart, Brain, Moon, Sparkles,
-  Filter,
+  Filter, Sprout, Droplet, Wind, Sun, Compass,
 } from '@/lib/icons';
 import { useApp } from '@/contexts/AppContext';
 
@@ -598,6 +598,8 @@ function FoodCard({
 const CATEGORY_ICONS: Record<EncyclopediaCategory, any> = {
   sleep: Moon, hormones: Activity, stress: Heart, mental: Brain,
   longevity: Sparkles, recovery: Zap, body_comp: Target, energy: Flame,
+  gut: Sprout, hydration: Droplet, breath: Wind, light: Sun,
+  cold_heat: Sparkles, mobility: Compass, heart: Heart, habits: Trophy,
 };
 
 function WisdomSection({ lang, query }: { lang: 'ar' | 'de'; query: string }) {
@@ -620,6 +622,8 @@ function WisdomSection({ lang, query }: { lang: 'ar' | 'de'; query: string }) {
   const cats: (EncyclopediaCategory | 'all')[] = [
     'all', 'sleep', 'hormones', 'stress', 'mental',
     'recovery', 'body_comp', 'energy', 'longevity',
+    'gut', 'hydration', 'breath', 'light',
+    'cold_heat', 'mobility', 'heart', 'habits',
   ];
 
   return (
