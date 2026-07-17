@@ -20,7 +20,9 @@ export type Lang = 'ar' | 'de';
 
 export type EncyclopediaCategory =
   | 'sleep' | 'hormones' | 'stress' | 'mental'
-  | 'longevity' | 'recovery' | 'body_comp' | 'energy';
+  | 'longevity' | 'recovery' | 'body_comp' | 'energy'
+  | 'gut' | 'hydration' | 'breath' | 'light'
+  | 'cold_heat' | 'mobility' | 'heart' | 'habits';
 
 export interface KnowledgeFact {
   /** Concise headline */
