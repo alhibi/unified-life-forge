@@ -1,22 +1,27 @@
 /**
- * Wellness local database (IndexedDB).
+ * Wellness cloud database (Supabase).
  *
- * Fully offline. No network calls. No third-party dependencies.
- * Stores:
+ * Backed by the `wellness_records` table with RLS — each signed-in user
+ * reads and writes only their own rows. Every domain type is stored as
+ * a JSONB `data` payload, keyed by (user_id, kind, record_id).
+ *
+ * If no user is signed in, list functions return empty arrays and
+ * writes throw. Callers should gate the UI on auth.
+ *
+ * Kinds:
  *  - supplements:    user's active supplement / vitamin plan
  *  - intake_logs:    timestamps of actual doses taken
  *  - diet_logs:      foods the user ate on a given day
  *  - skin_hair_logs: daily self-ratings of skin / hair / lifestyle signals
  *  - vital_logs:     daily vitals (steps, sleep, HR, weight, BP…)
- *
- * Premium athletic stores (v3+):
  *  - athlete_profile:   single record (id="me"); biometrics, sex, goal, units
  *  - workouts:          full strength / cardio sessions with sets[]
  *  - goals:             per-metric daily / weekly targets (water, sleep, …)
  *  - hydration_events:  per-event water intake (ml) — powers the daily ring
  *  - fasting_sessions:  intermittent-fasting sessions with target window
- *  - personal_records:  best lifts (1RM, e1RM, volume)  — derived but persisted
  */
+
+import { supabase } from '@/integrations/supabase/client';
 
 export type UUID = string;
 
