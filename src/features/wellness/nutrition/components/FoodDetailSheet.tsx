@@ -2,7 +2,8 @@
  * FoodDetailSheet — Full nutritional breakdown for a food item.
  * Shows macros, vitamins, minerals, benefits, and serving info.
  */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import {
   X, Heart, Plus, Flame, Droplets, Info, Sparkles,
@@ -111,9 +112,14 @@ export default function FoodDetailSheet({ food, lang, onClose, onAddToLog }: Pro
   const [quantity, setQuantity] = useState(1);
   const n = food.nutrition;
   const densityScore = nutrientDensityScore(food);
+  const scrollRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     addToRecent(food.id);
+    // Ensure the sheet always opens from the top when a new item is chosen.
+    // Without this, the inner scroll can inherit a non-zero position when
+    // the sheet is animated in inside a transformed ancestor.
+    if (scrollRef.current) scrollRef.current.scrollTop = 0;
   }, [food.id]);
 
   const handleToggleFav = () => {
@@ -144,7 +150,7 @@ export default function FoodDetailSheet({ food, lang, onClose, onAddToLog }: Pro
   const displayedVitamins = showAllVitamins ? vitaminEntries : vitaminEntries.slice(0, 5);
   const displayedMinerals = showAllMinerals ? mineralEntries : mineralEntries.slice(0, 5);
 
-  return (
+  const sheet = (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -158,6 +164,7 @@ export default function FoodDetailSheet({ food, lang, onClose, onAddToLog }: Pro
         exit={{ y: '100%' }}
         transition={{ type: 'spring', damping: 25, stiffness: 300 }}
         onClick={e => e.stopPropagation()}
+        ref={scrollRef}
         className="w-full max-w-lg bg-background rounded-t-3xl max-h-[92vh] overflow-y-auto overscroll-contain"
       >
         {/* Header */}
