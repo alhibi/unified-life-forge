@@ -328,7 +328,7 @@ export function ArticleCard({
         initial={{ opacity: 0, y: 4 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: Math.min(index * 0.02, 0.3), duration: 0.25 }}
-        className={`group relative overflow-hidden ${isRead ? 'opacity-65' : ''}`}
+        className={`group relative overflow-hidden ${isRead ? 'opacity-70' : ''}`}
       >
         <SwipeBackdrop
           isAr={isAr}
@@ -348,18 +348,25 @@ export function ArticleCard({
           style={{ x }}
           className="relative bg-background"
         >
+          {/* Unread indicator — vertical accent bar on the leading edge */}
+          {!isRead && (
+            <span
+              aria-hidden
+              className="absolute top-4 bottom-4 start-0 w-[3px] rounded-full bg-primary/80"
+            />
+          )}
           <button
             type="button"
             onClick={handleClick}
-            className="w-full text-start p-4 hover:bg-accent/20 active:bg-accent/30 transition-colors flex gap-3.5"
+            className="w-full text-start px-4 py-4 hover:bg-accent/20 active:bg-accent/30 transition-colors flex gap-4"
           >
             <div className="flex-1 min-w-0">
               <h4
                 dir="auto"
-                className={`text-[14px] leading-snug line-clamp-2 ${
+                className={`text-[15px] leading-[1.35] line-clamp-2 tracking-[-0.005em] ${
                   isRead
-                    ? 'font-normal text-foreground/70'
-                    : 'font-semibold text-foreground'
+                    ? 'font-medium text-foreground/65'
+                    : 'font-bold text-foreground'
                 }`}
               >
                 {article.title}
@@ -367,14 +374,14 @@ export function ArticleCard({
               {article.description && (
                 <p
                   dir="auto"
-                  className="text-xs text-muted-foreground mt-1.5 line-clamp-2 leading-relaxed"
+                  className="text-[12.5px] text-muted-foreground/85 mt-1.5 line-clamp-2 leading-[1.55]"
                 >
                   {article.description}
                 </p>
               )}
-              <div className="flex items-center gap-2 mt-2.5 flex-wrap">
+              <div className="flex items-center gap-2 mt-3 flex-wrap">
                 <SourcePill name={article.source} size="sm" />
-                <span className="text-[11px] text-foreground/75 font-medium truncate max-w-[120px]">
+                <span className="text-[11px] text-foreground/80 font-semibold truncate max-w-[120px]">
                   {article.source}
                 </span>
                 <span className="w-1 h-1 rounded-full bg-muted-foreground/30 shrink-0" />
@@ -387,7 +394,7 @@ export function ArticleCard({
                   {isAr ? `${minutes} د` : `${minutes} min`}
                 </span>
                 {isBookmarked && (
-                  <BookmarkCheck className="h-3 w-3 text-primary/60 shrink-0" />
+                  <BookmarkCheck className="h-3 w-3 text-primary shrink-0" />
                 )}
                 {cached && !isBookmarked && (
                   <span
@@ -400,15 +407,18 @@ export function ArticleCard({
               </div>
             </div>
             {article.image && (
-              <img
-                src={article.image}
-                alt=""
-                className="w-20 h-20 object-cover rounded-2xl shrink-0"
-                loading="lazy"
-                onError={(e) => {
-                  (e.currentTarget as HTMLImageElement).style.display = 'none';
-                }}
-              />
+              <div className="relative w-[84px] h-[84px] shrink-0 rounded-2xl overflow-hidden bg-muted/40 ring-1 ring-border/40">
+                <img
+                  src={article.image}
+                  alt=""
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.06]"
+                  loading="lazy"
+                  onError={(e) => {
+                    const wrap = (e.currentTarget as HTMLImageElement).parentElement;
+                    if (wrap) wrap.style.display = 'none';
+                  }}
+                />
+              </div>
             )}
           </button>
           <button
