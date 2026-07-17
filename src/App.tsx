@@ -145,6 +145,7 @@ const loadOAuthConsent = () => import("./pages/OAuthConsent");
 registerRoute('/settings',          loadSettings);
 registerRoute('/settings/theme',    loadTheme);
 registerRoute('/settings/profile',  loadProfile);
+registerRoute('/profile',           loadProfile);
 registerRoute('/settings/font',     loadFont);
 registerRoute('/settings/motion',   loadMotion);
 registerRoute('/settings/prayer',   loadPrayer);
