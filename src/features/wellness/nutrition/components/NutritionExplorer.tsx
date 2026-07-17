@@ -67,6 +67,9 @@ export default function NutritionExplorer() {
   const lang: Lang = language === 'ar' ? 'ar' : 'de';
   const isAr = lang === 'ar';
 
+  // Re-render when the cloud-backed favorites / recents cache changes.
+  useNutritionCache();
+
   const [view, setView] = useState<View>('home');
   const [query, setQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<NutritionCategory | null>(null);
