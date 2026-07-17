@@ -177,7 +177,7 @@ export default function SettingsPage() {
             <AppCard className="p-5">
               <div className="flex items-center gap-4">
                 {/* Avatar */}
-                <button onClick={() => navigate('/settings/profile')} className="relative active:scale-95 transition-transform">
+                <button onClick={() => navigate('/profile')} className="relative active:scale-95 transition-transform">
                   <div className="w-14 h-14 rounded-full flex items-center justify-center ring-2 ring-primary/20 overflow-hidden">
                     {profile?.avatar_url && profile.avatar_url.startsWith('http') ? (
                       <img src={profile.avatar_url} alt="" className="w-full h-full object-cover object-top" />
@@ -191,7 +191,7 @@ export default function SettingsPage() {
                 </button>
 
                 {/* Info */}
-                <button onClick={() => navigate('/settings/profile')} className="flex-1 text-start active:opacity-70 transition-opacity min-w-0">
+                <button onClick={() => navigate('/profile')} className="flex-1 text-start active:opacity-70 transition-opacity min-w-0">
                   <h2 className="text-[17px] font-bold text-foreground truncate">{profile?.display_name || username || (isAr ? 'المستخدم' : 'Benutzer')}</h2>
                   {user.email ? (
                     <p className="text-[12px] text-muted-foreground mt-0.5 truncate">{user.email}</p>

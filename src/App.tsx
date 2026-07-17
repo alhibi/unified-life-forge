@@ -145,6 +145,7 @@ const loadOAuthConsent = () => import("./pages/OAuthConsent");
 registerRoute('/settings',          loadSettings);
 registerRoute('/settings/theme',    loadTheme);
 registerRoute('/settings/profile',  loadProfile);
+registerRoute('/profile',           loadProfile);
 registerRoute('/settings/font',     loadFont);
 registerRoute('/settings/motion',   loadMotion);
 registerRoute('/settings/prayer',   loadPrayer);
@@ -541,6 +542,7 @@ function AnimatedRoutes() {
                   <Route path="/settings/theme" element={<ErrorBoundary><ThemeSettingsPage /></ErrorBoundary>} />
                   <Route path="/auth" element={<ErrorBoundary><AuthPage /></ErrorBoundary>} />
                   <Route path="/settings/profile" element={<ErrorBoundary><ProfileEditPage /></ErrorBoundary>} />
+                  <Route path="/profile" element={<ErrorBoundary><ProfileEditPage /></ErrorBoundary>} />
                   <Route path="/settings/font" element={<ErrorBoundary><FontSettingsPage /></ErrorBoundary>} />
                   <Route path="/settings/motion" element={<ErrorBoundary><MotionSettingsPage /></ErrorBoundary>} />
                   <Route path="/settings/prayer" element={<ErrorBoundary><PrayerSettingsPage /></ErrorBoundary>} />

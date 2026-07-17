@@ -68,9 +68,13 @@ export default function Index() {
                   users see a generic UserCircle that still navigates
                   to /settings (where the auth flow lives). */}
               <button
-                onClick={() => navigate('/settings')}
+                onClick={() => navigate(user ? '/profile' : '/settings')}
                 className="relative w-10 h-10 rounded-full ring-2 ring-primary/20 overflow-hidden active:scale-95 transition-transform"
-                aria-label={language === 'ar' ? 'الإعدادات' : 'Einstellungen'}
+                aria-label={
+                  user
+                    ? (language === 'ar' ? 'الملف الشخصي' : 'Profil')
+                    : (language === 'ar' ? 'الإعدادات' : 'Einstellungen')
+                }
               >
                 {user ? (
                   profile?.avatar_url && profile.avatar_url.startsWith('http') ? (
