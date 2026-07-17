@@ -38,10 +38,14 @@ import { throttle } from './utils';
  *    sort and filters — what you see is what gets touched.
  */
 
-const ESTIMATED_ROW_HEIGHT_COMFORT = 112;
+const ESTIMATED_ROW_HEIGHT_COMFORT = 132;
 const ESTIMATED_ROW_HEIGHT_COMPACT = 44;
-const ESTIMATED_ROW_HEIGHT_CARDS = 280;
-const VIRTUALIZATION_THRESHOLD = 40;
+const ESTIMATED_ROW_HEIGHT_CARDS = 300;
+// Virtualization is intentionally disabled — pagination (PAGE_SIZE) already
+// caps the DOM row count, and fixed-height windowing over variable-height
+// cards produces visible scroll jitter. A high threshold keeps the fallback
+// path in place for any future edge case where a caller bypasses paging.
+const VIRTUALIZATION_THRESHOLD = 10_000;
 const OVERSCAN = 6;
 const PAGE_SIZE = 20;
 const INITIAL_PAGE_SIZE = 20;
