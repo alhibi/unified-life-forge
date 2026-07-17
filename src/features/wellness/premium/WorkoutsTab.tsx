@@ -88,6 +88,7 @@ const SECTIONS: { key: Section; ar: string; de: string; icon: typeof Activity }[
   { key: 'history',  ar: 'السجل',  de: 'Verlauf',   icon: History },
 ];
 
+import { getKV, setKV } from '@/features/wellness/wellnessDb';
 const ACTIVE_PROG_KEY = 'training:activeProgram';
 const STD_LIFTS = ['squat', 'bench', 'deadlift', 'ohp'] as const;
 
@@ -102,10 +103,12 @@ export default function WorkoutsTab({ workouts, profile, onSave, onDelete }: Pro
   const [showPlate, setShowPlate] = useState(false);
 
   useEffect(() => {
-    try {
-      const k = localStorage.getItem(ACTIVE_PROG_KEY);
-      if (k) setActiveProgram(k);
-    } catch { /* noop */ }
+    let cancelled = false;
+    (async () => {
+      const k = await getKV<string | null>(ACTIVE_PROG_KEY, null);
+      if (!cancelled) setActiveProgram(k);
+    })();
+    return () => { cancelled = true; };
   }, []);
 
   const lastByExercise = useMemo(() => {
@@ -154,7 +157,7 @@ export default function WorkoutsTab({ workouts, profile, onSave, onDelete }: Pro
 
   const handlePickProgram = (key: string) => {
     setActiveProgram(key);
-    try { localStorage.setItem(ACTIVE_PROG_KEY, key); } catch { /* noop */ }
+    void setKV(ACTIVE_PROG_KEY, key);
     setSection('train');
   };
 
