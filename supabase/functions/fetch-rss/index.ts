@@ -860,15 +860,27 @@ serve(async (req) => {
       metaMap = new Map();
     }
 
-    // Phase 1 — fetch & parse all feeds in parallel
-    const fetched = await Promise.all(
-      safeUrls.map((url) =>
-        fetchSingleFeed(
+    // Phase 1 — fetch & parse feeds with bounded concurrency to keep
+    // peak memory low (each feed can hold up to a few MB of XML).
+    const fetched: FeedResult[] = new Array(safeUrls.length);
+    let feedCursor = 0;
+    const feedWorker = async () => {
+      while (true) {
+        const i = feedCursor++;
+        if (i >= safeUrls.length) return;
+        const url = safeUrls[i];
+        fetched[i] = await fetchSingleFeed(
           url,
           metaMap.get(url),
           nameMap?.[url],
           maxItems,
-        )
+        );
+      }
+    };
+    await Promise.all(
+      Array.from(
+        { length: Math.min(FEED_FETCH_CONCURRENCY, safeUrls.length) },
+        () => feedWorker(),
       ),
     );
 
