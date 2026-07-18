@@ -34,12 +34,7 @@ interface ProxyEntry {
 }
 
 function loadProxyHealth(): ProxyEntry[] {
-  const defaults: ProxyEntry[] = [
-    { url: 'https://api.allorigins.win/raw?url=', failures: 0, lastOk: 0 },
-    { url: 'https://corsproxy.io/?', failures: 0, lastOk: 0 },
-    { url: 'https://api.codetabs.com/v1/proxy?quest=', failures: 0, lastOk: 0 },
-    { url: 'https://thingproxy.freeboard.io/fetch/', failures: 0, lastOk: 0 },
-  ];
+  const defaults: ProxyEntry[] = [];
   try {
     const raw = sessionStorage.getItem(PROXY_HEALTH_KEY);
     if (!raw) return defaults;
