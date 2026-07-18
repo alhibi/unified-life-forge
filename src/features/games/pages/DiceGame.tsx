@@ -368,7 +368,7 @@ export default function DiceGame() {
   ];
 
   return (
-    <GameShell title={isAr ? 'النرد' : 'Würfel'} icon={Dices} accentColor="#f59e0b" rules={rules} stats={statsArr} options={options}>
+    <GameShell title={isAr ? 'النرد' : 'Würfel'} icon={Dices} accentColor="hsl(346, 87%, 60%)" rules={rules} stats={statsArr} options={options}>
       {mode === 'yatzy' && <YatzyView key="yatzy" isAr={isAr} aiLevel={aiLevel} />}
       {mode === 'pig' && (
         <PigView

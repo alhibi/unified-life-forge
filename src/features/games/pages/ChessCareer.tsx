@@ -104,7 +104,7 @@ export default function ChessCareerPage() {
     <GameShell
       title={isAr ? 'مسيرة الشطرنج' : 'Schachkarriere'}
       icon={Crown}
-      accentColor="#a855f7"
+      accentColor="hsl(25, 95%, 53%)"
       rules={isAr ? [
         'تسلق سلم الأبطال الثمانية',
         'كل بطل له شخصيته وأسلوبه الفريد',

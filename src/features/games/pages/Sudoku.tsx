@@ -600,7 +600,7 @@ export default function SudokuPage() {
     <GameShell
       title={t('games.sudoku')}
       icon={Grid3X3}
-      accentColor="#3b82f6"
+      accentColor="hsl(199, 89%, 48%)"
       rules={sudokuRules}
       stats={sudokuStats}
       options={sudokuOptions}

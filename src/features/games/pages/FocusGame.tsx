@@ -189,7 +189,7 @@ export default function FocusGame() {
   ];
 
   return (
-    <GameShell title={isAr ? 'التركيز' : 'Fokus'} icon={Crosshair} accentColor="#06b6d4" rules={rules} stats={statsArr} options={options}>
+    <GameShell title={isAr ? 'التركيز' : 'Fokus'} icon={Crosshair} accentColor="hsl(142, 71%, 45%)" rules={rules} stats={statsArr} options={options}>
       {mode === 'reaction' && <ReactionMode key="reaction" diff={DIFFS[difficulty]} rounds={rounds} isAr={isAr} onFinish={refreshStats} />}
       {mode === 'choice'   && <ChoiceMode key="choice" diff={DIFFS[difficulty]} rounds={rounds} isAr={isAr} onFinish={refreshStats} />}
       {mode === 'stroop'   && <StroopMode key="stroop" diff={DIFFS[difficulty]} rounds={rounds} isAr={isAr} onFinish={refreshStats} />}
