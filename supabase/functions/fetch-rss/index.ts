@@ -23,9 +23,12 @@ const corsHeaders = {
 const USER_AGENT = "Mozilla/5.0 (compatible; SmartHubReader/1.1; +https://github.com/alhibi/unified-life-forge)";
 const FETCH_TIMEOUT_MS = 15_000;
 const SCRAPE_TIMEOUT_MS = 12_000;
-const SCRAPE_CONCURRENCY = 4;
+const SCRAPE_CONCURRENCY = 2;
 const BG_DEADLINE_MS = 25_000;
-const MAX_FEEDS_PER_REQUEST = 50;
+const MAX_FEEDS_PER_REQUEST = 15;
+const FEED_FETCH_CONCURRENCY = 4;
+const MAX_FULL_CONTENT_CHARS = 20_000;
+const MAX_RESPONSE_BYTES = 3_000_000; // 3 MB per feed response
 const MAX_RETRIES = 1; // one retry on network/5xx
 
 // ─── Auth ──────────────────────────────────────────────────────────────────
