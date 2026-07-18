@@ -1,0 +1,134 @@
+import React, { useState } from 'react';
+import { Languages, Loader2, ArrowLeftRight } from '@/lib/icons';
+import { toast } from 'sonner';
+
+interface ArticleTranslatorProps {
+  originalHtml: string;
+  originalTitle: string;
+  isAr: boolean;
+  onTranslationComplete: (translatedHtml: string, translatedTitle: string) => void;
+  onReset: () => void;
+}
+
+export function ArticleTranslator({
+  originalHtml,
+  originalTitle,
+  isAr,
+  onTranslationComplete,
+  onReset,
+}: ArticleTranslatorProps) {
+  const [translating, setTranslating] = useState(false);
+  const [isTranslated, setIsTranslated] = useState(false);
+  const [targetLang, setTargetLang] = useState<'ar' | 'en' | 'de'>(isAr ? 'en' : 'ar');
+
+  // Simple Free/Public Client-Side Translation fallback using public API (MyMemory or LibreTranslate)
+  const translateText = async (text: string, from: string, to: string): Promise<string> => {
+    if (!text.trim()) return '';
+    try {
+      const response = await fetch(
+        `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${from}|${to}`
+      );
+      if (!response.ok) throw new Error('API response failed');
+      const data = await response.json();
+      return data.responseData?.translatedText || text;
+    } catch (e) {
+      console.warn('Translation item failed, using original', e);
+      return text;
+    }
+  };
+
+  const handleTranslate = async () => {
+    setTranslating(true);
+    try {
+      const fromLang = isAr ? 'ar' : 'en'; // Simple heuristic
+      const toLang = targetLang;
+
+      // Translate Title
+      const translatedTitle = await translateText(originalTitle, fromLang, toLang);
+
+      // We need to translate HTML body paragraph by paragraph to preserve HTML structure
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(originalHtml, 'text/html');
+
+      // Grab all text blocks (paragraphs, headers, list items, blockquotes)
+      const textNodes = doc.querySelectorAll('p, h1, h2, h3, li, blockquote');
+
+      const promises = Array.from(textNodes).map(async (node) => {
+        const text = node.textContent || '';
+        if (text.trim().length > 1) {
+          const translated = await translateText(text, fromLang, toLang);
+          node.textContent = translated;
+        }
+      });
+
+      await Promise.all(promises);
+      const translatedHtml = doc.body.innerHTML;
+
+      onTranslationComplete(translatedHtml, translatedTitle);
+      setIsTranslated(true);
+      toast.success(isAr ? 'تمت الترجمة بنجاح' : 'Article translated successfully!');
+    } catch (error) {
+      console.error('Translation error:', error);
+      toast.error(isAr ? 'فشلت عملية الترجمة' : 'Translation failed');
+    } finally {
+      setTranslating(false);
+    }
+  };
+
+  const handleReset = () => {
+    onReset();
+    setIsTranslated(false);
+  };
+
+  return (
+    <div className="flex items-center justify-between gap-2 p-3 bg-card border border-border/50 rounded-2xl shadow-sm">
+      <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
+        <Languages className="h-4 w-4 text-primary" />
+        <span>{isAr ? 'ترجمة المقال' : 'Translate article'}</span>
+      </div>
+
+      <div className="flex items-center gap-1.5">
+        {!isTranslated ? (
+          <>
+            <select
+              value={targetLang}
+              onChange={(e) => setTargetLang(e.target.value as 'ar' | 'en' | 'de')}
+              className="text-xs h-8 rounded-xl border border-border/50 bg-background px-2 text-foreground focus:outline-none"
+              disabled={translating}
+            >
+              <option value="ar">العربية</option>
+              <option value="en">English</option>
+              <option value="de">Deutsch</option>
+            </select>
+            <button
+              type="button"
+              onClick={handleTranslate}
+              disabled={translating}
+              className="px-3 py-1.5 rounded-xl bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 active:scale-95 transition-all inline-flex items-center gap-1.5"
+            >
+              {translating ? (
+                <>
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                  <span>{isAr ? 'جاري الترجمة...' : 'Translating...'}</span>
+                </>
+              ) : (
+                <>
+                  <ArrowLeftRight className="h-3 w-3" />
+                  <span>{isAr ? 'ترجم' : 'Translate'}</span>
+                </>
+              )}
+            </button>
+          </>
+        ) : (
+          <button
+            type="button"
+            onClick={handleReset}
+            className="px-3 py-1.5 rounded-xl bg-accent hover:bg-accent/80 text-foreground text-xs font-bold active:scale-95 transition-all"
+          >
+            {isAr ? 'عرض النص الأصلي' : 'Show original'}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}

@@ -7,8 +7,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import type { FeedSource } from './types';
-import { CATEGORIES } from './feeds';
 import { SourcePill } from './SourcePill';
 import {
   type FeedFrequency,
@@ -17,6 +15,7 @@ import {
   setFeedFrequency,
 } from './storage';
 import { timeAgo } from './utils';
+import { getCustomFolders } from './foldersStorage';
 
 /**
  * AddFeedDialog — turns "I have a website I read every day" into an
@@ -87,7 +86,12 @@ export function AddFeedDialog({
   const [stage, setStage] = useState<Stage>('idle');
   const [response, setResponse] = useState<DiscoverResponse | null>(null);
   const [errorMsg, setErrorMsg] = useState('');
-  const [category, setCategory] = useState('news');
+  const [customFolders] = useState<string[]>(getCustomFolders);
+  const [category, setCategory] = useState(customFolders[0] || 'news');
+
+  const allFolders = useMemo(() => {
+    return customFolders.map(f => ({ id: f, ar: f, en: f.charAt(0).toUpperCase() + f.slice(1) }));
+  }, [customFolders]);
   const [adding, setAdding] = useState<string | null>(null);
 
   // Reset when dialog re-opens
@@ -102,14 +106,25 @@ export function AddFeedDialog({
   }, [open]);
 
   const handleDiscover = async () => {
-    const trimmed = input.trim();
+    let trimmed = input.trim();
     if (!trimmed) return;
+
+    // Advanced Input Normalization & Intelligent Discovery logic
+    // If the user inputs a name or a partial domain, we auto-enrich it
+    if (!/^https?:\/\//i.test(trimmed)) {
+      if (trimmed.includes('.') && !trimmed.includes(' ')) {
+        trimmed = 'https://' + trimmed;
+      } else {
+        // Search heuristic - try searching via common sources or guess domain
+        trimmed = 'https://www.google.com/search?q=' + encodeURIComponent(trimmed + ' RSS feed');
+        toast.info(isAr ? 'تم تحويل البحث للاكتشاف الذكي لعناوين الويب' : 'Smart discovering web address...');
+      }
+    }
+
     setStage('resolving');
     setErrorMsg('');
     setResponse(null);
-    // Tiny delay then bump to "probing" so the user sees both stages
-    // even on a fast network. The actual function call runs in the
-    // background; whichever finishes first wins.
+
     const stageBump = setTimeout(() => setStage('probing'), 600);
     try {
       const { data, error } = await supabase.functions.invoke(
@@ -119,8 +134,7 @@ export function AddFeedDialog({
       clearTimeout(stageBump);
       if (error) throw error;
       const payload = data as DiscoverResponse;
-      // Cache the frequency estimate per candidate URL so
-      // future opens render the cadence string instantly.
+
       const freqMap = getFeedFrequencies();
       for (const c of payload.candidates || []) {
         if (c.medianGapSeconds && c.medianGapSeconds > 0) {
@@ -136,10 +150,11 @@ export function AddFeedDialog({
       if (payload.error) setErrorMsg(payload.error);
       setResponse(payload);
       setStage('results');
-    } catch (e: any) {
+    } catch (e: unknown) {
       clearTimeout(stageBump);
       setStage('error');
-      setErrorMsg(e?.message || (isAr ? 'تعذّر البحث' : 'Search failed'));
+      const err = e as Error;
+      setErrorMsg(err?.message || (isAr ? 'تعذّر البحث' : 'Search failed'));
     }
   };
 
@@ -231,9 +246,9 @@ export function AddFeedDialog({
             {/* Category selector — applies to all picks from this dialog */}
             <div className="flex items-center gap-2 mt-3 overflow-x-auto no-scrollbar">
               <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold shrink-0">
-                {isAr ? 'الفئة' : 'Category'}
+                {isAr ? 'المجلد' : 'Folder'}
               </span>
-              {CATEGORIES.map((c) => (
+              {allFolders.map((c) => (
                 <button
                   key={c.id}
                   type="button"

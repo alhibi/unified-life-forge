@@ -22,6 +22,8 @@ const DEFAULT_PREFS: ReaderPrefs = {
   lineHeight: 'normal',
   theme: 'system',
   fontFamily: 'sans',
+  translationLang: 'ar',
+  ttsSpeed: 1.0,
 };
 
 async function currentUserId(): Promise<string | null> {
