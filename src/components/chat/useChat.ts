@@ -865,11 +865,11 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
         : m,
     ));
     setSelectedIds(new Set());
-    // Sequential RPC calls to keep auth.uid lookups consistent — these are
-    // cheap (single UPDATE) and the user typically picks <10.
-    for (const id of ids) {
-      try { await (supabase.rpc as any)('hide_message_for_self', { p_message_id: id }); } catch { /* no-op */ }
-    }
+    // Execute RPC calls in parallel for better performance.
+    // These are cheap (single UPDATE) and the user typically picks <10.
+    await Promise.allSettled(
+      ids.map(id => (supabase.rpc as any)('hide_message_for_self', { p_message_id: id }))
+    );
   }, [user]);
 
   const pinMessage = useCallback(async (msg: Message) => {
