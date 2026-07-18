@@ -80,7 +80,7 @@ export default function DiceTournamentPage() {
       <GameShell
         title={isAr ? 'بطولة النرد' : 'Würfel-Turnier'}
         icon={Trophy}
-        accentColor="#f59e0b"
+        accentColor="hsl(346, 87%, 60%)"
         rules={isAr ? [
           'بطولة "الخنزير" بـ 4 لاعبين',
           'نصف نهائي ضد بطل، ثم النهائي',
@@ -141,7 +141,7 @@ export default function DiceTournamentPage() {
     <GameShell
       title={isAr ? 'بطولة النرد' : 'Würfel-Turnier'}
       icon={Trophy}
-      accentColor="#f59e0b"
+      accentColor="hsl(346, 87%, 60%)"
       rules={isAr ? [
         'بطولة "الخنزير" بـ 4 لاعبين',
         '3 خصوم، كل واحد بأسلوب فريد',

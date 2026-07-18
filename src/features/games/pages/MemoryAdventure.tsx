@@ -48,7 +48,7 @@ export default function MemoryAdventurePage() {
     <GameShell
       title={isAr ? 'مغامرة الذاكرة' : 'Memory-Abenteuer'}
       icon={Map}
-      accentColor="#ec4899"
+      accentColor="hsl(262, 83%, 58%)"
       rules={isAr ? [
         '15 محطة بقصص وقواعد متغيرة',
         'كل محطة تتطلب تكتيك مختلف',

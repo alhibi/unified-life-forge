@@ -6,11 +6,22 @@ import { useNavigate } from 'react-router-dom';
 import { Grid3X3, Swords, Gamepad2, Trophy, Brain, Dices, Crosshair, Puzzle, Flame, Target, Zap, Crown, Map, Award, Sparkles } from '@/lib/icons';
 import { motion } from 'framer-motion';
 
-// Single-color unified surface — every game, world and progress tile now
-// reads with the same warm copper accent so the page renders as one
-// coherent surface instead of a rainbow grid.
-const LIVE = 'hsl(32 58% 62%)';
-const LIVE_GRADIENT = 'from-[hsl(32_58%_62%/0.18)] to-[hsl(32_58%_62%/0.04)]';
+// Unique colors for each game to provide visual variety and distinct identities.
+const COLORS = {
+  focus: 'hsl(142 71% 45%)',       // Green
+  dice: 'hsl(346 87% 60%)',        // Pink/Red
+  memory: 'hsl(262 83% 58%)',      // Purple
+  chess: 'hsl(221 83% 53%)',       // Blue
+  puzzles: 'hsl(45 93% 47%)',      // Yellow/Gold
+  sudoku: 'hsl(199 89% 48%)',      // Light Blue
+  career: 'hsl(25 95% 53%)',       // Orange
+  adventure: 'hsl(262 83% 58%)',   // Purple (matches memory)
+  tournament: 'hsl(346 87% 60%)',  // Pink/Red (matches dice)
+  decathlon: 'hsl(142 71% 45%)',   // Green (matches focus)
+  overall: 'hsl(32 58% 62%)'       // Warm Copper for overall stats
+};
+
+const getGradient = (color: string) => `from-[${color.replace(/ /g, '_').replace(/%/g, '%25')}/0.18] to-[${color.replace(/ /g, '_').replace(/%/g, '%25')}/0.04]`; // We will use inline styles instead for reliable Tailwind arbitrary value parsing
 
 interface GameCardData {
   key: string;
@@ -53,40 +64,40 @@ export default function GamesPage() {
       icon: Crosshair,
       title: t('games.focus'),
       badge: focusStats.bestAvg?.reaction ? `${focusStats.bestAvg.reaction}ms` : undefined,
-      badgeColor: LIVE,
+      badgeColor: COLORS.focus,
       modes: isAr
         ? ['ردة فعل', 'ستروب', 'تسلسل', 'N-back', 'هدف']
         : ['Reaktion', 'Stroop', 'Sequenz', 'N-back', 'Ziel'],
       path: '/games/focus',
-      primaryStat: { label: isAr ? 'مباريات' : 'Spiele', value: focusStats.gamesPlayed || 0, accent: LIVE },
+      primaryStat: { label: isAr ? 'مباريات' : 'Spiele', value: focusStats.gamesPlayed || 0, accent: COLORS.focus },
       secondaryStat: focusStats.bestNback?.level ? { label: 'N-back', value: `${focusStats.bestNback.level}` } : undefined,
-      gradient: LIVE_GRADIENT,
+      gradient: COLORS.focus,
     },
     {
       key: 'dice',
       icon: Dices,
       title: t('games.dice'),
       badge: diceStats.bestScore ? `${diceStats.bestScore}` : undefined,
-      badgeColor: LIVE,
+      badgeColor: COLORS.dice,
       modes: isAr ? ['يَتزي', 'الخنزير', 'رمية كبرى'] : ['Kniffel', 'Pig', 'Highroll'],
       path: '/games/dice',
-      primaryStat: { label: isAr ? 'انتصارات' : 'Siege', value: diceStats.gamesWon || 0, accent: LIVE },
+      primaryStat: { label: isAr ? 'انتصارات' : 'Siege', value: diceStats.gamesWon || 0, accent: COLORS.dice },
       secondaryStat: diceStats.yatzeesRolled ? { label: isAr ? 'يَتزي' : 'Kniffel', value: diceStats.yatzeesRolled } : undefined,
-      gradient: LIVE_GRADIENT,
+      gradient: COLORS.dice,
     },
     {
       key: 'memory',
       icon: Brain,
       title: t('games.memory'),
       badge: memStats.level ? `Lv.${memStats.level}` : undefined,
-      badgeColor: LIVE,
+      badgeColor: COLORS.memory,
       modes: isAr
         ? ['كلاسيكي', 'بلا نهاية', 'سباق وقت', 'يومي', 'ضد ذكاء']
         : ['Klassisch', 'Endlos', 'Zeitrennen', 'Daily', 'Vs KI'],
       path: '/games/memory',
-      primaryStat: { label: isAr ? 'فوز' : 'Siege', value: memStats.gamesWon || 0, accent: LIVE },
+      primaryStat: { label: isAr ? 'فوز' : 'Siege', value: memStats.gamesWon || 0, accent: COLORS.memory },
       secondaryStat: memStats.bestEndlessLevel ? { label: isAr ? 'مستوى ∞' : 'Endlos', value: memStats.bestEndlessLevel } : undefined,
-      gradient: LIVE_GRADIENT,
+      gradient: COLORS.memory,
     },
     {
       key: 'chess',
@@ -94,21 +105,21 @@ export default function GamesPage() {
       title: t('games.chess'),
       modes: isAr ? ['ضد لاعب', 'ضد ذكاء', 'ساعة'] : ['Spieler', 'KI', 'Uhr'],
       path: '/games/chess',
-      primaryStat: { label: isAr ? 'مباريات' : 'Partien', value: chessStats.gamesPlayed || 0, accent: LIVE },
+      primaryStat: { label: isAr ? 'مباريات' : 'Partien', value: chessStats.gamesPlayed || 0, accent: COLORS.chess },
       secondaryStat: { label: isAr ? 'فوز' : 'Siege', value: (chessStats.whiteWins || 0) + (chessStats.blackWins || 0) },
-      gradient: LIVE_GRADIENT,
+      gradient: COLORS.chess,
     },
     {
       key: 'chess-puzzles',
       icon: Puzzle,
       title: isAr ? 'ألغاز الشطرنج' : 'Schach-Puzzles',
       badge: puzzleStats.rating ? `${puzzleStats.rating}` : undefined,
-      badgeColor: LIVE,
+      badgeColor: COLORS.puzzles,
       modes: isAr ? ['مات', 'شوكة', 'تثبيت', 'تضحية', 'هجوم مكشوف'] : ['Matt', 'Gabel', 'Fesselung', 'Opfer', 'Abzug'],
       path: '/games/chess/puzzles',
-      primaryStat: { label: isAr ? 'محلولة' : 'Gelöst', value: puzzleStats.solved || 0, accent: LIVE },
+      primaryStat: { label: isAr ? 'محلولة' : 'Gelöst', value: puzzleStats.solved || 0, accent: COLORS.puzzles },
       secondaryStat: puzzleStats.currentStreak ? { label: isAr ? 'سلسلة' : 'Serie', value: puzzleStats.currentStreak } : undefined,
-      gradient: LIVE_GRADIENT,
+      gradient: COLORS.puzzles,
     },
     {
       key: 'sudoku',
@@ -116,9 +127,9 @@ export default function GamesPage() {
       title: t('games.sudoku'),
       modes: isAr ? ['كلاسيكي', 'X-سودوكو', 'يومي'] : ['Klassisch', 'X-Sudoku', 'Daily'],
       path: '/games/sudoku',
-      primaryStat: { label: isAr ? 'فوز' : 'Siege', value: sudStats.gamesWon || 0, accent: LIVE },
+      primaryStat: { label: isAr ? 'فوز' : 'Siege', value: sudStats.gamesWon || 0, accent: COLORS.sudoku },
       secondaryStat: sudStats.flawless ? { label: isAr ? 'إتقان' : 'Perfekt', value: sudStats.flawless } : undefined,
-      gradient: LIVE_GRADIENT,
+      gradient: COLORS.sudoku,
     },
   ], [t, isAr, memStats, diceStats, focusStats, chessStats, puzzleStats, sudStats]);
 
@@ -140,14 +151,14 @@ export default function GamesPage() {
       key: 'chess-career',
       title: isAr ? 'مسيرة الشطرنج' : 'Schachkarriere',
       subtitle: isAr ? `Elo ${careerStats.rating || 800} · ${careerRank}/8 بطل` : `Elo ${careerStats.rating || 800} · ${careerRank}/8 besiegt`,
-      icon: Crown, color: LIVE,
+      icon: Crown, color: COLORS.career,
       path: '/games/chess/career',
     },
     {
       key: 'memory-adventure',
       title: isAr ? 'مغامرة الذاكرة' : 'Memory-Abenteuer',
       subtitle: isAr ? `${adventureStats.highestCleared || 0}/15 محطة · ${adventureStars}★` : `${adventureStats.highestCleared || 0}/15 Etappen · ${adventureStars}★`,
-      icon: Map, color: LIVE,
+      icon: Map, color: COLORS.adventure,
       path: '/games/memory/adventure',
     },
     {
@@ -158,7 +169,7 @@ export default function GamesPage() {
         : tournamentStats.status === 'in-progress'
           ? (isAr ? 'بطولة قيد اللعب' : 'Turnier läuft')
           : (isAr ? '4 لاعبين · بطولة إقصاء' : '4 Spieler · K.-O.-Runde'),
-      icon: Trophy, color: LIVE,
+      icon: Trophy, color: COLORS.tournament,
       path: '/games/dice/tournament',
     },
     {
@@ -167,7 +178,7 @@ export default function GamesPage() {
       subtitle: decathlonStats.best?.index
         ? (isAr ? `أفضل: ${decathlonStats.best.index}` : `Best: ${decathlonStats.best.index}`)
         : (isAr ? '5 محطات · مؤشر معرفي' : '5 Disziplinen · Cognitive Index'),
-      icon: Award, color: LIVE,
+      icon: Award, color: COLORS.decathlon,
       path: '/games/focus/decathlon',
     },
   ];
@@ -203,10 +214,10 @@ export default function GamesPage() {
         transition={{ delay: 0.05, duration: 0.4 }}
         className="px-4 mb-4"
       >
-        <div className="rounded-2xl border border-border/40 bg-card p-3 grid grid-cols-3 gap-2">
-          <ProgressTile icon={Trophy} value={totalWins} label={isAr ? 'انتصار' : 'Siege'} color={LIVE} />
-          <ProgressTile icon={Flame} value={`Lv.${memoryLevel}`} label={isAr ? 'الذاكرة' : 'Memory'} color={LIVE} />
-          <ProgressTile icon={Target} value={puzzleStats.rating || 800} label={isAr ? 'تقييم ألغاز' : 'Puzzle Elo'} color={LIVE} />
+        <div className="rounded-2xl border border-border/40 bg-card p-3 grid grid-cols-3 gap-2 shadow-sm">
+          <ProgressTile icon={Trophy} value={totalWins} label={isAr ? 'انتصار' : 'Siege'} color={COLORS.overall} />
+          <ProgressTile icon={Flame} value={`Lv.${memoryLevel}`} label={isAr ? 'الذاكرة' : 'Memory'} color={COLORS.memory} />
+          <ProgressTile icon={Target} value={puzzleStats.rating || 800} label={isAr ? 'تقييم ألغاز' : 'Puzzle Elo'} color={COLORS.puzzles} />
         </div>
       </motion.div>
 
@@ -218,106 +229,105 @@ export default function GamesPage() {
         transition={{ delay: 0.08, duration: 0.4 }}
         className="px-4 mb-5"
       >
-        <div className="flex items-center justify-between mb-2 px-1">
-          <p className="text-[11px] font-bold text-foreground/80">
-            {isAr ? '🌟 العوالم' : '🌟 Welten'}
-          </p>
-          <p className="text-[10px] text-muted-foreground">
-            {isAr ? 'أنماط بقصة وعمق' : 'Story-Modi'}
-          </p>
-        </div>
-        <div className="grid grid-cols-2 gap-2">
-          {worlds.map((world, i) => {
-            const Icon = world.icon;
-            return (
-              <motion.button
-                key={world.key}
-                initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 + i * 0.04, duration: 0.3 }}
-                onClick={() => navigate(world.path)}
-                className="relative overflow-hidden rounded-2xl border p-3 text-start active:scale-[0.97] transition-transform"
-                style={{
-                  
-                  borderColor: `${world.color}30`,
-                }}
-              >
-                <div className="flex items-center gap-2 mb-1">
-                  <Icon className="w-4 h-4 stroke-[2]" style={{ color: world.color }} />
-                  <Sparkles className="w-2.5 h-2.5 ml-auto" style={{ color: world.color, opacity: 0.5 }} />
-                </div>
-                <p className="text-[12px] font-black text-foreground leading-tight">{world.title}</p>
-                <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-1">{world.subtitle}</p>
-              </motion.button>
-            );
-          })}
-        </div>
       </motion.div>
 
-      {/* Game grid */}
+      {/* Combined Unified Grid (Games + Worlds) */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.1, duration: 0.4 }}
         className="px-4 grid grid-cols-1 sm:grid-cols-2 gap-3"
       >
-        {games.map((game, i) => {
-          const Icon = game.icon;
+        {worlds.map((world, i) => {
+          const Icon = world.icon;
           return (
             <motion.button
-              key={game.key}
+              key={world.key}
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 + i * 0.05, duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-              onClick={() => navigate(game.path)}
-              className={`group relative overflow-hidden rounded-2xl bg-card border border-border/40 p-4 active:scale-[0.97] transition-transform text-start min-h-[140px] flex flex-col gap-2.5`}
+              onClick={() => navigate(world.path)}
+              className="group relative overflow-hidden rounded-3xl bg-card border border-border/50 p-5 active:scale-[0.98] transition-all hover:shadow-lg text-start flex flex-col gap-3"
+              style={{ borderColor: `${world.color}40` }}
             >
-              {/* Soft gradient background */}
-              <div className={`absolute inset-0 ${game.gradient} opacity-50 pointer-events-none`} />
+              <div className="absolute top-0 right-0 w-32 h-32 opacity-10 blur-2xl pointer-events-none rounded-full transform translate-x-10 -translate-y-10" style={{ background: world.color }} />
 
-              <div className="relative z-10 flex items-start justify-between">
-                <div className="w-11 h-11 rounded-xl bg-card flex items-center justify-center " style={{ }}>
-                  <Icon className="w-5 h-5 stroke-[1.8]" style={{ color: game.primaryStat.accent }} />
+              <div className="relative z-10 flex items-center justify-between">
+                <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-inner" style={{ background: `${world.color}15` }}>
+                  <Icon className="w-6 h-6 stroke-[2]" style={{ color: world.color }} />
                 </div>
-                {game.badge && (
-                  <div className="px-2 py-0.5 rounded-full text-[10px] font-bold tabular-nums"
-                    style={{ background: `${game.badgeColor}20`, color: game.badgeColor }}>
-                    {game.badge}
-                  </div>
-                )}
+                <Sparkles className="w-5 h-5 opacity-40 animate-pulse" style={{ color: world.color }} />
               </div>
 
-              <div className="relative z-10 flex-1">
-                <h2 className="font-bold text-[15px] text-foreground leading-tight mb-1.5">{game.title}</h2>
-                <div className="flex flex-wrap gap-1">
-                  {game.modes.slice(0, 4).map(mode => (
-                    <span key={mode} className="text-[9px] font-medium px-1.5 py-0.5 rounded bg-foreground/4 text-muted-foreground">
-                      {mode}
-                    </span>
-                  ))}
-                  {game.modes.length > 4 && (
-                    <span className="text-[9px] font-medium px-1.5 py-0.5 rounded text-muted-foreground/60">
-                      +{game.modes.length - 4}
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              <div className="relative z-10 flex items-center justify-between border-t border-border/30 pt-2 -mx-1 px-1">
-                <div className="flex items-center gap-1 text-[10px]">
-                  <span className="font-bold tabular-nums" style={{ color: game.primaryStat.accent }}>
-                    {game.primaryStat.value}
-                  </span>
-                  <span className="text-muted-foreground">{game.primaryStat.label}</span>
-                </div>
-                {game.secondaryStat && (
-                  <div className="flex items-center gap-1 text-[10px]">
-                    <span className="text-foreground font-bold tabular-nums">{game.secondaryStat.value}</span>
-                    <span className="text-muted-foreground">{game.secondaryStat.label}</span>
-                  </div>
-                )}
+              <div className="relative z-10 mt-1">
+                <h3 className="font-black text-[17px] text-foreground leading-tight mb-1">{world.title}</h3>
+                <p className="text-[12px] text-muted-foreground/90 font-medium">{world.subtitle}</p>
               </div>
             </motion.button>
           );
+        })}
+
+        {games.map((game, i) => {
+              const Icon = game.icon;
+              return (
+                <motion.button
+                  key={game.key}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 + i * 0.05, duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                  onClick={() => navigate(game.path)}
+                  className="group relative overflow-hidden rounded-2xl bg-card border border-border/40 p-4 active:scale-[0.98] transition-all hover:shadow-md text-start min-h-[140px] flex flex-col gap-2.5"
+                >
+                  {/* Custom gradient background using inline styles */}
+                  <div
+                    className="absolute inset-0 opacity-[0.08] pointer-events-none transition-opacity group-hover:opacity-[0.12]"
+                    style={{ background: `linear-gradient(to bottom right, ${game.gradient}, transparent)` }}
+                  />
+
+                  <div className="relative z-10 flex items-start justify-between">
+                    <div className="w-11 h-11 rounded-xl flex items-center justify-center shadow-sm" style={{ background: `${game.primaryStat.accent}15` }}>
+                      <Icon className="w-5 h-5 stroke-[2]" style={{ color: game.primaryStat.accent }} />
+                    </div>
+                    {game.badge && (
+                      <div className="px-2.5 py-1 rounded-full text-[10px] font-bold tabular-nums shadow-sm"
+                        style={{ background: `${game.badgeColor}15`, color: game.badgeColor, border: `1px solid ${game.badgeColor}30` }}>
+                        {game.badge}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="relative z-10 flex-1">
+                    <h2 className="font-bold text-[16px] text-foreground leading-tight mb-2">{game.title}</h2>
+                    <div className="flex flex-wrap gap-1.5">
+                      {game.modes.slice(0, 4).map(mode => (
+                        <span key={mode} className="text-[9px] font-semibold px-2 py-0.5 rounded-md bg-foreground/5 text-muted-foreground/90 border border-border/30">
+                          {mode}
+                        </span>
+                      ))}
+                      {game.modes.length > 4 && (
+                        <span className="text-[9px] font-semibold px-2 py-0.5 rounded-md text-muted-foreground/60 bg-foreground/3">
+                          +{game.modes.length - 4}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="relative z-10 flex items-center justify-between border-t border-border/40 pt-2.5 mt-1 -mx-1 px-1">
+                    <div className="flex items-center gap-1.5 text-[11px]">
+                      <span className="font-black tabular-nums" style={{ color: game.primaryStat.accent }}>
+                        {game.primaryStat.value}
+                      </span>
+                      <span className="text-muted-foreground font-medium">{game.primaryStat.label}</span>
+                    </div>
+                    {game.secondaryStat && (
+                      <div className="flex items-center gap-1.5 text-[11px]">
+                        <span className="text-foreground font-black tabular-nums">{game.secondaryStat.value}</span>
+                        <span className="text-muted-foreground font-medium">{game.secondaryStat.label}</span>
+                      </div>
+                    )}
+                  </div>
+                </motion.button>
+              );
         })}
       </motion.div>
 

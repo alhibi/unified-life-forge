@@ -2,6 +2,9 @@
 // To take ownership, delete this banner line; the plugin then leaves the file alone.
 // supabase function: mcp
 // Bundled from src/lib/mcp/index.ts by @lovable.dev/mcp-js.
+// <define:import.meta.env>
+var define_import_meta_env_default = { MODE: "production", BASE_URL: "/", DEV: false, PROD: true, SSR: false };
+
 // src/lib/mcp/index.ts
 import { auth, defineMcp } from "npm:@lovable.dev/mcp-js@0.22.2";
 
@@ -135,7 +138,7 @@ var create_note_default = defineTool4({
 });
 
 // src/lib/mcp/index.ts
-var projectRef = "nmrckgzmluoavgucqvjh";
+var projectRef = define_import_meta_env_default.VITE_SUPABASE_PROJECT_ID ?? "project-ref-unset";
 var mcp_default = defineMcp({
   name: "smarthub-mcp",
   title: "SmartHub",

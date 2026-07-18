@@ -209,6 +209,7 @@ export default function MemoryGame() {
   const [solved, setSolved] = useState(false);
   const [peeking, setPeeking] = useState(false);
   const [bombArmed, setBombArmed] = useState(false);
+  const [accuracyTracking, setAccuracyTracking] = useState({ totalAttempts: 0, successfulAttempts: 0 });
 
   // Mode-specific state
   const [endlessLevel, setEndlessLevel] = useState(1);
@@ -482,6 +483,9 @@ export default function MemoryGame() {
     if (!gameStarted) { setGameStarted(true); setIsRunning(true); }
     const newFlipped = [...flipped, index];
     setFlipped(newFlipped);
+    if (newFlipped.length === 1) {
+      setAccuracyTracking(prev => ({ ...prev, totalAttempts: prev.totalAttempts + 1 }));
+    }
     playSfx('flip'); vibrate(10);
 
     // Update AI memory in versus mode
@@ -504,6 +508,7 @@ export default function MemoryGame() {
           } else {
             const newChain = chain + 1;
             setChain(newChain);
+            setAccuracyTracking(prev => ({ ...prev, successfulAttempts: prev.successfulAttempts + 1 }));
             if (newChain > bestChainThisGame) setBestChainThisGame(newChain);
             const gain = 100 + (newChain >= 3 ? newChain * 25 : 0);
             setScore(s => s + gain);
@@ -646,16 +651,21 @@ export default function MemoryGame() {
 
   // GameShell stats
   const xp = xpProgress(stats);
+
+  const accuracy = accuracyTracking.totalAttempts > 0 ? Math.round((accuracyTracking.successfulAttempts / accuracyTracking.totalAttempts) * 100) : 0;
+
   const statsArr = [
     { label: isAr ? 'المستوى' : 'Level', value: stats.level },
     { label: isAr ? 'فوز' : 'Siege', value: stats.gamesWon },
     { label: isAr ? 'أفضل سلسلة' : 'Beste Serie', value: stats.bestStreak },
     { label: isAr ? 'أعلى كومبو' : 'Top Combo', value: `×${stats.bestChain}` },
+    { label: isAr ? 'الدقة الحالية' : 'Aktuelle Genauigkeit', value: `${accuracy}%` },
     { label: isAr ? 'مستوى Endless' : 'Endlos Top', value: stats.bestEndlessLevel },
     { label: isAr ? 'سباق ذروة' : 'TA Bestleistung', value: stats.bestTimeAttackPairs },
     { label: isAr ? 'يومية متتالية' : 'Tagesserie', value: stats.dailyStreak },
     { label: isAr ? 'إنجازات' : 'Erfolge', value: `${stats.unlocked.length}/${ACHIEVEMENTS.length}` },
   ];
+
 
   // -------------------- Render --------------------
   const dailyDoneToday = mode === 'daily' && !!stats.dailyResults[todayKey()];
@@ -664,7 +674,7 @@ export default function MemoryGame() {
     <GameShell
       title={isAr ? 'أزواج الذاكرة' : 'Memory Pairs'}
       icon={Brain}
-      accentColor="#ec4899"
+      accentColor="hsl(262, 83%, 58%)"
       rules={rules}
       stats={statsArr}
       options={options}

@@ -178,7 +178,7 @@ export default function FocusDecathlonPage() {
       <GameShell
         title={isAr ? 'العشاري الذهني' : 'Mental-Decathlon'}
         icon={Award}
-        accentColor="#06b6d4"
+        accentColor="hsl(142, 71%, 45%)"
         rules={isAr ? [
           '5 محطات متتالية بدون توقف',
           'ردة فعل، ستروب، ذاكرة، N-back، تهديف',
@@ -247,7 +247,7 @@ export default function FocusDecathlonPage() {
       <GameShell
         title={isAr ? 'العشاري الذهني' : 'Mental-Decathlon'}
         icon={Award}
-        accentColor="#06b6d4"
+        accentColor="hsl(142, 71%, 45%)"
         rules={[]}
         stats={[]}
         options={[]}
@@ -286,7 +286,7 @@ export default function FocusDecathlonPage() {
     <GameShell
       title={isAr ? 'العشاري الذهني' : 'Mental-Decathlon'}
       icon={Award}
-      accentColor="#06b6d4"
+      accentColor="hsl(142, 71%, 45%)"
       rules={[]}
       stats={[]}
       options={[]}
