@@ -58,14 +58,26 @@ const ChartContainer = React.forwardRef<
 });
 ChartContainer.displayName = "Chart";
 
+/**
+ * Sanitizes a chart ID to prevent escaping the CSS block and executing arbitrary HTML/XSS.
+ * Only allows alphanumeric characters, hyphens, and underscores.
+ */
 function sanitizeId(id: string): string {
   return id.replace(/[^a-zA-Z0-9-_]/g, "");
 }
 
+/**
+ * Sanitizes configuration keys to prevent injection of malicious CSS properties.
+ * Only allows alphanumeric characters, hyphens, and underscores.
+ */
 function sanitizeKey(key: string): string {
   return key.replace(/[^a-zA-Z0-9-_]/g, "");
 }
 
+/**
+ * Sanitizes a color string to prevent CSS injection attacks or breaking the <style> block.
+ * Only allows safe characters representing hex, rgb, rgba, hsl, hsla, and safe string values.
+ */
 function sanitizeColor(color: string): string {
   return color.replace(/[^a-zA-Z0-9#()_.,%\s-]/g, "");
 }
