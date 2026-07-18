@@ -23,9 +23,12 @@ const corsHeaders = {
 const USER_AGENT = "Mozilla/5.0 (compatible; SmartHubReader/1.1; +https://github.com/alhibi/unified-life-forge)";
 const FETCH_TIMEOUT_MS = 15_000;
 const SCRAPE_TIMEOUT_MS = 12_000;
-const SCRAPE_CONCURRENCY = 4;
+const SCRAPE_CONCURRENCY = 2;
 const BG_DEADLINE_MS = 25_000;
-const MAX_FEEDS_PER_REQUEST = 50;
+const MAX_FEEDS_PER_REQUEST = 15;
+const FEED_FETCH_CONCURRENCY = 4;
+const MAX_FULL_CONTENT_CHARS = 20_000;
+const MAX_RESPONSE_BYTES = 3_000_000; // 3 MB per feed response
 const MAX_RETRIES = 1; // one retry on network/5xx
 
 // ─── Auth ──────────────────────────────────────────────────────────────────
@@ -663,7 +666,9 @@ async function scrapeMissingContent(items: FeedItem[]): Promise<void> {
       const scraped = await scrapeArticle(item.link);
       if (!scraped) continue;
       if (scraped.html && scraped.html.length > (item.fullContent?.length || 0)) {
-        item.fullContent = scraped.html;
+        item.fullContent = scraped.html.length > MAX_FULL_CONTENT_CHARS
+          ? scraped.html.slice(0, MAX_FULL_CONTENT_CHARS)
+          : scraped.html;
         item.description = stripText(scraped.html).slice(0, 600);
         const newImgs = extractInlineImages(scraped.html);
         for (const ig of newImgs) {
@@ -747,10 +752,36 @@ async function fetchSingleFeed(
     };
   }
 
-  const text = await res.text();
+  // Cap response size to avoid OOM on pathologically huge feeds.
+  let text: string;
+  try {
+    const buf = await res.arrayBuffer();
+    if (buf.byteLength > MAX_RESPONSE_BYTES) {
+      text = new TextDecoder().decode(buf.slice(0, MAX_RESPONSE_BYTES));
+    } else {
+      text = new TextDecoder().decode(buf);
+    }
+  } catch (e) {
+    return {
+      url,
+      status: "error",
+      title: nameOverride || "",
+      sourceName: nameOverride || url,
+      items: [],
+      error: e instanceof Error ? e.message : String(e),
+      httpStatus: res.status,
+    };
+  }
   const parsed = parseRSS(text, maxItems);
+  // Free the raw feed buffer before we return.
+  text = "";
   const sourceName = nameOverride || parsed.title;
-  parsed.items.forEach((it) => (it.source = sourceName));
+  parsed.items.forEach((it) => {
+    it.source = sourceName;
+    if (it.fullContent && it.fullContent.length > MAX_FULL_CONTENT_CHARS) {
+      it.fullContent = it.fullContent.slice(0, MAX_FULL_CONTENT_CHARS);
+    }
+  });
 
   return {
     url,
@@ -831,15 +862,27 @@ serve(async (req) => {
       metaMap = new Map();
     }
 
-    // Phase 1 — fetch & parse all feeds in parallel
-    const fetched = await Promise.all(
-      safeUrls.map((url) =>
-        fetchSingleFeed(
+    // Phase 1 — fetch & parse feeds with bounded concurrency to keep
+    // peak memory low (each feed can hold up to a few MB of XML).
+    const fetched: FeedResult[] = new Array(safeUrls.length);
+    let feedCursor = 0;
+    const feedWorker = async () => {
+      while (true) {
+        const i = feedCursor++;
+        if (i >= safeUrls.length) return;
+        const url = safeUrls[i];
+        fetched[i] = await fetchSingleFeed(
           url,
           metaMap.get(url),
           nameMap?.[url],
           maxItems,
-        )
+        );
+      }
+    };
+    await Promise.all(
+      Array.from(
+        { length: Math.min(FEED_FETCH_CONCURRENCY, safeUrls.length) },
+        () => feedWorker(),
       ),
     );
 
