@@ -58,6 +58,18 @@ const ChartContainer = React.forwardRef<
 });
 ChartContainer.displayName = "Chart";
 
+function sanitizeId(id: string): string {
+  return id.replace(/[^a-zA-Z0-9-_]/g, "");
+}
+
+function sanitizeKey(key: string): string {
+  return key.replace(/[^a-zA-Z0-9-_]/g, "");
+}
+
+function sanitizeColor(color: string): string {
+  return color.replace(/[^a-zA-Z0-9#()_.,%\s-]/g, "");
+}
+
 const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
   const colorConfig = Object.entries(config).filter(([_, config]) => config.theme || config.color);
 
@@ -65,26 +77,26 @@ const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
     return null;
   }
 
-  return (
-    <style
-      dangerouslySetInnerHTML={{
-        __html: Object.entries(THEMES)
-          .map(
-            ([theme, prefix]) => `
-${prefix} [data-chart=${id}] {
-${colorConfig
-  .map(([key, itemConfig]) => {
-    const color = itemConfig.theme?.[theme as keyof typeof itemConfig.theme] || itemConfig.color;
-    return color ? `  --color-${key}: ${color};` : null;
-  })
-  .join("\n")}
-}
-`,
-          )
-          .join("\n"),
-      }}
-    />
-  );
+  const sanitizedId = sanitizeId(id);
+
+  const styleContent = Object.entries(THEMES)
+    .map(([theme, prefix]) => {
+      const cssRules = colorConfig
+        .map(([key, itemConfig]) => {
+          const color = itemConfig.theme?.[theme as keyof typeof itemConfig.theme] || itemConfig.color;
+          if (!color) return null;
+          const sanitizedKey = sanitizeKey(key);
+          const sanitizedColor = sanitizeColor(color);
+          return `  --color-${sanitizedKey}: ${sanitizedColor};`;
+        })
+        .filter(Boolean)
+        .join("\n");
+
+      return `${prefix} [data-chart=${sanitizedId}] {\n${cssRules}\n}`;
+    })
+    .join("\n");
+
+  return <style>{styleContent}</style>;
 };
 
 const ChartTooltip = RechartsPrimitive.Tooltip;
