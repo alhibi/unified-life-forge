@@ -9,7 +9,8 @@ import {
   getOfflinePrefs,
   getReadArticles,
   getStoredFeeds,
-  storeBookmarks,
+  setBookmarkArticle,
+  deleteBookmark,
   storeFeeds,
   storeReadArticles,
 } from './storage';
@@ -693,7 +694,14 @@ export function useReadingData(opts: { isAr: boolean }) {
       const exists = prev.includes(link);
       nowBookmarked = !exists;
       const next = exists ? prev.filter((b) => b !== link) : [...prev, link];
-      storeBookmarks(next);
+      if (exists) {
+        deleteBookmark(link);
+      } else {
+        const article = articlesRef.current.find((a) => a.link === link);
+        if (article) {
+          setBookmarkArticle(article);
+        }
+      }
       return next;
     });
     // After *adding* a bookmark we immediately persist the article body
