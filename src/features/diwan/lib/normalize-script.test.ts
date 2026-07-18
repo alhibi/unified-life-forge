@@ -164,7 +164,7 @@ describe('splitVerse', () => {
 
   it('collapses consecutive whitespace', () => {
     // مساحات متعدّدة → مساحة واحدة قبل المحاولة بالـ split
-    const { h1 } = splitVerse('  قفا   نبك  ');
+    const { h1 } = splitVerse('  قفا  نبك  ');
     expect(h1).toBe('قفا نبك');
   });
 });

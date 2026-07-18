@@ -1,7 +1,9 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Send, Smile, X, Reply, Pencil } from '@/lib/icons';
 import { cn } from '@/lib/utils';
 import type { ChatMessage } from '@/lib/chat';
+import EmojiPicker from '../EmojiPicker';
+import { AnimatePresence, motion } from 'framer-motion';
 
 interface GroupComposerProps {
   isAr: boolean;
@@ -33,6 +35,24 @@ const GroupComposer: React.FC<GroupComposerProps> = ({
   replyTo, onClearReply, editing, onCancelEdit, onTyping, readOnly, readOnlyReason,
 }) => {
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+
+  const insertEmoji = (emoji: string) => {
+    const el = inputRef.current;
+    if (!el) {
+      onTextChange(text + emoji);
+      return;
+    }
+    const start = el.selectionStart ?? text.length;
+    const end = el.selectionEnd ?? text.length;
+    const next = text.slice(0, start) + emoji + text.slice(end);
+    onTextChange(next);
+    requestAnimationFrame(() => {
+      el.focus();
+      const caret = start + emoji.length;
+      el.setSelectionRange(caret, caret);
+    });
+  };
 
   // Auto-resize on every change.
   useEffect(() => {
@@ -87,14 +107,16 @@ const GroupComposer: React.FC<GroupComposerProps> = ({
       <div className="flex items-end gap-2 px-3 py-2">
         <button
           type="button"
+          onClick={() => setShowEmojiPicker(!showEmojiPicker)}
           aria-label={isAr ? 'الرموز التعبيرية' : 'Emojis'}
-          className="w-9 h-9 rounded-full flex items-center justify-center text-muted-foreground active:bg-accent/40 shrink-0"
-          // Emoji picker integration can re-use the existing EmojiPicker component
-          // — wired in by the parent screen via insertAtCaret. We render the
-          // button shell here so the layout stays stable.
+          aria-pressed={showEmojiPicker}
+          className={cn(
+            'w-9 h-9 rounded-full flex items-center justify-center transition-colors shrink-0',
+            showEmojiPicker
+              ? 'bg-primary/15 text-primary'
+              : 'text-muted-foreground hover:text-foreground active:bg-accent/40'
+          )}
           tabIndex={-1}
-          disabled
-          title={isAr ? 'قريباً' : 'Bald verfügbar'}
         >
           <Smile className="w-5 h-5" />
         </button>
@@ -104,10 +126,16 @@ const GroupComposer: React.FC<GroupComposerProps> = ({
             ref={inputRef}
             value={text}
             onChange={(e) => { onTextChange(e.target.value); onTyping(); }}
+            onFocus={() => {
+              if (showEmojiPicker) setShowEmojiPicker(false);
+            }}
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey && enterToSend) {
                 e.preventDefault();
-                if (canSend) onSend();
+                if (canSend) {
+                  onSend();
+                  if (showEmojiPicker) setShowEmojiPicker(false);
+                }
               }
             }}
             rows={1}
@@ -123,7 +151,10 @@ const GroupComposer: React.FC<GroupComposerProps> = ({
 
         <button
           type="button"
-          onClick={onSend}
+          onClick={() => {
+            onSend();
+            if (showEmojiPicker) setShowEmojiPicker(false);
+          }}
           disabled={!canSend}
           className={cn(
             'h-10 w-10 rounded-full flex items-center justify-center transition-all shrink-0',
@@ -137,6 +168,21 @@ const GroupComposer: React.FC<GroupComposerProps> = ({
           <Send className="w-4 h-4 -mt-px" />
         </button>
       </div>
+
+      {/* Emoji picker (collapsible) */}
+      <AnimatePresence>
+        {showEmojiPicker && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden border-t border-border/10"
+          >
+            <EmojiPicker isAr={isAr} onPick={insertEmoji} compact />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

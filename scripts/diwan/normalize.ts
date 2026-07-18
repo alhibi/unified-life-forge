@@ -87,13 +87,18 @@ export function extractRhyme(lastHemistich: string): string | undefined {
  * يحوّل بيتًا أدبيًا واحدًا (سطر فيه " — " أو tabs أو فراغ متعدّد بين الشطرين)
  * إلى صدر/عجز.
  */
-const HEMI_SPLIT = /\s{3,}|\s*[—–\-]\s+|\s*\*\s*/;
+const HEMI_SPLIT = /\s{3,}|\s*[—–-]\s+|\s*\*\s*/;
 export function splitVerse(line: string): { h1: string; h2?: string } {
-  const trimmed = line.replace(/\s+/g, ' ').trim();
-  if (!trimmed) return { h1: '' };
-  const parts = trimmed.split(HEMI_SPLIT).map(p => p.trim()).filter(Boolean);
-  if (parts.length >= 2) return { h1: parts[0], h2: parts.slice(1).join(' ') };
-  return { h1: trimmed };
+  if (!line) return { h1: '' };
+  const trimmed = line.trim();
+  const parts = trimmed.split(HEMI_SPLIT).filter(Boolean);
+  if (parts.length >= 2) {
+    return {
+      h1: parts[0].replace(/\s+/g, ' ').trim(),
+      h2: parts.slice(1).join(' ').replace(/\s+/g, ' ').trim(),
+    };
+  }
+  return { h1: trimmed.replace(/\s+/g, ' ') };
 }
 
 /** تستخرج سنة ميلادية من عبارات مثل "(915-965م)" أو "915 م". */

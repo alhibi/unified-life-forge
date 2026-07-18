@@ -42,8 +42,6 @@ describe('fallback-status', () => {
   it('transitions none → demo via notifyFallback("demo")', async () => {
     const { notifyFallback, _resetFallbackState } = await load();
     _resetFallbackState();
-    let count = 0;
-    let last: { kind: string; since: number | null } | null = null;
     // نستخدم React's useSyncExternalStore-style subscribe المُصدّر
     // ضمنياً عبر useFallbackStatus. لاختبار وحدة، نستخدم module-level
     // subscribe بدلاً من ذلك:
@@ -158,6 +156,8 @@ describe('useFallbackStatus (React integration)', () => {
     const { result } = renderHook(() => useFallbackStatus());
     act(() => { notifyFallback('demo'); });
     const firstSince = result.current.since;
+    // تقدم العدادات لنحصل على وقت مختلف
+    act(() => { vi.advanceTimersByTime(1000); });
     // فوراً نتحوّل إلى offline — يجب أن يُحدَّث
     act(() => { notifyFallback('offline'); });
     expect(result.current.kind).toBe('offline');
