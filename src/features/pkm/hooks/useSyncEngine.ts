@@ -28,9 +28,19 @@ export function useSyncEngine() {
         .select('id,title,content_md,status,is_deleted,updated_at,created_at')
         .eq('user_id', userId)
         .eq('is_deleted', false);
-      if (error || !data) return;
+      if (error || !data || data.length === 0) return;
+
+      const serverIds = data.map((row) => row.id as string);
+      const localNotes = await pkmDb.notes.bulkGet(serverIds);
+      const localNotesMap = new Map<string, LocalNote>();
+      localNotes.forEach((note) => {
+        if (note) localNotesMap.set(note.id, note);
+      });
+
+      const toPut: LocalNote[] = [];
+
       for (const row of data) {
-        const local = await pkmDb.notes.get(row.id);
+        const local = localNotesMap.get(row.id as string);
         const serverUpdated = new Date(row.updated_at as string).getTime();
         if (!local || serverUpdated > local.updatedAt) {
           const merged: LocalNote = {
@@ -44,8 +54,12 @@ export function useSyncEngine() {
             updatedAt: serverUpdated,
             dirty: false,
           };
-          await pkmDb.notes.put(merged);
+          toPut.push(merged);
         }
+      }
+
+      if (toPut.length > 0) {
+        await pkmDb.notes.bulkPut(toPut);
       }
       window.dispatchEvent(new Event('pkm-notes-changed'));
     }
@@ -55,11 +69,14 @@ export function useSyncEngine() {
       // enqueue an upsert for each so they end up in the cloud.
       const orphans = await pkmDb.notes.where('userId').equals(null as unknown as string).toArray()
         .catch(async () => (await pkmDb.notes.toArray()).filter((n) => !n.userId));
+
+      if (orphans.length === 0) return;
+
+      const outboxEntries: OutboxEntry[] = [];
       for (const n of orphans) {
         n.userId = userId;
         n.dirty = true;
-        await pkmDb.notes.put(n);
-        await pkmDb.outbox.add({
+        outboxEntries.push({
           id: crypto.randomUUID(),
           table: 'pkm_notes',
           op: 'upsert',
@@ -77,6 +94,9 @@ export function useSyncEngine() {
           createdAt: Date.now(),
         });
       }
+
+      await pkmDb.notes.bulkPut(orphans);
+      await pkmDb.outbox.bulkAdd(outboxEntries);
     }
 
     async function drain() {
@@ -87,16 +107,75 @@ export function useSyncEngine() {
       running.current = true;
       try {
         const batch = await pkmDb.outbox.orderBy('createdAt').limit(BATCH).toArray();
-        for (const entry of batch) {
-          const ok = await push(entry);
-          if (ok) await pkmDb.outbox.delete(entry.id);
+        if (batch.length === 0) return;
+
+        const ok = await pushBatch(batch);
+        if (ok) {
+          const idsToDelete = batch.map((entry) => entry.id);
+          await pkmDb.outbox.bulkDelete(idsToDelete);
+        } else {
+          // Fallback to sequential to prevent sync blocking in case of single bad entry
+          for (const entry of batch) {
+            const success = await push(entry);
+            if (success) await pkmDb.outbox.delete(entry.id);
+          }
         }
+
         if (batch.length) {
-          await pkmDb.notes.where('dirty').equals(1 as unknown as string).modify({ dirty: false });
+          await pkmDb.notes.where('dirty').equals(1 as unknown as string).modify({ dirty: false })
+            .catch(async () => {
+              await pkmDb.notes.where('dirty').equals(true as unknown as string).modify({ dirty: false });
+            });
         }
       } finally {
         running.current = false;
       }
+    }
+
+    async function pushBatch(batch: OutboxEntry[]): Promise<boolean> {
+      const pkmNotes = batch.filter((entry) => entry.table === 'pkm_notes');
+      if (pkmNotes.length === 0) return true;
+
+      // Coalesce operations: only keep the last operation per rowId
+      const coalescedMap = new Map<string, OutboxEntry>();
+      for (const entry of pkmNotes) {
+        coalescedMap.set(entry.rowId, entry);
+      }
+      const coalescedEntries = Array.from(coalescedMap.values());
+
+      const upserts: Record<string, unknown>[] = [];
+      const deleteIds: string[] = [];
+
+      for (const entry of coalescedEntries) {
+        if (entry.op === 'delete') {
+          deleteIds.push(entry.rowId);
+        } else {
+          upserts.push(entry.payload);
+        }
+      }
+
+      if (upserts.length > 0) {
+        const { error } = await supabase
+          .from('pkm_notes')
+          .upsert(upserts as never, { onConflict: 'id' });
+        if (error) {
+          console.error('Error during bulk upsert of notes:', error);
+          return false;
+        }
+      }
+
+      if (deleteIds.length > 0) {
+        const { error } = await supabase
+          .from('pkm_notes')
+          .update({ is_deleted: true, updated_at: new Date().toISOString() })
+          .in('id', deleteIds);
+        if (error) {
+          console.error('Error during bulk delete of notes:', error);
+          return false;
+        }
+      }
+
+      return true;
     }
 
     async function push(entry: OutboxEntry): Promise<boolean> {
