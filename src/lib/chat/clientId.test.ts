@@ -24,6 +24,75 @@ describe('clientId helpers', () => {
       const id = newClientId();
       expect(id).toMatch(/^[0-9a-f-]{30,}$/i);
     });
+
+    it('generates valid UUID format even when crypto.randomUUID is not available', () => {
+      const originalCrypto = typeof globalThis !== 'undefined' ? globalThis.crypto : undefined;
+
+      if (typeof globalThis !== 'undefined') {
+        // Mock globalThis.crypto to not have randomUUID but have getRandomValues
+        const mockCrypto = {
+          getRandomValues: (arr: Uint8Array) => {
+            if (originalCrypto?.getRandomValues) {
+              return originalCrypto.getRandomValues(arr);
+            }
+            for (let i = 0; i < arr.length; i++) {
+              arr[i] = Math.floor(Math.random() * 256);
+            }
+            return arr;
+          }
+        };
+        Object.defineProperty(globalThis, 'crypto', {
+          value: mockCrypto,
+          configurable: true,
+          writable: true
+        });
+      }
+
+      try {
+        const id = newClientId();
+        expect(looksLikeUuid(id)).toBe(true);
+        // Verify version 4 and variant RFC4122 properties
+        expect(id[14]).toBe('4'); // 4xxx
+        expect(['8', '9', 'a', 'b']).toContain(id[19].toLowerCase()); // [89ab]xxx
+      } finally {
+        // Restore
+        if (typeof globalThis !== 'undefined' && originalCrypto) {
+          Object.defineProperty(globalThis, 'crypto', {
+            value: originalCrypto,
+            configurable: true,
+            writable: true
+          });
+        }
+      }
+    });
+
+    it('generates valid format even when both crypto.randomUUID and getRandomValues are unavailable', () => {
+      const originalCrypto = typeof globalThis !== 'undefined' ? globalThis.crypto : undefined;
+
+      if (typeof globalThis !== 'undefined') {
+        // Mock globalThis.crypto to be undefined or empty
+        Object.defineProperty(globalThis, 'crypto', {
+          value: undefined,
+          configurable: true,
+          writable: true
+        });
+      }
+
+      try {
+        const id = newClientId();
+        // Since extreme fallback matches: ${r()}-${r().slice(0, 4)}-4${r().slice(4, 7)}-a${r().slice(0, 3)}-${r()}${r().slice(0, 4)}
+        expect(id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-a[0-9a-f]{3}-[0-9a-f]{12}$/i);
+      } finally {
+        // Restore
+        if (typeof globalThis !== 'undefined' && originalCrypto) {
+          Object.defineProperty(globalThis, 'crypto', {
+            value: originalCrypto,
+            configurable: true,
+            writable: true
+          });
+        }
+      }
+    });
   });
 
   describe('looksLikeUuid', () => {
