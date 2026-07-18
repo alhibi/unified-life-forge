@@ -750,10 +750,36 @@ async function fetchSingleFeed(
     };
   }
 
-  const text = await res.text();
+  // Cap response size to avoid OOM on pathologically huge feeds.
+  let text: string;
+  try {
+    const buf = await res.arrayBuffer();
+    if (buf.byteLength > MAX_RESPONSE_BYTES) {
+      text = new TextDecoder().decode(buf.slice(0, MAX_RESPONSE_BYTES));
+    } else {
+      text = new TextDecoder().decode(buf);
+    }
+  } catch (e) {
+    return {
+      url,
+      status: "error",
+      title: nameOverride || "",
+      sourceName: nameOverride || url,
+      items: [],
+      error: e instanceof Error ? e.message : String(e),
+      httpStatus: res.status,
+    };
+  }
   const parsed = parseRSS(text, maxItems);
+  // Free the raw feed buffer before we return.
+  text = "";
   const sourceName = nameOverride || parsed.title;
-  parsed.items.forEach((it) => (it.source = sourceName));
+  parsed.items.forEach((it) => {
+    it.source = sourceName;
+    if (it.fullContent && it.fullContent.length > MAX_FULL_CONTENT_CHARS) {
+      it.fullContent = it.fullContent.slice(0, MAX_FULL_CONTENT_CHARS);
+    }
+  });
 
   return {
     url,
