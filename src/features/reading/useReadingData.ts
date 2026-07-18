@@ -25,9 +25,7 @@ import {
   needsContentUpgrade,
   plainTextLength,
 } from './extractArticle';
-import type { Database } from '@/integrations/supabase/types';
 
-type RssArticleRow = Database['public']['Tables']['rss_articles']['Row'];
 
 // ─── Constants for stability & memory management ───────────────────────────
 /** Max articles held in memory at once. Effectively unlimited for normal
@@ -72,6 +70,30 @@ export function useReadingData(opts: { isAr: boolean }) {
   const [readArticles, setReadArticles] = useState<string[]>(getReadArticles);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [syncProgress, setSyncProgress] = useState<{
+    active: boolean;
+    total: number;
+    current: number;
+    currentFeed?: string;
+    successCount: number;
+    errorCount: number;
+  }>({
+    active: false,
+    total: 0,
+    current: 0,
+    successCount: 0,
+    errorCount: 0,
+  });
+  const [prefetchProgress, setPrefetchProgress] = useState<{
+    active: boolean;
+    total: number;
+    current: number;
+    currentTitle?: string;
+  }>({
+    active: false,
+    total: 0,
+    current: 0,
+  });
   const [statuses, setStatuses] = useState<FeedStatus[]>([]);
   const [totalInDB, setTotalInDB] = useState(0);
   const [cachedLinks, setCachedLinks] = useState<ReadonlySet<string>>(
@@ -286,11 +308,23 @@ export function useReadingData(opts: { isAr: boolean }) {
       const feeds = (overrideFeeds ?? feedSourcesRef.current).filter((f) => f.enabled);
       if (feeds.length === 0) return;
       if (!silent) setRefreshing(true);
+      setSyncProgress({
+        active: true,
+        total: feeds.length,
+        current: 0,
+        successCount: 0,
+        errorCount: 0,
+        currentFeed: ar ? 'جاري بدء التحديث...' : 'Starting refresh...',
+      });
       try {
         let succeeded = false;
 
         // Try Supabase edge function first (if available)
         if (isSupabaseAvailable()) {
+          setSyncProgress((prev) => ({
+            ...prev,
+            currentFeed: ar ? 'جاري الاتصال بالخادم السحابي...' : 'Connecting to cloud server...',
+          }));
           try {
             const nameMap: Record<string, string> = {};
             feeds.forEach((f) => { nameMap[f.url] = f.name; });
@@ -347,6 +381,14 @@ export function useReadingData(opts: { isAr: boolean }) {
                       : `Refreshed, but ${failedFeeds.length} feed(s) failed`,
                   );
                 }
+                setSyncProgress({
+                  active: true,
+                  total: feeds.length,
+                  current: feeds.length,
+                  successCount: feeds.length - failedFeeds.length,
+                  errorCount: failedFeeds.length,
+                  currentFeed: ar ? 'جاري تحميل المقالات...' : 'Loading articles...',
+                });
                 await loadFromDB();
                 // After loadFromDB updates state, auto-save the freshly
                 // loaded articles to IndexedDB so they're available offline.
@@ -363,37 +405,92 @@ export function useReadingData(opts: { isAr: boolean }) {
           }
         }
 
-        // Fallback: client-side fetch via CORS proxy
+        // Fallback: client-side fetch via CORS proxy (Progressive, real-time streaming)
         if (!succeeded) {
           const controller = new AbortController();
-          const results = await fetchFeedsClientSide(feeds, controller.signal);
-
-          const freshArticles: FeedItem[] = [];
+          const limit = 3;
+          let activeRequests = 0;
+          let currentIndex = 0;
           const failedSources: string[] = [];
-          for (const r of results) {
-            if (r.error) {
-              failedSources.push(r.source || r.url);
-            } else {
-              freshArticles.push(...r.items);
-            }
-          }
+          const allFreshArticles: FeedItem[] = [];
 
-          if (freshArticles.length > 0) {
-            setArticles(prev => {
-              const seen = new Set(prev.map(a => a.link));
-              const newOnes = freshArticles.filter(a => a.link && !seen.has(a.link));
-              const merged = [...newOnes, ...prev].sort((a, b) => {
-                const da = a.pubDate ? new Date(a.pubDate).getTime() : 0;
-                const db = b.pubDate ? new Date(b.pubDate).getTime() : 0;
-                return db - da;
-              });
-              return capArticles(merged);
-            });
-            // Auto-save ALL fetched articles to IndexedDB for offline access.
-            // Uses batch write for performance — the user should always be
-            // able to return to previously-fetched articles even offline.
-            void offlineDb.saveArticlesBatch(freshArticles).catch(() => {});
-            succeeded = true;
+          setSyncProgress({
+            active: true,
+            total: feeds.length,
+            current: 0,
+            successCount: 0,
+            errorCount: 0,
+            currentFeed: ar ? 'جاري جلب المصادر مباشرة...' : 'Fetching sources directly...',
+          });
+
+          await new Promise<void>((resolvePromise) => {
+            const next = async () => {
+              if (currentIndex >= feeds.length) {
+                if (activeRequests === 0) {
+                  resolvePromise();
+                }
+                return;
+              }
+
+              const feed = feeds[currentIndex++];
+              activeRequests++;
+
+              setSyncProgress((prev) => ({
+                ...prev,
+                currentFeed: feed.name,
+              }));
+
+              try {
+                const singleResult = await fetchFeedsClientSide([feed], controller.signal);
+                const r = singleResult[0];
+                if (r && !r.error && r.items.length > 0) {
+                  // Merge immediately in real-time!
+                  setArticles((prev) => {
+                    const seen = new Set(prev.map((a) => a.link));
+                    const newOnes = r.items.filter((a) => a.link && !seen.has(a.link));
+                    const merged = [...newOnes, ...prev].sort((a, b) => {
+                      const da = a.pubDate ? new Date(a.pubDate).getTime() : 0;
+                      const db = b.pubDate ? new Date(b.pubDate).getTime() : 0;
+                      return db - da;
+                    });
+                    return capArticles(merged);
+                  });
+                  allFreshArticles.push(...r.items);
+
+                  setSyncProgress((prev) => ({
+                    ...prev,
+                    current: prev.current + 1,
+                    successCount: prev.successCount + 1,
+                  }));
+                  succeeded = true;
+                } else {
+                  if (r?.error) failedSources.push(feed.name);
+                  setSyncProgress((prev) => ({
+                    ...prev,
+                    current: prev.current + 1,
+                    errorCount: prev.errorCount + 1,
+                  }));
+                }
+              } catch (_e) {
+                failedSources.push(feed.name);
+                setSyncProgress((prev) => ({
+                  ...prev,
+                  current: prev.current + 1,
+                  errorCount: prev.errorCount + 1,
+                }));
+              } finally {
+                activeRequests--;
+                next();
+              }
+            };
+
+            for (let c = 0; c < Math.min(limit, feeds.length); c++) {
+              void next();
+            }
+          });
+
+          if (allFreshArticles.length > 0) {
+            void offlineDb.saveArticlesBatch(allFreshArticles).catch(() => {});
           }
 
           if (failedSources.length > 0 && !silent) {
@@ -409,7 +506,7 @@ export function useReadingData(opts: { isAr: boolean }) {
           const now = new Date().toISOString();
           setLastRefresh(now);
           try { localStorage.setItem(LAST_REFRESH_KEY, now); } catch { /* quota or private mode */ }
-          if (!silent) toast.success(ar ? 'تم التحديث' : 'Refreshed');
+          if (!silent) toast.success(ar ? 'تم التحديث بنجاح' : 'Refreshed successfully');
           // Reset consecutive failures on success
           consecutiveFailuresRef.current = 0;
           setConsecutiveFailures(0);
@@ -432,6 +529,9 @@ export function useReadingData(opts: { isAr: boolean }) {
         if (!silent) toast.error(ar ? 'فشل التحديث' : 'Refresh failed');
       } finally {
         setRefreshing(false);
+        setTimeout(() => {
+          setSyncProgress((prev) => ({ ...prev, active: false }));
+        }, 1500);
       }
     },
     [loadFromDB, capArticles],
@@ -1095,6 +1195,89 @@ export function useReadingData(opts: { isAr: boolean }) {
     };
   }, [articles, bookmarks, readArticles, recacheNow]);
 
+  // ─── Intelligent Background Pre-fetching Queue ─────────────────────────
+  // Proactively scans the top unread articles from enabled feeds and upgrades
+  // them in the background while the browser is idle and online.
+  // This achieves a flawless VIP experience with instant load times.
+  const prefetchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isPrefetchingRef = useRef(false);
+
+  useEffect(() => {
+    // Only prefetch if online and tab is visible
+    if (typeof window === 'undefined' || !navigator.onLine || document.hidden) {
+      setPrefetchProgress((prev) => ({ ...prev, active: false }));
+      return;
+    }
+
+    // Don't run background prefetch while feed refresh/sync is active
+    if (refreshing || syncProgress.active) {
+      setPrefetchProgress((prev) => ({ ...prev, active: false }));
+      return;
+    }
+
+    const currentArticles = articles;
+    const currentRead = readArticles;
+    const readSet = new Set(currentRead);
+
+    // Get top 15 unread articles that need text upgrade
+    const candidates = currentArticles
+      .filter((a) => a.link && !readSet.has(a.link) && needsContentUpgrade(a.fullContent, a.link))
+      .slice(0, 15);
+
+    if (candidates.length === 0) {
+      setPrefetchProgress((prev) => ({ ...prev, active: false }));
+      return;
+    }
+
+    // Set up queue progress
+    setPrefetchProgress({
+      active: true,
+      total: candidates.length,
+      current: 0,
+      currentTitle: '',
+    });
+
+    let queueIndex = 0;
+    isPrefetchingRef.current = true;
+
+    const processNext = async () => {
+      if (queueIndex >= candidates.length || !isPrefetchingRef.current) {
+        setPrefetchProgress((prev) => ({ ...prev, active: false }));
+        return;
+      }
+
+      const item = candidates[queueIndex];
+      setPrefetchProgress((prev) => ({
+        ...prev,
+        current: queueIndex,
+        currentTitle: item.title,
+      }));
+
+      try {
+        // Execute the upgrade via existing helper which handles caching & memory update
+        await ensureFullContent(item.link);
+      } catch (e) {
+        console.warn('[Reading] prefetch failed for', item.title, e);
+      }
+
+      queueIndex++;
+
+      // Snappy but gentle delay (1500ms) between background scrapes to be extremely respectful to servers
+      prefetchTimerRef.current = setTimeout(processNext, 1500);
+    };
+
+    // Begin progressive background pre-loading after a snappy idle delay (2000ms)
+    prefetchTimerRef.current = setTimeout(processNext, 2000);
+
+    return () => {
+      isPrefetchingRef.current = false;
+      if (prefetchTimerRef.current) {
+        clearTimeout(prefetchTimerRef.current);
+        prefetchTimerRef.current = null;
+      }
+    };
+  }, [articles, readArticles, refreshing, syncProgress.active, ensureFullContent]);
+
   // Initial load of cachedLinks (so the offline dot renders before the
   // first refresh fires).
   useEffect(() => {
@@ -1117,6 +1300,8 @@ export function useReadingData(opts: { isAr: boolean }) {
     readArticles,
     loading,
     refreshing,
+    syncProgress,
+    prefetchProgress,
     statuses,
     totalInDB,
     lastRefresh,

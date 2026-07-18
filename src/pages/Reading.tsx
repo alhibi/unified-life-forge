@@ -15,7 +15,6 @@ import type {
 import {
   getReaderPrefs,
   storeReaderPrefs,
-  getOfflinePrefs,
 } from '@/features/reading/storage';
 import { useListPrefs } from '@/features/reading/listPrefs';
 import { useReadingData } from '@/features/reading/useReadingData';
@@ -76,6 +75,8 @@ export default function ReadingPage() {
     readArticles,
     loading,
     refreshing,
+    syncProgress,
+    prefetchProgress,
     statuses,
     totalInDB,
     lastRefresh,
@@ -145,7 +146,6 @@ export default function ReadingPage() {
   useEffect(() => {
     void registerReadingServiceWorker();
     // Articles are stored permanently — no pruning. The archive only grows.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // ─── Online/offline tracking ──────────────────────────────────────────
@@ -453,6 +453,8 @@ export default function ReadingPage() {
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
         refreshing={refreshing}
+        syncProgress={syncProgress}
+        prefetchProgress={prefetchProgress}
         onRefresh={() => refreshFeeds(false)}
         onManage={() => setView('manage')}
         onDiscoverFeeds={() => setView('suggested')}
