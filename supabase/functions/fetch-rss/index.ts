@@ -666,7 +666,9 @@ async function scrapeMissingContent(items: FeedItem[]): Promise<void> {
       const scraped = await scrapeArticle(item.link);
       if (!scraped) continue;
       if (scraped.html && scraped.html.length > (item.fullContent?.length || 0)) {
-        item.fullContent = scraped.html;
+        item.fullContent = scraped.html.length > MAX_FULL_CONTENT_CHARS
+          ? scraped.html.slice(0, MAX_FULL_CONTENT_CHARS)
+          : scraped.html;
         item.description = stripText(scraped.html).slice(0, 600);
         const newImgs = extractInlineImages(scraped.html);
         for (const ig of newImgs) {
