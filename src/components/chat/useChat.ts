@@ -411,12 +411,13 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     const id = setTimeout(async () => {
       const convs = conversationsRef.current;
       if (cancelled || convs.length === 0) return;
-      // Sequentialize to avoid hammering the database with parallel
-      // UPDATEs across many conversations on a busy account.
-      for (const c of convs) {
-        if (cancelled) return;
-        try { await (supabase.rpc as any)('mark_messages_delivered', { p_conversation_id: c.id }); } catch { /* no-op */ }
-      }
+      // Execute in parallel to avoid N+1 latency across many conversations.
+      await Promise.all(
+        convs.map(c =>
+          (supabase.rpc as any)('mark_messages_delivered', { p_conversation_id: c.id }).catch(() => { /* no-op */ })
+        )
+      );
+      if (cancelled) return;
     }, 600);
     return () => { cancelled = true; clearTimeout(id); };
   }, [open, user, conversations.length]);
