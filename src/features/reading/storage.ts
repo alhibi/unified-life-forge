@@ -42,6 +42,8 @@ let prefsMirror: ReaderPrefs = {
   lineHeight: 'normal',
   theme: 'system',
   fontFamily: 'sans',
+  translationLang: 'ar',
+  ttsSpeed: 1.0,
 };
 let hydrated = false;
 let hydratePromise: Promise<void> | null = null;
@@ -148,6 +150,8 @@ export function resetReadingStorage(): void {
     lineHeight: 'normal',
     theme: 'system',
     fontFamily: 'sans',
+  translationLang: 'ar',
+  ttsSpeed: 1.0,
   };
   hydrated = false;
   teardownRealtime();

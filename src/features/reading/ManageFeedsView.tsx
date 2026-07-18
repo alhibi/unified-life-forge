@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import {
   AlertCircle, Check, ChevronLeft, Database, Download, Plus,
@@ -8,12 +8,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import type { FeedSource, FeedStatus } from './types';
-import { CATEGORIES } from './feeds';
 import { SourcePill } from './SourcePill';
 import { downloadOpml } from './opml';
 import { AddFeedDialog } from './AddFeedDialog';
 import { OpmlImportDialog } from './OpmlImportDialog';
 import { ConfirmDialog } from './ConfirmDialog';
+import { getCustomFolders } from './foldersStorage';
 
 /**
  * Lets the user add, remove, enable/disable feeds and shows per-feed
@@ -49,7 +49,12 @@ export function ManageFeedsView({
 }) {
   const [newUrl, setNewUrl] = useState('');
   const [newName, setNewName] = useState('');
-  const [newCategory, setNewCategory] = useState('news');
+  const [customFolders] = useState<string[]>(getCustomFolders);
+  const [newCategory, setNewCategory] = useState(customFolders[0] || 'news');
+
+  const allFolders = useMemo(() => {
+    return customFolders.map(f => ({ id: f, ar: f, en: f.charAt(0).toUpperCase() + f.slice(1) }));
+  }, [customFolders]);
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showOpmlDialog, setShowOpmlDialog] = useState(false);
   const [pendingRemove, setPendingRemove] = useState<FeedSource | null>(null);
@@ -176,9 +181,9 @@ export function ManageFeedsView({
             <select
               value={newCategory}
               onChange={(e) => setNewCategory(e.target.value)}
-              className="h-10 rounded-xl border border-input bg-background px-3 text-sm text-foreground"
+              className="h-10 rounded-xl border border-input bg-background px-3 text-sm text-foreground max-w-[120px]"
             >
-              {CATEGORIES.map((c) => (
+              {allFolders.map((c) => (
                 <option key={c.id} value={c.id}>
                   {isAr ? c.ar : c.en}
                 </option>

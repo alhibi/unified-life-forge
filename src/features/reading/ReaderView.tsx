@@ -125,6 +125,7 @@ export function ReaderView({
     md: '15px',
     lg: '17px',
     xl: '19px',
+    '2xl': '22px',
   };
   const heightMap: Record<ReaderPrefs['lineHeight'], string> = {
     compact: '1.65',
@@ -134,6 +135,9 @@ export function ReaderView({
   const themeStyle = (() => {
     if (prefs.theme === 'sepia') return { background: '#f4ecd8', color: '#3a2f1d' };
     if (prefs.theme === 'dim') return { background: '#1f1f23', color: '#e8e6e3' };
+    if (prefs.theme === 'emerald') return { background: '#064e3b', color: '#f3f4f6' };
+    if (prefs.theme === 'warm-ivory') return { background: '#fbf8f3', color: '#2d2722' };
+    if (prefs.theme === 'obsidian-gold') return { background: '#121214', color: '#e5e7eb', borderColor: '#d4af37' };
     return {} as React.CSSProperties;
   })();
 
@@ -257,7 +261,7 @@ export function ReaderView({
           reg?.active?.postMessage({ type: 'reading:precache', urls: allImages });
         } catch { /* SW unavailable; the offline save still works on next refresh */ }
       }
-    } catch (e: any) {
+    } catch (e: unknown) {
       // If we already populated `article` from the cache above, keep
       // it visible — the network refresh failed but the user can read
       // the cached copy.
@@ -267,8 +271,9 @@ export function ReaderView({
         // read the JSON body the function actually returned so we can
         // surface a meaningful message instead of that opaque string.
         let detail = '';
+        const err = e as { message?: string; context?: { json?: () => Promise<unknown>; text?: () => Promise<string> } };
         try {
-          const ctx = e?.context;
+          const ctx = err?.context;
           if (ctx && typeof ctx.json === 'function') {
             const parsed = await ctx.json();
             if (parsed && typeof parsed.error === 'string') detail = parsed.error;
@@ -281,7 +286,7 @@ export function ReaderView({
             } catch { detail = txt; }
           }
         } catch { /* ignore body parse failures */ }
-        const raw = (detail || e?.message || '').trim();
+        const raw = (detail || err?.message || '').trim();
         const looksGeneric =
           /non-2xx status code/i.test(raw) ||
           /failed to fetch/i.test(raw) ||

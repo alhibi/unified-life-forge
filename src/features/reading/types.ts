@@ -41,10 +41,12 @@ export type FilterTab = 'all' | 'bookmarks' | 'unread';
 
 /** Reader-mode preferences, persisted in localStorage. */
 export interface ReaderPrefs {
-  fontSize: 'sm' | 'md' | 'lg' | 'xl';
+  fontSize: 'sm' | 'md' | 'lg' | 'xl' | '2xl';
   lineHeight: 'compact' | 'normal' | 'relaxed';
-  theme: 'system' | 'sepia' | 'dim';
-  fontFamily: 'sans' | 'serif';
+  theme: 'system' | 'sepia' | 'dim' | 'emerald' | 'warm-ivory' | 'obsidian-gold';
+  fontFamily: 'sans' | 'serif' | 'amiri' | 'kufi' | 'system-arabic';
+  translationLang: 'ar' | 'en' | 'de';
+  ttsSpeed: number;
 }
 
 /**

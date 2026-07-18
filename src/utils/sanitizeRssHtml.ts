@@ -57,5 +57,11 @@ function ensureHook(): void {
 export function sanitizeRssHtml(html: string): string {
   if (!html) return '';
   ensureHook();
-  return DOMPurify.sanitize(html, RSS_SANITIZE_CONFIG) as unknown as string;
+  const clean = DOMPurify.sanitize(html, RSS_SANITIZE_CONFIG) as unknown as string;
+
+  // Custom cleanup for ads, layout empty tags and generic trackers
+  return clean
+    .replace(/class="[^"]*?(?:ad-|ads-|advertisement|tracker|banner)[^"]*?"/gi, '')
+    .replace(/<p>\s*?(?:&nbsp;|\s)*?\s*?<\/p>/gi, '') // clean empty paragraphs
+    .trim();
 }

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Check, ChevronDown, FileText, FolderOpen, Loader2, Plus, Upload, X,
+  Check, ChevronDown, FolderOpen, Loader2, Plus, Upload, X,
 } from '@/lib/icons';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -178,9 +178,10 @@ export function OpmlImportDialog({
       setResult(stats);
       setProgress(100);
       setStage('done');
-    } catch (e: any) {
+    } catch (e: unknown) {
+      const err = e as Error;
       toast.error(
-        e?.message || (isAr ? 'تعذّر الاستيراد' : 'Import failed'),
+        err?.message || (isAr ? 'تعذّر الاستيراد' : 'Import failed'),
       );
       setStage('preview');
     } finally {

@@ -13,6 +13,8 @@ import { SourcePill } from './SourcePill';
 import { ArticleDetailSkeleton } from './Skeletons';
 import { offlineDb } from './offlineDb';
 import { needsContentUpgrade, plainTextLength } from './extractArticle';
+import { ArticleSpeechPlayer } from './ArticleSpeechPlayer';
+import { ArticleTranslator } from './ArticleTranslator';
 
 /**
  * Article reader view. Renders sanitized HTML body, exposes reading-
@@ -109,7 +111,17 @@ export function ArticleReader({
     setBodyImage(article.image);
     setUpgradeStatus('idle');
     manualUpgradeRef.current = false;
-  }, [article.link, article.fullContent, article.image]);
+    setOriginalBodyHtml(article.fullContent || '');
+    setOriginalTitle(article.title);
+  }, [article.link, article.fullContent, article.image, article.title]);
+
+  const [originalBodyHtml, setOriginalBodyHtml] = useState<string>(article.fullContent || '');
+  const [originalTitle, setOriginalTitle] = useState<string>(article.title);
+  const [displayTitle, setDisplayTitle] = useState<string>(article.title);
+
+  useEffect(() => {
+    setDisplayTitle(article.title);
+  }, [article.title]);
 
   const minutes = readingMinutes(
     bodyHtml || article.description || article.title,
@@ -237,6 +249,7 @@ export function ArticleReader({
     md: '15px',
     lg: '17px',
     xl: '19px',
+    '2xl': '22px',
   };
   const heightMap: Record<ReaderPrefs['lineHeight'], string> = {
     compact: '1.65',
@@ -267,6 +280,39 @@ export function ArticleReader({
         progressTrack: 'rgba(232, 230, 227, 0.08)',
         gradientTo: '#1f1f23',
         gradientFrom: 'rgba(31, 31, 35, 0)',
+      };
+    }
+    if (prefs.theme === 'emerald') {
+      return {
+        background: '#064e3b',
+        color: '#f3f4f6',
+        chromeBg: '#043e2f',
+        chromeBorder: 'rgba(243, 244, 246, 0.1)',
+        progressTrack: 'rgba(243, 244, 246, 0.1)',
+        gradientTo: '#064e3b',
+        gradientFrom: 'rgba(6, 78, 59, 0)',
+      };
+    }
+    if (prefs.theme === 'warm-ivory') {
+      return {
+        background: '#fbf8f3',
+        color: '#2d2722',
+        chromeBg: '#f5efe6',
+        chromeBorder: 'rgba(45, 39, 34, 0.1)',
+        progressTrack: 'rgba(45, 39, 34, 0.1)',
+        gradientTo: '#fbf8f3',
+        gradientFrom: 'rgba(251, 248, 243, 0)',
+      };
+    }
+    if (prefs.theme === 'obsidian-gold') {
+      return {
+        background: '#121214',
+        color: '#e5e7eb',
+        chromeBg: '#1a1a1e',
+        chromeBorder: 'rgba(212, 175, 55, 0.25)',
+        progressTrack: 'rgba(212, 175, 55, 0.15)',
+        gradientTo: '#121214',
+        gradientFrom: 'rgba(18, 18, 20, 0)',
       };
     }
     return null; // system theme uses Tailwind tokens
@@ -350,6 +396,18 @@ export function ArticleReader({
       }
     : undefined;
 
+  const fontStyle = useMemo(() => {
+    if (prefs.fontFamily === 'serif') return { fontFamily: 'Georgia, serif' };
+    if (prefs.fontFamily === 'amiri') return { fontFamily: 'Amiri, Georgia, serif' };
+    if (prefs.fontFamily === 'kufi') return { fontFamily: 'Noto Kufi Arabic, sans-serif' };
+    if (prefs.fontFamily === 'system-arabic') return { fontFamily: 'system-ui, sans-serif' };
+    return { fontFamily: 'system-ui, sans-serif' };
+  }, [prefs.fontFamily]);
+
+  const dirAttr = useMemo(() => {
+    return isAr ? 'rtl' : 'auto';
+  }, [isAr]);
+
   return (
     <motion.div
       initial={{ opacity: 0, x: 24 }}
@@ -357,7 +415,7 @@ export function ArticleReader({
       exit={{ opacity: 0, x: -24 }}
       transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
       className="flex flex-col min-h-screen"
-      style={surfaceStyle}
+      style={{ ...surfaceStyle, ...fontStyle }}
     >
       {/* Header */}
       <div
@@ -480,12 +538,40 @@ export function ArticleReader({
           </div>
         )}
         <article className="px-5 pt-5 pb-16 max-w-prose mx-auto">
+          {/* Audio speech player integration */}
+          <div className="mb-4">
+            <ArticleSpeechPlayer
+              textToSpeak={bodyHtml || article.description || displayTitle}
+              isAr={isAr}
+              language={language}
+              ttsSpeed={prefs.ttsSpeed}
+              onTtsSpeedChange={(speed) => onChangePrefs({ ...prefs, ttsSpeed: speed })}
+            />
+          </div>
+
+          {/* Article Translation integration */}
+          <div className="mb-6">
+            <ArticleTranslator
+              originalHtml={originalBodyHtml || article.description || ''}
+              originalTitle={originalTitle}
+              isAr={isAr}
+              onTranslationComplete={(transHtml, transTitle) => {
+                setBodyHtml(transHtml);
+                setDisplayTitle(transTitle);
+              }}
+              onReset={() => {
+                setBodyHtml(originalBodyHtml);
+                setDisplayTitle(originalTitle);
+              }}
+            />
+          </div>
+
           <h2
-            className="text-xl font-bold leading-snug mb-3"
-            dir="auto"
-            style={{ fontFamily: prefs.fontFamily === 'serif' ? 'Georgia, serif' : undefined }}
+            className="text-2xl font-bold leading-snug mb-4"
+            dir={dirAttr}
+            style={fontStyle}
           >
-            {article.title}
+            {displayTitle}
           </h2>
           <div className="flex items-center gap-2 mb-5 flex-wrap" dir="auto">
             <Clock className="h-3.5 w-3.5 opacity-60" />
@@ -508,21 +594,21 @@ export function ArticleReader({
           {bodyHtml && bodyHtml.length > 0
             ? (
               <div
-                dir="auto"
+                dir={dirAttr}
                 className="prose prose-sm dark:prose-invert max-w-none
-                  [&_img]:rounded-xl [&_img]:my-4 [&_img]:w-full [&_img]:max-h-[420px] [&_img]:object-cover
-                  [&_a]:text-primary [&_a]:no-underline [&_a]:font-medium [&_a:hover]:underline
-                  [&_h1]:text-lg [&_h2]:text-base [&_h3]:text-sm [&_h1,&_h2,&_h3]:font-bold [&_h1,&_h2,&_h3]:mt-6 [&_h1,&_h2,&_h3]:mb-2
-                  [&_p]:mb-4
-                  [&_blockquote]:border-s-2 [&_blockquote]:border-primary/40 [&_blockquote]:ps-4 [&_blockquote]:italic [&_blockquote]:opacity-85 [&_blockquote]:my-4
-                  [&_ul,&_ol]:my-3 [&_ul,&_ol]:ps-6 [&_li]:mb-1
-                  [&_figure]:my-4 [&_figcaption]:text-xs [&_figcaption]:opacity-65 [&_figcaption]:mt-2
-                  [&_pre]:bg-current/5 [&_pre]:p-3 [&_pre]:rounded-lg [&_pre]:overflow-x-auto [&_pre]:text-xs
+                  [&_img]:rounded-2xl [&_img]:my-6 [&_img]:w-full [&_img]:max-h-[460px] [&_img]:object-cover [&_img]:shadow-md
+                  [&_a]:text-primary [&_a]:no-underline [&_a]:font-bold [&_a:hover]:underline
+                  [&_h1]:text-2xl [&_h2]:text-xl [&_h3]:text-lg [&_h1,&_h2,&_h3]:font-bold [&_h1,&_h2,&_h3]:mt-8 [&_h1,&_h2,&_h3]:mb-3
+                  [&_p]:mb-5 [&_p]:leading-relaxed
+                  [&_blockquote]:border-s-4 [&_blockquote]:border-primary/50 [&_blockquote]:ps-5 [&_blockquote]:italic [&_blockquote]:opacity-90 [&_blockquote]:my-6 [&_blockquote]:bg-primary/5 [&_blockquote]:py-1 [&_blockquote]:rounded-e-xl
+                  [&_ul,&_ol]:my-4 [&_ul,&_ol]:ps-6 [&_li]:mb-2
+                  [&_figure]:my-6 [&_figcaption]:text-xs [&_figcaption]:opacity-65 [&_figcaption]:mt-2
+                  [&_pre]:bg-current/5 [&_pre]:p-4 [&_pre]:rounded-2xl [&_pre]:overflow-x-auto [&_pre]:text-xs
                   [&_code]:bg-current/5 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-xs"
                 style={{
                   fontSize: sizeMap[prefs.fontSize],
                   lineHeight: heightMap[prefs.lineHeight],
-                  fontFamily: prefs.fontFamily === 'serif' ? 'Georgia, serif' : undefined,
+                  ...fontStyle
                 }}
                 dangerouslySetInnerHTML={{
                   __html: sanitizeRssHtml(bodyHtml),

@@ -1,8 +1,8 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   Archive, Bell, Bookmark, CheckCheck, ChevronLeft, Compass, FolderOpen, MoreHorizontal,
-  Newspaper, RefreshCw, Search, Settings2, Type, X,
+  Newspaper, RefreshCw, Search, Settings2, Type, X, Plus, Trash2
 } from '@/lib/icons';
 import { Input } from '@/components/ui/input';
 import {
@@ -15,9 +15,10 @@ import {
 } from '@/components/ui/dropdown-menu';
 import type { FeedSource, FilterTab } from './types';
 import type { ListPrefs } from './listPrefs';
-import { CATEGORIES } from './feeds';
 import { SourcePill } from './SourcePill';
 import { ReadingPrefsToolbar } from './ReadingPrefsToolbar';
+import { getCustomFolders, storeCustomFolders } from './foldersStorage';
+import { toast } from 'sonner';
 
 /**
  * Sticky page header for the list view: title, action icons, search
@@ -93,14 +94,50 @@ export function ListHeader({
   listPrefs: ListPrefs;
   onListPrefsChange: (next: Partial<ListPrefs>) => void;
 }) {
+  const [customFolders, setCustomFolders] = useState<string[]>(getCustomFolders);
+  const [newFolderName, setNewFolderName] = useState('');
+  const [showFolderInput, setShowFolderInput] = useState(false);
+
+  const handleAddFolder = () => {
+    const trimmed = newFolderName.trim();
+    if (!trimmed) return;
+    if (customFolders.includes(trimmed)) {
+      toast.error(isAr ? 'المجلد موجود بالفعل' : 'Folder already exists');
+      return;
+    }
+    const updated = [...customFolders, trimmed];
+    setCustomFolders(updated);
+    storeCustomFolders(updated);
+    setNewFolderName('');
+    setShowFolderInput(false);
+    toast.success(isAr ? 'تم إنشاء المجلد' : 'Folder created');
+  };
+
+  const handleDeleteFolder = (folder: string) => {
+    const updated = customFolders.filter(f => f !== folder);
+    setCustomFolders(updated);
+    storeCustomFolders(updated);
+    if (categoryFilter === folder) {
+      setCategoryFilter('all');
+      setSourceFilter('all');
+    }
+    toast.success(isAr ? 'تم حذف المجلد' : 'Folder deleted');
+  };
+
   // Build the set of *populated* categories from the user's enabled
   // feeds. We never show a chip for a category nobody is subscribed
   // to (e.g. "Sports" if you have no sports feeds).
   const populatedCategories = useMemo(() => {
     const ids = new Set<string>();
     for (const f of enabledFeeds) ids.add(f.category || 'other');
-    return CATEGORIES.filter((c) => ids.has(c.id));
-  }, [enabledFeeds]);
+    // Ensure all custom folders and default categories are supported
+    const allKnown = Array.from(new Set([...customFolders, ...ids]));
+    return allKnown.map(id => ({
+      id,
+      ar: id,
+      en: id.charAt(0).toUpperCase() + id.slice(1)
+    }));
+  }, [enabledFeeds, customFolders]);
 
   // Filter source chips by active category so the row stays scannable.
   const visibleSources = useMemo(() => {
@@ -108,7 +145,7 @@ export function ListHeader({
     return enabledFeeds.filter((f) => (f.category || 'other') === categoryFilter);
   }, [enabledFeeds, categoryFilter]);
 
-  const showCategoryRow = populatedCategories.length > 1;
+  const showCategoryRow = populatedCategories.length > 0;
 
   return (
     <div
@@ -254,30 +291,82 @@ export function ListHeader({
         )}
       </AnimatePresence>
 
-      {/* Category folder row (only when ≥ 2 distinct categories) */}
+      {/* Category folder row */}
       {showCategoryRow && (
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar mb-2.5 -mx-1 px-1">
-          <CategoryChip
-            active={categoryFilter === 'all'}
-            onClick={() => {
-              setCategoryFilter('all');
-              setSourceFilter('all');
-            }}
-            label={isAr ? 'كل الأقسام' : 'All folders'}
-            icon={<FolderOpen className="h-3 w-3" />}
-          />
-          {populatedCategories.map((c) => (
+        <div className="space-y-2 mb-2.5">
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar -mx-1 px-1">
             <CategoryChip
-              key={c.id}
-              active={categoryFilter === c.id}
+              active={categoryFilter === 'all'}
               onClick={() => {
-                setCategoryFilter(c.id === categoryFilter ? 'all' : c.id);
-                // Clear source when switching folders
+                setCategoryFilter('all');
                 setSourceFilter('all');
               }}
-              label={isAr ? c.ar : c.en}
+              label={isAr ? 'كل الأقسام' : 'All folders'}
+              icon={<FolderOpen className="h-3 w-3" />}
             />
-          ))}
+            {populatedCategories.map((c) => (
+              <div key={c.id} className="relative group shrink-0">
+                <CategoryChip
+                  active={categoryFilter === c.id}
+                  onClick={() => {
+                    setCategoryFilter(c.id === categoryFilter ? 'all' : c.id);
+                    // Clear source when switching folders
+                    setSourceFilter('all');
+                  }}
+                  label={isAr ? c.ar : c.en}
+                />
+                {customFolders.includes(c.id) && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteFolder(c.id);
+                    }}
+                    className="absolute -top-1 -end-1 bg-destructive text-destructive-foreground rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                    title={isAr ? 'حذف' : 'Delete'}
+                  >
+                    <Trash2 className="h-2 w-2" />
+                  </button>
+                )}
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={() => setShowFolderInput(!showFolderInput)}
+              className="px-2.5 py-1 rounded-full text-[11px] font-semibold transition-all shrink-0 active:scale-95 inline-flex items-center gap-1 bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20"
+            >
+              <Plus className="h-3 w-3" />
+              <span>{isAr ? 'مجلد جديد' : 'New Folder'}</span>
+            </button>
+          </div>
+
+          <AnimatePresence>
+            {showFolderInput && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="flex gap-2"
+              >
+                <Input
+                  placeholder={isAr ? 'اسم المجلد الجديد...' : 'New folder name...'}
+                  value={newFolderName}
+                  onChange={(e) => setNewFolderName(e.target.value)}
+                  className="h-9 text-xs rounded-xl"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleAddFolder();
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={handleAddFolder}
+                  className="px-3 rounded-xl bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 transition-opacity shrink-0"
+                >
+                  {isAr ? 'إضافة' : 'Add'}
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       )}
 
