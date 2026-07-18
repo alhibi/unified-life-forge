@@ -216,20 +216,99 @@ function findKing(board: BoardState, color: Color): Square {
   return [0, 0];
 }
 
-function isInCheck(board: BoardState, color: Color): boolean {
-  const [kr, kc] = findKing(board, color);
-  const enemy = color === 'w' ? 'b' : 'w';
-  for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++)
-    if (board[r][c]?.color === enemy && getRawMoves(board, r, c, null).some(([mr, mc]) => mr === kr && mc === kc))
-      return true;
+function isSquareAttacked(board: BoardState, r: number, c: number, byColor: Color): boolean {
+  // 1. Knight Attacks
+  const knightOffsets = [
+    [-2, -1], [-2, 1], [-1, -2], [-1, 2],
+    [1, -2], [1, 2], [2, -1], [2, 1]
+  ];
+  for (let i = 0; i < 8; i++) {
+    const nr = r + knightOffsets[i][0];
+    const nc = c + knightOffsets[i][1];
+    if (inBounds(nr, nc)) {
+      const p = board[nr][nc];
+      if (p && p.color === byColor && p.type === 'N') return true;
+    }
+  }
+
+  // 2. Pawn Attacks
+  // If attacking color is white, they attack diagonally up from white's perspective (smaller row indices).
+  // So the pawns must be at r + 1.
+  // If attacking color is black, pawns are at r - 1.
+  const pawnRow = byColor === 'w' ? r + 1 : r - 1;
+  if (pawnRow >= 0 && pawnRow < 8) {
+    if (c - 1 >= 0) {
+      const p = board[pawnRow][c - 1];
+      if (p && p.color === byColor && p.type === 'P') return true;
+    }
+    if (c + 1 < 8) {
+      const p = board[pawnRow][c + 1];
+      if (p && p.color === byColor && p.type === 'P') return true;
+    }
+  }
+
+  // 3. King Attacks (adjacent squares)
+  const kingOffsets = [
+    [-1, -1], [-1, 0], [-1, 1],
+    [0, -1],           [0, 1],
+    [1, -1],  [1, 0],  [1, 1]
+  ];
+  for (let i = 0; i < 8; i++) {
+    const nr = r + kingOffsets[i][0];
+    const nc = c + kingOffsets[i][1];
+    if (inBounds(nr, nc)) {
+      const p = board[nr][nc];
+      if (p && p.color === byColor && p.type === 'K') return true;
+    }
+  }
+
+  // 4. Straight Slider Attacks (Rook, Queen)
+  const straightDirs = [
+    [-1, 0], [1, 0], [0, -1], [0, 1]
+  ];
+  for (let i = 0; i < 4; i++) {
+    const dr = straightDirs[i][0];
+    const dc = straightDirs[i][1];
+    let nr = r + dr;
+    let nc = c + dc;
+    while (inBounds(nr, nc)) {
+      const p = board[nr][nc];
+      if (p) {
+        if (p.color === byColor && (p.type === 'R' || p.type === 'Q')) return true;
+        break; // Blocked
+      }
+      nr += dr;
+      nc += dc;
+    }
+  }
+
+  // 5. Diagonal Slider Attacks (Bishop, Queen)
+  const diagDirs = [
+    [-1, -1], [-1, 1], [1, -1], [1, 1]
+  ];
+  for (let i = 0; i < 4; i++) {
+    const dr = diagDirs[i][0];
+    const dc = diagDirs[i][1];
+    let nr = r + dr;
+    let nc = c + dc;
+    while (inBounds(nr, nc)) {
+      const p = board[nr][nc];
+      if (p) {
+        if (p.color === byColor && (p.type === 'B' || p.type === 'Q')) return true;
+        break; // Blocked
+      }
+      nr += dr;
+      nc += dc;
+    }
+  }
+
   return false;
 }
 
-function isSquareAttacked(board: BoardState, sr: number, sc: number, byColor: Color): boolean {
-  for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++)
-    if (board[r][c]?.color === byColor && getRawMoves(board, r, c, null).some(([mr, mc]) => mr === sr && mc === sc))
-      return true;
-  return false;
+function isInCheck(board: BoardState, color: Color): boolean {
+  const [kr, kc] = findKing(board, color);
+  const enemy = color === 'w' ? 'b' : 'w';
+  return isSquareAttacked(board, kr, kc, enemy);
 }
 
 function getCastlingMoves(board: BoardState, color: Color, castling: { wK: boolean; wQ: boolean; bK: boolean; bQ: boolean }): Square[] {
