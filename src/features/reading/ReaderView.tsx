@@ -275,12 +275,12 @@ export function ReaderView({
         try {
           const ctx = err?.context;
           if (ctx && typeof ctx.json === 'function') {
-            const parsed = await ctx.json();
+            const parsed = await ctx.json() as { error?: unknown };
             if (parsed && typeof parsed.error === 'string') detail = parsed.error;
           } else if (ctx && typeof ctx.text === 'function') {
             const txt = await ctx.text();
             try {
-              const parsed = JSON.parse(txt);
+              const parsed = JSON.parse(txt) as { error?: unknown };
               if (parsed && typeof parsed.error === 'string') detail = parsed.error;
               else detail = txt;
             } catch { detail = txt; }
