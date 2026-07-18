@@ -183,16 +183,23 @@ export function ArticleCard({
             <button
               type="button"
               onClick={handleClick}
-              className="w-full text-start px-4 py-2.5 hover:bg-accent/20 active:bg-accent/30 transition-colors flex items-center gap-2.5 bg-background"
+              className={`w-full text-start px-4 py-2.5 transition-colors flex items-center gap-2.5 bg-background ${
+                isRead
+                  ? 'hover:bg-accent/15 active:bg-accent/25'
+                  : 'bg-gradient-to-r from-amber-500/[0.02] to-transparent hover:from-amber-500/[0.06] hover:to-amber-500/[0.01] active:from-amber-500/[0.1]'
+              }`}
             >
               <SourcePill name={article.source} size="sm" />
               <span
                 dir="auto"
-                className={`flex-1 min-w-0 truncate text-[13px] ${
+                className={`flex-1 min-w-0 truncate text-[13px] inline-flex items-center gap-1.5 ${
                   isRead ? 'font-normal text-foreground/70' : 'font-semibold text-foreground'
                 }`}
               >
-                {article.title}
+                {!isRead && (
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0 shadow-[0_0_6px_rgba(245,158,11,0.8)]" />
+                )}
+                <span className="truncate">{article.title}</span>
               </span>
               <span className="text-[10px] text-muted-foreground/70 shrink-0 tabular-nums">
                 {timeAgo(article.pubDate, language)}
@@ -245,16 +252,18 @@ export function ArticleCard({
             initial={{ opacity: 0, y: 4 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: Math.min(index * 0.02, 0.3), duration: 0.25 }}
-            className={`relative w-full text-start rounded-2xl bg-card overflow-hidden ${
-              isRead ? 'opacity-70' : ''
+            className={`relative w-full text-start rounded-2xl bg-card overflow-hidden transition-all duration-300 border ${
+              isRead
+                ? 'opacity-70 border-border/40 hover:bg-accent/5'
+                : 'border-amber-500/20 shadow-[0_4px_20px_-4px_rgba(245,158,11,0.05)] bg-gradient-to-b from-amber-500/[0.01] to-transparent hover:from-amber-500/[0.04] hover:border-amber-500/30'
             }`}
           >
             {article.image && (
-              <div className="relative w-full" style={{ aspectRatio: '16 / 9' }}>
+              <div className="relative w-full overflow-hidden" style={{ aspectRatio: '16 / 9' }}>
                 <img
                   src={article.image}
                   alt=""
-                  className="absolute inset-0 w-full h-full object-cover"
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 hover:scale-[1.04]"
                   loading="lazy"
                   onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
                 />
@@ -263,11 +272,14 @@ export function ArticleCard({
             <div className="p-3.5 space-y-2">
               <h4
                 dir="auto"
-                className={`text-[15px] leading-snug line-clamp-2 ${
+                className={`text-[15px] leading-snug line-clamp-2 flex items-start gap-1.5 ${
                   isRead ? 'font-normal text-foreground/75' : 'font-semibold text-foreground'
                 }`}
               >
-                {article.title}
+                {!isRead && (
+                  <span className="w-1.5 h-1.5 mt-1.5 rounded-full bg-amber-500 shrink-0 shadow-[0_0_6px_rgba(245,158,11,0.8)]" />
+                )}
+                <span>{article.title}</span>
               </h4>
               {article.description && (
                 <p dir="auto" className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
@@ -346,30 +358,37 @@ export function ArticleCard({
           onDrag={onDrag}
           onDragEnd={onDragEnd}
           style={{ x }}
-          className="relative bg-background"
+          className="relative bg-background animate-scale-in"
         >
           {/* Unread indicator — vertical accent bar on the leading edge */}
           {!isRead && (
             <span
               aria-hidden
-              className="absolute top-4 bottom-4 start-0 w-[3px] rounded-full bg-primary/80"
+              className="absolute top-4 bottom-4 start-0 w-[3px] rounded-full bg-gradient-to-b from-amber-500 to-amber-600 shadow-[0_0_8px_rgba(245,158,11,0.6)]"
             />
           )}
           <button
             type="button"
             onClick={handleClick}
-            className="w-full text-start px-4 py-4 hover:bg-accent/20 active:bg-accent/30 transition-colors flex gap-4"
+            className={`w-full text-start px-4 py-4 transition-all duration-300 flex gap-4 ${
+              isRead
+                ? 'hover:bg-accent/10 active:bg-accent/15'
+                : 'bg-gradient-to-r from-amber-500/[0.02] to-transparent hover:from-amber-500/[0.06] hover:to-amber-500/[0.01] active:from-amber-500/[0.1]'
+            }`}
           >
             <div className="flex-1 min-w-0">
               <h4
                 dir="auto"
-                className={`text-[15px] leading-[1.35] line-clamp-2 tracking-[-0.005em] ${
+                className={`text-[15px] leading-[1.35] line-clamp-2 tracking-[-0.005em] flex items-start gap-1.5 ${
                   isRead
                     ? 'font-medium text-foreground/65'
                     : 'font-bold text-foreground'
                 }`}
               >
-                {article.title}
+                {!isRead && (
+                  <span className="w-1.5 h-1.5 mt-2 rounded-full bg-amber-500 shrink-0 shadow-[0_0_6px_rgba(245,158,11,0.8)]" />
+                )}
+                <span>{article.title}</span>
               </h4>
               {article.description && (
                 <p

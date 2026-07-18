@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   Archive, Bell, Bookmark, CheckCheck, ChevronLeft, Compass, FolderOpen, MoreHorizontal,
-  Newspaper, RefreshCw, Search, Settings2, Type, X, Plus, Trash2
+  Newspaper, RefreshCw, Search, Settings2, Type, X, Plus, Trash2, Sparkle
 } from '@/lib/icons';
 import { Input } from '@/components/ui/input';
 import {
@@ -43,6 +43,8 @@ export function ListHeader({
   searchQuery,
   setSearchQuery,
   refreshing,
+  syncProgress,
+  prefetchProgress,
   onRefresh,
   onManage,
   onDiscoverFeeds,
@@ -72,6 +74,20 @@ export function ListHeader({
   searchQuery: string;
   setSearchQuery: (v: string) => void;
   refreshing: boolean;
+  syncProgress?: {
+    active: boolean;
+    total: number;
+    current: number;
+    currentFeed?: string;
+    successCount: number;
+    errorCount: number;
+  };
+  prefetchProgress?: {
+    active: boolean;
+    total: number;
+    current: number;
+    currentTitle?: string;
+  };
   onRefresh: () => void;
   onManage: () => void;
   onDiscoverFeeds: () => void;
@@ -287,6 +303,78 @@ export function ListHeader({
                 <X className="h-4 w-4 text-muted-foreground" />
               </button>
             )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Real-time Sync Progressive Panel (VIP grade) */}
+      <AnimatePresence>
+        {syncProgress?.active && (
+          <motion.div
+            initial={{ opacity: 0, height: 0, y: -10 }}
+            animate={{ opacity: 1, height: 'auto', y: 0 }}
+            exit={{ opacity: 0, height: 0, y: -10 }}
+            transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+            className="mb-3 px-3.5 py-2.5 rounded-2xl bg-gradient-to-br from-amber-500/10 to-amber-600/5 border border-amber-500/20 shadow-sm overflow-hidden"
+          >
+            <div className="flex items-center justify-between text-xs font-semibold text-amber-600 dark:text-amber-400 mb-1.5">
+              <span className="flex items-center gap-1.5">
+                <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+                <span className="truncate max-w-[200px] animate-pulse">
+                  {syncProgress.currentFeed || (isAr ? 'جاري تحديث المصادر...' : 'Syncing feeds...')}
+                </span>
+              </span>
+              <span className="tabular-nums opacity-90">
+                {syncProgress.current} / {syncProgress.total}
+              </span>
+            </div>
+            {/* VIP Gold-theme smooth progress bar */}
+            <div className="h-1.5 w-full bg-amber-500/15 rounded-full overflow-hidden">
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: `${(syncProgress.current / syncProgress.total) * 100}%` }}
+                transition={{ duration: 0.3, ease: 'easeOut' }}
+                className="h-full bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 shadow-[0_0_8px_rgba(245,158,11,0.5)] rounded-full"
+              />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* VIP Smart Pre-loading/Pre-fetching Panel */}
+      <AnimatePresence>
+        {prefetchProgress?.active && !syncProgress?.active && (
+          <motion.div
+            initial={{ opacity: 0, height: 0, y: -10 }}
+            animate={{ opacity: 1, height: 'auto', y: 0 }}
+            exit={{ opacity: 0, height: 0, y: -10 }}
+            transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+            className="mb-3 px-3.5 py-2 rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20 shadow-sm overflow-hidden"
+          >
+            <div className="flex items-center justify-between text-[11px] font-bold text-primary mb-1">
+              <span className="flex items-center gap-1.5">
+                <Sparkle className="h-3.5 w-3.5 animate-pulse text-amber-500 fill-amber-500" />
+                <span>
+                  {isAr ? 'تجهيز ذكي فائق للمقالات الكاملة...' : 'Intelligent full article caching...'}
+                </span>
+              </span>
+              <span className="tabular-nums opacity-90">
+                {prefetchProgress.current} / {prefetchProgress.total}
+              </span>
+            </div>
+            {prefetchProgress.currentTitle && (
+              <p className="text-[10px] text-muted-foreground truncate mb-1.5 opacity-80" dir="auto">
+                {prefetchProgress.currentTitle}
+              </p>
+            )}
+            <div className="h-1.5 w-full bg-primary/15 rounded-full overflow-hidden">
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: `${(prefetchProgress.current / prefetchProgress.total) * 100}%` }}
+                transition={{ duration: 0.3, ease: 'easeOut' }}
+                className="h-full bg-gradient-to-r from-primary to-amber-500 shadow-[0_0_8px_rgba(var(--primary),0.4)] rounded-full"
+              />
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
