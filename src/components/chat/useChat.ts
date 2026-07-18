@@ -1049,15 +1049,30 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
       if (fileInputRef.current) fileInputRef.current.value = '';
     }
 
-    for (const file of others) {
-      if (!validateFile(file, 'file', isAr)) continue;
+    if (others.length > 0) {
       setUploading(true);
-      const ext = file.name.includes('.') ? (file.name.split('.').pop() || 'bin') : 'bin';
-      const path = `${user.id}/${activeConv.id}/${Date.now()}.${ext}`;
-      const { error } = await supabase.storage.from('chat-files').upload(path, file);
+
+      const uploadPromises = others.map(async (file, index) => {
+        if (!validateFile(file, 'file', isAr)) return null;
+        const ext = file.name.includes('.') ? (file.name.split('.').pop() || 'bin') : 'bin';
+        const uniqueId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `id-${Date.now()}-${index}`;
+        const path = `${user.id}/${activeConv.id}/${uniqueId}.${ext}`;
+
+        const { error } = await supabase.storage.from('chat-files').upload(path, file);
+        return { error, path, file };
+      });
+
+      const results = await Promise.all(uploadPromises);
       setUploading(false);
-      if (error) { chatError('uploadFailed', isAr, describeError(error, isAr)); continue; }
-      await sendMessage('file', path, file.name);
+
+      for (const result of results) {
+        if (!result) continue;
+        if (result.error) {
+          chatError('uploadFailed', isAr, describeError(result.error, isAr));
+          continue;
+        }
+        await sendMessage('file', result.path, result.file.name);
+      }
     }
     if (fileInputRef.current) fileInputRef.current.value = '';
   }, [user, activeConv, sendMessage, isAr, stagedImages.length, stageableFromImages]);
@@ -1081,15 +1096,30 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     const images = files.filter(f => f.type.startsWith('image/') || looksLikeHeic(f));
     const others = files.filter(f => !f.type.startsWith('image/') && !looksLikeHeic(f));
     if (images.length > 0) await addImagesFromFiles(images);
-    for (const file of others) {
-      if (!validateFile(file, 'file', isAr)) continue;
+    if (others.length > 0) {
       setUploading(true);
-      const ext = file.name.includes('.') ? (file.name.split('.').pop() || 'bin') : 'bin';
-      const path = `${user.id}/${activeConv.id}/${Date.now()}.${ext}`;
-      const { error } = await supabase.storage.from('chat-files').upload(path, file);
+
+      const uploadPromises = others.map(async (file, index) => {
+        if (!validateFile(file, 'file', isAr)) return null;
+        const ext = file.name.includes('.') ? (file.name.split('.').pop() || 'bin') : 'bin';
+        const uniqueId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `id-${Date.now()}-${index}`;
+        const path = `${user.id}/${activeConv.id}/${uniqueId}.${ext}`;
+
+        const { error } = await supabase.storage.from('chat-files').upload(path, file);
+        return { error, path, file };
+      });
+
+      const results = await Promise.all(uploadPromises);
       setUploading(false);
-      if (error) { chatError('uploadFailed', isAr, describeError(error, isAr)); continue; }
-      await sendMessage('file', path, file.name);
+
+      for (const result of results) {
+        if (!result) continue;
+        if (result.error) {
+          chatError('uploadFailed', isAr, describeError(result.error, isAr));
+          continue;
+        }
+        await sendMessage('file', result.path, result.file.name);
+      }
     }
   }, [user, activeConv, addImagesFromFiles, isAr, sendMessage]);
 
