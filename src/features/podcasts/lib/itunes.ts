@@ -246,16 +246,19 @@ export async function fetchTopPodcastsAggregated(opts: {
   const { countryCodes, genreId, limitPerCountry = ITUNES_MAX_LIMIT, signal } = opts;
   if (countryCodes.length === 0) return [];
 
-  const tasks = countryCodes.map(cc => () => fetchTopPodcasts({
-    countryCode: cc,
-    genreId,
-    limit: limitPerCountry,
-    signal,
-  }));
+  const tasks = countryCodes.map(
+    (cc) => () =>
+      fetchTopPodcasts({
+        countryCode: cc,
+        genreId,
+        limit: limitPerCountry,
+        signal,
+      }),
+  );
   const settled = await runWithConcurrency(tasks, 4, signal);
   const lists = settled
     .filter((r): r is PromiseFulfilledResult<PodcastPreview[]> => r.status === 'fulfilled')
-    .map(r => r.value);
+    .map((r) => r.value);
   return dedupeById(lists);
 }
 
@@ -274,16 +277,19 @@ export async function searchPodcastsAggregated(opts: {
   const { term, countryCodes, limitPerCountry = ITUNES_MAX_LIMIT, signal } = opts;
   if (countryCodes.length === 0 || !term.trim()) return [];
 
-  const tasks = countryCodes.map(cc => () => searchPodcasts({
-    term,
-    countryCode: cc,
-    limit: limitPerCountry,
-    signal,
-  }));
+  const tasks = countryCodes.map(
+    (cc) => () =>
+      searchPodcasts({
+        term,
+        countryCode: cc,
+        limit: limitPerCountry,
+        signal,
+      }),
+  );
   const settled = await runWithConcurrency(tasks, 4, signal);
   const lists = settled
     .filter((r): r is PromiseFulfilledResult<PodcastPreview[]> => r.status === 'fulfilled')
-    .map(r => r.value);
+    .map((r) => r.value);
   return dedupeById(lists);
 }
 
@@ -321,7 +327,9 @@ export async function lookupPodcast(opts: {
   signal?: AbortSignal;
 }): Promise<PodcastPreview & { feedUrl: string }> {
   const { id, signal } = opts;
-  const res = await fetch(`https://itunes.apple.com/lookup?id=${encodeURIComponent(id)}`, { signal });
+  const res = await fetch(`https://itunes.apple.com/lookup?id=${encodeURIComponent(id)}`, {
+    signal,
+  });
   if (!res.ok) throw new Error(`iTunes lookup failed: ${res.status}`);
   const data = (await res.json()) as LookupResponse;
   const r = data.results?.[0];

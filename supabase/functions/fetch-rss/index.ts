@@ -821,12 +821,14 @@ serve(async (req) => {
       fetchFullContent,
       store,
       nameMap,
+      raw,
     }: {
       urls?: unknown;
       limit?: number;
       fetchFullContent?: boolean;
       store?: boolean;
       nameMap?: Record<string, string>;
+      raw?: boolean;
     } = body;
     const maxItems = Math.min(Math.max(1, Number(limit) || 50), 200);
 
@@ -850,6 +852,40 @@ serve(async (req) => {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         },
       );
+    }
+
+    // Secure raw XML proxying mode
+    if (raw) {
+      const url = safeUrls[0];
+      const headers: Record<string, string> = {
+        "User-Agent": USER_AGENT,
+        "Accept": "application/rss+xml, application/atom+xml, application/xml, text/xml, */*;q=0.5",
+        "Accept-Language": "ar,en;q=0.7",
+      };
+      try {
+        const res = await fetchWithRetry(url, { headers, redirect: "follow" }, FETCH_TIMEOUT_MS);
+        if (!res.ok) {
+          return new Response(JSON.stringify({ error: `HTTP error ${res.status}` }), {
+            status: res.status,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+        if (!isSafeUrl(res.url)) {
+          return new Response(JSON.stringify({ error: "Redirect landed on disallowed host" }), {
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+        const text = await res.text();
+        return new Response(JSON.stringify({ xml: text }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      } catch (e: unknown) {
+        return new Response(JSON.stringify({ error: e instanceof Error ? e.message : String(e) }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
     }
 
     const sb = getServiceClient();

@@ -40,34 +40,49 @@ const MAX_DIM = 64;
 const BUCKETS_PER_CHANNEL = 16; // 4 bits → 4096 buckets total
 
 function rgbToHsl(r: number, g: number, b: number): [number, number, number] {
-  const rn = r / 255, gn = g / 255, bn = b / 255;
-  const max = Math.max(rn, gn, bn), min = Math.min(rn, gn, bn);
+  const rn = r / 255,
+    gn = g / 255,
+    bn = b / 255;
+  const max = Math.max(rn, gn, bn),
+    min = Math.min(rn, gn, bn);
   const l = (max + min) / 2;
   if (max === min) return [0, 0, l * 100];
   const d = max - min;
   const s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
   let h = 0;
   switch (max) {
-    case rn: h = ((gn - bn) / d + (gn < bn ? 6 : 0)); break;
-    case gn: h = ((bn - rn) / d + 2); break;
-    case bn: h = ((rn - gn) / d + 4); break;
+    case rn:
+      h = (gn - bn) / d + (gn < bn ? 6 : 0);
+      break;
+    case gn:
+      h = (bn - rn) / d + 2;
+      break;
+    case bn:
+      h = (rn - gn) / d + 4;
+      break;
   }
   return [h * 60, s * 100, l * 100];
 }
 
 function hslToHex(h: number, s: number, l: number): string {
-  const sn = s / 100, ln = l / 100;
+  const sn = s / 100,
+    ln = l / 100;
   const c = (1 - Math.abs(2 * ln - 1)) * sn;
   const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
   const m = ln - c / 2;
-  let r = 0, g = 0, b = 0;
-  if (h < 60)        [r, g, b] = [c, x, 0];
-  else if (h < 120)  [r, g, b] = [x, c, 0];
-  else if (h < 180)  [r, g, b] = [0, c, x];
-  else if (h < 240)  [r, g, b] = [0, x, c];
-  else if (h < 300)  [r, g, b] = [x, 0, c];
-  else               [r, g, b] = [c, 0, x];
-  const to = (v: number) => Math.round((v + m) * 255).toString(16).padStart(2, '0');
+  let r = 0,
+    g = 0,
+    b = 0;
+  if (h < 60) [r, g, b] = [c, x, 0];
+  else if (h < 120) [r, g, b] = [x, c, 0];
+  else if (h < 180) [r, g, b] = [0, c, x];
+  else if (h < 240) [r, g, b] = [0, x, c];
+  else if (h < 300) [r, g, b] = [x, 0, c];
+  else [r, g, b] = [c, 0, x];
+  const to = (v: number) =>
+    Math.round((v + m) * 255)
+      .toString(16)
+      .padStart(2, '0');
   return `#${to(r)}${to(g)}${to(b)}`;
 }
 
@@ -110,7 +125,9 @@ export async function extractSeedColor(imageUrl: string): Promise<SeedColor | nu
     for (let i = 0; i < pixels.length; i += 4) {
       const a = pixels[i + 3];
       if (a < 128) continue;
-      const r = pixels[i], g = pixels[i + 1], b = pixels[i + 2];
+      const r = pixels[i],
+        g = pixels[i + 1],
+        b = pixels[i + 2];
 
       // Reject near-black and near-white before quantization. Those are
       // overwhelmingly the matte/border around real podcast art.
@@ -126,7 +143,10 @@ export async function extractSeedColor(imageUrl: string): Promise<SeedColor | nu
       const key = (qr << 8) | (qg << 4) | qb;
       const entry = buckets.get(key);
       if (entry) {
-        entry.count++; entry.r += r; entry.g += g; entry.b += b;
+        entry.count++;
+        entry.r += r;
+        entry.g += g;
+        entry.b += b;
       } else {
         buckets.set(key, { count: 1, r, g, b });
       }
@@ -151,7 +171,12 @@ export async function extractSeedColor(imageUrl: string): Promise<SeedColor | nu
     sat = Math.max(sat, 45);
     light = Math.min(Math.max(light, 42), 58);
 
-    return { h: Math.round(hue), s: Math.round(sat), l: Math.round(light), hex: hslToHex(hue, sat, light) };
+    return {
+      h: Math.round(hue),
+      s: Math.round(sat),
+      l: Math.round(light),
+      hex: hslToHex(hue, sat, light),
+    };
   } catch {
     return null;
   }

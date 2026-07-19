@@ -14,32 +14,49 @@
 //     a sort menu (recent / alphabetical) and a long-press / context
 //     menu for quick unsubscribe.
 
-import { useMemo, useState } from 'react';
+import { useQueries, useQueryClient } from '@tanstack/react-query';
+import { AnimatePresence, motion } from 'framer-motion';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowDownAZ, Clock, LibraryBig, MoreHorizontal, Play, Trash2, X } from '@/lib/icons';
-import SEO from '@/components/SEO';
+
 import BackButton from '@/components/BackButton';
+import SEO from '@/components/SEO';
 import { useApp } from '@/contexts/AppContext';
-import { useEffect } from 'react';
 import {
-  unsubscribeWithNotify,
+  type PlayingEpisodeMeta,
+  usePodcastPlayer,
+} from '@/features/podcasts/contexts/PodcastPlayerContext';
+import { upgradeArtwork } from '@/features/podcasts/lib/itunes';
+import { encodeFeedUrl } from '@/features/podcasts/lib/route';
+import { fetchPodcastFeed } from '@/features/podcasts/lib/rss';
+import {
+  getPlayState,
+  type RecentEpisodeRecord,
   removeRecentEpisodeWithNotify,
+  type SubscribedPodcast,
+  syncPodcastsFromCloud,
+  unsubscribeWithNotify,
   useRecentEpisodes,
   useSubscriptions,
-  syncPodcastsFromCloud,
-  type RecentEpisodeRecord,
-  type SubscribedPodcast,
 } from '@/features/podcasts/lib/store';
-import { encodeFeedUrl } from '@/features/podcasts/lib/route';
-import { upgradeArtwork } from '@/features/podcasts/lib/itunes';
-import { usePodcastPlayer, type PlayingEpisodeMeta } from '@/features/podcasts/contexts/PodcastPlayerContext';
+import {
+  ArrowDownAZ,
+  Clock,
+  LibraryBig,
+  MoreHorizontal,
+  Play,
+  RefreshCw,
+  Trash2,
+  X,
+} from '@/lib/icons';
 
 const SORT_KEY = 'podcasts.library.sort';
 type SortMode = 'recent' | 'alpha';
 
 function loadSort(): SortMode {
-  const raw = (typeof window !== 'undefined' ? localStorage.getItem(SORT_KEY) : null) as SortMode | null;
+  const raw = (
+    typeof window !== 'undefined' ? localStorage.getItem(SORT_KEY) : null
+  ) as SortMode | null;
   return raw === 'alpha' || raw === 'recent' ? raw : 'recent';
 }
 
@@ -65,7 +82,9 @@ function ContinueListeningRow({ items }: { items: RecentEpisodeRecord[] }) {
       episode: rec.episode,
       podcastTitle: rec.podcastTitle,
       podcastImageUrl: rec.podcastImageUrl,
-      seedH: rec.seedH, seedS: rec.seedS, seedL: rec.seedL,
+      seedH: rec.seedH,
+      seedS: rec.seedS,
+      seedL: rec.seedL,
     };
     void player.play(meta);
   };
@@ -82,13 +101,10 @@ function ContinueListeningRow({ items }: { items: RecentEpisodeRecord[] }) {
         className="flex gap-3 overflow-x-auto -mx-4 px-4 pb-1 scrollbar-none"
         style={{ scrollbarWidth: 'none' }}
       >
-        {tiles.map(rec => {
+        {tiles.map((rec) => {
           const cover = rec.episode.imageUrl || rec.podcastImageUrl;
           return (
-            <div
-              key={rec.episode.id}
-              className="relative shrink-0 w-44"
-            >
+            <div key={rec.episode.id} className="relative shrink-0 w-44">
               <button
                 type="button"
                 onClick={() => playEpisode(rec)}
@@ -96,7 +112,12 @@ function ContinueListeningRow({ items }: { items: RecentEpisodeRecord[] }) {
               >
                 <div className="relative aspect-square bg-muted/40">
                   {cover && (
-                    <img src={upgradeArtwork(cover, 200)} alt="" loading="lazy" className="w-full h-full object-cover" />
+                    <img
+                      src={upgradeArtwork(cover, 200)}
+                      alt=""
+                      loading="lazy"
+                      className="w-full h-full object-cover"
+                    />
                   )}
                   {/* Play overlay — visual affordance that this is a
                       playable card, not a navigation tile. */}
@@ -143,10 +164,12 @@ function SubscriptionTile({
   podcast,
   onOpen,
   onUnsubscribe,
+  hasNewEpisode = false,
 }: {
   podcast: SubscribedPodcast;
   onOpen: () => void;
   onUnsubscribe: () => void;
+  hasNewEpisode?: boolean;
 }) {
   const { language } = useApp();
   const lang = language === 'de' ? 'de' : 'ar';
@@ -158,13 +181,35 @@ function SubscriptionTile({
         onClick={onOpen}
         className="flex flex-col gap-1.5 text-start active:scale-[0.97] transition-transform w-full"
       >
-        <div className="aspect-square w-full rounded-2xl overflow-hidden bg-muted/40 border border-border/40">
-          {podcast.imageUrl
-            ? <img src={upgradeArtwork(podcast.imageUrl, 200)} alt="" loading="lazy" className="w-full h-full object-cover" />
-            : null}
+        <div className="aspect-square w-full rounded-2xl overflow-hidden bg-muted/40 border border-border/40 relative">
+          {podcast.imageUrl ? (
+            <img
+              src={upgradeArtwork(podcast.imageUrl, 200)}
+              alt=""
+              loading="lazy"
+              className="w-full h-full object-cover"
+            />
+          ) : null}
+
+          {/* Subtle glowing unplayed new episode badge on subscription card */}
+          {hasNewEpisode && (
+            <span
+              className="absolute top-2 start-2 px-1.5 py-0.5 rounded-md text-[10px] font-extrabold tracking-wider bg-primary text-primary-foreground shadow-lg animate-pulse"
+              style={{
+                background: 'hsl(var(--live))',
+                color: '#fff',
+              }}
+            >
+              {lang === 'ar' ? 'جديد' : 'NEU'}
+            </span>
+          )}
         </div>
-        <p className="text-[12.5px] font-bold text-foreground leading-tight line-clamp-2">{podcast.title}</p>
-        <p className="text-[11px] text-muted-foreground leading-tight line-clamp-1">{podcast.author}</p>
+        <p className="text-[12.5px] font-bold text-foreground leading-tight line-clamp-2">
+          {podcast.title}
+        </p>
+        <p className="text-[11px] text-muted-foreground leading-tight line-clamp-1">
+          {podcast.author}
+        </p>
       </button>
 
       {/* Per-tile menu trigger. Floats over the artwork; tapping pops a
@@ -174,7 +219,10 @@ function SubscriptionTile({
           context menus on mobile and is invisible to mouse users. */}
       <button
         type="button"
-        onClick={(e) => { e.stopPropagation(); setMenuOpen(true); }}
+        onClick={(e) => {
+          e.stopPropagation();
+          setMenuOpen(true);
+        }}
         aria-label={lang === 'ar' ? 'خيارات' : 'Optionen'}
         className="absolute top-1.5 end-1.5 w-7 h-7 rounded-full bg-black/40 text-white flex items-center justify-center backdrop-blur-sm opacity-90 hover:opacity-100"
       >
@@ -184,19 +232,27 @@ function SubscriptionTile({
       <AnimatePresence>
         {menuOpen && (
           <motion.div
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center"
             onClick={() => setMenuOpen(false)}
           >
             <motion.div
-              initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 30, opacity: 0 }}
+              initial={{ y: 30, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 30, opacity: 0 }}
               transition={{ type: 'spring', damping: 28, stiffness: 320 }}
-              onClick={e => e.stopPropagation()}
+              onClick={(e) => e.stopPropagation()}
               className="bg-card w-full max-w-sm rounded-t-3xl sm:rounded-3xl p-3"
             >
               <div className="px-2 py-3 flex items-center gap-3 border-b border-border/40 mb-2">
                 {podcast.imageUrl && (
-                  <img src={upgradeArtwork(podcast.imageUrl, 200)} alt="" className="w-10 h-10 rounded-xl object-cover" />
+                  <img
+                    src={upgradeArtwork(podcast.imageUrl, 200)}
+                    alt=""
+                    className="w-10 h-10 rounded-xl object-cover"
+                  />
                 )}
                 <div className="min-w-0 flex-1">
                   <p className="text-[13px] font-bold truncate">{podcast.title}</p>
@@ -205,7 +261,10 @@ function SubscriptionTile({
               </div>
               <button
                 type="button"
-                onClick={() => { onUnsubscribe(); setMenuOpen(false); }}
+                onClick={() => {
+                  onUnsubscribe();
+                  setMenuOpen(false);
+                }}
                 className="w-full flex items-center gap-3 px-3 py-3 rounded-2xl text-destructive hover:bg-destructive/10 active:scale-95 transition"
               >
                 <Trash2 className="w-4 h-4" />
@@ -238,6 +297,8 @@ export default function PodcastLibrary() {
   const lang = language === 'de' ? 'de' : 'ar';
   const subs = useSubscriptions();
   const recents = useRecentEpisodes();
+  const queryClient = useQueryClient();
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
     syncPodcastsFromCloud().catch(console.error);
@@ -246,8 +307,66 @@ export default function PodcastLibrary() {
   const [sortMode, setSortMode] = useState<SortMode>(() => loadSort());
   const setSortAndPersist = (m: SortMode) => {
     setSortMode(m);
-    try { localStorage.setItem(SORT_KEY, m); } catch { /* ignore */ }
+    try {
+      localStorage.setItem(SORT_KEY, m);
+    } catch {
+      /* ignore */
+    }
   };
+
+  // Background feed preloading & latest episode release checks.
+  // Performs background queries using @tanstack/react-query in parallel.
+  // Preloads the cache for instant 0ms transitions when detail pages are opened.
+  const feedQueries = useQueries({
+    queries: subs.map((sub) => ({
+      queryKey: ['podcast-feed', sub.origin],
+      queryFn: ({ signal }) => fetchPodcastFeed({ feedUrl: sub.origin, signal }),
+      staleTime: 12 * 60 * 1000, // 12 mins caching
+      enabled: subs.length <= 25, // Safely bound queries to avoid rate limits
+    })),
+  });
+
+  const handleRefreshAll = async () => {
+    setIsRefreshing(true);
+    try {
+      await syncPodcastsFromCloud();
+      const promises = subs.map((sub) =>
+        queryClient.invalidateQueries({ queryKey: ['podcast-feed', sub.origin] }),
+      );
+      await Promise.all(promises);
+    } catch (e) {
+      console.error('Refresh subscriptions error:', e);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
+  // Determine if a subscription has a new unplayed episode from the last 7 days
+  const newEpisodesMap = useMemo(() => {
+    const newMap = new Map<string, boolean>();
+    const NEW_EPISODE_WINDOW = 7 * 86_400_000; // 7 days
+
+    feedQueries.forEach((q, idx) => {
+      const sub = subs[idx];
+      if (!sub || !q.data || !q.data.episodes || q.data.episodes.length === 0) return;
+
+      // Look at the latest published episode
+      const latest = q.data.episodes[0];
+      if (!latest || !latest.pubDate) return;
+
+      const age = Date.now() - latest.pubDate;
+      const isRecent = age > 0 && age < NEW_EPISODE_WINDOW;
+
+      if (isRecent) {
+        const ps = getPlayState(latest.id);
+        const isUntouched = !ps || (!ps.played && ps.position === 0);
+        if (isUntouched) {
+          newMap.set(sub.origin, true);
+        }
+      }
+    });
+    return newMap;
+  }, [feedQueries, subs]);
 
   const sortedSubs = useMemo(() => {
     const list = [...subs];
@@ -263,9 +382,11 @@ export default function PodcastLibrary() {
     <div className="min-h-screen bg-background pb-32">
       <SEO
         title={lang === 'ar' ? 'مكتبة البودكاست' : 'Podcast-Bibliothek'}
-        description={lang === 'ar'
-          ? 'البودكاست التي اشتركت بها — جاهزة للاستماع.'
-          : 'Deine abonnierten Podcasts — bereit zum Anhören.'}
+        description={
+          lang === 'ar'
+            ? 'البودكاست التي اشتركت بها — جاهزة للاستماع.'
+            : 'Deine abonnierten Podcasts — bereit zum Anhören.'
+        }
         path="/podcasts/library"
       />
 
@@ -275,6 +396,17 @@ export default function PodcastLibrary() {
           <h1 className="flex-1 text-base font-bold text-foreground">
             {lang === 'ar' ? 'مكتبتي' : 'Meine Bibliothek'}
           </h1>
+          <button
+            type="button"
+            onClick={handleRefreshAll}
+            disabled={isRefreshing}
+            aria-label={lang === 'ar' ? 'تحديث الكل' : 'Alles aktualisieren'}
+            className="w-10 h-10 rounded-2xl bg-secondary/60 hover:bg-secondary flex items-center justify-center transition disabled:opacity-50 active:scale-95"
+          >
+            <RefreshCw
+              className={`w-4 h-4 text-foreground ${isRefreshing ? 'animate-spin' : ''}`}
+            />
+          </button>
           <span className="text-[11px] text-muted-foreground">{subs.length}</span>
         </div>
       </div>
@@ -339,14 +471,16 @@ export default function PodcastLibrary() {
             </div>
 
             <motion.div
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
               transition={{ duration: 0.25 }}
               className="grid grid-cols-3 gap-x-3 gap-y-5"
             >
-              {sortedSubs.map(p => (
+              {sortedSubs.map((p) => (
                 <SubscriptionTile
                   key={p.origin}
                   podcast={p}
+                  hasNewEpisode={newEpisodesMap.get(p.origin) || false}
                   onOpen={() => navigate(`/podcasts/${encodeFeedUrl(p.origin)}`)}
                   onUnsubscribe={() => unsubscribeWithNotify(p.origin)}
                 />

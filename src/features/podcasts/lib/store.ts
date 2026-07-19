@@ -117,19 +117,25 @@ function write(key: string, value: unknown) {
 /*  Subscriptions                                                             */
 /* -------------------------------------------------------------------------- */
 
-import { saveCloudSubscription, deleteCloudSubscription, saveCloudEpisodeState, saveCloudQueue } from './api';
 import { supabase } from '@/integrations/supabase/client';
+
+import {
+  deleteCloudSubscription,
+  saveCloudEpisodeState,
+  saveCloudQueue,
+  saveCloudSubscription,
+} from './api';
 
 export function getSubscriptions(): SubscribedPodcast[] {
   return read<SubscribedPodcast[]>(SUBS_KEY, []);
 }
 
 export function isSubscribed(origin: string): boolean {
-  return getSubscriptions().some(s => s.origin === origin);
+  return getSubscriptions().some((s) => s.origin === origin);
 }
 
 export function subscribe(podcast: Omit<SubscribedPodcast, 'subscribedAt'>): SubscribedPodcast[] {
-  const subs = getSubscriptions().filter(s => s.origin !== podcast.origin);
+  const subs = getSubscriptions().filter((s) => s.origin !== podcast.origin);
   subs.unshift({ ...podcast, subscribedAt: Date.now() });
   write(SUBS_KEY, subs);
   saveCloudSubscription(podcast.origin, podcast.title, podcast.imageUrl).catch(console.error);
@@ -137,7 +143,7 @@ export function subscribe(podcast: Omit<SubscribedPodcast, 'subscribedAt'>): Sub
 }
 
 export function unsubscribe(origin: string): SubscribedPodcast[] {
-  const subs = getSubscriptions().filter(s => s.origin !== origin);
+  const subs = getSubscriptions().filter((s) => s.origin !== origin);
   write(SUBS_KEY, subs);
   deleteCloudSubscription(origin).catch(console.error);
   return subs;
@@ -161,7 +167,15 @@ export function savePlayState(state: PlayState) {
   const map = getPlayStateMap();
   map[state.episodeId] = state;
   write(PLAY_KEY, map);
-  saveCloudEpisodeState(state.episodeId, '', state.position, state.duration, state.played).catch(console.error);
+  // Extract feed URL from the unified episodeId which has format `feedUrl:guid`
+  const feedUrl = state.episodeId.split(':')[0] || '';
+  saveCloudEpisodeState(
+    state.episodeId,
+    feedUrl,
+    state.position,
+    state.duration,
+    state.played,
+  ).catch(console.error);
 }
 
 export function markEpisodePlayed(episodeId: string, duration: number, played: boolean) {
@@ -176,7 +190,16 @@ export function markEpisodePlayed(episodeId: string, duration: number, played: b
   };
   map[episodeId] = state;
   write(PLAY_KEY, map);
-  saveCloudEpisodeState(episodeId, '', state.position, state.duration, state.played, true).catch(console.error);
+  // Extract feed URL from the unified episodeId which has format `feedUrl:guid`
+  const feedUrl = episodeId.split(':')[0] || '';
+  saveCloudEpisodeState(
+    episodeId,
+    feedUrl,
+    state.position,
+    state.duration,
+    state.played,
+    true,
+  ).catch(console.error);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -202,7 +225,11 @@ export function getLastPlayed(): LastPlayedRecord | null {
 
 export function setLastPlayed(record: LastPlayedRecord | null) {
   if (record === null) {
-    try { localStorage.removeItem(LAST_KEY); } catch { /* ignore */ }
+    try {
+      localStorage.removeItem(LAST_KEY);
+    } catch {
+      /* ignore */
+    }
     return;
   }
   write(LAST_KEY, record);
@@ -216,11 +243,13 @@ export function setLastPlayed(record: LastPlayedRecord | null) {
 export function getRecentEpisodes(): RecentEpisodeRecord[] {
   const raw = read<unknown>(RECENTS_KEY, []);
   if (!Array.isArray(raw)) return [];
-  return raw.filter((r): r is RecentEpisodeRecord =>
-    !!r && typeof r === 'object' &&
-    !!(r as RecentEpisodeRecord).episode &&
-    !!(r as RecentEpisodeRecord).episode.id &&
-    !!(r as RecentEpisodeRecord).episode.audioUrl
+  return raw.filter(
+    (r): r is RecentEpisodeRecord =>
+      !!r &&
+      typeof r === 'object' &&
+      !!(r as RecentEpisodeRecord).episode &&
+      !!(r as RecentEpisodeRecord).episode.id &&
+      !!(r as RecentEpisodeRecord).episode.audioUrl,
   );
 }
 
@@ -230,8 +259,10 @@ export function getRecentEpisodes(): RecentEpisodeRecord[] {
  * dedup-by-id keeps the list a clean MRU stack and the cap keeps the
  * stored payload under a few KB.
  */
-export function pushRecentEpisode(meta: Omit<RecentEpisodeRecord, 'startedAt'>): RecentEpisodeRecord[] {
-  const filtered = getRecentEpisodes().filter(r => r.episode.id !== meta.episode.id);
+export function pushRecentEpisode(
+  meta: Omit<RecentEpisodeRecord, 'startedAt'>,
+): RecentEpisodeRecord[] {
+  const filtered = getRecentEpisodes().filter((r) => r.episode.id !== meta.episode.id);
   filtered.unshift({ ...meta, startedAt: Date.now() });
   const trimmed = filtered.slice(0, RECENTS_LIMIT);
   write(RECENTS_KEY, trimmed);
@@ -241,11 +272,10 @@ export function pushRecentEpisode(meta: Omit<RecentEpisodeRecord, 'startedAt'>):
 /** Remove a single episode from the recents rail (used when the user
  *  marks it played / it ends naturally / they explicitly dismiss it). */
 export function removeRecentEpisode(episodeId: string): RecentEpisodeRecord[] {
-  const next = getRecentEpisodes().filter(r => r.episode.id !== episodeId);
+  const next = getRecentEpisodes().filter((r) => r.episode.id !== episodeId);
   write(RECENTS_KEY, next);
   return next;
 }
-
 
 /* -------------------------------------------------------------------------- */
 /*  Queue (Up Next)                                                            */
@@ -267,11 +297,13 @@ const QUEUE_LIMIT = 100;
 export function getQueue(): QueueItem[] {
   const raw = read<unknown>(QUEUE_KEY, []);
   if (!Array.isArray(raw)) return [];
-  return raw.filter((r): r is QueueItem =>
-    !!r && typeof r === 'object' &&
-    !!(r as QueueItem).episode &&
-    !!(r as QueueItem).episode.id &&
-    !!(r as QueueItem).episode.audioUrl
+  return raw.filter(
+    (r): r is QueueItem =>
+      !!r &&
+      typeof r === 'object' &&
+      !!(r as QueueItem).episode &&
+      !!(r as QueueItem).episode.id &&
+      !!(r as QueueItem).episode.audioUrl,
   );
 }
 
@@ -280,13 +312,18 @@ export function addToQueueBatch(items: Omit<QueueItem, 'addedAt'>[]): QueueItem[
   const now = Date.now();
   // Dedupe against existing queue items by episode id so repeated taps
   // on the same "+" button don't enqueue duplicate rows.
-  const existingIds = new Set(existing.map(q => q.episode.id));
+  const existingIds = new Set(existing.map((q) => q.episode.id));
   const newItems: QueueItem[] = items
-    .filter(i => !existingIds.has(i.episode.id))
-    .map(i => ({ ...i, addedAt: now }));
+    .filter((i) => !existingIds.has(i.episode.id))
+    .map((i) => ({ ...i, addedAt: now }));
   const merged = [...existing, ...newItems].slice(0, QUEUE_LIMIT);
   write(QUEUE_KEY, merged);
-  saveCloudQueue(merged.map((q, idx) => ({ episode_guid: q.episode.id, feed_url: '', position: idx }))).catch(console.error);
+  saveCloudQueue(
+    merged.map((q, idx) => {
+      const feedUrl = q.episode.id.split(':')[0] || '';
+      return { episode_guid: q.episode.id, feed_url: feedUrl, position: idx };
+    }),
+  ).catch(console.error);
   return merged;
 }
 
@@ -295,9 +332,14 @@ export function addToQueue(item: Omit<QueueItem, 'addedAt'>): QueueItem[] {
 }
 
 export function removeFromQueue(episodeId: string): QueueItem[] {
-  const next = getQueue().filter(q => q.episode.id !== episodeId);
+  const next = getQueue().filter((q) => q.episode.id !== episodeId);
   write(QUEUE_KEY, next);
-  saveCloudQueue(next.map((q, idx) => ({ episode_guid: q.episode.id, feed_url: '', position: idx }))).catch(console.error);
+  saveCloudQueue(
+    next.map((q, idx) => {
+      const feedUrl = q.episode.id.split(':')[0] || '';
+      return { episode_guid: q.episode.id, feed_url: feedUrl, position: idx };
+    }),
+  ).catch(console.error);
   return next;
 }
 
@@ -308,7 +350,12 @@ export function reorderQueue(fromIndex: number, toIndex: number): QueueItem[] {
   const [item] = list.splice(fromIndex, 1);
   list.splice(toIndex, 0, item);
   write(QUEUE_KEY, list);
-  saveCloudQueue(list.map((q, idx) => ({ episode_guid: q.episode.id, feed_url: '', position: idx }))).catch(console.error);
+  saveCloudQueue(
+    list.map((q, idx) => {
+      const feedUrl = q.episode.id.split(':')[0] || '';
+      return { episode_guid: q.episode.id, feed_url: feedUrl, position: idx };
+    }),
+  ).catch(console.error);
   return list;
 }
 
@@ -322,7 +369,12 @@ export function popNextFromQueue(): QueueItem | null {
   if (list.length === 0) return null;
   const [next, ...rest] = list;
   write(QUEUE_KEY, rest);
-  saveCloudQueue(rest.map((q, idx) => ({ episode_guid: q.episode.id, feed_url: '', position: idx }))).catch(console.error);
+  saveCloudQueue(
+    rest.map((q, idx) => {
+      const feedUrl = q.episode.id.split(':')[0] || '';
+      return { episode_guid: q.episode.id, feed_url: feedUrl, position: idx };
+    }),
+  ).catch(console.error);
   return next;
 }
 
@@ -330,7 +382,12 @@ export function shiftQueue(count: number): QueueItem[] {
   const list = getQueue();
   const rest = list.slice(count);
   write(QUEUE_KEY, rest);
-  saveCloudQueue(rest.map((q, idx) => ({ episode_guid: q.episode.id, feed_url: '', position: idx }))).catch(console.error);
+  saveCloudQueue(
+    rest.map((q, idx) => {
+      const feedUrl = q.episode.id.split(':')[0] || '';
+      return { episode_guid: q.episode.id, feed_url: feedUrl, position: idx };
+    }),
+  ).catch(console.error);
   return list.slice(0, count);
 }
 
@@ -364,13 +421,14 @@ export function getHistory(): HistoryEntry[] {
   const raw = read<unknown>(HISTORY_KEY, []);
   if (!Array.isArray(raw)) return [];
   return raw
-    .filter((r): r is HistoryEntry =>
-      !!r && typeof r === 'object' && !!(r as HistoryEntry).episodeId)
+    .filter(
+      (r): r is HistoryEntry => !!r && typeof r === 'object' && !!(r as HistoryEntry).episodeId,
+    )
     .sort((a, b) => (b as HistoryEntry).listenedAt - (a as HistoryEntry).listenedAt);
 }
 
 export function addHistoryEntry(entry: Omit<HistoryEntry, 'listenedAt'>): HistoryEntry[] {
-  const existing = getHistory().filter(h => h.episodeId !== entry.episodeId);
+  const existing = getHistory().filter((h) => h.episodeId !== entry.episodeId);
   existing.unshift({ ...entry, listenedAt: Date.now() });
   const trimmed = existing.slice(0, HISTORY_LIMIT);
   write(HISTORY_KEY, trimmed);
@@ -380,7 +438,7 @@ export function addHistoryEntry(entry: Omit<HistoryEntry, 'listenedAt'>): Histor
 export function addHistoryEntries(entries: Omit<HistoryEntry, 'listenedAt'>[]): HistoryEntry[] {
   let list = getHistory();
   for (const entry of entries) {
-    list = list.filter(h => h.episodeId !== entry.episodeId);
+    list = list.filter((h) => h.episodeId !== entry.episodeId);
     list.unshift({ ...entry, listenedAt: Date.now() });
   }
   list = list.slice(0, HISTORY_LIMIT);
@@ -389,7 +447,7 @@ export function addHistoryEntries(entries: Omit<HistoryEntry, 'listenedAt'>[]): 
 }
 
 export function removeHistoryEntry(episodeId: string): HistoryEntry[] {
-  const next = getHistory().filter(h => h.episodeId !== episodeId);
+  const next = getHistory().filter((h) => h.episodeId !== episodeId);
   write(HISTORY_KEY, next);
   return next;
 }
@@ -448,30 +506,30 @@ function notify(slice: Slice) {
   if (slice === 'recents') refreshRecentsSnapshot();
   if (slice === 'queue') refreshQueueSnapshot();
   if (slice === 'history') refreshHistorySnapshot();
-  subscribers[slice].forEach(fn => fn());
+  subscribers[slice].forEach((fn) => fn());
 }
 
 // Cross-tab sync. The `storage` event fires only on OTHER tabs when
 // localStorage changes, so we also notify locally after each writer.
 if (typeof window !== 'undefined') {
-  window.addEventListener('storage', e => {
+  window.addEventListener('storage', (e) => {
     if (e.key === SUBS_KEY) {
       refreshSubsSnapshot();
-      subscribers.subs.forEach(fn => fn());
+      subscribers.subs.forEach((fn) => fn());
     } else if (e.key === PLAY_KEY) {
-      subscribers.play.forEach(fn => fn());
+      subscribers.play.forEach((fn) => fn());
     } else if (e.key === LAST_KEY) {
       refreshLastPlayedSnapshot();
-      subscribers.last.forEach(fn => fn());
+      subscribers.last.forEach((fn) => fn());
     } else if (e.key === RECENTS_KEY) {
       refreshRecentsSnapshot();
-      subscribers.recents.forEach(fn => fn());
+      subscribers.recents.forEach((fn) => fn());
     } else if (e.key === QUEUE_KEY) {
       refreshQueueSnapshot();
-      subscribers.queue.forEach(fn => fn());
+      subscribers.queue.forEach((fn) => fn());
     } else if (e.key === HISTORY_KEY) {
       refreshHistorySnapshot();
-      subscribers.history.forEach(fn => fn());
+      subscribers.history.forEach((fn) => fn());
     }
   });
 }
@@ -491,28 +549,30 @@ function wrapWithNotify<TArgs extends unknown[], TRet>(
   };
 }
 
-export const subscribeWithNotify        = wrapWithNotify(subscribe, 'subs');
-export const unsubscribeWithNotify      = wrapWithNotify(unsubscribe, 'subs');
-export const savePlayStateWithNotify    = wrapWithNotify(savePlayState, 'play');
+export const subscribeWithNotify = wrapWithNotify(subscribe, 'subs');
+export const unsubscribeWithNotify = wrapWithNotify(unsubscribe, 'subs');
+export const savePlayStateWithNotify = wrapWithNotify(savePlayState, 'play');
 export const markEpisodePlayedWithNotify = wrapWithNotify(markEpisodePlayed, 'play');
-export const setLastPlayedWithNotify    = wrapWithNotify(setLastPlayed, 'last');
+export const setLastPlayedWithNotify = wrapWithNotify(setLastPlayed, 'last');
 export const pushRecentEpisodeWithNotify = wrapWithNotify(pushRecentEpisode, 'recents');
 export const removeRecentEpisodeWithNotify = wrapWithNotify(removeRecentEpisode, 'recents');
-export const addToQueueWithNotify          = wrapWithNotify(addToQueue, 'queue');
-export const addToQueueBatchWithNotify     = wrapWithNotify(addToQueueBatch, 'queue');
-export const removeFromQueueWithNotify     = wrapWithNotify(removeFromQueue, 'queue');
-export const reorderQueueWithNotify        = wrapWithNotify(reorderQueue, 'queue');
-export const clearQueueWithNotify          = wrapWithNotify(clearQueue, 'queue');
-export const popNextFromQueueWithNotify    = wrapWithNotify(popNextFromQueue, 'queue');
-export const shiftQueueWithNotify          = wrapWithNotify(shiftQueue, 'queue');
-export const addHistoryEntryWithNotify     = wrapWithNotify(addHistoryEntry, 'history');
-export const addHistoryEntriesWithNotify   = wrapWithNotify(addHistoryEntries, 'history');
-export const removeHistoryEntryWithNotify  = wrapWithNotify(removeHistoryEntry, 'history');
-export const clearHistoryWithNotify        = wrapWithNotify(clearHistory, 'history');
+export const addToQueueWithNotify = wrapWithNotify(addToQueue, 'queue');
+export const addToQueueBatchWithNotify = wrapWithNotify(addToQueueBatch, 'queue');
+export const removeFromQueueWithNotify = wrapWithNotify(removeFromQueue, 'queue');
+export const reorderQueueWithNotify = wrapWithNotify(reorderQueue, 'queue');
+export const clearQueueWithNotify = wrapWithNotify(clearQueue, 'queue');
+export const popNextFromQueueWithNotify = wrapWithNotify(popNextFromQueue, 'queue');
+export const shiftQueueWithNotify = wrapWithNotify(shiftQueue, 'queue');
+export const addHistoryEntryWithNotify = wrapWithNotify(addHistoryEntry, 'history');
+export const addHistoryEntriesWithNotify = wrapWithNotify(addHistoryEntries, 'history');
+export const removeHistoryEntryWithNotify = wrapWithNotify(removeHistoryEntry, 'history');
+export const clearHistoryWithNotify = wrapWithNotify(clearHistory, 'history');
 
 function subscribeToSlice(slice: Slice, cb: () => void) {
   subscribers[slice].add(cb);
-  return () => { subscribers[slice].delete(cb); };
+  return () => {
+    subscribers[slice].delete(cb);
+  };
 }
 
 /* -------------------------------------------------------------------------- */
@@ -521,7 +581,7 @@ function subscribeToSlice(slice: Slice, cb: () => void) {
 
 export function useSubscriptions(): SubscribedPodcast[] {
   return useSyncExternalStore(
-    cb => subscribeToSlice('subs', cb),
+    (cb) => subscribeToSlice('subs', cb),
     () => subsSnapshot,
     () => subsSnapshot,
   );
@@ -529,7 +589,7 @@ export function useSubscriptions(): SubscribedPodcast[] {
 
 export function useIsSubscribed(origin: string | undefined): boolean {
   const subs = useSubscriptions();
-  return !!origin && subs.some(s => s.origin === origin);
+  return !!origin && subs.some((s) => s.origin === origin);
 }
 
 /**
@@ -556,7 +616,7 @@ export function usePlayState(episodeId: string | undefined, durationHint = 0): P
  */
 export function useLastPlayed(): LastPlayedRecord | null {
   return useSyncExternalStore(
-    cb => subscribeToSlice('last', cb),
+    (cb) => subscribeToSlice('last', cb),
     () => lastPlayedSnapshot,
     () => lastPlayedSnapshot,
   );
@@ -570,12 +630,11 @@ export function useLastPlayed(): LastPlayedRecord | null {
  */
 export function useRecentEpisodes(): RecentEpisodeRecord[] {
   return useSyncExternalStore(
-    cb => subscribeToSlice('recents', cb),
+    (cb) => subscribeToSlice('recents', cb),
     () => recentsSnapshot,
     () => recentsSnapshot,
   );
 }
-
 
 /**
  * Reactive snapshot of the persisted queue. Used by the QueueSheet
@@ -584,7 +643,7 @@ export function useRecentEpisodes(): RecentEpisodeRecord[] {
  */
 export function useQueue(): QueueItem[] {
   return useSyncExternalStore(
-    cb => subscribeToSlice('queue', cb),
+    (cb) => subscribeToSlice('queue', cb),
     () => queueSnapshot,
     () => queueSnapshot,
   );
@@ -602,25 +661,30 @@ export function useQueueCount(): number {
  */
 export function useHistory(): HistoryEntry[] {
   return useSyncExternalStore(
-    cb => subscribeToSlice('history', cb),
+    (cb) => subscribeToSlice('history', cb),
     () => historySnapshot,
     () => historySnapshot,
   );
 }
 
 function readOrSynth(episodeId: string | undefined, durationHint: number): PlayState {
-  if (!episodeId) return { episodeId: '', position: 0, duration: durationHint, played: false, updatedAt: 0 };
-  return getPlayState(episodeId) ?? {
-    episodeId,
-    position: 0,
-    duration: durationHint,
-    played: false,
-    updatedAt: 0,
-  };
+  if (!episodeId)
+    return { episodeId: '', position: 0, duration: durationHint, played: false, updatedAt: 0 };
+  return (
+    getPlayState(episodeId) ?? {
+      episodeId,
+      position: 0,
+      duration: durationHint,
+      played: false,
+      updatedAt: 0,
+    }
+  );
 }
 
 export async function syncPodcastsFromCloud() {
-  const { data: { session } } = await supabase.auth.getSession();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
   const userId = session?.user?.id;
   if (!userId) return;
 
@@ -633,9 +697,9 @@ export async function syncPodcastsFromCloud() {
 
     if (subs && !subsError) {
       const localSubs = getSubscriptions();
-      const localMap = new Map(localSubs.map(s => [s.origin, s]));
+      const localMap = new Map(localSubs.map((s) => [s.origin, s]));
 
-      subs.forEach(s => {
+      subs.forEach((s) => {
         const existing = localMap.get(s.feed_url);
         if (!existing || new Date(s.added_at).getTime() > existing.subscribedAt) {
           localMap.set(s.feed_url, {
@@ -664,7 +728,7 @@ export async function syncPodcastsFromCloud() {
 
     if (playStates && !playError) {
       const localPlay = getPlayStateMap();
-      playStates.forEach(s => {
+      playStates.forEach((s) => {
         const existing = localPlay[s.episode_guid];
         if (!existing || new Date(s.played_at).getTime() > existing.updatedAt) {
           localPlay[s.episode_guid] = {
