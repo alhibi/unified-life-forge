@@ -10,6 +10,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
+
 import { diwanLocalGlossary } from './diwanGlossary';
 import { poetryEras } from './poetryData';
 
@@ -17,8 +18,11 @@ const TASHKEEL = /[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED\u0640]/g;
 function norm(s: string): string {
   return (s ?? '')
     .replace(TASHKEEL, '')
-    .replace(/[إأآا]/g, 'ا').replace(/ى/g, 'ي').replace(/ة/g, 'ه')
-    .toLowerCase().trim();
+    .replace(/[إأآا]/g, 'ا')
+    .replace(/ى/g, 'ي')
+    .replace(/ة/g, 'ه')
+    .toLowerCase()
+    .trim();
 }
 function poemSlug(poetId: string, title: string): string {
   return `${poetId}-${norm(title).replace(/\s+/g, '-')}`;
@@ -42,15 +46,15 @@ describe('diwanGlossary slug integrity', () => {
 
   it('every glossary key matches an existing poem slug in poetryData', () => {
     const glossaryKeys = Object.keys(diwanLocalGlossary);
-    const orphans = glossaryKeys.filter(k => !knownSlugs.has(k));
+    const orphans = glossaryKeys.filter((k) => !knownSlugs.has(k));
     if (orphans.length > 0) {
       // رسالة مُفصَّلة لتسهيل التشخيص
       throw new Error(
         `وُجدت ${orphans.length} مفتاح(مفاتيح) في diwanLocalGlossary ` +
-        `لا تُطابق أيّ قصيدة في poetryData:\n` +
-        orphans.map(k => `  • ${k}`).join('\n') +
-        `\n\nغالباً السبب: عنوان قصيدة تغيّر في poetryData، أو الـ ` +
-        `slug في المعجم بُني يدوياً بشكل خاطئ.`,
+          `لا تُطابق أيّ قصيدة في poetryData:\n` +
+          orphans.map((k) => `  • ${k}`).join('\n') +
+          `\n\nغالباً السبب: عنوان قصيدة تغيّر في poetryData، أو الـ ` +
+          `slug في المعجم بُني يدوياً بشكل خاطئ.`,
       );
     }
     expect(orphans).toEqual([]);

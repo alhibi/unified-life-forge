@@ -18,8 +18,8 @@
 // ─────────────────────────────────────────────────────────────────────
 
 export interface LocalGlossaryEntry {
-  word: string;            // الكلمة بصيغتها الأدبية
-  meaning: string;         // الشرح
+  word: string; // الكلمة بصيغتها الأدبية
+  meaning: string; // الشرح
   verse_position?: number; // البيت الذي وردت فيه (اختياري)
 }
 
@@ -27,9 +27,21 @@ export const diwanLocalGlossary: Record<string, LocalGlossaryEntry[]> = {
   // ═══ معلقة امرئ القيس ═══
   // slug = imru-alqays-معلقه-امرئ-القيس
   'imru-alqays-معلقه-امرئ-القيس': [
-    { word: 'قفا', meaning: 'أمر للاثنين بالوقوف، يُخاطب صاحبَيْه طالباً منهما الوقوف معه عند الأطلال.', verse_position: 0 },
-    { word: 'سقط اللوى', meaning: 'مكان يَنقطع فيه الرمل المتعرّج (اللوى)؛ موضع بين نجد والشام.', verse_position: 0 },
-    { word: 'الدخول', meaning: 'موضع في بلاد بني أسد قرب حومل والمقراة، من ديار محبوبته.', verse_position: 0 },
+    {
+      word: 'قفا',
+      meaning: 'أمر للاثنين بالوقوف، يُخاطب صاحبَيْه طالباً منهما الوقوف معه عند الأطلال.',
+      verse_position: 0,
+    },
+    {
+      word: 'سقط اللوى',
+      meaning: 'مكان يَنقطع فيه الرمل المتعرّج (اللوى)؛ موضع بين نجد والشام.',
+      verse_position: 0,
+    },
+    {
+      word: 'الدخول',
+      meaning: 'موضع في بلاد بني أسد قرب حومل والمقراة، من ديار محبوبته.',
+      verse_position: 0,
+    },
     { word: 'حومل', meaning: 'موضع قرب الدخول.', verse_position: 0 },
     { word: 'توضح', meaning: 'موضع آخر بين الدخول وحومل.', verse_position: 1 },
     { word: 'المقراة', meaning: 'موضع تجتمع فيه مياه السيول.', verse_position: 1 },
@@ -40,7 +52,11 @@ export const diwanLocalGlossary: Record<string, LocalGlossaryEntry[]> = {
     { word: 'قيعانها', meaning: 'جمع قاع: الأرض الواسعة المنخفضة.', verse_position: 2 },
     { word: 'حنظل', meaning: 'نبات صحراوي شديد المرارة، يُضرب بمرارته المثل.', verse_position: 3 },
     { word: 'سمرات', meaning: 'جمع سَمُرة: شجر الطَّلْح ذو الشوك.', verse_position: 3 },
-    { word: 'ناقف', meaning: 'الذي يقشر الحنظل ويستخرج لُبَّه — كناية عن المرارة.', verse_position: 3 },
+    {
+      word: 'ناقف',
+      meaning: 'الذي يقشر الحنظل ويستخرج لُبَّه — كناية عن المرارة.',
+      verse_position: 3,
+    },
     { word: 'مهراقة', meaning: 'مَسكوبة منسكِبة (من أراق الدمع).', verse_position: 5 },
     { word: 'معول', meaning: 'مَفزَع يُلجأ إليه لكشف الهمّ، أو موضع البكاء.', verse_position: 5 },
     { word: 'كدأبك', meaning: 'كعادتك المُتكرِّرة.', verse_position: 6 },
@@ -83,23 +99,57 @@ export const diwanLocalGlossary: Record<string, LocalGlossaryEntry[]> = {
     { word: 'الخضارم', meaning: 'جمع خِضْرَم: الجيوش الكثيرة الواسعة.', verse_position: 2 },
     { word: 'الضراغم', meaning: 'جمع ضِرغام: الأسود الشجاعة (هنا الأبطال).', verse_position: 3 },
     { word: 'مخالب', meaning: 'جمع مِخْلَب: أظفار السباع.', verse_position: 5 },
-    { word: 'الحدث الحمراء', meaning: 'قلعة حصينة في حدود الشام، اشتُهرت بمعركة سيف الدولة سنة 343هـ.', verse_position: 6 },
+    {
+      word: 'الحدث الحمراء',
+      meaning: 'قلعة حصينة في حدود الشام، اشتُهرت بمعركة سيف الدولة سنة 343هـ.',
+      verse_position: 6,
+    },
     { word: 'الغمائم', meaning: 'جمع غَمامة: السحب الماطرة.', verse_position: 6 },
-    { word: 'الجماجم', meaning: 'جمع جُمجمة: الرؤوس — أي سَقَتْها دماء القتلى.', verse_position: 7 },
+    {
+      word: 'الجماجم',
+      meaning: 'جمع جُمجمة: الرؤوس — أي سَقَتْها دماء القتلى.',
+      verse_position: 7,
+    },
     { word: 'القنا', meaning: 'جمع قَناة: الرماح.', verse_position: 8 },
     { word: 'المنايا', meaning: 'جمع مَنية: الموت ومصارفه.', verse_position: 8 },
     { word: 'متلاطم', meaning: 'يضرب بعضه بعضاً (شُبِّه القتلُ بأمواج البحر).', verse_position: 8 },
-    { word: 'تمائم', meaning: 'جمع تميمة: ما يُعلَّق على الأطفال للوقاية — هنا تَهَكُّم بأن الجثث صارت تمائم للقلعة.', verse_position: 9 },
-    { word: 'الخطّي', meaning: 'الرمح المنسوب لمدينة الخَطّ بساحل البحرين، ضُرب المثل بصلابته.', verse_position: 10 },
-    { word: 'غوارم', meaning: 'دافعات الغُرْم (التَّعْويض) — أي الليالي تردّ ما سَلَبَتْ.', verse_position: 11 },
-    { word: 'الجوازم', meaning: 'في النحو: العوامل التي تجزم الفعل المضارع — استعارة بلاغية: قبل أن تستطيع جوازم الزمن وقفه.', verse_position: 12 },
+    {
+      word: 'تمائم',
+      meaning:
+        'جمع تميمة: ما يُعلَّق على الأطفال للوقاية — هنا تَهَكُّم بأن الجثث صارت تمائم للقلعة.',
+      verse_position: 9,
+    },
+    {
+      word: 'الخطّي',
+      meaning: 'الرمح المنسوب لمدينة الخَطّ بساحل البحرين، ضُرب المثل بصلابته.',
+      verse_position: 10,
+    },
+    {
+      word: 'غوارم',
+      meaning: 'دافعات الغُرْم (التَّعْويض) — أي الليالي تردّ ما سَلَبَتْ.',
+      verse_position: 11,
+    },
+    {
+      word: 'الجوازم',
+      meaning:
+        'في النحو: العوامل التي تجزم الفعل المضارع — استعارة بلاغية: قبل أن تستطيع جوازم الزمن وقفه.',
+      verse_position: 12,
+    },
   ],
 
   // ═══ المتنبي — الخيل والليل والبيداء تعرفني ═══
   // slug = mutanabbi-الخيل-والليل-والبيداء-تعرفني
   'mutanabbi-الخيل-والليل-والبيداء-تعرفني': [
-    { word: 'شواردها', meaning: 'جمع شاردة: المعاني المُتفلِّتة من قلَّة من الشعراء.', verse_position: 1 },
-    { word: 'ملء جفوني', meaning: 'كناية عن النوم الهانئ العميق رغم ما يَفُوت غيرَه.', verse_position: 1 },
+    {
+      word: 'شواردها',
+      meaning: 'جمع شاردة: المعاني المُتفلِّتة من قلَّة من الشعراء.',
+      verse_position: 1,
+    },
+    {
+      word: 'ملء جفوني',
+      meaning: 'كناية عن النوم الهانئ العميق رغم ما يَفُوت غيرَه.',
+      verse_position: 1,
+    },
     { word: 'جرَّاها', meaning: 'بسببها، من أجلها.', verse_position: 1 },
     { word: 'البيداء', meaning: 'الصحراء الواسعة المُهلكة.', verse_position: 2 },
     { word: 'القرطاس', meaning: 'الورق الذي يُكتب عليه.', verse_position: 2 },
@@ -118,11 +168,19 @@ export const diwanLocalGlossary: Record<string, LocalGlossaryEntry[]> = {
     { word: 'شبم', meaning: 'بارد جامد — كناية عن جفاء سيف الدولة.', verse_position: 0 },
     { word: 'سقم', meaning: 'مرض شديد.', verse_position: 0 },
     { word: 'برى', meaning: 'أنحَلَ وأنهَكَ الجسد.', verse_position: 1 },
-    { word: 'غُرَّته', meaning: 'وجهه الأبيض الكريم — كناية عن المُحبَّب من الناس.', verse_position: 2 },
+    {
+      word: 'غُرَّته',
+      meaning: 'وجهه الأبيض الكريم — كناية عن المُحبَّب من الناس.',
+      verse_position: 2,
+    },
     { word: 'الهند', meaning: 'يقصد سيوف الهند المشهورة بحدّتها.', verse_position: 3 },
     { word: 'الشيم', meaning: 'جمع شِيمة: الأخلاق والطباع الكريمة.', verse_position: 4 },
     { word: 'يممته', meaning: 'قَصَدْته بالغزو.', verse_position: 5 },
-    { word: 'البهم', meaning: 'جمع بُهْمة: الفارس الشجاع الذي لا يُدرى من أين يُؤتى.', verse_position: 6 },
+    {
+      word: 'البهم',
+      meaning: 'جمع بُهْمة: الفارس الشجاع الذي لا يُدرى من أين يُؤتى.',
+      verse_position: 6,
+    },
   ],
 
   // ═══ كعب بن زهير — قصيدة البردة (بانت سعاد) ═══
