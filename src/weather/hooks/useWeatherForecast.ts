@@ -6,18 +6,30 @@ import { weatherEngine } from '../engine/WeatherEngine';
 import type { ForecastLayers } from '../types/ForecastLayer';
 import { EMPTY_FORECAST } from '../types/ForecastLayer';
 
-export function useWeatherForecast(language: 'ar' | 'de' | 'en' = 'ar'): {
+export function useWeatherForecast(
+  language: 'ar' | 'de' | 'en' = 'ar',
+  customCoords?: { lat: number; lng: number } | null
+): {
   forecast: ForecastLayers;
   loading: boolean;
 } {
-  const { location } = useDeviceLocation();
+  const { location: deviceLoc } = useDeviceLocation();
+  const location = customCoords || deviceLoc;
   const [forecast, setForecast] = useState<ForecastLayers>(EMPTY_FORECAST);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const off = weatherEngine.subscribe(r => setForecast(r.forecast));
+    const off = weatherEngine.subscribe(r => {
+      // Filter out unrelated updates when we're viewing specific custom coordinates
+      if (customCoords && r.snapshot) {
+        const dLat = Math.abs(r.snapshot.meta.location.lat - customCoords.lat);
+        const dLng = Math.abs(r.snapshot.meta.location.lng - customCoords.lng);
+        if (dLat > 0.05 || dLng > 0.05) return;
+      }
+      setForecast(r.forecast);
+    });
     return off;
-  }, []);
+  }, [customCoords?.lat, customCoords?.lng]);
 
   useEffect(() => {
     if (!location) return;

@@ -20,8 +20,12 @@ export interface UseWeatherResult {
   lastResponses: EngineResult['responses'];
 }
 
-export function useWeather(language: 'ar' | 'de' | 'en' = 'ar'): UseWeatherResult {
-  const { location } = useDeviceLocation();
+export function useWeather(
+  language: 'ar' | 'de' | 'en' = 'ar',
+  customCoords?: { lat: number; lng: number } | null
+): UseWeatherResult {
+  const { location: deviceLoc } = useDeviceLocation();
+  const location = customCoords || deviceLoc;
   const [snapshot, setSnapshot] = useState<WeatherSnapshot | null>(null);
   const [status, setStatus] = useState<WeatherStatus>('idle');
   const [error, setError] = useState<string | null>(null);
@@ -37,13 +41,19 @@ export function useWeather(language: 'ar' | 'de' | 'en' = 'ar'): UseWeatherResul
   // SmartGreeting, etc.) so all views stay in sync.
   useEffect(() => {
     const off = weatherEngine.subscribe((r) => {
+      // If we are looking at custom coords, we should make sure the emitted snapshot is indeed close to our target coords
+      if (customCoords && r.snapshot) {
+        const dLat = Math.abs(r.snapshot.meta.location.lat - customCoords.lat);
+        const dLng = Math.abs(r.snapshot.meta.location.lng - customCoords.lng);
+        if (dLat > 0.05 || dLng > 0.05) return; // ignore other coordinates updates
+      }
       setSnapshot(r.snapshot);
       setTier(r.tier);
       setLastResponses(r.responses);
       if (r.tier === 'fresh') setIsRefreshing(false);
     });
     return off;
-  }, []);
+  }, [customCoords?.lat, customCoords?.lng]);
 
   useEffect(() => {
     if (!location) return;
@@ -69,7 +79,7 @@ export function useWeather(language: 'ar' | 'de' | 'en' = 'ar'): UseWeatherResul
       setStatus(prev => snapshot ? 'success' : 'error');
       setIsRefreshing(false);
     });
-  }, [location?.lat, location?.lng, language, refreshNonce]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [location?.lat, location?.lng, language, refreshNonce]);
 
   // Periodic refresh every 15 min.
   useEffect(() => {
