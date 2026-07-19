@@ -31,12 +31,15 @@ describe('clientId helpers', () => {
       if (typeof globalThis !== 'undefined') {
         // Mock globalThis.crypto to not have randomUUID but have getRandomValues
         const mockCrypto = {
-          getRandomValues: (arr: Uint8Array) => {
+          getRandomValues: <T extends ArrayBufferView | null>(arr: T): T => {
             if (originalCrypto?.getRandomValues) {
-              return originalCrypto.getRandomValues(arr);
+              return originalCrypto.getRandomValues(arr as unknown as ArrayBufferView) as T;
             }
-            for (let i = 0; i < arr.length; i++) {
-              arr[i] = Math.floor(Math.random() * 256);
+            if (arr && ArrayBuffer.isView(arr)) {
+              const view = new Uint8Array(arr.buffer, arr.byteOffset, arr.byteLength);
+              for (let i = 0; i < view.length; i++) {
+                view[i] = Math.floor(Math.random() * 256);
+              }
             }
             return arr;
           }
