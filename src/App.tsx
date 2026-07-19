@@ -132,6 +132,8 @@ const loadArchiveReader = () => import("./features/archive/pages/ArchiveReader")
 const loadPKM = () => import("./features/pkm/pages/PKM");
 // Living Mind — dedicated contemplative 3D destination for PKM.
 const loadMind = () => import("./features/mind/pages/Mind");
+// "مذكرتي" — journal with 3D brain hero.
+const loadJournal = () => import("./features/journal/pages/JournalHome");
 const loadOAuthConsent = () => import("./pages/OAuthConsent");
 
 // ──────────────────────────────────────────────────────────────────────
@@ -158,6 +160,7 @@ registerRoute('/mihrab',            loadMihrab);
 registerRoute('/mihrab/prayer-guide', loadPrayerGuide);
 registerRoute('/weather',           loadWeather);
 registerRoute('/knowledge',         loadKnowledge);
+registerRoute('/journal',           loadJournal);
 registerRoute('/reading',           loadReading);
 registerRoute('/occasions',         loadOccasions);
 registerRoute('/tafsir',            loadTafsir);
