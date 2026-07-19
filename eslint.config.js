@@ -3,12 +3,16 @@ import globals from "globals";
 import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
 import tseslint from "typescript-eslint";
+import simpleImportSort from "eslint-plugin-simple-import-sort";
+import unusedImports from "eslint-plugin-unused-imports";
+import prettier from "eslint-plugin-prettier";
+import eslintConfigPrettier from "eslint-config-prettier";
 
 export default tseslint.config(
-  { ignores: ["dist"] },
+  { ignores: ["dist", "node_modules"] },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
-    files: ["**/*.{ts,tsx}"],
+    files: ["**/*.{ts,tsx,js,jsx}"],
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,
@@ -16,24 +20,49 @@ export default tseslint.config(
     plugins: {
       "react-hooks": reactHooks,
       "react-refresh": reactRefresh,
+      "simple-import-sort": simpleImportSort,
+      "unused-imports": unusedImports,
+      "prettier": prettier,
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
       "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
-      // Re-enabled as a warning (not error) so stale imports / dead vars
-      // surface in PRs without breaking builds. Underscore-prefixed args/
-      // vars are still allowed as an explicit "intentionally unused"
-      // marker (e.g. `(_event, payload) => ...`).
+
+      // Tightened rules to enforce "errors" (not warnings)
+
+      // Enforce no explicit 'any'
+      "@typescript-eslint/no-explicit-any": "error",
+
+      // Unused variables and imports as errors
       "@typescript-eslint/no-unused-vars": [
-        "warn",
+        "error",
         {
           argsIgnorePattern: "^_",
           varsIgnorePattern: "^_",
           caughtErrorsIgnorePattern: "^_",
         },
       ],
+      "unused-imports/no-unused-imports": "error",
+      "unused-imports/no-unused-vars": [
+        "error",
+        {
+          vars: "all",
+          varsIgnorePattern: "^_",
+          args: "after-used",
+          argsIgnorePattern: "^_",
+        },
+      ],
+
+      // Consistent import/export ordering
+      "simple-import-sort/imports": "error",
+      "simple-import-sort/exports": "error",
+
+      // Prettier formatting as error
+      "prettier/prettier": "error",
     },
   },
+  // Ensure prettier config disables formatting conflicts
+  eslintConfigPrettier,
   // Node globals for build / config / supabase edge function files.
   {
     files: [
