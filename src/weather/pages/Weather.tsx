@@ -111,13 +111,13 @@ function Metric({ label, value, unit, hint, icon }: { label: string; value: stri
     <div className="min-w-0">
       <div className="flex items-center gap-1.5 text-muted-foreground min-w-0">
         {icon && <span className="[&>svg]:w-3.5 [&>svg]:h-3.5 [&>svg]:text-primary shrink-0">{icon}</span>}
-        <span className="text-[10px] tracking-[0.15em] uppercase truncate">{label}</span>
+        <span className="text-[10px] tracking-[0.15em] uppercase truncate font-semibold">{label}</span>
       </div>
-      <div className="mt-1 flex items-baseline gap-1 tabular-nums" dir="ltr">
-        <span className="font-cormorant text-[28px] leading-none text-foreground">{value}</span>
-        {unit && <span className="text-[12px] text-primary/80">{unit}</span>}
+      <div className="mt-1 flex items-baseline gap-1 font-mono-numbers" dir="ltr">
+        <span className="font-cormorant text-[28px] leading-none text-foreground font-bold">{value}</span>
+        {unit && <span className="text-[12px] text-primary/80 font-bold">{unit}</span>}
       </div>
-      {hint && <p className="mt-0.5 text-[10px] text-muted-foreground truncate">{hint}</p>}
+      {hint && <p className="mt-0.5 text-[10px] text-muted-foreground/80 truncate font-medium">{hint}</p>}
     </div>
   );
 }
@@ -128,7 +128,7 @@ function GaugeTile({ label, value, unit, pctValue, hint, icon }: { label: string
   return (
     <div className="rounded-2xl surface-depth p-3 min-w-0 h-full">
       <div className="flex items-center justify-between gap-2 text-muted-foreground">
-        <span className="text-[10px] tracking-[0.16em] uppercase truncate">{label}</span>
+        <span className="text-[10px] tracking-[0.16em] uppercase truncate font-semibold">{label}</span>
         {icon && <span className="[&>svg]:w-4 [&>svg]:h-4 [&>svg]:text-primary shrink-0">{icon}</span>}
       </div>
       <div className="mt-2 flex items-center gap-2">
@@ -149,11 +149,11 @@ function GaugeTile({ label, value, unit, pctValue, hint, icon }: { label: string
           />
         </svg>
         <div className="min-w-0">
-          <div className="flex items-baseline gap-1 tabular-nums" dir="ltr">
-            <span className="font-cormorant text-[28px] leading-none text-foreground">{value}</span>
-            {unit && <span className="text-[10px] text-primary/80">{unit}</span>}
+          <div className="flex items-baseline gap-1 font-mono-numbers" dir="ltr">
+            <span className="font-cormorant text-[28px] leading-none text-foreground font-bold">{value}</span>
+            {unit && <span className="text-[10px] text-primary/80 font-bold">{unit}</span>}
           </div>
-          {hint && <p className="mt-1 text-[10px] text-muted-foreground truncate">{hint}</p>}
+          {hint && <p className="mt-1 text-[10px] text-muted-foreground/80 truncate font-medium">{hint}</p>}
         </div>
       </div>
     </div>
@@ -645,16 +645,16 @@ export default function Weather() {
                 <p className="text-[10px] tracking-[0.28em] uppercase text-primary/85">
                   {comfortLabel(snapshot.temperature.thermal_comfort_level, ar)}
                 </p>
-                <div className="mt-2 flex items-end gap-3" dir="ltr">
-                  <span className="font-cormorant text-[92px] leading-[0.72] text-foreground tabular-nums drop-shadow-[0_2px_20px_hsl(var(--primary)/0.28)] font-semibold">
+                <div className="mt-2 flex items-end gap-3 font-mono-numbers" dir="ltr">
+                  <span className="font-cormorant text-[92px] leading-[0.72] text-foreground drop-shadow-[0_2px_20px_hsl(var(--primary)/0.28)] font-bold">
                     {Math.round(snapshot.temperature.actual_c)}°
                   </span>
-                  <span className="mb-1 font-cormorant text-[26px] leading-none text-primary/80 tabular-nums">
+                  <span className="mb-1 font-cormorant text-[26px] leading-none text-primary/80 font-bold">
                     /{Math.round(snapshot.temperature.apparent_c)}°
                   </span>
                 </div>
-                <p className="mt-3 text-[13px] text-foreground/85 font-medium">{weatherLabel(currentHour?.weather_code ?? 0, ar)}</p>
-                <p className="mt-1 text-[11px] text-muted-foreground tabular-nums" dir="ltr">
+                <p className="mt-3 text-[13px] text-foreground/85 font-semibold">{weatherLabel(currentHour?.weather_code ?? 0, ar)}</p>
+                <p className="mt-1 text-[11px] text-muted-foreground font-mono-numbers" dir="ltr">
                   ↑ {Math.round(snapshot.temperature.daily_high_c)}°  ·  ↓ {Math.round(snapshot.temperature.daily_low_c)}°  ·  {ar ? 'ندى' : 'Taupunkt'} {Math.round(snapshot.temperature.dew_point_c)}°
                 </p>
               </div>
@@ -665,11 +665,11 @@ export default function Weather() {
                   className="relative"
                 >
                   <div className="absolute inset-0 rounded-full bg-primary/20 blur-2xl" />
-                  <CurrentIcon className="relative w-20 h-20 text-primary" strokeWidth={1.05} />
+                  <CurrentIcon className="relative w-20 h-20 text-primary animate-pulse" strokeWidth={1.05} />
                 </motion.div>
                 <div className="text-center">
-                  <div className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground">{ar ? 'ثقة التنبؤ' : 'Ensemble Vertrauen'}</div>
-                  <div className="font-cormorant text-[26px] leading-none text-foreground tabular-nums" dir="ltr">{conf}%</div>
+                  <div className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground font-semibold">{ar ? 'ثقة التنبؤ' : 'Ensemble Vertrauen'}</div>
+                  <div className="font-cormorant text-[26px] leading-none text-foreground font-mono-numbers font-bold" dir="ltr">{conf}%</div>
                 </div>
               </div>
             </div>

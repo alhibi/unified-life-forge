@@ -7,6 +7,7 @@
     radial-gradient(900px 600px at 90% -10%, hsl(var(--primary) / 0.10), transparent 60%),
     radial-gradient(700px 600px at -10% 100%, hsl(var(--primary) / 0.06), transparent 60%),
     hsl(var(--background));
+  font-family: 'IBM Plex Sans Arabic', 'Montserrat', system-ui, -apple-system, sans-serif;
 }
 
 .weather-theme .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -19,3 +20,39 @@
 }
 .weather-theme .bento > * { grid-column: 1 / -1; }
 .weather-theme .bento > .b-one { grid-column: span 1 / span 1; }
+
+/* Super high contrast & polished typography for weather readouts */
+.weather-theme .font-cormorant {
+  font-family: 'Montserrat', 'IBM Plex Sans Arabic', sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.weather-theme .font-mono-numbers {
+  font-family: 'Montserrat', monospace;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+/* Enhance card and panel visibility for bright sunlight/dim screens */
+.weather-theme .surface-depth {
+  background-color: hsl(var(--card) / 0.94);
+  border: 1.5px solid hsl(var(--border) / 0.85);
+  backdrop-filter: blur(16px);
+  transition: transform 150ms cubic-bezier(0.16, 1, 0.3, 1), border-color 150ms ease;
+}
+
+.weather-theme .surface-depth:hover {
+  border-color: hsl(var(--primary) / 0.45);
+}
+
+/* High contrast metric sub-labels */
+.weather-theme .text-muted-foreground {
+  color: hsl(var(--foreground) / 0.72);
+  font-weight: 500;
+}
+
+.weather-theme .text-foreground {
+  color: hsl(var(--foreground));
+  font-weight: 600;
+}

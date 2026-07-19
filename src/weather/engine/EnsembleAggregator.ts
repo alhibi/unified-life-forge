@@ -70,15 +70,24 @@ export function aggregate(samples: NumericSample[]): EnsembleResult {
   const sigma = stddev(rawValues, mu);
   const outliers: SourceId[] = [];
 
+  // Outlier detection using robust standard deviation boundaries to avoid single source corrupting the ensemble
   if (sigma > 0) {
     const critical = grubbsCritical(valid.length);
     for (const s of valid) {
       const G = Math.abs(s.value - mu) / sigma;
-      if (G > critical) outliers.push(s.sourceId);
+      // Also apply a maximum absolute deviation guardrail (e.g., if a source is > 30% from mean)
+      const absDeviationPct = mu !== 0 ? (Math.abs(s.value - mu) / Math.abs(mu)) * 100 : 0;
+      if (G > critical || (valid.length >= 4 && absDeviationPct > 35)) {
+        outliers.push(s.sourceId);
+      }
     }
   }
 
-  const kept = valid.filter(s => !outliers.includes(s.sourceId));
+  // Fallback to all valid if Grubbs rejects too many models (keep at least 2 in ensemble if possible)
+  let kept = valid.filter(s => !outliers.includes(s.sourceId));
+  if (kept.length < 2 && valid.length >= 2) {
+    kept = valid;
+  }
   const keptValues = kept.map(s => s.value);
   const totalWeight = kept.reduce((a, s) => a + s.weight, 0);
   const weighted = kept.reduce((a, s) => a + s.value * s.weight, 0);
@@ -86,7 +95,9 @@ export function aggregate(samples: NumericSample[]): EnsembleResult {
   const finalMu = mean(keptValues);
   const finalSigma = stddev(keptValues, finalMu);
   const cv = finalMu !== 0 ? Math.abs(finalSigma / finalMu) * 100 : 0;
-  const confidence = Math.max(0, Math.min(100, 100 - cv * 1.2));
+
+  // High stability confidence formula
+  const confidence = Math.max(0, Math.min(100, 100 - cv * 0.95));
 
   return {
     value: Number(ensembleValue.toFixed(2)),
