@@ -145,6 +145,42 @@ export type Database = {
           },
         ]
       }
+      journal_entries: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          mood: Database["public"]["Enums"]["journal_mood"]
+          tags: string[]
+          title: string | null
+          updated_at: string
+          user_id: string
+          word_count: number
+        }
+        Insert: {
+          content?: string
+          created_at?: string
+          id?: string
+          mood?: Database["public"]["Enums"]["journal_mood"]
+          tags?: string[]
+          title?: string | null
+          updated_at?: string
+          user_id: string
+          word_count?: number
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          mood?: Database["public"]["Enums"]["journal_mood"]
+          tags?: string[]
+          title?: string | null
+          updated_at?: string
+          user_id?: string
+          word_count?: number
+        }
+        Relationships: []
+      }
       keyword_alert_hits: {
         Row: {
           alert_id: string
@@ -807,7 +843,7 @@ export type Database = {
       update_last_seen: { Args: never; Returns: undefined }
     }
     Enums: {
-      [_ in never]: never
+      journal_mood: "organic" | "analytical" | "balanced"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -934,6 +970,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      journal_mood: ["organic", "analytical", "balanced"],
+    },
   },
 } as const
