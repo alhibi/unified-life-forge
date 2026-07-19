@@ -90,6 +90,9 @@ export function effectiveThreshold(
   return threshold;
 }
 
+import { saveGameProgress } from '../api';
+import { isSupabaseConfigured } from '@/integrations/supabase/client';
+
 // =============================================================================
 // Tournament state machine — persisted to localStorage so refresh resumes.
 // =============================================================================
@@ -126,8 +129,16 @@ export function loadTournament(): TournamentState | null {
 }
 export function saveTournament(state: TournamentState) {
   localStorage.setItem(KEY, JSON.stringify(state));
+  if (isSupabaseConfigured) {
+    saveGameProgress(KEY, state).catch(console.error);
+  }
 }
-export function clearTournament() { localStorage.removeItem(KEY); }
+export function clearTournament() {
+  localStorage.removeItem(KEY);
+  if (isSupabaseConfigured) {
+    saveGameProgress(KEY, {}).catch(console.error);
+  }
+}
 
 // Build a fresh bracket: player is always in semi-A. Other 3 bots are seeded
 // randomly into semi-A.right, semi-B.left, semi-B.right.

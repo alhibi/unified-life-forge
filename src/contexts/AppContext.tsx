@@ -270,6 +270,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
         // Also load game stats and locations if stored
         if (s.gameStats) localStorage.setItem('game-stats', JSON.stringify(s.gameStats));
         if (s.savedLocations) localStorage.setItem('saved-locations', JSON.stringify(s.savedLocations));
+        if (s.mihrab) localStorage.setItem('mihrab:lastTab', s.mihrab);
+        if (s.tafsir) localStorage.setItem('tafsir-state', JSON.stringify(s.tafsir));
+        if (s.tafsir_bookmarks) localStorage.setItem('tafsir-bookmarks', JSON.stringify(s.tafsir_bookmarks));
+        if (s.browse) localStorage.setItem('browse:lastTab', s.browse);
         setTimeout(() => { syncRef.current = false; }, 100);
       }
       initialLoadDone.current = true;
@@ -309,6 +313,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     // Also save game stats and locations
     try { settings.gameStats = JSON.parse(localStorage.getItem('game-stats') || '{}'); } catch { /* noop */ }
     try { settings.savedLocations = JSON.parse(localStorage.getItem('saved-locations') || '[]'); } catch { /* noop */ }
+    try { settings.mihrab = localStorage.getItem('mihrab:lastTab') || undefined; } catch { /* noop */ }
+    try { settings.tafsir = JSON.parse(localStorage.getItem('tafsir-state') || '{}'); } catch { /* noop */ }
+    try { settings.tafsir_bookmarks = JSON.parse(localStorage.getItem('tafsir-bookmarks') || '[]'); } catch { /* noop */ }
+    try { settings.browse = localStorage.getItem('browse:lastTab') || undefined; } catch { /* noop */ }
 
     await supabase
       .from('user_settings')

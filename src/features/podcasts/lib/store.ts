@@ -117,6 +117,9 @@ function write(key: string, value: unknown) {
 /*  Subscriptions                                                             */
 /* -------------------------------------------------------------------------- */
 
+import { saveCloudSubscription, deleteCloudSubscription, saveCloudEpisodeState, saveCloudQueue } from './api';
+import { supabase } from '@/integrations/supabase/client';
+
 export function getSubscriptions(): SubscribedPodcast[] {
   return read<SubscribedPodcast[]>(SUBS_KEY, []);
 }
@@ -129,12 +132,14 @@ export function subscribe(podcast: Omit<SubscribedPodcast, 'subscribedAt'>): Sub
   const subs = getSubscriptions().filter(s => s.origin !== podcast.origin);
   subs.unshift({ ...podcast, subscribedAt: Date.now() });
   write(SUBS_KEY, subs);
+  saveCloudSubscription(podcast.origin, podcast.title, podcast.imageUrl).catch(console.error);
   return subs;
 }
 
 export function unsubscribe(origin: string): SubscribedPodcast[] {
   const subs = getSubscriptions().filter(s => s.origin !== origin);
   write(SUBS_KEY, subs);
+  deleteCloudSubscription(origin).catch(console.error);
   return subs;
 }
 
@@ -156,19 +161,22 @@ export function savePlayState(state: PlayState) {
   const map = getPlayStateMap();
   map[state.episodeId] = state;
   write(PLAY_KEY, map);
+  saveCloudEpisodeState(state.episodeId, '', state.position, state.duration, state.played).catch(console.error);
 }
 
 export function markEpisodePlayed(episodeId: string, duration: number, played: boolean) {
   const map = getPlayStateMap();
   const prev = map[episodeId];
-  map[episodeId] = {
+  const state = {
     episodeId,
     duration: duration || prev?.duration || 0,
     position: played ? duration || prev?.duration || 0 : 0,
     played,
     updatedAt: Date.now(),
   };
+  map[episodeId] = state;
   write(PLAY_KEY, map);
+  saveCloudEpisodeState(episodeId, '', state.position, state.duration, state.played, true).catch(console.error);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -278,6 +286,7 @@ export function addToQueueBatch(items: Omit<QueueItem, 'addedAt'>[]): QueueItem[
     .map(i => ({ ...i, addedAt: now }));
   const merged = [...existing, ...newItems].slice(0, QUEUE_LIMIT);
   write(QUEUE_KEY, merged);
+  saveCloudQueue(merged.map((q, idx) => ({ episode_guid: q.episode.id, feed_url: '', position: idx }))).catch(console.error);
   return merged;
 }
 
@@ -288,6 +297,7 @@ export function addToQueue(item: Omit<QueueItem, 'addedAt'>): QueueItem[] {
 export function removeFromQueue(episodeId: string): QueueItem[] {
   const next = getQueue().filter(q => q.episode.id !== episodeId);
   write(QUEUE_KEY, next);
+  saveCloudQueue(next.map((q, idx) => ({ episode_guid: q.episode.id, feed_url: '', position: idx }))).catch(console.error);
   return next;
 }
 
@@ -298,11 +308,13 @@ export function reorderQueue(fromIndex: number, toIndex: number): QueueItem[] {
   const [item] = list.splice(fromIndex, 1);
   list.splice(toIndex, 0, item);
   write(QUEUE_KEY, list);
+  saveCloudQueue(list.map((q, idx) => ({ episode_guid: q.episode.id, feed_url: '', position: idx }))).catch(console.error);
   return list;
 }
 
 export function clearQueue(): void {
   write(QUEUE_KEY, []);
+  saveCloudQueue([]).catch(console.error);
 }
 
 export function popNextFromQueue(): QueueItem | null {
@@ -310,6 +322,7 @@ export function popNextFromQueue(): QueueItem | null {
   if (list.length === 0) return null;
   const [next, ...rest] = list;
   write(QUEUE_KEY, rest);
+  saveCloudQueue(rest.map((q, idx) => ({ episode_guid: q.episode.id, feed_url: '', position: idx }))).catch(console.error);
   return next;
 }
 
@@ -317,6 +330,7 @@ export function shiftQueue(count: number): QueueItem[] {
   const list = getQueue();
   const rest = list.slice(count);
   write(QUEUE_KEY, rest);
+  saveCloudQueue(rest.map((q, idx) => ({ episode_guid: q.episode.id, feed_url: '', position: idx }))).catch(console.error);
   return list.slice(0, count);
 }
 
@@ -603,4 +617,69 @@ function readOrSynth(episodeId: string | undefined, durationHint: number): PlayS
     played: false,
     updatedAt: 0,
   };
+}
+
+export async function syncPodcastsFromCloud() {
+  const { data: { session } } = await supabase.auth.getSession();
+  const userId = session?.user?.id;
+  if (!userId) return;
+
+  try {
+    // 1. Fetch subscriptions
+    const { data: subs, error: subsError } = await supabase
+      .from('podcast_subscriptions')
+      .select('*')
+      .eq('user_id', userId);
+
+    if (subs && !subsError) {
+      const localSubs = getSubscriptions();
+      const localMap = new Map(localSubs.map(s => [s.origin, s]));
+
+      subs.forEach(s => {
+        const existing = localMap.get(s.feed_url);
+        if (!existing || new Date(s.added_at).getTime() > existing.subscribedAt) {
+          localMap.set(s.feed_url, {
+            origin: s.feed_url,
+            title: s.title || '',
+            author: '',
+            imageUrl: s.image || '',
+            link: '',
+            seedH: 0,
+            seedS: 0,
+            seedL: 0,
+            subscribedAt: new Date(s.added_at).getTime(),
+          });
+        }
+      });
+      const mergedSubs = Array.from(localMap.values());
+      localStorage.setItem(SUBS_KEY, JSON.stringify(mergedSubs));
+      notify('subs');
+    }
+
+    // 2. Fetch play states
+    const { data: playStates, error: playError } = await supabase
+      .from('podcast_episode_state')
+      .select('*')
+      .eq('user_id', userId);
+
+    if (playStates && !playError) {
+      const localPlay = getPlayStateMap();
+      playStates.forEach(s => {
+        const existing = localPlay[s.episode_guid];
+        if (!existing || new Date(s.played_at).getTime() > existing.updatedAt) {
+          localPlay[s.episode_guid] = {
+            episodeId: s.episode_guid,
+            position: s.position_sec,
+            duration: s.duration_sec,
+            played: s.completed,
+            updatedAt: new Date(s.played_at).getTime(),
+          };
+        }
+      });
+      localStorage.setItem(PLAY_KEY, JSON.stringify(localPlay));
+      notify('play');
+    }
+  } catch (e) {
+    console.error('Error syncing podcasts from cloud:', e);
+  }
 }

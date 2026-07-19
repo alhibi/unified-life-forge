@@ -38,7 +38,15 @@ function loadCareer(): CareerStats {
     };
   } catch { return { ...DEFAULT_CAREER }; }
 }
-export function saveCareer(s: CareerStats) { localStorage.setItem(KEY, JSON.stringify(s)); }
+import { saveGameProgress, getGameProgress } from '../api';
+import { isSupabaseConfigured } from '@/integrations/supabase/client';
+
+export function saveCareer(s: CareerStats) {
+  localStorage.setItem(KEY, JSON.stringify(s));
+  if (isSupabaseConfigured) {
+    saveGameProgress('chess-career', s).catch(console.error);
+  }
+}
 
 // Public hook used by Chess.tsx when a career game ends. We expose this from
 // here so the persistence shape stays in one place.
@@ -72,6 +80,22 @@ export default function ChessCareerPage() {
   const isAr = language === 'ar';
   const navigate = useNavigate();
   const [career, setCareer] = useState<CareerStats>(loadCareer);
+
+  useEffect(() => {
+    const syncCareer = async () => {
+      try {
+        const cloudCareer = await getGameProgress('chess-career');
+        if (cloudCareer) {
+          localStorage.setItem('chess-career', JSON.stringify(cloudCareer));
+          setCareer(prev => ({ ...prev, ...cloudCareer }));
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    syncCareer();
+  }, []);
+
   const [selected, setSelected] = useState<BotPersonality | null>(null);
 
   const titleFor = (rating: number) => {

@@ -107,7 +107,15 @@ function loadSave(): DecathlonSave {
     return { best: s.best ?? null, history: s.history ?? [] };
   } catch { return { best: null, history: [] }; }
 }
-function saveSave(s: DecathlonSave) { localStorage.setItem(KEY, JSON.stringify(s)); }
+import { saveGameProgress, getGameProgress } from '../api';
+import { isSupabaseConfigured } from '@/integrations/supabase/client';
+
+function saveSave(s: DecathlonSave) {
+  localStorage.setItem(KEY, JSON.stringify(s));
+  if (isSupabaseConfigured) {
+    saveGameProgress('focus-decathlon', s).catch(console.error);
+  }
+}
 
 function indexBand(idx: number, isAr: boolean) {
   if (idx >= 130) return isAr ? 'متفوق' : 'Außergewöhnlich';
@@ -129,6 +137,21 @@ export default function FocusDecathlonPage() {
   const [eventIdx, setEventIdx] = useState(0);
   const [results, setResults] = useState<{ id: EventId; raw: number; scaled: number }[]>([]);
   const [save, setSave] = useState(loadSave);
+
+  useEffect(() => {
+    const syncSave = async () => {
+      try {
+        const cloudSave = await getGameProgress('focus-decathlon');
+        if (cloudSave) {
+          localStorage.setItem(KEY, JSON.stringify(cloudSave));
+          setSave(prev => ({ ...prev, ...cloudSave }));
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    syncSave();
+  }, []);
 
   const finalIndex = useMemo(() => {
     if (results.length !== EVENTS.length) return null;

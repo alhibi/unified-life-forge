@@ -23,6 +23,8 @@ async function reverseGeocode(lat: number, lng: number): Promise<{ address: stri
   return { city: '', street: '', address: `${lat.toFixed(4)}, ${lng.toFixed(4)}` };
 }
 
+import { fetchLocations, saveLocation, deleteLocationFromCloud } from '../api';
+
 export default function LocationSaver() {
   const { t } = useApp();
   const [locations, setLocations] = useState<SavedLocation[]>(() => {
@@ -36,6 +38,21 @@ export default function LocationSaver() {
   const [label, setLabel] = useState('');
   const [description, setDescription] = useState('');
   const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const syncLocations = async () => {
+      try {
+        const cloudLocs = await fetchLocations();
+        if (cloudLocs && cloudLocs.length > 0) {
+          localStorage.setItem('saved-locations', JSON.stringify(cloudLocs));
+          setLocations(cloudLocs);
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    syncLocations();
+  }, []);
 
   useEffect(() => {
     localStorage.setItem('saved-locations', JSON.stringify(locations));
@@ -65,7 +82,7 @@ export default function LocationSaver() {
   const confirmSave = () => {
     if (!pendingCoords || !pendingGeo) return;
     const loc: SavedLocation = {
-      id: Date.now().toString(),
+      id: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(),
       lat: pendingCoords.lat,
       lng: pendingCoords.lng,
       label: label || pendingGeo.city || `${t('location.title')} ${locations.length + 1}`,
@@ -76,6 +93,7 @@ export default function LocationSaver() {
       street: pendingGeo.street,
     };
     setLocations(prev => [loc, ...prev]);
+    saveLocation(loc).catch(console.error);
     setShowForm(false);
     setLabel('');
     setDescription('');
@@ -85,6 +103,7 @@ export default function LocationSaver() {
 
   const deleteLocation = (id: string) => {
     setLocations(prev => prev.filter(l => l.id !== id));
+    deleteLocationFromCloud(id).catch(console.error);
     if (expandedId === id) setExpandedId(null);
   };
 

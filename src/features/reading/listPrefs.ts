@@ -11,6 +11,8 @@
  */
 
 import { useEffect, useState } from 'react';
+import { loadReaderPrefs, saveReaderPrefs } from './api';
+import { isSupabaseConfigured } from '@/integrations/supabase/client';
 
 /** Ordering applied to the article list before rendering. */
 export type SortMode = 'newest' | 'oldest' | 'unread-first';
@@ -71,7 +73,43 @@ export function storeListPrefs(p: ListPrefs): void {
  */
 export function useListPrefs(): [ListPrefs, (next: Partial<ListPrefs>) => void] {
   const [prefs, setPrefs] = useState<ListPrefs>(getListPrefs);
-  useEffect(() => { storeListPrefs(prefs); }, [prefs]);
+
+  useEffect(() => {
+    const syncPrefs = async () => {
+      if (!isSupabaseConfigured) return;
+      try {
+        const cloudPrefs = await loadReaderPrefs();
+        if (cloudPrefs) {
+          const listPrefs: ListPrefs = {
+            sort: (cloudPrefs.listSort as SortMode) || prefs.sort,
+            group: prefs.group,
+            density: prefs.density,
+            autoMarkOnScroll: prefs.autoMarkOnScroll,
+            twoPaneOnDesktop: prefs.twoPaneOnDesktop,
+          };
+          localStorage.setItem(KEY, JSON.stringify(listPrefs));
+          setPrefs(listPrefs);
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    syncPrefs();
+  }, []);
+
+  useEffect(() => {
+    storeListPrefs(prefs);
+    if (isSupabaseConfigured) {
+      loadReaderPrefs().then((curCloud) => {
+        const updated = {
+          ...(curCloud || {}),
+          listSort: prefs.sort,
+        };
+        saveReaderPrefs(updated as any).catch(console.error);
+      }).catch(console.error);
+    }
+  }, [prefs]);
+
   const update = (next: Partial<ListPrefs>) =>
     setPrefs((cur) => ({ ...cur, ...next }));
   return [prefs, update];

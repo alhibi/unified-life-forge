@@ -257,8 +257,25 @@ export async function markChatRead(chatId: string, messageId?: string | null): P
 
 export async function setChatDraft(chatId: string, text: string): Promise<void> {
   ensureConfigured();
-  const { error } = await supabase.rpc('set_chat_draft', { p_chat_id: chatId, p_text: text });
-  if (error) throw new Error(error.message);
+  const { data: { session } } = await supabase.auth.getSession();
+  const userId = session?.user?.id;
+  if (!userId) return;
+
+  // Try to upsert to message_drafts table first (as required by the local-to-cloud-migration.md target schema)
+  const { error } = await supabase
+    .from('message_drafts')
+    .upsert({
+      user_id: userId,
+      conversation_id: chatId,
+      body: text,
+      updated_at: new Date().toISOString()
+    });
+
+  if (error) {
+    // Fallback to legacy RPC set_chat_draft if table/RPC needs it
+    const { error: rpcError } = await supabase.rpc('set_chat_draft', { p_chat_id: chatId, p_text: text });
+    if (rpcError) throw new Error(rpcError.message);
+  }
 }
 
 // ── Messages ─────────────────────────────────────────────────────────────────
