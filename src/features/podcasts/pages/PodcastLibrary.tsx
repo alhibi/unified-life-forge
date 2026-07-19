@@ -21,11 +21,13 @@ import { ArrowDownAZ, Clock, LibraryBig, MoreHorizontal, Play, Trash2, X } from 
 import SEO from '@/components/SEO';
 import BackButton from '@/components/BackButton';
 import { useApp } from '@/contexts/AppContext';
+import { useEffect } from 'react';
 import {
   unsubscribeWithNotify,
   removeRecentEpisodeWithNotify,
   useRecentEpisodes,
   useSubscriptions,
+  syncPodcastsFromCloud,
   type RecentEpisodeRecord,
   type SubscribedPodcast,
 } from '@/features/podcasts/lib/store';
@@ -236,6 +238,10 @@ export default function PodcastLibrary() {
   const lang = language === 'de' ? 'de' : 'ar';
   const subs = useSubscriptions();
   const recents = useRecentEpisodes();
+
+  useEffect(() => {
+    syncPodcastsFromCloud().catch(console.error);
+  }, []);
 
   const [sortMode, setSortMode] = useState<SortMode>(() => loadSort());
   const setSortAndPersist = (m: SortMode) => {

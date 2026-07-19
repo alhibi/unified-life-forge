@@ -111,7 +111,12 @@ function loadChessStats(): ChessStats {
   const saved = localStorage.getItem('chess-stats');
   return saved ? JSON.parse(saved) : { gamesPlayed: 0, whiteWins: 0, blackWins: 0, stalemates: 0, totalMoves: 0 };
 }
-function saveChessStats(s: ChessStats) { localStorage.setItem('chess-stats', JSON.stringify(s)); }
+import { saveGameProgress, getGameProgress } from '../api';
+
+function saveChessStats(s: ChessStats) {
+  localStorage.setItem('chess-stats', JSON.stringify(s));
+  saveGameProgress('chess', s).catch(console.error);
+}
 
 function loadBoardTheme(): BoardTheme {
   return (localStorage.getItem('chess-board-theme') as BoardTheme) || 'classic';
@@ -131,13 +136,17 @@ interface SavedChessGame {
 
 function saveChessGame(state: SavedChessGame) {
   localStorage.setItem('chess-game-state', JSON.stringify(state));
+  saveGameProgress('chess-game-state', state).catch(console.error);
 }
 function loadChessGame(): SavedChessGame | null {
   const saved = localStorage.getItem('chess-game-state');
   if (!saved) return null;
   try { return JSON.parse(saved); } catch { return null; }
 }
-function clearChessGame() { localStorage.removeItem('chess-game-state'); }
+function clearChessGame() {
+  localStorage.removeItem('chess-game-state');
+  saveGameProgress('chess-game-state', {}).catch(console.error);
+}
 
 const PIECE_SVG: Record<Color, Record<PieceType, string>> = {
   w: { K: '♔', Q: '♕', R: '♖', B: '♗', N: '♘', P: '♙' },
@@ -809,6 +818,22 @@ export default function ChessPage() {
   const [isRunning, setIsRunning] = useState(false);
   const [gameStarted, setGameStarted] = useState(savedChess?.gameStarted || false);
   const [stats, setStats] = useState<ChessStats>(loadChessStats);
+
+  useEffect(() => {
+    const syncStats = async () => {
+      try {
+        const cloudStats = await getGameProgress('chess');
+        if (cloudStats) {
+          localStorage.setItem('chess-stats', JSON.stringify(cloudStats));
+          setStats(prev => ({ ...prev, ...cloudStats }));
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    syncStats();
+  }, []);
+
   const [showStats, setShowStats] = useState(false);
   const [history, setHistory] = useState<GameState[]>([]);
   const [lastMove, setLastMove] = useState<{ from: Square; to: Square } | null>(null);

@@ -48,7 +48,7 @@ import {
   podcastCountries, podcastRegions, findCountry, findRegion,
   type PodcastCountry, type PodcastRegion,
 } from '@/features/podcasts/lib/podcastCountries';
-import { useSubscriptions } from '@/features/podcasts/lib/store';
+import { useSubscriptions, syncPodcastsFromCloud } from '@/features/podcasts/lib/store';
 
 const SCOPE_KEY = 'podcasts.scope';
 const COUNTRY_KEY = 'podcasts.country';
@@ -313,6 +313,10 @@ export default function PodcastsPage() {
   const { language, t } = useApp();
   const navigate = useNavigate();
   const subs = useSubscriptions();
+
+  useEffect(() => {
+    syncPodcastsFromCloud().catch(console.error);
+  }, []);
 
   /* ----- persisted prefs: scope, country, region, genre --------------------- */
   const [scope, setScope] = useState<Scope>(loadScope);

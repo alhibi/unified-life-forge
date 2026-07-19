@@ -44,7 +44,12 @@ function loadStats(): SudokuStats {
     };
   } catch { return def; }
 }
-function saveStats(stats: SudokuStats) { localStorage.setItem('sudoku-stats', JSON.stringify(stats)); }
+import { saveGameProgress, getGameProgress } from '../api';
+
+function saveStats(stats: SudokuStats) {
+  localStorage.setItem('sudoku-stats', JSON.stringify(stats));
+  saveGameProgress('sudoku', stats).catch(console.error);
+}
 
 interface SavedSudokuGame {
   difficulty: Difficulty;
@@ -60,13 +65,19 @@ interface SavedSudokuGame {
   errorCount: number;
 }
 
-function saveGameState(state: SavedSudokuGame) { localStorage.setItem('sudoku-game-state', JSON.stringify(state)); }
+function saveGameState(state: SavedSudokuGame) {
+  localStorage.setItem('sudoku-game-state', JSON.stringify(state));
+  saveGameProgress('sudoku-game-state', state).catch(console.error);
+}
 function loadGameState(): SavedSudokuGame | null {
   const saved = localStorage.getItem('sudoku-game-state');
   if (!saved) return null;
   try { return JSON.parse(saved); } catch { return null; }
 }
-function clearGameState() { localStorage.removeItem('sudoku-game-state'); }
+function clearGameState() {
+  localStorage.removeItem('sudoku-game-state');
+  saveGameProgress('sudoku-game-state', {}).catch(console.error);
+}
 
 // ============================================================================
 // PRNG + helpers
@@ -225,6 +236,22 @@ export default function SudokuPage() {
   });
   const [noteMode, setNoteMode] = useState(false);
   const [stats, setStats] = useState<SudokuStats>(loadStats);
+
+  useEffect(() => {
+    const syncStats = async () => {
+      try {
+        const cloudStats = await getGameProgress('sudoku');
+        if (cloudStats) {
+          localStorage.setItem('sudoku-stats', JSON.stringify(cloudStats));
+          setStats(prev => ({ ...prev, ...cloudStats }));
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    syncStats();
+  }, []);
+
   const [history, setHistory] = useState<{ board: Board; errors: Set<string>; notes: Set<string>[][] }[]>([]);
   const [hintsUsed, setHintsUsed] = useState(savedGame?.hintsUsed || 0);
   const [selectedNumber, setSelectedNumber] = useState<number | null>(null);

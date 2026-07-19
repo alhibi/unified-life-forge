@@ -110,7 +110,12 @@ function loadStats(): MemoryStats {
     };
   } catch { return { ...DEFAULT_STATS }; }
 }
-function saveStatsFn(s: MemoryStats) { localStorage.setItem('memory-stats', JSON.stringify(s)); }
+import { saveGameProgress, getGameProgress } from '../api';
+
+function saveStatsFn(s: MemoryStats) {
+  localStorage.setItem('memory-stats', JSON.stringify(s));
+  saveGameProgress('memory', s).catch(console.error);
+}
 
 function levelFromXp(xp: number): number {
   // Triangular: lvl 1 needs 100, 2 needs 250, 3 needs 450, ...
@@ -222,6 +227,22 @@ export default function MemoryGame() {
 
   // Stats
   const [stats, setStats] = useState<MemoryStats>(loadStats);
+
+  useEffect(() => {
+    const syncStats = async () => {
+      try {
+        const cloudStats = await getGameProgress('memory');
+        if (cloudStats) {
+          localStorage.setItem('memory-stats', JSON.stringify(cloudStats));
+          setStats(prev => ({ ...prev, ...cloudStats }));
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    syncStats();
+  }, []);
+
   const [achievementToast, setAchievementToast] = useState<AchievementDef | null>(null);
   const aiTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 

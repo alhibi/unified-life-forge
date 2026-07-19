@@ -192,6 +192,9 @@ export const STAGES: AdventureStage[] = [
   },
 ];
 
+import { saveGameProgress } from '../api';
+import { isSupabaseConfigured } from '@/integrations/supabase/client';
+
 // =============================================================================
 // Persistent progress
 // =============================================================================
@@ -218,7 +221,12 @@ export function loadAdventure(): AdventureSave {
   }
 }
 
-export function saveAdventure(s: AdventureSave) { localStorage.setItem(KEY, JSON.stringify(s)); }
+export function saveAdventure(s: AdventureSave) {
+  localStorage.setItem(KEY, JSON.stringify(s));
+  if (isSupabaseConfigured) {
+    saveGameProgress(KEY, s).catch(console.error);
+  }
+}
 
 /**
  * Compute star count for a finished stage. The grading rubric:

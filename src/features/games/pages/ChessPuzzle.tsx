@@ -117,7 +117,12 @@ function loadStats(): PuzzleStats {
     };
   } catch { return { ...DEFAULT }; }
 }
-function saveStatsFn(s: PuzzleStats) { localStorage.setItem('chess-puzzle-stats', JSON.stringify(s)); }
+import { saveGameProgress, getGameProgress } from '../api';
+
+function saveStatsFn(s: PuzzleStats) {
+  localStorage.setItem('chess-puzzle-stats', JSON.stringify(s));
+  saveGameProgress('chess-puzzle', s).catch(console.error);
+}
 
 // Glicko-lite: rating moves toward puzzle.rating depending on result.
 function updateRating(current: number, puzzleRating: number, solved: boolean): number {
@@ -148,6 +153,22 @@ export default function ChessPuzzlePage() {
   const { language } = useApp();
   const isAr = language === 'ar';
   const [stats, setStats] = useState<PuzzleStats>(loadStats);
+
+  useEffect(() => {
+    const syncStats = async () => {
+      try {
+        const cloudStats = await getGameProgress('chess-puzzle');
+        if (cloudStats) {
+          localStorage.setItem('chess-puzzle-stats', JSON.stringify(cloudStats));
+          setStats(prev => ({ ...prev, ...cloudStats }));
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    syncStats();
+  }, []);
+
   const [theme, setTheme] = useState<PuzzleTheme | 'all'>(() => (localStorage.getItem('chess-puzzle-theme') as PuzzleTheme | 'all') || 'all');
   useEffect(() => { localStorage.setItem('chess-puzzle-theme', theme); }, [theme]);
 

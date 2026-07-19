@@ -47,6 +47,11 @@ export interface ReaderPrefs {
   fontFamily: 'sans' | 'serif' | 'amiri' | 'kufi' | 'system-arabic';
   translationLang: 'ar' | 'en' | 'de';
   ttsSpeed: number;
+  listSort?: string;
+  listFilter?: string;
+  collapsedFeeds?: string[];
+  mutedSources?: string[];
+  alertsSeenAt?: string;
 }
 
 /**

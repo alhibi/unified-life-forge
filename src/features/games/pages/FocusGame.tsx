@@ -86,7 +86,12 @@ function loadStats(): FocusStats {
     return { gamesPlayed: 0, bestAvg: {}, bestSequence: 0, totalAccuracy: 0, totalRounds: 0, bestNback: { level: 0, accuracy: 0 }, bestAimScore: 0, bestAimAccuracy: 0, recentReactions: [] };
   }
 }
-function saveStatsFn(s: FocusStats) { localStorage.setItem('focus-stats', JSON.stringify(s)); }
+import { saveGameProgress, getGameProgress } from '../api';
+
+function saveStatsFn(s: FocusStats) {
+  localStorage.setItem('focus-stats', JSON.stringify(s));
+  saveGameProgress('focus', s).catch(console.error);
+}
 
 // Population percentile estimate based on standard reaction-time data:
 // Mean ~270ms, SD ~50ms. Faster = higher percentile.
@@ -118,6 +123,21 @@ export default function FocusGame() {
   const [difficulty, setDifficulty] = useState<Difficulty>(() => (localStorage.getItem('focus-diff') as Difficulty) || 'normal');
   const [rounds, setRounds] = useState(() => parseInt(localStorage.getItem('focus-rounds') || '5'));
   const [stats, setStats] = useState<FocusStats>(loadStats);
+
+  useEffect(() => {
+    const syncStats = async () => {
+      try {
+        const cloudStats = await getGameProgress('focus');
+        if (cloudStats) {
+          localStorage.setItem('focus-stats', JSON.stringify(cloudStats));
+          setStats(prev => ({ ...prev, ...cloudStats }));
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    syncStats();
+  }, []);
 
   useEffect(() => { localStorage.setItem('focus-mode', mode); }, [mode]);
   useEffect(() => { localStorage.setItem('focus-diff', difficulty); }, [difficulty]);

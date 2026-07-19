@@ -19,7 +19,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import * as api from '../api';
 
-const PERSIST_DEBOUNCE_MS = 800;
+const PERSIST_DEBOUNCE_MS = 500;
 
 const localKey = (userId: string, chatId: string) => `ulf.chat.draft.${userId}.${chatId}`;
 

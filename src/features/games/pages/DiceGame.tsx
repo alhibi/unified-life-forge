@@ -246,7 +246,12 @@ const DEFAULT_DICE_STATS: DiceStats = {
 function loadStats(): DiceStats {
   try { return { ...DEFAULT_DICE_STATS, ...JSON.parse(localStorage.getItem('dice-stats') || '{}') }; } catch { return { ...DEFAULT_DICE_STATS }; }
 }
-function saveStatsFn(s: DiceStats) { localStorage.setItem('dice-stats', JSON.stringify(s)); }
+import { saveGameProgress, getGameProgress } from '../api';
+
+function saveStatsFn(s: DiceStats) {
+  localStorage.setItem('dice-stats', JSON.stringify(s));
+  saveGameProgress('dice', s).catch(console.error);
+}
 
 // =============================================================================
 // Component
@@ -259,6 +264,22 @@ export default function DiceGame() {
   const isAr = language === 'ar';
   const [mode, setMode] = useState<Mode>(() => (localStorage.getItem('dice-mode') as Mode) || 'yatzy');
   const [aiLevel, setAiLevel] = useState<'easy' | 'hard'>(() => (localStorage.getItem('dice-ai') as 'easy' | 'hard') || 'hard');
+
+  const [cloudSynced, setCloudSynced] = useState(false);
+  useEffect(() => {
+    const syncStats = async () => {
+      try {
+        const cloudStats = await getGameProgress('dice');
+        if (cloudStats) {
+          localStorage.setItem('dice-stats', JSON.stringify(cloudStats));
+          setCloudSynced(true);
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    syncStats();
+  }, []);
 
   useEffect(() => { localStorage.setItem('dice-mode', mode); }, [mode]);
   useEffect(() => { localStorage.setItem('dice-ai', aiLevel); }, [aiLevel]);
@@ -290,7 +311,7 @@ export default function DiceGame() {
     setTimeout(() => navigate('/games/dice/tournament'), 1800);
   };
 
-  const stats = useMemo(loadStats, [mode]);
+  const stats = useMemo(loadStats, [mode, cloudSynced]);
 
   const rules = useMemo(() => {
     if (mode === 'yatzy') {
