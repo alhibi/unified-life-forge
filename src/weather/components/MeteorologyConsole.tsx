@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Thermometer, Droplets, BookOpen, Sparkles, Sliders } from '@/lib/icons';
+import { Thermometer, Droplets, BookOpen, Sliders } from '@/lib/icons';
 import {
   dewPoint_C, wetBulb_C, vaporPressureDeficit_kPa, discomfortIndex,
   classifyThermalComfort, apparentTemperature_C, absoluteHumidity_gm3
@@ -64,7 +63,7 @@ export default function MeteorologyConsole({ ar }: MeteorologyConsoleProps) {
       <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
 
       <header className="mb-4">
-        <h2 className="font-cormorant text-[24px] leading-none text-foreground flex items-center gap-2">
+        <h2 className="font-montserrat font-semibold text-[20px] leading-none text-foreground flex items-center gap-2">
           <Sliders className="w-5 h-5 text-primary" />
           {ar ? 'مختبر المحاكاة والرياضيات المترولوجية' : 'Met-Simulationslabor & Mathematik'}
         </h2>
@@ -76,9 +75,9 @@ export default function MeteorologyConsole({ ar }: MeteorologyConsoleProps) {
       {/* Control Sliders */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div className="space-y-1.5 bg-background/30 border border-border/40 p-3 rounded-xl">
-          <div className="flex justify-between text-xs font-medium">
-            <span className="text-muted-foreground flex items-center gap-1"><Thermometer className="w-3.5 h-3.5 text-primary" /> {ar ? 'الحرارة المحاكية' : 'Simulierte Temp.'}</span>
-            <span className="font-cormorant text-foreground font-semibold">{simTemp}°C</span>
+          <div className="flex justify-between text-xs font-semibold">
+            <span className="text-foreground flex items-center gap-1"><Thermometer className="w-3.5 h-3.5 text-primary" /> {ar ? 'الحرارة المحاكية' : 'Simulierte Temp.'}</span>
+            <span className="font-montserrat text-foreground font-bold tabular-nums">{simTemp}°C</span>
           </div>
           <input
             type="range"
@@ -92,9 +91,9 @@ export default function MeteorologyConsole({ ar }: MeteorologyConsoleProps) {
         </div>
 
         <div className="space-y-1.5 bg-background/30 border border-border/40 p-3 rounded-xl">
-          <div className="flex justify-between text-xs font-medium">
-            <span className="text-muted-foreground flex items-center gap-1"><Droplets className="w-3.5 h-3.5 text-primary" /> {ar ? 'الرطوبة النسبية' : 'Simulierte Feuchtigkeit'}</span>
-            <span className="font-cormorant text-foreground font-semibold">{simRH}%</span>
+          <div className="flex justify-between text-xs font-semibold">
+            <span className="text-foreground flex items-center gap-1"><Droplets className="w-3.5 h-3.5 text-primary" /> {ar ? 'الرطوبة النسبية' : 'Simulierte Feuchtigkeit'}</span>
+            <span className="font-montserrat text-foreground font-bold tabular-nums">{simRH}%</span>
           </div>
           <input
             type="range"
@@ -108,9 +107,9 @@ export default function MeteorologyConsole({ ar }: MeteorologyConsoleProps) {
         </div>
 
         <div className="space-y-1.5 bg-background/30 border border-border/40 p-3 rounded-xl">
-          <div className="flex justify-between text-xs font-medium">
-            <span className="text-muted-foreground flex items-center gap-1">💨 {ar ? 'سرعة الرياح' : 'Simulierter Wind'}</span>
-            <span className="font-cormorant text-foreground font-semibold">{simWind} km/h</span>
+          <div className="flex justify-between text-xs font-semibold">
+            <span className="text-foreground flex items-center gap-1">💨 {ar ? 'سرعة الرياح' : 'Simulierter Wind'}</span>
+            <span className="font-montserrat text-foreground font-bold tabular-nums">{simWind} km/h</span>
           </div>
           <input
             type="range"
@@ -135,12 +134,12 @@ export default function MeteorologyConsole({ ar }: MeteorologyConsoleProps) {
           { label: ar ? 'مؤشر الضيق' : 'DI Index', value: `${di.toFixed(1)}`, hint: ar ? (di > 24 ? 'ضيق ملحوظ' : 'مريح') : (di > 24 ? 'Unbehaglich' : 'Angenehm') },
         ].map((item, idx) => (
           <div key={idx} className="rounded-xl border border-border/40 bg-secondary/20 p-3 text-center flex flex-col justify-between">
-            <span className="text-[10px] tracking-wider uppercase text-muted-foreground">{item.label}</span>
-            <div className="my-2 flex items-baseline justify-center gap-0.5 font-cormorant text-[28px] leading-none text-foreground font-semibold">
+            <span className="text-[11px] tracking-wider uppercase text-foreground font-semibold">{item.label}</span>
+            <div className="my-2 flex items-baseline justify-center gap-0.5 font-montserrat text-[24px] leading-none text-foreground font-bold tabular-nums">
               <span>{item.value}</span>
-              {item.unit && <span className="text-xs text-primary/80 ms-0.5">{item.unit}</span>}
+              {item.unit && <span className="text-xs text-primary/90 ms-0.5 font-semibold">{item.unit}</span>}
             </div>
-            <span className="text-[9px] text-primary/85">{item.hint}</span>
+            <span className="text-[10px] text-primary/90 font-semibold">{item.hint}</span>
           </div>
         ))}
       </div>

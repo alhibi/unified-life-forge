@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Activity, Thermometer, Wind, Droplets, CloudSun, Sparkles } from '@/lib/icons';
+import { motion } from 'framer-motion';
+import { Activity, Thermometer, Wind, CloudSun, Sparkles } from '@/lib/icons';
 
 interface ChartEntry {
   timestamp_unix: number;
@@ -108,7 +108,7 @@ export default function InteractiveCharts({ entries, ar }: InteractiveChartsProp
       <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
 
       <header className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mb-4">
-        <h2 className="font-cormorant text-[24px] leading-none text-foreground flex items-center gap-2">
+        <h2 className="font-montserrat font-semibold text-[20px] leading-none text-foreground flex items-center gap-2">
           <Activity className="w-5 h-5 text-primary" />
           {ar ? 'المنحنيات التفاعلية' : 'Interaktive Kurven'}
         </h2>
@@ -322,7 +322,7 @@ export default function InteractiveCharts({ entries, ar }: InteractiveChartsProp
               <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
                 {ar ? 'الوقت المستهدف' : 'Zielzeit'}
               </span>
-              <span className="text-sm font-semibold font-cormorant text-foreground">
+              <span className="text-sm font-semibold font-montserrat text-foreground tabular-nums">
                 {new Date(slice[hoveredIdx].timestamp_unix).toLocaleTimeString(ar ? 'en-US' : 'de-DE', { hour: '2-digit', minute: '2-digit', hour12: false })}
               </span>
             </div>
@@ -330,11 +330,11 @@ export default function InteractiveCharts({ entries, ar }: InteractiveChartsProp
             <div className="flex gap-4">
               {series.map((s, idx) => (
                 <div key={idx} className="flex flex-col items-end">
-                  <span className="text-[9px] uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                  <span className="text-[10px] uppercase tracking-wider text-foreground flex items-center gap-1.5 font-semibold">
                     <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: s.color }} />
                     {s.label}
                   </span>
-                  <span className="text-sm font-medium text-foreground font-cormorant">
+                  <span className="text-sm font-semibold text-foreground font-montserrat tabular-nums">
                     {Math.round(s.values[hoveredIdx])}
                     {activeTab === 'temp' ? '°C' : activeTab === 'precip' ? '%' : idx === 0 ? ' km/h' : '%'}
                   </span>

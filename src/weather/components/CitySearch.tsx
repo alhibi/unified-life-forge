@@ -11,11 +11,25 @@ export interface SearchedCity {
   longitude: number;
   elevation: number;
   timezone: string;
+  country_code?: string;
 }
 
 interface CitySearchProps {
   onSelectCity: (lat: number, lng: number, name: string) => void;
   ar: boolean;
+}
+
+function getFlagEmoji(countryCode: string): string {
+  if (!countryCode) return '';
+  const codePoints = countryCode
+    .toUpperCase()
+    .split('')
+    .map(char => 127397 + char.charCodeAt(0));
+  try {
+    return String.fromCodePoint(...codePoints);
+  } catch {
+    return countryCode;
+  }
 }
 
 export default function CitySearch({ onSelectCity, ar }: CitySearchProps) {
@@ -152,9 +166,21 @@ export default function CitySearch({ onSelectCity, ar }: CitySearchProps) {
                       <div className="flex items-center gap-3 min-w-0">
                         <MapPin className="w-4 h-4 text-primary shrink-0" />
                         <div className="min-w-0">
-                          <div className="text-sm font-medium text-foreground truncate">{city.name}</div>
-                          <div className="text-xs text-muted-foreground truncate">
+                          <div className="text-sm font-bold text-foreground truncate flex items-center gap-1.5">
+                            <span>{city.name}</span>
+                            {city.country_code && (
+                              <span className="text-base" title={city.country}>
+                                {getFlagEmoji(city.country_code)}
+                              </span>
+                            )}
+                          </div>
+                          <div className="text-xs text-foreground/80 font-semibold truncate tabular-nums">
                             {city.admin1 ? `${city.admin1}, ` : ''}{city.country}
+                            {city.elevation !== undefined && (
+                              <span className="ms-1.5 text-primary text-[10px] font-bold">
+                                ({Math.round(city.elevation)}m)
+                              </span>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -187,9 +213,21 @@ export default function CitySearch({ onSelectCity, ar }: CitySearchProps) {
                         <div className="flex items-center gap-3 min-w-0">
                           <MapPin className="w-4 h-4 text-primary shrink-0" />
                           <div className="min-w-0">
-                            <div className="text-sm font-medium text-foreground truncate">{city.name}</div>
-                            <div className="text-xs text-muted-foreground truncate">
+                            <div className="text-sm font-bold text-foreground truncate flex items-center gap-1.5">
+                              <span>{city.name}</span>
+                              {city.country_code && (
+                                <span className="text-base" title={city.country}>
+                                  {getFlagEmoji(city.country_code)}
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-xs text-foreground/80 font-semibold truncate tabular-nums">
                               {city.admin1 ? `${city.admin1}, ` : ''}{city.country}
+                              {city.elevation !== undefined && (
+                                <span className="ms-1.5 text-primary text-[10px] font-bold">
+                                  ({Math.round(city.elevation)}m)
+                                </span>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -226,9 +264,21 @@ export default function CitySearch({ onSelectCity, ar }: CitySearchProps) {
                           <div className="flex items-center gap-3 min-w-0">
                             <History className="w-4 h-4 text-muted-foreground/60 shrink-0" />
                             <div className="min-w-0">
-                              <div className="text-sm font-medium text-foreground truncate">{city.name}</div>
-                              <div className="text-xs text-muted-foreground truncate">
+                              <div className="text-sm font-bold text-foreground truncate flex items-center gap-1.5">
+                                <span>{city.name}</span>
+                                {city.country_code && (
+                                  <span className="text-base" title={city.country}>
+                                    {getFlagEmoji(city.country_code)}
+                                  </span>
+                                )}
+                              </div>
+                              <div className="text-xs text-foreground/80 font-semibold truncate tabular-nums">
                                 {city.admin1 ? `${city.admin1}, ` : ''}{city.country}
+                                {city.elevation !== undefined && (
+                                  <span className="ms-1.5 text-primary text-[10px] font-bold">
+                                    ({Math.round(city.elevation)}m)
+                                  </span>
+                                )}
                               </div>
                             </div>
                           </div>

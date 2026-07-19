@@ -61,7 +61,7 @@ export default function RadarMap({
       life?: number;
     }
 
-    let particles: Particle[] = [];
+    const particles: Particle[] = [];
     const count = Math.min(350, Math.max(40, Math.round(precipIntensity * 40 + windSpeedKph * 1.5)));
 
     const getParticleType = (): 'rain' | 'snow' | 'dust' => {
@@ -197,7 +197,7 @@ export default function RadarMap({
       <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
 
       <header className="p-4 pb-1 flex items-center justify-between gap-3">
-        <h2 className="font-cormorant text-[24px] leading-none text-foreground flex items-center gap-2">
+        <h2 className="font-montserrat font-semibold text-[20px] leading-none text-foreground flex items-center gap-2">
           <Layers className="w-5 h-5 text-primary" />
           {activeLayer === 'particles' ? (ar ? 'محاكي جزيئات الغلاف الحي' : 'Live Atmosphären-Partikel') : (ar ? 'الرادار الزمني' : 'Radar-Timeline')}
         </h2>
@@ -231,7 +231,7 @@ export default function RadarMap({
             {tileTemplate ? (
               <div className="text-center bg-card/90 border border-border/60 rounded-xl p-4 shadow-lg backdrop-blur max-w-xs animate-fade-in">
                 <div className="text-[10px] uppercase tracking-widest text-primary/80 mb-1">{ar ? 'تغطية رادار حي' : 'Echtzeit-Radar'}</div>
-                <div className="text-sm font-semibold font-cormorant text-foreground mb-3">
+                <div className="text-sm font-bold font-montserrat text-foreground mb-3 tabular-nums">
                   {allFrames.length > 0
                     ? new Date(allFrames[frameIdx] * 1000).toLocaleTimeString(ar ? 'en-US' : 'de-DE', { hour: '2-digit', minute: '2-digit', hour12: false })
                     : '—'}
