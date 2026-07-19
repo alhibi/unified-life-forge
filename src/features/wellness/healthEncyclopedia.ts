@@ -1235,6 +1235,81 @@ export const HEALTH_ENCYCLOPEDIA: KnowledgeChapter[] = [
       },
     ],
   },
+  /* ─────────── NEURO-PERFORMANCE & FOCUS ─────────── */
+  {
+    category: 'mental',
+    emoji: '🧠',
+    color: '#8b5cf6',
+    title: { ar: 'اللدونة العصبية والتركيز الخارق', de: 'Neuroplastizität & Hyperfokus' },
+    description: {
+      ar: 'أدمغتنا في العشرينات تمتلك أعلى درجات اللدونة العصبية (Neuroplasticity). الطريقة التي تركز بها، وعادات تصفحك، وجرعات الدوبامين التي تستهلكها تشكّل البنية الفيزيائية لدماغك لبقية حياتك.',
+      de: 'Unser Gehirn besitzt in den 20ern die höchste Neuroplastizität. Wie du dich fokussierst, dein Scroll-Verhalten und deine Dopamin-Zufuhr formen die physische Struktur deines Gehirns für den Rest deines Lebens.',
+    },
+    facts: [
+      {
+        title: { ar: 'العمل العميق يضاعف الميالين', de: 'Deep Work verdoppelt Myelin' },
+        body: { ar: 'التركيز المكثف دون تشتيت على مهمة واحدة يفعّل الخلايا الدبقية قليلة التغصن (Oligodendrocytes) لتغليف المسارات العصبية النشطة بطبقات إضافية من الميالين (Myelin). الميالين يسرّع انتقال السيالات العصبية بمعدل يصل إلى 100 ضعف، مما يجعل المهارة تلقائية وفائقة الدقة.', de: 'Fokussierte Arbeit ohne Ablenkung aktiviert Oligodendrozyten, die aktive Nervenbahnen mit Myelin ummanteln. Myelin beschleunigt Signale um das bis zu 100-Fache.' },
+        action: { ar: 'طبق بروتوكولات التركيز لـ90 دقيقة متواصلة دون لمس الهاتف كلياً', de: '90-Minuten-Fokusblöcke ohne jegliche Handy-Ablenkung' },
+        impact: { ar: '×100 سرعة المعالجة', de: '100× Signal-Geschw.' },
+      },
+      {
+        title: { ar: 'صيام الدوبامين يحفز مستقبلات D2', de: 'Dopamin-Fasten reguliert D2-Rezeptoren' },
+        body: { ar: 'التصفح اللانهائي والتنبيهات المستمرة تغمر الدماغ بالدوبامين السريع، مما يدفع الخلايا لتثبيط مستقبلات D2 لحماية نفسها. النتيجة: كسل مزمن، تشتت، وفقدان الشغف للمهام الصعبة مثل التعلم أو الرياضة. الصيام عن المثيرات يعيد حساسية هذه المستقبلات لوضعها الطبيعي.', de: 'Dauer-Scrollen und Benachrichtigungen überfluten das Hirn mit schnellem Dopamin, was D2-Rezeptoren herunterreguliert. Dopamin-Fasten stellt die Sensitivität wieder her.' },
+        action: { ar: 'قم بقطع الشاشات والمشتتات السريعة لمدة 24 ساعة مرة كل شهرين لإعادة ضبط نظام المكافأة', de: 'Alle 2 Monate 24 h komplett analog verbringen (Digital Detox)' },
+        impact: { ar: '+40% قدرة على التركيز', de: '+40% Fokus-Kapazität' },
+      },
+      {
+        title: { ar: 'الـ BDNF هو سماد الخلايا العصبية', de: 'BDNF ist Dünger für Gehirnzellen' },
+        body: { ar: 'عامل التغذية العصبية المشتق من الدماغ (BDNF) يحفز نمو خلايا عصبية جديدة في الحصين (Hippocampus) ويحمي الخلايا الحالية. التمارين الهوائية عالية الشدة والتعرض للبرد والصيام المتقطع هي أقوى محفزات إفراز الـ BDNF طبيعياً.', de: 'Brain-Derived Neurotrophic Factor (BDNF) fördert das Wachstum neuer Neuronen im Hippocampus. Intensives Cardio, Kälte und Fasten sind die stärksten natürlichen Trigger.' },
+        action: { ar: 'مارس تمرين كارديو عالي الشدة (HIIT) لمدة 20 دقيقة 3 مرات أسبوعياً', de: '3× pro Woche 20 min hochintensives Intervalltraining' },
+        impact: { ar: '+30% تكوين خلايا جديدة', de: '+30% Neurogenese' },
+      },
+    ],
+  },
+  /* ─────────── HYDRATION & ELECTROLYTE BIOPHYSICS ─────────── */
+  {
+    category: 'hydration',
+    emoji: '💧',
+    color: '#0ea5e9',
+    title: { ar: 'الترطيب الدقيق وفيزياء السوائل الخلوية', de: 'Präzise Hydration & Zellbiophysik' },
+    description: {
+      ar: 'شرب الماء بكثرة دون كهارل (Electrolytes) هو خطأ بيولوجي فادح يؤدي لتخفيف الدم وخروج الماء من الخلايا بدلاً من دخولها. الترطيب الحقيقي يتطلب توازناً دقيقاً بين الصوديوم والبوتاسيوم والمغنيسيوم لتشغيل مضخات الخلايا.',
+      de: 'Viel Wasser ohne Elektrolyte verdünnt das Blut und dehydriert die Zellen paradoxerweise, da das Wasser nicht in die Zellen eindringen kann. Wahre Hydration erfordert ein feines Gleichgewicht von Natrium, Kalium und Magnesium.',
+    },
+    facts: [
+      {
+        title: { ar: 'مضخة الصوديوم والبوتاسيوم (Na+/K+-ATPase)', de: 'Die Natrium-Kalium-Pumpe' },
+        body: { ar: 'تستهلك خلايانا ثلث طاقتها الإجمالية لتشغيل مضخة Na+/K+ التي تنقل الصوديوم للخارج والبوتاسيوم للداخل. هذا التدرج الكهربائي هو المسؤول عن توليد السيالات العصبية، انقباض العضلات، وامتصاص المغذيات. نقص أي من العنصرين يعطل المضخة ويسبب خمولاً عضلياً وذهنياً شديداً.', de: 'Unsere Zellen verbrauchen ein Drittel ihrer Energie für die Na+/K+-Pumpe. Dieser elektrische Gradient steuert Nervensignale und Muskelkontraktionen. Mangel blockiert die Energie.' },
+        action: { ar: 'أضف رشة ملح بحري خام (صوديوم) مع أطعمة غنية بالبوتاسيوم (أفوكادو، موز) لترطيب خلوى متكامل', de: 'Kombiniere natriumreiches Meersalz mit kaliumreichen Lebensmitteln (Avocado, Banane)' },
+        impact: { ar: '+15% كفاءة عضلية', de: '+15% Muskel-Effizienz' },
+      },
+      {
+        title: { ar: 'نقص الترطيب بنسبة 2% يقلص الكفاءة الإدراكية', de: '2% Dehydration mindert Kognition' },
+        body: { ar: 'عندما تفقد 2% من وزن جسمك كوعاء مائي، تتقلص خلايا الدماغ مؤقتاً بسبب الأسموزية، مما يبطئ سرعة اتخاذ القرار، ويقلل الذاكرة قصيرة المدى، ويزيد القلق والصداع. العطش ليس دليلاً على بداية الجفاف، بل هو جرس إنذار متأخر جداً.', de: 'Schon bei 2% Flüssigkeitsverlust schrumpfen Gehirnzellen minimal durch Osmose. Dies verlangsamt Entscheidungen, mindert das Kurzzeitgedächtnis und fördert Kopfschmerzen.' },
+        action: { ar: 'اشرب 500 مل من الماء مع بضع قطرات من الليمون ورشة ملح صغيرة فور الاستيقاظ مباشرة وقبل القهوة', de: 'Trinke 500 ml Wasser mit Zitrone und einer Prise Salz direkt nach dem Aufstehen vor dem Kaffee' },
+        impact: { ar: '-30% صداع وخمول صباحي', de: '-30% morgendliche Trägheit' },
+      },
+    ],
+  },
+  /* ─────────── RESPIRATORY MECHANICS ─────────── */
+  {
+    category: 'breath',
+    emoji: '🌬️',
+    color: '#22d3ee',
+    title: { ar: 'التنفس المتقدم والتحكم البيولوجي بالتوتر', de: 'Atemmechanik & Autonome Steuerung' },
+    description: {
+      ar: 'جهازك التنفسي هو جهاز التحكم عن بعد الوحيد لجهازك العصبي اللاإرادي. من خلال ضبط عمق وتردد الشهيق والزفير، يمكنك كبح الكورتيزول والأدرينالين خلال ثوانٍ معدودة عبر تفعيل المسارات الباراسمبثاوية.',
+      de: 'Deine Atmung ist die einzige Fernbedienung für dein autonomes Nervensystem. Durch Steuerung von Tiefe und Frequenz von Ein- und Ausatmung kannst du Cortisol und Adrenalin in Sekunden senken.'
+    },
+    facts: [
+      {
+        title: { ar: 'التنهد الفسيولوجي يطرد ثنائي أكسيد الكربون', de: 'Physiologischer Seufzer baut CO2 ab' },
+        body: { ar: 'عند التوتر، تنكمش الحويصلات الهوائية في الرئتين ويتراكم CO2 في الدم، مما يحفز مراكز القلق في الدماغ. التنهد الفسيولوجي (شهيقان متتاليان سريعان عبر الأنف متبوعان بزفير طويل ممتد من الفم) يعيد فتح الحويصلات ويطرد CO2 المتراكم فوراً، مفعّلاً العصب الحائر ومخفّضاً نبضات القلب.', de: 'Bei Stress kollabieren die Alveolen und CO2 sammelt sich im Blut, was Angstzentren triggert. Der physiologische Seufzer (doppeltes Einatmen, langes Ausatmen) öffnet sie sofort wieder.' },
+        action: { ar: 'كرر التنهد الفسيولوجي 3 مرات متتالية عند شعورك بأي قلق أو توتر مفاجئ', de: 'Wiederhole den physiologischen Seufzer 3-mal bei plötzlichem Stress' },
+        impact: { ar: 'هدوء في 30 ثانية', de: 'Beruhigung in 30 s' },
+      },
+    ],
+  },
 ];
 
 /* ═══════════════════════════════════════════════════════════════════

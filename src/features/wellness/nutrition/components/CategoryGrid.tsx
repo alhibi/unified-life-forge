@@ -1,17 +1,27 @@
 /**
  * CategoryGrid — Visual grid of food categories with count badges.
  */
-import React from 'react';
 import { motion } from 'framer-motion';
+import React from 'react';
+
 import { CATEGORY_INFO } from '../data';
 import type { NutritionCategory } from '../types';
 
 type Lang = 'ar' | 'de';
 
 const VISIBLE_CATEGORIES: NutritionCategory[] = [
-  'fruits', 'vegetables', 'meat_poultry', 'fish_seafood',
-  'dairy_eggs', 'grains_cereals', 'legumes_pulses', 'nuts_seeds',
-  'oils_fats', 'beverages', 'spices_herbs', 'sweets_desserts',
+  'fruits',
+  'vegetables',
+  'meat_poultry',
+  'fish_seafood',
+  'dairy_eggs',
+  'grains_cereals',
+  'legumes_pulses',
+  'nuts_seeds',
+  'oils_fats',
+  'beverages',
+  'spices_herbs',
+  'sweets_desserts',
   'prepared_foods',
 ];
 
@@ -38,7 +48,7 @@ export default function CategoryGrid({ lang, onSelect }: Props) {
       animate="show"
       className="grid grid-cols-3 gap-2"
     >
-      {VISIBLE_CATEGORIES.map(cat => {
+      {VISIBLE_CATEGORIES.map((cat) => {
         const info = CATEGORY_INFO[cat];
         if (!info || info.count === 0) return null;
         return (

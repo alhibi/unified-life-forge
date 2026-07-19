@@ -1,32 +1,51 @@
 /**
  * NutritionExplorer — The revolutionary nutrition browsing experience.
- * 
+ *
  * A full-featured food browser with categories, search, filters,
  * detailed nutritional breakdowns, and smart recommendations.
  */
-import React, { useState, useMemo, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import {
-  Search, X, Heart, Clock, Sparkles, Filter, ChevronLeft,
-  Flame, Beef, Wheat, Droplets, Apple, Leaf, TrendingUp,
-  Star, Zap, Brain, Shield, Dumbbell,
-} from '@/lib/icons';
+import { AnimatePresence, motion } from 'framer-motion';
+import React, { useCallback, useMemo, useState } from 'react';
+
 import { useApp } from '@/contexts/AppContext';
 import {
-  NUTRITION_DATABASE, FOODS_BY_CATEGORY, CATEGORY_INFO,
-  TOTAL_FOOD_COUNT, FOOD_BY_ID,
-  searchFoods, filterFoods, getFavoriteFoods, getRecentFoodItems,
-  bestProteinSources, highestFiberFoods, lowestGIFoods,
-  mostNutrientDense, foodsByTag, useNutritionCache,
+  Apple,
+  Brain,
+  ChevronLeft,
+  Clock,
+  Dumbbell,
+  Filter,
+  Heart,
+  Leaf,
+  Search,
+  Shield,
+  Sparkles,
+  Star,
+  TrendingUp,
+  X,
+} from '@/lib/icons';
+
+import {
+  bestProteinSources,
+  CATEGORY_INFO,
+  FOODS_BY_CATEGORY,
+  foodsByTag,
+  getFavoriteFoods,
+  getRecentFoodItems,
+  highestFiberFoods,
+  lowestGIFoods,
+  mostNutrientDense,
+  searchFoods,
+  TOTAL_FOOD_COUNT,
+  useNutritionCache,
 } from '../index';
-import type { NutritionFoodItem, NutritionCategory, DietaryTag } from '../types';
+import type { DietaryTag, NutritionCategory, NutritionFoodItem } from '../types';
 import CategoryGrid from './CategoryGrid';
 import FoodCard from './FoodCard';
 import FoodDetailSheet from './FoodDetailSheet';
 import SmartFilters from './SmartFilters';
 
 type Lang = 'ar' | 'de';
-
 
 type View = 'home' | 'category' | 'search' | 'favorites' | 'smart';
 
@@ -83,7 +102,7 @@ export default function NutritionExplorer() {
     if (!query.trim()) return [];
     let results = searchFoods(query);
     if (activeTags.length > 0) {
-      results = results.filter(f => activeTags.every(t => f.tags.includes(t)));
+      results = results.filter((f) => activeTags.every((t) => f.tags.includes(t)));
     }
     return results;
   }, [query, activeTags]);
@@ -97,17 +116,24 @@ export default function NutritionExplorer() {
   // Smart section foods
   const smartFoods = useMemo(() => {
     switch (smartSection) {
-      case 'protein': return bestProteinSources(20);
-      case 'fiber': return highestFiberFoods(20);
-      case 'lowgi': return lowestGIFoods(20);
-      case 'dense': return mostNutrientDense(20).map(f => f as NutritionFoodItem);
-      case 'antiinflam': return foodsByTag('anti_inflammatory');
-      case 'brain': return foodsByTag('brain_food');
-      case 'heart': return foodsByTag('heart_healthy');
-      default: return [];
+      case 'protein':
+        return bestProteinSources(20);
+      case 'fiber':
+        return highestFiberFoods(20);
+      case 'lowgi':
+        return lowestGIFoods(20);
+      case 'dense':
+        return mostNutrientDense(20).map((f) => f as NutritionFoodItem);
+      case 'antiinflam':
+        return foodsByTag('anti_inflammatory');
+      case 'brain':
+        return foodsByTag('brain_food');
+      case 'heart':
+        return foodsByTag('heart_healthy');
+      default:
+        return [];
     }
   }, [smartSection]);
-
 
   const handleCategorySelect = useCallback((cat: NutritionCategory) => {
     setSelectedCategory(cat);
@@ -144,7 +170,7 @@ export default function NutritionExplorer() {
           <span>{T.back[lang]}</span>
         </button>
       )}
-      
+
       {/* Search bar */}
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -161,7 +187,10 @@ export default function NutritionExplorer() {
         />
         {query && (
           <button
-            onClick={() => { setQuery(''); if (view === 'search') setView('home'); }}
+            onClick={() => {
+              setQuery('');
+              if (view === 'search') setView('home');
+            }}
             className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 rounded-full bg-muted"
           >
             <X className="w-3 h-3" />
@@ -172,26 +201,41 @@ export default function NutritionExplorer() {
       {/* Quick action pills */}
       {view === 'home' && (
         <div className="flex gap-2 mt-3 overflow-x-auto scrollbar-none pb-1">
-          <QuickPill icon={Heart} label={T.favorites[lang]} onClick={() => setView('favorites')} color="#e53e3e" />
-          <QuickPill icon={Clock} label={T.recent[lang]} onClick={() => setView('favorites')} color="#4299e1" />
-          <QuickPill icon={Sparkles} label={T.smart[lang]} onClick={() => setView('smart')} color="#9b59b6" />
-          <QuickPill icon={Filter} label={T.filters[lang]} onClick={() => setShowFilters(!showFilters)} color="#48bb78" />
+          <QuickPill
+            icon={Heart}
+            label={T.favorites[lang]}
+            onClick={() => setView('favorites')}
+            color="#e53e3e"
+          />
+          <QuickPill
+            icon={Clock}
+            label={T.recent[lang]}
+            onClick={() => setView('favorites')}
+            color="#4299e1"
+          />
+          <QuickPill
+            icon={Sparkles}
+            label={T.smart[lang]}
+            onClick={() => setView('smart')}
+            color="#9b59b6"
+          />
+          <QuickPill
+            icon={Filter}
+            label={T.filters[lang]}
+            onClick={() => setShowFilters(!showFilters)}
+            color="#48bb78"
+          />
         </div>
       )}
     </div>
   );
-
 
   // Render content based on view
   const renderContent = () => {
     switch (view) {
       case 'home':
         return (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="space-y-5"
-          >
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-5">
             {/* Stats banner */}
             <div className="flex items-center justify-between rounded-xl p-3 border border-emerald-500/20">
               <div className="flex items-center gap-2">
@@ -224,10 +268,15 @@ export default function NutritionExplorer() {
                     onClick={() => handleSmartSelect(key)}
                     className="flex items-center gap-2 p-3 rounded-xl bg-muted/40 border border-border/30 active:scale-95 transition-all hover:bg-muted/60"
                   >
-                    <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${color}15` }}>
+                    <div
+                      className="w-7 h-7 rounded-lg flex items-center justify-center"
+                      style={{ backgroundColor: `${color}15` }}
+                    >
                       <Icon className="w-3.5 h-3.5" style={{ color }} />
                     </div>
-                    <span className="text-[11px] font-medium text-foreground leading-tight text-left">{label[lang]}</span>
+                    <span className="text-[11px] font-medium text-foreground leading-tight text-left">
+                      {label[lang]}
+                    </span>
                   </button>
                 ))}
               </div>
@@ -250,8 +299,13 @@ export default function NutritionExplorer() {
                   </span>
                 </div>
                 <div className="space-y-2">
-                  {categoryFoods.map(food => (
-                    <FoodCard key={food.id} food={food} lang={lang} onClick={() => handleFoodSelect(food)} />
+                  {categoryFoods.map((food) => (
+                    <FoodCard
+                      key={food.id}
+                      food={food}
+                      lang={lang}
+                      onClick={() => handleFoodSelect(food)}
+                    />
                   ))}
                 </div>
               </>
@@ -269,16 +323,23 @@ export default function NutritionExplorer() {
               </div>
             ) : (
               <div className="space-y-2">
-                <p className="text-xs text-muted-foreground mb-2">{searchResults.length} {T.totalFoods[lang]}</p>
-                {searchResults.map(food => (
-                  <FoodCard key={food.id} food={food} lang={lang} onClick={() => handleFoodSelect(food)} />
+                <p className="text-xs text-muted-foreground mb-2">
+                  {searchResults.length} {T.totalFoods[lang]}
+                </p>
+                {searchResults.map((food) => (
+                  <FoodCard
+                    key={food.id}
+                    food={food}
+                    lang={lang}
+                    onClick={() => handleFoodSelect(food)}
+                  />
                 ))}
               </div>
             )}
           </motion.div>
         );
 
-      case 'favorites':
+      case 'favorites': {
         const favFoods = getFavoriteFoods();
         const recentFoods = getRecentFoodItems();
         return (
@@ -288,11 +349,18 @@ export default function NutritionExplorer() {
                 <Heart className="w-4 h-4 text-red-500" /> {T.favorites[lang]}
               </h3>
               {favFoods.length === 0 ? (
-                <p className="text-xs text-muted-foreground text-center py-6">{T.noFavorites[lang]}</p>
+                <p className="text-xs text-muted-foreground text-center py-6">
+                  {T.noFavorites[lang]}
+                </p>
               ) : (
                 <div className="space-y-2">
-                  {favFoods.map(food => (
-                    <FoodCard key={food.id} food={food} lang={lang} onClick={() => handleFoodSelect(food)} />
+                  {favFoods.map((food) => (
+                    <FoodCard
+                      key={food.id}
+                      food={food}
+                      lang={lang}
+                      onClick={() => handleFoodSelect(food)}
+                    />
                   ))}
                 </div>
               )}
@@ -305,37 +373,52 @@ export default function NutritionExplorer() {
                 <p className="text-xs text-muted-foreground text-center py-6">{T.noRecent[lang]}</p>
               ) : (
                 <div className="space-y-2">
-                  {recentFoods.slice(0, 10).map(food => (
-                    <FoodCard key={food.id} food={food} lang={lang} onClick={() => handleFoodSelect(food)} />
+                  {recentFoods.slice(0, 10).map((food) => (
+                    <FoodCard
+                      key={food.id}
+                      food={food}
+                      lang={lang}
+                      onClick={() => handleFoodSelect(food)}
+                    />
                   ))}
                 </div>
               )}
             </div>
           </motion.div>
         );
+      }
 
-      case 'smart':
-        const section = SMART_SECTIONS.find(s => s.key === smartSection);
+      case 'smart': {
+        const section = SMART_SECTIONS.find((s) => s.key === smartSection);
         return (
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
             {section && (
               <>
                 <div className="flex items-center gap-2 mb-4">
-                  <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${section.color}15` }}>
+                  <div
+                    className="w-8 h-8 rounded-lg flex items-center justify-center"
+                    style={{ backgroundColor: `${section.color}15` }}
+                  >
                     <section.icon className="w-4 h-4" style={{ color: section.color }} />
                   </div>
                   <h3 className="text-base font-bold text-foreground">{section.label[lang]}</h3>
                   <span className="text-xs text-muted-foreground ml-auto">{smartFoods.length}</span>
                 </div>
                 <div className="space-y-2">
-                  {smartFoods.map(food => (
-                    <FoodCard key={food.id} food={food} lang={lang} onClick={() => handleFoodSelect(food)} />
+                  {smartFoods.map((food) => (
+                    <FoodCard
+                      key={food.id}
+                      food={food}
+                      lang={lang}
+                      onClick={() => handleFoodSelect(food)}
+                    />
                   ))}
                 </div>
               </>
             )}
           </motion.div>
         );
+      }
 
       default:
         return null;
@@ -345,7 +428,7 @@ export default function NutritionExplorer() {
   return (
     <div className="space-y-3 pb-20">
       {renderHeader()}
-      
+
       <AnimatePresence mode="wait">
         {showFilters && (
           <SmartFilters
@@ -362,11 +445,7 @@ export default function NutritionExplorer() {
       {/* Food detail sheet */}
       <AnimatePresence>
         {selectedFood && (
-          <FoodDetailSheet
-            food={selectedFood}
-            lang={lang}
-            onClose={() => setSelectedFood(null)}
-          />
+          <FoodDetailSheet food={selectedFood} lang={lang} onClose={() => setSelectedFood(null)} />
         )}
       </AnimatePresence>
     </div>
@@ -374,8 +453,16 @@ export default function NutritionExplorer() {
 }
 
 /* ─── Quick Pill Button ─── */
-function QuickPill({ icon: Icon, label, onClick, color }: {
-  icon: any; label: string; onClick: () => void; color: string;
+function QuickPill({
+  icon: Icon,
+  label,
+  onClick,
+  color,
+}: {
+  icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>;
+  label: string;
+  onClick: () => void;
+  color: string;
 }) {
   return (
     <button
