@@ -21,16 +21,33 @@
 //   • Every animation respects `prefers-reduced-motion` (handled in
 //     `index.css`).
 
+import DOMPurify from 'dompurify';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
-import {
-  ChevronDown, ChevronUp, FileText, Gauge, ListMusic, Loader2, Moon, Pause, Play, Repeat,
-  RotateCcw, RotateCw, Share2, X,
-} from '@/lib/icons';
-import { AnimatePresence, motion } from 'framer-motion';
-import DOMPurify from 'dompurify';
-import { usePodcastPlayer, usePodcastPlayerProgress } from '@/features/podcasts/contexts/PodcastPlayerContext';
+
 import { useApp } from '@/contexts/AppContext';
+import {
+  usePodcastPlayer,
+  usePodcastPlayerProgress,
+} from '@/features/podcasts/contexts/PodcastPlayerContext';
+import {
+  ChevronDown,
+  ChevronUp,
+  FileText,
+  Gauge,
+  ListMusic,
+  Loader2,
+  Moon,
+  Pause,
+  Play,
+  Repeat,
+  RotateCcw,
+  RotateCw,
+  Share2,
+  X,
+} from '@/lib/icons';
+
 import QueueSheet from './QueueSheet';
 
 const SKIP = 15;
@@ -41,11 +58,11 @@ const SPEEDS = [0.75, 1.0, 1.25, 1.5, 1.75, 2.0];
  *  rather than after a fixed duration — useful for "let me finish
  *  this one and then sleep". */
 const SLEEP_PRESETS: Array<{ value: number | 'episode-end'; labelAr: string; labelDe: string }> = [
-  { value: 5 * 60,        labelAr: '٥ دقائق',         labelDe: '5 Min'           },
-  { value: 15 * 60,       labelAr: '١٥ دقيقة',        labelDe: '15 Min'          },
-  { value: 30 * 60,       labelAr: '٣٠ دقيقة',        labelDe: '30 Min'          },
-  { value: 60 * 60,       labelAr: 'ساعة',            labelDe: '1 Std'           },
-  { value: 'episode-end', labelAr: 'حتى نهاية الحلقة', labelDe: 'Bis zum Ende'    },
+  { value: 5 * 60, labelAr: '٥ دقائق', labelDe: '5 Min' },
+  { value: 15 * 60, labelAr: '١٥ دقيقة', labelDe: '15 Min' },
+  { value: 30 * 60, labelAr: '٣٠ دقيقة', labelDe: '30 Min' },
+  { value: 60 * 60, labelAr: 'ساعة', labelDe: '1 Std' },
+  { value: 'episode-end', labelAr: 'حتى نهاية الحلقة', labelDe: 'Bis zum Ende' },
 ];
 
 function formatTime(s: number): string {
@@ -53,7 +70,8 @@ function formatTime(s: number): string {
   const mins = Math.floor(s / 60);
   const secs = Math.floor(s % 60);
   const hrs = Math.floor(mins / 60);
-  if (hrs > 0) return `${hrs}:${String(mins % 60).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+  if (hrs > 0)
+    return `${hrs}:${String(mins % 60).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
   return `${mins}:${String(secs).padStart(2, '0')}`;
 }
 
@@ -81,13 +99,13 @@ interface PlayerSheetProps {
  * buttons, speed pills) stays stable across position ticks.
  */
 function PlayerSheetSeek({
-  ariaLabel, onSeek,
+  ariaLabel,
+  onSeek,
 }: {
   ariaLabel: string;
   onSeek: (s: number) => void;
 }) {
   const { position, duration } = usePodcastPlayerProgress();
-  const pct = duration > 0 ? (position / duration) * 100 : 0;
   return (
     <div className="px-6 mt-6">
       <input
@@ -96,13 +114,13 @@ function PlayerSheetSeek({
         max={Math.max(1, duration)}
         step={1}
         value={Math.min(position, duration || 0)}
-        onChange={e => onSeek(parseFloat(e.target.value))}
+        onChange={(e) => onSeek(parseFloat(e.target.value))}
         className="w-full appearance-none bg-transparent podcast-seek"
         style={{
           // Inline gradient is easier to tint than ::-webkit-slider-runnable-track.
           // We add a soft 20% drop at the head of the filled portion so the
           // bar reads as a smooth ribbon rather than a hard pill.
-          
+
           height: 6,
           borderRadius: 999,
         }}
@@ -129,7 +147,9 @@ function EqIndicator({ playing, className }: { playing: boolean; className?: str
       data-playing={playing ? 'true' : 'false'}
       aria-hidden="true"
     >
-      <span /><span /><span />
+      <span />
+      <span />
+      <span />
     </span>
   );
 }
@@ -161,7 +181,9 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
     if (!open) return;
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
-    return () => { document.body.style.overflow = prev; };
+    return () => {
+      document.body.style.overflow = prev;
+    };
   }, [open]);
 
   // Close popovers when the sheet itself closes.
@@ -209,8 +231,7 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
   // with guest photos). Falls back to the channel-level cover if
   // the episode didn't override it. The same precedence is what
   // Apple Podcasts and Spotify use.
-  const episodeArtwork = player.current.episode.imageUrl
-    || player.current.podcastImageUrl;
+  const episodeArtwork = player.current.episode.imageUrl || player.current.podcastImageUrl;
 
   /**
    * Share handler — uses the native `navigator.share` API where
@@ -257,149 +278,159 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
 
   return createPortal(
     <>
-    <AnimatePresence>
-      {open && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.18 }}
-          className="fixed inset-0 z-[120] flex items-end justify-center"
-          // Solid scrim — the sheet itself paints the ambient backdrop,
-          // so out here we just want a clean black wash.
-          style={{ background: 'rgba(0, 0, 0, 0.65)' }}
-        >
+      <AnimatePresence>
+        {open && (
           <motion.div
-            initial={{ y: '100%' }}
-            animate={{ y: 0 }}
-            exit={{ y: '100%' }}
-            transition={{ type: 'spring', damping: 32, stiffness: 320 }}
- className="relative w-full max-w-md max-h-[100dvh] overflow-hidden rounded-t-3xl flex flex-col text-foreground"
- style={{
- // Surface tone — the ambient backdrop layer on top of
- // this gives the sheet its tinted feel; the base color
- // is the app's card token so the bottom edge still
-              // matches the theme cleanly.
-              background: 'hsl(var(--card))',
-              paddingBottom: 'env(safe-area-inset-bottom, 0px)',
-            }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.18 }}
+            className="fixed inset-0 z-[120] flex items-end justify-center"
+            // Solid scrim — the sheet itself paints the ambient backdrop,
+            // so out here we just want a clean black wash.
+            style={{ background: 'rgba(0, 0, 0, 0.65)' }}
           >
-            {/* ── Ambient backdrop ───────────────────────────────────
+            <motion.div
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 32, stiffness: 320 }}
+              className="relative w-full max-w-md max-h-[100dvh] overflow-hidden rounded-t-3xl flex flex-col text-foreground"
+              style={{
+                // Surface tone — the ambient backdrop layer on top of
+                // this gives the sheet its tinted feel; the base color
+                // is the app's card token so the bottom edge still
+                // matches the theme cleanly.
+                background: 'hsl(var(--card))',
+                paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+              }}
+            >
+              {/* ── Ambient backdrop ───────────────────────────────────
                 A heavily blurred copy of the cover art fills the back
                 of the sheet, tinted by two slow-drifting gradient
                 blobs in the podcast's seed color and finally hazed
                 with a card-toned veil so the foreground controls keep
                 their contrast. */}
-            <div className="absolute inset-0 -z-0 overflow-hidden pointer-events-none" aria-hidden="true">
-              <img
-                src={episodeArtwork}
-                alt=""
-                className="absolute inset-0 w-full h-full object-cover"
-                style={{ filter: 'blur(48px) saturate(1.4)', transform: 'scale(1.25)', opacity: 0.55 }}
-              />
-              {/* Drifting tint blobs — they pick up the seed color so
+              <div
+                className="absolute inset-0 -z-0 overflow-hidden pointer-events-none"
+                aria-hidden="true"
+              >
+                <img
+                  src={episodeArtwork}
+                  alt=""
+                  className="absolute inset-0 w-full h-full object-cover"
+                  style={{
+                    filter: 'blur(48px) saturate(1.4)',
+                    transform: 'scale(1.25)',
+                    opacity: 0.55,
+                  }}
+                />
+                {/* Drifting tint blobs — they pick up the seed color so
                   the backdrop reads as "this podcast" rather than a
                   generic out-of-focus image. */}
-              <span
-                className="podcast-blob podcast-blob-a"
-                style={{
-                  width: '60%', height: '60%',
-                  top: '-10%', left: '-10%',
-                  background: 'var(--podcast-primary, hsl(var(--primary)))',
-                }}
-              />
-              <span
-                className="podcast-blob podcast-blob-b"
-                style={{
-                  width: '55%', height: '55%',
-                  bottom: '-15%', right: '-15%',
-                  background: 'var(--podcast-primary, hsl(var(--primary)))',
-                  opacity: 0.4,
-                }}
-              />
-              {/* Top→bottom card veil — keeps text legible while
+                <span
+                  className="podcast-blob podcast-blob-a"
+                  style={{
+                    width: '60%',
+                    height: '60%',
+                    top: '-10%',
+                    left: '-10%',
+                    background: 'var(--podcast-primary, hsl(var(--primary)))',
+                  }}
+                />
+                <span
+                  className="podcast-blob podcast-blob-b"
+                  style={{
+                    width: '55%',
+                    height: '55%',
+                    bottom: '-15%',
+                    right: '-15%',
+                    background: 'var(--podcast-primary, hsl(var(--primary)))',
+                    opacity: 0.4,
+                  }}
+                />
+                {/* Top→bottom card veil — keeps text legible while
                   letting the tint bleed through near the edges. */}
-              <div
-                className="absolute inset-0"
-                style={{
-                  background:
-                    'linear-gradient(to bottom, hsl(var(--card) / 0.55) 0%, hsl(var(--card) / 0.85) 55%, hsl(var(--card) / 0.96) 100%)',
-                  backdropFilter: 'blur(10px) saturate(1.1)',
-                  WebkitBackdropFilter: 'blur(10px) saturate(1.1)',
-                }}
-              />
-            </div>
-
-            {/* All foreground content sits in a flex column above the
-                backdrop. `relative` lifts it onto the next stacking
-                context. */}
-            <div className="relative flex flex-col flex-1 min-h-0 overflow-y-auto">
-              {/* Drag handle / header */}
-              <div className="flex items-center justify-between px-4 pt-3 pb-1">
-                <button
-                  onClick={onClose}
-                  className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-foreground/10 transition-colors"
-                  aria-label={lang === 'ar' ? 'إغلاق' : 'Schließen'}
-                >
-                  <ChevronDown className="w-5 h-5" />
-                </button>
-                <div className="flex items-center gap-2">
-                  <EqIndicator playing={isActive} />
-                  <span className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground font-semibold">
-                    {lang === 'ar' ? 'يُشغَّل الآن' : 'Wird abgespielt'}
-                  </span>
-                </div>
-                <button
-                  onClick={() => { player.close(); onClose(); }}
-                  className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-foreground/10 transition-colors"
-                  aria-label={lang === 'ar' ? 'إغلاق المشغل' : 'Player schließen'}
-                >
-                  <X className="w-5 h-5" />
-                </button>
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    background:
+                      'linear-gradient(to bottom, hsl(var(--card) / 0.55) 0%, hsl(var(--card) / 0.85) 55%, hsl(var(--card) / 0.96) 100%)',
+                    backdropFilter: 'blur(10px) saturate(1.1)',
+                    WebkitBackdropFilter: 'blur(10px) saturate(1.1)',
+                  }}
+                />
               </div>
 
-              {/* ── Artwork ───────────────────────────────────────────
+              {/* All foreground content sits in a flex column above the
+                backdrop. `relative` lifts it onto the next stacking
+                context. */}
+              <div className="relative flex flex-col flex-1 min-h-0 overflow-y-auto">
+                {/* Drag handle / header */}
+                <div className="flex items-center justify-between px-4 pt-3 pb-1">
+                  <button
+                    onClick={onClose}
+                    className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-foreground/10 transition-colors"
+                    aria-label={lang === 'ar' ? 'إغلاق' : 'Schließen'}
+                  >
+                    <ChevronDown className="w-5 h-5" />
+                  </button>
+                  <div className="flex items-center gap-2">
+                    <EqIndicator playing={isActive} />
+                    <span className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground font-semibold">
+                      {lang === 'ar' ? 'يُشغَّل الآن' : 'Wird abgespielt'}
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => {
+                      player.close();
+                      onClose();
+                    }}
+                    className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-foreground/10 transition-colors"
+                    aria-label={lang === 'ar' ? 'إغلاق المشغل' : 'Player schließen'}
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                {/* ── Artwork ───────────────────────────────────────────
                   Slightly compressed when paused (Apple Music vinyl
                   cue), full-size when playing. The breathing rim glow
                   is driven entirely by CSS so the React tree stays
                   quiet. */}
-              <div className="px-8 pt-4 pb-4 flex justify-center">
-                <motion.div
-                  animate={{ scale: isActive ? 1 : 0.92 }}
-                  transition={{ type: 'spring', stiffness: 220, damping: 22 }}
-                  className={`relative aspect-square w-full max-w-[300px] rounded-3xl overflow-hidden ${
-                    isActive ? 'podcast-art-pulse' : ''
-                  }`}
-                >
-                  <img
-                    src={episodeArtwork}
-                    alt=""
-                    className="w-full h-full object-cover"
-                  />
-                  {/* Inner highlight — a 1px translucent border traces
+                <div className="px-8 pt-4 pb-4 flex justify-center">
+                  <motion.div
+                    animate={{ scale: isActive ? 1 : 0.92 }}
+                    transition={{ type: 'spring', stiffness: 220, damping: 22 }}
+                    className={`relative aspect-square w-full max-w-[300px] rounded-3xl overflow-hidden ${
+                      isActive ? 'podcast-art-pulse' : ''
+                    }`}
+                  >
+                    <img src={episodeArtwork} alt="" className="w-full h-full object-cover" />
+                    {/* Inner highlight — a 1px translucent border traces
                       the cover's rounded corners so the artwork looks
                       lit even on dark themes. */}
-                  <span
-                    className="absolute inset-0 rounded-3xl pointer-events-none"
-                    style={{ }}
-                    aria-hidden="true"
-                  />
-                </motion.div>
-              </div>
+                    <span
+                      className="absolute inset-0 rounded-3xl pointer-events-none"
+                      style={{}}
+                      aria-hidden="true"
+                    />
+                  </motion.div>
+                </div>
 
-              {/* ── Title / subtitle ──────────────────────────────────
+                {/* ── Title / subtitle ──────────────────────────────────
                   Stays compact (two lines max) so the hero never
                   pushes the transport off-screen on shorter viewports. */}
-              <div className="px-6 text-center">
-                <h2 className="text-lg font-bold leading-tight line-clamp-2">
-                  {player.current.episode.title}
-                </h2>
-                <p className="text-sm text-foreground/70 mt-0.5 line-clamp-1 font-medium">
-                  {player.current.podcastTitle}
-                </p>
-              </div>
+                <div className="px-6 text-center">
+                  <h2 className="text-lg font-bold leading-tight line-clamp-2">
+                    {player.current.episode.title}
+                  </h2>
+                  <p className="text-sm text-foreground/70 mt-0.5 line-clamp-1 font-medium">
+                    {player.current.podcastTitle}
+                  </p>
+                </div>
 
-              {/* ── Show-notes toggle + collapsible panel ─────────────
+                {/* ── Show-notes toggle + collapsible panel ─────────────
                   The episode description used to be permanently
                   visible right below the title, which crowded the
                   hero and made long show-notes (sponsor blocks,
@@ -414,342 +445,387 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
                   reset `descOpen` whenever the sheet closes or the
                   active episode changes (see the effect above) so the
                   panel never carries stale state. */}
-              {safeDescription && (
-                <div className="px-6 mt-3">
-                  <div className="flex justify-center">
-                    <button
-                      type="button"
-                      onClick={() => setDescOpen(o => !o)}
-                      aria-expanded={descOpen}
-                      aria-controls="podcast-show-notes-panel"
-                      className="flex items-center gap-1.5 px-3 h-8 rounded-full text-[12px] font-semibold text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-colors"
-                    >
-                      <FileText className="w-3.5 h-3.5" />
-                      <span>
-                        {descOpen
-                          ? (lang === 'ar' ? 'إخفاء الوصف' : 'Beschreibung ausblenden')
-                          : (lang === 'ar' ? 'عرض الوصف'   : 'Beschreibung anzeigen')}
-                      </span>
-                      {descOpen
-                        ? <ChevronUp   className="w-3.5 h-3.5" />
-                        : <ChevronDown className="w-3.5 h-3.5" />}
-                    </button>
-                  </div>
-
-                  <AnimatePresence initial={false}>
-                    {descOpen && (
-                      <motion.div
-                        id="podcast-show-notes-panel"
-                        key="show-notes"
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-                        // `overflow-hidden` is required for the height
-                        // animation to clip the inner content cleanly
-                        // while it's collapsing.
-                        className="overflow-hidden"
+                {safeDescription && (
+                  <div className="px-6 mt-3">
+                    <div className="flex justify-center">
+                      <button
+                        type="button"
+                        onClick={() => setDescOpen((o) => !o)}
+                        aria-expanded={descOpen}
+                        aria-controls="podcast-show-notes-panel"
+                        className="flex items-center gap-1.5 px-3 h-8 rounded-full text-[12px] font-semibold text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-colors"
                       >
-                        <div
-                          className="mt-2 rounded-2xl border border-border/40 px-4 py-3 max-h-40 overflow-y-auto"
-                          style={{
-                            background: 'hsl(var(--card) / 0.55)',
-                            backdropFilter: 'blur(10px)',
-                            WebkitBackdropFilter: 'blur(10px)',
-                          }}
-                          // Touch scroll stays inside the panel — keeps
-                          // the bottom-sheet's own gesture handler from
-                          // fighting the show-notes scroll.
-                          onTouchMove={e => e.stopPropagation()}
+                        <FileText className="w-3.5 h-3.5" />
+                        <span>
+                          {descOpen
+                            ? lang === 'ar'
+                              ? 'إخفاء الوصف'
+                              : 'Beschreibung ausblenden'
+                            : lang === 'ar'
+                              ? 'عرض الوصف'
+                              : 'Beschreibung anzeigen'}
+                        </span>
+                        {descOpen ? (
+                          <ChevronUp className="w-3.5 h-3.5" />
+                        ) : (
+                          <ChevronDown className="w-3.5 h-3.5" />
+                        )}
+                      </button>
+                    </div>
+
+                    <AnimatePresence initial={false}>
+                      {descOpen && (
+                        <motion.div
+                          id="podcast-show-notes-panel"
+                          key="show-notes"
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+                          // `overflow-hidden` is required for the height
+                          // animation to clip the inner content cleanly
+                          // while it's collapsing.
+                          className="overflow-hidden"
                         >
                           <div
-                            className="text-[12px] text-foreground/80 leading-relaxed podcast-html"
-                            dangerouslySetInnerHTML={{ __html: safeDescription }}
-                          />
+                            className="mt-2 rounded-2xl border border-border/40 px-4 py-3 max-h-40 overflow-y-auto"
+                            style={{
+                              background: 'hsl(var(--card) / 0.55)',
+                              backdropFilter: 'blur(10px)',
+                              WebkitBackdropFilter: 'blur(10px)',
+                            }}
+                            // Touch scroll stays inside the panel — keeps
+                            // the bottom-sheet's own gesture handler from
+                            // fighting the show-notes scroll.
+                            onTouchMove={(e) => e.stopPropagation()}
+                          >
+                            <div
+                              className="text-[12px] text-foreground/80 leading-relaxed podcast-html"
+                              dangerouslySetInnerHTML={{ __html: safeDescription }}
+                            />
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                )}
+
+                {/* ── Progress slider ───────────────────────────────────
+                  Owns its own subscription to the 4 Hz progress context
+                  so position ticks don't reconcile the rest of the
+                  sheet. */}
+                <PlayerSheetSeek
+                  ariaLabel={lang === 'ar' ? 'الانتقال داخل الحلقة' : 'Position'}
+                  onSeek={player.seek}
+                />
+
+                {/* ── Transport row ─────────────────────────────────────
+                  Skip-back, big gradient play button, skip-forward.
+                  The skip arrows have their "15s" label embedded in
+                  the center of the rotation icon — same affordance
+                  Apple Podcasts / Pocket Casts use. */}
+                <div className="flex items-center justify-center gap-6 px-6 mt-5">
+                  <button
+                    onClick={() => player.skip(-SKIP)}
+                    className="relative w-14 h-14 rounded-full hover:bg-foreground/10 flex items-center justify-center active:scale-95 transition-all"
+                    aria-label={`-${SKIP}s`}
+                  >
+                    <RotateCcw className="w-9 h-9" strokeWidth={1.5} />
+                    <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold tabular-nums pointer-events-none">
+                      {SKIP}
+                    </span>
+                  </button>
+
+                  <button
+                    onClick={() => player.toggle()}
+                    className="podcast-play-button w-20 h-20 rounded-full flex items-center justify-center active:scale-95 transition-transform"
+                    data-playing={isActive ? 'true' : 'false'}
+                    style={{
+                      // Two-stop gradient gives the button visual depth
+                      // without needing an extra ring element. The fall-
+                      // back hsl() values keep things readable when the
+                      // seed-color tokens haven't been set (e.g. before
+                      // the cover art has loaded).
+
+                      color: 'var(--podcast-primary-fg, hsl(var(--primary-foreground)))',
+                    }}
+                    aria-label={player.isPlaying ? 'Pause' : 'Play'}
+                  >
+                    <Icon
+                      className={`w-9 h-9 ${player.isLoading ? 'animate-spin' : ''}`}
+                      fill={isActive ? 'currentColor' : 'none'}
+                    />
+                  </button>
+
+                  <button
+                    onClick={() => player.skip(SKIP)}
+                    className="relative w-14 h-14 rounded-full hover:bg-foreground/10 flex items-center justify-center active:scale-95 transition-all"
+                    aria-label={`+${SKIP}s`}
+                  >
+                    <RotateCw className="w-9 h-9" strokeWidth={1.5} />
+                    <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold tabular-nums pointer-events-none">
+                      {SKIP}
+                    </span>
+                  </button>
+                </div>
+
+                {/* ── Secondary feature row ─────────────────────────────
+                  Sleep timer, speed, auto-play, share. Less visually
+                  prominent than the transport — small chips on a
+                  single row instead of full buttons. */}
+                <div className="flex items-center justify-center gap-1.5 px-4 mt-5 mb-5 relative flex-wrap">
+                  {/* Speed — opens a popover with the full preset list. */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSpeedOpen((o) => !o);
+                      setSleepOpen(false);
+                    }}
+                    aria-pressed={player.speed !== 1}
+                    className={`flex items-center gap-1.5 px-3 h-9 rounded-full text-[12px] font-semibold transition-colors ${
+                      player.speed !== 1
+                        ? 'text-foreground'
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                    style={{
+                      background:
+                        player.speed !== 1
+                          ? 'var(--podcast-primary-soft, hsl(var(--primary)/0.15))'
+                          : 'transparent',
+                    }}
+                  >
+                    <Gauge className="w-4 h-4" />
+                    <span className="tabular-nums">{speedLabel}</span>
+                  </button>
+
+                  {/* Sleep timer */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSleepOpen((o) => !o);
+                      setSpeedOpen(false);
+                    }}
+                    aria-pressed={!!player.sleepTimer}
+                    className={`flex items-center gap-1.5 px-3 h-9 rounded-full text-[12px] font-semibold transition-colors ${
+                      player.sleepTimer
+                        ? 'text-foreground'
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                    style={{
+                      background: player.sleepTimer
+                        ? 'var(--podcast-primary-soft, hsl(var(--primary)/0.15))'
+                        : 'transparent',
+                    }}
+                  >
+                    <Moon className="w-4 h-4" />
+                    <span>
+                      {player.sleepTimer
+                        ? player.sleepTimer.mode === 'episode-end'
+                          ? lang === 'ar'
+                            ? 'نهاية الحلقة'
+                            : 'Bis Ende'
+                          : formatCountdown(player.sleepTimer.secondsRemaining, lang)
+                        : lang === 'ar'
+                          ? 'مؤقت'
+                          : 'Sleep'}
+                    </span>
+                  </button>
+
+                  {/* Auto-play next */}
+                  <button
+                    type="button"
+                    onClick={() => player.setAutoPlayNext(!player.autoPlayNext)}
+                    aria-pressed={player.autoPlayNext}
+                    title={lang === 'ar' ? 'تشغيل التالي تلقائياً' : 'Nächste automatisch'}
+                    className={`flex items-center gap-1.5 px-3 h-9 rounded-full text-[12px] font-semibold transition-colors ${
+                      player.autoPlayNext
+                        ? 'text-foreground'
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                    style={{
+                      background: player.autoPlayNext
+                        ? 'var(--podcast-primary-soft, hsl(var(--primary)/0.15))'
+                        : 'transparent',
+                    }}
+                  >
+                    <Repeat className="w-4 h-4" />
+                    <span>{lang === 'ar' ? 'تلقائي' : 'Auto'}</span>
+                  </button>
+
+                  {/* Queue / Up Next */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setQueueOpen(true);
+                      setSleepOpen(false);
+                      setSpeedOpen(false);
+                    }}
+                    aria-label={lang === 'ar' ? 'قائمة التشغيل' : 'Warteschlange'}
+                    className={`flex items-center gap-1.5 px-3 h-9 rounded-full text-[12px] font-semibold transition-colors ${
+                      player.queueCount > 0
+                        ? 'text-foreground'
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                    style={{
+                      background:
+                        player.queueCount > 0
+                          ? 'var(--podcast-primary-soft, hsl(var(--primary)/0.15))'
+                          : 'transparent',
+                    }}
+                  >
+                    <ListMusic className="w-4 h-4" />
+                    <span>
+                      {player.queueCount > 0
+                        ? player.queueCount
+                        : lang === 'ar'
+                          ? 'التالي'
+                          : 'Nächste'}
+                    </span>
+                  </button>
+
+                  {/* Share */}
+                  <button
+                    type="button"
+                    onClick={handleShare}
+                    aria-label={lang === 'ar' ? 'مشاركة' : 'Teilen'}
+                    className="flex items-center gap-1.5 px-3 h-9 rounded-full text-[12px] font-semibold text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    <Share2 className="w-4 h-4" />
+                    <span>
+                      {copiedLink
+                        ? lang === 'ar'
+                          ? 'تم النسخ'
+                          : 'Kopiert'
+                        : lang === 'ar'
+                          ? 'مشاركة'
+                          : 'Teilen'}
+                    </span>
+                  </button>
+
+                  {/* ── Speed popover ─────────────────────────────────
+ Anchored above the chip row so it floats over the
+ transport without pushing the layout. */}
+                  <AnimatePresence>
+                    {speedOpen && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                        transition={{ duration: 0.15 }}
+                        className="absolute bottom-full mb-2 left-4 right-4 mx-auto max-w-xs rounded-2xl border border-border/50 p-2 z-10"
+                        style={{
+                          background: 'hsl(var(--card) / 0.96)',
+                          backdropFilter: 'blur(20px)',
+                          WebkitBackdropFilter: 'blur(20px)',
+                        }}
+                      >
+                        <p className="text-[11px] font-semibold text-muted-foreground px-2 pt-1 pb-2">
+                          {lang === 'ar' ? 'سرعة التشغيل' : 'Wiedergabegeschwindigkeit'}
+                        </p>
+                        <div className="grid grid-cols-3 gap-1">
+                          {SPEEDS.map((s) => {
+                            const active = Math.abs(player.speed - s) < 0.001;
+                            const label = `${s.toFixed(2).replace(/\.?0+$/, '')}x`;
+                            return (
+                              <button
+                                key={s}
+                                type="button"
+                                onClick={() => {
+                                  player.setSpeed(s);
+                                  setSpeedOpen(false);
+                                }}
+                                className="px-2 py-2 rounded-xl text-[12.5px] font-semibold tabular-nums transition-colors"
+                                style={{
+                                  background: active
+                                    ? 'var(--podcast-primary, hsl(var(--primary)))'
+                                    : 'transparent',
+                                  color: active
+                                    ? 'var(--podcast-primary-fg, hsl(var(--primary-foreground)))'
+                                    : 'hsl(var(--foreground) / 0.85)',
+                                }}
+                              >
+                                {label}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
+                  {/* ── Sleep-timer popover ───────────────────────────── */}
+                  <AnimatePresence>
+                    {sleepOpen && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                        transition={{ duration: 0.15 }}
+                        className="absolute bottom-full mb-2 left-4 right-4 mx-auto max-w-xs rounded-2xl border border-border/50 p-2 z-10"
+                        style={{
+                          background: 'hsl(var(--card) / 0.96)',
+                          backdropFilter: 'blur(20px)',
+                          WebkitBackdropFilter: 'blur(20px)',
+                        }}
+                      >
+                        <p className="text-[11px] font-semibold text-muted-foreground px-2 pt-1 pb-2">
+                          {lang === 'ar' ? 'إيقاف بعد' : 'Pause nach'}
+                        </p>
+                        <div className="grid grid-cols-1 gap-0.5">
+                          {SLEEP_PRESETS.map((p) => {
+                            const isActive =
+                              (p.value === 'episode-end' &&
+                                player.sleepTimer?.mode === 'episode-end') ||
+                              (typeof p.value === 'number' &&
+                                player.sleepTimer?.mode === 'timed' &&
+                                // Treat the user-clicked preset as active
+                                // until they pick a different one. We can't
+                                // compare exact seconds because the timer
+                                // ticks down, so "remaining ≤ preset" is a
+                                // good-enough proxy.
+                                player.sleepTimer.secondsRemaining <= p.value);
+                            return (
+                              <button
+                                key={String(p.value)}
+                                type="button"
+                                onClick={() => {
+                                  player.setSleepTimer(p.value);
+                                  setSleepOpen(false);
+                                }}
+                                className={`w-full text-start px-3 py-2 rounded-xl text-[13px] font-medium transition-colors ${
+                                  isActive
+                                    ? 'bg-foreground/10 text-foreground'
+                                    : 'hover:bg-foreground/5 text-foreground/80'
+                                }`}
+                              >
+                                {lang === 'ar' ? p.labelAr : p.labelDe}
+                              </button>
+                            );
+                          })}
+                          {player.sleepTimer && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                player.setSleepTimer(null);
+                                setSleepOpen(false);
+                              }}
+                              className="w-full text-start px-3 py-2 mt-1 rounded-xl text-[13px] font-semibold text-destructive hover:bg-destructive/10 transition-colors border-t border-border/40"
+                            >
+                              {lang === 'ar' ? 'إلغاء المؤقت' : 'Timer abbrechen'}
+                            </button>
+                          )}
                         </div>
                       </motion.div>
                     )}
                   </AnimatePresence>
                 </div>
-              )}
-
-              {/* ── Progress slider ───────────────────────────────────
-                  Owns its own subscription to the 4 Hz progress context
-                  so position ticks don't reconcile the rest of the
-                  sheet. */}
-              <PlayerSheetSeek
-                ariaLabel={lang === 'ar' ? 'الانتقال داخل الحلقة' : 'Position'}
-                onSeek={player.seek}
-              />
-
-              {/* ── Transport row ─────────────────────────────────────
-                  Skip-back, big gradient play button, skip-forward.
-                  The skip arrows have their "15s" label embedded in
-                  the center of the rotation icon — same affordance
-                  Apple Podcasts / Pocket Casts use. */}
-              <div className="flex items-center justify-center gap-6 px-6 mt-5">
-                <button
-                  onClick={() => player.skip(-SKIP)}
-                  className="relative w-14 h-14 rounded-full hover:bg-foreground/10 flex items-center justify-center active:scale-95 transition-all"
-                  aria-label={`-${SKIP}s`}
-                >
-                  <RotateCcw className="w-9 h-9" strokeWidth={1.5} />
-                  <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold tabular-nums pointer-events-none">
-                    {SKIP}
-                  </span>
-                </button>
-
-                <button
-                  onClick={() => player.toggle()}
-                  className="podcast-play-button w-20 h-20 rounded-full flex items-center justify-center active:scale-95 transition-transform"
-                  data-playing={isActive ? 'true' : 'false'}
-                  style={{
-                    // Two-stop gradient gives the button visual depth
-                    // without needing an extra ring element. The fall-
-                    // back hsl() values keep things readable when the
-                    // seed-color tokens haven't been set (e.g. before
-                    // the cover art has loaded).
-                    
-                    color: 'var(--podcast-primary-fg, hsl(var(--primary-foreground)))',
-                  }}
-                  aria-label={player.isPlaying ? 'Pause' : 'Play'}
-                >
-                  <Icon
-                    className={`w-9 h-9 ${player.isLoading ? 'animate-spin' : ''}`}
-                    fill={isActive ? 'currentColor' : 'none'}
-                  />
-                </button>
-
-                <button
-                  onClick={() => player.skip(SKIP)}
-                  className="relative w-14 h-14 rounded-full hover:bg-foreground/10 flex items-center justify-center active:scale-95 transition-all"
-                  aria-label={`+${SKIP}s`}
-                >
-                  <RotateCw className="w-9 h-9" strokeWidth={1.5} />
-                  <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold tabular-nums pointer-events-none">
-                    {SKIP}
-                  </span>
-                </button>
               </div>
-
-              {/* ── Secondary feature row ─────────────────────────────
-                  Sleep timer, speed, auto-play, share. Less visually
-                  prominent than the transport — small chips on a
-                  single row instead of full buttons. */}
-              <div className="flex items-center justify-center gap-1.5 px-4 mt-5 mb-5 relative flex-wrap">
-                {/* Speed — opens a popover with the full preset list. */}
-                <button
-                  type="button"
-                  onClick={() => { setSpeedOpen(o => !o); setSleepOpen(false); }}
-                  aria-pressed={player.speed !== 1}
-                  className={`flex items-center gap-1.5 px-3 h-9 rounded-full text-[12px] font-semibold transition-colors ${
-                    player.speed !== 1 ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                  style={{
-                    background: player.speed !== 1
-                      ? 'var(--podcast-primary-soft, hsl(var(--primary)/0.15))'
-                      : 'transparent',
-                  }}
-                >
-                  <Gauge className="w-4 h-4" />
-                  <span className="tabular-nums">{speedLabel}</span>
-                </button>
-
-                {/* Sleep timer */}
-                <button
-                  type="button"
-                  onClick={() => { setSleepOpen(o => !o); setSpeedOpen(false); }}
-                  aria-pressed={!!player.sleepTimer}
-                  className={`flex items-center gap-1.5 px-3 h-9 rounded-full text-[12px] font-semibold transition-colors ${
-                    player.sleepTimer ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                  style={{
-                    background: player.sleepTimer
-                      ? 'var(--podcast-primary-soft, hsl(var(--primary)/0.15))'
-                      : 'transparent',
-                  }}
-                >
-                  <Moon className="w-4 h-4" />
-                  <span>
-                    {player.sleepTimer
-                      ? player.sleepTimer.mode === 'episode-end'
-                        ? (lang === 'ar' ? 'نهاية الحلقة' : 'Bis Ende')
-                        : formatCountdown(player.sleepTimer.secondsRemaining, lang)
-                      : (lang === 'ar' ? 'مؤقت' : 'Sleep')}
-                  </span>
-                </button>
-
-                {/* Auto-play next */}
-                <button
-                  type="button"
-                  onClick={() => player.setAutoPlayNext(!player.autoPlayNext)}
-                  aria-pressed={player.autoPlayNext}
-                  title={lang === 'ar' ? 'تشغيل التالي تلقائياً' : 'Nächste automatisch'}
-                  className={`flex items-center gap-1.5 px-3 h-9 rounded-full text-[12px] font-semibold transition-colors ${
-                    player.autoPlayNext ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                  style={{
-                    background: player.autoPlayNext
-                      ? 'var(--podcast-primary-soft, hsl(var(--primary)/0.15))'
-                      : 'transparent',
-                  }}
-                >
-                  <Repeat className="w-4 h-4" />
-                  <span>
-                    {lang === 'ar' ? 'تلقائي' : 'Auto'}
-                  </span>
-                </button>
-
-                {/* Queue / Up Next */}
-                <button
-                  type="button"
-                  onClick={() => { setQueueOpen(true); setSleepOpen(false); setSpeedOpen(false); }}
-                  aria-label={lang === 'ar' ? 'قائمة التشغيل' : 'Warteschlange'}
-                  className={`flex items-center gap-1.5 px-3 h-9 rounded-full text-[12px] font-semibold transition-colors ${
-                    player.queueCount > 0 ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                  style={{
-                    background: player.queueCount > 0
-                      ? 'var(--podcast-primary-soft, hsl(var(--primary)/0.15))'
-                      : 'transparent',
-                  }}
-                >
-                  <ListMusic className="w-4 h-4" />
-                  <span>
-                    {player.queueCount > 0
-                      ? player.queueCount
-                      : (lang === 'ar' ? 'التالي' : 'Nächste')}
-                  </span>
-                </button>
-
-                {/* Share */}
-                <button
-                  type="button"
-                  onClick={handleShare}
-                  aria-label={lang === 'ar' ? 'مشاركة' : 'Teilen'}
-                  className="flex items-center gap-1.5 px-3 h-9 rounded-full text-[12px] font-semibold text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  <Share2 className="w-4 h-4" />
-                  <span>
-                    {copiedLink
-                      ? (lang === 'ar' ? 'تم النسخ' : 'Kopiert')
-                      : (lang === 'ar' ? 'مشاركة' : 'Teilen')}
- </span>
- </button>
-
- {/* ── Speed popover ─────────────────────────────────
- Anchored above the chip row so it floats over the
- transport without pushing the layout. */}
- <AnimatePresence>
- {speedOpen && (
- <motion.div
- initial={{ opacity: 0, y: 10, scale: 0.95 }}
- animate={{ opacity: 1, y: 0, scale: 1 }}
- exit={{ opacity: 0, y: 10, scale: 0.95 }}
- transition={{ duration: 0.15 }}
- className="absolute bottom-full mb-2 left-4 right-4 mx-auto max-w-xs rounded-2xl border border-border/50 p-2 z-10"
- style={{
- background: 'hsl(var(--card) / 0.96)',
-                        backdropFilter: 'blur(20px)',
-                        WebkitBackdropFilter: 'blur(20px)',
-                      }}
-                    >
-                      <p className="text-[11px] font-semibold text-muted-foreground px-2 pt-1 pb-2">
-                        {lang === 'ar' ? 'سرعة التشغيل' : 'Wiedergabegeschwindigkeit'}
-                      </p>
-                      <div className="grid grid-cols-3 gap-1">
-                        {SPEEDS.map(s => {
-                          const active = Math.abs(player.speed - s) < 0.001;
-                          const label = `${s.toFixed(2).replace(/\.?0+$/, '')}x`;
-                          return (
-                            <button
-                              key={s}
-                              type="button"
-                              onClick={() => { player.setSpeed(s); setSpeedOpen(false); }}
-                              className="px-2 py-2 rounded-xl text-[12.5px] font-semibold tabular-nums transition-colors"
-                              style={{
-                                background: active
-                                  ? 'var(--podcast-primary, hsl(var(--primary)))'
-                                  : 'transparent',
-                                color: active
-                                  ? 'var(--podcast-primary-fg, hsl(var(--primary-foreground)))'
-                                  : 'hsl(var(--foreground) / 0.85)',
- }}
- >
- {label}
- </button>
- );
- })}
- </div>
- </motion.div>
- )}
- </AnimatePresence>
-
- {/* ── Sleep-timer popover ───────────────────────────── */}
- <AnimatePresence>
- {sleepOpen && (
- <motion.div
- initial={{ opacity: 0, y: 10, scale: 0.95 }}
- animate={{ opacity: 1, y: 0, scale: 1 }}
- exit={{ opacity: 0, y: 10, scale: 0.95 }}
- transition={{ duration: 0.15 }}
- className="absolute bottom-full mb-2 left-4 right-4 mx-auto max-w-xs rounded-2xl border border-border/50 p-2 z-10"
- style={{
- background: 'hsl(var(--card) / 0.96)',
-                        backdropFilter: 'blur(20px)',
-                        WebkitBackdropFilter: 'blur(20px)',
-                      }}
-                    >
-                      <p className="text-[11px] font-semibold text-muted-foreground px-2 pt-1 pb-2">
-                        {lang === 'ar' ? 'إيقاف بعد' : 'Pause nach'}
-                      </p>
-                      <div className="grid grid-cols-1 gap-0.5">
-                        {SLEEP_PRESETS.map(p => {
-                          const isActive =
-                            (p.value === 'episode-end' && player.sleepTimer?.mode === 'episode-end') ||
-                            (typeof p.value === 'number' &&
-                              player.sleepTimer?.mode === 'timed' &&
-                              // Treat the user-clicked preset as active
-                              // until they pick a different one. We can't
-                              // compare exact seconds because the timer
-                              // ticks down, so "remaining ≤ preset" is a
-                              // good-enough proxy.
-                              player.sleepTimer.secondsRemaining <= p.value);
-                          return (
-                            <button
-                              key={String(p.value)}
-                              type="button"
-                              onClick={() => { player.setSleepTimer(p.value); setSleepOpen(false); }}
-                              className={`w-full text-start px-3 py-2 rounded-xl text-[13px] font-medium transition-colors ${
-                                isActive ? 'bg-foreground/10 text-foreground' : 'hover:bg-foreground/5 text-foreground/80'
-                              }`}
-                            >
-                              {lang === 'ar' ? p.labelAr : p.labelDe}
-                            </button>
-                          );
-                        })}
-                        {player.sleepTimer && (
-                          <button
-                            type="button"
-                            onClick={() => { player.setSleepTimer(null); setSleepOpen(false); }}
-                            className="w-full text-start px-3 py-2 mt-1 rounded-xl text-[13px] font-semibold text-destructive hover:bg-destructive/10 transition-colors border-t border-border/40"
-                          >
-                            {lang === 'ar' ? 'إلغاء المؤقت' : 'Timer abbrechen'}
-                          </button>
-                        )}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            </div>
+            </motion.div>
           </motion.div>
-        </motion.div>
-      )}
+        )}
       </AnimatePresence>
       <QueueSheet open={queueOpen} onClose={() => setQueueOpen(false)} />
     </>,
     document.body,
   );
 }
-

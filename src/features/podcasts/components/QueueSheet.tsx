@@ -12,12 +12,13 @@
 //   • Empty state: illustration + "Queue is empty" message
 //   • Add- CTA when queue is empty: "Browse podcasts"
 
-import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ListMusic, Trash2, X, Music, ChevronUp, ChevronDown } from '@/lib/icons';
-import { usePodcastPlayer } from '@/features/podcasts/contexts/PodcastPlayerContext';
+import { createPortal } from 'react-dom';
+
 import { useApp } from '@/contexts/AppContext';
+import { usePodcastPlayer } from '@/features/podcasts/contexts/PodcastPlayerContext';
 import { upgradeArtwork } from '@/features/podcasts/lib/itunes';
+import { ChevronDown, ChevronUp, ListMusic, Music, Trash2, X } from '@/lib/icons';
 
 interface QueueSheetProps {
   open: boolean;
@@ -65,7 +66,7 @@ export default function QueueSheet({ open, onClose }: QueueSheetProps) {
           animate={{ y: 0 }}
           exit={{ y: '100%' }}
           transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-          onClick={e => e.stopPropagation()}
+          onClick={(e) => e.stopPropagation()}
           className="bg-card w-full max-w-md max-h-[70vh] rounded-t-3xl flex flex-col"
           style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
         >
@@ -221,6 +222,6 @@ export default function QueueSheet({ open, onClose }: QueueSheetProps) {
         </motion.div>
       </motion.div>
     </AnimatePresence>,
-    document.body
+    document.body,
   );
 }

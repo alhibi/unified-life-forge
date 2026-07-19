@@ -12,14 +12,22 @@
 // of this project) so feeds with markup like <a>, <em>, <p> show
 // correctly without opening an XSS hole.
 
-import { memo, useMemo } from 'react';
 import DOMPurify from 'dompurify';
-import { CheckCircle2, ListPlus, Loader2, Pause, Play, RotateCcw } from '@/lib/icons';
 import { motion } from 'framer-motion';
-import type { PodcastEpisode } from '@/features/podcasts/lib/rss';
-import { usePodcastPlayer, type PlayingEpisodeMeta } from '@/features/podcasts/contexts/PodcastPlayerContext';
-import { markEpisodePlayedWithNotify, removeRecentEpisodeWithNotify, usePlayState } from '@/features/podcasts/lib/store';
+import { memo, useMemo } from 'react';
+
 import { useApp } from '@/contexts/AppContext';
+import {
+  type PlayingEpisodeMeta,
+  usePodcastPlayer,
+} from '@/features/podcasts/contexts/PodcastPlayerContext';
+import type { PodcastEpisode } from '@/features/podcasts/lib/rss';
+import {
+  markEpisodePlayedWithNotify,
+  removeRecentEpisodeWithNotify,
+  usePlayState,
+} from '@/features/podcasts/lib/store';
+import { CheckCircle2, ListPlus, Loader2, Pause, Play, RotateCcw } from '@/lib/icons';
 
 interface EpisodeListItemProps {
   episode: PodcastEpisode;
@@ -42,11 +50,13 @@ function formatRelativeDate(ms: number, lang: 'ar' | 'de'): string {
   const date = new Date(ms);
   const now = Date.now();
   const days = Math.floor((now - ms) / 86_400_000);
-  if (days < 1)  return lang === 'ar' ? 'اليوم' : 'Heute';
-  if (days < 2)  return lang === 'ar' ? 'أمس' : 'Gestern';
+  if (days < 1) return lang === 'ar' ? 'اليوم' : 'Heute';
+  if (days < 2) return lang === 'ar' ? 'أمس' : 'Gestern';
   if (days < 30) return lang === 'ar' ? `قبل ${days} يوم` : `vor ${days} Tagen`;
   return new Intl.DateTimeFormat(lang === 'ar' ? 'ar' : 'de-DE', {
-    year: 'numeric', month: 'short', day: 'numeric',
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
   }).format(date);
 }
 
@@ -77,7 +87,13 @@ function formatDuration(durationSec: number): string {
 }
 
 const EpisodeListItem = memo(function EpisodeListItem({
-  episode, podcastTitle, podcastImageUrl, seedH, seedS, seedL, allEpisodes,
+  episode,
+  podcastTitle,
+  podcastImageUrl,
+  seedH,
+  seedS,
+  seedL,
+  allEpisodes,
 }: EpisodeListItemProps) {
   const { language } = useApp();
   const lang = language === 'de' ? 'de' : 'ar';
@@ -91,10 +107,11 @@ const EpisodeListItem = memo(function EpisodeListItem({
   // FIRST render and ignore prop changes — a real bug when the same
   // memoized list-item slot got reused for a different episode.
   const safeDescription = useMemo(
-    () => DOMPurify.sanitize(episode.description ?? '', {
-      ALLOWED_TAGS: ['a', 'b', 'br', 'em', 'i', 'p', 'span', 'strong', 'u'],
-      ALLOWED_ATTR: ['href', 'target', 'rel'],
-    }),
+    () =>
+      DOMPurify.sanitize(episode.description ?? '', {
+        ALLOWED_TAGS: ['a', 'b', 'br', 'em', 'i', 'p', 'span', 'strong', 'u'],
+        ALLOWED_ATTR: ['href', 'target', 'rel'],
+      }),
     [episode.description],
   );
 
@@ -102,9 +119,8 @@ const EpisodeListItem = memo(function EpisodeListItem({
   const isThisLoading = isCurrent && player.isLoading;
   const isThisPlaying = isCurrent && player.isPlaying;
   const duration = playState.duration || episode.duration || 0;
-  const progressPct = duration > 0
-    ? Math.min(100, Math.max(0, (playState.position / duration) * 100))
-    : 0;
+  const progressPct =
+    duration > 0 ? Math.min(100, Math.max(0, (playState.position / duration) * 100)) : 0;
 
   // "In progress" means the listener has played past the first few
   // seconds but hasn't finished. We use this to show a progress strip
@@ -131,20 +147,24 @@ const EpisodeListItem = memo(function EpisodeListItem({
       episode,
       podcastTitle,
       podcastImageUrl,
-      seedH, seedS, seedL,
+      seedH,
+      seedS,
+      seedL,
     };
     // Build the auto-play queue: every episode AFTER this one in the
     // currently-displayed list order. Skipped when `allEpisodes`
     // wasn't provided — the player simply won't auto-advance.
     let queue: PlayingEpisodeMeta[] | undefined;
     if (allEpisodes && allEpisodes.length > 1) {
-      const idx = allEpisodes.findIndex(e => e.id === episode.id);
+      const idx = allEpisodes.findIndex((e) => e.id === episode.id);
       if (idx >= 0 && idx < allEpisodes.length - 1) {
-        queue = allEpisodes.slice(idx + 1).map(ep => ({
+        queue = allEpisodes.slice(idx + 1).map((ep) => ({
           episode: ep,
           podcastTitle,
           podcastImageUrl,
-          seedH, seedS, seedL,
+          seedH,
+          seedS,
+          seedL,
         }));
       }
     }
@@ -153,11 +173,7 @@ const EpisodeListItem = memo(function EpisodeListItem({
 
   const handleMarkPlayed = () => {
     const willBePlayed = !playState.played;
-    markEpisodePlayedWithNotify(
-      episode.id,
-      duration,
-      willBePlayed,
-    );
+    markEpisodePlayedWithNotify(episode.id, duration, willBePlayed);
     // When the user marks an episode played, also evict it from the
     // Continue Listening rail. When they UN-mark a played episode we
     // leave the rail alone — un-marking is a "I want to listen again"
@@ -241,14 +257,19 @@ const EpisodeListItem = memo(function EpisodeListItem({
           }}
         >
           <span className="relative w-7 h-7 rounded-full bg-white/15 flex items-center justify-center">
-            <PlayIcon className={`w-4 h-4 ${isThisLoading ? 'animate-spin' : ''}`} fill={isThisPlaying ? 'currentColor' : 'none'} />
+            <PlayIcon
+              className={`w-4 h-4 ${isThisLoading ? 'animate-spin' : ''}`}
+              fill={isThisPlaying ? 'currentColor' : 'none'}
+            />
           </span>
           <span className="relative">
             {playState.played
-              ? (lang === 'ar' ? 'تم الاستماع' : 'Gehört')
+              ? lang === 'ar'
+                ? 'تم الاستماع'
+                : 'Gehört'
               : isInProgress
-              ? formatRemaining(duration, playState.position, lang)
-              : formatDuration(duration) || (lang === 'ar' ? 'تشغيل' : 'Abspielen')}
+                ? formatRemaining(duration, playState.position, lang)
+                : formatDuration(duration) || (lang === 'ar' ? 'تشغيل' : 'Abspielen')}
           </span>
         </button>
 
@@ -256,12 +277,7 @@ const EpisodeListItem = memo(function EpisodeListItem({
           type="button"
           onClick={(e) => {
             e.stopPropagation();
-            player.addEpisodeToQueue(
-              episode,
-              podcastTitle,
-              podcastImageUrl,
-              seedH, seedS, seedL
-            );
+            player.addEpisodeToQueue(episode, podcastTitle, podcastImageUrl, seedH, seedS, seedL);
             // Brief success flash handled by CSS animation
             const el = e.currentTarget;
             el.classList.add('scale-110');
@@ -278,9 +294,11 @@ const EpisodeListItem = memo(function EpisodeListItem({
           aria-label={playState.played ? 'Mark unplayed' : 'Mark played'}
           className="w-9 h-9 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
         >
-          {playState.played
-            ? <RotateCcw className="w-4 h-4" />
-            : <CheckCircle2 className="w-4 h-4" />}
+          {playState.played ? (
+            <RotateCcw className="w-4 h-4" />
+          ) : (
+            <CheckCircle2 className="w-4 h-4" />
+          )}
         </button>
       </footer>
 

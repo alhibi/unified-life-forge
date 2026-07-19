@@ -20,12 +20,17 @@
 // We render this only when there's a current track AND the player
 // sheet isn't already open — same gating logic Podium uses.
 
-import { memo, KeyboardEvent, MouseEvent, useCallback, useState } from 'react';
-import { ListMusic, Loader2, Pause, Play, RotateCcw, RotateCw } from '@/lib/icons';
 import { AnimatePresence, motion } from 'framer-motion';
-import { usePodcastPlayer, usePodcastPlayerProgress } from '@/features/podcasts/contexts/PodcastPlayerContext';
-import PlayerSheet from './PlayerSheet';
+import { KeyboardEvent, memo, MouseEvent, useCallback, useState } from 'react';
+
 import { BOTTOM_NAV_HEIGHT } from '@/components/BottomNav';
+import {
+  usePodcastPlayer,
+  usePodcastPlayerProgress,
+} from '@/features/podcasts/contexts/PodcastPlayerContext';
+import { Loader2, Pause, Play, RotateCcw, RotateCw } from '@/lib/icons';
+
+import PlayerSheet from './PlayerSheet';
 
 const MINI_PLAYER_HEIGHT = 64;
 /** Mini-player skip increment, in seconds. Mirrors the full sheet
@@ -44,9 +49,7 @@ const MINI_SKIP_SECONDS = 15;
  */
 function MiniProgressBar() {
   const { position, duration } = usePodcastPlayerProgress();
-  const pct = duration > 0
-    ? Math.min(100, Math.max(0, (position / duration) * 100))
-    : 0;
+  const pct = duration > 0 ? Math.min(100, Math.max(0, (position / duration) * 100)) : 0;
   return (
     <div className="mt-1 h-[3px] rounded-full bg-foreground/10 overflow-hidden">
       <div
@@ -57,7 +60,6 @@ function MiniProgressBar() {
           // A faint glow at the head of the fill makes the bar read as
           // luminous rather than flat — matches the player sheet's
           // gradient seek bar.
-          
         }}
       />
     </div>
@@ -75,7 +77,11 @@ function MiniProgressBar() {
  * sheet" gesture is reserved for the artwork / title area.
  */
 const InlineControl = memo(function InlineControl({
-  onActivate, ariaLabel, size, style, children,
+  onActivate,
+  ariaLabel,
+  size,
+  style,
+  children,
 }: {
   onActivate: () => void;
   ariaLabel: string;
@@ -83,17 +89,23 @@ const InlineControl = memo(function InlineControl({
   style?: React.CSSProperties;
   children: React.ReactNode;
 }) {
-  const handleClick = useCallback((e: MouseEvent<HTMLSpanElement>) => {
-    e.stopPropagation();
-    onActivate();
-  }, [onActivate]);
-  const handleKeyDown = useCallback((e: KeyboardEvent<HTMLSpanElement>) => {
-    if (e.key === 'Enter' || e.key === ' ') {
+  const handleClick = useCallback(
+    (e: MouseEvent<HTMLSpanElement>) => {
       e.stopPropagation();
-      e.preventDefault();
       onActivate();
-    }
-  }, [onActivate]);
+    },
+    [onActivate],
+  );
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent<HTMLSpanElement>) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.stopPropagation();
+        e.preventDefault();
+        onActivate();
+      }
+    },
+    [onActivate],
+  );
   return (
     <span
       role="button"
@@ -113,11 +125,11 @@ const PodcastMiniPlayer = memo(function PodcastMiniPlayer() {
   const player = usePodcastPlayer();
   const [sheetOpen, setSheetOpen] = useState(false);
 
-  const openSheet   = useCallback(() => setSheetOpen(true),  []);
-  const closeSheet  = useCallback(() => setSheetOpen(false), []);
-  const skipBack    = useCallback(() => player.skip(-MINI_SKIP_SECONDS), [player]);
-  const skipForward = useCallback(() => player.skip(MINI_SKIP_SECONDS),  [player]);
-  const togglePlay  = useCallback(() => player.toggle(),                 [player]);
+  const openSheet = useCallback(() => setSheetOpen(true), []);
+  const closeSheet = useCallback(() => setSheetOpen(false), []);
+  const skipBack = useCallback(() => player.skip(-MINI_SKIP_SECONDS), [player]);
+  const skipForward = useCallback(() => player.skip(MINI_SKIP_SECONDS), [player]);
+  const togglePlay = useCallback(() => player.toggle(), [player]);
 
   const visible = !!player.current && !sheetOpen;
 
@@ -128,9 +140,7 @@ const PodcastMiniPlayer = memo(function PodcastMiniPlayer() {
   // falling back to the podcast's channel cover. Matches the same
   // precedence used by the full player sheet and the OS media-session
   // metadata, so the artwork stays consistent across every surface.
-  const artwork = player.current?.episode.imageUrl
-    || player.current?.podcastImageUrl
-    || '';
+  const artwork = player.current?.episode.imageUrl || player.current?.podcastImageUrl || '';
 
   return (
     <>
@@ -160,7 +170,7 @@ const PodcastMiniPlayer = memo(function PodcastMiniPlayer() {
                 // `--podcast-primary-subtle` token. We layer the tint
                 // OVER the card token so the surface stays readable
                 // even when the seed is very saturated.
-                
+
                 borderColor: 'hsl(var(--border) / 0.6)',
                 color: 'hsl(var(--foreground))',
                 backdropFilter: 'blur(20px) saturate(1.4)',
@@ -175,13 +185,8 @@ const PodcastMiniPlayer = memo(function PodcastMiniPlayer() {
                   thumbnail. The equalizer overlay paints over the
                   artwork while audio is playing. */}
               <span className="relative w-12 h-12 rounded-2xl overflow-hidden bg-muted/40 shrink-0">
-                <img
-                  src={artwork}
-                  alt=""
-                  className="w-full h-full object-cover"
-                />
-                <span className="absolute inset-0 rounded-2xl pointer-events-none"
-                      style={{ }} />
+                <img src={artwork} alt="" className="w-full h-full object-cover" />
+                <span className="absolute inset-0 rounded-2xl pointer-events-none" style={{}} />
                 {/* Eq overlay; passing `playing` keeps the static
                     artwork visible whenever playback is paused. */}
                 <span
@@ -238,11 +243,7 @@ const PodcastMiniPlayer = memo(function PodcastMiniPlayer() {
                   rather than nested `<button>` elements — nested
                   interactive content is invalid HTML. The same pattern
                   the original play button already used. */}
-              <InlineControl
-                onActivate={skipBack}
-                ariaLabel={`-${MINI_SKIP_SECONDS}s`}
-                size={32}
-              >
+              <InlineControl onActivate={skipBack} ariaLabel={`-${MINI_SKIP_SECONDS}s`} size={32}>
                 <RotateCcw className="w-4 h-4" strokeWidth={2.25} />
               </InlineControl>
 
@@ -251,9 +252,7 @@ const PodcastMiniPlayer = memo(function PodcastMiniPlayer() {
                 ariaLabel={player.isPlaying ? 'Pause' : 'Play'}
                 size={40}
                 style={{
-                  
                   color: 'var(--podcast-primary-fg, hsl(var(--primary-foreground)))',
-                  
                 }}
               >
                 <Icon

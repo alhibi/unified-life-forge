@@ -34,7 +34,11 @@ interface DynamicPodcastThemeProps {
 }
 
 export default function DynamicPodcastTheme({
-  seedH, seedS, seedL, children, className,
+  seedH,
+  seedS,
+  seedL,
+  children,
+  className,
 }: DynamicPodcastThemeProps) {
   const style = useMemo<CSSProperties>(() => {
     if (seedH == null || seedS == null || seedL == null) return {};
@@ -48,8 +52,8 @@ export default function DynamicPodcastTheme({
       '--podcast-seed-h': String(seedH),
       '--podcast-seed-s': `${seedS}%`,
       '--podcast-seed-l': `${seedL}%`,
-      '--podcast-primary':        `hsl(${seedH} ${seedS}% ${seedL}%)`,
-      '--podcast-primary-soft':   `hsl(${seedH} ${seedS}% ${seedL}% / 0.18)`,
+      '--podcast-primary': `hsl(${seedH} ${seedS}% ${seedL}%)`,
+      '--podcast-primary-soft': `hsl(${seedH} ${seedS}% ${seedL}% / 0.18)`,
       '--podcast-primary-subtle': `hsl(${seedH} ${seedS}% ${seedL}% / 0.08)`,
       // Foreground over the primary-color fill: pick white if the seed
       // is dark-ish, near-black if it's light. We only have lightness
@@ -60,5 +64,9 @@ export default function DynamicPodcastTheme({
   }, [seedH, seedS, seedL]);
 
   if (typeof children === 'function') return <>{children(style)}</>;
-  return <div className={className} style={style}>{children}</div>;
+  return (
+    <div className={className} style={style}>
+      {children}
+    </div>
+  );
 }

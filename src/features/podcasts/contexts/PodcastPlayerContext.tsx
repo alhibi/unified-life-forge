@@ -30,28 +30,36 @@
 // slice.
 
 import {
-  createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, ReactNode,
+  createContext,
+  ReactNode,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
 } from 'react';
+
+import type { PodcastEpisode } from '@/features/podcasts/lib/rss';
 import {
-  getPlayState,
-  savePlayStateWithNotify as savePlayState,
-  markEpisodePlayedWithNotify as markEpisodePlayed,
-  getLastPlayed,
-  setLastPlayedWithNotify as setLastPlayed,
-  pushRecentEpisodeWithNotify as pushRecentEpisode,
-  removeRecentEpisodeWithNotify as removeRecentEpisode,
-  addToQueueWithNotify as addToQueueStore,
-  removeFromQueueWithNotify as removeFromQueueStore,
-  reorderQueueWithNotify as reorderQueueStore,
-  clearQueueWithNotify as clearQueueStore,
-  popNextFromQueueWithNotify as popNextFromQueueStore,
   addHistoryEntryWithNotify as addHistoryEntryStore,
+  addToQueueWithNotify as addToQueueStore,
+  clearQueueWithNotify as clearQueueStore,
+  getLastPlayed,
+  getPlayState,
+  type LastPlayedRecord,
+  markEpisodePlayedWithNotify as markEpisodePlayed,
+  popNextFromQueueWithNotify as popNextFromQueueStore,
+  pushRecentEpisodeWithNotify as pushRecentEpisode,
+  type QueueItem,
+  removeFromQueueWithNotify as removeFromQueueStore,
+  removeRecentEpisodeWithNotify as removeRecentEpisode,
+  reorderQueueWithNotify as reorderQueueStore,
+  savePlayStateWithNotify as savePlayState,
+  setLastPlayedWithNotify as setLastPlayed,
   useQueue,
   useQueueCount,
-  type QueueItem,
-  type LastPlayedRecord,
 } from '@/features/podcasts/lib/store';
-import type { PodcastEpisode } from '@/features/podcasts/lib/rss';
 
 export interface PlayingEpisodeMeta {
   episode: PodcastEpisode;
@@ -113,7 +121,14 @@ interface PodcastPlayerContextValue {
   queueItems: QueueItem[];
   queueCount: number;
   addToQueue: (item: Omit<QueueItem, 'addedAt'>) => void;
-  addEpisodeToQueue: (episode: PodcastEpisode, podcastTitle: string, podcastImageUrl: string, seedH: number | null, seedS: number | null, seedL: number | null) => void;
+  addEpisodeToQueue: (
+    episode: PodcastEpisode,
+    podcastTitle: string,
+    podcastImageUrl: string,
+    seedH: number | null,
+    seedS: number | null,
+    seedL: number | null,
+  ) => void;
   removeFromQueue: (episodeId: string) => void;
   reorderQueue: (fromIndex: number, toIndex: number) => void;
   clearQueue: () => void;
@@ -130,7 +145,9 @@ interface PodcastPlayerProgressValue {
 }
 
 const PodcastPlayerContext = createContext<PodcastPlayerContextValue | undefined>(undefined);
-const PodcastPlayerProgressContext = createContext<PodcastPlayerProgressValue | undefined>(undefined);
+const PodcastPlayerProgressContext = createContext<PodcastPlayerProgressValue | undefined>(
+  undefined,
+);
 
 const SPEED_KEY = 'podcasts.playbackSpeed';
 const AUTO_NEXT_KEY = 'podcasts.autoPlayNext';
@@ -173,11 +190,14 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
     return localStorage.getItem(AUTO_NEXT_KEY) === '1';
   });
   const autoPlayNextRef = useRef(autoPlayNext);
-  useEffect(() => { autoPlayNextRef.current = autoPlayNext; }, [autoPlayNext]);
+  useEffect(() => {
+    autoPlayNextRef.current = autoPlayNext;
+  }, [autoPlayNext]);
 
-  const [sleepTimer, setSleepTimerState] = useState<
-    { mode: 'timed' | 'episode-end'; secondsRemaining: number } | null
-  >(null);
+  const [sleepTimer, setSleepTimerState] = useState<{
+    mode: 'timed' | 'episode-end';
+    secondsRemaining: number;
+  } | null>(null);
 
   /* -------------------------------- refs ----------------------------------- */
   // We keep refs of mutable state so the audio listeners and the
@@ -186,10 +206,14 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
   // in-flight `play()` promises.
 
   const currentRef = useRef(current);
-  useEffect(() => { currentRef.current = current; }, [current]);
+  useEffect(() => {
+    currentRef.current = current;
+  }, [current]);
 
   const speedRef = useRef(speed);
-  useEffect(() => { speedRef.current = speed; }, [speed]);
+  useEffect(() => {
+    speedRef.current = speed;
+  }, [speed]);
 
   /**
    * Tracks which episode id is bound to the audio element's `src`.
@@ -230,7 +254,10 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
     };
     const onLoadStart = () => setIsLoading(true);
     const onCanPlay = () => setIsLoading(false);
-    const onPlay = () => { setIsPlaying(true); setIsLoading(false); };
+    const onPlay = () => {
+      setIsPlaying(true);
+      setIsLoading(false);
+    };
     const onPause = () => setIsPlaying(false);
     const onEnded = () => {
       setIsPlaying(false);
@@ -273,10 +300,14 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
             seedS: persistedNext.seedS,
             seedL: persistedNext.seedL,
           };
-          Promise.resolve().then(() => { void playRef.current(meta); });
+          Promise.resolve().then(() => {
+            void playRef.current(meta);
+          });
         } else if (queueRef.current.length > 0) {
           const next = queueRef.current.shift()!;
-          Promise.resolve().then(() => { void playRef.current(next); });
+          Promise.resolve().then(() => {
+            void playRef.current(next);
+          });
         }
       }
     };
@@ -320,7 +351,9 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
   // (registered once on mount, never re-created) and the queue path
   // can read the latest value without recreating their callbacks.
   const sleepTimerRef = useRef<typeof sleepTimer>(null);
-  useEffect(() => { sleepTimerRef.current = sleepTimer; }, [sleepTimer]);
+  useEffect(() => {
+    sleepTimerRef.current = sleepTimer;
+  }, [sleepTimer]);
 
   // Tick the timed sleep countdown once a second while playback is
   // active. We don't tick when paused (matches Pocket Casts / Apple
@@ -330,7 +363,7 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
     if (!isPlaying) return;
     if (!sleepTimer || sleepTimer.mode !== 'timed') return;
     const id = window.setInterval(() => {
-      setSleepTimerState(prev => {
+      setSleepTimerState((prev) => {
         if (!prev || prev.mode !== 'timed') return prev;
         const next = prev.secondsRemaining - 1;
         if (next <= 0) {
@@ -346,7 +379,10 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
   }, [isPlaying, sleepTimer]);
 
   const setSleepTimer = useCallback((value: number | 'episode-end' | null) => {
-    if (value === null) { setSleepTimerState(null); return; }
+    if (value === null) {
+      setSleepTimerState(null);
+      return;
+    }
     if (value === 'episode-end') {
       setSleepTimerState({ mode: 'episode-end', secondsRemaining: 0 });
       return;
@@ -358,7 +394,11 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
 
   const setAutoPlayNext = useCallback((v: boolean) => {
     setAutoPlayNextState(v);
-    try { localStorage.setItem(AUTO_NEXT_KEY, v ? '1' : '0'); } catch { /* ignore */ }
+    try {
+      localStorage.setItem(AUTO_NEXT_KEY, v ? '1' : '0');
+    } catch {
+      /* ignore */
+    }
   }, []);
 
   /* ----------------------------- persist position ---------------------------- */
@@ -413,17 +453,19 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
       // Prefer episode-specific artwork — same precedence as the
       // mini-player and player sheet — so the lock-screen poster
       // matches what the user sees in-app.
-      artwork: [{
-        src: current.episode.imageUrl || current.podcastImageUrl,
-        sizes: '512x512',
-        type: 'image/jpeg',
-      }],
+      artwork: [
+        {
+          src: current.episode.imageUrl || current.podcastImageUrl,
+          sizes: '512x512',
+          type: 'image/jpeg',
+        },
+      ],
     });
     ms.setActionHandler('play', () => audioRef.current?.play().catch(() => {}));
     ms.setActionHandler('pause', () => audioRef.current?.pause());
     ms.setActionHandler('seekbackward', () => skipRef.current(-SKIP_SECONDS));
     ms.setActionHandler('seekforward', () => skipRef.current(SKIP_SECONDS));
-    ms.setActionHandler('seekto', e => {
+    ms.setActionHandler('seekto', (e) => {
       if (typeof e.seekTime === 'number') seekRef.current(e.seekTime);
     });
     return () => {
@@ -439,9 +481,9 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
 
   const skipRef = useRef<(d: number) => void>(() => {});
   const seekRef = useRef<(s: number) => void>(() => {});
-  const playRef = useRef<(meta?: PlayingEpisodeMeta, queue?: PlayingEpisodeMeta[]) => Promise<void>>(
-    async () => {}
-  );
+  const playRef = useRef<
+    (meta?: PlayingEpisodeMeta, queue?: PlayingEpisodeMeta[]) => Promise<void>
+  >(async () => {});
 
   const seek = useCallback((seconds: number) => {
     const audio = audioRef.current;
@@ -450,11 +492,14 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
   }, []);
   seekRef.current = seek;
 
-  const skip = useCallback((delta: number) => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    seek(audio.currentTime + delta);
-  }, [seek]);
+  const skip = useCallback(
+    (delta: number) => {
+      const audio = audioRef.current;
+      if (!audio) return;
+      seek(audio.currentTime + delta);
+    },
+    [seek],
+  );
   skipRef.current = skip;
 
   const play = useCallback(async (meta?: PlayingEpisodeMeta, queue?: PlayingEpisodeMeta[]) => {
@@ -477,7 +522,7 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
       // Filter out the target episode itself in case the caller
       // passed the current podcast's full episode list — we don't
       // want to "auto-advance" to ourselves.
-      queueRef.current = queue.filter(q => q.episode.id !== target.episode.id);
+      queueRef.current = queue.filter((q) => q.episode.id !== target.episode.id);
     }
 
     const needsLoad = boundEpisodeIdRef.current !== target.episode.id;
@@ -555,6 +600,8 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
       // gesture yet. We surface that as a recoverable error rather than
       // crashing.
       setError(e instanceof Error ? e.message : 'Playback blocked');
+      setIsPlaying(false);
+      setIsLoading(false);
     }
   }, []);
   playRef.current = play;
@@ -564,7 +611,8 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const toggle = useCallback(() => {
-    if (isPlaying) pause(); else void play();
+    if (isPlaying) pause();
+    else void play();
   }, [isPlaying, pause, play]);
 
   const setSpeed = useCallback((s: number) => {
@@ -592,10 +640,11 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
     setLastPlayed(null);
   }, []);
 
-  const isLoadingEpisode = useCallback((id: string) =>
-    isLoading && current?.episode.id === id, [isLoading, current]);
+  const isLoadingEpisode = useCallback(
+    (id: string) => isLoading && current?.episode.id === id,
+    [isLoading, current],
+  );
 
-  
   /* ----------------------------- queue management ---------------------------- */
 
   const queueItems = useQueue();
@@ -605,23 +654,26 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
     addToQueueStore(item);
   }, []);
 
-  const addEpisodeToQueue = useCallback((
-    episode: PodcastEpisode,
-    podcastTitle: string,
-    podcastImageUrl: string,
-    seedH: number | null,
-    seedS: number | null,
-    seedL: number | null,
-  ) => {
-    addToQueueStore({
-      episode,
-      podcastTitle,
-      podcastImageUrl,
-      seedH,
-      seedS,
-      seedL,
-    });
-  }, []);
+  const addEpisodeToQueue = useCallback(
+    (
+      episode: PodcastEpisode,
+      podcastTitle: string,
+      podcastImageUrl: string,
+      seedH: number | null,
+      seedS: number | null,
+      seedL: number | null,
+    ) => {
+      addToQueueStore({
+        episode,
+        podcastTitle,
+        podcastImageUrl,
+        seedH,
+        seedS,
+        seedL,
+      });
+    },
+    [],
+  );
 
   const removeFromQueue = useCallback((episodeId: string) => {
     removeFromQueueStore(episodeId);
@@ -650,23 +702,74 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-// Command slice — does NOT include position/duration. Splitting these
+  // Command slice — does NOT include position/duration. Splitting these
   // out from the progress slice keeps EpisodeListItem (and any other
   // consumer that doesn't care about live playhead) from re-rendering
   // 4 Hz during playback.
-  const commandValue = useMemo<PodcastPlayerContextValue>(() => ({
-    current, isPlaying, isLoading, speed, error,
-    queueItems, queueCount, addToQueue, addEpisodeToQueue, removeFromQueue, reorderQueue, clearQueue, playNextFromQueue,
-      autoPlayNext, setAutoPlayNext, sleepTimer, setSleepTimer,
-    play, pause, toggle, seek, skip, setSpeed, close, isLoadingEpisode,
-  }), [current, isPlaying, isLoading, speed, error,
-      queueItems, queueCount, addToQueue, addEpisodeToQueue, removeFromQueue, reorderQueue, clearQueue, playNextFromQueue,
-      autoPlayNext, setAutoPlayNext, sleepTimer, setSleepTimer,
-      play, pause, toggle, seek, skip, setSpeed, close, isLoadingEpisode]);
+  const commandValue = useMemo<PodcastPlayerContextValue>(
+    () => ({
+      current,
+      isPlaying,
+      isLoading,
+      speed,
+      error,
+      queueItems,
+      queueCount,
+      addToQueue,
+      addEpisodeToQueue,
+      removeFromQueue,
+      reorderQueue,
+      clearQueue,
+      playNextFromQueue,
+      autoPlayNext,
+      setAutoPlayNext,
+      sleepTimer,
+      setSleepTimer,
+      play,
+      pause,
+      toggle,
+      seek,
+      skip,
+      setSpeed,
+      close,
+      isLoadingEpisode,
+    }),
+    [
+      current,
+      isPlaying,
+      isLoading,
+      speed,
+      error,
+      queueItems,
+      queueCount,
+      addToQueue,
+      addEpisodeToQueue,
+      removeFromQueue,
+      reorderQueue,
+      clearQueue,
+      playNextFromQueue,
+      autoPlayNext,
+      setAutoPlayNext,
+      sleepTimer,
+      setSleepTimer,
+      play,
+      pause,
+      toggle,
+      seek,
+      skip,
+      setSpeed,
+      close,
+      isLoadingEpisode,
+    ],
+  );
 
-  const progressValue = useMemo<PodcastPlayerProgressValue>(() => ({
-    position, duration,
-  }), [position, duration]);
+  const progressValue = useMemo<PodcastPlayerProgressValue>(
+    () => ({
+      position,
+      duration,
+    }),
+    [position, duration],
+  );
 
   return (
     <PodcastPlayerContext.Provider value={commandValue}>

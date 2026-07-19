@@ -12,9 +12,7 @@
 // it would otherwise have to do just for `encodeFeedUrl`, breaking
 // React Refresh's "components-only file" rule).
 
-export type DecodedRouteId =
-  | { kind: 'apple-id'; id: string }
-  | { kind: 'feed-url'; url: string };
+export type DecodedRouteId = { kind: 'apple-id'; id: string } | { kind: 'feed-url'; url: string };
 
 const PREFIX = 'feed_';
 

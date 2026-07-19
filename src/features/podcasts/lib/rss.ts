@@ -53,11 +53,11 @@ export interface PodcastEpisode {
   description: string;
   /** Episode-specific artwork if provided, otherwise inherits podcast cover. */
   imageUrl: string;
-  pubDate: number;       // ms since epoch; 0 when unparseable
-  duration: number;      // seconds; -1 when unknown
+  pubDate: number; // ms since epoch; 0 when unparseable
+  duration: number; // seconds; -1 when unknown
   audioUrl: string;
   audioMime: string;
-  audioBytes: number;    // bytes if the enclosure declared `length`
+  audioBytes: number; // bytes if the enclosure declared `length`
   link: string;
 }
 
@@ -67,9 +67,7 @@ export interface PodcastEpisode {
 
 /** Result of `fetchText`: either raw XML, or a pre-parsed object that
  *  rss2json gave us. The caller branches on `kind`. */
-type FetchResult =
-  | { kind: 'xml'; xml: string }
-  | { kind: 'json'; json: Rss2JsonEnvelope };
+type FetchResult = { kind: 'xml'; xml: string } | { kind: 'json'; json: Rss2JsonEnvelope };
 
 async function tryFetch(url: string, signal?: AbortSignal): Promise<string> {
   // Compose the caller's optional signal with our own timeout. If
@@ -78,9 +76,9 @@ async function tryFetch(url: string, signal?: AbortSignal): Promise<string> {
   // Safari 17.4+); for older runtimes we fall back to manual linkage.
   const timeoutSignal = AbortSignal.timeout(FETCH_TIMEOUT_MS);
   const composed: AbortSignal = signal
-    ? (typeof AbortSignal.any === 'function'
-        ? AbortSignal.any([signal, timeoutSignal])
-        : linkSignals(signal, timeoutSignal))
+    ? typeof AbortSignal.any === 'function'
+      ? AbortSignal.any([signal, timeoutSignal])
+      : linkSignals(signal, timeoutSignal)
     : timeoutSignal;
   const res = await fetch(url, { signal: composed, redirect: 'follow' });
   if (!res.ok) throw new Error(`status ${res.status}`);
@@ -97,7 +95,7 @@ function linkSignals(...signals: AbortSignal[]): AbortSignal {
   const controller = new AbortController();
   const onAbort = (e: Event) => {
     controller.abort((e.target as AbortSignal | null)?.reason);
-    signals.forEach(s => s.removeEventListener('abort', onAbort));
+    signals.forEach((s) => s.removeEventListener('abort', onAbort));
   };
   for (const s of signals) {
     if (s.aborted) {
@@ -109,6 +107,8 @@ function linkSignals(...signals: AbortSignal[]): AbortSignal {
   return controller.signal;
 }
 
+import { supabase } from '@/integrations/supabase/client';
+
 async function fetchFeedAny(feedUrl: string, signal?: AbortSignal): Promise<FetchResult> {
   // 1. Direct.
   try {
@@ -119,7 +119,20 @@ async function fetchFeedAny(feedUrl: string, signal?: AbortSignal): Promise<Fetc
     if (signal?.aborted) throw new Error('aborted');
   }
 
-  // 2. codetabs.
+  // 2. Supabase secure Edge Function fetch-rss raw proxying.
+  // Bypasses CORS on the server-side, safe, fast, and does not leak user details.
+  try {
+    const { data, error } = await supabase.functions.invoke('fetch-rss', {
+      body: { urls: [feedUrl], raw: true },
+    });
+    if (!error && data?.xml && data.xml.length > 50) {
+      return { kind: 'xml', xml: data.xml };
+    }
+  } catch {
+    if (signal?.aborted) throw new Error('aborted');
+  }
+
+  // 3. codetabs.
   try {
     const xml = await tryFetch(`${CODETABS_PROXY}${encodeURIComponent(feedUrl)}`, signal);
     if (xml.length > 50) return { kind: 'xml', xml };
@@ -127,7 +140,7 @@ async function fetchFeedAny(feedUrl: string, signal?: AbortSignal): Promise<Fetc
     if (signal?.aborted) throw new Error('aborted');
   }
 
-  // 3. rss2json — different shape, parsed downstream.
+  // 4. rss2json — different shape, parsed downstream.
   const text = await tryFetch(`${RSS2JSON_PROXY}${encodeURIComponent(feedUrl)}`, signal);
   let env: Rss2JsonEnvelope;
   try {
@@ -189,13 +202,11 @@ function parseRss2Json(env: Rss2JsonEnvelope, origin: string): PodcastFeed {
       // sometimes as a HH:MM:SS string; reuse the same parser as the
       // XML path so both branches stay consistent.
       const durationRaw = it.enclosure?.duration;
-      const duration = typeof durationRaw === 'number'
-        ? durationRaw
-        : parseDuration(String(durationRaw ?? ''));
+      const duration =
+        typeof durationRaw === 'number' ? durationRaw : parseDuration(String(durationRaw ?? ''));
       const lengthRaw = it.enclosure?.length;
-      const audioBytes = typeof lengthRaw === 'number'
-        ? lengthRaw
-        : parseInt(String(lengthRaw ?? '0'), 10) || 0;
+      const audioBytes =
+        typeof lengthRaw === 'number' ? lengthRaw : parseInt(String(lengthRaw ?? '0'), 10) || 0;
 
       return {
         id: `${origin}:${guid}`,
@@ -212,7 +223,7 @@ function parseRss2Json(env: Rss2JsonEnvelope, origin: string): PodcastFeed {
         link: it.link ?? '',
       };
     })
-    .filter(e => e.audioUrl);
+    .filter((e) => e.audioUrl);
 
   return {
     origin,
@@ -253,8 +264,8 @@ function parseDuration(raw: string): number {
   const trimmed = raw.trim();
   if (!trimmed) return -1;
   if (/^\d+$/.test(trimmed)) return parseInt(trimmed, 10);
-  const parts = trimmed.split(':').map(p => parseInt(p, 10));
-  if (parts.some(p => Number.isNaN(p))) return -1;
+  const parts = trimmed.split(':').map((p) => parseInt(p, 10));
+  if (parts.some((p) => Number.isNaN(p))) return -1;
   if (parts.length === 2) return parts[0] * 60 + parts[1];
   if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
   return -1;
@@ -291,9 +302,15 @@ function parseFeed(xml: string, origin: string): PodcastFeed {
   // Each value gets `.trim()` because some feeds include line
   // breaks/whitespace inside the attribute (the XML parser keeps
   // them verbatim).
-  const itunesImg = (channel.getElementsByTagName('itunes:image')[0]?.getAttribute('href') ?? '').trim();
-  const stdImg = (channel.getElementsByTagName('image')[0]?.getElementsByTagName('url')[0]?.textContent ?? '').trim();
-  const mediaThumb = (channel.getElementsByTagName('media:thumbnail')[0]?.getAttribute('url') ?? '').trim();
+  const itunesImg = (
+    channel.getElementsByTagName('itunes:image')[0]?.getAttribute('href') ?? ''
+  ).trim();
+  const stdImg = (
+    channel.getElementsByTagName('image')[0]?.getElementsByTagName('url')[0]?.textContent ?? ''
+  ).trim();
+  const mediaThumb = (
+    channel.getElementsByTagName('media:thumbnail')[0]?.getAttribute('url') ?? ''
+  ).trim();
   const imageUrl = itunesImg || stdImg || mediaThumb;
 
   const author = text(channel, 'itunes:author') || text(channel, 'managingEditor');
@@ -304,45 +321,47 @@ function parseFeed(xml: string, origin: string): PodcastFeed {
   // `channel` already scopes us correctly.
   const items = Array.from(channel.getElementsByTagName('item'));
 
-  const episodes: PodcastEpisode[] = items.map((item): PodcastEpisode => {
-    const guid = text(item, 'guid') || text(item, 'link');
-    const enclosure = item.getElementsByTagName('enclosure')[0];
-    const audioUrl = enclosure?.getAttribute('url') ?? '';
-    const audioMime = enclosure?.getAttribute('type') ?? '';
-    const audioBytes = parseInt(enclosure?.getAttribute('length') ?? '0', 10) || 0;
+  const episodes: PodcastEpisode[] = items
+    .map((item): PodcastEpisode => {
+      const guid = text(item, 'guid') || text(item, 'link');
+      const enclosure = item.getElementsByTagName('enclosure')[0];
+      const audioUrl = enclosure?.getAttribute('url') ?? '';
+      const audioMime = enclosure?.getAttribute('type') ?? '';
+      const audioBytes = parseInt(enclosure?.getAttribute('length') ?? '0', 10) || 0;
 
-    // Episode-level artwork. Try the iTunes attribute first, then
-    // Media-RSS thumbnail, then the rare `<image><url>...</url></image>`
-    // some publishers nest inside an `<item>`. Whichever wins gets
-    // trimmed for the same whitespace reasons as the channel image.
-    const itemImage =
-      (item.getElementsByTagName('itunes:image')[0]?.getAttribute('href') ?? '').trim() ||
-      (item.getElementsByTagName('media:thumbnail')[0]?.getAttribute('url') ?? '').trim() ||
-      (item.getElementsByTagName('media:content')[0]?.getAttribute('url') ?? '').trim() ||
-      (item.getElementsByTagName('image')[0]?.getElementsByTagName('url')[0]?.textContent ?? '').trim();
-    // `<content:encoded>` carries the full HTML description on most
-    // modern feeds; standard `<description>` is the short summary.
-    const fullDescription =
-      text(item, 'content:encoded') ||
-      text(item, 'itunes:summary') ||
-      text(item, 'description');
+      // Episode-level artwork. Try the iTunes attribute first, then
+      // Media-RSS thumbnail, then the rare `<image><url>...</url></image>`
+      // some publishers nest inside an `<item>`. Whichever wins gets
+      // trimmed for the same whitespace reasons as the channel image.
+      const itemImage =
+        (item.getElementsByTagName('itunes:image')[0]?.getAttribute('href') ?? '').trim() ||
+        (item.getElementsByTagName('media:thumbnail')[0]?.getAttribute('url') ?? '').trim() ||
+        (item.getElementsByTagName('media:content')[0]?.getAttribute('url') ?? '').trim() ||
+        (
+          item.getElementsByTagName('image')[0]?.getElementsByTagName('url')[0]?.textContent ?? ''
+        ).trim();
+      // `<content:encoded>` carries the full HTML description on most
+      // modern feeds; standard `<description>` is the short summary.
+      const fullDescription =
+        text(item, 'content:encoded') || text(item, 'itunes:summary') || text(item, 'description');
 
-    return {
-      id: `${origin}:${guid}`,
-      guid,
-      title: text(item, 'title'),
-      description: fullDescription,
-      imageUrl: itemImage || imageUrl,
-      pubDate: parsePubDate(text(item, 'pubDate')),
-      duration: parseDuration(text(item, 'itunes:duration')),
-      audioUrl,
-      audioMime,
-      audioBytes,
-      link: text(item, 'link'),
-    };
-  // Keep only items that actually have audio. Trailers, "promo" items
-  // without an enclosure, or video-only items aren't playable here.
-  }).filter(e => e.audioUrl);
+      return {
+        id: `${origin}:${guid}`,
+        guid,
+        title: text(item, 'title'),
+        description: fullDescription,
+        imageUrl: itemImage || imageUrl,
+        pubDate: parsePubDate(text(item, 'pubDate')),
+        duration: parseDuration(text(item, 'itunes:duration')),
+        audioUrl,
+        audioMime,
+        audioBytes,
+        link: text(item, 'link'),
+      };
+      // Keep only items that actually have audio. Trailers, "promo" items
+      // without an enclosure, or video-only items aren't playable here.
+    })
+    .filter((e) => e.audioUrl);
 
   return {
     origin,

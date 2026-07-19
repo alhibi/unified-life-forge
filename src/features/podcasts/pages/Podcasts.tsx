@@ -29,26 +29,35 @@
 // flipping between scopes preserves both. Search term is intentionally
 // NOT persisted — leaving the tab and coming back resets to the chart.
 
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Globe, Search, X, Info, Check, LibraryBig, Languages } from '@/lib/icons';
-import SEO from '@/components/SEO';
+import { useNavigate } from 'react-router-dom';
+
 import BackButton from '@/components/BackButton';
+import SEO from '@/components/SEO';
 import { useApp } from '@/contexts/AppContext';
 import {
-  fetchTopPodcasts, fetchTopPodcastsAggregated,
-  searchPodcasts, searchPodcastsAggregated,
-  upgradeArtwork, ITUNES_MAX_LIMIT, type PodcastPreview,
+  fetchTopPodcasts,
+  fetchTopPodcastsAggregated,
+  ITUNES_MAX_LIMIT,
+  type PodcastPreview,
+  searchPodcasts,
+  searchPodcastsAggregated,
+  upgradeArtwork,
 } from '@/features/podcasts/lib/itunes';
-import { podcastGenres, findGenre } from '@/features/podcasts/lib/podcastGenres';
 import {
-  podcastCountries, podcastRegions, findCountry, findRegion,
-  type PodcastCountry, type PodcastRegion,
+  findCountry,
+  findRegion,
+  podcastCountries,
+  type PodcastCountry,
+  type PodcastRegion,
+  podcastRegions,
 } from '@/features/podcasts/lib/podcastCountries';
-import { useSubscriptions, syncPodcastsFromCloud } from '@/features/podcasts/lib/store';
+import { findGenre, podcastGenres } from '@/features/podcasts/lib/podcastGenres';
+import { syncPodcastsFromCloud, useSubscriptions } from '@/features/podcasts/lib/store';
+import { Check, Globe, Info, Languages, LibraryBig, Search, X } from '@/lib/icons';
 
 const SCOPE_KEY = 'podcasts.scope';
 const COUNTRY_KEY = 'podcasts.country';
@@ -68,7 +77,10 @@ function loadScope(): Scope {
 /* -------------------------------------------------------------------------- */
 
 function CountryDialog({
-  open, onClose, value, onSelect,
+  open,
+  onClose,
+  value,
+  onSelect,
 }: {
   open: boolean;
   onClose: () => void;
@@ -81,12 +93,13 @@ function CountryDialog({
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return podcastCountries;
-    return podcastCountries.filter(c =>
-      c.code.includes(q) ||
-      c.name.toLowerCase().includes(q) ||
-      c.nameAr.includes(q) ||
-      c.nameDe.toLowerCase().includes(q) ||
-      c.lang.includes(q)
+    return podcastCountries.filter(
+      (c) =>
+        c.code.includes(q) ||
+        c.name.toLowerCase().includes(q) ||
+        c.nameAr.includes(q) ||
+        c.nameDe.toLowerCase().includes(q) ||
+        c.lang.includes(q),
     );
   }, [query]);
 
@@ -94,15 +107,19 @@ function CountryDialog({
   return createPortal(
     <AnimatePresence>
       <motion.div
-        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
         transition={{ duration: 0.18 }}
         className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm"
         onClick={onClose}
       >
         <motion.div
-          initial={{ y: '8%', opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: '8%', opacity: 0 }}
+          initial={{ y: '8%', opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: '8%', opacity: 0 }}
           transition={{ type: 'spring', damping: 28, stiffness: 320 }}
-          onClick={e => e.stopPropagation()}
+          onClick={(e) => e.stopPropagation()}
           className="bg-card w-full max-w-md rounded-t-3xl sm:rounded-3xl max-h-[80vh] flex flex-col"
         >
           <div className="flex items-center justify-between px-5 py-4 border-b border-border/50">
@@ -118,26 +135,33 @@ function CountryDialog({
               <Search className="absolute top-1/2 -translate-y-1/2 start-3 w-4 h-4 text-muted-foreground" />
               <input
                 value={query}
-                onChange={e => setQuery(e.target.value)}
+                onChange={(e) => setQuery(e.target.value)}
                 placeholder={language === 'ar' ? 'ابحث عن دولة' : 'Land suchen'}
                 className="w-full ps-9 pe-3 py-2.5 rounded-xl bg-muted/40 border border-border/40 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
               />
             </div>
           </div>
           <div className="flex-1 overflow-y-auto px-2 pb-3">
-            {filtered.map(c => {
+            {filtered.map((c) => {
               const active = c.code === value;
               const localized = language === 'ar' ? c.nameAr : c.nameDe;
               return (
                 <button
                   key={c.code}
-                  onClick={() => { onSelect(c.code); onClose(); }}
+                  onClick={() => {
+                    onSelect(c.code);
+                    onClose();
+                  }}
                   className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors text-start ${active ? 'bg-primary/10' : 'hover:bg-muted/60'}`}
                 >
-                  <span className="text-2xl leading-none" aria-hidden>{c.flag}</span>
+                  <span className="text-2xl leading-none" aria-hidden>
+                    {c.flag}
+                  </span>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-foreground truncate">{localized}</p>
-                    <p className="text-[11px] text-muted-foreground truncate">{c.name} · {c.code.toUpperCase()} · {c.lang}</p>
+                    <p className="text-[11px] text-muted-foreground truncate">
+                      {c.name} · {c.code.toUpperCase()} · {c.lang}
+                    </p>
                   </div>
                   {active && <Check className="w-4 h-4 text-primary shrink-0" />}
                 </button>
@@ -152,7 +176,7 @@ function CountryDialog({
         </motion.div>
       </motion.div>
     </AnimatePresence>,
-    document.body
+    document.body,
   );
 }
 
@@ -161,7 +185,10 @@ function CountryDialog({
 /* -------------------------------------------------------------------------- */
 
 function RegionDialog({
-  open, onClose, value, onSelect,
+  open,
+  onClose,
+  value,
+  onSelect,
 }: {
   open: boolean;
   onClose: () => void;
@@ -174,15 +201,19 @@ function RegionDialog({
   return createPortal(
     <AnimatePresence>
       <motion.div
-        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
         transition={{ duration: 0.18 }}
         className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm"
         onClick={onClose}
       >
         <motion.div
-          initial={{ y: '8%', opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: '8%', opacity: 0 }}
+          initial={{ y: '8%', opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: '8%', opacity: 0 }}
           transition={{ type: 'spring', damping: 28, stiffness: 320 }}
-          onClick={e => e.stopPropagation()}
+          onClick={(e) => e.stopPropagation()}
           className="bg-card w-full max-w-md rounded-t-3xl sm:rounded-3xl max-h-[80vh] flex flex-col"
         >
           <div className="flex items-center justify-between px-5 py-4 border-b border-border/50">
@@ -194,17 +225,24 @@ function RegionDialog({
             </button>
           </div>
           <div className="flex-1 overflow-y-auto px-2 py-3">
-            {podcastRegions.map(r => {
+            {podcastRegions.map((r) => {
               const active = r.key === value;
               return (
                 <button
                   key={r.key}
-                  onClick={() => { onSelect(r.key); onClose(); }}
+                  onClick={() => {
+                    onSelect(r.key);
+                    onClose();
+                  }}
                   className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors text-start ${active ? 'bg-primary/10' : 'hover:bg-muted/60'}`}
                 >
-                  <span className="text-2xl leading-none" aria-hidden>{r.flag ?? '🌐'}</span>
+                  <span className="text-2xl leading-none" aria-hidden>
+                    {r.flag ?? '🌐'}
+                  </span>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-foreground truncate">{t(r.labelKey)}</p>
+                    <p className="text-sm font-semibold text-foreground truncate">
+                      {t(r.labelKey)}
+                    </p>
                     <p className="text-[11px] text-muted-foreground truncate">
                       {r.countries.length} {language === 'ar' ? 'دولة' : 'Länder'}
                     </p>
@@ -217,7 +255,7 @@ function RegionDialog({
         </motion.div>
       </motion.div>
     </AnimatePresence>,
-    document.body
+    document.body,
   );
 }
 
@@ -230,7 +268,8 @@ function PoweredByApplePodcasts() {
   return (
     <a
       href="https://www.apple.com/legal/internet-services/itunes/appstorebadges/"
-      target="_blank" rel="noopener noreferrer"
+      target="_blank"
+      rel="noopener noreferrer"
       className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/15 text-primary text-[11px] font-semibold hover:bg-primary/20 transition-colors"
     >
       <Info className="w-3 h-3" />
@@ -243,7 +282,13 @@ function PoweredByApplePodcasts() {
 /*  Card                                                                      */
 /* -------------------------------------------------------------------------- */
 
-function PodcastCard({ podcast, onOpen }: { podcast: PodcastPreview; onOpen: (p: PodcastPreview) => void }) {
+function PodcastCard({
+  podcast,
+  onOpen,
+}: {
+  podcast: PodcastPreview;
+  onOpen: (p: PodcastPreview) => void;
+}) {
   // Discovery grid renders cards at ~110px wide on a phone (3 cols on a
   // 360px viewport, minus padding). Loading the 600px artwork the API
   // returns wastes ~36× the bytes the user actually needs, ~50KB per
@@ -268,8 +313,12 @@ function PodcastCard({ podcast, onOpen }: { podcast: PodcastPreview; onOpen: (p:
           />
         ) : null}
       </div>
-      <p className="text-[12.5px] font-bold text-foreground leading-tight line-clamp-2">{podcast.title}</p>
-      <p className="text-[11px] text-muted-foreground leading-tight line-clamp-1">{podcast.author}</p>
+      <p className="text-[12.5px] font-bold text-foreground leading-tight line-clamp-2">
+        {podcast.title}
+      </p>
+      <p className="text-[11px] text-muted-foreground leading-tight line-clamp-1">
+        {podcast.author}
+      </p>
     </button>
   );
 }
@@ -321,19 +370,27 @@ export default function PodcastsPage() {
   /* ----- persisted prefs: scope, country, region, genre --------------------- */
   const [scope, setScope] = useState<Scope>(loadScope);
   const [country, setCountry] = useState<PodcastCountry>(() =>
-    findCountry(typeof window !== 'undefined' ? localStorage.getItem(COUNTRY_KEY) : null)
+    findCountry(typeof window !== 'undefined' ? localStorage.getItem(COUNTRY_KEY) : null),
   );
-  const [regionKey, setRegionKey] = useState<string>(() =>
-    (typeof window !== 'undefined' ? localStorage.getItem(REGION_KEY) : null) ?? 'arabic'
+  const [regionKey, setRegionKey] = useState<string>(
+    () => (typeof window !== 'undefined' ? localStorage.getItem(REGION_KEY) : null) ?? 'arabic',
   );
-  const [genreKey, setGenreKey] = useState<string>(() =>
-    (typeof window !== 'undefined' ? localStorage.getItem(GENRE_KEY) : null) ?? 'all'
+  const [genreKey, setGenreKey] = useState<string>(
+    () => (typeof window !== 'undefined' ? localStorage.getItem(GENRE_KEY) : null) ?? 'all',
   );
 
-  useEffect(() => { localStorage.setItem(SCOPE_KEY, scope); }, [scope]);
-  useEffect(() => { localStorage.setItem(COUNTRY_KEY, country.code); }, [country]);
-  useEffect(() => { localStorage.setItem(REGION_KEY, regionKey); }, [regionKey]);
-  useEffect(() => { localStorage.setItem(GENRE_KEY, genreKey); }, [genreKey]);
+  useEffect(() => {
+    localStorage.setItem(SCOPE_KEY, scope);
+  }, [scope]);
+  useEffect(() => {
+    localStorage.setItem(COUNTRY_KEY, country.code);
+  }, [country]);
+  useEffect(() => {
+    localStorage.setItem(REGION_KEY, regionKey);
+  }, [regionKey]);
+  useEffect(() => {
+    localStorage.setItem(GENRE_KEY, genreKey);
+  }, [genreKey]);
 
   /* ----- search input + debounce ------------------------------------------- */
   const [search, setSearch] = useState('');
@@ -357,66 +414,77 @@ export default function PodcastsPage() {
   // first hit.
   const topQueryCountry = useQuery({
     queryKey: ['podcasts', 'top', 'country', country.code, activeGenre.key],
-    queryFn: ({ signal }) => fetchTopPodcasts({
-      countryCode: country.code,
-      genreId: activeGenre.id,
-      limit: ITUNES_MAX_LIMIT,
-      signal,
-    }),
+    queryFn: ({ signal }) =>
+      fetchTopPodcasts({
+        countryCode: country.code,
+        genreId: activeGenre.id,
+        limit: ITUNES_MAX_LIMIT,
+        signal,
+      }),
     enabled: scope === 'country' && !isSearching,
     staleTime: 30 * 60 * 1000,
   });
 
   const searchQueryCountry = useQuery({
     queryKey: ['podcasts', 'search', 'country', country.code, debouncedSearch],
-    queryFn: ({ signal }) => searchPodcasts({
-      term: debouncedSearch,
-      countryCode: country.code,
-      limit: ITUNES_MAX_LIMIT,
-      signal,
-    }),
+    queryFn: ({ signal }) =>
+      searchPodcasts({
+        term: debouncedSearch,
+        countryCode: country.code,
+        limit: ITUNES_MAX_LIMIT,
+        signal,
+      }),
     enabled: scope === 'country' && isSearching,
     staleTime: 5 * 60 * 1000,
   });
 
   const topQueryRegion = useQuery({
     queryKey: ['podcasts', 'top', 'region', regionKey, activeGenre.key],
-    queryFn: ({ signal }) => fetchTopPodcastsAggregated({
-      countryCodes: activeRegion?.countries ?? [],
-      genreId: activeGenre.id,
-      // Cap per-country slightly below 200 for the worldwide region
-      // (12 × 200 = 2400 raw entries before dedup) — even with dedup
-      // crunching that volume client-side stays under 50ms but we'd
-      // rather not fetch what we won't render.
-      limitPerCountry: ITUNES_MAX_LIMIT,
-      signal,
-    }),
+    queryFn: ({ signal }) =>
+      fetchTopPodcastsAggregated({
+        countryCodes: activeRegion?.countries ?? [],
+        genreId: activeGenre.id,
+        // Cap per-country slightly below 200 for the worldwide region
+        // (12 × 200 = 2400 raw entries before dedup) — even with dedup
+        // crunching that volume client-side stays under 50ms but we'd
+        // rather not fetch what we won't render.
+        limitPerCountry: ITUNES_MAX_LIMIT,
+        signal,
+      }),
     enabled: scope === 'region' && !!activeRegion && !isSearching,
     staleTime: 30 * 60 * 1000,
   });
 
   const searchQueryRegion = useQuery({
     queryKey: ['podcasts', 'search', 'region', regionKey, debouncedSearch],
-    queryFn: ({ signal }) => searchPodcastsAggregated({
-      term: debouncedSearch,
-      countryCodes: activeRegion?.countries ?? [],
-      limitPerCountry: ITUNES_MAX_LIMIT,
-      signal,
-    }),
+    queryFn: ({ signal }) =>
+      searchPodcastsAggregated({
+        term: debouncedSearch,
+        countryCodes: activeRegion?.countries ?? [],
+        limitPerCountry: ITUNES_MAX_LIMIT,
+        signal,
+      }),
     enabled: scope === 'region' && !!activeRegion && isSearching,
     staleTime: 5 * 60 * 1000,
   });
 
-  const active = scope === 'country'
-    ? (isSearching ? searchQueryCountry : topQueryCountry)
-    : (isSearching ? searchQueryRegion : topQueryRegion);
+  const active =
+    scope === 'country'
+      ? isSearching
+        ? searchQueryCountry
+        : topQueryCountry
+      : isSearching
+        ? searchQueryRegion
+        : topQueryRegion;
 
   /* ----- pagination on the rendered chunk --------------------------------- */
   const [visibleCount, setVisibleCount] = useState(PAGE_STEP);
   // Reset paging whenever the active dataset key changes — otherwise
   // switching genre/scope can leave the user staring at a clipped
   // 60-item slice of the new dataset.
-  useEffect(() => { setVisibleCount(PAGE_STEP); }, [scope, country.code, regionKey, activeGenre.key, debouncedSearch]);
+  useEffect(() => {
+    setVisibleCount(PAGE_STEP);
+  }, [scope, country.code, regionKey, activeGenre.key, debouncedSearch]);
 
   const fullList = useMemo(() => active.data ?? [], [active.data]);
   const cappedList = useMemo(() => fullList.slice(0, RENDER_CAP), [fullList]);
@@ -433,7 +501,13 @@ export default function PodcastsPage() {
   const handleOpen = (p: PodcastPreview) => {
     navigate(`/podcasts/${encodeURIComponent(p.id)}`, {
       state: p.feedUrl
-        ? { feedUrl: p.feedUrl, title: p.title, author: p.author, artworkUrl: p.artworkUrl, link: p.link }
+        ? {
+            feedUrl: p.feedUrl,
+            title: p.title,
+            author: p.author,
+            artworkUrl: p.artworkUrl,
+            link: p.link,
+          }
         : undefined,
     });
   };
@@ -442,14 +516,12 @@ export default function PodcastsPage() {
   const localizedCountry = language === 'ar' ? country.nameAr : country.nameDe;
   const subtitle = (() => {
     if (isSearching) {
-      const where = scope === 'country'
-        ? localizedCountry
-        : (activeRegion ? t(activeRegion.labelKey) : '');
+      const where =
+        scope === 'country' ? localizedCountry : activeRegion ? t(activeRegion.labelKey) : '';
       return (language === 'ar' ? 'نتائج البحث في ' : 'Suchergebnisse in ') + where;
     }
-    const where = scope === 'country'
-      ? localizedCountry
-      : (activeRegion ? t(activeRegion.labelKey) : '');
+    const where =
+      scope === 'country' ? localizedCountry : activeRegion ? t(activeRegion.labelKey) : '';
     return t(activeGenre.labelKey) + ' · ' + where;
   })();
 
@@ -457,9 +529,11 @@ export default function PodcastsPage() {
     <div className="min-h-screen bg-background pb-32">
       <SEO
         title={language === 'ar' ? 'بودكاست — SmartHub' : 'Podcasts — SmartHub'}
-        description={language === 'ar'
-          ? 'استكشف أفضل البودكاست حول العالم بكل اللغات والفئات، مدعوم من Apple Podcasts.'
-          : 'Entdecke die besten Podcasts weltweit nach Sprache und Kategorie, powered by Apple Podcasts.'}
+        description={
+          language === 'ar'
+            ? 'استكشف أفضل البودكاست حول العالم بكل اللغات والفئات، مدعوم من Apple Podcasts.'
+            : 'Entdecke die besten Podcasts weltweit nach Sprache und Kategorie, powered by Apple Podcasts.'
+        }
         path="/podcasts"
       />
 
@@ -475,24 +549,38 @@ export default function PodcastsPage() {
           <div className="flex items-center bg-secondary/60 rounded-2xl overflow-hidden h-10">
             <button
               type="button"
-              onClick={() => setScope(s => (s === 'country' ? 'region' : 'country'))}
+              onClick={() => setScope((s) => (s === 'country' ? 'region' : 'country'))}
               className="px-2.5 h-full flex items-center gap-1 active:scale-95 transition-transform border-e border-border/40"
-              aria-label={scope === 'country'
-                ? (language === 'ar' ? 'التبديل إلى وضع المنطقة' : 'In Regionsmodus wechseln')
-                : (language === 'ar' ? 'التبديل إلى وضع الدولة' : 'In Landmodus wechseln')}
+              aria-label={
+                scope === 'country'
+                  ? language === 'ar'
+                    ? 'التبديل إلى وضع المنطقة'
+                    : 'In Regionsmodus wechseln'
+                  : language === 'ar'
+                    ? 'التبديل إلى وضع الدولة'
+                    : 'In Landmodus wechseln'
+              }
               title={scope === 'country' ? t('podcasts.scope.country') : t('podcasts.scope.region')}
             >
-              {scope === 'country'
-                ? <Globe className="w-4 h-4 text-foreground" />
-                : <Languages className="w-4 h-4 text-foreground" />}
+              {scope === 'country' ? (
+                <Globe className="w-4 h-4 text-foreground" />
+              ) : (
+                <Languages className="w-4 h-4 text-foreground" />
+              )}
             </button>
             <button
               type="button"
-              onClick={() => scope === 'country' ? setShowCountry(true) : setShowRegion(true)}
+              onClick={() => (scope === 'country' ? setShowCountry(true) : setShowRegion(true))}
               className="px-2.5 h-full flex items-center gap-1.5 active:scale-95 transition-transform"
-              aria-label={scope === 'country'
-                ? (language === 'ar' ? 'تغيير الدولة' : 'Land wechseln')
-                : (language === 'ar' ? 'تغيير المنطقة' : 'Region wechseln')}
+              aria-label={
+                scope === 'country'
+                  ? language === 'ar'
+                    ? 'تغيير الدولة'
+                    : 'Land wechseln'
+                  : language === 'ar'
+                    ? 'تغيير المنطقة'
+                    : 'Region wechseln'
+              }
             >
               <span className="text-base leading-none" aria-hidden>
                 {scope === 'country' ? country.flag : (activeRegion?.flag ?? '🌐')}
@@ -504,7 +592,7 @@ export default function PodcastsPage() {
             <Search className="absolute top-1/2 -translate-y-1/2 start-3 w-4 h-4 text-muted-foreground" />
             <input
               value={search}
-              onChange={e => setSearch(e.target.value)}
+              onChange={(e) => setSearch(e.target.value)}
               placeholder={language === 'ar' ? 'ابحث' : 'Suchen'}
               className="w-full h-10 ps-9 pe-9 rounded-full bg-muted/40 border border-border/40 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
               aria-label={language === 'ar' ? 'بحث عن بودكاست' : 'Podcasts suchen'}
@@ -543,15 +631,20 @@ export default function PodcastsPage() {
           style={{ scrollbarWidth: 'none' }}
         >
           <div className="flex items-center gap-1 px-2 pb-1.5 min-w-max">
-            {podcastGenres.map(g => {
+            {podcastGenres.map((g) => {
               const isActive = g.key === genreKey && !isSearching;
               return (
                 <button
                   key={g.key}
                   data-genre={g.key}
-                  onClick={() => { setGenreKey(g.key); setSearch(''); }}
+                  onClick={() => {
+                    setGenreKey(g.key);
+                    setSearch('');
+                  }}
                   className={`relative px-3 py-2 text-[13.5px] whitespace-nowrap transition-colors ${
-                    isActive ? 'text-primary font-semibold' : 'text-muted-foreground hover:text-foreground'
+                    isActive
+                      ? 'text-primary font-semibold'
+                      : 'text-muted-foreground hover:text-foreground'
                   }`}
                 >
                   {t(g.labelKey)}
@@ -595,10 +688,14 @@ export default function PodcastsPage() {
         ) : active.isError ? (
           <div className="py-16 text-center">
             <p className="text-sm font-semibold text-foreground mb-1">
-              {language === 'ar' ? 'تعذّر تحميل البودكاست' : 'Podcasts konnten nicht geladen werden'}
+              {language === 'ar'
+                ? 'تعذّر تحميل البودكاست'
+                : 'Podcasts konnten nicht geladen werden'}
             </p>
             <p className="text-[12px] text-muted-foreground mb-4">
-              {language === 'ar' ? 'تأكد من الاتصال بالإنترنت ثم حاول مجدداً.' : 'Prüfe deine Internetverbindung.'}
+              {language === 'ar'
+                ? 'تأكد من الاتصال بالإنترنت ثم حاول مجدداً.'
+                : 'Prüfe deine Internetverbindung.'}
             </p>
             <button
               onClick={() => active.refetch()}
@@ -607,19 +704,19 @@ export default function PodcastsPage() {
               {language === 'ar' ? 'إعادة المحاولة' : 'Erneut versuchen'}
             </button>
           </div>
-        ) : (cappedList.length === 0) ? (
+        ) : cappedList.length === 0 ? (
           <div className="py-16 text-center">
             <p className="text-sm font-semibold text-foreground mb-1">
               {language === 'ar' ? 'لا توجد نتائج' : 'Keine Treffer'}
             </p>
             <p className="text-[12px] text-muted-foreground mb-5">
               {isSearching
-                ? (language === 'ar'
-                    ? `لم نجد بودكاست بعنوان "${debouncedSearch}".`
-                    : `Keine Podcasts mit "${debouncedSearch}".`)
-                : (language === 'ar'
-                    ? 'جرّب فئة أخرى أو غيّر النطاق.'
-                    : 'Versuche eine andere Kategorie oder einen anderen Bereich.')}
+                ? language === 'ar'
+                  ? `لم نجد بودكاست بعنوان "${debouncedSearch}".`
+                  : `Keine Podcasts mit "${debouncedSearch}".`
+                : language === 'ar'
+                  ? 'جرّب فئة أخرى أو غيّر النطاق.'
+                  : 'Versuche eine andere Kategorie oder einen anderen Bereich.'}
             </p>
             {isSearching && (
               <button
@@ -633,18 +730,19 @@ export default function PodcastsPage() {
         ) : (
           <>
             <motion.div
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
               transition={{ duration: 0.25 }}
               className="grid grid-cols-3 gap-x-3 gap-y-5"
             >
-              {visibleList.map(p => (
+              {visibleList.map((p) => (
                 <PodcastCard key={p.id} podcast={p} onOpen={handleOpen} />
               ))}
             </motion.div>
             {hasMore && (
               <button
                 type="button"
-                onClick={() => setVisibleCount(c => Math.min(c + PAGE_STEP, cappedList.length))}
+                onClick={() => setVisibleCount((c) => Math.min(c + PAGE_STEP, cappedList.length))}
                 className="w-full mt-6 py-3 rounded-2xl text-[13px] font-semibold border border-border/50 bg-card/50 hover:bg-muted/40 active:scale-[0.98] transition text-primary"
               >
                 {language === 'ar'
@@ -667,13 +765,13 @@ export default function PodcastsPage() {
         open={showCountry}
         onClose={() => setShowCountry(false)}
         value={country.code}
-        onSelect={cc => setCountry(findCountry(cc))}
+        onSelect={(cc) => setCountry(findCountry(cc))}
       />
       <RegionDialog
         open={showRegion}
         onClose={() => setShowRegion(false)}
         value={regionKey}
-        onSelect={key => setRegionKey(key)}
+        onSelect={(key) => setRegionKey(key)}
       />
     </div>
   );
