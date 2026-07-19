@@ -238,6 +238,7 @@ const BrowsePage = lazy(loadBrowse);
 const MihrabPage = lazy(loadMihrab);
 const WeatherPage = lazy(loadWeather);
 const KnowledgePage = lazy(loadKnowledge);
+const JournalPage = lazy(loadJournal);
 const PrayerGuidePage = lazy(loadPrayerGuide);
 const DiwanLibraryPage = lazy(loadLibrary);
 const DiwanLibraryPoetsPage = lazy(loadLibraryPoets);
@@ -530,6 +531,7 @@ function AnimatedRoutes() {
                   <Route path="/mihrab/prayer-guide" element={<ErrorBoundary><PrayerGuidePage /></ErrorBoundary>} />
                   <Route path="/weather" element={<ErrorBoundary><WeatherPage /></ErrorBoundary>} />
                   <Route path="/knowledge" element={<ErrorBoundary><KnowledgePage /></ErrorBoundary>} />
+                  <Route path="/journal" element={<ErrorBoundary><JournalPage /></ErrorBoundary>} />
                   <Route path="/games/sudoku" element={<ErrorBoundary><SudokuPage /></ErrorBoundary>} />
                   <Route path="/games/chess" element={<ErrorBoundary><ChessPage /></ErrorBoundary>} />
                   <Route path="/games/chess/puzzles" element={<ErrorBoundary><ChessPuzzlePage /></ErrorBoundary>} />
