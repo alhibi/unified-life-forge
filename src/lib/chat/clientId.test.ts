@@ -33,7 +33,8 @@ describe('clientId helpers', () => {
         const mockCrypto = {
           getRandomValues: <T extends ArrayBufferView | null>(arr: T): T => {
             if (originalCrypto?.getRandomValues) {
-              return originalCrypto.getRandomValues(arr as unknown as ArrayBufferView) as T;
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              return (originalCrypto.getRandomValues as any)(arr) as T;
             }
             if (arr && ArrayBuffer.isView(arr)) {
               const view = new Uint8Array(arr.buffer, arr.byteOffset, arr.byteLength);
