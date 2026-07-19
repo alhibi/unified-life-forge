@@ -39,6 +39,7 @@ interface LocalAccount {
   saltB64: string;
   hashB64: string;
   createdAt: number;
+  sessionTokens?: string[]; // list of active cryptographically bound session tokens
 }
 
 interface PersistedSession {
@@ -83,8 +84,12 @@ function timingSafeEqual(a: Uint8Array, b: Uint8Array): boolean {
   return diff === 0;
 }
 
+/**
+ * Cryptographically secure random token generator.
+ * Uses `crypto.getRandomValues()` to guarantee strong randomness and avoid predictability.
+ */
 function randomToken(): string {
-  const bytes = new Uint8Array(24);
+  const bytes = new Uint8Array(32); // 32 bytes (256 bits) of secure entropy
   crypto.getRandomValues(bytes);
   return bytesToB64(bytes);
 }
@@ -204,6 +209,7 @@ export async function localSignUp(username: string, password: string): Promise<L
 
   const salt = crypto.getRandomValues(new Uint8Array(SALT_BYTES));
   const hash = await deriveHash(password, salt);
+  const token = randomToken();
 
   const account: LocalAccount = {
     id: newId(),
@@ -212,13 +218,13 @@ export async function localSignUp(username: string, password: string): Promise<L
     saltB64: bytesToB64(salt),
     hashB64: bytesToB64(hash),
     createdAt: Date.now(),
+    sessionTokens: [token],
   };
   accounts.push(account);
   writeAccounts(accounts);
 
   // Auto-sign-in to mirror Supabase's signUp behaviour (which returns a
   // session immediately when email confirmation is disabled).
-  const token = randomToken();
   const expiresAt = Date.now() + SESSION_TTL_MS;
   writePersistedSession({ userId: account.id, expiresAt, token });
   const session = buildSession(account, token, expiresAt);
@@ -248,12 +254,35 @@ export async function localSignIn(username: string, password: string): Promise<L
 
   const token = randomToken();
   const expiresAt = Date.now() + SESSION_TTL_MS;
+
+  const accounts = readAccounts();
+  const idx = accounts.findIndex((a) => a.id === account.id);
+  if (idx !== -1) {
+    const tokens = accounts[idx].sessionTokens || [];
+    tokens.push(token);
+    if (tokens.length > 10) {
+      tokens.shift(); // Cap active sessions at 10 to prevent storage expansion
+    }
+    accounts[idx].sessionTokens = tokens;
+    writeAccounts(accounts);
+  }
+
   writePersistedSession({ userId: account.id, expiresAt, token });
   const session = buildSession(account, token, expiresAt);
   return { data: { session, user: session.user }, error: null };
 }
 
 export async function localSignOut(): Promise<void> {
+  const persisted = readPersistedSession();
+  if (persisted) {
+    const accounts = readAccounts();
+    const idx = accounts.findIndex((a) => a.id === persisted.userId);
+    if (idx !== -1) {
+      const tokens = accounts[idx].sessionTokens || [];
+      accounts[idx].sessionTokens = tokens.filter((t) => t !== persisted.token);
+      writeAccounts(accounts);
+    }
+  }
   writePersistedSession(null);
 }
 
@@ -264,8 +293,14 @@ export async function localSignOut(): Promise<void> {
 export function localGetSession(): Session | null {
   const persisted = readPersistedSession();
   if (!persisted) return null;
-  const account = readAccounts().find((a) => a.id === persisted.userId);
+  const accounts = readAccounts();
+  const account = accounts.find((a) => a.id === persisted.userId);
   if (!account) {
+    writePersistedSession(null);
+    return null;
+  }
+  const tokens = account.sessionTokens || [];
+  if (!tokens.includes(persisted.token)) {
     writePersistedSession(null);
     return null;
   }
