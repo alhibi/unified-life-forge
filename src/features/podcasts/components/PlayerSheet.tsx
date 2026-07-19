@@ -349,15 +349,12 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
                     opacity: 0.4,
                   }}
                 />
-                {/* Top→bottom card veil — keeps text legible while
-                  letting the tint bleed through near the edges. */}
+                {/* Solid luxury card veil instead of glass effect. */}
                 <div
                   className="absolute inset-0"
                   style={{
                     background:
-                      'linear-gradient(to bottom, hsl(var(--card) / 0.55) 0%, hsl(var(--card) / 0.85) 55%, hsl(var(--card) / 0.96) 100%)',
-                    backdropFilter: 'blur(10px) saturate(1.1)',
-                    WebkitBackdropFilter: 'blur(10px) saturate(1.1)',
+                      'linear-gradient(to bottom, hsl(var(--card) / 0.95) 0%, hsl(var(--card)) 50%, hsl(var(--card)) 100%)',
                   }}
                 />
               </div>
@@ -488,11 +485,9 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
                           className="overflow-hidden"
                         >
                           <div
-                            className="mt-2 rounded-2xl border border-border/40 px-4 py-3 max-h-40 overflow-y-auto"
+                            className="mt-2 rounded-2xl border border-border px-4 py-3 max-h-40 overflow-y-auto"
                             style={{
-                              background: 'hsl(var(--card) / 0.55)',
-                              backdropFilter: 'blur(10px)',
-                              WebkitBackdropFilter: 'blur(10px)',
+                              background: 'hsl(var(--muted) / 0.4)',
                             }}
                             // Touch scroll stays inside the panel — keeps
                             // the bottom-sheet's own gesture handler from
@@ -712,11 +707,9 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
                         transition={{ duration: 0.15 }}
-                        className="absolute bottom-full mb-2 left-4 right-4 mx-auto max-w-xs rounded-2xl border border-border/50 p-2 z-10"
+                        className="absolute bottom-full mb-2 left-4 right-4 mx-auto max-w-xs rounded-2xl border border-border p-2 z-10 shadow-lg"
                         style={{
-                          background: 'hsl(var(--card) / 0.96)',
-                          backdropFilter: 'blur(20px)',
-                          WebkitBackdropFilter: 'blur(20px)',
+                          background: 'hsl(var(--card))',
                         }}
                       >
                         <p className="text-[11px] font-semibold text-muted-foreground px-2 pt-1 pb-2">
@@ -761,11 +754,9 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
                         transition={{ duration: 0.15 }}
-                        className="absolute bottom-full mb-2 left-4 right-4 mx-auto max-w-xs rounded-2xl border border-border/50 p-2 z-10"
+                        className="absolute bottom-full mb-2 left-4 right-4 mx-auto max-w-xs rounded-2xl border border-border p-2 z-10 shadow-lg"
                         style={{
-                          background: 'hsl(var(--card) / 0.96)',
-                          backdropFilter: 'blur(20px)',
-                          WebkitBackdropFilter: 'blur(20px)',
+                          background: 'hsl(var(--card))',
                         }}
                       >
                         <p className="text-[11px] font-semibold text-muted-foreground px-2 pt-1 pb-2">

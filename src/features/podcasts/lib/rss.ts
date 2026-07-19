@@ -21,6 +21,7 @@
 //      Used only when codetabs is rate-limited or 5xxs.
 
 const CODETABS_PROXY = 'https://api.codetabs.com/v1/proxy/?quest=';
+const ALLORIGINS_PROXY = 'https://api.allorigins.win/raw?url=';
 const RSS2JSON_PROXY = 'https://api.rss2json.com/v1/api.json?rss_url=';
 
 /**
@@ -140,7 +141,15 @@ async function fetchFeedAny(feedUrl: string, signal?: AbortSignal): Promise<Fetc
     if (signal?.aborted) throw new Error('aborted');
   }
 
-  // 4. rss2json — different shape, parsed downstream.
+  // 4. allorigins.
+  try {
+    const xml = await tryFetch(`${ALLORIGINS_PROXY}${encodeURIComponent(feedUrl)}`, signal);
+    if (xml.length > 50) return { kind: 'xml', xml };
+  } catch {
+    if (signal?.aborted) throw new Error('aborted');
+  }
+
+  // 5. rss2json — different shape, parsed downstream.
   const text = await tryFetch(`${RSS2JSON_PROXY}${encodeURIComponent(feedUrl)}`, signal);
   let env: Rss2JsonEnvelope;
   try {

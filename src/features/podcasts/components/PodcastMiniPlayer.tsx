@@ -166,15 +166,14 @@ const PodcastMiniPlayer = memo(function PodcastMiniPlayer() {
               data-playing={isActive ? 'true' : 'false'}
               style={{
                 height: MINI_PLAYER_HEIGHT,
-                // Frosted-glass card, tinted by the seed color via the
-                // `--podcast-primary-subtle` token. We layer the tint
-                // OVER the card token so the surface stays readable
-                // even when the seed is very saturated.
+                // Solid, visually rich card styling as requested by the user,
+                // abandoning the frosted-glass effect for a more substantive,
+                // "obsidian" luxury solid look.
 
-                borderColor: 'hsl(var(--border) / 0.6)',
+                borderColor: 'hsl(var(--border))',
                 color: 'hsl(var(--foreground))',
-                backdropFilter: 'blur(20px) saturate(1.4)',
-                WebkitBackdropFilter: 'blur(20px) saturate(1.4)',
+                backgroundColor: 'hsl(var(--card))',
+                boxShadow: '0 -4px 16px -2px rgba(0, 0, 0, 0.2), 0 0 0 1px hsl(var(--border))',
                 willChange: 'transform',
                 contain: 'layout paint',
               }}
