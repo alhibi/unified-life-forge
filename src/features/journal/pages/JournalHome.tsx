@@ -76,6 +76,7 @@ export default function JournalHome() {
       <SEO
         title="مذكرتي — دفتر يومي يعكس توازنك"
         description="مذكرة شخصية تعكس التوازن بين الحدس والتحليل، مع مشهد ثلاثي الأبعاد ينمو مع كل مدخلة."
+        path="/journal"
       />
 
       {/* Header */}
