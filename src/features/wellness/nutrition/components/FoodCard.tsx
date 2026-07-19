@@ -1,9 +1,11 @@
 /**
  * FoodCard — Compact food item card with macro highlights.
  */
-import React from 'react';
 import { motion } from 'framer-motion';
+import React from 'react';
+
 import { Flame, Heart } from '@/lib/icons';
+
 import type { NutritionFoodItem } from '../types';
 import { isFavorite } from '../utils';
 
@@ -37,9 +39,7 @@ export default function FoodCard({ food, lang, onClick, compact }: Props) {
 
       {/* Name & category */}
       <div className="flex-1 min-w-0">
-        <p className="text-[13px] font-semibold text-foreground truncate">
-          {food.name[lang]}
-        </p>
+        <p className="text-[13px] font-semibold text-foreground truncate">{food.name[lang]}</p>
         {!compact && (
           <div className="flex items-center gap-3 mt-1 text-[10px] text-muted-foreground" dir="ltr">
             <span className="inline-flex items-center gap-0.5">
@@ -55,17 +55,19 @@ export default function FoodCard({ food, lang, onClick, compact }: Props) {
       </div>
 
       {/* Favorite indicator */}
-      {fav && (
-        <Heart className="w-3 h-3 text-red-500 fill-red-500 shrink-0" />
-      )}
+      {fav && <Heart className="w-3 h-3 text-red-500 fill-red-500 shrink-0" />}
 
       {/* GI badge */}
       {food.glycemicIndex != null && food.glycemicIndex > 0 && !compact && (
-        <div className={`shrink-0 text-[9px] font-bold px-1.5 py-0.5 rounded-md ${
-          food.glycemicIndex <= 35 ? 'bg-emerald-500/10 text-emerald-600' :
-          food.glycemicIndex <= 55 ? 'bg-amber-500/10 text-amber-600' :
-          'bg-red-500/10 text-red-600'
-        }`}>
+        <div
+          className={`shrink-0 text-[9px] font-bold px-1.5 py-0.5 rounded-md ${
+            food.glycemicIndex <= 35
+              ? 'bg-emerald-500/10 text-emerald-600'
+              : food.glycemicIndex <= 55
+                ? 'bg-amber-500/10 text-amber-600'
+                : 'bg-red-500/10 text-red-600'
+          }`}
+        >
           GI {food.glycemicIndex}
         </div>
       )}

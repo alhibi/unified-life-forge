@@ -1313,6 +1313,309 @@ export const CALISTHENICS_ATLAS: CalisthenicsSkill[] = [
       de: '100% Hollow Body. Öffnet sich die Hüfte, ist die Übung sinnlos.',
     },
   },
+  /* ─────────── ELITE BODYWEIGHT SKILLS (EXPANSION) ─────────── */
+  {
+    key: 'backlever',
+    category: 'static',
+    color: '#3b82f6',
+    difficulty: 6,
+    estimatedMonths: 6,
+    emoji: '🦇',
+    name: { ar: 'باك ليفر (Back Lever)', de: 'Back Lever' },
+    description: {
+      ar: 'تعليق أفقي للجسم بحيث يكون الوجه للأسفل والظهر للأعلى ممسكاً بالبار خلف الظهر. مهارة أساسية ومدهشة تبني قوة خارقة للكتف الخلفي والظهر السفلي والجذع.',
+      de: 'Horizontales Hängen mit dem Gesicht nach unten, gehalten durch die Stange hinter dem Rücken. Eine fundamentale Kraftübung für hintere Schultern, unteren Rücken und Rumpf.',
+    },
+    prerequisites: [
+      { key: 'pullup', min: { ar: '10 تكرار نظيف', de: '10 saubere Wdh.' } },
+      { key: 'skin_the_cat', min: { ar: '5 تكرارات بمدى كامل', de: '5 saubere Skin-the-Cats' } },
+    ],
+    levels: [
+      {
+        name: { ar: 'تكوّر كامل (Tuck Back Lever)', de: 'Tuck Back Lever' },
+        description: {
+          ar: 'اسحب ركبتيك لصدرك بالكامل مع الحفاظ على الظهر مستوياً وموازياً للأرض.',
+          de: 'Knie ganz zur Brust ziehen, während der Rücken parallel zum Boden bleibt.',
+        },
+        prescription: { ar: '4 × 15 ثانية ثبات', de: '4 × 15 s Hold' },
+        progressCriteria: { ar: 'ثبات 20 ثانية براحة', de: '20 s kontrolliert halten' },
+      },
+      {
+        name: { ar: 'تكوّر متقدم (Advanced Tuck)', de: 'Advanced Tuck Back Lever' },
+        description: {
+          ar: 'افتح زاوية الفخذ لتصبح 90 درجة مع الجذع مع الحفاظ على استقامة الظهر.',
+          de: 'Hüftwinkel auf 90° öffnen, während der Rücken gerade gehalten wird.',
+        },
+        prescription: { ar: '4 × 10 ثوانٍ ثبات', de: '4 × 10 s Hold' },
+        progressCriteria: { ar: 'ثبات 15 ثانية', de: '15 s Hold' },
+      },
+      {
+        name: { ar: 'باك ليفر بساق واحدة (Single Leg)', de: 'Einbeiniger Back Lever' },
+        description: {
+          ar: 'امد ساقاً واحدة للخارج تماماً واجعل الأخرى متكوّرة عند الصدر.',
+          de: 'Ein Bein voll ausstrecken, das andere angewinkelt an der Brust halten.',
+        },
+        prescription: { ar: '4 × 8 ثوانٍ لكل ساق', de: '4 × 8 s pro Seite' },
+        progressCriteria: { ar: 'ثبات 12 ثانية لكل ساق', de: '12 s pro Seite' },
+      },
+      {
+        name: { ar: 'باك ليفر مفتوح (Straddle)', de: 'Straddle Back Lever' },
+        description: {
+          ar: 'افتح ساقيك على اتساعهما جانباً لتقصير طول الرافعة الميكانيكية.',
+          de: 'Beine weit grätschen, um den mechanischen Hebel zu verkürzen.',
+        },
+        prescription: { ar: '4 × 6 ثوانٍ ثبات', de: '4 × 6 s Hold' },
+        progressCriteria: { ar: 'ثبات 10 ثوانٍ نظيفة', de: '10 s sauber halten' },
+      },
+      {
+        name: { ar: 'باك ليفر كامل (Full Back Lever)', de: 'Voller Back Lever' },
+        description: {
+          ar: 'افرد الساقين والجسم بالكامل لتشكيل خط أفقي مثالي موازٍ للأرض.',
+          de: 'Beine und Körper vollständig strecken, um eine perfekte horizontale Linie zu bilden.',
+        },
+        prescription: { ar: '5 × 5 ثوانٍ ثبات', de: '5 × 5 s Hold' },
+        progressCriteria: { ar: 'ثبات 10 ثوانٍ مثالية', de: '10 s perfekte Form' },
+      },
+    ],
+    cues: {
+      ar: [
+        'ادفع البار للأسفل وللخلف بنشاط (Pronation)',
+        'شد الأرداف والبطن تماماً لمنع تقوس الظهر السفلي',
+        'اضغط لوحي الكتف للأمام وللأسفل (Protraction & Depression)',
+        'اجعل نظرك متجهاً للأسفل أمامك مباشرة',
+      ],
+      de: [
+        'Drücke die Stange aktiv nach unten und hinten (Pronation)',
+        'Po und Rumpf maximal anspannen, um Hohlkreuz zu vermeiden',
+        'Schulterblätter nach vorne und unten drücken (Protraction & Depression)',
+        'Blick geradeaus nach unten richten',
+      ],
+    },
+    mistakes: {
+      ar: [
+        'تقوس الظهر السفلي (شكل الموزة)',
+        'ثني الكوعين لتسهيل الحركة',
+        'ارتخاء الأكتاف للأذن مما يضغط على الأوتار',
+        'عدم ضبط الجسم أفقياً بشكل حقيقي (الورك مرتفع أو منخفض جداً)',
+      ],
+      de: [
+        'Hohlkreuz (Bananenform)',
+        'Ellbogen beugen, um Hebel zu verkürzen',
+        'Schultern zu den Ohren ziehen (belastet die Sehnen)',
+        'Körper nicht waagerecht (Hüfte zu hoch oder zu tief)',
+      ],
+    },
+    muscles: {
+      ar: ['كتف خلفي', 'ظهر سفلي', 'مجاص (Lats)', 'جذع', 'ساعدين'],
+      de: ['hintere Schulter', 'unterer Rücken', 'Lats', 'Rumpf', 'Unterarme'],
+    },
+    frequency: { ar: '2-3 مرات/أسبوع', de: '2-3×/Woche' },
+    proTip: {
+      ar: 'مهارة الباك ليفر تضغط بشدة على أوتار الكوع الثنائية (Biceps Tendon). تأكد من الإحماء التام والتدريج الطويل جداً لتجنب التهاب الأوتار.',
+      de: 'Der Back Lever belastet die Bizepssehnen enorm. Gründliches Aufwärmen und langsame Progression sind Pflicht, um Sehnenentzündungen zu vermeiden.',
+    },
+  },
+  {
+    key: 'one_arm_pullup',
+    category: 'pull',
+    color: '#ef4444',
+    difficulty: 9,
+    estimatedMonths: 15,
+    emoji: '🥇',
+    name: { ar: 'العقلة بذراع واحدة (One-Arm Pull-up)', de: 'Einarmiger Klimmzug' },
+    description: {
+      ar: 'سحب الجسم بالكامل حتى الذقن فوق البار باستخدام ذراع واحدة فقط دون أي مساعدة. تجسيد خارق لقوة السحب النسبية والتحكم في الكتف والساعد.',
+      de: 'Den gesamten Körper mit nur einem Arm an der Stange hochziehen, bis das Kinn sie überragt. Ultimative relative Zugkraft und Schulterstabilität.',
+    },
+    prerequisites: [
+      { key: 'pullup', min: { ar: '20 تكرار متتالي أو سحب مرجّح بوزن +70% من وزن الجسم', de: '20 saubere Wdh. oder weighted Pull-up +70% bodyweight' } },
+    ],
+    levels: [
+      {
+        name: { ar: 'تعليق نشط بذراع واحدة (One-Arm Active Hang)', de: 'Einarmiges aktives Hängen' },
+        description: {
+          ar: 'تعلّق بذراع واحدة مع سحب الكتف لأسفل وللخلف بقوة لتنشيط لوح الكتف.',
+          de: 'An einem Arm hängen, dabei die Schulter aktiv nach unten und hinten ziehen.',
+        },
+        prescription: { ar: '3 × 15 ثانية لكل ذراع', de: '3 × 15 s pro Seite' },
+        progressCriteria: { ar: '30 ثانية ثبات نشط ومستقر', de: '30 s aktiver und stabiler Halt' },
+      },
+      {
+        name: { ar: 'سحب مائل بمساعدة الذراع الأخرى', de: 'Archer Pull-ups' },
+        description: {
+          ar: 'اسحب نفسك لأعلى مائلاً لجهة واحدة، بينما الذراع الأخرى ممتدة على البار للمساعدة بأقل قدر.',
+          de: 'Zu einer Seite hochziehen, während der andere Arm gestreckt auf der Stange leicht unterstützt.',
+        },
+        prescription: { ar: '4 × 5 تكرارات لكل ذراع', de: '4 × 5 Wdh. pro Seite' },
+        progressCriteria: { ar: '8 تكرارات نظيفة لكل ذراع', de: '8 saubere Wdh. pro Seite' },
+      },
+      {
+        name: { ar: 'سحب سلبي بذراع واحدة (OAP Negative)', de: 'Einarmiger negativer Klimmzug' },
+        description: {
+          ar: 'اقفز لأعلى العقلة بذراع واحدة، ثم انزل ببطء شديد وبشكل متحكم حتى الامتداد الكامل.',
+          de: 'Mit einem Arm oben starten (Kinn über Stange) und extrem langsam und kontrolliert herablassen.',
+        },
+        prescription: { ar: '4 × 3 تكرارات سلبي بـ5 ثوانٍ نزول', de: '4 × 3 Negatives mit 5 s Abstieg' },
+        progressCriteria: { ar: 'نزول مستمر لـ8 ثوانٍ دون هبوط مفاجئ', de: '8 s gleichmäßiger Abstieg ohne Einbrechen' },
+      },
+      {
+        name: { ar: 'سحب بمطاط المقاومة بذراع واحدة', de: 'Band-assisted OAP' },
+        description: {
+          ar: 'استخدم مطاط مقاومة معلق بالبار تحت قدمك أو تحت يدك المساعدة لتخفيف الوزن.',
+          de: 'Widerstandsband nutzen, das unter dem Fuß oder der unterstützenden Hand liegt.',
+        },
+        prescription: { ar: '4 × 4 تكرارات لكل ذراع', de: '4 × 4 Wdh. pro Seite' },
+        progressCriteria: { ar: '6 تكرارات بأخف مطاط مقاومة', de: '6 Wdh. mit dünnstem Band' },
+      },
+      {
+        name: { ar: 'عقلة كاملة بذراع واحدة (OAP)', de: 'Voller einarmiger Klimmzug' },
+        description: {
+          ar: 'سحب من الامتداد الكامل بذراع واحدة حتى عبور الذقن البار بشكل صارم.',
+          de: 'Aus dem kompletten Hang mit einem Arm hochziehen, bis das Kinn über der Stange ist.',
+        },
+        prescription: { ar: '5 × 1 تكرار لكل ذراع', de: '5 × 1 Wdh. pro Seite' },
+        progressCriteria: { ar: '3 تكرارات متتالية لكل ذراع', de: '3 saubere Wdh. am Stück' },
+      },
+    ],
+    cues: {
+      ar: [
+        'اعصر البار بأقصى قوة ممكنة لتنشيط الجهاز العصبي (Irradiation)',
+        'ابدأ الحركة من لوح الكتف أولاً ثم الكوع',
+        'ابذل جهداً لجلب البار للكتف المقابل لتغيير خط الجاذبية',
+        'شد عضلات بطنك وفخذيك بقوة لتقليل اهتزاز الجسم',
+      ],
+      de: [
+        'Stange so fest wie möglich drücken (Irradiation)',
+        'Bewegung aus dem Schulterblatt starten, dann erst den Ellbogen beugen',
+        'Ziehe die Stange gefühlt zur gegenüberliegenden Schulter',
+        'Rumpf und Beine maximal anspannen, um Schwung zu verhindern',
+      ],
+    },
+    mistakes: {
+      ar: [
+        'البدء من تعليق مرتخٍ كلياً مما يعرض أوتار الكتف لتمزق',
+        'استخدام الركل بالقدمين (Kipping) للتغلب على الوزن',
+        'عدم إكمال المدى الحركي (عدم النزول للنهاية أو عدم عبور الذقن)',
+        'إهمال الاستشفاء الكافي للأوتار والمفاصل',
+      ],
+      de: [
+        'Aus komplett passivem Hang starten (Gefahr für Sehnen)',
+        'Kipping oder Schwung aus den Beinen nutzen',
+        'Unvollständige ROM (kein Dead Hang am Start oder kein Kinn über der Stange)',
+        'Mangelnde Erholungszeit für Sehnen und Gelenke',
+      ],
+    },
+    muscles: {
+      ar: ['عضلات المجنص (Lats)', 'البايسبس', 'عضلة الكتف الخلفية', 'العضلة العضدية العضدية', 'الجذع والساعد'],
+      de: ['Latissimus', 'Bizeps', 'hintere Schulter', 'Brachialis', 'Rumpf und Unterarm'],
+    },
+    frequency: { ar: '2 مرات/أسبوع لضمان تعافي الأوتار', de: '2×/Woche für maximale Sehnenerholung' },
+    proTip: {
+      ar: 'الأوتار تتكيف ببطء أبطأ 10 مرات من العضلات. قد تمتلك القوة العضلية لتنفيذ العقلة لكن أوتار كوعك قد تلتهب وتتضرر لشهور إن تسرّعت.',
+      de: 'Sehnen passen sich 10-mal langsamer an als Muskeln. Du hast vielleicht die Muskelkraft, aber überlastete Sehnen können dich monatelang zurückwerfen.',
+    },
+  },
+  {
+    key: 'hefesto',
+    category: 'dynamic',
+    color: '#a855f7',
+    difficulty: 10,
+    estimatedMonths: 18,
+    emoji: '🧗',
+    name: { ar: 'هيفستو (Hefesto)', de: 'Hefesto (Back Muscle-up)' },
+    description: {
+      ar: 'سحب الجسم من وضع التعليق الخلفي (تحت البار واليدين خلف الظهر) والدوران لأعلى حتى الجلوس على البار. مهارة ديناميكية صعبة جداً وتتطلب قوة أوتار بايسبس استثنائية.',
+      de: 'Aus dem Rückhang hinter dem Rücken an der Stange hochziehen und nach oben rotieren, bis man auf der Stange sitzt. Extrem schwerer Bizeps-Heber.',
+    },
+    prerequisites: [
+      { key: 'backlever', min: { ar: '10 ثوانٍ ثبات كامل', de: '10 s sauberer Back Lever' } },
+      { key: 'korean_dip', min: { ar: '10 تكرار نظيف', de: '10 saubere Korean Dips' } },
+    ],
+    levels: [
+      {
+        name: { ar: 'ديبس كوري ممتد (Korean Dip)', de: 'Korean Dips' },
+        description: {
+          ar: 'انزل خلف البار حتى يلامس الظهر السفلي البار ثم ادفع للأعلى تماماً.',
+          de: 'Hinter der Stange absenken, bis der untere Rücken sie berührt, dann hochdrücken.',
+        },
+        prescription: { ar: '3 × 8 تكرارات', de: '3 × 8 Wdh.' },
+        progressCriteria: { ar: '12 تكرار بنظافة وسهولة', de: '12 saubere Wdh. mühelos' },
+      },
+      {
+        name: { ar: 'رفع خلفي مائل بمساعدة الأرجل', de: 'Rack-assisted Hefesto' },
+        description: {
+          ar: 'على بار منخفض، استخدم الأرجل على الأرض لتخفيف الحمل أثناء الدوران خلف الظهر.',
+          de: 'An niedriger Stange Füße am Boden nutzen, um das Gewicht beim Eindrehen zu entlasten.',
+        },
+        prescription: { ar: '4 × 6 تكرارات', de: '4 × 6 Wdh.' },
+        progressCriteria: { ar: '8 تكرارات نظيفة مع دفع قليل من الأرجل', de: '8 saubere Wdh. mit minimaler Beinhilfe' },
+      },
+      {
+        name: { ar: 'هيفستو سلبي ببطء (Negative Hefesto)', de: 'Negativer Hefesto' },
+        description: {
+          ar: 'ابدأ بالجلوس فوق البار، انزل ببطء شديد وتحكم بالدوران للخلف حتى التعليق الكامل.',
+          de: 'Auf der Stange starten, dann extrem langsam und kontrolliert nach hinten abrollen bis in den Hang.',
+        },
+        prescription: { ar: '4 × 3 تكرارات بـ6 ثوانٍ نزول', de: '4 × 3 Negatives mit 6 s Abstieg' },
+        progressCriteria: { ar: 'نزول 8 ثوانٍ دون فقدان التحكم في أي زاوية', de: '8 s Abstieg ohne Kontrollverlust' },
+      },
+      {
+        name: { ar: 'هيفستو بمطاط مقاومة عريض', de: 'Band-assisted Hefesto' },
+        description: {
+          ar: 'ثبت مطاط المقاومة على مستوى الفخذين لرفع الورك ودفع الجسم لأعلى البار.',
+          de: 'Widerstandsband auf Hüfthöhe einspannen, um die Hüfte über die Stange zu katapultieren.',
+        },
+        prescription: { ar: '4 × 4 تكرارات', de: '4 × 4 Wdh.' },
+        progressCriteria: { ar: '6 تكرارات بأخف مطاط مقاومة', de: '6 saubere Wdh. mit dünnstem Band' },
+      },
+      {
+        name: { ar: 'هيفستو صارم كامل (Strict Hefesto)', de: 'Voller Hefesto' },
+        description: {
+          ar: 'من التعليق الخلفي التام، اسحب الدوران للخلف بقوة الأوتار حتى الجلوس على البار.',
+          de: 'Aus dem kompletten Rückhang ohne Schwung über die Stange eindrehen und aufsitzen.',
+        },
+        prescription: { ar: '5 × 1 تكرار', de: '5 × 1 Wdh.' },
+        progressCriteria: { ar: '3 تكرارات متتالية مثالية', de: '3 saubere Wdh. am Stück' },
+      },
+    ],
+    cues: {
+      ar: [
+        'استخدم قبضة كاذبة خلفية (False Grip) مريحة وثابتة',
+        'اسحب البار للوركين بنشاط تام لتقريب مركز الجاذبية',
+        'أبق كوعيك قريبين جداً من جذعك ولا تسمح لهما بالتفتح جانباً',
+        'احنِ رأسك وصدرك للأمام بقوة لتسريع الدوران فوق البار',
+      ],
+      de: [
+        'Nutze einen stabilen False Grip hinter dem Rücken',
+        'Stange aktiv zur Hüfte ziehen, um den Hebel zu verringern',
+        'Ellbogen eng am Körper halten, nicht nach außen ausbrechen lassen',
+        'Kopf und Brustkorb kräftig nach vorne neigen, um die Rotation zu unterstützen',
+      ],
+    },
+    mistakes: {
+      ar: [
+        'تفتيح الكوعين للخارج مما يضعف القوة الهندسية ويسبب إصابة الكتف والرسغ',
+        'إهمال القبضة الكاذبة بالكامل مما يجعل الحركة شبه مستحيلة للرسغ',
+        'الاندفاع بالزخم العنيف والضرب بالورك على البار لتجاوز زاوية الصعوبة',
+        'تمرين المهارة بأكتاف مجهدة أو أوتار كوع غير معافاة',
+      ],
+      de: [
+        'Ellbogen nach außen drehen (schädigt Schulter und Handgelenk)',
+        'False Grip vernachlässigen (macht das Eindrehen unmöglich)',
+        'Mit extremem Schwung arbeiten und an die Stange schlagen',
+        'Training mit ermüdeten Schultern oder entzündeten Sehnen',
+      ],
+    },
+    muscles: {
+      ar: ['أوتار البايسبس', 'عضلة الكتف الخلفية والأمامية', 'الساعدين وقبضة اليد', 'الجذع والظهر السفلي'],
+      de: ['Bizepssehnen', 'hintere und vordere Schulter', 'Unterarme und Griff', 'Rumpf und unterer Rücken'],
+    },
+    frequency: { ar: '1-2 مرات/أسبوع بحد أقصى لمنع الإصابات الجسيمة', de: '1-2×/Woche maximal zur Verletzungsprävention' },
+    proTip: {
+      ar: 'هيفستو هي أكثر مهارة تضع ضغط تمدد أقصى تحت مقاومة على البايسبس (Eccentric Biceps Strain). لا تتدرب عليها إلا وجهازك العصبي والمفصلي في قمة نشاطه واستشفائه.',
+      de: 'Der Hefesto erzeugt die höchste exzentrische Dehnungsbelastung auf den Bizeps. Nur bei absoluter Frische und maximaler Regeneration trainieren.',
+    },
+  },
 ];
 
 /* ═══════════════════════════════════════════════════════════════════

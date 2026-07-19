@@ -1,9 +1,9 @@
 /**
  * SmartFilters — Dietary tag filters panel.
  */
-import React from 'react';
 import { motion } from 'framer-motion';
-import { X } from '@/lib/icons';
+import React from 'react';
+
 import type { DietaryTag } from '../types';
 
 type Lang = 'ar' | 'de';
@@ -12,7 +12,7 @@ interface Props {
   lang: Lang;
   activeTags: DietaryTag[];
   onTagsChange: (tags: DietaryTag[]) => void;
-  onClose: () => void;
+  onClose?: () => void;
 }
 
 const FILTER_TAGS: { tag: DietaryTag; label: { ar: string; de: string }; emoji: string }[] = [
@@ -37,10 +37,10 @@ const FILTER_TAGS: { tag: DietaryTag; label: { ar: string; de: string }; emoji: 
   { tag: 'bone_health', label: { ar: 'صحة عظام', de: 'Knochengesundheit' }, emoji: '🦴' },
 ];
 
-export default function SmartFilters({ lang, activeTags, onTagsChange, onClose }: Props) {
+export default function SmartFilters({ lang, activeTags, onTagsChange, onClose: _onClose }: Props) {
   const toggle = (tag: DietaryTag) => {
     if (activeTags.includes(tag)) {
-      onTagsChange(activeTags.filter(t => t !== tag));
+      onTagsChange(activeTags.filter((t) => t !== tag));
     } else {
       onTagsChange([...activeTags, tag]);
     }

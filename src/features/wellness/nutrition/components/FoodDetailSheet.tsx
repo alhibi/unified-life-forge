@@ -2,16 +2,14 @@
  * FoodDetailSheet — Full nutritional breakdown for a food item.
  * Shows macros, vitamins, minerals, benefits, and serving info.
  */
-import React, { useState, useEffect, useRef } from 'react';
-import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
-import {
-  X, Heart, Plus, Flame, Droplets, Info, Sparkles,
-  Clock, Shield, Zap, ChevronDown, ChevronUp,
-} from '@/lib/icons';
-import type { NutritionFoodItem, VitaminProfile, MineralProfile } from '../types';
-import { RDA_MALE } from '../types';
-import { toggleFavorite, isFavorite, addToRecent, nutrientDensityScore } from '../utils';
+import React, { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
+
+import { ChevronDown, ChevronUp, Heart, Info, Shield, Sparkles, X, Zap } from '@/lib/icons';
+
+import type { MineralProfile, NutritionFoodItem, VitaminProfile } from '../types';
+import { addToRecent, isFavorite, nutrientDensityScore, toggleFavorite } from '../utils';
 
 type Lang = 'ar' | 'de';
 
@@ -48,8 +46,10 @@ const T = {
   showLess: { ar: 'عرض أقل', de: 'Weniger anzeigen' },
 };
 
-
-const VITAMIN_LABELS: Record<keyof VitaminProfile, { ar: string; de: string; unit: string; rda: number }> = {
+const VITAMIN_LABELS: Record<
+  keyof VitaminProfile,
+  { ar: string; de: string; unit: string; rda: number }
+> = {
   vitA: { ar: 'فيتامين أ', de: 'Vitamin A', unit: 'μg', rda: 900 },
   vitB1: { ar: 'فيتامين ب1', de: 'Vitamin B1', unit: 'mg', rda: 1.2 },
   vitB2: { ar: 'فيتامين ب2', de: 'Vitamin B2', unit: 'mg', rda: 1.3 },
@@ -65,7 +65,10 @@ const VITAMIN_LABELS: Record<keyof VitaminProfile, { ar: string; de: string; uni
   vitK: { ar: 'فيتامين ك', de: 'Vitamin K', unit: 'μg', rda: 120 },
 };
 
-const MINERAL_LABELS: Record<keyof MineralProfile, { ar: string; de: string; unit: string; rda: number }> = {
+const MINERAL_LABELS: Record<
+  keyof MineralProfile,
+  { ar: string; de: string; unit: string; rda: number }
+> = {
   calcium: { ar: 'كالسيوم', de: 'Kalzium', unit: 'mg', rda: 1000 },
   iron: { ar: 'حديد', de: 'Eisen', unit: 'mg', rda: 8 },
   magnesium: { ar: 'مغنيسيوم', de: 'Magnesium', unit: 'mg', rda: 400 },
@@ -102,7 +105,6 @@ const TAG_LABELS: Record<string, { ar: string; de: string }> = {
   skin_health: { ar: 'صحة البشرة', de: 'Hautgesundheit' },
   bone_health: { ar: 'صحة العظام', de: 'Knochengesundheit' },
 };
-
 
 export default function FoodDetailSheet({ food, lang, onClose, onAddToLog }: Props) {
   const [fav, setFav] = useState(isFavorite(food.id));
@@ -163,7 +165,7 @@ export default function FoodDetailSheet({ food, lang, onClose, onAddToLog }: Pro
         animate={{ y: 0 }}
         exit={{ y: '100%' }}
         transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-        onClick={e => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()}
         ref={scrollRef}
         className="w-full max-w-lg bg-background rounded-t-3xl max-h-[92vh] overflow-y-auto overscroll-contain"
       >
@@ -171,8 +173,10 @@ export default function FoodDetailSheet({ food, lang, onClose, onAddToLog }: Pro
         <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-md px-5 pt-4 pb-3 border-b border-border/30">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl"
-                style={{ backgroundColor: `${food.color}15` }}>
+              <div
+                className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl"
+                style={{ backgroundColor: `${food.color}15` }}
+              >
                 {food.emoji}
               </div>
               <div>
@@ -181,16 +185,23 @@ export default function FoodDetailSheet({ food, lang, onClose, onAddToLog }: Pro
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <button onClick={handleToggleFav} className="p-2 rounded-full active:scale-90 transition-transform">
-                <Heart className={`w-5 h-5 ${fav ? 'text-red-500 fill-red-500' : 'text-muted-foreground'}`} />
+              <button
+                onClick={handleToggleFav}
+                className="p-2 rounded-full active:scale-90 transition-transform"
+              >
+                <Heart
+                  className={`w-5 h-5 ${fav ? 'text-red-500 fill-red-500' : 'text-muted-foreground'}`}
+                />
               </button>
-              <button onClick={onClose} className="p-2 rounded-full bg-muted active:scale-90 transition-transform">
+              <button
+                onClick={onClose}
+                className="p-2 rounded-full bg-muted active:scale-90 transition-transform"
+              >
                 <X className="w-4 h-4" />
               </button>
             </div>
           </div>
         </div>
-
 
         <div className="px-5 py-4 space-y-5">
           {/* ─── Macro Summary Ring ─── */}
@@ -246,32 +257,51 @@ export default function FoodDetailSheet({ food, lang, onClose, onAddToLog }: Pro
 
           {/* ─── GI Badge ─── */}
           {food.glycemicIndex != null && food.glycemicIndex > 0 && (
-            <div className={`flex items-center gap-3 p-3 rounded-xl border ${
-              food.glycemicIndex <= 35 ? 'bg-emerald-500/5 border-emerald-500/20' :
-              food.glycemicIndex <= 55 ? 'bg-amber-500/5 border-amber-500/20' :
-              'bg-red-500/5 border-red-500/20'
-            }`}>
-              <Zap className={`w-5 h-5 ${
-                food.glycemicIndex <= 35 ? 'text-emerald-500' :
-                food.glycemicIndex <= 55 ? 'text-amber-500' :
-                'text-red-500'
-              }`} />
+            <div
+              className={`flex items-center gap-3 p-3 rounded-xl border ${
+                food.glycemicIndex <= 35
+                  ? 'bg-emerald-500/5 border-emerald-500/20'
+                  : food.glycemicIndex <= 55
+                    ? 'bg-amber-500/5 border-amber-500/20'
+                    : 'bg-red-500/5 border-red-500/20'
+              }`}
+            >
+              <Zap
+                className={`w-5 h-5 ${
+                  food.glycemicIndex <= 35
+                    ? 'text-emerald-500'
+                    : food.glycemicIndex <= 55
+                      ? 'text-amber-500'
+                      : 'text-red-500'
+                }`}
+              />
               <div className="flex-1">
                 <p className="text-[11px] text-muted-foreground">{T.gi[lang]}</p>
                 <p className="text-sm font-bold text-foreground">{food.glycemicIndex}</p>
               </div>
-              <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
-                food.glycemicIndex <= 35 ? 'bg-emerald-500/10 text-emerald-600' :
-                food.glycemicIndex <= 55 ? 'bg-amber-500/10 text-amber-600' :
-                'bg-red-500/10 text-red-600'
-              }`}>
-                {food.glycemicIndex <= 35 ? (lang === 'ar' ? 'منخفض' : 'Niedrig') :
-                 food.glycemicIndex <= 55 ? (lang === 'ar' ? 'متوسط' : 'Mittel') :
-                 (lang === 'ar' ? 'مرتفع' : 'Hoch')}
+              <span
+                className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+                  food.glycemicIndex <= 35
+                    ? 'bg-emerald-500/10 text-emerald-600'
+                    : food.glycemicIndex <= 55
+                      ? 'bg-amber-500/10 text-amber-600'
+                      : 'bg-red-500/10 text-red-600'
+                }`}
+              >
+                {food.glycemicIndex <= 35
+                  ? lang === 'ar'
+                    ? 'منخفض'
+                    : 'Niedrig'
+                  : food.glycemicIndex <= 55
+                    ? lang === 'ar'
+                      ? 'متوسط'
+                      : 'Mittel'
+                    : lang === 'ar'
+                      ? 'مرتفع'
+                      : 'Hoch'}
               </span>
             </div>
           )}
-
 
           {/* ─── Vitamins ─── */}
           {vitaminEntries.length > 0 && (
@@ -294,7 +324,11 @@ export default function FoodDetailSheet({ food, lang, onClose, onAddToLog }: Pro
                   onClick={() => setShowAllVitamins(!showAllVitamins)}
                   className="flex items-center gap-1 mt-2 text-[11px] text-primary"
                 >
-                  {showAllVitamins ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                  {showAllVitamins ? (
+                    <ChevronUp className="w-3 h-3" />
+                  ) : (
+                    <ChevronDown className="w-3 h-3" />
+                  )}
                   {showAllVitamins ? T.showLess[lang] : T.showMore[lang]}
                 </button>
               )}
@@ -322,7 +356,11 @@ export default function FoodDetailSheet({ food, lang, onClose, onAddToLog }: Pro
                   onClick={() => setShowAllMinerals(!showAllMinerals)}
                   className="flex items-center gap-1 mt-2 text-[11px] text-primary"
                 >
-                  {showAllMinerals ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                  {showAllMinerals ? (
+                    <ChevronUp className="w-3 h-3" />
+                  ) : (
+                    <ChevronDown className="w-3 h-3" />
+                  )}
                   {showAllMinerals ? T.showLess[lang] : T.showMore[lang]}
                 </button>
               )}
@@ -351,8 +389,11 @@ export default function FoodDetailSheet({ food, lang, onClose, onAddToLog }: Pro
             <div>
               <h3 className="text-xs font-semibold text-foreground mb-2">{T.tags[lang]}</h3>
               <div className="flex flex-wrap gap-1.5">
-                {food.tags.map(tag => (
-                  <span key={tag} className="text-[9px] px-2 py-1 rounded-full bg-primary/10 text-primary font-medium">
+                {food.tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="text-[9px] px-2 py-1 rounded-full bg-primary/10 text-primary font-medium"
+                  >
                     {TAG_LABELS[tag]?.[lang] || tag}
                   </span>
                 ))}
@@ -376,7 +417,10 @@ export default function FoodDetailSheet({ food, lang, onClose, onAddToLog }: Pro
             <h3 className="text-xs font-semibold text-foreground mb-2">{T.serving[lang]}</h3>
             <div className="space-y-1.5">
               {food.servings.map((s, i) => (
-                <div key={i} className="flex items-center justify-between p-2 rounded-lg bg-muted/30 text-[11px]">
+                <div
+                  key={i}
+                  className="flex items-center justify-between p-2 rounded-lg bg-muted/30 text-[11px]"
+                >
                   <span className="text-foreground">{s.description[lang]}</span>
                   <span className="font-semibold text-muted-foreground">{s.grams}g</span>
                 </div>
@@ -403,22 +447,47 @@ export default function FoodDetailSheet({ food, lang, onClose, onAddToLog }: Pro
   return createPortal(sheet, document.body);
 }
 
-
 /* ─── Helper Components ─── */
 
-function MacroItem({ label, value, unit, color }: { label: string; value: number; unit: string; color: string }) {
+function MacroItem({
+  label,
+  value,
+  unit,
+  color,
+}: {
+  label: string;
+  value: number;
+  unit: string;
+  color: string;
+}) {
   return (
     <div className="flex flex-col items-center">
-      <div className="w-9 h-9 rounded-full flex items-center justify-center mb-1" style={{ backgroundColor: `${color}15` }}>
-        <span className="text-[11px] font-bold" style={{ color }}>{value}{unit}</span>
+      <div
+        className="w-9 h-9 rounded-full flex items-center justify-center mb-1"
+        style={{ backgroundColor: `${color}15` }}
+      >
+        <span className="text-[11px] font-bold" style={{ color }}>
+          {value}
+          {unit}
+        </span>
       </div>
       <span className="text-[8px] text-muted-foreground leading-tight text-center">{label}</span>
     </div>
   );
 }
 
-function NutrientBar({ label, value, unit, rdaPct, color }: {
-  label: string; value: number; unit: string; rdaPct: number; color: string;
+function NutrientBar({
+  label,
+  value,
+  unit,
+  rdaPct,
+  color,
+}: {
+  label: string;
+  value: number;
+  unit: string;
+  rdaPct: number;
+  color: string;
 }) {
   return (
     <div className="flex items-center gap-2">
@@ -430,7 +499,8 @@ function NutrientBar({ label, value, unit, rdaPct, color }: {
         />
       </div>
       <span className="text-[9px] font-semibold text-foreground w-12 text-right" dir="ltr">
-        {value}{unit}
+        {value}
+        {unit}
       </span>
       <span className="text-[8px] text-muted-foreground w-8 text-right">{rdaPct}%</span>
     </div>
