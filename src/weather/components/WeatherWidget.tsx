@@ -1,20 +1,19 @@
 import { useNavigate } from 'react-router-dom';
-
-import { useApp } from '@/contexts/AppContext';
 import {
-  ChevronLeft,
   Cloud,
-  CloudDrizzle,
-  CloudFog,
-  CloudLightning,
+  Sun,
   CloudRain,
   CloudSnow,
+  CloudLightning,
+  CloudDrizzle,
   Cloudy,
-  Droplets,
+  CloudFog,
   MoonStar,
-  Sun,
   Wind as WindIcon,
+  Droplets,
+  ChevronLeft,
 } from '@/lib/icons';
+import { useApp } from '@/contexts/AppContext';
 import { useWeatherData } from '@/weather/hooks/useWeatherData';
 
 function iconFor(code: number, isDay: boolean) {
@@ -97,13 +96,8 @@ export default function WeatherWidget() {
             {temp}°
           </span>
           <div className="pb-1 text-[11px] text-muted-foreground tabular-nums text-end">
-            <div>
-              {ar ? 'الإحساس' : 'Gefühlt'}{' '}
-              <span className="text-foreground/85 font-medium">{apparent}°</span>
-            </div>
-            <div>
-              H {hi}° · L {lo}°
-            </div>
+            <div>{ar ? 'الإحساس' : 'Gefühlt'} <span className="text-foreground/85 font-medium">{apparent}°</span></div>
+            <div>H {hi}° · L {lo}°</div>
           </div>
         </div>
 

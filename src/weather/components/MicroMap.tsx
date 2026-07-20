@@ -1,7 +1,6 @@
-import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
-
-import { Compass, Map, MapPin, Navigation } from '@/lib/icons';
+import { motion } from 'framer-motion';
+import { Map, MapPin, Navigation, Compass } from '@/lib/icons';
 
 interface MicroMapProps {
   lat: number;
@@ -14,19 +13,16 @@ export default function MicroMap({ lat, lng, elevationM = 0, ar }: MicroMapProps
   const [mapUrl, setMapUrl] = useState('');
 
   useEffect(() => {
-    // Generate static/dynamic map URL using public dark styled CartoDB Voyager/Dark Matter with OpenStreetMap
-    // We can use cartodb dark_all tiles as a background or we can construct an iframe to display OpenStreetMap embedded with dark filters
-    // Using an embedded leaflet/OSM map inside an iframe with dark-mode CSS filters is exceptionally stable, light-weight and completely free
-    const embedUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${lng - 0.055}&type=mapnik&marker=${lat},${lng}`;
+    // OSM embed requires a proper bbox: minLng,minLat,maxLng,maxLat
+    const d = 0.06; // ~6-8 km window depending on latitude
+    const bbox = [lng - d, lat - d * 0.7, lng + d, lat + d * 0.7].join('%2C');
+    const embedUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${lat}%2C${lng}`;
     setMapUrl(embedUrl);
   }, [lat, lng]);
 
   return (
     <section className="relative rounded-[22px] surface-depth overflow-hidden p-4">
-      <span
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent"
-      />
+      <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
 
       <header className="mb-4 flex items-center justify-between gap-3">
         <h2 className="font-montserrat font-semibold text-[18px] leading-none text-foreground flex items-center gap-2">
@@ -64,7 +60,7 @@ export default function MicroMap({ lat, lng, elevationM = 0, ar }: MicroMapProps
               transition={{
                 duration: 2,
                 repeat: Infinity,
-                ease: 'easeInOut',
+                ease: "easeInOut"
               }}
               className="absolute -inset-4 rounded-full bg-primary/30 blur-sm"
             />

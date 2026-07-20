@@ -1,6 +1,5 @@
 import { motion } from 'framer-motion';
-
-import { AlertTriangle, CheckCircle, Droplets, Info, Leaf, Shield, Sun } from '@/lib/icons';
+import { Sun, CheckCircle, AlertTriangle, Info, Shield, Droplets, Leaf } from '@/lib/icons';
 
 interface WeatherPlannerProps {
   aqiUs: number;
@@ -19,13 +18,14 @@ export default function WeatherPlanner({
   temperatureC,
   pollenRisk,
   solarElevationDeg,
-  ar,
+  ar
 }: WeatherPlannerProps) {
+
   // Calculate running/exercise suitability (0-100)
   const getExerciseScore = () => {
     let score = 100;
     // AQI penalty
-    score -= Math.min(60, aqiUs / 3);
+    score -= Math.min(60, (aqiUs / 3));
     // Extreme Heat / Cold penalty
     if (temperatureC > 30) score -= (temperatureC - 30) * 4;
     else if (temperatureC < 10) score -= (10 - temperatureC) * 3;
@@ -64,7 +64,7 @@ export default function WeatherPlanner({
         type: 'danger',
         text: ar
           ? 'الهواء غير صحي للمجموعات الحساسة. قلل من الأنشطة البدنية المجهدة خارج المنزل.'
-          : 'Schlechte Luftqualität für empfindliche Personen. Anstrengung im Freien reduzieren.',
+          : 'Schlechte Luftqualität für empfindliche Personen. Anstrengung im Freien reduzieren.'
       });
     }
     if (pollenRisk !== 'none' && pollenRisk !== 'low') {
@@ -72,7 +72,7 @@ export default function WeatherPlanner({
         type: 'warning',
         text: ar
           ? 'مستوى حبوب اللقاح مرتفع، قد تعاني من أعراض الحساسية الموسمية اليوم.'
-          : 'Erhöhte Pollenbelastung. Vorsicht bei Heuschnupfen.',
+          : 'Erhöhte Pollenbelastung. Vorsicht bei Heuschnupfen.'
       });
     }
     if (humidityPercent > 80 && temperatureC > 28) {
@@ -80,7 +80,7 @@ export default function WeatherPlanner({
         type: 'warning',
         text: ar
           ? 'رطوبة عالية خانقة مع حرارة مرتفعة، تزيد من الإرهاق الحراري وتعيق تبريد الجسم بالتعرق.'
-          : 'Kombination aus Hitze und hoher Feuchtigkeit erschwert die körpereigene Kühlung.',
+          : 'Kombination aus Hitze und hoher Feuchtigkeit erschwert die körpereigene Kühlung.'
       });
     }
     if (uvIndex >= 8) {
@@ -88,7 +88,7 @@ export default function WeatherPlanner({
         type: 'danger',
         text: ar
           ? 'مؤشر الأشعة البنفسجية مرتفع للغاية! التعرض المباشر دون حماية يسبب حروق الجلد خلال دقائق.'
-          : 'Sehr hoher UV-Index! Direkte Sonne ohne Schutz schädigt die Haut extrem schnell.',
+          : 'Sehr hoher UV-Index! Direkte Sonne ohne Schutz schädigt die Haut extrem schnell.'
       });
     }
 
@@ -97,7 +97,7 @@ export default function WeatherPlanner({
         type: 'success',
         text: ar
           ? 'الأجواء الخارجية آمنة ومريحة جداً صحياً، مثالية للاسترخاء والأنشطة في الهواء الطلق.'
-          : 'Die atmosphärischen Bedingungen sind äußerst sicher und angenehm für alle Aktivitäten.',
+          : 'Die atmosphärischen Bedingungen sind äußerst sicher und angenehm für alle Aktivitäten.'
       });
     }
     return list;
@@ -107,10 +107,7 @@ export default function WeatherPlanner({
 
   return (
     <section className="relative rounded-[22px] surface-depth overflow-hidden p-4">
-      <span
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent"
-      />
+      <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
 
       <header className="mb-4">
         <h2 className="font-montserrat font-semibold text-[20px] leading-none text-foreground flex items-center gap-2">
@@ -123,9 +120,7 @@ export default function WeatherPlanner({
         {/* Activity suitability dial */}
         <div className="rounded-xl border border-border/40 bg-secondary/20 p-4 flex flex-col justify-between">
           <div>
-            <span className="text-[10px] tracking-wider uppercase text-muted-foreground">
-              {ar ? 'مؤشر ممارسة الرياضة في الهواء الطلق' : 'Sporttauglichkeit im Freien'}
-            </span>
+            <span className="text-[10px] tracking-wider uppercase text-muted-foreground">{ar ? 'مؤشر ممارسة الرياضة في الهواء الطلق' : 'Sporttauglichkeit im Freien'}</span>
             <div className="flex items-center gap-4 mt-3">
               <svg viewBox="0 0 36 36" className="w-16 h-16 shrink-0 -rotate-90">
                 <path
@@ -143,27 +138,19 @@ export default function WeatherPlanner({
                   stroke="currentColor"
                   fill="none"
                   d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                  initial={{ strokeDasharray: '0, 100' }}
+                  initial={{ strokeDasharray: "0, 100" }}
                   animate={{ strokeDasharray: `${exerciseScore}, 100` }}
                   transition={{ duration: 1, ease: 'easeOut' }}
                 />
               </svg>
               <div>
-                <span className="font-montserrat text-[32px] font-extrabold text-foreground leading-none tabular-nums">
-                  {exerciseScore}%
-                </span>
+                <span className="font-montserrat text-[32px] font-extrabold text-foreground leading-none tabular-nums">{exerciseScore}%</span>
                 <p className="text-xs text-muted-foreground mt-1 font-semibold">
                   {exerciseScore >= 80
-                    ? ar
-                      ? 'أجواء ممتازة وملائمة للجري'
-                      : 'Hervorragendes Wetter für Sport'
+                    ? (ar ? 'أجواء ممتازة وملائمة للجري' : 'Hervorragendes Wetter für Sport')
                     : exerciseScore >= 50
-                      ? ar
-                        ? 'ملائمة مقبولة، انتبه للحرارة'
-                        : 'Akzeptable Bedingungen'
-                      : ar
-                        ? 'غير موصى بممارسة الرياضة خارجاً'
-                        : 'Sport im Freien nicht empfohlen'}
+                    ? (ar ? 'ملائمة مقبولة، انتبه للحرارة' : 'Akzeptable Bedingungen')
+                    : (ar ? 'غير موصى بممارسة الرياضة خارجاً' : 'Sport im Freien nicht empfohlen')}
                 </p>
               </div>
             </div>
@@ -183,18 +170,11 @@ export default function WeatherPlanner({
         {/* Health advisories & Respiratory notes */}
         <div className="rounded-xl border border-border/40 bg-secondary/20 p-4 flex flex-col justify-between">
           <div className="space-y-3">
-            <span className="text-[10px] tracking-wider uppercase text-muted-foreground">
-              {ar ? 'الإرشادات والتحذيرات الطبية الجوية' : 'Ärztliche Wetterhinweise'}
-            </span>
+            <span className="text-[10px] tracking-wider uppercase text-muted-foreground">{ar ? 'الإرشادات والتحذيرات الطبية الجوية' : 'Ärztliche Wetterhinweise'}</span>
 
             <div className="space-y-2">
               {advisories.map((adv, idx) => {
-                const Icon =
-                  adv.type === 'danger'
-                    ? AlertTriangle
-                    : adv.type === 'warning'
-                      ? Info
-                      : CheckCircle;
+                const Icon = adv.type === 'danger' ? AlertTriangle : adv.type === 'warning' ? Info : CheckCircle;
                 return (
                   <div
                     key={idx}
@@ -202,8 +182,8 @@ export default function WeatherPlanner({
                       adv.type === 'danger'
                         ? 'bg-destructive/10 border-destructive/20 text-destructive'
                         : adv.type === 'warning'
-                          ? 'bg-warning/10 border-warning/20 text-warning-foreground'
-                          : 'bg-primary/10 border-primary/20 text-foreground'
+                        ? 'bg-warning/10 border-warning/20 text-warning-foreground'
+                        : 'bg-primary/10 border-primary/20 text-foreground'
                     }`}
                   >
                     <Icon className="w-4 h-4 shrink-0 mt-0.5" />
