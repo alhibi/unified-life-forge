@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { Play, Pause, RefreshCw, Layers, Wind, Droplets } from '@/lib/icons';
+
+import { Droplets, Layers, Pause, Play, RefreshCw, Wind } from '@/lib/icons';
 
 interface RadarMapProps {
   pastTimestamps: number[];
@@ -20,7 +21,7 @@ export default function RadarMap({
   windDirectionDeg,
   precipIntensity,
   weatherCode,
-  ar
+  ar,
 }: RadarMapProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(true);
@@ -37,8 +38,8 @@ export default function RadarMap({
     if (!ctx) return;
 
     let animId: number;
-    let width = canvas.width = canvas.offsetWidth;
-    let height = canvas.height = canvas.offsetHeight;
+    let width = (canvas.width = canvas.offsetWidth);
+    let height = (canvas.height = canvas.offsetHeight);
 
     // Handle resizing
     const resizeObserver = new ResizeObserver(() => {
@@ -62,7 +63,10 @@ export default function RadarMap({
     }
 
     const particles: Particle[] = [];
-    const count = Math.min(350, Math.max(40, Math.round(precipIntensity * 40 + windSpeedKph * 1.5)));
+    const count = Math.min(
+      350,
+      Math.max(40, Math.round(precipIntensity * 40 + windSpeedKph * 1.5)),
+    );
 
     const getParticleType = (): 'rain' | 'snow' | 'dust' => {
       if (weatherCode >= 71 && weatherCode <= 86) return 'snow';
@@ -86,10 +90,15 @@ export default function RadarMap({
         x: Math.random() * width,
         y: Math.random() * height,
         vx: baseVx + (Math.random() - 0.5) * 0.5,
-        vy: baseVy + (Math.random() * 0.5),
-        size: type === 'snow' ? Math.random() * 2.5 + 1 : type === 'rain' ? Math.random() * 1.5 + 0.8 : Math.random() * 1 + 0.5,
+        vy: baseVy + Math.random() * 0.5,
+        size:
+          type === 'snow'
+            ? Math.random() * 2.5 + 1
+            : type === 'rain'
+              ? Math.random() * 1.5 + 0.8
+              : Math.random() * 1 + 0.5,
         alpha: Math.random() * 0.5 + 0.2,
-        type
+        type,
       });
     }
 
@@ -128,7 +137,14 @@ export default function RadarMap({
       // Draw sweeping radar arm
       if (activeLayer === 'radar') {
         const angle = (Date.now() / 1500) % (Math.PI * 2);
-        const gradient = ctx.createRadialGradient(center.x, center.y, 0, center.x, center.y, width * 0.8);
+        const gradient = ctx.createRadialGradient(
+          center.x,
+          center.y,
+          0,
+          center.x,
+          center.y,
+          width * 0.8,
+        );
         gradient.addColorStop(0, 'rgba(32, 58, 62, 0.12)');
         gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
 
@@ -141,7 +157,7 @@ export default function RadarMap({
       }
 
       // Update and Draw Particles
-      particles.forEach(p => {
+      particles.forEach((p) => {
         // Apply wind influence
         p.x += p.vx;
         p.y += p.vy;
@@ -187,26 +203,37 @@ export default function RadarMap({
   useEffect(() => {
     if (!isPlaying || allFrames.length === 0) return;
     const interval = setInterval(() => {
-      setFrameIdx(prev => (prev + 1) % allFrames.length);
+      setFrameIdx((prev) => (prev + 1) % allFrames.length);
     }, 1200);
     return () => clearInterval(interval);
   }, [isPlaying, allFrames.length]);
 
   return (
     <section className="relative rounded-[22px] surface-depth overflow-hidden">
-      <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent"
+      />
 
       <header className="p-4 pb-1 flex items-center justify-between gap-3">
         <h2 className="font-montserrat font-semibold text-[20px] leading-none text-foreground flex items-center gap-2">
           <Layers className="w-5 h-5 text-primary" />
-          {activeLayer === 'particles' ? (ar ? 'محاكي جزيئات الغلاف الحي' : 'Live Atmosphären-Partikel') : (ar ? 'الرادار الزمني' : 'Radar-Timeline')}
+          {activeLayer === 'particles'
+            ? ar
+              ? 'محاكي جزيئات الغلاف الحي'
+              : 'Live Atmosphären-Partikel'
+            : ar
+              ? 'الرادار الزمني'
+              : 'Radar-Timeline'}
         </h2>
 
         <div className="flex bg-background/50 border border-border/40 p-0.5 rounded-lg">
           <button
             onClick={() => setActiveLayer('particles')}
             className={`px-2.5 py-1 rounded-md text-[10px] tracking-wider uppercase transition-all ${
-              activeLayer === 'particles' ? 'bg-primary text-primary-foreground font-semibold shadow-sm' : 'text-muted-foreground hover:text-foreground'
+              activeLayer === 'particles'
+                ? 'bg-primary text-primary-foreground font-semibold shadow-sm'
+                : 'text-muted-foreground hover:text-foreground'
             }`}
           >
             {ar ? 'الجزيئات والرياح' : 'Partikel'}
@@ -214,7 +241,9 @@ export default function RadarMap({
           <button
             onClick={() => setActiveLayer('radar')}
             className={`px-2.5 py-1 rounded-md text-[10px] tracking-wider uppercase transition-all ${
-              activeLayer === 'radar' ? 'bg-primary text-primary-foreground font-semibold shadow-sm' : 'text-muted-foreground hover:text-foreground'
+              activeLayer === 'radar'
+                ? 'bg-primary text-primary-foreground font-semibold shadow-sm'
+                : 'text-muted-foreground hover:text-foreground'
             }`}
           >
             {ar ? 'المسح الراداري' : 'Radar'}
@@ -230,10 +259,15 @@ export default function RadarMap({
           <div className="absolute inset-0 flex items-center justify-center p-4">
             {tileTemplate ? (
               <div className="text-center bg-card/90 border border-border/60 rounded-xl p-4 shadow-lg backdrop-blur max-w-xs animate-fade-in">
-                <div className="text-[10px] uppercase tracking-widest text-primary/80 mb-1">{ar ? 'تغطية رادار حي' : 'Echtzeit-Radar'}</div>
+                <div className="text-[10px] uppercase tracking-widest text-primary/80 mb-1">
+                  {ar ? 'تغطية رادار حي' : 'Echtzeit-Radar'}
+                </div>
                 <div className="text-sm font-bold font-montserrat text-foreground mb-3 tabular-nums">
                   {allFrames.length > 0
-                    ? new Date(allFrames[frameIdx] * 1000).toLocaleTimeString(ar ? 'en-US' : 'de-DE', { hour: '2-digit', minute: '2-digit', hour12: false })
+                    ? new Date(allFrames[frameIdx] * 1000).toLocaleTimeString(
+                        ar ? 'en-US' : 'de-DE',
+                        { hour: '2-digit', minute: '2-digit', hour12: false },
+                      )
                     : '—'}
                 </div>
                 <div className="flex items-center justify-center gap-4">
@@ -241,7 +275,11 @@ export default function RadarMap({
                     onClick={() => setIsPlaying(!isPlaying)}
                     className="w-10 h-10 rounded-full border border-border bg-secondary flex items-center justify-center text-primary active:scale-95 transition-transform"
                   >
-                    {isPlaying ? <Pause className="w-4 h-4 fill-primary" /> : <Play className="w-4 h-4 fill-primary" />}
+                    {isPlaying ? (
+                      <Pause className="w-4 h-4 fill-primary" />
+                    ) : (
+                      <Play className="w-4 h-4 fill-primary" />
+                    )}
                   </button>
                   <button
                     onClick={() => setFrameIdx(0)}
@@ -252,7 +290,11 @@ export default function RadarMap({
                 </div>
               </div>
             ) : (
-              <div className="text-xs text-muted-foreground">{ar ? 'مسح الرادار غير متوفر حالياً لهذا الموقع' : 'Keine Radar-Rückstrahlung für diesen Ort'}</div>
+              <div className="text-xs text-muted-foreground">
+                {ar
+                  ? 'مسح الرادار غير متوفر حالياً لهذا الموقع'
+                  : 'Keine Radar-Rückstrahlung für diesen Ort'}
+              </div>
             )}
           </div>
         )}
@@ -266,7 +308,9 @@ export default function RadarMap({
           </div>
           <div className="flex items-center gap-1 bg-background/60 backdrop-blur border border-border/30 px-2 py-1 rounded-md">
             <Droplets className="w-3.5 h-3.5 text-primary" />
-            <span className="font-semibold tabular-nums text-foreground">{precipIntensity} mm/h</span>
+            <span className="font-semibold tabular-nums text-foreground">
+              {precipIntensity} mm/h
+            </span>
           </div>
         </div>
       </div>

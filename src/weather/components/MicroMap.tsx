@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Map, MapPin, Navigation, Compass } from '@/lib/icons';
+import { useEffect, useState } from 'react';
+
+import { Compass, Map, MapPin, Navigation } from '@/lib/icons';
 
 interface MicroMapProps {
   lat: number;
@@ -22,7 +23,10 @@ export default function MicroMap({ lat, lng, elevationM = 0, ar }: MicroMapProps
 
   return (
     <section className="relative rounded-[22px] surface-depth overflow-hidden p-4">
-      <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent"
+      />
 
       <header className="mb-4 flex items-center justify-between gap-3">
         <h2 className="font-montserrat font-semibold text-[18px] leading-none text-foreground flex items-center gap-2">
@@ -60,7 +64,7 @@ export default function MicroMap({ lat, lng, elevationM = 0, ar }: MicroMapProps
               transition={{
                 duration: 2,
                 repeat: Infinity,
-                ease: "easeInOut"
+                ease: 'easeInOut',
               }}
               className="absolute -inset-4 rounded-full bg-primary/30 blur-sm"
             />
