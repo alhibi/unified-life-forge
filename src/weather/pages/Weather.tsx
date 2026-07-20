@@ -642,12 +642,12 @@ export default function Weather() {
               <button
                 key={t.id}
                 onClick={() => { setActiveMainTab(t.id); }}
-                className={`flex-1 flex flex-col sm:flex-row items-center justify-center gap-1.5 py-2 px-1 rounded-xl text-xs font-bold transition-all duration-200 active:scale-95 ${
+                className={`flex-1 flex flex-col items-center justify-center gap-1 py-2 px-1 rounded-xl font-bold transition-all duration-200 active:scale-95 ${
                   active ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:bg-muted/30 hover:text-foreground'
                 }`}
               >
                 <TabIcon className="w-4 h-4" />
-                <span className="hidden xs:inline">{t.label}</span>
+                <span className="text-[10px] leading-tight text-center truncate max-w-full">{t.label}</span>
               </button>
             );
           })}

@@ -13,10 +13,10 @@ export default function MicroMap({ lat, lng, elevationM = 0, ar }: MicroMapProps
   const [mapUrl, setMapUrl] = useState('');
 
   useEffect(() => {
-    // Generate static/dynamic map URL using public dark styled CartoDB Voyager/Dark Matter with OpenStreetMap
-    // We can use cartodb dark_all tiles as a background or we can construct an iframe to display OpenStreetMap embedded with dark filters
-    // Using an embedded leaflet/OSM map inside an iframe with dark-mode CSS filters is exceptionally stable, light-weight and completely free
-    const embedUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${lng - 0.055}&type=mapnik&marker=${lat},${lng}`;
+    // OSM embed requires a proper bbox: minLng,minLat,maxLng,maxLat
+    const d = 0.06; // ~6-8 km window depending on latitude
+    const bbox = [lng - d, lat - d * 0.7, lng + d, lat + d * 0.7].join('%2C');
+    const embedUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${lat}%2C${lng}`;
     setMapUrl(embedUrl);
   }, [lat, lng]);
 
