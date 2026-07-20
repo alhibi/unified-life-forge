@@ -433,21 +433,31 @@ export function acwr(workouts: WorkoutSession[]): AcwrResult | null {
   const now = Date.now();
   const dayMs = 86_400_000;
 
-  // sRPE-based load is the gold standard. If a session is missing
-  // sessionRpe / duration we fall back to a CONSERVATIVE estimate
-  // (RPE 7 × 60 min ≈ 420 sRPE units) instead of the previous
-  // tonnage / 50 hack which inflated lifting sessions by 5-10× and
-  // produced phantom "danger" zones for normal trainees.
-  const FALLBACK_LOAD = 420;
-
   let acute7 = 0;
   let chronic28 = 0;
   let counted = 0;
   for (const w of workouts) {
     const ageDays = (now - w.startedAt) / dayMs;
     if (ageDays > 28) continue;
-    const explicit = sessionLoad(w);
-    const load = explicit ?? FALLBACK_LOAD;
+    let load = sessionLoad(w);
+    if (load == null) {
+      // sRPE-based load is the gold standard. If a session is missing
+      // sessionRpe / duration we fall back to a CONSERVATIVE estimate
+      // based on duration and RPE 7 instead of the previous
+      // tonnage / 50 hack which inflated lifting sessions by 5-10× and
+      // produced phantom "danger" zones for normal trainees.
+      const durMs = w.endedAt && w.startedAt ? w.endedAt - w.startedAt : 0;
+      let durMin = durMs / 60_000;
+      if (durMin <= 0) {
+        let totalSets = 0;
+        for (const ex of w.exercises || []) {
+          totalSets += ex.sets.length;
+        }
+        durMin = totalSets > 0 ? totalSets * 3 : 60;
+      }
+      const rpe = w.sessionRpe ?? 7;
+      load = round(rpe * durMin);
+    }
     if (ageDays <= 7)  acute7  += load;
     chronic28 += load;
     counted++;
