@@ -15,7 +15,6 @@ import {
 } from '@/lib/icons';
 import { useApp } from '@/contexts/AppContext';
 import { useWeatherData } from '@/weather/hooks/useWeatherData';
-import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 
 function iconFor(code: number, isDay: boolean) {
   if (code <= 1) return isDay ? Sun : MoonStar;
@@ -50,8 +49,6 @@ export default function WeatherWidget() {
   const { language } = useApp();
   const ar = language === 'ar';
   const { data } = useWeatherData(ar ? 'ar' : 'de');
-  const { location } = useDeviceLocation();
-  const cityName = location?.city || location?.name || null;
 
   if (!data) {
     return (
@@ -82,7 +79,7 @@ export default function WeatherWidget() {
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <h3 className="text-[15px] font-semibold text-foreground truncate">
-              {cityName ?? (ar ? 'الطقس الآن' : 'Wetter jetzt')}
+              {ar ? 'الطقس الآن' : 'Wetter jetzt'}
             </h3>
             <p className="mt-0.5 text-[12px] text-muted-foreground truncate">{cond}</p>
           </div>
