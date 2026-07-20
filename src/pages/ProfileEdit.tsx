@@ -11,7 +11,7 @@ import BackButton from '@/components/BackButton';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { supabase } from '@/integrations/supabase/client';
+import { isUsernameAvailable, updateProfileAndAuth, uploadAvatar } from '@/services/supabase/profiles';
 
 import { EMOJI_AVATARS, isEmojiAvatarValue, getAppleEmojiUrl } from '@/utils/emojiAvatar';
 import { getDefaultAvatarForUser } from '@/utils/defaultAvatar';
@@ -131,13 +131,14 @@ export default function ProfileEditPage() {
       return;
     }
     setCheckingUsername(true);
-    const { data } = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('username', name.toLowerCase().trim())
-      .maybeSingle();
-    setUsernameAvailable(!data);
-    setCheckingUsername(false);
+    try {
+      const available = await isUsernameAvailable(name);
+      setUsernameAvailable(available);
+    } catch {
+      setUsernameAvailable(false);
+    } finally {
+      setCheckingUsername(false);
+    }
   }, [profile, authUsername]);
 
   useEffect(() => {
@@ -161,21 +162,7 @@ export default function ProfileEditPage() {
 
     setUploading(true);
     try {
-      const ext = file.name.split('.').pop() || 'jpg';
-      const filePath = `${user.id}/avatar.${ext}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('avatars')
-        .upload(filePath, file, { upsert: true });
-
-      if (uploadError) throw uploadError;
-
-      const { data: urlData } = supabase.storage
-        .from('avatars')
-        .getPublicUrl(filePath);
-
-      // Add cache-busting param
-      const publicUrl = `${urlData.publicUrl}?t=${Date.now()}`;
+      const publicUrl = await uploadAvatar(user.id, file);
       setSelectedAvatar(publicUrl);
       toast.success(isAr ? 'تم رفع الصورة' : 'Bild hochgeladen');
     } catch (err: any) {
@@ -200,20 +187,11 @@ export default function ProfileEditPage() {
 
     setSaving(true);
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          username: newUsername.toLowerCase().trim(),
-          display_name: displayName.trim() || null,
-          avatar_url: selectedAvatar,
-          bio: bio.trim() || null,
-        } as any)
-        .eq('user_id', user.id);
-
-      if (error) throw error;
-
-      await supabase.auth.updateUser({
-        data: { username: newUsername.toLowerCase().trim() },
+      await updateProfileAndAuth(user.id, {
+        username: newUsername.toLowerCase().trim(),
+        display_name: displayName.trim() || null,
+        avatar_url: selectedAvatar,
+        bio: bio.trim() || null,
       });
 
       await refreshProfile();

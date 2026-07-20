@@ -72,7 +72,7 @@ export default function SettingsPage() {
   // so both options remain visible and it's obvious which one is active.
   type SettingRow = {
     key: string;
-    icon: any;
+    icon: React.ComponentType<React.ComponentProps<'svg'>>;
     title: string;
     value: string;
     onClick: () => void;
