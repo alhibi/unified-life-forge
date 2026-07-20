@@ -46,5 +46,8 @@ export type ProgressEvent =
   | { stage: 'expansion'; message: string; current: number; total: number }
   | { stage: 'polish'; message: string; current: number; total: number }
   | { stage: 'synthesis'; message: string }
-  | { stage: 'filed'; document: { id: string; accession_number: number; title: string; word_count: number } }
+  | {
+      stage: 'filed';
+      document: { id: string; accession_number: number; title: string; word_count: number };
+    }
   | { stage: 'error'; message: string };

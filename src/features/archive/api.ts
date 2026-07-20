@@ -1,10 +1,11 @@
 import { supabase } from '@/integrations/supabase/client';
-import type { ArchiveDocument, ArchiveDocumentSummary, ArchiveDepth, ProgressEvent } from './types';
+
+import type { ArchiveDepth, ArchiveDocument, ArchiveDocumentSummary, ProgressEvent } from './types';
 
 const FN_URL = `${(import.meta as any).env.VITE_SUPABASE_URL || 'https://nmrckgzmluoavgucqvjh.supabase.co'}/functions/v1/archive-generate`;
 
 export interface ModelConfig {
-  outline?: string;   // نموذج تصميم الهيكل
+  outline?: string; // نموذج تصميم الهيكل
   expansion?: string; // نموذج التوسيع والكتابة
   synthesis?: string; // نموذج التلخيص والوسوم
 }
@@ -31,7 +32,10 @@ export const archiveApi = {
   },
 
   async remove(id: string): Promise<void> {
-    const { error } = await supabase.from('archive_documents' as any).delete().eq('id', id);
+    const { error } = await supabase
+      .from('archive_documents' as any)
+      .delete()
+      .eq('id', id);
     if (error) throw error;
   },
 
@@ -41,8 +45,15 @@ export const archiveApi = {
     return (data ?? []) as ArchiveDocumentSummary[];
   },
 
-  async *generate(topic: string, depth: ArchiveDepth, models?: ModelConfig, signal?: AbortSignal): AsyncGenerator<ProgressEvent> {
-    const { data: { session } } = await supabase.auth.getSession();
+  async *generate(
+    topic: string,
+    depth: ArchiveDepth,
+    models?: ModelConfig,
+    signal?: AbortSignal,
+  ): AsyncGenerator<ProgressEvent> {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
     if (!session?.access_token) throw new Error('يجب تسجيل الدخول أولاً');
 
     const requestBody: any = { topic, depth };
@@ -73,13 +84,15 @@ export const archiveApi = {
       const parts = buf.split('\n\n');
       buf = parts.pop() || '';
       for (const part of parts) {
-        const line = part.split('\n').find(l => l.startsWith('data:'));
+        const line = part.split('\n').find((l) => l.startsWith('data:'));
         if (!line) continue;
         const jsonStr = line.slice(5).trim();
         if (!jsonStr) continue;
         try {
           yield JSON.parse(jsonStr) as ProgressEvent;
-        } catch { /* ignore parse errors */ }
+        } catch {
+          /* ignore parse errors */
+        }
       }
     }
   },
