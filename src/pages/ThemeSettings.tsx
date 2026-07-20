@@ -1,20 +1,37 @@
-import React, { useState, useEffect } from 'react';
-import { useApp } from '@/contexts/AppContext';
-import { Sun, Moon, Contrast, Check, Palette, Sparkles, Droplets, Zap, Circle, ImageIcon, Clock, ChevronDown } from '@/lib/icons';
+import { AnimatePresence, motion } from 'framer-motion';
+import React, { useEffect, useState } from 'react';
+
 import BackButton from '@/components/BackButton';
 import SEO from '@/components/SEO';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
-import { themePresets, type ThemeStyle, createDynamicPreset, extractDominantColor } from '@/utils/themeEngine';
+import { useApp } from '@/contexts/AppContext';
 import {
   getAutoPrayerThemeEnabled,
-  setAutoPrayerThemeEnabled,
   getPrayerThemeMap,
-  setPrayerThemeFor,
   type PrayerSlot,
+  setAutoPrayerThemeEnabled,
+  setPrayerThemeFor,
 } from '@/hooks/useAutoPrayerTheme';
-
-import { pageStagger as stagger, pageItem as item } from '@/lib/motion';
+import {
+  Check,
+  ChevronDown,
+  Circle,
+  Clock,
+  Contrast,
+  Droplets,
+  ImageIcon,
+  Moon,
+  Palette,
+  Sparkles,
+  Sun,
+  Zap,
+} from '@/lib/icons';
+import { pageItem as item, pageStagger as stagger } from '@/lib/motion';
+import {
+  createDynamicPreset,
+  extractDominantColor,
+  themePresets,
+  type ThemeStyle,
+} from '@/utils/themeEngine';
 
 function ToggleSwitch({ value, onChange }: { value: boolean; onChange: () => void }) {
   return (
@@ -32,18 +49,261 @@ function ToggleSwitch({ value, onChange }: { value: boolean; onChange: () => voi
   );
 }
 
-const themeStyles: { id: ThemeStyle; icon: typeof Palette; name: string; nameEn: string; desc: string; descEn: string }[] = [
-  { id: 'tonal', icon: Droplets, name: 'ناعم', nameEn: 'Tonal Spot', desc: 'ألوان هادئة ومريحة', descEn: 'Soft & calm colors' },
-  { id: 'vibrant', icon: Sparkles, name: 'حيوي', nameEn: 'Vibrant', desc: 'ألوان غنية ومشبعة', descEn: 'Rich & saturated' },
-  { id: 'neutral', icon: Circle, name: 'محايد', nameEn: 'Neutral', desc: 'تدرجات رمادية خفيفة', descEn: 'Subtle grayscale' },
-  { id: 'expressive', icon: Zap, name: 'معبّر', nameEn: 'Expressive', desc: 'تباين عالي وجريء', descEn: 'High contrast & bold' },
+const themeStyles: {
+  id: ThemeStyle;
+  icon: typeof Palette;
+  name: string;
+  nameEn: string;
+  desc: string;
+  descEn: string;
+}[] = [
+  {
+    id: 'tonal',
+    icon: Droplets,
+    name: 'ناعم',
+    nameEn: 'Tonal Spot',
+    desc: 'ألوان هادئة ومريحة',
+    descEn: 'Soft & calm colors',
+  },
+  {
+    id: 'vibrant',
+    icon: Sparkles,
+    name: 'حيوي',
+    nameEn: 'Vibrant',
+    desc: 'ألوان غنية ومشبعة',
+    descEn: 'Rich & saturated',
+  },
+  {
+    id: 'neutral',
+    icon: Circle,
+    name: 'محايد',
+    nameEn: 'Neutral',
+    desc: 'تدرجات رمادية خفيفة',
+    descEn: 'Subtle grayscale',
+  },
+  {
+    id: 'expressive',
+    icon: Zap,
+    name: 'معبّر',
+    nameEn: 'Expressive',
+    desc: 'تباين عالي وجريء',
+    descEn: 'High contrast & bold',
+  },
 ];
 
+// Category definition for themes
+interface ThemeCategory {
+  id: string;
+  nameAr: string;
+  nameEn: string;
+  presets: string[]; // preset IDs
+}
+
+const THEME_CATEGORIES: ThemeCategory[] = [
+  {
+    id: 'classic',
+    nameAr: 'الكلاسيكية والرصينة',
+    nameEn: 'Classic & Ink',
+    presets: ['paper', 'default', 'mono', 'coffee', 'fog', 'obsidian'],
+  },
+  {
+    id: 'nature',
+    nameAr: 'الأرض والطبيعة',
+    nameEn: 'Nature & Earth',
+    presets: ['emerald', 'matcha', 'moss', 'clay', 'sandstone', 'mint'],
+  },
+  {
+    id: 'warm',
+    nameAr: 'الدافئة والمشرقة',
+    nameEn: 'Warm & Bright',
+    presets: ['sunset', 'gold', 'cherry', 'volcano', 'copper', 'amber', 'terracotta'],
+  },
+  {
+    id: 'cosmic',
+    nameAr: 'العميقة والكونية',
+    nameEn: 'Cosmic & Deep',
+    presets: [
+      'midnight',
+      'rose',
+      'lavender',
+      'ocean',
+      'neon',
+      'aurora',
+      'sakura',
+      'arctic',
+      'nebula',
+      'silk',
+      'dusk',
+      'storm',
+    ],
+  },
+];
+
+function ThemePresetsCategorized({
+  isAr,
+  colorTheme,
+  getPreviewColors,
+  setColorTheme,
+}: {
+  isAr: boolean;
+  colorTheme: string;
+  getPreviewColors: (preset: (typeof themePresets)[0]) => string[];
+  setColorTheme: (theme: string) => void;
+}) {
+  // Determine initial tab based on selected colorTheme
+  const initialCategory =
+    THEME_CATEGORIES.find((cat) => cat.presets.includes(colorTheme))?.id || 'classic';
+  const [activeTab, setActiveTab] = useState<string>(initialCategory);
+  const prevThemeRef = React.useRef(colorTheme);
+
+  // Sync activeTab only when colorTheme actually changes from outside
+  useEffect(() => {
+    if (prevThemeRef.current !== colorTheme) {
+      prevThemeRef.current = colorTheme;
+      const matchedCategory = THEME_CATEGORIES.find((cat) => cat.presets.includes(colorTheme))?.id;
+      if (matchedCategory) {
+        setActiveTab(matchedCategory);
+      }
+    }
+  }, [colorTheme]);
+
+  const currentCategoryPresets = themePresets.filter((preset) => {
+    const cat = THEME_CATEGORIES.find((c) => c.id === activeTab);
+    return cat?.presets.includes(preset.id);
+  });
+
+  return (
+    <motion.div variants={item} className="premium-card-elevated p-5 space-y-5">
+      <div className="text-center">
+        <h2 className="font-semibold text-[13px] text-muted-foreground uppercase tracking-wider">
+          {isAr ? 'لوحة الألوان' : 'Color Palette'}
+        </h2>
+        <p className="text-[10px] text-muted-foreground/80 mt-0.5">
+          {isAr
+            ? 'اختر التناغم اللوني المفضل لديك عبر التصنيفات الراقية'
+            : 'Choose your preferred color harmony from curated categories'}
+        </p>
+      </div>
+
+      {/* Segmented Tab Controls (iOS-inspired luxury style) */}
+      <div className="relative flex p-1 bg-secondary/60 rounded-xl overflow-hidden backdrop-blur-sm border border-border/30">
+        {THEME_CATEGORIES.map((cat) => {
+          const isSelected = activeTab === cat.id;
+          return (
+            <button
+              key={cat.id}
+              onClick={() => setActiveTab(cat.id)}
+              className="relative flex-1 py-2 text-[10.5px] font-bold transition-colors duration-300 z-10 focus:outline-none"
+            >
+              {isSelected && (
+                <motion.div
+                  layoutId="activeCategoryGlow"
+                  className="absolute inset-0 bg-background rounded-lg shadow-sm border border-border/10 z-0"
+                  transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                />
+              )}
+              <span
+                className={`relative z-10 block text-center truncate ${isSelected ? 'text-foreground' : 'text-muted-foreground'}`}
+              >
+                {isAr ? cat.nameAr.split(' ')[0] : cat.nameEn.split(' ')[0]}{' '}
+                {/* shortened for mobile spacing */}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Sub-label showing current full category name */}
+      <div className="text-center text-[11px] font-semibold text-primary/80 tracking-wide">
+        {isAr
+          ? THEME_CATEGORIES.find((c) => c.id === activeTab)?.nameAr
+          : THEME_CATEGORIES.find((c) => c.id === activeTab)?.nameEn}
+      </div>
+
+      {/* Categorized Grid */}
+      <div className="grid grid-cols-4 gap-4 pt-1 min-h-[140px]">
+        <AnimatePresence mode="popLayout">
+          {currentCategoryPresets.map((preset) => {
+            const isActive = colorTheme === preset.id;
+            const colors = getPreviewColors(preset);
+            return (
+              <motion.button
+                key={preset.id}
+                initial={{ opacity: 0, scale: 0.92 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.92 }}
+                transition={{ duration: 0.2 }}
+                onClick={() => setColorTheme(preset.id)}
+                className="flex flex-col items-center gap-2 group relative"
+              >
+                <div
+                  className={`relative w-12 h-12 rounded-full overflow-hidden border-2 transition-all duration-300 ${
+                    isActive
+                      ? 'border-primary scale-110 shadow-[0_0_12px_rgba(var(--live),0.2)]'
+                      : 'border-border/50 group-hover:border-border'
+                  }`}
+                >
+                  <div className="absolute inset-0">
+                    <div
+                      className="absolute top-0 left-0 w-full h-1/4"
+                      style={{ backgroundColor: colors[0] }}
+                    />
+                    <div
+                      className="absolute top-[25%] left-0 w-full h-1/4"
+                      style={{ backgroundColor: colors[1] }}
+                    />
+                    <div
+                      className="absolute top-[50%] left-0 w-full h-1/4"
+                      style={{ backgroundColor: colors[2] }}
+                    />
+                    <div
+                      className="absolute top-[75%] left-0 w-full h-1/4"
+                      style={{ backgroundColor: colors[3] }}
+                    />
+                  </div>
+                  <AnimatePresence>
+                    {isActive && (
+                      <motion.div
+                        initial={{ scale: 0, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        exit={{ scale: 0, opacity: 0 }}
+                        className="absolute inset-0 flex items-center justify-center bg-black/25 backdrop-blur-[1px]"
+                      >
+                        <Check className="w-4 h-4 text-white" />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+                <span
+                  className={`text-[10px] font-bold leading-tight text-center transition-colors ${
+                    isActive ? 'text-primary' : 'text-muted-foreground'
+                  }`}
+                >
+                  {isAr ? preset.name : preset.nameEn}
+                </span>
+              </motion.button>
+            );
+          })}
+        </AnimatePresence>
+      </div>
+    </motion.div>
+  );
+}
+
 export default function ThemeSettingsPage() {
-  const { language, theme, setTheme, blackMode, setBlackMode, colorTheme, setColorTheme, paletteStyle, setPaletteStyle } = useApp();
+  const {
+    language,
+    theme,
+    setTheme,
+    blackMode,
+    setBlackMode,
+    colorTheme,
+    setColorTheme,
+    paletteStyle,
+    setPaletteStyle,
+  } = useApp();
   // MD3 mode retired — kept locally as a no-op to minimise diff in this file's UI.
   const md3Mode = false;
-  const navigate = useNavigate();
   const isAr = language === 'ar';
 
   // Auto-theme by prayer time
@@ -101,7 +361,7 @@ export default function ThemeSettingsPage() {
   };
 
   // Get preview colors for each preset
-  const getPreviewColors = (preset: typeof themePresets[0]) => {
+  const getPreviewColors = (preset: (typeof themePresets)[0]) => {
     const [pH, pS, pL] = preset.primary;
     const [sH, sS, sL] = preset.secondary;
     const [aH, aS, aL] = preset.accent;
@@ -118,10 +378,19 @@ export default function ThemeSettingsPage() {
     <div className="min-h-screen bg-background pb-28 px-5 pt-14">
       <SEO
         title={isAr ? 'المظهر والألوان — SmartHub' : 'Erscheinungsbild & Farben — SmartHub'}
-        description={isAr ? 'اختر السمة والألوان ونمط اللوحة لتجربتك في SmartHub.' : 'Wähle Theme, Farben und Paletten für dein SmartHub-Erlebnis.'}
+        description={
+          isAr
+            ? 'اختر السمة والألوان ونمط اللوحة لتجربتك في SmartHub.'
+            : 'Wähle Theme, Farben und Paletten für dein SmartHub-Erlebnis.'
+        }
         path="/settings/theme"
       />
-      <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-4 max-w-lg mx-auto">
+      <motion.div
+        variants={stagger}
+        initial="hidden"
+        animate="show"
+        className="space-y-4 max-w-lg mx-auto"
+      >
         {/* Header */}
         <motion.div variants={item} className="flex items-center gap-3 mb-2">
           <BackButton to="/settings" />
@@ -152,20 +421,21 @@ export default function ThemeSettingsPage() {
                   className="flex flex-col items-center gap-2.5"
                 >
                   <motion.div
-                    
                     className={`w-[56px] h-[56px] rounded-full flex items-center justify-center transition-all duration-300 ${
-                      isActive
-                        ? 'bg-primary'
-                        : 'bg-secondary'
+                      isActive ? 'bg-primary' : 'bg-secondary'
                     }`}
                   >
-                    <Icon className={`w-5 h-5 transition-colors ${
-                      isActive ? 'text-primary-foreground' : 'text-muted-foreground'
-                    }`} />
+                    <Icon
+                      className={`w-5 h-5 transition-colors ${
+                        isActive ? 'text-primary-foreground' : 'text-muted-foreground'
+                      }`}
+                    />
                   </motion.div>
-                  <span className={`text-[12px] font-medium transition-colors ${
-                    isActive ? 'text-foreground' : 'text-muted-foreground'
-                  }`}>
+                  <span
+                    className={`text-[12px] font-medium transition-colors ${
+                      isActive ? 'text-foreground' : 'text-muted-foreground'
+                    }`}
+                  >
                     {label}
                   </span>
                 </button>
@@ -208,12 +478,16 @@ export default function ThemeSettingsPage() {
                   </p>
                   {prayerSlots.map((slot) => {
                     const cur = prayerMap[slot.id];
-                    const preset = themePresets.find(p => p.id === cur?.colorTheme) || themePresets[0];
+                    const preset =
+                      themePresets.find((p) => p.id === cur?.colorTheme) || themePresets[0];
                     const [pH, pS, pL] = preset.primary;
                     const isExpanded = expandedSlot === slot.id;
                     const Icon = slot.icon;
                     return (
-                      <div key={slot.id} className="rounded-xl bg-card/50 border border-border/40 overflow-hidden">
+                      <div
+                        key={slot.id}
+                        className="rounded-xl bg-card/50 border border-border/40 overflow-hidden"
+                      >
                         <button
                           onClick={() => setExpandedSlot(isExpanded ? null : slot.id)}
                           className="w-full flex items-center gap-3 p-3 active:bg-muted/30 transition-colors"
@@ -232,7 +506,9 @@ export default function ThemeSettingsPage() {
                             ) : (
                               <Sun className="w-3 h-3 text-muted-foreground" />
                             )}
-                            <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                            <ChevronDown
+                              className={`w-4 h-4 text-muted-foreground transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+                            />
                           </div>
                         </button>
                         <AnimatePresence>
@@ -256,29 +532,43 @@ export default function ThemeSettingsPage() {
                                           : 'bg-secondary text-muted-foreground'
                                       }`}
                                     >
-                                      {m === 'light' ? (isAr ? 'فاتح' : 'Light') : (isAr ? 'داكن' : 'Dark')}
+                                      {m === 'light'
+                                        ? isAr
+                                          ? 'فاتح'
+                                          : 'Light'
+                                        : isAr
+                                          ? 'داكن'
+                                          : 'Dark'}
                                     </button>
                                   ))}
                                 </div>
                                 <div className="grid grid-cols-6 gap-2">
-                                  {themePresets.filter(p => p.id !== 'dynamic').slice(0, 18).map((p) => {
-                                    const [h, s, l] = p.primary;
-                                    const isSel = cur?.colorTheme === p.id;
-                                    return (
-                                      <button
-                                        key={p.id}
-                                        onClick={() => updateSlot(slot.id, p.id, cur?.mode || 'light')}
-                                        className={`relative w-full aspect-square rounded-full border-2 transition-all ${
-                                          isSel ? 'border-primary scale-110' : 'border-border/50'
-                                        }`}
-                                        style={{ backgroundColor: `hsl(${h}, ${s}%, ${l}%)` }}
-                                      >
-                                        {isSel && (
-                                          <Check className="absolute inset-0 m-auto w-3 h-3 text-white" strokeWidth={3} />
-                                        )}
-                                      </button>
-                                    );
-                                  })}
+                                  {themePresets
+                                    .filter((p) => p.id !== 'dynamic')
+                                    .slice(0, 18)
+                                    .map((p) => {
+                                      const [h, s, l] = p.primary;
+                                      const isSel = cur?.colorTheme === p.id;
+                                      return (
+                                        <button
+                                          key={p.id}
+                                          onClick={() =>
+                                            updateSlot(slot.id, p.id, cur?.mode || 'light')
+                                          }
+                                          className={`relative w-full aspect-square rounded-full border-2 transition-all ${
+                                            isSel ? 'border-primary scale-110' : 'border-border/50'
+                                          }`}
+                                          style={{ backgroundColor: `hsl(${h}, ${s}%, ${l}%)` }}
+                                        >
+                                          {isSel && (
+                                            <Check
+                                              className="absolute inset-0 m-auto w-3 h-3 text-white"
+                                              strokeWidth={3}
+                                            />
+                                          )}
+                                        </button>
+                                      );
+                                    })}
                                 </div>
                               </div>
                             </motion.div>
@@ -294,7 +584,10 @@ export default function ThemeSettingsPage() {
         </motion.div>
 
         {/* Theme Style */}
-        <motion.div variants={item} className={`premium-card-elevated p-5 transition-opacity ${md3Mode ? 'opacity-40 pointer-events-none' : ''}`}>
+        <motion.div
+          variants={item}
+          className={`premium-card-elevated p-5 transition-opacity ${md3Mode ? 'opacity-40 pointer-events-none' : ''}`}
+        >
           <h2 className="font-semibold text-[13px] text-muted-foreground text-center mb-4 uppercase tracking-wider">
             {isAr ? 'نمط الثيم' : 'Theme Style'}
             {md3Mode && (
@@ -310,21 +603,25 @@ export default function ThemeSettingsPage() {
               return (
                 <motion.button
                   key={ts.id}
-                  
+
                   onClick={() => setPaletteStyle(ts.id)}
                   className={`relative flex items-center gap-3 p-3.5 rounded-2xl border transition-all duration-300 ${
-                    isActive
-                      ? 'border-primary/40 bg-primary/8'
-                      : 'border-border bg-card'
+                    isActive ? 'border-primary/40 bg-primary/8' : 'border-border bg-card'
                   }`}
                 >
-                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center transition-colors ${
-                    isActive ? 'bg-primary/15' : 'bg-secondary'
-                  }`}>
-                    <Icon className={`w-4 h-4 ${isActive ? 'text-primary' : 'text-muted-foreground'}`} />
+                  <div
+                    className={`w-9 h-9 rounded-xl flex items-center justify-center transition-colors ${
+                      isActive ? 'bg-primary/15' : 'bg-secondary'
+                    }`}
+                  >
+                    <Icon
+                      className={`w-4 h-4 ${isActive ? 'text-primary' : 'text-muted-foreground'}`}
+                    />
                   </div>
                   <div className="text-start flex-1 min-w-0">
-                    <p className={`text-[13px] font-semibold ${isActive ? 'text-foreground' : 'text-foreground'}`}>
+                    <p
+                      className={`text-[13px] font-semibold ${isActive ? 'text-foreground' : 'text-foreground'}`}
+                    >
                       {isAr ? ts.name : ts.nameEn}
                     </p>
                     <p className="text-[10px] text-muted-foreground truncate">
@@ -342,59 +639,13 @@ export default function ThemeSettingsPage() {
           </div>
         </motion.div>
 
-        {/* Color Palettes */}
-        <motion.div variants={item} className={`premium-card-elevated p-5 transition-opacity ${md3Mode ? 'opacity-40 pointer-events-none' : ''}`}>
-          <h2 className="font-semibold text-[13px] text-muted-foreground text-center mb-4 uppercase tracking-wider">
-            {isAr ? 'لوحة الألوان' : 'Color Palette'}
-            {md3Mode && (
-              <span className="block text-[10px] normal-case tracking-normal text-muted-foreground/60 mt-1 font-normal">
-                {isAr ? 'معطّل — MD3 مفعّل' : 'Disabled — MD3 active'}
-              </span>
-            )}
-          </h2>
-          <div className="grid grid-cols-4 gap-3">
-            {themePresets.map((preset) => {
-              const isActive = colorTheme === preset.id;
-              const colors = getPreviewColors(preset);
-              return (
-                <motion.button
-                  key={preset.id}
-                  
-                  onClick={() => setColorTheme(preset.id as any)}
-                  className="flex flex-col items-center gap-2"
-                >
-                  <div className={`relative w-12 h-12 rounded-full overflow-hidden border-2 transition-all duration-300 ${
-                    isActive ? 'border-primary scale-110' : 'border-border/50'
-                  }`}>
-                    <div className="absolute inset-0">
-                      <div className="absolute top-0 left-0 w-full h-1/4" style={{ backgroundColor: colors[0] }} />
-                      <div className="absolute top-[25%] left-0 w-full h-1/4" style={{ backgroundColor: colors[1] }} />
-                      <div className="absolute top-[50%] left-0 w-full h-1/4" style={{ backgroundColor: colors[2] }} />
-                      <div className="absolute top-[75%] left-0 w-full h-1/4" style={{ backgroundColor: colors[3] }} />
-                    </div>
-                    <AnimatePresence>
-                      {isActive && (
-                        <motion.div
-                          initial={{ scale: 0, opacity: 0 }}
-                          animate={{ scale: 1, opacity: 1 }}
-                          exit={{ scale: 0, opacity: 0 }}
-                          className="absolute inset-0 flex items-center justify-center bg-black/30"
-                        >
-                          <Check className="w-4 h-4 text-white" />
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                  <span className={`text-[10px] font-medium leading-tight text-center transition-colors ${
-                    isActive ? 'text-primary' : 'text-muted-foreground'
-                  }`}>
-                    {isAr ? preset.name : preset.nameEn}
-                  </span>
-                </motion.button>
-              );
-            })}
-          </div>
-        </motion.div>
+        {/* Color Palettes Categorized with Animated Segmented Controls */}
+        <ThemePresetsCategorized
+          isAr={isAr}
+          colorTheme={colorTheme}
+          getPreviewColors={getPreviewColors}
+          setColorTheme={setColorTheme}
+        />
 
         {/* Dynamic Theme */}
         <motion.div variants={item} className={md3Mode ? 'opacity-40 pointer-events-none' : ''}>

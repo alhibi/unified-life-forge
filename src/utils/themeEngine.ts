@@ -375,45 +375,45 @@ export function generateThemeTokens(
         '--radius':               '0.625rem',
       };
     }
-    // Dark: black canvas, paper text
-    const bgL = isBlack ? 0 : 6;
-    const surfL = isBlack ? 4 : 9;
-    const surfOffL = isBlack ? 8 : 12;
-    const borderL = isBlack ? 12 : 17;
+    // Dark: Antique dark manuscript aesthetic (#12110f to #1a1916 range instead of neutral grey/black)
+    const bgL = isBlack ? 0 : 5;
+    const surfL = isBlack ? 4 : 8;
+    const surfOffL = isBlack ? 6 : 11;
+    const borderL = isBlack ? 8 : 12;
     return {
-      '--background':           `240 6% ${bgL}%`,   // #0d0d0f
-      '--foreground':           '34 33% 93%',       // paper #f5f0e8
-      '--card':                 `240 4% ${surfL}%`, // #161618
-      '--card-foreground':      '34 33% 93%',
-      '--popover':              `240 4% ${surfL}%`,
-      '--popover-foreground':   '34 33% 93%',
-      '--primary':              '34 33% 93%',       // paper accent
-      '--primary-foreground':   `240 6% ${bgL}%`,
-      '--secondary':            `240 6% ${surfOffL}%`, // #1e1e21
-      '--secondary-foreground': '34 33% 93%',
-      '--muted':                `240 6% ${surfOffL}%`,
-      '--muted-foreground':     '36 8% 63%',        // #a8a39a
-      '--accent':               `240 6% ${surfOffL}%`,
-      '--accent-foreground':    '34 33% 93%',
-      '--destructive':          '0 100% 71%',       // #ff6b6b
-      '--destructive-foreground': `240 6% ${bgL}%`,
-      '--success':              '128 56% 66%',     // #7ad88a
-      '--success-foreground':   `240 6% ${bgL}%`,
-      '--warning':              '38 86% 69%',      // #f5c46a
-      '--warning-foreground':   `240 6% ${bgL}%`,
-      '--error':                '0 100% 71%',
-      '--error-foreground':     `240 6% ${bgL}%`,
-      '--border':               `240 6% ${borderL}%`, // #2a2a2e
-      '--input':                `240 6% ${borderL}%`,
-      '--ring':                 '34 33% 93%',
-      '--sidebar-background':   `240 6% ${bgL}%`,
-      '--sidebar-foreground':   '34 33% 93%',
-      '--sidebar-primary':      '34 33% 93%',
-      '--sidebar-primary-foreground': `240 6% ${bgL}%`,
-      '--sidebar-accent':       `240 6% ${surfOffL}%`,
-      '--sidebar-accent-foreground': '34 33% 93%',
-      '--sidebar-border':       `240 6% ${borderL}%`,
-      '--sidebar-ring':         '34 33% 93%',
+      '--background':           `34 10% ${bgL}%`,   // Warm manuscript black
+      '--foreground':           '34 25% 91%',       // Soft aged paper white
+      '--card':                 `34 8% ${surfL}%`,  // Smooth dark parchment
+      '--card-foreground':      '34 25% 91%',
+      '--popover':              `34 8% ${surfL}%`,
+      '--popover-foreground':   '34 25% 91%',
+      '--primary':              '34 30% 86%',       // Soft paper gold/cream accent
+      '--primary-foreground':   `34 10% ${bgL}%`,
+      '--secondary':            `34 10% ${surfOffL}%`,
+      '--secondary-foreground': '34 25% 91%',
+      '--muted':                `34 10% ${surfOffL}%`,
+      '--muted-foreground':     '34 12% 58%',       // Perfect readability for notes
+      '--accent':               `34 10% ${surfOffL}%`,
+      '--accent-foreground':    '34 30% 86%',
+      '--destructive':          '0 78% 66%',
+      '--destructive-foreground': `34 10% ${bgL}%`,
+      '--success':              '128 45% 62%',
+      '--success-foreground':   `34 10% ${bgL}%`,
+      '--warning':              '38 75% 65%',
+      '--warning-foreground':   `34 10% ${bgL}%`,
+      '--error':                '0 78% 66%',
+      '--error-foreground':     `34 10% ${bgL}%`,
+      '--border':               `34 10% ${borderL}%`, // Subtle manuscript separators
+      '--input':                `34 10% ${borderL}%`,
+      '--ring':                 '34 30% 86%',
+      '--sidebar-background':   `34 10% ${bgL}%`,
+      '--sidebar-foreground':   '34 25% 91%',
+      '--sidebar-primary':      '34 30% 86%',
+      '--sidebar-primary-foreground': `34 10% ${bgL}%`,
+      '--sidebar-accent':       `34 10% ${surfOffL}%`,
+      '--sidebar-accent-foreground': '34 25% 91%',
+      '--sidebar-border':       `34 10% ${borderL}%`,
+      '--sidebar-ring':         '34 30% 86%',
       '--radius':               '0.625rem',
     };
   }
@@ -470,48 +470,49 @@ export function generateThemeTokens(
   }
 
   // ─── Dark Mode ──────────────────────────────
-  const bgL = isBlack ? 0 : 8;
-  const cardL = isBlack ? 5 : 12;
-  const secL = isBlack ? 8 : 16;
-  const mutL = isBlack ? 10 : 18;
-  const borderL = isBlack ? 12 : 18;
-  const bgS = isBlack ? 0 : ns * 0.7;
-  const cardS = isBlack ? 0 : ns * 0.6;
+  // Improved contrast, deeper dark backdrops and cohesive Obsidian Depth style.
+  const bgL = isBlack ? 0 : 6;        // Slightly darker base (#0d0d0f vs #141416) for extreme luxury feel
+  const cardL = isBlack ? 4 : 11;     // Obsidian surface depth
+  const secL = isBlack ? 7 : 14;      // Harmonized secondary background
+  const mutL = isBlack ? 8 : 15;      // Smoother muted color transition
+  const borderL = isBlack ? 8 : 13;   // Softened border to remove harsh outlines (Obsidian Depth principle)
+  const bgS = isBlack ? 0 : ns * 0.6;
+  const cardS = isBlack ? 0 : ns * 0.55;
 
   return {
     '--background':           hsl(nH, bgS, bgL),
-    '--foreground':           hsl(nH, ns * 0.3, 92),
+    '--foreground':           hsl(nH, ns * 0.25, 94), // Enhanced text contrast (94% vs 92%)
     '--card':                 hsl(nH, cardS, cardL),
-    '--card-foreground':      hsl(nH, ns * 0.3, 92),
+    '--card-foreground':      hsl(nH, ns * 0.25, 94),
     '--popover':              hsl(nH, cardS, cardL),
-    '--popover-foreground':   hsl(nH, ns * 0.3, 92),
-    '--primary':              hsl(pH, clamp(ps * 0.85, 0, 100), 60),
+    '--popover-foreground':   hsl(nH, ns * 0.25, 94),
+    '--primary':              hsl(pH, clamp(ps * 0.9, 0, 100), 62), // Slightly boosted primary saturation & brightness for premium glow
     '--primary-foreground':   hsl(nH, bgS, bgL),
-    '--secondary':            hsl(sH, clamp(ss * 0.3, 0, 100), secL),
-    '--secondary-foreground': hsl(sH, ss * 0.3, 78),
-    '--muted':                hsl(nH, clamp(ns * 0.3, 0, 100), mutL),
-    '--muted-foreground':     hsl(nH, ns * 0.2, 52),
-    '--accent':               hsl(aH, clamp(as * 0.3, 0, 100), secL),
-    '--accent-foreground':    hsl(aH, clamp(as * 0.7, 0, 100), 65),
-    '--destructive':          hsl(0, 62, 45),
+    '--secondary':            hsl(sH, clamp(ss * 0.28, 0, 100), secL),
+    '--secondary-foreground': hsl(sH, ss * 0.25, 82), // Elevated secondary contrast
+    '--muted':                hsl(nH, clamp(ns * 0.25, 0, 100), mutL),
+    '--muted-foreground':     hsl(nH, ns * 0.18, 56), // Muted text contrast adjusted for perfect readability
+    '--accent':               hsl(aH, clamp(as * 0.28, 0, 100), secL),
+    '--accent-foreground':    hsl(aH, clamp(as * 0.75, 0, 100), 68),
+    '--destructive':          hsl(0, 68, 48),
     '--destructive-foreground': hsl(0, 0, 100),
-    '--success':              hsl(142, 50, 45),
+    '--success':              hsl(142, 55, 48),
     '--success-foreground':   hsl(0, 0, 100),
-    '--warning':              hsl(38, 75, 55),
-    '--warning-foreground':   hsl(38, 80, 8),
-    '--error':                hsl(0, 62, 50),
+    '--warning':              hsl(38, 80, 58),
+    '--warning-foreground':   hsl(38, 85, 8),
+    '--error':                hsl(0, 68, 52),
     '--error-foreground':     hsl(0, 0, 100),
-    '--border':               hsl(nH, clamp(ns * 0.3, 0, 100), borderL),
-    '--input':                hsl(nH, clamp(ns * 0.3, 0, 100), borderL),
-    '--ring':                 hsl(pH, clamp(ps * 0.85, 0, 100), 60),
-    '--sidebar-background':   hsl(nH, bgS, isBlack ? 2 : 6),
-    '--sidebar-foreground':   hsl(nH, ns * 0.2, 90),
-    '--sidebar-primary':      hsl(pH, clamp(ps * 0.85, 0, 100), 60),
+    '--border':               hsl(nH, clamp(ns * 0.25, 0, 100), borderL),
+    '--input':                hsl(nH, clamp(ns * 0.25, 0, 100), borderL),
+    '--ring':                 hsl(pH, clamp(ps * 0.9, 0, 100), 62),
+    '--sidebar-background':   hsl(nH, bgS, isBlack ? 2 : 5),
+    '--sidebar-foreground':   hsl(nH, ns * 0.2, 92),
+    '--sidebar-primary':      hsl(pH, clamp(ps * 0.9, 0, 100), 62),
     '--sidebar-primary-foreground': hsl(nH, bgS, bgL),
-    '--sidebar-accent':       hsl(nH, clamp(ns * 0.3, 0, 100), isBlack ? 8 : 14),
-    '--sidebar-accent-foreground': hsl(nH, ns * 0.2, 90),
-    '--sidebar-border':       hsl(nH, clamp(ns * 0.3, 0, 100), borderL),
-    '--sidebar-ring':         hsl(pH, clamp(ps * 0.85, 0, 100), 60),
+    '--sidebar-accent':       hsl(nH, clamp(ns * 0.25, 0, 100), isBlack ? 6 : 12),
+    '--sidebar-accent-foreground': hsl(nH, ns * 0.2, 92),
+    '--sidebar-border':       hsl(nH, clamp(ns * 0.25, 0, 100), borderL),
+    '--sidebar-ring':         hsl(pH, clamp(ps * 0.9, 0, 100), 62),
     '--radius':               '0.875rem',
   };
 }
