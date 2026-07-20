@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Activity, Thermometer, Wind, CloudSun, Sparkles } from '@/lib/icons';
+import React, { useState } from 'react';
+
+import { Activity, CloudSun, Sparkles, Thermometer, Wind } from '@/lib/icons';
 
 interface ChartEntry {
   timestamp_unix: number;
@@ -33,44 +34,71 @@ export default function InteractiveCharts({ entries, ar }: InteractiveChartsProp
   const getDataForTab = () => {
     switch (activeTab) {
       case 'temp': {
-        const temps = slice.map(e => e.temperature_c);
-        const apparents = slice.map(e => e.apparent_c ?? e.temperature_c);
+        const temps = slice.map((e) => e.temperature_c);
+        const apparents = slice.map((e) => e.apparent_c ?? e.temperature_c);
         const min = Math.min(...temps, ...apparents);
         const max = Math.max(...temps, ...apparents);
         return {
           series: [
-            { label: ar ? 'الفعلي' : 'Tatsächlich', values: temps, color: 'hsl(var(--primary))', isLine: true, fill: true },
-            { label: ar ? 'المحسوس' : 'Gefühlt', values: apparents, color: 'hsl(var(--live))', isLine: true, isDashed: true }
+            {
+              label: ar ? 'الفعلي' : 'Tatsächlich',
+              values: temps,
+              color: 'hsl(var(--primary))',
+              isLine: true,
+              fill: true,
+            },
+            {
+              label: ar ? 'المحسوس' : 'Gefühlt',
+              values: apparents,
+              color: 'hsl(var(--live))',
+              isLine: true,
+              isDashed: true,
+            },
           ],
           min,
           max,
-          unit: '°C'
+          unit: '°C',
         };
       }
       case 'precip': {
-        const precips = slice.map(e => e.precip_probability_percent ?? 0);
+        const precips = slice.map((e) => e.precip_probability_percent ?? 0);
         return {
           series: [
-            { label: ar ? 'احتمالية الهطول' : 'Regenwahrscheinlichkeit', values: precips, color: 'hsl(200 80% 55%)', isBar: true }
+            {
+              label: ar ? 'احتمالية الهطول' : 'Regenwahrscheinlichkeit',
+              values: precips,
+              color: 'hsl(200 80% 55%)',
+              isBar: true,
+            },
           ],
           min: 0,
           max: 100,
-          unit: '%'
+          unit: '%',
         };
       }
       case 'wind_humidity': {
-        const winds = slice.map(e => e.wind_kph ?? 0);
-        const hums = slice.map(e => e.humidity_percent ?? 0);
+        const winds = slice.map((e) => e.wind_kph ?? 0);
+        const hums = slice.map((e) => e.humidity_percent ?? 0);
         const min = 0;
         const max = Math.max(...winds, ...hums, 40);
         return {
           series: [
-            { label: ar ? 'الرياح' : 'Wind', values: winds, color: 'hsl(var(--primary))', isLine: true },
-            { label: ar ? 'الرطوبة' : 'Feuchtigkeit', values: hums, color: 'hsl(var(--live))', isLine: true }
+            {
+              label: ar ? 'الرياح' : 'Wind',
+              values: winds,
+              color: 'hsl(var(--primary))',
+              isLine: true,
+            },
+            {
+              label: ar ? 'الرطوبة' : 'Feuchtigkeit',
+              values: hums,
+              color: 'hsl(var(--live))',
+              isLine: true,
+            },
           ],
           min,
           max,
-          unit: ''
+          unit: '',
         };
       }
     }
@@ -105,7 +133,10 @@ export default function InteractiveCharts({ entries, ar }: InteractiveChartsProp
 
   return (
     <section className="relative rounded-[22px] surface-depth overflow-hidden p-4">
-      <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent"
+      />
 
       <header className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mb-4">
         <h2 className="font-montserrat font-semibold text-[20px] leading-none text-foreground flex items-center gap-2">
@@ -114,15 +145,20 @@ export default function InteractiveCharts({ entries, ar }: InteractiveChartsProp
         </h2>
 
         <div className="flex bg-background/50 border border-border/40 p-1 rounded-xl gap-1">
-          {tabs.map(t => {
+          {tabs.map((t) => {
             const Icon = t.icon;
             const active = activeTab === t.id;
             return (
               <button
                 key={t.id}
-                onClick={() => { setActiveTab(t.id); setHoveredIdx(null); }}
+                onClick={() => {
+                  setActiveTab(t.id);
+                  setHoveredIdx(null);
+                }}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                  active ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:bg-muted/30 hover:text-foreground'
+                  active
+                    ? 'bg-primary text-primary-foreground shadow-sm'
+                    : 'text-muted-foreground hover:bg-muted/30 hover:text-foreground'
                 }`}
               >
                 <Icon className="w-3.5 h-3.5" />
@@ -142,7 +178,10 @@ export default function InteractiveCharts({ entries, ar }: InteractiveChartsProp
             const rect = e.currentTarget.getBoundingClientRect();
             const mouseX = e.clientX - rect.left;
             const pct = (mouseX - padX) / (rect.width * ((W - padX * 2) / W));
-            const idx = Math.max(0, Math.min(slice.length - 1, Math.round(pct * (slice.length - 1))));
+            const idx = Math.max(
+              0,
+              Math.min(slice.length - 1, Math.round(pct * (slice.length - 1))),
+            );
             setHoveredIdx(idx);
           }}
           onMouseLeave={() => setHoveredIdx(null)}
@@ -151,7 +190,10 @@ export default function InteractiveCharts({ entries, ar }: InteractiveChartsProp
             const rect = e.currentTarget.getBoundingClientRect();
             const mouseX = e.touches[0].clientX - rect.left;
             const pct = (mouseX - padX) / (rect.width * ((W - padX * 2) / W));
-            const idx = Math.max(0, Math.min(slice.length - 1, Math.round(pct * (slice.length - 1))));
+            const idx = Math.max(
+              0,
+              Math.min(slice.length - 1, Math.round(pct * (slice.length - 1))),
+            );
             setHoveredIdx(idx);
           }}
           onTouchEnd={() => setHoveredIdx(null)}
@@ -190,7 +232,8 @@ export default function InteractiveCharts({ entries, ar }: InteractiveChartsProp
                   fill="hsl(var(--muted-foreground))"
                   opacity="0.75"
                 >
-                  {Math.round(val)}{unit}
+                  {Math.round(val)}
+                  {unit}
                 </text>
               </g>
             );
@@ -244,7 +287,9 @@ export default function InteractiveCharts({ entries, ar }: InteractiveChartsProp
                   {s.fill && (
                     <path
                       d={areaPath}
-                      fill={s.color.includes('live') ? 'url(#chart-live-grad)' : 'url(#chart-area-grad)'}
+                      fill={
+                        s.color.includes('live') ? 'url(#chart-live-grad)' : 'url(#chart-area-grad)'
+                      }
                     />
                   )}
                   <motion.path
@@ -286,7 +331,7 @@ export default function InteractiveCharts({ entries, ar }: InteractiveChartsProp
                   {s.values.map((v, i) => {
                     const p = toPoint(v, i);
                     const isHovered = hoveredIdx === i;
-                    const barH = Math.max(2, (H - padY) - p.y);
+                    const barH = Math.max(2, H - padY - p.y);
                     return (
                       <rect
                         key={i}
@@ -323,7 +368,10 @@ export default function InteractiveCharts({ entries, ar }: InteractiveChartsProp
                 {ar ? 'الوقت المستهدف' : 'Zielzeit'}
               </span>
               <span className="text-sm font-semibold font-montserrat text-foreground tabular-nums">
-                {new Date(slice[hoveredIdx].timestamp_unix).toLocaleTimeString(ar ? 'en-US' : 'de-DE', { hour: '2-digit', minute: '2-digit', hour12: false })}
+                {new Date(slice[hoveredIdx].timestamp_unix).toLocaleTimeString(
+                  ar ? 'en-US' : 'de-DE',
+                  { hour: '2-digit', minute: '2-digit', hour12: false },
+                )}
               </span>
             </div>
 
@@ -331,12 +379,21 @@ export default function InteractiveCharts({ entries, ar }: InteractiveChartsProp
               {series.map((s, idx) => (
                 <div key={idx} className="flex flex-col items-end">
                   <span className="text-[10px] uppercase tracking-wider text-foreground flex items-center gap-1.5 font-semibold">
-                    <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: s.color }} />
+                    <span
+                      className="w-1.5 h-1.5 rounded-full"
+                      style={{ backgroundColor: s.color }}
+                    />
                     {s.label}
                   </span>
                   <span className="text-sm font-semibold text-foreground font-montserrat tabular-nums">
                     {Math.round(s.values[hoveredIdx])}
-                    {activeTab === 'temp' ? '°C' : activeTab === 'precip' ? '%' : idx === 0 ? ' km/h' : '%'}
+                    {activeTab === 'temp'
+                      ? '°C'
+                      : activeTab === 'precip'
+                        ? '%'
+                        : idx === 0
+                          ? ' km/h'
+                          : '%'}
                   </span>
                 </div>
               ))}
@@ -345,7 +402,11 @@ export default function InteractiveCharts({ entries, ar }: InteractiveChartsProp
         ) : (
           <div className="w-full text-center text-xs text-muted-foreground flex items-center justify-center gap-1.5 py-1">
             <Sparkles className="w-3.5 h-3.5 text-primary" />
-            <span>{ar ? 'مرر الفأرة أو المس المنحنى لعرض التفاصيل الدقيقة للساعات' : 'Fahre über die Kurve, um stündliche Details anzuzeigen'}</span>
+            <span>
+              {ar
+                ? 'مرر الفأرة أو المس المنحنى لعرض التفاصيل الدقيقة للساعات'
+                : 'Fahre über die Kurve, um stündliche Details anzuzeigen'}
+            </span>
           </div>
         )}
       </div>

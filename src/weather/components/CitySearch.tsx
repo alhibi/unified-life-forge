@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { Search, MapPin, Star, History, X, Loader } from '@/lib/icons';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
+import React, { useEffect, useState } from 'react';
+
+import { History, Loader, MapPin, Search, Star, X } from '@/lib/icons';
 
 export interface SearchedCity {
   id: number;
@@ -24,7 +25,7 @@ function getFlagEmoji(countryCode: string): string {
   const codePoints = countryCode
     .toUpperCase()
     .split('')
-    .map(char => 127397 + char.charCodeAt(0));
+    .map((char) => 127397 + char.charCodeAt(0));
   try {
     return String.fromCodePoint(...codePoints);
   } catch {
@@ -71,7 +72,7 @@ export default function CitySearch({ onSelectCity, ar }: CitySearchProps) {
       setLoading(true);
       try {
         const response = await fetch(
-          `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=6&language=${ar ? 'ar' : 'en'}`
+          `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=6&language=${ar ? 'ar' : 'en'}`,
         );
         const data = await response.json();
         setResults(data.results || []);
@@ -87,8 +88,8 @@ export default function CitySearch({ onSelectCity, ar }: CitySearchProps) {
 
   const handleSelect = (city: SearchedCity) => {
     // Add to history (limit to 5)
-    setHistory(prev => {
-      const filtered = prev.filter(item => item.id !== city.id);
+    setHistory((prev) => {
+      const filtered = prev.filter((item) => item.id !== city.id);
       return [city, ...filtered].slice(0, 5);
     });
     onSelectCity(city.latitude, city.longitude, city.name);
@@ -98,10 +99,10 @@ export default function CitySearch({ onSelectCity, ar }: CitySearchProps) {
 
   const toggleFavorite = (city: SearchedCity, e: React.MouseEvent) => {
     e.stopPropagation();
-    setFavorites(prev => {
-      const isFav = prev.some(item => item.id === city.id);
+    setFavorites((prev) => {
+      const isFav = prev.some((item) => item.id === city.id);
       if (isFav) {
-        return prev.filter(item => item.id !== city.id);
+        return prev.filter((item) => item.id !== city.id);
       } else {
         return [...prev, city];
       }
@@ -126,7 +127,10 @@ export default function CitySearch({ onSelectCity, ar }: CitySearchProps) {
         />
         {query && (
           <button
-            onClick={() => { setQuery(''); setResults([]); }}
+            onClick={() => {
+              setQuery('');
+              setResults([]);
+            }}
             className="absolute me-3.5 right-0 ltr:right-0 rtl:left-0 rtl:right-auto w-5 h-5 flex items-center justify-center rounded-full bg-muted text-muted-foreground hover:bg-muted-foreground hover:text-background transition-colors"
           >
             <X className="w-3 h-3" />
@@ -135,7 +139,9 @@ export default function CitySearch({ onSelectCity, ar }: CitySearchProps) {
       </div>
 
       <AnimatePresence>
-        {(loading || results.length > 0 || (query.trim().length === 0 && (favorites.length > 0 || history.length > 0))) && (
+        {(loading ||
+          results.length > 0 ||
+          (query.trim().length === 0 && (favorites.length > 0 || history.length > 0))) && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -156,7 +162,7 @@ export default function CitySearch({ onSelectCity, ar }: CitySearchProps) {
                   {ar ? 'نتائج البحث' : 'Suchergebnisse'}
                 </div>
                 {results.map((city) => {
-                  const isFav = favorites.some(item => item.id === city.id);
+                  const isFav = favorites.some((item) => item.id === city.id);
                   return (
                     <div
                       key={city.id}
@@ -175,7 +181,8 @@ export default function CitySearch({ onSelectCity, ar }: CitySearchProps) {
                             )}
                           </div>
                           <div className="text-xs text-foreground/80 font-semibold truncate tabular-nums">
-                            {city.admin1 ? `${city.admin1}, ` : ''}{city.country}
+                            {city.admin1 ? `${city.admin1}, ` : ''}
+                            {city.country}
                             {city.elevation !== undefined && (
                               <span className="ms-1.5 text-primary text-[10px] font-bold">
                                 ({Math.round(city.elevation)}m)
@@ -222,7 +229,8 @@ export default function CitySearch({ onSelectCity, ar }: CitySearchProps) {
                               )}
                             </div>
                             <div className="text-xs text-foreground/80 font-semibold truncate tabular-nums">
-                              {city.admin1 ? `${city.admin1}, ` : ''}{city.country}
+                              {city.admin1 ? `${city.admin1}, ` : ''}
+                              {city.country}
                               {city.elevation !== undefined && (
                                 <span className="ms-1.5 text-primary text-[10px] font-bold">
                                   ({Math.round(city.elevation)}m)
@@ -254,7 +262,7 @@ export default function CitySearch({ onSelectCity, ar }: CitySearchProps) {
                       </button>
                     </div>
                     {history.map((city) => {
-                      const isFav = favorites.some(item => item.id === city.id);
+                      const isFav = favorites.some((item) => item.id === city.id);
                       return (
                         <div
                           key={city.id}
@@ -273,7 +281,8 @@ export default function CitySearch({ onSelectCity, ar }: CitySearchProps) {
                                 )}
                               </div>
                               <div className="text-xs text-foreground/80 font-semibold truncate tabular-nums">
-                                {city.admin1 ? `${city.admin1}, ` : ''}{city.country}
+                                {city.admin1 ? `${city.admin1}, ` : ''}
+                                {city.country}
                                 {city.elevation !== undefined && (
                                   <span className="ms-1.5 text-primary text-[10px] font-bold">
                                     ({Math.round(city.elevation)}m)
