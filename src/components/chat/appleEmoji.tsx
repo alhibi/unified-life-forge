@@ -63,9 +63,16 @@ export function getAppleEmojiPngUrl(unified: string): string {
 // State
 // ─────────────────────────────────────────────────────────────────────────────
 
-interface EmojiSkin { unified?: string; native?: string; }
-interface EmojiEntry { skins?: EmojiSkin[]; }
-interface EmojiDataShape { emojis?: Record<string, EmojiEntry>; }
+interface EmojiSkin {
+  unified?: string;
+  native?: string;
+}
+interface EmojiEntry {
+  skins?: EmojiSkin[];
+}
+interface EmojiDataShape {
+  emojis?: Record<string, EmojiEntry>;
+}
 
 /** native unicode → unified codepoint string (e.g. "👍🏻" → "1f44d-1f3fb"). */
 let mapping: Map<string, string> | null = null;
@@ -112,11 +119,20 @@ export function preloadAppleEmoji(): Promise<void> {
       // Notify cache-invalidation subscribers BEFORE returning. Synchronous
       // notification is intentional — callers awaiting `preloadAppleEmoji()`
       // should already see the new data on their next render tick.
-      subscribers.forEach(fn => { try { fn(); } catch { /* swallow */ } });
+      subscribers.forEach((fn) => {
+        try {
+          fn();
+        } catch {
+          /* swallow */
+        }
+      });
     } catch (err) {
       // Fall back to native rendering forever. This isn't a hard error —
       // users still see emojis, just in their device's font.
-      console.warn('[appleEmoji] failed to load @emoji-mart/data; falling back to native emoji', err);
+      console.warn(
+        '[appleEmoji] failed to load @emoji-mart/data; falling back to native emoji',
+        err,
+      );
     }
   })();
 
@@ -132,9 +148,16 @@ export function preloadAppleEmoji(): Promise<void> {
  * call to `onAppleEmojiReady` itself.
  */
 export function onAppleEmojiReady(fn: () => void): () => void {
-  if (mapping) { fn(); return () => { /* noop */ }; }
+  if (mapping) {
+    fn();
+    return () => {
+      /* noop */
+    };
+  }
   subscribers.add(fn);
-  return () => { subscribers.delete(fn); };
+  return () => {
+    subscribers.delete(fn);
+  };
 }
 
 /** Whether the emoji map has finished loading. */
@@ -180,7 +203,11 @@ export function renderTextWithAppleEmoji(
     for (let l = tryMax; l >= 1; l--) {
       const candidate = text.substr(i, l);
       const u = mapping.get(candidate);
-      if (u) { matchLen = l; matchUnified = u; break; }
+      if (u) {
+        matchLen = l;
+        matchUnified = u;
+        break;
+      }
     }
 
     if (matchLen > 0 && matchUnified) {
