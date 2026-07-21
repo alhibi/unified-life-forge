@@ -736,3 +736,211 @@ export function createDynamicPreset(baseHsl: [number, number, number]): ThemePre
     neutral: [h, clamp(s * 0.15, 0, 15), 46],
   };
 }
+
+// ─── Dynamic Tonal MD3 Tokens ───────────────────────────────
+export function generateMD3TonalTokens(preset: ThemePreset, isDark: boolean, isBlack: boolean): Record<string, string> {
+  const [pH, pS] = preset.primary;
+  const [sH, sS] = preset.secondary;
+  const [aH, aS] = preset.accent;
+  const [nH, nS] = preset.neutral;
+
+  if (!isDark) {
+    const bg = hsl(nH, nS * 0.3, 98);
+    const card = hsl(nH, nS * 0.35, 94); // MD3 surface container
+    return {
+      '--background': bg,
+      '--foreground': hsl(nH, nS * 0.5, 12),
+      '--card': card,
+      '--card-foreground': hsl(nH, nS * 0.5, 12),
+      '--popover': card,
+      '--popover-foreground': hsl(nH, nS * 0.5, 12),
+      '--primary': hsl(pH, clamp(pS * 0.8, 30, 80), 40),
+      '--primary-foreground': '0 0% 100%',
+      '--secondary': hsl(sH, clamp(sS * 0.5, 10, 40), 90),
+      '--secondary-foreground': hsl(sH, clamp(sS * 0.6, 20, 50), 15),
+      '--muted': hsl(nH, nS * 0.3, 90),
+      '--muted-foreground': hsl(nH, nS * 0.3, 40),
+      '--accent': hsl(aH, clamp(aS * 0.6, 20, 50), 90),
+      '--accent-foreground': hsl(aH, clamp(aS * 0.7, 30, 60), 20),
+      '--destructive': '3 71% 41%',
+      '--destructive-foreground': '0 0% 100%',
+      '--success': '142 60% 40%',
+      '--success-foreground': '0 0% 100%',
+      '--warning': '38 85% 50%',
+      '--warning-foreground': '38 90% 10%',
+      '--error': '3 71% 41%',
+      '--error-foreground': '0 0% 100%',
+      '--border': hsl(nH, nS * 0.4, 82),
+      '--input': hsl(nH, nS * 0.4, 50),
+      '--ring': hsl(pH, pS, 40),
+      '--radius': '1.5rem',
+    };
+  } else {
+    const bgL = isBlack ? 0 : 7;
+    const cardL = isBlack ? 4 : 12;
+    const bg = hsl(nH, nS * 0.2, bgL);
+    const card = hsl(nH, nS * 0.25, cardL);
+    return {
+      '--background': bg,
+      '--foreground': hsl(nH, nS * 0.1, 91),
+      '--card': card,
+      '--card-foreground': hsl(nH, nS * 0.1, 91),
+      '--popover': card,
+      '--popover-foreground': hsl(nH, nS * 0.1, 91),
+      '--primary': hsl(pH, clamp(pS * 0.9, 40, 90), 80),
+      '--primary-foreground': hsl(pH, pS, 20),
+      '--secondary': hsl(sH, clamp(sS * 0.4, 10, 30), 28),
+      '--secondary-foreground': hsl(sH, clamp(sS * 0.5, 20, 40), 91),
+      '--muted': hsl(nH, nS * 0.2, 20),
+      '--muted-foreground': hsl(nH, nS * 0.15, 68),
+      '--accent': hsl(aH, clamp(aS * 0.4, 15, 40), 28),
+      '--accent-foreground': hsl(aH, clamp(aS * 0.5, 20, 50), 91),
+      '--destructive': '3 70% 83%',
+      '--destructive-foreground': '359 100% 21%',
+      '--success': '142 50% 65%',
+      '--success-foreground': '142 60% 12%',
+      '--warning': '38 75% 70%',
+      '--warning-foreground': '38 80% 8%',
+      '--error': '3 70% 83%',
+      '--error-foreground': '359 100% 21%',
+      '--border': hsl(nH, nS * 0.2, 30),
+      '--input': hsl(nH, nS * 0.2, 58),
+      '--ring': hsl(pH, pS, 80),
+      '--radius': '1.5rem',
+    };
+  }
+}
+
+// ─── Dynamic iOS 2024 Tokens ────────────────────────────────
+export function generateiOSTokens(preset: ThemePreset, isDark: boolean, isBlack: boolean): Record<string, string> {
+  const [pH, pS] = preset.primary;
+
+  if (!isDark) {
+    return {
+      '--background': '240 14% 96%', // iOS system grouped background (#F2F2F7)
+      '--foreground': '0 0% 0%',
+      '--card': '0 0% 100%', // Pure white
+      '--card-foreground': '0 0% 0%',
+      '--popover': '0 0% 100%',
+      '--popover-foreground': '0 0% 0%',
+      '--primary': hsl(pH, clamp(pS, 65, 100), 50), // Apple-style vibrant preset primary
+      '--primary-foreground': '0 0% 100%',
+      '--secondary': '240 5% 91%',
+      '--secondary-foreground': '240 5% 15%',
+      '--muted': '240 5% 93%',
+      '--muted-foreground': '240 5% 52%',
+      '--accent': '240 5% 95%',
+      '--accent-foreground': hsl(pH, pS, 50),
+      '--destructive': '354 100% 56%',
+      '--destructive-foreground': '0 0% 100%',
+      '--success': '120 100% 35%',
+      '--success-foreground': '0 0% 100%',
+      '--warning': '35 100% 50%',
+      '--warning-foreground': '0 0% 100%',
+      '--error': '354 100% 56%',
+      '--error-foreground': '0 0% 100%',
+      '--border': '240 6% 88%',
+      '--input': '240 6% 88%',
+      '--ring': hsl(pH, pS, 50),
+      '--radius': '0.75rem', // 12px
+    };
+  } else {
+    const bg = isBlack ? '0 0% 0%' : '240 4% 10%'; // #000000 or #1C1C1E
+    const card = isBlack ? '0 0% 4%' : '240 4% 17%'; // #1C1C1E or #2C2C2E
+    return {
+      '--background': bg,
+      '--foreground': '0 0% 100%',
+      '--card': card,
+      '--card-foreground': '0 0% 100%',
+      '--popover': card,
+      '--popover-foreground': '0 0% 100%',
+      '--primary': hsl(pH, clamp(pS, 65, 100), 60),
+      '--primary-foreground': '0 0% 0%',
+      '--secondary': '240 4% 22%',
+      '--secondary-foreground': '240 4% 92%',
+      '--muted': '240 4% 19%',
+      '--muted-foreground': '240 2% 62%',
+      '--accent': '240 4% 16%',
+      '--accent-foreground': hsl(pH, pS, 60),
+      '--destructive': '354 100% 64%',
+      '--destructive-foreground': '0 0% 100%',
+      '--success': '120 100% 45%',
+      '--success-foreground': '0 0% 0%',
+      '--warning': '35 100% 55%',
+      '--warning-foreground': '0 0% 0%',
+      '--error': '354 100% 64%',
+      '--error-foreground': '0 0% 100%',
+      '--border': '240 4% 24%',
+      '--input': '240 4% 24%',
+      '--ring': hsl(pH, pS, 60),
+      '--radius': '0.75rem',
+    };
+  }
+}
+
+// ─── Pure Aura Tokens ───────────────────────────────────────
+export function generateAuraTokens(preset: ThemePreset, isDark: boolean, isBlack: boolean): Record<string, string> {
+  const [pH, pS] = preset.primary;
+
+  if (!isDark) {
+    return {
+      '--background': '36 20% 96%', // Warm linen sand
+      '--foreground': '36 15% 15%',
+      '--card': '36 25% 99%', // Clean silk
+      '--card-foreground': '36 15% 15%',
+      '--popover': '36 25% 99%',
+      '--popover-foreground': '36 15% 15%',
+      '--primary': hsl(pH, clamp(pS * 0.7, 20, 60), 40),
+      '--primary-foreground': '0 0% 100%',
+      '--secondary': '36 12% 91%',
+      '--secondary-foreground': '36 15% 20%',
+      '--muted': '36 10% 93%',
+      '--muted-foreground': '36 8% 48%',
+      '--accent': '36 12% 91%',
+      '--accent-foreground': hsl(pH, clamp(pS * 0.7, 20, 60), 40),
+      '--destructive': '0 45% 48%',
+      '--destructive-foreground': '0 0% 100%',
+      '--success': '145 35% 42%',
+      '--success-foreground': '0 0% 100%',
+      '--warning': '35 60% 45%',
+      '--warning-foreground': '0 0% 100%',
+      '--error': '0 45% 48%',
+      '--error-foreground': '0 0% 100%',
+      '--border': '36 12% 88%',
+      '--input': '36 12% 88%',
+      '--ring': hsl(pH, pS * 0.7, 40),
+      '--radius': '1.75rem',
+    };
+  } else {
+    const bg = isBlack ? '0 0% 0%' : '240 8% 7%'; // Deep obsidian
+    const card = isBlack ? '0 0% 4%' : '240 6% 12%'; // Pure obsidian slate
+    return {
+      '--background': bg,
+      '--foreground': '240 4% 92%',
+      '--card': card,
+      '--card-foreground': '240 4% 92%',
+      '--popover': card,
+      '--popover-foreground': '240 4% 92%',
+      '--primary': hsl(pH, clamp(pS * 0.8, 30, 70), 65),
+      '--primary-foreground': bg,
+      '--secondary': '240 6% 16%',
+      '--secondary-foreground': '240 4% 85%',
+      '--muted': '240 6% 14%',
+      '--muted-foreground': '240 3% 62%',
+      '--accent': '240 6% 16%',
+      '--accent-foreground': hsl(pH, clamp(pS * 0.8, 30, 70), 65),
+      '--destructive': '0 60% 60%',
+      '--destructive-foreground': '0 0% 100%',
+      '--success': '145 45% 55%',
+      '--success-foreground': '0 0% 0%',
+      '--warning': '35 70% 65%',
+      '--warning-foreground': '0 0% 0%',
+      '--error': '0 60% 60%',
+      '--error-foreground': '0 0% 100%',
+      '--border': '240 5% 18%',
+      '--input': '240 5% 18%',
+      '--ring': hsl(pH, pS * 0.8, 65),
+      '--radius': '1.75rem',
+    };
+  }
+}
