@@ -745,56 +745,56 @@ export function generateMD3TonalTokens(preset: ThemePreset, isDark: boolean, isB
   const [nH, nS] = preset.neutral;
 
   if (!isDark) {
-    const bg = hsl(nH, nS * 0.3, 98);
-    const card = hsl(nH, nS * 0.35, 94); // MD3 surface container
+    const bg = hsl(nH, nS * 0.25, 99); // Material 3 baseline light surface
+    const card = hsl(nH, nS * 0.35, 95); // MD3 Surface Container
     return {
       '--background': bg,
-      '--foreground': hsl(nH, nS * 0.5, 12),
+      '--foreground': hsl(nH, nS * 0.6, 12),
       '--card': card,
-      '--card-foreground': hsl(nH, nS * 0.5, 12),
+      '--card-foreground': hsl(nH, nS * 0.6, 12),
       '--popover': card,
-      '--popover-foreground': hsl(nH, nS * 0.5, 12),
-      '--primary': hsl(pH, clamp(pS * 0.8, 30, 80), 40),
+      '--popover-foreground': hsl(nH, nS * 0.6, 12),
+      '--primary': hsl(pH, clamp(pS * 0.95, 45, 95), 44), // Highly saturated Google baseline primary
       '--primary-foreground': '0 0% 100%',
-      '--secondary': hsl(sH, clamp(sS * 0.5, 10, 40), 90),
-      '--secondary-foreground': hsl(sH, clamp(sS * 0.6, 20, 50), 15),
-      '--muted': hsl(nH, nS * 0.3, 90),
-      '--muted-foreground': hsl(nH, nS * 0.3, 40),
-      '--accent': hsl(aH, clamp(aS * 0.6, 20, 50), 90),
-      '--accent-foreground': hsl(aH, clamp(aS * 0.7, 30, 60), 20),
+      '--secondary': hsl(sH, clamp(sS * 0.6, 15, 45), 90), // secondary container
+      '--secondary-foreground': hsl(sH, clamp(sS * 0.7, 25, 55), 18), // on secondary container
+      '--muted': hsl(nH, nS * 0.4, 91),
+      '--muted-foreground': hsl(nH, nS * 0.35, 38),
+      '--accent': hsl(aH, clamp(aS * 0.7, 25, 55), 90), // tertiary container
+      '--accent-foreground': hsl(aH, clamp(aS * 0.8, 35, 65), 22), // on tertiary container
       '--destructive': '3 71% 41%',
       '--destructive-foreground': '0 0% 100%',
-      '--success': '142 60% 40%',
+      '--success': '142 60% 36%',
       '--success-foreground': '0 0% 100%',
-      '--warning': '38 85% 50%',
+      '--warning': '38 85% 45%',
       '--warning-foreground': '38 90% 10%',
       '--error': '3 71% 41%',
       '--error-foreground': '0 0% 100%',
-      '--border': hsl(nH, nS * 0.4, 82),
-      '--input': hsl(nH, nS * 0.4, 50),
-      '--ring': hsl(pH, pS, 40),
-      '--radius': '1.5rem',
+      '--border': hsl(nH, nS * 0.45, 84), // outline variant
+      '--input': hsl(nH, nS * 0.45, 46), // outline
+      '--ring': hsl(pH, pS, 44),
+      '--radius': '1.75rem',
     };
   } else {
-    const bgL = isBlack ? 0 : 7;
-    const cardL = isBlack ? 4 : 12;
-    const bg = hsl(nH, nS * 0.2, bgL);
-    const card = hsl(nH, nS * 0.25, cardL);
+    const bgL = isBlack ? 0 : 8; // Deep baseline pitch
+    const cardL = isBlack ? 4 : 14; // Surface Container Dark
+    const bg = hsl(nH, nS * 0.15, bgL);
+    const card = hsl(nH, nS * 0.22, cardL);
     return {
       '--background': bg,
-      '--foreground': hsl(nH, nS * 0.1, 91),
+      '--foreground': hsl(nH, nS * 0.12, 92),
       '--card': card,
-      '--card-foreground': hsl(nH, nS * 0.1, 91),
+      '--card-foreground': hsl(nH, nS * 0.12, 92),
       '--popover': card,
-      '--popover-foreground': hsl(nH, nS * 0.1, 91),
-      '--primary': hsl(pH, clamp(pS * 0.9, 40, 90), 80),
-      '--primary-foreground': hsl(pH, pS, 20),
-      '--secondary': hsl(sH, clamp(sS * 0.4, 10, 30), 28),
-      '--secondary-foreground': hsl(sH, clamp(sS * 0.5, 20, 40), 91),
-      '--muted': hsl(nH, nS * 0.2, 20),
-      '--muted-foreground': hsl(nH, nS * 0.15, 68),
-      '--accent': hsl(aH, clamp(aS * 0.4, 15, 40), 28),
-      '--accent-foreground': hsl(aH, clamp(aS * 0.5, 20, 50), 91),
+      '--popover-foreground': hsl(nH, nS * 0.12, 92),
+      '--primary': hsl(pH, clamp(pS * 1.05, 50, 95), 84), // Highly vibrant glowing M3 primary in dark mode
+      '--primary-foreground': hsl(pH, pS, 18),
+      '--secondary': hsl(sH, clamp(sS * 0.5, 12, 35), 32),
+      '--secondary-foreground': hsl(sH, clamp(sS * 0.6, 25, 45), 92),
+      '--muted': hsl(nH, nS * 0.25, 22),
+      '--muted-foreground': hsl(nH, nS * 0.18, 72),
+      '--accent': hsl(aH, clamp(aS * 0.5, 18, 45), 32),
+      '--accent-foreground': hsl(aH, clamp(aS * 0.6, 25, 55), 92),
       '--destructive': '3 70% 83%',
       '--destructive-foreground': '359 100% 21%',
       '--success': '142 50% 65%',
@@ -803,10 +803,10 @@ export function generateMD3TonalTokens(preset: ThemePreset, isDark: boolean, isB
       '--warning-foreground': '38 80% 8%',
       '--error': '3 70% 83%',
       '--error-foreground': '359 100% 21%',
-      '--border': hsl(nH, nS * 0.2, 30),
-      '--input': hsl(nH, nS * 0.2, 58),
-      '--ring': hsl(pH, pS, 80),
-      '--radius': '1.5rem',
+      '--border': hsl(nH, nS * 0.25, 34),
+      '--input': hsl(nH, nS * 0.25, 62),
+      '--ring': hsl(pH, pS, 84),
+      '--radius': '1.75rem',
     };
   }
 }

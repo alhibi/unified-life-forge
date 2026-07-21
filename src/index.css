@@ -1040,72 +1040,333 @@ html.theme-transition *::after {
    DESIGN PARADIGM OVERRIDES (Material 3, iOS, and Pure Aura)
    ════════════════════════════════════════════════════════════ */
 
-/* ── Material Design 3 (MD3) ───────────────────────────────── */
+/* ── 1. Classic (Obsidian Gold & Luxury) ────────────────────── */
+html[data-design-mode="classic"] {
+  --radius: 0.625rem;
+}
+html[data-design-mode="classic"] .app-card,
+html[data-design-mode="classic"] .premium-card,
+html[data-design-mode="classic"] .premium-card-elevated,
+html[data-design-mode="classic"] .premium-card-intense,
+html[data-design-mode="classic"] .card {
+  border-radius: var(--radius) !important;
+  border: 1px solid rgba(201, 168, 76, 0.2) !important;
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.03), 0 4px 20px rgba(0, 0, 0, 0.2) !important;
+  background-color: hsl(var(--card)) !important;
+  transition: transform 300ms cubic-bezier(0.28, 0.11, 0.32, 1),
+              border-color 300ms cubic-bezier(0.28, 0.11, 0.32, 1),
+              box-shadow 300ms cubic-bezier(0.28, 0.11, 0.32, 1) !important;
+}
+html[data-design-mode="classic"] .app-card:hover,
+html[data-design-mode="classic"] .premium-card:hover,
+html[data-design-mode="classic"] .premium-card-elevated:hover,
+html[data-design-mode="classic"] .premium-card-intense:hover {
+  border-color: rgba(201, 168, 76, 0.45) !important;
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.05), 0 0 15px rgba(201, 168, 76, 0.15) !important;
+}
+html[data-design-mode="classic"] button:not(.preserve-fx),
+html[data-design-mode="classic"] [role="button"]:not(.preserve-fx),
+html[data-design-mode="classic"] a:not(.preserve-fx) {
+  border-radius: 0.5rem !important;
+  font-family: 'Tajawal', 'IBM Plex Sans Arabic', sans-serif !important;
+  font-weight: 700 !important;
+  border: 1px solid rgba(201, 168, 76, 0.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+  transition: all 250ms cubic-bezier(0.28, 0.11, 0.32, 1) !important;
+}
+html[data-design-mode="classic"] button.btn-primary,
+html[data-design-mode="classic"] .bg-primary {
+  background: linear-gradient(135deg, #C9A84C, #A48434) !important;
+  color: #12110f !important;
+  border: 1px solid rgba(201, 168, 76, 0.3) !important;
+  text-shadow: 0 0.5px 1px rgba(255, 255, 255, 0.25) !important;
+}
+html[data-design-mode="classic"] button.btn-primary:active {
+  transform: scale(0.97) !important;
+  filter: brightness(0.9) !important;
+}
+html[data-design-mode="classic"] button.btn-secondary {
+  background-color: rgba(201, 168, 76, 0.06) !important;
+  color: #C9A84C !important;
+  border: 1px solid rgba(201, 168, 76, 0.2) !important;
+}
+html[data-design-mode="classic"] button.btn-secondary:hover {
+  background-color: rgba(201, 168, 76, 0.12) !important;
+  border-color: rgba(201, 168, 76, 0.35) !important;
+}
+html[data-design-mode="classic"] input,
+html[data-design-mode="classic"] textarea,
+html[data-design-mode="classic"] select {
+  border-radius: 0.5rem !important;
+  border: 1px solid rgba(201, 168, 76, 0.25) !important;
+  background-color: rgba(20, 18, 15, 0.6) !important;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4) !important;
+  color: #f3ece1 !important;
+  transition: all 250ms cubic-bezier(0.28, 0.11, 0.32, 1) !important;
+}
+html[data-design-mode="classic"] input:focus,
+html[data-design-mode="classic"] textarea:focus,
+html[data-design-mode="classic"] select:focus {
+  border-color: #C9A84C !important;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5), 0 0 10px rgba(201, 168, 76, 0.2) !important;
+}
+html[data-design-mode="classic"] ::-webkit-scrollbar-thumb {
+  background: rgba(201, 168, 76, 0.3) !important;
+  border: 1px solid rgba(201, 168, 76, 0.1);
+}
+
+/* ── 2. Material Design 3 (MD3) ────────────────────────────── */
+html[data-design-mode="md3"] {
+  --radius: 1.75rem;
+}
 html[data-design-mode="md3"] .app-card,
 html[data-design-mode="md3"] .premium-card,
 html[data-design-mode="md3"] .premium-card-elevated,
-html[data-design-mode="md3"] .premium-card-intense {
-  border-radius: 1.5rem !important; /* Authentic MD3 large shapes */
-  border-color: hsl(var(--border) / 0.4) !important;
+html[data-design-mode="md3"] .premium-card-intense,
+html[data-design-mode="md3"] .card {
+  border-radius: var(--radius) !important;
+  border: 1.5px solid hsl(var(--border) / 0.45) !important;
+  background-color: hsl(var(--card)) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+  transition: transform 350ms cubic-bezier(0.34, 1.56, 0.64, 1),
+              background-color 250ms ease,
+              border-color 250ms ease,
+              box-shadow 350ms cubic-bezier(0.34, 1.56, 0.64, 1) !important;
 }
-html[data-design-mode="md3"] button:not(.preserve-fx):not(.app-icon-btn),
-html[data-design-mode="md3"] [role="button"]:not(.preserve-fx):not(.app-icon-btn),
-html[data-design-mode="md3"] a:not(.preserve-fx):not(.app-icon-btn) {
-  border-radius: 9999px !important; /* Pill shape buttons */
+html[data-design-mode="md3"] .app-card:hover,
+html[data-design-mode="md3"] .premium-card:hover,
+html[data-design-mode="md3"] .premium-card-elevated:hover,
+html[data-design-mode="md3"] .premium-card-intense:hover {
+  transform: scale(1.01) translateY(-2px) !important;
+  border-color: hsl(var(--primary)) !important;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08) !important;
 }
-html[data-design-mode="md3"] .app-icon-btn {
+html[data-design-mode="md3"] button:not(.preserve-fx),
+html[data-design-mode="md3"] [role="button"]:not(.preserve-fx),
+html[data-design-mode="md3"] a:not(.preserve-fx) {
+  border-radius: 9999px !important; /* Authentic M3 rounded capsules */
+  font-family: 'Readex Pro', sans-serif !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.1px !important;
+  padding: 0.625rem 1.5rem !important;
+  text-transform: none !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+  transition: all 280ms cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+html[data-design-mode="md3"] button.btn-primary,
+html[data-design-mode="md3"] .bg-primary {
+  background-color: hsl(var(--primary)) !important;
+  color: hsl(var(--primary-foreground)) !important;
+  position: relative;
+  overflow: hidden;
+}
+html[data-design-mode="md3"] button.btn-primary::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-color: currentColor;
+  opacity: 0;
+  transition: opacity 150ms linear;
+}
+html[data-design-mode="md3"] button.btn-primary:hover::after {
+  opacity: 0.08; /* State layer hover */
+}
+html[data-design-mode="md3"] button.btn-primary:active::after {
+  opacity: 0.12; /* State layer press */
+}
+html[data-design-mode="md3"] button.btn-secondary {
+  background-color: hsl(var(--secondary)) !important;
+  color: hsl(var(--secondary-foreground)) !important;
+  border: none !important;
+}
+html[data-design-mode="md3"] button.btn-secondary:hover {
+  filter: brightness(0.96);
+}
+html[data-design-mode="md3"] input,
+html[data-design-mode="md3"] textarea,
+html[data-design-mode="md3"] select {
+  border-radius: 1rem !important;
+  border: 2px solid hsl(var(--border)) !important;
+  background-color: hsl(var(--secondary) / 0.3) !important;
+  padding: 0.75rem 1rem !important;
+  transition: all 250ms cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+html[data-design-mode="md3"] input:focus,
+html[data-design-mode="md3"] textarea:focus,
+html[data-design-mode="md3"] select:focus {
+  border-color: hsl(var(--primary)) !important;
+  background-color: hsl(var(--card)) !important;
+  outline: none !important;
+}
+html[data-design-mode="md3"] ::-webkit-scrollbar-thumb {
+  background: hsl(var(--primary) / 0.15) !important;
   border-radius: 9999px !important;
 }
 
-/* ── iOS 2024 Native ───────────────────────────────────────── */
+/* ── 3. iOS 2024 Style ────────────────────────────────────── */
+html[data-design-mode="ios"] {
+  --radius: 0.8rem;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+}
 html[data-design-mode="ios"] .app-card,
 html[data-design-mode="ios"] .premium-card,
 html[data-design-mode="ios"] .premium-card-elevated,
-html[data-design-mode="ios"] .premium-card-intense {
-  border-radius: 0.75rem !important; /* Compact clean iOS cards */
-  border-width: 1px !important;
-  border-color: hsl(var(--border) / 0.5) !important;
+html[data-design-mode="ios"] .premium-card-intense,
+html[data-design-mode="ios"] .card {
+  border-radius: var(--radius) !important;
+  border: 0.5px solid rgba(150, 150, 150, 0.25) !important;
+  background-color: hsl(var(--card) / 0.88) !important;
+  backdrop-filter: blur(24px) saturate(190%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(190%) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04) !important;
+  transition: transform 200ms cubic-bezier(0.25, 0.8, 0.25, 1),
+              background-color 200ms ease,
+              box-shadow 200ms ease !important;
 }
-html[data-design-mode="ios"] button:not(.preserve-fx):not(.app-icon-btn),
-html[data-design-mode="ios"] [role="button"]:not(.preserve-fx):not(.app-icon-btn),
-html[data-design-mode="ios"] a:not(.preserve-fx):not(.app-icon-btn) {
-  border-radius: 0.75rem !important;
+html[data-design-mode="ios"] .app-card:active,
+html[data-design-mode="ios"] .premium-card:active,
+html[data-design-mode="ios"] .premium-card-elevated:active,
+html[data-design-mode="ios"] .card:active {
+  transform: scale(0.965) !important;
 }
-html[data-design-mode="ios"] .app-icon-btn {
-  border-radius: 0.75rem !important;
+html[data-design-mode="ios"] button:not(.preserve-fx),
+html[data-design-mode="ios"] [role="button"]:not(.preserve-fx),
+html[data-design-mode="ios"] a:not(.preserve-fx) {
+  border-radius: 0.65rem !important;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif !important;
+  font-weight: 600 !important;
+  transition: all 200ms cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+}
+html[data-design-mode="ios"] button.btn-primary,
+html[data-design-mode="ios"] .bg-primary {
+  background-color: #007AFF !important; /* Pure Apple Blue */
+  color: #FFFFFF !important;
+  box-shadow: none !important;
+}
+html[data-design-mode="ios"] button.btn-primary:active {
+  opacity: 0.78 !important;
+}
+html[data-design-mode="ios"] button.btn-secondary {
+  background-color: rgba(120, 120, 128, 0.12) !important;
+  color: #007AFF !important;
+  border: none !important;
+}
+html[data-design-mode="ios"] button.btn-secondary:active {
+  background-color: rgba(120, 120, 128, 0.2) !important;
+}
+html[data-design-mode="ios"] input,
+html[data-design-mode="ios"] textarea,
+html[data-design-mode="ios"] select {
+  border-radius: 0.65rem !important;
+  border: 0.5px solid rgba(150, 150, 150, 0.3) !important;
+  background-color: rgba(120, 120, 128, 0.08) !important;
+  padding: 0.5rem 0.75rem !important;
+  color: var(--foreground) !important;
+  transition: all 200ms ease !important;
+}
+html[data-design-mode="ios"] input:focus,
+html[data-design-mode="ios"] textarea:focus,
+html[data-design-mode="ios"] select:focus {
+  background-color: hsl(var(--card)) !important;
+  border-color: #007AFF !important;
+  outline: none !important;
+}
+html[data-design-mode="ios"] ::-webkit-scrollbar-thumb {
+  background: rgba(120, 120, 128, 0.2) !important;
+  border-radius: 9999px !important;
 }
 
-/* ── Pure Aura (البساطة الفاخرة) ────────────────────────────────── */
+/* ── 4. Pure Aura (Silk Minimal) ────────────────────────────── */
 html[data-design-mode="aura"]::before {
   content: "";
   position: fixed;
   inset: 0;
   z-index: -2;
-  background: radial-gradient(circle at 15% 20%, hsl(var(--primary) / 0.05) 0%, transparent 45%),
-              radial-gradient(circle at 85% 75%, hsl(var(--primary) / 0.05) 0%, transparent 45%),
+  background: radial-gradient(circle at 10% 15%, hsl(var(--primary) / 0.04) 0%, transparent 45%),
+              radial-gradient(circle at 90% 85%, hsl(var(--primary) / 0.04) 0%, transparent 45%),
               hsl(var(--background));
-  animation: aura-background-drift 24s ease-in-out infinite alternate;
+  animation: aura-background-drift 35s ease-in-out infinite alternate;
   pointer-events: none;
 }
 @keyframes aura-background-drift {
-  0% { filter: hue-rotate(0deg) saturate(1); }
-  100% { filter: hue-rotate(18deg) saturate(1.1); }
+  0% { transform: scale(1) translate(0, 0); filter: hue-rotate(0deg) saturate(0.95); }
+  50% { transform: scale(1.05) translate(2%, -1%); }
+  100% { transform: scale(1.1) translate(-1%, 2%); filter: hue-rotate(15deg) saturate(1.05); }
+}
+html[data-design-mode="aura"] {
+  --radius: 2rem;
+  font-family: 'Inter', 'Readex Pro', sans-serif !important;
 }
 html[data-design-mode="aura"] .app-card,
 html[data-design-mode="aura"] .premium-card,
 html[data-design-mode="aura"] .premium-card-elevated,
-html[data-design-mode="aura"] .premium-card-intense {
-  border-radius: 1.75rem !important; /* Organic luxurious curves */
-  border-width: 1px !important;
-  border-color: hsl(var(--border) / 0.3) !important;
-  background-color: hsl(var(--card) / 0.72) !important;
-  backdrop-filter: blur(28px) saturate(120%) !important;
-  -webkit-backdrop-filter: blur(28px) saturate(120%) !important;
+html[data-design-mode="aura"] .premium-card-intense,
+html[data-design-mode="aura"] .card {
+  border-radius: var(--radius) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  background-color: hsl(var(--card) / 0.65) !important;
+  backdrop-filter: blur(32px) saturate(110%) !important;
+  -webkit-backdrop-filter: blur(32px) saturate(110%) !important;
+  box-shadow: 0 10px 40px -10px hsl(var(--primary) / 0.03) !important;
+  transition: all 400ms cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
-html[data-design-mode="aura"] button:not(.preserve-fx):not(.app-icon-btn),
-html[data-design-mode="aura"] [role="button"]:not(.preserve-fx):not(.app-icon-btn),
-html[data-design-mode="aura"] a:not(.preserve-fx):not(.app-icon-btn) {
+html[data-design-mode="aura"] .app-card:hover,
+html[data-design-mode="aura"] .premium-card:hover,
+html[data-design-mode="aura"] .premium-card-elevated:hover,
+html[data-design-mode="aura"] .premium-card-intense:hover {
+  transform: translateY(-4px) scale(1.015) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 0 15px 45px -5px hsl(var(--primary) / 0.06), 0 0 25px hsl(var(--primary) / 0.05) !important;
+}
+html[data-design-mode="aura"] button:not(.preserve-fx),
+html[data-design-mode="aura"] [role="button"]:not(.preserve-fx),
+html[data-design-mode="aura"] a:not(.preserve-fx) {
   border-radius: 1.25rem !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.3px !important;
+  transition: all 300ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+html[data-design-mode="aura"] button.btn-primary,
+html[data-design-mode="aura"] .bg-primary {
+  background-color: hsl(var(--primary)) !important;
+  color: hsl(var(--primary-foreground)) !important;
+  box-shadow: 0 8px 24px -6px hsl(var(--primary) / 0.25) !important;
+}
+html[data-design-mode="aura"] button.btn-primary:hover {
+  transform: translateY(-2px) scale(1.03) !important;
+  box-shadow: 0 12px 28px -4px hsl(var(--primary) / 0.35) !important;
+}
+html[data-design-mode="aura"] button.btn-secondary {
+  background-color: transparent !important;
+  color: hsl(var(--primary)) !important;
+  border: 1px solid hsl(var(--border) / 0.4) !important;
+}
+html[data-design-mode="aura"] button.btn-secondary:hover {
+  background-color: hsl(var(--primary) / 0.03) !important;
+  border-color: hsl(var(--primary) / 0.3) !important;
+  transform: translateY(-1px) !important;
+}
+html[data-design-mode="aura"] input,
+html[data-design-mode="aura"] textarea,
+html[data-design-mode="aura"] select {
+  border-radius: 1.25rem !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  background-color: hsl(var(--secondary) / 0.2) !important;
+  backdrop-filter: blur(10px) !important;
+  padding: 0.75rem 1rem !important;
+  transition: all 300ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+html[data-design-mode="aura"] input:focus,
+html[data-design-mode="aura"] textarea:focus,
+html[data-design-mode="aura"] select:focus {
+  background-color: hsl(var(--card) / 0.9) !important;
+  border-color: hsl(var(--primary) / 0.4) !important;
+  box-shadow: 0 0 15px hsl(var(--primary) / 0.05) !important;
+  outline: none !important;
+}
+html[data-design-mode="aura"] ::-webkit-scrollbar-thumb {
+  background: hsl(var(--primary) / 0.08) !important;
+  border-radius: 9999px !important;
 }
 html[data-design-mode="aura"] .app-icon-btn {
   border-radius: 1.25rem !important;
