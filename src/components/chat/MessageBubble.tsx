@@ -1,10 +1,19 @@
+import { AnimatePresence, motion, useMotionValue, useTransform } from 'framer-motion';
 import React, { useCallback, useRef, useState } from 'react';
-import { motion, useMotionValue, useTransform, AnimatePresence } from 'framer-motion';
+
 import {
-  Reply, Check, CheckCheck, Clock, AlertCircle, RotateCw,
-  Star, Pin, Bookmark, Heart, ThumbsUp, Sparkles,
+  AlertCircle,
+  Check,
+  CheckCheck,
+  Clock,
+  Heart,
+  Reply,
+  RotateCw,
+  Sparkles,
+  Star,
 } from '@/lib/icons';
 import { cn } from '@/lib/utils';
+
 import type { Message, MessageStatus } from './types';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -19,10 +28,16 @@ interface SwipeableMessageProps {
   onSwipeReply: () => void;
 }
 
-export function SwipeableMessage({ children, isMine, deleted, disabled, onSwipeReply }: SwipeableMessageProps) {
+export function SwipeableMessage({
+  children,
+  isMine,
+  deleted,
+  disabled,
+  onSwipeReply,
+}: SwipeableMessageProps) {
   const x = useMotionValue(0);
   const replyIconOpacity = useTransform(x, [0, 30, 50], [0, 0.5, 1]);
-  const replyIconScale   = useTransform(x, [0, 30, 50], [0.5, 0.8, 1]);
+  const replyIconScale = useTransform(x, [0, 30, 50], [0.5, 0.8, 1]);
 
   return (
     <div className="relative overflow-visible w-full">
@@ -42,8 +57,12 @@ export function SwipeableMessage({ children, isMine, deleted, disabled, onSwipeR
         dragConstraints={{ left: 0, right: 0 }}
         dragElastic={{ left: 0, right: 0.4 }}
         dragSnapToOrigin
-        onDrag={(_, info) => { if (info.offset.x < 0) x.set(0); }}
-        onDragEnd={(_, info) => { if (info.offset.x > 50) onSwipeReply(); }}
+        onDrag={(_, info) => {
+          if (info.offset.x < 0) x.set(0);
+        }}
+        onDragEnd={(_, info) => {
+          if (info.offset.x > 50) onSwipeReply();
+        }}
       >
         {children}
       </motion.div>
@@ -61,7 +80,11 @@ interface DoubleTapHeartProps {
   onDoubleTap?: () => void;
 }
 
-export const DoubleTapHeart = React.memo(function DoubleTapHeart({ children, disabled, onDoubleTap }: DoubleTapHeartProps) {
+export const DoubleTapHeart = React.memo(function DoubleTapHeart({
+  children,
+  disabled,
+  onDoubleTap,
+}: DoubleTapHeartProps) {
   const [showHeart, setShowHeart] = useState(false);
   const lastTapRef = useRef(0);
 
@@ -115,12 +138,20 @@ export const MessageStarBadge = React.memo(function MessageStarBadge({ isAr }: {
 // ─────────────────────────────────────────────────────────────────────────────
 // EditedBadge — subtle "(edited)" indicator for modified messages.
 // ─────────────────────────────────────────────────────────────────────────────
-export const EditedBadge = React.memo(function EditedBadge({ isAr, dimmed }: { isAr?: boolean; dimmed?: boolean }) {
+export const EditedBadge = React.memo(function EditedBadge({
+  isAr,
+  dimmed,
+}: {
+  isAr?: boolean;
+  dimmed?: boolean;
+}) {
   return (
-    <span className={cn(
-      'text-[9px] italic',
-      dimmed ? 'text-primary-foreground/50' : 'text-muted-foreground/50'
-    )}>
+    <span
+      className={cn(
+        'text-[9px] italic',
+        dimmed ? 'text-primary-foreground/50' : 'text-muted-foreground/50',
+      )}
+    >
       {isAr ? 'معدّلة' : 'bearbeitet'}
     </span>
   );
@@ -134,13 +165,19 @@ interface SelfDestructTimerProps {
   isAr?: boolean;
 }
 
-export const SelfDestructTimer = React.memo(function SelfDestructTimer({ expiresAt, isAr }: SelfDestructTimerProps) {
+export const SelfDestructTimer = React.memo(function SelfDestructTimer({
+  expiresAt,
+  isAr,
+}: SelfDestructTimerProps) {
   const [remaining, setRemaining] = React.useState('');
 
   React.useEffect(() => {
     const update = () => {
       const diff = Math.max(0, new Date(expiresAt).getTime() - Date.now());
-      if (diff <= 0) { setRemaining(isAr ? 'منتهية' : 'Abgelaufen'); return; }
+      if (diff <= 0) {
+        setRemaining(isAr ? 'منتهية' : 'Abgelaufen');
+        return;
+      }
       const s = Math.floor(diff / 1000);
       if (s < 60) setRemaining(`${s}s`);
       else if (s < 3600) setRemaining(`${Math.floor(s / 60)}m`);
@@ -174,7 +211,7 @@ export const SelfDestructTimer = React.memo(function SelfDestructTimer({ expires
 export const TypingDots = React.memo(function TypingDots({ size = 5 }: { size?: number }) {
   return (
     <div className="flex items-center gap-[3px] py-0.5">
-      {[0, 1, 2].map(i => (
+      {[0, 1, 2].map((i) => (
         <motion.div
           key={i}
           className="rounded-full bg-primary"
@@ -208,85 +245,110 @@ interface MessageTicksProps {
   isAr?: boolean;
 }
 
-export const MessageTicks = React.memo(function MessageTicks({ status, read, dimmed, onRetry, isAr }: MessageTicksProps) {
-  // Resolve effective status. Legacy rows have no `status`; default to read
-  // when read=true, otherwise 'sent'.
-  const eff: MessageStatus = status ?? (read ? 'read' : 'sent');
+export const MessageTicks = React.memo(
+  function MessageTicks({ status, read, dimmed, onRetry, isAr }: MessageTicksProps) {
+    // Resolve effective status. Legacy rows have no `status`; default to read
+    // when read=true, otherwise 'sent'.
+    const eff: MessageStatus = status ?? (read ? 'read' : 'sent');
 
-  if (eff === 'pending') {
+    if (eff === 'pending') {
+      return (
+        <motion.span
+          initial={{ opacity: 0, scale: 0.5 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="inline-flex"
+        >
+          <Clock
+            className={cn(
+              'h-[11px] w-[11px] animate-pulse',
+              dimmed ? 'text-primary-foreground/70' : 'text-muted-foreground/60',
+            )}
+            aria-label={isAr ? 'يجري الإرسال' : 'Wird gesendet'}
+          />
+        </motion.span>
+      );
+    }
+    if (eff === 'failed') {
+      return (
+        <motion.button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onRetry?.();
+          }}
+          className="inline-flex items-center gap-[2px] text-destructive"
+          aria-label={isAr ? 'إعادة المحاولة' : 'Erneut versuchen'}
+          whileTap={{ scale: 0.85 }}
+          animate={{ x: [0, -2, 2, -2, 0] }}
+          transition={{ duration: 0.4 }}
+        >
+          <AlertCircle className="h-[12px] w-[12px]" />
+          <RotateCw className="h-[10px] w-[10px]" />
+        </motion.button>
+      );
+    }
+    if (eff === 'read') {
+      return (
+        <motion.span
+          initial={{ scale: 0.8 }}
+          animate={{ scale: 1 }}
+          transition={{ type: 'spring', damping: 15, stiffness: 400 }}
+          className="inline-flex"
+        >
+          <CheckCheck
+            className="h-[11px] w-[11px] text-[#C9A84C]"
+            aria-label={isAr ? 'مقروءة' : 'Gelesen'}
+          />
+        </motion.span>
+      );
+    }
+    if (eff === 'delivered') {
+      return (
+        <motion.span initial={{ scale: 0.8 }} animate={{ scale: 1 }} className="inline-flex">
+          <CheckCheck
+            className={cn(
+              'h-[11px] w-[11px]',
+              dimmed ? 'text-primary-foreground/70' : 'text-muted-foreground/60',
+            )}
+            aria-label={isAr ? 'وصلت' : 'Zugestellt'}
+          />
+        </motion.span>
+      );
+    }
+    // sent
     return (
       <motion.span
-        initial={{ opacity: 0, scale: 0.5 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="inline-flex"
-      >
-        <Clock className={cn('h-[11px] w-[11px] animate-pulse', dimmed ? 'text-primary-foreground/70' : 'text-muted-foreground/60')} aria-label={isAr ? 'يجري الإرسال' : 'Wird gesendet'} />
-      </motion.span>
-    );
-  }
-  if (eff === 'failed') {
-    return (
-      <motion.button
-        type="button"
-        onClick={(e) => { e.stopPropagation(); onRetry?.(); }}
-        className="inline-flex items-center gap-[2px] text-destructive"
-        aria-label={isAr ? 'إعادة المحاولة' : 'Erneut versuchen'}
-        whileTap={{ scale: 0.85 }}
-        animate={{ x: [0, -2, 2, -2, 0] }}
-        transition={{ duration: 0.4 }}
-      >
-        <AlertCircle className="h-[12px] w-[12px]" />
-        <RotateCw className="h-[10px] w-[10px]" />
-      </motion.button>
-    );
-  }
-  if (eff === 'read') {
-    return (
-      <motion.span
-        initial={{ scale: 0.8 }}
+        initial={{ scale: 0 }}
         animate={{ scale: 1 }}
-        transition={{ type: 'spring', damping: 15, stiffness: 400 }}
+        transition={{ type: 'spring', damping: 12 }}
         className="inline-flex"
       >
-        <CheckCheck className="h-[11px] w-[11px] text-primary" aria-label={isAr ? 'مقروءة' : 'Gelesen'} />
+        <Check
+          className={cn(
+            'h-[11px] w-[11px]',
+            dimmed ? 'text-primary-foreground/70' : 'text-muted-foreground/60',
+          )}
+          aria-label={isAr ? 'أُرسلت' : 'Gesendet'}
+        />
       </motion.span>
     );
-  }
-  if (eff === 'delivered') {
+  },
+  (prev, next) => {
+    // Custom comparator. We deliberately ignore `onRetry` identity because
+    // call sites typically pass an inline arrow `() => retry(msg)` that
+    // changes reference every parent render. The handler is only invoked
+    // on a click — at which point it captures the latest props via
+    // closure of the parent scope, so the staleness window is at most
+    // one render and the retry call itself is idempotent (same outcome
+    // regardless of which version of the closure runs).
     return (
-      <motion.span
-        initial={{ scale: 0.8 }}
-        animate={{ scale: 1 }}
-        className="inline-flex"
-      >
-        <CheckCheck className={cn('h-[11px] w-[11px]', dimmed ? 'text-primary-foreground/70' : 'text-muted-foreground/60')} aria-label={isAr ? 'وصلت' : 'Zugestellt'} />
-      </motion.span>
+      prev.status === next.status &&
+      prev.read === next.read &&
+      prev.dimmed === next.dimmed &&
+      prev.isAr === next.isAr
     );
-  }
-  // sent
-  return (
-    <motion.span
-      initial={{ scale: 0 }}
-      animate={{ scale: 1 }}
-      transition={{ type: 'spring', damping: 12 }}
-      className="inline-flex"
-    >
-      <Check className={cn('h-[11px] w-[11px]', dimmed ? 'text-primary-foreground/70' : 'text-muted-foreground/60')} aria-label={isAr ? 'أُرسلت' : 'Gesendet'} />
-    </motion.span>
-  );
-}, (prev, next) => {
-  // Custom comparator. We deliberately ignore `onRetry` identity because
-  // call sites typically pass an inline arrow `() => retry(msg)` that
-  // changes reference every parent render. The handler is only invoked
-  // on a click — at which point it captures the latest props via
-  // closure of the parent scope, so the staleness window is at most
-  // one render and the retry call itself is idempotent (same outcome
-  // regardless of which version of the closure runs).
-  return prev.status === next.status
-      && prev.read === next.read
-      && prev.dimmed === next.dimmed
-      && prev.isAr === next.isAr;
-});
+  },
+);
 
 // ─────────────────────────────────────────────────────────────────────────────
 // ReactionPill — pill that shows an emoji + count, plus a subtle outline if
@@ -302,60 +364,74 @@ interface ReactionPillProps {
   ariaLabel?: string;
 }
 
-export const ReactionPill = React.memo(function ReactionPill({ emoji, count, reactedByMe, onClick, ariaLabel }: ReactionPillProps) {
-  return (
-    <motion.button
-      type="button"
-      onClick={(e) => { e.stopPropagation(); onClick?.(); }}
-      className={cn(
-        'inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[13px] border select-none',
-        reactedByMe
-          ? 'bg-primary/15 border-primary/40 ring-1 ring-primary/20  '
-          : 'bg-card border-border/20 hover:bg-muted/30',
-      )}
-      whileTap={{ scale: 0.85 }}
-      layout
-      transition={{ type: 'spring', damping: 20, stiffness: 400 }}
-      aria-label={ariaLabel}
-    >
-      <motion.span
-        className="leading-none"
-        key={`${emoji}-${count}`}
-        initial={{ scale: 1.4, rotate: -10 }}
-        animate={{ scale: 1, rotate: 0 }}
-        transition={{ type: 'spring', damping: 12 }}
+export const ReactionPill = React.memo(
+  function ReactionPill({ emoji, count, reactedByMe, onClick, ariaLabel }: ReactionPillProps) {
+    return (
+      <motion.button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          onClick?.();
+        }}
+        className={cn(
+          'inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[13px] border select-none',
+          reactedByMe
+            ? 'bg-primary/15 border-primary/40 ring-1 ring-primary/20  '
+            : 'bg-card border-border/20 hover:bg-muted/30',
+        )}
+        whileTap={{ scale: 0.85 }}
+        layout
+        transition={{ type: 'spring', damping: 20, stiffness: 400 }}
+        aria-label={ariaLabel}
       >
-        {emoji}
-      </motion.span>
-      {count > 1 && (
         <motion.span
-          className="text-[9px] text-muted-foreground font-medium tabular-nums"
-          key={count}
-          initial={{ scale: 0, y: 4 }}
-          animate={{ scale: 1, y: 0 }}
+          className="leading-none"
+          key={`${emoji}-${count}`}
+          initial={{ scale: 1.4, rotate: -10 }}
+          animate={{ scale: 1, rotate: 0 }}
+          transition={{ type: 'spring', damping: 12 }}
         >
-          {count}
+          {emoji}
         </motion.span>
-      )}
-    </motion.button>
-  );
-}, (prev, next) => {
-  // Same trade-off as MessageTicks: callers typically inline
-  // `() => toggleReaction(msg.id, emoji)` so onClick identity churns each
-  // render. The handler closes over stable refs (msg.id + emoji are stable
-  // strings) so any closure version we hold onto resolves to the same
-  // mutation. We compare every prop except onClick so the visual content
-  // drives re-renders, not handler identity.
-  return prev.emoji === next.emoji
-      && prev.count === next.count
-      && prev.reactedByMe === next.reactedByMe
-      && prev.ariaLabel === next.ariaLabel;
-});
+        {count > 1 && (
+          <motion.span
+            className="text-[9px] text-muted-foreground font-medium tabular-nums"
+            key={count}
+            initial={{ scale: 0, y: 4 }}
+            animate={{ scale: 1, y: 0 }}
+          >
+            {count}
+          </motion.span>
+        )}
+      </motion.button>
+    );
+  },
+  (prev, next) => {
+    // Same trade-off as MessageTicks: callers typically inline
+    // `() => toggleReaction(msg.id, emoji)` so onClick identity churns each
+    // render. The handler closes over stable refs (msg.id + emoji are stable
+    // strings) so any closure version we hold onto resolves to the same
+    // mutation. We compare every prop except onClick so the visual content
+    // drives re-renders, not handler identity.
+    return (
+      prev.emoji === next.emoji &&
+      prev.count === next.count &&
+      prev.reactedByMe === next.reactedByMe &&
+      prev.ariaLabel === next.ariaLabel
+    );
+  },
+);
 
 // ─────────────────────────────────────────────────────────────────────────────
 // ForwardedBadge — the small "Forwarded from X" header inside a bubble.
 // ─────────────────────────────────────────────────────────────────────────────
-export const ForwardedBadge = React.memo(function ForwardedBadge({ name, isAr }: { name?: string | null; isAr: boolean }) {
+export const ForwardedBadge = React.memo(function ForwardedBadge({
+  name,
+  isAr,
+}: {
+  name?: string | null;
+  isAr: boolean;
+}) {
   return (
     <motion.div
       className="flex items-center gap-1 mb-0.5 text-[11px] text-muted-foreground/80 italic"
@@ -366,7 +442,12 @@ export const ForwardedBadge = React.memo(function ForwardedBadge({ name, isAr }:
       <Reply className="w-3 h-3 -scale-x-100" />
       <span>
         {isAr ? 'محوّلة' : 'Weitergeleitet'}
-        {name ? <> · <span className="not-italic font-medium">{name}</span></> : null}
+        {name ? (
+          <>
+            {' '}
+            · <span className="not-italic font-medium">{name}</span>
+          </>
+        ) : null}
       </span>
     </motion.div>
   );
@@ -385,13 +466,17 @@ interface QuickReactionBarProps {
 }
 
 export const QuickReactionBar = React.memo(function QuickReactionBar({
-  emojis, onSelect, onExpand, isMine, isAr,
+  emojis,
+  onSelect,
+  onExpand,
+  isMine,
+  isAr,
 }: QuickReactionBarProps) {
   return (
     <motion.div
       className={cn(
         'flex items-center gap-0.5 px-2 py-1.5 rounded-full bg-card/95 backdrop-blur-md  border border-border/30',
-        isMine ? 'origin-bottom-right' : 'origin-bottom-left'
+        isMine ? 'origin-bottom-right' : 'origin-bottom-left',
       )}
       initial={{ scale: 0.5, opacity: 0, y: 10 }}
       animate={{ scale: 1, opacity: 1, y: 0 }}
@@ -403,7 +488,10 @@ export const QuickReactionBar = React.memo(function QuickReactionBar({
           key={emoji}
           type="button"
           className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-muted/40 active:scale-110 text-[20px]"
-          onClick={(e) => { e.stopPropagation(); onSelect(emoji); }}
+          onClick={(e) => {
+            e.stopPropagation();
+            onSelect(emoji);
+          }}
           initial={{ scale: 0, y: 8 }}
           animate={{ scale: 1, y: 0 }}
           transition={{ type: 'spring', damping: 14, delay: i * 0.03 }}
@@ -416,7 +504,10 @@ export const QuickReactionBar = React.memo(function QuickReactionBar({
         <motion.button
           type="button"
           className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-muted/40 text-muted-foreground"
-          onClick={(e) => { e.stopPropagation(); onExpand(); }}
+          onClick={(e) => {
+            e.stopPropagation();
+            onExpand();
+          }}
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ delay: emojis.length * 0.03 }}
@@ -448,18 +539,31 @@ interface MessageMetaRowProps {
 }
 
 export const MessageMetaRow = React.memo(function MessageMetaRow({
-  time, isMine, status, read, dimmed, isAr, starred, edited, expiresAt, onRetry,
+  time,
+  isMine,
+  status,
+  read,
+  dimmed,
+  isAr,
+  starred,
+  edited,
+  expiresAt,
+  onRetry,
 }: MessageMetaRowProps) {
   return (
-    <span className={cn(
-      'inline-flex items-center gap-1 text-[10px] select-none shrink-0 mt-0.5',
-      dimmed ? 'text-primary-foreground/60' : 'text-muted-foreground/55',
-    )}>
+    <span
+      className={cn(
+        'inline-flex items-center gap-1 text-[10px] select-none shrink-0 mt-0.5',
+        dimmed ? 'text-primary-foreground/60' : 'text-muted-foreground/55',
+      )}
+    >
       {edited && <EditedBadge isAr={isAr} dimmed={dimmed} />}
       {expiresAt && <SelfDestructTimer expiresAt={expiresAt} isAr={isAr} />}
       <span className="tabular-nums">{time}</span>
       {starred && <MessageStarBadge isAr={isAr} />}
-      {isMine && <MessageTicks status={status} read={read} dimmed={dimmed} onRetry={onRetry} isAr={isAr} />}
+      {isMine && (
+        <MessageTicks status={status} read={read} dimmed={dimmed} onRetry={onRetry} isAr={isAr} />
+      )}
     </span>
   );
 });
@@ -474,7 +578,11 @@ interface SeenByAvatarsProps {
   isAr?: boolean;
 }
 
-export const SeenByAvatars = React.memo(function SeenByAvatars({ seenBy, maxShow = 3, isAr }: SeenByAvatarsProps) {
+export const SeenByAvatars = React.memo(function SeenByAvatars({
+  seenBy,
+  maxShow = 3,
+  isAr: _isAr,
+}: SeenByAvatarsProps) {
   if (!seenBy.length) return null;
   const shown = seenBy.slice(0, maxShow);
   const extra = seenBy.length - maxShow;
@@ -506,9 +614,7 @@ export const SeenByAvatars = React.memo(function SeenByAvatars({ seenBy, maxShow
         ))}
       </div>
       {extra > 0 && (
-        <span className="text-[9px] text-muted-foreground/60 tabular-nums">
-          +{extra}
-        </span>
+        <span className="text-[9px] text-muted-foreground/60 tabular-nums">+{extra}</span>
       )}
     </motion.div>
   );

@@ -185,6 +185,16 @@ export function renderTextWithAppleEmoji(
   keyPrefix: string | number = '',
 ): React.ReactNode[] {
   if (!text) return [];
+
+  const isIOS =
+    typeof window !== 'undefined' &&
+    (/iPad|iPhone|iPod/.test(navigator.userAgent) ||
+      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1) ||
+      (
+        window as typeof globalThis & { Capacitor?: { getPlatform?: () => string } }
+      ).Capacitor?.getPlatform?.() === 'ios');
+  if (isIOS) return [text];
+
   if (!mapping || maxLen === 0) return [text];
 
   const nodes: React.ReactNode[] = [];
