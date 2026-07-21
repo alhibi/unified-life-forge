@@ -401,15 +401,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setIsTransitioning(true);
 
     // Smooth delay for structural change to align with animation
+    // Align with the new 1100ms air-like transition curve
     setTimeout(() => {
       setDesignModeState(mode);
       localStorage.setItem('app-design-mode', mode);
       scheduleSave();
-    }, 280);
+    }, 400);
 
     setTimeout(() => {
       setIsTransitioning(false);
-    }, 1100);
+    }, 1800); // Give the full transition time to settle
   };
 
   const setFontFamily = (f: string) => {
@@ -607,10 +608,10 @@ function StyleTransitionOverlay({ mode, language }: StyleTransitionOverlayProps)
   const isAr = language === 'ar';
 
   const labelMapAr: Record<DesignMode, string> = {
-    classic: 'تطبيق النمط الكلاسيكي والذهب...',
-    md3: 'تطبيق تصميم ماتيريال ٣ للواجهات...',
-    ios: 'محاكاة نمط iOS الأنيق والمنسق...',
-    aura: 'بث هالة السكون والبساطة الفاخرة...',
+    classic: 'يتم تطبيق النمط الكلاسيكي والأوبسيديان...',
+    md3: 'تطبيق ديناميكية ماتيريال ٣...',
+    ios: 'مزامنة دقة ووضوح نظام iOS...',
+    aura: 'استحضار سكون هالة Aura الحريرية...',
   };
 
   const labelMapDe: Record<DesignMode, string> = {
@@ -624,36 +625,61 @@ function StyleTransitionOverlay({ mode, language }: StyleTransitionOverlayProps)
 
   // Get active color accents for the breathing orb
   const colorMap: Record<DesignMode, string> = {
-    classic: 'rgba(201, 168, 76, 0.25)', // Gold
-    md3: 'rgba(103, 80, 164, 0.3)', // M3 baseline purple
-    ios: 'rgba(0, 122, 255, 0.3)', // iOS blue
-    aura: 'rgba(180, 160, 130, 0.25)', // Luxury linen warm
+    classic: 'rgba(201, 168, 76, 0.15)', // Gold
+    md3: 'rgba(103, 80, 164, 0.2)', // M3 baseline purple
+    ios: 'rgba(0, 122, 255, 0.2)', // iOS blue
+    aura: 'rgba(180, 160, 130, 0.15)', // Luxury linen warm
   };
 
-  const glowColor = mode ? colorMap[mode] : 'rgba(var(--live-glow), 0.2)';
+  const glowColor = mode ? colorMap[mode] : 'rgba(var(--live-glow), 0.15)';
 
   return (
     <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.35, ease: [0.28, 0.11, 0.32, 1] }}
-      className="fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-background/80 backdrop-blur-md select-none pointer-events-auto"
+      initial={{ opacity: 0, backdropFilter: 'blur(0px)' }}
+      animate={{ opacity: 1, backdropFilter: 'blur(24px)' }}
+      exit={{ opacity: 0, backdropFilter: 'blur(0px)' }}
+      transition={{ duration: 0.6, ease: [0.19, 1, 0.22, 1] }}
+      className="fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-background/60 select-none pointer-events-auto"
     >
-      {/* Immersive Breathing Orb */}
+      {/* Immersive Breathing Orbs - Layered for depth */}
       <motion.div
+        initial={{ scale: 0.8, opacity: 0 }}
         animate={{
-          scale: [1, 1.25, 1],
-          opacity: [0.4, 0.8, 0.4],
+          scale: [1, 1.4, 1],
+          opacity: [0, 0.8, 0],
         }}
         transition={{
-          duration: 3,
-          repeat: Infinity,
+          duration: 1.8,
           ease: 'easeInOut',
         }}
         style={{
-          width: '280px',
-          height: '280px',
+          width: '50vw',
+          height: '50vw',
+          maxWidth: '400px',
+          maxHeight: '400px',
+          borderRadius: '50%',
+          background: `radial-gradient(circle, ${glowColor} 0%, transparent 60%)`,
+          position: 'absolute',
+          zIndex: -1,
+        }}
+      />
+
+      <motion.div
+        initial={{ scale: 0.5, opacity: 0 }}
+        animate={{
+          scale: [0.8, 1.1, 0.8],
+          opacity: [0, 1, 0],
+        }}
+        transition={{
+          duration: 1.8,
+          delay: 0.2,
+          ease: 'easeInOut',
+        }}
+        style={{
+          width: '30vw',
+          height: '30vw',
+          maxWidth: '250px',
+          maxHeight: '250px',
           borderRadius: '50%',
           background: `radial-gradient(circle, ${glowColor} 0%, transparent 70%)`,
           position: 'absolute',
@@ -662,23 +688,31 @@ function StyleTransitionOverlay({ mode, language }: StyleTransitionOverlayProps)
       />
 
       {/* Elegant Spinner/Pulse icon */}
-      <div className="relative mb-6">
+      <div className="relative mb-8">
         <motion.div
           animate={{ rotate: 360 }}
-          transition={{ duration: 1.6, repeat: Infinity, ease: 'linear' }}
-          className="w-10 h-10 rounded-full border-2 border-primary/10 border-t-primary"
+          transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+          className="w-12 h-12 rounded-full border-[1.5px] border-primary/10 border-t-primary"
+        />
+        <motion.div
+          animate={{ scale: [0.8, 1, 0.8], opacity: [0.5, 1, 0.5] }}
+          transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+          className="absolute inset-0 m-auto w-3 h-3 rounded-full bg-primary"
         />
       </div>
 
       {/* Text message */}
-      <motion.p
-        initial={{ y: 8, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.1, duration: 0.4 }}
-        className="text-[14px] font-bold tracking-wide text-foreground text-center px-6"
-      >
-        {label}
-      </motion.p>
+      <div className="overflow-hidden">
+        <motion.p
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: -20, opacity: 0 }}
+          transition={{ delay: 0.2, duration: 0.6, ease: [0.19, 1, 0.22, 1] }}
+          className="text-[14.5px] font-medium tracking-wide text-foreground/90 text-center px-6"
+        >
+          {label}
+        </motion.p>
+      </div>
     </motion.div>
   );
 }

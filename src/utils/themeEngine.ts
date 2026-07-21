@@ -737,7 +737,7 @@ export function createDynamicPreset(baseHsl: [number, number, number]): ThemePre
   };
 }
 
-// ─── Dynamic Tonal MD3 Tokens ───────────────────────────────
+// ─── Dynamic Tonal MD3 Tokens (Strict M3 HCT equivalents) ───────────────────────────────
 export function generateMD3TonalTokens(preset: ThemePreset, isDark: boolean, isBlack: boolean): Record<string, string> {
   const [pH, pS] = preset.primary;
   const [sH, sS] = preset.secondary;
@@ -745,202 +745,207 @@ export function generateMD3TonalTokens(preset: ThemePreset, isDark: boolean, isB
   const [nH, nS] = preset.neutral;
 
   if (!isDark) {
-    const bg = hsl(nH, nS * 0.25, 99); // Material 3 baseline light surface
-    const card = hsl(nH, nS * 0.35, 95); // MD3 Surface Container
+    const bg = hsl(nH, nS * 0.1, 99); // Surface
+    const card = hsl(nH, nS * 0.15, 96); // Surface Container Low
     return {
       '--background': bg,
-      '--foreground': hsl(nH, nS * 0.6, 12),
+      '--foreground': hsl(nH, nS * 0.4, 10), // On Surface
       '--card': card,
-      '--card-foreground': hsl(nH, nS * 0.6, 12),
-      '--popover': card,
-      '--popover-foreground': hsl(nH, nS * 0.6, 12),
-      '--primary': hsl(pH, clamp(pS * 0.95, 45, 95), 44), // Highly saturated Google baseline primary
-      '--primary-foreground': '0 0% 100%',
-      '--secondary': hsl(sH, clamp(sS * 0.6, 15, 45), 90), // secondary container
-      '--secondary-foreground': hsl(sH, clamp(sS * 0.7, 25, 55), 18), // on secondary container
-      '--muted': hsl(nH, nS * 0.4, 91),
-      '--muted-foreground': hsl(nH, nS * 0.35, 38),
-      '--accent': hsl(aH, clamp(aS * 0.7, 25, 55), 90), // tertiary container
-      '--accent-foreground': hsl(aH, clamp(aS * 0.8, 35, 65), 22), // on tertiary container
-      '--destructive': '3 71% 41%',
+      '--card-foreground': hsl(nH, nS * 0.4, 10),
+      '--popover': hsl(nH, nS * 0.2, 94), // Surface Container High
+      '--popover-foreground': hsl(nH, nS * 0.4, 10),
+      '--primary': hsl(pH, clamp(pS * 0.9, 45, 90), 40), // Primary (Tone 40)
+      '--primary-foreground': '0 0% 100%', // On Primary (Tone 100)
+      '--secondary': hsl(sH, clamp(sS * 0.6, 20, 50), 90), // Secondary Container (Tone 90)
+      '--secondary-foreground': hsl(sH, clamp(sS * 0.7, 30, 60), 10), // On Secondary Container (Tone 10)
+      '--muted': hsl(nH, nS * 0.2, 92), // Surface Variant (Tone 90)
+      '--muted-foreground': hsl(nH, nS * 0.25, 30), // On Surface Variant (Tone 30)
+      '--accent': hsl(aH, clamp(aS * 0.7, 30, 60), 90), // Tertiary Container
+      '--accent-foreground': hsl(aH, clamp(aS * 0.8, 40, 70), 10), // On Tertiary Container
+      '--destructive': '3 71% 40%', // Error Tone 40
       '--destructive-foreground': '0 0% 100%',
       '--success': '142 60% 36%',
       '--success-foreground': '0 0% 100%',
       '--warning': '38 85% 45%',
       '--warning-foreground': '38 90% 10%',
-      '--error': '3 71% 41%',
+      '--error': '3 71% 40%',
       '--error-foreground': '0 0% 100%',
-      '--border': hsl(nH, nS * 0.45, 84), // outline variant
-      '--input': hsl(nH, nS * 0.45, 46), // outline
-      '--ring': hsl(pH, pS, 44),
+      '--border': hsl(nH, nS * 0.2, 80), // Outline Variant (Tone 80)
+      '--input': hsl(nH, nS * 0.25, 45), // Outline (Tone 50)
+      '--ring': hsl(pH, clamp(pS * 0.9, 45, 90), 40),
       '--radius': '1.75rem',
     };
   } else {
-    const bgL = isBlack ? 0 : 8; // Deep baseline pitch
-    const cardL = isBlack ? 4 : 14; // Surface Container Dark
-    const bg = hsl(nH, nS * 0.15, bgL);
-    const card = hsl(nH, nS * 0.22, cardL);
+    const bgL = isBlack ? 0 : 6; // Surface (Tone 6)
+    const cardL = isBlack ? 4 : 10; // Surface Container (Tone 12)
+    const bg = hsl(nH, nS * 0.1, bgL);
+    const card = hsl(nH, nS * 0.15, cardL);
     return {
       '--background': bg,
-      '--foreground': hsl(nH, nS * 0.12, 92),
+      '--foreground': hsl(nH, nS * 0.15, 90), // On Surface (Tone 90)
       '--card': card,
-      '--card-foreground': hsl(nH, nS * 0.12, 92),
-      '--popover': card,
-      '--popover-foreground': hsl(nH, nS * 0.12, 92),
-      '--primary': hsl(pH, clamp(pS * 1.05, 50, 95), 84), // Highly vibrant glowing M3 primary in dark mode
-      '--primary-foreground': hsl(pH, pS, 18),
-      '--secondary': hsl(sH, clamp(sS * 0.5, 12, 35), 32),
-      '--secondary-foreground': hsl(sH, clamp(sS * 0.6, 25, 45), 92),
-      '--muted': hsl(nH, nS * 0.25, 22),
-      '--muted-foreground': hsl(nH, nS * 0.18, 72),
-      '--accent': hsl(aH, clamp(aS * 0.5, 18, 45), 32),
-      '--accent-foreground': hsl(aH, clamp(aS * 0.6, 25, 55), 92),
-      '--destructive': '3 70% 83%',
-      '--destructive-foreground': '359 100% 21%',
+      '--card-foreground': hsl(nH, nS * 0.15, 90),
+      '--popover': hsl(nH, nS * 0.2, cardL + 4), // Surface Container High
+      '--popover-foreground': hsl(nH, nS * 0.15, 90),
+      '--primary': hsl(pH, clamp(pS * 1.1, 60, 100), 80), // Primary (Tone 80)
+      '--primary-foreground': hsl(pH, pS, 20), // On Primary (Tone 20)
+      '--secondary': hsl(sH, clamp(sS * 0.5, 15, 40), 30), // Secondary Container (Tone 30)
+      '--secondary-foreground': hsl(sH, clamp(sS * 0.6, 25, 50), 90), // On Secondary Container (Tone 90)
+      '--muted': hsl(nH, nS * 0.2, 20), // Surface Variant (Tone 30)
+      '--muted-foreground': hsl(nH, nS * 0.2, 80), // On Surface Variant (Tone 80)
+      '--accent': hsl(aH, clamp(aS * 0.5, 20, 50), 30), // Tertiary Container
+      '--accent-foreground': hsl(aH, clamp(aS * 0.6, 30, 60), 90), // On Tertiary Container
+      '--destructive': '3 70% 80%', // Error Tone 80
+      '--destructive-foreground': '3 100% 20%', // On Error Tone 20
       '--success': '142 50% 65%',
       '--success-foreground': '142 60% 12%',
       '--warning': '38 75% 70%',
       '--warning-foreground': '38 80% 8%',
-      '--error': '3 70% 83%',
-      '--error-foreground': '359 100% 21%',
-      '--border': hsl(nH, nS * 0.25, 34),
-      '--input': hsl(nH, nS * 0.25, 62),
-      '--ring': hsl(pH, pS, 84),
+      '--error': '3 70% 80%',
+      '--error-foreground': '3 100% 20%',
+      '--border': hsl(nH, nS * 0.2, 30), // Outline Variant (Tone 30)
+      '--input': hsl(nH, nS * 0.25, 60), // Outline (Tone 60)
+      '--ring': hsl(pH, clamp(pS * 1.1, 60, 100), 80),
       '--radius': '1.75rem',
     };
   }
 }
 
-// ─── Dynamic iOS 2024 Tokens ────────────────────────────────
+// ─── Dynamic iOS 2024 Tokens (High Contrast, Glassy) ────────────────────────────────
 export function generateiOSTokens(preset: ThemePreset, isDark: boolean, isBlack: boolean): Record<string, string> {
   const [pH, pS] = preset.primary;
+  // Force a very pure, saturated version of the primary for iOS Apple feel
+  const iosPrimaryS = clamp(pS * 1.2, 80, 100);
 
   if (!isDark) {
     return {
-      '--background': '240 14% 96%', // iOS system grouped background (#F2F2F7)
-      '--foreground': '0 0% 0%',
-      '--card': '0 0% 100%', // Pure white
+      '--background': '240 10% 95%', // System Grouped Background
+      '--foreground': '0 0% 0%', // Absolute black text
+      '--card': '0 0% 100%', // Pure white cards
       '--card-foreground': '0 0% 0%',
       '--popover': '0 0% 100%',
       '--popover-foreground': '0 0% 0%',
-      '--primary': hsl(pH, clamp(pS, 65, 100), 50), // Apple-style vibrant preset primary
+      '--primary': hsl(pH, iosPrimaryS, 52), // Vibrant
       '--primary-foreground': '0 0% 100%',
-      '--secondary': '240 5% 91%',
-      '--secondary-foreground': '240 5% 15%',
-      '--muted': '240 5% 93%',
-      '--muted-foreground': '240 5% 52%',
-      '--accent': '240 5% 95%',
-      '--accent-foreground': hsl(pH, pS, 50),
-      '--destructive': '354 100% 56%',
+      '--secondary': '240 5% 90%', // Light gray for secondary buttons
+      '--secondary-foreground': hsl(pH, iosPrimaryS, 52), // iOS often uses primary color for secondary text
+      '--muted': '240 5% 92%',
+      '--muted-foreground': '240 2% 45%', // iOS secondary label
+      '--accent': '240 5% 92%',
+      '--accent-foreground': hsl(pH, iosPrimaryS, 52),
+      '--destructive': '354 100% 54%', // Apple Red
       '--destructive-foreground': '0 0% 100%',
-      '--success': '120 100% 35%',
+      '--success': '120 100% 32%', // Apple Green
       '--success-foreground': '0 0% 100%',
-      '--warning': '35 100% 50%',
+      '--warning': '35 100% 50%', // Apple Orange
       '--warning-foreground': '0 0% 100%',
-      '--error': '354 100% 56%',
+      '--error': '354 100% 54%',
       '--error-foreground': '0 0% 100%',
-      '--border': '240 6% 88%',
-      '--input': '240 6% 88%',
-      '--ring': hsl(pH, pS, 50),
-      '--radius': '0.75rem', // 12px
+      '--border': '240 5% 85%', // Separator color
+      '--input': '240 5% 85%',
+      '--ring': hsl(pH, iosPrimaryS, 52),
+      '--radius': '1.25rem',
     };
   } else {
-    const bg = isBlack ? '0 0% 0%' : '240 4% 10%'; // #000000 or #1C1C1E
-    const card = isBlack ? '0 0% 4%' : '240 4% 17%'; // #1C1C1E or #2C2C2E
+    const bg = isBlack ? '0 0% 0%' : '240 4% 10%'; // System Background
+    const card = isBlack ? '0 0% 5%' : '240 4% 17%'; // Secondary System Background
     return {
       '--background': bg,
-      '--foreground': '0 0% 100%',
+      '--foreground': '0 0% 100%', // Pure white text
       '--card': card,
       '--card-foreground': '0 0% 100%',
       '--popover': card,
       '--popover-foreground': '0 0% 100%',
-      '--primary': hsl(pH, clamp(pS, 65, 100), 60),
-      '--primary-foreground': '0 0% 0%',
-      '--secondary': '240 4% 22%',
-      '--secondary-foreground': '240 4% 92%',
-      '--muted': '240 4% 19%',
-      '--muted-foreground': '240 2% 62%',
-      '--accent': '240 4% 16%',
-      '--accent-foreground': hsl(pH, pS, 60),
-      '--destructive': '354 100% 64%',
+      '--primary': hsl(pH, iosPrimaryS, 58), // Slightly lighter primary for dark mode
+      '--primary-foreground': '0 0% 100%',
+      '--secondary': '240 4% 25%',
+      '--secondary-foreground': hsl(pH, iosPrimaryS, 58),
+      '--muted': '240 4% 20%',
+      '--muted-foreground': '240 2% 65%', // Secondary label
+      '--accent': '240 4% 25%',
+      '--accent-foreground': hsl(pH, iosPrimaryS, 58),
+      '--destructive': '354 100% 62%',
       '--destructive-foreground': '0 0% 100%',
-      '--success': '120 100% 45%',
-      '--success-foreground': '0 0% 0%',
+      '--success': '120 100% 40%',
+      '--success-foreground': '0 0% 100%',
       '--warning': '35 100% 55%',
-      '--warning-foreground': '0 0% 0%',
-      '--error': '354 100% 64%',
+      '--warning-foreground': '0 0% 100%',
+      '--error': '354 100% 62%',
       '--error-foreground': '0 0% 100%',
-      '--border': '240 4% 24%',
-      '--input': '240 4% 24%',
-      '--ring': hsl(pH, pS, 60),
-      '--radius': '0.75rem',
+      '--border': '240 4% 25%', // Separator color
+      '--input': '240 4% 25%',
+      '--ring': hsl(pH, iosPrimaryS, 58),
+      '--radius': '1.25rem',
     };
   }
 }
 
-// ─── Pure Aura Tokens ───────────────────────────────────────
+// ─── Pure Aura Tokens (Ethereal, Soft, Luxurious) ───────────────────────────────────────
 export function generateAuraTokens(preset: ThemePreset, isDark: boolean, isBlack: boolean): Record<string, string> {
   const [pH, pS] = preset.primary;
+  // Aura uses highly desaturated, warm/cool neutrals based on primary hue
+  const auraHue = pH;
 
   if (!isDark) {
     return {
-      '--background': '36 20% 96%', // Warm linen sand
-      '--foreground': '36 15% 15%',
-      '--card': '36 25% 99%', // Clean silk
-      '--card-foreground': '36 15% 15%',
-      '--popover': '36 25% 99%',
-      '--popover-foreground': '36 15% 15%',
-      '--primary': hsl(pH, clamp(pS * 0.7, 20, 60), 40),
+      '--background': hsl(auraHue, 15, 97.5), // Very light, tinted off-white
+      '--foreground': hsl(auraHue, 10, 20),
+      '--card': hsl(auraHue, 10, 99.5), // Almost pure white, very slight tint
+      '--card-foreground': hsl(auraHue, 10, 20),
+      '--popover': hsl(auraHue, 10, 99.5),
+      '--popover-foreground': hsl(auraHue, 10, 20),
+      '--primary': hsl(pH, clamp(pS * 0.75, 25, 55), 45), // Subdued, elegant primary
       '--primary-foreground': '0 0% 100%',
-      '--secondary': '36 12% 91%',
-      '--secondary-foreground': '36 15% 20%',
-      '--muted': '36 10% 93%',
-      '--muted-foreground': '36 8% 48%',
-      '--accent': '36 12% 91%',
-      '--accent-foreground': hsl(pH, clamp(pS * 0.7, 20, 60), 40),
-      '--destructive': '0 45% 48%',
+      '--secondary': hsl(auraHue, 12, 92), // Very soft secondary
+      '--secondary-foreground': hsl(pH, clamp(pS * 0.6, 20, 50), 30),
+      '--muted': hsl(auraHue, 10, 94),
+      '--muted-foreground': hsl(auraHue, 8, 55),
+      '--accent': hsl(auraHue, 15, 90),
+      '--accent-foreground': hsl(pH, clamp(pS * 0.75, 25, 55), 45),
+      '--destructive': '0 45% 55%',
       '--destructive-foreground': '0 0% 100%',
-      '--success': '145 35% 42%',
+      '--success': '145 35% 45%',
       '--success-foreground': '0 0% 100%',
-      '--warning': '35 60% 45%',
+      '--warning': '35 50% 50%',
       '--warning-foreground': '0 0% 100%',
-      '--error': '0 45% 48%',
+      '--error': '0 45% 55%',
       '--error-foreground': '0 0% 100%',
-      '--border': '36 12% 88%',
-      '--input': '36 12% 88%',
-      '--ring': hsl(pH, pS * 0.7, 40),
-      '--radius': '1.75rem',
+      '--border': hsl(auraHue, 10, 90), // Very faint border
+      '--input': hsl(auraHue, 10, 90),
+      '--ring': hsl(pH, clamp(pS * 0.75, 25, 55), 45),
+      '--radius': '2.25rem', // Maximum roundness
     };
   } else {
-    const bg = isBlack ? '0 0% 0%' : '240 8% 7%'; // Deep obsidian
-    const card = isBlack ? '0 0% 4%' : '240 6% 12%'; // Pure obsidian slate
+    // Deep, velvety darks for Aura Dark
+    const bgL = isBlack ? 0 : 6;
+    const cardL = isBlack ? 3 : 9;
     return {
-      '--background': bg,
-      '--foreground': '240 4% 92%',
-      '--card': card,
-      '--card-foreground': '240 4% 92%',
-      '--popover': card,
-      '--popover-foreground': '240 4% 92%',
-      '--primary': hsl(pH, clamp(pS * 0.8, 30, 70), 65),
-      '--primary-foreground': bg,
-      '--secondary': '240 6% 16%',
-      '--secondary-foreground': '240 4% 85%',
-      '--muted': '240 6% 14%',
-      '--muted-foreground': '240 3% 62%',
-      '--accent': '240 6% 16%',
-      '--accent-foreground': hsl(pH, clamp(pS * 0.8, 30, 70), 65),
-      '--destructive': '0 60% 60%',
+      '--background': hsl(auraHue, 8, bgL),
+      '--foreground': hsl(auraHue, 10, 92),
+      '--card': hsl(auraHue, 10, cardL),
+      '--card-foreground': hsl(auraHue, 10, 92),
+      '--popover': hsl(auraHue, 10, cardL),
+      '--popover-foreground': hsl(auraHue, 10, 92),
+      '--primary': hsl(pH, clamp(pS * 0.6, 20, 50), 70), // Soft, glowing primary in dark
+      '--primary-foreground': hsl(auraHue, 10, 10),
+      '--secondary': hsl(auraHue, 8, cardL + 4),
+      '--secondary-foreground': hsl(pH, clamp(pS * 0.5, 20, 40), 85),
+      '--muted': hsl(auraHue, 8, cardL + 2),
+      '--muted-foreground': hsl(auraHue, 6, 60),
+      '--accent': hsl(auraHue, 8, cardL + 6),
+      '--accent-foreground': hsl(pH, clamp(pS * 0.6, 20, 50), 75),
+      '--destructive': '0 50% 65%',
       '--destructive-foreground': '0 0% 100%',
-      '--success': '145 45% 55%',
-      '--success-foreground': '0 0% 0%',
-      '--warning': '35 70% 65%',
-      '--warning-foreground': '0 0% 0%',
-      '--error': '0 60% 60%',
+      '--success': '145 40% 60%',
+      '--success-foreground': '0 0% 10%',
+      '--warning': '35 60% 65%',
+      '--warning-foreground': '0 0% 10%',
+      '--error': '0 50% 65%',
       '--error-foreground': '0 0% 100%',
-      '--border': '240 5% 18%',
-      '--input': '240 5% 18%',
-      '--ring': hsl(pH, pS * 0.8, 65),
-      '--radius': '1.75rem',
+      '--border': hsl(auraHue, 8, cardL + 5), // Barely visible borders
+      '--input': hsl(auraHue, 8, cardL + 5),
+      '--ring': hsl(pH, clamp(pS * 0.6, 20, 50), 70),
+      '--radius': '2.25rem',
     };
   }
 }
