@@ -1,0 +1,6 @@
+{"id":"jahili","name_ar":"العصر الجاهلي","name_en":"Pre-Islamic","period_label":"قبل 622م","start_year":500,"end_year":622,"color":"#d97706","sort_order":1}
+{"id":"mukhadram","name_ar":"عصر المخضرمين","name_en":"Mukhadram","period_label":"حول 622م","start_year":600,"end_year":661,"color":"#059669","sort_order":2}
+{"id":"islami","name_ar":"العصر الإسلامي","name_en":"Islamic","period_label":"622-661م","start_year":622,"end_year":661,"color":"#0891b2","sort_order":3}
+{"id":"umawi","name_ar":"العصر الأموي","name_en":"Umayyad","period_label":"661-750م","start_year":661,"end_year":750,"color":"#7c3aed","sort_order":4}
+{"id":"abbasi","name_ar":"العصر العباسي","name_en":"Abbasid","period_label":"750-1258م","start_year":750,"end_year":1258,"color":"#dc2626","sort_order":5}
+{"id":"andalusi","name_ar":"العصر الأندلسي","name_en":"Andalusian","period_label":"711-1492م","start_year":711,"end_year":1492,"color":"#2563eb","sort_order":6}
