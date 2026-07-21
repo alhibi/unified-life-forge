@@ -117,7 +117,9 @@ function write(key: string, value: unknown) {
 /*  Subscriptions                                                             */
 /* -------------------------------------------------------------------------- */
 
-import { supabase } from '@/integrations/supabase/client';
+import { supabase as _sb } from '@/integrations/supabase/client';
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const supabase: any = _sb;
 
 import {
   deleteCloudSubscription,
