@@ -35,7 +35,7 @@
 //   highlight pass while the RPC is in flight.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { useQuery, type UseQueryResult } from '@tanstack/react-query';
 import { supabase, isSupabaseConfigured } from '@/integrations/supabase/client';
 
@@ -184,18 +184,39 @@ export function parseSnippet(snippet: string): SnippetSegment[] {
   while (i < snippet.length) {
     const open = snippet.indexOf(MARK_OPEN, i);
     if (open === -1) {
-      out.push({ text: snippet.slice(i), isMatch: false });
+      const text = snippet.slice(i).replace(/<\/?mark>/gi, '');
+      out.push({ text, isMatch: false });
       break;
     }
-    if (open > i) out.push({ text: snippet.slice(i, open), isMatch: false });
+    if (open > i) {
+      const text = snippet.slice(i, open).replace(/<\/?mark>/gi, '');
+      out.push({ text, isMatch: false });
+    }
     const close = snippet.indexOf(MARK_CLOSE, open + MARK_OPEN.length);
     if (close === -1) {
       // Unbalanced — treat the rest as plain text and bail.
-      out.push({ text: snippet.slice(open + MARK_OPEN.length), isMatch: false });
+      const text = snippet.slice(open + MARK_OPEN.length).replace(/<\/?mark>/gi, '');
+      out.push({ text, isMatch: false });
       break;
     }
-    out.push({ text: snippet.slice(open + MARK_OPEN.length, close), isMatch: true });
+    const text = snippet.slice(open + MARK_OPEN.length, close).replace(/<\/?mark>/gi, '');
+    out.push({ text, isMatch: true });
     i = close + MARK_CLOSE.length;
   }
   return out;
+}
+
+/**
+ * Render a server snippet safely into React elements.
+ * Treats segment texts as plain text to prevent any HTML injection or XSS.
+ * Safe to render — never uses dangerouslySetInnerHTML.
+ */
+export function renderSearchSnippet(snippet: string): React.ReactNode {
+  const segments = parseSnippet(snippet);
+  return segments.map((s, idx) => {
+    if (s.isMatch) {
+      return React.createElement('mark', { key: idx }, s.text);
+    }
+    return React.createElement('span', { key: idx }, s.text);
+  });
 }
