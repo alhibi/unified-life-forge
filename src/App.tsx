@@ -48,6 +48,47 @@ function PresenceRunner() {
   return null;
 }
 
+function NetworkConnectivityListener() {
+  const { language } = useApp();
+  const isAr = language === 'ar';
+
+  useEffect(() => {
+    const handleOnline = () => {
+      const message = isAr
+        ? 'تم استعادة الاتصال بالشبكة بنجاح.'
+        : 'Netzwerkverbindung erfolgreich wiederhergestellt.';
+      import('sonner').then(({ toast }) => {
+        toast.success(message, {
+          id: 'network-status',
+          duration: 4000,
+        });
+      });
+    };
+
+    const handleOffline = () => {
+      const message = isAr
+        ? 'فقد الاتصال بالشبكة. التطبيق يعمل الآن في وضع عدم الاتصال.'
+        : 'Netzwerkverbindung verloren. Die App läuft jetzt offline.';
+      import('sonner').then(({ toast }) => {
+        toast.error(message, {
+          id: 'network-status',
+          duration: 5000,
+        });
+      });
+    };
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, [isAr]);
+
+  return null;
+}
+
 // Lazy load all non-tab pages
 // Lazy loaders are kept as named factories so we can prefetch them on idle.
 const loadSudoku = () => import("./features/games/pages/Sudoku");
@@ -603,6 +644,7 @@ const App = () => (
             <BrowserRouter>
               <AutoPrayerThemeRunner />
               <PresenceRunner />
+              <NetworkConnectivityListener />
               <EdgeSwipeBack />
               <AnimatedRoutes />
               <BottomNav />

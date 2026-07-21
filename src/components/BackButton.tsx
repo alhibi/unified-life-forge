@@ -83,10 +83,9 @@ export default function BackButton({
       onClick={handleClick}
       aria-label={label}
       className={cn(
-        // Footprint — 40×40 (h-10 w-10) with rounded-2xl per project's
-        // unified BackButton spec. Comfortable tap target on mobile
-        // while staying visually quiet next to page titles.
-        'inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl',
+        // Footprint — 44×44 (h-11 w-11) for premium touch ergonomics (minimum 44x44px).
+        // Stay visually quiet next to page titles while maintaining robust a11y.
+        'inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl',
         'bg-foreground/[0.04] text-foreground/85',
         'hover:bg-foreground/[0.08] hover:text-foreground',
         'active:bg-foreground/[0.12] active:scale-95',

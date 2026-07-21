@@ -9,7 +9,7 @@ import { toast } from 'sonner';
 import { useApp } from '@/contexts/AppContext';
 import { useWellnessData } from '@/features/wellness/useWellnessData';
 import { useAuth } from '@/hooks/useAuth';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 // ── Lazy-loaded tabs ──────────────────────────────────────────────────
 // Each tab drags in its own heavy static data (food catalog, skill tree,
@@ -95,21 +95,30 @@ export default function WellnessPage() {
   const isAr = language === 'ar';
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const data = useWellnessData();
 
+  const urlTab = searchParams.get('tab') as TabKey | null;
+
   const [tab, setTab] = useState<TabKey>(() => {
+    if (urlTab && TABS.some(t => t.key === urlTab)) return urlTab;
     try {
       const saved = localStorage.getItem(STORAGE_KEY) as TabKey | null;
       if (saved && TABS.some((t) => t.key === saved)) return saved;
     } catch { /* noop */ }
     return 'workouts';
   });
+
+  // Sync tab with URL Query Parameters and localStorage
+  useEffect(() => {
+    try { localStorage.setItem(STORAGE_KEY, tab); } catch { /* noop */ }
+    const nextParams = new URLSearchParams(searchParams);
+    nextParams.set('tab', tab);
+    setSearchParams(nextParams, { replace: true });
+  }, [tab, setSearchParams]);
   const [showPrivacy, setShowPrivacy] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
 
-  useEffect(() => {
-    try { localStorage.setItem(STORAGE_KEY, tab); } catch { /* noop */ }
-  }, [tab]);
 
   useEffect(() => {
     if (data.loading) return;

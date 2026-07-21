@@ -73,6 +73,8 @@ export default function ProfileEditPage() {
 
   const isUrlAvatar = selectedAvatar.startsWith('http');
 
+  const draftKey = useMemo(() => `profile:draft:${user?.id || 'anon'}`, [user?.id]);
+
   useEffect(() => {
     if (loading) return;
     if (!user) {
@@ -84,17 +86,58 @@ export default function ProfileEditPage() {
       const d = profile.display_name || '';
       const a = profile.avatar_url || EMOJI_AVATARS[0].emoji;
       const b = (profile as any).bio || '';
+      setInitial({ username: u, displayName: d, avatar: a, bio: b });
+
+      // Check if there is an unsaved draft in localStorage
+      try {
+        const storedDraft = localStorage.getItem(draftKey);
+        if (storedDraft) {
+          const draft = JSON.parse(storedDraft);
+          setNewUsername(draft.username ?? u);
+          setDisplayName(draft.displayName ?? d);
+          setSelectedAvatar(draft.avatar ?? a);
+          setBio(draft.bio ?? b);
+          setUsernameAvailable(true);
+          return;
+        }
+      } catch { /* ignore */ }
+
       setNewUsername(u);
       setDisplayName(d);
       setSelectedAvatar(a);
       setBio(b);
-      setInitial({ username: u, displayName: d, avatar: a, bio: b });
       setUsernameAvailable(true);
     } else if (authUsername) {
       setNewUsername(authUsername);
       setUsernameAvailable(true);
     }
-  }, [user, loading, profile, authUsername, navigate]);
+  }, [user, loading, profile, authUsername, navigate, draftKey]);
+
+  // Persist draft to localStorage on any state modification
+  useEffect(() => {
+    if (!user || loading) return;
+    const isActuallyDirty =
+      newUsername.toLowerCase().trim() !== initial.username.toLowerCase() ||
+      displayName.trim() !== initial.displayName ||
+      selectedAvatar !== initial.avatar ||
+      bio.trim() !== initial.bio;
+
+    if (isActuallyDirty) {
+      const draft = {
+        username: newUsername,
+        displayName,
+        avatar: selectedAvatar,
+        bio,
+      };
+      try {
+        localStorage.setItem(draftKey, JSON.stringify(draft));
+      } catch { /* ignore */ }
+    } else {
+      try {
+        localStorage.removeItem(draftKey);
+      } catch { /* ignore */ }
+    }
+  }, [newUsername, displayName, selectedAvatar, bio, initial, user, loading, draftKey]);
 
   // Restore cover theme from localStorage once we know the user id.
   useEffect(() => {
@@ -196,6 +239,9 @@ export default function ProfileEditPage() {
 
       await refreshProfile();
       toast.success(isAr ? 'تم حفظ الملف الشخصي' : 'Profil gespeichert');
+      try {
+        localStorage.removeItem(draftKey);
+      } catch { /* ignore */ }
       setInitial({
         username: newUsername.toLowerCase().trim(),
         displayName: displayName.trim(),
