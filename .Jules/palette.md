@@ -1,0 +1,3 @@
+## 2025-07-21 - [Headless Testing and Pseudo-Classes for Keyboard Accessibility]
+**Learning:** Programmatic `.focus()` inside headless browser environments (such as Playwright headless Chromium) does not trigger `:focus-visible` styles by default, as the browser recognizes it was script-triggered. Simulating real keyboard interaction via `page.keyboard.press("Tab")` is required to visually render and verify `:focus-visible` accessibility states.
+**Action:** Always simulate natural tab/arrow key presses in verification scripts to ensure `:focus-visible` rings are activated, and keep high-frequency layout nodes like bottom navigation bars fully navigable.
