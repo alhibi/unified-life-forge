@@ -1,13 +1,40 @@
-import React, { useState, useEffect } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
+
 import { useApp } from '@/contexts/AppContext';
-import { motion, AnimatePresence } from 'framer-motion';
-import { frequentDuas, duaCategories, type DuaCategory, type FrequentDua } from '@/features/duas/data/duas';
-import { nawawiHadiths, type NawawiHadith } from '@/data/nawawiHadiths';
+import { type NawawiHadith, nawawiHadiths } from '@/data/nawawiHadiths';
 import {
-  ChevronLeft, ChevronRight, Copy, Check, X, Moon, Sun, Plane, Home,
-  HelpCircle, Car, DoorOpen, Building, Users, Globe, Droplets, Zap,
-  Shield, Star, Leaf, Flag, Heart, CloudRain, BookOpen,
+  duaCategories,
+  type DuaCategory,
+  type FrequentDua,
+  frequentDuas,
+} from '@/features/duas/data/duas';
+import {
+  BookOpen,
+  Building,
+  Car,
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  CloudRain,
+  Copy,
+  DoorOpen,
+  Droplets,
+  Flag,
+  Globe,
+  Heart,
+  HelpCircle,
+  Home,
+  Leaf,
+  Moon,
+  Plane,
+  Shield,
+  Star,
+  Sun,
+  Users,
+  X,
+  Zap,
 } from '@/lib/icons';
 import { notify } from '@/lib/notify';
 
@@ -25,11 +52,27 @@ import { notify } from '@/lib/notify';
  */
 
 const iconMap: Record<string, React.ElementType> = {
-  Moon, Sun, Plane, Home, HelpCircle, Car, DoorOpen, Building,
-  Users, Globe, Droplets, Zap, Shield, Star, Leaf, Flag, Heart, CloudRain,
+  Moon,
+  Sun,
+  Plane,
+  Home,
+  HelpCircle,
+  Car,
+  DoorOpen,
+  Building,
+  Users,
+  Globe,
+  Droplets,
+  Zap,
+  Shield,
+  Star,
+  Leaf,
+  Flag,
+  Heart,
+  CloudRain,
 };
 
-import { pageStagger as stagger, pageItem as item } from '@/lib/motion';
+import { pageItem as item, pageStagger as stagger } from '@/lib/motion';
 
 function ModalPortal({ children }: { children: React.ReactNode }) {
   if (typeof document === 'undefined') return null;
@@ -64,7 +107,7 @@ function FrequentDuaCard({ dua, lang }: { dua: FrequentDua; lang: string }) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex flex-col items-center gap-1.5 p-2 rounded-2xl hover:bg-muted/50 active:scale-95 transition-all duration-150"
+        className="flex flex-col items-center gap-1.5 p-2 rounded-2xl hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 active:scale-95 transition-all duration-150"
       >
         <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center">
           <Icon className="w-5 h-5 text-primary" />
@@ -87,7 +130,13 @@ function FrequentDuaCard({ dua, lang }: { dua: FrequentDua; lang: string }) {
   );
 }
 
-function DuaModal({ open, onClose, title, duas, lang }: {
+function DuaModal({
+  open,
+  onClose,
+  title,
+  duas,
+  lang,
+}: {
   open: boolean;
   onClose: () => void;
   title: string;
@@ -120,12 +169,15 @@ function DuaModal({ open, onClose, title, duas, lang }: {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.92 }}
               transition={{ type: 'spring', damping: 25, stiffness: 350 }}
-              onClick={e => e.stopPropagation()}
+              onClick={(e) => e.stopPropagation()}
               className="bg-card w-full max-w-md rounded-2xl max-h-[80vh] flex flex-col"
             >
               <div className="flex items-center justify-between px-5 py-4 border-b border-border/50">
                 <h2 className="text-lg font-bold text-foreground">{title}</h2>
-                <button onClick={onClose} className="p-1.5 rounded-full hover:bg-muted/60 transition-colors">
+                <button
+                  onClick={onClose}
+                  className="p-1.5 rounded-full hover:bg-muted/60 transition-colors"
+                >
                   <X className="w-5 h-5 text-muted-foreground" />
                 </button>
               </div>
@@ -147,7 +199,9 @@ function DuaModal({ open, onClose, title, duas, lang }: {
                     </p>
                     <div className="flex items-center justify-between">
                       {dua.source && (
-                        <span className="text-[11px] text-primary/70 font-medium">{dua.source}</span>
+                        <span className="text-[11px] text-primary/70 font-medium">
+                          {dua.source}
+                        </span>
                       )}
                       <button
                         onClick={() => copyDua(dua.text, dua.id)}
@@ -171,7 +225,12 @@ function DuaModal({ open, onClose, title, duas, lang }: {
   );
 }
 
-function NawawiModal({ open, onClose, hadith, lang }: {
+function NawawiModal({
+  open,
+  onClose,
+  hadith,
+  lang,
+}: {
   open: boolean;
   onClose: () => void;
   hadith: NawawiHadith;
@@ -203,7 +262,7 @@ function NawawiModal({ open, onClose, hadith, lang }: {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.92 }}
               transition={{ type: 'spring', damping: 25, stiffness: 350 }}
-              onClick={e => e.stopPropagation()}
+              onClick={(e) => e.stopPropagation()}
               className="bg-card w-full max-w-md rounded-2xl max-h-[80vh] flex flex-col"
             >
               <div className="flex items-center justify-between px-5 py-4 border-b border-border/50">
@@ -213,7 +272,10 @@ function NawawiModal({ open, onClose, hadith, lang }: {
                   </span>
                   <h2 className="text-base font-bold text-foreground">{hadith.title}</h2>
                 </div>
-                <button onClick={onClose} className="p-1.5 rounded-full hover:bg-muted/60 transition-colors">
+                <button
+                  onClick={onClose}
+                  className="p-1.5 rounded-full hover:bg-muted/60 transition-colors"
+                >
                   <X className="w-5 h-5 text-muted-foreground" />
                 </button>
               </div>
@@ -260,17 +322,12 @@ export default function DhikrTab() {
 
   return (
     <>
-      <motion.div
-        variants={stagger}
-        initial="hidden"
-        animate="show"
-        className="space-y-6"
-      >
+      <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-6">
         {/* Al-Nawawi's Forty Hadiths — featured */}
         <motion.div variants={item}>
           <button
             onClick={() => setShowNawawiList(true)}
-            className="w-full flex items-center gap-3 p-4 rounded-2xl border border-primary/30 hover:border-primary/50 active:scale-[0.98] transition-all duration-150"
+            className="w-full flex items-center gap-3 p-4 rounded-2xl border border-primary/30 hover:border-primary/50 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 transition-all duration-150"
           >
             <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center shrink-0">
               <BookOpen className="w-6 h-6 text-primary" />
@@ -296,7 +353,7 @@ export default function DhikrTab() {
             </h2>
           </div>
           <div className="grid grid-cols-4 gap-1">
-            {frequentDuas.map(dua => (
+            {frequentDuas.map((dua) => (
               <FrequentDuaCard key={dua.id} dua={dua} lang={language} />
             ))}
           </div>
@@ -311,14 +368,14 @@ export default function DhikrTab() {
             </h2>
           </div>
           <div className="space-y-2.5">
-            {duaCategories.map(cat => {
+            {duaCategories.map((cat) => {
               const Icon = iconMap[cat.icon] || Star;
               return (
                 <motion.button
                   key={cat.id}
                   variants={item}
                   onClick={() => setOpenCat(cat)}
-                  className="surface-depth surface-depth-pressable w-full flex items-center gap-3 p-3.5 rounded-2xl border-s-[3px] border-s-primary/50 hover:border-primary/30"
+                  className="surface-depth surface-depth-pressable w-full flex items-center gap-3 p-3.5 rounded-2xl border-s-[3px] border-s-primary/50 hover:border-primary/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1"
                 >
                   <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 bg-primary/10">
                     <Icon className="w-5 h-5 text-primary" />
@@ -367,14 +424,17 @@ export default function DhikrTab() {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.92 }}
                 transition={{ type: 'spring', damping: 25, stiffness: 350 }}
-                onClick={e => e.stopPropagation()}
+                onClick={(e) => e.stopPropagation()}
                 className="bg-card w-full max-w-md rounded-2xl max-h-[85vh] flex flex-col"
               >
                 <div className="flex items-center justify-between px-5 py-4 border-b border-border/50">
                   <h2 className="text-lg font-bold text-foreground">
                     {language === 'ar' ? 'الأربعون النووية' : 'An-Nawawis vierzig Hadithe'}
                   </h2>
-                  <button onClick={() => setShowNawawiList(false)} className="p-1.5 rounded-full hover:bg-muted/60 transition-colors">
+                  <button
+                    onClick={() => setShowNawawiList(false)}
+                    className="p-1.5 rounded-full hover:bg-muted/60 transition-colors"
+                  >
                     <X className="w-5 h-5 text-muted-foreground" />
                   </button>
                 </div>
@@ -385,7 +445,10 @@ export default function DhikrTab() {
                       initial={{ opacity: 0, y: 6 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: i * 0.02, duration: 0.25 }}
-                      onClick={() => { setShowNawawiList(false); setOpenNawawi(h); }}
+                      onClick={() => {
+                        setShowNawawiList(false);
+                        setOpenNawawi(h);
+                      }}
                       className="w-full flex items-center gap-3 p-3 rounded-xl bg-muted/30 hover:bg-muted/60 active:scale-[0.98] transition-all duration-150 text-start"
                     >
                       <span className="w-8 h-8 rounded-full bg-primary/15 text-primary text-xs font-bold flex items-center justify-center shrink-0">

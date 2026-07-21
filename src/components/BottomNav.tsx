@@ -1,11 +1,10 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+
 import { useApp } from '@/contexts/AppContext';
 import { useUnreadMessages } from '@/hooks/useUnreadMessages';
+import { BookOpen, Compass, Crown, Dices, HeartPulse, House, MessageCircle } from '@/lib/icons';
 import { useInChatConversation } from '@/lib/inChatConversation';
-import {
-  House, Dices, Compass, BookOpen, MessageCircle, HeartPulse, Crown,
-} from '@/lib/icons';
-import { useNavigate, useLocation } from 'react-router-dom';
 import { prefetchRoute } from '@/lib/routePrefetch';
 
 /**
@@ -40,20 +39,20 @@ type Tab = {
 // icons sit on `muted-foreground`. This is the "محايد بالكامل +
 // نبضة لون واحدة" direction the user chose.
 const tabs: Tab[] = [
-  { key: 'games',     path: '/games',     icon: Dices,         labelKey: 'nav.games'     },
-  { key: 'chat',      path: '/chat',      icon: MessageCircle, labelKey: 'nav.chat'      },
-  { key: 'wellness',  path: '/wellness',  icon: HeartPulse,    labelKey: 'nav.wellness'  },
-  { key: 'home',      path: '/',          icon: House,         labelKey: 'nav.home'      },
-  { key: 'browse',    path: '/browse',    icon: Compass,       labelKey: 'nav.browse'    },
-  { key: 'knowledge', path: '/knowledge', icon: Crown,         labelKey: 'nav.knowledge' },
-  { key: 'mihrab',    path: '/mihrab',    icon: BookOpen,      labelKey: 'nav.mihrab'    },
+  { key: 'games', path: '/games', icon: Dices, labelKey: 'nav.games' },
+  { key: 'chat', path: '/chat', icon: MessageCircle, labelKey: 'nav.chat' },
+  { key: 'wellness', path: '/wellness', icon: HeartPulse, labelKey: 'nav.wellness' },
+  { key: 'home', path: '/', icon: House, labelKey: 'nav.home' },
+  { key: 'browse', path: '/browse', icon: Compass, labelKey: 'nav.browse' },
+  { key: 'knowledge', path: '/knowledge', icon: Crown, labelKey: 'nav.knowledge' },
+  { key: 'mihrab', path: '/mihrab', icon: BookOpen, labelKey: 'nav.mihrab' },
 ];
 
 // The ONE accent — referenced as a CSS expression so it follows the
 // theme token (always warm copper, theme-independent by design).
 const LIVE = 'hsl(var(--live))';
 
-const TAB_PATHS = new Set<string>(tabs.map(t => t.path));
+const TAB_PATHS = new Set<string>(tabs.map((t) => t.path));
 // A drag must travel at least this many pixels before we treat it as
 // a "swipe between tabs" gesture. Lower than this and we still let
 // the underlying button receive the click. Set well above the iOS
@@ -134,8 +133,8 @@ export default function BottomNav() {
     [location.pathname],
   );
 
-  const activeIndex = tabs.findIndex(tab => isActive(tab.path));
-  const safeActiveIndex = activeIndex < 0 ? tabs.findIndex(t => t.key === 'home') : activeIndex;
+  const activeIndex = tabs.findIndex((tab) => isActive(tab.path));
+  const safeActiveIndex = activeIndex < 0 ? tabs.findIndex((t) => t.key === 'home') : activeIndex;
 
   const [drag, setDrag] = useState<DragState | null>(null);
   const dragRef = useRef<DragState | null>(null);
@@ -183,7 +182,11 @@ export default function BottomNav() {
       // usually arrived, so the navigation feels free.
       const target = tabs[idx];
       if (target) prefetchRoute(target.path);
-      try { surface.setPointerCapture(e.pointerId); } catch { /* noop */ }
+      try {
+        surface.setPointerCapture(e.pointerId);
+      } catch {
+        /* noop */
+      }
     },
     [computeIndexFromX, setDragState],
   );
@@ -198,7 +201,11 @@ export default function BottomNav() {
       const x = e.clientX - rect.left;
       const newIndex = hitTestTabIndex(e.clientX, e.clientY) ?? computeIndexFromX(x);
       if (newIndex !== prev.index) {
-        try { navigator.vibrate?.(4); } catch { /* noop */ }
+        try {
+          navigator.vibrate?.(4);
+        } catch {
+          /* noop */
+        }
         const t = tabs[newIndex];
         if (t) prefetchRoute(t.path);
       }
@@ -218,7 +225,11 @@ export default function BottomNav() {
       if (!prev) return;
       const surface = containerRef.current;
       if (surface && pointerId !== undefined) {
-        try { surface.releasePointerCapture(pointerId); } catch { /* noop */ }
+        try {
+          surface.releasePointerCapture(pointerId);
+        } catch {
+          /* noop */
+        }
       }
       setDragState(null);
       // Navigate on ANY committed pointer interaction — both a plain tap
@@ -245,9 +256,7 @@ export default function BottomNav() {
         // fired a few pixels before the finger lifted. Hit-testing at the
         // exact release coordinates is the source of truth.
         const liftIndex =
-          clientX !== undefined && clientY !== undefined
-            ? hitTestTabIndex(clientX, clientY)
-            : null;
+          clientX !== undefined && clientY !== undefined ? hitTestTabIndex(clientX, clientY) : null;
         const targetIndex = liftIndex ?? prev.index;
         const target = tabs[targetIndex];
         if (target && location.pathname !== target.path && !isNavLocked()) {
@@ -259,10 +268,16 @@ export default function BottomNav() {
     [navigate, location.pathname, setDragState, isNavLocked, lockNav],
   );
 
-  const onPointerUp     = useCallback((e: React.PointerEvent<HTMLDivElement>) => endDrag(true,  e.pointerId, e.clientX, e.clientY), [endDrag]);
-  const onPointerCancel = useCallback((e: React.PointerEvent<HTMLDivElement>) => endDrag(false, e.pointerId), [endDrag]);
+  const onPointerUp = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => endDrag(true, e.pointerId, e.clientX, e.clientY),
+    [endDrag],
+  );
+  const onPointerCancel = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => endDrag(false, e.pointerId),
+    [endDrag],
+  );
 
-  const dragging    = drag !== null;
+  const dragging = drag !== null;
   const visualIndex = drag ? drag.index : safeActiveIndex;
 
   if (!TAB_PATHS.has(location.pathname) || inChatConversation) return null;
@@ -302,7 +317,7 @@ export default function BottomNav() {
           backdropFilter: 'blur(28px) saturate(180%)',
           border: '1px solid hsl(var(--border) / 0.45)',
           borderRadius: 999,
-          
+
           touchAction: 'pan-y',
           cursor: dragging ? 'grabbing' : undefined,
           position: 'relative',
@@ -313,7 +328,7 @@ export default function BottomNav() {
       >
         {tabs.map((tab, i) => {
           const visuallyActive = i === visualIndex;
-          const routeActive    = i === safeActiveIndex;
+          const routeActive = i === safeActiveIndex;
           const Icon = tab.icon;
           const showBadge = tab.key === 'chat' && unreadCount > 0;
 
@@ -340,6 +355,7 @@ export default function BottomNav() {
               }}
               aria-label={t(tab.labelKey)}
               aria-current={routeActive ? 'page' : undefined}
+              className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 rounded-2xl"
               style={{
                 flex: 1,
                 display: 'flex',
@@ -383,12 +399,7 @@ export default function BottomNav() {
                 />
 
                 {visuallyActive && (
-                  <Icon
-                    aria-hidden
-                    className="nav-icon-edge-trace"
-                    size={18}
-                    weight="fill"
-                  />
+                  <Icon aria-hidden className="nav-icon-edge-trace" size={18} weight="fill" />
                 )}
 
                 {showBadge && (
@@ -427,9 +438,7 @@ export default function BottomNav() {
                   direction: rtl ? 'rtl' : 'ltr',
                   color: visuallyActive ? LIVE : 'hsl(var(--muted-foreground) / 0.75)',
                   opacity: 1,
-                  transition: dragging
-                    ? 'none'
-                    : 'color 0.28s ease, font-weight 0.2s ease',
+                  transition: dragging ? 'none' : 'color 0.28s ease, font-weight 0.2s ease',
                   pointerEvents: 'none',
                   whiteSpace: 'nowrap',
                   lineHeight: 1,

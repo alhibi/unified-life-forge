@@ -1,13 +1,12 @@
-import React, { Suspense, lazy, useEffect, useState } from 'react';
-import SEO from '@/components/SEO';
+import { AnimatePresence, motion } from 'framer-motion';
+import React, { lazy, Suspense, useEffect, useState } from 'react';
+
 import PageHeader from '@/components/PageHeader';
-import { useApp } from '@/contexts/AppContext';
-import { motion, AnimatePresence } from 'framer-motion';
-import { EASE_OUT_EXPO, EASE_IN } from '@/lib/motion';
+import SEO from '@/components/SEO';
 import { PageShell } from '@/components/ui/app-shell';
-import {
-  BookOpen, HandHeart, Moon, Feather,
-} from '@/lib/icons';
+import { useApp } from '@/contexts/AppContext';
+import { BookOpen, Feather, HandHeart, Moon } from '@/lib/icons';
+import { EASE_IN, EASE_OUT_EXPO } from '@/lib/motion';
 
 /**
  * /mihrab — "محراب" hub.
@@ -44,9 +43,9 @@ import {
  * Literature only when they tap into them.
  */
 
-const QuranTab      = lazy(() => import('./mihrab/QuranTab'));
-const DhikrTab      = lazy(() => import('./mihrab/DhikrTab'));
-const SunnahTab     = lazy(() => import('./mihrab/SunnahTab'));
+const QuranTab = lazy(() => import('./mihrab/QuranTab'));
+const DhikrTab = lazy(() => import('./mihrab/DhikrTab'));
+const SunnahTab = lazy(() => import('./mihrab/SunnahTab'));
 const LiteratureTab = lazy(() => import('./mihrab/LiteratureTab'));
 
 type TabKey = 'quran' | 'dhikr' | 'sunnah' | 'literature';
@@ -61,10 +60,10 @@ interface TabDef {
 }
 
 const TABS: TabDef[] = [
-  { key: 'quran',      labelAr: 'القرآن', labelDe: 'Quran',      icon: BookOpen  },
-  { key: 'dhikr',      labelAr: 'الذكر',  labelDe: 'Dhikr',      icon: HandHeart },
-  { key: 'sunnah',     labelAr: 'السنّة',  labelDe: 'Sunna',      icon: Moon      },
-  { key: 'literature', labelAr: 'الأدب',  labelDe: 'Literatur',  icon: Feather   },
+  { key: 'quran', labelAr: 'القرآن', labelDe: 'Quran', icon: BookOpen },
+  { key: 'dhikr', labelAr: 'الذكر', labelDe: 'Dhikr', icon: HandHeart },
+  { key: 'sunnah', labelAr: 'السنّة', labelDe: 'Sunna', icon: Moon },
+  { key: 'literature', labelAr: 'الأدب', labelDe: 'Literatur', icon: Feather },
 ];
 
 const TabSkeleton = () => (
@@ -83,8 +82,10 @@ export default function MihrabPage() {
   const [tab, setTab] = useState<TabKey>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY) as TabKey | null;
-      if (saved && TABS.some(t => t.key === saved)) return saved;
-    } catch { /* noop */ }
+      if (saved && TABS.some((t) => t.key === saved)) return saved;
+    } catch {
+      /* noop */
+    }
     return 'quran';
   });
 
@@ -92,12 +93,16 @@ export default function MihrabPage() {
   // Spatial cue: moving "right" in the dock slides content in from the
   // trailing edge, moving "left" from the leading edge. Mirrored in RTL.
   const [prevTab, setPrevTab] = useState<TabKey>(tab);
-  const idxOf = (k: TabKey) => TABS.findIndex(t => t.key === k);
+  const idxOf = (k: TabKey) => TABS.findIndex((t) => t.key === k);
   const goingForward = idxOf(tab) > idxOf(prevTab);
   const slideSign = (goingForward ? 1 : -1) * (rtl ? -1 : 1);
 
   useEffect(() => {
-    try { localStorage.setItem(STORAGE_KEY, tab); } catch { /* noop */ }
+    try {
+      localStorage.setItem(STORAGE_KEY, tab);
+    } catch {
+      /* noop */
+    }
   }, [tab]);
 
   const handleTabChange = (next: TabKey) => {
@@ -109,28 +114,27 @@ export default function MihrabPage() {
   return (
     <PageShell flush className="pt-10">
       <SEO
-        title={isAr ? 'محراب — قرآن وذكر وسنّة وأدب — SmartHub' : 'Mihrab — Quran, Dhikr, Sunna & Literatur — SmartHub'}
-        description={isAr
-          ? 'مركز موحّد للقرآن والتفسير والأدعية والسنن النبوية والديوان الأدبي.'
-          : 'Vereinter Hub für Quran, Tafsir, Bittgebete, prophetische Sunna und arabische Literatur.'}
+        title={
+          isAr
+            ? 'محراب — قرآن وذكر وسنّة وأدب — SmartHub'
+            : 'Mihrab — Quran, Dhikr, Sunna & Literatur — SmartHub'
+        }
+        description={
+          isAr
+            ? 'مركز موحّد للقرآن والتفسير والأدعية والسنن النبوية والديوان الأدبي.'
+            : 'Vereinter Hub für Quran, Tafsir, Bittgebete, prophetische Sunna und arabische Literatur.'
+        }
         path="/mihrab"
       />
 
       <div className="page-shell-inner app-stack">
         {/* Title — unified PageHeader (top-level hub, no back) */}
-        <PageHeader
-          hideBack
-          title={isAr ? 'محراب' : 'Mihrab'}
-          className="px-0 py-0"
-        />
+        <PageHeader hideBack title={isAr ? 'محراب' : 'Mihrab'} className="px-0 py-0" />
 
         {/* Horizontal tab dock */}
         <nav aria-label={isAr ? 'تبويبات المحراب' : 'Mihrab tabs'}>
-          <div
-            className="app-card p-1 flex items-center gap-0.5"
-            dir="ltr"
-          >
-            {TABS.map(t => {
+          <div className="app-card p-1 flex items-center gap-0.5" dir="ltr">
+            {TABS.map((t) => {
               const active = tab === t.key;
               const Icon = t.icon;
               return (
@@ -139,8 +143,10 @@ export default function MihrabPage() {
                   onClick={() => handleTabChange(t.key)}
                   aria-pressed={active}
                   aria-label={isAr ? t.labelAr : t.labelDe}
-                  className={`relative flex-1 inline-flex items-center justify-center gap-1.5 h-10 px-2 rounded-xl transition-colors duration-150 ${
-                    active ? 'text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
+                  className={`relative flex-1 inline-flex items-center justify-center gap-1.5 h-10 px-2 rounded-xl transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 ${
+                    active
+                      ? 'text-primary-foreground'
+                      : 'text-muted-foreground hover:text-foreground'
                   }`}
                 >
                   {active && (
@@ -172,9 +178,9 @@ export default function MihrabPage() {
             className="app-stack-sm"
           >
             <Suspense fallback={<TabSkeleton />}>
-              {tab === 'quran'      && <QuranTab />}
-              {tab === 'dhikr'      && <DhikrTab />}
-              {tab === 'sunnah'     && <SunnahTab />}
+              {tab === 'quran' && <QuranTab />}
+              {tab === 'dhikr' && <DhikrTab />}
+              {tab === 'sunnah' && <SunnahTab />}
               {tab === 'literature' && <LiteratureTab />}
             </Suspense>
           </motion.section>
