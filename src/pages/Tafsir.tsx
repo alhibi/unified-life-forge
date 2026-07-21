@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useSearchParams } from 'react-router-dom';
 import { BookOpen, Search, ChevronDown, ArrowRight, Loader2, BookMarked, X, Copy, Check, Minus, Plus, Bookmark, BookmarkCheck, ChevronUp } from '@/lib/icons';
 import BackButton from '@/components/BackButton';
 import SEO from '@/components/SEO';
@@ -74,33 +75,95 @@ const itemAnim = { hidden: { opacity: 0, y: 5 }, show: { opacity: 1, y: 0, trans
 
 export default function TafsirPage() {
   const { t } = useApp();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Load initial states from URL params, falling back to localStorage
+  const urlSurah = searchParams.get('surah');
+  const urlAyah = searchParams.get('ayah');
+  const urlTafsir = searchParams.get('tafsir');
+
+  const savedPos = useMemo(() => loadState(), []);
+
+  const initialSurah = useMemo(() => {
+    if (urlSurah !== null) {
+      const parsed = parseInt(urlSurah, 10);
+      if (Number.isFinite(parsed) && parsed >= 0 && parsed < SURAHS.length) return parsed;
+    }
+    return savedPos?.surah ?? null;
+  }, [urlSurah, savedPos]);
+
+  const initialAyah = useMemo(() => {
+    if (urlAyah !== null) {
+      const parsed = parseInt(urlAyah, 10);
+      if (Number.isFinite(parsed) && parsed > 0) return parsed;
+    }
+    return savedPos?.ayah ?? null;
+  }, [urlAyah, savedPos]);
+
+  const initialTafsir = useMemo(() => {
+    if (urlTafsir !== null) {
+      const found = TAFSIRS.find(t => t.id === urlTafsir);
+      if (found) return found;
+    }
+    return TAFSIRS.find(t => t.id === savedPos?.tafsirId) || TAFSIRS[0];
+  }, [urlTafsir, savedPos]);
 
   // ─── State ──────────────────────────────────────────────────────────────────
-  const savedPos = useMemo(() => loadState(), []);
-  const [selectedSurah, setSelectedSurah] = useState<number | null>(savedPos?.surah ?? null);
-  const [showSurahPicker, setShowSurahPicker] = useState(savedPos === null);
+  const [selectedSurah, setSelectedSurah] = useState<number | null>(initialSurah);
+  const [showSurahPicker, setShowSurahPicker] = useState(initialSurah === null);
   const [ayahs, setAyahs] = useState<AyahData[]>([]);
   const [loadingAyahs, setLoadingAyahs] = useState(false);
-  const [selectedAyah, setSelectedAyah] = useState<number | null>(savedPos?.ayah ?? null);
+  const [selectedAyah, setSelectedAyah] = useState<number | null>(initialAyah);
   const [tafsirText, setTafsirText] = useState('');
   const [loadingTafsir, setLoadingTafsir] = useState(false);
-  const [selectedTafsir, setSelectedTafsir] = useState(TAFSIRS.find(t => t.id === savedPos?.tafsirId) || TAFSIRS[0]);
+  const [selectedTafsir, setSelectedTafsir] = useState(initialTafsir);
   const [showTafsirPicker, setShowTafsirPicker] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [localSearchQuery, setLocalSearchQuery] = useState('');
   const [ayahSearch, setAyahSearch] = useState('');
+  const [localAyahSearch, setLocalAyahSearch] = useState('');
   const [fontSize, setFontSize] = useState(15);
+
+  // Debounce search query updates
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setSearchQuery(localSearchQuery);
+    }, 300);
+    return () => clearTimeout(handler);
+  }, [localSearchQuery]);
+
+  // Debounce ayah search updates
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setAyahSearch(localAyahSearch);
+    }, 300);
+    return () => clearTimeout(handler);
+  }, [localAyahSearch]);
   const [copied, setCopied] = useState<string | null>(null);
   const [bookmarks, setBookmarks] = useState<string[]>(loadBookmarks);
   const [readCount, setReadCount] = useState(0);
   const tafsirRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
-  // ─── Persist position ───────────────────────────────────────────────────────
+  // ─── Persist position and Sync with URL Search Params ───────────────────────
   useEffect(() => {
+    const nextParams = new URLSearchParams(searchParams);
     if (selectedSurah !== null) {
       saveState({ surah: selectedSurah, ayah: selectedAyah, tafsirId: selectedTafsir.id });
+      nextParams.set('surah', String(selectedSurah));
+      if (selectedAyah !== null) {
+        nextParams.set('ayah', String(selectedAyah));
+      } else {
+        nextParams.delete('ayah');
+      }
+      nextParams.set('tafsir', selectedTafsir.id);
+    } else {
+      nextParams.delete('surah');
+      nextParams.delete('ayah');
+      nextParams.delete('tafsir');
     }
-  }, [selectedSurah, selectedAyah, selectedTafsir]);
+    setSearchParams(nextParams, { replace: true });
+  }, [selectedSurah, selectedAyah, selectedTafsir, setSearchParams]);
 
   // ─── Fetch Ayahs ────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -218,7 +281,7 @@ export default function TafsirPage() {
         {/* Breadcrumb */}
         {selectedSurah !== null && (
           <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-2 flex-wrap">
-            <button onClick={() => { setSelectedSurah(null); setShowSurahPicker(true); setAyahs([]); setSelectedAyah(null); setTafsirText(''); setAyahSearch(''); }} className="text-xs font-medium text-primary hover:underline">
+            <button onClick={() => { setSelectedSurah(null); setShowSurahPicker(true); setAyahs([]); setSelectedAyah(null); setTafsirText(''); setAyahSearch(''); setLocalAyahSearch(''); }} className="text-xs font-medium text-primary hover:underline">
               {t('tafsir.allSurahs')}
             </button>
             <ArrowRight className="w-3 h-3 text-muted-foreground rotate-180" />
@@ -260,8 +323,8 @@ export default function TafsirPage() {
         {selectedSurah !== null && !showSurahPicker && ayahs.length > 0 && (
           <div className="relative">
             <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <input type="text" value={ayahSearch} onChange={e => setAyahSearch(e.target.value)} placeholder="ابحث في آيات السورة..." className="w-full pr-10 pl-4 py-2.5 rounded-xl bg-card border border-border/50 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/30" />
-            {ayahSearch && <button aria-label="مسح البحث" onClick={() => setAyahSearch('')} className="absolute left-3 top-1/2 -translate-y-1/2"><X className="w-4 h-4 text-muted-foreground" /></button>}
+            <input type="text" value={localAyahSearch} onChange={e => setLocalAyahSearch(e.target.value)} placeholder="ابحث في آيات السورة..." className="w-full pr-10 pl-4 py-2.5 rounded-xl bg-card border border-border/50 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/30" />
+            {localAyahSearch && <button aria-label="مسح البحث" onClick={() => { setLocalAyahSearch(''); setAyahSearch(''); }} className="absolute left-3 top-1/2 -translate-y-1/2"><X className="w-4 h-4 text-muted-foreground" /></button>}
           </div>
         )}
 
@@ -271,8 +334,8 @@ export default function TafsirPage() {
             <motion.div key="surah-picker" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-3">
               <div className="relative">
                 <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <input type="text" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder="ابحث عن سورة..." className="w-full pr-10 pl-4 py-3 rounded-xl bg-card border border-border/50 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/30" />
-                {searchQuery && <button aria-label="مسح البحث" onClick={() => setSearchQuery('')} className="absolute left-3 top-1/2 -translate-y-1/2"><X className="w-4 h-4 text-muted-foreground" /></button>}
+                <input type="text" value={localSearchQuery} onChange={e => setLocalSearchQuery(e.target.value)} placeholder="ابحث عن سورة..." className="w-full pr-10 pl-4 py-3 rounded-xl bg-card border border-border/50 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                {localSearchQuery && <button aria-label="مسح البحث" onClick={() => { setLocalSearchQuery(''); setSearchQuery(''); }} className="absolute left-3 top-1/2 -translate-y-1/2"><X className="w-4 h-4 text-muted-foreground" /></button>}
               </div>
               <motion.div variants={container} initial="hidden" animate="show" className="grid grid-cols-3 gap-2">
                 {filteredSurahs.map(({ name, index }) => {

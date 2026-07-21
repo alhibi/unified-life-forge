@@ -1,5 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import React, { lazy, Suspense, useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
@@ -78,8 +79,12 @@ export default function MihrabPage() {
   const { language, dir } = useApp();
   const isAr = language === 'ar';
   const rtl = dir === 'rtl';
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const urlTab = searchParams.get('tab') as TabKey | null;
 
   const [tab, setTab] = useState<TabKey>(() => {
+    if (urlTab && TABS.some((t) => t.key === urlTab)) return urlTab;
     try {
       const saved = localStorage.getItem(STORAGE_KEY) as TabKey | null;
       if (saved && TABS.some((t) => t.key === saved)) return saved;
@@ -103,7 +108,10 @@ export default function MihrabPage() {
     } catch {
       /* noop */
     }
-  }, [tab]);
+    const nextParams = new URLSearchParams(searchParams);
+    nextParams.set('tab', tab);
+    setSearchParams(nextParams, { replace: true });
+  }, [tab, setSearchParams]);
 
   const handleTabChange = (next: TabKey) => {
     if (next === tab) return;
