@@ -15,8 +15,8 @@ import * as path from 'node:path';
 import { buildSlug, extractMeter, extractRhyme } from './normalize.ts';
 import type { RawEra, RawPoem, RawPoet, RawVerse } from './types.ts';
 // استيراد البيانات المحلّية
-import { poetryEras } from '../../src/data/poetryData.ts';
-import { poetNodes } from '../../src/data/literaryConnections.ts';
+import { poetryEras } from '../../src/features/diwan/data/poetryData.ts';
+import { poetNodes } from '../../src/features/diwan/data/literaryConnections.ts';
 
 const OUT = path.resolve(process.cwd(), 'scripts/diwan/out');
 fs.mkdirSync(OUT, { recursive: true });

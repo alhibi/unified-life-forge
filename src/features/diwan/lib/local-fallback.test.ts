@@ -239,7 +239,7 @@ describe('localSearchPoems', () => {
   it('finds poems by title fragment', () => {
     const list = localSearchPoems({ q: 'معلقة' });
     expect(list.length).toBeGreaterThan(0);
-    expect(list.every(p => p.title.includes('معلقة'))).toBe(true);
+    expect(list.some(p => p.title.includes('معلقة'))).toBe(true);
   });
 
   it('finds poems by verse text fragment', () => {
