@@ -12,7 +12,7 @@ import UmmahPulse from '@/components/UmmahPulse';
 
 import SmartGreeting from '@/components/SmartGreeting';
 import { useNavigate } from 'react-router-dom';
-import { MessageCircle, UserCircle, Sparkles, ChevronLeft, FileText } from '@/lib/icons';
+import { MessageCircle, UserCircle, Sparkles, ChevronLeft, FileText, Settings } from '@/lib/icons';
 import { getAppleEmojiUrl, isEmojiAvatarValue } from '@/utils/emojiAvatar';
 import { getDefaultAvatarForUser } from '@/utils/defaultAvatar';
 import { PageShell, IconButton, AppCard } from '@/components/ui/app-shell';
@@ -60,7 +60,13 @@ export default function Index() {
                   )}
                 </IconButton>
               )}
-              {/* Avatar shortcut → /settings.
+              <IconButton
+                onClick={() => navigate('/settings')}
+                aria-label={language === 'ar' ? 'الإعدادات' : 'Einstellungen'}
+              >
+                <Settings className="h-5 w-5" />
+              </IconButton>
+              {/* Avatar shortcut → /profile or /settings.
                   Replaces the previous Newspaper button (which moved
                   into the new /browse hub) and the Settings tab in
                   the bottom nav (which was retired in the IA reorg).
