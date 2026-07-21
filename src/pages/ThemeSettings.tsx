@@ -24,7 +24,45 @@ import {
   Sparkles,
   Sun,
   Zap,
+  Smartphone,
+  LayoutGrid,
 } from '@/lib/icons';
+import { type DesignMode } from '@/contexts/AppContext';
+
+const designModesList = [
+  {
+    id: 'classic' as const,
+    nameAr: 'الكلاسيكي الفاخر',
+    nameDe: 'Obsidian Classic',
+    descAr: 'نمط هاب الكلاسيكي بلمسة فخامة الأوبسيديان والذهب الأخاذة',
+    descDe: 'Klassische Eleganz mit Obsidian- und Goldakzenten',
+    icon: Sparkles,
+  },
+  {
+    id: 'md3' as const,
+    nameAr: 'ماتيريال ٣ الذكي',
+    nameDe: 'Material Design 3',
+    descAr: 'تصميم غوغل المبتكر بحواف مستديرة وبطاقات ناعمة الملمس',
+    descDe: 'Googles modernes Interface mit abgerundeten Karten',
+    icon: LayoutGrid,
+  },
+  {
+    id: 'ios' as const,
+    nameAr: 'نظام آبل ٢٠٢٤',
+    nameDe: 'iOS Native 2024',
+    descAr: 'البساطة السلسة مع قوائم منسقة تفيض بالدقة والجمال الطبيعي',
+    descDe: 'Klares Apple-Design mit strukturierten Listen',
+    icon: Smartphone,
+  },
+  {
+    id: 'aura' as const,
+    nameAr: 'الهالة الساحرة',
+    nameDe: 'Pure Aura',
+    descAr: 'نمط نقي يجمع بين السكون المطلق والثراء البصري كالحرير المتلألئ',
+    descDe: 'Reiner Minimalismus mit sanften Lichteffekten',
+    icon: Droplets,
+  },
+];
 import { pageItem as item, pageStagger as stagger } from '@/lib/motion';
 import {
   createDynamicPreset,
@@ -301,9 +339,9 @@ export default function ThemeSettingsPage() {
     setColorTheme,
     paletteStyle,
     setPaletteStyle,
+    designMode,
+    setDesignMode,
   } = useApp();
-  // MD3 mode retired — kept locally as a no-op to minimise diff in this file's UI.
-  const md3Mode = false;
   const isAr = language === 'ar';
 
   // Auto-theme by prayer time
@@ -404,7 +442,67 @@ export default function ThemeSettingsPage() {
           </div>
         </motion.div>
 
-        {/* MD3 mode retired — single canonical theme system. */}
+        {/* Premium Entire-App Design Modes Selection */}
+        <motion.div variants={item} className="premium-card-elevated p-5 space-y-4">
+          <div className="text-center">
+            <h2 className="font-semibold text-[13px] text-muted-foreground uppercase tracking-wider">
+              {isAr ? 'أنماط التصميم المتكاملة' : 'Application Design Modes'}
+            </h2>
+            <p className="text-[10px] text-muted-foreground/80 mt-0.5">
+              {isAr
+                ? 'غيّر هيكل الواجهة، زوايا البطاقات ونظام الحركة بشكل كامل وفوري'
+                : 'Instantly morph layout borders, radius, and physics app-wide'}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            {designModesList.map((dm) => {
+              const isActive = designMode === dm.id;
+              const Icon = dm.icon;
+              return (
+                <button
+                  key={dm.id}
+                  onClick={() => setDesignMode(dm.id)}
+                  className={`relative flex flex-col items-start p-4 rounded-2xl border text-start transition-all duration-300 overflow-hidden group ${
+                    isActive
+                      ? 'border-primary bg-primary/5 shadow-[0_0_15px_rgba(var(--live),0.05)]'
+                      : 'border-border bg-card hover:border-border/80'
+                  }`}
+                >
+                  {/* Subtle active glow light behind icon */}
+                  {isActive && (
+                    <motion.div
+                      layoutId="activeGlowLight"
+                      className="absolute top-0 right-0 w-16 h-16 bg-primary/10 rounded-full blur-xl pointer-events-none"
+                    />
+                  )}
+
+                  <div className="flex items-center justify-between w-full mb-2">
+                    <div
+                      className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${
+                        isActive ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground'
+                      }`}
+                    >
+                      <Icon className="w-5 h-5" />
+                    </div>
+                    {isActive && (
+                      <div className="w-4.5 h-4.5 rounded-full bg-primary flex items-center justify-center">
+                        <Check className="w-3 h-3 text-primary-foreground" strokeWidth={3} />
+                      </div>
+                    )}
+                  </div>
+
+                  <h3 className={`text-[12px] font-bold ${isActive ? 'text-primary' : 'text-foreground'}`}>
+                    {isAr ? dm.nameAr : dm.nameDe}
+                  </h3>
+                  <p className="text-[9.5px] text-muted-foreground/90 mt-1 leading-normal line-clamp-2">
+                    {isAr ? dm.descAr : dm.descDe}
+                  </p>
+                </button>
+              );
+            })}
+          </div>
+        </motion.div>
 
         {/* Appearance Mode */}
         <motion.div variants={item} className="premium-card-elevated p-5">
@@ -586,13 +684,13 @@ export default function ThemeSettingsPage() {
         {/* Theme Style */}
         <motion.div
           variants={item}
-          className={`premium-card-elevated p-5 transition-opacity ${md3Mode ? 'opacity-40 pointer-events-none' : ''}`}
+          className={`premium-card-elevated p-5 transition-opacity ${designMode !== 'classic' ? 'opacity-40 pointer-events-none' : ''}`}
         >
           <h2 className="font-semibold text-[13px] text-muted-foreground text-center mb-4 uppercase tracking-wider">
-            {isAr ? 'نمط الثيم' : 'Theme Style'}
-            {md3Mode && (
-              <span className="block text-[10px] normal-case tracking-normal text-muted-foreground/60 mt-1 font-normal">
-                {isAr ? 'معطّل — MD3 يتحكّم بالنمط' : 'Disabled — MD3 controls style'}
+            {isAr ? 'توزيع الألوان (للنمط الكلاسيكي)' : 'Color Distribution (Classic Mode)'}
+            {designMode !== 'classic' && (
+              <span className="block text-[10px] normal-case tracking-normal text-muted-foreground/60 mt-1 font-normal animate-pulse">
+                {isAr ? 'معطّل — النمط الحالي يتحكّم بتوزيع الألوان' : 'Disabled — managed by current style'}
               </span>
             )}
           </h2>
@@ -648,7 +746,7 @@ export default function ThemeSettingsPage() {
         />
 
         {/* Dynamic Theme */}
-        <motion.div variants={item} className={md3Mode ? 'opacity-40 pointer-events-none' : ''}>
+        <motion.div variants={item}>
           <button
             onClick={handleDynamicImage}
             className="flex items-center w-full p-4 premium-card-elevated gap-4 active:scale-[0.99] transition-transform"

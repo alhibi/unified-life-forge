@@ -1018,7 +1018,7 @@ nav, button, [role="button"], .no-context-menu {
   -webkit-touch-callout: none;
 }
 
-/* Smooth theme transition — scoped to color props only with custom ease-in-out curve for luxury feel */
+/* Smooth theme transition — scoped to color and layout props with custom ease-in-out curve for luxury feel */
 html.theme-transition,
 html.theme-transition *,
 html.theme-transition *::before,
@@ -1027,8 +1027,88 @@ html.theme-transition *::after {
     background-color 550ms cubic-bezier(0.28, 0.11, 0.32, 1),
     color 450ms cubic-bezier(0.28, 0.11, 0.32, 1),
     border-color 500ms cubic-bezier(0.28, 0.11, 0.32, 1),
+    border-radius 600ms cubic-bezier(0.28, 0.11, 0.32, 1),
+    box-shadow 600ms cubic-bezier(0.28, 0.11, 0.32, 1),
+    padding 500ms cubic-bezier(0.28, 0.11, 0.32, 1),
+    border-width 500ms cubic-bezier(0.28, 0.11, 0.32, 1),
+    backdrop-filter 600ms cubic-bezier(0.28, 0.11, 0.32, 1),
     fill 450ms cubic-bezier(0.28, 0.11, 0.32, 1),
     stroke 450ms cubic-bezier(0.28, 0.11, 0.32, 1) !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   DESIGN PARADIGM OVERRIDES (Material 3, iOS, and Pure Aura)
+   ════════════════════════════════════════════════════════════ */
+
+/* ── Material Design 3 (MD3) ───────────────────────────────── */
+html[data-design-mode="md3"] .app-card,
+html[data-design-mode="md3"] .premium-card,
+html[data-design-mode="md3"] .premium-card-elevated,
+html[data-design-mode="md3"] .premium-card-intense {
+  border-radius: 1.5rem !important; /* Authentic MD3 large shapes */
+  border-color: hsl(var(--border) / 0.4) !important;
+}
+html[data-design-mode="md3"] button:not(.preserve-fx):not(.app-icon-btn),
+html[data-design-mode="md3"] [role="button"]:not(.preserve-fx):not(.app-icon-btn),
+html[data-design-mode="md3"] a:not(.preserve-fx):not(.app-icon-btn) {
+  border-radius: 9999px !important; /* Pill shape buttons */
+}
+html[data-design-mode="md3"] .app-icon-btn {
+  border-radius: 9999px !important;
+}
+
+/* ── iOS 2024 Native ───────────────────────────────────────── */
+html[data-design-mode="ios"] .app-card,
+html[data-design-mode="ios"] .premium-card,
+html[data-design-mode="ios"] .premium-card-elevated,
+html[data-design-mode="ios"] .premium-card-intense {
+  border-radius: 0.75rem !important; /* Compact clean iOS cards */
+  border-width: 1px !important;
+  border-color: hsl(var(--border) / 0.5) !important;
+}
+html[data-design-mode="ios"] button:not(.preserve-fx):not(.app-icon-btn),
+html[data-design-mode="ios"] [role="button"]:not(.preserve-fx):not(.app-icon-btn),
+html[data-design-mode="ios"] a:not(.preserve-fx):not(.app-icon-btn) {
+  border-radius: 0.75rem !important;
+}
+html[data-design-mode="ios"] .app-icon-btn {
+  border-radius: 0.75rem !important;
+}
+
+/* ── Pure Aura (البساطة الفاخرة) ────────────────────────────────── */
+html[data-design-mode="aura"]::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background: radial-gradient(circle at 15% 20%, hsl(var(--primary) / 0.05) 0%, transparent 45%),
+              radial-gradient(circle at 85% 75%, hsl(var(--primary) / 0.05) 0%, transparent 45%),
+              hsl(var(--background));
+  animation: aura-background-drift 24s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+@keyframes aura-background-drift {
+  0% { filter: hue-rotate(0deg) saturate(1); }
+  100% { filter: hue-rotate(18deg) saturate(1.1); }
+}
+html[data-design-mode="aura"] .app-card,
+html[data-design-mode="aura"] .premium-card,
+html[data-design-mode="aura"] .premium-card-elevated,
+html[data-design-mode="aura"] .premium-card-intense {
+  border-radius: 1.75rem !important; /* Organic luxurious curves */
+  border-width: 1px !important;
+  border-color: hsl(var(--border) / 0.3) !important;
+  background-color: hsl(var(--card) / 0.72) !important;
+  backdrop-filter: blur(28px) saturate(120%) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(120%) !important;
+}
+html[data-design-mode="aura"] button:not(.preserve-fx):not(.app-icon-btn),
+html[data-design-mode="aura"] [role="button"]:not(.preserve-fx):not(.app-icon-btn),
+html[data-design-mode="aura"] a:not(.preserve-fx):not(.app-icon-btn) {
+  border-radius: 1.25rem !important;
+}
+html[data-design-mode="aura"] .app-icon-btn {
+  border-radius: 1.25rem !important;
 }
 
 /* ─── Native Android Chat Performance ─── */
