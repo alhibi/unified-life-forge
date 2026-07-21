@@ -106,10 +106,11 @@ export interface ChatPrefs {
   drafts: Record<string, string>;
   /** Last known scroll position (px) per conversation, for "resume where you were". */
   scroll: Record<string, number>;
-  wallpapers: Record<string, string>;   // convId -> wallpaper id
-  globalWallpaper: string;              // default wallpaper
+  wallpapers: Record<string, string>; // convId -> wallpaper id
+  globalWallpaper: string; // default wallpaper
   soundEnabled: boolean;
   enterToSend: boolean;
+  blocked: Record<string, boolean>;
 }
 
 export interface Wallpaper {
