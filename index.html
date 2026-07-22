@@ -63,6 +63,25 @@
   <meta name="twitter:title" content="SmartHub — أوقات الصلاة والقرآن والتقويم الهجري" />
   <meta property="og:description" content="رفيقك اليومي: أوقات الصلاة، القرآن، الأذكار، التقويم الهجري، الطقس والديوان — بالعربية والألمانية." />
   <meta name="twitter:description" content="رفيقك اليومي: أوقات الصلاة، القرآن، الأذكار، التقويم الهجري، الطقس والديوان — بالعربية والألمانية." />
+  <script>
+    (function() {
+      try {
+        const theme = localStorage.getItem('app-theme') || 'light';
+        const isDark = theme === 'dark';
+        document.documentElement.classList.toggle('dark', isDark);
+
+        const lang = localStorage.getItem('app-language') || 'ar';
+        document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+        document.documentElement.lang = lang;
+
+        // Prevent layout shift by setting correct design mode
+        document.documentElement.removeAttribute('data-md3');
+        document.documentElement.setAttribute('data-design-mode', 'classic');
+      } catch (e) {
+        console.error('FOUC mitigation script failed:', e);
+      }
+    })();
+  </script>
 </head>
   <body>
     <div id="root"></div>

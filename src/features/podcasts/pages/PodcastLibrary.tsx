@@ -320,7 +320,7 @@ export default function PodcastLibrary() {
   const feedQueries = useQueries({
     queries: subs.map((sub) => ({
       queryKey: ['podcast-feed', sub.origin],
-      queryFn: ({ signal }) => fetchPodcastFeed({ feedUrl: sub.origin, signal }),
+      queryFn: ({ signal }: { signal: AbortSignal }) => fetchPodcastFeed({ feedUrl: sub.origin, signal }),
       staleTime: 12 * 60 * 1000, // 12 mins caching
       enabled: subs.length <= 25, // Safely bound queries to avoid rate limits
     })),

@@ -7,7 +7,7 @@ import { useApp } from '@/contexts/AppContext';
 import { useNotes, type LocalNote, type NoteStatus } from '../hooks/useNotes';
 import { extractTags, buildTagTree, type TagNode } from '../lib/tagParser';
 import { Plus, Trash, Hash, FileText, Eye, Pencil, Search, ChevronRight, ChevronDown, Sparkles, Brain } from '@/lib/icons';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useSyncEngine } from '../hooks/useSyncEngine';
 import OptimizerPanel from '../components/OptimizerPanel';
@@ -56,12 +56,73 @@ export default function PKM() {
 
   const [optimizerOpen, setOptimizerOpen] = useState(false);
 
-  const [activeId, setActiveId] = useState<string | null>(null);
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
-  const [tagFilter, setTagFilter] = useState<string | null>(null);
-  const [query, setQuery] = useState('');
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Read state from URL with fallbacks
+  const activeId = searchParams.get('note') || null;
+  const statusFilter = (searchParams.get('status') as StatusFilter) || 'all';
+  const tagFilter = searchParams.get('tag') || null;
+  const urlQuery = searchParams.get('q') || '';
+
+  const [query, setQuery] = useState(urlQuery);
+  const [debouncedQuery, setDebouncedQuery] = useState(urlQuery);
   const [preview, setPreview] = useState(false);
   const [listOpen, setListOpen] = useState(true);
+
+  // Synchronize URL query change back into local inputs
+  useEffect(() => {
+    setQuery(urlQuery);
+    setDebouncedQuery(urlQuery);
+  }, [urlQuery]);
+
+  // Debounce effect for local search query typing
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedQuery(query);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [query]);
+
+  // Push debounced query string to URL search parameter 'q'
+  useEffect(() => {
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      const queryVal = debouncedQuery.trim();
+      if (queryVal) {
+        next.set('q', queryVal);
+      } else {
+        next.delete('q');
+      }
+      return next;
+    }, { replace: true });
+  }, [debouncedQuery, setSearchParams]);
+
+  const setActiveId = (id: string | null) => {
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      if (id) next.set('note', id);
+      else next.delete('note');
+      return next;
+    }, { replace: true });
+  };
+
+  const setStatusFilter = (s: StatusFilter) => {
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      if (s && s !== 'all') next.set('status', s);
+      else next.delete('status');
+      return next;
+    }, { replace: true });
+  };
+
+  const setTagFilter = (tag: string | null) => {
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      if (tag) next.set('tag', tag);
+      else next.delete('tag');
+      return next;
+    }, { replace: true });
+  };
 
   // Auto-select the most recent note the first time the list arrives.
   useEffect(() => {
@@ -81,7 +142,7 @@ export default function PKM() {
   }, [notes]);
 
   const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
+    const q = debouncedQuery.trim().toLowerCase();
     return notes.filter((n) => {
       if (statusFilter !== 'all' && n.status !== statusFilter) return false;
       if (tagFilter) {
@@ -95,7 +156,7 @@ export default function PKM() {
       }
       return true;
     });
-  }, [notes, statusFilter, tagFilter, query]);
+  }, [notes, statusFilter, tagFilter, debouncedQuery]);
 
   const handleCreate = async () => {
     const id = await createNote();
@@ -173,16 +234,16 @@ export default function PKM() {
           </label>
 
           {/* status pills */}
-          <div className="flex gap-1.5 flex-wrap">
+          <div className="flex gap-2 flex-wrap mb-1">
             {(['all', 'draft', 'active', 'archived'] as StatusFilter[]).map((s) => (
               <button
                 key={s}
                 onClick={() => setStatusFilter(s)}
                 className={cn(
-                  'h-8 px-3 rounded-full text-xs font-medium border transition-colors',
+                  'relative h-9 px-4 rounded-full text-xs font-semibold border transition-all focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 outline-none before:absolute before:-inset-y-1.5 before:inset-x-0 before:content-[\'\']',
                   statusFilter === s
                     ? 'bg-primary/15 border-primary/40 text-primary'
-                    : 'bg-card border-border/50 text-muted-foreground hover:text-foreground',
+                    : 'bg-card border-border/50 text-muted-foreground hover:text-foreground hover:border-border/80',
                 )}
               >
                 {L[s]}
@@ -199,9 +260,10 @@ export default function PKM() {
               <button
                 onClick={() => setTagFilter(null)}
                 className={cn(
-                  'w-full text-start px-2 py-1.5 rounded-lg text-xs font-medium',
+                  'w-full text-start px-2 py-2.5 rounded-lg text-xs font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none relative before:absolute before:-inset-y-1 before:inset-x-0 before:content-[\'\']',
                   !tagFilter ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent/40',
                 )}
+                title={isAr ? 'عرض كل الوسوم' : 'Alle Tags anzeigen'}
               >
                 {isAr ? 'كل الوسوم' : 'Alle Tags'}
               </button>
@@ -215,7 +277,7 @@ export default function PKM() {
           )}
 
           {/* notes list */}
-          <div className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-2">
             {loading ? (
               <div className="text-xs text-muted-foreground p-4 text-center">
                 {isAr ? 'جارٍ التحميل…' : 'Lädt…'}
@@ -225,32 +287,37 @@ export default function PKM() {
                 {isAr ? 'لا توجد ملاحظات هنا بعد.' : 'Noch keine Notizen hier.'}
               </div>
             ) : (
-              filtered.map((n) => (
-                <button
-                  key={n.id}
-                  onClick={() => { setActiveId(n.id); setPreview(false); setListOpen(false); }}
-                  className={cn(
-                    'text-start rounded-xl border p-3 transition-colors active:scale-[0.99]',
-                    activeId === n.id
-                      ? 'bg-primary/10 border-primary/40'
-                      : 'bg-card border-border/50 hover:border-border',
-                  )}
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="text-sm font-semibold truncate flex-1">
-                      {titleOf(n, isAr)}
+              filtered.map((n) => {
+                const title = titleOf(n, isAr);
+                const excerpt = excerptOf(n);
+                return (
+                  <button
+                    key={n.id}
+                    onClick={() => { setActiveId(n.id); setPreview(false); setListOpen(false); }}
+                    className={cn(
+                      'text-start rounded-xl border p-3.5 transition-colors active:scale-[0.99] focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 outline-none',
+                      activeId === n.id
+                        ? 'bg-primary/10 border-primary/40'
+                        : 'bg-card border-border/50 hover:border-border',
+                    )}
+                    title={title}
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="text-sm font-bold truncate flex-1 leading-snug">
+                        {title}
+                      </div>
+                      <span className="text-[10px] text-muted-foreground/70 shrink-0 mt-0.5">
+                        {new Date(n.updatedAt).toLocaleDateString(isAr ? 'ar' : 'de')}
+                      </span>
                     </div>
-                    <span className="text-[10px] text-muted-foreground/70 shrink-0">
-                      {new Date(n.updatedAt).toLocaleDateString(isAr ? 'ar' : 'de')}
-                    </span>
-                  </div>
-                  {excerptOf(n) && (
-                    <div className="text-xs text-muted-foreground mt-1 line-clamp-2 leading-relaxed">
-                      {excerptOf(n)}
-                    </div>
-                  )}
-                </button>
-              ))
+                    {excerpt && (
+                      <div className="text-xs text-muted-foreground mt-1.5 line-clamp-2 leading-relaxed" title={excerpt}>
+                        {excerpt}
+                      </div>
+                    )}
+                  </button>
+                );
+              })
             )}
           </div>
         </aside>
@@ -346,7 +413,7 @@ function TagRow({
     <li>
       <div
         className={cn(
-          'group flex items-center gap-1 rounded-lg px-1',
+          'group flex items-center gap-2.5 rounded-lg px-1 py-1',
           isActive && 'bg-primary/10',
         )}
         style={{ paddingInlineStart: 4 + depth * 12 }}
@@ -354,26 +421,27 @@ function TagRow({
         {hasChildren ? (
           <button
             onClick={() => setOpen((v) => !v)}
-            className="w-5 h-5 flex items-center justify-center text-muted-foreground/60 hover:text-foreground"
+            className="relative w-6 h-6 flex items-center justify-center text-muted-foreground/60 hover:text-foreground focus-visible:ring-2 focus-visible:ring-primary rounded focus:outline-none before:absolute before:-inset-2 before:content-[\'\']"
             aria-label={open ? 'collapse' : 'expand'}
           >
-          {open ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+            {open ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
           </button>
         ) : (
-          <span className="w-5 h-5 flex items-center justify-center">
-            <Hash className="w-3 h-3 text-muted-foreground/50" />
+          <span className="w-6 h-6 flex items-center justify-center shrink-0">
+            <Hash className="w-3.5 h-3.5 text-muted-foreground/50" />
           </span>
         )}
         <button
           onClick={() => onSelect(node.path)}
           className={cn(
-            'flex-1 text-start py-1 text-xs font-medium truncate',
+            'flex-1 text-start py-1.5 text-xs font-semibold truncate transition-colors focus-visible:ring-1 focus-visible:ring-primary rounded focus:outline-none relative before:absolute before:-inset-y-1 before:inset-x-0 before:content-[\'\']',
             isActive ? 'text-primary' : 'text-foreground/80 hover:text-foreground',
           )}
+          title={node.name}
         >
           {node.name}
         </button>
-        <span className="text-[10px] text-muted-foreground/60 px-1">{node.count}</span>
+        <span className="text-[10px] text-muted-foreground/60 px-1 shrink-0">{node.count}</span>
       </div>
       {hasChildren && open && (
         <TagTree nodes={node.children} active={active} onSelect={onSelect} depth={depth + 1} />

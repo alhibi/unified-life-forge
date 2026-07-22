@@ -17,14 +17,13 @@ import {
   Circle,
   Clock,
   Contrast,
-
+  Droplets,
   ImageIcon,
   Moon,
   Palette,
-
+  Sparkles,
   Sun,
   Zap,
-
 } from '@/lib/icons';
 
 
