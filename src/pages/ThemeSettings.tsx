@@ -742,7 +742,7 @@ export default function ThemeSettingsPage() {
           isAr={isAr}
           colorTheme={colorTheme}
           getPreviewColors={getPreviewColors}
-          setColorTheme={setColorTheme}
+          setColorTheme={setColorTheme as (t: string) => void}
         />
 
         {/* Dynamic Theme */}

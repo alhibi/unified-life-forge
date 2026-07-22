@@ -212,7 +212,7 @@ describe('usePresence module tests', () => {
       const mockRpc = vi.spyOn(supabase, 'rpc').mockResolvedValue({
         data: '2025-01-01T12:00:00.000Z',
         error: null,
-      });
+      } as any);
 
       const { useOtherUserPresence } = await import('../usePresence');
       const onUpdate = vi.fn();

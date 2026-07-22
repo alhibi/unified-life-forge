@@ -139,7 +139,7 @@ export default function NutritionInsights() {
               className="w-6 h-6 rounded-lg flex items-center justify-center"
               style={{ backgroundColor: `${color}15` }}
             >
-              <Icon className="w-3 h-3" style={{ color }} />
+              <Icon className="w-3 h-3" {...({ style: { color } } as any)} />
             </div>
             <h3 className="text-xs font-semibold text-foreground">{title[lang]}</h3>
           </div>
