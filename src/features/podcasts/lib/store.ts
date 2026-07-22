@@ -701,7 +701,7 @@ export async function syncPodcastsFromCloud() {
       const localSubs = getSubscriptions();
       const localMap = new Map(localSubs.map((s) => [s.origin, s]));
 
-      subs.forEach((s) => {
+      subs.forEach((s: any) => {
         const existing = localMap.get(s.feed_url);
         if (!existing || new Date(s.added_at).getTime() > existing.subscribedAt) {
           localMap.set(s.feed_url, {
@@ -730,7 +730,7 @@ export async function syncPodcastsFromCloud() {
 
     if (playStates && !playError) {
       const localPlay = getPlayStateMap();
-      playStates.forEach((s) => {
+      playStates.forEach((s: any) => {
         const existing = localPlay[s.episode_guid];
         if (!existing || new Date(s.played_at).getTime() > existing.updatedAt) {
           localPlay[s.episode_guid] = {

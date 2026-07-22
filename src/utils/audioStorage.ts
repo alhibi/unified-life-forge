@@ -1,4 +1,7 @@
-import { supabase } from '@/integrations/supabase/client';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { supabase as _sb } from '@/integrations/supabase/client';
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const supabase: any = _sb;
 
 export interface StoredAudioFile {
   name: string;
@@ -130,7 +133,7 @@ export async function clearAudioFiles(): Promise<void> {
       .eq('user_id', userId);
 
     if (dbFiles && dbFiles.length > 0) {
-      const paths = dbFiles.map(f => f.storage_path);
+      const paths = dbFiles.map((f: any) => f.storage_path);
       await supabase.storage.from('audio').remove(paths);
     }
 
