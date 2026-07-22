@@ -372,7 +372,7 @@ export function generateThemeTokens(
         '--sidebar-accent-foreground': '240 8% 11%',
         '--sidebar-border': '36 21% 80%',
         '--sidebar-ring': '240 8% 11%',
-        '--radius': '0.625rem',
+        '--radius': '0.85rem',
       };
     }
     // Dark: Antique dark manuscript aesthetic (#12110f to #1a1916 range instead of neutral grey/black)
@@ -414,7 +414,7 @@ export function generateThemeTokens(
       '--sidebar-accent-foreground': '34 25% 91%',
       '--sidebar-border': `34 10% ${borderL}%`,
       '--sidebar-ring': '34 30% 86%',
-      '--radius': '0.625rem',
+      '--radius': '0.85rem',
     };
   }
 
@@ -465,7 +465,7 @@ export function generateThemeTokens(
       '--sidebar-accent-foreground': hsl(pH, ps * 0.6, 26),
       '--sidebar-border': hsl(nH, ns * 0.4, 91),
       '--sidebar-ring': hsl(pH, ps, 50),
-      '--radius': '0.875rem',
+      '--radius': '0.85rem',
     };
   }
 
@@ -513,7 +513,7 @@ export function generateThemeTokens(
     '--sidebar-accent-foreground': hsl(nH, ns * 0.2, 92),
     '--sidebar-border': hsl(nH, clamp(ns * 0.25, 0, 100), borderL),
     '--sidebar-ring': hsl(pH, clamp(ps * 0.9, 0, 100), 62),
-    '--radius': '0.875rem',
+    '--radius': '0.85rem',
   };
 }
 
@@ -621,7 +621,7 @@ export function generateMD3Tokens(isDark: boolean, isBlack: boolean): Record<str
       '--md3-outline-variant': '270 11% 79%',
       '--md3-surface-tint': '256 34% 48%',
       // MD3 shape system
-      '--radius': '1rem', // 16px – medium component shape
+      '--radius': '0.85rem', // 16px – medium component shape
     };
   }
 
@@ -677,7 +677,7 @@ export function generateMD3Tokens(isDark: boolean, isBlack: boolean): Record<str
     '--md3-outline': '264 5% 58%',
     '--md3-outline-variant': `264 7% ${isBlack ? 24 : 32}%`,
     '--md3-surface-tint': '258 100% 87%',
-    '--radius': '1rem',
+    '--radius': '0.85rem',
   };
 }
 
@@ -806,7 +806,7 @@ export function generateMD3TonalTokens(
       '--input': hsl(nH, nS * 0.25, 45), // Outline (Tone 50)
       '--ring': hsl(pH, clamp(pS * 0.9, 45, 90), 40),
 
-      '--radius': '1.75rem',
+      '--radius': '0.85rem',
       '--md3-surface-container-low': surfaceContainerLow,
       '--md3-surface-container': surfaceContainer,
       '--md3-surface-container-high': surfaceContainerHigh,
@@ -865,7 +865,7 @@ export function generateMD3TonalTokens(
       '--input': hsl(nH, nS * 0.25, 60), // Outline (Tone 60)
       '--ring': hsl(pH, clamp(pS * 1.1, 60, 100), 80),
 
-      '--radius': '1.75rem',
+      '--radius': '0.85rem',
       '--md3-surface-container-low': surfaceContainerLow,
       '--md3-surface-container': surfaceContainer,
       '--md3-surface-container-high': surfaceContainerHigh,
@@ -920,7 +920,7 @@ export function generateiOSTokens(
       '--border': '240 5% 85%', // Separator color
       '--input': '240 5% 85%',
       '--ring': hsl(pH, iosPrimaryS, 52),
-      '--radius': '1.25rem',
+      '--radius': '0.85rem',
     };
   } else {
     const bg = isBlack ? '0 0% 0%' : '240 4% 10%'; // System Background
@@ -951,7 +951,7 @@ export function generateiOSTokens(
       '--border': '240 4% 25%', // Separator color
       '--input': '240 4% 25%',
       '--ring': hsl(pH, iosPrimaryS, 58),
-      '--radius': '1.25rem',
+      '--radius': '0.85rem',
     };
   }
 }
@@ -993,7 +993,7 @@ export function generateAuraTokens(
       '--border': hsl(auraHue, 10, 90), // Very faint border
       '--input': hsl(auraHue, 10, 90),
       '--ring': hsl(pH, clamp(pS * 0.75, 25, 55), 45),
-      '--radius': '2.25rem', // Maximum roundness
+      '--radius': '0.85rem', // Maximum roundness
     };
   } else {
     // Deep, velvety darks for Aura Dark
@@ -1025,7 +1025,7 @@ export function generateAuraTokens(
       '--border': hsl(auraHue, 8, cardL + 5), // Barely visible borders
       '--input': hsl(auraHue, 8, cardL + 5),
       '--ring': hsl(pH, clamp(pS * 0.6, 20, 50), 70),
-      '--radius': '2.25rem',
+      '--radius': '0.85rem',
     };
   }
 }

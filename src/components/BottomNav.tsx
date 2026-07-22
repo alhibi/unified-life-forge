@@ -312,10 +312,8 @@ export default function BottomNav() {
           height: 58,
           width: '100%',
           maxWidth: 520,
-          background: 'hsl(var(--card) / 0.78)',
-          WebkitBackdropFilter: 'blur(28px) saturate(180%)',
-          backdropFilter: 'blur(28px) saturate(180%)',
-          border: '1px solid hsl(var(--border) / 0.45)',
+          background: 'hsl(var(--card))',
+          border: '1px solid hsl(var(--border))',
           borderRadius: 999,
 
           touchAction: 'pan-y',

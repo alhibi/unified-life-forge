@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import type { User } from '@supabase/supabase-js';
-import { themePresets, generateThemeTokens, applyThemeTokens, type ThemeStyle, generateMD3TonalTokens, generateiOSTokens, generateAuraTokens } from '@/utils/themeEngine';
+import { themePresets, generateThemeTokens, applyThemeTokens, type ThemeStyle,  } from '@/utils/themeEngine';
 import { translate, type Language } from '@/i18n';
 import { applyMotionSpeed, installFpsCap, applyMotionAmplitude, applyMotionBounce } from '@/lib/motionRuntime';
 
@@ -13,7 +13,7 @@ import { applyMotionSpeed, installFpsCap, applyMotionAmplitude, applyMotionBounc
 type Theme = 'light' | 'dark';
 type PaletteStyle = 'tonal' | 'vibrant' | 'expressive' | 'neutral' | 'rainbow';
 type ColorTheme = 'paper' | 'default' | 'midnight' | 'rose' | 'emerald' | 'lavender' | 'sunset' | 'ocean' | 'neon' | 'coffee' | 'mono' | 'cherry' | 'gold' | 'aurora' | 'sakura' | 'arctic' | 'volcano' | 'matcha' | 'nebula' | 'copper' | 'mint' | 'sandstone' | 'dusk' | 'moss' | 'clay' | 'storm' | 'silk' | 'amber' | 'fog' | 'obsidian' | 'terracotta' | 'dynamic';
-export type DesignMode = 'classic' | 'md3' | 'ios' | 'aura';
+
 
 type PrayerMadhab = 'shafii' | 'hanafi' | 'hanbali' | 'maliki';
 type LatitudeAdjMethod = 'middle' | 'seventh' | 'angle';
@@ -37,8 +37,6 @@ interface AppContextType {
   setColorTheme: (t: ColorTheme) => void;
   blackMode: boolean;
   setBlackMode: (v: boolean) => void;
-  designMode: DesignMode;
-  setDesignMode: (mode: DesignMode) => void;
   fontFamily: string;
   setFontFamily: (f: string) => void;
   fontSize: string;
@@ -98,9 +96,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [colorTheme, setColorThemeState] = useState<ColorTheme>(() =>
     (localStorage.getItem('app-color-theme') as ColorTheme) || 'paper'
   );
-  const [designMode, setDesignModeState] = useState<DesignMode>(() =>
-    (localStorage.getItem('app-design-mode') as DesignMode) || 'classic'
-  );
+
   const [fontFamily, setFontFamilyState] = useState<string>(() =>
     localStorage.getItem('app-font-family') || 'plex-mono'
   );
@@ -189,7 +185,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setPaletteStyleState('vibrant'); localStorage.setItem('app-palette-style', 'vibrant');
     setBlackModeState(false); localStorage.setItem('app-black-mode', 'false');
     setColorThemeState('paper'); localStorage.setItem('app-color-theme', 'paper');
-    setDesignModeState('classic'); localStorage.setItem('app-design-mode', 'classic');
+
     setFontFamilyState('plex-mono'); localStorage.setItem('app-font-family', 'plex-mono');
     setFontSizeState('medium'); localStorage.setItem('app-font-size', 'medium');
     setFontWeightState(400); localStorage.setItem('app-font-weight', '400');
@@ -246,7 +242,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         if (s.paletteStyle) { setPaletteStyleState(s.paletteStyle); localStorage.setItem('app-palette-style', s.paletteStyle); }
         if (s.blackMode !== undefined) { setBlackModeState(s.blackMode); localStorage.setItem('app-black-mode', String(s.blackMode)); }
         if (s.colorTheme) { setColorThemeState(s.colorTheme); localStorage.setItem('app-color-theme', s.colorTheme); }
-        if (s.designMode) { setDesignModeState(s.designMode); localStorage.setItem('app-design-mode', s.designMode); }
+
         if (s.fontFamily) { setFontFamilyState(s.fontFamily); localStorage.setItem('app-font-family', s.fontFamily); }
         if (s.fontSize) { setFontSizeState(s.fontSize); localStorage.setItem('app-font-size', s.fontSize); }
         if (s.fontWeight !== undefined) { setFontWeightState(s.fontWeight); localStorage.setItem('app-font-weight', String(s.fontWeight)); }
@@ -305,7 +301,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       paletteStyle: localStorage.getItem('app-palette-style'),
       blackMode: localStorage.getItem('app-black-mode') === 'true',
       colorTheme: localStorage.getItem('app-color-theme') || 'default',
-      designMode: localStorage.getItem('app-design-mode') || 'classic',
+
       fontFamily: localStorage.getItem('app-font-family') || 'default',
       fontSize: localStorage.getItem('app-font-size') || 'medium',
       fontWeight: parseInt(localStorage.getItem('app-font-weight') || '400', 10),
@@ -392,26 +388,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     scheduleSave();
   };
 
-  const [isTransitioning, setIsTransitioning] = useState(false);
-  const [transitionMode, setTransitionMode] = useState<DesignMode | null>(null);
 
-  const setDesignMode = (mode: DesignMode) => {
-    if (mode === designMode) return;
-    setTransitionMode(mode);
-    setIsTransitioning(true);
-
-    // Smooth delay for structural change to align with animation
-    // Align with the new 1100ms air-like transition curve
-    setTimeout(() => {
-      setDesignModeState(mode);
-      localStorage.setItem('app-design-mode', mode);
-      scheduleSave();
-    }, 400);
-
-    setTimeout(() => {
-      setIsTransitioning(false);
-    }, 1800); // Give the full transition time to settle
-  };
 
   const setFontFamily = (f: string) => {
     setFontFamilyState(f);
@@ -516,27 +493,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
     if (!preset) preset = themePresets[0];
 
-    // Single canonical palette engine with multiple design styles
-    root.setAttribute('data-design-mode', designMode);
-
-    let tokens: Record<string, string>;
-    if (designMode === 'md3') {
-      tokens = generateMD3TonalTokens(preset, isDark, isDark && blackMode);
-    } else if (designMode === 'ios') {
-      tokens = generateiOSTokens(preset, isDark, isDark && blackMode);
-    } else if (designMode === 'aura') {
-      tokens = generateAuraTokens(preset, isDark, isDark && blackMode);
-    } else {
-      root.removeAttribute('data-md3');
-      tokens = generateThemeTokens(preset, paletteStyle as ThemeStyle, isDark, isDark && blackMode);
-    }
-
+    // Enforce the single unified Zen Elite design style
+    root.removeAttribute('data-md3');
+    root.setAttribute('data-design-mode', 'classic');
+    let tokens = generateThemeTokens(preset, paletteStyle as ThemeStyle, isDark, isDark && blackMode);
     applyThemeTokens(tokens);
 
     const timeout = setTimeout(() => root.classList.remove('theme-transition'), 600);
 
     return () => clearTimeout(timeout);
-  }, [theme, dir, language, accentHue, paletteStyle, blackMode, colorTheme, designMode]);
+  }, [theme, dir, language, accentHue, paletteStyle, blackMode, colorTheme]);
 
   // Apply font family, size, weight & opacity
   useEffect(() => {
@@ -581,13 +547,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [fpsCap]);
 
   return (
-    <AppContext.Provider value={{ language, setLanguage, theme, setTheme, t, dir, accentHue, setAccentHue, paletteStyle, setPaletteStyle, colorTheme, setColorTheme, blackMode, setBlackMode, designMode, setDesignMode, fontFamily, setFontFamily, fontSize, setFontSize, fontWeight, setFontWeight, fontOpacity, setFontOpacity, prayerMadhab, setPrayerMadhab, midnightMode, setMidnightMode, latitudeAdjMethod, setLatitudeAdjMethod, dstEnabled, setDstEnabled, calcMethod, setCalcMethod, motionSpeed, setMotionSpeed, fpsCap, setFpsCap, motionAmplitude, setMotionAmplitude, springBounce, setSpringBounce }}>
+    <AppContext.Provider value={{ language, setLanguage, theme, setTheme, t, dir, accentHue, setAccentHue, paletteStyle, setPaletteStyle, colorTheme, setColorTheme, blackMode, setBlackMode,  fontFamily, setFontFamily, fontSize, setFontSize, fontWeight, setFontWeight, fontOpacity, setFontOpacity, prayerMadhab, setPrayerMadhab, midnightMode, setMidnightMode, latitudeAdjMethod, setLatitudeAdjMethod, dstEnabled, setDstEnabled, calcMethod, setCalcMethod, motionSpeed, setMotionSpeed, fpsCap, setFpsCap, motionAmplitude, setMotionAmplitude, springBounce, setSpringBounce }}>
       {children}
-      <AnimatePresence>
-        {isTransitioning && (
-          <StyleTransitionOverlay mode={transitionMode} language={language} />
-        )}
-      </AnimatePresence>
+
     </AppContext.Provider>
   );
 }
@@ -598,121 +560,3 @@ export function useApp() {
   return ctx;
 }
 
-// ─── Style Transition Overlay Component ────────────────────
-interface StyleTransitionOverlayProps {
-  mode: DesignMode | null;
-  language: string;
-}
-
-function StyleTransitionOverlay({ mode, language }: StyleTransitionOverlayProps) {
-  const isAr = language === 'ar';
-
-  const labelMapAr: Record<DesignMode, string> = {
-    classic: 'يتم تطبيق النمط الكلاسيكي والأوبسيديان...',
-    md3: 'تطبيق ديناميكية ماتيريال ٣...',
-    ios: 'مزامنة دقة ووضوح نظام iOS...',
-    aura: 'استحضار سكون هالة Aura الحريرية...',
-  };
-
-  const labelMapDe: Record<DesignMode, string> = {
-    classic: 'Klassischer Stil wird angewendet...',
-    md3: 'Material Design 3 wird angewendet...',
-    ios: 'iOS-Stil wird angewendet...',
-    aura: 'Pure Aura-Stil wird angewendet...',
-  };
-
-  const label = mode ? (isAr ? labelMapAr[mode] : labelMapDe[mode]) : '';
-
-  // Get active color accents for the breathing orb
-  const colorMap: Record<DesignMode, string> = {
-    classic: 'rgba(201, 168, 76, 0.15)', // Gold
-    md3: 'rgba(103, 80, 164, 0.2)', // M3 baseline purple
-    ios: 'rgba(0, 122, 255, 0.2)', // iOS blue
-    aura: 'rgba(180, 160, 130, 0.15)', // Luxury linen warm
-  };
-
-  const glowColor = mode ? colorMap[mode] : 'rgba(var(--live-glow), 0.15)';
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, backdropFilter: 'blur(0px)' }}
-      animate={{ opacity: 1, backdropFilter: 'blur(24px)' }}
-      exit={{ opacity: 0, backdropFilter: 'blur(0px)' }}
-      transition={{ duration: 0.6, ease: [0.19, 1, 0.22, 1] }}
-      className="fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-background/60 select-none pointer-events-auto"
-    >
-      {/* Immersive Breathing Orbs - Layered for depth */}
-      <motion.div
-        initial={{ scale: 0.8, opacity: 0 }}
-        animate={{
-          scale: [1, 1.4, 1],
-          opacity: [0, 0.8, 0],
-        }}
-        transition={{
-          duration: 1.8,
-          ease: 'easeInOut',
-        }}
-        style={{
-          width: '50vw',
-          height: '50vw',
-          maxWidth: '400px',
-          maxHeight: '400px',
-          borderRadius: '50%',
-          background: `radial-gradient(circle, ${glowColor} 0%, transparent 60%)`,
-          position: 'absolute',
-          zIndex: -1,
-        }}
-      />
-
-      <motion.div
-        initial={{ scale: 0.5, opacity: 0 }}
-        animate={{
-          scale: [0.8, 1.1, 0.8],
-          opacity: [0, 1, 0],
-        }}
-        transition={{
-          duration: 1.8,
-          delay: 0.2,
-          ease: 'easeInOut',
-        }}
-        style={{
-          width: '30vw',
-          height: '30vw',
-          maxWidth: '250px',
-          maxHeight: '250px',
-          borderRadius: '50%',
-          background: `radial-gradient(circle, ${glowColor} 0%, transparent 70%)`,
-          position: 'absolute',
-          zIndex: -1,
-        }}
-      />
-
-      {/* Elegant Spinner/Pulse icon */}
-      <div className="relative mb-8">
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-          className="w-12 h-12 rounded-full border-[1.5px] border-primary/10 border-t-primary"
-        />
-        <motion.div
-          animate={{ scale: [0.8, 1, 0.8], opacity: [0.5, 1, 0.5] }}
-          transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-          className="absolute inset-0 m-auto w-3 h-3 rounded-full bg-primary"
-        />
-      </div>
-
-      {/* Text message */}
-      <div className="overflow-hidden">
-        <motion.p
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={{ y: -20, opacity: 0 }}
-          transition={{ delay: 0.2, duration: 0.6, ease: [0.19, 1, 0.22, 1] }}
-          className="text-[14.5px] font-medium tracking-wide text-foreground/90 text-center px-6"
-        >
-          {label}
-        </motion.p>
-      </div>
-    </motion.div>
-  );
-}
