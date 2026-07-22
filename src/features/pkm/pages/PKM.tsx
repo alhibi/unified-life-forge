@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
+import DOMPurify from 'dompurify';
 import SEO from '@/components/SEO';
 import { PageShell, AppCard } from '@/components/ui/app-shell';
 import BackButton from '@/components/BackButton';
@@ -707,7 +708,7 @@ function Editor({
       {preview ? (
         <div className="prose prose-sm dark:prose-invert max-w-none flex-1 min-h-[40vh]">
           {body.trim() ? (
-            <ReactMarkdown>{body}</ReactMarkdown>
+            <ReactMarkdown>{DOMPurify.sanitize(body)}</ReactMarkdown>
           ) : (
             <p className="text-muted-foreground text-sm">
               {isAr ? 'لا يوجد محتوى للمعاينة.' : 'Kein Inhalt zum Anzeigen.'}

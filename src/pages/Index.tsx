@@ -38,7 +38,22 @@ export default function Index() {
 
   return (
     <PageShell>
-      <SEO title="SmartHub — أوقات الصلاة والأذكار والقرآن" description="الصفحة الرئيسية لـ SmartHub: أوقات الصلاة، التقويم الهجري، الطقس، الأذكار وروابط سريعة لكل الأقسام." path="/" />
+      <SEO
+        title="SmartHub — أوقات الصلاة والأذكار والقرآن"
+        description="الصفحة الرئيسية لـ SmartHub: أوقات الصلاة، التقويم الهجري، الطقس، الأذكار وروابط سريعة لكل الأقسام."
+        path="/"
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          "name": "SmartHub",
+          "url": "https://amv.life/",
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://amv.life/pkm?q={search_term_string}",
+            "query-input": "required name=search_term_string"
+          }
+        }}
+      />
       {/* Descriptive H1 for SEO & a11y; visual greeting below acts as a styled subhead */}
       <h1 className="sr-only">
         {language === 'ar'

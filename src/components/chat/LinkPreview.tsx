@@ -1,5 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import React, { useEffect, useState } from 'react';
+import DOMPurify from 'dompurify';
 
 import { BookOpen, ExternalLink, Github, Globe, Loader2, Video } from '@/lib/icons';
 
@@ -90,11 +91,11 @@ export const LinkPreview: React.FC<LinkPreviewProps> = ({ url, isAr }) => {
         if (json.status === 'success' && json.data) {
           const d = json.data;
           setMeta({
-            title: d.title || fallback?.title || host,
-            description: d.description || fallback?.description,
+            title: DOMPurify.sanitize(d.title || fallback?.title || host, { ALLOWED_TAGS: [] }),
+            description: d.description ? DOMPurify.sanitize(d.description, { ALLOWED_TAGS: [] }) : fallback?.description,
             image: d.image?.url,
             logo: d.logo?.url,
-            publisher: d.publisher || fallback?.publisher,
+            publisher: d.publisher ? DOMPurify.sanitize(d.publisher, { ALLOWED_TAGS: [] }) : fallback?.publisher,
           });
         } else {
           throw new Error('Invalid status');

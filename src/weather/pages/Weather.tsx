@@ -607,6 +607,21 @@ export default function Weather() {
       <Helmet>
         <title>{ar ? 'لوحة الأرصاد والطقس المتكاملة — SmartHub' : 'SmartHub Wetter — Messpanel'}</title>
         <meta name="description" content={ar ? 'مستكشف طقس ثوري يدمج الرادارات، محاكيات الجسيمات، مختبر الفيزياء ومخطط الأنشطة الطبي الذكي.' : 'Entdecken Sie das Wetter mit Partikelsimulatoren, thermischen Rechnern und Fitnessplanern.'} />
+        <link rel="canonical" href="https://amv.life/weather" />
+        <meta property="og:title" content={ar ? 'لوحة الأرصاد والطقس المتكاملة — SmartHub' : 'SmartHub Wetter — Messpanel'} />
+        <meta property="og:description" content={ar ? 'مستكشف طقس ثوري يدمج الرادارات، محاكيات الجسيمات، مختبر الفيزياء ومخطط الأنشطة الطبي الذكي.' : 'Entdecken Sie das Wetter mit Partikelsimulatoren, thermischen Rechnern und Fitnessplanern.'} />
+        <meta property="og:url" content="https://amv.life/weather" />
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebApplication",
+            "name": ar ? "لوحة الأرصاد الجوية والفيزياء" : "SmartHub Wetter",
+            "description": ar
+              ? "مستكشف طقس ثوري يدمج الرادارات، محاكيات الجسيمات، مختبر الفيزياء ومخطط الأنشطة الطبي الذكي."
+              : "Interactive meteorology console with custom charts, radar simulation, and activity weather planner.",
+            "url": "https://amv.life/weather"
+          })}
+        </script>
       </Helmet>
 
       {/* Sticky Header */}

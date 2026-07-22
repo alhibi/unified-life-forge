@@ -170,7 +170,10 @@ function bootstrap(): void {
   // (a) the next consumer would re-bootstrap immediately, and (b) auth
   // changes need to propagate even when no React tree is currently
   // rendering this hook (e.g. background timers in AppContext).
-  supabase.auth.onAuthStateChange((_event, nextSession) => {
+  supabase.auth.onAuthStateChange((event, nextSession) => {
+    if (event === 'TOKEN_REFRESH_FAILED') {
+      window.dispatchEvent(new CustomEvent('auth-session-expired'));
+    }
     void syncAuthState(nextSession);
   });
 
@@ -240,6 +243,29 @@ async function signIn(username: string, password: string) {
 }
 
 async function signOut(): Promise<void> {
+  // Purge any sensitive user draft, cached states or profile details before signing out
+  if (currentUser) {
+    const userId = currentUser.id;
+    try {
+      localStorage.removeItem(`profile:draft:${userId}`);
+    } catch (e) {
+      console.warn('Failed to remove profile draft during signout:', e);
+    }
+  }
+
+  try {
+    const keysToRemove: string[] = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && (key.startsWith('profile:draft:') || key.startsWith('chat:draft:') || key.startsWith('pkm:draft:'))) {
+        keysToRemove.push(key);
+      }
+    }
+    keysToRemove.forEach((k) => localStorage.removeItem(k));
+  } catch (e) {
+    console.warn('Failed to clear cached drafts during signout:', e);
+  }
+
   if (!isSupabaseConfigured) {
     await localSignOut();
     void syncAuthState(null);
