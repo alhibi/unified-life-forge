@@ -133,7 +133,7 @@ export async function clearAudioFiles(): Promise<void> {
       .eq('user_id', userId);
 
     if (dbFiles && dbFiles.length > 0) {
-      const paths = dbFiles.map(f => f.storage_path);
+      const paths = dbFiles.map((f: any) => f.storage_path);
       await supabase.storage.from('audio').remove(paths);
     }
 
