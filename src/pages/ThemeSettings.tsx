@@ -17,52 +17,18 @@ import {
   Circle,
   Clock,
   Contrast,
-  Droplets,
+
   ImageIcon,
   Moon,
   Palette,
-  Sparkles,
+
   Sun,
   Zap,
-  Smartphone,
-  LayoutGrid,
-} from '@/lib/icons';
-import { type DesignMode } from '@/contexts/AppContext';
 
-const designModesList = [
-  {
-    id: 'classic' as const,
-    nameAr: 'أوبسيديان الكلاسيكي الفاخر',
-    nameDe: 'Obsidian Classic Gold',
-    descAr: 'توازن خالد ينبض بالفخامة؛ حيث يتلاقى عمق الأسود الأوبسيدياني مع بريق الذهب المصقول في تفاصيل دقيقة وتأثيرات بصرية عميقة تجسد الهوية الأصيلة.',
-    descDe: 'Zeitlose Eleganz mit luxuriösen Obsidian-Flächen und fein geschliffenen Goldakzenten.',
-    icon: Sparkles,
-  },
-  {
-    id: 'md3' as const,
-    nameAr: 'ماتيريال يو الديناميكي (MD3)',
-    nameDe: 'Material 3 Dynamic',
-    descAr: 'لغة تصميم جوجل المتطورة بحيويتها الذكية؛ بطاقات متكيفة بحواف شديدة النعومة، وتفاعلات بصرية متدفقة تتناغم مع ألوانك المفضلة بتجربة غنية.',
-    descDe: 'Googles innovative Design-Philosophie mit weichen Formen, dynamischen Farben und modernster Tiefe.',
-    icon: LayoutGrid,
-  },
-  {
-    id: 'ios' as const,
-    nameAr: 'رونق آبل العصري 2024',
-    nameDe: 'iOS Native Ultimate',
-    descAr: 'تجسيد مطلق للدقة والوضوح؛ خطوط رفيعة وأنيقة، شفافية زجاجية فاخرة، وهندسة مساحات تمنحك إحساساً بخفة الهواء وسلاسة التنقل البصري.',
-    descDe: 'Hauchdünne Linien, iOS-typische Glasflächen und ultrakompakte, fließende Interaktionskurven.',
-    icon: Smartphone,
-  },
-  {
-    id: 'aura' as const,
-    nameAr: 'الهالة الحريرية النقية (Aura)',
-    nameDe: 'Pure Silk Aura',
-    descAr: 'نمط حصري يمزج بين البساطة المتناهية والثراء البصري؛ ألوان محايدة هادئة، ظلال ناعمة منتشرة، وتأثيرات حركية عائمة تمنح واجهتك سكوناً فريداً.',
-    descDe: 'Eine meisterhafte Symbiose aus purem Minimalismus und visuellem Reichtum mit sanften Verläufen.',
-    icon: Droplets,
-  },
-];
+} from '@/lib/icons';
+
+
+
 import { pageItem as item, pageStagger as stagger } from '@/lib/motion';
 import {
   createDynamicPreset,
@@ -339,8 +305,8 @@ export default function ThemeSettingsPage() {
     setColorTheme,
     paletteStyle,
     setPaletteStyle,
-    designMode,
-    setDesignMode,
+
+
   } = useApp();
   const isAr = language === 'ar';
 
@@ -442,67 +408,7 @@ export default function ThemeSettingsPage() {
           </div>
         </motion.div>
 
-        {/* Premium Entire-App Design Modes Selection */}
-        <motion.div variants={item} className="premium-card-elevated p-5 space-y-4">
-          <div className="text-center">
-            <h2 className="font-semibold text-[13px] text-muted-foreground uppercase tracking-wider">
-              {isAr ? 'أنماط التصميم المتكاملة' : 'Application Design Modes'}
-            </h2>
-            <p className="text-[10px] text-muted-foreground/80 mt-0.5">
-              {isAr
-                ? 'غيّر هيكل الواجهة، زوايا البطاقات ونظام الحركة بشكل كامل وفوري'
-                : 'Instantly morph layout borders, radius, and physics app-wide'}
-            </p>
-          </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            {designModesList.map((dm) => {
-              const isActive = designMode === dm.id;
-              const Icon = dm.icon;
-              return (
-                <button
-                  key={dm.id}
-                  onClick={() => setDesignMode(dm.id)}
-                  className={`relative flex flex-col items-start p-4 rounded-2xl border text-start transition-all duration-300 overflow-hidden group ${
-                    isActive
-                      ? 'border-primary bg-primary/5 shadow-[0_0_15px_rgba(var(--live),0.05)]'
-                      : 'border-border bg-card hover:border-border/80'
-                  }`}
-                >
-                  {/* Subtle active glow light behind icon */}
-                  {isActive && (
-                    <motion.div
-                      layoutId="activeGlowLight"
-                      className="absolute top-0 right-0 w-16 h-16 bg-primary/10 rounded-full blur-xl pointer-events-none"
-                    />
-                  )}
-
-                  <div className="flex items-center justify-between w-full mb-2">
-                    <div
-                      className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${
-                        isActive ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground'
-                      }`}
-                    >
-                      <Icon className="w-5 h-5" />
-                    </div>
-                    {isActive && (
-                      <div className="w-4.5 h-4.5 rounded-full bg-primary flex items-center justify-center">
-                        <Check className="w-3 h-3 text-primary-foreground" strokeWidth={3} />
-                      </div>
-                    )}
-                  </div>
-
-                  <h3 className={`text-[12px] font-bold ${isActive ? 'text-primary' : 'text-foreground'}`}>
-                    {isAr ? dm.nameAr : dm.nameDe}
-                  </h3>
-                  <p className="text-[9.5px] text-muted-foreground/90 mt-1 leading-normal line-clamp-2">
-                    {isAr ? dm.descAr : dm.descDe}
-                  </p>
-                </button>
-              );
-            })}
-          </div>
-        </motion.div>
 
         {/* Appearance Mode */}
         <motion.div variants={item} className="premium-card-elevated p-5">
@@ -684,15 +590,10 @@ export default function ThemeSettingsPage() {
         {/* Theme Style */}
         <motion.div
           variants={item}
-          className={`premium-card-elevated p-5 transition-opacity ${designMode !== 'classic' ? 'opacity-40 pointer-events-none' : ''}`}
+          className="premium-card-elevated p-5"
         >
           <h2 className="font-semibold text-[13px] text-muted-foreground text-center mb-4 uppercase tracking-wider">
-            {isAr ? 'توزيع الألوان (للنمط الكلاسيكي)' : 'Color Distribution (Classic Mode)'}
-            {designMode !== 'classic' && (
-              <span className="block text-[10px] normal-case tracking-normal text-muted-foreground/60 mt-1 font-normal animate-pulse">
-                {isAr ? 'معطّل — النمط الحالي يتحكّم بتوزيع الألوان' : 'Disabled — managed by current style'}
-              </span>
-            )}
+            {isAr ? 'توزيع الألوان' : 'Color Distribution'}
           </h2>
           <div className="grid grid-cols-2 gap-2.5">
             {themeStyles.map((ts) => {

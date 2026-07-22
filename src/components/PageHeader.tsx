@@ -63,7 +63,7 @@ export default function PageHeader({
       className={cn(
         'flex items-center gap-3 px-4 py-3',
         sticky &&
-          'sticky top-0 z-30 bg-background/85 backdrop-blur-md border-b border-border/30',
+          'sticky top-0 z-30 bg-background border-b border-border',
         className,
       )}
     >
