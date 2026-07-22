@@ -106,9 +106,9 @@ export default function SunnahTab() {
             key={card.key}
             variants={item}
             onClick={() => onCardClick(card)}
-            className={`surface-depth surface-depth-pressable w-full flex items-center gap-3 p-4 rounded-2xl hover:border-primary/30 text-start ${isPlaceholder ? 'opacity-80' : ''}`}
+            className={`surface-depth surface-depth-pressable w-full flex items-center gap-3 p-4 rounded-xl hover:border-primary/30 text-start ${isPlaceholder ? 'opacity-80' : ''}`}
           >
-            <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+            <div className="w-11 h-11 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
               <Icon className="w-5 h-5 text-primary" />
             </div>
             <div className="flex-1 min-w-0">

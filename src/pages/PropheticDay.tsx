@@ -3,7 +3,7 @@ import SEO from '@/components/SEO';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '@/contexts/AppContext';
 import { Moon, Sunrise, Sun, BookOpen, CloudSun, SunDim, Sunset, MoonStar } from '@/lib/icons';
-import BackButton from '@/components/BackButton';
+import PageHeader from '@/components/PageHeader';
 import { motion } from 'framer-motion';
 
 interface TimeSection {
@@ -105,15 +105,7 @@ export default function PropheticDay() {
     <div className="min-h-screen bg-background pb-24" dir={dir}>
       <SEO title="اليوم النبوي — هدي النبي ﷺ — SmartHub" description="يوم النبي ﷺ مقسماً إلى ثماني فترات مع السنن والأذكار المتعلقة بكل فترة." path="/section/prophetic-day" />
       {/* Header */}
-      <div className="sticky top-0 z-30 bg-background/90 backdrop-blur-md border-b border-border/40">
-        <div className="flex items-center justify-between px-4 py-3">
-          <BackButton />
-          <h1 className="text-[15px] font-bold text-foreground">
-            {isAr ? 'نظرة على يوم النبي ﷺ' : 'Ein Tag des Propheten ﷺ'}
-          </h1>
-          <div className="w-10" />
-        </div>
-      </div>
+      <PageHeader sticky title={isAr ? 'نظرة على يوم النبي ﷺ' : 'Ein Tag des Propheten ﷺ'} className="px-4 py-3 bg-background border-b border-border" />
 
       {/* Sections */}
       <motion.div variants={stagger} initial="hidden" animate="show" className="pt-4 pb-4 space-y-6">

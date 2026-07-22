@@ -5,7 +5,7 @@ import { useApp } from '@/contexts/AppContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, Volume2, Droplet, User, Star, Users, UtensilsCrossed, Shirt, Copy, BookOpen } from '@/lib/icons';
 import { untimedSunnahData } from '@/data/untimedSunnahData';
-import BackButton from '@/components/BackButton';
+import PageHeader from '@/components/PageHeader';
 import { notify } from '@/lib/notify';
 
 const iconMap: Record<string, React.ElementType> = {
@@ -42,13 +42,7 @@ export default function UntimedSunnah() {
     <div className="min-h-screen bg-background pb-24">
       <SEO title="السنن غير المؤقتة — SmartHub" description="سنن نبوية عامة غير مرتبطة بوقت محدد، قابلة للحفظ في الحافظة." path="/section/untimed-sunnah" />
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border/30">
-        <div className="flex items-center justify-between px-4 py-3">
-          <BackButton />
-          <h1 className="text-lg font-bold text-foreground">السنن غير الموقوتة</h1>
-          <div className="w-10" />
-        </div>
-      </div>
+      <PageHeader sticky title="السنن غير الموقوتة" className="px-4 py-3 bg-background border-b border-border" />
 
       {/* Accordion List */}
       <div className="flex flex-col gap-2 p-4">

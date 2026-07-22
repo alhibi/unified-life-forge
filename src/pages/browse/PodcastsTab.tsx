@@ -47,18 +47,10 @@ export default function PodcastsTab() {
     <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-3">
       {/* Hero teaser */}
       <motion.div variants={item}>
-        <div className="relative overflow-hidden rounded-2xl border border-violet-300/30 dark:border-violet-500/20 px-4 py-4">
-          <div
-            className="absolute inset-0 pointer-events-none opacity-50"
-            style={{
-              
-              backgroundSize: '200% 100%',
-              animation: 'shimmer 3.5s ease-in-out infinite',
-            }}
-          />
+        <div className="relative overflow-hidden rounded-xl bg-card border border-border px-4 py-4">
           <div className="relative flex items-center gap-3">
-            <div className="w-11 h-11 rounded-xl bg-violet-500/15 flex items-center justify-center shrink-0">
-              <Sparkles className="w-5 h-5 text-violet-600 dark:text-violet-400" />
+            <div className="w-11 h-11 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+              <Sparkles className="w-5 h-5 text-primary" />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-[13px] font-bold text-foreground">
@@ -80,7 +72,7 @@ export default function PodcastsTab() {
           key={c.key}
           variants={item}
           onClick={c.onClick}
-          className="w-full flex items-center gap-3 p-4 rounded-2xl bg-card border border-border/40 hover:border-primary/30 active:scale-[0.98] transition-all duration-150 text-start"
+          className="w-full flex items-center gap-3 p-4 rounded-xl bg-card border border-border hover:border-primary/30 active:scale-[0.98] transition-all duration-150 text-start"
         >
           <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
             <c.icon className="w-5 h-5 text-primary" />

@@ -44,7 +44,7 @@ function DetailedView({ data }: { data: { label: string; accent: string; items: 
 
   return (
     <div className="min-h-screen bg-background pb-24 flex flex-col">
-      <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border/30">
+      <div className="sticky top-0 z-10 bg-background border-b border-border">
         <div className="flex items-center justify-between px-4 py-3">
           <BackButton />
           <div className="text-center">
@@ -60,7 +60,7 @@ function DetailedView({ data }: { data: { label: string; accent: string; items: 
 
       <div className="flex-1 flex items-start justify-center px-4 pt-4">
         <AnimatePresence mode="wait" custom={direction}>
-          <motion.div key={currentIndex} variants={variants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.08 }} className="w-full max-w-lg rounded-2xl bg-card border border-border/40 overflow-hidden">
+          <motion.div key={currentIndex} variants={variants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.08 }} className="w-full max-w-lg rounded-xl bg-card border border-border overflow-hidden">
             <div className="h-1.5 bg-primary" />
             <div className="px-6 pt-6 pb-3">
               <h2 className="text-xl font-bold text-foreground text-center leading-relaxed" style={{ fontSize: fontSize + 2 }}>{item.title}</h2>
@@ -112,7 +112,7 @@ function SimpleListView({ data }: { data: { label: string; accent: string; items
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border/30">
+      <div className="sticky top-0 z-10 bg-background border-b border-border">
         <div className="flex items-center justify-between px-4 py-3">
           <BackButton />
           <h1 className="text-lg font-bold text-foreground">{data.label}</h1>
@@ -130,7 +130,7 @@ function SimpleListView({ data }: { data: { label: string; accent: string; items
       </div>
       <motion.div variants={container} initial="hidden" animate="show" className="flex flex-col gap-2.5 px-4">
         {data.items.map((sunnah, index) => (
-          <motion.div key={index} variants={itemAnim} className="flex items-center gap-3 px-4 py-4 rounded-2xl bg-card/80 border border-border/40 backdrop-blur-sm">
+          <motion.div key={index} variants={itemAnim} className="flex items-center gap-3 px-4 py-4 rounded-xl bg-card border border-border">
             <div className="flex items-center gap-2 shrink-0">
               <ChevronLeft className="w-4 h-4 text-muted-foreground/40" />
               <Heart className="w-4 h-4 text-muted-foreground/40" />

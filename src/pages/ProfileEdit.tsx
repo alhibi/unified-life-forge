@@ -361,7 +361,7 @@ export default function ProfileEditPage() {
         {/* Copy link chip */}
         <button
           onClick={copyProfileLink}
-          className="absolute top-4 end-4 z-10 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md ring-1 ring-white/10 text-[11px] text-white/90 active:scale-95 transition-transform"
+          className="absolute top-4 end-4 z-10 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/60 ring-1 ring-white/10 text-[11px] text-white/90 active:scale-95 transition-transform"
           aria-label={isAr ? 'نسخ رابط الملف' : 'Profillink kopieren'}
         >
           <Copy className="w-3.5 h-3.5" />

@@ -3,7 +3,7 @@ import SEO from '@/components/SEO';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BookOpen, Sparkles } from '@/lib/icons';
-import BackButton from '@/components/BackButton';
+import PageHeader from '@/components/PageHeader';
 import { useApp } from '@/contexts/AppContext';
 
 // أسماء السور - سيتم إضافة المحتوى الداخلي لاحقاً
@@ -47,13 +47,7 @@ export default function QuranVirtues() {
     <div className="min-h-screen bg-background pb-24" dir="rtl">
       <SEO title="فضائل القرآن الكريم — SmartHub" description="فضائل تلاوة وحفظ القرآن الكريم وأهل القرآن مع سور مختارة." path="/section/quran-virtues" />
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border/30">
-        <div className="flex items-center justify-between px-4 py-3">
-          <BackButton />
-          <h1 className="text-lg font-bold text-foreground">فضائل القرآن</h1>
-          <div className="w-10" />
-        </div>
-      </div>
+      <PageHeader sticky title="فضائل القرآن" className="px-4 py-3 bg-background border-b border-border" />
 
       <div className="px-4 pt-5 space-y-5">
         {/* Section 1: فضل سور القرآن */}
