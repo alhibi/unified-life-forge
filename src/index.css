@@ -1665,3 +1665,35 @@ input.podcast-seek:active::-moz-range-thumb {
     transform: scaleX(1) !important;
   }
 }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   High-Performance GPU-Acceleration & Container Query Utilities
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.gpu-accelerated {
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+  will-change: transform;
+}
+
+.will-change-transform-opacity {
+  will-change: transform, opacity;
+}
+
+.contain-strict {
+  contain: strict;
+}
+
+.contain-content {
+  contain: content;
+}
+
+.contain-layout-paint {
+  contain: layout paint;
+}
+
+/* Container query support helpers */
+.container-query-wrapper {
+  container-type: inline-size;
+}

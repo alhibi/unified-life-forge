@@ -21,9 +21,11 @@ describe('Web Vitals Instrumenter', () => {
 
   it('instruments observers when PerformanceObserver is available', () => {
     const observeMock = vi.fn();
-    const performanceObserverMock = vi.fn().mockImplementation(() => ({
-      observe: observeMock,
-    }));
+    const performanceObserverMock = vi.fn().mockImplementation(function (this: any) {
+      return {
+        observe: observeMock,
+      };
+    });
 
     (window as any).PerformanceObserver = performanceObserverMock;
 

@@ -113,7 +113,7 @@ export default function InteractiveCharts({ entries, ar }: InteractiveChartsProp
           {ar ? 'المنحنيات التفاعلية' : 'Interaktive Kurven'}
         </h2>
 
-        <div className="flex bg-background/50 border border-border/40 p-1 rounded-xl gap-1">
+        <div className="relative flex bg-background/50 border border-border/40 p-1 rounded-xl gap-1">
           {tabs.map(t => {
             const Icon = t.icon;
             const active = activeTab === t.id;
@@ -121,12 +121,20 @@ export default function InteractiveCharts({ entries, ar }: InteractiveChartsProp
               <button
                 key={t.id}
                 onClick={() => { setActiveTab(t.id); setHoveredIdx(null); }}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                  active ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:bg-muted/30 hover:text-foreground'
-                }`}
+                className="relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium focus:outline-none select-none transition-colors duration-200"
+                style={{ color: active ? 'hsl(var(--primary-foreground))' : 'hsl(var(--muted-foreground))' }}
               >
-                <Icon className="w-3.5 h-3.5" />
-                <span>{t.label}</span>
+                {active && (
+                  <motion.div
+                    layoutId="activeWeatherTab"
+                    className="absolute inset-0 bg-primary rounded-lg z-0"
+                    transition={{ type: 'spring', stiffness: 350, damping: 28 }}
+                  />
+                )}
+                <span className="relative z-10 flex items-center gap-1.5">
+                  <Icon className="w-3.5 h-3.5" />
+                  <span>{t.label}</span>
+                </span>
               </button>
             );
           })}

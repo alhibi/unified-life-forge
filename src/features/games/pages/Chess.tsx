@@ -1105,35 +1105,77 @@ export default function ChessPage() {
     }
   }, [gameMode, playerColor, gameStarted, gameOver, game.moveCount]);
 
-  // AI move
+  // AI move using dynamic off-thread Web Worker
   useEffect(() => {
     if (gameMode !== 'computer' || gameOver || !gameStarted) return;
     if (game.turn === playerColor) return;
 
     let cancelled = false;
     setAiThinking(true);
-    const timeoutId = setTimeout(() => {
-      if (cancelled) return;
-      const aiColor: Color = playerColor === 'w' ? 'b' : 'w';
-      // If a bot personality is selected via career mode, use its weights and
-      // opening preferences. Otherwise fall back to the default profile keyed
-      // by aiDifficulty.
-      const move = getBestMove(game, aiColor, aiDifficulty, {
-        weights: activeBot?.weights,
-        history: uciHistory,
-        preferredOpenings: activeBot?.preferredOpenings,
+
+    const aiColor: Color = playerColor === 'w' ? 'b' : 'w';
+    const opts = {
+      weights: activeBot?.weights,
+      history: uciHistory,
+      preferredOpenings: activeBot?.preferredOpenings,
+    };
+
+    let worker: Worker | null = null;
+    try {
+      worker = new Worker(new URL('../utils/chessWorker.ts', import.meta.url), { type: 'module' });
+    } catch (err) {
+      console.warn('[Chess] Failed to spawn Web Worker, falling back to main-thread search:', err);
+    }
+
+    if (worker) {
+      worker.onmessage = (e: MessageEvent) => {
+        if (cancelled) return;
+        const { bestMove } = e.data;
+        if (bestMove) {
+          const movingPiece = game.board[bestMove.from[0]][bestMove.from[1]];
+          const promo: PieceType | undefined =
+            movingPiece?.type === 'P' && (bestMove.to[0] === 0 || bestMove.to[0] === 7) ? 'Q' : undefined;
+          executeMove(bestMove.from[0], bestMove.from[1], bestMove.to[0], bestMove.to[1], promo);
+        }
+        setAiThinking(false);
+        worker?.terminate();
+      };
+
+      worker.postMessage({
+        game,
+        aiColor,
+        difficulty: aiDifficulty,
+        opts,
       });
-      if (cancelled) return;
-      if (move) {
-        const movingPiece = game.board[move.from[0]][move.from[1]];
-        const promo: PieceType | undefined =
-          movingPiece?.type === 'P' && (move.to[0] === 0 || move.to[0] === 7) ? 'Q' : undefined;
-        executeMove(move.from[0], move.from[1], move.to[0], move.to[1], promo);
+    } else {
+      // Main-thread fallback
+      const timeoutId = setTimeout(() => {
+        if (cancelled) return;
+        const move = getBestMove(game, aiColor, aiDifficulty, opts);
+        if (cancelled) return;
+        if (move) {
+          const movingPiece = game.board[move.from[0]][move.from[1]];
+          const promo: PieceType | undefined =
+            movingPiece?.type === 'P' && (move.to[0] === 0 || move.to[0] === 7) ? 'Q' : undefined;
+          executeMove(move.from[0], move.from[1], move.to[0], move.to[1], promo);
+        }
+        setAiThinking(false);
+      }, 300 + Math.random() * 400);
+
+      return () => {
+        cancelled = true;
+        clearTimeout(timeoutId);
+        setAiThinking(false);
+      };
+    }
+
+    return () => {
+      cancelled = true;
+      if (worker) {
+        worker.terminate();
       }
       setAiThinking(false);
-    }, 300 + Math.random() * 400);
-
-    return () => { cancelled = true; clearTimeout(timeoutId); setAiThinking(false); };
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [game, gameMode, gameOver, gameStarted, playerColor, aiDifficulty]);
 

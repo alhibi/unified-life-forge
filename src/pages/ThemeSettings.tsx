@@ -421,21 +421,26 @@ export default function ThemeSettingsPage() {
                 <button
                   key={mode}
                   onClick={() => setTheme(mode)}
-                  className="flex flex-col items-center gap-2.5"
+                  className="flex flex-col items-center gap-2.5 relative focus:outline-none select-none"
                 >
-                  <motion.div
-                    className={`w-[56px] h-[56px] rounded-full flex items-center justify-center transition-all duration-300 ${
-                      isActive ? 'bg-primary' : 'bg-secondary'
-                    }`}
+                  <div
+                    className="relative w-[56px] h-[56px] rounded-full flex items-center justify-center overflow-hidden bg-secondary"
                   >
+                    {isActive && (
+                      <motion.div
+                        layoutId="activeThemeMode"
+                        className="absolute inset-0 bg-primary rounded-full z-0"
+                        transition={{ type: 'spring', stiffness: 350, damping: 28 }}
+                      />
+                    )}
                     <Icon
-                      className={`w-5 h-5 transition-colors ${
+                      className={`w-5 h-5 relative z-10 transition-colors duration-250 ${
                         isActive ? 'text-primary-foreground' : 'text-muted-foreground'
                       }`}
                     />
-                  </motion.div>
+                  </div>
                   <span
-                    className={`text-[12px] font-medium transition-colors ${
+                    className={`text-[12px] font-medium transition-colors duration-250 ${
                       isActive ? 'text-foreground' : 'text-muted-foreground'
                     }`}
                   >
@@ -517,10 +522,10 @@ export default function ThemeSettingsPage() {
                         <AnimatePresence>
                           {isExpanded && (
                             <motion.div
-                              initial={{ height: 0 }}
-                              animate={{ height: 'auto' }}
-                              exit={{ height: 0 }}
-                              transition={{ duration: 0.2 }}
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: 'auto', opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              transition={{ type: 'spring', stiffness: 280, damping: 26 }}
                               className="overflow-hidden"
                             >
                               <div className="p-3 pt-0 space-y-3">
