@@ -260,7 +260,7 @@ export default function InteractiveCharts({ entries, ar }: InteractiveChartsProp
                     transition={{ duration: 0.8, ease: 'easeOut' }}
                   />
                   {/* Subtle dots for vertices */}
-                  {points.map((p, pIdx) => {
+                  {points.map((p: any, pIdx: number) => {
                     const isHovered = hoveredIdx === pIdx;
                     return (
                       <circle
@@ -283,7 +283,7 @@ export default function InteractiveCharts({ entries, ar }: InteractiveChartsProp
               const colWidth = (W - padX * 2) / slice.length;
               return (
                 <g key={sIdx}>
-                  {s.values.map((v, i) => {
+                  {s.values.map((v: number, i: number) => {
                     const p = toPoint(v, i);
                     const isHovered = hoveredIdx === i;
                     const barH = Math.max(2, (H - padY) - p.y);
