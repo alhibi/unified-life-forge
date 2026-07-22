@@ -47,7 +47,7 @@ import type { Message } from './types';
 
 /** Below this count we render eagerly without windowing — cheaper than
  *  paying for absolute positioning + measureElement on small chats. */
-const VIRTUALIZE_THRESHOLD = 60;
+const VIRTUALIZE_THRESHOLD = 40;
 
 /** Initial size estimate (px) for a not-yet-measured row. Picked at the
  *  middle of the empirical distribution: most rows are 36–80 px (single
@@ -59,7 +59,7 @@ const DEFAULT_ROW_HEIGHT = 72;
  *  mask measureElement jitter at the cost of a larger DOM. 8 is enough
  *  to absorb fast-flick scrolling without the user catching the empty
  *  zone, while staying lean on lower-end devices. */
-const OVERSCAN = 8;
+const OVERSCAN = 6;
 
 /** Distance from bottom (px) to consider "near bottom" for auto-follow. */
 const NEAR_BOTTOM_PX = 250;
@@ -250,7 +250,13 @@ export function VirtualMessageList({
     return (
       <>
         {messages.map((msg, idx) => (
-          <div key={msg.id} data-msg-row data-msg-id={msg.id} data-msg-index={idx}>
+          <div
+            key={msg.id}
+            data-msg-row
+            data-msg-id={msg.id}
+            data-msg-index={idx}
+            style={{ contain: 'content', contentVisibility: 'auto', containIntrinsicSize: '0 72px' } as CSSProperties}
+          >
             {renderRow(msg, idx)}
           </div>
         ))}
