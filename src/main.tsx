@@ -12,6 +12,45 @@ import "@fontsource/montserrat/400.css";
 import "@fontsource/montserrat/500.css";
 import { registerFontsServiceWorker } from "./lib/registerFontsSw";
 import { bootMotion } from "./lib/bootMotion";
+import { scrubVerboseDetails } from "@/components/ErrorBoundary";
+import { instrumentWebVitals } from "./utils/vitals";
+
+// Centralized Observability & Telemetry Readiness
+const telemetryLogBuffer: Array<{
+  timestamp: string;
+  type: string;
+  message: string;
+  stack?: string;
+  route: string;
+}> = [];
+
+function captureTelemetryError(type: string, message: string, stack?: string) {
+  const cleanMsg = scrubVerboseDetails(message);
+  const cleanStack = stack ? scrubVerboseDetails(stack) : undefined;
+  const logEntry = {
+    timestamp: new Date().toISOString(),
+    type,
+    message: cleanMsg,
+    stack: cleanStack,
+    route: window.location.pathname,
+  };
+  telemetryLogBuffer.push(logEntry);
+  if (telemetryLogBuffer.length > 100) telemetryLogBuffer.shift(); // Keep last 100 entries
+
+  // In production this would write directly to Sentry, Datadog or a custom telemetry drain.
+  console.warn(`[Telemetry Intercept - ${type}]:`, cleanMsg);
+}
+
+window.addEventListener('error', (event) => {
+  captureTelemetryError('UncaughtError', event.message, event.error?.stack);
+});
+
+window.addEventListener('unhandledrejection', (event) => {
+  const reason = event.reason;
+  const message = reason instanceof Error ? reason.message : String(reason);
+  const stack = reason instanceof Error ? reason.stack : undefined;
+  captureTelemetryError('UnhandledRejection', message, stack);
+});
 
 // Native-feel motion setup: honor prefers-reduced-motion globally,
 // promote <body> to a GPU layer, and pre-warm the compositor before
@@ -19,6 +58,9 @@ import { bootMotion } from "./lib/bootMotion";
 bootMotion();
 
 registerFontsServiceWorker();
+
+// Instrument Web Vitals performance telemetry
+instrumentWebVitals();
 
 createRoot(document.getElementById("root")!).render(
   <HelmetProvider>

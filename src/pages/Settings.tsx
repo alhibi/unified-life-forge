@@ -7,6 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Languages, Palette, ChevronLeft, UserCircle, LogOut, Type, BookOpen, AlertTriangle, Gauge } from '@/lib/icons';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import ResponsiveDrawer from '@/components/ui/ResponsiveDrawer';
 import { toast } from 'sonner';
 import BackButton from '@/components/BackButton';
 import packageJson from '../../package.json';
@@ -242,54 +243,29 @@ export default function SettingsPage() {
       </motion.div>
 
       {/* Logout confirmation dialog */}
-      <AnimatePresence>
-        {showLogoutConfirm && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-6"
+      <ResponsiveDrawer
+        open={showLogoutConfirm}
+        onOpenChange={setShowLogoutConfirm}
+        title={isAr ? 'تسجيل الخروج' : 'Abmelden'}
+        description={isAr
+          ? 'سيتم مسح جميع البيانات المحلية من هذا الجهاز. يمكنك استعادتها عند تسجيل الدخول مرة أخرى.'
+          : 'Alle lokalen Daten werden von diesem Gerät gelöscht. Du kannst sie beim erneuten Anmelden wiederherstellen.'}
+      >
+        <div className="flex gap-3 pt-1">
+          <button
             onClick={() => setShowLogoutConfirm(false)}
+            className="flex-1 py-2.5 rounded-xl bg-secondary text-secondary-foreground text-sm font-medium active:scale-[0.98] transition-transform"
           >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-              onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-sm rounded-2xl bg-card border border-border p-6 space-y-4"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-destructive/10 flex items-center justify-center">
-                  <AlertTriangle className="w-5 h-5 text-destructive" />
-                </div>
-                <h3 className="text-lg font-bold text-foreground">
-                  {isAr ? 'تسجيل الخروج' : 'Abmelden'}
-                </h3>
-              </div>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                {isAr 
-                  ? 'سيتم مسح جميع البيانات المحلية من هذا الجهاز. يمكنك استعادتها عند تسجيل الدخول مرة أخرى.'
-                  : 'Alle lokalen Daten werden von diesem Gerät gelöscht. Du kannst sie beim erneuten Anmelden wiederherstellen.'}
-              </p>
-              <div className="flex gap-3 pt-1">
-                <button
-                  onClick={() => setShowLogoutConfirm(false)}
-                  className="flex-1 py-2.5 rounded-xl bg-secondary text-secondary-foreground text-sm font-medium active:scale-[0.98] transition-transform"
-                >
-                  {isAr ? 'إلغاء' : 'Abbrechen'}
-                </button>
-                <button
-                  onClick={handleSignOut}
-                  className="flex-1 py-2.5 rounded-xl bg-destructive text-destructive-foreground text-sm font-medium active:scale-[0.98] transition-transform"
-                >
-                  {isAr ? 'تسجيل الخروج' : 'Abmelden'}
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            {isAr ? 'إلغاء' : 'Abbrechen'}
+          </button>
+          <button
+            onClick={handleSignOut}
+            className="flex-1 py-2.5 rounded-xl bg-destructive text-destructive-foreground text-sm font-medium active:scale-[0.98] transition-transform"
+          >
+            {isAr ? 'تسجيل خروج' : 'Abmelden'}
+          </button>
+        </div>
+      </ResponsiveDrawer>
     </div>
   );
 }

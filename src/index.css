@@ -522,9 +522,22 @@
       background-color 150ms linear,
       transform 120ms var(--ease-spring);
     position: relative;
+    will-change: transform;
   }
   .app-icon-btn:hover {
     background-color: hsl(var(--accent));
+  }
+  .app-icon-btn:active {
+    transform: scale(0.95);
+  }
+
+  /* Tactile active micro-scaling classes for general interactive buttons & nav nodes */
+  .active-tactile {
+    transition: transform 150ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+    will-change: transform;
+  }
+  .active-tactile:active {
+    transform: scale(0.97) !important;
   }
 
   /* ──────────────────────────────────────────────────────────────

@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import type { Message } from './types';
 import { renderTextWithAppleEmoji, onAppleEmojiReady } from './appleEmoji';
 import { readableFileName } from '@/lib/chat/imageMeta';
+import DOMPurify from 'dompurify';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Date / time formatters
@@ -246,7 +247,9 @@ function renderToken(t: RichToken, key: number | string): React.ReactNode {
 
 /** Render parsed rich-text tokens as React nodes. */
 function renderRichTextUncached(raw: string): React.ReactNode[] {
-  const tokens = tokenize(raw) as RichToken[];
+  // Strip any raw HTML tags entirely using DOMPurify before parsing.
+  const sanitized = DOMPurify.sanitize(raw, { ALLOWED_TAGS: [] });
+  const tokens = tokenize(sanitized) as RichToken[];
   return tokens.map((t, i) => renderToken(t, i));
 }
 

@@ -1,6 +1,19 @@
 import React, { Component, type ReactNode } from 'react';
 import { RefreshCw, Home } from '@/lib/icons';
 
+export function scrubVerboseDetails(input: string): string {
+  if (!input) return '';
+  let clean = input;
+  // Mask JWT / API keys
+  clean = clean.replace(/ey[a-zA-Z0-9_-]{20,}\.[a-zA-Z0-9_-]{20,}\.[a-zA-Z0-9_-]{20,}/g, '[MASKED_API_KEY]');
+  clean = clean.replace(/anon_key=[^&\s]+/gi, 'anon_key=[MASKED]');
+  clean = clean.replace(/apikey=[^&\s]+/gi, 'apikey=[MASKED]');
+  clean = clean.replace(/sb_[a-zA-Z0-9_]+/gi, '[REDACTED_IDENTIFIER]');
+  // Mask DB hostnames / Supabase URLs
+  clean = clean.replace(/https:\/\/[a-z0-9-]+\.supabase\.(co|net)/gi, 'https://[REDACTED_DB_HOST].supabase.co');
+  return clean;
+}
+
 interface Props {
   children: ReactNode;
   fallbackTitle?: string;
@@ -18,7 +31,9 @@ export default class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, info: React.ErrorInfo) {
-    console.error('ErrorBoundary caught:', error, info.componentStack);
+    const scrubbedMsg = scrubVerboseDetails(error.message || '');
+    const scrubbedStack = scrubVerboseDetails(info.componentStack || '');
+    console.error('ErrorBoundary caught:', scrubbedMsg, scrubbedStack);
   }
 
   handleRetry = () => {

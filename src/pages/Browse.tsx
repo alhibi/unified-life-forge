@@ -67,6 +67,15 @@ export default function BrowsePage() {
           ? 'مركز الاكتشاف: بودكاست ومقالات في مكان واحد.'
           : 'Entdeckungs-Hub: Podcasts & Artikel an einem Ort.'}
         path="/browse"
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "CollectionPage",
+          "name": isAr ? "اطلاع — بودكاست ومقالات" : "Entdecken — Podcasts & Lesen",
+          "description": isAr
+            ? "مركز الاكتشاف: بودكاست ومقالات في مكان واحد."
+            : "Entdeckungs-Hub: Podcasts & Artikel an einem Ort.",
+          "url": "https://amv.life/browse"
+        }}
       />
 
       <div className="max-w-lg mx-auto space-y-4">

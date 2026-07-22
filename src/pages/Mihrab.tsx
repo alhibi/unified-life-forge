@@ -133,6 +133,15 @@ export default function MihrabPage() {
             : 'Vereinter Hub für Quran, Tafsir, Bittgebete, prophetische Sunna und arabische Literatur.'
         }
         path="/mihrab"
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "WebPage",
+          "name": isAr ? "محراب — قرآن وذكر وسنّة وأدب" : "Mihrab — Quran, Dhikr, Sunna & Literatur",
+          "description": isAr
+            ? "مركز موحّد للقرآن والتفسير والأدعية والسنن النبوية والديوان الأدبي."
+            : "Vereinter Hub für Quran, Tafsir, Bittgebete, prophetische Sunna und arabische Literatur.",
+          "url": "https://amv.life/mihrab"
+        }}
       />
 
       <div className="page-shell-inner app-stack">
