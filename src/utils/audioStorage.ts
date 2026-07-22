@@ -1,4 +1,7 @@
-import { supabase } from '@/integrations/supabase/client';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { supabase as _sb } from '@/integrations/supabase/client';
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const supabase: any = _sb;
 
 export interface StoredAudioFile {
   name: string;
