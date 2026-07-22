@@ -52,6 +52,14 @@ export default function ProfileEditPage() {
   const navigate = useNavigate();
   const isAr = language === 'ar';
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const isMountedRef = useRef(true);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   const [newUsername, setNewUsername] = useState('');
   const [displayName, setDisplayName] = useState('');
@@ -166,21 +174,21 @@ export default function ProfileEditPage() {
 
   const checkUsername = useCallback(async (name: string) => {
     if (!name.trim() || name.trim().length < 3) {
-      setUsernameAvailable(null);
+      if (isMountedRef.current) setUsernameAvailable(null);
       return;
     }
     if (name.toLowerCase().trim() === (profile?.username || authUsername || '').toLowerCase()) {
-      setUsernameAvailable(true);
+      if (isMountedRef.current) setUsernameAvailable(true);
       return;
     }
-    setCheckingUsername(true);
+    if (isMountedRef.current) setCheckingUsername(true);
     try {
       const available = await isUsernameAvailable(name);
-      setUsernameAvailable(available);
+      if (isMountedRef.current) setUsernameAvailable(available);
     } catch {
-      setUsernameAvailable(false);
+      if (isMountedRef.current) setUsernameAvailable(false);
     } finally {
-      setCheckingUsername(false);
+      if (isMountedRef.current) setCheckingUsername(false);
     }
   }, [profile, authUsername]);
 
@@ -206,14 +214,18 @@ export default function ProfileEditPage() {
     setUploading(true);
     try {
       const publicUrl = await uploadAvatar(user.id, file);
-      setSelectedAvatar(publicUrl);
+      if (isMountedRef.current) {
+        setSelectedAvatar(publicUrl);
+      }
       toast.success(isAr ? 'تم رفع الصورة' : 'Bild hochgeladen');
     } catch (err: any) {
       toast.error(isAr ? 'فشل رفع الصورة' : 'Upload fehlgeschlagen');
       console.error(err);
     } finally {
-      setUploading(false);
-      if (fileInputRef.current) fileInputRef.current.value = '';
+      if (isMountedRef.current) {
+        setUploading(false);
+        if (fileInputRef.current) fileInputRef.current.value = '';
+      }
     }
   };
 
@@ -242,12 +254,14 @@ export default function ProfileEditPage() {
       try {
         localStorage.removeItem(draftKey);
       } catch { /* ignore */ }
-      setInitial({
-        username: newUsername.toLowerCase().trim(),
-        displayName: displayName.trim(),
-        avatar: selectedAvatar,
-        bio: bio.trim(),
-      });
+      if (isMountedRef.current) {
+        setInitial({
+          username: newUsername.toLowerCase().trim(),
+          displayName: displayName.trim(),
+          avatar: selectedAvatar,
+          bio: bio.trim(),
+        });
+      }
     } catch (err: any) {
       if (err?.message?.includes('duplicate') || err?.message?.includes('unique')) {
         toast.error(isAr ? 'اسم المستخدم مستخدم بالفعل' : 'Benutzername bereits vergeben');
@@ -255,8 +269,10 @@ export default function ProfileEditPage() {
         toast.error(isAr ? 'حدث خطأ' : 'Ein Fehler ist aufgetreten');
       }
     } finally {
-      setSaving(false);
-      setUsernameChanged(false);
+      if (isMountedRef.current) {
+        setSaving(false);
+        setUsernameChanged(false);
+      }
     }
   };
 
