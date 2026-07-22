@@ -190,7 +190,7 @@ function ThemePresetsCategorized({
       </div>
 
       {/* Segmented Tab Controls (iOS-inspired luxury style) */}
-      <div className="relative flex p-1 bg-secondary/60 rounded-xl overflow-hidden backdrop-blur-sm border border-border/30">
+      <div className="relative flex p-1 bg-secondary rounded-xl overflow-hidden border border-border/30">
         {THEME_CATEGORIES.map((cat) => {
           const isSelected = activeTab === cat.id;
           return (
@@ -271,7 +271,7 @@ function ThemePresetsCategorized({
                         initial={{ scale: 0, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
                         exit={{ scale: 0, opacity: 0 }}
-                        className="absolute inset-0 flex items-center justify-center bg-black/25 backdrop-blur-[1px]"
+                        className="absolute inset-0 flex items-center justify-center bg-black/35"
                       >
                         <Check className="w-4 h-4 text-white" />
                       </motion.div>

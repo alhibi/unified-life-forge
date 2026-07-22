@@ -80,7 +80,7 @@ export default function BrowsePage() {
         {/* Horizontal tab dock — same visual idiom as Wellness */}
         <nav aria-label={isAr ? 'تبويبات الاطلاع' : 'Browse tabs'}>
           <div
-            className="bg-card/80 backdrop-blur border border-border/45 rounded-2xl p-1 flex items-center gap-0.5"
+            className="bg-card border border-border rounded-xl p-1 flex items-center gap-0.5"
             dir="ltr"
           >
             {TABS.map(t => {
@@ -92,14 +92,14 @@ export default function BrowsePage() {
                   onClick={() => setTab(t.key)}
                   aria-pressed={active}
                   aria-label={isAr ? t.labelAr : t.labelDe}
-                  className={`relative flex-1 inline-flex items-center justify-center gap-1.5 h-10 px-3 rounded-xl transition-colors duration-150 ${
+                  className={`relative flex-1 inline-flex items-center justify-center gap-1.5 h-10 px-3 rounded-lg transition-colors duration-150 ${
                     active ? 'text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
  }`}
  >
  {active && (
  <motion.span
  layoutId="browse-dock-pill"
- className="absolute inset-0 rounded-xl bg-primary"
+                      className="absolute inset-0 rounded-lg bg-primary"
  transition={{ type: 'spring', stiffness: 480, damping: 36 }}
                     />
                   )}

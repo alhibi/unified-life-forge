@@ -5,7 +5,7 @@ import { useApp } from '@/contexts/AppContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, Moon, Sun, CloudSun, Cloud, Calendar, Copy, BookOpen } from '@/lib/icons';
 import { sunnahDetailData } from '@/data/sunnahDetailData';
-import BackButton from '@/components/BackButton';
+import PageHeader from '@/components/PageHeader';
 import { notify } from '@/lib/notify';
 
 export default function TimedSunnah() {
@@ -41,13 +41,7 @@ export default function TimedSunnah() {
     <div className="min-h-screen bg-background pb-24">
       <SEO title="السنن المؤقتة — SmartHub" description="السنن المرتبطة بأوقات الصلاة اليومية مصنفة في تسع فئات." path="/section/timed-sunnah" />
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border/30">
-        <div className="flex items-center justify-between px-4 py-3">
-          <BackButton />
-          <h1 className="text-lg font-bold text-foreground">{t('timed.title')}</h1>
-          <div className="w-10" />
-        </div>
-      </div>
+      <PageHeader sticky title={t('timed.title')} className="px-4 py-3 bg-background border-b border-border" />
 
       {/* Accordion List */}
       <div className="flex flex-col gap-2 p-4">

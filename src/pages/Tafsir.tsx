@@ -253,7 +253,7 @@ export default function TafsirPage() {
       <SEO title="التفسير — SmartHub" description="تفسير القرآن الكريم باللغة العربية: استكشف معاني الآيات والسور مع تفسير ميسر وشامل لكل أجزاء المصحف الشريف." path="/tafsir" />
 
       {/* Header */}
-      <div className="sticky top-0 z-20 bg-background/80 backdrop-blur-md border-b border-border/30">
+      <div className="sticky top-0 z-20 bg-background border-b border-border">
         <div className="flex items-center justify-between px-4 py-3">
           <BackButton />
           <h1 className="text-lg font-bold text-foreground flex items-center gap-2">

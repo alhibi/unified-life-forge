@@ -76,27 +76,27 @@ export default function ArticlesTab() {
       <motion.button
         variants={item}
         onClick={primary.onClick}
-        className="w-full relative overflow-hidden rounded-2xl border border-sky-300/30 dark:border-sky-500/20 px-4 py-4 text-start active:scale-[0.99] transition-transform"
+        className="w-full relative overflow-hidden rounded-xl bg-card border border-border px-4 py-4 text-start active:scale-[0.99] transition-transform"
       >
         <div className="relative flex items-center gap-3">
-          <div className="w-11 h-11 rounded-xl bg-sky-500/15 flex items-center justify-center shrink-0">
-            <primary.icon className="w-5 h-5 text-sky-600 dark:text-sky-400" />
+          <div className="w-11 h-11 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+            <primary.icon className="w-5 h-5 text-primary" />
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-bold text-foreground">{primary.title}</p>
             <p className="text-[11px] text-muted-foreground leading-snug mt-0.5">{primary.desc}</p>
           </div>
-          <Arrow className="w-4 h-4 text-sky-600 dark:text-sky-400 shrink-0" />
+          <Arrow className="w-4 h-4 text-primary shrink-0" />
         </div>
       </motion.button>
 
       {/* Section divider */}
       <motion.div variants={item} className="flex items-center gap-2 px-1 pt-1">
-        <div className="h-px flex-1 bg-border/60" />
+        <div className="h-px flex-1 bg-border" />
         <span className="text-[11px] font-semibold text-muted-foreground/70 tracking-wide">
           {isAr ? 'المزيد' : 'Mehr'}
         </span>
-        <div className="h-px flex-1 bg-border/60" />
+        <div className="h-px flex-1 bg-border" />
       </motion.div>
 
       {/* Secondary entries */}
@@ -105,10 +105,10 @@ export default function ArticlesTab() {
           key={c.key}
           variants={item}
           onClick={() => navigate('/reading')}
-          className="w-full flex items-center gap-3 p-3.5 rounded-2xl bg-card border border-border/40 hover:border-primary/30 active:scale-[0.98] transition-all duration-150 text-start"
+          className="w-full flex items-center gap-3 p-3.5 rounded-xl bg-card border border-border hover:border-primary/30 active:scale-[0.98] transition-all duration-150 text-start"
         >
-          <div className="w-10 h-10 rounded-xl bg-muted/50 flex items-center justify-center shrink-0">
-            <c.icon className="w-[18px] h-[18px] text-foreground/70" />
+          <div className="w-10 h-10 rounded-lg bg-muted/50 flex items-center justify-center shrink-0">
+            <c.icon className="w-[18px] h-[18px] text-foreground" />
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-[13px] font-bold text-foreground">{c.title}</p>

@@ -107,9 +107,9 @@ function FrequentDuaCard({ dua, lang }: { dua: FrequentDua; lang: string }) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex flex-col items-center gap-1.5 p-2 rounded-2xl hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 active:scale-95 transition-all duration-150"
+        className="flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 active:scale-95 transition-all duration-150"
       >
-        <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center">
+        <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
           <Icon className="w-5 h-5 text-primary" />
         </div>
         <span className="text-[10px] text-foreground font-medium text-center leading-tight line-clamp-2 w-16">
@@ -161,7 +161,7 @@ function DuaModal({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60"
             onClick={onClose}
           >
             <motion.div
@@ -170,7 +170,7 @@ function DuaModal({
               exit={{ opacity: 0, scale: 0.92 }}
               transition={{ type: 'spring', damping: 25, stiffness: 350 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-card w-full max-w-md rounded-2xl max-h-[80vh] flex flex-col"
+              className="bg-card w-full max-w-md rounded-xl max-h-[80vh] flex flex-col"
             >
               <div className="flex items-center justify-between px-5 py-4 border-b border-border/50">
                 <h2 className="text-lg font-bold text-foreground">{title}</h2>
@@ -188,7 +188,7 @@ function DuaModal({
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.04, duration: 0.3 }}
-                    className="bg-muted/40 rounded-2xl p-4 space-y-2"
+                    className="bg-muted/40 rounded-xl p-4 space-y-2"
                   >
                     <p
                       className="text-foreground text-base leading-loose font-medium text-right"
@@ -254,7 +254,7 @@ function NawawiModal({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60"
             onClick={onClose}
           >
             <motion.div
@@ -263,7 +263,7 @@ function NawawiModal({
               exit={{ opacity: 0, scale: 0.92 }}
               transition={{ type: 'spring', damping: 25, stiffness: 350 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-card w-full max-w-md rounded-2xl max-h-[80vh] flex flex-col"
+              className="bg-card w-full max-w-md rounded-xl max-h-[80vh] flex flex-col"
             >
               <div className="flex items-center justify-between px-5 py-4 border-b border-border/50">
                 <div className="flex items-center gap-2">
@@ -280,7 +280,7 @@ function NawawiModal({
                 </button>
               </div>
               <div className="overflow-y-auto flex-1 p-4">
-                <div className="bg-muted/40 rounded-2xl p-4 space-y-3">
+                <div className="bg-muted/40 rounded-xl p-4 space-y-3">
                   <p
                     className="text-foreground text-base leading-[2] font-medium text-right"
                     dir="rtl"
@@ -327,9 +327,9 @@ export default function DhikrTab() {
         <motion.div variants={item}>
           <button
             onClick={() => setShowNawawiList(true)}
-            className="w-full flex items-center gap-3 p-4 rounded-2xl border border-primary/30 hover:border-primary/50 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 transition-all duration-150"
+            className="w-full flex items-center gap-3 p-4 rounded-xl border border-primary/30 hover:border-primary/50 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 transition-all duration-150"
           >
-            <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center shrink-0">
+            <div className="w-12 h-12 rounded-lg bg-primary/20 flex items-center justify-center shrink-0">
               <BookOpen className="w-6 h-6 text-primary" />
             </div>
             <div className="flex-1 text-start">
@@ -375,9 +375,9 @@ export default function DhikrTab() {
                   key={cat.id}
                   variants={item}
                   onClick={() => setOpenCat(cat)}
-                  className="surface-depth surface-depth-pressable w-full flex items-center gap-3 p-3.5 rounded-2xl border-s-[3px] border-s-primary/50 hover:border-primary/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1"
+                  className="surface-depth surface-depth-pressable w-full flex items-center gap-3 p-3.5 rounded-xl border-s-[3px] border-s-primary/50 hover:border-primary/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1"
                 >
-                  <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 bg-primary/10">
+                  <div className="w-11 h-11 rounded-lg flex items-center justify-center shrink-0 bg-primary/10">
                     <Icon className="w-5 h-5 text-primary" />
                   </div>
                   <div className="flex-1 text-start">
@@ -416,7 +416,7 @@ export default function DhikrTab() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+              className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60"
               onClick={() => setShowNawawiList(false)}
             >
               <motion.div
@@ -425,7 +425,7 @@ export default function DhikrTab() {
                 exit={{ opacity: 0, scale: 0.92 }}
                 transition={{ type: 'spring', damping: 25, stiffness: 350 }}
                 onClick={(e) => e.stopPropagation()}
-                className="bg-card w-full max-w-md rounded-2xl max-h-[85vh] flex flex-col"
+                className="bg-card w-full max-w-md rounded-xl max-h-[85vh] flex flex-col"
               >
                 <div className="flex items-center justify-between px-5 py-4 border-b border-border/50">
                   <h2 className="text-lg font-bold text-foreground">

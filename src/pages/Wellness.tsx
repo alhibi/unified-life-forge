@@ -300,7 +300,7 @@ export default function WellnessPage() {
         {/* ─── Refined dock navigation ─── */}
         <nav className="mb-3" aria-label="wellness sections">
           <div
-            className="bg-card/80 backdrop-blur border border-border/45 rounded-2xl p-1 flex items-center gap-0.5 overflow-x-auto scrollbar-none"
+            className="bg-card border border-border rounded-xl p-1 flex items-center gap-0.5 overflow-x-auto scrollbar-none"
             dir="ltr"
           >
             {TABS.map((t, i) => {
@@ -320,7 +320,7 @@ export default function WellnessPage() {
                     onClick={() => setTab(t.key)}
                     aria-pressed={active}
                     aria-label={t.labelAr}
-                    className={`relative shrink-0 inline-flex items-center gap-1.5 h-9 px-3 rounded-xl transition-colors duration-150 ${
+                    className={`relative shrink-0 inline-flex items-center gap-1.5 h-9 px-3 rounded-lg transition-colors duration-150 ${
                       active
                         ? 'text-primary-foreground'
                         : 'text-muted-foreground hover:text-foreground'
@@ -329,7 +329,7 @@ export default function WellnessPage() {
                     {active && (
                       <motion.span
                         layoutId="wellness-dock-pill"
-                        className="absolute inset-0 rounded-xl bg-primary "
+                        className="absolute inset-0 rounded-lg bg-primary "
                         transition={{ type: 'spring', stiffness: 480, damping: 36 }}
                       />
                     )}

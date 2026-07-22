@@ -66,19 +66,11 @@ export default function QuranTab() {
         <motion.button
           variants={item}
           onClick={() => navigate('/tafsir')}
-          className="w-full relative overflow-hidden rounded-2xl border border-amber-300/30 dark:border-amber-500/20 px-4 py-4 text-start active:scale-[0.99] transition-transform"
+          className="w-full relative overflow-hidden rounded-xl bg-card border border-border px-4 py-4 text-start active:scale-[0.99] transition-transform"
         >
-          <div
-            className="absolute inset-0 pointer-events-none opacity-50"
-            style={{
-              
-              backgroundSize: '200% 100%',
-              animation: 'shimmer 3.5s ease-in-out infinite',
-            }}
-          />
           <div className="relative flex items-center gap-3">
-            <div className="w-11 h-11 rounded-xl bg-amber-500/15 flex items-center justify-center shrink-0">
-              <RotateCcw className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+            <div className="w-11 h-11 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+              <RotateCcw className="w-5 h-5 text-primary" />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">
@@ -89,7 +81,7 @@ export default function QuranTab() {
                 {lastPos.ayah ? (isAr ? ` — الآية ${lastPos.ayah}` : ` — Ayah ${lastPos.ayah}`) : ''}
               </p>
             </div>
-            <Arrow className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+            <Arrow className="w-4 h-4 text-primary shrink-0" />
           </div>
         </motion.button>
       )}
@@ -98,9 +90,9 @@ export default function QuranTab() {
       <motion.button
         variants={item}
         onClick={() => navigate('/tafsir')}
-        className="surface-depth surface-depth-pressable w-full flex items-center gap-3 p-4 rounded-2xl hover:border-primary/30 text-start"
+        className="surface-depth surface-depth-pressable w-full flex items-center gap-3 p-4 rounded-xl hover:border-primary/30 text-start"
       >
-        <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+        <div className="w-11 h-11 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
           <BookMarked className="w-5 h-5 text-primary" />
         </div>
         <div className="flex-1 min-w-0">
@@ -120,9 +112,9 @@ export default function QuranTab() {
       <motion.button
         variants={item}
         onClick={() => navigate('/section/quran-virtues')}
-        className="surface-depth surface-depth-pressable w-full flex items-center gap-3 p-4 rounded-2xl hover:border-primary/30 text-start"
+        className="surface-depth surface-depth-pressable w-full flex items-center gap-3 p-4 rounded-xl hover:border-primary/30 text-start"
       >
-        <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+        <div className="w-11 h-11 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
           <Sparkles className="w-5 h-5 text-primary" />
         </div>
         <div className="flex-1 min-w-0">
