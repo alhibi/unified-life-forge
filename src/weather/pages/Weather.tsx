@@ -365,8 +365,8 @@ function WindCompass({ speed, gusts, dirDeg, cardinal, beaufort, ar }: { speed: 
   );
 }
 
-function AQIGauge({ caqi, _category, pm25, pm10, o3, no2, so2, co, advisory, healthScore, source, ar }: {
-  caqi: number; _category: string; pm25: number; pm10: number; o3: number; no2: number; so2: number; co: number; advisory: string; healthScore: number; source: string | null; ar: boolean;
+function AQIGauge({ caqi, pm25, pm10, o3, no2, so2, co, advisory, healthScore, source, ar }: {
+  caqi: number; category?: string; pm25: number; pm10: number; o3: number; no2: number; so2: number; co: number; advisory: string; healthScore: number; source: string | null; ar: boolean;
 }) {
   const bands = [
     { to: 25, color: 'hsl(150 55% 45%)', label: ar ? 'ممتاز' : 'sehr gut' },
@@ -455,8 +455,8 @@ function AQIGauge({ caqi, _category, pm25, pm10, o3, no2, so2, co, advisory, hea
   );
 }
 
-function LiveSunArc({ sunrise, _noon, sunset, elevationDeg, azimuthDeg, dayLengthH, locale, ar }: {
-  sunrise: string; _noon: string; sunset: string; elevationDeg: number; azimuthDeg: number; dayLengthH: number; locale: string; ar: boolean;
+function LiveSunArc({ sunrise, sunset, elevationDeg, azimuthDeg, dayLengthH, locale, ar }: {
+  sunrise: string; noon?: string; sunset: string; elevationDeg: number; azimuthDeg: number; dayLengthH: number; locale: string; ar: boolean;
 }) {
   const now = Date.now();
   const t0 = new Date(sunrise).getTime();
