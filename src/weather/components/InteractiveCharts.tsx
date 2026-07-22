@@ -231,7 +231,7 @@ export default function InteractiveCharts({ entries, ar }: InteractiveChartsProp
           )}
 
           {/* Plotting series */}
-          {series.map((s, sIdx) => {
+          {(series as any[]).map((s: any, sIdx: number) => {
             if (s.isLine) {
               const points = s.values.map(toPoint);
               const path = smoothPath(points);
