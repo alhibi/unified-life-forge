@@ -29,6 +29,19 @@ function norm(s: string): string {
     .toLowerCase().trim();
 }
 
+// ES2024 Object.groupBy with backward-compatible runtime fallback
+const groupBy = Object.groupBy ?? (<T, K extends string | number | symbol>(
+  items: T[],
+  callback: (item: T, index: number) => K
+): Record<K, T[]> => {
+  return items.reduce((acc, item, index) => {
+    const key = callback(item, index);
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(item);
+    return acc;
+  }, {} as Record<K, T[]>);
+});
+
 // ─── بناء فهارس مرّة واحدة ────────────────────────────────────────────
 interface Idx {
   eras:  DiwanEra[];
@@ -36,6 +49,8 @@ interface Idx {
   poems: (DiwanPoemSearchResult & { _verses: DiwanVerse[] })[];
   poetsBySlug: Map<string, DiwanPoetSummary>;
   poemsBySlug: Map<string, DiwanPoemDetail>;
+  poetsByEra: Record<string, (DiwanPoetSummary & { _eraName: string })[]>;
+  poemsByPoet: Record<string, (DiwanPoemSearchResult & { _verses: DiwanVerse[] })[]>;
 }
 
 let _idx: Idx | null = null;
@@ -135,7 +150,10 @@ function buildIdx(): Idx {
     }
   }
 
-  _idx = { eras, poets, poems, poetsBySlug, poemsBySlug };
+  const poetsByEra = groupBy(poets, po => po.era_id) as Record<string, (DiwanPoetSummary & { _eraName: string })[]>;
+  const poemsByPoet = groupBy(poems, pm => pm.poet_slug) as Record<string, (DiwanPoemSearchResult & { _verses: DiwanVerse[] })[]>;
+
+  _idx = { eras, poets, poems, poetsBySlug, poemsBySlug, poetsByEra, poemsByPoet };
   return _idx;
 }
 
@@ -157,8 +175,9 @@ export function localStats(): DiwanLibraryStats {
 export function localPoets(p: { era?: string | null; q?: string | null; page?: number; pageSize?: number } = {}): DiwanPoetSummary[] {
   const i = buildIdx();
   const q = p.q ? norm(p.q) : '';
-  let list = i.poets.filter(po =>
-    (!p.era || po.era_id === p.era) &&
+  // High-performance O(1) group lookup using poetsByEra
+  const baseList = p.era ? (i.poetsByEra[p.era] ?? []) : i.poets;
+  let list = baseList.filter(po =>
     (!q || norm(po.name_ar).includes(q) || norm(po.title ?? '').includes(q) || norm(po.bio ?? '').includes(q))
   );
   list = list.sort((a, b) => b.verses_count - a.verses_count || a.name_ar.localeCompare(b.name_ar));
@@ -174,8 +193,9 @@ export function localPoetBySlug(slug: string): DiwanPoetSummary | null {
 export function localPoetPoems(p: { poetSlug: string; q?: string | null; meter?: string | null; rhyme?: string | null; page?: number; pageSize?: number }): DiwanPoemSummary[] {
   const i = buildIdx();
   const q = p.q ? norm(p.q) : '';
-  let list = i.poems.filter(pm =>
-    pm.poet_slug === p.poetSlug &&
+  // High-performance O(1) group lookup using poemsByPoet
+  const baseList = i.poemsByPoet[p.poetSlug] ?? [];
+  let list = baseList.filter(pm =>
     (!q || norm(pm.title).includes(q) || norm(pm.opening ?? '').includes(q))
   );
   list = list.sort((a, b) => b.verses_count - a.verses_count);

@@ -49,7 +49,9 @@ describe('Chat Sounds Feature - Full Suite', () => {
 
       // Setup default mock AudioContext
       mockContextInstance = new MockAudioContext();
-      (window as any).AudioContext = vi.fn().mockImplementation(() => mockContextInstance);
+      (window as any).AudioContext = vi.fn().mockImplementation(function (this: any) {
+        return mockContextInstance;
+      });
       (window as any).webkitAudioContext = undefined;
     }
 
