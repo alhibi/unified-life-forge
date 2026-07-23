@@ -18,16 +18,16 @@ export default {
         montserrat: ['"Montserrat"', 'system-ui', 'sans-serif'],
       },
       fontSize: {
-        // Canonical type scale — use these instead of arbitrary text-[Npx].
-        // micro/mini = chrome & meta. body = default. lead = inputs (≥16px min).
-        // title/display = headings. Line-heights tuned for Arabic + Latin parity.
-        micro:   ["11px", { lineHeight: "14px", letterSpacing: "0.005em" }],
-        mini:    ["12px", { lineHeight: "16px", letterSpacing: "0.003em" }],
-        meta:    ["13px", { lineHeight: "18px" }],
-        body:    ["14px", { lineHeight: "20px" }],
-        lead:    ["16px", { lineHeight: "24px" }],
-        title:   ["18px", { lineHeight: "24px", letterSpacing: "-0.005em" }],
-        display: ["24px", { lineHeight: "30px", letterSpacing: "-0.015em" }],
+        // Canonical type scale — strictly locked typographic scale.
+        // Body-related text uses a strict 1.6x multiplier line-height.
+        // Header/display text uses a strict 1.2x multiplier line-height.
+        micro:   ["11px", { lineHeight: "18px", letterSpacing: "0.005em" }],
+        mini:    ["12px", { lineHeight: "19px", letterSpacing: "0.003em" }],
+        meta:    ["13px", { lineHeight: "21px" }],
+        body:    ["14px", { lineHeight: "22px" }],
+        lead:    ["16px", { lineHeight: "26px" }],
+        title:   ["18px", { lineHeight: "22px", letterSpacing: "-0.005em" }],
+        display: ["24px", { lineHeight: "29px", letterSpacing: "-0.015em" }],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -87,9 +87,13 @@ export default {
         },
       },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        lg: "12px", // card harmonized radius
+        md: "8px",  // button/input harmonized radius
+        sm: "4px",  // subtle details radius
+        input: "8px",
+        button: "8px",
+        card: "12px",
+        section: "16px",
       },
       keyframes: {
         "accordion-down": {

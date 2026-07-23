@@ -77,10 +77,11 @@
     --sidebar-accent-foreground: 240 5% 26%;
     --sidebar-border: 240 6% 91%;
     --sidebar-ring: 240 5% 26%;
-    --shadow-sm: none;
-    --shadow-card: none;
-    --shadow-elevated: none;
-    --shadow-intense: none;
+    --shadow-opacity: 0.05;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, calc(var(--shadow-opacity) * 0.8));
+    --shadow-card: 0 4px 12px -2px rgba(0, 0, 0, var(--shadow-opacity)), 0 2px 4px -1px rgba(0, 0, 0, calc(var(--shadow-opacity) * 0.5));
+    --shadow-elevated: 0 12px 24px -4px rgba(0, 0, 0, calc(var(--shadow-opacity) * 1.5)), 0 4px 12px -2px rgba(0, 0, 0, calc(var(--shadow-opacity) * 0.8));
+    --shadow-intense: 0 20px 32px -6px rgba(0, 0, 0, calc(var(--shadow-opacity) * 2)), 0 8px 16px -4px rgba(0, 0, 0, var(--shadow-opacity));
     --font-display:
       'IBM Plex Sans Arabic', 'Noto Sans Arabic', system-ui, -apple-system, 'Segoe UI', sans-serif;
     --font-body:
@@ -186,11 +187,11 @@
     scroll-behavior: smooth;
   }
   body {
-    @apply bg-background text-foreground antialiased;
+    @apply bg-background text-foreground;
     font-family: var(--font-body);
     color: hsl(var(--foreground) / var(--text-opacity, 1));
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+    -webkit-font-smoothing: subpixel-antialiased;
+    -moz-osx-font-smoothing: auto;
     -webkit-tap-highlight-color: transparent;
     overscroll-behavior-y: contain;
     text-rendering: optimizeLegibility;
@@ -240,8 +241,10 @@
      Spec: blur 20px • bg rgba(0,0,0,0.6) • slide -8px + fade
      150ms ease-out-expo • input focus instant (no delay) */
   .glass-overlay {
-    background-color: hsl(var(--card));
-    border: 1px solid hsl(var(--border));
+    background-color: hsl(var(--card) / 0.82);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid hsl(var(--border) / 0.5);
     will-change: transform, opacity;
     transform: translateZ(0);
   }
@@ -475,15 +478,15 @@
      on cards going forward.
      ────────────────────────────────────────────────────────────── */
 
-  /* The canonical app card. Always rounded-2xl, always surface-depth.
+  /* The canonical app card. Always rounded-lg (12px), always surface-depth.
      `.app-card-compact` = tighter padding for list rows.
      `.app-card-flat`    = no inset shadow chrome, for nested cards. */
   .app-card {
     background-color: hsl(var(--card));
     border: 1px solid hsl(var(--border) / 0.6);
-    border-radius: 1rem; /* 16px — matches rounded-2xl */
+    border-radius: 0.75rem; /* 12px — matches card harmonized radius */
     padding: 1rem; /* 16px — matches p-4         */
-    box-shadow: none;
+    box-shadow: var(--shadow-card);
   }
   .app-card-compact {
     padding: 0.75rem;
@@ -499,20 +502,22 @@
     transition:
       transform 120ms var(--ease-spring),
       background-color 150ms var(--ease-out-expo),
-      border-color 150ms ease-out;
+      border-color 150ms ease-out,
+      box-shadow 150ms ease-out;
     cursor: pointer;
     will-change: transform;
   }
   .app-card-pressable:active {
     transform: scale(0.98);
     background-color: hsl(var(--accent) / 0.4);
+    box-shadow: var(--shadow-sm);
   }
 
-  /* The canonical icon button used in headers/toolbars. 40x40, rounded-xl. */
+  /* The canonical icon button used in headers/toolbars. 40x40, rounded-md (8px). */
   .app-icon-btn {
     width: 2.5rem;
     height: 2.5rem;
-    border-radius: 0.75rem; /* 12px — rounded-xl */
+    border-radius: 0.5rem; /* 8px — matches button harmonized radius */
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -560,7 +565,7 @@
     letter-spacing: 0.14em;
     text-transform: uppercase;
     color: hsl(var(--muted-foreground));
-    padding: 14px 4px 8px;
+    padding: 16px 8px 8px; /* Standardized to 8px mathematical grid */
     margin: 0;
   }
 
@@ -610,14 +615,14 @@
 
   /* Canonical page shell — every full-screen route uses these spacings.
      pt-14 leaves room for the floating header, pb-28 for the floating
-     bottom-nav pill. px-5 is the global edge gutter. */
+     bottom-nav pill. px-4 is the global edge gutter. */
   .page-shell {
     min-height: 100dvh;
     background-color: hsl(var(--background));
-    padding-top: 3.5rem; /* pt-14 */
-    padding-bottom: 7rem; /* pb-28 — clears bottom nav pill */
-    padding-left: 1.25rem; /* px-5 */
-    padding-right: 1.25rem;
+    padding-top: 3.5rem; /* pt-14 = 56px (multiple of 8px) */
+    padding-bottom: 7rem; /* pb-28 = 112px (multiple of 8px) — clears bottom nav pill */
+    padding-left: 1rem; /* px-4 = 16px (strict spacing token) */
+    padding-right: 1rem;
   }
   .page-shell-flush {
     /* For pages with their own sticky PageHeader (no top padding). */
@@ -633,13 +638,13 @@
   .app-stack {
     display: flex;
     flex-direction: column;
-    gap: 1.25rem;
-  } /* gap-5 */
+    gap: 1.5rem; /* gap-6 = 24px (strict spacing token) */
+  }
   .app-stack-sm {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
-  } /* gap-3 */
+    gap: 0.75rem; /* gap-3 = 12px (allowed spacing token) */
+  }
 
   /* Canonical section heading — tiny uppercase tracking label above a group. */
   .app-section-label {
