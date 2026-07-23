@@ -280,7 +280,8 @@ export default function BottomNav() {
   const dragging = drag !== null;
   const visualIndex = drag ? drag.index : safeActiveIndex;
 
-  if (!TAB_PATHS.has(location.pathname) || inChatConversation) return null;
+  const isSplitPane = new URLSearchParams(location.search).get('is_split_pane') === 'true';
+  if (!TAB_PATHS.has(location.pathname) || inChatConversation || isSplitPane) return null;
 
   return (
     <nav

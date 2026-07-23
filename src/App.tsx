@@ -24,6 +24,11 @@ import { buildTabLayerVariants, type NavMode } from "@/lib/motion";
 import { useInChatConversation } from "@/lib/inChatConversation";
 import EdgeSwipeBack from "@/components/EdgeSwipeBack";
 import { registerRoute } from "@/lib/routePrefetch";
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
+import { SystemEngineProvider, useSystemEngine } from "@/contexts/SystemEngineContext";
+import { usePredictivePrefetch } from "@/hooks/usePredictivePrefetch";
+import { CommandPalette } from "@/components/CommandPalette";
+import { Layout } from "lucide-react";
 
 // Eager load the main page
 import Index from "./pages/Index";
@@ -492,7 +497,16 @@ function PersistentTabs({ active, mode }: { active: TabPath | null; mode: NavMod
 
 function AnimatedRoutes() {
   const location = useLocation();
+  const { language } = useApp();
+  const isAr = language === 'ar';
+
   useIdlePrefetch();
+  usePredictivePrefetch(); // Global Pointer-Intent & Trajectory Predictive Prefetching Engine
+
+  const { splitActive, splitUrl, splitSize, setSplitSize, splitLayout, setSplitActive } = useSystemEngine();
+  const isSplitPane = new URLSearchParams(location.search).get('is_split_pane') === 'true';
+  const effectiveSplitActive = splitActive && !isSplitPane;
+
   // Mark the navigation start timestamp synchronously ONCE per route change.
   // Calling navStart() in render fired on every re-render (theme tick,
   // presence flip, etc.) and reset the baseline mid-flight — paint timings
@@ -515,14 +529,19 @@ function AnimatedRoutes() {
   // by inChatConversation — without this guard <main> reserved a 62px dead
   // strip below the chat composer.
   const navVisible = ALL_NAV_PATHS.has(location.pathname) && !inChatConversation;
-  return (
-    <main
-      id="main-content"
-      style={{
+
+  const mainStyle = effectiveSplitActive
+    ? {
+        position: 'relative' as const,
+        height: '100dvh',
+        width: '100vw',
+        overflow: 'hidden',
+      }
+    : {
         // Provide a positioning context so the exiting PageTransition
         // (which sets `position: absolute` during exit) is pinned to
         // <main>'s box and never stacks above the incoming page.
-        position: 'relative',
+        position: 'relative' as const,
         // Reserve space for the bottom nav on all routes where it is
         // visible. Sub-pages (non-nav routes) do NOT render BottomNav
         // so they don't need the bottom padding.
@@ -531,13 +550,10 @@ function AnimatedRoutes() {
           : 0,
         // Minimum height ensures content fills viewport even on short pages
         minHeight: '100dvh',
-      }}
-    >
-      <ScrollToTop />
-      {/* Persistent layer — three small hot tabs (Home, Games, Chat)
-          mounted once and toggled by display. The other bottom-nav
-          destinations (Wellness, Browse, Mihrab) are heavier and ride
-          the lazy non-persistent route path below. */}
+      };
+
+  const primaryContent = (
+    <div className={effectiveSplitActive ? "h-full overflow-y-auto pb-20 scrollbar-thin" : ""}>
       <PersistentTabs active={activeTab} mode={mode} />
       {/* Non-tab routes (sub-pages, settings details, games, etc.) */}
       {/* AnimatePresence must own PageTransition directly. Wrapping
@@ -626,6 +642,67 @@ function AnimatedRoutes() {
           )}
         </AnimatePresence>
       </NavModeContext.Provider>
+    </div>
+  );
+
+  return (
+    <main id="main-content" style={mainStyle}>
+      <ScrollToTop />
+      <CommandPalette />
+
+      {effectiveSplitActive ? (
+        <PanelGroup
+          direction={splitLayout}
+          onLayout={(sizes) => {
+            if (sizes[1] !== undefined) setSplitSize(sizes[1]);
+          }}
+          className="h-full w-full"
+        >
+          <Panel defaultSize={100 - splitSize} minSize={20}>
+            {primaryContent}
+          </Panel>
+          <PanelResizeHandle className={`relative flex items-center justify-center bg-neutral-950 border-neutral-800 transition-colors hover:bg-neutral-800 ${splitLayout === 'vertical' ? 'h-2 w-full cursor-row-resize border-y' : 'w-2 h-full cursor-col-resize border-x'}`}>
+            <div className={`rounded-full bg-neutral-750 ${splitLayout === 'vertical' ? 'w-8 h-1' : 'w-1 h-8'}`} />
+          </PanelResizeHandle>
+          <Panel defaultSize={splitSize} minSize={20}>
+            <div className="h-full w-full bg-neutral-950 border-neutral-800 flex flex-col relative"
+                 style={{
+                   borderLeftWidth: splitLayout === 'horizontal' ? '1px' : '0px',
+                   borderTopWidth: splitLayout === 'vertical' ? '1px' : '0px',
+                 }}>
+              {/* Header for Secondary Workspace Panel */}
+              <div className="flex items-center justify-between px-4 py-2 bg-neutral-900 border-b border-neutral-800 text-xs text-neutral-400 font-mono">
+                <div className="flex items-center gap-2">
+                  <Layout className="w-3.5 h-3.5 text-[#C9A84C]" />
+                  <span className="font-semibold text-neutral-300">
+                    {isAr ? 'مساحة العمل الثانوية' : 'Sekundärer Workspace'}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] bg-neutral-950 px-2 py-0.5 rounded border border-neutral-800 text-neutral-400 max-w-[120px] truncate">
+                    {splitUrl}
+                  </span>
+                  <button
+                    onClick={() => setSplitActive(false)}
+                    className="text-neutral-400 hover:text-neutral-200 transition-colors p-1"
+                  >
+                    ✕
+                  </button>
+                </div>
+              </div>
+
+              {/* Responsive isolated Sub-Page View using dynamic iframe */}
+              <iframe
+                src={`${window.location.origin}${splitUrl}?is_split_pane=true`}
+                className="flex-1 w-full border-none bg-neutral-950"
+                title="Secondary Workspace Pane"
+              />
+            </div>
+          </Panel>
+        </PanelGroup>
+      ) : (
+        primaryContent
+      )}
     </main>
   );
 }
@@ -633,29 +710,31 @@ function AnimatedRoutes() {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AppProvider>
-      <IconProvider>
-      <VoicePlayerProvider>
-        <ImageUploadProvider>
-        <PodcastPlayerProvider>
-        <TooltipProvider>
-          <ErrorBoundary>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <AutoPrayerThemeRunner />
-              <PresenceRunner />
-              <NetworkConnectivityListener />
-              <EdgeSwipeBack />
-              <AnimatedRoutes />
-              <BottomNav />
-              <PodcastMiniPlayer />
-            </BrowserRouter>
-          </ErrorBoundary>
-        </TooltipProvider>
-        </PodcastPlayerProvider>
-        </ImageUploadProvider>
-      </VoicePlayerProvider>
-      </IconProvider>
+      <SystemEngineProvider>
+        <IconProvider>
+        <VoicePlayerProvider>
+          <ImageUploadProvider>
+          <PodcastPlayerProvider>
+          <TooltipProvider>
+            <ErrorBoundary>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
+                <AutoPrayerThemeRunner />
+                <PresenceRunner />
+                <NetworkConnectivityListener />
+                <EdgeSwipeBack />
+                <AnimatedRoutes />
+                <BottomNav />
+                <PodcastMiniPlayer />
+              </BrowserRouter>
+            </ErrorBoundary>
+          </TooltipProvider>
+          </PodcastPlayerProvider>
+          </ImageUploadProvider>
+        </VoicePlayerProvider>
+        </IconProvider>
+      </SystemEngineProvider>
     </AppProvider>
   </QueryClientProvider>
 );
