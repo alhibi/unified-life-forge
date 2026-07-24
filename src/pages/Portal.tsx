@@ -478,18 +478,6 @@ export default function Portal() {
                 <b>AMV.LIFE</b>
               </div>
 
-              <nav className="mk-tnav">
-                {TOPNAV.map(n => (
-                  <button
-                    key={n.path}
-                    className={n.path === '/' ? 'on' : undefined}
-                    onClick={() => n.path !== '/' && navigate(n.path)}
-                  >
-                    {isAr ? n.ar : n.de}
-                  </button>
-                ))}
-              </nav>
-
               <div className="mk-top-icons" ref={acctRef}>
                 <button
                   className="mk-icon-btn"
@@ -565,19 +553,6 @@ export default function Portal() {
                 )}
               </div>
             </header>
-
-            {/* narrow-screen version of the centre tabs */}
-            <nav className="mk-tnav-scroll">
-              {TOPNAV.map(n => (
-                <button
-                  key={n.path}
-                  className={n.path === '/' ? 'on' : undefined}
-                  onClick={() => n.path !== '/' && navigate(n.path)}
-                >
-                  {isAr ? n.ar : n.de}
-                </button>
-              ))}
-            </nav>
 
             <div className="mk-content">
               {/* ---- stage: pills + launcher grid + toolbar ---- */}
