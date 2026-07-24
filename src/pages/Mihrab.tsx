@@ -150,7 +150,7 @@ export default function MihrabPage() {
 
         {/* Horizontal tab dock */}
         <nav aria-label={isAr ? 'تبويبات المحراب' : 'Mihrab tabs'}>
-          <div className="app-card p-1 flex items-center gap-0.5" dir="ltr">
+          <div className="app-card p-1 grid grid-cols-4 gap-0.5" dir="ltr">
             {TABS.map((t) => {
               const active = tab === t.key;
               const Icon = t.icon;
@@ -160,7 +160,7 @@ export default function MihrabPage() {
                   onClick={() => handleTabChange(t.key)}
                   aria-pressed={active}
                   aria-label={isAr ? t.labelAr : t.labelDe}
-                  className={`relative flex-1 inline-flex items-center justify-center gap-1.5 h-10 px-2 rounded-xl transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 ${
+                  className={`relative w-full min-w-0 inline-flex items-center justify-center gap-1.5 h-10 px-2 rounded-xl transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 ${
                     active
                       ? 'text-primary-foreground'
                       : 'text-muted-foreground hover:text-foreground'
