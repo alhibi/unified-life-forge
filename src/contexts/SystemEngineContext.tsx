@@ -123,7 +123,7 @@ export function SystemEngineProvider({ children }: { children: ReactNode }) {
     })
   );
   const prevFpsCap = useRef<any>(
-    readBackup('sys-battery-saver-prev-fps', batterySaver ? 'auto' : fpsCap, (raw) => raw)
+    readBackup<any>('sys-battery-saver-prev-fps', batterySaver ? 'auto' : fpsCap, (raw) => raw)
   );
 
   // Monitor network connection
