@@ -1,6 +1,5 @@
-import 'maplibre-gl/dist/maplibre-gl.css';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import * as maplibregl from 'maplibre-gl';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { CSSProperties } from 'react';
 import { ImagePlus, Loader2, MapPin, X } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -27,9 +26,17 @@ import { useToast } from '@/hooks/use-toast';
 
 import { COUNTRY_CATALOG } from '../countriesCatalog';
 import { useCreatePlace } from '../hooks';
-import type { PlaceCategory } from '../types';
+import {
+  TILE_SIZE,
+  containsPoint,
+  fitBounds,
+  projectLngLat,
+  unprojectPoint,
+  visibleTiles,
+} from '../mapUtils';
+import type { Coordinates, CountryBounds, PlaceCategory } from '../types';
 
-const OPEN_FREE_MAP_STYLE = 'https://tiles.openfreemap.org/styles/positron';
+const TILE_URL = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
 const MAX_PHOTOS = 6;
 
 interface AddPlaceSheetProps {
@@ -69,9 +76,6 @@ export default function AddPlaceSheet({
   const [tagsInput, setTagsInput] = useState('');
   const [photos, setPhotos] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
-  const mapContainerRef = useRef<HTMLDivElement | null>(null);
-  const mapRef = useRef<maplibregl.Map | null>(null);
-  const markerRef = useRef<maplibregl.Marker | null>(null);
 
   // Manage object URL previews.
   useEffect(() => {
@@ -86,83 +90,6 @@ export default function AddPlaceSheet({
     () => COUNTRY_CATALOG.find((c) => c.isoCode === countryIso),
     [countryIso],
   );
-
-  // Init/update mini-map when open + country selected.
-  useEffect(() => {
-    if (!open || !selectedCountry || !mapContainerRef.current) return;
-
-    if (!mapRef.current) {
-      const map = new maplibregl.Map({
-        container: mapContainerRef.current,
-        style: OPEN_FREE_MAP_STYLE,
-        center: [
-          (selectedCountry.bounds.sw[0] + selectedCountry.bounds.ne[0]) / 2,
-          (selectedCountry.bounds.sw[1] + selectedCountry.bounds.ne[1]) / 2,
-        ],
-        zoom: 4,
-        dragRotate: false,
-        pitchWithRotate: false,
-        attributionControl: false,
-      });
-      map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
-      map.on('click', (e) => {
-        const { lng: mLng, lat: mLat } = e.lngLat;
-        setLat(mLat.toFixed(6));
-        setLng(mLng.toFixed(6));
-        placeMarker(mLng, mLat);
-      });
-      mapRef.current = map;
-    }
-
-    const map = mapRef.current;
-    map.fitBounds([selectedCountry.bounds.sw, selectedCountry.bounds.ne], {
-      padding: 30,
-      duration: 400,
-      maxZoom: 8,
-    });
-
-    // Ensure the canvas measures its container after the sheet animation.
-    const resizeTimers = [80, 220, 420].map((delay) =>
-      window.setTimeout(() => {
-        try { map.resize(); } catch { /* map may have been removed */ }
-      }, delay),
-    );
-
-    return () => {
-      resizeTimers.forEach((id) => clearTimeout(id));
-    };
-  }, [open, selectedCountry]);
-
-  // Keep marker in sync when user types coordinates manually.
-  useEffect(() => {
-    if (!mapRef.current) return;
-    const la = Number(lat);
-    const lo = Number(lng);
-    if (!Number.isFinite(la) || !Number.isFinite(lo)) return;
-    if (la < -90 || la > 90 || lo < -180 || lo > 180) return;
-    placeMarker(lo, la);
-  }, [lat, lng]);
-
-  // Destroy map when sheet closes.
-  useEffect(() => {
-    if (open) return;
-    if (mapRef.current) {
-      mapRef.current.remove();
-      mapRef.current = null;
-      markerRef.current = null;
-    }
-  }, [open]);
-
-  const placeMarker = (mLng: number, mLat: number) => {
-    if (!mapRef.current) return;
-    if (markerRef.current) {
-      markerRef.current.setLngLat([mLng, mLat]);
-    } else {
-      markerRef.current = new maplibregl.Marker({ color: 'hsl(32, 58%, 62%)' })
-        .setLngLat([mLng, mLat])
-        .addTo(mapRef.current);
-    }
-  };
 
   const sortedCountries = useMemo(
     () =>
@@ -183,10 +110,6 @@ export default function AddPlaceSheet({
     setBestTime('');
     setTagsInput('');
     setPhotos([]);
-    if (markerRef.current) {
-      markerRef.current.remove();
-      markerRef.current = null;
-    }
   };
 
   const useCurrentLocation = () => {
@@ -195,19 +118,16 @@ export default function AddPlaceSheet({
       (pos) => {
         const la = pos.coords.latitude;
         const lo = pos.coords.longitude;
+        if (selectedCountry && !containsPoint(selectedCountry.bounds, [lo, la], 0.75)) {
+          toast({
+            title: isAr ? 'موقعك خارج الدولة المختارة' : 'Dein Standort liegt außerhalb des gewählten Landes',
+            description: isAr ? 'اختر الدولة الصحيحة أو حدّد النقطة يدويًا.' : 'Wähle das richtige Land oder setze den Punkt manuell.',
+            variant: 'destructive',
+          });
+          return;
+        }
         setLat(la.toFixed(6));
         setLng(lo.toFixed(6));
-        const map = mapRef.current;
-        if (map) {
-          const run = () => {
-            try {
-              map.easeTo({ center: [lo, la], zoom: 12, duration: 500 });
-            } catch { /* map torn down */ }
-            placeMarker(lo, la);
-          };
-          if (map.isStyleLoaded()) run();
-          else map.once('load', run);
-        }
       },
       () => {
         toast({
@@ -245,6 +165,14 @@ export default function AddPlaceSheet({
     if (latN < -90 || latN > 90 || lngN < -180 || lngN > 180) {
       toast({
         title: isAr ? 'إحداثيات غير صحيحة' : 'Ungültige Koordinaten',
+        variant: 'destructive',
+      });
+      return;
+    }
+    if (!containsPoint(country.bounds, [lngN, latN], 0.75)) {
+      toast({
+        title: isAr ? 'النقطة خارج الدولة المختارة' : 'Der Punkt liegt außerhalb des gewählten Landes',
+        description: isAr ? 'اختر الدولة المناسبة أو حدّد نقطة داخل حدودها.' : 'Wähle das passende Land oder setze einen Punkt innerhalb der Grenzen.',
         variant: 'destructive',
       });
       return;
@@ -376,11 +304,14 @@ export default function AddPlaceSheet({
           {selectedCountry && (
             <div className="space-y-2">
               <Label>{isAr ? 'اختر النقطة على الخريطة' : 'Punkt auf der Karte wählen'}</Label>
-              <div
-                ref={mapContainerRef}
-                dir="ltr"
-                className="h-56 w-full overflow-hidden rounded-2xl border border-border"
-                style={{ touchAction: 'none' }}
+              <RasterPointPicker
+                bounds={selectedCountry.bounds}
+                value={coordinateFromInputs(lat, lng)}
+                language={language}
+                onChange={([pickedLng, pickedLat]) => {
+                  setLat(pickedLat.toFixed(6));
+                  setLng(pickedLng.toFixed(6));
+                }}
               />
               <p className="text-micro text-muted-foreground">
                 {isAr ? 'انقر على الخريطة لتحديد الموقع بدقة.' : 'Tippe auf die Karte, um den Ort zu setzen.'}
@@ -465,4 +396,106 @@ export default function AddPlaceSheet({
       </SheetContent>
     </Sheet>
   );
+}
+
+function RasterPointPicker({
+  bounds,
+  value,
+  language,
+  onChange,
+}: {
+  bounds: CountryBounds;
+  value: Coordinates | null;
+  language: 'ar' | 'de';
+  onChange: (coordinates: Coordinates) => void;
+}) {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [size, setSize] = useState({ width: 640, height: 224 });
+  const initialView = useMemo(() => fitBounds(bounds, size.width, size.height, 8), [bounds, size.height, size.width]);
+  const center = value ?? initialView.center;
+  const zoom = value ? Math.max(initialView.zoom, 9) : initialView.zoom;
+  const tileData = useMemo(() => visibleTiles(center, zoom, size.width, size.height), [center, size, zoom]);
+
+  useEffect(() => {
+    const node = containerRef.current;
+    if (!node) return;
+    const update = () => {
+      const rect = node.getBoundingClientRect();
+      setSize({ width: Math.max(280, rect.width), height: Math.max(180, rect.height) });
+    };
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+
+  const pick = useCallback(
+    (event: React.PointerEvent<HTMLDivElement>) => {
+      const rect = event.currentTarget.getBoundingClientRect();
+      const point = {
+        x: tileData.topLeft.x + event.clientX - rect.left,
+        y: tileData.topLeft.y + event.clientY - rect.top,
+      };
+      onChange(unprojectPoint(point, zoom));
+    },
+    [onChange, tileData.topLeft, zoom],
+  );
+
+  const pinPosition = useMemo(() => {
+    if (!value) return null;
+    const point = projectLngLat(value, zoom);
+    return { left: point.x - tileData.topLeft.x, top: point.y - tileData.topLeft.y };
+  }, [tileData.topLeft.x, tileData.topLeft.y, value, zoom]);
+
+  return (
+    <div
+      ref={containerRef}
+      dir="ltr"
+      className="relative h-56 w-full overflow-hidden rounded-2xl border border-border bg-muted travel-raster-map"
+      style={{ touchAction: 'none' }}
+      onPointerDown={pick}
+      role="button"
+      tabIndex={0}
+      aria-label={language === 'ar' ? 'اختيار موقع المكان على الخريطة' : 'Ort auf der Karte wählen'}
+    >
+      {tileData.tiles.map((tile) => (
+        <img
+          key={tile.key}
+          src={tileUrl(zoom, tile.wrappedX, tile.y)}
+          alt=""
+          draggable={false}
+          decoding="async"
+          loading="lazy"
+          className="absolute max-w-none travel-raster-map__tile"
+          style={{
+            width: TILE_SIZE,
+            height: TILE_SIZE,
+            transform: `translate3d(${Math.round(tile.left)}px, ${Math.round(tile.top)}px, 0)`,
+          }}
+        />
+      ))}
+      <div className="absolute inset-0 travel-raster-map__shade" aria-hidden="true" />
+      {pinPosition && (
+        <span
+          className="pointer-events-none absolute grid h-9 w-9 place-items-center rounded-full border-2 border-[hsl(var(--live))] bg-background text-[hsl(var(--live))] shadow-depth"
+          style={{ transform: `translate3d(${pinPosition.left}px, ${pinPosition.top}px, 0) translate(-50%, -50%)` } as CSSProperties}
+          aria-hidden="true"
+        >
+          <MapPin className="h-5 w-5 fill-[hsl(var(--live))]/20" />
+        </span>
+      )}
+    </div>
+  );
+}
+
+function coordinateFromInputs(lat: string, lng: string): Coordinates | null {
+  const la = Number(lat);
+  const lo = Number(lng);
+  if (!Number.isFinite(la) || !Number.isFinite(lo)) return null;
+  if (la < -90 || la > 90 || lo < -180 || lo > 180) return null;
+  return [lo, la];
+}
+
+function tileUrl(zoom: number, x: number, y: number): string {
+  return TILE_URL.replace('{z}', String(zoom)).replace('{x}', String(x)).replace('{y}', String(y));
 }

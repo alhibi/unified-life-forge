@@ -1,62 +1,22 @@
-import 'maplibre-gl/dist/maplibre-gl.css';
-
-import type { GeoJSONSource, Map as MapLibreMap, MapGeoJSONFeature } from 'maplibre-gl';
-import * as maplibregl from 'maplibre-gl';
+import { Minus, Plus } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import MapGL, {
-  Layer,
-  type LayerProps,
-  type MapLayerMouseEvent,
-  type MapRef,
-  NavigationControl,
-  Source,
-} from 'react-map-gl/maplibre';
+import type { CSSProperties } from 'react';
 
-import type { CountryBounds, PlaceCategory, TravelPlace } from '../types';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
-const SOURCE_ID = 'travel-atlas-places';
-const CLUSTER_LAYER_ID = 'travel-atlas-clusters';
-const CLUSTER_COUNT_LAYER_ID = 'travel-atlas-cluster-count';
-const OPEN_FREE_MAP_STYLE = 'https://tiles.openfreemap.org/styles/positron';
-
-const clusterLayer: LayerProps = {
-  id: CLUSTER_LAYER_ID,
-  type: 'circle',
-  source: SOURCE_ID,
-  filter: ['has', 'point_count'],
-  paint: {
-    'circle-color': [
-      'step',
-      ['get', 'point_count'],
-      'hsla(32, 58%, 62%, 0.76)',
-      10,
-      'hsla(32, 58%, 62%, 0.9)',
-      50,
-      'hsl(32, 58%, 62%)',
-    ],
-    'circle-radius': ['step', ['get', 'point_count'], 18, 10, 24, 50, 31],
-    'circle-stroke-width': 1,
-    'circle-stroke-color': 'rgba(255, 255, 255, 0.74)',
-    'circle-opacity': 1,
-    'circle-stroke-opacity': 0.86,
-  },
-};
-
-const clusterCountLayer: LayerProps = {
-  id: CLUSTER_COUNT_LAYER_ID,
-  type: 'symbol',
-  source: SOURCE_ID,
-  filter: ['has', 'point_count'],
-  layout: {
-    'text-field': ['get', 'point_count_abbreviated'],
-    'text-font': ['Noto Sans Regular'],
-    'text-size': 12,
-  },
-  paint: {
-    'text-color': '#17130f',
-    'text-opacity': 1,
-  },
-};
+import {
+  MAX_ZOOM,
+  MIN_ZOOM,
+  TILE_SIZE,
+  containsPoint,
+  fitBounds,
+  isValidCoordinatePair,
+  projectLngLat,
+  unprojectPoint,
+  visibleTiles,
+} from '../mapUtils';
+import type { Coordinates, CountryBounds, PlaceCategory, TravelPlace } from '../types';
 
 interface TravelAtlasMapProps {
   bounds: CountryBounds;
@@ -67,11 +27,19 @@ interface TravelAtlasMapProps {
   onError?: (message: string) => void;
 }
 
-interface MarkerRecord {
-  marker: maplibregl.Marker;
-  element: HTMLButtonElement;
-  removalTimer?: number;
+interface ViewSize {
+  width: number;
+  height: number;
 }
+
+interface DragState {
+  pointerId: number;
+  startX: number;
+  startY: number;
+  center: Coordinates;
+}
+
+const TILE_URL = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
 
 export default function TravelAtlasMap({
   bounds,
@@ -81,306 +49,261 @@ export default function TravelAtlasMap({
   onReady,
   onError,
 }: TravelAtlasMapProps) {
-  const mapRef = useRef<MapRef>(null);
-  const markersRef = useRef<Map<string, MarkerRecord>>(new Map());
-  const syncFrameRef = useRef<number | null>(null);
-  const [mapLoaded, setMapLoaded] = useState(false);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const dragRef = useRef<DragState | null>(null);
+  const [size, setSize] = useState<ViewSize>({ width: 960, height: 640 });
+  const [center, setCenter] = useState<Coordinates>(() => [
+    (bounds.sw[0] + bounds.ne[0]) / 2,
+    (bounds.sw[1] + bounds.ne[1]) / 2,
+  ]);
+  const [zoom, setZoom] = useState(4);
+  const [isDragging, setIsDragging] = useState(false);
+  const [failedTile, setFailedTile] = useState(false);
 
-  const geoJson = useMemo(
-    () => ({
-      type: 'FeatureCollection' as const,
-      features: places.map((place) => ({
-        type: 'Feature' as const,
-        id: place.id,
-        geometry: {
-          type: 'Point' as const,
-          coordinates: place.coordinates,
-        },
-        properties: {
-          id: place.id,
-          category: place.category,
-          cover_photo_url: place.coverPhotoUrl,
-        },
-      })),
-    }),
+  const validPlaces = useMemo(
+    () => places.filter((place) => isValidCoordinatePair(place.coordinates)),
     [places],
   );
 
-  const placesById = useMemo(() => new Map(places.map((place) => [place.id, place])), [places]);
-
-  const fitCountry = useCallback(
-    (map: MapLibreMap) => {
-      const compact = window.matchMedia('(max-width: 640px)').matches;
-      const padding = compact ? 42 : 72;
-      // If we have places, fit to include ALL of them (union with country bounds)
-      // so pins remain visible even if their coords fall outside the country box.
-      if (places.length > 0) {
-        let minLng = bounds.sw[0];
-        let minLat = bounds.sw[1];
-        let maxLng = bounds.ne[0];
-        let maxLat = bounds.ne[1];
-        let anyValid = false;
-        for (const p of places) {
-          const [lng, lat] = p.coordinates;
-          if (!Number.isFinite(lng) || !Number.isFinite(lat)) continue;
-          if (lng === 0 && lat === 0) continue;
-          anyValid = true;
-          if (lng < minLng) minLng = lng;
-          if (lat < minLat) minLat = lat;
-          if (lng > maxLng) maxLng = lng;
-          if (lat > maxLat) maxLat = lat;
-        }
-        if (anyValid) {
-          map.fitBounds(
-            [
-              [minLng, minLat],
-              [maxLng, maxLat],
-            ],
-            { padding, duration: 0, maxZoom: 11 },
-          );
-          return;
-        }
-      }
-      map.fitBounds([bounds.sw, bounds.ne], {
-        padding,
-        duration: 0,
-        maxZoom: 11,
-      });
-    },
-    [bounds, places],
+  const inBoundsPlaces = useMemo(
+    () => validPlaces.filter((place) => containsPoint(bounds, place.coordinates, 0.75)),
+    [bounds, validPlaces],
   );
 
-  const handleLoad = useCallback(() => {
-    const map = mapRef.current?.getMap();
-    if (!map) return;
-    fitCountry(map);
-    setMapLoaded(true);
-    onReady?.();
-  }, [fitCountry, onReady]);
-
-  const handleClusterClick = useCallback(
-    async (event: MapLayerMouseEvent) => {
-      const map = mapRef.current?.getMap();
-      const feature = event.features?.find((item) => item.layer.id === CLUSTER_LAYER_ID);
-      if (!map || !feature || feature.geometry.type !== 'Point') return;
-
-      const properties = feature.properties as Record<string, unknown> | null;
-      const clusterId = Number(properties?.cluster_id);
-      const source = map.getSource(SOURCE_ID) as GeoJSONSource | undefined;
-      if (!source || !Number.isFinite(clusterId)) return;
-
-      try {
-        const zoom = await source.getClusterExpansionZoom(clusterId);
-        if (mapRef.current?.getMap() !== map || !map.getLayer(CLUSTER_LAYER_ID)) return;
-        const coordinates = feature.geometry.coordinates as [number, number];
-
-        map.setPaintProperty(CLUSTER_LAYER_ID, 'circle-opacity-transition', { duration: 180 });
-        map.setPaintProperty(CLUSTER_COUNT_LAYER_ID, 'text-opacity-transition', { duration: 180 });
-        map.setPaintProperty(CLUSTER_LAYER_ID, 'circle-opacity', 0.18);
-        map.setPaintProperty(CLUSTER_COUNT_LAYER_ID, 'text-opacity', 0);
-        map.easeTo({
-          center: coordinates,
-          zoom,
-          duration: 620,
-          essential: true,
-        });
-
-        map.once('moveend', () => {
-          if (!map.getLayer(CLUSTER_LAYER_ID)) return;
-          map.setPaintProperty(CLUSTER_LAYER_ID, 'circle-opacity', 1);
-          map.setPaintProperty(CLUSTER_COUNT_LAYER_ID, 'text-opacity', 1);
-        });
-      } catch {
-        onError?.(
-          language === 'ar'
-            ? 'تعذّر توسيع مجموعة الأماكن.'
-            : 'Die Ortsgruppe konnte nicht geöffnet werden.',
-        );
-      }
-    },
-    [language, onError],
+  const fitKey = useMemo(
+    () => `${bounds.sw.join(',')}:${bounds.ne.join(',')}:${inBoundsPlaces.map((place) => `${place.id}:${place.coordinates.join(',')}`).join('|')}`,
+    [bounds.ne, bounds.sw, inBoundsPlaces],
   );
 
   useEffect(() => {
-    const map = mapRef.current?.getMap();
-    if (!map || !mapLoaded) return;
-    const markers = markersRef.current;
+    const node = containerRef.current;
+    if (!node) return;
 
-    const removeMarker = (id: string, record: MarkerRecord) => {
-      if (record.removalTimer !== undefined) return;
-      record.element.dataset.visible = 'false';
-      record.removalTimer = window.setTimeout(() => {
-        if (markers.get(id) !== record) return;
-        record.marker.remove();
-        markers.delete(id);
-      }, 180);
+    const update = () => {
+      const rect = node.getBoundingClientRect();
+      setSize({ width: Math.max(320, rect.width), height: Math.max(320, rect.height) });
     };
 
-    const syncMarkers = () => {
-      syncFrameRef.current = null;
-      if (!map.isStyleLoaded() || !map.getSource(SOURCE_ID)) return;
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
 
-      const visibleIds = new Set<string>();
-      const features = map.querySourceFeatures(SOURCE_ID);
-      for (const feature of features) {
-        const placeId = getUnclusteredPlaceId(feature as unknown as MapGeoJSONFeature);
-        if (!placeId || visibleIds.has(placeId)) continue;
-        const place = placesById.get(placeId);
-        if (!place || feature.geometry.type !== 'Point') continue;
+  useEffect(() => {
+    const next = fitBounds(bounds, size.width, size.height, 12);
+    setCenter(next.center);
+    setZoom(next.zoom);
+    const frame = requestAnimationFrame(() => onReady?.());
+    return () => cancelAnimationFrame(frame);
+  }, [bounds, fitKey, onReady, size.height, size.width]);
 
-        const coordinates = feature.geometry.coordinates as [number, number];
-        if (!map.getBounds().contains(coordinates)) continue;
-        visibleIds.add(placeId);
-        const current = markers.get(placeId);
-        if (current) {
-          if (current.removalTimer !== undefined) {
-            clearTimeout(current.removalTimer);
-            current.removalTimer = undefined;
-          }
-          current.marker.setLngLat(coordinates);
-          current.element.dataset.visible = 'true';
-          continue;
-        }
+  const tileData = useMemo(() => visibleTiles(center, zoom, size.width, size.height), [center, size, zoom]);
 
-        const element = createPhotoMarker(place, language, () => onSelectPlace(place.id));
-        const marker = new maplibregl.Marker({ element, anchor: 'center' })
-          .setLngLat(coordinates)
-          .addTo(map);
-        const record = { marker, element };
-        markers.set(placeId, record);
-        requestAnimationFrame(() => {
-          if (markers.get(placeId) === record) element.dataset.visible = 'true';
-        });
+  const zoomTo = useCallback(
+    (nextZoom: number, anchor?: { x: number; y: number }) => {
+      const clampedZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, nextZoom));
+      if (clampedZoom === zoom) return;
+
+      if (!anchor) {
+        setZoom(clampedZoom);
+        return;
       }
 
-      for (const [id, record] of markers) {
-        if (!visibleIds.has(id)) removeMarker(id, record);
-      }
-    };
+      const beforeTopLeft = tileData.topLeft;
+      const lngLatAtAnchor = unprojectPoint(
+        { x: beforeTopLeft.x + anchor.x, y: beforeTopLeft.y + anchor.y },
+        zoom,
+      );
+      const projectedAfter = projectLngLat(lngLatAtAnchor, clampedZoom);
+      const nextCenterPx = {
+        x: projectedAfter.x - anchor.x + size.width / 2,
+        y: projectedAfter.y - anchor.y + size.height / 2,
+      };
+      setCenter(unprojectPoint(nextCenterPx, clampedZoom));
+      setZoom(clampedZoom);
+    },
+    [size.height, size.width, tileData.topLeft, zoom],
+  );
 
-    const scheduleSync = () => {
-      if (syncFrameRef.current !== null) return;
-      syncFrameRef.current = requestAnimationFrame(syncMarkers);
-    };
+  const handlePointerDown = useCallback(
+    (event: React.PointerEvent<HTMLDivElement>) => {
+      if (event.button !== 0 && event.pointerType === 'mouse') return;
+      event.currentTarget.setPointerCapture(event.pointerId);
+      dragRef.current = {
+        pointerId: event.pointerId,
+        startX: event.clientX,
+        startY: event.clientY,
+        center,
+      };
+      setIsDragging(true);
+    },
+    [center],
+  );
 
-    map.on('sourcedata', scheduleSync);
-    map.on('zoom', scheduleSync);
-    map.on('moveend', scheduleSync);
-    scheduleSync();
+  const handlePointerMove = useCallback(
+    (event: React.PointerEvent<HTMLDivElement>) => {
+      const drag = dragRef.current;
+      if (!drag || drag.pointerId !== event.pointerId) return;
+      const startCenter = projectLngLat(drag.center, zoom);
+      const nextCenter = {
+        x: startCenter.x - (event.clientX - drag.startX),
+        y: startCenter.y - (event.clientY - drag.startY),
+      };
+      setCenter(unprojectPoint(nextCenter, zoom));
+    },
+    [zoom],
+  );
 
-    return () => {
-      map.off('sourcedata', scheduleSync);
-      map.off('zoom', scheduleSync);
-      map.off('moveend', scheduleSync);
-      if (syncFrameRef.current !== null) cancelAnimationFrame(syncFrameRef.current);
-      for (const record of markers.values()) {
-        if (record.removalTimer !== undefined) clearTimeout(record.removalTimer);
-        record.marker.remove();
-      }
-      markers.clear();
-    };
-  }, [language, mapLoaded, onSelectPlace, placesById]);
+  const finishDrag = useCallback((event: React.PointerEvent<HTMLDivElement>) => {
+    if (dragRef.current?.pointerId !== event.pointerId) return;
+    dragRef.current = null;
+    setIsDragging(false);
+  }, []);
+
+  const handleWheel = useCallback(
+    (event: React.WheelEvent<HTMLDivElement>) => {
+      event.preventDefault();
+      const rect = event.currentTarget.getBoundingClientRect();
+      const direction = event.deltaY > 0 ? -1 : 1;
+      zoomTo(zoom + direction, { x: event.clientX - rect.left, y: event.clientY - rect.top });
+    },
+    [zoom, zoomTo],
+  );
+
+  const handleTileError = useCallback(() => {
+    if (failedTile) return;
+    setFailedTile(true);
+    onError?.(
+      language === 'ar'
+        ? 'بعض مربعات الخريطة لم تُحمّل، لكن الأماكن ستبقى ظاهرة.'
+        : 'Einige Kartenkacheln wurden nicht geladen, die Orte bleiben sichtbar.',
+    );
+  }, [failedTile, language, onError]);
 
   return (
-    <div className="travel-atlas-map h-full w-full" dir="ltr">
-      <MapGL
-        ref={mapRef}
-        mapLib={maplibregl}
-        mapStyle={OPEN_FREE_MAP_STYLE}
-        initialViewState={{
-          longitude: (bounds.sw[0] + bounds.ne[0]) / 2,
-          latitude: (bounds.sw[1] + bounds.ne[1]) / 2,
-          zoom: 4,
+    <div className="travel-atlas-map relative h-full w-full overflow-hidden bg-muted" dir="ltr">
+      <div
+        ref={containerRef}
+        className={cn(
+          'absolute inset-0 touch-none select-none overflow-hidden travel-raster-map',
+          isDragging ? 'cursor-grabbing' : 'cursor-grab',
+        )}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={finishDrag}
+        onPointerCancel={finishDrag}
+        onWheel={handleWheel}
+        onDoubleClick={(event) => {
+          const rect = event.currentTarget.getBoundingClientRect();
+          zoomTo(zoom + 1, { x: event.clientX - rect.left, y: event.clientY - rect.top });
         }}
-        interactiveLayerIds={[CLUSTER_LAYER_ID]}
-        onClick={handleClusterClick}
-        onLoad={handleLoad}
-        onError={(event) => {
-          onError?.(
-            event.error?.message ??
-              (language === 'ar'
-                ? 'تعذّر تحميل الخريطة.'
-                : 'Die Karte konnte nicht geladen werden.'),
-          );
-        }}
-        attributionControl={{}}
-        dragRotate={false}
-        pitchWithRotate={false}
-        touchPitch={false}
-        touchZoomRotate
-        cooperativeGestures={false}
-        style={{ width: '100%', height: '100%', touchAction: 'none' }}
+        role="application"
+        aria-label={language === 'ar' ? 'خريطة الأماكن' : 'Ortskarte'}
       >
-        <Source
-          id={SOURCE_ID}
-          type="geojson"
-          data={geoJson}
-          cluster
-          clusterRadius={50}
-          clusterMaxZoom={14}
+        <div className="absolute inset-0 travel-raster-map__tiles" aria-hidden="true">
+          {tileData.tiles.map((tile) => (
+            <img
+              key={tile.key}
+              src={tileUrl(zoom, tile.wrappedX, tile.y)}
+              alt=""
+              draggable={false}
+              decoding="async"
+              loading="eager"
+              onError={handleTileError}
+              className="absolute max-w-none travel-raster-map__tile"
+              style={{
+                width: TILE_SIZE,
+                height: TILE_SIZE,
+                transform: `translate3d(${Math.round(tile.left)}px, ${Math.round(tile.top)}px, 0)`,
+              }}
+            />
+          ))}
+        </div>
+
+        <div className="absolute inset-0 travel-raster-map__shade" aria-hidden="true" />
+
+        {inBoundsPlaces.map((place) => {
+          const point = projectLngLat(place.coordinates, zoom);
+          const left = point.x - tileData.topLeft.x;
+          const top = point.y - tileData.topLeft.y;
+          const visible = left > -80 && left < size.width + 80 && top > -80 && top < size.height + 80;
+          if (!visible) return null;
+
+          return (
+            <button
+              key={place.id}
+              type="button"
+              className="absolute travel-photo-marker travel-photo-marker--react"
+              data-visible="true"
+              data-category={place.category}
+              style={{
+                transform: `translate3d(${left}px, ${top}px, 0) translate(-50%, -50%)`,
+                '--marker-accent': categoryAccent(place.category),
+              } as CSSProperties}
+              onPointerDown={(event) => event.stopPropagation()}
+              onClick={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                onSelectPlace(place.id);
+              }}
+              aria-label={language === 'ar' ? place.nameAr : (place.nameEn ?? place.nameAr)}
+            >
+              <span className="travel-photo-marker__fallback" aria-hidden="true" dangerouslySetInnerHTML={{ __html: categoryIcon(place.category) }} />
+              {place.coverPhotoUrl && (
+                <img
+                  className="travel-photo-marker__image"
+                  src={place.coverPhotoUrl}
+                  alt=""
+                  loading="lazy"
+                  decoding="async"
+                  onLoad={(event) => {
+                    event.currentTarget.parentElement?.setAttribute('data-has-image', 'true');
+                  }}
+                  onError={(event) => {
+                    event.currentTarget.remove();
+                  }}
+                />
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="absolute bottom-4 left-4 z-10 flex flex-col gap-2">
+        <Button
+          type="button"
+          size="icon"
+          variant="secondary"
+          className="h-10 w-10 rounded-2xl border border-border/70 bg-background/90 shadow-depth backdrop-blur"
+          onClick={() => zoomTo(zoom + 1)}
+          aria-label={language === 'ar' ? 'تكبير الخريطة' : 'Karte vergrößern'}
         >
-          <Layer {...clusterLayer} />
-          <Layer {...clusterCountLayer} />
-        </Source>
-        <NavigationControl position="bottom-left" showCompass={false} visualizePitch={false} />
-      </MapGL>
+          <Plus className="h-4 w-4" aria-hidden="true" />
+        </Button>
+        <Button
+          type="button"
+          size="icon"
+          variant="secondary"
+          className="h-10 w-10 rounded-2xl border border-border/70 bg-background/90 shadow-depth backdrop-blur"
+          onClick={() => zoomTo(zoom - 1)}
+          aria-label={language === 'ar' ? 'تصغير الخريطة' : 'Karte verkleinern'}
+        >
+          <Minus className="h-4 w-4" aria-hidden="true" />
+        </Button>
+      </div>
+
+      {inBoundsPlaces.length === 0 && (
+        <div className="pointer-events-none absolute inset-x-4 top-4 z-10 rounded-2xl border border-border/70 bg-background/90 px-4 py-3 text-center text-body text-muted-foreground shadow-depth backdrop-blur">
+          {language === 'ar' ? 'أضف مكانًا ليظهر على الخريطة.' : 'Füge einen Ort hinzu, damit er auf der Karte erscheint.'}
+        </div>
+      )}
     </div>
   );
 }
 
-function getUnclusteredPlaceId(feature: MapGeoJSONFeature): string | null {
-  const properties = feature.properties as Record<string, unknown> | null;
-  if (!properties || properties.cluster || properties.point_count) return null;
-  const id = properties.id ?? feature.id;
-  return typeof id === 'string' || typeof id === 'number' ? String(id) : null;
-}
-
-function createPhotoMarker(
-  place: TravelPlace,
-  language: 'ar' | 'de',
-  onSelect: () => void,
-): HTMLButtonElement {
-  const element = document.createElement('button');
-  element.type = 'button';
-  element.className = 'travel-photo-marker';
-  element.dataset.visible = 'false';
-  element.dataset.category = place.category;
-  element.setAttribute(
-    'aria-label',
-    language === 'ar' ? place.nameAr : (place.nameEn ?? place.nameAr),
-  );
-  element.style.setProperty('--marker-accent', categoryAccent(place.category));
-
-  const fallback = document.createElement('span');
-  fallback.className = 'travel-photo-marker__fallback';
-  fallback.innerHTML = categoryIcon(place.category);
-  fallback.setAttribute('aria-hidden', 'true');
-  element.appendChild(fallback);
-
-  if (place.coverPhotoUrl) {
-    const image = document.createElement('img');
-    image.className = 'travel-photo-marker__image';
-    image.src = place.coverPhotoUrl;
-    image.alt = '';
-    image.loading = 'lazy';
-    image.decoding = 'async';
-    image.addEventListener('load', () => {
-      element.dataset.hasImage = 'true';
-    });
-    image.addEventListener('error', () => {
-      image.remove();
-      element.dataset.hasImage = 'false';
-    });
-    element.appendChild(image);
-  }
-
-  element.addEventListener('click', (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-    onSelect();
-  });
-
-  return element;
+function tileUrl(zoom: number, x: number, y: number): string {
+  return TILE_URL.replace('{z}', String(zoom)).replace('{x}', String(x)).replace('{y}', String(y));
 }
 
 function categoryAccent(category: PlaceCategory): string {
