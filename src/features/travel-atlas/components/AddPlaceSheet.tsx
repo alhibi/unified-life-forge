@@ -28,6 +28,7 @@ import { COUNTRY_CATALOG } from '../countriesCatalog';
 import { useCreatePlace } from '../hooks';
 import {
   TILE_SIZE,
+  containsPoint,
   fitBounds,
   projectLngLat,
   unprojectPoint,
@@ -117,6 +118,14 @@ export default function AddPlaceSheet({
       (pos) => {
         const la = pos.coords.latitude;
         const lo = pos.coords.longitude;
+        if (selectedCountry && !containsPoint(selectedCountry.bounds, [lo, la], 0.75)) {
+          toast({
+            title: isAr ? 'موقعك خارج الدولة المختارة' : 'Dein Standort liegt außerhalb des gewählten Landes',
+            description: isAr ? 'اختر الدولة الصحيحة أو حدّد النقطة يدويًا.' : 'Wähle das richtige Land oder setze den Punkt manuell.',
+            variant: 'destructive',
+          });
+          return;
+        }
         setLat(la.toFixed(6));
         setLng(lo.toFixed(6));
       },
@@ -156,6 +165,14 @@ export default function AddPlaceSheet({
     if (latN < -90 || latN > 90 || lngN < -180 || lngN > 180) {
       toast({
         title: isAr ? 'إحداثيات غير صحيحة' : 'Ungültige Koordinaten',
+        variant: 'destructive',
+      });
+      return;
+    }
+    if (!containsPoint(country.bounds, [lngN, latN], 0.75)) {
+      toast({
+        title: isAr ? 'النقطة خارج الدولة المختارة' : 'Der Punkt liegt außerhalb des gewählten Landes',
+        description: isAr ? 'اختر الدولة المناسبة أو حدّد نقطة داخل حدودها.' : 'Wähle das passende Land oder setze einen Punkt innerhalb der Grenzen.',
         variant: 'destructive',
       });
       return;
