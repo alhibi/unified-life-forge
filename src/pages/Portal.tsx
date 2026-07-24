@@ -1,221 +1,753 @@
-import { motion } from 'framer-motion';
+/**
+ * Portal — the first screen of amv.life, restyled in the MODKEYS design
+ * language (quoted from `thebuggeddev/modkeys`, a Vite single-file
+ * "MODKEYS — Keyboard Configurator").
+ *
+ * What was quoted and how it maps onto this launcher:
+ *
+ *   modkeys                        →  amv.life Portal
+ *   ─────────────────────────────────────────────────────────────────
+ *   264px near-black rail          →  the seven apps as nav rows, with
+ *   (CONFIGURE + nav + summary)       status dots / unread meta, plus a
+ *                                     "الآن" summary block and the white
+ *                                     54px CTA at the bottom
+ *   72px topbar, centred tabs      →  top-level destinations with the
+ *   with 2px ink underline            same underline indicator
+ *   round 38px icon buttons,       →  theme / chat (badge) / account
+ *   badge, ringed avatar, popover      menu
+ *   stage with radial glow +       →  the launcher grid, with category
+ *   segmented pills (sliding          pills sliding over it and the
+ *   indicator) + floating toolbar     view toolbar floating below
+ *   FEATURED BUILDS card track     →  "روابط سريعة" deep links
+ *   314px right panel (chips,      →  the selected app: sections as
+ *   option cards, toggles, hints)     option cards + quick toggles
+ *
+ * Palette, radii, type ramp and motion curves live in
+ * `src/styles/modkeys.css` under `--mk-*` so the app's own theme engine
+ * (which rewrites `--background`, `--primary`, …) never disturbs them.
+ * `preserve-fx` on the root opts this page out of the global FLATTEN
+ * rule, because the modkeys look needs its soft 4/16px shadows.
+ */
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SEO from '@/components/SEO';
 import { useApp } from '@/contexts/AppContext';
 import { useAuth } from '@/hooks/useAuth';
 import { useUnreadMessages } from '@/hooks/useUnreadMessages';
-import SmartGreeting from '@/components/SmartGreeting';
-import {
-  BookOpen,
-  Compass,
-  Crown,
-  Dices,
-  HeartPulse,
-  House,
-  MessageCircle,
-  Settings,
-  Sparkles,
-  UserCircle,
-} from '@/lib/icons';
 import { getAppleEmojiUrl, isEmojiAvatarValue } from '@/utils/emojiAvatar';
 import { getDefaultAvatarForUser } from '@/utils/defaultAvatar';
-import { PageShell, IconButton } from '@/components/ui/app-shell';
 import AppTile, { type AppTileDef } from '@/components/portal/AppTile';
+import {
+  MkArrow,
+  MkBook,
+  MkBookmark,
+  MkChevronNext,
+  MkChevronPrev,
+  MkClock,
+  MkCloudSun,
+  MkCompass,
+  MkCrown,
+  MkDice,
+  MkGear,
+  MkGridView,
+  MkHouse,
+  MkLayers,
+  MkListView,
+  MkLogo,
+  MkMessage,
+  MkMic,
+  MkMoon,
+  MkPencil,
+  MkPulse,
+  MkSpin,
+  MkStar,
+  MkSun,
+  MkUser,
+} from '@/components/portal/MkIcons';
+import '@/styles/modkeys.css';
 
-/**
- * Portal — the new home screen of SmartHub.
- *
- * A personal launcher: seven "apps" laid out as a grid, with a
- * central identity icon at the top, and profile/settings shortcuts
- * in the corner. Replaces the previous cluttered home page — the old
- * home content now lives under `/now` as its own dedicated app.
- */
+/* ── data ─────────────────────────────────────────────────────────── */
+
+type Cat = 'all' | 'spirit' | 'body' | 'mind' | 'play';
+
+interface MkApp extends AppTileDef {
+  labelDe: string;
+  descriptionDe: string;
+  /** Deep links rendered as option cards in the right panel. */
+  links: { path: string; ar: string; de: string; note: string; noteDe: string }[];
+}
+
+const APPS: MkApp[] = [
+  {
+    key: 'now',
+    path: '/now',
+    icon: MkHouse,
+    caption: 'NOW',
+    cat: 'spirit',
+    label: 'الرئيسي',
+    labelDe: 'Jetzt',
+    description: 'الصلاة، الطقس، ونبض الأمة',
+    descriptionDe: 'Gebet, Wetter, Ummah-Puls',
+    links: [
+      { path: '/now', ar: 'لوحة الآن', de: 'Jetzt-Board', note: 'الصلاة القادمة وسنة الوقت', noteDe: 'Nächstes Gebet & Sunnah' },
+      { path: '/weather', ar: 'الطقس', de: 'Wetter', note: 'الحالة، الأشعة، وجودة الهواء', noteDe: 'Lage, UV, Luftqualität' },
+      { path: '/occasions', ar: 'المناسبات', de: 'Anlässe', note: 'التقويم الهجري والمواسم', noteDe: 'Hijri-Kalender' },
+    ],
+  },
+  {
+    key: 'mihrab',
+    path: '/mihrab',
+    icon: MkBook,
+    caption: 'MIHRAB',
+    cat: 'spirit',
+    label: 'محراب',
+    labelDe: 'Mihrab',
+    description: 'القرآن، الأذكار، والسنن',
+    descriptionDe: 'Quran, Adhkar, Sunan',
+    links: [
+      { path: '/mihrab', ar: 'المحراب', de: 'Mihrab', note: 'القرآن والتلاوة', noteDe: 'Quran & Rezitation' },
+      { path: '/duas', ar: 'الأدعية', de: 'Duas', note: 'أذكار الصباح والمساء', noteDe: 'Morgen- & Abendadhkar' },
+      { path: '/tafsir', ar: 'التفسير', de: 'Tafsir', note: 'شرح الآيات', noteDe: 'Verserklärung' },
+      { path: '/mihrab/prayer-guide', ar: 'دليل الصلاة', de: 'Gebetsleitfaden', note: 'خطوة بخطوة', noteDe: 'Schritt für Schritt' },
+    ],
+  },
+  {
+    key: 'wellness',
+    path: '/wellness',
+    icon: MkPulse,
+    caption: 'WELLNESS',
+    cat: 'body',
+    label: 'العافية',
+    labelDe: 'Wellness',
+    description: 'تدريب، تغذية، وموسوعة',
+    descriptionDe: 'Training, Ernährung',
+    links: [
+      { path: '/wellness', ar: 'مركز العافية', de: 'Wellness-Hub', note: 'التمارين والخطط', noteDe: 'Übungen & Pläne' },
+      { path: '/journal', ar: 'اليومية', de: 'Journal', note: 'تدوين الحال والعادات', noteDe: 'Stimmung & Gewohnheiten' },
+    ],
+  },
+  {
+    key: 'chat',
+    path: '/chat',
+    icon: MkMessage,
+    caption: 'CHAT',
+    cat: 'mind',
+    label: 'الدردشة',
+    labelDe: 'Chat',
+    description: 'محادثات خاصة ومجموعات',
+    descriptionDe: 'Private Chats & Gruppen',
+    links: [
+      { path: '/chat', ar: 'المحادثات', de: 'Chats', note: 'كل الرسائل', noteDe: 'Alle Nachrichten' },
+      { path: '/chat/groups', ar: 'المجموعات', de: 'Gruppen', note: 'الغرف المشتركة', noteDe: 'Gemeinsame Räume' },
+      { path: '/chat/settings', ar: 'إعدادات الدردشة', de: 'Chat-Einstellungen', note: 'الخصوصية والتنبيهات', noteDe: 'Privatsphäre & Alarme' },
+    ],
+  },
+  {
+    key: 'browse',
+    path: '/browse',
+    icon: MkCompass,
+    caption: 'BROWSE',
+    cat: 'mind',
+    label: 'اطلاع',
+    labelDe: 'Entdecken',
+    description: 'مقالات، بودكاست، ومتابعات',
+    descriptionDe: 'Artikel, Podcasts, Feeds',
+    links: [
+      { path: '/browse', ar: 'الاستكشاف', de: 'Entdecken', note: 'المتابعات اليومية', noteDe: 'Tägliche Feeds' },
+      { path: '/podcasts', ar: 'البودكاست', de: 'Podcasts', note: 'المكتبة والسجل', noteDe: 'Bibliothek & Verlauf' },
+      { path: '/reading', ar: 'القراءة', de: 'Lesen', note: 'قائمة القراءة', noteDe: 'Leseliste' },
+    ],
+  },
+  {
+    key: 'knowledge',
+    path: '/knowledge',
+    icon: MkCrown,
+    caption: 'KNOWLEDGE',
+    cat: 'mind',
+    label: 'المعرفة',
+    labelDe: 'Wissen',
+    description: 'موسوعة ومونوغرافات مفهرسة',
+    descriptionDe: 'Enzyklopädie & Monographien',
+    links: [
+      { path: '/knowledge', ar: 'الموسوعة', de: 'Enzyklopädie', note: 'المدخل الرئيسي', noteDe: 'Haupteingang' },
+      { path: '/diwan/library', ar: 'مكتبة الديوان', de: 'Diwan-Bibliothek', note: 'الشعراء والقصائد', noteDe: 'Dichter & Gedichte' },
+      { path: '/archive', ar: 'الأرشيف', de: 'Archiv', note: 'المحفوظات والقراءة', noteDe: 'Gespeichertes' },
+      { path: '/pkm', ar: 'الذاكرة', de: 'PKM', note: 'الملاحظات والخرائط', noteDe: 'Notizen & Karten' },
+    ],
+  },
+  {
+    key: 'games',
+    path: '/games',
+    icon: MkDice,
+    caption: 'GAMES',
+    cat: 'play',
+    label: 'الألعاب',
+    labelDe: 'Spiele',
+    description: 'شطرنج، سودوكو، وتركيز',
+    descriptionDe: 'Schach, Sudoku, Fokus',
+    links: [
+      { path: '/games', ar: 'صالة الألعاب', de: 'Spielhalle', note: 'كل الألعاب', noteDe: 'Alle Spiele' },
+      { path: '/games/chess', ar: 'الشطرنج', de: 'Schach', note: 'مباريات وألغاز', noteDe: 'Partien & Puzzles' },
+      { path: '/games/sudoku', ar: 'سودوكو', de: 'Sudoku', note: 'أربع درجات', noteDe: 'Vier Stufen' },
+      { path: '/games/focus', ar: 'التركيز', de: 'Fokus', note: 'تدريب الانتباه', noteDe: 'Aufmerksamkeit' },
+    ],
+  },
+];
+
+const CATS: { key: Cat; ar: string; de: string }[] = [
+  { key: 'all', ar: 'الكل', de: 'Alle' },
+  { key: 'spirit', ar: 'الروح', de: 'Geist' },
+  { key: 'body', ar: 'الجسد', de: 'Körper' },
+  { key: 'mind', ar: 'العقل', de: 'Denken' },
+  { key: 'play', ar: 'اللعب', de: 'Spiel' },
+];
+
+/** Top-level destinations for the topbar tab rail. */
+const TOPNAV = [
+  { path: '/', ar: 'البوابة', de: 'Portal' },
+  { path: '/mihrab', ar: 'المحراب', de: 'Mihrab' },
+  { path: '/wellness', ar: 'العافية', de: 'Wellness' },
+  { path: '/browse', ar: 'اطلاع', de: 'Entdecken' },
+  { path: '/games', ar: 'الألعاب', de: 'Spiele' },
+];
+
+/** The FEATURED BUILDS track, re-cast as quick deep links. */
+const QUICK = [
+  { path: '/now', icon: MkClock, ar: 'الآن', de: 'Jetzt', tagAr: 'لوحة اليوم', tagDe: 'Heute' },
+  { path: '/weather', icon: MkCloudSun, ar: 'الطقس', de: 'Wetter', tagAr: 'الحالة الآن', tagDe: 'Aktuell' },
+  { path: '/duas', icon: MkStar, ar: 'الأدعية', de: 'Duas', tagAr: 'أذكار', tagDe: 'Adhkar' },
+  { path: '/tafsir', icon: MkBook, ar: 'التفسير', de: 'Tafsir', tagAr: 'شرح', tagDe: 'Erklärung' },
+  { path: '/podcasts', icon: MkMic, ar: 'البودكاست', de: 'Podcasts', tagAr: 'صوتيات', tagDe: 'Audio' },
+  { path: '/journal', icon: MkPencil, ar: 'اليومية', de: 'Journal', tagAr: 'تدوين', tagDe: 'Notiz' },
+  { path: '/diwan/library', icon: MkLayers, ar: 'الديوان', de: 'Diwan', tagAr: 'شعر', tagDe: 'Poesie' },
+  { path: '/games/chess', icon: MkCrown, ar: 'الشطرنج', de: 'Schach', tagAr: 'مباراة', tagDe: 'Partie' },
+];
+
+/* ── page ─────────────────────────────────────────────────────────── */
+
 export default function Portal() {
   const navigate = useNavigate();
-  const { language, t } = useApp();
+  const { language, theme, setTheme, dir } = useApp();
   const { user, username, profile } = useAuth();
   const { unreadCount } = useUnreadMessages();
   const isAr = language === 'ar';
+  const rtl = dir === 'rtl';
 
-  const tiles: AppTileDef[] = [
-    {
-      key: 'now',
-      path: '/now',
-      icon: House,
-      label: isAr ? 'الرئيسي' : 'Jetzt',
-      description: isAr
-        ? 'أوقات الصلاة، الطقس، سنة الوقت، ونبض الأمة.'
-        : 'Gebetszeiten, Wetter, Sunnah der Stunde, Ummah-Puls.',
-      accent: '#c4b5fd',
-    },
-    {
-      key: 'mihrab',
-      path: '/mihrab',
-      icon: BookOpen,
-      label: isAr ? 'محراب' : 'Mihrab',
-      description: isAr
-        ? 'القرآن، الأذكار، السنن، والأدب.'
-        : 'Quran, Adhkar, Sunan und Literatur.',
-      accent: '#fcd34d',
-    },
-    {
-      key: 'wellness',
-      path: '/wellness',
-      icon: HeartPulse,
-      label: isAr ? 'العافية' : 'Wellness',
-      description: isAr
-        ? 'تدريب، تغذية، وموسوعة صحية.'
-        : 'Training, Ernährung und Enzyklopädie.',
-      accent: '#34d399',
-    },
-    {
-      key: 'chat',
-      path: '/chat',
-      icon: MessageCircle,
-      label: isAr ? 'الدردشة' : 'Chat',
-      description: isAr
-        ? 'محادثات خاصة ومجموعات آمنة.'
-        : 'Private Chats und sichere Gruppen.',
-      accent: '#7dd3fc',
-    },
-    {
-      key: 'browse',
-      path: '/browse',
-      icon: Compass,
-      label: isAr ? 'اطلاع' : 'Entdecken',
-      description: isAr
-        ? 'مقالات، بودكاست، ومتابعات يومية.'
-        : 'Artikel, Podcasts und tägliche Feeds.',
-      accent: '#a78bfa',
-    },
-    {
-      key: 'knowledge',
-      path: '/knowledge',
-      icon: Crown,
-      label: isAr ? 'المعرفة' : 'Wissen',
-      description: isAr
-        ? 'موسوعة فاخرة ومونوغرافات مفهرسة.'
-        : 'Luxus-Enzyklopädie und Monographien.',
-      accent: '#e8a87c',
-    },
-    {
-      key: 'games',
-      path: '/games',
-      icon: Dices,
-      label: isAr ? 'الألعاب' : 'Spiele',
-      description: isAr
-        ? 'شطرنج، سودوكو، ذاكرة، وتركيز.'
-        : 'Schach, Sudoku, Memory und Fokus.',
-      accent: '#fb923c',
-    },
-  ];
+  const [cat, setCat] = useState<Cat>('all');
+  const [selected, setSelected] = useState<string>('now');
+  const [list, setList] = useState(false);
+  const [acctOpen, setAcctOpen] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
+  const [clock, setClock] = useState(() => new Date());
 
-  return (
-    <PageShell>
-      <SEO
-        title="SmartHub — بوابتك الشخصية"
-        description="بوابة SmartHub الشخصية: الرئيسي، المحراب، العافية، الدردشة، اطلاع، المعرفة، والألعاب — تطبيقات متكاملة في مكان واحد."
-        path="/"
-      />
-      <h1 className="sr-only">
-        {isAr ? 'SmartHub — بوابتك الشخصية' : 'SmartHub — Deine persönliche Startseite'}
-      </h1>
+  const isDark = theme === 'dark';
 
-      {/* Header: avatar + settings in the corner */}
-      <div className="flex items-center justify-between gap-3">
-        <button
-          onClick={() => navigate(user ? '/profile' : '/settings')}
-          className="relative w-11 h-11 rounded-full ring-2 ring-primary/20 overflow-hidden active:scale-95 transition-transform"
-          aria-label={
-            user
-              ? isAr ? 'الملف الشخصي' : 'Profil'
-              : isAr ? 'الإعدادات' : 'Einstellungen'
-          }
-        >
-          {user ? (
-            profile?.avatar_url && profile.avatar_url.startsWith('http') ? (
-              <img src={profile.avatar_url} alt="" className="w-full h-full object-cover object-top" />
-            ) : profile?.avatar_url && isEmojiAvatarValue(profile.avatar_url) ? (
-              <span className="w-full h-full flex items-center justify-center bg-accent/40">
-                <img src={getAppleEmojiUrl(profile.avatar_url) || ''} alt="" className="w-6 h-6" />
-              </span>
-            ) : (
-              <img src={getDefaultAvatarForUser(username || 'U')} alt="" className="w-full h-full object-cover" />
-            )
-          ) : (
-            <span className="w-full h-full flex items-center justify-center bg-accent/40">
-              <UserCircle className="h-5 w-5 text-foreground" />
-            </span>
-          )}
-        </button>
+  /* ── the ink clock in the summary block ── */
+  useEffect(() => {
+    const id = window.setInterval(() => setClock(new Date()), 20_000);
+    return () => window.clearInterval(id);
+  }, []);
 
-        <div className="flex items-center gap-2 shrink-0">
-          {user && (
-            <IconButton onClick={() => navigate('/chat')} aria-label={isAr ? 'المحادثات' : 'Chat'}>
-              <MessageCircle className="h-5 w-5" />
-              {unreadCount > 0 && (
-                <span className="absolute -top-1 -end-1 bg-destructive text-destructive-foreground text-[10px] rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 font-bold animate-pulse">
-                  {unreadCount}
-                </span>
-              )}
-            </IconButton>
-          )}
-          <IconButton
-            onClick={() => navigate('/settings')}
-            aria-label={isAr ? 'الإعدادات' : 'Einstellungen'}
-          >
-            <Settings className="h-5 w-5" />
-          </IconButton>
-        </div>
+  /* ── toast auto-dismiss ── */
+  useEffect(() => {
+    if (!toast) return;
+    const id = window.setTimeout(() => setToast(null), 2200);
+    return () => window.clearTimeout(id);
+  }, [toast]);
+
+  /* ── close the account popover on outside click / Escape ── */
+  const acctRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    if (!acctOpen) return;
+    const onDown = (e: PointerEvent) => {
+      if (!acctRef.current?.contains(e.target as Node)) setAcctOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setAcctOpen(false);
+    document.addEventListener('pointerdown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('pointerdown', onDown);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [acctOpen]);
+
+  const visible = useMemo(
+    () => (cat === 'all' ? APPS : APPS.filter(a => a.cat === cat)),
+    [cat],
+  );
+
+  /* Keep the right panel pointed at something inside the active filter. */
+  useEffect(() => {
+    if (!visible.some(a => a.key === selected)) setSelected(visible[0]?.key ?? 'now');
+  }, [visible, selected]);
+
+  const current = APPS.find(a => a.key === selected) ?? APPS[0];
+
+  /* ── sliding pill indicator (modkeys #pillInd) ── */
+  const pillsRef = useRef<HTMLDivElement | null>(null);
+  const [ind, setInd] = useState<{ x: number; w: number }>({ x: 0, w: 0 });
+
+  const measurePill = useCallback(() => {
+    const box = pillsRef.current;
+    if (!box) return;
+    const btn = box.querySelector<HTMLButtonElement>('button[data-on="true"]');
+    if (!btn) return;
+    setInd({ x: btn.offsetLeft - box.clientLeft, w: btn.offsetWidth });
+  }, []);
+
+  useLayoutEffect(() => {
+    measurePill();
+  }, [cat, isAr, measurePill]);
+
+  useEffect(() => {
+    const onResize = () => measurePill();
+    window.addEventListener('resize', onResize);
+    // Fonts land after first paint — remeasure once they do.
+    const id = window.setTimeout(onResize, 400);
+    return () => {
+      window.removeEventListener('resize', onResize);
+      window.clearTimeout(id);
+    };
+  }, [measurePill]);
+
+  /* ── featured track arrows ── */
+  const trackRef = useRef<HTMLDivElement | null>(null);
+  const scrollTrack = (forward: boolean) => {
+    const amount = 182;
+    trackRef.current?.scrollBy({
+      left: (forward ? 1 : -1) * (rtl ? -amount : amount),
+      behavior: 'smooth',
+    });
+  };
+
+  /* ── toolbar actions (modkeys pan / spin / zoom trio) ── */
+  const suggest = () => {
+    const pick = visible[Math.floor(Math.random() * visible.length)] ?? APPS[0];
+    setSelected(pick.key);
+    setToast(
+      isAr ? `مقترح: ${pick.label}` : `Vorschlag: ${pick.labelDe}`,
+    );
+  };
+
+  const tiles: AppTileDef[] = visible.map(a => ({
+    key: a.key,
+    path: a.path,
+    icon: a.icon,
+    caption: a.caption,
+    cat: a.cat,
+    label: isAr ? a.label : a.labelDe,
+    description: isAr ? a.description : a.descriptionDe,
+  }));
+
+  const hh = String(clock.getHours()).padStart(2, '0');
+  const mm = String(clock.getMinutes()).padStart(2, '0');
+  const dateLine = clock.toLocaleDateString(isAr ? 'ar' : 'de-DE', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+  });
+
+  const Chevron = rtl ? MkChevronPrev : MkChevronNext;
+  const ChevronBack = rtl ? MkChevronNext : MkChevronPrev;
+
+  /* ── shared fragments ── */
+
+  const summaryBlock = (
+    <>
+      <div className="mk-sum">{isAr ? 'الوقت الآن' : 'Jetzt'}</div>
+      <div className="mk-price">
+        <span className="int">{hh}</span>
+        <span className="cur">:</span>
+        <span className="int">{mm}</span>
       </div>
+      <div className="mk-bar" aria-hidden>
+        <i />
+      </div>
+      <div className="mk-sum" style={{ margin: '12px 4px 14px' }}>
+        {dateLine}
+      </div>
+      <button className="mk-cta" onClick={() => navigate('/now')}>
+        <span>{isAr ? 'افتح الرئيسي' : 'Jetzt öffnen'}</span>
+        <MkArrow size={18} />
+      </button>
+      <button className="mk-save-row" onClick={() => navigate('/settings')}>
+        <MkBookmark size={18} />
+        {isAr ? 'الإعدادات والتفضيلات' : 'Einstellungen'}
+      </button>
+    </>
+  );
 
-      {/* Central identity: greeting + medallion */}
-      <motion.div
-        initial={{ opacity: 0, y: -8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        className="flex flex-col items-center text-center pt-6 pb-8 gap-4"
-      >
-        <SmartGreeting />
-        <button
-          onClick={() => navigate('/now')}
-          aria-label={isAr ? 'افتح الرئيسي' : 'Jetzt öffnen'}
-          className="relative w-[76px] h-[76px] rounded-full flex items-center justify-center active:scale-95 transition-transform"
-          style={{
-            background:
-              'radial-gradient(circle at 30% 30%, hsl(var(--live)/0.35), hsl(var(--live)/0.08) 55%, transparent 75%)',
-            boxShadow:
-              '0 0 0 1px hsl(var(--live)/0.28) inset, 0 12px 40px -12px hsl(var(--live)/0.55)',
-          }}
-        >
-          <span
-            className="absolute inset-0 rounded-full animate-pulse"
-            style={{
-              background: 'radial-gradient(circle, hsl(var(--live)/0.15) 0%, transparent 65%)',
-            }}
-            aria-hidden
-          />
-          <Sparkles className="w-7 h-7 text-[hsl(var(--live))] drop-shadow" />
-        </button>
-      </motion.div>
+  const panel = (
+    <aside className="mk-rpanel">
+      <div className="mk-rp-head">
+        <h2>{isAr ? 'التطبيق المحدد' : 'AUSGEWÄHLT'}</h2>
+      </div>
+      <div className="mk-rp-body">
+        <div className="mk-grp">
+          <div className="mk-glabel">{isAr ? 'الاسم' : 'Name'}</div>
+          <div className="mk-gname">{isAr ? current.label : current.labelDe}</div>
+          <button className="mk-chip-btn on" onClick={() => navigate(current.path)}>
+            {isAr ? 'افتح الآن' : 'Öffnen'}
+          </button>
+          <div className="mk-hint">{isAr ? current.description : current.descriptionDe}</div>
+        </div>
 
-      {/* App grid */}
-      <section aria-label={isAr ? 'التطبيقات' : 'Apps'}>
-        <div className="grid grid-cols-2 gap-3">
-          {tiles.map((tile, i) => (
-            <AppTile key={tile.key} tile={tile} index={i} />
+        <div className="mk-grp">
+          <div className="mk-sec-title">{isAr ? 'الأقسام' : 'BEREICHE'}</div>
+          {current.links.map(l => (
+            <button key={l.path} className="mk-opt" onClick={() => navigate(l.path)}>
+              <span>
+                <span className="t1 block">{isAr ? l.ar : l.de}</span>
+                <span className="t2 block">{isAr ? l.note : l.noteDe}</span>
+              </span>
+              <span className="arrow">
+                <Chevron size={15} />
+              </span>
+            </button>
           ))}
         </div>
-      </section>
 
-      {/* Footer attribution */}
-      <div className="flex items-center justify-center gap-2 py-8 mt-2">
-        <div className="h-px flex-1 bg-border/40" />
-        <span className="text-[11px] text-muted-foreground font-medium tracking-wide">
-          {t('footer.madeBy')} <span className="text-primary font-semibold">عامر</span> {t('footer.and')} <span className="text-primary font-semibold">امولة</span> ✦
-        </span>
-        <div className="h-px flex-1 bg-border/40" />
+        <div className="mk-grp">
+          <div className="mk-sec-title">{isAr ? 'إعدادات سريعة' : 'SCHNELLEINSTELLUNGEN'}</div>
+          <button
+            className="mk-tog-row"
+            onClick={() => setTheme(isDark ? 'light' : 'dark')}
+            aria-pressed={isDark}
+          >
+            <span>
+              <span className="t1 block">{isAr ? 'الوضع الليلي' : 'Dunkelmodus'}</span>
+              <span className="t2 block">
+                {isAr ? 'يبدّل لوحة الألوان بالكامل' : 'Wechselt die Palette'}
+              </span>
+            </span>
+            <span className={`mk-tog${isDark ? ' on' : ''}`} aria-hidden />
+          </button>
+          <button className="mk-tog-row" onClick={() => setList(v => !v)} aria-pressed={list}>
+            <span>
+              <span className="t1 block">{isAr ? 'عرض القائمة' : 'Listenansicht'}</span>
+              <span className="t2 block">
+                {isAr ? 'صف واحد لكل تطبيق' : 'Eine Zeile pro App'}
+              </span>
+            </span>
+            <span className={`mk-tog${list ? ' on' : ''}`} aria-hidden />
+          </button>
+          <div className="mk-hint">
+            {isAr
+              ? 'مرّر على أي تطبيق ليظهر تفصيله هنا، واضغط لفتحه.'
+              : 'Über eine App fahren zeigt Details, Klick öffnet sie.'}
+          </div>
+        </div>
       </div>
-    </PageShell>
+    </aside>
+  );
+
+  return (
+    <div className="mk preserve-fx">
+      <SEO
+        title="amv.life — بوابتك الشخصية"
+        description="بوابة amv.life الشخصية: الرئيسي، المحراب، العافية، الدردشة، اطلاع، المعرفة، والألعاب — تطبيقات متكاملة في مكان واحد."
+        path="/"
+      />
+
+      <div className="mk-app">
+        <h1 className="sr-only">
+          {isAr ? 'amv.life — بوابتك الشخصية' : 'amv.life — Deine persönliche Startseite'}
+        </h1>
+
+        <div className="mk-frame">
+          {/* ============ RAIL (desktop) ============ */}
+          <aside className="mk-rail">
+            <div className="mk-logo">
+              <MkLogo size={24} />
+              <b>AMV.LIFE</b>
+            </div>
+
+            <div className="mk-side-label">{isAr ? 'التطبيقات' : 'APPS'}</div>
+            <nav className="mk-snav">
+              {APPS.map(a => (
+                <button
+                  key={a.key}
+                  className={selected === a.key ? 'on' : undefined}
+                  onClick={() => setSelected(a.key)}
+                  onDoubleClick={() => navigate(a.path)}
+                >
+                  <a.icon className="mk-ic" size={20} />
+                  {isAr ? a.label : a.labelDe}
+                  {a.key === 'chat' && unreadCount > 0 ? (
+                    <span className="mk-meta">{unreadCount}</span>
+                  ) : (
+                    <span
+                      className="mk-dot"
+                      style={{
+                        background:
+                          selected === a.key ? '#fff' : 'rgba(255,255,255,.22)',
+                      }}
+                    />
+                  )}
+                </button>
+              ))}
+            </nav>
+
+            <div className="mk-rail-bottom">{summaryBlock}</div>
+          </aside>
+
+          {/* ============ MAIN ============ */}
+          <div className="mk-main">
+            <header className="mk-topbar">
+              <div className="mk-brand">
+                <MkLogo size={21} />
+                <b>AMV.LIFE</b>
+              </div>
+
+              <nav className="mk-tnav">
+                {TOPNAV.map(n => (
+                  <button
+                    key={n.path}
+                    className={n.path === '/' ? 'on' : undefined}
+                    onClick={() => n.path !== '/' && navigate(n.path)}
+                  >
+                    {isAr ? n.ar : n.de}
+                  </button>
+                ))}
+              </nav>
+
+              <div className="mk-top-icons" ref={acctRef}>
+                <button
+                  className="mk-icon-btn"
+                  onClick={() => setTheme(isDark ? 'light' : 'dark')}
+                  aria-label={isAr ? 'تبديل السمة' : 'Theme wechseln'}
+                >
+                  {isDark ? <MkMoon size={18} /> : <MkSun size={19} />}
+                </button>
+
+                {user && (
+                  <button
+                    className="mk-icon-btn"
+                    onClick={() => navigate('/chat')}
+                    aria-label={isAr ? 'المحادثات' : 'Chat'}
+                  >
+                    <MkMessage size={20} />
+                    {unreadCount > 0 && <span className="mk-badge">{unreadCount}</span>}
+                  </button>
+                )}
+
+                <button
+                  className="mk-avatar"
+                  onClick={() => setAcctOpen(v => !v)}
+                  aria-label={isAr ? 'الحساب' : 'Konto'}
+                  aria-expanded={acctOpen}
+                >
+                  {user ? (
+                    profile?.avatar_url && profile.avatar_url.startsWith('http') ? (
+                      <img src={profile.avatar_url} alt="" />
+                    ) : profile?.avatar_url && isEmojiAvatarValue(profile.avatar_url) ? (
+                      <img
+                        src={getAppleEmojiUrl(profile.avatar_url) || ''}
+                        alt=""
+                        style={{ width: 20, height: 20, objectFit: 'contain' }}
+                      />
+                    ) : (
+                      <img src={getDefaultAvatarForUser(username || 'U')} alt="" />
+                    )
+                  ) : (
+                    <MkUser size={19} />
+                  )}
+                </button>
+
+                {acctOpen && (
+                  <div className="mk-acct">
+                    <div className="who">
+                      {user ? (isAr ? 'مسجّل الدخول باسم' : 'Angemeldet als') : isAr ? 'زائر' : 'Gast'}
+                      <b>{user ? username || user.email : isAr ? 'بدون حساب' : 'Kein Konto'}</b>
+                    </div>
+                    {user ? (
+                      <>
+                        <button onClick={() => navigate('/profile')}>
+                          {isAr ? 'الملف الشخصي' : 'Profil'}
+                        </button>
+                        <button onClick={() => navigate('/settings')}>
+                          {isAr ? 'الإعدادات' : 'Einstellungen'}
+                        </button>
+                        <button onClick={() => navigate('/settings/theme')}>
+                          {isAr ? 'السمة والألوان' : 'Theme & Farben'}
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button onClick={() => navigate('/auth')}>
+                          {isAr ? 'تسجيل الدخول' : 'Anmelden'}
+                        </button>
+                        <button onClick={() => navigate('/settings')}>
+                          {isAr ? 'الإعدادات' : 'Einstellungen'}
+                        </button>
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
+            </header>
+
+            {/* narrow-screen version of the centre tabs */}
+            <nav className="mk-tnav-scroll">
+              {TOPNAV.map(n => (
+                <button
+                  key={n.path}
+                  className={n.path === '/' ? 'on' : undefined}
+                  onClick={() => n.path !== '/' && navigate(n.path)}
+                >
+                  {isAr ? n.ar : n.de}
+                </button>
+              ))}
+            </nav>
+
+            <div className="mk-content">
+              {/* ---- stage: pills + launcher grid + toolbar ---- */}
+              <div className="mk-stage-col">
+                <div className="mk-stage">
+                  <div className="mk-pills" ref={pillsRef}>
+                    <div
+                      className="mk-pill-ind"
+                      style={{ transform: `translateX(${ind.x}px)`, width: ind.w }}
+                      aria-hidden
+                    />
+                    {CATS.map(c => (
+                      <button
+                        key={c.key}
+                        data-on={c.key === cat}
+                        className={c.key === cat ? 'on' : undefined}
+                        onClick={() => setCat(c.key)}
+                      >
+                        {isAr ? c.ar : c.de}
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="mk-stage-scroll">
+                  <div className="mk-hero">
+                    <button
+                      className="mk-medallion"
+                      onClick={() => navigate('/now')}
+                      aria-label={isAr ? 'افتح الرئيسي' : 'Jetzt öffnen'}
+                    >
+                      <MkLogo size={26} />
+                    </button>
+                    <div className="kicker">
+                      {isAr ? 'بوابة شخصية' : 'PERSÖNLICHES PORTAL'}
+                    </div>
+                    <h2>
+                      {username
+                        ? isAr
+                          ? `أهلاً ${username}`
+                          : `Willkommen, ${username}`
+                        : isAr
+                          ? 'أهلاً بك'
+                          : 'Willkommen'}
+                    </h2>
+                    <p>
+                      {isAr
+                        ? 'سبعة تطبيقات، لوحة واحدة. اختر قسماً من الشرائح، ثم اضغط على أي بطاقة لفتحها.'
+                        : 'Sieben Apps, eine Oberfläche. Filtere oben, tippe auf eine Karte zum Öffnen.'}
+                    </p>
+                  </div>
+
+                  <div className={`mk-grid${list ? ' list' : ''}`}>
+                    {tiles.map((tile, i) => (
+                      <AppTile
+                        key={tile.key}
+                        tile={tile}
+                        index={i}
+                        list={list}
+                        selected={selected === tile.key}
+                        onSelect={() => setSelected(tile.key)}
+                        onOpen={() => navigate(tile.path)}
+                      />
+                    ))}
+                  </div>
+                  </div>
+
+                  {/* floating view toolbar — modkeys' pan / spin / zoom trio */}
+                  <div className="mk-toolbar">
+                    <button
+                      onClick={() => setList(v => !v)}
+                      className={list ? 'on' : undefined}
+                      title={isAr ? 'طريقة العرض' : 'Ansicht'}
+                      aria-label={isAr ? 'طريقة العرض' : 'Ansicht'}
+                    >
+                      {list ? <MkListView size={19} /> : <MkGridView size={19} />}
+                    </button>
+                    <button
+                      onClick={suggest}
+                      title={isAr ? 'اقترح تطبيقاً' : 'Vorschlag'}
+                      aria-label={isAr ? 'اقترح تطبيقاً' : 'App vorschlagen'}
+                    >
+                      <MkSpin className="spin" size={19} />
+                    </button>
+                    <button
+                      onClick={() => navigate(current.path)}
+                      title={isAr ? 'افتح المحدد' : 'Auswahl öffnen'}
+                      aria-label={isAr ? 'افتح التطبيق المحدد' : 'Ausgewählte App öffnen'}
+                    >
+                      <MkArrow size={19} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* ---- right panel ---- */}
+              {panel}
+
+              {/* ---- featured track ---- */}
+              <div className="mk-featured">
+                <div className="mk-fhead">
+                  <h3>{isAr ? 'روابط سريعة' : 'SCHNELLZUGRIFF'}</h3>
+                  <div className="mk-farrows">
+                    <button
+                      onClick={() => scrollTrack(false)}
+                      aria-label={isAr ? 'السابق' : 'Zurück'}
+                    >
+                      <ChevronBack size={16} />
+                    </button>
+                    <button
+                      onClick={() => scrollTrack(true)}
+                      aria-label={isAr ? 'التالي' : 'Weiter'}
+                    >
+                      <Chevron size={16} />
+                    </button>
+                  </div>
+                </div>
+                <div className="mk-btrack" ref={trackRef}>
+                  {QUICK.map(q => (
+                    <button key={q.path} className="mk-bcard" onClick={() => navigate(q.path)}>
+                      <span className="img">
+                        <q.icon size={26} />
+                      </span>
+                      <span className="nm block">{isAr ? q.ar : q.de}</span>
+                      <span className="tg block">{isAr ? q.tagAr : q.tagDe}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* ---- summary plate (narrow screens) ---- */}
+              <div className="mk-summary">{summaryBlock}</div>
+            </div>
+
+            <div className="mk-foot">
+              <div className="rule" />
+              <span>
+                {isAr ? 'صنع بحب — عامر و امولة' : 'MADE BY AMER & AMOULA'}
+              </span>
+              <div className="rule" />
+            </div>
+          </div>
+        </div>
+
+        {toast && (
+          <div className="mk-toast" role="status">
+            {toast}
+          </div>
+        )}
+      </div>
+    </div>
   );
 }

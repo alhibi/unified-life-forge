@@ -1,55 +1,70 @@
+/**
+ * AppTile — launcher tile in the modkeys idiom.
+ *
+ * Quoted from the `.bcard` component of `thebuggeddev/modkeys`:
+ *   flat `--card` surface, 15px radius, 1.5px transparent border that
+ *   turns `--ink` when selected (surface flips to `--panel`), a filled
+ *   ink check dot in the corner, -2px hover lift, monochrome hairline
+ *   glyph on a `--card2` chip, and a tiny wide-tracked caps caption.
+ *
+ * No per-tile colour: in modkeys colour lives in the product, never in
+ * the chrome — so the seven apps are separated by type and weight only.
+ */
 import React from 'react';
-import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, ChevronRight } from '@/lib/icons';
-import { useApp } from '@/contexts/AppContext';
+import { motion, useReducedMotion } from 'framer-motion';
+import { MkCheck } from './MkIcons';
 
 export interface AppTileDef {
   key: string;
   path: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: React.ComponentType<{ className?: string; size?: number }>;
   label: string;
   description: string;
-  /** HSL string, e.g. `hsl(var(--live))` or a hex/hsl literal. */
-  accent: string;
+  /** Wide-tracked latin caption under the title (modkeys micro-caps). */
+  caption: string;
+  /** Filter group used by the stage pills. */
+  cat: string;
 }
 
-export function AppTile({ tile, index }: { tile: AppTileDef; index: number }) {
-  const navigate = useNavigate();
-  const { dir } = useApp();
+interface Props {
+  tile: AppTileDef;
+  index: number;
+  selected: boolean;
+  list?: boolean;
+  onOpen: () => void;
+  onSelect: () => void;
+}
+
+export function AppTile({ tile, index, selected, list, onOpen, onSelect }: Props) {
   const Icon = tile.icon;
-  const Chevron = dir === 'rtl' ? ChevronLeft : ChevronRight;
+  const reduce = useReducedMotion();
 
   return (
     <motion.button
-      initial={{ opacity: 0, y: 12 }}
+      type="button"
+      initial={reduce ? false : { opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.05 + index * 0.045, duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-      whileTap={{ scale: 0.96 }}
-      onClick={() => navigate(tile.path)}
-      className="group relative overflow-hidden rounded-3xl surface-depth surface-depth-pressable text-start p-5 min-h-[132px] flex flex-col justify-between border border-border/40 hover:border-border/70 transition-colors"
-      style={{
-        // Soft radial accent glow tinted per tile.
-        backgroundImage: `radial-gradient(120% 100% at 100% 0%, ${tile.accent}14 0%, transparent 60%)`,
-      }}
+      transition={{ delay: 0.03 + index * 0.035, duration: 0.3, ease: [0.6, 0.05, 0.2, 1] }}
+      onClick={onOpen}
+      onMouseEnter={onSelect}
+      onFocus={onSelect}
+      className={`mk-tile${selected ? ' on' : ''}`}
       aria-label={tile.label}
+      aria-current={selected ? 'true' : undefined}
     >
-      <div
-        className="w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 ring-1 ring-inset ring-border/40"
-        style={{ backgroundColor: `${tile.accent}20`, color: tile.accent }}
-      >
-        <Icon className="w-5 h-5" />
-      </div>
+      <span className="mk-tile-ic">
+        <Icon size={21} />
+      </span>
 
-      <div className="mt-3">
-        <div className="flex items-center justify-between gap-2">
-          <h3 className="font-bold text-foreground text-[15px] leading-tight">{tile.label}</h3>
-          <Chevron className="w-4 h-4 text-muted-foreground/60 group-hover:text-muted-foreground transition-colors shrink-0" />
-        </div>
-        <p className="text-[11.5px] text-muted-foreground/85 leading-snug mt-1 line-clamp-2">
-          {tile.description}
-        </p>
-      </div>
+      <span className="block">
+        <span className="nm block">{tile.label}</span>
+        <span className="tg block">{tile.description}</span>
+        {!list && <span className="cap block">{tile.caption}</span>}
+      </span>
+
+      <span className="chk" aria-hidden>
+        <MkCheck size={12} />
+      </span>
     </motion.button>
   );
 }
