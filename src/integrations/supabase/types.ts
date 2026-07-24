@@ -145,6 +145,42 @@ export type Database = {
           },
         ]
       }
+      countries: {
+        Row: {
+          bounds: Json
+          cover_image_url: string | null
+          created_at: string
+          id: string
+          iso_code: string
+          name_ar: string
+          name_en: string
+          places_count: number
+          updated_at: string
+        }
+        Insert: {
+          bounds: Json
+          cover_image_url?: string | null
+          created_at?: string
+          id?: string
+          iso_code: string
+          name_ar: string
+          name_en: string
+          places_count?: number
+          updated_at?: string
+        }
+        Update: {
+          bounds?: Json
+          cover_image_url?: string | null
+          created_at?: string
+          id?: string
+          iso_code?: string
+          name_ar?: string
+          name_en?: string
+          places_count?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       journal_entries: {
         Row: {
           content: string
@@ -517,6 +553,97 @@ export type Database = {
           version?: number
         }
         Relationships: []
+      }
+      place_photos: {
+        Row: {
+          created_at: string
+          id: string
+          is_cover: boolean
+          place_id: string
+          sort_order: number
+          storage_path: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_cover?: boolean
+          place_id: string
+          sort_order?: number
+          storage_path: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_cover?: boolean
+          place_id?: string
+          sort_order?: number
+          storage_path?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "place_photos_place_id_fkey"
+            columns: ["place_id"]
+            isOneToOne: false
+            referencedRelation: "places"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      places: {
+        Row: {
+          best_time_to_visit: string | null
+          category: string
+          country_id: string
+          cover_photo_url: string | null
+          created_at: string
+          description_ar: string | null
+          id: string
+          location: Json
+          name_ar: string
+          name_en: string | null
+          rating: number | null
+          tags: string[]
+          updated_at: string
+        }
+        Insert: {
+          best_time_to_visit?: string | null
+          category?: string
+          country_id: string
+          cover_photo_url?: string | null
+          created_at?: string
+          description_ar?: string | null
+          id?: string
+          location: Json
+          name_ar: string
+          name_en?: string | null
+          rating?: number | null
+          tags?: string[]
+          updated_at?: string
+        }
+        Update: {
+          best_time_to_visit?: string | null
+          category?: string
+          country_id?: string
+          cover_photo_url?: string | null
+          created_at?: string
+          description_ar?: string | null
+          id?: string
+          location?: Json
+          name_ar?: string
+          name_en?: string | null
+          rating?: number | null
+          tags?: string[]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "places_country_id_fkey"
+            columns: ["country_id"]
+            isOneToOne: false
+            referencedRelation: "countries"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
