@@ -29,6 +29,13 @@ const CATEGORIES = new Set<PlaceCategory>([
   'other',
 ]);
 
+function isMissingRelation(error: any): boolean {
+  if (!error) return false;
+  const code = error.code as string | undefined;
+  const msg = (error.message ?? '') as string;
+  return code === '42P01' || code === 'PGRST205' || /does not exist|schema cache/i.test(msg);
+}
+
 export async function fetchTravelCountries(): Promise<TravelCountry[]> {
   const { data, error } = await supabase
     .from('countries')
@@ -36,7 +43,10 @@ export async function fetchTravelCountries(): Promise<TravelCountry[]> {
     .order('places_count', { ascending: false })
     .order('name_en', { ascending: true });
 
-  if (error) throw error;
+  if (error) {
+    if (isMissingRelation(error)) return [];
+    throw error;
+  }
   return ((data ?? []) as CountryRow[]).map(mapCountry);
 }
 
@@ -79,7 +89,10 @@ export async function fetchCountryPlaces(countryId: string): Promise<TravelPlace
     .eq('country_id', countryId)
     .order('created_at', { ascending: false });
 
-  if (error) throw error;
+  if (error) {
+    if (isMissingRelation(error)) return [];
+    throw error;
+  }
   return ((data ?? []) as PlaceWithPhotos[]).map(mapPlace);
 }
 
