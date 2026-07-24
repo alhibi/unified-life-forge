@@ -229,7 +229,7 @@ export default function TravelAtlasMap({
             <button
               key={place.id}
               type="button"
-              className="travel-photo-marker travel-photo-marker--react"
+              className="absolute travel-photo-marker travel-photo-marker--react"
               data-visible="true"
               data-category={place.category}
               style={{
