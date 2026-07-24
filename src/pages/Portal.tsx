@@ -647,43 +647,8 @@ export default function Portal() {
                 </div>
               </div>
 
-              {/* ---- right panel ---- */}
+              {/* ---- right panel (desktop only via CSS) ---- */}
               {panel}
-
-              {/* ---- featured track ---- */}
-              <div className="mk-featured">
-                <div className="mk-fhead">
-                  <h3>{isAr ? 'روابط سريعة' : 'SCHNELLZUGRIFF'}</h3>
-                  <div className="mk-farrows">
-                    <button
-                      onClick={() => scrollTrack(false)}
-                      aria-label={isAr ? 'السابق' : 'Zurück'}
-                    >
-                      <ChevronBack size={16} />
-                    </button>
-                    <button
-                      onClick={() => scrollTrack(true)}
-                      aria-label={isAr ? 'التالي' : 'Weiter'}
-                    >
-                      <Chevron size={16} />
-                    </button>
-                  </div>
-                </div>
-                <div className="mk-btrack" ref={trackRef}>
-                  {QUICK.map(q => (
-                    <button key={q.path} className="mk-bcard" onClick={() => navigate(q.path)}>
-                      <span className="img">
-                        <q.icon size={26} />
-                      </span>
-                      <span className="nm block">{isAr ? q.ar : q.de}</span>
-                      <span className="tg block">{isAr ? q.tagAr : q.tagDe}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* ---- summary plate (narrow screens) ---- */}
-              <div className="mk-summary">{summaryBlock}</div>
             </div>
 
             <div className="mk-foot">
