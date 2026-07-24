@@ -51,7 +51,7 @@ export default function TravelAtlasPage() {
         }
         icon={<MapPinned className="h-5 w-5 text-[hsl(var(--live))]" aria-hidden="true" />}
         sticky
-        actions={
+        right={
           totalPlaces > 0 ? (
             <Button
               size="sm"
