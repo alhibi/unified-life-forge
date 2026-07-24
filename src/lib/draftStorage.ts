@@ -315,7 +315,7 @@ export function useFormWithDraft<T extends Record<string, any>>(
   setData: (data: Partial<T>) => void;
   updateField: (field: keyof T, value: any) => void;
   reset: () => void;
-  submit: (data: T) => Promise<void>;
+  submit: (data: T) => Promise<T>;
   hasDraft: boolean;
   isLoading: boolean;
   error: Error | null;
