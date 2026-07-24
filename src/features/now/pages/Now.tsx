@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import BackButton from '@/components/BackButton';
 import SEO from '@/components/SEO';
 import { useApp } from '@/contexts/AppContext';
 import { useAuth } from '@/hooks/useAuth';
@@ -64,7 +63,6 @@ export default function Now() {
       <motion.div variants={stagger} initial="hidden" animate="show" className="contents">
         <motion.div variants={item}>
           <div className="flex items-center justify-between gap-3">
-            <BackButton fallback="/" />
             <SmartGreeting />
             <div className="flex items-center gap-2 shrink-0">
               {user && (
