@@ -1,6 +1,12 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { fetchCountryPlaces, fetchTravelCountries, fetchTravelCountry } from './api';
+import {
+  createPlace,
+  fetchCountryPlaces,
+  fetchTravelCountries,
+  fetchTravelCountry,
+  type CreatePlaceInput,
+} from './api';
 
 export const travelAtlasKeys = {
   all: ['travel-atlas'] as const,
@@ -29,5 +35,17 @@ export function useCountryPlaces(countryId: string | undefined) {
     queryKey: travelAtlasKeys.places(countryId ?? ''),
     queryFn: () => fetchCountryPlaces(countryId!),
     enabled: Boolean(countryId),
+  });
+}
+
+export function useCreatePlace() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (input: CreatePlaceInput) => createPlace(input),
+    onSuccess: (place) => {
+      qc.invalidateQueries({ queryKey: travelAtlasKeys.countries() });
+      qc.invalidateQueries({ queryKey: travelAtlasKeys.places(place.countryId) });
+      qc.invalidateQueries({ queryKey: travelAtlasKeys.country(place.countryId) });
+    },
   });
 }
