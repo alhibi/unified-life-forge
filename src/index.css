@@ -1715,3 +1715,96 @@ input.podcast-seek:active::-moz-range-thumb {
 .container-query-wrapper {
   container-type: inline-size;
 }
+
+
+/* ── Travel Atlas map ─────────────────────────────────────────
+   MapLibre must own touch gestures inside the map even though the global
+   UI defaults to touch-action: manipulation. Photo pins deliberately enter
+   with scale + fade so cluster expansion resolves into places, not a pop. */
+.travel-atlas-map,
+.travel-atlas-map .maplibregl-map,
+.travel-atlas-map .maplibregl-canvas-container,
+.travel-atlas-map .maplibregl-canvas {
+  touch-action: none !important;
+}
+
+.travel-atlas-map .maplibregl-ctrl-group {
+  border: 1px solid hsl(var(--border));
+  border-radius: 8px;
+  background: hsl(var(--background));
+  box-shadow: none;
+  overflow: hidden;
+}
+
+.travel-atlas-map .maplibregl-ctrl-group button {
+  width: 40px;
+  height: 40px;
+}
+
+.travel-photo-marker {
+  --marker-accent: hsl(var(--live));
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  overflow: hidden;
+  border: 2px solid var(--marker-accent);
+  border-radius: 999px;
+  background: hsl(var(--card));
+  color: var(--marker-accent);
+  cursor: pointer;
+  opacity: 0;
+  transform: scale(0.62);
+  transition:
+    opacity var(--duration-normal) var(--ease-out-expo),
+    transform var(--duration-slow) var(--ease-spring),
+    border-color var(--duration-fast) linear;
+  will-change: opacity, transform;
+}
+
+.travel-photo-marker[data-visible='true'] {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.travel-photo-marker:active {
+  transform: scale(0.9);
+}
+
+.travel-photo-marker:focus-visible {
+  outline: 2px solid hsl(var(--background));
+  outline-offset: 2px;
+}
+
+.travel-photo-marker__image,
+.travel-photo-marker__fallback {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.travel-photo-marker__image {
+  z-index: 1;
+  object-fit: cover;
+}
+
+.travel-photo-marker__fallback {
+  display: grid;
+  place-items: center;
+  padding: 9px;
+  background: hsl(var(--card));
+}
+
+.travel-photo-marker__fallback svg {
+  width: 100%;
+  height: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .travel-photo-marker {
+    transition: none;
+  }
+}

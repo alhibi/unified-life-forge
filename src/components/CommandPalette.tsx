@@ -56,6 +56,7 @@ export function CommandPalette() {
     { path: '/pkm', label: { ar: 'مذكرات المعرفة الشخصية (PKM)', de: 'Persönliches Wissensmanagement' }, icon: Sparkles },
     { path: '/pkm/mind', label: { ar: 'العقل الحي ثلاثي الأبعاد', de: '3D Living Mind' }, icon: Layout },
     { path: '/journal', label: { ar: 'يومياتي (Journal)', de: 'Tagebuch' }, icon: BookOpen },
+    { path: '/travel-atlas', label: { ar: 'أطلس الرحلات والأماكن', de: 'Reiseatlas & Orte' }, icon: MapPin },
     { path: '/archive', label: { ar: 'أرشيف المعرفة العالمي', de: 'Klassisches Wissensarchiv' }, icon: Shield },
     { path: '/settings', label: { ar: 'إعدادات النظام', de: 'Systemeinstellungen' }, icon: Settings },
   ];

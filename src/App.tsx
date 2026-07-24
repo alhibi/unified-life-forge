@@ -180,6 +180,8 @@ const loadPKM = () => import("./features/pkm/pages/PKM");
 const loadMind = () => import("./features/mind/pages/Mind");
 // "مذكرتي" — journal with 3D brain hero.
 const loadJournal = () => import("./features/journal/pages/JournalHome");
+const loadTravelAtlas = () => import("./features/travel-atlas/pages/TravelAtlasPage");
+const loadTravelMap = () => import("./features/travel-atlas/pages/CountryMapPage");
 const loadOAuthConsent = () => import("./pages/OAuthConsent");
 
 // ──────────────────────────────────────────────────────────────────────
@@ -207,6 +209,8 @@ registerRoute('/mihrab/prayer-guide', loadPrayerGuide);
 registerRoute('/weather',           loadWeather);
 registerRoute('/knowledge',         loadKnowledge);
 registerRoute('/journal',           loadJournal);
+registerRoute('/travel-atlas',      loadTravelAtlas);
+registerRoute('/travel-atlas/:countryId', loadTravelMap);
 registerRoute('/reading',           loadReading);
 registerRoute('/occasions',         loadOccasions);
 registerRoute('/tafsir',            loadTafsir);
@@ -285,6 +289,8 @@ const MihrabPage = lazy(loadMihrab);
 const WeatherPage = lazy(loadWeather);
 const KnowledgePage = lazy(loadKnowledge);
 const JournalPage = lazy(loadJournal);
+const TravelAtlasPage = lazy(loadTravelAtlas);
+const TravelMapPage = lazy(loadTravelMap);
 const PrayerGuidePage = lazy(loadPrayerGuide);
 const DiwanLibraryPage = lazy(loadLibrary);
 const DiwanLibraryPoetsPage = lazy(loadLibraryPoets);
@@ -589,6 +595,8 @@ function AnimatedRoutes() {
                   <Route path="/weather" element={<ErrorBoundary><WeatherPage /></ErrorBoundary>} />
                   <Route path="/knowledge" element={<ErrorBoundary><KnowledgePage /></ErrorBoundary>} />
                   <Route path="/journal" element={<ErrorBoundary><JournalPage /></ErrorBoundary>} />
+                  <Route path="/travel-atlas" element={<ErrorBoundary><TravelAtlasPage /></ErrorBoundary>} />
+                  <Route path="/travel-atlas/:countryId" element={<ErrorBoundary><TravelMapPage /></ErrorBoundary>} />
                   <Route path="/games/sudoku" element={<ErrorBoundary><SudokuPage /></ErrorBoundary>} />
                   <Route path="/games/chess" element={<ErrorBoundary><ChessPage /></ErrorBoundary>} />
                   <Route path="/games/chess/puzzles" element={<ErrorBoundary><ChessPuzzlePage /></ErrorBoundary>} />
