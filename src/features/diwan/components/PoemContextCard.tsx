@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { BookOpen, Calendar, MapPin } from '@/lib/icons';
+import { Calendar, MapPin } from '@/lib/icons';
 import { poemContexts } from '@/features/diwan/data/poetTimelines';
 
 interface PoemContextCardProps {
@@ -8,6 +8,11 @@ interface PoemContextCardProps {
   poetId: string;
 }
 
+/**
+ * بطاقة السياق التاريخي المصممة لتبدو كملاحظة جانبية على هامش المخطوطة.
+ * تتميز بخلفية عتيقة، ميل خفيف (-0.6 درجة)، علامة معينة (◆) بلون شمع الختم فوق الحافة،
+ * ونصوص دقيقة عتيقة.
+ */
 export default function PoemContextCard({ poemTitle, poetId }: PoemContextCardProps) {
   // Find matching context
   const ctx = poemContexts.find(
@@ -18,41 +23,47 @@ export default function PoemContextCard({ poemTitle, poetId }: PoemContextCardPr
 
   return (
     <motion.div
-      initial={{ opacity: 0, height: 0 }}
-      animate={{ opacity: 1, height: 'auto' }}
-      exit={{ opacity: 0, height: 0 }}
+      initial={{ opacity: 0, scale: 0.98 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.98 }}
       transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-      className="overflow-hidden"
+      className="relative mt-4 mb-6 select-none"
+      style={{
+        transform: 'rotate(-0.6deg)',
+      }}
     >
-      <div className="rounded-xl border border-amber-500/20 p-3.5 mb-4">
-        {/* Header */}
-        <div className="flex items-center gap-2 mb-2.5">
-          <div className="w-6 h-6 rounded-lg bg-amber-500/10 flex items-center justify-center">
-            <BookOpen className="w-3.5 h-3.5 text-amber-600" />
-          </div>
-          <span className="text-[11px] font-bold text-amber-700 dark:text-amber-400">
-            السياق التاريخي
-          </span>
-        </div>
+      {/* علامة معينة صغيرة (◆) فوق الحافة العلوية اليمنى */}
+      <div
+        className="absolute -top-[7px] right-[24px] z-10 w-[14px] h-[14px] bg-[#16130F] flex items-center justify-center text-[10px] text-[var(--wax)] leading-none select-none font-bold"
+        style={{ textShadow: '0 0 4px var(--ink-bg)' }}
+      >
+        ◆
+      </div>
 
-        {/* Event title */}
-        <div className="flex items-center gap-2 mb-2">
-          <MapPin className="w-3 h-3 text-muted-foreground flex-shrink-0" />
-          <p className="text-[12px] font-semibold text-foreground">
+      <div
+        className="p-5 rounded-[12px] border border-dashed border-[var(--hairline-strong)] bg-[var(--ink-bg-elev)] text-[#B8AA8E] relative"
+        style={{ boxShadow: '0 4px 15px rgba(0, 0, 0, 0.15)' }}
+      >
+        {/* Event Title */}
+        <div className="flex items-center gap-2 mb-2.5">
+          <MapPin className="w-3.5 h-3.5 text-[var(--wax)] flex-shrink-0" />
+          <p className="text-[12.5px] font-bold text-[#F2E9D8] font-tajawal">
             {ctx.event}
           </p>
         </div>
 
         {/* Context description */}
-        <p className="text-[12px] text-foreground/75 leading-[1.9] ps-5">
+        <p
+          className="text-[12px] text-[#B8AA8E] leading-[1.85] font-tajawal pl-1"
+        >
           {ctx.context}
         </p>
 
         {/* Year badge */}
         {ctx.year && (
-          <div className="flex items-center gap-1.5 mt-2.5 ps-5">
-            <Calendar className="w-3 h-3 text-muted-foreground" />
-            <span className="text-[10px] font-medium text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-md">
+          <div className="flex items-center gap-1.5 mt-3 pl-1">
+            <Calendar className="w-3.5 h-3.5 text-[#7E7259]" />
+            <span className="text-[10px] font-semibold text-[#7E7259] bg-[rgba(242,233,216,0.04)] border border-[var(--hairline)] px-2.5 py-0.5 rounded-[5px] font-sans">
               {ctx.year}
             </span>
           </div>

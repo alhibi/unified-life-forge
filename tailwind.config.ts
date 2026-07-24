@@ -16,6 +16,8 @@ export default {
         body: ["var(--font-body)"],
         cormorant: ['"Cormorant Garamond"', 'serif'],
         montserrat: ['"Montserrat"', 'system-ui', 'sans-serif'],
+        amiri: ['"Amiri"', 'serif'],
+        tajawal: ['"Tajawal"', 'sans-serif'],
       },
       fontSize: {
         // Canonical type scale — strictly locked typographic scale.
