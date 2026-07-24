@@ -557,7 +557,7 @@ function AnimatedRoutes() {
         // visible. Sub-pages (non-nav routes) do NOT render BottomNav
         // so they don't need the bottom padding.
         paddingBottom: navVisible
-          ? `calc(${BOTTOM_NAV_HEIGHT}px + env(safe-area-inset-bottom, 0px))`
+          ? `calc(62px + env(safe-area-inset-bottom, 0px))`
           : 0,
         // Minimum height ensures content fills viewport even on short pages
         minHeight: '100dvh',
