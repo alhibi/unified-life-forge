@@ -21,9 +21,8 @@ type Mode = 'poems' | 'verses';
 const PAGE = 30;
 
 /**
- * البحث المتقدم في المكتبة — وضعان:
- *   - قصائد: q + era + meter + rhyme + kind
- *   - أبيات: q + era (للبحث عن بيت سمعته)
+ * صفحة البحث المتقدم في المكتبة — مصممة بالكامل بنمط "المخطوطة" (Manuscript).
+ * تدعم البحث الدقيق في ملايين الأبيات وعشرات الآلاف من القصائد بجمالية عتيقة متجانسة.
  */
 export default function LibrarySearchPage() {
   const [params, setParams] = useSearchParams();
@@ -61,7 +60,7 @@ export default function LibrarySearchPage() {
     try { localStorage.removeItem(HIST_KEY); } catch { /* ignore */ }
   };
 
-  // sync URL with state (تصفير الصفحة يتم في effect منفصل أعلاه)
+  // sync URL with state
   React.useEffect(() => {
     const next = new URLSearchParams();
     if (mode !== 'poems') next.set('mode', mode);
@@ -71,7 +70,6 @@ export default function LibrarySearchPage() {
     if (rhyme) next.set('rhyme', rhyme);
     if (kind)  next.set('kind', kind);
     setParams(next, { replace: true });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode, q, era, meter, rhyme, kind]);
 
   const poemsQuery = useDiwanSearchPoems({
@@ -81,9 +79,6 @@ export default function LibrarySearchPage() {
     q: q ?? '', era, page, pageSize: PAGE,
   });
 
-  // قوائم مُجمَّعة عبر الصفحات (نفس نمط LibraryPoets) — قبل هذا الإصلاح
-  // كانت "تحميل المزيد" تستبدل الصفحة الحالية فيرى المستخدم 30 نتيجة
-  // كحدّ أقصى رغم وجود المزيد.
   const [poemItems,  setPoemItems]  = useState<DiwanPoemSearchResult[]>([]);
   const [verseItems, setVerseItems] = useState<DiwanVerseSearchResult[]>([]);
   const [reachedEndPoems,  setReachedEndPoems]  = useState(false);
@@ -145,7 +140,7 @@ export default function LibrarySearchPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-28 px-5 pt-14">
+    <div className="min-h-screen bg-[#16130F] text-[#F2E9D8] pb-28 px-5 pt-14 font-tajawal selection:bg-[var(--wax-soft2)] selection:text-[#F2E9D8]">
       <SEO
         title="البحث المتقدّم — المكتبة الكبرى"
         description="ابحث في ملايين الأبيات وعشرات الآلاف من القصائد بمعايير مرنة."
@@ -153,49 +148,54 @@ export default function LibrarySearchPage() {
       />
       <div className="max-w-lg mx-auto">
         {/* Header */}
-        <div className="flex items-center gap-3 mb-4">
-          <BackButton fallback="/mihrab" />
-          <div className="flex-1">
-            <h1 className="text-[20px] font-bold tracking-tight text-foreground flex items-center gap-2">
-              <Search className="w-5 h-5 text-primary" />
+        <div className="flex items-start gap-4 mb-6">
+          <div className="mt-1 shrink-0">
+            <BackButton fallback="/mihrab" className="w-10 h-10 rounded-full border border-[var(--hairline-strong)] bg-[#1D1811] flex items-center justify-center text-[#B8AA8E] hover:text-[#F2E9D8] hover:border-[#B8AA8E] active:scale-95 transition-all" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-[11px] font-bold tracking-[0.1em] text-[var(--wax)] uppercase mb-1">
+              محراب · الأدب
+            </p>
+            <h1 className="text-[26px] font-bold tracking-tight text-[#F2E9D8] leading-tight font-amiri flex items-center gap-2">
+              <Search className="w-6 h-6 text-[var(--wax)] shrink-0" />
               البحث المتقدّم
             </h1>
-            <div className="mt-0.5">
+            <div className="mt-1">
               <FallbackBadge />
             </div>
           </div>
         </div>
 
-        {/* Mode switcher */}
-        <div className="flex items-center gap-2 mb-3 p-1 rounded-xl bg-muted/40 border border-border/30">
-          <ModeBtn active={mode === 'poems'}  onClick={() => setMode('poems')}  icon={<ScrollText className="w-3.5 h-3.5" />} label="قصائد" />
-          <ModeBtn active={mode === 'verses'} onClick={() => setMode('verses')} icon={<Quote       className="w-3.5 h-3.5" />} label="أبيات" />
+        {/* Mode switcher (Tab classic format) */}
+        <div className="flex items-center gap-2 mb-4 p-1 rounded-[12px] bg-[#1D1811] border border-[var(--hairline-strong)] select-none">
+          <ModeBtn active={mode === 'poems'}  onClick={() => setMode('poems')}  icon={<ScrollText className="w-3.5 h-3.5" />} label="دواوين وقصائد" />
+          <ModeBtn active={mode === 'verses'} onClick={() => setMode('verses')} icon={<Quote       className="w-3.5 h-3.5" />} label="أبيات وفروع" />
         </div>
 
         {/* Search */}
-        <div className="mb-3">
+        <div className="mb-4">
           <SearchBar
             value={q}
-            placeholder={mode === 'poems' ? 'ابحث في القصائد…' : 'ابحث عن بيت سمعته…'}
+            placeholder={mode === 'poems' ? 'ابحث في كلمات وعناوين القصائد…' : 'ابحث عن عجز أو صدر بيت شعر سمعته…'}
             onChange={setQ}
             autoFocus
           />
         </div>
 
         {/* Filters bar */}
-        <div className="flex items-center gap-2 mb-3">
+        <div className="flex items-center gap-4 mb-4 select-none">
           <button
             onClick={() => setShowFilters(s => !s)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-semibold transition ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-full text-[12px] font-bold transition-all border ${
               showFilters || activeFilters > 0
-                ? 'bg-primary/15 text-primary border border-primary/30'
-                : 'bg-muted/50 text-muted-foreground border border-transparent'
+                ? 'bg-[var(--wax-soft)] text-[var(--wax)] border-[var(--wax-soft2)]'
+                : 'bg-transparent text-[#7E7259] border-[var(--hairline-strong)] hover:text-[#B8AA8E]'
             }`}
           >
             <Filter className="w-3.5 h-3.5" />
-            فلاتر
+            <span>تصنيف وفلاتر</span>
             {activeFilters > 0 && (
-              <span className="bg-primary text-background text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+              <span className="bg-[var(--wax)] text-[#F2E9D8] text-[9.5px] font-bold rounded-full w-4.5 h-4.5 flex items-center justify-center font-sans">
                 {activeFilters}
               </span>
             )}
@@ -203,34 +203,34 @@ export default function LibrarySearchPage() {
           {activeFilters > 0 && (
             <button
               onClick={resetFilters}
-              className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground"
+              className="flex items-center gap-1.5 text-[11px] text-[#7E7259] hover:text-[#B8AA8E] transition-colors"
             >
               <X className="w-3 h-3" />
-              إعادة ضبط
+              <span>إلغاء التصنيف</span>
             </button>
           )}
         </div>
 
-        {/* Era pills always visible (most-used filter) */}
+        {/* Era pills always visible */}
         {eras.data && (
-          <div className="mb-3">
+          <div className="mb-4">
             <EraPills eras={eras.data} selected={era} onSelect={setEra} />
           </div>
         )}
 
         {/* Recent searches */}
         {history.length > 0 && !q && (
-          <div className="mb-3">
-            <div className="flex items-center justify-between mb-1.5">
-              <p className="flex items-center gap-1 text-[10px] font-bold text-muted-foreground">
-                <History className="w-3 h-3" />
-                عمليات بحث سابقة
+          <div className="mb-5 select-none">
+            <div className="flex items-center justify-between mb-2">
+              <p className="flex items-center gap-1.5 text-[10.5px] font-bold text-[#7E7259] uppercase tracking-wider">
+                <History className="w-3.5 h-3.5 text-[var(--wax)]" />
+                رقوق سابقة بحثت عنها
               </p>
               <button
                 onClick={clearHistory}
-                className="text-[10px] text-muted-foreground hover:text-foreground"
+                className="text-[10px] text-[#7E7259] hover:text-[#B8AA8E] transition-colors"
               >
-                مسح
+                مسح السجل
               </button>
             </div>
             <div className="flex flex-wrap gap-1.5">
@@ -238,7 +238,7 @@ export default function LibrarySearchPage() {
                 <button
                   key={h}
                   onClick={() => setQ(h)}
-                  className="px-2.5 py-1 rounded-full bg-muted/50 text-[11px] text-foreground hover:bg-muted transition"
+                  className="px-3 py-1.5 rounded-full bg-[rgba(242,233,216,0.03)] border border-[var(--hairline)] text-[12px] text-[#B8AA8E] hover:text-[#F2E9D8] hover:bg-[rgba(242,233,216,0.06)] transition-all font-tajawal"
                 >
                   {h}
                 </button>
@@ -257,8 +257,8 @@ export default function LibrarySearchPage() {
               transition={{ duration: 0.2 }}
               className="overflow-hidden"
             >
-              <div className="rounded-2xl bg-card border border-border/40 p-4 space-y-3 mb-4">
-                <FilterRow label="البحر">
+              <div className="rounded-[12px] bg-[#1D1811] border border-[var(--hairline-strong)] p-5 space-y-4 mb-5 select-none">
+                <FilterRow label="البحر العروضي">
                   <div className="flex flex-wrap gap-1.5">
                     {KNOWN_METERS.map(m => (
                       <Chip key={m} active={meter === m} onClick={() => setMeter(meter === m ? null : m)}>
@@ -267,7 +267,7 @@ export default function LibrarySearchPage() {
                     ))}
                   </div>
                 </FilterRow>
-                <FilterRow label="الغرض">
+                <FilterRow label="غرض المقطوعة">
                   <div className="flex flex-wrap gap-1.5">
                     {KNOWN_KINDS.map(k => (
                       <Chip key={k} active={kind === k} onClick={() => setKind(kind === k ? null : k)}>
@@ -280,7 +280,7 @@ export default function LibrarySearchPage() {
                   <div className="flex flex-wrap gap-1.5">
                     {RHYME_LETTERS.map(r => (
                       <Chip key={r} active={rhyme === r} onClick={() => setRhyme(rhyme === r ? null : r)}>
-                        <span style={{ fontFamily: "'Amiri', serif" }}>{r}</span>
+                        <span style={{ fontFamily: "'Amiri', serif" }} className="text-[14px]">{r}</span>
                       </Chip>
                     ))}
                   </div>
@@ -294,8 +294,13 @@ export default function LibrarySearchPage() {
         {!q && activeFilters === 0 ? (
           <EmptyHint mode={mode} />
         ) : isFetching && page === 0 ? (
-          <div className="space-y-2.5">
-            {[0,1,2,3].map(i => <div key={i} className="skeleton h-20 rounded-2xl" />)}
+          <div className="space-y-4 pt-2">
+            {[0, 1, 2, 3].map(i => (
+              <div key={i} className="py-4 border-b border-[var(--hairline)] animate-pulse">
+                <div className="h-4 bg-[rgba(242,233,216,0.08)] rounded w-1/4 mb-2" />
+                <div className="h-3 bg-[rgba(242,233,216,0.05)] rounded w-3/4" />
+              </div>
+            ))}
           </div>
         ) : mode === 'poems' ? (
           poems.length === 0 ? (
@@ -303,7 +308,7 @@ export default function LibrarySearchPage() {
           ) : (
             <>
               <ResultsCount total={poems.length} page={page} />
-              <div className="space-y-2.5">
+              <div className="flex flex-col">
                 {poems.map((p, i) => (
                   <PoemCard key={p.slug} poem={p} showPoet index={i} />
                 ))}
@@ -317,7 +322,7 @@ export default function LibrarySearchPage() {
           ) : (
             <>
               <ResultsCount total={verses.length} page={page} />
-              <div className="space-y-2">
+              <div className="flex flex-col gap-1">
                 {verses.map((v, i) => (
                   <VerseRow key={`${v.poem_slug}-${v.position}`} verse={v} index={i} highlight={q} />
                 ))}
@@ -337,14 +342,14 @@ function ModeBtn({ active, onClick, icon, label }: { active: boolean; onClick: (
   return (
     <button
       onClick={onClick}
-      className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-[12px] font-semibold transition-all ${
- active
- ? 'bg-card text-foreground border border-border/30'
- : 'text-muted-foreground hover:text-foreground'
- }`}
+      className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-[8px] text-[12.5px] font-bold transition-all ${
+        active
+          ? 'bg-[var(--ink-card)] text-[#F2E9D8] border border-[var(--hairline-strong)]'
+          : 'text-[#7E7259] hover:text-[#B8AA8E]'
+      }`}
     >
       {icon}
-      {label}
+      <span>{label}</span>
     </button>
   );
 }
@@ -352,7 +357,7 @@ function ModeBtn({ active, onClick, icon, label }: { active: boolean; onClick: (
 function FilterRow({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <p className="text-[11px] font-bold text-muted-foreground mb-1.5">{label}</p>
+      <p className="text-[11px] font-bold text-[#7E7259] mb-2 uppercase tracking-wide">{label}</p>
       {children}
     </div>
   );
@@ -362,10 +367,10 @@ function Chip({ active, onClick, children }: { active: boolean; onClick: () => v
   return (
     <button
       onClick={onClick}
-      className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition ${
+      className={`px-3 py-1.5 rounded-[5px] text-[11.5px] font-bold transition-all ${
         active
-          ? 'bg-primary text-background'
-          : 'bg-muted/60 text-muted-foreground hover:text-foreground hover:bg-muted'
+          ? 'bg-[var(--wax-soft)] text-[var(--wax)] border border-[var(--wax-soft2)]'
+          : 'bg-transparent text-[#B8AA8E] border border-[var(--hairline-strong)] hover:text-[#F2E9D8] hover:border-[#B8AA8E]'
       }`}
     >
       {children}
@@ -375,19 +380,17 @@ function Chip({ active, onClick, children }: { active: boolean; onClick: () => v
 
 function EmptyHint({ mode }: { mode: Mode }) {
   return (
-    <div className="text-center py-12">
-      <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-3">
-        {mode === 'poems'
-          ? <ScrollText className="w-6 h-6 text-primary" />
-          : <Quote className="w-6 h-6 text-primary" />}
-      </div>
-      <p className="text-[14px] font-semibold text-foreground">
-        {mode === 'poems' ? 'ابدأ البحث في القصائد' : 'ابحث عن بيت سمعته'}
+    <div className="text-center py-16 px-6 flex flex-col items-center justify-center">
+      <span className="font-amiri text-[28px] text-[var(--wax)] mb-4 animate-pulse select-none">
+        ✦
+      </span>
+      <p className="text-[15px] font-bold text-[#F2E9D8]">
+        {mode === 'poems' ? 'البحث الأثري في القصائد والبحور' : 'البحث عن فرائد الأبيات'}
       </p>
-      <p className="text-[11px] text-muted-foreground mt-1 max-w-xs mx-auto leading-relaxed">
+      <p className="text-[12.5px] text-[#B8AA8E] mt-2 max-w-xs mx-auto leading-relaxed font-tajawal">
         {mode === 'poems'
-          ? 'أدخل كلمة أو موضوعًا، أو استخدم الفلاتر لتصفية القصائد بالعصر والبحر والقافية.'
-          : 'اكتب أيّ جزء من البيت، يبحث في ملايين الأبيات ويُظهر القصيدة وصاحبها.'}
+          ? 'أدخل كلمة مفتاحية، أو عين أحد الفلاتر لتصفية القصائد بالعصور العتيقة أو القافية وبحور الشعر.'
+          : 'اكتب شطراً أو كلمة من بيت حفظته وسيقوم الفاحص بالبحث في ملايين الأبيات وتحديد القصيدة وقائلها.'}
       </p>
     </div>
   );
@@ -395,16 +398,16 @@ function EmptyHint({ mode }: { mode: Mode }) {
 
 function NoResults() {
   return (
-    <div className="text-center py-10">
-      <p className="text-muted-foreground text-[13px]">لا نتائج. جرّب صياغة أخرى أو خفّف الفلاتر.</p>
+    <div className="text-center py-16">
+      <p className="text-[#7E7259] text-[13.5px] font-tajawal">لم نجد رقعة مطابقة لبحثك. جرّب تخفيف فلاتر التصفية أو تغيير الكلمات.</p>
     </div>
   );
 }
 
 function ResultsCount({ total, page }: { total: number; page: number }) {
   return (
-    <p className="text-[10px] text-muted-foreground mb-2">
-      {total} نتيجة{page > 0 ? ` · صفحة ${page + 1}` : ''}
+    <p className="text-[11px] text-[#7E7259] mb-3 select-none font-tajawal">
+      وجدنا {total} رقعة مطابقة {page > 0 ? ` · الصفحة ${page + 1}` : ''}
     </p>
   );
 }
@@ -414,11 +417,13 @@ function LoadMore({ loading, onClick }: { loading: boolean; onClick: () => void 
     <button
       onClick={onClick}
       disabled={loading}
-      className="w-full mt-2 py-3 rounded-2xl bg-card border border-border/40 text-[12px] font-semibold text-primary hover:bg-primary/5 active:scale-[0.98] transition disabled:opacity-50 flex items-center justify-center gap-1.5"
+      className="w-full mt-4 py-3 rounded-[12px] bg-[#1D1811] border border-[var(--hairline-strong)] text-[12.5px] font-semibold text-[#B8AA8E] hover:text-[#F2E9D8] hover:border-[#B8AA8E] active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
     >
-      {loading
-        ? 'يحمّل…'
-        : <>تحميل المزيد <ChevronDown className="w-3.5 h-3.5" /></>}
+      {loading ? (
+        'جاري فض المزيد من الأختام…'
+      ) : (
+        <>إظهار المزيد من رقوق البحث <ChevronDown className="w-3.5 h-3.5 text-[var(--wax)]" /></>
+      )}
     </button>
   );
 }
@@ -436,44 +441,34 @@ function VerseRow({
     <motion.div
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0, transition: { delay: Math.min(index, 12) * 0.03 } }}
+      className="border-b border-[var(--hairline)] last:border-b-0"
     >
       <Link
         to={`/diwan/library/poem/${verse.poem_slug}`}
-        className="block rounded-2xl bg-card border border-border/40 p-3.5 active:scale-[0.99] transition"
+        className="block py-4 px-1 hover:bg-[rgba(242,233,216,0.015)] active:scale-[0.99] transition-all select-none rounded-[8px]"
       >
         <div
-          className="grid grid-cols-2 gap-3 mb-2"
+          className="grid grid-cols-2 gap-4 mb-2 items-center"
           style={{ fontFamily: "'Amiri', serif" }}
         >
-          <p className="text-[14px] text-foreground leading-[1.9] text-end">
+          <p className="text-[15px] text-[#F2E9D8] leading-[1.9] text-right">
             {renderHighlighted(verse.hemistich1, highlight)}
           </p>
-          <p className="text-[14px] text-foreground leading-[1.9] text-start">
+          <p className="text-[15px] text-[#F2E9D8] leading-[1.9] text-right pr-4 border-r border-dashed border-[var(--hairline)]">
             {renderHighlighted(verse.hemistich2 ?? '', highlight)}
           </p>
         </div>
-        <p className="text-[10px] text-muted-foreground">
-          <span className="text-primary font-semibold">{verse.poet_name}</span>
-          {' — '}
-          <span>{verse.poem_title}</span>
-        </p>
+        <div className="flex items-center gap-2 text-[11px] text-[#7E7259] font-tajawal pr-1 mt-1.5">
+          <span className="text-[var(--wax)] shrink-0">◆</span>
+          <span className="text-[#B8AA8E] font-bold">{verse.poet_name}</span>
+          <span className="opacity-40">·</span>
+          <span className="truncate">{verse.poem_title}</span>
+        </div>
       </Link>
     </motion.div>
   );
 }
 
-/**
- * تظليل المطابقات بدون مكتبة وبدون dangerouslySetInnerHTML — نُقسم
- * النصّ حول الـ matches ونُعيد مصفوفة من React elements (نص + <mark>).
- *
- * مزايا مقابل النسخة السابقة (dangerouslySetInnerHTML + escapeHtml):
- *   • لا حاجة لـ HTML escaping يدوي (React يفعل ذلك تلقائياً).
- *   • diff طبيعي في React — المتصفح لا يُعيد بناء innerHTML بالكامل.
- *   • أكثر أماناً: لا يوجد سبيل أن ينفذ HTML من بيانات Supabase.
- *
- * المطابقة case-insensitive لتسهيل البحث (المستخدم قد يكتب لاتينياً
- * مع عربي، والنص قد يحوي أحرفاً بحالات مختلفة في القصائد الحديثة).
- */
 function renderHighlighted(text: string, q: string): React.ReactNode {
   if (!q || !text) return text;
   const escaped = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -494,13 +489,12 @@ function renderHighlighted(text: string, q: string): React.ReactNode {
     parts.push(
       <mark
         key={key++}
-        className="bg-amber-200/60 dark:bg-amber-900/40 text-foreground rounded px-0.5"
+        className="bg-[var(--wax-soft2)] text-[#F2E9D8] font-bold rounded px-0.5"
       >
         {m[0]}
       </mark>,
     );
     lastIndex = m.index + m[0].length;
-    // حماية من loop لا نهائي على match فارغ (regex مرضيّة بسلسلة فارغة)
     if (m[0].length === 0) re.lastIndex++;
   }
   if (lastIndex < text.length) parts.push(text.slice(lastIndex));
