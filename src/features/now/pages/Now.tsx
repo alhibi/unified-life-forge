@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { BackButton } from '@/components/BackButton';
 import SEO from '@/components/SEO';
 import { useApp } from '@/contexts/AppContext';
 import { useAuth } from '@/hooks/useAuth';
@@ -19,7 +20,7 @@ import { PageShell, IconButton, AppCard } from '@/components/ui/app-shell';
 
 import { pageStagger as stagger, pageItem as item } from '@/lib/motion';
 
-export default function Index() {
+export default function Now() {
   // Auto-request the device's location on first homepage visit *iff* there
   // is nothing cached yet. Routed through the singleton hook so the prayer-
   // times card and weather widget see the same coordinates on the same
@@ -39,9 +40,9 @@ export default function Index() {
   return (
     <PageShell>
       <SEO
-        title="SmartHub — أوقات الصلاة والأذكار والقرآن"
-        description="الصفحة الرئيسية لـ SmartHub: أوقات الصلاة، التقويم الهجري، الطقس، الأذكار وروابط سريعة لكل الأقسام."
-        path="/"
+        title="الرئيسي — أوقات الصلاة والأذكار والقرآن"
+        description="الآن على SmartHub: أوقات الصلاة، التقويم الهجري، الطقس، الأذكار ونبض الأمة."
+        path="/now"
         jsonLd={{
           "@context": "https://schema.org",
           "@type": "WebSite",
@@ -63,6 +64,7 @@ export default function Index() {
       <motion.div variants={stagger} initial="hidden" animate="show" className="contents">
         <motion.div variants={item}>
           <div className="flex items-center justify-between gap-3">
+            <BackButton fallback="/" />
             <SmartGreeting />
             <div className="flex items-center gap-2 shrink-0">
               {user && (
