@@ -412,9 +412,12 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
       const convs = conversationsRef.current;
       if (cancelled || convs.length === 0) return;
       // Execute in parallel to avoid N+1 latency across many conversations.
+      // PostgrestBuilder is thenable but not a full Promise (no `.catch`).
+      // Use `.then(ok, err)` to swallow rejections safely.
       await Promise.all(
         convs.map(c =>
-          (supabase.rpc as any)('mark_messages_delivered', { p_conversation_id: c.id }).catch(() => { /* no-op */ })
+          (supabase.rpc as any)('mark_messages_delivered', { p_conversation_id: c.id })
+            .then(undefined, () => { /* no-op */ })
         )
       );
       if (cancelled) return;
