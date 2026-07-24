@@ -1,6 +1,6 @@
 -- ISO codes, Arabic/English common names, and centers: world-countries 5.1.0 (ODbL-1.0).
 -- Bounds: Natural Earth v5.1.2 1:10m Admin 0 Map Units GeoJSON (public domain).
--- Antimeridian-crossing bounds use west > east so map fitBounds selects the short arc.
+-- Antimeridian-crossing bounds use an east longitude above 180 so MapLibre fitBounds selects the short arc.
 -- All 249 officially assigned entries have a Natural Earth bbox; user-assigned XK is omitted.
 INSERT INTO public.countries (iso_code, name_ar, name_en, center, bounds)
 VALUES
@@ -74,7 +74,7 @@ VALUES
   ('ES', 'إسبانيا', 'Spain', ST_SetSRID(ST_MakePoint(-4, 40), 4326)::geography, '{"sw":[-18.167226,27.642239],"ne":[4.337087,43.793443]}'::jsonb),
   ('ET', 'إثيوبيا', 'Ethiopia', ST_SetSRID(ST_MakePoint(38, 8), 4326)::geography, '{"sw":[32.9898,3.403333],"ne":[47.979169,14.879532]}'::jsonb),
   ('FI', 'فنلندا', 'Finland', ST_SetSRID(ST_MakePoint(26, 64), 4326)::geography, '{"sw":[20.623165,59.811225],"ne":[31.569525,70.07531]}'::jsonb),
-  ('FJ', 'فيجي', 'Fiji', ST_SetSRID(ST_MakePoint(175, -18), 4326)::geography, '{"sw":[174.588878,-21.711114],"ne":[-178.216135,-12.475274]}'::jsonb),
+  ('FJ', 'فيجي', 'Fiji', ST_SetSRID(ST_MakePoint(175, -18), 4326)::geography, '{"sw":[174.588878,-21.711114],"ne":[181.783865,-12.475274]}'::jsonb),
   ('FK', 'جزر فوكلاند', 'Falkland Islands', ST_SetSRID(ST_MakePoint(-59, -51.75), 4326)::geography, '{"sw":[-61.318186,-52.406523],"ne":[-57.734283,-51.027765]}'::jsonb),
   ('FM', 'ميكرونيسيا', 'Micronesia', ST_SetSRID(ST_MakePoint(158.25, 6.91666666), 4326)::geography, '{"sw":[138.063813,0.918158],"ne":[163.04656,9.77558]}'::jsonb),
   ('FO', 'جزر فارو', 'Faroe Islands', ST_SetSRID(ST_MakePoint(-7, 62), 4326)::geography, '{"sw":[-7.644154,61.39411],"ne":[-6.275787,62.398912]}'::jsonb),
@@ -121,7 +121,7 @@ VALUES
   ('KE', 'كينيا', 'Kenya', ST_SetSRID(ST_MakePoint(38, 1), 4326)::geography, '{"sw":[33.890468,-4.677504],"ne":[41.885019,5.030376]}'::jsonb),
   ('KG', 'قيرغيزستان', 'Kyrgyzstan', ST_SetSRID(ST_MakePoint(75, 41), 4326)::geography, '{"sw":[69.226296,39.189237],"ne":[80.257561,43.261702]}'::jsonb),
   ('KH', 'كمبوديا', 'Cambodia', ST_SetSRID(ST_MakePoint(105, 13), 4326)::geography, '{"sw":[102.313424,10.415774],"ne":[107.610516,14.704582]}'::jsonb),
-  ('KI', 'كيريباتي', 'Kiribati', ST_SetSRID(ST_MakePoint(173, 1.41666666), 4326)::geography, '{"sw":[169.522146,-11.461114],"ne":[-151.780955,4.72309]}'::jsonb),
+  ('KI', 'كيريباتي', 'Kiribati', ST_SetSRID(ST_MakePoint(173, 1.41666666), 4326)::geography, '{"sw":[169.522146,-11.461114],"ne":[208.219045,4.72309]}'::jsonb),
   ('KM', 'جزر القمر', 'Comoros', ST_SetSRID(ST_MakePoint(44.25, -12.16666666), 4326)::geography, '{"sw":[43.213227,-12.380304],"ne":[44.529063,-11.361261]}'::jsonb),
   ('KN', 'سانت كيتس ونيفيس', 'Saint Kitts and Nevis', ST_SetSRID(ST_MakePoint(-62.75, 17.33333333), 4326)::geography, '{"sw":[-62.861073,17.100531],"ne":[-62.536773,17.415839]}'::jsonb),
   ('KP', 'كوريا الشمالية', 'North Korea', ST_SetSRID(ST_MakePoint(127, 40), 4326)::geography, '{"sw":[124.211316,37.675605],"ne":[130.699962,43.01027]}'::jsonb),
@@ -174,7 +174,7 @@ VALUES
   ('NP', 'نيبال', 'Nepal', ST_SetSRID(ST_MakePoint(84, 28), 4326)::geography, '{"sw":[80.030288,26.343768],"ne":[88.169067,30.416904]}'::jsonb),
   ('NR', 'ناورو', 'Nauru', ST_SetSRID(ST_MakePoint(166.91666666, -0.53333333), 4326)::geography, '{"sw":[166.906993,-0.551853],"ne":[166.958263,-0.490411]}'::jsonb),
   ('NU', 'نييوي', 'Niue', ST_SetSRID(ST_MakePoint(-169.86666666, -19.03333333), 4326)::geography, '{"sw":[-169.950429,-19.142755],"ne":[-169.782908,-18.964044]}'::jsonb),
-  ('NZ', 'نيوزيلندا', 'New Zealand', ST_SetSRID(ST_MakePoint(174, -41), 4326)::geography, '{"sw":[165.886485,-52.600313],"ne":[-176.113881,-29.221938]}'::jsonb),
+  ('NZ', 'نيوزيلندا', 'New Zealand', ST_SetSRID(ST_MakePoint(174, -41), 4326)::geography, '{"sw":[165.886485,-52.600313],"ne":[183.886119,-29.221938]}'::jsonb),
   ('OM', 'عمان', 'Oman', ST_SetSRID(ST_MakePoint(57, 21), 4326)::geography, '{"sw":[51.978615,16.642401],"ne":[59.844574,26.385972]}'::jsonb),
   ('PA', 'بنما', 'Panama', ST_SetSRID(ST_MakePoint(-80, 9), 4326)::geography, '{"sw":[-83.053246,7.205715],"ne":[-77.16327,9.629292]}'::jsonb),
   ('PE', 'بيرو', 'Peru', ST_SetSRID(ST_MakePoint(-76, -10), 4326)::geography, '{"sw":[-81.337558,-18.337746],"ne":[-68.684252,-0.029093]}'::jsonb),
@@ -194,7 +194,7 @@ VALUES
   ('RE', 'لا ريونيون', 'Réunion', ST_SetSRID(ST_MakePoint(55.5, -21.15), 4326)::geography, '{"sw":[55.225434,-21.370782],"ne":[55.854503,-20.861423]}'::jsonb),
   ('RO', 'رومانيا', 'Romania', ST_SetSRID(ST_MakePoint(25, 46), 4326)::geography, '{"sw":[20.242826,43.65005],"ne":[29.699555,48.274832]}'::jsonb),
   ('RS', 'صيربيا', 'Serbia', ST_SetSRID(ST_MakePoint(21, 44), 4326)::geography, '{"sw":[18.844978,42.234945],"ne":[22.984571,46.173875]}'::jsonb),
-  ('RU', 'روسيا', 'Russia', ST_SetSRID(ST_MakePoint(100, 60), 4326)::geography, '{"sw":[19.609548,41.192681],"ne":[-168.994618,81.85871]}'::jsonb),
+  ('RU', 'روسيا', 'Russia', ST_SetSRID(ST_MakePoint(100, 60), 4326)::geography, '{"sw":[19.609548,41.192681],"ne":[191.005382,81.85871]}'::jsonb),
   ('RW', 'رواندا', 'Rwanda', ST_SetSRID(ST_MakePoint(30, -2), 4326)::geography, '{"sw":[28.857236,-2.826855],"ne":[30.887809,-1.058694]}'::jsonb),
   ('SA', 'السعودية', 'Saudi Arabia', ST_SetSRID(ST_MakePoint(45, 25), 4326)::geography, '{"sw":[34.572765,16.370958],"ne":[55.637565,32.121348]}'::jsonb),
   ('SB', 'جزر سليمان', 'Solomon Islands', ST_SetSRID(ST_MakePoint(159, -8), 4326)::geography, '{"sw":[155.507986,-12.290623],"ne":[168.825857,-6.599867]}'::jsonb),
@@ -235,8 +235,8 @@ VALUES
   ('TZ', 'تنزانيا', 'Tanzania', ST_SetSRID(ST_MakePoint(35, -6), 4326)::geography, '{"sw":[29.321032,-11.731272],"ne":[40.449392,-0.98583]}'::jsonb),
   ('UA', 'أوكرانيا', 'Ukraine', ST_SetSRID(ST_MakePoint(32, 49), 4326)::geography, '{"sw":[22.13284,45.213568],"ne":[40.159543,52.368949]}'::jsonb),
   ('UG', 'أوغندا', 'Uganda', ST_SetSRID(ST_MakePoint(32, 1), 4326)::geography, '{"sw":[29.54846,-1.475206],"ne":[35.006473,4.219692]}'::jsonb),
-  ('UM', 'جزر الولايات المتحدة الصغيرة النائية', 'United States Minor Outlying Islands', ST_SetSRID(ST_MakePoint(166.633333, 19.3), 4326)::geography, '{"sw":[166.619395,-0.388767],"ne":[-75.002634,28.215318]}'::jsonb),
-  ('US', 'الولايات المتحدة', 'United States', ST_SetSRID(ST_MakePoint(-97, 38), 4326)::geography, '{"sw":[172.476085,18.906117],"ne":[-66.977325,71.412502]}'::jsonb),
+  ('UM', 'جزر الولايات المتحدة الصغيرة النائية', 'United States Minor Outlying Islands', ST_SetSRID(ST_MakePoint(166.633333, 19.3), 4326)::geography, '{"sw":[166.619395,-0.388767],"ne":[284.997366,28.215318]}'::jsonb),
+  ('US', 'الولايات المتحدة', 'United States', ST_SetSRID(ST_MakePoint(-97, 38), 4326)::geography, '{"sw":[172.476085,18.906117],"ne":[293.022675,71.412502]}'::jsonb),
   ('UY', 'الأوروغواي', 'Uruguay', ST_SetSRID(ST_MakePoint(-56, -33), 4326)::geography, '{"sw":[-58.439361,-34.973403],"ne":[-53.110836,-30.09687]}'::jsonb),
   ('UZ', 'أوزباكستان', 'Uzbekistan', ST_SetSRID(ST_MakePoint(64, 41), 4326)::geography, '{"sw":[55.975839,37.185147],"ne":[73.148641,45.558719]}'::jsonb),
   ('VA', 'مدينة الفاتيكان', 'Vatican City', ST_SetSRID(ST_MakePoint(12.45, 41.9), 4326)::geography, '{"sw":[12.452714,41.902752],"ne":[12.454035,41.903915]}'::jsonb),
