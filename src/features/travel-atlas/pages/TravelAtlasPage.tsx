@@ -1,11 +1,13 @@
-import { MapPinned } from 'lucide-react';
-import { useMemo } from 'react';
+import { MapPinned, Plus } from 'lucide-react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import { Button } from '@/components/ui/button';
 import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
 import { useApp } from '@/contexts/AppContext';
 
+import AddPlaceSheet from '../components/AddPlaceSheet';
 import { useTravelCountries } from '../hooks';
 import type { TravelCountry } from '../types';
 
@@ -14,6 +16,7 @@ export default function TravelAtlasPage() {
   const isAr = language === 'ar';
   const navigate = useNavigate();
   const { data: countries = [], isLoading, error } = useTravelCountries();
+  const [addOpen, setAddOpen] = useState(false);
   const totalPlaces = useMemo(
     () => countries.reduce((total, country) => total + country.placesCount, 0),
     [countries],
@@ -48,6 +51,19 @@ export default function TravelAtlasPage() {
         }
         icon={<MapPinned className="h-5 w-5 text-[hsl(var(--live))]" aria-hidden="true" />}
         sticky
+        right={
+          totalPlaces > 0 ? (
+            <Button
+              size="sm"
+              variant="outline"
+              className="gap-1.5"
+              onClick={() => setAddOpen(true)}
+            >
+              <Plus className="h-4 w-4" aria-hidden="true" />
+              {isAr ? 'إضافة' : 'Hinzufügen'}
+            </Button>
+          ) : null
+        }
       />
 
       <main className="mx-auto w-full max-w-5xl px-4 py-8">
@@ -70,6 +86,15 @@ export default function TravelAtlasPage() {
                 ? 'أضف مكانك الأول، ولتبدأ الخريطة.'
                 : 'Füge deinen ersten Ort hinzu – und die Karte beginnt.'}
             </strong>
+            <Button
+              type="button"
+              onClick={() => setAddOpen(true)}
+              className="mt-6 gap-2"
+              size="lg"
+            >
+              <Plus className="h-4 w-4" aria-hidden="true" />
+              {isAr ? 'إضافة مكان' : 'Ort hinzufügen'}
+            </Button>
           </div>
         ) : (
           <section
@@ -89,6 +114,8 @@ export default function TravelAtlasPage() {
           </section>
         )}
       </main>
+
+      <AddPlaceSheet open={addOpen} onOpenChange={setAddOpen} />
     </div>
   );
 }

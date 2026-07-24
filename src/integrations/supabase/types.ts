@@ -604,6 +604,7 @@ export type Database = {
           rating: number | null
           tags: string[]
           updated_at: string
+          user_id: string
         }
         Insert: {
           best_time_to_visit?: string | null
@@ -619,6 +620,7 @@ export type Database = {
           rating?: number | null
           tags?: string[]
           updated_at?: string
+          user_id: string
         }
         Update: {
           best_time_to_visit?: string | null
@@ -634,6 +636,7 @@ export type Database = {
           rating?: number | null
           tags?: string[]
           updated_at?: string
+          user_id?: string
         }
         Relationships: [
           {
