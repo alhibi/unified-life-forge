@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
   ClipboardCopy, Feather, ChevronLeft, ChevronRight,
-  ExternalLink, Sparkles, Heart,
+  ExternalLink, Sparkles, Heart, Loader2,
 } from '@/lib/icons';
 import { motion } from 'framer-motion';
 import SEO from '@/components/SEO';

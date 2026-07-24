@@ -63,8 +63,8 @@ interface MockBCListener {
 
 describe('usePresence module tests', () => {
   let originalBroadcastChannel: typeof BroadcastChannel;
-  let postMessageMock: ReturnType<typeof vi.fn>;
-  let closeMock: ReturnType<typeof vi.fn>;
+  let postMessageMock: any;
+  let closeMock: any;
   let bcListeners: MockBCListener[] = [];
   let originalVisibilityState: PropertyDescriptor | undefined;
 
