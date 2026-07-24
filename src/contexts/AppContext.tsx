@@ -77,9 +77,9 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 const SAVE_DEBOUNCE_MS = 400;
 
 export function AppProvider({ children }: { children: ReactNode }) {
-  const [language, setLanguageState] = useState<Language>(() =>
-    (localStorage.getItem('app-language') as Language) || 'ar'
-  );
+  // Arabic-only. Any legacy 'de' preference is coerced to 'ar' on load.
+  // Do not reintroduce other locales — see src/i18n/index.ts.
+  const [language, setLanguageState] = useState<Language>('ar');
   const [theme, setThemeState] = useState<Theme>(() => {
     const raw = localStorage.getItem('app-theme');
     return raw === 'dark' ? 'dark' : 'light';
@@ -236,7 +236,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       if (data?.settings && typeof data.settings === 'object') {
         const s = data.settings as Record<string, any>;
         syncRef.current = true; // prevent save-back during load
-        if (s.language) { setLanguageState(s.language); localStorage.setItem('app-language', s.language); }
+        // Language is locked to 'ar' — ignore any cloud-persisted preference.
+        localStorage.setItem('app-language', 'ar');
         if (s.theme) { setThemeState(s.theme); localStorage.setItem('app-theme', s.theme); }
         if (s.accentHue !== undefined) { setAccentHueState(s.accentHue); localStorage.setItem('app-accent-hue', String(s.accentHue)); }
         if (s.paletteStyle) { setPaletteStyleState(s.paletteStyle); localStorage.setItem('app-palette-style', s.paletteStyle); }
@@ -352,10 +353,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  const setLanguage = (lang: Language) => {
-    setLanguageState(lang);
-    localStorage.setItem('app-language', lang);
-    scheduleSave();
+  const setLanguage = (_lang: Language) => {
+    // Arabic-only. Ignore all attempts to switch language.
+    setLanguageState('ar');
+    localStorage.setItem('app-language', 'ar');
   };
 
   const setTheme = (t: Theme) => {

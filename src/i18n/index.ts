@@ -1,19 +1,14 @@
 // i18n entry point.
 //
-// Translation tables are stored as flat key→string JSON in this folder
-// (`ar.json`, `de.json`, …) so they round-trip cleanly through tooling
-// (translation memory, `git diff`, AI translation passes) without TS
-// quirks like trailing-comma noise or quote escapes.
+// This project is Arabic-only. German (and any other language) has been
+// intentionally removed and must NOT be reintroduced by any agent or
+// contributor. The `Language` union is kept as `'ar' | 'de'` purely as a
+// structural type so legacy `language === 'de'` branches still compile —
+// at runtime `language` is always `'ar'`, so those branches are dead code.
 //
-// To add a new language:
-//   1. Drop `<lang>.json` next to the others. Use the same set of keys
-//      as `ar.json` — missing keys just fall back to the literal key.
-//   2. Add the code to the `Language` union below.
-//   3. Add an entry to `i18nByLanguage`.
-//   4. Surface it in the language picker (Settings page).
+// Do NOT add new locales, `<lang>.json` files, or language pickers.
 
 import ar from './ar.json';
-import de from './de.json';
 
 export type Language = 'ar' | 'de';
 
@@ -21,7 +16,7 @@ export type TranslationDictionary = Readonly<Record<string, string>>;
 
 export const i18nByLanguage: Readonly<Record<Language, TranslationDictionary>> = {
   ar,
-  de,
+  de: ar,
 };
 
 /**
