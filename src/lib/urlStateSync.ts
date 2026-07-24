@@ -5,7 +5,9 @@
  * for bookmarkable deep links and state persistence across reloads.
  */
 
-interface UrlStateOptions {
+import * as React from 'react';
+
+export interface UrlStateOptions {
   /**
    * Should the state be stringified/parse as JSON?
    */

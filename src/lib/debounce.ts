@@ -95,7 +95,7 @@ export function safeRequestIdleCallback(
     return (window as any).requestIdleCallback(callback);
   }
   // Fallback to setTimeout with 1500ms delay
-  return setTimeout(() => callback({ timeRemaining: () => 50 }), 1500);
+  return setTimeout(() => callback({ timeRemaining: () => 50 }), 1500) as unknown as number;
 }
 
 /**

@@ -96,9 +96,9 @@ function mapCountry(row: CountryRow): TravelCountry {
 }
 
 function mapPlace(row: PlaceWithPhotos): TravelPlace {
-  const photos = (row.place_photos ?? [])
+  const photos = ((row.place_photos ?? []) as PhotoRow[])
     .map(mapPhoto)
-    .sort((a, b) => Number(b.isCover) - Number(a.isCover) || a.sortOrder - b.sortOrder);
+    .sort((a: PlacePhoto, b: PlacePhoto) => Number(b.isCover) - Number(a.isCover) || a.sortOrder - b.sortOrder);
   const category = CATEGORIES.has(row.category as PlaceCategory)
     ? (row.category as PlaceCategory)
     : 'other';

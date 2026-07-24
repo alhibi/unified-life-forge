@@ -198,18 +198,6 @@ export function useOfflineStorage<T>(
     }
   }, [key, queue]);
 
-  const addItem = useCallback(
-    (item: T) => {
-      setQueue((prev) => [...prev, item]);
-
-      if (isOnline) {
-        // Try to execute immediately if online
-        executeQueue();
-      }
-    },
-    [isOnline, executeQueue]
-  );
-
   const executeQueue = useCallback(async (): Promise<void> => {
     if (!isOnline || queue.length === 0) {
       return;
@@ -228,6 +216,18 @@ export function useOfflineStorage<T>(
       console.error('Failed to execute queue:', error);
     }
   }, [isOnline, queue]);
+
+  const addItem = useCallback(
+    (item: T) => {
+      setQueue((prev) => [...prev, item]);
+
+      if (isOnline) {
+        // Try to execute immediately if online
+        executeQueue();
+      }
+    },
+    [isOnline, executeQueue]
+  );
 
   const clearQueue = useCallback(() => {
     setQueue([]);

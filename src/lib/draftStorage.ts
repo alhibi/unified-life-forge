@@ -1,3 +1,5 @@
+import * as React from 'react';
+
 /**
  * Draft Storage Utility
  * 
@@ -5,7 +7,7 @@
  * or accidental closures. Supports automatic cleanup after successful submission.
  */
 
-interface DraftConfig {
+export interface DraftConfig {
   /**
    * Key to identify this form's draft (e.g., 'chat-message', 'settings-profile')
    */
