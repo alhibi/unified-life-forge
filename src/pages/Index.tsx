@@ -12,7 +12,7 @@ import UmmahPulse from '@/components/UmmahPulse';
 
 import SmartGreeting from '@/components/SmartGreeting';
 import { useNavigate } from 'react-router-dom';
-import { MessageCircle, UserCircle, Sparkles, ChevronLeft, FileText, Settings } from '@/lib/icons';
+import { MessageCircle, UserCircle, Sparkles, ChevronLeft, FileText, Settings, MapPinned } from '@/lib/icons';
 import { getAppleEmojiUrl, isEmojiAvatarValue } from '@/utils/emojiAvatar';
 import { getDefaultAvatarForUser } from '@/utils/defaultAvatar';
 import { PageShell, IconButton, AppCard } from '@/components/ui/app-shell';
@@ -186,6 +186,34 @@ export default function Index() {
                   {language === 'ar'
                     ? 'ملاحظات محلية بوسم متداخل وبحث فوري.'
                     : 'Lokale Notizen mit verschachtelten Tags und Sofortsuche.'}
+                </p>
+              </div>
+              <ChevronLeft className="w-4 h-4 text-muted-foreground shrink-0" />
+            </div>
+          </AppCard>
+        </motion.section>
+
+        {/* Travel Atlas — tourism guide entry card */}
+        <motion.section variants={item} aria-labelledby="home-travel-h">
+          <h2 id="home-travel-h" className="sr-only">{language === 'ar' ? 'أطلس الرحلات' : 'Reiseatlas'}</h2>
+          <AppCard
+            as="button"
+            pressable
+            onClick={() => navigate('/travel-atlas')}
+            className="w-full text-start"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 rounded-xl bg-[hsl(var(--live)/0.15)] flex items-center justify-center shrink-0">
+                <MapPinned className="w-5 h-5 text-[hsl(var(--live))]" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="font-bold text-foreground">
+                  {language === 'ar' ? 'أطلس الرحلات' : 'Reiseatlas'}
+                </h3>
+                <p className="text-[12px] text-muted-foreground leading-relaxed mt-0.5">
+                  {language === 'ar'
+                    ? 'دليلك الشخصي للأماكن التي تستحق الرحلة.'
+                    : 'Dein persönlicher Atlas für Orte, die eine Reise wert sind.'}
                 </p>
               </div>
               <ChevronLeft className="w-4 h-4 text-muted-foreground shrink-0" />
