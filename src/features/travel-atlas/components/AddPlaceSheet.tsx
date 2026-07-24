@@ -1,5 +1,7 @@
-import { useMemo, useState } from 'react';
-import { Loader2, MapPin } from 'lucide-react';
+import 'maplibre-gl/dist/maplibre-gl.css';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import * as maplibregl from 'maplibre-gl';
+import { ImagePlus, Loader2, MapPin, X } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -26,6 +28,9 @@ import { useToast } from '@/hooks/use-toast';
 import { COUNTRY_CATALOG } from '../countriesCatalog';
 import { useCreatePlace } from '../hooks';
 import type { PlaceCategory } from '../types';
+
+const OPEN_FREE_MAP_STYLE = 'https://tiles.openfreemap.org/styles/positron';
+const MAX_PHOTOS = 6;
 
 interface AddPlaceSheetProps {
   open: boolean;
@@ -60,6 +65,87 @@ export default function AddPlaceSheet({
   const [lat, setLat] = useState('');
   const [lng, setLng] = useState('');
   const [description, setDescription] = useState('');
+  const [bestTime, setBestTime] = useState('');
+  const [tagsInput, setTagsInput] = useState('');
+  const [photos, setPhotos] = useState<File[]>([]);
+  const [previews, setPreviews] = useState<string[]>([]);
+  const mapContainerRef = useRef<HTMLDivElement | null>(null);
+  const mapRef = useRef<maplibregl.Map | null>(null);
+  const markerRef = useRef<maplibregl.Marker | null>(null);
+
+  // Manage object URL previews.
+  useEffect(() => {
+    const urls = photos.map((f) => URL.createObjectURL(f));
+    setPreviews(urls);
+    return () => {
+      urls.forEach((u) => URL.revokeObjectURL(u));
+    };
+  }, [photos]);
+
+  const selectedCountry = useMemo(
+    () => COUNTRY_CATALOG.find((c) => c.isoCode === countryIso),
+    [countryIso],
+  );
+
+  // Init/update mini-map when open + country selected.
+  useEffect(() => {
+    if (!open || !selectedCountry || !mapContainerRef.current) return;
+
+    if (!mapRef.current) {
+      const map = new maplibregl.Map({
+        container: mapContainerRef.current,
+        style: OPEN_FREE_MAP_STYLE,
+        center: [
+          (selectedCountry.bounds.sw[0] + selectedCountry.bounds.ne[0]) / 2,
+          (selectedCountry.bounds.sw[1] + selectedCountry.bounds.ne[1]) / 2,
+        ],
+        zoom: 4,
+        dragRotate: false,
+        pitchWithRotate: false,
+        attributionControl: false,
+      });
+      map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
+      map.on('click', (e) => {
+        const { lng: mLng, lat: mLat } = e.lngLat;
+        setLat(mLat.toFixed(6));
+        setLng(mLng.toFixed(6));
+        placeMarker(mLng, mLat);
+      });
+      mapRef.current = map;
+    }
+
+    const map = mapRef.current;
+    map.fitBounds([selectedCountry.bounds.sw, selectedCountry.bounds.ne], {
+      padding: 30,
+      duration: 400,
+      maxZoom: 8,
+    });
+
+    return () => {
+      // Do not destroy on every render; only when sheet closes.
+    };
+  }, [open, selectedCountry]);
+
+  // Destroy map when sheet closes.
+  useEffect(() => {
+    if (open) return;
+    if (mapRef.current) {
+      mapRef.current.remove();
+      mapRef.current = null;
+      markerRef.current = null;
+    }
+  }, [open]);
+
+  const placeMarker = (mLng: number, mLat: number) => {
+    if (!mapRef.current) return;
+    if (markerRef.current) {
+      markerRef.current.setLngLat([mLng, mLat]);
+    } else {
+      markerRef.current = new maplibregl.Marker({ color: 'hsl(32, 58%, 62%)' })
+        .setLngLat([mLng, mLat])
+        .addTo(mapRef.current);
+    }
+  };
 
   const sortedCountries = useMemo(
     () =>
@@ -77,14 +163,27 @@ export default function AddPlaceSheet({
     setLat('');
     setLng('');
     setDescription('');
+    setBestTime('');
+    setTagsInput('');
+    setPhotos([]);
+    if (markerRef.current) {
+      markerRef.current.remove();
+      markerRef.current = null;
+    }
   };
 
   const useCurrentLocation = () => {
     if (!('geolocation' in navigator)) return;
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        setLat(pos.coords.latitude.toFixed(6));
-        setLng(pos.coords.longitude.toFixed(6));
+        const la = pos.coords.latitude;
+        const lo = pos.coords.longitude;
+        setLat(la.toFixed(6));
+        setLng(lo.toFixed(6));
+        if (mapRef.current) {
+          mapRef.current.easeTo({ center: [lo, la], zoom: 12, duration: 500 });
+          placeMarker(lo, la);
+        }
       },
       () => {
         toast({
@@ -94,6 +193,18 @@ export default function AddPlaceSheet({
       },
       { enableHighAccuracy: true, timeout: 10000 },
     );
+  };
+
+  const onPickPhotos = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files ?? []);
+    if (files.length === 0) return;
+    const combined = [...photos, ...files].slice(0, MAX_PHOTOS);
+    setPhotos(combined);
+    event.target.value = '';
+  };
+
+  const removePhoto = (index: number) => {
+    setPhotos((prev) => prev.filter((_, i) => i !== index));
   };
 
   const submit = async () => {
@@ -124,6 +235,13 @@ export default function AddPlaceSheet({
         latitude: latN,
         longitude: lngN,
         descriptionAr: description.trim() || null,
+        bestTimeToVisit: bestTime.trim() || null,
+        tags: tagsInput
+          .split(',')
+          .map((t) => t.trim())
+          .filter(Boolean)
+          .slice(0, 8),
+        photos: photos.length > 0 ? photos : undefined,
       });
       toast({ title: isAr ? 'تمت الإضافة' : 'Ort hinzugefügt' });
       reset();
@@ -230,6 +348,71 @@ export default function AddPlaceSheet({
             <MapPin className="h-4 w-4" aria-hidden="true" />
             {isAr ? 'استخدم موقعي الحالي' : 'Aktuellen Standort verwenden'}
           </Button>
+
+          {selectedCountry && (
+            <div className="space-y-2">
+              <Label>{isAr ? 'اختر النقطة على الخريطة' : 'Punkt auf der Karte wählen'}</Label>
+              <div
+                ref={mapContainerRef}
+                dir="ltr"
+                className="h-56 w-full overflow-hidden rounded-2xl border border-border"
+                style={{ touchAction: 'none' }}
+              />
+              <p className="text-micro text-muted-foreground">
+                {isAr ? 'انقر على الخريطة لتحديد الموقع بدقة.' : 'Tippe auf die Karte, um den Ort zu setzen.'}
+              </p>
+            </div>
+          )}
+
+          <div className="space-y-2">
+            <Label>{isAr ? 'صور المكان (حتى 6)' : 'Fotos (bis zu 6)'}</Label>
+            <div className="flex flex-wrap gap-2">
+              {previews.map((url, i) => (
+                <div key={url} className="relative h-20 w-20 overflow-hidden rounded-xl border border-border">
+                  <img src={url} alt="" className="h-full w-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => removePhoto(i)}
+                    aria-label={isAr ? 'حذف الصورة' : 'Bild entfernen'}
+                    className="absolute right-1 top-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-background/90 text-foreground shadow"
+                  >
+                    <X className="h-3.5 w-3.5" aria-hidden="true" />
+                  </button>
+                </div>
+              ))}
+              {photos.length < MAX_PHOTOS && (
+                <label className="flex h-20 w-20 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-border text-muted-foreground transition-colors hover:border-[hsl(var(--live))] hover:text-foreground">
+                  <ImagePlus className="h-5 w-5" aria-hidden="true" />
+                  <span className="text-micro">{isAr ? 'إضافة' : 'Foto'}</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    className="hidden"
+                    onChange={onPickPhotos}
+                  />
+                </label>
+              )}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>{isAr ? 'أفضل وقت للزيارة (اختياري)' : 'Beste Reisezeit (optional)'}</Label>
+            <Input
+              value={bestTime}
+              onChange={(e) => setBestTime(e.target.value)}
+              placeholder={isAr ? 'مارس – مايو' : 'März – Mai'}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>{isAr ? 'وسوم (مفصولة بفواصل)' : 'Tags (durch Kommas getrennt)'}</Label>
+            <Input
+              value={tagsInput}
+              onChange={(e) => setTagsInput(e.target.value)}
+              placeholder={isAr ? 'شاطئ، عائلي، غروب' : 'Strand, Familie, Sonnenuntergang'}
+            />
+          </div>
 
           <div className="space-y-2">
             <Label>{isAr ? 'وصف مختصر (اختياري)' : 'Beschreibung (optional)'}</Label>
