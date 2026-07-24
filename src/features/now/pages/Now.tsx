@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { BackButton } from '@/components/BackButton';
+import BackButton from '@/components/BackButton';
 import SEO from '@/components/SEO';
 import { useApp } from '@/contexts/AppContext';
 import { useAuth } from '@/hooks/useAuth';
