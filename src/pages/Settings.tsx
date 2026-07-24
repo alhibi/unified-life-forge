@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import SEO from '@/components/SEO';
 import { useApp } from '@/contexts/AppContext';
 import { getAppleEmojiUrl, isEmojiAvatarValue } from '@/utils/emojiAvatar';
@@ -14,6 +14,8 @@ import packageJson from '../../package.json';
 
 import { pageStagger as stagger, pageItem as item } from '@/lib/motion';
 import { AppCard } from '@/components/ui/app-shell';
+import { useDraftStorage } from '@/hooks/useDraftStorage';
+import { useNetworkToast } from '@/hooks/useNetworkStatus';
 
 export default function SettingsPage() {
   const { t, theme, language, setLanguage, prayerMadhab } = useApp();
@@ -21,6 +23,20 @@ export default function SettingsPage() {
   const navigate = useNavigate();
   const isAr = language === 'ar';
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+
+  // ── Deep-Polish: Draft storage for settings form ─────────────────────
+  // Auto-save settings form state for safety
+  const [settingsDraft, setSettingsDraft, hasSettingsDraft] = useDraftStorage(
+    `settings:draft:${user?.id || 'anon'}`,
+    { theme, language, prayerMadhab },
+    { ttl: 7 * 24 * 60 * 60 * 1000 } // 7 days TTL
+  );
+
+  // ── Deep-Polish: Network toast notifications ─────────────────────────
+  useNetworkToast({
+    onlineMessage: isAr ? 'تم استعادة الاتصال بالشبكة' : 'Netzwerkverbindung wiederhergestellt',
+    offlineMessage: isAr ? 'أنت غير متصل بالشبكة' : 'Sie sind offline',
+  });
 
   const handleSignOut = async () => {
     setShowLogoutConfirm(false);
