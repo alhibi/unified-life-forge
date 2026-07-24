@@ -121,10 +121,27 @@ export default function AddPlaceSheet({
       maxZoom: 8,
     });
 
+    // Ensure the canvas measures its container after the sheet animation.
+    const resizeTimers = [80, 220, 420].map((delay) =>
+      window.setTimeout(() => {
+        try { map.resize(); } catch { /* map may have been removed */ }
+      }, delay),
+    );
+
     return () => {
-      // Do not destroy on every render; only when sheet closes.
+      resizeTimers.forEach((id) => clearTimeout(id));
     };
   }, [open, selectedCountry]);
+
+  // Keep marker in sync when user types coordinates manually.
+  useEffect(() => {
+    if (!mapRef.current) return;
+    const la = Number(lat);
+    const lo = Number(lng);
+    if (!Number.isFinite(la) || !Number.isFinite(lo)) return;
+    if (la < -90 || la > 90 || lo < -180 || lo > 180) return;
+    placeMarker(lo, la);
+  }, [lat, lng]);
 
   // Destroy map when sheet closes.
   useEffect(() => {

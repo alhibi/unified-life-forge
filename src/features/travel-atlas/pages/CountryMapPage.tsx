@@ -1,4 +1,4 @@
-import { AlertCircle, MapPinned, RefreshCw } from 'lucide-react';
+import { AlertCircle, MapPinned, Plus, RefreshCw } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 
@@ -6,6 +6,7 @@ import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
 import { useApp } from '@/contexts/AppContext';
 
+import AddPlaceSheet from '../components/AddPlaceSheet';
 import PlaceDetailSheet from '../components/PlaceDetailSheet';
 import TravelAtlasMap from '../components/TravelAtlasMap';
 import { useCountryPlaces, useTravelCountry } from '../hooks';
@@ -25,6 +26,7 @@ export default function CountryMapPage() {
   const [selectedPlaceId, setSelectedPlaceId] = useState<string | null>(null);
   const [mapError, setMapError] = useState<string | null>(null);
   const [mapInstanceKey, setMapInstanceKey] = useState(0);
+  const [addOpen, setAddOpen] = useState(false);
   const selectedPlace = useMemo(
     () => places.find((place) => place.id === selectedPlaceId) ?? null,
     [places, selectedPlaceId],
@@ -88,6 +90,16 @@ export default function CountryMapPage() {
           onError={setMapError}
         />
 
+        <button
+          type="button"
+          onClick={() => setAddOpen(true)}
+          aria-label={isAr ? 'إضافة مكان' : 'Ort hinzufügen'}
+          className="absolute bottom-6 end-4 z-10 inline-flex h-12 items-center gap-2 rounded-full border border-border bg-background/95 px-4 text-body font-semibold text-foreground shadow-lg backdrop-blur transition-transform hover:scale-[1.02] active:scale-[0.98]"
+        >
+          <Plus className="h-4 w-4 text-[hsl(var(--live))]" aria-hidden="true" />
+          {isAr ? 'إضافة مكان' : 'Ort hinzufügen'}
+        </button>
+
         {mapError && (
           <div
             className="absolute inset-x-4 top-4 mx-auto flex max-w-sm items-center gap-3 rounded-lg border border-border bg-background px-3 py-2 text-mini text-foreground"
@@ -138,6 +150,12 @@ export default function CountryMapPage() {
         open={Boolean(selectedPlace)}
         onOpenChange={changeDetailOpen}
         language={language}
+      />
+
+      <AddPlaceSheet
+        open={addOpen}
+        onOpenChange={setAddOpen}
+        defaultCountryIso={country.isoCode}
       />
     </div>
   );
