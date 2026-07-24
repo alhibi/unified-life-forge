@@ -3,10 +3,7 @@
    No token overrides — the app's copper accent + surface-depth stay intact. */
 
 .weather-theme {
-  background:
-    radial-gradient(900px 600px at 90% -10%, hsl(var(--primary) / 0.10), transparent 60%),
-    radial-gradient(700px 600px at -10% 100%, hsl(var(--primary) / 0.06), transparent 60%),
-    hsl(var(--background));
+  background-color: hsl(var(--background));
 }
 
 .weather-theme .no-scrollbar::-webkit-scrollbar { display: none; }

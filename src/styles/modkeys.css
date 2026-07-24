@@ -583,11 +583,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(
-    58% 52% at 50% 44%,
-    var(--mk-stage-glow),
-    transparent 72%
-  );
+  background: var(--mk-stage-glow);
   pointer-events: none;
   transition: background 0.35s;
 }

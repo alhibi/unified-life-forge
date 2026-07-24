@@ -165,11 +165,7 @@ export function ListHeader({
 
   return (
     <div
-      className="px-4 pt-3.5 pb-2.5 border-b border-border/40 sticky top-0 z-10 bg-card/85 backdrop-blur-xl"
-      style={{
-        backgroundImage:
-          'linear-gradient(180deg, hsl(var(--primary) / 0.04) 0%, transparent 100%)',
-      }}
+      className="px-4 pt-4 pb-2 border-b border-border/40 sticky top-0 z-10 bg-card/92 backdrop-blur-md"
     >
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2.5 min-w-0">
@@ -182,7 +178,7 @@ export function ListHeader({
             <ChevronLeft className="h-5 w-5 text-foreground rtl:rotate-180" />
           </button>
           <div className="flex items-center gap-2.5 min-w-0">
-            <span className="w-9 h-9 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 ring-1 ring-primary/20 flex items-center justify-center shrink-0">
+            <span className="w-9 h-9 rounded-2xl bg-primary/10 ring-1 ring-primary/20 flex items-center justify-center shrink-0">
               <Newspaper className="h-4 w-4 text-primary" />
             </span>
             <div className="flex flex-col leading-tight min-w-0">
@@ -315,7 +311,7 @@ export function ListHeader({
             animate={{ opacity: 1, height: 'auto', y: 0 }}
             exit={{ opacity: 0, height: 0, y: -10 }}
             transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-            className="mb-3 px-3.5 py-2.5 rounded-2xl bg-gradient-to-br from-amber-500/10 to-amber-600/5 border border-amber-500/20 shadow-sm overflow-hidden"
+            className="mb-3 px-3.5 py-2.5 rounded-2xl bg-muted/60 border border-border/50 shadow-sm overflow-hidden"
           >
             <div className="flex items-center justify-between text-xs font-semibold text-amber-600 dark:text-amber-400 mb-1.5">
               <span className="flex items-center gap-1.5">
@@ -334,7 +330,7 @@ export function ListHeader({
                 initial={{ width: 0 }}
                 animate={{ width: `${(syncProgress.current / syncProgress.total) * 100}%` }}
                 transition={{ duration: 0.3, ease: 'easeOut' }}
-                className="h-full bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 shadow-[0_0_8px_rgba(245,158,11,0.5)] rounded-full"
+                className="h-full bg-primary rounded-full"
               />
             </div>
           </motion.div>
@@ -349,7 +345,7 @@ export function ListHeader({
             animate={{ opacity: 1, height: 'auto', y: 0 }}
             exit={{ opacity: 0, height: 0, y: -10 }}
             transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-            className="mb-3 px-3.5 py-2 rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20 shadow-sm overflow-hidden"
+            className="mb-3 px-3.5 py-2 rounded-2xl bg-primary/10 border border-primary/20 shadow-sm overflow-hidden"
           >
             <div className="flex items-center justify-between text-[11px] font-bold text-primary mb-1">
               <span className="flex items-center gap-1.5">
@@ -372,7 +368,7 @@ export function ListHeader({
                 initial={{ width: 0 }}
                 animate={{ width: `${(prefetchProgress.current / prefetchProgress.total) * 100}%` }}
                 transition={{ duration: 0.3, ease: 'easeOut' }}
-                className="h-full bg-gradient-to-r from-primary to-amber-500 shadow-[0_0_8px_rgba(var(--primary),0.4)] rounded-full"
+                className="h-full bg-primary rounded-full"
               />
             </div>
           </motion.div>

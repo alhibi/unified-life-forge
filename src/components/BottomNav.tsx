@@ -50,7 +50,7 @@ const tabs: Tab[] = [
 
 // The ONE accent — referenced as a CSS expression so it follows the
 // theme token (always warm copper, theme-independent by design).
-const LIVE = 'hsl(var(--live))';
+const LIVE = 'hsl(var(--primary))';
 
 const TAB_PATHS = new Set<string>(tabs.map((t) => t.path));
 // A drag must travel at least this many pixels before we treat it as
@@ -88,7 +88,7 @@ function hitTestTabIndex(clientX: number, clientY: number): number | null {
 }
 
 /** Height of the nav bar content row (excluding safe-area padding). */
-export const BOTTOM_NAV_HEIGHT = 58;
+export const BOTTOM_NAV_HEIGHT = 64;
 
 export default function BottomNav() {
   const { t, dir } = useApp();
@@ -290,9 +290,9 @@ export default function BottomNav() {
       className="bottom-nav preserve-fx"
       style={{
         position: 'fixed',
-        bottom: 'calc(env(safe-area-inset-bottom, 0px) + 10px)',
-        left: 10,
-        right: 10,
+        bottom: 'calc(env(safe-area-inset-bottom, 0px) + 16px)',
+        left: 16,
+        right: 16,
         zIndex: 9999,
         /* Isolate this element from any ancestor transforms/contain */
         isolation: 'isolate',
@@ -310,19 +310,20 @@ export default function BottomNav() {
         style={{
           display: 'flex',
           alignItems: 'stretch',
-          height: 58,
+          height: 64,
           width: '100%',
           maxWidth: 520,
-          background: 'hsl(var(--card))',
-          border: '1px solid hsl(var(--border))',
-          borderRadius: 999,
+          background: 'hsl(var(--card) / 0.96)',
+          border: '1px solid hsl(var(--border) / 0.72)',
+          borderRadius: 16,
+          boxShadow: 'var(--shadow-elevated)',
 
           touchAction: 'pan-y',
           cursor: dragging ? 'grabbing' : undefined,
           position: 'relative',
           pointerEvents: 'auto',
           overflow: 'hidden',
-          padding: '0 4px',
+          padding: '0 8px',
         }}
       >
         {tabs.map((tab, i) => {
@@ -354,7 +355,7 @@ export default function BottomNav() {
               }}
               aria-label={t(tab.labelKey)}
               aria-current={routeActive ? 'page' : undefined}
-              className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 rounded-2xl"
+              className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 rounded-md"
               style={{
                 flex: 1,
                 display: 'flex',
@@ -364,7 +365,7 @@ export default function BottomNav() {
                 gap: 0,
                 background: 'transparent',
                 border: 'none',
-                padding: '6px 0 5px',
+                padding: '4px 0',
                 cursor: 'pointer',
                 position: 'relative',
                 touchAction: 'pan-y',
@@ -383,7 +384,7 @@ export default function BottomNav() {
                 <Icon
                   size={18}
                   weight={visuallyActive ? 'fill' : 'regular'}
-                  strokeWidth={visuallyActive ? 2.25 : 1.75}
+                  aria-hidden={false}
                   style={{
                     position: 'relative',
                     zIndex: 2,
@@ -393,28 +394,24 @@ export default function BottomNav() {
                     transform: visuallyActive ? 'scale(1.08)' : 'scale(1)',
                     transition: dragging
                       ? 'none'
-                      : 'color 0.3s ease, stroke-width 0.3s ease, transform 0.38s cubic-bezier(0.34,1.56,0.64,1)',
+                      : 'color 150ms ease, transform 150ms cubic-bezier(0.22,1,0.36,1)',
                   }}
                 />
-
-                {visuallyActive && (
-                  <Icon aria-hidden className="nav-icon-edge-trace" size={18} weight="fill" />
-                )}
 
                 {showBadge && (
                   <span
                     aria-label={`${unreadCount} ${t('nav.chat')}`}
                     style={{
                       position: 'absolute',
-                      top: -5,
+                      top: -4,
                       right: -4,
-                      minWidth: 14,
-                      height: 14,
-                      padding: '0 3px',
-                      borderRadius: 999,
+                      minWidth: 16,
+                      height: 16,
+                      padding: '0 4px',
+                      borderRadius: 6,
                       fontSize: 8,
                       fontWeight: 700,
-                      lineHeight: '14px',
+                      lineHeight: '16px',
                       background: 'hsl(var(--destructive))',
                       color: 'hsl(var(--destructive-foreground))',
                       display: 'flex',

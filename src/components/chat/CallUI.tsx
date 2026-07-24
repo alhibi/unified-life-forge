@@ -154,7 +154,7 @@ const CallUI: React.FC<CallUIProps> = ({
 
       {/* Blur backdrop when video is off */}
       {(type === 'voice' || isVideoOff) && (
-        <div className="absolute inset-0 backdrop-blur-3xl">
+        <div className="absolute inset-0 backdrop-blur-md">
           <div className="absolute inset-0 " />
         </div>
       )}

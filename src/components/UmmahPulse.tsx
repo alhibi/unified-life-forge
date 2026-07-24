@@ -905,7 +905,7 @@ function UmmahPulse() {
   return (
     <div
       dir="ltr"
-      className="relative rounded-3xl overflow-hidden border border-border/40 bg-gradient-to-b from-card via-card to-background shadow-lg"
+      className="relative rounded-3xl overflow-hidden border border-border/40 bg-card shadow-lg"
     >
       {/* Header */}
       <div

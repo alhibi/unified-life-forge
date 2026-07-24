@@ -2635,7 +2635,7 @@ export default function ChatDrawer({
                 className={cn(
                   'absolute bottom-24 end-4 z-10 w-11 h-11 rounded-full flex items-center justify-center transition-colors',
                   'bg-card/95 backdrop-blur-md border border-border/30',
-                  'shadow-[0_6px_20px_-6px_rgba(0,0,0,0.35),0_2px_6px_-2px_rgba(0,0,0,0.25)]',
+                  'shadow-md',
                   (chat.activeConv?.unreadCount ?? 0) > 0 && 'ring-2 ring-primary/40',
                 )}
               >

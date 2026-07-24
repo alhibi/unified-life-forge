@@ -30,18 +30,12 @@ type CoverTheme = {
   css: string;
 };
 const COVER_THEMES: CoverTheme[] = [
-  { id: 'copper',   labelAr: 'نحاسي',   labelDe: 'Kupfer',
-    css: 'radial-gradient(120% 120% at 20% 0%, #3a2618 0%, #1a1414 55%, #0f0f11 100%)' },
-  { id: 'obsidian', labelAr: 'أوبسيديان', labelDe: 'Obsidian',
-    css: 'radial-gradient(120% 120% at 80% 0%, #1e1e26 0%, #14141a 55%, #0d0d10 100%)' },
-  { id: 'ember',    labelAr: 'جمر',     labelDe: 'Glut',
-    css: 'radial-gradient(120% 120% at 20% 100%, #4a2216 0%, #1c1210 55%, #0f0d0d 100%)' },
-  { id: 'moss',     labelAr: 'طحلبي',   labelDe: 'Moos',
-    css: 'radial-gradient(120% 120% at 50% 0%, #17332a 0%, #121a18 55%, #0e0f10 100%)' },
-  { id: 'indigo',   labelAr: 'نيلي',    labelDe: 'Indigo',
-    css: 'radial-gradient(120% 120% at 80% 100%, #1e2148 0%, #12162a 55%, #0d0e14 100%)' },
-  { id: 'sand',     labelAr: 'رملي',    labelDe: 'Sand',
-    css: 'radial-gradient(120% 120% at 30% 0%, #3a2f22 0%, #1a1612 55%, #0f0e0d 100%)' },
+  { id: 'copper', labelAr: 'نحاسي', labelDe: 'Kupfer', css: 'hsl(var(--card))' },
+  { id: 'obsidian', labelAr: 'أوبسيديان', labelDe: 'Obsidian', css: 'hsl(var(--background))' },
+  { id: 'ember', labelAr: 'جمر', labelDe: 'Glut', css: 'hsl(var(--secondary))' },
+  { id: 'moss', labelAr: 'طحلبي', labelDe: 'Moos', css: 'hsl(var(--muted))' },
+  { id: 'indigo', labelAr: 'نيلي', labelDe: 'Indigo', css: 'hsl(var(--accent))' },
+  { id: 'sand', labelAr: 'رملي', labelDe: 'Sand', css: 'hsl(var(--card))' },
 ];
 
 const coverKey = (uid?: string) => `profile_cover_theme:${uid || 'anon'}`;
@@ -357,18 +351,18 @@ export default function ProfileEditPage() {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
           className="absolute inset-0"
-          style={{ backgroundImage: activeCover.css }}
+          style={{ background: activeCover.css }}
         />
         {/* Ambient breath — subtle copper halo */}
         <motion.div
           aria-hidden
           className="absolute -inset-16 pointer-events-none"
-          style={{ background: 'radial-gradient(35% 35% at 30% 40%, hsl(var(--live) / 0.18), transparent 70%)' }}
+          style={{ background: 'hsl(var(--primary) / 0.08)' }}
           animate={{ opacity: [0.55, 0.9, 0.55] }}
           transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
         />
         {/* Fade to bg */}
-        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-b from-transparent to-background pointer-events-none" />
+        <div className="absolute inset-x-0 bottom-0 h-24 bg-background/80 pointer-events-none" />
 
         {/* Back button anchored to the safe top */}
         <div className="absolute top-3 start-4 z-10">
@@ -398,7 +392,7 @@ export default function ProfileEditPage() {
             className="relative group active:scale-[0.97] transition-transform"
             aria-label={isAr ? 'تغيير الصورة' : 'Bild ändern'}
           >
-            <div className="w-[108px] h-[108px] rounded-full ring-4 ring-background bg-card shadow-2xl overflow-hidden flex items-center justify-center">
+            <div className="w-[108px] h-[108px] rounded-full ring-4 ring-background bg-card shadow-lg overflow-hidden flex items-center justify-center">
               {isUrlAvatar ? (
                 <img src={selectedAvatar} alt="" className="w-full h-full object-cover" />
               ) : isEmojiAvatarValue(selectedAvatar) ? (
@@ -463,7 +457,7 @@ export default function ProfileEditPage() {
                   className={`relative h-16 rounded-xl overflow-hidden ring-1 transition-all active:scale-95 ${
                     active ? 'ring-2 ring-primary scale-[1.02]' : 'ring-border/40 hover:ring-primary/40'
                   }`}
-                  style={{ backgroundImage: t.css }}
+                  style={{ background: t.css }}
                   aria-label={isAr ? t.labelAr : t.labelDe}
                 >
                   {active && (

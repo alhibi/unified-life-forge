@@ -171,9 +171,9 @@ export default function FastingLog({ lang }: Props) {
     <div className="space-y-4" dir={isAr ? 'rtl' : 'ltr'}>
       {/* Active fast block */}
       {activeSession ? (
-        <div className="rounded-2xl p-4 bg-gradient-to-br from-indigo-500/10 to-primary/10 border border-indigo-500/20 space-y-4">
+        <div className="rounded-2xl p-4 bg-primary/5 border border-primary/20 space-y-4">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-indigo-500 flex items-center gap-1">
+            <span className="text-xs font-bold text-primary flex items-center gap-1">
               <Clock className="w-3.5 h-3.5" />
               {T.activeTitle[lang]} ({activeSession.protocol})
             </span>
@@ -200,7 +200,7 @@ export default function FastingLog({ lang }: Props) {
             <div className="rounded-xl bg-muted/40 p-3 space-y-2 border border-border/20 text-[11px]">
               <div className="flex items-center justify-between">
                 <span className="font-bold text-foreground flex items-center gap-1.5">
-                  <Activity className="w-3.5 h-3.5 text-indigo-500" />
+                  <Activity className="w-3.5 h-3.5 text-primary" />
                   {metabolicPhase.title[lang]}
                 </span>
                 <span className="text-[10px] font-bold text-muted-foreground/80">
@@ -223,7 +223,7 @@ export default function FastingLog({ lang }: Props) {
         <div className="rounded-2xl p-4 bg-card border border-border/40 space-y-4">
           <div className="space-y-1">
             <h4 className="text-sm font-bold text-foreground flex items-center gap-1.5">
-              <Clock className="w-4 h-4 text-indigo-500" />
+              <Clock className="w-4 h-4 text-primary" />
               {T.title[lang]}
             </h4>
             <p className="text-[11px] text-muted-foreground">{T.protocol[lang]}</p>
@@ -264,7 +264,7 @@ export default function FastingLog({ lang }: Props) {
       {/* History */}
       <div className="rounded-2xl border border-border/30 bg-card p-3.5 space-y-2">
         <h5 className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
-          <Check className="w-3.5 h-3.5 text-indigo-500" />
+          <Check className="w-3.5 h-3.5 text-primary" />
           {T.recentFasts[lang]}
         </h5>
         {history.length === 0 ? (

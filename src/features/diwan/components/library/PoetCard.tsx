@@ -45,8 +45,8 @@ export default function PoetCard({ poet, index = 0 }: Props) {
           <div
             className="w-[46px] h-[46px] rounded-full flex items-center justify-center shrink-0"
             style={{
-              background: 'radial-gradient(circle at 32% 28%, #C65B3B, #8E3117 72%)',
-              boxShadow: 'inset 0 0 0 1px rgba(0,0,0,.35), 0 3px 8px rgba(0,0,0,.4)',
+              background: 'hsl(var(--primary))',
+              boxShadow: 'var(--shadow-sm)',
             }}
           >
             <span className="font-amiri font-bold text-[19px] text-[#F5DFC9] leading-none select-none">

@@ -186,7 +186,7 @@ export function ArticleCard({
               className={`w-full text-start px-4 py-2.5 transition-colors flex items-center gap-2.5 bg-background ${
                 isRead
                   ? 'hover:bg-accent/15 active:bg-accent/25'
-                  : 'bg-gradient-to-r from-amber-500/[0.02] to-transparent hover:from-amber-500/[0.06] hover:to-amber-500/[0.01] active:from-amber-500/[0.1]'
+                  : 'bg-primary/[0.03] hover:bg-primary/[0.06] active:bg-primary/[0.1]'
               }`}
             >
               <SourcePill name={article.source} size="sm" />
@@ -197,7 +197,7 @@ export function ArticleCard({
                 }`}
               >
                 {!isRead && (
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0 shadow-[0_0_6px_rgba(245,158,11,0.8)]" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
                 )}
                 <span className="truncate">{article.title}</span>
               </span>
@@ -255,7 +255,7 @@ export function ArticleCard({
             className={`relative w-full text-start rounded-2xl bg-card overflow-hidden transition-all duration-300 border ${
               isRead
                 ? 'opacity-70 border-border/40 hover:bg-accent/5'
-                : 'border-amber-500/20 shadow-[0_4px_20px_-4px_rgba(245,158,11,0.05)] bg-gradient-to-b from-amber-500/[0.01] to-transparent hover:from-amber-500/[0.04] hover:border-amber-500/30'
+                : 'border-primary/20 bg-card hover:bg-accent/5 hover:border-primary/30'
             }`}
           >
             {article.image && (
@@ -277,7 +277,7 @@ export function ArticleCard({
                 }`}
               >
                 {!isRead && (
-                  <span className="w-1.5 h-1.5 mt-1.5 rounded-full bg-amber-500 shrink-0 shadow-[0_0_6px_rgba(245,158,11,0.8)]" />
+                  <span className="w-1.5 h-1.5 mt-1.5 rounded-full bg-primary shrink-0" />
                 )}
                 <span>{article.title}</span>
               </h4>
@@ -364,7 +364,7 @@ export function ArticleCard({
           {!isRead && (
             <span
               aria-hidden
-              className="absolute top-4 bottom-4 start-0 w-[3px] rounded-full bg-gradient-to-b from-amber-500 to-amber-600 shadow-[0_0_8px_rgba(245,158,11,0.6)]"
+              className="absolute top-4 bottom-4 start-0 w-[3px] rounded-full bg-primary"
             />
           )}
           <button
@@ -373,7 +373,7 @@ export function ArticleCard({
             className={`w-full text-start px-4 py-4 transition-all duration-300 flex gap-4 ${
               isRead
                 ? 'hover:bg-accent/10 active:bg-accent/15'
-                : 'bg-gradient-to-r from-amber-500/[0.02] to-transparent hover:from-amber-500/[0.06] hover:to-amber-500/[0.01] active:from-amber-500/[0.1]'
+                : 'bg-primary/[0.03] hover:bg-primary/[0.06] active:bg-primary/[0.1]'
             }`}
           >
             <div className="flex-1 min-w-0">
@@ -386,7 +386,7 @@ export function ArticleCard({
                 }`}
               >
                 {!isRead && (
-                  <span className="w-1.5 h-1.5 mt-2 rounded-full bg-amber-500 shrink-0 shadow-[0_0_6px_rgba(245,158,11,0.8)]" />
+                  <span className="w-1.5 h-1.5 mt-2 rounded-full bg-primary shrink-0" />
                 )}
                 <span>{article.title}</span>
               </h4>

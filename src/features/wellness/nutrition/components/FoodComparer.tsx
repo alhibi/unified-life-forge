@@ -136,7 +136,7 @@ export default function FoodComparer({ lang }: Props) {
   return (
     <div className="space-y-4" dir={isAr ? 'rtl' : 'ltr'}>
       {/* Hero card */}
-      <div className="rounded-2xl p-4 bg-gradient-to-br from-primary/10 to-indigo-500/10 border border-primary/20">
+      <div className="rounded-2xl p-4 bg-primary/5 border border-primary/20">
         <div className="flex items-center gap-2 mb-1.5">
           <Scale className="w-5 h-5 text-primary" />
           <h3 className="text-sm font-bold text-foreground">{T.title[lang]}</h3>

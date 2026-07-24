@@ -538,7 +538,7 @@ export default function PodcastsPage() {
       />
 
       {/* Sticky top bar — back, scope/country/region pill, search */}
-      <div className="sticky top-0 z-30 bg-background/85 backdrop-blur-xl border-b border-border/40">
+      <div className="sticky top-0 z-30 bg-background/85 backdrop-blur-md border-b border-border/40">
         <div className="max-w-lg mx-auto px-4 pt-3 pb-2 flex items-center gap-2">
           <BackButton />
           {/* Scope pill: tapping the icon area cycles country↔region;

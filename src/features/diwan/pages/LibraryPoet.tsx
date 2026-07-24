@@ -90,24 +90,24 @@ export default function LibraryPoetPage() {
 
   if (poet.isLoading) {
     return (
-      <div className="min-h-screen bg-[#16130F] pt-14 px-5 flex flex-col items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[var(--wax)] mb-2" />
-        <p className="text-[13px] text-[#7E7259] font-tajawal">جاري فتح مخطوطة الشاعر…</p>
+      <div className="min-h-screen bg-background pt-14 px-5 flex flex-col items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary mb-2" />
+        <p className="text-[13px] text-muted-foreground font-tajawal">جاري فتح مخطوطة الشاعر…</p>
       </div>
     );
   }
 
   if (!p) {
     return (
-      <div className="min-h-screen bg-[#16130F] pt-14 px-5 text-center">
+      <div className="min-h-screen bg-background pt-14 px-5 text-center">
         <BackButton fallback="/mihrab" />
-        <p className="text-[#B8AA8E] mt-8 font-tajawal">لم يُعثر على هذا الشاعر في دواوين العرب.</p>
+        <p className="text-muted-foreground mt-8 font-tajawal">لم يُعثر على هذا الشاعر في دواوين العرب.</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#16130F] text-[#F2E9D8] pb-28 px-5 pt-14 font-tajawal selection:bg-[var(--wax-soft2)] selection:text-[#F2E9D8]">
+    <div className="min-h-screen bg-background text-foreground pb-28 px-5 pt-14 font-tajawal selection:bg-primary/20 selection:text-primary-foreground">
       <SEO
         title={`${p.name_ar} — قصائده وسيرته`}
         description={p.bio ?? ''}
@@ -116,7 +116,7 @@ export default function LibraryPoetPage() {
       <div className="max-w-lg mx-auto">
         {/* Header with back button */}
         <div className="flex items-center justify-between mb-6">
-          <BackButton fallback="/mihrab" className="w-10 h-10 rounded-full border border-[var(--hairline-strong)] bg-[#1D1811] flex items-center justify-center text-[#B8AA8E] hover:text-[#F2E9D8] hover:border-[#B8AA8E] active:scale-95 transition-all" />
+          <BackButton fallback="/mihrab" className="w-10 h-10 rounded-full border border-border bg-card flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-primary active:scale-95 transition-all" />
           <FallbackBadge />
         </div>
 
@@ -130,18 +130,18 @@ export default function LibraryPoetPage() {
           <div
             className="w-[78px] h-[78px] rounded-full flex items-center justify-center mx-auto mb-4"
             style={{
-              background: 'radial-gradient(circle at 32% 28%, #C65B3B, #8E3117 72%)',
-              boxShadow: 'inset 0 0 0 1px rgba(0,0,0,.35), 0 4px 12px rgba(0,0,0,.5)',
+              background: 'hsl(var(--primary))',
+              boxShadow: 'var(--shadow-md)',
             }}
           >
-            <span className="font-amiri font-bold text-[32px] text-[#F5DFC9] leading-none select-none">
+            <span className="font-amiri font-bold text-[32px] text-primary-foreground leading-none select-none">
               {firstLetter}
             </span>
           </div>
 
           {/* اسم الشاعر وعنوانه وتاريخ حياته */}
           <h2
-            className="text-[26px] font-bold text-[#F2E9D8] text-center leading-tight mb-2"
+            className="text-[26px] font-bold text-foreground text-center leading-tight mb-2"
             style={{ fontFamily: "'Amiri', serif" }}
           >
             {p.name_ar}
@@ -149,13 +149,13 @@ export default function LibraryPoetPage() {
 
           {p.title && (
             <div className="text-center mb-3">
-              <span className="inline-block text-[11px] font-tajawal text-[var(--wax)] bg-[var(--wax-soft)] border border-[var(--wax-soft2)] px-2.5 py-0.5 rounded-[5px] whitespace-nowrap">
+              <span className="inline-block text-[11px] font-tajawal text-primary bg-primary/10 border border-primary/20 px-2.5 py-0.5 rounded-md whitespace-nowrap">
                 {p.title}
               </span>
             </div>
           )}
 
-          <p className="text-center text-[12px] text-[#7E7259] font-tajawal mb-4 select-none">
+          <p className="text-center text-[12px] text-muted-foreground font-tajawal mb-4 select-none">
             {lifespan && <span>{lifespan}</span>}
             {lifespan && eraName && <span className="mx-1.5 opacity-40">·</span>}
             {eraName && <span>عصر {eraName}</span>}
@@ -163,34 +163,34 @@ export default function LibraryPoetPage() {
 
           {/* فقرة سيرة كاملة */}
           {p.bio && (
-            <p className="text-[13px] leading-[1.9] text-[#B8AA8E] text-center max-w-md mx-auto mb-6 px-1 whitespace-pre-line">
+            <p className="text-[13px] leading-[1.9] text-muted-foreground text-center max-w-md mx-auto mb-6 px-1 whitespace-pre-line">
               {p.bio}
             </p>
           )}
 
           {/* صف إحصائيات ثلاثي مفصول بخطوط رفيعة */}
-          <div className="grid grid-cols-3 border-y border-[var(--hairline)] py-4 mb-6">
+          <div className="grid grid-cols-3 border-y border-border/60 py-4 mb-6">
             <div className="text-center">
-              <p className="font-amiri text-[22px] font-bold text-[var(--wax)] leading-none mb-1 select-all">
+              <p className="font-amiri text-[22px] font-bold text-primary leading-none mb-1 select-all">
                 {p.poems_count}
               </p>
-              <p className="text-[11px] text-[#7E7259] font-tajawal select-none">
+              <p className="text-[11px] text-muted-foreground font-tajawal select-none">
                 قصائد مأثورة
               </p>
             </div>
-            <div className="text-center border-r border-[var(--hairline)]">
-              <p className="font-amiri text-[22px] font-bold text-[var(--wax)] leading-none mb-1 select-all">
+            <div className="text-center border-r border-border/60">
+              <p className="font-amiri text-[22px] font-bold text-primary leading-none mb-1 select-all">
                 {p.verses_count}
               </p>
-              <p className="text-[11px] text-[#7E7259] font-tajawal select-none">
+              <p className="text-[11px] text-muted-foreground font-tajawal select-none">
                 بيت شعر
               </p>
             </div>
-            <div className="text-center border-r border-[var(--hairline)] flex flex-col justify-center items-center">
-              <p className="font-amiri text-[15px] font-bold text-[var(--wax)] leading-snug mb-1 truncate max-w-full px-1">
+            <div className="text-center border-r border-border/60 flex flex-col justify-center items-center">
+              <p className="font-amiri text-[15px] font-bold text-primary leading-snug mb-1 truncate max-w-full px-1">
                 {eraName || 'قديم'}
               </p>
-              <p className="text-[11px] text-[#7E7259] font-tajawal select-none">
+              <p className="text-[11px] text-muted-foreground font-tajawal select-none">
                 العصر الأدبي
               </p>
             </div>
@@ -201,10 +201,10 @@ export default function LibraryPoetPage() {
             {hasTimeline && (
               <button
                 onClick={() => setShowTimeline(s => !s)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-[8px] text-[11px] font-bold transition-all ${
+                className={`flex items-center gap-2 px-4 py-2 rounded-md text-[11px] font-bold transition-all ${
                   showTimeline
-                    ? 'bg-[var(--wax-soft)] text-[var(--wax)] border border-[var(--wax-soft2)]'
-                    : 'bg-[#1D1811] text-[#B8AA8E] border border-[var(--hairline-strong)] hover:text-[#F2E9D8]'
+                    ? 'bg-primary/10 text-primary border border-primary/20'
+                    : 'bg-card text-muted-foreground border border-border hover:text-foreground'
                 }`}
               >
                 <Clock className="w-3.5 h-3.5" />
@@ -213,7 +213,7 @@ export default function LibraryPoetPage() {
             )}
             <button
               onClick={() => navigate(`/diwan/library/search?graph=${slug}`)}
-              className="flex items-center gap-2 px-4 py-2 rounded-[8px] text-[11px] font-bold bg-[#1D1811] text-[#B8AA8E] border border-[var(--hairline-strong)] hover:text-[#F2E9D8] transition-all"
+              className="flex items-center gap-2 px-4 py-2 rounded-md text-[11px] font-bold bg-card text-muted-foreground border border-border hover:text-foreground transition-all"
             >
               <Network className="w-3.5 h-3.5" />
               علاقاته الأدبية
@@ -245,8 +245,8 @@ export default function LibraryPoetPage() {
 
         {/* Poems Heading */}
         <div className="flex items-center gap-2 mb-3 px-1">
-          <span className="text-[10px] text-[var(--wax)]" aria-hidden="true">◆</span>
-          <h3 className="text-[13px] font-bold uppercase tracking-wider text-[#7E7259] font-tajawal">
+          <span className="text-[10px] text-primary" aria-hidden="true">◆</span>
+          <h3 className="text-[13px] font-bold uppercase tracking-wider text-muted-foreground font-tajawal">
             قصائده وديوانه
           </h3>
         </div>
@@ -254,14 +254,14 @@ export default function LibraryPoetPage() {
         {poems.isLoading && page === 0 ? (
           <div className="space-y-4 pt-2">
             {[0, 1, 2].map(i => (
-              <div key={i} className="py-4 border-b border-[var(--hairline)]">
-                <div className="h-4 bg-[rgba(242,233,216,0.08)] rounded w-1/4 animate-pulse mb-2" />
-                <div className="h-3 bg-[rgba(242,233,216,0.05)] rounded w-3/4 animate-pulse" />
+              <div key={i} className="py-4 border-b border-border/60">
+                <div className="h-4 bg-muted/40 rounded w-1/4 animate-pulse mb-2" />
+                <div className="h-3 bg-muted/30 rounded w-3/4 animate-pulse" />
               </div>
             ))}
           </div>
         ) : items.length === 0 ? (
-          <div className="text-center py-12 text-[#7E7259] text-[12.5px] font-tajawal">
+          <div className="text-center py-12 text-muted-foreground text-[12.5px] font-tajawal">
             {q ? 'لا قصائد مطابقة في هذا المخطوط.' : 'لا قصائد محفوظة لهذا الشاعر بعد.'}
           </div>
         ) : (
@@ -273,16 +273,16 @@ export default function LibraryPoetPage() {
                 <button
                   onClick={() => setPage(pg => pg + 1)}
                   disabled={poems.isFetching}
-                  className="w-full mt-4 py-3 rounded-[12px] bg-[#1D1811] border border-[var(--hairline-strong)] text-[12px] font-semibold text-[#B8AA8E] hover:text-[#F2E9D8] hover:border-[#B8AA8E] active:scale-[0.98] transition disabled:opacity-50 flex items-center justify-center gap-2"
+                  className="w-full mt-4 py-3 rounded-lg bg-card border border-border text-[12px] font-semibold text-muted-foreground hover:text-foreground hover:border-primary active:scale-[0.98] transition disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                   {poems.isFetching ? (
-                    <><Loader2 className="w-3.5 h-3.5 animate-spin text-[var(--wax)]" /> جاري فتح المزيد من الرقوق…</>
+                    <><Loader2 className="w-3.5 h-3.5 animate-spin text-primary" /> جاري فتح المزيد من الرقوق…</>
                   ) : 'تحميل المزيد من قصائده'}
                 </button>
               </>
             )}
             {reachedEnd && items.length > PAGE && (
-              <p className="text-center text-[11px] text-[#7E7259] font-tajawal pt-6 select-none">
+              <p className="text-center text-[11px] text-muted-foreground font-tajawal pt-6 select-none">
                 انتهى ديوان الشاعر في هذه النسخة
               </p>
             )}

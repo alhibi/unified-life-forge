@@ -85,8 +85,8 @@ function timeLabel(value: string | number | undefined, locale: string) {
 
 function Panel({ title, sub, children }: { title?: string; sub?: string; children: ReactNode }) {
   return (
-    <section className="relative rounded-[22px] surface-depth overflow-hidden">
-      <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+    <section className="relative rounded-2xl surface-depth overflow-hidden">
+      <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-primary/40" />
       {(title || sub) && (
         <header className="px-4 pt-4 pb-3 flex items-end justify-between gap-3">
           {title && <h2 className="font-montserrat font-semibold text-[18px] leading-none text-foreground">{title}</h2>}
@@ -213,31 +213,21 @@ function SourceHealthPanel({ ar }: { ar: boolean }) {
   );
 }
 
-function AmbientBackdrop({ code, isDay }: { code: number; isDay: boolean }) {
-  const palette = useMemo(() => {
-    if (code >= 95) return ['hsl(230 40% 8%)', 'hsl(200 30% 12%)'];
-    if (code >= 71 && code <= 77) return ['hsl(210 30% 18%)', 'hsl(220 25% 10%)'];
-    if (code >= 61 && code <= 82) return ['hsl(215 32% 14%)', 'hsl(220 30% 8%)'];
-    if (code >= 45 && code <= 48) return ['hsl(220 12% 16%)', 'hsl(220 12% 8%)'];
-    if (code >= 2) return isDay ? ['hsl(215 22% 16%)', 'hsl(220 25% 9%)'] : ['hsl(225 30% 10%)', 'hsl(230 35% 6%)'];
-    return isDay ? ['hsl(32 58% 20% / 0.55)', 'hsl(220 28% 8%)'] : ['hsl(230 40% 12%)', 'hsl(230 40% 5%)'];
-  }, [code, isDay]);
+function AmbientBackdrop({ code: _code, isDay }: { code: number; isDay: boolean }) {
+  const surface = isDay ? 'hsl(var(--muted) / 0.42)' : 'hsl(var(--card) / 0.72)';
   return (
     <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
       <motion.div
-        className="absolute -top-24 -right-24 w-[420px] h-[420px] rounded-full blur-3xl"
-        style={{ background: `radial-gradient(circle at 30% 30%, ${palette[0]}, transparent 65%)` }}
-        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1.2 }}
-      />
-      <motion.div
-        className="absolute -bottom-40 -left-24 w-[420px] h-[420px] rounded-full blur-3xl"
-        style={{ background: `radial-gradient(circle at 60% 60%, ${palette[1]}, transparent 65%)` }}
-        initial={{ opacity: 0 }} animate={{ opacity: 0.9 }} transition={{ duration: 1.4, delay: 0.1 }}
-      />
-      <motion.div
         className="absolute inset-0"
-        style={{ background: 'radial-gradient(80% 60% at 50% 0%, hsl(var(--primary) / 0.10), transparent 60%)' }}
-        animate={{ opacity: [0.55, 0.9, 0.55] }} transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut' }}
+        style={{ backgroundColor: surface }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6 }}
+      />
+      <motion.div
+        className="absolute inset-x-0 top-0 h-24 bg-primary/5"
+        animate={{ opacity: [0.55, 0.9, 0.55] }}
+        transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut' }}
       />
     </div>
   );
@@ -282,7 +272,7 @@ function HourlyRibbon({
                 <div className="font-montserrat font-bold text-[18px] leading-none text-foreground tabular-nums">{Math.round(e.temperature_c)}°</div>
                 <div className="mt-2 h-8 rounded-full bg-foreground/5 relative overflow-hidden">
                   <div
-                    className="absolute inset-x-0 bottom-0 rounded-full bg-gradient-to-t from-primary/70 to-primary/20"
+                    className="absolute inset-x-0 bottom-0 rounded-full bg-primary/60"
                     style={{ height: `${Math.max(6, heat * 100)}%` }}
                   />
                 </div>
@@ -333,15 +323,10 @@ function WindCompass({ speed, gusts, dirDeg, cardinal, beaufort, ar }: { speed: 
             transition={{ type: 'spring', stiffness: 60, damping: 14 }}
           >
             <svg viewBox="0 0 120 120" className="w-full h-full">
-              <defs>
-                <linearGradient id="wind-needle" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="1" />
-                  <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0.15" />
-                </linearGradient>
-              </defs>
               <path
                 d="M60 18 C 68 40, 68 52, 60 58 C 52 52, 52 40, 60 18 Z"
-                fill="url(#wind-needle)"
+                fill="hsl(var(--primary))"
+                fillOpacity="0.75"
               />
               <path
                 d="M60 102 C 65 84, 65 74, 60 68 C 55 74, 55 84, 60 102 Z"
@@ -470,13 +455,7 @@ function LiveSunArc({ sunrise, sunset, elevationDeg, azimuthDeg, dayLengthH, loc
     <Panel title={ar ? 'مسار الشمس والقبة السماوية' : 'Sonnenlauf & Himmel'} sub={ar ? `${dayLengthH.toFixed(1)} ساعة` : `${dayLengthH.toFixed(1)} h`}>
       <div className="relative" style={{ aspectRatio: `${W} / ${H}` }} dir="ltr">
         <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className="absolute inset-0 h-full w-full overflow-visible">
-          <defs>
-            <linearGradient id="sun-arc-fill" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.28" />
-              <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0" />
-            </linearGradient>
-          </defs>
-          <path d={`M ${padX} ${baseY} Q ${W / 2} ${baseY - 4 * peak * 0.25 * 4} ${W - padX} ${baseY} L ${W - padX} ${baseY} L ${padX} ${baseY} Z`} fill="url(#sun-arc-fill)" />
+          <path d={`M ${padX} ${baseY} Q ${W / 2} ${baseY - 4 * peak * 0.25 * 4} ${W - padX} ${baseY} L ${W - padX} ${baseY} L ${padX} ${baseY} Z`} fill="hsl(var(--primary))" fillOpacity="0.12" />
           <path d={`M ${padX} ${baseY} Q ${W / 2} ${baseY - 4 * peak * 0.25 * 4} ${W - padX} ${baseY}`} fill="none" stroke="hsl(var(--primary))" strokeOpacity="0.75" strokeWidth="1.6" strokeLinecap="round" />
           <line x1={padX} x2={W - padX} y1={baseY} y2={baseY} stroke="hsl(var(--foreground))" strokeOpacity="0.14" strokeWidth="1" strokeDasharray="2 3" />
           <motion.g initial={{ opacity: 0, scale: 0.6 }} animate={{ opacity: 1, scale: 1 }} transition={{ type: 'spring', stiffness: 220, damping: 18 }}>
@@ -533,7 +512,7 @@ function DailyRangeStrip({ days, iconFor, locale, ar }: {
               <DayIcon className="w-4 h-4 text-primary" strokeWidth={1.4} />
               <div className="relative h-1.5 rounded-full bg-foreground/8 overflow-hidden">
                 <div
-                  className="absolute inset-y-0 rounded-full bg-gradient-to-r from-sky-400/70 via-primary/80 to-orange-400/80"
+                  className="absolute inset-y-0 rounded-full bg-primary/70"
                   style={{ left: `${leftPct}%`, right: `${100 - rightPct}%` }}
                 />
               </div>
@@ -625,7 +604,7 @@ export default function Weather() {
       </Helmet>
 
       {/* Sticky Header */}
-      <div className="sticky top-0 z-40 border-b border-border/50 bg-background/70 backdrop-blur-xl">
+      <div className="sticky top-0 z-40 border-b border-border/50 bg-background/92 backdrop-blur-md">
         <div className="px-4 py-3 flex items-center gap-3">
           <BackButton />
           <div className="flex-1 min-w-0 text-center">
@@ -636,7 +615,7 @@ export default function Weather() {
               {Math.round(snapshot.meta.location.elevation_m)} m · {activeLocation?.lat.toFixed(2)}, {activeLocation?.lng.toFixed(2)}
             </p>
           </div>
-          <button onClick={refresh} aria-label={ar ? 'تحديث الطقس' : 'Wetter aktualisieren'} className="w-10 h-10 rounded-2xl border border-border/60 bg-card flex items-center justify-center active:scale-95 transition-transform">
+          <button onClick={refresh} aria-label={ar ? 'تحديث الطقس' : 'Wetter aktualisieren'} className="w-11 h-11 rounded-lg border border-border/60 bg-card flex items-center justify-center active:scale-[0.98] transition-transform">
             <RefreshCw className={`w-4 h-4 text-primary ${isRefreshing ? 'animate-spin' : ''}`} />
           </button>
         </div>
@@ -681,7 +660,7 @@ export default function Weather() {
               {/* Ambient Hero Panel */}
               <section className="relative rounded-[26px] surface-depth overflow-hidden">
           <AmbientBackdrop code={currentHour?.weather_code ?? 0} isDay={currentHour?.is_day ?? true} />
-          <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/60 to-transparent" />
+          <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-primary/40" />
           <div className="relative p-5">
             <div className="flex items-start justify-between gap-4">
               <div className="min-w-0">
@@ -717,7 +696,7 @@ export default function Weather() {
               </div>
             </div>
             <div className="mt-5 h-1.5 rounded-full bg-foreground/15 overflow-hidden" dir="ltr">
-              <motion.div className="h-full rounded-full bg-gradient-to-r from-primary/60 via-primary to-primary/60" initial={{ width: 0 }} animate={{ width: `${conf}%` }} transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }} />
+              <motion.div className="h-full rounded-full bg-primary" initial={{ width: 0 }} animate={{ width: `${conf}%` }} transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }} />
             </div>
             <div className="mt-4 grid grid-cols-4 gap-2.5 text-center" dir="ltr">
               {[

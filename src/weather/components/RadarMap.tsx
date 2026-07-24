@@ -128,11 +128,7 @@ export default function RadarMap({
       // Draw sweeping radar arm
       if (activeLayer === 'radar') {
         const angle = (Date.now() / 1500) % (Math.PI * 2);
-        const gradient = ctx.createRadialGradient(center.x, center.y, 0, center.x, center.y, width * 0.8);
-        gradient.addColorStop(0, 'rgba(32, 58, 62, 0.12)');
-        gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
-
-        ctx.fillStyle = gradient;
+        ctx.fillStyle = 'rgba(120, 90, 60, 0.08)';
         ctx.beginPath();
         ctx.moveTo(center.x, center.y);
         ctx.arc(center.x, center.y, width * 0.8, angle - 0.4, angle);
@@ -193,8 +189,8 @@ export default function RadarMap({
   }, [isPlaying, allFrames.length]);
 
   return (
-    <section className="relative rounded-[22px] surface-depth overflow-hidden">
-      <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+    <section className="relative rounded-2xl surface-depth overflow-hidden">
+      <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-primary/40" />
 
       <header className="p-4 pb-1 flex items-center justify-between gap-3">
         <h2 className="font-montserrat font-semibold text-[20px] leading-none text-foreground flex items-center gap-2">

@@ -61,9 +61,9 @@ export default function PageHeader({
   return (
     <header
       className={cn(
-        'flex items-center gap-3 px-4 py-3',
+        'flex items-center gap-2 px-4 py-3',
         sticky &&
-          'sticky top-0 z-30 bg-background border-b border-border',
+          'sticky top-0 z-30 bg-background/92 backdrop-blur-md border-b border-border/50',
         className,
       )}
     >
@@ -71,14 +71,14 @@ export default function PageHeader({
         <BackButton to={backTo} fallback={backFallback} />
       )}
 
-      <div className="flex-1 min-w-0 flex items-center gap-2.5">
+      <div className="flex-1 min-w-0 flex items-center gap-2">
         {icon && <span className="shrink-0 inline-flex">{icon}</span>}
         <div className="min-w-0">
           <h1 className="text-[17px] font-semibold tracking-tight text-foreground truncate leading-tight">
             {title}
           </h1>
           {subtitle && (
-            <div className="text-[11px] text-muted-foreground truncate leading-tight mt-0.5">
+            <div className="text-[11px] text-muted-foreground truncate leading-tight mt-1">
               {subtitle}
             </div>
           )}
@@ -86,7 +86,7 @@ export default function PageHeader({
       </div>
 
       {right ? (
-        <div className="shrink-0 flex items-center gap-1.5">{right}</div>
+        <div className="shrink-0 flex items-center gap-2">{right}</div>
       ) : !hideBack ? (
         // Optical balance — the title row visually centers between back
         // and this 36 px placeholder. Without this, short titles pull

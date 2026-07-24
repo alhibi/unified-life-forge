@@ -202,7 +202,7 @@ function VerseLine({
             <div
               className="w-[1.5px] h-full opacity-35 select-none shrink-0"
               style={{
-                background: 'repeating-linear-gradient(to bottom, var(--hairline-strong), var(--hairline-strong) 2px, transparent 2px, transparent 6px)',
+                backgroundColor: 'hsl(var(--border))',
               }}
             />
 

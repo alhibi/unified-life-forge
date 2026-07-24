@@ -165,8 +165,8 @@ export const MOTION = {
    */
   pressOut: {
     type: 'spring',
-    stiffness: 400,
-    damping: 20,
+    stiffness: 300,
+    damping: 28,
     mass: 1,
   } as Transition,
 
@@ -176,8 +176,8 @@ export const MOTION = {
    */
   spring: {
     type: 'spring',
-    stiffness: 400,
-    damping: 20,
+    stiffness: 300,
+    damping: 28,
     mass: 1,
   } as Transition,
 
@@ -188,7 +188,7 @@ export const MOTION = {
   swipeBack: {
     type: 'spring',
     stiffness: 300,
-    damping: 30,
+    damping: 28,
     mass: 1,
   } as Transition,
 

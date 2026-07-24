@@ -60,9 +60,9 @@ export default function AdvancedAnalytics({ lang }: Props) {
   return (
     <div className="space-y-4" dir={isAr ? 'rtl' : 'ltr'}>
       {/* Hero Header */}
-      <div className="rounded-2xl p-4 bg-gradient-to-br from-purple-500/10 to-primary/10 border border-purple-500/20">
+      <div className="rounded-2xl p-4 bg-primary/5 border border-primary/20">
         <div className="flex items-center gap-2 mb-1.5">
-          <BarChart3 className="w-5 h-5 text-purple-500" />
+          <BarChart3 className="w-5 h-5 text-primary" />
           <h3 className="text-sm font-bold text-foreground">{T.title[lang]}</h3>
         </div>
         <p className="text-[11px] text-muted-foreground leading-relaxed">{T.subtitle[lang]}</p>
@@ -110,7 +110,7 @@ export default function AdvancedAnalytics({ lang }: Props) {
       {/* RDA Index */}
       <div className="rounded-2xl border border-border/30 bg-card p-4 space-y-3">
         <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
-          <Award className="w-3.5 h-3.5 text-purple-500" />
+          <Award className="w-3.5 h-3.5 text-primary" />
           {T.scorecard[lang]}
         </h4>
         <div className="flex items-center gap-4">
