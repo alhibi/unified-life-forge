@@ -390,7 +390,7 @@ export default function PodcastLibrary() {
         path="/podcasts/library"
       />
 
-      <div className="sticky top-0 z-30 bg-background/85 backdrop-blur-xl border-b border-border/40">
+      <div className="sticky top-0 z-30 bg-background/85 backdrop-blur-md border-b border-border/40">
         <div className="max-w-lg mx-auto px-4 pt-3 pb-3 flex items-center gap-2">
           <BackButton />
           <h1 className="flex-1 text-base font-bold text-foreground">

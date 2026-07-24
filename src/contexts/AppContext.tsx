@@ -88,7 +88,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     parseInt(localStorage.getItem('app-accent-hue') || '152', 10)
   );
   const [paletteStyle, setPaletteStyleState] = useState<PaletteStyle>(() =>
-    (localStorage.getItem('app-palette-style') as PaletteStyle) || 'vibrant'
+    (localStorage.getItem('app-palette-style') as PaletteStyle) || 'neutral'
   );
   const [blackMode, setBlackModeState] = useState<boolean>(() =>
     localStorage.getItem('app-black-mode') === 'true'

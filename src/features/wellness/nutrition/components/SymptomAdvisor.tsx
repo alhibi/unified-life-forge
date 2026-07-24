@@ -149,9 +149,9 @@ export default function SymptomAdvisor({ lang }: Props) {
   return (
     <div className="space-y-4" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
       {/* Header */}
-      <div className="rounded-2xl p-4 bg-gradient-to-br from-amber-500/10 to-primary/10 border border-amber-500/20">
+      <div className="rounded-2xl p-4 bg-primary/5 border border-primary/20">
         <div className="flex items-center gap-2 mb-1.5">
-          <Sparkles className="w-5 h-5 text-amber-500" />
+          <Sparkles className="w-5 h-5 text-primary" />
           <h3 className="text-sm font-bold text-foreground">{T.title[lang]}</h3>
         </div>
         <p className="text-[11px] text-muted-foreground leading-relaxed">{T.subtitle[lang]}</p>
@@ -169,8 +169,8 @@ export default function SymptomAdvisor({ lang }: Props) {
                 onClick={() => handleToggleSymptom(s.key)}
                 className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border text-[11px] font-semibold transition-all ${
                   active
-                    ? 'bg-amber-500 text-white border-amber-500'
-                    : 'bg-card text-muted-foreground border-border/40 hover:border-amber-500/30'
+                    ? 'bg-primary text-primary-foreground border-primary'
+                    : 'bg-card text-muted-foreground border-border/40 hover:border-primary/30'
                 }`}
               >
                 <span>{s.label[lang]}</span>
@@ -202,7 +202,7 @@ export default function SymptomAdvisor({ lang }: Props) {
                 >
                   <div className="flex items-center gap-2">
                     <div className="w-6 h-6 rounded-lg bg-amber-500/10 flex items-center justify-center">
-                      <Info className="w-3.5 h-3.5 text-amber-500" />
+                      <Info className="w-3.5 h-3.5 text-primary" />
                     </div>
                     <h4 className="text-[12.5px] font-bold text-foreground">
                       {def.nutrientName[lang]}

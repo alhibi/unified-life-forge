@@ -19,21 +19,21 @@
     --duration-normal: 250ms;
     --duration-slow: 350ms;
 
-    /* ── Manuscript / Maktutah Design Tokens ── */
-    --ink-bg: #16130F;        /* خلفية أساسية */
-    --ink-bg-elev: #1D1811;   /* خلفية العناصر المرتفعة (شرائط الأدوات) */
-    --ink-card: #1E1912;      /* خلفية البطاقات */
-    --ink-text: #F2E9D8;      /* نص أساسي — أبيض دافئ */
-    --ink-text-dim: #B8AA8E;  /* نص ثانوي */
-    --ink-text-faint: #7E7259;/* نص باهت جداً (تلميحات، أرقام) */
-    --wax: #B8492E;           /* لون التمييز الوحيد — أحمر شمع الختم */
-    --wax-soft: rgba(184, 73, 46, .15);
-    --wax-soft2: rgba(184, 73, 46, .28);
-    --hairline: rgba(242, 233, 216, .09);
-    --hairline-strong: rgba(242, 233, 216, .18);
+    /* Organic neutral palette — semantic tokens are the only source of color. */
+    --ink-bg: #f5f3ef;
+    --ink-bg-elev: #faf9f6;
+    --ink-card: #fffefa;
+    --ink-text: #282622;
+    --ink-text-dim: #68645d;
+    --ink-text-faint: #8d887f;
+    --wax: #8a5b3d;
+    --wax-soft: rgba(138, 91, 61, 0.12);
+    --wax-soft2: rgba(138, 91, 61, 0.20);
+    --hairline: rgba(52, 47, 41, 0.10);
+    --hairline-strong: rgba(52, 47, 41, 0.18);
 
     --ease-linear-app: cubic-bezier(0.25, 0.1, 0.25, 1);
-    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
     --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
     --ease-in: cubic-bezier(0.4, 0, 1, 1);
 
@@ -43,79 +43,105 @@
     --spring-exit: var(--ease-in);
     --spring-ios: var(--ease-spring);
     --ease-out-soft: var(--ease-out-expo);
-    --background: 0 0% 98%;
-    --foreground: 240 10% 10%;
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 10%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 10%;
-    --primary: 240 5% 26%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 240 5% 93%;
-    --secondary-foreground: 240 5% 30%;
-    --muted: 240 5% 91%;
-    --muted-foreground: 240 4% 46%;
-    --accent: 240 5% 93%;
-    --accent-foreground: 240 5% 26%;
-    --destructive: 0 72% 51%;
+    --background: 36 18% 96%;
+    --foreground: 30 16% 14%;
+    --card: 38 24% 99%;
+    --card-foreground: 30 16% 14%;
+    --popover: 38 24% 99%;
+    --popover-foreground: 30 16% 14%;
+    --primary: 28 42% 34%;
+    --primary-foreground: 38 30% 98%;
+    --secondary: 36 14% 91%;
+    --secondary-foreground: 30 14% 24%;
+    --muted: 36 14% 91%;
+    --muted-foreground: 30 10% 38%;
+    --accent: 36 14% 91%;
+    --accent-foreground: 28 42% 30%;
+    --destructive: 0 58% 42%;
     --destructive-foreground: 0 0% 100%;
-    --success: 142 60% 40%;
+    --success: 145 42% 34%;
     --success-foreground: 0 0% 100%;
-    --warning: 38 85% 50%;
-    --warning-foreground: 38 90% 10%;
+    --warning: 35 68% 38%;
+    --warning-foreground: 35 80% 10%;
 
-    /* ──────────────────────────────────────────────────────────────
-       SEVERITY SCALE — used by Weather (UV / AQI / Pollen).
-       Routed through tokens so the WHO-standard spectrum (green →
-       yellow → orange → red → purple) stays cohesive with the rest
-       of the design system and stays themeable in one place.
-       ────────────────────────────────────────────────────────────── */
-    --sev-good: 152 60% 45%; /* low / safe */
-    --sev-low: 86 60% 50%; /* acceptable */
-    --sev-moderate: 42 90% 55%; /* moderate */
-    --sev-high: 24 90% 58%; /* high */
-    --sev-very-high: 0 78% 62%; /* very high */
-    --sev-extreme: 292 70% 62%; /* extreme */
-    --error: 0 72% 51%;
+    /* Status colors are functional and deliberately restrained. */
+    --sev-good: 145 42% 34%;
+    --sev-low: 90 35% 38%;
+    --sev-moderate: 38 68% 42%;
+    --sev-high: 24 62% 44%;
+    --sev-very-high: 0 58% 46%;
+    --sev-extreme: 295 32% 42%;
+    --error: 0 58% 42%;
     --error-foreground: 0 0% 100%;
-    --border: 240 6% 90%;
-    --input: 240 6% 90%;
-    --ring: 240 5% 26%;
-    --radius: 0.85rem;
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5% 26%;
-    --sidebar-primary: 240 5% 26%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 5% 95%;
-    --sidebar-accent-foreground: 240 5% 26%;
-    --sidebar-border: 240 6% 91%;
-    --sidebar-ring: 240 5% 26%;
-    --shadow-opacity: 0.05;
-    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, calc(var(--shadow-opacity) * 0.8));
-    --shadow-card: 0 4px 12px -2px rgba(0, 0, 0, var(--shadow-opacity)), 0 2px 4px -1px rgba(0, 0, 0, calc(var(--shadow-opacity) * 0.5));
-    --shadow-elevated: 0 12px 24px -4px rgba(0, 0, 0, calc(var(--shadow-opacity) * 1.5)), 0 4px 12px -2px rgba(0, 0, 0, calc(var(--shadow-opacity) * 0.8));
-    --shadow-intense: 0 20px 32px -6px rgba(0, 0, 0, calc(var(--shadow-opacity) * 2)), 0 8px 16px -4px rgba(0, 0, 0, var(--shadow-opacity));
+    --border: 34 13% 82%;
+    --input: 34 13% 72%;
+    --ring: 28 42% 34%;
+    --radius: 1rem;
+    --sidebar-background: 36 18% 96%;
+    --sidebar-foreground: 30 14% 24%;
+    --sidebar-primary: 28 42% 34%;
+    --sidebar-primary-foreground: 38 30% 98%;
+    --sidebar-accent: 36 14% 91%;
+    --sidebar-accent-foreground: 28 42% 30%;
+    --sidebar-border: 34 13% 82%;
+    --sidebar-ring: 28 42% 34%;
+
+    /* Micro-ambient elevation, tinted to the surface rather than black. */
+    --shadow-color: 30 18% 14%;
+    --shadow-sm: 0 1px 2px hsl(var(--shadow-color) / 0.08), 0 4px 8px -4px hsl(var(--shadow-color) / 0.08);
+    --shadow-card: 0 1px 2px hsl(var(--shadow-color) / 0.08), 0 8px 16px -8px hsl(var(--shadow-color) / 0.10);
+    --shadow-elevated: 0 1px 2px hsl(var(--shadow-color) / 0.08), 0 12px 24px -10px hsl(var(--shadow-color) / 0.12);
+    --shadow-intense: 0 1px 2px hsl(var(--shadow-color) / 0.08), 0 16px 32px -14px hsl(var(--shadow-color) / 0.14);
     --font-display:
       'IBM Plex Sans Arabic', 'Noto Sans Arabic', system-ui, -apple-system, 'Segoe UI', sans-serif;
     --font-body:
       'IBM Plex Sans Arabic', 'Noto Sans Arabic', system-ui, -apple-system, 'Segoe UI', sans-serif;
 
-    /* ──────────────────────────────────────────────────────────────
-       UNIFIED LIVE ACCENT — single warm copper that pulses across
-       the entire application. The ONLY chromatic note in the UI.
-       Every per-section color (orange games, blue chat, green wellness,
-       cyan weather, purple browse, gold knowledge, yellow mihrab,
-       lavender home) has been retired in favour of this one token.
-       Use it on: active tab indicator, next prayer marker, unread
-       message dot, current selection, "now" hotspots. Never on
-       inert chrome, borders, or decorative surfaces.
+    /* One chromatic note: a muted copper for active/live states only. */
+    --live: 28 42% 40%;
+    --live-soft: 28 35% 56%;
+    --live-glow: 28 46% 52%;
+  }
 
-       Theme-independent on purpose — same lantern warmth across all
-       28 themes so the brand stays coherent regardless of skin.
-       ────────────────────────────────────────────────────────────── */
-    --live: 32 58% 62%; /* warm copper / lantern light */
-    --live-soft: 32 45% 70%; /* for translucent halos */
-    --live-glow: 32 80% 68%; /* for the breathing aura */
+  .dark {
+    color-scheme: dark;
+    --background: 30 9% 10%;
+    --foreground: 34 20% 92%;
+    --card: 30 8% 15%;
+    --card-foreground: 34 20% 92%;
+    --popover: 30 8% 15%;
+    --popover-foreground: 34 20% 92%;
+    --primary: 29 40% 72%;
+    --primary-foreground: 30 14% 14%;
+    --secondary: 30 8% 21%;
+    --secondary-foreground: 34 18% 88%;
+    --muted: 30 8% 21%;
+    --muted-foreground: 34 12% 72%;
+    --accent: 30 8% 21%;
+    --accent-foreground: 29 40% 78%;
+    --destructive: 0 58% 68%;
+    --destructive-foreground: 0 20% 10%;
+    --success: 145 38% 64%;
+    --success-foreground: 145 30% 12%;
+    --warning: 35 65% 68%;
+    --warning-foreground: 35 40% 12%;
+    --error: 0 58% 68%;
+    --error-foreground: 0 20% 10%;
+    --border: 30 8% 29%;
+    --input: 30 8% 36%;
+    --ring: 29 40% 72%;
+    --sidebar-background: 30 9% 10%;
+    --sidebar-foreground: 34 18% 88%;
+    --sidebar-primary: 29 40% 72%;
+    --sidebar-primary-foreground: 30 14% 14%;
+    --sidebar-accent: 30 8% 21%;
+    --sidebar-accent-foreground: 29 40% 78%;
+    --sidebar-border: 30 8% 29%;
+    --sidebar-ring: 29 40% 72%;
+    --shadow-color: 25 20% 2%;
+    --live: 29 42% 68%;
+    --live-soft: 29 30% 58%;
+    --live-glow: 29 42% 72%;
   }
 }
 
@@ -188,10 +214,10 @@
     outline: none;
   }
   *:focus-visible {
-    outline: 2px solid hsl(var(--accent));
+    outline: 2px solid hsl(var(--primary) / 0.20);
     outline-offset: 2px;
-    border-radius: 4px;
-    box-shadow: none !important;
+    border-radius: 6px;
+    box-shadow: 0 0 0 2px hsl(var(--primary) / 0.20) !important;
   }
   html {
     -webkit-overflow-scrolling: touch;
@@ -203,8 +229,8 @@
     @apply bg-background text-foreground;
     font-family: var(--font-body);
     color: hsl(var(--foreground) / var(--text-opacity, 1));
-    -webkit-font-smoothing: subpixel-antialiased;
-    -moz-osx-font-smoothing: auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     -webkit-tap-highlight-color: transparent;
     overscroll-behavior-y: contain;
     text-rendering: optimizeLegibility;
@@ -219,7 +245,27 @@
   h5,
   h6 {
     font-family: var(--font-display);
-    letter-spacing: -0.025em;
+    letter-spacing: -0.02em;
+  }
+  small,
+  [data-caption],
+  .text-caption {
+    letter-spacing: 0.05em;
+  }
+
+  svg {
+    stroke-width: 2;
+  }
+
+  button,
+  [role='button'],
+  a {
+    -webkit-tap-highlight-color: transparent;
+  }
+  button:active,
+  [role='button']:active,
+  a:active {
+    transform: scale(0.98);
   }
 
   /* Disable text selection on interactive UI, allow on content */
@@ -250,14 +296,13 @@
 }
 
 @layer components {
-  /* ── Glass overlay (command palette / popovers / dropdowns) ──
-     Spec: blur 20px • bg rgba(0,0,0,0.6) • slide -8px + fade
-     150ms ease-out-expo • input focus instant (no delay) */
+  /* Crisp glass: a quiet tinted surface, one hairline, light blur. */
   .glass-overlay {
-    background-color: hsl(var(--card) / 0.82);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid hsl(var(--border) / 0.5);
+    background-color: hsl(var(--card) / 0.94);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid hsl(var(--border) / 0.72);
+    box-shadow: var(--shadow-elevated);
     will-change: transform, opacity;
     transform: translateZ(0);
   }
@@ -296,7 +341,7 @@
   }
   .surface-depth-pressable {
     transition:
-      transform 120ms cubic-bezier(0.34, 1.56, 0.64, 1),
+      transform 150ms var(--ease-spring),
       background-color 150ms ease-out,
       border-color 150ms ease-out;
   }
@@ -345,42 +390,6 @@
     50% {
       opacity: 1;
       transform: scale(1.06);
-    }
-  }
-  /* Active bottom-nav glyph edge trace — the copper shimmer is painted on
-     the icon SVG paths themselves, never on a surrounding circle/frame. */
-  @keyframes nav-glyph-edge-trace {
-    from {
-      stroke-dashoffset: 0;
-    }
-    to {
-      stroke-dashoffset: -342;
-    }
-  }
-  .nav-icon-edge-trace {
-    position: absolute;
-    z-index: 3;
-    top: 50%;
-    left: 50%;
-    overflow: hidden;
-    pointer-events: none;
-    transform: translate(-50%, -50%) scale(1.08);
-  }
-  .nav-icon-edge-trace path {
-    fill: none !important;
-    stroke: hsl(var(--live)) !important;
-    stroke-width: 18;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    stroke-dasharray: 42 300;
-    animation: nav-glyph-edge-trace 1.65s linear infinite;
-    will-change: stroke-dashoffset;
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .nav-aurora,
-    .nav-halo-breath,
-    .nav-icon-edge-trace path {
-      animation: none !important;
     }
   }
   @media (prefers-reduced-motion: reduce) {
@@ -491,22 +500,22 @@
      on cards going forward.
      ────────────────────────────────────────────────────────────── */
 
-  /* The canonical app card. Always rounded-lg (12px), always surface-depth.
+  /* The canonical app card. Always rounded-lg (16px), always surface-depth.
      `.app-card-compact` = tighter padding for list rows.
      `.app-card-flat`    = no inset shadow chrome, for nested cards. */
   .app-card {
     background-color: hsl(var(--card));
-    border: 1px solid hsl(var(--border) / 0.6);
-    border-radius: 0.75rem; /* 12px — matches card harmonized radius */
-    padding: 1rem; /* 16px — matches p-4         */
+    border: 1px solid hsl(var(--border) / 0.62);
+    border-radius: 1rem; /* lg = 16px */
+    padding: 1rem; /* p-4 */
     box-shadow: var(--shadow-card);
   }
   .app-card-compact {
-    padding: 0.75rem;
-  } /* p-3 */
+    padding: 1rem;
+  }
   .app-card-flat {
     background-color: transparent;
-    border-color: hsl(var(--border) / 0.4);
+    border-color: hsl(var(--border) / 0.44);
     box-shadow: none;
   }
 
@@ -526,11 +535,11 @@
     box-shadow: var(--shadow-sm);
   }
 
-  /* The canonical icon button used in headers/toolbars. 40x40, rounded-md (8px). */
+  /* The canonical icon button used in headers/toolbars. 44x44, rounded-md (10px). */
   .app-icon-btn {
-    width: 2.5rem;
-    height: 2.5rem;
-    border-radius: 0.5rem; /* 8px — matches button harmonized radius */
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 0.625rem; /* 10px — matches button harmonized radius */
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -546,7 +555,7 @@
     background-color: hsl(var(--accent));
   }
   .app-icon-btn:active {
-    transform: scale(0.95);
+    transform: scale(0.98);
   }
 
   /* Tactile active micro-scaling classes for general interactive buttons & nav nodes */
@@ -555,7 +564,7 @@
     will-change: transform;
   }
   .active-tactile:active {
-    transform: scale(0.97) !important;
+    transform: scale(0.98) !important;
   }
 
   /* ──────────────────────────────────────────────────────────────
@@ -609,16 +618,11 @@
 }
 
 @layer utilities {
-  /* Nuke shadows globally — paper aesthetic is FLAT.
-     The bottom nav opts out via `.preserve-fx`. */
-  *:not(.preserve-fx):not(.preserve-fx *) {
+  /* Keep elevation intentional: only canonical shadows are used by shared surfaces. */
+  .shadow-none {
     box-shadow: none !important;
-    text-shadow: none !important;
   }
-  /* Strip Tailwind gradient utilities. Targets only the `bg-gradient-*`
-     directional classes — color stops without a bg-gradient do nothing,
-     so this is enough. Inline backgroundImage (avatars, attachments)
-     stays intact. */
+  /* Decorative gradients are not part of the product chrome. */
   [class*='bg-gradient-']:not(.preserve-fx):not(.preserve-fx *) {
     background-image: none !important;
   }
@@ -674,7 +678,7 @@
     contain-intrinsic-size: auto 220px;
   }
   .premium-card-intense {
-    border-radius: calc(var(--radius) + 4px);
+    border-radius: var(--radius);
     contain-intrinsic-size: auto 260px;
   }
   /* Dark-mode gradient overlays removed — flat surfaces only. */
@@ -1553,11 +1557,7 @@ input.podcast-seek:active::-moz-range-thumb {
   pointer-events: none;
   z-index: 0;
   opacity: calc(0.16 + var(--reading-pulse, 0) * 0.18);
-  background: radial-gradient(
-    60% 40% at 50% var(--reading-focus-y, 50%),
-    var(--ambient-glow, hsl(var(--live, var(--primary)) / 0.1)) 0%,
-    transparent 70%
-  );
+  background-color: var(--ambient-glow, hsl(var(--live, var(--primary)) / 0.1));
   transition: opacity 900ms ease;
   animation: archive-ambient-breath 9s ease-in-out infinite;
   will-change: opacity;
@@ -1618,12 +1618,7 @@ input.podcast-seek:active::-moz-range-thumb {
   right: 0;
   bottom: -1px;
   height: 1px;
-  background: linear-gradient(
-    to left,
-    transparent 0%,
-    var(--ambient-accent, hsl(var(--live, var(--primary)) / 0.55)) 50%,
-    transparent 100%
-  );
+  background: var(--ambient-accent, hsl(var(--live, var(--primary)) / 0.55));
   transform-origin: right center;
   animation: archive-heading-sweep 1100ms cubic-bezier(0.22, 0.61, 0.36, 1) 220ms both;
 }
@@ -1726,9 +1721,7 @@ input.podcast-seek:active::-moz-range-thumb {
 }
 
 .travel-raster-map {
-  background:
-    radial-gradient(circle at 50% 50%, hsl(var(--muted) / 0.82), hsl(var(--background)) 74%),
-    hsl(var(--muted));
+  background-color: hsl(var(--muted));
 }
 
 .travel-raster-map__tiles {
@@ -1743,9 +1736,7 @@ input.podcast-seek:active::-moz-range-thumb {
 
 .travel-raster-map__shade {
   pointer-events: none;
-  background:
-    linear-gradient(180deg, hsl(var(--background) / 0.16), transparent 34%, hsl(var(--background) / 0.2)),
-    radial-gradient(circle at 50% 45%, transparent 0 42%, hsl(var(--background) / 0.2) 100%);
+  background-color: hsl(var(--background) / 0.16);
 }
 
 .travel-photo-marker {

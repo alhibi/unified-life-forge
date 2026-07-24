@@ -8,20 +8,19 @@ import { motion } from 'framer-motion';
 
 // Unique colors for each game to provide visual variety and distinct identities.
 const COLORS = {
-  focus: 'hsl(142 71% 45%)',       // Green
-  dice: 'hsl(346 87% 60%)',        // Pink/Red
-  memory: 'hsl(262 83% 58%)',      // Purple
-  chess: 'hsl(221 83% 53%)',       // Blue
-  puzzles: 'hsl(45 93% 47%)',      // Yellow/Gold
-  sudoku: 'hsl(199 89% 48%)',      // Light Blue
-  career: 'hsl(25 95% 53%)',       // Orange
-  adventure: 'hsl(262 83% 58%)',   // Purple (matches memory)
-  tournament: 'hsl(346 87% 60%)',  // Pink/Red (matches dice)
-  decathlon: 'hsl(142 71% 45%)',   // Green (matches focus)
-  overall: 'hsl(32 58% 62%)'       // Warm Copper for overall stats
+  focus: 'hsl(var(--primary))',       // Green
+  dice: 'hsl(var(--primary))',        // Pink/Red
+  memory: 'hsl(var(--primary))',      // Purple
+  chess: 'hsl(var(--primary))',       // Blue
+  puzzles: 'hsl(var(--primary))',      // Yellow/Gold
+  sudoku: 'hsl(var(--primary))',      // Light Blue
+  career: 'hsl(var(--primary))',       // Orange
+  adventure: 'hsl(var(--primary))',   // Purple (matches memory)
+  tournament: 'hsl(var(--primary))',  // Pink/Red (matches dice)
+  decathlon: 'hsl(var(--primary))',   // Green (matches focus)
+  overall: 'hsl(var(--primary))'       // Warm Copper for overall stats
 };
 
-const getGradient = (color: string) => `from-[${color.replace(/ /g, '_').replace(/%/g, '%25')}/0.18] to-[${color.replace(/ /g, '_').replace(/%/g, '%25')}/0.04]`; // We will use inline styles instead for reliable Tailwind arbitrary value parsing
 
 interface GameCardData {
   key: string;
@@ -33,7 +32,6 @@ interface GameCardData {
   path: string;
   primaryStat: { label: string; value: string | number; accent: string };
   secondaryStat?: { label: string; value: string | number };
-  gradient: string;
 }
 
 export default function GamesPage() {
@@ -71,7 +69,6 @@ export default function GamesPage() {
       path: '/games/focus',
       primaryStat: { label: isAr ? 'مباريات' : 'Spiele', value: focusStats.gamesPlayed || 0, accent: COLORS.focus },
       secondaryStat: focusStats.bestNback?.level ? { label: 'N-back', value: `${focusStats.bestNback.level}` } : undefined,
-      gradient: COLORS.focus,
     },
     {
       key: 'dice',
@@ -83,7 +80,6 @@ export default function GamesPage() {
       path: '/games/dice',
       primaryStat: { label: isAr ? 'انتصارات' : 'Siege', value: diceStats.gamesWon || 0, accent: COLORS.dice },
       secondaryStat: diceStats.yatzeesRolled ? { label: isAr ? 'يَتزي' : 'Kniffel', value: diceStats.yatzeesRolled } : undefined,
-      gradient: COLORS.dice,
     },
     {
       key: 'memory',
@@ -97,7 +93,6 @@ export default function GamesPage() {
       path: '/games/memory',
       primaryStat: { label: isAr ? 'فوز' : 'Siege', value: memStats.gamesWon || 0, accent: COLORS.memory },
       secondaryStat: memStats.bestEndlessLevel ? { label: isAr ? 'مستوى ∞' : 'Endlos', value: memStats.bestEndlessLevel } : undefined,
-      gradient: COLORS.memory,
     },
     {
       key: 'chess',
@@ -107,7 +102,6 @@ export default function GamesPage() {
       path: '/games/chess',
       primaryStat: { label: isAr ? 'مباريات' : 'Partien', value: chessStats.gamesPlayed || 0, accent: COLORS.chess },
       secondaryStat: { label: isAr ? 'فوز' : 'Siege', value: (chessStats.whiteWins || 0) + (chessStats.blackWins || 0) },
-      gradient: COLORS.chess,
     },
     {
       key: 'chess-puzzles',
@@ -119,7 +113,6 @@ export default function GamesPage() {
       path: '/games/chess/puzzles',
       primaryStat: { label: isAr ? 'محلولة' : 'Gelöst', value: puzzleStats.solved || 0, accent: COLORS.puzzles },
       secondaryStat: puzzleStats.currentStreak ? { label: isAr ? 'سلسلة' : 'Serie', value: puzzleStats.currentStreak } : undefined,
-      gradient: COLORS.puzzles,
     },
     {
       key: 'sudoku',
@@ -129,7 +122,6 @@ export default function GamesPage() {
       path: '/games/sudoku',
       primaryStat: { label: isAr ? 'فوز' : 'Siege', value: sudStats.gamesWon || 0, accent: COLORS.sudoku },
       secondaryStat: sudStats.flawless ? { label: isAr ? 'إتقان' : 'Perfekt', value: sudStats.flawless } : undefined,
-      gradient: COLORS.sudoku,
     },
   ], [t, isAr, memStats, diceStats, focusStats, chessStats, puzzleStats, sudStats]);
 
@@ -248,15 +240,15 @@ export default function GamesPage() {
               transition={{ delay: 0.1 + i * 0.05, duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
               onClick={() => navigate(world.path)}
               className="group relative overflow-hidden rounded-3xl bg-card border border-border/50 p-5 active:scale-[0.98] transition-all hover:shadow-lg text-start flex flex-col gap-3"
-              style={{ borderColor: `${world.color}40` }}
+              style={{ borderColor: 'hsl(var(--primary) / 0.2)' }}
             >
-              <div className="absolute top-0 right-0 w-32 h-32 opacity-10 blur-2xl pointer-events-none rounded-full transform translate-x-10 -translate-y-10" style={{ background: world.color }} />
+              <div className="absolute top-0 right-0 w-32 h-32 opacity-10 blur-2xl pointer-events-none rounded-full transform translate-x-10 -translate-y-10" style={{ backgroundColor: 'hsl(var(--primary) / 0.06)' }} />
 
               <div className="relative z-10 flex items-center justify-between">
-                <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-inner" style={{ background: `${world.color}15` }}>
-                  <Icon className="w-6 h-6 stroke-[2]" style={{ color: world.color }} />
+                <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-inner" style={{ backgroundColor: 'hsl(var(--primary) / 0.08)' }}>
+                  <Icon className="w-6 h-6 stroke-[2]" style={{ color: 'hsl(var(--primary))' }} />
                 </div>
-                <Sparkles className="w-5 h-5 opacity-40 animate-pulse" style={{ color: world.color }} />
+                <Sparkles className="w-5 h-5 opacity-40 animate-pulse" style={{ color: 'hsl(var(--primary))' }} />
               </div>
 
               <div className="relative z-10 mt-1">
@@ -278,19 +270,17 @@ export default function GamesPage() {
                   onClick={() => navigate(game.path)}
                   className="group relative overflow-hidden rounded-2xl bg-card border border-border/40 p-4 active:scale-[0.98] transition-all hover:shadow-md text-start min-h-[140px] flex flex-col gap-2.5"
                 >
-                  {/* Custom gradient background using inline styles */}
                   <div
-                    className="absolute inset-0 opacity-[0.08] pointer-events-none transition-opacity group-hover:opacity-[0.12]"
-                    style={{ background: `linear-gradient(to bottom right, ${game.gradient}, transparent)` }}
+                    className="absolute inset-0 bg-primary/[0.06] pointer-events-none transition-opacity group-hover:bg-primary/[0.1]"
                   />
 
                   <div className="relative z-10 flex items-start justify-between">
-                    <div className="w-11 h-11 rounded-xl flex items-center justify-center shadow-sm" style={{ background: `${game.primaryStat.accent}15` }}>
-                      <Icon className="w-5 h-5 stroke-[2]" style={{ color: game.primaryStat.accent }} />
+                    <div className="w-11 h-11 rounded-xl flex items-center justify-center bg-primary/10">
+                      <Icon className="w-5 h-5 stroke-[2] text-primary" />
                     </div>
                     {game.badge && (
                       <div className="px-2.5 py-1 rounded-full text-[10px] font-bold tabular-nums shadow-sm"
-                        style={{ background: `${game.badgeColor}15`, color: game.badgeColor, border: `1px solid ${game.badgeColor}30` }}>
+                        style={{ backgroundColor: 'hsl(var(--primary) / 0.08)', color: 'hsl(var(--primary))', border: '1px solid hsl(var(--primary) / 0.2)' }}>
                         {game.badge}
                       </div>
                     )}
@@ -340,17 +330,17 @@ export default function GamesPage() {
           className="px-4 mt-5"
         >
           <button onClick={() => navigate('/games/memory')}
-            className="w-full rounded-2xl border border-pink-500/20 bg-pink-500/5 p-3 flex items-center justify-between active:scale-[0.98] transition-transform">
+            className="w-full rounded-2xl border border-primary/20 bg-primary/5 p-3 flex items-center justify-between active:scale-[0.98] transition-transform">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-pink-500/15 flex items-center justify-center">
-                <Zap className="w-4 h-4 text-pink-300" />
+              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Zap className="w-4 h-4 text-primary" />
               </div>
               <div className="text-left">
                 <p className="text-[12px] font-bold text-foreground">{isAr ? 'إنجازات الذاكرة' : 'Memory-Erfolge'}</p>
                 <p className="text-[10px] text-muted-foreground">{totalAchievements} {isAr ? 'مفتوح من 10' : 'von 10 freigeschaltet'}</p>
               </div>
             </div>
-            <div className="text-pink-300 text-lg">→</div>
+            <div className="text-primary text-lg">→</div>
           </button>
         </motion.div>
       )}

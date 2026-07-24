@@ -33,7 +33,7 @@ export default function PortalBackButton() {
           whileTap={{ scale: 0.92 }}
           onClick={() => navigate('/')}
           aria-label={label}
-          className={`fixed bottom-4 ${sideClass} z-40 h-11 w-11 rounded-full flex items-center justify-center backdrop-blur-xl bg-background/70 border border-border/60 shadow-lg text-foreground active:scale-95 transition-transform`}
+          className={`fixed bottom-4 ${sideClass} z-40 h-11 w-11 rounded-full flex items-center justify-center backdrop-blur-md bg-background/90 border border-border/60 shadow-md text-foreground active:scale-[0.98] transition-transform`}
           style={{
             paddingBottom: 'env(safe-area-inset-bottom, 0px)',
             marginBottom: 'env(safe-area-inset-bottom, 0px)',

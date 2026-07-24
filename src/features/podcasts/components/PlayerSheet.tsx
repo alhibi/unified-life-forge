@@ -353,8 +353,7 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
                 <div
                   className="absolute inset-0"
                   style={{
-                    background:
-                      'linear-gradient(to bottom, hsl(var(--card) / 0.95) 0%, hsl(var(--card)) 50%, hsl(var(--card)) 100%)',
+                    backgroundColor: 'hsl(var(--card) / 0.96)',
                   }}
                 />
               </div>

@@ -294,7 +294,6 @@ export default function ArchiveNew() {
           disabled={topic.trim().length < 3}
           className="group relative w-full flex items-center justify-center gap-2 rounded-full bg-primary text-primary-foreground py-3 text-[15px] font-bold disabled:opacity-50 disabled:pointer-events-none active:scale-95 transition-transform overflow-hidden"
         >
-          <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
           <Sparkles className="w-4 h-4" />
           ابدأ التوليد
         </button>
@@ -359,11 +358,9 @@ function GenerationOverlay({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.35 }}
-          className="fixed inset-0 z-[80] flex flex-col items-center justify-center px-6 backdrop-blur-2xl"
+          className="fixed inset-0 z-[80] flex flex-col items-center justify-center px-6 bg-background/92 backdrop-blur-md"
           style={{
-            background: isError
-              ? 'radial-gradient(1200px 800px at 50% 20%, hsl(var(--destructive) / 0.22), transparent 60%), radial-gradient(900px 700px at 50% 90%, hsl(var(--destructive) / 0.12), transparent 60%), hsl(var(--background) / 0.9)'
-              : 'radial-gradient(1200px 800px at 50% 20%, hsl(var(--live) / 0.18), transparent 60%), radial-gradient(900px 700px at 50% 90%, hsl(var(--primary) / 0.14), transparent 60%), hsl(var(--background) / 0.85)',
+            background: isError ? 'hsl(var(--destructive) / 0.08)' : 'hsl(var(--background) / 0.92)',
           }}
         >
           {/* Breathing ambient rings */}
@@ -444,12 +441,7 @@ function GenerationOverlay({
                 {!isFiled ? (
                   <>
                     <motion.div
-                      className="absolute w-40 h-40 rounded-full"
-                      style={{
-                        background:
-                          'conic-gradient(from 0deg, hsl(var(--primary) / 0), hsl(var(--live) / 0.6), hsl(var(--primary) / 0.9), hsl(var(--primary) / 0))',
-                        filter: 'blur(2px)',
-                      }}
+                      className="absolute w-40 h-40 rounded-full border border-primary/30 bg-primary/5"
                       animate={{ rotate: 360 }}
                       transition={{ duration: 3.5, repeat: Infinity, ease: 'linear' }}
                     />
@@ -516,17 +508,9 @@ function GenerationOverlay({
               <div className="w-full max-w-sm">
                 <div className="relative h-1 rounded-full bg-muted/50 overflow-hidden mb-3">
                   <motion.div
-                    className="absolute inset-y-0 left-0 rounded-full"
-                    style={{
-                      background:
-                        'linear-gradient(90deg, hsl(var(--primary)), hsl(var(--live)), hsl(var(--primary)))',
-                      backgroundSize: '200% 100%',
-                    }}
-                    animate={{ width: `${percent}%`, backgroundPosition: ['0% 0%', '200% 0%'] }}
-                    transition={{
-                      width: { duration: 0.6, ease: 'easeOut' },
-                      backgroundPosition: { duration: 2.5, repeat: Infinity, ease: 'linear' },
-                    }}
+                    className="absolute inset-y-0 left-0 rounded-full bg-primary"
+                    animate={{ width: `${percent}%` }}
+                    transition={{ duration: 0.6, ease: 'easeOut' }}
                   />
                 </div>
 
@@ -565,7 +549,7 @@ function GenerationOverlay({
                           />
                           {isActive && (
                             <motion.div
-                              className="absolute inset-y-0 w-8 bg-gradient-to-r from-transparent via-primary to-transparent"
+                              className="absolute inset-y-0 w-8 bg-primary/40"
                               animate={{ x: ['-100%', '400%'] }}
                               transition={{ duration: 1.4, repeat: Infinity, ease: 'linear' }}
                             />

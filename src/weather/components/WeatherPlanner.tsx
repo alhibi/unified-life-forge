@@ -106,8 +106,8 @@ export default function WeatherPlanner({
   const advisories = getAdvisories();
 
   return (
-    <section className="relative rounded-[22px] surface-depth overflow-hidden p-4">
-      <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+    <section className="relative rounded-2xl surface-depth overflow-hidden p-4">
+      <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-primary/40" />
 
       <header className="mb-4">
         <h2 className="font-montserrat font-semibold text-[20px] leading-none text-foreground flex items-center gap-2">

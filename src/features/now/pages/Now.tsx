@@ -145,7 +145,7 @@ export default function Now() {
           <h2 id="home-archive-h" className="sr-only">الأرشيف المعرفي</h2>
           <button
             onClick={() => navigate('/archive')}
-            className="w-full text-start rounded-2xl p-4 border border-primary/25 bg-gradient-to-br from-primary/10 via-transparent to-transparent active:scale-[0.98] transition-transform"
+            className="w-full text-start rounded-2xl p-4 border border-primary/25 bg-primary/5 active:scale-[0.98] transition-transform"
           >
             <div className="flex items-center gap-3">
               <div className="w-11 h-11 rounded-xl bg-primary/15 flex items-center justify-center shrink-0">

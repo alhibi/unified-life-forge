@@ -50,7 +50,7 @@ export default function AppDatePicker({ value, onChange, className }: Props) {
  <PopoverContent
  align="end"
  sideOffset={8}
- className="w-auto p-0 rounded-2xl border-border/50 bg-card/95 backdrop-blur-xl"
+ className="w-auto p-0 rounded-lg border-border/50 bg-card shadow-md"
  dir={dir}
  >
  <Calendar

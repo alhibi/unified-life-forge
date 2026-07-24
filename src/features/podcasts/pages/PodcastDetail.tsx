@@ -337,8 +337,7 @@ export default function PodcastDetail() {
               <div
                 className="absolute inset-0"
                 style={{
-                  background:
-                    'linear-gradient(to bottom, hsl(var(--background) / 0.35) 0%, hsl(var(--background) / 0.75) 55%, hsl(var(--background)) 100%)',
+                  backgroundColor: 'hsl(var(--background) / 0.88)',
                 }}
               />
             </div>

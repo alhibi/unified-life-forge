@@ -89,13 +89,25 @@ export default {
         },
       },
       borderRadius: {
-        lg: "12px", // card harmonized radius
-        md: "8px",  // button/input harmonized radius
-        sm: "4px",  // subtle details radius
-        input: "8px",
-        button: "8px",
-        card: "12px",
-        section: "16px",
+        // Mathematical geometry scale: 6 / 10 / 16 / 24px.
+        sm: "6px",
+        md: "10px",
+        lg: "16px",
+        xl: "24px",
+        "2xl": "24px",
+        input: "10px",
+        button: "10px",
+        card: "16px",
+        section: "24px",
+      },
+      boxShadow: {
+        // Micro-ambient elevation: tight contact + quiet diffusion.
+        sm: "0 1px 2px hsl(var(--shadow-color) / 0.08), 0 4px 8px -4px hsl(var(--shadow-color) / 0.08)",
+        DEFAULT: "0 1px 2px hsl(var(--shadow-color) / 0.08), 0 8px 16px -8px hsl(var(--shadow-color) / 0.10)",
+        md: "0 1px 2px hsl(var(--shadow-color) / 0.08), 0 8px 16px -6px hsl(var(--shadow-color) / 0.10)",
+        lg: "0 1px 2px hsl(var(--shadow-color) / 0.08), 0 12px 24px -10px hsl(var(--shadow-color) / 0.12)",
+        xl: "0 1px 2px hsl(var(--shadow-color) / 0.08), 0 16px 32px -14px hsl(var(--shadow-color) / 0.14)",
+        "2xl": "0 1px 2px hsl(var(--shadow-color) / 0.08), 0 20px 40px -18px hsl(var(--shadow-color) / 0.16)",
       },
       keyframes: {
         "accordion-down": {

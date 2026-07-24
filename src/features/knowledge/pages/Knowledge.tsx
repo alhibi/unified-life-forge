@@ -876,7 +876,7 @@ function ModelDetailDialog({
             </div>
 
             {/* Hairline divider */}
-            <div className="mx-6 mt-6 h-px bg-gradient-to-l from-transparent via-border/60 to-transparent" />
+            <div className="mx-6 mt-6 h-px bg-border/60" />
 
             {/* Description */}
             <div className="px-6 pt-5">

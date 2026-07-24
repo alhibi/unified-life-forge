@@ -103,7 +103,7 @@ const AttachmentMenu = React.memo(function AttachmentMenu({ isAr, onSelect, onCl
       exit={{ opacity: 0, scale: 0.8, y: 10 }}
       transition={{ type: 'spring', damping: 20, stiffness: 350 }}
  >
- <div className="bg-card/95 backdrop-blur-lg rounded-2xl border border-border/30 p-3 min-w-[200px]">
+ <div className="bg-card/95 backdrop-blur-md rounded-2xl border border-border/30 p-3 min-w-[200px]">
  <div className="grid grid-cols-4 gap-3">
  {options.map((opt, i) => (
  <motion.button
@@ -158,7 +158,7 @@ const MentionSuggestionList = React.memo(function MentionSuggestionList({ sugges
  animate={{ opacity: 1, y: 0 }}
  exit={{ opacity: 0, y: 8 }}
  >
- <div className="bg-card/95 backdrop-blur-lg rounded-xl border border-border/30 overflow-hidden">
+ <div className="bg-card/95 backdrop-blur-md rounded-xl border border-border/30 overflow-hidden">
  {filtered.map((user, i) => (
  <motion.button
  key={user.userId}

@@ -21,8 +21,8 @@ export default function MicroMap({ lat, lng, elevationM = 0, ar }: MicroMapProps
   }, [lat, lng]);
 
   return (
-    <section className="relative rounded-[22px] surface-depth overflow-hidden p-4">
-      <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+    <section className="relative rounded-2xl surface-depth overflow-hidden p-4">
+      <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-primary/40" />
 
       <header className="mb-4 flex items-center justify-between gap-3">
         <h2 className="font-montserrat font-semibold text-[18px] leading-none text-foreground flex items-center gap-2">

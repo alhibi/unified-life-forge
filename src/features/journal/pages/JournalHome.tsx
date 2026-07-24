@@ -111,7 +111,7 @@ export default function JournalHome() {
                 <BrainScene balance={balance} reducedMotion={!!reduced} />
               </div>
               {/* Overlay caption */}
-              <div className="absolute inset-x-0 bottom-0 px-5 py-3 bg-gradient-to-t from-black/70 to-transparent">
+              <div className="absolute inset-x-0 bottom-0 px-5 py-3 bg-background/85">
                 <div className="text-[11px] tracking-[0.24em] uppercase text-white/70">
                   ذهنك اليوم
                 </div>
