@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Loader2, Users } from '@/lib/icons';
+import { Loader2 } from '@/lib/icons';
 import SEO from '@/components/SEO';
 import BackButton from '@/components/BackButton';
 import SearchBar from '@/features/diwan/components/library/SearchBar';
@@ -13,8 +13,8 @@ import type { DiwanPoetSummary } from '@/features/diwan/lib/types';
 const PAGE = 30;
 
 /**
- * صفحة قائمة الشعراء — مع فلترة بالعصر، بحث نصي، pagination
- * عبر زر "تحميل المزيد".
+ * صفحة قائمة الشعراء — مصممة بالكامل بنمط "المخطوطة" (Manuscript).
+ * تتميز بخلفية حبر دافئة عتيقة، ونظام ألوان شمع الختم العسلي والدموي الكلاسيكي.
  */
 export default function LibraryPoetsPage() {
   const [params, setParams] = useSearchParams();
@@ -83,7 +83,7 @@ export default function LibraryPoetsPage() {
   }, [showLoadMore, poets.isFetching]);
 
   return (
-    <div className="min-h-screen bg-background pb-28 px-5 pt-14">
+    <div className="min-h-screen bg-[#16130F] text-[#F2E9D8] pb-28 px-5 pt-14 font-tajawal selection:bg-[var(--wax-soft2)] selection:text-[#F2E9D8]">
       <SEO
         title={`${eraLabel ? `شعراء ${eraLabel}` : 'كل الشعراء'} — المكتبة الكبرى`}
         description="تصفّح آلاف الشعراء العرب من مختلف العصور."
@@ -91,16 +91,22 @@ export default function LibraryPoetsPage() {
       />
       <div className="max-w-lg mx-auto">
         {/* Header */}
-        <div className="flex items-center gap-3 mb-4">
-          <BackButton fallback="/mihrab" />
-          <div className="flex-1">
-            <h1 className="text-[20px] font-bold tracking-tight text-foreground flex items-center gap-2">
-              <Users className="w-5 h-5 text-primary" />
-              {eraLabel ? `شعراء ${eraLabel}` : 'كل الشعراء'}
+        <div className="flex items-start gap-4 mb-6">
+          <div className="mt-1 shrink-0">
+            <BackButton fallback="/mihrab" className="w-10 h-10 rounded-full border border-[var(--hairline-strong)] bg-[#1D1811] flex items-center justify-center text-[#B8AA8E] hover:text-[#F2E9D8] hover:border-[#B8AA8E] active:scale-95 transition-all" />
+          </div>
+          <div className="flex-1 min-w-0">
+            {/* عنوان علوي صغير بلون wax */}
+            <p className="text-[11px] font-bold tracking-[0.1em] text-[var(--wax)] uppercase mb-1">
+              محراب · الأدب
+            </p>
+            {/* عنوان رئيسي كبير بخط Amiri */}
+            <h1 className="text-[30px] font-bold tracking-tight text-[#F2E9D8] leading-tight font-amiri">
+              {eraLabel ? `شعراء ${eraLabel}` : 'المكتبة الكبرى'}
             </h1>
-            <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-              <p className="text-[11px] text-muted-foreground">
-                {list.length > 0 && `${list.length}${reachedEnd ? '' : '+'} شاعر`}
+            <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+              <p className="text-[12px] text-[#B8AA8E]">
+                {list.length > 0 && `${list.length}${reachedEnd ? '' : '+'} شاعر في هذه النسخة`}
               </p>
               <FallbackBadge />
             </div>
@@ -108,7 +114,7 @@ export default function LibraryPoetsPage() {
         </div>
 
         {/* Search */}
-        <div className="mb-3">
+        <div className="mb-5">
           <SearchBar
             value={q}
             placeholder="ابحث باسم شاعر أو لقبه…"
@@ -125,33 +131,49 @@ export default function LibraryPoetsPage() {
 
         {/* List */}
         {poets.isLoading && page === 0 ? (
-          <div className="space-y-2.5">
-            {[0,1,2,3,4].map(i => <div key={i} className="skeleton h-20 rounded-2xl" />)}
+          <div className="space-y-4 pt-2">
+            {[0, 1, 2, 3, 4].map(i => (
+              <div key={i} className="flex gap-4 py-5 border-b border-[var(--hairline)]">
+                <div className="w-[46px] h-[46px] rounded-full bg-[rgba(242,233,216,0.05)] animate-pulse shrink-0" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-4 bg-[rgba(242,233,216,0.08)] rounded w-1/3 animate-pulse" />
+                  <div className="h-3 bg-[rgba(242,233,216,0.05)] rounded w-3/4 animate-pulse" />
+                </div>
+              </div>
+            ))}
           </div>
         ) : list.length === 0 ? (
-          <div className="text-center py-12 text-muted-foreground text-[13px]">
-            {q ? 'لا نتائج لبحثك. جرّب اسمًا آخر.' : 'لا توجد بيانات حاليًا.'}
+          /* حالة فارغة مصممة بدقة طبقاً للمواصفات */
+          <div className="text-center py-20 flex flex-col items-center justify-center px-4">
+            <span className="font-amiri text-[28px] text-[var(--wax)] mb-4 animate-pulse select-none">
+              ✦
+            </span>
+            <p className="text-[#B8AA8E] text-[15px] font-medium leading-relaxed max-w-sm">
+              {q
+                ? 'لا نتائج لبحثك في هذا العصر. جرّب كتابة الاسم بشكل مبسط.'
+                : 'لا يوجد شعراء بعد في هذا العصر ضمن هذه النسخة. سيُضافون قريباً.'}
+            </p>
           </div>
         ) : (
-          <div className="space-y-2">
+          <div className="flex flex-col">
             {list.map((p, i) => <PoetCard key={p.slug} poet={p} index={i} />)}
             {showLoadMore && (
               <>
-                <div ref={sentinelRef} aria-hidden className="h-1" />
+                <div ref={sentinelRef} aria-hidden className="h-2" />
                 <button
                   onClick={() => setPage(p => p + 1)}
                   disabled={poets.isFetching}
-                  className="w-full mt-1 py-2.5 rounded-xl bg-card/60 border border-border/30 text-[11.5px] font-semibold text-primary/90 hover:bg-primary/5 active:scale-[0.98] transition disabled:opacity-60 flex items-center justify-center gap-2"
+                  className="w-full mt-4 py-3 rounded-[12px] bg-[#1D1811] border border-[var(--hairline-strong)] text-[12.5px] font-semibold text-[#B8AA8E] hover:text-[#F2E9D8] hover:border-[#B8AA8E] active:scale-[0.98] transition disabled:opacity-60 flex items-center justify-center gap-2"
                 >
                   {poets.isFetching ? (
-                    <><Loader2 className="w-3.5 h-3.5 animate-spin" /> يحمّل…</>
-                  ) : 'تحميل المزيد'}
+                    <><Loader2 className="w-3.5 h-3.5 animate-spin text-[var(--wax)]" /> جاري تحميل المزيد من العهد والمدد…</>
+                  ) : 'تحميل المزيد من شعراء الدهر'}
                 </button>
               </>
             )}
             {reachedEnd && list.length > PAGE && (
-              <p className="text-center text-[10.5px] text-muted-foreground/70 pt-2">
-                وصلت إلى نهاية القائمة
+              <p className="text-center text-[11px] text-[#7E7259] font-tajawal pt-6 select-none">
+                انتهت صحف هذا العصر الأدبي
               </p>
             )}
           </div>

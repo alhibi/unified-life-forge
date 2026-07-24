@@ -15,8 +15,8 @@ interface Props {
 }
 
 /**
- * بحث مع debouncing + اقتراحات حيّة (شعراء/قصائد) عبر diwan_suggest.
- * يدعم لمسة واحدة على iOS: 16px لتفادي الـ auto-zoom.
+ * شريط البحث المصمم بنمط "المخطوطة" (Manuscript) الفاخر.
+ * بدون صندوق كلاسيكي — خط سفلي واحد فقط بلون دافئ، مع دعم التركيز التفاعلي.
  */
 export default function SearchBar({
   value,
@@ -34,14 +34,12 @@ export default function SearchBar({
   // sync external value into local input
   useEffect(() => {
     if (value !== undefined && value !== local) setLocal(value);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
 
   // debounce push
   useEffect(() => {
     const t = setTimeout(() => onChange(local), debounceMs);
     return () => clearTimeout(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [local]);
 
   // live suggestions
@@ -60,7 +58,7 @@ export default function SearchBar({
 
   return (
     <div className="relative" ref={wrapRef}>
-      <Search className="absolute top-1/2 -translate-y-1/2 start-3 w-4 h-4 text-muted-foreground pointer-events-none" />
+      <Search className="absolute top-1/2 -translate-y-1/2 start-0 w-4 h-4 text-[#7E7259] pointer-events-none transition-colors" />
       <input
         type="search"
         autoFocus={autoFocus}
@@ -68,15 +66,21 @@ export default function SearchBar({
         onChange={(e) => { setLocal(e.target.value); setHideOnce(false); }}
         onFocus={() => setFocused(true)}
         placeholder={placeholder}
-        className="w-full ps-10 pe-10 py-3 rounded-2xl bg-card border border-border/40 text-[16px] text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-primary/40 focus:ring-2 focus:ring-primary/10 transition"
+        className="w-full ps-7 pe-10 py-3 bg-transparent text-[#F2E9D8] placeholder-[#7E7259] focus:outline-none transition-all font-tajawal text-[15px]"
+        style={{
+          border: 'none',
+          borderBottom: focused
+            ? '1px solid var(--wax)'
+            : '1px solid var(--hairline-strong)',
+        }}
       />
       {local && (
         <button
           onClick={() => setLocal('')}
-          className="absolute top-1/2 -translate-y-1/2 end-2.5 w-7 h-7 rounded-full bg-muted/60 hover:bg-muted flex items-center justify-center"
+          className="absolute top-1/2 -translate-y-1/2 end-1 w-7 h-7 rounded-full bg-[rgba(242,233,216,0.06)] hover:bg-[rgba(242,233,216,0.12)] flex items-center justify-center transition-colors"
           aria-label="مسح البحث"
         >
-          <X className="w-3.5 h-3.5 text-muted-foreground" />
+          <X className="w-3.5 h-3.5 text-[#B8AA8E]" />
         </button>
       )}
 
@@ -87,7 +91,7 @@ export default function SearchBar({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }}
             transition={{ duration: 0.15 }}
-            className="absolute z-30 left-0 right-0 top-full mt-1.5 rounded-2xl bg-card border border-border/50 overflow-hidden"
+            className="absolute z-30 left-0 right-0 top-full mt-2 rounded-[14px] bg-[#1D1811] border border-[var(--hairline-strong)] overflow-hidden shadow-2xl"
           >
             <ul className="max-h-80 overflow-auto">
               {items.map((it) => (
@@ -99,31 +103,38 @@ export default function SearchBar({
                         : `/diwan/library/poem/${it.slug}`
                     }
                     onClick={() => { setHideOnce(true); setFocused(false); }}
-                    className="flex items-center gap-2.5 px-3 py-2.5 hover:bg-muted/60 active:bg-muted transition-colors border-b border-border/30 last:border-b-0"
+                    className="flex items-center gap-3 px-4 py-3 hover:bg-[rgba(242,233,216,0.03)] active:bg-[rgba(242,233,216,0.06)] transition-colors border-b border-[var(--hairline)] last:border-b-0"
                   >
-                    <div
-                      className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
-                        it.kind === 'poet'
-                          ? 'bg-primary/10 text-primary'
-                          : 'bg-amber-500/10 text-amber-700 dark:text-amber-400'
-                      }`}
-                    >
-                      {it.kind === 'poet'
-                        ? <Feather className="w-4 h-4" />
-                        : <ScrollText className="w-4 h-4" />}
-                    </div>
+                    {/* Wax Seal for Poet, Scroll icon for Poem */}
+                    {it.kind === 'poet' ? (
+                      <div
+                        className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
+                        style={{
+                          background: 'radial-gradient(circle at 32% 28%, #C65B3B, #8E3117 72%)',
+                          boxShadow: 'inset 0 0 0 1px rgba(0,0,0,.35), 0 2px 4px rgba(0,0,0,.3)',
+                        }}
+                      >
+                        <span className="font-amiri font-bold text-[13px] text-[#F5DFC9] leading-none select-none">
+                          {it.label.trim().charAt(0)}
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="w-8 h-8 rounded-lg bg-[rgba(184,73,46,0.1)] flex items-center justify-center shrink-0">
+                        <ScrollText className="w-4 h-4 text-[var(--wax)]" />
+                      </div>
+                    )}
                     <div className="flex-1 min-w-0">
                       <p
-                        className="text-[14px] font-semibold text-foreground truncate"
-                        style={{ fontFamily: it.kind === 'poet' ? "'Amiri', serif" : undefined }}
+                        className="text-[14px] font-semibold text-[#F2E9D8] truncate"
+                        style={{ fontFamily: it.kind === 'poet' ? "'Amiri', serif" : "'Tajawal', sans-serif" }}
                       >
                         {it.label}
                       </p>
                       {it.sub && (
-                        <p className="text-[10px] text-muted-foreground truncate">{it.sub}</p>
+                        <p className="text-[11px] text-[#B8AA8E] truncate mt-0.5">{it.sub}</p>
                       )}
                     </div>
-                    <span className="text-[9px] text-muted-foreground/70 px-1.5 py-0.5 rounded bg-muted/50 shrink-0">
+                    <span className="text-[10px] text-[#7E7259] px-2 py-0.5 rounded-[5px] bg-[rgba(242,233,216,0.05)] border border-[var(--hairline)] shrink-0 font-tajawal">
                       {it.kind === 'poet' ? 'شاعر' : 'قصيدة'}
                     </span>
                   </Link>

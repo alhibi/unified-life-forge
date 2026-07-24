@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ScrollText } from '@/lib/icons';
 import { motion } from 'framer-motion';
 import type { DiwanPoemSummary, DiwanPoemSearchResult } from '@/features/diwan/lib/types';
 import { useDiwanPrefetch } from '@/features/diwan/lib/hooks';
@@ -11,62 +10,80 @@ interface Props {
   index?: number;
 }
 
+/**
+ * بطاقة القصيدة المصممة بنمط صفوف "المخطوطة" (Manuscript).
+ * تعرض القصيدة كسطر فاخر مفصول بخط دافئ، مع علامة معينة صغيرة (◆) بلون شمع الختم.
+ */
 export default function PoemCard({ poem, showPoet, index = 0 }: Props) {
   const search = poem as DiwanPoemSearchResult;
   const { prefetchPoem } = useDiwanPrefetch();
   const prefetch = () => prefetchPoem(poem.slug);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0, transition: { delay: Math.min(index, 12) * 0.04 } }}
+      className="border-b border-[var(--hairline)] last:border-b-0"
     >
       <Link
         to={`/diwan/library/poem/${poem.slug}`}
         onPointerEnter={prefetch}
         onTouchStart={prefetch}
-        className="block w-full rounded-2xl bg-card border border-border/40 p-4 active:scale-[0.98] transition-transform"
+        className="block w-full py-4 px-1 hover:bg-[rgba(242,233,216,0.015)] active:scale-[0.99] transition-all select-none rounded-[8px]"
       >
-        <div className="flex items-start gap-2 mb-1.5">
-          <ScrollText className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-          <h3 className="font-semibold text-[14px] text-foreground line-clamp-1 flex-1">
-            {poem.title}
-          </h3>
-        </div>
-        {poem.opening && (
-          <p
-            className="text-[14px] text-foreground/80 leading-[1.9] mb-2 line-clamp-1 truncate"
-            style={{ fontFamily: "'Amiri', serif" }}
-          >
-            {poem.opening}
-          </p>
-        )}
-        <div className="flex flex-wrap items-center gap-1.5 text-[10px]">
-          {showPoet && search.poet_name && (
-            <span className="text-primary font-semibold">
-              {search.poet_name}
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3 min-w-0 flex-1">
+            {/* أيقونة معينة صغيرة بلون wax */}
+            <span className="text-[12px] text-[var(--wax)] select-none shrink-0" aria-hidden="true">
+              ◆
             </span>
-          )}
-          {showPoet && search.poet_name && (poem.meter || poem.rhyme || poem.kind) && <span className="text-muted-foreground">·</span>}
-          {poem.kind && (
-            <span className="px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-700 dark:text-amber-400 font-medium">
-              {poem.kind}
-            </span>
-          )}
-          {poem.meter && (
-            <span className="px-1.5 py-0.5 rounded bg-violet-500/10 text-violet-700 dark:text-violet-400 font-medium">
-              {poem.meter}
-            </span>
-          )}
-          {poem.rhyme && (
-            <span className="px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 font-medium">
-              قافية {poem.rhyme}
-            </span>
-          )}
-          {poem.verses_count > 0 && (
-            <span className="text-muted-foreground">
-              {poem.verses_count} {poem.verses_count === 1 ? 'بيت' : 'أبيات'}
-            </span>
-          )}
+            <div className="min-w-0 flex-1">
+              <div className="flex items-baseline gap-2 flex-wrap">
+                <h3
+                  className="font-bold text-[15px] text-[#F2E9D8] leading-tight"
+                  style={{ fontFamily: "'Amiri', serif" }}
+                >
+                  {poem.title}
+                </h3>
+                {showPoet && search.poet_name && (
+                  <span className="text-[11px] text-[var(--wax)] font-tajawal font-medium">
+                    {search.poet_name}
+                  </span>
+                )}
+              </div>
+              {poem.opening && (
+                <p
+                  className="text-[13px] text-[#B8AA8E]/90 leading-relaxed mt-1 line-clamp-1 truncate"
+                  style={{ fontFamily: "'Amiri', serif" }}
+                >
+                  {poem.opening}
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2.5 shrink-0">
+            {/* الشارات الإضافية إذا توفرت (البحر، القافية) */}
+            <div className="hidden sm:flex items-center gap-1.5 text-[10px] font-tajawal">
+              {poem.meter && (
+                <span className="px-1.5 py-0.5 rounded-[4px] border border-[var(--hairline-strong)] text-[#7E7259]">
+                  {poem.meter}
+                </span>
+              )}
+              {poem.rhyme && (
+                <span className="px-1.5 py-0.5 rounded-[4px] border border-[var(--hairline-strong)] text-[#7E7259]">
+                  روي {poem.rhyme}
+                </span>
+              )}
+            </div>
+
+            {poem.verses_count > 0 && (
+              <span className="text-[12px] text-[#7E7259] font-tajawal">
+                {poem.verses_count} {' '}
+                <span className="text-[#7E7259]/60">{poem.verses_count === 1 ? 'بيت' : 'أبيات'}</span>
+              </span>
+            )}
+          </div>
         </div>
       </Link>
     </motion.div>
