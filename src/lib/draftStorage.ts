@@ -11,7 +11,7 @@ export interface DraftConfig {
   /**
    * Key to identify this form's draft (e.g., 'chat-message', 'settings-profile')
    */
-  key: string;
+  key?: string;
   /**
    * TTL in milliseconds (default: 7 days)
    */
@@ -356,7 +356,7 @@ export function useFormWithDraft<T extends Record<string, any>>(
   }, [key, config, storage, initialData]);
 
   const submit = React.useCallback(
-    async (formData: T): Promise<void> => {
+    async (formData: T): Promise<T> => {
       setIsLoading(true);
       setError(null);
 
