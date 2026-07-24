@@ -88,7 +88,8 @@ export default function ClusteredMap({
     const seenPlaces = new Set<string>();
 
     for (const feature of features) {
-      const coords = (feature.geometry as GeoJSON.Point).coordinates as [number, number];
+      const coords = (feature.geometry as { type: 'Point'; coordinates: [number, number] })
+        .coordinates as [number, number];
       const props = feature.properties;
 
       if (props?.cluster) {
@@ -130,21 +131,19 @@ export default function ClusteredMap({
 
     setIsTransitioning(true);
 
-    source.getClusterExpansionZoom(clusterId, (err, expansionZoom) => {
-      if (err) {
+    Promise.resolve(source.getClusterExpansionZoom(clusterId))
+      .then((expansionZoom: number) => {
+        map.flyTo({
+          center: coordinates,
+          zoom: Math.min(expansionZoom ?? 14, 16),
+          duration: 500,
+          essential: true,
+        });
+        setTimeout(() => setIsTransitioning(false), 600);
+      })
+      .catch(() => {
         setIsTransitioning(false);
-        return;
-      }
-
-      map.flyTo({
-        center: coordinates,
-        zoom: Math.min(expansionZoom ?? 14, 16),
-        duration: 500,
-        essential: true,
       });
-
-      setTimeout(() => setIsTransitioning(false), 600);
-    });
   }, []);
 
   useEffect(() => {
