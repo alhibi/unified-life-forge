@@ -103,8 +103,28 @@ export function SystemEngineProvider({ children }: { children: ReactNode }) {
   const [batteryLevel, setBatteryLevel] = useState<number>(1);
   const [isCharging, setIsCharging] = useState<boolean>(true);
 
-  const prevMotionSpeed = useRef<number>(motionSpeed);
-  const prevFpsCap = useRef<any>(fpsCap);
+  // Pre–battery-saver snapshot of motion settings. Persisted to
+  // localStorage so that reloading the page while battery saver is
+  // active does NOT lock the user into 0.25× / 60 Hz forever — on
+  // mount we hydrate from the backup rather than the current (already
+  // overridden) values.
+  const readBackup = <T,>(key: string, fallback: T, parse: (raw: string) => T): T => {
+    try {
+      const raw = localStorage.getItem(key);
+      return raw == null ? fallback : parse(raw);
+    } catch {
+      return fallback;
+    }
+  };
+  const prevMotionSpeed = useRef<number>(
+    readBackup('sys-battery-saver-prev-motion', batterySaver ? 1 : motionSpeed, (raw) => {
+      const n = parseFloat(raw);
+      return Number.isFinite(n) ? n : 1;
+    })
+  );
+  const prevFpsCap = useRef<any>(
+    readBackup<any>('sys-battery-saver-prev-fps', batterySaver ? 'auto' : fpsCap, (raw) => raw)
+  );
 
   // Monitor network connection
   useEffect(() => {
@@ -138,6 +158,10 @@ export function SystemEngineProvider({ children }: { children: ReactNode }) {
         if (batManager.level < 0.2 && !batManager.charging) {
           if (!batterySaver) {
             setBatterySaver(true);
+            // Persist so the auto-enable state survives a reload —
+            // otherwise batterySaver resets to false while the forced
+            // motion overrides remain, leaving the user stuck.
+            try { localStorage.setItem('sys-battery-saver', 'true'); } catch { /* ignore */ }
             toast.warning(
               isAr
                 ? 'تم تفعيل موفر البطارية تلقائيًا لانخفاض طاقة الجهاز.'
@@ -167,9 +191,15 @@ export function SystemEngineProvider({ children }: { children: ReactNode }) {
   // Handle adjustments when Battery/Data Saver is toggled
   useEffect(() => {
     if (batterySaver) {
-      // Save current motion & FPS states before overriding them
-      prevMotionSpeed.current = motionSpeed;
-      prevFpsCap.current = fpsCap;
+      // Save current motion & FPS states before overriding them, but
+      // only if we're not already inside a saver-forced state (that
+      // would clobber the real user preference with 0.25 / 60).
+      if (motionSpeed > 0.25) prevMotionSpeed.current = motionSpeed;
+      if (fpsCap !== 60) prevFpsCap.current = fpsCap;
+      try {
+        localStorage.setItem('sys-battery-saver-prev-motion', String(prevMotionSpeed.current));
+        localStorage.setItem('sys-battery-saver-prev-fps', String(prevFpsCap.current));
+      } catch { /* storage unavailable */ }
 
       // Force high-efficiency settings (reduce speed to minimum, cap frame rate, disable animations)
       setMotionSpeed(0.25);
@@ -177,13 +207,15 @@ export function SystemEngineProvider({ children }: { children: ReactNode }) {
       document.documentElement.setAttribute('data-battery-saver', 'true');
     } else {
       document.documentElement.removeAttribute('data-battery-saver');
-      // Revert back only if they were customized or default
-      if (prevMotionSpeed.current !== motionSpeed) {
-        setMotionSpeed(prevMotionSpeed.current || 1);
-      }
-      if (prevFpsCap.current !== fpsCap) {
-        setFpsCap(prevFpsCap.current || 'auto');
-      }
+      // Always restore the pre–saver snapshot. Previously we skipped
+      // the restore when prev === current, which meant a reload with
+      // saver already active permanently locked the user at 0.25×/60Hz.
+      setMotionSpeed(prevMotionSpeed.current && prevMotionSpeed.current > 0.25 ? prevMotionSpeed.current : 1);
+      setFpsCap(prevFpsCap.current && prevFpsCap.current !== 60 ? prevFpsCap.current : 'auto');
+      try {
+        localStorage.removeItem('sys-battery-saver-prev-motion');
+        localStorage.removeItem('sys-battery-saver-prev-fps');
+      } catch { /* storage unavailable */ }
     }
   }, [batterySaver]);
 
