@@ -11,13 +11,13 @@
  * @returns A tuple of [data, setData, hasDraft, submit]
  */
 import { useState, useEffect, useCallback } from 'react';
-import { createDraftStorage, DraftConfig } from '@/lib/draftStorage';
+import { createDraftStorage, type DraftConfig } from '@/lib/draftStorage';
 
 export function useDraftStorage<T>(
   key: string,
   initialValue: T,
   config?: DraftConfig
-): [T, (value: T) => void, boolean, (data: T) => Promise<void>] {
+): [T, (value: T) => void, boolean, (data: T) => Promise<T>] {
   const [data, setData] = useState<T>(() => {
     const draft = createDraftStorage().load(key, config);
     return draft ?? initialValue;
@@ -47,7 +47,7 @@ export function useDraftStorage<T>(
   );
 
   const submit = useCallback(
-    async (formData: T): Promise<void> => {
+    async (formData: T): Promise<T> => {
       setIsLoading(true);
 
       try {
@@ -92,7 +92,7 @@ export function useFormWithDraft<T extends Record<string, any>>(
   setData: (data: Partial<T>) => void;
   updateField: (field: keyof T, value: any) => void;
   reset: () => void;
-  submit: (data: T) => Promise<void>;
+  submit: (data: T) => Promise<T>;
   hasDraft: boolean;
   isLoading: boolean;
   error: Error | null;
@@ -138,7 +138,7 @@ export function useFormWithDraft<T extends Record<string, any>>(
   }, [key, config, storage, initialData]);
 
   const submit = useCallback(
-    async (formData: T): Promise<void> => {
+    async (formData: T): Promise<T> => {
       setIsLoading(true);
       setError(null);
 

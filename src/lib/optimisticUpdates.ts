@@ -1,3 +1,5 @@
+import { useState, useCallback, useMemo } from 'react';
+
 /**
  * Optimistic Updates Utility
  * 
@@ -81,7 +83,7 @@ export function createOptimisticUpdateManager(): OptimisticUpdateManager {
     executor: () => Promise<T>
   ): Promise<T> => {
     // Create rollback snapshot
-    const rollbackValue = getSnapshot(key);
+    const rollbackValue = getSnapshot<T>(key) as T;
 
     // Create optimistic operation
     const operation: OptimisticOperation<T> = {
@@ -122,7 +124,7 @@ export function createOptimisticUpdateManager(): OptimisticUpdateManager {
     execute: () => Promise<T>;
     cancel: () => void;
   } => {
-    const rollbackValue = getSnapshot(key);
+    const rollbackValue = getSnapshot<T>(key) as T;
 
     const operation: OptimisticOperation<T> = {
       id: generateId(),

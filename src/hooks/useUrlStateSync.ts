@@ -10,7 +10,7 @@
  * @returns A tuple of [value, setValue]
  */
 import { useState, useEffect, useCallback } from 'react';
-import { createUrlStateSync, UrlStateOptions } from '@/lib/urlStateSync';
+import { createUrlStateSync, type UrlStateOptions } from '@/lib/urlStateSync';
 
 export function useUrlState<T>(
   key: string,

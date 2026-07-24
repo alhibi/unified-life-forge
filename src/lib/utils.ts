@@ -95,7 +95,7 @@ export function deepMerge<T extends Record<string, any>, U extends Record<string
     }
   });
 
-  return output;
+  return output as T & U;
 }
 
 /**

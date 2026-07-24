@@ -3,7 +3,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import type { GeoJSONSource, Map as MapLibreMap, MapGeoJSONFeature } from 'maplibre-gl';
 import * as maplibregl from 'maplibre-gl';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import Map, {
+import MapGL, {
   Layer,
   type LayerProps,
   type MapLayerMouseEvent,
@@ -82,7 +82,7 @@ export default function TravelAtlasMap({
   onError,
 }: TravelAtlasMapProps) {
   const mapRef = useRef<MapRef>(null);
-  const markersRef = useRef(new Map<string, MarkerRecord>());
+  const markersRef = useRef<Map<string, MarkerRecord>>(new Map());
   const syncFrameRef = useRef<number | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
 
@@ -193,7 +193,7 @@ export default function TravelAtlasMap({
       const visibleIds = new Set<string>();
       const features = map.querySourceFeatures(SOURCE_ID);
       for (const feature of features) {
-        const placeId = getUnclusteredPlaceId(feature);
+        const placeId = getUnclusteredPlaceId(feature as unknown as MapGeoJSONFeature);
         if (!placeId || visibleIds.has(placeId)) continue;
         const place = placesById.get(placeId);
         if (!place || feature.geometry.type !== 'Point') continue;
@@ -253,7 +253,7 @@ export default function TravelAtlasMap({
 
   return (
     <div className="travel-atlas-map h-full w-full" dir="ltr">
-      <Map
+      <MapGL
         ref={mapRef}
         mapLib={maplibregl}
         mapStyle={OPEN_FREE_MAP_STYLE}
@@ -273,7 +273,7 @@ export default function TravelAtlasMap({
                 : 'Die Karte konnte nicht geladen werden.'),
           );
         }}
-        attributionControl
+        attributionControl={{}}
         dragRotate={false}
         pitchWithRotate={false}
         touchPitch={false}
@@ -294,7 +294,7 @@ export default function TravelAtlasMap({
           <Layer {...clusterCountLayer} />
         </Source>
         <NavigationControl position="bottom-left" showCompass={false} visualizePitch={false} />
-      </Map>
+      </MapGL>
     </div>
   );
 }

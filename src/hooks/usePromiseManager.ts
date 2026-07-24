@@ -4,8 +4,10 @@
  * Manages promises to prevent race conditions and handle cancellation.
  * Useful for data fetching that needs to be cancelled on unmount.
  */
-import { useRef, useEffect } from 'react';
-import { createPromiseManager, PromiseManager, executeWithPromiseManager, CanceledError, isCanceledError } from '@/lib/promiseManager';
+import { useRef, useEffect, useState, useCallback } from 'react';
+import { createPromiseManager, executeWithPromiseManager, CanceledError, isCanceledError } from '@/lib/promiseManager';
+
+type PromiseManager = ReturnType<typeof createPromiseManager>;
 
 export function usePromiseManager(): PromiseManager {
   const managerRef = useRef<PromiseManager | null>(null);
@@ -166,11 +168,12 @@ export function useOptimisticUpdate<T>(
   isOptimistic: boolean;
 } {
   const [value, setValue] = useState<T>(initialValue);
-  const [optimisticValue, setOptimisticValue] = useState<T | null>(null);
+  const [optimisticValue, setOptimisticValueState] = useState<T | null>(null);
   const [rollbackValue, setRollbackValue] = useState<T | null>(null);
 
   const setOptimisticValue = useCallback((newValue: T) => {
     setRollbackValue(value);
+    setOptimisticValueState(newValue);
     setValue(newValue);
   }, [value]);
 
