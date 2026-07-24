@@ -171,7 +171,7 @@ function bootstrap(): void {
   // changes need to propagate even when no React tree is currently
   // rendering this hook (e.g. background timers in AppContext).
   supabase.auth.onAuthStateChange((event, nextSession) => {
-    if (event === 'TOKEN_REFRESH_FAILED') {
+    if ((event as string) === 'TOKEN_REFRESH_FAILED') {
       window.dispatchEvent(new CustomEvent('auth-session-expired'));
     }
     void syncAuthState(nextSession);
