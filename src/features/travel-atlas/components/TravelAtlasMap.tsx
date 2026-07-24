@@ -309,7 +309,6 @@ export default function TravelAtlasMap({
         touchPitch={false}
         touchZoomRotate
         cooperativeGestures={false}
-        reuseMaps
         style={{ width: '100%', height: '100%', touchAction: 'none' }}
       >
         <Source
