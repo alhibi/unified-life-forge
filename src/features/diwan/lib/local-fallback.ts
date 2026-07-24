@@ -150,8 +150,8 @@ function buildIdx(): Idx {
     }
   }
 
-  const poetsByEra = groupBy(poets, po => po.era_id) as Record<string, (DiwanPoetSummary & { _eraName: string })[]>;
-  const poemsByPoet = groupBy(poems, pm => pm.poet_slug) as Record<string, (DiwanPoemSearchResult & { _verses: DiwanVerse[] })[]>;
+  const poetsByEra = groupBy(poets, (po: any) => po.era_id ?? '') as Record<string, (DiwanPoetSummary & { _eraName: string })[]>;
+  const poemsByPoet = groupBy(poems, (pm: any) => pm.poet_slug ?? '') as Record<string, (DiwanPoemSearchResult & { _verses: DiwanVerse[] })[]>;
 
   _idx = { eras, poets, poems, poetsBySlug, poemsBySlug, poetsByEra, poemsByPoet };
   return _idx;
