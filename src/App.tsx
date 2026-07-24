@@ -9,7 +9,7 @@ import { ImageUploadProvider } from "@/contexts/ImageUploadContext";
 import { PodcastPlayerProvider } from "@/features/podcasts/contexts/PodcastPlayerContext";
 import PodcastMiniPlayer from "@/features/podcasts/components/PodcastMiniPlayer";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import BottomNav from "@/components/BottomNav";
+import PortalBackButton from "@/components/portal/PortalBackButton";
 import PageTransition, { NavModeContext } from "@/components/PageTransition";
 import ScrollToTop from "@/components/ScrollToTop";
 import ErrorBoundary from "@/components/ErrorBoundary";
@@ -30,8 +30,8 @@ import { usePredictivePrefetch } from "@/hooks/usePredictivePrefetch";
 import { CommandPalette } from "@/components/CommandPalette";
 import { Layout } from "lucide-react";
 
-// Eager load the main page
-import Index from "./pages/Index";
+// Eager load the portal (new home) — tiny, no heavy data fetch.
+import Portal from "./pages/Portal";
 // Tab pages that stay mounted across navigation are eager-imported so
 // switching between bottom-nav tabs feels instant (no remount/refetch).
 // The new IA reorganisation kept only three persistent tabs (Home,
@@ -40,7 +40,6 @@ import Index from "./pages/Index";
 // `loadWellness` / `loadMihrab` / `loadBrowse`.
 import GamesPage from "./features/games/pages/Games";
 import ChatPage from "./pages/Chat";
-import { BOTTOM_NAV_HEIGHT } from "@/components/BottomNav";
 
 function AutoPrayerThemeRunner() {
   useAutoPrayerTheme();
@@ -183,6 +182,9 @@ const loadJournal = () => import("./features/journal/pages/JournalHome");
 const loadTravelAtlas = () => import("./features/travel-atlas/pages/TravelAtlasPage");
 const loadTravelMap = () => import("./features/travel-atlas/pages/CountryMapPage");
 const loadOAuthConsent = () => import("./pages/OAuthConsent");
+// "Now" (الرئيسي) — the former home page content, now a standalone
+// app reached from the portal grid.
+const loadNow = () => import("./features/now/pages/Now");
 
 // ──────────────────────────────────────────────────────────────────────
 // Register every lazy route in the central prefetch registry so any
@@ -247,6 +249,7 @@ registerRoute('/archive/new',    loadArchiveNew);
 registerRoute('/archive/:id',    loadArchiveReader);
 registerRoute('/pkm',            loadPKM);
 registerRoute('/pkm/mind',       loadMind);
+registerRoute('/now',            loadNow);
 
 const SudokuPage = lazy(loadSudoku);
 const ChessPage = lazy(loadChess);
@@ -304,6 +307,7 @@ const ArchiveReaderPage = lazy(loadArchiveReader);
 const PKMPage           = lazy(loadPKM);
 const MindPage          = lazy(loadMind);
 const OAuthConsentPage  = lazy(loadOAuthConsent);
+const NowPage           = lazy(loadNow);
 
 // Tab pages are now eager (always mounted), so the idle prefetch warms
 // the next most-likely sub-routes instead of the tabs themselves.
@@ -366,9 +370,10 @@ const PageSkeleton = () => (
 // All paths where BottomNav is visible — used to decide whether
 // <main> should reserve space at the bottom for the nav bar.
 // Must stay in sync with the `tabs` array in BottomNav.tsx.
-const ALL_NAV_PATHS = new Set([
-  '/', '/games', '/chat', '/wellness', '/weather', '/browse', '/mihrab', '/knowledge',
-]);
+// The bottom nav was retired in favour of the Portal launcher. Kept as
+// an empty set so any `navVisible` checks below cleanly resolve to
+// false — no route reserves bottom padding for a nav bar anymore.
+const ALL_NAV_PATHS = new Set<string>();
 
 // Tab routes that stay mounted across navigation. Their components are
 // rendered once in <PersistentTabs/> and toggled with display:none — never
@@ -492,7 +497,7 @@ function PersistentTabs({ active, mode }: { active: TabPath | null; mode: NavMod
             zIndex: 0,
           }}
         >
-          {slot('/',      <Index />)}
+          {slot('/',      <Portal />)}
           {slot('/games', <GamesPage />)}
           {slot('/chat',  <ChatPage />)}
         </motion.div>
@@ -552,7 +557,7 @@ function AnimatedRoutes() {
         // visible. Sub-pages (non-nav routes) do NOT render BottomNav
         // so they don't need the bottom padding.
         paddingBottom: navVisible
-          ? `calc(${BOTTOM_NAV_HEIGHT}px + env(safe-area-inset-bottom, 0px))`
+          ? `calc(62px + env(safe-area-inset-bottom, 0px))`
           : 0,
         // Minimum height ensures content fills viewport even on short pages
         minHeight: '100dvh',
@@ -641,6 +646,7 @@ function AnimatedRoutes() {
                   {/* PKM — personal knowledge base (local-first MVP). */}
                   <Route path="/pkm"           element={<ErrorBoundary><PKMPage /></ErrorBoundary>} />
                   <Route path="/pkm/mind"      element={<ErrorBoundary><MindPage /></ErrorBoundary>} />
+                  <Route path="/now"           element={<ErrorBoundary><NowPage /></ErrorBoundary>} />
                   {/* OAuth consent for external clients (MCP / Agent integrations). */}
                   <Route path="/.lovable/oauth/consent" element={<ErrorBoundary><OAuthConsentPage /></ErrorBoundary>} />
                   <Route path="*" element={<ErrorBoundary><NotFound /></ErrorBoundary>} />
@@ -733,7 +739,7 @@ const App = () => (
                 <NetworkConnectivityListener />
                 <EdgeSwipeBack />
                 <AnimatedRoutes />
-                <BottomNav />
+                <PortalBackButton />
                 <PodcastMiniPlayer />
               </BrowserRouter>
             </ErrorBoundary>
