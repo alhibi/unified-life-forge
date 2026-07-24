@@ -8,6 +8,7 @@ import {
   type TravelCountry,
   type TravelPlace,
 } from './types';
+import type { CountryCatalogEntry } from './countriesCatalog';
 
 // Travel Atlas tables are provisioned in Supabase but not yet in the generated
 // types. Cast the client to `any` here so this module compiles until the
@@ -147,4 +148,71 @@ function resolvePhotoUrl(value: string | null): string | null {
   if (!value) return null;
   if (/^https?:\/\//i.test(value)) return value;
   return supabase.storage.from('place-photos').getPublicUrl(value).data.publicUrl;
+}
+
+export interface CreatePlaceInput {
+  country: CountryCatalogEntry;
+  nameAr: string;
+  nameEn?: string | null;
+  category: PlaceCategory;
+  latitude: number;
+  longitude: number;
+  descriptionAr?: string | null;
+  bestTimeToVisit?: string | null;
+  tags?: string[];
+}
+
+/** Upsert a country row from the catalog and return its id. */
+async function ensureCountry(entry: CountryCatalogEntry): Promise<string> {
+  const { data: existing, error: selectErr } = await supabase
+    .from('countries')
+    .select('id')
+    .eq('iso_code', entry.isoCode)
+    .maybeSingle();
+  if (selectErr && !isMissingRelation(selectErr)) throw selectErr;
+  if (existing?.id) return existing.id as string;
+
+  const { data: inserted, error: insertErr } = await supabase
+    .from('countries')
+    .insert({
+      iso_code: entry.isoCode,
+      name_ar: entry.nameAr,
+      name_en: entry.nameEn,
+      bounds: { sw: entry.bounds.sw, ne: entry.bounds.ne },
+    })
+    .select('id')
+    .single();
+  if (insertErr) throw insertErr;
+  return inserted.id as string;
+}
+
+export async function createPlace(input: CreatePlaceInput): Promise<TravelPlace> {
+  const { data: userData, error: userErr } = await supabase.auth.getUser();
+  if (userErr) throw userErr;
+  const userId = userData?.user?.id as string | undefined;
+  if (!userId) throw new Error('not_authenticated');
+
+  const countryId = await ensureCountry(input.country);
+
+  const { data, error } = await supabase
+    .from('places')
+    .insert({
+      country_id: countryId,
+      user_id: userId,
+      name_ar: input.nameAr,
+      name_en: input.nameEn ?? null,
+      category: input.category,
+      location: { type: 'Point', coordinates: [input.longitude, input.latitude] },
+      description_ar: input.descriptionAr ?? null,
+      best_time_to_visit: input.bestTimeToVisit ?? null,
+      tags: input.tags ?? [],
+    })
+    .select(
+      `id, country_id, name_ar, name_en, category, location, description_ar,
+       best_time_to_visit, tags, rating, cover_photo_url,
+       place_photos ( id, place_id, storage_path, sort_order, is_cover )`,
+    )
+    .single();
+  if (error) throw error;
+  return mapPlace(data as PlaceWithPhotos);
 }
