@@ -197,9 +197,16 @@ export default function AddPlaceSheet({
         const lo = pos.coords.longitude;
         setLat(la.toFixed(6));
         setLng(lo.toFixed(6));
-        if (mapRef.current) {
-          mapRef.current.easeTo({ center: [lo, la], zoom: 12, duration: 500 });
-          placeMarker(lo, la);
+        const map = mapRef.current;
+        if (map) {
+          const run = () => {
+            try {
+              map.easeTo({ center: [lo, la], zoom: 12, duration: 500 });
+            } catch { /* map torn down */ }
+            placeMarker(lo, la);
+          };
+          if (map.isStyleLoaded()) run();
+          else map.once('load', run);
         }
       },
       () => {
