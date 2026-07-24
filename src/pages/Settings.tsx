@@ -123,41 +123,7 @@ export default function SettingsPage() {
     </motion.div>
   );
 
-  const renderLanguageSegmented = () => (
-    <motion.div variants={item} className="space-y-1">
-      <p className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-wider px-1 mb-2">
-        {isAr ? 'عام' : 'Allgemein'}
-      </p>
-      <AppCard>
-        <div className="flex items-center gap-3 mb-3">
-          <Languages className="w-[18px] h-[18px] text-primary stroke-[1.8]" />
-          <span className="text-[14px] font-medium text-foreground">
-            {t('settings.language')}
-          </span>
-        </div>
-        <div className="relative grid grid-cols-2 gap-1 rounded-xl bg-muted/50 p-1" dir="ltr">
-          <motion.div
-            aria-hidden
-            className="absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-lg bg-background shadow-sm"
-            animate={{ left: language === 'ar' ? 'calc(50% + 0px)' : '4px' }}
-            transition={{ type: 'spring', stiffness: 500, damping: 34 }}
-          />
-          <button
-            onClick={() => setLanguage('de')}
-            className={`relative z-10 py-2 rounded-lg text-[13px] font-semibold transition-colors ${language === 'de' ? 'text-foreground' : 'text-muted-foreground'}`}
-          >
-            Deutsch
-          </button>
-          <button
-            onClick={() => setLanguage('ar')}
-            className={`relative z-10 py-2 rounded-lg text-[13px] font-semibold transition-colors ${language === 'ar' ? 'text-foreground' : 'text-muted-foreground'}`}
-          >
-            العربية
-          </button>
-        </div>
-      </AppCard>
-    </motion.div>
-  );
+  // Language picker retired — the app is Arabic-only.
 
   return (
     <div className="min-h-screen bg-background pb-28 px-5 pt-10">
@@ -249,8 +215,7 @@ export default function SettingsPage() {
         {/* Prayer Group */}
         {renderGroup(isAr ? 'الصلاة' : 'Gebet', prayerItems)}
 
-        {/* General Group — language segmented control */}
-        {renderLanguageSegmented()}
+        {/* Language picker retired — Arabic-only app. */}
 
         {/* Version */}
         <motion.div variants={item} className="text-center pt-2 pb-4">
