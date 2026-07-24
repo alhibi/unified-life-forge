@@ -111,13 +111,43 @@ export default function TravelAtlasMap({
   const fitCountry = useCallback(
     (map: MapLibreMap) => {
       const compact = window.matchMedia('(max-width: 640px)').matches;
+      const padding = compact ? 42 : 72;
+      // If we have places, fit to include ALL of them (union with country bounds)
+      // so pins remain visible even if their coords fall outside the country box.
+      if (places.length > 0) {
+        let minLng = bounds.sw[0];
+        let minLat = bounds.sw[1];
+        let maxLng = bounds.ne[0];
+        let maxLat = bounds.ne[1];
+        let anyValid = false;
+        for (const p of places) {
+          const [lng, lat] = p.coordinates;
+          if (!Number.isFinite(lng) || !Number.isFinite(lat)) continue;
+          if (lng === 0 && lat === 0) continue;
+          anyValid = true;
+          if (lng < minLng) minLng = lng;
+          if (lat < minLat) minLat = lat;
+          if (lng > maxLng) maxLng = lng;
+          if (lat > maxLat) maxLat = lat;
+        }
+        if (anyValid) {
+          map.fitBounds(
+            [
+              [minLng, minLat],
+              [maxLng, maxLat],
+            ],
+            { padding, duration: 0, maxZoom: 11 },
+          );
+          return;
+        }
+      }
       map.fitBounds([bounds.sw, bounds.ne], {
-        padding: compact ? 42 : 72,
+        padding,
         duration: 0,
         maxZoom: 11,
       });
     },
-    [bounds],
+    [bounds, places],
   );
 
   const handleLoad = useCallback(() => {
