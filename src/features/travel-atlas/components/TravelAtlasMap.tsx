@@ -9,9 +9,9 @@ import {
   MAX_ZOOM,
   MIN_ZOOM,
   TILE_SIZE,
+  containsPoint,
   fitBounds,
   isValidCoordinatePair,
-  mergeBounds,
   projectLngLat,
   unprojectPoint,
   visibleTiles,
@@ -65,9 +65,14 @@ export default function TravelAtlasMap({
     [places],
   );
 
+  const inBoundsPlaces = useMemo(
+    () => validPlaces.filter((place) => containsPoint(bounds, place.coordinates, 0.75)),
+    [bounds, validPlaces],
+  );
+
   const fitKey = useMemo(
-    () => `${bounds.sw.join(',')}:${bounds.ne.join(',')}:${validPlaces.map((place) => `${place.id}:${place.coordinates.join(',')}`).join('|')}`,
-    [bounds.ne, bounds.sw, validPlaces],
+    () => `${bounds.sw.join(',')}:${bounds.ne.join(',')}:${inBoundsPlaces.map((place) => `${place.id}:${place.coordinates.join(',')}`).join('|')}`,
+    [bounds.ne, bounds.sw, inBoundsPlaces],
   );
 
   useEffect(() => {
@@ -86,13 +91,12 @@ export default function TravelAtlasMap({
   }, []);
 
   useEffect(() => {
-    const points = validPlaces.map((place) => place.coordinates);
-    const next = fitBounds(mergeBounds(bounds, points), size.width, size.height, 12);
+    const next = fitBounds(bounds, size.width, size.height, 12);
     setCenter(next.center);
     setZoom(next.zoom);
     const frame = requestAnimationFrame(() => onReady?.());
     return () => cancelAnimationFrame(frame);
-  }, [bounds, fitKey, onReady, size.height, size.width, validPlaces]);
+  }, [bounds, fitKey, onReady, size.height, size.width]);
 
   const tileData = useMemo(() => visibleTiles(center, zoom, size.width, size.height), [center, size, zoom]);
 
@@ -219,7 +223,7 @@ export default function TravelAtlasMap({
 
         <div className="absolute inset-0 travel-raster-map__shade" aria-hidden="true" />
 
-        {validPlaces.map((place) => {
+        {inBoundsPlaces.map((place) => {
           const point = projectLngLat(place.coordinates, zoom);
           const left = point.x - tileData.topLeft.x;
           const top = point.y - tileData.topLeft.y;
@@ -289,7 +293,7 @@ export default function TravelAtlasMap({
         </Button>
       </div>
 
-      {validPlaces.length === 0 && (
+      {inBoundsPlaces.length === 0 && (
         <div className="pointer-events-none absolute inset-x-4 top-4 z-10 rounded-2xl border border-border/70 bg-background/90 px-4 py-3 text-center text-body text-muted-foreground shadow-depth backdrop-blur">
           {language === 'ar' ? 'أضف مكانًا ليظهر على الخريطة.' : 'Füge einen Ort hinzu, damit er auf der Karte erscheint.'}
         </div>
