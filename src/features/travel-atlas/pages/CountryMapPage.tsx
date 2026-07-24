@@ -1,5 +1,5 @@
 import { AlertCircle, MapPinned, Plus, RefreshCw } from 'lucide-react';
-import { useCallback, useMemo, useState } from 'react';
+import { lazy, Suspense, useCallback, useMemo, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 
 import PageHeader from '@/components/PageHeader';
@@ -8,9 +8,14 @@ import { useApp } from '@/contexts/AppContext';
 
 import AddPlaceSheet from '../components/AddPlaceSheet';
 import PlaceDetailSheet from '../components/PlaceDetailSheet';
-import TravelAtlasMap from '../components/TravelAtlasMap';
 import { useCountryPlaces, useTravelCountry } from '../hooks';
 import type { TravelMapRouteState } from '../types';
+
+// Lazy load the MapLibre-based clustered map to avoid blocking initial render
+const ClusteredMap = lazy(() => import('../components/ClusteredMap'));
+
+// Fallback to raster map if MapLibre fails to load
+const TravelAtlasMap = lazy(() => import('../components/TravelAtlasMap'));
 
 export default function CountryMapPage() {
   const { countryId } = useParams<{ countryId: string }>();
@@ -27,6 +32,7 @@ export default function CountryMapPage() {
   const [mapError, setMapError] = useState<string | null>(null);
   const [mapInstanceKey, setMapInstanceKey] = useState(0);
   const [addOpen, setAddOpen] = useState(false);
+  const [useRasterFallback, setUseRasterFallback] = useState(false);
   const selectedPlace = useMemo(
     () => places.find((place) => place.id === selectedPlaceId) ?? null,
     [places, selectedPlaceId],
@@ -38,6 +44,12 @@ export default function CountryMapPage() {
 
   const changeDetailOpen = useCallback((open: boolean) => {
     if (!open) setSelectedPlaceId(null);
+  }, []);
+
+  const handleMapError = useCallback((message: string) => {
+    setMapError(message);
+    // Fallback to raster map if MapLibre fails
+    setUseRasterFallback(true);
   }, []);
 
   if (!country && countryQuery.isLoading) {
@@ -80,15 +92,29 @@ export default function CountryMapPage() {
       />
 
       <main className="relative min-h-0 flex-1">
-        <TravelAtlasMap
-          key={mapInstanceKey}
-          bounds={country.bounds}
-          places={places}
-          language={language}
-          onSelectPlace={selectPlace}
-          onReady={() => setMapError(null)}
-          onError={setMapError}
-        />
+        <Suspense fallback={<MapSkeleton />}>
+          {useRasterFallback ? (
+            <TravelAtlasMap
+              key={mapInstanceKey}
+              bounds={country.bounds}
+              places={places}
+              language={language}
+              onSelectPlace={selectPlace}
+              onReady={() => setMapError(null)}
+              onError={setMapError}
+            />
+          ) : (
+            <ClusteredMap
+              key={mapInstanceKey}
+              bounds={country.bounds}
+              places={places}
+              language={language}
+              onSelectPlace={selectPlace}
+              onReady={() => setMapError(null)}
+              onError={handleMapError}
+            />
+          )}
+        </Suspense>
 
         <button
           type="button"
@@ -172,6 +198,17 @@ function MapPageSkeleton() {
         </div>
       </div>
       <div className="skeleton min-h-0 flex-1 rounded-none" />
+    </div>
+  );
+}
+
+function MapSkeleton() {
+  return (
+    <div className="flex h-full w-full items-center justify-center bg-muted">
+      <div className="flex flex-col items-center gap-3 text-muted-foreground">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-current border-t-transparent" />
+        <span className="text-mini">Loading map...</span>
+      </div>
     </div>
   );
 }
