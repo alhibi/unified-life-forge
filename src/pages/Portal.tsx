@@ -630,13 +630,6 @@ export default function Portal() {
                       {list ? <MkListView size={19} /> : <MkGridView size={19} />}
                     </button>
                     <button
-                      onClick={suggest}
-                      title={isAr ? 'اقترح تطبيقاً' : 'Vorschlag'}
-                      aria-label={isAr ? 'اقترح تطبيقاً' : 'App vorschlagen'}
-                    >
-                      <MkSpin className="spin" size={19} />
-                    </button>
-                    <button
                       onClick={() => navigate(current.path)}
                       title={isAr ? 'افتح المحدد' : 'Auswahl öffnen'}
                       aria-label={isAr ? 'افتح التطبيق المحدد' : 'Ausgewählte App öffnen'}
