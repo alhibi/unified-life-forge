@@ -3,9 +3,10 @@ import { useEffect, useState } from 'react';
 /**
  * Standard ES2024 Promise.withResolvers polyfill fallback
  */
-const withResolvers = (Promise as any).withResolvers
-  ? (Promise as any).withResolvers.bind(Promise)
-  : <T>() => {
+const withResolvers: <T>() => { promise: Promise<T>; resolve: (v: T | PromiseLike<T>) => void; reject: (r?: any) => void } =
+  (Promise as any).withResolvers
+  ? ((Promise as any).withResolvers.bind(Promise) as any)
+  : (<T>() => {
       let resolve!: (value: T | PromiseLike<T>) => void;
       let reject!: (reason?: any) => void;
       const promise = new Promise<T>((res, rej) => {
@@ -13,7 +14,7 @@ const withResolvers = (Promise as any).withResolvers
         reject = rej;
       });
       return { promise, resolve, reject };
-    };
+    });
 
 /**
  * A minimal, pre-compiled WebAssembly binary (in Base64 format)
