@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useState, useEffect, useRef } from 'react';
 
 import ImageLightbox from '@/components/ImageLightbox';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -46,7 +46,7 @@ import {
   X,
 } from '@/lib/icons';
 import { setInChatConversation } from '@/lib/inChatConversation';
-import { cn } from '@/lib/utils';
+import { cn, debounce } from '@/lib/utils';
 import { getDefaultAvatarForUser } from '@/utils/defaultAvatar';
 import { getAppleEmojiUrl, isEmojiAvatarValue } from '@/utils/emojiAvatar';
 
@@ -464,11 +464,27 @@ export default function ChatDrawer({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chat.activeConv?.id, chat.messages, chat.user?.id, chat.isAr]);
 
-  const [actionMenu, setActionMenu] = React.useState<ActionMenuState | null>(null);
-  const [convSearchQuery, setConvSearchQuery] = React.useState('');
-  const [showConvSearch, setShowConvSearch] = React.useState(false);
-  const [messageInfoTarget, setMessageInfoTarget] = React.useState<Message | null>(null);
-  const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
+  const [actionMenu, setActionMenu] = useState<ActionMenuState | null>(null);
+  const [convSearchQuery, setConvSearchQuery] = useState('');
+  const [showConvSearch, setShowConvSearch] = useState(false);
+  const [messageInfoTarget, setMessageInfoTarget] = useState<Message | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  // Debounce search input to prevent excessive filtering
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
+  
+  useEffect(() => {
+    const debouncedFn = debounce((query: string) => {
+      setDebouncedSearchQuery(query);
+    }, 350);
+    
+    debouncedFn(convSearchQuery);
+    
+    return () => {
+      // Clear the debounced function
+      setDebouncedSearchQuery(convSearchQuery);
+    };
+  }, [convSearchQuery]);
 
   // Imperative handle for the virtualized message list. Lets us route
   // scroll- (reply jumps, search hops) and scroll- through
@@ -568,10 +584,11 @@ export default function ChatDrawer({
   }, [chat.conversations, chat.chatPrefs]);
 
   // Filtered list for the conversation screen (matches tab + search).
+  // Using debouncedSearchQuery to prevent excessive filtering on every keystroke
   const filteredConversations = useMemo(() => {
     let list = chat.filteredByTab;
-    if (convSearchQuery.trim()) {
-      const q = convSearchQuery.toLowerCase();
+    if (debouncedSearchQuery.trim()) {
+      const q = debouncedSearchQuery.toLowerCase();
       list = list.filter(
         (c) =>
           (c.otherDisplayName || c.otherUsername || '').toLowerCase().includes(q) ||
@@ -581,7 +598,7 @@ export default function ChatDrawer({
       );
     }
     return list;
-  }, [chat.filteredByTab, convSearchQuery]);
+  }, [chat.filteredByTab, debouncedSearchQuery]);
 
   // Open the action menu anchored to the given bubble element. The trigger
   // is either a long-press (~350 ms) or a native contextmenu — a bare tap
