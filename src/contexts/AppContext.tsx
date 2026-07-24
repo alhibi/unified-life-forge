@@ -236,7 +236,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       if (data?.settings && typeof data.settings === 'object') {
         const s = data.settings as Record<string, any>;
         syncRef.current = true; // prevent save-back during load
-        if (s.language) { setLanguageState(s.language); localStorage.setItem('app-language', s.language); }
+        // Language is locked to 'ar' — ignore any cloud-persisted preference.
+        localStorage.setItem('app-language', 'ar');
         if (s.theme) { setThemeState(s.theme); localStorage.setItem('app-theme', s.theme); }
         if (s.accentHue !== undefined) { setAccentHueState(s.accentHue); localStorage.setItem('app-accent-hue', String(s.accentHue)); }
         if (s.paletteStyle) { setPaletteStyleState(s.paletteStyle); localStorage.setItem('app-palette-style', s.paletteStyle); }
