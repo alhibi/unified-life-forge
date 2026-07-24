@@ -349,6 +349,71 @@ export default function AddPlaceSheet({
             {isAr ? 'استخدم موقعي الحالي' : 'Aktuellen Standort verwenden'}
           </Button>
 
+          {selectedCountry && (
+            <div className="space-y-2">
+              <Label>{isAr ? 'اختر النقطة على الخريطة' : 'Punkt auf der Karte wählen'}</Label>
+              <div
+                ref={mapContainerRef}
+                dir="ltr"
+                className="h-56 w-full overflow-hidden rounded-2xl border border-border"
+                style={{ touchAction: 'none' }}
+              />
+              <p className="text-micro text-muted-foreground">
+                {isAr ? 'انقر على الخريطة لتحديد الموقع بدقة.' : 'Tippe auf die Karte, um den Ort zu setzen.'}
+              </p>
+            </div>
+          )}
+
+          <div className="space-y-2">
+            <Label>{isAr ? 'صور المكان (حتى 6)' : 'Fotos (bis zu 6)'}</Label>
+            <div className="flex flex-wrap gap-2">
+              {previews.map((url, i) => (
+                <div key={url} className="relative h-20 w-20 overflow-hidden rounded-xl border border-border">
+                  <img src={url} alt="" className="h-full w-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => removePhoto(i)}
+                    aria-label={isAr ? 'حذف الصورة' : 'Bild entfernen'}
+                    className="absolute right-1 top-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-background/90 text-foreground shadow"
+                  >
+                    <X className="h-3.5 w-3.5" aria-hidden="true" />
+                  </button>
+                </div>
+              ))}
+              {photos.length < MAX_PHOTOS && (
+                <label className="flex h-20 w-20 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-border text-muted-foreground transition-colors hover:border-[hsl(var(--live))] hover:text-foreground">
+                  <ImagePlus className="h-5 w-5" aria-hidden="true" />
+                  <span className="text-micro">{isAr ? 'إضافة' : 'Foto'}</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    className="hidden"
+                    onChange={onPickPhotos}
+                  />
+                </label>
+              )}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>{isAr ? 'أفضل وقت للزيارة (اختياري)' : 'Beste Reisezeit (optional)'}</Label>
+            <Input
+              value={bestTime}
+              onChange={(e) => setBestTime(e.target.value)}
+              placeholder={isAr ? 'مارس – مايو' : 'März – Mai'}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>{isAr ? 'وسوم (مفصولة بفواصل)' : 'Tags (durch Kommas getrennt)'}</Label>
+            <Input
+              value={tagsInput}
+              onChange={(e) => setTagsInput(e.target.value)}
+              placeholder={isAr ? 'شاطئ، عائلي، غروب' : 'Strand, Familie, Sonnenuntergang'}
+            />
+          </div>
+
           <div className="space-y-2">
             <Label>{isAr ? 'وصف مختصر (اختياري)' : 'Beschreibung (optional)'}</Label>
             <Textarea
