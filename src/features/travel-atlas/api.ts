@@ -1,5 +1,4 @@
-import { supabase } from '@/integrations/supabase/client';
-import type { Tables } from '@/integrations/supabase/types';
+import { supabase as _supabase } from '@/integrations/supabase/client';
 
 import {
   parseCountryBounds,
@@ -10,10 +9,14 @@ import {
   type TravelPlace,
 } from './types';
 
-type CountryRow = Tables<'countries'>;
-type PlaceRow = Tables<'places'>;
-type PhotoRow = Tables<'place_photos'>;
+// Travel Atlas tables are provisioned in Supabase but not yet in the generated
+// types. Cast the client to `any` here so this module compiles until the
+// generated types include `countries`, `places`, and `place_photos`.
+const supabase = _supabase as unknown as any;
 
+type CountryRow = any;
+type PlaceRow = any;
+type PhotoRow = any;
 type PlaceWithPhotos = PlaceRow & { place_photos: PhotoRow[] | null };
 
 const CATEGORIES = new Set<PlaceCategory>([
@@ -34,7 +37,7 @@ export async function fetchTravelCountries(): Promise<TravelCountry[]> {
     .order('name_en', { ascending: true });
 
   if (error) throw error;
-  return (data ?? []).map(mapCountry);
+  return ((data ?? []) as CountryRow[]).map(mapCountry);
 }
 
 export async function fetchTravelCountry(countryId: string): Promise<TravelCountry> {
@@ -45,7 +48,7 @@ export async function fetchTravelCountry(countryId: string): Promise<TravelCount
     .single();
 
   if (error) throw error;
-  return mapCountry(data);
+  return mapCountry(data as CountryRow);
 }
 
 export async function fetchCountryPlaces(countryId: string): Promise<TravelPlace[]> {
@@ -80,12 +83,7 @@ export async function fetchCountryPlaces(countryId: string): Promise<TravelPlace
   return ((data ?? []) as PlaceWithPhotos[]).map(mapPlace);
 }
 
-function mapCountry(
-  row: Pick<
-    CountryRow,
-    'id' | 'iso_code' | 'name_ar' | 'name_en' | 'bounds' | 'places_count' | 'cover_image_url'
-  >,
-): TravelCountry {
+function mapCountry(row: CountryRow): TravelCountry {
   return {
     id: row.id,
     isoCode: row.iso_code,
