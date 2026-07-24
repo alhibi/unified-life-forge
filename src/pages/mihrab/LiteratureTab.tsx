@@ -1,8 +1,4 @@
-import React, { useState, lazy, Suspense } from 'react';
-import { useApp } from '@/contexts/AppContext';
-import { motion } from 'framer-motion';
-import { Leaf, ChevronLeft, ChevronRight } from '@/lib/icons';
-import { motionWeight } from '@/lib/motion';
+import React, { lazy, Suspense } from 'react';
 
 /**
  * Mihrab → Literature tab.
@@ -30,54 +26,8 @@ const LibrarySkeleton = () => (
 );
 
 export default function LiteratureTab() {
-  const { language, dir } = useApp();
-  const isAr = language === 'ar';
-  const Arrow = dir === 'rtl' ? ChevronLeft : ChevronRight;
-
-  const [showSoon, setShowSoon] = useState(false);
-  const onSelectionsClick = () => {
-    setShowSoon(true);
-    window.setTimeout(() => setShowSoon(false), 1200);
-  };
-
   return (
-    <div className="space-y-3">
-      {/* Placeholder for upcoming Selections feature */}
-      <motion.button
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={motionWeight.medium}
-        onClick={onSelectionsClick}
-        className="surface-depth surface-depth-pressable w-full flex items-center gap-3 p-4 rounded-xl opacity-80 text-start"
-      >
-        <div className="w-11 h-11 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-          <Leaf className="w-5 h-5 text-primary" />
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-1.5">
-            <p className="text-sm font-bold text-foreground">
-              {showSoon
-                ? (isAr ? 'قريباً' : 'Bald verfügbar')
-                : (isAr ? 'مختارات' : 'Auswahl')}
-            </p>
-            {!showSoon && (
-              <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-muted/60 text-muted-foreground font-semibold tracking-wide">
-                {isAr ? 'قريباً' : 'BALD'}
-              </span>
-            )}
-          </div>
-          {!showSoon && (
-            <p className="text-[11px] text-muted-foreground leading-snug mt-0.5">
-              {isAr
-                ? 'قطوف منتقاة من القصائد والنصوص الأدبية. (قريباً)'
-                : 'Ausgewählte Gedichte und literarische Texte — bald verfügbar.'}
-            </p>
-          )}
-        </div>
-        <Arrow className="w-4 h-4 text-muted-foreground shrink-0" />
-      </motion.button>
-
-      {/* Embedded Diwan library — already supports tab mode */}
+    <div className="w-full">
       <Suspense fallback={<LibrarySkeleton />}>
         <DiwanLibraryPage tab />
       </Suspense>
