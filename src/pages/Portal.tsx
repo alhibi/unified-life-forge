@@ -202,27 +202,6 @@ const CATS: { key: Cat; ar: string; de: string }[] = [
   { key: 'play', ar: 'اللعب', de: 'Spiel' },
 ];
 
-/** Top-level destinations for the topbar tab rail. */
-const TOPNAV = [
-  { path: '/', ar: 'البوابة', de: 'Portal' },
-  { path: '/mihrab', ar: 'المحراب', de: 'Mihrab' },
-  { path: '/wellness', ar: 'العافية', de: 'Wellness' },
-  { path: '/browse', ar: 'اطلاع', de: 'Entdecken' },
-  { path: '/games', ar: 'الألعاب', de: 'Spiele' },
-];
-
-/** The FEATURED BUILDS track, re-cast as quick deep links. */
-const QUICK = [
-  { path: '/now', icon: MkClock, ar: 'الآن', de: 'Jetzt', tagAr: 'لوحة اليوم', tagDe: 'Heute' },
-  { path: '/weather', icon: MkCloudSun, ar: 'الطقس', de: 'Wetter', tagAr: 'الحالة الآن', tagDe: 'Aktuell' },
-  { path: '/duas', icon: MkStar, ar: 'الأدعية', de: 'Duas', tagAr: 'أذكار', tagDe: 'Adhkar' },
-  { path: '/tafsir', icon: MkBook, ar: 'التفسير', de: 'Tafsir', tagAr: 'شرح', tagDe: 'Erklärung' },
-  { path: '/podcasts', icon: MkMic, ar: 'البودكاست', de: 'Podcasts', tagAr: 'صوتيات', tagDe: 'Audio' },
-  { path: '/journal', icon: MkPencil, ar: 'اليومية', de: 'Journal', tagAr: 'تدوين', tagDe: 'Notiz' },
-  { path: '/diwan/library', icon: MkLayers, ar: 'الديوان', de: 'Diwan', tagAr: 'شعر', tagDe: 'Poesie' },
-  { path: '/games/chess', icon: MkCrown, ar: 'الشطرنج', de: 'Schach', tagAr: 'مباراة', tagDe: 'Partie' },
-];
-
 /* ── page ─────────────────────────────────────────────────────────── */
 
 export default function Portal() {
