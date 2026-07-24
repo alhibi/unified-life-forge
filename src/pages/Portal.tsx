@@ -202,27 +202,6 @@ const CATS: { key: Cat; ar: string; de: string }[] = [
   { key: 'play', ar: 'اللعب', de: 'Spiel' },
 ];
 
-/** Top-level destinations for the topbar tab rail. */
-const TOPNAV = [
-  { path: '/', ar: 'البوابة', de: 'Portal' },
-  { path: '/mihrab', ar: 'المحراب', de: 'Mihrab' },
-  { path: '/wellness', ar: 'العافية', de: 'Wellness' },
-  { path: '/browse', ar: 'اطلاع', de: 'Entdecken' },
-  { path: '/games', ar: 'الألعاب', de: 'Spiele' },
-];
-
-/** The FEATURED BUILDS track, re-cast as quick deep links. */
-const QUICK = [
-  { path: '/now', icon: MkClock, ar: 'الآن', de: 'Jetzt', tagAr: 'لوحة اليوم', tagDe: 'Heute' },
-  { path: '/weather', icon: MkCloudSun, ar: 'الطقس', de: 'Wetter', tagAr: 'الحالة الآن', tagDe: 'Aktuell' },
-  { path: '/duas', icon: MkStar, ar: 'الأدعية', de: 'Duas', tagAr: 'أذكار', tagDe: 'Adhkar' },
-  { path: '/tafsir', icon: MkBook, ar: 'التفسير', de: 'Tafsir', tagAr: 'شرح', tagDe: 'Erklärung' },
-  { path: '/podcasts', icon: MkMic, ar: 'البودكاست', de: 'Podcasts', tagAr: 'صوتيات', tagDe: 'Audio' },
-  { path: '/journal', icon: MkPencil, ar: 'اليومية', de: 'Journal', tagAr: 'تدوين', tagDe: 'Notiz' },
-  { path: '/diwan/library', icon: MkLayers, ar: 'الديوان', de: 'Diwan', tagAr: 'شعر', tagDe: 'Poesie' },
-  { path: '/games/chess', icon: MkCrown, ar: 'الشطرنج', de: 'Schach', tagAr: 'مباراة', tagDe: 'Partie' },
-];
-
 /* ── page ─────────────────────────────────────────────────────────── */
 
 export default function Portal() {
@@ -499,18 +478,6 @@ export default function Portal() {
                 <b>AMV.LIFE</b>
               </div>
 
-              <nav className="mk-tnav">
-                {TOPNAV.map(n => (
-                  <button
-                    key={n.path}
-                    className={n.path === '/' ? 'on' : undefined}
-                    onClick={() => n.path !== '/' && navigate(n.path)}
-                  >
-                    {isAr ? n.ar : n.de}
-                  </button>
-                ))}
-              </nav>
-
               <div className="mk-top-icons" ref={acctRef}>
                 <button
                   className="mk-icon-btn"
@@ -586,19 +553,6 @@ export default function Portal() {
                 )}
               </div>
             </header>
-
-            {/* narrow-screen version of the centre tabs */}
-            <nav className="mk-tnav-scroll">
-              {TOPNAV.map(n => (
-                <button
-                  key={n.path}
-                  className={n.path === '/' ? 'on' : undefined}
-                  onClick={() => n.path !== '/' && navigate(n.path)}
-                >
-                  {isAr ? n.ar : n.de}
-                </button>
-              ))}
-            </nav>
 
             <div className="mk-content">
               {/* ---- stage: pills + launcher grid + toolbar ---- */}
@@ -676,13 +630,6 @@ export default function Portal() {
                       {list ? <MkListView size={19} /> : <MkGridView size={19} />}
                     </button>
                     <button
-                      onClick={suggest}
-                      title={isAr ? 'اقترح تطبيقاً' : 'Vorschlag'}
-                      aria-label={isAr ? 'اقترح تطبيقاً' : 'App vorschlagen'}
-                    >
-                      <MkSpin className="spin" size={19} />
-                    </button>
-                    <button
                       onClick={() => navigate(current.path)}
                       title={isAr ? 'افتح المحدد' : 'Auswahl öffnen'}
                       aria-label={isAr ? 'افتح التطبيق المحدد' : 'Ausgewählte App öffnen'}
@@ -693,43 +640,8 @@ export default function Portal() {
                 </div>
               </div>
 
-              {/* ---- right panel ---- */}
+              {/* ---- right panel (desktop only via CSS) ---- */}
               {panel}
-
-              {/* ---- featured track ---- */}
-              <div className="mk-featured">
-                <div className="mk-fhead">
-                  <h3>{isAr ? 'روابط سريعة' : 'SCHNELLZUGRIFF'}</h3>
-                  <div className="mk-farrows">
-                    <button
-                      onClick={() => scrollTrack(false)}
-                      aria-label={isAr ? 'السابق' : 'Zurück'}
-                    >
-                      <ChevronBack size={16} />
-                    </button>
-                    <button
-                      onClick={() => scrollTrack(true)}
-                      aria-label={isAr ? 'التالي' : 'Weiter'}
-                    >
-                      <Chevron size={16} />
-                    </button>
-                  </div>
-                </div>
-                <div className="mk-btrack" ref={trackRef}>
-                  {QUICK.map(q => (
-                    <button key={q.path} className="mk-bcard" onClick={() => navigate(q.path)}>
-                      <span className="img">
-                        <q.icon size={26} />
-                      </span>
-                      <span className="nm block">{isAr ? q.ar : q.de}</span>
-                      <span className="tg block">{isAr ? q.tagAr : q.tagDe}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* ---- summary plate (narrow screens) ---- */}
-              <div className="mk-summary">{summaryBlock}</div>
             </div>
 
             <div className="mk-foot">
