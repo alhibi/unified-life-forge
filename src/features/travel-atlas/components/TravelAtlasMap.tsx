@@ -1,5 +1,6 @@
 import { Minus, Plus } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { CSSProperties } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -235,7 +236,7 @@ export default function TravelAtlasMap({
               style={{
                 transform: `translate3d(${left}px, ${top}px, 0) translate(-50%, -50%)`,
                 '--marker-accent': categoryAccent(place.category),
-              } as React.CSSProperties}
+              } as CSSProperties}
               onPointerDown={(event) => event.stopPropagation()}
               onClick={(event) => {
                 event.preventDefault();
