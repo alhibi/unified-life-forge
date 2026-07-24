@@ -1718,27 +1718,34 @@ input.podcast-seek:active::-moz-range-thumb {
 
 
 /* ── Travel Atlas map ─────────────────────────────────────────
-   MapLibre must own touch gestures inside the map even though the global
-   UI defaults to touch-action: manipulation. Photo pins deliberately enter
-   with scale + fade so cluster expansion resolves into places, not a pop. */
-.travel-atlas-map,
-.travel-atlas-map .maplibregl-map,
-.travel-atlas-map .maplibregl-canvas-container,
-.travel-atlas-map .maplibregl-canvas {
+   Raster tiles keep the atlas stable on low-memory/WebGL-hostile devices.
+   Photo pins are DOM-first so saved places remain visible even if a map
+   tile fails to load. */
+.travel-atlas-map {
   touch-action: none !important;
 }
 
-.travel-atlas-map .maplibregl-ctrl-group {
-  border: 1px solid hsl(var(--border));
-  border-radius: 8px;
-  background: hsl(var(--background));
-  box-shadow: none;
-  overflow: hidden;
+.travel-raster-map {
+  background:
+    radial-gradient(circle at 50% 50%, hsl(var(--muted) / 0.82), hsl(var(--background)) 74%),
+    hsl(var(--muted));
 }
 
-.travel-atlas-map .maplibregl-ctrl-group button {
-  width: 40px;
-  height: 40px;
+.travel-raster-map__tiles {
+  filter: saturate(0.72) contrast(0.92) brightness(0.72);
+}
+
+.travel-raster-map__tile {
+  user-select: none;
+  image-rendering: auto;
+  opacity: 0.9;
+}
+
+.travel-raster-map__shade {
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, hsl(var(--background) / 0.16), transparent 34%, hsl(var(--background) / 0.2)),
+    radial-gradient(circle at 50% 45%, transparent 0 42%, hsl(var(--background) / 0.2) 100%);
 }
 
 .travel-photo-marker {
@@ -1767,6 +1774,11 @@ input.podcast-seek:active::-moz-range-thumb {
 .travel-photo-marker[data-visible='true'] {
   opacity: 1;
   transform: scale(1);
+}
+
+.travel-photo-marker--react {
+  position: absolute;
+  z-index: 3;
 }
 
 .travel-photo-marker:active {
