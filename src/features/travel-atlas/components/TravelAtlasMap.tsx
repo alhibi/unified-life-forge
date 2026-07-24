@@ -294,7 +294,7 @@ export default function TravelAtlasMap({
           <Layer {...clusterCountLayer} />
         </Source>
         <NavigationControl position="bottom-left" showCompass={false} visualizePitch={false} />
-      </Map>
+      </MapGL>
     </div>
   );
 }
