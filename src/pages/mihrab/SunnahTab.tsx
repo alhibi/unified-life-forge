@@ -1,118 +1,72 @@
-import { motion } from 'framer-motion';
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-
-import { useApp } from '@/contexts/AppContext';
-import {
-CalendarDays, ChevronLeft, ChevronRight,
-  Clock, Timer, Trophy, } from '@/lib/icons';
 /**
  * Mihrab → Sunnah tab.
  *
- * Landing surface in front of the three Sunnah sub-pages
- * (`/section/timed-sunnah`, `/section/untimed-sunnah`,
- * `/section/prophetic-day`) plus a placeholder for the upcoming
- * Prophetic Badges feature.
+ * The fourth card here used to be a placeholder («أوسمة نبوية … قريباً») that
+ * flashed "soon" for 1.2 s and did nothing else. It is gone, replaced by
+ * SunnahTracker: a real daily checklist the user composes themselves, whose
+ * ticks feed the header streak.
  *
- * Each card mirrors the existing IslamicSections grid styling so
- * the user perceives this as the same set of cards "moved" from
- * the home grid into a dedicated home — not as new content.
+ * The three existing deep links stay, as a plain list under the tracker.
  */
-import { pageItem as item,pageStagger as stagger } from '@/lib/motion';
+import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
-interface SunnahCard {
-  key: string;
-  titleAr: string;
-  descAr: string;
-  icon: typeof Clock;
-  to?: string;
-}
+import SunnahTracker from '@/features/mihrab/components/SunnahTracker';
+import { CalendarDays, ChevronLeft, Clock, Timer } from '@/lib/icons';
+import { pageItem as item, pageStagger as stagger } from '@/lib/motion';
 
-const CARDS: SunnahCard[] = [
+const LINKS = [
   {
-    key: 'timed',
-    titleAr: 'السنن المؤقتة',
-    descAr: 'السنن المرتبطة بأوقات الصلاة الخمس ويوم الجمعة.',
-    icon: Clock,
     to: '/section/timed-sunnah',
+    icon: Clock,
+    title: 'السنن المؤقتة',
+    detail: 'السنن المرتبطة بأوقات الصلاة الخمس ويوم الجمعة.',
   },
   {
-    key: 'untimed',
-    titleAr: 'السنن غير المؤقتة',
-    descAr: 'سنن نبوية عامة في الطعام واللباس والآداب والمعاملات.',
-    icon: Timer,
     to: '/section/untimed-sunnah',
+    icon: Timer,
+    title: 'السنن غير المؤقتة',
+    detail: 'سنن عامة في الطعام واللباس والآداب والمعاملات.',
   },
   {
-    key: 'day',
-    titleAr: 'اليوم النبوي',
-    descAr: 'يوم النبي ﷺ من الفجر إلى الفجر، مع السنن المرتبطة بكل فترة.',
-    icon: CalendarDays,
     to: '/section/prophetic-day',
+    icon: CalendarDays,
+    title: 'اليوم النبوي',
+    detail: 'يوم النبي ﷺ من الفجر إلى الفجر، وسنن كل فترة.',
   },
-  {
-    key: 'badges',
-    titleAr: 'أوسمة نبوية',
-    descAr: 'تتبَّع التزامك بالسنن واحصد أوسمة نبوية. (قريباً)',
-    icon: Trophy,
-    // No `to` — handled as "coming soon" inline.
-  },
-];
+] as const;
 
 export default function SunnahTab() {
-  const { dir } = useApp();
   const navigate = useNavigate();
-  const Arrow = dir === 'rtl' ? ChevronLeft : ChevronRight;
-
-  // Per-card "coming soon" badge that briefly replaces the title when
-  // the user taps a placeholder card. Same UX as the legacy
-  // IslamicSections grid had for these placeholders.
-  const [soon, setSoon] = useState<string | null>(null);
-
-  const onCardClick = (card: SunnahCard) => {
-    if (card.to) {
-      navigate(card.to);
-      return;
-    }
-    setSoon(card.key);
-    window.setTimeout(() => setSoon(prev => (prev === card.key ? null : prev)), 1200);
-  };
 
   return (
-    <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-3">
-      {CARDS.map(card => {
-        const Icon = card.icon;
-        const showSoon = soon === card.key;
-        const title = showSoon ? 'قريباً' : card.titleAr;
-        const isPlaceholder = !card.to;
+    <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-4">
+      <motion.div variants={item}>
+        <SunnahTracker />
+      </motion.div>
 
-        return (
-          <motion.button
-            key={card.key}
-            variants={item}
-            onClick={() => onCardClick(card)}
-            className={`surface-depth surface-depth-pressable w-full flex items-center gap-3 p-4 rounded-xl hover:border-primary/30 text-start ${isPlaceholder ? 'opacity-80' : ''}`}
-          >
-            <div className="w-11 h-11 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-              <Icon className="w-5 h-5 text-primary" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-1.5">
-                <p className="text-sm font-bold text-foreground transition-all duration-200">{title}</p>
-                {isPlaceholder && !showSoon && (
-                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-muted/60 text-muted-foreground font-semibold tracking-wide">
-                    قريباً
-                  </span>
-                )}
-              </div>
-              {!showSoon && (
-                <p className="text-[11px] text-muted-foreground leading-snug mt-0.5 line-clamp-2">{card.descAr}</p>
-              )}
-            </div>
-            <Arrow className="w-4 h-4 text-muted-foreground shrink-0" />
-          </motion.button>
-        );
-      })}
+      <motion.div variants={item} className="space-y-2">
+        {LINKS.map((link) => {
+          const Icon = link.icon;
+          return (
+            <button
+              key={link.to}
+              type="button"
+              onClick={() => navigate(link.to)}
+              className="app-card app-card-pressable flex w-full items-center gap-3 text-start"
+            >
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-secondary text-foreground">
+                <Icon className="h-5 w-5" aria-hidden />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block text-meta font-semibold text-foreground">{link.title}</span>
+                <span className="mt-0.5 block text-mini text-muted-foreground">{link.detail}</span>
+              </span>
+              <ChevronLeft className="h-4 w-4 shrink-0 text-muted-foreground rtl:rotate-180" aria-hidden />
+            </button>
+          );
+        })}
+      </motion.div>
     </motion.div>
   );
 }
