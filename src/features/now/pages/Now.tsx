@@ -11,7 +11,9 @@ import WeatherWidget from '@/weather/components/WeatherWidget';
 import UmmahPulse from '@/components/UmmahPulse';
 
 import SmartGreeting from '@/components/SmartGreeting';
-import { PageShell } from '@/components/ui/app-shell';
+import { useNavigate } from 'react-router-dom';
+import { Sparkles, ChevronLeft, FileText, MapPinned } from '@/lib/icons';
+import { PageShell, AppCard } from '@/components/ui/app-shell';
 
 import { pageStagger as stagger, pageItem as item } from '@/lib/motion';
 
@@ -26,7 +28,8 @@ export default function Now() {
     if (locationStatus === 'idle') void requestLocation();
   }, [locationStatus, requestLocation]);
 
-  const { language } = useApp();
+  const { t, language } = useApp();
+  const navigate = useNavigate();
 
   return (
     <PageShell>
