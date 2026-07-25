@@ -20,6 +20,8 @@
 //      path branches into `parseRss2Json` instead of the XML parser.
 //      Used only when codetabs is rate-limited or 5xxs.
 
+import { type Chapter, parseChapters } from './chapters';
+
 const CODETABS_PROXY = 'https://api.codetabs.com/v1/proxy/?quest=';
 const ALLORIGINS_PROXY = 'https://api.allorigins.win/raw?url=';
 const RSS2JSON_PROXY = 'https://api.rss2json.com/v1/api.json?rss_url=';
@@ -60,6 +62,12 @@ export interface PodcastEpisode {
   audioMime: string;
   audioBytes: number; // bytes if the enclosure declared `length`
   link: string;
+  /**
+   * Podlove Simple Chapters declared inline in the feed. Empty for the vast
+   * majority of feeds and for the rss2json fallback (which drops unknown
+   * namespaces entirely), so every consumer must treat this as optional.
+   */
+  chapters: Chapter[];
 }
 
 /* -------------------------------------------------------------------------- */
@@ -230,6 +238,9 @@ function parseRss2Json(env: Rss2JsonEnvelope, origin: string): PodcastFeed {
         audioMime: it.enclosure?.type ?? '',
         audioBytes,
         link: it.link ?? '',
+        // rss2json strips unknown namespaces, so chapters are unavailable on
+        // this fallback path.
+        chapters: [],
       };
     })
     .filter((e) => e.audioUrl);
@@ -366,6 +377,7 @@ function parseFeed(xml: string, origin: string): PodcastFeed {
         audioMime,
         audioBytes,
         link: text(item, 'link'),
+        chapters: parseChapters(item),
       };
       // Keep only items that actually have audio. Trailers, "promo" items
       // without an enclosure, or video-only items aren't playable here.
