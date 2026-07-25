@@ -75,18 +75,18 @@ function HistoryRow({
         )}
       </button>
       <button onClick={onClick} className="flex-1 min-w-0 text-start">
-        <p className="text-[13px] font-semibold text-foreground leading-tight truncate">
+        <p className="text-[0.8125rem] font-semibold text-foreground leading-tight truncate">
           {entry.episodeTitle}
         </p>
-        <p className="text-[11px] text-muted-foreground leading-tight truncate">
+        <p className="text-[0.6875rem] text-muted-foreground leading-tight truncate">
           {entry.podcastTitle}
         </p>
         <div className="flex items-center gap-2 mt-1">
-          <span className="text-[10px] text-muted-foreground">
+          <span className="text-[0.625rem] text-muted-foreground">
             {formatRelative(entry.listenedAt, lang)}
           </span>
           <span
-            className="text-[10px] tabular-nums font-medium"
+            className="text-[0.625rem] tabular-nums font-medium"
             style={{
               color: entry.completed
                 ? 'var(--podcast-primary, hsl(var(--primary)))'
@@ -178,7 +178,7 @@ export default function HistoryPage() {
           {history.length > 0 && (
             <button
               onClick={() => clearHistory()}
-              className="flex items-center gap-1 px-3 h-8 rounded-full text-[12px] font-semibold text-destructive hover:bg-destructive/10 transition-colors"
+              className="flex items-center gap-1 px-3 h-8 rounded-full text-[0.75rem] font-semibold text-destructive hover:bg-destructive/10 transition-colors"
             >
               <Trash2 className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">
@@ -197,7 +197,7 @@ export default function HistoryPage() {
             <p className="text-sm font-semibold text-foreground mb-1">
               {'\u0644\u0627 \u064a\u0648\u062c\u062f \u0633\u062c\u0644 \u0627\u0633\u062a\u0645\u0627\u0639'}
             </p>
-            <p className="text-[12px] text-muted-foreground mb-5 max-w-xs">
+            <p className="text-[0.75rem] text-muted-foreground mb-5 max-w-xs">
               {'\u0627\u0644\u062d\u0644\u0642\u0627\u062a \u0627\u0644\u062a\u064a \u062a\u0646\u062a\u0647\u064a \u0645\u0646 \u0627\u0644\u0627\u0633\u062a\u0645\u0627\u0639 \u0625\u0644\u064a\u0647\u0627 \u0633\u062a\u0638\u0647\u0631 \u0647\u0646\u0627.'}
             </p>
             <button
@@ -215,7 +215,7 @@ export default function HistoryPage() {
           >
             {grouped.map((group) => (
               <div key={group.label} className="mb-2">
-                <h2 className="text-[12px] font-semibold text-muted-foreground uppercase tracking-[0.06em] px-4 py-2">
+                <h2 className="text-[0.75rem] font-semibold text-muted-foreground uppercase tracking-[0.06em] px-4 py-2">
                   {group.label}
                 </h2>
                 <div className="divide-y divide-border/30">

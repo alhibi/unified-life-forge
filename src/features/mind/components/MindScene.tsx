@@ -1,14 +1,18 @@
 import { OrbitControls, QuadraticBezierLine } from '@react-three/drei';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Suspense,useMemo, useRef } from 'react';
+import { Suspense, useMemo, useRef } from 'react';
 import * as THREE from 'three';
+
+import { INK_HEX } from '@/utils/themeEngine';
 
 import { anchorFor, type Hemisphere } from '../hooks/useMemoryAnchor';
 import type { MindState } from '../hooks/useMindState';
 import { renderParams } from '../lib/growth';
 
 const MIND_TOKENS = {
-  void: '#0A0A0A',
+  // The app's shared ink tone. A WebGL material cannot read a CSS variable,
+  // so this is the one place ink appears as a literal.
+  void: INK_HEX,
   organicBase: '#8B5A4A',
   organicGlow: '#FFC9A0',
   mechBase: '#2A2A2A',
@@ -26,7 +30,9 @@ function OrganicHemisphere({ radius, glow }: { radius: number; glow: number }) {
     // Displace vertices with pseudo-noise for organic folding.
     const pos = g.attributes.position as THREE.BufferAttribute;
     for (let i = 0; i < pos.count; i++) {
-      const x = pos.getX(i), y = pos.getY(i), z = pos.getZ(i);
+      const x = pos.getX(i),
+        y = pos.getY(i),
+        z = pos.getZ(i);
       const n =
         Math.sin(x * 4.2) * Math.cos(y * 3.7) * 0.06 +
         Math.sin(y * 5.1 + z * 2.3) * 0.045 +
@@ -93,8 +99,16 @@ function CorpusSeam({ radius }: { radius: number }) {
   );
 }
 
-function Filaments({ hemisphere, count, radius, color }: {
-  hemisphere: Hemisphere; count: number; radius: number; color: string;
+function Filaments({
+  hemisphere,
+  count,
+  radius,
+  color,
+}: {
+  hemisphere: Hemisphere;
+  count: number;
+  radius: number;
+  color: string;
 }) {
   const positions = useMemo(() => {
     const arr: number[] = [];
@@ -131,7 +145,7 @@ function FillingCore({ radius }: { radius: number }) {
       const r = radius * Math.cbrt(u) * 0.96;
       const theta = Math.random() * Math.PI * 2;
       const phi = Math.acos(2 * Math.random() - 1);
-      arr[i * 3]     = r * Math.sin(phi) * Math.cos(theta);
+      arr[i * 3] = r * Math.sin(phi) * Math.cos(theta);
       arr[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
       arr[i * 3 + 2] = r * Math.cos(phi);
     }
@@ -146,7 +160,13 @@ function FillingCore({ radius }: { radius: number }) {
       <bufferGeometry>
         <bufferAttribute attach="attributes-position" args={[positions, 3]} count={count} />
       </bufferGeometry>
-      <pointsMaterial size={0.008} color={MIND_TOKENS.seam} transparent opacity={0.55} sizeAttenuation />
+      <pointsMaterial
+        size={0.008}
+        color={MIND_TOKENS.seam}
+        transparent
+        opacity={0.55}
+        sizeAttenuation
+      />
     </points>
   );
 }
@@ -155,13 +175,19 @@ function AutoRotator({ enabled }: { enabled: boolean }) {
   useFrame((state, dt) => {
     if (!enabled) return;
     // ~4° per second.
-    state.scene.rotation.y += dt * (4 * Math.PI / 180);
+    state.scene.rotation.y += dt * ((4 * Math.PI) / 180);
   });
   return null;
 }
 
-function Threads({ activeIds, mind, radius }: {
-  activeIds: string[]; mind: MindState; radius: number;
+function Threads({
+  activeIds,
+  mind,
+  radius,
+}: {
+  activeIds: string[];
+  mind: MindState;
+  radius: number;
 }) {
   if (!activeIds.length) return null;
   const byId = new Map(mind.notes.map((n) => [n.id, n]));
@@ -223,10 +249,20 @@ export default function MindScene({
       <Suspense fallback={null}>
         <group>
           <OrganicHemisphere radius={BASE_RADIUS} glow={params.organic.glowIntensity} />
-          <MechHemisphere    radius={BASE_RADIUS} glow={params.mechanical.glowIntensity} />
+          <MechHemisphere radius={BASE_RADIUS} glow={params.mechanical.glowIntensity} />
           <CorpusSeam radius={BASE_RADIUS} />
-          <Filaments hemisphere="organic"    count={params.organic.filamentCount}    radius={BASE_RADIUS} color={MIND_TOKENS.organicGlow} />
-          <Filaments hemisphere="mechanical" count={params.mechanical.filamentCount} radius={BASE_RADIUS} color={MIND_TOKENS.mechGlow} />
+          <Filaments
+            hemisphere="organic"
+            count={params.organic.filamentCount}
+            radius={BASE_RADIUS}
+            color={MIND_TOKENS.organicGlow}
+          />
+          <Filaments
+            hemisphere="mechanical"
+            count={params.mechanical.filamentCount}
+            radius={BASE_RADIUS}
+            color={MIND_TOKENS.mechGlow}
+          />
           <FillingCore radius={params.coreRadius} />
           <Threads activeIds={activeIds} mind={mind} radius={BASE_RADIUS} />
         </group>

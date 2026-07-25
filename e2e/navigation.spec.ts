@@ -37,9 +37,20 @@ test.describe('routing', () => {
   test('deep-linking straight into a sub-route works', async ({ page }) => {
     // Sub-routes are not reachable by clicking from a cold start, so a broken
     // route definition would only ever surface on a shared link.
-    await page.goto('/settings/theme');
+    await page.goto('/settings/appearance');
     await expect(page.locator('#root')).not.toBeEmpty();
     await expect(page.locator('h1')).not.toContainText('404');
+  });
+
+  test('the retired appearance paths still land somewhere', async ({ page }) => {
+    // `/settings/theme` and `/settings/font` were two screens for eight
+    // months; they are in bookmarks and in shared links, so they redirect
+    // rather than 404.
+    for (const legacy of ['/settings/theme', '/settings/font']) {
+      await page.goto(legacy);
+      await expect(page).toHaveURL(/\/settings\/appearance$/);
+      await expect(page.locator('#root')).not.toBeEmpty();
+    }
   });
 
   test('client-side navigation from the portal to settings keeps the SPA alive', async ({
@@ -58,9 +69,7 @@ test.describe('routing', () => {
     });
 
     await expect(page).toHaveURL(/\/settings$/);
-    expect(reloaded, 'a full page load means routing fell through to the server').toBe(
-      false,
-    );
+    expect(reloaded, 'a full page load means routing fell through to the server').toBe(false);
   });
 
   test('switching between persistent tabs does not remount the app', async ({ page }) => {

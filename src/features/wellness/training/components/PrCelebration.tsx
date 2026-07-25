@@ -91,10 +91,10 @@ export default function PrCelebration({ records, open, onClose, lang }: PrCelebr
               >
                 <Trophy className="w-9 h-9 text-amber-500" />
               </motion.div>
-              <h2 className="text-[20px] font-bold text-amber-950 leading-tight">
+              <h2 className="text-[1.25rem] font-bold text-amber-950 leading-tight">
                 {isMultiple ? T.multipleNew[lang] : T.newPr[lang]}
               </h2>
-              <p className="text-[12px] text-amber-900/80 mt-1">{T.niceWork[lang]}</p>
+              <p className="text-[0.75rem] text-amber-900/80 mt-1">{T.niceWork[lang]}</p>
             </div>
 
             <div className="bg-white/95 px-4 pt-4 pb-5 space-y-2">
@@ -110,13 +110,13 @@ export default function PrCelebration({ records, open, onClose, lang }: PrCelebr
                     className="bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-center justify-between"
                   >
                     <div className="min-w-0 flex-1">
-                      <p className="text-[13px] font-bold text-foreground truncate">{label}</p>
-                      <p className="text-[10px] text-muted-foreground mt-0.5">{T.kind[r.kind][lang]}</p>
+                      <p className="text-[0.8125rem] font-bold text-foreground truncate">{label}</p>
+                      <p className="text-[0.625rem] text-muted-foreground mt-0.5">{T.kind[r.kind][lang]}</p>
                     </div>
                     <div className="text-end shrink-0" dir="ltr">
-                      <p className="text-[16px] font-bold tabular-nums text-amber-600">
+                      <p className="text-[1rem] font-bold tabular-nums text-amber-600">
                         {r.value}
-                        <span className="text-[10px] text-amber-500 ms-0.5">
+                        <span className="text-[0.625rem] text-amber-500 ms-0.5">
                           {T.unit[r.unit][lang]}
                         </span>
                       </p>
@@ -125,7 +125,7 @@ export default function PrCelebration({ records, open, onClose, lang }: PrCelebr
                 );
               })}
               {records.length > 4 && (
-                <p className="text-[10px] text-center text-muted-foreground">
+                <p className="text-[0.625rem] text-center text-muted-foreground">
                   +{records.length - 4}
                 </p>
               )}

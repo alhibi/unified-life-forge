@@ -109,15 +109,15 @@ export default function PrayerGuide() {
       <div className="max-w-2xl mx-auto">
         <div className="flex items-center gap-3 mb-6">
           <BackButton fallback="/mihrab" />
-          <h1 className="text-[20px] font-bold tracking-tight text-foreground flex items-center gap-2">
+          <h1 className="text-[1.25rem] font-bold tracking-tight text-foreground flex items-center gap-2">
             <BookOpen className="w-5 h-5 text-primary shrink-0" />
             {'دليل الصلاة وأوقاتها'}
           </h1>
         </div>
 
-        <article className="space-y-8 text-foreground/90 leading-relaxed text-[15px]">
+        <article className="space-y-8 text-foreground/90 leading-relaxed text-[0.9375rem]">
           <section aria-labelledby="intro-h">
-            <h2 id="intro-h" className="text-[17px] font-bold mb-2 text-foreground">
+            <h2 id="intro-h" className="text-[1.0625rem] font-bold mb-2 text-foreground">
               {'مقدمة'}
             </h2>
             <p>
@@ -126,7 +126,7 @@ export default function PrayerGuide() {
           </section>
 
           <section aria-labelledby="five-h">
-            <h2 id="five-h" className="text-[17px] font-bold mb-3 text-foreground flex items-center gap-2">
+            <h2 id="five-h" className="text-[1.0625rem] font-bold mb-3 text-foreground flex items-center gap-2">
               <Clock className="w-4 h-4 text-primary" />
               {'الصلوات الخمس'}
             </h2>
@@ -134,14 +134,14 @@ export default function PrayerGuide() {
               {prayers.map((p) => (
                 <li key={p.name} className="rounded-xl bg-card/60 border border-border/40 p-3">
                   <p className="font-bold text-foreground">{p.name}</p>
-                  <p className="text-[13px] text-muted-foreground mt-1">{p.desc}</p>
+                  <p className="text-[0.8125rem] text-muted-foreground mt-1">{p.desc}</p>
                 </li>
               ))}
             </ul>
           </section>
 
           <section aria-labelledby="calc-h">
-            <h2 id="calc-h" className="text-[17px] font-bold mb-2 text-foreground">
+            <h2 id="calc-h" className="text-[1.0625rem] font-bold mb-2 text-foreground">
               {'كيف تُحسب أوقات الصلاة فلكيًا؟'}
             </h2>
             <p>
@@ -150,24 +150,24 @@ export default function PrayerGuide() {
           </section>
 
           <section aria-labelledby="methods-h">
-            <h2 id="methods-h" className="text-[17px] font-bold mb-3 text-foreground">
+            <h2 id="methods-h" className="text-[1.0625rem] font-bold mb-3 text-foreground">
               {'طرق الحساب الشائعة'}
             </h2>
             <ul className="space-y-2">
               {methods.map((m) => (
                 <li key={m.name} className="rounded-xl bg-card/60 border border-border/40 p-3">
                   <p className="font-bold text-foreground">{m.name}</p>
-                  <p className="text-[13px] text-muted-foreground mt-1">{m.desc}</p>
+                  <p className="text-[0.8125rem] text-muted-foreground mt-1">{m.desc}</p>
                 </li>
               ))}
             </ul>
-            <p className="mt-3 text-[13px] text-muted-foreground">
+            <p className="mt-3 text-[0.8125rem] text-muted-foreground">
               {'يمكنك تغيير الطريقة من إعدادات الصلاة في SmartHub لمطابقة المسجد المحلي.'}
             </p>
           </section>
 
           <section aria-labelledby="qibla-h">
-            <h2 id="qibla-h" className="text-[17px] font-bold mb-2 text-foreground flex items-center gap-2">
+            <h2 id="qibla-h" className="text-[1.0625rem] font-bold mb-2 text-foreground flex items-center gap-2">
               <Compass className="w-4 h-4 text-primary" />
               {'اتجاه القبلة'}
             </h2>
@@ -177,32 +177,32 @@ export default function PrayerGuide() {
           </section>
 
           <section aria-labelledby="faq-h">
-            <h2 id="faq-h" className="text-[17px] font-bold mb-3 text-foreground">
+            <h2 id="faq-h" className="text-[1.0625rem] font-bold mb-3 text-foreground">
               {'الأسئلة الشائعة'}
             </h2>
             <div className="space-y-3">
               {faq.map((f) => (
                 <details key={f.q} className="rounded-xl bg-card/60 border border-border/40 p-3 group">
-                  <summary className="cursor-pointer font-bold text-foreground text-[14px] list-none flex items-center justify-between gap-2">
+                  <summary className="cursor-pointer font-bold text-foreground text-[0.875rem] list-none flex items-center justify-between gap-2">
                     <span>{f.q}</span>
                     <ChevronLeft className="w-4 h-4 text-muted-foreground transition-transform group-open:-rotate-90 rtl:group-open:rotate-90" />
                   </summary>
-                  <p className="mt-2 text-[13px] text-muted-foreground leading-relaxed">{f.a}</p>
+                  <p className="mt-2 text-[0.8125rem] text-muted-foreground leading-relaxed">{f.a}</p>
                 </details>
               ))}
             </div>
           </section>
 
           <section aria-labelledby="cta-h" className="rounded-2xl bg-primary/10 border border-primary/20 p-4">
-            <h2 id="cta-h" className="text-[15px] font-bold text-foreground mb-1">
+            <h2 id="cta-h" className="text-[0.9375rem] font-bold text-foreground mb-1">
               {'جرّب أوقات الصلاة في مدينتك'}
             </h2>
-            <p className="text-[13px] text-muted-foreground mb-3">
+            <p className="text-[0.8125rem] text-muted-foreground mb-3">
               {'يحسب SmartHub أوقاتك تلقائيًا من موقعك ويتيح لك اختيار طريقة الحساب التي تتبعها.'}
             </p>
             <Link
               to="/settings/prayer"
-              className="inline-block text-[13px] font-bold text-primary hover:underline"
+              className="inline-block text-[0.8125rem] font-bold text-primary hover:underline"
             >
               {'إعدادات الصلاة ←'}
             </Link>

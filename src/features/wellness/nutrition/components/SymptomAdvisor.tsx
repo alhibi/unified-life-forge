@@ -147,7 +147,7 @@ export default function SymptomAdvisor({ lang }: Props) {
           <Sparkles className="w-5 h-5 text-primary" />
           <h3 className="text-sm font-bold text-foreground">{T.title[lang]}</h3>
         </div>
-        <p className="text-[11px] text-muted-foreground leading-relaxed">{T.subtitle[lang]}</p>
+        <p className="text-[0.6875rem] text-muted-foreground leading-relaxed">{T.subtitle[lang]}</p>
       </div>
 
       {/* Selector pills */}
@@ -160,7 +160,7 @@ export default function SymptomAdvisor({ lang }: Props) {
               <button
                 key={s.key}
                 onClick={() => handleToggleSymptom(s.key)}
-                className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border text-[11px] font-semibold transition-all ${
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border text-[0.6875rem] font-semibold transition-all ${
                   active
                     ? 'bg-primary text-primary-foreground border-primary'
                     : 'bg-card text-muted-foreground border-border/40 hover:border-primary/30'
@@ -197,22 +197,22 @@ export default function SymptomAdvisor({ lang }: Props) {
                     <div className="w-6 h-6 rounded-lg bg-amber-500/10 flex items-center justify-center">
                       <Info className="w-3.5 h-3.5 text-primary" />
                     </div>
-                    <h4 className="text-[12px] font-bold text-foreground">
+                    <h4 className="text-[0.75rem] font-bold text-foreground">
                       {def.nutrientName[lang]}
                     </h4>
                   </div>
-                  <p className="text-[11px] text-muted-foreground leading-relaxed">
+                  <p className="text-[0.6875rem] text-muted-foreground leading-relaxed">
                     {def.cause[lang]}
                   </p>
                   <div className="space-y-1.5 pt-1.5 border-t border-border/30">
-                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                    <p className="text-[0.625rem] font-bold text-muted-foreground uppercase tracking-wider">
                       {T.richFoods[lang]}
                     </p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
                       {matchedFoods.map((food) => (
                         <div
                           key={food.id}
-                          className="flex items-center justify-between p-2 rounded-lg bg-muted/20 border border-border/20 text-[11px]"
+                          className="flex items-center justify-between p-2 rounded-lg bg-muted/20 border border-border/20 text-[0.6875rem]"
                         >
                           <div className="flex items-center gap-2">
                             <span>{food.emoji}</span>
@@ -220,7 +220,7 @@ export default function SymptomAdvisor({ lang }: Props) {
                           </div>
                           <button
                             onClick={() => handleQuickLog(food)}
-                            className="flex items-center gap-1 text-[10px] bg-primary/10 text-primary hover:bg-primary/20 px-2 py-1 rounded font-bold transition-colors active:scale-95"
+                            className="flex items-center gap-1 text-[0.625rem] bg-primary/10 text-primary hover:bg-primary/20 px-2 py-1 rounded font-bold transition-colors active:scale-95"
                           >
                             <Plus className="w-3 h-3" />
                             {T.quickAdd[lang]}

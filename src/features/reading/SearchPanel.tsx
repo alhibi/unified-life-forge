@@ -312,7 +312,7 @@ export function SearchPanel({
             </button>
           ))}
           {restrictTo && restrictTo.length > 0 && (
-            <span className="ms-auto shrink-0 text-[10px] text-muted-foreground/70">
+            <span className="ms-auto shrink-0 text-[0.625rem] text-muted-foreground/70">
               {`${restrictTo.length} مصدر مفعّل`}
             </span>
           )}
@@ -340,7 +340,7 @@ export function SearchPanel({
         {q.length > 0 && (
           <div className="px-4 py-2.5 border-b border-border/20 flex items-center gap-2">
             {loading && <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />}
-            <span className="text-[11px] text-muted-foreground tabular-nums">
+            <span className="text-[0.6875rem] text-muted-foreground tabular-nums">
               {headline}
             </span>
           </div>
@@ -400,7 +400,7 @@ export function SearchPanel({
               className="w-full text-start p-4 hover:bg-accent/20 active:bg-accent/30 transition-colors flex gap-3 border-b border-border/15"
             >
               <div className="flex-1 min-w-0">
-                <h4 className="text-[14px] font-semibold leading-snug line-clamp-2">
+                <h4 className="text-[0.875rem] font-semibold leading-snug line-clamp-2">
                   {highlightText(hit.title, debounced)}
                 </h4>
                 {hit.description && (
@@ -410,13 +410,13 @@ export function SearchPanel({
                 )}
                 <div className="flex items-center gap-2 mt-2 flex-wrap">
                   <SourcePill name={hit.source_name} size="sm" />
-                  <span className="text-[11px] text-foreground/70 font-medium">
+                  <span className="text-[0.6875rem] text-foreground/70 font-medium">
                     {hit.source_name}
                   </span>
                   {hit.pub_date && (
                     <>
                       <span className="w-1 h-1 rounded-full bg-muted-foreground/30" />
-                      <span className="text-[11px] text-muted-foreground/70">
+                      <span className="text-[0.6875rem] text-muted-foreground/70">
                         {timeAgo(hit.pub_date, language)}
                       </span>
                     </>
@@ -468,14 +468,14 @@ function RecentSearches({
   return (
     <div className="px-4 py-3">
       <div className="flex items-center justify-between mb-2">
-        <p className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground inline-flex items-center gap-1.5">
+        <p className="text-[0.625rem] uppercase tracking-wider font-bold text-muted-foreground inline-flex items-center gap-1.5">
           <Clock className="h-3 w-3" />
           {'عمليات البحث الأخيرة'}
         </p>
         <button
           type="button"
           onClick={onClear}
-          className="text-[10px] text-muted-foreground hover:text-foreground transition-colors"
+          className="text-[0.625rem] text-muted-foreground hover:text-foreground transition-colors"
         >
           {'مسح الكل'}
         </button>
@@ -494,7 +494,7 @@ function RecentSearches({
               <Search className="h-3.5 w-3.5 text-muted-foreground/60 shrink-0" />
               <span className="text-sm truncate flex-1">{entry.q}</span>
               {typeof entry.hits === 'number' && entry.hits > 0 && (
-                <span className="text-[10px] text-muted-foreground/60 inline-flex items-center gap-1 shrink-0">
+                <span className="text-[0.625rem] text-muted-foreground/60 inline-flex items-center gap-1 shrink-0">
                   <TrendingUp className="h-2.5 w-2.5" />
                   {entry.hits}
                 </span>

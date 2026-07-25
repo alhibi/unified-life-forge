@@ -216,10 +216,10 @@ export function StorageView({
         {/* Storage gauge */}
         <section className="rounded-2xl bg-card border border-border/50 p-4">
           <div className="flex items-baseline justify-between mb-2">
-            <span className="text-[11px] uppercase tracking-wider font-bold text-muted-foreground">
+            <span className="text-[0.6875rem] uppercase tracking-wider font-bold text-muted-foreground">
               {'استهلاك المساحة'}
             </span>
-            <span className="text-[11px] text-muted-foreground tabular-nums" dir="ltr">
+            <span className="text-[0.6875rem] text-muted-foreground tabular-nums" dir="ltr">
               {stats ? `${formatBytes(stats.usageBytes)} / ${formatBytes(stats.quotaBytes) || '—'}` : '—'}
             </span>
           </div>
@@ -245,7 +245,7 @@ export function StorageView({
               }}
             />
           </div>
-          <p className="text-[10px] text-muted-foreground/70 mt-2">
+          <p className="text-[0.625rem] text-muted-foreground/70 mt-2">
             {'يشمل الرقم المقالات المخزنة + الصور المخبأة في Service Worker.'}
           </p>
         </section>
@@ -286,12 +286,12 @@ export function StorageView({
             <h4 className="text-sm font-bold mb-1">
               {'الحفظ التلقائي'}
             </h4>
-            <p className="text-[11px] text-muted-foreground">
+            <p className="text-[0.6875rem] text-muted-foreground">
               {'احتفظ بآخر مقالات غير مقروءة جاهزة للقراءة بدون اتصال.'}
             </p>
           </div>
           <div>
-            <p className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground mb-2">
+            <p className="text-[0.625rem] uppercase tracking-wider font-bold text-muted-foreground mb-2">
               {'العدد'}
             </p>
             <div className="flex flex-wrap gap-1.5">
@@ -320,7 +320,7 @@ export function StorageView({
             onChange={(v) => patch({ cacheImages: v })}
           />
           <div>
-            <p className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground mb-2">
+            <p className="text-[0.625rem] uppercase tracking-wider font-bold text-muted-foreground mb-2">
               {'مدة الاحتفاظ'}
             </p>
             <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
@@ -328,7 +328,7 @@ export function StorageView({
                 {'دائم — لا تُحذف المقالات أبداً'}
               </span>
             </div>
-            <p className="text-[10px] text-muted-foreground/70 mt-2">
+            <p className="text-[0.625rem] text-muted-foreground/70 mt-2">
               {'كل المقالات تُحفظ للأبد. أرشيفك ينمو باستمرار ولا يُفقد أي محتوى.'}
             </p>
           </div>
@@ -410,13 +410,13 @@ function Stat({
         <span className="w-7 h-7 rounded-xl bg-primary/10 text-primary inline-flex items-center justify-center">
           {icon}
         </span>
-        <span className="text-[10px] uppercase tracking-wider font-bold">
+        <span className="text-[0.625rem] uppercase tracking-wider font-bold">
           {label}
         </span>
       </div>
       <p className="text-2xl font-bold tabular-nums">{value}</p>
       {hint && (
-        <p className="text-[10px] text-muted-foreground/70 mt-0.5">{hint}</p>
+        <p className="text-[0.625rem] text-muted-foreground/70 mt-0.5">{hint}</p>
       )}
     </div>
   );
@@ -448,7 +448,7 @@ function ToggleRow({
       </span>
       <span className="flex-1 min-w-0">
         <span className="block text-sm font-semibold">{label}</span>
-        <span className="block text-[11px] text-muted-foreground leading-snug">
+        <span className="block text-[0.6875rem] text-muted-foreground leading-snug">
           {description}
         </span>
       </span>
@@ -504,7 +504,7 @@ function ActionRow({
         <span className={`block text-sm font-semibold ${destructive ? 'text-destructive' : ''}`}>
           {label}
         </span>
-        <span className="block text-[11px] text-muted-foreground leading-snug">
+        <span className="block text-[0.6875rem] text-muted-foreground leading-snug">
           {description}
         </span>
       </span>

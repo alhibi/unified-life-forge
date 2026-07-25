@@ -53,7 +53,7 @@ export default function MeteorologyConsole() {
       <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-primary/40" />
 
       <header className="mb-4">
-        <h2 className="font-semibold text-[20px] leading-none text-foreground flex items-center gap-2">
+        <h2 className="font-semibold text-[1.25rem] leading-none text-foreground flex items-center gap-2">
           <Sliders className="w-5 h-5 text-primary" />
           {'مختبر المحاكاة والرياضيات المترولوجية'}
         </h2>
@@ -124,12 +124,12 @@ export default function MeteorologyConsole() {
           { label: 'مؤشر الضيق', value: `${di.toFixed(1)}`, hint: (di > 24 ? 'ضيق ملحوظ' : 'مريح') },
         ].map((item, idx) => (
           <div key={idx} className="rounded-xl border border-border/40 bg-secondary/20 p-3 text-center flex flex-col justify-between">
-            <span className="text-[11px] tracking-wider uppercase text-foreground font-semibold">{item.label}</span>
-            <div className="my-2 flex items-baseline justify-center gap-0.5 text-[24px] leading-none text-foreground font-bold tabular-nums">
+            <span className="text-[0.6875rem] tracking-wider uppercase text-foreground font-semibold">{item.label}</span>
+            <div className="my-2 flex items-baseline justify-center gap-0.5 text-[1.5rem] leading-none text-foreground font-bold tabular-nums">
               <span>{item.value}</span>
               {item.unit && <span className="text-xs text-primary/90 ms-0.5 font-semibold">{item.unit}</span>}
             </div>
-            <span className="text-[10px] text-primary/90 font-semibold">{item.hint}</span>
+            <span className="text-[0.625rem] text-primary/90 font-semibold">{item.hint}</span>
           </div>
         ))}
       </div>
@@ -148,10 +148,10 @@ export default function MeteorologyConsole() {
                 <span className="w-1 h-1 rounded-full bg-primary" />
                 {eq.title}
               </h3>
-              <p className="text-[10px] leading-relaxed text-muted-foreground">
+              <p className="text-[0.625rem] leading-relaxed text-muted-foreground">
                 {eq.desc}
               </p>
-              <div className="mt-1 bg-secondary/40 border border-border/20 px-2 py-1 rounded text-[10px] font-mono text-primary select-all" dir="ltr">
+              <div className="mt-1 bg-secondary/40 border border-border/20 px-2 py-1 rounded text-[0.625rem] font-mono text-primary select-all" dir="ltr">
                 {eq.eq}
               </div>
             </div>

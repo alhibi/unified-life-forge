@@ -121,7 +121,7 @@ export default function LocationSaver() {
         <div className="w-11 h-11 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
           <MapPin className="w-5 h-5 text-primary stroke-[1.8]" />
         </div>
-        <h3 className="font-semibold text-[15px] text-foreground flex-1">{t('location.title')}</h3>
+        <h3 className="font-semibold text-[0.9375rem] text-foreground flex-1">{t('location.title')}</h3>
       </div>
 
       {/* Save button */}
@@ -204,14 +204,14 @@ export default function LocationSaver() {
                     <div className="font-medium text-sm text-foreground truncate">{loc.label}</div>
                     <div className="flex items-center gap-1.5 mt-0.5">
                       {loc.city && (
-                        <span className="text-[11px] text-muted-foreground">{loc.city}</span>
+                        <span className="text-[0.6875rem] text-muted-foreground">{loc.city}</span>
                       )}
-                      {loc.street && loc.city && <span className="text-[11px] text-muted-foreground">·</span>}
+                      {loc.street && loc.city && <span className="text-[0.6875rem] text-muted-foreground">·</span>}
                       {loc.street && (
-                        <span className="text-[11px] text-muted-foreground truncate">{loc.street}</span>
+                        <span className="text-[0.6875rem] text-muted-foreground truncate">{loc.street}</span>
                       )}
                     </div>
-                    <div className="flex items-center gap-1 mt-1 text-[10px] text-muted-foreground/70">
+                    <div className="flex items-center gap-1 mt-1 text-[0.625rem] text-muted-foreground/70">
                       <Clock className="w-2.5 h-2.5" />
                       {formatDate(loc.timestamp)}
                     </div>
@@ -236,7 +236,7 @@ export default function LocationSaver() {
                           <p className="text-xs text-muted-foreground bg-background/50 px-3 py-2 rounded-lg">{loc.description}</p>
                         )}
                         {loc.address && (
-                          <p className="text-[11px] text-muted-foreground/80 leading-relaxed">{loc.address}</p>
+                          <p className="text-[0.6875rem] text-muted-foreground/80 leading-relaxed">{loc.address}</p>
                         )}
                         {/* Mini Map */}
                         <div className="rounded-xl overflow-hidden border border-border/30 h-36">

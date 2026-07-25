@@ -69,7 +69,7 @@ export default function ChatHeader({ chat, BackIcon, totalUnread }: Props) {
             >
               <X className="w-5 h-5 text-foreground" />
             </button>
-            <span className="font-semibold text-[15px]">
+            <span className="font-semibold text-[0.9375rem]">
               {chat.selectedIds.size} {'محددة'}
             </span>
             <div className="flex-1" />
@@ -126,7 +126,7 @@ export default function ChatHeader({ chat, BackIcon, totalUnread }: Props) {
             >
               <BackIcon className="w-5 h-5 text-foreground" />
               {totalUnread > 0 && (
-                <span className="absolute -top-0.5 -end-0.5 bg-primary text-primary-foreground text-[10px] font-bold rounded-full min-w-[14px] h-[14px] flex items-center justify-center px-1">
+                <span className="absolute -top-0.5 -end-0.5 bg-primary text-primary-foreground text-[0.625rem] font-bold rounded-full min-w-[14px] h-[14px] flex items-center justify-center px-1">
                   {totalUnread > 9 ? '9+' : totalUnread}
                 </span>
               )}
@@ -149,7 +149,7 @@ export default function ChatHeader({ chat, BackIcon, totalUnread }: Props) {
                 )}
               </div>
               <div className="min-w-0 text-start">
-                <span className="font-semibold text-[15px] block truncate leading-tight flex items-center gap-1">
+                <span className="font-semibold text-[0.9375rem] block truncate leading-tight flex items-center gap-1">
                   {chat.activeConv?.otherDisplayName || chat.activeConv?.otherUsername}
                   {chat.activeConv && chat.chatPrefs.isMuted(chat.activeConv.id) && (
                     <BellOff className="w-3 h-3 text-muted-foreground/50 shrink-0" />
@@ -164,7 +164,7 @@ export default function ChatHeader({ chat, BackIcon, totalUnread }: Props) {
                       exit={{ opacity: 0, y: 2 }}
                       className="flex items-center gap-1.5"
                     >
-                      <span className="text-[11px] text-[#C9A84C] font-semibold leading-tight">
+                      <span className="text-[0.6875rem] text-[#C9A84C] font-semibold leading-tight">
                         {`${chat.activeConv?.otherDisplayName || chat.activeConv?.otherUsername} يكتب`}
                       </span>
                       <TypingDots size={3} />
@@ -175,7 +175,7 @@ export default function ChatHeader({ chat, BackIcon, totalUnread }: Props) {
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       className={cn(
-                        'text-[11px] leading-tight block',
+                        'text-[0.6875rem] leading-tight block',
                         chat.otherPresence.isOnline
                           ? 'text-green-500 font-medium'
                           : 'text-muted-foreground/60',
@@ -193,7 +193,7 @@ export default function ChatHeader({ chat, BackIcon, totalUnread }: Props) {
             {chat.selfDestructSeconds && (
               <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-accent/20">
                 <Timer className="w-3 h-3 text-primary" />
-                <span className="text-[10px] text-primary font-medium">
+                <span className="text-[0.625rem] text-primary font-medium">
                   {formatSelfDestructLabel(chat.selfDestructSeconds)}
                 </span>
               </div>
@@ -229,7 +229,7 @@ export default function ChatHeader({ chat, BackIcon, totalUnread }: Props) {
                       )}
                     >
                       <button
-                        className="w-full flex items-center gap-3 px-4 py-2.5 active:bg-accent/30 transition-colors text-[13px] text-start"
+                        className="w-full flex items-center gap-3 px-4 py-2.5 active:bg-accent/30 transition-colors text-[0.8125rem] text-start"
                         onClick={() => {
                           chat.setShowSearch(true);
                           chat.setShowChatMenu(false);
@@ -239,7 +239,7 @@ export default function ChatHeader({ chat, BackIcon, totalUnread }: Props) {
                         {'بحث في المحادثة'}
                       </button>
                       <button
-                        className="w-full flex items-center gap-3 px-4 py-2.5 active:bg-accent/30 transition-colors text-[13px] text-start"
+                        className="w-full flex items-center gap-3 px-4 py-2.5 active:bg-accent/30 transition-colors text-[0.8125rem] text-start"
                         onClick={() => chat.setShowMuteMenu(!chat.showMuteMenu)}
                       >
                         {chat.chatPrefs.isMuted(chat.activeConv!.id) ? (
@@ -272,7 +272,7 @@ export default function ChatHeader({ chat, BackIcon, totalUnread }: Props) {
                                     chat.setShowMuteMenu(false);
                                     chat.setShowChatMenu(false);
                                   }}
-                                  className="w-full text-start px-3 py-1.5 rounded-lg text-[12px] transition-colors text-primary active:bg-accent/30"
+                                  className="w-full text-start px-3 py-1.5 rounded-lg text-[0.75rem] transition-colors text-primary active:bg-accent/30"
                                 >
                                   {'إلغاء الكتم'}
                                 </button>
@@ -288,7 +288,7 @@ export default function ChatHeader({ chat, BackIcon, totalUnread }: Props) {
                                     chat.setShowMuteMenu(false);
                                     chat.setShowChatMenu(false);
                                   }}
-                                  className="w-full text-start px-3 py-1.5 rounded-lg text-[12px] transition-colors text-foreground active:bg-accent/30"
+                                  className="w-full text-start px-3 py-1.5 rounded-lg text-[0.75rem] transition-colors text-foreground active:bg-accent/30"
                                 >
                                   {opt.labelAr}
                                 </button>
@@ -298,7 +298,7 @@ export default function ChatHeader({ chat, BackIcon, totalUnread }: Props) {
                         )}
                       </AnimatePresence>
                       <button
-                        className="w-full flex items-center gap-3 px-4 py-2.5 active:bg-accent/30 transition-colors text-[13px] text-start"
+                        className="w-full flex items-center gap-3 px-4 py-2.5 active:bg-accent/30 transition-colors text-[0.8125rem] text-start"
                         onClick={() => {
                           chat.chatPrefs.togglePinned(chat.activeConv!.id);
                           chat.setShowChatMenu(false);
@@ -314,7 +314,7 @@ export default function ChatHeader({ chat, BackIcon, totalUnread }: Props) {
                           : 'تثبيت المحادثة'}
                       </button>
                       <button
-                        className="w-full flex items-center gap-3 px-4 py-2.5 active:bg-accent/30 transition-colors text-[13px] text-start"
+                        className="w-full flex items-center gap-3 px-4 py-2.5 active:bg-accent/30 transition-colors text-[0.8125rem] text-start"
                         onClick={() => {
                           chat.setShowWallpaperPicker(true);
                           chat.setShowChatMenu(false);
@@ -325,7 +325,7 @@ export default function ChatHeader({ chat, BackIcon, totalUnread }: Props) {
                       </button>
                       <div className="h-px bg-border/15 mx-3" />
                       <button
-                        className="w-full flex items-center gap-3 px-4 py-2.5 active:bg-accent/30 transition-colors text-[13px] text-start"
+                        className="w-full flex items-center gap-3 px-4 py-2.5 active:bg-accent/30 transition-colors text-[0.8125rem] text-start"
                         onClick={() => {
                           chat.setShowProfilePopup(true);
                           chat.setProfileTab('media');
@@ -339,7 +339,7 @@ export default function ChatHeader({ chat, BackIcon, totalUnread }: Props) {
                         {'الوسائط المشتركة'}
                       </button>
                       <button
-                        className="w-full flex items-center gap-3 px-4 py-2.5 active:bg-accent/30 transition-colors text-[13px] text-start"
+                        className="w-full flex items-center gap-3 px-4 py-2.5 active:bg-accent/30 transition-colors text-[0.8125rem] text-start"
                         onClick={() => chat.setShowSelfDestructMenu(!chat.showSelfDestructMenu)}
                       >
                         {chat.selfDestructSeconds ? (
@@ -363,7 +363,7 @@ export default function ChatHeader({ chat, BackIcon, totalUnread }: Props) {
                                   key={`sd-${opt.valueSeconds ?? 'off'}`}
                                   onClick={() => chat.toggleSelfDestruct(opt.valueSeconds)}
                                   className={cn(
-                                    'w-full text-start px-3 py-1.5 rounded-lg text-[12px] transition-colors',
+                                    'w-full text-start px-3 py-1.5 rounded-lg text-[0.75rem] transition-colors',
                                     chat.selfDestructSeconds === opt.valueSeconds
                                       ? 'bg-primary/15 text-primary font-medium'
                                       : 'active:bg-accent/30 text-foreground',
@@ -378,7 +378,7 @@ export default function ChatHeader({ chat, BackIcon, totalUnread }: Props) {
                       </AnimatePresence>
                       <div className="h-px bg-border/15 mx-3" />
                       <button
-                        className="w-full flex items-center justify-between gap-3 px-4 py-2.5 active:bg-accent/30 transition-colors text-[13px] text-start"
+                        className="w-full flex items-center justify-between gap-3 px-4 py-2.5 active:bg-accent/30 transition-colors text-[0.8125rem] text-start"
                         onClick={() =>
                           chat.chatPrefs.setEnterToSend(!chat.chatPrefs.prefs.enterToSend)
                         }
@@ -405,7 +405,7 @@ export default function ChatHeader({ chat, BackIcon, totalUnread }: Props) {
                       </button>
                       <div className="h-px bg-border/15 mx-3" />
                       <button
-                        className="w-full flex items-center gap-3 px-4 py-2.5 active:bg-destructive/10 transition-colors text-[13px] text-destructive text-start"
+                        className="w-full flex items-center gap-3 px-4 py-2.5 active:bg-destructive/10 transition-colors text-[0.8125rem] text-destructive text-start"
                         onClick={chat.deleteConversation}
                       >
                         <Trash className="w-4 h-4" />

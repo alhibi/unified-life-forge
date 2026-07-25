@@ -115,10 +115,10 @@ export default function CurrentTimeSunnah() {
             <Leaf className="w-5 h-5 text-primary" />
           </div>
           <div className="text-start">
-            <h3 className="text-[14px] font-bold text-foreground leading-tight">
+            <h3 className="text-[0.875rem] font-bold text-foreground leading-tight">
               {isFriday ? 'سنن يوم الجمعة' : 'سنن الوقت الحالي'}
             </h3>
-            <p className="text-[11px] text-muted-foreground mt-0.5">
+            <p className="text-[0.6875rem] text-muted-foreground mt-0.5">
               {isFriday ? 'جمعة مباركة' : `وقت ${current.label}`}
             </p>
           </div>
@@ -148,7 +148,7 @@ export default function CurrentTimeSunnah() {
                   className="w-full flex items-start gap-3 py-2.5 hover:bg-accent/30 rounded-lg px-1 transition-colors"
                 >
                   <div className={`mt-1.5 w-2.5 h-2.5 rounded-full shrink-0 ${i % 2 === 0 ? 'bg-primary' : 'bg-primary/50'}`} />
-                  <p className="text-[13px] text-foreground leading-relaxed font-medium text-start">{item.title}</p>
+                  <p className="text-[0.8125rem] text-foreground leading-relaxed font-medium text-start">{item.title}</p>
                 </button>
               ))}
             </div>

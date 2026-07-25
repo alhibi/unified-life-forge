@@ -79,7 +79,7 @@ export default function WarmupSheet({
                   <Flame className="w-4 h-4 text-orange-500" />
                   <div>
                     <h3 className="text-base font-bold text-foreground">{T.title[lang]}</h3>
-                    <p className="text-[11px] text-muted-foreground">
+                    <p className="text-[0.6875rem] text-muted-foreground">
                       {exerciseLabel} · {workingKg} kg
                     </p>
                   </div>
@@ -95,7 +95,7 @@ export default function WarmupSheet({
 
               {/* Mobility */}
               <section className="space-y-2">
-                <h4 className="text-[11px] uppercase tracking-wider text-muted-foreground/70 font-semibold flex items-center gap-1.5">
+                <h4 className="text-[0.6875rem] uppercase tracking-wider text-muted-foreground/70 font-semibold flex items-center gap-1.5">
                   <Target className="w-3.5 h-3.5" />
                   {T.mobility[lang]}
                 </h4>
@@ -120,12 +120,12 @@ export default function WarmupSheet({
                             {done && <Check className="w-3 h-3" />}
                           </div>
                           <div className="flex-1 text-start">
-                            <p className={`text-[12px] font-semibold ${done ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
+                            <p className={`text-[0.75rem] font-semibold ${done ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
                               {m.name[lang]}
                             </p>
-                            <p className="text-[10px] text-muted-foreground mt-0.5">{m.cue[lang]}</p>
+                            <p className="text-[0.625rem] text-muted-foreground mt-0.5">{m.cue[lang]}</p>
                           </div>
-                          <span className="text-[10px] tabular-nums text-muted-foreground" dir="ltr">
+                          <span className="text-[0.625rem] tabular-nums text-muted-foreground" dir="ltr">
                             {m.durationSec}{T.sec[lang]}
                           </span>
                         </button>
@@ -137,12 +137,12 @@ export default function WarmupSheet({
 
               {/* Ramp */}
               <section className="space-y-2">
-                <h4 className="text-[11px] uppercase tracking-wider text-muted-foreground/70 font-semibold flex items-center gap-1.5">
+                <h4 className="text-[0.6875rem] uppercase tracking-wider text-muted-foreground/70 font-semibold flex items-center gap-1.5">
                   <Flame className="w-3.5 h-3.5" />
                   {T.ramp[lang]}
                 </h4>
                 {sets.length === 0 ? (
-                  <p className="text-[12px] text-muted-foreground p-3 bg-muted/30 rounded-xl text-center">
+                  <p className="text-[0.75rem] text-muted-foreground p-3 bg-muted/30 rounded-xl text-center">
                     {T.noWarmup[lang]}
                   </p>
                 ) : (
@@ -167,18 +167,18 @@ export default function WarmupSheet({
                               {done && <Check className="w-3 h-3" />}
                             </div>
                             <div className="flex-1 grid grid-cols-3 gap-2 text-start" dir="ltr">
-                              <span className="text-[12px] font-bold tabular-nums text-foreground">{s.weightKg} kg</span>
-                              <span className="text-[12px] tabular-nums text-foreground/80">× {s.reps}</span>
-                              <span className="text-[10px] text-muted-foreground tabular-nums">
+                              <span className="text-[0.75rem] font-bold tabular-nums text-foreground">{s.weightKg} kg</span>
+                              <span className="text-[0.75rem] tabular-nums text-foreground/80">× {s.reps}</span>
+                              <span className="text-[0.625rem] text-muted-foreground tabular-nums">
                                 {Math.round(s.pct)}%
                               </span>
                             </div>
-                            <span className="text-[10px] text-muted-foreground tabular-nums" dir="ltr">
+                            <span className="text-[0.625rem] text-muted-foreground tabular-nums" dir="ltr">
                               {s.restSec}{T.sec[lang]} {T.rest[lang]}
                             </span>
                           </button>
                           {s.cue && (
-                            <p className="text-[10px] text-muted-foreground/70 mt-0.5 ms-8">
+                            <p className="text-[0.625rem] text-muted-foreground/70 mt-0.5 ms-8">
                               {s.cue[lang]}
                             </p>
                           )}

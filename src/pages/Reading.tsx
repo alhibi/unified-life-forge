@@ -517,7 +517,7 @@ export default function ReadingPage() {
         />
       </PullToRefresh>
 
-      <div className="px-4 py-2.5 border-t border-border/30 flex items-center justify-between text-[11px] text-muted-foreground">
+      <div className="px-4 py-2.5 border-t border-border/30 flex items-center justify-between text-[0.6875rem] text-muted-foreground">
         <button
           type="button"
           onClick={() => setView('storage')}

@@ -6,14 +6,33 @@ import { type Language,translate } from '@/i18n';
 import { supabase } from '@/integrations/supabase/client';
 import {
   clampFontWeight,
+  DEFAULT_DISPLAY_FONT_ID,
   DEFAULT_FONT_ID,
-  FONT_SIZE_STEPS,
-  fontStackFor,
   resolveFontId,
   resolveFontSize,
+  resolveTypeLeading,
+  resolveTypeRatio,
+  typographyTokens,
 } from '@/lib/fonts';
+import {
+  applyCssVars,
+  clampCornerSoftness,
+  DEFAULT_BORDER,
+  DEFAULT_CORNER_SOFTNESS,
+  DEFAULT_DENSITY,
+  DEFAULT_WIDTH,
+  interfaceTokens,
+  resolveBorder,
+  resolveDensity,
+  resolveWidth,
+} from '@/lib/interfaceScale';
 import { applyMotionAmplitude, applyMotionBounce,applyMotionSpeed, installFpsCap } from '@/lib/motionRuntime';
-import { applyThemeTokens, generateThemeTokens, themePresets, type ThemeStyle,  } from '@/utils/themeEngine';
+import { applyThemeTokens, generateThemeTokens, type SurfaceLift,themePresets, type ThemeStyle,  } from '@/utils/themeEngine';
+
+/** Coerce any stored value to a valid surface-lift level. */
+const resolveSurfaceLift = (value: string | null | undefined): SurfaceLift =>
+  value === 'flat' || value === 'lifted' || value === 'subtle' ? value : 'subtle';
+const DEFAULT_SURFACE_LIFT: SurfaceLift = 'subtle';
 
 // 'system' was intentionally removed from the public theme API — users
 // pick Light or Dark explicitly. Any stale localStorage value is
@@ -31,6 +50,33 @@ type CalcMethod = 'auto' | number;
 export type FpsCap = 'auto' | 60 | 90 | 120;
 
 interface AppContextType {
+  /** ── Appearance: palette ── */
+  /** How far surfaces separate from the page. See SurfaceLift. */
+  surfaceLift: SurfaceLift;
+  setSurfaceLift: (v: SurfaceLift) => void;
+  /** ── Appearance: typography ── */
+  /** Heading typeface. Independent from the body face since the pairing matters. */
+  fontDisplayFamily: string;
+  setFontDisplayFamily: (f: string) => void;
+  /** How fast the type scale grows from caption to display. */
+  typeRatio: string;
+  setTypeRatio: (r: string) => void;
+  /** Line-height multiplier — the main reading-comfort control for Arabic. */
+  typeLeading: string;
+  setTypeLeading: (l: string) => void;
+  /** ── Appearance: interface geometry ── */
+  /** Multiplier on the whole radius ladder. 0 = square, 1 = default, 1.6 = pill. */
+  cornerSoftness: number;
+  setCornerSoftness: (v: number) => void;
+  /** Card padding, control heights, stack gaps, page gutters. */
+  uiDensity: string;
+  setUiDensity: (v: string) => void;
+  /** Measure of the single content column. */
+  contentWidth: string;
+  setContentWidth: (v: string) => void;
+  /** Hairline volume — with no shadows, the border is the edge of a surface. */
+  borderStrength: string;
+  setBorderStrength: (v: string) => void;
   language: Language;
   setLanguage: (lang: Language) => void;
   theme: Theme;
@@ -101,11 +147,41 @@ export function AppProvider({ children }: { children: ReactNode }) {
     (localStorage.getItem('app-color-theme') as ColorTheme) || 'default'
   );
 
+  const [surfaceLift, setSurfaceLiftState] = useState<SurfaceLift>(() =>
+    resolveSurfaceLift(localStorage.getItem('app-surface-lift'))
+  );
+
   const [fontFamily, setFontFamilyState] = useState<string>(() =>
     resolveFontId(localStorage.getItem('app-font-family'))
   );
+  const [fontDisplayFamily, setFontDisplayFamilyState] = useState<string>(() =>
+    // Falls back to the body face, so an upgrade from the single-font era
+    // starts from exactly the typography the user already had.
+    resolveFontId(
+      localStorage.getItem('app-font-display') ?? localStorage.getItem('app-font-family'),
+    )
+  );
   const [fontSize, setFontSizeState] = useState<string>(() =>
     resolveFontSize(localStorage.getItem('app-font-size'))
+  );
+  const [typeRatio, setTypeRatioState] = useState<string>(() =>
+    resolveTypeRatio(localStorage.getItem('app-type-ratio'))
+  );
+  const [typeLeading, setTypeLeadingState] = useState<string>(() =>
+    resolveTypeLeading(localStorage.getItem('app-type-leading'))
+  );
+
+  const [cornerSoftness, setCornerSoftnessState] = useState<number>(() =>
+    clampCornerSoftness(parseFloat(localStorage.getItem('app-corner-softness') ?? '1'))
+  );
+  const [uiDensity, setUiDensityState] = useState<string>(() =>
+    resolveDensity(localStorage.getItem('app-ui-density'))
+  );
+  const [contentWidth, setContentWidthState] = useState<string>(() =>
+    resolveWidth(localStorage.getItem('app-content-width'))
+  );
+  const [borderStrength, setBorderStrengthState] = useState<string>(() =>
+    resolveBorder(localStorage.getItem('app-border-strength'))
   );
   const [fontWeight, setFontWeightState] = useState<number>(() =>
     clampFontWeight(parseInt(localStorage.getItem('app-font-weight') ?? '400', 10))
@@ -191,10 +267,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setBlackModeState(false); localStorage.setItem('app-black-mode', 'false');
     setColorThemeState('default'); localStorage.setItem('app-color-theme', 'default');
 
+    setSurfaceLiftState(DEFAULT_SURFACE_LIFT); localStorage.setItem('app-surface-lift', DEFAULT_SURFACE_LIFT);
+
     setFontFamilyState(DEFAULT_FONT_ID); localStorage.setItem('app-font-family', DEFAULT_FONT_ID);
+    setFontDisplayFamilyState(DEFAULT_DISPLAY_FONT_ID); localStorage.setItem('app-font-display', DEFAULT_DISPLAY_FONT_ID);
     setFontSizeState('medium'); localStorage.setItem('app-font-size', 'medium');
+    setTypeRatioState('balanced'); localStorage.setItem('app-type-ratio', 'balanced');
+    setTypeLeadingState('normal'); localStorage.setItem('app-type-leading', 'normal');
     setFontWeightState(400); localStorage.setItem('app-font-weight', '400');
     setFontOpacityState(1); localStorage.setItem('app-font-opacity', '1');
+
+    setCornerSoftnessState(DEFAULT_CORNER_SOFTNESS); localStorage.setItem('app-corner-softness', String(DEFAULT_CORNER_SOFTNESS));
+    setUiDensityState(DEFAULT_DENSITY); localStorage.setItem('app-ui-density', DEFAULT_DENSITY);
+    setContentWidthState(DEFAULT_WIDTH); localStorage.setItem('app-content-width', DEFAULT_WIDTH);
+    setBorderStrengthState(DEFAULT_BORDER); localStorage.setItem('app-border-strength', DEFAULT_BORDER);
     setPrayerMadhabState('shafii'); localStorage.setItem('app-prayer-madhab', 'shafii');
     setMidnightModeState(0); localStorage.setItem('app-midnight-mode', '0');
     setLatitudeAdjMethodState('angle'); localStorage.setItem('app-lat-adj-method', 'angle');
@@ -248,7 +334,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
         if (s.blackMode !== undefined) { setBlackModeState(s.blackMode); localStorage.setItem('app-black-mode', String(s.blackMode)); }
         if (s.colorTheme) { setColorThemeState(s.colorTheme); localStorage.setItem('app-color-theme', s.colorTheme); }
 
+        if (s.surfaceLift) { const lift = resolveSurfaceLift(s.surfaceLift); setSurfaceLiftState(lift); localStorage.setItem('app-surface-lift', lift); }
         if (s.fontFamily) { const id = resolveFontId(s.fontFamily); setFontFamilyState(id); localStorage.setItem('app-font-family', id); }
+        if (s.fontDisplayFamily) { const id = resolveFontId(s.fontDisplayFamily); setFontDisplayFamilyState(id); localStorage.setItem('app-font-display', id); }
+        if (s.typeRatio) { const r = resolveTypeRatio(s.typeRatio); setTypeRatioState(r); localStorage.setItem('app-type-ratio', r); }
+        if (s.typeLeading) { const l = resolveTypeLeading(s.typeLeading); setTypeLeadingState(l); localStorage.setItem('app-type-leading', l); }
+        if (s.cornerSoftness !== undefined) { const c = clampCornerSoftness(Number(s.cornerSoftness)); setCornerSoftnessState(c); localStorage.setItem('app-corner-softness', String(c)); }
+        if (s.uiDensity) { const d = resolveDensity(s.uiDensity); setUiDensityState(d); localStorage.setItem('app-ui-density', d); }
+        if (s.contentWidth) { const w = resolveWidth(s.contentWidth); setContentWidthState(w); localStorage.setItem('app-content-width', w); }
+        if (s.borderStrength) { const b = resolveBorder(s.borderStrength); setBorderStrengthState(b); localStorage.setItem('app-border-strength', b); }
         if (s.fontSize) { const sz = resolveFontSize(s.fontSize); setFontSizeState(sz); localStorage.setItem('app-font-size', sz); }
         if (s.fontWeight !== undefined) { const w = clampFontWeight(Number(s.fontWeight)); setFontWeightState(w); localStorage.setItem('app-font-weight', String(w)); }
         if (s.fontOpacity !== undefined) { setFontOpacityState(s.fontOpacity); localStorage.setItem('app-font-opacity', String(s.fontOpacity)); }
@@ -306,7 +400,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
       blackMode: localStorage.getItem('app-black-mode') === 'true',
       colorTheme: localStorage.getItem('app-color-theme') || 'default',
 
+      surfaceLift: resolveSurfaceLift(localStorage.getItem('app-surface-lift')),
+
       fontFamily: resolveFontId(localStorage.getItem('app-font-family')),
+      fontDisplayFamily: resolveFontId(localStorage.getItem('app-font-display')),
+      typeRatio: resolveTypeRatio(localStorage.getItem('app-type-ratio')),
+      typeLeading: resolveTypeLeading(localStorage.getItem('app-type-leading')),
+      cornerSoftness: clampCornerSoftness(parseFloat(localStorage.getItem('app-corner-softness') ?? '1')),
+      uiDensity: resolveDensity(localStorage.getItem('app-ui-density')),
+      contentWidth: resolveWidth(localStorage.getItem('app-content-width')),
+      borderStrength: resolveBorder(localStorage.getItem('app-border-strength')),
       fontSize: resolveFontSize(localStorage.getItem('app-font-size')),
       fontWeight: clampFontWeight(parseInt(localStorage.getItem('app-font-weight') ?? '400', 10)),
       fontOpacity: parseFloat(localStorage.getItem('app-font-opacity') || '1'),
@@ -316,6 +419,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
       dstEnabled: localStorage.getItem('app-dst-enabled') !== 'false',
       calcMethod: (localStorage.getItem('app-calc-method') ?? 'auto'),
     };
+    settings.fontDisplayFamily = resolveFontId(localStorage.getItem('app-font-display'));
+    settings.typeRatio = resolveTypeRatio(localStorage.getItem('app-type-ratio'));
+    settings.typeLeading = resolveTypeLeading(localStorage.getItem('app-type-leading'));
+    settings.surfaceLift = resolveSurfaceLift(localStorage.getItem('app-surface-lift'));
+    settings.cornerSoftness = clampCornerSoftness(
+      parseFloat(localStorage.getItem('app-corner-softness') ?? '1'),
+    );
+    settings.uiDensity = resolveDensity(localStorage.getItem('app-ui-density'));
+    settings.contentWidth = resolveWidth(localStorage.getItem('app-content-width'));
+    settings.borderStrength = resolveBorder(localStorage.getItem('app-border-strength'));
     settings.motionSpeed = parseFloat(localStorage.getItem('app-motion-speed') || '1');
     settings.fpsCap = localStorage.getItem('app-fps-cap') || 'auto';
     settings.motionAmplitude = parseFloat(localStorage.getItem('app-motion-amplitude') || '1');
@@ -398,10 +511,66 @@ export function AppProvider({ children }: { children: ReactNode }) {
     scheduleSave();
   }, [scheduleSave]);
 
+  const setSurfaceLift = useCallback((v: SurfaceLift) => {
+    const lift = resolveSurfaceLift(v);
+    setSurfaceLiftState(lift);
+    localStorage.setItem('app-surface-lift', lift);
+    scheduleSave();
+  }, [scheduleSave]);
+
   const setFontFamily = useCallback((f: string) => {
     const id = resolveFontId(f);
     setFontFamilyState(id);
     localStorage.setItem('app-font-family', id);
+    scheduleSave();
+  }, [scheduleSave]);
+
+  const setFontDisplayFamily = useCallback((f: string) => {
+    const id = resolveFontId(f);
+    setFontDisplayFamilyState(id);
+    localStorage.setItem('app-font-display', id);
+    scheduleSave();
+  }, [scheduleSave]);
+
+  const setTypeRatio = useCallback((r: string) => {
+    const ratio = resolveTypeRatio(r);
+    setTypeRatioState(ratio);
+    localStorage.setItem('app-type-ratio', ratio);
+    scheduleSave();
+  }, [scheduleSave]);
+
+  const setTypeLeading = useCallback((l: string) => {
+    const leading = resolveTypeLeading(l);
+    setTypeLeadingState(leading);
+    localStorage.setItem('app-type-leading', leading);
+    scheduleSave();
+  }, [scheduleSave]);
+
+  const setCornerSoftness = useCallback((v: number) => {
+    const clamped = clampCornerSoftness(v);
+    setCornerSoftnessState(clamped);
+    localStorage.setItem('app-corner-softness', String(clamped));
+    scheduleSave();
+  }, [scheduleSave]);
+
+  const setUiDensity = useCallback((v: string) => {
+    const density = resolveDensity(v);
+    setUiDensityState(density);
+    localStorage.setItem('app-ui-density', density);
+    scheduleSave();
+  }, [scheduleSave]);
+
+  const setContentWidth = useCallback((v: string) => {
+    const width = resolveWidth(v);
+    setContentWidthState(width);
+    localStorage.setItem('app-content-width', width);
+    scheduleSave();
+  }, [scheduleSave]);
+
+  const setBorderStrength = useCallback((v: string) => {
+    const border = resolveBorder(v);
+    setBorderStrengthState(border);
+    localStorage.setItem('app-border-strength', border);
     scheduleSave();
   }, [scheduleSave]);
 
@@ -513,29 +682,65 @@ export function AppProvider({ children }: { children: ReactNode }) {
     // Enforce the single unified Zen Elite design style
     root.removeAttribute('data-md3');
     root.setAttribute('data-design-mode', 'classic');
-    const tokens = generateThemeTokens(preset, paletteStyle as ThemeStyle, isDark, isDark && blackMode);
+    const tokens = generateThemeTokens(
+      preset,
+      paletteStyle as ThemeStyle,
+      isDark,
+      isDark && blackMode,
+      surfaceLift,
+    );
     applyThemeTokens(tokens);
 
     // Keep in sync with the 260ms transition declared in index.css.
     const timeout = setTimeout(() => root.classList.remove('theme-transition'), 300);
 
     return () => clearTimeout(timeout);
-  }, [theme, dir, language, paletteStyle, blackMode, colorTheme]);
+  }, [theme, dir, language, paletteStyle, blackMode, colorTheme, surfaceLift]);
 
-  // Apply font family, size, weight & opacity. All id resolution lives in
-  // src/lib/fonts.ts so the settings screen and this provider can never
-  // disagree about what a font id means again.
+  // Apply typography. All resolution and scale maths live in src/lib/fonts.ts
+  // so the settings screen and this provider can never disagree about what a
+  // font id — or a scale ratio — means.
+  //
+  // The base size lands on `html { font-size }`, which is what makes every rem
+  // in the app (type, spacing, control heights) move together with one number.
   useEffect(() => {
     const root = document.documentElement;
-    const stack = fontStackFor(fontFamily);
-    const step =
-      FONT_SIZE_STEPS.find((s) => s.id === resolveFontSize(fontSize)) ?? FONT_SIZE_STEPS[1];
-    root.style.setProperty('--font-display', stack);
-    root.style.setProperty('--font-body', stack);
-    root.style.fontSize = step.rootSize;
-    root.style.fontWeight = String(clampFontWeight(fontWeight));
-    root.style.setProperty('--text-opacity', String(fontOpacity));
-  }, [fontFamily, fontSize, fontWeight, fontOpacity]);
+    const { vars, rootSize, rootWeight } = typographyTokens({
+      bodyFont: fontFamily,
+      displayFont: fontDisplayFamily,
+      size: fontSize,
+      ratio: typeRatio,
+      leading: typeLeading,
+      weight: fontWeight,
+      opacity: fontOpacity,
+    });
+    applyCssVars(vars);
+    root.style.fontSize = rootSize;
+    root.style.fontWeight = rootWeight;
+  }, [
+    fontFamily,
+    fontDisplayFamily,
+    fontSize,
+    typeRatio,
+    typeLeading,
+    fontWeight,
+    fontOpacity,
+  ]);
+
+  // Apply interface geometry — corners, density, column width, hairlines.
+  // Every shared utility in index.css reads these variables, so this single
+  // effect reshapes the entire app.
+  useEffect(() => {
+    applyCssVars(
+      interfaceTokens({
+        cornerSoftness,
+        density: uiDensity,
+        width: contentWidth,
+        border: borderStrength,
+        surfaceLift,
+      }),
+    );
+  }, [cornerSoftness, uiDensity, contentWidth, borderStrength, surfaceLift]);
 
   // Apply motion speed scale (mutates MOTION/motionWeight/DURATION
   // baselines and exposes --motion-scale CSS var).
@@ -563,8 +768,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
     () => ({
       language, setLanguage, theme, setTheme, t, dir,
       paletteStyle, setPaletteStyle, colorTheme, setColorTheme, blackMode, setBlackMode,
-      fontFamily, setFontFamily, fontSize, setFontSize, fontWeight, setFontWeight,
-      fontOpacity, setFontOpacity, prayerMadhab, setPrayerMadhab, midnightMode, setMidnightMode,
+      surfaceLift, setSurfaceLift,
+      fontFamily, setFontFamily, fontDisplayFamily, setFontDisplayFamily,
+      fontSize, setFontSize, typeRatio, setTypeRatio, typeLeading, setTypeLeading,
+      fontWeight, setFontWeight,
+      fontOpacity, setFontOpacity,
+      cornerSoftness, setCornerSoftness, uiDensity, setUiDensity,
+      contentWidth, setContentWidth, borderStrength, setBorderStrength,
+      prayerMadhab, setPrayerMadhab, midnightMode, setMidnightMode,
       latitudeAdjMethod, setLatitudeAdjMethod, dstEnabled, setDstEnabled, calcMethod, setCalcMethod,
       motionSpeed, setMotionSpeed, fpsCap, setFpsCap, motionAmplitude, setMotionAmplitude,
       springBounce, setSpringBounce,
@@ -572,8 +783,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [
       language, setLanguage, theme, setTheme, t, dir,
       paletteStyle, setPaletteStyle, colorTheme, setColorTheme, blackMode, setBlackMode,
-      fontFamily, setFontFamily, fontSize, setFontSize, fontWeight, setFontWeight,
-      fontOpacity, setFontOpacity, prayerMadhab, setPrayerMadhab, midnightMode, setMidnightMode,
+      surfaceLift, setSurfaceLift,
+      fontFamily, setFontFamily, fontDisplayFamily, setFontDisplayFamily,
+      fontSize, setFontSize, typeRatio, setTypeRatio, typeLeading, setTypeLeading,
+      fontWeight, setFontWeight,
+      fontOpacity, setFontOpacity,
+      cornerSoftness, setCornerSoftness, uiDensity, setUiDensity,
+      contentWidth, setContentWidth, borderStrength, setBorderStrength,
+      prayerMadhab, setPrayerMadhab, midnightMode, setMidnightMode,
       latitudeAdjMethod, setLatitudeAdjMethod, dstEnabled, setDstEnabled, calcMethod, setCalcMethod,
       motionSpeed, setMotionSpeed, fpsCap, setFpsCap, motionAmplitude, setMotionAmplitude,
       springBounce, setSpringBounce,

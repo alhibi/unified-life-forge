@@ -101,7 +101,7 @@ export default function AccountPrivacySection({ appName, appVersion }: Props) {
   return (
     <>
       <motion.div variants={item} className="space-y-1">
-        <p className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-wider px-1 mb-2">
+        <p className="text-[0.6875rem] font-semibold text-muted-foreground/70 uppercase tracking-wider px-1 mb-2">
           الحساب والخصوصية
         </p>
         <AppCard className="p-0 overflow-hidden divide-y divide-border/30">
@@ -117,9 +117,9 @@ export default function AccountPrivacySection({ appName, appVersion }: Props) {
               ) : (
                 <Download className="w-[18px] h-[18px] text-primary stroke-[1.8]" />
               )}
-              <span className="text-[14px] font-medium text-foreground">تصدير بياناتي</span>
+              <span className="text-[0.875rem] font-medium text-foreground">تصدير بياناتي</span>
             </div>
-            <span className="text-[12px] text-muted-foreground">ملف JSON</span>
+            <span className="text-[0.75rem] text-muted-foreground">ملف JSON</span>
           </button>
 
           <button
@@ -128,12 +128,12 @@ export default function AccountPrivacySection({ appName, appVersion }: Props) {
           >
             <div className="flex items-center gap-3">
               <Trash className="w-[18px] h-[18px] text-destructive stroke-[1.8]" />
-              <span className="text-[14px] font-medium text-destructive">حذف الحساب</span>
+              <span className="text-[0.875rem] font-medium text-destructive">حذف الحساب</span>
             </div>
-            <span className="text-[12px] text-muted-foreground">نهائي</span>
+            <span className="text-[0.75rem] text-muted-foreground">نهائي</span>
           </button>
         </AppCard>
-        <p className="text-[11px] text-muted-foreground/60 px-1 pt-1.5 leading-relaxed">
+        <p className="text-[0.6875rem] text-muted-foreground/60 px-1 pt-1.5 leading-relaxed">
           التصدير يشمل ملفك الشخصي، مذكراتك، ملاحظاتك، سجلات العافية، القراءة
           والبودكاست، مع التفضيلات المحفوظة على هذا الجهاز.
         </p>
@@ -147,7 +147,7 @@ export default function AccountPrivacySection({ appName, appVersion }: Props) {
       >
         <div className="space-y-4 pt-1">
           <div className="rounded-xl bg-destructive/10 px-3.5 py-3">
-            <p className="text-[12px] text-foreground/80 leading-relaxed">
+            <p className="text-[0.75rem] text-foreground/80 leading-relaxed">
               ننصحك بتصدير بياناتك قبل الحذف. المحادثات الثنائية تُحذف كاملةً
               للطرفين، أما المجموعات فتبقى قائمة لبقية أعضائها.
             </p>
@@ -156,7 +156,7 @@ export default function AccountPrivacySection({ appName, appVersion }: Props) {
           <div className="space-y-1.5">
             <label
               htmlFor="delete-account-confirm"
-              className="block text-[12px] font-medium text-foreground"
+              className="block text-[0.75rem] font-medium text-foreground"
             >
               اكتب اسم المستخدم <span className="font-bold">{username}</span> للتأكيد
             </label>
@@ -171,7 +171,7 @@ export default function AccountPrivacySection({ appName, appVersion }: Props) {
               dir="ltr"
               disabled={deleting}
               // 16px minimum prevents the iOS focus zoom (CONTRIBUTING §3).
-              className="w-full rounded-xl bg-secondary px-3.5 py-2.5 text-[16px] text-foreground outline-none ring-1 ring-border/40 focus:ring-2 focus:ring-destructive/50 disabled:opacity-60"
+              className="w-full rounded-xl bg-secondary px-3.5 py-2.5 text-[1rem] text-foreground outline-none ring-1 ring-border/40 focus:ring-2 focus:ring-destructive/50 disabled:opacity-60"
             />
           </div>
 

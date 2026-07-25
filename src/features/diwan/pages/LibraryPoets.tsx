@@ -98,15 +98,15 @@ export default function LibraryPoetsPage() {
           </div>
           <div className="flex-1 min-w-0">
             {/* عنوان علوي صغير بلون wax */}
-            <p className="text-[11px] font-bold tracking-[0.1em] text-[var(--wax)] uppercase mb-1">
+            <p className="text-[0.6875rem] font-bold tracking-[0.1em] text-[var(--wax)] uppercase mb-1">
               محراب · الأدب
             </p>
             {/* عنوان رئيسي كبير بخط Amiri */}
-            <h1 className="text-[32px] font-bold tracking-tight text-[#F2E9D8] leading-tight font-amiri">
+            <h1 className="text-[2rem] font-bold tracking-tight text-[#F2E9D8] leading-tight font-amiri">
               {eraLabel ? `شعراء ${eraLabel}` : 'المكتبة الكبرى'}
             </h1>
             <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-              <p className="text-[12px] text-[#B8AA8E]">
+              <p className="text-[0.75rem] text-[#B8AA8E]">
                 {list.length > 0 && `${list.length}${reachedEnd ? '' : '+'} شاعر في هذه النسخة`}
               </p>
               <FallbackBadge />
@@ -146,10 +146,10 @@ export default function LibraryPoetsPage() {
         ) : list.length === 0 ? (
           /* حالة فارغة مصممة بدقة طبقاً للمواصفات */
           <div className="text-center py-20 flex flex-col items-center justify-center px-4">
-            <span className="font-amiri text-[28px] text-[var(--wax)] mb-4 animate-pulse select-none">
+            <span className="font-amiri text-[1.75rem] text-[var(--wax)] mb-4 animate-pulse select-none">
               ✦
             </span>
-            <p className="text-[#B8AA8E] text-[15px] font-medium leading-relaxed max-w-sm">
+            <p className="text-[#B8AA8E] text-[0.9375rem] font-medium leading-relaxed max-w-sm">
               {q
                 ? 'لا نتائج لبحثك في هذا العصر. جرّب كتابة الاسم بشكل مبسط.'
                 : 'لا يوجد شعراء بعد في هذا العصر ضمن هذه النسخة. سيُضافون قريباً.'}
@@ -164,7 +164,7 @@ export default function LibraryPoetsPage() {
                 <button
                   onClick={() => setPage(p => p + 1)}
                   disabled={poets.isFetching}
-                  className="w-full mt-4 py-3 rounded-[12px] bg-[#1D1811] border border-[var(--hairline-strong)] text-[12px] font-semibold text-[#B8AA8E] hover:text-[#F2E9D8] hover:border-[#B8AA8E] active:scale-[0.98] transition disabled:opacity-60 flex items-center justify-center gap-2"
+                  className="w-full mt-4 py-3 rounded-[12px] bg-[#1D1811] border border-[var(--hairline-strong)] text-[0.75rem] font-semibold text-[#B8AA8E] hover:text-[#F2E9D8] hover:border-[#B8AA8E] active:scale-[0.98] transition disabled:opacity-60 flex items-center justify-center gap-2"
                 >
                   {poets.isFetching ? (
                     <><Loader2 className="w-3.5 h-3.5 animate-spin text-[var(--wax)]" /> جاري تحميل المزيد من العهد والمدد…</>
@@ -173,7 +173,7 @@ export default function LibraryPoetsPage() {
               </>
             )}
             {reachedEnd && list.length > PAGE && (
-              <p className="text-center text-[11px] text-[#7E7259] font-tajawal pt-6 select-none">
+              <p className="text-center text-[0.6875rem] text-[#7E7259] font-tajawal pt-6 select-none">
                 انتهت صحف هذا العصر الأدبي
               </p>
             )}

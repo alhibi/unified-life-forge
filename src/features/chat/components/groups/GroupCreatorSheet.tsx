@@ -127,7 +127,7 @@ const GroupCreatorSheet: React.FC<GroupCreatorSheetProps> = ({ isOpen, onClose, 
           >
             <BackIcon className="w-5 h-5 text-foreground" />
           </button>
-          <h2 id="group-creator-title" className="text-[16px] font-semibold flex-1 truncate">
+          <h2 id="group-creator-title" className="text-[1rem] font-semibold flex-1 truncate">
             {step === 'pick-members'
               ? ('إضافة أعضاء')
               : kind === 'group'
@@ -161,7 +161,7 @@ const GroupCreatorSheet: React.FC<GroupCreatorSheetProps> = ({ isOpen, onClose, 
                 icon={<Hash className="w-4 h-4" />}
                 label={'قناة'}
               />
-              <p className="ms-auto text-[11px] text-muted-foreground">
+              <p className="ms-auto text-[0.6875rem] text-muted-foreground">
                 {`${memberIds.length} مختار`}
               </p>
             </div>
@@ -213,14 +213,14 @@ const GroupCreatorSheet: React.FC<GroupCreatorSheetProps> = ({ isOpen, onClose, 
  <Camera className="w-6 h-6 text-white" />
  </div>
  </button>
- <p className="text-[11px] text-muted-foreground">
+ <p className="text-[0.6875rem] text-muted-foreground">
  {'اختياري'}
               </p>
             </div>
 
             {/* Title */}
             <div>
-              <label className="text-[11px] font-medium text-muted-foreground mb-1.5 block">
+              <label className="text-[0.6875rem] font-medium text-muted-foreground mb-1.5 block">
                 {'الاسم'}
                 <span className="text-destructive ms-1">*</span>
               </label>
@@ -233,18 +233,18 @@ const GroupCreatorSheet: React.FC<GroupCreatorSheetProps> = ({ isOpen, onClose, 
                     ? ('اسم المجموعة')
                     : ('اسم القناة')
                 }
-                className="w-full bg-muted/30 rounded-2xl px-4 h-11 text-[14px] outline-none focus:ring-2 focus:ring-primary/30"
+                className="w-full bg-muted/30 rounded-2xl px-4 h-11 text-[0.875rem] outline-none focus:ring-2 focus:ring-primary/30"
                 autoFocus
                 dir="auto"
               />
-              <p className="text-[10px] text-muted-foreground/70 text-end mt-1">
+              <p className="text-[0.625rem] text-muted-foreground/70 text-end mt-1">
                 {title.length}/{MAX_TITLE_LEN}
               </p>
             </div>
 
             {/* Description */}
             <div>
-              <label className="text-[11px] font-medium text-muted-foreground mb-1.5 block">
+              <label className="text-[0.6875rem] font-medium text-muted-foreground mb-1.5 block">
                 {'الوصف'}
               </label>
               <textarea
@@ -252,16 +252,16 @@ const GroupCreatorSheet: React.FC<GroupCreatorSheetProps> = ({ isOpen, onClose, 
                 onChange={e => setDescription(e.target.value.slice(0, MAX_DESC_LEN))}
                 placeholder={'وصف مختصر اختياري'}
                 rows={3}
-                className="w-full bg-muted/30 rounded-2xl px-4 py-2.5 text-[14px] outline-none focus:ring-2 focus:ring-primary/30 resize-none"
+                className="w-full bg-muted/30 rounded-2xl px-4 py-2.5 text-[0.875rem] outline-none focus:ring-2 focus:ring-primary/30 resize-none"
                 dir="auto"
               />
-              <p className="text-[10px] text-muted-foreground/70 text-end mt-1">
+              <p className="text-[0.625rem] text-muted-foreground/70 text-end mt-1">
                 {description.length}/{MAX_DESC_LEN}
               </p>
             </div>
 
             {/* Permissions hint */}
-            <div className="rounded-2xl bg-muted/15 border border-border/15 p-3.5 text-[12px] text-muted-foreground leading-relaxed">
+            <div className="rounded-2xl bg-muted/15 border border-border/15 p-3.5 text-[0.75rem] text-muted-foreground leading-relaxed">
               {kind === 'group'
                 ? ('بإمكان جميع الأعضاء إرسال الرسائل افتراضياً. يمكنك تغيير ذلك من إعدادات المجموعة بعد الإنشاء.')
                 : ('في القناة، يمكن للمشرفين فقط نشر الرسائل، ويمكن للأعضاء قراءتها والتفاعل معها.')}
@@ -308,7 +308,7 @@ function KindChip({ active, onClick, icon, label }: KindChipProps) {
       type="button"
       onClick={onClick}
       className={cn(
-        'inline-flex items-center gap-1.5 rounded-full px-3 h-8 text-[12px] font-medium transition-all',
+        'inline-flex items-center gap-1.5 rounded-full px-3 h-8 text-[0.75rem] font-medium transition-all',
         active
           ? 'bg-primary text-primary-foreground '
           : 'bg-muted/30 text-muted-foreground active:bg-muted/50',

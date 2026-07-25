@@ -77,7 +77,7 @@ export default function AuthGuard({
             <h1 className="text-lg font-bold text-foreground">
               {fallbackTitleAr}
             </h1>
-            <p className="text-[13px] text-muted-foreground leading-relaxed">
+            <p className="text-[0.8125rem] text-muted-foreground leading-relaxed">
               {fallbackDescAr}
             </p>
           </div>

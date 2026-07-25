@@ -50,7 +50,7 @@ export default function PoetCard({ poet, index = 0 }: Props) {
             className="w-[46px] h-[46px] rounded-full flex items-center justify-center shrink-0"
             style={{ background: 'hsl(var(--primary))' }}
           >
-            <span className="font-amiri font-bold text-[20px] text-[#F5DFC9] leading-none select-none">
+            <span className="font-amiri font-bold text-[1.25rem] text-[#F5DFC9] leading-none select-none">
               {firstLetter}
             </span>
           </div>
@@ -59,30 +59,30 @@ export default function PoetCard({ poet, index = 0 }: Props) {
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2">
                 <h3
-                  className="font-bold text-[16px] text-[#F2E9D8] truncate"
+                  className="font-bold text-[1rem] text-[#F2E9D8] truncate"
                   style={{ fontFamily: "'Amiri', serif" }}
                 >
                   {poet.name_ar}
                 </h3>
                 {poet.title && (
-                  <span className="text-[10px] font-tajawal text-[var(--wax)] bg-[var(--wax-soft)] border border-[var(--wax-soft2)] px-2 py-0.5 rounded-[5px] whitespace-nowrap">
+                  <span className="text-[0.625rem] font-tajawal text-[var(--wax)] bg-[var(--wax-soft)] border border-[var(--wax-soft2)] px-2 py-0.5 rounded-[5px] whitespace-nowrap">
                     {poet.title}
                   </span>
                 )}
               </div>
               {lifespan && (
-                <span className="text-[12px] font-tajawal text-[#7E7259] shrink-0">{lifespan}</span>
+                <span className="text-[0.75rem] font-tajawal text-[#7E7259] shrink-0">{lifespan}</span>
               )}
             </div>
 
             {poet.bio && (
-              <p className="text-[13px] text-[#B8AA8E] leading-relaxed mt-1.5 line-clamp-2 pe-0.5">
+              <p className="text-[0.8125rem] text-[#B8AA8E] leading-relaxed mt-1.5 line-clamp-2 pe-0.5">
                 {poet.bio}
               </p>
             )}
 
             {/* صف الإحصائيات الصغير أسفل البطاقة */}
-            <div className="flex items-center gap-3 mt-2 text-[11px] text-[#7E7259] font-tajawal">
+            <div className="flex items-center gap-3 mt-2 text-[0.6875rem] text-[#7E7259] font-tajawal">
               {poet.poems_count > 0 && (
                 <span className="flex items-center gap-1">
                   <ScrollText className="w-3.5 h-3.5 text-[#7E7259]/80" />

@@ -75,7 +75,7 @@ export default function QueueSheet({ open, onClose }: QueueSheetProps) {
                 {'قائمة التشغيل'}
               </h2>
               {items.length > 0 && (
-                <span className="text-[11px] text-muted-foreground tabular-nums">
+                <span className="text-[0.6875rem] text-muted-foreground tabular-nums">
                   {items.length}
                 </span>
               )}
@@ -84,7 +84,7 @@ export default function QueueSheet({ open, onClose }: QueueSheetProps) {
               {items.length > 0 && (
                 <button
                   onClick={handleClear}
-                  className="flex items-center gap-1 px-2.5 h-8 rounded-full text-[12px] font-semibold text-destructive hover:bg-destructive/10 transition-colors"
+                  className="flex items-center gap-1 px-2.5 h-8 rounded-full text-[0.75rem] font-semibold text-destructive hover:bg-destructive/10 transition-colors"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                   <span className="hidden sm:inline">
@@ -112,7 +112,7 @@ export default function QueueSheet({ open, onClose }: QueueSheetProps) {
                 <p className="text-sm font-semibold text-foreground mb-1">
                   {'قائمة التشغيل فارغة'}
                 </p>
-                <p className="text-[12px] text-muted-foreground mb-1 max-w-xs">
+                <p className="text-[0.75rem] text-muted-foreground mb-1 max-w-xs">
                   {'أضف حلقات إلى قائمة التشغيل لتستمع إليها بالترتيب.'}
                 </p>
                 <button
@@ -127,7 +127,7 @@ export default function QueueSheet({ open, onClose }: QueueSheetProps) {
                 {/* Now playing indicator */}
                 {player.current && (
                   <div className="px-4 py-3 mb-1">
-                    <p className="text-[11px] uppercase tracking-[0.12em] text-muted-foreground font-semibold">
+                    <p className="text-[0.6875rem] uppercase tracking-[0.12em] text-muted-foreground font-semibold">
                       {'يُشغّل الآن'}
                     </p>
                   </div>
@@ -165,7 +165,7 @@ export default function QueueSheet({ open, onClose }: QueueSheetProps) {
                       </div>
 
                       {/* Index */}
-                      <span className="text-[11px] text-muted-foreground tabular-nums w-5 text-center shrink-0">
+                      <span className="text-[0.6875rem] text-muted-foreground tabular-nums w-5 text-center shrink-0">
                         {index + 1}
                       </span>
 
@@ -182,17 +182,17 @@ export default function QueueSheet({ open, onClose }: QueueSheetProps) {
 
                       {/* Title + podcast name */}
                       <div className="flex-1 min-w-0">
-                        <p className="text-[13px] font-semibold text-foreground leading-tight truncate">
+                        <p className="text-[0.8125rem] font-semibold text-foreground leading-tight truncate">
                           {item.episode.title}
                         </p>
-                        <p className="text-[11px] text-muted-foreground leading-tight truncate">
+                        <p className="text-[0.6875rem] text-muted-foreground leading-tight truncate">
                           {item.podcastTitle}
                         </p>
                       </div>
 
                       {/* Duration */}
                       {item.episode.duration > 0 && (
-                        <span className="text-[11px] text-muted-foreground tabular-nums shrink-0">
+                        <span className="text-[0.6875rem] text-muted-foreground tabular-nums shrink-0">
                           {formatDurationShort(item.episode.duration)}
                         </span>
                       )}

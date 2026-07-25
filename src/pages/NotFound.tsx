@@ -43,13 +43,13 @@ const NotFound = () => {
             <Compass className="w-7 h-7 text-muted-foreground" strokeWidth={1.6} />
           </div>
 
-          <h1 className="text-[28px] font-black tracking-tight text-foreground mb-2">
+          <h1 className="text-[1.75rem] font-black tracking-tight text-foreground mb-2">
             404
           </h1>
-          <p className="text-[15px] text-muted-foreground mb-1.5 max-w-sm">
+          <p className="text-[0.9375rem] text-muted-foreground mb-1.5 max-w-sm">
             {'تعذّر إيجاد هذه الصفحة.'}
           </p>
-          <code className="text-[11px] text-muted-foreground/70 font-mono mb-6 break-all px-2">
+          <code className="text-[0.6875rem] text-muted-foreground/70 font-mono mb-6 break-all px-2">
             {location.pathname}
           </code>
 

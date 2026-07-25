@@ -103,7 +103,7 @@ function CompactTimer({ defaultSec, lang, onComplete }: { defaultSec: number; la
       >
         {running ? <Pause className="w-3 h-3" /> : <Play className="w-3 h-3" />}
       </button>
-      <span className="text-[12px] font-bold tabular-nums" dir="ltr">
+      <span className="text-[0.75rem] font-bold tabular-nums" dir="ltr">
         {fmtMmSs(secLeft)}
       </span>
       <button
@@ -202,7 +202,7 @@ function FullTimer({ defaultSec, autoStart = true, onComplete, onClose, lang }: 
           </button>
 
           <div className="text-center pt-12">
-            <p className="text-white/60 text-[12px] uppercase tracking-[0.2em] font-semibold mb-2">
+            <p className="text-white/60 text-[0.75rem] uppercase tracking-[0.2em] font-semibold mb-2">
               {isFinished ? T.done[lang] : T.rest[lang]}
             </p>
             <div className="relative inline-flex items-center justify-center">
@@ -225,10 +225,10 @@ function FullTimer({ defaultSec, autoStart = true, onComplete, onClose, lang }: 
                 />
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <div className="text-[68px] font-bold tabular-nums text-white leading-none" dir="ltr">
+                <div className="text-[4.25rem] font-bold tabular-nums text-white leading-none" dir="ltr">
                   {fmtMmSs(secLeft)}
                 </div>
-                <div className="text-[11px] text-white/40 mt-2 tabular-nums" dir="ltr">
+                <div className="text-[0.6875rem] text-white/40 mt-2 tabular-nums" dir="ltr">
                   / {fmtMmSs(target)}
                 </div>
               </div>
@@ -265,7 +265,7 @@ function FullTimer({ defaultSec, autoStart = true, onComplete, onClose, lang }: 
               <button
                 key={p}
                 onClick={() => { setTarget(p); setSecLeft(p); finishedRef.current = false; }}
-                className={`px-3 py-1.5 rounded-full text-[11px] font-semibold transition-colors ${
+                className={`px-3 py-1.5 rounded-full text-[0.6875rem] font-semibold transition-colors ${
                   target === p ? 'bg-primary text-primary-foreground' : 'bg-white/10 text-white/70'
                 }`}
               >

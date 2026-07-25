@@ -770,10 +770,10 @@ export default function MemoryGame() {
         <div className="flex items-center justify-between mb-1.5">
           <div className="flex items-center gap-1.5">
             <Trophy className="w-3.5 h-3.5 text-pink-300" />
-            <span className="text-[11px] font-bold text-pink-200">Lv.{stats.level}</span>
-            <span className="text-[10px] text-zinc-500">{xp.current}/{xp.need} XP</span>
+            <span className="text-[0.6875rem] font-bold text-pink-200">Lv.{stats.level}</span>
+            <span className="text-[0.625rem] text-zinc-500">{xp.current}/{xp.need} XP</span>
           </div>
-          <div className="flex items-center gap-1 text-[10px] text-zinc-400">
+          <div className="flex items-center gap-1 text-[0.625rem] text-zinc-400">
             <Award className="w-3 h-3 text-amber-400" />
             <span>{stats.unlocked.length}/{ACHIEVEMENTS.length}</span>
           </div>
@@ -800,7 +800,7 @@ export default function MemoryGame() {
               </p>
             </div>
             <div className="flex items-center gap-1 shrink-0">
-              <span className={`text-[10px] font-mono ${
+              <span className={`text-[0.625rem] font-mono ${
                 adventureMistakes > adventureStage.starMistakeBudget ? 'text-rose-400' : 'text-pink-300'
               }`}>
                 {adventureMistakes}/{adventureStage.starMistakeBudget} {'خطأ'}
@@ -988,7 +988,7 @@ export default function MemoryGame() {
 
       {/* Achievements list */}
       <div className="max-w-[400px] mx-auto mt-6">
-        <p className="text-[11px] font-bold text-zinc-400 mb-2 px-1">
+        <p className="text-[0.6875rem] font-bold text-zinc-400 mb-2 px-1">
           {'الإنجازات'} · {stats.unlocked.length}/{ACHIEVEMENTS.length}
         </p>
         <div className="grid grid-cols-5 gap-2">
@@ -1003,7 +1003,7 @@ export default function MemoryGame() {
  opacity: unlocked ? 1 : 0.45,
  }}>
  <span className="text-lg leading-none mb-0.5">{unlocked ? def.icon : <Lock className="w-3.5 h-3.5 text-zinc-500" />}</span>
- <span className="text-[10px] font-semibold text-zinc-300 leading-tight line-clamp-2">{def.ar}</span>
+ <span className="text-[0.625rem] font-semibold text-zinc-300 leading-tight line-clamp-2">{def.ar}</span>
  </div>
  );
  })}
@@ -1017,7 +1017,7 @@ export default function MemoryGame() {
  className="fixed bottom-24 left-1/2 -translate-x-1/2 z-drawer rounded-2xl px-4 py-3 border border-pink-500/40 bg-card flex items-center gap-3">
  <span className="text-2xl">{achievementToast.icon}</span>
  <div>
- <p className="text-[10px] text-pink-200 font-semibold uppercase tracking-wider">{'إنجاز جديد'}</p>
+ <p className="text-[0.625rem] text-pink-200 font-semibold uppercase tracking-wider">{'إنجاز جديد'}</p>
               <p className="text-sm font-black text-white">{achievementToast.ar}</p>
             </div>
           </motion.div>
@@ -1068,7 +1068,7 @@ function ModeHud({
           <span className="font-black">{'أنت'}</span>
           <span className="font-mono">{versusScores.player}</span>
         </div>
-        <span className="text-zinc-400 text-[10px]">{fmt(timer)}</span>
+        <span className="text-zinc-400 text-[0.625rem]">{fmt(timer)}</span>
         <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full transition-colors ${versusTurn === 'ai' ? 'bg-rose-500/20 text-rose-200' : 'bg-white/5 text-zinc-500'}`}>
           <span className="font-mono">{versusScores.ai}</span>
           <span className="font-black">{'الذكاء'}</span>
@@ -1084,7 +1084,7 @@ function ModeHud({
         </span>
         <span className="text-zinc-400 tabular-nums">{fmt(timer)}</span>
         <span className="text-zinc-400">{moves} {'حركة'}</span>
-        {dailyDoneToday && <span className="text-emerald-400 font-bold text-[10px]">✓</span>}
+        {dailyDoneToday && <span className="text-emerald-400 font-bold text-[0.625rem]">✓</span>}
       </div>
     );
   }
@@ -1103,7 +1103,7 @@ function StatCard({ value, label }: { value: string | number; label: string }) {
   return (
     <div className="text-center p-2 rounded-xl bg-white/4 border border-white/5">
       <div className="text-base font-bold text-white tabular-nums">{value}</div>
-      <div className="text-[10px] text-zinc-500">{label}</div>
+      <div className="text-[0.625rem] text-zinc-500">{label}</div>
     </div>
   );
 }
@@ -1120,7 +1120,7 @@ function PowerUpButton({ icon: Icon, count, onClick, color, label, disabled, act
       }}>
       <Icon className="w-4 h-4" style={{ color }} />
       {count > 0 && (
-        <span className="absolute -bottom-1 -end-1 text-[10px] font-black px-1 rounded-full"
+        <span className="absolute -bottom-1 -end-1 text-[0.625rem] font-black px-1 rounded-full"
           style={{ background: color, color: '#fff' }}>{count}</span>
       )}
     </button>

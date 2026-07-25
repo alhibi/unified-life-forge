@@ -99,7 +99,7 @@ export default function LibraryPoetPage() {
     return (
       <div className="min-h-screen bg-background pt-14 px-5 flex flex-col items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary mb-2" />
-        <p className="text-[13px] text-muted-foreground font-tajawal">جاري فتح مخطوطة الشاعر…</p>
+        <p className="text-[0.8125rem] text-muted-foreground font-tajawal">جاري فتح مخطوطة الشاعر…</p>
       </div>
     );
   }
@@ -139,14 +139,14 @@ export default function LibraryPoetPage() {
             className="w-[78px] h-[78px] rounded-full flex items-center justify-center mx-auto mb-4"
             style={{ background: 'hsl(var(--primary))' }}
           >
-            <span className="font-amiri font-bold text-[32px] text-primary-foreground leading-none select-none">
+            <span className="font-amiri font-bold text-[2rem] text-primary-foreground leading-none select-none">
               {firstLetter}
             </span>
           </div>
 
           {/* اسم الشاعر وعنوانه وتاريخ حياته */}
           <h2
-            className="text-[24px] font-bold text-foreground text-center leading-tight mb-2"
+            className="text-[1.5rem] font-bold text-foreground text-center leading-tight mb-2"
             style={{ fontFamily: "'Amiri', serif" }}
           >
             {p.name_ar}
@@ -154,13 +154,13 @@ export default function LibraryPoetPage() {
 
           {p.title && (
             <div className="text-center mb-3">
-              <span className="inline-block text-[11px] font-tajawal text-primary bg-primary/10 border border-primary/20 px-2.5 py-0.5 rounded-md whitespace-nowrap">
+              <span className="inline-block text-[0.6875rem] font-tajawal text-primary bg-primary/10 border border-primary/20 px-2.5 py-0.5 rounded-md whitespace-nowrap">
                 {p.title}
               </span>
             </div>
           )}
 
-          <p className="text-center text-[12px] text-muted-foreground font-tajawal mb-4 select-none">
+          <p className="text-center text-[0.75rem] text-muted-foreground font-tajawal mb-4 select-none">
             {lifespan && <span>{lifespan}</span>}
             {lifespan && eraName && <span className="mx-1.5 opacity-40">·</span>}
             {eraName && <span>عصر {eraName}</span>}
@@ -168,7 +168,7 @@ export default function LibraryPoetPage() {
 
           {/* فقرة سيرة كاملة */}
           {p.bio && (
-            <p className="text-[13px] leading-[1.9] text-muted-foreground text-center max-w-md mx-auto mb-6 px-1 whitespace-pre-line">
+            <p className="text-[0.8125rem] leading-[1.9] text-muted-foreground text-center max-w-md mx-auto mb-6 px-1 whitespace-pre-line">
               {p.bio}
             </p>
           )}
@@ -176,24 +176,24 @@ export default function LibraryPoetPage() {
           {/* صف إحصائيات ثلاثي مفصول بخطوط رفيعة */}
           <div className="grid grid-cols-3 border-y border-border/60 py-4 mb-6">
             <div className="text-center">
-              <p className="font-amiri text-[22px] font-bold text-primary leading-none mb-1 select-all">
+              <p className="font-amiri text-[1.375rem] font-bold text-primary leading-none mb-1 select-all">
                 {p.poems_count}
               </p>
-              <p className="text-[11px] text-muted-foreground font-tajawal select-none">
+              <p className="text-[0.6875rem] text-muted-foreground font-tajawal select-none">
                 قصائد مأثورة
               </p>
             </div>
             <div className="text-center border-e border-border/60">
-              <p className="font-amiri text-[22px] font-bold text-primary leading-none mb-1 select-all">
+              <p className="font-amiri text-[1.375rem] font-bold text-primary leading-none mb-1 select-all">
                 {p.verses_count}
               </p>
-              <p className="text-[11px] text-muted-foreground font-tajawal select-none">بيت شعر</p>
+              <p className="text-[0.6875rem] text-muted-foreground font-tajawal select-none">بيت شعر</p>
             </div>
             <div className="text-center border-e border-border/60 flex flex-col justify-center items-center">
-              <p className="font-amiri text-[15px] font-bold text-primary leading-snug mb-1 truncate max-w-full px-1">
+              <p className="font-amiri text-[0.9375rem] font-bold text-primary leading-snug mb-1 truncate max-w-full px-1">
                 {eraName || 'قديم'}
               </p>
-              <p className="text-[11px] text-muted-foreground font-tajawal select-none">
+              <p className="text-[0.6875rem] text-muted-foreground font-tajawal select-none">
                 العصر الأدبي
               </p>
             </div>
@@ -204,7 +204,7 @@ export default function LibraryPoetPage() {
             {hasTimeline && (
               <button
                 onClick={() => setShowTimeline((s) => !s)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-md text-[11px] font-bold transition-all ${
+                className={`flex items-center gap-2 px-4 py-2 rounded-md text-[0.6875rem] font-bold transition-all ${
                   showTimeline
                     ? 'bg-primary/10 text-primary border border-primary/20'
                     : 'bg-card text-muted-foreground border border-border hover:text-foreground'
@@ -216,7 +216,7 @@ export default function LibraryPoetPage() {
             )}
             <button
               onClick={() => navigate(`/diwan/library/search?graph=${slug}`)}
-              className="flex items-center gap-2 px-4 py-2 rounded-md text-[11px] font-bold bg-card text-muted-foreground border border-border hover:text-foreground transition-all"
+              className="flex items-center gap-2 px-4 py-2 rounded-md text-[0.6875rem] font-bold bg-card text-muted-foreground border border-border hover:text-foreground transition-all"
             >
               <Network className="w-3.5 h-3.5" />
               علاقاته الأدبية
@@ -244,10 +244,10 @@ export default function LibraryPoetPage() {
 
         {/* Poems Heading */}
         <div className="flex items-center gap-2 mb-3 px-1">
-          <span className="text-[10px] text-primary" aria-hidden="true">
+          <span className="text-[0.625rem] text-primary" aria-hidden="true">
             ◆
           </span>
-          <h3 className="text-[13px] font-bold uppercase tracking-wider text-muted-foreground font-tajawal">
+          <h3 className="text-[0.8125rem] font-bold uppercase tracking-wider text-muted-foreground font-tajawal">
             قصائده وديوانه
           </h3>
         </div>
@@ -262,7 +262,7 @@ export default function LibraryPoetPage() {
             ))}
           </div>
         ) : items.length === 0 ? (
-          <div className="text-center py-12 text-muted-foreground text-[12px] font-tajawal">
+          <div className="text-center py-12 text-muted-foreground text-[0.75rem] font-tajawal">
             {q ? 'لا قصائد مطابقة في هذا المخطوط.' : 'لا قصائد محفوظة لهذا الشاعر بعد.'}
           </div>
         ) : (
@@ -276,7 +276,7 @@ export default function LibraryPoetPage() {
                 <button
                   onClick={() => setPage((pg) => pg + 1)}
                   disabled={poems.isFetching}
-                  className="w-full mt-4 py-3 rounded-lg bg-card border border-border text-[12px] font-semibold text-muted-foreground hover:text-foreground hover:border-primary active:scale-[0.98] transition disabled:opacity-50 flex items-center justify-center gap-2"
+                  className="w-full mt-4 py-3 rounded-lg bg-card border border-border text-[0.75rem] font-semibold text-muted-foreground hover:text-foreground hover:border-primary active:scale-[0.98] transition disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                   {poems.isFetching ? (
                     <>
@@ -290,7 +290,7 @@ export default function LibraryPoetPage() {
               </>
             )}
             {reachedEnd && items.length > PAGE && (
-              <p className="text-center text-[11px] text-muted-foreground font-tajawal pt-6 select-none">
+              <p className="text-center text-[0.6875rem] text-muted-foreground font-tajawal pt-6 select-none">
                 انتهى ديوان الشاعر في هذه النسخة
               </p>
             )}

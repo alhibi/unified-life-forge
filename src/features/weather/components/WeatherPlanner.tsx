@@ -91,7 +91,7 @@ export default function WeatherPlanner({
       <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-primary/40" />
 
       <header className="mb-4">
-        <h2 className="font-semibold text-[20px] leading-none text-foreground flex items-center gap-2">
+        <h2 className="font-semibold text-[1.25rem] leading-none text-foreground flex items-center gap-2">
           <Shield className="w-5 h-5 text-primary" />
           {'مخطط الأنشطة والتحذيرات الذكية'}
         </h2>
@@ -101,7 +101,7 @@ export default function WeatherPlanner({
         {/* Activity suitability dial */}
         <div className="rounded-xl border border-border/40 bg-secondary/20 p-4 flex flex-col justify-between">
           <div>
-            <span className="text-[10px] tracking-wider uppercase text-muted-foreground">{'مؤشر ممارسة الرياضة في الهواء الطلق'}</span>
+            <span className="text-[0.625rem] tracking-wider uppercase text-muted-foreground">{'مؤشر ممارسة الرياضة في الهواء الطلق'}</span>
             <div className="flex items-center gap-4 mt-3">
               <svg viewBox="0 0 36 36" className="w-16 h-16 shrink-0 -rotate-90">
                 <path
@@ -125,7 +125,7 @@ export default function WeatherPlanner({
                 />
               </svg>
               <div>
-                <span className="text-[32px] font-extrabold text-foreground leading-none tabular-nums">{exerciseScore}%</span>
+                <span className="text-[2rem] font-extrabold text-foreground leading-none tabular-nums">{exerciseScore}%</span>
                 <p className="text-xs text-muted-foreground mt-1 font-semibold">
                   {exerciseScore >= 80
                     ? ('أجواء ممتازة وملائمة للجري')
@@ -142,7 +142,7 @@ export default function WeatherPlanner({
               <Sun className="w-4 h-4 text-primary" />
               <span>{'تخليق فيتامين د (D3 Window)'}</span>
             </div>
-            <p className="text-[11px] leading-relaxed text-muted-foreground">
+            <p className="text-[0.6875rem] leading-relaxed text-muted-foreground">
               {getD3SynthesisWindow()}
             </p>
           </div>
@@ -151,7 +151,7 @@ export default function WeatherPlanner({
         {/* Health advisories & Respiratory notes */}
         <div className="rounded-xl border border-border/40 bg-secondary/20 p-4 flex flex-col justify-between">
           <div className="space-y-3">
-            <span className="text-[10px] tracking-wider uppercase text-muted-foreground">{'الإرشادات والتحذيرات الطبية الجوية'}</span>
+            <span className="text-[0.625rem] tracking-wider uppercase text-muted-foreground">{'الإرشادات والتحذيرات الطبية الجوية'}</span>
 
             <div className="space-y-2">
               {advisories.map((adv, idx) => {
@@ -175,7 +175,7 @@ export default function WeatherPlanner({
             </div>
           </div>
 
-          <div className="border-t border-border/30 pt-3 mt-4 flex items-center gap-4 text-[11px] text-muted-foreground">
+          <div className="border-t border-border/30 pt-3 mt-4 flex items-center gap-4 text-[0.6875rem] text-muted-foreground">
             <div className="flex items-center gap-1">
               <Leaf className="w-3.5 h-3.5 text-primary" />
               <span>{'حبوب اللقاح:'}</span>

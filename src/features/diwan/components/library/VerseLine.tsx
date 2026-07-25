@@ -184,7 +184,7 @@ function VerseLine({
       aria-label="نسخ البيت — أو اضغط مطوّلاً على كلمة لشرحها"
     >
       {/* رقم البيت الصغير بخط Amiri على أقصى الحافة */}
-      <span className="w-6 shrink-0 text-end font-amiri text-[12px] text-[var(--ink-text-faint)] select-none">
+      <span className="w-6 shrink-0 text-end font-amiri text-[0.75rem] text-[var(--ink-text-faint)] select-none">
         {verse.position + 1}
       </span>
 
@@ -192,7 +192,7 @@ function VerseLine({
         /* صدر وعجز بفاصل منقط (ثنية الورق) */
         <div className="flex-1 grid grid-cols-2 gap-4 items-center">
           <p
-            className="text-[17px] text-[#F2E9D8] leading-[1.9] text-end font-amiri"
+            className="text-[1.0625rem] text-[#F2E9D8] leading-[1.9] text-end font-amiri"
           >
             {renderedH1}
           </p>
@@ -207,7 +207,7 @@ function VerseLine({
             />
 
             <p
-              className="text-[17px] text-[#F2E9D8] leading-[1.9] text-end font-amiri flex-1 pe-4"
+              className="text-[1.0625rem] text-[#F2E9D8] leading-[1.9] text-end font-amiri flex-1 pe-4"
             >
               {renderedH2}
             </p>
@@ -215,7 +215,7 @@ function VerseLine({
         </div>
       ) : (
         <p
-          className="text-[17px] text-[#F2E9D8] leading-[1.9] text-end font-amiri flex-1"
+          className="text-[1.0625rem] text-[#F2E9D8] leading-[1.9] text-end font-amiri flex-1"
         >
           {renderedH1}
         </p>
@@ -227,7 +227,7 @@ function VerseLine({
         aria-hidden
       >
         {copied && (
-          <span className="text-[11px] font-tajawal text-green-500 font-semibold px-1">تم النسخ</span>
+          <span className="text-[0.6875rem] font-tajawal text-green-500 font-semibold px-1">تم النسخ</span>
         )}
       </span>
     </motion.button>

@@ -145,7 +145,7 @@ function Group({
 }: { label: string; children: React.ReactNode }) {
   return (
     <div className="space-y-1.5">
-      <h6 className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
+      <h6 className="text-[0.625rem] font-bold uppercase tracking-wide text-muted-foreground">
         {label}
       </h6>
       {children}
@@ -171,7 +171,7 @@ function Segmented<T extends string>({
             key={opt.value}
             type="button"
             onClick={() => onChange(opt.value)}
-            className={`min-h-9 px-2 rounded-lg text-[11px] font-medium inline-flex items-center justify-center gap-1.5 transition-all ${
+            className={`min-h-9 px-2 rounded-lg text-[0.6875rem] font-medium inline-flex items-center justify-center gap-1.5 transition-all ${
               active
                 ? 'bg-background text-foreground '
                 : 'text-muted-foreground hover:text-foreground'
@@ -201,11 +201,11 @@ function ToggleRow({
   return (
     <label className="flex items-start justify-between gap-3 py-1.5 cursor-pointer">
       <div className="min-w-0 flex-1">
-        <p className="text-[12px] font-medium text-foreground leading-tight">
+        <p className="text-[0.75rem] font-medium text-foreground leading-tight">
           {label}
         </p>
         {description && (
-          <p className="text-[10px] text-muted-foreground mt-0.5 leading-snug">
+          <p className="text-[0.625rem] text-muted-foreground mt-0.5 leading-snug">
             {description}
           </p>
         )}

@@ -201,7 +201,7 @@ const EpisodeListItem = memo(function EpisodeListItem({
       <header className="flex items-center gap-2 mb-2">
         {isFreshUnplayed && (
           <span
-            className="text-[10px] font-bold tracking-wider px-1.5 py-0.5 rounded-md"
+            className="text-[0.625rem] font-bold tracking-wider px-1.5 py-0.5 rounded-md"
             style={{
               background: 'var(--podcast-primary-soft, hsl(var(--primary) / 0.14))',
               color: 'var(--podcast-primary, hsl(var(--primary)))',
@@ -211,24 +211,24 @@ const EpisodeListItem = memo(function EpisodeListItem({
           </span>
         )}
         {playState.played && (
-          <span className="text-[10px] font-bold tracking-wider px-1.5 py-0.5 rounded-md bg-muted/60 text-muted-foreground inline-flex items-center gap-1">
+          <span className="text-[0.625rem] font-bold tracking-wider px-1.5 py-0.5 rounded-md bg-muted/60 text-muted-foreground inline-flex items-center gap-1">
             <CheckCircle2 className="w-3 h-3" />
             {'تم'}
           </span>
         )}
-        <p className="text-[11px] text-muted-foreground">
+        <p className="text-[0.6875rem] text-muted-foreground">
           {formatRelativeDate(episode.pubDate, lang)}
         </p>
       </header>
 
       <div className="flex items-start gap-3">
         <div className="flex-1 min-w-0">
-          <h3 className="text-[14px] font-bold text-foreground leading-snug line-clamp-2">
+          <h3 className="text-[0.875rem] font-bold text-foreground leading-snug line-clamp-2">
             {episode.title}
           </h3>
           {safeDescription && (
             <div
-              className="text-[12px] text-muted-foreground leading-relaxed mt-1 line-clamp-3 podcast-html"
+              className="text-[0.75rem] text-muted-foreground leading-relaxed mt-1 line-clamp-3 podcast-html"
               dangerouslySetInnerHTML={{ __html: safeDescription }}
             />
           )}
@@ -248,7 +248,7 @@ const EpisodeListItem = memo(function EpisodeListItem({
           onClick={handlePlay}
           disabled={!episode.audioUrl}
           aria-label={isThisPlaying ? 'Pause' : 'Play'}
-          className="relative flex items-center gap-2 ps-1.5 pe-3 py-1.5 rounded-full text-[12px] font-semibold transition-colors active:scale-95 overflow-hidden"
+          className="relative flex items-center gap-2 ps-1.5 pe-3 py-1.5 rounded-full text-[0.75rem] font-semibold transition-colors active:scale-95 overflow-hidden"
           style={{
             background: 'var(--podcast-primary, hsl(var(--primary)))',
             color: 'var(--podcast-primary-fg, hsl(var(--primary-foreground)))',

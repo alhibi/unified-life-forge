@@ -1574,26 +1574,26 @@ function UmmahPulse() {
             <div className="text-3xl leading-none shrink-0">{c.flag}</div>
             <div className="min-w-0">
               <div className="flex items-center gap-1.5 flex-wrap">
-                <h3 className="text-[15px] font-bold text-foreground truncate leading-tight">
+                <h3 className="text-[0.9375rem] font-bold text-foreground truncate leading-tight">
                   {c.nameAr}
                 </h3>
                 {c.name === 'Makkah' && (
-                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-600 font-bold">
+                  <span className="text-[0.625rem] px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-600 font-bold">
                     ★ {'قبلة'}
                   </span>
                 )}
               </div>
-              <p className="text-[11px] text-muted-foreground leading-tight mt-0.5 truncate">
+              <p className="text-[0.6875rem] text-muted-foreground leading-tight mt-0.5 truncate">
                 {c.countryAr}
               </p>
             </div>
           </div>
           <div className="text-end shrink-0">
-            <div className="text-[18px] font-bold tabular-nums text-foreground leading-none">
+            <div className="text-[1.125rem] font-bold tabular-nums text-foreground leading-none">
               {c.info.localClock}
             </div>
             <div
-              className="text-[10px] font-bold mt-1 px-2 py-0.5 rounded-full inline-block"
+              className="text-[0.625rem] font-bold mt-1 px-2 py-0.5 rounded-full inline-block"
               style={{
                 background: meta.color.replace('hsl(', 'hsla(').replace(')', ', 0.15)'),
                 color: meta.color,
@@ -1606,7 +1606,7 @@ function UmmahPulse() {
 
         {/* Next prayer countdown */}
         <div className="px-4 py-2.5 bg-muted/30 flex items-center justify-between gap-2 border-b border-border/30">
-          <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+          <div className="flex items-center gap-1.5 text-[0.6875rem] text-muted-foreground">
             <Clock className="w-3 h-3" />
             <span>
               {'القادمة'}:
@@ -1615,7 +1615,7 @@ function UmmahPulse() {
               </span>
             </span>
           </div>
-          <div className="text-[12px] font-bold tabular-nums text-primary">
+          <div className="text-[0.75rem] font-bold tabular-nums text-primary">
             {hh > 0 && `${hh}${'س'} `}
             {mm}
             {'د'}
@@ -1642,12 +1642,12 @@ function UmmahPulse() {
                 }
               >
                 <p
-                  className="text-[10px] font-semibold leading-tight"
+                  className="text-[0.625rem] font-semibold leading-tight"
                   style={{ color: isCurrent ? m.color : 'hsl(var(--muted-foreground))' }}
                 >
                   {m.ar}
                 </p>
-                <p className="text-[10px] font-bold tabular-nums text-foreground mt-0.5" dir="ltr">
+                <p className="text-[0.625rem] font-bold tabular-nums text-foreground mt-0.5" dir="ltr">
                   {formatLocalMinutes(min)}
                 </p>
               </div>
@@ -1656,12 +1656,12 @@ function UmmahPulse() {
         </div>
 
         {/* Meta row: method + madhhab + qibla */}
-        <div className="px-4 py-2.5 border-t border-border/30 flex items-center justify-between gap-3 text-[10px]">
+        <div className="px-4 py-2.5 border-t border-border/30 flex items-center justify-between gap-3 text-[0.625rem]">
           <div className="flex items-center gap-1.5 text-muted-foreground min-w-0">
             <Info className="w-3 h-3 shrink-0" />
             <span className="truncate">{METHOD_LABELS[c.method].ar}</span>
             <span
-              className="shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-primary/10 text-primary"
+              className="shrink-0 text-[0.625rem] font-bold px-1.5 py-0.5 rounded-full bg-primary/10 text-primary"
               title={'مذهب العصر الرسمي للبلد'}
             >
               {c.shadowUsed === 2 ? 'عصر حنفي' : 'عصر جمهور'}
@@ -1691,10 +1691,10 @@ function UmmahPulse() {
             <Compass className="w-4.5 h-4.5 text-primary" strokeWidth={2} />
           </div>
           <div>
-            <h3 className="text-[14px] font-bold text-foreground leading-tight">
+            <h3 className="text-[0.875rem] font-bold text-foreground leading-tight">
               {'بوصلة القبلة'}
             </h3>
-            <p className="text-[11px] text-muted-foreground leading-tight mt-0.5">
+            <p className="text-[0.6875rem] text-muted-foreground leading-tight mt-0.5">
               {'اتجاه مكة مع مواقيت مدن العالم'}
             </p>
           </div>
@@ -1729,11 +1729,11 @@ function UmmahPulse() {
                   className="w-1.5 h-1.5 rounded-full"
                   style={{ background: SLOT_META[slot].color }}
                 />
-                <span className="text-[10px] font-semibold text-foreground">
+                <span className="text-[0.625rem] font-semibold text-foreground">
                   {SLOT_META[slot].ar}
                 </span>
               </div>
-              <span className="text-[11px] font-bold tabular-nums text-foreground mt-0.5">
+              <span className="text-[0.6875rem] font-bold tabular-nums text-foreground mt-0.5">
                 {count}
               </span>
             </button>
@@ -1741,7 +1741,7 @@ function UmmahPulse() {
         </div>
 
         <p
-          className="text-[10px] text-muted-foreground text-center mt-2.5 leading-relaxed px-2"
+          className="text-[0.625rem] text-muted-foreground text-center mt-2.5 leading-relaxed px-2"
           dir={'rtl'}
         >
           {'اضغط على أي وقت صلاة لعرض كل المدن ومواقيتها الرسمية'}
@@ -1768,10 +1768,10 @@ function UmmahPulse() {
                       <Compass className="w-5 h-5 text-primary" />
                     </div>
                     <div>
-                      <h2 className="text-[15px] font-bold text-foreground leading-tight">
+                      <h2 className="text-[0.9375rem] font-bold text-foreground leading-tight">
                         {'بوصلة القبلة'}
                       </h2>
-                      <p className="text-[11px] text-muted-foreground leading-tight mt-0.5">
+                      <p className="text-[0.6875rem] text-muted-foreground leading-tight mt-0.5">
                         {'مواقيت الصلاة في مدن العالم'}
                       </p>
                     </div>
@@ -1811,7 +1811,7 @@ function UmmahPulse() {
                           <button
                             key={s}
                             onClick={() => setFilter(s)}
-                            className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-[11px] font-semibold transition-all ${
+                            className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-[0.6875rem] font-semibold transition-all ${
                               active
                                 ? 'bg-primary text-primary-foreground border-primary shadow-sm'
                                 : 'bg-card border-border/40 text-foreground hover:bg-muted/40'
@@ -1848,7 +1848,7 @@ function UmmahPulse() {
                           <button
                             key={r}
                             onClick={() => setRegionFilter(r)}
-                            className={`shrink-0 px-2.5 py-1 rounded-full border text-[10px] font-medium transition-all ${
+                            className={`shrink-0 px-2.5 py-1 rounded-full border text-[0.625rem] font-medium transition-all ${
                               active
                                 ? 'bg-foreground/90 text-background border-foreground'
                                 : 'bg-card border-border/30 text-muted-foreground hover:text-foreground'
@@ -1871,7 +1871,7 @@ function UmmahPulse() {
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         placeholder={'ابحث عن مدينة أو دولة…'}
-                        className={`w-full py-2 text-[12px] rounded-xl bg-card border border-border/40 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 ${'pe-9 ps-3'}`}
+                        className={`w-full py-2 text-[0.75rem] rounded-xl bg-card border border-border/40 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 ${'pe-9 ps-3'}`}
                         dir={'rtl'}
                       />
                     </div>
@@ -1879,7 +1879,7 @@ function UmmahPulse() {
 
                   {/* City list */}
                   <div className="px-4 pt-3 space-y-1.5">
-                    <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide px-1 mb-2 flex items-center justify-between">
+                    <p className="text-[0.6875rem] font-semibold text-muted-foreground uppercase tracking-wide px-1 mb-2 flex items-center justify-between">
                       <span className="flex items-center gap-1.5">
                         <MapPin className="w-3 h-3" />
                         {'المدن'}
@@ -1890,7 +1890,7 @@ function UmmahPulse() {
                     </p>
 
                     {sortedCities.length === 0 ? (
-                      <div className="text-center text-[12px] text-muted-foreground py-6">
+                      <div className="text-center text-[0.75rem] text-muted-foreground py-6">
                         {'لا توجد نتائج'}
                       </div>
                     ) : (
@@ -1918,16 +1918,16 @@ function UmmahPulse() {
                                 style={{ background: meta.color }}
                               />
                               <div className="min-w-0 flex-1">
-                                <p className="text-[13px] font-semibold text-foreground truncate leading-tight">
+                                <p className="text-[0.8125rem] font-semibold text-foreground truncate leading-tight">
                                   {c.nameAr}
                                   {c.name === 'Makkah' && (
-                                    <span className="ms-1.5 text-[10px] px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-600 font-bold align-middle">
+                                    <span className="ms-1.5 text-[0.625rem] px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-600 font-bold align-middle">
                                       ★
                                     </span>
                                   )}
                                 </p>
                                 <p
-                                  className="text-[10px] text-muted-foreground tabular-nums leading-tight mt-0.5 flex items-center gap-1.5"
+                                  className="text-[0.625rem] text-muted-foreground tabular-nums leading-tight mt-0.5 flex items-center gap-1.5"
                                   dir="ltr"
                                 >
                                   <span>{c.info.localClock}</span>
@@ -1940,7 +1940,7 @@ function UmmahPulse() {
                               </div>
                             </div>
                             <span
-                              className="text-[11px] font-bold px-2.5 py-1 rounded-full shrink-0"
+                              className="text-[0.6875rem] font-bold px-2.5 py-1 rounded-full shrink-0"
                               style={{
                                 background: meta.color
                                   .replace('hsl(', 'hsla(')
@@ -1956,7 +1956,7 @@ function UmmahPulse() {
                     )}
                   </div>
 
-                  <p className="text-[10px] text-muted-foreground text-center mt-5 px-6 leading-relaxed">
+                  <p className="text-[0.625rem] text-muted-foreground text-center mt-5 px-6 leading-relaxed">
                     {'حسابات فلكية بدقّة الدقيقة (Meeus) مع الطرق الرسمية لكل بلد (أم القرى، ديانت، الأوقاف، كراتشي، كيمنترج، جاكيم، …) • مذهب العصر يتبع كل دولة رسميًا • يُحدَّث كل 15 ثانية'}
                   </p>
                 </div>

@@ -150,17 +150,17 @@ function MacroTotals({
                 <Icon className="w-3.5 h-3.5" style={{ color: ringColor }} />
               </ProgressRing>
               <div className="text-center" dir="ltr">
-                <div className="text-[14px] font-bold tabular-nums leading-none text-foreground">
+                <div className="text-[0.875rem] font-bold tabular-nums leading-none text-foreground">
                   <AnimatedNumber value={cur} digits={key === 'kcal' ? 0 : 1} />
-                  <span className="text-[10px] text-muted-foreground ms-0.5">{suffix}</span>
+                  <span className="text-[0.625rem] text-muted-foreground ms-0.5">{suffix}</span>
                 </div>
                 {tgtLabel && (
-                  <div className="text-[10px] text-muted-foreground/70 mt-0.5">
+                  <div className="text-[0.625rem] text-muted-foreground/70 mt-0.5">
                     /{tgtLabel}{suffix}
                   </div>
                 )}
               </div>
-              <p className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground/70">
+              <p className="text-[0.625rem] uppercase tracking-wider font-semibold text-muted-foreground/70">
                 {label}
               </p>
             </div>
@@ -168,7 +168,7 @@ function MacroTotals({
         })}
       </div>
       {targets && (
-        <p className="text-[10px] text-muted-foreground/70 text-center pt-1 leading-relaxed">
+        <p className="text-[0.625rem] text-muted-foreground/70 text-center pt-1 leading-relaxed">
           {totals.kcal > 0
             ? `${Math.round((totals.kcal / targets.kcal) * 100)}% ${T.ofTarget[lang]}`
             : T.add[lang]}
@@ -214,7 +214,7 @@ function PortionStepper({
       >
         <Minus className="w-2.5 h-2.5" />
       </button>
-      <span className="text-[10px] font-bold tabular-nums px-1 min-w-[1.75rem] text-center" style={{ color: accent }}>
+      <span className="text-[0.625rem] font-bold tabular-nums px-1 min-w-[1.75rem] text-center" style={{ color: accent }}>
         ×{value % 1 === 0 ? value.toFixed(0) : value.toFixed(2).replace(/0$/, '')}
       </span>
       <button
@@ -258,18 +258,18 @@ function LogRow({
       <FoodIcon foodKey={log.foodKey} size={36} />
       <div className="flex-1 min-w-0">
         <div className="flex items-baseline gap-2">
-          <p className="text-[13px] font-semibold text-foreground truncate">{label}</p>
-          <span className="text-[10px] text-muted-foreground/60 shrink-0" dir="ltr">
+          <p className="text-[0.8125rem] font-semibold text-foreground truncate">{label}</p>
+          <span className="text-[0.625rem] text-muted-foreground/60 shrink-0" dir="ltr">
             {Math.round(grams)} g
           </span>
         </div>
-        <p className="text-[10px] text-muted-foreground mt-0.5">
+        <p className="text-[0.625rem] text-muted-foreground mt-0.5">
           {isCustom
             ? T.unknownMacros[lang]
             : meta.label[lang]}
         </p>
         {known && (
-          <div className="flex items-center gap-2.5 mt-1.5 text-[10px] text-muted-foreground" dir="ltr">
+          <div className="flex items-center gap-2.5 mt-1.5 text-[0.625rem] text-muted-foreground" dir="ltr">
             <span className="inline-flex items-center gap-0.5">
               <Flame className="w-2.5 h-2.5 text-emerald-500" />
               <span className="tabular-nums font-semibold text-foreground">{macros.kcal}</span>
@@ -396,10 +396,10 @@ export default function DietTab({
                 <CalIcon className="w-4 h-4 text-primary" />
               </div>
               <div>
-                <p className="text-[10px] font-semibold text-muted-foreground/70 uppercase tracking-wider">
+                <p className="text-[0.625rem] font-semibold text-muted-foreground/70 uppercase tracking-wider">
                   {T.date[lang]}
                 </p>
-                <p className="text-[13px] font-semibold text-foreground mt-0.5" dir="ltr">{date}</p>
+                <p className="text-[0.8125rem] font-semibold text-foreground mt-0.5" dir="ltr">{date}</p>
               </div>
             </div>
             <AppDatePicker value={date} onChange={setDate} />
@@ -448,7 +448,7 @@ export default function DietTab({
         <div className="flex gap-1.5 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-none">
           <button
             onClick={() => setActiveCat('all')}
-            className={`shrink-0 text-[11px] font-semibold px-2.5 py-1.5 rounded-full border transition-colors ${
+            className={`shrink-0 text-[0.6875rem] font-semibold px-2.5 py-1.5 rounded-full border transition-colors ${
               activeCat === 'all'
                 ? 'bg-primary text-primary-foreground border-primary'
                 : 'bg-card text-muted-foreground border-border/40'
@@ -464,7 +464,7 @@ export default function DietTab({
               <button
                 key={c}
                 onClick={() => setActiveCat(c)}
-                className={`shrink-0 flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1.5 rounded-full border transition-colors ${
+                className={`shrink-0 flex items-center gap-1 text-[0.6875rem] font-semibold px-2.5 py-1.5 rounded-full border transition-colors ${
                   active
                     ? `${meta.bg} ${meta.color} border-current`
                     : 'bg-card text-muted-foreground border-border/40'
@@ -492,8 +492,8 @@ export default function DietTab({
                     <div className={`w-7 h-7 rounded-lg ${meta.bg} flex items-center justify-center`}>
                       <Icon className={`w-3.5 h-3.5 ${meta.color}`} strokeWidth={2.2} />
                     </div>
-                    <h4 className="text-[12px] font-bold text-foreground">{meta.label[lang]}</h4>
-                    <span className="text-[10px] text-muted-foreground">({foods.length})</span>
+                    <h4 className="text-[0.75rem] font-bold text-foreground">{meta.label[lang]}</h4>
+                    <span className="text-[0.625rem] text-muted-foreground">({foods.length})</span>
                   </div>
                   <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                     {foods.map((f) => {
@@ -506,15 +506,15 @@ export default function DietTab({
                           className="bg-card border border-border/40 rounded-xl p-2.5 flex flex-col items-center gap-1 active:scale-95 transition-transform hover:border-primary/40"
                         >
                           <FoodIcon foodKey={f.key} size={36} />
-                          <span className="text-[11px] font-medium text-foreground text-center leading-tight line-clamp-2">
+                          <span className="text-[0.6875rem] font-medium text-foreground text-center leading-tight line-clamp-2">
                             {f.label[lang]}
                           </span>
                           {known ? (
-                            <span className="text-[10px] text-muted-foreground/70 tabular-nums" dir="ltr">
+                            <span className="text-[0.625rem] text-muted-foreground/70 tabular-nums" dir="ltr">
                               {m.kcal} {T.kcal[lang]} · {fmtG(m.protein)}g P
                             </span>
                           ) : (
-                            <span className="text-[10px] text-muted-foreground/40">—</span>
+                            <span className="text-[0.625rem] text-muted-foreground/40">—</span>
                           )}
                         </button>
                       );
@@ -534,7 +534,7 @@ export default function DietTab({
             }}
             className="w-full bg-primary/10 border border-primary/40 rounded-xl p-3 active:scale-[0.98] transition-transform"
           >
-            <span className="text-[12px] font-semibold text-primary">
+            <span className="text-[0.75rem] font-semibold text-primary">
               + {`أضف "${query.trim()}" ${T.custom[lang]}`}
             </span>
           </button>
@@ -542,7 +542,7 @@ export default function DietTab({
       </motion.div>
 
       {/* Tiny note about portion semantics */}
-      <p className="text-[10px] text-muted-foreground/60 leading-relaxed text-center px-3 flex items-center justify-center gap-1">
+      <p className="text-[0.625rem] text-muted-foreground/60 leading-relaxed text-center px-3 flex items-center justify-center gap-1">
         <Info className="w-3 h-3 inline-block" />
         {'القيم الغذائية تقريبية وتعتمد على حصة قياسية لكل صنف.'}
       </p>

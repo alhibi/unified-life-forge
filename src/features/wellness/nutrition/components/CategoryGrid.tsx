@@ -59,10 +59,10 @@ export default function CategoryGrid({ lang, onSelect }: Props) {
             className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-muted/40 border border-border/30 active:scale-95 transition-all hover:bg-muted/60 relative overflow-hidden"
           >
             <span className="text-2xl">{info.emoji}</span>
-            <span className="text-[10px] font-medium text-foreground text-center leading-tight line-clamp-2">
+            <span className="text-[0.625rem] font-medium text-foreground text-center leading-tight line-clamp-2">
               {info.label[lang]}
             </span>
-            <span className="absolute top-1.5 end-1.5 text-[10px] bg-primary/10 text-primary rounded-full px-1.5 py-0.5 font-bold">
+            <span className="absolute top-1.5 end-1.5 text-[0.625rem] bg-primary/10 text-primary rounded-full px-1.5 py-0.5 font-bold">
               {info.count}
             </span>
           </motion.button>

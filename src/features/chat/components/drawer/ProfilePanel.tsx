@@ -70,7 +70,7 @@ export default function ProfilePanel({
             >
               <BackIcon className="w-5 h-5 text-foreground" />
             </button>
-            <h2 className="text-[16px] font-semibold">{'الملف الشخصي'}</h2>
+            <h2 className="text-[1rem] font-semibold">{'الملف الشخصي'}</h2>
           </div>
 
           <div className="flex flex-col items-center pt-8 pb-4 px-6">
@@ -90,13 +90,13 @@ export default function ProfilePanel({
             </h3>
             {chat.activeConv.otherDisplayName &&
               chat.activeConv.otherDisplayName !== chat.activeConv.otherUsername && (
-                <p className="text-[13px] text-muted-foreground">
+                <p className="text-[0.8125rem] text-muted-foreground">
                   @{chat.activeConv.otherUsername}
                 </p>
               )}
             <p
               className={cn(
-                'text-[12px] mt-1 font-medium',
+                'text-[0.75rem] mt-1 font-medium',
                 chat.otherPresence.isOnline ? 'text-green-500' : 'text-muted-foreground/70',
               )}
             >
@@ -120,7 +120,7 @@ export default function ProfilePanel({
               ) : (
                 <Bell className="w-4 h-4" />
               )}
-              <span className="text-[10px] font-medium">
+              <span className="text-[0.625rem] font-medium">
                 {chat.chatPrefs.isMuted(chat.activeConv.id) ? 'مكتوم' : 'كتم'}
               </span>
             </button>
@@ -136,7 +136,7 @@ export default function ProfilePanel({
               <Pin
                 className={cn('w-4 h-4', chat.chatPrefs.isPinned(chat.activeConv.id) && 'rotate-45')}
               />
-              <span className="text-[10px] font-medium">
+              <span className="text-[0.625rem] font-medium">
                 {chat.chatPrefs.isPinned(chat.activeConv.id) ? 'مثبّتة' : 'تثبيت'}
               </span>
             </button>
@@ -153,7 +153,7 @@ export default function ProfilePanel({
               ) : (
                 <Archive className="w-4 h-4" />
               )}
-              <span className="text-[10px] font-medium">
+              <span className="text-[0.625rem] font-medium">
                 {chat.chatPrefs.isArchived(chat.activeConv.id) ? 'إلغاء الأرشفة' : 'أرشفة'}
               </span>
             </button>
@@ -163,7 +163,7 @@ export default function ProfilePanel({
             <button
               onClick={() => chat.setProfileTab('info')}
               className={cn(
-                'flex-1 py-2 rounded-lg text-[13px] font-medium transition-all',
+                'flex-1 py-2 rounded-lg text-[0.8125rem] font-medium transition-all',
                 chat.profileTab === 'info'
                   ? 'bg-background text-foreground '
                   : 'text-muted-foreground',
@@ -179,7 +179,7 @@ export default function ProfilePanel({
                 }
               }}
               className={cn(
-                'flex-1 py-2 rounded-lg text-[13px] font-medium transition-all',
+                'flex-1 py-2 rounded-lg text-[0.8125rem] font-medium transition-all',
                 chat.profileTab === 'media'
                   ? 'bg-background text-foreground '
                   : 'text-muted-foreground',
@@ -206,19 +206,19 @@ export default function ProfilePanel({
                   <div className="grid grid-cols-3 gap-3 text-center">
                     <div>
                       <p className="text-xl font-bold text-foreground">{chat.messages.length}</p>
-                      <p className="text-[10px] text-muted-foreground">{'رسالة'}</p>
+                      <p className="text-[0.625rem] text-muted-foreground">{'رسالة'}</p>
                     </div>
                     <div>
                       <p className="text-xl font-bold text-foreground">
                         {chat.messages.filter((m) => m.message_type === 'image').length}
                       </p>
-                      <p className="text-[10px] text-muted-foreground">{'صورة'}</p>
+                      <p className="text-[0.625rem] text-muted-foreground">{'صورة'}</p>
                     </div>
                     <div>
                       <p className="text-xl font-bold text-foreground">
                         {chat.messages.filter((m) => m.message_type === 'voice').length}
                       </p>
-                      <p className="text-[10px] text-muted-foreground">{'صوتية'}</p>
+                      <p className="text-[0.625rem] text-muted-foreground">{'صوتية'}</p>
                     </div>
                   </div>
                 </div>
@@ -226,8 +226,8 @@ export default function ProfilePanel({
                   <div className="flex items-center gap-3 p-3.5">
                     <User2 className="w-4 h-4 text-muted-foreground shrink-0" />
                     <div className="min-w-0">
-                      <p className="text-[11px] text-muted-foreground">{'النبذة'}</p>
-                      <p className="text-[13px] text-foreground font-medium">
+                      <p className="text-[0.6875rem] text-muted-foreground">{'النبذة'}</p>
+                      <p className="text-[0.8125rem] text-foreground font-medium">
                         {chat.activeConv.otherBio || 'لا توجد نبذة'}
                       </p>
                     </div>
@@ -235,8 +235,8 @@ export default function ProfilePanel({
                   <div className="flex items-center gap-3 p-3.5">
                     <Calendar className="w-4 h-4 text-muted-foreground shrink-0" />
                     <div className="min-w-0">
-                      <p className="text-[11px] text-muted-foreground">{'تاريخ الانضمام'}</p>
-                      <p className="text-[13px] text-foreground font-medium">
+                      <p className="text-[0.6875rem] text-muted-foreground">{'تاريخ الانضمام'}</p>
+                      <p className="text-[0.8125rem] text-foreground font-medium">
                         {chat.activeConv.otherCreatedAt
                           ? new Date(chat.activeConv.otherCreatedAt).toLocaleDateString('ar', {
                               day: 'numeric',
@@ -253,8 +253,8 @@ export default function ProfilePanel({
                   >
                     <WallpaperIcon className="w-4 h-4 text-muted-foreground shrink-0" />
                     <div className="min-w-0 flex-1">
-                      <p className="text-[11px] text-muted-foreground">{'الخلفية'}</p>
-                      <p className="text-[13px] text-foreground font-medium">{wallpaperLabel}</p>
+                      <p className="text-[0.6875rem] text-muted-foreground">{'الخلفية'}</p>
+                      <p className="text-[0.8125rem] text-foreground font-medium">{wallpaperLabel}</p>
                     </div>
                     <ChevronRight className={cn('w-4 h-4 text-muted-foreground/50', 'rotate-180')} />
                   </button>
@@ -262,7 +262,7 @@ export default function ProfilePanel({
                 <button
                   onClick={() => chat.chatPrefs.toggleBlocked(chat.activeConv!.id)}
                   className={cn(
-                    'w-full flex items-center justify-center gap-2 py-3 rounded-2xl text-[13px] font-medium transition-colors active:scale-[0.98]',
+                    'w-full flex items-center justify-center gap-2 py-3 rounded-2xl text-[0.8125rem] font-medium transition-colors active:scale-[0.98]',
                     chat.chatPrefs.isBlocked(chat.activeConv!.id)
                       ? 'bg-primary/10 text-[#C9A84C]'
                       : 'bg-destructive/10 text-destructive',
@@ -275,7 +275,7 @@ export default function ProfilePanel({
                 </button>
                 <button
                   onClick={onRequestDeleteConversation}
-                  className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-destructive/10 text-destructive text-[13px] font-medium active:bg-destructive/20 transition-colors"
+                  className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-destructive/10 text-destructive text-[0.8125rem] font-medium active:bg-destructive/20 transition-colors"
                 >
                   <Trash className="w-4 h-4" />
                   {'حذف المحادثة'}
@@ -317,7 +317,7 @@ export default function ProfilePanel({
                           className="aspect-square bg-muted/20 flex flex-col items-center justify-center gap-1.5 p-2"
                         >
                           <FileText className="w-6 h-6 text-muted-foreground" />
-                          <span className="text-[10px] text-muted-foreground truncate w-full text-center">
+                          <span className="text-[0.625rem] text-muted-foreground truncate w-full text-center">
                             {readableFileName(m.file_name)}
                           </span>
                         </div>

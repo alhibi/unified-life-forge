@@ -12,8 +12,16 @@ import { AccountPrivacySection } from '@/features/account';
 import { useAuth } from '@/hooks/useAuth';
 import { useDraftStorage } from '@/hooks/useDraftStorage';
 import { useNetworkToast } from '@/hooks/useNetworkStatus';
-import { BookOpen, ChevronLeft, Gauge,LogOut, Palette, Type, UserCircle } from '@/lib/icons';
-import { pageItem as item,pageStagger as stagger } from '@/lib/motion';
+import {
+  BookOpen,
+  ChevronLeft,
+  Gauge,
+  LogOut,
+  Palette,
+  SlidersHorizontal,
+  UserCircle,
+} from '@/lib/icons';
+import { pageItem as item, pageStagger as stagger } from '@/lib/motion';
 import { getDefaultAvatarForUser } from '@/utils/defaultAvatar';
 import { getAppleEmojiUrl, isEmojiAvatarValue } from '@/utils/emojiAvatar';
 
@@ -30,7 +38,7 @@ export default function SettingsPage() {
   const [settingsDraft, setSettingsDraft, hasSettingsDraft] = useDraftStorage(
     `settings:draft:${user?.id || 'anon'}`,
     { theme, language, prayerMadhab },
-    { ttl: 7 * 24 * 60 * 60 * 1000 } // 7 days TTL
+    { ttl: 7 * 24 * 60 * 60 * 1000 }, // 7 days TTL
   );
 
   // ── Deep-Polish: Network toast notifications ─────────────────────────
@@ -47,23 +55,30 @@ export default function SettingsPage() {
   };
 
   const themeLabel = theme === 'dark' ? t('settings.dark') : t('settings.light');
-  const madhabLabel = ({ shafii: 'الشافعي', hanafi: 'الحنفي', hanbali: 'الحنبلي', maliki: 'المالكي' }[prayerMadhab]);
+  const madhabLabel = {
+    shafii: 'الشافعي',
+    hanafi: 'الحنفي',
+    hanbali: 'الحنبلي',
+    maliki: 'المالكي',
+  }[prayerMadhab];
 
   // Grouped settings
+  // Colour and type were two screens that could not show each other's effect.
+  // They are now one — with geometry as its own screen next to it.
   const appearanceItems = [
     {
-      key: 'theme',
+      key: 'appearance',
       icon: Palette,
-      title: t('settings.theme'),
+      title: 'المظهر والألوان والخطوط',
       value: themeLabel,
-      onClick: () => navigate('/settings/theme'),
+      onClick: () => navigate('/settings/appearance'),
     },
     {
-      key: 'font',
-      icon: Type,
-      title: 'الخط',
+      key: 'interface',
+      icon: SlidersHorizontal,
+      title: 'الواجهة والأبعاد',
       value: '',
-      onClick: () => navigate('/settings/font'),
+      onClick: () => navigate('/settings/interface'),
     },
     {
       key: 'motion',
@@ -96,7 +111,7 @@ export default function SettingsPage() {
 
   const renderGroup = (title: string, items: SettingRow[]) => (
     <motion.div variants={item} className="space-y-1">
-      <p className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-wider px-1 mb-2">
+      <p className="text-[0.6875rem] font-semibold text-muted-foreground/70 uppercase tracking-wider px-1 mb-2">
         {title}
       </p>
       <AppCard className="p-0 overflow-hidden divide-y divide-border/30">
@@ -108,11 +123,11 @@ export default function SettingsPage() {
           >
             <div className="flex items-center gap-3">
               <si.icon className="w-[18px] h-[18px] text-primary stroke-[1.8]" />
-              <span className="text-[14px] font-medium text-foreground">{si.title}</span>
+              <span className="text-[0.875rem] font-medium text-foreground">{si.title}</span>
             </div>
             <div className="flex items-center gap-2">
               {si.value ? (
-                <span className="text-[12px] text-muted-foreground">{si.value}</span>
+                <span className="text-[0.75rem] text-muted-foreground">{si.value}</span>
               ) : null}
               <ChevronLeft className="w-4 h-4 text-muted-foreground/40 ltr:rotate-180" />
             </div>
@@ -126,9 +141,17 @@ export default function SettingsPage() {
 
   return (
     <div className="min-h-screen bg-background pb-page px-5 pt-10">
-      <SEO title="الإعدادات — SmartHub" description="تخصيص اللغة، السمة، الخط، حساب الصلاة والملف الشخصي في SmartHub." path="/settings" />
-      <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-5 max-w-lg mx-auto">
-
+      <SEO
+        title="الإعدادات — SmartHub"
+        description="تخصيص اللغة، السمة، الخط، حساب الصلاة والملف الشخصي في SmartHub."
+        path="/settings"
+      />
+      <motion.div
+        variants={stagger}
+        initial="hidden"
+        animate="show"
+        className="space-y-5 max-w-lg mx-auto"
+      >
         {/* Header — settings is no longer a bottom-nav tab; the user
             reaches it from the avatar shortcut on Home, so we need a
             visible Back affordance to close the loop. */}
@@ -137,7 +160,7 @@ export default function SettingsPage() {
               the user never gets bounced back into a sub-setting they just
               closed (e.g. /settings/theme → /settings → back = theme = loop). */}
           <BackButton to="/" />
-          <h1 className="text-[17px] font-bold tracking-tight text-foreground">
+          <h1 className="text-[1.0625rem] font-bold tracking-tight text-foreground">
             {t('settings.title')}
           </h1>
           <div className="w-10" />
@@ -159,30 +182,57 @@ export default function SettingsPage() {
             <AppCard className="p-5">
               <div className="flex items-center gap-4">
                 {/* Avatar */}
-                <button onClick={() => navigate('/profile')} className="relative active:scale-95 transition-transform">
+                <button
+                  onClick={() => navigate('/profile')}
+                  className="relative active:scale-95 transition-transform"
+                >
                   <div className="w-14 h-14 rounded-full flex items-center justify-center ring-2 ring-primary/20 overflow-hidden">
                     {profile?.avatar_url && profile.avatar_url.startsWith('http') ? (
-                      <img src={profile.avatar_url} alt="" className="w-full h-full object-cover object-top" />
+                      <img
+                        src={profile.avatar_url}
+                        alt=""
+                        className="w-full h-full object-cover object-top"
+                      />
                     ) : profile?.avatar_url && isEmojiAvatarValue(profile.avatar_url) ? (
-                      <img src={getAppleEmojiUrl(profile.avatar_url) || ''} alt="" className="w-9 h-9" />
+                      <img
+                        src={getAppleEmojiUrl(profile.avatar_url) || ''}
+                        alt=""
+                        className="w-9 h-9"
+                      />
                     ) : (
-                      <img src={getDefaultAvatarForUser(username || 'U')} alt="" className="w-full h-full object-cover" />
+                      <img
+                        src={getDefaultAvatarForUser(username || 'U')}
+                        alt=""
+                        className="w-full h-full object-cover"
+                      />
                     )}
                   </div>
                   <div className="absolute -bottom-0.5 -end-0.5 w-4 h-4 rounded-full bg-primary border-2 border-card" />
                 </button>
 
                 {/* Info */}
-                <button onClick={() => navigate('/profile')} className="flex-1 text-start active:opacity-70 transition-opacity min-w-0">
-                  <h2 className="text-[17px] font-bold text-foreground truncate">{profile?.display_name || username || ('المستخدم')}</h2>
+                <button
+                  onClick={() => navigate('/profile')}
+                  className="flex-1 text-start active:opacity-70 transition-opacity min-w-0"
+                >
+                  <h2 className="text-[1.0625rem] font-bold text-foreground truncate">
+                    {profile?.display_name || username || 'المستخدم'}
+                  </h2>
                   {user.email ? (
-                    <p className="text-[12px] text-muted-foreground mt-0.5 truncate">{user.email}</p>
+                    <p className="text-[0.75rem] text-muted-foreground mt-0.5 truncate">
+                      {user.email}
+                    </p>
                   ) : null}
-                  <p className="text-[11px] text-muted-foreground/70 mt-0.5 truncate">@{username} · {'تعديل الملف الشخصي'}</p>
+                  <p className="text-[0.6875rem] text-muted-foreground/70 mt-0.5 truncate">
+                    @{username} · {'تعديل الملف الشخصي'}
+                  </p>
                 </button>
 
                 {/* Logout */}
-                <button onClick={() => setShowLogoutConfirm(true)} className="flex items-center gap-1.5 text-destructive/80 active:scale-90 transition-transform p-2">
+                <button
+                  onClick={() => setShowLogoutConfirm(true)}
+                  className="flex items-center gap-1.5 text-destructive/80 active:scale-90 transition-transform p-2"
+                >
                   <LogOut className="w-4 h-4" />
                 </button>
               </div>
@@ -198,8 +248,10 @@ export default function SettingsPage() {
                     <UserCircle className="w-7 h-7 text-primary stroke-[1.5]" />
                   </div>
                   <div className="flex-1 text-start">
-                    <h2 className="text-[17px] font-bold text-foreground">{'تسجيل الدخول'}</h2>
-                    <p className="text-[12px] text-muted-foreground mt-0.5">{'احفظ إعداداتك على جميع الأجهزة'}</p>
+                    <h2 className="text-[1.0625rem] font-bold text-foreground">{'تسجيل الدخول'}</h2>
+                    <p className="text-[0.75rem] text-muted-foreground mt-0.5">
+                      {'احفظ إعداداتك على جميع الأجهزة'}
+                    </p>
                   </div>
                   <ChevronLeft className="w-5 h-5 text-muted-foreground/40 ltr:rotate-180" />
                 </div>
@@ -223,7 +275,9 @@ export default function SettingsPage() {
 
         {/* Version */}
         <motion.div variants={item} className="text-center pt-2 pb-4">
-          <p className="text-[11px] text-muted-foreground/50">{'الإصدار'} {packageJson.version}</p>
+          <p className="text-[0.6875rem] text-muted-foreground/50">
+            {'الإصدار'} {packageJson.version}
+          </p>
         </motion.div>
       </motion.div>
 
@@ -232,7 +286,9 @@ export default function SettingsPage() {
         open={showLogoutConfirm}
         onOpenChange={setShowLogoutConfirm}
         title={'تسجيل الخروج'}
-        description={'سيتم مسح جميع البيانات المحلية من هذا الجهاز. يمكنك استعادتها عند تسجيل الدخول مرة أخرى.'}
+        description={
+          'سيتم مسح جميع البيانات المحلية من هذا الجهاز. يمكنك استعادتها عند تسجيل الدخول مرة أخرى.'
+        }
       >
         <div className="flex gap-3 pt-1">
           <button

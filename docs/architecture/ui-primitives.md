@@ -137,6 +137,34 @@ The default palette is the reference:
 Dark mode is the same ladder read from the other end, which is why a theme keeps
 its identity across modes instead of turning into a different colour.
 
+### The eighth tone: ink
+
+One tone is **identical in all 31 themes**: `--theme-ink`, a soft matte black
+(`#111113`). A palette needs one colour it does not own — overlays, full-bleed
+media and the OLED canvas have to read as "the app stepped back", and a themed
+scrim would tint every photo, video and map underneath it.
+
+It is deliberately not `#000`. Pure black against a lit panel produces a hard
+edge and the eye reads the _screen_ rather than a surface.
+
+Ink is used by:
+
+- `--scrim` — every modal, drawer and sheet backdrop, in every theme and mode
+- the **black mode** surface ladder (measured up from ink, not from the theme,
+  while the theme still owns every accent, border and glyph on top of it)
+- full-bleed media chrome — the lightbox backdrop, the 3D mind scene
+
+Reach for it as `hsl(var(--theme-ink))`, or `INK_HEX` for the few consumers that
+cannot read a CSS variable (WebGL materials, `<meta name="theme-color">`).
+
+### Surface lift
+
+The app is flat by contract, so the lightness gap between a card and the page is
+the _only_ depth cue available. That gap is a preference —
+`flat` / `subtle` / `lifted` — applied by `generateThemeTokens(…, lift)`. It
+changes the lightness of a surface, which is why it lives with the palette
+rather than with the geometry.
+
 ### How it is built — `src/utils/themeEngine.ts`
 
 - **One lightness ladder for all 31 themes** (`95 → 77 → 67 → 50 → 32 → 24 → 12`),
@@ -183,3 +211,83 @@ on the ramp — a tiered legend, a heat scale, a palette swatch:
 Never hardcode a hex. A hardcoded colour cannot follow 31 themes, two modes and
 black mode, and it is the one thing that makes a screen look like it belongs to
 a different app.
+
+## Typography: derived, not fixed
+
+`src/lib/fonts.ts` owns the type system. It has four independent dimensions,
+and — unlike the version before it — all four reach the pixels:
+
+| dimension | control                                                      | tokens written                           |
+| --------- | ------------------------------------------------------------ | ---------------------------------------- |
+| pairing   | display face + body face, or a curated `FONT_PAIRINGS` entry | `--font-display`, `--font-body`          |
+| base size | 5 steps, 15 → 19px                                           | `html { font-size }`                     |
+| ratio     | `compact` 1.125 · `balanced` 1.2 · `airy` 1.28               | `--fs-micro` … `--fs-display`            |
+| leading   | `tight` 1.45 · `normal` 1.6 · `relaxed` 1.78                 | `--type-leading`, `--type-leading-tight` |
+
+The seven steps are powers of the ratio, with exponents derived from the app's
+original pixel scale (11 · 12 · 13 · 14 · 16 · 18 · 24 at a 16px base). At the
+default ratio and base, the rendered sizes are therefore **identical** to what
+shipped before — the ratio then compresses or expands the spread around `lead`,
+which stays anchored at 1× the base.
+
+Sizes are in **rem**, never px. That is what makes the base size a single number
+that moves the whole system. It is also why
+`scripts/codemod-type-rem.mjs` converted the 1,719 arbitrary `text-[13px]`
+literals in the app to `text-[0.8125rem]`: a pixel font size silently opts out
+of the user's preference, which is how the app ended up half-scaling. A test
+now fails on any new px type size.
+
+Line heights are derived in Tailwind, not authored:
+`lineHeight: 'calc(var(--fs-body) * var(--type-leading))'`.
+
+## Geometry: the shape of the interface
+
+`src/lib/interfaceScale.ts` owns everything about shape that is not colour and
+not type. Four instruments, because a flat design has no others:
+
+| instrument | control                                 | tokens                                                                                                                                        |
+| ---------- | --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| corners    | one softness multiplier, 0 → 1.6        | `--r-sm/md/lg/xl`, `--radius`                                                                                                                 |
+| density    | `compact` / `cozy` / `comfortable`      | `--ui-pad-card`, `--ui-pad-card-compact`, `--ui-control-h`, `--ui-tap`, `--ui-stack-gap`, `--ui-stack-gap-sm`, `--ui-gutter`, `--ui-row-icon` |
+| width      | `narrow` / `standard` / `wide` / `full` | `--ui-content-max`                                                                                                                            |
+| borders    | `subtle` / `standard` / `defined`       | `--ui-border-alpha`, `--ui-border-soft-alpha`, `--ui-border-strong-alpha`, `--ui-divider-alpha`                                               |
+
+The radius ladder is multiplied, never replaced, so a chip, a button, a card and
+a sheet keep their relationship at every setting. `--ui-content-max` also backs
+Tailwind's `max-w-lg`, which is this app's content-column convention, so the 40+
+screens that centre themselves with that class follow the width preference too.
+
+### The rule for new CSS
+
+Shared utilities in `index.css` must read these variables — **never a raw rem or
+px literal** for a radius, a gutter, a control height, a gap or a border alpha.
+A literal is a value the user's preferences cannot reach, and it will be the one
+element on the screen that refuses to move with the rest.
+
+```css
+/* wrong */
+.my-thing {
+  padding: 1rem;
+  border-radius: 16px;
+  border: 1px solid hsl(var(--border) / 0.6);
+}
+/* right */
+.my-thing {
+  padding: var(--ui-pad-card);
+  border-radius: var(--r-lg);
+  border: 1px solid hsl(var(--border) / var(--ui-border-alpha));
+}
+```
+
+## Where the settings live
+
+Two screens, split by what they change rather than by which file they came from:
+
+- `/settings/appearance` — mode, palette, accent strength, ink/black mode,
+  typography, prayer-clock themes. (`src/pages/AppearanceSettings.tsx`)
+- `/settings/interface` — corners, density, width, borders, surface lift.
+  (`src/pages/InterfaceSettings.tsx`)
+
+Both are assembled from `src/features/appearance/components/*`, which share the
+atoms in `AppearancePrimitives.tsx`. `/settings/theme` and `/settings/font`
+redirect to the appearance screen — both paths are in the wild.

@@ -59,7 +59,7 @@ export default function SmartFilters({ lang, activeTags, onTagsChange, onClose: 
             {'فلترة حسب'}
           </span>
           {activeTags.length > 0 && (
-            <button onClick={() => onTagsChange([])} className="text-[10px] text-primary">
+            <button onClick={() => onTagsChange([])} className="text-[0.625rem] text-primary">
               {'مسح الكل'}
             </button>
           )}
@@ -71,7 +71,7 @@ export default function SmartFilters({ lang, activeTags, onTagsChange, onClose: 
               <button
                 key={tag}
                 onClick={() => toggle(tag)}
-                className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-medium transition-all active:scale-95 ${
+                className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-[0.625rem] font-medium transition-all active:scale-95 ${
                   active
                     ? 'bg-primary text-primary-foreground'
                     : 'bg-background border border-border/50 text-foreground/70'

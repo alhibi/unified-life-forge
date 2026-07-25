@@ -62,7 +62,7 @@ export default function AdvancedAnalytics({ lang }: Props) {
           <BarChart3 className="w-5 h-5 text-primary" />
           <h3 className="text-sm font-bold text-foreground">{T.title[lang]}</h3>
         </div>
-        <p className="text-[11px] text-muted-foreground leading-relaxed">{T.subtitle[lang]}</p>
+        <p className="text-[0.6875rem] text-muted-foreground leading-relaxed">{T.subtitle[lang]}</p>
       </div>
 
       {/* Energy split - custom chart elements */}
@@ -85,7 +85,7 @@ export default function AdvancedAnalytics({ lang }: Props) {
             style={{ width: `${fPct || 34}%` }}
           />
         </div>
-        <div className="grid grid-cols-3 gap-2 text-center text-[10px]">
+        <div className="grid grid-cols-3 gap-2 text-center text-[0.625rem]">
           <div>
             <span className="inline-block w-2 h-2 rounded-full bg-red-500 me-1" />
             <span className="text-muted-foreground">{T.protein[lang]}</span>
@@ -136,7 +136,7 @@ export default function AdvancedAnalytics({ lang }: Props) {
             </svg>
             <span className="absolute text-sm font-bold text-foreground tabular-nums">75%</span>
           </div>
-          <div className="space-y-1.5 text-[11px] text-muted-foreground leading-relaxed">
+          <div className="space-y-1.5 text-[0.6875rem] text-muted-foreground leading-relaxed">
             <p className="font-bold text-foreground">{T.biomedicalTips[lang]}</p>
             <p>{T.densityTip[lang]}</p>
           </div>

@@ -233,7 +233,7 @@ function ErrorFallback({
 
       {/* Error details (collapsed by default) */}
       {error && (
-        <details className="text-[11px] text-muted-foreground/60 max-w-sm w-full">
+        <details className="text-[0.6875rem] text-muted-foreground/60 max-w-sm w-full">
           <summary className="cursor-pointer hover:text-muted-foreground transition-colors">
             {'تفاصيل الخطأ'}
           </summary>
@@ -255,7 +255,7 @@ function ErrorFallback({
           <RefreshCw className="h-3.5 w-3.5 me-1.5" />
           {'إعادة المحاولة'}
           {retryCount > 0 && (
-            <span className="ms-1 text-[10px] opacity-70">({retryCount}/3)</span>
+            <span className="ms-1 text-[0.625rem] opacity-70">({retryCount}/3)</span>
           )}
         </Button>
 
@@ -312,7 +312,7 @@ function FatalErrorFallback({
       {error && (
         <pre
           dir="ltr"
-          className="text-[10px] text-muted-foreground/50 max-w-xs overflow-x-auto whitespace-pre-wrap break-all font-mono p-2 rounded-lg bg-muted/20"
+          className="text-[0.625rem] text-muted-foreground/50 max-w-xs overflow-x-auto whitespace-pre-wrap break-all font-mono p-2 rounded-lg bg-muted/20"
         >
           {error.message}
         </pre>

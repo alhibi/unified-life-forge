@@ -31,6 +31,23 @@ export type ThemeScale = [Hsl, Hsl, Hsl, Hsl, Hsl, Hsl, Hsl];
 export const SCALE_STEPS = [50, 100, 200, 300, 400, 500, 600] as const;
 export type ScaleStep = (typeof SCALE_STEPS)[number];
 
+/**
+ * INK — the eighth tone, and the only one that is identical in all 31 themes.
+ *
+ * A palette needs one colour it does not own. Overlays, full-screen media and
+ * the OLED canvas have to read as "the app stepped back", and if that tone were
+ * themed it would tint every photo and every video behind it. So ink is shared.
+ *
+ * It is deliberately NOT #000. Pure black against a lit panel produces a hard
+ * edge — the eye reads the *screen* rather than the surface. A soft, slightly
+ * cool matte black (#111113) keeps a trace of material and lets the theme's own
+ * tones stay the brightest thing in the room.
+ *
+ * Used for: `--theme-ink`, `--scrim` (every theme, both modes), the black-mode
+ * surface ladder, and full-bleed media chrome.
+ */
+export const INK: Hsl = [250, 7, 7];
+
 export interface ThemePreset {
   id: string;
   name: string;
@@ -326,6 +343,43 @@ export function getThemeScaleColors(preset: ThemePreset, style: ThemeStyle = 'ne
   return getThemeScale(preset, style).map(([h, s, l]) => `hsl(${hsl(h, s, l)})`);
 }
 
+/** The shared eighth tone as a CSS colour. Identical in every theme. */
+export const INK_CSS = `hsl(${hsl(INK[0], INK[1], INK[2])})`;
+
+/**
+ * Ink as a hex literal, for the few consumers that cannot read a CSS variable —
+ * WebGL materials, canvas fills, `<meta name="theme-color">`.
+ */
+export const INK_HEX = '#111113';
+
+/**
+ * How far surfaces separate from the canvas.
+ *
+ * The app is flat by contract — no shadows, no blur — so the *only* way a card
+ * can read as a distinct plane is the lightness gap between it and the page.
+ * That gap is a matter of taste (and of ambient light), so it is a preference:
+ *
+ *   flat     the card is barely a shade off the page; the hairline does the work
+ *   subtle   the shipped default
+ *   lifted   a pronounced step, for bright rooms and OLED panels
+ */
+export type SurfaceLift = 'flat' | 'subtle' | 'lifted';
+
+interface LiftLevels {
+  /** Light mode: card lightness, recessed-surface lightness. */
+  light: [number, number];
+  /** Dark mode: card lightness, raised-surface lightness. */
+  dark: [number, number];
+  /** Black mode: same, measured up from ink rather than from the theme. */
+  black: [number, number];
+}
+
+const SURFACE_LIFT: Record<SurfaceLift, LiftLevels> = {
+  flat: { light: [95.8, 92.4], dark: [13.9, 18], black: [8.6, 12] },
+  subtle: { light: [98.6, 90.6], dark: [16.8, 22.5], black: [11, 15] },
+  lifted: { light: [100, 88.6], dark: [19.6, 26], black: [13.6, 18.4] },
+};
+
 // ─── Token Generation ───────────────────────────────────────
 /**
  * Derive the whole semantic token set from the theme's 7-step scale.
@@ -352,9 +406,11 @@ export function generateThemeTokens(
   style: ThemeStyle,
   isDark: boolean,
   isBlack: boolean,
+  lift: SurfaceLift = 'subtle',
 ): Record<string, string> {
   const scale = resolveScale(preset);
   const chroma = CHROMA_BY_STYLE[style] ?? 1;
+  const levels = SURFACE_LIFT[lift] ?? SURFACE_LIFT.subtle;
 
   /** A colour from this theme's curve at the given lightness. */
   const tone = (l: number, chromaMul = 1): Hsl => toneAt(scale, l, chroma * chromaMul);
@@ -367,7 +423,13 @@ export function generateThemeTokens(
 
   // The published scale is exposed verbatim so features can reach for a
   // specific tone (`bg-theme-100`, `text-theme-600`) without inventing colours.
-  const scaleVars: Record<string, string> = {};
+  const scaleVars: Record<string, string> = {
+    // The eighth tone. Shared, never themed — see INK above.
+    '--theme-ink': hsl(INK[0], INK[1], INK[2]),
+    // One overlay colour for the whole app, in every theme and every mode. A
+    // themed scrim tinted the photo, video or map sitting underneath it.
+    '--scrim': hsl(INK[0], INK[1], INK[2]),
+  };
   SCALE_STEPS.forEach((name, i) => {
     scaleVars[`--theme-${name}`] = css(step(i));
   });
@@ -376,8 +438,8 @@ export function generateThemeTokens(
     // Surfaces: step 50 is the canvas, cards lift *above* it toward white,
     // recessed surfaces sit just below it — the ladder read at fine resolution.
     const canvas = step(0);
-    const surface = tone(98.6, 0.85);
-    const recessed = tone(90.6);
+    const surface = tone(levels.light[0], 0.85);
+    const recessed = tone(levels.light[1]);
     // Step 400 is the action tone. For the few very luminous hues (a vivid
     // green at 32% lightness) it is deepened until its own label is readable,
     // rather than lightening the label past white and giving up.
@@ -421,7 +483,6 @@ export function generateThemeTokens(
       '--border': css(tone(83.5)),
       '--input': css(step(1)),
       '--ring': css(primary),
-      '--scrim': css(tone(8)),
       // Sidebar mirrors the same tones.
       '--sidebar-background': css(canvas),
       '--sidebar-foreground': css(strongText),
@@ -436,24 +497,30 @@ export function generateThemeTokens(
       '--live': css(live),
       '--live-soft': css(step(2)),
       '--live-glow': css(tone(44)),
-      '--radius': '1rem',
     };
   }
 
   // ─── Dark mode ────────────────────────────────────────────
-  // Black mode collapses the surface ladder toward true black for OLED, and
-  // drops surface chroma so the canvas reads as black rather than tinted.
-  const surfaceChroma = isBlack ? 0.5 : 1;
-  const bgL = isBlack ? 0 : scale[6][2]; // step 600
-  const cardL = isBlack ? 4.5 : 16.8;
-  const raisedL = isBlack ? 9 : 22.5;
-  const borderL = isBlack ? 16 : 28.5;
-  const inputL = isBlack ? 23 : 35;
+  // Two different dark modes, and the difference matters:
+  //
+  //   dark   the theme's own step 600 is the canvas — a violet theme has a
+  //          violet-black page, which is the whole point of a themed dark mode.
+  //   black  the shared ink tone is the canvas, and the surface ladder is
+  //          measured up from ink rather than from the theme. Chosen for OLED,
+  //          where the page should stop emitting; the theme still owns every
+  //          accent, border and piece of text on top of it.
+  const inkTone = (l: number): Hsl => [INK[0], INK[1], l];
+  const surfaceAt = (l: number): Hsl => (isBlack ? inkTone(l) : tone(l));
 
-  const canvas = tone(bgL, surfaceChroma);
-  const surface = tone(cardL, surfaceChroma);
-  const recessed = tone(raisedL, surfaceChroma);
-  const onPrimary = tone(isBlack ? 6 : 12.4, surfaceChroma);
+  const bgL = isBlack ? INK[2] : scale[6][2]; // ink, or the theme's step 600
+  const [cardL, raisedL] = isBlack ? levels.black : levels.dark;
+  const borderL = isBlack ? 20 : 28.5;
+  const inputL = isBlack ? 26 : 35;
+
+  const canvas = surfaceAt(bgL);
+  const surface = surfaceAt(cardL);
+  const recessed = surfaceAt(raisedL);
+  const onPrimary = surfaceAt(isBlack ? INK[2] : 12.4);
   const primary = text(76, onPrimary, 4.6);
 
   const bodyText = text(93, canvas, 7);
@@ -486,22 +553,20 @@ export function generateThemeTokens(
     '--warning-foreground': '35 40% 12%',
     '--error': '0 58% 68%',
     '--error-foreground': '0 20% 10%',
-    '--border': css(tone(borderL, surfaceChroma)),
-    '--input': css(tone(inputL, surfaceChroma)),
+    '--border': css(surfaceAt(borderL)),
+    '--input': css(surfaceAt(inputL)),
     '--ring': css(primary),
-    '--scrim': css(tone(2)),
     '--sidebar-background': css(canvas),
     '--sidebar-foreground': css(strongText),
     '--sidebar-primary': css(primary),
     '--sidebar-primary-foreground': css(onPrimary),
     '--sidebar-accent': css(recessed),
     '--sidebar-accent-foreground': css(accentText),
-    '--sidebar-border': css(tone(borderL, surfaceChroma)),
+    '--sidebar-border': css(surfaceAt(borderL)),
     '--sidebar-ring': css(primary),
     '--live': css(text(70, canvas, 4.5)),
     '--live-soft': css(tone(58)),
     '--live-glow': css(tone(76)),
-    '--radius': '1rem',
   };
 }
 

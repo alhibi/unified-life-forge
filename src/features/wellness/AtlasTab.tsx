@@ -32,7 +32,7 @@ export default function AtlasTab() {
     <div className="space-y-3" dir={'rtl'}>
       <div className="rounded-2xl bg-card border border-border/40 p-3 flex items-center gap-2">
         <BookOpen className="w-4 h-4 text-primary shrink-0" />
-        <p className="text-[12px] text-muted-foreground leading-snug">
+        <p className="text-[0.75rem] text-muted-foreground leading-snug">
           {'الأطلس البيوكيميائي الشامل للمغذيات الحيوية — مرجع علمي مختصر.'}
         </p>
       </div>
@@ -43,7 +43,7 @@ export default function AtlasTab() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={'ابحث عن عنصر...'}
-          className={`w-full h-11 rounded-2xl bg-card border border-border/40 text-[14px] text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary/40 transition-colors ${'pe-10 ps-3'}`}
+          className={`w-full h-11 rounded-2xl bg-card border border-border/40 text-[0.875rem] text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary/40 transition-colors ${'pe-10 ps-3'}`}
         />
       </div>
 
@@ -59,10 +59,10 @@ export default function AtlasTab() {
               >
                 <div className="flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                  <span className="text-[14px] font-bold text-foreground">{cat.title}</span>
+                  <span className="text-[0.875rem] font-bold text-foreground">{cat.title}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-[11px] text-muted-foreground tabular-nums">{total}</span>
+                  <span className="text-[0.6875rem] text-muted-foreground tabular-nums">{total}</span>
                   <motion.span animate={{ rotate: open ? 180 : 0 }} transition={{ duration: 0.2 }}>
                     <ChevronDown className="w-4 h-4 text-muted-foreground" />
                   </motion.span>
@@ -81,7 +81,7 @@ export default function AtlasTab() {
                     <div className="px-3 pb-3 space-y-3">
                       {cat.groups.map((g) => (
                         <div key={g.title} className="space-y-1.5">
-                          <h4 className="text-[11px] font-semibold text-muted-foreground px-1">{g.title}</h4>
+                          <h4 className="text-[0.6875rem] font-semibold text-muted-foreground px-1">{g.title}</h4>
                           <div className="space-y-1.5">
                             {g.items.map((it) => {
                               const id = `${cat.key}:${it.name}`;
@@ -93,7 +93,7 @@ export default function AtlasTab() {
                                   className="w-full text-start rounded-xl bg-accent/30 hover:bg-accent/50 border border-border/30 p-3 transition-colors"
                                 >
                                   <div className="flex items-center justify-between gap-2">
-                                    <span className="text-[13px] font-semibold text-foreground leading-tight">
+                                    <span className="text-[0.8125rem] font-semibold text-foreground leading-tight">
                                       {it.name}
                                     </span>
                                     <motion.span animate={{ rotate: itOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
@@ -107,7 +107,7 @@ export default function AtlasTab() {
                                         animate={{ height: 'auto', opacity: 1, marginTop: 8 }}
                                         exit={{ height: 0, opacity: 0, marginTop: 0 }}
                                         transition={{ duration: 0.2 }}
-                                        className="overflow-hidden text-[12px] text-muted-foreground leading-relaxed"
+                                        className="overflow-hidden text-[0.75rem] text-muted-foreground leading-relaxed"
                                       >
                                         {it.desc}
                                       </motion.p>
@@ -128,13 +128,13 @@ export default function AtlasTab() {
         })}
 
         {filtered.length === 0 && (
-          <div className="rounded-2xl bg-card border border-border/40 p-6 text-center text-[13px] text-muted-foreground">
+          <div className="rounded-2xl bg-card border border-border/40 p-6 text-center text-[0.8125rem] text-muted-foreground">
             {'لا توجد نتائج'}
           </div>
         )}
       </div>
 
-      <p className="text-[10px] text-muted-foreground/70 leading-relaxed text-center px-2 pt-2">
+      <p className="text-[0.625rem] text-muted-foreground/70 leading-relaxed text-center px-2 pt-2">
         {'تنبيه: المعلومات مرجع بيوكيميائي فقط، استشر مختصاً قبل أي بروتوكول علاجي.'}
       </p>
     </div>

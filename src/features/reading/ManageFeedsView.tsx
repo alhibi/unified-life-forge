@@ -258,18 +258,18 @@ export function ManageFeedsView({
                         )}
                         {cached && !failed && (
                           <span
-                            className="text-[10px] px-1.5 rounded bg-foreground/10 text-muted-foreground"
+                            className="text-[0.625rem] px-1.5 rounded bg-foreground/10 text-muted-foreground"
                             title={'مخبأ'}
                           >
                             304
                           </span>
                         )}
                       </div>
-                      <p className="text-[10px] text-muted-foreground truncate" dir="ltr">
+                      <p className="text-[0.625rem] text-muted-foreground truncate" dir="ltr">
                         {feed.url}
                       </p>
                     </div>
-                    <span className="text-[11px] px-2 py-1 rounded-lg bg-primary/10 text-primary font-bold shrink-0 tabular-nums">
+                    <span className="text-[0.6875rem] px-2 py-1 rounded-lg bg-primary/10 text-primary font-bold shrink-0 tabular-nums">
                       {sourceCounts[feed.name] || 0}
                     </span>
                     <button
@@ -313,7 +313,7 @@ export function ManageFeedsView({
           )}
       </div>
 
-      <div className="px-4 py-3 border-t border-border/30 flex items-center justify-between text-[11px] text-muted-foreground">
+      <div className="px-4 py-3 border-t border-border/30 flex items-center justify-between text-[0.6875rem] text-muted-foreground">
         <span className="flex items-center gap-1.5">
           <Database className="h-3 w-3" />
           {`${totalInDB} مقال في الأرشيف`}

@@ -79,11 +79,11 @@ export default function AppDatePicker({ value, onChange, className }: Props) {
             table: 'w-full border-collapse',
             head_row: 'grid grid-cols-7',
             head_cell:
-              'text-muted-foreground/70 font-medium text-[10px] uppercase tracking-wider py-1.5 text-center',
+              'text-muted-foreground/70 font-medium text-[0.625rem] uppercase tracking-wider py-1.5 text-center',
             row: 'grid grid-cols-7 mt-0.5',
             cell: 'relative p-0.5 text-center',
             day: cn(
-              'h-9 w-9 mx-auto rounded-lg text-[13px] font-medium text-foreground',
+              'h-9 w-9 mx-auto rounded-lg text-[0.8125rem] font-medium text-foreground',
               'hover:bg-secondary transition-colors duration-200 active:scale-90',
               'aria-selected:opacity-100 tabular-nums',
             ),

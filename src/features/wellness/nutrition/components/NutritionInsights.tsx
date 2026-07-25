@@ -114,7 +114,7 @@ export default function NutritionInsights() {
       <div className="flex items-center gap-2 rounded-xl p-3 border border-purple-500/20">
         <Sparkles className="w-5 h-5 text-purple-500" />
         <div>
-          <p className="text-[11px] text-muted-foreground">{T.title[lang]}</p>
+          <p className="text-[0.6875rem] text-muted-foreground">{T.title[lang]}</p>
           <p className="text-xs font-bold text-foreground">
             {`تحليل ${TOTAL_FOOD_COUNT} عنصر غذائي`}
           </p>
@@ -145,15 +145,15 @@ export default function NutritionInsights() {
                 key={food.id}
                 className="flex items-center gap-2 p-2 rounded-lg bg-muted/20 hover:bg-muted/40 transition-colors"
               >
-                <span className="text-[10px] font-bold text-muted-foreground w-4 text-center">
+                <span className="text-[0.625rem] font-bold text-muted-foreground w-4 text-center">
                   {i + 1}
                 </span>
                 <span className="text-sm">{food.emoji}</span>
-                <span className="text-[11px] font-medium text-foreground flex-1 truncate">
+                <span className="text-[0.6875rem] font-medium text-foreground flex-1 truncate">
                   {food.name[lang]}
                 </span>
                 <span
-                  className="text-[10px] font-semibold px-1.5 py-0.5 rounded-md"
+                  className="text-[0.625rem] font-semibold px-1.5 py-0.5 rounded-md"
                   style={{ backgroundColor: `${color}10`, color }}
                 >
                   {metric(food)}

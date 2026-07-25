@@ -152,7 +152,7 @@ export default function CitySearch({ onSelectCity, }: CitySearchProps) {
 
             {!loading && results.length > 0 && (
               <div className="space-y-1">
-                <div className="text-[10px] tracking-[0.15em] uppercase text-muted-foreground px-2 pb-1.5 border-b border-border/30">
+                <div className="text-[0.625rem] tracking-[0.15em] uppercase text-muted-foreground px-2 pb-1.5 border-b border-border/30">
                   {'نتائج البحث'}
                 </div>
                 {results.map((city) => {
@@ -177,7 +177,7 @@ export default function CitySearch({ onSelectCity, }: CitySearchProps) {
                           <div className="text-xs text-foreground/80 font-semibold truncate tabular-nums">
                             {city.admin1 ? `${city.admin1}, ` : ''}{city.country}
                             {city.elevation !== undefined && (
-                              <span className="ms-1.5 text-primary text-[10px] font-bold">
+                              <span className="ms-1.5 text-primary text-[0.625rem] font-bold">
                                 ({Math.round(city.elevation)}m)
                               </span>
                             )}
@@ -200,7 +200,7 @@ export default function CitySearch({ onSelectCity, }: CitySearchProps) {
               <div className="space-y-4">
                 {favorites.length > 0 && (
                   <div className="space-y-1">
-                    <div className="text-[10px] tracking-[0.15em] uppercase text-muted-foreground px-2 pb-1.5 border-b border-border/30 flex items-center justify-between">
+                    <div className="text-[0.625rem] tracking-[0.15em] uppercase text-muted-foreground px-2 pb-1.5 border-b border-border/30 flex items-center justify-between">
                       <span>{'المدن المفضلة'}</span>
                       <Star className="w-3.5 h-3.5 text-primary fill-primary" />
                     </div>
@@ -224,7 +224,7 @@ export default function CitySearch({ onSelectCity, }: CitySearchProps) {
                             <div className="text-xs text-foreground/80 font-semibold truncate tabular-nums">
                               {city.admin1 ? `${city.admin1}, ` : ''}{city.country}
                               {city.elevation !== undefined && (
-                                <span className="ms-1.5 text-primary text-[10px] font-bold">
+                                <span className="ms-1.5 text-primary text-[0.625rem] font-bold">
                                   ({Math.round(city.elevation)}m)
                                 </span>
                               )}
@@ -244,11 +244,11 @@ export default function CitySearch({ onSelectCity, }: CitySearchProps) {
 
                 {history.length > 0 && (
                   <div className="space-y-1">
-                    <div className="text-[10px] tracking-[0.15em] uppercase text-muted-foreground px-2 pb-1.5 border-b border-border/30 flex items-center justify-between">
+                    <div className="text-[0.625rem] tracking-[0.15em] uppercase text-muted-foreground px-2 pb-1.5 border-b border-border/30 flex items-center justify-between">
                       <span>{'عمليات البحث الأخيرة'}</span>
                       <button
                         onClick={clearHistory}
-                        className="text-[10px] lowercase tracking-[0.1em] text-muted-foreground hover:text-foreground transition-colors"
+                        className="text-[0.625rem] lowercase tracking-[0.1em] text-muted-foreground hover:text-foreground transition-colors"
                       >
                         {'مسح السجل'}
                       </button>
@@ -275,7 +275,7 @@ export default function CitySearch({ onSelectCity, }: CitySearchProps) {
                               <div className="text-xs text-foreground/80 font-semibold truncate tabular-nums">
                                 {city.admin1 ? `${city.admin1}, ` : ''}{city.country}
                                 {city.elevation !== undefined && (
-                                  <span className="ms-1.5 text-primary text-[10px] font-bold">
+                                  <span className="ms-1.5 text-primary text-[0.625rem] font-bold">
                                     ({Math.round(city.elevation)}m)
                                   </span>
                                 )}

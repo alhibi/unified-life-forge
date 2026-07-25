@@ -16,7 +16,7 @@ export default function BacklinksPanel({
   if (links.length === 0) return null;
   return (
     <div className="pt-3 mt-2 border-t border-border/40">
-      <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70 mb-1.5">
+      <div className="text-[0.625rem] font-bold uppercase tracking-wider text-muted-foreground/70 mb-1.5">
         {'روابط واردة'} · {links.length}
       </div>
       <div className="flex flex-wrap gap-1.5">

@@ -271,7 +271,7 @@ export default function NutritionExplorer() {
                     >
                       <Icon className="w-3.5 h-3.5" style={{ color }} />
                     </div>
-                    <span className="text-[11px] font-medium text-foreground leading-tight text-start">
+                    <span className="text-[0.6875rem] font-medium text-foreground leading-tight text-start">
                       {label[lang]}
                     </span>
                   </button>
@@ -467,7 +467,7 @@ function QuickPill({
       className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted/50 border border-border/40 whitespace-nowrap active:scale-95 transition-all shrink-0"
     >
       <Icon className="w-3 h-3" style={{ color }} />
-      <span className="text-[11px] font-medium text-foreground">{label}</span>
+      <span className="text-[0.6875rem] font-medium text-foreground">{label}</span>
     </button>
   );
 }

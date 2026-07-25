@@ -78,13 +78,13 @@ export default function PlateCalculator({
       {/* Total + stepper */}
       <div className="flex items-center justify-between gap-3">
         <div>
-          <p className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-semibold">
+          <p className="text-[0.625rem] uppercase tracking-wider text-muted-foreground/70 font-semibold">
             {T.total[lang]}
           </p>
-          <p className="text-[28px] font-bold tabular-nums leading-none text-foreground" dir="ltr">
-            {target} <span className="text-[14px] text-muted-foreground">kg</span>
+          <p className="text-[1.75rem] font-bold tabular-nums leading-none text-foreground" dir="ltr">
+            {target} <span className="text-[0.875rem] text-muted-foreground">kg</span>
           </p>
-          <p className="text-[10px] text-muted-foreground mt-1" dir="ltr">
+          <p className="text-[0.625rem] text-muted-foreground mt-1" dir="ltr">
             {T.perSide[lang]}: {breakdown.plates.length === 0 ? T.noPlates[lang] : breakdown.plates.map((p) => p).join(' + ')}
           </p>
         </div>
@@ -119,7 +119,7 @@ export default function PlateCalculator({
           {groups.map((g) => (
             <div
               key={g.kg}
-              className="px-2 py-1 rounded-lg text-[11px] font-bold tabular-nums flex items-center gap-1"
+              className="px-2 py-1 rounded-lg text-[0.6875rem] font-bold tabular-nums flex items-center gap-1"
               style={{ background: `${plateColor(g.kg)}20`, color: plateColor(g.kg) === '#f8fafc' ? '#475569' : plateColor(g.kg) }}
               dir="ltr"
             >
@@ -131,7 +131,7 @@ export default function PlateCalculator({
       )}
 
       {Math.abs(breakdown.errorKg) > 0.5 && (
-        <p className="text-[10px] text-amber-500" dir="ltr">
+        <p className="text-[0.625rem] text-amber-500" dir="ltr">
           {T.cantHit[lang]} (Δ {breakdown.errorKg > 0 ? '+' : ''}{breakdown.errorKg}kg)
         </p>
       )}
@@ -139,13 +139,13 @@ export default function PlateCalculator({
       {/* Bar picker */}
       {showBarPicker && (
         <div className="border-t border-border/30 pt-3 space-y-2">
-          <p className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-semibold">{T.bar[lang]}</p>
+          <p className="text-[0.625rem] uppercase tracking-wider text-muted-foreground/70 font-semibold">{T.bar[lang]}</p>
           <div className="flex gap-1.5 flex-wrap">
             {BAR_OPTIONS.map((b) => (
               <button
                 key={b.kg}
                 onClick={() => { setBarKg(b.kg); updateTarget(Math.max(b.kg, target)); }}
-                className={`px-3 py-1.5 rounded-xl text-[11px] font-semibold transition-colors ${
+                className={`px-3 py-1.5 rounded-xl text-[0.6875rem] font-semibold transition-colors ${
                   barKg === b.kg
                     ? 'bg-primary text-primary-foreground border border-primary'
                     : 'bg-muted text-muted-foreground border border-border/40'

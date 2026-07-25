@@ -63,7 +63,7 @@ export default function DeloadAdvisor({
     return (
       <div className={`bg-card border border-border/40 rounded-2xl p-4 text-center ${className}`}>
         <Activity className="w-5 h-5 text-muted-foreground mx-auto mb-2" />
-        <p className="text-[12px] text-muted-foreground">{T.noData[lang]}</p>
+        <p className="text-[0.75rem] text-muted-foreground">{T.noData[lang]}</p>
       </div>
     );
   }
@@ -86,17 +86,17 @@ export default function DeloadAdvisor({
             {advice.shouldDeload ? <ShieldAlert className="w-4 h-4" style={{ color }} /> : <Sparkles className="w-4 h-4" style={{ color }} />}
           </div>
           <div>
-            <p className="text-[10px] uppercase tracking-wider font-semibold" style={{ color }}>
+            <p className="text-[0.625rem] uppercase tracking-wider font-semibold" style={{ color }}>
               {T.ready[lang]}
             </p>
-            <p className="text-[14px] font-bold leading-tight text-foreground">
+            <p className="text-[0.875rem] font-bold leading-tight text-foreground">
               {READINESS_LABEL_TEXT[ready][lang]}
             </p>
           </div>
         </div>
       </div>
 
-      <p className="text-[11px] text-foreground/85 leading-relaxed">
+      <p className="text-[0.6875rem] text-foreground/85 leading-relaxed">
         {advice.summary[lang]}
       </p>
 
@@ -122,7 +122,7 @@ export default function DeloadAdvisor({
             className="absolute -translate-x-1/2 -top-0.5 w-3 h-3 rounded-full bg-foreground border-2 border-background"
           />
         </div>
-        <div className="flex justify-between text-[10px] text-muted-foreground/70 tabular-nums" dir="ltr">
+        <div className="flex justify-between text-[0.625rem] text-muted-foreground/70 tabular-nums" dir="ltr">
           <span>0.0</span>
           <span>0.8</span>
           <span>1.3</span>
@@ -134,7 +134,7 @@ export default function DeloadAdvisor({
       {advice.shouldDeload && (
         <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-2.5 flex gap-2">
           <AlertTriangle className="w-3.5 h-3.5 text-amber-500 shrink-0 mt-0.5" />
-          <p className="text-[11px] text-amber-700 dark:text-amber-300 leading-relaxed">
+          <p className="text-[0.6875rem] text-amber-700 dark:text-amber-300 leading-relaxed">
             {`قلّل الحجم إلى ${Math.round(advice.volumeMultiplier * 100)}% والكثافة إلى ${Math.round(advice.intensityMultiplier * 100)}% لمدة أسبوع.`}
           </p>
         </div>
@@ -146,8 +146,8 @@ export default function DeloadAdvisor({
 function Metric({ label, value, color }: { label: string; value: string; color?: string }) {
   return (
     <div className="bg-muted/30 rounded-lg p-1.5 text-center">
-      <p className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-semibold">{label}</p>
-      <p className="text-[14px] font-bold tabular-nums" style={{ color: color ?? 'currentColor' }}>{value}</p>
+      <p className="text-[0.625rem] uppercase tracking-wider text-muted-foreground/70 font-semibold">{label}</p>
+      <p className="text-[0.875rem] font-bold tabular-nums" style={{ color: color ?? 'currentColor' }}>{value}</p>
     </div>
   );
 }

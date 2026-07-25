@@ -146,7 +146,7 @@ export const EditedBadge = React.memo(function EditedBadge({
   return (
     <span
       className={cn(
-        'text-[10px] italic',
+        'text-[0.625rem] italic',
         dimmed ? 'text-primary-foreground/50' : 'text-muted-foreground/50',
       )}
     >
@@ -186,7 +186,7 @@ export const SelfDestructTimer = React.memo(function SelfDestructTimer({
 
   return (
     <motion.span
-      className="inline-flex items-center gap-0.5 text-[10px] text-orange-500/80"
+      className="inline-flex items-center gap-0.5 text-[0.625rem] text-orange-500/80"
       animate={{ opacity: [0.6, 1, 0.6] }}
       transition={{ duration: 2, repeat: Infinity }}
     >
@@ -368,7 +368,7 @@ export const ReactionPill = React.memo(
           onClick?.();
         }}
         className={cn(
-          'inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[13px] border select-none',
+          'inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[0.8125rem] border select-none',
           reactedByMe
             ? 'bg-primary/15 border-primary/40 ring-1 ring-primary/20  '
             : 'bg-card border-border/20 hover:bg-muted/30',
@@ -389,7 +389,7 @@ export const ReactionPill = React.memo(
         </motion.span>
         {count > 1 && (
           <motion.span
-            className="text-[10px] text-muted-foreground font-medium tabular-nums"
+            className="text-[0.625rem] text-muted-foreground font-medium tabular-nums"
             key={count}
             initial={{ scale: 0, y: 4 }}
             animate={{ scale: 1, y: 0 }}
@@ -426,7 +426,7 @@ export const ForwardedBadge = React.memo(function ForwardedBadge({
 }) {
   return (
     <motion.div
-      className="flex items-center gap-1 mb-0.5 text-[11px] text-muted-foreground/80 italic"
+      className="flex items-center gap-1 mb-0.5 text-[0.6875rem] text-muted-foreground/80 italic"
       initial={{ opacity: 0, x: -8 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.2 }}
@@ -477,7 +477,7 @@ export const QuickReactionBar = React.memo(function QuickReactionBar({
         <motion.button
           key={emoji}
           type="button"
-          className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-muted/40 active:scale-110 text-[20px]"
+          className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-muted/40 active:scale-110 text-[1.25rem]"
           onClick={(e) => {
             e.stopPropagation();
             onSelect(emoji);
@@ -541,7 +541,7 @@ export const MessageMetaRow = React.memo(function MessageMetaRow({
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1 text-[10px] select-none shrink-0 mt-0.5',
+        'inline-flex items-center gap-1 text-[0.625rem] select-none shrink-0 mt-0.5',
         dimmed ? 'text-primary-foreground/60' : 'text-muted-foreground/55',
       )}
     >
@@ -592,7 +592,7 @@ export const SeenByAvatars = React.memo(function SeenByAvatars({
             {s.avatarUrl ? (
               <img src={s.avatarUrl} alt={s.username} className="w-full h-full object-cover" />
             ) : (
-              <span className="w-full h-full flex items-center justify-center text-[10px] font-bold text-muted-foreground">
+              <span className="w-full h-full flex items-center justify-center text-[0.625rem] font-bold text-muted-foreground">
                 {(s.username || '?')[0].toUpperCase()}
               </span>
             )}
@@ -600,7 +600,7 @@ export const SeenByAvatars = React.memo(function SeenByAvatars({
         ))}
       </div>
       {extra > 0 && (
-        <span className="text-[10px] text-muted-foreground/60 tabular-nums">+{extra}</span>
+        <span className="text-[0.625rem] text-muted-foreground/60 tabular-nums">+{extra}</span>
       )}
     </motion.div>
   );

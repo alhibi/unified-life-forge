@@ -192,7 +192,7 @@ export default function RadarMap({
       <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-primary/40" />
 
       <header className="p-4 pb-1 flex items-center justify-between gap-3">
-        <h2 className="font-semibold text-[20px] leading-none text-foreground flex items-center gap-2">
+        <h2 className="font-semibold text-[1.25rem] leading-none text-foreground flex items-center gap-2">
           <Layers className="w-5 h-5 text-primary" />
           {activeLayer === 'particles' ? ('محاكي جزيئات الغلاف الحي') : ('الرادار الزمني')}
         </h2>
@@ -200,7 +200,7 @@ export default function RadarMap({
         <div className="flex bg-background/50 border border-border/40 p-0.5 rounded-lg">
           <button
             onClick={() => setActiveLayer('particles')}
-            className={`px-2.5 py-1 rounded-md text-[10px] tracking-wider uppercase transition-all ${
+            className={`px-2.5 py-1 rounded-md text-[0.625rem] tracking-wider uppercase transition-all ${
               activeLayer === 'particles' ? 'bg-primary text-primary-foreground font-semibold shadow-sm' : 'text-muted-foreground hover:text-foreground'
             }`}
           >
@@ -208,7 +208,7 @@ export default function RadarMap({
           </button>
           <button
             onClick={() => setActiveLayer('radar')}
-            className={`px-2.5 py-1 rounded-md text-[10px] tracking-wider uppercase transition-all ${
+            className={`px-2.5 py-1 rounded-md text-[0.625rem] tracking-wider uppercase transition-all ${
               activeLayer === 'radar' ? 'bg-primary text-primary-foreground font-semibold shadow-sm' : 'text-muted-foreground hover:text-foreground'
             }`}
           >
@@ -225,7 +225,7 @@ export default function RadarMap({
           <div className="absolute inset-0 flex items-center justify-center p-4">
             {tileTemplate ? (
               <div className="text-center bg-card border border-border rounded-xl p-4 max-w-xs animate-fade-in">
-                <div className="text-[10px] uppercase tracking-widest text-primary/80 mb-1">{'تغطية رادار حي'}</div>
+                <div className="text-[0.625rem] uppercase tracking-widest text-primary/80 mb-1">{'تغطية رادار حي'}</div>
                 <div className="text-sm font-bold text-foreground mb-3 tabular-nums">
                   {allFrames.length > 0
                     ? new Date(allFrames[frameIdx] * 1000).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })
@@ -253,7 +253,7 @@ export default function RadarMap({
         )}
 
         {/* Ambient Overlay details */}
-        <div className="absolute bottom-3 start-3 end-3 flex justify-between text-[10px] text-muted-foreground pointer-events-none">
+        <div className="absolute bottom-3 start-3 end-3 flex justify-between text-[0.625rem] text-muted-foreground pointer-events-none">
           <div className="flex items-center gap-1 bg-background border border-border px-2 py-1 rounded-md">
             <Wind className="w-3.5 h-3.5 text-primary" />
             <span className="font-semibold tabular-nums text-foreground">{windSpeedKph} km/h</span>

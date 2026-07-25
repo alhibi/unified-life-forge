@@ -421,10 +421,10 @@ export function ReaderView({
                 <Clipboard className="h-4 w-4" />
               </span>
               <div className="flex-1 min-w-0">
-                <p className="text-[12px] font-bold text-primary mb-0.5">
+                <p className="text-[0.75rem] font-bold text-primary mb-0.5">
                   {'رابط في الحافظة'}
                 </p>
-                <p className="text-[11px] text-muted-foreground truncate" dir="ltr">
+                <p className="text-[0.6875rem] text-muted-foreground truncate" dir="ltr">
                   {clipboardSuggestion}
                 </p>
               </div>
@@ -577,14 +577,14 @@ function ReaderHistoryList({
   return (
     <div className="px-4 py-4">
       <div className="flex items-center justify-between mb-3">
-        <p className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground inline-flex items-center gap-1.5">
+        <p className="text-[0.625rem] uppercase tracking-wider font-bold text-muted-foreground inline-flex items-center gap-1.5">
           <History className="h-3 w-3" />
           {'قراءات حديثة'}
         </p>
         <button
           type="button"
           onClick={onClear}
-          className="text-[10px] text-muted-foreground hover:text-foreground transition-colors"
+          className="text-[0.625rem] text-muted-foreground hover:text-foreground transition-colors"
         >
           {'مسح الكل'}
         </button>
@@ -618,16 +618,16 @@ function ReaderHistoryList({
                   </span>
                 )}
               <div className="flex-1 min-w-0">
-                <p className="text-[13px] font-semibold line-clamp-2 leading-snug">
+                <p className="text-[0.8125rem] font-semibold line-clamp-2 leading-snug">
                   {entry.title}
                 </p>
                 <div className="flex items-center gap-2 mt-1 flex-wrap">
                   {entry.siteName && (
-                    <span className="text-[11px] text-muted-foreground truncate max-w-[140px]">
+                    <span className="text-[0.6875rem] text-muted-foreground truncate max-w-[140px]">
                       {entry.siteName}
                     </span>
                   )}
-                  <span className="text-[10px] text-muted-foreground/70">
+                  <span className="text-[0.625rem] text-muted-foreground/70">
                     {timeAgo(new Date(entry.at).toISOString(), language)}
                   </span>
                 </div>

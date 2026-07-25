@@ -68,7 +68,7 @@ export default function MemoryAdventurePage() {
       >
         <div className="flex items-center justify-between mb-2">
           <div>
-            <p className="text-[10px] uppercase tracking-wider text-pink-200/80">
+            <p className="text-[0.625rem] uppercase tracking-wider text-pink-200/80">
               {'التقدم في المغامرة'}
             </p>
             <p className="text-2xl font-black text-pink-200 tabular-nums">{totalStars} ★</p>
@@ -141,8 +141,8 @@ export default function MemoryAdventurePage() {
                 </div>
                 {unlocked && (
                   <div className="flex items-center gap-1 mt-0.5">
-                    <span className="text-[10px]">{twist.emoji}</span>
-                    <span className="text-[10px] text-muted-foreground">
+                    <span className="text-[0.625rem]">{twist.emoji}</span>
+                    <span className="text-[0.625rem] text-muted-foreground">
                       {twist.ar} · {stage.pairs} {'زوج'}
                     </span>
                   </div>
@@ -190,7 +190,7 @@ export default function MemoryAdventurePage() {
                   {selected.isBoss ? '👑' : selected.id}
                 </div>
                 <div className="flex-1">
-                  <p className="text-[10px] uppercase tracking-wider text-pink-300/80 font-bold">
+                  <p className="text-[0.625rem] uppercase tracking-wider text-pink-300/80 font-bold">
                     {`المحطة ${selected.id}`}
                     {selected.isBoss && (' · بوس')}
                   </p>
@@ -265,7 +265,7 @@ function Pill({ emoji, label }: { emoji: string; label: string }) {
   return (
     <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-white/5">
       <span className="text-sm">{emoji}</span>
-      <span className="text-[11px] font-medium text-foreground/80 truncate">{label}</span>
+      <span className="text-[0.6875rem] font-medium text-foreground/80 truncate">{label}</span>
     </div>
   );
 }

@@ -62,10 +62,10 @@ export default function MindPage() {
           <BackIcon className="w-4 h-4 text-[color:#F2E7C9]/80" />
         </button>
         <div className="text-center pointer-events-none">
-          <div className="text-[10px] tracking-[0.35em] uppercase text-[color:#F2E7C9]/40" style={{ fontFamily: '"IBM Plex Mono", monospace' }}>
+          <div className="text-[0.625rem] tracking-[0.35em] uppercase text-[color:#F2E7C9]/40" style={{ fontFamily: '"IBM Plex Mono", monospace' }}>
             {'العقل الحيّ'}
           </div>
-          <div className="text-[10px] text-[color:#F2E7C9]/50 mt-0.5" style={{ fontFamily: '"IBM Plex Mono", monospace' }}>
+          <div className="text-[0.625rem] text-[color:#F2E7C9]/50 mt-0.5" style={{ fontFamily: '"IBM Plex Mono", monospace' }}>
             {stat}
           </div>
         </div>
