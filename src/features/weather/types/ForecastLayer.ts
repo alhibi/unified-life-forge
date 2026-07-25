@@ -23,6 +23,18 @@ export interface HourlyEntry {
   weather_code: number;
   is_day: boolean;
   confidence_percent: number;
+
+  /* ── ensemble metadata (populated by ForecastEnsemble) ──────────────
+     Optional because a single-source fallback cannot supply them. The UI
+     treats their absence as "no uncertainty information available" and
+     hides the band rather than drawing a zero-width one. */
+  /** How many models voted on this entry. */
+  sources_count?: number;
+  /** Coldest / warmest member value — the uncertainty envelope. */
+  temperature_min_c?: number;
+  temperature_max_c?: number;
+  /** max − min across members, in °C. */
+  spread_c?: number;
 }
 
 export interface ExtendedHourlyEntry {
@@ -49,6 +61,18 @@ export interface DailyEntry {
   day_quality_score: number;       // 0-100 composite
   climatology_delta_c: number | null;
   confidence_percent: number;
+
+  /* ── ensemble metadata (populated by ForecastEnsemble) ──────────────
+     Optional because a single-source fallback cannot supply them. The UI
+     treats their absence as "no uncertainty information available" and
+     hides the band rather than drawing a zero-width one. */
+  /** How many models voted on this entry. */
+  sources_count?: number;
+  /** Coldest / warmest member value — the uncertainty envelope. */
+  temperature_min_c?: number;
+  temperature_max_c?: number;
+  /** max − min across members, in °C. */
+  spread_c?: number;
 }
 
 export interface TrendEntry {

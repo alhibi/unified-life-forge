@@ -11,7 +11,7 @@
 import { type CachedBundle,cacheManager } from '../cache/CacheManager';
 import { computeAstronomy, solarPosition } from '../compute/AstronomyEngine';
 import { aqiCategory, burnTimeMinutes,dayQualityScore, outdoorHealthScore, uvCategory } from '../compute/ComfortScorer';
-import { classifyPressureTendency } from '../compute/PressureTrend';
+import { classifyPressureTendency, PRESSURE_TENDENCY_UNKNOWN_LABEL } from '../compute/PressureTrend';
 import {
   absoluteHumidity_gm3,   apparentTemperature_C,   classifyThermalComfort, dewPoint_C, discomfortIndex, estimateCloudBase_m,
 heatIndex_C, humidex,
@@ -31,12 +31,15 @@ import { VisualCrossingAdapter } from '../sources/VisualCrossingAdapter';
 import { WAQIAdapter } from '../sources/WAQIAdapter';
 import { WeatherbitAdapter } from '../sources/WeatherbitAdapter';
 import type { ForecastLayers } from '../types/ForecastLayer';
-import { EMPTY_FORECAST } from '../types/ForecastLayer';
 import type { AdapterResponse, SourceId } from '../types/SourceRegistry';
 import { SOURCE_REGISTRY } from '../types/SourceRegistry';
 import type { PartialSnapshot, WeatherSnapshot } from '../types/WeatherSnapshot';
 import { breaker } from './CircuitBreaker';
-import { aggregate, type NumericSample } from './EnsembleAggregator';
+import { circularMean } from './CircularStats';
+import { biasCorrection, type Observation, recordObservations, type SkillField, weightMultiplier } from './ConsensusSkillTracker';
+import { absoluteSpread, aggregate, type NumericSample } from './EnsembleAggregator';
+import { blendForecasts } from './ForecastEnsemble';
+import { recordPressure } from './PressureHistory';
 
 // Composite adapter list. Open-Meteo contributes two adapters: atmospheric + AQI.
 const ATMOSPHERIC_ADAPTERS: BaseAdapter[] = [
@@ -142,7 +145,7 @@ export class WeatherEngine {
 
     // 3 — merge into final snapshot.
     const snapshot = this.buildSnapshot(req, okResponses, performance.now() - t0);
-    const forecast = this.mergeForecasts(forecastResponses);
+    const forecast = this.mergeForecasts(forecastResponses, req);
 
     // Score every daily entry using the new snapshot.
     for (const day of forecast.daily) {
@@ -163,17 +166,20 @@ export class WeatherEngine {
     return result;
   }
 
-  private mergeForecasts(responses: AdapterResponse[]): ForecastLayers {
-    const merged: ForecastLayers = { ...EMPTY_FORECAST };
-    for (const r of responses) {
-      const f = r.forecast ?? {};
-      if (f.minutely?.length && merged.minutely.length === 0) merged.minutely = f.minutely;
-      if (f.hourly?.length   && merged.hourly.length   === 0) merged.hourly   = f.hourly;
-      if (f.extendedHourly?.length && merged.extendedHourly.length === 0) merged.extendedHourly = f.extendedHourly;
-      if (f.daily?.length    && merged.daily.length    === 0) merged.daily    = f.daily;
-      if (f.trend?.length    && merged.trend.length    === 0) merged.trend    = f.trend;
-    }
-    return merged;
+  /**
+   * Forecast layers are ENSEMBLED, not picked. See ForecastEnsemble.ts for the
+   * per-field statistical treatment; this method only supplies the location
+   * context needed for bias correction and skill weighting.
+   */
+  private mergeForecasts(responses: AdapterResponse[], req: EngineRequest): ForecastLayers {
+    const blended = blendForecasts(responses, { lat: req.lat, lng: req.lng });
+    return {
+      minutely: blended.minutely,
+      hourly: blended.hourly,
+      extendedHourly: blended.extendedHourly,
+      daily: blended.daily,
+      trend: blended.trend,
+    };
   }
 
   private collect<T>(responses: AdapterResponse[], pick: (s: PartialSnapshot) => T | undefined): { sourceId: SourceId; value: T }[] {
@@ -185,13 +191,48 @@ export class WeatherEngine {
     return out;
   }
 
-  private agg(samples: { sourceId: SourceId; value: number }[]) {
-    const enriched: NumericSample[] = samples.map(s => ({
-      sourceId: s.sourceId,
-      value: s.value,
-      weight: SOURCE_REGISTRY[s.sourceId].weight,
-    }));
-    return aggregate(enriched);
+  /**
+   * Ensemble one metric.
+   *
+   * `field` opts the metric into the adaptive layer: each member's value is
+   * first shifted by its learned bias for this location, and its registry
+   * weight is scaled by how closely it has tracked the consensus here (see
+   * ConsensusSkillTracker). Metrics with no field (UV, precipitation) use the
+   * static priors only — we have no evidence base for them yet.
+   *
+   * Deviations are pushed into `observations` so the caller can fold them into
+   * the tracker exactly once, after the consensus is known.
+   */
+  private agg(
+    samples: { sourceId: SourceId; value: number }[],
+    opts?: { lat: number; lng: number; field: SkillField; observations: Observation[] },
+  ) {
+    const enriched: NumericSample[] = samples.map((s) => {
+      const prior = SOURCE_REGISTRY[s.sourceId].weight;
+      if (!opts) return { sourceId: s.sourceId, value: s.value, weight: prior };
+      return {
+        sourceId: s.sourceId,
+        value: s.value + biasCorrection(opts.lat, opts.lng, s.sourceId, opts.field),
+        weight: prior * weightMultiplier(opts.lat, opts.lng, s.sourceId, opts.field),
+      };
+    });
+
+    const result = aggregate(enriched);
+
+    if (opts && enriched.length >= 2) {
+      for (const sample of samples) {
+        opts.observations.push({
+          sourceId: sample.sourceId,
+          field: opts.field,
+          // Raw (uncorrected) value vs consensus — otherwise the correction
+          // would feed back into its own estimate and collapse to zero.
+          memberValue: sample.value,
+          consensusValue: result.value,
+        });
+      }
+    }
+
+    return { ...result, spread: absoluteSpread(enriched) };
   }
 
   private buildSnapshot(
@@ -200,18 +241,31 @@ export class WeatherEngine {
     fetchDurationMs: number,
   ): WeatherSnapshot {
     const now = Date.now();
+    const observations: Observation[] = [];
+    const skill = (field: SkillField) => ({ lat: req.lat, lng: req.lng, field, observations });
+    const numeric = (pick: (s: PartialSnapshot) => number | undefined | null) =>
+      this.collect(responses, pick).map((x) => ({ sourceId: x.sourceId, value: x.value as number }));
 
-    // Ensemble each independent metric.
-    const tempActual = this.agg(this.collect(responses, s => s.temperature?.actual_c).map(x => ({ sourceId: x.sourceId, value: x.value as number })));
-    const humidity = this.agg(this.collect(responses, s => s.moisture?.relative_humidity_percent).map(x => ({ sourceId: x.sourceId, value: x.value as number })));
-    const pressureMsl = this.agg(this.collect(responses, s => s.pressure?.msl_hpa).map(x => ({ sourceId: x.sourceId, value: x.value as number })));
-    const windKph = this.agg(this.collect(responses, s => s.wind?.speed_kph).map(x => ({ sourceId: x.sourceId, value: x.value as number })));
-    const windDir = this.agg(this.collect(responses, s => s.wind?.direction_deg).map(x => ({ sourceId: x.sourceId, value: x.value as number })));
-    const gusts = this.agg(this.collect(responses, s => s.wind?.gusts_kph).map(x => ({ sourceId: x.sourceId, value: x.value as number })));
-    const clouds = this.agg(this.collect(responses, s => s.sky?.cloud_cover_total_percent).map(x => ({ sourceId: x.sourceId, value: x.value as number })));
-    const uv = this.agg(this.collect(responses, s => s.solar?.uv_index).map(x => ({ sourceId: x.sourceId, value: x.value as number })));
-    const precipProb = this.agg(this.collect(responses, s => s.precipitation?.probability_percent).map(x => ({ sourceId: x.sourceId, value: x.value as number })));
-    const precipMmHr = this.agg(this.collect(responses, s => s.precipitation?.intensity_mm_hr).map(x => ({ sourceId: x.sourceId, value: x.value as number })));
+    // Ensemble each independent metric. Fields with a SkillField argument also
+    // get bias correction + adaptive weighting.
+    const tempActual = this.agg(numeric((s) => s.temperature?.actual_c), skill('temperature'));
+    const humidity = this.agg(numeric((s) => s.moisture?.relative_humidity_percent), skill('humidity'));
+    const pressureMsl = this.agg(numeric((s) => s.pressure?.msl_hpa), skill('pressure'));
+    const windKph = this.agg(numeric((s) => s.wind?.speed_kph), skill('wind'));
+    const gusts = this.agg(numeric((s) => s.wind?.gusts_kph));
+    const clouds = this.agg(numeric((s) => s.sky?.cloud_cover_total_percent), skill('cloud'));
+    const uv = this.agg(numeric((s) => s.solar?.uv_index));
+    const precipProb = this.agg(numeric((s) => s.precipitation?.probability_percent));
+    const precipMmHr = this.agg(numeric((s) => s.precipitation?.intensity_mm_hr));
+
+    // Wind direction is circular: a linear mean of 350° and 10° is 180°, i.e.
+    // the exact opposite bearing. See CircularStats.ts.
+    const windDir = circularMean(
+      numeric((s) => s.wind?.direction_deg).map((sample) => ({
+        degrees: sample.value,
+        weight: SOURCE_REGISTRY[sample.sourceId].weight,
+      })),
+    );
 
     const T = tempActual.value;
     const RH = Math.max(0, Math.min(100, humidity.value));
@@ -248,13 +302,21 @@ export class WeatherEngine {
     const uvIdx = Math.max(0, uv.value);
     const pollenTotal = biological?.pollen_total_index ?? null;
 
-    // Confidence rollup — average non-zero per-metric confidences.
-    const confidences = [tempActual.confidence_percent, humidity.confidence_percent, pressureMsl.confidence_percent, windKph.confidence_percent]
+    // Confidence rollup. Temperature is scored from its ABSOLUTE spread
+    // (100 / (1 + spread/2.4): 0 °C → 100, 2 °C → 80, 5 °C → 50) because the
+    // CV-based score it used before was unusable anywhere near 0 °C.
+    const tempConfidence = 100 / (1 + tempActual.spread / 2.4);
+    const confidences = [tempConfidence, humidity.confidence_percent, pressureMsl.confidence_percent, windKph.confidence_percent]
       .filter(c => c > 0);
     const ensembleConfidence = confidences.length
       ? Math.round(confidences.reduce((a, b) => a + b) / confidences.length)
       : 50;
-    const cvAvg = [tempActual.cv_percent, humidity.cv_percent, pressureMsl.cv_percent, windKph.cv_percent]
+    // Disagreement is reported in comparable percentage terms per field.
+    // Temperature uses ABSOLUTE spread scaled against a 6 °C "total
+    // disagreement" reference: a CV against a Celsius mean explodes near 0 °C
+    // and used to report 300% disagreement on a forecast the models agreed on.
+    const tempDisagreement = Math.min(100, (tempActual.spread / 6) * 100);
+    const cvAvg = [tempDisagreement, humidity.cv_percent, pressureMsl.cv_percent, windKph.cv_percent]
       .filter(c => Number.isFinite(c));
     const disagreement = cvAvg.length ? Math.round(cvAvg.reduce((a, b) => a + b) / cvAvg.length) : 0;
 
@@ -265,7 +327,18 @@ export class WeatherEngine {
       r.models_outlier.forEach(m => allModelsOutlier.add(m));
     });
 
-    const pressureTrend = classifyPressureTendency(0); // need history to compute Δ; placeholder
+    // Real barometric tendency from the stored 6-hour series. A low R² means
+    // the samples are scatter rather than a trend, so we refuse to call a
+    // direction instead of inventing one.
+    const tendency = recordPressure(req.lat, req.lng, pressureMsl.value, now);
+    const tendencyTrustworthy = !tendency.insufficientData && tendency.rSquared >= 0.35;
+    const pressureTrend = tendencyTrustworthy
+      ? classifyPressureTendency(tendency.hpaPer3h)
+      : { direction: 'steady' as const, label: PRESSURE_TENDENCY_UNKNOWN_LABEL };
+
+    // Fold this run's member-vs-consensus deviations into the adaptive store.
+    // Done once, after every consensus above is settled.
+    recordObservations(req.lat, req.lng, observations);
 
     const heat = heatIndex_C(T, RH);
     const wc = windChill_C(T, windKphValue);
@@ -325,7 +398,7 @@ export class WeatherEngine {
       pressure: {
         msl_hpa: Number(pressureMsl.value.toFixed(1)),
         surface_hpa: pick('pressure')?.surface_hpa ?? Number(pressureMsl.value.toFixed(1)),
-        tendency_hpa_per_3hr: 0,
+        tendency_hpa_per_3hr: tendencyTrustworthy ? tendency.hpaPer3h : 0,
         tendency_direction: pressureTrend.direction,
         tendency_label: pressureTrend.label,
         altimeter_inhg: Number(hpaToInhg(pressureMsl.value).toFixed(2)),
@@ -336,15 +409,16 @@ export class WeatherEngine {
         speed_kph: Number(windKphValue.toFixed(1)),
         speed_knots: Number(msToKnots(windKphValue / 3.6).toFixed(1)),
         gusts_kph: Number(Math.max(windKphValue, gusts.value).toFixed(1)),
-        direction_deg: Math.round(((windDir.value % 360) + 360) % 360),
-        direction_cardinal_16pt: degreesToCardinal16(windDir.value),
+        direction_deg: Math.round(windDir.degrees),
+        direction_cardinal_16pt: degreesToCardinal16(windDir.degrees),
         beaufort_scale: beaufort.scale,
         beaufort_description: beaufort.description,
         wind_shear_100m_ms: null,
         wind_at_100m_kph: null,
         wind_run_km_day: Number((windKphValue * 24).toFixed(0)),
         sustained_dangerous: gusts.value > 90,
-        direction_variability_deg: windDir.cv_percent,
+        // Circular standard deviation — 0° = every model agrees on the bearing.
+        direction_variability_deg: windDir.stddev_deg,
       },
       precipitation: {
         probability_percent: Math.round(Math.max(0, Math.min(100, precipProb.value))),

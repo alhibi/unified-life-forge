@@ -1,48 +1,9 @@
 import { useNavigate } from 'react-router-dom';
 
 import { useWeatherData } from '@/features/weather/hooks/useWeatherData';
-import {
-  ChevronLeft,
-  Cloud,
-  CloudDrizzle,
-  CloudFog,
-  CloudLightning,
-  CloudRain,
-  CloudSnow,
-  Cloudy,
-  Droplets,
-  MoonStar,
-  Sun,
-  Wind as WindIcon,
-} from '@/lib/icons';
-
-function iconFor(code: number, isDay: boolean) {
-  if (code <= 1) return isDay ? Sun : MoonStar;
-  if (code === 2) return Cloudy;
-  if (code === 3) return Cloud;
-  if (code === 45 || code === 48) return CloudFog;
-  if (code >= 51 && code <= 57) return CloudDrizzle;
-  if (code >= 61 && code <= 67) return CloudRain;
-  if (code >= 71 && code <= 77) return CloudSnow;
-  if (code >= 80 && code <= 82) return CloudRain;
-  if (code >= 85 && code <= 86) return CloudSnow;
-  if (code >= 95) return CloudLightning;
-  return isDay ? Sun : MoonStar;
-}
-
-function conditionLabel(code: number): string {
-  if (code <= 1) return 'صافٍ';
-  if (code === 2) return 'غائم جزئياً';
-  if (code === 3) return 'غائم';
-  if (code === 45 || code === 48) return 'ضباب';
-  if (code >= 51 && code <= 57) return 'رذاذ';
-  if (code >= 61 && code <= 67) return 'أمطار';
-  if (code >= 71 && code <= 77) return 'ثلوج';
-  if (code >= 80 && code <= 82) return 'زخات مطر';
-  if (code >= 85 && code <= 86) return 'زخات ثلج';
-  if (code >= 95) return 'عواصف رعدية';
-  return '—';
-}
+// One WMO code vocabulary for the whole app — see features/weather/lib/conditions.
+import { iconForWeatherCode, labelForWeatherCode } from '@/features/weather/lib/conditions';
+import { ChevronLeft, Droplets, Wind as WindIcon } from '@/lib/icons';
 
 export default function WeatherWidget() {
   const navigate = useNavigate();
@@ -59,12 +20,12 @@ export default function WeatherWidget() {
   }
 
   const { current } = data;
-  const Icon = iconFor(current.weatherCode, current.isDay);
+  const Icon = iconForWeatherCode(current.weatherCode, current.isDay);
   const temp = Math.round(current.temperature);
   const apparent = Math.round(current.apparentTemperature);
   const hi = Math.round(data.daily[0]?.tempMax ?? temp);
   const lo = Math.round(data.daily[0]?.tempMin ?? temp);
-  const cond = conditionLabel(current.weatherCode);
+  const cond = labelForWeatherCode(current.weatherCode);
 
   return (
     <button

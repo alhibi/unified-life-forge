@@ -192,7 +192,7 @@ export default function RadarMap({
       <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-primary/40" />
 
       <header className="p-4 pb-1 flex items-center justify-between gap-3">
-        <h2 className="font-montserrat font-semibold text-[20px] leading-none text-foreground flex items-center gap-2">
+        <h2 className="font-semibold text-[20px] leading-none text-foreground flex items-center gap-2">
           <Layers className="w-5 h-5 text-primary" />
           {activeLayer === 'particles' ? ('محاكي جزيئات الغلاف الحي') : ('الرادار الزمني')}
         </h2>
@@ -226,7 +226,7 @@ export default function RadarMap({
             {tileTemplate ? (
               <div className="text-center bg-card border border-border rounded-xl p-4 max-w-xs animate-fade-in">
                 <div className="text-[10px] uppercase tracking-widest text-primary/80 mb-1">{'تغطية رادار حي'}</div>
-                <div className="text-sm font-bold font-montserrat text-foreground mb-3 tabular-nums">
+                <div className="text-sm font-bold text-foreground mb-3 tabular-nums">
                   {allFrames.length > 0
                     ? new Date(allFrames[frameIdx] * 1000).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })
                     : '—'}
