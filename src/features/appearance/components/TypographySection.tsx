@@ -66,12 +66,12 @@ export default function TypographySection() {
   const activeLeading = TYPE_LEADINGS.find((l) => l.id === activeLeadingId) ?? TYPE_LEADINGS[1];
   const currentWeightLabel =
     FONT_WEIGHTS.find((w) => w.value === fontWeight)?.label ?? String(fontWeight);
-  const scale = computeTypeScale(activeRatioId);
+  const scale = computeTypeScale(activeRatioId, activeSizeId);
 
   const sizeOptions: SegmentedOption[] = FONT_SIZE_STEPS.map((step) => ({
     id: step.id,
     label: step.label,
-    sublabel: step.rootSize,
+    sublabel: `${step.base}px`,
   }));
   const ratioOptions: SegmentedOption[] = TYPE_RATIOS.map((r) => ({
     id: r.id,
@@ -206,7 +206,7 @@ export default function TypographySection() {
             aria-label="الحجم الأساس"
           />
           <p className="text-micro text-muted-foreground">
-            يضبط أساس الجذر، فيتحرك معه كل حجم ومسافة في التطبيق
+            يكبّر النص وحده، بينما يبقى حجم البطاقات والمسافات تحت تحكم مقياس الواجهة
           </p>
         </div>
 
@@ -337,7 +337,7 @@ export default function TypographySection() {
           {[
             displayFont.label,
             bodyFont.label,
-            FONT_SIZE_STEPS.find((s) => s.id === activeSizeId)?.rootSize ?? '',
+            `${FONT_SIZE_STEPS.find((s) => s.id === activeSizeId)?.base ?? 16}px`,
             activeRatio.label,
             activeLeading.label,
             currentWeightLabel,

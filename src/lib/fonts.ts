@@ -303,13 +303,19 @@ export interface TypographyApplication {
  * Pure — the DOM write lives in AppContext, so this stays testable.
  */
 export function typographyTokens(prefs: TypographyPrefs): TypographyApplication {
-  const scale = computeTypeScale(resolveTypeRatio(prefs.ratio), resolveFontSize(prefs.size));
+  const sizeStep = fontSizeStepFor(resolveFontSize(prefs.size));
+  const scale = computeTypeScale(resolveTypeRatio(prefs.ratio), sizeStep.id);
   const leading =
     TYPE_LEADINGS.find((l) => l.id === resolveTypeLeading(prefs.leading))?.leading ?? 1.6;
 
   const vars: Record<string, string> = {
     '--font-body': fontStackFor(prefs.bodyFont),
     '--font-display': fontStackFor(prefs.displayFont),
+    '--font-weight': String(clampFontWeight(prefs.weight)),
+    // Static rem font declarations emitted by Tailwind are multiplied by this
+    // token at build time. Canonical --fs-* values already include the same
+    // multiplier, so both paths respond identically while layout stays fixed.
+    '--type-base-scale': String(Math.round(sizeStep.multiplier * 10000) / 10000),
     '--type-leading': String(leading),
     // Headings take three quarters of the body leading. At the default 1.6 that
     // is exactly the 1.2 the type scale shipped with, and it keeps the

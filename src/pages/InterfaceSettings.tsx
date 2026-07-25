@@ -7,24 +7,23 @@ import { SlidersHorizontal } from '@/lib/icons';
 import { pageItem as item, pageStagger as stagger } from '@/lib/motion';
 
 /**
- * الواجهة — the geometry of the app.
+ * الواجهة — منصة الشكل والسلوك على مستوى التطبيق.
  *
- * Corners, density, measure, hairlines and surface lift. None of these are
- * colour and none of them are type, and until the appearance engine was rebuilt
- * none of them were adjustable at all: they were rem literals scattered through
- * index.css.
+ * المقياس المستقل، التكيف، الحواف، الكثافة، العرض، الحدود، الخامات،
+ * استجابة التفاعل وأدوات الإتاحة. جميعها تُترجم إلى رموز جذرية واحدة،
+ * وتُستعاد قبل React لمنع قفزة التخطيط عند الإقلاع.
  */
 export default function InterfaceSettingsPage() {
   return (
     <div className="min-h-screen bg-background">
       <SEO
         title="الواجهة — SmartHub"
-        description="اضبط الحواف وكثافة العناصر وعرض المحتوى وقوة الحدود في SmartHub."
+        description="منصة متقدمة لضبط مقياس الواجهة والتكيف والخامات والتفاعل والإتاحة في SmartHub."
         path="/settings/interface"
       />
       <PageHeader
-        title="الواجهة"
-        subtitle="الحواف والكثافة والأبعاد"
+        title="منصة الواجهة"
+        subtitle="الشكل والسلوك والإتاحة"
         backTo="/settings"
         sticky
         icon={
@@ -42,7 +41,7 @@ export default function InterfaceSettingsPage() {
       >
         <InterfaceSection />
         <motion.p variants={item} className="text-center text-micro text-muted-foreground">
-          الأرقام هنا تكتب متغيرات CSS على جذر الصفحة، فيتحرك التطبيق كله معاً
+          إعداد واحد يترجم إلى رموز جذرية ثابتة ويصل إلى كل واجهات التطبيق فوراً
         </motion.p>
       </motion.div>
     </div>

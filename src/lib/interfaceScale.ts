@@ -384,6 +384,9 @@ export function interfaceTokens(prefs: InterfacePrefs): Record<string, string> {
   const borderAlpha = Math.min(1, border.alpha * (strongerContrast ? 1.3 : 1));
   const radius = (base: number) => px(base * clampCornerSoftness(prefs.cornerSoftness), uiScale);
   const touchSize = largeTouchTargets ? Math.max(density.tapSize, 52) : density.tapSize;
+  const controlHeight = largeTouchTargets
+    ? Math.max(density.controlHeight, touchSize)
+    : density.controlHeight;
   const materialAlpha = reducedTransparency ? 1 : material.alpha;
   const overlayAlpha = reducedTransparency ? 1 : material.overlayAlpha;
 
@@ -396,15 +399,21 @@ export function interfaceTokens(prefs: InterfacePrefs): Record<string, string> {
     '--radius': radius(RADIUS_LADDER.lg),
     '--ui-pad-card': px(density.cardPadding, uiScale),
     '--ui-pad-card-compact': px(density.cardPaddingCompact, uiScale),
-    '--ui-control-h': px(density.controlHeight, uiScale),
+    '--ui-control-h': px(controlHeight, uiScale),
+    '--ui-button-sm-h': px(40, uiScale),
+    '--ui-button-h': px(44, uiScale),
+    '--ui-button-lg-h': px(48, uiScale),
     '--ui-tap': px(touchSize, uiScale),
     '--ui-touch-min': px(touchSize, uiScale),
     '--ui-stack-gap': px(density.stackGap, uiScale),
     '--ui-stack-gap-sm': px(density.stackGapSmall, uiScale),
-    '--ui-gutter': px(density.gutter, uiScale),
+    '--ui-gutter': adaptiveLayout
+      ? `clamp(${px(density.gutter * 0.75, uiScale)}, 4vw, ${px(density.gutter * 1.5, uiScale)})`
+      : px(density.gutter, uiScale),
     '--ui-row-icon': px(density.rowIcon, uiScale),
     '--ui-content-max': width.max === null ? '100%' : px(width.max, uiScale),
     '--ui-border-alpha': String(Math.round(borderAlpha * 1000) / 1000),
+    '--ui-border-soft-alpha': String(Math.round(borderAlpha * 0.73 * 1000) / 1000),
     '--ui-divider-alpha': String(Math.round(borderAlpha * 0.55 * 1000) / 1000),
     '--ui-border-strong-alpha': String(Math.min(1, Math.round(borderAlpha * 1.45 * 1000) / 1000)),
     '--ui-material-alpha': String(materialAlpha),

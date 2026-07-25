@@ -5,7 +5,7 @@ import * as React from 'react';
 import { cn } from '@/lib/utils';
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-body font-medium antialiased transition-colors duration-fast focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-5 [&_svg]:shrink-0',
+  'inline-flex min-h-[var(--ui-touch-min)] items-center justify-center gap-2 whitespace-nowrap rounded-md text-body font-medium antialiased transition-colors duration-fast focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-5 [&_svg]:shrink-0',
   {
     variants: {
       variant: {
@@ -17,10 +17,10 @@ const buttonVariants = cva(
         link: 'text-primary underline-offset-4 hover:underline',
       },
       size: {
-        default: 'h-11 px-4 py-2',
-        sm: 'h-10 rounded-md px-3',
-        lg: 'h-12 rounded-md px-6',
-        icon: 'h-11 w-11',
+        default: 'h-[var(--ui-button-h)] px-4 py-2',
+        sm: 'h-[var(--ui-button-sm-h)] rounded-md px-3',
+        lg: 'h-[var(--ui-button-lg-h)] rounded-md px-6',
+        icon: 'h-[var(--ui-button-h)] w-[var(--ui-button-h)] min-w-[var(--ui-touch-min)]',
       },
     },
     defaultVariants: {

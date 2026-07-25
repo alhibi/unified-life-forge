@@ -129,18 +129,23 @@
     --r-xl: 24px;
     --radius: 16px;
 
-    /* Density: padding, control heights, gaps, gutters. */
-    --ui-pad-card: 1rem;
-    --ui-pad-card-compact: 0.75rem;
-    --ui-control-h: 2.75rem;
-    --ui-tap: 2.75rem;
-    --ui-stack-gap: 1.5rem;
-    --ui-stack-gap-sm: 0.75rem;
-    --ui-gutter: 1rem;
-    --ui-row-icon: 2rem;
+    /* Density: fixed-root px values, independently multiplied by --ui-scale. */
+    --ui-pad-card: 16px;
+    --ui-pad-card-compact: 12px;
+    --ui-control-h: 44px;
+    --ui-button-sm-h: 40px;
+    --ui-button-h: 44px;
+    --ui-button-lg-h: 48px;
+    --ui-tap: 44px;
+    --ui-touch-min: 44px;
+    --ui-scale: 1;
+    --ui-stack-gap: 24px;
+    --ui-stack-gap-sm: 12px;
+    --ui-gutter: 16px;
+    --ui-row-icon: 32px;
 
     /* The single content column. */
-    --ui-content-max: 32rem;
+    --ui-content-max: 512px;
 
     /* Hairline volume. With no shadows anywhere, the border IS the edge. */
     --ui-border-alpha: 0.6;
@@ -148,14 +153,27 @@
     --ui-border-strong-alpha: 0.87;
     --ui-divider-alpha: 0.3;
 
+    /* Advanced interface character and accessibility. */
+    --ui-material-alpha: 0.96;
+    --ui-material-overlay-alpha: 0.98;
+    --ui-interaction-scale: 0.98;
+    --ui-interaction-offset: 2px;
+    --ui-icon-stroke: 2;
+    --ui-focus-width: 2px;
+    --ui-adaptive-layout: 1;
+    --ui-reduced-transparency: 0;
+    --ui-stronger-contrast: 0;
+    --ui-large-touch-targets: 0;
+    --ui-clearer-focus: 0;
+
     /* ══════════════════════════════════════════════════════════════
        TYPE SCALE — derived, not fixed
        ══════════════════════════════════════════════════════════════
-       Owned by src/lib/fonts.ts. Sizes are in rem so the base-size
-       preference (html { font-size }) scales all seven with one number, and
-       the ratio preference changes the spread between them. The values below
-       are the default 1.2 ratio, which reproduces the app's original pixel
-       scale exactly at a 16px base: 11 · 12 · 13 · 14 · 16 · 18 · 24. */
+       Owned by src/lib/fonts.ts. Canonical sizes already include the chosen
+       base-size multiplier, while static rem font declarations are multiplied
+       by --type-base-scale during PostCSS compilation. The document root stays
+       16px, so typography and interface geometry remain independent. Defaults
+       reproduce the original 11 · 12 · 13 · 14 · 16 · 18 · 24 scale. */
     --fs-micro: 0.6875rem;
     --fs-mini: 0.75rem;
     --fs-meta: 0.8125rem;
@@ -163,6 +181,7 @@
     --fs-lead: 1rem;
     --fs-title: 1.1249rem;
     --fs-display: 1.5rem;
+    --type-base-scale: 1;
     --type-leading: 1.6;
     --type-leading-tight: 1.2;
     --text-opacity: 1;
@@ -177,6 +196,7 @@
       'IBM Plex Sans Arabic', 'Noto Sans Arabic', system-ui, -apple-system, 'Segoe UI', sans-serif;
     --font-body:
       'IBM Plex Sans Arabic', 'Noto Sans Arabic', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --font-weight: 400;
 
     /* Active/live states — step 300 of the scale, deepened just enough to stay
        readable as text on the canvas. */
@@ -322,13 +342,14 @@
     outline: none;
   }
   *:focus-visible {
-    outline: 2px solid hsl(var(--ring));
+    outline: var(--ui-focus-width) solid hsl(var(--ring));
     outline-offset: 2px;
     border-radius: var(--r-sm);
   }
   html {
     -webkit-overflow-scrolling: touch;
     -webkit-text-size-adjust: 100%;
+    font-weight: var(--font-weight, 400);
     overscroll-behavior: contain;
     /* `scroll-behavior: smooth` fought ScrollToTop, which restores per-tab
        offsets with `behavior: 'instant'`. Opt in per call site instead. */
@@ -362,7 +383,7 @@
   }
 
   svg {
-    stroke-width: 2;
+    stroke-width: var(--ui-icon-stroke);
   }
 
   /* Press feedback is defined ONCE, further down under
@@ -518,7 +539,7 @@
   .premium-card-elevated,
   .premium-card-intense,
   .surface-depth {
-    background-color: hsl(var(--card));
+    background-color: hsl(var(--card) / var(--ui-material-alpha));
     border: 1px solid hsl(var(--border) / var(--ui-border-alpha));
     border-radius: var(--r-lg); /* the canonical card radius */
     box-shadow: none;
@@ -556,7 +577,7 @@
   }
   .app-card-pressable:active,
   .surface-depth-pressable:active {
-    transform: scale(0.98);
+    transform: scale(var(--ui-interaction-scale)) translateY(var(--ui-interaction-offset));
     background-color: hsl(var(--accent) / 0.4);
   }
   @media (prefers-reduced-motion: reduce) {
@@ -684,7 +705,7 @@
   .app-control:focus,
   .app-control:focus-visible {
     border-color: hsl(var(--ring));
-    outline: 2px solid hsl(var(--ring) / 0.22);
+    outline: var(--ui-focus-width) solid hsl(var(--ring) / 0.22);
     outline-offset: 1px;
   }
   .app-control:disabled {
@@ -705,7 +726,7 @@
     background-color: hsl(var(--scrim) / 0.72);
   }
   .app-overlay-surface {
-    background-color: hsl(var(--card));
+    background-color: hsl(var(--card) / var(--ui-material-overlay-alpha));
     color: hsl(var(--card-foreground));
     /* A transient surface floats over the page, so its edge is the strong
        one — it is the only thing telling the eye where the sheet ends. */
@@ -1164,7 +1185,7 @@ a[class*='rounded']:active {
   transition:
     transform var(--motion-press-in) var(--motion-ease-out-cubic),
     opacity var(--motion-press-in) var(--motion-ease-out-cubic);
-  transform: scale(0.98);
+  transform: scale(var(--ui-interaction-scale)) translateY(var(--ui-interaction-offset));
   opacity: 0.92;
 }
 button[data-no-press]:active,
