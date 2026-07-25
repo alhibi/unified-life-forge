@@ -1,9 +1,9 @@
+import { motion } from 'framer-motion';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useApp } from '@/contexts/AppContext';
-import { motion } from 'framer-motion';
-import { Mic, LibraryBig, ChevronLeft, ChevronRight, Sparkles } from '@/lib/icons';
 
+import { useApp } from '@/contexts/AppContext';
+import { ChevronLeft, ChevronRight, LibraryBig, Mic, Sparkles } from '@/lib/icons';
 /**
  * Browse → Podcasts tab.
  *
@@ -13,8 +13,7 @@ import { Mic, LibraryBig, ChevronLeft, ChevronRight, Sparkles } from '@/lib/icon
  * lives in `pages/Podcasts.tsx`; we just hand the user a clean
  * shortcut from the new `/browse` hub.
  */
-
-import { pageStagger as stagger, pageItem as item } from '@/lib/motion';
+import { pageItem as item,pageStagger as stagger } from '@/lib/motion';
 
 export default function PodcastsTab() {
   const { dir } = useApp();

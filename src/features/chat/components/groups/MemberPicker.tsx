@@ -1,10 +1,11 @@
 import React, { useMemo, useState } from 'react';
-import { Search, X, Check, Users } from '@/lib/icons';
-import { cn } from '@/lib/utils';
+
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { isEmojiAvatarValue, getAppleEmojiUrl } from '@/utils/emojiAvatar';
+import { type UserSearchResult,useUserSearch } from '@/lib/chat';
+import { Check, Search, Users,X } from '@/lib/icons';
+import { cn } from '@/lib/utils';
 import { getDefaultAvatarForUser } from '@/utils/defaultAvatar';
-import { useUserSearch, type UserSearchResult } from '@/lib/chat';
+import { getAppleEmojiUrl,isEmojiAvatarValue } from '@/utils/emojiAvatar';
 
 interface MemberPickerProps {
   /** Already-selected user ids (used to render checkmarks + drive `onChange`). */

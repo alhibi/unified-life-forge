@@ -1,4 +1,4 @@
-/* eslint-disable */
+ 
 /**
  * App-shell service worker.
  *

@@ -1,14 +1,15 @@
+import { AnimatePresence,motion } from 'framer-motion';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useNavigate,useSearchParams } from 'react-router-dom';
+
 import { useApp } from '@/contexts/AppContext';
 import GameShell from '@/features/games/components/GameShell';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Dices, RotateCcw, Crown, Bot, User as UserIcon, PiggyBank, Trophy, Flame } from '@/lib/icons';
-import { useSearchParams, useNavigate } from 'react-router-dom';
-import { playSfx, vibrate } from '@/features/games/utils/gameFeedback';
 import {
   DICE_BOTS, DicePersonality, effectiveThreshold,
-  loadTournament, saveTournament, recordPlayerMatch,
-} from '@/features/games/data/diceTournament';
+  loadTournament, recordPlayerMatch,
+saveTournament, } from '@/features/games/data/diceTournament';
+import { playSfx, vibrate } from '@/features/games/utils/gameFeedback';
+import { Bot, Crown, Dices, Flame,PiggyBank, RotateCcw, Trophy, User as UserIcon } from '@/lib/icons';
 
 // =============================================================================
 // Dice rendering
@@ -246,7 +247,7 @@ const DEFAULT_DICE_STATS: DiceStats = {
 function loadStats(): DiceStats {
   try { return { ...DEFAULT_DICE_STATS, ...JSON.parse(localStorage.getItem('dice-stats') || '{}') }; } catch { return { ...DEFAULT_DICE_STATS }; }
 }
-import { saveGameProgress, getGameProgress } from '../api';
+import { getGameProgress,saveGameProgress } from '../api';
 
 function saveStatsFn(s: DiceStats) {
   localStorage.setItem('dice-stats', JSON.stringify(s));

@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { cn } from '@/lib/utils';
+
 import { useApp } from '@/contexts/AppContext';
+import { cn } from '@/lib/utils';
+
 import { preloadAppleEmoji } from './appleEmoji';
 
 interface EmojiPickerProps {

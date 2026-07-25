@@ -1,10 +1,11 @@
+import { AnimatePresence,motion } from 'framer-motion';
 import React, { useState } from 'react';
-import SEO from '@/components/SEO';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { BookOpen, Sparkles } from '@/lib/icons';
+
 import PageHeader from '@/components/PageHeader';
+import SEO from '@/components/SEO';
 import { useApp } from '@/contexts/AppContext';
+import { BookOpen, Sparkles } from '@/lib/icons';
 
 // أسماء السور - سيتم إضافة المحتوى الداخلي لاحقاً
 const surahNames = [
@@ -31,7 +32,7 @@ const quranVirtues = [
   'أن البيت الذي يقرأ فيه القرآن تحصل فيه الخيرات والبركات ويحفظ الله تعالى أهل هذا البيت من كل سوء',
 ];
 
-import { pageStagger as container, pageItem as itemAnim } from '@/lib/motion';
+import { pageItem as itemAnim,pageStagger as container } from '@/lib/motion';
 
 export default function QuranVirtues() {
   const [tappedSurah, setTappedSurah] = useState<number | null>(null);

@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence,motion } from 'framer-motion';
+import React, { useCallback, useEffect, useMemo,useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { BookOpen, Search, ChevronDown, ArrowRight, Loader2, BookMarked, X, Copy, Check, Minus, Plus, Bookmark, BookmarkCheck, ChevronUp } from '@/lib/icons';
+
 import BackButton from '@/components/BackButton';
 import SEO from '@/components/SEO';
 import { useApp } from '@/contexts/AppContext';
+import { ArrowRight, Bookmark, BookmarkCheck, BookMarked, BookOpen, Check, ChevronDown, ChevronUp,Copy, Loader2, Minus, Plus, Search, X } from '@/lib/icons';
 
 // ─── DATA ────────────────────────────────────────────────────────────────────
 

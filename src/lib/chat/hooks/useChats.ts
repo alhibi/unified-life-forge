@@ -14,11 +14,13 @@
 // listener with chat-id filtering scales to many chats with one channel.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { useEffect, useMemo, useRef } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type { RealtimeChannel } from '@supabase/supabase-js';
-import { supabase, isSupabaseConfigured } from '@/integrations/supabase/client';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useEffect, useMemo, useRef } from 'react';
+
 import { useAuth } from '@/hooks/useAuth';
+import { isSupabaseConfigured,supabase } from '@/integrations/supabase/client';
+
 import * as api from '../api';
 import { cacheChats, readCachedChats } from '../idbCache';
 import { chatKeys } from '../queryKeys';

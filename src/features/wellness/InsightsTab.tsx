@@ -1,12 +1,14 @@
-import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { AlertTriangle, Info, ShieldCheck, Sparkles, Utensils, Activity, Clock } from '@/lib/icons';
+import React, { useMemo } from 'react';
+
 import { useApp } from '@/contexts/AppContext';
-import { DISCLAIMER, type Lang } from './wellnessData';
-import { runAllInsights, type Insight } from './wellnessAnalysis';
-import type { DietLog, IntakeLog, SkinHairLog, Supplement } from './wellnessDb';
-import StackAdvisor from './StackAdvisor';
+import { Activity, AlertTriangle, Clock,Info, ShieldCheck, Sparkles, Utensils } from '@/lib/icons';
+
 import { SoftSurface, withAlpha } from './premium/surfaces';
+import StackAdvisor from './StackAdvisor';
+import { type Insight,runAllInsights } from './wellnessAnalysis';
+import { DISCLAIMER, type Lang } from './wellnessData';
+import type { DietLog, IntakeLog, SkinHairLog, Supplement } from './wellnessDb';
 
 interface Props {
   supplements: Supplement[];

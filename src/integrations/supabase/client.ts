@@ -16,6 +16,7 @@
 //      lookup immediately rather than retrying forever against a real host.
 
 import { createClient } from '@supabase/supabase-js';
+
 import type { Database } from './types';
 
 // Hard-coded fallbacks for the project's *publishable* (a.k.a. anon) key

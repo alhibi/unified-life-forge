@@ -1,5 +1,6 @@
-import React, { useMemo, useRef } from 'react';
 import { motion } from 'framer-motion';
+import React, { useMemo, useRef } from 'react';
+
 import type { DiwanVerse } from '@/features/diwan/lib/types';
 
 const LONG_PRESS_MS = 450;

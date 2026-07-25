@@ -9,6 +9,7 @@
 // لم تُحدَّث بعد في src/integrations/supabase/types.ts.
 
 import { supabase } from '@/integrations/supabase/client';
+
 import { isSupabaseReady } from './env';
 import type {
   DiwanEra,

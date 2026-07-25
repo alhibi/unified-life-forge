@@ -1,7 +1,9 @@
-import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { motion } from 'framer-motion';
-import { AlertTriangle, Database, RefreshCw, Trash2, WifiOff } from '@/lib/icons';
+import { Component, type ErrorInfo, type ReactNode } from 'react';
+
 import { Button } from '@/components/ui/button';
+import { AlertTriangle, Database, RefreshCw, Trash2, WifiOff } from '@/lib/icons';
+
 import { offlineDb } from './offlineDb';
 
 /**

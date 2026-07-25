@@ -21,9 +21,10 @@
 // The exported `useAuth()` API is deliberately unchanged so existing
 // call sites do not need any edits.
 
+import type { Session,User } from '@supabase/supabase-js';
 import { useEffect, useState } from 'react';
-import { supabase, isSupabaseConfigured } from '@/integrations/supabase/client';
-import type { User, Session } from '@supabase/supabase-js';
+
+import { isSupabaseConfigured,supabase } from '@/integrations/supabase/client';
 import {
   localGetSession,
   localSignIn,

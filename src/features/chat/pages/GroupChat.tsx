@@ -1,33 +1,34 @@
+import { AnimatePresence,motion } from 'framer-motion';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import {
-  ArrowLeft, ArrowRight, Info, Users, MessageCircle,
-  Loader2, Reply, Pencil, Trash2, EyeOff, Copy as CopyIcon, Smile,
-} from '@/lib/icons';
-import { cn } from '@/lib/utils';
-import { useApp } from '@/contexts/AppContext';
-import { useAuth } from '@/hooks/useAuth';
-import SEO from '@/components/SEO';
+import { toast } from 'sonner';
+
 import ErrorBoundary from '@/components/ErrorBoundary';
+import SEO from '@/components/SEO';
 import { Button } from '@/components/ui/button';
-import { useSmartBack } from '@/hooks/useSmartBack';
-import {
-  useChats, useChatMembers, useChatMessages, useChatMutations, useChatReactions,
-  useTypingIndicator, useDraft, useComposer, useChatScroll, useChatSettings,
-  newClientId, isAdmin as roleIsAdmin,
-  type ChatMessage, type ChatSummary,
-} from '@/lib/chat';
+import { useApp } from '@/contexts/AppContext';
+import { useAppleEmojiReady } from '@/features/chat/components/appleEmoji';
+import { formatDateSeparator } from '@/features/chat/components/chatUtils';
+import { QUICK_EMOJIS } from '@/features/chat/components/constants';
 import GroupAvatar from '@/features/chat/components/groups/GroupAvatar';
 import GroupComposer from '@/features/chat/components/groups/GroupComposer';
-import GroupMessageBubble from '@/features/chat/components/groups/GroupMessageBubble';
 import GroupInfoSheet from '@/features/chat/components/groups/GroupInfoSheet';
+import GroupMessageBubble from '@/features/chat/components/groups/GroupMessageBubble';
 import MemberListSheet from '@/features/chat/components/groups/MemberListSheet';
 import { TypingDots } from '@/features/chat/components/MessageBubble';
-import { formatDateSeparator } from '@/features/chat/components/chatUtils';
-import { useAppleEmojiReady } from '@/features/chat/components/appleEmoji';
-import { QUICK_EMOJIS } from '@/features/chat/components/constants';
-import { toast } from 'sonner';
+import { useAuth } from '@/hooks/useAuth';
+import { useSmartBack } from '@/hooks/useSmartBack';
+import {
+  type ChatMessage, type ChatSummary,
+isAdmin as roleIsAdmin,
+  newClientId, useChatMembers, useChatMessages, useChatMutations, useChatReactions,
+  useChats, useChatScroll, useChatSettings,
+useComposer, useDraft,   useTypingIndicator, } from '@/lib/chat';
+import {
+  ArrowLeft, ArrowRight, Copy as CopyIcon, EyeOff, Info,   Loader2, MessageCircle,
+Pencil, Reply, Smile,
+Trash2, Users, } from '@/lib/icons';
+import { cn } from '@/lib/utils';
 
 /**
  * Dedicated screen for group + channel chats. Built entirely on the new

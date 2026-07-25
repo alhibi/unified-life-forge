@@ -3,9 +3,10 @@
 // لا في وضع التطوير ولا في الـ demo، ويتحوّل التحميل إلى "ضخم" تلقائيًا
 // متى توفّرت قاعدة بيانات adab.com.
 
-import { loadPoetryEras } from '@/features/diwan/data/poetryData';
-import { poetNodes } from '@/features/diwan/data/literaryConnections';
 import { diwanLocalGlossary } from '@/features/diwan/data/diwanGlossary';
+import { poetNodes } from '@/features/diwan/data/literaryConnections';
+import { loadPoetryEras } from '@/features/diwan/data/poetryData';
+
 import type {
   DiwanEra,
   DiwanGlossaryEntry,

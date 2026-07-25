@@ -1,15 +1,17 @@
+import { AnimatePresence,motion } from 'framer-motion';
 import React, { useCallback, useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+
 import {
-  X, ChevronRight, Users, Pencil, Check, BellOff, Bell, Pin, PinOff,
-  Archive, ArchiveRestore, LogOut, Trash2, Hash, Eye, MessageSquareText, Shield,
-} from '@/lib/icons';
-import { cn } from '@/lib/utils';
-import {
-  useChatMembers, useChatMutations,
-  isAdmin as roleIsAdmin, isChatPinned, isChatArchived, isChatMuted,
   type ChatSummary,
+  isAdmin as roleIsAdmin, isChatArchived, isChatMuted,
+isChatPinned,   useChatMembers, useChatMutations,
 } from '@/lib/chat';
+import {
+  Archive, ArchiveRestore, Bell, BellOff, Check, ChevronRight, Eye, Hash, LogOut, MessageSquareText, Pencil, Pin, PinOff,
+Shield,
+Trash2, Users,   X, } from '@/lib/icons';
+import { cn } from '@/lib/utils';
+
 import GroupAvatar from './GroupAvatar';
 import RoleBadge from './RoleBadge';
 

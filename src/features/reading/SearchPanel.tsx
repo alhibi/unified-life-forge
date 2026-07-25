@@ -1,21 +1,23 @@
+import { AnimatePresence,motion } from 'framer-motion';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+
+import { Input } from '@/components/ui/input';
+import { isSupabaseConfigured,supabase } from '@/integrations/supabase/client';
 import {
   ChevronLeft, Clock, Loader2, RefreshCw, Search, TrendingUp, X,
 } from '@/lib/icons';
-import { Input } from '@/components/ui/input';
-import { supabase, isSupabaseConfigured } from '@/integrations/supabase/client';
-import type { FeedItem } from './types';
+
+import { highlightText } from './highlight';
 import { SourcePill } from './SourcePill';
-import { timeAgo } from './utils';
 import {
-  type SearchHistoryEntry,
   clearSearchHistory,
   getSearchHistory,
   pushSearchHistory,
   removeSearchHistoryEntry,
+  type SearchHistoryEntry,
 } from './storage';
-import { highlightText } from './highlight';
+import type { FeedItem } from './types';
+import { timeAgo } from './utils';
 
 /**
  * Full-archive search.

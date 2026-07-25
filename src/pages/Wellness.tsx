@@ -1,16 +1,17 @@
-import React, { useState, useEffect, useCallback, lazy, Suspense } from 'react';
-import SEO from '@/components/SEO';
-import { motion, AnimatePresence } from 'framer-motion';
-import {
-  BookOpen, Brain, ChevronRight, Download, Dumbbell,
-  Library, ShieldCheck, Trash2, Utensils, X, Apple,
-} from '@/lib/icons';
+import { AnimatePresence,motion } from 'framer-motion';
+import React, { lazy, Suspense,useCallback, useEffect, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
+
+import AuthGuard from '@/components/AuthGuard';
+import SEO from '@/components/SEO';
 import { useApp } from '@/contexts/AppContext';
 import { useWellnessData } from '@/features/wellness/useWellnessData';
 import { useAuth } from '@/hooks/useAuth';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import AuthGuard from '@/components/AuthGuard';
+import {
+Apple,
+  BookOpen, Brain, ChevronRight, Download, Dumbbell,
+  Library, ShieldCheck, Trash2, Utensils, X, } from '@/lib/icons';
 
 // ── Lazy-loaded tabs ──────────────────────────────────────────────────
 // Each tab drags in its own heavy static data (food catalog, skill tree,

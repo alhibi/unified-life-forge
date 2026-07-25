@@ -1,20 +1,21 @@
+import { AnimatePresence,motion } from 'framer-motion';
 import React, { useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Search, ScrollText, Quote, X, Filter, History, ChevronDown } from '@/lib/icons';
-import { motion, AnimatePresence } from 'framer-motion';
-import SEO from '@/components/SEO';
+
 import BackButton from '@/components/BackButton';
-import SearchBar from '@/features/diwan/components/library/SearchBar';
+import SEO from '@/components/SEO';
 import EraPills from '@/features/diwan/components/library/EraPills';
-import PoemCard from '@/features/diwan/components/library/PoemCard';
 import FallbackBadge from '@/features/diwan/components/library/FallbackBadge';
+import PoemCard from '@/features/diwan/components/library/PoemCard';
+import SearchBar from '@/features/diwan/components/library/SearchBar';
+import { KNOWN_KINDS, KNOWN_METERS, RHYME_LETTERS } from '@/features/diwan/lib/constants';
 import {
   useDiwanEras,
   useDiwanSearchPoems,
   useDiwanSearchVerses,
 } from '@/features/diwan/lib/hooks';
-import { KNOWN_METERS, KNOWN_KINDS, RHYME_LETTERS } from '@/features/diwan/lib/constants';
 import type { DiwanPoemSearchResult, DiwanVerseSearchResult } from '@/features/diwan/lib/types';
+import { ChevronDown,Filter, History, Quote, ScrollText, Search, X } from '@/lib/icons';
 
 type Mode = 'poems' | 'verses';
 

@@ -1,30 +1,30 @@
-import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
-import { AlertTriangle, Clock, Database, RefreshCw, Wifi, WifiOff } from '@/lib/icons';
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+
 import SEO from '@/components/SEO';
 import { useApp } from '@/contexts/AppContext';
-import { supabase } from '@/integrations/supabase/client';
-
+import { ArticleListGrouped } from '@/features/reading/ArticleListGrouped';
+import { ListHeader } from '@/features/reading/ListHeader';
+import { useListPrefs } from '@/features/reading/listPrefs';
+import { offlineDb } from '@/features/reading/offlineDb';
+import { PullToRefresh } from '@/features/reading/PullToRefresh';
+import { ReadingErrorBoundary } from '@/features/reading/ReadingErrorBoundary';
+import { registerReadingServiceWorker } from '@/features/reading/registerSw';
+import {
+  getReaderPrefs,
+  storeReaderPrefs,
+} from '@/features/reading/storage';
 import type {
   FeedItem,
   FilterTab,
   ReaderPrefs,
   View,
 } from '@/features/reading/types';
-import {
-  getReaderPrefs,
-  storeReaderPrefs,
-} from '@/features/reading/storage';
-import { useListPrefs } from '@/features/reading/listPrefs';
 import { useReadingData } from '@/features/reading/useReadingData';
-import { ListHeader } from '@/features/reading/ListHeader';
-import { ArticleListGrouped } from '@/features/reading/ArticleListGrouped';
-import { PullToRefresh } from '@/features/reading/PullToRefresh';
-import { ReadingErrorBoundary } from '@/features/reading/ReadingErrorBoundary';
 import { timeAgo } from '@/features/reading/utils';
-import { offlineDb } from '@/features/reading/offlineDb';
-import { registerReadingServiceWorker } from '@/features/reading/registerSw';
+import { supabase } from '@/integrations/supabase/client';
+import { AlertTriangle, Clock, Database, RefreshCw, Wifi, WifiOff } from '@/lib/icons';
 
 // Heavy sub-views are loaded on demand to keep the initial Reading
 // bundle small. The list view (default) ships immediately; everything

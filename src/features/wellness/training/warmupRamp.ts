@@ -13,8 +13,8 @@
  * priming set or none. The generator below adapts based on intent.
  */
 
+import { type PlateInventory,roundToGymWeight, snapToInventory } from './plateMath';
 import type { LocalizedString, WarmupSet } from './types';
-import { roundToGymWeight, snapToInventory, type PlateInventory } from './plateMath';
 
 export type WarmupIntent =
   /** Big compound, top set ≥ 80% 1RM — full ramp. */

@@ -1,19 +1,20 @@
+import { AnimatePresence,motion } from 'framer-motion';
 import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, Plus, Users, Hash, Search, X,
-} from '@/lib/icons';
-import { cn } from '@/lib/utils';
-import { useApp } from '@/contexts/AppContext';
-import { useAuth } from '@/hooks/useAuth';
-import SEO from '@/components/SEO';
+
 import ErrorBoundary from '@/components/ErrorBoundary';
+import SEO from '@/components/SEO';
 import { Button } from '@/components/ui/button';
-import { useSmartBack } from '@/hooks/useSmartBack';
-import { useChats, isGroup, isChannel, isChatPinned, type ChatSummary } from '@/lib/chat';
+import { useApp } from '@/contexts/AppContext';
+import { formatTime } from '@/features/chat/components/chatUtils';
 import GroupAvatar from '@/features/chat/components/groups/GroupAvatar';
 import GroupCreatorSheet from '@/features/chat/components/groups/GroupCreatorSheet';
-import { formatTime } from '@/features/chat/components/chatUtils';
+import { useAuth } from '@/hooks/useAuth';
+import { useSmartBack } from '@/hooks/useSmartBack';
+import { type ChatSummary,isChannel, isChatPinned, isGroup, useChats } from '@/lib/chat';
+import { ArrowRight, Hash, Plus, Search, Users, X,
+} from '@/lib/icons';
+import { cn } from '@/lib/utils';
 
 /**
  * /chat/groups — index of every group + channel the user belongs to.

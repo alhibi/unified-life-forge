@@ -3,10 +3,10 @@ import { useRef } from 'react';
 
 import {
   createPlace,
+  type CreatePlaceInput,
   fetchCountryPlaces,
   fetchTravelCountries,
   fetchTravelCountry,
-  type CreatePlaceInput,
 } from './api';
 import {
   cacheCountries,

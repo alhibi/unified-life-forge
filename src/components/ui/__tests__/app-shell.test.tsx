@@ -1,7 +1,8 @@
-import { describe, expect, it } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import * as React from 'react';
-import { PageShell, AppCard, IconButton, Section } from '../app-shell';
+import { describe, expect, it } from 'vitest';
+
+import { AppCard, IconButton, PageShell, Section } from '../app-shell';
 
 describe('PageShell Component', () => {
   it('renders children inside the canonical centered column by default', () => {

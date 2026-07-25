@@ -3,14 +3,14 @@
  * Pure functions, no React, no I/O.
  */
 
+import { FOOD_BY_ID,NUTRITION_DATABASE } from './data';
 import type {
+DailyIntakeSummary, DailyNutritionGoal,   DietaryTag, FullNutrition, MacroNutrients,
+  MealEntry, MealType,
+MineralProfile, NutrientRDA,
   NutritionFoodItem, NutritionSearchFilters,
-  DietaryTag, FullNutrition, MacroNutrients,
-  MealEntry, DailyNutritionGoal, DailyIntakeSummary, MealType,
-  VitaminProfile, MineralProfile, NutrientRDA,
-} from './types';
-import { RDA_MALE as RDA_MALE_VAL, RDA_FEMALE as RDA_FEMALE_VAL } from './types';
-import { NUTRITION_DATABASE, FOOD_BY_ID } from './data';
+  VitaminProfile, } from './types';
+import { RDA_FEMALE as RDA_FEMALE_VAL,RDA_MALE as RDA_MALE_VAL } from './types';
 
 /* ═══════════════════════════════════════════════════════
  *  SEARCH & FILTER

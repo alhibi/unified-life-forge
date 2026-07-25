@@ -6,27 +6,25 @@
  * Extended with 171+ new items across all categories (v2)
  */
 
-import { FRUITS_DATA } from './fruits';
-import { VEGETABLES_DATA } from './vegetables';
-import { PROTEINS_DATA } from './proteins';
-import { DAIRY_DATA } from './dairy';
-import { GRAINS_DATA } from './grains';
-import { LEGUMES_DATA } from './legumes';
-import { NUTS_SEEDS_DATA } from './nuts-seeds';
-import { OILS_SPICES_DATA } from './oils-spices';
+import type { NutritionCategory,NutritionFoodItem } from '../types';
 import { BEVERAGES_DATA } from './beverages';
-import { PREPARED_FOODS_DATA } from './prepared-foods';
-import { SNACKS_CONDIMENTS_DATA } from './snacks-condiments';
-
+import { DAIRY_DATA } from './dairy';
+import { DAIRY_EXTENDED_DATA } from './dairy-extended';
+import { FRUITS_DATA } from './fruits';
 // ── Extended databases (v2) ──────────────────────────────────────────
 import { FRUITS_EXTENDED_DATA } from './fruits-extended';
-import { VEGETABLES_EXTENDED_DATA } from './vegetables-extended';
-import { PROTEINS_EXTENDED_DATA } from './proteins-extended';
-import { DAIRY_EXTENDED_DATA } from './dairy-extended';
+import { GRAINS_DATA } from './grains';
 import { GRAINS_LEGUMES_EXTENDED_DATA } from './grains-legumes-extended';
+import { LEGUMES_DATA } from './legumes';
+import { NUTS_SEEDS_DATA } from './nuts-seeds';
 import { NUTS_SEEDS_EXTENDED_DATA } from './nuts-seeds-extended';
-
-import type { NutritionFoodItem, NutritionCategory } from '../types';
+import { OILS_SPICES_DATA } from './oils-spices';
+import { PREPARED_FOODS_DATA } from './prepared-foods';
+import { PROTEINS_DATA } from './proteins';
+import { PROTEINS_EXTENDED_DATA } from './proteins-extended';
+import { SNACKS_CONDIMENTS_DATA } from './snacks-condiments';
+import { VEGETABLES_DATA } from './vegetables';
+import { VEGETABLES_EXTENDED_DATA } from './vegetables-extended';
 
 /** Complete food database — all categories combined (v2: 479+ items) */
 export const NUTRITION_DATABASE: NutritionFoodItem[] = [
@@ -94,6 +92,6 @@ export const CATEGORY_INFO: Record<NutritionCategory, { emoji: string; color: st
 export const TOTAL_FOOD_COUNT = NUTRITION_DATABASE.length;
 
 // Re-export original databases
-export { FRUITS_DATA, VEGETABLES_DATA, PROTEINS_DATA, DAIRY_DATA, GRAINS_DATA, LEGUMES_DATA, NUTS_SEEDS_DATA, OILS_SPICES_DATA, BEVERAGES_DATA, PREPARED_FOODS_DATA, SNACKS_CONDIMENTS_DATA };
+export { BEVERAGES_DATA, DAIRY_DATA, FRUITS_DATA, GRAINS_DATA, LEGUMES_DATA, NUTS_SEEDS_DATA, OILS_SPICES_DATA, PREPARED_FOODS_DATA, PROTEINS_DATA, SNACKS_CONDIMENTS_DATA,VEGETABLES_DATA };
 // Re-export extended databases (v2)
-export { FRUITS_EXTENDED_DATA, VEGETABLES_EXTENDED_DATA, PROTEINS_EXTENDED_DATA, DAIRY_EXTENDED_DATA, GRAINS_LEGUMES_EXTENDED_DATA, NUTS_SEEDS_EXTENDED_DATA };
+export { DAIRY_EXTENDED_DATA, FRUITS_EXTENDED_DATA, GRAINS_LEGUMES_EXTENDED_DATA, NUTS_SEEDS_EXTENDED_DATA,PROTEINS_EXTENDED_DATA, VEGETABLES_EXTENDED_DATA };

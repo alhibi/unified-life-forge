@@ -1,10 +1,11 @@
+import { AnimatePresence,motion } from 'framer-motion';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+
 import { useApp } from '@/contexts/AppContext';
 import { useDeviceLocation } from '@/hooks/useDeviceLocation';
-import { Compass, X, Maximize2, Info, Crosshair, MapPin } from '@/lib/icons';
-import { qiblaBearing, bearingToCompass } from '@/utils/prayerAstronomy';
+import { Compass, Crosshair, Info, MapPin,Maximize2, X } from '@/lib/icons';
+import { bearingToCompass,qiblaBearing } from '@/utils/prayerAstronomy';
 
 /**
  * Live Qibla compass.

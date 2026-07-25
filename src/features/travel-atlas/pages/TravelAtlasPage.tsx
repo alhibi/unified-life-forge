@@ -2,9 +2,9 @@ import { MapPinned, Plus } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { Button } from '@/components/ui/button';
 import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
+import { Button } from '@/components/ui/button';
 import { useApp } from '@/contexts/AppContext';
 
 import AddPlaceSheet from '../components/AddPlaceSheet';

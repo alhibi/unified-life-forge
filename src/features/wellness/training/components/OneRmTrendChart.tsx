@@ -9,12 +9,14 @@
  * see the exact value and date.
  */
 
-import React, { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
+import React, { useMemo, useState } from 'react';
+
 import { TrendingUp } from '@/lib/icons';
-import { e1rmRunningMaxSeriesFor, e1rmSeriesFor } from '../analyticsEngine';
+
+import { type Exercise,resolveExercise } from '../../exerciseCatalog';
 import type { WorkoutSession } from '../../wellnessDb';
-import { resolveExercise, type Exercise } from '../../exerciseCatalog';
+import { e1rmRunningMaxSeriesFor, e1rmSeriesFor } from '../analyticsEngine';
 
 export interface OneRmTrendChartProps {
   workouts: WorkoutSession[];

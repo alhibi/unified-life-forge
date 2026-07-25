@@ -1,8 +1,10 @@
+import { AnimatePresence,motion } from 'framer-motion';
 import React, { useMemo, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, Search, BookOpen } from '@/lib/icons';
-import { nutrientsAtlas } from './nutrientsAtlas';
+
 import { useApp } from '@/contexts/AppContext';
+import { BookOpen,ChevronDown, Search } from '@/lib/icons';
+
+import { nutrientsAtlas } from './nutrientsAtlas';
 
 export default function AtlasTab() {
   const { } = useApp();

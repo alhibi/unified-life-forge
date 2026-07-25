@@ -8,7 +8,7 @@
 //      computation using equivalent parameters — guaranteeing we
 //      always return valid timings worldwide, even offline.
 
-import { pickMethodForLocation, computeLocalTimings, type AladhanMethod } from '@/lib/prayerCalculationMethod';
+import { type AladhanMethod,computeLocalTimings, pickMethodForLocation } from '@/lib/prayerCalculationMethod';
 
 interface CachedPrayer {
   timings: Record<string, string>;

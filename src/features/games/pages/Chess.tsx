@@ -1,13 +1,14 @@
-import React, { useState, useCallback, useEffect, useMemo } from 'react';
-import { useApp } from '@/contexts/AppContext';
+import { AnimatePresence,motion } from 'framer-motion';
+import React, { useCallback, useEffect, useMemo,useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Crown, RotateCcw, Undo2, Flag, Clock, Play, Lightbulb } from '@/lib/icons';
-import { motion, AnimatePresence } from 'framer-motion';
+
+import { useApp } from '@/contexts/AppContext';
 import GameShell from '@/features/games/components/GameShell';
-import { playSfx, vibrate } from '@/features/games/utils/gameFeedback';
-import { recognizeOpening } from '@/features/games/data/chessOpenings';
 import { botById, BotPersonality } from '@/features/games/data/chessBots';
+import { recognizeOpening } from '@/features/games/data/chessOpenings';
 import { recordCareerResult } from '@/features/games/pages/ChessCareer';
+import { playSfx, vibrate } from '@/features/games/utils/gameFeedback';
+import { Clock, Crown, Flag, Lightbulb,Play, RotateCcw, Undo2 } from '@/lib/icons';
 
 type Color = 'w' | 'b';
 type PieceType = 'K' | 'Q' | 'R' | 'B' | 'N' | 'P';
@@ -111,7 +112,7 @@ function loadChessStats(): ChessStats {
   const saved = localStorage.getItem('chess-stats');
   return saved ? JSON.parse(saved) : { gamesPlayed: 0, whiteWins: 0, blackWins: 0, stalemates: 0, totalMoves: 0 };
 }
-import { saveGameProgress, getGameProgress } from '../api';
+import { getGameProgress,saveGameProgress } from '../api';
 
 function saveChessStats(s: ChessStats) {
   localStorage.setItem('chess-stats', JSON.stringify(s));

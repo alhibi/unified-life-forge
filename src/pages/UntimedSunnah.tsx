@@ -1,11 +1,12 @@
+import { AnimatePresence,motion } from 'framer-motion';
 import React, { useState } from 'react';
-import SEO from '@/components/SEO';
 import { useNavigate } from 'react-router-dom';
-import { useApp } from '@/contexts/AppContext';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, Volume2, Droplet, User, Star, Users, UtensilsCrossed, Shirt, Copy, BookOpen } from '@/lib/icons';
-import { untimedSunnahData } from '@/data/untimedSunnahData';
+
 import PageHeader from '@/components/PageHeader';
+import SEO from '@/components/SEO';
+import { useApp } from '@/contexts/AppContext';
+import { untimedSunnahData } from '@/data/untimedSunnahData';
+import { BookOpen,ChevronDown, Copy, Droplet, Shirt, Star, User, Users, UtensilsCrossed, Volume2 } from '@/lib/icons';
 import { notify } from '@/lib/notify';
 
 const iconMap: Record<string, React.ElementType> = {

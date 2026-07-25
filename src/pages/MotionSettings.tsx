@@ -1,14 +1,15 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { useApp } from '@/contexts/AppContext';
-import { Gauge, Zap, RotateCcw, Info, Activity, Sparkles, ArrowDown } from '@/lib/icons';
 import { motion } from 'framer-motion';
-import { Slider } from '@/components/ui/slider';
+import React, { useEffect, useRef, useState } from 'react';
+
 import BackButton from '@/components/BackButton';
-import { pageStagger as stagger, pageItem as item, MOTION } from '@/lib/motion';
-import { measureDisplayHz } from '@/lib/motionRuntime';
 import SEO from '@/components/SEO';
 import { AppCard } from '@/components/ui/app-shell';
+import { Slider } from '@/components/ui/slider';
 import type { FpsCap } from '@/contexts/AppContext';
+import { useApp } from '@/contexts/AppContext';
+import { Activity, ArrowDown,Gauge, Info, RotateCcw, Sparkles, Zap } from '@/lib/icons';
+import { MOTION,pageItem as item, pageStagger as stagger } from '@/lib/motion';
+import { measureDisplayHz } from '@/lib/motionRuntime';
 
 /**
  * /settings/motion

@@ -4,13 +4,13 @@
 // the layer exposes. Internal modules still import from each other directly
 // to keep the dependency graph easy to reason about.
 
-export * from './types';
-export * from './queryKeys';
+export * as api from './api';
 export * from './clientId';
 export * from './errors';
-export * from './settings';
 export * from './hooks';
-export * as api from './api';
 export * as idbCache from './idbCache';
 export * as notifications from './notifications';
 export * as performance from './performance';
+export * from './queryKeys';
+export * from './settings';
+export * from './types';

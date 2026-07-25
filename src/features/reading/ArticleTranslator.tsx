@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Languages, Loader2, ArrowLeftRight } from '@/lib/icons';
 import { toast } from 'sonner';
+
+import { ArrowLeftRight,Languages, Loader2 } from '@/lib/icons';
 
 interface ArticleTranslatorProps {
   originalHtml: string;

@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect,it } from 'vitest';
 
 // Simulating network delay for Supabase API calls (e.g., 5ms per roundtrip)
 const NETWORK_DELAY_MS = 5;

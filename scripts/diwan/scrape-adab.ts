@@ -19,8 +19,9 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { setTimeout as sleep } from 'node:timers/promises';
+
 import { buildSlug, extractMeter, extractRhyme, extractYears, splitVerse } from './normalize.ts';
-import type { RawEra, RawPoet, RawPoem, RawVerse } from './types.ts';
+import type { RawEra, RawPoem, RawPoet, RawVerse } from './types.ts';
 
 // ─── إعدادات قابلة للتعديل ──────────────────────────────────────────────
 const CONFIG = {

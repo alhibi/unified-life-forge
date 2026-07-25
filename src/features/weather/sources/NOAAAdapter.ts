@@ -2,9 +2,9 @@
 // Two-step protocol: /points/{lat,lng} → forecast URL, then fetch it.
 // Returns empty for non-US coordinates rather than failing the ensemble.
 
-import { BaseAdapter, safeJson, type AdapterContext } from './BaseAdapter';
 import { SOURCE_REGISTRY, type SourceId } from '../types/SourceRegistry';
 import type { PartialSnapshot } from '../types/WeatherSnapshot';
+import { type AdapterContext,BaseAdapter, safeJson } from './BaseAdapter';
 
 const UA = 'SmartHub/1.0 (https://amv.life)';
 

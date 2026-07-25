@@ -1,4 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
+
 import type { Message, MessageStatus, Reaction } from '../types';
 
 export interface FetchMessagesResult {

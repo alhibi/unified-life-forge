@@ -1,31 +1,33 @@
+import { AnimatePresence, motion, useMotionValue, useTransform } from 'framer-motion';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
+
+import { Textarea } from '@/components/ui/textarea';
+import { readableFileName } from '@/lib/chat/imageMeta';
 import {
-  Send,
-  Mic,
-  X,
-  Pencil,
-  Check,
-  Trash2,
-  Plus,
-  Smile,
-  Lock,
-  Play,
-  Pause,
-  Loader2,
   Camera,
+  Check,
   FileText,
-  MapPin,
   Image as ImageIcon,
+  Loader2,
+  Lock,
+  MapPin,
+  Mic,
+  Pause,
+  Pencil,
+  Play,
+  Plus,
+  Send,
+  Smile,
+  Trash2,
+  X,
 } from '@/lib/icons';
 import { cn } from '@/lib/utils';
-import { Textarea } from '@/components/ui/textarea';
-import { WAVEFORM_HEIGHTS } from './constants';
+
 import { formatRecordingTime } from './chatUtils';
-import type { Message } from './types';
-import { readableFileName } from '@/lib/chat/imageMeta';
+import { WAVEFORM_HEIGHTS } from './constants';
 import EmojiPicker from './EmojiPicker';
 import LiveWaveform from './LiveWaveform';
+import type { Message } from './types';
 
 interface ChatInputProps {
   // Text composer

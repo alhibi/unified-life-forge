@@ -6,19 +6,19 @@
  * in the browser — no network calls.
  */
 
-import type {
-  Supplement,
-  DietLog,
-  SkinHairLog,
-  IntakeLog,
-} from './wellnessDb';
 import {
   FOODS,
   INTERACTIONS,
+  type Lang,
   NUTRIENTS,
   SYNERGIES,
-  type Lang,
 } from './wellnessData';
+import type {
+  DietLog,
+  IntakeLog,
+  SkinHairLog,
+  Supplement,
+} from './wellnessDb';
 
 export type Severity = 'info' | 'warn';
 

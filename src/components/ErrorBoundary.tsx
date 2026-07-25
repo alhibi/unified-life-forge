@@ -1,5 +1,6 @@
 import React, { Component, type ReactNode } from 'react';
-import { RefreshCw, Home } from '@/lib/icons';
+
+import { Home,RefreshCw } from '@/lib/icons';
 import { scrubVerboseDetails } from '@/lib/scrub';
 import { captureTelemetry } from '@/lib/telemetry';
 

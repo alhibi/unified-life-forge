@@ -1,10 +1,11 @@
 import React, { useMemo } from 'react';
+
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { isEmojiAvatarValue, getAppleEmojiUrl } from '@/utils/emojiAvatar';
-import { cn } from '@/lib/utils';
-import { Hash, Users } from '@/lib/icons';
 import type { ChatKind, ChatSummary } from '@/lib/chat';
 import { chatAvatar, chatDisplayName } from '@/lib/chat';
+import { Hash, Users } from '@/lib/icons';
+import { cn } from '@/lib/utils';
+import { getAppleEmojiUrl,isEmojiAvatarValue } from '@/utils/emojiAvatar';
 
 interface GroupAvatarProps {
   /** Pass the full ChatSummary when you have it — saves the caller from

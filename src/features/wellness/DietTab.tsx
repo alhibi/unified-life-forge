@@ -17,23 +17,25 @@
  *     density at a glance.
  */
 
-import React, { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import {
-  Trash2, Calendar as CalIcon, Search, Beef, Wheat, Salad, Flame,
-  Minus, Plus, Info, Sparkles,
-} from '@/lib/icons';
+import React, { useMemo, useState } from 'react';
+
 import { useApp } from '@/contexts/AppContext';
+import {
+Beef, Calendar as CalIcon, Flame,
+Info,   Minus, Plus, Salad, Search, Sparkles,
+  Trash2, Wheat, } from '@/lib/icons';
+
+import AppDatePicker from './AppDatePicker';
+import { athleticSummary } from './athleticEngine';
+import { CATEGORY_META, categoryOf, type FoodCategory } from './foodCategories';
+import { FoodIcon } from './foodIcons';
+import { hasMacros, macroFor, macrosForDate, portionGramsFor } from './foodMacros';
+import { AnimatedNumber, ProgressRing, SectionHeader } from './premium/primitives';
+import { SoftSurface, withAlpha } from './premium/surfaces';
 import { FOOD_LIST, FOODS, type Lang } from './wellnessData';
 import type { AthleteProfile, DietLog, UUID } from './wellnessDb';
 import { todayIso } from './wellnessDb';
-import { CATEGORY_META, categoryOf, type FoodCategory } from './foodCategories';
-import { FoodIcon } from './foodIcons';
-import AppDatePicker from './AppDatePicker';
-import { SoftSurface, withAlpha } from './premium/surfaces';
-import { ProgressRing, AnimatedNumber, SectionHeader } from './premium/primitives';
-import { athleticSummary } from './athleticEngine';
-import { macroFor, macrosForDate, hasMacros, portionGramsFor } from './foodMacros';
 
 interface Props {
   dietLogs: DietLog[];

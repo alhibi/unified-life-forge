@@ -1,19 +1,21 @@
+import { AnimatePresence,motion } from 'framer-motion';
 import React, { useCallback, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import {
-  X, ChevronRight, UserPlus, MoreHorizontal, Shield,
-  ShieldOff, UserMinus, AlertTriangle,
-} from '@/lib/icons';
-import { cn } from '@/lib/utils';
-import {
-  useChatMembers, useChatMutations,
-  type ChatMember, type ChatRole, type ChatSummary,
-} from '@/lib/chat';
+
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { isEmojiAvatarValue, getAppleEmojiUrl } from '@/utils/emojiAvatar';
+import {
+  type ChatMember, type ChatRole, type ChatSummary,
+  useChatMembers, useChatMutations,
+} from '@/lib/chat';
+import {
+AlertTriangle,
+ChevronRight, MoreHorizontal, Shield,
+  ShieldOff, UserMinus, UserPlus,   X, } from '@/lib/icons';
+import { cn } from '@/lib/utils';
 import { getDefaultAvatarForUser } from '@/utils/defaultAvatar';
-import RoleBadge from './RoleBadge';
+import { getAppleEmojiUrl,isEmojiAvatarValue } from '@/utils/emojiAvatar';
+
 import MemberPicker from './MemberPicker';
+import RoleBadge from './RoleBadge';
 
 interface MemberListSheetProps {
   isOpen: boolean;

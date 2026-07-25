@@ -1,8 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Search, X, ScrollText } from '@/lib/icons';
-import { Link } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
+import React, { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
+
 import { useDiwanSuggest } from '@/features/diwan/lib/hooks';
+import { ScrollText,Search, X } from '@/lib/icons';
 
 interface Props {
   value?: string;

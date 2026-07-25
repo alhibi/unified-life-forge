@@ -3,9 +3,9 @@
 // applicable. The engine never instantiates adapters directly — it calls
 // `runAdapter()` which wraps the call with timeout + circuit-breaker check.
 
-import type { PartialSnapshot } from '../types/WeatherSnapshot';
 import type { ForecastLayers } from '../types/ForecastLayer';
 import type { AdapterResponse, SourceId, SourceMeta } from '../types/SourceRegistry';
+import type { PartialSnapshot } from '../types/WeatherSnapshot';
 
 export interface AdapterContext {
   lat: number;

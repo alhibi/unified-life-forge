@@ -5,10 +5,11 @@
  * Last `weeks` weeks shown.
  */
 
-import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { frequencyHeatmap } from '../analyticsEngine';
+import React, { useMemo } from 'react';
+
 import type { WorkoutSession } from '../../wellnessDb';
+import { frequencyHeatmap } from '../analyticsEngine';
 
 export interface FrequencyHeatmapProps {
   workouts: WorkoutSession[];

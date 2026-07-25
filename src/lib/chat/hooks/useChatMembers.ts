@@ -1,10 +1,12 @@
 // useChatMembers — list members for the active chat with realtime
 // invalidation when an admin adds / removes / promotes someone.
 
-import { useEffect } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type { RealtimeChannel } from '@supabase/supabase-js';
-import { supabase, isSupabaseConfigured } from '@/integrations/supabase/client';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useEffect } from 'react';
+
+import { isSupabaseConfigured,supabase } from '@/integrations/supabase/client';
+
 import * as api from '../api';
 import { chatKeys } from '../queryKeys';
 import type { ChatMember } from '../types';

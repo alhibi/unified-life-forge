@@ -15,6 +15,7 @@
  */
 
 import React from 'react';
+
 import type { MuscleGroup } from '@/features/wellness/exerciseCatalog';
 
 interface Props {

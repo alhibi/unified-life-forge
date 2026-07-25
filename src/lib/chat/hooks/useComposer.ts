@@ -13,6 +13,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+
 import type { ChatMessage } from '../types';
 
 export interface UseComposerResult {

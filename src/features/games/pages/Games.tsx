@@ -1,10 +1,11 @@
-import React, { useMemo } from 'react';
-import SEO from '@/components/SEO';
-import PageHeader from '@/components/PageHeader';
-import { useApp } from '@/contexts/AppContext';
-import { useNavigate } from 'react-router-dom';
-import { Grid3X3, Swords, Gamepad2, Trophy, Brain, Dices, Crosshair, Puzzle, Flame, Target, Zap, Crown, Map, Award, Sparkles } from '@/lib/icons';
 import { motion } from 'framer-motion';
+import React, { useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+import PageHeader from '@/components/PageHeader';
+import SEO from '@/components/SEO';
+import { useApp } from '@/contexts/AppContext';
+import { Award, Brain, Crosshair, Crown, Dices, Flame, Gamepad2, Grid3X3, Map, Puzzle, Sparkles,Swords, Target, Trophy, Zap } from '@/lib/icons';
 
 // Unique colors for each game to provide visual variety and distinct identities.
 const COLORS = {

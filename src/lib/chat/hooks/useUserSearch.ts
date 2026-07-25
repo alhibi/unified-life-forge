@@ -3,9 +3,11 @@
 //   • Group creator (member picker)
 //   • Add-member sheet inside an existing group
 
-import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
+
 import { isSupabaseConfigured } from '@/integrations/supabase/client';
+
 import * as api from '../api';
 import { chatKeys } from '../queryKeys';
 

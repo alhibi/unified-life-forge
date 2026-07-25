@@ -1,12 +1,13 @@
 // @ts-nocheck — schema mismatch: code references tables/RPCs not in current generated types
-import { describe, it, expect } from 'vitest';
+import { describe, expect,it } from 'vitest';
+
 import {
   asChatKind, asChatRole, asMessageKind,
-  effectiveStatus, messageFromDb, messageToInsert,
-  isDM, isGroup, isChannel, isAdmin, isOwner,
-  isChatMuted, isChatArchived, isChatPinned,
-  chatDisplayName, chatAvatar,
-  type ChatSummary, type DbMessage,
+chatAvatar,
+  chatDisplayName,   type ChatSummary, type DbMessage,
+  effectiveStatus, isAdmin, isChannel, isChatArchived,   isChatMuted, isChatPinned,
+  isDM, isGroup, isOwner,
+messageFromDb, messageToInsert,
 } from './types';
 
 const baseDbMessage: DbMessage = {

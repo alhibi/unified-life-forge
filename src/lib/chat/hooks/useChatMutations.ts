@@ -13,11 +13,13 @@
 //      so the (sender_id, client_id) UNIQUE INDEX absorbs duplicates
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { useCallback, useMemo } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useCallback, useMemo } from 'react';
 import { toast } from 'sonner';
-import { useAuth } from '@/hooks/useAuth';
+
 import { useApp } from '@/contexts/AppContext';
+import { useAuth } from '@/hooks/useAuth';
+
 import * as api from '../api';
 import { newClientId, optimisticIdFromClientId } from '../clientId';
 import { describeChatError, toChatError } from '../errors';

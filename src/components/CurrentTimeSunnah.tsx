@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import { AnimatePresence,motion } from 'framer-motion';
+import React, { useEffect,useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+
 import { useApp } from '@/contexts/AppContext';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, Leaf } from '@/lib/icons';
-import { sunnahDetailData } from '@/data/sunnahDetailData';
 import type { SunnahDetailItem } from '@/data/sunnahDetailData';
+import { sunnahDetailData } from '@/data/sunnahDetailData';
+import { MECCA_FALLBACK,useDeviceLocation } from '@/hooks/useDeviceLocation';
 import { fetchPrayerTimings } from '@/hooks/usePrayerTimesCache';
-import { useDeviceLocation, MECCA_FALLBACK } from '@/hooks/useDeviceLocation';
+import { ChevronDown, Leaf } from '@/lib/icons';
 
 interface PrayerTimings {
   Fajr: string;

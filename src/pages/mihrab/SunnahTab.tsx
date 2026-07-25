@@ -1,11 +1,11 @@
+import { motion } from 'framer-motion';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useApp } from '@/contexts/AppContext';
-import { motion } from 'framer-motion';
-import {
-  Clock, Timer, CalendarDays, Trophy, ChevronLeft, ChevronRight,
-} from '@/lib/icons';
 
+import { useApp } from '@/contexts/AppContext';
+import {
+CalendarDays, ChevronLeft, ChevronRight,
+  Clock, Timer, Trophy, } from '@/lib/icons';
 /**
  * Mihrab → Sunnah tab.
  *
@@ -18,8 +18,7 @@ import {
  * the user perceives this as the same set of cards "moved" from
  * the home grid into a dedicated home — not as new content.
  */
-
-import { pageStagger as stagger, pageItem as item } from '@/lib/motion';
+import { pageItem as item,pageStagger as stagger } from '@/lib/motion';
 
 interface SunnahCard {
   key: string;

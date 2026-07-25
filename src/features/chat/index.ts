@@ -10,8 +10,8 @@
 // docs/architecture/feature-map.md.
 
 export { default as ChatDrawer } from './components/ChatDrawer';
+export type { ChatDrawerProps, Message } from './components/types';
 export { default as ChatPage } from './pages/Chat';
 export { default as ChatSettingsPage } from './pages/ChatSettings';
 export { default as GroupChatPage } from './pages/GroupChat';
 export { default as GroupsIndexPage } from './pages/GroupsIndex';
-export type { ChatDrawerProps, Message } from './components/types';

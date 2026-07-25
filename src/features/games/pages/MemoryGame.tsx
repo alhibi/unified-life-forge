@@ -1,14 +1,15 @@
-import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { AnimatePresence,motion } from 'framer-motion';
+import React, { useCallback, useEffect, useMemo, useRef,useState } from 'react';
+import { useNavigate,useSearchParams } from 'react-router-dom';
+
 import { useApp } from '@/contexts/AppContext';
 import GameShell from '@/features/games/components/GameShell';
-import {
-  RefreshCw, Play, Pause, Eye, Shuffle as ShuffleIcon, Sparkles, Trophy, Brain,
-  Timer as TimerIcon, Calendar, Zap, Award, Flame, Lock,
-} from '@/lib/icons';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { AdventureStage, gradeStage, recordStageResult,STAGES } from '@/features/games/data/memoryAdventure';
 import { playSfx, vibrate } from '@/features/games/utils/gameFeedback';
-import { STAGES, AdventureStage, gradeStage, recordStageResult } from '@/features/games/data/memoryAdventure';
+import {
+Award, Brain,
+Calendar, Eye, Flame, Lock,
+Pause, Play,   RefreshCw, Shuffle as ShuffleIcon, Sparkles,   Timer as TimerIcon, Trophy, Zap, } from '@/lib/icons';
 
 type Difficulty = 'easy' | 'medium' | 'hard' | 'expert';
 type Mode = 'classic' | 'endless' | 'timeattack' | 'daily' | 'versus' | 'adventure';
@@ -109,7 +110,7 @@ function loadStats(): MemoryStats {
     };
   } catch { return { ...DEFAULT_STATS }; }
 }
-import { saveGameProgress, getGameProgress } from '../api';
+import { getGameProgress,saveGameProgress } from '../api';
 
 function saveStatsFn(s: MemoryStats) {
   localStorage.setItem('memory-stats', JSON.stringify(s));

@@ -18,20 +18,22 @@
 //   stable even before the canonical `id` is known.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { useCallback, useEffect, useMemo } from 'react';
-import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
-import type { InfiniteData } from '@tanstack/react-query';
 import type { RealtimeChannel } from '@supabase/supabase-js';
-import { supabase, isSupabaseConfigured } from '@/integrations/supabase/client';
+import type { InfiniteData } from '@tanstack/react-query';
+import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
+import { useCallback, useEffect, useMemo } from 'react';
+
 import { useAuth } from '@/hooks/useAuth';
+import { isSupabaseConfigured,supabase } from '@/integrations/supabase/client';
+
 import * as api from '../api';
+import {
+  cacheMessages, deleteCachedMessage,
+readCachedMessages, reconcileMessageByClientId, } from '../idbCache';
 import { chatKeys } from '../queryKeys';
 import {
-  cacheMessages, readCachedMessages, reconcileMessageByClientId, deleteCachedMessage,
-} from '../idbCache';
-import {
-  effectiveStatus, messageFromDb,
   type ChatMessage, type DbMessage,
+  effectiveStatus, messageFromDb,
 } from '../types';
 
 const PAGE_SIZE = 50;

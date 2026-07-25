@@ -3,9 +3,11 @@
  * prerequisites and progress dots showing the user's current step.
  */
 
-import React, { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
+import React, { useMemo, useState } from 'react';
+
 import { Award, ChevronRight, Lock } from '@/lib/icons';
+
 import { CATEGORY_LABEL, isUnlocked, SKILLS, skillsByCategory } from '../caliSkillTree';
 import type { SkillDef } from '../types';
 

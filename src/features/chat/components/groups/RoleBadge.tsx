@@ -1,7 +1,8 @@
 import React from 'react';
+
+import type { ChatRole } from '@/lib/chat';
 import { Crown, Shield, User } from '@/lib/icons';
 import { cn } from '@/lib/utils';
-import type { ChatRole } from '@/lib/chat';
 
 interface RoleBadgeProps {
   role: ChatRole;

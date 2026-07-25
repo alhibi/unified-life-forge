@@ -8,19 +8,21 @@
  * Internally uses `platesForWeight` from `plateMath.ts`.
  */
 
-import React, { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
+import React, { useMemo, useState } from 'react';
+
 import { Minus, Plus } from '@/lib/icons';
+
 import {
+  DEFAULT_BAR_KG,
   DEFAULT_INVENTORY_KG,
   groupPlates,
   plateColor,
   platesForWeight,
   plateWidth,
   roundToGymWeight,
-  WOMENS_BAR_KG,
   TECHNIQUE_BAR_KG,
-  DEFAULT_BAR_KG,
+  WOMENS_BAR_KG,
 } from '../plateMath';
 
 interface PlateCalculatorProps {

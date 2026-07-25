@@ -1,5 +1,6 @@
-import { describe, it, expect } from 'vitest';
-import { mergeChatSettings, CHAT_SETTINGS_DEFAULTS } from './settings';
+import { describe, expect,it } from 'vitest';
+
+import { CHAT_SETTINGS_DEFAULTS,mergeChatSettings } from './settings';
 
 describe('mergeChatSettings', () => {
   it('returns defaults for null / non-object inputs', () => {

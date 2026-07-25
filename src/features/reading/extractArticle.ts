@@ -1,5 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 import { dedupe, withRetry } from '@/lib/fetchRetry';
+
 import { isSupabaseAvailable } from './clientFetcher';
 
 /**

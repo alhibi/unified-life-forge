@@ -1,8 +1,9 @@
 import { auth, defineMcp } from "@lovable.dev/mcp-js";
-import whoamiTool from "./tools/whoami";
-import listNotesTool from "./tools/list-notes";
-import getNoteTool from "./tools/get-note";
+
 import createNoteTool from "./tools/create-note";
+import getNoteTool from "./tools/get-note";
+import listNotesTool from "./tools/list-notes";
+import whoamiTool from "./tools/whoami";
 
 // The OAuth issuer MUST be the direct Supabase host (not the .lovable.cloud
 // proxy). Build it from the project ref at build time — a runtime env read

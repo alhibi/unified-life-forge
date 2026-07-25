@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { CSSProperties } from 'react';
 import { ImagePlus, Loader2, MapPin, X } from 'lucide-react';
+import type { CSSProperties } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,15 +23,14 @@ import {
 } from '@/components/ui/sheet';
 import { Textarea } from '@/components/ui/textarea';
 import { useApp } from '@/contexts/AppContext';
-import { toast } from 'sonner';
 
 import { COUNTRY_CATALOG } from '../countriesCatalog';
 import { useCreatePlace } from '../hooks';
 import {
-  TILE_SIZE,
   containsPoint,
   fitBounds,
   projectLngLat,
+  TILE_SIZE,
   unprojectPoint,
   visibleTiles,
 } from '../mapUtils';

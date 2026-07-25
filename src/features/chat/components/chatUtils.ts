@@ -1,9 +1,11 @@
-import React from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import type { Message } from './types';
-import { renderTextWithAppleEmoji, onAppleEmojiReady } from './appleEmoji';
-import { readableFileName } from '@/lib/chat/imageMeta';
 import DOMPurify from 'dompurify';
+import React from 'react';
+
+import { supabase } from '@/integrations/supabase/client';
+import { readableFileName } from '@/lib/chat/imageMeta';
+
+import { onAppleEmojiReady,renderTextWithAppleEmoji } from './appleEmoji';
+import type { Message } from './types';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Date / time formatters

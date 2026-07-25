@@ -1,7 +1,8 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect,it } from 'vitest';
+
 import {
-  newClientId, looksLikeUuid, optimisticIdFromClientId, isOptimisticId,
-} from './clientId';
+isOptimisticId,
+looksLikeUuid,   newClientId, optimisticIdFromClientId, } from './clientId';
 
 describe('clientId helpers', () => {
   describe('newClientId', () => {

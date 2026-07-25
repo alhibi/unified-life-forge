@@ -1,20 +1,22 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
+import { useEffect, useMemo, useRef, useState } from 'react';
+
 import {
   Bookmark, BookmarkCheck, ChevronLeft, Clock, Copy,
   ExternalLink, FileText, Loader2, Share2,
 } from '@/lib/icons';
 import { notify } from '@/lib/notify';
 import { sanitizeRssHtml } from '@/utils/sanitizeRssHtml';
-import type { FeedItem, ReaderPrefs } from './types';
-import { formatDate, readingMinutes, safeHref } from './utils';
-import { ReaderPrefsPopover } from './ReaderPrefsPopover';
-import { SourcePill } from './SourcePill';
-import { ArticleDetailSkeleton } from './Skeletons';
-import { offlineDb } from './offlineDb';
-import { needsContentUpgrade, plainTextLength } from './extractArticle';
+
 import { ArticleSpeechPlayer } from './ArticleSpeechPlayer';
 import { ArticleTranslator } from './ArticleTranslator';
+import { needsContentUpgrade, plainTextLength } from './extractArticle';
+import { offlineDb } from './offlineDb';
+import { ReaderPrefsPopover } from './ReaderPrefsPopover';
+import { ArticleDetailSkeleton } from './Skeletons';
+import { SourcePill } from './SourcePill';
+import type { FeedItem, ReaderPrefs } from './types';
+import { formatDate, readingMinutes, safeHref } from './utils';
 
 /**
  * Article reader view. Renders sanitized HTML body, exposes reading-

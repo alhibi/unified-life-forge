@@ -1,34 +1,35 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { lazy, Suspense, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
+
+import { CommandPalette } from "@/components/CommandPalette";
+import EdgeSwipeBack from "@/components/EdgeSwipeBack";
+import ErrorBoundary from "@/components/ErrorBoundary";
+import PageTransition, { NavModeContext } from "@/components/PageTransition";
+import PortalBackButton from "@/components/portal/PortalBackButton";
+import ScrollToTop from "@/components/ScrollToTop";
 // One toast system. The Radix-based <Toaster/> used to be mounted next to
 // Sonner even though a single call site (AddPlaceSheet) used it, so the app
 // shipped two snackbar implementations with two different looks.
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppProvider, useApp } from "@/contexts/AppContext";
-import { VoicePlayerProvider } from "@/contexts/VoicePlayerContext";
 import { ImageUploadProvider } from "@/contexts/ImageUploadContext";
-import { PodcastPlayerProvider } from "@/features/podcasts/contexts/PodcastPlayerContext";
-import PodcastMiniPlayer from "@/features/podcasts/components/PodcastMiniPlayer";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import PortalBackButton from "@/components/portal/PortalBackButton";
-import PageTransition, { NavModeContext } from "@/components/PageTransition";
-import ScrollToTop from "@/components/ScrollToTop";
-import ErrorBoundary from "@/components/ErrorBoundary";
-import { lazy, Suspense, useEffect, useLayoutEffect, useMemo, useState } from "react";
-import { IconProvider } from "@/lib/icons";
-import { useAutoPrayerTheme } from "@/hooks/useAutoPrayerTheme";
-import { usePresence } from "@/hooks/usePresence";
-import { useAuth } from "@/hooks/useAuth";
-import { useNavDirection } from "@/hooks/useNavDirection";
-import { navStart } from "@/lib/navPerf";
-import { buildTabLayerVariants, type NavMode } from "@/lib/motion";
-import { useInChatConversation } from "@/lib/inChatConversation";
-import EdgeSwipeBack from "@/components/EdgeSwipeBack";
-import { registerRoute } from "@/lib/routePrefetch";
 import { SystemEngineProvider, useSystemEngine } from "@/contexts/SystemEngineContext";
+import { VoicePlayerProvider } from "@/contexts/VoicePlayerContext";
+import PodcastMiniPlayer from "@/features/podcasts/components/PodcastMiniPlayer";
+import { PodcastPlayerProvider } from "@/features/podcasts/contexts/PodcastPlayerContext";
+import { useAuth } from "@/hooks/useAuth";
+import { useAutoPrayerTheme } from "@/hooks/useAutoPrayerTheme";
+import { useNavDirection } from "@/hooks/useNavDirection";
 import { usePredictivePrefetch } from "@/hooks/usePredictivePrefetch";
-import { CommandPalette } from "@/components/CommandPalette";
+import { usePresence } from "@/hooks/usePresence";
+import { IconProvider } from "@/lib/icons";
+import { useInChatConversation } from "@/lib/inChatConversation";
+import { buildTabLayerVariants, type NavMode } from "@/lib/motion";
+import { navStart } from "@/lib/navPerf";
+import { registerRoute } from "@/lib/routePrefetch";
 // Opt-in dual-pane workspace. Lazy so react-resizable-panels stays out of
 // the entry chunk for the 99% of sessions that never enable it.
 const SplitWorkspace = lazy(() => import("@/components/SplitWorkspace"));

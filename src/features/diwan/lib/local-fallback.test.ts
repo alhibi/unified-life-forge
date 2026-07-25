@@ -13,19 +13,20 @@
  */
 
 import { describe, expect, it } from 'vitest';
+
 import {
   localEras,
-  localStats,
-  localPoets,
+  localGlossary,
+  localPoem,
   localPoetBySlug,
   localPoetPoems,
-  localPoem,
+  localPoets,
   localSearchPoems,
   localSearchVerses,
   localSimilarPoems,
-  localSuggest,
-  localGlossary,
   localSmartSearch,
+  localStats,
+  localSuggest,
 } from './local-fallback';
 
 // ─── أدوات مساعدة ────────────────────────────────────────────────

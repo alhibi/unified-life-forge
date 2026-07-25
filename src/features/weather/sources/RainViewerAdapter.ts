@@ -1,8 +1,8 @@
 // RainViewer — radar + satellite tile catalog. No key, public CDN.
 
-import { BaseAdapter, safeJson, type AdapterContext } from './BaseAdapter';
 import { SOURCE_REGISTRY, type SourceId } from '../types/SourceRegistry';
 import type { PartialSnapshot } from '../types/WeatherSnapshot';
+import { type AdapterContext,BaseAdapter, safeJson } from './BaseAdapter';
 
 interface RVResp {
   host: string;

@@ -1,20 +1,21 @@
 import { useNavigate } from 'react-router-dom';
-import {
-  Cloud,
-  Sun,
-  CloudRain,
-  CloudSnow,
-  CloudLightning,
-  CloudDrizzle,
-  Cloudy,
-  CloudFog,
-  MoonStar,
-  Wind as WindIcon,
-  Droplets,
-  ChevronLeft,
-} from '@/lib/icons';
+
 import { useApp } from '@/contexts/AppContext';
 import { useWeatherData } from '@/features/weather/hooks/useWeatherData';
+import {
+  ChevronLeft,
+  Cloud,
+  CloudDrizzle,
+  CloudFog,
+  CloudLightning,
+  CloudRain,
+  CloudSnow,
+  Cloudy,
+  Droplets,
+  MoonStar,
+  Sun,
+  Wind as WindIcon,
+} from '@/lib/icons';
 
 function iconFor(code: number, isDay: boolean) {
   if (code <= 1) return isDay ? Sun : MoonStar;

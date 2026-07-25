@@ -5,45 +5,46 @@
 //   - يُصدر حالة المصدر (demo/offline/none) إلى fallback-status لعرض
 //     badge شفّاف للمستخدم (راجع DiwanFallbackBadge).
 
-import { useQuery, useQueryClient, useMutation, type UseQueryResult } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient, type UseQueryResult } from '@tanstack/react-query';
 import { useCallback } from 'react';
+
 import {
   fetchEras,
+  fetchFavoritePoems,
+  fetchFavorites,
   fetchLibraryStats,
-  fetchPoets,
+  fetchPoem,
+  fetchPoemGlossary,
   fetchPoetBySlug,
   fetchPoetPoems,
-  fetchPoem,
-  searchPoems,
-  searchVerses,
+  fetchPoets,
   fetchSimilarPoems,
-  fetchSuggestions,
-  fetchPoemGlossary,
   fetchSmartSearch,
-  fetchFavorites,
-  fetchFavoritePoems,
-  toggleFavorite,
+  fetchSuggestions,
   type PoemSearchParams,
   type PoetPoemsParams,
   type PoetsListParams,
+  searchPoems,
+  searchVerses,
+  toggleFavorite,
   type VerseSearchParams,
 } from './api';
+import { isSupabaseReady } from './env';
+import { notifyFallback, notifyRemoteOk } from './fallback-status';
 import {
   localEras,
-  localStats,
-  localPoets,
+  localGlossary,
+  localPoem,
   localPoetBySlug,
   localPoetPoems,
-  localPoem,
+  localPoets,
   localSearchPoems,
   localSearchVerses,
   localSimilarPoems,
-  localSuggest,
-  localGlossary,
   localSmartSearch,
+  localStats,
+  localSuggest,
 } from './local-fallback';
-import { isSupabaseReady } from './env';
-import { notifyFallback, notifyRemoteOk } from './fallback-status';
 import type {
   DiwanEra,
   DiwanGlossaryEntry,

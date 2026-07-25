@@ -1,10 +1,9 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
 import type { User } from '@supabase/supabase-js';
-import { themePresets, generateThemeTokens, applyThemeTokens, type ThemeStyle,  } from '@/utils/themeEngine';
-import { translate, type Language } from '@/i18n';
-import { applyMotionSpeed, installFpsCap, applyMotionAmplitude, applyMotionBounce } from '@/lib/motionRuntime';
+import { createContext, type ReactNode,useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+
+import { useAuth } from '@/hooks/useAuth';
+import { type Language,translate } from '@/i18n';
+import { supabase } from '@/integrations/supabase/client';
 import {
   clampFontWeight,
   DEFAULT_FONT_ID,
@@ -13,6 +12,8 @@ import {
   resolveFontId,
   resolveFontSize,
 } from '@/lib/fonts';
+import { applyMotionAmplitude, applyMotionBounce,applyMotionSpeed, installFpsCap } from '@/lib/motionRuntime';
+import { applyThemeTokens, generateThemeTokens, themePresets, type ThemeStyle,  } from '@/utils/themeEngine';
 
 // 'system' was intentionally removed from the public theme API — users
 // pick Light or Dark explicitly. Any stale localStorage value is

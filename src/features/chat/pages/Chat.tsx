@@ -1,12 +1,13 @@
 import { lazy, Suspense, useCallback } from 'react';
-import SEO from '@/components/SEO';
 import { useNavigate } from 'react-router-dom';
+
+import ErrorBoundary from '@/components/ErrorBoundary';
+import SEO from '@/components/SEO';
+import { Button } from '@/components/ui/button';
 import { useApp } from '@/contexts/AppContext';
 import { useAuth } from '@/hooks/useAuth';
-import { useUnreadMessages } from '@/hooks/useUnreadMessages';
 import { useSmartBack } from '@/hooks/useSmartBack';
-import { Button } from '@/components/ui/button';
-import ErrorBoundary from '@/components/ErrorBoundary';
+import { useUnreadMessages } from '@/hooks/useUnreadMessages';
 
 const ChatDrawer = lazy(() => import('@/features/chat/components/ChatDrawer'));
 

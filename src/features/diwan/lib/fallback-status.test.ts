@@ -68,7 +68,7 @@ describe('fallback-status', () => {
 // ─── اختبار سلوك الـ store عبر React renderHook ─────────────────
 // هذا أصدق وفاءً للسلوك الفعلي لأن useFallbackStatus يستخدم
 // useSyncExternalStore.
-import { renderHook, act } from '@testing-library/react';
+import { act,renderHook } from '@testing-library/react';
 
 describe('useFallbackStatus (React integration)', () => {
   beforeEach(() => {

@@ -1,7 +1,8 @@
-import { useMemo, useRef, Suspense } from 'react';
+import { MeshDistortMaterial,OrbitControls } from '@react-three/drei';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls, MeshDistortMaterial } from '@react-three/drei';
+import { Suspense,useMemo, useRef } from 'react';
 import * as THREE from 'three';
+
 import type { JournalMoodBalance } from '../types';
 
 /**

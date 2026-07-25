@@ -1,11 +1,12 @@
 import React from 'react';
-import { cn } from '@/lib/utils';
+
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { isEmojiAvatarValue, getAppleEmojiUrl } from '@/utils/emojiAvatar';
-import { getDefaultAvatarForUser } from '@/utils/defaultAvatar';
+import { formatClockTime,renderRichText } from '@/features/chat/components/chatUtils';
 import { MessageTicks, ReactionPill } from '@/features/chat/components/MessageBubble';
-import { renderRichText, formatClockTime } from '@/features/chat/components/chatUtils';
 import type { ChatMember, ChatMessage, ChatReaction } from '@/lib/chat';
+import { cn } from '@/lib/utils';
+import { getDefaultAvatarForUser } from '@/utils/defaultAvatar';
+import { getAppleEmojiUrl,isEmojiAvatarValue } from '@/utils/emojiAvatar';
 
 interface GroupMessageBubbleProps {
   message: ChatMessage;

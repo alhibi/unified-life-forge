@@ -1,10 +1,11 @@
-import React, { useEffect } from 'react';
-import { useAuth } from '@/hooks/useAuth';
-import { useApp } from '@/contexts/AppContext';
-import { ShieldAlert, ArrowRight } from '@/lib/icons';
-import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 import SEO from '@/components/SEO';
+import { useApp } from '@/contexts/AppContext';
+import { useAuth } from '@/hooks/useAuth';
+import { ArrowRight,ShieldAlert } from '@/lib/icons';
 
 interface AuthGuardProps {
   children: React.ReactNode;

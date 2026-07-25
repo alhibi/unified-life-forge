@@ -1,9 +1,11 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Send, Smile, X, Reply, Pencil } from '@/lib/icons';
-import { cn } from '@/lib/utils';
-import type { ChatMessage } from '@/lib/chat';
-import EmojiPicker from '../EmojiPicker';
 import { AnimatePresence, motion } from 'framer-motion';
+import React, { useEffect, useRef, useState } from 'react';
+
+import type { ChatMessage } from '@/lib/chat';
+import { Pencil,Reply, Send, Smile, X } from '@/lib/icons';
+import { cn } from '@/lib/utils';
+
+import EmojiPicker from '../EmojiPicker';
 
 interface GroupComposerProps {
   text: string;

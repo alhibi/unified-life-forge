@@ -1,24 +1,26 @@
-import { useState, useEffect, useRef, useCallback, useMemo, type ChangeEvent } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
+import { type ChangeEvent,useCallback, useEffect, useMemo, useRef, useState } from 'react';
+
 import { useApp } from '@/contexts/AppContext';
 import { useImageUpload } from '@/contexts/ImageUploadContext';
-import { packImageMeta, readableFileName } from '@/lib/chat/imageMeta';
-import { looksLikeHeic, canDecodeHeicNatively, convertHeicToJpeg } from '@/lib/chat/heic';
-import { useOtherUserPresence, useUserOnline, useOnlineUserIds, formatLastSeen, useTick } from '@/hooks/usePresence';
-import { getSignedFileUrl, getMessagePreview } from './chatUtils';
-import { playChatSound, primeAudio, haptic } from './sounds';
-import { useChatPrefs } from './useChatPrefs';
-import {
-  chatError, chatSuccess, describeError, validateFile, clampText,
-  MAX_STAGED_IMAGES,
-} from './chatNotify';
-import type { Conversation, Message, Reaction, ConversationFilter, MessageStatus } from './types';
+import { useAuth } from '@/hooks/useAuth';
+import { formatLastSeen, useOnlineUserIds, useOtherUserPresence, useTick,useUserOnline } from '@/hooks/usePresence';
+import { supabase } from '@/integrations/supabase/client';
 import { newClientId } from '@/lib/chat/clientId';
-import { useTypingChannel } from './internal/useTypingChannel';
-import { useInChatSearch } from './internal/useInChatSearch';
+import { canDecodeHeicNatively, convertHeicToJpeg,looksLikeHeic } from '@/lib/chat/heic';
+import { packImageMeta, readableFileName } from '@/lib/chat/imageMeta';
+
+import {
+  chatError, chatSuccess, clampText,
+describeError,   MAX_STAGED_IMAGES,
+validateFile, } from './chatNotify';
+import { getMessagePreview,getSignedFileUrl } from './chatUtils';
 import { fetchConversations } from './internal/conversationsQuery';
 import { fetchMessagesWithReactions } from './internal/messagesQuery';
+import { useInChatSearch } from './internal/useInChatSearch';
+import { useTypingChannel } from './internal/useTypingChannel';
+import { haptic,playChatSound, primeAudio } from './sounds';
+import type { Conversation, ConversationFilter, Message, MessageStatus,Reaction } from './types';
+import { useChatPrefs } from './useChatPrefs';
 
 interface UseChatOptions {
   open: boolean;

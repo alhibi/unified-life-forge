@@ -4,7 +4,7 @@
  * Listens for online/offline events and provides network status.
  * Also provides a function to trigger toast notifications for network status changes.
  */
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback,useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 export interface NetworkStatus {

@@ -1,10 +1,12 @@
+import { AnimatePresence,motion } from 'framer-motion';
 import React, { useCallback, useMemo, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+
+import { type ChatSummary,useChatMutations, type UserSearchResult, useUserSearch } from '@/lib/chat';
 import {
-  X, Camera, ChevronRight, Users, Hash, ArrowLeft,
-} from '@/lib/icons';
+ArrowLeft,
+Camera, ChevronRight, Hash, Users,   X, } from '@/lib/icons';
 import { cn } from '@/lib/utils';
-import { useChatMutations, useUserSearch, type UserSearchResult, type ChatSummary } from '@/lib/chat';
+
 import GroupAvatar from './GroupAvatar';
 import MemberPicker from './MemberPicker';
 

@@ -1,10 +1,7 @@
-import { useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import {
-  Archive, Bell, Bookmark, CheckCheck, ChevronLeft, Compass, FolderOpen, MoreHorizontal,
-  Newspaper, RefreshCw, Search, Settings2, Type, X, Plus, Trash2, Sparkle
-} from '@/lib/icons';
-import { Input } from '@/components/ui/input';
+import { useMemo, useState } from 'react';
+import { toast } from 'sonner';
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,12 +10,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import type { FeedSource, FilterTab } from './types';
-import type { ListPrefs } from './listPrefs';
-import { SourcePill } from './SourcePill';
-import { ReadingPrefsToolbar } from './ReadingPrefsToolbar';
+import { Input } from '@/components/ui/input';
+import {
+  Archive, Bell, Bookmark, CheckCheck, ChevronLeft, Compass, FolderOpen, MoreHorizontal,
+  Newspaper, Plus, RefreshCw, Search, Settings2, Sparkle,
+Trash2, Type, X} from '@/lib/icons';
+
 import { getCustomFolders, storeCustomFolders } from './foldersStorage';
-import { toast } from 'sonner';
+import type { ListPrefs } from './listPrefs';
+import { ReadingPrefsToolbar } from './ReadingPrefsToolbar';
+import { SourcePill } from './SourcePill';
+import type { FeedSource, FilterTab } from './types';
 
 /**
  * Sticky page header for the list view: title, action icons, search

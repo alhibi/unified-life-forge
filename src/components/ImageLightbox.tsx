@@ -1,6 +1,7 @@
-import React, { useCallback, useRef, useState, useEffect } from 'react';
+import { AnimatePresence, motion, useMotionValue, useTransform } from 'framer-motion';
+import React, { useCallback, useEffect,useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
+
 import { ChevronLeft, ChevronRight, Download } from '@/lib/icons';
 
 interface ImageLightboxProps {

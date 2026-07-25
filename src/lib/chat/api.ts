@@ -17,13 +17,14 @@
 // `room_id`, the diff is in one place.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { supabase as _supabaseTyped, isSupabaseConfigured } from '@/integrations/supabase/client';
+import { isSupabaseConfigured,supabase as _supabaseTyped } from '@/integrations/supabase/client';
 import type { Database } from '@/integrations/supabase/types';
+
 import {
   asChatKind, asChatRole,
-  messageFromDb, effectiveStatus,
   type ChatMember, type ChatMessage, type ChatSummary,
-  type CreateGroupInput, type SendMessageInput,
+  type CreateGroupInput, effectiveStatus,
+  messageFromDb, type SendMessageInput,
 } from './types';
 
 // This module was written against a richer chat schema (chats,

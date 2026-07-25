@@ -2,8 +2,8 @@ import { AnimatePresence, motion } from 'framer-motion';
 import React, { useEffect, useState } from 'react';
 
 import BackButton from '@/components/BackButton';
-import { Switch } from '@/components/ui/switch';
 import SEO from '@/components/SEO';
+import { Switch } from '@/components/ui/switch';
 import { useApp } from '@/contexts/AppContext';
 import {
   getAutoPrayerThemeEnabled,
@@ -26,7 +26,6 @@ import {
   Sun,
   Zap,
 } from '@/lib/icons';
-
 import { pageItem as item, pageStagger as stagger } from '@/lib/motion';
 import {
   createDynamicPreset,

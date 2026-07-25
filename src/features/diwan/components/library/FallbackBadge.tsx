@@ -1,7 +1,8 @@
+import { AnimatePresence,motion } from 'framer-motion';
 import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { WifiOff, FlaskConical } from '@/lib/icons';
+
 import { useFallbackStatus } from '@/features/diwan/lib/fallback-status';
+import { FlaskConical,WifiOff } from '@/lib/icons';
 
 /**
  * شارة صغيرة تُعلم المستخدم متى يُعرض محتوى من البيانات المحلية بدلاً

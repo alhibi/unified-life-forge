@@ -1,30 +1,30 @@
-import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  Eye, EyeOff, Bell, BellOff, Smartphone, Volume2, Vibrate as VibrateIcon,
-  Type, Palette, RefreshCcw, Database, Image as ImageIcon, FileText, Mic,
-  Send, Globe, ShieldOff, Trash2, Download, Upload, CheckCircle2,
-  AlertTriangle, ChevronDown, RotateCcw,
-} from '@/lib/icons';
 import { toast } from 'sonner';
-import { cn } from '@/lib/utils';
+
+import ErrorBoundary from '@/components/ErrorBoundary';
+import PageHeader from '@/components/PageHeader';
+import SEO from '@/components/SEO';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
 import { useApp } from '@/contexts/AppContext';
 import { useAuth } from '@/hooks/useAuth';
-import SEO from '@/components/SEO';
-import PageHeader from '@/components/PageHeader';
-import ErrorBoundary from '@/components/ErrorBoundary';
-import { Button } from '@/components/ui/button';
 import {
-  useChatSettings, useBlockedUsers, useChatMutations, useChats,
-  idbCache, getStorageReport,
   type ChatSettings as Settings,
-} from '@/lib/chat';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { isEmojiAvatarValue, getAppleEmojiUrl } from '@/utils/emojiAvatar';
+getStorageReport,
+  idbCache, useBlockedUsers, useChatMutations, useChats,
+  useChatSettings, } from '@/lib/chat';
+import {
+  AlertTriangle, Bell, BellOff, CheckCircle2,
+ChevronDown, Database, Download,   Eye, EyeOff, FileText, Globe, Image as ImageIcon, Mic,
+Palette, RefreshCcw, RotateCcw,
+  Send, ShieldOff, Smartphone, Trash2,   Type, Upload, Vibrate as VibrateIcon,
+Volume2, } from '@/lib/icons';
+import { pageItem as item,pageStagger as stagger } from '@/lib/motion';
+import { cn } from '@/lib/utils';
 import { getDefaultAvatarForUser } from '@/utils/defaultAvatar';
-
-import { pageStagger as stagger, pageItem as item } from '@/lib/motion';
+import { getAppleEmojiUrl,isEmojiAvatarValue } from '@/utils/emojiAvatar';
 
 /**
  * /chat/settings — comprehensive chat-specific preferences synced via

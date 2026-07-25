@@ -1,6 +1,6 @@
+import DOMPurify from 'dompurify';
 import { AnimatePresence, motion } from 'framer-motion';
 import React, { useEffect, useState } from 'react';
-import DOMPurify from 'dompurify';
 
 import { BookOpen, ExternalLink, Github, Globe, Loader2, Video } from '@/lib/icons';
 

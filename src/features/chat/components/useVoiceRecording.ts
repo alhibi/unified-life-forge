@@ -1,12 +1,14 @@
-import { useState, useRef, useCallback, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { useCallback, useEffect,useRef, useState } from 'react';
+
 import { useVoicePlayer } from '@/contexts/VoicePlayerContext';
-import { haptic } from './sounds';
+import { supabase } from '@/integrations/supabase/client';
+import { ANALYSER_BAR_COUNT, type MicAnalyserHandle,startMicAnalyser } from '@/lib/chat/micAnalyser';
+
 import {
-  chatError, reportMicError, validateFile,
-  MAX_VOICE_SECONDS,
+  chatError,   MAX_VOICE_SECONDS,
+reportMicError, validateFile,
 } from './chatNotify';
-import { startMicAnalyser, ANALYSER_BAR_COUNT, type MicAnalyserHandle } from '@/lib/chat/micAnalyser';
+import { haptic } from './sounds';
 
 interface UseVoiceRecordingOptions {
   activeConvId: string | null;

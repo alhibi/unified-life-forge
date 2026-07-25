@@ -11,8 +11,10 @@
  */
 
 import { useEffect, useState } from 'react';
-import { loadReaderPrefs, saveReaderPrefs } from './api';
+
 import { isSupabaseConfigured } from '@/integrations/supabase/client';
+
+import { loadReaderPrefs, saveReaderPrefs } from './api';
 
 /** Ordering applied to the article list before rendering. */
 export type SortMode = 'newest' | 'oldest' | 'unread-first';

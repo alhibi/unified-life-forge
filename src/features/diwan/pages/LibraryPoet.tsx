@@ -1,16 +1,17 @@
-import React, { useEffect, useRef, useState, useMemo } from 'react';
+import { AnimatePresence,motion } from 'framer-motion';
+import React, { useEffect, useMemo,useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Clock, Network, Loader2 } from '@/lib/icons';
-import { motion, AnimatePresence } from 'framer-motion';
-import SEO from '@/components/SEO';
+
 import BackButton from '@/components/BackButton';
-import SearchBar from '@/features/diwan/components/library/SearchBar';
-import PoemCard from '@/features/diwan/components/library/PoemCard';
-import PoetTimeline from '@/features/diwan/components/PoetTimeline';
+import SEO from '@/components/SEO';
 import FallbackBadge from '@/features/diwan/components/library/FallbackBadge';
-import { useDiwanPoet, useDiwanPoetPoems, useDiwanEras } from '@/features/diwan/lib/hooks';
+import PoemCard from '@/features/diwan/components/library/PoemCard';
+import SearchBar from '@/features/diwan/components/library/SearchBar';
+import PoetTimeline from '@/features/diwan/components/PoetTimeline';
 import { poetTimelines } from '@/features/diwan/data/poetTimelines';
+import { useDiwanEras,useDiwanPoet, useDiwanPoetPoems } from '@/features/diwan/lib/hooks';
 import type { DiwanPoemSummary } from '@/features/diwan/lib/types';
+import { Clock, Loader2,Network } from '@/lib/icons';
 
 const PAGE = 30;
 

@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
-import { useApp } from "@/contexts/AppContext";
 import { Loader2, ShieldCheck } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useNavigate,useSearchParams } from "react-router-dom";
+
+import { useApp } from "@/contexts/AppContext";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 
 type AuthorizationDetails = {
   client?: { name?: string; client_uri?: string; logo_uri?: string };

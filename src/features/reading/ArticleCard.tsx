@@ -1,13 +1,15 @@
+import { motion, type PanInfo,useMotionValue, useTransform } from 'framer-motion';
 import { useRef } from 'react';
-import { motion, useMotionValue, useTransform, type PanInfo } from 'framer-motion';
+
 import {
   Bookmark, BookmarkCheck, CircleCheck, Clock,
 } from '@/lib/icons';
-import type { FeedItem } from './types';
-import type { Density } from './listPrefs';
-import { readingMinutes, timeAgo } from './utils';
-import { SourcePill } from './SourcePill';
+
 import { ArticleContextMenu } from './ArticleContextMenu';
+import type { Density } from './listPrefs';
+import { SourcePill } from './SourcePill';
+import type { FeedItem } from './types';
+import { readingMinutes, timeAgo } from './utils';
 
 /**
  * Compact article row used inside the main list.

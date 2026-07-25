@@ -7,6 +7,7 @@
 // used. Both are gone: the app is Arabic-only, so the table is plain strings.
 // ─────────────────────────────────────────────────────────────────────────────
 import { toast } from 'sonner';
+
 import { haptic, playChatSound } from './sounds';
 
 // Limits (defensive). Storage bucket is already bandwidth-limited; these make

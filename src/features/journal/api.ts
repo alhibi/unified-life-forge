@@ -1,6 +1,7 @@
 // The ONLY place in the journal feature that touches Supabase.
  
 import { supabase } from '@/integrations/supabase/client';
+
 import { computeWordCount, type JournalEntry, type JournalEntryInput } from './types';
 
 // The generated Supabase types are regenerated only after the migration

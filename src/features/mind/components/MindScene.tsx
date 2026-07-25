@@ -1,10 +1,11 @@
-import { useMemo, useRef, Suspense } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, QuadraticBezierLine } from '@react-three/drei';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { Suspense,useMemo, useRef } from 'react';
 import * as THREE from 'three';
-import { renderParams } from '../lib/growth';
+
 import { anchorFor, type Hemisphere } from '../hooks/useMemoryAnchor';
 import type { MindState } from '../hooks/useMindState';
+import { renderParams } from '../lib/growth';
 
 const MIND_TOKENS = {
   void: '#0A0A0A',

@@ -1,11 +1,12 @@
+import { AnimatePresence,motion } from 'framer-motion';
 import React, { useMemo, useState } from 'react';
-import SEO from '@/components/SEO';
+
 import BackButton from '@/components/BackButton';
+import SEO from '@/components/SEO';
 import { useApp } from '@/contexts/AppContext';
-import { motion, AnimatePresence } from 'framer-motion';
 import {
-  getEventsForMonth,
   formatGregorianDate,
+  getEventsForMonth,
   HIJRI_MONTHS,
   type ResolvedIslamicEvent,
 } from '@/features/calendar/data/islamicOccasions';

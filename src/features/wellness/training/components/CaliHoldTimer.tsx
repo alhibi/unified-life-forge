@@ -6,8 +6,9 @@
  * (5s / 10s / target).
  */
 
+import { AnimatePresence,motion } from 'framer-motion';
 import React, { useEffect, useRef, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+
 import { Pause, Play, RotateCcw, Trophy, X } from '@/lib/icons';
 
 export interface CaliHoldTimerProps {

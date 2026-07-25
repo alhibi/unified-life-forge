@@ -1,7 +1,8 @@
-import React from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, MapPin } from '@/lib/icons';
+import React from 'react';
+
 import { poemContexts } from '@/features/diwan/data/poetTimelines';
+import { Calendar, MapPin } from '@/lib/icons';
 
 interface PoemContextCardProps {
   poemTitle: string;

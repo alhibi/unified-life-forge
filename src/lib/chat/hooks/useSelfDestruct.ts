@@ -5,7 +5,9 @@
 // legacy DM-only conversations.
 
 import { useCallback, useMemo } from 'react';
+
 import { useApp } from '@/contexts/AppContext';
+
 import * as api from '../api';
 import type { ChatSummary } from '../types';
 

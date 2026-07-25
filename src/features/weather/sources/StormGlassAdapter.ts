@@ -1,8 +1,8 @@
 // StormGlass — marine + multi-altitude wind + solar radiation. BYOK, 10/day.
 
-import { BaseAdapter, safeJson, readEnv, type AdapterContext } from './BaseAdapter';
 import { SOURCE_REGISTRY, type SourceId } from '../types/SourceRegistry';
 import type { PartialSnapshot } from '../types/WeatherSnapshot';
+import { type AdapterContext,BaseAdapter, readEnv, safeJson } from './BaseAdapter';
 
 interface SGResp { hours?: Array<Record<string, Record<string, number> | number | string>>; }
 

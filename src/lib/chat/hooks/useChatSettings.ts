@@ -3,13 +3,15 @@
 // for each settings sub-tree.
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+
 import { useAuth } from '@/hooks/useAuth';
+
 import {
-  CHAT_SETTINGS_DEFAULTS, loadChatSettings, saveChatSettings,
-  type ChatSettings,
+  CHAT_SETTINGS_DEFAULTS,   type ChatSettings,
   type ChatSettingsAppearance, type ChatSettingsBehavior,
   type ChatSettingsNotifications, type ChatSettingsPrivacy,
   type ChatSettingsStorage,
+loadChatSettings, saveChatSettings,
 } from '../settings';
 
 const SAVE_DEBOUNCE_MS = 500;

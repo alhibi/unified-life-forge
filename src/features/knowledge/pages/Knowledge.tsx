@@ -1,21 +1,22 @@
-import { useMemo, useState, type ComponentType } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import SEO from '@/components/SEO';
-import BackButton from '@/components/BackButton';
-import { Drawer, DrawerContent, DrawerTitle } from '@/components/ui/drawer';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
+import { AnimatePresence,motion } from 'framer-motion';
+import { type ComponentType,useMemo, useState } from 'react';
+
+import BackButton from '@/components/BackButton';
+import SEO from '@/components/SEO';
 import { AppCard } from '@/components/ui/app-shell';
+import { Drawer, DrawerContent, DrawerTitle } from '@/components/ui/drawer';
 import {
-  Car,
-  Sparkle,
-  Clock,
-  Shirt,
-  Cookie,
-  BookOpen,
   ArrowUpSquare,
+  BookOpen,
+  Car,
   ChevronRight,
+  Clock,
+  Cookie,
+  Shirt,
+  Sparkle,
 } from '@/lib/icons';
-import { pageStagger as stagger, pageItem as item } from '@/lib/motion';
+import { pageItem as item,pageStagger as stagger } from '@/lib/motion';
 
 /**
  * /knowledge — "موسوعة الرقي"

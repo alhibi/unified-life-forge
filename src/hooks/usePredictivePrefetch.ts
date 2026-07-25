@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+
 import { prefetchRoute } from '@/lib/routePrefetch';
 
 interface PointerState {

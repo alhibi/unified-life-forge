@@ -1,8 +1,8 @@
 // Visual Crossing — historical/climatology authority. Used for today-vs-30yr deltas.
 
-import { BaseAdapter, safeJson, readEnv, type AdapterContext } from './BaseAdapter';
 import { SOURCE_REGISTRY, type SourceId } from '../types/SourceRegistry';
 import type { PartialSnapshot } from '../types/WeatherSnapshot';
+import { type AdapterContext,BaseAdapter, readEnv, safeJson } from './BaseAdapter';
 
 interface VCResp {
   days?: Array<{ tempmax: number; tempmin: number; temp: number; precip: number }>;

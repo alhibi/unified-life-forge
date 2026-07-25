@@ -1,9 +1,10 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
 import {
-  localSignUp,
+  localGetSession,
   localSignIn,
   localSignOut,
-  localGetSession,
+  localSignUp,
 } from './localAuthStore';
 
 describe('localAuthStore Security and Functionality Tests', () => {

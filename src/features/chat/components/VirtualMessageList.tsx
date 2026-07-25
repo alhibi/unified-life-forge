@@ -1,8 +1,9 @@
-import {
-  useEffect, useLayoutEffect, useMemo, useRef,
-  type ReactNode, type CSSProperties,
-} from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
+import {
+type CSSProperties,
+  type ReactNode,   useEffect, useLayoutEffect, useMemo, useRef,
+} from 'react';
+
 import type { Message } from './types';
 
 // ─────────────────────────────────────────────────────────────────────────────

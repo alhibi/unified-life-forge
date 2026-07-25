@@ -3,9 +3,11 @@
 // by message_id for O(1) lookup from the message bubble. Realtime keeps
 // the cache in sync.
 
-import { useEffect, useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { supabase, isSupabaseConfigured } from '@/integrations/supabase/client';
+import { useEffect, useMemo } from 'react';
+
+import { isSupabaseConfigured,supabase } from '@/integrations/supabase/client';
+
 import { chatKeys } from '../queryKeys';
 import type { ChatReaction, DbReaction } from '../types';
 

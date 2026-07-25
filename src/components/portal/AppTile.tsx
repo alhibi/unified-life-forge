@@ -10,8 +10,9 @@
  * No per-tile colour: in modkeys colour lives in the product, never in
  * the chrome — so the seven apps are separated by type and weight only.
  */
-import React from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
+import React from 'react';
+
 import { MkCheck } from './MkIcons';
 
 export interface AppTileDef {

@@ -1,6 +1,8 @@
 import { useMemo } from 'react';
-import { wordDiff } from '../lib/diff';
+
 import { cn } from '@/lib/utils';
+
+import { wordDiff } from '../lib/diff';
 
 /**
  * Renders a word-level diff between the original note body and an

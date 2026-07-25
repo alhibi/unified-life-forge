@@ -1,12 +1,13 @@
+import { AnimatePresence, motion } from 'framer-motion';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
+
 import SEO from '@/components/SEO';
 import { useApp } from '@/contexts/AppContext';
 import { useAuth } from '@/hooks/useAuth';
 import { isSupabaseConfigured } from '@/integrations/supabase/client';
-import { useNavigate } from 'react-router-dom';
-import { AnimatePresence, motion } from 'framer-motion';
-import { UserCircle, Lock, ArrowRight, Eye, EyeOff, Shield, X } from '@/lib/icons';
-import { toast } from 'sonner';
+import { ArrowRight, Eye, EyeOff, Lock, Shield, UserCircle, X } from '@/lib/icons';
 
 /**
  * Translate a Supabase auth error into a localized, actionable message.

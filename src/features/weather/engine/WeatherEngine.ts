@@ -8,38 +8,35 @@
 //   5. Run derived/computed fields (thermal, astronomy, scoring).
 //   6. Persist to cache, emit final snapshot.
 
-import type { PartialSnapshot, WeatherSnapshot } from '../types/WeatherSnapshot';
+import { type CachedBundle,cacheManager } from '../cache/CacheManager';
+import { computeAstronomy, solarPosition } from '../compute/AstronomyEngine';
+import { aqiCategory, burnTimeMinutes,dayQualityScore, outdoorHealthScore, uvCategory } from '../compute/ComfortScorer';
+import { classifyPressureTendency } from '../compute/PressureTrend';
+import {
+  absoluteHumidity_gm3,   apparentTemperature_C,   classifyThermalComfort, dewPoint_C, discomfortIndex, estimateCloudBase_m,
+heatIndex_C, humidex,
+specificHumidity_gkg, vaporPressureDeficit_kPa,
+wetBulb_C, windChill_C, } from '../compute/ThermalCalculator';
+import { beaufortScale, beaufortSeaState, degreesToCardinal16, hpaToInhg, msToKnots } from '../compute/UnitConverter';
+import { BaseAdapter, runAdapter } from '../sources/BaseAdapter';
+import { MetNorwayAdapter } from '../sources/MetNorwayAdapter';
+import { NOAAAdapter } from '../sources/NOAAAdapter';
+import { OpenMeteoAdapter, OpenMeteoAirQualityAdapter } from '../sources/OpenMeteoAdapter';
+import { OpenUVAdapter } from '../sources/OpenUVAdapter';
+import { OpenWeatherAdapter } from '../sources/OpenWeatherAdapter';
+import { RainViewerAdapter } from '../sources/RainViewerAdapter';
+import { StormGlassAdapter } from '../sources/StormGlassAdapter';
+import { TomorrowAdapter } from '../sources/TomorrowAdapter';
+import { VisualCrossingAdapter } from '../sources/VisualCrossingAdapter';
+import { WAQIAdapter } from '../sources/WAQIAdapter';
+import { WeatherbitAdapter } from '../sources/WeatherbitAdapter';
 import type { ForecastLayers } from '../types/ForecastLayer';
 import { EMPTY_FORECAST } from '../types/ForecastLayer';
 import type { AdapterResponse, SourceId } from '../types/SourceRegistry';
 import { SOURCE_REGISTRY } from '../types/SourceRegistry';
-
-import { BaseAdapter, runAdapter } from '../sources/BaseAdapter';
-import { OpenMeteoAdapter, OpenMeteoAirQualityAdapter } from '../sources/OpenMeteoAdapter';
-import { MetNorwayAdapter } from '../sources/MetNorwayAdapter';
-import { NOAAAdapter } from '../sources/NOAAAdapter';
-import { TomorrowAdapter } from '../sources/TomorrowAdapter';
-import { OpenWeatherAdapter } from '../sources/OpenWeatherAdapter';
-import { WeatherbitAdapter } from '../sources/WeatherbitAdapter';
-import { WAQIAdapter } from '../sources/WAQIAdapter';
-import { StormGlassAdapter } from '../sources/StormGlassAdapter';
-import { RainViewerAdapter } from '../sources/RainViewerAdapter';
-import { OpenUVAdapter } from '../sources/OpenUVAdapter';
-import { VisualCrossingAdapter } from '../sources/VisualCrossingAdapter';
-
+import type { PartialSnapshot, WeatherSnapshot } from '../types/WeatherSnapshot';
 import { breaker } from './CircuitBreaker';
 import { aggregate, type NumericSample } from './EnsembleAggregator';
-
-import { cacheManager, type CachedBundle } from '../cache/CacheManager';
-import { computeAstronomy, solarPosition } from '../compute/AstronomyEngine';
-import { classifyPressureTendency } from '../compute/PressureTrend';
-import { dayQualityScore, outdoorHealthScore, aqiCategory, uvCategory, burnTimeMinutes } from '../compute/ComfortScorer';
-import {
-  apparentTemperature_C, dewPoint_C, wetBulb_C, heatIndex_C, windChill_C, humidex,
-  absoluteHumidity_gm3, specificHumidity_gkg, vaporPressureDeficit_kPa,
-  classifyThermalComfort, discomfortIndex, estimateCloudBase_m,
-} from '../compute/ThermalCalculator';
-import { beaufortScale, beaufortSeaState, degreesToCardinal16, hpaToInhg, msToKnots } from '../compute/UnitConverter';
 
 // Composite adapter list. Open-Meteo contributes two adapters: atmospheric + AQI.
 const ATMOSPHERIC_ADAPTERS: BaseAdapter[] = [

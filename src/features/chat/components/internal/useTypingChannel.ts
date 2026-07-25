@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+
 import { supabase } from '@/integrations/supabase/client';
-import { acquireTypingChannel } from '../typingChannels';
+
 import type { Conversation } from '../types';
+import { acquireTypingChannel } from '../typingChannels';
 
 interface UseTypingChannelArgs {
   open: boolean;

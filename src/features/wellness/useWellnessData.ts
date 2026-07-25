@@ -12,9 +12,14 @@
  * it should add its own slice.
  */
 import { useCallback, useEffect, useState } from 'react';
+
 import {
+  type AthleteProfile,
   deleteDietLog,
+  deleteWorkout,
+  type DietLog,
   getProfile,
+  type IntakeLog,
   listDietLogs,
   listIntakeLogs,
   listSkinHairLogs,
@@ -22,15 +27,11 @@ import {
   listWorkouts,
   logDiet,
   saveWorkout,
-  deleteWorkout,
-  updateDietLog,
-  wipeAll,
-  type AthleteProfile,
-  type DietLog,
-  type IntakeLog,
   type SkinHairLog,
   type Supplement,
+  updateDietLog,
   type UUID,
+  wipeAll,
   type WorkoutSession,
 } from './wellnessDb';
 

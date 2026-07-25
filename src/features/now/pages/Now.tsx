@@ -1,19 +1,18 @@
-import React, { useEffect } from 'react';
-import SEO from '@/components/SEO';
-import { useApp } from '@/contexts/AppContext';
-import { useDeviceLocation } from '@/hooks/useDeviceLocation';
-import PrayerTimes from '@/components/PrayerTimes';
 import { motion } from 'framer-motion';
-import CurrentTimeSunnah from '@/components/CurrentTimeSunnah';
-import WeatherWidget from '@/features/weather/components/WeatherWidget';
-import UmmahPulse from '@/components/UmmahPulse';
-
-import SmartGreeting from '@/components/SmartGreeting';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Sparkles, ChevronLeft, FileText, MapPinned } from '@/lib/icons';
-import { PageShell, AppCard } from '@/components/ui/app-shell';
 
-import { pageStagger as stagger, pageItem as item } from '@/lib/motion';
+import CurrentTimeSunnah from '@/components/CurrentTimeSunnah';
+import PrayerTimes from '@/components/PrayerTimes';
+import SEO from '@/components/SEO';
+import SmartGreeting from '@/components/SmartGreeting';
+import { AppCard,PageShell } from '@/components/ui/app-shell';
+import UmmahPulse from '@/components/UmmahPulse';
+import { useApp } from '@/contexts/AppContext';
+import WeatherWidget from '@/features/weather/components/WeatherWidget';
+import { useDeviceLocation } from '@/hooks/useDeviceLocation';
+import { ChevronLeft, FileText, MapPinned,Sparkles } from '@/lib/icons';
+import { pageItem as item,pageStagger as stagger } from '@/lib/motion';
 
 export default function Now() {
   // Auto-request the device's location on first homepage visit *iff* there

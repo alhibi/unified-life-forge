@@ -1,10 +1,12 @@
-import { useMemo, useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
-import SEO from '@/components/SEO';
+import { useMemo, useState } from 'react';
+
 import BackButton from '@/components/BackButton';
+import SEO from '@/components/SEO';
 import { AppCard } from '@/components/ui/app-shell';
-import { Plus, Pencil, Trash2 } from '@/lib/icons';
-import { pageStagger as stagger, pageItem as item } from '@/lib/motion';
+import { Pencil, Plus, Trash2 } from '@/lib/icons';
+import { pageItem as item,pageStagger as stagger } from '@/lib/motion';
+
 import BrainScene from '../components/BrainScene';
 import EntryEditorSheet from '../components/EntryEditorSheet';
 import { useJournalEntries, useJournalMutations } from '../hooks/useJournal';

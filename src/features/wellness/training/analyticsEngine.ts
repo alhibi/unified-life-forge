@@ -5,9 +5,9 @@
 
 import { EXERCISES, type MuscleGroup } from '../exerciseCatalog';
 import type { WorkoutSession } from '../wellnessDb';
-import { sessionVolumeKg, sessionLoadSrpe } from './progressionEngine';
-import type { FrequencyCell, OneRmPoint, VolumePoint } from './types';
 import { bestsByExercise, e1rmHistoryFor, e1rmRunningMax } from './prDetector';
+import { sessionLoadSrpe,sessionVolumeKg } from './progressionEngine';
+import type { FrequencyCell, OneRmPoint, VolumePoint } from './types';
 
 /* ────────────────── Time helpers ────────────────── */
 

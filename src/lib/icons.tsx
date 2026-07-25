@@ -20,7 +20,6 @@
  * NOTE: This file is generated/maintained as the single source of truth for
  * icons. Prefer importing icons from "@/lib/icons" everywhere.
  */
-import { forwardRef, type ReactNode } from 'react';
 import type { Icon as PhosphorIcon, IconProps } from '@phosphor-icons/react';
 import { IconContext } from '@phosphor-icons/react';
 import {
@@ -35,17 +34,17 @@ import {
   ArrowElbowDownLeft,
   ArrowLeft,
   ArrowRight,
-  ArrowSquareOut,
   ArrowsClockwise,
   ArrowsCounterClockwise,
   ArrowsOut,
+  ArrowSquareOut,
   Barbell,
   Bell,
   BellRinging,
   BellSlash,
   BookBookmark,
-  BookOpen,
   BookmarkSimple,
+  BookOpen,
   Books,
   BowlFood,
   Brain,
@@ -187,7 +186,6 @@ import {
   SunDim,
   SunHorizon,
   Sword,
-  TShirt,
   Target,
   TextAa,
   TextB,
@@ -199,6 +197,7 @@ import {
   TrendDown,
   TrendUp,
   Trophy,
+  TShirt,
   UploadSimple,
   User,
   UserCircle,
@@ -215,6 +214,7 @@ import {
   Wrench,
   X,
 } from '@phosphor-icons/react';
+import { forwardRef, type ReactNode } from 'react';
 
 /** Re-export the Phosphor icon component type under the legacy name. */
 export type { Icon as LucideIcon } from '@phosphor-icons/react';

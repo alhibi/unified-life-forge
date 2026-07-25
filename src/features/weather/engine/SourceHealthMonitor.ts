@@ -1,8 +1,8 @@
 // Tracks per-source reliability and dynamically adjusts ensemble weights.
 // Reliability = (100 − error_rate%) × (1 − response_time/5000ms).
 
-import { breaker } from './CircuitBreaker';
 import { SOURCE_REGISTRY, type SourceId } from '../types/SourceRegistry';
+import { breaker } from './CircuitBreaker';
 
 export interface SourceHealth {
   id: SourceId;

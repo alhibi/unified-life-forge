@@ -10,11 +10,11 @@
  */
 
 import {
+  type EventPerspective,
+  type EventType,
   ISLAMIC_EVENTS_CATALOG,
   type RawIslamicEvent,
   type RawIslamicMonth,
-  type EventPerspective,
-  type EventType,
 } from './islamicEventsCatalog';
 
 export type { EventPerspective, EventType };

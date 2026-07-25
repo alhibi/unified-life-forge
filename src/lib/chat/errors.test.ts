@@ -1,5 +1,6 @@
-import { describe, it, expect } from 'vitest';
-import { ChatError, toChatError, describeChatError } from './errors';
+import { describe, expect,it } from 'vitest';
+
+import { ChatError, describeChatError,toChatError } from './errors';
 
 describe('ChatError', () => {
   it('default retriable depends on the code', () => {

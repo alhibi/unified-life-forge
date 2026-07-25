@@ -4,8 +4,10 @@
 // all subscribers.
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+
 import { useDeviceLocation } from '@/hooks/useDeviceLocation';
-import { weatherEngine, type EngineResult } from '../engine/WeatherEngine';
+
+import { type EngineResult,weatherEngine } from '../engine/WeatherEngine';
 import type { WeatherSnapshot } from '../types/WeatherSnapshot';
 
 export type WeatherStatus = 'idle' | 'loading' | 'success' | 'error';

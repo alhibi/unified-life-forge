@@ -11,40 +11,40 @@
 
 // Types
 export type {
-  NutritionFoodItem, NutritionCategory, DietaryTag, AllergenType,
-  FullNutrition, MacroNutrients, VitaminProfile, MineralProfile,
-  MealEntry, MealType, DailyNutritionGoal, DailyIntakeSummary,
-  MealPlan, MealPlanDay, MealPlanMeal,
-  NutritionSearchFilters, ServingSize, NutrientRDA, Lang,
-} from './types';
-
-export { RDA_MALE, RDA_FEMALE } from './types';
+AllergenType,
+DailyIntakeSummary,
+DailyNutritionGoal, DietaryTag,   FullNutrition, Lang,
+MacroNutrients,   MealEntry,   MealPlan, MealPlanDay, MealPlanMeal,
+MealType, MineralProfile,
+NutrientRDA, NutritionCategory,   NutritionFoodItem,   NutritionSearchFilters, ServingSize, VitaminProfile, } from './types';
+export { RDA_FEMALE,RDA_MALE } from './types';
 
 // Data
 export {
-  NUTRITION_DATABASE, FOOD_BY_ID, FOODS_BY_CATEGORY,
-  CATEGORY_INFO, TOTAL_FOOD_COUNT,
-  FRUITS_DATA, VEGETABLES_DATA, PROTEINS_DATA,
-  DAIRY_DATA, GRAINS_DATA, LEGUMES_DATA,
-  NUTS_SEEDS_DATA, OILS_SPICES_DATA, BEVERAGES_DATA,
-  PREPARED_FOODS_DATA,
+BEVERAGES_DATA,
+  CATEGORY_INFO,   DAIRY_DATA,   DAIRY_EXTENDED_DATA, FOOD_BY_ID, FOODS_BY_CATEGORY,
+  FRUITS_DATA, 
   // Extended (v2)
-  FRUITS_EXTENDED_DATA, VEGETABLES_EXTENDED_DATA, PROTEINS_EXTENDED_DATA,
-  DAIRY_EXTENDED_DATA, GRAINS_LEGUMES_EXTENDED_DATA, NUTS_SEEDS_EXTENDED_DATA,
-} from './data';
+  FRUITS_EXTENDED_DATA, GRAINS_DATA, GRAINS_LEGUMES_EXTENDED_DATA, LEGUMES_DATA,
+  NUTRITION_DATABASE,   NUTS_SEEDS_DATA, NUTS_SEEDS_EXTENDED_DATA,
+OILS_SPICES_DATA,   PREPARED_FOODS_DATA,
+PROTEINS_DATA,
+PROTEINS_EXTENDED_DATA,
+TOTAL_FOOD_COUNT,
+VEGETABLES_DATA, VEGETABLES_EXTENDED_DATA, } from './data';
 
 // Utilities
 export {
-  searchFoods, filterFoods,
-  calculateServing, sumNutrition, calculateDailySummary,
-  foodsHighInVitamin, foodsHighInMineral,
-  bestProteinSources, lowestGIFoods, highestFiberFoods,
-  antiInflammatoryFoods, foodsByTag, suggestComplementary,
-  compareFoodsOnNutrient, macroRatios, nutrientDensityScore,
-  mostNutrientDense,
-  getFavorites, toggleFavorite, isFavorite,
-  getRecentFoods, addToRecent, getFavoriteFoods, getRecentFoodItems,
-  getMealLog, saveMealEntry, removeMealEntry, getMealLogForDate,
-  clearMealLog, generateId, todayStr,
-  useNutritionCache, subscribeNutritionCache,
-} from './utils';
+addToRecent,   antiInflammatoryFoods,   bestProteinSources, calculateDailySummary,
+  calculateServing,   clearMealLog,   compareFoodsOnNutrient, filterFoods,
+foodsByTag, foodsHighInMineral,
+  foodsHighInVitamin, generateId, getFavoriteFoods,   getFavorites,   getMealLog, getMealLogForDate,
+getRecentFoodItems,
+  getRecentFoods, highestFiberFoods,
+isFavorite,
+lowestGIFoods, macroRatios,   mostNutrientDense,
+nutrientDensityScore,
+removeMealEntry, saveMealEntry,   searchFoods, subscribeNutritionCache,
+suggestComplementary,
+sumNutrition, todayStr,
+toggleFavorite,   useNutritionCache, } from './utils';

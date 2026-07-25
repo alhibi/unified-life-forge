@@ -1,9 +1,11 @@
 import { useState } from 'react';
-import { Thermometer, Droplets, BookOpen, Sliders } from '@/lib/icons';
+
+import { BookOpen, Droplets, Sliders,Thermometer } from '@/lib/icons';
+
 import {
-  dewPoint_C, wetBulb_C, vaporPressureDeficit_kPa, discomfortIndex,
-  classifyThermalComfort, apparentTemperature_C, absoluteHumidity_gm3
-} from '../compute/ThermalCalculator';
+absoluteHumidity_gm3,
+apparentTemperature_C,   classifyThermalComfort,   dewPoint_C, discomfortIndex,
+vaporPressureDeficit_kPa, wetBulb_C} from '../compute/ThermalCalculator';
 
 interface MeteorologyConsoleProps {
 }

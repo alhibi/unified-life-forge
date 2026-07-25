@@ -1,11 +1,12 @@
+import { AnimatePresence,motion } from 'framer-motion';
 import React, { useState } from 'react'; 
 import { useNavigate } from 'react-router-dom';
+
+import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
 import { useApp } from '@/contexts/AppContext';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, Moon, Sun, CloudSun, Cloud, Calendar, Copy, BookOpen } from '@/lib/icons';
 import { sunnahDetailData } from '@/data/sunnahDetailData';
-import PageHeader from '@/components/PageHeader';
+import { BookOpen,Calendar, ChevronDown, Cloud, CloudSun, Copy, Moon, Sun } from '@/lib/icons';
 import { notify } from '@/lib/notify';
 
 export default function TimedSunnah() {

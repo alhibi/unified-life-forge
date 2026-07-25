@@ -1,10 +1,11 @@
+import { motion } from 'framer-motion';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, ScrollText } from '@/lib/icons';
-import { motion } from 'framer-motion';
+
 import { useApp } from '@/contexts/AppContext';
-import type { DiwanPoetSummary } from '@/features/diwan/lib/types';
 import { useDiwanPrefetch } from '@/features/diwan/lib/hooks';
+import type { DiwanPoetSummary } from '@/features/diwan/lib/types';
+import { ChevronLeft, ChevronRight, ScrollText } from '@/lib/icons';
 
 interface Props {
   poet: DiwanPoetSummary;

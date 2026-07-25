@@ -1,16 +1,17 @@
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Sunrise as SunriseIcon, CalendarDays, ChevronLeft, ChevronDown } from '@/lib/icons';
+import { AnimatePresence,motion } from 'framer-motion';
+import { useCallback, useEffect, useMemo, useRef,useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+
 import { useApp } from '@/contexts/AppContext';
-import { fetchPrayerTimings as fetchPrayerTimingsCached } from '@/hooks/usePrayerTimesCache';
-import { useDeviceLocation, MECCA_FALLBACK } from '@/hooks/useDeviceLocation';
 import {
-  getUpcomingOccasions,
-  getDaysUntil,
   formatHijriDate,
+  getDaysUntil,
+  getUpcomingOccasions,
 } from '@/features/calendar/data/islamicOccasions';
 import { useLiveHijriDate } from '@/features/calendar/hooks/useLiveHijriDate';
+import { MECCA_FALLBACK,useDeviceLocation } from '@/hooks/useDeviceLocation';
+import { fetchPrayerTimings as fetchPrayerTimingsCached } from '@/hooks/usePrayerTimesCache';
+import { CalendarDays, ChevronDown,ChevronLeft, Sunrise as SunriseIcon } from '@/lib/icons';
 
 /**
  * PrayerTimes — a faithful re-implementation of khushu's Home prayer feature

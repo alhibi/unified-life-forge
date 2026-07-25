@@ -1,9 +1,10 @@
+import { AnimatePresence,motion } from 'framer-motion';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+
 import { useApp } from '@/contexts/AppContext';
 import GameShell from '@/features/games/components/GameShell';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Crosshair, Zap, Brain, Hash, RotateCcw, Target, Layers } from '@/lib/icons';
 import { playSfx, vibrate } from '@/features/games/utils/gameFeedback';
+import { Brain, Crosshair, Hash, Layers,RotateCcw, Target, Zap } from '@/lib/icons';
 
 // =============================================================================
 // Modes
@@ -85,7 +86,7 @@ function loadStats(): FocusStats {
     return { gamesPlayed: 0, bestAvg: {}, bestSequence: 0, totalAccuracy: 0, totalRounds: 0, bestNback: { level: 0, accuracy: 0 }, bestAimScore: 0, bestAimAccuracy: 0, recentReactions: [] };
   }
 }
-import { saveGameProgress, getGameProgress } from '../api';
+import { getGameProgress,saveGameProgress } from '../api';
 
 function saveStatsFn(s: FocusStats) {
   localStorage.setItem('focus-stats', JSON.stringify(s));

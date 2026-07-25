@@ -22,7 +22,7 @@
  *      On a 60Hz screen, picking 120 Hz is identical to 'auto'.
  */
 
-import { MOTION, motionWeight, DURATION, pageItem, fadeUp } from './motion';
+import { DURATION, fadeUp,MOTION, motionWeight, pageItem } from './motion';
 
 /* ──────────────────────────────────────────────────────────────────────
  * Baselines — captured once on first apply so repeated applies don't

@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import { AnimatePresence,motion } from 'framer-motion';
+import React, { useEffect,useState } from 'react';
+
 import { useApp } from '@/contexts/AppContext';
-import { MapPin, Plus, Trash2, Navigation, Clock, ChevronDown, ChevronUp, X, ExternalLink } from '@/lib/icons';
-import { motion, AnimatePresence } from 'framer-motion';
-import { reverseGeocode as reverseGeocodeCached } from '@/lib/reverseGeocode';
 import { requestDeviceLocation } from '@/hooks/useDeviceLocation';
+import { ChevronDown, ChevronUp, Clock, ExternalLink,MapPin, Navigation, Plus, Trash2, X } from '@/lib/icons';
+import { reverseGeocode as reverseGeocodeCached } from '@/lib/reverseGeocode';
 
 interface SavedLocation {
   id: string;
@@ -23,7 +24,7 @@ async function reverseGeocode(lat: number, lng: number): Promise<{ address: stri
   return { city: '', street: '', address: `${lat.toFixed(4)}, ${lng.toFixed(4)}` };
 }
 
-import { fetchLocations, saveLocation, deleteLocationFromCloud } from '../api';
+import { deleteLocationFromCloud,fetchLocations, saveLocation } from '../api';
 
 export default function LocationSaver() {
   const { t } = useApp();

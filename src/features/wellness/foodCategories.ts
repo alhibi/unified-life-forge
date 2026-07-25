@@ -4,10 +4,11 @@
  * emoji icons with consistent visual taxonomy.
  */
 import {
-  Apple, Citrus, Cherry, Carrot, Leaf, Salad, Beef, Fish, Egg,
-  Milk, Bean, Nut, Wheat, CupSoda, Droplet, Droplets, Sprout, Cookie,
-  type LucideIcon,
-} from '@/lib/icons';
+  Apple, Bean, Beef, Carrot, Cherry, Citrus, Cookie,
+CupSoda, Droplet, Droplets, Egg,
+Fish, Leaf,   type LucideIcon,
+  Milk, Nut, Salad, Sprout, Wheat, } from '@/lib/icons';
+
 import type { Lang } from './wellnessData';
 
 export type FoodCategory =

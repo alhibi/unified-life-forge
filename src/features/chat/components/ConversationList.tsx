@@ -1,16 +1,18 @@
-import React, { useMemo, useRef, useState, useCallback } from 'react';
+import { AnimatePresence, LayoutGroup,motion, useMotionValue, useTransform } from 'framer-motion';
+import React, { useCallback,useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, useMotionValue, useTransform, AnimatePresence, LayoutGroup } from 'framer-motion';
-import {
-  MessageCircle, Pencil, Pin, BellOff, Archive, Check, CheckCheck,
-  Image as ImageIcon, Mic, FileText, ArchiveRestore, Users, ChevronLeft,
-  Search, X, Settings,
-} from '@/lib/icons';
-import { cn } from '@/lib/utils';
+
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { isEmojiAvatarValue, getAppleEmojiUrl } from '@/utils/emojiAvatar';
-import { getDefaultAvatarForUser } from '@/utils/defaultAvatar';
 import { useChats } from '@/lib/chat';
+import {
+Archive, ArchiveRestore, BellOff, Check, CheckCheck,
+ChevronLeft,
+FileText,   Image as ImageIcon,   MessageCircle, Mic, Pencil, Pin,   Search, Settings,
+Users, X, } from '@/lib/icons';
+import { cn } from '@/lib/utils';
+import { getDefaultAvatarForUser } from '@/utils/defaultAvatar';
+import { getAppleEmojiUrl,isEmojiAvatarValue } from '@/utils/emojiAvatar';
+
 import { formatTime, stripMarkers } from './chatUtils';
 import type { Conversation, ConversationFilter } from './types';
 

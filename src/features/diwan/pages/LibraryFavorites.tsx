@@ -1,13 +1,14 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Heart, Loader2, LogIn } from '@/lib/icons';
-import SEO from '@/components/SEO';
+
 import BackButton from '@/components/BackButton';
+import SEO from '@/components/SEO';
 import FallbackBadge from '@/features/diwan/components/library/FallbackBadge';
 import PoemCard from '@/features/diwan/components/library/PoemCard';
+import { isSupabaseReady } from '@/features/diwan/lib/env';
 import { useDiwanFavoritePoems } from '@/features/diwan/lib/hooks';
 import { useAuth } from '@/hooks/useAuth';
-import { isSupabaseReady } from '@/features/diwan/lib/env';
+import { Heart, Loader2, LogIn } from '@/lib/icons';
 
 /**
  * صفحة المفضّلة — مصممة بالكامل بنمط "المخطوطة" (Manuscript).

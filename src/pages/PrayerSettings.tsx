@@ -1,11 +1,12 @@
-import React from 'react';
-import { useApp } from '@/contexts/AppContext';
-import { BookOpen, RotateCcw, Info, Check } from '@/lib/icons';
 import { motion } from 'framer-motion';
-import { Switch } from '@/components/ui/switch';
+import React from 'react';
+
 import BackButton from '@/components/BackButton';
 import SEO from '@/components/SEO';
-import { pageStagger as stagger, pageItem as item } from '@/lib/motion';
+import { Switch } from '@/components/ui/switch';
+import { useApp } from '@/contexts/AppContext';
+import { BookOpen, Check,Info, RotateCcw } from '@/lib/icons';
+import { pageItem as item,pageStagger as stagger } from '@/lib/motion';
 
 type PrayerMadhab = 'shafii' | 'hanafi' | 'hanbali' | 'maliki';
 type LatMethod = 'middle' | 'seventh' | 'angle';

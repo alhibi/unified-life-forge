@@ -1,4 +1,5 @@
 import React, { Component, type ErrorInfo, type ReactNode } from 'react';
+
 import { AlertTriangle } from '@/lib/icons';
 import { cn } from '@/lib/utils';
 

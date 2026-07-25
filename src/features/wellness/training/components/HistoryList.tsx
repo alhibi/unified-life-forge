@@ -7,13 +7,15 @@
  *   • Delete a session
  */
 
+import { AnimatePresence,motion } from 'framer-motion';
 import React, { useMemo, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+
+import { confirmDialog } from '@/lib/confirmDialog';
 import { Calendar, ChevronDown, History, Search, Trash2 } from '@/lib/icons';
-import { resolveExercise, type Exercise } from '../../exerciseCatalog';
+
+import { type Exercise,resolveExercise } from '../../exerciseCatalog';
 import type { UUID, WorkoutSession } from '../../wellnessDb';
 import { sessionVolumeKg } from '../progressionEngine';
-import { confirmDialog } from '@/lib/confirmDialog';
 
 export interface HistoryListProps {
   workouts: WorkoutSession[];

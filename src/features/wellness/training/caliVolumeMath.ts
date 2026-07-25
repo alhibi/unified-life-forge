@@ -13,8 +13,8 @@
  * Eric Tronell intensity tables.
  */
 
-import type { SkillDef, SkillProgressionStep } from './types';
 import { SKILLS_BY_KEY } from './caliSkillTree';
+import type { SkillDef, SkillProgressionStep } from './types';
 
 /* ─────────────────────── Difficulty multipliers ─────────────────────── */
 

@@ -11,8 +11,9 @@
 // and clear after 6 s of silence — same numbers as Telegram/WhatsApp.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { useCallback, useEffect, useRef, useState } from 'react';
 import type { RealtimeChannel } from '@supabase/supabase-js';
+import { useCallback, useEffect, useRef, useState } from 'react';
+
 import { supabase } from '@/integrations/supabase/client';
 
 const TRACK_THROTTLE_MS = 1_000;

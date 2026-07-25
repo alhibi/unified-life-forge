@@ -6,6 +6,7 @@
  */
 
 import { useRef } from 'react';
+
 import { performanceNow } from './debounce';
 
 interface PendingPromise<T> {

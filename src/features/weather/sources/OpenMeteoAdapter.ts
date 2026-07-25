@@ -2,10 +2,10 @@
 // Provides current, hourly (16d), daily (16d), minutely 15-min precip,
 // soil temp/moisture, UV, ensemble-derived data. No key required.
 
-import { BaseAdapter, safeJson, type AdapterContext } from './BaseAdapter';
+import type { DailyEntry, ExtendedHourlyEntry,ForecastLayers, HourlyEntry } from '../types/ForecastLayer';
 import { SOURCE_REGISTRY, type SourceId } from '../types/SourceRegistry';
 import type { PartialSnapshot } from '../types/WeatherSnapshot';
-import type { ForecastLayers, HourlyEntry, DailyEntry, ExtendedHourlyEntry } from '../types/ForecastLayer';
+import { type AdapterContext,BaseAdapter, safeJson } from './BaseAdapter';
 
 interface OMResponse {
   latitude: number; longitude: number; elevation: number;

@@ -16,7 +16,9 @@
 // On chat-switch the latest non-empty value (server > local) wins.
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+
 import { useAuth } from '@/hooks/useAuth';
+
 import * as api from '../api';
 
 const PERSIST_DEBOUNCE_MS = 500;

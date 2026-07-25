@@ -1,6 +1,8 @@
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence,motion } from 'framer-motion';
+import { useEffect,useRef, useState } from 'react';
+
 import { Type } from '@/lib/icons';
-import { useState, useRef, useEffect } from 'react';
+
 import type { ReaderPrefs } from './types';
 
 /**

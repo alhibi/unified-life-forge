@@ -1,22 +1,23 @@
-import React, { useState } from 'react';
-import SEO from '@/components/SEO';
-import { useApp } from '@/contexts/AppContext';
-import { getAppleEmojiUrl, isEmojiAvatarValue } from '@/utils/emojiAvatar';
-import { getDefaultAvatarForUser } from '@/utils/defaultAvatar';
-import { useAuth } from '@/hooks/useAuth';
-import { Palette, ChevronLeft, UserCircle, LogOut, Type, BookOpen, Gauge } from '@/lib/icons';
 import { motion } from 'framer-motion';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import ResponsiveDrawer from '@/components/ui/ResponsiveDrawer';
 import { toast } from 'sonner';
-import BackButton from '@/components/BackButton';
-import packageJson from '../../package.json';
 
-import { pageStagger as stagger, pageItem as item } from '@/lib/motion';
+import BackButton from '@/components/BackButton';
+import SEO from '@/components/SEO';
 import { AppCard } from '@/components/ui/app-shell';
+import ResponsiveDrawer from '@/components/ui/ResponsiveDrawer';
+import { useApp } from '@/contexts/AppContext';
+import { AccountPrivacySection } from '@/features/account';
+import { useAuth } from '@/hooks/useAuth';
 import { useDraftStorage } from '@/hooks/useDraftStorage';
 import { useNetworkToast } from '@/hooks/useNetworkStatus';
-import { AccountPrivacySection } from '@/features/account';
+import { BookOpen, ChevronLeft, Gauge,LogOut, Palette, Type, UserCircle } from '@/lib/icons';
+import { pageItem as item,pageStagger as stagger } from '@/lib/motion';
+import { getDefaultAvatarForUser } from '@/utils/defaultAvatar';
+import { getAppleEmojiUrl, isEmojiAvatarValue } from '@/utils/emojiAvatar';
+
+import packageJson from '../../package.json';
 
 export default function SettingsPage() {
   const { t, theme, language, setLanguage, prayerMadhab } = useApp();

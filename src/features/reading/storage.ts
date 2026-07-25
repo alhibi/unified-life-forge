@@ -1,7 +1,8 @@
-import type { FeedItem, FeedSource, ReaderPrefs } from './types';
-import { DEFAULT_FEEDS } from './feeds';
-import * as cloud from './api';
 import { supabase } from '@/integrations/supabase/client';
+
+import * as cloud from './api';
+import { DEFAULT_FEEDS } from './feeds';
+import type { FeedItem, FeedSource, ReaderPrefs } from './types';
 
 /**
  * Cloud-backed storage adapter for the reading feature.

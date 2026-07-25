@@ -1,18 +1,20 @@
+import DOMPurify from 'dompurify';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
-import DOMPurify from 'dompurify';
-import SEO from '@/components/SEO';
-import { PageShell, AppCard } from '@/components/ui/app-shell';
-import BackButton from '@/components/BackButton';
-import { useApp } from '@/contexts/AppContext';
-import { useNotes, type LocalNote, type NoteStatus } from '../hooks/useNotes';
-import { extractTags, buildTagTree, type TagNode } from '../lib/tagParser';
-import { Plus, Trash, Hash, FileText, Eye, Pencil, Search, ChevronRight, ChevronDown, Sparkles, Brain } from '@/lib/icons';
 import { Link, useSearchParams } from 'react-router-dom';
+
+import BackButton from '@/components/BackButton';
+import SEO from '@/components/SEO';
+import { AppCard,PageShell } from '@/components/ui/app-shell';
+import { useApp } from '@/contexts/AppContext';
+import { Brain,ChevronDown, ChevronRight, Eye, FileText, Hash, Pencil, Plus, Search, Sparkles, Trash } from '@/lib/icons';
 import { cn } from '@/lib/utils';
-import { useSyncEngine } from '../hooks/useSyncEngine';
-import OptimizerPanel from '../components/OptimizerPanel';
+
 import BacklinksPanel from '../components/BacklinksPanel';
+import OptimizerPanel from '../components/OptimizerPanel';
+import { type LocalNote, type NoteStatus,useNotes } from '../hooks/useNotes';
+import { useSyncEngine } from '../hooks/useSyncEngine';
+import { buildTagTree, extractTags, type TagNode } from '../lib/tagParser';
 
 /**
  * PKM — local-first personal knowledge base (MVP).

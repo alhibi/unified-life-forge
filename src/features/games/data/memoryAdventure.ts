@@ -160,8 +160,9 @@ export const STAGES: AdventureStage[] = [
   },
 ];
 
-import { saveGameProgress } from '../api';
 import { isSupabaseConfigured } from '@/integrations/supabase/client';
+
+import { saveGameProgress } from '../api';
 
 // =============================================================================
 // Persistent progress

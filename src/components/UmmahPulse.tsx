@@ -1,21 +1,23 @@
+import { AnimatePresence,motion } from 'framer-motion';
+import { Clock, Compass, Info,MapPin, Search, X } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+
 import { useApp } from '@/contexts/AppContext';
-import { X, Search, MapPin, Clock, Compass, Info } from 'lucide-react';
 import {
-  getCityPrayerInfo,
-  qiblaBearing,
   bearingToCompass,
-  formatLocalMinutes,
   type CalculationMethodId,
-  type PrayerAdjustments,
-  type PrayerSlot,
+  formatLocalMinutes,
+  getCityPrayerInfo,
   METHOD_LABELS,
   PRAYER_SLOT_ORDER,
+  type PrayerAdjustments,
+  type PrayerSlot,
+  qiblaBearing,
 } from '@/utils/prayerAstronomy';
-import { WORLD_LAND_PATH } from './UmmahPulse.worldPath';
+
 import QiblaCompass from './QiblaCompass';
+import { WORLD_LAND_PATH } from './UmmahPulse.worldPath';
 
 /**
  * Ummah Pulse — a live planetary view of Islamic prayer across the world.

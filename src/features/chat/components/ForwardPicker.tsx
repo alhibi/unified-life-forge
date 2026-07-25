@@ -1,12 +1,14 @@
+import { AnimatePresence,motion } from 'framer-motion';
 import React, { useMemo, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Search, X, Send, ChevronRight } from '@/lib/icons';
-import { cn } from '@/lib/utils';
+
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { isEmojiAvatarValue, getAppleEmojiUrl } from '@/utils/emojiAvatar';
+import { ChevronRight,Search, Send, X } from '@/lib/icons';
+import { cn } from '@/lib/utils';
 import { getDefaultAvatarForUser } from '@/utils/defaultAvatar';
-import type { Conversation, Message } from './types';
+import { getAppleEmojiUrl,isEmojiAvatarValue } from '@/utils/emojiAvatar';
+
 import { getMessagePreview, stripMarkers } from './chatUtils';
+import type { Conversation, Message } from './types';
 
 interface ForwardPickerProps {
   messages: Message[];
