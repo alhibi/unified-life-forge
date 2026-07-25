@@ -16,6 +16,7 @@ import { pageStagger as stagger, pageItem as item } from '@/lib/motion';
 import { AppCard } from '@/components/ui/app-shell';
 import { useDraftStorage } from '@/hooks/useDraftStorage';
 import { useNetworkToast } from '@/hooks/useNetworkStatus';
+import { AccountPrivacySection } from '@/features/account';
 
 export default function SettingsPage() {
   const { t, theme, language, setLanguage, prayerMadhab } = useApp();
@@ -213,6 +214,11 @@ export default function SettingsPage() {
         {renderGroup('الصلاة', prayerItems)}
 
         {/* Language picker retired — Arabic-only app. */}
+
+        {/* Account & privacy — data export and erasure. Renders nothing
+            when signed out or in local-only mode, where there is no
+            server-side record to export or delete. */}
+        <AccountPrivacySection appName="SmartHub" appVersion={packageJson.version} />
 
         {/* Version */}
         <motion.div variants={item} className="text-center pt-2 pb-4">
