@@ -15,7 +15,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { useAuth } from '@/hooks/useAuth';
 import { useDeviceLocation } from '@/hooks/useDeviceLocation';
-import { useWeatherData } from '@/weather/hooks/useWeatherData';
+import { useWeatherData } from '@/features/weather/hooks/useWeatherData';
 import { fetchPrayerTimings } from '@/hooks/usePrayerTimesCache';
 
 const PRAYER_AR: Record<string, string> = {
