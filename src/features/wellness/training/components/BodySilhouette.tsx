@@ -27,7 +27,7 @@ export interface BodySilhouetteProps {
   activeColor?: string;
   /** Show labels next to highlighted muscles. */
   showLabels?: boolean;
-  lang?: 'ar' | 'de';
+  lang?: 'ar';
   width?: number;
   height?: number;
   className?: string;

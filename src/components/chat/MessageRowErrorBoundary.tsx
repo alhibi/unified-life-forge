@@ -71,19 +71,19 @@ export class MessageRowErrorBoundary extends Component<Props, State> {
 
   render() {
     if (!this.state.hasError) return this.props.children;
-    const { isMine, isAr } = this.props;
+    const { isMine, } = this.props;
     return (
       <div className={cn('flex w-full mt-1', isMine ? 'justify-end' : 'justify-start')}>
         <div
           className={cn(
-            'inline-flex items-center gap-2 px-3 py-2 rounded-2xl border text-[12.5px]',
+            'inline-flex items-center gap-2 px-3 py-2 rounded-2xl border text-[12px]',
             'bg-destructive/8 border-destructive/30 text-destructive max-w-[80%]',
           )}
           role="alert"
         >
           <AlertTriangle className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
           <span dir="auto">
-            {isAr ? 'تعذّر عرض هذه الرسالة' : 'Diese Nachricht konnte nicht angezeigt werden'}
+            {'تعذّر عرض هذه الرسالة'}
           </span>
         </div>
       </div>

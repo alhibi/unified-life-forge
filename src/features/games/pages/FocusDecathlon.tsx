@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import GameShell from '@/features/games/components/GameShell';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Crosshair, Brain, Zap, Hash, Layers, Target, Award, RotateCcw, ChevronRight, Trophy } from '@/lib/icons';
+import { Zap, Award, RotateCcw, ChevronRight, Trophy } from '@/lib/icons';
 import { playSfx, vibrate } from '@/features/games/utils/gameFeedback';
 
 // =============================================================================
@@ -28,7 +28,6 @@ type EventId = 'reaction' | 'stroop' | 'memory' | 'nback' | 'aim';
 interface EventDef {
   id: EventId;
   ar: string;
-  de: string;
   emoji: string;
   /** Map raw performance number → scaled IQ-like score (100 = average) */
   scale: (raw: number) => number;
@@ -51,7 +50,7 @@ function pwLinear(raw: number, points: { x: number; y: number }[]): number {
 
 const EVENTS: EventDef[] = [
   {
-    id: 'reaction', ar: 'ردة الفعل', de: 'Reaktion', emoji: '⚡',
+    id: 'reaction', ar: 'ردة الفعل', emoji: '⚡',
     // raw = average ms (lower better). 200ms → 130, 280ms → 100, 400ms → 70
     scale: (ms) => pwLinear(ms, [
       { x: 150, y: 145 }, { x: 200, y: 130 }, { x: 280, y: 100 },
@@ -59,28 +58,28 @@ const EVENTS: EventDef[] = [
     ]),
   },
   {
-    id: 'stroop', ar: 'ستروب', de: 'Stroop', emoji: '🧠',
+    id: 'stroop', ar: 'ستروب', emoji: '🧠',
     // raw = (correct/8) * 100 - (avg ms / 10). higher better.
     scale: (raw) => pwLinear(raw, [
       { x: 0, y: 50 }, { x: 50, y: 85 }, { x: 75, y: 115 }, { x: 100, y: 140 },
     ]),
   },
   {
-    id: 'memory', ar: 'سلسلة', de: 'Sequenz', emoji: '#️⃣',
+    id: 'memory', ar: 'سلسلة', emoji: '#️⃣',
     // raw = longest sequence length (typically 5-9 average)
     scale: (n) => pwLinear(n, [
       { x: 3, y: 70 }, { x: 5, y: 95 }, { x: 7, y: 115 }, { x: 9, y: 130 }, { x: 12, y: 145 },
     ]),
   },
   {
-    id: 'nback', ar: 'N-back', de: 'N-back', emoji: '📐',
+    id: 'nback', ar: 'N-back', emoji: '📐',
     // raw = % accuracy on 15-trial 2-back
     scale: (acc) => pwLinear(acc, [
       { x: 0, y: 55 }, { x: 50, y: 85 }, { x: 75, y: 105 }, { x: 90, y: 125 }, { x: 100, y: 145 },
     ]),
   },
   {
-    id: 'aim', ar: 'التهديف', de: 'Zielen', emoji: '🎯',
+    id: 'aim', ar: 'التهديف', emoji: '🎯',
     // raw = score (hits * 100 + speed bonuses)
     scale: (s) => pwLinear(s, [
       { x: 0, y: 50 }, { x: 500, y: 85 }, { x: 1000, y: 105 }, { x: 1800, y: 125 }, { x: 3000, y: 145 },
@@ -118,11 +117,11 @@ function saveSave(s: DecathlonSave) {
 }
 
 function indexBand(idx: number, isAr: boolean) {
-  if (idx >= 130) return isAr ? 'متفوق' : 'Außergewöhnlich';
-  if (idx >= 115) return isAr ? 'فوق المتوسط' : 'Überdurchschnitt';
-  if (idx >= 90)  return isAr ? 'متوسط' : 'Durchschnitt';
-  if (idx >= 75)  return isAr ? 'تحت المتوسط' : 'Unter Durchschnitt';
-  return isAr ? 'يحتاج تدريب' : 'Mehr Übung';
+  if (idx >= 130) return 'متفوق';
+  if (idx >= 115) return 'فوق المتوسط';
+  if (idx >= 90)  return 'متوسط';
+  if (idx >= 75)  return 'تحت المتوسط';
+  return 'يحتاج تدريب';
 }
 
 // =============================================================================
@@ -199,26 +198,20 @@ export default function FocusDecathlonPage() {
   if (phase === 'briefing') {
     return (
       <GameShell
-        title={isAr ? 'العشاري الذهني' : 'Mental-Decathlon'}
+        title={'العشاري الذهني'}
         icon={Award}
         accentColor="hsl(142, 71%, 45%)"
-        rules={isAr ? [
+        rules={[
           '5 محطات متتالية بدون توقف',
           'ردة فعل، ستروب، ذاكرة، N-back، تهديف',
           'كل محطة تُحسب على مقياس IQ (متوسط 100)',
           'النتيجة النهائية = متوسط المحطات',
           'تقريرك سيُحفظ ويُقارن بأفضل أدائك',
-        ] : [
-          '5 Disziplinen am Stück',
-          'Reaktion, Stroop, Sequenz, N-back, Zielen',
-          'IQ-Skala pro Disziplin (Mittel = 100)',
-          'Gesamt = Durchschnitt der 5',
-          'Beste Leistung wird gespeichert',
         ]}
         stats={[
-          { label: isAr ? 'أفضل تقييم' : 'Bestleistung', value: save.best?.index ?? '—' },
-          { label: isAr ? 'الجلسات' : 'Sessions', value: save.history.length },
-          { label: isAr ? 'المستوى' : 'Stufe', value: save.best ? indexBand(save.best.index, isAr) : '—' },
+          { label: 'أفضل تقييم', value: save.best?.index ?? '—' },
+          { label: 'الجلسات', value: save.history.length },
+          { label: 'المستوى', value: save.best ? indexBand(save.best.index, isAr) : '—' },
         ]}
         options={[]}
       >
@@ -236,12 +229,12 @@ export default function FocusDecathlonPage() {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-xs font-bold text-foreground">
-                  #{i + 1} · {isAr ? e.ar : e.de}
+                  #{i + 1} · {e.ar}
                 </p>
                 <p className="text-[10px] text-muted-foreground">
                   {save.best?.events.find(ev => ev.id === e.id)?.scaled
-                    ? `${isAr ? 'أفضل: ' : 'Best: '}${save.best.events.find(ev => ev.id === e.id)?.scaled}`
-                    : (isAr ? 'لم يُلعب بعد' : 'Noch ungespielt')}
+                    ? `${'أفضل: '}${save.best.events.find(ev => ev.id === e.id)?.scaled}`
+                    : ('لم يُلعب بعد')}
                 </p>
               </div>
               <ChevronRight className="w-4 h-4 text-cyan-300/60" />
@@ -255,7 +248,7 @@ export default function FocusDecathlonPage() {
           style={{ }}
         >
           <Zap className="w-5 h-5 inline mr-1.5" />
-          {isAr ? 'ابدأ العشاري' : 'Decathlon starten'}
+          {'ابدأ العشاري'}
         </button>
       </GameShell>
     );
@@ -268,7 +261,7 @@ export default function FocusDecathlonPage() {
     const current = EVENTS[eventIdx];
     return (
       <GameShell
-        title={isAr ? 'العشاري الذهني' : 'Mental-Decathlon'}
+        title={'العشاري الذهني'}
         icon={Award}
         accentColor="hsl(142, 71%, 45%)"
         rules={[]}
@@ -287,7 +280,7 @@ export default function FocusDecathlonPage() {
           ))}
         </div>
         <p className="text-center text-[10px] text-muted-foreground mb-2 font-mono">
-          {isAr ? 'محطة' : 'Etappe'} {eventIdx + 1} / {EVENTS.length} · {current.emoji} {isAr ? current.ar : current.de}
+          {'محطة'} {eventIdx + 1} / {EVENTS.length} · {current.emoji} {current.ar}
         </p>
 
         {/* Render the right minigame */}
@@ -307,7 +300,7 @@ export default function FocusDecathlonPage() {
   // ---------------------------------------------------------------------------
   return (
     <GameShell
-      title={isAr ? 'العشاري الذهني' : 'Mental-Decathlon'}
+      title={'العشاري الذهني'}
       icon={Award}
       accentColor="hsl(142, 71%, 45%)"
       rules={[]}
@@ -320,7 +313,7 @@ export default function FocusDecathlonPage() {
       >
         <Trophy className="w-10 h-10 text-amber-300 mx-auto mb-2" />
         <p className="text-[10px] uppercase tracking-wider text-cyan-200/80 font-bold">
-          {isAr ? 'مؤشرك المعرفي' : 'Cognitive Index'}
+          {'مؤشرك المعرفي'}
         </p>
         <p className="text-6xl font-black text-cyan-200 my-1 tabular-nums">{finalIndex}</p>
         <p className="text-sm font-bold text-cyan-300">
@@ -328,7 +321,7 @@ export default function FocusDecathlonPage() {
         </p>
         {save.best && finalIndex !== null && finalIndex > (save.best.index - 1) && (
           <p className="text-[11px] text-amber-300 mt-1 font-bold">
-            ★ {isAr ? 'رقم قياسي شخصي!' : 'Persönlicher Rekord!'}
+            ★ {'رقم قياسي شخصي!'}
           </p>
         )}
       </motion.div>
@@ -349,7 +342,7 @@ export default function FocusDecathlonPage() {
               <div className="flex items-center justify-between mb-1">
                 <span className="text-sm font-bold text-foreground flex items-center gap-1.5">
                   <span>{def.emoji}</span>
-                  {isAr ? def.ar : def.de}
+                  {def.ar}
                 </span>
                 <span className="text-base font-black tabular-nums" style={{ color: barColor }}>
                   {r.scaled}
@@ -374,7 +367,7 @@ export default function FocusDecathlonPage() {
           onClick={() => setPhase('briefing')}
           className="flex-1 py-3 rounded-xl bg-white/5 text-foreground font-bold text-sm"
         >
-          {isAr ? 'العودة' : 'Zurück'}
+          {'العودة'}
         </button>
         <button
           onClick={startDecathlon}
@@ -382,7 +375,7 @@ export default function FocusDecathlonPage() {
           style={{ }}
         >
           <RotateCcw className="w-4 h-4" />
-          {isAr ? 'كرّر' : 'Wiederholen'}
+          {'كرّر'}
         </button>
       </div>
     </GameShell>
@@ -449,10 +442,10 @@ function ReactionEvent({ isAr, onDone }: { isAr: boolean; onDone: (raw: number) 
         borderColor: s === 'wait' ? 'rgba(239,68,68,0.3)' : s === 'go' ? 'rgba(16,185,129,0.4)' : 'rgba(255,255,255,0.08)',
       }}
     >
-      {s === 'idle' && <p className="text-xl font-black">{isAr ? 'اضغط للبدء' : 'Tippe zum Start'}</p>}
-      {s === 'wait' && <p className="text-xl font-black text-rose-400">{isAr ? 'انتظر...' : 'Warten...'}</p>}
-      {s === 'go'   && <p className="text-3xl font-black text-emerald-300">{isAr ? 'الآن!' : 'JETZT!'}</p>}
-      {s === 'early'&& <p className="text-xl font-bold text-amber-400">{isAr ? 'مبكر!' : 'Zu früh!'}</p>}
+      {s === 'idle' && <p className="text-xl font-black">{'اضغط للبدء'}</p>}
+      {s === 'wait' && <p className="text-xl font-black text-rose-400">{'انتظر...'}</p>}
+      {s === 'go'   && <p className="text-3xl font-black text-emerald-300">{'الآن!'}</p>}
+      {s === 'early'&& <p className="text-xl font-bold text-amber-400">{'مبكر!'}</p>}
       {s === 'result' && (
         <>
           <p className="text-3xl font-black text-cyan-300">{last}ms</p>
@@ -468,10 +461,10 @@ function ReactionEvent({ isAr, onDone }: { isAr: boolean; onDone: (raw: number) 
 function StroopEvent({ isAr, onDone }: { isAr: boolean; onDone: (raw: number) => void }) {
   const TRIALS = 8;
   const COLORS = [
-    { id: 'red', hex: '#ef4444', ar: 'أحمر', de: 'Rot' },
-    { id: 'blue', hex: '#3b82f6', ar: 'أزرق', de: 'Blau' },
-    { id: 'green', hex: '#10b981', ar: 'أخضر', de: 'Grün' },
-    { id: 'yellow', hex: '#facc15', ar: 'أصفر', de: 'Gelb' },
+    { id: 'red', hex: '#ef4444', ar: 'أحمر', },
+    { id: 'blue', hex: '#3b82f6', ar: 'أزرق', },
+    { id: 'green', hex: '#10b981', ar: 'أخضر', },
+    { id: 'yellow', hex: '#facc15', ar: 'أصفر', },
   ];
   const [trial, setTrial] = useState(0);
   const [wordId, setWordId] = useState(COLORS[0].id);
@@ -517,7 +510,7 @@ function StroopEvent({ isAr, onDone }: { isAr: boolean; onDone: (raw: number) =>
         className="text-4xl font-black tracking-wider"
         style={{ color: hex }}
       >
-        {(isAr ? word.ar : word.de).toUpperCase()}
+        {(word.ar).toUpperCase()}
       </motion.p>
       <div className="grid grid-cols-2 gap-2 max-w-[280px]">
         {COLORS.map(c => (
@@ -527,7 +520,7 @@ function StroopEvent({ isAr, onDone }: { isAr: boolean; onDone: (raw: number) =>
             className="px-3 py-3 rounded-xl border-2 border-white/15 font-bold text-sm bg-white/4"
             style={{ color: c.hex }}
           >
-            {isAr ? c.ar : c.de}
+            {c.ar}
           </button>
         ))}
       </div>
@@ -586,7 +579,7 @@ function MemoryEvent({ isAr, onDone }: { isAr: boolean; onDone: (raw: number) =>
   return (
     <div className="flex flex-col items-center gap-3 pt-4">
       <p className="text-[10px] text-zinc-500">
-        {isAr ? 'المستوى' : 'Level'} {level} · {s === 'showing' ? (isAr ? 'انتبه...' : 'Achten...') : s === 'input' ? (isAr ? 'كرّر' : 'Wiederhole') : ''}
+        {'المستوى'} {level} · {s === 'showing' ? ('انتبه...') : s === 'input' ? ('كرّر') : ''}
       </p>
       <div className="grid grid-cols-2 gap-3">
         {colors.map((c, i) => (
@@ -642,7 +635,7 @@ function NBackEvent({ isAr, onDone }: { isAr: boolean; onDone: (raw: number) => 
     }, 1900);
   };
 
-  useEffect(() => { setTimeout(() => run(0, []), 400); return () => clearTimeout(tref.current); /* eslint-disable-next-line */ }, []);
+  useEffect(() => { setTimeout(() => run(0, []), 400); return () => clearTimeout(tref.current);   }, []);
 
   const onMatch = () => {
     if (responded.current || done) return;
@@ -672,7 +665,7 @@ function NBackEvent({ isAr, onDone }: { isAr: boolean; onDone: (raw: number) => 
         className="mt-3 w-full max-w-[240px] py-3 rounded-2xl font-black text-cyan-950 disabled:opacity-50"
         style={{ }}
       >
-        {isAr ? 'تطابق' : 'MATCH'}
+        {'تطابق'}
       </button>
     </div>
   );
@@ -702,7 +695,7 @@ function AimEvent({ isAr, onDone }: { isAr: boolean; onDone: (raw: number) => vo
       });
     }, 1000);
     return () => clearInterval(id);
-    // eslint-disable-next-line
+     
   }, []);
 
   // End when timer hits 0

@@ -20,7 +20,6 @@
 export interface DicePersonality {
   id: string;
   ar: string;
-  de: string;
   emoji: string;
   /** Pig hold threshold: roll until round-points >= this then bank. */
   baseHold: number;
@@ -32,45 +31,38 @@ export interface DicePersonality {
   greedRate: number;
   /** Bilingual flavor for the bracket sheet. */
   taglineAr: string;
-  taglineDe: string;
 }
 
 export const DICE_BOTS: DicePersonality[] = [
   {
     id: 'hassan',
     ar: 'حسن المتسرع',
-    de: 'Hassan der Hastige',
     emoji: '🦊',
     baseHold: 14,
     catchUp: 1.6,
     defensiveBias: 0,
     greedRate: 0.35,
     taglineAr: 'يرمي ويرمي حتى يفقد كل شيء',
-    taglineDe: 'Würfelt bis es schmerzt',
   },
   {
     id: 'layla',
     ar: 'ليلى الحذرة',
-    de: 'Layla die Vorsichtige',
     emoji: '🦉',
     baseHold: 18,
     catchUp: 1.1,
     defensiveBias: 4,
     greedRate: 0.05,
     taglineAr: 'تحفظ النقاط فور وصولها',
-    taglineDe: 'Sichert jeden Punkt',
   },
   {
     id: 'karim',
     ar: 'كريم الذكي',
-    de: 'Karim der Kluge',
     emoji: '🐺',
     baseHold: 22,
     catchUp: 1.3,
     defensiveBias: 2,
     greedRate: 0.10,
     taglineAr: 'يحسب الاحتمالات في رأسه',
-    taglineDe: 'Rechnet im Kopf',
   },
 ];
 

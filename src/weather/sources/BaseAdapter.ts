@@ -10,7 +10,7 @@ import type { AdapterResponse, SourceId, SourceMeta } from '../types/SourceRegis
 export interface AdapterContext {
   lat: number;
   lng: number;
-  language: 'ar' | 'de' | 'en';
+  language: 'ar' | 'en';
   apiKey?: string;
   signal?: AbortSignal;
 }

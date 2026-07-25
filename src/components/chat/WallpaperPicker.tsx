@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, X, ChevronRight, ChevronLeft } from '@/lib/icons';
+import { Check, X, ChevronRight } from '@/lib/icons';
 import { cn } from '@/lib/utils';
 import { WALLPAPERS } from './constants';
 
@@ -12,7 +12,7 @@ interface WallpaperPickerProps {
 }
 
 const WallpaperPicker: React.FC<WallpaperPickerProps> = ({ isAr, currentId, onClose, onPick }) => {
-  const BackIcon = isAr ? ChevronRight : ChevronLeft;
+  const BackIcon = ChevronRight;
   return (
     <AnimatePresence>
       <motion.div
@@ -32,7 +32,7 @@ const WallpaperPicker: React.FC<WallpaperPickerProps> = ({ isAr, currentId, onCl
             <button onClick={onClose} className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40 transition-colors">
               <BackIcon className="w-5 h-5 text-foreground" />
             </button>
-            <h2 className="text-[16px] font-semibold">{isAr ? 'خلفية المحادثة' : 'Chat-Hintergrund'}</h2>
+            <h2 className="text-[16px] font-semibold">{'خلفية المحادثة'}</h2>
           </div>
           <button onClick={onClose} className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40">
             <X className="w-4 h-4 text-muted-foreground" />
@@ -55,11 +55,11 @@ const WallpaperPicker: React.FC<WallpaperPickerProps> = ({ isAr, currentId, onCl
                 >
                   {/* Fake message bubbles preview */}
                   <div className="absolute inset-0 p-2 flex flex-col justify-end gap-1.5">
-                    <div className={cn('self-start rounded-2xl rounded-bl-sm px-2 py-1 text-[8px] max-w-[70%]', wp.isDark ? 'bg-white/15 text-white/90' : 'bg-white/90 text-foreground')}>
-                      {isAr ? 'مرحبا' : 'Hallo'}
+                    <div className={cn('self-start rounded-2xl rounded-bl-sm px-2 py-1 text-[10px] max-w-[70%]', wp.isDark ? 'bg-white/15 text-white/90' : 'bg-white/90 text-foreground')}>
+                      {'مرحبا'}
                     </div>
-                    <div className="self-end rounded-2xl rounded-br-sm px-2 py-1 text-[8px] bg-primary/80 text-primary-foreground max-w-[70%]">
-                      {isAr ? 'أهلاً بك' : 'Hi'}
+                    <div className="self-end rounded-2xl rounded-br-sm px-2 py-1 text-[10px] bg-primary/80 text-primary-foreground max-w-[70%]">
+                      {'أهلاً بك'}
                     </div>
                   </div>
                   {selected && (
@@ -71,7 +71,7 @@ const WallpaperPicker: React.FC<WallpaperPickerProps> = ({ isAr, currentId, onCl
                     'absolute inset-x-0 bottom-0 py-1 text-[10px] font-medium text-center',
                     wp.isDark ? 'bg-black/40 text-white/90' : 'bg-white/80 text-foreground/80'
                   )}>
-                    {isAr ? wp.labelAr : wp.label}
+                    {wp.labelAr}
                   </div>
                 </button>
               );

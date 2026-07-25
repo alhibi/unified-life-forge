@@ -23,17 +23,17 @@ import { MUSCLE_LABELS, type MuscleGroup } from '../../exerciseCatalog';
 export interface VolumeBarsProps {
   workouts: WorkoutSession[];
   windowDays?: number;
-  lang: 'ar' | 'de';
+  lang: 'ar';
   /** Muscles to show. If omitted, shows the 8 most-trained. */
   muscles?: MuscleGroup[];
   className?: string;
 }
 
 const T = {
-  title: { ar: 'حجم الأسبوع لكل عضلة', de: 'Wochenvolumen pro Muskel' },
-  noData: { ar: 'لا توجد بيانات حجم بعد.', de: 'Noch keine Volumendaten.' },
-  setsLabel: { ar: 'مج', de: 'Sätze' },
-  weekly: { ar: 'أسبوعياً', de: 'pro Woche' },
+  title: { ar: 'حجم الأسبوع لكل عضلة', },
+  noData: { ar: 'لا توجد بيانات حجم بعد.', },
+  setsLabel: { ar: 'مج', },
+  weekly: { ar: 'أسبوعياً', },
 };
 
 export default function VolumeBars({
@@ -86,7 +86,7 @@ function BarRow({
 }: {
   muscle: MuscleGroup;
   sets: number;
-  lang: 'ar' | 'de';
+  lang: 'ar';
   delay: number;
 }) {
   const lm = VOLUME_LANDMARKS[muscle];
@@ -131,7 +131,7 @@ function BarRow({
         />
       </div>
       {lm && lm.mrv > 0 && (
-        <div className="flex justify-between text-[8.5px] text-muted-foreground/60 tabular-nums" dir="ltr">
+        <div className="flex justify-between text-[10px] text-muted-foreground/60 tabular-nums" dir="ltr">
           <span>0</span>
           <span style={{ marginLeft: `${xPct(lm.mev)}%` }} className="-translate-x-1/2 absolute">MEV {lm.mev}</span>
           <span style={{ marginLeft: `${xPct(lm.mrv)}%` }} className="-translate-x-1/2 absolute">MRV {lm.mrv}</span>
@@ -142,7 +142,7 @@ function BarRow({
 }
 
 /* Compact vertical-bar legend for showing zone meanings. */
-export function VolumeZoneLegend({ lang }: { lang: 'ar' | 'de' }) {
+export function VolumeZoneLegend({ lang }: { lang: 'ar' }) {
   const zones: (keyof typeof ZONE_COLOR)[] = ['below_mv', 'mv_to_mev', 'mev_to_mav', 'mav_to_mrv', 'above_mrv'];
   return (
     <div className="flex flex-wrap gap-1.5 text-[10px]">
@@ -157,7 +157,7 @@ export function VolumeZoneLegend({ lang }: { lang: 'ar' | 'de' }) {
 }
 
 /** Get the recommendation text for a single muscle's current volume. */
-export function VolumeAdvice({ muscle, sets, lang }: { muscle: MuscleGroup; sets: number; lang: 'ar' | 'de' }) {
+export function VolumeAdvice({ muscle, sets, lang }: { muscle: MuscleGroup; sets: number; lang: 'ar' }) {
   const zone = classifyVolume(muscle, sets);
   return (
     <p className="text-[11px] text-foreground/80" style={{ color: ZONE_COLOR[zone] }}>

@@ -20,7 +20,7 @@ interface PlaceDetailSheetProps {
   place: TravelPlace | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  language: 'ar' | 'de';
+  language: 'ar';
 }
 
 export default function PlaceDetailSheet({
@@ -33,7 +33,7 @@ export default function PlaceDetailSheet({
   if (!place) return null;
 
   const title = place.nameAr;
-  const description = language === 'ar' ? 'تفاصيل المكان' : 'Ortsdetails';
+  const description = 'تفاصيل المكان';
   const content = <PlaceDetailContent key={place.id} place={place} language={language} />;
 
   if (isMobile) {
@@ -65,8 +65,7 @@ export default function PlaceDetailSheet({
   );
 }
 
-function PlaceDetailContent({ place, language }: { place: TravelPlace; language: 'ar' | 'de' }) {
-  const isAr = language === 'ar';
+function PlaceDetailContent({ place, language }: { place: TravelPlace; language: 'ar' }) {
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
   const [activePhoto, setActivePhoto] = useState(0);
   const [favorite, setFavorite] = useState(() => readFavorites().has(place.id));
@@ -113,9 +112,7 @@ function PlaceDetailContent({ place, language }: { place: TravelPlace; language:
                   <img
                     src={url}
                     alt={
-                      isAr
-                        ? `صورة ${index + 1} من ${place.nameAr}`
-                        : `Bild ${index + 1} von ${place.nameAr}`
+                      `صورة ${index + 1} من ${place.nameAr}`
                     }
                     className="h-60 w-full object-cover sm:h-80"
                     loading={index === 0 ? 'eager' : 'lazy'}
@@ -133,7 +130,7 @@ function PlaceDetailContent({ place, language }: { place: TravelPlace; language:
         {photoUrls.length > 1 && (
           <div
             className="absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-1.5"
-            aria-label={isAr ? 'موضع الصورة' : 'Bildposition'}
+            aria-label={'موضع الصورة'}
           >
             {photoUrls.map((_, index) => (
               <span
@@ -180,9 +177,9 @@ function PlaceDetailContent({ place, language }: { place: TravelPlace; language:
             />
             <div className="min-w-0">
               <h3 className="text-micro font-semibold uppercase tracking-[0.1em] text-muted-foreground">
-                {isAr ? 'أفضل وقت للزيارة' : 'Beste Reisezeit'}
+                {'أفضل وقت للزيارة'}
               </h3>
-              <p className="mt-1 text-body text-foreground" dir={isAr ? 'rtl' : 'ltr'}>
+              <p className="mt-1 text-body text-foreground" dir={'rtl'}>
                 {place.bestTimeToVisit}
               </p>
             </div>
@@ -196,7 +193,7 @@ function PlaceDetailContent({ place, language }: { place: TravelPlace; language:
         )}
 
         {place.tags.length > 0 && (
-          <ul className="flex flex-wrap gap-2" aria-label={isAr ? 'الوسوم' : 'Tags'} dir="rtl">
+          <ul className="flex flex-wrap gap-2" aria-label={'الوسوم'} dir="rtl">
             {place.tags.map((tag) => (
               <li
                 key={tag}
@@ -216,20 +213,16 @@ function PlaceDetailContent({ place, language }: { place: TravelPlace; language:
           className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-button bg-primary px-4 text-body font-semibold text-primary-foreground"
         >
           <Map className="h-4 w-4" aria-hidden="true" />
-          {isAr ? 'افتح في الخرائط' : 'In Karten öffnen'}
+          {'افتح في الخرائط'}
         </button>
         <button
           type="button"
           onClick={toggleFavorite}
           aria-pressed={favorite}
           aria-label={
-            isAr
-              ? favorite
+            favorite
                 ? 'إزالة من المحفوظات'
                 : 'حفظ المكان'
-              : favorite
-                ? 'Aus Favoriten entfernen'
-                : 'Ort speichern'
           }
           className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-button border border-border text-foreground hover:bg-accent"
         >
@@ -243,15 +236,15 @@ function PlaceDetailContent({ place, language }: { place: TravelPlace; language:
   );
 }
 
-function categoryLabel(category: PlaceCategory, language: 'ar' | 'de'): string {
-  const labels: Record<PlaceCategory, { ar: string; de: string }> = {
-    nature: { ar: 'طبيعة', de: 'Natur' },
-    historic: { ar: 'تاريخ', de: 'Historisch' },
-    food: { ar: 'طعام', de: 'Kulinarik' },
-    city: { ar: 'مدينة', de: 'Stadt' },
-    religious: { ar: 'روحاني', de: 'Religiös' },
-    adventure: { ar: 'مغامرة', de: 'Abenteuer' },
-    other: { ar: 'مكان', de: 'Ort' },
+function categoryLabel(category: PlaceCategory, language: 'ar'): string {
+  const labels: Record<PlaceCategory, { ar: string; }> = {
+    nature: { ar: 'طبيعة', },
+    historic: { ar: 'تاريخ', },
+    food: { ar: 'طعام', },
+    city: { ar: 'مدينة', },
+    religious: { ar: 'روحاني', },
+    adventure: { ar: 'مغامرة', },
+    other: { ar: 'مكان', },
   };
   return labels[category][language];
 }

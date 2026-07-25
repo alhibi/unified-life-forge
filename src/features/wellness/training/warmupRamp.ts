@@ -34,10 +34,10 @@ const ACCESSORY_PCTS = [0.6];
 const ACCESSORY_REPS = [8];
 
 const CUES: Record<number, LocalizedString> = {
-  0: { ar: 'البار فقط — حركة سلسة', de: 'Nur Stange — sauberer Ablauf' },
-  50: { ar: 'تحرّك بسرعة معتدلة', de: 'Moderates Tempo' },
-  70: { ar: 'احصل على شعور الوزن', de: 'Gewicht spüren' },
-  85: { ar: 'تكرارة تجهيز نهائية', de: 'Letzte Priming-Wdh.' },
+  0: { ar: 'البار فقط — حركة سلسة', },
+  50: { ar: 'تحرّك بسرعة معتدلة', },
+  70: { ar: 'احصل على شعور الوزن', },
+  85: { ar: 'تكرارة تجهيز نهائية', },
 };
 
 /* ────────────────── Generator ────────────────── */
@@ -86,83 +86,83 @@ export interface MobilityCue {
 
 export const PRE_PUSH_MOBILITY: MobilityCue[] = [
   {
-    name: { ar: 'قط-بقرة', de: 'Cat-Cow' },
+    name: { ar: 'قط-بقرة', },
     durationSec: 30,
     region: 'thoracic',
-    cue: { ar: '8-10 تكرارات بطيئة مع التنفس.', de: '8-10 langsame Wdh., Atmung mitführen.' },
+    cue: { ar: '8-10 تكرارات بطيئة مع التنفس.', },
   },
   {
-    name: { ar: 'دوران كتف بالشريط', de: 'Schulter-Pass-Through' },
+    name: { ar: 'دوران كتف بالشريط', },
     durationSec: 60,
     region: 'shoulders',
-    cue: { ar: 'مدّ الذراعين فوق الرأس وللخلف ثم عُد.', de: 'Arme über Kopf nach hinten führen.' },
+    cue: { ar: 'مدّ الذراعين فوق الرأس وللخلف ثم عُد.', },
   },
   {
-    name: { ar: 'سحب الذقن للخلف', de: 'Chin Tucks' },
+    name: { ar: 'سحب الذقن للخلف', },
     durationSec: 30,
     region: 'shoulders',
-    cue: { ar: '10 تكرار — تنشيط العنق العميق.', de: '10 Wdh. — tiefe Halsmuskeln.' },
+    cue: { ar: '10 تكرار — تنشيط العنق العميق.', },
   },
 ];
 
 export const PRE_PULL_MOBILITY: MobilityCue[] = [
   {
-    name: { ar: 'تعليق نشط', de: 'Aktiver Hang' },
+    name: { ar: 'تعليق نشط', },
     durationSec: 30,
     region: 'shoulders',
-    cue: { ar: 'انكماش/استرخاء لوحَي الكتف.', de: 'Schulterblätter aktivieren/entspannen.' },
+    cue: { ar: 'انكماش/استرخاء لوحَي الكتف.', },
   },
   {
-    name: { ar: 'تمدد دودي', de: 'Worm Stretch' },
+    name: { ar: 'تمدد دودي', },
     durationSec: 45,
     region: 'thoracic',
-    cue: { ar: 'افتح الصدر بطيئاً.', de: 'Brust langsam öffnen.' },
+    cue: { ar: 'افتح الصدر بطيئاً.', },
   },
 ];
 
 export const PRE_SQUAT_MOBILITY: MobilityCue[] = [
   {
-    name: { ar: 'كوسّاك سكوات', de: 'Cossack Squat' },
+    name: { ar: 'كوسّاك سكوات', },
     durationSec: 60,
     region: 'hips',
-    cue: { ar: '4 لكل جانب — افتح الفخذ.', de: '4 pro Seite — Hüfte öffnen.' },
+    cue: { ar: '4 لكل جانب — افتح الفخذ.', },
   },
   {
-    name: { ar: 'تمدد الكاحل بالدفع', de: 'Wand-Knöchel-Mobilisierung' },
+    name: { ar: 'تمدد الكاحل بالدفع', },
     durationSec: 45,
     region: 'ankles',
-    cue: { ar: 'الركبة تلامس الجدار، القدم ثابتة.', de: 'Knie berührt Wand, Fuß bleibt flach.' },
+    cue: { ar: 'الركبة تلامس الجدار، القدم ثابتة.', },
   },
   {
-    name: { ar: '90/90 ورك', de: '90/90 Hüftwechsel' },
+    name: { ar: '90/90 ورك', },
     durationSec: 60,
     region: 'hips',
-    cue: { ar: 'تبديل الجوانب بسلاسة.', de: 'Sanfter Seitenwechsel.' },
+    cue: { ar: 'تبديل الجوانب بسلاسة.', },
   },
 ];
 
 export const PRE_DEADLIFT_MOBILITY: MobilityCue[] = [
   ...PRE_SQUAT_MOBILITY,
   {
-    name: { ar: 'هانغ ديدليفت بالبار', de: 'Stange RDL leer' },
+    name: { ar: 'هانغ ديدليفت بالبار', },
     durationSec: 30,
     region: 'hips',
-    cue: { ar: 'ركّز على الفخذ الخلفي والظهر.', de: 'Hamstrings & Rücken aktivieren.' },
+    cue: { ar: 'ركّز على الفخذ الخلفي والظهر.', },
   },
 ];
 
 export const PRE_OVERHEAD_MOBILITY: MobilityCue[] = [
   {
-    name: { ar: 'تمدد العقدة العظمية', de: 'Brustwirbel-Mobilisation' },
+    name: { ar: 'تمدد العقدة العظمية', },
     durationSec: 60,
     region: 'thoracic',
-    cue: { ar: 'دوّر الجذع لكل جانب على ركبة واحدة.', de: 'Auf einem Knie zur Seite drehen.' },
+    cue: { ar: 'دوّر الجذع لكل جانب على ركبة واحدة.', },
   },
   {
-    name: { ar: 'دوران كتف بالشريط', de: 'Band-Dislocates' },
+    name: { ar: 'دوران كتف بالشريط', },
     durationSec: 60,
     region: 'shoulders',
-    cue: { ar: '10-15 ببطء — من الأمام للخلف.', de: '10-15 langsam — vorn nach hinten.' },
+    cue: { ar: '10-15 ببطء — من الأمام للخلف.', },
   },
 ];
 

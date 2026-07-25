@@ -13,17 +13,17 @@ export interface CaliSkillTreeViewProps {
   /** progress: skillKey → step idx achieved (0-based). */
   progress: Record<string, number>;
   onPickSkill: (skillKey: string) => void;
-  lang: 'ar' | 'de';
+  lang: 'ar';
   className?: string;
 }
 
 const T = {
-  title: { ar: 'شجرة المهارات', de: 'Skill-Baum' },
-  subtitle: { ar: '14 مهارة من المبتدئ للنخبة', de: '14 Skills vom Einsteiger zur Elite' },
-  lockedHint: { ar: 'يحتاج إنجاز مهارات أخرى أولاً', de: 'Erfordere andere Skills zuerst' },
-  step: { ar: 'الخطوة', de: 'Stufe' },
-  notStarted: { ar: 'لم تبدأ', de: 'Noch nicht begonnen' },
-  mastered: { ar: 'مكتمل', de: 'Gemeistert' },
+  title: { ar: 'شجرة المهارات', },
+  subtitle: { ar: '14 مهارة من المبتدئ للنخبة', },
+  lockedHint: { ar: 'يحتاج إنجاز مهارات أخرى أولاً', },
+  step: { ar: 'الخطوة', },
+  notStarted: { ar: 'لم تبدأ', },
+  mastered: { ar: 'مكتمل', },
 };
 
 const CATEGORIES: SkillDef['category'][] = ['push', 'pull', 'legs', 'core', 'static', 'dynamic'];
@@ -58,7 +58,7 @@ export default function CaliSkillTreeView({
             filter === 'all' ? 'bg-primary text-primary-foreground border-primary' : 'bg-card text-muted-foreground border-border/40'
           }`}
         >
-          {lang === 'ar' ? 'الكل' : 'Alle'}
+          {'الكل'}
         </button>
         {CATEGORIES.map((c) => (
           <button
@@ -102,7 +102,7 @@ function SkillCard({
   progressStep: number;
   unlocked: boolean;
   onClick: () => void;
-  lang: 'ar' | 'de';
+  lang: 'ar';
   delay: number;
 }) {
   const totalSteps = skill.steps.length;
@@ -144,7 +144,7 @@ function SkillCard({
         </div>
 
         <p className="text-[12px] font-bold text-foreground leading-tight line-clamp-2">{skill.name[lang]}</p>
-        <p className="text-[9px] text-muted-foreground mt-0.5">{CATEGORY_LABEL[skill.category][lang]}</p>
+        <p className="text-[10px] text-muted-foreground mt-0.5">{CATEGORY_LABEL[skill.category][lang]}</p>
 
         {/* Difficulty dots */}
         <div className="flex gap-0.5 mt-1.5">
@@ -162,7 +162,7 @@ function SkillCard({
         {/* Progress */}
         {unlocked && (
           <div className="mt-2 space-y-1">
-            <div className="flex items-baseline justify-between text-[9px]">
+            <div className="flex items-baseline justify-between text-[10px]">
               <span className="text-muted-foreground/70 tabular-nums">
                 {progressStep < 0 ? T.notStarted[lang] : isMastered ? T.mastered[lang] : `${T.step[lang]} ${stepIdx + 1}/${totalSteps}`}
               </span>
@@ -181,7 +181,7 @@ function SkillCard({
         )}
 
         {!unlocked && (
-          <p className="text-[9px] text-muted-foreground/70 mt-2 line-clamp-2">{T.lockedHint[lang]}</p>
+          <p className="text-[10px] text-muted-foreground/70 mt-2 line-clamp-2">{T.lockedHint[lang]}</p>
         )}
       </div>
     </motion.button>

@@ -1,9 +1,9 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
 import GameShell from '@/features/games/components/GameShell';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Dices, Trophy, Sparkles, Zap, ChevronRight, Play, RotateCcw, User as UserIcon } from '@/lib/icons';
+import { Trophy, Sparkles, ChevronRight, Play, RotateCcw } from '@/lib/icons';
 import {
   DICE_BOTS, DicePersonality,
   TournamentState, TournamentMatch,
@@ -22,9 +22,9 @@ function botById(id: string): DicePersonality | null {
 }
 
 function nameOf(slot: string, isAr: boolean): string {
-  if (slot === 'player') return isAr ? 'أنت' : 'Du';
+  if (slot === 'player') return 'أنت';
   const b = botById(slot);
-  return b ? (isAr ? b.ar : b.de) : '?';
+  return b ? (b.ar) : '?';
 }
 function emojiOf(slot: string): string {
   if (slot === 'player') return '🧑';
@@ -78,21 +78,15 @@ export default function DiceTournamentPage() {
   if (!state) {
     return (
       <GameShell
-        title={isAr ? 'بطولة النرد' : 'Würfel-Turnier'}
+        title={'بطولة النرد'}
         icon={Trophy}
         accentColor="hsl(346, 87%, 60%)"
-        rules={isAr ? [
+        rules={[
           'بطولة "الخنزير" بـ 4 لاعبين',
           'نصف نهائي ضد بطل، ثم النهائي',
           '3 شخصيات بأساليب لعب مختلفة',
           'الخسارة تخرجك من البطولة',
           'الفوز في النهائي = كأس البطولة',
-        ] : [
-          'Pig-Turnier mit 4 Spielern',
-          'Halbfinale, dann Finale',
-          '3 Bots mit eigenem Stil',
-          'Niederlage = Aus',
-          'Sieg im Finale = Pokal',
         ]}
         stats={[]}
         options={[]}
@@ -100,7 +94,7 @@ export default function DiceTournamentPage() {
         {/* Bot showcase */}
         <div className="space-y-2 mb-5">
           <p className="text-xs text-muted-foreground px-1 mb-1">
-            {isAr ? 'المشاركون' : 'Teilnehmer'}
+            {'المشاركون'}
           </p>
           {DICE_BOTS.map(bot => (
             <div key={bot.id} className="flex items-center gap-3 rounded-2xl border border-amber-500/15 bg-amber-500/5 p-3">
@@ -108,13 +102,13 @@ export default function DiceTournamentPage() {
                 {bot.emoji}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-bold text-foreground">{isAr ? bot.ar : bot.de}</p>
+                <p className="text-sm font-bold text-foreground">{bot.ar}</p>
                 <p className="text-[11px] text-muted-foreground italic line-clamp-1">
-                  "{isAr ? bot.taglineAr : bot.taglineDe}"
+                  "{bot.taglineAr}"
                 </p>
               </div>
               <div className="text-right shrink-0">
-                <p className="text-[9px] text-amber-300 uppercase tracking-wider">{isAr ? 'حد التوقف' : 'Hold'}</p>
+                <p className="text-[10px] text-amber-300 uppercase tracking-wider">{'حد التوقف'}</p>
  <p className="text-base font-black text-amber-300">{bot.baseHold}</p>
  </div>
  </div>
@@ -127,7 +121,7 @@ export default function DiceTournamentPage() {
  style={{ }}
         >
           <Sparkles className="w-5 h-5 inline mr-1.5" />
-          {isAr ? 'ابدأ البطولة' : 'Turnier starten'}
+          {'ابدأ البطولة'}
         </button>
       </GameShell>
     );
@@ -139,38 +133,32 @@ export default function DiceTournamentPage() {
 
   return (
     <GameShell
-      title={isAr ? 'بطولة النرد' : 'Würfel-Turnier'}
+      title={'بطولة النرد'}
       icon={Trophy}
       accentColor="hsl(346, 87%, 60%)"
-      rules={isAr ? [
+      rules={[
         'بطولة "الخنزير" بـ 4 لاعبين',
         '3 خصوم، كل واحد بأسلوب فريد',
         'احذر حسن المتسرع — يخاطر كثيراً',
         'ليلى الحذرة تحتفظ بالنقاط بسرعة',
         'كريم الذكي صعب الهزيمة',
-      ] : [
-        'Pig-Turnier (4 Spieler)',
-        '3 Gegner, je eigener Stil',
-        'Hassan rollt zu lange',
-        'Layla sichert früh',
-        'Karim ist hart',
       ]}
       stats={[
-        { label: isAr ? 'الحالة' : 'Status', value: state.status === 'won' ? '🏆' : state.status === 'lost' ? '😞' : '⚔️' },
-        { label: isAr ? 'الكأس' : 'Pokal', value: state.status === 'won' ? (isAr ? 'مفتاح' : 'Gewonnen') : (isAr ? 'مغلق' : 'Offen') },
+        { label: 'الحالة', value: state.status === 'won' ? '🏆' : state.status === 'lost' ? '😞' : '⚔️' },
+        { label: 'الكأس', value: state.status === 'won' ? ('مفتاح') : ('مغلق') },
       ]}
       options={[]}
     >
       {/* Bracket visualization */}
       <div className="space-y-3 mb-5">
-        <BracketRound title={isAr ? 'نصف النهائي' : 'Halbfinale'} matches={[semiA, semiB]} isAr={isAr} active={state.nextPlayerMatch === 'semi-A'} />
+        <BracketRound title={'نصف النهائي'} matches={[semiA, semiB]} isAr={isAr} active={state.nextPlayerMatch === 'semi-A'} />
 
         {/* Connector */}
         <div className="flex justify-center">
           <ChevronRight className="w-5 h-5 text-zinc-400 rotate-90" />
         </div>
 
-        <BracketRound title={isAr ? 'النهائي' : 'Finale'} matches={[final]} isAr={isAr} active={state.nextPlayerMatch === 'final'} />
+        <BracketRound title={'النهائي'} matches={[final]} isAr={isAr} active={state.nextPlayerMatch === 'final'} />
       </div>
 
       {/* CTA */}
@@ -182,8 +170,8 @@ export default function DiceTournamentPage() {
         >
           <Play className="w-5 h-5" />
           {state.nextPlayerMatch === 'semi-A'
-            ? (isAr ? 'العب نصف النهائي' : 'Halbfinale spielen')
-            : (isAr ? 'العب النهائي' : 'Finale spielen')}
+            ? ('العب نصف النهائي')
+            : ('العب النهائي')}
         </button>
       )}
 
@@ -194,14 +182,14 @@ export default function DiceTournamentPage() {
  className="rounded-2xl p-5 border border-amber-500/40 text-center">
  <Trophy className="w-12 h-12 text-amber-300 mx-auto mb-2" />
  <p className="text-2xl font-black text-amber-200 mb-1">
- {isAr ? '🏆 بطل البطولة!' : '🏆 Turniersieger!'}
+ {'🏆 بطل البطولة!'}
             </p>
             <p className="text-xs text-amber-200/70">
-              {isAr ? 'سحقت جميع المنافسين' : 'Alle besiegt'}
+              {'سحقت جميع المنافسين'}
             </p>
             <button onClick={reset} className="mt-4 px-6 py-2 rounded-xl bg-amber-500 text-amber-950 font-bold text-sm">
               <RotateCcw className="w-3.5 h-3.5 inline mr-1.5" />
-              {isAr ? 'بطولة جديدة' : 'Neues Turnier'}
+              {'بطولة جديدة'}
             </button>
           </motion.div>
         )}
@@ -210,16 +198,16 @@ export default function DiceTournamentPage() {
             className="rounded-2xl p-5 border border-rose-500/30 bg-rose-500/8 text-center">
             <p className="text-3xl mb-2">😞</p>
             <p className="text-base font-black text-rose-300 mb-1">
-              {isAr ? 'خرجت من البطولة' : 'Ausgeschieden'}
+              {'خرجت من البطولة'}
             </p>
             <p className="text-xs text-rose-200/70 mb-3">
               {final.winner && final.winner !== 'player'
-                ? `${isAr ? 'البطل:' : 'Sieger:'} ${nameOf(final.winner, isAr)}`
+                ? `${'البطل:'} ${nameOf(final.winner, isAr)}`
                 : ''}
             </p>
             <button onClick={reset} className="px-6 py-2 rounded-xl bg-rose-500 text-white font-bold text-sm">
               <RotateCcw className="w-3.5 h-3.5 inline mr-1.5" />
-              {isAr ? 'حاول مرة أخرى' : 'Erneut versuchen'}
+              {'حاول مرة أخرى'}
             </button>
           </motion.div>
         )}
@@ -257,7 +245,7 @@ function MatchCard({ match, isAr, active }: { match: TournamentMatch; isAr: bool
     if (!slot) return (
       <div className="flex items-center gap-2 px-2 py-1.5 opacity-40">
         <span className="text-base">?</span>
-        <span className="text-xs text-muted-foreground italic">{isAr ? 'غير محدد' : 'TBD'}</span>
+        <span className="text-xs text-muted-foreground italic">{'غير محدد'}</span>
       </div>
     );
     const isWinner = winner === slot;

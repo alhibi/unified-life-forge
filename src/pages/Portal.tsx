@@ -25,8 +25,6 @@
  * Palette, radii, type ramp and motion curves live in
  * `src/styles/modkeys.css` under `--mk-*` so the app's own theme engine
  * (which rewrites `--background`, `--primary`, …) never disturbs them.
- * `preserve-fx` on the root opts this page out of the global FLATTEN
- * rule, because the modkeys look needs its soft 4/16px shadows.
  */
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -43,24 +41,16 @@ import {
   MkBookmark,
   MkChevronNext,
   MkChevronPrev,
-  MkClock,
-  MkCloudSun,
   MkCompass,
   MkCrown,
   MkDice,
-  MkGear,
   MkGridView,
   MkHouse,
-  MkLayers,
   MkListView,
   MkLogo,
   MkMessage,
-  MkMic,
   MkMoon,
-  MkPencil,
   MkPulse,
-  MkSpin,
-  MkStar,
   MkSun,
   MkUser,
 } from '@/components/portal/MkIcons';
@@ -71,10 +61,8 @@ import '@/styles/modkeys.css';
 type Cat = 'all' | 'spirit' | 'body' | 'mind' | 'play';
 
 interface MkApp extends AppTileDef {
-  labelDe: string;
-  descriptionDe: string;
   /** Deep links rendered as option cards in the right panel. */
-  links: { path: string; ar: string; de: string; note: string; noteDe: string }[];
+  links: { path: string; ar: string; note: string; }[];
 }
 
 const APPS: MkApp[] = [
@@ -85,13 +73,11 @@ const APPS: MkApp[] = [
     caption: 'NOW',
     cat: 'spirit',
     label: 'الرئيسي',
-    labelDe: 'Jetzt',
     description: 'الصلاة، الطقس، ونبض الأمة',
-    descriptionDe: 'Gebet, Wetter, Ummah-Puls',
     links: [
-      { path: '/now', ar: 'لوحة الآن', de: 'Jetzt-Board', note: 'الصلاة القادمة وسنة الوقت', noteDe: 'Nächstes Gebet & Sunnah' },
-      { path: '/weather', ar: 'الطقس', de: 'Wetter', note: 'الحالة، الأشعة، وجودة الهواء', noteDe: 'Lage, UV, Luftqualität' },
-      { path: '/occasions', ar: 'المناسبات', de: 'Anlässe', note: 'التقويم الهجري والمواسم', noteDe: 'Hijri-Kalender' },
+      { path: '/now', ar: 'لوحة الآن', note: 'الصلاة القادمة وسنة الوقت', },
+      { path: '/weather', ar: 'الطقس', note: 'الحالة، الأشعة، وجودة الهواء', },
+      { path: '/occasions', ar: 'المناسبات', note: 'التقويم الهجري والمواسم', },
     ],
   },
   {
@@ -101,14 +87,12 @@ const APPS: MkApp[] = [
     caption: 'MIHRAB',
     cat: 'spirit',
     label: 'محراب',
-    labelDe: 'Mihrab',
     description: 'القرآن، الأذكار، والسنن',
-    descriptionDe: 'Quran, Adhkar, Sunan',
     links: [
-      { path: '/mihrab', ar: 'المحراب', de: 'Mihrab', note: 'القرآن والتلاوة', noteDe: 'Quran & Rezitation' },
-      { path: '/duas', ar: 'الأدعية', de: 'Duas', note: 'أذكار الصباح والمساء', noteDe: 'Morgen- & Abendadhkar' },
-      { path: '/tafsir', ar: 'التفسير', de: 'Tafsir', note: 'شرح الآيات', noteDe: 'Verserklärung' },
-      { path: '/mihrab/prayer-guide', ar: 'دليل الصلاة', de: 'Gebetsleitfaden', note: 'خطوة بخطوة', noteDe: 'Schritt für Schritt' },
+      { path: '/mihrab', ar: 'المحراب', note: 'القرآن والتلاوة', },
+      { path: '/duas', ar: 'الأدعية', note: 'أذكار الصباح والمساء', },
+      { path: '/tafsir', ar: 'التفسير', note: 'شرح الآيات', },
+      { path: '/mihrab/prayer-guide', ar: 'دليل الصلاة', note: 'خطوة بخطوة', },
     ],
   },
   {
@@ -118,12 +102,10 @@ const APPS: MkApp[] = [
     caption: 'WELLNESS',
     cat: 'body',
     label: 'العافية',
-    labelDe: 'Wellness',
     description: 'تدريب، تغذية، وموسوعة',
-    descriptionDe: 'Training, Ernährung',
     links: [
-      { path: '/wellness', ar: 'مركز العافية', de: 'Wellness-Hub', note: 'التمارين والخطط', noteDe: 'Übungen & Pläne' },
-      { path: '/journal', ar: 'اليومية', de: 'Journal', note: 'تدوين الحال والعادات', noteDe: 'Stimmung & Gewohnheiten' },
+      { path: '/wellness', ar: 'مركز العافية', note: 'التمارين والخطط', },
+      { path: '/journal', ar: 'اليومية', note: 'تدوين الحال والعادات', },
     ],
   },
   {
@@ -133,13 +115,11 @@ const APPS: MkApp[] = [
     caption: 'CHAT',
     cat: 'mind',
     label: 'الدردشة',
-    labelDe: 'Chat',
     description: 'محادثات خاصة ومجموعات',
-    descriptionDe: 'Private Chats & Gruppen',
     links: [
-      { path: '/chat', ar: 'المحادثات', de: 'Chats', note: 'كل الرسائل', noteDe: 'Alle Nachrichten' },
-      { path: '/chat/groups', ar: 'المجموعات', de: 'Gruppen', note: 'الغرف المشتركة', noteDe: 'Gemeinsame Räume' },
-      { path: '/chat/settings', ar: 'إعدادات الدردشة', de: 'Chat-Einstellungen', note: 'الخصوصية والتنبيهات', noteDe: 'Privatsphäre & Alarme' },
+      { path: '/chat', ar: 'المحادثات', note: 'كل الرسائل', },
+      { path: '/chat/groups', ar: 'المجموعات', note: 'الغرف المشتركة', },
+      { path: '/chat/settings', ar: 'إعدادات الدردشة', note: 'الخصوصية والتنبيهات', },
     ],
   },
   {
@@ -149,13 +129,11 @@ const APPS: MkApp[] = [
     caption: 'BROWSE',
     cat: 'mind',
     label: 'اطلاع',
-    labelDe: 'Entdecken',
     description: 'مقالات، بودكاست، ومتابعات',
-    descriptionDe: 'Artikel, Podcasts, Feeds',
     links: [
-      { path: '/browse', ar: 'الاستكشاف', de: 'Entdecken', note: 'المتابعات اليومية', noteDe: 'Tägliche Feeds' },
-      { path: '/podcasts', ar: 'البودكاست', de: 'Podcasts', note: 'المكتبة والسجل', noteDe: 'Bibliothek & Verlauf' },
-      { path: '/reading', ar: 'القراءة', de: 'Lesen', note: 'قائمة القراءة', noteDe: 'Leseliste' },
+      { path: '/browse', ar: 'الاستكشاف', note: 'المتابعات اليومية', },
+      { path: '/podcasts', ar: 'البودكاست', note: 'المكتبة والسجل', },
+      { path: '/reading', ar: 'القراءة', note: 'قائمة القراءة', },
     ],
   },
   {
@@ -165,14 +143,12 @@ const APPS: MkApp[] = [
     caption: 'KNOWLEDGE',
     cat: 'mind',
     label: 'المعرفة',
-    labelDe: 'Wissen',
     description: 'موسوعة ومونوغرافات مفهرسة',
-    descriptionDe: 'Enzyklopädie & Monographien',
     links: [
-      { path: '/knowledge', ar: 'الموسوعة', de: 'Enzyklopädie', note: 'المدخل الرئيسي', noteDe: 'Haupteingang' },
-      { path: '/diwan/library', ar: 'مكتبة الديوان', de: 'Diwan-Bibliothek', note: 'الشعراء والقصائد', noteDe: 'Dichter & Gedichte' },
-      { path: '/archive', ar: 'الأرشيف', de: 'Archiv', note: 'المحفوظات والقراءة', noteDe: 'Gespeichertes' },
-      { path: '/pkm', ar: 'الذاكرة', de: 'PKM', note: 'الملاحظات والخرائط', noteDe: 'Notizen & Karten' },
+      { path: '/knowledge', ar: 'الموسوعة', note: 'المدخل الرئيسي', },
+      { path: '/diwan/library', ar: 'مكتبة الديوان', note: 'الشعراء والقصائد', },
+      { path: '/archive', ar: 'الأرشيف', note: 'المحفوظات والقراءة', },
+      { path: '/pkm', ar: 'الذاكرة', note: 'الملاحظات والخرائط', },
     ],
   },
   {
@@ -182,24 +158,22 @@ const APPS: MkApp[] = [
     caption: 'GAMES',
     cat: 'play',
     label: 'الألعاب',
-    labelDe: 'Spiele',
     description: 'شطرنج، سودوكو، وتركيز',
-    descriptionDe: 'Schach, Sudoku, Fokus',
     links: [
-      { path: '/games', ar: 'صالة الألعاب', de: 'Spielhalle', note: 'كل الألعاب', noteDe: 'Alle Spiele' },
-      { path: '/games/chess', ar: 'الشطرنج', de: 'Schach', note: 'مباريات وألغاز', noteDe: 'Partien & Puzzles' },
-      { path: '/games/sudoku', ar: 'سودوكو', de: 'Sudoku', note: 'أربع درجات', noteDe: 'Vier Stufen' },
-      { path: '/games/focus', ar: 'التركيز', de: 'Fokus', note: 'تدريب الانتباه', noteDe: 'Aufmerksamkeit' },
+      { path: '/games', ar: 'صالة الألعاب', note: 'كل الألعاب', },
+      { path: '/games/chess', ar: 'الشطرنج', note: 'مباريات وألغاز', },
+      { path: '/games/sudoku', ar: 'سودوكو', note: 'أربع درجات', },
+      { path: '/games/focus', ar: 'التركيز', note: 'تدريب الانتباه', },
     ],
   },
 ];
 
-const CATS: { key: Cat; ar: string; de: string }[] = [
-  { key: 'all', ar: 'الكل', de: 'Alle' },
-  { key: 'spirit', ar: 'الروح', de: 'Geist' },
-  { key: 'body', ar: 'الجسد', de: 'Körper' },
-  { key: 'mind', ar: 'العقل', de: 'Denken' },
-  { key: 'play', ar: 'اللعب', de: 'Spiel' },
+const CATS: { key: Cat; ar: string; }[] = [
+  { key: 'all', ar: 'الكل', },
+  { key: 'spirit', ar: 'الروح', },
+  { key: 'body', ar: 'الجسد', },
+  { key: 'mind', ar: 'العقل', },
+  { key: 'play', ar: 'اللعب', },
 ];
 
 /* ── page ─────────────────────────────────────────────────────────── */
@@ -304,7 +278,7 @@ export default function Portal() {
     const pick = visible[Math.floor(Math.random() * visible.length)] ?? APPS[0];
     setSelected(pick.key);
     setToast(
-      isAr ? `مقترح: ${pick.label}` : `Vorschlag: ${pick.labelDe}`,
+      `مقترح: ${pick.label}`,
     );
   };
 
@@ -314,13 +288,13 @@ export default function Portal() {
     icon: a.icon,
     caption: a.caption,
     cat: a.cat,
-    label: isAr ? a.label : a.labelDe,
-    description: isAr ? a.description : a.descriptionDe,
+    label: a.label,
+    description: a.description,
   }));
 
   const hh = String(clock.getHours()).padStart(2, '0');
   const mm = String(clock.getMinutes()).padStart(2, '0');
-  const dateLine = clock.toLocaleDateString(isAr ? 'ar' : 'de-DE', {
+  const dateLine = clock.toLocaleDateString('ar', {
     weekday: 'long',
     day: 'numeric',
     month: 'long',
@@ -333,7 +307,7 @@ export default function Portal() {
 
   const summaryBlock = (
     <>
-      <div className="mk-sum">{isAr ? 'الوقت الآن' : 'Jetzt'}</div>
+      <div className="mk-sum">{'الوقت الآن'}</div>
       <div className="mk-price">
         <span className="int">{hh}</span>
         <span className="cur">:</span>
@@ -346,18 +320,18 @@ export default function Portal() {
         {dateLine}
       </div>
       <button className="mk-cta" onClick={() => navigate('/now')}>
-        <span>{isAr ? 'افتح الرئيسي' : 'Jetzt öffnen'}</span>
+        <span>{'افتح الرئيسي'}</span>
         <MkArrow size={18} />
       </button>
       <button className="mk-save-row" onClick={() => navigate('/settings')}>
         <MkBookmark size={18} />
-        {isAr ? 'الإعدادات والتفضيلات' : 'Einstellungen'}
+        {'الإعدادات والتفضيلات'}
       </button>
     </>
   );
 
   return (
-    <div className="mk preserve-fx">
+    <div className="mk">
       <SEO
         title="amv.life — بوابتك الشخصية"
         description="بوابة amv.life الشخصية: الرئيسي، المحراب، العافية، الدردشة، اطلاع، المعرفة، والألعاب — تطبيقات متكاملة في مكان واحد."
@@ -366,7 +340,7 @@ export default function Portal() {
 
       <div className="mk-app">
         <h1 className="sr-only">
-          {isAr ? 'amv.life — بوابتك الشخصية' : 'amv.life — Deine persönliche Startseite'}
+          {'amv.life — بوابتك الشخصية'}
         </h1>
 
         <div className="mk-frame">
@@ -377,7 +351,7 @@ export default function Portal() {
               <b>AMV.LIFE</b>
             </div>
 
-            <div className="mk-side-label">{isAr ? 'التطبيقات' : 'APPS'}</div>
+            <div className="mk-side-label">{'التطبيقات'}</div>
             <nav className="mk-snav">
               {APPS.map(a => (
                 <button
@@ -387,7 +361,7 @@ export default function Portal() {
                   onDoubleClick={() => navigate(a.path)}
                 >
                   <a.icon className="mk-ic" size={20} />
-                  {isAr ? a.label : a.labelDe}
+                  {a.label}
                   {a.key === 'chat' && unreadCount > 0 ? (
                     <span className="mk-meta">{unreadCount}</span>
                   ) : (
@@ -418,7 +392,7 @@ export default function Portal() {
                 <button
                   className="mk-icon-btn"
                   onClick={() => setTheme(isDark ? 'light' : 'dark')}
-                  aria-label={isAr ? 'تبديل السمة' : 'Theme wechseln'}
+                  aria-label={'تبديل السمة'}
                 >
                   {isDark ? <MkMoon size={18} /> : <MkSun size={19} />}
                 </button>
@@ -427,7 +401,7 @@ export default function Portal() {
                   <button
                     className="mk-icon-btn"
                     onClick={() => navigate('/chat')}
-                    aria-label={isAr ? 'المحادثات' : 'Chat'}
+                    aria-label={'المحادثات'}
                   >
                     <MkMessage size={20} />
                     {unreadCount > 0 && <span className="mk-badge">{unreadCount}</span>}
@@ -437,7 +411,7 @@ export default function Portal() {
                 <button
                   className="mk-avatar"
                   onClick={() => setAcctOpen(v => !v)}
-                  aria-label={isAr ? 'الحساب' : 'Konto'}
+                  aria-label={'الحساب'}
                   aria-expanded={acctOpen}
                 >
                   {user ? (
@@ -460,28 +434,28 @@ export default function Portal() {
                 {acctOpen && (
                   <div className="mk-acct">
                     <div className="who">
-                      {user ? (isAr ? 'مسجّل الدخول باسم' : 'Angemeldet als') : isAr ? 'زائر' : 'Gast'}
-                      <b>{user ? username || user.email : isAr ? 'بدون حساب' : 'Kein Konto'}</b>
+                      {user ? ('مسجّل الدخول باسم') : 'زائر'}
+                      <b>{user ? username || user.email : 'بدون حساب'}</b>
                     </div>
                     {user ? (
                       <>
                         <button onClick={() => navigate('/profile')}>
-                          {isAr ? 'الملف الشخصي' : 'Profil'}
+                          {'الملف الشخصي'}
                         </button>
                         <button onClick={() => navigate('/settings')}>
-                          {isAr ? 'الإعدادات' : 'Einstellungen'}
+                          {'الإعدادات'}
                         </button>
                         <button onClick={() => navigate('/settings/theme')}>
-                          {isAr ? 'السمة والألوان' : 'Theme & Farben'}
+                          {'السمة والألوان'}
                         </button>
                       </>
                     ) : (
                       <>
                         <button onClick={() => navigate('/auth')}>
-                          {isAr ? 'تسجيل الدخول' : 'Anmelden'}
+                          {'تسجيل الدخول'}
                         </button>
                         <button onClick={() => navigate('/settings')}>
-                          {isAr ? 'الإعدادات' : 'Einstellungen'}
+                          {'الإعدادات'}
                         </button>
                       </>
                     )}
@@ -495,13 +469,13 @@ export default function Portal() {
                   the filter pills so it never shifts with the grid. */}
               <div className="mk-greet">
                 <span className="mk-greet-kicker">
-                  {isAr ? 'بوابة شخصية' : 'PERSÖNLICHES PORTAL'}
+                  {'بوابة شخصية'}
                 </span>
                 <span className="mk-greet-sep" aria-hidden>·</span>
                 <span className="mk-greet-name">
                   {username
-                    ? isAr ? `أهلاً ${username}` : `Willkommen, ${username}`
-                    : isAr ? 'أهلاً بك' : 'Willkommen'}
+                    ? `أهلاً ${username}`
+                    : 'أهلاً بك'}
                 </span>
               </div>
 
@@ -521,7 +495,7 @@ export default function Portal() {
                         className={c.key === cat ? 'on' : undefined}
                         onClick={() => setCat(c.key)}
                       >
-                        {isAr ? c.ar : c.de}
+                        {c.ar}
                       </button>
                     ))}
                   </div>
@@ -531,8 +505,8 @@ export default function Portal() {
                     <button
                       onClick={() => setList(v => !v)}
                       className={list ? 'on' : undefined}
-                      title={isAr ? 'طريقة العرض' : 'Ansicht'}
-                      aria-label={isAr ? 'طريقة العرض' : 'Ansicht'}
+                      title={'طريقة العرض'}
+                      aria-label={'طريقة العرض'}
                     >
                       {list ? <MkListView size={18} /> : <MkGridView size={18} />}
                     </button>
@@ -561,7 +535,7 @@ export default function Portal() {
             <div className="mk-foot">
               <div className="rule" />
               <span>
-                {isAr ? 'صنع بحب — عامر و امولة' : 'MADE BY AMER & AMOULA'}
+                {'صنع بحب — عامر و امولة'}
               </span>
               <div className="rule" />
             </div>

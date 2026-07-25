@@ -46,7 +46,7 @@ export function ConfirmDialog({
   onConfirm: () => void | Promise<void>;
   onOpenChange: (open: boolean) => void;
 }) {
-  const pick = (p: { ar: string; en: string }) => (isAr ? p.ar : p.en);
+  const pick = (p: { ar: string; en: string }) => (p.ar);
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>

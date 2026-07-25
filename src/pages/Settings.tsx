@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState } from 'react';
 import SEO from '@/components/SEO';
 import { useApp } from '@/contexts/AppContext';
 import { getAppleEmojiUrl, isEmojiAvatarValue } from '@/utils/emojiAvatar';
 import { getDefaultAvatarForUser } from '@/utils/defaultAvatar';
 import { useAuth } from '@/hooks/useAuth';
-import { Languages, Palette, ChevronLeft, UserCircle, LogOut, Type, BookOpen, AlertTriangle, Gauge } from '@/lib/icons';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Palette, ChevronLeft, UserCircle, LogOut, Type, BookOpen, Gauge } from '@/lib/icons';
+import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import ResponsiveDrawer from '@/components/ui/ResponsiveDrawer';
 import { toast } from 'sonner';
@@ -21,7 +21,6 @@ export default function SettingsPage() {
   const { t, theme, language, setLanguage, prayerMadhab } = useApp();
   const { user, username, profile, signOut, loading } = useAuth();
   const navigate = useNavigate();
-  const isAr = language === 'ar';
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   // ── Deep-Polish: Draft storage for settings form ─────────────────────
@@ -34,21 +33,19 @@ export default function SettingsPage() {
 
   // ── Deep-Polish: Network toast notifications ─────────────────────────
   useNetworkToast({
-    onlineMessage: isAr ? 'تم استعادة الاتصال بالشبكة' : 'Netzwerkverbindung wiederhergestellt',
-    offlineMessage: isAr ? 'أنت غير متصل بالشبكة' : 'Sie sind offline',
+    onlineMessage: 'تم استعادة الاتصال بالشبكة',
+    offlineMessage: 'أنت غير متصل بالشبكة',
   });
 
   const handleSignOut = async () => {
     setShowLogoutConfirm(false);
     await signOut();
-    toast.success(isAr ? 'تم تسجيل الخروج' : 'Abgemeldet');
+    toast.success('تم تسجيل الخروج');
     navigate('/', { replace: true });
   };
 
   const themeLabel = theme === 'dark' ? t('settings.dark') : t('settings.light');
-  const madhabLabel = isAr
-    ? ({ shafii: 'الشافعي', hanafi: 'الحنفي', hanbali: 'الحنبلي', maliki: 'المالكي' }[prayerMadhab])
-    : ({ shafii: "Schafi'i", hanafi: 'Hanafi', hanbali: 'Hanbali', maliki: 'Maliki' }[prayerMadhab]);
+  const madhabLabel = ({ shafii: 'الشافعي', hanafi: 'الحنفي', hanbali: 'الحنبلي', maliki: 'المالكي' }[prayerMadhab]);
 
   // Grouped settings
   const appearanceItems = [
@@ -62,14 +59,14 @@ export default function SettingsPage() {
     {
       key: 'font',
       icon: Type,
-      title: isAr ? 'الخط' : 'Schriftart',
+      title: 'الخط',
       value: '',
       onClick: () => navigate('/settings/font'),
     },
     {
       key: 'motion',
       icon: Gauge,
-      title: isAr ? 'الحركة والأداء' : 'Bewegung & Leistung',
+      title: 'الحركة والأداء',
       value: '',
       onClick: () => navigate('/settings/motion'),
     },
@@ -79,7 +76,7 @@ export default function SettingsPage() {
     {
       key: 'prayer',
       icon: BookOpen,
-      title: isAr ? 'إعدادات الصلاة' : 'Gebetseinstellungen',
+      title: 'إعدادات الصلاة',
       value: madhabLabel,
       onClick: () => navigate('/settings/prayer'),
     },
@@ -126,7 +123,7 @@ export default function SettingsPage() {
   // Language picker retired — the app is Arabic-only.
 
   return (
-    <div className="min-h-screen bg-background pb-28 px-5 pt-10">
+    <div className="min-h-screen bg-background pb-page px-5 pt-10">
       <SEO title="الإعدادات — SmartHub" description="تخصيص اللغة، السمة، الخط، حساب الصلاة والملف الشخصي في SmartHub." path="/settings" />
       <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-5 max-w-lg mx-auto">
 
@@ -175,11 +172,11 @@ export default function SettingsPage() {
 
                 {/* Info */}
                 <button onClick={() => navigate('/profile')} className="flex-1 text-start active:opacity-70 transition-opacity min-w-0">
-                  <h2 className="text-[17px] font-bold text-foreground truncate">{profile?.display_name || username || (isAr ? 'المستخدم' : 'Benutzer')}</h2>
+                  <h2 className="text-[17px] font-bold text-foreground truncate">{profile?.display_name || username || ('المستخدم')}</h2>
                   {user.email ? (
                     <p className="text-[12px] text-muted-foreground mt-0.5 truncate">{user.email}</p>
                   ) : null}
-                  <p className="text-[11px] text-muted-foreground/70 mt-0.5 truncate">@{username} · {isAr ? 'تعديل الملف الشخصي' : 'Profil bearbeiten'}</p>
+                  <p className="text-[11px] text-muted-foreground/70 mt-0.5 truncate">@{username} · {'تعديل الملف الشخصي'}</p>
                 </button>
 
                 {/* Logout */}
@@ -199,8 +196,8 @@ export default function SettingsPage() {
                     <UserCircle className="w-7 h-7 text-primary stroke-[1.5]" />
                   </div>
                   <div className="flex-1 text-start">
-                    <h2 className="text-[17px] font-bold text-foreground">{isAr ? 'تسجيل الدخول' : 'Anmelden'}</h2>
-                    <p className="text-[12px] text-muted-foreground mt-0.5">{isAr ? 'احفظ إعداداتك على جميع الأجهزة' : 'Einstellungen auf allen Geräten speichern'}</p>
+                    <h2 className="text-[17px] font-bold text-foreground">{'تسجيل الدخول'}</h2>
+                    <p className="text-[12px] text-muted-foreground mt-0.5">{'احفظ إعداداتك على جميع الأجهزة'}</p>
                   </div>
                   <ChevronLeft className="w-5 h-5 text-muted-foreground/40 ltr:rotate-180" />
                 </div>
@@ -210,16 +207,16 @@ export default function SettingsPage() {
         </motion.div>
 
         {/* Appearance Group */}
-        {renderGroup(isAr ? 'المظهر' : 'Darstellung', appearanceItems)}
+        {renderGroup('المظهر', appearanceItems)}
 
         {/* Prayer Group */}
-        {renderGroup(isAr ? 'الصلاة' : 'Gebet', prayerItems)}
+        {renderGroup('الصلاة', prayerItems)}
 
         {/* Language picker retired — Arabic-only app. */}
 
         {/* Version */}
         <motion.div variants={item} className="text-center pt-2 pb-4">
-          <p className="text-[11px] text-muted-foreground/50">{isAr ? 'الإصدار' : 'Version'} {packageJson.version}</p>
+          <p className="text-[11px] text-muted-foreground/50">{'الإصدار'} {packageJson.version}</p>
         </motion.div>
       </motion.div>
 
@@ -227,23 +224,21 @@ export default function SettingsPage() {
       <ResponsiveDrawer
         open={showLogoutConfirm}
         onOpenChange={setShowLogoutConfirm}
-        title={isAr ? 'تسجيل الخروج' : 'Abmelden'}
-        description={isAr
-          ? 'سيتم مسح جميع البيانات المحلية من هذا الجهاز. يمكنك استعادتها عند تسجيل الدخول مرة أخرى.'
-          : 'Alle lokalen Daten werden von diesem Gerät gelöscht. Du kannst sie beim erneuten Anmelden wiederherstellen.'}
+        title={'تسجيل الخروج'}
+        description={'سيتم مسح جميع البيانات المحلية من هذا الجهاز. يمكنك استعادتها عند تسجيل الدخول مرة أخرى.'}
       >
         <div className="flex gap-3 pt-1">
           <button
             onClick={() => setShowLogoutConfirm(false)}
             className="flex-1 py-2.5 rounded-xl bg-secondary text-secondary-foreground text-sm font-medium active:scale-[0.98] transition-transform"
           >
-            {isAr ? 'إلغاء' : 'Abbrechen'}
+            {'إلغاء'}
           </button>
           <button
             onClick={handleSignOut}
             className="flex-1 py-2.5 rounded-xl bg-destructive text-destructive-foreground text-sm font-medium active:scale-[0.98] transition-transform"
           >
-            {isAr ? 'تسجيل خروج' : 'Abmelden'}
+            {'تسجيل خروج'}
           </button>
         </div>
       </ResponsiveDrawer>

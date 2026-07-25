@@ -9,7 +9,6 @@ import { useOtherUserPresence, useUserOnline, useOnlineUserIds, formatLastSeen, 
 import { getSignedFileUrl, getMessagePreview } from './chatUtils';
 import { playChatSound, primeAudio, haptic } from './sounds';
 import { useChatPrefs } from './useChatPrefs';
-import { acquireTypingChannel } from './typingChannels';
 import {
   chatError, chatSuccess, describeError, validateFile, clampText,
   MAX_STAGED_IMAGES,
@@ -142,9 +141,9 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
 
   const otherPresence = useMemo(() => {
     const ls = realtimeLastSeen ?? activeConv?.otherLastSeen ?? null;
-    const formatted = formatLastSeen(ls, isAr);
+    const formatted = formatLastSeen(ls);
     if (otherIsLiveOnline) {
-      return { text: isAr ? 'متصل الآن' : 'Online', isOnline: true };
+      return { text: 'متصل الآن', isOnline: true };
     }
     return formatted;
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -488,7 +487,6 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
         const uid = userIdRef.current;
         if (!uid) return;
         const activeId = activeConvIdRef.current;
-        const isAr = isArRef.current;
 
         if (payload.eventType === 'INSERT') {
           const msg = payload.new as Message;
@@ -1188,18 +1186,18 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
   const getReplyPreview = useCallback((replyId: string) => {
     const msg = messages.find(m => m.id === replyId);
     if (!msg) return null;
-    if (msg.deleted) return isAr ? 'رسالة محذوفة' : 'Gelöschte Nachricht';
+    if (msg.deleted) return 'رسالة محذوفة';
     if (msg.message_type === 'image') {
       // If the sender included a caption, show it — feels more informative
       // than the generic "Foto" tag. Never leak the packed metadata envelope
       // stored in file_name (`ulfimg1:...`).
       const caption = (msg.content || '').trim();
       if (caption) return '📷 ' + (caption.length > 50 ? caption.slice(0, 50) + '…' : caption);
-      return '📷 ' + (isAr ? 'صورة' : 'Foto');
+      return '📷 ' + ('صورة');
     }
-    if (msg.message_type === 'voice') return '🎤 ' + (isAr ? 'رسالة صوتية' : 'Sprachnachricht');
+    if (msg.message_type === 'voice') return '🎤 ' + ('رسالة صوتية');
     if (msg.message_type === 'file') {
-      return '📎 ' + (readableFileName(msg.file_name) || (isAr ? 'ملف' : 'Datei'));
+      return '📎 ' + (readableFileName(msg.file_name) || ('ملف'));
     }
     return msg.content.length > 50 ? msg.content.slice(0, 50) + '…' : msg.content;
   }, [messages, isAr]);
@@ -1238,7 +1236,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
           avatar_url: profile.avatar_url ?? undefined,
         });
       } else {
-        setSearchError(isAr ? 'لم يتم العثور على المستخدم' : 'Benutzer nicht gefunden');
+        setSearchError('لم يتم العثور على المستخدم');
       }
     } finally {
       setSearching(false);
@@ -1341,7 +1339,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
   /** Look up a display name for a forwarded message's original author. */
   const getForwardedName = useCallback((senderId: string | null | undefined): string => {
     if (!senderId) return '';
-    if (user && senderId === user.id) return isAr ? 'أنت' : 'Du';
+    if (user && senderId === user.id) return 'أنت';
     if (activeConv?.otherUserId === senderId) return activeConv.otherDisplayName || activeConv.otherUsername || '';
     return forwardedNames[senderId] || '';
   }, [user, activeConv, forwardedNames, isAr]);

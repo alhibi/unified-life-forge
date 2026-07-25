@@ -7,7 +7,7 @@ import type { NutritionFoodItem } from '../types';
 export const VEGETABLES_DATA: NutritionFoodItem[] = [
   {
     id: 'broccoli',
-    name: { ar: 'بروكلي', de: 'Brokkoli' },
+    name: { ar: 'بروكلي', },
     category: 'vegetables',
     subCategory: 'cruciferous',
     emoji: '🥦',
@@ -19,22 +19,21 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
       minerals: { potassium: 316, calcium: 47, magnesium: 21, phosphorus: 66, iron: 0.73, selenium: 2.5, manganese: 0.21 },
     },
     servings: [
-      { description: { ar: 'كوب مقطع', de: 'Tasse gehackt' }, grams: 91 },
-      { description: { ar: 'زهرة كبيرة', de: 'Großes Röschen' }, grams: 150 },
+      { description: { ar: 'كوب مقطع', }, grams: 91 },
+      { description: { ar: 'زهرة كبيرة', }, grams: 150 },
     ],
     tags: ['vegan', 'gluten_free', 'high_fiber', 'anti_inflammatory', 'immune_boost', 'bone_health'],
     allergens: [],
     glycemicIndex: 10,
     benefits: {
       ar: ['سلفورافان يحارب الخلايا السرطانية', 'فيتامين ك لصحة العظام', 'أعلى الخضروات في فيتامين سي', 'يدعم إزالة سموم الكبد'],
-      de: ['Sulforaphan bekämpft Krebszellen', 'Vitamin K für Knochen', 'Höchster Vitamin-C-Gehalt unter Gemüse', 'Unterstützt Leberentgiftung'],
     },
     season: ['all_year'],
   },
 
   {
     id: 'spinach',
-    name: { ar: 'سبانخ', de: 'Spinat' },
+    name: { ar: 'سبانخ', },
     category: 'vegetables',
     subCategory: 'leafy_greens',
     emoji: '🥬',
@@ -46,21 +45,20 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
       minerals: { iron: 2.7, calcium: 99, magnesium: 79, potassium: 558, manganese: 0.9, phosphorus: 49, zinc: 0.53 },
     },
     servings: [
-      { description: { ar: 'كوب طازج', de: 'Tasse frisch' }, grams: 30 },
-      { description: { ar: 'كوب مطبوخ', de: 'Tasse gekocht' }, grams: 180 },
+      { description: { ar: 'كوب طازج', }, grams: 30 },
+      { description: { ar: 'كوب مطبوخ', }, grams: 180 },
     ],
     tags: ['vegan', 'gluten_free', 'high_protein', 'bone_health', 'brain_food', 'muscle_building'],
     allergens: [],
     glycemicIndex: 15,
     benefits: {
       ar: ['أغنى مصدر نباتي للحديد', 'فيتامين ك الأعلى بين الخضروات', 'نيترات طبيعية تحسن الأداء الرياضي', 'لوتين يحمي العين'],
-      de: ['Reichste pflanzliche Eisenquelle', 'Höchster Vitamin-K-Gehalt', 'Natürliche Nitrate für Sport', 'Lutein schützt Augen'],
     },
     season: ['spring', 'autumn'],
   },
   {
     id: 'sweet_potato',
-    name: { ar: 'بطاطا حلوة', de: 'Süßkartoffel' },
+    name: { ar: 'بطاطا حلوة', },
     category: 'vegetables',
     subCategory: 'root_vegetables',
     emoji: '🍠',
@@ -72,21 +70,20 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
       minerals: { potassium: 337, manganese: 0.26, magnesium: 25, phosphorus: 47, calcium: 30, iron: 0.61 },
     },
     servings: [
-      { description: { ar: 'حبة متوسطة', de: 'Mittlere Süßkartoffel' }, grams: 130 },
-      { description: { ar: 'كوب مكعبات', de: 'Tasse Würfel' }, grams: 133 },
+      { description: { ar: 'حبة متوسطة', }, grams: 130 },
+      { description: { ar: 'كوب مكعبات', }, grams: 133 },
     ],
     tags: ['vegan', 'gluten_free', 'energy_boost', 'gut_health', 'immune_boost', 'skin_health'],
     allergens: [],
     glycemicIndex: 63,
     benefits: {
       ar: ['أغنى مصدر لفيتامين أ (بيتا كاروتين)', 'كربوهيدرات معقدة للطاقة المستدامة', 'ألياف بريبيوتيك', 'تدعم صحة البشرة'],
-      de: ['Reichste Vitamin-A-Quelle (Beta-Carotin)', 'Komplexe Kohlenhydrate für Ausdauer', 'Präbiotische Ballaststoffe', 'Unterstützt Hautgesundheit'],
     },
     season: ['autumn', 'winter'],
   },
   {
     id: 'tomato',
-    name: { ar: 'طماطم', de: 'Tomate' },
+    name: { ar: 'طماطم', },
     category: 'vegetables',
     subCategory: 'fruit_vegetables',
     emoji: '🍅',
@@ -98,22 +95,21 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
       minerals: { potassium: 237, phosphorus: 24, magnesium: 11, calcium: 10, iron: 0.27 },
     },
     servings: [
-      { description: { ar: 'حبة متوسطة', de: 'Mittlere Tomate' }, grams: 123 },
-      { description: { ar: 'كوب مقطع', de: 'Tasse gehackt' }, grams: 180 },
+      { description: { ar: 'حبة متوسطة', }, grams: 123 },
+      { description: { ar: 'كوب مقطع', }, grams: 180 },
     ],
     tags: ['vegan', 'gluten_free', 'low_carb', 'heart_healthy', 'skin_health', 'weight_loss'],
     allergens: [],
     glycemicIndex: 15,
     benefits: {
       ar: ['ليكوبين يحمي من أمراض القلب', 'يزداد الليكوبين بالطبخ', 'بيتا كاروتين لصحة العين', 'منخفض السعرات جداً'],
-      de: ['Lycopin schützt das Herz', 'Lycopin steigt beim Kochen', 'Beta-Carotin für Augen', 'Sehr kalorienarm'],
     },
     season: ['summer'],
   },
 
   {
     id: 'carrot',
-    name: { ar: 'جزر', de: 'Karotte' },
+    name: { ar: 'جزر', },
     category: 'vegetables',
     subCategory: 'root_vegetables',
     emoji: '🥕',
@@ -125,21 +121,20 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
       minerals: { potassium: 320, calcium: 33, magnesium: 12, phosphorus: 35, sodium: 69 },
     },
     servings: [
-      { description: { ar: 'جزرة متوسطة', de: 'Mittlere Karotte' }, grams: 61 },
-      { description: { ar: 'كوب مبشور', de: 'Tasse geraspelt' }, grams: 110 },
+      { description: { ar: 'جزرة متوسطة', }, grams: 61 },
+      { description: { ar: 'كوب مبشور', }, grams: 110 },
     ],
     tags: ['vegan', 'gluten_free', 'skin_health', 'immune_boost', 'gut_health'],
     allergens: ['celery'],
     glycemicIndex: 39,
     benefits: {
       ar: ['أعلى مصدر لبيتا كاروتين', 'يحسن صحة النظر', 'يحمي البشرة من الشمس', 'ألياف تدعم صحة القولون'],
-      de: ['Höchste Beta-Carotin-Quelle', 'Verbessert Sehkraft', 'Schützt Haut vor Sonne', 'Ballaststoffe für Darmgesundheit'],
     },
     season: ['all_year'],
   },
   {
     id: 'bell_pepper_red',
-    name: { ar: 'فلفل حلو أحمر', de: 'Rote Paprika' },
+    name: { ar: 'فلفل حلو أحمر', },
     category: 'vegetables',
     subCategory: 'fruit_vegetables',
     emoji: '🫑',
@@ -151,21 +146,20 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
       minerals: { potassium: 211, phosphorus: 26, magnesium: 12, calcium: 7, iron: 0.43 },
     },
     servings: [
-      { description: { ar: 'حبة متوسطة', de: 'Mittlere Paprika' }, grams: 119 },
-      { description: { ar: 'كوب شرائح', de: 'Tasse Streifen' }, grams: 92 },
+      { description: { ar: 'حبة متوسطة', }, grams: 119 },
+      { description: { ar: 'كوب شرائح', }, grams: 92 },
     ],
     tags: ['vegan', 'gluten_free', 'low_carb', 'immune_boost', 'skin_health', 'anti_inflammatory'],
     allergens: [],
     glycemicIndex: 15,
     benefits: {
       ar: ['أعلى من البرتقال في فيتامين سي (3 أضعاف!)', 'بيتا كاروتين وكابسانثين', 'فيتامين هـ لحماية الخلايا', 'منخفضة السعرات'],
-      de: ['Mehr Vitamin C als Orange (3x!)', 'Beta-Carotin & Capsanthin', 'Vitamin E schützt Zellen', 'Kalorienarm'],
     },
     season: ['summer', 'autumn'],
   },
   {
     id: 'kale',
-    name: { ar: 'كيل (كرنب مجعد)', de: 'Grünkohl' },
+    name: { ar: 'كيل (كرنب مجعد)', },
     category: 'vegetables',
     subCategory: 'leafy_greens',
     emoji: '🥬',
@@ -177,21 +171,20 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
       minerals: { calcium: 150, potassium: 491, magnesium: 47, phosphorus: 92, iron: 1.5, manganese: 0.66 },
     },
     servings: [
-      { description: { ar: 'كوب مقطع', de: 'Tasse gehackt' }, grams: 67 },
-      { description: { ar: 'كوب مطبوخ', de: 'Tasse gekocht' }, grams: 130 },
+      { description: { ar: 'كوب مقطع', }, grams: 67 },
+      { description: { ar: 'كوب مطبوخ', }, grams: 130 },
     ],
     tags: ['vegan', 'gluten_free', 'high_protein', 'bone_health', 'anti_inflammatory', 'heart_healthy'],
     allergens: [],
     glycemicIndex: 15,
     benefits: {
       ar: ['أغنى الخضروات بالمغذيات مقارنة بالسعرات', 'كالسيوم أكثر من الحليب لكل سعرة', 'يحارب الالتهابات المزمنة', 'يخفض الكوليسترول'],
-      de: ['Nährstoffdichtestes Gemüse pro Kalorie', 'Mehr Kalzium als Milch pro Kalorie', 'Bekämpft chronische Entzündungen', 'Senkt Cholesterin'],
     },
     season: ['winter'],
   },
   {
     id: 'garlic',
-    name: { ar: 'ثوم', de: 'Knoblauch' },
+    name: { ar: 'ثوم', },
     category: 'vegetables',
     subCategory: 'allium',
     emoji: '🧄',
@@ -203,21 +196,20 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
       minerals: { manganese: 1.67, selenium: 14.2, calcium: 181, phosphorus: 153, potassium: 401, iron: 1.7, zinc: 1.16 },
     },
     servings: [
-      { description: { ar: 'فص واحد', de: 'Eine Zehe' }, grams: 3 },
-      { description: { ar: '3 فصوص', de: '3 Zehen' }, grams: 9 },
+      { description: { ar: 'فص واحد', }, grams: 3 },
+      { description: { ar: '3 فصوص', }, grams: 9 },
     ],
     tags: ['vegan', 'gluten_free', 'immune_boost', 'heart_healthy', 'anti_inflammatory'],
     allergens: [],
     glycemicIndex: 30,
     benefits: {
       ar: ['أليسين مضاد حيوي طبيعي قوي', 'يخفض ضغط الدم', 'يقوي المناعة', 'يحارب نزلات البرد'],
-      de: ['Allicin als starkes Antibiotikum', 'Senkt Blutdruck', 'Stärkt Immunsystem', 'Bekämpft Erkältungen'],
     },
     season: ['all_year'],
   },
   {
     id: 'onion',
-    name: { ar: 'بصل', de: 'Zwiebel' },
+    name: { ar: 'بصل', },
     category: 'vegetables',
     subCategory: 'allium',
     emoji: '🧅',
@@ -229,21 +221,20 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
       minerals: { potassium: 146, calcium: 23, phosphorus: 29, magnesium: 10, manganese: 0.13 },
     },
     servings: [
-      { description: { ar: 'بصلة متوسطة', de: 'Mittlere Zwiebel' }, grams: 110 },
-      { description: { ar: 'كوب مقطع', de: 'Tasse gehackt' }, grams: 160 },
+      { description: { ar: 'بصلة متوسطة', }, grams: 110 },
+      { description: { ar: 'كوب مقطع', }, grams: 160 },
     ],
     tags: ['vegan', 'gluten_free', 'heart_healthy', 'gut_health', 'immune_boost'],
     allergens: [],
     glycemicIndex: 10,
     benefits: {
       ar: ['كيرسيتين مضاد قوي للأكسدة', 'بريبيوتيك يغذي البكتيريا النافعة', 'يحسن صحة القلب', 'خصائص مضادة للبكتيريا'],
-      de: ['Quercetin als starkes Antioxidans', 'Präbiotikum nährt gute Bakterien', 'Herzgesundheit', 'Antibakterielle Eigenschaften'],
     },
     season: ['all_year'],
   },
   {
     id: 'cucumber',
-    name: { ar: 'خيار', de: 'Gurke' },
+    name: { ar: 'خيار', },
     category: 'vegetables',
     subCategory: 'fruit_vegetables',
     emoji: '🥒',
@@ -255,22 +246,21 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
       minerals: { potassium: 147, magnesium: 13, phosphorus: 24, calcium: 16, manganese: 0.08 },
     },
     servings: [
-      { description: { ar: 'خيارة متوسطة', de: 'Mittlere Gurke' }, grams: 201 },
-      { description: { ar: 'كوب شرائح', de: 'Tasse Scheiben' }, grams: 104 },
+      { description: { ar: 'خيارة متوسطة', }, grams: 201 },
+      { description: { ar: 'كوب شرائح', }, grams: 104 },
     ],
     tags: ['vegan', 'gluten_free', 'low_carb', 'weight_loss', 'skin_health'],
     allergens: [],
     glycemicIndex: 15,
     benefits: {
       ar: ['ترطيب عالي (95% ماء)', 'منخفض السعرات جداً', 'سيليكا لصحة البشرة والشعر', 'مضادات أكسدة (فيسيتين)'],
-      de: ['Hohe Hydratation (95% Wasser)', 'Sehr kalorienarm', 'Silica für Haut & Haar', 'Antioxidantien (Fisetin)'],
     },
     season: ['summer'],
   },
 
   {
     id: 'cauliflower',
-    name: { ar: 'قرنبيط', de: 'Blumenkohl' },
+    name: { ar: 'قرنبيط', },
     category: 'vegetables',
     subCategory: 'cruciferous',
     emoji: '🤍',
@@ -282,20 +272,19 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
       minerals: { potassium: 299, phosphorus: 44, magnesium: 15, manganese: 0.16, calcium: 22 },
     },
     servings: [
-      { description: { ar: 'كوب زهرات', de: 'Tasse Röschen' }, grams: 107 },
+      { description: { ar: 'كوب زهرات', }, grams: 107 },
     ],
     tags: ['vegan', 'gluten_free', 'low_carb', 'keto_friendly', 'anti_inflammatory', 'weight_loss'],
     allergens: [],
     glycemicIndex: 15,
     benefits: {
       ar: ['بديل مثالي للأرز والبطاطس في الكيتو', 'سلفورافان مضاد للسرطان', 'غني بالكولين لصحة الدماغ', 'منخفض الكربوهيدرات'],
-      de: ['Perfekter Reis-/Kartoffelersatz für Keto', 'Sulforaphan gegen Krebs', 'Reich an Cholin für Gehirn', 'Low-Carb'],
     },
     season: ['autumn', 'winter'],
   },
   {
     id: 'zucchini',
-    name: { ar: 'كوسا', de: 'Zucchini' },
+    name: { ar: 'كوسا', },
     category: 'vegetables',
     subCategory: 'fruit_vegetables',
     emoji: '🥒',
@@ -307,21 +296,20 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
       minerals: { potassium: 261, manganese: 0.18, magnesium: 18, phosphorus: 38, calcium: 16 },
     },
     servings: [
-      { description: { ar: 'كوسا متوسطة', de: 'Mittlere Zucchini' }, grams: 196 },
-      { description: { ar: 'كوب شرائح', de: 'Tasse Scheiben' }, grams: 113 },
+      { description: { ar: 'كوسا متوسطة', }, grams: 196 },
+      { description: { ar: 'كوب شرائح', }, grams: 113 },
     ],
     tags: ['vegan', 'gluten_free', 'low_carb', 'keto_friendly', 'weight_loss', 'gut_health'],
     allergens: [],
     glycemicIndex: 15,
     benefits: {
       ar: ['منخفضة السعرات والكربوهيدرات', 'بديل مثالي للمعكرونة', 'غنية بالبوتاسيوم', 'ترطيب عالي'],
-      de: ['Kalorienarm & Low-Carb', 'Perfekter Pasta-Ersatz', 'Kaliumreich', 'Hohe Hydratation'],
     },
     season: ['summer'],
   },
   {
     id: 'eggplant',
-    name: { ar: 'باذنجان', de: 'Aubergine' },
+    name: { ar: 'باذنجان', },
     category: 'vegetables',
     subCategory: 'fruit_vegetables',
     emoji: '🍆',
@@ -333,21 +321,20 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
       minerals: { potassium: 229, manganese: 0.23, magnesium: 14, phosphorus: 25, copper: 0.08 },
     },
     servings: [
-      { description: { ar: 'كوب مكعبات', de: 'Tasse Würfel' }, grams: 82 },
-      { description: { ar: 'حبة متوسطة', de: 'Mittlere Aubergine' }, grams: 458 },
+      { description: { ar: 'كوب مكعبات', }, grams: 82 },
+      { description: { ar: 'حبة متوسطة', }, grams: 458 },
     ],
     tags: ['vegan', 'gluten_free', 'heart_healthy', 'brain_food', 'weight_loss'],
     allergens: [],
     glycemicIndex: 15,
     benefits: {
       ar: ['ناسونين يحمي خلايا الدماغ', 'ألياف عالية', 'يخفض الكوليسترول', 'قشره غني بمضادات الأكسدة'],
-      de: ['Nasunin schützt Gehirnzellen', 'Ballaststoffreich', 'Senkt Cholesterin', 'Schale reich an Antioxidantien'],
     },
     season: ['summer', 'autumn'],
   },
   {
     id: 'mushroom_white',
-    name: { ar: 'فطر أبيض', de: 'Champignon' },
+    name: { ar: 'فطر أبيض', },
     category: 'vegetables',
     subCategory: 'fungi',
     emoji: '🍄',
@@ -359,21 +346,20 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
       minerals: { selenium: 9.3, potassium: 318, phosphorus: 86, copper: 0.32, zinc: 0.52 },
     },
     servings: [
-      { description: { ar: 'كوب شرائح', de: 'Tasse Scheiben' }, grams: 70 },
-      { description: { ar: '5 حبات متوسطة', de: '5 mittlere Stück' }, grams: 90 },
+      { description: { ar: 'كوب شرائح', }, grams: 70 },
+      { description: { ar: '5 حبات متوسطة', }, grams: 90 },
     ],
     tags: ['vegan', 'gluten_free', 'low_carb', 'immune_boost', 'keto_friendly'],
     allergens: [],
     glycemicIndex: 15,
     benefits: {
       ar: ['المصدر النباتي الوحيد لفيتامين د', 'سيلينيوم يدعم المناعة', 'بيتا جلوكان يحارب الأورام', 'منخفض السعرات وغني بالبروتين'],
-      de: ['Einzige pflanzliche Vitamin-D-Quelle', 'Selen stärkt Immunsystem', 'Beta-Glucan bekämpft Tumore', 'Kalorienarm & proteinreich'],
     },
     season: ['all_year'],
   },
   {
     id: 'asparagus',
-    name: { ar: 'هليون', de: 'Spargel' },
+    name: { ar: 'هليون', },
     category: 'vegetables',
     subCategory: 'stem_vegetables',
     emoji: '🥬',
@@ -385,21 +371,20 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
       minerals: { potassium: 202, phosphorus: 52, iron: 2.14, calcium: 24, magnesium: 14, zinc: 0.54 },
     },
     servings: [
-      { description: { ar: '5 سيقان', de: '5 Stangen' }, grams: 93 },
-      { description: { ar: 'كوب مقطع', de: 'Tasse gehackt' }, grams: 134 },
+      { description: { ar: '5 سيقان', }, grams: 93 },
+      { description: { ar: 'كوب مقطع', }, grams: 134 },
     ],
     tags: ['vegan', 'gluten_free', 'gut_health', 'anti_inflammatory', 'weight_loss'],
     allergens: [],
     glycemicIndex: 15,
     benefits: {
       ar: ['أعلى مصدر للفولات (ب9)', 'بريبيوتيك (إنولين) لصحة الأمعاء', 'مدر طبيعي يزيل الانتفاخ', 'مضاد قوي للأكسدة'],
-      de: ['Höchste Folatquelle', 'Präbiotikum (Inulin) für Darm', 'Natürliches Diuretikum', 'Starkes Antioxidans'],
     },
     season: ['spring'],
   },
   {
     id: 'beetroot',
-    name: { ar: 'شمندر (بنجر)', de: 'Rote Bete' },
+    name: { ar: 'شمندر (بنجر)', },
     category: 'vegetables',
     subCategory: 'root_vegetables',
     emoji: '🔴',
@@ -411,21 +396,20 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
       minerals: { potassium: 325, manganese: 0.33, magnesium: 23, iron: 0.8, phosphorus: 40, sodium: 78 },
     },
     servings: [
-      { description: { ar: 'حبة متوسطة', de: 'Mittlere Rote Bete' }, grams: 82 },
-      { description: { ar: 'كوب مبشور', de: 'Tasse geraspelt' }, grams: 136 },
+      { description: { ar: 'حبة متوسطة', }, grams: 82 },
+      { description: { ar: 'كوب مبشور', }, grams: 136 },
     ],
     tags: ['vegan', 'gluten_free', 'heart_healthy', 'energy_boost', 'muscle_building'],
     allergens: [],
     glycemicIndex: 61,
     benefits: {
       ar: ['نيترات تحسن الأداء الرياضي بنسبة 3%', 'يوسع الأوعية الدموية ويخفض الضغط', 'بيتالين مضاد قوي للأكسدة', 'غني بالفولات'],
-      de: ['Nitrate verbessern Sportleistung um 3%', 'Erweitert Blutgefäße, senkt Blutdruck', 'Betalaine als Antioxidantien', 'Folatreich'],
     },
     season: ['autumn', 'winter'],
   },
   {
     id: 'pumpkin',
-    name: { ar: 'يقطين', de: 'Kürbis' },
+    name: { ar: 'يقطين', },
     category: 'vegetables',
     subCategory: 'squash',
     emoji: '🎃',
@@ -437,20 +421,19 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
       minerals: { potassium: 340, copper: 0.13, manganese: 0.13, magnesium: 12, phosphorus: 44, iron: 0.8 },
     },
     servings: [
-      { description: { ar: 'كوب مكعبات', de: 'Tasse Würfel' }, grams: 116 },
+      { description: { ar: 'كوب مكعبات', }, grams: 116 },
     ],
     tags: ['vegan', 'gluten_free', 'immune_boost', 'skin_health', 'weight_loss'],
     allergens: [],
     glycemicIndex: 75,
     benefits: {
       ar: ['غني جداً بفيتامين أ', 'بيتا كاروتين يحمي العين', 'منخفض السعرات', 'يدعم صحة البشرة'],
-      de: ['Sehr reich an Vitamin A', 'Beta-Carotin schützt Augen', 'Kalorienarm', 'Unterstützt Hautgesundheit'],
     },
     season: ['autumn'],
   },
   {
     id: 'green_peas',
-    name: { ar: 'بازلاء خضراء', de: 'Grüne Erbsen' },
+    name: { ar: 'بازلاء خضراء', },
     category: 'vegetables',
     subCategory: 'pod_vegetables',
     emoji: '🟢',
@@ -462,20 +445,19 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
       minerals: { potassium: 244, phosphorus: 108, magnesium: 33, iron: 1.5, zinc: 1.2, manganese: 0.41 },
     },
     servings: [
-      { description: { ar: 'كوب', de: 'Tasse' }, grams: 145 },
+      { description: { ar: 'كوب', }, grams: 145 },
     ],
     tags: ['vegan', 'gluten_free', 'high_protein', 'high_fiber', 'muscle_building'],
     allergens: [],
     glycemicIndex: 48,
     benefits: {
       ar: ['بروتين نباتي عالي', 'ألياف تشعر بالشبع', 'فيتامين ك للعظام', 'مصدر جيد للحديد النباتي'],
-      de: ['Hohes pflanzliches Protein', 'Ballaststoffe sättigen', 'Vitamin K für Knochen', 'Gute pflanzliche Eisenquelle'],
     },
     season: ['spring', 'summer'],
   },
   {
     id: 'avocado_veg',
-    name: { ar: 'أفوكادو (كخضار)', de: 'Avocado (als Gemüse)' },
+    name: { ar: 'أفوكادو (كخضار)', },
     category: 'vegetables',
     subCategory: 'fatty_vegetables',
     emoji: '🥑',
@@ -487,14 +469,13 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
       minerals: { potassium: 485, magnesium: 29, phosphorus: 52, iron: 0.55, copper: 0.19, zinc: 0.64 },
     },
     servings: [
-      { description: { ar: 'نصف حبة', de: 'Halbe Avocado' }, grams: 100 },
+      { description: { ar: 'نصف حبة', }, grams: 100 },
     ],
     tags: ['vegan', 'gluten_free', 'keto_friendly', 'heart_healthy', 'brain_food'],
     allergens: [],
     glycemicIndex: 15,
     benefits: {
       ar: ['دهون أحادية غير مشبعة صحية', 'يحسن امتصاص العناصر الدهنية', 'أعلى فاكهة/خضار في البوتاسيوم', 'ألياف عالية جداً'],
-      de: ['Gesunde einfach ungesättigte Fette', 'Verbessert Absorption fettlöslicher Nährstoffe', 'Höchster Kaliumgehalt', 'Sehr ballaststoffreich'],
     },
     season: ['all_year'],
   },
@@ -502,7 +483,7 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
 
   {
     id: 'bok_choy',
-    name: { ar: 'باك تشوي', de: 'Pak Choi' },
+    name: { ar: 'باك تشوي', },
     category: 'vegetables',
     subCategory: 'leafy_greens',
     emoji: '🥬',
@@ -514,15 +495,14 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
       minerals: { calcium: 105, potassium: 252, magnesium: 19, phosphorus: 37, iron: 0.8, zinc: 0.19, manganese: 0.16, sodium: 65 },
     },
     servings: [
-      { description: { ar: 'كوب مقطع', de: 'Tasse gehackt' }, grams: 70 },
-      { description: { ar: 'حبة متوسطة', de: 'Mittelgroßer Kopf' }, grams: 250 },
+      { description: { ar: 'كوب مقطع', }, grams: 70 },
+      { description: { ar: 'حبة متوسطة', }, grams: 250 },
     ],
     tags: ['vegan', 'gluten_free', 'low_carb', 'bone_health', 'immune_boost', 'anti_inflammatory'],
     allergens: [],
     glycemicIndex: 15,
     benefits: {
       ar: ['غني بالكالسيوم لصحة العظام', 'فيتامين سي يعزز المناعة', 'مضاد للالتهابات', 'منخفض السعرات الحرارية لفقدان الوزن'],
-      de: ['Reich an Kalzium für Knochengesundheit', 'Vitamin C stärkt das Immunsystem', 'Entzündungshemmend', 'Kalorienarm für Gewichtsverlust'],
     },
     season: ['spring', 'autumn'],
   },
@@ -530,7 +510,7 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
 
   {
     id: 'swiss_chard',
-    name: { ar: 'سلق', de: 'Mangold' },
+    name: { ar: 'سلق', },
     category: 'vegetables',
     subCategory: 'leafy_greens',
     emoji: '🥬',
@@ -542,15 +522,14 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
       minerals: { magnesium: 81, iron: 1.8, potassium: 379, calcium: 51, phosphorus: 46, manganese: 0.37, zinc: 0.36 },
     },
     servings: [
-      { description: { ar: 'كوب مقطع', de: 'Tasse gehackt' }, grams: 36 },
-      { description: { ar: 'كوب مطبوخ', de: 'Tasse gekocht' }, grams: 175 },
+      { description: { ar: 'كوب مقطع', }, grams: 36 },
+      { description: { ar: 'كوب مطبوخ', }, grams: 175 },
     ],
     tags: ['vegan', 'gluten_free', 'low_carb', 'bone_health', 'anti_inflammatory', 'heart_healthy'],
     allergens: [],
     glycemicIndex: 15,
     benefits: {
       ar: ['أعلى مصدر نباتي لفيتامين ك', 'غني بالمغنيسيوم لصحة القلب', 'يحتوي على مضادات الأكسدة', 'يدعم صحة العظام'],
-      de: ['Höchste pflanzliche Vitamin-K-Quelle', 'Reich an Magnesium für Herzgesundheit', 'Enthält Antioxidantien', 'Unterstützt Knochengesundheit'],
     },
     season: ['summer', 'autumn'],
   },
@@ -558,7 +537,7 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
 
   {
     id: 'watercress',
-    name: { ar: 'جرجير مائي', de: 'Brunnenkresse' },
+    name: { ar: 'جرجير مائي', },
     category: 'vegetables',
     subCategory: 'leafy_greens',
     emoji: '🌿',
@@ -570,15 +549,14 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
       minerals: { calcium: 120, potassium: 330, phosphorus: 60, magnesium: 21, iron: 0.2, manganese: 0.24, zinc: 0.11 },
     },
     servings: [
-      { description: { ar: 'كوب طازج', de: 'Tasse frisch' }, grams: 34 },
-      { description: { ar: 'حزمة', de: 'Bund' }, grams: 85 },
+      { description: { ar: 'كوب طازج', }, grams: 34 },
+      { description: { ar: 'حزمة', }, grams: 85 },
     ],
     tags: ['vegan', 'gluten_free', 'low_carb', 'keto_friendly', 'immune_boost', 'bone_health', 'skin_health'],
     allergens: [],
     glycemicIndex: 15,
     benefits: {
       ar: ['أكثر الأطعمة كثافة بالمغذيات', 'يعزز صحة الجلد والبشرة', 'فيتامين ك لصحة العظام', 'مضاد أكسدة قوي'],
-      de: ['Nährstoffdichtestes Lebensmittel', 'Fördert Haut- und Hautgesundheit', 'Vitamin K für Knochengesundheit', 'Starkes Antioxidans'],
     },
     season: ['spring', 'summer'],
   },
@@ -586,7 +564,7 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
 
   {
     id: 'artichoke',
-    name: { ar: 'خرشوف', de: 'Artischocke' },
+    name: { ar: 'خرشوف', },
     category: 'vegetables',
     subCategory: 'flower_vegetables',
     emoji: '🌼',
@@ -598,15 +576,14 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
       minerals: { potassium: 370, magnesium: 60, phosphorus: 90, calcium: 44, iron: 1.3, zinc: 0.49, manganese: 0.26, copper: 0.23 },
     },
     servings: [
-      { description: { ar: 'حبة متوسطة', de: 'Mittelgroße Artischocke' }, grams: 128 },
-      { description: { ar: 'قلب خرشوف', de: 'Artischockenherz' }, grams: 36 },
+      { description: { ar: 'حبة متوسطة', }, grams: 128 },
+      { description: { ar: 'قلب خرشوف', }, grams: 36 },
     ],
     tags: ['vegan', 'gluten_free', 'high_fiber', 'gut_health', 'heart_healthy', 'weight_loss'],
     allergens: [],
     glycemicIndex: 20,
     benefits: {
       ar: ['ألياف عالية جداً لصحة الأمعاء', 'يدعم وظائف الكبد', 'غني بمضادات الأكسدة', 'يخفض الكوليسترول'],
-      de: ['Sehr ballaststoffreich für Darmgesundheit', 'Unterstützt Leberfunktion', 'Reich an Antioxidantien', 'Senkt Cholesterin'],
     },
     season: ['spring', 'summer'],
   },
@@ -614,7 +591,7 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
 
   {
     id: 'fennel',
-    name: { ar: 'شمر', de: 'Fenchel' },
+    name: { ar: 'شمر', },
     category: 'vegetables',
     subCategory: 'bulb_vegetables',
     emoji: '🌱',
@@ -626,15 +603,14 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
       minerals: { potassium: 414, calcium: 49, manganese: 0.19, magnesium: 17, phosphorus: 50, iron: 0.73, zinc: 0.2 },
     },
     servings: [
-      { description: { ar: 'بصلة متوسطة', de: 'Mittelgroße Knolle' }, grams: 234 },
-      { description: { ar: 'كوب مقطع', de: 'Tasse geschnitten' }, grams: 87 },
+      { description: { ar: 'بصلة متوسطة', }, grams: 234 },
+      { description: { ar: 'كوب مقطع', }, grams: 87 },
     ],
     tags: ['vegan', 'gluten_free', 'gut_health', 'anti_inflammatory', 'weight_loss'],
     allergens: [],
     glycemicIndex: 15,
     benefits: {
       ar: ['يحسن الهضم ويقلل الانتفاخ', 'مضاد للالتهابات', 'غني بالبوتاسيوم لصحة القلب', 'يدعم صحة العظام'],
-      de: ['Verbessert Verdauung und reduziert Blähungen', 'Entzündungshemmend', 'Reich an Kalium für Herzgesundheit', 'Unterstützt Knochengesundheit'],
     },
     season: ['autumn', 'winter'],
   },
@@ -642,7 +618,7 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
 
   {
     id: 'leek',
-    name: { ar: 'كراث', de: 'Lauch' },
+    name: { ar: 'كراث', },
     category: 'vegetables',
     subCategory: 'allium',
     emoji: '🧅',
@@ -654,15 +630,14 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
       minerals: { manganese: 0.48, potassium: 180, iron: 2.1, calcium: 59, magnesium: 28, phosphorus: 35 },
     },
     servings: [
-      { description: { ar: 'حبة متوسطة', de: 'Mittelgroße Stange' }, grams: 89 },
-      { description: { ar: 'كوب مقطع', de: 'Tasse geschnitten' }, grams: 104 },
+      { description: { ar: 'حبة متوسطة', }, grams: 89 },
+      { description: { ar: 'كوب مقطع', }, grams: 104 },
     ],
     tags: ['vegan', 'gluten_free', 'gut_health', 'heart_healthy', 'immune_boost'],
     allergens: [],
     glycemicIndex: 15,
     benefits: {
       ar: ['يحتوي على مركبات الكبريت المفيدة', 'يدعم صحة القلب', 'غني بفيتامين ك للعظام', 'يعزز صحة الأمعاء'],
-      de: ['Enthält nützliche Schwefelverbindungen', 'Unterstützt Herzgesundheit', 'Reich an Vitamin K für Knochen', 'Fördert Darmgesundheit'],
     },
     season: ['autumn', 'winter'],
   },
@@ -670,7 +645,7 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
 
   {
     id: 'turnip',
-    name: { ar: 'لفت', de: 'Rübe' },
+    name: { ar: 'لفت', },
     category: 'vegetables',
     subCategory: 'root_vegetables',
     emoji: '🟣',
@@ -682,15 +657,14 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
       minerals: { potassium: 191, calcium: 30, phosphorus: 27, magnesium: 11, iron: 0.3, sodium: 67, manganese: 0.13 },
     },
     servings: [
-      { description: { ar: 'حبة متوسطة', de: 'Mittelgroße Rübe' }, grams: 122 },
-      { description: { ar: 'كوب مكعبات', de: 'Tasse gewürfelt' }, grams: 130 },
+      { description: { ar: 'حبة متوسطة', }, grams: 122 },
+      { description: { ar: 'كوب مكعبات', }, grams: 130 },
     ],
     tags: ['vegan', 'gluten_free', 'low_carb', 'weight_loss', 'immune_boost', 'gut_health'],
     allergens: [],
     glycemicIndex: 62,
     benefits: {
       ar: ['منخفض السعرات الحرارية', 'غني بفيتامين سي', 'يدعم صحة الجهاز الهضمي', 'مصدر جيد للألياف'],
-      de: ['Kalorienarm', 'Reich an Vitamin C', 'Unterstützt Verdauungsgesundheit', 'Gute Ballaststoffquelle'],
     },
     season: ['autumn', 'winter'],
   },
@@ -698,7 +672,7 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
 
   {
     id: 'parsnip',
-    name: { ar: 'جزر أبيض', de: 'Pastinake' },
+    name: { ar: 'جزر أبيض', },
     category: 'vegetables',
     subCategory: 'root_vegetables',
     emoji: '🥕',
@@ -710,15 +684,14 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
       minerals: { potassium: 375, manganese: 0.56, phosphorus: 71, magnesium: 29, calcium: 36, iron: 0.59, zinc: 0.59 },
     },
     servings: [
-      { description: { ar: 'حبة متوسطة', de: 'Mittelgroße Pastinake' }, grams: 133 },
-      { description: { ar: 'كوب مقطع', de: 'Tasse geschnitten' }, grams: 133 },
+      { description: { ar: 'حبة متوسطة', }, grams: 133 },
+      { description: { ar: 'كوب مقطع', }, grams: 133 },
     ],
     tags: ['vegan', 'gluten_free', 'high_fiber', 'gut_health', 'energy_boost', 'heart_healthy'],
     allergens: [],
     glycemicIndex: 52,
     benefits: {
       ar: ['ألياف عالية لصحة الأمعاء', 'مصدر جيد للطاقة', 'غني بحمض الفوليك', 'يدعم صحة القلب'],
-      de: ['Ballaststoffreich für Darmgesundheit', 'Gute Energiequelle', 'Reich an Folsäure', 'Unterstützt Herzgesundheit'],
     },
     season: ['autumn', 'winter'],
   },
@@ -726,7 +699,7 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
 
   {
     id: 'rutabaga',
-    name: { ar: 'لفت سويدي', de: 'Steckrübe' },
+    name: { ar: 'لفت سويدي', },
     category: 'vegetables',
     subCategory: 'root_vegetables',
     emoji: '🟡',
@@ -738,15 +711,14 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
       minerals: { potassium: 305, magnesium: 20, phosphorus: 53, calcium: 43, iron: 0.44, zinc: 0.24, manganese: 0.13 },
     },
     servings: [
-      { description: { ar: 'حبة متوسطة', de: 'Mittelgroße Steckrübe' }, grams: 386 },
-      { description: { ar: 'كوب مكعبات', de: 'Tasse gewürfelt' }, grams: 140 },
+      { description: { ar: 'حبة متوسطة', }, grams: 386 },
+      { description: { ar: 'كوب مكعبات', }, grams: 140 },
     ],
     tags: ['vegan', 'gluten_free', 'low_carb', 'weight_loss', 'immune_boost', 'gut_health'],
     allergens: [],
     glycemicIndex: 72,
     benefits: {
       ar: ['مصدر جيد لفيتامين سي', 'غني بالبوتاسيوم', 'منخفض السعرات ومشبع', 'يدعم صحة الجهاز الهضمي'],
-      de: ['Gute Vitamin-C-Quelle', 'Reich an Kalium', 'Kalorienarm und sättigend', 'Unterstützt Verdauungsgesundheit'],
     },
     season: ['autumn', 'winter'],
   },
@@ -754,7 +726,7 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
 
   {
     id: 'kohlrabi',
-    name: { ar: 'كولرابي', de: 'Kohlrabi' },
+    name: { ar: 'كولرابي', },
     category: 'vegetables',
     subCategory: 'cruciferous',
     emoji: '🟢',
@@ -766,15 +738,14 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
       minerals: { potassium: 350, phosphorus: 46, calcium: 24, magnesium: 19, iron: 0.4, copper: 0.13, manganese: 0.14 },
     },
     servings: [
-      { description: { ar: 'حبة متوسطة', de: 'Mittelgroßer Kohlrabi' }, grams: 135 },
-      { description: { ar: 'كوب مقطع', de: 'Tasse geschnitten' }, grams: 135 },
+      { description: { ar: 'حبة متوسطة', }, grams: 135 },
+      { description: { ar: 'كوب مقطع', }, grams: 135 },
     ],
     tags: ['vegan', 'gluten_free', 'high_fiber', 'immune_boost', 'weight_loss', 'gut_health'],
     allergens: [],
     glycemicIndex: 20,
     benefits: {
       ar: ['غني جداً بفيتامين سي', 'ألياف عالية لصحة الأمعاء', 'منخفض السعرات الحرارية', 'يدعم صحة الجهاز المناعي'],
-      de: ['Sehr reich an Vitamin C', 'Ballaststoffreich für Darmgesundheit', 'Kalorienarm', 'Unterstützt Immunsystem'],
     },
     season: ['spring', 'summer', 'autumn'],
   },
@@ -782,7 +753,7 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
 
   {
     id: 'daikon',
-    name: { ar: 'فجل أبيض', de: 'Rettich' },
+    name: { ar: 'فجل أبيض', },
     category: 'vegetables',
     subCategory: 'root_vegetables',
     emoji: '⬜',
@@ -794,15 +765,14 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
       minerals: { potassium: 227, calcium: 27, phosphorus: 23, magnesium: 16, iron: 0.4, sodium: 21, copper: 0.12 },
     },
     servings: [
-      { description: { ar: 'حبة متوسطة', de: 'Mittelgroßer Rettich' }, grams: 338 },
-      { description: { ar: 'كوب مقطع', de: 'Tasse geschnitten' }, grams: 116 },
+      { description: { ar: 'حبة متوسطة', }, grams: 338 },
+      { description: { ar: 'كوب مقطع', }, grams: 116 },
     ],
     tags: ['vegan', 'gluten_free', 'low_carb', 'weight_loss', 'gut_health', 'keto_friendly'],
     allergens: [],
     glycemicIndex: 15,
     benefits: {
       ar: ['يحسن الهضم', 'منخفض السعرات جداً', 'يدعم إزالة السموم', 'غني بفيتامين سي'],
-      de: ['Verbessert Verdauung', 'Sehr kalorienarm', 'Unterstützt Entgiftung', 'Reich an Vitamin C'],
     },
     season: ['autumn', 'winter'],
   },
@@ -810,7 +780,7 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
 
   {
     id: 'okra',
-    name: { ar: 'بامية', de: 'Okra' },
+    name: { ar: 'بامية', },
     category: 'vegetables',
     subCategory: 'fruit_vegetables',
     emoji: '🌿',
@@ -822,15 +792,14 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
       minerals: { magnesium: 57, potassium: 299, calcium: 82, phosphorus: 61, iron: 0.62, manganese: 0.79, zinc: 0.58 },
     },
     servings: [
-      { description: { ar: 'كوب مقطع', de: 'Tasse geschnitten' }, grams: 100 },
-      { description: { ar: '٨ حبات', de: '8 Stück' }, grams: 85 },
+      { description: { ar: 'كوب مقطع', }, grams: 100 },
+      { description: { ar: '٨ حبات', }, grams: 85 },
     ],
     tags: ['vegan', 'gluten_free', 'high_fiber', 'gut_health', 'heart_healthy', 'bone_health'],
     allergens: [],
     glycemicIndex: 20,
     benefits: {
       ar: ['ألياف قابلة للذوبان لصحة الأمعاء', 'غني بالكالسيوم والمغنيسيوم', 'يساعد في تنظيم سكر الدم', 'يدعم صحة العظام'],
-      de: ['Lösliche Ballaststoffe für Darmgesundheit', 'Reich an Kalzium und Magnesium', 'Hilft bei Blutzuckerregulierung', 'Unterstützt Knochengesundheit'],
     },
     season: ['summer'],
   },
@@ -838,7 +807,7 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
 
   {
     id: 'endive',
-    name: { ar: 'هندباء', de: 'Endivie' },
+    name: { ar: 'هندباء', },
     category: 'vegetables',
     subCategory: 'leafy_greens',
     emoji: '🥬',
@@ -850,15 +819,14 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
       minerals: { potassium: 314, calcium: 52, phosphorus: 28, magnesium: 15, iron: 0.83, zinc: 0.79, manganese: 0.42 },
     },
     servings: [
-      { description: { ar: 'كوب مقطع', de: 'Tasse gehackt' }, grams: 50 },
-      { description: { ar: 'رأس متوسط', de: 'Mittelgroßer Kopf' }, grams: 513 },
+      { description: { ar: 'كوب مقطع', }, grams: 50 },
+      { description: { ar: 'رأس متوسط', }, grams: 513 },
     ],
     tags: ['vegan', 'gluten_free', 'low_carb', 'high_fiber', 'gut_health', 'bone_health', 'weight_loss'],
     allergens: [],
     glycemicIndex: 15,
     benefits: {
       ar: ['غني جداً بحمض الفوليك', 'ألياف عالية لصحة الهضم', 'فيتامين ك لصحة العظام', 'منخفض السعرات الحرارية'],
-      de: ['Sehr reich an Folsäure', 'Ballaststoffreich für Verdauung', 'Vitamin K für Knochengesundheit', 'Kalorienarm'],
     },
     season: ['autumn', 'winter'],
   },
@@ -866,7 +834,7 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
 
   {
     id: 'radicchio',
-    name: { ar: 'راديكيو', de: 'Radicchio' },
+    name: { ar: 'راديكيو', },
     category: 'vegetables',
     subCategory: 'leafy_greens',
     emoji: '🟣',
@@ -878,15 +846,14 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
       minerals: { potassium: 302, calcium: 19, phosphorus: 40, magnesium: 13, iron: 0.57, zinc: 0.62, copper: 0.3 },
     },
     servings: [
-      { description: { ar: 'كوب مقطع', de: 'Tasse gehackt' }, grams: 40 },
-      { description: { ar: 'رأس متوسط', de: 'Mittelgroßer Kopf' }, grams: 206 },
+      { description: { ar: 'كوب مقطع', }, grams: 40 },
+      { description: { ar: 'رأس متوسط', }, grams: 206 },
     ],
     tags: ['vegan', 'gluten_free', 'low_carb', 'bone_health', 'heart_healthy', 'anti_inflammatory'],
     allergens: [],
     glycemicIndex: 15,
     benefits: {
       ar: ['مضادات أكسدة قوية', 'فيتامين ك لصحة العظام', 'يدعم صحة القلب', 'فيتامين إي لصحة البشرة'],
-      de: ['Starke Antioxidantien', 'Vitamin K für Knochengesundheit', 'Unterstützt Herzgesundheit', 'Vitamin E für Hautgesundheit'],
     },
     season: ['autumn', 'winter'],
   },
@@ -894,7 +861,7 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
 
   {
     id: 'collard_greens',
-    name: { ar: 'كرنب ورقي', de: 'Collard Greens' },
+    name: { ar: 'كرنب ورقي', },
     category: 'vegetables',
     subCategory: 'leafy_greens',
     emoji: '🥬',
@@ -906,15 +873,14 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
       minerals: { calcium: 232, potassium: 213, magnesium: 27, phosphorus: 25, iron: 0.47, manganese: 0.66, copper: 0.05 },
     },
     servings: [
-      { description: { ar: 'كوب مقطع', de: 'Tasse gehackt' }, grams: 36 },
-      { description: { ar: 'كوب مطبوخ', de: 'Tasse gekocht' }, grams: 190 },
+      { description: { ar: 'كوب مقطع', }, grams: 36 },
+      { description: { ar: 'كوب مطبوخ', }, grams: 190 },
     ],
     tags: ['vegan', 'gluten_free', 'high_fiber', 'bone_health', 'anti_inflammatory', 'heart_healthy', 'high_protein'],
     allergens: [],
     glycemicIndex: 15,
     benefits: {
       ar: ['أعلى مصدر نباتي للكالسيوم', 'فيتامين ك لتخثر الدم', 'مضاد قوي للالتهابات', 'يدعم صحة العظام'],
-      de: ['Höchste pflanzliche Kalziumquelle', 'Vitamin K für Blutgerinnung', 'Stark entzündungshemmend', 'Unterstützt Knochengesundheit'],
     },
     season: ['winter', 'spring'],
   },
@@ -922,7 +888,7 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
 
   {
     id: 'butternut_squash',
-    name: { ar: 'قرع الجوز', de: 'Butternut-Kürbis' },
+    name: { ar: 'قرع الجوز', },
     category: 'vegetables',
     subCategory: 'squash',
     emoji: '🎃',
@@ -934,15 +900,14 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
       minerals: { potassium: 352, magnesium: 34, calcium: 48, phosphorus: 33, iron: 0.7, manganese: 0.2, zinc: 0.15 },
     },
     servings: [
-      { description: { ar: 'كوب مكعبات', de: 'Tasse gewürfelt' }, grams: 140 },
-      { description: { ar: 'نصف حبة', de: 'Halber Kürbis' }, grams: 500 },
+      { description: { ar: 'كوب مكعبات', }, grams: 140 },
+      { description: { ar: 'نصف حبة', }, grams: 500 },
     ],
     tags: ['vegan', 'gluten_free', 'immune_boost', 'skin_health', 'heart_healthy', 'anti_inflammatory'],
     allergens: [],
     glycemicIndex: 51,
     benefits: {
       ar: ['غني جداً بفيتامين أ لصحة البصر', 'مضاد أكسدة قوي', 'يدعم صحة البشرة', 'فيتامين سي لتعزيز المناعة'],
-      de: ['Sehr reich an Vitamin A für Sehkraft', 'Starkes Antioxidans', 'Unterstützt Hautgesundheit', 'Vitamin C stärkt Immunsystem'],
     },
     season: ['autumn', 'winter'],
   },
@@ -950,7 +915,7 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
 
   {
     id: 'acorn_squash',
-    name: { ar: 'قرع بلوطي', de: 'Eichelkürbis' },
+    name: { ar: 'قرع بلوطي', },
     category: 'vegetables',
     subCategory: 'squash',
     emoji: '🎃',
@@ -962,15 +927,14 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
       minerals: { potassium: 347, magnesium: 32, calcium: 33, phosphorus: 36, iron: 0.7, manganese: 0.17, zinc: 0.13 },
     },
     servings: [
-      { description: { ar: 'كوب مكعبات', de: 'Tasse gewürfelt' }, grams: 140 },
-      { description: { ar: 'نصف حبة', de: 'Halber Kürbis' }, grams: 325 },
+      { description: { ar: 'كوب مكعبات', }, grams: 140 },
+      { description: { ar: 'نصف حبة', }, grams: 325 },
     ],
     tags: ['vegan', 'gluten_free', 'energy_boost', 'heart_healthy', 'gut_health'],
     allergens: [],
     glycemicIndex: 55,
     benefits: {
       ar: ['مصدر جيد للطاقة', 'غني بالبوتاسيوم لصحة القلب', 'يحتوي على فيتامين ب1 للأعصاب', 'ألياف لصحة الهضم'],
-      de: ['Gute Energiequelle', 'Reich an Kalium für Herzgesundheit', 'Enthält Vitamin B1 für Nerven', 'Ballaststoffe für Verdauung'],
     },
     season: ['autumn', 'winter'],
   },
@@ -978,7 +942,7 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
 
   {
     id: 'celeriac',
-    name: { ar: 'كرفس جذري', de: 'Knollensellerie' },
+    name: { ar: 'كرفس جذري', },
     category: 'vegetables',
     subCategory: 'root_vegetables',
     emoji: '🟤',
@@ -990,15 +954,14 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
       minerals: { phosphorus: 115, potassium: 300, calcium: 43, magnesium: 20, iron: 0.7, manganese: 0.16, zinc: 0.33 },
     },
     servings: [
-      { description: { ar: 'كوب مقطع', de: 'Tasse geschnitten' }, grams: 156 },
-      { description: { ar: 'حبة متوسطة', de: 'Mittelgroße Knolle' }, grams: 312 },
+      { description: { ar: 'كوب مقطع', }, grams: 156 },
+      { description: { ar: 'حبة متوسطة', }, grams: 312 },
     ],
     tags: ['vegan', 'gluten_free', 'low_carb', 'bone_health', 'gut_health', 'weight_loss'],
     allergens: ['celery'],
     glycemicIndex: 35,
     benefits: {
       ar: ['غني بفيتامين ك لصحة العظام', 'مصدر جيد للفوسفور', 'منخفض السعرات الحرارية', 'يدعم صحة الجهاز الهضمي'],
-      de: ['Reich an Vitamin K für Knochengesundheit', 'Gute Phosphorquelle', 'Kalorienarm', 'Unterstützt Verdauungsgesundheit'],
     },
     season: ['autumn', 'winter'],
   },
@@ -1006,7 +969,7 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
 
   {
     id: 'jicama',
-    name: { ar: 'خيكاما', de: 'Jicama' },
+    name: { ar: 'خيكاما', },
     category: 'vegetables',
     subCategory: 'root_vegetables',
     emoji: '🥔',
@@ -1018,15 +981,14 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
       minerals: { potassium: 150, iron: 0.6, calcium: 12, magnesium: 12, phosphorus: 18, zinc: 0.16, copper: 0.05 },
     },
     servings: [
-      { description: { ar: 'كوب مقطع', de: 'Tasse geschnitten' }, grams: 120 },
-      { description: { ar: 'حبة صغيرة', de: 'Kleine Knolle' }, grams: 180 },
+      { description: { ar: 'كوب مقطع', }, grams: 120 },
+      { description: { ar: 'حبة صغيرة', }, grams: 180 },
     ],
     tags: ['vegan', 'gluten_free', 'high_fiber', 'gut_health', 'weight_loss', 'low_carb'],
     allergens: [],
     glycemicIndex: 35,
     benefits: {
       ar: ['ألياف بريبيوتيك لصحة الأمعاء', 'منخفض السعرات ومشبع', 'غني بفيتامين سي', 'مقرمش ومنعش كوجبة خفيفة'],
-      de: ['Präbiotische Ballaststoffe für Darmgesundheit', 'Kalorienarm und sättigend', 'Reich an Vitamin C', 'Knackig und erfrischend als Snack'],
     },
     season: ['all_year'],
   },
@@ -1034,7 +996,7 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
 
   {
     id: 'taro',
-    name: { ar: 'قلقاس', de: 'Taro' },
+    name: { ar: 'قلقاس', },
     category: 'vegetables',
     subCategory: 'root_vegetables',
     emoji: '🟤',
@@ -1046,15 +1008,14 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
       minerals: { potassium: 591, manganese: 0.38, magnesium: 33, phosphorus: 84, iron: 0.55, zinc: 0.23, copper: 0.17 },
     },
     servings: [
-      { description: { ar: 'كوب مقطع', de: 'Tasse geschnitten' }, grams: 132 },
-      { description: { ar: 'حبة متوسطة', de: 'Mittelgroße Knolle' }, grams: 104 },
+      { description: { ar: 'كوب مقطع', }, grams: 132 },
+      { description: { ar: 'حبة متوسطة', }, grams: 104 },
     ],
     tags: ['vegan', 'gluten_free', 'energy_boost', 'gut_health', 'high_fiber'],
     allergens: [],
     glycemicIndex: 53,
     benefits: {
       ar: ['مصدر ممتاز للطاقة', 'ألياف عالية لصحة الهضم', 'غني بالبوتاسيوم', 'خالٍ من الغلوتين بطبيعته'],
-      de: ['Hervorragende Energiequelle', 'Ballaststoffreich für Verdauung', 'Reich an Kalium', 'Von Natur aus glutenfrei'],
     },
     season: ['all_year'],
   },
@@ -1062,7 +1023,7 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
 
   {
     id: 'water_chestnut',
-    name: { ar: 'كستناء مائية', de: 'Wasserkastanie' },
+    name: { ar: 'كستناء مائية', },
     category: 'vegetables',
     subCategory: 'root_vegetables',
     emoji: '🌰',
@@ -1074,15 +1035,14 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
       minerals: { potassium: 584, manganese: 0.33, copper: 0.33, phosphorus: 63, magnesium: 22, iron: 0.06, zinc: 0.5 },
     },
     servings: [
-      { description: { ar: 'كوب مقطع', de: 'Tasse geschnitten' }, grams: 124 },
-      { description: { ar: '١٠ حبات', de: '10 Stück' }, grams: 90 },
+      { description: { ar: 'كوب مقطع', }, grams: 124 },
+      { description: { ar: '١٠ حبات', }, grams: 90 },
     ],
     tags: ['vegan', 'gluten_free', 'energy_boost', 'heart_healthy', 'gut_health'],
     allergens: [],
     glycemicIndex: 55,
     benefits: {
       ar: ['مقرمش وغني بالبوتاسيوم', 'مصدر جيد للطاقة', 'خالٍ من الدهون تقريباً', 'يدعم صحة القلب'],
-      de: ['Knackig und kaliumreich', 'Gute Energiequelle', 'Nahezu fettfrei', 'Unterstützt Herzgesundheit'],
     },
     season: ['autumn', 'winter'],
   },
@@ -1090,7 +1050,7 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
 
   {
     id: 'bamboo_shoots',
-    name: { ar: 'براعم الخيزران', de: 'Bambussprossen' },
+    name: { ar: 'براعم الخيزران', },
     category: 'vegetables',
     subCategory: 'stem_vegetables',
     emoji: '🎋',
@@ -1102,15 +1062,14 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
       minerals: { potassium: 533, phosphorus: 59, manganese: 0.26, magnesium: 3, calcium: 13, iron: 0.5, zinc: 1.1, copper: 0.19 },
     },
     servings: [
-      { description: { ar: 'كوب مقطع', de: 'Tasse geschnitten' }, grams: 120 },
-      { description: { ar: 'كوب مطبوخ', de: 'Tasse gekocht' }, grams: 155 },
+      { description: { ar: 'كوب مقطع', }, grams: 120 },
+      { description: { ar: 'كوب مطبوخ', }, grams: 155 },
     ],
     tags: ['vegan', 'gluten_free', 'low_carb', 'weight_loss', 'heart_healthy', 'high_protein'],
     allergens: [],
     glycemicIndex: 20,
     benefits: {
       ar: ['غني بالبوتاسيوم لصحة القلب', 'منخفض السعرات والدهون', 'بروتين مرتفع نسبياً للخضروات', 'يدعم فقدان الوزن'],
-      de: ['Reich an Kalium für Herzgesundheit', 'Kalorien- und fettarm', 'Relativ hoher Proteingehalt für Gemüse', 'Unterstützt Gewichtsverlust'],
     },
     season: ['spring'],
   },
@@ -1118,7 +1077,7 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
 
   {
     id: 'lotus_root',
-    name: { ar: 'جذر اللوتس', de: 'Lotuswurzel' },
+    name: { ar: 'جذر اللوتس', },
     category: 'vegetables',
     subCategory: 'root_vegetables',
     emoji: '🪷',
@@ -1130,15 +1089,14 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
       minerals: { potassium: 556, copper: 0.26, manganese: 0.26, phosphorus: 100, magnesium: 23, iron: 1.2, zinc: 0.39 },
     },
     servings: [
-      { description: { ar: 'كوب مقطع', de: 'Tasse geschnitten' }, grams: 120 },
-      { description: { ar: '١٠ شرائح', de: '10 Scheiben' }, grams: 80 },
+      { description: { ar: 'كوب مقطع', }, grams: 120 },
+      { description: { ar: '١٠ شرائح', }, grams: 80 },
     ],
     tags: ['vegan', 'gluten_free', 'high_fiber', 'energy_boost', 'immune_boost', 'gut_health'],
     allergens: [],
     glycemicIndex: 45,
     benefits: {
       ar: ['غني بفيتامين سي لتعزيز المناعة', 'ألياف عالية لصحة الهضم', 'مصدر جيد للنحاس والمنغنيز', 'يدعم إنتاج الطاقة'],
-      de: ['Reich an Vitamin C für Immunstärkung', 'Ballaststoffreich für Verdauung', 'Gute Kupfer- und Manganquelle', 'Unterstützt Energieproduktion'],
     },
     season: ['autumn', 'winter'],
   },
@@ -1146,7 +1104,7 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
 
   {
     id: 'chayote',
-    name: { ar: 'شايوت', de: 'Chayote' },
+    name: { ar: 'شايوت', },
     category: 'vegetables',
     subCategory: 'fruit_vegetables',
     emoji: '🥒',
@@ -1158,15 +1116,14 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
       minerals: { potassium: 125, zinc: 0.74, calcium: 17, magnesium: 12, phosphorus: 18, iron: 0.34, manganese: 0.19, copper: 0.12 },
     },
     servings: [
-      { description: { ar: 'حبة متوسطة', de: 'Mittelgroße Chayote' }, grams: 203 },
-      { description: { ar: 'كوب مقطع', de: 'Tasse geschnitten' }, grams: 132 },
+      { description: { ar: 'حبة متوسطة', }, grams: 203 },
+      { description: { ar: 'كوب مقطع', }, grams: 132 },
     ],
     tags: ['vegan', 'gluten_free', 'low_carb', 'weight_loss', 'gut_health', 'keto_friendly'],
     allergens: [],
     glycemicIndex: 25,
     benefits: {
       ar: ['غني بحمض الفوليك', 'منخفض السعرات جداً', 'يدعم صحة الحامل', 'مصدر جيد للزنك'],
-      de: ['Reich an Folsäure', 'Sehr kalorienarm', 'Unterstützt Schwangerschaftsgesundheit', 'Gute Zinkquelle'],
     },
     season: ['summer', 'autumn'],
   },
@@ -1174,7 +1131,7 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
 
   {
     id: 'romanesco',
-    name: { ar: 'رومانسكو', de: 'Romanesco' },
+    name: { ar: 'رومانسكو', },
     category: 'vegetables',
     subCategory: 'cruciferous',
     emoji: '🥦',
@@ -1186,15 +1143,14 @@ export const VEGETABLES_DATA: NutritionFoodItem[] = [
       minerals: { potassium: 300, manganese: 0.16, phosphorus: 44, magnesium: 15, calcium: 22, iron: 0.44, zinc: 0.28 },
     },
     servings: [
-      { description: { ar: 'كوب زهيرات', de: 'Tasse Röschen' }, grams: 100 },
-      { description: { ar: 'رأس صغير', de: 'Kleiner Kopf' }, grams: 350 },
+      { description: { ar: 'كوب زهيرات', }, grams: 100 },
+      { description: { ar: 'رأس صغير', }, grams: 350 },
     ],
     tags: ['vegan', 'gluten_free', 'low_carb', 'immune_boost', 'anti_inflammatory', 'weight_loss', 'high_fiber'],
     allergens: [],
     glycemicIndex: 15,
     benefits: {
       ar: ['غني بفيتامين سي لتعزيز المناعة', 'مضادات أكسدة من عائلة الصليبيات', 'ألياف لصحة الهضم', 'منخفض السعرات الحرارية'],
-      de: ['Reich an Vitamin C für Immunstärkung', 'Antioxidantien aus Kreuzblütlerfamilie', 'Ballaststoffe für Verdauung', 'Kalorienarm'],
     },
     season: ['autumn', 'winter'],
   },

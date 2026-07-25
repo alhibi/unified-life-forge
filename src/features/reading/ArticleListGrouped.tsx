@@ -4,7 +4,7 @@ import { Bookmark, Newspaper, Plus, RefreshCw, Search, Star } from '@/lib/icons'
 import { Button } from '@/components/ui/button';
 import type { FeedItem, FilterTab } from './types';
 import type { ListPrefs } from './listPrefs';
-import { BUCKET_ORDER as _BUCKET_ORDER, bucketLabel, bucketOf, type DateBucket } from './listPrefs';
+import { bucketLabel, bucketOf, type DateBucket } from './listPrefs';
 import { ArticleCard, HeroArticleCard } from './ArticleCard';
 import { ArticleListSkeleton } from './Skeletons';
 import { getScrollPos, storeScrollPos } from './storage';
@@ -584,7 +584,7 @@ export function ArticleListGrouped({
       )}
       {!hasMore && totalArticleRows > INITIAL_PAGE_SIZE && (
         <div className="py-8 text-center text-[11px] text-muted-foreground/60 tracking-wide">
-          {isAr ? '— انتهت المقالات —' : '— End of articles —'}
+          {'— انتهت المقالات —'}
         </div>
       )}
     </div>
@@ -602,7 +602,7 @@ function BucketHeader({
         {label}
       </h5>
       <span className="text-[10px] text-muted-foreground/60 tabular-nums">
-        {isAr ? `${count} مقالة` : `${count}`}
+        {`${count} مقالة`}
       </span>
     </div>
   );
@@ -631,13 +631,13 @@ function EmptyState({
 
   if (filterTab === 'bookmarks') {
     icon = <Bookmark className="h-10 w-10 text-muted-foreground/30" />;
-    label = isAr ? 'لا توجد مقالات محفوظة' : 'No saved articles';
+    label = 'لا توجد مقالات محفوظة';
   } else if (searchQuery) {
     icon = <Search className="h-10 w-10 text-muted-foreground/30" />;
-    label = isAr ? 'لا توجد نتائج' : 'No matches';
+    label = 'لا توجد نتائج';
   } else if (!hasFeeds) {
     icon = <Star className="h-10 w-10 text-primary/40" />;
-    label = isAr ? 'أضف مصادرك لتبدأ القراءة' : 'Add feeds to start reading';
+    label = 'أضف مصادرك لتبدأ القراءة';
     cta = onAddFeeds
       ? (
         <Button
@@ -647,13 +647,13 @@ function EmptyState({
           className="rounded-xl mt-2"
         >
           <Plus className="h-3.5 w-3.5 me-1.5" />
-          {isAr ? 'تصفح المقترحات' : 'Browse suggestions'}
+          {'تصفح المقترحات'}
         </Button>
       )
       : null;
   } else {
     icon = <Newspaper className="h-10 w-10 text-muted-foreground/30" />;
-    label = isAr ? 'لا توجد مقالات بعد' : 'Nothing here yet';
+    label = 'لا توجد مقالات بعد';
     cta = (
       <Button
         variant="outline"
@@ -665,7 +665,7 @@ function EmptyState({
         <RefreshCw
           className={`h-3.5 w-3.5 me-1.5 ${refreshing ? 'animate-spin' : ''}`}
         />
-        {isAr ? 'تحديث الآن' : 'Refresh now'}
+        {'تحديث الآن'}
       </Button>
     );
   }

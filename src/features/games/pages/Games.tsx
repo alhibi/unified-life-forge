@@ -63,11 +63,9 @@ export default function GamesPage() {
       title: t('games.focus'),
       badge: focusStats.bestAvg?.reaction ? `${focusStats.bestAvg.reaction}ms` : undefined,
       badgeColor: COLORS.focus,
-      modes: isAr
-        ? ['ردة فعل', 'ستروب', 'تسلسل', 'N-back', 'هدف']
-        : ['Reaktion', 'Stroop', 'Sequenz', 'N-back', 'Ziel'],
+      modes: ['ردة فعل', 'ستروب', 'تسلسل', 'N-back', 'هدف'],
       path: '/games/focus',
-      primaryStat: { label: isAr ? 'مباريات' : 'Spiele', value: focusStats.gamesPlayed || 0, accent: COLORS.focus },
+      primaryStat: { label: 'مباريات', value: focusStats.gamesPlayed || 0, accent: COLORS.focus },
       secondaryStat: focusStats.bestNback?.level ? { label: 'N-back', value: `${focusStats.bestNback.level}` } : undefined,
     },
     {
@@ -76,10 +74,10 @@ export default function GamesPage() {
       title: t('games.dice'),
       badge: diceStats.bestScore ? `${diceStats.bestScore}` : undefined,
       badgeColor: COLORS.dice,
-      modes: isAr ? ['يَتزي', 'الخنزير', 'رمية كبرى'] : ['Kniffel', 'Pig', 'Highroll'],
+      modes: ['يَتزي', 'الخنزير', 'رمية كبرى'],
       path: '/games/dice',
-      primaryStat: { label: isAr ? 'انتصارات' : 'Siege', value: diceStats.gamesWon || 0, accent: COLORS.dice },
-      secondaryStat: diceStats.yatzeesRolled ? { label: isAr ? 'يَتزي' : 'Kniffel', value: diceStats.yatzeesRolled } : undefined,
+      primaryStat: { label: 'انتصارات', value: diceStats.gamesWon || 0, accent: COLORS.dice },
+      secondaryStat: diceStats.yatzeesRolled ? { label: 'يَتزي', value: diceStats.yatzeesRolled } : undefined,
     },
     {
       key: 'memory',
@@ -87,41 +85,39 @@ export default function GamesPage() {
       title: t('games.memory'),
       badge: memStats.level ? `Lv.${memStats.level}` : undefined,
       badgeColor: COLORS.memory,
-      modes: isAr
-        ? ['كلاسيكي', 'بلا نهاية', 'سباق وقت', 'يومي', 'ضد ذكاء']
-        : ['Klassisch', 'Endlos', 'Zeitrennen', 'Daily', 'Vs KI'],
+      modes: ['كلاسيكي', 'بلا نهاية', 'سباق وقت', 'يومي', 'ضد ذكاء'],
       path: '/games/memory',
-      primaryStat: { label: isAr ? 'فوز' : 'Siege', value: memStats.gamesWon || 0, accent: COLORS.memory },
-      secondaryStat: memStats.bestEndlessLevel ? { label: isAr ? 'مستوى ∞' : 'Endlos', value: memStats.bestEndlessLevel } : undefined,
+      primaryStat: { label: 'فوز', value: memStats.gamesWon || 0, accent: COLORS.memory },
+      secondaryStat: memStats.bestEndlessLevel ? { label: 'مستوى ∞', value: memStats.bestEndlessLevel } : undefined,
     },
     {
       key: 'chess',
       icon: Swords,
       title: t('games.chess'),
-      modes: isAr ? ['ضد لاعب', 'ضد ذكاء', 'ساعة'] : ['Spieler', 'KI', 'Uhr'],
+      modes: ['ضد لاعب', 'ضد ذكاء', 'ساعة'],
       path: '/games/chess',
-      primaryStat: { label: isAr ? 'مباريات' : 'Partien', value: chessStats.gamesPlayed || 0, accent: COLORS.chess },
-      secondaryStat: { label: isAr ? 'فوز' : 'Siege', value: (chessStats.whiteWins || 0) + (chessStats.blackWins || 0) },
+      primaryStat: { label: 'مباريات', value: chessStats.gamesPlayed || 0, accent: COLORS.chess },
+      secondaryStat: { label: 'فوز', value: (chessStats.whiteWins || 0) + (chessStats.blackWins || 0) },
     },
     {
       key: 'chess-puzzles',
       icon: Puzzle,
-      title: isAr ? 'ألغاز الشطرنج' : 'Schach-Puzzles',
+      title: 'ألغاز الشطرنج',
       badge: puzzleStats.rating ? `${puzzleStats.rating}` : undefined,
       badgeColor: COLORS.puzzles,
-      modes: isAr ? ['مات', 'شوكة', 'تثبيت', 'تضحية', 'هجوم مكشوف'] : ['Matt', 'Gabel', 'Fesselung', 'Opfer', 'Abzug'],
+      modes: ['مات', 'شوكة', 'تثبيت', 'تضحية', 'هجوم مكشوف'],
       path: '/games/chess/puzzles',
-      primaryStat: { label: isAr ? 'محلولة' : 'Gelöst', value: puzzleStats.solved || 0, accent: COLORS.puzzles },
-      secondaryStat: puzzleStats.currentStreak ? { label: isAr ? 'سلسلة' : 'Serie', value: puzzleStats.currentStreak } : undefined,
+      primaryStat: { label: 'محلولة', value: puzzleStats.solved || 0, accent: COLORS.puzzles },
+      secondaryStat: puzzleStats.currentStreak ? { label: 'سلسلة', value: puzzleStats.currentStreak } : undefined,
     },
     {
       key: 'sudoku',
       icon: Grid3X3,
       title: t('games.sudoku'),
-      modes: isAr ? ['كلاسيكي', 'X-سودوكو', 'يومي'] : ['Klassisch', 'X-Sudoku', 'Daily'],
+      modes: ['كلاسيكي', 'X-سودوكو', 'يومي'],
       path: '/games/sudoku',
-      primaryStat: { label: isAr ? 'فوز' : 'Siege', value: sudStats.gamesWon || 0, accent: COLORS.sudoku },
-      secondaryStat: sudStats.flawless ? { label: isAr ? 'إتقان' : 'Perfekt', value: sudStats.flawless } : undefined,
+      primaryStat: { label: 'فوز', value: sudStats.gamesWon || 0, accent: COLORS.sudoku },
+      secondaryStat: sudStats.flawless ? { label: 'إتقان', value: sudStats.flawless } : undefined,
     },
   ], [t, isAr, memStats, diceStats, focusStats, chessStats, puzzleStats, sudStats]);
 
@@ -141,42 +137,42 @@ export default function GamesPage() {
   const worlds = [
     {
       key: 'chess-career',
-      title: isAr ? 'مسيرة الشطرنج' : 'Schachkarriere',
-      subtitle: isAr ? `Elo ${careerStats.rating || 800} · ${careerRank}/8 بطل` : `Elo ${careerStats.rating || 800} · ${careerRank}/8 besiegt`,
+      title: 'مسيرة الشطرنج',
+      subtitle: `Elo ${careerStats.rating || 800} · ${careerRank}/8 بطل`,
       icon: Crown, color: COLORS.career,
       path: '/games/chess/career',
     },
     {
       key: 'memory-adventure',
-      title: isAr ? 'مغامرة الذاكرة' : 'Memory-Abenteuer',
-      subtitle: isAr ? `${adventureStats.highestCleared || 0}/15 محطة · ${adventureStars}★` : `${adventureStats.highestCleared || 0}/15 Etappen · ${adventureStars}★`,
+      title: 'مغامرة الذاكرة',
+      subtitle: `${adventureStats.highestCleared || 0}/15 محطة · ${adventureStars}★`,
       icon: Map, color: COLORS.adventure,
       path: '/games/memory/adventure',
     },
     {
       key: 'dice-tournament',
-      title: isAr ? 'بطولة النرد' : 'Würfel-Turnier',
+      title: 'بطولة النرد',
       subtitle: tournamentStats.status === 'won'
-        ? (isAr ? 'فزت بالكأس 🏆' : 'Pokal gewonnen 🏆')
+        ? ('فزت بالكأس 🏆')
         : tournamentStats.status === 'in-progress'
-          ? (isAr ? 'بطولة قيد اللعب' : 'Turnier läuft')
-          : (isAr ? '4 لاعبين · بطولة إقصاء' : '4 Spieler · K.-O.-Runde'),
+          ? ('بطولة قيد اللعب')
+          : ('4 لاعبين · بطولة إقصاء'),
       icon: Trophy, color: COLORS.tournament,
       path: '/games/dice/tournament',
     },
     {
       key: 'focus-decathlon',
-      title: isAr ? 'العشاري الذهني' : 'Mental-Decathlon',
+      title: 'العشاري الذهني',
       subtitle: decathlonStats.best?.index
-        ? (isAr ? `أفضل: ${decathlonStats.best.index}` : `Best: ${decathlonStats.best.index}`)
-        : (isAr ? '5 محطات · مؤشر معرفي' : '5 Disziplinen · Cognitive Index'),
+        ? (`أفضل: ${decathlonStats.best.index}`)
+        : ('5 محطات · مؤشر معرفي'),
       icon: Award, color: COLORS.decathlon,
       path: '/games/focus/decathlon',
     },
   ];
 
   return (
-    <div className="min-h-screen bg-background pb-28 pt-14">
+    <div className="min-h-screen bg-background pb-page pt-14">
       <SEO title="الألعاب — SmartHub" description="مجموعة ألعاب ذهنية: سودوكو، شطرنج، ألغاز، ذاكرة، تركيز ونرد. أنماط متعددة وذكاء اصطناعي متقدم." path="/games" />
 
       {/* Header — unified PageHeader (top-level tab, no back) */}
@@ -194,7 +190,7 @@ export default function GamesPage() {
             </span>
           }
           title={t('games.title')}
-          subtitle={isAr ? '6 ألعاب · 4 عوالم · 25+ نمط' : '6 Spiele · 4 Welten · 25+ Modi'}
+          subtitle={'6 ألعاب · 4 عوالم · 25+ نمط'}
           className="px-5"
         />
       </motion.div>
@@ -207,9 +203,9 @@ export default function GamesPage() {
         className="px-4 mb-4"
       >
         <div className="rounded-2xl border border-border/40 bg-card p-3 grid grid-cols-3 gap-2 shadow-sm">
-          <ProgressTile icon={Trophy} value={totalWins} label={isAr ? 'انتصار' : 'Siege'} color={COLORS.overall} />
-          <ProgressTile icon={Flame} value={`Lv.${memoryLevel}`} label={isAr ? 'الذاكرة' : 'Memory'} color={COLORS.memory} />
-          <ProgressTile icon={Target} value={puzzleStats.rating || 800} label={isAr ? 'تقييم ألغاز' : 'Puzzle Elo'} color={COLORS.puzzles} />
+          <ProgressTile icon={Trophy} value={totalWins} label={'انتصار'} color={COLORS.overall} />
+          <ProgressTile icon={Flame} value={`Lv.${memoryLevel}`} label={'الذاكرة'} color={COLORS.memory} />
+          <ProgressTile icon={Target} value={puzzleStats.rating || 800} label={'تقييم ألغاز'} color={COLORS.puzzles} />
         </div>
       </motion.div>
 
@@ -290,12 +286,12 @@ export default function GamesPage() {
                     <h2 className="font-bold text-[16px] text-foreground leading-tight mb-2">{game.title}</h2>
                     <div className="flex flex-wrap gap-1.5">
                       {game.modes.slice(0, 4).map(mode => (
-                        <span key={mode} className="text-[9px] font-semibold px-2 py-0.5 rounded-md bg-foreground/5 text-muted-foreground/90 border border-border/30">
+                        <span key={mode} className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-foreground/5 text-muted-foreground/90 border border-border/30">
                           {mode}
                         </span>
                       ))}
                       {game.modes.length > 4 && (
-                        <span className="text-[9px] font-semibold px-2 py-0.5 rounded-md text-muted-foreground/60 bg-foreground/3">
+                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md text-muted-foreground/60 bg-foreground/3">
                           +{game.modes.length - 4}
                         </span>
                       )}
@@ -336,8 +332,8 @@ export default function GamesPage() {
                 <Zap className="w-4 h-4 text-primary" />
               </div>
               <div className="text-left">
-                <p className="text-[12px] font-bold text-foreground">{isAr ? 'إنجازات الذاكرة' : 'Memory-Erfolge'}</p>
-                <p className="text-[10px] text-muted-foreground">{totalAchievements} {isAr ? 'مفتوح من 10' : 'von 10 freigeschaltet'}</p>
+                <p className="text-[12px] font-bold text-foreground">{'إنجازات الذاكرة'}</p>
+                <p className="text-[10px] text-muted-foreground">{totalAchievements} {'مفتوح من 10'}</p>
               </div>
             </div>
             <div className="text-primary text-lg">→</div>
@@ -353,7 +349,7 @@ function ProgressTile({ icon: Icon, value, label, color }: { icon: typeof Trophy
     <div className="flex flex-col items-center text-center py-1">
       <Icon className="w-4 h-4 mb-1" style={{ color }} />
       <p className="text-base font-black tabular-nums" style={{ color }}>{value}</p>
-      <p className="text-[9px] text-muted-foreground leading-tight">{label}</p>
+      <p className="text-[10px] text-muted-foreground leading-tight">{label}</p>
     </div>
   );
 }

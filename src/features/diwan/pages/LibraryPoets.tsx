@@ -83,7 +83,7 @@ export default function LibraryPoetsPage() {
   }, [showLoadMore, poets.isFetching]);
 
   return (
-    <div className="min-h-screen bg-[#16130F] text-[#F2E9D8] pb-28 px-5 pt-14 font-tajawal selection:bg-[var(--wax-soft2)] selection:text-[#F2E9D8]">
+    <div className="min-h-screen bg-[#16130F] text-[#F2E9D8] pb-page px-5 pt-14 font-tajawal selection:bg-[var(--wax-soft2)] selection:text-[#F2E9D8]">
       <SEO
         title={`${eraLabel ? `شعراء ${eraLabel}` : 'كل الشعراء'} — المكتبة الكبرى`}
         description="تصفّح آلاف الشعراء العرب من مختلف العصور."
@@ -101,7 +101,7 @@ export default function LibraryPoetsPage() {
               محراب · الأدب
             </p>
             {/* عنوان رئيسي كبير بخط Amiri */}
-            <h1 className="text-[30px] font-bold tracking-tight text-[#F2E9D8] leading-tight font-amiri">
+            <h1 className="text-[32px] font-bold tracking-tight text-[#F2E9D8] leading-tight font-amiri">
               {eraLabel ? `شعراء ${eraLabel}` : 'المكتبة الكبرى'}
             </h1>
             <div className="flex items-center gap-2 mt-1.5 flex-wrap">
@@ -163,7 +163,7 @@ export default function LibraryPoetsPage() {
                 <button
                   onClick={() => setPage(p => p + 1)}
                   disabled={poets.isFetching}
-                  className="w-full mt-4 py-3 rounded-[12px] bg-[#1D1811] border border-[var(--hairline-strong)] text-[12.5px] font-semibold text-[#B8AA8E] hover:text-[#F2E9D8] hover:border-[#B8AA8E] active:scale-[0.98] transition disabled:opacity-60 flex items-center justify-center gap-2"
+                  className="w-full mt-4 py-3 rounded-[12px] bg-[#1D1811] border border-[var(--hairline-strong)] text-[12px] font-semibold text-[#B8AA8E] hover:text-[#F2E9D8] hover:border-[#B8AA8E] active:scale-[0.98] transition disabled:opacity-60 flex items-center justify-center gap-2"
                 >
                   {poets.isFetching ? (
                     <><Loader2 className="w-3.5 h-3.5 animate-spin text-[var(--wax)]" /> جاري تحميل المزيد من العهد والمدد…</>

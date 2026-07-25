@@ -248,7 +248,7 @@ export default function CitySearch({ onSelectCity, ar }: CitySearchProps) {
                       <span>{ar ? 'عمليات البحث الأخيرة' : 'Letzte Suchen'}</span>
                       <button
                         onClick={clearHistory}
-                        className="text-[9px] lowercase tracking-[0.1em] text-muted-foreground hover:text-foreground transition-colors"
+                        className="text-[10px] lowercase tracking-[0.1em] text-muted-foreground hover:text-foreground transition-colors"
                       >
                         {ar ? 'مسح السجل' : 'Verlauf löschen'}
                       </button>

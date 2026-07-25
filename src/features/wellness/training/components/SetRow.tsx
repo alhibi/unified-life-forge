@@ -20,16 +20,16 @@ export interface SetRowProps {
   onRemove: () => void;
   onComplete?: (completed: boolean) => void;
   showRpe?: boolean;
-  lang: 'ar' | 'de';
+  lang: 'ar';
 }
 
 const T = {
-  weight: { ar: 'الوزن', de: 'Gewicht' },
-  reps: { ar: 'تكرار', de: 'Wdh' },
-  duration: { ar: 'المدة', de: 'Dauer' },
-  distance: { ar: 'كم', de: 'km' },
-  done: { ar: 'تم', de: 'OK' },
-  rpe: { ar: 'الصعوبة', de: 'RPE' },
+  weight: { ar: 'الوزن', },
+  reps: { ar: 'تكرار', },
+  duration: { ar: 'المدة', },
+  distance: { ar: 'كم', },
+  done: { ar: 'تم', },
+  rpe: { ar: 'الصعوبة', },
 };
 
 export default function SetRow({
@@ -66,7 +66,7 @@ export default function SetRow({
               inputMode="numeric"
               value={set.durationSec ? Math.round(set.durationSec / 60) : ''}
               onChange={(e) => onChange({ durationSec: Math.max(0, parseInt(e.target.value, 10) || 0) * 60 })}
-              placeholder={lang === 'ar' ? 'دقيقة' : 'Min'}
+              placeholder={'دقيقة'}
               aria-label={T.duration[lang]}
               className="flex-1 min-w-0 bg-card border border-border/40 rounded-lg px-2 py-1.5 text-[15px] tabular-nums text-foreground focus:outline-none focus:border-primary/40"
             />

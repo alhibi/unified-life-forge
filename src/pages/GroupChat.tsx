@@ -169,7 +169,7 @@ export default function GroupChatPage() {
   if (!user) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center px-6 text-center gap-4">
-        <h1 className="text-xl font-bold">{isAr ? 'سجّل الدخول للوصول' : 'Anmeldung erforderlich'}</h1>
+        <h1 className="text-xl font-bold">{'سجّل الدخول للوصول'}</h1>
         <Button onClick={() => navigate('/auth')}>{t('auth.signIn')}</Button>
       </div>
     );
@@ -178,13 +178,11 @@ export default function GroupChatPage() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center px-6 text-center gap-3">
         <MessageCircle className="w-12 h-12 text-muted-foreground/40" />
-        <h1 className="text-lg font-semibold">{isAr ? 'المحادثة غير موجودة' : 'Chat nicht gefunden'}</h1>
+        <h1 className="text-lg font-semibold">{'المحادثة غير موجودة'}</h1>
         <p className="text-sm text-muted-foreground max-w-sm">
-          {isAr
-            ? 'ربما تم حذفها أو لم تعد عضواً فيها.'
-            : 'Möglicherweise wurde sie gelöscht oder du bist kein Mitglied mehr.'}
+          {'ربما تم حذفها أو لم تعد عضواً فيها.'}
         </p>
-        <Button onClick={goBack} variant="outline">{isAr ? 'رجوع' : 'Zurück'}</Button>
+        <Button onClick={goBack} variant="outline">{'رجوع'}</Button>
       </div>
     );
   }
@@ -200,7 +198,7 @@ export default function GroupChatPage() {
       const same = prev
         && new Date(prev.createdAt).toDateString() === new Date(m.createdAt).toDateString();
       if (!same) {
-        out.push({ kind: 'date', key: `d-${m.id}`, label: formatDateSeparator(m.createdAt, isAr) });
+        out.push({ kind: 'date', key: `d-${m.id}`, label: formatDateSeparator(m.createdAt) });
       }
       const showSender =
         m.senderId !== user.id
@@ -224,9 +222,9 @@ export default function GroupChatPage() {
     && !roleIsAdmin({ role: chat.myRole });
 
   return (
-    <ErrorBoundary fallbackTitle={isAr ? 'حدث خطأ' : 'Fehler'}>
+    <ErrorBoundary fallbackTitle={'حدث خطأ'}>
       <SEO
-        title={`${chat.title ?? (isAr ? 'محادثة' : 'Chat')} — SmartHub`}
+        title={`${chat.title ?? ('محادثة')} — SmartHub`}
         description={chat.description ?? ''}
         path={`/chat/g/${chatId}`}
       />
@@ -243,9 +241,9 @@ export default function GroupChatPage() {
             type="button"
             onClick={goBack}
             className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40"
-            aria-label={isAr ? 'رجوع' : 'Zurück'}
+            aria-label={'رجوع'}
           >
-            {isAr ? <ArrowRight className="w-5 h-5" /> : <ArrowLeft className="w-5 h-5" />}
+            {<ArrowRight className="w-5 h-5" />}
           </button>
           <button
             type="button"
@@ -254,24 +252,22 @@ export default function GroupChatPage() {
           >
             <GroupAvatar chat={chat} className="h-9 w-9" />
             <div className="flex-1 min-w-0">
-              <p className="text-[14.5px] font-semibold truncate">{chat.title || (isAr ? 'بدون اسم' : 'Ohne Namen')}</p>
-              <p className="text-[11.5px] text-muted-foreground truncate">
+              <p className="text-[14px] font-semibold truncate">{chat.title || ('بدون اسم')}</p>
+              <p className="text-[11px] text-muted-foreground truncate">
                 {typing.anyOtherTyping ? (
                   <span className="inline-flex items-center gap-1 text-primary">
                     <TypingDots size={3} />
                     {typing.othersTyping.length > 1
-                      ? (isAr ? 'يكتبون' : 'tippen…')
-                      : (isAr ? 'يكتب' : 'tippt…')}
+                      ? ('يكتبون')
+                      : ('يكتب')}
                   </span>
                 ) : (
                   <>
                     {chat.kind === 'channel'
-                      ? (isAr ? 'قناة' : 'Kanal')
-                      : (isAr ? 'مجموعة' : 'Gruppe')}
+                      ? ('قناة')
+                      : ('مجموعة')}
                     {' · '}
-                    {isAr
-                      ? `${chat.memberCount} ${chat.memberCount === 1 ? 'عضو' : 'أعضاء'}`
-                      : `${chat.memberCount} ${chat.memberCount === 1 ? 'Mitglied' : 'Mitglieder'}`}
+                    {`${chat.memberCount} ${chat.memberCount === 1 ? 'عضو' : 'أعضاء'}`}
                   </>
                 )}
               </p>
@@ -281,7 +277,7 @@ export default function GroupChatPage() {
             type="button"
             onClick={() => setShowMembers(true)}
             className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40"
-            aria-label={isAr ? 'الأعضاء' : 'Mitglieder'}
+            aria-label={'الأعضاء'}
           >
             <Users className="w-4.5 h-4.5 text-muted-foreground" />
           </button>
@@ -289,7 +285,7 @@ export default function GroupChatPage() {
             type="button"
             onClick={() => setShowInfo(true)}
             className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40"
-            aria-label={isAr ? 'معلومات' : 'Info'}
+            aria-label={'معلومات'}
           >
             <Info className="w-4.5 h-4.5 text-muted-foreground" />
           </button>
@@ -313,12 +309,12 @@ export default function GroupChatPage() {
                 type="button"
                 onClick={() => void messagesQ.loadOlder()}
                 disabled={messagesQ.isFetchingOlder}
-                className="text-[11.5px] font-medium px-3 h-8 rounded-full bg-muted/30 text-muted-foreground active:bg-muted/50 inline-flex items-center gap-1.5 disabled:opacity-60"
+                className="text-[11px] font-medium px-3 h-8 rounded-full bg-muted/30 text-muted-foreground active:bg-muted/50 inline-flex items-center gap-1.5 disabled:opacity-60"
               >
                 {messagesQ.isFetchingOlder
                   ? <Loader2 className="w-3 h-3 animate-spin" />
                   : null}
-                {isAr ? 'تحميل أقدم' : 'Ältere laden'}
+                {'تحميل أقدم'}
               </button>
             </div>
           )}
@@ -326,8 +322,8 @@ export default function GroupChatPage() {
           {messagesQ.messages.length === 0 && !messagesQ.isLoading && (
             <div className="flex flex-col items-center justify-center h-full text-muted-foreground/60 gap-3 py-12">
               <MessageCircle className="w-10 h-10 opacity-30" />
-              <p className="text-[13.5px]">
-                {isAr ? 'لا رسائل بعد. ابدأ المحادثة.' : 'Noch keine Nachrichten – schreib die erste.'}
+              <p className="text-[13px]">
+                {'لا رسائل بعد. ابدأ المحادثة.'}
               </p>
             </div>
           )}
@@ -336,7 +332,7 @@ export default function GroupChatPage() {
             if (item.kind === 'date') {
               return (
                 <div key={item.key} className="flex justify-center py-2">
-                  <span className="text-[10.5px] uppercase tracking-wider px-2.5 py-1 rounded-full bg-muted/30 text-muted-foreground/80">
+                  <span className="text-[10px] uppercase tracking-wider px-2.5 py-1 rounded-full bg-muted/30 text-muted-foreground/80">
                     {item.label}
                   </span>
                 </div>
@@ -382,7 +378,7 @@ export default function GroupChatPage() {
               exit={{ scale: 0, opacity: 0 }}
               transition={{ type: 'spring', damping: 18, stiffness: 320 }}
               className="absolute bottom-24 end-4 w-11 h-11 rounded-full bg-card border border-border/30 flex items-center justify-center z-10"
-              aria-label={isAr ? 'انتقل إلى الأسفل' : 'Nach unten'}
+              aria-label={'انتقل إلى الأسفل'}
             >
               <ArrowLeft className="w-4 h-4 text-foreground rotate-90" />
               {(chat.unreadCount ?? 0) > 0 && (
@@ -410,9 +406,9 @@ export default function GroupChatPage() {
           readOnly={channelReadOnly || groupRestrictedRead}
           readOnlyReason={
             channelReadOnly
-              ? (isAr ? 'هذه قناة — يمكن للمشرفين فقط النشر' : 'Kanal – nur Admins posten')
+              ? ('هذه قناة — يمكن للمشرفين فقط النشر')
               : groupRestrictedRead
-                ? (isAr ? 'الإرسال محصور بالمشرفين' : 'Senden auf Admins beschränkt')
+                ? ('الإرسال محصور بالمشرفين')
                 : undefined
           }
         />
@@ -427,7 +423,7 @@ export default function GroupChatPage() {
           onEdit={(m)    => composer.beginEdit(m)}
           onCopy={(m)    => {
             void navigator.clipboard.writeText(m.content || '').catch(() => undefined);
-            toast.success(isAr ? 'تم النسخ' : 'Kopiert');
+            toast.success('تم النسخ');
           }}
           onDelete={(m)  => void muts.deleteForEveryone(m.id)}
           onHide={(m)    => void muts.hideForSelf(m.id)}
@@ -512,7 +508,7 @@ function ActionMenuOverlay({
             type="button"
             onClick={onClose}
             className="w-10 h-10 rounded-full flex items-center justify-center active:bg-accent/40 text-muted-foreground"
-            aria-label={isAr ? 'إغلاق' : 'Schließen'}
+            aria-label={'إغلاق'}
           >
             <Smile className="w-4 h-4" />
           </button>
@@ -522,33 +518,33 @@ function ActionMenuOverlay({
         <div className="bg-popover border border-border/30 rounded-2xl py-1 overflow-hidden">
           <ActionRow
             icon={<Reply className="w-4 h-4" />}
-            label={isAr ? 'رد' : 'Antworten'}
+            label={'رد'}
             onClick={() => { onReply(msg); onClose(); }}
           />
           <ActionRow
             icon={<CopyIcon className="w-4 h-4" />}
-            label={isAr ? 'نسخ النص' : 'Text kopieren'}
+            label={'نسخ النص'}
             onClick={() => { onCopy(msg); onClose(); }}
             disabled={!msg.content}
           />
           {mine && !msg.deleted && (
             <ActionRow
               icon={<Pencil className="w-4 h-4" />}
-              label={isAr ? 'تعديل' : 'Bearbeiten'}
+              label={'تعديل'}
               onClick={() => { onEdit(msg); onClose(); }}
             />
           )}
           {mine && !msg.deleted && (
             <ActionRow
               icon={<Trash2 className="w-4 h-4 text-destructive" />}
-              label={isAr ? 'حذف للجميع' : 'Für alle löschen'}
+              label={'حذف للجميع'}
               onClick={() => { onDelete(msg); onClose(); }}
               danger
             />
           )}
           <ActionRow
             icon={<EyeOff className="w-4 h-4" />}
-            label={isAr ? 'إخفاء عنّي' : 'Für mich ausblenden'}
+            label={'إخفاء عنّي'}
             onClick={() => { onHide(msg); onClose(); }}
           />
         </div>

@@ -72,11 +72,11 @@ export function ManageFeedsView({
 
   const handleOpmlExport = () => {
     if (feedSources.length === 0) {
-      toast.info(isAr ? 'لا توجد خلاصات للتصدير' : 'Nothing to export');
+      toast.info('لا توجد خلاصات للتصدير');
       return;
     }
-    downloadOpml(feedSources, isAr ? 'ar' : 'en');
-    toast.success(isAr ? 'تم تصدير OPML' : 'OPML exported');
+    downloadOpml(feedSources, 'ar');
+    toast.success('تم تصدير OPML');
   };
 
   return (
@@ -93,20 +93,20 @@ export function ManageFeedsView({
           type="button"
           onClick={onBack}
           className="p-2 rounded-xl hover:bg-accent/50 active:scale-95 transition-all"
-          aria-label={isAr ? 'رجوع' : 'Back'}
+          aria-label={'رجوع'}
         >
           <ChevronLeft className="h-5 w-5 text-foreground rtl:rotate-180" />
         </button>
         <Settings2 className="h-4 w-4 text-primary" />
         <h3 className="text-base font-bold text-foreground flex-1">
-          {isAr ? 'إدارة المصادر' : 'Manage Feeds'}
+          {'إدارة المصادر'}
         </h3>
         <button
           type="button"
           onClick={() => setShowOpmlDialog(true)}
           className="p-2 rounded-xl hover:bg-accent/50 active:scale-95 transition-all"
-          aria-label={isAr ? 'استيراد OPML' : 'Import OPML'}
-          title={isAr ? 'استيراد OPML' : 'Import OPML'}
+          aria-label={'استيراد OPML'}
+          title={'استيراد OPML'}
         >
           <Upload className="h-4 w-4 text-muted-foreground" />
         </button>
@@ -114,8 +114,8 @@ export function ManageFeedsView({
           type="button"
           onClick={handleOpmlExport}
           className="p-2 rounded-xl hover:bg-accent/50 active:scale-95 transition-all"
-          aria-label={isAr ? 'تصدير OPML' : 'Export OPML'}
-          title={isAr ? 'تصدير OPML' : 'Export OPML'}
+          aria-label={'تصدير OPML'}
+          title={'تصدير OPML'}
         >
           <Download className="h-4 w-4 text-muted-foreground" />
         </button>
@@ -123,7 +123,7 @@ export function ManageFeedsView({
           type="button"
           onClick={onSuggested}
           className="p-2 rounded-xl hover:bg-accent/50 active:scale-95 transition-all"
-          aria-label={isAr ? 'مقترحات' : 'Suggestions'}
+          aria-label={'مقترحات'}
         >
           <Star className="h-4 w-4 text-muted-foreground" />
         </button>
@@ -138,7 +138,7 @@ export function ManageFeedsView({
         >
           <Plus className="h-4 w-4 me-2 text-primary group-hover:scale-110 transition-transform" />
           <span className="text-sm">
-            {isAr ? 'إضافة مصدر بالاكتشاف الذكي' : 'Add a feed (auto-discover)'}
+            {'إضافة مصدر بالاكتشاف الذكي'}
           </span>
         </Button>
       </div>
@@ -147,7 +147,7 @@ export function ManageFeedsView({
       <div className="p-4 border-b border-border/30 space-y-2.5">
         <div className="flex gap-2">
           <Input
-            placeholder={isAr ? 'رابط RSS أو الموقع...' : 'RSS URL...'}
+            placeholder={'رابط RSS أو الموقع...'}
             value={newUrl}
             onChange={(e) => setNewUrl(e.target.value)}
             className="flex-1 text-sm h-10 rounded-xl"
@@ -161,7 +161,7 @@ export function ManageFeedsView({
             onClick={handleAdd}
             disabled={!newUrl.trim()}
             className="shrink-0 h-10 w-10 p-0 rounded-xl"
-            aria-label={isAr ? 'إضافة' : 'Add'}
+            aria-label={'إضافة'}
           >
             <Plus className="h-4 w-4" />
           </Button>
@@ -173,7 +173,7 @@ export function ManageFeedsView({
             className="flex gap-2"
           >
             <Input
-              placeholder={isAr ? 'اسم المصدر (اختياري)' : 'Feed name (optional)'}
+              placeholder={'اسم المصدر (اختياري)'}
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
               className="flex-1 text-sm h-10 rounded-xl"
@@ -185,7 +185,7 @@ export function ManageFeedsView({
             >
               {allFolders.map((c) => (
                 <option key={c.id} value={c.id}>
-                  {isAr ? c.ar : c.en}
+                  {c.ar}
                 </option>
               ))}
             </select>
@@ -200,7 +200,7 @@ export function ManageFeedsView({
             <div className="flex flex-col items-center justify-center py-16 gap-3">
               <Rss className="h-8 w-8 text-muted-foreground/30" />
               <p className="text-sm text-muted-foreground">
-                {isAr ? 'لا توجد مصادر' : 'No feeds yet'}
+                {'لا توجد مصادر'}
               </p>
               <Button
                 variant="outline"
@@ -209,7 +209,7 @@ export function ManageFeedsView({
                 className="rounded-xl"
               >
                 <Star className="h-3.5 w-3.5 me-1.5" />
-                {isAr ? 'تصفح المقترحات' : 'Browse suggestions'}
+                {'تصفح المقترحات'}
               </Button>
             </div>
           )
@@ -242,8 +242,8 @@ export function ManageFeedsView({
                         )}
                         {cached && !failed && (
                           <span
-                            className="text-[9px] px-1.5 rounded bg-foreground/10 text-muted-foreground"
-                            title={isAr ? 'مخبأ' : 'Cached (304)'}
+                            className="text-[10px] px-1.5 rounded bg-foreground/10 text-muted-foreground"
+                            title={'مخبأ'}
                           >
                             304
                           </span>
@@ -265,8 +265,8 @@ export function ManageFeedsView({
                           : 'text-muted-foreground hover:bg-accent'
                       }`}
                       aria-label={feed.enabled
-                        ? (isAr ? 'إيقاف' : 'Disable')
-                        : (isAr ? 'تفعيل' : 'Enable')}
+                        ? ('إيقاف')
+                        : ('تفعيل')}
                       role="switch"
                       aria-checked={feed.enabled}
                     >
@@ -276,7 +276,7 @@ export function ManageFeedsView({
                       type="button"
                       onClick={() => setPendingRemove(feed)}
                       className="p-2 rounded-lg hover:bg-destructive/10 transition-colors"
-                      aria-label={isAr ? 'حذف' : 'Remove'}
+                      aria-label={'حذف'}
                     >
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </button>
@@ -290,7 +290,7 @@ export function ManageFeedsView({
       <div className="px-4 py-3 border-t border-border/30 flex items-center justify-between text-[11px] text-muted-foreground">
         <span className="flex items-center gap-1.5">
           <Database className="h-3 w-3" />
-          {isAr ? `${totalInDB} مقال في الأرشيف` : `${totalInDB} in archive`}
+          {`${totalInDB} مقال في الأرشيف`}
         </span>
         <Button
           variant="ghost"
@@ -299,7 +299,7 @@ export function ManageFeedsView({
           onClick={onSuggested}
         >
           <Star className="h-3 w-3 me-1" />
-          {isAr ? 'مقترحات' : 'Suggestions'}
+          {'مقترحات'}
         </Button>
       </div>
 

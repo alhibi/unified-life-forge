@@ -18,19 +18,19 @@ export interface WarmupSheetProps {
   exerciseKey: string;
   exerciseLabel: string;
   workingKg: number;
-  lang: 'ar' | 'de';
+  lang: 'ar';
   /** Notify when user finishes the warm-up. */
   onComplete?: () => void;
 }
 
 const T = {
-  title: { ar: 'الإحماء', de: 'Aufwärmen' },
-  mobility: { ar: 'تحضير الحركة', de: 'Mobilitäts-Prep' },
-  ramp: { ar: 'بناء الوزن', de: 'Aufwärmsätze' },
-  done: { ar: 'إنهاء', de: 'Fertig' },
-  sec: { ar: 'ث', de: 's' },
-  rest: { ar: 'راحة', de: 'Pause' },
-  noWarmup: { ar: 'لا حاجة لإحماء — الوزن خفيف.', de: 'Kein Aufwärmen nötig.' },
+  title: { ar: 'الإحماء', },
+  mobility: { ar: 'تحضير الحركة', },
+  ramp: { ar: 'بناء الوزن', },
+  done: { ar: 'إنهاء', },
+  sec: { ar: 'ث', },
+  rest: { ar: 'راحة', },
+  noWarmup: { ar: 'لا حاجة لإحماء — الوزن خفيف.', },
 };
 
 export default function WarmupSheet({

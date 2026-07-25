@@ -35,49 +35,49 @@ import {
 } from '../index';
 import type { FullNutrition, MealEntry, MealType, NutritionFoodItem } from '../types';
 
-type Lang = 'ar' | 'de';
+type Lang = 'ar';
 
 const MEAL_TYPES: {
   type: MealType;
   icon: any;
-  label: { ar: string; de: string };
+  label: { ar: string; };
   color: string;
 }[] = [
-  { type: 'breakfast', icon: Coffee, label: { ar: 'إفطار', de: 'Frühstück' }, color: '#f59e0b' },
-  { type: 'lunch', icon: Sun, label: { ar: 'غداء', de: 'Mittagessen' }, color: '#10b981' },
-  { type: 'dinner', icon: Moon, label: { ar: 'عشاء', de: 'Abendessen' }, color: '#6366f1' },
-  { type: 'snack', icon: Cookie, label: { ar: 'وجبة خفيفة', de: 'Snack' }, color: '#f97316' },
+  { type: 'breakfast', icon: Coffee, label: { ar: 'إفطار', }, color: '#f59e0b' },
+  { type: 'lunch', icon: Sun, label: { ar: 'غداء', }, color: '#10b981' },
+  { type: 'dinner', icon: Moon, label: { ar: 'عشاء', }, color: '#6366f1' },
+  { type: 'snack', icon: Cookie, label: { ar: 'وجبة خفيفة', }, color: '#f97316' },
   {
     type: 'pre_workout',
     icon: Dumbbell,
-    label: { ar: 'قبل التمرين', de: 'Pre-Workout' },
+    label: { ar: 'قبل التمرين', },
     color: '#ef4444',
   },
   {
     type: 'post_workout',
     icon: Dumbbell,
-    label: { ar: 'بعد التمرين', de: 'Post-Workout' },
+    label: { ar: 'بعد التمرين', },
     color: '#22c55e',
   },
 ];
 
 const T = {
-  title: { ar: 'سجل الوجبات', de: 'Mahlzeiten-Log' },
-  addMeal: { ar: 'أضف وجبة', de: 'Mahlzeit hinzufügen' },
-  today: { ar: 'اليوم', de: 'Heute' },
-  empty: { ar: 'لم تسجل أي طعام اليوم', de: 'Heute noch nichts erfasst' },
-  search: { ar: 'ابحث عن طعام...', de: 'Essen suchen...' },
-  totalToday: { ar: 'إجمالي اليوم', de: 'Tagessumme' },
-  selectMeal: { ar: 'اختر نوع الوجبة', de: 'Mahlzeit wählen' },
-  cancel: { ar: 'إلغاء', de: 'Abbrechen' },
-  add: { ar: 'إضافة', de: 'Hinzufügen' },
-  serving: { ar: 'الحصة', de: 'Portion' },
-  qty: { ar: 'الكمية', de: 'Menge' },
+  title: { ar: 'سجل الوجبات', },
+  addMeal: { ar: 'أضف وجبة', },
+  today: { ar: 'اليوم', },
+  empty: { ar: 'لم تسجل أي طعام اليوم', },
+  search: { ar: 'ابحث عن طعام...', },
+  totalToday: { ar: 'إجمالي اليوم', },
+  selectMeal: { ar: 'اختر نوع الوجبة', },
+  cancel: { ar: 'إلغاء', },
+  add: { ar: 'إضافة', },
+  serving: { ar: 'الحصة', },
+  qty: { ar: 'الكمية', },
 };
 
 export default function MealTracker() {
-  const { language } = useApp();
-  const lang: Lang = language === 'ar' ? 'ar' : 'de';
+  const { } = useApp();
+  const lang: Lang = 'ar';
   // Re-render when the cloud-backed meal log cache changes.
   useNutritionCache();
   const [date] = useState(todayStr());
@@ -173,7 +173,7 @@ export default function MealTracker() {
                 <div className="flex items-center gap-2 px-3 py-2 bg-muted/30">
                   <Icon className="w-3.5 h-3.5" style={{ color }} />
                   <span className="text-[11px] font-semibold text-foreground">{label[lang]}</span>
-                  <span className="text-[9px] text-muted-foreground ml-auto">{items.length}</span>
+                  <span className="text-[10px] text-muted-foreground ml-auto">{items.length}</span>
                 </div>
                 <div className="divide-y divide-border/20">
                   {items.map((entry) => {
@@ -187,7 +187,7 @@ export default function MealTracker() {
                           <p className="text-[11px] font-medium text-foreground truncate">
                             {food.name[lang]}
                           </p>
-                          <p className="text-[9px] text-muted-foreground" dir="ltr">
+                          <p className="text-[10px] text-muted-foreground" dir="ltr">
                             {n.kcal} kcal · {n.protein}g P · {n.carbs}g C · {n.fat}g F
                           </p>
                         </div>
@@ -291,7 +291,7 @@ function AddMealForm({
                 placeholder={T.search[lang]}
                 className="w-full px-4 py-2.5 rounded-xl bg-muted/50 border border-border/50 text-sm mb-3 focus:outline-none focus:ring-2 focus:ring-primary/30"
                 autoFocus
-                dir={lang === 'ar' ? 'rtl' : 'ltr'}
+                dir={'rtl'}
               />
               <div className="space-y-1 max-h-[50vh] overflow-y-auto">
                 {results.map((food) => (
@@ -303,7 +303,7 @@ function AddMealForm({
                     <span className="text-lg">{food.emoji}</span>
                     <div className="flex-1 min-w-0">
                       <p className="text-[12px] font-medium truncate">{food.name[lang]}</p>
-                      <p className="text-[9px] text-muted-foreground" dir="ltr">
+                      <p className="text-[10px] text-muted-foreground" dir="ltr">
                         {food.nutrition.kcal} kcal · P:{food.nutrition.protein}g
                       </p>
                     </div>
@@ -430,7 +430,7 @@ function TotalStat({
         {value}
         {suffix}
       </p>
-      <p className="text-[8px] text-muted-foreground">{label}</p>
+      <p className="text-[10px] text-muted-foreground">{label}</p>
     </div>
   );
 }

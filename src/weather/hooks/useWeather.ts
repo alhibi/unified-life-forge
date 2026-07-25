@@ -21,7 +21,7 @@ export interface UseWeatherResult {
 }
 
 export function useWeather(
-  language: 'ar' | 'de' | 'en' = 'ar',
+  language: 'ar' | 'en' = 'ar',
   customCoords?: { lat: number; lng: number } | null
 ): UseWeatherResult {
   const { location: deviceLoc } = useDeviceLocation();

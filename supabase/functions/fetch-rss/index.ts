@@ -461,7 +461,7 @@ async function scrapeArticle(url: string): Promise<{
     }
 
     // Pre-clean noise.
-    let clean = html
+    const clean = html
       .replace(/<script[\s\S]*?<\/script>/gi, "")
       .replace(/<style[\s\S]*?<\/style>/gi, "")
       .replace(/<nav[\s\S]*?<\/nav>/gi, "")

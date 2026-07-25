@@ -11,7 +11,7 @@
  *  - secondary?: MuscleGroup[] — supporting muscles
  *  - size?: 'sm' | 'md' | 'lg' — component size
  *  - showLegend?: boolean — show color legend below
- *  - lang?: 'ar' | 'de' — for legend labels
+ *  - lang?: 'ar' — for legend labels
  */
 
 import React from 'react';
@@ -22,7 +22,7 @@ interface Props {
   secondary?: MuscleGroup[];
   size?: 'sm' | 'md' | 'lg';
   showLegend?: boolean;
-  lang?: 'ar' | 'de';
+  lang?: 'ar';
 }
 
 const SIZES = {
@@ -94,9 +94,9 @@ export default function MuscleBodyMap({
   const s = bodyH / 200; // base design is 200 units tall
 
   const legendLabels = {
-    primary: lang === 'ar' ? 'أساسي' : 'Primär',
-    secondary: lang === 'ar' ? 'ثانوي' : 'Sekundär',
-    untargeted: lang === 'ar' ? 'غير مستهدف' : 'Nicht aktiv',
+    primary: 'أساسي',
+    secondary: 'ثانوي',
+    untargeted: 'غير مستهدف',
   };
 
   return (
@@ -269,7 +269,7 @@ export default function MuscleBodyMap({
 
       {/* Legend */}
       {showLegend && (
-        <div className="flex items-center gap-3 text-[9px]">
+        <div className="flex items-center gap-3 text-[10px]">
           <span className="flex items-center gap-1">
             <span className="w-2 h-2 rounded-full" style={{ backgroundColor: PRIMARY_COLOR }} />
             <span className="text-muted-foreground">{legendLabels.primary}</span>

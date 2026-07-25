@@ -21,24 +21,24 @@ export interface CaliAssessmentFlowProps {
   open: boolean;
   onClose: () => void;
   onComplete: (result: AssessmentResult) => void;
-  lang: 'ar' | 'de';
+  lang: 'ar';
 }
 
 const T = {
-  title: { ar: 'تقييم المستوى', de: 'Niveau-Test' },
-  subtitle: { ar: 'لتحديد نقطة الانطلاق المناسبة', de: 'Um den passenden Startpunkt zu finden' },
-  next: { ar: 'التالي', de: 'Weiter' },
-  prev: { ar: 'السابق', de: 'Zurück' },
-  finish: { ar: 'إنهاء', de: 'Fertigstellen' },
-  question: { ar: 'سؤال', de: 'Frage' },
-  of: { ar: 'من', de: 'von' },
-  resultTitle: { ar: 'نتيجتك', de: 'Dein Ergebnis' },
-  yourTier: { ar: 'مستواك', de: 'Dein Niveau' },
-  recommendedPrograms: { ar: 'برامج مقترحة', de: 'Empfohlene Programme' },
-  applyResults: { ar: 'تطبيق النتيجة', de: 'Ergebnis übernehmen' },
-  yourSkills: { ar: 'تحديد بدء كل مهارة', de: 'Startpunkt jeder Skill' },
-  step: { ar: 'خطوة', de: 'Stufe' },
-  noStarted: { ar: 'لم تبدأ', de: 'Noch nicht' },
+  title: { ar: 'تقييم المستوى', },
+  subtitle: { ar: 'لتحديد نقطة الانطلاق المناسبة', },
+  next: { ar: 'التالي', },
+  prev: { ar: 'السابق', },
+  finish: { ar: 'إنهاء', },
+  question: { ar: 'سؤال', },
+  of: { ar: 'من', },
+  resultTitle: { ar: 'نتيجتك', },
+  yourTier: { ar: 'مستواك', },
+  recommendedPrograms: { ar: 'برامج مقترحة', },
+  applyResults: { ar: 'تطبيق النتيجة', },
+  yourSkills: { ar: 'تحديد بدء كل مهارة', },
+  step: { ar: 'خطوة', },
+  noStarted: { ar: 'لم تبدأ', },
 };
 
 export default function CaliAssessmentFlow({ open, onClose, onComplete, lang }: CaliAssessmentFlowProps) {
@@ -190,7 +190,7 @@ export default function CaliAssessmentFlow({ open, onClose, onComplete, lang }: 
   );
 }
 
-function ResultPanel({ result, onApply, lang }: { result: AssessmentResult; onApply: () => void; lang: 'ar' | 'de' }) {
+function ResultPanel({ result, onApply, lang }: { result: AssessmentResult; onApply: () => void; lang: 'ar' }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}

@@ -34,15 +34,15 @@ export type TechniqueId =
   | 'xWing'
   | 'guess';
 
-export const TECHNIQUE_LABELS: Record<TechniqueId, { ar: string; de: string; difficulty: number }> = {
-  nakedSingle:  { ar: 'مرشح وحيد',         de: 'Nacktes Einzel',     difficulty: 1 },
-  hiddenSingle: { ar: 'وحيد مخفي',          de: 'Verstecktes Einzel', difficulty: 2 },
-  pointingPair: { ar: 'زوج مُشير',           de: 'Block-Linie',        difficulty: 3 },
-  claimingPair: { ar: 'زوج مُطالب',          de: 'Linie-Block',        difficulty: 3 },
-  nakedPair:    { ar: 'زوج مكشوف',          de: 'Nacktes Paar',       difficulty: 4 },
-  hiddenPair:   { ar: 'زوج مخفي',           de: 'Verstecktes Paar',   difficulty: 5 },
-  xWing:        { ar: 'الجناح-X',           de: 'X-Wing',             difficulty: 6 },
-  guess:        { ar: 'تخمين',              de: 'Vermutung',          difficulty: 9 },
+export const TECHNIQUE_LABELS: Record<TechniqueId, { ar: string; difficulty: number }> = {
+  nakedSingle:  { ar: 'مرشح وحيد',     difficulty: 1 },
+  hiddenSingle: { ar: 'وحيد مخفي', difficulty: 2 },
+  pointingPair: { ar: 'زوج مُشير',        difficulty: 3 },
+  claimingPair: { ar: 'زوج مُطالب',        difficulty: 3 },
+  nakedPair:    { ar: 'زوج مكشوف',       difficulty: 4 },
+  hiddenPair:   { ar: 'زوج مخفي',   difficulty: 5 },
+  xWing:        { ar: 'الجناح-X',             difficulty: 6 },
+  guess:        { ar: 'تخمين',          difficulty: 9 },
 };
 
 export interface SolverHint {
@@ -55,7 +55,6 @@ export interface SolverHint {
   highlights: { r: number; c: number }[];
   /** Localized explanation strings for the Smart Hint dialog. */
   explanationAr: string;
-  explanationDe: string;
 }
 
 // =============================================================================
@@ -114,7 +113,6 @@ function findNakedSingle(cands: Candidates): SolverHint | null {
         eliminations: [],
         highlights: [{ r, c }],
         explanationAr: `الخلية (${r + 1}, ${c + 1}) لا يبقى لها سوى الرقم ${v}.`,
-        explanationDe: `Zelle (${r + 1}, ${c + 1}) hat nur ${v} als Kandidaten.`,
       };
     }
   }
@@ -144,7 +142,6 @@ function findHiddenSingle(cands: Candidates): SolverHint | null {
           eliminations: [],
           highlights: u.cells.map(([rr, cc]) => ({ r: rr, c: cc })),
           explanationAr: `الرقم ${v} لا يمكن وضعه إلا في الخلية (${r + 1}, ${c + 1}) داخل ${unitName}.`,
-          explanationDe: `Die ${v} kann in ${unitNameDe} nur in (${r + 1}, ${c + 1}).`,
         };
       }
     }
@@ -178,7 +175,6 @@ function findPointing(cands: Candidates): SolverHint | null {
           eliminations: elims,
           highlights: [...places.map(([rr, cc]) => ({ r: rr, c: cc })), ...elims.map(e => ({ r: e.r, c: e.c }))],
           explanationAr: `داخل المربع، الرقم ${v} مقيّد على الصف ${r + 1}، فيُحذف من بقية الصف.`,
-          explanationDe: `Im Block ist die ${v} auf Reihe ${r + 1} beschränkt – Streichung außerhalb des Blocks.`,
         };
       }
       if (allSameCol) {
@@ -194,7 +190,6 @@ function findPointing(cands: Candidates): SolverHint | null {
           eliminations: elims,
           highlights: [...places.map(([rr, cc]) => ({ r: rr, c: cc })), ...elims.map(e => ({ r: e.r, c: e.c }))],
           explanationAr: `داخل المربع، الرقم ${v} مقيّد على العمود ${c + 1}، فيُحذف من بقية العمود.`,
-          explanationDe: `Im Block ist die ${v} auf Spalte ${c + 1} beschränkt.`,
         };
       }
     }
@@ -229,7 +224,6 @@ function findClaiming(cands: Candidates): SolverHint | null {
           eliminations: elims,
           highlights: [...places.map(([rr, cc]) => ({ r: rr, c: cc })), ...elims.map(e => ({ r: e.r, c: e.c }))],
           explanationAr: `${which === 'row' ? 'في الصف' : 'في العمود'} ${i + 1}، الرقم ${v} محصور في مربع واحد، فيُحذف من باقيه.`,
-          explanationDe: `${which === 'row' ? 'In Reihe' : 'In Spalte'} ${i + 1} ist die ${v} auf einen Block beschränkt.`,
         };
       }
     }
@@ -264,7 +258,6 @@ function findNakedPair(cands: Candidates): SolverHint | null {
           eliminations: elims,
           highlights: [{ r: r1, c: c1 }, { r: r2, c: c2 }, ...elims.map(e => ({ r: e.r, c: e.c }))],
           explanationAr: `الخليتان (${r1 + 1},${c1 + 1}) و (${r2 + 1},${c2 + 1}) تحتويان فقط ${v1} و${v2}، فهما تحجزانهما عن بقية الوحدة.`,
-          explanationDe: `Beide Zellen halten nur {${v1},${v2}} – die Werte sind im Rest gestrichen.`,
         };
       }
     }
@@ -306,7 +299,6 @@ function findHiddenPair(cands: Candidates): SolverHint | null {
           eliminations: elims,
           highlights: p1.map(([rr, cc]) => ({ r: rr, c: cc })),
           explanationAr: `الرقمان ${v1} و${v2} لا يظهران إلا في خليتين، فيُحذف ما عداهما من تلك الخليتين.`,
-          explanationDe: `${v1} und ${v2} kommen nur in zwei Zellen vor – Rest dort gestrichen.`,
         };
       }
     }
@@ -348,7 +340,6 @@ function findXWing(cands: Candidates): SolverHint | null {
             { r: B.row, c: B.cols[0] }, { r: B.row, c: B.cols[1] },
           ],
           explanationAr: `الرقم ${v} يشكل مستطيلاً عبر الصفين ${A.row + 1} و${B.row + 1} والعمودين ${A.cols[0] + 1} و${A.cols[1] + 1}.`,
-          explanationDe: `${v} bildet ein X-Wing-Rechteck zwischen Reihen ${A.row + 1}/${B.row + 1} und Spalten ${A.cols[0] + 1}/${A.cols[1] + 1}.`,
         };
       }
     }
@@ -379,7 +370,6 @@ function findXWing(cands: Candidates): SolverHint | null {
             { r: B.rows[0], c: B.col }, { r: B.rows[1], c: B.col },
           ],
           explanationAr: `الرقم ${v} يشكل X-Wing عبر العمودين ${A.col + 1} و${B.col + 1}.`,
-          explanationDe: `${v} bildet X-Wing zwischen Spalten ${A.col + 1}/${B.col + 1}.`,
         };
       }
     }

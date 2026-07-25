@@ -25,19 +25,19 @@ import { EXERCISES } from '../../exerciseCatalog';
 export interface StrengthStandardsViewProps {
   workouts: WorkoutSession[];
   profile: AthleteProfile | null;
-  lang: 'ar' | 'de';
+  lang: 'ar';
   className?: string;
 }
 
 const T = {
-  title: { ar: 'معايير القوة', de: 'Kraftstandards' },
-  noProfile: { ar: 'حدد جنسك ووزنك في الملف لتصنيف قوتك.', de: 'Geschlecht & Gewicht im Profil → Klassifizierung.' },
-  noData: { ar: 'لا أرقام قياسية بعد.', de: 'Noch keine Rekorde.' },
-  next: { ar: 'الهدف التالي', de: 'Nächstes Ziel' },
-  total: { ar: 'الإجمالي الباور', de: 'Powerlifting Total' },
-  wilks: { ar: 'Wilks', de: 'Wilks' },
-  per_lift: { ar: 'لكل تمرين', de: 'pro Übung' },
-  ratio: { ar: 'النسبة', de: 'Ratio' },
+  title: { ar: 'معايير القوة', },
+  noProfile: { ar: 'حدد جنسك ووزنك في الملف لتصنيف قوتك.', },
+  noData: { ar: 'لا أرقام قياسية بعد.', },
+  next: { ar: 'الهدف التالي', },
+  total: { ar: 'الإجمالي الباور', },
+  wilks: { ar: 'Wilks', },
+  per_lift: { ar: 'لكل تمرين', },
+  ratio: { ar: 'النسبة', },
 };
 
 export default function StrengthStandardsView({
@@ -122,10 +122,10 @@ export default function StrengthStandardsView({
             {total.perLift.map((p) => (
               <div key={p.exerciseKey} className="bg-white/60 dark:bg-white/5 rounded-lg p-1.5 text-center">
                 <p className="text-[10px] uppercase tracking-wider text-muted-foreground/80 font-semibold">
-                  {p.exerciseKey === 'squat' ? (lang === 'ar' ? 'سكوات' : 'Squat') : p.exerciseKey === 'bench' ? (lang === 'ar' ? 'بنش' : 'Bench') : (lang === 'ar' ? 'ديدليفت' : 'DL')}
+                  {p.exerciseKey === 'squat' ? ('سكوات') : p.exerciseKey === 'bench' ? ('بنش') : ('ديدليفت')}
                 </p>
                 <p className="text-[14px] font-bold tabular-nums text-foreground" dir="ltr">{p.oneRm}</p>
-                <p className="text-[9px] font-bold uppercase" style={{ color: LEVEL_COLORS[p.level] }}>
+                <p className="text-[10px] font-bold uppercase" style={{ color: LEVEL_COLORS[p.level] }}>
                   {LEVEL_LABELS[p.level][lang]}
                 </p>
               </div>
@@ -164,7 +164,7 @@ function LiftRow({
     nextLevel: typeof STRENGTH_LEVELS[number] | null;
     eliteTargetKg: number;
   };
-  lang: 'ar' | 'de';
+  lang: 'ar';
   delay: number;
 }) {
   const color = LEVEL_COLORS[row.level];

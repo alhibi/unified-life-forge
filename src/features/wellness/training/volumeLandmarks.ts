@@ -42,11 +42,11 @@ export type VolumeZone =
   | 'above_mrv';
 
 export const ZONE_LABEL: Record<VolumeZone, LocalizedString> = {
-  below_mv:    { ar: 'دون الصيانة',    de: 'Unter MV'      },
-  mv_to_mev:   { ar: 'صيانة',          de: 'Erhaltung'     },
-  mev_to_mav:  { ar: 'منطقة النمو',    de: 'Wachstumszone' },
-  mav_to_mrv:  { ar: 'حد أعلى صحي',    de: 'Obere Zone'    },
-  above_mrv:   { ar: 'تجاوز التحمل',   de: 'Über MRV'      },
+  below_mv:    { ar: 'دون الصيانة',      },
+  mv_to_mev:   { ar: 'صيانة',     },
+  mev_to_mav:  { ar: 'منطقة النمو', },
+  mav_to_mrv:  { ar: 'حد أعلى صحي',    },
+  above_mrv:   { ar: 'تجاوز التحمل',      },
 };
 
 export const ZONE_COLOR: Record<VolumeZone, string> = {
@@ -60,23 +60,18 @@ export const ZONE_COLOR: Record<VolumeZone, string> = {
 export const ZONE_ADVICE: Record<VolumeZone, LocalizedString> = {
   below_mv: {
     ar: 'الحجم الحالي غير كافٍ للحفاظ على الحجم. أضف 2-4 مجموعات أسبوعياً.',
-    de: 'Volumen reicht nicht zum Halten. 2-4 Sätze/Woche dazugeben.',
   },
   mv_to_mev: {
     ar: 'تحافظ على ما لديك لكن لن تنمو. ارفع نحو 10 مجموعات للنمو.',
-    de: 'Status quo, kein Wachstum. Richtung 10 Sätze/Woche steigern.',
   },
   mev_to_mav: {
     ar: 'منطقة مثالية للنمو. حافظ على هذا الحجم وزِد 1-2 مجموعة كل أسبوعين.',
-    de: 'Optimale Wachstumszone. Volumen halten, alle 2 Wochen +1-2 Sätze.',
   },
   mav_to_mrv: {
     ar: 'حجم عالٍ. راقب التعافي وقلّل لو ظهر إرهاق متراكم.',
-    de: 'Hohes Volumen. Erholung beobachten, bei Stagnation reduzieren.',
   },
   above_mrv: {
     ar: 'تجاوزت قدرة التعافي — انخفاض في الأداء وارد. خذ ديلود.',
-    de: 'Über MRV — Leistungsabfall droht. Deload-Woche einlegen.',
   },
 };
 

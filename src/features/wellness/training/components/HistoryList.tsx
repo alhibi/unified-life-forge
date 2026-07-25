@@ -18,33 +18,33 @@ import { confirmDialog } from '@/lib/confirmDialog';
 export interface HistoryListProps {
   workouts: WorkoutSession[];
   onDelete: (id: UUID) => Promise<void>;
-  lang: 'ar' | 'de';
+  lang: 'ar';
   className?: string;
 }
 
 const T = {
-  title: { ar: 'السجل', de: 'Verlauf' },
-  empty: { ar: 'لا تمارين سابقة بعد.', de: 'Noch keine Trainings.' },
-  search: { ar: 'بحث في تمارين أو ملاحظات...', de: 'Übungen / Notizen suchen...' },
-  all: { ar: 'الكل', de: 'Alle' },
-  strength: { ar: 'قوة', de: 'Kraft' },
-  cardio: { ar: 'كارديو', de: 'Cardio' },
-  hiit: { ar: 'هيت', de: 'HIIT' },
-  mobility: { ar: 'مرونة', de: 'Mobilität' },
-  sport: { ar: 'رياضة', de: 'Sport' },
-  duration: { ar: 'المدة', de: 'Dauer' },
-  volume: { ar: 'الحمل', de: 'Volumen' },
-  rpe: { ar: 'RPE', de: 'RPE' },
-  delete: { ar: 'حذف', de: 'Löschen' },
-  confirmDelete: { ar: 'حذف هذا التمرين؟', de: 'Dieses Training löschen?' },
+  title: { ar: 'السجل', },
+  empty: { ar: 'لا تمارين سابقة بعد.', },
+  search: { ar: 'بحث في تمارين أو ملاحظات...', },
+  all: { ar: 'الكل', },
+  strength: { ar: 'قوة', },
+  cardio: { ar: 'كارديو', },
+  hiit: { ar: 'هيت', },
+  mobility: { ar: 'مرونة', },
+  sport: { ar: 'رياضة', },
+  duration: { ar: 'المدة', },
+  volume: { ar: 'الحمل', },
+  rpe: { ar: 'RPE', },
+  delete: { ar: 'حذف', },
+  confirmDelete: { ar: 'حذف هذا التمرين؟', },
 };
 
 const TYPE_OPTS = ['all', 'strength', 'cardio', 'hiit', 'mobility', 'sport'] as const;
 
-function fmtDate(iso: string, lang: 'ar' | 'de'): string {
+function fmtDate(iso: string, lang: 'ar'): string {
   try {
     const d = new Date(iso);
-    return d.toLocaleDateString(lang === 'ar' ? 'ar-EG' : 'de-DE', {
+    return d.toLocaleDateString('ar-EG', {
       day: '2-digit', month: 'short', year: 'numeric',
     });
   } catch {
@@ -109,7 +109,7 @@ export default function HistoryList({ workouts, onDelete, lang, className = '' }
               typeFilter === t ? 'bg-foreground text-background border-foreground' : 'bg-card text-muted-foreground border-border/40'
             }`}
           >
-            {t === 'all' ? T.all[lang] : (T as Record<string, { ar: string; de: string }>)[t][lang]}
+            {t === 'all' ? T.all[lang] : (T as Record<string, { ar: string; }>)[t][lang]}
           </button>
         ))}
       </div>
@@ -141,7 +141,7 @@ function SessionRow({
   expanded: boolean;
   onToggle: () => void;
   onDelete: (id: UUID) => Promise<void>;
-  lang: 'ar' | 'de';
+  lang: 'ar';
 }) {
   const vol = sessionVolumeKg(session);
   const dur = session.endedAt ? session.endedAt - session.startedAt : 0;
@@ -164,7 +164,7 @@ function SessionRow({
             <Calendar className="w-3 h-3 text-muted-foreground shrink-0" />
             <span className="text-[11px] text-muted-foreground tabular-nums" dir="ltr">{fmtDate(session.date, lang)}</span>
             <span className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-semibold">
-              {(T as Record<string, { ar: string; de: string }>)[session.type]?.[lang] ?? session.type}
+              {(T as Record<string, { ar: string; }>)[session.type]?.[lang] ?? session.type}
             </span>
           </div>
           {session.title && (
@@ -193,7 +193,7 @@ function SessionRow({
           >
             <div className="p-3 pt-0 border-t border-border/40 space-y-2">
               {session.exercises.map((ex, i) => {
-                const def = resolveExercise(ex.exerciseKey) as Exercise | { isCustom: true; label: { ar: string; de: string } };
+                const def = resolveExercise(ex.exerciseKey) as Exercise | { isCustom: true; label: { ar: string; } };
                 const label = 'isCustom' in def && def.isCustom ? def.label[lang] : (def as Exercise).label[lang];
                 return (
                   <div key={i} className="bg-muted/30 rounded-lg p-2 space-y-1">

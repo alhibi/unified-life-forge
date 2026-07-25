@@ -21,7 +21,7 @@ import type { Coordinates, CountryBounds, PlaceCategory, TravelPlace } from '../
 interface TravelAtlasMapProps {
   bounds: CountryBounds;
   places: TravelPlace[];
-  language: 'ar' | 'de';
+  language: 'ar';
   onSelectPlace: (placeId: string) => void;
   onReady?: () => void;
   onError?: (message: string) => void;
@@ -175,9 +175,7 @@ export default function TravelAtlasMap({
     if (failedTile) return;
     setFailedTile(true);
     onError?.(
-      language === 'ar'
-        ? 'بعض مربعات الخريطة لم تُحمّل، لكن الأماكن ستبقى ظاهرة.'
-        : 'Einige Kartenkacheln wurden nicht geladen, die Orte bleiben sichtbar.',
+      'بعض مربعات الخريطة لم تُحمّل، لكن الأماكن ستبقى ظاهرة.',
     );
   }, [failedTile, language, onError]);
 
@@ -199,7 +197,7 @@ export default function TravelAtlasMap({
           zoomTo(zoom + 1, { x: event.clientX - rect.left, y: event.clientY - rect.top });
         }}
         role="application"
-        aria-label={language === 'ar' ? 'خريطة الأماكن' : 'Ortskarte'}
+        aria-label={'خريطة الأماكن'}
       >
         <div className="absolute inset-0 travel-raster-map__tiles" aria-hidden="true">
           {tileData.tiles.map((tile) => (
@@ -247,7 +245,7 @@ export default function TravelAtlasMap({
                 event.stopPropagation();
                 onSelectPlace(place.id);
               }}
-              aria-label={language === 'ar' ? place.nameAr : (place.nameEn ?? place.nameAr)}
+              aria-label={place.nameAr}
             >
               <span className="travel-photo-marker__fallback" aria-hidden="true" dangerouslySetInnerHTML={{ __html: categoryIcon(place.category) }} />
               {place.coverPhotoUrl && (
@@ -277,7 +275,7 @@ export default function TravelAtlasMap({
           variant="secondary"
           className="h-10 w-10 rounded-2xl border border-border/70 bg-background/90 shadow-depth backdrop-blur"
           onClick={() => zoomTo(zoom + 1)}
-          aria-label={language === 'ar' ? 'تكبير الخريطة' : 'Karte vergrößern'}
+          aria-label={'تكبير الخريطة'}
         >
           <Plus className="h-4 w-4" aria-hidden="true" />
         </Button>
@@ -287,7 +285,7 @@ export default function TravelAtlasMap({
           variant="secondary"
           className="h-10 w-10 rounded-2xl border border-border/70 bg-background/90 shadow-depth backdrop-blur"
           onClick={() => zoomTo(zoom - 1)}
-          aria-label={language === 'ar' ? 'تصغير الخريطة' : 'Karte verkleinern'}
+          aria-label={'تصغير الخريطة'}
         >
           <Minus className="h-4 w-4" aria-hidden="true" />
         </Button>
@@ -295,7 +293,7 @@ export default function TravelAtlasMap({
 
       {inBoundsPlaces.length === 0 && (
         <div className="pointer-events-none absolute inset-x-4 top-4 z-10 rounded-2xl border border-border/70 bg-background/90 px-4 py-3 text-center text-body text-muted-foreground shadow-depth backdrop-blur">
-          {language === 'ar' ? 'أضف مكانًا ليظهر على الخريطة.' : 'Füge einen Ort hinzu, damit er auf der Karte erscheint.'}
+          {'أضف مكانًا ليظهر على الخريطة.'}
         </div>
       )}
     </div>

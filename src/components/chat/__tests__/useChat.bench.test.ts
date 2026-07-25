@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 
 // Placeholder test just to make sure vitest is working
 describe('useChat performance baseline placeholder', () => {

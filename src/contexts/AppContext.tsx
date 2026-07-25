@@ -1,11 +1,18 @@
-import React, { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import type { User } from '@supabase/supabase-js';
 import { themePresets, generateThemeTokens, applyThemeTokens, type ThemeStyle,  } from '@/utils/themeEngine';
 import { translate, type Language } from '@/i18n';
 import { applyMotionSpeed, installFpsCap, applyMotionAmplitude, applyMotionBounce } from '@/lib/motionRuntime';
+import {
+  clampFontWeight,
+  DEFAULT_FONT_ID,
+  FONT_SIZE_STEPS,
+  fontStackFor,
+  resolveFontId,
+  resolveFontSize,
+} from '@/lib/fonts';
 
 // 'system' was intentionally removed from the public theme API — users
 // pick Light or Dark explicitly. Any stale localStorage value is
@@ -29,8 +36,6 @@ interface AppContextType {
   setTheme: (theme: Theme) => void;
   t: (key: string) => string;
   dir: 'rtl' | 'ltr';
-  accentHue: number;
-  setAccentHue: (hue: number) => void;
   paletteStyle: PaletteStyle;
   setPaletteStyle: (style: PaletteStyle) => void;
   colorTheme: ColorTheme;
@@ -84,9 +89,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const raw = localStorage.getItem('app-theme');
     return raw === 'dark' ? 'dark' : 'light';
   });
-  const [accentHue, setAccentHueState] = useState<number>(() =>
-    parseInt(localStorage.getItem('app-accent-hue') || '152', 10)
-  );
   const [paletteStyle, setPaletteStyleState] = useState<PaletteStyle>(() =>
     (localStorage.getItem('app-palette-style') as PaletteStyle) || 'neutral'
   );
@@ -98,13 +100,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
   );
 
   const [fontFamily, setFontFamilyState] = useState<string>(() =>
-    localStorage.getItem('app-font-family') || 'plex-mono'
+    resolveFontId(localStorage.getItem('app-font-family'))
   );
   const [fontSize, setFontSizeState] = useState<string>(() =>
-    localStorage.getItem('app-font-size') || 'medium'
+    resolveFontSize(localStorage.getItem('app-font-size'))
   );
   const [fontWeight, setFontWeightState] = useState<number>(() =>
-    parseInt(localStorage.getItem('app-font-weight') || '400', 10)
+    clampFontWeight(parseInt(localStorage.getItem('app-font-weight') ?? '400', 10))
   );
   const [fontOpacity, setFontOpacityState] = useState<number>(() =>
     parseFloat(localStorage.getItem('app-font-opacity') || '1')
@@ -181,12 +183,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
     // Re-seed default values + state.
     setLanguageState('ar'); localStorage.setItem('app-language', 'ar');
     setThemeState('light'); localStorage.setItem('app-theme', 'light');
-    setAccentHueState(152); localStorage.setItem('app-accent-hue', '152');
-    setPaletteStyleState('vibrant'); localStorage.setItem('app-palette-style', 'vibrant');
+    // Must match the initial-state default above ('neutral'). Using a
+    // different value here made sign-out change the app's look.
+    setPaletteStyleState('neutral'); localStorage.setItem('app-palette-style', 'neutral');
     setBlackModeState(false); localStorage.setItem('app-black-mode', 'false');
     setColorThemeState('paper'); localStorage.setItem('app-color-theme', 'paper');
 
-    setFontFamilyState('plex-mono'); localStorage.setItem('app-font-family', 'plex-mono');
+    setFontFamilyState(DEFAULT_FONT_ID); localStorage.setItem('app-font-family', DEFAULT_FONT_ID);
     setFontSizeState('medium'); localStorage.setItem('app-font-size', 'medium');
     setFontWeightState(400); localStorage.setItem('app-font-weight', '400');
     setFontOpacityState(1); localStorage.setItem('app-font-opacity', '1');
@@ -239,14 +242,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
         // Language is locked to 'ar' — ignore any cloud-persisted preference.
         localStorage.setItem('app-language', 'ar');
         if (s.theme) { setThemeState(s.theme); localStorage.setItem('app-theme', s.theme); }
-        if (s.accentHue !== undefined) { setAccentHueState(s.accentHue); localStorage.setItem('app-accent-hue', String(s.accentHue)); }
         if (s.paletteStyle) { setPaletteStyleState(s.paletteStyle); localStorage.setItem('app-palette-style', s.paletteStyle); }
         if (s.blackMode !== undefined) { setBlackModeState(s.blackMode); localStorage.setItem('app-black-mode', String(s.blackMode)); }
         if (s.colorTheme) { setColorThemeState(s.colorTheme); localStorage.setItem('app-color-theme', s.colorTheme); }
 
-        if (s.fontFamily) { setFontFamilyState(s.fontFamily); localStorage.setItem('app-font-family', s.fontFamily); }
-        if (s.fontSize) { setFontSizeState(s.fontSize); localStorage.setItem('app-font-size', s.fontSize); }
-        if (s.fontWeight !== undefined) { setFontWeightState(s.fontWeight); localStorage.setItem('app-font-weight', String(s.fontWeight)); }
+        if (s.fontFamily) { const id = resolveFontId(s.fontFamily); setFontFamilyState(id); localStorage.setItem('app-font-family', id); }
+        if (s.fontSize) { const sz = resolveFontSize(s.fontSize); setFontSizeState(sz); localStorage.setItem('app-font-size', sz); }
+        if (s.fontWeight !== undefined) { const w = clampFontWeight(Number(s.fontWeight)); setFontWeightState(w); localStorage.setItem('app-font-weight', String(w)); }
         if (s.fontOpacity !== undefined) { setFontOpacityState(s.fontOpacity); localStorage.setItem('app-font-opacity', String(s.fontOpacity)); }
         if (s.prayerMadhab) { setPrayerMadhabState(s.prayerMadhab); localStorage.setItem('app-prayer-madhab', s.prayerMadhab); }
         if (s.midnightMode !== undefined) { setMidnightModeState(s.midnightMode); localStorage.setItem('app-midnight-mode', String(s.midnightMode)); }
@@ -291,21 +293,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // Wrapped in a coalescing debounce so that rapid changes (e.g. user dragging
   // a slider, or toggling several settings in quick succession) flush as a
   // single upsert instead of N parallel ones.
-  const flushSaveToDb = async () => {
+  const flushSaveToDb = useCallback(async () => {
     saveTimerRef.current = null;
     const user = authUserRef.current;
     if (!user || syncRef.current || !initialLoadDone.current) return;
     const settings: Record<string, any> = {
       language: localStorage.getItem('app-language'),
       theme: localStorage.getItem('app-theme'),
-      accentHue: parseInt(localStorage.getItem('app-accent-hue') || '152', 10),
       paletteStyle: localStorage.getItem('app-palette-style'),
       blackMode: localStorage.getItem('app-black-mode') === 'true',
       colorTheme: localStorage.getItem('app-color-theme') || 'default',
 
-      fontFamily: localStorage.getItem('app-font-family') || 'default',
-      fontSize: localStorage.getItem('app-font-size') || 'medium',
-      fontWeight: parseInt(localStorage.getItem('app-font-weight') || '400', 10),
+      fontFamily: resolveFontId(localStorage.getItem('app-font-family')),
+      fontSize: resolveFontSize(localStorage.getItem('app-font-size')),
+      fontWeight: clampFontWeight(parseInt(localStorage.getItem('app-font-weight') ?? '400', 10)),
       fontOpacity: parseFloat(localStorage.getItem('app-font-opacity') || '1'),
       prayerMadhab: localStorage.getItem('app-prayer-madhab') || 'shafii',
       midnightMode: parseInt(localStorage.getItem('app-midnight-mode') || '0', 10),
@@ -328,12 +329,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
     await supabase
       .from('user_settings')
       .upsert({ user_id: user.id, settings: settings as any }, { onConflict: 'user_id' });
-  };
+  }, []);
 
-  const scheduleSave = () => {
+  const scheduleSave = useCallback(() => {
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     saveTimerRef.current = setTimeout(flushSaveToDb, SAVE_DEBOUNCE_MS);
-  };
+  }, [flushSaveToDb]);
 
   // Flush any pending save when the provider unmounts or the tab is hidden,
   // so we don't lose the last change made just before navigation.
@@ -351,133 +352,146 @@ export function AppProvider({ children }: { children: ReactNode }) {
       window.removeEventListener('pagehide', onHide);
       if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     };
-  }, []);
+  }, [flushSaveToDb]);
 
-  const setLanguage = (_lang: Language) => {
+  // ────────────────────────────────────────────────────────────────────
+  // Setters
+  //
+  // Every setter is memoised with `useCallback` and the context value is
+  // memoised with `useMemo`. Without this, the provider handed a brand
+  // new object (and 20 brand new functions) to all ~96 `useApp()`
+  // consumers on every single render, so one preference change re-rendered
+  // the entire app — and effects that depend on a setter identity (e.g.
+  // useAutoPrayerTheme's 60 s interval) were torn down and rebuilt each
+  // time.
+  // ────────────────────────────────────────────────────────────────────
+
+  const setLanguage = useCallback((_lang: Language) => {
     // Arabic-only. Ignore all attempts to switch language.
     setLanguageState('ar');
     localStorage.setItem('app-language', 'ar');
-  };
+  }, []);
 
-  const setTheme = (t: Theme) => {
+  const setTheme = useCallback((t: Theme) => {
     setThemeState(t);
     localStorage.setItem('app-theme', t);
     scheduleSave();
-  };
+  }, [scheduleSave]);
 
-  const setAccentHue = (hue: number) => {
-    setAccentHueState(hue);
-    localStorage.setItem('app-accent-hue', hue.toString());
-    scheduleSave();
-  };
-
-  const setPaletteStyle = (style: PaletteStyle) => {
+  const setPaletteStyle = useCallback((style: PaletteStyle) => {
     setPaletteStyleState(style);
     localStorage.setItem('app-palette-style', style);
     scheduleSave();
-  };
+  }, [scheduleSave]);
 
-  const setBlackMode = (v: boolean) => {
+  const setBlackMode = useCallback((v: boolean) => {
     setBlackModeState(v);
     localStorage.setItem('app-black-mode', v.toString());
     scheduleSave();
-  };
+  }, [scheduleSave]);
 
-  const setColorTheme = (ct: ColorTheme) => {
+  const setColorTheme = useCallback((ct: ColorTheme) => {
     setColorThemeState(ct);
     localStorage.setItem('app-color-theme', ct);
     scheduleSave();
-  };
+  }, [scheduleSave]);
 
-
-
-  const setFontFamily = (f: string) => {
-    setFontFamilyState(f);
-    localStorage.setItem('app-font-family', f);
+  const setFontFamily = useCallback((f: string) => {
+    const id = resolveFontId(f);
+    setFontFamilyState(id);
+    localStorage.setItem('app-font-family', id);
     scheduleSave();
-  };
+  }, [scheduleSave]);
 
-  const setFontSize = (s: string) => {
-    setFontSizeState(s);
-    localStorage.setItem('app-font-size', s);
+  const setFontSize = useCallback((s: string) => {
+    const size = resolveFontSize(s);
+    setFontSizeState(size);
+    localStorage.setItem('app-font-size', size);
     scheduleSave();
-  };
+  }, [scheduleSave]);
 
-  const setFontWeight = (w: number) => {
-    setFontWeightState(w);
-    localStorage.setItem('app-font-weight', String(w));
+  const setFontWeight = useCallback((w: number) => {
+    const clamped = clampFontWeight(w);
+    setFontWeightState(clamped);
+    localStorage.setItem('app-font-weight', String(clamped));
     scheduleSave();
-  };
+  }, [scheduleSave]);
 
-  const setFontOpacity = (o: number) => {
+  const setFontOpacity = useCallback((o: number) => {
     setFontOpacityState(o);
     localStorage.setItem('app-font-opacity', String(o));
     scheduleSave();
-  };
+  }, [scheduleSave]);
 
-  const setPrayerMadhab = (m: PrayerMadhab) => {
+  const setPrayerMadhab = useCallback((m: PrayerMadhab) => {
     setPrayerMadhabState(m);
     localStorage.setItem('app-prayer-madhab', m);
     scheduleSave();
-  };
+  }, [scheduleSave]);
 
-  const setMidnightMode = (m: number) => {
+  const setMidnightMode = useCallback((m: number) => {
     setMidnightModeState(m);
     localStorage.setItem('app-midnight-mode', String(m));
     scheduleSave();
-  };
+  }, [scheduleSave]);
 
-  const setLatitudeAdjMethod = (m: LatitudeAdjMethod) => {
+  const setLatitudeAdjMethod = useCallback((m: LatitudeAdjMethod) => {
     setLatitudeAdjMethodState(m);
     localStorage.setItem('app-lat-adj-method', m);
     scheduleSave();
-  };
+  }, [scheduleSave]);
 
-  const setDstEnabled = (v: boolean) => {
+  const setDstEnabled = useCallback((v: boolean) => {
     setDstEnabledState(v);
     localStorage.setItem('app-dst-enabled', String(v));
     scheduleSave();
-  };
+  }, [scheduleSave]);
 
-  const setCalcMethod = (m: CalcMethod) => {
+  const setCalcMethod = useCallback((m: CalcMethod) => {
     setCalcMethodState(m);
     localStorage.setItem('app-calc-method', String(m));
     scheduleSave();
-  };
+  }, [scheduleSave]);
 
-  const setMotionSpeed = (s: number) => {
+  const setMotionSpeed = useCallback((s: number) => {
     const clamped = Math.max(0.25, Math.min(3, s));
     setMotionSpeedState(clamped);
     localStorage.setItem('app-motion-speed', String(clamped));
     scheduleSave();
-  };
+  }, [scheduleSave]);
 
-  const setFpsCap = (f: FpsCap) => {
+  const setFpsCap = useCallback((f: FpsCap) => {
     setFpsCapState(f);
     localStorage.setItem('app-fps-cap', String(f));
     scheduleSave();
-  };
+  }, [scheduleSave]);
 
-  const setMotionAmplitude = (a: number) => {
+  const setMotionAmplitude = useCallback((a: number) => {
     const clamped = Math.max(0, Math.min(1.5, a));
     setMotionAmplitudeState(clamped);
     localStorage.setItem('app-motion-amplitude', String(clamped));
     scheduleSave();
-  };
+  }, [scheduleSave]);
 
-  const setSpringBounce = (b: number) => {
+  const setSpringBounce = useCallback((b: number) => {
     const clamped = Math.max(0, Math.min(1, b));
     setSpringBounceState(clamped);
     localStorage.setItem('app-spring-bounce', String(clamped));
     scheduleSave();
-  };
+  }, [scheduleSave]);
 
-  const t = (key: string): string => translate(language, key);
-  const dir = language === 'ar' ? 'rtl' : 'ltr';
+  const t = useCallback((key: string): string => translate(language, key), [language]);
+  const dir = 'rtl';
+
+  // `theme-transition` cross-fades the token swap. It must NOT run on the
+  // first paint — doing so made the whole app visibly "melt in" on every
+  // cold boot, and fought the entrance animations.
+  const themeReadyRef = useRef(false);
 
   useEffect(() => {
     const root = document.documentElement;
-    root.classList.add('theme-transition');
+    if (themeReadyRef.current) root.classList.add('theme-transition');
+    else themeReadyRef.current = true;
 
     const isDark = theme === 'dark';
     root.classList.toggle('dark', isDark);
@@ -497,32 +511,28 @@ export function AppProvider({ children }: { children: ReactNode }) {
     // Enforce the single unified Zen Elite design style
     root.removeAttribute('data-md3');
     root.setAttribute('data-design-mode', 'classic');
-    let tokens = generateThemeTokens(preset, paletteStyle as ThemeStyle, isDark, isDark && blackMode);
+    const tokens = generateThemeTokens(preset, paletteStyle as ThemeStyle, isDark, isDark && blackMode);
     applyThemeTokens(tokens);
 
-    const timeout = setTimeout(() => root.classList.remove('theme-transition'), 600);
+    // Keep in sync with the 260ms transition declared in index.css.
+    const timeout = setTimeout(() => root.classList.remove('theme-transition'), 300);
 
     return () => clearTimeout(timeout);
-  }, [theme, dir, language, accentHue, paletteStyle, blackMode, colorTheme]);
+  }, [theme, dir, language, paletteStyle, blackMode, colorTheme]);
 
-  // Apply font family, size, weight & opacity
+  // Apply font family, size, weight & opacity. All id resolution lives in
+  // src/lib/fonts.ts so the settings screen and this provider can never
+  // disagree about what a font id means again.
   useEffect(() => {
-    const fontMap: Record<string, string> = {
-      default: "'IBM Plex Sans Arabic', 'Noto Sans Arabic', system-ui, -apple-system, 'Segoe UI', sans-serif",
-      'plex-mono': "'IBM Plex Mono', 'IBM Plex Sans Arabic', 'Noto Sans Arabic', system-ui, -apple-system, monospace",
-      inter: "'Inter', 'Noto Sans Arabic', system-ui, -apple-system, sans-serif",
-      cairo: "'Cairo', 'Inter', system-ui, -apple-system, sans-serif",
-      tajawal: "'Tajawal', 'Inter', system-ui, -apple-system, sans-serif",
-      'ibm-plex': "'IBM Plex Sans Arabic', 'Inter', system-ui, -apple-system, sans-serif",
-      readex: "'Readex Pro', 'Inter', system-ui, -apple-system, sans-serif",
-    };
-    const sizeMap: Record<string, string> = { small: '14px', medium: '16px', large: '18px' };
-    const ff = fontMap[fontFamily] || fontMap.default;
-    document.documentElement.style.setProperty('--font-display', ff);
-    document.documentElement.style.setProperty('--font-body', ff);
-    document.documentElement.style.fontSize = sizeMap[fontSize] || '16px';
-    document.documentElement.style.fontWeight = String(fontWeight);
-    document.documentElement.style.setProperty('--text-opacity', String(fontOpacity));
+    const root = document.documentElement;
+    const stack = fontStackFor(fontFamily);
+    const step =
+      FONT_SIZE_STEPS.find((s) => s.id === resolveFontSize(fontSize)) ?? FONT_SIZE_STEPS[1];
+    root.style.setProperty('--font-display', stack);
+    root.style.setProperty('--font-body', stack);
+    root.style.fontSize = step.rootSize;
+    root.style.fontWeight = String(clampFontWeight(fontWeight));
+    root.style.setProperty('--text-opacity', String(fontOpacity));
   }, [fontFamily, fontSize, fontWeight, fontOpacity]);
 
   // Apply motion speed scale (mutates MOTION/motionWeight/DURATION
@@ -547,12 +557,28 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return () => { /* keep cap across unmount — provider lives for the app lifetime */ };
   }, [fpsCap]);
 
-  return (
-    <AppContext.Provider value={{ language, setLanguage, theme, setTheme, t, dir, accentHue, setAccentHue, paletteStyle, setPaletteStyle, colorTheme, setColorTheme, blackMode, setBlackMode,  fontFamily, setFontFamily, fontSize, setFontSize, fontWeight, setFontWeight, fontOpacity, setFontOpacity, prayerMadhab, setPrayerMadhab, midnightMode, setMidnightMode, latitudeAdjMethod, setLatitudeAdjMethod, dstEnabled, setDstEnabled, calcMethod, setCalcMethod, motionSpeed, setMotionSpeed, fpsCap, setFpsCap, motionAmplitude, setMotionAmplitude, springBounce, setSpringBounce }}>
-      {children}
-
-    </AppContext.Provider>
+  const value = useMemo<AppContextType>(
+    () => ({
+      language, setLanguage, theme, setTheme, t, dir,
+      paletteStyle, setPaletteStyle, colorTheme, setColorTheme, blackMode, setBlackMode,
+      fontFamily, setFontFamily, fontSize, setFontSize, fontWeight, setFontWeight,
+      fontOpacity, setFontOpacity, prayerMadhab, setPrayerMadhab, midnightMode, setMidnightMode,
+      latitudeAdjMethod, setLatitudeAdjMethod, dstEnabled, setDstEnabled, calcMethod, setCalcMethod,
+      motionSpeed, setMotionSpeed, fpsCap, setFpsCap, motionAmplitude, setMotionAmplitude,
+      springBounce, setSpringBounce,
+    }),
+    [
+      language, setLanguage, theme, setTheme, t, dir,
+      paletteStyle, setPaletteStyle, colorTheme, setColorTheme, blackMode, setBlackMode,
+      fontFamily, setFontFamily, fontSize, setFontSize, fontWeight, setFontWeight,
+      fontOpacity, setFontOpacity, prayerMadhab, setPrayerMadhab, midnightMode, setMidnightMode,
+      latitudeAdjMethod, setLatitudeAdjMethod, dstEnabled, setDstEnabled, calcMethod, setCalcMethod,
+      motionSpeed, setMotionSpeed, fpsCap, setFpsCap, motionAmplitude, setMotionAmplitude,
+      springBounce, setSpringBounce,
+    ],
   );
+
+  return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 }
 
 export function useApp() {

@@ -67,7 +67,7 @@ export function ArticleContextMenu({
     try {
       if (typeof navigator !== 'undefined' && navigator.clipboard) {
         await navigator.clipboard.writeText(article.link);
-        toast.success(isAr ? 'تم نسخ الرابط' : 'Link copied');
+        toast.success('تم نسخ الرابط');
       } else {
         // Fallback for older browsers / insecure contexts
         const ta = document.createElement('textarea');
@@ -77,10 +77,10 @@ export function ArticleContextMenu({
         document.body.appendChild(ta);
         ta.select();
         try { document.execCommand('copy'); } finally { document.body.removeChild(ta); }
-        toast.success(isAr ? 'تم نسخ الرابط' : 'Link copied');
+        toast.success('تم نسخ الرابط');
       }
     } catch {
-      toast.error(isAr ? 'تعذّر النسخ' : 'Copy failed');
+      toast.error('تعذّر النسخ');
     }
   };
 
@@ -112,25 +112,25 @@ export function ArticleContextMenu({
           ? (
             <ContextMenuItem onClick={onMarkUnread}>
               <Circle className="h-3.5 w-3.5 me-2" />
-              {isAr ? 'وضع كغير مقروء' : 'Mark as unread'}
+              {'وضع كغير مقروء'}
             </ContextMenuItem>
           )
           : (
             <ContextMenuItem onClick={onMarkRead}>
               <CircleCheck className="h-3.5 w-3.5 me-2" />
-              {isAr ? 'وضع كمقروء' : 'Mark as read'}
+              {'وضع كمقروء'}
             </ContextMenuItem>
           )}
         {hasAbove && (
           <ContextMenuItem onClick={onMarkAboveRead}>
             <ChevronsUp className="h-3.5 w-3.5 me-2" />
-            {isAr ? 'تحديد ما فوقه كمقروء' : 'Mark above as read'}
+            {'تحديد ما فوقه كمقروء'}
           </ContextMenuItem>
         )}
         {hasBelow && (
           <ContextMenuItem onClick={onMarkBelowRead}>
             <ChevronsDown className="h-3.5 w-3.5 me-2" />
-            {isAr ? 'تحديد ما تحته كمقروء' : 'Mark below as read'}
+            {'تحديد ما تحته كمقروء'}
           </ContextMenuItem>
         )}
         <ContextMenuSeparator />
@@ -139,22 +139,22 @@ export function ArticleContextMenu({
             ? <BookmarkCheck className="h-3.5 w-3.5 me-2 text-primary" />
             : <Bookmark className="h-3.5 w-3.5 me-2" />}
           {isBookmarked
-            ? (isAr ? 'إزالة من المحفوظات' : 'Remove bookmark')
-            : (isAr ? 'حفظ' : 'Bookmark')}
+            ? ('إزالة من المحفوظات')
+            : ('حفظ')}
         </ContextMenuItem>
         <ContextMenuSeparator />
         <ContextMenuItem onClick={onOpenOriginal} disabled={link === '#'}>
           <ExternalLink className="h-3.5 w-3.5 me-2" />
-          {isAr ? 'فتح في المتصفّح' : 'Open original'}
+          {'فتح في المتصفّح'}
         </ContextMenuItem>
         <ContextMenuItem onClick={onCopyLink}>
           <Copy className="h-3.5 w-3.5 me-2" />
-          {isAr ? 'نسخ الرابط' : 'Copy link'}
+          {'نسخ الرابط'}
         </ContextMenuItem>
         {hasShare && (
           <ContextMenuItem onClick={onShare}>
             <Share2 className="h-3.5 w-3.5 me-2" />
-            {isAr ? 'مشاركة' : 'Share'}
+            {'مشاركة'}
           </ContextMenuItem>
         )}
       </ContextMenuContent>

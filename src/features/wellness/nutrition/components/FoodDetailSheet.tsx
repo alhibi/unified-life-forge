@@ -11,7 +11,7 @@ import { ChevronDown, ChevronUp, Heart, Info, Shield, Sparkles, X, Zap } from '@
 import type { MineralProfile, NutritionFoodItem, VitaminProfile } from '../types';
 import { addToRecent, isFavorite, nutrientDensityScore, toggleFavorite } from '../utils';
 
-type Lang = 'ar' | 'de';
+type Lang = 'ar';
 
 interface Props {
   food: NutritionFoodItem;
@@ -21,89 +21,89 @@ interface Props {
 }
 
 const T = {
-  per100g: { ar: 'لكل 100 غرام', de: 'Pro 100g' },
-  macros: { ar: 'القيم الغذائية الكبرى', de: 'Makronährstoffe' },
-  vitamins: { ar: 'الفيتامينات', de: 'Vitamine' },
-  minerals: { ar: 'المعادن', de: 'Mineralstoffe' },
-  benefits: { ar: 'الفوائد الصحية', de: 'Gesundheitsvorteile' },
-  serving: { ar: 'حجم الحصة', de: 'Portionsgröße' },
-  tags: { ar: 'التصنيفات', de: 'Tags' },
-  gi: { ar: 'المؤشر الجلايسيمي', de: 'Glykämischer Index' },
-  density: { ar: 'كثافة المغذيات', de: 'Nährstoffdichte' },
-  addToLog: { ar: 'أضف للسجل', de: 'Zum Log hinzufügen' },
-  allergens: { ar: 'مسببات الحساسية', de: 'Allergene' },
-  storage: { ar: 'نصيحة تخزين', de: 'Lagertipp' },
-  ofRDA: { ar: 'من الاحتياج اليومي', de: 'der Tagesdosis' },
-  kcal: { ar: 'سعرة', de: 'kcal' },
-  protein: { ar: 'بروتين', de: 'Protein' },
-  carbs: { ar: 'كربوهيدرات', de: 'Kohlenhydrate' },
-  fat: { ar: 'دهون', de: 'Fett' },
-  fiber: { ar: 'ألياف', de: 'Ballaststoffe' },
-  sugar: { ar: 'سكر', de: 'Zucker' },
-  satFat: { ar: 'دهون مشبعة', de: 'Gesättigte Fette' },
-  cholesterol: { ar: 'كوليسترول', de: 'Cholesterin' },
-  showMore: { ar: 'عرض المزيد', de: 'Mehr anzeigen' },
-  showLess: { ar: 'عرض أقل', de: 'Weniger anzeigen' },
+  per100g: { ar: 'لكل 100 غرام', },
+  macros: { ar: 'القيم الغذائية الكبرى', },
+  vitamins: { ar: 'الفيتامينات', },
+  minerals: { ar: 'المعادن', },
+  benefits: { ar: 'الفوائد الصحية', },
+  serving: { ar: 'حجم الحصة', },
+  tags: { ar: 'التصنيفات', },
+  gi: { ar: 'المؤشر الجلايسيمي', },
+  density: { ar: 'كثافة المغذيات', },
+  addToLog: { ar: 'أضف للسجل', },
+  allergens: { ar: 'مسببات الحساسية', },
+  storage: { ar: 'نصيحة تخزين', },
+  ofRDA: { ar: 'من الاحتياج اليومي', },
+  kcal: { ar: 'سعرة', },
+  protein: { ar: 'بروتين', },
+  carbs: { ar: 'كربوهيدرات', },
+  fat: { ar: 'دهون', },
+  fiber: { ar: 'ألياف', },
+  sugar: { ar: 'سكر', },
+  satFat: { ar: 'دهون مشبعة', },
+  cholesterol: { ar: 'كوليسترول', },
+  showMore: { ar: 'عرض المزيد', },
+  showLess: { ar: 'عرض أقل', },
 };
 
 const VITAMIN_LABELS: Record<
   keyof VitaminProfile,
-  { ar: string; de: string; unit: string; rda: number }
+  { ar: string; unit: string; rda: number }
 > = {
-  vitA: { ar: 'فيتامين أ', de: 'Vitamin A', unit: 'μg', rda: 900 },
-  vitB1: { ar: 'فيتامين ب1', de: 'Vitamin B1', unit: 'mg', rda: 1.2 },
-  vitB2: { ar: 'فيتامين ب2', de: 'Vitamin B2', unit: 'mg', rda: 1.3 },
-  vitB3: { ar: 'فيتامين ب3', de: 'Vitamin B3', unit: 'mg', rda: 16 },
-  vitB5: { ar: 'فيتامين ب5', de: 'Vitamin B5', unit: 'mg', rda: 5 },
-  vitB6: { ar: 'فيتامين ب6', de: 'Vitamin B6', unit: 'mg', rda: 1.3 },
-  vitB7: { ar: 'بيوتين (ب7)', de: 'Biotin (B7)', unit: 'μg', rda: 30 },
-  vitB9: { ar: 'فولات (ب9)', de: 'Folat (B9)', unit: 'μg', rda: 400 },
-  vitB12: { ar: 'فيتامين ب12', de: 'Vitamin B12', unit: 'μg', rda: 2.4 },
-  vitC: { ar: 'فيتامين سي', de: 'Vitamin C', unit: 'mg', rda: 90 },
-  vitD: { ar: 'فيتامين د', de: 'Vitamin D', unit: 'μg', rda: 15 },
-  vitE: { ar: 'فيتامين هـ', de: 'Vitamin E', unit: 'mg', rda: 15 },
-  vitK: { ar: 'فيتامين ك', de: 'Vitamin K', unit: 'μg', rda: 120 },
+  vitA: { ar: 'فيتامين أ', unit: 'μg', rda: 900 },
+  vitB1: { ar: 'فيتامين ب1', unit: 'mg', rda: 1.2 },
+  vitB2: { ar: 'فيتامين ب2', unit: 'mg', rda: 1.3 },
+  vitB3: { ar: 'فيتامين ب3', unit: 'mg', rda: 16 },
+  vitB5: { ar: 'فيتامين ب5', unit: 'mg', rda: 5 },
+  vitB6: { ar: 'فيتامين ب6', unit: 'mg', rda: 1.3 },
+  vitB7: { ar: 'بيوتين (ب7)', unit: 'μg', rda: 30 },
+  vitB9: { ar: 'فولات (ب9)', unit: 'μg', rda: 400 },
+  vitB12: { ar: 'فيتامين ب12', unit: 'μg', rda: 2.4 },
+  vitC: { ar: 'فيتامين سي', unit: 'mg', rda: 90 },
+  vitD: { ar: 'فيتامين د', unit: 'μg', rda: 15 },
+  vitE: { ar: 'فيتامين هـ', unit: 'mg', rda: 15 },
+  vitK: { ar: 'فيتامين ك', unit: 'μg', rda: 120 },
 };
 
 const MINERAL_LABELS: Record<
   keyof MineralProfile,
-  { ar: string; de: string; unit: string; rda: number }
+  { ar: string; unit: string; rda: number }
 > = {
-  calcium: { ar: 'كالسيوم', de: 'Kalzium', unit: 'mg', rda: 1000 },
-  iron: { ar: 'حديد', de: 'Eisen', unit: 'mg', rda: 8 },
-  magnesium: { ar: 'مغنيسيوم', de: 'Magnesium', unit: 'mg', rda: 400 },
-  phosphorus: { ar: 'فوسفور', de: 'Phosphor', unit: 'mg', rda: 700 },
-  potassium: { ar: 'بوتاسيوم', de: 'Kalium', unit: 'mg', rda: 3400 },
-  sodium: { ar: 'صوديوم', de: 'Natrium', unit: 'mg', rda: 2300 },
-  zinc: { ar: 'زنك', de: 'Zink', unit: 'mg', rda: 11 },
-  copper: { ar: 'نحاس', de: 'Kupfer', unit: 'mg', rda: 0.9 },
-  manganese: { ar: 'منغنيز', de: 'Mangan', unit: 'mg', rda: 2.3 },
-  selenium: { ar: 'سيلينيوم', de: 'Selen', unit: 'μg', rda: 55 },
-  iodine: { ar: 'يود', de: 'Jod', unit: 'μg', rda: 150 },
-  chromium: { ar: 'كروم', de: 'Chrom', unit: 'μg', rda: 35 },
-  molybdenum: { ar: 'موليبدنوم', de: 'Molybdän', unit: 'μg', rda: 45 },
+  calcium: { ar: 'كالسيوم', unit: 'mg', rda: 1000 },
+  iron: { ar: 'حديد', unit: 'mg', rda: 8 },
+  magnesium: { ar: 'مغنيسيوم', unit: 'mg', rda: 400 },
+  phosphorus: { ar: 'فوسفور', unit: 'mg', rda: 700 },
+  potassium: { ar: 'بوتاسيوم', unit: 'mg', rda: 3400 },
+  sodium: { ar: 'صوديوم', unit: 'mg', rda: 2300 },
+  zinc: { ar: 'زنك', unit: 'mg', rda: 11 },
+  copper: { ar: 'نحاس', unit: 'mg', rda: 0.9 },
+  manganese: { ar: 'منغنيز', unit: 'mg', rda: 2.3 },
+  selenium: { ar: 'سيلينيوم', unit: 'μg', rda: 55 },
+  iodine: { ar: 'يود', unit: 'μg', rda: 150 },
+  chromium: { ar: 'كروم', unit: 'μg', rda: 35 },
+  molybdenum: { ar: 'موليبدنوم', unit: 'μg', rda: 45 },
 };
 
-const TAG_LABELS: Record<string, { ar: string; de: string }> = {
-  halal: { ar: 'حلال', de: 'Halal' },
-  vegan: { ar: 'نباتي', de: 'Vegan' },
-  vegetarian: { ar: 'نباتي (مع بيض/حليب)', de: 'Vegetarisch' },
-  gluten_free: { ar: 'خالي من الغلوتين', de: 'Glutenfrei' },
-  dairy_free: { ar: 'خالي من الألبان', de: 'Milchfrei' },
-  high_protein: { ar: 'عالي البروتين', de: 'Proteinreich' },
-  high_fiber: { ar: 'عالي الألياف', de: 'Ballaststoffreich' },
-  low_carb: { ar: 'منخفض الكربوهيدرات', de: 'Low-Carb' },
-  keto_friendly: { ar: 'مناسب للكيتو', de: 'Keto-freundlich' },
-  heart_healthy: { ar: 'صحة القلب', de: 'Herzgesund' },
-  anti_inflammatory: { ar: 'مضاد التهاب', de: 'Entzündungshemmend' },
-  brain_food: { ar: 'غذاء الدماغ', de: 'Brainfood' },
-  muscle_building: { ar: 'بناء العضلات', de: 'Muskelaufbau' },
-  weight_loss: { ar: 'فقدان الوزن', de: 'Abnehmen' },
-  energy_boost: { ar: 'زيادة الطاقة', de: 'Energieboost' },
-  immune_boost: { ar: 'تعزيز المناعة', de: 'Immunstärkend' },
-  gut_health: { ar: 'صحة الأمعاء', de: 'Darmgesundheit' },
-  skin_health: { ar: 'صحة البشرة', de: 'Hautgesundheit' },
-  bone_health: { ar: 'صحة العظام', de: 'Knochengesundheit' },
+const TAG_LABELS: Record<string, { ar: string; }> = {
+  halal: { ar: 'حلال', },
+  vegan: { ar: 'نباتي', },
+  vegetarian: { ar: 'نباتي (مع بيض/حليب)', },
+  gluten_free: { ar: 'خالي من الغلوتين', },
+  dairy_free: { ar: 'خالي من الألبان', },
+  high_protein: { ar: 'عالي البروتين', },
+  high_fiber: { ar: 'عالي الألياف', },
+  low_carb: { ar: 'منخفض الكربوهيدرات', },
+  keto_friendly: { ar: 'مناسب للكيتو', },
+  heart_healthy: { ar: 'صحة القلب', },
+  anti_inflammatory: { ar: 'مضاد التهاب', },
+  brain_food: { ar: 'غذاء الدماغ', },
+  muscle_building: { ar: 'بناء العضلات', },
+  weight_loss: { ar: 'فقدان الوزن', },
+  energy_boost: { ar: 'زيادة الطاقة', },
+  immune_boost: { ar: 'تعزيز المناعة', },
+  gut_health: { ar: 'صحة الأمعاء', },
+  skin_health: { ar: 'صحة البشرة', },
+  bone_health: { ar: 'صحة العظام', },
 };
 
 export default function FoodDetailSheet({ food, lang, onClose, onAddToLog }: Props) {
@@ -289,16 +289,10 @@ export default function FoodDetailSheet({ food, lang, onClose, onAddToLog }: Pro
                 }`}
               >
                 {food.glycemicIndex <= 35
-                  ? lang === 'ar'
-                    ? 'منخفض'
-                    : 'Niedrig'
+                  ? 'منخفض'
                   : food.glycemicIndex <= 55
-                    ? lang === 'ar'
-                      ? 'متوسط'
-                      : 'Mittel'
-                    : lang === 'ar'
-                      ? 'مرتفع'
-                      : 'Hoch'}
+                    ? 'متوسط'
+                    : 'مرتفع'}
               </span>
             </div>
           )}
@@ -311,7 +305,7 @@ export default function FoodDetailSheet({ food, lang, onClose, onAddToLog }: Pro
                 {displayedVitamins.map(({ key, value, meta, rdaPct }) => (
                   <NutrientBar
                     key={key}
-                    label={meta?.ar && lang === 'ar' ? meta.ar : meta?.de || key}
+                    label={meta?.ar || key}
                     value={value}
                     unit={meta?.unit || ''}
                     rdaPct={rdaPct}
@@ -343,7 +337,7 @@ export default function FoodDetailSheet({ food, lang, onClose, onAddToLog }: Pro
                 {displayedMinerals.map(({ key, value, meta, rdaPct }) => (
                   <NutrientBar
                     key={key}
-                    label={meta?.ar && lang === 'ar' ? meta.ar : meta?.de || key}
+                    label={meta?.ar || key}
                     value={value}
                     unit={meta?.unit || ''}
                     rdaPct={rdaPct}
@@ -375,7 +369,7 @@ export default function FoodDetailSheet({ food, lang, onClose, onAddToLog }: Pro
                 {food.benefits[lang].map((benefit, i) => (
                   <div key={i} className="flex items-start gap-2 text-[11px]">
                     <div className="w-4 h-4 rounded-full bg-emerald-500/10 flex items-center justify-center shrink-0 mt-0.5">
-                      <span className="text-emerald-500 text-[8px] font-bold">{i + 1}</span>
+                      <span className="text-emerald-500 text-[10px] font-bold">{i + 1}</span>
                     </div>
                     <p className="text-foreground/80 leading-relaxed">{benefit}</p>
                   </div>
@@ -392,7 +386,7 @@ export default function FoodDetailSheet({ food, lang, onClose, onAddToLog }: Pro
                 {food.tags.map((tag) => (
                   <span
                     key={tag}
-                    className="text-[9px] px-2 py-1 rounded-full bg-primary/10 text-primary font-medium"
+                    className="text-[10px] px-2 py-1 rounded-full bg-primary/10 text-primary font-medium"
                   >
                     {TAG_LABELS[tag]?.[lang] || tag}
                   </span>
@@ -471,7 +465,7 @@ function MacroItem({
           {unit}
         </span>
       </div>
-      <span className="text-[8px] text-muted-foreground leading-tight text-center">{label}</span>
+      <span className="text-[10px] text-muted-foreground leading-tight text-center">{label}</span>
     </div>
   );
 }
@@ -498,11 +492,11 @@ function NutrientBar({
           style={{ width: `${Math.min(100, rdaPct)}%`, backgroundColor: color }}
         />
       </div>
-      <span className="text-[9px] font-semibold text-foreground w-12 text-right" dir="ltr">
+      <span className="text-[10px] font-semibold text-foreground w-12 text-right" dir="ltr">
         {value}
         {unit}
       </span>
-      <span className="text-[8px] text-muted-foreground w-8 text-right">{rdaPct}%</span>
+      <span className="text-[10px] text-muted-foreground w-8 text-right">{rdaPct}%</span>
     </div>
   );
 }

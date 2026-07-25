@@ -16,7 +16,6 @@ interface MemberPickerProps {
   /** Resolution helper for avatar names — used to render selected pills above the search field. */
   resolveSelected?: (id: string) => UserSearchResult | null;
   placeholderAr?: string;
-  placeholderDe?: string;
   /** Maximum members allowed in the pick. 0 = unlimited. */
   maxSelected?: number;
 }
@@ -52,7 +51,7 @@ function renderAvatar(name: string | null | undefined, avatarUrl: string | null 
  */
 const MemberPicker: React.FC<MemberPickerProps> = ({
   isAr, selectedIds, excludeIds = [], onChange, resolveSelected,
-  placeholderAr, placeholderDe, maxSelected = 0,
+  placeholderAr, maxSelected = 0,
 }) => {
   const [query, setQuery] = useState('');
   const search = useUserSearch(query);
@@ -104,9 +103,7 @@ const MemberPicker: React.FC<MemberPickerProps> = ({
             type="text"
             value={query}
             onChange={e => setQuery(e.target.value)}
-            placeholder={isAr
-              ? (placeholderAr ?? 'ابحث عن مستخدم...')
-              : (placeholderDe ?? 'Nutzer suchen...')}
+            placeholder={(placeholderAr ?? 'ابحث عن مستخدم...')}
             className="flex-1 bg-transparent text-[14px] outline-none ms-2 placeholder:text-muted-foreground/40"
             dir="auto"
             autoComplete="off"
@@ -117,7 +114,7 @@ const MemberPicker: React.FC<MemberPickerProps> = ({
               onClick={() => setQuery('')}
               className="w-6 h-6 rounded-full flex items-center justify-center active:bg-accent/40"
               type="button"
-              aria-label={isAr ? 'مسح' : 'Löschen'}
+              aria-label={'مسح'}
             >
               <X className="w-3.5 h-3.5 text-muted-foreground" />
             </button>
@@ -131,7 +128,7 @@ const MemberPicker: React.FC<MemberPickerProps> = ({
           <div className="flex flex-col items-center justify-center h-full text-muted-foreground/60 gap-2 py-10">
             <Users className="w-9 h-9 opacity-30" />
             <p className="text-[13px] text-center px-6">
-              {isAr ? 'اكتب اسم مستخدم لإضافته' : 'Tippe einen Namen ein, um zu starten'}
+              {'اكتب اسم مستخدم لإضافته'}
             </p>
           </div>
         )}
@@ -152,7 +149,7 @@ const MemberPicker: React.FC<MemberPickerProps> = ({
 
         {!search.isLoading && query.trim().length >= 2 && results.length === 0 && (
           <div className="text-center py-8 text-[13px] text-muted-foreground/60">
-            {isAr ? 'لا نتائج' : 'Keine Treffer'}
+            {'لا نتائج'}
           </div>
         )}
 

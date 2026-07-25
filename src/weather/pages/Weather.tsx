@@ -276,7 +276,7 @@ function HourlyRibbon({
                     style={{ height: `${Math.max(6, heat * 100)}%` }}
                   />
                 </div>
-                <div className="mt-1 text-[9px] text-primary/80 tabular-nums">{Math.round(e.precip_probability_percent)}%</div>
+                <div className="mt-1 text-[10px] text-primary/80 tabular-nums">{Math.round(e.precip_probability_percent)}%</div>
               </motion.div>
             );
           })}
@@ -338,7 +338,7 @@ function WindCompass({ speed, gusts, dirDeg, cardinal, beaufort, ar }: { speed: 
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-baseline gap-1 tabular-nums" dir="ltr">
-            <span className="font-montserrat font-extrabold text-[36px] leading-none text-foreground">{Math.round(speed)}</span>
+            <span className="font-montserrat font-extrabold text-[32px] leading-none text-foreground">{Math.round(speed)}</span>
             <span className="text-[12px] text-primary/90 font-bold">km/h</span>
           </div>
           <p className="mt-1 text-[11px] text-muted-foreground">{cardinal} · {Math.round(dirDeg)}°</p>
@@ -406,7 +406,7 @@ function AQIGauge({ caqi, pm25, pm10, o3, no2, so2, co, advisory, healthScore, s
             <circle cx={cx} cy={cy} r="4" fill="hsl(var(--foreground))" />
           </svg>
           <div className="absolute inset-x-0 -bottom-1 text-center">
-            <div className="font-montserrat font-bold text-[26px] leading-none text-foreground tabular-nums">{Math.round(caqi)}</div>
+            <div className="font-montserrat font-bold text-[24px] leading-none text-foreground tabular-nums">{Math.round(caqi)}</div>
             <div className="text-[11px] tracking-[0.12em] uppercase font-bold" style={{ color: activeBand.color }}>{activeBand.label}</div>
           </div>
         </div>
@@ -424,7 +424,7 @@ function AQIGauge({ caqi, pm25, pm10, o3, no2, so2, co, advisory, healthScore, s
           const color = ratio < 0.5 ? 'hsl(150 55% 45%)' : ratio < 1 ? 'hsl(45 85% 55%)' : 'hsl(0 70% 52%)';
           return (
             <div key={p.label} className="rounded-xl border border-border/40 bg-background/30 px-2 py-2 min-w-0">
-              <div className="flex items-center justify-between text-[9px] tracking-[0.12em] uppercase text-muted-foreground">
+              <div className="flex items-center justify-between text-[10px] tracking-[0.12em] uppercase text-muted-foreground">
                 <span>{p.label}</span>
                 <span className="tabular-nums font-semibold" style={{ color }}>{p.value.toFixed(p.label === 'CO' ? 2 : 1)}<span className="text-muted-foreground/70 ms-0.5">{p.unit}</span></span>
               </div>
@@ -540,8 +540,8 @@ export default function Weather() {
   const { location: deviceLoc } = useDeviceLocation();
   const activeLocation = selectedCoords || deviceLoc;
 
-  const { snapshot, status, tier, isRefreshing, refresh } = useWeather(ar ? 'ar' : 'de', selectedCoords);
-  const { forecast } = useWeatherForecast(ar ? 'ar' : 'de', selectedCoords);
+  const { snapshot, status, tier, isRefreshing, refresh } = useWeather('ar', selectedCoords);
+  const { forecast } = useWeatherForecast('ar', selectedCoords);
 
   const hourly = forecast.hourly.slice(0, 24);
   const currentHour = hourly[0];
@@ -582,7 +582,7 @@ export default function Weather() {
   const conf = snapshot.meta.ensemble_confidence_percent;
 
   return (
-    <div dir={ar ? 'rtl' : 'ltr'} className="weather-theme min-h-screen pb-24">
+    <div dir={ar ? 'rtl' : 'ltr'} className="weather-theme min-h-screen pb-page">
       <Helmet>
         <title>{ar ? 'لوحة الأرصاد والطقس المتكاملة — SmartHub' : 'SmartHub Wetter — Messpanel'}</title>
         <meta name="description" content={ar ? 'مستكشف طقس ثوري يدمج الرادارات، محاكيات الجسيمات، مختبر الفيزياء ومخطط الأنشطة الطبي الذكي.' : 'Entdecken Sie das Wetter mit Partikelsimulatoren, thermischen Rechnern und Fitnessplanern.'} />

@@ -88,7 +88,7 @@ export function useChatMutations(activeChatId: string | null): UseChatMutationsR
 
   const showError = useCallback((err: unknown) => {
     const ce = toChatError(err);
-    toast.error(describeChatError(ce, isAr));
+    toast.error(describeChatError(ce));
   }, [isAr]);
 
   // ── Send ────────────────────────────────────────────────────────────────

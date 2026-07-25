@@ -21,16 +21,19 @@
 // sheet isn't already open — same gating logic Podium uses.
 
 import { AnimatePresence, motion } from 'framer-motion';
-import { KeyboardEvent, memo, MouseEvent, useCallback, useState } from 'react';
+import { KeyboardEvent, lazy, memo, MouseEvent, Suspense, useCallback, useState } from 'react';
 
-import { BOTTOM_NAV_HEIGHT } from '@/components/BottomNav';
+import { FLOATING_STACK_OFFSET } from '@/lib/layout';
 import {
   usePodcastPlayer,
   usePodcastPlayerProgress,
 } from '@/features/podcasts/contexts/PodcastPlayerContext';
 import { Loader2, Pause, Play, RotateCcw, RotateCw } from '@/lib/icons';
 
-import PlayerSheet from './PlayerSheet';
+// The mini-player is mounted on EVERY route, so a static import of
+// PlayerSheet pulled it — plus QueueSheet and all of DOMPurify — into the
+// entry chunk for every visitor. It is only ever rendered after a tap.
+const PlayerSheet = lazy(() => import('./PlayerSheet'));
 
 const MINI_PLAYER_HEIGHT = 64;
 /** Mini-player skip increment, in seconds. Mirrors the full sheet
@@ -151,12 +154,11 @@ const PodcastMiniPlayer = memo(function PodcastMiniPlayer() {
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 80, opacity: 0 }}
             transition={{ type: 'spring', stiffness: 360, damping: 32 }}
-            className="fixed left-2 right-2 z-40 pointer-events-none"
-            // Position above the bottom nav precisely: nav height +
-            // safe-area inset + 8px breathing room so the mini-player
-            // doesn't sit flush against the nav bar on tall devices.
+            className="fixed left-2 right-2 z-float pointer-events-none"
+            // Stacks above the floating portal dock (there is no bottom
+            // navigation bar in this app — see src/lib/layout.ts).
             style={{
-              bottom: `calc(env(safe-area-inset-bottom, 0px) + ${BOTTOM_NAV_HEIGHT + 8}px)`,
+              bottom: `calc(env(safe-area-inset-bottom, 0px) + ${FLOATING_STACK_OFFSET}px)`,
             }}
           >
             <button
@@ -272,7 +274,11 @@ const PodcastMiniPlayer = memo(function PodcastMiniPlayer() {
         )}
       </AnimatePresence>
 
-      <PlayerSheet open={sheetOpen} onClose={closeSheet} />
+      {sheetOpen && (
+        <Suspense fallback={null}>
+          <PlayerSheet open={sheetOpen} onClose={closeSheet} />
+        </Suspense>
+      )}
     </>
   );
 });

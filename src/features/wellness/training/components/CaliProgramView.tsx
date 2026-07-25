@@ -12,28 +12,28 @@ import { skillByKey } from '../caliSkillTree';
 export interface CaliProgramViewProps {
   activeKey?: string | null;
   onPickProgram: (key: string) => void;
-  lang: 'ar' | 'de';
+  lang: 'ar';
   className?: string;
 }
 
 const T = {
-  title: { ar: 'برامج الكاليستنيكس', de: 'Calisthenics-Programme' },
-  subtitle: { ar: 'برامج جاهزة من المبتدئ للنخبة', de: 'Programme vom Einsteiger bis Elite' },
-  current: { ar: 'الحالي', de: 'Aktuell' },
-  start: { ar: 'بدء', de: 'Start' },
-  details: { ar: 'تفاصيل', de: 'Details' },
-  daysWk: { ar: 'يوم/أسبوع', de: 'Tage/Woche' },
-  weeks: { ar: 'أسابيع', de: 'Wochen' },
-  minutes: { ar: 'دقيقة', de: 'Min' },
-  by: { ar: 'بقلم', de: 'von' },
-  highlights: { ar: 'المميزات', de: 'Vorteile' },
-  prereq: { ar: 'متطلبات', de: 'Voraussetzungen' },
-  equipment: { ar: 'المعدات', de: 'Equipment' },
-  description: { ar: 'الوصف', de: 'Beschreibung' },
-  preview: { ar: 'معاينة الجلسات', de: 'Sessions Vorschau' },
-  exercises: { ar: 'تمارين', de: 'Übungen' },
-  skillsCovered: { ar: 'المهارات المغطّاة', de: 'Abgedeckte Skills' },
-  all: { ar: 'الكل', de: 'Alle' },
+  title: { ar: 'برامج الكاليستنيكس', },
+  subtitle: { ar: 'برامج جاهزة من المبتدئ للنخبة', },
+  current: { ar: 'الحالي', },
+  start: { ar: 'بدء', },
+  details: { ar: 'تفاصيل', },
+  daysWk: { ar: 'يوم/أسبوع', },
+  weeks: { ar: 'أسابيع', },
+  minutes: { ar: 'دقيقة', },
+  by: { ar: 'بقلم', },
+  highlights: { ar: 'المميزات', },
+  prereq: { ar: 'متطلبات', },
+  equipment: { ar: 'المعدات', },
+  description: { ar: 'الوصف', },
+  preview: { ar: 'معاينة الجلسات', },
+  exercises: { ar: 'تمارين', },
+  skillsCovered: { ar: 'المهارات المغطّاة', },
+  all: { ar: 'الكل', },
 };
 
 const EXPERIENCE_OPTS: ('all' | ProgramExperience)[] = ['all', 'beginner', 'intermediate', 'advanced'];
@@ -104,7 +104,7 @@ export default function CaliProgramView({
 
 function CaliProgramCard({
   program: p, isActive, onDetails, onStart, lang, delay,
-}: { program: CaliProgramDef; isActive: boolean; onDetails: () => void; onStart: () => void; lang: 'ar' | 'de'; delay: number }) {
+}: { program: CaliProgramDef; isActive: boolean; onDetails: () => void; onStart: () => void; lang: 'ar'; delay: number }) {
   return (
     <motion.div
       initial={{ y: 8, opacity: 0 }}
@@ -117,7 +117,7 @@ function CaliProgramCard({
       <div className="flex items-start justify-between gap-3 mb-2">
         <div className="min-w-0 flex-1">
           {isActive && (
-            <span className="inline-block text-[9px] font-bold uppercase tracking-wider text-primary bg-primary/15 px-1.5 py-0.5 rounded mb-1">
+            <span className="inline-block text-[10px] font-bold uppercase tracking-wider text-primary bg-primary/15 px-1.5 py-0.5 rounded mb-1">
               {T.current[lang]}
             </span>
           )}
@@ -125,7 +125,7 @@ function CaliProgramCard({
           <p className="text-[10px] text-muted-foreground mt-0.5">{T.by[lang]} {p.author}</p>
         </div>
         <span
-          className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase shrink-0"
+          className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase shrink-0"
           style={{
             background: p.experience === 'beginner' ? '#22c55e20' : p.experience === 'intermediate' ? '#f59e0b20' : '#ef444420',
             color: p.experience === 'beginner' ? '#22c55e' : p.experience === 'intermediate' ? '#f59e0b' : '#ef4444',
@@ -168,14 +168,14 @@ function Stat({ icon, value, label }: { icon: React.ReactNode; value: string; la
         {icon}
         <span className="text-[12px] font-bold tabular-nums text-foreground">{value}</span>
       </div>
-      <p className="text-[9px] text-muted-foreground/70 mt-0.5">{label}</p>
+      <p className="text-[10px] text-muted-foreground/70 mt-0.5">{label}</p>
     </div>
   );
 }
 
 function CaliDetailSheet({
   program, onClose, onStart, lang,
-}: { program: CaliProgramDef | null; onClose: () => void; onStart: () => void; lang: 'ar' | 'de' }) {
+}: { program: CaliProgramDef | null; onClose: () => void; onStart: () => void; lang: 'ar' }) {
   const open = !!program;
   const skillsCovered = useMemo(() => {
     if (!program) return [];
@@ -280,7 +280,7 @@ function CaliDetailSheet({
                   {program.weekTemplate[0]?.sessions.slice(0, 4).map((s) => (
                     <div key={s.key} className="bg-card border border-border/40 rounded-lg p-2.5">
                       <p className="text-[11px] font-bold text-foreground">{s.name[lang]}</p>
-                      <p className="text-[9px] text-muted-foreground tabular-nums">{s.exercises.length} {T.exercises[lang]} · {s.estMinutes} {T.minutes[lang]}</p>
+                      <p className="text-[10px] text-muted-foreground tabular-nums">{s.exercises.length} {T.exercises[lang]} · {s.estMinutes} {T.minutes[lang]}</p>
                     </div>
                   ))}
                 </div>

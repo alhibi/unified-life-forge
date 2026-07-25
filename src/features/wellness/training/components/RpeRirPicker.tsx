@@ -15,7 +15,7 @@ import { motion } from 'framer-motion';
 export interface RpeRirPickerProps {
   value: number | null;
   onChange: (v: number) => void;
-  lang: 'ar' | 'de';
+  lang: 'ar';
   /** RIR variant: shows "reps in reserve" labels alongside RPE. */
   showRir?: boolean;
   /** Half-step granularity (RPE 6.5 etc.). */
@@ -25,17 +25,17 @@ export interface RpeRirPickerProps {
   size?: 'sm' | 'md' | 'lg';
 }
 
-const RPE_DESCRIPTIONS: Record<number, { ar: string; de: string; emoji: string; color: string }> = {
-  1:  { ar: 'سهل جداً', de: 'Sehr leicht', emoji: '😴', color: '#94a3b8' },
-  2:  { ar: 'خفيف جداً', de: 'Leicht', emoji: '🙂', color: '#60a5fa' },
-  3:  { ar: 'إحماء', de: 'Aufwärmen', emoji: '😊', color: '#22c55e' },
-  4:  { ar: 'مريح', de: 'Bequem', emoji: '😌', color: '#10b981' },
-  5:  { ar: 'متوسط', de: 'Mittel', emoji: '🙂', color: '#84cc16' },
-  6:  { ar: 'صعب قليلاً (4 RIR)', de: 'Etwas schwer (4 RIR)', emoji: '😐', color: '#eab308' },
-  7:  { ar: 'صعب (3 RIR)', de: 'Schwer (3 RIR)', emoji: '😤', color: '#f59e0b' },
-  8:  { ar: 'صعب جداً (2 RIR)', de: 'Sehr schwer (2 RIR)', emoji: '😣', color: '#fb923c' },
-  9:  { ar: 'قريب من الفشل (1 RIR)', de: 'Fast Versagen (1 RIR)', emoji: '🥵', color: '#ef4444' },
-  10: { ar: 'فشل تام (0 RIR)', de: 'Versagen (0 RIR)', emoji: '🔥', color: '#dc2626' },
+const RPE_DESCRIPTIONS: Record<number, { ar: string; emoji: string; color: string }> = {
+  1:  { ar: 'سهل جداً', emoji: '😴', color: '#94a3b8' },
+  2:  { ar: 'خفيف جداً', emoji: '🙂', color: '#60a5fa' },
+  3:  { ar: 'إحماء', emoji: '😊', color: '#22c55e' },
+  4:  { ar: 'مريح', emoji: '😌', color: '#10b981' },
+  5:  { ar: 'متوسط', emoji: '🙂', color: '#84cc16' },
+  6:  { ar: 'صعب قليلاً (4 RIR)', emoji: '😐', color: '#eab308' },
+  7:  { ar: 'صعب (3 RIR)', emoji: '😤', color: '#f59e0b' },
+  8:  { ar: 'صعب جداً (2 RIR)', emoji: '😣', color: '#fb923c' },
+  9:  { ar: 'قريب من الفشل (1 RIR)', emoji: '🥵', color: '#ef4444' },
+  10: { ar: 'فشل تام (0 RIR)', emoji: '🔥', color: '#dc2626' },
 };
 
 export default function RpeRirPicker({

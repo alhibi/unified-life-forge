@@ -19,17 +19,17 @@ import SymptomAdvisor from './SymptomAdvisor';
 
 type SubTab =
   'explore' | 'log' | 'insights' | 'compare' | 'symptoms' | 'hydration' | 'fasting' | 'analytics';
-type Lang = 'ar' | 'de';
+type Lang = 'ar';
 
 const T = {
-  explore: { ar: 'استكشاف', de: 'Erkunden' },
-  log: { ar: 'السجل', de: 'Log' },
-  insights: { ar: 'تحليلات', de: 'Insights' },
-  compare: { ar: 'المقارن', de: 'Vergleich' },
-  symptoms: { ar: 'الأعراض', de: 'Symptome' },
-  hydration: { ar: 'الترطيب', de: 'Wasser' },
-  fasting: { ar: 'الصيام', de: 'Fasten' },
-  analytics: { ar: 'الذكية', de: 'Analytics' },
+  explore: { ar: 'استكشاف', },
+  log: { ar: 'السجل', },
+  insights: { ar: 'تحليلات', },
+  compare: { ar: 'المقارن', },
+  symptoms: { ar: 'الأعراض', },
+  hydration: { ar: 'الترطيب', },
+  fasting: { ar: 'الصيام', },
+  analytics: { ar: 'الذكية', },
 };
 
 const SUB_TABS: {
@@ -47,8 +47,8 @@ const SUB_TABS: {
 ];
 
 export default function NutritionTab() {
-  const { language } = useApp();
-  const lang: Lang = language === 'ar' ? 'ar' : 'de';
+  const { } = useApp();
+  const lang: Lang = 'ar';
   const [subTab, setSubTab] = useState<SubTab>('explore');
 
   return (
@@ -56,7 +56,7 @@ export default function NutritionTab() {
       {/* Sub-tab switcher */}
       <div
         className="flex bg-muted/40 rounded-xl p-1 border border-border/30 overflow-x-auto scrollbar-none gap-0.5"
-        dir={lang === 'ar' ? 'rtl' : 'ltr'}
+        dir={'rtl'}
       >
         {SUB_TABS.map(({ key, label, icon: Icon }) => (
           <button

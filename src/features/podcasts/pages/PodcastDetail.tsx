@@ -81,8 +81,7 @@ export default function PodcastDetail() {
   const decoded = useMemo(() => decodeRouteId(routeId), [routeId]);
   const location = useLocation();
   const hint = (location.state ?? null) as RouteHint | null;
-  const { language } = useApp();
-  const lang = language === 'de' ? 'de' : 'ar';
+  const { } = useApp();
 
   // Step 1 — get podcast metadata.
   // Three branches in order of preference:
@@ -313,10 +312,8 @@ export default function PodcastDetail() {
           <SEO
             title={
               displayTitle
-                ? `${displayTitle} — ${lang === 'ar' ? 'بودكاست' : 'Podcasts'}`
-                : lang === 'ar'
-                  ? 'بودكاست'
-                  : 'Podcasts'
+                ? `${displayTitle} — ${'بودكاست'}`
+                : 'بودكاست'
             }
             description={feed.data?.description?.slice(0, 160) ?? ''}
             path={`/podcasts/${routeId}`}
@@ -350,8 +347,8 @@ export default function PodcastDetail() {
               <button
                 onClick={handleShare}
                 disabled={!feed.data && !meta.data?.link}
-                aria-label={lang === 'ar' ? 'مشاركة' : 'Teilen'}
-                title={copiedLink ? (lang === 'ar' ? 'تم نسخ الرابط' : 'Link kopiert') : undefined}
+                aria-label={'مشاركة'}
+                title={copiedLink ? ('تم نسخ الرابط') : undefined}
                 className="w-10 h-10 rounded-full flex items-center justify-center bg-secondary/60 hover:bg-secondary active:scale-95 transition-transform disabled:opacity-50"
               >
                 {copiedLink ? <Check className="w-4 h-4" /> : <Share2 className="w-4 h-4" />}
@@ -375,12 +372,8 @@ export default function PodcastDetail() {
                 {subscribed ? <Check className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
                 <span>
                   {subscribed
-                    ? lang === 'ar'
-                      ? 'مشترك'
-                      : 'Abonniert'
-                    : lang === 'ar'
-                      ? 'اشترك'
-                      : 'Abonnieren'}
+                    ? 'مشترك'
+                    : 'اشترك'}
                 </span>
               </button>
             </div>
@@ -408,12 +401,10 @@ export default function PodcastDetail() {
             {error && !feed.data && (
               <div className="rounded-2xl bg-destructive/10 border border-destructive/30 p-5 text-center">
                 <p className="text-sm font-bold text-foreground mb-1.5">
-                  {lang === 'ar' ? 'تعذّر تحميل البودكاست' : 'Podcast konnte nicht geladen werden'}
+                  {'تعذّر تحميل البودكاست'}
                 </p>
                 <p className="text-[12px] text-muted-foreground mb-4 leading-relaxed">
-                  {lang === 'ar'
-                    ? 'قد يكون البودكاست محجوباً في منطقتك أو تغيّر رابط RSS الخاص به. حاول تحديث الصفحة أو ابحث عنه باسمه مباشرةً.'
-                    : 'Der Podcast ist eventuell in deiner Region nicht verfügbar oder seine RSS-URL hat sich geändert. Lade die Seite neu oder suche ihn nach Namen.'}
+                  {'قد يكون البودكاست محجوباً في منطقتك أو تغيّر رابط RSS الخاص به. حاول تحديث الصفحة أو ابحث عنه باسمه مباشرةً.'}
                 </p>
                 <div className="flex items-center justify-center gap-2">
                   <button
@@ -423,7 +414,7 @@ export default function PodcastDetail() {
                     }}
                     className="px-4 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-semibold active:scale-95"
                   >
-                    {lang === 'ar' ? 'إعادة المحاولة' : 'Erneut versuchen'}
+                    {'إعادة المحاولة'}
                   </button>
                   {meta.data?.link && (
                     <a
@@ -432,13 +423,13 @@ export default function PodcastDetail() {
                       rel="noopener noreferrer"
                       className="px-4 py-2 rounded-xl bg-muted text-foreground text-sm font-semibold"
                     >
-                      {lang === 'ar' ? 'فتح في Apple Podcasts' : 'In Apple Podcasts öffnen'}
+                      {'فتح في Apple Podcasts'}
                     </a>
                   )}
                 </div>
                 <details className="mt-3 text-start">
                   <summary className="text-[10px] text-muted-foreground/70 cursor-pointer">
-                    {lang === 'ar' ? 'تفاصيل تقنية' : 'Technische Details'}
+                    {'تفاصيل تقنية'}
                   </summary>
                   <p className="text-[11px] text-muted-foreground mt-1 break-words" dir="ltr">
                     {(error as Error).message}
@@ -463,7 +454,7 @@ export default function PodcastDetail() {
                   // `max-height` with a fade gradient gives a
                   // predictable preview height regardless of inner
                   // markup. Once expanded we drop the cap entirely.
-                  className={`text-[13.5px] text-foreground/90 leading-relaxed podcast-html relative ${
+                  className={`text-[13px] text-foreground/90 leading-relaxed podcast-html relative ${
                     isLongDescription && !descExpanded ? 'overflow-hidden' : ''
                   }`}
                   style={
@@ -485,12 +476,8 @@ export default function PodcastDetail() {
                   >
                     <span>
                       {descExpanded
-                        ? lang === 'ar'
-                          ? 'عرض أقل'
-                          : 'Weniger anzeigen'
-                        : lang === 'ar'
-                          ? 'عرض المزيد'
-                          : 'Mehr anzeigen'}
+                        ? 'عرض أقل'
+                        : 'عرض المزيد'}
                     </span>
                     {descExpanded ? (
                       <ChevronUp className="w-3.5 h-3.5" />
@@ -515,9 +502,9 @@ export default function PodcastDetail() {
                     <ExternalLink className="w-4 h-4 text-muted-foreground shrink-0" />
                     <div className="flex-1 min-w-0">
                       <p className="text-[11px] text-muted-foreground">
-                        {lang === 'ar' ? 'المصدر' : 'Quelle'}
+                        {'المصدر'}
                       </p>
-                      <p className="text-[12.5px] truncate text-foreground">{displayLink}</p>
+                      <p className="text-[12px] truncate text-foreground">{displayLink}</p>
                     </div>
                   </a>
                 )}
@@ -525,7 +512,7 @@ export default function PodcastDetail() {
                   <Rss className="w-4 h-4 text-muted-foreground shrink-0" />
                   <div className="flex-1 min-w-0">
                     <p className="text-[11px] text-muted-foreground">RSS</p>
-                    <p className="text-[12.5px] truncate text-foreground" dir="ltr">
+                    <p className="text-[12px] truncate text-foreground" dir="ltr">
                       {feed.data.origin}
                     </p>
                   </div>
@@ -535,9 +522,9 @@ export default function PodcastDetail() {
                     <Globe className="w-4 h-4 text-muted-foreground shrink-0" />
                     <div className="flex-1 min-w-0">
                       <p className="text-[11px] text-muted-foreground">
-                        {lang === 'ar' ? 'اللغة' : 'Sprache'}
+                        {'اللغة'}
                       </p>
-                      <p className="text-[12.5px] uppercase text-foreground">
+                      <p className="text-[12px] uppercase text-foreground">
                         {feed.data.languageCode}
                       </p>
                     </div>
@@ -554,7 +541,7 @@ export default function PodcastDetail() {
               <div className="space-y-3 pt-2">
                 <div className="flex items-center justify-between">
                   <h2 className="text-sm font-bold text-foreground">
-                    {lang === 'ar' ? 'الحلقات' : 'Folgen'}
+                    {'الحلقات'}
                   </h2>
                   <span className="text-[11px] text-muted-foreground tabular-nums">
                     {debouncedEpisodeQuery
@@ -566,15 +553,14 @@ export default function PodcastDetail() {
                 <div className="flex items-center gap-1.5 flex-wrap">
                   {(
                     [
-                      { key: 'all', labelAr: 'الكل', labelDe: 'Alle', icon: Filter },
-                      { key: 'unplayed', labelAr: 'غير مستمعة', labelDe: 'Ungehort', icon: Play },
+                      { key: 'all', labelAr: 'الكل', icon: Filter },
+                      { key: 'unplayed', labelAr: 'غير مستمعة', icon: Play },
                       {
                         key: 'in-progress',
                         labelAr: 'قيد التقدم',
-                        labelDe: 'In Arbeit',
                         icon: Loader2,
                       },
-                      { key: 'played', labelAr: 'مستمع', labelDe: 'Gehort', icon: CheckCircle2 },
+                      { key: 'played', labelAr: 'مستمع', icon: CheckCircle2 },
                     ] as const
                   ).map((f) => {
                     const active = episodeFilter === f.key;
@@ -591,7 +577,7 @@ export default function PodcastDetail() {
                         }`}
                       >
                         <Icon className="w-3 h-3" />
-                        <span>{lang === 'ar' ? f.labelAr : f.labelDe}</span>
+                        <span>{f.labelAr}</span>
                       </button>
                     );
                   })}
@@ -604,15 +590,15 @@ export default function PodcastDetail() {
                       <input
                         value={episodeQuery}
                         onChange={(e) => setEpisodeQuery(e.target.value)}
-                        placeholder={lang === 'ar' ? 'ابحث في الحلقات' : 'Folgen durchsuchen'}
-                        className="w-full h-9 ps-8 pe-8 rounded-full bg-muted/40 border border-border/40 text-[12.5px] placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
-                        aria-label={lang === 'ar' ? 'بحث في الحلقات' : 'Folgen durchsuchen'}
+                        placeholder={'ابحث في الحلقات'}
+                        className="w-full h-9 ps-8 pe-8 rounded-full bg-muted/40 border border-border/40 text-[12px] placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
+                        aria-label={'بحث في الحلقات'}
                       />
                       {episodeQuery && (
                         <button
                           onClick={() => setEpisodeQuery('')}
                           className="absolute top-1/2 -translate-y-1/2 end-2 w-5 h-5 rounded-full bg-muted-foreground/20 flex items-center justify-center"
-                          aria-label={lang === 'ar' ? 'مسح' : 'Leeren'}
+                          aria-label={'مسح'}
                         >
                           <X className="w-3 h-3 text-foreground" />
                         </button>
@@ -622,15 +608,11 @@ export default function PodcastDetail() {
                       type="button"
                       onClick={() => setSortOrder((o) => (o === 'newest' ? 'oldest' : 'newest'))}
                       className="h-9 px-3 rounded-full bg-muted/40 border border-border/40 text-[12px] font-semibold flex items-center gap-1.5 active:scale-95 transition-transform"
-                      aria-label={lang === 'ar' ? 'تبديل الترتيب' : 'Sortierung umschalten'}
+                      aria-label={'تبديل الترتيب'}
                       title={
                         sortOrder === 'newest'
-                          ? lang === 'ar'
-                            ? 'الأحدث أولاً'
-                            : 'Neueste zuerst'
-                          : lang === 'ar'
-                            ? 'الأقدم أولاً'
-                            : 'Älteste zuerst'
+                          ? 'الأحدث أولاً'
+                          : 'الأقدم أولاً'
                       }
                     >
                       {sortOrder === 'newest' ? (
@@ -638,14 +620,10 @@ export default function PodcastDetail() {
                       ) : (
                         <ArrowUpNarrowWide className="w-3.5 h-3.5" />
                       )}
-                      <span className="text-[11.5px] hidden sm:inline">
+                      <span className="text-[11px] hidden sm:inline">
                         {sortOrder === 'newest'
-                          ? lang === 'ar'
-                            ? 'الأحدث'
-                            : 'Neueste'
-                          : lang === 'ar'
-                            ? 'الأقدم'
-                            : 'Älteste'}
+                          ? 'الأحدث'
+                          : 'الأقدم'}
                       </span>
                     </button>
                   </div>
@@ -658,7 +636,7 @@ export default function PodcastDetail() {
               <div className="flex flex-col items-center py-10 text-muted-foreground gap-2">
                 <Loader2 className="w-6 h-6 animate-spin" />
                 <p className="text-[12px]">
-                  {lang === 'ar' ? 'يتم تحميل الحلقات...' : 'Folgen werden geladen...'}
+                  {'يتم تحميل الحلقات...'}
                 </p>
               </div>
             )}
@@ -684,16 +662,14 @@ export default function PodcastDetail() {
                     className="w-full py-3 rounded-2xl text-[13px] font-semibold border border-border/50 bg-card/50 hover:bg-muted/40 active:scale-[0.98] transition"
                     style={{ color: 'var(--podcast-primary, hsl(var(--primary)))' }}
                   >
-                    {lang === 'ar'
-                      ? `تحميل المزيد (${filteredSortedEpisodes.length - visibleCount})`
-                      : `Mehr laden (${filteredSortedEpisodes.length - visibleCount})`}
+                    {`تحميل المزيد (${filteredSortedEpisodes.length - visibleCount})`}
                   </button>
                 )}
                 {/* Empty filter result */}
                 {debouncedEpisodeQuery && filteredSortedEpisodes.length === 0 && (
                   <div className="text-center py-8">
                     <p className="text-sm text-muted-foreground">
-                      {lang === 'ar' ? 'لا توجد حلقات تطابق بحثك' : 'Keine Folgen gefunden'}
+                      {'لا توجد حلقات تطابق بحثك'}
                     </p>
                   </div>
                 )}
@@ -703,7 +679,7 @@ export default function PodcastDetail() {
             {feed.data && feed.data.episodes.length === 0 && (
               <div className="text-center py-10">
                 <p className="text-sm text-muted-foreground">
-                  {lang === 'ar' ? 'لا توجد حلقات منشورة بعد' : 'Noch keine Folgen veröffentlicht'}
+                  {'لا توجد حلقات منشورة بعد'}
                 </p>
               </div>
             )}

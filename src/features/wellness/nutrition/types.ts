@@ -6,7 +6,7 @@
  * Data sourced from USDA FoodData Central, German BLS, and WHO standards.
  */
 
-export type Lang = 'ar' | 'de';
+export type Lang = 'ar';
 
 /* ─────────────────────── Vitamin & Mineral Types ─────────────────────── */
 

@@ -7,7 +7,7 @@
  * Everything here is data, pure and offline — no network fetches.
  */
 
-export type Lang = 'ar' | 'de';
+export type Lang = 'ar';
 
 export interface NutrientInfo {
   key: string;
@@ -25,214 +25,206 @@ export const NUTRIENTS: Record<string, NutrientInfo> = {
   vitaminA: {
     key: 'vitaminA',
     group: 'vitamin',
-    label: { ar: 'فيتامين أ', de: 'Vitamin A' },
+    label: { ar: 'فيتامين أ', },
     note: {
       ar: 'فيتامين دهني — يمتص أفضل مع وجبة تحتوي دهون.',
-      de: 'Fettlöslich — besser mit fetthaltiger Mahlzeit einnehmen.',
     },
   },
   vitaminC: {
     key: 'vitaminC',
     group: 'vitamin',
-    label: { ar: 'فيتامين سي', de: 'Vitamin C' },
+    label: { ar: 'فيتامين سي', },
     note: {
       ar: 'يزيد امتصاص الحديد النباتي — جيد مع الوجبات.',
-      de: 'Erhöht die Eisenaufnahme aus Pflanzen — gut zu Mahlzeiten.',
     },
   },
   vitaminD: {
     key: 'vitaminD',
     group: 'vitamin',
-    label: { ar: 'فيتامين د', de: 'Vitamin D' },
+    label: { ar: 'فيتامين د', },
     note: {
       ar: 'دهني — يؤخذ مع وجبة بها دهون لامتصاص أفضل.',
-      de: 'Fettlöslich — mit einer Mahlzeit mit Fett einnehmen.',
     },
   },
   vitaminE: {
     key: 'vitaminE',
     group: 'vitamin',
-    label: { ar: 'فيتامين هـ', de: 'Vitamin E' },
+    label: { ar: 'فيتامين هـ', },
     note: {
       ar: 'دهني — مع وجبة تحتوي دهون.',
-      de: 'Fettlöslich — mit fetthaltiger Mahlzeit.',
     },
   },
   vitaminK: {
     key: 'vitaminK',
     group: 'vitamin',
-    label: { ar: 'فيتامين ك', de: 'Vitamin K' },
+    label: { ar: 'فيتامين ك', },
   },
   vitaminB6: {
     key: 'vitaminB6',
     group: 'vitamin',
-    label: { ar: 'فيتامين ب6', de: 'Vitamin B6' },
+    label: { ar: 'فيتامين ب6', },
   },
   vitaminB12: {
     key: 'vitaminB12',
     group: 'vitamin',
-    label: { ar: 'فيتامين ب12', de: 'Vitamin B12' },
+    label: { ar: 'فيتامين ب12', },
   },
   folate: {
     key: 'folate',
     group: 'vitamin',
-    label: { ar: 'حمض الفوليك', de: 'Folsäure' },
+    label: { ar: 'حمض الفوليك', },
   },
   biotin: {
     key: 'biotin',
     group: 'vitamin',
-    label: { ar: 'البيوتين (ب7)', de: 'Biotin (B7)' },
+    label: { ar: 'البيوتين (ب7)', },
   },
   iron: {
     key: 'iron',
     group: 'mineral',
-    label: { ar: 'الحديد', de: 'Eisen' },
+    label: { ar: 'الحديد', },
     note: {
       ar: 'يمتص أفضل على معدة فارغة ومع فيتامين سي.',
-      de: 'Wird nüchtern und mit Vitamin C besser aufgenommen.',
     },
   },
   calcium: {
     key: 'calcium',
     group: 'mineral',
-    label: { ar: 'الكالسيوم', de: 'Calcium' },
+    label: { ar: 'الكالسيوم', },
   },
   magnesium: {
     key: 'magnesium',
     group: 'mineral',
-    label: { ar: 'المغنيسيوم', de: 'Magnesium' },
+    label: { ar: 'المغنيسيوم', },
     note: {
       ar: 'كثير من الناس يفضل أخذه مساء لدعم النوم.',
-      de: 'Wird oft abends zur Schlafunterstützung eingenommen.',
     },
   },
   zinc: {
     key: 'zinc',
     group: 'mineral',
-    label: { ar: 'الزنك', de: 'Zink' },
+    label: { ar: 'الزنك', },
     note: {
       ar: 'قد يسبب غثياناً على معدة فارغة.',
-      de: 'Kann nüchtern Übelkeit auslösen.',
     },
   },
   copper: {
     key: 'copper',
     group: 'mineral',
-    label: { ar: 'النحاس', de: 'Kupfer' },
+    label: { ar: 'النحاس', },
   },
   selenium: {
     key: 'selenium',
     group: 'mineral',
-    label: { ar: 'السيلينيوم', de: 'Selen' },
+    label: { ar: 'السيلينيوم', },
   },
   iodine: {
     key: 'iodine',
     group: 'mineral',
-    label: { ar: 'اليود', de: 'Jod' },
+    label: { ar: 'اليود', },
   },
   omega3: {
     key: 'omega3',
     group: 'omega',
-    label: { ar: 'أوميغا-3', de: 'Omega-3' },
+    label: { ar: 'أوميغا-3', },
     note: {
       ar: 'يمتص أفضل مع وجبة دسمة.',
-      de: 'Bessere Aufnahme mit fettreicher Mahlzeit.',
     },
   },
   collagen: {
     key: 'collagen',
     group: 'amino',
-    label: { ar: 'الكولاجين', de: 'Kollagen' },
+    label: { ar: 'الكولاجين', },
   },
   protein: {
     key: 'protein',
     group: 'amino',
-    label: { ar: 'البروتين', de: 'Protein' },
+    label: { ar: 'البروتين', },
   },
   fiber: {
     key: 'fiber',
     group: 'other',
-    label: { ar: 'الألياف', de: 'Ballaststoffe' },
+    label: { ar: 'الألياف', },
   },
   probiotics: {
     key: 'probiotics',
     group: 'other',
-    label: { ar: 'بروبيوتيك', de: 'Probiotika' },
+    label: { ar: 'بروبيوتيك', },
   },
   caffeine: {
     key: 'caffeine',
     group: 'other',
-    label: { ar: 'كافيين', de: 'Koffein' },
+    label: { ar: 'كافيين', },
   },
   potassium: {
     key: 'potassium',
     group: 'mineral',
-    label: { ar: 'البوتاسيوم', de: 'Kalium' },
+    label: { ar: 'البوتاسيوم', },
   },
   phosphorus: {
     key: 'phosphorus',
     group: 'mineral',
-    label: { ar: 'الفوسفور', de: 'Phosphor' },
+    label: { ar: 'الفوسفور', },
   },
   manganese: {
     key: 'manganese',
     group: 'mineral',
-    label: { ar: 'المنغنيز', de: 'Mangan' },
+    label: { ar: 'المنغنيز', },
   },
   chromium: {
     key: 'chromium',
     group: 'mineral',
-    label: { ar: 'الكروم', de: 'Chrom' },
+    label: { ar: 'الكروم', },
   },
   vitaminB1: {
     key: 'vitaminB1',
     group: 'vitamin',
-    label: { ar: 'فيتامين ب1 (ثيامين)', de: 'Vitamin B1 (Thiamin)' },
+    label: { ar: 'فيتامين ب1 (ثيامين)', },
   },
   vitaminB2: {
     key: 'vitaminB2',
     group: 'vitamin',
-    label: { ar: 'فيتامين ب2 (ريبوفلافين)', de: 'Vitamin B2 (Riboflavin)' },
+    label: { ar: 'فيتامين ب2 (ريبوفلافين)', },
   },
   vitaminB3: {
     key: 'vitaminB3',
     group: 'vitamin',
-    label: { ar: 'فيتامين ب3 (نياسين)', de: 'Vitamin B3 (Niacin)' },
+    label: { ar: 'فيتامين ب3 (نياسين)', },
   },
   vitaminB5: {
     key: 'vitaminB5',
     group: 'vitamin',
-    label: { ar: 'فيتامين ب5 (بانتوثينيك)', de: 'Vitamin B5 (Pantothensäure)' },
+    label: { ar: 'فيتامين ب5 (بانتوثينيك)', },
   },
   choline: {
     key: 'choline',
     group: 'other',
-    label: { ar: 'الكولين', de: 'Cholin' },
+    label: { ar: 'الكولين', },
   },
   lycopene: {
     key: 'lycopene',
     group: 'other',
-    label: { ar: 'الليكوبين', de: 'Lycopin' },
+    label: { ar: 'الليكوبين', },
   },
   lutein: {
     key: 'lutein',
     group: 'other',
-    label: { ar: 'اللوتين', de: 'Lutein' },
+    label: { ar: 'اللوتين', },
   },
   antioxidants: {
     key: 'antioxidants',
     group: 'other',
-    label: { ar: 'مضادات أكسدة', de: 'Antioxidantien' },
+    label: { ar: 'مضادات أكسدة', },
   },
   polyphenols: {
     key: 'polyphenols',
     group: 'other',
-    label: { ar: 'بوليفينولات', de: 'Polyphenole' },
+    label: { ar: 'بوليفينولات', },
   },
   carbs: {
     key: 'carbs',
     group: 'other',
-    label: { ar: 'كربوهيدرات', de: 'Kohlenhydrate' },
+    label: { ar: 'كربوهيدرات', },
   },
 
   // ============================================================
@@ -243,29 +235,27 @@ export const NUTRIENTS: Record<string, NutrientInfo> = {
   methylfolate: {
     key: 'methylfolate',
     group: 'vitamin',
-    label: { ar: 'ميثيل فولات (B9 نشط)', de: 'Methylfolat (aktives B9)' },
+    label: { ar: 'ميثيل فولات (B9 نشط)', },
     note: {
       ar: 'الصيغة النشطة الجاهزة لدورة الميثيلة دون الحاجة لإنزيم MTHFR.',
-      de: 'Bioaktive Form — umgeht den MTHFR-Engpass.',
     },
   },
   methylB12: {
     key: 'methylB12',
     group: 'vitamin',
-    label: { ar: 'ميثيل كوبالامين (B12 نشط)', de: 'Methylcobalamin (aktives B12)' },
+    label: { ar: 'ميثيل كوبالامين (B12 نشط)', },
   },
   p5p: {
     key: 'p5p',
     group: 'vitamin',
-    label: { ar: 'P-5-P (B6 نشط)', de: 'P-5-P (aktives B6)' },
+    label: { ar: 'P-5-P (B6 نشط)', },
   },
   tmg: {
     key: 'tmg',
     group: 'other',
-    label: { ar: 'بيتائين (TMG)', de: 'Betain (TMG)' },
+    label: { ar: 'بيتائين (TMG)', },
     note: {
       ar: 'مانح ميثيل قوي يدعم تحويل الهوموسيستين عبر مسار بديل.',
-      de: 'Methyldonor — alternativer Homocystein-Abbauweg.',
     },
   },
 
@@ -273,181 +263,179 @@ export const NUTRIENTS: Record<string, NutrientInfo> = {
   coq10: {
     key: 'coq10',
     group: 'other',
-    label: { ar: 'يوبيكوينول (CoQ10)', de: 'Ubiquinol (CoQ10)' },
+    label: { ar: 'يوبيكوينول (CoQ10)', },
     note: {
       ar: 'دهني — مع وجبة فيها زيت زيتون أو أوميغا-3 لامتصاص أعلى.',
-      de: 'Fettlöslich — mit Olivenöl/Omega-3 für bessere Aufnahme.',
     },
   },
   pqq: {
     key: 'pqq',
     group: 'other',
-    label: { ar: 'PQQ (محفّز ميتوكوندريا)', de: 'PQQ (Mitochondrien-Trigger)' },
+    label: { ar: 'PQQ (محفّز ميتوكوندريا)', },
   },
   nmn: {
     key: 'nmn',
     group: 'other',
-    label: { ar: 'NMN (سلف NAD+)', de: 'NMN (NAD+-Vorstufe)' },
+    label: { ar: 'NMN (سلف NAD+)', },
   },
   ala: {
     key: 'ala',
     group: 'other',
-    label: { ar: 'حمض ألفا-ليبويك (R-ALA)', de: 'Alpha-Liponsäure (R-ALA)' },
+    label: { ar: 'حمض ألفا-ليبويك (R-ALA)', },
   },
   lcarnitine: {
     key: 'lcarnitine',
     group: 'amino',
-    label: { ar: 'L-كارنيتين', de: 'L-Carnitin' },
+    label: { ar: 'L-كارنيتين', },
   },
   creatine: {
     key: 'creatine',
     group: 'amino',
-    label: { ar: 'الكرياتين', de: 'Kreatin' },
+    label: { ar: 'الكرياتين', },
   },
 
   // — Antioxidant / detox —
   nac: {
     key: 'nac',
     group: 'amino',
-    label: { ar: 'N-أسيتيل سيستين (NAC)', de: 'N-Acetylcystein (NAC)' },
+    label: { ar: 'N-أسيتيل سيستين (NAC)', },
   },
   glutathione: {
     key: 'glutathione',
     group: 'amino',
-    label: { ar: 'الجلوتاثيون', de: 'Glutathion' },
+    label: { ar: 'الجلوتاثيون', },
   },
   milkthistle: {
     key: 'milkthistle',
     group: 'other',
-    label: { ar: 'حليب الشوك (سيليمارين)', de: 'Mariendistel (Silymarin)' },
+    label: { ar: 'حليب الشوك (سيليمارين)', },
   },
 
   // — Cognition / nervous system —
   phosphatidylserine: {
     key: 'phosphatidylserine',
     group: 'other',
-    label: { ar: 'فوسفاتيديل سيرين (PS)', de: 'Phosphatidylserin (PS)' },
+    label: { ar: 'فوسفاتيديل سيرين (PS)', },
   },
   lionsmane: {
     key: 'lionsmane',
     group: 'other',
-    label: { ar: 'عرف الأسد', de: 'Lion\'s Mane' },
+    label: { ar: 'عرف الأسد', },
   },
   ltheanine: {
     key: 'ltheanine',
     group: 'amino',
-    label: { ar: 'L-ثيانين', de: 'L-Theanin' },
+    label: { ar: 'L-ثيانين', },
   },
   glycine: {
     key: 'glycine',
     group: 'amino',
-    label: { ar: 'جلايسين', de: 'Glycin' },
+    label: { ar: 'جلايسين', },
   },
   taurine: {
     key: 'taurine',
     group: 'amino',
-    label: { ar: 'التورين', de: 'Taurin' },
+    label: { ar: 'التورين', },
   },
 
   // — HPA / adaptogens —
   ashwagandha: {
     key: 'ashwagandha',
     group: 'other',
-    label: { ar: 'أشواغاندا', de: 'Ashwagandha' },
+    label: { ar: 'أشواغاندا', },
   },
   rhodiola: {
     key: 'rhodiola',
     group: 'other',
-    label: { ar: 'روديولا', de: 'Rhodiola' },
+    label: { ar: 'روديولا', },
   },
 
   // — Anti-inflammation / senolytic —
   curcumin: {
     key: 'curcumin',
     group: 'other',
-    label: { ar: 'الكركومين', de: 'Curcumin' },
+    label: { ar: 'الكركومين', },
     note: {
       ar: 'يمتص أفضل مع البايبرين والدهون الصحية.',
-      de: 'Bessere Aufnahme mit Piperin und gesunden Fetten.',
     },
   },
   resveratrol: {
     key: 'resveratrol',
     group: 'other',
-    label: { ar: 'ريسفيراترول', de: 'Resveratrol' },
+    label: { ar: 'ريسفيراترول', },
   },
   quercetin: {
     key: 'quercetin',
     group: 'other',
-    label: { ar: 'كيرسيتين', de: 'Quercetin' },
+    label: { ar: 'كيرسيتين', },
   },
   fisetin: {
     key: 'fisetin',
     group: 'other',
-    label: { ar: 'فايسيتين', de: 'Fisetin' },
+    label: { ar: 'فايسيتين', },
   },
   spermidine: {
     key: 'spermidine',
     group: 'other',
-    label: { ar: 'سبيرميدين', de: 'Spermidin' },
+    label: { ar: 'سبيرميدين', },
   },
 
   // — Anti-glycation —
   carnosine: {
     key: 'carnosine',
     group: 'amino',
-    label: { ar: 'الكارنوزين', de: 'Carnosin' },
+    label: { ar: 'الكارنوزين', },
   },
   benfotiamine: {
     key: 'benfotiamine',
     group: 'vitamin',
-    label: { ar: 'بنفوتيامين (B1 دهني)', de: 'Benfotiamin (fettlösliches B1)' },
+    label: { ar: 'بنفوتيامين (B1 دهني)', },
   },
 
   // — Skin matrix —
   hyaluronic: {
     key: 'hyaluronic',
     group: 'other',
-    label: { ar: 'حمض الهيالورونيك', de: 'Hyaluronsäure' },
+    label: { ar: 'حمض الهيالورونيك', },
   },
   silica: {
     key: 'silica',
     group: 'mineral',
-    label: { ar: 'السيليكا', de: 'Silizium' },
+    label: { ar: 'السيليكا', },
   },
   msm: {
     key: 'msm',
     group: 'other',
-    label: { ar: 'MSM (كبريت عضوي)', de: 'MSM (organischer Schwefel)' },
+    label: { ar: 'MSM (كبريت عضوي)', },
   },
 
   // — Microbiome precision —
   hmo: {
     key: 'hmo',
     group: 'other',
-    label: { ar: 'سكريات حليب الأم (HMO)', de: 'HMOs (Muttermilch-Oligos)' },
+    label: { ar: 'سكريات حليب الأم (HMO)', },
   },
   akkermansia: {
     key: 'akkermansia',
     group: 'other',
-    label: { ar: 'أكرمانسيا مسينيفيلا', de: 'Akkermansia muciniphila' },
+    label: { ar: 'أكرمانسيا مسينيفيلا', },
   },
   butyrate: {
     key: 'butyrate',
     group: 'other',
-    label: { ar: 'البوتيرات (SCFA)', de: 'Butyrat (SCFA)' },
+    label: { ar: 'البوتيرات (SCFA)', },
   },
   glutamine: {
     key: 'glutamine',
     group: 'amino',
-    label: { ar: 'L-جلوتامين', de: 'L-Glutamin' },
+    label: { ar: 'L-جلوتامين', },
   },
 
   // — Hormonal / metabolic —
   inositol: {
     key: 'inositol',
     group: 'other',
-    label: { ar: 'إينوزيتول (Myo + DCI)', de: 'Inositol (Myo + DCI)' },
+    label: { ar: 'إينوزيتول (Myo + DCI)', },
   },
 };
 
@@ -471,195 +459,195 @@ export const FOODS: Record<string, FoodInfo> = {
   eggs: {
     key: 'eggs',
     icon: '🥚',
-    label: { ar: 'بيض', de: 'Eier' },
+    label: { ar: 'بيض', },
     nutrients: ['protein', 'vitaminD', 'vitaminB12', 'biotin', 'iron'],
   },
   chicken: {
     key: 'chicken',
     icon: '🍗',
-    label: { ar: 'دجاج', de: 'Hähnchen' },
+    label: { ar: 'دجاج', },
     nutrients: ['protein', 'vitaminB6', 'zinc'],
   },
   fish: {
     key: 'fish',
     icon: '🐟',
-    label: { ar: 'سمك', de: 'Fisch' },
+    label: { ar: 'سمك', },
     nutrients: ['protein', 'omega3', 'vitaminD', 'vitaminB12', 'iodine'],
     tags: ['fatty'],
   },
   salmon: {
     key: 'salmon',
     icon: '🐠',
-    label: { ar: 'سلمون', de: 'Lachs' },
+    label: { ar: 'سلمون', },
     nutrients: ['protein', 'omega3', 'vitaminD', 'vitaminB12', 'selenium'],
     tags: ['fatty'],
   },
   beef: {
     key: 'beef',
     icon: '🥩',
-    label: { ar: 'لحم بقر', de: 'Rindfleisch' },
+    label: { ar: 'لحم بقر', },
     nutrients: ['protein', 'iron', 'zinc', 'vitaminB12'],
   },
   liver: {
     key: 'liver',
     icon: '🫘',
-    label: { ar: 'كبدة', de: 'Leber' },
+    label: { ar: 'كبدة', },
     nutrients: ['iron', 'vitaminA', 'vitaminB12', 'folate', 'copper'],
   },
   spinach: {
     key: 'spinach',
     icon: '🥬',
-    label: { ar: 'سبانخ', de: 'Spinat' },
+    label: { ar: 'سبانخ', },
     nutrients: ['iron', 'folate', 'vitaminK', 'magnesium', 'vitaminA'],
     tags: ['leafy'],
   },
   kale: {
     key: 'kale',
     icon: '🥬',
-    label: { ar: 'كرنب أجعد', de: 'Grünkohl' },
+    label: { ar: 'كرنب أجعد', },
     nutrients: ['vitaminK', 'vitaminC', 'vitaminA', 'calcium'],
     tags: ['leafy'],
   },
   broccoli: {
     key: 'broccoli',
     icon: '🥦',
-    label: { ar: 'بروكلي', de: 'Brokkoli' },
+    label: { ar: 'بروكلي', },
     nutrients: ['vitaminC', 'vitaminK', 'folate', 'fiber'],
   },
   carrot: {
     key: 'carrot',
     icon: '🥕',
-    label: { ar: 'جزر', de: 'Karotten' },
+    label: { ar: 'جزر', },
     nutrients: ['vitaminA', 'fiber'],
   },
   orange: {
     key: 'orange',
     icon: '🍊',
-    label: { ar: 'برتقال', de: 'Orange' },
+    label: { ar: 'برتقال', },
     nutrients: ['vitaminC', 'folate', 'fiber'],
     tags: ['citrus'],
   },
   lemon: {
     key: 'lemon',
     icon: '🍋',
-    label: { ar: 'ليمون', de: 'Zitrone' },
+    label: { ar: 'ليمون', },
     nutrients: ['vitaminC'],
     tags: ['citrus'],
   },
   strawberry: {
     key: 'strawberry',
     icon: '🍓',
-    label: { ar: 'فراولة', de: 'Erdbeeren' },
+    label: { ar: 'فراولة', },
     nutrients: ['vitaminC', 'fiber'],
   },
   banana: {
     key: 'banana',
     icon: '🍌',
-    label: { ar: 'موز', de: 'Banane' },
+    label: { ar: 'موز', },
     nutrients: ['vitaminB6', 'magnesium', 'fiber'],
   },
   avocado: {
     key: 'avocado',
     icon: '🥑',
-    label: { ar: 'أفوكادو', de: 'Avocado' },
+    label: { ar: 'أفوكادو', },
     nutrients: ['vitaminE', 'vitaminK', 'folate', 'fiber'],
     tags: ['fatty'],
   },
   almonds: {
     key: 'almonds',
     icon: '🌰',
-    label: { ar: 'لوز', de: 'Mandeln' },
+    label: { ar: 'لوز', },
     nutrients: ['vitaminE', 'magnesium', 'protein', 'fiber'],
     tags: ['fatty'],
   },
   walnuts: {
     key: 'walnuts',
     icon: '🌰',
-    label: { ar: 'جوز', de: 'Walnüsse' },
+    label: { ar: 'جوز', },
     nutrients: ['omega3', 'magnesium', 'protein'],
     tags: ['fatty'],
   },
   yogurt: {
     key: 'yogurt',
     icon: '🥣',
-    label: { ar: 'زبادي', de: 'Joghurt' },
+    label: { ar: 'زبادي', },
     nutrients: ['calcium', 'protein', 'probiotics', 'vitaminB12'],
     tags: ['dairy'],
   },
   milk: {
     key: 'milk',
     icon: '🥛',
-    label: { ar: 'حليب', de: 'Milch' },
+    label: { ar: 'حليب', },
     nutrients: ['calcium', 'protein', 'vitaminD', 'vitaminB12'],
     tags: ['dairy'],
   },
   cheese: {
     key: 'cheese',
     icon: '🧀',
-    label: { ar: 'جبن', de: 'Käse' },
+    label: { ar: 'جبن', },
     nutrients: ['calcium', 'protein', 'vitaminB12'],
     tags: ['dairy'],
   },
   oats: {
     key: 'oats',
     icon: '🥣',
-    label: { ar: 'شوفان', de: 'Hafer' },
+    label: { ar: 'شوفان', },
     nutrients: ['fiber', 'magnesium', 'iron', 'protein'],
   },
   rice: {
     key: 'rice',
     icon: '🍚',
-    label: { ar: 'أرز', de: 'Reis' },
+    label: { ar: 'أرز', },
     nutrients: ['magnesium'],
   },
   beans: {
     key: 'beans',
     icon: '🫘',
-    label: { ar: 'فاصولياء', de: 'Bohnen' },
+    label: { ar: 'فاصولياء', },
     nutrients: ['protein', 'iron', 'folate', 'fiber', 'magnesium'],
   },
   lentils: {
     key: 'lentils',
     icon: '🫘',
-    label: { ar: 'عدس', de: 'Linsen' },
+    label: { ar: 'عدس', },
     nutrients: ['protein', 'iron', 'folate', 'fiber'],
   },
   dates: {
     key: 'dates',
     icon: '🌴',
-    label: { ar: 'تمر', de: 'Datteln' },
+    label: { ar: 'تمر', },
     nutrients: ['fiber', 'magnesium', 'iron'],
   },
   honey: {
     key: 'honey',
     icon: '🍯',
-    label: { ar: 'عسل', de: 'Honig' },
+    label: { ar: 'عسل', },
     nutrients: [],
   },
   coffee: {
     key: 'coffee',
     icon: '☕',
-    label: { ar: 'قهوة', de: 'Kaffee' },
+    label: { ar: 'قهوة', },
     nutrients: ['caffeine'],
     tags: ['caffeine'],
   },
   tea: {
     key: 'tea',
     icon: '🍵',
-    label: { ar: 'شاي', de: 'Tee' },
+    label: { ar: 'شاي', },
     nutrients: ['caffeine'],
     tags: ['caffeine'],
   },
   water: {
     key: 'water',
     icon: '💧',
-    label: { ar: 'ماء', de: 'Wasser' },
+    label: { ar: 'ماء', },
     nutrients: [],
   },
   olive_oil: {
     key: 'olive_oil',
     icon: '🫒',
-    label: { ar: 'زيت زيتون', de: 'Olivenöl' },
+    label: { ar: 'زيت زيتون', },
     nutrients: ['vitaminE'],
     tags: ['fatty'],
   },
@@ -667,269 +655,269 @@ export const FOODS: Record<string, FoodInfo> = {
   // ===== Fruits =====
   apple: {
     key: 'apple', icon: '🍎',
-    label: { ar: 'تفاح', de: 'Apfel' },
+    label: { ar: 'تفاح', },
     nutrients: ['fiber', 'vitaminC', 'antioxidants', 'polyphenols'],
   },
   pear: {
     key: 'pear', icon: '🍐',
-    label: { ar: 'كمثرى', de: 'Birne' },
+    label: { ar: 'كمثرى', },
     nutrients: ['fiber', 'vitaminC', 'potassium'],
   },
   grape: {
     key: 'grape', icon: '🍇',
-    label: { ar: 'عنب', de: 'Trauben' },
+    label: { ar: 'عنب', },
     nutrients: ['vitaminK', 'antioxidants', 'polyphenols'],
   },
   watermelon: {
     key: 'watermelon', icon: '🍉',
-    label: { ar: 'بطيخ', de: 'Wassermelone' },
+    label: { ar: 'بطيخ', },
     nutrients: ['vitaminC', 'vitaminA', 'lycopene', 'potassium'],
   },
   melon: {
     key: 'melon', icon: '🍈',
-    label: { ar: 'شمام', de: 'Honigmelone' },
+    label: { ar: 'شمام', },
     nutrients: ['vitaminC', 'vitaminA', 'potassium'],
   },
   pineapple: {
     key: 'pineapple', icon: '🍍',
-    label: { ar: 'أناناس', de: 'Ananas' },
+    label: { ar: 'أناناس', },
     nutrients: ['vitaminC', 'manganese', 'fiber'],
   },
   mango: {
     key: 'mango', icon: '🥭',
-    label: { ar: 'مانجو', de: 'Mango' },
+    label: { ar: 'مانجو', },
     nutrients: ['vitaminC', 'vitaminA', 'folate', 'antioxidants'],
   },
   peach: {
     key: 'peach', icon: '🍑',
-    label: { ar: 'خوخ', de: 'Pfirsich' },
+    label: { ar: 'خوخ', },
     nutrients: ['vitaminC', 'vitaminA', 'potassium', 'fiber'],
   },
   cherry: {
     key: 'cherry', icon: '🍒',
-    label: { ar: 'كرز', de: 'Kirschen' },
+    label: { ar: 'كرز', },
     nutrients: ['vitaminC', 'antioxidants', 'polyphenols', 'potassium'],
   },
   blueberry: {
     key: 'blueberry', icon: '🫐',
-    label: { ar: 'توت أزرق', de: 'Blaubeeren' },
+    label: { ar: 'توت أزرق', },
     nutrients: ['vitaminC', 'vitaminK', 'antioxidants', 'polyphenols', 'fiber'],
   },
   raspberry: {
     key: 'raspberry', icon: '🍇',
-    label: { ar: 'توت أحمر', de: 'Himbeeren' },
+    label: { ar: 'توت أحمر', },
     nutrients: ['vitaminC', 'fiber', 'antioxidants', 'manganese'],
   },
   pomegranate: {
     key: 'pomegranate', icon: '🥭',
-    label: { ar: 'رمان', de: 'Granatapfel' },
+    label: { ar: 'رمان', },
     nutrients: ['vitaminC', 'vitaminK', 'folate', 'antioxidants', 'polyphenols'],
   },
   fig: {
     key: 'fig', icon: '🌰',
-    label: { ar: 'تين', de: 'Feige' },
+    label: { ar: 'تين', },
     nutrients: ['fiber', 'calcium', 'potassium', 'magnesium'],
   },
   apricot: {
     key: 'apricot', icon: '🍑',
-    label: { ar: 'مشمش', de: 'Aprikose' },
+    label: { ar: 'مشمش', },
     nutrients: ['vitaminA', 'vitaminC', 'potassium', 'fiber'],
   },
   kiwi: {
     key: 'kiwi', icon: '🥝',
-    label: { ar: 'كيوي', de: 'Kiwi' },
+    label: { ar: 'كيوي', },
     nutrients: ['vitaminC', 'vitaminK', 'folate', 'fiber'],
   },
   papaya: {
     key: 'papaya', icon: '🥭',
-    label: { ar: 'بابايا', de: 'Papaya' },
+    label: { ar: 'بابايا', },
     nutrients: ['vitaminC', 'vitaminA', 'folate', 'fiber'],
   },
   guava: {
     key: 'guava', icon: '🍈',
-    label: { ar: 'جوافة', de: 'Guave' },
+    label: { ar: 'جوافة', },
     nutrients: ['vitaminC', 'fiber', 'potassium', 'folate'],
   },
   grapefruit: {
     key: 'grapefruit', icon: '🍊',
-    label: { ar: 'جريب فروت', de: 'Grapefruit' },
+    label: { ar: 'جريب فروت', },
     nutrients: ['vitaminC', 'vitaminA', 'fiber', 'lycopene'],
     tags: ['citrus'],
   },
   raisins: {
     key: 'raisins', icon: '🍇',
-    label: { ar: 'زبيب', de: 'Rosinen' },
+    label: { ar: 'زبيب', },
     nutrients: ['iron', 'potassium', 'fiber', 'antioxidants'],
   },
   prunes: {
     key: 'prunes', icon: '🍑',
-    label: { ar: 'خوخ مجفف', de: 'Trockenpflaumen' },
+    label: { ar: 'خوخ مجفف', },
     nutrients: ['fiber', 'vitaminK', 'potassium', 'iron'],
   },
 
   // ===== Vegetables =====
   tomato: {
     key: 'tomato', icon: '🍅',
-    label: { ar: 'طماطم', de: 'Tomate' },
+    label: { ar: 'طماطم', },
     nutrients: ['vitaminC', 'vitaminK', 'lycopene', 'potassium', 'folate'],
   },
   cucumber: {
     key: 'cucumber', icon: '🥒',
-    label: { ar: 'خيار', de: 'Gurke' },
+    label: { ar: 'خيار', },
     nutrients: ['vitaminK', 'potassium'],
   },
   bell_pepper: {
     key: 'bell_pepper', icon: '🫑',
-    label: { ar: 'فلفل ملون', de: 'Paprika' },
+    label: { ar: 'فلفل ملون', },
     nutrients: ['vitaminC', 'vitaminA', 'vitaminB6', 'folate', 'antioxidants'],
   },
   onion: {
     key: 'onion', icon: '🧅',
-    label: { ar: 'بصل', de: 'Zwiebel' },
+    label: { ar: 'بصل', },
     nutrients: ['vitaminC', 'folate', 'fiber', 'polyphenols'],
   },
   garlic: {
     key: 'garlic', icon: '🧄',
-    label: { ar: 'ثوم', de: 'Knoblauch' },
+    label: { ar: 'ثوم', },
     nutrients: ['vitaminC', 'vitaminB6', 'manganese', 'antioxidants'],
   },
   potato: {
     key: 'potato', icon: '🥔',
-    label: { ar: 'بطاطس', de: 'Kartoffel' },
+    label: { ar: 'بطاطس', },
     nutrients: ['vitaminC', 'vitaminB6', 'potassium', 'carbs', 'fiber'],
   },
   sweet_potato: {
     key: 'sweet_potato', icon: '🍠',
-    label: { ar: 'بطاطا حلوة', de: 'Süßkartoffel' },
+    label: { ar: 'بطاطا حلوة', },
     nutrients: ['vitaminA', 'vitaminC', 'potassium', 'fiber', 'manganese'],
   },
   pumpkin: {
     key: 'pumpkin', icon: '🎃',
-    label: { ar: 'قرع', de: 'Kürbis' },
+    label: { ar: 'قرع', },
     nutrients: ['vitaminA', 'vitaminC', 'potassium', 'fiber'],
   },
   zucchini: {
     key: 'zucchini', icon: '🥒',
-    label: { ar: 'كوسا', de: 'Zucchini' },
+    label: { ar: 'كوسا', },
     nutrients: ['vitaminC', 'vitaminA', 'potassium', 'manganese'],
   },
   eggplant: {
     key: 'eggplant', icon: '🍆',
-    label: { ar: 'باذنجان', de: 'Aubergine' },
+    label: { ar: 'باذنجان', },
     nutrients: ['fiber', 'manganese', 'antioxidants', 'polyphenols'],
   },
   cauliflower: {
     key: 'cauliflower', icon: '🥦',
-    label: { ar: 'قرنبيط', de: 'Blumenkohl' },
+    label: { ar: 'قرنبيط', },
     nutrients: ['vitaminC', 'vitaminK', 'folate', 'fiber', 'choline'],
   },
   cabbage: {
     key: 'cabbage', icon: '🥬',
-    label: { ar: 'ملفوف', de: 'Kohl' },
+    label: { ar: 'ملفوف', },
     nutrients: ['vitaminC', 'vitaminK', 'folate', 'fiber'],
     tags: ['leafy'],
   },
   brussels_sprouts: {
     key: 'brussels_sprouts', icon: '🥬',
-    label: { ar: 'كرنب بروكسل', de: 'Rosenkohl' },
+    label: { ar: 'كرنب بروكسل', },
     nutrients: ['vitaminC', 'vitaminK', 'folate', 'fiber'],
   },
   asparagus: {
     key: 'asparagus', icon: '🌿',
-    label: { ar: 'هليون', de: 'Spargel' },
+    label: { ar: 'هليون', },
     nutrients: ['folate', 'vitaminK', 'vitaminC', 'fiber'],
   },
   green_beans: {
     key: 'green_beans', icon: '🫛',
-    label: { ar: 'فاصولياء خضراء', de: 'Grüne Bohnen' },
+    label: { ar: 'فاصولياء خضراء', },
     nutrients: ['vitaminC', 'vitaminK', 'folate', 'fiber'],
   },
   peas: {
     key: 'peas', icon: '🫛',
-    label: { ar: 'بازلاء', de: 'Erbsen' },
+    label: { ar: 'بازلاء', },
     nutrients: ['protein', 'vitaminK', 'vitaminC', 'folate', 'fiber', 'iron'],
   },
   celery: {
     key: 'celery', icon: '🥬',
-    label: { ar: 'كرفس', de: 'Sellerie' },
+    label: { ar: 'كرفس', },
     nutrients: ['vitaminK', 'potassium', 'fiber'],
     tags: ['leafy'],
   },
   arugula: {
     key: 'arugula', icon: '🥬',
-    label: { ar: 'جرجير', de: 'Rucola' },
+    label: { ar: 'جرجير', },
     nutrients: ['vitaminK', 'vitaminA', 'folate', 'calcium'],
     tags: ['leafy'],
   },
   lettuce: {
     key: 'lettuce', icon: '🥬',
-    label: { ar: 'خس', de: 'Salat' },
+    label: { ar: 'خس', },
     nutrients: ['vitaminK', 'vitaminA', 'folate'],
     tags: ['leafy'],
   },
   parsley: {
     key: 'parsley', icon: '🌿',
-    label: { ar: 'بقدونس', de: 'Petersilie' },
+    label: { ar: 'بقدونس', },
     nutrients: ['vitaminK', 'vitaminC', 'vitaminA', 'iron'],
     tags: ['leafy'],
   },
   cilantro: {
     key: 'cilantro', icon: '🌿',
-    label: { ar: 'كزبرة', de: 'Koriander' },
+    label: { ar: 'كزبرة', },
     nutrients: ['vitaminK', 'vitaminA', 'vitaminC', 'antioxidants'],
     tags: ['leafy'],
   },
   mint: {
     key: 'mint', icon: '🌿',
-    label: { ar: 'نعناع', de: 'Minze' },
+    label: { ar: 'نعناع', },
     nutrients: ['vitaminA', 'iron', 'manganese', 'antioxidants'],
     tags: ['leafy'],
   },
   beet: {
     key: 'beet', icon: '🫜',
-    label: { ar: 'شمندر', de: 'Rote Bete' },
+    label: { ar: 'شمندر', },
     nutrients: ['folate', 'manganese', 'potassium', 'iron', 'fiber'],
   },
   radish: {
     key: 'radish', icon: '🌶️',
-    label: { ar: 'فجل', de: 'Rettich' },
+    label: { ar: 'فجل', },
     nutrients: ['vitaminC', 'folate', 'potassium'],
   },
   okra: {
     key: 'okra', icon: '🌿',
-    label: { ar: 'بامية', de: 'Okra' },
+    label: { ar: 'بامية', },
     nutrients: ['vitaminC', 'vitaminK', 'folate', 'magnesium', 'fiber'],
   },
   artichoke: {
     key: 'artichoke', icon: '🌿',
-    label: { ar: 'خرشوف', de: 'Artischocke' },
+    label: { ar: 'خرشوف', },
     nutrients: ['folate', 'vitaminK', 'vitaminC', 'fiber', 'magnesium'],
   },
   corn: {
     key: 'corn', icon: '🌽',
-    label: { ar: 'ذرة', de: 'Mais' },
+    label: { ar: 'ذرة', },
     nutrients: ['fiber', 'vitaminB1', 'folate', 'lutein', 'carbs'],
   },
   mushroom: {
     key: 'mushroom', icon: '🍄',
-    label: { ar: 'فطر', de: 'Pilze' },
+    label: { ar: 'فطر', },
     nutrients: ['vitaminD', 'vitaminB2', 'vitaminB3', 'selenium', 'copper'],
   },
 
   // ===== Proteins (meat & poultry) =====
   turkey: {
     key: 'turkey', icon: '🦃',
-    label: { ar: 'ديك رومي', de: 'Pute' },
+    label: { ar: 'ديك رومي', },
     nutrients: ['protein', 'vitaminB3', 'vitaminB6', 'selenium', 'zinc'],
   },
   lamb: {
     key: 'lamb', icon: '🐑',
-    label: { ar: 'لحم ضأن', de: 'Lammfleisch' },
+    label: { ar: 'لحم ضأن', },
     nutrients: ['protein', 'iron', 'zinc', 'vitaminB12', 'vitaminB3'],
   },
   duck: {
     key: 'duck', icon: '🦆',
-    label: { ar: 'بط', de: 'Ente' },
+    label: { ar: 'بط', },
     nutrients: ['protein', 'iron', 'vitaminB12', 'selenium'],
     tags: ['fatty'],
   },
@@ -937,66 +925,66 @@ export const FOODS: Record<string, FoodInfo> = {
   // ===== Seafood =====
   tuna: {
     key: 'tuna', icon: '🐟',
-    label: { ar: 'تونة', de: 'Thunfisch' },
+    label: { ar: 'تونة', },
     nutrients: ['protein', 'omega3', 'vitaminD', 'vitaminB12', 'selenium'],
   },
   sardines: {
     key: 'sardines', icon: '🐟',
-    label: { ar: 'سردين', de: 'Sardinen' },
+    label: { ar: 'سردين', },
     nutrients: ['protein', 'omega3', 'vitaminD', 'calcium', 'vitaminB12'],
     tags: ['fatty'],
   },
   mackerel: {
     key: 'mackerel', icon: '🐟',
-    label: { ar: 'ماكريل', de: 'Makrele' },
+    label: { ar: 'ماكريل', },
     nutrients: ['protein', 'omega3', 'vitaminD', 'vitaminB12', 'selenium'],
     tags: ['fatty'],
   },
   shrimp: {
     key: 'shrimp', icon: '🦐',
-    label: { ar: 'جمبري', de: 'Garnelen' },
+    label: { ar: 'جمبري', },
     nutrients: ['protein', 'iodine', 'selenium', 'vitaminB12', 'zinc'],
   },
   oyster: {
     key: 'oyster', icon: '🦪',
-    label: { ar: 'محار', de: 'Austern' },
+    label: { ar: 'محار', },
     nutrients: ['zinc', 'iron', 'vitaminB12', 'copper', 'selenium', 'protein'],
   },
 
   // ===== Eggs / Dairy =====
   egg_yolk: {
     key: 'egg_yolk', icon: '🍳',
-    label: { ar: 'صفار البيض', de: 'Eigelb' },
+    label: { ar: 'صفار البيض', },
     nutrients: ['vitaminD', 'vitaminA', 'choline', 'biotin', 'lutein'],
     tags: ['fatty'],
   },
   cottage_cheese: {
     key: 'cottage_cheese', icon: '🧀',
-    label: { ar: 'جبنة قريش', de: 'Hüttenkäse' },
+    label: { ar: 'جبنة قريش', },
     nutrients: ['protein', 'calcium', 'vitaminB12', 'phosphorus'],
     tags: ['dairy'],
   },
   feta: {
     key: 'feta', icon: '🧀',
-    label: { ar: 'فيتا', de: 'Feta' },
+    label: { ar: 'فيتا', },
     nutrients: ['calcium', 'protein', 'vitaminB12', 'phosphorus'],
     tags: ['dairy'],
   },
   kefir: {
     key: 'kefir', icon: '🥛',
-    label: { ar: 'كفير', de: 'Kefir' },
+    label: { ar: 'كفير', },
     nutrients: ['probiotics', 'calcium', 'protein', 'vitaminB12'],
     tags: ['dairy'],
   },
   butter: {
     key: 'butter', icon: '🧈',
-    label: { ar: 'زبدة', de: 'Butter' },
+    label: { ar: 'زبدة', },
     nutrients: ['vitaminA', 'vitaminD', 'vitaminK'],
     tags: ['fatty', 'dairy'],
   },
   ghee: {
     key: 'ghee', icon: '🧈',
-    label: { ar: 'سمن', de: 'Ghee' },
+    label: { ar: 'سمن', },
     nutrients: ['vitaminA', 'vitaminE', 'vitaminK'],
     tags: ['fatty', 'dairy'],
   },
@@ -1004,110 +992,110 @@ export const FOODS: Record<string, FoodInfo> = {
   // ===== Plant proteins / Legumes =====
   chickpeas: {
     key: 'chickpeas', icon: '🫘',
-    label: { ar: 'حمص', de: 'Kichererbsen' },
+    label: { ar: 'حمص', },
     nutrients: ['protein', 'iron', 'folate', 'fiber', 'magnesium', 'manganese'],
   },
   black_beans: {
     key: 'black_beans', icon: '🫘',
-    label: { ar: 'فاصولياء سوداء', de: 'Schwarze Bohnen' },
+    label: { ar: 'فاصولياء سوداء', },
     nutrients: ['protein', 'iron', 'folate', 'fiber', 'magnesium'],
   },
   edamame: {
     key: 'edamame', icon: '🫛',
-    label: { ar: 'إدامامي', de: 'Edamame' },
+    label: { ar: 'إدامامي', },
     nutrients: ['protein', 'folate', 'vitaminK', 'iron', 'fiber'],
   },
   tofu: {
     key: 'tofu', icon: '🍱',
-    label: { ar: 'توفو', de: 'Tofu' },
+    label: { ar: 'توفو', },
     nutrients: ['protein', 'calcium', 'iron', 'magnesium'],
   },
   tempeh: {
     key: 'tempeh', icon: '🍱',
-    label: { ar: 'تيمبيه', de: 'Tempeh' },
+    label: { ar: 'تيمبيه', },
     nutrients: ['protein', 'iron', 'calcium', 'probiotics', 'magnesium'],
   },
   hummus: {
     key: 'hummus', icon: '🥣',
-    label: { ar: 'حمص بطحينة', de: 'Hummus' },
+    label: { ar: 'حمص بطحينة', },
     nutrients: ['protein', 'fiber', 'iron', 'folate', 'magnesium'],
   },
   falafel: {
     key: 'falafel', icon: '🧆',
-    label: { ar: 'فلافل', de: 'Falafel' },
+    label: { ar: 'فلافل', },
     nutrients: ['protein', 'fiber', 'iron', 'folate'],
   },
 
   // ===== Nuts & Seeds =====
   pistachios: {
     key: 'pistachios', icon: '🌰',
-    label: { ar: 'فستق', de: 'Pistazien' },
+    label: { ar: 'فستق', },
     nutrients: ['protein', 'vitaminB6', 'fiber', 'potassium', 'antioxidants'],
     tags: ['fatty'],
   },
   cashews: {
     key: 'cashews', icon: '🌰',
-    label: { ar: 'كاجو', de: 'Cashews' },
+    label: { ar: 'كاجو', },
     nutrients: ['protein', 'magnesium', 'copper', 'iron', 'zinc'],
     tags: ['fatty'],
   },
   hazelnuts: {
     key: 'hazelnuts', icon: '🌰',
-    label: { ar: 'بندق', de: 'Haselnüsse' },
+    label: { ar: 'بندق', },
     nutrients: ['vitaminE', 'manganese', 'magnesium', 'protein'],
     tags: ['fatty'],
   },
   brazil_nuts: {
     key: 'brazil_nuts', icon: '🌰',
-    label: { ar: 'جوز برازيلي', de: 'Paranüsse' },
+    label: { ar: 'جوز برازيلي', },
     nutrients: ['selenium', 'vitaminE', 'magnesium', 'protein'],
     tags: ['fatty'],
   },
   peanuts: {
     key: 'peanuts', icon: '🥜',
-    label: { ar: 'فول سوداني', de: 'Erdnüsse' },
+    label: { ar: 'فول سوداني', },
     nutrients: ['protein', 'vitaminB3', 'folate', 'magnesium', 'vitaminE'],
     tags: ['fatty'],
   },
   pecans: {
     key: 'pecans', icon: '🌰',
-    label: { ar: 'بقان', de: 'Pekannüsse' },
+    label: { ar: 'بقان', },
     nutrients: ['manganese', 'zinc', 'fiber', 'antioxidants'],
     tags: ['fatty'],
   },
   chia_seeds: {
     key: 'chia_seeds', icon: '🌱',
-    label: { ar: 'بذور الشيا', de: 'Chiasamen' },
+    label: { ar: 'بذور الشيا', },
     nutrients: ['omega3', 'fiber', 'calcium', 'magnesium', 'protein'],
     tags: ['fatty'],
   },
   flax_seeds: {
     key: 'flax_seeds', icon: '🌱',
-    label: { ar: 'بذور الكتان', de: 'Leinsamen' },
+    label: { ar: 'بذور الكتان', },
     nutrients: ['omega3', 'fiber', 'magnesium', 'protein'],
     tags: ['fatty'],
   },
   pumpkin_seeds: {
     key: 'pumpkin_seeds', icon: '🌱',
-    label: { ar: 'بذور اليقطين', de: 'Kürbiskerne' },
+    label: { ar: 'بذور اليقطين', },
     nutrients: ['zinc', 'magnesium', 'iron', 'protein', 'manganese'],
     tags: ['fatty'],
   },
   sunflower_seeds: {
     key: 'sunflower_seeds', icon: '🌻',
-    label: { ar: 'بذور دوار الشمس', de: 'Sonnenblumenkerne' },
+    label: { ar: 'بذور دوار الشمس', },
     nutrients: ['vitaminE', 'magnesium', 'selenium', 'protein'],
     tags: ['fatty'],
   },
   sesame: {
     key: 'sesame', icon: '🌱',
-    label: { ar: 'سمسم', de: 'Sesam' },
+    label: { ar: 'سمسم', },
     nutrients: ['calcium', 'iron', 'magnesium', 'zinc', 'copper'],
     tags: ['fatty'],
   },
   tahini: {
     key: 'tahini', icon: '🥣',
-    label: { ar: 'طحينة', de: 'Tahin' },
+    label: { ar: 'طحينة', },
     nutrients: ['calcium', 'iron', 'magnesium', 'protein', 'vitaminB1'],
     tags: ['fatty'],
   },
@@ -1115,102 +1103,102 @@ export const FOODS: Record<string, FoodInfo> = {
   // ===== Grains & Starches =====
   brown_rice: {
     key: 'brown_rice', icon: '🍚',
-    label: { ar: 'أرز بني', de: 'Vollkornreis' },
+    label: { ar: 'أرز بني', },
     nutrients: ['carbs', 'fiber', 'magnesium', 'manganese', 'vitaminB3'],
   },
   quinoa: {
     key: 'quinoa', icon: '🌾',
-    label: { ar: 'كينوا', de: 'Quinoa' },
+    label: { ar: 'كينوا', },
     nutrients: ['protein', 'fiber', 'magnesium', 'iron', 'folate', 'manganese'],
   },
   bulgur: {
     key: 'bulgur', icon: '🌾',
-    label: { ar: 'برغل', de: 'Bulgur' },
+    label: { ar: 'برغل', },
     nutrients: ['fiber', 'protein', 'magnesium', 'iron', 'carbs'],
   },
   couscous: {
     key: 'couscous', icon: '🌾',
-    label: { ar: 'كسكسي', de: 'Couscous' },
+    label: { ar: 'كسكسي', },
     nutrients: ['protein', 'selenium', 'carbs'],
   },
   barley: {
     key: 'barley', icon: '🌾',
-    label: { ar: 'شعير', de: 'Gerste' },
+    label: { ar: 'شعير', },
     nutrients: ['fiber', 'magnesium', 'manganese', 'selenium', 'carbs'],
   },
   whole_bread: {
     key: 'whole_bread', icon: '🍞',
-    label: { ar: 'خبز كامل الحبة', de: 'Vollkornbrot' },
+    label: { ar: 'خبز كامل الحبة', },
     nutrients: ['fiber', 'iron', 'magnesium', 'vitaminB1', 'carbs'],
   },
   pita: {
     key: 'pita', icon: '🫓',
-    label: { ar: 'خبز عربي', de: 'Pita-Brot' },
+    label: { ar: 'خبز عربي', },
     nutrients: ['carbs', 'iron', 'folate'],
   },
   pasta: {
     key: 'pasta', icon: '🍝',
-    label: { ar: 'مكرونة', de: 'Pasta' },
+    label: { ar: 'مكرونة', },
     nutrients: ['carbs', 'protein', 'vitaminB1', 'folate'],
   },
 
   // ===== Beverages =====
   green_tea: {
     key: 'green_tea', icon: '🍵',
-    label: { ar: 'شاي أخضر', de: 'Grüner Tee' },
+    label: { ar: 'شاي أخضر', },
     nutrients: ['caffeine', 'antioxidants', 'polyphenols'],
     tags: ['caffeine'],
   },
   black_tea: {
     key: 'black_tea', icon: '🍵',
-    label: { ar: 'شاي أسود', de: 'Schwarzer Tee' },
+    label: { ar: 'شاي أسود', },
     nutrients: ['caffeine', 'antioxidants', 'polyphenols'],
     tags: ['caffeine'],
   },
   herbal_tea: {
     key: 'herbal_tea', icon: '🍵',
-    label: { ar: 'شاي أعشاب', de: 'Kräutertee' },
+    label: { ar: 'شاي أعشاب', },
     nutrients: ['antioxidants'],
   },
   matcha: {
     key: 'matcha', icon: '🍵',
-    label: { ar: 'ماتشا', de: 'Matcha' },
+    label: { ar: 'ماتشا', },
     nutrients: ['caffeine', 'antioxidants', 'polyphenols', 'vitaminC'],
     tags: ['caffeine'],
   },
   orange_juice: {
     key: 'orange_juice', icon: '🧃',
-    label: { ar: 'عصير برتقال', de: 'Orangensaft' },
+    label: { ar: 'عصير برتقال', },
     nutrients: ['vitaminC', 'folate', 'potassium'],
     tags: ['citrus'],
   },
   pomegranate_juice: {
     key: 'pomegranate_juice', icon: '🧃',
-    label: { ar: 'عصير رمان', de: 'Granatapfelsaft' },
+    label: { ar: 'عصير رمان', },
     nutrients: ['antioxidants', 'polyphenols', 'vitaminC', 'potassium'],
   },
   coconut_water: {
     key: 'coconut_water', icon: '🥥',
-    label: { ar: 'ماء جوز الهند', de: 'Kokoswasser' },
+    label: { ar: 'ماء جوز الهند', },
     nutrients: ['potassium', 'magnesium'],
   },
 
   // ===== Fats & Oils =====
   coconut_oil: {
     key: 'coconut_oil', icon: '🥥',
-    label: { ar: 'زيت جوز الهند', de: 'Kokosöl' },
+    label: { ar: 'زيت جوز الهند', },
     nutrients: [],
     tags: ['fatty'],
   },
   fish_oil: {
     key: 'fish_oil', icon: '🐟',
-    label: { ar: 'زيت السمك', de: 'Fischöl' },
+    label: { ar: 'زيت السمك', },
     nutrients: ['omega3', 'vitaminD', 'vitaminA'],
     tags: ['fatty'],
   },
   dark_chocolate: {
     key: 'dark_chocolate', icon: '🍫',
-    label: { ar: 'شوكولاتة داكنة', de: 'Dunkle Schokolade' },
+    label: { ar: 'شوكولاتة داكنة', },
     nutrients: ['iron', 'magnesium', 'copper', 'antioxidants', 'polyphenols', 'caffeine'],
     tags: ['fatty'],
   },
@@ -1218,61 +1206,61 @@ export const FOODS: Record<string, FoodInfo> = {
   // ===== Spices / Herbs =====
   turmeric: {
     key: 'turmeric', icon: '🌿',
-    label: { ar: 'كركم', de: 'Kurkuma' },
+    label: { ar: 'كركم', },
     nutrients: ['antioxidants', 'manganese', 'iron'],
   },
   ginger: {
     key: 'ginger', icon: '🌿',
-    label: { ar: 'زنجبيل', de: 'Ingwer' },
+    label: { ar: 'زنجبيل', },
     nutrients: ['antioxidants', 'manganese'],
   },
   cinnamon: {
     key: 'cinnamon', icon: '🌿',
-    label: { ar: 'قرفة', de: 'Zimt' },
+    label: { ar: 'قرفة', },
     nutrients: ['antioxidants', 'manganese', 'chromium'],
   },
   black_seed: {
     key: 'black_seed', icon: '🌱',
-    label: { ar: 'حبة البركة', de: 'Schwarzkümmel' },
+    label: { ar: 'حبة البركة', },
     nutrients: ['antioxidants', 'iron', 'calcium'],
   },
   saffron: {
     key: 'saffron', icon: '🌸',
-    label: { ar: 'زعفران', de: 'Safran' },
+    label: { ar: 'زعفران', },
     nutrients: ['antioxidants', 'manganese'],
   },
 
   // ===== Middle-Eastern staples =====
   labneh: {
     key: 'labneh', icon: '🥣',
-    label: { ar: 'لبنة', de: 'Labneh' },
+    label: { ar: 'لبنة', },
     nutrients: ['protein', 'calcium', 'probiotics', 'vitaminB12'],
     tags: ['dairy'],
   },
   zaatar: {
     key: 'zaatar', icon: '🌿',
-    label: { ar: 'زعتر', de: 'Zatar' },
+    label: { ar: 'زعتر', },
     nutrients: ['iron', 'calcium', 'antioxidants', 'vitaminK'],
   },
   freekeh: {
     key: 'freekeh', icon: '🌾',
-    label: { ar: 'فريكة', de: 'Freekeh' },
+    label: { ar: 'فريكة', },
     nutrients: ['protein', 'fiber', 'iron', 'magnesium'],
   },
   molokhia: {
     key: 'molokhia', icon: '🥬',
-    label: { ar: 'ملوخية', de: 'Molokhia' },
+    label: { ar: 'ملوخية', },
     nutrients: ['vitaminA', 'vitaminC', 'calcium', 'iron', 'folate'],
     tags: ['leafy'],
   },
   fava_beans: {
     key: 'fava_beans', icon: '🫘',
-    label: { ar: 'فول', de: 'Saubohnen' },
+    label: { ar: 'فول', },
     nutrients: ['protein', 'folate', 'iron', 'manganese', 'fiber'],
   },
   kishk: {
     key: 'kishk', icon: '🥣',
-    label: { ar: 'كشك', de: 'Kishk' },
+    label: { ar: 'كشك', },
     nutrients: ['protein', 'probiotics', 'calcium', 'vitaminB12'],
     tags: ['dairy'],
   },
@@ -1299,7 +1287,6 @@ export const INTERACTIONS: InteractionRule[] = [
     severity: 'warn',
     message: {
       ar: 'الكالسيوم يقلل امتصاص الحديد — افصل بينهما بساعتين على الأقل.',
-      de: 'Calcium hemmt die Eisenaufnahme — mind. 2 Stunden Abstand.',
     },
   },
   {
@@ -1308,7 +1295,6 @@ export const INTERACTIONS: InteractionRule[] = [
     severity: 'warn',
     message: {
       ar: 'جرعات الزنك العالية قد تستنزف النحاس على المدى الطويل.',
-      de: 'Hohe Zink-Dosen können langfristig Kupfer verringern.',
     },
   },
   {
@@ -1317,7 +1303,6 @@ export const INTERACTIONS: InteractionRule[] = [
     severity: 'info',
     message: {
       ar: 'الزنك والحديد يتنافسان على الامتصاص — تناولهما في وقتين مختلفين.',
-      de: 'Zink und Eisen konkurrieren bei der Aufnahme — zeitlich trennen.',
     },
   },
   {
@@ -1326,7 +1311,6 @@ export const INTERACTIONS: InteractionRule[] = [
     severity: 'info',
     message: {
       ar: 'جرعات عالية متزامنة من الكالسيوم والمغنيسيوم قد تقلل امتصاص كل منهما.',
-      de: 'Hohe Dosen Calcium und Magnesium gleichzeitig können sich gegenseitig hemmen.',
     },
   },
   {
@@ -1335,7 +1319,6 @@ export const INTERACTIONS: InteractionRule[] = [
     severity: 'info',
     message: {
       ar: 'فيتامين سي يعزز امتصاص الحديد النباتي — تناولهما معاً مفيد.',
-      de: 'Vitamin C verbessert die pflanzliche Eisenaufnahme — gute Kombination.',
     },
   },
   {
@@ -1344,7 +1327,6 @@ export const INTERACTIONS: InteractionRule[] = [
     severity: 'info',
     message: {
       ar: 'فيتامين د يساعد في امتصاص الكالسيوم — تركيبة متكاملة.',
-      de: 'Vitamin D unterstützt die Calcium-Aufnahme — sinnvolle Kombination.',
     },
   },
   {
@@ -1353,7 +1335,6 @@ export const INTERACTIONS: InteractionRule[] = [
     severity: 'warn',
     message: {
       ar: 'القهوة والشاي يقللان امتصاص الحديد إذا شربا معه.',
-      de: 'Kaffee und Tee hemmen die Eisenaufnahme bei gleichzeitiger Einnahme.',
     },
   },
   {
@@ -1362,14 +1343,12 @@ export const INTERACTIONS: InteractionRule[] = [
     severity: 'info',
     message: {
       ar: 'الإفراط في الكافيين قد يقلل امتصاص الكالسيوم.',
-      de: 'Zu viel Koffein kann die Calcium-Aufnahme leicht reduzieren.',
     },
   },
 ];
 
 export const DISCLAIMER: Record<Lang, string> = {
   ar: 'هذه المعلومات عامة لأغراض تثقيفية فقط وليست استشارة طبية. راجع طبيبك قبل تعديل المكملات.',
-  de: 'Diese Infos sind allgemein und bildend — keine medizinische Beratung. Vor Änderungen an Nahrungsergänzungsmitteln bitte Arzt fragen.',
 };
 
 /**
@@ -1408,22 +1387,16 @@ export const SYNERGIES: SynergyRule[] = [
     nutrients: ['vitaminD', 'vitaminK', 'calcium'],
     evidence: 'strong',
     domain: 'bone',
-    title: { ar: 'مثلث العظام: د + ك + كالسيوم', de: 'Knochen-Trio: D + K + Calcium' },
+    title: { ar: 'مثلث العظام: د + ك + كالسيوم', },
     benefits: {
       ar: [
         'فيتامين د يفتح امتصاص الكالسيوم في الأمعاء',
         'فيتامين ك2 يوجّه الكالسيوم إلى العظام لا الشرايين',
         'دعم كثافة العظام وصحة الأسنان على المدى الطويل',
       ],
-      de: [
-        'Vitamin D ermöglicht die Calcium-Aufnahme im Darm',
-        'Vitamin K2 lenkt Calcium in die Knochen, nicht in die Arterien',
-        'Langfristig bessere Knochendichte und Zahngesundheit',
-      ],
     },
     howTo: {
       ar: 'تناولهم معاً مع وجبة فيها دهون (بيض، أفوكادو، زيت زيتون).',
-      de: 'Zusammen zu einer fetthaltigen Mahlzeit (Eier, Avocado, Olivenöl).',
     },
     foodBoosters: ['eggs', 'salmon', 'avocado', 'olive_oil', 'cheese'],
   },
@@ -1432,22 +1405,16 @@ export const SYNERGIES: SynergyRule[] = [
     nutrients: ['vitaminC', 'iron'],
     evidence: 'strong',
     domain: 'blood',
-    title: { ar: 'سي + حديد: امتصاص أعلى', de: 'C + Eisen: bessere Aufnahme' },
+    title: { ar: 'سي + حديد: امتصاص أعلى', },
     benefits: {
       ar: [
         'فيتامين سي يضاعف امتصاص الحديد النباتي حتى 3 مرات',
         'دعم تكوين خلايا الدم الحمراء وتقليل الإرهاق',
         'تحسن مستوى الطاقة خلال أسابيع لمن يعاني نقص الحديد',
       ],
-      de: [
-        'Vitamin C verdreifacht die pflanzliche Eisenaufnahme',
-        'Unterstützt Blutbildung, reduziert Müdigkeit',
-        'Energieniveau steigt innerhalb weniger Wochen bei Eisenmangel',
-      ],
     },
     howTo: {
       ar: 'تناول الحديد على معدة فارغة مع كوب عصير برتقال أو ليمون.',
-      de: 'Eisen nüchtern mit einem Glas Orangen- oder Zitronensaft.',
     },
     foodBoosters: ['orange', 'lemon', 'strawberry', 'spinach', 'lentils'],
   },
@@ -1456,22 +1423,16 @@ export const SYNERGIES: SynergyRule[] = [
     nutrients: ['magnesium', 'vitaminB6'],
     evidence: 'strong',
     domain: 'mood',
-    title: { ar: 'مغنيسيوم + ب6: هدوء وتركيز', de: 'Magnesium + B6: Ruhe & Fokus' },
+    title: { ar: 'مغنيسيوم + ب6: هدوء وتركيز', },
     benefits: {
       ar: [
         'ب6 يزيد دخول المغنيسيوم إلى الخلية',
         'تخفيف القلق والتوتر بشكل ملموس',
         'تحسن جودة النوم العميق',
       ],
-      de: [
-        'B6 erhöht den Magnesium-Eintritt in die Zelle',
-        'Spürbare Reduktion von Anspannung und Stress',
-        'Verbesserte Tiefschlafqualität',
-      ],
     },
     howTo: {
       ar: 'الجرعة المسائية قبل النوم بساعة، مع كوب ماء.',
-      de: 'Abenddosis ca. 1 Std. vor dem Schlafen, mit Wasser.',
     },
     foodBoosters: ['banana', 'almonds', 'spinach', 'oats'],
   },
@@ -1480,22 +1441,16 @@ export const SYNERGIES: SynergyRule[] = [
     nutrients: ['zinc', 'vitaminA'],
     evidence: 'moderate',
     domain: 'skin',
-    title: { ar: 'زنك + فيتامين أ: بشرة هادئة', de: 'Zink + Vitamin A: ruhige Haut' },
+    title: { ar: 'زنك + فيتامين أ: بشرة هادئة', },
     benefits: {
       ar: [
         'تنظيم إفراز الدهون وتقليل الحبوب',
         'تسريع التئام الجلد والندبات الخفيفة',
         'دعم حاجز البشرة ومقاومة الالتهاب',
       ],
-      de: [
-        'Reguliert Talgproduktion, reduziert Unreinheiten',
-        'Beschleunigt Heilung kleiner Hautläsionen',
-        'Stärkt Hautbarriere gegen Entzündungen',
-      ],
     },
     howTo: {
       ar: 'الزنك مع وجبة لتفادي الغثيان، فيتامين أ مع دهون.',
-      de: 'Zink zu einer Mahlzeit, Vitamin A mit Fett.',
     },
     foodBoosters: ['liver', 'carrot', 'eggs', 'salmon'],
   },
@@ -1504,22 +1459,16 @@ export const SYNERGIES: SynergyRule[] = [
     nutrients: ['biotin', 'zinc', 'collagen'],
     evidence: 'moderate',
     domain: 'hair',
-    title: { ar: 'حزمة الشعر: بيوتين + زنك + كولاجين', de: 'Haar-Stack: Biotin + Zink + Kollagen' },
+    title: { ar: 'حزمة الشعر: بيوتين + زنك + كولاجين', },
     benefits: {
       ar: [
         'تقوية بصيلات الشعر وتقليل التساقط الموسمي',
         'دعم بنية الكيراتين وزيادة لمعان الشعر',
         'تحسن في الأظافر والبشرة كأثر جانبي',
       ],
-      de: [
-        'Stärkere Haarfollikel, weniger saisonaler Ausfall',
-        'Bessere Keratinstruktur, sichtbarer Glanz',
-        'Nebeneffekt: festere Nägel, glattere Haut',
-      ],
     },
     howTo: {
       ar: 'الكولاجين صباحاً مع فيتامين سي، الزنك مساءً مع وجبة.',
-      de: 'Kollagen morgens mit Vitamin C, Zink abends zu einer Mahlzeit.',
     },
     foodBoosters: ['eggs', 'salmon', 'walnuts', 'beans'],
   },
@@ -1528,22 +1477,16 @@ export const SYNERGIES: SynergyRule[] = [
     nutrients: ['omega3', 'vitaminE'],
     evidence: 'strong',
     domain: 'heart',
-    title: { ar: 'أوميغا-3 + فيتامين هـ', de: 'Omega-3 + Vitamin E' },
+    title: { ar: 'أوميغا-3 + فيتامين هـ', },
     benefits: {
       ar: [
         'فيتامين هـ يحمي أوميغا-3 من الأكسدة في الجسم',
         'دعم صحة القلب والأوعية الدموية',
         'تقليل الالتهاب المزمن في المفاصل والبشرة',
       ],
-      de: [
-        'Vitamin E schützt Omega-3 vor Oxidation',
-        'Unterstützt Herz und Gefäße',
-        'Reduziert chronische Entzündung in Gelenken und Haut',
-      ],
     },
     howTo: {
       ar: 'كلاهما مع وجبة دسمة في نفس الوقت.',
-      de: 'Beide zusammen zu einer fettreichen Mahlzeit.',
     },
     foodBoosters: ['salmon', 'walnuts', 'almonds', 'olive_oil', 'avocado'],
   },
@@ -1552,22 +1495,16 @@ export const SYNERGIES: SynergyRule[] = [
     nutrients: ['iron', 'folate', 'vitaminB12'],
     evidence: 'strong',
     domain: 'blood',
-    title: { ar: 'ثلاثي تكوين الدم', de: 'Blutbildungs-Trio' },
+    title: { ar: 'ثلاثي تكوين الدم', },
     benefits: {
       ar: [
         'تكوين خلايا دم حمراء صحية وكاملة الوظيفة',
         'علاج فعّال لفقر الدم الغذائي',
         'تحسن في التركيز والطاقة الذهنية',
       ],
-      de: [
-        'Bildung gesunder, voll funktionsfähiger roter Blutzellen',
-        'Wirksam bei ernährungsbedingter Anämie',
-        'Mehr mentale Energie und Konzentration',
-      ],
     },
     howTo: {
       ar: 'الحديد على الريق، ب12 والفوليك أي وقت — أضف فيتامين سي معهم.',
-      de: 'Eisen nüchtern, B12 + Folsäure jederzeit — mit Vitamin C kombinieren.',
     },
     foodBoosters: ['liver', 'spinach', 'beans', 'lentils', 'beef'],
   },
@@ -1576,22 +1513,16 @@ export const SYNERGIES: SynergyRule[] = [
     nutrients: ['magnesium', 'zinc'],
     evidence: 'moderate',
     domain: 'sleep',
-    title: { ar: 'مغنيسيوم + زنك: نوم أعمق', de: 'Magnesium + Zink: tieferer Schlaf' },
+    title: { ar: 'مغنيسيوم + زنك: نوم أعمق', },
     benefits: {
       ar: [
         'تنظيم هرمون الميلاتونين الطبيعي',
         'تقليل الاستيقاظ الليلي',
         'استرخاء عضلي وتعافٍ أفضل بعد المجهود',
       ],
-      de: [
-        'Reguliert die natürliche Melatonin-Produktion',
-        'Weniger nächtliches Aufwachen',
-        'Muskelentspannung und bessere Erholung',
-      ],
     },
     howTo: {
       ar: 'كلاهما مع وجبة العشاء، قبل النوم بساعة على الأقل.',
-      de: 'Beide zum Abendessen, mind. 1 Std. vor dem Schlafen.',
     },
     foodBoosters: ['almonds', 'oats', 'beef', 'beans'],
   },
@@ -1600,22 +1531,16 @@ export const SYNERGIES: SynergyRule[] = [
     nutrients: ['collagen', 'vitaminC'],
     evidence: 'strong',
     domain: 'skin',
-    title: { ar: 'كولاجين + فيتامين سي', de: 'Kollagen + Vitamin C' },
+    title: { ar: 'كولاجين + فيتامين سي', },
     benefits: {
       ar: [
         'فيتامين سي شرط أساسي لتكوين الكولاجين الجديد',
         'تحسن مرونة البشرة خلال 8-12 أسبوع',
         'دعم المفاصل والأوتار',
       ],
-      de: [
-        'Vitamin C ist Voraussetzung für die Kollagensynthese',
-        'Bessere Hautelastizität in 8-12 Wochen',
-        'Unterstützt Gelenke und Sehnen',
-      ],
     },
     howTo: {
       ar: 'الكولاجين صباحاً مع كوب عصير حمضيات أو حبة برتقال.',
-      de: 'Kollagen morgens mit Zitrussaft oder einer Orange.',
     },
     foodBoosters: ['orange', 'strawberry', 'lemon', 'broccoli'],
   },
@@ -1624,22 +1549,16 @@ export const SYNERGIES: SynergyRule[] = [
     nutrients: ['probiotics', 'fiber'],
     evidence: 'strong',
     domain: 'gut',
-    title: { ar: 'بروبيوتيك + ألياف', de: 'Probiotika + Ballaststoffe' },
+    title: { ar: 'بروبيوتيك + ألياف', },
     benefits: {
       ar: [
         'الألياف غذاء البكتيريا النافعة (بريبيوتيك)',
         'تحسن الهضم وانتظام الأمعاء',
         'دعم المناعة وتقليل الانتفاخ',
       ],
-      de: [
-        'Ballaststoffe nähren die guten Bakterien (Präbiotika)',
-        'Bessere Verdauung und regelmäßiger Stuhlgang',
-        'Stärkere Immunabwehr, weniger Blähungen',
-      ],
     },
     howTo: {
       ar: 'البروبيوتيك صباحاً قبل الفطور، مع وجبات غنية بالألياف يومياً.',
-      de: 'Probiotika morgens nüchtern, täglich ballaststoffreich essen.',
     },
     foodBoosters: ['oats', 'beans', 'lentils', 'broccoli', 'avocado'],
   },
@@ -1648,22 +1567,16 @@ export const SYNERGIES: SynergyRule[] = [
     nutrients: ['vitaminD', 'vitaminC', 'zinc'],
     evidence: 'moderate',
     domain: 'immunity',
-    title: { ar: 'حزمة المناعة', de: 'Immun-Stack' },
+    title: { ar: 'حزمة المناعة', },
     benefits: {
       ar: [
         'تقليل مدة وحدة نزلات البرد',
         'دعم خلايا المناعة المختلفة في وقت واحد',
         'يفيد بشكل خاص في الشتاء وقلة الشمس',
       ],
-      de: [
-        'Verkürzt Dauer und Schwere von Erkältungen',
-        'Unterstützt verschiedene Immunzellen gleichzeitig',
-        'Besonders wertvoll im Winter bei wenig Sonne',
-      ],
     },
     howTo: {
       ar: 'فيتامين د مع وجبة دسمة، سي والزنك موزعين على اليوم.',
-      de: 'Vitamin D zu fetthaltiger Mahlzeit, C und Zink über den Tag verteilt.',
     },
     foodBoosters: ['orange', 'salmon', 'eggs', 'kale'],
   },
@@ -1678,22 +1591,16 @@ export const SYNERGIES: SynergyRule[] = [
     nutrients: ['methylfolate', 'methylB12', 'p5p'],
     evidence: 'strong',
     domain: 'methylation',
-    title: { ar: 'محور الميثيلة النشط', de: 'Aktive Methylierungs-Achse' },
+    title: { ar: 'محور الميثيلة النشط', },
     benefits: {
       ar: [
         'الصيغ النشطة تعبر مباشرة دون الحاجة لإنزيم MTHFR',
         'خفض الهوموسيستين وحماية بطانة الشرايين والأعصاب',
         'دعم تصنيع SAMe — مانح الميثيل العالمي للجسم',
       ],
-      de: [
-        'Aktive Formen umgehen den MTHFR-Engpass direkt',
-        'Senkt Homocystein — schützt Gefäße und Nervensystem',
-        'Fördert SAMe-Synthese — der universelle Methyldonor',
-      ],
     },
     howTo: {
       ar: 'صباحاً مع وجبة خفيفة. ابدأ بجرعة منخفضة لتجنب التحفيز المفرط.',
-      de: 'Morgens zu leichter Mahlzeit. Niedrig starten gegen Überstimulation.',
     },
     foodBoosters: ['spinach', 'eggs', 'liver', 'beans'],
   },
@@ -1702,22 +1609,16 @@ export const SYNERGIES: SynergyRule[] = [
     nutrients: ['tmg', 'methylfolate', 'methylB12'],
     evidence: 'moderate',
     domain: 'methylation',
-    title: { ar: 'مسار TMG البديل للهوموسيستين', de: 'TMG-Alternativweg' },
+    title: { ar: 'مسار TMG البديل للهوموسيستين', },
     benefits: {
       ar: [
         'TMG يفعّل إنزيم BHMT لتحويل الهوموسيستين بمسار ثانٍ',
         'حماية مضاعفة من تكلس الشرايين والإجهاد الميثيلي',
         'دعم وظائف الكبد ومضادات الأكسدة الذاتية',
       ],
-      de: [
-        'TMG aktiviert BHMT — zweiter Homocystein-Abbauweg',
-        'Doppelter Schutz vor Gefäßverkalkung und Methylstress',
-        'Unterstützt Leber und körpereigene Antioxidantien',
-      ],
     },
     howTo: {
       ar: 'TMG مع الإفطار (500-1000مغ)، الفيتامينات النشطة معه.',
-      de: 'TMG zum Frühstück (500-1000mg), aktive Vitamine dazu.',
     },
     foodBoosters: ['beetroot', 'spinach', 'eggs'],
   },
@@ -1728,22 +1629,16 @@ export const SYNERGIES: SynergyRule[] = [
     nutrients: ['coq10', 'pqq', 'magnesium'],
     evidence: 'strong',
     domain: 'mitochondria',
-    title: { ar: 'ثلاثي الميتوكوندريا الذهبي', de: 'Mitochondrien-Trio' },
+    title: { ar: 'ثلاثي الميتوكوندريا الذهبي', },
     benefits: {
       ar: [
         'CoQ10 يحمل الإلكترونات في سلسلة التنفس الخلوي',
         'PQQ يحفز نمو ميتوكوندريا جديدة (Biogenesis)',
         'المغنيسيوم وقود ATP الفعّال — يضاعف إنتاج الطاقة',
       ],
-      de: [
-        'CoQ10 transportiert Elektronen in der Atmungskette',
-        'PQQ stimuliert Neubildung neuer Mitochondrien',
-        'Magnesium aktiviert ATP — verdoppelt Energieausbeute',
-      ],
     },
     howTo: {
       ar: 'CoQ10 و PQQ صباحاً مع دهون. المغنيسيوم مساءً.',
-      de: 'CoQ10 + PQQ morgens mit Fett. Magnesium abends.',
     },
     foodBoosters: ['salmon', 'avocado', 'spinach', 'almonds'],
   },
@@ -1752,22 +1647,16 @@ export const SYNERGIES: SynergyRule[] = [
     nutrients: ['lcarnitine', 'coq10', 'ala'],
     evidence: 'strong',
     domain: 'energy',
-    title: { ar: 'وقود الميتوكوندريا للدهون', de: 'Fett-zu-Energie-Stack' },
+    title: { ar: 'وقود الميتوكوندريا للدهون', },
     benefits: {
       ar: [
         'L-كارنيتين ينقل الأحماض الدهنية إلى داخل الميتوكوندريا',
         'CoQ10 يحرقها بكفاءة كاملة لإنتاج ATP',
         'ALA يعيد تدوير المضادات المؤكسدة داخل الخلية',
       ],
-      de: [
-        'L-Carnitin schleust Fettsäuren in Mitochondrien',
-        'CoQ10 verbrennt sie effizient zu ATP',
-        'ALA recycelt Antioxidantien intrazellulär',
-      ],
     },
     howTo: {
       ar: 'قبل التمرين بـ 30 دقيقة على معدة شبه فارغة.',
-      de: '30 Min. vor dem Training, fast nüchtern.',
     },
     foodBoosters: ['beef', 'salmon', 'avocado'],
   },
@@ -1778,22 +1667,16 @@ export const SYNERGIES: SynergyRule[] = [
     nutrients: ['nmn', 'resveratrol', 'tmg'],
     evidence: 'emerging',
     domain: 'longevity',
-    title: { ar: 'محور NAD⁺ والسيرتوينات', de: 'NAD⁺ & Sirtuin-Achse' },
+    title: { ar: 'محور NAD⁺ والسيرتوينات', },
     benefits: {
       ar: [
         'NMN يرفع مستويات NAD⁺ الخلوية بصورة مباشرة',
         'الريسفيراترول يفعّل إنزيمات السيرتوين SIRT1/3 طول العمر',
         'TMG يعوّض مجموعات الميثيل المستهلكة في الاستقلاب',
       ],
-      de: [
-        'NMN hebt direkt zelluläres NAD⁺',
-        'Resveratrol aktiviert SIRT1/3 — Langlebigkeits-Enzyme',
-        'TMG ersetzt verbrauchte Methylgruppen',
-      ],
     },
     howTo: {
       ar: 'صباحاً على معدة فارغة قبل الإفطار بـ 20 دقيقة.',
-      de: 'Morgens nüchtern, 20 Min. vor dem Frühstück.',
     },
     foodBoosters: ['avocado', 'broccoli', 'salmon'],
   },
@@ -1802,22 +1685,16 @@ export const SYNERGIES: SynergyRule[] = [
     nutrients: ['fisetin', 'quercetin', 'spermidine'],
     evidence: 'emerging',
     domain: 'longevity',
-    title: { ar: 'سينوليتك: تنظيف الخلايا الهرمة', de: 'Senolytische Reinigung' },
+    title: { ar: 'سينوليتك: تنظيف الخلايا الهرمة', },
     benefits: {
       ar: [
         'فايسيتين وكيرسيتين يحفّزان موت الخلايا الزومبية المتراكمة',
         'سبيرميدين يفعّل الالتهام الذاتي (Autophagy) لتجديد الخلايا',
         'تحسّن مرونة الأنسجة وانخفاض الالتهاب المزمن',
       ],
-      de: [
-        'Fisetin + Quercetin entfernen seneszente Zombie-Zellen',
-        'Spermidin aktiviert Autophagie — Zellrecycling',
-        'Bessere Gewebeelastizität, weniger chronische Entzündung',
-      ],
     },
     howTo: {
       ar: 'بروتوكول نبضي: 2 يوم أسبوعياً بجرعة عالية مع وجبة دسمة.',
-      de: 'Puls-Protokoll: 2 Tage/Woche hochdosiert zu Fett-Mahlzeit.',
     },
     foodBoosters: ['strawberry', 'apple', 'olive_oil'],
   },
@@ -1828,22 +1705,16 @@ export const SYNERGIES: SynergyRule[] = [
     nutrients: ['carnosine', 'benfotiamine', 'ala'],
     evidence: 'moderate',
     domain: 'longevity',
-    title: { ar: 'درع مضاد الجلكزة (AGEs)', de: 'Anti-Glykations-Schild' },
+    title: { ar: 'درع مضاد الجلكزة (AGEs)', },
     benefits: {
       ar: [
         'الكارنوزين يكسر روابط البروتين-سكر قبل تكوينها',
         'البنفوتيامين يحوّل سلائف AGEs بعيداً عن الأنسجة',
         'ALA يحمي الأعصاب الطرفية من تلف السكر العالي',
       ],
-      de: [
-        'Carnosin blockiert Protein-Zucker-Vernetzung',
-        'Benfotiamin lenkt AGE-Vorstufen aus dem Gewebe',
-        'ALA schützt periphere Nerven vor Zuckerschäden',
-      ],
     },
     howTo: {
       ar: 'مع الوجبات الغنية بالكربوهيدرات لتقليل الذروة السكرية.',
-      de: 'Zu kohlenhydratreichen Mahlzeiten — dämpft Zuckerspitzen.',
     },
     foodBoosters: ['broccoli', 'spinach', 'beef'],
   },
@@ -1854,22 +1725,16 @@ export const SYNERGIES: SynergyRule[] = [
     nutrients: ['nac', 'glutathione', 'selenium'],
     evidence: 'strong',
     domain: 'detox',
-    title: { ar: 'دورة الجلوتاثيون الكاملة', de: 'Glutathion-Zyklus' },
+    title: { ar: 'دورة الجلوتاثيون الكاملة', },
     benefits: {
       ar: [
         'NAC يوفّر السيستين — اللبنة المحدِّدة لتصنيع الجلوتاثيون',
         'السيلينيوم ينشّط إنزيم GPx لإعادة شحن GSH المستهلك',
         'تنظيف الكبد، المعادن الثقيلة، وحماية الميتوكوندريا',
       ],
-      de: [
-        'NAC liefert Cystein — Schlüsselbaustein für Glutathion',
-        'Selen aktiviert GPx — regeneriert verbrauchtes GSH',
-        'Leber-Detox, Schwermetalle, Schutz der Mitochondrien',
-      ],
     },
     howTo: {
       ar: 'NAC على معدة فارغة، الجلوتاثيون تحت اللسان لامتصاص أفضل.',
-      de: 'NAC nüchtern, Glutathion sublingual für bessere Aufnahme.',
     },
     foodBoosters: ['broccoli', 'eggs', 'salmon', 'kale'],
   },
@@ -1878,22 +1743,16 @@ export const SYNERGIES: SynergyRule[] = [
     nutrients: ['milkthistle', 'nac', 'tmg'],
     evidence: 'moderate',
     domain: 'detox',
-    title: { ar: 'تجديد الكبد العميق', de: 'Tiefe Leber-Regeneration' },
+    title: { ar: 'تجديد الكبد العميق', },
     benefits: {
       ar: [
         'سيليمارين يثبّت أغشية خلايا الكبد ويسرّع تجديدها',
         'NAC يدعم تفكيك السموم في المرحلتين I و II',
         'TMG يقلل تراكم الدهون الكبدية ويحسّن إنزيمات ALT/AST',
       ],
-      de: [
-        'Silymarin stabilisiert Leberzellmembranen, fördert Regeneration',
-        'NAC unterstützt Phase-I- und Phase-II-Entgiftung',
-        'TMG reduziert Leberverfettung — bessere ALT/AST-Werte',
-      ],
     },
     howTo: {
       ar: 'موزعة على اليوم، أكبر جرعة قبل النوم لعمل الكبد الليلي.',
-      de: 'Über den Tag verteilt, Hauptdosis abends für Leber-Nachtarbeit.',
     },
     foodBoosters: ['beetroot', 'broccoli', 'lemon'],
   },
@@ -1904,22 +1763,16 @@ export const SYNERGIES: SynergyRule[] = [
     nutrients: ['ashwagandha', 'magnesium', 'ltheanine'],
     evidence: 'strong',
     domain: 'mood',
-    title: { ar: 'تهدئة محور HPA', de: 'HPA-Achse beruhigen' },
+    title: { ar: 'تهدئة محور HPA', },
     benefits: {
       ar: [
         'الأشواغاندا تخفض الكورتيزول المساء حتى 28%',
         'L-ثيانين يرفع موجات ألفا الدماغية — هدوء حاضر',
         'المغنيسيوم يعيد توازن GABA ويهدّئ الجهاز العصبي',
       ],
-      de: [
-        'Ashwagandha senkt Abend-Cortisol bis 28%',
-        'L-Theanin steigert Alpha-Wellen — wache Ruhe',
-        'Magnesium balanciert GABA — Nervensystem-Reset',
-      ],
     },
     howTo: {
       ar: 'الأشواغاندا مساءً، L-ثيانين عند التوتر، المغنيسيوم قبل النوم.',
-      de: 'Ashwagandha abends, L-Theanin bei Stress, Magnesium vor Schlaf.',
     },
     foodBoosters: ['oats', 'almonds', 'banana'],
   },
@@ -1928,22 +1781,16 @@ export const SYNERGIES: SynergyRule[] = [
     nutrients: ['rhodiola', 'p5p', 'vitaminB12'],
     evidence: 'moderate',
     domain: 'energy',
-    title: { ar: 'دفع التكيف الصباحي', de: 'Adaptogener Morgen-Drive' },
+    title: { ar: 'دفع التكيف الصباحي', },
     benefits: {
       ar: [
         'روديولا ترفع الأداء العقلي تحت الضغط دون كافيين',
         'P5P يسرّع تصنيع الدوبامين والنورأدرينالين',
         'B12 يضمن توصيل الإشارات العصبية بكفاءة عالية',
       ],
-      de: [
-        'Rhodiola steigert mentale Leistung unter Stress (ohne Koffein)',
-        'P5P beschleunigt Dopamin- und Noradrenalin-Synthese',
-        'B12 sichert effiziente Nervenleitung',
-      ],
     },
     howTo: {
       ar: 'صباحاً قبل بدء العمل، تجنّب بعد الظهر.',
-      de: 'Morgens vor Arbeitsbeginn, nicht nach Mittag.',
     },
     foodBoosters: ['eggs', 'salmon', 'spinach'],
   },
@@ -1954,22 +1801,16 @@ export const SYNERGIES: SynergyRule[] = [
     nutrients: ['magnesium', 'glycine', 'ltheanine'],
     evidence: 'strong',
     domain: 'sleep',
-    title: { ar: 'هندسة النوم العميق', de: 'Tiefschlaf-Architektur' },
+    title: { ar: 'هندسة النوم العميق', },
     benefits: {
       ar: [
         'الجلايسين يخفض درجة حرارة الجسم المركزية للدخول السريع للنوم',
         'L-ثيانين يطيل مرحلة النوم العميق وحركة العين السريعة (REM)',
         'المغنيسيوم يهدّئ مستقبلات NMDA المثيرة',
       ],
-      de: [
-        'Glycin senkt Kerntemperatur — schnelleres Einschlafen',
-        'L-Theanin verlängert Tief- und REM-Schlafphasen',
-        'Magnesium dämpft erregende NMDA-Rezeptoren',
-      ],
     },
     howTo: {
       ar: '30-60 دقيقة قبل النوم، بعيداً عن الكافيين والشاشات.',
-      de: '30-60 Min. vor dem Schlafen, fern von Koffein und Bildschirmen.',
     },
     foodBoosters: ['oats', 'almonds', 'cherry'],
   },
@@ -1980,22 +1821,16 @@ export const SYNERGIES: SynergyRule[] = [
     nutrients: ['omega3', 'phosphatidylserine', 'methylB12'],
     evidence: 'strong',
     domain: 'cognition',
-    title: { ar: 'بناء أغشية الدماغ', de: 'Hirnmembran-Aufbau' },
+    title: { ar: 'بناء أغشية الدماغ', },
     benefits: {
       ar: [
         'DHA يشكّل 30% من فوسفوليبيدات الدماغ — مرونة المشابك',
         'PS يخفض الكورتيزول ويقوّي الذاكرة العاملة',
         'الميثيل B12 يحمي غمد المايلين من التآكل',
       ],
-      de: [
-        'DHA bildet 30% der Hirn-Phospholipide — Synapsen-Flexibilität',
-        'PS senkt Cortisol, stärkt Arbeitsgedächtnis',
-        'Methyl-B12 schützt Myelinscheide vor Abbau',
-      ],
     },
     howTo: {
       ar: 'مع وجبة الغداء الدسمة لامتصاص مثالي للدهنيات.',
-      de: 'Zur fetthaltigen Mittagsmahlzeit für optimale Aufnahme.',
     },
     foodBoosters: ['salmon', 'walnuts', 'eggs', 'avocado'],
   },
@@ -2004,22 +1839,16 @@ export const SYNERGIES: SynergyRule[] = [
     nutrients: ['lionsmane', 'omega3', 'choline'],
     evidence: 'emerging',
     domain: 'cognition',
-    title: { ar: 'نمو الأعصاب (NGF)', de: 'Nervenwachstum (NGF)' },
+    title: { ar: 'نمو الأعصاب (NGF)', },
     benefits: {
       ar: [
         'عرف الأسد يحفّز إفراز عامل نمو الأعصاب NGF و BDNF',
         'DHA يدعم تكوين النواقل العصبية في المشابك',
         'الكولين سلف الأستيل كولين — وقود الذاكرة',
       ],
-      de: [
-        'Lion\'s Mane stimuliert NGF- und BDNF-Ausschüttung',
-        'DHA fördert Neurotransmitter-Bildung an Synapsen',
-        'Cholin: Acetylcholin-Vorstufe — Gedächtnis-Treibstoff',
-      ],
     },
     howTo: {
       ar: 'صباحاً ومنتصف اليوم، استمرارية 8 أسابيع لأثر ملموس.',
-      de: 'Morgens und mittags, 8 Wochen Konsistenz für Wirkung.',
     },
     foodBoosters: ['eggs', 'salmon', 'walnuts'],
   },
@@ -2028,22 +1857,16 @@ export const SYNERGIES: SynergyRule[] = [
     nutrients: ['ltheanine', 'caffeine'],
     evidence: 'strong',
     domain: 'cognition',
-    title: { ar: 'تركيز فوري بلا توتر', de: 'Fokus ohne Nervosität' },
+    title: { ar: 'تركيز فوري بلا توتر', },
     benefits: {
       ar: [
         'الكافيين يرفع اليقظة، L-ثيانين يلغي العصبية',
         'تركيز حاد ومستقر لـ 3-4 ساعات',
         'بدون ارتداد طاقة سلبي',
       ],
-      de: [
-        'Koffein erhöht Wachheit, L-Theanin neutralisiert Nervosität',
-        'Klarer, stabiler Fokus für 3-4 Stunden',
-        'Ohne Energie-Crash danach',
-      ],
     },
     howTo: {
       ar: 'نسبة 2:1 (مثلاً 200مغ ثيانين مع 100مغ كافيين) قبل عمل عميق.',
-      de: 'Verhältnis 2:1 (z.B. 200mg Theanin + 100mg Koffein) vor Deep Work.',
     },
     foodBoosters: [],
   },
@@ -2054,22 +1877,16 @@ export const SYNERGIES: SynergyRule[] = [
     nutrients: ['hmo', 'akkermansia', 'butyrate', 'fiber'],
     evidence: 'emerging',
     domain: 'gut',
-    title: { ar: 'إعادة بناء الميكروبيوم', de: 'Mikrobiom-Wiederaufbau' },
+    title: { ar: 'إعادة بناء الميكروبيوم', },
     benefits: {
       ar: [
         'HMOs تغذّي حصرياً سلالات B. infantis الملكية',
         'أكرمانسيا تسمّك طبقة الميوكين الواقية لجدار المعى',
         'البوتيرات يغذّي خلايا القولون مباشرة — وقود مفضّل',
       ],
-      de: [
-        'HMOs nähren exklusiv B. infantis-Stämme',
-        'Akkermansia verdickt Mukus-Schutzschicht',
-        'Butyrat nährt Kolonozyten direkt — bevorzugter Treibstoff',
-      ],
     },
     howTo: {
       ar: 'بروتوكول 12 أسبوع: HMO يومياً، أكرمانسيا مساءً، ألياف متنوعة.',
-      de: '12-Wochen-Protokoll: HMO täglich, Akkermansia abends, vielfältige Ballaststoffe.',
     },
     foodBoosters: ['oats', 'beans', 'broccoli', 'avocado'],
   },
@@ -2078,22 +1895,16 @@ export const SYNERGIES: SynergyRule[] = [
     nutrients: ['glutamine', 'zinc', 'akkermansia'],
     evidence: 'moderate',
     domain: 'gut',
-    title: { ar: 'ترميم جدار الأمعاء المتسرّب', de: 'Leaky-Gut-Reparatur' },
+    title: { ar: 'ترميم جدار الأمعاء المتسرّب', },
     benefits: {
       ar: [
         'L-جلوتامين الوقود الأول لخلايا الأمعاء — يرمم الروابط الضيقة',
         'الزنك يقفل النفاذية المعوية ويستعيد البطانة',
         'أكرمانسيا تعيد بناء طبقة المخاط الواقية',
       ],
-      de: [
-        'L-Glutamin: Hauptbrennstoff der Darmzellen, repariert Tight Junctions',
-        'Zink schließt Darmpermeabilität — Epithel-Reset',
-        'Akkermansia regeneriert schützende Mukus-Schicht',
-      ],
     },
     howTo: {
       ar: 'الجلوتامين على معدة فارغة (5مغ مرتين)، الزنك مع العشاء.',
-      de: 'Glutamin nüchtern (5g 2x), Zink zum Abendessen.',
     },
     foodBoosters: ['beef', 'eggs', 'oats'],
   },
@@ -2104,7 +1915,7 @@ export const SYNERGIES: SynergyRule[] = [
     nutrients: ['collagen', 'hyaluronic', 'silica', 'vitaminC'],
     evidence: 'strong',
     domain: 'skin',
-    title: { ar: 'مصفوفة البشرة المتكاملة', de: 'Vollständige Hautmatrix' },
+    title: { ar: 'مصفوفة البشرة المتكاملة', },
     benefits: {
       ar: [
         'الكولاجين يبني البنية التحتية للأدمة',
@@ -2112,16 +1923,9 @@ export const SYNERGIES: SynergyRule[] = [
         'السيليكا تربط ألياف الكولاجين والإيلاستين بقوة',
         'فيتامين سي شرط إلزامي لتشابك الكولاجين',
       ],
-      de: [
-        'Kollagen baut Dermis-Grundstruktur',
-        'Hyaluronsäure bindet 1000-faches Eigengewicht an Wasser',
-        'Silizium vernetzt Kollagen- und Elastinfasern',
-        'Vitamin C ist Voraussetzung für Kollagen-Crosslinking',
-      ],
     },
     howTo: {
       ar: 'صباحاً معاً مع عصير حمضيات. 12 أسبوع لنتيجة بصرية.',
-      de: 'Morgens zusammen mit Zitrussaft. 12 Wochen für sichtbares Ergebnis.',
     },
     foodBoosters: ['orange', 'strawberry', 'broccoli', 'kiwi'],
   },
@@ -2132,22 +1936,16 @@ export const SYNERGIES: SynergyRule[] = [
     nutrients: ['collagen', 'msm', 'omega3', 'vitaminC'],
     evidence: 'moderate',
     domain: 'bone',
-    title: { ar: 'درع المفاصل والأوتار', de: 'Gelenk- & Sehnen-Schild' },
+    title: { ar: 'درع المفاصل والأوتار', },
     benefits: {
       ar: [
         'كولاجين النوع II يبني الغضاريف ويعيد ترطيبها',
         'MSM يوفر الكبريت لجسور ثنائي السلفايد بين البروتينات',
         'أوميغا-3 يخفض الالتهاب المفصلي المزمن',
       ],
-      de: [
-        'Kollagen Typ II baut Knorpel auf, rehydriert ihn',
-        'MSM liefert Schwefel für Disulfid-Brücken',
-        'Omega-3 reduziert chronische Gelenkentzündung',
-      ],
     },
     howTo: {
       ar: 'صباحاً معاً، استمرار 8-12 أسبوع لتحسن مرونة المفاصل.',
-      de: 'Morgens gemeinsam, 8-12 Wochen für bessere Beweglichkeit.',
     },
     foodBoosters: ['salmon', 'broccoli', 'eggs'],
   },
@@ -2158,7 +1956,7 @@ export const SYNERGIES: SynergyRule[] = [
     nutrients: ['omega3', 'coq10', 'vitaminK', 'magnesium'],
     evidence: 'strong',
     domain: 'heart',
-    title: { ar: 'درع القلب الرباعي', de: 'Vierfach-Herzschild' },
+    title: { ar: 'درع القلب الرباعي', },
     benefits: {
       ar: [
         'CoQ10 يدعم عضلة القلب الأعلى استهلاكاً للطاقة في الجسم',
@@ -2166,16 +1964,9 @@ export const SYNERGIES: SynergyRule[] = [
         'أوميغا-3 يخفض الترايغليسريد ويعدّل ضغط الدم',
         'المغنيسيوم ينظّم إيقاع القلب الكهربائي',
       ],
-      de: [
-        'CoQ10 versorgt den Herzmuskel (höchster Energieverbrauch)',
-        'Vitamin K2 verhindert Arterienverkalkung',
-        'Omega-3 senkt Triglyceride, reguliert Blutdruck',
-        'Magnesium stabilisiert Herzrhythmus elektrisch',
-      ],
     },
     howTo: {
       ar: 'الجميع مع وجبة دسمة. المغنيسيوم مساءً بعيداً عن CoQ10.',
-      de: 'Alle zu fetthaltiger Mahlzeit. Magnesium abends getrennt.',
     },
     foodBoosters: ['salmon', 'avocado', 'olive_oil', 'spinach'],
   },
@@ -2186,22 +1977,16 @@ export const SYNERGIES: SynergyRule[] = [
     nutrients: ['curcumin', 'omega3', 'quercetin'],
     evidence: 'strong',
     domain: 'immunity',
-    title: { ar: 'إطفاء الالتهاب المزمن', de: 'Chronische Entzündung löschen' },
+    title: { ar: 'إطفاء الالتهاب المزمن', },
     benefits: {
       ar: [
         'الكركومين يكبح مسار NF-κB الالتهابي على المستوى الجيني',
         'EPA من أوميغا-3 يصنع رسائل مُحلّلة للالتهاب (Resolvins)',
         'كيرسيتين يثبّت الخلايا الصارية ويمنع إفراز الهيستامين',
       ],
-      de: [
-        'Curcumin hemmt NF-κB-Entzündungspfad auf Gen-Ebene',
-        'EPA bildet entzündungsauflösende Resolvine',
-        'Quercetin stabilisiert Mastzellen — weniger Histamin',
-      ],
     },
     howTo: {
       ar: 'مع وجبة دسمة وفلفل أسود لرفع امتصاص الكركومين 20 ضعفاً.',
-      de: 'Zu fetthaltiger Mahlzeit + schwarzer Pfeffer (20x Curcumin-Aufnahme).',
     },
     foodBoosters: ['salmon', 'olive_oil', 'broccoli', 'apple'],
   },
@@ -2212,22 +1997,16 @@ export const SYNERGIES: SynergyRule[] = [
     nutrients: ['chromium', 'magnesium', 'ala', 'inositol'],
     evidence: 'moderate',
     domain: 'hormones',
-    title: { ar: 'حساسية الإنسولين العميقة', de: 'Tiefe Insulinsensitivität' },
+    title: { ar: 'حساسية الإنسولين العميقة', },
     benefits: {
       ar: [
         'الكروم يقوّي عمل مستقبلات الإنسولين على الخلايا',
         'ALA يحسّن نقل الجلوكوز إلى داخل الخلية بكفاءة',
         'الإينوزيتول يعيد إشارة الإنسولين خاصة لدى متلازمة المبيض المتعدد',
       ],
-      de: [
-        'Chrom stärkt Insulinrezeptor-Signal',
-        'ALA verbessert Glukose-Aufnahme in die Zelle',
-        'Inositol stellt Insulinsignal wieder her (v.a. PCOS)',
-      ],
     },
     howTo: {
       ar: 'مع الوجبات الكربوهيدراتية، الإينوزيتول صباحاً ومساءً.',
-      de: 'Zu kohlenhydratreichen Mahlzeiten; Inositol morgens + abends.',
     },
     foodBoosters: ['broccoli', 'beans', 'oats'],
   },
@@ -2236,22 +2015,16 @@ export const SYNERGIES: SynergyRule[] = [
     nutrients: ['iodine', 'selenium', 'zinc'],
     evidence: 'moderate',
     domain: 'hormones',
-    title: { ar: 'محور الغدة الدرقية', de: 'Schilddrüsen-Achse' },
+    title: { ar: 'محور الغدة الدرقية', },
     benefits: {
       ar: [
         'اليود يبني هرمونات T4 و T3 مباشرة',
         'السيلينيوم ينشّط إنزيم Deiodinase لتحويل T4 الخامل إلى T3 النشط',
         'الزنك ضروري لارتباط T3 بمستقبلاتها النووية',
       ],
-      de: [
-        'Jod baut T4 und T3 direkt auf',
-        'Selen aktiviert Deiodinase: T4 → aktives T3',
-        'Zink essenziell für T3-Rezeptor-Bindung',
-      ],
     },
     howTo: {
       ar: 'صباحاً مع الإفطار، بعيداً عن مكملات الحديد والكالسيوم بـ 4 ساعات.',
-      de: 'Morgens zum Frühstück, 4 Std. Abstand zu Eisen/Calcium.',
     },
     foodBoosters: ['salmon', 'eggs', 'beef'],
   },
@@ -2262,22 +2035,16 @@ export const SYNERGIES: SynergyRule[] = [
     nutrients: ['inositol', 'vitaminD', 'magnesium', 'p5p'],
     evidence: 'moderate',
     domain: 'hormones',
-    title: { ar: 'توازن الهرمونات الأنثوية', de: 'Weibliches Hormongleichgewicht' },
+    title: { ar: 'توازن الهرمونات الأنثوية', },
     benefits: {
       ar: [
         'الإينوزيتول (Myo+DCI بنسبة 40:1) يعيد انتظام التبويض',
         'فيتامين د هرمون-ستيرويدي ينظّم استقبال الإستروجين',
         'P5P يخفّض البرولاكتين وأعراض ما قبل الحيض',
       ],
-      de: [
-        'Inositol (Myo+DCI 40:1) reguliert Eisprung',
-        'Vitamin D als Steroidhormon — Östrogen-Rezeptoren',
-        'P5P senkt Prolaktin und PMS-Symptome',
-      ],
     },
     howTo: {
       ar: 'الإينوزيتول صباحاً ومساءً، فيتامين د مع وجبة دسمة.',
-      de: 'Inositol morgens + abends, Vitamin D zu Fett-Mahlzeit.',
     },
     foodBoosters: ['salmon', 'eggs', 'avocado', 'spinach'],
   },
@@ -2288,22 +2055,16 @@ export const SYNERGIES: SynergyRule[] = [
     nutrients: ['creatine', 'protein', 'magnesium'],
     evidence: 'strong',
     domain: 'energy',
-    title: { ar: 'قوة العضلات والاستشفاء', de: 'Muskelkraft & Regeneration' },
+    title: { ar: 'قوة العضلات والاستشفاء', },
     benefits: {
       ar: [
         'الكرياتين يضاعف مخزون ATP الفوري في العضلات',
         'البروتين يوفر الأحماض الأمينية لبناء النسيج العضلي',
         'المغنيسيوم يمنع تشنجات العضلات بعد التمرين',
       ],
-      de: [
-        'Kreatin verdoppelt ATP-Speicher in Muskelzellen',
-        'Protein liefert Aminosäuren für Muskelaufbau',
-        'Magnesium verhindert Muskelkrämpfe nach dem Training',
-      ],
     },
     howTo: {
       ar: 'الكرياتين 5مغ يومياً (وقت ثابت)، البروتين بعد التمرين.',
-      de: 'Kreatin 5g täglich (fester Zeitpunkt), Protein nach Training.',
     },
     foodBoosters: ['beef', 'eggs', 'salmon', 'beans'],
   },
@@ -2314,26 +2075,26 @@ export const DOMAIN_META: Record<
   SynergyRule['domain'],
   { icon: string; label: Record<Lang, string> }
 > = {
-  bone:     { icon: '🦴', label: { ar: 'العظام',   de: 'Knochen'   } },
-  skin:     { icon: '✨', label: { ar: 'البشرة',   de: 'Haut'      } },
-  hair:     { icon: '💇', label: { ar: 'الشعر',    de: 'Haar'      } },
-  energy:   { icon: '⚡', label: { ar: 'الطاقة',   de: 'Energie'   } },
-  immunity: { icon: '🛡️', label: { ar: 'المناعة',  de: 'Immunität' } },
-  sleep:    { icon: '🌙', label: { ar: 'النوم',    de: 'Schlaf'    } },
-  heart:    { icon: '❤️', label: { ar: 'القلب',    de: 'Herz'      } },
-  gut:      { icon: '🌱', label: { ar: 'الأمعاء',  de: 'Darm'      } },
-  mood:     { icon: '🧘', label: { ar: 'المزاج',   de: 'Stimmung'  } },
-  blood:    { icon: '🩸', label: { ar: 'الدم',     de: 'Blut'      } },
-  methylation:  { icon: '🧬', label: { ar: 'الميثيلة',     de: 'Methylierung' } },
-  mitochondria: { icon: '🔋', label: { ar: 'الميتوكوندريا', de: 'Mitochondrien' } },
-  cognition:    { icon: '🧠', label: { ar: 'الإدراك',       de: 'Kognition'    } },
-  longevity:    { icon: '♾️', label: { ar: 'طول العمر',     de: 'Longevity'    } },
-  detox:        { icon: '💧', label: { ar: 'إزالة السموم',  de: 'Entgiftung'   } },
-  hormones:     { icon: '⚖️', label: { ar: 'الهرمونات',     de: 'Hormone'      } },
+  bone:     { icon: '🦴', label: { ar: 'العظام',   } },
+  skin:     { icon: '✨', label: { ar: 'البشرة',      } },
+  hair:     { icon: '💇', label: { ar: 'الشعر',      } },
+  energy:   { icon: '⚡', label: { ar: 'الطاقة',   } },
+  immunity: { icon: '🛡️', label: { ar: 'المناعة', } },
+  sleep:    { icon: '🌙', label: { ar: 'النوم',    } },
+  heart:    { icon: '❤️', label: { ar: 'القلب',      } },
+  gut:      { icon: '🌱', label: { ar: 'الأمعاء',      } },
+  mood:     { icon: '🧘', label: { ar: 'المزاج',  } },
+  blood:    { icon: '🩸', label: { ar: 'الدم',      } },
+  methylation:  { icon: '🧬', label: { ar: 'الميثيلة', } },
+  mitochondria: { icon: '🔋', label: { ar: 'الميتوكوندريا', } },
+  cognition:    { icon: '🧠', label: { ar: 'الإدراك',    } },
+  longevity:    { icon: '♾️', label: { ar: 'طول العمر',    } },
+  detox:        { icon: '💧', label: { ar: 'إزالة السموم',   } },
+  hormones:     { icon: '⚖️', label: { ar: 'الهرمونات',      } },
 };
 
 export const EVIDENCE_LABEL: Record<SynergyRule['evidence'], Record<Lang, string>> = {
-  strong:   { ar: 'دليل قوي',     de: 'Starke Evidenz'   },
-  moderate: { ar: 'دليل متوسط',   de: 'Mittlere Evidenz' },
-  emerging: { ar: 'دليل أولي',     de: 'Vorläufig'        },
+  strong:   { ar: 'دليل قوي',   },
+  moderate: { ar: 'دليل متوسط', },
+  emerging: { ar: 'دليل أولي',        },
 };

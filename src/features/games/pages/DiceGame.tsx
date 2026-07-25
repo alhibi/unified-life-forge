@@ -2,12 +2,12 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useApp } from '@/contexts/AppContext';
 import GameShell from '@/features/games/components/GameShell';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Dices, RotateCcw, Crown, Bot, User as UserIcon, PiggyBank, Swords, Trophy, Flame } from '@/lib/icons';
+import { Dices, RotateCcw, Crown, Bot, User as UserIcon, PiggyBank, Trophy, Flame } from '@/lib/icons';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { playSfx, vibrate } from '@/features/games/utils/gameFeedback';
 import {
   DICE_BOTS, DicePersonality, effectiveThreshold,
-  loadTournament, saveTournament, recordPlayerMatch, TournamentState,
+  loadTournament, saveTournament, recordPlayerMatch,
 } from '@/features/games/data/diceTournament';
 
 // =============================================================================
@@ -55,7 +55,7 @@ function DiceFace({ value, held, rolling, onClick, color, size = 'md' }: {
         ))
       )}
       {held && size !== 'lg' && (
-        <span className={`absolute -top-2 left-1/2 -translate-x-1/2 text-[8px] font-black tracking-wider px-1.5 py-0.5 rounded-full ${
+        <span className={`absolute -top-2 left-1/2 -translate-x-1/2 text-[10px] font-black tracking-wider px-1.5 py-0.5 rounded-full ${
           isGold ? 'bg-amber-500 text-amber-50' : 'bg-rose-500 text-white'
         }`}>
           HOLD
@@ -315,81 +315,64 @@ export default function DiceGame() {
 
   const rules = useMemo(() => {
     if (mode === 'yatzy') {
-      return isAr ? [
+      return [
         'ارمِ 5 نرود حتى 3 مرات؛ اضغط على نرد لتثبيته',
         'بعد آخر رمية اختر خانة لتسجيل النتيجة',
         'القسم العلوي (1-6): 63+ ⇒ مكافأة 35',
         'فول هاوس 25 · سلسلة 30/40 · يَتزي 50',
         '13 جولة لكل لاعب. الأعلى يفوز!',
-      ] : [
-        '5 Würfel, bis zu 3 Würfe; tippen zum Halten',
-        'Nach letztem Wurf: Kategorie wählen',
-        'Oberer Bereich (1-6): 63+ ⇒ Bonus 35',
-        'Full House 25 · Straße 30/40 · Kniffel 50',
-        '13 Runden pro Spieler. Höchste Summe gewinnt!',
       ];
     }
     if (mode === 'pig') {
-      return isAr ? [
+      return [
         'ارمِ النرد لجمع نقاط الجولة',
         '"احتفظ" يضيف نقاط الجولة لرصيدك',
         'إذا رميت 1 ⇒ تخسر نقاط هذه الجولة',
         'إذا رميت زوجين 1+1 ⇒ تخسر كل رصيدك!',
         'أول من يصل إلى 100 نقطة يفوز',
-      ] : [
-        'Würfle, um Rundenpunkte zu sammeln',
-        '"Halten" überträgt Rundenpunkte aufs Konto',
-        'Eine 1 ⇒ Rundenpunkte futsch',
-        'Doppel-1 ⇒ kompletter Score weg!',
-        'Wer zuerst 100 erreicht, gewinnt',
       ];
     }
-    return isAr ? [
+    return [
       'كل جولة يرمي اللاعب والخصم نرداً واحداً',
       'صاحب الرقم الأعلى يفوز بالجولة',
       'من يجمع جولات أكثر يفوز باللعبة',
       'السلسلة تتراكم مع كل فوز',
-    ] : [
-      'Jede Runde würfeln Spieler und Gegner',
-      'Höhere Zahl gewinnt die Runde',
-      'Mehr Rundensiege ⇒ Spielsieg',
-      'Siegesserie zählt mit',
     ];
   }, [mode, isAr]);
 
   const statsArr = [
-    { label: isAr ? 'مباريات' : 'Spiele', value: stats.gamesPlayed },
-    { label: isAr ? 'انتصارات' : 'Siege', value: stats.gamesWon },
-    { label: isAr ? 'أفضل نتيجة (Yatzy)' : 'Top (Kniffel)', value: stats.bestScore },
-    { label: isAr ? 'يَتزي مرمي' : 'Kniffel ges.', value: stats.yatzeesRolled },
-    { label: isAr ? 'فوز Pig' : 'Pig Siege', value: stats.pigGamesWon },
-    { label: isAr ? 'أعلى جولة Pig' : 'Pig Best Runde', value: stats.pigBestRound },
-    { label: isAr ? 'سلسلة Highroll' : 'HR Serie', value: stats.hrBestStreak },
-    { label: isAr ? 'نسبة الفوز' : 'Siegquote', value: stats.gamesPlayed ? `${Math.round((stats.gamesWon / stats.gamesPlayed) * 100)}%` : '-' },
+    { label: 'مباريات', value: stats.gamesPlayed },
+    { label: 'انتصارات', value: stats.gamesWon },
+    { label: 'أفضل نتيجة (Yatzy)', value: stats.bestScore },
+    { label: 'يَتزي مرمي', value: stats.yatzeesRolled },
+    { label: 'فوز Pig', value: stats.pigGamesWon },
+    { label: 'أعلى جولة Pig', value: stats.pigBestRound },
+    { label: 'سلسلة Highroll', value: stats.hrBestStreak },
+    { label: 'نسبة الفوز', value: stats.gamesPlayed ? `${Math.round((stats.gamesWon / stats.gamesPlayed) * 100)}%` : '-' },
   ];
 
   const options = [
     {
-      key: 'mode', label: isAr ? 'نمط اللعب' : 'Spielmodus',
+      key: 'mode', label: 'نمط اللعب',
       choices: [
-        { value: 'yatzy', label: isAr ? 'يَتزي' : 'Kniffel' },
-        { value: 'pig', label: isAr ? 'الخنزير' : 'Pig' },
-        { value: 'highroll', label: isAr ? 'رمية كبرى' : 'Highroll' },
+        { value: 'yatzy', label: 'يَتزي' },
+        { value: 'pig', label: 'الخنزير' },
+        { value: 'highroll', label: 'رمية كبرى' },
       ],
       current: mode, onChange: (v: string) => setMode(v as Mode),
     },
     ...(mode === 'yatzy' || mode === 'pig' ? [{
-      key: 'ai', label: isAr ? 'مستوى الخصم' : 'KI-Stärke',
+      key: 'ai', label: 'مستوى الخصم',
       choices: [
-        { value: 'easy', label: isAr ? 'سهل' : 'Leicht' },
-        { value: 'hard', label: isAr ? 'محترف' : 'Profi' },
+        { value: 'easy', label: 'سهل' },
+        { value: 'hard', label: 'محترف' },
       ],
       current: aiLevel, onChange: (v: string) => setAiLevel(v as 'easy' | 'hard'),
     }] : []),
   ];
 
   return (
-    <GameShell title={isAr ? 'النرد' : 'Würfel'} icon={Dices} accentColor="hsl(346, 87%, 60%)" rules={rules} stats={statsArr} options={options}>
+    <GameShell title={'النرد'} icon={Dices} accentColor="hsl(346, 87%, 60%)" rules={rules} stats={statsArr} options={options}>
       {mode === 'yatzy' && <YatzyView key="yatzy" isAr={isAr} aiLevel={aiLevel} />}
       {mode === 'pig' && (
         <PigView
@@ -446,7 +429,7 @@ function YatzyView({ isAr, aiLevel }: { isAr: boolean; aiLevel: 'easy' | 'hard' 
     const { cat, score } = valueOfFinalDice(dice, playerCard);
     if (score > 0) {
       const lbl = catLabels[cat];
-      setHint(`${isAr ? 'مقترح' : 'Tipp'}: ${isAr ? lbl.ar : lbl.de} (+${score})`);
+      setHint(`${'مقترح'}: ${lbl.ar} (+${score})`);
     } else {
       setHint(null);
     }
@@ -534,7 +517,7 @@ function YatzyView({ isAr, aiLevel }: { isAr: boolean; aiLevel: 'easy' | 'hard' 
   const finalTotal = totalScore(playerCard);
   const aiTotal = totalScore(aiCard);
 
-  const lbl = (c: CategoryId) => (isAr ? catLabels[c].ar : catLabels[c].de);
+  const lbl = (c: CategoryId) => (catLabels[c].ar);
 
   return (
     <div className="relative">
@@ -563,7 +546,7 @@ function YatzyView({ isAr, aiLevel }: { isAr: boolean; aiLevel: 'easy' | 'hard' 
           </div>
         </div>
         <div className="text-[10px] text-zinc-500">
-          {isAr ? 'الرميات المتبقية' : 'Würfe übrig'}: <span className="text-amber-400 font-bold">{rollsLeft}</span>
+          {'الرميات المتبقية'}: <span className="text-amber-400 font-bold">{rollsLeft}</span>
         </div>
       </div>
 
@@ -583,7 +566,7 @@ function YatzyView({ isAr, aiLevel }: { isAr: boolean; aiLevel: 'easy' | 'hard' 
  style={{ }}
           >
             <Dices className="w-4 h-4 inline mr-1.5" />
-            {isAr ? 'رمية' : 'Wurf'} {3 - rollsLeft + 1}/3
+            {'رمية'} {3 - rollsLeft + 1}/3
           </motion.button>
         </div>
         {hint && (
@@ -595,12 +578,12 @@ function YatzyView({ isAr, aiLevel }: { isAr: boolean; aiLevel: 'easy' | 'hard' 
 
       {/* Scorecard */}
       <div className="grid grid-cols-2 gap-3">
-        <ScorecardSection title={isAr ? 'القسم العلوي' : 'Oberer Bereich'} cats={UPPER}
+        <ScorecardSection title={'القسم العلوي'} cats={UPPER}
           playerCard={playerCard} aiCard={aiCard} previewScores={previewScores}
           canPick={turn === 'player' && rollsLeft < 3 && !gameOver}
-          onPick={pickCategory} lbl={lbl} bonus={upperBonus(playerCard)} bonusLabel={isAr ? 'مكافأة' : 'Bonus'}
+          onPick={pickCategory} lbl={lbl} bonus={upperBonus(playerCard)} bonusLabel={'مكافأة'}
           accent="amber" />
-        <ScorecardSection title={isAr ? 'القسم السفلي' : 'Unterer Bereich'} cats={LOWER}
+        <ScorecardSection title={'القسم السفلي'} cats={LOWER}
           playerCard={playerCard} aiCard={aiCard} previewScores={previewScores}
           canPick={turn === 'player' && rollsLeft < 3 && !gameOver}
           onPick={pickCategory} lbl={lbl} accent="rose" />
@@ -612,13 +595,13 @@ function YatzyView({ isAr, aiLevel }: { isAr: boolean; aiLevel: 'easy' | 'hard' 
             style={{ background: finalTotal > aiTotal ? 'rgba(245,158,11,0.12)' : 'rgba(244,63,94,0.1)' }}>
             <Crown className={`w-9 h-9 mx-auto mb-1.5 ${finalTotal > aiTotal ? 'text-amber-400' : 'text-rose-400'}`} />
             <p className="text-2xl font-black text-white mb-0.5">
-              {finalTotal > aiTotal ? (isAr ? '👑 بطل!' : '👑 Champion!') : finalTotal < aiTotal ? (isAr ? 'حظاً أوفر' : 'Nächstes Mal!') : (isAr ? 'تعادل!' : 'Unentschieden!')}
+              {finalTotal > aiTotal ? ('👑 بطل!') : finalTotal < aiTotal ? ('حظاً أوفر') : ('تعادل!')}
             </p>
             <p className="text-amber-400 text-sm font-mono">{finalTotal} : {aiTotal}</p>
             <motion.button onClick={reset}
               className="mt-3 px-6 py-2 rounded-xl font-bold text-amber-950"
               style={{ }}>
-              <RotateCcw className="w-3.5 h-3.5 inline mr-1.5" /> {isAr ? 'مباراة جديدة' : 'Neue Partie'}
+              <RotateCcw className="w-3.5 h-3.5 inline mr-1.5" /> {'مباراة جديدة'}
             </motion.button>
           </motion.div>
         )}
@@ -692,7 +675,7 @@ function PigView({ isAr, aiLevel, tournamentBot, onTournamentResult }: {
         const final = rollDie();
         setDice(final); setRolling(false);
         if (final === 1) {
-          setMessage(isAr ? '💀 رميت 1! خسرت نقاط الجولة' : '💀 Eine 1! Rundenpunkte weg');
+          setMessage('💀 رميت 1! خسرت نقاط الجولة');
           setRoundPoints(0);
           playSfx('lose'); vibrate([80, 60, 80]);
           // Bust = end of turn
@@ -701,7 +684,7 @@ function PigView({ isAr, aiLevel, tournamentBot, onTournamentResult }: {
           const newRound = roundPoints + final;
           setRoundPoints(newRound);
           if (newRound > bestRoundThisGame) setBestRoundThisGame(newRound);
-          setMessage(isAr ? `+${final}` : `+${final}`);
+          setMessage(`+${final}`);
           playSfx('place'); vibrate(15);
         }
       }
@@ -713,11 +696,11 @@ function PigView({ isAr, aiLevel, tournamentBot, onTournamentResult }: {
     const newScore = playerScore + roundPoints;
     setPlayerScore(newScore);
     setHistory(h => [...h, { p: newScore, a: aiScore }]);
-    setMessage(isAr ? `أضفت ${roundPoints}!` : `+${roundPoints}!`);
+    setMessage(`أضفت ${roundPoints}!`);
     playSfx('match'); vibrate(20);
     if (newScore >= TARGET) {
       setGameOver(true); recordWin('player', newScore, aiScore); playSfx('win');
-      setMessage(isAr ? '👑 فزت!' : '👑 Gewonnen!');
+      setMessage('👑 فزت!');
       return;
     }
     setRoundPoints(0);
@@ -737,11 +720,11 @@ function PigView({ isAr, aiLevel, tournamentBot, onTournamentResult }: {
         // Hold
         const final = aiScore + currentRound;
         setAiScore(final);
-        setMessage(isAr ? `الذكاء حصل ${currentRound}` : `KI: +${currentRound}`);
+        setMessage(`الذكاء حصل ${currentRound}`);
         playSfx('place'); vibrate(15);
         if (final >= TARGET) {
           setGameOver(true); recordWin('ai', playerScore, final); playSfx('lose');
-          setMessage(isAr ? '😞 الذكاء فاز' : '😞 KI gewinnt');
+          setMessage('😞 الذكاء فاز');
           return;
         }
         setRoundPoints(0);
@@ -757,7 +740,7 @@ function PigView({ isAr, aiLevel, tournamentBot, onTournamentResult }: {
           clearInterval(iv);
           const final = rollDie(); setDice(final); setRolling(false);
           if (final === 1) {
-            setMessage(isAr ? '💥 الذكاء رمى 1' : '💥 KI würfelt 1');
+            setMessage('💥 الذكاء رمى 1');
             playSfx('wrong'); vibrate(40);
             setRoundPoints(0);
             setTurn('player');
@@ -765,7 +748,7 @@ function PigView({ isAr, aiLevel, tournamentBot, onTournamentResult }: {
           }
           const newRound = currentRound + final;
           setRoundPoints(newRound);
-          setMessage(isAr ? `الذكاء +${final}` : `KI +${final}`);
+          setMessage(`الذكاء +${final}`);
           aiTimerRef.current = setTimeout(() => playOnce(newRound), 700);
         }
       }, 50);
@@ -787,10 +770,10 @@ function PigView({ isAr, aiLevel, tournamentBot, onTournamentResult }: {
           <Trophy className="w-5 h-5 text-amber-300 shrink-0" />
           <div className="text-left flex-1">
             <p className="text-[10px] uppercase tracking-wider text-amber-300/80 font-bold">
-              {isAr ? 'مباراة بطولة' : 'Turnierspiel'}
+              {'مباراة بطولة'}
             </p>
             <p className="text-sm font-black text-amber-200">
-              {isAr ? 'ضد' : 'gegen'} {tournamentBot.emoji} {isAr ? tournamentBot.ar : tournamentBot.de}
+              {'ضد'} {tournamentBot.emoji} {tournamentBot.ar}
             </p>
           </div>
         </div>
@@ -802,7 +785,7 @@ function PigView({ isAr, aiLevel, tournamentBot, onTournamentResult }: {
           <div className="flex items-center justify-between text-[11px] mb-0.5 px-1">
             <div className="flex items-center gap-1.5">
               <UserIcon className="w-3 h-3 text-amber-400" />
-              <span className="font-bold text-amber-300">{isAr ? 'أنت' : 'Du'}</span>
+              <span className="font-bold text-amber-300">{'أنت'}</span>
  </div>
  <span className="font-mono font-black text-amber-300">{playerScore} / {TARGET}</span>
  </div>
@@ -815,7 +798,7 @@ function PigView({ isAr, aiLevel, tournamentBot, onTournamentResult }: {
  <div className="flex items-center justify-between text-[11px] mb-0.5 px-1">
  <div className="flex items-center gap-1.5">
  <Bot className="w-3 h-3 text-rose-400" />
- <span className="font-bold text-rose-300">{isAr ? 'الذكاء' : 'KI'}</span>
+ <span className="font-bold text-rose-300">{'الذكاء'}</span>
  </div>
  <span className="font-mono font-black text-rose-300">{aiScore} / {TARGET}</span>
  </div>
@@ -829,7 +812,7 @@ function PigView({ isAr, aiLevel, tournamentBot, onTournamentResult }: {
  {/* Round points */}
  <div className="rounded-2xl border border-amber-500/15 bg-amber-500/5 p-4 mb-4">
  <p className="text-[10px] text-amber-200/70 uppercase tracking-wider mb-1">
- {isAr ? 'نقاط الجولة' : 'Runden-Punkte'}
+ {'نقاط الجولة'}
         </p>
         <motion.p key={roundPoints} initial={{ scale: 0.8 }} animate={{ scale: 1 }}
           className="text-4xl font-black text-amber-300 mb-2">{roundPoints}</motion.p>
@@ -846,27 +829,27 @@ function PigView({ isAr, aiLevel, tournamentBot, onTournamentResult }: {
  className="flex-1 max-w-[160px] py-3 rounded-2xl font-black text-amber-950 disabled:opacity-30"
  style={{ }}>
             <Dices className="w-5 h-5 inline mr-1.5" />
-            {isAr ? 'ارمِ' : 'Würfeln'}
+            {'ارمِ'}
           </motion.button>
           <motion.button onClick={playerHold} disabled={turn !== 'player' || rolling || roundPoints === 0}
  className="flex-1 max-w-[160px] py-3 rounded-2xl font-black text-emerald-950 disabled:opacity-30"
  style={{ }}>
             <PiggyBank className="w-5 h-5 inline mr-1.5" />
-            {isAr ? 'احتفظ' : 'Halten'}
+            {'احتفظ'}
           </motion.button>
         </div>
       )}
 
       {gameOver && (
         <button onClick={reset} className="px-6 py-3 rounded-2xl bg-amber-500 text-amber-950 font-black">
-          <RotateCcw className="w-4 h-4 inline mr-1.5" />{isAr ? 'مباراة جديدة' : 'Neue Partie'}
+          <RotateCcw className="w-4 h-4 inline mr-1.5" />{'مباراة جديدة'}
         </button>
       )}
 
       {/* Strategy hint */}
       {turn === 'player' && !gameOver && roundPoints >= 15 && (
         <p className="text-[10px] text-zinc-500 mt-3">
-          {isAr ? '💡 كل رمية فيها 1/6 احتمال خسارة كل ما جمعته' : '💡 Jeder Wurf: 1/6 Chance, alles zu verlieren'}
+          {'💡 كل رمية فيها 1/6 احتمال خسارة كل ما جمعته'}
         </p>
       )}
     </div>
@@ -909,14 +892,14 @@ function HighRollView({ isAr }: { isAr: boolean }) {
         let newStreak = streak;
         if (p > a) {
           ns.p++; newStreak = streak + 1;
-          setMessage(isAr ? '🎉 فزت بالجولة!' : '🎉 Runde gewonnen!');
+          setMessage('🎉 فزت بالجولة!');
           playSfx('match');
         } else if (a > p) {
           ns.a++; newStreak = 0;
-          setMessage(isAr ? '💀 الخصم فاز' : '💀 Gegner gewinnt');
+          setMessage('💀 الخصم فاز');
           playSfx('wrong');
         } else {
-          setMessage(isAr ? '🤝 تعادل' : '🤝 Unentschieden');
+          setMessage('🤝 تعادل');
           playSfx('click');
         }
         setStreak(newStreak); setHrScore(ns);
@@ -925,10 +908,10 @@ function HighRollView({ isAr }: { isAr: boolean }) {
           s.gamesPlayed += 1;
           if (ns.p > ns.a) {
             s.gamesWon += 1;
-            setMessage(isAr ? '👑 أنت البطل!' : '👑 Champion!');
+            setMessage('👑 أنت البطل!');
             playSfx('win');
           } else if (ns.a > ns.p) {
-            setMessage(isAr ? '😞 حظاً أوفر' : '😞 Nächstes Mal');
+            setMessage('😞 حظاً أوفر');
             playSfx('lose');
           }
           if (newStreak > s.hrBestStreak) s.hrBestStreak = newStreak;
@@ -954,12 +937,12 @@ function HighRollView({ isAr }: { isAr: boolean }) {
 
       <div className="flex items-center justify-between mb-4 px-3">
         <div className="text-left">
-          <p className="text-[9px] text-zinc-500 uppercase tracking-wider">{isAr ? 'أنت' : 'Du'}</p>
+          <p className="text-[10px] text-zinc-500 uppercase tracking-wider">{'أنت'}</p>
           <p className="text-3xl font-black text-amber-400">{hrScore.p}</p>
         </div>
         <div className="text-[10px] text-zinc-500">{hrRound}/{hrRounds}</div>
         <div className="text-right">
-          <p className="text-[9px] text-zinc-500 uppercase tracking-wider">{isAr ? 'الخصم' : 'KI'}</p>
+          <p className="text-[10px] text-zinc-500 uppercase tracking-wider">{'الخصم'}</p>
           <p className="text-3xl font-black text-rose-400">{hrScore.a}</p>
         </div>
       </div>
@@ -970,7 +953,7 @@ function HighRollView({ isAr }: { isAr: boolean }) {
       <div className="h-6 text-sm text-zinc-300 font-semibold mb-3">{message}</div>
       {streak >= 2 && !finished && (
         <p className="text-[11px] text-amber-400 font-bold mb-2 flex items-center justify-center gap-1">
-          <Flame className="w-3 h-3" /> {streak} {isAr ? 'فوز متتالي' : 'in Folge'}
+          <Flame className="w-3 h-3" /> {streak} {'فوز متتالي'}
  </p>
  )}
  {!finished ? (
@@ -978,11 +961,11 @@ function HighRollView({ isAr }: { isAr: boolean }) {
  className="px-9 py-3 rounded-2xl font-black text-amber-950 disabled:opacity-40"
  style={{ }}>
           <Dices className="w-5 h-5 inline mr-1.5" />
-          {isAr ? 'ارمِ النرد' : 'Würfeln'}
+          {'ارمِ النرد'}
         </motion.button>
       ) : (
         <button onClick={reset} className="px-6 py-3 rounded-2xl bg-amber-500 text-amber-950 font-black">
-          <RotateCcw className="w-4 h-4 inline mr-1.5" />{isAr ? 'مباراة جديدة' : 'Neue Partie'}
+          <RotateCcw className="w-4 h-4 inline mr-1.5" />{'مباراة جديدة'}
         </button>
       )}
     </div>
@@ -992,20 +975,20 @@ function HighRollView({ isAr }: { isAr: boolean }) {
 // =============================================================================
 // Helpers
 // =============================================================================
-const catLabels: Record<CategoryId, { ar: string; de: string }> = {
-  ones: { ar: 'الآحاد', de: 'Einer' },
-  twos: { ar: 'الثنائيات', de: 'Zweier' },
-  threes: { ar: 'الثلاثيات', de: 'Dreier' },
-  fours: { ar: 'الرباعيات', de: 'Vierer' },
-  fives: { ar: 'الخماسيات', de: 'Fünfer' },
-  sixes: { ar: 'السداسيات', de: 'Sechser' },
-  three: { ar: 'ثلاثة متشابهة', de: 'Dreierpasch' },
-  four: { ar: 'أربعة متشابهة', de: 'Viererpasch' },
-  full: { ar: 'فول هاوس', de: 'Full House' },
-  small: { ar: 'سلسلة قصيرة', de: 'Kl. Straße' },
-  large: { ar: 'سلسلة طويلة', de: 'Gr. Straße' },
-  yatzy: { ar: 'يَتزي!', de: 'Kniffel!' },
-  chance: { ar: 'فرصة', de: 'Chance' },
+const catLabels: Record<CategoryId, { ar: string; }> = {
+  ones: { ar: 'الآحاد', },
+  twos: { ar: 'الثنائيات', },
+  threes: { ar: 'الثلاثيات', },
+  fours: { ar: 'الرباعيات', },
+  fives: { ar: 'الخماسيات', },
+  sixes: { ar: 'السداسيات', },
+  three: { ar: 'ثلاثة متشابهة', },
+  four: { ar: 'أربعة متشابهة', },
+  full: { ar: 'فول هاوس', },
+  small: { ar: 'سلسلة قصيرة', },
+  large: { ar: 'سلسلة طويلة', },
+  yatzy: { ar: 'يَتزي!', },
+  chance: { ar: 'فرصة', },
 };
 
 function ScorecardSection(props: {
@@ -1048,7 +1031,7 @@ function ScorecardSection(props: {
             <span className={`font-semibold ${filled ? 'text-zinc-400' : `text-${accentColor}-200`}`}>{lbl(cat)}</span>
             <span className="flex items-center gap-1.5">
               {aVal !== undefined && (
-                <span className="text-[9px] text-rose-400/70 font-mono">{aVal}</span>
+                <span className="text-[10px] text-rose-400/70 font-mono">{aVal}</span>
               )}
               <span className={`font-mono font-bold ${filled ? 'text-white' : preview && preview > 0 ? `text-${accentColor}-300` : 'text-zinc-400'}`}>
                 {filled ? pVal : preview !== undefined ? preview : '-'}

@@ -1,4 +1,4 @@
-/* eslint-disable */
+ 
 /**
  * Root-scoped Service Worker dedicated to Google Fonts assets.
  *

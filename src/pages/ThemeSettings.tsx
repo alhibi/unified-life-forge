@@ -179,12 +179,10 @@ function ThemePresetsCategorized({
     <motion.div variants={item} className="premium-card-elevated p-5 space-y-5">
       <div className="text-center">
         <h2 className="font-semibold text-[13px] text-muted-foreground uppercase tracking-wider">
-          {isAr ? 'لوحة الألوان' : 'Color Palette'}
+          {'لوحة الألوان'}
         </h2>
         <p className="text-[10px] text-muted-foreground/80 mt-0.5">
-          {isAr
-            ? 'اختر التناغم اللوني المفضل لديك عبر التصنيفات الراقية'
-            : 'Choose your preferred color harmony from curated categories'}
+          {'اختر التناغم اللوني المفضل لديك عبر التصنيفات الراقية'}
         </p>
       </div>
 
@@ -196,7 +194,7 @@ function ThemePresetsCategorized({
             <button
               key={cat.id}
               onClick={() => setActiveTab(cat.id)}
-              className="relative flex-1 py-2 text-[10.5px] font-bold transition-colors duration-300 z-10 focus:outline-none"
+              className="relative flex-1 py-2 text-[10px] font-bold transition-colors duration-300 z-10 focus:outline-none"
             >
               {isSelected && (
                 <motion.div
@@ -208,7 +206,7 @@ function ThemePresetsCategorized({
               <span
                 className={`relative z-10 block text-center truncate ${isSelected ? 'text-foreground' : 'text-muted-foreground'}`}
               >
-                {isAr ? cat.nameAr.split(' ')[0] : cat.nameEn.split(' ')[0]}{' '}
+                {cat.nameAr.split(' ')[0]}{' '}
                 {/* shortened for mobile spacing */}
               </span>
             </button>
@@ -218,9 +216,7 @@ function ThemePresetsCategorized({
 
       {/* Sub-label showing current full category name */}
       <div className="text-center text-[11px] font-semibold text-primary/80 tracking-wide">
-        {isAr
-          ? THEME_CATEGORIES.find((c) => c.id === activeTab)?.nameAr
-          : THEME_CATEGORIES.find((c) => c.id === activeTab)?.nameEn}
+        {THEME_CATEGORIES.find((c) => c.id === activeTab)?.nameAr}
       </div>
 
       {/* Categorized Grid */}
@@ -282,7 +278,7 @@ function ThemePresetsCategorized({
                     isActive ? 'text-primary' : 'text-muted-foreground'
                   }`}
                 >
-                  {isAr ? preset.name : preset.nameEn}
+                  {preset.name}
                 </span>
               </motion.button>
             );
@@ -325,18 +321,18 @@ export default function ThemeSettingsPage() {
     setPrayerMap(getPrayerThemeMap());
   };
 
-  const prayerSlots: { id: PrayerSlot; ar: string; de: string; icon: typeof Sun }[] = [
-    { id: 'fajr', ar: 'الفجر', de: 'Fajr', icon: Moon },
-    { id: 'sunrise', ar: 'الشروق', de: 'Sunrise', icon: Sun },
-    { id: 'dhuhr', ar: 'الظهر', de: 'Dhuhr', icon: Sun },
-    { id: 'asr', ar: 'العصر', de: 'Asr', icon: Sun },
-    { id: 'maghrib', ar: 'المغرب', de: 'Maghrib', icon: Sun },
-    { id: 'isha', ar: 'العشاء', de: 'Isha', icon: Moon },
+  const prayerSlots: { id: PrayerSlot; ar: string; icon: typeof Sun }[] = [
+    { id: 'fajr', ar: 'الفجر', icon: Moon },
+    { id: 'sunrise', ar: 'الشروق', icon: Sun },
+    { id: 'dhuhr', ar: 'الظهر', icon: Sun },
+    { id: 'asr', ar: 'العصر', icon: Sun },
+    { id: 'maghrib', ar: 'المغرب', icon: Sun },
+    { id: 'isha', ar: 'العشاء', icon: Moon },
   ];
 
   const themeOptions = [
-    { mode: 'dark' as const, icon: Moon, label: isAr ? 'داكن' : 'Dark' },
-    { mode: 'light' as const, icon: Sun, label: isAr ? 'فاتح' : 'Light' },
+    { mode: 'dark' as const, icon: Moon, label: 'داكن' },
+    { mode: 'light' as const, icon: Sun, label: 'فاتح' },
   ];
 
   const handleDynamicImage = () => {
@@ -378,13 +374,11 @@ export default function ThemeSettingsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-28 px-5 pt-14">
+    <div className="min-h-screen bg-background pb-page px-5 pt-14">
       <SEO
-        title={isAr ? 'المظهر والألوان — SmartHub' : 'Erscheinungsbild & Farben — SmartHub'}
+        title={'المظهر والألوان — SmartHub'}
         description={
-          isAr
-            ? 'اختر السمة والألوان ونمط اللوحة لتجربتك في SmartHub.'
-            : 'Wähle Theme, Farben und Paletten für dein SmartHub-Erlebnis.'
+          'اختر السمة والألوان ونمط اللوحة لتجربتك في SmartHub.'
         }
         path="/settings/theme"
       />
@@ -402,7 +396,7 @@ export default function ThemeSettingsPage() {
               <Palette className="w-5 h-5 text-primary stroke-[1.8]" />
             </div>
             <h1 className="text-[22px] font-bold tracking-tight text-foreground">
-              {isAr ? 'المظهر والألوان' : 'Appearance'}
+              {'المظهر والألوان'}
             </h1>
           </div>
         </motion.div>
@@ -412,7 +406,7 @@ export default function ThemeSettingsPage() {
         {/* Appearance Mode */}
         <motion.div variants={item} className="premium-card-elevated p-5">
           <h2 className="font-semibold text-[13px] text-muted-foreground text-center mb-4 uppercase tracking-wider">
-            {isAr ? 'الوضع' : 'Mode'}
+            {'الوضع'}
           </h2>
           <div className="flex justify-center gap-6">
             {themeOptions.map(({ mode, icon: Icon, label }) => {
@@ -461,10 +455,10 @@ export default function ThemeSettingsPage() {
               </div>
               <div className="text-start flex-1 min-w-0">
                 <h3 className="font-semibold text-[14px] text-foreground">
-                  {isAr ? 'ثيم تلقائي حسب وقت الصلاة' : 'Auto theme by prayer time'}
+                  {'ثيم تلقائي حسب وقت الصلاة'}
                 </h3>
                 <p className="text-[11px] text-muted-foreground mt-0.5">
-                  {isAr ? 'يتغير الثيم تلقائياً مع كل صلاة' : 'Theme changes with each prayer'}
+                  {'يتغير الثيم تلقائياً مع كل صلاة'}
                 </p>
               </div>
             </div>
@@ -482,7 +476,7 @@ export default function ThemeSettingsPage() {
               >
                 <div className="mt-4 pt-4 border-t border-border/50 space-y-2">
                   <p className="text-[11px] text-muted-foreground text-center mb-2">
-                    {isAr ? 'اضغط على أي صلاة لتخصيص ثيمها' : 'Tap a prayer to customize its theme'}
+                    {'اضغط على أي صلاة لتخصيص ثيمها'}
                   </p>
                   {prayerSlots.map((slot) => {
                     const cur = prayerMap[slot.id];
@@ -502,7 +496,7 @@ export default function ThemeSettingsPage() {
                         >
                           <Icon className="w-4 h-4 text-muted-foreground shrink-0" />
                           <span className="text-[13px] font-medium text-foreground flex-1 text-start">
-                            {isAr ? slot.ar : slot.de}
+                            {slot.ar}
                           </span>
                           <div className="flex items-center gap-2">
                             <div
@@ -541,12 +535,8 @@ export default function ThemeSettingsPage() {
                                       }`}
                                     >
                                       {m === 'light'
-                                        ? isAr
-                                          ? 'فاتح'
-                                          : 'Light'
-                                        : isAr
-                                          ? 'داكن'
-                                          : 'Dark'}
+                                        ? 'فاتح'
+                                        : 'داكن'}
                                     </button>
                                   ))}
                                 </div>
@@ -597,7 +587,7 @@ export default function ThemeSettingsPage() {
           className="premium-card-elevated p-5"
         >
           <h2 className="font-semibold text-[13px] text-muted-foreground text-center mb-4 uppercase tracking-wider">
-            {isAr ? 'توزيع الألوان' : 'Color Distribution'}
+            {'توزيع الألوان'}
           </h2>
           <div className="grid grid-cols-2 gap-2.5">
             {themeStyles.map((ts) => {
@@ -625,10 +615,10 @@ export default function ThemeSettingsPage() {
                     <p
                       className={`text-[13px] font-semibold ${isActive ? 'text-foreground' : 'text-foreground'}`}
                     >
-                      {isAr ? ts.name : ts.nameEn}
+                      {ts.name}
                     </p>
                     <p className="text-[10px] text-muted-foreground truncate">
-                      {isAr ? ts.desc : ts.descEn}
+                      {ts.desc}
                     </p>
                   </div>
                   {isActive && (
@@ -661,10 +651,10 @@ export default function ThemeSettingsPage() {
             </div>
             <div className="flex-1 text-start">
               <h3 className="font-semibold text-[14px] text-foreground">
-                {isAr ? 'ثيم ديناميكي' : 'Dynamic Theme'}
+                {'ثيم ديناميكي'}
               </h3>
               <p className="text-[11px] text-muted-foreground mt-0.5">
-                {isAr ? 'استخرج الألوان من صورة' : 'Extract colors from an image'}
+                {'استخرج الألوان من صورة'}
               </p>
             </div>
             <Palette className="w-5 h-5 text-muted-foreground shrink-0" />
@@ -680,10 +670,10 @@ export default function ThemeSettingsPage() {
             <ToggleSwitch value={blackMode} onChange={() => {}} />
             <div className="flex-1 text-start">
               <h3 className="font-semibold text-[14px] text-foreground">
-                {isAr ? 'الوضع الأسود' : 'Black Mode'}
+                {'الوضع الأسود'}
               </h3>
               <p className="text-[11px] text-muted-foreground mt-0.5">
-                {isAr ? 'أسود حقيقي لشاشات OLED' : 'True black for OLED screens'}
+                {'أسود حقيقي لشاشات OLED'}
               </p>
             </div>
             <Contrast className="w-5 h-5 text-muted-foreground shrink-0" />
@@ -693,7 +683,7 @@ export default function ThemeSettingsPage() {
         {/* Preview */}
         <motion.div variants={item} className="premium-card-elevated p-5">
           <h2 className="font-semibold text-[13px] text-muted-foreground text-center mb-4 uppercase tracking-wider">
-            {isAr ? 'معاينة' : 'Preview'}
+            {'معاينة'}
           </h2>
           <div className="space-y-3">
             {/* Mini preview card */}
@@ -710,17 +700,17 @@ export default function ThemeSettingsPage() {
               <div className="flex gap-2">
                 <div className="flex-1 h-8 rounded-xl bg-primary flex items-center justify-center">
                   <span className="text-[11px] font-semibold text-primary-foreground">
-                    {isAr ? 'أساسي' : 'Primary'}
+                    {'أساسي'}
                   </span>
                 </div>
                 <div className="flex-1 h-8 rounded-xl bg-secondary flex items-center justify-center">
                   <span className="text-[11px] font-semibold text-secondary-foreground">
-                    {isAr ? 'ثانوي' : 'Secondary'}
+                    {'ثانوي'}
                   </span>
                 </div>
                 <div className="flex-1 h-8 rounded-xl bg-accent flex items-center justify-center">
                   <span className="text-[11px] font-semibold text-accent-foreground">
-                    {isAr ? 'مميز' : 'Accent'}
+                    {'مميز'}
                   </span>
                 </div>
               </div>

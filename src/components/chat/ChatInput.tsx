@@ -2,9 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
 import {
   Send, Mic, X, Pencil, Check, Trash2, Plus, Smile, Lock,
-  Play, Pause, Loader2, Camera, FileText, MapPin, Clock,
-  AtSign, Hash, Calendar, Paperclip, Image as ImageIcon,
-  Video, Sticker, GripVertical,
+  Play, Pause, Loader2, Camera, FileText, MapPin, Image as ImageIcon,
 } from '@/lib/icons';
 import { cn } from '@/lib/utils';
 import { Textarea } from '@/components/ui/textarea';
@@ -81,10 +79,10 @@ interface ChatInputProps {
 // AttachmentMenu — Telegram-style bottom sheet with attachment type options.
 // ─────────────────────────────────────────────────────────────────────────────
 const ATTACHMENT_OPTIONS = (isAr: boolean) => [
-  { id: 'photo', icon: ImageIcon, label: isAr ? 'صورة' : 'Foto', color: 'bg-blue-500' },
-  { id: 'camera', icon: Camera, label: isAr ? 'كاميرا' : 'Kamera', color: 'bg-pink-500' },
-  { id: 'file', icon: FileText, label: isAr ? 'ملف' : 'Datei', color: 'bg-purple-500' },
-  { id: 'location', icon: MapPin, label: isAr ? 'موقع' : 'Standort', color: 'bg-green-500' },
+  { id: 'photo', icon: ImageIcon, label: 'صورة', color: 'bg-blue-500' },
+  { id: 'camera', icon: Camera, label: 'كاميرا', color: 'bg-pink-500' },
+  { id: 'file', icon: FileText, label: 'ملف', color: 'bg-purple-500' },
+  { id: 'location', icon: MapPin, label: 'موقع', color: 'bg-green-500' },
 ] as const;
 
 interface AttachmentMenuProps {
@@ -320,7 +318,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
     const dx = e.clientX - startPointer.current.x;
     const dy = e.clientY - startPointer.current.y;
     // Horizontal drag direction depends on language (RTL drags right to cancel)
-    const horizontalCancelValue = isAr ? dx : -dx;
+    const horizontalCancelValue = dx;
     const appliedX = Math.max(-180, Math.min(0, -horizontalCancelValue));
     drag.set(appliedX);
     dragY.set(Math.max(-120, Math.min(0, dy)));
@@ -421,7 +419,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
               setNewMessage(locationText);
             },
             () => {
-              setNewMessage(isAr ? '📍 لم يتم تحديد الموقع' : '📍 Standort nicht verfügbar');
+              setNewMessage('📍 لم يتم تحديد الموقع');
             }
           );
         }
@@ -464,22 +462,22 @@ const ChatInput: React.FC<ChatInputProps> = ({
             <div className="px-3 pt-2 pb-1">
               <div className="flex items-center justify-between mb-1.5">
                 <span className="text-[12px] text-muted-foreground font-medium">
-                  {stagedPreviews.length} {isAr ? 'صورة' : (stagedPreviews.length === 1 ? 'Foto' : 'Fotos')}
+                  {stagedPreviews.length} {'صورة'}
                 </span>
-                <button onClick={clearStagedImages} aria-label={isAr ? 'مسح جميع الصور' : 'Alle Bilder entfernen'} className="text-[11px] text-destructive font-medium px-2 py-0.5 rounded-full active:bg-destructive/10 transition-colors">
-                  {isAr ? 'مسح الكل' : 'Alle löschen'}
+                <button onClick={clearStagedImages} aria-label={'مسح جميع الصور'} className="text-[11px] text-destructive font-medium px-2 py-0.5 rounded-full active:bg-destructive/10 transition-colors">
+                  {'مسح الكل'}
                 </button>
               </div>
               <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-none">
                 {stagedPreviews.map((url, i) => (
                   <div key={i} className="relative shrink-0 w-16 h-16 rounded-xl overflow-hidden bg-muted/30 group">
                     <img src={url} alt="" className="w-full h-full object-cover" />
-                    <button onClick={() => removeStagedImage(i)} aria-label={isAr ? 'إزالة الصورة' : 'Bild entfernen'} className="absolute top-0.5 end-0.5 w-5 h-5 rounded-full bg-black/60 flex items-center justify-center">
+                    <button onClick={() => removeStagedImage(i)} aria-label={'إزالة الصورة'} className="absolute top-0.5 end-0.5 w-5 h-5 rounded-full bg-black/60 flex items-center justify-center">
                       <X className="w-3 h-3 text-white" />
                     </button>
                   </div>
                 ))}
-                <button onClick={() => fileInputRef.current?.click()} aria-label={isAr ? 'إضافة صور' : 'Mehr hinzufügen'} className="shrink-0 w-16 h-16 rounded-xl border-2 border-dashed border-border/30 flex items-center justify-center active:bg-accent/20 transition-colors">
+                <button onClick={() => fileInputRef.current?.click()} aria-label={'إضافة صور'} className="shrink-0 w-16 h-16 rounded-xl border-2 border-dashed border-border/30 flex items-center justify-center active:bg-accent/20 transition-colors">
                   <Plus className="w-5 h-5 text-muted-foreground" />
                 </button>
               </div>
@@ -497,11 +495,11 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 <div className="flex-1 min-w-0 border-s-2 border-primary ps-2.5">
                   <span className="text-[11px] font-semibold text-primary flex items-center gap-1">
                     <Pencil className="w-3 h-3" />
-                    {isAr ? 'تعديل الرسالة' : 'Nachricht bearbeiten'}
+                    {'تعديل الرسالة'}
                   </span>
                   <p className="text-[11px] text-muted-foreground truncate" dir="auto">{editingMessage.content}</p>
                 </div>
-                <button onClick={cancelEdit} aria-label={isAr ? 'إلغاء التعديل' : 'Bearbeitung abbrechen'} className="shrink-0 w-9 h-9 -m-1.5 rounded-full flex items-center justify-center active:bg-muted/60 transition-colors">
+                <button onClick={cancelEdit} aria-label={'إلغاء التعديل'} className="shrink-0 w-9 h-9 -m-1.5 rounded-full flex items-center justify-center active:bg-muted/60 transition-colors">
                   <X className="w-3.5 h-3.5 text-muted-foreground" />
                 </button>
               </div>
@@ -518,17 +516,17 @@ const ChatInput: React.FC<ChatInputProps> = ({
               <div className="flex items-start gap-2 p-2.5">
                 <div className="flex-1 min-w-0 border-s-2 border-primary ps-2.5">
                   <span className="text-[11px] font-semibold text-primary block">
-                    {replyTo.sender_id === userId ? (isAr ? 'أنت' : 'Du') : (activeConvOtherName || '')}
+                    {replyTo.sender_id === userId ? ('أنت') : (activeConvOtherName || '')}
                   </span>
                   <p className="text-[11px] text-muted-foreground truncate" dir="auto">
                     {replyTo.message_type === 'image'
-                      ? '📷 ' + ((replyTo.content || '').trim() || (isAr ? 'صورة' : 'Foto'))
-                      : replyTo.message_type === 'voice' ? '🎤 ' + (isAr ? 'رسالة صوتية' : 'Sprachnachricht')
-                      : replyTo.message_type === 'file' ? '📎 ' + (readableFileName(replyTo.file_name) || (isAr ? 'ملف' : 'Datei'))
+                      ? '📷 ' + ((replyTo.content || '').trim() || ('صورة'))
+                      : replyTo.message_type === 'voice' ? '🎤 ' + ('رسالة صوتية')
+                      : replyTo.message_type === 'file' ? '📎 ' + (readableFileName(replyTo.file_name) || ('ملف'))
                       : replyTo.content}
                   </p>
                 </div>
-                <button onClick={() => setReplyTo(null)} aria-label={isAr ? 'إلغاء الرد' : 'Antwort abbrechen'} className="shrink-0 w-9 h-9 -m-1.5 rounded-full flex items-center justify-center active:bg-muted/60 transition-colors">
+                <button onClick={() => setReplyTo(null)} aria-label={'إلغاء الرد'} className="shrink-0 w-9 h-9 -m-1.5 rounded-full flex items-center justify-center active:bg-muted/60 transition-colors">
                   <X className="w-3.5 h-3.5 text-muted-foreground" />
                 </button>
               </div>
@@ -541,15 +539,15 @@ const ChatInput: React.FC<ChatInputProps> = ({
       <AnimatePresence mode="wait">
         {showPreviewBar ? (
           /* ── Recorded voice preview bar ── */
-          <motion.div key="preview" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 6 }} className="px-3 py-2 flex items-center gap-3" role="region" aria-label={isAr ? 'معاينة الرسالة الصوتية' : 'Sprachnachricht-Vorschau'}>
-            <motion.button onClick={discardPreview} disabled={uploadingVoice}  aria-label={isAr ? 'تجاهل التسجيل' : 'Aufnahme verwerfen'} className="shrink-0 w-10 h-10 rounded-full flex items-center justify-center bg-destructive/10 active:bg-destructive/20 transition-colors disabled:opacity-40 disabled:pointer-events-none">
+          <motion.div key="preview" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 6 }} className="px-3 py-2 flex items-center gap-3" role="region" aria-label={'معاينة الرسالة الصوتية'}>
+            <motion.button onClick={discardPreview} disabled={uploadingVoice}  aria-label={'تجاهل التسجيل'} className="shrink-0 w-10 h-10 rounded-full flex items-center justify-center bg-destructive/10 active:bg-destructive/20 transition-colors disabled:opacity-40 disabled:pointer-events-none">
               <Trash2 className="w-5 h-5 text-destructive" />
             </motion.button>
 
             <div className="flex-1 flex items-center gap-3 bg-muted/20 rounded-full px-2 h-11">
               <button
                 onClick={togglePreviewPlay}
-                aria-label={previewPlaying ? (isAr ? 'إيقاف مؤقت' : 'Pause') : (isAr ? 'تشغيل' : 'Abspielen')}
+                aria-label={previewPlaying ? ('إيقاف مؤقت') : ('تشغيل')}
                 className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/20 active:scale-90 transition-transform"
               >
                 {previewPlaying ? <Pause className="w-4 h-4 text-primary" /> : <Play className="w-4 h-4 text-primary ms-0.5" />}
@@ -574,7 +572,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
             <motion.button
               onClick={uploadingVoice ? undefined : sendPreview}
               disabled={uploadingVoice}
-              aria-label={isAr ? 'إرسال الرسالة الصوتية' : 'Sprachnachricht senden'}
+              aria-label={'إرسال الرسالة الصوتية'}
  aria-busy={uploadingVoice}
  className="shrink-0 w-11 h-11 rounded-full bg-primary flex items-center justify-center disabled:opacity-90"
  >
@@ -587,7 +585,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
           /* ── Live recording bar ── */
           <motion.div key="recording" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 6 }} transition={{ type: 'spring', damping: 25, stiffness: 400 }} className="px-3 py-2 flex items-center gap-3 relative" role="status" aria-live="polite">
             {locked ? (
-              <motion.button onClick={stopAndCancel}  aria-label={isAr ? 'إلغاء التسجيل' : 'Aufnahme abbrechen'} className="shrink-0 w-10 h-10 rounded-full flex items-center justify-center bg-destructive/10 active:bg-destructive/20 transition-colors">
+              <motion.button onClick={stopAndCancel}  aria-label={'إلغاء التسجيل'} className="shrink-0 w-10 h-10 rounded-full flex items-center justify-center bg-destructive/10 active:bg-destructive/20 transition-colors">
                 <Trash2 className="w-5 h-5 text-destructive" />
               </motion.button>
             ) : (
@@ -598,13 +596,13 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
             <div className="flex-1 flex items-center gap-3 bg-muted/20 rounded-full px-4 h-10">
               <motion.div animate={{ opacity: [1, 0.2, 1] }} transition={{ duration: 1, repeat: Infinity, ease: 'easeInOut' }} className="w-2.5 h-2.5 rounded-full bg-destructive shrink-0" aria-hidden="true" />
-              <span className="text-[13px] font-mono text-foreground tabular-nums tracking-wide" role="timer" aria-label={isAr ? `مدة التسجيل ${formatRecordingTime(recordingTime)}` : `Aufnahmedauer ${formatRecordingTime(recordingTime)}`}>
+              <span className="text-[13px] font-mono text-foreground tabular-nums tracking-wide" role="timer" aria-label={`مدة التسجيل ${formatRecordingTime(recordingTime)}`}>
                 {formatRecordingTime(recordingTime)}
               </span>
               {!locked ? (
                 <div className="flex-1 flex items-center justify-center gap-1 text-[12px] text-muted-foreground/70">
-                  <span className={cn('inline-block transition-transform', isAr ? '-rotate-180' : '')}>‹</span>
-                  <span>{isAr ? 'اسحب للإلغاء' : 'Zum Abbrechen wischen'}</span>
+                  <span className={cn('inline-block transition-transform', '-rotate-180')}>‹</span>
+                  <span>{'اسحب للإلغاء'}</span>
                 </div>
               ) : (
                 /* Live amplitude bars — the user sees their voice in real
@@ -618,7 +616,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
             {/* Lock / Send buttons */}
             {locked ? (
-              <motion.button onClick={stopAndSend}  aria-label={isAr ? 'إرسال الرسالة الصوتية' : 'Sprachnachricht senden'} className="shrink-0 w-10 h-10 rounded-full bg-primary flex items-center justify-center ">
+              <motion.button onClick={stopAndSend}  aria-label={'إرسال الرسالة الصوتية'} className="shrink-0 w-10 h-10 rounded-full bg-primary flex items-center justify-center ">
                 <Send className="w-5 h-5 text-primary-foreground" style={{ marginInlineStart: '2px' }} />
               </motion.button>
             ) : (
@@ -650,7 +648,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 'shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-colors self-end',
                 showAttachMenu ? 'bg-primary/15 text-primary' : 'active:bg-accent/40 text-muted-foreground'
               )}
-              aria-label={isAr ? 'مرفق' : 'Anhang'}
+              aria-label={'مرفق'}
             >
               {uploading ? (
                 <div className="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
@@ -679,7 +677,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                     ? 'bg-primary/15 text-primary'
                     : 'text-muted-foreground/70 active:bg-accent/40'
                 )}
-                aria-label={isAr ? 'رموز تعبيرية' : 'Emoji'}
+                aria-label={'رموز تعبيرية'}
                 aria-pressed={showEmojiPicker}
               >
                 <Smile className="h-[18px] w-[18px]" />
@@ -689,8 +687,8 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 ref={inputRef}
                 placeholder={
                   stagedImagesCount > 0
-                    ? (isAr ? 'أضف تعليقًا (اختياري)...' : 'Bildunterschrift hinzufügen (optional)...')
-                    : (isAr ? 'رسالة...' : 'Nachricht...')
+                    ? ('أضف تعليقًا (اختياري)...')
+                    : ('رسالة...')
                 }
                 value={newMessage}
                 rows={1}
@@ -748,7 +746,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 whileTap={{ scale: 0.88 }}
                 className="shrink-0 w-10 h-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground self-end shadow-[0_4px_12px_-3px_hsl(var(--primary)/0.55)]"
                 type="button"
-                aria-label={editingMessage ? (isAr ? 'حفظ التعديل' : 'Änderung speichern') : (isAr ? 'إرسال' : 'Senden')}
+                aria-label={editingMessage ? ('حفظ التعديل') : ('إرسال')}
                 onPointerDown={(e) => e.preventDefault()}
                 onClick={() => {
                   if (editingMessage) { saveEditMessage(); return; }
@@ -774,7 +772,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                   onPointerUp={handleMicPointerUp}
                   onPointerCancel={handleMicPointerCancel}
                   onContextMenu={(e) => e.preventDefault()}
-                  aria-label={isAr ? 'تسجيل صوت' : 'Sprachnachricht'}
+                  aria-label={'تسجيل صوت'}
                 >
                   <Mic className="h-5 w-5" />
                 </motion.button>

@@ -29,37 +29,29 @@ export const LinkPreview: React.FC<LinkPreviewProps> = ({ url, isAr }) => {
     const domain = host.toLowerCase();
     if (domain.includes('youtube.com') || domain.includes('youtu.be')) {
       return {
-        title: isAr ? 'فيديو يوتيوب' : 'YouTube Video',
-        description: isAr
-          ? 'شاهد هذا الفيديو مباشرة على يوتيوب.'
-          : 'Watch this video directly on YouTube.',
+        title: 'فيديو يوتيوب',
+        description: 'شاهد هذا الفيديو مباشرة على يوتيوب.',
         publisher: 'YouTube',
       };
     }
     if (domain.includes('github.com')) {
       return {
-        title: isAr ? 'مستودع جيت هاب' : 'GitHub Repository',
-        description: isAr
-          ? 'استكشف الكود والمشاريع البرمجية المفتوحة المصدر.'
-          : 'Explore open source code and developer projects.',
+        title: 'مستودع جيت هاب',
+        description: 'استكشف الكود والمشاريع البرمجية المفتوحة المصدر.',
         publisher: 'GitHub',
       };
     }
     if (domain.includes('wikipedia.org')) {
       return {
-        title: isAr ? 'ويكيبيديا، الموسوعة الحرة' : 'Wikipedia, the Free Encyclopedia',
-        description: isAr
-          ? 'اقرأ المقال الكامل وابحث في المعرفة الحرة.'
-          : 'Read the full article and search free knowledge.',
+        title: 'ويكيبيديا، الموسوعة الحرة',
+        description: 'اقرأ المقال الكامل وابحث في المعرفة الحرة.',
         publisher: 'Wikipedia',
       };
     }
     if (domain.includes('twitter.com') || domain.includes('x.com')) {
       return {
-        title: isAr ? 'منصة إكس' : 'X / Twitter',
-        description: isAr
-          ? 'تابع آخر التغريدات والمستجدات والأفكار.'
-          : 'Follow the latest tweets, updates, and thoughts.',
+        title: 'منصة إكس',
+        description: 'تابع آخر التغريدات والمستجدات والأفكار.',
         publisher: 'X',
       };
     }
@@ -106,9 +98,7 @@ export const LinkPreview: React.FC<LinkPreviewProps> = ({ url, isAr }) => {
         setMeta(
           fallback || {
             title: host,
-            description: isAr
-              ? 'انقر لفتح هذا الرابط الخارجي بأمان.'
-              : 'Click to open this external link securely.',
+            description: 'انقر لفتح هذا الرابط الخارجي بأمان.',
           },
         );
       } finally {

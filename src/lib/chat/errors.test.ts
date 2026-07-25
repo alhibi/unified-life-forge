@@ -59,12 +59,20 @@ describe('describeChatError', () => {
     ];
     for (const c of codes) {
       const e = new ChatError(c, '');
-      expect(describeChatError(e, true).length).toBeGreaterThan(0);
-      expect(describeChatError(e, false).length).toBeGreaterThan(0);
+      expect(describeChatError(e).length).toBeGreaterThan(0);
     }
   });
-  it('Arabic and German strings differ', () => {
+
+  it('returns Arabic copy — the app has no second locale', () => {
     const e = new ChatError('NETWORK', '');
-    expect(describeChatError(e, true)).not.toBe(describeChatError(e, false));
+    expect(describeChatError(e)).toMatch(/[\u0600-\u06FF]/);
+  });
+
+  it('gives each code its own distinct message', () => {
+    const codes: Array<ChatError['code']> = [
+      'NETWORK', 'UNAUTHENTICATED', 'FORBIDDEN', 'NOT_FOUND', 'RATE_LIMITED',
+    ];
+    const messages = codes.map((c) => describeChatError(new ChatError(c, '')));
+    expect(new Set(messages).size).toBe(codes.length);
   });
 });

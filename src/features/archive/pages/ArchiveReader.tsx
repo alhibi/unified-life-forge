@@ -359,7 +359,7 @@ export default function ArchiveReader() {
               : 'hsl(var(--live, var(--primary)) / 0.10)',
         ['--ambient-accent' as any]: accentColor ?? 'hsl(var(--live, var(--primary)))',
       }}
-      className={`pt-14 pb-28 px-5 relative ${prefs.cinematic ? 'archive-cinematic' : ''}`}
+      className={`pt-14 pb-page px-5 relative ${prefs.cinematic ? 'archive-cinematic' : ''}`}
     >
       {prefs.cinematic && <div className="archive-ambient" aria-hidden="true" />}
 
@@ -799,7 +799,7 @@ export default function ArchiveReader() {
 
           <article
             ref={articleRef}
-            className="archive-prose pb-24"
+            className="archive-prose pb-page"
             style={{
               fontFamily,
               fontSize: prefs.size,

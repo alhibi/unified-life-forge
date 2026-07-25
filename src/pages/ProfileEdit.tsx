@@ -26,16 +26,15 @@ import { pageStagger as stagger, pageItem as item } from '@/lib/motion';
 type CoverTheme = {
   id: string;
   labelAr: string;
-  labelDe: string;
   css: string;
 };
 const COVER_THEMES: CoverTheme[] = [
-  { id: 'copper', labelAr: 'نحاسي', labelDe: 'Kupfer', css: 'hsl(var(--card))' },
-  { id: 'obsidian', labelAr: 'أوبسيديان', labelDe: 'Obsidian', css: 'hsl(var(--background))' },
-  { id: 'ember', labelAr: 'جمر', labelDe: 'Glut', css: 'hsl(var(--secondary))' },
-  { id: 'moss', labelAr: 'طحلبي', labelDe: 'Moos', css: 'hsl(var(--muted))' },
-  { id: 'indigo', labelAr: 'نيلي', labelDe: 'Indigo', css: 'hsl(var(--accent))' },
-  { id: 'sand', labelAr: 'رملي', labelDe: 'Sand', css: 'hsl(var(--card))' },
+  { id: 'copper', labelAr: 'نحاسي', css: 'hsl(var(--card))' },
+  { id: 'obsidian', labelAr: 'أوبسيديان', css: 'hsl(var(--background))' },
+  { id: 'ember', labelAr: 'جمر', css: 'hsl(var(--secondary))' },
+  { id: 'moss', labelAr: 'طحلبي', css: 'hsl(var(--muted))' },
+  { id: 'indigo', labelAr: 'نيلي', css: 'hsl(var(--accent))' },
+  { id: 'sand', labelAr: 'رملي', css: 'hsl(var(--card))' },
 ];
 
 const coverKey = (uid?: string) => `profile_cover_theme:${uid || 'anon'}`;
@@ -196,12 +195,12 @@ export default function ProfileEditPage() {
     if (!file || !user) return;
 
     if (!file.type.startsWith('image/')) {
-      toast.error(isAr ? 'يرجى اختيار صورة' : 'Bitte ein Bild auswählen');
+      toast.error('يرجى اختيار صورة');
       return;
     }
 
     if (file.size > 2 * 1024 * 1024) {
-      toast.error(isAr ? 'الحد الأقصى 2 ميجابايت' : 'Maximal 2 MB');
+      toast.error('الحد الأقصى 2 ميجابايت');
       return;
     }
 
@@ -211,9 +210,9 @@ export default function ProfileEditPage() {
       if (isMountedRef.current) {
         setSelectedAvatar(publicUrl);
       }
-      toast.success(isAr ? 'تم رفع الصورة' : 'Bild hochgeladen');
+      toast.success('تم رفع الصورة');
     } catch (err: any) {
-      toast.error(isAr ? 'فشل رفع الصورة' : 'Upload fehlgeschlagen');
+      toast.error('فشل رفع الصورة');
       console.error(err);
     } finally {
       if (isMountedRef.current) {
@@ -226,11 +225,11 @@ export default function ProfileEditPage() {
   const handleSave = async () => {
     if (!user) return;
     if (!newUsername.trim() || newUsername.trim().length < 3) {
-      toast.error(isAr ? 'اسم المستخدم يجب أن يكون 3 أحرف على الأقل' : 'Benutzername muss mindestens 3 Zeichen lang sein');
+      toast.error('اسم المستخدم يجب أن يكون 3 أحرف على الأقل');
       return;
     }
     if (usernameAvailable === false) {
-      toast.error(isAr ? 'اسم المستخدم مستخدم بالفعل' : 'Benutzername bereits vergeben');
+      toast.error('اسم المستخدم مستخدم بالفعل');
       return;
     }
 
@@ -244,7 +243,7 @@ export default function ProfileEditPage() {
       });
 
       await refreshProfile();
-      toast.success(isAr ? 'تم حفظ الملف الشخصي' : 'Profil gespeichert');
+      toast.success('تم حفظ الملف الشخصي');
       try {
         localStorage.removeItem(draftKey);
       } catch { /* ignore */ }
@@ -258,9 +257,9 @@ export default function ProfileEditPage() {
       }
     } catch (err: any) {
       if (err?.message?.includes('duplicate') || err?.message?.includes('unique')) {
-        toast.error(isAr ? 'اسم المستخدم مستخدم بالفعل' : 'Benutzername bereits vergeben');
+        toast.error('اسم المستخدم مستخدم بالفعل');
       } else {
-        toast.error(isAr ? 'حدث خطأ' : 'Ein Fehler ist aufgetreten');
+        toast.error('حدث خطأ');
       }
     } finally {
       if (isMountedRef.current) {
@@ -276,23 +275,23 @@ export default function ProfileEditPage() {
     if (!createdAt) return null;
     try {
       const d = new Date(createdAt);
-      return d.toLocaleDateString(isAr ? 'ar' : 'de', { year: 'numeric', month: 'short' });
+      return d.toLocaleDateString('ar', { year: 'numeric', month: 'short' });
     } catch { return null; }
   }, [profile, user, isAr]);
 
   const lastSeenLabel = useMemo(() => {
     const ls = (profile as any)?.last_seen;
-    if (!ls) return isAr ? 'متصل الآن' : 'Gerade aktiv';
+    if (!ls) return 'متصل الآن';
     try {
       const t = new Date(ls).getTime();
       const diff = Date.now() - t;
-      if (diff < 60_000) return isAr ? 'متصل الآن' : 'Gerade aktiv';
+      if (diff < 60_000) return 'متصل الآن';
       const mins = Math.floor(diff / 60_000);
-      if (mins < 60) return isAr ? `آخر ظهور قبل ${mins} د` : `Zuletzt vor ${mins} Min`;
+      if (mins < 60) return `آخر ظهور قبل ${mins} د`;
       const hrs = Math.floor(mins / 60);
-      if (hrs < 24) return isAr ? `آخر ظهور قبل ${hrs} س` : `Zuletzt vor ${hrs} Std`;
+      if (hrs < 24) return `آخر ظهور قبل ${hrs} س`;
       const days = Math.floor(hrs / 24);
-      return isAr ? `آخر ظهور قبل ${days} يوم` : `Zuletzt vor ${days} Tagen`;
+      return `آخر ظهور قبل ${days} يوم`;
     } catch { return ''; }
   }, [profile, isAr]);
 
@@ -300,9 +299,9 @@ export default function ProfileEditPage() {
     try {
       const url = `${window.location.origin}/u/${(profile?.username || authUsername || '').toLowerCase()}`;
       await navigator.clipboard.writeText(url);
-      toast.success(isAr ? 'تم نسخ رابط الملف' : 'Profillink kopiert');
+      toast.success('تم نسخ رابط الملف');
     } catch {
-      toast.error(isAr ? 'تعذّر النسخ' : 'Kopieren fehlgeschlagen');
+      toast.error('تعذّر النسخ');
     }
   };
 
@@ -313,7 +312,7 @@ export default function ProfileEditPage() {
   const handleSignOut = async () => {
     setShowLogoutConfirm(false);
     await signOut();
-    toast.success(isAr ? 'تم تسجيل الخروج' : 'Abgemeldet');
+    toast.success('تم تسجيل الخروج');
     navigate('/', { replace: true });
   };
 
@@ -340,7 +339,7 @@ export default function ProfileEditPage() {
 
   // ── Render ─────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-background pb-40 relative overflow-x-hidden" dir={isAr ? 'rtl' : 'ltr'}>
+    <div className="min-h-screen bg-background pb-40 relative overflow-x-hidden" dir={'rtl'}>
       {/* Hero cover — full-width gradient with a slow ambient breath. The
           avatar and identity sit over it so the profile feels like its
           own destination, not a settings row. */}
@@ -372,10 +371,10 @@ export default function ProfileEditPage() {
         <button
           onClick={copyProfileLink}
           className="absolute top-4 end-4 z-10 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/60 ring-1 ring-white/10 text-[11px] text-white/90 active:scale-95 transition-transform"
-          aria-label={isAr ? 'نسخ رابط الملف' : 'Profillink kopieren'}
+          aria-label={'نسخ رابط الملف'}
         >
           <Copy className="w-3.5 h-3.5" />
-          {isAr ? 'نسخ الرابط' : 'Link kopieren'}
+          {'نسخ الرابط'}
         </button>
       </div>
 
@@ -390,7 +389,7 @@ export default function ProfileEditPage() {
           <button
             onClick={() => fileInputRef.current?.click()}
             className="relative group active:scale-[0.97] transition-transform"
-            aria-label={isAr ? 'تغيير الصورة' : 'Bild ändern'}
+            aria-label={'تغيير الصورة'}
           >
             <div className="w-[108px] h-[108px] rounded-full ring-4 ring-background bg-card shadow-lg overflow-hidden flex items-center justify-center">
               {isUrlAvatar ? (
@@ -411,7 +410,7 @@ export default function ProfileEditPage() {
           </button>
 
           <h1 className="mt-4 text-[22px] font-bold text-foreground leading-tight tracking-tight">
-            {displayName || newUsername || (isAr ? 'المستخدم' : 'Benutzer')}
+            {displayName || newUsername || ('المستخدم')}
           </h1>
           <p className="text-[13px] text-muted-foreground mt-0.5" dir="ltr">
             @{newUsername || '—'}
@@ -435,7 +434,7 @@ export default function ProfileEditPage() {
             {memberSince && (
               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-muted/40 ring-1 ring-border/40 text-[11px] text-muted-foreground">
                 <Sparkles className="w-3 h-3" />
-                {isAr ? `عضو منذ ${memberSince}` : `Mitglied seit ${memberSince}`}
+                {`عضو منذ ${memberSince}`}
               </span>
             )}
           </div>
@@ -444,8 +443,8 @@ export default function ProfileEditPage() {
         {/* ── Cover theme ───────────────────────────────────────────── */}
         <Section
           icon={Palette}
-          title={isAr ? 'ثيم الغلاف' : 'Cover-Design'}
-          hint={isAr ? 'خلفية ملفك — اختيار محلي على هذا الجهاز' : 'Hintergrund deines Profils — lokal auf diesem Gerät'}
+          title={'ثيم الغلاف'}
+          hint={'خلفية ملفك — اختيار محلي على هذا الجهاز'}
         >
           <div className="grid grid-cols-3 gap-2.5">
             {COVER_THEMES.map((t) => {
@@ -458,7 +457,7 @@ export default function ProfileEditPage() {
                     active ? 'ring-2 ring-primary scale-[1.02]' : 'ring-border/40 hover:ring-primary/40'
                   }`}
                   style={{ background: t.css }}
-                  aria-label={isAr ? t.labelAr : t.labelDe}
+                  aria-label={t.labelAr}
                 >
                   {active && (
                     <div className="absolute top-1.5 end-1.5 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
@@ -466,7 +465,7 @@ export default function ProfileEditPage() {
                     </div>
                   )}
                   <span className="absolute bottom-1.5 start-2 text-[10px] font-medium text-white/90 drop-shadow">
-                    {isAr ? t.labelAr : t.labelDe}
+                    {t.labelAr}
                   </span>
                 </button>
               );
@@ -477,8 +476,8 @@ export default function ProfileEditPage() {
         {/* ── Avatar ────────────────────────────────────────────────── */}
         <Section
           icon={ImagePlus}
-          title={isAr ? 'الصورة الشخصية' : 'Profilbild'}
-          hint={isAr ? 'اختر رمزاً أو ارفع صورتك' : 'Wähle ein Symbol oder lade ein Bild hoch'}
+          title={'الصورة الشخصية'}
+          hint={'اختر رمزاً أو ارفع صورتك'}
         >
           <div className="grid grid-cols-4 gap-2">
             {EMOJI_AVATARS.map((animal) => {
@@ -524,13 +523,13 @@ export default function ProfileEditPage() {
               ) : (
                 <>
                   <ImagePlus className="w-4 h-4" />
-                  {isAr ? 'رفع صورة' : 'Bild hochladen'}
+                  {'رفع صورة'}
                 </>
               )}
             </Button>
             <Button variant="ghost" className="w-full gap-2" onClick={resetAvatarToDefault}>
               <UserCircle className="w-4 h-4" />
-              {isAr ? 'افتراضي' : 'Standard'}
+              {'افتراضي'}
             </Button>
           </div>
         </Section>
@@ -538,12 +537,12 @@ export default function ProfileEditPage() {
         {/* ── Identity ──────────────────────────────────────────────── */}
         <Section
           icon={Shield}
-          title={isAr ? 'الهوية' : 'Identität'}
-          hint={isAr ? 'اسم مستخدم فريد — يظهر في المحادثات والرابط العام' : 'Einzigartiger Benutzername — sichtbar in Chats und im Profillink'}
+          title={'الهوية'}
+          hint={'اسم مستخدم فريد — يظهر في المحادثات والرابط العام'}
         >
           <div className="space-y-2">
             <label className="text-[12px] font-semibold text-muted-foreground">
-              {isAr ? 'اسم المستخدم' : 'Benutzername'}
+              {'اسم المستخدم'}
             </label>
             <div className="relative">
               <span className="absolute start-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">@</span>
@@ -553,7 +552,7 @@ export default function ProfileEditPage() {
                   setNewUsername(e.target.value.replace(/[^a-zA-Z0-9_]/g, '').toLowerCase());
                   setUsernameChanged(true);
                 }}
-                placeholder={isAr ? 'اسم المستخدم' : 'benutzername'}
+                placeholder={'اسم المستخدم'}
                 className="ps-8"
                 dir="ltr"
                 maxLength={20}
@@ -574,10 +573,10 @@ export default function ProfileEditPage() {
                   }`}
                 >
                   {checkingUsername
-                    ? (isAr ? 'جاري التحقق…' : 'Wird geprüft…')
+                    ? ('جاري التحقق…')
                     : usernameAvailable
-                      ? (isAr ? '✓ متاح' : '✓ Verfügbar')
-                      : (isAr ? '✗ مستخدم بالفعل' : '✗ Bereits vergeben')}
+                      ? ('✓ متاح')
+                      : ('✗ مستخدم بالفعل')}
                 </motion.p>
               )}
             </AnimatePresence>
@@ -587,29 +586,29 @@ export default function ProfileEditPage() {
         {/* ── About ─────────────────────────────────────────────────── */}
         <Section
           icon={Pencil}
-          title={isAr ? 'التعريف' : 'Über dich'}
-          hint={isAr ? 'الاسم الظاهر والنبذة — ما يراه الآخرون' : 'Anzeigename und Bio — was andere sehen'}
+          title={'التعريف'}
+          hint={'الاسم الظاهر والنبذة — ما يراه الآخرون'}
         >
           <div className="space-y-2">
             <label className="text-[12px] font-semibold text-muted-foreground">
-              {isAr ? 'الاسم الظاهر' : 'Anzeigename'}
+              {'الاسم الظاهر'}
             </label>
             <Input
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
-              placeholder={isAr ? 'الاسم الذي يراه الآخرون' : 'Name, den andere sehen'}
+              placeholder={'الاسم الذي يراه الآخرون'}
               maxLength={30}
             />
           </div>
 
           <div className="space-y-2">
             <label className="text-[12px] font-semibold text-muted-foreground">
-              {isAr ? 'النبذة' : 'Bio'}
+              {'النبذة'}
             </label>
             <textarea
               value={bio}
               onChange={(e) => setBio(e.target.value)}
-              placeholder={isAr ? 'اكتب شيئاً عن نفسك…' : 'Schreib etwas über dich…'}
+              placeholder={'اكتب شيئاً عن نفسك…'}
               maxLength={150}
               rows={3}
               dir="auto"
@@ -627,10 +626,10 @@ export default function ProfileEditPage() {
             </div>
             <div>
               <h2 className="text-[14px] font-bold text-foreground">
-                {isAr ? 'تسجيل الخروج' : 'Abmelden'}
+                {'تسجيل الخروج'}
               </h2>
               <p className="text-[11px] text-muted-foreground/80">
-                {isAr ? 'إنهاء الجلسة على هذا الجهاز' : 'Sitzung auf diesem Gerät beenden'}
+                {'إنهاء الجلسة على هذا الجهاز'}
               </p>
             </div>
           </div>
@@ -638,7 +637,7 @@ export default function ProfileEditPage() {
             onClick={() => setShowLogoutConfirm(true)}
             className="w-full py-2.5 rounded-xl bg-destructive/10 text-destructive text-[13px] font-semibold active:scale-[0.98] transition-transform"
           >
-            {isAr ? 'تسجيل الخروج' : 'Abmelden'}
+            {'تسجيل الخروج'}
           </button>
         </motion.section>
       </motion.div>
@@ -656,7 +655,7 @@ export default function ProfileEditPage() {
             <div className="max-w-lg mx-auto pointer-events-auto">
               <div className="surface-depth rounded-2xl px-3 py-2.5 flex items-center gap-3 shadow-2xl ring-1 ring-primary/20">
                 <span className="text-[12px] text-muted-foreground flex-1 truncate">
-                  {isAr ? 'لديك تغييرات غير محفوظة' : 'Ungespeicherte Änderungen'}
+                  {'لديك تغييرات غير محفوظة'}
                 </span>
                 <Button
                   size="sm"
@@ -669,7 +668,7 @@ export default function ProfileEditPage() {
                   ) : (
                     <>
                       <Check className="w-4 h-4" />
-                      {isAr ? 'حفظ' : 'Speichern'}
+                      {'حفظ'}
                     </>
                   )}
                 </Button>
@@ -702,26 +701,24 @@ export default function ProfileEditPage() {
                   <AlertTriangle className="w-5 h-5 text-destructive" />
                 </div>
                 <h3 className="text-lg font-bold text-foreground">
-                  {isAr ? 'تسجيل الخروج' : 'Abmelden'}
+                  {'تسجيل الخروج'}
                 </h3>
               </div>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                {isAr
-                  ? 'سيتم مسح بيانات هذا الجهاز محلياً. يمكنك استعادتها عند تسجيل الدخول مرة أخرى.'
-                  : 'Lokale Daten dieses Geräts werden gelöscht. Du kannst sie beim erneuten Anmelden wiederherstellen.'}
+                {'سيتم مسح بيانات هذا الجهاز محلياً. يمكنك استعادتها عند تسجيل الدخول مرة أخرى.'}
               </p>
               <div className="flex gap-3 pt-1">
                 <button
                   onClick={() => setShowLogoutConfirm(false)}
                   className="flex-1 py-2.5 rounded-xl bg-secondary text-secondary-foreground text-sm font-medium active:scale-[0.98] transition-transform"
                 >
-                  {isAr ? 'إلغاء' : 'Abbrechen'}
+                  {'إلغاء'}
                 </button>
                 <button
                   onClick={handleSignOut}
                   className="flex-1 py-2.5 rounded-xl bg-destructive text-destructive-foreground text-sm font-medium active:scale-[0.98] transition-transform"
                 >
-                  {isAr ? 'تسجيل الخروج' : 'Abmelden'}
+                  {'تسجيل الخروج'}
                 </button>
               </div>
             </motion.div>

@@ -13,7 +13,6 @@ import {
   type Lang,
 } from './wellnessData';
 import type { Supplement } from './wellnessDb';
-import { CATEGORY_META, categoryOf } from './foodCategories';
 import { FoodIcon } from './foodIcons';
 
 function FoodChip({ foodKey, label }: { foodKey: string; label: string }) {
@@ -37,7 +36,6 @@ interface Props {
 export default function StackAdvisor({ supplements }: Props) {
   const { language } = useApp();
   const lang = language as Lang;
-  const isAr = lang === 'ar';
 
   const activeNutrients = useMemo(() => {
     const set = new Set<string>();
@@ -101,12 +99,10 @@ export default function StackAdvisor({ supplements }: Props) {
         <div>
           <h3 className="text-[15px] font-bold text-foreground flex items-center gap-1.5">
             <Sparkles className="w-4 h-4 text-primary" />
-            {isAr ? 'مستشار التركيبات' : 'Stack-Berater'}
+            {'مستشار التركيبات'}
           </h3>
           <p className="text-[11px] text-muted-foreground mt-0.5">
-            {isAr
-              ? 'اختر عناصرك واكتشف الفوائد المثبتة عند دمجها.'
-              : 'Wähle deine Nährstoffe und sieh die belegten Effekte.'}
+            {'اختر عناصرك واكتشف الفوائد المثبتة عند دمجها.'}
           </p>
         </div>
       </div>
@@ -115,7 +111,7 @@ export default function StackAdvisor({ supplements }: Props) {
       <div className="bg-card border border-border/40 rounded-2xl p-3 space-y-2">
         <div className="flex items-center justify-between">
           <p className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-wider">
-            {isAr ? 'تركيبتك' : 'Deine Auswahl'} ({selected.length})
+            {'تركيبتك'} ({selected.length})
           </p>
           <div className="flex gap-2">
             {activeNutrients.length > 0 && (
@@ -123,7 +119,7 @@ export default function StackAdvisor({ supplements }: Props) {
                 onClick={seedFromActive}
                 className="text-[11px] font-semibold text-primary active:scale-95 transition-transform"
               >
-                {isAr ? 'من مكملاتي' : 'Aus meinen'}
+                {'من مكملاتي'}
               </button>
             )}
             {selected.length > 0 && (
@@ -131,7 +127,7 @@ export default function StackAdvisor({ supplements }: Props) {
                 onClick={clear}
                 className="text-[11px] font-semibold text-muted-foreground active:scale-95 transition-transform"
               >
-                {isAr ? 'مسح' : 'Leeren'}
+                {'مسح'}
               </button>
             )}
           </div>
@@ -139,7 +135,7 @@ export default function StackAdvisor({ supplements }: Props) {
 
         {selected.length === 0 ? (
           <p className="text-[12px] text-muted-foreground/70 py-2">
-            {isAr ? 'لم تختر شيئاً بعد.' : 'Noch keine Auswahl.'}
+            {'لم تختر شيئاً بعد.'}
           </p>
         ) : (
           <div className="flex flex-wrap gap-1.5">
@@ -160,7 +156,7 @@ export default function StackAdvisor({ supplements }: Props) {
           onClick={() => setPickerOpen((v) => !v)}
           className="w-full mt-1 py-2 rounded-xl bg-muted/40 text-[12px] font-semibold text-foreground flex items-center justify-center gap-1.5 active:scale-[0.98] transition-transform"
         >
-          {isAr ? 'إضافة عنصر' : 'Nährstoff hinzufügen'}
+          {'إضافة عنصر'}
           <ChevronDown
             className={`w-3.5 h-3.5 transition-transform ${pickerOpen ? 'rotate-180' : ''}`}
           />
@@ -203,7 +199,7 @@ export default function StackAdvisor({ supplements }: Props) {
         <div className="bg-destructive/5 border border-destructive/30 rounded-2xl p-3 space-y-1.5">
           <p className="text-[11px] font-bold text-destructive uppercase tracking-wider flex items-center gap-1">
             <AlertTriangle className="w-3.5 h-3.5" />
-            {isAr ? 'تحذيرات تركيبة' : 'Stack-Warnungen'}
+            {'تحذيرات تركيبة'}
           </p>
           {warnings.map((w) => (
             <p key={w.id} className="text-[12px] text-foreground/90 leading-relaxed">
@@ -218,9 +214,7 @@ export default function StackAdvisor({ supplements }: Props) {
         <div className="bg-card border border-dashed border-border/50 rounded-2xl p-5 text-center">
           <FlaskConical className="w-8 h-8 text-muted-foreground/30 mx-auto mb-2" />
           <p className="text-[12px] text-muted-foreground">
-            {isAr
-              ? 'لا توجد تركيبة معروفة بهذا المزيج بعد. جرّب إضافة فيتامين د، سي، أو مغنيسيوم.'
-              : 'Noch keine bekannte Synergie für diese Auswahl.'}
+            {'لا توجد تركيبة معروفة بهذا المزيج بعد. جرّب إضافة فيتامين د، سي، أو مغنيسيوم.'}
           </p>
         </div>
       )}
@@ -253,9 +247,9 @@ export default function StackAdvisor({ supplements }: Props) {
                       {syn.title[lang]}
                     </h4>
                     {isFull && (
-                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-primary text-primary-foreground flex items-center gap-0.5">
+                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-primary text-primary-foreground flex items-center gap-0.5">
                         <Check className="w-2.5 h-2.5" />
-                        {isAr ? 'مكتمل' : 'Aktiv'}
+                        {'مكتمل'}
                       </span>
                     )}
                   </div>
@@ -268,9 +262,7 @@ export default function StackAdvisor({ supplements }: Props) {
                     </span>
                     {!isFull && (
                       <span className="text-warning font-semibold">
-                        {isAr
-                          ? `ينقص ${missing.length}`
-                          : `noch ${missing.length}`}
+                        {`ينقص ${missing.length}`}
                       </span>
                     )}
                   </div>
@@ -296,7 +288,7 @@ export default function StackAdvisor({ supplements }: Props) {
                       <div>
                         <p className="text-[10px] font-bold text-muted-foreground/70 uppercase tracking-wider mb-1.5 flex items-center gap-1">
                           <Zap className="w-3 h-3" />
-                          {isAr ? 'الفوائد' : 'Nutzen'}
+                          {'الفوائد'}
                         </p>
                         <ul className="space-y-1">
                           {syn.benefits[lang].map((b, i) => (
@@ -314,7 +306,7 @@ export default function StackAdvisor({ supplements }: Props) {
                       {/* How-to */}
                       <div className="bg-muted/30 rounded-xl p-2.5">
                         <p className="text-[10px] font-bold text-muted-foreground/70 uppercase tracking-wider mb-1">
-                          {isAr ? 'الطريقة' : 'So einnehmen'}
+                          {'الطريقة'}
                         </p>
                         <p className="text-[12px] text-foreground/90 leading-relaxed">
                           {syn.howTo[lang]}
@@ -325,7 +317,7 @@ export default function StackAdvisor({ supplements }: Props) {
                       {!isFull && (
                         <div>
                           <p className="text-[10px] font-bold text-warning uppercase tracking-wider mb-1.5">
-                            {isAr ? 'لإكمال التركيبة أضف' : 'Zum Vervollständigen'}
+                            {'لإكمال التركيبة أضف'}
                           </p>
                           <div className="flex flex-wrap gap-1.5">
                             {missing.map((k) => (
@@ -346,7 +338,7 @@ export default function StackAdvisor({ supplements }: Props) {
                         <div>
                           <p className="text-[10px] font-bold text-muted-foreground/70 uppercase tracking-wider mb-1.5 flex items-center gap-1">
                             <Utensils className="w-3 h-3" />
-                            {isAr ? 'أطعمة تعزز' : 'Booster-Lebensmittel'}
+                            {'أطعمة تعزز'}
                           </p>
                           <div className="flex flex-wrap gap-1.5">
                             {syn.foodBoosters.map((fk) => {
@@ -373,7 +365,7 @@ export default function StackAdvisor({ supplements }: Props) {
         <div className="bg-card border border-border/40 rounded-2xl p-3.5">
           <p className="text-[11px] font-bold text-muted-foreground/70 uppercase tracking-wider mb-2 flex items-center gap-1">
             <Utensils className="w-3 h-3" />
-            {isAr ? 'أضف هذه إلى يومك' : 'In den Tag einbauen'}
+            {'أضف هذه إلى يومك'}
           </p>
           <div className="flex flex-wrap gap-1.5">
             {recommendedFoods.map((f) => (

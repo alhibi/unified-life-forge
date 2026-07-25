@@ -18,7 +18,7 @@
  */
 
 import React, { useMemo, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
   Trash2, Calendar as CalIcon, Search, Beef, Wheat, Salad, Flame,
   Minus, Plus, Info, Sparkles,
@@ -49,31 +49,29 @@ const item = {
 };
 
 const T = {
-  date: { ar: 'التاريخ', de: 'Datum' },
-  meals: { ar: 'وجبات اليوم', de: 'Mahlzeiten' },
-  nothingLogged: { ar: 'لم تسجل أي طعام بعد', de: 'Noch keine Mahlzeiten erfasst' },
-  add: { ar: 'أضف طعاماً', de: 'Essen hinzufügen' },
-  search: { ar: 'ابحث عن طعام...', de: 'Essen suchen...' },
-  all: { ar: 'الكل', de: 'Alle' },
-  noResults: { ar: 'لا نتائج', de: 'Keine Treffer' },
-  custom: { ar: 'كمخصص', de: 'als eigenes' },
-  todayTotals: { ar: 'إجمالي اليوم', de: 'Tagesbilanz' },
-  ofTarget: { ar: 'من الهدف', de: 'des Ziels' },
+  date: { ar: 'التاريخ', },
+  meals: { ar: 'وجبات اليوم', },
+  nothingLogged: { ar: 'لم تسجل أي طعام بعد', },
+  add: { ar: 'أضف طعاماً', },
+  search: { ar: 'ابحث عن طعام...', },
+  all: { ar: 'الكل', },
+  noResults: { ar: 'لا نتائج', },
+  custom: { ar: 'كمخصص', },
+  todayTotals: { ar: 'إجمالي اليوم', },
+  ofTarget: { ar: 'من الهدف', },
   noTarget: {
     ar: 'أكمل ملفك لتفعيل أهداف السعرات والماكروز.',
-    de: 'Profil vervollständigen, um Kalorien- und Makro-Ziele zu aktivieren.',
   },
-  kcal: { ar: 'سعرة', de: 'kcal' },
-  protein: { ar: 'بروتين', de: 'Protein' },
-  carbs: { ar: 'كربوهيدرات', de: 'Carbs' },
-  fat: { ar: 'دهون', de: 'Fett' },
+  kcal: { ar: 'سعرة', },
+  protein: { ar: 'بروتين', },
+  carbs: { ar: 'كربوهيدرات', },
+  fat: { ar: 'دهون', },
   unknownMacros: {
     ar: 'لا توجد قيم غذائية معروفة',
-    de: 'Keine bekannten Nährwerte',
   },
-  portion: { ar: 'حصة', de: 'Portion' },
-  approx: { ar: 'تقريبي', de: 'ca.' },
-  perServing: { ar: 'لكل حصة', de: 'pro Portion' },
+  portion: { ar: 'حصة', },
+  approx: { ar: 'تقريبي', },
+  perServing: { ar: 'لكل حصة', },
 };
 
 /* Portion options offered by the inline stepper. */
@@ -100,7 +98,6 @@ function MacroTotals({
   targets: { kcal: number; protein: number; carbs: number; fat: number } | null;
   lang: Lang;
 }) {
-  const isAr = lang === 'ar';
   const cells: Array<{
     key: 'kcal' | 'protein' | 'carbs' | 'fat';
     label: string;
@@ -153,15 +150,15 @@ function MacroTotals({
               <div className="text-center" dir="ltr">
                 <div className="text-[14px] font-bold tabular-nums leading-none text-foreground">
                   <AnimatedNumber value={cur} digits={key === 'kcal' ? 0 : 1} />
-                  <span className="text-[9px] text-muted-foreground ms-0.5">{suffix}</span>
+                  <span className="text-[10px] text-muted-foreground ms-0.5">{suffix}</span>
                 </div>
                 {tgtLabel && (
-                  <div className="text-[8.5px] text-muted-foreground/70 mt-0.5">
+                  <div className="text-[10px] text-muted-foreground/70 mt-0.5">
                     /{tgtLabel}{suffix}
                   </div>
                 )}
               </div>
-              <p className="text-[8.5px] uppercase tracking-wider font-semibold text-muted-foreground/70">
+              <p className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground/70">
                 {label}
               </p>
             </div>
@@ -260,7 +257,7 @@ function LogRow({
       <div className="flex-1 min-w-0">
         <div className="flex items-baseline gap-2">
           <p className="text-[13px] font-semibold text-foreground truncate">{label}</p>
-          <span className="text-[9px] text-muted-foreground/60 shrink-0" dir="ltr">
+          <span className="text-[10px] text-muted-foreground/60 shrink-0" dir="ltr">
             {Math.round(grams)} g
           </span>
         </div>
@@ -323,7 +320,6 @@ export default function DietTab({
 }: Props) {
   const { language } = useApp();
   const lang = language as Lang;
-  const isAr = lang === 'ar';
   const [date, setDate] = useState(todayIso());
   const [query, setQuery] = useState('');
   const [activeCat, setActiveCat] = useState<FoodCategory | 'all'>('all');
@@ -354,7 +350,6 @@ export default function DietTab({
       if (q) {
         const match =
           f.label.ar.toLowerCase().includes(q) ||
-          f.label.de.toLowerCase().includes(q) ||
           f.key.includes(q);
         if (!match) return false;
       }
@@ -513,11 +508,11 @@ export default function DietTab({
                             {f.label[lang]}
                           </span>
                           {known ? (
-                            <span className="text-[8.5px] text-muted-foreground/70 tabular-nums" dir="ltr">
+                            <span className="text-[10px] text-muted-foreground/70 tabular-nums" dir="ltr">
                               {m.kcal} {T.kcal[lang]} · {fmtG(m.protein)}g P
                             </span>
                           ) : (
-                            <span className="text-[8.5px] text-muted-foreground/40">—</span>
+                            <span className="text-[10px] text-muted-foreground/40">—</span>
                           )}
                         </button>
                       );
@@ -538,7 +533,7 @@ export default function DietTab({
             className="w-full bg-primary/10 border border-primary/40 rounded-xl p-3 active:scale-[0.98] transition-transform"
           >
             <span className="text-[12px] font-semibold text-primary">
-              + {isAr ? `أضف "${query.trim()}" ${T.custom[lang]}` : `"${query.trim()}" ${T.custom[lang]}`}
+              + {`أضف "${query.trim()}" ${T.custom[lang]}`}
             </span>
           </button>
         )}
@@ -547,9 +542,7 @@ export default function DietTab({
       {/* Tiny note about portion semantics */}
       <p className="text-[10px] text-muted-foreground/60 leading-relaxed text-center px-3 flex items-center justify-center gap-1">
         <Info className="w-3 h-3 inline-block" />
-        {isAr
-          ? 'القيم الغذائية تقريبية وتعتمد على حصة قياسية لكل صنف.'
-          : 'Nährwerte sind Schätzungen auf Basis einer Standardportion.'}
+        {'القيم الغذائية تقريبية وتعتمد على حصة قياسية لكل صنف.'}
       </p>
     </div>
   );

@@ -49,7 +49,7 @@ export default function PoetCard({ poet, index = 0 }: Props) {
               boxShadow: 'var(--shadow-sm)',
             }}
           >
-            <span className="font-amiri font-bold text-[19px] text-[#F5DFC9] leading-none select-none">
+            <span className="font-amiri font-bold text-[20px] text-[#F5DFC9] leading-none select-none">
               {firstLetter}
             </span>
           </div>
@@ -58,7 +58,7 @@ export default function PoetCard({ poet, index = 0 }: Props) {
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2">
                 <h3
-                  className="font-bold text-[16.5px] text-[#F2E9D8] truncate"
+                  className="font-bold text-[16px] text-[#F2E9D8] truncate"
                   style={{ fontFamily: "'Amiri', serif" }}
                 >
                   {poet.name_ar}
@@ -83,7 +83,7 @@ export default function PoetCard({ poet, index = 0 }: Props) {
             )}
 
             {/* صف الإحصائيات الصغير أسفل البطاقة */}
-            <div className="flex items-center gap-3 mt-2 text-[11.5px] text-[#7E7259] font-tajawal">
+            <div className="flex items-center gap-3 mt-2 text-[11px] text-[#7E7259] font-tajawal">
               {poet.poems_count > 0 && (
                 <span className="flex items-center gap-1">
                   <ScrollText className="w-3.5 h-3.5 text-[#7E7259]/80" />

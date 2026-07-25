@@ -147,7 +147,7 @@ export default function PoetTimeline({ poetId, poetName, onClose }: PoetTimeline
                         </p>
                         <div className="flex items-center gap-2 mt-2">
                           <span
-                            className="text-[9px] px-2 py-0.5 rounded-full font-medium"
+                            className="text-[10px] px-2 py-0.5 rounded-full font-medium"
                             style={{
                               color: config.color,
                               backgroundColor: `${config.color}15`,
@@ -180,7 +180,7 @@ export default function PoetTimeline({ poetId, poetName, onClose }: PoetTimeline
             {Array.from(new Set(events.map(e => e.type))).map(type => (
               <span key={type} className="flex items-center gap-1">
                 <span className="text-[11px]">{eventTypeConfig[type].icon}</span>
-                <span className="text-[9px] text-muted-foreground">
+                <span className="text-[10px] text-muted-foreground">
                   {events.filter(e => e.type === type).length}
                 </span>
               </span>

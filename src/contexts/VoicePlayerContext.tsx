@@ -14,8 +14,7 @@ const notifyPlayFailure = () => {
   const now = Date.now();
   if (now - lastPlayErrorAt < 2500) return; // throttle bursts
   lastPlayErrorAt = now;
-  const isAr = detectIsAr();
-  toast.error(isAr ? 'تعذر تشغيل الرسالة الصوتية' : 'Sprachnachricht konnte nicht abgespielt werden');
+  toast.error('تعذر تشغيل الرسالة الصوتية');
 };
 
 interface VoicePlayerState {

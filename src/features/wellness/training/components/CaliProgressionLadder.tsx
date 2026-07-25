@@ -16,27 +16,27 @@ export interface CaliProgressionLadderProps {
   clearedStep: number;
   onStepClear: (stepIdx: number) => void;
   onShowKnowledge?: () => void;
-  lang: 'ar' | 'de';
+  lang: 'ar';
   className?: string;
 }
 
 const T = {
-  step: { ar: 'الخطوة', de: 'Stufe' },
-  unlockedAt: { ar: 'الانتقال للخطوة التالية عند', de: 'Aufstieg bei' },
-  cues: { ar: 'تعليمات', de: 'Cues' },
-  mistakes: { ar: 'أخطاء', de: 'Fehler' },
-  regressions: { ar: 'اختصارات', de: 'Regressions' },
-  weeks: { ar: 'أسابيع', de: 'Wochen' },
-  knowledge: { ar: 'معرفة عميقة', de: 'Wissens-Karte' },
-  about: { ar: 'لماذا', de: 'Warum' },
-  cleared: { ar: 'مكتمل', de: 'Erledigt' },
-  current: { ar: 'الحالي', de: 'Aktuell' },
-  locked: { ar: 'مغلق', de: 'Gesperrt' },
-  reps: { ar: 'تكرار', de: 'Wdh' },
-  sets: { ar: 'مج', de: 'Sätze' },
-  hold: { ar: 'هولد', de: 'Halt' },
-  sec: { ar: 'ث', de: 's' },
-  difficulty: { ar: 'الصعوبة', de: 'Schwierigkeit' },
+  step: { ar: 'الخطوة', },
+  unlockedAt: { ar: 'الانتقال للخطوة التالية عند', },
+  cues: { ar: 'تعليمات', },
+  mistakes: { ar: 'أخطاء', },
+  regressions: { ar: 'اختصارات', },
+  weeks: { ar: 'أسابيع', },
+  knowledge: { ar: 'معرفة عميقة', },
+  about: { ar: 'لماذا', },
+  cleared: { ar: 'مكتمل', },
+  current: { ar: 'الحالي', },
+  locked: { ar: 'مغلق', },
+  reps: { ar: 'تكرار', },
+  sets: { ar: 'مج', },
+  hold: { ar: 'هولد', },
+  sec: { ar: 'ث', },
+  difficulty: { ar: 'الصعوبة', },
 };
 
 export default function CaliProgressionLadder({
@@ -71,7 +71,7 @@ export default function CaliProgressionLadder({
             <h2 className="text-[16px] font-bold text-foreground leading-tight">{skill.name[lang]}</h2>
             <p className="text-[11px] text-muted-foreground mt-0.5">{skill.tagline[lang]}</p>
             <div className="flex items-center gap-1 mt-2">
-              <span className="text-[9px] uppercase tracking-wider text-muted-foreground/70 font-semibold me-1">{T.difficulty[lang]}</span>
+              <span className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-semibold me-1">{T.difficulty[lang]}</span>
               {Array.from({ length: 10 }, (_, i) => (
                 <span
                   key={i}
@@ -143,7 +143,7 @@ function StepCard({
   /** Hex/CSS colour used for the in-step badge and progress accents. */
   accent: string;
   weeksToNext: number;
-  lang: 'ar' | 'de';
+  lang: 'ar';
 }) {
   const targetText = step.target.holdSec
     ? `${step.target.holdSec}${T.sec[lang]} × ${step.target.sets ?? 1}${T.sets[lang]}`
@@ -190,7 +190,7 @@ function StepCard({
             </p>
             {isCurrent && (
               <span
-                className="text-[8.5px] font-bold uppercase tracking-wider px-1 py-0.5 rounded"
+                className="text-[10px] font-bold uppercase tracking-wider px-1 py-0.5 rounded"
                 style={{ background: `${accent}20`, color: accent }}
               >
                 {T.current[lang]}

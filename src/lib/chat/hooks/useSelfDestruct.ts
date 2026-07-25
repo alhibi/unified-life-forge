@@ -9,13 +9,13 @@ import { useApp } from '@/contexts/AppContext';
 import * as api from '../api';
 import type { ChatSummary } from '../types';
 
-export const SELF_DESTRUCT_PRESETS: Array<{ seconds: number | null; labelAr: string; labelDe: string }> = [
-  { seconds: null,    labelAr: 'إيقاف',   labelDe: 'Aus' },
-  { seconds: 30,      labelAr: '30 ثانية', labelDe: '30 Sek.' },
-  { seconds: 300,     labelAr: '5 دقائق',  labelDe: '5 Min.' },
-  { seconds: 3_600,   labelAr: 'ساعة',     labelDe: '1 Std.' },
-  { seconds: 86_400,  labelAr: 'يوم',      labelDe: '1 Tag' },
-  { seconds: 604_800, labelAr: 'أسبوع',    labelDe: '1 Woche' },
+export const SELF_DESTRUCT_PRESETS: Array<{ seconds: number | null; labelAr: string; }> = [
+  { seconds: null,    labelAr: 'إيقاف', },
+  { seconds: 30,      labelAr: '30 ثانية', },
+  { seconds: 300,     labelAr: '5 دقائق', },
+  { seconds: 3_600,   labelAr: 'ساعة', },
+  { seconds: 86_400,  labelAr: 'يوم', },
+  { seconds: 604_800, labelAr: 'أسبوع', },
 ];
 
 export interface UseSelfDestructResult {
@@ -33,8 +33,8 @@ export function useSelfDestruct(chat: ChatSummary | null | undefined): UseSelfDe
 
   const label = useMemo(() => {
     const preset = SELF_DESTRUCT_PRESETS.find(p => p.seconds === seconds);
-    if (preset) return isAr ? preset.labelAr : preset.labelDe;
-    if (seconds == null) return isAr ? 'إيقاف' : 'Aus';
+    if (preset) return preset.labelAr;
+    if (seconds == null) return 'إيقاف';
     if (seconds < 60)         return `${seconds}s`;
     if (seconds < 3600)       return `${Math.floor(seconds / 60)}m`;
     if (seconds < 86400)      return `${Math.floor(seconds / 3600)}h`;

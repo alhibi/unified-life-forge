@@ -34,7 +34,7 @@ export interface DeloadAdvice {
   /** Intensity multiplier on top set (0.85 = 85% of previous top weight). */
   intensityMultiplier: number;
   /** Plain-language summary in both languages. */
-  summary: { ar: string; de: string };
+  summary: { ar: string; };
   metrics: {
     acwr: number | null;
     weeklyLoad: number;
@@ -204,11 +204,10 @@ export function shouldDeload(p: {
   };
 }
 
-function buildSummary(reasons: DeloadReason[], severity: DeloadSeverity): { ar: string; de: string } {
+function buildSummary(reasons: DeloadReason[], severity: DeloadSeverity): { ar: string; } {
   if (reasons.length === 0) {
     return {
       ar: 'الحمل التدريبي ضمن المنطقة المثالية. تابع برنامجك.',
-      de: 'Trainingslast im optimalen Bereich. Plan beibehalten.',
     };
   }
   const arParts: string[] = [];
@@ -233,7 +232,6 @@ function buildSummary(reasons: DeloadReason[], severity: DeloadSeverity): { ar: 
   const sevDe = severity === 'reset' ? 'starker Deload' : severity === 'standard' ? 'klassischer Deload' : 'sanfter Deload';
   return {
     ar: `موصى به ${sevAr} — ${arParts.join('، ')}.`,
-    de: `Empfohlen: ${sevDe} — ${deParts.join(', ')}.`,
   };
 }
 
@@ -261,11 +259,11 @@ export function readinessLabel(workouts: WorkoutSession[]): ReadinessLabel | nul
   return 'deload';
 }
 
-export const READINESS_LABEL_TEXT: Record<ReadinessLabel, { ar: string; de: string }> = {
-  ramp_up: { ar: 'جاهز لرفع الحجم', de: 'Bereit für mehr Volumen' },
-  ready: { ar: 'جاهز تماماً', de: 'Voll bereit' },
-  manageable: { ar: 'تعب طفيف', de: 'Leicht ermüdet' },
-  deload: { ar: 'يحتاج تخفيف', de: 'Deload empfohlen' },
+export const READINESS_LABEL_TEXT: Record<ReadinessLabel, { ar: string; }> = {
+  ramp_up: { ar: 'جاهز لرفع الحجم', },
+  ready: { ar: 'جاهز تماماً', },
+  manageable: { ar: 'تعب طفيف', },
+  deload: { ar: 'يحتاج تخفيف', },
 };
 
 export const READINESS_LABEL_COLOR: Record<ReadinessLabel, string> = {

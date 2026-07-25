@@ -213,8 +213,7 @@ function legalCandidates(board: Board, r: number, c: number, variant: Variant): 
 // Component
 // ============================================================================
 export default function SudokuPage() {
-  const { t, language } = useApp();
-  const isAr = language === 'ar';
+  const { t, } = useApp();
 
   const savedGame = useMemo(() => loadGameState(), []);
 
@@ -444,7 +443,6 @@ export default function SudokuPage() {
         technique: 'guess',
         placements: [], eliminations: [], highlights: [],
         explanationAr: 'لم أعثر على حركة منطقية. تأكد من عدم وجود خطأ.',
-        explanationDe: 'Kein logischer Zug gefunden. Prüfe auf Fehler.',
       });
       playSfx('wrong'); vibrate(40);
       return;
@@ -541,52 +539,46 @@ export default function SudokuPage() {
     easy: t('sudoku.easy'),
     medium: t('sudoku.medium'),
     hard: t('sudoku.hard'),
-    expert: isAr ? 'محترف' : 'Experte',
+    expert: 'محترف',
   };
-  const variantLabels: Record<Variant, { ar: string; de: string }> = {
-    classic: { ar: 'كلاسيكي', de: 'Klassisch' },
-    x: { ar: 'X-سودوكو', de: 'X-Sudoku' },
-    mini: { ar: 'مصغّر 6×6', de: 'Mini 6×6' },
+  const variantLabels: Record<Variant, { ar: string; }> = {
+    classic: { ar: 'كلاسيكي', },
+    x: { ar: 'X-سودوكو', },
+    mini: { ar: 'مصغّر 6×6', },
   };
 
-  const sudokuRules = isAr ? [
+  const sudokuRules = [
     'املأ الشبكة بالأرقام من 1 إلى 9',
     'كل صف وعمود ومربع 3×3 يحتوي 1-9 بدون تكرار',
     variant === 'x' ? 'X-سودوكو: القطران الكبيران أيضاً يحتويان 1-9' : 'استخدم الملاحظات للأرقام المحتملة',
     'علامات تلقائية تساعدك (للصعب فقط)',
     'أخطاء أقل + بدون تلميحات = إتقان',
-  ] : [
-    'Fülle das Gitter mit 1-9',
-    'Jede Reihe, Spalte und 3×3-Box enthält 1-9 ohne Wiederholung',
-    variant === 'x' ? 'X-Sudoku: Beide Diagonalen enthalten auch 1-9' : 'Notizen helfen bei Kandidaten',
-    'Auto-Notizen für Fortgeschrittene',
-    'Weniger Fehler + ohne Tipps = "Perfekt"',
   ];
 
   const sudokuStats = [
-    { label: isAr ? 'فوز' : 'Siege', value: stats.gamesWon },
-    { label: isAr ? 'نسبة الفوز' : 'Siegquote', value: `${winRate}%` },
-    { label: isAr ? 'أفضل سلسلة' : 'Beste Serie', value: stats.bestStreak },
-    { label: isAr ? 'أفضل وقت' : 'Bestzeit', value: stats.bestTime[difficulty] !== null ? formatTimer(stats.bestTime[difficulty]!) : '—' },
-    { label: isAr ? 'X-سودوكو' : 'X-Sudoku', value: stats.variantWins.x || 0 },
-    { label: isAr ? 'بلا أخطاء' : 'Fehlerfrei', value: stats.noErrors || 0 },
-    { label: isAr ? 'إتقان' : 'Perfekt', value: stats.flawless || 0 },
-    { label: isAr ? 'يومية' : 'Daily', value: stats.dailyDone.length || 0 },
+    { label: 'فوز', value: stats.gamesWon },
+    { label: 'نسبة الفوز', value: `${winRate}%` },
+    { label: 'أفضل سلسلة', value: stats.bestStreak },
+    { label: 'أفضل وقت', value: stats.bestTime[difficulty] !== null ? formatTimer(stats.bestTime[difficulty]!) : '—' },
+    { label: 'X-سودوكو', value: stats.variantWins.x || 0 },
+    { label: 'بلا أخطاء', value: stats.noErrors || 0 },
+    { label: 'إتقان', value: stats.flawless || 0 },
+    { label: 'يومية', value: stats.dailyDone.length || 0 },
   ];
 
   const todayDone = stats.dailyDone.includes(todayKey());
   const sudokuOptions = [
     {
-      key: 'variant', label: isAr ? 'النمط' : 'Variante',
+      key: 'variant', label: 'النمط',
       choices: [
-        { value: 'classic', label: variantLabels.classic[isAr ? 'ar' : 'de'] },
-        { value: 'x', label: variantLabels.x[isAr ? 'ar' : 'de'] },
+        { value: 'classic', label: variantLabels.classic['ar'] },
+        { value: 'x', label: variantLabels.x['ar'] },
       ],
       current: variant,
       onChange: (v: string) => newGame(difficulty, v as Variant),
     },
     {
-      key: 'difficulty', label: isAr ? 'الصعوبة' : 'Schwierigkeit',
+      key: 'difficulty', label: 'الصعوبة',
       choices: [
         { value: 'easy', label: diffLabels.easy },
         { value: 'medium', label: diffLabels.medium },
@@ -597,10 +589,10 @@ export default function SudokuPage() {
       onChange: (v: string) => newGame(v as Difficulty),
     },
     {
-      key: 'daily', label: isAr ? 'تحدّي اليوم' : 'Tageschallenge',
+      key: 'daily', label: 'تحدّي اليوم',
       choices: [
-        { value: 'no', label: isAr ? 'عادي' : 'Normal' },
-        { value: 'yes', label: todayDone ? (isAr ? 'تم اليوم' : 'Heute fertig') : (isAr ? 'ابدأ اليوم' : 'Heute starten') },
+        { value: 'no', label: 'عادي' },
+        { value: 'yes', label: todayDone ? ('تم اليوم') : ('ابدأ اليوم') },
       ],
       current: isDaily ? 'yes' : 'no',
       onChange: (v: string) => { if (v === 'yes' && !todayDone) newGame(difficulty, variant, true); else newGame(difficulty, variant, false); },
@@ -638,13 +630,13 @@ export default function SudokuPage() {
         <div className="text-center py-1.5 mb-2 rounded-2xl bg-purple-500/10 max-w-[360px] mx-auto flex items-center justify-center gap-2">
           <Sparkles className="w-3.5 h-3.5 text-purple-300" />
           <span className="text-purple-200 font-bold text-[11px]">X-Sudoku</span>
-          <span className="text-purple-200/60 text-[10px]">{isAr ? 'القطران 1-9 أيضاً' : 'Diagonalen 1-9'}</span>
+          <span className="text-purple-200/60 text-[10px]">{'القطران 1-9 أيضاً'}</span>
         </div>
       )}
       {isDaily && !solved && (
         <div className="text-center py-2 mb-2 rounded-2xl bg-amber-500/10 max-w-[360px] mx-auto flex items-center justify-center gap-2">
           <Calendar className="w-4 h-4 text-amber-300" />
-          <span className="text-amber-200 font-bold text-xs">{isAr ? 'تحدّي اليوم' : 'Tageschallenge'}</span>
+          <span className="text-amber-200 font-bold text-xs">{'تحدّي اليوم'}</span>
           <span className="text-amber-200/60 text-xs tabular-nums">{todayKey()}</span>
         </div>
       )}
@@ -655,7 +647,7 @@ export default function SudokuPage() {
           <Trophy className="w-5 h-5 text-primary stroke-[1.8]" />
           <span className="text-primary font-bold">{t('sudoku.solved')}</span>
           <span className="text-primary/70 text-sm font-medium">{formatTimer(timer)}</span>
-          {hintsUsed === 0 && errorCount === 0 && <span className="text-amber-400 text-xs">★ {isAr ? 'إتقان' : 'Perfekt'}</span>}
+          {hintsUsed === 0 && errorCount === 0 && <span className="text-amber-400 text-xs">★ {'إتقان'}</span>}
         </motion.div>
       )}
 
@@ -671,7 +663,7 @@ export default function SudokuPage() {
               <div className="flex flex-col items-center gap-3">
                 <Play className="w-10 h-10 text-primary stroke-[1.5]" />
                 <span className="text-muted-foreground font-medium text-sm">
-                  {!gameStarted ? (isAr ? 'اضغط للبدء' : 'Tippe zum Starten') : (isAr ? 'اضغط للمتابعة' : 'Tippe zum Fortsetzen')}
+                  {!gameStarted ? ('اضغط للبدء') : ('اضغط للمتابعة')}
                 </span>
               </div>
             </motion.div>
@@ -708,7 +700,7 @@ export default function SudokuPage() {
                       {cell}
                     </span>
                   ) : cellNotes.size > 0 ? (
-                    <div className="grid grid-cols-3 gap-0 text-[6px] text-muted-foreground/70 leading-none w-full h-full p-[2px]">
+                    <div className="grid grid-cols-3 gap-0 text-[10px] text-muted-foreground/70 leading-none w-full h-full p-[2px]">
                       {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => (
                         <span key={n} className="flex items-center justify-center font-medium">
                           {cellNotes.has(n.toString()) ? n : ''}
@@ -740,7 +732,7 @@ export default function SudokuPage() {
                       : 'text-foreground hover:bg-secondary'
                 }`}>
                 <span className="text-[18px] font-bold leading-none">{n}</span>
-                <span className={`text-[9px] mt-0.5 leading-none font-medium ${
+                <span className={`text-[10px] mt-0.5 leading-none font-medium ${
                   isComplete ? 'text-muted-foreground/30' : 'text-muted-foreground/60'
                 }`}>
                   {remaining}
@@ -753,41 +745,41 @@ export default function SudokuPage() {
         {/* Tool row */}
         <div className="flex justify-center gap-2">
           <button onClick={handleUndo} disabled={history.length === 0}
-            title={isAr ? 'تراجع' : 'Rückgängig'}
+            title={'تراجع'}
             className="w-11 h-11 rounded-full flex items-center justify-center hover:bg-secondary transition-colors disabled:opacity-20 active:scale-90">
             <Undo2 className="w-5 h-5 text-foreground stroke-[1.8]" />
           </button>
           <button onClick={handleHint} disabled={hintsUsed >= maxHints}
-            title={isAr ? 'تلميح' : 'Tipp'}
+            title={'تلميح'}
             className="relative w-11 h-11 rounded-full flex items-center justify-center hover:bg-secondary transition-colors disabled:opacity-20 active:scale-90">
             <Lightbulb className="w-5 h-5 text-foreground stroke-[1.8]" />
             {hintsUsed < maxHints && (
-              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-primary/15 text-primary text-[8px] font-bold flex items-center justify-center">
+              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-primary/15 text-primary text-[10px] font-bold flex items-center justify-center">
                 {maxHints - hintsUsed}
               </span>
             )}
           </button>
           <button onClick={() => setNoteMode(!noteMode)}
-            title={isAr ? 'ملاحظات' : 'Notizen'}
+            title={'ملاحظات'}
             className={`w-11 h-11 rounded-full flex items-center justify-center transition-colors active:scale-90 ${
               noteMode ? 'bg-primary/15 text-primary' : 'hover:bg-secondary text-foreground'
             }`}>
             <PenLine className="w-5 h-5 stroke-[1.8]" />
           </button>
           <button onClick={handleSmartHint}
-            title={isAr ? 'تلميح ذكي' : 'Schlauer Tipp'}
+            title={'تلميح ذكي'}
             className="w-11 h-11 rounded-full flex items-center justify-center bg-purple-500/15 hover:bg-purple-500/25 text-purple-300 transition-colors active:scale-90">
             <Brain className="w-5 h-5 stroke-[1.8]" />
           </button>
           <button onClick={autoNotes ? clearAutoNotes : fillAutoNotes}
-            title={isAr ? 'علامات تلقائية' : 'Auto-Notizen'}
+            title={'علامات تلقائية'}
             className={`w-11 h-11 rounded-full flex items-center justify-center transition-colors active:scale-90 ${
               autoNotes ? 'bg-amber-500/20 text-amber-300' : 'hover:bg-secondary text-foreground'
             }`}>
             <Zap className="w-5 h-5 stroke-[1.8]" />
           </button>
           <button onClick={handleErase}
-            title={isAr ? 'مسح' : 'Löschen'}
+            title={'مسح'}
             className="w-11 h-11 rounded-full flex items-center justify-center hover:bg-secondary transition-colors active:scale-90">
             <Eraser className="w-5 h-5 text-foreground stroke-[1.8]" />
           </button>
@@ -816,10 +808,10 @@ export default function SudokuPage() {
                 </div>
                 <div className="flex-1">
                   <p className="text-[10px] uppercase tracking-wider text-purple-300/80 font-bold">
-                    {isAr ? 'تقنية الحل' : 'Lösungstechnik'}
+                    {'تقنية الحل'}
                   </p>
                   <h3 className="text-base font-black text-foreground">
-                    {isAr ? TECHNIQUE_LABELS[smartHint.technique].ar : TECHNIQUE_LABELS[smartHint.technique].de}
+                    {TECHNIQUE_LABELS[smartHint.technique].ar}
                   </h3>
                   <div className="flex items-center gap-1 mt-0.5">
                     {Array.from({ length: 9 }).map((_, i) => (
@@ -833,14 +825,14 @@ export default function SudokuPage() {
               </div>
 
               <p className="text-sm text-foreground/90 leading-relaxed mb-4">
-                {isAr ? smartHint.explanationAr : smartHint.explanationDe}
+                {smartHint.explanationAr}
               </p>
 
               {/* Effect summary */}
               {smartHint.placements.length > 0 && (
                 <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/25 p-2.5 mb-3 text-[11px]">
                   <p className="font-bold text-emerald-300 mb-0.5">
-                    {isAr ? 'سيضع الرقم:' : 'Zahl setzen:'}
+                    {'سيضع الرقم:'}
                   </p>
                   {smartHint.placements.map((p, i) => (
                     <p key={i} className="text-emerald-200/90 font-mono">
@@ -852,7 +844,7 @@ export default function SudokuPage() {
               {smartHint.eliminations.length > 0 && (
                 <div className="rounded-xl bg-rose-500/10 border border-rose-500/25 p-2.5 mb-3 text-[11px]">
                   <p className="font-bold text-rose-300 mb-0.5">
-                    {isAr ? `سيلغي ${smartHint.eliminations.length} مرشحاً` : `Streicht ${smartHint.eliminations.length} Kandidaten`}
+                    {`سيلغي ${smartHint.eliminations.length} مرشحاً`}
                   </p>
                 </div>
               )}
@@ -862,7 +854,7 @@ export default function SudokuPage() {
                   onClick={() => setSmartHint(null)}
                   className="flex-1 py-2.5 rounded-xl bg-white/5 text-foreground font-bold text-sm"
                 >
-                  {isAr ? 'فهمت' : 'Verstanden'}
+                  {'فهمت'}
                 </button>
                 {(smartHint.placements.length > 0 || smartHint.eliminations.length > 0) && (
                   <button
@@ -870,7 +862,7 @@ export default function SudokuPage() {
                     className="flex-1 py-2.5 rounded-xl font-black text-purple-950 text-sm"
                     style={{ }}
                   >
-                    {isAr ? 'طبّقها' : 'Anwenden'}
+                    {'طبّقها'}
                   </button>
                 )}
               </div>

@@ -57,12 +57,12 @@ const SPEEDS = [0.75, 1.0, 1.25, 1.5, 1.75, 2.0];
  *  option asks the player to pause on the natural `ended` event
  *  rather than after a fixed duration — useful for "let me finish
  *  this one and then sleep". */
-const SLEEP_PRESETS: Array<{ value: number | 'episode-end'; labelAr: string; labelDe: string }> = [
-  { value: 5 * 60, labelAr: '٥ دقائق', labelDe: '5 Min' },
-  { value: 15 * 60, labelAr: '١٥ دقيقة', labelDe: '15 Min' },
-  { value: 30 * 60, labelAr: '٣٠ دقيقة', labelDe: '30 Min' },
-  { value: 60 * 60, labelAr: 'ساعة', labelDe: '1 Std' },
-  { value: 'episode-end', labelAr: 'حتى نهاية الحلقة', labelDe: 'Bis zum Ende' },
+const SLEEP_PRESETS: Array<{ value: number | 'episode-end'; labelAr: string; }> = [
+  { value: 5 * 60, labelAr: '٥ دقائق', },
+  { value: 15 * 60, labelAr: '١٥ دقيقة', },
+  { value: 30 * 60, labelAr: '٣٠ دقيقة', },
+  { value: 60 * 60, labelAr: 'ساعة', },
+  { value: 'episode-end', labelAr: 'حتى نهاية الحلقة', },
 ];
 
 function formatTime(s: number): string {
@@ -75,15 +75,15 @@ function formatTime(s: number): string {
   return `${mins}:${String(secs).padStart(2, '0')}`;
 }
 
-function formatCountdown(s: number, lang: 'ar' | 'de'): string {
+function formatCountdown(s: number, lang: 'ar'): string {
   if (s <= 0) return '0:00';
   const mins = Math.ceil(s / 60);
   if (mins >= 60) {
     const h = Math.floor(mins / 60);
     const m = mins % 60;
-    return lang === 'ar' ? `${h} س ${m} د` : `${h} h ${m} min`;
+    return `${h} س ${m} د`;
   }
-  return lang === 'ar' ? `${mins} د` : `${mins} min`;
+  return `${mins} د`;
 }
 
 interface PlayerSheetProps {
@@ -156,8 +156,8 @@ function EqIndicator({ playing, className }: { playing: boolean; className?: str
 
 export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
   const player = usePodcastPlayer();
-  const { language } = useApp();
-  const lang = language === 'de' ? 'de' : 'ar';
+  const { } = useApp();
+  const lang = 'ar';
 
   // Sleep-timer popover open/close. Kept here (not inside the popover
   // component) so tapping elsewhere on the sheet collapses it.
@@ -367,14 +367,14 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
                   <button
                     onClick={onClose}
                     className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-foreground/10 transition-colors"
-                    aria-label={lang === 'ar' ? 'إغلاق' : 'Schließen'}
+                    aria-label={'إغلاق'}
                   >
                     <ChevronDown className="w-5 h-5" />
                   </button>
                   <div className="flex items-center gap-2">
                     <EqIndicator playing={isActive} />
                     <span className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground font-semibold">
-                      {lang === 'ar' ? 'يُشغَّل الآن' : 'Wird abgespielt'}
+                      {'يُشغَّل الآن'}
                     </span>
                   </div>
                   <button
@@ -383,7 +383,7 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
                       onClose();
                     }}
                     className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-foreground/10 transition-colors"
-                    aria-label={lang === 'ar' ? 'إغلاق المشغل' : 'Player schließen'}
+                    aria-label={'إغلاق المشغل'}
                   >
                     <X className="w-5 h-5" />
                   </button>
@@ -454,12 +454,8 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
                         <FileText className="w-3.5 h-3.5" />
                         <span>
                           {descOpen
-                            ? lang === 'ar'
-                              ? 'إخفاء الوصف'
-                              : 'Beschreibung ausblenden'
-                            : lang === 'ar'
-                              ? 'عرض الوصف'
-                              : 'Beschreibung anzeigen'}
+                            ? 'إخفاء الوصف'
+                            : 'عرض الوصف'}
                         </span>
                         {descOpen ? (
                           <ChevronUp className="w-3.5 h-3.5" />
@@ -509,7 +505,7 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
                   so position ticks don't reconcile the rest of the
                   sheet. */}
                 <PlayerSheetSeek
-                  ariaLabel={lang === 'ar' ? 'الانتقال داخل الحلقة' : 'Position'}
+                  ariaLabel={'الانتقال داخل الحلقة'}
                   onSeek={player.seek}
                 />
 
@@ -615,13 +611,9 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
                     <span>
                       {player.sleepTimer
                         ? player.sleepTimer.mode === 'episode-end'
-                          ? lang === 'ar'
-                            ? 'نهاية الحلقة'
-                            : 'Bis Ende'
+                          ? 'نهاية الحلقة'
                           : formatCountdown(player.sleepTimer.secondsRemaining, lang)
-                        : lang === 'ar'
-                          ? 'مؤقت'
-                          : 'Sleep'}
+                        : 'مؤقت'}
                     </span>
                   </button>
 
@@ -630,7 +622,7 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
                     type="button"
                     onClick={() => player.setAutoPlayNext(!player.autoPlayNext)}
                     aria-pressed={player.autoPlayNext}
-                    title={lang === 'ar' ? 'تشغيل التالي تلقائياً' : 'Nächste automatisch'}
+                    title={'تشغيل التالي تلقائياً'}
                     className={`flex items-center gap-1.5 px-3 h-9 rounded-full text-[12px] font-semibold transition-colors ${
                       player.autoPlayNext
                         ? 'text-foreground'
@@ -643,7 +635,7 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
                     }}
                   >
                     <Repeat className="w-4 h-4" />
-                    <span>{lang === 'ar' ? 'تلقائي' : 'Auto'}</span>
+                    <span>{'تلقائي'}</span>
                   </button>
 
                   {/* Queue / Up Next */}
@@ -654,7 +646,7 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
                       setSleepOpen(false);
                       setSpeedOpen(false);
                     }}
-                    aria-label={lang === 'ar' ? 'قائمة التشغيل' : 'Warteschlange'}
+                    aria-label={'قائمة التشغيل'}
                     className={`flex items-center gap-1.5 px-3 h-9 rounded-full text-[12px] font-semibold transition-colors ${
                       player.queueCount > 0
                         ? 'text-foreground'
@@ -671,9 +663,7 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
                     <span>
                       {player.queueCount > 0
                         ? player.queueCount
-                        : lang === 'ar'
-                          ? 'التالي'
-                          : 'Nächste'}
+                        : 'التالي'}
                     </span>
                   </button>
 
@@ -681,18 +671,14 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
                   <button
                     type="button"
                     onClick={handleShare}
-                    aria-label={lang === 'ar' ? 'مشاركة' : 'Teilen'}
+                    aria-label={'مشاركة'}
                     className="flex items-center gap-1.5 px-3 h-9 rounded-full text-[12px] font-semibold text-muted-foreground hover:text-foreground transition-colors"
                   >
                     <Share2 className="w-4 h-4" />
                     <span>
                       {copiedLink
-                        ? lang === 'ar'
-                          ? 'تم النسخ'
-                          : 'Kopiert'
-                        : lang === 'ar'
-                          ? 'مشاركة'
-                          : 'Teilen'}
+                        ? 'تم النسخ'
+                        : 'مشاركة'}
                     </span>
                   </button>
 
@@ -712,7 +698,7 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
                         }}
                       >
                         <p className="text-[11px] font-semibold text-muted-foreground px-2 pt-1 pb-2">
-                          {lang === 'ar' ? 'سرعة التشغيل' : 'Wiedergabegeschwindigkeit'}
+                          {'سرعة التشغيل'}
                         </p>
                         <div className="grid grid-cols-3 gap-1">
                           {SPEEDS.map((s) => {
@@ -726,7 +712,7 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
                                   player.setSpeed(s);
                                   setSpeedOpen(false);
                                 }}
-                                className="px-2 py-2 rounded-xl text-[12.5px] font-semibold tabular-nums transition-colors"
+                                className="px-2 py-2 rounded-xl text-[12px] font-semibold tabular-nums transition-colors"
                                 style={{
                                   background: active
                                     ? 'var(--podcast-primary, hsl(var(--primary)))'
@@ -759,7 +745,7 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
                         }}
                       >
                         <p className="text-[11px] font-semibold text-muted-foreground px-2 pt-1 pb-2">
-                          {lang === 'ar' ? 'إيقاف بعد' : 'Pause nach'}
+                          {'إيقاف بعد'}
                         </p>
                         <div className="grid grid-cols-1 gap-0.5">
                           {SLEEP_PRESETS.map((p) => {
@@ -788,7 +774,7 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
                                     : 'hover:bg-foreground/5 text-foreground/80'
                                 }`}
                               >
-                                {lang === 'ar' ? p.labelAr : p.labelDe}
+                                {p.labelAr}
                               </button>
                             );
                           })}
@@ -801,7 +787,7 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
                               }}
                               className="w-full text-start px-3 py-2 mt-1 rounded-xl text-[13px] font-semibold text-destructive hover:bg-destructive/10 transition-colors border-t border-border/40"
                             >
-                              {lang === 'ar' ? 'إلغاء المؤقت' : 'Timer abbrechen'}
+                              {'إلغاء المؤقت'}
                             </button>
                           )}
                         </div>

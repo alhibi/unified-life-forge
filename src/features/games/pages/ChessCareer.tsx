@@ -76,8 +76,7 @@ export function recordCareerResult(botId: string, result: 'win' | 'loss' | 'draw
 // Component
 // =============================================================================
 export default function ChessCareerPage() {
-  const { language } = useApp();
-  const isAr = language === 'ar';
+  const { } = useApp();
   const navigate = useNavigate();
   const [career, setCareer] = useState<CareerStats>(loadCareer);
 
@@ -99,13 +98,13 @@ export default function ChessCareerPage() {
   const [selected, setSelected] = useState<BotPersonality | null>(null);
 
   const titleFor = (rating: number) => {
-    if (rating < 700) return { ar: 'مبتدئ', de: 'Anfänger' };
-    if (rating < 1000) return { ar: 'هاوٍ', de: 'Hobbyspieler' };
-    if (rating < 1300) return { ar: 'كلاسيكي', de: 'Klubspieler' };
-    if (rating < 1600) return { ar: 'متقدم', de: 'Fortgeschritten' };
-    if (rating < 1900) return { ar: 'خبير', de: 'Experte' };
-    if (rating < 2200) return { ar: 'أستاذ', de: 'Meister' };
-    return { ar: 'أستاذ كبير', de: 'Großmeister' };
+    if (rating < 700) return { ar: 'مبتدئ', };
+    if (rating < 1000) return { ar: 'هاوٍ', };
+    if (rating < 1300) return { ar: 'كلاسيكي', };
+    if (rating < 1600) return { ar: 'متقدم', };
+    if (rating < 1900) return { ar: 'خبير', };
+    if (rating < 2200) return { ar: 'أستاذ', };
+    return { ar: 'أستاذ كبير', };
   };
   const playerTitle = titleFor(career.rating);
 
@@ -126,27 +125,21 @@ export default function ChessCareerPage() {
 
   return (
     <GameShell
-      title={isAr ? 'مسيرة الشطرنج' : 'Schachkarriere'}
+      title={'مسيرة الشطرنج'}
       icon={Crown}
       accentColor="hsl(25, 95%, 53%)"
-      rules={isAr ? [
+      rules={[
         'تسلق سلم الأبطال الثمانية',
         'كل بطل له شخصيته وأسلوبه الفريد',
         'الفوز يفتح البطل التالي',
         'تقييمك يتحرك حسب نتائجك ضد كل بطل',
         'هزيمة البطلة الأخيرة عائشة = أستاذية!',
-      ] : [
-        'Steige die Acht-Champion-Leiter empor',
-        'Jeder Champion hat eigenen Stil',
-        'Sieg schaltet den Nächsten frei',
-        'Rating folgt deinen Ergebnissen',
-        'Aisha besiegen = Großmeister!',
       ]}
       stats={[
-        { label: isAr ? 'تقييمك' : 'Dein Elo', value: career.rating },
-        { label: isAr ? 'لقبك' : 'Titel', value: isAr ? playerTitle.ar : playerTitle.de },
-        { label: isAr ? 'انتصارات' : 'Siege', value: totalWins },
-        { label: isAr ? 'كؤوس' : 'Pokale', value: `${trophiesWon}/${BOTS.length}` },
+        { label: 'تقييمك', value: career.rating },
+        { label: 'لقبك', value: playerTitle.ar },
+        { label: 'انتصارات', value: totalWins },
+        { label: 'كؤوس', value: `${trophiesWon}/${BOTS.length}` },
       ]}
       options={[]}
     >
@@ -158,19 +151,19 @@ export default function ChessCareerPage() {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-[10px] uppercase tracking-wider text-purple-200/80">
-              {isAr ? 'تقييمك الحالي' : 'Aktuelles Rating'}
+              {'تقييمك الحالي'}
             </p>
             <p className="text-3xl font-black text-purple-200 tabular-nums">{career.rating}</p>
             <p className="text-xs text-purple-300/80 font-bold">
-              {isAr ? playerTitle.ar : playerTitle.de}
+              {playerTitle.ar}
             </p>
           </div>
           <Trophy className="w-12 h-12 text-amber-400/70 stroke-[1.4]" />
         </div>
         <div className="mt-3">
           <div className="flex items-center justify-between text-[10px] text-zinc-400 mb-1">
-            <span>{trophiesWon}/{BOTS.length} {isAr ? 'بطل سُحق' : 'besiegt'}</span>
-            {allBeaten && <span className="text-amber-300 font-bold">{isAr ? '🏆 بطل العالم!' : '🏆 Weltmeister!'}</span>}
+            <span>{trophiesWon}/{BOTS.length} {'بطل سُحق'}</span>
+            {allBeaten && <span className="text-amber-300 font-bold">{'🏆 بطل العالم!'}</span>}
           </div>
           <div className="h-1.5 rounded-full bg-zinc-800 overflow-hidden">
             <motion.div
@@ -226,21 +219,21 @@ export default function ChessCareerPage() {
                       #{idx + 1}
                     </span>
                     <h3 className="font-bold text-foreground text-sm truncate">
-                      {isAr ? bot.ar : bot.de}
+                      {bot.ar}
                     </h3>
                     {beaten && <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />}
                   </div>
                   <p className={`text-[11px] mt-0.5 line-clamp-1 ${
                     unlocked ? 'text-muted-foreground' : 'text-muted-foreground/40'
                   }`}>
-                    {unlocked ? (isAr ? bot.taglineAr : bot.taglineDe) : (isAr ? '???' : '???')}
+                    {unlocked ? (bot.taglineAr) : ('???')}
                   </p>
                 </div>
 
                 <div className="text-right shrink-0">
                   <p className="text-xs font-bold text-purple-300 tabular-nums">{bot.elo}</p>
                   {rec && (
-                    <p className="text-[9px] text-muted-foreground tabular-nums">
+                    <p className="text-[10px] text-muted-foreground tabular-nums">
                       {rec.wins}-{rec.losses}-{rec.draws}
                     </p>
                   )}
@@ -275,7 +268,7 @@ export default function ChessCareerPage() {
                 </div>
                 <div className="flex-1">
                   <h2 className="text-xl font-black text-foreground">
-                    {isAr ? selected.ar : selected.de}
+                    {selected.ar}
                   </h2>
                   <p className="text-xs text-purple-300 font-bold tabular-nums">
                     Elo {selected.elo} · {selected.style}
@@ -284,26 +277,26 @@ export default function ChessCareerPage() {
               </div>
 
               <p className="text-sm text-muted-foreground italic mb-4">
-                "{isAr ? selected.taglineAr : selected.taglineDe}"
+                "{selected.taglineAr}"
               </p>
 
               {/* Style badges derived from weights */}
               <div className="grid grid-cols-2 gap-1.5 mb-4">
-                <StatRow label={isAr ? 'هجوم على الملك' : 'Königsangriff'} v={selected.weights.kingAttack} max={2.5} />
-                <StatRow label={isAr ? 'دفع البيادق' : 'Bauernsturm'} v={selected.weights.pawnPush} max={1.6} />
-                <StatRow label={isAr ? 'الحركة' : 'Mobilität'} v={selected.weights.mobility} max={1.5} />
-                <StatRow label={isAr ? 'احتساب المادة' : 'Material'} v={selected.weights.material} max={1.4} />
-                <StatRow label={isAr ? 'تجنب التبادلات' : 'Tausch-Aversion'} v={selected.weights.tradeAversion + 0.5} max={1.2} />
-                <StatRow label={isAr ? 'دقة' : 'Präzision'} v={1 - selected.weights.blunderRate} max={1.0} />
+                <StatRow label={'هجوم على الملك'} v={selected.weights.kingAttack} max={2.5} />
+                <StatRow label={'دفع البيادق'} v={selected.weights.pawnPush} max={1.6} />
+                <StatRow label={'الحركة'} v={selected.weights.mobility} max={1.5} />
+                <StatRow label={'احتساب المادة'} v={selected.weights.material} max={1.4} />
+                <StatRow label={'تجنب التبادلات'} v={selected.weights.tradeAversion + 0.5} max={1.2} />
+                <StatRow label={'دقة'} v={1 - selected.weights.blunderRate} max={1.0} />
               </div>
 
               {/* Player record vs this bot */}
               {career.records[selected.id] && (
                 <div className="rounded-xl bg-white/4 px-3 py-2 mb-4 text-[11px] flex justify-between">
-                  <span className="text-muted-foreground">{isAr ? 'سجلك ضده' : 'Deine Bilanz'}</span>
+                  <span className="text-muted-foreground">{'سجلك ضده'}</span>
                   <span className="font-mono font-bold text-foreground">
-                    {career.records[selected.id].wins}{isAr ? ' فوز' : ' Siege'} ·
-                    {career.records[selected.id].losses}{isAr ? ' خسارة' : ' Niederlagen'}
+                    {career.records[selected.id].wins}{' فوز'} ·
+                    {career.records[selected.id].losses}{' خسارة'}
                   </span>
                 </div>
               )}
@@ -313,7 +306,7 @@ export default function ChessCareerPage() {
                   onClick={() => setSelected(null)}
                   className="flex-1 py-3 rounded-xl bg-white/5 text-foreground font-bold text-sm"
                 >
-                  {isAr ? 'إلغاء' : 'Abbrechen'}
+                  {'إلغاء'}
                 </button>
                 <button
                   onClick={() => startMatch(selected)}
@@ -321,7 +314,7 @@ export default function ChessCareerPage() {
                   style={{ }}
                 >
                   <Swords className="w-4 h-4" />
-                  {isAr ? 'تحدّيه' : 'Herausfordern'}
+                  {'تحدّيه'}
                 </button>
               </div>
             </motion.div>
@@ -336,10 +329,10 @@ export default function ChessCareerPage() {
         >
           <Sparkles className="w-7 h-7 text-amber-300 mx-auto mb-1" />
           <p className="text-amber-300 font-black text-base">
-            {isAr ? 'لقد هزمت كل الأبطال!' : 'Du hast alle Champions besiegt!'}
+            {'لقد هزمت كل الأبطال!'}
           </p>
           <p className="text-xs text-amber-200/70">
-            {isAr ? 'جرب البطلة عائشة على رتبة أعلى لتثبت تفوقك' : 'Spiele Aisha erneut für mehr Rating'}
+            {'جرب البطلة عائشة على رتبة أعلى لتثبت تفوقك'}
           </p>
         </motion.div>
       )}
@@ -351,7 +344,7 @@ function StatRow({ label, v, max }: { label: string; v: number; max: number }) {
   const pct = Math.max(0, Math.min(100, (v / max) * 100));
   return (
     <div>
-      <p className="text-[9px] text-zinc-500 mb-0.5">{label}</p>
+      <p className="text-[10px] text-zinc-500 mb-0.5">{label}</p>
       <div className="h-1 rounded-full bg-zinc-800 overflow-hidden">
         <div className="h-full rounded-full bg-purple-400" style={{ width: `${pct}%` }} />
       </div>

@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import GameShell from '@/features/games/components/GameShell';
 import { playSfx, vibrate } from '@/features/games/utils/gameFeedback';
 import { recognizeOpening } from '@/features/games/data/chessOpenings';
-import { botById, BotPersonality, BOTS } from '@/features/games/data/chessBots';
+import { botById, BotPersonality } from '@/features/games/data/chessBots';
 import { recordCareerResult } from '@/features/games/pages/ChessCareer';
 
 type Color = 'w' | 'b';
@@ -913,10 +913,10 @@ export default function ChessPage() {
   useEffect(() => {
     if (timeControl === 'none' || gameOver) return;
     if (clockW <= 0) {
-      setStatus(language === 'ar' ? 'سقوط العلم — فوز الأسود' : 'Flag fell — Black wins');
+      setStatus('سقوط العلم — فوز الأسود');
       recordResult('b'); setGameOver(true); setIsRunning(false);
     } else if (clockB <= 0) {
-      setStatus(language === 'ar' ? 'سقوط العلم — فوز الأبيض' : 'Flag fell — White wins');
+      setStatus('سقوط العلم — فوز الأبيض');
       recordResult('w'); setGameOver(true); setIsRunning(false);
     }
   }, [clockW, clockB, timeControl, gameOver, language]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -1056,22 +1056,22 @@ export default function ChessPage() {
       setIsRunning(false);
       playCheckSound();
     } else if (!legal) {
-      setStatus(language === 'ar' ? 'مأزق — تعادل!' : 'Stalemate — Draw!');
+      setStatus('مأزق — تعادل!');
       recordResult('draw');
       setGameOver(true);
       setIsRunning(false);
     } else if (insuf) {
-      setStatus(language === 'ar' ? 'تعادل: مواد غير كافية' : 'Draw: Insufficient material');
+      setStatus('تعادل: مواد غير كافية');
       recordResult('draw');
       setGameOver(true);
       setIsRunning(false);
     } else if (threefold) {
-      setStatus(language === 'ar' ? 'تعادل: تكرار ثلاثي' : 'Draw: Threefold repetition');
+      setStatus('تعادل: تكرار ثلاثي');
       recordResult('draw');
       setGameOver(true);
       setIsRunning(false);
     } else if (fiftyMove) {
-      setStatus(language === 'ar' ? 'تعادل: قاعدة الـ50 نقلة' : 'Draw: Fifty-move rule');
+      setStatus('تعادل: قاعدة الـ50 نقلة');
       recordResult('draw');
       setGameOver(true);
       setIsRunning(false);
@@ -1250,7 +1250,7 @@ export default function ChessPage() {
 
   const resign = () => {
     const winner = game.turn === 'w' ? 'b' : 'w';
-    setStatus(`${language === 'ar' ? 'استسلام' : 'Resigned'} — ${winner === 'w' ? '♔' : '♚'}`);
+    setStatus(`${'استسلام'} — ${winner === 'w' ? '♔' : '♚'}`);
     recordResult(winner);
     setGameOver(true);
     setIsRunning(false);
@@ -1332,13 +1332,13 @@ export default function ChessPage() {
           `}
         >
           {showRank && (
-            <span className={`absolute top-0.5 left-0.5 text-[8px] font-medium leading-none pointer-events-none select-none
+            <span className={`absolute top-0.5 left-0.5 text-[10px] font-medium leading-none pointer-events-none select-none
               ${isDark ? 'text-white/50' : 'text-black/35'}`}>
               {RANKS[ri]}
             </span>
           )}
           {showFile && (
-            <span className={`absolute bottom-0.5 right-1 text-[8px] font-medium leading-none pointer-events-none select-none
+            <span className={`absolute bottom-0.5 right-1 text-[10px] font-medium leading-none pointer-events-none select-none
               ${isDark ? 'text-white/50' : 'text-black/35'}`}>
               {FILES[ci]}
             </span>
@@ -1395,15 +1395,13 @@ export default function ChessPage() {
   };
 
   const aiDiffLabels: Record<AIDifficulty, string> = {
-    easy: language === 'ar' ? 'سهل' : 'Easy',
-    medium: language === 'ar' ? 'متوسط' : 'Medium',
-    hard: language === 'ar' ? 'صعب' : 'Hard',
-    master: language === 'ar' ? 'خبير' : 'Master',
+    easy: 'سهل',
+    medium: 'متوسط',
+    hard: 'صعب',
+    master: 'خبير',
   };
 
-  const isAr = language === 'ar';
-
-  const chessRules = isAr ? [
+  const chessRules = [
     'كل لاعب يحرك قطعة واحدة في دوره',
     'الهدف هو كش ملك الخصم (شاه مات)',
     'البيادق تتحرك للأمام وتأكل قطرياً',
@@ -1411,37 +1409,29 @@ export default function ChessPage() {
     'الفيل يتحرك قطرياً',
     'الوزير يجمع حركة القلعة والفيل',
     'الحصان يتحرك على شكل حرف L',
-  ] : [
-    'Each player moves one piece per turn',
-    'The goal is to checkmate the opponent\'s king',
-    'Pawns move forward, capture diagonally',
-    'Rooks move horizontally and vertically',
-    'Bishops move diagonally',
-    'The queen combines rook and bishop movement',
-    'Knights move in an L-shape',
   ];
 
   const chessStats = [
-    { label: isAr ? 'لُعبت' : 'Played', value: stats.gamesPlayed },
-    { label: '♔ ' + (isAr ? 'فوز أبيض' : 'White W'), value: stats.whiteWins },
-    { label: '♚ ' + (isAr ? 'فوز أسود' : 'Black W'), value: stats.blackWins },
-    { label: isAr ? 'تعادل' : 'Draw', value: stats.stalemates },
+    { label: 'لُعبت', value: stats.gamesPlayed },
+    { label: '♔ ' + ('فوز أبيض'), value: stats.whiteWins },
+    { label: '♚ ' + ('فوز أسود'), value: stats.blackWins },
+    { label: 'تعادل', value: stats.stalemates },
   ];
 
   const chessOptions = [
     {
       key: 'mode',
-      label: isAr ? 'الوضع' : 'Mode',
+      label: 'الوضع',
       choices: [
-        { value: 'local', label: isAr ? 'لاعبان' : 'Two players' },
-        { value: 'computer', label: isAr ? 'ضد الحاسوب' : 'vs Computer' },
+        { value: 'local', label: 'لاعبان' },
+        { value: 'computer', label: 'ضد الحاسوب' },
       ],
       current: gameMode,
       onChange: (v: string) => resetGame(v as GameMode),
     },
     {
       key: 'ai',
-      label: isAr ? 'صعوبة الحاسوب' : 'AI level',
+      label: 'صعوبة الحاسوب',
       choices: [
         { value: 'easy',   label: aiDiffLabels.easy },
         { value: 'medium', label: aiDiffLabels.medium },
@@ -1453,19 +1443,19 @@ export default function ChessPage() {
     },
     {
       key: 'color',
-      label: isAr ? 'لونك' : 'Your color',
+      label: 'لونك',
       choices: [
-        { value: 'w', label: isAr ? 'أبيض' : 'White' },
-        { value: 'b', label: isAr ? 'أسود' : 'Black' },
+        { value: 'w', label: 'أبيض' },
+        { value: 'b', label: 'أسود' },
       ],
       current: playerColor,
       onChange: (v: string) => { setPlayerColor(v as Color); if (gameMode === 'computer') resetGame('computer'); },
     },
     {
       key: 'tc',
-      label: isAr ? 'الساعة' : 'Time control',
+      label: 'الساعة',
       choices: [
-        { value: 'none',   label: isAr ? 'بلا' : 'None' },
+        { value: 'none',   label: 'بلا' },
         { value: 'rapid',  label: '10+5' },
         { value: 'blitz',  label: '5+2' },
         { value: 'bullet', label: '1+1' },
@@ -1479,12 +1469,12 @@ export default function ChessPage() {
     },
     {
       key: 'theme',
-      label: isAr ? 'نمط الرقعة' : 'Board Style',
+      label: 'نمط الرقعة',
       choices: [
-        { value: 'classic', label: isAr ? 'كلاسيكي' : 'Classic' },
-        { value: 'wooden', label: isAr ? 'خشبي' : 'Wooden' },
-        { value: 'midnight', label: isAr ? 'ليلي' : 'Midnight' },
-        { value: 'emerald', label: isAr ? 'زمردي' : 'Emerald' },
+        { value: 'classic', label: 'كلاسيكي' },
+        { value: 'wooden', label: 'خشبي' },
+        { value: 'midnight', label: 'ليلي' },
+        { value: 'emerald', label: 'زمردي' },
       ],
       current: boardTheme,
       onChange: (v: string) => handleThemeChange(v as BoardTheme),
@@ -1516,7 +1506,7 @@ export default function ChessPage() {
             <motion.div initial={{ scale: 0.8 }} animate={{ scale: 1 }}
               className="bg-card rounded-2xl p-4">
               <p className="text-sm font-semibold text-foreground text-center mb-3">
-                {language === 'ar' ? 'اختر قطعة الترقية' : 'Choose promotion piece'}
+                {'اختر قطعة الترقية'}
               </p>
               <div className="flex gap-3">
                 {(['Q', 'R', 'B', 'N'] as PieceType[]).map(pt => (
@@ -1540,15 +1530,15 @@ export default function ChessPage() {
             <div className="flex items-center gap-1.5 text-xs">
               <span className="text-base">{activeBot.emoji}</span>
               <div className="leading-tight">
-                <p className="font-bold text-foreground text-[11px]">{language === 'ar' ? activeBot.ar : activeBot.de}</p>
-                <p className="text-[9px] text-muted-foreground">Elo {activeBot.elo}</p>
+                <p className="font-bold text-foreground text-[11px]">{activeBot.ar}</p>
+                <p className="text-[10px] text-muted-foreground">Elo {activeBot.elo}</p>
               </div>
             </div>
           ) : <div />}
           {openingName && (
             <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-amber-500/12 border border-amber-500/25">
-              <span className="text-[9px] font-mono text-amber-300/80">{openingName.eco}</span>
-              <span className="text-[10px] font-bold text-amber-200">{language === 'ar' ? openingName.ar : openingName.de}</span>
+              <span className="text-[10px] font-mono text-amber-300/80">{openingName.eco}</span>
+              <span className="text-[10px] font-bold text-amber-200">{openingName.ar}</span>
             </div>
           )}
         </div>
@@ -1563,8 +1553,8 @@ export default function ChessPage() {
             </div>
             <span className="text-xs font-medium text-foreground">
               {flipped
-                ? (language === 'ar' ? 'أبيض' : 'White')
-                : (language === 'ar' ? 'أسود' : 'Black')}
+                ? ('أبيض')
+                : ('أسود')}
             </span>
             {(flipped ? whiteAdv < 0 : blackAdv > 0) && <span className="text-[10px] text-muted-foreground">+{flipped ? -whiteAdv : blackAdv}</span>}
           </div>
@@ -1587,9 +1577,9 @@ export default function ChessPage() {
           <div className="h-full bg-white transition-all duration-300" style={{ width: `${evalPct}%` }} />
           <div className="absolute left-1/2 top-0 bottom-0 w-px bg-zinc-500/60" />
         </div>
-        <div className="flex justify-between text-[9px] text-muted-foreground mt-0.5 tabular-nums">
+        <div className="flex justify-between text-[10px] text-muted-foreground mt-0.5 tabular-nums">
           <span>{evalScore > 0 ? `+${evalScore.toFixed(1)}` : evalScore.toFixed(1)}</span>
-          <span>{isAr ? 'تقييم' : 'Eval'}</span>
+          <span>{'تقييم'}</span>
         </div>
       </div>
 
@@ -1603,7 +1593,7 @@ export default function ChessPage() {
               <div className="flex flex-col items-center gap-3">
                 <Play className="w-10 h-10 text-primary stroke-[1.5]" />
                 <span className="text-muted-foreground font-medium text-sm">
-                  {language === 'ar' ? 'اضغط للبدء' : 'Tap to start'}
+                  {'اضغط للبدء'}
                 </span>
               </div>
             </motion.div>
@@ -1627,8 +1617,8 @@ export default function ChessPage() {
             </div>
             <span className="text-xs font-medium text-foreground">
               {flipped
-                ? (language === 'ar' ? 'أسود' : 'Black')
-                : (language === 'ar' ? 'أبيض' : 'White')}
+                ? ('أسود')
+                : ('أبيض')}
             </span>
             {(flipped ? blackAdv > 0 : whiteAdv > 0) && <span className="text-[10px] text-muted-foreground">+{flipped ? blackAdv : whiteAdv}</span>}
           </div>
@@ -1651,8 +1641,8 @@ export default function ChessPage() {
           <div className={`w-3 h-3 rounded-full ${game.turn === 'w' ? 'bg-white border border-border' : 'bg-gray-900'}`} />
           <span className="text-sm font-medium text-foreground">
             {game.turn === 'w'
-              ? (language === 'ar' ? 'دور الأبيض' : "White's turn")
-              : (language === 'ar' ? 'دور الأسود' : "Black's turn")}
+              ? ('دور الأبيض')
+              : ('دور الأسود')}
           </span>
           <div className="flex items-center gap-1 text-xs text-muted-foreground bg-secondary/60 px-2.5 py-1 rounded-full tabular-nums">
             <Clock className="w-3 h-3" />{formatTimer(gameTimer)}
@@ -1693,34 +1683,34 @@ export default function ChessPage() {
         <button onClick={undo} disabled={history.length === 0 || gameOver || aiThinking}
           className="flex flex-col items-center gap-1 px-4 py-2.5 rounded-2xl bg-secondary/70 text-foreground disabled:opacity-25 active:scale-90 transition-all">
           <Undo2 className="w-5 h-5" />
-          <span className="text-[9px] font-medium">{language === 'ar' ? 'تراجع' : 'Undo'}</span>
+          <span className="text-[10px] font-medium">{'تراجع'}</span>
         </button>
 
         <button onClick={() => setFlipped(!flipped)}
           className="flex flex-col items-center gap-1 px-4 py-2.5 rounded-2xl bg-secondary/70 text-foreground active:scale-90 transition-all">
           <RotateCcw className="w-5 h-5" />
-          <span className="text-[9px] font-medium">{language === 'ar' ? 'قلب' : 'Flip'}</span>
+          <span className="text-[10px] font-medium">{'قلب'}</span>
         </button>
 
         <button onClick={showHint} disabled={gameOver || aiThinking || !gameStarted}
           className="relative flex flex-col items-center gap-1 px-4 py-2.5 rounded-2xl bg-amber-500/15 text-amber-300 active:scale-90 transition-all disabled:opacity-25">
           <Lightbulb className="w-5 h-5" />
-          <span className="text-[9px] font-medium">{language === 'ar' ? 'تلميح' : 'Hint'}</span>
-          {hintCount > 0 && <span className="absolute -top-1 -right-1 text-[8px] bg-amber-500/30 rounded-full px-1">{hintCount}</span>}
+          <span className="text-[10px] font-medium">{'تلميح'}</span>
+          {hintCount > 0 && <span className="absolute -top-1 -right-1 text-[10px] bg-amber-500/30 rounded-full px-1">{hintCount}</span>}
         </button>
 
         {!gameOver && (
           <button onClick={resign} disabled={aiThinking}
             className="flex flex-col items-center gap-1 px-4 py-2.5 rounded-2xl bg-destructive/10 text-destructive active:scale-90 transition-all disabled:opacity-25">
             <Flag className="w-5 h-5" />
-            <span className="text-[9px] font-medium">{language === 'ar' ? 'استسلام' : 'Resign'}</span>
+            <span className="text-[10px] font-medium">{'استسلام'}</span>
           </button>
         )}
 
         <button onClick={() => resetGame()}
           className="flex flex-col items-center gap-1 px-5 py-2.5 rounded-2xl bg-primary text-primary-foreground active:scale-90 transition-all">
           <RotateCcw className="w-5 h-5" />
-          <span className="text-[9px] font-medium">{t('chess.newGame')}</span>
+          <span className="text-[10px] font-medium">{t('chess.newGame')}</span>
         </button>
       </div>
     </GameShell>

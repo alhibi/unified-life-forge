@@ -23,20 +23,20 @@ export interface DeloadAdvisorProps {
   /** Optional cycle setting. */
   scheduledEveryWeeks?: number;
   currentWeek?: number;
-  lang: 'ar' | 'de';
+  lang: 'ar';
   className?: string;
 }
 
 const T = {
-  ready: { ar: 'الجاهزية', de: 'Bereitschaft' },
-  acwr: { ar: 'حمل حاد:مزمن', de: 'Akut:Chronisch' },
-  weekLoad: { ar: 'حمل الأسبوع', de: 'Wochenlast' },
-  trainingDays: { ar: 'أيام متتالية', de: 'Tage in Folge' },
-  sweetSpot: { ar: 'منطقة مثالية', de: 'Sweet Spot' },
-  caution: { ar: 'يحتاج انتباه', de: 'Achtung' },
-  danger: { ar: 'منطقة خطر', de: 'Gefahrenzone' },
-  ramp: { ar: 'يمكنك زيادة الحمل', de: 'Volumen erhöhbar' },
-  noData: { ar: 'لم تسجل تمارين كافية لتقييم الحمل.', de: 'Zu wenige Daten für Lastbewertung.' },
+  ready: { ar: 'الجاهزية', },
+  acwr: { ar: 'حمل حاد:مزمن', },
+  weekLoad: { ar: 'حمل الأسبوع', },
+  trainingDays: { ar: 'أيام متتالية', },
+  sweetSpot: { ar: 'منطقة مثالية', },
+  caution: { ar: 'يحتاج انتباه', },
+  danger: { ar: 'منطقة خطر', },
+  ramp: { ar: 'يمكنك زيادة الحمل', },
+  noData: { ar: 'لم تسجل تمارين كافية لتقييم الحمل.', },
 };
 
 export default function DeloadAdvisor({
@@ -120,7 +120,7 @@ export default function DeloadAdvisor({
             className="absolute -translate-x-1/2 -top-0.5 w-3 h-3 rounded-full bg-foreground border-2 border-background"
           />
         </div>
-        <div className="flex justify-between text-[8.5px] text-muted-foreground/70 tabular-nums" dir="ltr">
+        <div className="flex justify-between text-[10px] text-muted-foreground/70 tabular-nums" dir="ltr">
           <span>0.0</span>
           <span>0.8</span>
           <span>1.3</span>
@@ -133,9 +133,7 @@ export default function DeloadAdvisor({
         <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-2.5 flex gap-2">
           <AlertTriangle className="w-3.5 h-3.5 text-amber-500 shrink-0 mt-0.5" />
           <p className="text-[11px] text-amber-700 dark:text-amber-300 leading-relaxed">
-            {lang === 'ar'
-              ? `قلّل الحجم إلى ${Math.round(advice.volumeMultiplier * 100)}% والكثافة إلى ${Math.round(advice.intensityMultiplier * 100)}% لمدة أسبوع.`
-              : `Volumen auf ${Math.round(advice.volumeMultiplier * 100)} %, Intensität auf ${Math.round(advice.intensityMultiplier * 100)} % für eine Woche reduzieren.`}
+            {`قلّل الحجم إلى ${Math.round(advice.volumeMultiplier * 100)}% والكثافة إلى ${Math.round(advice.intensityMultiplier * 100)}% لمدة أسبوع.`}
           </p>
         </div>
       )}
@@ -146,7 +144,7 @@ export default function DeloadAdvisor({
 function Metric({ label, value, color }: { label: string; value: string; color?: string }) {
   return (
     <div className="bg-muted/30 rounded-lg p-1.5 text-center">
-      <p className="text-[9px] uppercase tracking-wider text-muted-foreground/70 font-semibold">{label}</p>
+      <p className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-semibold">{label}</p>
       <p className="text-[14px] font-bold tabular-nums" style={{ color: color ?? 'currentColor' }}>{value}</p>
     </div>
   );

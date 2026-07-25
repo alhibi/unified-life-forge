@@ -67,7 +67,7 @@ export default function MemoryTimelineRail({
           onClick={() => setExpanded((v) => !v)}
           className="text-[10px] tracking-[0.2em] uppercase text-[color:#F2E7C9]/60 px-3 py-2 text-start hover:text-[color:#F2E7C9]/90 transition-colors"
         >
-          {isAr ? (expanded ? 'طيّ' : 'الذاكرة') : (expanded ? 'Kollabieren' : 'Erinnerung')}
+          {(expanded ? 'طيّ' : 'الذاكرة')}
         </button>
         <div ref={parentRef} className="flex-1 overflow-y-auto overscroll-contain scrollbar-thin" onMouseLeave={onLeave}>
           <div style={{ height: virt.getTotalSize(), width: '100%', position: 'relative' }}>
@@ -87,7 +87,7 @@ export default function MemoryTimelineRail({
                   }}
                 >
                   {row.kind === 'year' ? (
-                    <div className="text-[9px] tracking-[0.25em] uppercase text-[color:#C9A84C]/50 px-3 pt-2">
+                    <div className="text-[10px] tracking-[0.25em] uppercase text-[color:#C9A84C]/50 px-3 pt-2">
                       {row.year}
                     </div>
                   ) : row.kind === 'note' ? (
@@ -118,11 +118,11 @@ export default function MemoryTimelineRail({
                         )}
                         style={{ fontFamily: '"Cormorant Garamond", serif' }}
                         >
-                          {row.note.title || (isAr ? 'بدون عنوان' : 'Ohne Titel')}
+                          {row.note.title || ('بدون عنوان')}
                         </span>
                         {expanded && (
-                          <span className="block text-[9px] text-[color:#F2E7C9]/40 mt-0.5" style={{ fontFamily: '"IBM Plex Mono", monospace' }}>
-                            {new Date(row.note.createdAt).toLocaleDateString(isAr ? 'ar' : 'de')}
+                          <span className="block text-[10px] text-[color:#F2E7C9]/40 mt-0.5" style={{ fontFamily: '"IBM Plex Mono", monospace' }}>
+                            {new Date(row.note.createdAt).toLocaleDateString('ar')}
                           </span>
                         )}
                       </span>

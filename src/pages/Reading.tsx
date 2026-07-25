@@ -514,39 +514,35 @@ export default function ReadingPage() {
           type="button"
           onClick={() => setView('storage')}
           className="flex items-center gap-1.5 hover:text-foreground transition-colors"
-          title={isAr ? 'إدارة التخزين دون اتصال' : 'Manage offline storage'}
+          title={'إدارة التخزين دون اتصال'}
         >
           <Database className="h-3 w-3" />
-          {isAr
-            ? `${totalInDB} ${totalInDB === 1 ? 'مقال' : 'مقالاً'} محفوظ${totalInDB === 1 ? '' : 'ة'}`
-            : `${totalInDB} archived`}
+          {`${totalInDB} ${totalInDB === 1 ? 'مقال' : 'مقالاً'} محفوظ${totalInDB === 1 ? '' : 'ة'}`}
         </button>
         <button
           type="button"
           onClick={() => setView('cron')}
           className="flex items-center gap-1.5 hover:text-foreground transition-colors"
-          title={isAr ? 'حالة التحديث التلقائي' : 'Refresh status'}
+          title={'حالة التحديث التلقائي'}
         >
           {!isOnline
             ? (<>
                 <WifiOff className="h-3 w-3 text-warning" />
-                {isAr ? 'بدون اتصال' : 'Offline'}
+                {'بدون اتصال'}
               </>)
             : refreshing
               ? (<>
                   <Wifi className="h-3 w-3 animate-pulse text-primary" />
-                  {isAr ? 'جاري التحديث...' : 'Syncing...'}
+                  {'جاري التحديث...'}
                 </>)
               : refreshTimeAgo
                 ? (<>
                     <Clock className="h-3 w-3" />
-                    {isAr
-                      ? `آخر تحديث ${refreshTimeAgo}`
-                      : `Updated ${refreshTimeAgo}`}
+                    {`آخر تحديث ${refreshTimeAgo}`}
                   </>)
                 : (<>
                     <Clock className="h-3 w-3" />
-                    {isAr ? 'لم يتم التحديث بعد' : 'Not synced yet'}
+                    {'لم يتم التحديث بعد'}
                   </>)}
         </button>
       </div>
@@ -557,10 +553,8 @@ export default function ReadingPage() {
     <ReadingErrorBoundary lang={language}>
     <div className="min-h-screen bg-background flex flex-col pb-20">
       <SEO
-        title={isAr ? 'إطلاع — قارئ الأخبار — SmartHub' : 'Reading — RSS — SmartHub'}
-        description={isAr
-          ? 'قارئ RSS متكامل مع جلب المحتوى الكامل والمحفوظات.'
-          : 'Full-content RSS reader with bookmarks and reading mode.'}
+        title={'إطلاع — قارئ الأخبار — SmartHub'}
+        description={'قارئ RSS متكامل مع جلب المحتوى الكامل والمحفوظات.'}
         path="/reading"
       />
 
@@ -569,9 +563,7 @@ export default function ReadingPage() {
         <div className="px-4 py-2 bg-warning/10 border-b border-warning/20 flex items-center gap-2 text-xs text-warning">
           <WifiOff className="h-3.5 w-3.5 shrink-0" />
           <span className="flex-1">
-            {isAr
-              ? 'لا يوجد اتصال — يتم عرض المحتوى المحفوظ'
-              : 'No connection — showing cached content'}
+            {'لا يوجد اتصال — يتم عرض المحتوى المحفوظ'}
           </span>
         </div>
       )}
@@ -581,15 +573,13 @@ export default function ReadingPage() {
         <div className="px-4 py-2 bg-destructive/5 border-b border-destructive/10 flex items-center gap-2 text-xs text-destructive/80">
           <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
           <span className="flex-1">
-            {isAr
-              ? 'تعذّر التحديث عدة مرات — سيُعاد المحاولة تلقائياً'
-              : 'Multiple refresh failures — will retry automatically'}
+            {'تعذّر التحديث عدة مرات — سيُعاد المحاولة تلقائياً'}
           </span>
           <button
             type="button"
             onClick={() => refreshFeeds(false)}
             className="shrink-0 p-1 rounded hover:bg-destructive/10 transition-colors"
-            aria-label={isAr ? 'إعادة المحاولة' : 'Retry now'}
+            aria-label={'إعادة المحاولة'}
           >
             <RefreshCw className="h-3 w-3" />
           </button>

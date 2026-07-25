@@ -18,12 +18,12 @@ export const STRENGTH_LEVELS: StrengthLevel[] = [
 ];
 
 export const LEVEL_LABELS: Record<StrengthLevel, LocalizedString> = {
-  untrained:    { ar: 'بلا تدريب',    de: 'Untrainiert'    },
-  novice:       { ar: 'مبتدئ تماماً', de: 'Anfänger'       },
-  beginner:     { ar: 'مبتدئ',         de: 'Beginner'       },
-  intermediate: { ar: 'متوسط',         de: 'Mittelstufe'    },
-  advanced:     { ar: 'متقدم',         de: 'Fortgeschritten'},
-  elite:        { ar: 'نخبوي',         de: 'Elite'          },
+  untrained:    { ar: 'بلا تدريب',    },
+  novice:       { ar: 'مبتدئ تماماً',       },
+  beginner:     { ar: 'مبتدئ',       },
+  intermediate: { ar: 'متوسط',    },
+  advanced:     { ar: 'متقدم',},
+  elite:        { ar: 'نخبوي',          },
 };
 
 export const LEVEL_COLORS: Record<StrengthLevel, string> = {

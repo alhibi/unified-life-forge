@@ -38,7 +38,7 @@ export default function TimedSunnah() {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-screen bg-background pb-page">
       <SEO title="السنن المؤقتة — SmartHub" description="السنن المرتبطة بأوقات الصلاة اليومية مصنفة في تسع فئات." path="/section/timed-sunnah" />
       {/* Header */}
       <PageHeader sticky title={t('timed.title')} className="px-4 py-3 bg-background border-b border-border" />

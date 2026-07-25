@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, Sunrise as SunriseIcon, CalendarDays, ChevronLeft, ChevronDown } from '@/lib/icons';
+import { Sunrise as SunriseIcon, CalendarDays, ChevronLeft, ChevronDown } from '@/lib/icons';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '@/contexts/AppContext';
 import { fetchPrayerTimings as fetchPrayerTimingsCached } from '@/hooks/usePrayerTimesCache';
@@ -10,7 +10,6 @@ import {
   getDaysUntil,
   formatHijriDate,
 } from '@/features/calendar/data/islamicOccasions';
-import type { IslamicOccasion } from '@/features/calendar/data/islamicOccasions';
 import { useLiveHijriDate } from '@/features/calendar/hooks/useLiveHijriDate';
 
 /**
@@ -546,10 +545,10 @@ function Hero({
       {/* Current */}
       <div className="bg-card px-[18px] pb-2 pt-[13px]">
         <div className="mb-[5px] flex min-h-[12px] items-center justify-between gap-2">
-          <span className="text-[8.5px] font-semibold tracking-[0.09em] uppercase text-muted-foreground/80 truncate">
+          <span className="text-[10px] font-semibold tracking-[0.09em] uppercase text-muted-foreground/80 truncate">
             {(locationLabel || 'LOCATION').toUpperCase()}
           </span>
-          <span className="text-[8px] font-bold uppercase text-primary/75 shrink-0">
+          <span className="text-[10px] font-bold uppercase text-primary/75 shrink-0">
             API
           </span>
         </div>
@@ -569,7 +568,7 @@ function Hero({
       {/* Next */}
       <div className="bg-muted/[0.08] px-[18px] pb-2 pt-[13px]">
         <div className="mb-[5px] flex min-h-[12px] items-center">
-          <span className="text-[8.5px] font-semibold uppercase tracking-[0.09em] text-muted-foreground/80">
+          <span className="text-[10px] font-semibold uppercase tracking-[0.09em] text-muted-foreground/80">
             NEXT PRAYER
           </span>
         </div>
@@ -762,7 +761,7 @@ function ArcStrip({
                 fill="currentColor"
                 fillOpacity={isNext ? 0.9 : 0.5}
               >
-                {language === 'ar' ? p.ar : p.name}
+                {p.ar}
               </text>
             </g>
           );
@@ -807,10 +806,10 @@ function ArcStrip({
         <div className="absolute bottom-2 left-[18px] flex items-center gap-1 pointer-events-none">
           <SunriseIcon className="h-[18px] w-[18px] text-[hsl(var(--primary))] opacity-70" />
           <div className="flex flex-col leading-none">
-            <span className="text-[9px] font-medium leading-none text-muted-foreground/70">
+            <span className="text-[10px] font-medium leading-none text-muted-foreground/70">
               Sunrise
             </span>
-            <span className="mt-0.5 text-[9px] font-medium tabular-nums leading-none text-foreground" dir="ltr">
+            <span className="mt-0.5 text-[10px] font-medium tabular-nums leading-none text-foreground" dir="ltr">
               {sunriseStr}
             </span>
           </div>
@@ -819,10 +818,10 @@ function ArcStrip({
       {sunsetStr && (
         <div className="absolute bottom-2 right-[18px] flex items-center gap-1 pointer-events-none">
           <div className="flex flex-col items-end leading-none">
-            <span className="text-[9px] font-medium leading-none text-muted-foreground/70">
+            <span className="text-[10px] font-medium leading-none text-muted-foreground/70">
               Sunset
             </span>
-            <span className="mt-0.5 text-[9px] font-medium tabular-nums leading-none text-foreground" dir="ltr">
+            <span className="mt-0.5 text-[10px] font-medium tabular-nums leading-none text-foreground" dir="ltr">
               {sunsetStr}
             </span>
           </div>
@@ -833,7 +832,7 @@ function ArcStrip({
       {/* Makruh badge top-right */}
       {currentMakruh && (
         <div
-          className="absolute top-1.5 right-2 px-1.5 py-0.5 rounded text-[7px] font-bold tracking-wide"
+          className="absolute top-1.5 right-2 px-1.5 py-0.5 rounded text-[10px] font-bold tracking-wide"
           style={{
             backgroundColor:
               currentMakruh.label === 'Zawal'
@@ -846,9 +845,7 @@ function ArcStrip({
           }}
         >
           {t('prayer.makruh').toUpperCase()} ·{' '}
-          {language === 'ar'
-            ? t(`prayer.makruh.${currentMakruh.label.toLowerCase()}`)
-            : currentMakruh.label.toUpperCase()}
+          {t(`prayer.makruh.${currentMakruh.label.toLowerCase()}`)}
         </div>
       )}
 
@@ -864,16 +861,14 @@ function ArcStrip({
             style={{ background: 'rgba(0,0,0,0.86)' }}
             onClick={() => setExpandedZone(null)}
           >
-            <p className="text-[7.5px] font-bold tracking-wide" style={{ color: '#F06045' }}>
+            <p className="text-[10px] font-bold tracking-wide" style={{ color: '#F06045' }}>
               {t('prayer.makruh').toUpperCase()} ·{' '}
-              {language === 'ar'
-                ? t(`prayer.makruh.${makruhZones[expandedZone].label.toLowerCase()}`)
-                : makruhZones[expandedZone].label.toUpperCase()}
+              {t(`prayer.makruh.${makruhZones[expandedZone].label.toLowerCase()}`)}
             </p>
-            <p className="mt-1 text-[10.5px] leading-[16px] text-white/80 font-light">
+            <p className="mt-1 text-[10px] leading-[16px] text-white/80 font-light">
               {t(`prayer.makruh.desc.${makruhZones[expandedZone].label.toLowerCase()}`)}
             </p>
-            <p className="mt-2 text-[8px] text-white/30">{t('prayer.tapDismiss')}</p>
+            <p className="mt-2 text-[10px] text-white/30">{t('prayer.tapDismiss')}</p>
           </motion.div>
         )}
       </AnimatePresence>
@@ -1081,12 +1076,12 @@ function SlabRow({
                 : 'font-light'
           }`}
         >
-          {language === 'ar' ? prayer.ar : t(`prayer.${prayer.name.toLowerCase()}`)}
+          {prayer.ar}
         </span>
 
         {/* NEXT badge — small uppercase tag for the next-to-pray row */}
         {isNext && (
-          <span className="text-[7.5px] font-bold tracking-[0.1em] text-primary me-2 shrink-0">
+          <span className="text-[10px] font-bold tracking-[0.1em] text-primary me-2 shrink-0">
             {t('prayer.next.short')}
           </span>
         )}
@@ -1159,10 +1154,10 @@ function HijriCalendarStrip({
         <button
           onClick={() => navigate('/occasions')}
           className="flex items-center gap-0.5 text-primary/80 hover:text-primary transition-colors"
-          aria-label={language === 'ar' ? 'عرض التقويم كاملاً' : 'View full calendar'}
+          aria-label={'عرض التقويم كاملاً'}
         >
           <span className="text-[10px] font-bold uppercase tracking-wide">
-            {language === 'ar' ? 'الكل' : 'ALL'}
+            {'الكل'}
           </span>
           <ChevronLeft className="w-3 h-3" />
         </button>
@@ -1189,16 +1184,14 @@ function HijriCalendarStrip({
               {/* Days countdown + month */}
               <div className="flex items-center justify-between w-full">
                 <span
-                  className="text-[8px] font-bold uppercase tracking-wide"
+                  className="text-[10px] font-bold uppercase tracking-wide"
                   style={{ color: accent }}
                 >
                   {isToday
-                    ? (language === 'ar' ? 'اليوم' : 'TODAY')
-                    : language === 'ar'
-                      ? `${daysLeft} يوم`
-                      : `IN ${daysLeft}D`}
+                    ? ('اليوم')
+                    : `${daysLeft} يوم`}
                 </span>
-                <span className="text-[7.5px] text-muted-foreground/70 tabular-nums">
+                <span className="text-[10px] text-muted-foreground/70 tabular-nums">
                   {occ.hijriDay} {occ.hijriMonth}
                 </span>
               </div>
@@ -1218,8 +1211,8 @@ function HijriCalendarStrip({
           style={{ background: 'hsl(var(--primary) / 0.08)' }}
         >
           <ChevronLeft className="w-3 h-3 text-primary/70" />
-          <span className="text-[7.5px] font-bold text-primary/70 uppercase tracking-wide">
-            {language === 'ar' ? 'الكل' : 'ALL'}
+          <span className="text-[10px] font-bold text-primary/70 uppercase tracking-wide">
+            {'الكل'}
           </span>
         </button>
       </div>

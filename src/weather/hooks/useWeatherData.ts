@@ -56,7 +56,7 @@ export interface LegacyWeatherData {
   airQuality: { europeanAqi: number | null; pm2_5: number | null; pm10: number | null } | null;
 }
 
-export function useWeatherData(language: 'ar' | 'de' = 'ar'): { data: LegacyWeatherData | null; isRefreshing: boolean; refresh: () => void } {
+export function useWeatherData(language: 'ar' = 'ar'): { data: LegacyWeatherData | null; isRefreshing: boolean; refresh: () => void } {
   const { snapshot, isRefreshing, refresh } = useWeather(language);
   const { forecast } = useWeatherForecast(language);
   if (!snapshot) return { data: null, isRefreshing, refresh };

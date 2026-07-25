@@ -61,9 +61,7 @@ const EmojiPicker: React.FC<EmojiPickerProps> = ({ isAr, onPick, compact }) => {
         const [{ Picker }, dataMod, i18nMod] = await Promise.all([
           import('emoji-mart'),
           import('@emoji-mart/data'),
-          isAr
-            ? import('@emoji-mart/data/i18n/ar.json')
-            : import('@emoji-mart/data/i18n/de.json'),
+          import('@emoji-mart/data/i18n/ar.json'),
         ]);
         if (cancelled || !containerRef.current) return;
 
@@ -81,7 +79,7 @@ const EmojiPicker: React.FC<EmojiPickerProps> = ({ isAr, onPick, compact }) => {
           getImageURL: (set: string, name: string) =>
             `https://cdn.jsdelivr.net/npm/emoji-datasource-${set}@16.0.0/img/${set}/64/${name}.png`,
           theme: resolvedTheme,
-          locale: isAr ? 'ar' : 'de',
+          locale: 'ar',
           // iOS-keyboard layout: nav at the top, search sticky just below,
           // skin-tone selector tucked next to search, no preview row at the
           // bottom (saves vertical space on phones).
@@ -181,12 +179,12 @@ const EmojiPicker: React.FC<EmojiPickerProps> = ({ isAr, onPick, compact }) => {
       />
       {!ready && !error && (
         <div className="absolute inset-0 flex items-center justify-center text-[12px] text-muted-foreground/70 pointer-events-none">
-          {isAr ? 'جاري تحميل الرموز…' : 'Lade Emojis…'}
+          {'جاري تحميل الرموز…'}
         </div>
       )}
       {error && (
         <div className="absolute inset-0 flex items-center justify-center text-[12px] text-destructive">
-          {isAr ? 'تعذّر تحميل الرموز' : 'Emojis konnten nicht geladen werden'}
+          {'تعذّر تحميل الرموز'}
         </div>
       )}
     </div>

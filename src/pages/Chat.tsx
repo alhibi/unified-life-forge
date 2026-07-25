@@ -35,8 +35,7 @@ function ChatSkeleton() {
 }
 
 export default function ChatPage() {
-  const { language, t } = useApp();
-  const isAr = language === 'ar';
+  const { t } = useApp();
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   // Singleton hook — same value (and same network cost) as BottomNav and Index.
@@ -59,22 +58,20 @@ export default function ChatPage() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center px-6 text-center gap-4" style={{ paddingBottom: '120px' }}>
         <h1 className="text-xl font-bold text-foreground">
-          {isAr ? 'سجّل الدخول للوصول إلى الدردشة' : 'Melde dich an, um zu chatten'}
+          {'سجّل الدخول للوصول إلى الدردشة'}
         </h1>
         <p className="text-sm text-muted-foreground max-w-sm">
-          {isAr
-            ? 'الدردشة تتطلب حساباً لحفظ محادثاتك وإخطاراتك عبر الأجهزة.'
-            : 'Für Chat brauchst du ein Konto, damit deine Nachrichten und Benachrichtigungen geräteübergreifend gesichert werden.'}
+          {'الدردشة تتطلب حساباً لحفظ محادثاتك وإخطاراتك عبر الأجهزة.'}
         </p>
         <Button onClick={() => navigate('/auth')} className="rounded-xl">
-          {isAr ? 'تسجيل الدخول' : t('auth.signIn')}
+          {'تسجيل الدخول'}
         </Button>
       </div>
     );
   }
 
   return (
-    <ErrorBoundary fallbackTitle={isAr ? 'حدث خطأ في الدردشة' : 'Fehler im Chat'}>
+    <ErrorBoundary fallbackTitle={'حدث خطأ في الدردشة'}>
       <SEO title="المحادثات — SmartHub" description="دردشة آمنة بين الأصدقاء داخل SmartHub مع صور وملاحظات صوتية وتشفير للجلسة." path="/chat" />
       <Suspense fallback={<ChatSkeleton />}>
         <ChatDrawer

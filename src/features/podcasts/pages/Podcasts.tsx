@@ -87,7 +87,7 @@ function CountryDialog({
   value: string;
   onSelect: (cc: string) => void;
 }) {
-  const { language } = useApp();
+  const { } = useApp();
   const [query, setQuery] = useState('');
 
   const filtered = useMemo(() => {
@@ -98,7 +98,6 @@ function CountryDialog({
         c.code.includes(q) ||
         c.name.toLowerCase().includes(q) ||
         c.nameAr.includes(q) ||
-        c.nameDe.toLowerCase().includes(q) ||
         c.lang.includes(q),
     );
   }, [query]);
@@ -124,7 +123,7 @@ function CountryDialog({
         >
           <div className="flex items-center justify-between px-5 py-4 border-b border-border/50">
             <h2 className="text-base font-bold text-foreground">
-              {language === 'ar' ? 'اختيار الدولة' : 'Land auswählen'}
+              {'اختيار الدولة'}
             </h2>
             <button onClick={onClose} className="p-1.5 rounded-full hover:bg-muted/60">
               <X className="w-5 h-5 text-muted-foreground" />
@@ -136,7 +135,7 @@ function CountryDialog({
               <input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder={language === 'ar' ? 'ابحث عن دولة' : 'Land suchen'}
+                placeholder={'ابحث عن دولة'}
                 className="w-full ps-9 pe-3 py-2.5 rounded-xl bg-muted/40 border border-border/40 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
               />
             </div>
@@ -144,7 +143,7 @@ function CountryDialog({
           <div className="flex-1 overflow-y-auto px-2 pb-3">
             {filtered.map((c) => {
               const active = c.code === value;
-              const localized = language === 'ar' ? c.nameAr : c.nameDe;
+              const localized = c.nameAr;
               return (
                 <button
                   key={c.code}
@@ -169,7 +168,7 @@ function CountryDialog({
             })}
             {filtered.length === 0 && (
               <p className="text-center text-sm text-muted-foreground py-8">
-                {language === 'ar' ? 'لا توجد نتائج' : 'Keine Treffer'}
+                {'لا توجد نتائج'}
               </p>
             )}
           </div>
@@ -195,7 +194,7 @@ function RegionDialog({
   value: string;
   onSelect: (key: string) => void;
 }) {
-  const { language, t } = useApp();
+  const { t } = useApp();
 
   if (!open) return null;
   return createPortal(
@@ -218,7 +217,7 @@ function RegionDialog({
         >
           <div className="flex items-center justify-between px-5 py-4 border-b border-border/50">
             <h2 className="text-base font-bold text-foreground">
-              {language === 'ar' ? 'اختيار المنطقة' : 'Region auswählen'}
+              {'اختيار المنطقة'}
             </h2>
             <button onClick={onClose} className="p-1.5 rounded-full hover:bg-muted/60">
               <X className="w-5 h-5 text-muted-foreground" />
@@ -244,7 +243,7 @@ function RegionDialog({
                       {t(r.labelKey)}
                     </p>
                     <p className="text-[11px] text-muted-foreground truncate">
-                      {r.countries.length} {language === 'ar' ? 'دولة' : 'Länder'}
+                      {r.countries.length} {'دولة'}
                     </p>
                   </div>
                   {active && <Check className="w-4 h-4 text-primary shrink-0" />}
@@ -264,7 +263,7 @@ function RegionDialog({
 /* -------------------------------------------------------------------------- */
 
 function PoweredByApplePodcasts() {
-  const { language } = useApp();
+  const { } = useApp();
   return (
     <a
       href="https://www.apple.com/legal/internet-services/itunes/appstorebadges/"
@@ -273,7 +272,7 @@ function PoweredByApplePodcasts() {
       className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/15 text-primary text-[11px] font-semibold hover:bg-primary/20 transition-colors"
     >
       <Info className="w-3 h-3" />
-      <span>{language === 'ar' ? 'مدعوم من Apple Podcasts' : 'Powered by Apple Podcasts'}</span>
+      <span>{'مدعوم من Apple Podcasts'}</span>
     </a>
   );
 }
@@ -313,7 +312,7 @@ function PodcastCard({
           />
         ) : null}
       </div>
-      <p className="text-[12.5px] font-bold text-foreground leading-tight line-clamp-2">
+      <p className="text-[12px] font-bold text-foreground leading-tight line-clamp-2">
         {podcast.title}
       </p>
       <p className="text-[11px] text-muted-foreground leading-tight line-clamp-1">
@@ -359,7 +358,7 @@ const RENDER_CAP = 600;
 const PAGE_STEP = 60;
 
 export default function PodcastsPage() {
-  const { language, t } = useApp();
+  const { t } = useApp();
   const navigate = useNavigate();
   const subs = useSubscriptions();
 
@@ -513,12 +512,12 @@ export default function PodcastsPage() {
   };
 
   /* ----- subtitle: "Genre · Country" or "Genre · Region (N countries)" ---- */
-  const localizedCountry = language === 'ar' ? country.nameAr : country.nameDe;
+  const localizedCountry = country.nameAr;
   const subtitle = (() => {
     if (isSearching) {
       const where =
         scope === 'country' ? localizedCountry : activeRegion ? t(activeRegion.labelKey) : '';
-      return (language === 'ar' ? 'نتائج البحث في ' : 'Suchergebnisse in ') + where;
+      return ('نتائج البحث في ') + where;
     }
     const where =
       scope === 'country' ? localizedCountry : activeRegion ? t(activeRegion.labelKey) : '';
@@ -526,13 +525,11 @@ export default function PodcastsPage() {
   })();
 
   return (
-    <div className="min-h-screen bg-background pb-32">
+    <div className="min-h-screen bg-background pb-page">
       <SEO
-        title={language === 'ar' ? 'بودكاست — SmartHub' : 'Podcasts — SmartHub'}
+        title={'بودكاست — SmartHub'}
         description={
-          language === 'ar'
-            ? 'استكشف أفضل البودكاست حول العالم بكل اللغات والفئات، مدعوم من Apple Podcasts.'
-            : 'Entdecke die besten Podcasts weltweit nach Sprache und Kategorie, powered by Apple Podcasts.'
+          'استكشف أفضل البودكاست حول العالم بكل اللغات والفئات، مدعوم من Apple Podcasts.'
         }
         path="/podcasts"
       />
@@ -553,12 +550,8 @@ export default function PodcastsPage() {
               className="px-2.5 h-full flex items-center gap-1 active:scale-95 transition-transform border-e border-border/40"
               aria-label={
                 scope === 'country'
-                  ? language === 'ar'
-                    ? 'التبديل إلى وضع المنطقة'
-                    : 'In Regionsmodus wechseln'
-                  : language === 'ar'
-                    ? 'التبديل إلى وضع الدولة'
-                    : 'In Landmodus wechseln'
+                  ? 'التبديل إلى وضع المنطقة'
+                  : 'التبديل إلى وضع الدولة'
               }
               title={scope === 'country' ? t('podcasts.scope.country') : t('podcasts.scope.region')}
             >
@@ -574,12 +567,8 @@ export default function PodcastsPage() {
               className="px-2.5 h-full flex items-center gap-1.5 active:scale-95 transition-transform"
               aria-label={
                 scope === 'country'
-                  ? language === 'ar'
-                    ? 'تغيير الدولة'
-                    : 'Land wechseln'
-                  : language === 'ar'
-                    ? 'تغيير المنطقة'
-                    : 'Region wechseln'
+                  ? 'تغيير الدولة'
+                  : 'تغيير المنطقة'
               }
             >
               <span className="text-base leading-none" aria-hidden>
@@ -593,15 +582,15 @@ export default function PodcastsPage() {
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder={language === 'ar' ? 'ابحث' : 'Suchen'}
+              placeholder={'ابحث'}
               className="w-full h-10 ps-9 pe-9 rounded-full bg-muted/40 border border-border/40 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
-              aria-label={language === 'ar' ? 'بحث عن بودكاست' : 'Podcasts suchen'}
+              aria-label={'بحث عن بودكاست'}
             />
             {search && (
               <button
                 onClick={() => setSearch('')}
                 className="absolute top-1/2 -translate-y-1/2 end-2 w-6 h-6 rounded-full bg-muted-foreground/20 flex items-center justify-center"
-                aria-label={language === 'ar' ? 'مسح البحث' : 'Suche leeren'}
+                aria-label={'مسح البحث'}
               >
                 <X className="w-3.5 h-3.5 text-foreground" />
               </button>
@@ -611,7 +600,7 @@ export default function PodcastsPage() {
             type="button"
             onClick={() => navigate('/podcasts/library')}
             className="relative flex items-center justify-center w-10 h-10 rounded-2xl bg-secondary/60 active:scale-95 transition-transform"
-            aria-label={language === 'ar' ? 'مكتبتي' : 'Bibliothek'}
+            aria-label={'مكتبتي'}
           >
             <LibraryBig className="w-4 h-4 text-foreground" />
             {subs.length > 0 && (
@@ -641,7 +630,7 @@ export default function PodcastsPage() {
                     setGenreKey(g.key);
                     setSearch('');
                   }}
-                  className={`relative px-3 py-2 text-[13.5px] whitespace-nowrap transition-colors ${
+                  className={`relative px-3 py-2 text-[13px] whitespace-nowrap transition-colors ${
                     isActive
                       ? 'text-primary font-semibold'
                       : 'text-muted-foreground hover:text-foreground'
@@ -688,42 +677,34 @@ export default function PodcastsPage() {
         ) : active.isError ? (
           <div className="py-16 text-center">
             <p className="text-sm font-semibold text-foreground mb-1">
-              {language === 'ar'
-                ? 'تعذّر تحميل البودكاست'
-                : 'Podcasts konnten nicht geladen werden'}
+              {'تعذّر تحميل البودكاست'}
             </p>
             <p className="text-[12px] text-muted-foreground mb-4">
-              {language === 'ar'
-                ? 'تأكد من الاتصال بالإنترنت ثم حاول مجدداً.'
-                : 'Prüfe deine Internetverbindung.'}
+              {'تأكد من الاتصال بالإنترنت ثم حاول مجدداً.'}
             </p>
             <button
               onClick={() => active.refetch()}
               className="px-4 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-semibold"
             >
-              {language === 'ar' ? 'إعادة المحاولة' : 'Erneut versuchen'}
+              {'إعادة المحاولة'}
             </button>
           </div>
         ) : cappedList.length === 0 ? (
           <div className="py-16 text-center">
             <p className="text-sm font-semibold text-foreground mb-1">
-              {language === 'ar' ? 'لا توجد نتائج' : 'Keine Treffer'}
+              {'لا توجد نتائج'}
             </p>
             <p className="text-[12px] text-muted-foreground mb-5">
               {isSearching
-                ? language === 'ar'
-                  ? `لم نجد بودكاست بعنوان "${debouncedSearch}".`
-                  : `Keine Podcasts mit "${debouncedSearch}".`
-                : language === 'ar'
-                  ? 'جرّب فئة أخرى أو غيّر النطاق.'
-                  : 'Versuche eine andere Kategorie oder einen anderen Bereich.'}
+                ? `لم نجد بودكاست بعنوان "${debouncedSearch}".`
+                : 'جرّب فئة أخرى أو غيّر النطاق.'}
             </p>
             {isSearching && (
               <button
                 onClick={() => setSearch('')}
                 className="px-4 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-semibold active:scale-95"
               >
-                {language === 'ar' ? 'مسح البحث' : 'Suche leeren'}
+                {'مسح البحث'}
               </button>
             )}
           </div>
@@ -745,9 +726,7 @@ export default function PodcastsPage() {
                 onClick={() => setVisibleCount((c) => Math.min(c + PAGE_STEP, cappedList.length))}
                 className="w-full mt-6 py-3 rounded-2xl text-[13px] font-semibold border border-border/50 bg-card/50 hover:bg-muted/40 active:scale-[0.98] transition text-primary"
               >
-                {language === 'ar'
-                  ? `تحميل المزيد (${cappedList.length - visibleList.length})`
-                  : `Mehr laden (${cappedList.length - visibleList.length})`}
+                {`تحميل المزيد (${cappedList.length - visibleList.length})`}
               </button>
             )}
           </>

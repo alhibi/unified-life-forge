@@ -101,7 +101,7 @@ export default function SunnahTab() {
               <div className="flex items-center gap-1.5">
                 <p className="text-sm font-bold text-foreground transition-all duration-200">{title}</p>
                 {isPlaceholder && !showSoon && (
-                  <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-muted/60 text-muted-foreground font-semibold tracking-wide">
+                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-muted/60 text-muted-foreground font-semibold tracking-wide">
                     قريباً
                   </span>
                 )}

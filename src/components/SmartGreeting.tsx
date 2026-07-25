@@ -47,7 +47,7 @@ export default function SmartGreeting() {
   const { username } = useAuth();
   const ar = language === 'ar';
   const { location } = useDeviceLocation();
-  const { data: weather } = useWeatherData(ar ? 'ar' : 'de');
+  const { data: weather } = useWeatherData('ar');
 
   // Re-tick every minute so the countdown stays fresh.
   const [now, setNow] = useState(() => Date.now());

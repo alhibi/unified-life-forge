@@ -44,7 +44,7 @@ export default function QuranVirtues() {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-24" dir="rtl">
+    <div className="min-h-screen bg-background pb-page" dir="rtl">
       <SEO title="فضائل القرآن الكريم — SmartHub" description="فضائل تلاوة وحفظ القرآن الكريم وأهل القرآن مع سور مختارة." path="/section/quran-virtues" />
       {/* Header */}
       <PageHeader sticky title="فضائل القرآن" className="px-4 py-3 bg-background border-b border-border" />

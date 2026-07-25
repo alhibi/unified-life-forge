@@ -7,7 +7,7 @@ import type { ForecastLayers } from '../types/ForecastLayer';
 import { EMPTY_FORECAST } from '../types/ForecastLayer';
 
 export function useWeatherForecast(
-  language: 'ar' | 'de' | 'en' = 'ar',
+  language: 'ar' | 'en' = 'ar',
   customCoords?: { lat: number; lng: number } | null
 ): {
   forecast: ForecastLayers;

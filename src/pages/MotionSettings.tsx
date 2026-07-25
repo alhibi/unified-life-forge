@@ -4,7 +4,7 @@ import { Gauge, Zap, RotateCcw, Info, Activity, Sparkles, ArrowDown } from '@/li
 import { motion } from 'framer-motion';
 import { Slider } from '@/components/ui/slider';
 import BackButton from '@/components/BackButton';
-import { pageStagger as stagger, pageItem as item, motionWeight, MOTION } from '@/lib/motion';
+import { pageStagger as stagger, pageItem as item, MOTION } from '@/lib/motion';
 import { measureDisplayHz } from '@/lib/motionRuntime';
 import SEO from '@/components/SEO';
 import { AppCard } from '@/components/ui/app-shell';
@@ -28,12 +28,12 @@ import type { FpsCap } from '@/contexts/AppContext';
  * navigation.
  */
 
-const SPEED_PRESETS: { value: number; labelAr: string; labelDe: string }[] = [
-  { value: 0.5, labelAr: 'هادئ',     labelDe: 'Ruhig'   },
-  { value: 0.75, labelAr: 'لطيف',    labelDe: 'Sanft'   },
-  { value: 1,    labelAr: 'افتراضي', labelDe: 'Standard' },
-  { value: 1.25, labelAr: 'سريع',    labelDe: 'Schnell' },
-  { value: 1.5,  labelAr: 'فوري',    labelDe: 'Sofort'  },
+const SPEED_PRESETS: { value: number; labelAr: string; }[] = [
+  { value: 0.5, labelAr: 'هادئ',   },
+  { value: 0.75, labelAr: 'لطيف',   },
+  { value: 1,    labelAr: 'افتراضي', },
+  { value: 1.25, labelAr: 'سريع', },
+  { value: 1.5,  labelAr: 'فوري',  },
 ];
 
 const FPS_OPTIONS: { value: FpsCap; label: string }[] = [
@@ -170,7 +170,7 @@ function PerfHUD({ isAr, budgetHz }: { isAr: boolean; budgetHz: number }) {
       <p className="text-[18px] font-bold tabular-nums leading-tight mt-0.5 text-foreground">
         {value}<span className="text-[11px] font-normal text-muted-foreground ms-0.5">{unit}</span>
       </p>
-      {hint && <p className="text-[9px] font-mono text-muted-foreground/60 mt-0.5">{hint}</p>}
+      {hint && <p className="text-[10px] font-mono text-muted-foreground/60 mt-0.5">{hint}</p>}
     </div>
   );
 
@@ -178,7 +178,7 @@ function PerfHUD({ isAr, budgetHz }: { isAr: boolean; budgetHz: number }) {
     <AppCard className="space-y-3">
       <div className="flex items-center justify-between">
         <p className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-wider">
-          {isAr ? 'مقاييس الأداء الحيّة' : 'Live Performance'}
+          {'مقاييس الأداء الحيّة'}
         </p>
         <div className="flex items-center gap-1.5 text-[10px] font-mono">
           <span className={`w-1.5 h-1.5 rounded-full bg-current ${fpsColor} animate-pulse`} />
@@ -187,14 +187,14 @@ function PerfHUD({ isAr, budgetHz }: { isAr: boolean; budgetHz: number }) {
       </div>
       <div className="grid grid-cols-3 gap-2">
         <Cell label="FPS"        value={String(s.fps)}                   unit="hz"  hint={`target ${budgetHz}`} />
-        <Cell label={isAr ? 'إطار' : 'frame'}  value={s.frameAvg.toFixed(1)} unit="ms" hint={`p95 ${s.framep95.toFixed(1)}`} />
-        <Cell label={isAr ? 'سقوط' : 'drops'}   value={String(s.drops)}     unit="/s"  hint={`budget ${s.budget.toFixed(1)}ms`} />
-        <Cell label={isAr ? 'تأخّر' : 'jank'}   value={String(s.jank)}      unit=""    hint={isAr ? 'مدى الجلسة' : 'session'} />
+        <Cell label={'إطار'}  value={s.frameAvg.toFixed(1)} unit="ms" hint={`p95 ${s.framep95.toFixed(1)}`} />
+        <Cell label={'سقوط'}   value={String(s.drops)}     unit="/s"  hint={`budget ${s.budget.toFixed(1)}ms`} />
+        <Cell label={'تأخّر'}   value={String(s.jank)}      unit=""    hint={'مدى الجلسة'} />
         <Cell label="long-task"  value={String(s.longTasks)}              unit=""    hint=">50ms" />
         <Cell label="heap"
               value={s.heapMB == null ? '—' : s.heapMB.toFixed(1)}
               unit={s.heapMB == null ? '' : 'MB'}
-              hint={s.heapMB == null ? (isAr ? 'غير مدعوم' : 'unsupported') : 'JS'} />
+              hint={s.heapMB == null ? ('غير مدعوم') : 'JS'} />
       </div>
     </AppCard>
   );
@@ -235,10 +235,10 @@ export default function MotionSettings() {
   const budgetHz = fpsCap === 'auto' ? (nativeHz ?? 60) : fpsCap;
 
   return (
-    <div className="min-h-screen bg-background pb-24 px-5 pt-10">
+    <div className="min-h-screen bg-background pb-page px-5 pt-10">
       <SEO
-        title={isAr ? 'الحركة والأداء — SmartHub' : 'Bewegung & Leistung — SmartHub'}
-        description={isAr ? 'تحكم بسرعة الحركة وحد الإطارات في الثانية.' : 'Animations­geschwindigkeit und Bildrate steuern.'}
+        title={'الحركة والأداء — SmartHub'}
+        description={'تحكم بسرعة الحركة وحد الإطارات في الثانية.'}
         path="/settings/motion"
       />
       <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-5 max-w-lg mx-auto">
@@ -247,11 +247,11 @@ export default function MotionSettings() {
         <motion.div variants={item} className="flex items-center justify-between">
           <BackButton to="/settings" />
           <h1 className="text-[17px] font-bold tracking-tight text-foreground">
-            {isAr ? 'الحركة والأداء' : 'Bewegung & Leistung'}
+            {'الحركة والأداء'}
           </h1>
           <button
             onClick={reset}
-            aria-label={isAr ? 'استعادة الافتراضي' : 'Zurücksetzen'}
+            aria-label={'استعادة الافتراضي'}
             className="w-10 h-10 rounded-full flex items-center justify-center active:bg-muted/40 transition-colors"
           >
             <RotateCcw className="w-4 h-4 text-muted-foreground" />
@@ -261,7 +261,7 @@ export default function MotionSettings() {
         {/* Live preview */}
         <motion.div variants={item} className="space-y-2">
           <p className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-wider px-1">
-            {isAr ? 'معاينة حية' : 'Live-Vorschau'}
+            {'معاينة حية'}
           </p>
           <LivePreview speedKey={motionSpeed + springBounce + motionAmplitude} fpsKey={fpsCap} />
         </motion.div>
@@ -274,7 +274,7 @@ export default function MotionSettings() {
         {/* SPEED */}
         <motion.div variants={item} className="space-y-2">
           <p className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-wider px-1">
-            {isAr ? 'سرعة الحركة' : 'Bewegungs­geschwindigkeit'}
+            {'سرعة الحركة'}
           </p>
           <AppCard className="p-5 space-y-5">
             <div className="flex items-center justify-between">
@@ -284,10 +284,10 @@ export default function MotionSettings() {
                 </div>
                 <div>
                   <p className="text-[14px] font-medium text-foreground">
-                    {isAr ? 'مضاعف السرعة' : 'Geschwindig­keits­faktor'}
+                    {'مضاعف السرعة'}
                   </p>
                   <p className="text-[11px] text-muted-foreground">
-                    {isAr ? 'يطبَّق فوراً على كل انتقالات الإطار' : 'Wirkt sofort auf jeden Übergang'}
+                    {'يطبَّق فوراً على كل انتقالات الإطار'}
                   </p>
                 </div>
               </div>
@@ -302,7 +302,7 @@ export default function MotionSettings() {
               max={150}
               step={5}
               onValueChange={onSliderChange}
-              aria-label={isAr ? 'سرعة الحركة' : 'Geschwindigkeit'}
+              aria-label={'سرعة الحركة'}
             />
 
             <div className="flex flex-wrap gap-1.5">
@@ -318,7 +318,7 @@ export default function MotionSettings() {
                         : 'bg-muted/40 text-muted-foreground hover:bg-muted/60'
                     }`}
                   >
-                    {isAr ? p.labelAr : p.labelDe} · {p.value}×
+                    {p.labelAr} · {p.value}×
                   </button>
                 );
               })}
@@ -329,7 +329,7 @@ export default function MotionSettings() {
         {/* FPS CAP */}
         <motion.div variants={item} className="space-y-2">
           <p className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-wider px-1">
-            {isAr ? 'حد الإطارات في الثانية' : 'Bildrate'}
+            {'حد الإطارات في الثانية'}
           </p>
           <AppCard className="p-5 space-y-4">
             <div className="flex items-center justify-between gap-3">
@@ -339,17 +339,15 @@ export default function MotionSettings() {
                 </div>
                 <div className="min-w-0">
                   <p className="text-[14px] font-medium text-foreground">
-                    {isAr ? 'الحد الأقصى' : 'Maximale Rate'}
+                    {'الحد الأقصى'}
                   </p>
                   <p className="text-[11px] text-muted-foreground">
-                    {isAr
-                      ? `شاشتك تعمل عند ~${nativeHz ?? '…'} هرتز`
-                      : `Display läuft mit ~${nativeHz ?? '…'} Hz`}
+                    {`شاشتك تعمل عند ~${nativeHz ?? '…'} هرتز`}
                   </p>
                 </div>
               </div>
               <div className="text-[10px] font-mono text-muted-foreground tabular-nums">
-                {isAr ? 'الهدف' : 'target'} {budgetHz} Hz
+                {'الهدف'} {budgetHz} Hz
               </div>
             </div>
 
@@ -380,9 +378,7 @@ export default function MotionSettings() {
             <div className="flex items-start gap-2 text-[11px] text-muted-foreground/80 leading-relaxed">
               <Info className="w-3.5 h-3.5 shrink-0 mt-0.5" />
               <p>
-                {isAr
-                  ? 'الحد يُطبَّق على كل حركة في التطبيق عبر requestAnimationFrame. لا يمكن تجاوز معدل تحديث شاشتك الأصلي.'
-                  : 'Die Begrenzung gilt für alle Animationen via requestAnimationFrame. Die native Bildwiederholrate kann nicht überschritten werden.'}
+                {'الحد يُطبَّق على كل حركة في التطبيق عبر requestAnimationFrame. لا يمكن تجاوز معدل تحديث شاشتك الأصلي.'}
               </p>
             </div>
           </AppCard>
@@ -391,7 +387,7 @@ export default function MotionSettings() {
         {/* AMPLITUDE */}
         <motion.div variants={item} className="space-y-2">
           <p className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-wider px-1">
-            {isAr ? 'شدّة الحركة' : 'Bewegungs­amplitude'}
+            {'شدّة الحركة'}
           </p>
           <AppCard className="p-5 space-y-5">
             <div className="flex items-center justify-between">
@@ -401,10 +397,10 @@ export default function MotionSettings() {
                 </div>
                 <div>
                   <p className="text-[14px] font-medium text-foreground">
-                    {isAr ? 'مسافة الانزلاق والعمق' : 'Slide-Distanz & Tiefe'}
+                    {'مسافة الانزلاق والعمق'}
                   </p>
                   <p className="text-[11px] text-muted-foreground">
-                    {isAr ? 'يطال انتقالات الصفحات والـ parallax' : 'Wirkt auf Seiten­übergänge und Parallax'}
+                    {'يطال انتقالات الصفحات والـ parallax'}
                   </p>
                 </div>
               </div>
@@ -418,7 +414,7 @@ export default function MotionSettings() {
               max={150}
               step={5}
               onValueChange={(v) => setMotionAmplitude(v[0] / 100)}
-              aria-label={isAr ? 'شدّة الحركة' : 'Amplitude'}
+              aria-label={'شدّة الحركة'}
             />
             <div className="flex flex-wrap gap-1.5">
               {[
@@ -436,7 +432,7 @@ export default function MotionSettings() {
                       active ? 'bg-primary text-primary-foreground' : 'bg-muted/40 text-muted-foreground hover:bg-muted/60'
                     }`}
                   >
-                    {isAr ? p.arA : p.deA}
+                    {p.arA}
                   </button>
                 );
               })}
@@ -447,7 +443,7 @@ export default function MotionSettings() {
         {/* BOUNCE */}
         <motion.div variants={item} className="space-y-2">
           <p className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-wider px-1">
-            {isAr ? 'ارتداد النوابض' : 'Feder-Bounce'}
+            {'ارتداد النوابض'}
           </p>
           <AppCard className="p-5 space-y-5">
             <div className="flex items-center justify-between">
@@ -457,10 +453,10 @@ export default function MotionSettings() {
                 </div>
                 <div>
                   <p className="text-[14px] font-medium text-foreground">
-                    {isAr ? 'نسبة التخميد' : 'Dämpfungs­verhältnis'}
+                    {'نسبة التخميد'}
                   </p>
                   <p className="text-[11px] text-muted-foreground">
-                    {isAr ? 'يطال كل الأزرار والقوائم والضغطات' : 'Wirkt auf Tasten, Sheets, Press-Feedback'}
+                    {'يطال كل الأزرار والقوائم والضغطات'}
                   </p>
                 </div>
               </div>
@@ -474,14 +470,12 @@ export default function MotionSettings() {
               max={100}
               step={5}
               onValueChange={(v) => setSpringBounce(v[0] / 100)}
-              aria-label={isAr ? 'ارتداد' : 'Bounce'}
+              aria-label={'ارتداد'}
             />
             <div className="flex items-start gap-2 text-[11px] text-muted-foreground/80 leading-relaxed">
               <Info className="w-3.5 h-3.5 shrink-0 mt-0.5" />
               <p>
-                {isAr
-                  ? 'يُحوّل تخميد النوابض حسابياً: 0% = استقرار جاف بلا تجاوز، 100% = ارتداد واضح (ζ ≈ 0.25).'
-                  : 'Berechnet die Dämpfung neu: 0% = trocken, 100% = deutliches Überschwingen (ζ ≈ 0.25).'}
+                {'يُحوّل تخميد النوابض حسابياً: 0% = استقرار جاف بلا تجاوز، 100% = ارتداد واضح (ζ ≈ 0.25).'}
               </p>
             </div>
           </AppCard>
@@ -491,8 +485,8 @@ export default function MotionSettings() {
         <motion.div variants={item} className="flex items-center justify-center gap-2 pt-2 pb-4 text-[11px] text-muted-foreground/60">
           <Activity className="w-3 h-3" />
           <span className="font-mono">
-            {isAr ? 'نشط' : 'Aktiv'}: {motionSpeed.toFixed(2)}× ·{' '}
-            {fpsCap === 'auto' ? (isAr ? 'تلقائي' : 'auto') : `${fpsCap} Hz`} ·{' '}
+            {'نشط'}: {motionSpeed.toFixed(2)}× ·{' '}
+            {fpsCap === 'auto' ? ('تلقائي') : `${fpsCap} Hz`} ·{' '}
             amp {Math.round(motionAmplitude * 100)}% ·{' '}
             bounce {Math.round(springBounce * 100)}%
           </span>

@@ -161,7 +161,7 @@ export default function MeteorologyConsole({ ar }: MeteorologyConsoleProps) {
               <p className="text-[10px] leading-relaxed text-muted-foreground">
                 {eq.desc}
               </p>
-              <div className="mt-1 bg-secondary/40 border border-border/20 px-2 py-1 rounded text-[9px] font-mono text-primary select-all" dir="ltr">
+              <div className="mt-1 bg-secondary/40 border border-border/20 px-2 py-1 rounded text-[10px] font-mono text-primary select-all" dir="ltr">
                 {eq.eq}
               </div>
             </div>

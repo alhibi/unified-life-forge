@@ -66,8 +66,7 @@ function loadSort(): SortMode {
 
 function ContinueListeningRow({ items }: { items: RecentEpisodeRecord[] }) {
   const player = usePodcastPlayer();
-  const { language } = useApp();
-  const lang = language === 'de' ? 'de' : 'ar';
+  const { } = useApp();
 
   if (items.length === 0) return null;
 
@@ -93,7 +92,7 @@ function ContinueListeningRow({ items }: { items: RecentEpisodeRecord[] }) {
     <section className="mb-6">
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-sm font-bold text-foreground">
-          {lang === 'ar' ? 'تابع الاستماع' : 'Weiterhören'}
+          {'تابع الاستماع'}
         </h2>
         <span className="text-[11px] text-muted-foreground">{items.length}</span>
       </div>
@@ -143,7 +142,7 @@ function ContinueListeningRow({ items }: { items: RecentEpisodeRecord[] }) {
               <button
                 type="button"
                 onClick={() => removeRecentEpisodeWithNotify(rec.episode.id)}
-                aria-label={lang === 'ar' ? 'إزالة' : 'Entfernen'}
+                aria-label={'إزالة'}
                 className="absolute top-1.5 end-1.5 w-7 h-7 rounded-full bg-black/50 text-white flex items-center justify-center backdrop-blur-sm opacity-90 hover:opacity-100"
               >
                 <X className="w-3.5 h-3.5" />
@@ -171,8 +170,7 @@ function SubscriptionTile({
   onUnsubscribe: () => void;
   hasNewEpisode?: boolean;
 }) {
-  const { language } = useApp();
-  const lang = language === 'de' ? 'de' : 'ar';
+  const { } = useApp();
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
@@ -200,11 +198,11 @@ function SubscriptionTile({
                 color: '#fff',
               }}
             >
-              {lang === 'ar' ? 'جديد' : 'NEU'}
+              {'جديد'}
             </span>
           )}
         </div>
-        <p className="text-[12.5px] font-bold text-foreground leading-tight line-clamp-2">
+        <p className="text-[12px] font-bold text-foreground leading-tight line-clamp-2">
           {podcast.title}
         </p>
         <p className="text-[11px] text-muted-foreground leading-tight line-clamp-1">
@@ -223,7 +221,7 @@ function SubscriptionTile({
           e.stopPropagation();
           setMenuOpen(true);
         }}
-        aria-label={lang === 'ar' ? 'خيارات' : 'Optionen'}
+        aria-label={'خيارات'}
         className="absolute top-1.5 end-1.5 w-7 h-7 rounded-full bg-black/40 text-white flex items-center justify-center backdrop-blur-sm opacity-90 hover:opacity-100"
       >
         <MoreHorizontal className="w-3.5 h-3.5" />
@@ -269,7 +267,7 @@ function SubscriptionTile({
               >
                 <Trash2 className="w-4 h-4" />
                 <span className="text-[13px] font-semibold">
-                  {lang === 'ar' ? 'إلغاء الاشتراك' : 'Abonnement entfernen'}
+                  {'إلغاء الاشتراك'}
                 </span>
               </button>
               <button
@@ -277,7 +275,7 @@ function SubscriptionTile({
                 onClick={() => setMenuOpen(false)}
                 className="w-full mt-1 px-3 py-3 rounded-2xl text-foreground hover:bg-muted/60 text-[13px] font-medium"
               >
-                {lang === 'ar' ? 'إلغاء' : 'Abbrechen'}
+                {'إلغاء'}
               </button>
             </motion.div>
           </motion.div>
@@ -293,8 +291,8 @@ function SubscriptionTile({
 
 export default function PodcastLibrary() {
   const navigate = useNavigate();
-  const { language } = useApp();
-  const lang = language === 'de' ? 'de' : 'ar';
+  const { } = useApp();
+  const lang = 'ar';
   const subs = useSubscriptions();
   const recents = useRecentEpisodes();
   const queryClient = useQueryClient();
@@ -371,7 +369,7 @@ export default function PodcastLibrary() {
   const sortedSubs = useMemo(() => {
     const list = [...subs];
     if (sortMode === 'alpha') {
-      list.sort((a, b) => a.title.localeCompare(b.title, lang === 'ar' ? 'ar' : 'de'));
+      list.sort((a, b) => a.title.localeCompare(b.title, 'ar'));
     } else {
       list.sort((a, b) => b.subscribedAt - a.subscribedAt);
     }
@@ -379,13 +377,11 @@ export default function PodcastLibrary() {
   }, [subs, sortMode, lang]);
 
   return (
-    <div className="min-h-screen bg-background pb-32">
+    <div className="min-h-screen bg-background pb-page">
       <SEO
-        title={lang === 'ar' ? 'مكتبة البودكاست' : 'Podcast-Bibliothek'}
+        title={'مكتبة البودكاست'}
         description={
-          lang === 'ar'
-            ? 'البودكاست التي اشتركت بها — جاهزة للاستماع.'
-            : 'Deine abonnierten Podcasts — bereit zum Anhören.'
+          'البودكاست التي اشتركت بها — جاهزة للاستماع.'
         }
         path="/podcasts/library"
       />
@@ -394,13 +390,13 @@ export default function PodcastLibrary() {
         <div className="max-w-lg mx-auto px-4 pt-3 pb-3 flex items-center gap-2">
           <BackButton />
           <h1 className="flex-1 text-base font-bold text-foreground">
-            {lang === 'ar' ? 'مكتبتي' : 'Meine Bibliothek'}
+            {'مكتبتي'}
           </h1>
           <button
             type="button"
             onClick={handleRefreshAll}
             disabled={isRefreshing}
-            aria-label={lang === 'ar' ? 'تحديث الكل' : 'Alles aktualisieren'}
+            aria-label={'تحديث الكل'}
             className="w-10 h-10 rounded-2xl bg-secondary/60 hover:bg-secondary flex items-center justify-center transition disabled:opacity-50 active:scale-95"
           >
             <RefreshCw
@@ -421,18 +417,16 @@ export default function PodcastLibrary() {
               <LibraryBig className="w-7 h-7 text-primary" />
             </div>
             <p className="text-sm font-semibold text-foreground mb-1">
-              {lang === 'ar' ? 'لا اشتراكات بعد' : 'Noch keine Abonnements'}
+              {'لا اشتراكات بعد'}
             </p>
             <p className="text-[12px] text-muted-foreground mb-5 max-w-xs">
-              {lang === 'ar'
-                ? 'اكتشف البودكاست واشترك بها لتظهر هنا.'
-                : 'Entdecke Podcasts und abonniere sie, um sie hier zu sehen.'}
+              {'اكتشف البودكاست واشترك بها لتظهر هنا.'}
             </p>
             <button
               onClick={() => navigate('/podcasts')}
               className="px-5 py-2.5 rounded-2xl bg-primary text-primary-foreground text-sm font-semibold active:scale-95"
             >
-              {lang === 'ar' ? 'استكشاف البودكاست' : 'Podcasts entdecken'}
+              {'استكشاف البودكاست'}
             </button>
           </div>
         ) : (
@@ -442,30 +436,30 @@ export default function PodcastLibrary() {
                 set is small and a toggle is one tap instead of two. */}
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-sm font-bold text-foreground">
-                {lang === 'ar' ? 'اشتراكاتي' : 'Abonnements'}
+                {'اشتراكاتي'}
               </h2>
               <div className="inline-flex items-center bg-muted/40 rounded-full p-0.5 border border-border/40">
                 <button
                   type="button"
                   onClick={() => setSortAndPersist('recent')}
                   aria-pressed={sortMode === 'recent'}
-                  className={`px-2.5 h-7 rounded-full text-[11.5px] font-semibold inline-flex items-center gap-1 transition-colors ${
+                  className={`px-2.5 h-7 rounded-full text-[11px] font-semibold inline-flex items-center gap-1 transition-colors ${
                     sortMode === 'recent' ? 'bg-card  text-foreground' : 'text-muted-foreground'
                   }`}
                 >
                   <Clock className="w-3 h-3" />
-                  {lang === 'ar' ? 'الأحدث' : 'Neueste'}
+                  {'الأحدث'}
                 </button>
                 <button
                   type="button"
                   onClick={() => setSortAndPersist('alpha')}
                   aria-pressed={sortMode === 'alpha'}
-                  className={`px-2.5 h-7 rounded-full text-[11.5px] font-semibold inline-flex items-center gap-1 transition-colors ${
+                  className={`px-2.5 h-7 rounded-full text-[11px] font-semibold inline-flex items-center gap-1 transition-colors ${
                     sortMode === 'alpha' ? 'bg-card  text-foreground' : 'text-muted-foreground'
                   }`}
                 >
                   <ArrowDownAZ className="w-3 h-3" />
-                  {lang === 'ar' ? 'أبجدي' : 'A–Z'}
+                  {'أبجدي'}
                 </button>
               </div>
             </div>

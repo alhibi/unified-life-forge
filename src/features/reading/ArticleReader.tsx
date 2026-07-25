@@ -370,18 +370,18 @@ export function ArticleReader({
     }
     try {
       await navigator.clipboard.writeText(article.link);
-      notify.linkCopied(isAr ? 'ar' : 'en');
+      notify.linkCopied('ar');
     } catch {
-      notify.copyFailed(isAr ? 'ar' : 'en');
+      notify.copyFailed('ar');
     }
   };
 
   const onCopy = async () => {
     try {
       await navigator.clipboard.writeText(article.link);
-      notify.linkCopied(isAr ? 'ar' : 'en');
+      notify.linkCopied('ar');
     } catch {
-      notify.copyFailed(isAr ? 'ar' : 'en');
+      notify.copyFailed('ar');
     }
   };
 
@@ -405,7 +405,7 @@ export function ArticleReader({
   }, [prefs.fontFamily]);
 
   const dirAttr = useMemo(() => {
-    return isAr ? 'rtl' : 'auto';
+    return 'rtl';
   }, [isAr]);
 
   return (
@@ -429,7 +429,7 @@ export function ArticleReader({
           type="button"
           onClick={onBack}
           className="p-2 rounded-xl hover:bg-current/10 active:scale-95 transition-all"
-          aria-label={isAr ? 'رجوع' : 'Back'}
+          aria-label={'رجوع'}
         >
           <ChevronLeft className="h-5 w-5 rtl:rotate-180" />
         </button>
@@ -448,8 +448,8 @@ export function ArticleReader({
             className="p-2 rounded-xl hover:bg-current/10 active:scale-95 transition-all"
             aria-label={
               isBookmarked
-                ? (isAr ? 'إلغاء الحفظ' : 'Remove bookmark')
-                : (isAr ? 'حفظ' : 'Bookmark')
+                ? ('إلغاء الحفظ')
+                : ('حفظ')
             }
             aria-pressed={isBookmarked}
           >
@@ -461,7 +461,7 @@ export function ArticleReader({
             type="button"
             onClick={onShare}
             className="p-2 rounded-xl hover:bg-current/10 active:scale-95 transition-all"
-            aria-label={isAr ? 'مشاركة' : 'Share'}
+            aria-label={'مشاركة'}
           >
             <Share2 className="h-4 w-4 opacity-70" />
           </button>
@@ -469,7 +469,7 @@ export function ArticleReader({
             type="button"
             onClick={onCopy}
             className="p-2 rounded-xl hover:bg-current/10 active:scale-95 transition-all"
-            aria-label={isAr ? 'نسخ الرابط' : 'Copy link'}
+            aria-label={'نسخ الرابط'}
           >
             <Copy className="h-4 w-4 opacity-70" />
           </button>
@@ -478,7 +478,7 @@ export function ArticleReader({
             target="_blank"
             rel="noopener noreferrer"
             className="p-2 rounded-xl hover:bg-current/10 active:scale-95 transition-all inline-flex items-center justify-center"
-            aria-label={isAr ? 'فتح الرابط الأصلي' : 'Open original'}
+            aria-label={'فتح الرابط الأصلي'}
           >
             <ExternalLink className="h-4 w-4 opacity-70" />
           </a>
@@ -497,7 +497,7 @@ export function ArticleReader({
           background: themePalette?.progressTrack,
         }}
         role="progressbar"
-        aria-label={isAr ? 'تقدّم القراءة' : 'Reading progress'}
+        aria-label={'تقدّم القراءة'}
         aria-valuenow={Math.round(progress * 100)}
         aria-valuemin={0}
         aria-valuemax={100}
@@ -580,7 +580,7 @@ export function ArticleReader({
             </span>
             <span className="w-1 h-1 rounded-full bg-current opacity-30" />
             <span className="text-xs opacity-70">
-              {isAr ? `${minutes} دقيقة قراءة` : `${minutes} min read`}
+              {`${minutes} دقيقة قراءة`}
             </span>
             {article.author && (
               <>
@@ -651,9 +651,7 @@ export function ArticleReader({
                   <div className="flex items-center gap-2 text-sm opacity-80">
                     <Loader2 className="h-4 w-4 animate-spin" />
                     <span>
-                      {isAr
-                        ? 'يتم جلب المقال الكامل من الموقع الأصلي…'
-                        : 'Loading the full article from the source…'}
+                      {'يتم جلب المقال الكامل من الموقع الأصلي…'}
                     </span>
                   </div>
                 )
@@ -663,14 +661,10 @@ export function ArticleReader({
                       <FileText className="h-4 w-4 mt-0.5 opacity-60 shrink-0" />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium mb-0.5">
-                          {isAr
-                            ? 'يحتوي هذا المصدر على ملخص فقط'
-                            : 'This feed only ships an excerpt'}
+                          {'يحتوي هذا المصدر على ملخص فقط'}
                         </p>
                         <p className="text-xs opacity-70 mb-2.5">
-                          {isAr
-                            ? 'يمكن محاولة جلب النص الكامل من الموقع الأصلي.'
-                            : 'You can try loading the complete article body.'}
+                          {'يمكن محاولة جلب النص الكامل من الموقع الأصلي.'}
                         </p>
                         <button
                           type="button"
@@ -678,7 +672,7 @@ export function ArticleReader({
                           className="px-3 py-1.5 rounded-xl bg-primary text-primary-foreground text-xs font-semibold hover:opacity-90 active:scale-95 transition-all inline-flex items-center gap-1.5"
                         >
                           <FileText className="h-3.5 w-3.5" />
-                          {isAr ? 'جلب المقال الكامل' : 'Load full article'}
+                          {'جلب المقال الكامل'}
                         </button>
                       </div>
                     </div>
@@ -691,7 +685,7 @@ export function ArticleReader({
                         className="w-full inline-flex items-center justify-center gap-2 text-sm font-medium opacity-75 hover:opacity-100 transition-opacity"
                       >
                         <FileText className="h-3.5 w-3.5" />
-                        {isAr ? 'جلب المقال الكامل' : 'Load full article'}
+                        {'جلب المقال الكامل'}
                       </button>
                     )
                     : null}
@@ -704,7 +698,7 @@ export function ArticleReader({
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 mt-8 px-5 py-3 rounded-2xl bg-primary/10 text-primary text-sm font-semibold hover:bg-primary/20 active:scale-[0.98] transition-all"
           >
-            {isAr ? 'المصدر الأصلي' : 'Original source'}
+            {'المصدر الأصلي'}
             <ExternalLink className="h-3.5 w-3.5" />
           </a>
         </article>

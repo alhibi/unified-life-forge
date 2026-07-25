@@ -54,7 +54,7 @@ export function navLoaded(path: string): { load: number; finish: (cb?: (paint: n
           const color = paint > 350 ? 'background:#b91c1c;color:#fff;padding:1px 4px;border-radius:3px' :
                                        'background:#0369a1;color:#fff;padding:1px 4px;border-radius:3px';
           if (import.meta.env.DEV) {
-            // eslint-disable-next-line no-console
+             
             console.log(slow + path + ' load=' + load.toFixed(0) + 'ms paint=' + paint.toFixed(0) + 'ms',
               color, 'color:inherit');
           }
@@ -68,7 +68,7 @@ export function navLoaded(path: string): { load: number; finish: (cb?: (paint: n
 function summary() {
   if (!import.meta.env.DEV) return;
   if (entries.length === 0) {
-    // eslint-disable-next-line no-console
+     
     console.log('[navPerf] no entries yet');
     return;
   }
@@ -89,7 +89,7 @@ function summary() {
       'worst paint (ms)': +v.max.toFixed(0),
     }))
     .sort((a, b) => b['avg paint (ms)'] - a['avg paint (ms)']);
-  // eslint-disable-next-line no-console
+   
   console.table(rows);
 }
 

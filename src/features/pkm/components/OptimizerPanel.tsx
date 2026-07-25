@@ -44,10 +44,10 @@ export default function OptimizerPanel({
   const canAccept = status === 'done' && output.trim().length > 0;
 
   const statusMsg = () => {
-    if (status === 'rate_limited') return isAr ? 'كثير من الطلبات، حاول بعد قليل.' : 'Zu viele Anfragen, bitte später erneut.';
-    if (status === 'credits_exhausted') return isAr ? 'انتهى الرصيد المتاح.' : 'Guthaben aufgebraucht.';
-    if (status === 'error') return isAr ? 'حدث خطأ، حاول مجدّدًا.' : 'Ein Fehler ist aufgetreten.';
-    if (status === 'aborted') return isAr ? 'أُلغيت العملية.' : 'Abgebrochen.';
+    if (status === 'rate_limited') return 'كثير من الطلبات، حاول بعد قليل.';
+    if (status === 'credits_exhausted') return 'انتهى الرصيد المتاح.';
+    if (status === 'error') return 'حدث خطأ، حاول مجدّدًا.';
+    if (status === 'aborted') return 'أُلغيت العملية.';
     return null;
   };
 
@@ -57,12 +57,12 @@ export default function OptimizerPanel({
         <header className="flex items-center gap-2 p-4 border-b border-border/40">
           <Sparkles className="w-4 h-4 text-primary" />
           <h2 className="text-sm font-bold flex-1">
-            {isAr ? 'محسِّن النص' : 'Optimierer'}
+            {'محسِّن النص'}
           </h2>
           <button
             onClick={() => { cancel(); reset(); onClose(); }}
             className="h-8 w-8 rounded-full bg-background border border-border/60 flex items-center justify-center"
-            aria-label={isAr ? 'إغلاق' : 'Schließen'}
+            aria-label={'إغلاق'}
           >
             <X className="w-4 h-4" />
           </button>
@@ -81,8 +81,8 @@ export default function OptimizerPanel({
                 )}
               >
                 {m === 'A'
-                  ? (isAr ? 'الوضع أ — الهرم التحليلي' : 'Modus A — Analytische Pyramide')
-                  : (isAr ? 'الوضع ب — الشبكة الدلالية' : 'Modus B — Semantisches Netzwerk')}
+                  ? ('الوضع أ — الهرم التحليلي')
+                  : ('الوضع ب — الشبكة الدلالية')}
               </button>
             ))}
           </div>
@@ -94,15 +94,15 @@ export default function OptimizerPanel({
               className="flex-1 h-10 rounded-xl bg-primary text-primary-foreground text-sm font-semibold active:scale-95 transition-transform disabled:opacity-50"
             >
               {busy
-                ? (isAr ? 'جارٍ التوليد…' : 'Generiert…')
-                : (isAr ? 'ابدأ' : 'Starten')}
+                ? ('جارٍ التوليد…')
+                : ('ابدأ')}
             </button>
             {busy && (
               <button
                 onClick={cancel}
                 className="h-10 px-4 rounded-xl bg-background border border-border/60 text-sm"
               >
-                {isAr ? 'إلغاء' : 'Abbrechen'}
+                {'إلغاء'}
               </button>
             )}
           </div>
@@ -116,9 +116,7 @@ export default function OptimizerPanel({
               <DiffViewer original={body} optimized={output} />
             ) : (
               <div className="text-xs text-muted-foreground text-center pt-10">
-                {isAr
-                  ? 'اختر الوضع ثم اضغط "ابدأ" لتوليد نسخة مُنظَّمة من ملاحظتك.'
-                  : 'Wähle einen Modus und starte die Neustrukturierung deiner Notiz.'}
+                {'اختر الوضع ثم اضغط "ابدأ" لتوليد نسخة مُنظَّمة من ملاحظتك.'}
               </div>
             )}
           </div>
@@ -129,14 +127,14 @@ export default function OptimizerPanel({
               disabled={!output || busy}
               className="h-10 px-4 rounded-xl bg-background border border-border/60 text-sm disabled:opacity-50"
             >
-              {isAr ? 'تراجع' : 'Verwerfen'}
+              {'تراجع'}
             </button>
             <button
               onClick={() => { onAccept(output); reset(); onClose(); }}
               disabled={!canAccept}
               className="flex-1 h-10 rounded-xl bg-emerald-600 text-white text-sm font-semibold active:scale-95 transition-transform disabled:opacity-50"
             >
-              {isAr ? 'قبول واستبدال' : 'Übernehmen'}
+              {'قبول واستبدال'}
             </button>
           </div>
         </div>

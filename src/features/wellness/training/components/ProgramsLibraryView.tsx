@@ -20,29 +20,29 @@ export interface ProgramsLibraryViewProps {
   /** Currently active program key (drawn highlighted). */
   activeKey?: string | null;
   onPickProgram: (key: string) => void;
-  lang: 'ar' | 'de';
+  lang: 'ar';
   className?: string;
 }
 
 const T = {
-  title: { ar: 'مكتبة البرامج', de: 'Programmbibliothek' },
-  subtitle: { ar: 'اختر برنامجاً لبدء تطور منهجي', de: 'Wähle ein Programm für strukturierten Fortschritt' },
-  current: { ar: 'برنامجك الحالي', de: 'Aktuelles Programm' },
-  filters: { ar: 'تصفية', de: 'Filter' },
-  all: { ar: 'الكل', de: 'Alle' },
-  details: { ar: 'تفاصيل', de: 'Details' },
-  start: { ar: 'بدء', de: 'Start' },
-  daysWk: { ar: 'يوم/أسبوع', de: 'Tage/Woche' },
-  weeks: { ar: 'أسابيع', de: 'Wochen' },
-  minutes: { ar: 'دقيقة/جلسة', de: 'Min/Session' },
-  by: { ar: 'بقلم', de: 'von' },
-  highlights: { ar: 'مميزات', de: 'Vorteile' },
-  prereq: { ar: 'متطلبات', de: 'Voraussetzungen' },
-  scheme: { ar: 'النظام', de: 'Schema' },
-  description: { ar: 'الوصف', de: 'Beschreibung' },
-  equipment: { ar: 'المعدات', de: 'Equipment' },
-  experience: { ar: 'الخبرة', de: 'Erfahrung' },
-  goal: { ar: 'الهدف', de: 'Ziel' },
+  title: { ar: 'مكتبة البرامج', },
+  subtitle: { ar: 'اختر برنامجاً لبدء تطور منهجي', },
+  current: { ar: 'برنامجك الحالي', },
+  filters: { ar: 'تصفية', },
+  all: { ar: 'الكل', },
+  details: { ar: 'تفاصيل', },
+  start: { ar: 'بدء', },
+  daysWk: { ar: 'يوم/أسبوع', },
+  weeks: { ar: 'أسابيع', },
+  minutes: { ar: 'دقيقة/جلسة', },
+  by: { ar: 'بقلم', },
+  highlights: { ar: 'مميزات', },
+  prereq: { ar: 'متطلبات', },
+  scheme: { ar: 'النظام', },
+  description: { ar: 'الوصف', },
+  equipment: { ar: 'المعدات', },
+  experience: { ar: 'الخبرة', },
+  goal: { ar: 'الهدف', },
 };
 
 const EXPERIENCE_OPTS: ('all' | ProgramExperience)[] = ['all', 'beginner', 'intermediate', 'advanced'];
@@ -155,7 +155,7 @@ function ProgramCard({
   isActive: boolean;
   onDetails: () => void;
   onStart: () => void;
-  lang: 'ar' | 'de';
+  lang: 'ar';
   delay: number;
 }) {
   return (
@@ -172,7 +172,7 @@ function ProgramCard({
       <div className="flex items-start justify-between gap-3 mb-2">
         <div className="min-w-0 flex-1">
           {isActive && (
-            <span className="inline-block text-[9px] font-bold uppercase tracking-wider text-primary bg-primary/15 px-1.5 py-0.5 rounded mb-1">
+            <span className="inline-block text-[10px] font-bold uppercase tracking-wider text-primary bg-primary/15 px-1.5 py-0.5 rounded mb-1">
               {T.current[lang]}
             </span>
           )}
@@ -181,7 +181,7 @@ function ProgramCard({
         </div>
         <div className="flex flex-col gap-1 items-end shrink-0">
           <span
-            className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase"
+            className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase"
             style={{
               background: p.experience === 'beginner' ? '#22c55e20' : p.experience === 'intermediate' ? '#f59e0b20' : '#ef444420',
               color: p.experience === 'beginner' ? '#22c55e' : p.experience === 'intermediate' ? '#f59e0b' : '#ef4444',
@@ -189,7 +189,7 @@ function ProgramCard({
           >
             {EXPERIENCE_LABELS[p.experience][lang]}
           </span>
-          <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-muted/60 text-muted-foreground">
+          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-muted/60 text-muted-foreground">
             {GOAL_LABELS[p.goal][lang]}
           </span>
         </div>
@@ -232,7 +232,7 @@ function Stat({ icon, value, label }: { icon: React.ReactNode; value: string; la
         {icon}
         <span className="text-[12px] font-bold tabular-nums text-foreground">{value}</span>
       </div>
-      <p className="text-[9px] text-muted-foreground/70 mt-0.5">{label}</p>
+      <p className="text-[10px] text-muted-foreground/70 mt-0.5">{label}</p>
     </div>
   );
 }
@@ -246,7 +246,7 @@ function DetailSheet({
   program: ProgramDef | null;
   onClose: () => void;
   onStart: () => void;
-  lang: 'ar' | 'de';
+  lang: 'ar';
 }) {
   const open = !!program;
   return (

@@ -23,7 +23,7 @@
 import React, { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import type { LucideIcon } from '@/lib/icons';
-import { SoftSurface, MeshGlow, withAlpha, softRadial } from './surfaces';
+import { SoftSurface, withAlpha } from './surfaces';
 
 /* ─────────────────────── ProgressRing ─────────────────────── */
 
@@ -357,11 +357,10 @@ export interface FastingRingProps {
   size?: number;
   active: boolean;
   protocol?: string;
-  lang: 'ar' | 'de';
+  lang: 'ar';
 }
 
 export function FastingRing({ elapsedSec, targetHours, size = 200, active, protocol, lang }: FastingRingProps) {
-  const isAr = lang === 'ar';
   const targetSec = targetHours * 3600;
   const ratio = Math.max(0, Math.min(1, elapsedSec / targetSec));
   const remainingSec = Math.max(0, targetSec - elapsedSec);
@@ -389,15 +388,15 @@ export function FastingRing({ elapsedSec, targetHours, size = 200, active, proto
         <div className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">
           {protocol ?? '16:8'}
         </div>
-        <div className="text-[26px] font-bold tabular-nums leading-tight mt-0.5" style={{ color }}>
+        <div className="text-[24px] font-bold tabular-nums leading-tight mt-0.5" style={{ color }}>
           {active ? fmt(elapsedSec) : '00:00:00'}
         </div>
         <div className="text-[10px] text-muted-foreground mt-0.5">
           {completed
-            ? isAr ? 'مكتمل ✓' : 'Abgeschlossen ✓'
+            ? 'مكتمل ✓'
             : active
-              ? `${isAr ? 'متبقي' : 'verbleibend'} ${fmt(remainingSec)}`
-              : isAr ? 'متوقّف' : 'Gestoppt'}
+              ? `${'متبقي'} ${fmt(remainingSec)}`
+              : 'متوقّف'}
         </div>
       </div>
     </ProgressRing>

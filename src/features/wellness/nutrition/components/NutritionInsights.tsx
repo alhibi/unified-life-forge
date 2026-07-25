@@ -18,27 +18,26 @@ import {
 } from '../index';
 import type { NutritionFoodItem } from '../types';
 
-type Lang = 'ar' | 'de';
+type Lang = 'ar';
 
 const T = {
-  title: { ar: 'تحليلات التغذية الذكية', de: 'Smarte Ernährungsanalyse' },
-  topNutrient: { ar: 'أغنى الأطعمة بالمغذيات', de: 'Nährstoffdichteste Lebensmittel' },
+  title: { ar: 'تحليلات التغذية الذكية', },
+  topNutrient: { ar: 'أغنى الأطعمة بالمغذيات', },
   topProtein: {
     ar: 'أفضل مصادر البروتين (نسبة للسعرات)',
-    de: 'Beste Proteinquellen (pro Kalorie)',
   },
-  topFiber: { ar: 'أعلى الأطعمة بالألياف', de: 'Ballaststoffreichste Lebensmittel' },
-  topVitC: { ar: 'أغنى بفيتامين سي', de: 'Vitamin-C-reichste' },
-  topIron: { ar: 'أغنى بالحديد', de: 'Eisenreichste' },
-  topCalcium: { ar: 'أغنى بالكالسيوم', de: 'Kalziumreichste' },
-  topMagnesium: { ar: 'أغنى بالمغنيسيوم', de: 'Magnesiumreichste' },
-  score: { ar: 'نقاط', de: 'Punkte' },
-  per100g: { ar: 'لكل 100غ', de: 'pro 100g' },
+  topFiber: { ar: 'أعلى الأطعمة بالألياف', },
+  topVitC: { ar: 'أغنى بفيتامين سي', },
+  topIron: { ar: 'أغنى بالحديد', },
+  topCalcium: { ar: 'أغنى بالكالسيوم', },
+  topMagnesium: { ar: 'أغنى بالمغنيسيوم', },
+  score: { ar: 'نقاط', },
+  per100g: { ar: 'لكل 100غ', },
 };
 
 interface InsightSection {
   key: string;
-  title: { ar: string; de: string };
+  title: { ar: string; };
   icon: React.ComponentType<{ className?: string }>;
   color: string;
   foods: NutritionFoodItem[];
@@ -46,8 +45,8 @@ interface InsightSection {
 }
 
 export default function NutritionInsights() {
-  const { language } = useApp();
-  const lang: Lang = language === 'ar' ? 'ar' : 'de';
+  const { } = useApp();
+  const lang: Lang = 'ar';
 
   const sections: InsightSection[] = useMemo(
     () => [
@@ -119,9 +118,7 @@ export default function NutritionInsights() {
         <div>
           <p className="text-[11px] text-muted-foreground">{T.title[lang]}</p>
           <p className="text-xs font-bold text-foreground">
-            {lang === 'ar'
-              ? `تحليل ${TOTAL_FOOD_COUNT} عنصر غذائي`
-              : `Analyse von ${TOTAL_FOOD_COUNT} Lebensmitteln`}
+            {`تحليل ${TOTAL_FOOD_COUNT} عنصر غذائي`}
           </p>
         </div>
       </div>

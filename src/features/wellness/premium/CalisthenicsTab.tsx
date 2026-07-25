@@ -36,46 +36,46 @@ import CaliProgramView from '../training/components/CaliProgramView';
 
 interface Props {
   /** Optional cross-tab navigation callback (parent prop, currently unused). */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+   
   onJump?: (key: string) => void;
 }
 
 type Section = 'hub' | 'skills' | 'programs' | 'assess' | 'records';
 
 const T = {
-  title: { ar: 'كاليستنيكس', de: 'Calisthenics' },
-  tagline: { ar: 'فن التحكم بالجسم', de: 'Kunst der Körperkontrolle' },
-  hub: { ar: 'الواجهة', de: 'Hub' },
-  skills: { ar: 'المهارات', de: 'Skills' },
-  programs: { ar: 'برامج', de: 'Programme' },
-  assess: { ar: 'تقييم', de: 'Assess' },
-  records: { ar: 'الأرقام', de: 'Rekorde' },
-  totalXp: { ar: 'إجمالي XP', de: 'Gesamt-XP' },
-  mastered: { ar: 'مكتمل', de: 'Gemeistert' },
-  inProgress: { ar: 'قيد التطور', de: 'In Arbeit' },
-  streak: { ar: 'سلسلة', de: 'Streak' },
-  startTimer: { ar: 'بدء هولد', de: 'Halt starten' },
-  startAssessment: { ar: 'ابدأ التقييم', de: 'Test starten' },
-  noProgress: { ar: 'لم تبدأ بعد. خذ التقييم لتحديد نقطة الانطلاق.', de: 'Noch kein Fortschritt. Test machen für deinen Startpunkt.' },
-  pickSkill: { ar: 'اختر مهارة لرؤية السلم', de: 'Skill wählen für Ladder' },
-  back: { ar: 'رجوع', de: 'Zurück' },
-  activeProgram: { ar: 'البرنامج النشط', de: 'Aktives Programm' },
-  noActiveProgram: { ar: 'لا برنامج مختار', de: 'Kein Programm aktiv' },
-  bestHolds: { ar: 'أفضل الهولد', de: 'Beste Halts' },
-  noHolds: { ar: 'لا أرقام بعد. سجّل أول هولد.', de: 'Noch keine Halts. Halte zuerst einen.' },
-  exploreSkills: { ar: 'استكشف المهارات', de: 'Skills erkunden' },
-  weeksToNext: { ar: 'أسابيع للتالي', de: 'Wochen zum nächsten' },
-  todayRecommendation: { ar: 'توصية اليوم', de: 'Heutige Empfehlung' },
-  practiceCurrent: { ar: 'دَرِّب خطوتك الحالية', de: 'Aktuelle Stufe trainieren' },
-  changeProgram: { ar: 'تغيير', de: 'Wechseln' },
+  title: { ar: 'كاليستنيكس', },
+  tagline: { ar: 'فن التحكم بالجسم', },
+  hub: { ar: 'الواجهة', },
+  skills: { ar: 'المهارات', },
+  programs: { ar: 'برامج', },
+  assess: { ar: 'تقييم', },
+  records: { ar: 'الأرقام', },
+  totalXp: { ar: 'إجمالي XP', },
+  mastered: { ar: 'مكتمل', },
+  inProgress: { ar: 'قيد التطور', },
+  streak: { ar: 'سلسلة', },
+  startTimer: { ar: 'بدء هولد', },
+  startAssessment: { ar: 'ابدأ التقييم', },
+  noProgress: { ar: 'لم تبدأ بعد. خذ التقييم لتحديد نقطة الانطلاق.', },
+  pickSkill: { ar: 'اختر مهارة لرؤية السلم', },
+  back: { ar: 'رجوع', },
+  activeProgram: { ar: 'البرنامج النشط', },
+  noActiveProgram: { ar: 'لا برنامج مختار', },
+  bestHolds: { ar: 'أفضل الهولد', },
+  noHolds: { ar: 'لا أرقام بعد. سجّل أول هولد.', },
+  exploreSkills: { ar: 'استكشف المهارات', },
+  weeksToNext: { ar: 'أسابيع للتالي', },
+  todayRecommendation: { ar: 'توصية اليوم', },
+  practiceCurrent: { ar: 'دَرِّب خطوتك الحالية', },
+  changeProgram: { ar: 'تغيير', },
 };
 
-const SECTIONS: { key: Section; ar: string; de: string; icon: typeof Activity }[] = [
-  { key: 'hub',      ar: 'الواجهة',  de: 'Hub',      icon: Activity },
-  { key: 'skills',   ar: 'المهارات', de: 'Skills',   icon: Award },
-  { key: 'programs', ar: 'برامج',   de: 'Programme', icon: Library },
-  { key: 'assess',   ar: 'تقييم',   de: 'Assess',    icon: Target },
-  { key: 'records',  ar: 'أرقام',   de: 'Rekorde',   icon: Trophy },
+const SECTIONS: { key: Section; ar: string; icon: typeof Activity }[] = [
+  { key: 'hub',      ar: 'الواجهة',      icon: Activity },
+  { key: 'skills',   ar: 'المهارات',   icon: Award },
+  { key: 'programs', ar: 'برامج', icon: Library },
+  { key: 'assess',   ar: 'تقييم',    icon: Target },
+  { key: 'records',  ar: 'أرقام',   icon: Trophy },
 ];
 
 import { getKV, setKV } from '@/features/wellness/wellnessDb';
@@ -86,7 +86,7 @@ const KV_ACTIVE_PROG = 'cali:activeProgram';
 
 export default function CalisthenicsTab(_props: Props) {
   const { language } = useApp();
-  const lang = language as 'ar' | 'de';
+  const lang = language as 'ar';
 
   const [section, setSection] = useState<Section>('hub');
   const [progress, setProgress] = useState<Record<string, number>>({});
@@ -218,7 +218,7 @@ export default function CalisthenicsTab(_props: Props) {
               )}
               <span className="relative inline-flex items-center gap-1">
                 <Icon className="w-3.5 h-3.5" />
-                {lang === 'ar' ? s.ar : s.de}
+                {s.ar}
               </span>
             </button>
           );
@@ -310,7 +310,7 @@ export default function CalisthenicsTab(_props: Props) {
                     <div>
                       <p className="text-[12px] font-bold text-foreground">{T.exploreSkills[lang]}</p>
                       <p className="text-[10px] text-muted-foreground">
-                        {SKILLS.length} {lang === 'ar' ? 'مهارة من المبتدئ للنخبة' : 'Skills von Einsteiger bis Elite'}
+                        {SKILLS.length} {'مهارة من المبتدئ للنخبة'}
                       </p>
                     </div>
                     <Award className="w-4 h-4 text-primary" />
@@ -380,9 +380,7 @@ export default function CalisthenicsTab(_props: Props) {
               </div>
               <h3 className="text-[15px] font-bold text-foreground">{T.startAssessment[lang]}</h3>
               <p className="text-[12px] text-muted-foreground">
-                {lang === 'ar'
-                  ? '12 سؤال لتحديد مستواك في كل مهارة وتوصية برنامج مناسب.'
-                  : '12 Fragen zur Bestimmung deines Niveaus und Empfehlung eines passenden Programms.'}
+                {'12 سؤال لتحديد مستواك في كل مهارة وتوصية برنامج مناسب.'}
               </p>
               <button
                 onClick={() => setAssessmentOpen(true)}
@@ -436,7 +434,7 @@ export default function CalisthenicsTab(_props: Props) {
 
 /* ──────────────── Hero ──────────────── */
 
-function CaliHero({ xp, mastered, inProgress, lang }: { xp: number; mastered: number; inProgress: number; lang: 'ar' | 'de' }) {
+function CaliHero({ xp, mastered, inProgress, lang }: { xp: number; mastered: number; inProgress: number; lang: 'ar' }) {
  return (
  <motion.div
  initial={{ opacity: 0, y: 6 }}
@@ -449,7 +447,7 @@ function CaliHero({ xp, mastered, inProgress, lang }: { xp: number; mastered: nu
  </div>
  <div>
  <h2 className="text-[14px] font-bold text-foreground leading-tight">{T.title[lang]}</h2>
- <p className="text-[9px] text-muted-foreground">{T.tagline[lang]}</p>
+ <p className="text-[10px] text-muted-foreground">{T.tagline[lang]}</p>
  </div>
  </div>
  <div className="grid grid-cols-3 gap-1.5">
@@ -466,7 +464,7 @@ function Bubble({ icon, value, label, color }: { icon: React.ReactNode; value: s
  <div className="rounded-xl bg-card/60 border border-border/30 p-1.5 text-center">
  <div className="flex items-center justify-center" style={{ color }}>{icon}</div>
  <div className="text-[14px] font-bold leading-none mt-0.5 tabular-nums" style={{ color }}>{value}</div>
- <div className="text-[8.5px] text-muted-foreground uppercase tracking-tight mt-0.5">{label}</div>
+ <div className="text-[10px] text-muted-foreground uppercase tracking-tight mt-0.5">{label}</div>
  </div>
  );
 }
@@ -475,7 +473,7 @@ function Bubble({ icon, value, label, color }: { icon: React.ReactNode; value: s
 
 function SuggestedNext({
  skillKey, stepIdx, weeksToNext, onTrain, onView, lang,
-}: { skillKey: string; stepIdx: number; weeksToNext: number; onTrain: (sk: string, idx: number) => void; onView: (sk: string) => void; lang: 'ar' | 'de' }) {
+}: { skillKey: string; stepIdx: number; weeksToNext: number; onTrain: (sk: string, idx: number) => void; onView: (sk: string) => void; lang: 'ar' }) {
   const skill = skillByKey(skillKey);
   if (!skill) return null;
   const cur = skill.steps[stepIdx];
@@ -504,11 +502,11 @@ function SuggestedNext({
       </div>
       {next && (
         <div className="bg-card/80 rounded-lg p-2 border border-border/30">
-          <p className="text-[9px] uppercase tracking-wider text-muted-foreground/70 font-semibold">
+          <p className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-semibold">
             {T.weeksToNext[lang]}
           </p>
           <p className="text-[11px] font-semibold text-foreground">
-            {next.name[lang]} <span className="text-muted-foreground">· ~{weeksToNext} {lang === 'ar' ? 'أسابيع' : 'Wochen'}</span>
+            {next.name[lang]} <span className="text-muted-foreground">· ~{weeksToNext} {'أسابيع'}</span>
           </p>
         </div>
       )}
@@ -517,7 +515,7 @@ function SuggestedNext({
           onClick={() => onView(skill.key)}
           className="flex-1 py-2 rounded-xl bg-muted text-muted-foreground text-[11px] font-semibold"
         >
-          <BookOpen className="w-3 h-3 inline-block me-1" /> {lang === 'ar' ? 'اعرض السلم' : 'Ladder'}
+          <BookOpen className="w-3 h-3 inline-block me-1" /> {'اعرض السلم'}
         </button>
         {cur?.isHold && (
           <button
@@ -534,7 +532,7 @@ function SuggestedNext({
 
 /* ──────────────── Records view ──────────────── */
 
-function RecordsView({ holdPRs, progress, lang }: { holdPRs: Record<string, number>; progress: Record<string, number>; lang: 'ar' | 'de' }) {
+function RecordsView({ holdPRs, progress, lang }: { holdPRs: Record<string, number>; progress: Record<string, number>; lang: 'ar' }) {
   const masteredArr = useMemo(() => masteredSkills(progress), [progress]);
 
   const holdEntries = useMemo(() => {

@@ -150,7 +150,7 @@ export default function GlossarySheet({ open, word, entries, versePreview, onClo
                   <p className="text-[13px] text-muted-foreground">
                     لا يوجد شرح محفوظ لهذه الكلمة.
                   </p>
-                  <p className="text-[10.5px] text-muted-foreground/70 mt-2 leading-relaxed max-w-xs mx-auto">
+                  <p className="text-[10px] text-muted-foreground/70 mt-2 leading-relaxed max-w-xs mx-auto">
                     سيُضاف الشرح تدريجياً مع إثراء المعجم. يمكنك تجربة الـ long-press
                     على كلمة أخرى داخل البيت.
                   </p>
@@ -170,7 +170,7 @@ export default function GlossarySheet({ open, word, entries, versePreview, onClo
                           {g.word}
                         </span>
                         {g.verse_position !== null && (
-                          <span className="text-[9px] text-muted-foreground/80">
+                          <span className="text-[10px] text-muted-foreground/80">
                             البيت {g.verse_position + 1}
                           </span>
                         )}

@@ -4,10 +4,10 @@
  */
 
 import type {
-  NutritionFoodItem, NutritionSearchFilters, NutritionCategory,
-  DietaryTag, AllergenType, FullNutrition, MacroNutrients,
+  NutritionFoodItem, NutritionSearchFilters,
+  DietaryTag, FullNutrition, MacroNutrients,
   MealEntry, DailyNutritionGoal, DailyIntakeSummary, MealType,
-  VitaminProfile, MineralProfile, NutrientRDA, Lang,
+  VitaminProfile, MineralProfile, NutrientRDA,
 } from './types';
 import { RDA_MALE as RDA_MALE_VAL, RDA_FEMALE as RDA_FEMALE_VAL } from './types';
 import { NUTRITION_DATABASE, FOOD_BY_ID } from './data';
@@ -33,15 +33,14 @@ function normalize(text: string): string {
 }
 
 
-/** Search foods by query (bilingual fuzzy match) */
+/** Search foods by query (Arabic-normalised fuzzy match). */
 export function searchFoods(query: string, foods = NUTRITION_DATABASE): NutritionFoodItem[] {
   if (!query || query.trim().length === 0) return foods;
   const q = normalize(query);
   return foods.filter(food => {
     const nameAr = normalize(food.name.ar);
-    const nameDe = normalize(food.name.de);
     const id = food.id.replace(/_/g, ' ');
-    return nameAr.includes(q) || nameDe.includes(q) || id.includes(q) 
+    return nameAr.includes(q) || id.includes(q)
       || food.subCategory?.includes(q)
       || food.tags.some(t => t.replace(/_/g, ' ').includes(q));
   });

@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  X, ChevronRight, ChevronLeft, UserPlus, MoreHorizontal, Shield,
+  X, ChevronRight, UserPlus, MoreHorizontal, Shield,
   ShieldOff, UserMinus, AlertTriangle,
 } from '@/lib/icons';
 import { cn } from '@/lib/utils';
@@ -39,7 +39,7 @@ type View = 'list' | 'add';
 const MemberListSheet: React.FC<MemberListSheetProps> = ({
   isAr, isOpen, chat, onClose, myUserId,
 }) => {
-  const BackIcon = isAr ? ChevronRight : ChevronLeft;
+  const BackIcon = ChevronRight;
   const [view, setView] = useState<View>('list');
   const [confirm, setConfirm] = useState<{ kind: 'remove' | 'demote' | 'promote'; member: ChatMember } | null>(null);
 
@@ -85,19 +85,19 @@ const MemberListSheet: React.FC<MemberListSheetProps> = ({
  type="button"
  onClick={() => view === 'add' ? setView('list') : close()}
             className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40"
-            aria-label={isAr ? 'رجوع' : 'Zurück'}
+            aria-label={'رجوع'}
           >
             <BackIcon className="w-5 h-5 text-foreground" />
           </button>
           <div className="flex-1 min-w-0">
             <h2 className="text-[16px] font-semibold truncate">
               {view === 'add'
-                ? (isAr ? 'إضافة أعضاء' : 'Mitglieder hinzufügen')
-                : (isAr ? 'الأعضاء' : 'Mitglieder')}
+                ? ('إضافة أعضاء')
+                : ('الأعضاء')}
             </h2>
             {view === 'list' && (
               <p className="text-[11px] text-muted-foreground">
-                {isAr ? `${members.length} عضواً` : `${members.length} Mitglieder`}
+                {`${members.length} عضواً`}
               </p>
             )}
           </div>
@@ -105,7 +105,7 @@ const MemberListSheet: React.FC<MemberListSheetProps> = ({
             type="button"
             onClick={close}
             className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40"
-            aria-label={isAr ? 'إغلاق' : 'Schließen'}
+            aria-label={'إغلاق'}
           >
             <X className="w-4 h-4 text-muted-foreground" />
           </button>
@@ -123,7 +123,7 @@ const MemberListSheet: React.FC<MemberListSheetProps> = ({
                   <UserPlus className="w-5 h-5" />
                 </div>
                 <span className="text-[14px] font-semibold text-primary">
-                  {isAr ? 'إضافة عضو' : 'Mitglied hinzufügen'}
+                  {'إضافة عضو'}
                 </span>
               </button>
             )}
@@ -195,10 +195,10 @@ const MemberListSheet: React.FC<MemberListSheetProps> = ({
                   <div className="flex-1">
                     <h3 className="text-[15px] font-semibold mb-1">
                       {confirm.kind === 'remove'
-                        ? (isAr ? 'إزالة العضو؟' : 'Mitglied entfernen?')
+                        ? ('إزالة العضو؟')
                         : confirm.kind === 'promote'
-                          ? (isAr ? 'ترقية إلى مشرف؟' : 'Zum Admin befördern?')
-                          : (isAr ? 'إلغاء صلاحيات الإشراف؟' : 'Adminrechte entziehen?')}
+                          ? ('ترقية إلى مشرف؟')
+                          : ('إلغاء صلاحيات الإشراف؟')}
                     </h3>
                     <p className="text-[13px] text-muted-foreground">
                       {confirm.member.displayName || confirm.member.username || confirm.member.userId.slice(0, 6)}
@@ -211,7 +211,7 @@ const MemberListSheet: React.FC<MemberListSheetProps> = ({
                     onClick={() => setConfirm(null)}
                     className="flex-1 h-11 rounded-xl bg-muted/30 text-foreground text-[14px] font-medium active:scale-[0.98]"
                   >
-                    {isAr ? 'إلغاء' : 'Abbrechen'}
+                    {'إلغاء'}
                   </button>
                   <button
                     type="button"
@@ -229,8 +229,8 @@ const MemberListSheet: React.FC<MemberListSheetProps> = ({
                     )}
                   >
                     {confirm.kind === 'remove'
-                      ? (isAr ? 'إزالة' : 'Entfernen')
-                      : (isAr ? 'تأكيد' : 'Bestätigen')}
+                      ? ('إزالة')
+                      : ('تأكيد')}
                   </button>
                 </div>
               </motion.div>
@@ -286,7 +286,7 @@ function MemberRow({ member, isAr, isMe, canManage, callerRole, onPromote, onDem
         <div className="flex items-center gap-1.5 min-w-0">
           <span className="text-[14px] font-semibold text-foreground truncate">
             {member.displayName || member.username || member.userId.slice(0, 6)}
-            {isMe && <span className="ms-1 text-[11px] font-medium text-muted-foreground">{isAr ? '(أنت)' : '(Du)'}</span>}
+            {isMe && <span className="ms-1 text-[11px] font-medium text-muted-foreground">{'(أنت)'}</span>}
           </span>
           <RoleBadge role={member.role} isAr={isAr} customTitle={member.customTitle} />
         </div>
@@ -300,7 +300,7 @@ function MemberRow({ member, isAr, isMe, canManage, callerRole, onPromote, onDem
           type="button"
           onClick={() => setOpen(o => !o)}
           className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40"
-          aria-label={isAr ? 'إجراءات' : 'Aktionen'}
+          aria-label={'إجراءات'}
  >
  <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
  </button>
@@ -315,19 +315,19 @@ function MemberRow({ member, isAr, isMe, canManage, callerRole, onPromote, onDem
  {member.role === 'member' ? (
             <RowAction
               icon={<Shield className="w-4 h-4" />}
-              label={isAr ? 'ترقية إلى مشرف' : 'Zum Admin machen'}
+              label={'ترقية إلى مشرف'}
               onClick={onPromote}
             />
           ) : (
             <RowAction
               icon={<ShieldOff className="w-4 h-4" />}
-              label={isAr ? 'إلغاء صلاحيات الإشراف' : 'Adminrechte entziehen'}
+              label={'إلغاء صلاحيات الإشراف'}
               onClick={onDemote}
             />
           )}
           <RowAction
             icon={<UserMinus className="w-4 h-4 text-destructive" />}
-            label={isAr ? 'إزالة من المجموعة' : 'Aus Gruppe entfernen'}
+            label={'إزالة من المجموعة'}
             onClick={onRemove}
             danger
           />
@@ -344,7 +344,7 @@ function RowAction({ icon, label, onClick, danger }: RowActionProps) {
       type="button"
       onClick={onClick}
       className={cn(
-        'w-full flex items-center gap-2 px-3 h-10 text-start text-[13.5px] active:bg-accent/40',
+        'w-full flex items-center gap-2 px-3 h-10 text-start text-[13px] active:bg-accent/40',
         danger ? 'text-destructive' : 'text-foreground',
       )}
     >

@@ -228,9 +228,7 @@ export function ReaderView({
       // If we got at least an image OR html, surface what we have.
       if (!payload.html && !payload.image) {
         throw new Error(
-          isAr
-            ? 'لم يتم العثور على محتوى قابل للقراءة'
-            : 'No readable content found',
+          'لم يتم العثور على محتوى قابل للقراءة',
         );
       }
       setArticle(payload);
@@ -294,7 +292,7 @@ export function ReaderView({
           /environment variables are missing/i.test(raw);
         setError(
           looksGeneric || !raw
-            ? (isAr ? 'تعذّر استخراج المقال من هذا الرابط' : 'Could not extract this article')
+            ? ('تعذّر استخراج المقال من هذا الرابط')
             : raw,
         );
       }
@@ -316,7 +314,7 @@ export function ReaderView({
       await offlineDb.removeArticle(article.url).catch(() => undefined);
       onToggleBookmark?.(article.url);
       setSaved(false);
-      toast.success(isAr ? 'أُزيل من المحفوظات' : 'Removed from saved');
+      toast.success('أُزيل من المحفوظات');
       return;
     }
     // Extract every <img> URL from the sanitised body so the SW can
@@ -348,7 +346,7 @@ export function ReaderView({
       onToggleBookmark(article.url);
     }
     setSaved(true);
-    toast.success(isAr ? 'تم الحفظ للقراءة لاحقاً' : 'Saved for offline reading');
+    toast.success('تم الحفظ للقراءة لاحقاً');
   }
 
   const minutes = article
@@ -368,13 +366,13 @@ export function ReaderView({
           type="button"
           onClick={onBack}
           className="p-2 rounded-xl hover:bg-accent/50 active:scale-95 transition-all"
-          aria-label={isAr ? 'رجوع' : 'Back'}
+          aria-label={'رجوع'}
         >
           <ChevronLeft className="h-5 w-5 rtl:rotate-180" />
         </button>
         <Type className="h-4 w-4 text-primary" />
         <h3 className="text-base font-bold flex-1">
-          {isAr ? 'قراءة رابط' : 'Reader View'}
+          {'قراءة رابط'}
         </h3>
         {article && (
           <>
@@ -383,12 +381,8 @@ export function ReaderView({
               type="button"
               onClick={handleSave}
               className="p-2 rounded-xl hover:bg-accent/50 active:scale-95 transition-all"
-              aria-label={isAr
-                ? (saved ? 'إزالة' : 'حفظ')
-                : (saved ? 'Unsave' : 'Save offline')}
-              title={isAr
-                ? (saved ? 'إزالة من المحفوظات' : 'حفظ للقراءة لاحقاً')
-                : (saved ? 'Remove from saved' : 'Save offline')}
+              aria-label={(saved ? 'إزالة' : 'حفظ')}
+              title={(saved ? 'إزالة من المحفوظات' : 'حفظ للقراءة لاحقاً')}
             >
               {saved
                 ? <BookmarkCheck className="h-4 w-4 text-primary" />
@@ -399,7 +393,7 @@ export function ReaderView({
               target="_blank"
               rel="noopener noreferrer"
               className="p-2 rounded-xl hover:bg-accent/50 active:scale-95 transition-all"
-              aria-label={isAr ? 'الرابط الأصلي' : 'Original'}
+              aria-label={'الرابط الأصلي'}
             >
               <ExternalLink className="h-4 w-4 text-muted-foreground" />
             </a>
@@ -428,7 +422,7 @@ export function ReaderView({
               </span>
               <div className="flex-1 min-w-0">
                 <p className="text-[12px] font-bold text-primary mb-0.5">
-                  {isAr ? 'رابط في الحافظة' : 'URL on your clipboard'}
+                  {'رابط في الحافظة'}
                 </p>
                 <p className="text-[11px] text-muted-foreground truncate" dir="ltr">
                   {clipboardSuggestion}
@@ -442,7 +436,7 @@ export function ReaderView({
                   setClipboardSuggestion(null);
                 }}
                 className="p-1.5 rounded-md hover:bg-primary/20"
-                aria-label={isAr ? 'تجاهل' : 'Dismiss'}
+                aria-label={'تجاهل'}
               >
                 <X className="h-3.5 w-3.5 text-muted-foreground" />
               </button>
@@ -469,7 +463,7 @@ export function ReaderView({
           >
             {loading
               ? <Loader2 className="h-4 w-4 animate-spin" />
-              : (isAr ? 'اقرأ' : 'Read')}
+              : ('اقرأ')}
           </Button>
         </div>
       </div>
@@ -485,9 +479,7 @@ export function ReaderView({
           <div className="flex flex-col items-center justify-center text-center py-24 gap-3 px-6">
             <Type className="h-10 w-10 text-muted-foreground/30" />
             <p className="text-sm text-muted-foreground max-w-xs">
-              {isAr
-                ? 'الصق رابط أي مقال — سنعرضه بدون إعلانات بنفس وضع القراءة'
-                : 'Paste any article URL — we’ll show it ad-free in the same reader mode'}
+              {'الصق رابط أي مقال — سنعرضه بدون إعلانات بنفس وضع القراءة'}
             </p>
           </div>
         )}
@@ -527,7 +519,7 @@ export function ReaderView({
                 <span className="w-1 h-1 rounded-full bg-current opacity-30" />
               )}
               {minutes > 0 && (
-                <span>{isAr ? `${minutes} دقيقة قراءة` : `${minutes} min read`}</span>
+                <span>{`${minutes} دقيقة قراءة`}</span>
               )}
             </div>
             {article.image && (
@@ -590,14 +582,14 @@ function ReaderHistoryList({
       <div className="flex items-center justify-between mb-3">
         <p className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground inline-flex items-center gap-1.5">
           <History className="h-3 w-3" />
-          {isAr ? 'قراءات حديثة' : 'Recently read'}
+          {'قراءات حديثة'}
         </p>
         <button
           type="button"
           onClick={onClear}
           className="text-[10px] text-muted-foreground hover:text-foreground transition-colors"
         >
-          {isAr ? 'مسح الكل' : 'Clear all'}
+          {'مسح الكل'}
         </button>
       </div>
       <div className="space-y-1.5">
@@ -648,8 +640,8 @@ function ReaderHistoryList({
               type="button"
               onClick={() => onRemove(entry.url)}
               className="px-2 rounded-xl opacity-0 group-hover:opacity-100 hover:bg-destructive/10 transition-all"
-              aria-label={isAr ? 'إزالة' : 'Remove'}
-              title={isAr ? 'إزالة' : 'Remove'}
+              aria-label={'إزالة'}
+              title={'إزالة'}
             >
               <Trash2 className="h-3.5 w-3.5 text-destructive/80" />
             </button>

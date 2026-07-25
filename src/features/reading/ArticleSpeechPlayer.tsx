@@ -48,7 +48,7 @@ export function ArticleSpeechPlayer({
         setVoices(filtered);
 
         // Select default voice based on article language
-        const targetLang = isAr ? 'ar' : (language.startsWith('de') ? 'de' : 'en');
+        const targetLang = 'ar';
         const defaultVoice = filtered.find(v => v.lang.startsWith(targetLang));
         if (defaultVoice) {
           setSelectedVoice(defaultVoice.name);
@@ -72,7 +72,7 @@ export function ArticleSpeechPlayer({
 
   const handlePlayPause = () => {
     if (!synthRef.current) {
-      toast.error(isAr ? 'ميزة تحويل النص إلى كلام غير مدعومة في هذا المتصفح' : 'Text-to-speech is not supported in this browser');
+      toast.error('ميزة تحويل النص إلى كلام غير مدعومة في هذا المتصفح');
       return;
     }
 
@@ -87,7 +87,7 @@ export function ArticleSpeechPlayer({
     } else {
       const processedText = cleanText(textToSpeak);
       if (!processedText) {
-        toast.error(isAr ? 'لا يوجد نص قابل للقراءة' : 'No readable text found');
+        toast.error('لا يوجد نص قابل للقراءة');
         return;
       }
 
@@ -172,7 +172,7 @@ export function ArticleSpeechPlayer({
           className="flex items-center gap-2 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors"
         >
           <Volume2 className="h-4 w-4 text-primary" />
-          <span>{isAr ? 'الاستماع للمقال' : 'Listen to article'}</span>
+          <span>{'الاستماع للمقال'}</span>
           <ChevronRight className={`h-3 w-3 transform transition-transform ${expanded ? 'rotate-90' : ''}`} />
         </button>
 
@@ -185,7 +185,7 @@ export function ArticleSpeechPlayer({
                 ? 'bg-primary/20 text-primary'
                 : 'bg-primary text-primary-foreground hover:opacity-90'
             }`}
-            title={isPlaying && !isPaused ? (isAr ? 'إيقاف مؤقت' : 'Pause') : (isAr ? 'تشغيل' : 'Play')}
+            title={isPlaying && !isPaused ? ('إيقاف مؤقت') : ('تشغيل')}
           >
             {isPlaying && !isPaused ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
           </button>
@@ -195,7 +195,7 @@ export function ArticleSpeechPlayer({
               type="button"
               onClick={handleStop}
               className="p-2 rounded-xl bg-destructive/10 hover:bg-destructive/15 text-destructive transition-all active:scale-95"
-              title={isAr ? 'إيقاف كامل' : 'Stop'}
+              title={'إيقاف كامل'}
             >
               <RotateCcw className="h-4 w-4" />
             </button>
@@ -205,7 +205,7 @@ export function ArticleSpeechPlayer({
             type="button"
             onClick={handleSpeedChange}
             className="px-2.5 py-1.5 rounded-xl border border-border/60 hover:bg-accent/40 text-xs font-bold tabular-nums"
-            title={isAr ? 'سرعة النطق' : 'Speech rate'}
+            title={'سرعة النطق'}
           >
             {ttsSpeed}x
           </button>
@@ -215,7 +215,7 @@ export function ArticleSpeechPlayer({
       {expanded && voices.length > 0 && (
         <div className="pt-2 border-t border-border/30 flex flex-col gap-1.5">
           <label className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">
-            {isAr ? 'اختر الصوت' : 'Select voice'}
+            {'اختر الصوت'}
           </label>
           <select
             value={selectedVoice}

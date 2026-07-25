@@ -2,7 +2,7 @@ import React, { useState, useEffect, ReactNode } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import BackButton from '@/components/BackButton';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Info, Settings2, BarChart3, ChevronDown, X, Volume2, VolumeX, Vibrate, type LucideIcon } from '@/lib/icons';
+import { Info, Settings2, BarChart3, Volume2, VolumeX, Vibrate, type LucideIcon } from '@/lib/icons';
 import { isHapticsOff, isMuted, setHapticsOff, setMuted } from '@/features/games/utils/gameFeedback';
 
 interface GameStats {
@@ -30,8 +30,7 @@ interface GameShellProps {
 }
 
 export default function GameShell({ title, icon: Icon, accentColor, rules, stats, options, children, headerRight }: GameShellProps) {
-  const { language } = useApp();
-  const isAr = language === 'ar';
+  const { } = useApp();
   const [activeTab, setActiveTab] = useState<'game' | 'rules' | 'stats' | 'options' | null>(null);
   const [muted, setMutedState] = useState<boolean>(() => isMuted());
   const [hapticsOff, setHapticsOffState] = useState<boolean>(() => isHapticsOff());
@@ -51,13 +50,13 @@ export default function GameShell({ title, icon: Icon, accentColor, rules, stats
   const toggleHap = () => { setHapticsOff(!hapticsOff); setHapticsOffState(!hapticsOff); };
 
   const tabs = [
-    { id: 'rules' as const, icon: Info, label: isAr ? 'القواعد' : 'Regeln' },
-    ...(stats && stats.length > 0 ? [{ id: 'stats' as const, icon: BarChart3, label: isAr ? 'التقدم' : 'Fortschritt' }] : []),
-    ...(options && options.length > 0 ? [{ id: 'options' as const, icon: Settings2, label: isAr ? 'خيارات' : 'Optionen' }] : []),
+    { id: 'rules' as const, icon: Info, label: 'القواعد' },
+    ...(stats && stats.length > 0 ? [{ id: 'stats' as const, icon: BarChart3, label: 'التقدم' }] : []),
+    ...(options && options.length > 0 ? [{ id: 'options' as const, icon: Settings2, label: 'خيارات' }] : []),
   ];
 
   return (
-    <div className="min-h-screen pb-28 pt-4" style={{ }}>
+    <div className="min-h-screen pb-page pt-4" style={{ }}>
       <div className="px-5">
         {/* Header — back, title, and game-feedback toggles all sit on
             a single row. Previously the back button lived on its own
@@ -80,7 +79,7 @@ export default function GameShell({ title, icon: Icon, accentColor, rules, stats
           <div className="flex items-center gap-1.5 shrink-0">
             <button
               onClick={toggleMute}
-              aria-label={isAr ? 'كتم الصوت' : 'Ton'}
+              aria-label={'كتم الصوت'}
               className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
               style={{ background: muted ? 'rgba(255,255,255,0.04)' : `${accentColor}18`, color: muted ? 'rgba(255,255,255,0.45)' : accentColor, border: `1px solid ${muted ? 'rgba(255,255,255,0.06)' : `${accentColor}30`}` }}
             >
@@ -88,7 +87,7 @@ export default function GameShell({ title, icon: Icon, accentColor, rules, stats
             </button>
             <button
               onClick={toggleHap}
-              aria-label={isAr ? 'اهتزاز' : 'Vibration'}
+              aria-label={'اهتزاز'}
               className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
               style={{ background: hapticsOff ? 'rgba(255,255,255,0.04)' : `${accentColor}18`, color: hapticsOff ? 'rgba(255,255,255,0.45)' : accentColor, border: `1px solid ${hapticsOff ? 'rgba(255,255,255,0.06)' : `${accentColor}30`}` }}
             >

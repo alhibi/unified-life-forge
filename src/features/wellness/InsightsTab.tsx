@@ -31,13 +31,13 @@ const KIND_ICON: Record<Insight['kind'], any> = {
 };
 
 const KIND_LABEL: Record<Insight['kind'], Record<Lang, string>> = {
-  interaction: { ar: 'تفاعل', de: 'Wechselwirkung' },
-  timing: { ar: 'توقيت', de: 'Timing' },
-  overlap: { ar: 'تداخل مع التغذية', de: 'Ernährungsüberschneidung' },
-  gap: { ar: 'نقص محتمل', de: 'Möglicher Mangel' },
-  correlation: { ar: 'ارتباط', de: 'Korrelation' },
-  synergy: { ar: 'تركيبة فعّالة', de: 'Aktive Synergie' },
-  habit: { ar: 'عادة', de: 'Gewohnheit' },
+  interaction: { ar: 'تفاعل', },
+  timing: { ar: 'توقيت', },
+  overlap: { ar: 'تداخل مع التغذية', },
+  gap: { ar: 'نقص محتمل', },
+  correlation: { ar: 'ارتباط', },
+  synergy: { ar: 'تركيبة فعّالة', },
+  habit: { ar: 'عادة', },
 };
 
 export default function InsightsTab({
@@ -48,7 +48,6 @@ export default function InsightsTab({
 }: Props) {
   const { language } = useApp();
   const lang = language as Lang;
-  const isAr = lang === 'ar';
 
   const insights = useMemo(
     () => runAllInsights({ supplements, intakeLogs, dietLogs, skinHair }),
@@ -79,12 +78,10 @@ export default function InsightsTab({
             <ShieldCheck className="w-5 h-5 text-primary shrink-0 mt-0.5" />
             <div>
               <h3 className="text-sm font-bold text-foreground">
-                {isAr ? 'خصوصيتك محفوظة' : 'Deine Privatsphäre'}
+                {'خصوصيتك محفوظة'}
               </h3>
               <p className="text-[12px] text-muted-foreground mt-0.5 leading-relaxed">
-                {isAr
-                  ? 'كل البيانات محفوظة على جهازك فقط. لا شيء يُرسل لأي خادم.'
-                  : 'Alle Daten bleiben nur auf deinem Gerät. Nichts wird an Server gesendet.'}
+                {'كل البيانات محفوظة على جهازك فقط. لا شيء يُرسل لأي خادم.'}
               </p>
             </div>
           </div>
@@ -98,9 +95,7 @@ export default function InsightsTab({
             <div className="text-center">
               <Info className="w-10 h-10 text-muted-foreground/30 mx-auto mb-2" />
               <p className="text-sm text-muted-foreground">
-                {isAr
-                  ? 'لا توجد ملاحظات بعد. أضف مكملاتك وسجل بعض الوجبات لترى تحليلاً.'
-                  : 'Noch keine Hinweise. Füge Supplemente und Mahlzeiten hinzu.'}
+                {'لا توجد ملاحظات بعد. أضف مكملاتك وسجل بعض الوجبات لترى تحليلاً.'}
               </p>
             </div>
           </SoftSurface>

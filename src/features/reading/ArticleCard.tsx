@@ -92,7 +92,7 @@ export function ArticleCard({
   // bookmark.  Leading-edge: mark read/unread.
   // We resolve the *signed direction* of bookmark vs mark-read once
   // here so the card's animation logic stays simple.
-  const bookmarkDir = isAr ? -1 : 1;
+  const bookmarkDir = -1;
   const markDir = -bookmarkDir;
 
   // Background icon opacity: fades in proportionally to drag distance
@@ -298,7 +298,7 @@ export function ArticleCard({
                 <span className="w-1 h-1 rounded-full bg-muted-foreground/30 shrink-0" />
                 <span className="text-[11px] text-muted-foreground/70 inline-flex items-center gap-0.5 shrink-0">
                   <Clock className="h-2.5 w-2.5" />
-                  {isAr ? `${minutes} د` : `${minutes} min`}
+                  {`${minutes} د`}
                 </span>
                 {isBookmarked && (
                   <BookmarkCheck className="h-3 w-3 text-primary/60 shrink-0" />
@@ -306,7 +306,7 @@ export function ArticleCard({
                 {cached && !isBookmarked && (
                   <span
                     className="inline-flex items-center gap-0.5 text-[10px] text-emerald-600 dark:text-emerald-400 shrink-0"
-                    title={isAr ? 'متاحة دون اتصال' : 'Available offline'}
+                    title={'متاحة دون اتصال'}
                   >
                     <CircleCheck className="h-2.5 w-2.5" />
                   </span>
@@ -393,7 +393,7 @@ export function ArticleCard({
               {article.description && (
                 <p
                   dir="auto"
-                  className="text-[12.5px] text-muted-foreground/85 mt-1.5 line-clamp-2 leading-[1.55]"
+                  className="text-[12px] text-muted-foreground/85 mt-1.5 line-clamp-2 leading-[1.55]"
                 >
                   {article.description}
                 </p>
@@ -410,7 +410,7 @@ export function ArticleCard({
                 <span className="w-1 h-1 rounded-full bg-muted-foreground/30 shrink-0" />
                 <span className="text-[11px] text-muted-foreground/70 inline-flex items-center gap-0.5 shrink-0">
                   <Clock className="h-2.5 w-2.5" />
-                  {isAr ? `${minutes} د` : `${minutes} min`}
+                  {`${minutes} د`}
                 </span>
                 {isBookmarked && (
                   <BookmarkCheck className="h-3 w-3 text-primary shrink-0" />
@@ -418,7 +418,7 @@ export function ArticleCard({
                 {cached && !isBookmarked && (
                   <span
                     className="inline-flex items-center gap-0.5 text-[10px] text-emerald-600 dark:text-emerald-400 shrink-0"
-                    title={isAr ? 'متاحة دون اتصال' : 'Available offline'}
+                    title={'متاحة دون اتصال'}
                   >
                     <CircleCheck className="h-2.5 w-2.5" />
                   </span>
@@ -446,8 +446,8 @@ export function ArticleCard({
             className="absolute top-3.5 end-3.5 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-accent/50 transition-all"
             aria-label={
               isBookmarked
-                ? (isAr ? 'إلغاء الحفظ' : 'Remove bookmark')
-                : (isAr ? 'حفظ' : 'Bookmark')
+                ? ('إلغاء الحفظ')
+                : ('حفظ')
             }
           >
             {isBookmarked
@@ -489,8 +489,8 @@ function SwipeBackdrop({
       <motion.div
         aria-hidden
         style={{ opacity: bookmarkOpacity }}
-        className={`absolute inset-y-0 ${isAr ? 'start-0' : 'end-0'} w-1/2 flex items-center ${
-          isAr ? 'justify-start ps-6' : 'justify-end pe-6'
+        className={`absolute inset-y-0 ${'start-0'} w-1/2 flex items-center ${
+          'justify-start ps-6'
         } bg-primary/15 ${radius}`}
       >
         {isBookmarked
@@ -500,8 +500,8 @@ function SwipeBackdrop({
       <motion.div
         aria-hidden
         style={{ opacity: markReadOpacity }}
-        className={`absolute inset-y-0 ${isAr ? 'end-0' : 'start-0'} w-1/2 flex items-center ${
-          isAr ? 'justify-end pe-6' : 'justify-start ps-6'
+        className={`absolute inset-y-0 ${'end-0'} w-1/2 flex items-center ${
+          'justify-end pe-6'
         } bg-emerald-500/15 ${radius}`}
       >
         {isRead
@@ -531,7 +531,6 @@ export function HeroArticleCard({
   onOpen: () => void;
   onToggleBookmark: () => void;
 }) {
-  const isAr = language === 'ar';
   const minutes = readingMinutes(
     article.fullContent || article.description || article.title,
     language,
@@ -579,8 +578,8 @@ export function HeroArticleCard({
  onClick={(e) => { e.stopPropagation(); onToggleBookmark(); }}
  className="absolute top-3 end-3 p-2 rounded-full bg-black/40 backdrop-blur-sm hover:bg-black/55 transition-colors"
  aria-label={isBookmarked
- ? (isAr ? 'إلغاء الحفظ' : 'Remove bookmark')
-          : (isAr ? 'حفظ' : 'Bookmark')}
+ ? ('إلغاء الحفظ')
+          : ('حفظ')}
       >
         {isBookmarked
           ? <BookmarkCheck className="h-4 w-4 text-white" />
@@ -597,7 +596,7 @@ export function HeroArticleCard({
           <span>{timeAgo(article.pubDate, language)}</span>
           <span className="w-1 h-1 rounded-full bg-white/50" />
           <Clock className="h-3 w-3" />
-          <span>{isAr ? `${minutes} د قراءة` : `${minutes} min read`}</span>
+          <span>{`${minutes} د قراءة`}</span>
         </div>
       </div>
     </motion.button>

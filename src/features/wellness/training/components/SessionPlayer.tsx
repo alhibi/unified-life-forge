@@ -61,7 +61,7 @@ export interface SessionPlayerProps {
   recentExercises?: string[];
   /** Last-session lookup for "previous performance" hints. */
   lastByExercise?: Map<string, { weightKg?: number; reps?: number }>;
-  lang: 'ar' | 'de';
+  lang: 'ar';
 }
 
 interface Draft {
@@ -76,40 +76,40 @@ interface Draft {
 }
 
 const T = {
-  active: { ar: 'تمرين جارٍ', de: 'Aktive Session' },
-  finish: { ar: 'إنهاء وحفظ', de: 'Beenden & Speichern' },
-  cancel: { ar: 'إلغاء', de: 'Abbrechen' },
-  duration: { ar: 'المدة', de: 'Dauer' },
-  volume: { ar: 'الحجم', de: 'Volumen' },
-  exercises: { ar: 'تمارين', de: 'Übungen' },
-  noEntries: { ar: 'لم تُضف تمارين بعد — ابدأ بإضافة أول تمرين.', de: 'Noch keine Übungen — füge die erste hinzu.' },
-  addExercise: { ar: 'إضافة تمرين', de: 'Übung hinzufügen' },
-  addSet: { ar: 'إضافة مجموعة', de: 'Satz hinzufügen' },
-  notes: { ar: 'ملاحظات', de: 'Notizen' },
-  optional: { ar: 'اختياري', de: 'optional' },
-  sessionRpe: { ar: 'صعوبة الجلسة', de: 'Session-RPE' },
-  cues: { ar: 'تعليمات الفورم', de: 'Form-Cues' },
-  warmup: { ar: 'إحماء', de: 'Aufwärmen' },
-  plate: { ar: 'حساب الأوزان', de: 'Plate-Rechner' },
-  remove: { ar: 'حذف', de: 'Entfernen' },
-  prev: { ar: 'سابقاً', de: 'Vorheriges' },
-  type_strength: { ar: 'قوة', de: 'Kraft' },
-  type_cardio: { ar: 'كارديو', de: 'Cardio' },
-  type_hiit: { ar: 'هيت', de: 'HIIT' },
-  type_mobility: { ar: 'مرونة', de: 'Mobilität' },
-  type_sport: { ar: 'رياضة', de: 'Sport' },
-  cancelConfirm: { ar: 'إلغاء التمرين بدون حفظ؟', de: 'Training ohne Speichern verwerfen?' },
-  setComplete: { ar: 'مجموعة مكتملة', de: 'Satz abgeschlossen' },
+  active: { ar: 'تمرين جارٍ', },
+  finish: { ar: 'إنهاء وحفظ', },
+  cancel: { ar: 'إلغاء', },
+  duration: { ar: 'المدة', },
+  volume: { ar: 'الحجم', },
+  exercises: { ar: 'تمارين', },
+  noEntries: { ar: 'لم تُضف تمارين بعد — ابدأ بإضافة أول تمرين.', },
+  addExercise: { ar: 'إضافة تمرين', },
+  addSet: { ar: 'إضافة مجموعة', },
+  notes: { ar: 'ملاحظات', },
+  optional: { ar: 'اختياري', },
+  sessionRpe: { ar: 'صعوبة الجلسة', },
+  cues: { ar: 'تعليمات الفورم', },
+  warmup: { ar: 'إحماء', },
+  plate: { ar: 'حساب الأوزان', },
+  remove: { ar: 'حذف', },
+  prev: { ar: 'سابقاً', },
+  type_strength: { ar: 'قوة', },
+  type_cardio: { ar: 'كارديو', },
+  type_hiit: { ar: 'هيت', },
+  type_mobility: { ar: 'مرونة', },
+  type_sport: { ar: 'رياضة', },
+  cancelConfirm: { ar: 'إلغاء التمرين بدون حفظ؟', },
+  setComplete: { ar: 'مجموعة مكتملة', },
 };
 
 const TYPE_OPTS: SessionType[] = ['strength', 'cardio', 'hiit', 'mobility'];
 
-function fmtDuration(ms: number, lang: 'ar' | 'de'): string {
+function fmtDuration(ms: number, lang: 'ar'): string {
   const sec = Math.max(0, Math.floor(ms / 1000));
   const m = Math.floor(sec / 60);
   const s = sec % 60;
-  if (m === 0) return `${s}${lang === 'ar' ? 'ث' : 's'}`;
-  return `${m}${lang === 'ar' ? 'د' : 'm'} ${String(s).padStart(2, '0')}`;
+  if (m === 0) return `${s}${'ث'}`;
+  return `${m}${'د'} ${String(s).padStart(2, '0')}`;
 }
 
 export default function SessionPlayer({
@@ -285,7 +285,7 @@ export default function SessionPlayer({
  draft.type === t ? 'bg-card text-foreground ' : 'text-muted-foreground'
                 }`}
               >
-                {(T as Record<string, { ar: string; de: string }>)[`type_${t}`][lang]}
+                {(T as Record<string, { ar: string; }>)[`type_${t}`][lang]}
               </button>
             ))}
           </div>
@@ -473,13 +473,13 @@ function ExerciseBlock({
   onShowCues: () => void;
   onShowWarmup: (label: string, weight: number) => void;
   onOpenPlate: (weight: number) => void;
-  lang: 'ar' | 'de';
+  lang: 'ar';
 }) {
   const def = resolveExercise(entry.exerciseKey);
   const ex = (def as Exercise);
   const isCustom = 'isCustom' in def && def.isCustom;
   const isCardio = !isCustom && ex.type === 'cardio';
-  const label = isCustom ? (def as { label: { ar: string; de: string } }).label[lang] : ex.label[lang];
+  const label = isCustom ? (def as { label: { ar: string; } }).label[lang] : ex.label[lang];
   const muscle = isCustom ? '' : MUSCLE_LABELS[ex.primary]?.[lang];
   const lastSetWeight = entry.sets[entry.sets.length - 1]?.weightKg ?? 0;
 
@@ -578,13 +578,13 @@ function ExerciseBlock({
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="bg-card rounded-xl p-2 text-center border border-border/30">
-      <p className="text-[9px] uppercase tracking-wider text-muted-foreground/70 font-semibold">{label}</p>
+      <p className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-semibold">{label}</p>
       <p className="text-[14px] font-bold tabular-nums text-foreground" dir="ltr">{value}</p>
     </div>
   );
 }
 
-function labelFor(key: string, lang: 'ar' | 'de'): string {
+function labelFor(key: string, lang: 'ar'): string {
   if (key.startsWith('custom:')) return key.slice(7);
   const ex = EXERCISES[key];
   return ex?.label[lang] ?? key;

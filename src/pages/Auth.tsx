@@ -19,46 +19,36 @@ function describeAuthError(error: Error, isAr: boolean, mode: 'signIn' | 'signUp
 
   // 1. Supabase not configured → noopFetch returns this exact code.
   if (msg.includes('supabase_not_configured') || msg.includes('not configured')) {
-    return isAr
-      ? 'الخادم غير مُهيأ. يرجى تعيين متغيرات Supabase في ملف .env'
-      : 'Server nicht konfiguriert. Bitte Supabase-Variablen in .env setzen.';
+    return 'الخادم غير مُهيأ. يرجى تعيين متغيرات Supabase في ملف .env';
   }
 
   // 2. Email confirmation required (the @smartapp.local domain can never receive mail).
   if (msg.includes('email_not_confirmed') || msg.includes('not confirmed')) {
-    return isAr
-      ? 'تأكيد البريد الإلكتروني مفعّل في إعدادات الخادم. يرجى تعطيله من إعدادات Supabase.'
-      : 'E-Mail-Bestätigung ist aktiviert. Bitte in den Supabase-Einstellungen deaktivieren.';
+    return 'تأكيد البريد الإلكتروني مفعّل في إعدادات الخادم. يرجى تعطيله من إعدادات Supabase.';
   }
 
   // 3. Rate limiting.
   if (msg.includes('rate') || msg.includes('too many')) {
-    return isAr
-      ? 'محاولات كثيرة. يرجى الانتظار قليلاً ثم المحاولة مرة أخرى.'
-      : 'Zu viele Versuche. Bitte kurz warten und erneut versuchen.';
+    return 'محاولات كثيرة. يرجى الانتظار قليلاً ثم المحاولة مرة أخرى.';
   }
 
   // 4. Network / fetch failure.
   if (msg.includes('failed to fetch') || msg.includes('network')) {
-    return isAr
-      ? 'تعذر الاتصال بالخادم. تحقق من اتصال الإنترنت.'
-      : 'Verbindung zum Server fehlgeschlagen. Internetverbindung prüfen.';
+    return 'تعذر الاتصال بالخادم. تحقق من اتصال الإنترنت.';
   }
 
   // 5. Username already taken (signup only).
   if (mode === 'signUp' && (msg.includes('already') || msg.includes('registered'))) {
-    return isAr ? 'اسم المستخدم مستخدم بالفعل' : 'Benutzername bereits vergeben';
+    return 'اسم المستخدم مستخدم بالفعل';
   }
 
   // 6. Genuine bad credentials.
   if (msg.includes('invalid login') || msg.includes('invalid credentials')) {
-    return isAr
-      ? 'اسم المستخدم أو كلمة المرور غير صحيحة'
-      : 'Falscher Benutzername oder Passwort';
+    return 'اسم المستخدم أو كلمة المرور غير صحيحة';
   }
 
   // 7. Fallback: surface the raw message so we never silently mislead the user again.
-  return error.message || (isAr ? 'حدث خطأ غير متوقع' : 'Ein unerwarteter Fehler ist aufgetreten');
+  return error.message || ('حدث خطأ غير متوقع');
 }
 
 
@@ -128,15 +118,15 @@ export default function AuthPage() {
     // Hard-guard against duplicate submissions (double-tap, Enter spam).
     if (submittingRef.current || loading || success) return;
     if (!username.trim() || !password.trim()) {
-      toast.error(isAr ? 'يرجى ملء جميع الحقول' : 'Bitte alle Felder ausfüllen');
+      toast.error('يرجى ملء جميع الحقول');
       return;
     }
     if (username.trim().length < 3) {
-      toast.error(isAr ? 'اسم المستخدم يجب أن يكون 3 أحرف على الأقل' : 'Benutzername muss mindestens 3 Zeichen lang sein');
+      toast.error('اسم المستخدم يجب أن يكون 3 أحرف على الأقل');
       return;
     }
     if (password.length < 6) {
-      toast.error(isAr ? 'كلمة المرور يجب أن تكون 6 أحرف على الأقل' : 'Passwort muss mindestens 6 Zeichen lang sein');
+      toast.error('كلمة المرور يجب أن تكون 6 أحرف على الأقل');
       return;
     }
     // Extra strength requirement on signup only — HIBP is enforced by the
@@ -144,9 +134,7 @@ export default function AuthPage() {
     // an unhelpful round-trip.
     if (!isLogin && strength < 2) {
       toast.error(
-        isAr
-          ? 'كلمة المرور ضعيفة. أضف أحرفاً كبيرة أو أرقاماً أو رموزاً.'
-          : 'Passwort zu schwach. Füge Groß-/Kleinbuchstaben, Zahlen oder Sonderzeichen hinzu.',
+        'كلمة المرور ضعيفة. أضف أحرفاً كبيرة أو أرقاماً أو رموزاً.',
       );
       return;
     }
@@ -160,7 +148,7 @@ export default function AuthPage() {
           toast.error(describeAuthError(error, isAr, 'signIn'), { duration: 5000 });
         } else {
           setSuccess(true);
-          toast.success(isAr ? 'تم تسجيل الدخول بنجاح' : 'Erfolgreich angemeldet', { duration: 1500 });
+          toast.success('تم تسجيل الدخول بنجاح', { duration: 1500 });
           // Small delay so the cinematic success flash is visible before
           // the route change tears the screen down.
           window.setTimeout(() => navigate(successTarget), 550);
@@ -171,7 +159,7 @@ export default function AuthPage() {
           toast.error(describeAuthError(error, isAr, 'signUp'), { duration: 5000 });
         } else {
           setSuccess(true);
-          toast.success(isAr ? 'تم إنشاء الحساب بنجاح' : 'Konto erfolgreich erstellt', { duration: 1500 });
+          toast.success('تم إنشاء الحساب بنجاح', { duration: 1500 });
           window.setTimeout(() => navigate(successTarget), 550);
         }
       }
@@ -187,12 +175,12 @@ export default function AuthPage() {
     if (typeof s === 'boolean') setCapsLock(s);
   };
 
-  const strengthLabels: Record<number, { ar: string; de: string }> = {
-    0: { ar: 'قصيرة جداً', de: 'Zu kurz' },
-    1: { ar: 'ضعيفة',       de: 'Schwach' },
-    2: { ar: 'مقبولة',      de: 'Akzeptabel' },
-    3: { ar: 'قوية',        de: 'Stark' },
-    4: { ar: 'ممتازة',      de: 'Ausgezeichnet' },
+  const strengthLabels: Record<number, { ar: string; }> = {
+    0: { ar: 'قصيرة جداً', },
+    1: { ar: 'ضعيفة', },
+    2: { ar: 'مقبولة', },
+    3: { ar: 'قوية', },
+    4: { ar: 'ممتازة', },
   };
   const strengthColors = ['#3f3f46', '#ef4444', '#f59e0b', '#c78a4e', '#22c55e'];
 
@@ -204,7 +192,7 @@ export default function AuthPage() {
 
   return (
     <div
-      dir={isAr ? 'rtl' : 'ltr'}
+      dir={'rtl'}
       className="min-h-screen w-full flex items-center justify-center p-4 relative overflow-hidden"
       style={{ backgroundColor: '#0f0f11' }}
     >
@@ -217,7 +205,7 @@ export default function AuthPage() {
       {/* Close / back-to-home affordance - 44x44px target size */}
       <button
         type="button"
-        aria-label={isAr ? 'إغلاق' : 'Schließen'}
+        aria-label={'إغلاق'}
         onClick={() => navigate('/')}
         className="absolute top-6 left-6 w-11 h-11 rounded-full flex items-center justify-center border border-white/5 hover:border-[#c78a4e]/40 transition-colors z-20"
         style={{ backgroundColor: '#1a1a1e' }}
@@ -303,14 +291,14 @@ export default function AuthPage() {
                   transition={{ duration: 0.25 }}
                 >
                   {isLogin
-                    ? (isAr ? 'تسجيل الدخول' : 'Anmelden')
-                    : (isAr ? 'إنشاء حساب' : 'Konto erstellen')}
+                    ? ('تسجيل الدخول')
+                    : ('إنشاء حساب')}
                 </motion.h1>
               </AnimatePresence>
               <p className="text-sm" style={{ color: '#9ca3af' }}>
                 {isLogin
-                  ? (isAr ? 'مرحباً بك مجدداً' : 'Willkommen zurück')
-                  : (isAr ? 'ابدأ رحلتك في SmartHub' : 'Beginne deine Reise in SmartHub')}
+                  ? ('مرحباً بك مجدداً')
+                  : ('ابدأ رحلتك في SmartHub')}
               </p>
             </div>
 
@@ -323,9 +311,7 @@ export default function AuthPage() {
                   color: '#fde68a',
                 }}
               >
-                {isAr
-                  ? 'وضع محلي: الخادم غير مُهيأ، فتُحفظ حساباتك على هذا الجهاز فقط (مشفّرة) ولن تتم المزامنة.'
-                  : 'Lokaler Modus: Der Server ist nicht konfiguriert, deine Konten werden nur auf diesem Gerät verschlüsselt gespeichert (keine Synchronisierung).'}
+                {'وضع محلي: الخادم غير مُهيأ، فتُحفظ حساباتك على هذا الجهاز فقط (مشفّرة) ولن تتم المزامنة.'}
               </div>
             )}
 
@@ -336,7 +322,7 @@ export default function AuthPage() {
                   className="block text-sm font-semibold mb-2"
                   style={{ color: '#c78a4e' }}
                 >
-                  {isAr ? 'اسم المستخدم' : 'Benutzername'}
+                  {'اسم المستخدم'}
                 </label>
                 <div className="relative group">
                   <UserCircle
@@ -350,7 +336,7 @@ export default function AuthPage() {
                     onChange={(e) =>
                       setUsername(e.target.value.replace(/[^a-zA-Z0-9_]/g, '').slice(0, 32))
                     }
-                    placeholder={isAr ? 'أدخل اسم المستخدم' : 'Benutzername eingeben'}
+                    placeholder={'أدخل اسم المستخدم'}
                     className="w-full text-white border border-transparent focus:outline-none py-3.5 ps-9 pe-4 rounded-xl transition-all duration-300 placeholder:text-gray-600"
                     style={{ backgroundColor: '#2a2a2e', fontSize: 16 }}
                     onFocus={(e) => (e.currentTarget.style.borderColor = 'rgba(199,138,78,0.5)')}
@@ -362,11 +348,11 @@ export default function AuthPage() {
                     inputMode="text"
                     dir="ltr"
                     disabled={loading || success}
-                    aria-label={isAr ? 'اسم المستخدم' : 'Benutzername'}
+                    aria-label={'اسم المستخدم'}
                   />
                 </div>
                 <p className="text-[11px] mt-1.5" style={{ color: '#6b7280' }}>
-                  {isAr ? 'أحرف إنجليزية وأرقام فقط' : 'Nur englische Buchstaben und Zahlen'}
+                  {'أحرف إنجليزية وأرقام فقط'}
                 </p>
               </div>
 
@@ -376,7 +362,7 @@ export default function AuthPage() {
                   className="block text-sm font-semibold mb-2"
                   style={{ color: '#c78a4e' }}
                 >
-                  {isAr ? 'كلمة المرور' : 'Passwort'}
+                  {'كلمة المرور'}
                 </label>
                 <div className="relative group">
                   <Lock
@@ -389,7 +375,7 @@ export default function AuthPage() {
                     onChange={(e) => setPassword(e.target.value.slice(0, 128))}
                     onKeyDown={handleKey}
                     onKeyUp={handleKey}
-                    placeholder={isAr ? '••••••••' : '••••••••'}
+                    placeholder={'••••••••'}
                     className="w-full text-white border border-transparent focus:outline-none py-3.5 ps-9 pe-11 rounded-xl transition-all duration-300 placeholder:text-gray-600"
                     style={{ backgroundColor: '#2a2a2e', fontSize: 16 }}
                     onFocus={(e) => (e.currentTarget.style.borderColor = 'rgba(199,138,78,0.5)')}
@@ -397,7 +383,7 @@ export default function AuthPage() {
                     autoComplete={isLogin ? 'current-password' : 'new-password'}
                     dir="ltr"
                     disabled={loading || success}
-                    aria-label={isAr ? 'كلمة المرور' : 'Passwort'}
+                    aria-label={'كلمة المرور'}
                   />
                   <button
                     type="button"
@@ -406,8 +392,8 @@ export default function AuthPage() {
                     className="absolute end-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg flex items-center justify-center transition-colors hover:bg-white/5"
                     aria-label={
                       showPassword
-                        ? (isAr ? 'إخفاء كلمة المرور' : 'Passwort ausblenden')
-                        : (isAr ? 'إظهار كلمة المرور' : 'Passwort anzeigen')
+                        ? ('إخفاء كلمة المرور')
+                        : ('إظهار كلمة المرور')
                     }
                   >
                     {showPassword
@@ -426,7 +412,7 @@ export default function AuthPage() {
                       className="text-[11px] mt-1.5"
                       style={{ color: '#f59e0b' }}
                     >
-                      {isAr ? 'Caps Lock مفعّل' : 'Caps Lock ist aktiv'}
+                      {'Caps Lock مفعّل'}
                     </motion.p>
                   )}
                 </AnimatePresence>
@@ -455,7 +441,7 @@ export default function AuthPage() {
                           className="text-[10px] font-medium min-w-[54px] text-end"
                           style={{ color: strengthColors[strength] }}
                         >
-                          {strengthLabels[strength][isAr ? 'ar' : 'de']}
+                          {strengthLabels[strength]['ar']}
                         </span>
                       </div>
                     </motion.div>
@@ -486,8 +472,8 @@ export default function AuthPage() {
                   ) : (
                     <>
                       {isLogin
-                        ? (isAr ? 'دخول' : 'Anmelden')
-                        : (isAr ? 'إنشاء الحساب' : 'Konto erstellen')}
+                        ? ('دخول')
+                        : ('إنشاء الحساب')}
                       <ArrowRight className="w-4 h-4" />
                     </>
                   )}
@@ -508,15 +494,15 @@ export default function AuthPage() {
                 style={{ color: '#9ca3af' }}
               >
                 {isLogin
-                  ? (isAr ? 'ليس لديك حساب؟ ' : 'Kein Konto? ')
-                  : (isAr ? 'لديك حساب؟ ' : 'Schon ein Konto? ')}
+                  ? ('ليس لديك حساب؟ ')
+                  : ('لديك حساب؟ ')}
                 <span
                   className="font-semibold"
                   style={{ color: '#c78a4e', textDecoration: 'underline', textUnderlineOffset: 4 }}
                 >
                   {isLogin
-                    ? (isAr ? 'إنشاء حساب جديد' : 'Konto erstellen')
-                    : (isAr ? 'تسجيل الدخول' : 'Anmelden')}
+                    ? ('إنشاء حساب جديد')
+                    : ('تسجيل الدخول')}
                 </span>
               </button>
             </div>
@@ -527,7 +513,7 @@ export default function AuthPage() {
         <div className="mt-6 flex items-center justify-center gap-2 text-[11px]" style={{ color: '#6b7280' }}>
           <Shield className="w-3 h-3" />
           <span>
-            {isAr ? 'جميع البيانات مشفرة ومحمية' : 'Alle Daten sind verschlüsselt und geschützt'}
+            {'جميع البيانات مشفرة ومحمية'}
           </span>
         </div>
       </motion.div>

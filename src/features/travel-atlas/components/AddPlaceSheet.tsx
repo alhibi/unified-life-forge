@@ -22,7 +22,7 @@ import {
 } from '@/components/ui/sheet';
 import { Textarea } from '@/components/ui/textarea';
 import { useApp } from '@/contexts/AppContext';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 
 import { COUNTRY_CATALOG } from '../countriesCatalog';
 import { useCreatePlace } from '../hooks';
@@ -45,14 +45,14 @@ interface AddPlaceSheetProps {
   defaultCountryIso?: string;
 }
 
-const CATEGORIES: { value: PlaceCategory; ar: string; de: string }[] = [
-  { value: 'nature', ar: 'طبيعة', de: 'Natur' },
-  { value: 'historic', ar: 'تاريخي', de: 'Historisch' },
-  { value: 'food', ar: 'طعام', de: 'Essen' },
-  { value: 'city', ar: 'مدينة', de: 'Stadt' },
-  { value: 'religious', ar: 'ديني', de: 'Religiös' },
-  { value: 'adventure', ar: 'مغامرة', de: 'Abenteuer' },
-  { value: 'other', ar: 'أخرى', de: 'Sonstiges' },
+const CATEGORIES: { value: PlaceCategory; ar: string; }[] = [
+  { value: 'nature', ar: 'طبيعة', },
+  { value: 'historic', ar: 'تاريخي', },
+  { value: 'food', ar: 'طعام', },
+  { value: 'city', ar: 'مدينة', },
+  { value: 'religious', ar: 'ديني', },
+  { value: 'adventure', ar: 'مغامرة', },
+  { value: 'other', ar: 'أخرى', },
 ];
 
 export default function AddPlaceSheet({
@@ -62,7 +62,6 @@ export default function AddPlaceSheet({
 }: AddPlaceSheetProps) {
   const { language } = useApp();
   const isAr = language === 'ar';
-  const { toast } = useToast();
   const createPlace = useCreatePlace();
 
   const [countryIso, setCountryIso] = useState<string>(defaultCountryIso ?? '');
@@ -94,7 +93,7 @@ export default function AddPlaceSheet({
   const sortedCountries = useMemo(
     () =>
       [...COUNTRY_CATALOG].sort((a, b) =>
-        (isAr ? a.nameAr : a.nameEn).localeCompare(isAr ? b.nameAr : b.nameEn, isAr ? 'ar' : 'de'),
+        (a.nameAr).localeCompare(b.nameAr, 'ar'),
       ),
     [isAr],
   );
@@ -119,10 +118,8 @@ export default function AddPlaceSheet({
         const la = pos.coords.latitude;
         const lo = pos.coords.longitude;
         if (selectedCountry && !containsPoint(selectedCountry.bounds, [lo, la], 0.75)) {
-          toast({
-            title: isAr ? 'موقعك خارج الدولة المختارة' : 'Dein Standort liegt außerhalb des gewählten Landes',
-            description: isAr ? 'اختر الدولة الصحيحة أو حدّد النقطة يدويًا.' : 'Wähle das richtige Land oder setze den Punkt manuell.',
-            variant: 'destructive',
+          toast.error('موقعك خارج الدولة المختارة', {
+            description: 'اختر الدولة الصحيحة أو حدّد النقطة يدويًا.',
           });
           return;
         }
@@ -130,10 +127,7 @@ export default function AddPlaceSheet({
         setLng(lo.toFixed(6));
       },
       () => {
-        toast({
-          title: isAr ? 'تعذّر جلب الموقع' : 'Standort nicht verfügbar',
-          variant: 'destructive',
-        });
+        toast.error('تعذّر جلب الموقع');
       },
       { enableHighAccuracy: true, timeout: 10000 },
     );
@@ -156,24 +150,16 @@ export default function AddPlaceSheet({
     const latN = Number(lat);
     const lngN = Number(lng);
     if (!country || !nameAr.trim() || !Number.isFinite(latN) || !Number.isFinite(lngN)) {
-      toast({
-        title: isAr ? 'أكمل الحقول المطلوبة' : 'Bitte fülle alle Felder aus',
-        variant: 'destructive',
-      });
+      toast.error('أكمل الحقول المطلوبة');
       return;
     }
     if (latN < -90 || latN > 90 || lngN < -180 || lngN > 180) {
-      toast({
-        title: isAr ? 'إحداثيات غير صحيحة' : 'Ungültige Koordinaten',
-        variant: 'destructive',
-      });
+      toast.error('إحداثيات غير صحيحة');
       return;
     }
     if (!containsPoint(country.bounds, [lngN, latN], 0.75)) {
-      toast({
-        title: isAr ? 'النقطة خارج الدولة المختارة' : 'Der Punkt liegt außerhalb des gewählten Landes',
-        description: isAr ? 'اختر الدولة المناسبة أو حدّد نقطة داخل حدودها.' : 'Wähle das passende Land oder setze einen Punkt innerhalb der Grenzen.',
-        variant: 'destructive',
+      toast.error('النقطة خارج الدولة المختارة', {
+        description: 'اختر الدولة المناسبة أو حدّد نقطة داخل حدودها.',
       });
       return;
     }
@@ -195,14 +181,12 @@ export default function AddPlaceSheet({
           .slice(0, 8),
         photos: photos.length > 0 ? photos : undefined,
       });
-      toast({ title: isAr ? 'تمت الإضافة' : 'Ort hinzugefügt' });
+      toast.success('تمت الإضافة');
       reset();
       onOpenChange(false);
     } catch (err) {
-      toast({
-        title: isAr ? 'تعذّرت الإضافة' : 'Speichern fehlgeschlagen',
+      toast.error('تعذّرت الإضافة', {
         description: (err as Error)?.message,
-        variant: 'destructive',
       });
     }
   };
@@ -214,25 +198,23 @@ export default function AddPlaceSheet({
         className="max-h-[92dvh] overflow-y-auto rounded-t-3xl"
       >
         <SheetHeader className="text-start">
-          <SheetTitle>{isAr ? 'إضافة مكان جديد' : 'Neuen Ort hinzufügen'}</SheetTitle>
+          <SheetTitle>{'إضافة مكان جديد'}</SheetTitle>
           <SheetDescription>
-            {isAr
-              ? 'أضف مكانًا يستحق التذكّر إلى أطلسك.'
-              : 'Füge deinem Atlas einen Ort hinzu.'}
+            {'أضف مكانًا يستحق التذكّر إلى أطلسك.'}
           </SheetDescription>
         </SheetHeader>
 
         <div className="mt-6 space-y-5">
           <div className="space-y-2">
-            <Label>{isAr ? 'الدولة' : 'Land'}</Label>
+            <Label>{'الدولة'}</Label>
             <Select value={countryIso} onValueChange={setCountryIso}>
               <SelectTrigger>
-                <SelectValue placeholder={isAr ? 'اختر الدولة' : 'Land auswählen'} />
+                <SelectValue placeholder={'اختر الدولة'} />
               </SelectTrigger>
               <SelectContent>
                 {sortedCountries.map((c) => (
                   <SelectItem key={c.isoCode} value={c.isoCode}>
-                    {isAr ? c.nameAr : c.nameEn}
+                    {c.nameAr}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -240,21 +222,21 @@ export default function AddPlaceSheet({
           </div>
 
           <div className="space-y-2">
-            <Label>{isAr ? 'اسم المكان (بالعربية)' : 'Ortsname (Arabisch)'}</Label>
+            <Label>{'اسم المكان (بالعربية)'}</Label>
             <Input
               value={nameAr}
               onChange={(e) => setNameAr(e.target.value)}
-              placeholder={isAr ? 'مثال: جبل طويق' : 'z. B. Tuwaiq-Gebirge'}
+              placeholder={'مثال: جبل طويق'}
             />
           </div>
 
           <div className="space-y-2">
-            <Label>{isAr ? 'الاسم بالإنجليزية (اختياري)' : 'Name (Englisch, optional)'}</Label>
+            <Label>{'الاسم بالإنجليزية (اختياري)'}</Label>
             <Input value={nameEn} onChange={(e) => setNameEn(e.target.value)} />
           </div>
 
           <div className="space-y-2">
-            <Label>{isAr ? 'التصنيف' : 'Kategorie'}</Label>
+            <Label>{'التصنيف'}</Label>
             <Select value={category} onValueChange={(v) => setCategory(v as PlaceCategory)}>
               <SelectTrigger>
                 <SelectValue />
@@ -262,7 +244,7 @@ export default function AddPlaceSheet({
               <SelectContent>
                 {CATEGORIES.map((c) => (
                   <SelectItem key={c.value} value={c.value}>
-                    {isAr ? c.ar : c.de}
+                    {c.ar}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -271,7 +253,7 @@ export default function AddPlaceSheet({
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label>{isAr ? 'خط العرض' : 'Breitengrad'}</Label>
+              <Label>{'خط العرض'}</Label>
               <Input
                 inputMode="decimal"
                 value={lat}
@@ -280,7 +262,7 @@ export default function AddPlaceSheet({
               />
             </div>
             <div className="space-y-2">
-              <Label>{isAr ? 'خط الطول' : 'Längengrad'}</Label>
+              <Label>{'خط الطول'}</Label>
               <Input
                 inputMode="decimal"
                 value={lng}
@@ -298,12 +280,12 @@ export default function AddPlaceSheet({
             className="gap-2"
           >
             <MapPin className="h-4 w-4" aria-hidden="true" />
-            {isAr ? 'استخدم موقعي الحالي' : 'Aktuellen Standort verwenden'}
+            {'استخدم موقعي الحالي'}
           </Button>
 
           {selectedCountry && (
             <div className="space-y-2">
-              <Label>{isAr ? 'اختر النقطة على الخريطة' : 'Punkt auf der Karte wählen'}</Label>
+              <Label>{'اختر النقطة على الخريطة'}</Label>
               <RasterPointPicker
                 bounds={selectedCountry.bounds}
                 value={coordinateFromInputs(lat, lng)}
@@ -314,13 +296,13 @@ export default function AddPlaceSheet({
                 }}
               />
               <p className="text-micro text-muted-foreground">
-                {isAr ? 'انقر على الخريطة لتحديد الموقع بدقة.' : 'Tippe auf die Karte, um den Ort zu setzen.'}
+                {'انقر على الخريطة لتحديد الموقع بدقة.'}
               </p>
             </div>
           )}
 
           <div className="space-y-2">
-            <Label>{isAr ? 'صور المكان (حتى 6)' : 'Fotos (bis zu 6)'}</Label>
+            <Label>{'صور المكان (حتى 6)'}</Label>
             <div className="flex flex-wrap gap-2">
               {previews.map((url, i) => (
                 <div key={url} className="relative h-20 w-20 overflow-hidden rounded-xl border border-border">
@@ -328,7 +310,7 @@ export default function AddPlaceSheet({
                   <button
                     type="button"
                     onClick={() => removePhoto(i)}
-                    aria-label={isAr ? 'حذف الصورة' : 'Bild entfernen'}
+                    aria-label={'حذف الصورة'}
                     className="absolute right-1 top-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-background/90 text-foreground shadow"
                   >
                     <X className="h-3.5 w-3.5" aria-hidden="true" />
@@ -338,7 +320,7 @@ export default function AddPlaceSheet({
               {photos.length < MAX_PHOTOS && (
                 <label className="flex h-20 w-20 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-border text-muted-foreground transition-colors hover:border-[hsl(var(--live))] hover:text-foreground">
                   <ImagePlus className="h-5 w-5" aria-hidden="true" />
-                  <span className="text-micro">{isAr ? 'إضافة' : 'Foto'}</span>
+                  <span className="text-micro">{'إضافة'}</span>
                   <input
                     type="file"
                     accept="image/*"
@@ -352,25 +334,25 @@ export default function AddPlaceSheet({
           </div>
 
           <div className="space-y-2">
-            <Label>{isAr ? 'أفضل وقت للزيارة (اختياري)' : 'Beste Reisezeit (optional)'}</Label>
+            <Label>{'أفضل وقت للزيارة (اختياري)'}</Label>
             <Input
               value={bestTime}
               onChange={(e) => setBestTime(e.target.value)}
-              placeholder={isAr ? 'مارس – مايو' : 'März – Mai'}
+              placeholder={'مارس – مايو'}
             />
           </div>
 
           <div className="space-y-2">
-            <Label>{isAr ? 'وسوم (مفصولة بفواصل)' : 'Tags (durch Kommas getrennt)'}</Label>
+            <Label>{'وسوم (مفصولة بفواصل)'}</Label>
             <Input
               value={tagsInput}
               onChange={(e) => setTagsInput(e.target.value)}
-              placeholder={isAr ? 'شاطئ، عائلي، غروب' : 'Strand, Familie, Sonnenuntergang'}
+              placeholder={'شاطئ، عائلي، غروب'}
             />
           </div>
 
           <div className="space-y-2">
-            <Label>{isAr ? 'وصف مختصر (اختياري)' : 'Beschreibung (optional)'}</Label>
+            <Label>{'وصف مختصر (اختياري)'}</Label>
             <Textarea
               rows={3}
               value={description}
@@ -386,11 +368,11 @@ export default function AddPlaceSheet({
             disabled={createPlace.isPending}
             className="flex-1"
           >
-            {isAr ? 'إلغاء' : 'Abbrechen'}
+            {'إلغاء'}
           </Button>
           <Button onClick={submit} disabled={createPlace.isPending} className="flex-1 gap-2">
             {createPlace.isPending && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
-            {isAr ? 'حفظ المكان' : 'Speichern'}
+            {'حفظ المكان'}
           </Button>
         </SheetFooter>
       </SheetContent>
@@ -406,7 +388,7 @@ function RasterPointPicker({
 }: {
   bounds: CountryBounds;
   value: Coordinates | null;
-  language: 'ar' | 'de';
+  language: 'ar';
   onChange: (coordinates: Coordinates) => void;
 }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -456,7 +438,7 @@ function RasterPointPicker({
       onPointerDown={pick}
       role="button"
       tabIndex={0}
-      aria-label={language === 'ar' ? 'اختيار موقع المكان على الخريطة' : 'Ort auf der Karte wählen'}
+      aria-label={'اختيار موقع المكان على الخريطة'}
     >
       {tileData.tiles.map((tile) => (
         <img

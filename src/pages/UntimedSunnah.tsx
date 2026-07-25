@@ -39,7 +39,7 @@ export default function UntimedSunnah() {
   const categories = Object.entries(untimedSunnahData);
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-screen bg-background pb-page">
       <SEO title="السنن غير المؤقتة — SmartHub" description="سنن نبوية عامة غير مرتبطة بوقت محدد، قابلة للحفظ في الحافظة." path="/section/untimed-sunnah" />
       {/* Header */}
       <PageHeader sticky title="السنن غير الموقوتة" className="px-4 py-3 bg-background border-b border-border" />

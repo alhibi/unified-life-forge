@@ -145,7 +145,7 @@ export default function LibrarySearchPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-28 px-5 pt-14">
+    <div className="min-h-screen bg-background pb-page px-5 pt-14">
       <SEO
         title="البحث المتقدّم — المكتبة الكبرى"
         description="ابحث في ملايين الأبيات وعشرات الآلاف من القصائد بمعايير مرنة."
@@ -195,7 +195,7 @@ export default function LibrarySearchPage() {
             <Filter className="w-3.5 h-3.5" />
             فلاتر
             {activeFilters > 0 && (
-              <span className="bg-primary text-background text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+              <span className="bg-primary text-background text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
                 {activeFilters}
               </span>
             )}

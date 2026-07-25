@@ -157,9 +157,7 @@ export function SearchPanel({
         // localized, friendly message instead.
         if (!isSupabaseConfigured) {
           setError(
-            isAr
-              ? 'خدمة البحث غير متاحة حاليًا. حاول مجدّدًا لاحقًا.'
-              : 'Search service is unavailable right now. Please try again later.',
+            'خدمة البحث غير متاحة حاليًا. حاول مجدّدًا لاحقًا.',
           );
           setHits([]);
           return;
@@ -180,15 +178,13 @@ export function SearchPanel({
         if (error) {
           const msg = await readFunctionsError(
             error,
-            isAr ? 'تعذّر البحث' : 'Search failed',
+            'تعذّر البحث',
           );
           // Map the well-known "not configured" 503 body to a friendly
           // localized line — the raw English JSON used to leak into UI.
           setError(
             /supabase_not_configured|environment variables are missing/i.test(msg)
-              ? (isAr
-                  ? 'خدمة البحث غير متاحة حاليًا. حاول مجدّدًا لاحقًا.'
-                  : 'Search service is unavailable right now. Please try again later.')
+              ? ('خدمة البحث غير متاحة حاليًا. حاول مجدّدًا لاحقًا.')
               : msg,
           );
           setHits([]);
@@ -218,7 +214,7 @@ export function SearchPanel({
         if (cancelled || myReqId !== reqIdRef.current) return;
         const msg = await readFunctionsError(
           e,
-          isAr ? 'تعذّر البحث' : 'Search failed',
+          'تعذّر البحث',
         );
         setError(msg);
         setHits([]);
@@ -235,20 +231,16 @@ export function SearchPanel({
   const headline = useMemo(() => {
     if (q.length === 0 || debounced.length < 2) return '';
     if (loading) {
-      return isAr ? 'جاري البحث...' : 'Searching...';
+      return 'جاري البحث...';
     }
     // When an error is set the dedicated error block below explains
     // what happened — don't *also* claim "no results", that's a
     // confusing double-message (the original UX bug from the report).
     if (error) return '';
     if (hits.length === 0) {
-      return isAr
-        ? `لا نتائج لـ "${debounced}"`
-        : `No matches for “${debounced}”`;
+      return `لا نتائج لـ "${debounced}"`;
     }
-    return isAr
-      ? `${hits.length} نتيجة لـ "${debounced}"`
-      : `${hits.length} match${hits.length === 1 ? '' : 'es'} for “${debounced}”`;
+    return `${hits.length} نتيجة لـ "${debounced}"`;
   }, [q.length, debounced, loading, hits.length, error, isAr]);
 
   return (
@@ -264,13 +256,13 @@ export function SearchPanel({
           type="button"
           onClick={onBack}
           className="p-2 rounded-xl hover:bg-accent/50 active:scale-95 transition-all"
-          aria-label={isAr ? 'رجوع' : 'Back'}
+          aria-label={'رجوع'}
         >
           <ChevronLeft className="h-5 w-5 rtl:rotate-180" />
         </button>
         <Search className="h-4 w-4 text-primary" />
         <h3 className="text-base font-bold flex-1">
-          {isAr ? 'بحث الأرشيف' : 'Search archive'}
+          {'بحث الأرشيف'}
         </h3>
       </div>
 
@@ -279,9 +271,7 @@ export function SearchPanel({
           <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             autoFocus
-            placeholder={isAr
-              ? 'ابحث في كل المقالات المؤرشفة...'
-              : 'Search every archived article...'}
+            placeholder={'ابحث في كل المقالات المؤرشفة...'}
             value={q}
             onChange={(e) => setQ(e.target.value)}
             className="ps-10 h-11 text-sm rounded-xl"
@@ -291,7 +281,7 @@ export function SearchPanel({
               type="button"
               onClick={() => setQ('')}
               className="absolute end-3 top-1/2 -translate-y-1/2 p-1 rounded-md hover:bg-accent/40"
-              aria-label={isAr ? 'مسح' : 'Clear'}
+              aria-label={'مسح'}
             >
               <X className="h-4 w-4 text-muted-foreground" />
             </button>
@@ -318,14 +308,12 @@ export function SearchPanel({
                   : 'bg-accent/30 text-muted-foreground hover:bg-accent/50'
               }`}
             >
-              {isAr ? r.ar : r.en}
+              {r.ar}
             </button>
           ))}
           {restrictTo && restrictTo.length > 0 && (
             <span className="ms-auto shrink-0 text-[10px] text-muted-foreground/70">
-              {isAr
-                ? `${restrictTo.length} مصدر مفعّل`
-                : `${restrictTo.length} source${restrictTo.length === 1 ? '' : 's'}`}
+              {`${restrictTo.length} مصدر مفعّل`}
             </span>
           )}
         </div>
@@ -366,7 +354,7 @@ export function SearchPanel({
             </div>
             <div className="space-y-1">
               <p className="text-sm font-medium text-foreground">
-                {isAr ? 'تعذّر إكمال البحث' : 'Search could not complete'}
+                {'تعذّر إكمال البحث'}
               </p>
               <p className="text-xs text-muted-foreground max-w-xs leading-relaxed">
                 {error}
@@ -378,7 +366,7 @@ export function SearchPanel({
               className="mt-1 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary text-xs font-medium transition-colors active:scale-95"
             >
               <RefreshCw className="h-3.5 w-3.5" />
-              {isAr ? 'إعادة المحاولة' : 'Try again'}
+              {'إعادة المحاولة'}
             </button>
           </div>
         )}
@@ -386,9 +374,7 @@ export function SearchPanel({
         {!loading && !error && q.length > 0 && debounced.length < 2 && (
           <div className="flex flex-col items-center justify-center py-20 gap-2 text-center px-6">
             <p className="text-sm text-muted-foreground">
-              {isAr
-                ? 'اكتب حرفين على الأقل'
-                : 'Type at least 2 characters'}
+              {'اكتب حرفين على الأقل'}
             </p>
           </div>
         )}
@@ -477,9 +463,7 @@ function RecentSearches({
       <div className="flex flex-col items-center justify-center py-20 gap-3 text-center px-6">
         <Search className="h-8 w-8 text-muted-foreground/30" />
         <p className="text-sm text-muted-foreground max-w-xs">
-          {isAr
-            ? 'اكتب كلمتين أو أكثر للبحث في كامل الأرشيف'
-            : 'Type 2+ characters to search every stored article'}
+          {'اكتب كلمتين أو أكثر للبحث في كامل الأرشيف'}
         </p>
       </div>
     );
@@ -489,14 +473,14 @@ function RecentSearches({
       <div className="flex items-center justify-between mb-2">
         <p className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground inline-flex items-center gap-1.5">
           <Clock className="h-3 w-3" />
-          {isAr ? 'عمليات البحث الأخيرة' : 'Recent searches'}
+          {'عمليات البحث الأخيرة'}
         </p>
         <button
           type="button"
           onClick={onClear}
           className="text-[10px] text-muted-foreground hover:text-foreground transition-colors"
         >
-          {isAr ? 'مسح الكل' : 'Clear all'}
+          {'مسح الكل'}
         </button>
       </div>
       <div className="space-y-1">
@@ -523,7 +507,7 @@ function RecentSearches({
               type="button"
               onClick={() => onRemove(entry.q)}
               className="p-1.5 me-2 rounded-md opacity-0 group-hover:opacity-100 hover:bg-accent/40 transition-opacity"
-              aria-label={isAr ? 'إزالة' : 'Remove'}
+              aria-label={'إزالة'}
             >
               <X className="h-3 w-3 text-muted-foreground" />
             </button>

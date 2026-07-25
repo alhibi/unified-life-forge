@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { format, parse } from 'date-fns';
-import { ar, de } from 'date-fns/locale';
+import { ar } from 'date-fns/locale';
 import { CalendarIcon } from '@/lib/icons';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
@@ -19,15 +19,14 @@ interface Props {
  * Replaces the native browser date popup with an in-app calendar.
  */
 export default function AppDatePicker({ value, onChange, className }: Props) {
-  const { language, dir } = useApp();
-  const isAr = language === 'ar';
-  const locale = isAr ? ar : de;
+  const { dir } = useApp();
+  const locale = ar;
   const [open, setOpen] = useState(false);
 
   const selected = value ? parse(value, 'yyyy-MM-dd', new Date()) : undefined;
   const label = selected
     ? format(selected, 'd MMM yyyy', { locale })
-    : isAr ? 'اختر تاريخاً' : 'Datum wählen';
+    : 'اختر تاريخاً';
 
   return (
     <Popover open={open} onOpenChange={setOpen}>

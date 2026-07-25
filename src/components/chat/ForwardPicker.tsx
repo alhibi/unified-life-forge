@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, X, Send, ChevronRight, ChevronLeft } from '@/lib/icons';
+import { Search, X, Send, ChevronRight } from '@/lib/icons';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { isEmojiAvatarValue, getAppleEmojiUrl } from '@/utils/emojiAvatar';
@@ -40,7 +40,7 @@ function renderAvatar(username?: string, avatarUrl?: string | null) {
  */
 const ForwardPicker: React.FC<ForwardPickerProps> = ({ isAr, messages, conversations, onClose, onForward }) => {
   const [query, setQuery] = useState('');
-  const BackIcon = isAr ? ChevronRight : ChevronLeft;
+  const BackIcon = ChevronRight;
 
   const filtered = useMemo(() => {
     if (!query.trim()) return conversations;
@@ -71,7 +71,7 @@ const ForwardPicker: React.FC<ForwardPickerProps> = ({ isAr, messages, conversat
             <BackIcon className="w-5 h-5 text-foreground" />
           </button>
           <h2 className="text-[16px] font-semibold">
-            {isAr ? `إعادة توجيه ${messages.length > 1 ? `(${messages.length})` : ''}` : `Weiterleiten ${messages.length > 1 ? `(${messages.length})` : ''}`}
+            {`إعادة توجيه ${messages.length > 1 ? `(${messages.length})` : ''}`}
           </h2>
         </div>
 
@@ -79,13 +79,13 @@ const ForwardPicker: React.FC<ForwardPickerProps> = ({ isAr, messages, conversat
         {firstMsg && (
           <div className="px-4 py-2.5 border-b border-border/10 bg-muted/10">
             <p className="text-[11px] text-muted-foreground mb-0.5">
-              {isAr ? 'رسالة محوّلة:' : 'Nachricht:'}
+              {'رسالة محوّلة:'}
             </p>
             <p className="text-[13px] text-foreground/80 line-clamp-2" dir="auto">
               {stripMarkers(getMessagePreview(firstMsg, isAr))}
               {messages.length > 1 && (
                 <span className="text-muted-foreground ms-1">
-                  {isAr ? `و ${messages.length - 1} رسالة أخرى` : `und ${messages.length - 1} weitere`}
+                  {`و ${messages.length - 1} رسالة أخرى`}
                 </span>
               )}
             </p>
@@ -100,7 +100,7 @@ const ForwardPicker: React.FC<ForwardPickerProps> = ({ isAr, messages, conversat
               type="text"
               value={query}
               onChange={e => setQuery(e.target.value)}
-              placeholder={isAr ? 'ابحث عن محادثة...' : 'Chat suchen...'}
+              placeholder={'ابحث عن محادثة...'}
               className="flex-1 bg-transparent text-[14px] outline-none ms-2 placeholder:text-muted-foreground/40"
               dir="auto"
               autoFocus
@@ -118,7 +118,7 @@ const ForwardPicker: React.FC<ForwardPickerProps> = ({ isAr, messages, conversat
           {filtered.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-muted-foreground/60 gap-2">
               <Search className="w-8 h-8 opacity-30" />
-              <p className="text-[13px]">{isAr ? 'لا نتائج' : 'Keine Treffer'}</p>
+              <p className="text-[13px]">{'لا نتائج'}</p>
             </div>
           ) : (
             <div className="divide-y divide-border/10">

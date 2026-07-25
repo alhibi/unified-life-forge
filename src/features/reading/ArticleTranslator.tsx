@@ -19,7 +19,7 @@ export function ArticleTranslator({
 }: ArticleTranslatorProps) {
   const [translating, setTranslating] = useState(false);
   const [isTranslated, setIsTranslated] = useState(false);
-  const [targetLang, setTargetLang] = useState<'ar' | 'en' | 'de'>(isAr ? 'en' : 'ar');
+  const [targetLang, setTargetLang] = useState<'ar' | 'en' | 'de'>('en');
 
   // Simple Free/Public Client-Side Translation fallback using public API (MyMemory or LibreTranslate)
   const translateText = async (text: string, from: string, to: string): Promise<string> => {
@@ -40,7 +40,7 @@ export function ArticleTranslator({
   const handleTranslate = async () => {
     setTranslating(true);
     try {
-      const fromLang = isAr ? 'ar' : 'en'; // Simple heuristic
+      const fromLang = 'ar'; // Simple heuristic
       const toLang = targetLang;
 
       // Translate Title
@@ -66,10 +66,10 @@ export function ArticleTranslator({
 
       onTranslationComplete(translatedHtml, translatedTitle);
       setIsTranslated(true);
-      toast.success(isAr ? 'تمت الترجمة بنجاح' : 'Article translated successfully!');
+      toast.success('تمت الترجمة بنجاح');
     } catch (error) {
       console.error('Translation error:', error);
-      toast.error(isAr ? 'فشلت عملية الترجمة' : 'Translation failed');
+      toast.error('فشلت عملية الترجمة');
     } finally {
       setTranslating(false);
     }
@@ -84,7 +84,7 @@ export function ArticleTranslator({
     <div className="flex items-center justify-between gap-2 p-3 bg-card border border-border/50 rounded-2xl shadow-sm">
       <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
         <Languages className="h-4 w-4 text-primary" />
-        <span>{isAr ? 'ترجمة المقال' : 'Translate article'}</span>
+        <span>{'ترجمة المقال'}</span>
       </div>
 
       <div className="flex items-center gap-1.5">
@@ -109,12 +109,12 @@ export function ArticleTranslator({
               {translating ? (
                 <>
                   <Loader2 className="h-3 w-3 animate-spin" />
-                  <span>{isAr ? 'جاري الترجمة...' : 'Translating...'}</span>
+                  <span>{'جاري الترجمة...'}</span>
                 </>
               ) : (
                 <>
                   <ArrowLeftRight className="h-3 w-3" />
-                  <span>{isAr ? 'ترجم' : 'Translate'}</span>
+                  <span>{'ترجم'}</span>
                 </>
               )}
             </button>
@@ -125,7 +125,7 @@ export function ArticleTranslator({
             onClick={handleReset}
             className="px-3 py-1.5 rounded-xl bg-accent hover:bg-accent/80 text-foreground text-xs font-bold active:scale-95 transition-all"
           >
-            {isAr ? 'عرض النص الأصلي' : 'Show original'}
+            {'عرض النص الأصلي'}
           </button>
         )}
       </div>

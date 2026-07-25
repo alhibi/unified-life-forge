@@ -26,7 +26,7 @@
  *  inside a rounded card chrome.
  */
 
-import React, { type ReactNode, useId } from 'react';
+import React, { type ReactNode } from 'react';
 
 /* ─────────────────────────── Color helpers ─────────────────────────── */
 
@@ -787,7 +787,7 @@ export function MetricBadge({
     >
       {icon && <span className="shrink-0" style={{ color }}>{icon}</span>}
       <span className="text-[11px] font-bold tabular-nums" style={{ color }}>{value}</span>
-      <span className="text-[9px] font-medium text-muted-foreground/70">{label}</span>
+      <span className="text-[10px] font-medium text-muted-foreground/70">{label}</span>
     </div>
   );
 }

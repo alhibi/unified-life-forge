@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  X, ChevronRight, ChevronLeft, Users, Pencil, Check, BellOff, Bell, Pin, PinOff,
+  X, ChevronRight, Users, Pencil, Check, BellOff, Bell, Pin, PinOff,
   Archive, ArchiveRestore, LogOut, Trash2, Hash, Eye, MessageSquareText, Shield,
 } from '@/lib/icons';
 import { cn } from '@/lib/utils';
@@ -45,7 +45,7 @@ const GroupInfoSheet: React.FC<GroupInfoSheetProps> = ({
   isAr, isOpen, chat, onClose, onOpenMembers, onLeft, onDeleted,
   myUserId: _myUserId,
 }) => {
-  const BackIcon = isAr ? ChevronRight : ChevronLeft;
+  const BackIcon = ChevronRight;
   const muts = useChatMutations(chat.id);
   const { members } = useChatMembers(isOpen ? chat.id : null);
 
@@ -109,20 +109,20 @@ const GroupInfoSheet: React.FC<GroupInfoSheetProps> = ({
             type="button"
             onClick={close}
             className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40"
-            aria-label={isAr ? 'إغلاق' : 'Schließen'}
+            aria-label={'إغلاق'}
           >
             <BackIcon className="w-5 h-5 text-foreground" />
           </button>
           <h2 className="text-[16px] font-semibold flex-1 truncate">
             {chat.kind === 'channel'
-              ? (isAr ? 'معلومات القناة' : 'Kanal-Info')
-              : (isAr ? 'معلومات المجموعة' : 'Gruppen-Info')}
+              ? ('معلومات القناة')
+              : ('معلومات المجموعة')}
           </h2>
           <button
             type="button"
             onClick={close}
             className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40"
-            aria-label={isAr ? 'إغلاق' : 'Schließen'}
+            aria-label={'إغلاق'}
           >
             <X className="w-4 h-4 text-muted-foreground" />
           </button>
@@ -156,7 +156,7 @@ const GroupInfoSheet: React.FC<GroupInfoSheetProps> = ({
                 )}
               >
                 <h1 className="text-[20px] font-bold text-foreground">
-                  {chat.title || (isAr ? 'بدون اسم' : 'Ohne Namen')}
+                  {chat.title || ('بدون اسم')}
                 </h1>
                 {canEdit && <Pencil className="w-3.5 h-3.5 text-muted-foreground" />}
               </button>
@@ -166,9 +166,7 @@ const GroupInfoSheet: React.FC<GroupInfoSheetProps> = ({
                 ? <Hash className="w-3 h-3" />
                 : <Users className="w-3 h-3" />}
               <span>
-                {isAr
-                  ? `${chat.memberCount} ${chat.memberCount === 1 ? 'عضو' : 'أعضاء'}`
-                  : `${chat.memberCount} ${chat.memberCount === 1 ? 'Mitglied' : 'Mitglieder'}`}
+                {`${chat.memberCount} ${chat.memberCount === 1 ? 'عضو' : 'أعضاء'}`}
               </span>
               <span className="text-border/60">·</span>
               <RoleBadge role={chat.myRole} isAr={isAr} />
@@ -186,7 +184,7 @@ const GroupInfoSheet: React.FC<GroupInfoSheetProps> = ({
                 rows={3}
                 className="w-full bg-muted/30 rounded-2xl px-4 py-2.5 text-[14px] outline-none focus:ring-2 focus:ring-primary/30 resize-none"
                 dir="auto"
-                placeholder={isAr ? 'وصف المجموعة' : 'Beschreibung'}
+                placeholder={'وصف المجموعة'}
               />
             ) : (
               <button
@@ -201,10 +199,10 @@ const GroupInfoSheet: React.FC<GroupInfoSheetProps> = ({
                 <MessageSquareText className="w-4 h-4 text-muted-foreground shrink-0 mt-0.5" />
                 <div className="flex-1 min-w-0">
                   <p className="text-[11px] text-muted-foreground mb-0.5">
-                    {isAr ? 'الوصف' : 'Beschreibung'}
+                    {'الوصف'}
                   </p>
                   <p className="text-[14px] text-foreground/90 leading-relaxed" dir="auto">
-                    {chat.description || (isAr ? 'لا يوجد وصف' : 'Keine Beschreibung')}
+                    {chat.description || ('لا يوجد وصف')}
                   </p>
                 </div>
                 {canEdit && <Pencil className="w-3.5 h-3.5 text-muted-foreground shrink-0 mt-1" />}
@@ -217,19 +215,19 @@ const GroupInfoSheet: React.FC<GroupInfoSheetProps> = ({
             <div className="rounded-2xl bg-muted/15 border border-border/10 divide-y divide-border/10">
               <ToggleRow
                 icon={muted ? <BellOff className="w-4 h-4 text-muted-foreground" /> : <Bell className="w-4 h-4 text-foreground" />}
-                label={isAr ? 'كتم الإشعارات' : 'Benachrichtigungen stumm'}
+                label={'كتم الإشعارات'}
                 value={muted}
                 onChange={(v) => muts.setMuted(chat.id, v ? -1 : 0)}
               />
               <ToggleRow
                 icon={pinned ? <PinOff className="w-4 h-4 text-muted-foreground" /> : <Pin className="w-4 h-4 text-foreground" />}
-                label={isAr ? 'تثبيت في الأعلى' : 'Oben anheften'}
+                label={'تثبيت في الأعلى'}
                 value={pinned}
                 onChange={(v) => muts.setPinned(chat.id, v)}
               />
               <ToggleRow
                 icon={archived ? <ArchiveRestore className="w-4 h-4 text-muted-foreground" /> : <Archive className="w-4 h-4 text-foreground" />}
-                label={isAr ? 'الأرشفة' : 'Archivieren'}
+                label={'الأرشفة'}
                 value={archived}
                 onChange={(v) => muts.setArchived(chat.id, v)}
               />
@@ -246,10 +244,10 @@ const GroupInfoSheet: React.FC<GroupInfoSheetProps> = ({
               <Users className="w-4 h-4 text-muted-foreground" />
               <div className="flex-1 min-w-0 text-start">
                 <p className="text-[11px] text-muted-foreground">
-                  {isAr ? 'الأعضاء' : 'Mitglieder'}
+                  {'الأعضاء'}
                 </p>
                 <p className="text-[14px] font-semibold text-foreground">
-                  {isAr ? `عرض كل الأعضاء (${chat.memberCount})` : `Alle Mitglieder anzeigen (${chat.memberCount})`}
+                  {`عرض كل الأعضاء (${chat.memberCount})`}
                 </p>
               </div>
               <BackIcon className="w-4 h-4 text-muted-foreground rotate-180 rtl:rotate-0" />
@@ -278,14 +276,14 @@ const GroupInfoSheet: React.FC<GroupInfoSheetProps> = ({
 
           {/* Permissions */}
           {canEdit && chat.kind !== 'dm' && (
-            <Section title={isAr ? 'الصلاحيات' : 'Berechtigungen'}>
+            <Section title={'الصلاحيات'}>
               <div className="rounded-2xl bg-muted/15 border border-border/10 divide-y divide-border/10">
                 <PermissionRow
                   icon={<MessageSquareText className="w-4 h-4 text-muted-foreground" />}
-                  label={isAr ? 'الإرسال' : 'Senden'}
+                  label={'الإرسال'}
                   value={chat.whoCanSend === 'all'
-                    ? (isAr ? 'الكل' : 'Alle')
-                    : (isAr ? 'المشرفون فقط' : 'Nur Admins')}
+                    ? ('الكل')
+                    : ('المشرفون فقط')}
                   onClick={() => muts.updatePermissions({
                     chatId: chat.id,
                     whoCanSend: chat.whoCanSend === 'all' ? 'admins' : 'all',
@@ -293,8 +291,8 @@ const GroupInfoSheet: React.FC<GroupInfoSheetProps> = ({
                 />
                 <PermissionRow
                   icon={<Eye className="w-4 h-4 text-muted-foreground" />}
-                  label={isAr ? 'القناة عامة' : 'Kanal öffentlich'}
-                  value={chat.isPublic ? (isAr ? 'نعم' : 'Ja') : (isAr ? 'لا' : 'Nein')}
+                  label={'القناة عامة'}
+                  value={chat.isPublic ? ('نعم') : ('لا')}
                   onClick={() => { /* future: toggle isPublic */ }}
                 />
               </div>
@@ -307,25 +305,23 @@ const GroupInfoSheet: React.FC<GroupInfoSheetProps> = ({
               <DangerRow
                 icon={<LogOut className="w-4 h-4" />}
                 label={chat.kind === 'channel'
-                  ? (isAr ? 'مغادرة القناة' : 'Kanal verlassen')
-                  : (isAr ? 'مغادرة المجموعة' : 'Gruppe verlassen')}
+                  ? ('مغادرة القناة')
+                  : ('مغادرة المجموعة')}
                 onClick={async () => { await muts.leaveChat(chat.id); onLeft(); }}
               />
               {isOwner && (
                 <DangerRow
                   icon={<Trash2 className="w-4 h-4" />}
                   label={chat.kind === 'channel'
-                    ? (isAr ? 'حذف القناة' : 'Kanal löschen')
-                    : (isAr ? 'حذف المجموعة' : 'Gruppe löschen')}
+                    ? ('حذف القناة')
+                    : ('حذف المجموعة')}
                   onClick={() => { onDeleted?.(); }}
                 />
               )}
             </div>
-            <p className="text-[10.5px] text-muted-foreground/70 px-2 mt-2 leading-relaxed">
+            <p className="text-[10px] text-muted-foreground/70 px-2 mt-2 leading-relaxed">
               <Shield className="inline w-3 h-3 me-1 -mt-0.5" />
-              {isAr
-                ? 'الحذف نهائي ولا يمكن التراجع عنه. الأعضاء سيفقدون كل الرسائل.'
-                : 'Löschen ist endgültig. Alle Mitglieder verlieren den Verlauf.'}
+              {'الحذف نهائي ولا يمكن التراجع عنه. الأعضاء سيفقدون كل الرسائل.'}
             </p>
           </Section>
 
@@ -340,7 +336,7 @@ interface SectionProps { title?: string; children: React.ReactNode }
 function Section({ title, children }: SectionProps) {
   return (
     <div className="px-4 mt-3">
-      {title && <h3 className="text-[10.5px] uppercase tracking-wider text-muted-foreground/70 px-1 mb-1.5">{title}</h3>}
+      {title && <h3 className="text-[10px] uppercase tracking-wider text-muted-foreground/70 px-1 mb-1.5">{title}</h3>}
       {children}
     </div>
   );
@@ -379,7 +375,7 @@ function PermissionRow({ icon, label, value, onClick }: PermissionRowProps) {
     >
       <span className="shrink-0">{icon}</span>
       <span className="flex-1 text-[14px] text-foreground">{label}</span>
-      <span className="text-[12.5px] text-muted-foreground">{value}</span>
+      <span className="text-[12px] text-muted-foreground">{value}</span>
     </button>
   );
 }

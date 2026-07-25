@@ -1,5 +1,4 @@
 import React, { useMemo, useRef } from 'react';
-import { Check, Copy } from '@/lib/icons';
 import { motion } from 'framer-motion';
 import type { DiwanVerse } from '@/features/diwan/lib/types';
 
@@ -184,7 +183,7 @@ function VerseLine({
       aria-label="نسخ البيت — أو اضغط مطوّلاً على كلمة لشرحها"
     >
       {/* رقم البيت الصغير بخط Amiri على أقصى الحافة */}
-      <span className="w-6 shrink-0 text-right font-amiri text-[12.5px] text-[var(--ink-text-faint)] select-none">
+      <span className="w-6 shrink-0 text-right font-amiri text-[12px] text-[var(--ink-text-faint)] select-none">
         {verse.position + 1}
       </span>
 

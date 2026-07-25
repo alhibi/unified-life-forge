@@ -202,7 +202,7 @@ export default function JournalHome() {
                         <div className="text-[11px] text-muted-foreground mt-1">
                           {formatDate(e.createdAt)} · {e.wordCount} كلمة
                         </div>
-                        <p className="text-[13.5px] leading-[1.85] text-foreground/85 mt-2 whitespace-pre-line">
+                        <p className="text-[13px] leading-[1.85] text-foreground/85 mt-2 whitespace-pre-line">
                           {excerpt(e.content)}
                         </p>
                         {e.tags.length > 0 && (
@@ -210,7 +210,7 @@ export default function JournalHome() {
                             {e.tags.map((t) => (
                               <span
                                 key={t}
-                                className="text-[10.5px] px-2 py-0.5 rounded-full bg-card border border-border text-muted-foreground"
+                                className="text-[10px] px-2 py-0.5 rounded-full bg-card border border-border text-muted-foreground"
                               >
                                 #{t}
                               </span>
@@ -264,7 +264,7 @@ function StatCell({ label, value, accent }: { label: string; value: string; acce
         style={{ background: accent, opacity: 0.8 }}
       />
       <div className="text-[18px] text-foreground tabular-nums">{value}</div>
-      <div className="text-[10.5px] tracking-[0.16em] uppercase text-muted-foreground mt-1">
+      <div className="text-[10px] tracking-[0.16em] uppercase text-muted-foreground mt-1">
         {label}
       </div>
     </div>

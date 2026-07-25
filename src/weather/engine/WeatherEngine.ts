@@ -68,7 +68,7 @@ const ALL_ADAPTERS = [...ATMOSPHERIC_ADAPTERS, ...AIR_QUALITY_ADAPTERS, ...SPECI
 export interface EngineRequest {
   lat: number;
   lng: number;
-  language?: 'ar' | 'de' | 'en';
+  language?: 'ar' | 'en';
   forceRefresh?: boolean;
 }
 

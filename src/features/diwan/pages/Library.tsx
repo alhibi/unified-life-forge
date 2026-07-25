@@ -40,7 +40,7 @@ export default function DiwanLibraryPage({ tab = false }: Props) {
     typeof n === 'number' ? n.toLocaleString('ar-EG') : '—';
 
   return (
-    <div className={tab ? 'rounded-[1.75rem] bg-[#16130F] px-4 py-5 font-tajawal text-[#F2E9D8] shadow-elevated selection:bg-[var(--wax-soft2)] selection:text-[#F2E9D8]' : 'min-h-screen bg-[#16130F] text-[#F2E9D8] pb-28 px-5 pt-14 font-tajawal selection:bg-[var(--wax-soft2)] selection:text-[#F2E9D8]'}>
+    <div className={tab ? 'rounded-[1.75rem] bg-[#16130F] px-4 py-5 font-tajawal text-[#F2E9D8] shadow-elevated selection:bg-[var(--wax-soft2)] selection:text-[#F2E9D8]' : 'min-h-screen bg-[#16130F] text-[#F2E9D8] pb-page px-5 pt-14 font-tajawal selection:bg-[var(--wax-soft2)] selection:text-[#F2E9D8]'}>
       {!tab && (
         <SEO
           title="المكتبة الكبرى — الديوان العربي الكلاسيكي"
@@ -61,7 +61,7 @@ export default function DiwanLibraryPage({ tab = false }: Props) {
             <p className="text-[11px] font-bold tracking-[0.1em] text-[var(--wax)] uppercase mb-1">
               محراب · الأدب
             </p>
-            <h1 className="text-[26px] font-bold tracking-tight text-[#F2E9D8] leading-tight font-amiri flex items-center gap-2">
+            <h1 className="text-[24px] font-bold tracking-tight text-[#F2E9D8] leading-tight font-amiri flex items-center gap-2">
               <LibraryIcon className="w-6 h-6 text-[var(--wax)] shrink-0" />
               المكتبة الكبرى
             </h1>
@@ -139,7 +139,7 @@ export default function DiwanLibraryPage({ tab = false }: Props) {
                 <Network className="w-4 h-4 text-[var(--wax)]" />
               </div>
               <div className="text-start">
-                <p className="font-bold text-[13.5px] leading-tight">الشجرة الأدبية للتواصل</p>
+                <p className="font-bold text-[13px] leading-tight">الشجرة الأدبية للتواصل</p>
                 <p className="text-[11px] mt-0.5 text-[#7E7259]">
                   صلات الشعراء وتأثيراتهم عبر القرون
                 </p>
@@ -213,7 +213,7 @@ function ActionLink({
         {icon}
       </div>
       <div className="flex-1 min-w-0">
-        <p className="font-bold text-[13.5px] text-[#F2E9D8] leading-tight font-tajawal">{label}</p>
+        <p className="font-bold text-[13px] text-[#F2E9D8] leading-tight font-tajawal">{label}</p>
         <p className="text-[11px] text-[#7E7259] mt-0.5 truncate font-tajawal">{sub}</p>
       </div>
       <Chev className="w-4 h-4 text-[#7E7259] shrink-0 opacity-60" />

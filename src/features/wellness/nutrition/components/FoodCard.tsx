@@ -9,7 +9,7 @@ import { Flame, Heart } from '@/lib/icons';
 import type { NutritionFoodItem } from '../types';
 import { isFavorite } from '../utils';
 
-type Lang = 'ar' | 'de';
+type Lang = 'ar';
 
 interface Props {
   food: NutritionFoodItem;
@@ -60,7 +60,7 @@ export default function FoodCard({ food, lang, onClick, compact }: Props) {
       {/* GI badge */}
       {food.glycemicIndex != null && food.glycemicIndex > 0 && !compact && (
         <div
-          className={`shrink-0 text-[9px] font-bold px-1.5 py-0.5 rounded-md ${
+          className={`shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded-md ${
             food.glycemicIndex <= 35
               ? 'bg-emerald-500/10 text-emerald-600'
               : food.glycemicIndex <= 55

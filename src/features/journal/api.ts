@@ -1,5 +1,5 @@
 // The ONLY place in the journal feature that touches Supabase.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+ 
 import { supabase } from '@/integrations/supabase/client';
 import { computeWordCount, type JournalEntry, type JournalEntryInput } from './types';
 
