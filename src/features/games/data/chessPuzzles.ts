@@ -17,8 +17,7 @@ export interface ChessPuzzle {
   solution: string[]; // UCI-style "e2e4"; promotion as "e7e8q"
   rating: number;
   theme: PuzzleTheme;
-  ar: string; // hint
-  de: string;
+  ar: string;
 }
 
 // A small but solid hand-crafted puzzle bank covering classic motifs.
@@ -33,7 +32,6 @@ export const PUZZLES: ChessPuzzle[] = [
     rating: 800,
     theme: 'mateIn1',
     ar: 'مات بالقلعة على الصف الثامن',
-    de: 'Matt mit dem Turm auf der 8. Reihe',
   },
   {
     id: 'p2',
@@ -42,7 +40,6 @@ export const PUZZLES: ChessPuzzle[] = [
     rating: 700,
     theme: 'mateIn1',
     ar: 'مات بالقلعة في الزاوية',
-    de: 'Eckmatt mit dem Turm',
   },
   {
     id: 'p3',
@@ -51,7 +48,6 @@ export const PUZZLES: ChessPuzzle[] = [
     rating: 900,
     theme: 'mateIn1',
     ar: 'مات الراعي - الوزير الأسود يصل e1',
-    de: 'Schäferzug — Schwarze Dame nach e1',
   },
 
   // ------- Forks -------
@@ -64,7 +60,6 @@ export const PUZZLES: ChessPuzzle[] = [
     rating: 1100,
     theme: 'fork',
     ar: 'الحصان يهجم على الملك والوزير معاً',
-    de: 'Springer attackiert König und Dame',
   },
   {
     id: 'p5',
@@ -74,7 +69,6 @@ export const PUZZLES: ChessPuzzle[] = [
     rating: 1000,
     theme: 'fork',
     ar: 'بعد Nxd4 يلاحظ الفرس البيض الفرصة',
-    de: 'Nach Sxd4 reagiert Weiß auf den Springerschlag',
   },
   {
     id: 'p6',
@@ -84,7 +78,6 @@ export const PUZZLES: ChessPuzzle[] = [
     rating: 900,
     theme: 'fork',
     ar: 'فرس يهجم على الملك والوزير',
-    de: 'Springergabel auf König und Dame',
   },
 
   // ------- Pin -------
@@ -96,7 +89,6 @@ export const PUZZLES: ChessPuzzle[] = [
     rating: 1200,
     theme: 'pin',
     ar: 'الوزير الأبيض يثبّت',
-    de: 'Weiße Dame fesselt',
   },
 
   // ------- Skewer -------
@@ -107,7 +99,6 @@ export const PUZZLES: ChessPuzzle[] = [
     rating: 1000,
     theme: 'skewer',
     ar: 'القلعة تهدد الوزير ثم الملك',
-    de: 'Spieß: Turm bedroht Dame, dann König',
   },
 
   // ------- Discovered attack -------
@@ -119,7 +110,6 @@ export const PUZZLES: ChessPuzzle[] = [
     rating: 1100,
     theme: 'discovery',
     ar: 'هجوم مكشوف من القلعة',
-    de: 'Abzugsangriff vom Turm',
   },
 
   // ------- Mate in 2 -------
@@ -130,7 +120,6 @@ export const PUZZLES: ChessPuzzle[] = [
     rating: 1400,
     theme: 'mateIn2',
     ar: 'مات في نقلتين بالقلعة',
-    de: 'Matt in 2 mit dem Turm',
   },
   {
     id: 'p11',
@@ -139,7 +128,6 @@ export const PUZZLES: ChessPuzzle[] = [
     rating: 1300,
     theme: 'mateIn2',
     ar: 'الوزير يخترق الصف الأخير',
-    de: 'Dame dringt in die Grundreihe',
   },
 
   // ------- Sacrifice -------
@@ -151,7 +139,6 @@ export const PUZZLES: ChessPuzzle[] = [
     rating: 1500,
     theme: 'sacrifice',
     ar: 'تضحية بالوزير للوصول للمات على الصف الأخير',
-    de: 'Damenopfer für Grundreihen-Matt',
   },
   {
     id: 'p13',
@@ -161,7 +148,6 @@ export const PUZZLES: ChessPuzzle[] = [
     rating: 1700,
     theme: 'sacrifice',
     ar: 'مزيج: تضحية بالقلعة ثم مات الفرس',
-    de: 'Kombination: Turmopfer + Springermatt',
   },
 
   // ------- Double attack -------
@@ -173,7 +159,6 @@ export const PUZZLES: ChessPuzzle[] = [
     rating: 1000,
     theme: 'doubleAttack',
     ar: 'الوزير يهاجم قطعتين معاً',
-    de: 'Dame greift zwei Figuren an',
   },
 
   // ------- More variety -------
@@ -184,7 +169,6 @@ export const PUZZLES: ChessPuzzle[] = [
     rating: 900,
     theme: 'sacrifice',
     ar: 'تضحية صغيرة لاكتساب موقع',
-    de: 'Kleines Opfer für Stellungsgewinn',
   },
   {
     id: 'p16',
@@ -193,7 +177,6 @@ export const PUZZLES: ChessPuzzle[] = [
     rating: 800,
     theme: 'mateIn1',
     ar: 'مات بالقلعة في نهاية مفتوحة',
-    de: 'Turmmatt in offenem Endspiel',
   },
   {
     id: 'p17',
@@ -202,7 +185,6 @@ export const PUZZLES: ChessPuzzle[] = [
     rating: 1100,
     theme: 'pin',
     ar: 'تثبيت ثم تبادل',
-    de: 'Fesselung mit Tausch',
   },
   {
     id: 'p18',
@@ -211,7 +193,6 @@ export const PUZZLES: ChessPuzzle[] = [
     rating: 700,
     theme: 'fork',
     ar: 'القلعة تأكل القلعة!',
-    de: 'Turm gewinnt Turm',
   },
   {
     id: 'p19',
@@ -220,7 +201,6 @@ export const PUZZLES: ChessPuzzle[] = [
     rating: 800,
     theme: 'mateIn1',
     ar: 'تنفيذ مات الصف الخلفي',
-    de: 'Grundreihen-Matt',
   },
   {
     id: 'p20',
@@ -230,7 +210,6 @@ export const PUZZLES: ChessPuzzle[] = [
     rating: 1300,
     theme: 'pin',
     ar: 'تثبيت الفرس بالحصان',
-    de: 'Springer fesseln, dann Schlag',
   },
 ];
 

@@ -66,8 +66,8 @@ export default function ChatSettingsPage() {
   if (!user) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center px-6 text-center gap-4">
-        <h1 className="text-xl font-bold">{isAr ? 'سجّل الدخول' : 'Anmeldung erforderlich'}</h1>
-        <Button onClick={() => navigate('/auth')}>{isAr ? 'تسجيل الدخول' : 'Anmelden'}</Button>
+        <h1 className="text-xl font-bold">{'سجّل الدخول'}</h1>
+        <Button onClick={() => navigate('/auth')}>{'تسجيل الدخول'}</Button>
       </div>
     );
   }
@@ -76,9 +76,9 @@ export default function ChatSettingsPage() {
     setBusyClear(true);
     try {
       await idbCache.clearAll();
-      toast.success(isAr ? 'تم مسح ذاكرة التخزين' : 'Zwischenspeicher geleert');
+      toast.success('تم مسح ذاكرة التخزين');
     } catch {
-      toast.error(isAr ? 'تعذّر المسح' : 'Fehlgeschlagen');
+      toast.error('تعذّر المسح');
     } finally {
       setBusyClear(false);
     }
@@ -104,23 +104,23 @@ export default function ChatSettingsPage() {
       a.download = `smarthub-chat-export-${new Date().toISOString().slice(0, 10)}.json`;
       a.click();
       URL.revokeObjectURL(url);
-      toast.success(isAr ? 'تم التصدير' : 'Export gestartet');
+      toast.success('تم التصدير');
     } catch {
-      toast.error(isAr ? 'تعذّر التصدير' : 'Export fehlgeschlagen');
+      toast.error('تعذّر التصدير');
     }
   };
 
   return (
-    <ErrorBoundary fallbackTitle={isAr ? 'حدث خطأ' : 'Fehler'}>
+    <ErrorBoundary fallbackTitle={'حدث خطأ'}>
       <SEO
-        title={isAr ? 'إعدادات المحادثات — SmartHub' : 'Chat-Einstellungen — SmartHub'}
-        description={isAr ? 'الخصوصية، الإشعارات، التخزين والمظهر للدردشة.' : 'Privatsphäre, Benachrichtigungen, Speicher.'}
+        title={'إعدادات المحادثات — SmartHub'}
+        description={'الخصوصية، الإشعارات، التخزين والمظهر للدردشة.'}
         path="/chat/settings"
       />
       <div className="min-h-screen bg-background pb-24">
         <PageHeader
-          title={isAr ? 'إعدادات المحادثات' : 'Chat-Einstellungen'}
-          subtitle={isAr ? 'تطبَّق على جميع المحادثات' : 'Gilt für alle Chats'}
+          title={'إعدادات المحادثات'}
+          subtitle={'تطبَّق على جميع المحادثات'}
           backFallback="/chat"
           sticky
         />
@@ -132,53 +132,49 @@ export default function ChatSettingsPage() {
           className="px-4 max-w-3xl mx-auto pt-3 space-y-5"
         >
           {/* Privacy */}
-          <Section title={isAr ? 'الخصوصية' : 'Privatsphäre'}>
+          <Section title={'الخصوصية'}>
             <Card>
               <SelectRow
                 icon={cs.settings.privacy.lastSeenVisibility === 'nobody' ? <EyeOff /> : <Eye />}
-                label={isAr ? 'آخر ظهور' : 'Zuletzt online'}
+                label={'آخر ظهور'}
                 value={cs.settings.privacy.lastSeenVisibility}
                 options={[
-                  { value: 'everyone', labelAr: 'الكل', labelDe: 'Alle' },
-                  { value: 'contacts', labelAr: 'جهات الاتصال', labelDe: 'Kontakte' },
-                  { value: 'nobody', labelAr: 'لا أحد', labelDe: 'Niemand' },
+                  { value: 'everyone', labelAr: 'الكل', },
+                  { value: 'contacts', labelAr: 'جهات الاتصال', },
+                  { value: 'nobody', labelAr: 'لا أحد', },
                 ]}
                 onChange={(v) => cs.patchPrivacy({ lastSeenVisibility: v as Settings['privacy']['lastSeenVisibility'] })}
                 isAr={isAr}
               />
               <SelectRow
                 icon={<FileText />}
-                label={isAr ? 'الوصف الشخصي (Bio)' : 'Bio-Sichtbarkeit'}
+                label={'الوصف الشخصي (Bio)'}
                 value={cs.settings.privacy.bioVisibility}
                 options={[
-                  { value: 'everyone', labelAr: 'الكل', labelDe: 'Alle' },
-                  { value: 'contacts', labelAr: 'جهات الاتصال', labelDe: 'Kontakte' },
-                  { value: 'nobody', labelAr: 'لا أحد', labelDe: 'Niemand' },
+                  { value: 'everyone', labelAr: 'الكل', },
+                  { value: 'contacts', labelAr: 'جهات الاتصال', },
+                  { value: 'nobody', labelAr: 'لا أحد', },
                 ]}
                 onChange={(v) => cs.patchPrivacy({ bioVisibility: v as Settings['privacy']['bioVisibility'] })}
                 isAr={isAr}
               />
               <ToggleRow
                 icon={<CheckCircle2 />}
-                label={isAr ? 'إيصال القراءة' : 'Lesebestätigungen'}
-                description={isAr
-                  ? 'عند الإيقاف لن ترى متى يقرأ الآخرون رسائلك ولن يروا متى تقرأ رسائلهم.'
-                  : 'Wenn aus, siehst und sendest du keine Lesebestätigungen mehr.'}
+                label={'إيصال القراءة'}
+                description={'عند الإيقاف لن ترى متى يقرأ الآخرون رسائلك ولن يروا متى تقرأ رسائلهم.'}
                 value={cs.settings.privacy.readReceipts}
                 onChange={(v) => cs.patchPrivacy({ readReceipts: v })}
               />
               <ToggleRow
                 icon={<Send />}
-                label={isAr ? 'إظهار "يكتب الآن"' : 'Tippt-Anzeige zeigen'}
+                label={'إظهار "يكتب الآن"'}
                 value={cs.settings.privacy.showTyping}
                 onChange={(v) => cs.patchPrivacy({ showTyping: v })}
               />
               <ToggleRow
                 icon={<ShieldOff />}
-                label={isAr ? 'حظر المستخدمين غير المعروفين' : 'Unbekannte automatisch blockieren'}
-                description={isAr
-                  ? 'لن تتلقى رسائل من أشخاص ليسوا في جهات اتصالك.'
-                  : 'Du erhältst nur Nachrichten von Kontakten.'}
+                label={'حظر المستخدمين غير المعروفين'}
+                description={'لن تتلقى رسائل من أشخاص ليسوا في جهات اتصالك.'}
                 value={cs.settings.privacy.blockUnknownUsers}
                 onChange={(v) => cs.patchPrivacy({ blockUnknownUsers: v })}
               />
@@ -186,41 +182,39 @@ export default function ChatSettingsPage() {
           </Section>
 
           {/* Notifications */}
-          <Section title={isAr ? 'الإشعارات' : 'Benachrichtigungen'}>
+          <Section title={'الإشعارات'}>
             <Card>
               <ToggleRow
                 icon={cs.settings.notifications.enabled ? <Bell /> : <BellOff />}
-                label={isAr ? 'تفعيل الإشعارات' : 'Aktiviert'}
+                label={'تفعيل الإشعارات'}
                 value={cs.settings.notifications.enabled}
                 onChange={(v) => cs.patchNotifications({ enabled: v })}
               />
               <ToggleRow
                 icon={<Volume2 />}
-                label={isAr ? 'الأصوات داخل التطبيق' : 'In-App-Töne'}
+                label={'الأصوات داخل التطبيق'}
                 value={cs.settings.notifications.inAppSounds}
                 onChange={(v) => cs.patchNotifications({ inAppSounds: v })}
                 disabled={!cs.settings.notifications.enabled}
               />
               <ToggleRow
                 icon={<VibrateIcon />}
-                label={isAr ? 'الاهتزاز' : 'Vibrieren'}
+                label={'الاهتزاز'}
                 value={cs.settings.notifications.vibrate}
                 onChange={(v) => cs.patchNotifications({ vibrate: v })}
                 disabled={!cs.settings.notifications.enabled}
               />
               <ToggleRow
                 icon={<Smartphone />}
-                label={isAr ? 'إشعارات سطح المكتب' : 'Desktop-Benachrichtigungen'}
+                label={'إشعارات سطح المكتب'}
                 value={cs.settings.notifications.desktop}
                 onChange={(v) => cs.patchNotifications({ desktop: v })}
                 disabled={!cs.settings.notifications.enabled}
               />
               <ToggleRow
                 icon={<EyeOff />}
-                label={isAr ? 'إخفاء محتوى الرسالة' : 'Inhalt ausblenden'}
-                description={isAr
-                  ? 'يُظهر اسم المرسل فقط في الإشعار.'
-                  : 'Zeigt nur den Absender in der Notification.'}
+                label={'إخفاء محتوى الرسالة'}
+                description={'يُظهر اسم المرسل فقط في الإشعار.'}
                 value={cs.settings.notifications.hidePreview}
                 onChange={(v) => cs.patchNotifications({ hidePreview: v })}
                 disabled={!cs.settings.notifications.enabled}
@@ -237,48 +231,48 @@ export default function ChatSettingsPage() {
           </Section>
 
           {/* Appearance */}
-          <Section title={isAr ? 'المظهر' : 'Darstellung'}>
+          <Section title={'المظهر'}>
             <Card>
               <SelectRow
                 icon={<Type />}
-                label={isAr ? 'حجم الخط' : 'Schriftgröße'}
+                label={'حجم الخط'}
                 value={cs.settings.appearance.fontScale}
                 options={[
-                  { value: 'small',   labelAr: 'صغير',  labelDe: 'Klein' },
-                  { value: 'normal',  labelAr: 'عادي',  labelDe: 'Normal' },
-                  { value: 'large',   labelAr: 'كبير',  labelDe: 'Groß' },
-                  { value: 'xlarge',  labelAr: 'أكبر',  labelDe: 'Sehr groß' },
+                  { value: 'small',   labelAr: 'صغير', },
+                  { value: 'normal',  labelAr: 'عادي', },
+                  { value: 'large',   labelAr: 'كبير', },
+                  { value: 'xlarge',  labelAr: 'أكبر', },
                 ]}
                 onChange={(v) => cs.patchAppearance({ fontScale: v as Settings['appearance']['fontScale'] })}
                 isAr={isAr}
               />
               <SelectRow
                 icon={<Palette />}
-                label={isAr ? 'الكثافة' : 'Dichte'}
+                label={'الكثافة'}
                 value={cs.settings.appearance.density}
                 options={[
-                  { value: 'compact',     labelAr: 'مدمج',     labelDe: 'Kompakt' },
-                  { value: 'comfortable', labelAr: 'مريح',     labelDe: 'Angenehm' },
-                  { value: 'cozy',        labelAr: 'فسيح',     labelDe: 'Geräumig' },
+                  { value: 'compact',     labelAr: 'مدمج', },
+                  { value: 'comfortable', labelAr: 'مريح', },
+                  { value: 'cozy',        labelAr: 'فسيح', },
                 ]}
                 onChange={(v) => cs.patchAppearance({ density: v as Settings['appearance']['density'] })}
                 isAr={isAr}
               />
               <ToggleRow
                 icon={<ImageIcon />}
-                label={isAr ? 'إظهار الصور الشخصية في المجموعات' : 'Avatare in Gruppen'}
+                label={'إظهار الصور الشخصية في المجموعات'}
                 value={cs.settings.appearance.showAvatars}
                 onChange={(v) => cs.patchAppearance({ showAvatars: v })}
               />
               <ToggleRow
                 icon={<FileText />}
-                label={isAr ? 'تجميع الفقاعات المتتالية' : 'Aufeinanderfolgende Bubbles gruppieren'}
+                label={'تجميع الفقاعات المتتالية'}
                 value={cs.settings.appearance.groupBubbles}
                 onChange={(v) => cs.patchAppearance({ groupBubbles: v })}
               />
               <ToggleRow
                 icon={<Type />}
-                label={isAr ? 'إظهار الوقت دائماً' : 'Uhrzeit immer anzeigen'}
+                label={'إظهار الوقت دائماً'}
                 value={cs.settings.appearance.alwaysShowTime}
                 onChange={(v) => cs.patchAppearance({ alwaysShowTime: v })}
               />
@@ -286,49 +280,47 @@ export default function ChatSettingsPage() {
           </Section>
 
           {/* Behavior */}
-          <Section title={isAr ? 'سلوك المحادثة' : 'Verhalten'}>
+          <Section title={'سلوك المحادثة'}>
             <Card>
               <ToggleRow
                 icon={<Send />}
-                label={isAr ? 'إرسال بضغطة Enter' : 'Mit Enter senden'}
-                description={isAr
-                  ? 'استخدم Shift+Enter لسطر جديد.'
-                  : 'Mit Shift+Enter neue Zeile.'}
+                label={'إرسال بضغطة Enter'}
+                description={'استخدم Shift+Enter لسطر جديد.'}
                 value={cs.settings.behavior.enterToSend}
                 onChange={(v) => cs.patchBehavior({ enterToSend: v })}
               />
               <ToggleRow
                 icon={<Globe />}
-                label={isAr ? 'إكمال الرموز التعبيرية' : 'Emoji-Vervollständigung'}
+                label={'إكمال الرموز التعبيرية'}
                 value={cs.settings.behavior.emojiAutoComplete}
                 onChange={(v) => cs.patchBehavior({ emojiAutoComplete: v })}
               />
               <ToggleRow
                 icon={<ImageIcon />}
-                label={isAr ? 'تحميل الصور تلقائياً' : 'Bilder automatisch laden'}
+                label={'تحميل الصور تلقائياً'}
                 value={cs.settings.behavior.autoDownloadImages}
                 onChange={(v) => cs.patchBehavior({ autoDownloadImages: v })}
               />
               <ToggleRow
                 icon={<Mic />}
-                label={isAr ? 'تحميل التسجيلات الصوتية تلقائياً' : 'Sprachnachrichten automatisch laden'}
+                label={'تحميل التسجيلات الصوتية تلقائياً'}
                 value={cs.settings.behavior.autoDownloadVoice}
                 onChange={(v) => cs.patchBehavior({ autoDownloadVoice: v })}
               />
               <ToggleRow
                 icon={<FileText />}
-                label={isAr ? 'تحميل الملفات تلقائياً' : 'Dateien automatisch laden'}
+                label={'تحميل الملفات تلقائياً'}
                 value={cs.settings.behavior.autoDownloadFiles}
                 onChange={(v) => cs.patchBehavior({ autoDownloadFiles: v })}
               />
               <SelectRow
                 icon={<Globe />}
-                label={isAr ? 'تنسيق الوقت' : 'Zeitformat'}
+                label={'تنسيق الوقت'}
                 value={cs.settings.behavior.use24h === null ? 'locale' : cs.settings.behavior.use24h ? '24h' : '12h'}
                 options={[
-                  { value: 'locale', labelAr: 'حسب اللغة', labelDe: 'Standard' },
-                  { value: '24h',    labelAr: '24 ساعة',  labelDe: '24-Stunden' },
-                  { value: '12h',    labelAr: '12 ساعة',  labelDe: '12-Stunden' },
+                  { value: 'locale', labelAr: 'حسب اللغة', },
+                  { value: '24h',    labelAr: '24 ساعة', },
+                  { value: '12h',    labelAr: '12 ساعة', },
                 ]}
                 onChange={(v) =>
                   cs.patchBehavior({
@@ -340,18 +332,18 @@ export default function ChatSettingsPage() {
           </Section>
 
           {/* Storage */}
-          <Section title={isAr ? 'التخزين والبيانات' : 'Speicher & Daten'}>
+          <Section title={'التخزين والبيانات'}>
             <Card>
               {storageReport && (
                 <div className="px-4 py-3.5 border-b border-border/15">
                   <div className="flex items-baseline justify-between mb-2">
                     <span className="text-[12.5px] font-medium text-foreground">
-                      {isAr ? 'الاستخدام الحالي' : 'Aktuelle Nutzung'}
+                      {'الاستخدام الحالي'}
                     </span>
                     <span className="text-[12px] text-muted-foreground tabular-nums">
-                      {storageReport.usageMb.toFixed(1)} {isAr ? 'م.ب' : 'MB'}
+                      {storageReport.usageMb.toFixed(1)} {'م.ب'}
                       {storageReport.quotaMb > 0 && (
-                        <> / {storageReport.quotaMb.toFixed(0)} {isAr ? 'م.ب' : 'MB'}</>
+                        <> / {storageReport.quotaMb.toFixed(0)} {'م.ب'}</>
                       )}
                     </span>
                   </div>
@@ -369,56 +361,51 @@ export default function ChatSettingsPage() {
               )}
               <NumberRow
                 icon={<Database />}
-                label={isAr ? 'سعة ذاكرة التخزين (م.ب)' : 'Speichergrenze (MB)'}
+                label={'سعة ذاكرة التخزين (م.ب)'}
                 value={cs.settings.storage.cacheCapMb}
                 min={0}
                 max={2000}
                 step={50}
                 onChange={(v) => cs.patchStorage({ cacheCapMb: v })}
                 helperAr="0 = بلا حد"
-                helperDe="0 = unbegrenzt"
               />
               <NumberRow
                 icon={<RotateCcw />}
-                label={isAr ? 'الاحتفاظ بالرسائل (يوم)' : 'Aufbewahrung (Tage)'}
+                label={'الاحتفاظ بالرسائل (يوم)'}
                 value={cs.settings.storage.cacheRetentionDays}
                 min={0}
                 max={365}
                 step={5}
                 onChange={(v) => cs.patchStorage({ cacheRetentionDays: v })}
                 helperAr="0 = للأبد"
-                helperDe="0 = nie löschen"
               />
               <NumberRow
                 icon={<ImageIcon />}
-                label={isAr ? 'حد الضغط للصور (م.ب)' : 'Kompressionsgrenze Bilder (MB)'}
+                label={'حد الضغط للصور (م.ب)'}
                 value={cs.settings.storage.compressThresholdMb}
                 min={0}
                 max={20}
                 step={0.5}
                 onChange={(v) => cs.patchStorage({ compressThresholdMb: v })}
                 helperAr="0 = إيقاف الضغط"
-                helperDe="0 = nicht komprimieren"
               />
               <SelectRow
                 icon={<ImageIcon />}
-                label={isAr ? 'جودة الضغط' : 'Komprimierungsqualität'}
+                label={'جودة الضغط'}
                 value={String(cs.settings.storage.compressionQuality)}
                 options={[
-                  { value: '0.6',  labelAr: 'منخفضة (60%)',  labelDe: 'Niedrig (60%)' },
-                  { value: '0.75', labelAr: 'متوسطة (75%)',  labelDe: 'Mittel (75%)' },
-                  { value: '0.82', labelAr: 'عالية (82%)',   labelDe: 'Hoch (82%)' },
-                  { value: '0.92', labelAr: 'ممتازة (92%)',  labelDe: 'Sehr hoch (92%)' },
+                  { value: '0.6',  labelAr: 'منخفضة (60%)', },
+                  { value: '0.75', labelAr: 'متوسطة (75%)', },
+                  { value: '0.82', labelAr: 'عالية (82%)', },
+                  { value: '0.92', labelAr: 'ممتازة (92%)', },
                 ]}
                 onChange={(v) => cs.patchStorage({ compressionQuality: parseFloat(v) })}
                 isAr={isAr}
               />
               <ActionRow
                 icon={<Trash2 className="text-destructive" />}
-                label={isAr ? 'مسح ذاكرة التخزين المؤقتة' : 'Lokalen Cache leeren'}
-                description={isAr
-                  ? 'يحذف الرسائل المخزّنة محلياً والصور المؤقتة. لن يحذف رسائلك من السيرفر.'
-                  : 'Löscht lokale Nachrichten und Bild-Caches. Keine Server-Daten betroffen.'}
+                label={'مسح ذاكرة التخزين المؤقتة'}
+                description={'يحذف الرسائل المخزّنة محلياً والصور المؤقتة. لن يحذف رسائلك من السيرفر.'}
                 onClick={handleClearCache}
                 disabled={busyClear}
                 danger
@@ -427,13 +414,13 @@ export default function ChatSettingsPage() {
           </Section>
 
           {/* Blocked users */}
-          <Section title={isAr ? 'المستخدمون المحظورون' : 'Blockierte Nutzer'}>
+          <Section title={'المستخدمون المحظورون'}>
             <Card>
               {blockedLoading ? (
                 <SkeletonRow />
               ) : blocked.length === 0 ? (
                 <div className="px-4 py-6 text-center text-[13px] text-muted-foreground">
-                  {isAr ? 'لا يوجد مستخدمون محظورون' : 'Keine Nutzer blockiert'}
+                  {'لا يوجد مستخدمون محظورون'}
                 </div>
               ) : (
                 blocked.map(b => {
@@ -463,7 +450,7 @@ export default function ChatSettingsPage() {
                         className="text-[12px] text-primary hover:bg-primary/10"
                         onClick={() => muts.unblockUser(b.blockedId)}
                       >
-                        {isAr ? 'فك الحظر' : 'Entsperren'}
+                        {'فك الحظر'}
                       </Button>
                     </div>
                   );
@@ -473,38 +460,34 @@ export default function ChatSettingsPage() {
           </Section>
 
           {/* Backup */}
-          <Section title={isAr ? 'النسخ الاحتياطي' : 'Sicherung'}>
+          <Section title={'النسخ الاحتياطي'}>
             <Card>
               <ActionRow
                 icon={<Download />}
-                label={isAr ? 'تصدير المحادثات (JSON)' : 'Chats als JSON exportieren'}
-                description={isAr
-                  ? 'يصدّر قائمة محادثاتك وإعداداتك لاستيرادها في جهاز آخر.'
-                  : 'Exportiert deine Chat-Liste und Einstellungen.'}
+                label={'تصدير المحادثات (JSON)'}
+                description={'يصدّر قائمة محادثاتك وإعداداتك لاستيرادها في جهاز آخر.'}
                 onClick={handleExport}
               />
               <ActionRow
                 icon={<Upload />}
-                label={isAr ? 'استيراد (قريباً)' : 'Importieren (bald)'}
-                description={isAr ? 'سيكون متاحاً في تحديث لاحق.' : 'In einem späteren Update verfügbar.'}
-                onClick={() => toast.info(isAr ? 'قريباً' : 'Bald verfügbar')}
+                label={'استيراد (قريباً)'}
+                description={'سيكون متاحاً في تحديث لاحق.'}
+                onClick={() => toast.info('قريباً')}
                 disabled
               />
             </Card>
           </Section>
 
           {/* Danger zone */}
-          <Section title={isAr ? 'إجراءات متقدّمة' : 'Erweitert'}>
+          <Section title={'إجراءات متقدّمة'}>
             <Card variant="danger">
               <ActionRow
                 icon={<RefreshCcw className="text-destructive" />}
-                label={isAr ? 'إعادة تعيين كل الإعدادات' : 'Alle Einstellungen zurücksetzen'}
-                description={isAr
-                  ? 'تُعاد كل خيارات الدردشة إلى الافتراضي. لن تتأثر الرسائل أو المحادثات.'
-                  : 'Setzt alle Chat-Optionen zurück. Nachrichten bleiben erhalten.'}
+                label={'إعادة تعيين كل الإعدادات'}
+                description={'تُعاد كل خيارات الدردشة إلى الافتراضي. لن تتأثر الرسائل أو المحادثات.'}
                 onClick={() => {
                   cs.resetToDefaults();
-                  toast.success(isAr ? 'تمت إعادة التعيين' : 'Zurückgesetzt');
+                  toast.success('تمت إعادة التعيين');
                 }}
                 danger
               />
@@ -513,9 +496,7 @@ export default function ChatSettingsPage() {
 
           <p className="text-[10.5px] text-muted-foreground/60 text-center pt-2 px-4 leading-relaxed">
             <AlertTriangle className="inline w-3 h-3 me-1 -mt-0.5" />
-            {isAr
-              ? 'هذه الإعدادات تُحفظ تلقائياً وتُزامَن عبر أجهزتك.'
-              : 'Diese Einstellungen werden automatisch synchronisiert.'}
+            {'هذه الإعدادات تُحفظ تلقائياً وتُزامَن عبر أجهزتك.'}
           </p>
         </motion.div>
       </div>
@@ -601,7 +582,7 @@ interface SelectRowProps {
   icon: React.ReactNode;
   label: string;
   value: string;
-  options: Array<{ value: string; labelAr: string; labelDe: string }>;
+  options: Array<{ value: string; labelAr: string; }>;
   onChange: (next: string) => void;
   isAr: boolean;
 }
@@ -615,7 +596,7 @@ function SelectRow({ icon, label, value, options, onChange, isAr }: SelectRowPro
         </span>
         <span className="flex-1 text-[14px] font-medium text-foreground">{label}</span>
         <span className="text-[12.5px] text-muted-foreground inline-flex items-center gap-1">
-          {isAr ? current.labelAr : current.labelDe}
+          {current.labelAr}
           <ChevronDown className="w-3.5 h-3.5" />
         </span>
         <select
@@ -626,7 +607,7 @@ function SelectRow({ icon, label, value, options, onChange, isAr }: SelectRowPro
         >
           {options.map(o => (
             <option key={o.value} value={o.value}>
-              {isAr ? o.labelAr : o.labelDe}
+              {o.labelAr}
             </option>
           ))}
         </select>
@@ -642,9 +623,8 @@ interface NumberRowProps {
   min: number; max: number; step: number;
   onChange: (v: number) => void;
   helperAr?: string;
-  helperDe?: string;
 }
-function NumberRow({ icon, label, value, min, max, step, onChange, helperAr, helperDe }: NumberRowProps) {
+function NumberRow({ icon, label, value, min, max, step, onChange, helperAr }: NumberRowProps) {
   const { language } = useApp();
   const isAr = language === 'ar';
   return (
@@ -661,9 +641,9 @@ function NumberRow({ icon, label, value, min, max, step, onChange, helperAr, hel
         onChange={(e) => onChange(Number(e.target.value))}
         className="w-full accent-primary"
       />
-      {(helperAr || helperDe) && (
+      {helperAr && (
         <p className="text-[10.5px] text-muted-foreground/70 mt-1">
-          {isAr ? helperAr : helperDe}
+          {helperAr}
         </p>
       )}
     </div>
@@ -726,7 +706,7 @@ function QuietHoursRow({ isAr, start, end, onChange, disabled }: QuietHoursRowPr
       <div className="flex items-center gap-3 mb-2">
         <span className="shrink-0 text-primary"><BellOff className="w-[18px] h-[18px] stroke-[1.7]" /></span>
         <span className="flex-1 text-[14px] font-medium text-foreground">
-          {isAr ? 'وضع الهدوء' : 'Ruhezeiten'}
+          {'وضع الهدوء'}
         </span>
         <button
           type="button"
@@ -737,7 +717,7 @@ function QuietHoursRow({ isAr, start, end, onChange, disabled }: QuietHoursRowPr
             enabled ? 'bg-primary' : 'bg-muted',
           )}
           dir="ltr"
-          aria-label={isAr ? 'تفعيل وضع الهدوء' : 'Ruhezeiten aktivieren'}
+          aria-label={'تفعيل وضع الهدوء'}
  >
  <motion.span
  className="absolute top-[2px] h-[20px] w-[20px] rounded-full bg-primary-foreground"
@@ -750,12 +730,12 @@ function QuietHoursRow({ isAr, start, end, onChange, disabled }: QuietHoursRowPr
       {enabled && (
         <div className="flex items-center gap-2 mt-2">
           <HourPicker
-            label={isAr ? 'من' : 'Von'}
+            label={'من'}
             value={start ?? 22}
             onChange={(v) => onChange(v, end ?? 7)}
           />
           <HourPicker
-            label={isAr ? 'إلى' : 'Bis'}
+            label={'إلى'}
             value={end ?? 7}
             onChange={(v) => onChange(start ?? 22, v)}
           />

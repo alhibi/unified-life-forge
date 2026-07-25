@@ -118,7 +118,7 @@ export function ListHeader({
     const trimmed = newFolderName.trim();
     if (!trimmed) return;
     if (customFolders.includes(trimmed)) {
-      toast.error(isAr ? 'المجلد موجود بالفعل' : 'Folder already exists');
+      toast.error('المجلد موجود بالفعل');
       return;
     }
     const updated = [...customFolders, trimmed];
@@ -126,7 +126,7 @@ export function ListHeader({
     storeCustomFolders(updated);
     setNewFolderName('');
     setShowFolderInput(false);
-    toast.success(isAr ? 'تم إنشاء المجلد' : 'Folder created');
+    toast.success('تم إنشاء المجلد');
   };
 
   const handleDeleteFolder = (folder: string) => {
@@ -137,7 +137,7 @@ export function ListHeader({
       setCategoryFilter('all');
       setSourceFilter('all');
     }
-    toast.success(isAr ? 'تم حذف المجلد' : 'Folder deleted');
+    toast.success('تم حذف المجلد');
   };
 
   // Build the set of *populated* categories from the user's enabled
@@ -173,7 +173,7 @@ export function ListHeader({
             type="button"
             onClick={onBack}
             className="p-2 -ms-1 rounded-xl hover:bg-accent/50 active:scale-95 transition-all shrink-0"
-            aria-label={isAr ? 'رجوع' : 'Back'}
+            aria-label={'رجوع'}
           >
             <ChevronLeft className="h-5 w-5 text-foreground rtl:rotate-180" />
           </button>
@@ -183,12 +183,10 @@ export function ListHeader({
             </span>
             <div className="flex flex-col leading-tight min-w-0">
               <h3 className="text-[17px] font-bold truncate">
-                {isAr ? 'إطلاع' : 'Reading'}
+                {'إطلاع'}
               </h3>
               <span className="text-[10.5px] text-muted-foreground/80 tabular-nums truncate">
-                {isAr
-                  ? `${articleCount} مقالة · ${unreadCount} غير مقروء`
-                  : `${articleCount} articles · ${unreadCount} unread`}
+                {`${articleCount} مقالة · ${unreadCount} غير مقروء`}
               </span>
             </div>
           </div>
@@ -198,24 +196,24 @@ export function ListHeader({
           <IconBtn
             onClick={() => setShowSearch(!showSearch)}
             active={showSearch}
-            aria-label={isAr ? 'بحث في القائمة' : 'Filter list'}
-            title={isAr ? 'بحث في القائمة الحالية' : 'Filter the current list'}
+            aria-label={'بحث في القائمة'}
+            title={'بحث في القائمة الحالية'}
           >
             <Search className="h-4 w-4" />
           </IconBtn>
           <IconBtn
             onClick={onRefresh}
             disabled={refreshing}
-            aria-label={isAr ? 'تحديث' : 'Refresh'}
-            title={isAr ? 'تحديث الآن' : 'Refresh now'}
+            aria-label={'تحديث'}
+            title={'تحديث الآن'}
           >
             <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin text-primary' : ''}`} />
           </IconBtn>
           <IconBtn
             onClick={onDiscoverFeeds}
             accent
-            aria-label={isAr ? 'اكتشاف مصادر' : 'Discover feeds'}
-            title={isAr ? 'اكتشاف وإضافة مصادر جديدة' : 'Discover & add feeds'}
+            aria-label={'اكتشاف مصادر'}
+            title={'اكتشاف وإضافة مصادر جديدة'}
           >
             <Compass className="h-4 w-4" />
           </IconBtn>
@@ -229,7 +227,7 @@ export function ListHeader({
               <button
                 type="button"
                 className="p-2.5 rounded-xl hover:bg-accent/50 active:scale-95 transition-all relative"
-                aria-label={isAr ? 'المزيد' : 'More actions'}
+                aria-label={'المزيد'}
               >
                 <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
                 {unseenAlerts > 0 && (
@@ -239,21 +237,21 @@ export function ListHeader({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" sideOffset={8} className="w-56 rounded-2xl">
               <DropdownMenuLabel className="text-[11px] text-muted-foreground font-normal">
-                {isAr ? 'إجراءات' : 'Actions'}
+                {'إجراءات'}
               </DropdownMenuLabel>
               {unreadCount > 0 && (
                 <DropdownMenuItem onClick={onMarkAllRead} className="rounded-lg gap-2.5">
                   <CheckCheck className="h-4 w-4 text-muted-foreground" />
-                  <span>{isAr ? 'تحديد الكل كمقروء' : 'Mark all as read'}</span>
+                  <span>{'تحديد الكل كمقروء'}</span>
                 </DropdownMenuItem>
               )}
               <DropdownMenuItem onClick={onOpenArchiveSearch} className="rounded-lg gap-2.5">
                 <Archive className="h-4 w-4 text-muted-foreground" />
-                <span>{isAr ? 'بحث الأرشيف' : 'Search archive'}</span>
+                <span>{'بحث الأرشيف'}</span>
               </DropdownMenuItem>
               <DropdownMenuItem onClick={onOpenAlerts} className="rounded-lg gap-2.5">
                 <Bell className="h-4 w-4 text-muted-foreground" />
-                <span className="flex-1">{isAr ? 'تنبيهات الكلمات' : 'Keyword alerts'}</span>
+                <span className="flex-1">{'تنبيهات الكلمات'}</span>
                 {unseenAlerts > 0 && (
                   <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-primary text-primary-foreground tabular-nums">
                     {unseenAlerts}
@@ -262,12 +260,12 @@ export function ListHeader({
               </DropdownMenuItem>
               <DropdownMenuItem onClick={onOpenReader} className="rounded-lg gap-2.5">
                 <Type className="h-4 w-4 text-muted-foreground" />
-                <span>{isAr ? 'قراءة رابط' : 'Reader view'}</span>
+                <span>{'قراءة رابط'}</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={onManage} className="rounded-lg gap-2.5">
                 <Settings2 className="h-4 w-4 text-muted-foreground" />
-                <span>{isAr ? 'إدارة المصادر' : 'Manage feeds'}</span>
+                <span>{'إدارة المصادر'}</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -284,7 +282,7 @@ export function ListHeader({
           >
             <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder={isAr ? 'بحث في المقالات...' : 'Search articles...'}
+              placeholder={'بحث في المقالات...'}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="ps-10 h-11 text-[15px] rounded-2xl bg-background/60 border-border/50"
@@ -294,7 +292,7 @@ export function ListHeader({
                 type="button"
                 onClick={() => setSearchQuery('')}
                 className="absolute end-3 top-1/2 -translate-y-1/2"
-                aria-label={isAr ? 'مسح' : 'Clear'}
+                aria-label={'مسح'}
               >
                 <X className="h-4 w-4 text-muted-foreground" />
               </button>
@@ -317,7 +315,7 @@ export function ListHeader({
               <span className="flex items-center gap-1.5">
                 <RefreshCw className="h-3.5 w-3.5 animate-spin" />
                 <span className="truncate max-w-[200px] animate-pulse">
-                  {syncProgress.currentFeed || (isAr ? 'جاري تحديث المصادر...' : 'Syncing feeds...')}
+                  {syncProgress.currentFeed || ('جاري تحديث المصادر...')}
                 </span>
               </span>
               <span className="tabular-nums opacity-90">
@@ -351,7 +349,7 @@ export function ListHeader({
               <span className="flex items-center gap-1.5">
                 <Sparkle className="h-3.5 w-3.5 animate-pulse text-amber-500 fill-amber-500" />
                 <span>
-                  {isAr ? 'تجهيز ذكي فائق للمقالات الكاملة...' : 'Intelligent full article caching...'}
+                  {'تجهيز ذكي فائق للمقالات الكاملة...'}
                 </span>
               </span>
               <span className="tabular-nums opacity-90">
@@ -385,7 +383,7 @@ export function ListHeader({
                 setCategoryFilter('all');
                 setSourceFilter('all');
               }}
-              label={isAr ? 'كل الأقسام' : 'All folders'}
+              label={'كل الأقسام'}
               icon={<FolderOpen className="h-3 w-3" />}
             />
             {populatedCategories.map((c) => (
@@ -397,7 +395,7 @@ export function ListHeader({
                     // Clear source when switching folders
                     setSourceFilter('all');
                   }}
-                  label={isAr ? c.ar : c.en}
+                  label={c.ar}
                 />
                 {customFolders.includes(c.id) && (
                   <button
@@ -407,7 +405,7 @@ export function ListHeader({
                       handleDeleteFolder(c.id);
                     }}
                     className="absolute -top-1 -end-1 bg-destructive text-destructive-foreground rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
-                    title={isAr ? 'حذف' : 'Delete'}
+                    title={'حذف'}
                   >
                     <Trash2 className="h-2 w-2" />
                   </button>
@@ -420,7 +418,7 @@ export function ListHeader({
               className="px-2.5 py-1 rounded-full text-[11px] font-semibold transition-all shrink-0 active:scale-95 inline-flex items-center gap-1 bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20"
             >
               <Plus className="h-3 w-3" />
-              <span>{isAr ? 'مجلد جديد' : 'New Folder'}</span>
+              <span>{'مجلد جديد'}</span>
             </button>
           </div>
 
@@ -433,7 +431,7 @@ export function ListHeader({
                 className="flex gap-2"
               >
                 <Input
-                  placeholder={isAr ? 'اسم المجلد الجديد...' : 'New folder name...'}
+                  placeholder={'اسم المجلد الجديد...'}
                   value={newFolderName}
                   onChange={(e) => setNewFolderName(e.target.value)}
                   className="h-9 text-xs rounded-xl"
@@ -446,7 +444,7 @@ export function ListHeader({
                   onClick={handleAddFolder}
                   className="px-3 rounded-xl bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 transition-opacity shrink-0"
                 >
-                  {isAr ? 'إضافة' : 'Add'}
+                  {'إضافة'}
                 </button>
               </motion.div>
             )}
@@ -462,20 +460,20 @@ export function ListHeader({
             setFilterTab('all');
             setSourceFilter('all');
           }}
-          label={isAr ? 'الكل' : 'All'}
+          label={'الكل'}
           count={articleCount}
         />
         <Chip
           active={filterTab === 'unread'}
           onClick={() => setFilterTab(filterTab === 'unread' ? 'all' : 'unread')}
-          label={isAr ? 'غير مقروء' : 'Unread'}
+          label={'غير مقروء'}
           count={unreadCount}
         />
         <Chip
           active={filterTab === 'bookmarks'}
           onClick={() => setFilterTab(filterTab === 'bookmarks' ? 'all' : 'bookmarks')}
           icon={<Bookmark className="h-3 w-3 inline" />}
-          label={isAr ? 'المحفوظات' : 'Saved'}
+          label={'المحفوظات'}
           count={bookmarksCount > 0 ? bookmarksCount : undefined}
         />
         {visibleSources.length > 0 && (

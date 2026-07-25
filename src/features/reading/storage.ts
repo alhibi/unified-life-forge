@@ -553,21 +553,21 @@ export function describeFrequency(
   const m = f.medianMinutes;
   if (m < 60) {
     const perHour = Math.round(60 / m);
-    return isAr ? `≈${perHour} مقالة/ساعة` : `≈${perHour}/hour`;
+    return `≈${perHour} مقالة/ساعة`;
   }
   if (m < 60 * 12) {
     const perDay = Math.max(1, Math.round((60 * 24) / m));
-    return isAr ? `≈${perDay} مقالة/يوم` : `≈${perDay}/day`;
+    return `≈${perDay} مقالة/يوم`;
   }
   if (m < 60 * 24 * 3) {
-    return isAr ? 'يومي تقريباً' : 'roughly daily';
+    return 'يومي تقريباً';
   }
   if (m < 60 * 24 * 10) {
     const perWeek = Math.max(1, Math.round((60 * 24 * 7) / m));
-    return isAr ? `≈${perWeek} مقالة/أسبوع` : `≈${perWeek}/week`;
+    return `≈${perWeek} مقالة/أسبوع`;
   }
   if (m < 60 * 24 * 45) {
-    return isAr ? 'أسبوعي' : 'weekly';
+    return 'أسبوعي';
   }
-  return isAr ? 'شهري أو أقل' : 'monthly or less';
+  return 'شهري أو أقل';
 }

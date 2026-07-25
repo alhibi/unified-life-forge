@@ -80,7 +80,7 @@ const GroupMessageBubble: React.FC<GroupMessageBubbleProps> = ({
     return (
       <div className={cn('flex w-full', isMine ? 'justify-end' : 'justify-start')}>
         <div className="rounded-2xl bg-muted/30 text-muted-foreground italic text-[13px] px-3 py-1.5 max-w-[78%]">
-          {isAr ? '🚫 رسالة محذوفة' : '🚫 Nachricht gelöscht'}
+          {'🚫 رسالة محذوفة'}
         </div>
       </div>
     );
@@ -112,7 +112,7 @@ const GroupMessageBubble: React.FC<GroupMessageBubbleProps> = ({
                   ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400'
                   : 'bg-sky-500/15 text-sky-600 dark:text-sky-400',
               )}>
-                {sender.role === 'owner' ? (isAr ? 'مالك' : 'Owner') : (isAr ? 'مشرف' : 'Admin')}
+                {sender.role === 'owner' ? ('مالك') : ('مشرف')}
               </span>
             )}
           </div>
@@ -149,8 +149,8 @@ const GroupMessageBubble: React.FC<GroupMessageBubbleProps> = ({
                 isMine ? 'text-primary-foreground/85' : 'text-primary',
               )}>
                 {replyTarget?.senderId === myUserId
-                  ? (isAr ? 'أنت' : 'Du')
-                  : (isAr ? '↵ رد' : '↵ Antwort')}
+                  ? ('أنت')
+                  : ('↵ رد')}
               </p>
               <p className={cn(
                 'text-[12px] truncate',
@@ -158,9 +158,9 @@ const GroupMessageBubble: React.FC<GroupMessageBubbleProps> = ({
               )} dir="auto">
                 {replyTarget
                   ? (replyTarget.deleted
-                      ? (isAr ? '🚫 محذوفة' : '🚫 Gelöscht')
+                      ? ('🚫 محذوفة')
                       : (replyTarget.content || (replyTarget.kind === 'image' ? '📷' : replyTarget.kind === 'voice' ? '🎤' : '📎')))
-                  : (isAr ? 'رسالة قديمة' : 'Ältere Nachricht')}
+                  : ('رسالة قديمة')}
               </p>
             </button>
           )}
@@ -178,7 +178,7 @@ const GroupMessageBubble: React.FC<GroupMessageBubbleProps> = ({
             isMine ? 'text-primary-foreground/70' : 'text-muted-foreground/70',
           )}>
             {message.editedAt && (
-              <span className="italic">{isAr ? 'معدّلة' : 'bearbeitet'}</span>
+              <span className="italic">{'معدّلة'}</span>
             )}
             <span>{formatClockTime(message.createdAt)}</span>
             {isMine && (
@@ -214,7 +214,7 @@ const GroupMessageBubble: React.FC<GroupMessageBubbleProps> = ({
         {/* Failed-send hint (sender side) */}
         {failed && isMine && (
           <p className="text-[10px] text-destructive text-end pe-1 mt-0.5">
-            {isAr ? 'تعذّر الإرسال — اضغط للمحاولة' : 'Senden fehlgeschlagen – tippe zum Wiederholen'}
+            {'تعذّر الإرسال — اضغط للمحاولة'}
           </p>
         )}
       </div>

@@ -48,7 +48,7 @@ export default function WeatherWidget() {
   const navigate = useNavigate();
   const { language } = useApp();
   const ar = language === 'ar';
-  const { data } = useWeatherData(ar ? 'ar' : 'de');
+  const { data } = useWeatherData('ar');
 
   if (!data) {
     return (

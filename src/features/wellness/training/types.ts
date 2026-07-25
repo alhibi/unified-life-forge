@@ -16,7 +16,7 @@ import type { SetEntry, WorkoutSession, AthleteProfile, Sex } from '../wellnessD
 
 /* ────────────────── Bilingual labels ────────────────── */
 
-export type Lang = 'ar' | 'de';
+export type Lang = 'ar';
 export type LocalizedString = Record<Lang, string>;
 
 /* ────────────────── Set prescription ────────────────── */

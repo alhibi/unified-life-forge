@@ -30,23 +30,21 @@ export default function AtlasTab() {
   }, [query]);
 
   return (
-    <div className="space-y-3" dir={isAr ? 'rtl' : 'ltr'}>
+    <div className="space-y-3" dir={'rtl'}>
       <div className="rounded-2xl bg-card border border-border/40 p-3 flex items-center gap-2">
         <BookOpen className="w-4 h-4 text-primary shrink-0" />
         <p className="text-[12px] text-muted-foreground leading-snug">
-          {isAr
-            ? 'الأطلس البيوكيميائي الشامل للمغذيات الحيوية — مرجع علمي مختصر.'
-            : 'Biochemischer Atlas der Mikronährstoffe — kompakte wissenschaftliche Referenz.'}
+          {'الأطلس البيوكيميائي الشامل للمغذيات الحيوية — مرجع علمي مختصر.'}
         </p>
       </div>
 
       <div className="relative">
-        <Search className={`absolute top-1/2 -translate-y-1/2 ${isAr ? 'right-3' : 'left-3'} w-4 h-4 text-muted-foreground`} />
+        <Search className={`absolute top-1/2 -translate-y-1/2 ${'right-3'} w-4 h-4 text-muted-foreground`} />
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder={isAr ? 'ابحث عن عنصر...' : 'Suchen...'}
-          className={`w-full h-11 rounded-2xl bg-card border border-border/40 text-[14px] text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary/40 transition-colors ${isAr ? 'pr-10 pl-3' : 'pl-10 pr-3'}`}
+          placeholder={'ابحث عن عنصر...'}
+          className={`w-full h-11 rounded-2xl bg-card border border-border/40 text-[14px] text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary/40 transition-colors ${'pr-10 pl-3'}`}
         />
       </div>
 
@@ -132,15 +130,13 @@ export default function AtlasTab() {
 
         {filtered.length === 0 && (
           <div className="rounded-2xl bg-card border border-border/40 p-6 text-center text-[13px] text-muted-foreground">
-            {isAr ? 'لا توجد نتائج' : 'Keine Ergebnisse'}
+            {'لا توجد نتائج'}
           </div>
         )}
       </div>
 
       <p className="text-[10px] text-muted-foreground/70 leading-relaxed text-center px-2 pt-2">
-        {isAr
-          ? 'تنبيه: المعلومات مرجع بيوكيميائي فقط، استشر مختصاً قبل أي بروتوكول علاجي.'
-          : 'Hinweis: Nur biochemische Referenz. Vor jedem Protokoll Fachpersonal konsultieren.'}
+        {'تنبيه: المعلومات مرجع بيوكيميائي فقط، استشر مختصاً قبل أي بروتوكول علاجي.'}
       </p>
     </div>
   );

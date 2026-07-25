@@ -21,20 +21,20 @@ export interface CaliHoldTimerProps {
   personalBest?: number;
   /** Notify with the final hold time. */
   onSave: (heldSec: number) => void;
-  lang: 'ar' | 'de';
+  lang: 'ar';
   /** Optional accent colour. */
   accent?: string;
 }
 
 const T = {
-  target: { ar: 'الهدف', de: 'Ziel' },
-  pb: { ar: 'الأفضل', de: 'PB' },
-  pbBeaten: { ar: 'حطمت رقمك!', de: 'PB geknackt!' },
-  targetReached: { ar: 'الهدف ✓', de: 'Ziel ✓' },
-  start: { ar: 'ابدأ', de: 'Start' },
-  pause: { ar: 'إيقاف', de: 'Pause' },
-  reset: { ar: 'إعادة', de: 'Reset' },
-  save: { ar: 'حفظ', de: 'Speichern' },
+  target: { ar: 'الهدف', },
+  pb: { ar: 'الأفضل', },
+  pbBeaten: { ar: 'حطمت رقمك!', },
+  targetReached: { ar: 'الهدف ✓', },
+  start: { ar: 'ابدأ', },
+  pause: { ar: 'إيقاف', },
+  reset: { ar: 'إعادة', },
+  save: { ar: 'حفظ', },
 };
 
 function vibrate(pattern: number | number[]): void {

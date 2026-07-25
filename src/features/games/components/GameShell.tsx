@@ -51,9 +51,9 @@ export default function GameShell({ title, icon: Icon, accentColor, rules, stats
   const toggleHap = () => { setHapticsOff(!hapticsOff); setHapticsOffState(!hapticsOff); };
 
   const tabs = [
-    { id: 'rules' as const, icon: Info, label: isAr ? 'القواعد' : 'Regeln' },
-    ...(stats && stats.length > 0 ? [{ id: 'stats' as const, icon: BarChart3, label: isAr ? 'التقدم' : 'Fortschritt' }] : []),
-    ...(options && options.length > 0 ? [{ id: 'options' as const, icon: Settings2, label: isAr ? 'خيارات' : 'Optionen' }] : []),
+    { id: 'rules' as const, icon: Info, label: 'القواعد' },
+    ...(stats && stats.length > 0 ? [{ id: 'stats' as const, icon: BarChart3, label: 'التقدم' }] : []),
+    ...(options && options.length > 0 ? [{ id: 'options' as const, icon: Settings2, label: 'خيارات' }] : []),
   ];
 
   return (
@@ -80,7 +80,7 @@ export default function GameShell({ title, icon: Icon, accentColor, rules, stats
           <div className="flex items-center gap-1.5 shrink-0">
             <button
               onClick={toggleMute}
-              aria-label={isAr ? 'كتم الصوت' : 'Ton'}
+              aria-label={'كتم الصوت'}
               className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
               style={{ background: muted ? 'rgba(255,255,255,0.04)' : `${accentColor}18`, color: muted ? 'rgba(255,255,255,0.45)' : accentColor, border: `1px solid ${muted ? 'rgba(255,255,255,0.06)' : `${accentColor}30`}` }}
             >
@@ -88,7 +88,7 @@ export default function GameShell({ title, icon: Icon, accentColor, rules, stats
             </button>
             <button
               onClick={toggleHap}
-              aria-label={isAr ? 'اهتزاز' : 'Vibration'}
+              aria-label={'اهتزاز'}
               className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
               style={{ background: hapticsOff ? 'rgba(255,255,255,0.04)' : `${accentColor}18`, color: hapticsOff ? 'rgba(255,255,255,0.45)' : accentColor, border: `1px solid ${hapticsOff ? 'rgba(255,255,255,0.06)' : `${accentColor}30`}` }}
             >

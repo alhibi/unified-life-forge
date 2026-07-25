@@ -540,8 +540,8 @@ export default function Weather() {
   const { location: deviceLoc } = useDeviceLocation();
   const activeLocation = selectedCoords || deviceLoc;
 
-  const { snapshot, status, tier, isRefreshing, refresh } = useWeather(ar ? 'ar' : 'de', selectedCoords);
-  const { forecast } = useWeatherForecast(ar ? 'ar' : 'de', selectedCoords);
+  const { snapshot, status, tier, isRefreshing, refresh } = useWeather('ar', selectedCoords);
+  const { forecast } = useWeatherForecast('ar', selectedCoords);
 
   const hourly = forecast.hourly.slice(0, 24);
   const currentHour = hourly[0];

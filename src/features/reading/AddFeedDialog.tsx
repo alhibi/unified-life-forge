@@ -117,7 +117,7 @@ export function AddFeedDialog({
       } else {
         // Search heuristic - try searching via common sources or guess domain
         trimmed = 'https://www.google.com/search?q=' + encodeURIComponent(trimmed + ' RSS feed');
-        toast.info(isAr ? 'تم تحويل البحث للاكتشاف الذكي لعناوين الويب' : 'Smart discovering web address...');
+        toast.info('تم تحويل البحث للاكتشاف الذكي لعناوين الويب');
       }
     }
 
@@ -154,19 +154,19 @@ export function AddFeedDialog({
       clearTimeout(stageBump);
       setStage('error');
       const err = e as Error;
-      setErrorMsg(err?.message || (isAr ? 'تعذّر البحث' : 'Search failed'));
+      setErrorMsg(err?.message || ('تعذّر البحث'));
     }
   };
 
   const handleAddCandidate = async (c: FeedCandidate) => {
     if (existingUrls.has(c.url)) {
-      toast.info(isAr ? 'موجود بالفعل' : 'Already subscribed');
+      toast.info('موجود بالفعل');
       return;
     }
     setAdding(c.url);
     const ok = onAdd(c.url, c.title, category);
     if (ok) {
-      toast.success(isAr ? `تمت إضافة ${c.title}` : `Added ${c.title}`);
+      toast.success(`تمت إضافة ${c.title}`);
     }
     setAdding(null);
   };
@@ -198,19 +198,17 @@ export function AddFeedDialog({
             </div>
             <div className="flex-1">
               <h3 className="text-base font-bold">
-                {isAr ? 'إضافة مصدر' : 'Add a feed'}
+                {'إضافة مصدر'}
               </h3>
               <p className="text-xs text-muted-foreground mt-0.5">
-                {isAr
-                  ? 'الصق رابط الموقع — سنبحث عن الخلاصات تلقائياً'
-                  : 'Paste a website URL — we’ll find its feeds'}
+                {'الصق رابط الموقع — سنبحث عن الخلاصات تلقائياً'}
               </p>
             </div>
             <button
               type="button"
               onClick={onClose}
               className="p-2 rounded-xl hover:bg-accent/50"
-              aria-label={isAr ? 'إغلاق' : 'Close'}
+              aria-label={'إغلاق'}
             >
               <X className="h-4 w-4" />
             </button>
@@ -246,7 +244,7 @@ export function AddFeedDialog({
             {/* Category selector — applies to all picks from this dialog */}
             <div className="flex items-center gap-2 mt-3 overflow-x-auto no-scrollbar">
               <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold shrink-0">
-                {isAr ? 'المجلد' : 'Folder'}
+                {'المجلد'}
               </span>
               {allFolders.map((c) => (
                 <button
@@ -259,7 +257,7 @@ export function AddFeedDialog({
                       : 'bg-accent/30 text-muted-foreground hover:bg-accent/50 border border-transparent'
                   }`}
                 >
-                  {isAr ? c.ar : c.en}
+                  {c.ar}
                 </button>
               ))}
             </div>
@@ -275,7 +273,7 @@ export function AddFeedDialog({
               <ResultsList
                 response={response}
                 isAr={isAr}
-                language={isAr ? 'ar' : 'en'}
+                language={'ar'}
                 existingUrls={existingUrls}
                 addingUrl={adding}
                 onAdd={handleAddCandidate}
@@ -296,9 +294,7 @@ function EmptyHint({ isAr }: { isAr: boolean }) {
     <div className="flex flex-col items-center justify-center text-center py-10 gap-3">
       <Globe className="h-10 w-10 text-muted-foreground/30" />
       <p className="text-sm text-muted-foreground max-w-xs">
-        {isAr
-          ? 'مثال: bbc.com — أو الصق رابط RSS مباشرةً'
-          : 'Example: bbc.com — or paste an RSS URL directly'}
+        {'مثال: bbc.com — أو الصق رابط RSS مباشرةً'}
       </p>
     </div>
   );
@@ -338,11 +334,11 @@ function ProgressStrip({ stage, isAr }: { stage: Stage; isAr: boolean }) {
                 active ? 'text-foreground' : 'text-muted-foreground'
               }`}
             >
-              {isAr ? s.ar : s.en}
+              {s.ar}
             </span>
             {active && (
               <span className="ms-auto text-[10px] text-muted-foreground/70">
-                {isAr ? 'جارٍ...' : 'in progress'}
+                {'جارٍ...'}
               </span>
             )}
           </div>
@@ -358,7 +354,7 @@ function ErrorState({ isAr, message }: { isAr: boolean; message: string }) {
       <X className="h-8 w-8 text-destructive/60" />
       <p className="text-sm text-muted-foreground max-w-xs">
         {message ||
-          (isAr ? 'لم يتم العثور على خلاصات' : 'No feeds discovered')}
+          ('لم يتم العثور على خلاصات')}
       </p>
     </div>
   );
@@ -387,9 +383,7 @@ function ResultsList({
       <ErrorState
         isAr={isAr}
         message={errorMsg ||
-          (isAr
-            ? 'لا توجد خلاصات على هذا الموقع'
-            : 'No feeds advertised on this site')}
+          ('لا توجد خلاصات على هذا الموقع')}
       />
     );
   }
@@ -398,9 +392,7 @@ function ResultsList({
     <div className="space-y-3">
       {response.site && <SiteHeader site={response.site} response={response} isAr={isAr} />}
       <p className="text-[11px] text-muted-foreground font-semibold uppercase tracking-wider">
-        {isAr
-          ? `${cands.length} خلاصة متاحة`
-          : `${cands.length} available feed${cands.length === 1 ? '' : 's'}`}
+        {`${cands.length} خلاصة متاحة`}
       </p>
       {cands.map((c) => (
         <CandidateCard
@@ -454,10 +446,10 @@ function SiteHeader({
       </div>
       <span className="text-[10px] uppercase tracking-wider px-2 py-1 rounded-full bg-primary/10 text-primary font-bold shrink-0">
         {response.strategy === 'direct'
-          ? (isAr ? 'مباشر' : 'Direct')
+          ? ('مباشر')
           : response.strategy === 'declared'
-            ? (isAr ? 'معلَن' : 'Declared')
-            : (isAr ? 'مكتشف' : 'Probed')}
+            ? ('معلَن')
+            : ('مكتشف')}
       </span>
     </div>
   );
@@ -526,15 +518,13 @@ function CandidateCard({
             )}
             {c.lastPublishedAt && (
               <span className="text-[10px] text-muted-foreground">
-                {isAr ? 'آخر نشر ' : 'Last '}
+                {'آخر نشر '}
                 {timeAgo(c.lastPublishedAt, language)}
               </span>
             )}
             {c.itemCount > 0 && (
               <span className="text-[10px] text-muted-foreground tabular-nums">
-                · {isAr
-                  ? `${c.itemCount} عنصر`
-                  : `${c.itemCount} item${c.itemCount === 1 ? '' : 's'}`}
+                · {`${c.itemCount} عنصر`}
               </span>
             )}
           </div>
@@ -546,7 +536,7 @@ function CandidateCard({
           ? (
             <span className="px-2.5 py-1.5 rounded-xl bg-foreground/5 text-muted-foreground text-[11px] font-medium shrink-0 inline-flex items-center gap-1">
               <Check className="h-3 w-3" />
-              {isAr ? 'مضافة' : 'Added'}
+              {'مضافة'}
             </span>
           )
           : (
@@ -565,9 +555,7 @@ function CandidateCard({
       {c.items.length > 0 && (
         <div className="mt-3 pt-3 border-t border-border/30 space-y-1">
           <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold mb-1">
-            {isAr
-              ? `آخر ${c.items.length} مقالات`
-              : `Latest ${c.items.length} article${c.items.length === 1 ? '' : 's'}`}
+            {`آخر ${c.items.length} مقالات`}
           </p>
           {c.items.map((it, i) => (
             <div key={i} className="flex items-baseline gap-2">

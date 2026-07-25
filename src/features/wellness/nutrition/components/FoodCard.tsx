@@ -9,7 +9,7 @@ import { Flame, Heart } from '@/lib/icons';
 import type { NutritionFoodItem } from '../types';
 import { isFavorite } from '../utils';
 
-type Lang = 'ar' | 'de';
+type Lang = 'ar';
 
 interface Props {
   food: NutritionFoodItem;

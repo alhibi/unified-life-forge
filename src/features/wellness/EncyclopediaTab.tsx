@@ -37,42 +37,42 @@ import {
  * ═══════════════════════════════════════════════════════════════════ */
 
 const T = {
-  search: { ar: 'ابحث...', de: 'Suchen...' },
-  cali:   { ar: 'كاليستنيكس',   de: 'Calisthenics' },
-  food:   { ar: 'الأطعمة',       de: 'Nahrung' },
-  wisdom: { ar: 'حكمة الصحة',    de: 'Wissen' },
-  prerequisites: { ar: 'المتطلبات', de: 'Voraussetzungen' },
-  levels: { ar: 'المستويات',     de: 'Levels' },
-  cues: { ar: 'مفاتيح التقنية', de: 'Technik-Cues' },
-  mistakes: { ar: 'أخطاء شائعة', de: 'Häufige Fehler' },
-  muscles: { ar: 'العضلات',     de: 'Muskeln' },
-  frequency: { ar: 'التكرار',   de: 'Frequenz' },
-  proTip: { ar: 'نصيحة المحترف', de: 'Profi-Tipp' },
-  difficulty: { ar: 'الصعوبة',  de: 'Schwierigkeit' },
-  estimatedMonths: { ar: 'وقت متوقع', de: 'Geschätzte Dauer' },
-  months: { ar: 'شهر', de: 'Monate' },
-  benefits: { ar: 'الفوائد',    de: 'Vorteile' },
-  keyNutrients: { ar: 'عناصر رئيسية', de: 'Hauptnährstoffe' },
-  pairing: { ar: 'الإقران',     de: 'Kombination' },
-  pitfall: { ar: 'احذر',        de: 'Warnung' },
-  athleteTip: { ar: 'نصيحة الرياضي', de: 'Athleten-Tipp' },
-  optimalTimes: { ar: 'أوقات مثالية', de: 'Optimale Zeiten' },
-  per100g: { ar: 'لكل 100غ',    de: 'pro 100 g' },
-  kcal: { ar: 'سعرة',           de: 'kcal' },
-  protein: { ar: 'بروتين',      de: 'Protein' },
-  carbs: { ar: 'كربوهيدرات',    de: 'Carbs' },
-  fat: { ar: 'دهون',            de: 'Fett' },
-  fiber: { ar: 'ألياف',         de: 'Ballast.' },
-  gi: { ar: 'مؤشر سكري',        de: 'GI' },
-  giLow: { ar: 'منخفض',         de: 'Niedrig' },
-  giMid: { ar: 'متوسط',         de: 'Mittel' },
-  giHigh: { ar: 'عالي',         de: 'Hoch' },
-  philosophies: { ar: 'فلسفة الكاليستنيكس', de: 'Calisthenics-Philosophie' },
-  action: { ar: 'الفعل المطلوب', de: 'Aktion' },
-  impact: { ar: 'التأثير',       de: 'Wirkung' },
-  myth: { ar: 'خرافة شائعة',     de: 'Mythos' },
-  noResults: { ar: 'لا نتائج',   de: 'Keine Ergebnisse' },
-  filterAll: { ar: 'الكل',       de: 'Alle' },
+  search: { ar: 'ابحث...', },
+  cali:   { ar: 'كاليستنيكس', },
+  food:   { ar: 'الأطعمة', },
+  wisdom: { ar: 'حكمة الصحة', },
+  prerequisites: { ar: 'المتطلبات', },
+  levels: { ar: 'المستويات', },
+  cues: { ar: 'مفاتيح التقنية', },
+  mistakes: { ar: 'أخطاء شائعة', },
+  muscles: { ar: 'العضلات', },
+  frequency: { ar: 'التكرار', },
+  proTip: { ar: 'نصيحة المحترف', },
+  difficulty: { ar: 'الصعوبة', },
+  estimatedMonths: { ar: 'وقت متوقع', },
+  months: { ar: 'شهر', },
+  benefits: { ar: 'الفوائد', },
+  keyNutrients: { ar: 'عناصر رئيسية', },
+  pairing: { ar: 'الإقران', },
+  pitfall: { ar: 'احذر', },
+  athleteTip: { ar: 'نصيحة الرياضي', },
+  optimalTimes: { ar: 'أوقات مثالية', },
+  per100g: { ar: 'لكل 100غ', },
+  kcal: { ar: 'سعرة', },
+  protein: { ar: 'بروتين', },
+  carbs: { ar: 'كربوهيدرات', },
+  fat: { ar: 'دهون', },
+  fiber: { ar: 'ألياف', },
+  gi: { ar: 'مؤشر سكري', },
+  giLow: { ar: 'منخفض', },
+  giMid: { ar: 'متوسط', },
+  giHigh: { ar: 'عالي', },
+  philosophies: { ar: 'فلسفة الكاليستنيكس', },
+  action: { ar: 'الفعل المطلوب', },
+  impact: { ar: 'التأثير', },
+  myth: { ar: 'خرافة شائعة', },
+  noResults: { ar: 'لا نتائج', },
+  filterAll: { ar: 'الكل', },
 };
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -112,7 +112,7 @@ function DifficultyDots({ level, color }: { level: number; color: string }) {
  *  CALISTHENICS SECTION
  * ═══════════════════════════════════════════════════════════════════ */
 
-function CalisthenicsSection({ lang, query }: { lang: 'ar' | 'de'; query: string }) {
+function CalisthenicsSection({ lang, query }: { lang: 'ar'; query: string }) {
   const [expanded, setExpanded] = useState<string | null>(null);
   const [filterCat, setFilterCat] = useState<SkillCategory | 'all'>('all');
 
@@ -199,7 +199,7 @@ function CalisthenicsSection({ lang, query }: { lang: 'ar' | 'de'; query: string
 
 function SkillCard({
   skill, lang, expanded, onToggle,
-}: { skill: CalisthenicsSkill; lang: 'ar' | 'de'; expanded: boolean; onToggle: () => void }) {
+}: { skill: CalisthenicsSkill; lang: 'ar'; expanded: boolean; onToggle: () => void }) {
   return (
     <motion.div
       layout
@@ -360,7 +360,7 @@ function SkillCard({
  *  FOOD SECTION
  * ═══════════════════════════════════════════════════════════════════ */
 
-function FoodSection({ lang, query }: { lang: 'ar' | 'de'; query: string }) {
+function FoodSection({ lang, query }: { lang: 'ar'; query: string }) {
   const [expanded, setExpanded] = useState<string | null>(null);
   const [filterGroup, setFilterGroup] = useState<FoodGroup | 'all'>('all');
 
@@ -430,7 +430,7 @@ function FoodSection({ lang, query }: { lang: 'ar' | 'de'; query: string }) {
 
 function FoodCard({
   food, lang, expanded, onToggle,
-}: { food: FoodAtlasEntry; lang: 'ar' | 'de'; expanded: boolean; onToggle: () => void }) {
+}: { food: FoodAtlasEntry; lang: 'ar'; expanded: boolean; onToggle: () => void }) {
   const giLabel = food.glycemicIndex == null ? '—' :
     food.glycemicIndex <= 35 ? T.giLow[lang] :
     food.glycemicIndex <= 65 ? T.giMid[lang] :
@@ -602,7 +602,7 @@ const CATEGORY_ICONS: Record<EncyclopediaCategory, any> = {
   cold_heat: Sparkles, mobility: Compass, heart: Heart, habits: Trophy,
 };
 
-function WisdomSection({ lang, query }: { lang: 'ar' | 'de'; query: string }) {
+function WisdomSection({ lang, query }: { lang: 'ar'; query: string }) {
   const [expanded, setExpanded] = useState<string | null>(null);
   const [filterCat, setFilterCat] = useState<EncyclopediaCategory | 'all'>('all');
 
@@ -681,7 +681,7 @@ function WisdomSection({ lang, query }: { lang: 'ar' | 'de'; query: string }) {
                         {chapter.title[lang]}
                       </h3>
                       <p className="text-[9px] text-muted-foreground line-clamp-1 mt-0.5">
-                        {chapter.facts.length} {lang === 'ar' ? 'حقيقة' : 'Fakten'}
+                        {chapter.facts.length} {'حقيقة'}
                       </p>
                     </div>
                     <motion.div animate={{ rotate: isOpen ? 180 : 0 }} className="shrink-0">
@@ -828,7 +828,7 @@ function MacroBox({
 
 export default function EncyclopediaTab() {
   const { language } = useApp();
-  const lang = language as 'ar' | 'de';
+  const lang = language as 'ar';
 
   const [subTab, setSubTab] = useState<SubTab>('cali');
   const [query, setQuery] = useState('');

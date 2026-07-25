@@ -288,12 +288,8 @@ function VoiceBubble({
           onClick={handleToggle}
           aria-label={
             isPlaying
-              ? isAr
-                ? 'إيقاف مؤقت'
-                : 'Pause'
-              : isAr
-                ? 'تشغيل الرسالة الصوتية'
-                : 'Sprachnachricht abspielen'
+              ? 'إيقاف مؤقت'
+              : 'تشغيل الرسالة الصوتية'
           }
           className={cn(
             'flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-colors active:scale-90',
@@ -316,7 +312,7 @@ function VoiceBubble({
             className="flex items-center gap-[2px] h-[20px] cursor-pointer touch-none select-none"
             dir="ltr"
             role={voicePlayer.state.msgId === msg.id ? 'slider' : undefined}
-            aria-label={isAr ? 'شريط تقدم الصوت' : 'Audio-Fortschritt'}
+            aria-label={'شريط تقدم الصوت'}
             aria-valuemin={voicePlayer.state.msgId === msg.id ? 0 : undefined}
             aria-valuemax={voicePlayer.state.msgId === msg.id ? 100 : undefined}
             aria-valuenow={
@@ -364,7 +360,7 @@ function VoiceBubble({
                       ? 'bg-primary-foreground/20 text-primary-foreground'
                       : 'bg-primary/15 text-primary',
                   )}
-                  aria-label={isAr ? 'سرعة التشغيل' : 'Wiedergabegeschwindigkeit'}
+                  aria-label={'سرعة التشغيل'}
                 >
                   {voicePlayer.state.playbackRate === 1
                     ? '1×'
@@ -380,7 +376,7 @@ function VoiceBubble({
                 )}
               >
                 {msg.edited_at && (
-                  <span className="text-[9px] italic">{isAr ? 'معدّلة' : 'bearb.'}</span>
+                  <span className="text-[9px] italic">{'معدّلة'}</span>
                 )}
                 {isFading && <Timer className="h-[10px] w-[10px] animate-pulse" />}
                 {formatClockTime(msg.created_at)}
@@ -450,9 +446,7 @@ export default function ChatDrawer({
         if (!url) continue;
         const senderName =
           next.sender_id === chat.user?.id
-            ? chat.isAr
-              ? 'أنت'
-              : 'Du'
+            ? 'أنت'
             : chat.activeConv?.otherDisplayName || chat.activeConv?.otherUsername || '';
         return { msgId: next.id, url, senderName };
       }
@@ -572,7 +566,7 @@ export default function ChatDrawer({
     };
   }, [inline]);
 
-  const BackIcon = chat.isAr ? ChevronRight : ChevronLeft;
+  const BackIcon = ChevronRight;
 
   // Unread ignoring archived + muted shown in the tab badge.
   const totalUnread = useMemo(() => {
@@ -873,7 +867,7 @@ export default function ChatDrawer({
     const signInPrompt = (
       <div className="flex flex-col items-center justify-center gap-3 h-full px-6 text-center">
         <p className="text-muted-foreground text-sm">
-          {chat.isAr ? 'يرجى تسجيل الدخول أولاً' : 'Bitte zuerst anmelden'}
+          {'يرجى تسجيل الدخول أولاً'}
         </p>
       </div>
     );
@@ -893,7 +887,7 @@ export default function ChatDrawer({
     return (
       <Sheet open={open} onOpenChange={onOpenChange}>
         <SheetContent
-          side={chat.isAr ? 'right' : 'left'}
+          side={'right'}
           className="w-full sm:max-w-md p-0 [&>button[class*='absolute']]:hidden"
         >
           {signInPrompt}
@@ -942,7 +936,7 @@ export default function ChatDrawer({
               >
                 <BackIcon className="w-5 h-5 text-foreground" />
               </button>
-              <h2 className="text-[16px] font-semibold">{chat.isAr ? 'الملف الشخصي' : 'Profil'}</h2>
+              <h2 className="text-[16px] font-semibold">{'الملف الشخصي'}</h2>
             </div>
 
             <div className="flex flex-col items-center pt-8 pb-4 px-6">
@@ -994,12 +988,8 @@ export default function ChatDrawer({
                 )}
                 <span className="text-[10.5px] font-medium">
                   {chat.chatPrefs.isMuted(chat.activeConv.id)
-                    ? chat.isAr
-                      ? 'مكتوم'
-                      : 'Stumm'
-                    : chat.isAr
-                      ? 'كتم'
-                      : 'Stummschalten'}
+                    ? 'مكتوم'
+                    : 'كتم'}
                 </span>
               </button>
               <button
@@ -1019,12 +1009,8 @@ export default function ChatDrawer({
                 />
                 <span className="text-[10.5px] font-medium">
                   {chat.chatPrefs.isPinned(chat.activeConv.id)
-                    ? chat.isAr
-                      ? 'مثبّتة'
-                      : 'Angeheftet'
-                    : chat.isAr
-                      ? 'تثبيت'
-                      : 'Anheften'}
+                    ? 'مثبّتة'
+                    : 'تثبيت'}
                 </span>
               </button>
               <button
@@ -1042,12 +1028,8 @@ export default function ChatDrawer({
                 )}
                 <span className="text-[10.5px] font-medium">
                   {chat.chatPrefs.isArchived(chat.activeConv.id)
-                    ? chat.isAr
-                      ? 'إلغاء الأرشفة'
-                      : 'Entarchivieren'
-                    : chat.isAr
-                      ? 'أرشفة'
-                      : 'Archivieren'}
+                    ? 'إلغاء الأرشفة'
+                    : 'أرشفة'}
                 </span>
               </button>
             </div>
@@ -1062,7 +1044,7 @@ export default function ChatDrawer({
                     : 'text-muted-foreground',
                 )}
               >
-                {chat.isAr ? 'المعلومات' : 'Info'}
+                {'المعلومات'}
               </button>
               <button
                 onClick={() => {
@@ -1086,7 +1068,7 @@ export default function ChatDrawer({
                     : 'text-muted-foreground',
                 )}
               >
-                {chat.isAr ? 'الوسائط' : 'Medien'}
+                {'الوسائط'}
               </button>
             </div>
 
@@ -1098,7 +1080,7 @@ export default function ChatDrawer({
                       <div>
                         <p className="text-xl font-bold text-foreground">{chat.messages.length}</p>
                         <p className="text-[10px] text-muted-foreground">
-                          {chat.isAr ? 'رسالة' : 'Nachrichten'}
+                          {'رسالة'}
                         </p>
                       </div>
                       <div>
@@ -1106,7 +1088,7 @@ export default function ChatDrawer({
                           {chat.messages.filter((m) => m.message_type === 'image').length}
                         </p>
                         <p className="text-[10px] text-muted-foreground">
-                          {chat.isAr ? 'صورة' : 'Fotos'}
+                          {'صورة'}
                         </p>
                       </div>
                       <div>
@@ -1114,7 +1096,7 @@ export default function ChatDrawer({
                           {chat.messages.filter((m) => m.message_type === 'voice').length}
                         </p>
                         <p className="text-[10px] text-muted-foreground">
-                          {chat.isAr ? 'صوتية' : 'Audio'}
+                          {'صوتية'}
                         </p>
                       </div>
                     </div>
@@ -1124,10 +1106,10 @@ export default function ChatDrawer({
                       <User2 className="w-4 h-4 text-muted-foreground shrink-0" />
                       <div className="min-w-0">
                         <p className="text-[11px] text-muted-foreground">
-                          {chat.isAr ? 'النبذة' : 'Bio'}
+                          {'النبذة'}
                         </p>
                         <p className="text-[13px] text-foreground font-medium">
-                          {chat.activeConv.otherBio || (chat.isAr ? 'لا توجد نبذة' : 'Keine Bio')}
+                          {chat.activeConv.otherBio || ('لا توجد نبذة')}
                         </p>
                       </div>
                     </div>
@@ -1135,12 +1117,12 @@ export default function ChatDrawer({
                       <Calendar className="w-4 h-4 text-muted-foreground shrink-0" />
                       <div className="min-w-0">
                         <p className="text-[11px] text-muted-foreground">
-                          {chat.isAr ? 'تاريخ الانضمام' : 'Beigetreten'}
+                          {'تاريخ الانضمام'}
                         </p>
                         <p className="text-[13px] text-foreground font-medium">
                           {chat.activeConv.otherCreatedAt
                             ? new Date(chat.activeConv.otherCreatedAt).toLocaleDateString(
-                                chat.isAr ? 'ar' : 'de',
+                                'ar',
                                 { day: 'numeric', month: 'long', year: 'numeric' },
                               )
                             : '—'}
@@ -1154,10 +1136,10 @@ export default function ChatDrawer({
                       <WallpaperIcon className="w-4 h-4 text-muted-foreground shrink-0" />
                       <div className="min-w-0 flex-1">
                         <p className="text-[11px] text-muted-foreground">
-                          {chat.isAr ? 'الخلفية' : 'Hintergrund'}
+                          {'الخلفية'}
                         </p>
                         <p className="text-[13px] text-foreground font-medium">
-                          {chat.isAr ? currentWallpaper.labelAr : currentWallpaper.label}
+                          {currentWallpaper.labelAr}
                         </p>
                       </div>
                       <ChevronRight
@@ -1179,19 +1161,15 @@ export default function ChatDrawer({
                   >
                     <EyeOff className="w-4 h-4" />
                     {chat.chatPrefs.isBlocked(chat.activeConv!.id)
-                      ? chat.isAr
-                        ? 'إلغاء حظر المستخدم'
-                        : 'Benutzer entsperren'
-                      : chat.isAr
-                        ? 'حظر هذا المستخدم'
-                        : 'Benutzer blockieren'}
+                      ? 'إلغاء حظر المستخدم'
+                      : 'حظر هذا المستخدم'}
                   </button>
                   <button
                     onClick={() => setShowDeleteConfirm(true)}
                     className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-destructive/10 text-destructive text-[13px] font-medium active:bg-destructive/20 transition-colors"
                   >
                     <Trash className="w-4 h-4" />
-                    {chat.isAr ? 'حذف المحادثة' : 'Chat deletion'}
+                    {'حذف المحادثة'}
                   </button>
                 </div>
               ) : (
@@ -1200,7 +1178,7 @@ export default function ChatDrawer({
                     <div className="flex flex-col items-center justify-center py-16 text-muted-foreground gap-3">
                       <ImageIcon className="w-10 h-10 opacity-30" />
                       <p className="text-sm">
-                        {chat.isAr ? 'لا توجد وسائط مشتركة' : 'Keine gemeinsamen Medien'}
+                        {'لا توجد وسائط مشتركة'}
                       </p>
                     </div>
                   ) : (
@@ -1256,13 +1234,13 @@ export default function ChatDrawer({
               <button
                 onClick={() => onOpenChange(false)}
                 className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40 transition-colors"
-                aria-label={chat.isAr ? 'رجوع' : 'Zurück'}
+                aria-label={'رجوع'}
               >
                 <BackIcon className="w-5 h-5 text-foreground" />
               </button>
               {!showConvSearch && (
                 <h1 className="text-[17px] font-bold tracking-tight">
-                  {chat.isAr ? 'الرسائل' : 'Nachrichten'}
+                  {'الرسائل'}
                 </h1>
               )}
             </div>
@@ -1274,7 +1252,7 @@ export default function ChatDrawer({
                     type="text"
                     value={convSearchQuery}
                     onChange={(e) => setConvSearchQuery(e.target.value)}
-                    placeholder={chat.isAr ? 'بحث...' : 'Suchen...'}
+                    placeholder={'بحث...'}
                     className="flex-1 bg-transparent text-[14px] outline-none ms-2 placeholder:text-muted-foreground/40"
                     dir="auto"
                     autoFocus
@@ -1297,12 +1275,8 @@ export default function ChatDrawer({
                   className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40 transition-colors"
                   aria-label={
                     chat.chatPrefs.prefs.soundEnabled
-                      ? chat.isAr
-                        ? 'كتم الصوت'
-                        : 'Stumm'
-                      : chat.isAr
-                        ? 'تفعيل الصوت'
-                        : 'Laut'
+                      ? 'كتم الصوت'
+                      : 'تفعيل الصوت'
                   }
                 >
                   {chat.chatPrefs.prefs.soundEnabled ? (
@@ -1314,7 +1288,7 @@ export default function ChatDrawer({
                 <button
                   onClick={() => setShowConvSearch(true)}
                   className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40 transition-colors"
-                  aria-label={chat.isAr ? 'بحث' : 'Suchen'}
+                  aria-label={'بحث'}
                 >
                   <Search className="w-5 h-5 text-muted-foreground" />
                 </button>
@@ -1353,18 +1327,18 @@ export default function ChatDrawer({
                 chat.setSearchUser('');
               }}
               className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40 transition-colors"
-              aria-label={chat.isAr ? 'رجوع' : 'Zurück'}
+              aria-label={'رجوع'}
             >
               <BackIcon className="w-5 h-5 text-foreground" />
             </button>
             <h1 className="text-[17px] font-bold tracking-tight">
-              {chat.isAr ? 'محادثة جديدة' : 'Neues Gespräch'}
+              {'محادثة جديدة'}
             </h1>
           </div>
           <div className="p-4 space-y-4">
             <div className="flex gap-2">
               <Input
-                placeholder={chat.isAr ? 'ابحث باسم المستخدم...' : 'Nach Benutzername suchen...'}
+                placeholder={'ابحث باسم المستخدم...'}
                 value={chat.searchUser}
                 onChange={(e) => chat.setSearchUser(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && !chat.searching && chat.searchForUser()}
@@ -1377,7 +1351,7 @@ export default function ChatDrawer({
                 className="rounded-full h-10 w-10"
                 onClick={chat.searchForUser}
                 disabled={chat.searching || !chat.searchUser.trim()}
-                aria-label={chat.isAr ? 'بحث' : 'Suchen'}
+                aria-label={'بحث'}
               >
                 {chat.searching ? (
                   <div
@@ -1391,7 +1365,7 @@ export default function ChatDrawer({
             </div>
             {chat.searching && (
               <p className="text-muted-foreground text-sm text-center" aria-live="polite">
-                {chat.isAr ? 'جاري البحث...' : 'Suche läuft...'}
+                {'جاري البحث...'}
               </p>
             )}
             {!chat.searching && chat.searchError && (
@@ -1424,7 +1398,7 @@ export default function ChatDrawer({
                 {chat.loading && (
                   <div
                     className="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin shrink-0"
-                    aria-label={chat.isAr ? 'جاري البدء' : 'Startet'}
+                    aria-label={'جاري البدء'}
                   />
                 )}
               </motion.button>
@@ -1440,19 +1414,19 @@ export default function ChatDrawer({
               <>
                 <button
                   onClick={chat.clearSelection}
-                  aria-label={chat.isAr ? 'إلغاء التحديد' : 'Auswahl aufheben'}
+                  aria-label={'إلغاء التحديد'}
                   className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40 transition-colors shrink-0"
                 >
                   <X className="w-5 h-5 text-foreground" />
                 </button>
                 <span className="font-semibold text-[15px]">
-                  {chat.selectedIds.size} {chat.isAr ? 'محددة' : 'ausgewählt'}
+                  {chat.selectedIds.size} {'محددة'}
                 </span>
                 <div className="flex-1" />
                 <button
                   onClick={chat.copySelectedMessages}
                   className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40"
-                  aria-label={chat.isAr ? 'نسخ' : 'Kopieren'}
+                  aria-label={'نسخ'}
                 >
                   <Copy className="w-5 h-5 text-foreground" />
                 </button>
@@ -1462,7 +1436,7 @@ export default function ChatDrawer({
                     chat.startForward(msgs);
                   }}
                   className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40"
-                  aria-label={chat.isAr ? 'توجيه' : 'Weiterleiten'}
+                  aria-label={'توجيه'}
                 >
                   <ForwardIcon className="w-5 h-5 text-foreground" />
                 </button>
@@ -1474,7 +1448,7 @@ export default function ChatDrawer({
                     chat.hideManyForSelf(ids);
                   }}
                   className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40"
-                  aria-label={chat.isAr ? 'حذف لي فقط' : 'Für mich löschen'}
+                  aria-label={'حذف لي فقط'}
                 >
                   <EyeOff className="w-5 h-5 text-foreground" />
                 </button>
@@ -1484,7 +1458,7 @@ export default function ChatDrawer({
                   <button
                     onClick={chat.deleteSelectedMessages}
                     className="w-9 h-9 rounded-full flex items-center justify-center active:bg-destructive/15"
-                    aria-label={chat.isAr ? 'حذف للجميع' : 'Für alle löschen'}
+                    aria-label={'حذف للجميع'}
                   >
                     <Trash2 className="w-5 h-5 text-destructive" />
                   </button>
@@ -1498,7 +1472,7 @@ export default function ChatDrawer({
                     chat.loadConversations();
                   }}
                   className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40 transition-colors shrink-0 relative"
-                  aria-label={chat.isAr ? 'رجوع' : 'Zurück'}
+                  aria-label={'رجوع'}
                 >
                   <BackIcon className="w-5 h-5 text-foreground" />
                   {totalUnread > 0 && (
@@ -1519,7 +1493,7 @@ export default function ChatDrawer({
                     )}
                     {chat.otherPresence.isOnline && (
                       <span
-                        aria-label={chat.isAr ? 'متصل الآن' : 'Online'}
+                        aria-label={'متصل الآن'}
                         className="absolute bottom-0 end-0 block h-2.5 w-2.5 rounded-full bg-green-500 ring-2 ring-background"
                       />
                     )}
@@ -1541,9 +1515,7 @@ export default function ChatDrawer({
                           className="flex items-center gap-1.5"
                         >
                           <span className="text-[11px] text-[#C9A84C] font-semibold leading-tight">
-                            {chat.isAr
-                              ? `${chat.activeConv?.otherDisplayName || chat.activeConv?.otherUsername} يكتب`
-                              : `${chat.activeConv?.otherDisplayName || chat.activeConv?.otherUsername} tippt`}
+                            {`${chat.activeConv?.otherDisplayName || chat.activeConv?.otherUsername} يكتب`}
                           </span>
                           <TypingDots size={3} />
                         </motion.div>
@@ -1580,7 +1552,7 @@ export default function ChatDrawer({
                   <button
                     onClick={() => chat.setShowChatMenu(!chat.showChatMenu)}
                     className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40 transition-colors"
-                    aria-label={chat.isAr ? 'خيارات' : 'Optionen'}
+                    aria-label={'خيارات'}
                   >
                     <MoreVertical className="h-5 w-5 text-muted-foreground" />
                   </button>
@@ -1601,7 +1573,7 @@ export default function ChatDrawer({
                           transition={{ duration: 0.15 }}
                           className={cn(
                             'absolute top-full mt-1 bg-card border border-border/30 rounded-xl z-20 min-w-[200px] overflow-hidden ',
-                            chat.isAr ? 'left-0' : 'right-0',
+                            'left-0',
                           )}
                         >
                           <button
@@ -1612,7 +1584,7 @@ export default function ChatDrawer({
                             }}
                           >
                             <Search className="w-4 h-4 text-muted-foreground" />
-                            {chat.isAr ? 'بحث في المحادثة' : 'Im Chat suchen'}
+                            {'بحث في المحادثة'}
                           </button>
                           <button
                             className="w-full flex items-center gap-3 px-4 py-2.5 active:bg-accent/30 transition-colors text-[13px] text-start"
@@ -1627,15 +1599,11 @@ export default function ChatDrawer({
                               ? (() => {
                                   const exp = chat.chatPrefs.muteExpiresAt(chat.activeConv!.id);
                                   if (exp == null)
-                                    return chat.isAr ? 'إلغاء الكتم' : 'Laut schalten';
+                                    return 'إلغاء الكتم';
                                   const mins = Math.max(0, Math.round((exp - Date.now()) / 60000));
-                                  return chat.isAr
-                                    ? `مكتومة (${mins < 60 ? `${mins}د` : mins < 1440 ? `${Math.round(mins / 60)}س` : `${Math.round(mins / 1440)}ي`})`
-                                    : `Stumm (${mins < 60 ? `${mins} Min` : mins < 1440 ? `${Math.round(mins / 60)} Std` : `${Math.round(mins / 1440)} T`})`;
+                                  return `مكتومة (${mins < 60 ? `${mins}د` : mins < 1440 ? `${Math.round(mins / 60)}س` : `${Math.round(mins / 1440)}ي`})`;
                                 })()
-                              : chat.isAr
-                                ? 'كتم الإشعارات'
-                                : 'Stummschalten'}
+                              : 'كتم الإشعارات'}
                           </button>
                           <AnimatePresence>
                             {chat.showMuteMenu && (
@@ -1655,7 +1623,7 @@ export default function ChatDrawer({
                                       }}
                                       className="w-full text-start px-3 py-1.5 rounded-lg text-[12px] transition-colors text-primary active:bg-accent/30"
                                     >
-                                      {chat.isAr ? 'إلغاء الكتم' : 'Laut schalten'}
+                                      {'إلغاء الكتم'}
                                     </button>
                                   )}
                                   {MUTE_DURATION_OPTIONS.map((opt) => (
@@ -1671,7 +1639,7 @@ export default function ChatDrawer({
                                       }}
                                       className="w-full text-start px-3 py-1.5 rounded-lg text-[12px] transition-colors text-foreground active:bg-accent/30"
                                     >
-                                      {chat.isAr ? opt.labelAr : opt.labelDe}
+                                      {opt.labelAr}
                                     </button>
                                   ))}
                                 </div>
@@ -1691,12 +1659,8 @@ export default function ChatDrawer({
                               <Pin className="w-4 h-4 text-muted-foreground" />
                             )}
                             {chat.chatPrefs.isPinned(chat.activeConv!.id)
-                              ? chat.isAr
-                                ? 'إلغاء التثبيت'
-                                : 'Lösen'
-                              : chat.isAr
-                                ? 'تثبيت المحادثة'
-                                : 'Chat anheften'}
+                              ? 'إلغاء التثبيت'
+                              : 'تثبيت المحادثة'}
                           </button>
                           <button
                             className="w-full flex items-center gap-3 px-4 py-2.5 active:bg-accent/30 transition-colors text-[13px] text-start"
@@ -1706,7 +1670,7 @@ export default function ChatDrawer({
                             }}
                           >
                             <WallpaperIcon className="w-4 h-4 text-muted-foreground" />
-                            {chat.isAr ? 'الخلفية' : 'Hintergrund'}
+                            {'الخلفية'}
                           </button>
                           <div className="h-px bg-border/15 mx-3" />
                           <button
@@ -1731,7 +1695,7 @@ export default function ChatDrawer({
                             }}
                           >
                             <ImageIcon className="w-4 h-4 text-muted-foreground" />
-                            {chat.isAr ? 'الوسائط المشتركة' : 'Geteilte Medien'}
+                            {'الوسائط المشتركة'}
                           </button>
                           <button
                             className="w-full flex items-center gap-3 px-4 py-2.5 active:bg-accent/30 transition-colors text-[13px] text-start"
@@ -1742,7 +1706,7 @@ export default function ChatDrawer({
                             ) : (
                               <Timer className="w-4 h-4 text-muted-foreground" />
                             )}
-                            {chat.isAr ? 'رسائل زائلة' : 'Verschwindend'}
+                            {'رسائل زائلة'}
                           </button>
                           <AnimatePresence>
                             {chat.showSelfDestructMenu && (
@@ -1764,7 +1728,7 @@ export default function ChatDrawer({
                                           : 'active:bg-accent/30 text-foreground',
                                       )}
                                     >
-                                      {chat.isAr ? opt.labelAr : opt.labelDe}
+                                      {opt.labelAr}
                                     </button>
                                   ))}
                                 </div>
@@ -1782,7 +1746,7 @@ export default function ChatDrawer({
                           >
                             <span className="flex items-center gap-3">
                               <CornerDownLeft className="w-4 h-4 text-muted-foreground" />
-                              {chat.isAr ? 'Enter للإرسال' : 'Enter zum Senden'}
+                              {'Enter للإرسال'}
                             </span>
                             <span
                               className={cn(
@@ -1804,7 +1768,7 @@ export default function ChatDrawer({
                             onClick={chat.deleteConversation}
                           >
                             <Trash className="w-4 h-4" />
-                            {chat.isAr ? 'حذف المحادثة' : 'Chat löschen'}
+                            {'حذف المحادثة'}
                           </button>
                         </motion.div>
                       </>
@@ -1830,7 +1794,7 @@ export default function ChatDrawer({
                     type="text"
                     value={chat.chatSearchQuery}
                     onChange={(e) => chat.searchInChat(e.target.value)}
-                    placeholder={chat.isAr ? 'بحث في المحادثة...' : 'Suchen...'}
+                    placeholder={'بحث في المحادثة...'}
                     className="flex-1 bg-transparent text-[14px] outline-none placeholder:text-muted-foreground/40"
                     dir="auto"
                     autoFocus
@@ -1881,7 +1845,7 @@ export default function ChatDrawer({
                 <Pin className="w-3.5 h-3.5 text-primary shrink-0 rotate-45" />
                 <div className="flex-1 min-w-0">
                   <p className="text-[10px] text-primary font-semibold">
-                    {chat.isAr ? 'رسالة مثبتة' : 'Angeheftet'}
+                    {'رسالة مثبتة'}
                   </p>
                   <p className="text-[12px] text-foreground/70 truncate" dir="auto">
                     {chat.pinnedMessage.message_type === 'text'
@@ -1943,7 +1907,7 @@ export default function ChatDrawer({
                     <Upload className="w-7 h-7 text-primary" />
                   </div>
                   <p className="text-[14px] font-semibold text-primary">
-                    {chat.isAr ? 'أفلت الملفات هنا للإرسال' : 'Dateien hier ablegen zum Senden'}
+                    {'أفلت الملفات هنا للإرسال'}
                   </p>
                 </motion.div>
               )}
@@ -1975,10 +1939,10 @@ export default function ChatDrawer({
                 </div>
                 <div>
                   <p className="text-[14px] font-semibold text-foreground/70">
-                    {chat.isAr ? 'لا توجد رسائل بعد' : 'Noch keine Nachrichten'}
+                    {'لا توجد رسائل بعد'}
                   </p>
                   <p className="text-[12px] text-muted-foreground/70 mt-1">
-                    {chat.isAr ? 'أرسل رسالتك الأولى لبدء المحادثة' : 'Sende die erste Nachricht'}
+                    {'أرسل رسالتك الأولى لبدء المحادثة'}
                   </p>
                 </div>
               </div>
@@ -2016,7 +1980,7 @@ export default function ChatDrawer({
                           <div className="flex items-center gap-2 my-3">
                             <div className="flex-1 h-px bg-primary/30" />
                             <span className="text-[10px] font-semibold text-primary uppercase tracking-wider bg-primary/10 px-2 py-0.5 rounded-full">
-                              {chat.isAr ? 'رسائل جديدة' : 'Neue Nachrichten'}
+                              {'رسائل جديدة'}
                             </span>
                             <div className="flex-1 h-px bg-primary/30" />
                           </div>
@@ -2067,9 +2031,7 @@ export default function ChatDrawer({
                               role="article"
                               aria-label={
                                 isMine
-                                  ? chat.isAr
-                                    ? 'رسالتك'
-                                    : 'Deine Nachricht'
+                                  ? 'رسالتك'
                                   : chat.activeConv?.otherDisplayName ||
                                     chat.activeConv?.otherUsername ||
                                     ''
@@ -2126,9 +2088,7 @@ export default function ChatDrawer({
                                     );
                                     const replySenderName =
                                       repliedMsg?.sender_id === chat.user!.id
-                                        ? chat.isAr
-                                          ? 'أنت'
-                                          : 'Du'
+                                        ? 'أنت'
                                         : chat.activeConv?.otherDisplayName ||
                                           chat.activeConv?.otherUsername ||
                                           '';
@@ -2191,9 +2151,7 @@ export default function ChatDrawer({
 
                                 {msg.deleted ? (
                                   <p className="px-3 py-2 text-[13px]">
-                                    {chat.isAr
-                                      ? '🚫 تم حذف هذه الرسالة'
-                                      : '🚫 Diese Nachricht wurde gelöscht'}
+                                    {'🚫 تم حذف هذه الرسالة'}
                                   </p>
                                 ) : msg.message_type === 'image' ? (
                                   (() => {
@@ -2208,7 +2166,7 @@ export default function ChatDrawer({
                                           src={chat.getFileUrl(msg)}
                                           alt={
                                             readableFileName(msg.file_name) ||
-                                            (chat.isAr ? 'صورة في المحادثة' : 'Foto im Chat')
+                                            ('صورة في المحادثة')
                                           }
                                           isAr={chat.isAr}
                                           refreshUrl={() => chat.refreshSignedUrl(msg)}
@@ -2263,7 +2221,7 @@ export default function ChatDrawer({
                                           >
                                             {msg.edited_at && (
                                               <span className="text-[9px] italic">
-                                                {chat.isAr ? 'معدّلة' : 'bearb.'}
+                                                {'معدّلة'}
                                               </span>
                                             )}
                                             {isFading && (
@@ -2295,9 +2253,7 @@ export default function ChatDrawer({
                                     rawFileUrl={msg.file_url ?? null}
                                     senderName={
                                       isMine
-                                        ? chat.isAr
-                                          ? 'أنت'
-                                          : 'Du'
+                                        ? 'أنت'
                                         : chat.activeConv?.otherDisplayName ||
                                           chat.activeConv?.otherUsername ||
                                           ''
@@ -2369,7 +2325,7 @@ export default function ChatDrawer({
                                           >
                                             {msg.edited_at && (
                                               <span className="text-[9px] italic">
-                                                {chat.isAr ? 'معدّلة' : 'bearb.'}
+                                                {'معدّلة'}
                                               </span>
                                             )}
                                             {isFading && (
@@ -2433,7 +2389,7 @@ export default function ChatDrawer({
                                         }}
                                         ariaLabel={
                                           info.mine
-                                            ? `${emoji} (${chat.isAr ? 'تفاعلت' : 'du hast reagiert'})`
+                                            ? `${emoji} (${'تفاعلت'})`
                                             : `${emoji} reaction`
                                         }
                                       />
@@ -2461,7 +2417,7 @@ export default function ChatDrawer({
                   transition={{ type: 'spring', damping: 20, stiffness: 380 }}
                   className="flex justify-start mt-1.5"
                   aria-live="polite"
-                  aria-label={chat.isAr ? 'يكتب' : 'tippt'}
+                  aria-label={'يكتب'}
                 >
                   <div
                     className="bg-card border border-border/15 px-3.5 py-2 shadow-sm"
@@ -2584,14 +2540,14 @@ export default function ChatDrawer({
                                   onClick={() => chat.imageUpload.retryUpload(upload.tempId)}
                                   className="px-3.5 py-1.5 rounded-full bg-destructive text-white text-[12px] font-medium active:scale-95 transition-transform"
                                 >
-                                  {chat.isAr ? 'إعادة المحاولة' : 'Wiederholen'}
+                                  {'إعادة المحاولة'}
                                 </button>
                                 <button
                                   onClick={() => chat.imageUpload.clearUpload(upload.tempId)}
-                                  aria-label={chat.isAr ? 'تجاهل' : 'Verwerfen'}
+                                  aria-label={'تجاهل'}
                                   className="px-3.5 py-1.5 rounded-full bg-white/15 text-white text-[12px] font-medium active:scale-95 transition-transform"
                                 >
-                                  {chat.isAr ? 'تجاهل' : 'Verwerfen'}
+                                  {'تجاهل'}
                                 </button>
                               </div>
                             </div>
@@ -2631,7 +2587,7 @@ export default function ChatDrawer({
                 transition={{ type: 'spring', damping: 18, stiffness: 380 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={() => chat.scrollToBottom()}
-                aria-label={chat.isAr ? 'الانتقال للأسفل' : 'Nach unten scrollen'}
+                aria-label={'الانتقال للأسفل'}
                 className={cn(
                   'absolute bottom-24 end-4 z-10 w-11 h-11 rounded-full flex items-center justify-center transition-colors',
                   'bg-card/95 backdrop-blur-md border border-border/30',
@@ -2746,7 +2702,7 @@ export default function ChatDrawer({
                               <span
                                 className={cn(
                                   'absolute bottom-[6px] flex items-center gap-[3px] text-[10px] whitespace-nowrap text-muted-foreground/50',
-                                  chat.isAr ? 'left-2.5' : 'right-2.5',
+                                  'left-2.5',
                                 )}
                               >
                                 {formatClockTime(actionMenu.msg.created_at)}
@@ -2861,7 +2817,7 @@ export default function ChatDrawer({
                               className="w-full flex items-center gap-3 px-4 py-2 active:bg-accent/30 transition-colors text-start"
                             >
                               <Reply className="w-4 h-4 text-muted-foreground" />
-                              <span className="text-[13px]">{chat.isAr ? 'رد' : 'Antworten'}</span>
+                              <span className="text-[13px]">{'رد'}</span>
                             </button>
                             <button
                               onClick={() => {
@@ -2873,7 +2829,7 @@ export default function ChatDrawer({
                             >
                               <Share2 className="w-4 h-4 text-muted-foreground" />
                               <span className="text-[13px]">
-                                {chat.isAr ? 'توجيه' : 'Weiterleiten'}
+                                {'توجيه'}
                               </span>
                             </button>
                             {actionMenu.msg.message_type === 'text' && actionMenu.msg.content && (
@@ -2887,7 +2843,7 @@ export default function ChatDrawer({
                               >
                                 <Copy className="w-4 h-4 text-muted-foreground" />
                                 <span className="text-[13px]">
-                                  {chat.isAr ? 'نسخ النص' : 'Text kopieren'}
+                                  {'نسخ النص'}
                                 </span>
                               </button>
                             )}
@@ -2904,7 +2860,7 @@ export default function ChatDrawer({
                                 >
                                   <Pencil className="w-4 h-4 text-muted-foreground" />
                                   <span className="text-[13px]">
-                                    {chat.isAr ? 'تعديل' : 'Bearbeiten'}
+                                    {'تعديل'}
                                   </span>
                                 </button>
                               )}
@@ -2922,12 +2878,8 @@ export default function ChatDrawer({
                               )}
                               <span className="text-[13px]">
                                 {chat.pinnedMessage?.id === actionMenu.msg.id
-                                  ? chat.isAr
-                                    ? 'إلغاء التثبيت'
-                                    : 'Lösen'
-                                  : chat.isAr
-                                    ? 'تثبيت'
-                                    : 'Anheften'}
+                                  ? 'إلغاء التثبيت'
+                                  : 'تثبيت'}
                               </span>
                             </button>
                             <button
@@ -2940,7 +2892,7 @@ export default function ChatDrawer({
                             >
                               <Check className="w-4 h-4 text-muted-foreground" />
                               <span className="text-[13px]">
-                                {chat.isAr ? 'تحديد' : 'Auswählen'}
+                                {'تحديد'}
                               </span>
                             </button>
                             {/* Info — only meaningful for messages I sent (delivery/read receipts). */}
@@ -2955,7 +2907,7 @@ export default function ChatDrawer({
                               >
                                 <Calendar className="w-4 h-4 text-muted-foreground" />
                                 <span className="text-[13px]">
-                                  {chat.isAr ? 'معلومات الرسالة' : 'Nachrichteninfo'}
+                                  {'معلومات الرسالة'}
                                 </span>
                               </button>
                             )}
@@ -2971,7 +2923,7 @@ export default function ChatDrawer({
                               >
                                 <EyeOff className="w-4 h-4 text-muted-foreground" />
                                 <span className="text-[13px]">
-                                  {chat.isAr ? 'حذف لي فقط' : 'Für mich löschen'}
+                                  {'حذف لي فقط'}
                                 </span>
                               </button>
                             )}
@@ -2988,7 +2940,7 @@ export default function ChatDrawer({
                                 >
                                   <Trash2 className="w-4 h-4 text-destructive" />
                                   <span className="text-[13px] text-destructive">
-                                    {chat.isAr ? 'حذف للجميع' : 'Für alle löschen'}
+                                    {'حذف للجميع'}
                                   </span>
                                 </button>
                               </>
@@ -3006,13 +2958,13 @@ export default function ChatDrawer({
           {chat.activeConv && chat.chatPrefs.isBlocked(chat.activeConv.id) ? (
             <div className="border-t border-border/15 bg-[#111111] px-4 py-4 flex flex-col items-center justify-center gap-3 pb-[calc(env(safe-area-inset-bottom,0px)+16px)]">
               <p className="text-[13px] text-muted-foreground font-medium text-center">
-                {chat.isAr ? 'لقد قمت بحظر هذا المستخدم' : 'Du hast diesen Benutzer blockiert'}
+                {'لقد قمت بحظر هذا المستخدم'}
               </p>
               <button
                 onClick={() => chat.chatPrefs.toggleBlocked(chat.activeConv!.id)}
                 className="px-6 py-2 rounded-xl bg-primary/10 hover:bg-primary/20 text-[#C9A84C] border border-[#C9A84C]/30 text-[13px] font-semibold active:scale-95 transition-transform"
               >
-                {chat.isAr ? 'إلغاء الحظر' : 'Entsperren'}
+                {'إلغاء الحظر'}
               </button>
             </div>
           ) : (
@@ -3129,20 +3081,18 @@ export default function ChatDrawer({
                 <Trash className="w-5 h-5 text-destructive" />
               </div>
               <h3 className="text-lg font-bold text-foreground">
-                {chat.isAr ? 'حذف المحادثة نهائياً' : 'Chat dauerhaft löschen'}
+                {'حذف المحادثة نهائياً'}
               </h3>
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed" dir="auto">
-              {chat.isAr
-                ? 'هل أنت متأكد من حذف هذه المحادثة نهائياً؟ سيتم مسح جميع الرسائل والوسائط ولا يمكن التراجع عن هذا الإجراء.'
-                : 'Bist du sicher, dass du diesen Chat dauerhaft löschen möchtest? Alle Nachrichten und Medien werden gelöscht und dieser Vorgang kann nicht rückgängig gemacht werden.'}
+              {'هل أنت متأكد من حذف هذه المحادثة نهائياً؟ سيتم مسح جميع الرسائل والوسائط ولا يمكن التراجع عن هذا الإجراء.'}
             </p>
             <div className="flex gap-3 pt-1">
               <button
                 onClick={() => setShowDeleteConfirm(false)}
                 className="flex-1 py-2.5 rounded-xl bg-secondary text-secondary-foreground text-sm font-medium active:scale-[0.98] transition-transform"
               >
-                {chat.isAr ? 'إلغاء' : 'Abbrechen'}
+                {'إلغاء'}
               </button>
               <button
                 onClick={async () => {
@@ -3153,7 +3103,7 @@ export default function ChatDrawer({
                 }}
                 className="flex-1 py-2.5 rounded-xl bg-destructive text-white text-sm font-medium active:scale-[0.98] transition-transform"
               >
-                {chat.isAr ? 'حذف' : 'Löschen'}
+                {'حذف'}
               </button>
             </div>
           </motion.div>
@@ -3212,7 +3162,7 @@ export default function ChatDrawer({
       }}
     >
       <SheetContent
-        side={chat.isAr ? 'right' : 'left'}
+        side={'right'}
         className="w-full sm:max-w-md p-0 flex flex-col bg-background [&>button[class*='absolute']]:hidden"
       >
         {body}

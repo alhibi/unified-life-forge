@@ -8,7 +8,7 @@ import type { NutritionFoodItem } from '../types';
 export const PROTEINS_DATA: NutritionFoodItem[] = [
   {
     id: 'chicken_breast',
-    name: { ar: 'صدر دجاج (بدون جلد)', de: 'Hähnchenbrust (ohne Haut)' },
+    name: { ar: 'صدر دجاج (بدون جلد)', },
     category: 'meat_poultry',
     subCategory: 'poultry',
     emoji: '🍗',
@@ -20,21 +20,20 @@ export const PROTEINS_DATA: NutritionFoodItem[] = [
       minerals: { phosphorus: 228, selenium: 27.6, potassium: 256, sodium: 74, zinc: 1.0, magnesium: 29, iron: 1.0 },
     },
     servings: [
-      { description: { ar: 'صدر متوسط', de: 'Mittlere Brust' }, grams: 172 },
-      { description: { ar: '100 غرام', de: '100 Gramm' }, grams: 100 },
+      { description: { ar: 'صدر متوسط', }, grams: 172 },
+      { description: { ar: '100 غرام', }, grams: 100 },
     ],
     tags: ['halal', 'gluten_free', 'dairy_free', 'high_protein', 'muscle_building', 'weight_loss'],
     allergens: [],
     glycemicIndex: null,
     benefits: {
       ar: ['أفضل مصدر بروتين خالص', 'منخفض الدهون جداً', 'غني بالنياسين (ب3) للطاقة', 'سيلينيوم لحماية الخلايا'],
-      de: ['Beste reine Proteinquelle', 'Sehr fettarm', 'Reich an Niacin (B3) für Energie', 'Selen schützt Zellen'],
     },
   },
 
   {
     id: 'salmon_atlantic',
-    name: { ar: 'سلمون أطلسي', de: 'Atlantischer Lachs' },
+    name: { ar: 'سلمون أطلسي', },
     category: 'fish_seafood',
     subCategory: 'fatty_fish',
     emoji: '🐟',
@@ -46,20 +45,19 @@ export const PROTEINS_DATA: NutritionFoodItem[] = [
       minerals: { selenium: 36.5, phosphorus: 240, potassium: 363, magnesium: 27, sodium: 59, zinc: 0.64 },
     },
     servings: [
-      { description: { ar: 'فيليه متوسط', de: 'Mittleres Filet' }, grams: 178 },
-      { description: { ar: '100 غرام', de: '100 Gramm' }, grams: 100 },
+      { description: { ar: 'فيليه متوسط', }, grams: 178 },
+      { description: { ar: '100 غرام', }, grams: 100 },
     ],
     tags: ['gluten_free', 'dairy_free', 'high_protein', 'heart_healthy', 'brain_food', 'anti_inflammatory'],
     allergens: ['fish'],
     glycemicIndex: null,
     benefits: {
       ar: ['أغنى مصدر لأوميغا 3 (EPA + DHA)', 'فيتامين د طبيعي', 'يحمي القلب والدماغ', 'يقلل الالتهابات المزمنة'],
-      de: ['Reichste Omega-3-Quelle (EPA + DHA)', 'Natürliches Vitamin D', 'Schützt Herz & Gehirn', 'Reduziert chronische Entzündungen'],
     },
   },
   {
     id: 'beef_lean',
-    name: { ar: 'لحم بقر هبر', de: 'Mageres Rindfleisch' },
+    name: { ar: 'لحم بقر هبر', },
     category: 'meat_poultry',
     subCategory: 'red_meat',
     emoji: '🥩',
@@ -71,20 +69,19 @@ export const PROTEINS_DATA: NutritionFoodItem[] = [
       minerals: { zinc: 6.3, iron: 2.6, phosphorus: 198, selenium: 24.9, potassium: 318, magnesium: 21 },
     },
     servings: [
-      { description: { ar: 'شريحة متوسطة', de: 'Mittleres Steak' }, grams: 150 },
-      { description: { ar: '100 غرام', de: '100 Gramm' }, grams: 100 },
+      { description: { ar: 'شريحة متوسطة', }, grams: 150 },
+      { description: { ar: '100 غرام', }, grams: 100 },
     ],
     tags: ['halal', 'gluten_free', 'dairy_free', 'high_protein', 'muscle_building'],
     allergens: [],
     glycemicIndex: null,
     benefits: {
       ar: ['أفضل مصدر للحديد الهيم (يمتص بسهولة)', 'زنك عالي لمناعة قوية', 'فيتامين ب12 لصحة الأعصاب', 'كرياتين طبيعي للعضلات'],
-      de: ['Beste Häm-Eisen-Quelle (leicht absorbierbar)', 'Hoher Zinkgehalt für Immunsystem', 'Vitamin B12 für Nerven', 'Natürliches Kreatin für Muskeln'],
     },
   },
   {
     id: 'lamb_leg',
-    name: { ar: 'لحم خروف (فخذ)', de: 'Lammkeule' },
+    name: { ar: 'لحم خروف (فخذ)', },
     category: 'meat_poultry',
     subCategory: 'red_meat',
     emoji: '🥩',
@@ -96,19 +93,18 @@ export const PROTEINS_DATA: NutritionFoodItem[] = [
       minerals: { zinc: 4.7, iron: 1.9, phosphorus: 188, selenium: 26.4, potassium: 310, sodium: 65 },
     },
     servings: [
-      { description: { ar: 'قطعة متوسطة', de: 'Mittleres Stück' }, grams: 120 },
+      { description: { ar: 'قطعة متوسطة', }, grams: 120 },
     ],
     tags: ['halal', 'gluten_free', 'dairy_free', 'high_protein', 'muscle_building'],
     allergens: [],
     glycemicIndex: null,
     benefits: {
       ar: ['غني بالحديد والزنك', 'بروتين كامل عالي الجودة', 'CLA (حمض اللينوليك المرتبط) يدعم الأيض', 'ب12 لصحة الدم'],
-      de: ['Reich an Eisen & Zink', 'Hochwertiges Protein', 'CLA unterstützt Stoffwechsel', 'B12 für Blutgesundheit'],
     },
   },
   {
     id: 'turkey_breast',
-    name: { ar: 'صدر ديك رومي', de: 'Putenbrust' },
+    name: { ar: 'صدر ديك رومي', },
     category: 'meat_poultry',
     subCategory: 'poultry',
     emoji: '🦃',
@@ -120,20 +116,19 @@ export const PROTEINS_DATA: NutritionFoodItem[] = [
       minerals: { selenium: 30.2, phosphorus: 230, potassium: 293, zinc: 2.0, magnesium: 27 },
     },
     servings: [
-      { description: { ar: 'شريحة سميكة', de: 'Dicke Scheibe' }, grams: 100 },
-      { description: { ar: 'صدر كامل', de: 'Ganze Brust' }, grams: 300 },
+      { description: { ar: 'شريحة سميكة', }, grams: 100 },
+      { description: { ar: 'صدر كامل', }, grams: 300 },
     ],
     tags: ['halal', 'gluten_free', 'dairy_free', 'high_protein', 'weight_loss', 'muscle_building'],
     allergens: [],
     glycemicIndex: null,
     benefits: {
       ar: ['أقل اللحوم دهوناً', 'بروتين أعلى من الدجاج', 'تريبتوفان يحسن النوم والمزاج', 'سيلينيوم عالي'],
-      de: ['Fettärmstes Fleisch', 'Mehr Protein als Hähnchen', 'Tryptophan verbessert Schlaf & Stimmung', 'Hoher Selengehalt'],
     },
   },
   {
     id: 'tuna_fresh',
-    name: { ar: 'تونة طازجة', de: 'Frischer Thunfisch' },
+    name: { ar: 'تونة طازجة', },
     category: 'fish_seafood',
     subCategory: 'fatty_fish',
     emoji: '🐟',
@@ -145,19 +140,18 @@ export const PROTEINS_DATA: NutritionFoodItem[] = [
       minerals: { selenium: 36.5, phosphorus: 254, potassium: 252, magnesium: 50, iron: 1.0, zinc: 0.6 },
     },
     servings: [
-      { description: { ar: 'شريحة متوسطة', de: 'Mittleres Steak' }, grams: 154 },
+      { description: { ar: 'شريحة متوسطة', }, grams: 154 },
     ],
     tags: ['gluten_free', 'dairy_free', 'high_protein', 'brain_food', 'heart_healthy'],
     allergens: ['fish'],
     glycemicIndex: null,
     benefits: {
       ar: ['أعلى مصدر لفيتامين ب12', 'أوميغا 3 لصحة القلب والدماغ', 'بروتين عالي جداً', 'نياسين يدعم إنتاج الطاقة'],
-      de: ['Höchste B12-Quelle', 'Omega-3 für Herz & Gehirn', 'Sehr proteinreich', 'Niacin für Energieproduktion'],
     },
   },
   {
     id: 'shrimp',
-    name: { ar: 'روبيان (جمبري)', de: 'Garnelen' },
+    name: { ar: 'روبيان (جمبري)', },
     category: 'fish_seafood',
     subCategory: 'shellfish',
     emoji: '🦐',
@@ -169,21 +163,20 @@ export const PROTEINS_DATA: NutritionFoodItem[] = [
       minerals: { selenium: 38.0, phosphorus: 201, iodine: 35, zinc: 1.6, sodium: 111, potassium: 259, iron: 2.4, copper: 0.26 },
     },
     servings: [
-      { description: { ar: '10 حبات كبيرة', de: '10 große Stück' }, grams: 100 },
-      { description: { ar: 'كوب', de: 'Tasse' }, grams: 145 },
+      { description: { ar: '10 حبات كبيرة', }, grams: 100 },
+      { description: { ar: 'كوب', }, grams: 145 },
     ],
     tags: ['gluten_free', 'dairy_free', 'high_protein', 'low_carb', 'weight_loss'],
     allergens: ['shellfish'],
     glycemicIndex: null,
     benefits: {
       ar: ['بروتين عالي جداً بسعرات منخفضة', 'أعلى مصدر للسيلينيوم', 'غني باليود لصحة الغدة الدرقية', 'أستازانتين مضاد أكسدة قوي'],
-      de: ['Sehr proteinreich bei wenig Kalorien', 'Höchste Selenquelle', 'Jodreich für Schilddrüse', 'Astaxanthin als Antioxidans'],
     },
   },
 
   {
     id: 'eggs_whole',
-    name: { ar: 'بيض كامل', de: 'Ganzes Ei' },
+    name: { ar: 'بيض كامل', },
     category: 'dairy_eggs',
     subCategory: 'eggs',
     emoji: '🥚',
@@ -195,20 +188,19 @@ export const PROTEINS_DATA: NutritionFoodItem[] = [
       minerals: { selenium: 30.7, phosphorus: 198, iron: 1.75, zinc: 1.29, calcium: 56, sodium: 124, potassium: 126 },
     },
     servings: [
-      { description: { ar: 'بيضة واحدة', de: 'Ein Ei' }, grams: 50 },
-      { description: { ar: 'بيضتان', de: 'Zwei Eier' }, grams: 100 },
+      { description: { ar: 'بيضة واحدة', }, grams: 50 },
+      { description: { ar: 'بيضتان', }, grams: 100 },
     ],
     tags: ['vegetarian', 'gluten_free', 'high_protein', 'brain_food', 'muscle_building'],
     allergens: ['eggs'],
     glycemicIndex: null,
     benefits: {
       ar: ['بروتين كامل بأعلى قيمة بيولوجية', 'كولين لصحة الدماغ', 'لوتين وزياكسانثين للعين', 'فيتامين د طبيعي'],
-      de: ['Vollwertiges Protein (höchster biol. Wert)', 'Cholin für Gehirn', 'Lutein & Zeaxanthin für Augen', 'Natürliches Vitamin D'],
     },
   },
   {
     id: 'sardines_canned',
-    name: { ar: 'سردين معلب', de: 'Sardinen (Dose)' },
+    name: { ar: 'سردين معلب', },
     category: 'fish_seafood',
     subCategory: 'oily_fish',
     emoji: '🐟',
@@ -220,19 +212,18 @@ export const PROTEINS_DATA: NutritionFoodItem[] = [
       minerals: { calcium: 382, selenium: 52.7, phosphorus: 490, iron: 2.9, sodium: 307, potassium: 397, zinc: 1.3 },
     },
     servings: [
-      { description: { ar: 'علبة صغيرة', de: 'Kleine Dose' }, grams: 92 },
+      { description: { ar: 'علبة صغيرة', }, grams: 92 },
     ],
     tags: ['gluten_free', 'dairy_free', 'high_protein', 'bone_health', 'heart_healthy', 'brain_food'],
     allergens: ['fish'],
     glycemicIndex: null,
     benefits: {
       ar: ['كالسيوم أعلى من الحليب (بسبب العظام)', 'أوميغا 3 وفيتامين د', 'مستدام بيئياً', 'ب12 عالي جداً'],
-      de: ['Mehr Kalzium als Milch (wegen Gräten)', 'Omega-3 & Vitamin D', 'Ökologisch nachhaltig', 'Sehr hoher B12-Gehalt'],
     },
   },
   {
     id: 'liver_beef',
-    name: { ar: 'كبد بقر', de: 'Rinderleber' },
+    name: { ar: 'كبد بقر', },
     category: 'meat_poultry',
     subCategory: 'organ_meats',
     emoji: '🫀',
@@ -244,19 +235,18 @@ export const PROTEINS_DATA: NutritionFoodItem[] = [
       minerals: { iron: 6.5, copper: 9.76, selenium: 39.7, zinc: 4.0, phosphorus: 387, potassium: 313 },
     },
     servings: [
-      { description: { ar: 'قطعة (85غ)', de: 'Stück (85g)' }, grams: 85 },
+      { description: { ar: 'قطعة (85غ)', }, grams: 85 },
     ],
     tags: ['halal', 'gluten_free', 'dairy_free', 'high_protein', 'immune_boost', 'energy_boost'],
     allergens: [],
     glycemicIndex: null,
     benefits: {
       ar: ['أغنى طعام بفيتامين أ وب12 على الإطلاق', 'حديد هيم عالي الامتصاص', 'نحاس لصحة الدم والأعصاب', 'فولات طبيعي عالي'],
-      de: ['Nährstoffdichtestes Lebensmittel (A & B12)', 'Häm-Eisen hoch absorbierbar', 'Kupfer für Blut & Nerven', 'Hoher natürlicher Folatgehalt'],
     },
   },
   {
     id: 'chicken_thigh',
-    name: { ar: 'فخذ دجاج (بدون جلد)', de: 'Hähnchenkeule (ohne Haut)' },
+    name: { ar: 'فخذ دجاج (بدون جلد)', },
     category: 'meat_poultry',
     subCategory: 'poultry',
     emoji: '🍗',
@@ -268,19 +258,18 @@ export const PROTEINS_DATA: NutritionFoodItem[] = [
       minerals: { phosphorus: 178, selenium: 22.1, potassium: 222, zinc: 2.4, iron: 1.3 },
     },
     servings: [
-      { description: { ar: 'فخذ متوسط', de: 'Mittlere Keule' }, grams: 116 },
+      { description: { ar: 'فخذ متوسط', }, grams: 116 },
     ],
     tags: ['halal', 'gluten_free', 'dairy_free', 'high_protein', 'muscle_building'],
     allergens: [],
     glycemicIndex: null,
     benefits: {
       ar: ['بروتين عالي مع دهون صحية أكثر', 'طعم أغنى من الصدر', 'حديد أعلى من صدر الدجاج', 'زنك لدعم المناعة'],
-      de: ['Protein mit mehr gesunden Fetten', 'Reicherer Geschmack als Brust', 'Mehr Eisen als Hähnchenbrust', 'Zink für Immunsystem'],
     },
   },
   {
     id: 'mackerel',
-    name: { ar: 'ماكريل (سقمري)', de: 'Makrele' },
+    name: { ar: 'ماكريل (سقمري)', },
     category: 'fish_seafood',
     subCategory: 'fatty_fish',
     emoji: '🐟',
@@ -292,19 +281,18 @@ export const PROTEINS_DATA: NutritionFoodItem[] = [
       minerals: { selenium: 44.1, phosphorus: 217, potassium: 314, magnesium: 76, sodium: 90, iron: 1.6 },
     },
     servings: [
-      { description: { ar: 'فيليه', de: 'Filet' }, grams: 112 },
+      { description: { ar: 'فيليه', }, grams: 112 },
     ],
     tags: ['gluten_free', 'dairy_free', 'high_protein', 'heart_healthy', 'brain_food', 'bone_health'],
     allergens: ['fish'],
     glycemicIndex: null,
     benefits: {
       ar: ['أعلى سمك في فيتامين د', 'أوميغا 3 بنسبة عالية جداً', 'سيلينيوم لحماية الخلايا', 'مغنيسيوم عالي'],
-      de: ['Höchster Vitamin-D-Gehalt aller Fische', 'Sehr hoher Omega-3-Gehalt', 'Selen schützt Zellen', 'Hoher Magnesiumgehalt'],
     },
   },
   {
     id: 'ground_beef_93',
-    name: { ar: 'لحم مفروم (93% خالي دهن)', de: 'Rinderhack (93% mager)' },
+    name: { ar: 'لحم مفروم (93% خالي دهن)', },
     category: 'meat_poultry',
     subCategory: 'red_meat',
     emoji: '🥩',
@@ -316,20 +304,19 @@ export const PROTEINS_DATA: NutritionFoodItem[] = [
       minerals: { zinc: 5.3, iron: 2.2, phosphorus: 185, selenium: 17.5, potassium: 305 },
     },
     servings: [
-      { description: { ar: 'قطعة برغر', de: 'Burger-Patty' }, grams: 113 },
-      { description: { ar: '100 غرام مطبوخ', de: '100g gekocht' }, grams: 100 },
+      { description: { ar: 'قطعة برغر', }, grams: 113 },
+      { description: { ar: '100 غرام مطبوخ', }, grams: 100 },
     ],
     tags: ['halal', 'gluten_free', 'dairy_free', 'high_protein', 'muscle_building'],
     allergens: [],
     glycemicIndex: null,
     benefits: {
       ar: ['بروتين عالي مع دهون معتدلة', 'حديد هيم سهل الامتصاص', 'زنك لصحة المناعة والهرمونات', 'ب12 للطاقة'],
-      de: ['Protein hoch bei moderatem Fett', 'Häm-Eisen leicht absorbierbar', 'Zink für Immunsystem & Hormone', 'B12 für Energie'],
     },
   },
   {
     id: 'cod_fish',
-    name: { ar: 'سمك القد', de: 'Kabeljau' },
+    name: { ar: 'سمك القد', },
     category: 'fish_seafood',
     subCategory: 'white_fish',
     emoji: '🐟',
@@ -341,19 +328,18 @@ export const PROTEINS_DATA: NutritionFoodItem[] = [
       minerals: { selenium: 33.1, phosphorus: 203, potassium: 413, iodine: 170, sodium: 54, magnesium: 32 },
     },
     servings: [
-      { description: { ar: 'فيليه', de: 'Filet' }, grams: 180 },
+      { description: { ar: 'فيليه', }, grams: 180 },
     ],
     tags: ['gluten_free', 'dairy_free', 'high_protein', 'low_carb', 'weight_loss'],
     allergens: ['fish'],
     glycemicIndex: null,
     benefits: {
       ar: ['بروتين عالي بأقل دهون', 'أغنى مصدر لليود', 'مثالي لأنظمة فقدان الوزن', 'سيلينيوم وفوسفور عاليان'],
-      de: ['Proteinreich bei minimalem Fett', 'Reichste Jodquelle', 'Ideal für Gewichtsverlust', 'Selen & Phosphor hoch'],
     },
   },
   {
     id: 'duck_breast',
-    name: { ar: 'صدر بط', de: 'Entenbrust' },
+    name: { ar: 'صدر بط', },
     category: 'meat_poultry',
     subCategory: 'poultry',
     emoji: '🦆',
@@ -365,21 +351,20 @@ export const PROTEINS_DATA: NutritionFoodItem[] = [
       minerals: { iron: 5.3, selenium: 22, phosphorus: 203, zinc: 2.7, potassium: 271 },
     },
     servings: [
-      { description: { ar: 'نصف صدر', de: 'Halbe Brust' }, grams: 140 },
+      { description: { ar: 'نصف صدر', }, grams: 140 },
     ],
     tags: ['halal', 'gluten_free', 'dairy_free', 'high_protein'],
     allergens: [],
     glycemicIndex: null,
     benefits: {
       ar: ['حديد عالي (أكثر من لحم البقر!)', 'بروتين ممتاز', 'طعم غني ومميز', 'فيتامينات ب المتعددة'],
-      de: ['Hoher Eisengehalt (mehr als Rind!)', 'Exzellentes Protein', 'Reicher Geschmack', 'Multiple B-Vitamine'],
     },
   },
 
 
   {
     id: 'venison',
-    name: { ar: 'لحم غزال', de: 'Hirschfleisch' },
+    name: { ar: 'لحم غزال', },
     category: 'meat_poultry',
     subCategory: 'game',
     emoji: '🦌',
@@ -391,22 +376,21 @@ export const PROTEINS_DATA: NutritionFoodItem[] = [
       minerals: { iron: 3.4, zinc: 4.6, selenium: 10.3, phosphorus: 226, potassium: 318, magnesium: 23, sodium: 54 },
     },
     servings: [
-      { description: { ar: 'شريحة متوسطة', de: 'Mittleres Steak' }, grams: 120 },
-      { description: { ar: '100 غرام', de: '100 Gramm' }, grams: 100 },
+      { description: { ar: 'شريحة متوسطة', }, grams: 120 },
+      { description: { ar: '100 غرام', }, grams: 100 },
     ],
     tags: ['gluten_free', 'dairy_free', 'high_protein', 'muscle_building', 'low_carb', 'keto_friendly', 'weight_loss'],
     allergens: [],
     glycemicIndex: null,
     benefits: {
       ar: ['بروتين عالي جداً مع دهون قليلة', 'غني بفيتامين ب12 لصحة الأعصاب', 'حديد وزنك لمناعة قوية', 'مثالي لبناء العضلات'],
-      de: ['Sehr hoher Proteingehalt bei wenig Fett', 'Reich an Vitamin B12 für Nervengesundheit', 'Eisen und Zink für starke Immunität', 'Ideal für Muskelaufbau'],
     },
   },
 
 
   {
     id: 'bison',
-    name: { ar: 'لحم بيسون', de: 'Bisonfleisch' },
+    name: { ar: 'لحم بيسون', },
     category: 'meat_poultry',
     subCategory: 'game',
     emoji: '🦬',
@@ -418,22 +402,21 @@ export const PROTEINS_DATA: NutritionFoodItem[] = [
       minerals: { iron: 3.4, zinc: 4.6, selenium: 32.0, phosphorus: 213, potassium: 353, magnesium: 25, sodium: 57 },
     },
     servings: [
-      { description: { ar: 'شريحة متوسطة', de: 'Mittleres Steak' }, grams: 120 },
-      { description: { ar: '100 غرام', de: '100 Gramm' }, grams: 100 },
+      { description: { ar: 'شريحة متوسطة', }, grams: 120 },
+      { description: { ar: '100 غرام', }, grams: 100 },
     ],
     tags: ['gluten_free', 'dairy_free', 'high_protein', 'muscle_building', 'low_carb', 'keto_friendly', 'weight_loss', 'heart_healthy'],
     allergens: [],
     glycemicIndex: null,
     benefits: {
       ar: ['أقل دهوناً من لحم البقر بكثير', 'غني بالسيلينيوم المضاد للأكسدة', 'بروتين ممتاز لبناء العضلات', 'حديد عالي لمحاربة فقر الدم'],
-      de: ['Viel fettärmer als Rindfleisch', 'Reich an Selen als Antioxidans', 'Exzellentes Protein für Muskelaufbau', 'Hoher Eisengehalt gegen Anämie'],
     },
   },
 
 
   {
     id: 'rabbit',
-    name: { ar: 'لحم أرنب', de: 'Kaninchenfleisch' },
+    name: { ar: 'لحم أرنب', },
     category: 'meat_poultry',
     subCategory: 'game',
     emoji: '🐇',
@@ -445,22 +428,21 @@ export const PROTEINS_DATA: NutritionFoodItem[] = [
       minerals: { iron: 1.6, zinc: 2.0, selenium: 15.2, phosphorus: 240, potassium: 330, magnesium: 29, sodium: 45 },
     },
     servings: [
-      { description: { ar: 'قطعة متوسطة', de: 'Mittleres Stück' }, grams: 130 },
-      { description: { ar: '100 غرام', de: '100 Gramm' }, grams: 100 },
+      { description: { ar: 'قطعة متوسطة', }, grams: 130 },
+      { description: { ar: '100 غرام', }, grams: 100 },
     ],
     tags: ['halal', 'gluten_free', 'dairy_free', 'high_protein', 'muscle_building', 'low_carb', 'keto_friendly'],
     allergens: [],
     glycemicIndex: null,
     benefits: {
       ar: ['غني جداً بفيتامين ب12', 'بروتين عالي الجودة', 'نسبة دهون معتدلة', 'مصدر ممتاز للنياسين'],
-      de: ['Sehr reich an Vitamin B12', 'Hochwertiges Protein', 'Moderater Fettgehalt', 'Exzellente Niacin-Quelle'],
     },
   },
 
 
   {
     id: 'goat',
-    name: { ar: 'لحم ماعز', de: 'Ziegenfleisch' },
+    name: { ar: 'لحم ماعز', },
     category: 'meat_poultry',
     subCategory: 'red_meat',
     emoji: '🐐',
@@ -472,22 +454,21 @@ export const PROTEINS_DATA: NutritionFoodItem[] = [
       minerals: { iron: 3.7, zinc: 5.3, selenium: 8.8, phosphorus: 180, potassium: 385, magnesium: 20, sodium: 82 },
     },
     servings: [
-      { description: { ar: 'قطعة متوسطة', de: 'Mittleres Stück' }, grams: 120 },
-      { description: { ar: '100 غرام', de: '100 Gramm' }, grams: 100 },
+      { description: { ar: 'قطعة متوسطة', }, grams: 120 },
+      { description: { ar: '100 غرام', }, grams: 100 },
     ],
     tags: ['halal', 'gluten_free', 'dairy_free', 'high_protein', 'muscle_building', 'low_carb', 'keto_friendly', 'weight_loss'],
     allergens: [],
     glycemicIndex: null,
     benefits: {
       ar: ['دهون أقل من لحم البقر والخروف', 'زنك عالي لتعزيز المناعة', 'حديد هيم سهل الامتصاص', 'بوتاسيوم لصحة القلب'],
-      de: ['Weniger Fett als Rind und Lamm', 'Hoher Zinkgehalt für Immunsystem', 'Leicht absorbierbares Häm-Eisen', 'Kalium für Herzgesundheit'],
     },
   },
 
 
   {
     id: 'quail',
-    name: { ar: 'لحم سمان', de: 'Wachtelfleisch' },
+    name: { ar: 'لحم سمان', },
     category: 'meat_poultry',
     subCategory: 'poultry',
     emoji: '🐦',
@@ -499,22 +480,21 @@ export const PROTEINS_DATA: NutritionFoodItem[] = [
       minerals: { selenium: 17.4, iron: 4.5, zinc: 2.7, phosphorus: 307, potassium: 216, magnesium: 25, sodium: 51 },
     },
     servings: [
-      { description: { ar: 'سمانة كاملة', de: 'Ganze Wachtel' }, grams: 110 },
-      { description: { ar: '100 غرام', de: '100 Gramm' }, grams: 100 },
+      { description: { ar: 'سمانة كاملة', }, grams: 110 },
+      { description: { ar: '100 غرام', }, grams: 100 },
     ],
     tags: ['halal', 'gluten_free', 'dairy_free', 'high_protein', 'low_carb', 'immune_boost', 'energy_boost'],
     allergens: [],
     glycemicIndex: null,
     benefits: {
       ar: ['حديد عالي لمحاربة فقر الدم', 'سيلينيوم لحماية الخلايا', 'بروتين خفيف سهل الهضم', 'فسفور عالي لصحة العظام'],
-      de: ['Hoher Eisengehalt gegen Anämie', 'Selen zum Zellschutz', 'Leichtes, gut verdauliches Protein', 'Hoher Phosphorgehalt für Knochen'],
     },
   },
 
 
   {
     id: 'ostrich',
-    name: { ar: 'لحم نعام', de: 'Straußenfleisch' },
+    name: { ar: 'لحم نعام', },
     category: 'meat_poultry',
     subCategory: 'poultry',
     emoji: '🦃',
@@ -526,22 +506,21 @@ export const PROTEINS_DATA: NutritionFoodItem[] = [
       minerals: { iron: 3.2, zinc: 4.2, selenium: 32.8, phosphorus: 210, potassium: 315, magnesium: 22, sodium: 63 },
     },
     servings: [
-      { description: { ar: 'شريحة متوسطة', de: 'Mittleres Steak' }, grams: 130 },
-      { description: { ar: '100 غرام', de: '100 Gramm' }, grams: 100 },
+      { description: { ar: 'شريحة متوسطة', }, grams: 130 },
+      { description: { ar: '100 غرام', }, grams: 100 },
     ],
     tags: ['halal', 'gluten_free', 'dairy_free', 'high_protein', 'muscle_building', 'low_carb', 'keto_friendly', 'weight_loss', 'heart_healthy'],
     allergens: [],
     glycemicIndex: null,
     benefits: {
       ar: ['لحم أحمر قليل الدهون جداً', 'غني بفيتامين ب12 والحديد', 'سيلينيوم عالي للمناعة', 'بديل صحي للحوم الحمراء التقليدية'],
-      de: ['Sehr fettarmes rotes Fleisch', 'Reich an Vitamin B12 und Eisen', 'Hoher Selengehalt für Immunsystem', 'Gesunde Alternative zu klassischem Rotfleisch'],
     },
   },
 
 
   {
     id: 'chicken_liver',
-    name: { ar: 'كبد دجاج', de: 'Hühnerleber' },
+    name: { ar: 'كبد دجاج', },
     category: 'meat_poultry',
     subCategory: 'organ_meats',
     emoji: '🫀',
@@ -553,22 +532,21 @@ export const PROTEINS_DATA: NutritionFoodItem[] = [
       minerals: { iron: 9.0, selenium: 54.6, zinc: 2.7, phosphorus: 297, potassium: 230, magnesium: 19, sodium: 71, copper: 0.49 },
     },
     servings: [
-      { description: { ar: 'حصة (4 قطع)', de: 'Portion (4 Stück)' }, grams: 120 },
-      { description: { ar: '100 غرام', de: '100 Gramm' }, grams: 100 },
+      { description: { ar: 'حصة (4 قطع)', }, grams: 120 },
+      { description: { ar: '100 غرام', }, grams: 100 },
     ],
     tags: ['halal', 'gluten_free', 'dairy_free', 'high_protein', 'energy_boost', 'immune_boost'],
     allergens: [],
     glycemicIndex: null,
     benefits: {
       ar: ['أغنى مصدر لفيتامين أ الطبيعي', 'ب12 عالي جداً لصحة الأعصاب', 'حديد هيم ممتاز لفقر الدم', 'حمض الفوليك لصحة الدم'],
-      de: ['Reichste natürliche Vitamin-A-Quelle', 'Sehr hoher B12-Gehalt für Nerven', 'Exzellentes Häm-Eisen gegen Anämie', 'Folsäure für Blutgesundheit'],
     },
   },
 
 
   {
     id: 'lamb_kidney',
-    name: { ar: 'كلاوي خروف', de: 'Lammniere' },
+    name: { ar: 'كلاوي خروف', },
     category: 'meat_poultry',
     subCategory: 'organ_meats',
     emoji: '🫘',
@@ -580,22 +558,21 @@ export const PROTEINS_DATA: NutritionFoodItem[] = [
       minerals: { selenium: 126, iron: 6.2, zinc: 2.5, phosphorus: 246, potassium: 277, magnesium: 17, sodium: 156, copper: 0.42 },
     },
     servings: [
-      { description: { ar: 'كلية واحدة', de: 'Eine Niere' }, grams: 80 },
-      { description: { ar: '100 غرام', de: '100 Gramm' }, grams: 100 },
+      { description: { ar: 'كلية واحدة', }, grams: 80 },
+      { description: { ar: '100 غرام', }, grams: 100 },
     ],
     tags: ['halal', 'gluten_free', 'dairy_free', 'high_protein', 'immune_boost', 'energy_boost', 'low_carb'],
     allergens: [],
     glycemicIndex: null,
     benefits: {
       ar: ['أعلى مصدر لفيتامين ب12 على الإطلاق', 'سيلينيوم استثنائي لحماية الخلايا', 'حديد عالي لمحاربة الأنيميا', 'منخفض السعرات مع بروتين عالي'],
-      de: ['Höchste Vitamin-B12-Quelle überhaupt', 'Außergewöhnliches Selen zum Zellschutz', 'Hoher Eisengehalt gegen Anämie', 'Kalorienarm mit hohem Proteingehalt'],
     },
   },
 
 
   {
     id: 'bone_marrow',
-    name: { ar: 'نخاع العظم', de: 'Knochenmark' },
+    name: { ar: 'نخاع العظم', },
     category: 'meat_poultry',
     subCategory: 'organ_meats',
     emoji: '🦴',
@@ -607,22 +584,21 @@ export const PROTEINS_DATA: NutritionFoodItem[] = [
       minerals: { iron: 0.4, phosphorus: 6, potassium: 5, sodium: 10, calcium: 7, magnesium: 2, zinc: 0.1 },
     },
     servings: [
-      { description: { ar: 'ملعقة كبيرة', de: 'Esslöffel' }, grams: 14 },
-      { description: { ar: '100 غرام', de: '100 Gramm' }, grams: 100 },
+      { description: { ar: 'ملعقة كبيرة', }, grams: 14 },
+      { description: { ar: '100 غرام', }, grams: 100 },
     ],
     tags: ['halal', 'gluten_free', 'dairy_free', 'keto_friendly', 'energy_boost'],
     allergens: [],
     glycemicIndex: null,
     benefits: {
       ar: ['غني بالكولاجين لصحة المفاصل', 'دهون صحية وأحماض دهنية', 'يدعم صحة العظام والنخاع', 'مصدر طبيعي لفيتامين ب12'],
-      de: ['Reich an Kollagen für Gelenkgesundheit', 'Gesunde Fette und Fettsäuren', 'Unterstützt Knochen- und Markgesundheit', 'Natürliche Vitamin-B12-Quelle'],
     },
   },
 
 
   {
     id: 'heart_beef',
-    name: { ar: 'قلب بقر', de: 'Rinderherz' },
+    name: { ar: 'قلب بقر', },
     category: 'meat_poultry',
     subCategory: 'organ_meats',
     emoji: '❤️',
@@ -634,22 +610,21 @@ export const PROTEINS_DATA: NutritionFoodItem[] = [
       minerals: { iron: 4.3, zinc: 1.7, selenium: 21.8, phosphorus: 212, potassium: 287, magnesium: 21, sodium: 98, copper: 0.4 },
     },
     servings: [
-      { description: { ar: 'شريحة متوسطة', de: 'Mittlere Scheibe' }, grams: 100 },
-      { description: { ar: '100 غرام', de: '100 Gramm' }, grams: 100 },
+      { description: { ar: 'شريحة متوسطة', }, grams: 100 },
+      { description: { ar: '100 غرام', }, grams: 100 },
     ],
     tags: ['halal', 'gluten_free', 'dairy_free', 'high_protein', 'low_carb', 'keto_friendly', 'energy_boost', 'heart_healthy'],
     allergens: [],
     glycemicIndex: null,
     benefits: {
       ar: ['أغنى مصدر طبيعي لـ CoQ10', 'ب12 عالي لصحة الأعصاب', 'حديد هيم لمحاربة التعب', 'بروتين عالي وسعرات منخفضة'],
-      de: ['Reichste natürliche CoQ10-Quelle', 'Hoher B12-Gehalt für Nervengesundheit', 'Häm-Eisen gegen Müdigkeit', 'Hoher Protein- bei niedrigem Kaloriengehalt'],
     },
   },
 
 
   {
     id: 'oysters',
-    name: { ar: 'محار', de: 'Austern' },
+    name: { ar: 'محار', },
     category: 'fish_seafood',
     subCategory: 'shellfish',
     emoji: '🦪',
@@ -661,22 +636,21 @@ export const PROTEINS_DATA: NutritionFoodItem[] = [
       minerals: { zinc: 16.6, iron: 5.1, copper: 4.5, selenium: 63.7, phosphorus: 135, potassium: 168, magnesium: 47, sodium: 106, manganese: 0.4 },
     },
     servings: [
-      { description: { ar: '6 حبات متوسطة', de: '6 mittlere Stück' }, grams: 84 },
-      { description: { ar: '100 غرام', de: '100 Gramm' }, grams: 100 },
+      { description: { ar: '6 حبات متوسطة', }, grams: 84 },
+      { description: { ar: '100 غرام', }, grams: 100 },
     ],
     tags: ['gluten_free', 'dairy_free', 'high_protein', 'immune_boost', 'brain_food', 'heart_healthy', 'low_carb'],
     allergens: ['shellfish'],
     glycemicIndex: null,
     benefits: {
       ar: ['أعلى مصدر غذائي للزنك', 'ب12 عالي جداً لصحة الدم', 'نحاس وسيلينيوم للمناعة', 'منخفض السعرات وغني بالمعادن'],
-      de: ['Höchste Nahrungsquelle für Zink', 'Sehr hoher B12-Gehalt für Blutgesundheit', 'Kupfer und Selen für Immunsystem', 'Kalorienarm und mineralstoffreich'],
     },
   },
 
 
   {
     id: 'mussels',
-    name: { ar: 'بلح البحر', de: 'Miesmuscheln' },
+    name: { ar: 'بلح البحر', },
     category: 'fish_seafood',
     subCategory: 'shellfish',
     emoji: '🐚',
@@ -688,22 +662,21 @@ export const PROTEINS_DATA: NutritionFoodItem[] = [
       minerals: { iron: 3.9, selenium: 44.8, manganese: 3.4, zinc: 1.6, phosphorus: 197, potassium: 320, magnesium: 34, sodium: 286, copper: 0.09 },
     },
     servings: [
-      { description: { ar: '10-12 حبة', de: '10-12 Stück' }, grams: 100 },
-      { description: { ar: '100 غرام', de: '100 Gramm' }, grams: 100 },
+      { description: { ar: '10-12 حبة', }, grams: 100 },
+      { description: { ar: '100 غرام', }, grams: 100 },
     ],
     tags: ['gluten_free', 'dairy_free', 'high_protein', 'heart_healthy', 'immune_boost', 'energy_boost', 'low_carb'],
     allergens: ['shellfish'],
     glycemicIndex: null,
     benefits: {
       ar: ['ب12 ممتاز لتكوين خلايا الدم', 'منغنيز عالي لصحة العظام', 'حديد وسيلينيوم للطاقة', 'بروتين بحري سهل الهضم'],
-      de: ['Exzellentes B12 für Blutzellenbildung', 'Hoher Manganwert für Knochengesundheit', 'Eisen und Selen für Energie', 'Leicht verdauliches Meeresprotein'],
     },
   },
 
 
   {
     id: 'octopus',
-    name: { ar: 'أخطبوط', de: 'Oktopus' },
+    name: { ar: 'أخطبوط', },
     category: 'fish_seafood',
     subCategory: 'cephalopods',
     emoji: '🐙',
@@ -715,22 +688,21 @@ export const PROTEINS_DATA: NutritionFoodItem[] = [
       minerals: { iron: 5.3, selenium: 44.8, zinc: 1.7, phosphorus: 186, potassium: 350, magnesium: 30, sodium: 230, copper: 0.43 },
     },
     servings: [
-      { description: { ar: 'حصة متوسطة', de: 'Mittlere Portion' }, grams: 100 },
-      { description: { ar: '100 غرام', de: '100 Gramm' }, grams: 100 },
+      { description: { ar: 'حصة متوسطة', }, grams: 100 },
+      { description: { ar: '100 غرام', }, grams: 100 },
     ],
     tags: ['gluten_free', 'dairy_free', 'high_protein', 'brain_food', 'low_carb', 'weight_loss', 'immune_boost'],
     allergens: ['shellfish'],
     glycemicIndex: null,
     benefits: {
       ar: ['أعلى ب12 بين المأكولات البحرية', 'حديد عالي لمحاربة الأنيميا', 'سيلينيوم لحماية الخلايا', 'منخفض الدهون والسعرات'],
-      de: ['Höchster B12-Wert unter Meeresfrüchten', 'Hoher Eisengehalt gegen Anämie', 'Selen zum Zellschutz', 'Fett- und kalorienarm'],
     },
   },
 
 
   {
     id: 'squid',
-    name: { ar: 'حبار/كاليماري', de: 'Tintenfisch/Calamari' },
+    name: { ar: 'حبار/كاليماري', },
     category: 'fish_seafood',
     subCategory: 'cephalopods',
     emoji: '🦑',
@@ -742,22 +714,21 @@ export const PROTEINS_DATA: NutritionFoodItem[] = [
       minerals: { selenium: 44.8, phosphorus: 221, copper: 1.9, zinc: 1.5, potassium: 246, magnesium: 33, sodium: 44, iron: 0.7 },
     },
     servings: [
-      { description: { ar: 'حصة متوسطة', de: 'Mittlere Portion' }, grams: 100 },
-      { description: { ar: '100 غرام', de: '100 Gramm' }, grams: 100 },
+      { description: { ar: 'حصة متوسطة', }, grams: 100 },
+      { description: { ar: '100 غرام', }, grams: 100 },
     ],
     tags: ['gluten_free', 'dairy_free', 'high_protein', 'low_carb', 'weight_loss', 'brain_food'],
     allergens: ['shellfish'],
     glycemicIndex: null,
     benefits: {
       ar: ['نحاس عالي لتكوين الكولاجين', 'سيلينيوم لمضادات الأكسدة', 'بروتين عالي مع دهون قليلة', 'فسفور لصحة العظام والأسنان'],
-      de: ['Hoher Kupfergehalt für Kollagenbildung', 'Selen als Antioxidans', 'Hoher Protein- bei niedrigem Fettgehalt', 'Phosphor für Knochen und Zähne'],
     },
   },
 
 
   {
     id: 'anchovies',
-    name: { ar: 'أنشوفة', de: 'Sardellen' },
+    name: { ar: 'أنشوفة', },
     category: 'fish_seafood',
     subCategory: 'oily_fish',
     emoji: '🐟',
@@ -769,22 +740,21 @@ export const PROTEINS_DATA: NutritionFoodItem[] = [
       minerals: { iron: 3.3, selenium: 36.5, calcium: 147, phosphorus: 174, potassium: 383, magnesium: 41, sodium: 104, zinc: 1.7 },
     },
     servings: [
-      { description: { ar: '10 حبات', de: '10 Stück' }, grams: 45 },
-      { description: { ar: '100 غرام', de: '100 Gramm' }, grams: 100 },
+      { description: { ar: '10 حبات', }, grams: 45 },
+      { description: { ar: '100 غرام', }, grams: 100 },
     ],
     tags: ['gluten_free', 'dairy_free', 'high_protein', 'heart_healthy', 'brain_food', 'muscle_building', 'immune_boost'],
     allergens: ['fish'],
     glycemicIndex: null,
     benefits: {
       ar: ['أوميغا 3 عالية لصحة القلب', 'كالسيوم ممتاز لصحة العظام', 'حديد ونياسين للطاقة', 'سيلينيوم لحماية الخلايا'],
-      de: ['Hoher Omega-3-Gehalt für Herzgesundheit', 'Exzellentes Kalzium für Knochen', 'Eisen und Niacin für Energie', 'Selen zum Zellschutz'],
     },
   },
 
 
   {
     id: 'trout',
-    name: { ar: 'سمك السلمون المرقط', de: 'Forelle' },
+    name: { ar: 'سمك السلمون المرقط', },
     category: 'fish_seafood',
     subCategory: 'freshwater',
     emoji: '🐠',
@@ -796,22 +766,21 @@ export const PROTEINS_DATA: NutritionFoodItem[] = [
       minerals: { selenium: 12.6, phosphorus: 245, potassium: 361, magnesium: 28, sodium: 52, zinc: 0.7, iron: 0.3 },
     },
     servings: [
-      { description: { ar: 'فيليه متوسط', de: 'Mittleres Filet' }, grams: 140 },
-      { description: { ar: '100 غرام', de: '100 Gramm' }, grams: 100 },
+      { description: { ar: 'فيليه متوسط', }, grams: 140 },
+      { description: { ar: '100 غرام', }, grams: 100 },
     ],
     tags: ['gluten_free', 'dairy_free', 'high_protein', 'heart_healthy', 'brain_food', 'muscle_building'],
     allergens: ['fish'],
     glycemicIndex: null,
     benefits: {
       ar: ['فيتامين د عالي جداً لصحة العظام', 'ب12 ممتاز لصحة الأعصاب', 'أوميغا 3 لصحة القلب والدماغ', 'بروتين عالي الجودة'],
-      de: ['Sehr hoher Vitamin-D-Gehalt für Knochen', 'Exzellentes B12 für Nervengesundheit', 'Omega-3 für Herz und Gehirn', 'Hochwertiges Protein'],
     },
   },
 
 
   {
     id: 'halibut',
-    name: { ar: 'سمك الهلبوت', de: 'Heilbutt' },
+    name: { ar: 'سمك الهلبوت', },
     category: 'fish_seafood',
     subCategory: 'white_fish',
     emoji: '🐟',
@@ -823,22 +792,21 @@ export const PROTEINS_DATA: NutritionFoodItem[] = [
       minerals: { selenium: 36.5, magnesium: 23, phosphorus: 236, potassium: 435, sodium: 54, zinc: 0.4, iron: 0.2 },
     },
     servings: [
-      { description: { ar: 'فيليه متوسط', de: 'Mittleres Filet' }, grams: 160 },
-      { description: { ar: '100 غرام', de: '100 Gramm' }, grams: 100 },
+      { description: { ar: 'فيليه متوسط', }, grams: 160 },
+      { description: { ar: '100 غرام', }, grams: 100 },
     ],
     tags: ['gluten_free', 'dairy_free', 'high_protein', 'weight_loss', 'low_carb', 'heart_healthy', 'muscle_building'],
     allergens: ['fish'],
     glycemicIndex: null,
     benefits: {
       ar: ['بروتين عالي مع دهون قليلة جداً', 'سيلينيوم عالي لحماية الخلايا', 'بوتاسيوم لتنظيم ضغط الدم', 'فيتامين د لصحة العظام'],
-      de: ['Hoher Protein- bei sehr niedrigem Fettgehalt', 'Hoher Selengehalt zum Zellschutz', 'Kalium zur Blutdruckregulation', 'Vitamin D für Knochengesundheit'],
     },
   },
 
 
   {
     id: 'sea_bass',
-    name: { ar: 'سمك القاروص', de: 'Wolfsbarsch' },
+    name: { ar: 'سمك القاروص', },
     category: 'fish_seafood',
     subCategory: 'white_fish',
     emoji: '🐟',
@@ -850,22 +818,21 @@ export const PROTEINS_DATA: NutritionFoodItem[] = [
       minerals: { selenium: 36.2, phosphorus: 194, calcium: 10, potassium: 256, magnesium: 41, sodium: 68, zinc: 0.4, iron: 0.3 },
     },
     servings: [
-      { description: { ar: 'فيليه متوسط', de: 'Mittleres Filet' }, grams: 125 },
-      { description: { ar: '100 غرام', de: '100 Gramm' }, grams: 100 },
+      { description: { ar: 'فيليه متوسط', }, grams: 125 },
+      { description: { ar: '100 غرام', }, grams: 100 },
     ],
     tags: ['gluten_free', 'dairy_free', 'high_protein', 'weight_loss', 'low_carb', 'heart_healthy', 'keto_friendly'],
     allergens: ['fish'],
     glycemicIndex: null,
     benefits: {
       ar: ['سعرات قليلة جداً مع بروتين جيد', 'سيلينيوم لمضادات الأكسدة', 'مغنيسيوم لصحة العضلات', 'سمك خفيف مثالي للحمية'],
-      de: ['Sehr kalorienarm mit gutem Protein', 'Selen als Antioxidans', 'Magnesium für Muskelgesundheit', 'Leichter Fisch ideal für Diät'],
     },
   },
 
 
   {
     id: 'crab',
-    name: { ar: 'سلطعون/كابوريا', de: 'Krabbe' },
+    name: { ar: 'سلطعون/كابوريا', },
     category: 'fish_seafood',
     subCategory: 'shellfish',
     emoji: '🦀',
@@ -877,22 +844,21 @@ export const PROTEINS_DATA: NutritionFoodItem[] = [
       minerals: { zinc: 3.8, selenium: 37.4, copper: 0.67, phosphorus: 229, potassium: 259, magnesium: 34, sodium: 395, iron: 0.7 },
     },
     servings: [
-      { description: { ar: 'سلطعون متوسط', de: 'Mittlere Krabbe' }, grams: 135 },
-      { description: { ar: '100 غرام', de: '100 Gramm' }, grams: 100 },
+      { description: { ar: 'سلطعون متوسط', }, grams: 135 },
+      { description: { ar: '100 غرام', }, grams: 100 },
     ],
     tags: ['gluten_free', 'dairy_free', 'high_protein', 'low_carb', 'weight_loss', 'immune_boost', 'keto_friendly'],
     allergens: ['shellfish'],
     glycemicIndex: null,
     benefits: {
       ar: ['ب12 عالي لصحة الجهاز العصبي', 'زنك وسيلينيوم للمناعة', 'بروتين عالي مع دهون شبه معدومة', 'نحاس لتكوين خلايا الدم الحمراء'],
-      de: ['Hoher B12-Wert für Nervensystem', 'Zink und Selen für Immunsystem', 'Hoher Protein- bei fast keinem Fettgehalt', 'Kupfer für Bildung roter Blutkörperchen'],
     },
   },
 
 
   {
     id: 'scallops',
-    name: { ar: 'إسكالوب', de: 'Jakobsmuscheln' },
+    name: { ar: 'إسكالوب', },
     category: 'fish_seafood',
     subCategory: 'shellfish',
     emoji: '🐚',
@@ -904,15 +870,14 @@ export const PROTEINS_DATA: NutritionFoodItem[] = [
       minerals: { selenium: 22.2, phosphorus: 334, magnesium: 22, zinc: 1.0, potassium: 205, sodium: 392, iron: 0.4, copper: 0.02 },
     },
     servings: [
-      { description: { ar: '5-6 حبات', de: '5-6 Stück' }, grams: 100 },
-      { description: { ar: '100 غرام', de: '100 Gramm' }, grams: 100 },
+      { description: { ar: '5-6 حبات', }, grams: 100 },
+      { description: { ar: '100 غرام', }, grams: 100 },
     ],
     tags: ['gluten_free', 'dairy_free', 'high_protein', 'low_carb', 'weight_loss', 'heart_healthy', 'keto_friendly'],
     allergens: ['shellfish'],
     glycemicIndex: null,
     benefits: {
       ar: ['أقل المأكولات البحرية سعرات حرارية', 'فسفور عالي جداً لصحة العظام', 'سيلينيوم لحماية الخلايا', 'بروتين خفيف مثالي للحمية'],
-      de: ['Kalorienärmste Meeresfrüchte', 'Sehr hoher Phosphorgehalt für Knochen', 'Selen zum Zellschutz', 'Leichtes Protein ideal für Diät'],
     },
   },
 ];

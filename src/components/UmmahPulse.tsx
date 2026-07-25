@@ -115,13 +115,13 @@ const CITIES: City[] = [
   { name: 'Sydney',        nameAr: 'سيدني',        country: 'Australia',     countryAr: 'أستراليا',   flag: '🇦🇺', lat: -33.8688,lng: 151.2093,tz: 'Australia/Sydney',  method: 'MWL',       region: 'oceania' },
 ];
 
-const REGION_LABELS: Record<Region, { ar: string; de: string }> = {
-  arab:     { ar: 'العالم العربي',   de: 'Arab. Welt' },
-  africa:   { ar: 'أفريقيا',          de: 'Afrika' },
-  asia:     { ar: 'آسيا',             de: 'Asien' },
-  europe:   { ar: 'أوروبا',           de: 'Europa' },
-  americas: { ar: 'الأمريكتان',       de: 'Amerika' },
-  oceania:  { ar: 'أوقيانوسيا',       de: 'Ozeanien' },
+const REGION_LABELS: Record<Region, { ar: string; }> = {
+  arab:     { ar: 'العالم العربي', },
+  africa:   { ar: 'أفريقيا', },
+  asia:     { ar: 'آسيا', },
+  europe:   { ar: 'أوروبا', },
+  americas: { ar: 'الأمريكتان', },
+  oceania:  { ar: 'أوقيانوسيا', },
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -190,15 +190,15 @@ function buildNightPaths(date: Date): string[] {
 // ─────────────────────────────────────────────────────────────────────────────
 // UI meta
 // ─────────────────────────────────────────────────────────────────────────────
-const SLOT_META: Record<PrayerSlot, { ar: string; de: string; color: string }> = {
-  fajr:    { ar: 'الفجر',   de: 'Fadschr',     color: 'hsl(43, 96%, 66%)'  },
-  shuruq:  { ar: 'الشروق',  de: 'Sonnenaufg.', color: 'hsl(32, 95%, 64%)'  },
-  duha:    { ar: 'الضحى',   de: 'Duha',        color: 'hsl(48, 92%, 60%)'  },
-  dhuhr:   { ar: 'الظهر',   de: 'Dhuhr',       color: 'hsl(196, 78%, 62%)' },
-  asr:     { ar: 'العصر',   de: 'Asr',         color: 'hsl(18, 78%, 60%)'  },
-  maghrib: { ar: 'المغرب',  de: 'Maghrib',     color: 'hsl(348, 76%, 62%)' },
-  isha:    { ar: 'العشاء',  de: 'Ischa',       color: 'hsl(252, 62%, 66%)' },
-  night:   { ar: 'الليل',   de: 'Nacht',       color: 'hsl(220, 25%, 55%)' },
+const SLOT_META: Record<PrayerSlot, { ar: string; color: string }> = {
+  fajr:    { ar: 'الفجر',     color: 'hsl(43, 96%, 66%)'  },
+  shuruq:  { ar: 'الشروق', color: 'hsl(32, 95%, 64%)'  },
+  duha:    { ar: 'الضحى',        color: 'hsl(48, 92%, 60%)'  },
+  dhuhr:   { ar: 'الظهر',       color: 'hsl(196, 78%, 62%)' },
+  asr:     { ar: 'العصر',         color: 'hsl(18, 78%, 60%)'  },
+  maghrib: { ar: 'المغرب',     color: 'hsl(348, 76%, 62%)' },
+  isha:    { ar: 'العشاء',       color: 'hsl(252, 62%, 66%)' },
+  night:   { ar: 'الليل',       color: 'hsl(220, 25%, 55%)' },
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -321,7 +321,7 @@ function UmmahPulse() {
     ? cityDetails.find((c) => c.name === selectedCity) ?? null
     : null;
 
-  const t = (ar: string, de: string) => (language === 'ar' ? ar : de);
+  const t = (ar: string, de: string) => (ar);
 
   // ── Map render ────────────────────────────────────────────────────────────
   const renderMapSvg = (opts: { large?: boolean } = {}) => {
@@ -717,7 +717,6 @@ function UmmahPulse() {
           const c = selectedCityDetails;
           const slotColor = SLOT_META[c.info.slot].color;
           const nextName = SLOT_META[c.info.next.name].ar;
-          const nextDe = SLOT_META[c.info.next.name].de;
           const rem = c.info.next.minutesUntil;
           const hh = Math.floor(rem / 60);
           const mm = rem % 60;
@@ -736,11 +735,11 @@ function UmmahPulse() {
               <rect x={tx} y={ty} width={1.4} height={tipH} rx={0.7} fill={slotColor} />
               <text x={tx + 4} y={ty + 7.5}
                     fontSize="5" fill="hsl(0, 0%, 98%)" fontWeight="700">
-                {language === 'ar' ? c.nameAr : c.name}
+                {c.nameAr}
               </text>
               <text x={tx + 4} y={ty + 14.5} fontSize="4"
                     fill={slotColor} fontWeight="700">
-                {language === 'ar' ? SLOT_META[c.info.slot].ar : SLOT_META[c.info.slot].de}
+                {SLOT_META[c.info.slot].ar}
               </text>
               <text x={tx + tipW - 4} y={ty + 14.5} fontSize="4.5"
                     fill="hsl(0, 0%, 98%)" textAnchor="end" fontWeight="700" letterSpacing="0.3">
@@ -748,13 +747,11 @@ function UmmahPulse() {
               </text>
               <text x={tx + 4} y={ty + 23} fontSize="3.5"
                     fill="hsl(220, 15%, 75%)">
-                {language === 'ar'
-                  ? `→ ${nextName} بعد ${hh ? hh + 'س ' : ''}${mm}د`
-                  : `→ ${nextDe} in ${hh ? hh + 'h ' : ''}${mm}m`}
+                {`→ ${nextName} بعد ${hh ? hh + 'س ' : ''}${mm}د`}
               </text>
               <text x={tx + tipW - 4} y={ty + 23} fontSize="3.2"
                     fill="hsl(220, 15%, 65%)" textAnchor="end">
-                {c.flag} {language === 'ar' ? c.countryAr : c.country}
+                {c.flag} {c.countryAr}
               </text>
             </g>
           );
@@ -801,7 +798,7 @@ function UmmahPulse() {
             <div className="min-w-0">
               <div className="flex items-center gap-1.5 flex-wrap">
                 <h3 className="text-[15px] font-bold text-foreground truncate leading-tight">
-                  {language === 'ar' ? c.nameAr : c.name}
+                  {c.nameAr}
                 </h3>
                 {c.name === 'Makkah' && (
                   <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-600 font-bold">
@@ -810,7 +807,7 @@ function UmmahPulse() {
                 )}
               </div>
               <p className="text-[11px] text-muted-foreground leading-tight mt-0.5 truncate">
-                {language === 'ar' ? c.countryAr : c.country}
+                {c.countryAr}
               </p>
             </div>
           </div>
@@ -825,7 +822,7 @@ function UmmahPulse() {
                 color: meta.color,
               }}
             >
-              {language === 'ar' ? meta.ar : meta.de}
+              {meta.ar}
             </div>
           </div>
         </div>
@@ -837,7 +834,7 @@ function UmmahPulse() {
             <span>
               {t('القادمة', 'Nächstes')}:
               <span className="font-semibold text-foreground ml-1">
-                {language === 'ar' ? SLOT_META[c.info.next.name].ar : SLOT_META[c.info.next.name].de}
+                {SLOT_META[c.info.next.name].ar}
               </span>
             </span>
           </div>
@@ -866,7 +863,7 @@ function UmmahPulse() {
               >
                 <p className="text-[9px] font-semibold leading-tight"
                    style={{ color: isCurrent ? m.color : 'hsl(var(--muted-foreground))' }}>
-                  {language === 'ar' ? m.ar : m.de}
+                  {m.ar}
                 </p>
                 <p className="text-[10.5px] font-bold tabular-nums text-foreground mt-0.5" dir="ltr">
                   {formatLocalMinutes(min)}
@@ -881,7 +878,7 @@ function UmmahPulse() {
           <div className="flex items-center gap-1.5 text-muted-foreground min-w-0">
             <Info className="w-3 h-3 shrink-0" />
             <span className="truncate">
-              {language === 'ar' ? METHOD_LABELS[c.method].ar : METHOD_LABELS[c.method].de}
+              {METHOD_LABELS[c.method].ar}
             </span>
             <span
               className="shrink-0 text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-primary/10 text-primary"
@@ -910,7 +907,7 @@ function UmmahPulse() {
       {/* Header */}
       <div
         className="flex items-center justify-between px-4 pt-4 pb-2"
-        dir={language === 'ar' ? 'rtl' : 'ltr'}
+        dir={'rtl'}
       >
         <div className="flex items-center gap-2.5">
           <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
@@ -934,7 +931,7 @@ function UmmahPulse() {
         {/* Quick stats row — 5 prayer summaries */}
         <div
           className="grid grid-cols-5 gap-1.5 mt-2.5"
-          dir={language === 'ar' ? 'rtl' : 'ltr'}
+          dir={'rtl'}
         >
           {([
             ['fajr',    fajrCities.length],
@@ -951,7 +948,7 @@ function UmmahPulse() {
               <div className="flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full" style={{ background: SLOT_META[slot].color }} />
                 <span className="text-[10px] font-semibold text-foreground">
-                  {language === 'ar' ? SLOT_META[slot].ar : SLOT_META[slot].de}
+                  {SLOT_META[slot].ar}
                 </span>
               </div>
               <span className="text-[11px] font-bold tabular-nums text-foreground mt-0.5">
@@ -963,7 +960,7 @@ function UmmahPulse() {
 
         <p
           className="text-[10.5px] text-muted-foreground text-center mt-2.5 leading-relaxed px-2"
-          dir={language === 'ar' ? 'rtl' : 'ltr'}
+          dir={'rtl'}
         >
           {t(
             'اضغط على أي وقت صلاة لعرض كل المدن ومواقيتها الرسمية',
@@ -982,7 +979,7 @@ function UmmahPulse() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
               className="fixed inset-0 z-[100] bg-background/95 backdrop-blur-md flex flex-col"
-              dir={language === 'ar' ? 'rtl' : 'ltr'}
+              dir={'rtl'}
             >
               {/* Top bar */}
               <div className="flex items-center justify-between px-5 pt-[max(env(safe-area-inset-top),1rem)] pb-3 border-b border-border/30">
@@ -1026,7 +1023,7 @@ function UmmahPulse() {
                       const active = filter === s;
                       const label = s === 'all'
                         ? t('الكل', 'Alle')
-                        : language === 'ar' ? SLOT_META[s].ar : SLOT_META[s].de;
+                        : SLOT_META[s].ar;
                       const count = s === 'all' ? CITIES.length : cityDetails.filter(c => c.info.slot === s).length;
                       return (
                         <button
@@ -1058,7 +1055,7 @@ function UmmahPulse() {
                       const active = regionFilter === r;
                       const label = r === 'all'
                         ? t('كل المناطق', 'Alle Regionen')
-                        : language === 'ar' ? REGION_LABELS[r].ar : REGION_LABELS[r].de;
+                        : REGION_LABELS[r].ar;
                       return (
                         <button
                           key={r}
@@ -1079,15 +1076,15 @@ function UmmahPulse() {
                 {/* Search */}
                 <div className="px-4 pt-3">
                   <div className="relative">
-                    <Search className={`w-3.5 h-3.5 absolute top-1/2 -translate-y-1/2 ${language === 'ar' ? 'right-3' : 'left-3'} text-muted-foreground pointer-events-none`} />
+                    <Search className={`w-3.5 h-3.5 absolute top-1/2 -translate-y-1/2 ${'right-3'} text-muted-foreground pointer-events-none`} />
                     <input
                       value={search}
                       onChange={(e) => setSearch(e.target.value)}
                       placeholder={t('ابحث عن مدينة أو دولة…', 'Stadt oder Land suchen…')}
                       className={`w-full py-2 text-[12px] rounded-xl bg-card border border-border/40 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 ${
-                        language === 'ar' ? 'pr-9 pl-3' : 'pl-9 pr-3'
+                        'pr-9 pl-3'
                       }`}
-                      dir={language === 'ar' ? 'rtl' : 'ltr'}
+                      dir={'rtl'}
                     />
                   </div>
                 </div>
@@ -1137,7 +1134,7 @@ function UmmahPulse() {
                             />
                             <div className="min-w-0 flex-1">
                               <p className="text-[13px] font-semibold text-foreground truncate leading-tight">
-                                {language === 'ar' ? c.nameAr : c.name}
+                                {c.nameAr}
                                 {c.name === 'Makkah' && (
                                   <span className="ml-1.5 text-[9px] px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-600 font-bold align-middle">
                                     ★
@@ -1160,7 +1157,7 @@ function UmmahPulse() {
                               color: meta.color,
                             }}
                           >
-                            {language === 'ar' ? meta.ar : meta.de}
+                            {meta.ar}
                           </span>
                         </motion.button>
                       );

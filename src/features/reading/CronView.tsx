@@ -95,13 +95,13 @@ export function CronView({
     try {
       const { error } = await supabase.functions.invoke(fn, { body: {} });
       if (error) throw error;
-      toast.success(isAr ? 'تم تشغيل المهمة' : 'Job triggered');
+      toast.success('تم تشغيل المهمة');
       // Give the run a moment to record, then refetch.
       setTimeout(() => { void load(); }, 1500);
     } catch (e: any) {
       toast.error(
         e?.message ||
-          (isAr ? 'تعذّر تشغيل المهمة' : 'Could not trigger job'),
+          ('تعذّر تشغيل المهمة'),
       );
     } finally {
       setBusyJob(null);
@@ -154,19 +154,19 @@ export function CronView({
           type="button"
           onClick={onBack}
           className="p-2 rounded-xl hover:bg-accent/50 active:scale-95 transition-all"
-          aria-label={isAr ? 'رجوع' : 'Back'}
+          aria-label={'رجوع'}
         >
           <ChevronLeft className="h-5 w-5 rtl:rotate-180" />
         </button>
         <Activity className="h-4 w-4 text-primary" />
         <h3 className="text-base font-bold flex-1">
-          {isAr ? 'حالة التحديث' : 'Refresh status'}
+          {'حالة التحديث'}
         </h3>
         <button
           type="button"
           onClick={() => { void load(); }}
           className="p-2 rounded-xl hover:bg-accent/50 active:scale-95 transition-all"
-          aria-label={isAr ? 'تحديث' : 'Refresh'}
+          aria-label={'تحديث'}
         >
           <RefreshCw className={`h-4 w-4 text-muted-foreground ${loading ? 'animate-spin' : ''}`} />
         </button>
@@ -176,8 +176,8 @@ export function CronView({
         {/* Schedule summary */}
         <section className="rounded-2xl bg-card border border-border/50 divide-y divide-border/30">
           <JobRow
-            jobName={isAr ? 'تحديث الخلاصات' : 'Refresh feeds'}
-            schedule={isAr ? 'كل ٣٠ دقيقة' : 'Every 30 minutes'}
+            jobName={'تحديث الخلاصات'}
+            schedule={'كل ٣٠ دقيقة'}
             run={lastRefresh}
             language={language}
             isAr={isAr}
@@ -185,8 +185,8 @@ export function CronView({
             busy={busyJob === 'fetch-rss-cron'}
           />
           <JobRow
-            jobName={isAr ? 'فحص التنبيهات' : 'Check alerts'}
-            schedule={isAr ? 'الدقيقة ٠٥ و ٣٥' : 'At :05 and :35'}
+            jobName={'فحص التنبيهات'}
+            schedule={'الدقيقة ٠٥ و ٣٥'}
             run={lastAlerts}
             language={language}
             isAr={isAr}
@@ -199,12 +199,12 @@ export function CronView({
         <section>
           <p className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground mb-2 inline-flex items-center gap-1.5">
             <Database className="h-3 w-3" />
-            {isAr ? 'صحة المصادر' : 'Feed health'}
+            {'صحة المصادر'}
           </p>
           <div className="rounded-2xl bg-card border border-border/50 divide-y divide-border/30">
             {healthRows.length === 0 && (
               <div className="px-4 py-6 text-center text-[12px] text-muted-foreground">
-                {isAr ? 'لا توجد مصادر' : 'No feeds yet'}
+                {'لا توجد مصادر'}
               </div>
             )}
             {healthRows.map(({ feed, meta }) => (
@@ -223,7 +223,7 @@ export function CronView({
         <section>
           <p className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground mb-2 inline-flex items-center gap-1.5">
             <Clock className="h-3 w-3" />
-            {isAr ? 'آخر التشغيلات' : 'Recent runs'}
+            {'آخر التشغيلات'}
           </p>
           {loading && runs.length === 0 && (
             <div className="flex items-center justify-center py-8">
@@ -232,9 +232,7 @@ export function CronView({
           )}
           {!loading && runs.length === 0 && (
             <div className="rounded-2xl bg-card border border-border/50 px-4 py-6 text-center text-[12px] text-muted-foreground">
-              {isAr
-                ? 'لا توجد سجلات. تأكد من إعدادات pg_cron.'
-                : 'No run history. Check that pg_cron is enabled and configured.'}
+              {'لا توجد سجلات. تأكد من إعدادات pg_cron.'}
             </div>
           )}
           {runs.length > 0 && (
@@ -300,7 +298,7 @@ function JobRow({
             <>
               <span className="w-1 h-1 rounded-full bg-muted-foreground/30" />
               <span className="text-[10px] text-muted-foreground">
-                {isAr ? 'آخر تشغيل ' : 'Last run '}
+                {'آخر تشغيل '}
                 {timeAgo(run.start_time, language)}
               </span>
             </>
@@ -315,7 +313,7 @@ function JobRow({
         className="shrink-0 h-8 rounded-xl text-[11px]"
       >
         <Play className="h-3 w-3 me-1" />
-        {isAr ? 'تشغيل' : 'Run'}
+        {'تشغيل'}
       </Button>
     </div>
   );
@@ -342,7 +340,7 @@ function FeedHealthRow({
           <p className="text-sm font-semibold truncate">{feed.name}</p>
           {!feed.enabled && (
             <span className="text-[9px] uppercase tracking-wider px-1.5 rounded bg-foreground/10 text-muted-foreground">
-              {isAr ? 'موقوف' : 'Off'}
+              {'موقوف'}
             </span>
           )}
           {failing && (
@@ -350,13 +348,13 @@ function FeedHealthRow({
               className="text-[9px] uppercase tracking-wider px-1.5 rounded bg-destructive/15 text-destructive font-bold tabular-nums"
               title={meta?.last_error || ''}
             >
-              {isAr ? `${meta?.consecutive_failures} فشل` : `${meta?.consecutive_failures} fails`}
+              {`${meta?.consecutive_failures} فشل`}
             </span>
           )}
           {cached && !failing && (
             <span
               className="text-[9px] uppercase tracking-wider px-1.5 rounded bg-foreground/10 text-muted-foreground"
-              title={isAr ? 'مخبأ - بدون تغيير' : 'Cached (304 Not Modified)'}
+              title={'مخبأ - بدون تغيير'}
             >
               304
             </span>
@@ -372,9 +370,7 @@ function FeedHealthRow({
             <>
               <span className="w-1 h-1 rounded-full bg-muted-foreground/30" />
               <span className="text-[10px] text-muted-foreground tabular-nums">
-                {isAr
-                  ? `${meta.item_count_last} مقال`
-                  : `${meta.item_count_last} item${meta.item_count_last === 1 ? '' : 's'}`}
+                {`${meta.item_count_last} مقال`}
               </span>
             </>
           )}
@@ -426,8 +422,8 @@ function RunRow({
       <div className="flex-1 min-w-0">
         <p className="text-[12px] font-medium truncate">
           {isAlertJob
-            ? (isAr ? 'فحص التنبيهات' : 'Alert check')
-            : (isAr ? 'تحديث الخلاصات' : 'Feed refresh')}
+            ? ('فحص التنبيهات')
+            : ('تحديث الخلاصات')}
           <span className="text-muted-foreground/70 ms-1.5 font-normal">
             {timeAgo(run.start_time, language)}
           </span>

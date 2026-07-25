@@ -28,20 +28,20 @@ export function ReaderPrefsPopover({
   const triggerRef = useRef<HTMLButtonElement>(null);
 
   const themeLabelMap: Record<ReaderPrefs['theme'], string> = {
-    system: isAr ? 'النظام' : 'System',
-    sepia: isAr ? 'سيبيا' : 'Sepia',
-    dim: isAr ? 'داكن' : 'Dim',
-    emerald: isAr ? 'زمردي' : 'Emerald',
-    'warm-ivory': isAr ? 'عاجي دافئ' : 'Warm Ivory',
-    'obsidian-gold': isAr ? 'ذهب معتم' : 'Obsidian Gold',
+    system: 'النظام',
+    sepia: 'سيبيا',
+    dim: 'داكن',
+    emerald: 'زمردي',
+    'warm-ivory': 'عاجي دافئ',
+    'obsidian-gold': 'ذهب معتم',
   };
 
   const fontFamilyLabelMap: Record<ReaderPrefs['fontFamily'], string> = {
-    sans: isAr ? 'افتراضي' : 'Sans',
-    serif: isAr ? 'سيريف' : 'Serif',
-    amiri: isAr ? 'خط أميري' : 'Amiri',
-    kufi: isAr ? 'خط كوفي' : 'Kufi',
-    'system-arabic': isAr ? 'خط النظام' : 'System Arabic',
+    sans: 'افتراضي',
+    serif: 'سيريف',
+    amiri: 'خط أميري',
+    kufi: 'خط كوفي',
+    'system-arabic': 'خط النظام',
   };
 
   // Click-outside dismissal
@@ -82,7 +82,7 @@ export function ReaderPrefsPopover({
         type="button"
         onClick={() => setOpen((v) => !v)}
         className="p-2 rounded-xl hover:bg-accent/50 active:scale-95 transition-all"
-        aria-label={isAr ? 'إعدادات القراءة' : 'Reading preferences'}
+        aria-label={'إعدادات القراءة'}
         aria-haspopup="dialog"
         aria-expanded={open}
       >
@@ -96,16 +96,16 @@ export function ReaderPrefsPopover({
             exit={{ opacity: 0, y: -6, scale: 0.96 }}
             transition={{ duration: 0.15 }}
             role="dialog"
-            aria-label={isAr ? 'إعدادات القراءة' : 'Reading preferences'}
+            aria-label={'إعدادات القراءة'}
  className="absolute end-0 top-full mt-2 w-64 z-30 rounded-2xl border border-border/60 bg-card p-3 space-y-3"
  >
- <PrefRow label={isAr ? 'حجم الخط' : 'Font size'}>
+ <PrefRow label={'حجم الخط'}>
               {(['sm', 'md', 'lg', 'xl', '2xl'] as const).map((s) => (
                 <SegBtn
                   key={s}
                   active={prefs.fontSize === s}
                   onClick={() => onChange({ ...prefs, fontSize: s })}
-                  aria-label={`${isAr ? 'حجم الخط' : 'Font size'} ${s}`}
+                  aria-label={`${'حجم الخط'} ${s}`}
                 >
                   <span
                     aria-hidden="true"
@@ -118,7 +118,7 @@ export function ReaderPrefsPopover({
                 </SegBtn>
               ))}
             </PrefRow>
-            <PrefRow label={isAr ? 'تباعد الأسطر' : 'Line height'}>
+            <PrefRow label={'تباعد الأسطر'}>
               {(['compact', 'normal', 'relaxed'] as const).map((s) => (
                 <SegBtn
                   key={s}
@@ -126,14 +126,12 @@ export function ReaderPrefsPopover({
                   onClick={() => onChange({ ...prefs, lineHeight: s })}
                 >
                   <span className="text-[10px] capitalize">
-                    {isAr
-                      ? s === 'compact' ? 'مدمج' : s === 'normal' ? 'عادي' : 'مريح'
-                      : s}
+                    {s === 'compact' ? 'مدمج' : s === 'normal' ? 'عادي' : 'مريح'}
                   </span>
                 </SegBtn>
               ))}
             </PrefRow>
-            <PrefRow label={isAr ? 'نوع الخط' : 'Family'}>
+            <PrefRow label={'نوع الخط'}>
               {(['sans', 'serif', 'amiri', 'kufi', 'system-arabic'] as const).map((f) => (
                 <SegBtn
                   key={f}
@@ -156,7 +154,7 @@ export function ReaderPrefsPopover({
                 </SegBtn>
               ))}
             </PrefRow>
-            <PrefRow label={isAr ? 'السمات الفاخرة' : 'Premium Themes'}>
+            <PrefRow label={'السمات الفاخرة'}>
               <div className="grid grid-cols-3 gap-1.5 w-full">
                 {(['system', 'sepia', 'dim', 'emerald', 'warm-ivory', 'obsidian-gold'] as const).map((t) => (
                   <SegBtn

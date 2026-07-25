@@ -34,13 +34,12 @@ const STORAGE_KEY = 'browse:lastTab';
 interface TabDef {
   key: TabKey;
   labelAr: string;
-  labelDe: string;
   icon: typeof Mic;
 }
 
 const TABS: TabDef[] = [
-  { key: 'podcasts', labelAr: 'بودكاست', labelDe: 'Podcasts', icon: Mic },
-  { key: 'articles', labelAr: 'اقرأ',   labelDe: 'Lesen',    icon: Newspaper },
+  { key: 'podcasts', labelAr: 'بودكاست', icon: Mic },
+  { key: 'articles', labelAr: 'اقرأ',    icon: Newspaper },
 ];
 
 export default function BrowsePage() {
@@ -62,18 +61,14 @@ export default function BrowsePage() {
   return (
     <div className="min-h-screen bg-background pb-28 px-5 pt-10">
       <SEO
-        title={isAr ? 'اطلاع — بودكاست ومقالات — SmartHub' : 'Entdecken — Podcasts & Lesen — SmartHub'}
-        description={isAr
-          ? 'مركز الاكتشاف: بودكاست ومقالات في مكان واحد.'
-          : 'Entdeckungs-Hub: Podcasts & Artikel an einem Ort.'}
+        title={'اطلاع — بودكاست ومقالات — SmartHub'}
+        description={'مركز الاكتشاف: بودكاست ومقالات في مكان واحد.'}
         path="/browse"
         jsonLd={{
           "@context": "https://schema.org",
           "@type": "CollectionPage",
-          "name": isAr ? "اطلاع — بودكاست ومقالات" : "Entdecken — Podcasts & Lesen",
-          "description": isAr
-            ? "مركز الاكتشاف: بودكاست ومقالات في مكان واحد."
-            : "Entdeckungs-Hub: Podcasts & Artikel an einem Ort.",
+          "name": "اطلاع — بودكاست ومقالات",
+          "description": "مركز الاكتشاف: بودكاست ومقالات في مكان واحد.",
           "url": "https://amv.life/browse"
         }}
       />
@@ -82,12 +77,12 @@ export default function BrowsePage() {
         {/* Title row */}
         <header className="flex items-center justify-between">
           <h1 className="text-[22px] font-bold tracking-tight text-foreground">
-            {isAr ? 'اطلاع' : 'Entdecken'}
+            {'اطلاع'}
           </h1>
         </header>
 
         {/* Horizontal tab dock — same visual idiom as Wellness */}
-        <nav aria-label={isAr ? 'تبويبات الاطلاع' : 'Browse tabs'}>
+        <nav aria-label={'تبويبات الاطلاع'}>
           <div
             className="bg-card border border-border rounded-xl p-1 flex items-center gap-0.5"
             dir="ltr"
@@ -100,7 +95,7 @@ export default function BrowsePage() {
                   key={t.key}
                   onClick={() => setTab(t.key)}
                   aria-pressed={active}
-                  aria-label={isAr ? t.labelAr : t.labelDe}
+                  aria-label={t.labelAr}
                   className={`relative flex-1 inline-flex items-center justify-center gap-1.5 h-10 px-3 rounded-lg transition-colors duration-150 ${
                     active ? 'text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
  }`}
@@ -115,7 +110,7 @@ export default function BrowsePage() {
                   <span className="relative inline-flex items-center gap-1.5">
                     <Icon className="w-4 h-4" strokeWidth={active ? 2.4 : 2} />
                     <span className="text-[12px] font-semibold whitespace-nowrap leading-none">
-                      {isAr ? t.labelAr : t.labelDe}
+                      {t.labelAr}
                     </span>
                   </span>
                 </button>

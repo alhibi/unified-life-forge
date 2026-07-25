@@ -16,19 +16,19 @@ type Mode = 'classic' | 'endless' | 'timeattack' | 'daily' | 'versus' | 'adventu
 // =============================================================================
 // Themes
 // =============================================================================
-interface Theme { id: string; ar: string; de: string; icons: string[]; }
+interface Theme { id: string; ar: string; icons: string[]; }
 const THEMES: Theme[] = [
-  { id: 'classic', ar: 'كلاسيكي', de: 'Klassisch',
+  { id: 'classic', ar: 'كلاسيكي',
     icons: ['🍎','🍊','🍋','🍇','🍓','🍒','🥝','🍑','🌸','🌻','🦋','🐱','🐶','🎸','🎨','⚽','🚀','💎','⭐','🌈','🎁','🎯','🎲','🎮','🔮','💫','🌟','✨','🍀','🎪'] },
-  { id: 'animals', ar: 'حيوانات', de: 'Tiere',
+  { id: 'animals', ar: 'حيوانات',
     icons: ['🐶','🐱','🦊','🐻','🐼','🐨','🐯','🦁','🐮','🐷','🐸','🐵','🐔','🦄','🐺','🦒','🐘','🐧','🦝','🐢','🦅','🦓','🐙','🦋','🦉','🐝','🐞','🦜','🦩','🦦'] },
-  { id: 'food', ar: 'طعام', de: 'Essen',
+  { id: 'food', ar: 'طعام',
     icons: ['🍕','🍔','🍟','🌭','🥨','🍳','🥞','🧇','🥐','🍙','🍣','🍤','🥟','🍜','🍱','🍩','🍰','🧁','🍫','🍦','🍿','🥙','🍝','🥘','🍛','🍲','🥗','🌮','🌯','🥪'] },
-  { id: 'space', ar: 'فضاء', de: 'Weltraum',
+  { id: 'space', ar: 'فضاء',
     icons: ['🪐','🌟','🌙','☄️','🚀','🛸','👽','🌍','🌌','✨','☀️','⭐','🌠','🛰️','🔭','🌑','🌒','🌓','🌔','🌕','🌖','🌗','🌘','🌚','🌝','🌞','💫','🌜','🌛','🌎'] },
-  { id: 'sport', ar: 'رياضة', de: 'Sport',
+  { id: 'sport', ar: 'رياضة',
     icons: ['⚽','🏀','🏈','⚾','🎾','🏐','🏉','🎱','🏓','🏸','🥊','🛹','🏊','🚴','🧗','⛷️','🏂','🏋️','🤺','⛹️','🤾','🤸','⛳','🏹','🥋','🥍','🏏','🏑','⛸️','🥌'] },
-  { id: 'flags', ar: 'أعلام', de: 'Flaggen',
+  { id: 'flags', ar: 'أعلام',
     icons: ['🇸🇦','🇪🇬','🇲🇦','🇯🇴','🇮🇶','🇸🇾','🇹🇷','🇩🇪','🇫🇷','🇪🇸','🇮🇹','🇬🇧','🇯🇵','🇰🇷','🇧🇷','🇮🇳','🇨🇳','🇺🇸','🇨🇦','🇲🇽','🇦🇺','🇿🇦','🇸🇪','🇳🇴','🇫🇮','🇩🇰','🇳🇱','🇧🇪','🇨🇭','🇦🇹'] },
 ];
 
@@ -41,21 +41,20 @@ const DIFF_COLS: Record<Difficulty, number> = { easy: 3, medium: 4, hard: 4, exp
 interface AchievementDef {
   id: string;
   ar: string;
-  de: string;
   icon: string;
   check: (s: MemoryStats) => boolean;
 }
 const ACHIEVEMENTS: AchievementDef[] = [
-  { id: 'first',   ar: 'الخطوة الأولى', de: 'Erster Sieg',     icon: '🎯', check: s => s.gamesWon >= 1 },
-  { id: 'ten',     ar: 'عشَرة',          de: '10 Siege',        icon: '🏅', check: s => s.gamesWon >= 10 },
-  { id: 'fifty',   ar: 'الخمسون',        de: '50 Siege',        icon: '🥇', check: s => s.gamesWon >= 50 },
-  { id: 'streak5', ar: 'سلسلة 5',         de: 'Serie 5',         icon: '🔥', check: s => s.bestStreak >= 5 },
-  { id: 'combo5',  ar: 'كومبو ×5',        de: 'Combo ×5',        icon: '⚡', check: s => s.bestChain >= 5 },
-  { id: 'expert',  ar: 'خبير',            de: 'Expertin',        icon: '🧠', check: s => (s.bestScore.expert ?? 0) >= 1 },
-  { id: 'fast',    ar: 'سريع البرق',     de: 'Blitz',           icon: '⚡', check: s => (s.bestTime.medium ?? 999) < 30 },
-  { id: 'perf',    ar: 'إتقان',           de: 'Perfekt',         icon: '💎', check: s => s.flawless >= 1 },
-  { id: 'daily7',  ar: '7 أيام يومية',    de: '7 Tages-Serie',   icon: '📅', check: s => s.dailyStreak >= 7 },
-  { id: 'level10', ar: 'المستوى 10',      de: 'Level 10',        icon: '👑', check: s => s.level >= 10 },
+  { id: 'first',   ar: 'الخطوة الأولى',     icon: '🎯', check: s => s.gamesWon >= 1 },
+  { id: 'ten',     ar: 'عشَرة',        icon: '🏅', check: s => s.gamesWon >= 10 },
+  { id: 'fifty',   ar: 'الخمسون',        icon: '🥇', check: s => s.gamesWon >= 50 },
+  { id: 'streak5', ar: 'سلسلة 5',         icon: '🔥', check: s => s.bestStreak >= 5 },
+  { id: 'combo5',  ar: 'كومبو ×5',        icon: '⚡', check: s => s.bestChain >= 5 },
+  { id: 'expert',  ar: 'خبير',        icon: '🧠', check: s => (s.bestScore.expert ?? 0) >= 1 },
+  { id: 'fast',    ar: 'سريع البرق',           icon: '⚡', check: s => (s.bestTime.medium ?? 999) < 30 },
+  { id: 'perf',    ar: 'إتقان',         icon: '💎', check: s => s.flawless >= 1 },
+  { id: 'daily7',  ar: '7 أيام يومية',   icon: '📅', check: s => s.dailyStreak >= 7 },
+  { id: 'level10', ar: 'المستوى 10',        icon: '👑', check: s => s.level >= 10 },
 ];
 
 // =============================================================================
@@ -460,7 +459,7 @@ export default function MemoryGame() {
             // AI matched
             setMatched(m => [...m, firstIdx, secondIdx!]);
             setVersusScores(s => ({ ...s, ai: s.ai + 1 }));
-            setVersusFlash(isAr ? 'الخصم وجد زوجاً' : 'KI hat gefunden');
+            setVersusFlash('الخصم وجد زوجاً');
             setTimeout(() => setVersusFlash(null), 800);
             playSfx('match');
             setFlipped([]);
@@ -524,7 +523,7 @@ export default function MemoryGame() {
           setFlipped([]); setChecking(false);
           if (mode === 'versus') {
             setVersusScores(s => ({ ...s, player: s.player + 1 }));
-            setVersusFlash(isAr ? 'أحسنت!' : 'Treffer!');
+            setVersusFlash('أحسنت!');
             setTimeout(() => setVersusFlash(null), 800);
           } else {
             const newChain = chain + 1;
@@ -615,35 +614,35 @@ export default function MemoryGame() {
 
   // -------------------- Labels --------------------
   const diffLabels: Record<Difficulty, string> = {
-    easy:   isAr ? 'سهل' : 'Leicht',
-    medium: isAr ? 'متوسط' : 'Mittel',
-    hard:   isAr ? 'صعب' : 'Schwer',
-    expert: isAr ? 'خبير' : 'Experte',
+    easy:   'سهل',
+    medium: 'متوسط',
+    hard:   'صعب',
+    expert: 'خبير',
   };
-  const modeLabels: Record<Mode, { ar: string; de: string; icon: typeof Brain }> = {
-    classic:    { ar: 'كلاسيكي',  de: 'Klassisch',   icon: Brain },
-    endless:    { ar: 'بلا نهاية',de: 'Endlos',      icon: Flame },
-    timeattack: { ar: 'سباق الوقت', de: 'Zeitrennen', icon: TimerIcon },
-    daily:      { ar: 'تحدّي اليوم', de: 'Tageschallenge', icon: Calendar },
-    versus:     { ar: 'ضد الذكاء', de: 'Gegen KI',   icon: Zap },
-    adventure:  { ar: 'مغامرة',    de: 'Abenteuer',  icon: Trophy },
+  const modeLabels: Record<Mode, { ar: string; icon: typeof Brain }> = {
+    classic:    { ar: 'كلاسيكي',   icon: Brain },
+    endless:    { ar: 'بلا نهاية',      icon: Flame },
+    timeattack: { ar: 'سباق الوقت', icon: TimerIcon },
+    daily:      { ar: 'تحدّي اليوم', icon: Calendar },
+    versus:     { ar: 'ضد الذكاء',   icon: Zap },
+    adventure:  { ar: 'مغامرة',  icon: Trophy },
   };
 
   // GameShell options
   const options = [
     {
-      key: 'mode', label: isAr ? 'النمط' : 'Modus',
-      choices: (Object.keys(modeLabels) as Mode[]).map(m => ({ value: m, label: isAr ? modeLabels[m].ar : modeLabels[m].de })),
+      key: 'mode', label: 'النمط',
+      choices: (Object.keys(modeLabels) as Mode[]).map(m => ({ value: m, label: modeLabels[m].ar })),
       current: mode, onChange: (v: string) => setMode(v as Mode),
     },
     ...(mode === 'classic' || mode === 'versus' ? [{
-      key: 'diff', label: isAr ? 'الصعوبة' : 'Schwierigkeit',
+      key: 'diff', label: 'الصعوبة',
       choices: (['easy','medium','hard','expert'] as Difficulty[]).map(d => ({ value: d, label: diffLabels[d] })),
       current: difficulty, onChange: (v: string) => newGame(v as Difficulty),
     }] : []),
     {
-      key: 'theme', label: isAr ? 'الأيقونات' : 'Icons',
-      choices: THEMES.map(th => ({ value: th.id, label: isAr ? th.ar : th.de })),
+      key: 'theme', label: 'الأيقونات',
+      choices: THEMES.map(th => ({ value: th.id, label: th.ar })),
       current: themeId, onChange: (v: string) => newGame(undefined, THEMES.find(t => t.id === v)!),
     },
   ];
@@ -676,15 +675,15 @@ export default function MemoryGame() {
   const accuracy = accuracyTracking.totalAttempts > 0 ? Math.round((accuracyTracking.successfulAttempts / accuracyTracking.totalAttempts) * 100) : 0;
 
   const statsArr = [
-    { label: isAr ? 'المستوى' : 'Level', value: stats.level },
-    { label: isAr ? 'فوز' : 'Siege', value: stats.gamesWon },
-    { label: isAr ? 'أفضل سلسلة' : 'Beste Serie', value: stats.bestStreak },
-    { label: isAr ? 'أعلى كومبو' : 'Top Combo', value: `×${stats.bestChain}` },
-    { label: isAr ? 'الدقة الحالية' : 'Aktuelle Genauigkeit', value: `${accuracy}%` },
-    { label: isAr ? 'مستوى Endless' : 'Endlos Top', value: stats.bestEndlessLevel },
-    { label: isAr ? 'سباق ذروة' : 'TA Bestleistung', value: stats.bestTimeAttackPairs },
-    { label: isAr ? 'يومية متتالية' : 'Tagesserie', value: stats.dailyStreak },
-    { label: isAr ? 'إنجازات' : 'Erfolge', value: `${stats.unlocked.length}/${ACHIEVEMENTS.length}` },
+    { label: 'المستوى', value: stats.level },
+    { label: 'فوز', value: stats.gamesWon },
+    { label: 'أفضل سلسلة', value: stats.bestStreak },
+    { label: 'أعلى كومبو', value: `×${stats.bestChain}` },
+    { label: 'الدقة الحالية', value: `${accuracy}%` },
+    { label: 'مستوى Endless', value: stats.bestEndlessLevel },
+    { label: 'سباق ذروة', value: stats.bestTimeAttackPairs },
+    { label: 'يومية متتالية', value: stats.dailyStreak },
+    { label: 'إنجازات', value: `${stats.unlocked.length}/${ACHIEVEMENTS.length}` },
   ];
 
 
@@ -693,7 +692,7 @@ export default function MemoryGame() {
 
   return (
     <GameShell
-      title={isAr ? 'أزواج الذاكرة' : 'Memory Pairs'}
+      title={'أزواج الذاكرة'}
       icon={Brain}
       accentColor="hsl(262, 83%, 58%)"
       rules={rules}
@@ -741,14 +740,14 @@ export default function MemoryGame() {
             <div className="flex items-center gap-2 min-w-0">
               <span className="text-base shrink-0">{adventureStage.isBoss ? '👑' : `#${adventureStage.id}`}</span>
               <p className="text-xs font-bold text-pink-200 truncate">
-                {isAr ? adventureStage.ar : adventureStage.de}
+                {adventureStage.ar}
               </p>
             </div>
             <div className="flex items-center gap-1 shrink-0">
               <span className={`text-[10px] font-mono ${
                 adventureMistakes > adventureStage.starMistakeBudget ? 'text-rose-400' : 'text-pink-300'
               }`}>
-                {adventureMistakes}/{adventureStage.starMistakeBudget} {isAr ? 'خطأ' : 'Fehler'}
+                {adventureMistakes}/{adventureStage.starMistakeBudget} {'خطأ'}
               </span>
             </div>
           </div>
@@ -776,11 +775,11 @@ export default function MemoryGame() {
       {mode !== 'versus' && (
         <div className="flex items-center justify-center gap-1.5 mb-2">
           <PowerUpButton icon={Eye} count={powerUps.peek} onClick={usePeek} color="#06b6d4"
-            label={isAr ? 'نظرة' : 'Peek'} disabled={!gameStarted || solved} />
+            label={'نظرة'} disabled={!gameStarted || solved} />
           <PowerUpButton icon={ShuffleIcon} count={powerUps.shuffle} onClick={useShuffleU} color="#a855f7"
-            label={isAr ? 'خلط' : 'Mix'} disabled={!gameStarted || solved} />
+            label={'خلط'} disabled={!gameStarted || solved} />
           <PowerUpButton icon={Sparkles} count={powerUps.bomb} onClick={useBomb} color="#f59e0b"
-            label={isAr ? 'قنبلة' : 'Bomb'} disabled={!gameStarted || solved} active={bombArmed} />
+            label={'قنبلة'} disabled={!gameStarted || solved} active={bombArmed} />
         </div>
       )}
 
@@ -826,7 +825,7 @@ export default function MemoryGame() {
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               className="absolute inset-0 bg-black/70 backdrop-blur-sm rounded-2xl flex items-center justify-center">
               <button onClick={() => setIsPaused(false)} className="px-6 py-3 rounded-2xl bg-pink-500 text-white font-black">
-                <Play className="w-4 h-4 inline mr-1.5" />{isAr ? 'استئناف' : 'Fortsetzen'}
+                <Play className="w-4 h-4 inline mr-1.5" />{'استئناف'}
               </button>
             </motion.div>
           )}
@@ -842,7 +841,7 @@ export default function MemoryGame() {
           >
             <p className="text-4xl mb-1">{adventureStage.isBoss ? '👑' : '🎊'}</p>
             <p className="text-xl font-black text-pink-300 mb-2">
-              {isAr ? 'نجحت في المحطة!' : 'Etappe geschafft!'}
+              {'نجحت في المحطة!'}
             </p>
             {/* Star reveal */}
             <div className="flex justify-center gap-2 mb-3">
@@ -859,15 +858,15 @@ export default function MemoryGame() {
               ))}
             </div>
             <div className="grid grid-cols-2 gap-2 mb-4">
-              <StatCard value={fmt(adventureResult.time)} label={isAr ? 'الوقت' : 'Zeit'} />
-              <StatCard value={adventureMistakes} label={isAr ? 'أخطاء' : 'Fehler'} />
+              <StatCard value={fmt(adventureResult.time)} label={'الوقت'} />
+              <StatCard value={adventureMistakes} label={'أخطاء'} />
             </div>
             <div className="flex gap-2">
               <button
                 onClick={() => navigate('/games/memory/adventure')}
                 className="flex-1 py-2.5 rounded-xl bg-white/5 text-foreground font-bold text-sm"
               >
-                {isAr ? 'الخريطة' : 'Karte'}
+                {'الخريطة'}
               </button>
               {adventureStage.id < STAGES.length && (
                 <button
@@ -875,7 +874,7 @@ export default function MemoryGame() {
                   className="flex-1 py-2.5 rounded-xl font-black text-pink-950 text-sm"
                   style={{ }}
                 >
-                  {isAr ? 'التالية ←' : 'Weiter →'}
+                  {'التالية ←'}
                 </button>
               )}
               {adventureStage.id === STAGES.length && (
@@ -884,7 +883,7 @@ export default function MemoryGame() {
                   className="flex-1 py-2.5 rounded-xl font-black text-amber-950 text-sm"
                   style={{ }}
                 >
-                  {isAr ? '🏆 إنهاء' : '🏆 Ende'}
+                  {'🏆 إنهاء'}
                 </button>
               )}
             </div>
@@ -900,33 +899,33 @@ export default function MemoryGame() {
             </p>
             <p className="text-2xl font-black text-pink-300 mb-1">
               {mode === 'versus'
-                ? versusScores.player > versusScores.ai ? (isAr ? 'فوز!' : 'Sieg!') : versusScores.player === versusScores.ai ? (isAr ? 'تعادل' : 'Unentschieden') : (isAr ? 'حظ أوفر' : 'Nächstes Mal')
-                : mode === 'timeattack' ? (isAr ? 'انتهى الوقت' : 'Zeit aus!')
-                : (isAr ? 'أحسنت!' : 'Geschafft!')}
+                ? versusScores.player > versusScores.ai ? ('فوز!') : versusScores.player === versusScores.ai ? ('تعادل') : ('حظ أوفر')
+                : mode === 'timeattack' ? ('انتهى الوقت')
+                : ('أحسنت!')}
             </p>
             <div className="grid grid-cols-3 gap-2 mt-3 mb-3">
               {mode === 'versus' ? (
                 <>
-                  <StatCard value={versusScores.player} label={isAr ? 'أنت' : 'Du'} />
-                  <StatCard value={versusScores.ai} label={isAr ? 'الذكاء' : 'KI'} />
-                  <StatCard value={fmt(timer)} label={isAr ? 'الوقت' : 'Zeit'} />
+                  <StatCard value={versusScores.player} label={'أنت'} />
+                  <StatCard value={versusScores.ai} label={'الذكاء'} />
+                  <StatCard value={fmt(timer)} label={'الوقت'} />
                 </>
               ) : mode === 'timeattack' ? (
                 <>
-                  <StatCard value={timeAttackPairs + matched.length / 2} label={isAr ? 'أزواج' : 'Paare'} />
-                  <StatCard value={moves} label={isAr ? 'حركات' : 'Züge'} />
-                  <StatCard value={`×${bestChainThisGame}`} label={isAr ? 'كومبو' : 'Combo'} />
+                  <StatCard value={timeAttackPairs + matched.length / 2} label={'أزواج'} />
+                  <StatCard value={moves} label={'حركات'} />
+                  <StatCard value={`×${bestChainThisGame}`} label={'كومبو'} />
                 </>
               ) : (
                 <>
-                  <StatCard value={score} label={isAr ? 'نقطة' : 'Punkte'} />
-                  <StatCard value={fmt(timer)} label={isAr ? 'الوقت' : 'Zeit'} />
-                  <StatCard value={`×${bestChainThisGame}`} label={isAr ? 'كومبو' : 'Combo'} />
+                  <StatCard value={score} label={'نقطة'} />
+                  <StatCard value={fmt(timer)} label={'الوقت'} />
+                  <StatCard value={`×${bestChainThisGame}`} label={'كومبو'} />
                 </>
               )}
             </div>
             <button onClick={() => newGame()} className="px-7 py-2.5 rounded-xl bg-pink-500 text-white font-black">
-              <RefreshCw className="w-4 h-4 inline mr-1.5" />{isAr ? 'لعبة جديدة' : 'Neues Spiel'}
+              <RefreshCw className="w-4 h-4 inline mr-1.5" />{'لعبة جديدة'}
             </button>
           </motion.div>
         )}
@@ -935,7 +934,7 @@ export default function MemoryGame() {
       {/* Achievements list */}
       <div className="max-w-[400px] mx-auto mt-6">
         <p className="text-[11px] font-bold text-zinc-400 mb-2 px-1">
-          {isAr ? 'الإنجازات' : 'Erfolge'} · {stats.unlocked.length}/{ACHIEVEMENTS.length}
+          {'الإنجازات'} · {stats.unlocked.length}/{ACHIEVEMENTS.length}
         </p>
         <div className="grid grid-cols-5 gap-2">
           {ACHIEVEMENTS.map(def => {
@@ -949,7 +948,7 @@ export default function MemoryGame() {
  opacity: unlocked ? 1 : 0.45,
  }}>
  <span className="text-lg leading-none mb-0.5">{unlocked ? def.icon : <Lock className="w-3.5 h-3.5 text-zinc-500" />}</span>
- <span className="text-[8px] font-semibold text-zinc-300 leading-tight line-clamp-2">{isAr ? def.ar : def.de}</span>
+ <span className="text-[8px] font-semibold text-zinc-300 leading-tight line-clamp-2">{def.ar}</span>
  </div>
  );
  })}
@@ -963,8 +962,8 @@ export default function MemoryGame() {
  className="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 rounded-2xl px-4 py-3 border border-pink-500/40 bg-pink-500/15 backdrop-blur-md flex items-center gap-3">
  <span className="text-2xl">{achievementToast.icon}</span>
  <div>
- <p className="text-[10px] text-pink-200 font-semibold uppercase tracking-wider">{isAr ? 'إنجاز جديد' : 'Erfolg'}</p>
-              <p className="text-sm font-black text-white">{isAr ? achievementToast.ar : achievementToast.de}</p>
+ <p className="text-[10px] text-pink-200 font-semibold uppercase tracking-wider">{'إنجاز جديد'}</p>
+              <p className="text-sm font-black text-white">{achievementToast.ar}</p>
             </div>
           </motion.div>
         )}
@@ -988,9 +987,9 @@ function ModeHud({
   if (mode === 'endless') {
     return (
       <div className="flex items-center justify-between px-1 mb-2 text-xs">
-        <span className="text-pink-200 font-bold">{isAr ? 'مستوى' : 'Level'} {endlessLevel}</span>
+        <span className="text-pink-200 font-bold">{'مستوى'} {endlessLevel}</span>
         <span className="text-zinc-400 tabular-nums">{fmt(timer)}</span>
-        <span className="text-zinc-400">{moves} {isAr ? 'حركة' : 'Züge'}</span>
+        <span className="text-zinc-400">{moves} {'حركة'}</span>
         {chain >= 2 && <span className="text-amber-400 font-bold">×{chain}</span>}
       </div>
     );
@@ -1001,7 +1000,7 @@ function ModeHud({
       <div className="flex items-center justify-between px-1 mb-2 text-xs">
         <motion.span animate={danger ? { scale: [1, 1.1, 1] } : {}} transition={{ duration: 0.6, repeat: danger ? Infinity : 0 }}
           className={`font-black tabular-nums ${danger ? 'text-rose-400' : 'text-amber-300'}`}>{timeAttackLeft}s</motion.span>
-        <span className="text-pink-200 font-bold">{timeAttackPairs} {isAr ? 'زوج' : 'Paare'}</span>
+        <span className="text-pink-200 font-bold">{timeAttackPairs} {'زوج'}</span>
         {chain >= 2 && <span className="text-amber-400 font-bold">×{chain}</span>}
       </div>
     );
@@ -1010,13 +1009,13 @@ function ModeHud({
     return (
       <div className="flex items-center justify-between px-3 mb-2 text-xs">
         <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full transition-colors ${versusTurn === 'player' ? 'bg-pink-500/20 text-pink-200' : 'bg-white/5 text-zinc-500'}`}>
-          <span className="font-black">{isAr ? 'أنت' : 'Du'}</span>
+          <span className="font-black">{'أنت'}</span>
           <span className="font-mono">{versusScores.player}</span>
         </div>
         <span className="text-zinc-400 text-[10px]">{fmt(timer)}</span>
         <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full transition-colors ${versusTurn === 'ai' ? 'bg-rose-500/20 text-rose-200' : 'bg-white/5 text-zinc-500'}`}>
           <span className="font-mono">{versusScores.ai}</span>
-          <span className="font-black">{isAr ? 'الذكاء' : 'KI'}</span>
+          <span className="font-black">{'الذكاء'}</span>
         </div>
       </div>
     );
@@ -1028,7 +1027,7 @@ function ModeHud({
           <Calendar className="w-3 h-3" /> {todayKey()}
         </span>
         <span className="text-zinc-400 tabular-nums">{fmt(timer)}</span>
-        <span className="text-zinc-400">{moves} {isAr ? 'حركة' : 'Züge'}</span>
+        <span className="text-zinc-400">{moves} {'حركة'}</span>
         {dailyDoneToday && <span className="text-emerald-400 font-bold text-[10px]">✓</span>}
       </div>
     );
@@ -1038,7 +1037,7 @@ function ModeHud({
     <div className="flex items-center justify-between px-1 mb-2 text-xs">
       <span className="text-pink-200 font-bold">{score}</span>
       <span className="text-zinc-400 tabular-nums">{fmt(timer)}</span>
-      <span className="text-zinc-400">{moves} {isAr ? 'حركة' : 'Züge'}</span>
+      <span className="text-zinc-400">{moves} {'حركة'}</span>
       {chain >= 2 && <span className="text-amber-400 font-bold">×{chain}</span>}
     </div>
   );

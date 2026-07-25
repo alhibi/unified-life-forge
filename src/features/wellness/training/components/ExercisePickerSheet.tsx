@@ -31,19 +31,19 @@ export interface ExercisePickerSheetProps {
   recent?: string[];
   /** When true, custom-text exercise creation is allowed. */
   allowCustom?: boolean;
-  lang: 'ar' | 'de';
+  lang: 'ar';
 }
 
 const T = {
-  add: { ar: 'إضافة تمرين', de: 'Übung hinzufügen' },
-  search: { ar: 'ابحث عن تمرين...', de: 'Übung suchen...' },
-  custom: { ar: 'تمرين مخصص', de: 'Eigene Übung' },
-  all: { ar: 'الكل', de: 'Alle' },
-  bigLifts: { ar: 'مركّبات أساسية', de: 'Hauptlifts' },
-  recent: { ar: 'استخدمت مؤخراً', de: 'Zuletzt verwendet' },
-  noResults: { ar: 'لا نتائج', de: 'Keine Treffer' },
-  byMuscle: { ar: 'حسب العضلة', de: 'Nach Muskel' },
-  byType: { ar: 'حسب النوع', de: 'Nach Typ' },
+  add: { ar: 'إضافة تمرين', },
+  search: { ar: 'ابحث عن تمرين...', },
+  custom: { ar: 'تمرين مخصص', },
+  all: { ar: 'الكل', },
+  bigLifts: { ar: 'مركّبات أساسية', },
+  recent: { ar: 'استخدمت مؤخراً', },
+  noResults: { ar: 'لا نتائج', },
+  byMuscle: { ar: 'حسب العضلة', },
+  byType: { ar: 'حسب النوع', },
 };
 
 const TYPE_OPTS: ('all' | 'strength' | 'cardio' | 'mobility' | 'plyo' | 'core')[] = [
@@ -78,7 +78,6 @@ export default function ExercisePickerSheet({
       if (!query) return true;
       return (
         e.label.ar.toLowerCase().includes(query) ||
-        e.label.de.toLowerCase().includes(query) ||
         e.key.includes(query)
       );
     });
@@ -262,7 +261,7 @@ export default function ExercisePickerSheet({
   );
 }
 
-function ExerciseRow({ exercise, lang, onPick }: { exercise: Exercise; lang: 'ar' | 'de'; onPick: () => void }) {
+function ExerciseRow({ exercise, lang, onPick }: { exercise: Exercise; lang: 'ar'; onPick: () => void }) {
   const e = exercise;
   return (
     <button

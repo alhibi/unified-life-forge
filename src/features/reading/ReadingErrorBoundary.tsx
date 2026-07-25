@@ -223,10 +223,10 @@ function ErrorFallback({
 
       <div className="space-y-2 max-w-sm">
         <h2 className="text-lg font-bold">
-          {isAr ? titleMap[errorKind].ar : titleMap[errorKind].en}
+          {titleMap[errorKind].ar}
         </h2>
         <p className="text-sm text-muted-foreground leading-relaxed">
-          {isAr ? descMap[errorKind].ar : descMap[errorKind].en}
+          {descMap[errorKind].ar}
         </p>
       </div>
 
@@ -234,7 +234,7 @@ function ErrorFallback({
       {error && (
         <details className="text-[11px] text-muted-foreground/60 max-w-sm w-full">
           <summary className="cursor-pointer hover:text-muted-foreground transition-colors">
-            {isAr ? 'تفاصيل الخطأ' : 'Error details'}
+            {'تفاصيل الخطأ'}
           </summary>
           <pre
             dir="ltr"
@@ -252,7 +252,7 @@ function ErrorFallback({
           size="sm"
         >
           <RefreshCw className="h-3.5 w-3.5 me-1.5" />
-          {isAr ? 'إعادة المحاولة' : 'Try again'}
+          {'إعادة المحاولة'}
           {retryCount > 0 && (
             <span className="ms-1 text-[10px] opacity-70">({retryCount}/3)</span>
           )}
@@ -271,7 +271,7 @@ function ErrorFallback({
             ) : (
               <Trash2 className="h-3.5 w-3.5 me-1.5" />
             )}
-            {isAr ? 'مسح الذاكرة وإعادة' : 'Clear cache & retry'}
+            {'مسح الذاكرة وإعادة'}
           </Button>
         )}
       </div>
@@ -302,12 +302,10 @@ function FatalErrorFallback({
 
       <div className="space-y-2 max-w-sm">
         <h2 className="text-lg font-bold">
-          {isAr ? 'خطأ متكرر' : 'Persistent error'}
+          {'خطأ متكرر'}
         </h2>
         <p className="text-sm text-muted-foreground leading-relaxed">
-          {isAr
-            ? 'تكرر الخطأ عدة مرات. جرّب مسح الذاكرة المؤقتة بالكامل أو إعادة تحميل الصفحة.'
-            : 'This error keeps recurring. Try clearing all cached data or reloading the page.'}
+          {'تكرر الخطأ عدة مرات. جرّب مسح الذاكرة المؤقتة بالكامل أو إعادة تحميل الصفحة.'}
         </p>
       </div>
 
@@ -333,7 +331,7 @@ function FatalErrorFallback({
           ) : (
             <Trash2 className="h-3.5 w-3.5 me-1.5" />
           )}
-          {isAr ? 'مسح كل البيانات وإعادة' : 'Clear all data & retry'}
+          {'مسح كل البيانات وإعادة'}
         </Button>
         <Button
           onClick={() => window.location.reload()}
@@ -341,7 +339,7 @@ function FatalErrorFallback({
           className="rounded-xl text-xs"
           size="sm"
         >
-          {isAr ? 'إعادة تحميل الصفحة' : 'Reload page'}
+          {'إعادة تحميل الصفحة'}
         </Button>
       </div>
     </motion.div>

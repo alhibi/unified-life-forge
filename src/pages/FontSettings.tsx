@@ -8,25 +8,25 @@ import { Slider } from '@/components/ui/slider';
 import { pageStagger as stagger, pageItem as item } from '@/lib/motion';
 
 const FONTS = [
-  { id: 'default', nameAr: 'الافتراضي', nameDe: 'Standard', family: "'Inter', 'Noto Sans Arabic', system-ui, sans-serif", sampleAr: 'بسم الله الرحمن الرحيم', sampleDe: 'Hallo Welt – 0123' },
-  { id: 'cairo', nameAr: 'القاهرة', nameDe: 'Cairo', family: "'Cairo', 'Inter', system-ui, sans-serif", sampleAr: 'بسم الله الرحمن الرحيم', sampleDe: 'Hallo Welt – 0123' },
-  { id: 'tajawal', nameAr: 'تجوال', nameDe: 'Tajawal', family: "'Tajawal', 'Inter', system-ui, sans-serif", sampleAr: 'بسم الله الرحمن الرحيم', sampleDe: 'Hallo Welt – 0123' },
-  { id: 'ibm-plex', nameAr: 'آي بي إم بلكس عربي', nameDe: 'IBM Plex Arabic', family: "'IBM Plex Sans Arabic', 'Inter', system-ui, sans-serif", sampleAr: 'بسم الله الرحمن الرحيم', sampleDe: 'Hallo Welt – 0123' },
-  { id: 'readex', nameAr: 'ريدكس برو', nameDe: 'Readex Pro', family: "'Readex Pro', 'Inter', system-ui, sans-serif", sampleAr: 'بسم الله الرحمن الرحيم', sampleDe: 'Hallo Welt – 0123' },
+  { id: 'default', nameAr: 'الافتراضي', family: "'Inter', 'Noto Sans Arabic', system-ui, sans-serif", sampleAr: 'بسم الله الرحمن الرحيم', },
+  { id: 'cairo', nameAr: 'القاهرة', family: "'Cairo', 'Inter', system-ui, sans-serif", sampleAr: 'بسم الله الرحمن الرحيم', },
+  { id: 'tajawal', nameAr: 'تجوال', family: "'Tajawal', 'Inter', system-ui, sans-serif", sampleAr: 'بسم الله الرحمن الرحيم', },
+  { id: 'ibm-plex', nameAr: 'آي بي إم بلكس عربي', family: "'IBM Plex Sans Arabic', 'Inter', system-ui, sans-serif", sampleAr: 'بسم الله الرحمن الرحيم', },
+  { id: 'readex', nameAr: 'ريدكس برو', family: "'Readex Pro', 'Inter', system-ui, sans-serif", sampleAr: 'بسم الله الرحمن الرحيم', },
 ];
 
 const SIZES = [
-  { id: 'small', label: { ar: 'صغير', de: 'Klein' }, scale: 0.88 },
-  { id: 'medium', label: { ar: 'متوسط', de: 'Mittel' }, scale: 1 },
-  { id: 'large', label: { ar: 'كبير', de: 'Groß' }, scale: 1.12 },
+  { id: 'small', label: { ar: 'صغير', }, scale: 0.88 },
+  { id: 'medium', label: { ar: 'متوسط', }, scale: 1 },
+  { id: 'large', label: { ar: 'كبير', }, scale: 1.12 },
 ];
 
 const WEIGHTS = [
-  { value: 300, label: { ar: 'خفيف', de: 'Leicht' } },
-  { value: 400, label: { ar: 'عادي', de: 'Normal' } },
-  { value: 500, label: { ar: 'متوسط', de: 'Mittel' } },
-  { value: 600, label: { ar: 'نصف سميك', de: 'Halbfett' } },
-  { value: 700, label: { ar: 'سميك', de: 'Fett' } },
+  { value: 300, label: { ar: 'خفيف', } },
+  { value: 400, label: { ar: 'عادي', } },
+  { value: 500, label: { ar: 'متوسط', } },
+  { value: 600, label: { ar: 'نصف سميك', } },
+  { value: 700, label: { ar: 'سميك', } },
 ];
 
 export default function FontSettingsPage() {
@@ -49,7 +49,7 @@ export default function FontSettingsPage() {
               <Type className="w-5 h-5 text-primary stroke-[1.8]" />
             </div>
             <h1 className="text-[22px] font-bold tracking-tight text-foreground">
-              {isAr ? 'الخط' : 'Schriftart'}
+              {'الخط'}
             </h1>
           </div>
         </motion.div>
@@ -57,7 +57,7 @@ export default function FontSettingsPage() {
         {/* Font Family */}
         <motion.div variants={item}>
           <p className="text-[13px] font-medium text-muted-foreground mb-2.5 px-1">
-            {isAr ? 'نوع الخط' : 'Schriftart'}
+            {'نوع الخط'}
           </p>
           <div className="space-y-2">
             {FONTS.map((f) => {
@@ -69,9 +69,9 @@ export default function FontSettingsPage() {
                   className={`w-full premium-card p-4 flex items-center justify-between active:scale-[0.99] transition-all ${isActive ? 'ring-2 ring-primary/30' : ''}`}
                 >
                   <div className="text-start">
-                    <p className="font-semibold text-[15px] text-foreground">{isAr ? f.nameAr : f.nameDe}</p>
+                    <p className="font-semibold text-[15px] text-foreground">{f.nameAr}</p>
                     <p className="text-[13px] text-muted-foreground mt-1" style={{ fontFamily: f.family }}>
-                      {isAr ? f.sampleAr : f.sampleDe}
+                      {f.sampleAr}
                     </p>
                   </div>
                   {isActive && (
@@ -93,7 +93,7 @@ export default function FontSettingsPage() {
         <motion.div variants={item}>
           <p className="text-[13px] font-medium text-muted-foreground mb-2.5 px-1 flex items-center gap-1.5">
             <ALargeSmall className="w-4 h-4" />
-            {isAr ? 'حجم الخط' : 'Schriftgröße'}
+            {'حجم الخط'}
           </p>
           <div className="premium-card p-2 flex gap-1.5">
             {SIZES.map((s) => {
@@ -126,13 +126,13 @@ export default function FontSettingsPage() {
         <motion.div variants={item}>
           <p className="text-[13px] font-medium text-muted-foreground mb-2.5 px-1 flex items-center gap-1.5">
             <Bold className="w-4 h-4" />
-            {isAr ? 'سماكة الخط' : 'Schriftstärke'}
+            {'سماكة الخط'}
           </p>
           <div className="premium-card p-4 space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-[12px] text-muted-foreground">{isAr ? 'خفيف' : 'Leicht'}</span>
+              <span className="text-[12px] text-muted-foreground">{'خفيف'}</span>
               <span className="text-[13px] font-semibold text-foreground">{currentWeightLabel}</span>
-              <span className="text-[12px] text-muted-foreground">{isAr ? 'سميك' : 'Fett'}</span>
+              <span className="text-[12px] text-muted-foreground">{'سميك'}</span>
             </div>
             <Slider
               value={[fontWeight]}
@@ -158,7 +158,7 @@ export default function FontSettingsPage() {
         <motion.div variants={item}>
           <p className="text-[13px] font-medium text-muted-foreground mb-2.5 px-1 flex items-center gap-1.5">
             <Eye className="w-4 h-4" />
-            {isAr ? 'شفافية النص' : 'Textdeckkraft'}
+            {'شفافية النص'}
           </p>
           <div className="premium-card p-4 space-y-3">
             <div className="flex items-center justify-between">
@@ -180,7 +180,7 @@ export default function FontSettingsPage() {
         {/* Preview */}
         <motion.div variants={item}>
           <p className="text-[13px] font-medium text-muted-foreground mb-2.5 px-1">
-            {isAr ? 'معاينة' : 'Vorschau'}
+            {'معاينة'}
           </p>
           <div className="premium-card p-5 space-y-3">
             <p
@@ -192,13 +192,11 @@ export default function FontSettingsPage() {
                 opacity: fontOpacity,
               }}
             >
-              {isAr
-                ? 'بسم الله الرحمن الرحيم. هذا نص تجريبي لمعاينة إعدادات الخط المختارة مع جميع التعديلات.'
-                : 'Im Namen Gottes, des Barmherzigen. Dies ist ein Beispieltext zur Vorschau der Schrifteinstellungen.'}
+              {'بسم الله الرحمن الرحيم. هذا نص تجريبي لمعاينة إعدادات الخط المختارة مع جميع التعديلات.'}
             </p>
             <div className="flex flex-wrap gap-2 pt-1">
               <span className="text-[11px] text-muted-foreground bg-secondary/60 px-2 py-1 rounded-lg">
-                {isAr ? currentFont.nameAr : currentFont.nameDe}
+                {currentFont.nameAr}
               </span>
               <span className="text-[11px] text-muted-foreground bg-secondary/60 px-2 py-1 rounded-lg">
                 {currentSize.label[language]}

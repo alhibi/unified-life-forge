@@ -147,7 +147,7 @@ export function StorageView({
       // Give the SW a tick to actually drop the cache, then re-measure.
       await new Promise((r) => setTimeout(r, 350));
       await reload();
-      toast.success(isAr ? 'تم مسح الصور المؤقتة' : 'Image cache cleared');
+      toast.success('تم مسح الصور المؤقتة');
     } finally {
       setBusy(false);
     }
@@ -159,9 +159,7 @@ export function StorageView({
       const removed = await offlineDb.clearArticles();
       await reload();
       toast.success(
-        isAr
-          ? `تم مسح ${removed} مقال من الذاكرة المؤقتة`
-          : `Cleared ${removed} archived article${removed === 1 ? '' : 's'}`,
+        `تم مسح ${removed} مقال من الذاكرة المؤقتة`,
       );
     } finally {
       setBusy(false);
@@ -173,7 +171,7 @@ export function StorageView({
     try {
       await onRecacheNow();
       await reload();
-      toast.success(isAr ? 'تم تحديث الذاكرة المؤقتة' : 'Cache refreshed');
+      toast.success('تم تحديث الذاكرة المؤقتة');
     } finally {
       setBusy(false);
     }
@@ -196,19 +194,19 @@ export function StorageView({
           type="button"
           onClick={onBack}
           className="p-2 rounded-xl hover:bg-accent/50 active:scale-95 transition-all"
-          aria-label={isAr ? 'رجوع' : 'Back'}
+          aria-label={'رجوع'}
         >
           <ChevronLeft className="h-5 w-5 rtl:rotate-180" />
         </button>
         <HardDrive className="h-4 w-4 text-primary" />
         <h3 className="text-base font-bold flex-1">
-          {isAr ? 'التخزين دون اتصال' : 'Offline storage'}
+          {'التخزين دون اتصال'}
         </h3>
         <button
           type="button"
           onClick={reload}
           className="p-2 rounded-xl hover:bg-accent/50 active:scale-95 transition-all"
-          aria-label={isAr ? 'تحديث' : 'Refresh'}
+          aria-label={'تحديث'}
         >
           <RefreshCw className="h-4 w-4 text-muted-foreground" />
         </button>
@@ -219,7 +217,7 @@ export function StorageView({
         <section className="rounded-2xl bg-card border border-border/50 p-4">
           <div className="flex items-baseline justify-between mb-2">
             <span className="text-[11px] uppercase tracking-wider font-bold text-muted-foreground">
-              {isAr ? 'استهلاك المساحة' : 'Space used'}
+              {'استهلاك المساحة'}
             </span>
             <span className="text-[11px] text-muted-foreground tabular-nums" dir="ltr">
               {stats ? `${formatBytes(stats.usageBytes)} / ${formatBytes(stats.quotaBytes) || '—'}` : '—'}
@@ -231,7 +229,7 @@ export function StorageView({
             aria-valuenow={Math.round(usagePct)}
             aria-valuemin={0}
             aria-valuemax={100}
-            aria-label={isAr ? 'استهلاك المساحة' : 'Storage usage'}
+            aria-label={'استهلاك المساحة'}
           >
             <motion.div
               initial={{ width: 0 }}
@@ -248,9 +246,7 @@ export function StorageView({
             />
           </div>
           <p className="text-[10px] text-muted-foreground/70 mt-2">
-            {isAr
-              ? 'يشمل الرقم المقالات المخزنة + الصور المخبأة في Service Worker.'
-              : 'Includes archived articles + Service Worker image cache.'}
+            {'يشمل الرقم المقالات المخزنة + الصور المخبأة في Service Worker.'}
           </p>
         </section>
 
@@ -258,28 +254,28 @@ export function StorageView({
         <section className="grid grid-cols-2 gap-3">
           <Stat
             icon={<Database className="h-4 w-4" />}
-            label={isAr ? 'مقالات مخزنة' : 'Articles cached'}
+            label={'مقالات مخزنة'}
             value={stats?.articles ?? 0}
           />
           <Stat
             icon={<Database className="h-4 w-4" />}
-            label={isAr ? 'مرجعيات محفوظة' : 'Bookmarked'}
+            label={'مرجعيات محفوظة'}
             value={bookmarksCount}
           />
           <Stat
             icon={<ImageIcon className="h-4 w-4" />}
-            label={isAr ? 'صور مخبأة' : 'Images cached'}
+            label={'صور مخبأة'}
             value={stats && stats.imageCount >= 0 ? stats.imageCount : '—'}
             hint={stats && stats.imageCount < 0
-              ? (isAr ? 'بدون Service Worker' : 'no SW')
+              ? ('بدون Service Worker')
               : undefined}
           />
           <Stat
             icon={<HardDrive className="h-4 w-4" />}
-            label={isAr ? 'ملفات التطبيق' : 'App shell files'}
+            label={'ملفات التطبيق'}
             value={stats && stats.runtimeCount >= 0 ? stats.runtimeCount : '—'}
             hint={stats && stats.runtimeCount < 0
-              ? (isAr ? 'بدون Service Worker' : 'no SW')
+              ? ('بدون Service Worker')
               : undefined}
           />
         </section>
@@ -288,17 +284,15 @@ export function StorageView({
         <section className="rounded-2xl bg-card border border-border/50 p-4 space-y-4">
           <div>
             <h4 className="text-sm font-bold mb-1">
-              {isAr ? 'الحفظ التلقائي' : 'Auto-cache'}
+              {'الحفظ التلقائي'}
             </h4>
             <p className="text-[11px] text-muted-foreground">
-              {isAr
-                ? 'احتفظ بآخر مقالات غير مقروءة جاهزة للقراءة بدون اتصال.'
-                : 'Keep your most recent unread articles ready for offline reading.'}
+              {'احتفظ بآخر مقالات غير مقروءة جاهزة للقراءة بدون اتصال.'}
             </p>
           </div>
           <div>
             <p className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground mb-2">
-              {isAr ? 'العدد' : 'Count'}
+              {'العدد'}
             </p>
             <div className="flex flex-wrap gap-1.5">
               {([0, 10, 25, 50, 100, 250, 500] as const).map((n) => (
@@ -313,33 +307,29 @@ export function StorageView({
                       : 'bg-accent/30 text-muted-foreground hover:bg-accent/50'
                   }`}
                 >
-                  {n === 0 ? (isAr ? 'إيقاف' : 'Off') : n}
+                  {n === 0 ? ('إيقاف') : n}
                 </button>
               ))}
             </div>
           </div>
           <ToggleRow
             icon={<ImageIcon className="h-4 w-4" />}
-            label={isAr ? 'تخزين الصور' : 'Cache images'}
-            description={isAr
-              ? 'الصور تشكّل معظم الحجم. أوقفها لتوفير المساحة.'
-              : 'Images are 90 % of disk usage. Turn off to save space.'}
+            label={'تخزين الصور'}
+            description={'الصور تشكّل معظم الحجم. أوقفها لتوفير المساحة.'}
             on={prefs.cacheImages}
             onChange={(v) => patch({ cacheImages: v })}
           />
           <div>
             <p className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground mb-2">
-              {isAr ? 'مدة الاحتفاظ' : 'Retention'}
+              {'مدة الاحتفاظ'}
             </p>
             <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
               <span className="text-emerald-600 dark:text-emerald-400 text-xs font-bold">
-                {isAr ? 'دائم — لا تُحذف المقالات أبداً' : 'Permanent — articles are never deleted'}
+                {'دائم — لا تُحذف المقالات أبداً'}
               </span>
             </div>
             <p className="text-[10px] text-muted-foreground/70 mt-2">
-              {isAr
-                ? 'كل المقالات تُحفظ للأبد. أرشيفك ينمو باستمرار ولا يُفقد أي محتوى.'
-                : 'All articles are stored forever. Your archive only grows — no content is ever lost.'}
+              {'كل المقالات تُحفظ للأبد. أرشيفك ينمو باستمرار ولا يُفقد أي محتوى.'}
             </p>
           </div>
         </section>
@@ -348,29 +338,23 @@ export function StorageView({
         <section className="rounded-2xl bg-card border border-border/50 divide-y divide-border/40">
           <ActionRow
             icon={<RefreshCw className="h-4 w-4" />}
-            label={isAr ? 'إعادة الحفظ الآن' : 'Re-cache now'}
-            description={isAr
-              ? 'مزامنة فورية مع آخر المقالات.'
-              : 'Sync the offline store with your latest articles.'}
+            label={'إعادة الحفظ الآن'}
+            description={'مزامنة فورية مع آخر المقالات.'}
             onClick={reCache}
             busy={busy}
           />
           <ActionRow
             icon={<ImageIcon className="h-4 w-4" />}
-            label={isAr ? 'مسح الصور المؤقتة' : 'Clear image cache'}
-            description={isAr
-              ? 'يبقي نصوص المقالات. عادةً يحرر الجزء الأكبر من المساحة.'
-              : 'Keeps article text. Usually frees the bulk of the space.'}
+            label={'مسح الصور المؤقتة'}
+            description={'يبقي نصوص المقالات. عادةً يحرر الجزء الأكبر من المساحة.'}
             onClick={() => setConfirmAction('clear-images')}
             busy={busy}
             destructive
           />
           <ActionRow
             icon={<Trash2 className="h-4 w-4" />}
-            label={isAr ? 'مسح الأرشيف بالكامل' : 'Clear all cached articles'}
-            description={isAr
-              ? 'لا يحذف المرجعيات (قائمة الحفظ في الإعدادات).'
-              : 'Bookmarks list is preserved.'}
+            label={'مسح الأرشيف بالكامل'}
+            description={'لا يحذف المرجعيات (قائمة الحفظ في الإعدادات).'}
             onClick={() => setConfirmAction('clear-archive')}
             busy={busy}
             destructive

@@ -45,30 +45,30 @@ import FoodCard from './FoodCard';
 import FoodDetailSheet from './FoodDetailSheet';
 import SmartFilters from './SmartFilters';
 
-type Lang = 'ar' | 'de';
+type Lang = 'ar';
 
 type View = 'home' | 'category' | 'search' | 'favorites' | 'smart';
 
 const T = {
-  title: { ar: 'استكشاف التغذية', de: 'Ernährung erkunden' },
-  searchPlaceholder: { ar: 'ابحث عن طعام، عنصر غذائي...', de: 'Essen, Nährstoff suchen...' },
-  categories: { ar: 'التصنيفات', de: 'Kategorien' },
-  favorites: { ar: 'المفضلة', de: 'Favoriten' },
-  recent: { ar: 'الأخيرة', de: 'Zuletzt' },
-  smart: { ar: 'اقتراحات ذكية', de: 'Smarte Vorschläge' },
-  noFavorites: { ar: 'لم تضف أي طعام للمفضلة بعد', de: 'Noch keine Favoriten' },
-  noRecent: { ar: 'لا يوجد سجل مشاهدات', de: 'Kein Verlauf' },
-  noResults: { ar: 'لا نتائج', de: 'Keine Ergebnisse' },
-  totalFoods: { ar: 'عنصر غذائي', de: 'Lebensmittel' },
-  bestProtein: { ar: 'أفضل مصادر البروتين', de: 'Beste Proteinquellen' },
-  highFiber: { ar: 'أعلى الأطعمة بالألياف', de: 'Ballaststoffreichste' },
-  lowGI: { ar: 'أقل مؤشر جلايسيمي', de: 'Niedrigster GI' },
-  nutrientDense: { ar: 'الأغنى بالمغذيات', de: 'Nährstoffdichteste' },
-  antiInflammatory: { ar: 'مضادات الالتهاب', de: 'Entzündungshemmend' },
-  brainFood: { ar: 'غذاء الدماغ', de: 'Brainfood' },
-  heartHealthy: { ar: 'صحة القلب', de: 'Herzgesund' },
-  back: { ar: 'رجوع', de: 'Zurück' },
-  filters: { ar: 'فلاتر', de: 'Filter' },
+  title: { ar: 'استكشاف التغذية', },
+  searchPlaceholder: { ar: 'ابحث عن طعام، عنصر غذائي...', },
+  categories: { ar: 'التصنيفات', },
+  favorites: { ar: 'المفضلة', },
+  recent: { ar: 'الأخيرة', },
+  smart: { ar: 'اقتراحات ذكية', },
+  noFavorites: { ar: 'لم تضف أي طعام للمفضلة بعد', },
+  noRecent: { ar: 'لا يوجد سجل مشاهدات', },
+  noResults: { ar: 'لا نتائج', },
+  totalFoods: { ar: 'عنصر غذائي', },
+  bestProtein: { ar: 'أفضل مصادر البروتين', },
+  highFiber: { ar: 'أعلى الأطعمة بالألياف', },
+  lowGI: { ar: 'أقل مؤشر جلايسيمي', },
+  nutrientDense: { ar: 'الأغنى بالمغذيات', },
+  antiInflammatory: { ar: 'مضادات الالتهاب', },
+  brainFood: { ar: 'غذاء الدماغ', },
+  heartHealthy: { ar: 'صحة القلب', },
+  back: { ar: 'رجوع', },
+  filters: { ar: 'فلاتر', },
 };
 
 const SMART_SECTIONS = [
@@ -83,7 +83,7 @@ const SMART_SECTIONS = [
 
 export default function NutritionExplorer() {
   const { language } = useApp();
-  const lang: Lang = language === 'ar' ? 'ar' : 'de';
+  const lang: Lang = 'ar';
   const isAr = lang === 'ar';
 
   // Re-render when the cloud-backed favorites / recents cache changes.
@@ -183,7 +183,7 @@ export default function NutritionExplorer() {
           }}
           placeholder={T.searchPlaceholder[lang]}
           className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-muted/50 border border-border/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all"
-          dir={isAr ? 'rtl' : 'ltr'}
+          dir={'rtl'}
         />
         {query && (
           <button

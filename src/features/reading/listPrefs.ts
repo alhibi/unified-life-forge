@@ -145,11 +145,11 @@ export function bucketOf(dateStr: string, now = new Date()): DateBucket {
 
 export function bucketLabel(bucket: DateBucket, isAr: boolean): string {
   switch (bucket) {
-    case 'today':     return isAr ? 'اليوم' : 'Today';
-    case 'yesterday': return isAr ? 'أمس' : 'Yesterday';
-    case 'thisWeek':  return isAr ? 'هذا الأسبوع' : 'This week';
-    case 'thisMonth': return isAr ? 'هذا الشهر' : 'This month';
-    case 'older':     return isAr ? 'أقدم' : 'Older';
+    case 'today':     return 'اليوم';
+    case 'yesterday': return 'أمس';
+    case 'thisWeek':  return 'هذا الأسبوع';
+    case 'thisMonth': return 'هذا الشهر';
+    case 'older':     return 'أقدم';
   }
 }
 

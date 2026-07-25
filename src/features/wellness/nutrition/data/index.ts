@@ -71,23 +71,23 @@ export const FOODS_BY_CATEGORY: Record<NutritionCategory, NutritionFoodItem[]> =
 })();
 
 /** Category metadata for UI */
-export const CATEGORY_INFO: Record<NutritionCategory, { emoji: string; color: string; label: { ar: string; de: string }; count: number }> = {
-  fruits: { emoji: '🍎', color: '#e53e3e', label: { ar: 'فواكه', de: 'Obst' }, count: FRUITS_DATA.length + FRUITS_EXTENDED_DATA.length },
-  vegetables: { emoji: '🥦', color: '#48bb78', label: { ar: 'خضروات', de: 'Gemüse' }, count: VEGETABLES_DATA.length + VEGETABLES_EXTENDED_DATA.length },
-  meat_poultry: { emoji: '🥩', color: '#c53030', label: { ar: 'لحوم ودواجن', de: 'Fleisch & Geflügel' }, count: PROTEINS_DATA.filter(f => f.category === 'meat_poultry').length + PROTEINS_EXTENDED_DATA.filter(f => f.category === 'meat_poultry').length },
-  fish_seafood: { emoji: '🐟', color: '#4299e1', label: { ar: 'أسماك ومأكولات بحرية', de: 'Fisch & Meeresfrüchte' }, count: PROTEINS_DATA.filter(f => f.category === 'fish_seafood').length + PROTEINS_EXTENDED_DATA.filter(f => f.category === 'fish_seafood').length },
-  dairy_eggs: { emoji: '🥛', color: '#f7fafc', label: { ar: 'ألبان وبيض', de: 'Milch & Eier' }, count: DAIRY_DATA.length + DAIRY_EXTENDED_DATA.length + PROTEINS_EXTENDED_DATA.filter(f => f.category === 'dairy_eggs').length },
-  grains_cereals: { emoji: '🌾', color: '#d69e2e', label: { ar: 'حبوب ونشويات', de: 'Getreide' }, count: GRAINS_DATA.length + GRAINS_LEGUMES_EXTENDED_DATA.filter(f => f.category === 'grains_cereals').length },
-  legumes_pulses: { emoji: '🫘', color: '#6b8e23', label: { ar: 'بقوليات', de: 'Hülsenfrüchte' }, count: LEGUMES_DATA.length + GRAINS_LEGUMES_EXTENDED_DATA.filter(f => f.category === 'legumes_pulses').length + PROTEINS_EXTENDED_DATA.filter(f => f.category === 'legumes_pulses').length },
-  nuts_seeds: { emoji: '🌰', color: '#8b4513', label: { ar: 'مكسرات وبذور', de: 'Nüsse & Samen' }, count: NUTS_SEEDS_DATA.length + NUTS_SEEDS_EXTENDED_DATA.length },
-  oils_fats: { emoji: '🫒', color: '#6b8e23', label: { ar: 'زيوت ودهون', de: 'Öle & Fette' }, count: OILS_SPICES_DATA.filter(f => f.category === 'oils_fats').length },
-  beverages: { emoji: '🍵', color: '#48bb78', label: { ar: 'مشروبات', de: 'Getränke' }, count: BEVERAGES_DATA.length },
-  spices_herbs: { emoji: '🌿', color: '#276749', label: { ar: 'توابل وأعشاب', de: 'Gewürze & Kräuter' }, count: OILS_SPICES_DATA.filter(f => f.category === 'spices_herbs').length },
-  sweets_desserts: { emoji: '🍯', color: '#f6ad55', label: { ar: 'حلويات', de: 'Süßigkeiten' }, count: OILS_SPICES_DATA.filter(f => f.category === 'sweets_desserts').length },
-  prepared_foods: { emoji: '🍽️', color: '#4a5568', label: { ar: 'أطعمة محضرة', de: 'Fertiggerichte' }, count: PREPARED_FOODS_DATA.length },
-  breads_bakery: { emoji: '🍞', color: '#a0522d', label: { ar: 'خبز ومخبوزات', de: 'Brot & Backwaren' }, count: 0 },
-  condiments_sauces: { emoji: '🥫', color: '#e53e3e', label: { ar: 'صلصات وبهارات', de: 'Saucen & Würzmittel' }, count: SNACKS_CONDIMENTS_DATA.filter(f => f.category === 'condiments_sauces').length },
-  snacks: { emoji: '🍿', color: '#ecc94b', label: { ar: 'وجبات خفيفة', de: 'Snacks' }, count: SNACKS_CONDIMENTS_DATA.filter(f => f.category === 'snacks').length },
+export const CATEGORY_INFO: Record<NutritionCategory, { emoji: string; color: string; label: { ar: string; }; count: number }> = {
+  fruits: { emoji: '🍎', color: '#e53e3e', label: { ar: 'فواكه', }, count: FRUITS_DATA.length + FRUITS_EXTENDED_DATA.length },
+  vegetables: { emoji: '🥦', color: '#48bb78', label: { ar: 'خضروات', }, count: VEGETABLES_DATA.length + VEGETABLES_EXTENDED_DATA.length },
+  meat_poultry: { emoji: '🥩', color: '#c53030', label: { ar: 'لحوم ودواجن', }, count: PROTEINS_DATA.filter(f => f.category === 'meat_poultry').length + PROTEINS_EXTENDED_DATA.filter(f => f.category === 'meat_poultry').length },
+  fish_seafood: { emoji: '🐟', color: '#4299e1', label: { ar: 'أسماك ومأكولات بحرية', }, count: PROTEINS_DATA.filter(f => f.category === 'fish_seafood').length + PROTEINS_EXTENDED_DATA.filter(f => f.category === 'fish_seafood').length },
+  dairy_eggs: { emoji: '🥛', color: '#f7fafc', label: { ar: 'ألبان وبيض', }, count: DAIRY_DATA.length + DAIRY_EXTENDED_DATA.length + PROTEINS_EXTENDED_DATA.filter(f => f.category === 'dairy_eggs').length },
+  grains_cereals: { emoji: '🌾', color: '#d69e2e', label: { ar: 'حبوب ونشويات', }, count: GRAINS_DATA.length + GRAINS_LEGUMES_EXTENDED_DATA.filter(f => f.category === 'grains_cereals').length },
+  legumes_pulses: { emoji: '🫘', color: '#6b8e23', label: { ar: 'بقوليات', }, count: LEGUMES_DATA.length + GRAINS_LEGUMES_EXTENDED_DATA.filter(f => f.category === 'legumes_pulses').length + PROTEINS_EXTENDED_DATA.filter(f => f.category === 'legumes_pulses').length },
+  nuts_seeds: { emoji: '🌰', color: '#8b4513', label: { ar: 'مكسرات وبذور', }, count: NUTS_SEEDS_DATA.length + NUTS_SEEDS_EXTENDED_DATA.length },
+  oils_fats: { emoji: '🫒', color: '#6b8e23', label: { ar: 'زيوت ودهون', }, count: OILS_SPICES_DATA.filter(f => f.category === 'oils_fats').length },
+  beverages: { emoji: '🍵', color: '#48bb78', label: { ar: 'مشروبات', }, count: BEVERAGES_DATA.length },
+  spices_herbs: { emoji: '🌿', color: '#276749', label: { ar: 'توابل وأعشاب', }, count: OILS_SPICES_DATA.filter(f => f.category === 'spices_herbs').length },
+  sweets_desserts: { emoji: '🍯', color: '#f6ad55', label: { ar: 'حلويات', }, count: OILS_SPICES_DATA.filter(f => f.category === 'sweets_desserts').length },
+  prepared_foods: { emoji: '🍽️', color: '#4a5568', label: { ar: 'أطعمة محضرة', }, count: PREPARED_FOODS_DATA.length },
+  breads_bakery: { emoji: '🍞', color: '#a0522d', label: { ar: 'خبز ومخبوزات', }, count: 0 },
+  condiments_sauces: { emoji: '🥫', color: '#e53e3e', label: { ar: 'صلصات وبهارات', }, count: SNACKS_CONDIMENTS_DATA.filter(f => f.category === 'condiments_sauces').length },
+  snacks: { emoji: '🍿', color: '#ecc94b', label: { ar: 'وجبات خفيفة', }, count: SNACKS_CONDIMENTS_DATA.filter(f => f.category === 'snacks').length },
 };
 
 /** Get total food count */

@@ -36,7 +36,7 @@ export default function OAuthConsent() {
   useEffect(() => {
     if (loading) return;
     if (!authorizationId) {
-      setError(isAr ? "طلب مصادقة غير صالح" : "Ungültige Autorisierungsanfrage");
+      setError("طلب مصادقة غير صالح");
       return;
     }
     if (!user) {
@@ -64,7 +64,7 @@ export default function OAuthConsent() {
       : await oauth.denyAuthorization(authorizationId);
     if (error) { setBusy(false); setError(error.message); return; }
     const target = data?.redirect_url ?? data?.redirect_to;
-    if (!target) { setBusy(false); setError(isAr ? "لم يُرجع خادم المصادقة رابط توجيه." : "Kein Redirect vom Authentifizierungsserver."); return; }
+    if (!target) { setBusy(false); setError("لم يُرجع خادم المصادقة رابط توجيه."); return; }
     window.location.href = target;
   }
 
@@ -76,14 +76,14 @@ export default function OAuthConsent() {
             <ShieldCheck className="w-5 h-5 text-primary stroke-[1.8]" />
           </div>
           <h1 className="text-[22px] font-bold tracking-tight text-foreground">
-            {isAr ? "منح الوصول" : "Zugriff erlauben"}
+            {"منح الوصول"}
           </h1>
         </div>
 
         {loading || (!details && !error) ? (
           <div className="flex items-center gap-2 text-muted-foreground text-sm">
             <Loader2 className="w-4 h-4 animate-spin" />
-            {isAr ? "جارٍ التحميل…" : "Laden…"}
+            {"جارٍ التحميل…"}
           </div>
         ) : error ? (
           <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-[13px] text-destructive">
@@ -92,9 +92,7 @@ export default function OAuthConsent() {
         ) : details ? (
           <>
             <p className="text-[14px] leading-relaxed text-foreground/90">
-              {isAr
-                ? <>سيتمكّن <b>{details.client?.name ?? (isAr ? "التطبيق" : "die App")}</b> من استخدام أدوات SmartHub نيابةً عنك أثناء تسجيل دخولك.</>
-                : <><b>{details.client?.name ?? "Die App"}</b> darf SmartHub-Tools in deinem Namen aufrufen, solange du angemeldet bist.</>}
+              {<>سيتمكّن <b>{details.client?.name ?? ("التطبيق")}</b> من استخدام أدوات SmartHub نيابةً عنك أثناء تسجيل دخولك.</>}
             </p>
             {details.scope && (
               <div className="rounded-xl bg-muted/40 p-3 text-[12px] text-muted-foreground font-mono break-all">
@@ -102,9 +100,7 @@ export default function OAuthConsent() {
               </div>
             )}
             <p className="text-[12px] text-muted-foreground">
-              {isAr
-                ? "لا يتجاوز هذا صلاحيات حسابك أو سياسات الحماية الخلفية."
-                : "Dies umgeht keine Kontorechte oder Backend-Richtlinien."}
+              {"لا يتجاوز هذا صلاحيات حسابك أو سياسات الحماية الخلفية."}
             </p>
             <div className="flex gap-3 pt-1">
               <button
@@ -112,14 +108,14 @@ export default function OAuthConsent() {
                 onClick={() => decide(true)}
                 className="flex-1 h-11 rounded-2xl bg-primary text-primary-foreground text-sm font-semibold disabled:opacity-50"
               >
-                {isAr ? "موافقة" : "Erlauben"}
+                {"موافقة"}
               </button>
               <button
                 disabled={busy}
                 onClick={() => decide(false)}
                 className="flex-1 h-11 rounded-2xl border border-border text-sm font-medium disabled:opacity-50"
               >
-                {isAr ? "رفض" : "Ablehnen"}
+                {"رفض"}
               </button>
             </div>
           </>

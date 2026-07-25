@@ -16,27 +16,27 @@ export interface CaliProgressionLadderProps {
   clearedStep: number;
   onStepClear: (stepIdx: number) => void;
   onShowKnowledge?: () => void;
-  lang: 'ar' | 'de';
+  lang: 'ar';
   className?: string;
 }
 
 const T = {
-  step: { ar: 'الخطوة', de: 'Stufe' },
-  unlockedAt: { ar: 'الانتقال للخطوة التالية عند', de: 'Aufstieg bei' },
-  cues: { ar: 'تعليمات', de: 'Cues' },
-  mistakes: { ar: 'أخطاء', de: 'Fehler' },
-  regressions: { ar: 'اختصارات', de: 'Regressions' },
-  weeks: { ar: 'أسابيع', de: 'Wochen' },
-  knowledge: { ar: 'معرفة عميقة', de: 'Wissens-Karte' },
-  about: { ar: 'لماذا', de: 'Warum' },
-  cleared: { ar: 'مكتمل', de: 'Erledigt' },
-  current: { ar: 'الحالي', de: 'Aktuell' },
-  locked: { ar: 'مغلق', de: 'Gesperrt' },
-  reps: { ar: 'تكرار', de: 'Wdh' },
-  sets: { ar: 'مج', de: 'Sätze' },
-  hold: { ar: 'هولد', de: 'Halt' },
-  sec: { ar: 'ث', de: 's' },
-  difficulty: { ar: 'الصعوبة', de: 'Schwierigkeit' },
+  step: { ar: 'الخطوة', },
+  unlockedAt: { ar: 'الانتقال للخطوة التالية عند', },
+  cues: { ar: 'تعليمات', },
+  mistakes: { ar: 'أخطاء', },
+  regressions: { ar: 'اختصارات', },
+  weeks: { ar: 'أسابيع', },
+  knowledge: { ar: 'معرفة عميقة', },
+  about: { ar: 'لماذا', },
+  cleared: { ar: 'مكتمل', },
+  current: { ar: 'الحالي', },
+  locked: { ar: 'مغلق', },
+  reps: { ar: 'تكرار', },
+  sets: { ar: 'مج', },
+  hold: { ar: 'هولد', },
+  sec: { ar: 'ث', },
+  difficulty: { ar: 'الصعوبة', },
 };
 
 export default function CaliProgressionLadder({
@@ -143,7 +143,7 @@ function StepCard({
   /** Hex/CSS colour used for the in-step badge and progress accents. */
   accent: string;
   weeksToNext: number;
-  lang: 'ar' | 'de';
+  lang: 'ar';
 }) {
   const targetText = step.target.holdSec
     ? `${step.target.holdSec}${T.sec[lang]} × ${step.target.sets ?? 1}${T.sets[lang]}`

@@ -14,20 +14,18 @@ interface Props {
 }
 
 const T = {
-  title: { ar: 'تحليلات التغذية والوظائف الحيوية', de: 'Ernährungs- & Bio-Analytics' },
+  title: { ar: 'تحليلات التغذية والوظائف الحيوية', },
   subtitle: {
     ar: 'تحليلات مخصصة وحسابات معقدة مبنية على تاريخك المسجل وعاداتك',
-    de: 'Personalisierte Analyse basierend auf deiner Historie und Gewohnheiten',
   },
-  ratios: { ar: 'توزيع مصادر الطاقة (الماكروز)', de: 'Energie-Verteilung (Makros)' },
-  scorecard: { ar: 'مؤشر الكفاية الميكروية الإجمالي', de: 'Mikronährstoff-Scorecard' },
-  protein: { ar: 'بروتين', de: 'Protein' },
-  carbs: { ar: 'كربوهيدرات', de: 'Carbs' },
-  fat: { ar: 'دهون', de: 'Fett' },
-  biomedicalTips: { ar: 'الملاحظات الطبية الحيوية المتقدمة', de: 'Biomedizinische Analysen' },
+  ratios: { ar: 'توزيع مصادر الطاقة (الماكروز)', },
+  scorecard: { ar: 'مؤشر الكفاية الميكروية الإجمالي', },
+  protein: { ar: 'بروتين', },
+  carbs: { ar: 'كربوهيدرات', },
+  fat: { ar: 'دهون', },
+  biomedicalTips: { ar: 'الملاحظات الطبية الحيوية المتقدمة', },
   densityTip: {
     ar: 'كثافة المغذيات لديك مرتفعة ومبشرة بصحة استثنائية وطول عمر صحي.',
-    de: 'Deine Nährstoffdichte ist hervorragend — ein starker Indikator für Vitalität.',
   },
 };
 
@@ -58,7 +56,7 @@ export default function AdvancedAnalytics({ lang }: Props) {
   const fPct = Math.round((totals.f / totalGrams) * 100);
 
   return (
-    <div className="space-y-4" dir={isAr ? 'rtl' : 'ltr'}>
+    <div className="space-y-4" dir={'rtl'}>
       {/* Hero Header */}
       <div className="rounded-2xl p-4 bg-primary/5 border border-primary/20">
         <div className="flex items-center gap-2 mb-1.5">

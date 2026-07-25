@@ -22,13 +22,13 @@ interface Props {
 }
 
 const T = {
-  title: { ar: 'مؤشر الترطيب والماء', de: 'Hydration & Wasser' },
-  target: { ar: 'الهدف اليومي: 3 لترات (3000 مل)', de: 'Tagesziel: 3 Liter (3000 ml)' },
-  addWater: { ar: 'إضافة ماء', de: 'Wasser hinzufügen' },
-  quickLog: { ar: 'تسجيل كوب', de: 'Schnell-Log' },
-  ml: { ar: 'مل', de: 'ml' },
-  logHistory: { ar: 'سجل ترطيب اليوم', de: 'Hydrations-Verlauf' },
-  nothing: { ar: 'لم تسجل أي سوائل اليوم بعد', de: 'Noch keine Hydration erfasst' },
+  title: { ar: 'مؤشر الترطيب والماء', },
+  target: { ar: 'الهدف اليومي: 3 لترات (3000 مل)', },
+  addWater: { ar: 'إضافة ماء', },
+  quickLog: { ar: 'تسجيل كوب', },
+  ml: { ar: 'مل', },
+  logHistory: { ar: 'سجل ترطيب اليوم', },
+  nothing: { ar: 'لم تسجل أي سوائل اليوم بعد', },
 };
 
 const AMOUNTS = [250, 500, 750];
@@ -62,9 +62,9 @@ export default function HydrationLog({ lang }: Props) {
     try {
       const e = await logHydration(amount);
       setLogs((prev) => [e, ...prev]);
-      toast.success(`${amount} ${T.ml[lang]} ${isAr ? 'تم تسجيلها!' : 'erfasst!'}`);
+      toast.success(`${amount} ${T.ml[lang]} ${'تم تسجيلها!'}`);
     } catch {
-      toast.error(isAr ? 'فشل التسجيل' : 'Fehler beim Loggen');
+      toast.error('فشل التسجيل');
     }
   };
 
@@ -78,7 +78,7 @@ export default function HydrationLog({ lang }: Props) {
   };
 
   return (
-    <div className="space-y-4" dir={isAr ? 'rtl' : 'ltr'}>
+    <div className="space-y-4" dir={'rtl'}>
       {/* Wave container */}
       <div className="rounded-2xl p-4 bg-card border border-border/40 relative overflow-hidden flex flex-col md:flex-row items-center gap-4">
         {/* Wavy liquid shape */}

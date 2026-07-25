@@ -762,7 +762,7 @@ function ArcStrip({
                 fill="currentColor"
                 fillOpacity={isNext ? 0.9 : 0.5}
               >
-                {language === 'ar' ? p.ar : p.name}
+                {p.ar}
               </text>
             </g>
           );
@@ -846,9 +846,7 @@ function ArcStrip({
           }}
         >
           {t('prayer.makruh').toUpperCase()} ·{' '}
-          {language === 'ar'
-            ? t(`prayer.makruh.${currentMakruh.label.toLowerCase()}`)
-            : currentMakruh.label.toUpperCase()}
+          {t(`prayer.makruh.${currentMakruh.label.toLowerCase()}`)}
         </div>
       )}
 
@@ -866,9 +864,7 @@ function ArcStrip({
           >
             <p className="text-[7.5px] font-bold tracking-wide" style={{ color: '#F06045' }}>
               {t('prayer.makruh').toUpperCase()} ·{' '}
-              {language === 'ar'
-                ? t(`prayer.makruh.${makruhZones[expandedZone].label.toLowerCase()}`)
-                : makruhZones[expandedZone].label.toUpperCase()}
+              {t(`prayer.makruh.${makruhZones[expandedZone].label.toLowerCase()}`)}
             </p>
             <p className="mt-1 text-[10.5px] leading-[16px] text-white/80 font-light">
               {t(`prayer.makruh.desc.${makruhZones[expandedZone].label.toLowerCase()}`)}
@@ -1081,7 +1077,7 @@ function SlabRow({
                 : 'font-light'
           }`}
         >
-          {language === 'ar' ? prayer.ar : t(`prayer.${prayer.name.toLowerCase()}`)}
+          {prayer.ar}
         </span>
 
         {/* NEXT badge — small uppercase tag for the next-to-pray row */}
@@ -1159,10 +1155,10 @@ function HijriCalendarStrip({
         <button
           onClick={() => navigate('/occasions')}
           className="flex items-center gap-0.5 text-primary/80 hover:text-primary transition-colors"
-          aria-label={language === 'ar' ? 'عرض التقويم كاملاً' : 'View full calendar'}
+          aria-label={'عرض التقويم كاملاً'}
         >
           <span className="text-[10px] font-bold uppercase tracking-wide">
-            {language === 'ar' ? 'الكل' : 'ALL'}
+            {'الكل'}
           </span>
           <ChevronLeft className="w-3 h-3" />
         </button>
@@ -1193,10 +1189,8 @@ function HijriCalendarStrip({
                   style={{ color: accent }}
                 >
                   {isToday
-                    ? (language === 'ar' ? 'اليوم' : 'TODAY')
-                    : language === 'ar'
-                      ? `${daysLeft} يوم`
-                      : `IN ${daysLeft}D`}
+                    ? ('اليوم')
+                    : `${daysLeft} يوم`}
                 </span>
                 <span className="text-[7.5px] text-muted-foreground/70 tabular-nums">
                   {occ.hijriDay} {occ.hijriMonth}
@@ -1219,7 +1213,7 @@ function HijriCalendarStrip({
         >
           <ChevronLeft className="w-3 h-3 text-primary/70" />
           <span className="text-[7.5px] font-bold text-primary/70 uppercase tracking-wide">
-            {language === 'ar' ? 'الكل' : 'ALL'}
+            {'الكل'}
           </span>
         </button>
       </div>

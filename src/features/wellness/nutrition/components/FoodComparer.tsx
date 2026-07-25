@@ -16,52 +16,51 @@ interface Props {
 }
 
 const T = {
-  title: { ar: 'مقارن الأغذية المطور', de: 'Nährwert-Vergleich' },
+  title: { ar: 'مقارن الأغذية المطور', },
   subtitle: {
     ar: 'قارن قيم الماكروز والفيتامينات والمعادن بين 3 أطعمة جنباً إلى جنب',
-    de: 'Vergleiche Makros und Mikronährstoffe von bis zu 3 Lebensmitteln',
   },
-  selectFood: { ar: 'اختر طعاماً...', de: 'Lebensmittel wählen...' },
-  kcal: { ar: 'سعرات', de: 'kcal' },
-  protein: { ar: 'بروتين', de: 'Protein' },
-  carbs: { ar: 'كربوهيدرات', de: 'Carbs' },
-  fat: { ar: 'دهون', de: 'Fett' },
-  fiber: { ar: 'ألياف', de: 'Ballaststoffe' },
-  sugar: { ar: 'سكر', de: 'Zucker' },
-  searchPlaceholder: { ar: 'ابحث لتضيف للمقارنة...', de: 'Suchen zum Hinzufügen...' },
-  clearAll: { ar: 'مسح الكل', de: 'Zurücksetzen' },
-  winner: { ar: 'الرائد في', de: 'Beste Quelle für' },
-  per100g: { ar: 'القيم لكل 100غ', de: 'Werte pro 100g' },
-  macros: { ar: 'الماكرونيوترينتس', de: 'Makronährstoffe' },
-  vitamins: { ar: 'الفيتامينات', de: 'Vitamine' },
-  minerals: { ar: 'المعادن', de: 'Mineralstoffe' },
+  selectFood: { ar: 'اختر طعاماً...', },
+  kcal: { ar: 'سعرات', },
+  protein: { ar: 'بروتين', },
+  carbs: { ar: 'كربوهيدرات', },
+  fat: { ar: 'دهون', },
+  fiber: { ar: 'ألياف', },
+  sugar: { ar: 'سكر', },
+  searchPlaceholder: { ar: 'ابحث لتضيف للمقارنة...', },
+  clearAll: { ar: 'مسح الكل', },
+  winner: { ar: 'الرائد في', },
+  per100g: { ar: 'القيم لكل 100غ', },
+  macros: { ar: 'الماكرونيوترينتس', },
+  vitamins: { ar: 'الفيتامينات', },
+  minerals: { ar: 'المعادن', },
 };
 
-const MICRO_LABELS: Record<string, { ar: string; de: string; unit: string }> = {
-  vitA: { ar: 'فيتامين أ', de: 'Vitamin A', unit: 'µg' },
-  vitB1: { ar: 'ثيامين (B1)', de: 'Thiamin (B1)', unit: 'mg' },
-  vitB2: { ar: 'ريبوفلافين (B2)', de: 'Riboflavin (B2)', unit: 'mg' },
-  vitB3: { ar: 'نياسين (B3)', de: 'Niacin (B3)', unit: 'mg' },
-  vitB5: { ar: 'بانتوثينيك (B5)', de: 'Pantothensäure (B5)', unit: 'mg' },
-  vitB6: { ar: 'بيريدوكسين (B6)', de: 'Pyridoxin (B6)', unit: 'mg' },
-  vitB7: { ar: 'بيوتين (B7)', de: 'Biotin (B7)', unit: 'µg' },
-  vitB9: { ar: 'فولات (B9)', de: 'Folat (B9)', unit: 'µg' },
-  vitB12: { ar: 'كوبالامين (B12)', de: 'Cobalamin (B12)', unit: 'µg' },
-  vitC: { ar: 'فيتامين سي', de: 'Vitamin C', unit: 'mg' },
-  vitD: { ar: 'فيتامين د', de: 'Vitamin D', unit: 'µg' },
-  vitE: { ar: 'فيتامين هـ', de: 'Vitamin E', unit: 'mg' },
-  vitK: { ar: 'فيتامين ك', de: 'Vitamin K', unit: 'µg' },
-  calcium: { ar: 'كالسيوم', de: 'Kalzium', unit: 'mg' },
-  iron: { ar: 'حديد', de: 'Eisen', unit: 'mg' },
-  magnesium: { ar: 'مغنيسيوم', de: 'Magnesium', unit: 'mg' },
-  phosphorus: { ar: 'فوسفور', de: 'Phosphor', unit: 'mg' },
-  potassium: { ar: 'بوتاسيوم', de: 'Kalium', unit: 'mg' },
-  sodium: { ar: 'صوديوم', de: 'Natrium', unit: 'mg' },
-  zinc: { ar: 'زنك', de: 'Zink', unit: 'mg' },
-  copper: { ar: 'نحاس', de: 'Kupfer', unit: 'mg' },
-  manganese: { ar: 'منغنيز', de: 'Mangan', unit: 'mg' },
-  selenium: { ar: 'سيلينيوم', de: 'Selen', unit: 'µg' },
-  iodine: { ar: 'يود', de: 'Jod', unit: 'µg' },
+const MICRO_LABELS: Record<string, { ar: string; unit: string }> = {
+  vitA: { ar: 'فيتامين أ', unit: 'µg' },
+  vitB1: { ar: 'ثيامين (B1)', unit: 'mg' },
+  vitB2: { ar: 'ريبوفلافين (B2)', unit: 'mg' },
+  vitB3: { ar: 'نياسين (B3)', unit: 'mg' },
+  vitB5: { ar: 'بانتوثينيك (B5)', unit: 'mg' },
+  vitB6: { ar: 'بيريدوكسين (B6)', unit: 'mg' },
+  vitB7: { ar: 'بيوتين (B7)', unit: 'µg' },
+  vitB9: { ar: 'فولات (B9)', unit: 'µg' },
+  vitB12: { ar: 'كوبالامين (B12)', unit: 'µg' },
+  vitC: { ar: 'فيتامين سي', unit: 'mg' },
+  vitD: { ar: 'فيتامين د', unit: 'µg' },
+  vitE: { ar: 'فيتامين هـ', unit: 'mg' },
+  vitK: { ar: 'فيتامين ك', unit: 'µg' },
+  calcium: { ar: 'كالسيوم', unit: 'mg' },
+  iron: { ar: 'حديد', unit: 'mg' },
+  magnesium: { ar: 'مغنيسيوم', unit: 'mg' },
+  phosphorus: { ar: 'فوسفور', unit: 'mg' },
+  potassium: { ar: 'بوتاسيوم', unit: 'mg' },
+  sodium: { ar: 'صوديوم', unit: 'mg' },
+  zinc: { ar: 'زنك', unit: 'mg' },
+  copper: { ar: 'نحاس', unit: 'mg' },
+  manganese: { ar: 'منغنيز', unit: 'mg' },
+  selenium: { ar: 'سيلينيوم', unit: 'µg' },
+  iodine: { ar: 'يود', unit: 'µg' },
 };
 
 export default function FoodComparer({ lang }: Props) {
@@ -77,7 +76,6 @@ export default function FoodComparer({ lang }: Props) {
     return NUTRITION_DATABASE.filter(
       (f) =>
         f.name.ar.toLowerCase().includes(q) ||
-        f.name.de.toLowerCase().includes(q) ||
         f.id.includes(q),
     ).slice(0, 30);
   }, [query]);
@@ -134,7 +132,7 @@ export default function FoodComparer({ lang }: Props) {
   };
 
   return (
-    <div className="space-y-4" dir={isAr ? 'rtl' : 'ltr'}>
+    <div className="space-y-4" dir={'rtl'}>
       {/* Hero card */}
       <div className="rounded-2xl p-4 bg-primary/5 border border-primary/20">
         <div className="flex items-center gap-2 mb-1.5">
@@ -330,7 +328,7 @@ export default function FoodComparer({ lang }: Props) {
                     onChange={(e) => setQuery(e.target.value)}
                     placeholder={T.searchPlaceholder[lang]}
                     className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-muted/50 border border-border/50 text-sm focus:outline-none focus:border-primary"
-                    dir={isAr ? 'rtl' : 'ltr'}
+                    dir={'rtl'}
                     autoFocus
                   />
                 </div>

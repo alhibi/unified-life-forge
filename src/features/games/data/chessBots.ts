@@ -35,13 +35,11 @@ export interface BotEvalWeights {
 export interface BotPersonality {
   id: string;
   ar: string;
-  de: string;
   emoji: string;
   elo: number;
   style: BotStyle;
   /** short flavor text shown in the career picker */
   taglineAr: string;
-  taglineDe: string;
   /** opening preferences — UCI move sequences this bot will choose first if available */
   preferredOpenings: string[];
   weights: BotEvalWeights;
@@ -51,12 +49,10 @@ export const BOTS: BotPersonality[] = [
   {
     id: 'sami',
     ar: 'سامي المبتدئ',
-    de: 'Sami der Anfänger',
     emoji: '🐣',
     elo: 600,
     style: 'romantic',
     taglineAr: 'يحب أكل القطع، ينسى أن يحمي ملكه',
-    taglineDe: 'Liebt es zu schlagen, vergisst seinen König',
     preferredOpenings: ['e2e4'],
     weights: {
       material: 1.1, pst: 0.4, mobility: 0.3, kingAttack: 0.2,
@@ -66,12 +62,10 @@ export const BOTS: BotPersonality[] = [
   {
     id: 'lina',
     ar: 'لينا الحذرة',
-    de: 'Lina die Vorsichtige',
     emoji: '🛡️',
     elo: 900,
     style: 'defensive',
     taglineAr: 'تكره المخاطرة، ترفض كل التضحيات',
-    taglineDe: 'Hasst Risiko, lehnt jedes Opfer ab',
     preferredOpenings: ['d2d4', 'g1f3'],
     weights: {
       material: 1.3, pst: 0.7, mobility: 0.6, kingAttack: 0.3,
@@ -81,12 +75,10 @@ export const BOTS: BotPersonality[] = [
   {
     id: 'rashid',
     ar: 'راشد المنطقي',
-    de: 'Raschid der Logiker',
     emoji: '📐',
     elo: 1200,
     style: 'positional',
     taglineAr: 'يحب الهيكل النظيف، عدو البيادق المعزولة',
-    taglineDe: 'Liebt klare Strukturen, hasst isolierte Bauern',
     preferredOpenings: ['d2d4', 'c2c4'],
     weights: {
       material: 1.0, pst: 1.3, mobility: 1.1, kingAttack: 0.5,
@@ -96,12 +88,10 @@ export const BOTS: BotPersonality[] = [
   {
     id: 'fatima',
     ar: 'فاطمة الهجومية',
-    de: 'Fatima die Stürmerin',
     emoji: '⚔️',
     elo: 1450,
     style: 'aggressive',
     taglineAr: 'تركض نحو ملكك في كل دور',
-    taglineDe: 'Rennt jeden Zug auf deinen König zu',
     preferredOpenings: ['e2e4', 'f2f4'],
     weights: {
       material: 0.9, pst: 1.0, mobility: 1.0, kingAttack: 2.0,
@@ -111,12 +101,10 @@ export const BOTS: BotPersonality[] = [
   {
     id: 'omar',
     ar: 'عمر التكتيكي',
-    de: 'Omar der Taktiker',
     emoji: '🎯',
     elo: 1700,
     style: 'tactical',
     taglineAr: 'يرى الشوكات قبل أن تظهر',
-    taglineDe: 'Sieht Gabeln vor dir',
     preferredOpenings: ['e2e4', 'g1f3'],
     weights: {
       material: 1.0, pst: 1.0, mobility: 1.4, kingAttack: 1.4,
@@ -126,12 +114,10 @@ export const BOTS: BotPersonality[] = [
   {
     id: 'huda',
     ar: 'هدى النهايات',
-    de: 'Huda Endspielmeisterin',
     emoji: '👑',
     elo: 1900,
     style: 'endgame',
     taglineAr: 'تبسط الموقف وتسحقك في النهاية',
-    taglineDe: 'Vereinfacht und zermalmt im Endspiel',
     preferredOpenings: ['c2c4', 'g1f3'],
     weights: {
       material: 1.2, pst: 1.1, mobility: 1.0, kingAttack: 0.6,
@@ -141,12 +127,10 @@ export const BOTS: BotPersonality[] = [
   {
     id: 'ziad',
     ar: 'زياد الرومانسي',
-    de: 'Ziad der Romantiker',
     emoji: '🎭',
     elo: 2100,
     style: 'romantic',
     taglineAr: 'يضحي بالقلعة من أجل الجمال',
-    taglineDe: 'Opfert den Turm für Schönheit',
     preferredOpenings: ['e2e4', 'f2f4'],
     weights: {
       material: 0.7, pst: 0.9, mobility: 1.2, kingAttack: 2.2,
@@ -156,12 +140,10 @@ export const BOTS: BotPersonality[] = [
   {
     id: 'aisha',
     ar: 'عائشة البطلة',
-    de: 'Aisha die Champion',
     emoji: '🏆',
     elo: 2400,
     style: 'positional',
     taglineAr: 'لا تخطئ. لا تضعف. لا ترحم.',
-    taglineDe: 'Kein Fehler. Keine Schwäche. Kein Erbarmen.',
     preferredOpenings: ['d2d4', 'c2c4', 'g1f3', 'e2e4'],
     weights: {
       material: 1.05, pst: 1.3, mobility: 1.3, kingAttack: 1.2,

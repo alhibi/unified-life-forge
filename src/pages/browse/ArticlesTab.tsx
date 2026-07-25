@@ -29,10 +29,8 @@ export default function ArticlesTab() {
   const Arrow = dir === 'rtl' ? ChevronLeft : ChevronRight;
 
   const primary = {
-    title: isAr ? 'آخر المقالات' : 'Neueste Artikel',
-    desc: isAr
-      ? 'تابع أحدث القصص من المصادر التي تختارها.'
-      : 'Verfolge die neuesten Geschichten aus deinen Quellen.',
+    title: 'آخر المقالات',
+    desc: 'تابع أحدث القصص من المصادر التي تختارها.',
     icon: Newspaper,
     onClick: () => navigate('/reading'),
   };
@@ -40,32 +38,32 @@ export default function ArticlesTab() {
   const secondary = [
     {
       key: 'bookmarks',
-      title: isAr ? 'المحفوظات' : 'Lesezeichen',
-      desc: isAr ? 'مقالات حفظتها للقراءة لاحقاً.' : 'Gespeicherte Artikel zum späteren Lesen.',
+      title: 'المحفوظات',
+      desc: 'مقالات حفظتها للقراءة لاحقاً.',
       icon: BookmarkCheck,
     },
     {
       key: 'search',
-      title: isAr ? 'البحث في الأرشيف' : 'Archivsuche',
-      desc: isAr ? 'ابحث عبر كل المقالات المحفوظة.' : 'Suche durch alle archivierten Artikel.',
+      title: 'البحث في الأرشيف',
+      desc: 'ابحث عبر كل المقالات المحفوظة.',
       icon: Search,
     },
     {
       key: 'reader',
-      title: isAr ? 'وضع القراءة' : 'Lesemodus',
-      desc: isAr ? 'الصق رابطاً لقراءته بدون إعلانات.' : 'Link einfügen — werbefrei lesen.',
+      title: 'وضع القراءة',
+      desc: 'الصق رابطاً لقراءته بدون إعلانات.',
       icon: BookOpen,
     },
     {
       key: 'alerts',
-      title: isAr ? 'تنبيهات الكلمات' : 'Stichwort-Alerts',
-      desc: isAr ? 'تنبيهات عند ذكر كلمات تختارها.' : 'Benachrichtigungen für deine Stichwörter.',
+      title: 'تنبيهات الكلمات',
+      desc: 'تنبيهات عند ذكر كلمات تختارها.',
       icon: Bell,
     },
     {
       key: 'manage',
-      title: isAr ? 'إدارة المصادر' : 'Quellen verwalten',
-      desc: isAr ? 'أضِف وعطّل واحذف خلاصات RSS.' : 'RSS-Feeds hinzufügen oder entfernen.',
+      title: 'إدارة المصادر',
+      desc: 'أضِف وعطّل واحذف خلاصات RSS.',
       icon: Settings2,
     },
   ];
@@ -94,7 +92,7 @@ export default function ArticlesTab() {
       <motion.div variants={item} className="flex items-center gap-2 px-1 pt-1">
         <div className="h-px flex-1 bg-border" />
         <span className="text-[11px] font-semibold text-muted-foreground/70 tracking-wide">
-          {isAr ? 'المزيد' : 'Mehr'}
+          {'المزيد'}
         </span>
         <div className="h-px flex-1 bg-border" />
       </motion.div>

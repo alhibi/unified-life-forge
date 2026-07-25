@@ -27,21 +27,21 @@ interface PlateCalculatorProps {
   initialKg?: number;
   /** Notify caller when user changes the weight via stepper. */
   onChange?: (kg: number) => void;
-  lang: 'ar' | 'de';
+  lang: 'ar';
   /** Show the bar selector (20/15/10 kg). */
   showBarPicker?: boolean;
   className?: string;
 }
 
 const T = {
-  perSide: { ar: 'لكل جانب', de: 'pro Seite' },
-  total: { ar: 'الكلي', de: 'Gesamt' },
-  noPlates: { ar: 'البار فقط', de: 'Nur Stange' },
-  cantHit: { ar: 'لا يمكن الوصول لهذا الوزن بدقة', de: 'Gewicht nicht exakt erreichbar' },
-  bar: { ar: 'البار', de: 'Stange' },
-  std: { ar: 'قياسي 20', de: 'Standard 20' },
-  womens: { ar: 'نسائي 15', de: 'Damen 15' },
-  tech: { ar: 'تقني 10', de: 'Technik 10' },
+  perSide: { ar: 'لكل جانب', },
+  total: { ar: 'الكلي', },
+  noPlates: { ar: 'البار فقط', },
+  cantHit: { ar: 'لا يمكن الوصول لهذا الوزن بدقة', },
+  bar: { ar: 'البار', },
+  std: { ar: 'قياسي 20', },
+  womens: { ar: 'نسائي 15', },
+  tech: { ar: 'تقني 10', },
 };
 
 const BAR_OPTIONS = [

@@ -343,49 +343,43 @@ export default function ChessPuzzlePage() {
   };
 
   // Theme labels
-  const themeLabels: Record<PuzzleTheme | 'all', { ar: string; de: string }> = {
-    all: { ar: 'الكل', de: 'Alle' },
-    mateIn1: { ar: 'مات في 1', de: 'Matt in 1' },
-    mateIn2: { ar: 'مات في 2', de: 'Matt in 2' },
-    fork: { ar: 'شوكة', de: 'Gabel' },
-    pin: { ar: 'تثبيت', de: 'Fesselung' },
-    skewer: { ar: 'سيخ', de: 'Spieß' },
-    discovery: { ar: 'هجوم مكشوف', de: 'Abzug' },
-    doubleAttack: { ar: 'هجوم مزدوج', de: 'Doppelangriff' },
-    sacrifice: { ar: 'تضحية', de: 'Opfer' },
-    trap: { ar: 'فخ', de: 'Falle' },
+  const themeLabels: Record<PuzzleTheme | 'all', { ar: string; }> = {
+    all: { ar: 'الكل', },
+    mateIn1: { ar: 'مات في 1', },
+    mateIn2: { ar: 'مات في 2', },
+    fork: { ar: 'شوكة', },
+    pin: { ar: 'تثبيت', },
+    skewer: { ar: 'سيخ', },
+    discovery: { ar: 'هجوم مكشوف', },
+    doubleAttack: { ar: 'هجوم مزدوج', },
+    sacrifice: { ar: 'تضحية', },
+    trap: { ar: 'فخ', },
   };
 
-  const rules = isAr ? [
+  const rules = [
     'حُل اللغز بإيجاد أفضل نقلة',
     'النقلة الصحيحة تستمر في الحل، الخطأ يعيدك',
     'استخدم تلميحاً إذا احتجت (يُخفض تقييمك قليلاً)',
     'تقييمك يتحرك حسب صعوبة الألغاز التي تحلها',
     'الألغاز تتنوع: مات سريع، شوكات، تضحيات، تثبيت...',
-  ] : [
-    'Finde den besten Zug',
-    'Richtig: weiter in der Lösung. Falsch: zurück',
-    'Tipp benutzbar (verringert Rating leicht)',
-    'Dein Rating bewegt sich je nach Lösung',
-    'Themen: Mattführung, Gabeln, Opfer, Fesselungen…',
   ];
 
   const totalSolved = Object.values(stats.themesSolved).reduce((a, b) => a + b, 0);
   const statsArr = [
-    { label: isAr ? 'تقييم' : 'Rating', value: stats.rating },
-    { label: isAr ? 'محلولة' : 'Gelöst', value: stats.solved },
-    { label: isAr ? 'سلسلة' : 'Serie', value: stats.currentStreak },
-    { label: isAr ? 'أفضل سلسلة' : 'Beste Serie', value: stats.bestStreak },
-    { label: isAr ? 'مات في 1' : 'Matt in 1', value: stats.themesSolved.mateIn1 || 0 },
-    { label: isAr ? 'شوكات' : 'Gabeln', value: stats.themesSolved.fork || 0 },
-    { label: isAr ? 'تضحيات' : 'Opfer', value: stats.themesSolved.sacrifice || 0 },
-    { label: isAr ? 'تلميحات' : 'Tipps', value: stats.hintsUsed },
+    { label: 'تقييم', value: stats.rating },
+    { label: 'محلولة', value: stats.solved },
+    { label: 'سلسلة', value: stats.currentStreak },
+    { label: 'أفضل سلسلة', value: stats.bestStreak },
+    { label: 'مات في 1', value: stats.themesSolved.mateIn1 || 0 },
+    { label: 'شوكات', value: stats.themesSolved.fork || 0 },
+    { label: 'تضحيات', value: stats.themesSolved.sacrifice || 0 },
+    { label: 'تلميحات', value: stats.hintsUsed },
   ];
 
   const themes: (PuzzleTheme | 'all')[] = ['all', 'mateIn1', 'mateIn2', 'fork', 'pin', 'skewer', 'discovery', 'sacrifice'];
   const options = [{
-    key: 'theme', label: isAr ? 'الموضوع' : 'Thema',
-    choices: themes.map(t => ({ value: t, label: isAr ? themeLabels[t].ar : themeLabels[t].de })),
+    key: 'theme', label: 'الموضوع',
+    choices: themes.map(t => ({ value: t, label: themeLabels[t].ar })),
     current: theme,
     onChange: (v: string) => { const t = v as PuzzleTheme | 'all'; setTheme(t); loadPuzzle(pickNextPuzzle(loadStats(), t)); },
   }];
@@ -396,7 +390,7 @@ export default function ChessPuzzlePage() {
 
   return (
     <GameShell
-      title={isAr ? 'ألغاز الشطرنج' : 'Schach-Puzzles'}
+      title={'ألغاز الشطرنج'}
       icon={Puzzle}
       accentColor="hsl(45, 93%, 47%)"
       rules={rules}
@@ -407,7 +401,7 @@ export default function ChessPuzzlePage() {
       <div className="rounded-2xl border border-purple-500/20 bg-purple-500/5 p-3 mb-3">
         <div className="flex items-center justify-between mb-1.5">
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-bold text-purple-300 uppercase tracking-wider">{isAr ? themeLabels[puzzle.theme].ar : themeLabels[puzzle.theme].de}</span>
+            <span className="text-[10px] font-bold text-purple-300 uppercase tracking-wider">{themeLabels[puzzle.theme].ar}</span>
             <span className="text-[10px] text-zinc-500">{puzzle.rating}</span>
           </div>
           <div className="flex items-center gap-1">
@@ -417,15 +411,15 @@ export default function ChessPuzzlePage() {
               status === 'hint' ? 'bg-amber-500/20 text-amber-300' :
               'bg-purple-500/20 text-purple-300'
             }`}>
-              {status === 'solved' ? (isAr ? '✓ تم' : '✓ Gelöst') :
-                showWrongFeedback ? (isAr ? '✗ خطأ' : '✗ Falsch') :
-                status === 'hint' ? (isAr ? 'تلميح' : 'Tipp') :
-                moveIdx === 0 ? (isAr ? 'انتظر...' : 'Warte...') : (isAr ? 'دورك' : 'Du bist dran')}
+              {status === 'solved' ? ('✓ تم') :
+                showWrongFeedback ? ('✗ خطأ') :
+                status === 'hint' ? ('تلميح') :
+                moveIdx === 0 ? ('انتظر...') : ('دورك')}
             </span>
           </div>
         </div>
         <p className="text-xs text-zinc-300">
-          {playerSide === 'w' ? (isAr ? 'الأبيض يلعب' : 'Weiß am Zug') : (isAr ? 'الأسود يلعب' : 'Schwarz am Zug')}
+          {playerSide === 'w' ? ('الأبيض يلعب') : ('الأسود يلعب')}
         </p>
       </div>
 
@@ -501,9 +495,9 @@ export default function ChessPuzzlePage() {
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
             className="max-w-[340px] mx-auto mt-4 text-center p-4 rounded-2xl border border-emerald-500/30 bg-emerald-500/10">
             <Sparkles className="w-7 h-7 text-emerald-300 mx-auto mb-1" />
-            <p className="text-emerald-300 font-black text-lg mb-0.5">{isAr ? 'حللت اللغز!' : 'Gelöst!'}</p>
+            <p className="text-emerald-300 font-black text-lg mb-0.5">{'حللت اللغز!'}</p>
             <p className="text-[11px] text-zinc-400">
-              {isAr ? 'تقييم' : 'Rating'}: <span className="text-white font-bold">{stats.rating}</span>
+              {'تقييم'}: <span className="text-white font-bold">{stats.rating}</span>
             </p>
           </motion.div>
         )}
@@ -512,10 +506,10 @@ export default function ChessPuzzlePage() {
       {showSolution && status !== 'solved' && (
         <div className="max-w-[340px] mx-auto mt-4 text-center p-4 rounded-2xl border border-amber-500/30 bg-amber-500/10">
           <p className="text-amber-300 font-bold text-sm">
-            {isAr ? 'الحل: ' : 'Lösung: '}
+            {'الحل: '}
             <span className="font-mono">{puzzle.solution.join(' ')}</span>
           </p>
-          <p className="text-[10px] text-zinc-400 mt-1">{isAr ? puzzle.ar : puzzle.de}</p>
+          <p className="text-[10px] text-zinc-400 mt-1">{puzzle.ar}</p>
         </div>
       )}
 
@@ -524,32 +518,32 @@ export default function ChessPuzzlePage() {
         <button onClick={useHint} disabled={status === 'solved' || showSolution || moveIdx === 0}
           className="flex flex-col items-center gap-0.5 px-4 py-2 rounded-2xl bg-amber-500/15 text-amber-300 active:scale-90 disabled:opacity-30">
           <Lightbulb className="w-4 h-4" />
-          <span className="text-[9px] font-bold">{isAr ? 'تلميح' : 'Tipp'}</span>
+          <span className="text-[9px] font-bold">{'تلميح'}</span>
         </button>
         <button onClick={restart}
           className="flex flex-col items-center gap-0.5 px-4 py-2 rounded-2xl bg-purple-500/15 text-purple-300 active:scale-90">
           <RotateCcw className="w-4 h-4" />
-          <span className="text-[9px] font-bold">{isAr ? 'إعادة' : 'Neu'}</span>
+          <span className="text-[9px] font-bold">{'إعادة'}</span>
         </button>
         <button onClick={giveUp} disabled={status === 'solved' || showSolution}
           className="flex flex-col items-center gap-0.5 px-4 py-2 rounded-2xl bg-zinc-500/15 text-zinc-300 active:scale-90 disabled:opacity-30">
           <Check className="w-4 h-4" />
-          <span className="text-[9px] font-bold">{isAr ? 'الحل' : 'Lösung'}</span>
+          <span className="text-[9px] font-bold">{'الحل'}</span>
         </button>
         <button onClick={nextPuzzle}
           className="flex flex-col items-center gap-0.5 px-4 py-2 rounded-2xl bg-purple-500 text-white active:scale-90">
           <ArrowRight className="w-4 h-4" />
-          <span className="text-[9px] font-bold">{isAr ? 'التالي' : 'Weiter'}</span>
+          <span className="text-[9px] font-bold">{'التالي'}</span>
         </button>
       </div>
 
       {/* Theme breakdown */}
       <div className="max-w-[340px] mx-auto mt-6">
-        <p className="text-[11px] text-zinc-500 mb-2 px-1">{isAr ? 'إحصاءات الموضوع' : 'Themen-Statistik'}</p>
+        <p className="text-[11px] text-zinc-500 mb-2 px-1">{'إحصاءات الموضوع'}</p>
         <div className="grid grid-cols-3 gap-1.5">
           {(Object.keys(themeLabels) as (PuzzleTheme | 'all')[]).filter(t => t !== 'all').map(t => (
             <div key={t} className="rounded-lg p-2 bg-white/4 border border-white/5 text-center">
-              <p className="text-[9px] text-zinc-500 mb-0.5">{isAr ? themeLabels[t].ar : themeLabels[t].de}</p>
+              <p className="text-[9px] text-zinc-500 mb-0.5">{themeLabels[t].ar}</p>
               <p className="text-sm font-bold text-purple-300 tabular-nums">{stats.themesSolved[t as PuzzleTheme] || 0}</p>
             </div>
           ))}

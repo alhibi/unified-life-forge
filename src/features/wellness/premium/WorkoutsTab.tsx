@@ -53,39 +53,39 @@ interface Props {
 type Section = 'train' | 'programs' | 'records' | 'volume' | 'history';
 
 const T = {
-  startSession: { ar: 'ابدأ تمريناً', de: 'Training starten' },
-  resumeSession: { ar: 'متابعة', de: 'Fortsetzen' },
-  emptyState: { ar: 'لا تمارين بعد — ابدأ أول جلسة لتبدأ القصة.', de: 'Noch keine Trainings — starte deine erste Session.' },
-  emptyAfter: { ar: 'سترى تطورك ينمو هنا تلقائياً.', de: 'Dein Fortschritt wird hier automatisch dokumentiert.' },
-  lastSession: { ar: 'آخر تمرين', de: 'Letztes Training' },
-  topPrs: { ar: 'أعلى 1RM', de: 'Top 1RM' },
-  topMuscles: { ar: 'الأكثر تدريباً', de: 'Am meisten trainiert' },
-  totalSessions: { ar: 'جلسات', de: 'Sessions' },
-  streak: { ar: 'سلسلة', de: 'Streak' },
-  weekVolume: { ar: 'حجم 7 أيام', de: '7-Tage-Volumen' },
-  noProfile: { ar: 'سجّل وزنك في الملف لتفعيل المعايير.', de: 'Gewicht im Profil eintragen.' },
-  pickLift: { ar: 'اختر تمريناً لعرض التقدم', de: 'Lift auswählen für Trend' },
-  noPrChart: { ar: 'لا أرقام كافية لعرض الرسم البياني.', de: 'Noch zu wenige Daten für Trends.' },
+  startSession: { ar: 'ابدأ تمريناً', },
+  resumeSession: { ar: 'متابعة', },
+  emptyState: { ar: 'لا تمارين بعد — ابدأ أول جلسة لتبدأ القصة.', },
+  emptyAfter: { ar: 'سترى تطورك ينمو هنا تلقائياً.', },
+  lastSession: { ar: 'آخر تمرين', },
+  topPrs: { ar: 'أعلى 1RM', },
+  topMuscles: { ar: 'الأكثر تدريباً', },
+  totalSessions: { ar: 'جلسات', },
+  streak: { ar: 'سلسلة', },
+  weekVolume: { ar: 'حجم 7 أيام', },
+  noProfile: { ar: 'سجّل وزنك في الملف لتفعيل المعايير.', },
+  pickLift: { ar: 'اختر تمريناً لعرض التقدم', },
+  noPrChart: { ar: 'لا أرقام كافية لعرض الرسم البياني.', },
   // Sub-tabs
-  train: { ar: 'تدريب', de: 'Training' },
-  programs: { ar: 'برامج', de: 'Programme' },
-  records: { ar: 'الأرقام', de: 'Rekorde' },
-  volume: { ar: 'الحجم', de: 'Volumen' },
-  history: { ar: 'السجل', de: 'Verlauf' },
-  toolPlate: { ar: 'حاسبة الأوزان', de: 'Plate-Rechner' },
-  weekTotal: { ar: 'حمل الأسبوع', de: 'Wochenlast' },
-  sessionsTotal: { ar: 'إجمالي الجلسات', de: 'Sessions gesamt' },
-  longestStreak: { ar: 'أطول سلسلة', de: 'Längster Streak' },
-  programActive: { ar: 'برنامجك الحالي', de: 'Aktives Programm' },
-  changeProgram: { ar: 'تغيير', de: 'Wechseln' },
+  train: { ar: 'تدريب', },
+  programs: { ar: 'برامج', },
+  records: { ar: 'الأرقام', },
+  volume: { ar: 'الحجم', },
+  history: { ar: 'السجل', },
+  toolPlate: { ar: 'حاسبة الأوزان', },
+  weekTotal: { ar: 'حمل الأسبوع', },
+  sessionsTotal: { ar: 'إجمالي الجلسات', },
+  longestStreak: { ar: 'أطول سلسلة', },
+  programActive: { ar: 'برنامجك الحالي', },
+  changeProgram: { ar: 'تغيير', },
 };
 
-const SECTIONS: { key: Section; ar: string; de: string; icon: typeof Activity }[] = [
-  { key: 'train',    ar: 'تدريب',  de: 'Training',  icon: Dumbbell },
-  { key: 'programs', ar: 'برامج',  de: 'Programme', icon: Library },
-  { key: 'records',  ar: 'الأرقام', de: 'Rekorde',   icon: Trophy },
-  { key: 'volume',   ar: 'الحجم',  de: 'Volumen',   icon: BarChart3 },
-  { key: 'history',  ar: 'السجل',  de: 'Verlauf',   icon: History },
+const SECTIONS: { key: Section; ar: string; icon: typeof Activity }[] = [
+  { key: 'train',    ar: 'تدريب',  icon: Dumbbell },
+  { key: 'programs', ar: 'برامج', icon: Library },
+  { key: 'records',  ar: 'الأرقام',   icon: Trophy },
+  { key: 'volume',   ar: 'الحجم',   icon: BarChart3 },
+  { key: 'history',  ar: 'السجل',   icon: History },
 ];
 
 import { getKV, setKV } from '@/features/wellness/wellnessDb';
@@ -94,7 +94,7 @@ const STD_LIFTS = ['squat', 'bench', 'deadlift', 'ohp'] as const;
 
 export default function WorkoutsTab({ workouts, profile, onSave, onDelete }: Props) {
   const { language } = useApp();
-  const lang = language as 'ar' | 'de';
+  const lang = language as 'ar';
   const [section, setSection] = useState<Section>('train');
   const [showPlayer, setShowPlayer] = useState(false);
   const [recentPrs, setRecentPrs] = useState<PersonalRecord[] | null>(null);
@@ -201,7 +201,7 @@ export default function WorkoutsTab({ workouts, profile, onSave, onDelete }: Pro
               )}
               <span className="relative inline-flex items-center gap-1">
                 <Icon className="w-3.5 h-3.5" />
-                {lang === 'ar' ? s.ar : s.de}
+                {s.ar}
               </span>
             </button>
           );
@@ -271,7 +271,7 @@ export default function WorkoutsTab({ workouts, profile, onSave, onDelete }: Pro
                     <div className="flex-1">
                       <p className="text-[12px] font-bold text-foreground">{T.toolPlate[lang]}</p>
                       <p className="text-[10px] text-muted-foreground">
-                        {lang === 'ar' ? 'احسب الأقراص لكل وزن — مرئي.' : 'Plate-Aufteilung visualisiert.'}
+                        {'احسب الأقراص لكل وزن — مرئي.'}
                       </p>
                     </div>
                   </button>
@@ -323,7 +323,7 @@ export default function WorkoutsTab({ workouts, profile, onSave, onDelete }: Pro
               <VolumeBars workouts={workouts} windowDays={7} lang={lang} />
               <div className="bg-card border border-border/40 rounded-xl p-3 space-y-1.5">
                 <p className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-semibold">
-                  {lang === 'ar' ? 'مفتاح المناطق' : 'Zonen-Legende'}
+                  {'مفتاح المناطق'}
                 </p>
                 <VolumeZoneLegend lang={lang} />
               </div>
@@ -382,7 +382,7 @@ export default function WorkoutsTab({ workouts, profile, onSave, onDelete }: Pro
 
 function HeroStats({
   totalSessions, currentStreak, longestStreak, weekVolume, lang,
-}: { totalSessions: number; currentStreak: number; longestStreak: number; weekVolume: number; lang: 'ar' | 'de' }) {
+}: { totalSessions: number; currentStreak: number; longestStreak: number; weekVolume: number; lang: 'ar' }) {
   return (
     <motion.div
       initial={{ y: 6, opacity: 0 }}
@@ -390,10 +390,10 @@ function HeroStats({
       className="rounded-2xl p-3 border border-primary/20"
     >
       <div className="grid grid-cols-4 gap-1.5">
-        <BubbleStat icon={<Calendar className="w-3 h-3" />} value={`${totalSessions}`} label={lang === 'ar' ? 'جلسات' : 'Sessions'} color="#3b82f6" />
-        <BubbleStat icon={<Flame className="w-3 h-3" />} value={`${currentStreak}d`} label={lang === 'ar' ? 'سلسلة' : 'Streak'} color="#f97316" />
-        <BubbleStat icon={<Trophy className="w-3 h-3" />} value={`${longestStreak}d`} label={lang === 'ar' ? 'أطول' : 'Längster'} color="#fbbf24" />
-        <BubbleStat icon={<TrendingUp className="w-3 h-3" />} value={`${Math.round(weekVolume / 1000)}t`} label={lang === 'ar' ? 'الأسبوع' : 'Woche'} color="#10b981" />
+        <BubbleStat icon={<Calendar className="w-3 h-3" />} value={`${totalSessions}`} label={'جلسات'} color="#3b82f6" />
+        <BubbleStat icon={<Flame className="w-3 h-3" />} value={`${currentStreak}d`} label={'سلسلة'} color="#f97316" />
+        <BubbleStat icon={<Trophy className="w-3 h-3" />} value={`${longestStreak}d`} label={'أطول'} color="#fbbf24" />
+        <BubbleStat icon={<TrendingUp className="w-3 h-3" />} value={`${Math.round(weekVolume / 1000)}t`} label={'الأسبوع'} color="#10b981" />
       </div>
     </motion.div>
   );
@@ -411,7 +411,7 @@ function BubbleStat({ icon, value, label, color }: { icon: React.ReactNode; valu
   );
 }
 
-function EmptyState({ lang }: { lang: 'ar' | 'de' }) {
+function EmptyState({ lang }: { lang: 'ar' }) {
   return (
     <div className="bg-card border border-dashed border-border/50 rounded-2xl p-6 text-center space-y-2">
       <Dumbbell className="w-7 h-7 text-muted-foreground mx-auto" />
@@ -421,7 +421,7 @@ function EmptyState({ lang }: { lang: 'ar' | 'de' }) {
   );
 }
 
-function LastSessionCard({ session, lang }: { session: WorkoutSession; lang: 'ar' | 'de' }) {
+function LastSessionCard({ session, lang }: { session: WorkoutSession; lang: 'ar' }) {
   const vol = sessionVolumeKg(session);
   const dur = session.endedAt ? session.endedAt - session.startedAt : 0;
   return (
@@ -443,7 +443,7 @@ function LastSessionCard({ session, lang }: { session: WorkoutSession; lang: 'ar
   );
 }
 
-function TopExercisesCard({ workouts, lang }: { workouts: WorkoutSession[]; lang: 'ar' | 'de' }) {
+function TopExercisesCard({ workouts, lang }: { workouts: WorkoutSession[]; lang: 'ar' }) {
   const top = useMemo(() => topExercises(workouts, 5), [workouts]);
   if (top.length === 0) return null;
   return (

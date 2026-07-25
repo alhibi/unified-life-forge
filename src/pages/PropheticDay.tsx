@@ -8,88 +8,87 @@ import { motion } from 'framer-motion';
 
 interface TimeSection {
   titleAr: string;
-  titleDe: string;
   timeRange: string;
   icon: React.ElementType;
   iconColor: string;
-  items: { ar: string; de: string }[];
+  items: { ar: string; }[];
 }
 
 const sections: TimeSection[] = [
   {
-    titleAr: 'قبل الفجر', titleDe: 'Vor dem Fajr', timeRange: '00:00 - 05:00',
+    titleAr: 'قبل الفجر', timeRange: '00:00 - 05:00',
     icon: Moon, iconColor: 'text-primary',
     items: [
-      { ar: 'يتهجد ويصلي قيام الليل في المنزل أو في المسجد', de: 'Tahajjud und Nachtgebet zu Hause oder in der Moschee' },
-      { ar: 'يأخذ قيلولة قصيرة بعد التهجد', de: 'Kurzes Nickerchen nach Tahajjud' },
+      { ar: 'يتهجد ويصلي قيام الليل في المنزل أو في المسجد', },
+      { ar: 'يأخذ قيلولة قصيرة بعد التهجد', },
     ],
   },
   {
-    titleAr: 'الفجر', titleDe: 'Fajr', timeRange: '05:00 - 07:00',
+    titleAr: 'الفجر', timeRange: '05:00 - 07:00',
     icon: Sunrise, iconColor: 'text-primary',
     items: [
-      { ar: 'يستيقظ، يتطهر فمه بالسواك', de: 'Aufwachen, Mund mit Siwak reinigen' },
-      { ar: 'يحمد الله ويثني عليه', de: 'Allah loben und preisen' },
-      { ar: 'يستمع إلى الأذان', de: 'Dem Adhan zuhören' },
-      { ar: 'يصلي ركعتين قبل الفجر', de: 'Zwei Rakat vor dem Fajr beten' },
-      { ar: 'يصلي صلاة الفجر ويخطب فيهم', de: 'Fajr-Gebet verrichten und predigen' },
+      { ar: 'يستيقظ، يتطهر فمه بالسواك', },
+      { ar: 'يحمد الله ويثني عليه', },
+      { ar: 'يستمع إلى الأذان', },
+      { ar: 'يصلي ركعتين قبل الفجر', },
+      { ar: 'يصلي صلاة الفجر ويخطب فيهم', },
     ],
   },
   {
-    titleAr: 'بعد شروق الشمس', titleDe: 'Nach Sonnenaufgang', timeRange: '07:00 - 09:00',
+    titleAr: 'بعد شروق الشمس', timeRange: '07:00 - 09:00',
     icon: Sun, iconColor: 'text-primary',
     items: [
-      { ar: 'يصلي ركعتين', de: 'Zwei Rakat beten' },
-      { ar: 'يذهب إلى المنزل ويحدث أهله', de: 'Nach Hause gehen und mit der Familie sprechen' },
-      { ar: 'يذهب إلى أصحابه', de: 'Zu den Gefährten gehen' },
+      { ar: 'يصلي ركعتين', },
+      { ar: 'يذهب إلى المنزل ويحدث أهله', },
+      { ar: 'يذهب إلى أصحابه', },
     ],
   },
   {
-    titleAr: 'بداية اليوم', titleDe: 'Tagesbeginn', timeRange: '09:00 - 12:00',
+    titleAr: 'بداية اليوم', timeRange: '09:00 - 12:00',
     icon: BookOpen, iconColor: 'text-primary',
     items: [
-      { ar: 'يعود إلى المسجد ويصلي ركعتين', de: 'Zurück zur Moschee und zwei Rakat beten' },
-      { ar: 'يعلم أصحابه ويعظهم', de: 'Die Gefährten lehren und ermahnen' },
-      { ar: 'يستمع ويعالج القضايا السياسية والاجتماعية', de: 'Politische und soziale Angelegenheiten behandeln' },
-      { ar: 'يزور الأهل والأقارب', de: 'Familie und Verwandte besuchen' },
+      { ar: 'يعود إلى المسجد ويصلي ركعتين', },
+      { ar: 'يعلم أصحابه ويعظهم', },
+      { ar: 'يستمع ويعالج القضايا السياسية والاجتماعية', },
+      { ar: 'يزور الأهل والأقارب', },
     ],
   },
   {
-    titleAr: 'الظهر', titleDe: 'Dhuhr', timeRange: '12:00 - 15:00',
+    titleAr: 'الظهر', timeRange: '12:00 - 15:00',
     icon: SunDim, iconColor: 'text-primary',
     items: [
-      { ar: 'يقوم المصلين بصلاة الظهر', de: 'Dhuhr-Gebet verrichten' },
-      { ar: 'في بعض الأحيان يعظهم ويوجههم', de: 'Manchmal predigen und anleiten' },
-      { ar: 'يخرج مع أصحابه في مهام محددة', de: 'Mit den Gefährten zu bestimmten Aufgaben gehen' },
+      { ar: 'يقوم المصلين بصلاة الظهر', },
+      { ar: 'في بعض الأحيان يعظهم ويوجههم', },
+      { ar: 'يخرج مع أصحابه في مهام محددة', },
     ],
   },
   {
-    titleAr: 'العصر', titleDe: 'Asr', timeRange: '15:00 - 18:00',
+    titleAr: 'العصر', timeRange: '15:00 - 18:00',
     icon: CloudSun, iconColor: 'text-primary',
     items: [
-      { ar: 'يقوم المصلين بصلاة العصر', de: 'Asr-Gebet verrichten' },
-      { ar: 'يعود إلى بيته ويمضي فترة مع أهله', de: 'Nach Hause zurückkehren und Zeit mit der Familie verbringen' },
-      { ar: 'أحياناً يزور أصحابه أو يستقبل ضيوفاً', de: 'Manchmal Gefährten besuchen oder Gäste empfangen' },
+      { ar: 'يقوم المصلين بصلاة العصر', },
+      { ar: 'يعود إلى بيته ويمضي فترة مع أهله', },
+      { ar: 'أحياناً يزور أصحابه أو يستقبل ضيوفاً', },
     ],
   },
   {
-    titleAr: 'المغرب', titleDe: 'Maghrib', timeRange: '18:00 - 20:00',
+    titleAr: 'المغرب', timeRange: '18:00 - 20:00',
     icon: Sunset, iconColor: 'text-primary',
     items: [
-      { ar: 'يقوم المصلين بصلاة المغرب', de: 'Maghrib-Gebet verrichten' },
-      { ar: 'يصلي ركعتين بعد المغرب', de: 'Zwei Rakat nach Maghrib beten' },
-      { ar: 'يتناول العشاء إذا وُجد', de: 'Abendessen einnehmen, wenn vorhanden' },
-      { ar: 'يجلس مع أهله وأصحابه', de: 'Mit Familie und Gefährten sitzen' },
+      { ar: 'يقوم المصلين بصلاة المغرب', },
+      { ar: 'يصلي ركعتين بعد المغرب', },
+      { ar: 'يتناول العشاء إذا وُجد', },
+      { ar: 'يجلس مع أهله وأصحابه', },
     ],
   },
   {
-    titleAr: 'العشاء', titleDe: 'Isha', timeRange: '20:00 - 23:00',
+    titleAr: 'العشاء', timeRange: '20:00 - 23:00',
     icon: MoonStar, iconColor: 'text-primary',
     items: [
-      { ar: 'يقوم المصلين بصلاة العشاء', de: 'Isha-Gebet verrichten' },
-      { ar: 'يذكر الله ويثني عليه', de: 'Allah gedenken und Ihn preisen' },
-      { ar: 'يعود إلى بيته ويخطب بعد صلاة العشاء', de: 'Nach Hause zurückkehren und nach Isha predigen' },
-      { ar: 'يذهب إلى النوم مبكراً', de: 'Früh schlafen gehen' },
+      { ar: 'يقوم المصلين بصلاة العشاء', },
+      { ar: 'يذكر الله ويثني عليه', },
+      { ar: 'يعود إلى بيته ويخطب بعد صلاة العشاء', },
+      { ar: 'يذهب إلى النوم مبكراً', },
     ],
   },
 ];
@@ -105,7 +104,7 @@ export default function PropheticDay() {
     <div className="min-h-screen bg-background pb-24" dir={dir}>
       <SEO title="اليوم النبوي — هدي النبي ﷺ — SmartHub" description="يوم النبي ﷺ مقسماً إلى ثماني فترات مع السنن والأذكار المتعلقة بكل فترة." path="/section/prophetic-day" />
       {/* Header */}
-      <PageHeader sticky title={isAr ? 'نظرة على يوم النبي ﷺ' : 'Ein Tag des Propheten ﷺ'} className="px-4 py-3 bg-background border-b border-border" />
+      <PageHeader sticky title={'نظرة على يوم النبي ﷺ'} className="px-4 py-3 bg-background border-b border-border" />
 
       {/* Sections */}
       <motion.div variants={stagger} initial="hidden" animate="show" className="pt-4 pb-4 space-y-6">
@@ -119,7 +118,7 @@ export default function PropheticDay() {
                   <Icon className={`w-5 h-5 ${section.iconColor}`} />
                 </div>
                 <div className="flex flex-col">
-                  <h2 className="text-[15px] font-extrabold text-foreground">{isAr ? section.titleAr : section.titleDe}</h2>
+                  <h2 className="text-[15px] font-extrabold text-foreground">{section.titleAr}</h2>
                   <span className="text-[11px] text-muted-foreground mt-0.5" dir="ltr">{section.timeRange}</span>
                 </div>
               </div>
@@ -135,7 +134,7 @@ export default function PropheticDay() {
                   >
                     <span className="w-[7px] h-[7px] rounded-full shrink-0 bg-primary" />
                     <p className="text-[13px] leading-relaxed text-foreground font-medium">
-                      {isAr ? item.ar : item.de}
+                      {item.ar}
                     </p>
                   </div>
                 ))}

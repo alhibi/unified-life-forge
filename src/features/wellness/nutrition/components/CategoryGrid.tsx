@@ -7,7 +7,7 @@ import React from 'react';
 import { CATEGORY_INFO } from '../data';
 import type { NutritionCategory } from '../types';
 
-type Lang = 'ar' | 'de';
+type Lang = 'ar';
 
 const VISIBLE_CATEGORIES: NutritionCategory[] = [
   'fruits',

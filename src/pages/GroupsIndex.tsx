@@ -72,7 +72,7 @@ export default function GroupsIndexPage() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center px-6 text-center gap-4">
         <h1 className="text-xl font-bold">
-          {isAr ? 'سجّل الدخول للوصول' : 'Anmeldung erforderlich'}
+          {'سجّل الدخول للوصول'}
         </h1>
         <Button onClick={() => navigate('/auth')}>{t('auth.signIn')}</Button>
       </div>
@@ -80,10 +80,10 @@ export default function GroupsIndexPage() {
   }
 
   return (
-    <ErrorBoundary fallbackTitle={isAr ? 'حدث خطأ' : 'Fehler'}>
+    <ErrorBoundary fallbackTitle={'حدث خطأ'}>
       <SEO
-        title={isAr ? 'المجموعات والقنوات — SmartHub' : 'Gruppen & Kanäle — SmartHub'}
-        description={isAr ? 'إدارة المجموعات والقنوات.' : 'Verwalte deine Gruppen und Kanäle.'}
+        title={'المجموعات والقنوات — SmartHub'}
+        description={'إدارة المجموعات والقنوات.'}
         path="/chat/groups"
       />
       <div
@@ -99,12 +99,12 @@ export default function GroupsIndexPage() {
             type="button"
             onClick={goBack}
             className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40"
-            aria-label={isAr ? 'رجوع' : 'Zurück'}
+            aria-label={'رجوع'}
           >
-            {isAr ? <ArrowRight className="w-5 h-5" /> : <ArrowLeft className="w-5 h-5" />}
+            {<ArrowRight className="w-5 h-5" />}
           </button>
           <h1 className="flex-1 text-[16.5px] font-semibold truncate">
-            {isAr ? 'المجموعات والقنوات' : 'Gruppen & Kanäle'}
+            {'المجموعات والقنوات'}
           </h1>
         </header>
 
@@ -116,7 +116,7 @@ export default function GroupsIndexPage() {
               type="text"
               value={query}
               onChange={e => setQuery(e.target.value)}
-              placeholder={isAr ? 'ابحث في المجموعات...' : 'Gruppen durchsuchen...'}
+              placeholder={'ابحث في المجموعات...'}
               className="flex-1 bg-transparent text-[14px] outline-none ms-2 placeholder:text-muted-foreground/40"
               dir="auto"
             />
@@ -135,9 +135,9 @@ export default function GroupsIndexPage() {
         {/* Filter tabs */}
         <div className="flex items-center gap-1.5 px-4 pt-1 pb-2 overflow-x-auto scrollbar-none shrink-0">
           {([
-            { id: 'all',      ar: 'الكل',     de: 'Alle',     count: groupChats.length },
-            { id: 'groups',   ar: 'مجموعات',  de: 'Gruppen',   count: groupChats.filter(c => isGroup(c)).length },
-            { id: 'channels', ar: 'قنوات',    de: 'Kanäle',    count: groupChats.filter(c => isChannel(c)).length },
+            { id: 'all',      ar: 'الكل',     count: groupChats.length },
+            { id: 'groups',   ar: 'مجموعات',   count: groupChats.filter(c => isGroup(c)).length },
+            { id: 'channels', ar: 'قنوات',    count: groupChats.filter(c => isChannel(c)).length },
           ] as const).map(tab => {
             const active = filter === tab.id;
             return (
@@ -152,7 +152,7 @@ export default function GroupsIndexPage() {
                     : 'bg-muted/30 text-muted-foreground active:bg-muted/50',
                 )}
               >
-                {isAr ? tab.ar : tab.de}
+                {tab.ar}
                 {tab.count > 0 && (
                   <span className={cn(
                     'text-[10px] font-bold rounded-full min-w-[16px] h-[16px] flex items-center justify-center px-1',
@@ -222,7 +222,7 @@ export default function GroupsIndexPage() {
                   className="z-[10] inline-flex items-center gap-2.5 rounded-full bg-card border border-border/30 px-3.5 h-10 active:scale-95"
                 >
                   <Hash className="w-4 h-4 text-primary" />
-                  <span className="text-[13px] font-semibold">{isAr ? 'قناة جديدة' : 'Neuer Kanal'}</span>
+                  <span className="text-[13px] font-semibold">{'قناة جديدة'}</span>
                 </motion.button>
                 <motion.button
                   type="button"
@@ -234,7 +234,7 @@ export default function GroupsIndexPage() {
                   className="z-[10] inline-flex items-center gap-2.5 rounded-full bg-card border border-border/30 px-3.5 h-10 active:scale-95"
                 >
                   <Users className="w-4 h-4 text-primary" />
-                  <span className="text-[13px] font-semibold">{isAr ? 'مجموعة جديدة' : 'Neue Gruppe'}</span>
+                  <span className="text-[13px] font-semibold">{'مجموعة جديدة'}</span>
                 </motion.button>
               </>
             )}
@@ -243,7 +243,7 @@ export default function GroupsIndexPage() {
             type="button"
             onClick={() => setShowCreatorMenu(s => !s)}
             className="z-[10] w-14 h-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center active:scale-90 transition-transform"
-            aria-label={isAr ? 'إنشاء جديد' : 'Neu erstellen'}
+            aria-label={'إنشاء جديد'}
           >
             <motion.span
               animate={{ rotate: showCreatorMenu ? 45 : 0 }}
@@ -289,7 +289,7 @@ function GroupRow({ chat, isAr, onClick }: GroupRowProps) {
             'text-[15px] text-foreground truncate',
             chat.unreadCount > 0 ? 'font-bold' : 'font-semibold',
           )}>
-            {chat.title || (isAr ? 'بدون اسم' : 'Ohne Namen')}
+            {chat.title || ('بدون اسم')}
           </span>
           <span className={cn(
             'text-[11px] shrink-0 tabular-nums',
@@ -305,11 +305,11 @@ function GroupRow({ chat, isAr, onClick }: GroupRowProps) {
           )} dir="auto">
             {chat.lastMessage
               ? (chat.lastMessage.deleted
-                  ? (isAr ? '🚫 محذوفة' : '🚫 Gelöscht')
+                  ? ('🚫 محذوفة')
                   : chat.lastMessage.preview)
               : (
                 <span className="italic text-muted-foreground/40">
-                  {isAr ? 'لا توجد رسائل بعد' : 'Noch keine Nachrichten'}
+                  {'لا توجد رسائل بعد'}
                 </span>
               )}
           </p>
@@ -344,7 +344,7 @@ function EmptyState({ isAr, filter, hasAny, onNewGroup, onNewChannel }: EmptySta
             : <Users className="h-9 w-9 text-primary/30" />}
         </div>
         <p className="text-[14px] font-semibold text-foreground/60 text-center">
-          {isAr ? 'لا نتائج تطابق التصفية' : 'Keine passenden Ergebnisse'}
+          {'لا نتائج تطابق التصفية'}
         </p>
       </div>
     );
@@ -356,12 +356,10 @@ function EmptyState({ isAr, filter, hasAny, onNewGroup, onNewChannel }: EmptySta
       </div>
       <div className="text-center space-y-1">
         <p className="text-[15.5px] font-semibold text-foreground/70">
-          {isAr ? 'لا توجد مجموعات بعد' : 'Noch keine Gruppen'}
+          {'لا توجد مجموعات بعد'}
         </p>
         <p className="text-[13px] text-muted-foreground/60 max-w-xs leading-relaxed">
-          {isAr
-            ? 'أنشئ مجموعة لمحادثة عدة أصدقاء معاً، أو قناةً لبثّ التحديثات.'
-            : 'Erstelle eine Gruppe für mehrere Freunde oder einen Kanal zum Senden an viele.'}
+          {'أنشئ مجموعة لمحادثة عدة أصدقاء معاً، أو قناةً لبثّ التحديثات.'}
         </p>
       </div>
       <div className="flex gap-2 w-full max-w-xs">
@@ -370,7 +368,7 @@ function EmptyState({ isAr, filter, hasAny, onNewGroup, onNewChannel }: EmptySta
           className="flex-1 rounded-full"
         >
           <Users className="w-4 h-4 me-1.5" />
-          {isAr ? 'مجموعة' : 'Gruppe'}
+          {'مجموعة'}
         </Button>
         <Button
           onClick={onNewChannel}
@@ -378,7 +376,7 @@ function EmptyState({ isAr, filter, hasAny, onNewGroup, onNewChannel }: EmptySta
           className="flex-1 rounded-full"
         >
           <Hash className="w-4 h-4 me-1.5" />
-          {isAr ? 'قناة' : 'Kanal'}
+          {'قناة'}
         </Button>
       </div>
     </div>

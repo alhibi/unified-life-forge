@@ -128,7 +128,7 @@ export const MessageStarBadge = React.memo(function MessageStarBadge({ isAr }: {
       initial={{ scale: 0 }}
       animate={{ scale: 1 }}
       className="inline-flex"
-      aria-label={isAr ? 'مميزة بنجمة' : 'Markiert'}
+      aria-label={'مميزة بنجمة'}
     >
       <Star className="h-[10px] w-[10px] text-amber-500 fill-amber-500" />
     </motion.span>
@@ -152,7 +152,7 @@ export const EditedBadge = React.memo(function EditedBadge({
         dimmed ? 'text-primary-foreground/50' : 'text-muted-foreground/50',
       )}
     >
-      {isAr ? 'معدّلة' : 'bearbeitet'}
+      {'معدّلة'}
     </span>
   );
 });
@@ -175,7 +175,7 @@ export const SelfDestructTimer = React.memo(function SelfDestructTimer({
     const update = () => {
       const diff = Math.max(0, new Date(expiresAt).getTime() - Date.now());
       if (diff <= 0) {
-        setRemaining(isAr ? 'منتهية' : 'Abgelaufen');
+        setRemaining('منتهية');
         return;
       }
       const s = Math.floor(diff / 1000);
@@ -263,7 +263,7 @@ export const MessageTicks = React.memo(
               'h-[11px] w-[11px] animate-pulse',
               dimmed ? 'text-primary-foreground/70' : 'text-muted-foreground/60',
             )}
-            aria-label={isAr ? 'يجري الإرسال' : 'Wird gesendet'}
+            aria-label={'يجري الإرسال'}
           />
         </motion.span>
       );
@@ -277,7 +277,7 @@ export const MessageTicks = React.memo(
             onRetry?.();
           }}
           className="inline-flex items-center gap-[2px] text-destructive"
-          aria-label={isAr ? 'إعادة المحاولة' : 'Erneut versuchen'}
+          aria-label={'إعادة المحاولة'}
           whileTap={{ scale: 0.85 }}
           animate={{ x: [0, -2, 2, -2, 0] }}
           transition={{ duration: 0.4 }}
@@ -297,7 +297,7 @@ export const MessageTicks = React.memo(
         >
           <CheckCheck
             className="h-[11px] w-[11px] text-[#C9A84C]"
-            aria-label={isAr ? 'مقروءة' : 'Gelesen'}
+            aria-label={'مقروءة'}
           />
         </motion.span>
       );
@@ -310,7 +310,7 @@ export const MessageTicks = React.memo(
               'h-[11px] w-[11px]',
               dimmed ? 'text-primary-foreground/70' : 'text-muted-foreground/60',
             )}
-            aria-label={isAr ? 'وصلت' : 'Zugestellt'}
+            aria-label={'وصلت'}
           />
         </motion.span>
       );
@@ -328,7 +328,7 @@ export const MessageTicks = React.memo(
             'h-[11px] w-[11px]',
             dimmed ? 'text-primary-foreground/70' : 'text-muted-foreground/60',
           )}
-          aria-label={isAr ? 'أُرسلت' : 'Gesendet'}
+          aria-label={'أُرسلت'}
         />
       </motion.span>
     );
@@ -441,7 +441,7 @@ export const ForwardedBadge = React.memo(function ForwardedBadge({
     >
       <Reply className="w-3 h-3 -scale-x-100" />
       <span>
-        {isAr ? 'محوّلة' : 'Weitergeleitet'}
+        {'محوّلة'}
         {name ? (
           <>
             {' '}
@@ -512,7 +512,7 @@ export const QuickReactionBar = React.memo(function QuickReactionBar({
           animate={{ scale: 1 }}
           transition={{ delay: emojis.length * 0.03 }}
           whileTap={{ scale: 1.2 }}
-          aria-label={isAr ? 'المزيد' : 'Mehr'}
+          aria-label={'المزيد'}
         >
           <Sparkles className="w-4 h-4" />
         </motion.button>

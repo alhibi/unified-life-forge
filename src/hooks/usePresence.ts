@@ -483,10 +483,10 @@ export function formatLastSeen(
   dateStr: string | null | undefined,
   isAr: boolean,
 ): { text: string; isOnline: boolean } {
-  if (!dateStr) return { text: isAr ? 'غير معروف' : 'Unknown', isOnline: false };
+  if (!dateStr) return { text: 'غير معروف', isOnline: false };
 
   const d = new Date(dateStr);
-  if (Number.isNaN(d.getTime())) return { text: isAr ? 'غير معروف' : 'Unknown', isOnline: false };
+  if (Number.isNaN(d.getTime())) return { text: 'غير معروف', isOnline: false };
 
   const now = new Date();
   const diffMs   = Math.max(0, now.getTime() - d.getTime());
@@ -496,34 +496,34 @@ export function formatLastSeen(
   const diffDays = Math.floor(diffMs / 86_400_000);
 
   if (diffMs < ONLINE_THRESHOLD_MS) {
-    return { text: isAr ? 'متصل الآن' : 'Online', isOnline: true };
+    return { text: 'متصل الآن', isOnline: true };
   }
   if (diffSecs < 120) {
-    return { text: isAr ? 'منذ لحظات' : 'Just now', isOnline: false };
+    return { text: 'منذ لحظات', isOnline: false };
   }
   if (diffMins < 60) {
     return {
-      text: isAr ? `آخر ظهور قبل ${diffMins} دقيقة` : `Last seen ${diffMins}m ago`,
+      text: `آخر ظهور قبل ${diffMins} دقيقة`,
       isOnline: false,
     };
   }
   if (diffHrs < 24) {
     return {
-      text: isAr ? `آخر ظهور قبل ${diffHrs} ساعة` : `Last seen ${diffHrs}h ago`,
+      text: `آخر ظهور قبل ${diffHrs} ساعة`,
       isOnline: false,
     };
   }
   if (diffDays < 7) {
-    const dayName = d.toLocaleDateString(isAr ? 'ar' : 'en', { weekday: 'long' });
+    const dayName = d.toLocaleDateString('ar', { weekday: 'long' });
     return {
-      text: isAr ? `آخر ظهور يوم ${dayName}` : `Last seen ${dayName}`,
+      text: `آخر ظهور يوم ${dayName}`,
       isOnline: false,
     };
   }
 
-  const dateFormatted = d.toLocaleDateString(isAr ? 'ar' : 'en', { day: 'numeric', month: 'short' });
+  const dateFormatted = d.toLocaleDateString('ar', { day: 'numeric', month: 'short' });
   return {
-    text: isAr ? `آخر ظهور ${dateFormatted}` : `Last seen ${dateFormatted}`,
+    text: `آخر ظهور ${dateFormatted}`,
     isOnline: false,
   };
 }

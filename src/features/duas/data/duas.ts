@@ -7,7 +7,6 @@ export interface Dua {
 export interface DuaCategory {
   id: string;
   titleAr: string;
-  titleDe: string;
   icon: string;
   color: string;
   duas: Dua[];
@@ -16,7 +15,6 @@ export interface DuaCategory {
 export interface FrequentDua {
   id: string;
   titleAr: string;
-  titleDe: string;
   icon: string;
   text: string;
   source?: string;
@@ -27,7 +25,6 @@ export const frequentDuas: FrequentDua[] = [
   {
     id: 'sleep',
     titleAr: 'دعاء قبل النوم',
-    titleDe: 'Vor dem Schlafen',
     icon: 'Moon',
     text: 'بِاسْمِكَ اللَّهُمَّ أَمُوتُ وَأَحْيَا',
     source: 'البخاري',
@@ -48,7 +45,6 @@ export const frequentDuas: FrequentDua[] = [
   {
     id: 'wakeup',
     titleAr: 'دعاء الاستيقاظ',
-    titleDe: 'Beim Aufwachen',
     icon: 'Sun',
     text: 'الْحَمْدُ لِلَّهِ الَّذِي أَحْيَانَا بَعْدَ مَا أَمَاتَنَا وَإِلَيْهِ النُّشُورُ',
     source: 'البخاري',
@@ -62,7 +58,6 @@ export const frequentDuas: FrequentDua[] = [
   {
     id: 'travel',
     titleAr: 'دعاء السفر',
-    titleDe: 'Reisegebet',
     icon: 'Plane',
     text: 'سُبْحَانَ الَّذِي سَخَّرَ لَنَا هَذَا وَمَا كُنَّا لَهُ مُقْرِنِينَ وَإِنَّا إِلَى رَبِّنَا لَمُنْقَلِبُونَ',
     source: 'مسلم',
@@ -70,7 +65,6 @@ export const frequentDuas: FrequentDua[] = [
   {
     id: 'home-enter',
     titleAr: 'دعاء دخول المنزل',
-    titleDe: 'Betreten des Hauses',
     icon: 'Home',
     text: 'بِسْمِ اللَّهِ وَلَجْنَا، وَبِسْمِ اللَّهِ خَرَجْنَا، وَعَلَى اللَّهِ رَبِّنَا تَوَكَّلْنَا',
     source: 'أبو داود',
@@ -78,7 +72,6 @@ export const frequentDuas: FrequentDua[] = [
   {
     id: 'istikhara',
     titleAr: 'دعاء الاستخارة',
-    titleDe: 'Istikhara-Gebet',
     icon: 'HelpCircle',
     text: 'اللَّهُمَّ إِنِّي أَسْتَخِيرُكَ بِعِلْمِكَ، وَأَسْتَقْدِرُكَ بِقُدْرَتِكَ، وَأَسْأَلُكَ مِنْ فَضْلِكَ الْعَظِيمِ، فَإِنَّكَ تَقْدِرُ وَلَا أَقْدِرُ، وَتَعْلَمُ وَلَا أَعْلَمُ، وَأَنْتَ عَلَّامُ الْغُيُوبِ، اللَّهُمَّ إِنْ كُنْتَ تَعْلَمُ أَنَّ هَذَا الْأَمْرَ خَيْرٌ لِي فِي دِينِي وَمَعَاشِي وَعَاقِبَةِ أَمْرِي فَاقْدُرْهُ لِي وَيَسِّرْهُ لِي ثُمَّ بَارِكْ لِي فِيهِ، وَإِنْ كُنْتَ تَعْلَمُ أَنَّ هَذَا الْأَمْرَ شَرٌّ لِي فِي دِينِي وَمَعَاشِي وَعَاقِبَةِ أَمْرِي فَاصْرِفْهُ عَنِّي وَاصْرِفْنِي عَنْهُ وَاقْدُرْ لِيَ الْخَيْرَ حَيْثُ كَانَ ثُمَّ أَرْضِنِي بِهِ',
     source: 'البخاري',
@@ -86,7 +79,6 @@ export const frequentDuas: FrequentDua[] = [
   {
     id: 'riding',
     titleAr: 'دعاء الركوب',
-    titleDe: 'Beim Einsteigen',
     icon: 'Car',
     text: 'بِسْمِ اللَّهِ، الْحَمْدُ لِلَّهِ، سُبْحَانَ الَّذِي سَخَّرَ لَنَا هَذَا وَمَا كُنَّا لَهُ مُقْرِنِينَ وَإِنَّا إِلَى رَبِّنَا لَمُنْقَلِبُونَ',
     source: 'الترمذي',
@@ -94,7 +86,6 @@ export const frequentDuas: FrequentDua[] = [
   {
     id: 'home-leave',
     titleAr: 'دعاء الخروج من المنزل',
-    titleDe: 'Verlassen des Hauses',
     icon: 'DoorOpen',
     text: 'بِسْمِ اللَّهِ، تَوَكَّلْتُ عَلَى اللَّهِ، وَلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ',
     source: 'الترمذي',
@@ -102,7 +93,6 @@ export const frequentDuas: FrequentDua[] = [
   {
     id: 'mosque',
     titleAr: 'دعاء دخول المسجد',
-    titleDe: 'Betreten der Moschee',
     icon: 'Building',
     text: 'اللَّهُمَّ افْتَحْ لِي أَبْوَابَ رَحْمَتِكَ',
     source: 'مسلم',
@@ -113,7 +103,6 @@ export const duaCategories: DuaCategory[] = [
   {
     id: 'prophets',
     titleAr: 'أدعية الأنبياء',
-    titleDe: 'Bittgebete der Propheten',
     icon: 'Users',
     color: 'hsl(45, 80%, 45%)',
     duas: [
@@ -146,7 +135,6 @@ export const duaCategories: DuaCategory[] = [
   {
     id: 'comprehensive',
     titleAr: 'جوامع الدعاء',
-    titleDe: 'Umfassende Bittgebete',
     icon: 'Globe',
     color: 'hsl(160, 60%, 40%)',
     duas: [
@@ -163,7 +151,6 @@ export const duaCategories: DuaCategory[] = [
   {
     id: 'forgiveness',
     titleAr: 'أدعية الاستغفار والتوبة',
-    titleDe: 'Vergebung und Reue',
     icon: 'Droplets',
     color: 'hsl(200, 60%, 45%)',
     duas: [
@@ -179,7 +166,6 @@ export const duaCategories: DuaCategory[] = [
   {
     id: 'guidance',
     titleAr: 'أدعية النور والهداية',
-    titleDe: 'Licht und Rechtleitung',
     icon: 'Zap',
     color: 'hsl(140, 55%, 40%)',
     duas: [
@@ -196,7 +182,6 @@ export const duaCategories: DuaCategory[] = [
   {
     id: 'protection',
     titleAr: 'أدعية الحماية والاستعاذة',
-    titleDe: 'Schutz und Zuflucht',
     icon: 'Shield',
     color: 'hsl(25, 70%, 50%)',
     duas: [
@@ -213,7 +198,6 @@ export const duaCategories: DuaCategory[] = [
   {
     id: 'praise',
     titleAr: 'أدعية الحمد والثناء',
-    titleDe: 'Lob und Dank',
     icon: 'Star',
     color: 'hsl(50, 75%, 45%)',
     duas: [
@@ -227,7 +211,6 @@ export const duaCategories: DuaCategory[] = [
   {
     id: 'daily',
     titleAr: 'أدعية أمور الحياة',
-    titleDe: 'Alltägliche Bittgebete',
     icon: 'Leaf',
     color: 'hsl(120, 45%, 40%)',
     duas: [
@@ -244,7 +227,6 @@ export const duaCategories: DuaCategory[] = [
   {
     id: 'victory',
     titleAr: 'أدعية النصر والتمكين',
-    titleDe: 'Sieg und Stärkung',
     icon: 'Flag',
     color: 'hsl(0, 60%, 50%)',
     duas: [
@@ -259,7 +241,6 @@ export const duaCategories: DuaCategory[] = [
   {
     id: 'heart',
     titleAr: 'أدعية القلب',
-    titleDe: 'Bittgebete des Herzens',
     icon: 'Heart',
     color: 'hsl(340, 65%, 50%)',
     duas: [
@@ -274,7 +255,6 @@ export const duaCategories: DuaCategory[] = [
   {
     id: 'deceased',
     titleAr: 'أدعية للميت',
-    titleDe: 'Bittgebete für Verstorbene',
     icon: 'CloudRain',
     color: 'hsl(220, 50%, 50%)',
     duas: [

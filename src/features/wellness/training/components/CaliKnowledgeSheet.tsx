@@ -12,22 +12,22 @@ export interface CaliKnowledgeSheetProps {
   open: boolean;
   onClose: () => void;
   skillKey: string | null;
-  lang: 'ar' | 'de';
+  lang: 'ar';
 }
 
 const T = {
-  why: { ar: 'لماذا تتدرب على هذه المهارة', de: 'Warum diese Skill trainieren' },
-  prereq: { ar: 'متطلبات المرونة', de: 'Mobilitäts-Voraussetzungen' },
-  warmup: { ar: 'تسلسل الإحماء', de: 'Aufwärm-Sequenz' },
-  mistakes: { ar: 'أخطاء وحلول', de: 'Fehler & Lösungen' },
-  recovery: { ar: 'التعافي', de: 'Erholung' },
-  freq: { ar: 'التردد الأسبوعي', de: 'Wochenfrequenz' },
-  programming: { ar: 'أسلوب البرمجة', de: 'Programmierung' },
-  equipment: { ar: 'معدات مفيدة', de: 'Hilfreiches Equipment' },
-  milestones: { ar: 'محطات', de: 'Meilensteine' },
-  fix: { ar: 'الحل', de: 'Lösung' },
-  ideal: { ar: 'مثالي', de: 'Ideal' },
-  range: { ar: 'النطاق', de: 'Bereich' },
+  why: { ar: 'لماذا تتدرب على هذه المهارة', },
+  prereq: { ar: 'متطلبات المرونة', },
+  warmup: { ar: 'تسلسل الإحماء', },
+  mistakes: { ar: 'أخطاء وحلول', },
+  recovery: { ar: 'التعافي', },
+  freq: { ar: 'التردد الأسبوعي', },
+  programming: { ar: 'أسلوب البرمجة', },
+  equipment: { ar: 'معدات مفيدة', },
+  milestones: { ar: 'محطات', },
+  fix: { ar: 'الحل', },
+  ideal: { ar: 'مثالي', },
+  range: { ar: 'النطاق', },
 };
 
 export default function CaliKnowledgeSheet({ open, onClose, skillKey, lang }: CaliKnowledgeSheetProps) {
@@ -71,7 +71,7 @@ export default function CaliKnowledgeSheet({ open, onClose, skillKey, lang }: Ca
 
               {!card ? (
                 <p className="text-[12px] text-muted-foreground text-center py-8">
-                  {lang === 'ar' ? 'لا توجد معلومات بعد.' : 'Keine Daten verfügbar.'}
+                  {'لا توجد معلومات بعد.'}
                 </p>
               ) : (
                 <>
@@ -88,9 +88,9 @@ export default function CaliKnowledgeSheet({ open, onClose, skillKey, lang }: Ca
                     title={T.freq[lang]}
                     body={
                       <div className="grid grid-cols-3 gap-1.5">
-                        <Mini label={lang === 'ar' ? 'حد أدنى' : 'Min'} value={`${card.frequencyPerWeek.min}×`} />
+                        <Mini label={'حد أدنى'} value={`${card.frequencyPerWeek.min}×`} />
                         <Mini label={T.ideal[lang]} value={`${card.frequencyPerWeek.ideal}×`} highlight />
-                        <Mini label={lang === 'ar' ? 'حد أقصى' : 'Max'} value={`${card.frequencyPerWeek.max}×`} />
+                        <Mini label={'حد أقصى'} value={`${card.frequencyPerWeek.max}×`} />
                       </div>
                     }
                   />

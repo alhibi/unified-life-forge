@@ -12,28 +12,28 @@ import { skillByKey } from '../caliSkillTree';
 export interface CaliProgramViewProps {
   activeKey?: string | null;
   onPickProgram: (key: string) => void;
-  lang: 'ar' | 'de';
+  lang: 'ar';
   className?: string;
 }
 
 const T = {
-  title: { ar: 'برامج الكاليستنيكس', de: 'Calisthenics-Programme' },
-  subtitle: { ar: 'برامج جاهزة من المبتدئ للنخبة', de: 'Programme vom Einsteiger bis Elite' },
-  current: { ar: 'الحالي', de: 'Aktuell' },
-  start: { ar: 'بدء', de: 'Start' },
-  details: { ar: 'تفاصيل', de: 'Details' },
-  daysWk: { ar: 'يوم/أسبوع', de: 'Tage/Woche' },
-  weeks: { ar: 'أسابيع', de: 'Wochen' },
-  minutes: { ar: 'دقيقة', de: 'Min' },
-  by: { ar: 'بقلم', de: 'von' },
-  highlights: { ar: 'المميزات', de: 'Vorteile' },
-  prereq: { ar: 'متطلبات', de: 'Voraussetzungen' },
-  equipment: { ar: 'المعدات', de: 'Equipment' },
-  description: { ar: 'الوصف', de: 'Beschreibung' },
-  preview: { ar: 'معاينة الجلسات', de: 'Sessions Vorschau' },
-  exercises: { ar: 'تمارين', de: 'Übungen' },
-  skillsCovered: { ar: 'المهارات المغطّاة', de: 'Abgedeckte Skills' },
-  all: { ar: 'الكل', de: 'Alle' },
+  title: { ar: 'برامج الكاليستنيكس', },
+  subtitle: { ar: 'برامج جاهزة من المبتدئ للنخبة', },
+  current: { ar: 'الحالي', },
+  start: { ar: 'بدء', },
+  details: { ar: 'تفاصيل', },
+  daysWk: { ar: 'يوم/أسبوع', },
+  weeks: { ar: 'أسابيع', },
+  minutes: { ar: 'دقيقة', },
+  by: { ar: 'بقلم', },
+  highlights: { ar: 'المميزات', },
+  prereq: { ar: 'متطلبات', },
+  equipment: { ar: 'المعدات', },
+  description: { ar: 'الوصف', },
+  preview: { ar: 'معاينة الجلسات', },
+  exercises: { ar: 'تمارين', },
+  skillsCovered: { ar: 'المهارات المغطّاة', },
+  all: { ar: 'الكل', },
 };
 
 const EXPERIENCE_OPTS: ('all' | ProgramExperience)[] = ['all', 'beginner', 'intermediate', 'advanced'];
@@ -104,7 +104,7 @@ export default function CaliProgramView({
 
 function CaliProgramCard({
   program: p, isActive, onDetails, onStart, lang, delay,
-}: { program: CaliProgramDef; isActive: boolean; onDetails: () => void; onStart: () => void; lang: 'ar' | 'de'; delay: number }) {
+}: { program: CaliProgramDef; isActive: boolean; onDetails: () => void; onStart: () => void; lang: 'ar'; delay: number }) {
   return (
     <motion.div
       initial={{ y: 8, opacity: 0 }}
@@ -175,7 +175,7 @@ function Stat({ icon, value, label }: { icon: React.ReactNode; value: string; la
 
 function CaliDetailSheet({
   program, onClose, onStart, lang,
-}: { program: CaliProgramDef | null; onClose: () => void; onStart: () => void; lang: 'ar' | 'de' }) {
+}: { program: CaliProgramDef | null; onClose: () => void; onStart: () => void; lang: 'ar' }) {
   const open = !!program;
   const skillsCovered = useMemo(() => {
     if (!program) return [];

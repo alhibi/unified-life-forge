@@ -59,11 +59,11 @@ export default function CountryMapPage() {
   if (!country || countryQuery.error) {
     return (
       <div className="page-shell page-shell-flush">
-        <PageHeader title={isAr ? 'أطلس الرحلات' : 'Reiseatlas'} backTo="/travel-atlas" sticky />
+        <PageHeader title={'أطلس الرحلات'} backTo="/travel-atlas" sticky />
         <div className="empty-state empty-state-surface min-h-[70dvh]" role="alert">
           <AlertCircle data-empty-icon aria-hidden="true" />
           <strong>
-            {isAr ? 'تعذّر العثور على هذه الدولة' : 'Dieses Land wurde nicht gefunden'}
+            {'تعذّر العثور على هذه الدولة'}
           </strong>
         </div>
       </div>
@@ -73,14 +73,14 @@ export default function CountryMapPage() {
   return (
     <div className="flex h-[100dvh] min-h-0 flex-col overflow-hidden bg-background">
       <SEO
-        title={`${isAr ? country.nameAr : country.nameEn} — ${isAr ? 'أطلس الرحلات' : 'Reiseatlas'}`}
-        description={isAr ? `خريطة أماكن ${country.nameAr}` : `Ortskarte für ${country.nameEn}`}
+        title={`${country.nameAr} — ${'أطلس الرحلات'}`}
+        description={`خريطة أماكن ${country.nameAr}`}
         path={`/travel-atlas/${country.id}`}
       />
       <PageHeader
-        title={isAr ? country.nameAr : country.nameEn}
+        title={country.nameAr}
         subtitle={
-          isAr ? `${places.length} مكانًا على الخريطة` : `${places.length} Orte auf der Karte`
+          `${places.length} مكانًا على الخريطة`
         }
         backTo="/travel-atlas"
         className="relative z-20 shrink-0 border-b border-border bg-background"
@@ -119,11 +119,11 @@ export default function CountryMapPage() {
         <button
           type="button"
           onClick={() => setAddOpen(true)}
-          aria-label={isAr ? 'إضافة مكان' : 'Ort hinzufügen'}
+          aria-label={'إضافة مكان'}
           className="absolute bottom-6 end-4 z-10 inline-flex h-12 items-center gap-2 rounded-full border border-border bg-background/95 px-4 text-body font-semibold text-foreground shadow-lg backdrop-blur transition-transform hover:scale-[1.02] active:scale-[0.98]"
         >
           <Plus className="h-4 w-4 text-[hsl(var(--live))]" aria-hidden="true" />
-          {isAr ? 'إضافة مكان' : 'Ort hinzufügen'}
+          {'إضافة مكان'}
         </button>
 
         {mapError && (
@@ -142,14 +142,14 @@ export default function CountryMapPage() {
               className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-button border border-border px-2.5 font-semibold"
             >
               <RefreshCw className="h-3.5 w-3.5" aria-hidden="true" />
-              {isAr ? 'إعادة' : 'Erneut'}
+              {'إعادة'}
             </button>
           </div>
         )}
 
         {placesQuery.isLoading && !mapError && (
           <div className="pointer-events-none absolute inset-x-4 top-4 mx-auto max-w-xs rounded-lg border border-border bg-background px-3 py-2 text-center text-mini text-muted-foreground">
-            {isAr ? 'نرتّب الأماكن على الخريطة…' : 'Orte werden auf der Karte angeordnet…'}
+            {'نرتّب الأماكن على الخريطة…'}
           </div>
         )}
 
@@ -159,14 +159,14 @@ export default function CountryMapPage() {
             role="alert"
           >
             <AlertCircle className="h-4 w-4 shrink-0 text-destructive" aria-hidden="true" />
-            {isAr ? 'تعذّر تحميل الأماكن.' : 'Orte konnten nicht geladen werden.'}
+            {'تعذّر تحميل الأماكن.'}
           </div>
         )}
 
         {!placesQuery.isLoading && !placesQuery.error && places.length === 0 && (
           <div className="pointer-events-none absolute inset-x-4 bottom-6 mx-auto flex max-w-xs items-center justify-center gap-2 rounded-lg border border-border bg-background px-3 py-2 text-mini text-muted-foreground">
             <MapPinned className="h-4 w-4" aria-hidden="true" />
-            {isAr ? 'لا أماكن في هذه الخريطة بعد.' : 'Noch keine Orte auf dieser Karte.'}
+            {'لا أماكن في هذه الخريطة بعد.'}
           </div>
         )}
       </main>

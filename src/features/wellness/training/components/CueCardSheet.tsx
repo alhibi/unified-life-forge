@@ -15,19 +15,18 @@ export interface CueCardSheetProps {
   exerciseLabel?: string;
   open: boolean;
   onClose: () => void;
-  lang: 'ar' | 'de';
+  lang: 'ar';
 }
 
 const T = {
-  setup: { ar: 'الإعداد', de: 'Setup' },
-  execution: { ar: 'التنفيذ', de: 'Ausführung' },
-  mistakes: { ar: 'أخطاء شائعة', de: 'Häufige Fehler' },
-  breathing: { ar: 'التنفس', de: 'Atmung' },
-  prerequisites: { ar: 'المتطلبات', de: 'Voraussetzungen' },
-  injury: { ar: 'تنبيه إصابة', de: 'Verletzungs-Hinweis' },
+  setup: { ar: 'الإعداد', },
+  execution: { ar: 'التنفيذ', },
+  mistakes: { ar: 'أخطاء شائعة', },
+  breathing: { ar: 'التنفس', },
+  prerequisites: { ar: 'المتطلبات', },
+  injury: { ar: 'تنبيه إصابة', },
   noCues: {
     ar: 'لا توجد تعليمات مخصصة لهذا التمرين بعد. أرسل ملاحظاتك للتطوير.',
-    de: 'Noch keine spezifischen Cues für diese Übung. Feedback willkommen.',
   },
 };
 
@@ -86,7 +85,7 @@ export default function CueCardSheet({
   );
 }
 
-function CardBody({ c, lang }: { c: CueCard; lang: 'ar' | 'de' }) {
+function CardBody({ c, lang }: { c: CueCard; lang: 'ar' }) {
   return (
     <>
       <Section
@@ -167,7 +166,7 @@ function CardBody({ c, lang }: { c: CueCard; lang: 'ar' | 'de' }) {
   );
 }
 
-function FallbackBody({ lang }: { lang: 'ar' | 'de' }) {
+function FallbackBody({ lang }: { lang: 'ar' }) {
   return (
     <div className="space-y-3">
       <p className="text-[12px] text-muted-foreground">{T.noCues[lang]}</p>
@@ -201,6 +200,6 @@ function Section({
 }
 
 /** Helper: bilingual fallback localised string. */
-export function locText(s: LocalizedString | undefined, lang: 'ar' | 'de'): string {
+export function locText(s: LocalizedString | undefined, lang: 'ar'): string {
   return s ? s[lang] : '';
 }

@@ -36,8 +36,8 @@ export function ReadingPrefsToolbar({
         <button
           type="button"
           className="p-2.5 rounded-xl hover:bg-accent/50 active:scale-95 transition-all"
-          aria-label={isAr ? 'تفضيلات العرض' : 'Display preferences'}
-          title={isAr ? 'فرز ، تجميع ، كثافة' : 'Sort, group, density'}
+          aria-label={'تفضيلات العرض'}
+          title={'فرز ، تجميع ، كثافة'}
         >
           <SlidersHorizontal className="h-4 w-4 text-muted-foreground" />
         </button>
@@ -47,23 +47,23 @@ export function ReadingPrefsToolbar({
         className="w-72 p-3 space-y-3"
       >
         {/* Sort */}
-        <Group label={isAr ? 'الترتيب' : 'Sort'}>
+        <Group label={'الترتيب'}>
           <Segmented
             value={prefs.sort}
             options={[
               {
                 value: 'newest' as SortMode,
-                label: isAr ? 'الأحدث' : 'Newest',
+                label: 'الأحدث',
                 icon: <ArrowDownWideNarrow className="h-3.5 w-3.5" />,
               },
               {
                 value: 'oldest' as SortMode,
-                label: isAr ? 'الأقدم' : 'Oldest',
+                label: 'الأقدم',
                 icon: <ArrowUpWideNarrow className="h-3.5 w-3.5" />,
               },
               {
                 value: 'unread-first' as SortMode,
-                label: isAr ? 'غير المقروء أولاً' : 'Unread first',
+                label: 'غير المقروء أولاً',
                 icon: <ArrowDownAZ className="h-3.5 w-3.5" />,
               },
             ]}
@@ -72,18 +72,18 @@ export function ReadingPrefsToolbar({
         </Group>
 
         {/* Group */}
-        <Group label={isAr ? 'التجميع' : 'Group'}>
+        <Group label={'التجميع'}>
           <Segmented
             value={prefs.group}
             options={[
               {
                 value: 'off' as GroupMode,
-                label: isAr ? 'بلا' : 'None',
+                label: 'بلا',
                 icon: <List className="h-3.5 w-3.5" />,
               },
               {
                 value: 'date' as GroupMode,
-                label: isAr ? 'حسب التاريخ' : 'By date',
+                label: 'حسب التاريخ',
                 icon: <CalendarDays className="h-3.5 w-3.5" />,
               },
             ]}
@@ -92,23 +92,23 @@ export function ReadingPrefsToolbar({
         </Group>
 
         {/* Density */}
-        <Group label={isAr ? 'الكثافة' : 'Density'}>
+        <Group label={'الكثافة'}>
           <Segmented
             value={prefs.density}
             options={[
               {
                 value: 'compact' as Density,
-                label: isAr ? 'مضغوط' : 'Compact',
+                label: 'مضغوط',
                 icon: <Rows3 className="h-3.5 w-3.5" />,
               },
               {
                 value: 'comfortable' as Density,
-                label: isAr ? 'مريح' : 'Comfortable',
+                label: 'مريح',
                 icon: <List className="h-3.5 w-3.5" />,
               },
               {
                 value: 'cards' as Density,
-                label: isAr ? 'بطاقات' : 'Cards',
+                label: 'بطاقات',
                 icon: <LayoutGrid className="h-3.5 w-3.5" />,
               },
             ]}
@@ -119,21 +119,17 @@ export function ReadingPrefsToolbar({
         {/* Toggles */}
         <div className="pt-1 space-y-2">
           <ToggleRow
-            label={isAr ? 'وسم تلقائي عند التمرير' : 'Auto-mark on scroll'}
+            label={'وسم تلقائي عند التمرير'}
             description={
-              isAr
-                ? 'يضع المقالة كمقروءة فور تجاوزها أعلى الشاشة'
-                : 'Marks an article read once it scrolls past the top'
+              'يضع المقالة كمقروءة فور تجاوزها أعلى الشاشة'
             }
             checked={prefs.autoMarkOnScroll}
             onChange={(v) => onChange({ autoMarkOnScroll: v })}
           />
           <ToggleRow
-            label={isAr ? 'لوحان جنباً إلى جنب (للشاشات الكبيرة)' : 'Two-pane on desktop'}
+            label={'لوحان جنباً إلى جنب (للشاشات الكبيرة)'}
             description={
-              isAr
-                ? 'يعرض القارئ بجانب القائمة على الشاشات الكبيرة'
-                : 'Shows the reader alongside the list on wide screens'
+              'يعرض القارئ بجانب القائمة على الشاشات الكبيرة'
             }
             checked={prefs.twoPaneOnDesktop}
             onChange={(v) => onChange({ twoPaneOnDesktop: v })}

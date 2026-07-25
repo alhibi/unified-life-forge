@@ -171,10 +171,10 @@ const ConversationList: React.FC<ConversationListProps> = ({
   togglePinned, toggleMuted, toggleArchived, getDraft, searchQuery, isLoading,
   typingByConv, onlineUserIds, onSearchChange, onOpenSettings, onDelete, showSearchBar,
 }) => {
-  const tabs: Array<{ id: ConversationFilter; labelAr: string; labelDe: string; icon?: React.ReactNode }> = [
-    { id: 'all',      labelAr: 'الكل',      labelDe: 'Alle' },
-    { id: 'unread',   labelAr: 'غير مقروءة', labelDe: 'Ungelesen' },
-    { id: 'archived', labelAr: 'المؤرشفة',   labelDe: 'Archiviert' },
+  const tabs: Array<{ id: ConversationFilter; labelAr: string; icon?: React.ReactNode }> = [
+    { id: 'all',      labelAr: 'الكل', },
+    { id: 'unread',   labelAr: 'غير مقروءة', },
+    { id: 'archived', labelAr: 'المؤرشفة', },
   ];
 
   const [localSearch, setLocalSearch] = useState('');
@@ -243,7 +243,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
                     setLocalSearch(e.target.value);
                     onSearchChange?.(e.target.value);
                   }}
-                  placeholder={isAr ? 'بحث في المحادثات...' : 'Chats durchsuchen...'}
+                  placeholder={'بحث في المحادثات...'}
                   className="flex-1 bg-transparent text-[14px] text-foreground placeholder:text-muted-foreground/50 outline-none"
                   dir="auto"
                 />
@@ -282,7 +282,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
                 )}
                 whileTap={{ scale: 0.95 }}
               >
-                {isAr ? tab.labelAr : tab.labelDe}
+                {tab.labelAr}
                 {showBadge && !active && (
                   <motion.span
                     initial={{ scale: 0 }}
@@ -306,7 +306,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
               'w-8 h-8 rounded-full flex items-center justify-center transition-colors',
               isSearching ? 'bg-primary/15 text-primary' : 'text-muted-foreground active:bg-muted/40'
             )}
-            aria-label={isAr ? 'بحث' : 'Suchen'}
+            aria-label={'بحث'}
           >
             <Search className="w-4 h-4" />
           </button>
@@ -315,7 +315,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
               type="button"
               onClick={onOpenSettings}
               className="w-8 h-8 rounded-full flex items-center justify-center text-muted-foreground active:bg-muted/40 transition-colors"
-              aria-label={isAr ? 'الإعدادات' : 'Einstellungen'}
+              aria-label={'الإعدادات'}
             >
               <Settings className="w-4 h-4" />
             </button>
@@ -335,15 +335,15 @@ const ConversationList: React.FC<ConversationListProps> = ({
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-[13.5px] font-semibold text-foreground">
-            {isAr ? 'المجموعات والقنوات' : 'Gruppen & Kanäle'}
+            {'المجموعات والقنوات'}
           </p>
           <p className="text-[11px] text-muted-foreground">
             {groupsCount > 0
-              ? (isAr ? `${groupsCount} ${groupsCount === 1 ? 'محادثة' : 'محادثات'}` : `${groupsCount} aktiv`)
-              : (isAr ? 'إنشاء مجموعة جديدة' : 'Neue Gruppe erstellen')}
+              ? (`${groupsCount} ${groupsCount === 1 ? 'محادثة' : 'محادثات'}`)
+              : ('إنشاء مجموعة جديدة')}
           </p>
         </div>
-        {isAr ? <ChevronLeft className="w-4 h-4 text-muted-foreground shrink-0" /> : <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />}
+        {<ChevronLeft className="w-4 h-4 text-muted-foreground shrink-0" />}
       </motion.button>
 
       {/* Conversations */}
@@ -378,13 +378,13 @@ const ConversationList: React.FC<ConversationListProps> = ({
             <div className="text-center space-y-1">
               <p className="text-[15px] font-semibold text-foreground/60">
                 {filter === 'archived'
-                  ? (isAr ? 'لا توجد محادثات مؤرشفة' : 'Keine archivierten Chats')
+                  ? ('لا توجد محادثات مؤرشفة')
                   : filter === 'unread'
-                    ? (isAr ? 'كل شيء تمت قراءته' : 'Alles gelesen')
-                    : (isAr ? 'لا توجد محادثات بعد' : 'Noch keine Gespräche')}
+                    ? ('كل شيء تمت قراءته')
+                    : ('لا توجد محادثات بعد')}
               </p>
               <p className="text-[13px] text-muted-foreground/60">
-                {isAr ? 'ابدأ محادثة جديدة مع أصدقائك' : 'Starte ein neues Gespräch'}
+                {'ابدأ محادثة جديدة مع أصدقائك'}
               </p>
             </div>
           </div>
@@ -392,7 +392,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
           <div className="flex flex-col items-center justify-center py-16 text-muted-foreground gap-3 px-8">
             <Search className="h-10 w-10 text-muted-foreground/20" />
             <p className="text-[14px] text-center text-muted-foreground/60">
-              {isAr ? `لا توجد نتائج لـ "${localSearch}"` : `Keine Ergebnisse für "${localSearch}"`}
+              {`لا توجد نتائج لـ "${localSearch}"`}
             </p>
           </div>
         ) : (
@@ -402,7 +402,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
               {filteredConversations.some(c => isPinned(c.id)) && (
                 <div className="px-4 py-1.5">
                   <span className="text-[11px] font-medium text-muted-foreground/60 uppercase tracking-wider">
-                    {isAr ? 'المثبتة' : 'Angepinnt'}
+                    {'المثبتة'}
                   </span>
                 </div>
               )}
@@ -427,7 +427,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
                 previewIcon = null;
                 previewBody = (
                   <span className="text-primary font-medium flex items-center gap-1">
-                    {isAr ? 'يكتب' : 'tippt'}
+                    {'يكتب'}
                     <TypingDotsMini />
                   </span>
                 );
@@ -435,7 +435,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
                 previewIcon = null;
                 previewBody = (
                   <span className="text-destructive font-medium">
-                    {isAr ? 'مسودة: ' : 'Entwurf: '}
+                    {'مسودة: '}
                     <span className="text-foreground/70 font-normal">
                       <HighlightText text={stripMarkers(draft.slice(0, 60))} query={effectiveSearchQuery} />
                     </span>
@@ -451,7 +451,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
                   <>
                     {conv.lastMessageFromMe && !conv.lastMessageDeleted && (
                       <span className="text-muted-foreground/60 shrink-0">
-                        {isAr ? 'أنت: ' : 'Du: '}
+                        {'أنت: '}
                       </span>
                     )}
                     <HighlightText text={body} query={effectiveSearchQuery} />
@@ -460,7 +460,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
               } else {
                 previewBody = (
                   <span className="italic text-muted-foreground/40">
-                    {isAr ? 'لا توجد رسائل' : 'Keine Nachrichten'}
+                    {'لا توجد رسائل'}
                   </span>
                 );
               }
@@ -470,16 +470,16 @@ const ConversationList: React.FC<ConversationListProps> = ({
                   {showUnpinnedHeader && (
                     <div className="px-4 py-1.5">
                       <span className="text-[11px] font-medium text-muted-foreground/60 uppercase tracking-wider">
-                        {isAr ? 'المحادثات' : 'Chats'}
+                        {'المحادثات'}
                       </span>
                     </div>
                   )}
                   <SwipeRow
                     id={conv.id}
-                    onSwipeLeft={() => (isAr ? togglePinned(conv.id) : toggleArchived(conv.id))}
-                    onSwipeRight={() => (isAr ? toggleArchived(conv.id) : togglePinned(conv.id))}
-                    leftLabel={isAr ? (pinned ? 'إلغاء التثبيت' : 'تثبيت') : (archived ? 'Entarchivieren' : 'Archivieren')}
-                    rightLabel={isAr ? (archived ? 'إلغاء الأرشفة' : 'أرشفة') : (pinned ? 'Lösen' : 'Anpinnen')}
+                    onSwipeLeft={() => (togglePinned(conv.id))}
+                    onSwipeRight={() => (toggleArchived(conv.id))}
+                    leftLabel={(pinned ? 'إلغاء التثبيت' : 'تثبيت')}
+                    rightLabel={(archived ? 'إلغاء الأرشفة' : 'أرشفة')}
                     isAr={isAr}
                   >
                     <motion.button
@@ -500,7 +500,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
                           <motion.span
                             initial={{ scale: 0 }}
                             animate={{ scale: 1 }}
-                            aria-label={isAr ? 'متصل الآن' : 'Online'}
+                            aria-label={'متصل الآن'}
                             className="absolute bottom-0 end-0 block h-3 w-3 rounded-full bg-green-500 ring-2 ring-background"
                           />
                         )}

@@ -19,17 +19,17 @@ import { resolveExercise, type Exercise } from '../../exerciseCatalog';
 export interface OneRmTrendChartProps {
   workouts: WorkoutSession[];
   exerciseKey: string;
-  lang: 'ar' | 'de';
+  lang: 'ar';
   height?: number;
   className?: string;
 }
 
 const T = {
-  title: { ar: '1RM المقدّر', de: 'gesch. 1RM' },
-  noData: { ar: 'لا بيانات كافية بعد.', de: 'Noch zu wenige Daten.' },
-  current: { ar: 'الحالي', de: 'Aktuell' },
-  best: { ar: 'الأفضل', de: 'Bestleistung' },
-  delta: { ar: 'التقدم', de: 'Fortschritt' },
+  title: { ar: '1RM المقدّر', },
+  noData: { ar: 'لا بيانات كافية بعد.', },
+  current: { ar: 'الحالي', },
+  best: { ar: 'الأفضل', },
+  delta: { ar: 'التقدم', },
 };
 
 export default function OneRmTrendChart({
@@ -43,7 +43,7 @@ export default function OneRmTrendChart({
   const runningMax = useMemo(() => e1rmRunningMaxSeriesFor(workouts, exerciseKey), [workouts, exerciseKey]);
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
 
-  const ex = resolveExercise(exerciseKey) as Exercise | { isCustom: true; label: { ar: string; de: string } };
+  const ex = resolveExercise(exerciseKey) as Exercise | { isCustom: true; label: { ar: string; } };
   const exLabel = 'isCustom' in ex && ex.isCustom ? ex.label[lang] : (ex as Exercise).label[lang];
 
   if (points.length < 2) {

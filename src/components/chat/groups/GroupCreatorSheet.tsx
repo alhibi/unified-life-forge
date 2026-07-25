@@ -36,8 +36,8 @@ const MAX_DESC_LEN  = 240;
 const GroupCreatorSheet: React.FC<GroupCreatorSheetProps> = ({
   isAr, isOpen, onClose, onCreated, initialKind = 'group',
 }) => {
-  const BackIcon = isAr ? ChevronRight : ChevronLeft;
-  const ForwardIcon = isAr ? ArrowLeft : ArrowRight;
+  const BackIcon = ChevronRight;
+  const ForwardIcon = ArrowLeft;
 
   const [kind, setKind]                = useState<'group' | 'channel'>(initialKind);
   const [step, setStep]                = useState<Step>(() => initialKind === 'channel' ? 'fill-meta' : 'pick-members');
@@ -123,22 +123,22 @@ const GroupCreatorSheet: React.FC<GroupCreatorSheetProps> = ({
               close();
             }}
             className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40"
-            aria-label={isAr ? 'رجوع' : 'Zurück'}
+            aria-label={'رجوع'}
           >
             <BackIcon className="w-5 h-5 text-foreground" />
           </button>
           <h2 id="group-creator-title" className="text-[16px] font-semibold flex-1 truncate">
             {step === 'pick-members'
-              ? (isAr ? 'إضافة أعضاء' : 'Mitglieder hinzufügen')
+              ? ('إضافة أعضاء')
               : kind === 'group'
-                ? (isAr ? 'مجموعة جديدة' : 'Neue Gruppe')
-                : (isAr ? 'قناة جديدة' : 'Neuer Kanal')}
+                ? ('مجموعة جديدة')
+                : ('قناة جديدة')}
           </h2>
           <button
             type="button"
             onClick={close}
             className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40"
-            aria-label={isAr ? 'إغلاق' : 'Schließen'}
+            aria-label={'إغلاق'}
           >
             <X className="w-4 h-4 text-muted-foreground" />
           </button>
@@ -153,16 +153,16 @@ const GroupCreatorSheet: React.FC<GroupCreatorSheetProps> = ({
                 active={kind === 'group'}
                 onClick={() => setKind('group')}
                 icon={<Users className="w-4 h-4" />}
-                label={isAr ? 'مجموعة' : 'Gruppe'}
+                label={'مجموعة'}
               />
               <KindChip
                 active={kind === 'channel'}
                 onClick={() => { setKind('channel'); setStep('fill-meta'); }}
                 icon={<Hash className="w-4 h-4" />}
-                label={isAr ? 'قناة' : 'Kanal'}
+                label={'قناة'}
               />
               <p className="ms-auto text-[11px] text-muted-foreground">
-                {isAr ? `${memberIds.length} مختار` : `${memberIds.length} ausgewählt`}
+                {`${memberIds.length} مختار`}
               </p>
             </div>
 
@@ -188,7 +188,7 @@ const GroupCreatorSheet: React.FC<GroupCreatorSheetProps> = ({
                   memberIds.length === 0 && 'opacity-50',
                 )}
               >
-                {isAr ? 'التالي' : 'Weiter'}
+                {'التالي'}
                 <ForwardIcon className="w-4 h-4" />
               </button>
             </div>
@@ -201,7 +201,7 @@ const GroupCreatorSheet: React.FC<GroupCreatorSheetProps> = ({
               <button
                 type="button"
                 className="relative h-24 w-24 active:scale-95 transition-transform"
-                aria-label={isAr ? 'تغيير الصورة' : 'Foto ändern'}
+                aria-label={'تغيير الصورة'}
                 onClick={() => { /* future: open emoji/avatar picker */ }}
               >
                 <GroupAvatar
@@ -215,14 +215,14 @@ const GroupCreatorSheet: React.FC<GroupCreatorSheetProps> = ({
  </div>
  </button>
  <p className="text-[11px] text-muted-foreground">
- {isAr ? 'اختياري' : 'Optional'}
+ {'اختياري'}
               </p>
             </div>
 
             {/* Title */}
             <div>
               <label className="text-[11px] font-medium text-muted-foreground mb-1.5 block">
-                {isAr ? 'الاسم' : 'Name'}
+                {'الاسم'}
                 <span className="text-destructive ms-1">*</span>
               </label>
               <input
@@ -231,8 +231,8 @@ const GroupCreatorSheet: React.FC<GroupCreatorSheetProps> = ({
                 onChange={e => setTitle(e.target.value.slice(0, MAX_TITLE_LEN))}
                 placeholder={
                   kind === 'group'
-                    ? (isAr ? 'اسم المجموعة' : 'Gruppenname')
-                    : (isAr ? 'اسم القناة' : 'Kanalname')
+                    ? ('اسم المجموعة')
+                    : ('اسم القناة')
                 }
                 className="w-full bg-muted/30 rounded-2xl px-4 h-11 text-[14px] outline-none focus:ring-2 focus:ring-primary/30"
                 autoFocus
@@ -246,12 +246,12 @@ const GroupCreatorSheet: React.FC<GroupCreatorSheetProps> = ({
             {/* Description */}
             <div>
               <label className="text-[11px] font-medium text-muted-foreground mb-1.5 block">
-                {isAr ? 'الوصف' : 'Beschreibung'}
+                {'الوصف'}
               </label>
               <textarea
                 value={description}
                 onChange={e => setDescription(e.target.value.slice(0, MAX_DESC_LEN))}
-                placeholder={isAr ? 'وصف مختصر اختياري' : 'Kurzbeschreibung (optional)'}
+                placeholder={'وصف مختصر اختياري'}
                 rows={3}
                 className="w-full bg-muted/30 rounded-2xl px-4 py-2.5 text-[14px] outline-none focus:ring-2 focus:ring-primary/30 resize-none"
                 dir="auto"
@@ -264,12 +264,8 @@ const GroupCreatorSheet: React.FC<GroupCreatorSheetProps> = ({
             {/* Permissions hint */}
             <div className="rounded-2xl bg-muted/15 border border-border/15 p-3.5 text-[12.5px] text-muted-foreground leading-relaxed">
               {kind === 'group'
-                ? (isAr
-                    ? 'بإمكان جميع الأعضاء إرسال الرسائل افتراضياً. يمكنك تغيير ذلك من إعدادات المجموعة بعد الإنشاء.'
-                    : 'Alle Mitglieder können standardmäßig Nachrichten senden. Du kannst das später in den Einstellungen ändern.')
-                : (isAr
-                    ? 'في القناة، يمكن للمشرفين فقط نشر الرسائل، ويمكن للأعضاء قراءتها والتفاعل معها.'
-                    : 'In Kanälen senden nur Admins. Mitglieder können lesen und reagieren.')}
+                ? ('بإمكان جميع الأعضاء إرسال الرسائل افتراضياً. يمكنك تغيير ذلك من إعدادات المجموعة بعد الإنشاء.')
+                : ('في القناة، يمكن للمشرفين فقط نشر الرسائل، ويمكن للأعضاء قراءتها والتفاعل معها.')}
             </div>
 
             <div className="flex-1" />
@@ -287,10 +283,10 @@ const GroupCreatorSheet: React.FC<GroupCreatorSheetProps> = ({
                 )}
               >
                 {busy
-                  ? (isAr ? 'جاري الإنشاء...' : 'Wird erstellt...')
+                  ? ('جاري الإنشاء...')
                   : kind === 'group'
-                    ? (isAr ? 'إنشاء المجموعة' : 'Gruppe erstellen')
-                    : (isAr ? 'إنشاء القناة' : 'Kanal erstellen')}
+                    ? ('إنشاء المجموعة')
+                    : ('إنشاء القناة')}
               </button>
             </div>
           </div>

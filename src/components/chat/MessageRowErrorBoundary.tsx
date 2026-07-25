@@ -83,7 +83,7 @@ export class MessageRowErrorBoundary extends Component<Props, State> {
         >
           <AlertTriangle className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
           <span dir="auto">
-            {isAr ? 'تعذّر عرض هذه الرسالة' : 'Diese Nachricht konnte nicht angezeigt werden'}
+            {'تعذّر عرض هذه الرسالة'}
           </span>
         </div>
       </div>

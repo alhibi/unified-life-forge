@@ -57,19 +57,17 @@ export default function AllOccasions() {
   const days = Array.from({ length: 30 }, (_, i) => i + 1);
 
   const monthName = (idx: number) =>
-    isAr ? HIJRI_MONTHS[idx - 1] : HIJRI_MONTHS_EN[idx - 1];
+    HIJRI_MONTHS[idx - 1];
 
   return (
     <div
       className="min-h-screen bg-background pb-28 px-4 pt-6"
-      dir={isAr ? 'rtl' : 'ltr'}
+      dir={'rtl'}
     >
       <SEO
-        title={isAr ? 'التقويم الهجري — SmartHub' : 'Hijri Calendar — SmartHub'}
+        title={'التقويم الهجري — SmartHub'}
         description={
-          isAr
-            ? 'تصفح المناسبات الإسلامية حسب الشهر الهجري.'
-            : 'Browse Islamic occasions by Hijri month.'
+          'تصفح المناسبات الإسلامية حسب الشهر الهجري.'
         }
         path="/occasions"
       />
@@ -79,10 +77,10 @@ export default function AllOccasions() {
           <BackButton />
           <div className="flex-1 min-w-0 text-end">
             <h1 className="text-[22px] font-black text-foreground leading-tight">
-              {isAr ? 'التقويم الهجري' : 'Hijri Calendar'}
+              {'التقويم الهجري'}
             </h1>
             <p className="text-[12px] text-muted-foreground">
-              {isAr ? 'تصفح المناسبات حسب الشهر الهجري' : 'Browse events by Hijri month'}
+              {'تصفح المناسبات حسب الشهر الهجري'}
             </p>
           </div>
         </div>
@@ -90,7 +88,7 @@ export default function AllOccasions() {
         {/* ── Today indicator ────────────────────────────────────── */}
         <div className="rounded-2xl bg-primary/5 border border-primary/15 px-4 py-2.5 flex items-center justify-between">
           <span className="text-[10px] font-bold uppercase tracking-wider text-primary/70">
-            {isAr ? 'اليوم' : 'Today'}
+            {'اليوم'}
           </span>
           <span className="text-[13px] font-semibold text-foreground">
             {today.day} {monthName(today.month)} {today.year}
@@ -135,7 +133,7 @@ export default function AllOccasions() {
                     {count}
                   </span>
                   <span className="text-[9px] text-muted-foreground/70">
-                    {isAr ? 'مناسبة' : count === 1 ? 'event' : 'events'}
+                    {'مناسبة'}
                   </span>
                   {isCurrent && (
                     <span className="ms-auto w-1.5 h-1.5 rounded-full bg-primary" />
@@ -152,9 +150,7 @@ export default function AllOccasions() {
             {monthName(selectedMonth)}
           </h2>
           <span className="text-[11px] font-medium text-muted-foreground/70">
-            {isAr
-              ? `${monthEvents.length} مناسبة`
-              : `${monthEvents.length} ${monthEvents.length === 1 ? 'event' : 'events'}`}
+            {`${monthEvents.length} مناسبة`}
           </span>
         </div>
 
@@ -204,9 +200,7 @@ export default function AllOccasions() {
         {/* ── Events for selected day ───────────────────────────── */}
         <div className="space-y-2.5 pt-2">
           <h3 className="text-[12px] font-bold text-muted-foreground/80 uppercase tracking-wider">
-            {isAr
-              ? `مناسبات ${selectedDay} ${HIJRI_MONTHS[selectedMonth - 1]}`
-              : `Events on ${selectedDay} ${HIJRI_MONTHS_EN[selectedMonth - 1]}`}
+            {`مناسبات ${selectedDay} ${HIJRI_MONTHS[selectedMonth - 1]}`}
           </h3>
 
           <AnimatePresence mode="popLayout">
@@ -219,7 +213,7 @@ export default function AllOccasions() {
                 className="rounded-xl border border-border/40 bg-card/40 px-4 py-5 text-center"
               >
                 <p className="text-[12px] text-muted-foreground">
-                  {isAr ? 'لا توجد مناسبات في هذا اليوم' : 'No events on this day'}
+                  {'لا توجد مناسبات في هذا اليوم'}
                 </p>
               </motion.div>
             ) : (
@@ -260,13 +254,11 @@ function EventListCard({
   onOpen: () => void;
 }) {
   const accent = ACCENT[event.color] ?? '#10b981';
-  const monthLabel = isAr
-    ? HIJRI_MONTHS[event.month - 1]
-    : HIJRI_MONTHS_EN[event.month - 1];
+  const monthLabel = HIJRI_MONTHS[event.month - 1];
   const dayLabel =
     event.day === event.endDay ? `${event.day}` : `${event.day}-${event.endDay}`;
-  const title = isAr ? event.titleAr : event.title;
-  const description = isAr ? event.descriptionAr : event.description;
+  const title = event.titleAr;
+  const description = event.descriptionAr;
 
   return (
     <motion.button
@@ -291,7 +283,7 @@ function EventListCard({
             className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded"
             style={{ background: `${accent}26`, color: accent }}
           >
-            {isAr ? 'عيد' : 'Holiday'}
+            {'عيد'}
           </span>
         )}
       </div>
@@ -302,7 +294,7 @@ function EventListCard({
         {description}
       </p>
       <p className="text-[10px] text-muted-foreground/60 mt-1.5">
-        {formatGregorianDate(event.gregorianDate, isAr ? 'ar' : 'en')}
+        {formatGregorianDate(event.gregorianDate, 'ar')}
       </p>
     </motion.button>
   );
@@ -335,14 +327,14 @@ function EventDetailDialog({
             transition={{ type: 'spring', damping: 24, stiffness: 260 }}
  onClick={(e) => e.stopPropagation()}
  className="relative w-full max-w-md rounded-3xl bg-card border border-border/60 p-6 max-h-[85vh] overflow-y-auto"
- dir={isAr ? 'rtl' : 'ltr'}
+ dir={'rtl'}
           >
             <DetailContent event={event} isAr={isAr} />
             <button
               onClick={onClose}
               className="mt-5 w-full rounded-xl bg-primary/10 hover:bg-primary/15 text-primary font-semibold text-[13px] py-2.5 transition-colors"
             >
-              {isAr ? 'إغلاق' : 'Close'}
+              {'إغلاق'}
             </button>
           </motion.div>
         </motion.div>
@@ -359,14 +351,12 @@ function DetailContent({
   isAr: boolean;
 }) {
   const accent = ACCENT[event.color] ?? '#10b981';
-  const monthLabel = isAr
-    ? HIJRI_MONTHS[event.month - 1]
-    : HIJRI_MONTHS_EN[event.month - 1];
+  const monthLabel = HIJRI_MONTHS[event.month - 1];
   const dayLabel =
     event.day === event.endDay ? `${event.day}` : `${event.day}-${event.endDay}`;
-  const title = isAr ? event.titleAr : event.title;
-  const description = isAr ? event.descriptionAr : event.description;
-  const notes = isAr ? event.notesAr : event.notes;
+  const title = event.titleAr;
+  const description = event.descriptionAr;
+  const notes = event.notesAr;
 
   const typeLabel = (() => {
     const ar: Record<string, string> = {
@@ -383,7 +373,7 @@ function DetailContent({
       BIRTH: 'Birth',
       DEATH: 'Death',
     };
-    return isAr ? ar[event.type] : en[event.type];
+    return ar[event.type];
   })();
 
   return (
@@ -403,7 +393,7 @@ function DetailContent({
             className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded"
             style={{ background: `${accent}26`, color: accent }}
           >
-            {isAr ? 'عيد كبير' : 'Major'}
+            {'عيد كبير'}
           </span>
         )}
       </div>
@@ -419,7 +409,7 @@ function DetailContent({
       {notes && (
         <div className="rounded-xl border border-border/50 bg-muted/30 p-3">
           <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wide mb-1">
-            {isAr ? 'ملاحظة' : 'Note'}
+            {'ملاحظة'}
           </p>
           <p className="text-[12px] text-muted-foreground leading-relaxed">
             {notes}
@@ -429,20 +419,14 @@ function DetailContent({
 
       {event.yearAh !== undefined && (
         <p className="text-[11px] text-muted-foreground/70">
-          {isAr
-            ? `السنة الهجرية: ${
+          {`السنة الهجرية: ${
                 event.yearAh > 0 ? event.yearAh : Math.abs(event.yearAh)
-              }${event.yearAh < 0 ? ' قبل الهجرة' : ' هـ'}`
-            : `Year: ${
-                event.yearAh > 0
-                  ? `${event.yearAh} AH`
-                  : `${Math.abs(event.yearAh)} BH`
-              }`}
+              }${event.yearAh < 0 ? ' قبل الهجرة' : ' هـ'}`}
         </p>
       )}
 
       <p className="text-[11px] text-muted-foreground/60 border-t border-border/40 pt-2">
-        {formatGregorianDate(event.gregorianDate, isAr ? 'ar' : 'en')}
+        {formatGregorianDate(event.gregorianDate, 'ar')}
       </p>
     </div>
   );

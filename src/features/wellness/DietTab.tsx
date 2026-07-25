@@ -49,31 +49,29 @@ const item = {
 };
 
 const T = {
-  date: { ar: 'التاريخ', de: 'Datum' },
-  meals: { ar: 'وجبات اليوم', de: 'Mahlzeiten' },
-  nothingLogged: { ar: 'لم تسجل أي طعام بعد', de: 'Noch keine Mahlzeiten erfasst' },
-  add: { ar: 'أضف طعاماً', de: 'Essen hinzufügen' },
-  search: { ar: 'ابحث عن طعام...', de: 'Essen suchen...' },
-  all: { ar: 'الكل', de: 'Alle' },
-  noResults: { ar: 'لا نتائج', de: 'Keine Treffer' },
-  custom: { ar: 'كمخصص', de: 'als eigenes' },
-  todayTotals: { ar: 'إجمالي اليوم', de: 'Tagesbilanz' },
-  ofTarget: { ar: 'من الهدف', de: 'des Ziels' },
+  date: { ar: 'التاريخ', },
+  meals: { ar: 'وجبات اليوم', },
+  nothingLogged: { ar: 'لم تسجل أي طعام بعد', },
+  add: { ar: 'أضف طعاماً', },
+  search: { ar: 'ابحث عن طعام...', },
+  all: { ar: 'الكل', },
+  noResults: { ar: 'لا نتائج', },
+  custom: { ar: 'كمخصص', },
+  todayTotals: { ar: 'إجمالي اليوم', },
+  ofTarget: { ar: 'من الهدف', },
   noTarget: {
     ar: 'أكمل ملفك لتفعيل أهداف السعرات والماكروز.',
-    de: 'Profil vervollständigen, um Kalorien- und Makro-Ziele zu aktivieren.',
   },
-  kcal: { ar: 'سعرة', de: 'kcal' },
-  protein: { ar: 'بروتين', de: 'Protein' },
-  carbs: { ar: 'كربوهيدرات', de: 'Carbs' },
-  fat: { ar: 'دهون', de: 'Fett' },
+  kcal: { ar: 'سعرة', },
+  protein: { ar: 'بروتين', },
+  carbs: { ar: 'كربوهيدرات', },
+  fat: { ar: 'دهون', },
   unknownMacros: {
     ar: 'لا توجد قيم غذائية معروفة',
-    de: 'Keine bekannten Nährwerte',
   },
-  portion: { ar: 'حصة', de: 'Portion' },
-  approx: { ar: 'تقريبي', de: 'ca.' },
-  perServing: { ar: 'لكل حصة', de: 'pro Portion' },
+  portion: { ar: 'حصة', },
+  approx: { ar: 'تقريبي', },
+  perServing: { ar: 'لكل حصة', },
 };
 
 /* Portion options offered by the inline stepper. */
@@ -354,7 +352,6 @@ export default function DietTab({
       if (q) {
         const match =
           f.label.ar.toLowerCase().includes(q) ||
-          f.label.de.toLowerCase().includes(q) ||
           f.key.includes(q);
         if (!match) return false;
       }
@@ -538,7 +535,7 @@ export default function DietTab({
             className="w-full bg-primary/10 border border-primary/40 rounded-xl p-3 active:scale-[0.98] transition-transform"
           >
             <span className="text-[12px] font-semibold text-primary">
-              + {isAr ? `أضف "${query.trim()}" ${T.custom[lang]}` : `"${query.trim()}" ${T.custom[lang]}`}
+              + {`أضف "${query.trim()}" ${T.custom[lang]}`}
             </span>
           </button>
         )}
@@ -547,9 +544,7 @@ export default function DietTab({
       {/* Tiny note about portion semantics */}
       <p className="text-[10px] text-muted-foreground/60 leading-relaxed text-center px-3 flex items-center justify-center gap-1">
         <Info className="w-3 h-3 inline-block" />
-        {isAr
-          ? 'القيم الغذائية تقريبية وتعتمد على حصة قياسية لكل صنف.'
-          : 'Nährwerte sind Schätzungen auf Basis einer Standardportion.'}
+        {'القيم الغذائية تقريبية وتعتمد على حصة قياسية لكل صنف.'}
       </p>
     </div>
   );

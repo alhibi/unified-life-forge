@@ -357,7 +357,7 @@ export interface FastingRingProps {
   size?: number;
   active: boolean;
   protocol?: string;
-  lang: 'ar' | 'de';
+  lang: 'ar';
 }
 
 export function FastingRing({ elapsedSec, targetHours, size = 200, active, protocol, lang }: FastingRingProps) {
@@ -394,10 +394,10 @@ export function FastingRing({ elapsedSec, targetHours, size = 200, active, proto
         </div>
         <div className="text-[10px] text-muted-foreground mt-0.5">
           {completed
-            ? isAr ? 'مكتمل ✓' : 'Abgeschlossen ✓'
+            ? 'مكتمل ✓'
             : active
-              ? `${isAr ? 'متبقي' : 'verbleibend'} ${fmt(remainingSec)}`
-              : isAr ? 'متوقّف' : 'Gestoppt'}
+              ? `${'متبقي'} ${fmt(remainingSec)}`
+              : 'متوقّف'}
         </div>
       </div>
     </ProgressRing>

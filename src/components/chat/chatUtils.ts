@@ -18,11 +18,11 @@ export function formatTime(dateStr: string, isAr: boolean): string {
   const diffHours = Math.floor(diffMs / 3600000);
   const diffDays = Math.floor(diffMs / 86400000);
 
-  if (diffMins < 1) return isAr ? 'الآن' : 'Jetzt';
-  if (diffMins < 60) return isAr ? `${diffMins} د` : `${diffMins} Min`;
+  if (diffMins < 1) return 'الآن';
+  if (diffMins < 60) return `${diffMins} د`;
   if (diffHours < 24) return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  if (diffDays < 7) return d.toLocaleDateString(isAr ? 'ar' : 'de', { weekday: 'short' });
-  return d.toLocaleDateString(isAr ? 'ar' : 'de', { day: 'numeric', month: 'short' });
+  if (diffDays < 7) return d.toLocaleDateString('ar', { weekday: 'short' });
+  return d.toLocaleDateString('ar', { day: 'numeric', month: 'short' });
 }
 
 /** Time-only (HH:mm) shown inside bubbles. */
@@ -35,11 +35,11 @@ export function formatDateSeparator(dateStr: string, isAr: boolean): string {
   const d = new Date(dateStr);
   const today = new Date();
   const yesterday = new Date(); yesterday.setDate(today.getDate() - 1);
-  if (d.toDateString() === today.toDateString()) return isAr ? 'اليوم' : 'Heute';
-  if (d.toDateString() === yesterday.toDateString()) return isAr ? 'أمس' : 'Gestern';
+  if (d.toDateString() === today.toDateString()) return 'اليوم';
+  if (d.toDateString() === yesterday.toDateString()) return 'أمس';
   const diffDays = Math.floor((today.getTime() - d.getTime()) / 86400000);
-  if (diffDays < 7) return d.toLocaleDateString(isAr ? 'ar' : 'de', { weekday: 'long' });
-  return d.toLocaleDateString(isAr ? 'ar' : 'de', { day: 'numeric', month: 'long', year: d.getFullYear() !== today.getFullYear() ? 'numeric' : undefined });
+  if (diffDays < 7) return d.toLocaleDateString('ar', { weekday: 'long' });
+  return d.toLocaleDateString('ar', { day: 'numeric', month: 'long', year: d.getFullYear() !== today.getFullYear() ? 'numeric' : undefined });
 }
 
 /** Format a recording / audio duration like "0:07". */
@@ -89,23 +89,23 @@ export function getMessagePreview(
   // A message hidden by the viewer (delete-for-me) becomes "[hidden]" in
   // their list preview; the sender still sees the original.
   if (viewerUserId && msg.hidden_for?.includes(viewerUserId)) {
-    return isAr ? '🚫 رسالة مخفية' : '🚫 Versteckt';
+    return '🚫 رسالة مخفية';
   }
-  if (msg.deleted) return isAr ? '🚫 تم حذف الرسالة' : '🚫 Nachricht gelöscht';
+  if (msg.deleted) return '🚫 تم حذف الرسالة';
   switch (msg.message_type) {
-    case 'image': return '📷 ' + (isAr ? 'صورة' : 'Foto');
-    case 'voice': return '🎤 ' + (isAr ? 'رسالة صوتية' : 'Sprachnachricht');
-    case 'file':  return '📎 ' + (readableFileName(msg.file_name) || (isAr ? 'ملف' : 'Datei'));
+    case 'image': return '📷 ' + ('صورة');
+    case 'voice': return '🎤 ' + ('رسالة صوتية');
+    case 'file':  return '📎 ' + (readableFileName(msg.file_name) || ('ملف'));
     default:      return msg.content || '';
   }
 }
 
 /** Shorter version used in reply-to previews inside bubbles. */
 export function getReplyPreviewText(msg: Message | undefined, isAr: boolean): string {
-  if (!msg) return isAr ? 'رسالة محذوفة' : 'Gelöschte Nachricht';
-  if (msg.deleted) return isAr ? 'رسالة محذوفة' : 'Gelöschte Nachricht';
-  if (msg.message_type === 'image') return '📷 ' + (isAr ? 'صورة' : 'Foto');
-  if (msg.message_type === 'voice') return '🎤 ' + (isAr ? 'رسالة صوتية' : 'Sprachnachricht');
+  if (!msg) return 'رسالة محذوفة';
+  if (msg.deleted) return 'رسالة محذوفة';
+  if (msg.message_type === 'image') return '📷 ' + ('صورة');
+  if (msg.message_type === 'voice') return '🎤 ' + ('رسالة صوتية');
   if (msg.message_type === 'file')  return '📎 ' + (readableFileName(msg.file_name) || '');
   return msg.content.length > 80 ? msg.content.slice(0, 80) + '…' : msg.content;
 }

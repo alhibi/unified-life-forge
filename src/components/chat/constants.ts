@@ -30,7 +30,6 @@ export interface EmojiCategory {
   id: string;
   icon: string;
   labelAr: string;
-  labelDe: string;
   emojis: string[];
 }
 export const EMOJI_CATEGORIES: EmojiCategory[] = [];
@@ -107,24 +106,24 @@ export const WALLPAPERS: Wallpaper[] = [
 // ─────────────────────────────────────────────────────────────────────────────
 // Self-destruct options
 // ─────────────────────────────────────────────────────────────────────────────
-export const SELF_DESTRUCT_OPTIONS: Array<{ valueSeconds: number | null; labelAr: string; labelDe: string }> = [
-  { valueSeconds: null,    labelAr: 'إيقاف',       labelDe: 'Aus' },
-  { valueSeconds: 30,      labelAr: '30 ثانية',    labelDe: '30 Sek.' },
-  { valueSeconds: 300,     labelAr: '5 دقائق',     labelDe: '5 Min.' },
-  { valueSeconds: 3600,    labelAr: 'ساعة',        labelDe: '1 Std.' },
-  { valueSeconds: 86400,   labelAr: 'يوم',         labelDe: '1 Tag' },
-  { valueSeconds: 604800,  labelAr: 'أسبوع',       labelDe: '1 Woche' },
+export const SELF_DESTRUCT_OPTIONS: Array<{ valueSeconds: number | null; labelAr: string; }> = [
+  { valueSeconds: null,    labelAr: 'إيقاف', },
+  { valueSeconds: 30,      labelAr: '30 ثانية', },
+  { valueSeconds: 300,     labelAr: '5 دقائق', },
+  { valueSeconds: 3600,    labelAr: 'ساعة', },
+  { valueSeconds: 86400,   labelAr: 'يوم', },
+  { valueSeconds: 604800,  labelAr: 'أسبوع', },
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Mute duration choices. -1 = forever, 0 = unmute, otherwise seconds.
 // ─────────────────────────────────────────────────────────────────────────────
-export const MUTE_DURATION_OPTIONS: Array<{ valueSeconds: number; labelAr: string; labelDe: string }> = [
-  { valueSeconds: 3600,    labelAr: 'ساعة',         labelDe: '1 Std.' },
-  { valueSeconds: 28800,   labelAr: '8 ساعات',      labelDe: '8 Std.' },
-  { valueSeconds: 86400,   labelAr: 'يوم',          labelDe: '1 Tag' },
-  { valueSeconds: 604800,  labelAr: 'أسبوع',        labelDe: '1 Woche' },
-  { valueSeconds: -1,      labelAr: 'دائماً',        labelDe: 'Immer' },
+export const MUTE_DURATION_OPTIONS: Array<{ valueSeconds: number; labelAr: string; }> = [
+  { valueSeconds: 3600,    labelAr: 'ساعة', },
+  { valueSeconds: 28800,   labelAr: '8 ساعات', },
+  { valueSeconds: 86400,   labelAr: 'يوم', },
+  { valueSeconds: 604800,  labelAr: 'أسبوع', },
+  { valueSeconds: -1,      labelAr: 'دائماً', },
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────

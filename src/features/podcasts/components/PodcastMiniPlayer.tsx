@@ -23,7 +23,7 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { KeyboardEvent, memo, MouseEvent, useCallback, useState } from 'react';
 
-import { BOTTOM_NAV_HEIGHT } from '@/components/BottomNav';
+import { FLOATING_STACK_OFFSET } from '@/lib/layout';
 import {
   usePodcastPlayer,
   usePodcastPlayerProgress,
@@ -151,12 +151,11 @@ const PodcastMiniPlayer = memo(function PodcastMiniPlayer() {
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 80, opacity: 0 }}
             transition={{ type: 'spring', stiffness: 360, damping: 32 }}
-            className="fixed left-2 right-2 z-40 pointer-events-none"
-            // Position above the bottom nav precisely: nav height +
-            // safe-area inset + 8px breathing room so the mini-player
-            // doesn't sit flush against the nav bar on tall devices.
+            className="fixed left-2 right-2 z-float pointer-events-none"
+            // Stacks above the floating portal dock (there is no bottom
+            // navigation bar in this app — see src/lib/layout.ts).
             style={{
-              bottom: `calc(env(safe-area-inset-bottom, 0px) + ${BOTTOM_NAV_HEIGHT + 8}px)`,
+              bottom: `calc(env(safe-area-inset-bottom, 0px) + ${FLOATING_STACK_OFFSET}px)`,
             }}
           >
             <button

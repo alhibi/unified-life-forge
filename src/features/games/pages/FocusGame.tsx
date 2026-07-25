@@ -13,16 +13,15 @@ type Mode = 'reaction' | 'choice' | 'stroop' | 'sequence' | 'nback' | 'aim';
 interface ModeMeta {
   id: Mode;
   ar: string;
-  de: string;
   icon: typeof Crosshair;
 }
 const MODES: ModeMeta[] = [
-  { id: 'reaction', ar: 'ردة فعل', de: 'Reaktion', icon: Zap },
-  { id: 'choice', ar: 'اختيار', de: 'Wahl', icon: Crosshair },
-  { id: 'stroop', ar: 'ستروب', de: 'Stroop', icon: Brain },
-  { id: 'sequence', ar: 'سلسلة', de: 'Sequenz', icon: Hash },
-  { id: 'nback', ar: 'N-back', de: 'N-back', icon: Layers },
-  { id: 'aim', ar: 'هدف', de: 'Ziel', icon: Target },
+  { id: 'reaction', ar: 'ردة فعل', icon: Zap },
+  { id: 'choice', ar: 'اختيار', icon: Crosshair },
+  { id: 'stroop', ar: 'ستروب', icon: Brain },
+  { id: 'sequence', ar: 'سلسلة', icon: Hash },
+  { id: 'nback', ar: 'N-back', icon: Layers },
+  { id: 'aim', ar: 'هدف', icon: Target },
 ];
 
 // =============================================================================
@@ -48,12 +47,12 @@ const DIFFS: Record<Difficulty, DifficultyMeta> = {
 // Colors
 // =============================================================================
 const COLORS = [
-  { id: 'red',    hex: '#ef4444', ar: 'أحمر',  de: 'Rot' },
-  { id: 'blue',   hex: '#3b82f6', ar: 'أزرق',  de: 'Blau' },
-  { id: 'green',  hex: '#10b981', ar: 'أخضر',  de: 'Grün' },
-  { id: 'yellow', hex: '#facc15', ar: 'أصفر',  de: 'Gelb' },
-  { id: 'purple', hex: '#a855f7', ar: 'بنفسجي',de: 'Lila' },
-  { id: 'pink',   hex: '#ec4899', ar: 'وردي',  de: 'Pink' },
+  { id: 'red',    hex: '#ef4444', ar: 'أحمر', },
+  { id: 'blue',   hex: '#3b82f6', ar: 'أزرق', },
+  { id: 'green',  hex: '#10b981', ar: 'أخضر', },
+  { id: 'yellow', hex: '#facc15', ar: 'أصفر', },
+  { id: 'purple', hex: '#a855f7', ar: 'بنفسجي', },
+  { id: 'pink',   hex: '#ec4899', ar: 'وردي', },
 ] as const;
 type ColorId = typeof COLORS[number]['id'];
 
@@ -176,40 +175,40 @@ export default function FocusGame() {
   })();
 
   const statsArr = [
-    { label: isAr ? 'مباريات' : 'Spiele', value: stats.gamesPlayed },
-    { label: isAr ? 'أفضل ردة فعل' : 'Best Reaktion', value: stats.bestAvg.reaction ? `${stats.bestAvg.reaction}ms` : '-' },
-    { label: isAr ? 'النسبة المئوية' : 'Perzentil', value: percentileText },
-    { label: isAr ? 'أفضل ستروب' : 'Best Stroop', value: stats.bestAvg.stroop ? `${stats.bestAvg.stroop}ms` : '-' },
-    { label: isAr ? 'أطول سلسلة' : 'Längste Seq.', value: stats.bestSequence || 0 },
-    { label: isAr ? 'أفضل N-back' : 'Best N-back', value: stats.bestNback.level ? `${stats.bestNback.level}-back · ${stats.bestNback.accuracy}%` : '-' },
-    { label: isAr ? 'أفضل Aim' : 'Best Aim', value: stats.bestAimScore || 0 },
-    { label: isAr ? 'دقة Aim' : 'Aim Genauigkeit', value: stats.bestAimAccuracy ? `${stats.bestAimAccuracy}%` : '-' },
+    { label: 'مباريات', value: stats.gamesPlayed },
+    { label: 'أفضل ردة فعل', value: stats.bestAvg.reaction ? `${stats.bestAvg.reaction}ms` : '-' },
+    { label: 'النسبة المئوية', value: percentileText },
+    { label: 'أفضل ستروب', value: stats.bestAvg.stroop ? `${stats.bestAvg.stroop}ms` : '-' },
+    { label: 'أطول سلسلة', value: stats.bestSequence || 0 },
+    { label: 'أفضل N-back', value: stats.bestNback.level ? `${stats.bestNback.level}-back · ${stats.bestNback.accuracy}%` : '-' },
+    { label: 'أفضل Aim', value: stats.bestAimScore || 0 },
+    { label: 'دقة Aim', value: stats.bestAimAccuracy ? `${stats.bestAimAccuracy}%` : '-' },
   ];
 
   const options = [
     {
-      key: 'mode', label: isAr ? 'النمط' : 'Modus',
-      choices: MODES.map(m => ({ value: m.id, label: isAr ? m.ar : m.de })),
+      key: 'mode', label: 'النمط',
+      choices: MODES.map(m => ({ value: m.id, label: m.ar })),
       current: mode, onChange: (v: string) => setMode(v as Mode),
     },
     {
-      key: 'diff', label: isAr ? 'الصعوبة' : 'Schwierigkeit',
+      key: 'diff', label: 'الصعوبة',
       choices: [
-        { value: 'easy', label: isAr ? 'سهل' : 'Leicht' },
-        { value: 'normal', label: isAr ? 'متوسط' : 'Normal' },
-        { value: 'hard', label: isAr ? 'صعب' : 'Schwer' },
+        { value: 'easy', label: 'سهل' },
+        { value: 'normal', label: 'متوسط' },
+        { value: 'hard', label: 'صعب' },
       ],
       current: difficulty, onChange: (v: string) => setDifficulty(v as Difficulty),
     },
     ...(mode === 'reaction' || mode === 'choice' || mode === 'stroop' ? [{
-      key: 'rounds', label: isAr ? 'عدد الجولات' : 'Runden',
+      key: 'rounds', label: 'عدد الجولات',
       choices: [{ value: '3', label: '3' }, { value: '5', label: '5' }, { value: '10', label: '10' }, { value: '20', label: '20' }],
       current: String(rounds), onChange: (v: string) => setRounds(parseInt(v)),
     }] : []),
   ];
 
   return (
-    <GameShell title={isAr ? 'التركيز' : 'Fokus'} icon={Crosshair} accentColor="hsl(142, 71%, 45%)" rules={rules} stats={statsArr} options={options}>
+    <GameShell title={'التركيز'} icon={Crosshair} accentColor="hsl(142, 71%, 45%)" rules={rules} stats={statsArr} options={options}>
       {mode === 'reaction' && <ReactionMode key="reaction" diff={DIFFS[difficulty]} rounds={rounds} isAr={isAr} onFinish={refreshStats} />}
       {mode === 'choice'   && <ChoiceMode key="choice" diff={DIFFS[difficulty]} rounds={rounds} isAr={isAr} onFinish={refreshStats} />}
       {mode === 'stroop'   && <StroopMode key="stroop" diff={DIFFS[difficulty]} rounds={rounds} isAr={isAr} onFinish={refreshStats} />}
@@ -278,11 +277,11 @@ function ReactionMode({ diff, rounds, isAr, onFinish }: { diff: DifficultyMeta; 
   const avg = results.length ? Math.round(results.reduce((a, b) => a + b, 0) / results.length) : 0;
 
   const getRating = (ms: number) => {
-    if (ms < 180) return { text: isAr ? '⚡ خارق' : '⚡ Übermenschlich', color: '#22d3ee' };
-    if (ms < 250) return { text: isAr ? '🔥 رائع' : '🔥 Top', color: '#06b6d4' };
-    if (ms < 350) return { text: isAr ? '✨ سريع' : '✨ Schnell', color: '#fbbf24' };
-    if (ms < 500) return { text: isAr ? '👍 جيد' : '👍 Gut', color: '#94a3b8' };
-    return { text: isAr ? '🐢 حاول أسرع' : '🐢 Schneller!', color: '#ef4444' };
+    if (ms < 180) return { text: '⚡ خارق', color: '#22d3ee' };
+    if (ms < 250) return { text: '🔥 رائع', color: '#06b6d4' };
+    if (ms < 350) return { text: '✨ سريع', color: '#fbbf24' };
+    if (ms < 500) return { text: '👍 جيد', color: '#94a3b8' };
+    return { text: '🐢 حاول أسرع', color: '#ef4444' };
   };
 
   const style = (() => {
@@ -307,36 +306,36 @@ function ReactionMode({ diff, rounds, isAr, onFinish }: { diff: DifficultyMeta; 
         {state === 'idle' && (
           <>
             <Zap className="w-12 h-12 text-cyan-400 mb-3" />
-            <p className="text-2xl font-black text-white mb-1">{isAr ? 'اضغط للبدء' : 'Tippe zum Start'}</p>
-            <p className="text-xs text-zinc-400">{isAr ? `${rounds} جولات` : `${rounds} Runden`}</p>
+            <p className="text-2xl font-black text-white mb-1">{'اضغط للبدء'}</p>
+            <p className="text-xs text-zinc-400">{`${rounds} جولات`}</p>
           </>
         )}
         {state === 'waiting' && (
           <>
             <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 0.8, repeat: Infinity }}
               className="w-16 h-16 rounded-full bg-red-500/30 mb-3" />
-            <p className="text-2xl font-black text-red-400">{isAr ? 'انتظر...' : 'Warten...'}</p>
+            <p className="text-2xl font-black text-red-400">{'انتظر...'}</p>
           </>
         )}
         {state === 'ready' && (
           <motion.div initial={{ scale: 0.5 }} animate={{ scale: 1 }} className="flex flex-col items-center">
             <motion.div animate={{ scale: [1, 1.15, 1] }} transition={{ duration: 0.25, repeat: Infinity }}
               className="w-20 h-20 rounded-full bg-emerald-400 mb-3 " />
-            <p className="text-3xl font-black text-emerald-300">{isAr ? 'الآن!' : 'JETZT!'}</p>
+            <p className="text-3xl font-black text-emerald-300">{'الآن!'}</p>
           </motion.div>
         )}
         {state === 'tooEarly' && (
           <>
             <p className="text-4xl mb-2">😅</p>
-            <p className="text-xl font-bold text-amber-400 mb-1">{isAr ? 'مبكر جداً!' : 'Zu früh!'}</p>
-            <p className="text-xs text-zinc-400">{isAr ? 'اضغط للمحاولة' : 'Tippe nochmal'}</p>
+            <p className="text-xl font-bold text-amber-400 mb-1">{'مبكر جداً!'}</p>
+            <p className="text-xs text-zinc-400">{'اضغط للمحاولة'}</p>
           </>
         )}
         {state === 'result' && (
           <>
             <p className="text-5xl font-black text-cyan-300 mb-1">{reactionTime}ms</p>
             <p className="text-sm font-bold mb-1" style={{ color: getRating(reactionTime).color }}>{getRating(reactionTime).text}</p>
-            <p className="text-xs text-zinc-500 mt-2">{isAr ? 'اضغط للجولة التالية' : 'Weiter →'}</p>
+            <p className="text-xs text-zinc-500 mt-2">{'اضغط للجولة التالية'}</p>
           </>
         )}
         {state === 'done' && (
@@ -344,14 +343,14 @@ function ReactionMode({ diff, rounds, isAr, onFinish }: { diff: DifficultyMeta; 
             <p className="text-4xl mb-1">🏆</p>
             <p className="text-3xl font-black text-cyan-300 mb-1">{avg}ms</p>
             <p className="text-sm font-bold" style={{ color: getRating(avg).color }}>{getRating(avg).text}</p>
-            <p className="text-[11px] text-zinc-400 mt-1">{isAr ? 'أسرع من' : 'Schneller als'} {reactionPercentile(avg)}% {isAr ? 'من اللاعبين' : 'der Spieler'}</p>
-            <p className="text-[10px] text-zinc-500 mt-3">{isAr ? 'متوسط' : 'Durchschnitt'} · {rounds} {isAr ? 'جولات' : 'Runden'}</p>
+            <p className="text-[11px] text-zinc-400 mt-1">{'أسرع من'} {reactionPercentile(avg)}% {'من اللاعبين'}</p>
+            <p className="text-[10px] text-zinc-500 mt-3">{'متوسط'} · {rounds} {'جولات'}</p>
           </>
         )}
       </button>
       {state === 'done' && (
         <button onClick={reset} className="px-6 py-2 rounded-xl bg-cyan-500/20 text-cyan-300 font-bold text-sm flex items-center gap-1.5">
-          <RotateCcw className="w-3.5 h-3.5" /> {isAr ? 'مرة أخرى' : 'Nochmal'}
+          <RotateCcw className="w-3.5 h-3.5" /> {'مرة أخرى'}
         </button>
       )}
     </div>
@@ -415,11 +414,11 @@ function ChoiceMode({ diff, rounds, isAr, onFinish }: { diff: DifficultyMeta; ro
     return (
       <div className="text-center pt-10">
         <Crosshair className="w-12 h-12 text-cyan-400 mx-auto mb-3" />
-        <p className="text-xl font-black text-white mb-2">{isAr ? 'اضغط اللون المطلوب' : 'Tippe die Zielfarbe'}</p>
-        <p className="text-xs text-zinc-400 mb-6">{isAr ? `${diff.choiceCount} ألوان · ${rounds} جولات` : `${diff.choiceCount} Farben · ${rounds} Runden`}</p>
+        <p className="text-xl font-black text-white mb-2">{'اضغط اللون المطلوب'}</p>
+        <p className="text-xs text-zinc-400 mb-6">{`${diff.choiceCount} ألوان · ${rounds} جولات`}</p>
         <button onClick={nextRound} className="px-8 py-3 rounded-2xl font-black text-cyan-950"
           style={{ }}>
-          {isAr ? 'ابدأ' : 'Start'}
+          {'ابدأ'}
         </button>
       </div>
     );
@@ -429,9 +428,9 @@ function ChoiceMode({ diff, rounds, isAr, onFinish }: { diff: DifficultyMeta; ro
       <div className="text-center pt-8">
         <p className="text-5xl mb-2">🏆</p>
         <p className="text-3xl font-black text-cyan-300">{accuracy}%</p>
-        <p className="text-xs text-zinc-500 mb-1">{isAr ? 'دقة' : 'Genauigkeit'}</p>
-        <p className="text-lg font-bold text-zinc-300">{avgTime}ms <span className="text-xs font-normal text-zinc-500">{isAr ? 'متوسط' : 'Ø Zeit'}</span></p>
-        <button onClick={reset} className="mt-6 px-6 py-2 rounded-xl bg-cyan-500/20 text-cyan-300 font-bold text-sm">{isAr ? 'مرة أخرى' : 'Nochmal'}</button>
+        <p className="text-xs text-zinc-500 mb-1">{'دقة'}</p>
+        <p className="text-lg font-bold text-zinc-300">{avgTime}ms <span className="text-xs font-normal text-zinc-500">{'متوسط'}</span></p>
+        <button onClick={reset} className="mt-6 px-6 py-2 rounded-xl bg-cyan-500/20 text-cyan-300 font-bold text-sm">{'مرة أخرى'}</button>
       </div>
     );
   }
@@ -443,10 +442,10 @@ function ChoiceMode({ diff, rounds, isAr, onFinish }: { diff: DifficultyMeta; ro
         <span className="text-cyan-400 font-bold">{accuracy}%</span>
       </div>
       <div className="text-center">
-        <p className="text-xs text-zinc-500 mb-1.5">{isAr ? 'اضغط اللون:' : 'Tippe:'}</p>
+        <p className="text-xs text-zinc-500 mb-1.5">{'اضغط اللون:'}</p>
         <motion.p key={target} initial={{ scale: 0.85 }} animate={{ scale: 1 }} className="text-3xl font-black"
           style={{ color: targetColor.hex }}>
-          {isAr ? targetColor.ar : targetColor.de}
+          {targetColor.ar}
         </motion.p>
       </div>
       <div className="grid grid-cols-3 gap-3 max-w-[340px]">
@@ -520,11 +519,11 @@ function StroopMode({ diff, rounds, isAr, onFinish }: { diff: DifficultyMeta; ro
     return (
       <div className="text-center pt-10">
         <Brain className="w-12 h-12 text-cyan-400 mx-auto mb-3" />
-        <p className="text-xl font-black text-white mb-2">{isAr ? 'اختبار ستروب' : 'Stroop-Test'}</p>
-        <p className="text-xs text-zinc-400 mb-6 max-w-[300px] mx-auto">{isAr ? 'الكلمة قد تكون بلون مغاير. اختر اللون الذي تعنيه الكلمة، ليس لون النص.' : 'Wähle die Farbe, die das WORT meint — nicht seine Schriftfarbe.'}</p>
+        <p className="text-xl font-black text-white mb-2">{'اختبار ستروب'}</p>
+        <p className="text-xs text-zinc-400 mb-6 max-w-[300px] mx-auto">{'الكلمة قد تكون بلون مغاير. اختر اللون الذي تعنيه الكلمة، ليس لون النص.'}</p>
         <button onClick={nextRound} className="px-8 py-3 rounded-2xl font-black text-cyan-950"
           style={{ }}>
-          {isAr ? 'ابدأ' : 'Start'}
+          {'ابدأ'}
         </button>
       </div>
     );
@@ -534,9 +533,9 @@ function StroopMode({ diff, rounds, isAr, onFinish }: { diff: DifficultyMeta; ro
       <div className="text-center pt-8">
         <p className="text-5xl mb-2">🧠</p>
         <p className="text-3xl font-black text-cyan-300">{accuracy}%</p>
-        <p className="text-xs text-zinc-500 mb-1">{isAr ? 'دقة' : 'Genauigkeit'}</p>
+        <p className="text-xs text-zinc-500 mb-1">{'دقة'}</p>
         <p className="text-lg font-bold text-zinc-300">{avgTime}ms</p>
-        <button onClick={reset} className="mt-6 px-6 py-2 rounded-xl bg-cyan-500/20 text-cyan-300 font-bold text-sm">{isAr ? 'مرة أخرى' : 'Nochmal'}</button>
+        <button onClick={reset} className="mt-6 px-6 py-2 rounded-xl bg-cyan-500/20 text-cyan-300 font-bold text-sm">{'مرة أخرى'}</button>
       </div>
     );
   }
@@ -549,7 +548,7 @@ function StroopMode({ diff, rounds, isAr, onFinish }: { diff: DifficultyMeta; ro
       </div>
       <motion.div key={round} initial={{ scale: 0.85, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
         className="text-5xl font-black tracking-wider" style={{ color: displayHex }}>
-        {(isAr ? word.ar : word.de).toUpperCase()}
+        {(word.ar).toUpperCase()}
       </motion.div>
       <div className="grid grid-cols-3 gap-3 max-w-[340px]">
         {options.map(id => {
@@ -558,7 +557,7 @@ function StroopMode({ diff, rounds, isAr, onFinish }: { diff: DifficultyMeta; ro
             <motion.button key={id} onClick={() => handleTap(id)}
               className="px-3 py-3 rounded-2xl border-2 border-white/15 font-bold text-sm bg-white/4"
               style={{ color: c.hex }}>
-              {isAr ? c.ar : c.de}
+              {c.ar}
             </motion.button>
           );
         })}
@@ -634,11 +633,11 @@ function SequenceMode({ diff, isAr, onFinish }: { diff: DifficultyMeta; isAr: bo
     return (
       <div className="text-center pt-10">
         <Hash className="w-12 h-12 text-cyan-400 mx-auto mb-3" />
-        <p className="text-xl font-black text-white mb-2">{isAr ? 'تذكُّر السلسلة' : 'Sequenz merken'}</p>
-        <p className="text-xs text-zinc-400 mb-6">{isAr ? 'احفظ الترتيب ثم كرّره' : 'Merke dir die Reihenfolge'}</p>
+        <p className="text-xl font-black text-white mb-2">{'تذكُّر السلسلة'}</p>
+        <p className="text-xs text-zinc-400 mb-6">{'احفظ الترتيب ثم كرّره'}</p>
         <button onClick={startGame} className="px-8 py-3 rounded-2xl font-black text-cyan-950"
           style={{ }}>
-          {isAr ? 'ابدأ' : 'Start'}
+          {'ابدأ'}
         </button>
       </div>
     );
@@ -647,17 +646,17 @@ function SequenceMode({ diff, isAr, onFinish }: { diff: DifficultyMeta; isAr: bo
     return (
       <div className="text-center pt-8">
         <p className="text-5xl mb-2">💔</p>
-        <p className="text-2xl font-black text-rose-400 mb-1">{isAr ? 'وصلت إلى' : 'Erreicht'} {level - 1}</p>
-        <p className="text-xs text-zinc-500">{isAr ? 'أطول سلسلة هذه المباراة' : 'Längste Sequenz'}</p>
-        <button onClick={reset} className="mt-6 px-6 py-2 rounded-xl bg-cyan-500/20 text-cyan-300 font-bold text-sm">{isAr ? 'مرة أخرى' : 'Nochmal'}</button>
+        <p className="text-2xl font-black text-rose-400 mb-1">{'وصلت إلى'} {level - 1}</p>
+        <p className="text-xs text-zinc-500">{'أطول سلسلة هذه المباراة'}</p>
+        <button onClick={reset} className="mt-6 px-6 py-2 rounded-xl bg-cyan-500/20 text-cyan-300 font-bold text-sm">{'مرة أخرى'}</button>
       </div>
     );
   }
   return (
     <div className="flex flex-col items-center gap-5 pt-4">
       <div className="flex justify-between w-full items-center text-xs">
-        <span className="text-zinc-500">{isAr ? 'المستوى' : 'Level'} {level}</span>
-        <span className="text-cyan-400 font-bold">{state === 'showing' ? (isAr ? 'انتبه...' : 'Schau...') : (isAr ? 'كرّر!' : 'Wiederhole!')}</span>
+        <span className="text-zinc-500">{'المستوى'} {level}</span>
+        <span className="text-cyan-400 font-bold">{state === 'showing' ? ('انتبه...') : ('كرّر!')}</span>
       </div>
       <div className="grid grid-cols-2 gap-3">
         {colors.map((c, i) => (
@@ -668,7 +667,7 @@ function SequenceMode({ diff, isAr, onFinish }: { diff: DifficultyMeta; isAr: bo
             style={{ background: c.hex }} />
         ))}
       </div>
-      <p className="text-[10px] text-zinc-400">{seq.length} {isAr ? 'خطوات' : 'Schritte'}</p>
+      <p className="text-[10px] text-zinc-400">{seq.length} {'خطوات'}</p>
     </div>
   );
 }
@@ -773,12 +772,11 @@ function NBackMode({ diff, isAr, onFinish }: { diff: DifficultyMeta; isAr: boole
         <Layers className="w-12 h-12 text-cyan-400 mx-auto mb-3" />
         <p className="text-xl font-black text-white mb-2">{N}-back</p>
         <p className="text-xs text-zinc-400 mb-6">
-          {isAr ? `سيظهر مربع في 9 مواضع. اضغط "تطابق" إذا كان الموضع نفس الموضع قبل ${N} خطوة. ${TOTAL_TRIALS} محاولة.`
-                : `Ein Quadrat erscheint in 9 Positionen. Tippe "Match" wenn die Position gleich wie vor ${N} Schritt(en) ist. ${TOTAL_TRIALS} Versuche.`}
+          {`سيظهر مربع في 9 مواضع. اضغط "تطابق" إذا كان الموضع نفس الموضع قبل ${N} خطوة. ${TOTAL_TRIALS} محاولة.`}
         </p>
         <button onClick={start} className="px-8 py-3 rounded-2xl font-black text-cyan-950"
           style={{ }}>
-          {isAr ? 'ابدأ' : 'Start'}
+          {'ابدأ'}
         </button>
       </div>
     );
@@ -791,13 +789,13 @@ function NBackMode({ diff, isAr, onFinish }: { diff: DifficultyMeta; isAr: boole
       <div className="text-center pt-8 max-w-[340px] mx-auto">
         <p className="text-5xl mb-2">🧠</p>
         <p className="text-3xl font-black text-cyan-300 mb-1">{accuracy}%</p>
-        <p className="text-xs text-zinc-500 mb-3">{isAr ? `دقة على ${N}-back` : `Genauigkeit ${N}-back`}</p>
+        <p className="text-xs text-zinc-500 mb-3">{`دقة على ${N}-back`}</p>
         <div className="grid grid-cols-3 gap-2 mt-3">
-          <div className="p-2 rounded-xl bg-emerald-500/10"><p className="text-emerald-300 font-bold text-lg">{hits}</p><p className="text-[10px] text-zinc-500">{isAr ? 'إصابة' : 'Treffer'}</p></div>
-          <div className="p-2 rounded-xl bg-amber-500/10"><p className="text-amber-300 font-bold text-lg">{misses}</p><p className="text-[10px] text-zinc-500">{isAr ? 'فات' : 'Verpasst'}</p></div>
-          <div className="p-2 rounded-xl bg-rose-500/10"><p className="text-rose-300 font-bold text-lg">{falseAlarms}</p><p className="text-[10px] text-zinc-500">{isAr ? 'خطأ' : 'Falsch'}</p></div>
+          <div className="p-2 rounded-xl bg-emerald-500/10"><p className="text-emerald-300 font-bold text-lg">{hits}</p><p className="text-[10px] text-zinc-500">{'إصابة'}</p></div>
+          <div className="p-2 rounded-xl bg-amber-500/10"><p className="text-amber-300 font-bold text-lg">{misses}</p><p className="text-[10px] text-zinc-500">{'فات'}</p></div>
+          <div className="p-2 rounded-xl bg-rose-500/10"><p className="text-rose-300 font-bold text-lg">{falseAlarms}</p><p className="text-[10px] text-zinc-500">{'خطأ'}</p></div>
         </div>
-        <button onClick={start} className="mt-5 px-6 py-2 rounded-xl bg-cyan-500/20 text-cyan-300 font-bold text-sm">{isAr ? 'مرة أخرى' : 'Nochmal'}</button>
+        <button onClick={start} className="mt-5 px-6 py-2 rounded-xl bg-cyan-500/20 text-cyan-300 font-bold text-sm">{'مرة أخرى'}</button>
       </div>
     );
   }
@@ -832,10 +830,10 @@ function NBackMode({ diff, isAr, onFinish }: { diff: DifficultyMeta; isAr: boole
           color: matched === null ? '#082f49' : '#fff',
           border: `2px solid ${matched === true ? '#10b981' : matched === false ? '#ef4444' : '#22d3ee'}`,
         }}>
-        {matched === true ? '✓' : matched === false ? '✗' : (isAr ? 'تطابق' : 'MATCH')}
+        {matched === true ? '✓' : matched === false ? '✗' : ('تطابق')}
       </button>
       <p className="text-[10px] text-zinc-400 text-center">
-        {isAr ? `هل الموضع نفس الموضع قبل ${N} خطوة؟` : `Position gleich wie vor ${N} Schritt(en)?`}
+        {`هل الموضع نفس الموضع قبل ${N} خطوة؟`}
       </p>
     </div>
   );
@@ -933,13 +931,13 @@ function AimMode({ diff, isAr, onFinish }: { diff: DifficultyMeta; isAr: boolean
     return (
       <div className="text-center pt-10">
         <Target className="w-12 h-12 text-cyan-400 mx-auto mb-3" />
-        <p className="text-xl font-black text-white mb-2">{isAr ? 'مدرب التهديف' : 'Aim Trainer'}</p>
+        <p className="text-xl font-black text-white mb-2">{'مدرب التهديف'}</p>
         <p className="text-xs text-zinc-400 mb-6">
-          {isAr ? `${diff.aimDuration} ثانية، اضغط الأهداف بسرعة ودقة` : `${diff.aimDuration}s, triff Ziele schnell und präzise`}
+          {`${diff.aimDuration} ثانية، اضغط الأهداف بسرعة ودقة`}
         </p>
         <button onClick={start} className="px-8 py-3 rounded-2xl font-black text-cyan-950"
           style={{ }}>
-          {isAr ? 'ابدأ' : 'Start'}
+          {'ابدأ'}
         </button>
       </div>
     );
@@ -952,12 +950,12 @@ function AimMode({ diff, isAr, onFinish }: { diff: DifficultyMeta; isAr: boolean
       <div className="text-center pt-8">
         <p className="text-5xl mb-2">🎯</p>
         <p className="text-3xl font-black text-cyan-300">{score}</p>
-        <p className="text-xs text-zinc-500 mb-3">{isAr ? 'نقطة' : 'Punkte'}</p>
+        <p className="text-xs text-zinc-500 mb-3">{'نقطة'}</p>
         <div className="grid grid-cols-2 gap-2 max-w-[260px] mx-auto">
-          <div className="p-2 rounded-xl bg-emerald-500/10"><p className="text-emerald-300 font-bold text-lg">{hits}</p><p className="text-[10px] text-zinc-500">{isAr ? 'إصابة' : 'Treffer'}</p></div>
-          <div className="p-2 rounded-xl bg-cyan-500/10"><p className="text-cyan-300 font-bold text-lg">{accuracy}%</p><p className="text-[10px] text-zinc-500">{isAr ? 'دقة' : 'Genauigkeit'}</p></div>
+          <div className="p-2 rounded-xl bg-emerald-500/10"><p className="text-emerald-300 font-bold text-lg">{hits}</p><p className="text-[10px] text-zinc-500">{'إصابة'}</p></div>
+          <div className="p-2 rounded-xl bg-cyan-500/10"><p className="text-cyan-300 font-bold text-lg">{accuracy}%</p><p className="text-[10px] text-zinc-500">{'دقة'}</p></div>
         </div>
-        <button onClick={start} className="mt-5 px-6 py-2 rounded-xl bg-cyan-500/20 text-cyan-300 font-bold text-sm">{isAr ? 'مرة أخرى' : 'Nochmal'}</button>
+        <button onClick={start} className="mt-5 px-6 py-2 rounded-xl bg-cyan-500/20 text-cyan-300 font-bold text-sm">{'مرة أخرى'}</button>
       </div>
     );
   }
@@ -967,7 +965,7 @@ function AimMode({ diff, isAr, onFinish }: { diff: DifficultyMeta; isAr: boolean
       <div className="w-full flex justify-between items-center text-xs px-2">
         <span className="text-cyan-300 font-bold tabular-nums">{score}</span>
         <span className={`tabular-nums font-black ${timeLeft <= 5 ? 'text-rose-400' : 'text-zinc-400'}`}>{timeLeft}s</span>
-        <span className="text-zinc-500">{hits} {isAr ? 'إصابة' : 'Treffer'}</span>
+        <span className="text-zinc-500">{hits} {'إصابة'}</span>
       </div>
 
       <div ref={containerRef}

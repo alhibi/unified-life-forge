@@ -101,7 +101,6 @@ export function detectInteractions(supplements: Supplement[]): Insight[] {
       severity: rule.severity,
       title: {
         ar: `${nameA.ar} + ${nameB.ar}`,
-        de: `${nameA.de} + ${nameB.de}`,
       },
       message: rule.message,
     });
@@ -123,11 +122,9 @@ export function detectTiming(supplements: Supplement[]): Insight[] {
         severity: 'warn',
         title: {
           ar: `${s.name}: مع الطعام`,
-          de: `${s.name}: zu Mahlzeit`,
         },
         message: {
           ar: 'يحتوي على فيتامينات دهنية تمتص أفضل مع وجبة فيها دهون.',
-          de: 'Enthält fettlösliche Vitamine — besser mit fetthaltiger Mahlzeit.',
         },
       });
     }
@@ -138,11 +135,9 @@ export function detectTiming(supplements: Supplement[]): Insight[] {
         severity: 'info',
         title: {
           ar: `${s.name}: على الريق`,
-          de: `${s.name}: nüchtern`,
         },
         message: {
           ar: 'الحديد يمتص أفضل على معدة فارغة ومع فيتامين سي — إن لم يسبب لك غثياناً.',
-          de: 'Eisen wird nüchtern und mit Vitamin C besser aufgenommen — sofern verträglich.',
         },
       });
     }
@@ -158,11 +153,9 @@ export function detectTiming(supplements: Supplement[]): Insight[] {
           severity: 'info',
           title: {
             ar: `${s.name}: المساء`,
-            de: `${s.name}: abends`,
           },
           message: {
             ar: 'كثيرون يفضلون المغنيسيوم مساءً لأنه يدعم الاسترخاء والنوم.',
-            de: 'Magnesium wird oft abends eingenommen — entspannend, schlaffördernd.',
           },
         });
       }
@@ -214,11 +207,9 @@ export function detectDietOverlap(
         severity: 'info',
         title: {
           ar: `تكرار في ${info.label.ar}`,
-          de: `Überschneidung bei ${info.label.de}`,
         },
         message: {
           ar: `تتناول ${info.label.ar} كثيراً من الطعام — قد لا تحتاج جرعة مكمل بنفس الحجم.`,
-          de: `Du nimmst ${info.label.de} häufig über die Nahrung auf — Supplementdosis evtl. reduzieren.`,
         },
       });
     }
@@ -244,35 +235,27 @@ const ESSENTIAL_NUTRIENT_GAPS: Array<{
 }> = [
   { key: 'protein',   expected: 7, hint: {
       ar: 'البروتين أساس بناء الأنسجة. ضع مصدراً عالي البروتين في كل وجبة (بيض، عدس، دجاج، سمك، زبادي).',
-      de: 'Protein ist Baustein für Gewebe. In jede Mahlzeit eine Proteinquelle (Eier, Linsen, Hähnchen, Fisch, Joghurt).',
   }},
   { key: 'omega3',    expected: 2, hint: {
       ar: 'أوميغا 3 يدعم الدماغ والقلب. مرتان أسبوعياً من سمك دهني (سلمون، سردين) أو بذور الكتان/الجوز.',
-      de: 'Omega-3 für Gehirn & Herz. 2×/Woche fetter Fisch (Lachs, Sardinen) oder Lein- und Walnüsse.',
   }},
   { key: 'iron',      expected: 4, hint: {
       ar: 'الحديد ينقل الأكسجين. أدخل لحوماً حمراء، عدساً، سبانخاً، وكبدة بانتظام.',
-      de: 'Eisen transportiert Sauerstoff. Rotes Fleisch, Linsen, Spinat, Leber regelmäßig.',
   }},
   { key: 'calcium',   expected: 5, hint: {
       ar: 'الكالسيوم أساس العظام. ألبان أو سردين أو لوز يومياً.',
-      de: 'Calcium fürs Knochengerüst. Milchprodukte, Sardinen oder Mandeln täglich.',
   }},
   { key: 'magnesium', expected: 5, hint: {
       ar: 'المغنيسيوم يدعم العضلات والنوم. لوز، سبانخ، شوفان، أفوكادو.',
-      de: 'Magnesium für Muskeln und Schlaf. Mandeln, Spinat, Hafer, Avocado.',
   }},
   { key: 'vitaminC',  expected: 5, hint: {
       ar: 'فيتامين سي مضاد أكسدة قوي. حمضيات، فلفل ملوّن، فراولة، كيوي.',
-      de: 'Vitamin C als Antioxidans. Zitrusfrüchte, Paprika, Erdbeeren, Kiwi.',
   }},
   { key: 'fiber',     expected: 7, hint: {
       ar: 'الألياف تدعم الأمعاء. بقوليات، شوفان، خضروات ورقية، فواكه يومياً.',
-      de: 'Ballaststoffe für den Darm. Hülsenfrüchte, Hafer, Blattgemüse, Obst täglich.',
   }},
   { key: 'probiotics', expected: 3, hint: {
       ar: 'البروبيوتيك يدعم الميكروبيوم. زبادي، كفير، لبنة، تيمبيه.',
-      de: 'Probiotika fürs Mikrobiom. Joghurt, Kefir, Labneh, Tempeh.',
   }},
 ];
 
@@ -315,14 +298,13 @@ export function detectGaps(
     const hits = dietHits[ess.key] ?? 0;
     if (hits >= ess.expected) continue;              // covered via diet
     const info = NUTRIENTS[ess.key];
-    const label = info?.label ?? { ar: ess.key, de: ess.key };
+    const label = info?.label ?? { ar: ess.key, };
     out.push({
       id: `gap-${ess.key}`,
       kind: 'gap',
       severity: 'info',
       title: {
         ar: `نقص محتمل: ${label.ar}`,
-        de: `Möglicher Mangel: ${label.de}`,
       },
       message: ess.hint,
     });
@@ -379,10 +361,9 @@ export function detectCorrelations(
         id: `corr-luster-${s.id}`,
         kind: 'correlation',
         severity: 'info',
-        title: { ar: `${s.name} وبريق الشعر`, de: `${s.name} & Haarglanz` },
+        title: { ar: `${s.name} وبريق الشعر`, },
         message: {
           ar: `أيام تناولك ${s.name} كان بريق الشعر أعلى في المتوسط. ملاحظة أولية فقط.`,
-          de: `An Tagen mit ${s.name} war der Haarglanz im Schnitt höher — nur ein erster Hinweis.`,
         },
       });
     }
@@ -391,10 +372,9 @@ export function detectCorrelations(
         id: `corr-breakouts-${s.id}`,
         kind: 'correlation',
         severity: 'info',
-        title: { ar: `${s.name} وحبوب البشرة`, de: `${s.name} & Hautunreinheiten` },
+        title: { ar: `${s.name} وحبوب البشرة`, },
         message: {
           ar: `أيام تناولك ${s.name} كانت الحبوب أقل في المتوسط.`,
-          de: `An Tagen mit ${s.name} waren Hautunreinheiten im Schnitt geringer.`,
         },
       });
     }
@@ -417,10 +397,9 @@ export function detectHabits(skinHair: SkinHairLog[]): Insight[] {
       id: 'habit-sleep',
       kind: 'habit',
       severity: 'warn',
-      title: { ar: 'قلة النوم', de: 'Zu wenig Schlaf' },
+      title: { ar: 'قلة النوم', },
       message: {
         ar: `متوسط نومك ${avgSleep.toFixed(1)} ساعة آخر أسبوع. قلة النوم تؤثر على البشرة والشعر.`,
-        de: `Schnitt ${avgSleep.toFixed(1)} h Schlaf letzte Woche. Wirkt sich auf Haut & Haar aus.`,
       },
     });
   }
@@ -429,10 +408,9 @@ export function detectHabits(skinHair: SkinHairLog[]): Insight[] {
       id: 'habit-water',
       kind: 'habit',
       severity: 'info',
-      title: { ar: 'شرب ماء قليل', de: 'Zu wenig Wasser' },
+      title: { ar: 'شرب ماء قليل', },
       message: {
         ar: `متوسط ${avgWater.toFixed(1)} كوب يومياً. ترطيب البشرة من الداخل يبدأ هنا.`,
-        de: `Schnitt ${avgWater.toFixed(1)} Gläser/Tag. Hydration beginnt von innen.`,
       },
     });
   }
@@ -441,10 +419,9 @@ export function detectHabits(skinHair: SkinHairLog[]): Insight[] {
       id: 'habit-stress',
       kind: 'habit',
       severity: 'warn',
-      title: { ar: 'إجهاد مرتفع', de: 'Hoher Stress' },
+      title: { ar: 'إجهاد مرتفع', },
       message: {
         ar: 'الإجهاد المزمن مرتبط بتساقط الشعر وحبوب البشرة.',
-        de: 'Chronischer Stress hängt mit Haarausfall und Hautunreinheiten zusammen.',
       },
     });
   }
@@ -476,10 +453,9 @@ export function detectSynergies(supplements: Supplement[]): Insight[] {
       severity: 'info',
       title: syn.title,
       message: isFull
-        ? { ar: syn.benefits.ar.join(' • '), de: syn.benefits.de.join(' • ') }
+        ? { ar: syn.benefits.ar.join(' • '), }
         : {
             ar: `أنت قريب من هذه الحزمة (تنقص ${syn.nutrients.length - matched.length} عنصر). ${syn.benefits.ar[0]}`,
-            de: `Du bist nah an diesem Stack (es fehlt ${syn.nutrients.length - matched.length}). ${syn.benefits.de[0]}`,
           },
     });
   }

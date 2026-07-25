@@ -21,20 +21,19 @@ interface Props {
 }
 
 const T = {
-  title: { ar: 'سجل الصيام المتقطع', de: 'Intervallfasten-Tracker' },
-  protocol: { ar: 'بروتوكول الصيام', de: 'Fasten-Protokoll' },
-  start: { ar: 'ابدأ الصيام الآن', de: 'Fasten starten' },
-  end: { ar: 'إنهاء الصيام وتسجيله', de: 'Fasten beenden' },
-  activeTitle: { ar: 'أنت في حالة صيام حالياً', de: 'Fastenzeit läuft' },
-  hoursFasted: { ar: 'ساعات الصيام', de: 'Gefastete Stunden' },
+  title: { ar: 'سجل الصيام المتقطع', },
+  protocol: { ar: 'بروتوكول الصيام', },
+  start: { ar: 'ابدأ الصيام الآن', },
+  end: { ar: 'إنهاء الصيام وتسجيله', },
+  activeTitle: { ar: 'أنت في حالة صيام حالياً', },
+  hoursFasted: { ar: 'ساعات الصيام', },
   cellularState: {
     ar: 'الحالة الخلوية والبيولوجية الحالية:',
-    de: 'Zellulärer & biologischer Zustand:',
   },
-  recentFasts: { ar: 'سجل الصيام الأخير', de: 'Letzte Fasten-Sitzungen' },
-  duration: { ar: 'المدة', de: 'Dauer' },
-  hours: { ar: 'ساعة', de: 'Std.' },
-  emptyHistory: { ar: 'لا توجد جلسات صيام مسجلة', de: 'Noch keine Fasten-Sitzungen erfasst' },
+  recentFasts: { ar: 'سجل الصيام الأخير', },
+  duration: { ar: 'المدة', },
+  hours: { ar: 'ساعة', },
+  emptyHistory: { ar: 'لا توجد جلسات صيام مسجلة', },
 };
 
 const PROTOCOLS = [
@@ -42,19 +41,16 @@ const PROTOCOLS = [
     name: '16:8',
     hours: 16,
     ar: '16 ساعة صيام / 8 ساعات تناول طعام',
-    de: '16 Std. Fasten / 8 Std. Essen',
   },
   {
     name: '18:6',
     hours: 18,
     ar: '18 ساعة صيام / 6 ساعات تناول طعام',
-    de: '18 Std. Fasten / 6 Std. Essen',
   },
   {
     name: '20:4',
     hours: 20,
     ar: '20 ساعة صيام / 4 ساعات تناول طعام',
-    de: '20 Std. Fasten / 4 Std. Essen',
   },
 ];
 
@@ -93,9 +89,9 @@ export default function FastingLog({ lang }: Props) {
     try {
       const s = await startFasting(selectedProtocol.hours, selectedProtocol.name);
       setActiveSession(s);
-      toast.success(isAr ? 'بدأ الصيام! تمنياتنا بصحة وعافية.' : 'Fasten gestartet! Viel Erfolg.');
+      toast.success('بدأ الصيام! تمنياتنا بصحة وعافية.');
     } catch {
-      toast.error(isAr ? 'فشل بدء الجلسة' : 'Fehler beim Starten');
+      toast.error('فشل بدء الجلسة');
     }
   };
 
@@ -106,9 +102,9 @@ export default function FastingLog({ lang }: Props) {
       setActiveSession(null);
       setTimeElapsed(0);
       fetchFastingData();
-      toast.success(isAr ? 'تم تسجيل جلسة الصيام بنجاح!' : 'Fasten-Sitzung erfolgreich beendet!');
+      toast.success('تم تسجيل جلسة الصيام بنجاح!');
     } catch {
-      toast.error(isAr ? 'فشل إنهاء الجلسة' : 'Fehler beim Beenden');
+      toast.error('فشل إنهاء الجلسة');
     }
   };
 
@@ -120,28 +116,25 @@ export default function FastingLog({ lang }: Props) {
     const h = elapsedHours;
     if (h < 4) {
       return {
-        title: { ar: 'مرحلة الهضم (Anabolic Phase)', de: 'Anabole Phase (Verdauung)' },
+        title: { ar: 'مرحلة الهضم (Anabolic Phase)', },
         desc: {
           ar: 'يقوم الجسم حالياً بهضم آخر وجبة وامتصاص المغذيات، ومستويات الأنسولين مرتفعة والسكريات تمد الخلايا بالطاقة.',
-          de: 'Der Körper verdaut die letzte Mahlzeit. Der Insulinspiegel ist erhöht, Zellen nutzen Glukose zur Energiegewinnung.',
         },
         progress: h / 4,
       };
     } else if (h < 12) {
       return {
-        title: { ar: 'نفاد الجليكوجين (Glycogen Depletion)', de: 'Glykogen-Abbau' },
+        title: { ar: 'نفاد الجليكوجين (Glycogen Depletion)', },
         desc: {
           ar: 'انخفضت مستويات الأنسولين وبدأ الجسم في استخدام مخازن جليكوجين الكبد لإنتاج الطاقة المعتادة.',
-          de: 'Insulin sinkt, der Körper greift auf die Glykogenspeicher der Leber zurück, um Glukose freizusetzen.',
         },
         progress: (h - 4) / 8,
       };
     } else if (h < 16) {
       return {
-        title: { ar: 'بدء حرق الدهون (Ketosis Initiation)', de: 'Ketose-Start' },
+        title: { ar: 'بدء حرق الدهون (Ketosis Initiation)', },
         desc: {
           ar: 'بدأت خلايا الكبد في إنتاج الكيتونات من أكسدة الأحماض الدهنية كوقود ممتاز للدماغ والعضلات.',
-          de: 'Die Leber beginnt mit der Bildung von Ketonkörpern aus Fettsäuren als Premium-Brennstoff für Gehirn und Muskeln.',
         },
         progress: (h - 12) / 4,
       };
@@ -149,11 +142,9 @@ export default function FastingLog({ lang }: Props) {
       return {
         title: {
           ar: 'الالتهام الذاتي والترميم (Autophagy & Growth)',
-          de: 'Autophagie & Zellerneuerung',
         },
         desc: {
           ar: 'بدأت الخلايا في تفعيل الالتهام الذاتي (Autophagy) لإعادة تدوير المكونات التالفة والبروتينات الهرمة لشباب متجدد.',
-          de: 'Zellen aktivieren die Autophagie, um beschädigte Proteine und Organellen zu recyceln — zelluläre Verjüngung.',
         },
         progress: Math.min(1, (h - 16) / 8),
       };
@@ -168,7 +159,7 @@ export default function FastingLog({ lang }: Props) {
   };
 
   return (
-    <div className="space-y-4" dir={isAr ? 'rtl' : 'ltr'}>
+    <div className="space-y-4" dir={'rtl'}>
       {/* Active fast block */}
       {activeSession ? (
         <div className="rounded-2xl p-4 bg-primary/5 border border-primary/20 space-y-4">

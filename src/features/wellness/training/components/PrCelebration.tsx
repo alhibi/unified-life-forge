@@ -15,26 +15,26 @@ export interface PrCelebrationProps {
   records: PersonalRecord[];
   open: boolean;
   onClose: () => void;
-  lang: 'ar' | 'de';
+  lang: 'ar';
 }
 
 const T = {
-  newPr: { ar: 'رقم قياسي جديد!', de: 'Neuer Rekord!' },
-  multipleNew: { ar: 'أرقام قياسية جديدة!', de: 'Neue Rekorde!' },
-  niceWork: { ar: 'عمل رائع — استمر.', de: 'Stark gemacht — weiter so.' },
-  close: { ar: 'متابعة', de: 'Weiter' },
+  newPr: { ar: 'رقم قياسي جديد!', },
+  multipleNew: { ar: 'أرقام قياسية جديدة!', },
+  niceWork: { ar: 'عمل رائع — استمر.', },
+  close: { ar: 'متابعة', },
   unit: {
-    kg: { ar: 'كغ', de: 'kg' },
-    reps: { ar: 'تكرار', de: 'Wdh' },
-    sec: { ar: 'ث', de: 's' },
-    kg_x_reps: { ar: 'كغ×تكرار', de: 'kg×Wdh' },
+    kg: { ar: 'كغ', },
+    reps: { ar: 'تكرار', },
+    sec: { ar: 'ث', },
+    kg_x_reps: { ar: 'كغ×تكرار', },
   },
   kind: {
-    max_weight: { ar: 'أعلى وزن', de: 'Höchstes Gewicht' },
-    max_reps: { ar: 'أعلى تكرارات', de: 'Meiste Wdh.' },
-    max_e1rm: { ar: 'أفضل 1RM مقدّر', de: 'Beste e1RM' },
-    max_volume: { ar: 'أعلى حجم', de: 'Höchstes Volumen' },
-    max_hold: { ar: 'أطول هولد', de: 'Längster Halt' },
+    max_weight: { ar: 'أعلى وزن', },
+    max_reps: { ar: 'أعلى تكرارات', },
+    max_e1rm: { ar: 'أفضل 1RM مقدّر', },
+    max_volume: { ar: 'أعلى حجم', },
+    max_hold: { ar: 'أطول هولد', },
   },
 };
 
@@ -97,7 +97,7 @@ export default function PrCelebration({ records, open, onClose, lang }: PrCelebr
 
             <div className="bg-white/95 px-4 pt-4 pb-5 space-y-2">
               {records.slice(0, 4).map((r, i) => {
-                const ex = resolveExercise(r.exerciseKey) as Exercise | { isCustom: true; label: { ar: string; de: string } };
+                const ex = resolveExercise(r.exerciseKey) as Exercise | { isCustom: true; label: { ar: string; } };
                 const label = 'isCustom' in ex && ex.isCustom ? ex.label[lang] : (ex as Exercise).label[lang];
                 return (
                   <motion.div

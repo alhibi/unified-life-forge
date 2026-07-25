@@ -20,29 +20,29 @@ export interface ProgramsLibraryViewProps {
   /** Currently active program key (drawn highlighted). */
   activeKey?: string | null;
   onPickProgram: (key: string) => void;
-  lang: 'ar' | 'de';
+  lang: 'ar';
   className?: string;
 }
 
 const T = {
-  title: { ar: 'مكتبة البرامج', de: 'Programmbibliothek' },
-  subtitle: { ar: 'اختر برنامجاً لبدء تطور منهجي', de: 'Wähle ein Programm für strukturierten Fortschritt' },
-  current: { ar: 'برنامجك الحالي', de: 'Aktuelles Programm' },
-  filters: { ar: 'تصفية', de: 'Filter' },
-  all: { ar: 'الكل', de: 'Alle' },
-  details: { ar: 'تفاصيل', de: 'Details' },
-  start: { ar: 'بدء', de: 'Start' },
-  daysWk: { ar: 'يوم/أسبوع', de: 'Tage/Woche' },
-  weeks: { ar: 'أسابيع', de: 'Wochen' },
-  minutes: { ar: 'دقيقة/جلسة', de: 'Min/Session' },
-  by: { ar: 'بقلم', de: 'von' },
-  highlights: { ar: 'مميزات', de: 'Vorteile' },
-  prereq: { ar: 'متطلبات', de: 'Voraussetzungen' },
-  scheme: { ar: 'النظام', de: 'Schema' },
-  description: { ar: 'الوصف', de: 'Beschreibung' },
-  equipment: { ar: 'المعدات', de: 'Equipment' },
-  experience: { ar: 'الخبرة', de: 'Erfahrung' },
-  goal: { ar: 'الهدف', de: 'Ziel' },
+  title: { ar: 'مكتبة البرامج', },
+  subtitle: { ar: 'اختر برنامجاً لبدء تطور منهجي', },
+  current: { ar: 'برنامجك الحالي', },
+  filters: { ar: 'تصفية', },
+  all: { ar: 'الكل', },
+  details: { ar: 'تفاصيل', },
+  start: { ar: 'بدء', },
+  daysWk: { ar: 'يوم/أسبوع', },
+  weeks: { ar: 'أسابيع', },
+  minutes: { ar: 'دقيقة/جلسة', },
+  by: { ar: 'بقلم', },
+  highlights: { ar: 'مميزات', },
+  prereq: { ar: 'متطلبات', },
+  scheme: { ar: 'النظام', },
+  description: { ar: 'الوصف', },
+  equipment: { ar: 'المعدات', },
+  experience: { ar: 'الخبرة', },
+  goal: { ar: 'الهدف', },
 };
 
 const EXPERIENCE_OPTS: ('all' | ProgramExperience)[] = ['all', 'beginner', 'intermediate', 'advanced'];
@@ -155,7 +155,7 @@ function ProgramCard({
   isActive: boolean;
   onDetails: () => void;
   onStart: () => void;
-  lang: 'ar' | 'de';
+  lang: 'ar';
   delay: number;
 }) {
   return (
@@ -246,7 +246,7 @@ function DetailSheet({
   program: ProgramDef | null;
   onClose: () => void;
   onStart: () => void;
-  lang: 'ar' | 'de';
+  lang: 'ar';
 }) {
   const open = !!program;
   return (

@@ -13,18 +13,18 @@ import type { WorkoutSession } from '../../wellnessDb';
 export interface FrequencyHeatmapProps {
   workouts: WorkoutSession[];
   weeks?: number;
-  lang: 'ar' | 'de';
+  lang: 'ar';
   className?: string;
 }
 
 const T = {
-  title: { ar: 'تكرار التدريب', de: 'Trainingsfrequenz' },
-  desc: { ar: 'الأشهر الثلاثة الماضية', de: 'Letzte 3 Monate' },
-  none: { ar: 'لا تدريب', de: 'Kein Training' },
-  light: { ar: 'خفيف', de: 'Leicht' },
-  moderate: { ar: 'متوسط', de: 'Mittel' },
-  heavy: { ar: 'ثقيل', de: 'Schwer' },
-  intense: { ar: 'مكثف', de: 'Intensiv' },
+  title: { ar: 'تكرار التدريب', },
+  desc: { ar: 'الأشهر الثلاثة الماضية', },
+  none: { ar: 'لا تدريب', },
+  light: { ar: 'خفيف', },
+  moderate: { ar: 'متوسط', },
+  heavy: { ar: 'ثقيل', },
+  intense: { ar: 'مكثف', },
 };
 
 const DAYS_AR = ['أ', 'إ', 'ث', 'أ', 'خ', 'ج', 'س'];
@@ -77,7 +77,7 @@ export default function FrequencyHeatmap({
     return out;
   }, [cellMap, days]);
 
-  const dayLabels = lang === 'ar' ? DAYS_AR : DAYS_DE;
+  const dayLabels = DAYS_AR;
 
   const cellSize = 10;
   const cellGap = 2;

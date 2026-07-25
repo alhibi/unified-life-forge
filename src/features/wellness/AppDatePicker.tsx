@@ -21,13 +21,13 @@ interface Props {
 export default function AppDatePicker({ value, onChange, className }: Props) {
   const { language, dir } = useApp();
   const isAr = language === 'ar';
-  const locale = isAr ? ar : de;
+  const locale = ar;
   const [open, setOpen] = useState(false);
 
   const selected = value ? parse(value, 'yyyy-MM-dd', new Date()) : undefined;
   const label = selected
     ? format(selected, 'd MMM yyyy', { locale })
-    : isAr ? 'اختر تاريخاً' : 'Datum wählen';
+    : 'اختر تاريخاً';
 
   return (
     <Popover open={open} onOpenChange={setOpen}>

@@ -68,7 +68,7 @@ const GroupComposer: React.FC<GroupComposerProps> = ({
     return (
       <div className="px-4 py-3 border-t border-border/15 bg-muted/15">
         <p className="text-[12.5px] text-muted-foreground text-center">
-          {readOnlyReason ?? (isAr ? 'لا يمكنك الإرسال هنا' : 'Hier kann nicht gesendet werden')}
+          {readOnlyReason ?? ('لا يمكنك الإرسال هنا')}
         </p>
       </div>
     );
@@ -86,8 +86,8 @@ const GroupComposer: React.FC<GroupComposerProps> = ({
           <div className="flex-1 min-w-0">
             <p className="text-[10.5px] uppercase tracking-wider text-muted-foreground/80 flex items-center gap-1">
               {editing
-                ? <><Pencil className="w-3 h-3" />{isAr ? 'تعديل' : 'Bearbeiten'}</>
-                : <><Reply className="w-3 h-3" />{isAr ? 'رد' : 'Antwort'}</>}
+                ? <><Pencil className="w-3 h-3" />{'تعديل'}</>
+                : <><Reply className="w-3 h-3" />{'رد'}</>}
             </p>
             <p className="text-[12.5px] text-foreground/80 truncate" dir="auto">
               {(editing?.content ?? replyTo?.content ?? '').slice(0, 120)}
@@ -97,7 +97,7 @@ const GroupComposer: React.FC<GroupComposerProps> = ({
             type="button"
             onClick={editing ? onCancelEdit : onClearReply}
             className="w-7 h-7 rounded-full flex items-center justify-center active:bg-accent/40 shrink-0 mt-0.5"
-            aria-label={isAr ? 'إلغاء' : 'Abbrechen'}
+            aria-label={'إلغاء'}
           >
             <X className="w-3.5 h-3.5 text-muted-foreground" />
           </button>
@@ -108,7 +108,7 @@ const GroupComposer: React.FC<GroupComposerProps> = ({
         <button
           type="button"
           onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-          aria-label={isAr ? 'الرموز التعبيرية' : 'Emojis'}
+          aria-label={'الرموز التعبيرية'}
           aria-pressed={showEmojiPicker}
           className={cn(
             'w-9 h-9 rounded-full flex items-center justify-center transition-colors shrink-0',
@@ -139,7 +139,7 @@ const GroupComposer: React.FC<GroupComposerProps> = ({
               }
             }}
             rows={1}
-            placeholder={isAr ? 'اكتب رسالة...' : 'Nachricht schreiben...'}
+            placeholder={'اكتب رسالة...'}
             className={cn(
               'w-full bg-transparent outline-none resize-none px-4 py-2.5',
               'text-[14.5px] leading-snug placeholder:text-muted-foreground/40',
@@ -163,7 +163,7 @@ const GroupComposer: React.FC<GroupComposerProps> = ({
               ? 'bg-primary text-primary-foreground '
               : 'bg-muted text-muted-foreground/40',
           )}
-          aria-label={isAr ? 'إرسال' : 'Senden'}
+          aria-label={'إرسال'}
         >
           <Send className="w-4 h-4 -mt-px" />
         </button>

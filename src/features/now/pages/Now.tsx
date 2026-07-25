@@ -51,9 +51,7 @@ export default function Now() {
       />
       {/* Descriptive H1 for SEO & a11y; visual greeting below acts as a styled subhead */}
       <h1 className="sr-only">
-        {language === 'ar'
-          ? 'SmartHub — لوحتك اليومية لأوقات الصلاة، القرآن، الأذكار، الطقس والتقويم الهجري'
-          : 'SmartHub — Dein tägliches Dashboard für Gebetszeiten, Quran, Adhkar, Wetter und Hidschri-Kalender'}
+        {'SmartHub — لوحتك اليومية لأوقات الصلاة، القرآن، الأذكار، الطقس والتقويم الهجري'}
       </h1>
       <motion.div variants={stagger} initial="hidden" animate="show" className="contents">
         <motion.div variants={item}>
@@ -61,19 +59,19 @@ export default function Now() {
         </motion.div>
 
         <motion.section variants={item} aria-labelledby="home-prayer-h">
-          <h2 id="home-prayer-h" className="sr-only">{language === 'ar' ? 'أوقات الصلاة' : 'Gebetszeiten'}</h2>
+          <h2 id="home-prayer-h" className="sr-only">{'أوقات الصلاة'}</h2>
           <PrayerTimes />
         </motion.section>
         <motion.section variants={item} aria-labelledby="home-sunnah-h">
-          <h2 id="home-sunnah-h" className="sr-only">{language === 'ar' ? 'سنة الوقت الحالي' : 'Sunnah dieser Zeit'}</h2>
+          <h2 id="home-sunnah-h" className="sr-only">{'سنة الوقت الحالي'}</h2>
           <CurrentTimeSunnah />
         </motion.section>
         <motion.section variants={item} aria-labelledby="home-weather-h">
-          <h2 id="home-weather-h" className="sr-only">{language === 'ar' ? 'الطقس' : 'Wetter'}</h2>
+          <h2 id="home-weather-h" className="sr-only">{'الطقس'}</h2>
           <WeatherWidget />
         </motion.section>
         <motion.section variants={item} aria-labelledby="home-ummah-h">
-          <h2 id="home-ummah-h" className="sr-only">{language === 'ar' ? 'بوصلة القبلة ومواقيت الصلاة حول العالم' : 'Qibla-Kompass und Gebetszeiten weltweit'}</h2>
+          <h2 id="home-ummah-h" className="sr-only">{'بوصلة القبلة ومواقيت الصلاة حول العالم'}</h2>
           <UmmahPulse />
         </motion.section>
         {/* Tafsir feature card and the IslamicSections grid that used
@@ -110,7 +108,7 @@ export default function Now() {
 
         {/* PKM — personal knowledge base entry card */}
         <motion.section variants={item} aria-labelledby="home-pkm-h">
-          <h2 id="home-pkm-h" className="sr-only">{language === 'ar' ? 'مذكّرتي' : 'Mein Wissen'}</h2>
+          <h2 id="home-pkm-h" className="sr-only">{'مذكّرتي'}</h2>
           <AppCard
             as="button"
             pressable
@@ -123,12 +121,10 @@ export default function Now() {
               </div>
               <div className="flex-1 min-w-0">
                 <h3 className="font-bold text-foreground">
-                  {language === 'ar' ? 'مذكّرتي' : 'Mein Wissen'}
+                  {'مذكّرتي'}
                 </h3>
                 <p className="text-[12px] text-muted-foreground leading-relaxed mt-0.5">
-                  {language === 'ar'
-                    ? 'ملاحظات محلية بوسم متداخل وبحث فوري.'
-                    : 'Lokale Notizen mit verschachtelten Tags und Sofortsuche.'}
+                  {'ملاحظات محلية بوسم متداخل وبحث فوري.'}
                 </p>
               </div>
               <ChevronLeft className="w-4 h-4 text-muted-foreground shrink-0" />
@@ -138,7 +134,7 @@ export default function Now() {
 
         {/* Travel Atlas — tourism guide entry card */}
         <motion.section variants={item} aria-labelledby="home-travel-h">
-          <h2 id="home-travel-h" className="sr-only">{language === 'ar' ? 'أطلس الرحلات' : 'Reiseatlas'}</h2>
+          <h2 id="home-travel-h" className="sr-only">{'أطلس الرحلات'}</h2>
           <AppCard
             as="button"
             pressable
@@ -151,12 +147,10 @@ export default function Now() {
               </div>
               <div className="flex-1 min-w-0">
                 <h3 className="font-bold text-foreground">
-                  {language === 'ar' ? 'أطلس الرحلات' : 'Reiseatlas'}
+                  {'أطلس الرحلات'}
                 </h3>
                 <p className="text-[12px] text-muted-foreground leading-relaxed mt-0.5">
-                  {language === 'ar'
-                    ? 'دليلك الشخصي للأماكن التي تستحق الرحلة.'
-                    : 'Dein persönlicher Atlas für Orte, die eine Reise wert sind.'}
+                  {'دليلك الشخصي للأماكن التي تستحق الرحلة.'}
                 </p>
               </div>
               <ChevronLeft className="w-4 h-4 text-muted-foreground shrink-0" />

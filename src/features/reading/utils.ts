@@ -30,36 +30,36 @@ export function timeAgo(dateStr: string, lang: string): string {
     const future = diffMs < 0;
     // Clamp tiny clock skew (≤ 60s) to "now" so a publisher whose
     // server is 30 seconds ahead doesn't show "in 30 seconds".
-    if (Math.abs(diffMs) < 60_000) return isAr ? 'الآن' : 'now';
+    if (Math.abs(diffMs) < 60_000) return 'الآن';
     const abs = Math.abs(diffMs);
     const min = Math.floor(abs / 60_000);
     if (min < 60) {
       return future
-        ? (isAr ? `بعد ${min} د` : `in ${min}m`)
-        : (isAr ? `منذ ${min} د` : `${min}m ago`);
+        ? (`بعد ${min} د`)
+        : (`منذ ${min} د`);
     }
     const hr = Math.floor(min / 60);
     if (hr < 24) {
       return future
-        ? (isAr ? `بعد ${hr} س` : `in ${hr}h`)
-        : (isAr ? `منذ ${hr} س` : `${hr}h ago`);
+        ? (`بعد ${hr} س`)
+        : (`منذ ${hr} س`);
     }
     const day = Math.floor(hr / 24);
     if (day < 30) {
       return future
-        ? (isAr ? `بعد ${day} ي` : `in ${day}d`)
-        : (isAr ? `منذ ${day} ي` : `${day}d ago`);
+        ? (`بعد ${day} ي`)
+        : (`منذ ${day} ي`);
     }
     const mo = Math.floor(day / 30);
     if (mo < 12) {
       return future
-        ? (isAr ? `بعد ${mo} شهر` : `in ${mo}mo`)
-        : (isAr ? `منذ ${mo} شهر` : `${mo}mo ago`);
+        ? (`بعد ${mo} شهر`)
+        : (`منذ ${mo} شهر`);
     }
     const yr = Math.floor(day / 365);
     return future
-      ? (isAr ? `بعد ${yr} سنة` : `in ${yr}y`)
-      : (isAr ? `منذ ${yr} سنة` : `${yr}y ago`);
+      ? (`بعد ${yr} سنة`)
+      : (`منذ ${yr} سنة`);
   } catch { return ''; }
 }
 
@@ -70,7 +70,7 @@ export function formatDate(dateStr: string, lang: string): string {
     const date = new Date(dateStr);
     if (Number.isNaN(date.getTime())) return '';
     return date.toLocaleDateString(
-      lang === 'ar' ? 'ar' : 'en-US',
+      'ar',
       {
         weekday: 'long',
         year: 'numeric',
@@ -99,7 +99,7 @@ export function readingMinutes(text: string, lang: string): number {
   if (!plain) return 1;
   // Count tokens by whitespace; for Arabic this is words, for English same.
   const words = plain.split(/\s+/).filter(Boolean).length;
-  const wpm = lang === 'ar' ? 180 : 220;
+  const wpm = 180;
   return Math.max(1, Math.round(words / wpm));
 }
 

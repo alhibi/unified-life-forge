@@ -30,24 +30,18 @@ export default function TravelAtlasPage() {
   return (
     <div className="page-shell page-shell-flush">
       <SEO
-        title={isAr ? 'أطلس الرحلات — amv.life' : 'Reiseatlas — amv.life'}
+        title={'أطلس الرحلات — amv.life'}
         description={
-          isAr
-            ? 'دليل شخصي للأماكن التي تستحق الرحلة.'
-            : 'Ein persönlicher Atlas für Orte, die eine Reise wert sind.'
+          'دليل شخصي للأماكن التي تستحق الرحلة.'
         }
         path="/travel-atlas"
       />
       <PageHeader
-        title={isAr ? 'أطلس الرحلات' : 'Reiseatlas'}
+        title={'أطلس الرحلات'}
         subtitle={
           totalPlaces > 0
-            ? isAr
-              ? `${totalPlaces} مكانًا محفوظًا`
-              : `${totalPlaces} gespeicherte Orte`
-            : isAr
-              ? 'دليلك الشخصي للأماكن'
-              : 'Dein persönlicher Reiseführer'
+            ? `${totalPlaces} مكانًا محفوظًا`
+            : 'دليلك الشخصي للأماكن'
         }
         icon={<MapPinned className="h-5 w-5 text-[hsl(var(--live))]" aria-hidden="true" />}
         sticky
@@ -60,7 +54,7 @@ export default function TravelAtlasPage() {
               onClick={() => setAddOpen(true)}
             >
               <Plus className="h-4 w-4" aria-hidden="true" />
-              {isAr ? 'إضافة' : 'Hinzufügen'}
+              {'إضافة'}
             </Button>
           ) : null
         }
@@ -71,20 +65,16 @@ export default function TravelAtlasPage() {
           <CountryGridSkeleton />
         ) : error ? (
           <div className="empty-state empty-state-surface min-h-[45dvh]" role="alert">
-            <strong>{isAr ? 'تعذّر تحميل الأطلس' : 'Atlas konnte nicht geladen werden'}</strong>
+            <strong>{'تعذّر تحميل الأطلس'}</strong>
             <span>
-              {isAr
-                ? 'تحقق من الاتصال ثم حاول مجددًا.'
-                : 'Prüfe die Verbindung und versuche es erneut.'}
+              {'تحقق من الاتصال ثم حاول مجددًا.'}
             </span>
           </div>
         ) : totalPlaces === 0 ? (
           <div className="empty-state empty-state-surface min-h-[55dvh]">
             <MapPinned data-empty-icon aria-hidden="true" />
             <strong>
-              {isAr
-                ? 'أضف مكانك الأول، ولتبدأ الخريطة.'
-                : 'Füge deinen ersten Ort hinzu – und die Karte beginnt.'}
+              {'أضف مكانك الأول، ولتبدأ الخريطة.'}
             </strong>
             <Button
               type="button"
@@ -93,13 +83,13 @@ export default function TravelAtlasPage() {
               size="lg"
             >
               <Plus className="h-4 w-4" aria-hidden="true" />
-              {isAr ? 'إضافة مكان' : 'Ort hinzufügen'}
+              {'إضافة مكان'}
             </Button>
           </div>
         ) : (
           <section
             className="grid grid-cols-12 gap-x-4 gap-y-7"
-            aria-label={isAr ? 'الدول حسب كثافة الأماكن' : 'Länder nach Ortsdichte'}
+            aria-label={'الدول حسب كثافة الأماكن'}
           >
             {countries.map((country, index) => (
               <CountryTile
@@ -161,10 +151,10 @@ function CountryTile({
           <span
             className={`${titleClass} block font-semibold leading-[1.1] tracking-tight text-foreground`}
           >
-            {isAr ? country.nameAr : country.nameEn}
+            {country.nameAr}
           </span>
           <span className="mt-1 block text-micro uppercase tracking-[0.14em] text-muted-foreground">
-            {isAr ? country.nameEn : country.nameAr}
+            {country.nameEn}
           </span>
         </span>
         <span className="shrink-0 rounded-full border border-border px-2 py-0.5 font-mono text-micro tabular-nums text-muted-foreground">

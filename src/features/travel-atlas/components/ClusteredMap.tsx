@@ -23,7 +23,7 @@ const CLUSTER_TIERS = {
 interface ClusteredMapProps {
   bounds: CountryBounds;
   places: TravelPlace[];
-  language: 'ar' | 'de';
+  language: 'ar';
   onSelectPlace: (placeId: string) => void;
   onReady?: () => void;
   onError?: (message: string) => void;
@@ -190,7 +190,7 @@ export default function ClusteredMap({
     map.on('moveend', updateMarkers);
     map.on('zoom', () => setZoom(map.getZoom()));
     map.on('error', (e) => {
-      onError?.(language === 'ar' ? 'حدث خطأ في تحميل الخريطة' : 'Fehler beim Laden der Karte');
+      onError?.('حدث خطأ في تحميل الخريطة');
       console.error('Map error:', e);
     });
 
@@ -279,7 +279,7 @@ export default function ClusteredMap({
           variant="secondary"
           className="h-10 w-10 rounded-2xl border border-border/70 bg-background/90 backdrop-blur"
           onClick={zoomIn}
-          aria-label={language === 'ar' ? 'تكبير الخريطة' : 'Karte vergrößern'}
+          aria-label={'تكبير الخريطة'}
         >
           <Plus className="h-4 w-4" aria-hidden="true" />
         </Button>
@@ -289,7 +289,7 @@ export default function ClusteredMap({
           variant="secondary"
           className="h-10 w-10 rounded-2xl border border-border/70 bg-background/90 backdrop-blur"
           onClick={zoomOut}
-          aria-label={language === 'ar' ? 'تصغير الخريطة' : 'Karte verkleinern'}
+          aria-label={'تصغير الخريطة'}
         >
           <Minus className="h-4 w-4" aria-hidden="true" />
         </Button>
@@ -298,7 +298,7 @@ export default function ClusteredMap({
       {/* Empty state */}
       {places.length === 0 && (
         <div className="pointer-events-none absolute inset-x-4 top-4 z-10 rounded-2xl border border-border/70 bg-background/90 px-4 py-3 text-center text-body text-muted-foreground backdrop-blur">
-          {language === 'ar' ? 'أضف مكانًا ليظهر على الخريطة.' : 'Füge einen Ort hinzu, damit er auf der Karte erscheint.'}
+          {'أضف مكانًا ليظهر على الخريطة.'}
         </div>
       )}
     </div>
@@ -364,7 +364,7 @@ function PhotoMarker({
   x: number;
   y: number;
   place: TravelPlace;
-  language: 'ar' | 'de';
+  language: 'ar';
   isTransitioning: boolean;
   onClick: () => void;
 }) {
@@ -401,7 +401,7 @@ function PhotoMarker({
         opacity: { duration: 0.2 },
       }}
       onClick={onClick}
-      aria-label={language === 'ar' ? place.nameAr : (place.nameEn ?? place.nameAr)}
+      aria-label={place.nameAr}
     >
       {place.coverPhotoUrl && (
         <img

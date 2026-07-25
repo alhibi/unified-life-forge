@@ -40,55 +40,51 @@ type TabKey =
 const STORAGE_KEY = 'wellness:lastTab';
 
 const T = {
-  title: { ar: 'العافية', de: 'Wellness' },
-  privacy: { ar: 'الخصوصية', de: 'Privatsphäre' },
-  privacyTitle: { ar: 'الخصوصية والتحكم', de: 'Datenschutz & Kontrolle' },
+  title: { ar: 'العافية', },
+  privacy: { ar: 'الخصوصية', },
+  privacyTitle: { ar: 'الخصوصية والتحكم', },
   privacyBody: {
     ar: 'بيانات العافية محفوظة في حسابك في السحابة، محمية بصلاحيات صارمة — لا يستطيع أحد غيرك رؤيتها أو تعديلها.',
-    de: 'Wellness-Daten liegen in deinem Konto in der Cloud, geschützt durch strenge Zugriffsregeln — niemand außer dir kann sie sehen.',
   },
-  exportData: { ar: 'تصدير بياناتي', de: 'Daten exportieren' },
-  wipe: { ar: 'حذف جميع البيانات', de: 'Alle Daten löschen' },
-  wipeConfirm: { ar: 'هل أنت متأكد؟ لا يمكن التراجع.', de: 'Bist du sicher? Nicht rückgängig.' },
-  close: { ar: 'إغلاق', de: 'Schließen' },
-  exportOk: { ar: 'تم التصدير بنجاح', de: 'Export erfolgreich' },
-  exportErr: { ar: 'فشل التصدير', de: 'Export fehlgeschlagen' },
-  wipeOk: { ar: 'تم حذف جميع بيانات العافية', de: 'Alle Wellness-Daten gelöscht' },
-  welcomeTitle: { ar: 'مرحباً في العافية', de: 'Willkommen bei Wellness' },
+  exportData: { ar: 'تصدير بياناتي', },
+  wipe: { ar: 'حذف جميع البيانات', },
+  wipeConfirm: { ar: 'هل أنت متأكد؟ لا يمكن التراجع.', },
+  close: { ar: 'إغلاق', },
+  exportOk: { ar: 'تم التصدير بنجاح', },
+  exportErr: { ar: 'فشل التصدير', },
+  wipeOk: { ar: 'تم حذف جميع بيانات العافية', },
+  welcomeTitle: { ar: 'مرحباً في العافية', },
   welcomeBody: {
     ar: 'نظام متكامل لتتبّع صحتك وأدائك الرياضي. كل بياناتك محفوظة في حسابك وآمنة تماماً.',
-    de: 'Gesundheit & sportliche Leistung. Alle Daten in deinem Konto & sicher.',
   },
-  feat1: { ar: 'تتبّع التمارين والأرقام القياسية (1RM)', de: 'Workouts & Rekorde tracken (1RM)' },
-  feat2: { ar: 'تمارين كاليستنيكس متدرّجة', de: 'Progressives Calisthenics' },
-  feat3: { ar: 'تغذية وحساب الماكروز', de: 'Ernährung & Makros' },
-  feat4: { ar: 'أطلس وموسوعة معرفية', de: 'Atlas & Wissens-Lexikon' },
-  setupCta: { ar: 'استكشف الآن', de: 'Jetzt erkunden' },
-  later: { ar: 'لاحقاً', de: 'Später' },
-  signInRequired: { ar: 'سجّل دخولك لاستخدام قسم العافية', de: 'Melde dich an, um Wellness zu nutzen' },
+  feat1: { ar: 'تتبّع التمارين والأرقام القياسية (1RM)', },
+  feat2: { ar: 'تمارين كاليستنيكس متدرّجة', },
+  feat3: { ar: 'تغذية وحساب الماكروز', },
+  feat4: { ar: 'أطلس وموسوعة معرفية', },
+  setupCta: { ar: 'استكشف الآن', },
+  later: { ar: 'لاحقاً', },
+  signInRequired: { ar: 'سجّل دخولك لاستخدام قسم العافية', },
   signInBody: {
     ar: 'قسم العافية بالكامل مرتبط بحسابك — التمارين، التغذية، المكملات، والأهداف تُحفظ في السحابة وتتزامن عبر أجهزتك.',
-    de: 'Wellness ist vollständig kontogebunden — Workouts, Ernährung, Supplemente und Ziele werden in der Cloud gespeichert und synchronisiert.',
   },
-  signInCta: { ar: 'تسجيل الدخول', de: 'Anmelden' },
+  signInCta: { ar: 'تسجيل الدخول', },
 };
 
 interface TabDef {
   key: TabKey;
   labelAr: string;
-  labelDe: string;
   icon: any;
   group: 0 | 1 | 2;
 }
 
 const TABS: TabDef[] = [
-  { key: 'workouts',    labelAr: 'التمارين',     labelDe: 'Training',      icon: Dumbbell,   group: 0 },
-  { key: 'cali',        labelAr: 'كاليستنيكس',   labelDe: 'Calisthenics',  icon: Dumbbell,   group: 0 },
-  { key: 'nutrition',   labelAr: 'التغذية الذكية', labelDe: 'Smart-Ernährung', icon: Apple,   group: 1 },
-  { key: 'diet',        labelAr: 'سجل الطعام',   labelDe: 'Essen-Log',     icon: Utensils,   group: 1 },
-  { key: 'insights',    labelAr: 'التحليلات',    labelDe: 'Insights',      icon: Brain,      group: 1 },
-  { key: 'atlas',       labelAr: 'الأطلس',       labelDe: 'Atlas',         icon: BookOpen,   group: 1 },
-  { key: 'encyclopedia',labelAr: 'الموسوعة',     labelDe: 'Wissen',        icon: Library,    group: 1 },
+  { key: 'workouts',    labelAr: 'التمارين',      icon: Dumbbell,   group: 0 },
+  { key: 'cali',        labelAr: 'كاليستنيكس',  icon: Dumbbell,   group: 0 },
+  { key: 'nutrition',   labelAr: 'التغذية الذكية', icon: Apple,   group: 1 },
+  { key: 'diet',        labelAr: 'سجل الطعام',     icon: Utensils,   group: 1 },
+  { key: 'insights',    labelAr: 'التحليلات',      icon: Brain,      group: 1 },
+  { key: 'atlas',       labelAr: 'الأطلس',         icon: BookOpen,   group: 1 },
+  { key: 'encyclopedia',labelAr: 'الموسوعة',        icon: Library,    group: 1 },
 ];
 
 export default function WellnessPage() {
@@ -241,16 +237,12 @@ export default function WellnessPage() {
   return (
     <AuthGuard
       fallbackTitleAr="قسم الصحة والعافية"
-      fallbackTitleDe="Wellness-Bereich"
       fallbackDescAr="يرجى تسجيل الدخول للوصول إلى برامج التمرين والتحليلات الصحية ومزامنتها سحابياً."
-      fallbackDescDe="Bitte melde dich an, um auf deine Trainingsprogramme, Gesundheitsanalysen zuzugreifen."
     >
       <div className="min-h-screen bg-background pb-24">
       <SEO
-        title={isAr ? 'الصحة والعافية — SmartHub' : 'Wellness — SmartHub'}
-        description={isAr
-          ? 'تطبيق العافية: تمارين، كاليستنيكس، تغذية، أطلس، وموسوعة — كل البيانات محلية وآمنة.'
-          : 'Wellness-App: Workouts, Calisthenics, Ernährung, Atlas & Lexikon — alle Daten lokal.'}
+        title={'الصحة والعافية — SmartHub'}
+        description={'تطبيق العافية: تمارين، كاليستنيكس، تغذية، أطلس، وموسوعة — كل البيانات محلية وآمنة.'}
         path="/wellness"
       />
 
@@ -319,7 +311,7 @@ export default function WellnessPage() {
                           active ? '' : 'tracking-tight'
                         }`}
                       >
-                        {isAr ? t.labelAr : t.labelDe}
+                        {t.labelAr}
                       </span>
                     </span>
                   </button>

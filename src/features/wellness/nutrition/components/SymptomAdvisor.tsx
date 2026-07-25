@@ -16,27 +16,25 @@ interface Props {
 }
 
 const T = {
-  title: { ar: 'مستشار الأعراض ونقص المغذيات', de: 'Mangel- & Symptomberater' },
+  title: { ar: 'مستشار الأعراض ونقص المغذيات', },
   subtitle: {
     ar: 'اختر أي عَرَض جسدي لمعرفة النقص المحتمل ومصادر الغذاء المعالجة له',
-    de: 'Wähle Symptome, um potenzielle Mängel und lindernde Lebensmittel zu finden',
   },
-  selectSymptom: { ar: 'حدد الأعراض التي تشعر بها:', de: 'Symptome auswählen:' },
+  selectSymptom: { ar: 'حدد الأعراض التي تشعر بها:', },
   potentialDeficiencies: {
     ar: 'تحليل النقص المحتمل والمقترحات:',
-    de: 'Mögliche Mängel & Empfehlungen:',
   },
-  richFoods: { ar: 'أطعمة غنية لحل النقص:', de: 'Hilfreiche Lebensmittel:' },
-  quickAdd: { ar: 'تسجيل الوجبة', de: 'Direkt loggen' },
-  added: { ar: 'تم التسجيل في سجل الطعام', de: 'Erfolgreich erfasst' },
+  richFoods: { ar: 'أطعمة غنية لحل النقص:', },
+  quickAdd: { ar: 'تسجيل الوجبة', },
+  added: { ar: 'تم التسجيل في سجل الطعام', },
 };
 
 interface SymptomDef {
   key: string;
-  label: { ar: string; de: string };
+  label: { ar: string; };
   deficiencies: Array<{
-    nutrientName: { ar: string; de: string };
-    cause: { ar: string; de: string };
+    nutrientName: { ar: string; };
+    cause: { ar: string; };
     foodIds: string[]; // matching IDs in NUTRITION_DATABASE
   }>;
 }
@@ -44,13 +42,12 @@ interface SymptomDef {
 const SYMPTOMS: SymptomDef[] = [
   {
     key: 'cramps',
-    label: { ar: 'تشنج العضلات (المستمر)', de: 'Muskelkrämpfe' },
+    label: { ar: 'تشنج العضلات (المستمر)', },
     deficiencies: [
       {
-        nutrientName: { ar: 'المغنيسيوم والبوتاسيوم', de: 'Magnesium & Kalium' },
+        nutrientName: { ar: 'المغنيسيوم والبوتاسيوم', },
         cause: {
           ar: 'نقص المغنيسيوم يمنع العضلات من الارتخاء التام بعد الانقباض، بينما ينظم البوتاسيوم جهد الغشاء الخلوي.',
-          de: 'Magnesiummangel verhindert die vollständige Muskelentspannung, während Kalium das Membranpotenzial steuert.',
         },
         foodIds: ['avocado', 'spinach', 'almonds', 'banana_ripe', 'sweet_potato'],
       },
@@ -58,13 +55,12 @@ const SYMPTOMS: SymptomDef[] = [
   },
   {
     key: 'fatigue',
-    label: { ar: 'خمول وضعف طاقة مستمر', de: 'Chronische Müdigkeit' },
+    label: { ar: 'خمول وضعف طاقة مستمر', },
     deficiencies: [
       {
-        nutrientName: { ar: 'الحديد وفيتامين B12', de: 'Eisen & Vitamin B12' },
+        nutrientName: { ar: 'الحديد وفيتامين B12', },
         cause: {
           ar: 'الحديد أساسي لإنتاج الهيموجلوبين الناقل للأكسجين، وب12 ضروري لتشكيل خلايا الدم الحمراء وطاقة الجهاز العصبي.',
-          de: 'Eisen ist essenziell für den Sauerstofftransport (Hämoglobin), B12 für rote Blutkörperchen und Nervenenergie.',
         },
         foodIds: ['liver_beef', 'beef_lean', 'eggs_whole', 'spinach', 'tuna_fresh'],
       },
@@ -72,13 +68,12 @@ const SYMPTOMS: SymptomDef[] = [
   },
   {
     key: 'joints',
-    label: { ar: 'آلام وخشونة المفاصل', de: 'Gelenkschmerzen / Steifheit' },
+    label: { ar: 'آلام وخشونة المفاصل', },
     deficiencies: [
       {
-        nutrientName: { ar: 'الكولاجين وأوميغا 3', de: 'Kollagen & Omega-3' },
+        nutrientName: { ar: 'الكولاجين وأوميغا 3', },
         cause: {
           ar: 'الكولاجين يبني الغضاريف التي تمتص الصدمات، وتكبح أوميغا 3 الالتهابات الحادة في المفاصل بعد التمرين.',
-          de: 'Kollagen baut knorpelige Stoßdämpfer auf, Omega-3-Fettsäuren hemmen akute Entzündungen nach Belastungen.',
         },
         foodIds: ['salmon_atlantic', 'sardines_canned', 'bone_marrow', 'walnuts'],
       },
@@ -86,13 +81,12 @@ const SYMPTOMS: SymptomDef[] = [
   },
   {
     key: 'skin_dry',
-    label: { ar: 'جفاف البشرة وتقشرها', de: 'Trockene & schuppige Haut' },
+    label: { ar: 'جفاف البشرة وتقشرها', },
     deficiencies: [
       {
-        nutrientName: { ar: 'الزنك والأحماض الدهنية الأساسية', de: 'Zink & gesättigte Fettsäuren' },
+        nutrientName: { ar: 'الزنك والأحماض الدهنية الأساسية', },
         cause: {
           ar: 'الزنك يعزز تجدد خلايا الجلد والتئام الجروح، بينما تشكل الأحماض الدهنية الحاجز الدهني المانع لتبخر الرطوبة.',
-          de: 'Zink fördert die Hauterneuerung, Fettsäuren bilden die Barriere gegen Feuchtigkeitsverlust.',
         },
         foodIds: ['avocado', 'olive_oil', 'almonds', 'eggs_whole', 'shrimp'],
       },
@@ -100,13 +94,12 @@ const SYMPTOMS: SymptomDef[] = [
   },
   {
     key: 'sleep',
-    label: { ar: 'أرق وصعوبة الاسترخاء ليلاً', de: 'Schlafstörungen & Unruhe' },
+    label: { ar: 'أرق وصعوبة الاسترخاء ليلاً', },
     deficiencies: [
       {
-        nutrientName: { ar: 'التريبتوفان والمغنيسيوم', de: 'Tryptophan & Magnesium' },
+        nutrientName: { ar: 'التريبتوفان والمغنيسيوم', },
         cause: {
           ar: 'التريبتوفان هو الحمض الأميني السلف لإنتاج السيروتونين والميلاتونين (هرمون النوم)، ويخفض المغنيسيوم مستويات الكورتيزول المسببة للتوتر.',
-          de: 'Tryptophan ist die Vorstufe für Serotonin und Melatonin (Schlaf), Magnesium senkt stressbedingtes Cortisol.',
         },
         foodIds: ['turkey_breast', 'greek_yogurt', 'cottage_cheese', 'almonds', 'banana_ripe'],
       },
@@ -147,7 +140,7 @@ export default function SymptomAdvisor({ lang }: Props) {
   };
 
   return (
-    <div className="space-y-4" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
+    <div className="space-y-4" dir={'rtl'}>
       {/* Header */}
       <div className="rounded-2xl p-4 bg-primary/5 border border-primary/20">
         <div className="flex items-center gap-2 mb-1.5">

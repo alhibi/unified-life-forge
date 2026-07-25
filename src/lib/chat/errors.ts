@@ -84,16 +84,16 @@ export function toChatError(err: unknown, fallback: ChatErrorCode = 'UNKNOWN'): 
 /** Bilingual surface message for a ChatError. */
 export function describeChatError(e: ChatError, isAr: boolean): string {
   switch (e.code) {
-    case 'NETWORK':           return isAr ? 'لا يوجد اتصال — حاول مرة أخرى' : 'Keine Verbindung – erneut versuchen';
-    case 'NOT_CONFIGURED':    return isAr ? 'الخدمة غير مهيّأة' : 'Dienst nicht konfiguriert';
-    case 'UNAUTHENTICATED':   return isAr ? 'يلزم تسجيل الدخول' : 'Anmeldung erforderlich';
-    case 'FORBIDDEN':         return isAr ? 'لا تملك الصلاحية' : 'Keine Berechtigung';
-    case 'NOT_FOUND':         return isAr ? 'لم يتم العثور' : 'Nicht gefunden';
-    case 'CONFLICT':          return isAr ? 'حدث تعارض' : 'Konflikt';
-    case 'RATE_LIMITED':      return isAr ? 'محاولات كثيرة، انتظر قليلاً' : 'Zu viele Versuche, kurz warten';
-    case 'PAYLOAD_TOO_LARGE': return isAr ? 'الحجم كبير جداً' : 'Zu groß';
-    case 'INVALID_INPUT':     return isAr ? 'إدخال غير صالح' : 'Ungültige Eingabe';
-    case 'STORAGE_QUOTA':     return isAr ? 'تم استنفاذ مساحة التخزين' : 'Speicherplatz erschöpft';
-    default:                  return isAr ? 'حدث خطأ' : 'Fehler aufgetreten';
+    case 'NETWORK':           return 'لا يوجد اتصال — حاول مرة أخرى';
+    case 'NOT_CONFIGURED':    return 'الخدمة غير مهيّأة';
+    case 'UNAUTHENTICATED':   return 'يلزم تسجيل الدخول';
+    case 'FORBIDDEN':         return 'لا تملك الصلاحية';
+    case 'NOT_FOUND':         return 'لم يتم العثور';
+    case 'CONFLICT':          return 'حدث تعارض';
+    case 'RATE_LIMITED':      return 'محاولات كثيرة، انتظر قليلاً';
+    case 'PAYLOAD_TOO_LARGE': return 'الحجم كبير جداً';
+    case 'INVALID_INPUT':     return 'إدخال غير صالح';
+    case 'STORAGE_QUOTA':     return 'تم استنفاذ مساحة التخزين';
+    default:                  return 'حدث خطأ';
   }
 }

@@ -25,19 +25,15 @@ export default function PodcastsTab() {
   const cards = [
     {
       key: 'discover',
-      title: isAr ? 'استكشف' : 'Entdecken',
-      desc: isAr
-        ? 'تصفّح بودكاست العالم العربي والإنجليزي والألماني وأكثر — مصنّفة حسب الموضوع والمنطقة.'
-        : 'Stöbere durch arabische, englische, deutsche und weitere Podcasts — nach Genre und Region sortiert.',
+      title: 'استكشف',
+      desc: 'تصفّح بودكاست العالم العربي والإنجليزي والألماني وأكثر — مصنّفة حسب الموضوع والمنطقة.',
       icon: Mic,
       onClick: () => navigate('/podcasts'),
     },
     {
       key: 'library',
-      title: isAr ? 'مكتبتي' : 'Meine Bibliothek',
-      desc: isAr
-        ? 'البودكاست التي تابعتها وحلقاتك المحفوظة.'
-        : 'Abonnierte Podcasts und gespeicherte Episoden.',
+      title: 'مكتبتي',
+      desc: 'البودكاست التي تابعتها وحلقاتك المحفوظة.',
       icon: LibraryBig,
       onClick: () => navigate('/podcasts/library'),
     },
@@ -54,12 +50,10 @@ export default function PodcastsTab() {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-[13px] font-bold text-foreground">
-                {isAr ? 'كل شيء للاستماع' : 'Alles zum Hören'}
+                {'كل شيء للاستماع'}
               </p>
               <p className="text-[11px] text-muted-foreground leading-snug mt-0.5">
-                {isAr
-                  ? 'بودكاست من جميع أنحاء العالم، يصلك كل يوم محتوى جديد.'
-                  : 'Podcasts aus aller Welt — jeden Tag neue Inhalte.'}
+                {'بودكاست من جميع أنحاء العالم، يصلك كل يوم محتوى جديد.'}
               </p>
             </div>
           </div>

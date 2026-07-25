@@ -36,10 +36,10 @@ const RoleBadge: React.FC<RoleBadgeProps> = ({ role, isAr, size = 'sm', customTi
   const label = customTitle
     ? customTitle
     : role === 'owner'
-      ? (isAr ? 'المالك' : 'Eigentümer')
+      ? ('المالك')
       : role === 'admin'
-        ? (isAr ? 'مشرف' : 'Admin')
-        : (isAr ? 'عضو' : 'Mitglied');
+        ? ('مشرف')
+        : ('عضو');
 
   return (
     <span className={wrapperCls}>

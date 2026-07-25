@@ -39,7 +39,6 @@ export const DEFAULT_FEEDS: FeedSource[] = [
 // so client-side search matches server-side full-text search behaviour.
 
 const ARABIC_RE = /[\u0600-\u06FF]/;
-const GERMAN_KEYWORDS = /tages|spiegel|zeit|faz|welt|sued|deutsch/i;
 
 /** Fold diacritics, unify alef/yaa/taa forms, lowercase Latin. */
 export function normalizeSearch(input: string): string {
@@ -54,20 +53,14 @@ export function normalizeSearch(input: string): string {
 }
 
 /** Heuristic language classification used by the Suggested Feeds filter. */
-export function detectFeedLanguage(feed: FeedSource): 'ar' | 'de' | 'en' {
-  if (ARABIC_RE.test(feed.name)) return 'ar';
-  const host = (() => {
-    try { return new URL(feed.url).hostname; } catch { return ''; }
-  })();
-  if (host.endsWith('.de') || GERMAN_KEYWORDS.test(feed.name)) return 'de';
-  return 'en';
+export function detectFeedLanguage(feed: FeedSource): 'ar' | 'en' {
+  return ARABIC_RE.test(feed.name) ? 'ar' : 'en';
 }
 
-export const LANGUAGES: { id: 'all' | 'ar' | 'en' | 'de'; ar: string; en: string }[] = [
+export const LANGUAGES: { id: 'all' | 'ar' | 'en'; ar: string; en: string }[] = [
   { id: 'all', ar: 'كل اللغات', en: 'All languages' },
   { id: 'ar', ar: 'العربية', en: 'Arabic' },
   { id: 'en', ar: 'الإنجليزية', en: 'English' },
-  { id: 'de', ar: 'الألمانية', en: 'German' },
 ];
 
 

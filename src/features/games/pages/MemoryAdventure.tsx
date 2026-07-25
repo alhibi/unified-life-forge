@@ -13,17 +13,17 @@ import { playSfx, vibrate } from '@/features/games/utils/gameFeedback';
 // opens a brief that explains the twist before the player commits.
 // =============================================================================
 
-const TWIST_LABELS: Record<string, { ar: string; de: string; emoji: string }> = {
-  plain:         { ar: 'كلاسيكي',         de: 'Klassisch',     emoji: '🎴' },
-  shrinkingPeek: { ar: 'لمحة سريعة',       de: 'Kurze Vorschau', emoji: '👁️' },
-  shuffleEvery5: { ar: 'خلط كل 5 حركات',   de: 'Mischen alle 5', emoji: '🌪️' },
-  fogOfMemory:   { ar: 'ضباب الذاكرة',     de: 'Gedächtnisnebel', emoji: '🌫️' },
-  doubleVision:  { ar: 'رؤية مزدوجة',      de: 'Doppelte Sicht', emoji: '👯' },
-  mirrorMatch:   { ar: 'مطابقة المرآة',    de: 'Spiegelpaar',    emoji: '🪞' },
-  silentMode:    { ar: 'صمت تام',          de: 'Stille',          emoji: '🤫' },
-  chainBonus:    { ar: 'كومبو إجباري',     de: 'Combo-Pflicht',  emoji: '⚡' },
-  darkness:      { ar: 'ظلام',              de: 'Dunkelheit',     emoji: '🕯️' },
-  speedrun:      { ar: 'سباق زمن',          de: 'Wettlauf',        emoji: '⏱️' },
+const TWIST_LABELS: Record<string, { ar: string; emoji: string }> = {
+  plain:         { ar: 'كلاسيكي',     emoji: '🎴' },
+  shrinkingPeek: { ar: 'لمحة سريعة', emoji: '👁️' },
+  shuffleEvery5: { ar: 'خلط كل 5 حركات', emoji: '🌪️' },
+  fogOfMemory:   { ar: 'ضباب الذاكرة', emoji: '🌫️' },
+  doubleVision:  { ar: 'رؤية مزدوجة', emoji: '👯' },
+  mirrorMatch:   { ar: 'مطابقة المرآة',    emoji: '🪞' },
+  silentMode:    { ar: 'صمت تام',          emoji: '🤫' },
+  chainBonus:    { ar: 'كومبو إجباري',  emoji: '⚡' },
+  darkness:      { ar: 'ظلام',     emoji: '🕯️' },
+  speedrun:      { ar: 'سباق زمن',        emoji: '⏱️' },
 };
 
 export default function MemoryAdventurePage() {
@@ -46,26 +46,20 @@ export default function MemoryAdventurePage() {
 
   return (
     <GameShell
-      title={isAr ? 'مغامرة الذاكرة' : 'Memory-Abenteuer'}
+      title={'مغامرة الذاكرة'}
       icon={Map}
       accentColor="hsl(262, 83%, 58%)"
-      rules={isAr ? [
+      rules={[
         '15 محطة بقصص وقواعد متغيرة',
         'كل محطة تتطلب تكتيك مختلف',
         'احصل على 3 نجوم بإكمالها سريعاً وبأقل أخطاء',
         '3 محطات بوس بقواعد مختلطة',
         'افتح المحطة التالية بإكمال السابقة',
-      ] : [
-        '15 Etappen mit Geschichten + Regeln',
-        'Jede braucht andere Taktik',
-        '3 Sterne: schnell + wenige Fehler',
-        '3 Bossstufen mit Mix-Regeln',
-        'Schalte nächste durch Sieg frei',
       ]}
       stats={[
-        { label: isAr ? 'محطة' : 'Etappe', value: `${save.highestCleared}/${STAGES.length}` },
-        { label: isAr ? 'نجوم' : 'Sterne', value: `${totalStars}/${maxStars}` },
-        { label: isAr ? 'بوس مهزوم' : 'Bosse', value: STAGES.filter(s => s.isBoss && save.stars[s.id]).length },
+        { label: 'محطة', value: `${save.highestCleared}/${STAGES.length}` },
+        { label: 'نجوم', value: `${totalStars}/${maxStars}` },
+        { label: 'بوس مهزوم', value: STAGES.filter(s => s.isBoss && save.stars[s.id]).length },
       ]}
       options={[]}
     >
@@ -77,7 +71,7 @@ export default function MemoryAdventurePage() {
         <div className="flex items-center justify-between mb-2">
           <div>
             <p className="text-[10px] uppercase tracking-wider text-pink-200/80">
-              {isAr ? 'التقدم في المغامرة' : 'Abenteuer-Fortschritt'}
+              {'التقدم في المغامرة'}
             </p>
             <p className="text-2xl font-black text-pink-200 tabular-nums">{totalStars} ★</p>
           </div>
@@ -143,7 +137,7 @@ export default function MemoryAdventurePage() {
               <div className="flex-1 text-left min-w-0">
                 <div className="flex items-center gap-1.5">
                   <h3 className={`text-sm font-bold truncate ${unlocked ? 'text-foreground' : 'text-foreground/40'}`}>
-                    {isAr ? stage.ar : stage.de}
+                    {stage.ar}
                   </h3>
                   {stage.isBoss && <Flame className="w-3 h-3 text-amber-400 shrink-0" />}
                 </div>
@@ -151,7 +145,7 @@ export default function MemoryAdventurePage() {
                   <div className="flex items-center gap-1 mt-0.5">
                     <span className="text-[10px]">{twist.emoji}</span>
                     <span className="text-[10px] text-muted-foreground">
-                      {isAr ? twist.ar : twist.de} · {stage.pairs} {isAr ? 'زوج' : 'Paare'}
+                      {twist.ar} · {stage.pairs} {'زوج'}
                     </span>
                   </div>
                 )}
@@ -199,26 +193,26 @@ export default function MemoryAdventurePage() {
                 </div>
                 <div className="flex-1">
                   <p className="text-[10px] uppercase tracking-wider text-pink-300/80 font-bold">
-                    {isAr ? `المحطة ${selected.id}` : `Etappe ${selected.id}`}
-                    {selected.isBoss && (isAr ? ' · بوس' : ' · Boss')}
+                    {`المحطة ${selected.id}`}
+                    {selected.isBoss && (' · بوس')}
                   </p>
                   <h3 className="text-base font-black text-foreground">
-                    {isAr ? selected.ar : selected.de}
+                    {selected.ar}
                   </h3>
                 </div>
               </div>
 
               {/* Story */}
               <p className="text-sm text-foreground/85 leading-relaxed mb-4 italic">
-                "{isAr ? selected.storyAr : selected.storyDe}"
+                "{selected.storyAr}"
               </p>
 
               {/* Mechanics card */}
               <div className="grid grid-cols-2 gap-2 mb-4">
-                <Pill emoji={TWIST_LABELS[selected.twist].emoji} label={isAr ? TWIST_LABELS[selected.twist].ar : TWIST_LABELS[selected.twist].de} />
-                <Pill emoji="🎴" label={`${selected.pairs} ${isAr ? 'زوج' : 'Paare'}`} />
+                <Pill emoji={TWIST_LABELS[selected.twist].emoji} label={TWIST_LABELS[selected.twist].ar} />
+                <Pill emoji="🎴" label={`${selected.pairs} ${'زوج'}`} />
                 <Pill emoji="⏱️" label={`${selected.threeStarTime}s`} />
-                <Pill emoji="❌" label={`≤${selected.starMistakeBudget} ${isAr ? 'خطأ' : 'Fehler'}`} />
+                <Pill emoji="❌" label={`≤${selected.starMistakeBudget} ${'خطأ'}`} />
               </div>
 
               {/* Best record if any */}
@@ -242,7 +236,7 @@ export default function MemoryAdventurePage() {
                   onClick={() => setSelected(null)}
                   className="flex-1 py-3 rounded-xl bg-white/5 text-foreground font-bold text-sm"
                 >
-                  {isAr ? 'إلغاء' : 'Abbrechen'}
+                  {'إلغاء'}
                 </button>
                 <button
                   onClick={() => startStage(selected)}
@@ -258,7 +252,7 @@ export default function MemoryAdventurePage() {
                   }}
                 >
                   <Sparkles className="w-4 h-4" />
-                  {isAr ? 'ابدأ' : 'Spielen'}
+                  {'ابدأ'}
                 </button>
               </div>
             </motion.div>

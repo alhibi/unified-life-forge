@@ -139,14 +139,14 @@ export function SuggestedFeedsView({
   }, [categoryCounts]);
 
   const catLabel = (id: string) => {
-    if (id === 'all') return isAr ? 'الكل' : 'All';
+    if (id === 'all') return 'الكل';
     const c = CATEGORIES.find((x) => x.id === id);
-    return c ? (isAr ? c.ar : c.en) : id;
+    return c ? (c.ar) : id;
   };
 
   const langLabel = (id: LangId) => {
     const l = LANGUAGES.find((x) => x.id === id);
-    return l ? (isAr ? l.ar : l.en) : id;
+    return l ? (l.ar) : id;
   };
 
   const toggleSelect = (url: string) => {
@@ -186,9 +186,7 @@ export function SuggestedFeedsView({
       if (onAddBulk) {
         const { added } = await onAddBulk(toAdd);
         toast.success(
-          isAr
-            ? `تمت إضافة ${added} ${added === 1 ? 'مصدر' : 'مصادر'}`
-            : `Added ${added} feed${added === 1 ? '' : 's'}`,
+          `تمت إضافة ${added} ${added === 1 ? 'مصدر' : 'مصادر'}`,
         );
       } else {
         // Fallback: serial add. Avoids the parallel-invocation storm
@@ -198,7 +196,7 @@ export function SuggestedFeedsView({
           await new Promise<void>((r) => requestAnimationFrame(() => r()));
         }
         toast.success(
-          isAr ? `تمت إضافة ${toAdd.length}` : `Added ${toAdd.length}`,
+          `تمت إضافة ${toAdd.length}`,
         );
       }
       clearSelection();
@@ -221,13 +219,13 @@ export function SuggestedFeedsView({
           type="button"
           onClick={onBack}
           className="p-2 rounded-xl hover:bg-accent/50 active:scale-95 transition-all"
-          aria-label={isAr ? 'رجوع' : 'Back'}
+          aria-label={'رجوع'}
         >
           <ChevronLeft className="h-5 w-5 text-foreground rtl:rotate-180" />
         </button>
         <Star className="h-4 w-4 text-primary" />
         <h3 className="text-base font-bold text-foreground flex-1">
-          {isAr ? 'مصادر مقترحة' : 'Suggested Feeds'}
+          {'مصادر مقترحة'}
         </h3>
         {available.length > 0 && (
           <button
@@ -236,8 +234,8 @@ export function SuggestedFeedsView({
             className="text-[11px] font-semibold text-primary px-2 py-1 rounded-lg hover:bg-primary/10"
           >
             {selected.size === filtered.length && filtered.length > 0
-              ? (isAr ? 'إلغاء التحديد' : 'Clear')
-              : (isAr ? 'تحديد الكل' : 'Select all')}
+              ? ('إلغاء التحديد')
+              : ('تحديد الكل')}
           </button>
         )}
       </div>
@@ -256,10 +254,8 @@ export function SuggestedFeedsView({
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Escape') clearQuery(); }}
-              placeholder={isAr
-                ? 'ابحث بالاسم أو النطاق أو الفئة…'
-                : 'Search by name, domain, or category…'}
-              aria-label={isAr ? 'بحث في المصادر' : 'Search feeds'}
+              placeholder={'ابحث بالاسم أو النطاق أو الفئة…'}
+              aria-label={'بحث في المصادر'}
               className="w-full rounded-xl bg-accent/25 focus:bg-accent/40 focus:outline-none focus:ring-2 focus:ring-primary/40 text-sm ps-9 pe-9 py-2.5 placeholder:text-muted-foreground/70 text-foreground transition-colors"
               dir="auto"
             />
@@ -267,7 +263,7 @@ export function SuggestedFeedsView({
               <button
                 type="button"
                 onClick={clearQuery}
-                aria-label={isAr ? 'مسح البحث' : 'Clear search'}
+                aria-label={'مسح البحث'}
                 className="absolute top-1/2 -translate-y-1/2 end-2 p-1 rounded-lg hover:bg-accent/50 text-muted-foreground"
               >
                 <X className="h-3.5 w-3.5" />
@@ -330,21 +326,21 @@ export function SuggestedFeedsView({
                 <>
                   <Check className="h-8 w-8 text-primary/40" />
                   <p className="text-sm text-muted-foreground">
-                    {isAr ? 'تمت إضافة جميع المصادر المقترحة' : 'All suggestions added'}
+                    {'تمت إضافة جميع المصادر المقترحة'}
                   </p>
                 </>
               ) : (
                 <>
                   <Search className="h-8 w-8 text-muted-foreground/50" />
                   <p className="text-sm text-muted-foreground text-center">
-                    {isAr ? 'لا نتائج مطابقة للبحث' : 'No matching feeds'}
+                    {'لا نتائج مطابقة للبحث'}
                   </p>
                   <button
                     type="button"
                     onClick={resetFilters}
                     className="text-[12px] font-semibold text-primary px-3 py-1.5 rounded-lg hover:bg-primary/10"
                   >
-                    {isAr ? 'مسح الفلاتر' : 'Clear filters'}
+                    {'مسح الفلاتر'}
                   </button>
                 </>
               )}
@@ -404,9 +400,7 @@ export function SuggestedFeedsView({
           className="sticky bottom-0 inset-x-0 px-4 py-3 border-t border-border/40 bg-card/95 backdrop-blur-md flex items-center gap-3 z-10"
         >
           <span className="text-sm font-semibold flex-1">
-            {isAr
-              ? `تم اختيار ${selected.size} ${selected.size === 1 ? 'مصدر' : 'مصادر'}`
-              : `${selected.size} selected`}
+            {`تم اختيار ${selected.size} ${selected.size === 1 ? 'مصدر' : 'مصادر'}`}
           </span>
           <Button
             variant="ghost"
@@ -415,7 +409,7 @@ export function SuggestedFeedsView({
             disabled={committing}
             className="rounded-xl"
           >
-            {isAr ? 'مسح' : 'Clear'}
+            {'مسح'}
           </Button>
           <Button
             size="sm"
@@ -424,7 +418,7 @@ export function SuggestedFeedsView({
             className="rounded-xl"
           >
             <Plus className="h-3.5 w-3.5 me-1" />
-            {isAr ? 'إضافة' : 'Add'}
+            {'إضافة'}
           </Button>
         </motion.div>
       )}

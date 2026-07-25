@@ -15,40 +15,40 @@ export const MAX_VOICE_BYTES      = 25 * 1024 * 1024; // 25 MB per voice clip
 export const MAX_VOICE_SECONDS    = 10 * 60;       // 10 min recording cap
 export const MAX_STAGED_IMAGES    = 10;            // max images in one send
 
-type Pair = { ar: string; de: string };
+type Pair = { ar: string; };
 
 const M = {
-  sendFailed:        { ar: 'تعذر إرسال الرسالة، حاول مرة أخرى', de: 'Senden fehlgeschlagen, bitte erneut versuchen' },
-  editFailed:        { ar: 'تعذر حفظ التعديل', de: 'Bearbeitung konnte nicht gespeichert werden' },
-  deleteFailed:      { ar: 'تعذر حذف الرسالة', de: 'Nachricht konnte nicht gelöscht werden' },
-  reactionFailed:    { ar: 'تعذر إضافة التفاعل', de: 'Reaktion fehlgeschlagen' },
-  uploadFailed:      { ar: 'تعذر رفع الملف', de: 'Upload fehlgeschlagen' },
-  voiceUploadFailed: { ar: 'تعذر إرسال الرسالة الصوتية', de: 'Sprachnachricht konnte nicht gesendet werden' },
-  voicePlayFailed:   { ar: 'تعذر تشغيل الرسالة الصوتية', de: 'Sprachnachricht konnte nicht abgespielt werden' },
-  voiceEmpty:        { ar: 'التسجيل قصير جداً', de: 'Aufnahme zu kurz' },
-  voiceTooLong:      { ar: 'تم إيقاف التسجيل (الحد الأقصى 10 دقائق)', de: 'Aufnahme beendet (max. 10 Min.)' },
-  micDenied:         { ar: 'يرجى السماح باستخدام الميكروفون', de: 'Bitte Mikrofon-Zugriff erlauben' },
-  micUnavailable:    { ar: 'الميكروفون غير متاح', de: 'Mikrofon nicht verfügbar' },
-  micBusy:           { ar: 'الميكروفون قيد الاستخدام', de: 'Mikrofon ist belegt' },
-  fileTooLarge:      { ar: 'الملف كبير جداً', de: 'Datei zu groß' },
-  imageTooLarge:     { ar: 'الصورة كبيرة جداً (الحد 20 م.ب)', de: 'Bild zu groß (max. 20 MB)' },
-  voiceTooBig:       { ar: 'التسجيل كبير جداً', de: 'Aufnahme zu groß' },
-  tooManyImages:     { ar: 'يمكن إرسال 10 صور كحد أقصى', de: 'Maximal 10 Bilder gleichzeitig' },
-  textTooLong:       { ar: 'الرسالة طويلة جداً', de: 'Nachricht zu lang' },
-  searchFailed:      { ar: 'تعذر البحث، حاول لاحقاً', de: 'Suche fehlgeschlagen' },
-  userNotFound:      { ar: 'لم يتم العثور على المستخدم', de: 'Benutzer nicht gefunden' },
-  convStartFailed:   { ar: 'تعذر بدء المحادثة', de: 'Chat konnte nicht gestartet werden' },
-  networkOffline:    { ar: 'لا يوجد اتصال بالإنترنت', de: 'Keine Internetverbindung' },
-  copied:            { ar: 'تم النسخ', de: 'Kopiert' },
-  linkCopyFailed:    { ar: 'تعذر النسخ', de: 'Kopieren fehlgeschlagen' },
-  conversationGone:  { ar: 'المحادثة غير متاحة', de: 'Chat nicht verfügbar' },
-  heicUnsupported:   { ar: 'لا يدعم متصفحك صور iPhone (HEIC). يرجى تصدير الصورة بصيغة JPEG.', de: 'HEIC-Bilder werden hier nicht unterstützt. Bitte als JPEG exportieren.' },
-  imageDecodeFailed: { ar: 'تعذر قراءة الصورة', de: 'Bild konnte nicht gelesen werden' },
+  sendFailed:        { ar: 'تعذر إرسال الرسالة، حاول مرة أخرى', },
+  editFailed:        { ar: 'تعذر حفظ التعديل', },
+  deleteFailed:      { ar: 'تعذر حذف الرسالة', },
+  reactionFailed:    { ar: 'تعذر إضافة التفاعل', },
+  uploadFailed:      { ar: 'تعذر رفع الملف', },
+  voiceUploadFailed: { ar: 'تعذر إرسال الرسالة الصوتية', },
+  voicePlayFailed:   { ar: 'تعذر تشغيل الرسالة الصوتية', },
+  voiceEmpty:        { ar: 'التسجيل قصير جداً', },
+  voiceTooLong:      { ar: 'تم إيقاف التسجيل (الحد الأقصى 10 دقائق)', },
+  micDenied:         { ar: 'يرجى السماح باستخدام الميكروفون', },
+  micUnavailable:    { ar: 'الميكروفون غير متاح', },
+  micBusy:           { ar: 'الميكروفون قيد الاستخدام', },
+  fileTooLarge:      { ar: 'الملف كبير جداً', },
+  imageTooLarge:     { ar: 'الصورة كبيرة جداً (الحد 20 م.ب)', },
+  voiceTooBig:       { ar: 'التسجيل كبير جداً', },
+  tooManyImages:     { ar: 'يمكن إرسال 10 صور كحد أقصى', },
+  textTooLong:       { ar: 'الرسالة طويلة جداً', },
+  searchFailed:      { ar: 'تعذر البحث، حاول لاحقاً', },
+  userNotFound:      { ar: 'لم يتم العثور على المستخدم', },
+  convStartFailed:   { ar: 'تعذر بدء المحادثة', },
+  networkOffline:    { ar: 'لا يوجد اتصال بالإنترنت', },
+  copied:            { ar: 'تم النسخ', },
+  linkCopyFailed:    { ar: 'تعذر النسخ', },
+  conversationGone:  { ar: 'المحادثة غير متاحة', },
+  heicUnsupported:   { ar: 'لا يدعم متصفحك صور iPhone (HEIC). يرجى تصدير الصورة بصيغة JPEG.', },
+  imageDecodeFailed: { ar: 'تعذر قراءة الصورة', },
 } as const;
 
 type Key = keyof typeof M;
 
-function pick(pair: Pair, isAr: boolean) { return isAr ? pair.ar : pair.de; }
+function pick(pair: Pair, isAr: boolean) { return pair.ar; }
 
 /** Soft error: brief destructive toast + error chirp + light haptic. */
 export function chatError(key: Key, isAr: boolean, description?: string) {
@@ -69,7 +69,7 @@ export function chatSuccess(key: Key, isAr: boolean) {
 
 /** Returns a user-friendly message for a caught supabase/fetch error. */
 export function describeError(err: unknown, isAr: boolean): string {
-  if (!err) return isAr ? 'خطأ غير معروف' : 'Unbekannter Fehler';
+  if (!err) return 'خطأ غير معروف';
   const e = err as { message?: string; error?: { message?: string } };
   const raw = e.message || e.error?.message || '';
   if (!raw) return '';

@@ -35,7 +35,7 @@ const STATUS_LABEL_DE: Record<StatusFilter, string> = {
 function titleOf(n: LocalNote, isAr: boolean): string {
   if (n.title.trim()) return n.title;
   const firstLine = n.contentMd.split('\n').find((l) => l.trim())?.replace(/^#+\s*/, '').trim();
-  return firstLine || (isAr ? 'بدون عنوان' : 'Ohne Titel');
+  return firstLine || ('بدون عنوان');
 }
 
 function excerptOf(n: LocalNote): string {
@@ -168,49 +168,47 @@ export default function PKM() {
   };
 
   const handleDelete = async (id: string) => {
-    const ok = window.confirm(isAr ? 'حذف الملاحظة؟' : 'Notiz löschen?');
+    const ok = window.confirm('حذف الملاحظة؟');
     if (!ok) return;
     await deleteNote(id);
     if (activeId === id) setActiveId(null);
   };
 
-  const L = isAr ? STATUS_LABEL_AR : STATUS_LABEL_DE;
+  const L = STATUS_LABEL_AR;
 
   return (
     <PageShell>
       <SEO
-        title={isAr ? 'مذكّرتي — دفتر ملاحظات ذكي' : 'Mein Wissen — Persönliche Notizen'}
-        description={isAr
-          ? 'دفتر ملاحظات محلي بوسم متداخل، بحث فوري، وحفظ آمن على جهازك.'
-          : 'Lokales, verschlüsselungsfreundliches Notizbuch mit verschachtelten Tags und Sofortsuche.'}
+        title={'مذكّرتي — دفتر ملاحظات ذكي'}
+        description={'دفتر ملاحظات محلي بوسم متداخل، بحث فوري، وحفظ آمن على جهازك.'}
         path="/pkm"
       />
       <div className="flex items-center gap-2">
         <BackButton />
         <h1 className="text-lg font-bold flex-1 truncate">
-          {isAr ? 'مذكّرتي' : 'Mein Wissen'}
+          {'مذكّرتي'}
         </h1>
         <Link
           to="/pkm/mind"
           className="h-9 w-9 rounded-full bg-card border border-border/60 flex items-center justify-center active:scale-95 transition-transform"
-          aria-label={isAr ? 'العقل الحيّ' : 'Living Mind'}
-          title={isAr ? 'العقل الحيّ' : 'Living Mind'}
+          aria-label={'العقل الحيّ'}
+          title={'العقل الحيّ'}
         >
           <Brain className="w-4 h-4 text-primary" />
         </Link>
         <button
           onClick={() => setListOpen((v) => !v)}
           className="lg:hidden h-9 px-3 rounded-full bg-card border border-border/60 text-xs font-medium active:scale-95 transition-transform"
-          aria-label={isAr ? 'القائمة' : 'Liste'}
+          aria-label={'القائمة'}
         >
-          {listOpen ? (isAr ? 'المحرر' : 'Editor') : (isAr ? 'القائمة' : 'Liste')}
+          {listOpen ? ('المحرر') : ('القائمة')}
         </button>
         <button
           onClick={handleCreate}
           className="h-9 px-3 rounded-full bg-primary text-primary-foreground text-xs font-semibold flex items-center gap-1 active:scale-95 transition-transform"
         >
           <Plus className="w-3.5 h-3.5" />
-          {isAr ? 'جديد' : 'Neu'}
+          {'جديد'}
         </button>
       </div>
 
@@ -228,7 +226,7 @@ export default function PKM() {
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder={isAr ? 'ابحث في ملاحظاتك…' : 'Notizen durchsuchen…'}
+              placeholder={'ابحث في ملاحظاتك…'}
               className="w-full h-10 rounded-xl bg-card border border-border/60 ps-9 pe-3 text-sm outline-none focus:border-primary/60"
               style={{ fontSize: 16 }}
             />
@@ -256,7 +254,7 @@ export default function PKM() {
           {tagTree.length > 0 && (
             <div className="rounded-xl bg-card border border-border/50 p-2">
               <div className="px-2 py-1.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70">
-                {isAr ? 'الوسوم' : 'Tags'}
+                {'الوسوم'}
               </div>
               <button
                 onClick={() => setTagFilter(null)}
@@ -264,9 +262,9 @@ export default function PKM() {
                   'w-full text-start px-2 py-2.5 rounded-lg text-xs font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none relative before:absolute before:-inset-y-1 before:inset-x-0 before:content-[\'\']',
                   !tagFilter ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent/40',
                 )}
-                title={isAr ? 'عرض كل الوسوم' : 'Alle Tags anzeigen'}
+                title={'عرض كل الوسوم'}
               >
-                {isAr ? 'كل الوسوم' : 'Alle Tags'}
+                {'كل الوسوم'}
               </button>
               <TagTree
                 nodes={tagTree}
@@ -281,11 +279,11 @@ export default function PKM() {
           <div className="flex flex-col gap-2">
             {loading ? (
               <div className="text-xs text-muted-foreground p-4 text-center">
-                {isAr ? 'جارٍ التحميل…' : 'Lädt…'}
+                {'جارٍ التحميل…'}
               </div>
             ) : filtered.length === 0 ? (
               <div className="text-xs text-muted-foreground p-6 text-center rounded-xl bg-card/50 border border-dashed border-border/50">
-                {isAr ? 'لا توجد ملاحظات هنا بعد.' : 'Noch keine Notizen hier.'}
+                {'لا توجد ملاحظات هنا بعد.'}
               </div>
             ) : (
               filtered.map((n) => {
@@ -308,7 +306,7 @@ export default function PKM() {
                         {title}
                       </div>
                       <span className="text-[10px] text-muted-foreground/70 shrink-0 mt-0.5">
-                        {new Date(n.updatedAt).toLocaleDateString(isAr ? 'ar' : 'de')}
+                        {new Date(n.updatedAt).toLocaleDateString('ar')}
                       </span>
                     </div>
                     {excerpt && (
@@ -357,14 +355,14 @@ export default function PKM() {
             <AppCard className="p-10 text-center flex flex-col items-center gap-3 border-dashed">
               <FileText className="w-10 h-10 text-muted-foreground/40" />
               <p className="text-sm text-muted-foreground">
-                {isAr ? 'اختر ملاحظة أو أنشئ واحدة جديدة.' : 'Wähle eine Notiz oder erstelle eine neue.'}
+                {'اختر ملاحظة أو أنشئ واحدة جديدة.'}
               </p>
               <button
                 onClick={handleCreate}
                 className="mt-2 h-10 px-4 rounded-full bg-primary text-primary-foreground text-sm font-semibold flex items-center gap-2"
               >
                 <Plus className="w-4 h-4" />
-                {isAr ? 'ملاحظة جديدة' : 'Neue Notiz'}
+                {'ملاحظة جديدة'}
               </button>
             </AppCard>
           )}
@@ -540,10 +538,10 @@ function Editor({
     });
 
   const insertLink = () => {
-    const url = window.prompt(isAr ? 'الرابط:' : 'URL:', 'https://');
+    const url = window.prompt('الرابط:', 'https://');
     if (!url) return;
     applyEdit(({ before, sel, after }) => {
-      const label = sel || (isAr ? 'رابط' : 'Link');
+      const label = sel || ('رابط');
       const text = before + `[${label}](${url})` + after;
       const selStart = before.length + 1;
       const selEnd = selStart + label.length;
@@ -553,8 +551,8 @@ function Editor({
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     const mod = e.metaKey || e.ctrlKey;
-    if (mod && e.key.toLowerCase() === 'b') { e.preventDefault(); wrap('**', '**', isAr ? 'غامق' : 'fett'); return; }
-    if (mod && e.key.toLowerCase() === 'i') { e.preventDefault(); wrap('*', '*', isAr ? 'مائل' : 'kursiv'); return; }
+    if (mod && e.key.toLowerCase() === 'b') { e.preventDefault(); wrap('**', '**', 'غامق'); return; }
+    if (mod && e.key.toLowerCase() === 'i') { e.preventDefault(); wrap('*', '*', 'مائل'); return; }
     if (mod && e.key.toLowerCase() === 'k') { e.preventDefault(); insertLink(); return; }
     if (mod && e.key.toLowerCase() === 'e') { e.preventDefault(); wrap('`', '`', 'code'); return; }
 
@@ -638,31 +636,31 @@ function Editor({
           onChange={(e) => onChange({ status: e.target.value as NoteStatus })}
           className="h-8 rounded-full bg-background border border-border/60 px-2 text-xs"
         >
-          <option value="draft">{isAr ? 'مسودة' : 'Entwurf'}</option>
-          <option value="active">{isAr ? 'نشِطة' : 'Aktiv'}</option>
-          <option value="archived">{isAr ? 'مؤرشفة' : 'Archiviert'}</option>
+          <option value="draft">{'مسودة'}</option>
+          <option value="active">{'نشِطة'}</option>
+          <option value="archived">{'مؤرشفة'}</option>
         </select>
         <div className="flex-1" />
         <button
           onClick={onTogglePreview}
           className="h-8 px-3 rounded-full bg-background border border-border/60 text-xs font-medium flex items-center gap-1.5 active:scale-95 transition-transform"
-          aria-label={preview ? (isAr ? 'تحرير' : 'Bearbeiten') : (isAr ? 'معاينة' : 'Vorschau')}
+          aria-label={preview ? ('تحرير') : ('معاينة')}
         >
           {preview ? <Pencil className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-          {preview ? (isAr ? 'تحرير' : 'Bearbeiten') : (isAr ? 'معاينة' : 'Vorschau')}
+          {preview ? ('تحرير') : ('معاينة')}
         </button>
         <button
           onClick={onOptimize}
           className="h-8 px-3 rounded-full bg-primary/10 border border-primary/30 text-primary text-xs font-semibold flex items-center gap-1.5 active:scale-95 transition-transform"
-          aria-label={isAr ? 'محسِّن النص' : 'Optimierer'}
+          aria-label={'محسِّن النص'}
         >
           <Sparkles className="w-3.5 h-3.5" />
-          {isAr ? 'حسِّن' : 'Optimieren'}
+          {'حسِّن'}
         </button>
         <button
           onClick={onDelete}
           className="h-8 w-8 rounded-full bg-destructive/10 hover:bg-destructive/20 flex items-center justify-center transition-colors"
-          aria-label={isAr ? 'حذف' : 'Löschen'}
+          aria-label={'حذف'}
         >
           <Trash className="w-3.5 h-3.5 text-destructive" />
         </button>
@@ -671,7 +669,7 @@ function Editor({
       <input
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        placeholder={isAr ? 'عنوان الملاحظة…' : 'Notiztitel…'}
+        placeholder={'عنوان الملاحظة…'}
         className="w-full bg-transparent outline-none text-xl font-bold placeholder:text-muted-foreground/40"
         style={{ fontSize: 22 }}
       />
@@ -686,8 +684,8 @@ function Editor({
           <button type="button" onClick={() => linePrefix('## ')} className={toolbarBtn} title="Heading 2">H2</button>
           <button type="button" onClick={() => linePrefix('### ')} className={toolbarBtn} title="Heading 3">H3</button>
           <span className="w-px h-5 bg-border/60 mx-0.5" />
-          <button type="button" onClick={() => wrap('**', '**', isAr ? 'غامق' : 'fett')} className={cn(toolbarBtn, 'font-bold')} title="Bold ⌘B">B</button>
-          <button type="button" onClick={() => wrap('*', '*', isAr ? 'مائل' : 'kursiv')} className={cn(toolbarBtn, 'italic')} title="Italic ⌘I">I</button>
+          <button type="button" onClick={() => wrap('**', '**', 'غامق')} className={cn(toolbarBtn, 'font-bold')} title="Bold ⌘B">B</button>
+          <button type="button" onClick={() => wrap('*', '*', 'مائل')} className={cn(toolbarBtn, 'italic')} title="Italic ⌘I">I</button>
           <button type="button" onClick={() => wrap('~~', '~~', 'strike')} className={cn(toolbarBtn, 'line-through')} title="Strikethrough">S</button>
           <button type="button" onClick={() => wrap('`', '`', 'code')} className={cn(toolbarBtn, 'font-mono')} title="Inline code ⌘E">{'<>'}</button>
           <span className="w-px h-5 bg-border/60 mx-0.5" />
@@ -711,7 +709,7 @@ function Editor({
             <ReactMarkdown>{DOMPurify.sanitize(body)}</ReactMarkdown>
           ) : (
             <p className="text-muted-foreground text-sm">
-              {isAr ? 'لا يوجد محتوى للمعاينة.' : 'Kein Inhalt zum Anzeigen.'}
+              {'لا يوجد محتوى للمعاينة.'}
             </p>
           )}
         </div>
@@ -721,9 +719,7 @@ function Editor({
           value={body}
           onChange={(e) => setBody(e.target.value)}
           onKeyDown={onKeyDown}
-          placeholder={isAr
-            ? 'ابدأ الكتابة… يمكنك استخدام Markdown و#وسوم/متداخلة.'
-            : 'Schreib los… Markdown und #verschachtelte/tags werden unterstützt.'}
+          placeholder={'ابدأ الكتابة… يمكنك استخدام Markdown و#وسوم/متداخلة.'}
           className="w-full flex-1 min-h-[40vh] bg-transparent outline-none text-sm leading-relaxed resize-none placeholder:text-muted-foreground/40 font-mono"
           style={{ fontSize: 16 }}
           spellCheck={false}
@@ -732,14 +728,14 @@ function Editor({
 
       {/* stats + tags footer */}
       <div className="flex items-center gap-3 text-[10px] uppercase tracking-wider text-muted-foreground/60 pt-2 border-t border-border/40">
-        <span>{stats.words} {isAr ? 'كلمة' : 'Wörter'}</span>
+        <span>{stats.words} {'كلمة'}</span>
         <span className="opacity-50">•</span>
-        <span>{stats.chars} {isAr ? 'حرف' : 'Zeichen'}</span>
+        <span>{stats.chars} {'حرف'}</span>
         <span className="opacity-50">•</span>
-        <span>{stats.minutes} {isAr ? 'د قراءة' : 'Min. Lesen'}</span>
+        <span>{stats.minutes} {'د قراءة'}</span>
         <span className="flex-1" />
         <span className="normal-case tracking-normal opacity-70">
-          {new Date(note.updatedAt).toLocaleString(isAr ? 'ar' : 'de', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' })}
+          {new Date(note.updatedAt).toLocaleString('ar', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' })}
         </span>
       </div>
 
@@ -755,7 +751,7 @@ function TagsFooter({ body, isAr }: { body: string; isAr: boolean }) {
   return (
     <div className="flex flex-wrap gap-1.5 pt-2 border-t border-border/40">
       <span className="text-[10px] uppercase tracking-wider text-muted-foreground/60">
-        {isAr ? 'الوسوم' : 'Tags'}
+        {'الوسوم'}
       </span>
       {tags.map((t) => (
         <span

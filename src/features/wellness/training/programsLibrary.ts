@@ -33,8 +33,8 @@ const ex = (
 
 const STRONGLIFTS_55: ProgramDef = {
   key: 'stronglifts_55',
-  name: { ar: 'سترونغ ليفتس 5×5', de: 'StrongLifts 5×5' },
-  shortName: { ar: 'SL 5×5', de: 'SL 5×5' },
+  name: { ar: 'سترونغ ليفتس 5×5', },
+  shortName: { ar: 'SL 5×5', },
   author: 'Mehdi Hadim',
   origin: 'StrongLifts.com',
   experience: 'beginner',
@@ -44,19 +44,18 @@ const STRONGLIFTS_55: ProgramDef = {
   sessionMinutes: 50,
   description: {
     ar: 'برنامج المبتدئين الأشهر — خمسة تمارين مركّبة فقط ثلاث مرات أسبوعياً مع زيادة خطية. يبني أساس قوة صلب في 12 أسبوعاً.',
-    de: 'Das berühmteste Anfängerprogramm — fünf Grundübungen, 3×/Woche, lineare Steigerung. Baut in 12 Wochen ein solides Fundament.',
   },
   highlights: [
-    { ar: 'خمسة تمارين فقط — لا شيء معقد.', de: 'Nur fünf Übungen — null Kompliziertheit.' },
-    { ar: 'إضافة 2.5 كغ كل جلسة على المركّبات.', de: '2,5 kg pro Session auf Compounds.' },
-    { ar: 'انخفاض تلقائي 10% بعد فشل ثلاث مرات.', de: 'Automatischer 10 %-Deload nach 3 Misserfolgen.' },
-    { ar: '50 دقيقة لكل جلسة — مناسب للمشغول.', de: '50 Min/Session — für volle Kalender.' },
+    { ar: 'خمسة تمارين فقط — لا شيء معقد.', },
+    { ar: 'إضافة 2.5 كغ كل جلسة على المركّبات.', },
+    { ar: 'انخفاض تلقائي 10% بعد فشل ثلاث مرات.', },
+    { ar: '50 دقيقة لكل جلسة — مناسب للمشغول.', },
   ],
   equipment: ['barbell', 'rack', 'bench'],
   prerequisites: [
-    { ar: 'لا شروط — هذا برنامج المبتدئ المثالي.', de: 'Keine — ideales Einsteigerprogramm.' },
+    { ar: 'لا شروط — هذا برنامج المبتدئ المثالي.', },
   ],
-  scheme: { ar: 'خطّي ABA / BAB', de: 'Linear ABA / BAB' },
+  scheme: { ar: 'خطّي ABA / BAB', },
   progression: { kind: 'linear', addKgUpper: 2.5, addKgLower: 2.5, addKgPress: 2.5 },
   weekTemplate: [
     {
@@ -64,24 +63,24 @@ const STRONGLIFTS_55: ProgramDef = {
       sessions: [
         {
           key: 'sl_a',
-          name: { ar: 'الجلسة A', de: 'Session A' },
-          banner: { ar: 'سكوات + بنش + تجديف', de: 'Squat + Bench + Row' },
+          name: { ar: 'الجلسة A', },
+          banner: { ar: 'سكوات + بنش + تجديف', },
           estMinutes: 50,
           exercises: [
-            ex('squat', sets(5, 5), { ar: 'العمود الفقري للبرنامج كله.', de: 'Rückgrat des gesamten Plans.' }, 180),
+            ex('squat', sets(5, 5), { ar: 'العمود الفقري للبرنامج كله.', }, 180),
             ex('bench', sets(5, 5), undefined, 180),
             ex('bent_row', sets(5, 5), undefined, 120),
           ],
         },
         {
           key: 'sl_b',
-          name: { ar: 'الجلسة B', de: 'Session B' },
-          banner: { ar: 'سكوات + ضغط رأس + ديدليفت', de: 'Squat + OHP + Deadlift' },
+          name: { ar: 'الجلسة B', },
+          banner: { ar: 'سكوات + ضغط رأس + ديدليفت', },
           estMinutes: 50,
           exercises: [
             ex('squat', sets(5, 5), undefined, 180),
             ex('ohp', sets(5, 5), undefined, 180),
-            ex('deadlift', sets(1, 5), { ar: 'مجموعة عاملة واحدة فقط — حمل عالٍ.', de: 'Nur ein Arbeitssatz — hohe Belastung.' }, 240),
+            ex('deadlift', sets(1, 5), { ar: 'مجموعة عاملة واحدة فقط — حمل عالٍ.', }, 240),
           ],
         },
       ],
@@ -93,8 +92,8 @@ const STRONGLIFTS_55: ProgramDef = {
 
 const GREYSKULL: ProgramDef = {
   key: 'greyskull_lp',
-  name: { ar: 'غرايسكال LP', de: 'GreySkull LP' },
-  shortName: { ar: 'GSLP', de: 'GSLP' },
+  name: { ar: 'غرايسكال LP', },
+  shortName: { ar: 'GSLP', },
   author: 'John "Johnny Pain" Sherwood',
   experience: 'beginner',
   goal: 'powerbuilding',
@@ -103,15 +102,14 @@ const GREYSKULL: ProgramDef = {
   sessionMinutes: 55,
   description: {
     ar: 'تطور خطّي مع AMRAP في المجموعة الأخيرة. أحجام تجميل أعلى من سترونغ ليفتس مع نفس بساطة التطور.',
-    de: 'Lineare Steigerung mit AMRAP-Schlusssatz. Mehr Hypertrophie-Volumen als SL bei gleicher Einfachheit.',
   },
   highlights: [
-    { ar: 'AMRAP في المجموعة الأخيرة — تختبر قواك كل جلسة.', de: 'AMRAP-Endsatz — jede Session ein Test.' },
-    { ar: 'يضم تمارين عزل (curl/triceps) للذراعين.', de: 'Inklusive Isolation für Arme.' },
-    { ar: 'سهل التطور — رفع مزدوج عند 10+ تكرار في الـ AMRAP.', de: 'Doppel-Steigerung bei 10+ Wdh. im AMRAP.' },
+    { ar: 'AMRAP في المجموعة الأخيرة — تختبر قواك كل جلسة.', },
+    { ar: 'يضم تمارين عزل (curl/triceps) للذراعين.', },
+    { ar: 'سهل التطور — رفع مزدوج عند 10+ تكرار في الـ AMRAP.', },
   ],
   equipment: ['barbell', 'rack', 'bench', 'pull_up_bar'],
-  scheme: { ar: 'خطّي + AMRAP', de: 'Linear + AMRAP' },
+  scheme: { ar: 'خطّي + AMRAP', },
   progression: { kind: 'amrap', minReps: 5, addKgWhenAbove: 2.5 },
   weekTemplate: [
     {
@@ -119,7 +117,7 @@ const GREYSKULL: ProgramDef = {
       sessions: [
         {
           key: 'gs_a',
-          name: { ar: 'A — بنش + سكوات', de: 'A — Bench + Squat' },
+          name: { ar: 'A — بنش + سكوات', },
           estMinutes: 55,
           exercises: [
             ex('bench', amrapSets(3, 5), undefined, 150),
@@ -130,11 +128,11 @@ const GREYSKULL: ProgramDef = {
         },
         {
           key: 'gs_b',
-          name: { ar: 'B — ضغط + ديدليفت', de: 'B — OHP + Deadlift' },
+          name: { ar: 'B — ضغط + ديدليفت', },
           estMinutes: 55,
           exercises: [
             ex('ohp', amrapSets(3, 5), undefined, 150),
-            ex('deadlift', amrapSets(1, 5), { ar: 'مجموعة AMRAP وحيدة.', de: 'Einzelner AMRAP-Satz.' }, 240),
+            ex('deadlift', amrapSets(1, 5), { ar: 'مجموعة AMRAP وحيدة.', }, 240),
             ex('bent_row', sets(3, 8), undefined, 120),
             ex('skull_crusher', sets(3, 10), undefined, 90),
           ],
@@ -148,8 +146,8 @@ const GREYSKULL: ProgramDef = {
 
 const PPL: ProgramDef = {
   key: 'ppl_6day',
-  name: { ar: 'PPL ست أيام', de: 'PPL 6-Tage' },
-  shortName: { ar: 'PPL 6', de: 'PPL 6' },
+  name: { ar: 'PPL ست أيام', },
+  shortName: { ar: 'PPL 6', },
   author: 'Reddit r/Fitness wiki',
   experience: 'intermediate',
   goal: 'hypertrophy',
@@ -158,16 +156,15 @@ const PPL: ProgramDef = {
   sessionMinutes: 75,
   description: {
     ar: 'تقسيم Push/Pull/Legs مكرر مرتين أسبوعياً. تردد عالٍ + حجم عالٍ — الخيار رقم 1 لمتوسطين يبحثون عن الضخامة.',
-    de: 'Push/Pull/Legs zweimal pro Woche. Hohe Frequenz + Volumen — Top-Wahl für Mittelstufe-Hypertrophie.',
   },
   highlights: [
-    { ar: 'كل عضلة تُضرب مرتين أسبوعياً.', de: 'Jeder Muskel 2×/Woche.' },
-    { ar: 'يوم Push A ثقيل، Push B متوسط (حجم).', de: 'Push A schwer, Push B Volumen.' },
-    { ar: '15-22 مجموعة لكل عضلة كبيرة أسبوعياً.', de: '15-22 Sätze pro Hauptmuskel/Woche.' },
-    { ar: 'تطور بنظام Double Progression.', de: 'Steigerung per Double Progression.' },
+    { ar: 'كل عضلة تُضرب مرتين أسبوعياً.', },
+    { ar: 'يوم Push A ثقيل، Push B متوسط (حجم).', },
+    { ar: '15-22 مجموعة لكل عضلة كبيرة أسبوعياً.', },
+    { ar: 'تطور بنظام Double Progression.', },
   ],
   equipment: ['barbell', 'rack', 'bench', 'dumbbells', 'cable'],
-  scheme: { ar: 'تقسيم 6 أيام', de: '6-Tage-Split' },
+  scheme: { ar: 'تقسيم 6 أيام', },
   progression: { kind: 'double', topRepRange: [6, 10], addKg: 2.5 },
   weekTemplate: [
     {
@@ -175,7 +172,7 @@ const PPL: ProgramDef = {
       sessions: [
         {
           key: 'ppl_push_a',
-          name: { ar: 'دفع A (ثقيل)', de: 'Push A (schwer)' },
+          name: { ar: 'دفع A (ثقيل)', },
           estMinutes: 75,
           exercises: [
             ex('bench', sets(4, 6), undefined, 180),
@@ -188,7 +185,7 @@ const PPL: ProgramDef = {
         },
         {
           key: 'ppl_pull_a',
-          name: { ar: 'سحب A (ثقيل)', de: 'Pull A (schwer)' },
+          name: { ar: 'سحب A (ثقيل)', },
           estMinutes: 75,
           exercises: [
             ex('deadlift', sets(3, 5), undefined, 240),
@@ -201,7 +198,7 @@ const PPL: ProgramDef = {
         },
         {
           key: 'ppl_legs_a',
-          name: { ar: 'أرجل A (ثقيل)', de: 'Beine A (schwer)' },
+          name: { ar: 'أرجل A (ثقيل)', },
           estMinutes: 75,
           exercises: [
             ex('squat', sets(4, 6), undefined, 180),
@@ -213,7 +210,7 @@ const PPL: ProgramDef = {
         },
         {
           key: 'ppl_push_b',
-          name: { ar: 'دفع B (حجم)', de: 'Push B (Volumen)' },
+          name: { ar: 'دفع B (حجم)', },
           estMinutes: 75,
           exercises: [
             ex('incline_bench', sets(4, 8), undefined, 150),
@@ -226,7 +223,7 @@ const PPL: ProgramDef = {
         },
         {
           key: 'ppl_pull_b',
-          name: { ar: 'سحب B (حجم)', de: 'Pull B (Volumen)' },
+          name: { ar: 'سحب B (حجم)', },
           estMinutes: 75,
           exercises: [
             ex('lat_pulldown', sets(4, 10), undefined, 90),
@@ -239,7 +236,7 @@ const PPL: ProgramDef = {
         },
         {
           key: 'ppl_legs_b',
-          name: { ar: 'أرجل B (حجم)', de: 'Beine B (Volumen)' },
+          name: { ar: 'أرجل B (حجم)', },
           estMinutes: 75,
           exercises: [
             ex('front_squat', sets(4, 8), undefined, 150),
@@ -259,8 +256,8 @@ const PPL: ProgramDef = {
 
 const W531_BBB: ProgramDef = {
   key: 'w531_bbb',
-  name: { ar: 'وندلر 5/3/1 BBB', de: 'Wendler 5/3/1 BBB' },
-  shortName: { ar: '5/3/1 BBB', de: '5/3/1 BBB' },
+  name: { ar: 'وندلر 5/3/1 BBB', },
+  shortName: { ar: '5/3/1 BBB', },
   author: 'Jim Wendler',
   origin: '5/3/1: The Simplest and Most Effective Training System',
   experience: 'intermediate',
@@ -270,39 +267,38 @@ const W531_BBB: ProgramDef = {
   sessionMinutes: 70,
   description: {
     ar: 'دورة الأسابيع الأربعة الكلاسيكية — 5s, 3s, 1s, ديلود. مع "Boring But Big" 5×10 على نفس الحركة.',
-    de: 'Klassischer 4-Wochen-Zyklus — 5s, 3s, 1s, Deload. Plus "Boring But Big" 5×10 auf gleicher Bewegung.',
   },
   highlights: [
-    { ar: 'تطوّر بطيء لكن لا يفشل تقريباً.', de: 'Langsame aber kaum scheiternde Steigerung.' },
-    { ar: 'TM = 90% من 1RM الحقيقي — يمنحك مساحة أمان.', de: 'TM = 90 % vom echten 1RM — Sicherheitspuffer.' },
-    { ar: '5×10 BBB يضيف حجم تجميل ضخم.', de: '5×10 BBB fügt enormes Volumen hinzu.' },
-    { ar: 'دورة كاملة كل 4 أسابيع — قابل للقياس.', de: 'Voller 4-Wochen-Zyklus — messbar.' },
+    { ar: 'تطوّر بطيء لكن لا يفشل تقريباً.', },
+    { ar: 'TM = 90% من 1RM الحقيقي — يمنحك مساحة أمان.', },
+    { ar: '5×10 BBB يضيف حجم تجميل ضخم.', },
+    { ar: 'دورة كاملة كل 4 أسابيع — قابل للقياس.', },
   ],
   equipment: ['barbell', 'rack', 'bench'],
-  scheme: { ar: '5/3/1 + BBB 5×10', de: '5/3/1 + BBB 5×10' },
+  scheme: { ar: '5/3/1 + BBB 5×10', },
   progression: { kind: '531', trainingMaxPct: 0.9 },
   weekTemplate: [
     {
       index: 1,
-      label: { ar: 'أسبوع الـ 5s', de: 'Woche 5s' },
+      label: { ar: 'أسبوع الـ 5s', },
       sessions: [
         {
           key: '531_squat',
-          name: { ar: 'يوم السكوات', de: 'Squat-Tag' },
+          name: { ar: 'يوم السكوات', },
           estMinutes: 70,
           exercises: [
             ex('squat', [
               { reps: 5, pct1RM: 65 },
               { reps: 5, pct1RM: 75 },
               { reps: 5, pct1RM: 85, amrap: true },
-            ], { ar: 'استخدم TM = 0.9 × 1RM.', de: 'TM = 0,9 × 1RM verwenden.' }, 240),
-            ex('squat', sets(5, 10, { pct1RM: 50 }), { ar: 'BBB — 5 مجموعات × 10 تكرارات', de: 'BBB — 5 Sätze × 10 Wdh.' }, 90),
+            ], { ar: 'استخدم TM = 0.9 × 1RM.', }, 240),
+            ex('squat', sets(5, 10, { pct1RM: 50 }), { ar: 'BBB — 5 مجموعات × 10 تكرارات', }, 90),
             ex('leg_curl', sets(5, 10), undefined, 60),
           ],
         },
         {
           key: '531_bench',
-          name: { ar: 'يوم البنش', de: 'Bench-Tag' },
+          name: { ar: 'يوم البنش', },
           estMinutes: 70,
           exercises: [
             ex('bench', [
@@ -316,7 +312,7 @@ const W531_BBB: ProgramDef = {
         },
         {
           key: '531_dl',
-          name: { ar: 'يوم الديدليفت', de: 'Deadlift-Tag' },
+          name: { ar: 'يوم الديدليفت', },
           estMinutes: 70,
           exercises: [
             ex('deadlift', [
@@ -324,13 +320,13 @@ const W531_BBB: ProgramDef = {
               { reps: 5, pct1RM: 75 },
               { reps: 5, pct1RM: 85, amrap: true },
             ], undefined, 240),
-            ex('deadlift', sets(5, 10, { pct1RM: 50 }), { ar: 'حذراً — حجم ديدليفت عالٍ.', de: 'Vorsicht — hohes DL-Volumen.' }, 120),
+            ex('deadlift', sets(5, 10, { pct1RM: 50 }), { ar: 'حذراً — حجم ديدليفت عالٍ.', }, 120),
             ex('hanging_leg_raise', sets(5, 10), undefined, 60),
           ],
         },
         {
           key: '531_ohp',
-          name: { ar: 'يوم الضغط', de: 'OHP-Tag' },
+          name: { ar: 'يوم الضغط', },
           estMinutes: 70,
           exercises: [
             ex('ohp', [
@@ -346,11 +342,11 @@ const W531_BBB: ProgramDef = {
     },
     {
       index: 2,
-      label: { ar: 'أسبوع الـ 3s', de: 'Woche 3s' },
+      label: { ar: 'أسبوع الـ 3s', },
       sessions: [
         {
           key: '531_squat',
-          name: { ar: 'يوم السكوات', de: 'Squat-Tag' },
+          name: { ar: 'يوم السكوات', },
           estMinutes: 70,
           exercises: [
             ex('squat', [
@@ -365,11 +361,11 @@ const W531_BBB: ProgramDef = {
     },
     {
       index: 3,
-      label: { ar: 'أسبوع 5/3/1', de: 'Woche 5/3/1' },
+      label: { ar: 'أسبوع 5/3/1', },
       sessions: [
         {
           key: '531_squat',
-          name: { ar: 'يوم السكوات', de: 'Squat-Tag' },
+          name: { ar: 'يوم السكوات', },
           estMinutes: 70,
           exercises: [
             ex('squat', [
@@ -384,19 +380,19 @@ const W531_BBB: ProgramDef = {
     },
     {
       index: 4,
-      label: { ar: 'ديلود', de: 'Deload' },
+      label: { ar: 'ديلود', },
       isDeload: true,
       sessions: [
         {
           key: '531_squat',
-          name: { ar: 'ديلود — سكوات', de: 'Deload Squat' },
+          name: { ar: 'ديلود — سكوات', },
           estMinutes: 50,
           exercises: [
             ex('squat', [
               { reps: 5, pct1RM: 40 },
               { reps: 5, pct1RM: 50 },
               { reps: 5, pct1RM: 60 },
-            ], { ar: 'لا AMRAP، لا BBB في الديلود.', de: 'Kein AMRAP, kein BBB im Deload.' }, 180),
+            ], { ar: 'لا AMRAP، لا BBB في الديلود.', }, 180),
           ],
         },
       ],
@@ -408,8 +404,8 @@ const W531_BBB: ProgramDef = {
 
 const GZCLP: ProgramDef = {
   key: 'gzclp',
-  name: { ar: 'GZCLP', de: 'GZCLP' },
-  shortName: { ar: 'GZCLP', de: 'GZCLP' },
+  name: { ar: 'GZCLP', },
+  shortName: { ar: 'GZCLP', },
   author: 'Cody Lefever',
   experience: 'beginner',
   goal: 'strength',
@@ -418,15 +414,14 @@ const GZCLP: ProgramDef = {
   sessionMinutes: 60,
   description: {
     ar: 'نسخة LP من نظام GZCL ذي الطبقات الثلاث — طبقات T1 ثقيلة، T2 متوسطة، T3 خفيفة عالية التكرار.',
-    de: 'LP-Version des dreischichtigen GZCL-Systems — T1 schwer, T2 mittel, T3 leicht & viele Wdh.',
   },
   highlights: [
-    { ar: 'بنية T1/T2/T3 — كل طبقة لها هدف.', de: 'T1/T2/T3 — jede Stufe hat ein Ziel.' },
-    { ar: 'AMRAP على المجموعة الأخيرة T1 و T2.', de: 'AMRAP auf letztem Satz T1 & T2.' },
-    { ar: 'تنازل تلقائي إلى مرحلة أسهل عند الفشل.', de: 'Automatische Phasenregression bei Misserfolg.' },
+    { ar: 'بنية T1/T2/T3 — كل طبقة لها هدف.', },
+    { ar: 'AMRAP على المجموعة الأخيرة T1 و T2.', },
+    { ar: 'تنازل تلقائي إلى مرحلة أسهل عند الفشل.', },
   ],
   equipment: ['barbell', 'rack', 'bench'],
-  scheme: { ar: 'GZCL خطّي', de: 'GZCL linear' },
+  scheme: { ar: 'GZCL خطّي', },
   progression: { kind: 'amrap', minReps: 1, addKgWhenAbove: 2.5 },
   weekTemplate: [
     {
@@ -434,17 +429,17 @@ const GZCLP: ProgramDef = {
       sessions: [
         {
           key: 'gzclp_a1',
-          name: { ar: 'A1 — سكوات/بنش', de: 'A1 — Squat/Bench' },
+          name: { ar: 'A1 — سكوات/بنش', },
           estMinutes: 60,
           exercises: [
-            ex('squat', amrapSets(5, 3, { pct1RM: 85 }), { ar: 'T1 — AMRAP في المجموعة الأخيرة.', de: 'T1 — AMRAP-Endsatz.' }, 180),
-            ex('bench', sets(3, 10, { pct1RM: 65 }), { ar: 'T2 — حجم.', de: 'T2 — Volumen.' }, 120),
-            ex('lat_pulldown', sets(3, 15, { pct1RM: 55 }), { ar: 'T3 — تجميل.', de: 'T3 — Hypertrophie.' }, 90),
+            ex('squat', amrapSets(5, 3, { pct1RM: 85 }), { ar: 'T1 — AMRAP في المجموعة الأخيرة.', }, 180),
+            ex('bench', sets(3, 10, { pct1RM: 65 }), { ar: 'T2 — حجم.', }, 120),
+            ex('lat_pulldown', sets(3, 15, { pct1RM: 55 }), { ar: 'T3 — تجميل.', }, 90),
           ],
         },
         {
           key: 'gzclp_b1',
-          name: { ar: 'B1 — ديدليفت/ضغط', de: 'B1 — Deadlift/OHP' },
+          name: { ar: 'B1 — ديدليفت/ضغط', },
           estMinutes: 60,
           exercises: [
             ex('ohp', amrapSets(5, 3, { pct1RM: 85 }), undefined, 180),
@@ -461,8 +456,8 @@ const GZCLP: ProgramDef = {
 
 const MADCOW: ProgramDef = {
   key: 'madcow_55',
-  name: { ar: 'مادكاو 5×5', de: 'Madcow 5×5' },
-  shortName: { ar: 'Madcow', de: 'Madcow' },
+  name: { ar: 'مادكاو 5×5', },
+  shortName: { ar: 'Madcow', },
   author: 'Bill "Madcow" Starr',
   experience: 'intermediate',
   goal: 'strength',
@@ -471,15 +466,14 @@ const MADCOW: ProgramDef = {
   sessionMinutes: 75,
   description: {
     ar: 'الوارث الطبيعي لـ Stronglifts 5×5 — تطور أسبوعي بدلاً من جلسة. مثالي للمتدرب الذي تعب من الفشل اليومي.',
-    de: 'Logischer SL-5×5-Nachfolger — wöchentliche statt Session-Steigerung. Ideal nach SL-Stagnation.',
   },
   highlights: [
-    { ar: 'يوم خفيف + يوم متوسط + يوم ثقيل.', de: 'Leicht + Mittel + Schwer.' },
-    { ar: 'تطور 2.5 كغ/أسبوع على الكامل العلوي.', de: '2,5 kg/Woche auf Oberkörper.' },
-    { ar: 'ramp-up 5 مجموعات تدريجية كل جلسة.', de: '5 stufige Sätze pro Session (Ramp-up).' },
+    { ar: 'يوم خفيف + يوم متوسط + يوم ثقيل.', },
+    { ar: 'تطور 2.5 كغ/أسبوع على الكامل العلوي.', },
+    { ar: 'ramp-up 5 مجموعات تدريجية كل جلسة.', },
   ],
   equipment: ['barbell', 'rack', 'bench'],
-  scheme: { ar: 'تطور أسبوعي', de: 'Wöchentliche Steigerung' },
+  scheme: { ar: 'تطور أسبوعي', },
   progression: { kind: 'linear', addKgUpper: 2.5, addKgLower: 2.5, addKgPress: 2.5 },
   weekTemplate: [
     {
@@ -487,7 +481,7 @@ const MADCOW: ProgramDef = {
       sessions: [
         {
           key: 'madcow_mon',
-          name: { ar: 'الإثنين — متوسط', de: 'Montag — Mittel' },
+          name: { ar: 'الإثنين — متوسط', },
           estMinutes: 75,
           exercises: [
             ex('squat', [
@@ -496,7 +490,7 @@ const MADCOW: ProgramDef = {
               { reps: 5, pct1RM: 70 },
               { reps: 5, pct1RM: 80 },
               { reps: 5, pct1RM: 85 },
-            ], { ar: 'ramp-up 5 درجات', de: '5 Stufen Ramp-up' }, 180),
+            ], { ar: 'ramp-up 5 درجات', }, 180),
             ex('bench', [
               { reps: 5, pct1RM: 50 },
               { reps: 5, pct1RM: 60 },
@@ -515,10 +509,10 @@ const MADCOW: ProgramDef = {
         },
         {
           key: 'madcow_wed',
-          name: { ar: 'الأربعاء — خفيف', de: 'Mittwoch — Leicht' },
+          name: { ar: 'الأربعاء — خفيف', },
           estMinutes: 60,
           exercises: [
-            ex('squat', sets(4, 5, { pct1RM: 60 }), { ar: 'سكوات خفيف للتعافي', de: 'Leichter Squat zur Erholung' }, 120),
+            ex('squat', sets(4, 5, { pct1RM: 60 }), { ar: 'سكوات خفيف للتعافي', }, 120),
             ex('ohp', [
               { reps: 5, pct1RM: 50 },
               { reps: 5, pct1RM: 60 },
@@ -531,7 +525,7 @@ const MADCOW: ProgramDef = {
         },
         {
           key: 'madcow_fri',
-          name: { ar: 'الجمعة — ثقيل', de: 'Freitag — Schwer' },
+          name: { ar: 'الجمعة — ثقيل', },
           estMinutes: 80,
           exercises: [
             ex('squat', [
@@ -541,7 +535,7 @@ const MADCOW: ProgramDef = {
               { reps: 5, pct1RM: 80 },
               { reps: 3, pct1RM: 90 },
               { reps: 8, pct1RM: 70 },
-            ], { ar: 'PR set + back-off', de: 'PR-Satz + Back-off' }, 240),
+            ], { ar: 'PR set + back-off', }, 240),
             ex('bench', [
               { reps: 5, pct1RM: 50 },
               { reps: 5, pct1RM: 60 },
@@ -569,8 +563,8 @@ const MADCOW: ProgramDef = {
 
 const UPPER_LOWER: ProgramDef = {
   key: 'upper_lower_4d',
-  name: { ar: 'علوي/سفلي 4 أيام', de: 'Ober-/Unter-Split 4×' },
-  shortName: { ar: 'U/L 4', de: 'U/L 4' },
+  name: { ar: 'علوي/سفلي 4 أيام', },
+  shortName: { ar: 'U/L 4', },
   author: 'Layne Norton (PHAT-inspired)',
   experience: 'intermediate',
   goal: 'powerbuilding',
@@ -579,15 +573,14 @@ const UPPER_LOWER: ProgramDef = {
   sessionMinutes: 75,
   description: {
     ar: 'تردد مرتين أسبوعياً لكل جزء — يوم قوة ويوم حجم. توازن مثالي لمتوسط يبني قوة وضخامة معاً.',
-    de: '2× Frequenz pro Körperhälfte — Kraft- und Volumentag. Idealer Balance-Plan.',
   },
   highlights: [
-    { ar: '2 يوم علوي، 2 يوم سفلي.', de: '2 Ober, 2 Unter.' },
-    { ar: 'يوم قوة (5×5) + يوم حجم (3×10-12).', de: 'Krafttag (5×5) + Volumentag (3×10-12).' },
-    { ar: 'مساحة كافية لتعافي بين الجلسات.', de: 'Ausreichend Erholung zwischen Sessions.' },
+    { ar: '2 يوم علوي، 2 يوم سفلي.', },
+    { ar: 'يوم قوة (5×5) + يوم حجم (3×10-12).', },
+    { ar: 'مساحة كافية لتعافي بين الجلسات.', },
   ],
   equipment: ['barbell', 'rack', 'bench', 'dumbbells', 'cable'],
-  scheme: { ar: 'علوي/سفلي 4 أيام', de: 'Ober/Unter 4-Tage' },
+  scheme: { ar: 'علوي/سفلي 4 أيام', },
   progression: { kind: 'double', topRepRange: [5, 8], addKg: 2.5 },
   weekTemplate: [
     {
@@ -595,7 +588,7 @@ const UPPER_LOWER: ProgramDef = {
       sessions: [
         {
           key: 'ul_upper_strength',
-          name: { ar: 'علوي — قوة', de: 'Ober — Kraft' },
+          name: { ar: 'علوي — قوة', },
           estMinutes: 80,
           exercises: [
             ex('bench', sets(5, 5), undefined, 180),
@@ -608,7 +601,7 @@ const UPPER_LOWER: ProgramDef = {
         },
         {
           key: 'ul_lower_strength',
-          name: { ar: 'سفلي — قوة', de: 'Unter — Kraft' },
+          name: { ar: 'سفلي — قوة', },
           estMinutes: 80,
           exercises: [
             ex('squat', sets(5, 5), undefined, 240),
@@ -621,7 +614,7 @@ const UPPER_LOWER: ProgramDef = {
         },
         {
           key: 'ul_upper_hyper',
-          name: { ar: 'علوي — حجم', de: 'Ober — Volumen' },
+          name: { ar: 'علوي — حجم', },
           estMinutes: 80,
           exercises: [
             ex('incline_dumbbell_press', sets(4, 10), undefined, 90),
@@ -636,7 +629,7 @@ const UPPER_LOWER: ProgramDef = {
         },
         {
           key: 'ul_lower_hyper',
-          name: { ar: 'سفلي — حجم', de: 'Unter — Volumen' },
+          name: { ar: 'سفلي — حجم', },
           estMinutes: 80,
           exercises: [
             ex('front_squat', sets(4, 8), undefined, 150),
@@ -656,8 +649,8 @@ const UPPER_LOWER: ProgramDef = {
 
 const FULL_BODY_3: ProgramDef = {
   key: 'full_body_3',
-  name: { ar: 'جسم كامل ثلاث مرات', de: 'Ganzkörper 3×' },
-  shortName: { ar: 'FB 3', de: 'FB 3' },
+  name: { ar: 'جسم كامل ثلاث مرات', },
+  shortName: { ar: 'FB 3', },
   author: 'Generic',
   experience: 'beginner',
   goal: 'general',
@@ -666,15 +659,14 @@ const FULL_BODY_3: ProgramDef = {
   sessionMinutes: 60,
   description: {
     ar: 'جلسة جسم كامل ثلاث مرات أسبوعياً — تردد متوازن للجميع، مناسب لمشغول الوقت.',
-    de: 'Ganzkörper 3×/Woche — ausgewogene Frequenz, perfekt bei wenig Zeit.',
   },
   highlights: [
-    { ar: 'كل عضلة تُضرب 3× أسبوعياً.', de: 'Jeder Muskel 3×/Woche.' },
-    { ar: 'تنوع جلسات A/B/C — يمنع الملل.', de: 'A/B/C-Wechsel — keine Langeweile.' },
-    { ar: 'مرن — تستطيع تخطي يوم بدون فقدان.', de: 'Flexibel — Tag ausfallen lassen geht.' },
+    { ar: 'كل عضلة تُضرب 3× أسبوعياً.', },
+    { ar: 'تنوع جلسات A/B/C — يمنع الملل.', },
+    { ar: 'مرن — تستطيع تخطي يوم بدون فقدان.', },
   ],
   equipment: ['barbell', 'rack', 'bench', 'pull_up_bar'],
-  scheme: { ar: 'جسم كامل', de: 'Ganzkörper' },
+  scheme: { ar: 'جسم كامل', },
   progression: { kind: 'linear', addKgUpper: 2.5, addKgLower: 2.5, addKgPress: 2.5 },
   weekTemplate: [
     {
@@ -682,7 +674,7 @@ const FULL_BODY_3: ProgramDef = {
       sessions: [
         {
           key: 'fb_a',
-          name: { ar: 'الجلسة A', de: 'Session A' },
+          name: { ar: 'الجلسة A', },
           estMinutes: 60,
           exercises: [
             ex('squat', sets(3, 5), undefined, 180),
@@ -693,7 +685,7 @@ const FULL_BODY_3: ProgramDef = {
         },
         {
           key: 'fb_b',
-          name: { ar: 'الجلسة B', de: 'Session B' },
+          name: { ar: 'الجلسة B', },
           estMinutes: 60,
           exercises: [
             ex('deadlift', sets(2, 5), undefined, 240),
@@ -704,7 +696,7 @@ const FULL_BODY_3: ProgramDef = {
         },
         {
           key: 'fb_c',
-          name: { ar: 'الجلسة C', de: 'Session C' },
+          name: { ar: 'الجلسة C', },
           estMinutes: 60,
           exercises: [
             ex('front_squat', sets(3, 8), undefined, 150),
@@ -723,8 +715,8 @@ const FULL_BODY_3: ProgramDef = {
 
 const PHUL: ProgramDef = {
   key: 'phul',
-  name: { ar: 'PHUL — قوة وضخامة', de: 'PHUL — Power & Hypertrophy' },
-  shortName: { ar: 'PHUL', de: 'PHUL' },
+  name: { ar: 'PHUL — قوة وضخامة', },
+  shortName: { ar: 'PHUL', },
   author: 'Brandon Campbell',
   experience: 'intermediate',
   goal: 'powerbuilding',
@@ -733,14 +725,13 @@ const PHUL: ProgramDef = {
   sessionMinutes: 75,
   description: {
     ar: 'يومان قوة (Power) + يومان ضخامة (Hypertrophy). أفضل ما في العالمين.',
-    de: '2 Power-Tage + 2 Hypertrophie-Tage. Das Beste aus beiden Welten.',
   },
   highlights: [
-    { ar: 'يوم قوة 3-5 تكرار، يوم حجم 8-12.', de: 'Power-Tag 3-5 Wdh, Volumen 8-12.' },
-    { ar: 'يبني قوة وضخامة بنفس الوقت.', de: 'Baut Kraft und Masse parallel auf.' },
+    { ar: 'يوم قوة 3-5 تكرار، يوم حجم 8-12.', },
+    { ar: 'يبني قوة وضخامة بنفس الوقت.', },
   ],
   equipment: ['barbell', 'rack', 'bench', 'dumbbells', 'cable'],
-  scheme: { ar: 'Power × 2 + Hypertrophy × 2', de: 'Power × 2 + Hypertrophie × 2' },
+  scheme: { ar: 'Power × 2 + Hypertrophy × 2', },
   progression: { kind: 'double', topRepRange: [3, 5], addKg: 2.5 },
   weekTemplate: [
     {
@@ -748,7 +739,7 @@ const PHUL: ProgramDef = {
       sessions: [
         {
           key: 'phul_upper_power',
-          name: { ar: 'علوي — قوة', de: 'Ober — Power' },
+          name: { ar: 'علوي — قوة', },
           estMinutes: 75,
           exercises: [
             ex('bench', sets(4, 4), undefined, 180),
@@ -762,7 +753,7 @@ const PHUL: ProgramDef = {
         },
         {
           key: 'phul_lower_power',
-          name: { ar: 'سفلي — قوة', de: 'Unter — Power' },
+          name: { ar: 'سفلي — قوة', },
           estMinutes: 75,
           exercises: [
             ex('squat', sets(4, 4), undefined, 240),
@@ -774,7 +765,7 @@ const PHUL: ProgramDef = {
         },
         {
           key: 'phul_upper_hyper',
-          name: { ar: 'علوي — حجم', de: 'Ober — Hypertrophie' },
+          name: { ar: 'علوي — حجم', },
           estMinutes: 75,
           exercises: [
             ex('incline_dumbbell_press', sets(4, 12), undefined, 90),
@@ -788,7 +779,7 @@ const PHUL: ProgramDef = {
         },
         {
           key: 'phul_lower_hyper',
-          name: { ar: 'سفلي — حجم', de: 'Unter — Hypertrophie' },
+          name: { ar: 'سفلي — حجم', },
           estMinutes: 75,
           exercises: [
             ex('front_squat', sets(4, 12), undefined, 90),
@@ -851,16 +842,16 @@ export function programsForEquipment(available: Set<string>): ProgramDef[] {
 /* ────────────────── Display labels ────────────────── */
 
 export const GOAL_LABELS: Record<ProgramDef['goal'], LocalizedString> = {
-  strength:     { ar: 'قوة',                de: 'Kraft' },
-  hypertrophy:  { ar: 'ضخامة',              de: 'Hypertrophie' },
-  powerbuilding:{ ar: 'قوة وضخامة',         de: 'Powerbuilding' },
-  fat_loss:     { ar: 'حرق',                de: 'Fettabbau' },
-  general:      { ar: 'لياقة عامة',         de: 'Allgemeine Fitness' },
-  skill:        { ar: 'مهارات',             de: 'Skills' },
+  strength:     { ar: 'قوة', },
+  hypertrophy:  { ar: 'ضخامة', },
+  powerbuilding:{ ar: 'قوة وضخامة', },
+  fat_loss:     { ar: 'حرق', },
+  general:      { ar: 'لياقة عامة', },
+  skill:        { ar: 'مهارات', },
 };
 
 export const EXPERIENCE_LABELS: Record<ProgramDef['experience'], LocalizedString> = {
-  beginner:     { ar: 'مبتدئ',     de: 'Anfänger'        },
-  intermediate: { ar: 'متوسط',     de: 'Mittelstufe'     },
-  advanced:     { ar: 'متقدم',     de: 'Fortgeschritten' },
+  beginner:     { ar: 'مبتدئ',        },
+  intermediate: { ar: 'متوسط',     },
+  advanced:     { ar: 'متقدم', },
 };

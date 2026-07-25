@@ -197,11 +197,9 @@ export function KeywordAlertsView({
     // in-app inbox state above; here we just skip the notification.
     if (notifPrefs.frequency === 'digest') return;
 
-    const title = isAr
-      ? count === 1 ? 'تطابق جديد' : `${count} تطابقات جديدة`
-      : count === 1 ? 'New match' : `${count} new matches`;
+    const title = count === 1 ? 'تطابق جديد' : `${count} تطابقات جديدة`;
     const body = count === 1 ? firstTitle : firstTitle + (
-      isAr ? ` و ${count - 1} أخرى` : ` and ${count - 1} more`
+      ` و ${count - 1} أخرى`
     );
 
     const result = notify({
@@ -225,7 +223,7 @@ export function KeywordAlertsView({
     try {
       const { data: userData } = await supabase.auth.getUser();
       if (!userData.user) {
-        toast.error(isAr ? 'يلزم تسجيل الدخول' : 'Sign in required');
+        toast.error('يلزم تسجيل الدخول');
         return;
       }
       const sources = filteredSources.length > 0 ? filteredSources : null;
@@ -244,7 +242,7 @@ export function KeywordAlertsView({
           prev.map((a) => (a.id === editingAlert.id ? (data as AlertRow) : a))
         );
         setEditingAlert(null);
-        toast.success(isAr ? 'تم التحديث' : 'Updated');
+        toast.success('تم التحديث');
       } else {
         const { data, error } = await supabase.from('keyword_alerts')
           .insert({
@@ -258,7 +256,7 @@ export function KeywordAlertsView({
           .single();
         if (error) throw error;
         setAlerts((prev) => [data as AlertRow, ...prev]);
-        toast.success(isAr ? 'تم إنشاء التنبيه' : 'Alert created');
+        toast.success('تم إنشاء التنبيه');
       }
       setKeyword('');
       setMatchMode('any');
@@ -269,8 +267,8 @@ export function KeywordAlertsView({
       // constraint" as a literal toast.
       const raw = e instanceof Error ? e.message : '';
       const friendly = /duplicate|unique/i.test(raw)
-        ? (isAr ? 'هذا التنبيه موجود مسبقاً' : 'This alert already exists')
-        : raw || (isAr ? 'تعذّر الحفظ' : 'Could not save');
+        ? ('هذا التنبيه موجود مسبقاً')
+        : raw || ('تعذّر الحفظ');
       toast.error(friendly);
     } finally {
       setCreating(false);
@@ -318,7 +316,7 @@ export function KeywordAlertsView({
     setAlerts((prev) => prev.filter((a) => a.id !== id));
     if (editingAlert?.id === id) cancelEdit();
     await supabase.from('keyword_alerts').delete().eq('id', id);
-    toast.success(isAr ? 'تم الحذف' : 'Deleted');
+    toast.success('تم الحذف');
   }
 
   async function markHitSeen(hit: AlertHit) {
@@ -340,7 +338,7 @@ export function KeywordAlertsView({
   }
 
   async function runCheckNow() {
-    toast.info(isAr ? 'جاري الفحص...' : 'Checking...');
+    toast.info('جاري الفحص...');
     try {
       const { data: userData } = await supabase.auth.getUser();
       const { error } = await supabase.functions.invoke(
@@ -348,9 +346,9 @@ export function KeywordAlertsView({
         { body: userData.user ? { user_id: userData.user.id } : {} },
       );
       if (error) throw error;
-      toast.success(isAr ? 'تم الفحص' : 'Check complete');
+      toast.success('تم الفحص');
     } catch (e: any) {
-      toast.error(e?.message || (isAr ? 'فشل الفحص' : 'Check failed'));
+      toast.error(e?.message || ('فشل الفحص'));
     }
   }
 
@@ -370,13 +368,13 @@ export function KeywordAlertsView({
           type="button"
           onClick={onBack}
           className="p-2 rounded-xl hover:bg-accent/50 active:scale-95 transition-all"
-          aria-label={isAr ? 'رجوع' : 'Back'}
+          aria-label={'رجوع'}
         >
           <ChevronLeft className="h-5 w-5 rtl:rotate-180" />
         </button>
         <Bell className="h-4 w-4 text-primary" />
         <h3 className="text-base font-bold flex-1">
-          {isAr ? 'تنبيهات الكلمات' : 'Keyword alerts'}
+          {'تنبيهات الكلمات'}
         </h3>
         {unseenCount > 0 && (
           <button
@@ -384,7 +382,7 @@ export function KeywordAlertsView({
             onClick={markAllHitsSeen}
             className="text-[11px] text-primary font-semibold px-2 py-1 rounded-lg hover:bg-primary/10"
           >
-            {isAr ? 'تحديد الكل' : 'Mark all read'}
+            {'تحديد الكل'}
           </button>
         )}
         <button
@@ -392,7 +390,7 @@ export function KeywordAlertsView({
           onClick={runCheckNow}
           className="text-[11px] font-semibold px-2 py-1 rounded-lg hover:bg-accent/40 text-muted-foreground"
         >
-          {isAr ? 'فحص الآن' : 'Check now'}
+          {'فحص الآن'}
         </button>
       </div>
 
@@ -407,12 +405,10 @@ export function KeywordAlertsView({
           </span>
           <div className="space-y-1.5 max-w-xs">
             <h4 className="text-base font-bold">
-              {isAr ? 'سجّل الدخول لاستخدام التنبيهات' : 'Sign in to use alerts'}
+              {'سجّل الدخول لاستخدام التنبيهات'}
             </h4>
             <p className="text-[12px] text-muted-foreground leading-relaxed">
-              {isAr
-                ? 'تنبيهات الكلمات تحتاج إلى حسابك حتى نحفظها بأمان عبر الأجهزة.'
-                : 'Keyword alerts need your account so we can sync them securely across devices.'}
+              {'تنبيهات الكلمات تحتاج إلى حسابك حتى نحفظها بأمان عبر الأجهزة.'}
             </p>
           </div>
           <Button
@@ -424,7 +420,7 @@ export function KeywordAlertsView({
             size="sm"
           >
             <LogIn className="h-3.5 w-3.5 me-1.5" />
-            {isAr ? 'تسجيل الدخول' : 'Sign in'}
+            {'تسجيل الدخول'}
           </Button>
         </div>
       )}
@@ -453,25 +449,21 @@ export function KeywordAlertsView({
           <div className="flex-1 min-w-0 text-start">
             <p className="text-[13px] font-semibold truncate">
               {permission === 'unsupported'
-                ? (isAr ? 'الإشعارات غير مدعومة' : 'Notifications unsupported')
+                ? ('الإشعارات غير مدعومة')
                 : permission === 'denied'
-                  ? (isAr ? 'الإشعارات مرفوضة' : 'Notifications blocked')
+                  ? ('الإشعارات مرفوضة')
                   : permission !== 'granted'
-                    ? (isAr ? 'الإشعارات غير مفعّلة' : 'Notifications off')
+                    ? ('الإشعارات غير مفعّلة')
                     : !notifPrefs.enabled
-                      ? (isAr ? 'الإشعارات متوقفة' : 'Notifications paused')
+                      ? ('الإشعارات متوقفة')
                       : muteRemaining
-                        ? (isAr
-                          ? `كتم لمدة ${muteRemaining}`
-                          : `Muted ${muteRemaining}`)
+                        ? (`كتم لمدة ${muteRemaining}`)
                         : notifPrefs.frequency === 'digest'
-                          ? (isAr ? 'وضع الموجز' : 'Digest mode')
-                          : (isAr ? 'الإشعارات مفعّلة' : 'Notifications on')}
+                          ? ('وضع الموجز')
+                          : ('الإشعارات مفعّلة')}
             </p>
             <p className="text-[10px] text-muted-foreground line-clamp-1">
-              {isAr
-                ? 'اضغط لتعديل الإعدادات'
-                : 'Tap to adjust preferences'}
+              {'اضغط لتعديل الإعدادات'}
             </p>
           </div>
           <ChevronDown
@@ -500,10 +492,8 @@ export function KeywordAlertsView({
                   >
                     <Bell className="h-3.5 w-3.5 me-1.5" />
                     {permission === 'denied'
-                      ? (isAr
-                        ? 'فعّل الإشعارات من إعدادات المتصفح'
-                        : 'Enable in browser settings')
-                      : (isAr ? 'السماح بالإشعارات' : 'Allow notifications')}
+                      ? ('فعّل الإشعارات من إعدادات المتصفح')
+                      : ('السماح بالإشعارات')}
                   </Button>
                 )}
 
@@ -511,7 +501,7 @@ export function KeywordAlertsView({
                 {permission === 'granted' && (
                   <div className="flex items-center gap-3">
                     <span className="flex-1 text-[12px] font-medium">
-                      {isAr ? 'تشغيل الإشعارات' : 'Notifications on'}
+                      {'تشغيل الإشعارات'}
                     </span>
                     <Toggle
                       on={notifPrefs.enabled}
@@ -524,7 +514,7 @@ export function KeywordAlertsView({
                 {permission === 'granted' && notifPrefs.enabled && (
                   <div className="flex items-center gap-3">
                     <span className="flex-1 text-[12px] font-medium">
-                      {isAr ? 'صوت' : 'Play sound'}
+                      {'صوت'}
                     </span>
                     <Toggle
                       on={notifPrefs.sound}
@@ -537,18 +527,18 @@ export function KeywordAlertsView({
                 {permission === 'granted' && notifPrefs.enabled && (
                   <div>
                     <p className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground mb-1.5">
-                      {isAr ? 'التكرار' : 'Frequency'}
+                      {'التكرار'}
                     </p>
                     <div className="flex gap-1.5">
                       <SegButton
                         active={notifPrefs.frequency === 'instant'}
                         onClick={() => setNotifPrefs({ ...notifPrefs, frequency: 'instant' })}
-                        label={isAr ? 'فوري' : 'Instant'}
+                        label={'فوري'}
                       />
                       <SegButton
                         active={notifPrefs.frequency === 'digest'}
                         onClick={() => setNotifPrefs({ ...notifPrefs, frequency: 'digest' })}
-                        label={isAr ? 'موجز' : 'Digest'}
+                        label={'موجز'}
                       />
                     </div>
                   </div>
@@ -559,7 +549,7 @@ export function KeywordAlertsView({
                   <div>
                     <p className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground mb-1.5 inline-flex items-center gap-1.5">
                       <Moon className="h-3 w-3" />
-                      {isAr ? 'ساعات الهدوء' : 'Quiet hours'}
+                      {'ساعات الهدوء'}
                     </p>
                     <div className="flex items-center gap-2">
                       <TimeInput
@@ -567,7 +557,7 @@ export function KeywordAlertsView({
                         onChange={(v) => setNotifPrefs({ ...notifPrefs, quietStart: v })}
                       />
                       <span className="text-[11px] text-muted-foreground">
-                        {isAr ? 'إلى' : 'to'}
+                        {'إلى'}
                       </span>
                       <TimeInput
                         value={notifPrefs.quietEnd}
@@ -581,19 +571,19 @@ export function KeywordAlertsView({
                 {permission === 'granted' && notifPrefs.enabled && (
                   <div>
                     <p className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground mb-1.5">
-                      {isAr ? 'كتم مؤقت' : 'Snooze'}
+                      {'كتم مؤقت'}
                     </p>
                     <div className="flex gap-1.5 flex-wrap">
                       <SnoozeChip
-                        label={isAr ? 'ساعة' : '1 h'}
+                        label={'ساعة'}
                         onClick={() => mute(60)}
                       />
                       <SnoozeChip
-                        label={isAr ? '٨ ساعات' : '8 h'}
+                        label={'٨ ساعات'}
                         onClick={() => mute(60 * 8)}
                       />
                       <SnoozeChip
-                        label={isAr ? '٢٤ ساعة' : '24 h'}
+                        label={'٢٤ ساعة'}
                         onClick={() => mute(60 * 24)}
                       />
                       {muteRemaining && (
@@ -602,7 +592,7 @@ export function KeywordAlertsView({
                           onClick={() => mute(null)}
                           className="px-3 py-1 rounded-full text-[11px] font-medium bg-destructive/10 text-destructive"
                         >
-                          {isAr ? 'إلغاء الكتم' : 'Clear snooze'}
+                          {'إلغاء الكتم'}
                         </button>
                       )}
                     </div>
@@ -614,21 +604,19 @@ export function KeywordAlertsView({
                   <Button
                     onClick={() => {
                       const r = notify({
-                        title: isAr ? 'اختبار الإشعار' : 'Test notification',
-                        body: isAr
-                          ? 'سيظهر مثل هذا عند تطابق كلمة'
-                          : 'This is what a keyword match will look like',
+                        title: 'اختبار الإشعار',
+                        body: 'سيظهر مثل هذا عند تطابق كلمة',
                         force: true,
                       });
                       if (!r.ok) {
-                        toast.error(isAr ? 'الإشعار لم يفعّل' : 'Notification could not fire');
+                        toast.error('الإشعار لم يفعّل');
                       }
                     }}
                     variant="outline"
                     size="sm"
                     className="w-full rounded-xl h-9"
                   >
-                    {isAr ? 'إرسال إشعار تجريبي' : 'Send a test notification'}
+                    {'إرسال إشعار تجريبي'}
                   </Button>
                 )}
               </div>
@@ -646,16 +634,14 @@ export function KeywordAlertsView({
             <span className="text-[12px] font-bold text-primary inline-flex items-center gap-1.5 truncate">
               <Pencil className="h-3.5 w-3.5 shrink-0" />
               <span className="truncate">
-                {isAr
-                  ? `تعديل: ${editingAlert.keyword}`
-                  : `Editing: ${editingAlert.keyword}`}
+                {`تعديل: ${editingAlert.keyword}`}
               </span>
             </span>
             <button
               type="button"
               onClick={cancelEdit}
               className="p-1 rounded-md hover:bg-primary/15"
-              aria-label={isAr ? 'إلغاء التعديل' : 'Cancel edit'}
+              aria-label={'إلغاء التعديل'}
             >
               <X className="h-3.5 w-3.5 text-primary" />
             </button>
@@ -670,7 +656,7 @@ export function KeywordAlertsView({
               if (e.key === 'Enter' && keyword.trim().length >= 2) commitAlert();
               if (e.key === 'Escape' && editingAlert) cancelEdit();
             }}
-            placeholder={isAr ? 'كلمة للمراقبة...' : 'Watch a keyword...'}
+            placeholder={'كلمة للمراقبة...'}
             className="flex-1 h-10 text-sm rounded-xl"
             disabled={creating}
             dir="auto"
@@ -680,8 +666,8 @@ export function KeywordAlertsView({
             disabled={keyword.trim().length < 2 || creating}
             className="h-10 rounded-xl"
             aria-label={editingAlert
-              ? (isAr ? 'حفظ' : 'Save')
-              : (isAr ? 'إنشاء تنبيه' : 'Create alert')}
+              ? ('حفظ')
+              : ('إنشاء تنبيه')}
           >
             {creating
               ? <Loader2 className="h-4 w-4 animate-spin" />
@@ -692,7 +678,7 @@ export function KeywordAlertsView({
         </div>
         <div className="flex flex-wrap gap-1.5 items-center">
           <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold me-1">
-            {isAr ? 'المطابقة' : 'Match'}
+            {'المطابقة'}
           </span>
           {([['any', 'أي'], ['whole_word', 'كلمة كاملة'], ['phrase', 'عبارة']] as const).map(
             ([id, ar]) => (
@@ -706,7 +692,7 @@ export function KeywordAlertsView({
                     : 'bg-accent/30 text-muted-foreground hover:bg-accent/50 border border-transparent'
                 }`}
               >
-                {isAr ? ar : id.replace('_', ' ')}
+                {ar}
               </button>
             ),
           )}
@@ -714,7 +700,7 @@ export function KeywordAlertsView({
         {enabledFeeds.length > 0 && (
           <div className="flex flex-wrap gap-1.5 items-center">
             <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold me-1">
-              {isAr ? 'في' : 'In'}
+              {'في'}
             </span>
             {enabledFeeds.map((f) => {
               const active = filteredSources.includes(f.name);
@@ -744,7 +730,7 @@ export function KeywordAlertsView({
                 onClick={() => setFilteredSources([])}
                 className="text-[10px] text-muted-foreground underline"
               >
-                {isAr ? 'مسح' : 'Clear'}
+                {'مسح'}
               </button>
             )}
           </div>
@@ -765,9 +751,7 @@ export function KeywordAlertsView({
           <div className="flex flex-col items-center justify-center py-20 gap-3 px-6 text-center">
             <Bell className="h-10 w-10 text-muted-foreground/30" />
             <p className="text-sm text-muted-foreground max-w-xs">
-              {isAr
-                ? 'أضف كلمة لتُعلَم عند ظهورها في أي مقال جديد'
-                : 'Add a keyword to be notified whenever it appears in a new article'}
+              {'أضف كلمة لتُعلَم عند ظهورها في أي مقال جديد'}
             </p>
           </div>
         )}
@@ -775,7 +759,7 @@ export function KeywordAlertsView({
         {alerts.length > 0 && (
           <div className="px-4 py-3 border-b border-border/30">
             <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-2">
-              {isAr ? 'تنبيهات نشطة' : 'Active alerts'}
+              {'تنبيهات نشطة'}
             </p>
             <div className="space-y-1.5">
               {alerts.map((alert) => (
@@ -795,16 +779,14 @@ export function KeywordAlertsView({
                       {alert.keyword}
                     </p>
                     <p className="text-[10px] text-muted-foreground truncate">
-                      {isAr
-                        ? alert.match_mode === 'any'
+                      {alert.match_mode === 'any'
                           ? 'أي تطابق'
                           : alert.match_mode === 'whole_word'
                             ? 'كلمة كاملة'
-                            : 'عبارة كاملة'
-                        : alert.match_mode.replace('_', ' ')}
+                            : 'عبارة كاملة'}
                       {alert.source_filter && alert.source_filter.length > 0 &&
                         ` · ${alert.source_filter.length} ${
-                          isAr ? 'مصدر' : 'sources'
+                          'مصدر'
                         }`}
                     </p>
                   </div>
@@ -817,21 +799,21 @@ export function KeywordAlertsView({
                         : 'text-muted-foreground hover:bg-accent/40'
                     }`}
                     aria-label={alert.enabled
-                      ? (isAr ? 'إيقاف التنبيه' : 'Disable alert')
-                      : (isAr ? 'تفعيل التنبيه' : 'Enable alert')}
+                      ? ('إيقاف التنبيه')
+                      : ('تفعيل التنبيه')}
                     role="switch"
                     aria-checked={alert.enabled}
                   >
                     {alert.enabled
-                      ? (isAr ? 'مفعّل' : 'On')
-                      : (isAr ? 'متوقف' : 'Off')}
+                      ? ('مفعّل')
+                      : ('متوقف')}
                   </button>
                   <button
                     type="button"
                     onClick={() => startEdit(alert)}
                     className="p-1.5 rounded-lg hover:bg-accent/40"
-                    aria-label={isAr ? 'تعديل' : 'Edit'}
-                    title={isAr ? 'تعديل' : 'Edit'}
+                    aria-label={'تعديل'}
+                    title={'تعديل'}
                   >
                     <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
                   </button>
@@ -839,7 +821,7 @@ export function KeywordAlertsView({
                     type="button"
                     onClick={() => setPendingDelete(alert)}
                     className="p-1.5 rounded-lg hover:bg-destructive/10"
-                    aria-label={isAr ? 'حذف' : 'Delete'}
+                    aria-label={'حذف'}
                   >
                     <Trash2 className="h-3.5 w-3.5 text-destructive" />
                   </button>
@@ -852,7 +834,7 @@ export function KeywordAlertsView({
         {hits.length > 0 && (
           <div className="px-4 py-3">
             <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-2">
-              {isAr ? 'تطابقات حديثة' : 'Recent matches'}
+              {'تطابقات حديثة'}
             </p>
             <AnimatePresence initial={false}>
               {hits.map((hit) => (

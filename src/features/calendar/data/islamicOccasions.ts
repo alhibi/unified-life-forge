@@ -447,6 +447,6 @@ export function formatGregorianDate(
   language: 'ar' | 'en' = 'ar',
 ): string {
   const date = typeof dateStr === 'string' ? new Date(dateStr) : dateStr;
-  const locale = language === 'ar' ? 'ar' : 'en-GB';
+  const locale = 'ar';
   return date.toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' });
 }

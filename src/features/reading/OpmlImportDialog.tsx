@@ -124,19 +124,19 @@ export function OpmlImportDialog({
     setParseError('');
     setFileName(file.name);
     if (file.size > 10 * 1024 * 1024) {
-      setParseError(isAr ? 'الملف أكبر من 10MB' : 'File larger than 10MB');
+      setParseError('الملف أكبر من 10MB');
       return;
     }
     let text = '';
     try {
       text = await file.text();
     } catch {
-      setParseError(isAr ? 'تعذّر قراءة الملف' : 'Could not read file');
+      setParseError('تعذّر قراءة الملف');
       return;
     }
     const parsed = parseOpml(text);
     if (parsed.length === 0) {
-      setParseError(isAr ? 'لم يتم العثور على خلاصات صالحة' : 'No valid feeds found');
+      setParseError('لم يتم العثور على خلاصات صالحة');
       return;
     }
     const previewRows: PreviewRow[] = parsed.map((p) => {
@@ -154,7 +154,7 @@ export function OpmlImportDialog({
   async function confirmImport() {
     const toImport = rows.filter((r) => r.selected && !r.duplicate);
     if (toImport.length === 0) {
-      toast.info(isAr ? 'لا توجد عناصر للاستيراد' : 'Nothing selected to import');
+      toast.info('لا توجد عناصر للاستيراد');
       return;
     }
     setStage('importing');
@@ -181,7 +181,7 @@ export function OpmlImportDialog({
     } catch (e: unknown) {
       const err = e as Error;
       toast.error(
-        err?.message || (isAr ? 'تعذّر الاستيراد' : 'Import failed'),
+        err?.message || ('تعذّر الاستيراد'),
       );
       setStage('preview');
     } finally {
@@ -220,20 +220,16 @@ export function OpmlImportDialog({
             </div>
             <div className="flex-1">
               <h3 className="text-base font-bold">
-                {isAr ? 'استيراد OPML' : 'Import OPML'}
+                {'استيراد OPML'}
               </h3>
               <p className="text-xs text-muted-foreground mt-0.5">
                 {stage === 'drop'
-                  ? (isAr
-                    ? 'انقل ملف OPML من Feedly أو Inoreader'
-                    : 'Drop an OPML file from Feedly or Inoreader')
+                  ? ('انقل ملف OPML من Feedly أو Inoreader')
                   : stage === 'preview'
-                    ? (isAr
-                      ? `${rows.length} خلاصة من ${fileName}`
-                      : `${rows.length} feeds from ${fileName}`)
+                    ? (`${rows.length} خلاصة من ${fileName}`)
                     : stage === 'importing'
-                      ? (isAr ? 'جاري الاستيراد...' : 'Importing...')
-                      : (isAr ? 'تم الاستيراد' : 'Imported')}
+                      ? ('جاري الاستيراد...')
+                      : ('تم الاستيراد')}
               </p>
             </div>
             <button
@@ -241,7 +237,7 @@ export function OpmlImportDialog({
               onClick={onClose}
               disabled={stage === 'importing'}
               className="p-2 rounded-xl hover:bg-accent/50 disabled:opacity-50"
-              aria-label={isAr ? 'إغلاق' : 'Close'}
+              aria-label={'إغلاق'}
             >
               <X className="h-4 w-4" />
             </button>
@@ -288,13 +284,11 @@ export function OpmlImportDialog({
                 <div>
                   <p className="text-sm font-bold mb-1">
                     {dragActive
-                      ? (isAr ? 'أفلت الملف هنا' : 'Drop the file')
-                      : (isAr ? 'اسحب ملف OPML' : 'Drag an OPML file')}
+                      ? ('أفلت الملف هنا')
+                      : ('اسحب ملف OPML')}
                   </p>
                   <p className="text-[11px] text-muted-foreground">
-                    {isAr
-                      ? 'أو انقر لاختيار الملف من جهازك'
-                      : 'Or tap to pick from your device'}
+                    {'أو انقر لاختيار الملف من جهازك'}
                   </p>
                 </div>
                 <p className="text-[10px] text-muted-foreground/70">
@@ -318,9 +312,7 @@ export function OpmlImportDialog({
                 </p>
               )}
               <p className="text-[11px] text-muted-foreground text-center mt-5 max-w-prose mx-auto">
-                {isAr
-                  ? 'متوافق مع OPML 2.0 — يدعم تصدير Feedly، Inoreader، NetNewsWire، The Old Reader، وغيرها.'
-                  : 'OPML 2.0 compatible — works with Feedly, Inoreader, NetNewsWire, The Old Reader, and more.'}
+                {'متوافق مع OPML 2.0 — يدعم تصدير Feedly، Inoreader، NetNewsWire، The Old Reader، وغيرها.'}
               </p>
             </div>
           )}
@@ -353,13 +345,11 @@ export function OpmlImportDialog({
                   />
                 </div>
                 <p className="text-[11px] text-muted-foreground text-center tabular-nums">
-                  {progress}% — {isAr ? 'لا تُغلق النافذة' : 'Keep this open'}
+                  {progress}% — {'لا تُغلق النافذة'}
                 </p>
               </div>
               <p className="text-[12px] text-muted-foreground text-center max-w-xs">
-                {isAr
-                  ? 'يجلب آخر مقالات كل خلاصة جديدة دفعة واحدة، بدون إثقال الخادم.'
-                  : 'Fetching the latest articles for each new feed in a single batched request.'}
+                {'يجلب آخر مقالات كل خلاصة جديدة دفعة واحدة، بدون إثقال الخادم.'}
               </p>
             </div>
           )}
@@ -372,20 +362,16 @@ export function OpmlImportDialog({
               </div>
               <div className="text-center">
                 <p className="text-base font-bold">
-                  {isAr
-                    ? `أُضيف ${result.added} مصدر`
-                    : `Added ${result.added} feed${result.added === 1 ? '' : 's'}`}
+                  {`أُضيف ${result.added} مصدر`}
                 </p>
                 {result.skipped > 0 && (
                   <p className="text-[12px] text-muted-foreground mt-1">
-                    {isAr
-                      ? `تم تخطّي ${result.skipped} (مكرّر)`
-                      : `Skipped ${result.skipped} duplicate${result.skipped === 1 ? '' : 's'}`}
+                    {`تم تخطّي ${result.skipped} (مكرّر)`}
                   </p>
                 )}
               </div>
               <Button onClick={onClose} className="rounded-xl mt-2">
-                {isAr ? 'تم' : 'Done'}
+                {'تم'}
               </Button>
             </div>
           )}
@@ -394,9 +380,7 @@ export function OpmlImportDialog({
           {stage === 'preview' && (
             <div className="border-t border-border/40 px-5 py-3.5 flex items-center gap-3">
               <p className="flex-1 text-[11px] text-muted-foreground tabular-nums">
-                {isAr
-                  ? `${newCount} جديدة · ${dupCount} مكرّرة${unselectedCount > 0 ? ` · ${unselectedCount} غير محدّدة` : ''}`
-                  : `${newCount} new · ${dupCount} duplicate${dupCount === 1 ? '' : 's'}${unselectedCount > 0 ? ` · ${unselectedCount} unselected` : ''}`}
+                {`${newCount} جديدة · ${dupCount} مكرّرة${unselectedCount > 0 ? ` · ${unselectedCount} غير محدّدة` : ''}`}
               </p>
               <Button
                 variant="outline"
@@ -407,7 +391,7 @@ export function OpmlImportDialog({
                 }}
                 className="rounded-xl"
               >
-                {isAr ? 'ملف آخر' : 'Different file'}
+                {'ملف آخر'}
               </Button>
               <Button
                 size="sm"
@@ -416,9 +400,7 @@ export function OpmlImportDialog({
                 className="rounded-xl"
               >
                 <Plus className="h-3.5 w-3.5 me-1.5" />
-                {isAr
-                  ? `استيراد ${newCount}`
-                  : `Import ${newCount}`}
+                {`استيراد ${newCount}`}
               </Button>
             </div>
           )}
@@ -456,7 +438,7 @@ function PreviewStage({
     <div className="flex-1 overflow-y-auto px-5 py-3">
       <div className="flex items-center justify-between mb-3">
         <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">
-          {isAr ? 'اختر الخلاصات' : 'Pick which feeds to import'}
+          {'اختر الخلاصات'}
         </p>
         <button
           type="button"
@@ -464,8 +446,8 @@ function PreviewStage({
           className="text-[11px] text-primary font-semibold"
         >
           {allSelected
-            ? (isAr ? 'إلغاء التحديد' : 'Deselect all')
-            : (isAr ? 'تحديد الكل' : 'Select all')}
+            ? ('إلغاء التحديد')
+            : ('تحديد الكل')}
         </button>
       </div>
       <div className="space-y-4">
@@ -474,7 +456,7 @@ function PreviewStage({
           return (
             <div key={cat}>
               <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1.5 ps-1">
-                {catLabel ? (isAr ? catLabel.ar : catLabel.en) : cat}
+                {catLabel ? (catLabel.ar) : cat}
               </p>
               <div className="rounded-2xl border border-border/40 divide-y divide-border/30 overflow-hidden">
                 {items.map((row) => (
@@ -527,7 +509,7 @@ function PreviewRowItem({
         ? (
           <span className="px-2 py-1 rounded-lg bg-foreground/8 text-[10px] uppercase tracking-wider text-muted-foreground font-semibold shrink-0 inline-flex items-center gap-1">
             <Check className="h-3 w-3" />
-            {isAr ? 'مضافة' : 'Added'}
+            {'مضافة'}
           </span>
         )
         : (
@@ -537,7 +519,7 @@ function PreviewRowItem({
               onClick={() => setCatOpen((v) => !v)}
               className="px-2.5 py-1 rounded-full text-[10px] font-medium bg-accent/30 text-muted-foreground hover:bg-accent/50 inline-flex items-center gap-1"
             >
-              {catLabel ? (isAr ? catLabel.ar : catLabel.en) : row.category}
+              {catLabel ? (catLabel.ar) : row.category}
               <ChevronDown className="h-3 w-3" />
             </button>
             {catOpen && (
@@ -559,7 +541,7 @@ function PreviewRowItem({
                         c.id === row.category ? 'text-primary font-bold' : ''
                       }`}
                     >
-                      {isAr ? c.ar : c.en}
+                      {c.ar}
                     </button>
                   ))}
                 </div>

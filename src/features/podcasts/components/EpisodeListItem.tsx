@@ -45,15 +45,15 @@ interface EpisodeListItemProps {
   allEpisodes?: PodcastEpisode[];
 }
 
-function formatRelativeDate(ms: number, lang: 'ar' | 'de'): string {
+function formatRelativeDate(ms: number, lang: 'ar'): string {
   if (!ms) return '';
   const date = new Date(ms);
   const now = Date.now();
   const days = Math.floor((now - ms) / 86_400_000);
-  if (days < 1) return lang === 'ar' ? 'اليوم' : 'Heute';
-  if (days < 2) return lang === 'ar' ? 'أمس' : 'Gestern';
-  if (days < 30) return lang === 'ar' ? `قبل ${days} يوم` : `vor ${days} Tagen`;
-  return new Intl.DateTimeFormat(lang === 'ar' ? 'ar' : 'de-DE', {
+  if (days < 1) return 'اليوم';
+  if (days < 2) return 'أمس';
+  if (days < 30) return `قبل ${days} يوم`;
+  return new Intl.DateTimeFormat('ar', {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
@@ -69,13 +69,13 @@ function formatRelativeDate(ms: number, lang: 'ar' | 'de'): string {
  */
 const NEW_BADGE_WINDOW_MS = 14 * 86_400_000;
 
-function formatRemaining(durationSec: number, positionSec: number, lang: 'ar' | 'de'): string {
+function formatRemaining(durationSec: number, positionSec: number, lang: 'ar'): string {
   const remaining = Math.max(0, Math.round(durationSec - positionSec));
   if (!remaining) return '';
   const m = Math.floor(remaining / 60);
   const h = Math.floor(m / 60);
-  if (h > 0) return lang === 'ar' ? `${h} س ${m % 60} د متبقية` : `noch ${h} h ${m % 60} min`;
-  return lang === 'ar' ? `${m} د متبقية` : `noch ${m} min`;
+  if (h > 0) return `${h} س ${m % 60} د متبقية`;
+  return `${m} د متبقية`;
 }
 
 function formatDuration(durationSec: number): string {
@@ -96,7 +96,7 @@ const EpisodeListItem = memo(function EpisodeListItem({
   allEpisodes,
 }: EpisodeListItemProps) {
   const { language } = useApp();
-  const lang = language === 'de' ? 'de' : 'ar';
+  const lang = 'ar';
   const player = usePodcastPlayer();
   const playState = usePlayState(episode.id, episode.duration);
 
@@ -209,13 +209,13 @@ const EpisodeListItem = memo(function EpisodeListItem({
               color: 'var(--podcast-primary, hsl(var(--primary)))',
             }}
           >
-            {lang === 'ar' ? 'جديد' : 'NEU'}
+            {'جديد'}
           </span>
         )}
         {playState.played && (
           <span className="text-[10px] font-bold tracking-wider px-1.5 py-0.5 rounded-md bg-muted/60 text-muted-foreground inline-flex items-center gap-1">
             <CheckCircle2 className="w-3 h-3" />
-            {lang === 'ar' ? 'تم' : 'Erledigt'}
+            {'تم'}
           </span>
         )}
         <p className="text-[11px] text-muted-foreground">
@@ -264,12 +264,10 @@ const EpisodeListItem = memo(function EpisodeListItem({
           </span>
           <span className="relative">
             {playState.played
-              ? lang === 'ar'
-                ? 'تم الاستماع'
-                : 'Gehört'
+              ? 'تم الاستماع'
               : isInProgress
                 ? formatRemaining(duration, playState.position, lang)
-                : formatDuration(duration) || (lang === 'ar' ? 'تشغيل' : 'Abspielen')}
+                : formatDuration(duration) || ('تشغيل')}
           </span>
         </button>
 
@@ -283,7 +281,7 @@ const EpisodeListItem = memo(function EpisodeListItem({
             el.classList.add('scale-110');
             setTimeout(() => el.classList.remove('scale-110'), 200);
           }}
-          aria-label={lang === 'ar' ? 'أضف إلى قائمة التشغيل' : 'Zur Warteschlange'}
+          aria-label={'أضف إلى قائمة التشغيل'}
           className="w-9 h-9 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
         >
           <ListPlus className="w-4 h-4" />

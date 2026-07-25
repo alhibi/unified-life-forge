@@ -23,18 +23,18 @@ export interface RestTimerProps {
   onClose?: () => void;
   /** Compact variant — single small chip. */
   compact?: boolean;
-  lang: 'ar' | 'de';
+  lang: 'ar';
 }
 
 const PRESETS = [60, 90, 120, 180, 240];
 
 const T = {
-  rest: { ar: 'راحة', de: 'Pause' },
-  done: { ar: 'انتهت!', de: 'Vorbei!' },
-  resume: { ar: 'استئناف', de: 'Weiter' },
-  pause: { ar: 'إيقاف', de: 'Pause' },
-  reset: { ar: 'إعادة', de: 'Zurück' },
-  add: { ar: '+30', de: '+30' },
+  rest: { ar: 'راحة', },
+  done: { ar: 'انتهت!', },
+  resume: { ar: 'استئناف', },
+  pause: { ar: 'إيقاف', },
+  reset: { ar: 'إعادة', },
+  add: { ar: '+30', },
 };
 
 function fmtMmSs(sec: number): string {
@@ -73,7 +73,7 @@ function vibrate(pattern: number | number[] = [200, 80, 200]): void {
 
 /* ────────────────── Compact in-line variant ────────────────── */
 
-function CompactTimer({ defaultSec, lang, onComplete }: { defaultSec: number; lang: 'ar' | 'de'; onComplete?: () => void }) {
+function CompactTimer({ defaultSec, lang, onComplete }: { defaultSec: number; lang: 'ar'; onComplete?: () => void }) {
   const [secLeft, setSecLeft] = useState(defaultSec);
   const [running, setRunning] = useState(false);
   useEffect(() => {

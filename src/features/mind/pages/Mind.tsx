@@ -43,15 +43,13 @@ export default function MindPage() {
     return `${formatAge(mind.firstNoteAt)} · vitality ${v}`;
   }, [mind]);
 
-  const BackIcon = isAr ? ArrowRight : ArrowLeft;
+  const BackIcon = ArrowRight;
 
   return (
     <div className="relative w-screen h-[100dvh] bg-[#0A0A0A] text-[color:#F2E7C9] overflow-hidden">
       <SEO
-        title={isAr ? 'العقل الحيّ — الأرشيف العصبي' : 'Living Mind — Neural Archive'}
-        description={isAr
-          ? 'مساحة تأمّلية تجسّد ملاحظاتك عقلًا ثنائي النصفين ينمو مع الوقت.'
-          : 'Ein kontemplativer Raum, in dem Ihre Notizen zu einem lebendigen Zwei-Hemisphären-Geist werden.'}
+        title={'العقل الحيّ — الأرشيف العصبي'}
+        description={'مساحة تأمّلية تجسّد ملاحظاتك عقلًا ثنائي النصفين ينمو مع الوقت.'}
         path="/pkm/mind"
       />
 
@@ -60,13 +58,13 @@ export default function MindPage() {
         <button
           onClick={() => navigate(-1)}
           className="pointer-events-auto h-9 w-9 rounded-full bg-white/[0.06] backdrop-blur-md border border-white/10 flex items-center justify-center active:scale-95 transition-transform"
-          aria-label={isAr ? 'رجوع' : 'Zurück'}
+          aria-label={'رجوع'}
         >
           <BackIcon className="w-4 h-4 text-[color:#F2E7C9]/80" />
         </button>
         <div className="text-center pointer-events-none">
           <div className="text-[10px] tracking-[0.35em] uppercase text-[color:#F2E7C9]/40" style={{ fontFamily: '"IBM Plex Mono", monospace' }}>
-            {isAr ? 'العقل الحيّ' : 'Living Mind'}
+            {'العقل الحيّ'}
           </div>
           <div className="text-[10px] text-[color:#F2E7C9]/50 mt-0.5" style={{ fontFamily: '"IBM Plex Mono", monospace' }}>
             {stat}
@@ -80,7 +78,7 @@ export default function MindPage() {
         <div className="flex-1 min-w-0 relative">
           {mind.loading ? (
             <div className="absolute inset-0 flex items-center justify-center text-[color:#F2E7C9]/50 text-xs" style={{ fontFamily: '"IBM Plex Mono", monospace' }}>
-              {isAr ? '...يستيقظ' : 'awakening…'}
+              {'...يستيقظ'}
             </div>
           ) : useFallback ? (
             <MindFallback2D mind={mind} />
@@ -94,9 +92,7 @@ export default function MindPage() {
           {!mind.loading && mind.notes.length === 0 && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none px-8">
               <p className="text-center text-[color:#F2E7C9]/60 text-sm max-w-xs leading-relaxed" style={{ fontFamily: '"Cormorant Garamond", serif' }}>
-                {isAr
-                  ? 'اكتب ملاحظتك الأولى. سيبدأ هذا العقل في الوجود.'
-                  : 'Schreibe deine erste Notiz. Dieser Geist wird zu existieren beginnen.'}
+                {'اكتب ملاحظتك الأولى. سيبدأ هذا العقل في الوجود.'}
               </p>
             </div>
           )}

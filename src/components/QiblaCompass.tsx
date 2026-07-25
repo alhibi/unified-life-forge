@@ -199,30 +199,24 @@ export default function QiblaCompass() {
   }, [expanded]);
 
   const t = {
-    title: language === 'ar' ? 'بوصلة القبلة' : 'Qibla-Kompass',
-    subtitle: language === 'ar' ? 'اتجاه مكة المكرمة الآن' : 'Richtung Mekka, jetzt',
-    distance: language === 'ar' ? 'المسافة' : 'Entfernung',
-    bearing: language === 'ar' ? 'الاتجاه' : 'Peilung',
-    heading: language === 'ar' ? 'اتجاه الجهاز' : 'Geräterichtung',
-    km: language === 'ar' ? 'كم' : 'km',
-    aligned: language === 'ar' ? 'محاذٍ للقبلة' : 'Auf Qibla ausgerichtet',
-    rotate: language === 'ar' ? 'أدر جهازك حتى يستوي السهم للأعلى' : 'Drehe dein Gerät, bis der Pfeil nach oben zeigt',
-    permission: language === 'ar' ? 'تفعيل بوصلة الجهاز' : 'Gerätekompass aktivieren',
-    permissionHint: language === 'ar'
-      ? 'يحتاج المتصفح إذنًا لقراءة اتجاه الجهاز.'
-      : 'Der Browser benötigt eine Erlaubnis für die Geräteausrichtung.',
-    noHeading: language === 'ar' ? 'الشمال للأعلى' : 'Norden oben',
-    info: language === 'ar'
-      ? 'يُحسب اتجاه القبلة على دائرة عظمى من موقعك إلى مكة المكرمة. للحصول على دقّة أفضل، ابتعد عن المعادن والشاشات وحرّك الجهاز على شكل ٨ لمعايرة البوصلة.'
-      : 'Die Qibla wird als Großkreis von deinem Standort nach Mekka berechnet. Für mehr Präzision Metall/Bildschirme meiden und das Gerät in einer Acht bewegen, um den Sensor zu kalibrieren.',
-    locationFallback: language === 'ar'
-      ? 'فعّل الموقع لحساب القبلة من مكانك بدقة.'
-      : 'Aktiviere den Standort für eine präzise Qibla-Berechnung.',
-    calibrate: language === 'ar' ? 'دقّة البوصلة منخفضة — حرّك الجهاز على شكل ٨ للمعايرة' : 'Kompass ungenau — Gerät in einer Acht bewegen, um zu kalibrieren',
+    title: 'بوصلة القبلة',
+    subtitle: 'اتجاه مكة المكرمة الآن',
+    distance: 'المسافة',
+    bearing: 'الاتجاه',
+    heading: 'اتجاه الجهاز',
+    km: 'كم',
+    aligned: 'محاذٍ للقبلة',
+    rotate: 'أدر جهازك حتى يستوي السهم للأعلى',
+    permission: 'تفعيل بوصلة الجهاز',
+    permissionHint: 'يحتاج المتصفح إذنًا لقراءة اتجاه الجهاز.',
+    noHeading: 'الشمال للأعلى',
+    info: 'يُحسب اتجاه القبلة على دائرة عظمى من موقعك إلى مكة المكرمة. للحصول على دقّة أفضل، ابتعد عن المعادن والشاشات وحرّك الجهاز على شكل ٨ لمعايرة البوصلة.',
+    locationFallback: 'فعّل الموقع لحساب القبلة من مكانك بدقة.',
+    calibrate: 'دقّة البوصلة منخفضة — حرّك الجهاز على شكل ٨ للمعايرة',
   };
 
   const fmtKm = (n: number) =>
-    new Intl.NumberFormat(language === 'ar' ? 'ar-EG-u-nu-latn' : 'de-DE', {
+    new Intl.NumberFormat('ar-EG-u-nu-latn', {
       maximumFractionDigits: 0,
     }).format(n);
 
@@ -280,7 +274,7 @@ export default function QiblaCompass() {
                   </div>
                   <button
                     onClick={() => setExpanded(false)}
-                    aria-label={language === 'ar' ? 'إغلاق' : 'Schließen'}
+                    aria-label={'إغلاق'}
                     className="w-8 h-8 rounded-full bg-card/80 flex items-center justify-center"
                   >
                     <X className="w-4 h-4 text-muted-foreground" />
@@ -412,9 +406,7 @@ function CompassDial({
   const ticks = Array.from({ length: 24 }, (_, i) => i * 15);
   const labels = compact
     ? []
-    : language === 'ar'
-      ? ([['ش', 0], ['ق', 90], ['ج', 180], ['غ', 270]] as const)
-      : ([['N', 0], ['E', 90], ['S', 180], ['W', 270]] as const);
+    : ([['ش', 0], ['ق', 90], ['ج', 180], ['غ', 270]] as const);
 
   return (
     <div className="relative" style={{ width: size, height: size }}>
