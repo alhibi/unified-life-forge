@@ -36,8 +36,9 @@ Open `http://localhost:8080`. The app degrades gracefully when Supabase isn't co
 | `bun run build` | Production build (Rollup → `dist/`) |
 | `bun run build:dev` | Development-mode build (sourcemaps, no minification) |
 | `bun run preview` | Serve the built `dist/` locally |
-| `bun run lint` | ESLint over the repo |
+| `bun run lint` | ESLint over the repo. Must report **0 errors**. |
 | `bun run lint:fix` | ESLint with autofix |
+| `bun run lint:budget` | Fails if any budgeted warning count rises — see [Lint budget](#lint-budget) |
 | `bun run typecheck` | `tsc --noEmit` against `tsconfig.app.json` |
 | `bun run test` | Vitest in single-run mode |
 | `bun run test:watch` | Vitest in watch mode |
@@ -127,6 +128,31 @@ Optional browser-side variables:
 Server-side scripts (`scripts/diwan/ingest.ts`) additionally need `SUPABASE_SERVICE_ROLE_KEY`. Never expose that key to the browser; it bypasses RLS entirely.
 
 When env vars are missing, [`src/integrations/supabase/client.ts`](./src/integrations/supabase/client.ts) returns a structured 503 (`{ code: 'supabase_not_configured' }`) for every request and skips realtime subscriptions, so feature code can branch cleanly via the exported `isSupabaseConfigured` flag.
+
+---
+
+## Lint budget
+
+`bun run lint` must report **zero errors**. On top of that, a set of rules is
+deliberately demoted to warnings because the repo has a real backlog against
+them — mostly the React Compiler rule family (`react-hooks/refs`,
+`set-state-in-effect`, …), `no-explicit-any`, and dead declarations left by
+feature removals.
+
+A warning nobody counts is a warning that grows, so the current per-rule counts
+are frozen in [`lint-budget.json`](./lint-budget.json) and
+`bun run lint:budget` fails if any of them rises. The debt can shrink freely; it
+cannot grow.
+
+```bash
+bun run lint:budget             # what CI runs
+bun run lint:budget -- --write  # after you FIX some, to lock in the lower count
+```
+
+Only ever use `--write` to record a reduction. If it raises a number you are
+recording a regression — fix the finding instead. The reasoning behind each
+budgeted rule, and what fixing it actually involves, is in the comment block in
+[`eslint.config.js`](./eslint.config.js).
 
 ---
 
