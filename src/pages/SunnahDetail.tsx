@@ -120,7 +120,7 @@ function SimpleListView({ data }: { data: { label: string; accent: string; items
         </div>
       </div>
       <div className="flex items-center justify-end gap-3 px-6 py-5">
-        <div className="text-right">
+        <div className="text-end">
           <h2 className="text-base font-bold text-foreground">السنن</h2>
           <p className="text-sm text-muted-foreground">{data.items.length} سنة</p>
         </div>
@@ -135,7 +135,7 @@ function SimpleListView({ data }: { data: { label: string; accent: string; items
               <ChevronLeft className="w-4 h-4 text-muted-foreground/40" />
               <Heart className="w-4 h-4 text-muted-foreground/40" />
             </div>
-            <p className="flex-1 text-sm font-medium text-foreground text-right leading-relaxed">{sunnah.title}</p>
+            <p className="flex-1 text-sm font-medium text-foreground text-end leading-relaxed">{sunnah.title}</p>
             <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 bg-primary/15">
               <span className="text-xs font-bold text-primary">{index + 1}</span>
             </div>

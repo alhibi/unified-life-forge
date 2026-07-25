@@ -11,7 +11,7 @@ function OccasionCard({ occasion, t }: { occasion: IslamicOccasion; t: (key: str
 
   return (
     <div
-      className={`relative rounded-xl bg-card/80 border border-border/60 p-4 flex items-center gap-4 border-r-0 border-t-0 border-b-0 ltr:border-l-[3px] rtl:border-r-[3px] rtl:border-l-0 ${occasion.color}`}
+      className={`relative rounded-xl bg-card/80 border border-border/60 p-4 flex items-center gap-4 border-y-0 border-e-0 border-s-[3px] ${occasion.color}`}
     >
       {/* Date badge */}
       <div className="flex flex-col items-center justify-center min-w-[52px] rounded-lg bg-muted/60 py-2 px-2">

@@ -508,7 +508,7 @@ function GenerationOverlay({
               <div className="w-full max-w-sm">
                 <div className="relative h-1 rounded-full bg-muted/50 overflow-hidden mb-3">
                   <motion.div
-                    className="absolute inset-y-0 left-0 rounded-full bg-primary"
+                    className="absolute inset-y-0 start-0 rounded-full bg-primary"
                     animate={{ width: `${percent}%` }}
                     transition={{ duration: 0.6, ease: 'easeOut' }}
                   />
@@ -542,7 +542,7 @@ function GenerationOverlay({
                       <div key={s} className="flex-1 flex flex-col items-center gap-1">
                         <div className="relative w-full h-1 rounded-full bg-muted/40 overflow-hidden">
                           <motion.div
-                            className="absolute inset-y-0 left-0 bg-primary rounded-full"
+                            className="absolute inset-y-0 start-0 bg-primary rounded-full"
                             initial={false}
                             animate={{ width: isDone ? '100%' : isActive ? '60%' : '0%' }}
                             transition={{ duration: 0.5 }}

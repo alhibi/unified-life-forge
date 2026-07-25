@@ -126,7 +126,7 @@ export default function CitySearch({ onSelectCity, }: CitySearchProps) {
         {query && (
           <button
             onClick={() => { setQuery(''); setResults([]); }}
-            className="absolute me-3.5 right-0 ltr:right-0 rtl:left-0 rtl:right-auto w-5 h-5 flex items-center justify-center rounded-full bg-muted text-muted-foreground hover:bg-muted-foreground hover:text-background transition-colors"
+            className="absolute me-3.5 end-0 w-5 h-5 flex items-center justify-center rounded-full bg-muted text-muted-foreground hover:bg-muted-foreground hover:text-background transition-colors"
           >
             <X className="w-3 h-3" />
           </button>
@@ -140,7 +140,7 @@ export default function CitySearch({ onSelectCity, }: CitySearchProps) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 10 }}
             transition={{ duration: 0.18, ease: 'easeOut' }}
-            className="absolute left-0 right-0 mt-2 p-3 bg-card border border-border rounded-2xl shadow-xl overflow-hidden max-h-[360px] overflow-y-auto no-scrollbar"
+            className="absolute start-0 end-0 mt-2 p-3 bg-card border border-border rounded-2xl shadow-xl overflow-hidden max-h-[360px] overflow-y-auto no-scrollbar"
           >
             {loading && (
               <div className="flex items-center justify-center gap-2 py-6 text-sm text-muted-foreground">

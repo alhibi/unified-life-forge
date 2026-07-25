@@ -823,7 +823,7 @@ export default function MemoryGame() {
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               className="absolute inset-0 bg-black/70 backdrop-blur-sm rounded-2xl flex items-center justify-center">
               <button onClick={() => setIsPaused(false)} className="px-6 py-3 rounded-2xl bg-pink-500 text-white font-black">
-                <Play className="w-4 h-4 inline mr-1.5" />{'استئناف'}
+                <Play className="w-4 h-4 inline me-1.5" />{'استئناف'}
               </button>
             </motion.div>
           )}
@@ -923,7 +923,7 @@ export default function MemoryGame() {
               )}
             </div>
             <button onClick={() => newGame()} className="px-7 py-2.5 rounded-xl bg-pink-500 text-white font-black">
-              <RefreshCw className="w-4 h-4 inline mr-1.5" />{'لعبة جديدة'}
+              <RefreshCw className="w-4 h-4 inline me-1.5" />{'لعبة جديدة'}
             </button>
           </motion.div>
         )}
@@ -1062,7 +1062,7 @@ function PowerUpButton({ icon: Icon, count, onClick, color, label, disabled, act
       }}>
       <Icon className="w-4 h-4" style={{ color }} />
       {count > 0 && (
-        <span className="absolute -bottom-1 -right-1 text-[10px] font-black px-1 rounded-full"
+        <span className="absolute -bottom-1 -end-1 text-[10px] font-black px-1 rounded-full"
           style={{ background: color, color: '#fff' }}>{count}</span>
       )}
     </button>

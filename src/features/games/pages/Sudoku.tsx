@@ -754,7 +754,7 @@ export default function SudokuPage() {
             className="relative w-11 h-11 rounded-full flex items-center justify-center hover:bg-secondary transition-colors disabled:opacity-20 active:scale-90">
             <Lightbulb className="w-5 h-5 text-foreground stroke-[1.8]" />
             {hintsUsed < maxHints && (
-              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-primary/15 text-primary text-[10px] font-bold flex items-center justify-center">
+              <span className="absolute -top-0.5 -end-0.5 w-4 h-4 rounded-full bg-primary/15 text-primary text-[10px] font-bold flex items-center justify-center">
                 {maxHints - hintsUsed}
               </span>
             )}

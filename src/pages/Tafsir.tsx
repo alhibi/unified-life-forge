@@ -307,9 +307,9 @@ export default function TafsirPage() {
             </button>
             <AnimatePresence>
               {showTafsirPicker && (
-                <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} className="mt-1 rounded-xl bg-card border border-border/50 absolute left-0 right-0 z-20 overflow-hidden">
+                <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} className="mt-1 rounded-xl bg-card border border-border/50 absolute start-0 end-0 z-20 overflow-hidden">
                   {TAFSIRS.map(tf => (
-                    <button key={tf.id} onClick={() => { setSelectedTafsir(tf); setShowTafsirPicker(false); }} className={`w-full text-right px-4 py-3 text-sm font-medium transition-colors hover:bg-accent/30 ${tf.id === selectedTafsir.id ? 'text-primary bg-primary/5' : 'text-foreground'}`}>
+                    <button key={tf.id} onClick={() => { setSelectedTafsir(tf); setShowTafsirPicker(false); }} className={`w-full text-end px-4 py-3 text-sm font-medium transition-colors hover:bg-accent/30 ${tf.id === selectedTafsir.id ? 'text-primary bg-primary/5' : 'text-foreground'}`}>
                       {tf.name}
                     </button>
                   ))}
@@ -322,9 +322,9 @@ export default function TafsirPage() {
         {/* Ayah search (within surah) */}
         {selectedSurah !== null && !showSurahPicker && ayahs.length > 0 && (
           <div className="relative">
-            <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <input type="text" value={localAyahSearch} onChange={e => setLocalAyahSearch(e.target.value)} placeholder="ابحث في آيات السورة..." className="w-full pr-10 pl-4 py-2.5 rounded-xl bg-card border border-border/50 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/30" />
-            {localAyahSearch && <button aria-label="مسح البحث" onClick={() => { setLocalAyahSearch(''); setAyahSearch(''); }} className="absolute left-3 top-1/2 -translate-y-1/2"><X className="w-4 h-4 text-muted-foreground" /></button>}
+            <Search className="absolute end-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <input type="text" value={localAyahSearch} onChange={e => setLocalAyahSearch(e.target.value)} placeholder="ابحث في آيات السورة..." className="w-full pe-10 ps-4 py-2.5 rounded-xl bg-card border border-border/50 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/30" />
+            {localAyahSearch && <button aria-label="مسح البحث" onClick={() => { setLocalAyahSearch(''); setAyahSearch(''); }} className="absolute start-3 top-1/2 -translate-y-1/2"><X className="w-4 h-4 text-muted-foreground" /></button>}
           </div>
         )}
 
@@ -333,17 +333,17 @@ export default function TafsirPage() {
           {showSurahPicker && (
             <motion.div key="surah-picker" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-3">
               <div className="relative">
-                <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <input type="text" value={localSearchQuery} onChange={e => setLocalSearchQuery(e.target.value)} placeholder="ابحث عن سورة..." className="w-full pr-10 pl-4 py-3 rounded-xl bg-card border border-border/50 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/30" />
-                {localSearchQuery && <button aria-label="مسح البحث" onClick={() => { setLocalSearchQuery(''); setSearchQuery(''); }} className="absolute left-3 top-1/2 -translate-y-1/2"><X className="w-4 h-4 text-muted-foreground" /></button>}
+                <Search className="absolute end-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <input type="text" value={localSearchQuery} onChange={e => setLocalSearchQuery(e.target.value)} placeholder="ابحث عن سورة..." className="w-full pe-10 ps-4 py-3 rounded-xl bg-card border border-border/50 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                {localSearchQuery && <button aria-label="مسح البحث" onClick={() => { setLocalSearchQuery(''); setSearchQuery(''); }} className="absolute start-3 top-1/2 -translate-y-1/2"><X className="w-4 h-4 text-muted-foreground" /></button>}
               </div>
               <motion.div variants={container} initial="hidden" animate="show" className="grid grid-cols-3 gap-2">
                 {filteredSurahs.map(({ name, index }) => {
                   const hasBookmark = bookmarks.some(b => b.startsWith(`${index}:`));
                   return (
                     <motion.button key={index} variants={itemAnim} onClick={() => { setSelectedSurah(index); setShowSurahPicker(false); }} className={`relative flex flex-col items-center gap-1 px-2 py-3.5 rounded-xl border transition-all group ${hasBookmark ? 'bg-primary/5 border-primary/20' : 'bg-card border-border/50 hover:bg-accent/40 hover:border-primary/30'}`}>
-                      <span className="absolute top-1.5 left-2 text-[10px] text-muted-foreground/60 font-mono">{index + 1}</span>
-                      {hasBookmark && <BookmarkCheck className="absolute top-1.5 right-1.5 w-3 h-3 text-primary" />}
+                      <span className="absolute top-1.5 start-2 text-[10px] text-muted-foreground/60 font-mono">{index + 1}</span>
+                      {hasBookmark && <BookmarkCheck className="absolute top-1.5 end-1.5 w-3 h-3 text-primary" />}
                       <span className="text-[13px] font-bold text-foreground group-hover:text-primary transition-colors">{name}</span>
                       <span className="text-[10px] text-muted-foreground">{AYAH_COUNTS[index]} آية</span>
                     </motion.button>
@@ -376,7 +376,7 @@ export default function TafsirPage() {
                         <motion.button
                           variants={itemAnim}
                           onClick={() => setSelectedAyah(isSelected ? null : ayah.numberInSurah)}
-                          className={`w-full text-right px-4 py-4 border transition-all ${isSelected ? 'bg-primary/8 border-primary/30 rounded-t-xl rounded-b-none' : 'bg-card border-border/50 hover:bg-accent/30 hover:border-primary/20 rounded-xl'}`}
+                          className={`w-full text-end px-4 py-4 border transition-all ${isSelected ? 'bg-primary/8 border-primary/30 rounded-t-xl rounded-b-none' : 'bg-card border-border/50 hover:bg-accent/30 hover:border-primary/20 rounded-xl'}`}
                         >
                           <div className="flex items-start gap-3">
                             <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-colors ${isSelected ? 'bg-primary/20' : 'bg-muted/50'}`}>

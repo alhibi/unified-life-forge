@@ -73,8 +73,8 @@ export default function AppDatePicker({ value, onChange, className }: Props) {
             nav: 'space-x-1 flex items-center',
             nav_button:
               'h-7 w-7 rounded-full bg-secondary hover:bg-muted transition-colors active:scale-90 duration-150 flex items-center justify-center text-foreground',
-            nav_button_previous: 'absolute left-1',
-            nav_button_next: 'absolute right-1',
+            nav_button_previous: 'absolute start-1',
+            nav_button_next: 'absolute end-1',
             table: 'w-full border-collapse',
             head_row: 'grid grid-cols-7',
             head_cell:

@@ -27,7 +27,7 @@ export default function FoodCard({ food, lang, onClick, compact }: Props) {
       layout
       onClick={onClick}
       whileTap={{ scale: 0.97 }}
-      className="w-full flex items-center gap-3 p-3 rounded-xl bg-card border border-border/40 hover:border-primary/30 transition-all text-left relative"
+      className="w-full flex items-center gap-3 p-3 rounded-xl bg-card border border-border/40 hover:border-primary/30 transition-all text-start relative"
     >
       {/* Emoji icon */}
       <div

@@ -108,7 +108,7 @@ export default function DeloadAdvisor({
       <div className="space-y-1">
         <div className="relative h-2 rounded-full bg-muted overflow-hidden">
           {/* Zones */}
-          <div className="absolute inset-y-0 left-0" style={{ width: '40%', background: '#94a3b850' }} />
+          <div className="absolute inset-y-0 start-0" style={{ width: '40%', background: '#94a3b850' }} />
           <div className="absolute inset-y-0" style={{ left: '40%', width: '30%', background: '#10b98150' }} />
           <div className="absolute inset-y-0" style={{ left: '70%', width: '15%', background: '#f59e0b50' }} />
           <div className="absolute inset-y-0" style={{ left: '85%', right: 0, background: '#ef444450' }} />

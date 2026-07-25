@@ -471,7 +471,7 @@ export default function WellnessPage() {
                   className="flex-[2] py-2 rounded-xl bg-primary text-primary-foreground text-[11px] font-medium active:scale-[0.98] transition-transform"
                 >
                   {T.setupCta[language]}
-                  <ChevronRight className="w-3 h-3 inline-block ml-0.5" />
+                  <ChevronRight className="w-3 h-3 inline-block ms-0.5" />
                 </button>
               </div>
             </motion.div>

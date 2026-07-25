@@ -330,7 +330,7 @@ export default function GamesPage() {
               <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
                 <Zap className="w-4 h-4 text-primary" />
               </div>
-              <div className="text-left">
+              <div className="text-start">
                 <p className="text-[12px] font-bold text-foreground">{'إنجازات الذاكرة'}</p>
                 <p className="text-[10px] text-muted-foreground">{totalAchievements} {'مفتوح من 10'}</p>
               </div>

@@ -145,7 +145,7 @@ export default function ImageLightbox({ src, alt, open, onClose, originRect }: I
 
           {/* Top bar */}
           <motion.div
-            className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-4 pb-2"
+            className="absolute top-0 start-0 end-0 z-10 flex items-center justify-between px-4 pb-2"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}

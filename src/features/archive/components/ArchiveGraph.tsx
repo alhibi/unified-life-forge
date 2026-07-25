@@ -419,7 +419,7 @@ export default function ArchiveGraph({ items, onOpenDoc }: ArchiveGraphProps) {
         ref={containerRef}
         className="relative w-full rounded-2xl border border-border/40 bg-card/60 backdrop-blur-sm overflow-hidden h-[340px] md:h-[400px] cursor-grab active:cursor-grabbing"
       >
-        <div className="absolute top-3 right-3 z-10 flex flex-col gap-1 pointer-events-none">
+        <div className="absolute top-3 end-3 z-10 flex flex-col gap-1 pointer-events-none">
           <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
             <span className="w-2 h-2 rounded-full bg-primary" />
             <span>وسوم وتصنيفات</span>
@@ -454,7 +454,7 @@ export default function ArchiveGraph({ items, onOpenDoc }: ArchiveGraphProps) {
             <AppCard className="relative overflow-hidden border-primary/25 bg-primary/[0.02]">
               <button
                 onClick={() => setSelectedNode(null)}
-                className="absolute top-3 left-3 w-7 h-7 rounded-full bg-muted/40 flex items-center justify-center active:scale-90 transition-transform"
+                className="absolute top-3 start-3 w-7 h-7 rounded-full bg-muted/40 flex items-center justify-center active:scale-90 transition-transform"
                 aria-label="إغلاق"
               >
                 <X className="w-3.5 h-3.5" />

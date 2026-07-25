@@ -563,7 +563,7 @@ function YatzyView({ aiLevel }: { aiLevel: 'easy' | 'hard' }) {
  className="px-6 py-2 rounded-2xl font-black text-amber-950 disabled:opacity-30 disabled:cursor-not-allowed"
  style={{ }}
           >
-            <Dices className="w-4 h-4 inline mr-1.5" />
+            <Dices className="w-4 h-4 inline me-1.5" />
             {'رمية'} {3 - rollsLeft + 1}/3
           </motion.button>
         </div>
@@ -599,7 +599,7 @@ function YatzyView({ aiLevel }: { aiLevel: 'easy' | 'hard' }) {
             <motion.button onClick={reset}
               className="mt-3 px-6 py-2 rounded-xl font-bold text-amber-950"
               style={{ }}>
-              <RotateCcw className="w-3.5 h-3.5 inline mr-1.5" /> {'مباراة جديدة'}
+              <RotateCcw className="w-3.5 h-3.5 inline me-1.5" /> {'مباراة جديدة'}
             </motion.button>
           </motion.div>
         )}
@@ -765,7 +765,7 @@ function PigView({ aiLevel, tournamentBot, onTournamentResult }: {
       {tournamentBot && (
         <div className="rounded-2xl border border-amber-500/30 bg-amber-500/8 p-3 mb-3 flex items-center gap-3">
           <Trophy className="w-5 h-5 text-amber-300 shrink-0" />
-          <div className="text-left flex-1">
+          <div className="text-start flex-1">
             <p className="text-[10px] uppercase tracking-wider text-amber-300/80 font-bold">
               {'مباراة بطولة'}
             </p>
@@ -825,13 +825,13 @@ function PigView({ aiLevel, tournamentBot, onTournamentResult }: {
           <motion.button onClick={playerRoll} disabled={turn !== 'player' || rolling}
  className="flex-1 max-w-[160px] py-3 rounded-2xl font-black text-amber-950 disabled:opacity-30"
  style={{ }}>
-            <Dices className="w-5 h-5 inline mr-1.5" />
+            <Dices className="w-5 h-5 inline me-1.5" />
             {'ارمِ'}
           </motion.button>
           <motion.button onClick={playerHold} disabled={turn !== 'player' || rolling || roundPoints === 0}
  className="flex-1 max-w-[160px] py-3 rounded-2xl font-black text-emerald-950 disabled:opacity-30"
  style={{ }}>
-            <PiggyBank className="w-5 h-5 inline mr-1.5" />
+            <PiggyBank className="w-5 h-5 inline me-1.5" />
             {'احتفظ'}
           </motion.button>
         </div>
@@ -839,7 +839,7 @@ function PigView({ aiLevel, tournamentBot, onTournamentResult }: {
 
       {gameOver && (
         <button onClick={reset} className="px-6 py-3 rounded-2xl bg-amber-500 text-amber-950 font-black">
-          <RotateCcw className="w-4 h-4 inline mr-1.5" />{'مباراة جديدة'}
+          <RotateCcw className="w-4 h-4 inline me-1.5" />{'مباراة جديدة'}
         </button>
       )}
 
@@ -933,12 +933,12 @@ function HighRollView({ }: { }) {
       </div>
 
       <div className="flex items-center justify-between mb-4 px-3">
-        <div className="text-left">
+        <div className="text-start">
           <p className="text-[10px] text-zinc-500 uppercase tracking-wider">{'أنت'}</p>
           <p className="text-3xl font-black text-amber-400">{hrScore.p}</p>
         </div>
         <div className="text-[10px] text-zinc-500">{hrRound}/{hrRounds}</div>
-        <div className="text-right">
+        <div className="text-end">
           <p className="text-[10px] text-zinc-500 uppercase tracking-wider">{'الخصم'}</p>
           <p className="text-3xl font-black text-rose-400">{hrScore.a}</p>
         </div>
@@ -957,12 +957,12 @@ function HighRollView({ }: { }) {
  <motion.button onClick={rollOne} disabled={rolling}
  className="px-9 py-3 rounded-2xl font-black text-amber-950 disabled:opacity-40"
  style={{ }}>
-          <Dices className="w-5 h-5 inline mr-1.5" />
+          <Dices className="w-5 h-5 inline me-1.5" />
           {'ارمِ النرد'}
         </motion.button>
       ) : (
         <button onClick={reset} className="px-6 py-3 rounded-2xl bg-amber-500 text-amber-950 font-black">
-          <RotateCcw className="w-4 h-4 inline mr-1.5" />{'مباراة جديدة'}
+          <RotateCcw className="w-4 h-4 inline me-1.5" />{'مباراة جديدة'}
         </button>
       )}
     </div>
@@ -1017,7 +1017,7 @@ function ScorecardSection(props: {
             key={cat}
             disabled={!canPick || filled}
             onClick={() => onPick(cat)}
-            className={`w-full text-left text-[11px] rounded-lg px-2 py-1.5 flex items-center justify-between transition-all ${
+            className={`w-full text-start text-[11px] rounded-lg px-2 py-1.5 flex items-center justify-between transition-all ${
               filled
                 ? 'bg-white/4 cursor-default'
                 : canPick

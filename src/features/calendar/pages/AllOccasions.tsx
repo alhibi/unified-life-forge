@@ -13,15 +13,15 @@ import { useLiveHijriDate } from '@/features/calendar/hooks/useLiveHijriDate';
 
 // Accent palette for occasion cards (mirrors PrayerTimes.tsx accents).
 const ACCENT: Record<string, string> = {
-  'border-l-emerald-500': '#10b981',
-  'border-l-emerald-600': '#059669',
-  'border-l-sky-500': '#0ea5e9',
-  'border-l-violet-500': '#8b5cf6',
-  'border-l-amber-500': '#f59e0b',
-  'border-l-yellow-500': '#eab308',
-  'border-l-yellow-600': '#ca8a04',
-  'border-l-rose-500': '#f43f5e',
-  'border-l-slate-500': '#64748b',
+  'border-s-emerald-500': '#10b981',
+  'border-s-emerald-600': '#059669',
+  'border-s-sky-500': '#0ea5e9',
+  'border-s-violet-500': '#8b5cf6',
+  'border-s-amber-500': '#f59e0b',
+  'border-s-yellow-500': '#eab308',
+  'border-s-yellow-600': '#ca8a04',
+  'border-s-rose-500': '#f43f5e',
+  'border-s-slate-500': '#64748b',
 };
 
 export default function AllOccasions() {
@@ -185,7 +185,7 @@ export default function AllOccasions() {
                   {d}
                 </span>
                 {hasEvent && !isSelected && (
-                  <span className="absolute bottom-0.5 start-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary/60" />
+                  <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary/60" />
                 )}
                 {isToday && !isSelected && (
                   <span className="absolute top-0.5 end-0.5 w-1 h-1 rounded-full bg-primary" />

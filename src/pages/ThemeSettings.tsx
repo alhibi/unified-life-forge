@@ -242,19 +242,19 @@ function ThemePresetsCategorized({
                 >
                   <div className="absolute inset-0">
                     <div
-                      className="absolute top-0 left-0 w-full h-1/4"
+                      className="absolute top-0 start-0 w-full h-1/4"
                       style={{ backgroundColor: colors[0] }}
                     />
                     <div
-                      className="absolute top-[25%] left-0 w-full h-1/4"
+                      className="absolute top-[25%] start-0 w-full h-1/4"
                       style={{ backgroundColor: colors[1] }}
                     />
                     <div
-                      className="absolute top-[50%] left-0 w-full h-1/4"
+                      className="absolute top-[50%] start-0 w-full h-1/4"
                       style={{ backgroundColor: colors[2] }}
                     />
                     <div
-                      className="absolute top-[75%] left-0 w-full h-1/4"
+                      className="absolute top-[75%] start-0 w-full h-1/4"
                       style={{ backgroundColor: colors[3] }}
                     />
                   </div>

@@ -205,7 +205,7 @@ export default function AuthPage() {
         type="button"
         aria-label={'إغلاق'}
         onClick={() => navigate('/')}
-        className="absolute top-6 left-6 w-11 h-11 rounded-full flex items-center justify-center border border-white/5 hover:border-[#c78a4e]/40 transition-colors z-20"
+        className="absolute top-6 start-6 w-11 h-11 rounded-full flex items-center justify-center border border-white/5 hover:border-[#c78a4e]/40 transition-colors z-20"
         style={{ backgroundColor: '#1a1a1e' }}
       >
         <X className="w-4 h-4" style={{ color: '#9ca3af' }} />

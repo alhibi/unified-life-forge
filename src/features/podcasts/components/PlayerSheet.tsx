@@ -692,7 +692,7 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
                         transition={{ duration: 0.15 }}
-                        className="absolute bottom-full mb-2 left-4 right-4 mx-auto max-w-xs rounded-2xl border border-border p-2 z-10 shadow-lg"
+                        className="absolute bottom-full mb-2 start-4 end-4 mx-auto max-w-xs rounded-2xl border border-border p-2 z-10 shadow-lg"
                         style={{
                           background: 'hsl(var(--card))',
                         }}
@@ -739,7 +739,7 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
                         transition={{ duration: 0.15 }}
-                        className="absolute bottom-full mb-2 left-4 right-4 mx-auto max-w-xs rounded-2xl border border-border p-2 z-10 shadow-lg"
+                        className="absolute bottom-full mb-2 start-4 end-4 mx-auto max-w-xs rounded-2xl border border-border p-2 z-10 shadow-lg"
                         style={{
                           background: 'hsl(var(--card))',
                         }}

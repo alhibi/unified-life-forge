@@ -246,7 +246,7 @@ export default function FocusDecathlonPage() {
           className="w-full py-4 rounded-2xl font-black text-cyan-950 "
           style={{ }}
         >
-          <Zap className="w-5 h-5 inline mr-1.5" />
+          <Zap className="w-5 h-5 inline me-1.5" />
           {'ابدأ العشاري'}
         </button>
       </GameShell>

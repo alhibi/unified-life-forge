@@ -54,10 +54,10 @@ const WallpaperPicker: React.FC<WallpaperPickerProps> = ({ currentId, onClose, o
                 >
                   {/* Fake message bubbles preview */}
                   <div className="absolute inset-0 p-2 flex flex-col justify-end gap-1.5">
-                    <div className={cn('self-start rounded-2xl rounded-bl-sm px-2 py-1 text-[10px] max-w-[70%]', wp.isDark ? 'bg-white/15 text-white/90' : 'bg-white/90 text-foreground')}>
+                    <div className={cn('self-start rounded-2xl rounded-es-sm px-2 py-1 text-[10px] max-w-[70%]', wp.isDark ? 'bg-white/15 text-white/90' : 'bg-white/90 text-foreground')}>
                       {'مرحبا'}
                     </div>
-                    <div className="self-end rounded-2xl rounded-br-sm px-2 py-1 text-[10px] bg-primary/80 text-primary-foreground max-w-[70%]">
+                    <div className="self-end rounded-2xl rounded-ee-sm px-2 py-1 text-[10px] bg-primary/80 text-primary-foreground max-w-[70%]">
                       {'أهلاً بك'}
                     </div>
                   </div>

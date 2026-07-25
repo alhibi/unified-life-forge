@@ -320,13 +320,13 @@ export default function FoodComparer({ lang }: Props) {
               </div>
               <div className="p-3">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <input
                     type="text"
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                     placeholder={T.searchPlaceholder[lang]}
-                    className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-muted/50 border border-border/50 text-sm focus:outline-none focus:border-primary"
+                    className="w-full ps-9 pe-4 py-2.5 rounded-xl bg-muted/50 border border-border/50 text-sm focus:outline-none focus:border-primary"
                     dir={'rtl'}
                     autoFocus
                   />

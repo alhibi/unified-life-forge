@@ -811,7 +811,7 @@ function UmmahPulse() {
               </p>
             </div>
           </div>
-          <div className="text-right shrink-0">
+          <div className="text-end shrink-0">
             <div className="text-[18px] font-bold tabular-nums text-foreground leading-none">
               {c.info.localClock}
             </div>
@@ -833,7 +833,7 @@ function UmmahPulse() {
             <Clock className="w-3 h-3" />
             <span>
               {t('القادمة', 'Nächstes')}:
-              <span className="font-semibold text-foreground ml-1">
+              <span className="font-semibold text-foreground ms-1">
                 {SLOT_META[c.info.next.name].ar}
               </span>
             </span>
@@ -1076,13 +1076,13 @@ function UmmahPulse() {
                 {/* Search */}
                 <div className="px-4 pt-3">
                   <div className="relative">
-                    <Search className={`w-3.5 h-3.5 absolute top-1/2 -translate-y-1/2 ${'right-3'} text-muted-foreground pointer-events-none`} />
+                    <Search className={`w-3.5 h-3.5 absolute top-1/2 -translate-y-1/2 ${'end-3'} text-muted-foreground pointer-events-none`} />
                     <input
                       value={search}
                       onChange={(e) => setSearch(e.target.value)}
                       placeholder={t('ابحث عن مدينة أو دولة…', 'Stadt oder Land suchen…')}
                       className={`w-full py-2 text-[12px] rounded-xl bg-card border border-border/40 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 ${
-                        'pr-9 pl-3'
+                        'pe-9 ps-3'
                       }`}
                       dir={'rtl'}
                     />
@@ -1136,7 +1136,7 @@ function UmmahPulse() {
                               <p className="text-[13px] font-semibold text-foreground truncate leading-tight">
                                 {c.nameAr}
                                 {c.name === 'Makkah' && (
-                                  <span className="ml-1.5 text-[10px] px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-600 font-bold align-middle">
+                                  <span className="ms-1.5 text-[10px] px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-600 font-bold align-middle">
                                     ★
                                   </span>
                                 )}

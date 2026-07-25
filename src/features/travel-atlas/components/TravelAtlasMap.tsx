@@ -268,7 +268,7 @@ export default function TravelAtlasMap({
         })}
       </div>
 
-      <div className="absolute bottom-4 left-4 z-10 flex flex-col gap-2">
+      <div className="absolute bottom-4 start-4 z-10 flex flex-col gap-2">
         <Button
           type="button"
           size="icon"
