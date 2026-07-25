@@ -88,7 +88,7 @@ export default function HydrationLog({ lang }: Props) {
             animate={{ height: `${pct * 100}%` }}
             transition={{ type: 'spring', damping: 20, stiffness: 80 }}
           />
-          <div className="relative text-center z-10">
+          <div className="relative text-center z-raised">
             <span className="text-xl font-bold text-foreground tabular-nums block">{totalMl}</span>
             <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">
               {T.ml[lang]}

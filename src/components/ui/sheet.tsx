@@ -19,7 +19,7 @@ const SheetOverlay = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <SheetPrimitive.Overlay
     className={cn(
-      "fixed inset-0 z-50 bg-foreground/30 backdrop-blur-[2px] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+      "fixed inset-0 z-drawer bg-foreground/30 backdrop-blur-[2px] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
       className,
     )}
     {...props}
@@ -34,7 +34,7 @@ const sheetVariants = cva(
   // src/index.css (mirrors motion.ts MOTION.modalIn / MOTION.modalOut).
   // Don't reintroduce inline `duration-NNN` utilities here — they
   // would silently fight the global timing.
-  "fixed z-50 gap-4 bg-background p-6 ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out",
+  "fixed z-drawer gap-4 bg-background p-6 ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out",
   {
     variants: {
       side: {

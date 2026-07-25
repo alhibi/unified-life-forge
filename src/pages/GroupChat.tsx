@@ -375,7 +375,7 @@ export default function GroupChatPage() {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0, opacity: 0 }}
               transition={{ type: 'spring', damping: 18, stiffness: 320 }}
-              className="absolute bottom-24 end-4 w-11 h-11 rounded-full bg-card border border-border/30 flex items-center justify-center z-10"
+              className="absolute bottom-24 end-4 w-11 h-11 rounded-full bg-card border border-border/30 flex items-center justify-center z-raised"
               aria-label={'انتقل إلى الأسفل'}
             >
               <ArrowLeft className="w-4 h-4 text-foreground rotate-90" />
@@ -475,13 +475,13 @@ function ActionMenuOverlay({ state, onClose, isMine, onReply, onEdit, onCopy, on
     <AnimatePresence>
       <motion.div
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-        className="absolute inset-0 z-[60] bg-black/35 backdrop-blur-[2px]"
+        className="absolute inset-0 z-sheet bg-black/35 backdrop-blur-[2px]"
         onClick={onClose}
       />
       <motion.div
         initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 20, opacity: 0 }}
         transition={{ type: 'spring', damping: 26, stiffness: 320 }}
-        className="absolute inset-x-4 bottom-24 z-[61] flex flex-col items-stretch gap-2"
+        className="absolute inset-x-4 bottom-24 z-sheet-above flex flex-col items-stretch gap-2"
         onClick={e => e.stopPropagation()}
       >
         {/* Quick reactions row */}

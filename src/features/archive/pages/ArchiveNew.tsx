@@ -358,7 +358,7 @@ function GenerationOverlay({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.35 }}
-          className="fixed inset-0 z-[80] flex flex-col items-center justify-center px-6 bg-background/92 backdrop-blur-md"
+          className="fixed inset-0 z-nested flex flex-col items-center justify-center px-6 bg-background/92 backdrop-blur-md"
           style={{
             background: isError ? 'hsl(var(--destructive) / 0.08)' : 'hsl(var(--background) / 0.92)',
           }}

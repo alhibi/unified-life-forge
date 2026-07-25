@@ -89,13 +89,57 @@ export default {
           ring: "hsl(var(--sidebar-ring))",
         },
       },
+      zIndex: {
+        // ── Canonical stacking ladder ─────────────────────────────────
+        // Never write a raw z-index again: `z-[81]` tells the next reader
+        // nothing about what it is meant to sit above. The app previously
+        // carried 20 distinct magic values (9999, 9990, 200, 100, 91, 81,
+        // 80, 71, 70, 61, 60, …) with no contract between them.
+        //
+        // The numbers here are exactly the ones already in use, so naming
+        // them changed no rendered order. Levels come in pairs where a
+        // surface renders its own scrim: `-above` is that surface's content
+        // sitting over its own backdrop.
+        //
+        // The app genuinely stacks four sheets deep (a chat sheet opens a
+        // picker, which opens a member list), which is why the ladder is
+        // longer than the usual three levels.
+        base: "0",
+        scrim: "5", // in-page dismiss layer, below `raised` content
+        raised: "10", // in-flow layering inside a card / section
+        sticky: "20", // sticky sub-headers, list group headers
+        header: "30", // page headers
+        float: "40", // floating dock, podcast mini-player
+        drawer: "50", // first-level dialog / sheet (Radix default)
+        "drawer-above": "51",
+        sheet: "60", // a sheet opened from a sheet
+        "sheet-above": "61",
+        picker: "70", // a picker opened from that sheet
+        "picker-above": "71",
+        nested: "80", // fourth level
+        "nested-above": "81",
+        deep: "90", // fifth level (member list inside a group sheet)
+        "deep-above": "91",
+        fullscreen: "100", // full-screen takeover (dhikr focus, browser)
+        "fullscreen-above": "110",
+        player: "120", // podcast player sheet
+        queue: "130", // queue, on top of the player
+        overlay: "200", // command palette / global overlay
+        lightbox: "200", // image viewer — above every app surface
+        toast: "300", // notifications always win
+      },
       borderRadius: {
         // Mathematical geometry scale: 6 / 10 / 16 / 24px.
+        // NOTE: `xl`, `2xl` and `3xl` all resolve to 24px on purpose so the
+        // largest radius has ONE meaning — the codebase used all three
+        // interchangeably believing they differed. Prefer `lg` (16px) for
+        // cards and `xl` (24px) for sheets and sections.
         sm: "6px",
         md: "10px",
         lg: "16px",
         xl: "24px",
         "2xl": "24px",
+        "3xl": "24px",
         input: "10px",
         button: "10px",
         card: "16px",

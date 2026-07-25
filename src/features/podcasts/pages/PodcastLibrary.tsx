@@ -233,7 +233,7 @@ function SubscriptionTile({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center"
+            className="fixed inset-0 z-drawer bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center"
             onClick={() => setMenuOpen(false)}
           >
             <motion.div
@@ -386,7 +386,7 @@ export default function PodcastLibrary() {
         path="/podcasts/library"
       />
 
-      <div className="sticky top-0 z-30 bg-background/85 backdrop-blur-md border-b border-border/40">
+      <div className="z-header app-sticky-header border-b border-border/40">
         <div className="max-w-lg mx-auto px-4 pt-3 pb-3 flex items-center gap-2">
           <BackButton />
           <h1 className="flex-1 text-base font-bold text-foreground">

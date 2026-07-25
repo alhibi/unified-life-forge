@@ -128,7 +128,7 @@ export default function ImageLightbox({ src, alt, open, onClose, originRect }: I
     <AnimatePresence>
       {open && (
         <motion.div
-          className="fixed inset-0 z-[200] flex items-center justify-center"
+          className="fixed inset-0 z-lightbox flex items-center justify-center"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -145,7 +145,7 @@ export default function ImageLightbox({ src, alt, open, onClose, originRect }: I
 
           {/* Top bar */}
           <motion.div
-            className="absolute top-0 start-0 end-0 z-10 flex items-center justify-between px-4 pb-2"
+            className="absolute top-0 start-0 end-0 z-raised flex items-center justify-between px-4 pb-2"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
@@ -169,7 +169,7 @@ export default function ImageLightbox({ src, alt, open, onClose, originRect }: I
           {/* Image container with swipe- */}
           <motion.div
             ref={containerRef}
-            className="relative z-[1] w-full h-full flex items-center justify-center will-change-transform"
+            className="relative z-raised w-full h-full flex items-center justify-center will-change-transform"
             style={{ y: dragY, scale: imgScale }}
             drag={!isZoomed ? 'y' : false}
             dragConstraints={{ top: 0, bottom: 0 }}

@@ -93,7 +93,7 @@ const AttachmentMenu = React.memo(function AttachmentMenu({ onSelect, onClose }:
   const options = useMemo(() => ATTACHMENT_OPTIONS(), []);
   return (
     <motion.div
-      className="absolute bottom-full mb-2 start-2 z-50"
+      className="absolute bottom-full mb-2 start-2 z-drawer"
       initial={{ opacity: 0, scale: 0.8, y: 10 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.8, y: 10 }}
@@ -121,7 +121,7 @@ const AttachmentMenu = React.memo(function AttachmentMenu({ onSelect, onClose }:
  </div>
  </div>
  {/* Click-away backdrop */}
- <div className="fixed inset-0 -z-10" onClick={onClose} />
+ <div className="fixed inset-0 -z-raised" onClick={onClose} />
  </motion.div>
  );
 });
@@ -148,7 +148,7 @@ const MentionSuggestionList = React.memo(function MentionSuggestionList({ sugges
 
  return (
  <motion.div
- className="absolute bottom-full mb-1 start-0 end-0 mx-3 z-50"
+ className="absolute bottom-full mb-1 start-0 end-0 mx-3 z-drawer"
  initial={{ opacity: 0, y: 8 }}
  animate={{ opacity: 1, y: 0 }}
  exit={{ opacity: 0, y: 8 }}

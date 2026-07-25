@@ -70,7 +70,7 @@ export default function PoetTimeline({ poetId, poetName, onClose }: PoetTimeline
                   className="w-full flex items-start gap-3 ps-0 pe-1 py-2 rounded-xl hover:bg-muted/30 active:bg-muted/50 transition-colors text-start group"
                 >
                   {/* Timeline dot */}
-                  <div className="relative z-10 flex-shrink-0 w-[14px] flex justify-center pt-1">
+                  <div className="relative z-raised flex-shrink-0 w-[14px] flex justify-center pt-1">
                     <motion.div
                       animate={{ scale: isExpanded ? 1.3 : 1 }}
                       className="w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center"

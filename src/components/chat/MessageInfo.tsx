@@ -35,13 +35,13 @@ const MessageInfo: React.FC<MessageInfoProps> = ({ isOpen, onClose, message }) =
         <>
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="absolute inset-0 z-[80] bg-black/40 backdrop-blur-sm"
+            className="absolute inset-0 z-nested bg-black/40 backdrop-blur-sm"
             onClick={onClose}
           />
           <motion.div
             initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 320 }}
- className="absolute inset-x-0 bottom-0 z-[81] bg-background rounded-t-3xl flex flex-col max-h-[70%]"
+ className="absolute inset-x-0 bottom-0 z-nested-above bg-background rounded-t-3xl flex flex-col max-h-[70%]"
  onClick={(e) => e.stopPropagation()}
  role="dialog"
  aria-modal="true"

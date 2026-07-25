@@ -80,7 +80,7 @@ export default function JournalHome() {
       />
 
       {/* Header */}
-      <div className="sticky top-0 z-20 bg-background/85 backdrop-blur-md border-b border-border/60">
+      <div className="z-sticky app-sticky-header border-b border-border/60">
         <div className="mx-auto max-w-lg px-5 py-3 flex items-center justify-between">
           <BackButton fallback="/" />
           <h1 className="text-[15px] tracking-[0.24em] text-muted-foreground uppercase">

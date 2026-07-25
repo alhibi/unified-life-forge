@@ -42,7 +42,7 @@ export function SwipeableMessage({
   return (
     <div className="relative overflow-visible w-full">
       <motion.div
-        className="absolute top-1/2 -translate-y-1/2 start-0 pointer-events-none z-0"
+        className="absolute top-1/2 -translate-y-1/2 start-0 pointer-events-none z-base"
         style={{ opacity: replyIconOpacity, scale: replyIconScale }}
       >
         <div className="w-8 h-8 rounded-full bg-primary/15 flex items-center justify-center backdrop-blur-sm">
@@ -50,7 +50,7 @@ export function SwipeableMessage({
         </div>
       </motion.div>
       <motion.div
-        className={cn('relative z-10 flex', isMine ? 'justify-end' : 'justify-start')}
+        className={cn('relative z-raised flex', isMine ? 'justify-end' : 'justify-start')}
         style={{ x, touchAction: 'pan-y' }}
         drag={disabled || deleted ? false : 'x'}
         dragDirectionLock
@@ -105,7 +105,7 @@ export const DoubleTapHeart = React.memo(function DoubleTapHeart({
       <AnimatePresence>
         {showHeart && (
           <motion.div
-            className="absolute inset-0 flex items-center justify-center pointer-events-none z-50"
+            className="absolute inset-0 flex items-center justify-center pointer-events-none z-drawer"
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1.3, opacity: 1 }}
             exit={{ scale: 0.8, opacity: 0, y: -20 }}

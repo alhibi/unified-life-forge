@@ -34,7 +34,7 @@ export default function PoemContextCard({ poemTitle, poetId }: PoemContextCardPr
     >
       {/* علامة معينة صغيرة (◆) فوق الحافة العلوية اليمنى */}
       <div
-        className="absolute -top-[7px] end-[24px] z-10 w-[14px] h-[14px] bg-[#16130F] flex items-center justify-center text-[10px] text-[var(--wax)] leading-none select-none font-bold"
+        className="absolute -top-[7px] end-[24px] z-raised w-[14px] h-[14px] bg-[#16130F] flex items-center justify-center text-[10px] text-[var(--wax)] leading-none select-none font-bold"
         style={{ textShadow: '0 0 4px var(--ink-bg)' }}
       >
         ◆

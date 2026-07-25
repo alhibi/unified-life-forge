@@ -212,7 +212,7 @@ export function SuggestedFeedsView({
       transition={{ duration: 0.25 }}
       className="flex flex-col min-h-screen"
     >
-      <div className="flex items-center gap-2 px-4 py-3 border-b border-border/40 bg-card/90 backdrop-blur-md sticky top-0 z-10">
+      <div className="flex items-center gap-2 px-4 py-3 border-b border-border/40 app-sticky-header-card z-raised">
         <button
           type="button"
           onClick={onBack}
@@ -395,7 +395,7 @@ export function SuggestedFeedsView({
           initial={{ y: 80, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 80, opacity: 0 }}
-          className="sticky bottom-0 inset-x-0 px-4 py-3 border-t border-border/40 bg-card/95 backdrop-blur-md flex items-center gap-3 z-10"
+          className="sticky bottom-0 inset-x-0 px-4 py-3 border-t border-border/40 bg-card/95 backdrop-blur-md flex items-center gap-3 z-raised"
         >
           <span className="text-sm font-semibold flex-1">
             {`تم اختيار ${selected.size} ${selected.size === 1 ? 'مصدر' : 'مصادر'}`}

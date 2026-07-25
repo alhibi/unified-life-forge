@@ -16,13 +16,13 @@ const WallpaperPicker: React.FC<WallpaperPickerProps> = ({ currentId, onClose, o
     <AnimatePresence>
       <motion.div
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-        className="absolute inset-0 z-[70] bg-black/40 backdrop-blur-sm"
+        className="absolute inset-0 z-picker bg-black/40 backdrop-blur-sm"
         onClick={onClose}
       />
       <motion.div
         initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
         transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-        className="absolute inset-x-0 bottom-0 z-[71] bg-background rounded-t-3xl flex flex-col max-h-[75%] "
+        className="absolute inset-x-0 bottom-0 z-picker-above bg-background rounded-t-3xl flex flex-col max-h-[75%] "
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mx-auto w-10 h-1 rounded-full bg-border/40 mt-2 mb-1" />

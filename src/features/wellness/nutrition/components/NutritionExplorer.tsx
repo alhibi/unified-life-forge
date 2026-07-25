@@ -159,7 +159,7 @@ export default function NutritionExplorer() {
 
   // Render header with search
   const renderHeader = () => (
-    <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-md pb-2 pt-1">
+    <div className="z-raised app-sticky-header pb-2 pt-1">
       {view !== 'home' && (
         <button
           onClick={handleBack}

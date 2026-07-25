@@ -113,7 +113,7 @@ export default function CitySearch({ onSelectCity, }: CitySearchProps) {
   };
 
   return (
-    <div className="relative w-full z-30" dir={'rtl'}>
+    <div className="relative w-full z-header" dir={'rtl'}>
       <div className="relative flex items-center">
         <Search className="absolute ms-3.5 w-4 h-4 text-muted-foreground" />
         <input

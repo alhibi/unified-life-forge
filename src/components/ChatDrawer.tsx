@@ -920,7 +920,7 @@ export default function ChatDrawer({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 z-50 bg-background flex flex-col"
+            className="absolute inset-0 z-drawer bg-background flex flex-col"
           >
             <div className="flex items-center gap-3 px-4 h-14 border-b border-border/20">
               <button
@@ -1403,7 +1403,7 @@ export default function ChatDrawer({
         /* ───────────────── CHAT VIEW ───────────────── */
         <>
           {/* ── Chat Header ── */}
-          <div className="sticky top-0 z-30 h-14 px-3 flex items-center gap-2 bg-background border-b border-border/20 shrink-0">
+          <div className="z-header h-14 px-3 flex items-center gap-2 app-sticky-header border-b border-border/20 shrink-0">
             {chat.selectionMode ? (
               <>
                 <button
@@ -1557,7 +1557,7 @@ export default function ChatDrawer({
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
                           exit={{ opacity: 0 }}
-                          className="fixed inset-0 z-10"
+                          className="fixed inset-0 z-raised"
                           onClick={() => chat.setShowChatMenu(false)}
                         />
                         <motion.div
@@ -1566,7 +1566,7 @@ export default function ChatDrawer({
                           exit={{ opacity: 0, scale: 0.95 }}
                           transition={{ duration: 0.15 }}
                           className={cn(
-                            'absolute top-full mt-1 bg-card border border-border/30 rounded-xl z-20 min-w-[200px] overflow-hidden ',
+                            'absolute top-full mt-1 bg-card border border-border/30 rounded-xl z-sticky min-w-[200px] overflow-hidden ',
                             'left-0',
                           )}
                         >
@@ -1894,7 +1894,7 @@ export default function ChatDrawer({
                   initial={{ opacity: 0, scale: 0.98 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.98 }}
-                  className="absolute inset-2 z-30 rounded-2xl border-2 border-dashed border-primary bg-primary/10 backdrop-blur-sm flex flex-col items-center justify-center gap-3 pointer-events-none"
+                  className="absolute inset-2 z-header rounded-2xl border-2 border-dashed border-primary bg-primary/10 backdrop-blur-sm flex flex-col items-center justify-center gap-3 pointer-events-none"
                   aria-hidden="true"
                 >
                   <div className="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center">
@@ -2035,7 +2035,7 @@ export default function ChatDrawer({
                               {chat.selectionMode && !msg.deleted && (
                                 <div
                                   className={cn(
-                                    'absolute top-1 z-10 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors',
+                                    'absolute top-1 z-raised w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors',
                                     isMine ? 'start-1' : 'end-1',
                                     isSelected
                                       ? 'bg-primary border-primary'
@@ -2349,7 +2349,7 @@ export default function ChatDrawer({
                               {msgReactions.length > 0 && (
                                 <div
                                   className={cn(
-                                    'flex gap-1 -mt-1.5 flex-wrap relative z-[1]',
+                                    'flex gap-1 -mt-1.5 flex-wrap relative z-raised',
                                     isMine ? 'justify-end pe-1' : 'justify-start ps-1',
                                   )}
                                   dir="ltr"
@@ -2577,7 +2577,7 @@ export default function ChatDrawer({
                 onClick={() => chat.scrollToBottom()}
                 aria-label={'الانتقال للأسفل'}
                 className={cn(
-                  'absolute bottom-24 end-4 z-10 w-11 h-11 rounded-full flex items-center justify-center transition-colors',
+                  'absolute bottom-24 end-4 z-raised w-11 h-11 rounded-full flex items-center justify-center transition-colors',
                   'bg-card/95 backdrop-blur-md border border-border/30',
                   'shadow-md',
                   (chat.activeConv?.unreadCount ?? 0) > 0 && 'ring-2 ring-primary/40',
@@ -2629,14 +2629,14 @@ export default function ChatDrawer({
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
                       transition={{ duration: 0.12 }}
-                      className="fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm"
+                      className="fixed inset-0 z-sheet bg-black/40 backdrop-blur-sm"
                       onClick={() => {
                         setActionMenu(null);
                         chat.setShowExtraEmojis(false);
                       }}
                     />
                     <div
-                      className="fixed inset-0 z-[61] pointer-events-none"
+                      className="fixed inset-0 z-sheet-above pointer-events-none"
                       onClick={() => {
                         setActionMenu(null);
                         chat.setShowExtraEmojis(false);
@@ -3046,7 +3046,7 @@ export default function ChatDrawer({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[110] flex items-center justify-center bg-black/60 backdrop-blur-sm px-6"
+          className="fixed inset-0 z-fullscreen-above flex items-center justify-center bg-black/60 backdrop-blur-sm px-6"
           onClick={() => setShowDeleteConfirm(false)}
         >
           <motion.div

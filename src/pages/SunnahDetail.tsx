@@ -44,7 +44,7 @@ function DetailedView({ data }: { data: { label: string; accent: string; items: 
 
   return (
     <div className="min-h-screen bg-background pb-page flex flex-col">
-      <div className="sticky top-0 z-10 bg-background border-b border-border">
+      <div className="z-raised app-sticky-header border-b border-border">
         <div className="flex items-center justify-between px-4 py-3">
           <BackButton />
           <div className="text-center">
@@ -112,7 +112,7 @@ function SimpleListView({ data }: { data: { label: string; accent: string; items
 
   return (
     <div className="min-h-screen bg-background pb-page">
-      <div className="sticky top-0 z-10 bg-background border-b border-border">
+      <div className="z-raised app-sticky-header border-b border-border">
         <div className="flex items-center justify-between px-4 py-3">
           <BackButton />
           <h1 className="text-lg font-bold text-foreground">{data.label}</h1>

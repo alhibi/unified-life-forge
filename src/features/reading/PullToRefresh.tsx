@@ -194,7 +194,7 @@ export function PullToRefresh({
       {/* Pull indicator */}
       <div
         aria-hidden={!visible}
-        className="absolute inset-x-0 top-0 flex items-center justify-center pointer-events-none z-10"
+        className="absolute inset-x-0 top-0 flex items-center justify-center pointer-events-none z-raised"
         style={{
           height: 56,
           opacity: visible ? 1 : 0,
@@ -235,7 +235,7 @@ export function PullToRefresh({
       {/* Release hint text */}
       {pullState === 'threshold-crossed' && (
         <div
-          className="absolute inset-x-0 top-12 flex justify-center pointer-events-none z-10"
+          className="absolute inset-x-0 top-12 flex justify-center pointer-events-none z-raised"
           style={{
             opacity: Math.min(1, (pullDistance - THRESHOLD) / 20),
             transition: 'opacity 0.15s',
