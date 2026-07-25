@@ -143,7 +143,7 @@ function ContinueListeningRow({ items }: { items: RecentEpisodeRecord[] }) {
                 type="button"
                 onClick={() => removeRecentEpisodeWithNotify(rec.episode.id)}
                 aria-label={'إزالة'}
-                className="absolute top-1.5 end-1.5 w-7 h-7 rounded-full bg-black/50 text-white flex items-center justify-center backdrop-blur-sm opacity-90 hover:opacity-100"
+                className="absolute top-1.5 end-1.5 w-7 h-7 rounded-full bg-black/70 text-white flex items-center justify-center opacity-90 hover:opacity-100"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
@@ -222,7 +222,7 @@ function SubscriptionTile({
           setMenuOpen(true);
         }}
         aria-label={'خيارات'}
-        className="absolute top-1.5 end-1.5 w-7 h-7 rounded-full bg-black/40 text-white flex items-center justify-center backdrop-blur-sm opacity-90 hover:opacity-100"
+        className="absolute top-1.5 end-1.5 w-7 h-7 rounded-full bg-black/70 text-white flex items-center justify-center opacity-90 hover:opacity-100"
       >
         <MoreHorizontal className="w-3.5 h-3.5" />
       </button>
@@ -233,7 +233,7 @@ function SubscriptionTile({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-drawer bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center"
+            className="fixed inset-0 z-drawer bg-black/60 flex items-end sm:items-center justify-center"
             onClick={() => setMenuOpen(false)}
           >
             <motion.div

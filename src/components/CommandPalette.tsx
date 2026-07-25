@@ -109,7 +109,7 @@ export function CommandPalette() {
       <button
         type="button"
         aria-label="إغلاق لوحة الأوامر"
-        className="fixed inset-0 bg-foreground/30 backdrop-blur-[2px]"
+        className="app-scrim"
         onClick={() => setOpen(false)}
       />
 

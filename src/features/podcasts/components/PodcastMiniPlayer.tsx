@@ -164,7 +164,7 @@ const PodcastMiniPlayer = memo(function PodcastMiniPlayer() {
             <button
               type="button"
               onClick={openSheet}
-              className="podcast-mini-glow pointer-events-auto w-full max-w-md mx-auto flex items-center gap-2 ps-2 pe-2 rounded-full overflow-hidden border active:scale-[0.985] transition-transform duration-150 touch-manipulation"
+              className="podcast-mini-glow pointer-events-auto w-full max-w-md mx-auto flex items-center gap-2 ps-2 pe-2 rounded-full overflow-hidden border border-border transition-colors touch-manipulation"
               data-playing={isActive ? 'true' : 'false'}
               style={{
                 height: MINI_PLAYER_HEIGHT,
@@ -175,7 +175,6 @@ const PodcastMiniPlayer = memo(function PodcastMiniPlayer() {
                 borderColor: 'hsl(var(--border))',
                 color: 'hsl(var(--foreground))',
                 backgroundColor: 'hsl(var(--card))',
-                boxShadow: '0 -4px 16px -2px rgba(0, 0, 0, 0.2), 0 0 0 1px hsl(var(--border))',
                 willChange: 'transform',
                 contain: 'layout paint',
               }}

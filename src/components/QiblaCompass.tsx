@@ -84,9 +84,8 @@ function useStableDeviceHeading() {
       // settled needle without feeling laggy.
       const ALPHA = 0.18;
       const prev = smoothedRef.current;
-      const next = prev == null
-        ? corrected
-        : (prev + ALPHA * angleDelta(corrected, prev) + 360) % 360;
+      const next =
+        prev == null ? corrected : (prev + ALPHA * angleDelta(corrected, prev) + 360) % 360;
       smoothedRef.current = next;
       pendingRef.current = next;
       if (typeof acc === 'number') setAccuracy(acc);
@@ -172,10 +171,7 @@ export default function QiblaCompass() {
   const lng = location?.lng ?? MAKKAH.lng;
 
   const bearing = useMemo(() => qiblaBearing(lat, lng), [lat, lng]);
-  const distanceKm = useMemo(
-    () => haversineKm(lat, lng, MAKKAH.lat, MAKKAH.lng),
-    [lat, lng]
-  );
+  const distanceKm = useMemo(() => haversineKm(lat, lng, MAKKAH.lat, MAKKAH.lng), [lat, lng]);
   const compassLabel = bearingToCompass(bearing);
 
   const needleAngle = heading == null ? bearing : (bearing - heading + 360) % 360;
@@ -195,7 +191,9 @@ export default function QiblaCompass() {
     if (!expanded) return;
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
-    return () => { document.body.style.overflow = prev; };
+    return () => {
+      document.body.style.overflow = prev;
+    };
   }, [expanded]);
 
   const t = {
@@ -237,7 +235,8 @@ export default function QiblaCompass() {
             </span>
           </div>
           <div className="text-xl font-bold text-foreground leading-tight tabular-nums">
-            {Math.round(bearing)}° <span className="text-sm font-medium text-muted-foreground">{compassLabel}</span>
+            {Math.round(bearing)}°{' '}
+            <span className="text-sm font-medium text-muted-foreground">{compassLabel}</span>
           </div>
           <div className="text-[11px] text-muted-foreground mt-0.5">
             {fmtKm(distanceKm)} {t.km} · {location ? t.subtitle : t.locationFallback}
@@ -255,7 +254,7 @@ export default function QiblaCompass() {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 onClick={() => setExpanded(false)}
-                className="fixed inset-0 z-drawer bg-black/70 backdrop-blur-sm"
+                className="fixed inset-0 z-drawer bg-black/70"
               />
               <motion.div
                 initial={{ y: '100%' }}
@@ -282,7 +281,12 @@ export default function QiblaCompass() {
                 </div>
 
                 <div className="flex-1 overflow-y-auto px-5 py-6 flex flex-col items-center gap-6">
-                  <CompassDial size={280} needleAngle={needleAngle} aligned={isAligned} language={language} />
+                  <CompassDial
+                    size={280}
+                    needleAngle={needleAngle}
+                    aligned={isAligned}
+                    language={language}
+                  />
 
                   <AnimatePresence mode="wait">
                     {isAligned ? (
@@ -368,13 +372,23 @@ export default function QiblaCompass() {
             </>
           )}
         </AnimatePresence>,
-        document.body
+        document.body,
       )}
     </>
   );
 }
 
-function Stat({ icon, label, value, hint }: { icon: React.ReactNode; label: string; value: string; hint?: string }) {
+function Stat({
+  icon,
+  label,
+  value,
+  hint,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  hint?: string;
+}) {
   return (
     <div className="rounded-2xl bg-card/60 border border-border/40 p-3 flex flex-col gap-1">
       <div className="flex items-center gap-1.5 text-muted-foreground text-[10px] uppercase tracking-wider font-semibold">
@@ -406,34 +420,40 @@ function CompassDial({
   const ticks = Array.from({ length: 24 }, (_, i) => i * 15);
   const labels = compact
     ? []
-    : ([['ش', 0], ['ق', 90], ['ج', 180], ['غ', 270]] as const);
+    : ([
+        ['ش', 0],
+        ['ق', 90],
+        ['ج', 180],
+        ['غ', 270],
+      ] as const);
 
   return (
     <div className="relative" style={{ width: size, height: size }}>
       {aligned && (
         <motion.div
-          className="absolute inset-0 rounded-full"
-          style={{ boxShadow: '0 0 60px hsl(var(--live) / 0.6)' }}
+          className="absolute inset-0 rounded-full border border-primary/50"
           initial={{ opacity: 0 }}
-          animate={{ opacity: [0.4, 0.8, 0.4] }}
+          animate={{ opacity: [0.45, 0.9, 0.45] }}
           transition={{ duration: 2, repeat: Infinity }}
         />
       )}
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-        <defs>
-          <radialGradient id={`face-${size}`} cx="50%" cy="40%" r="60%">
-            <stop offset="0%" stopColor="hsl(var(--card))" stopOpacity="1" />
-            <stop offset="100%" stopColor="hsl(var(--background))" stopOpacity="1" />
-          </radialGradient>
-          <linearGradient id={`needle-${size}`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="hsl(var(--live))" />
-            <stop offset="50%" stopColor="hsl(var(--live))" stopOpacity="0.7" />
-            <stop offset="100%" stopColor="hsl(var(--live))" stopOpacity="0.15" />
-          </linearGradient>
-        </defs>
-
-        <circle cx={cx} cy={cy} r={r} fill={`url(#face-${size})`} stroke="hsl(var(--border))" strokeWidth={1} />
-        <circle cx={cx} cy={cy} r={r - (compact ? 2 : 6)} fill="none" stroke="hsl(var(--border) / 0.5)" strokeWidth={0.5} />
+        <circle
+          cx={cx}
+          cy={cy}
+          r={r}
+          fill="hsl(var(--card))"
+          stroke="hsl(var(--border))"
+          strokeWidth={1}
+        />
+        <circle
+          cx={cx}
+          cy={cy}
+          r={r - (compact ? 2 : 6)}
+          fill="none"
+          stroke="hsl(var(--border) / 0.5)"
+          strokeWidth={0.5}
+        />
 
         {ticks.map((deg) => {
           const rad = ((deg - 90) * Math.PI) / 180;
@@ -444,9 +464,16 @@ function CompassDial({
           const x2 = cx + Math.cos(rad) * r;
           const y2 = cy + Math.sin(rad) * r;
           return (
-            <line key={deg} x1={x1} y1={y1} x2={x2} y2={y2}
+            <line
+              key={deg}
+              x1={x1}
+              y1={y1}
+              x2={x2}
+              y2={y2}
               stroke={isMajor ? 'hsl(var(--live) / 0.8)' : 'hsl(var(--muted-foreground) / 0.4)'}
-              strokeWidth={isMajor ? 1.5 : 0.75} strokeLinecap="round" />
+              strokeWidth={isMajor ? 1.5 : 0.75}
+              strokeLinecap="round"
+            />
           );
         })}
 
@@ -455,9 +482,16 @@ function CompassDial({
           const lx = cx + Math.cos(rad) * (r - 22);
           const ly = cy + Math.sin(rad) * (r - 22);
           return (
-            <text key={String(label)} x={lx} y={ly} textAnchor="middle" dominantBaseline="central"
-              fontSize={12} fontWeight={700}
-              fill={Number(deg) === 0 ? 'hsl(var(--live))' : 'hsl(var(--muted-foreground))'}>
+            <text
+              key={String(label)}
+              x={lx}
+              y={ly}
+              textAnchor="middle"
+              dominantBaseline="central"
+              fontSize={12}
+              fontWeight={700}
+              fill={Number(deg) === 0 ? 'hsl(var(--live))' : 'hsl(var(--muted-foreground))'}
+            >
               {String(label)}
             </text>
           );
@@ -468,18 +502,37 @@ function CompassDial({
           transition={{ type: 'spring', stiffness: 140, damping: 22, mass: 0.6 }}
           style={{ transformOrigin: `${cx}px ${cy}px` }}
         >
-          <rect x={cx - 1.5} y={cy - (r - (compact ? 8 : 22))}
-            width={3} height={r - (compact ? 8 : 22)} rx={1.5} fill={`url(#needle-${size})`} />
+          <rect
+            x={cx - 1.5}
+            y={cy - (r - (compact ? 8 : 22))}
+            width={3}
+            height={r - (compact ? 8 : 22)}
+            rx={1.5}
+            fill="hsl(var(--live))"
+          />
           <g transform={`translate(${cx}, ${cy - (r - (compact ? 10 : 26))})`}>
-            <rect x={compact ? -4 : -9} y={compact ? -4 : -9}
-              width={compact ? 8 : 18} height={compact ? 8 : 18} rx={1}
-              fill="hsl(var(--foreground))" stroke="hsl(var(--live))" strokeWidth={1} />
+            <rect
+              x={compact ? -4 : -9}
+              y={compact ? -4 : -9}
+              width={compact ? 8 : 18}
+              height={compact ? 8 : 18}
+              rx={1}
+              fill="hsl(var(--foreground))"
+              stroke="hsl(var(--live))"
+              strokeWidth={1}
+            />
             {!compact && <rect x={-9} y={-2} width={18} height={2} fill="hsl(var(--live))" />}
           </g>
         </motion.g>
 
-        <circle cx={cx} cy={cy} r={compact ? 3 : 6} fill="hsl(var(--background))"
-          stroke="hsl(var(--live))" strokeWidth={1.5} />
+        <circle
+          cx={cx}
+          cy={cy}
+          r={compact ? 3 : 6}
+          fill="hsl(var(--background))"
+          stroke="hsl(var(--live))"
+          strokeWidth={1.5}
+        />
       </svg>
     </div>
   );

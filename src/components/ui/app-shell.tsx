@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils';
  *
  * Every full-screen route should be wrapped in <PageShell> and use
  * <AppCard> for every visible "card" surface. This guarantees identical
- * background, radius, padding, border, , and pressable physics
+ * background, radius, padding, border, and pressable physics
  * across the entire app, regardless of which screen the user is on.
  *
  * Do NOT add bespoke bg-card / rounded-* / border-border combos in
@@ -32,14 +32,11 @@ export function PageShell({
 }: PageShellProps) {
   return (
     <div
+      data-ui-surface="page"
       className={cn('page-shell', flush && 'page-shell-flush', className)}
       {...rest}
     >
-      {centered ? (
-        <div className="page-shell-inner app-stack">{children}</div>
-      ) : (
-        children
-      )}
+      {centered ? <div className="page-shell-inner app-stack">{children}</div> : children}
     </div>
   );
 }
@@ -55,13 +52,19 @@ interface AppCardProps extends DivProps {
   as?: keyof JSX.IntrinsicElements;
 }
 
+type AppCardElementProps = DivProps & {
+  ref?: React.ForwardedRef<HTMLDivElement>;
+  'data-ui-surface'?: string;
+};
+
 /** Canonical card surface — replaces every bespoke bg-card/rounded-2xl/border combo. */
 export const AppCard = React.forwardRef<HTMLDivElement, AppCardProps>(
   ({ compact, flat, pressable, as = 'div', className, ...rest }, ref) => {
-    const Comp = as as any;
+    const Comp = as as unknown as React.ComponentType<AppCardElementProps>;
     return (
       <Comp
         ref={ref}
+        data-ui-surface="card"
         className={cn(
           'app-card',
           compact && 'app-card-compact',
@@ -76,17 +79,12 @@ export const AppCard = React.forwardRef<HTMLDivElement, AppCardProps>(
 );
 AppCard.displayName = 'AppCard';
 
-interface IconButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {}
+type IconButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement>;
 
-/** Canonical 40x40 rounded-xl icon button used in headers/toolbars. */
+/** Canonical 44×44 rounded-md icon button used in headers and toolbars. */
 export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
   ({ className, type = 'button', ...rest }, ref) => (
-    <button
-      ref={ref}
-      type={type}
-      className={cn('app-icon-btn', className)}
-      {...rest}
-    />
+    <button ref={ref} type={type} className={cn('app-icon-btn', className)} {...rest} />
   ),
 );
 IconButton.displayName = 'IconButton';
@@ -94,18 +92,12 @@ IconButton.displayName = 'IconButton';
 interface SectionProps extends DivProps {
   /** Optional uppercase tracking label shown above the section. */
   label?: React.ReactNode;
-  /** Override the canonical gap (default = app-stack = 20px). */
+  /** Override the canonical gap (default = app-stack = 24px). */
   tight?: boolean;
 }
 
 /** Canonical vertical stack section with optional label. */
-export function Section({
-  label,
-  tight,
-  className,
-  children,
-  ...rest
-}: SectionProps) {
+export function Section({ label, tight, className, children, ...rest }: SectionProps) {
   return (
     <section className={cn(className)} {...rest}>
       {label && <div className="app-section-label">{label}</div>}

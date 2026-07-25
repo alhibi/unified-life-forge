@@ -25,26 +25,27 @@
    ────────────────────────────────────────────────────────────────────── */
 
 .mk {
-  /* ── light (modkeys default) ── */
-  --mk-bg: #e9e8e6;
-  --mk-panel: #ffffff;
-  --mk-ink: #17171a;
-  --mk-ink2: #87878d;
-  --mk-ink3: #b4b4b8;
-  --mk-line: #e6e5e2;
-  --mk-line2: #dddcd8;
-  --mk-card: #f4f3f1;
-  --mk-card2: #eceae7;
-  --mk-chip: #141416;
-  --mk-chip-tx: #ffffff;
-  --mk-side: #0c0c0e;
-  --mk-side-tx: #e9e9ec;
-  --mk-side-tx2: #78787e;
-  --mk-stage-glow: #f4f3f0;
-  --mk-shadow-c: rgba(20, 20, 24, 0.1);
+  /* Semantic aliases: this feature follows the application palette. */
+  --mk-bg: hsl(var(--background));
+  --mk-panel: hsl(var(--card));
+  --mk-ink: hsl(var(--foreground));
+  --mk-ink2: hsl(var(--muted-foreground));
+  --mk-ink3: hsl(var(--muted-foreground) / 0.72);
+  --mk-line: hsl(var(--border));
+  --mk-line2: hsl(var(--border) / 0.72);
+  --mk-card: hsl(var(--muted));
+  --mk-card2: hsl(var(--secondary));
+  --mk-chip: hsl(var(--primary));
+  --mk-chip-tx: hsl(var(--primary-foreground));
+  --mk-side: hsl(var(--card));
+  --mk-side-tx: hsl(var(--foreground));
+  --mk-side-tx2: hsl(var(--muted-foreground));
+  --mk-stage-glow: hsl(var(--card));
+  --mk-shadow-c: transparent;
 
-  --mk-sans: 'Inter', 'IBM Plex Sans Arabic', 'SF Pro Display', -apple-system,
-    'Segoe UI', Roboto, Arial, sans-serif;
+  --mk-sans:
+    'Inter', 'IBM Plex Sans Arabic', 'SF Pro Display', -apple-system, 'Segoe UI', Roboto, Arial,
+    sans-serif;
   /* Arabic copy keeps the app's Arabic face; Latin/numerals get Inter. */
   --mk-ar: 'IBM Plex Sans Arabic', 'Inter', system-ui, sans-serif;
 
@@ -52,24 +53,8 @@
   --mk-ease-pop: cubic-bezier(0.5, 0.05, 0.2, 1.3);
 }
 
-.dark .mk {
-  --mk-bg: #131315;
-  --mk-panel: #1c1c1f;
-  --mk-ink: #f0f0f2;
-  --mk-ink2: #93939b;
-  --mk-ink3: #5a5a60;
-  --mk-line: #2a2a2e;
-  --mk-line2: #333338;
-  --mk-card: #232327;
-  --mk-card2: #2a2a2f;
-  --mk-chip: #f0f0f2;
-  --mk-chip-tx: #141416;
-  --mk-side: #0a0a0c;
-  --mk-side-tx: #ececef;
-  --mk-side-tx2: #6f6f76;
-  --mk-stage-glow: #1f1f23;
-  --mk-shadow-c: rgba(0, 0, 0, 0.35);
-}
+/* Dark mode inherits the same semantic aliases from `.mk`; the root theme
+   changes their values, so this feature cannot drift into a parallel palette. */
 
 /* ---------- app frame ---------- */
 .mk-app {
@@ -78,7 +63,9 @@
   color: var(--mk-ink);
   font-family: var(--mk-sans);
   -webkit-font-smoothing: antialiased;
-  transition: background 0.35s ease, color 0.35s ease;
+  transition:
+    background 0.35s ease,
+    color 0.35s ease;
 }
 .mk-app *,
 .mk-app *::before,
@@ -165,19 +152,19 @@
   width: 100%;
 }
 .mk-snav button:hover {
-  background: rgba(255, 255, 255, 0.055);
+  background: hsl(var(--foreground) / 0.055);
 }
 .mk-snav button.on {
-  background: rgba(255, 255, 255, 0.09);
+  background: hsl(var(--foreground) / 0.09);
 }
 .mk-snav .mk-ic {
   width: 20px;
   height: 20px;
-  color: #a9a9b0;
+  color: var(--mk-side-tx2);
   flex: 0 0 auto;
 }
 .mk-snav button.on .mk-ic {
-  color: #fff;
+  color: var(--mk-side-tx);
 }
 .mk-snav .mk-meta {
   margin-inline-start: auto;
@@ -191,7 +178,6 @@
   height: 11px;
   border-radius: 50%;
   margin-inline-start: auto;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14);
   flex: 0 0 auto;
 }
 
@@ -236,17 +222,16 @@
   justify-content: space-between;
   width: 100%;
   height: 54px;
-  background: #fff;
-  color: #131316;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
   border-radius: 13px;
   padding: 0 20px;
   font-size: 15px;
   font-weight: 700;
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  transition: transform 0.18s ease;
 }
 .mk-cta:hover {
   transform: translateY(-1px);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
 }
 .mk-cta:active {
   transform: translateY(0);
@@ -266,7 +251,7 @@
   transition: color 0.18s;
 }
 .mk-save-row:hover {
-  color: #fff;
+  color: var(--mk-side-tx);
 }
 
 /* ---------- main / topbar ---------- */
@@ -297,7 +282,9 @@
   margin-bottom: 12px;
   box-shadow: none;
   z-index: 20;
-  transition: background 0.35s, color 0.35s;
+  transition:
+    background 0.35s,
+    color 0.35s;
 }
 .mk-topbar .mk-brand,
 .mk-topbar .mk-brand b {
@@ -478,7 +465,6 @@
   background: var(--mk-panel);
   border: 1px solid var(--mk-line);
   border-radius: 14px;
-  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.14);
   padding: 8px;
   min-width: 200px;
   z-index: 60;
@@ -662,12 +648,10 @@
   align-items: center;
   justify-content: center;
   margin: 0 auto 18px;
-  box-shadow: 0 14px 34px var(--mk-shadow-c);
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  transition: transform 0.18s ease;
 }
 .mk-medallion:hover {
   transform: translateY(-2px);
-  box-shadow: 0 18px 40px var(--mk-shadow-c);
 }
 .mk-medallion:active {
   transform: translateY(0) scale(0.96);
@@ -685,7 +669,6 @@
   border-radius: 13px;
   padding: 4px;
   z-index: 4;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
   isolation: isolate;
   max-width: calc(100% - 68px);
   overflow: hidden;
@@ -728,7 +711,9 @@
   border-radius: 9px;
   background: var(--mk-chip);
   z-index: 1;
-  transition: transform 0.38s var(--mk-ease), width 0.38s var(--mk-ease);
+  transition:
+    transform 0.38s var(--mk-ease),
+    width 0.38s var(--mk-ease);
 }
 
 /* floating stage toolbar */
@@ -743,7 +728,6 @@
   border-radius: 11px;
   padding: 3px;
   z-index: 4;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
 }
 .mk-toolbar button {
   width: 38px;
@@ -753,14 +737,21 @@
   align-items: center;
   justify-content: center;
   color: var(--mk-ink);
-  transition: background 0.18s, color 0.18s;
+  transition:
+    background 0.18s,
+    color 0.18s;
 }
 /* Hide the inline toolbar on very narrow phones where it would crowd the
    centered pills. The list/grid toggle still works via keyboard nav. */
 /* Toolbar stays visible on all widths; pills shrink to leave space. */
 
-.mk-toolbar button:hover { background: var(--mk-card); }
-.mk-toolbar button.on { background: var(--mk-chip); color: var(--mk-chip-tx); }
+.mk-toolbar button:hover {
+  background: var(--mk-card);
+}
+.mk-toolbar button.on {
+  background: var(--mk-chip);
+  color: var(--mk-chip-tx);
+}
 
 /* compact greeting strip — between topbar and the stage */
 .mk-greet {
@@ -780,7 +771,9 @@
   text-transform: uppercase;
   opacity: 0.75;
 }
-.mk-greet-sep { opacity: 0.4; }
+.mk-greet-sep {
+  opacity: 0.4;
+}
 .mk-greet-name {
   font-size: 13.5px;
   font-weight: 700;
@@ -821,7 +814,10 @@
   padding: 11px 11px 12px;
   position: relative;
   text-align: start;
-  transition: border-color 0.2s, transform 0.2s, background 0.2s;
+  transition:
+    border-color 0.2s,
+    transform 0.2s,
+    background 0.2s;
   display: flex;
   flex-direction: column;
   gap: 9px;
@@ -847,7 +843,9 @@
   align-items: center;
   justify-content: center;
   flex: 0 0 auto;
-  transition: background 0.2s, color 0.2s;
+  transition:
+    background 0.2s,
+    color 0.2s;
 }
 .mk-tile.on .mk-tile-ic {
   background: var(--mk-chip);
@@ -941,7 +939,9 @@
   align-items: center;
   justify-content: center;
   color: var(--mk-ink);
-  transition: background 0.18s, transform 0.18s;
+  transition:
+    background 0.18s,
+    transform 0.18s;
 }
 .mk-farrows button:hover {
   background: var(--mk-card);
@@ -967,7 +967,9 @@
   border-radius: 15px;
   padding: 9px 9px 12px;
   position: relative;
-  transition: border-color 0.2s, transform 0.2s;
+  transition:
+    border-color 0.2s,
+    transform 0.2s;
   text-align: center;
 }
 .mk-bcard:hover {
@@ -1016,7 +1018,9 @@
   display: flex;
   flex-direction: column;
   min-height: 0;
-  transition: background 0.35s, border-color 0.35s;
+  transition:
+    background 0.35s,
+    border-color 0.35s;
 }
 @media (min-width: 1024px) {
   .mk-rpanel {
@@ -1166,8 +1170,7 @@
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: #fff;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  background: var(--mk-chip-tx);
   transition: transform 0.22s var(--mk-ease-pop);
 }
 .mk-tog.on {
@@ -1241,7 +1244,6 @@
   padding: 11px 20px;
   border-radius: 12px;
   z-index: 120;
-  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.25);
   font-family: var(--mk-ar);
   animation: mk-toast-in 0.25s ease;
 }

@@ -40,7 +40,11 @@ export function withAlpha(color: string, alpha: number): string {
   // Hex
   if (color.startsWith('#')) {
     let hex = color.slice(1);
-    if (hex.length === 3) hex = hex.split('').map((c) => c + c).join('');
+    if (hex.length === 3)
+      hex = hex
+        .split('')
+        .map((c) => c + c)
+        .join('');
     const r = parseInt(hex.slice(0, 2), 16);
     const g = parseInt(hex.slice(2, 4), 16);
     const b = parseInt(hex.slice(4, 6), 16);
@@ -82,11 +86,7 @@ export function softRadial(
  * Smooth linear gradient with same five-stop curve.
  * Direction defaults to top-.
  */
-export function softLinear(
- color: string,
- alpha: number,
- direction = '180deg',
-): string {
+export function softLinear(color: string, alpha: number, direction = '180deg'): string {
   void direction;
   return withAlpha(color, alpha * 0.18);
 }
@@ -97,10 +97,19 @@ export function softLinear(
  * the ACWR zone bar so the band reads as one continuous spectrum
  * instead of four hard rectangles.
  */
-export function smoothSpectrum(stops: { color: string; at: number }[], direction = '90deg'): string {
-  // Gradients disabled — use the first stop as a solid fill.
-  void direction;
-  return stops[0]?.color ?? 'transparent';
+export function smoothSpectrum(
+  stops: { color: string; at: number }[],
+  direction = '90deg',
+): string {
+  if (stops.length === 0) return 'transparent';
+  if (stops.length === 1) return stops[0].color;
+
+  // This is a data-encoding exception to the no-decorative-gradient rule:
+  // positions represent real zones on the metric scale.
+  const encodedStops = stops
+    .map(({ color, at }) => `${color} ${Math.max(0, Math.min(100, at))}%`)
+    .join(', ');
+  return `linear-gradient(${direction}, ${encodedStops})`;
 }
 
 /* ─────────────────────────── DitherLayer ─────────────────────────── */
@@ -123,28 +132,10 @@ export function DitherLayer({
   opacity?: number;
   className?: string;
 }) {
-  // The seed in feTurbulence is fixed so the noise pattern is stable
-  // (no flicker on remount). baseFrequency=0.9 produces fine grain.
-  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64'>
-    <filter id='n'>
-      <feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' seed='4' stitchTiles='stitch'/>
-      <feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.6 0'/>
-    </filter>
-    <rect width='100%' height='100%' filter='url(#n)'/>
-  </svg>`;
-  const url = `url("data:image/svg+xml;utf8,${encodeURIComponent(svg)}")`;
-
-  return (
-    <div
-      aria-hidden
-      className={`absolute inset-0 pointer-events-none mix-blend-overlay ${className ?? ''}`}
-      style={{
-        backgroundImage: url,
-        backgroundSize: '64px 64px',
-        opacity,
-      }}
-    />
-  );
+  // Noise overlays are intentionally disabled by the flat-surface contract.
+  void opacity;
+  void className;
+  return null;
 }
 
 /* ─────────────────────────── MeshGlow ─────────────────────────── */
@@ -165,21 +156,12 @@ export interface MeshGlowProps {
  * eliminating any visible edge falloff inside it.
  */
 export function MeshGlow({ a, b, intensity = 1, className }: MeshGlowProps) {
-  const second = b ?? a;
-  const alphaA = 0.18 * intensity;
-  const alphaB = 0.12 * intensity;
-  return (
-    <div
-      aria-hidden
-      className={`absolute inset-0 pointer-events-none ${className ?? ''}`}
-      style={{
-        backgroundImage: [
-          softRadial(a, alphaA, 'circle 140% at 18% -10%'),
-          softRadial(second, alphaB, 'circle 120% at 110% 105%'),
-        ].join(', '),
-      }}
-    />
-  );
+  // Decorative glows are intentionally disabled; semantic content stays intact.
+  void a;
+  void b;
+  void intensity;
+  void className;
+  return null;
 }
 
 /* ─────────────────────────── SoftWash ─────────────────────────── */
@@ -192,24 +174,12 @@ export interface SoftWashProps {
   className?: string;
 }
 
-const ANCHOR_SHAPES: Record<NonNullable<SoftWashProps['anchor']>, string> = {
-  top:       'ellipse 90% 130% at 50% -10%',
-  bottom:    'ellipse 90% 130% at 50% 110%',
-  centre:    'ellipse 100% 130% at 50% 50%',
-  topRight:  'circle 130% at 100% 0%',
-  topLeft:   'circle 130% at 0% 0%',
-};
-
 export function SoftWash({ anchor = 'top', color, intensity = 1, className }: SoftWashProps) {
-  return (
-    <div
-      aria-hidden
-      className={`absolute inset-0 pointer-events-none ${className ?? ''}`}
-      style={{
-        backgroundImage: softRadial(color, 0.16 * intensity, ANCHOR_SHAPES[anchor]),
-      }}
-    />
-  );
+  void anchor;
+  void color;
+  void intensity;
+  void className;
+  return null;
 }
 
 /* ─────────────────────────── SoftSurface ─────────────────────────── */
@@ -262,7 +232,7 @@ export function SoftSurface({
   variant = 'mesh',
   highlight = true,
   dither = true,
-  radius = '1.25rem',
+  radius = '1rem',
   border = true,
   className,
   children,
@@ -272,6 +242,11 @@ export function SoftSurface({
   as = 'div',
 }: SoftSurfaceProps) {
   const Tag: any = as === 'button' ? 'button' : 'div';
+  const accentWeight = Math.round(8 + Math.max(0, Math.min(1, intensity)) * 12);
+  const borderColor =
+    border && variant !== 'flat'
+      ? `color-mix(in srgb, ${accent} ${accentWeight}%, hsl(var(--border)))`
+      : 'hsl(var(--border) / 0.6)';
 
   return (
     <Tag
@@ -282,28 +257,18 @@ export function SoftSurface({
       style={{
         background: base,
         borderRadius: radius,
-        border: border ? '1px solid hsl(var(--border) / 0.45)' : undefined,
+        border: border ? `1px solid ${borderColor}` : undefined,
         transform: 'translateZ(0)',
         WebkitFontSmoothing: 'antialiased',
       }}
     >
       {/* Accent layer */}
-      {variant === 'mesh' && intensity > 0 && (
-        <MeshGlow a={accent} intensity={intensity} />
-      )}
-      {variant === 'wash' && intensity > 0 && (
-        <SoftWash color={accent} intensity={intensity} />
-      )}
+      {variant === 'mesh' && intensity > 0 && <MeshGlow a={accent} intensity={intensity} />}
+      {variant === 'wash' && intensity > 0 && <SoftWash color={accent} intensity={intensity} />}
 
       {/* Top highlight — 1px gradient hairline gives a subtle "glass" lip */}
       {highlight && (
-        <div
-          aria-hidden
-          className="absolute inset-x-0 top-0 h-px pointer-events-none"
-          style={{
-            
-          }}
-        />
+        <div aria-hidden className="absolute inset-x-0 top-0 h-px pointer-events-none" style={{}} />
       )}
 
       {/* Dither — sits above gradient, below content */}
@@ -336,19 +301,13 @@ export function HaloOrb({
   className?: string;
   style?: React.CSSProperties;
 }) {
-  return (
-    <div
-      aria-hidden
-      className={`absolute pointer-events-none ${className ?? ''}`}
-      style={{
-        width: size,
-        height: size,
-        backgroundImage: softRadial(color, 0.28 * intensity, 'circle at center'),
-        filter: 'blur(2px)', // tiny blur to absorb LCD subpixel artifacts
-        ...style,
-      }}
-    />
-  );
+  // Standalone decorative halos are intentionally disabled.
+  void color;
+  void size;
+  void intensity;
+  void className;
+  void style;
+  return null;
 }
 
 /* ─────────────────────────── SmoothBar ─────────────────────────── */
@@ -393,13 +352,7 @@ export function SmoothBar({
         }}
       />
       {/* Subtle inner  at the top for depth */}
-      <div
-        aria-hidden
-        className="absolute inset-0 rounded-full pointer-events-none"
-        style={{
-          
-        }}
-      />
+      <div aria-hidden className="absolute inset-0 rounded-full pointer-events-none" style={{}} />
       {marker != null && (
         <div
           className="absolute top-1/2 -translate-y-1/2"
@@ -409,7 +362,6 @@ export function SmoothBar({
             height: 16,
             borderRadius: '50%',
             background: markerColor ?? '#fff',
-            
           }}
         />
       )}
@@ -424,19 +376,9 @@ export function SmoothBar({
  * glow that ties the section together without flooding the viewport.
  */
 export function PageBackdrop({ accent }: { accent?: string }) {
-  const a = accent ?? 'hsl(var(--primary))';
-  return (
-    <div
-      aria-hidden
-      className="fixed inset-0 -z-raised pointer-events-none"
-      style={{
-        backgroundImage: [
-          softRadial(a, 0.07, 'ellipse 60% 50% at 50% 0%'),
-          softRadial(a, 0.04, 'ellipse 80% 50% at 50% 100%'),
-        ].join(', '),
-      }}
-    />
-  );
+  // Page-level decorative scenery is disabled; the canonical canvas owns the background.
+  void accent;
+  return null;
 }
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -459,9 +401,8 @@ export interface GlassSurfaceProps {
 }
 
 /**
- * A frosted-glass surface for premium cards. Uses backdrop-blur with
- * a translucent background, edge highlights, and subtle noise overlay.
- * Looks like native iOS/macOS glass — no WebGL needed.
+ * A flat semantic surface kept under the legacy name for API compatibility.
+ * Accent is expressed through a restrained hairline border, never blur.
  */
 export function GlassSurface({
   accent = 'hsl(var(--primary))',
@@ -473,43 +414,23 @@ export function GlassSurface({
   as = 'div',
 }: GlassSurfaceProps) {
   const Tag: any = as === 'button' ? 'button' : 'div';
-  const blur = Math.round(12 + frost * 12); // 12..24px
+  const accentWeight = Math.round(6 + Math.max(0, Math.min(1, frost)) * 6);
+  const borderColor = highlight
+    ? `color-mix(in srgb, ${accent} ${accentWeight}%, hsl(var(--border)))`
+    : 'hsl(var(--border) / 0.6)';
 
   return (
     <Tag
       onClick={onClick}
+      data-ui-surface="card"
       className={`relative overflow-hidden ${onClick ? 'text-start w-full block' : ''} ${className ?? ''}`}
       style={{
-        background: `hsl(var(--card) / ${0.55 + frost * 0.2})`,
-        backdropFilter: `blur(${blur}px) saturate(1.4)`,
-        WebkitBackdropFilter: `blur(${blur}px) saturate(1.4)`,
-        borderRadius: '1.25rem',
-        border: '1px solid hsl(var(--border) / 0.3)',
-        
+        background: 'hsl(var(--card))',
+        borderRadius: '1rem',
+        border: `1px solid ${borderColor}`,
         transform: 'translateZ(0)',
       }}
     >
-      {/* Top highlight */}
-      {highlight && (
-        <div
-          aria-hidden
-          className="absolute inset-x-0 top-0 h-px pointer-events-none"
-          style={{
-            
-          }}
-        />
-      )}
-      {/* Subtle accent wash */}
-      <div
-        aria-hidden
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          backgroundImage: softRadial(accent, 0.06, 'ellipse 80% 60% at 30% -20%'),
-        }}
-      />
-      {/* Noise */}
-      <DitherLayer opacity={0.015} />
-      {/* Content */}
       <div className="relative">{children}</div>
     </Tag>
   );
@@ -531,24 +452,14 @@ export interface AuroraGlowProps {
  * without any animation (pure CSS, zero-cost).
  */
 export function AuroraGlow({
-  colors = ['#6366f1', '#06b6d4', '#10b981'],
+  colors = ['hsl(var(--primary))', 'hsl(var(--primary))', 'hsl(var(--primary))'],
   intensity = 0.7,
   className,
 }: AuroraGlowProps) {
-  const [a, b, c] = colors;
-  return (
-    <div
-      aria-hidden
-      className={`absolute inset-0 pointer-events-none ${className ?? ''}`}
-      style={{
-        backgroundImage: [
-          softRadial(a, 0.14 * intensity, 'ellipse 60% 80% at 15% 0%'),
-          softRadial(b, 0.10 * intensity, 'ellipse 50% 90% at 85% 20%'),
-          softRadial(c, 0.08 * intensity, 'ellipse 70% 60% at 50% 100%'),
-        ].join(', '),
-      }}
-    />
-  );
+  void colors;
+  void intensity;
+  void className;
+  return null;
 }
 
 /* ─────────────────────────── AuroraCard ─────────────────────────── */
@@ -568,7 +479,7 @@ export interface AuroraCardProps {
  * hero sections, score displays, and feature highlights.
  */
 export function AuroraCard({
-  colors = ['#6366f1', '#06b6d4', '#10b981'],
+  colors = ['hsl(var(--primary))', 'hsl(var(--primary))', 'hsl(var(--primary))'],
   intensity = 0.8,
   children,
   className,
@@ -583,21 +494,14 @@ export function AuroraCard({
       className={`relative overflow-hidden ${onClick ? 'text-start w-full block' : ''} ${className ?? ''}`}
       style={{
         background: 'hsl(var(--card))',
-        borderRadius: '1.5rem',
-        border: '1px solid hsl(var(--border) / 0.35)',
-        
+        borderRadius: '1rem',
+        border: '1px solid hsl(var(--border) / 0.6)',
         transform: 'translateZ(0)',
       }}
     >
       <AuroraGlow colors={colors} intensity={intensity} />
       {/* Top edge highlight */}
-      <div
-        aria-hidden
-        className="absolute inset-x-0 top-0 h-px pointer-events-none"
-        style={{
-          
-        }}
-      />
+      <div aria-hidden className="absolute inset-x-0 top-0 h-px pointer-events-none" style={{}} />
       <DitherLayer opacity={0.02} />
       <div className="relative">{children}</div>
     </Tag>
@@ -632,11 +536,7 @@ export function ElevatedCard({
 }: ElevatedCardProps) {
   const Tag: any = as === 'button' ? 'button' : 'div';
 
-  const shadows = {
-    1: `0 2px 8px -4px ${withAlpha(accent, 0.1)}, 0 1px 3px hsl(0 0% 0% / 0.06)`,
-    2: `0 6px 24px -8px ${withAlpha(accent, 0.14)}, 0 2px 8px hsl(0 0% 0% / 0.05)`,
-    3: `0 12px 40px -12px ${withAlpha(accent, 0.18)}, 0 4px 12px hsl(0 0% 0% / 0.06)`,
-  };
+  const borderAlpha = 0.34 + elevation * 0.06;
 
   return (
     <Tag
@@ -644,9 +544,8 @@ export function ElevatedCard({
       className={`relative overflow-hidden ${onClick ? 'text-start w-full block' : ''} ${className ?? ''}`}
       style={{
         background: 'hsl(var(--card))',
-        borderRadius: '1.25rem',
-        border: '1px solid hsl(var(--border) / 0.3)',
-        
+        borderRadius: '1rem',
+        border: `1px solid ${withAlpha(accent, borderAlpha)}`,
         transform: 'translateZ(0)',
       }}
     >
@@ -674,11 +573,11 @@ export interface ShimmerBorderProps {
  * is pure CSS (keyframe rotation) so it's zero-cost on GPU.
  */
 export function ShimmerBorder({
-  colors = ['hsl(var(--primary))', '#06b6d4', '#10b981', 'hsl(var(--primary))'],
+  colors = ['hsl(var(--primary))', 'hsl(var(--primary))', 'hsl(var(--primary))'],
   width = 1,
   children,
   className,
-  radius = '1.25rem',
+  radius = '1rem',
 }: ShimmerBorderProps) {
   // Gradients disabled — render a flat bordered container instead.
   const borderColor = colors[0] ?? 'hsl(var(--border))';
@@ -729,7 +628,10 @@ export function PulseRing({
   className,
 }: PulseRingProps) {
   return (
-    <div className={`relative inline-flex items-center justify-center ${className ?? ''}`} style={{ width: size, height: size }}>
+    <div
+      className={`relative inline-flex items-center justify-center ${className ?? ''}`}
+      style={{ width: size, height: size }}
+    >
       {active && (
         <>
           <div
@@ -749,9 +651,7 @@ export function PulseRing({
           />
         </>
       )}
-      <div className="relative flex items-center justify-center w-full h-full">
-        {children}
-      </div>
+      <div className="relative flex items-center justify-center w-full h-full">{children}</div>
     </div>
   );
 }
@@ -785,8 +685,14 @@ export function MetricBadge({
         border: `1px solid ${withAlpha(color, 0.15)}`,
       }}
     >
-      {icon && <span className="shrink-0" style={{ color }}>{icon}</span>}
-      <span className="text-[11px] font-bold tabular-nums" style={{ color }}>{value}</span>
+      {icon && (
+        <span className="shrink-0" style={{ color }}>
+          {icon}
+        </span>
+      )}
+      <span className="text-[11px] font-bold tabular-nums" style={{ color }}>
+        {value}
+      </span>
       <span className="text-[10px] font-medium text-muted-foreground/70">{label}</span>
     </div>
   );

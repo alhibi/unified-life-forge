@@ -89,7 +89,7 @@ const GroupInfoSheet: React.FC<GroupInfoSheetProps> = ({ isOpen, chat, onClose, 
     <AnimatePresence>
       <motion.div
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-        className="absolute inset-0 z-nested bg-black/45 backdrop-blur-sm"
+        className="absolute inset-0 z-nested bg-black/60"
         onClick={close}
       />
       <motion.div

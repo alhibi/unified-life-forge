@@ -1,8 +1,7 @@
 import { useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ChevronLeft } from '@/lib/icons';
-import { cn } from '@/lib/utils';
-import { useApp } from '@/contexts/AppContext';
+import { IconButton } from '@/components/ui/app-shell';
 
 interface BackButtonProps {
   /**
@@ -47,8 +46,7 @@ interface BackButtonProps {
  *      when the user reached us from another website.
  *
  * RTL: a single ChevronLeft is mirrored via `rtl:rotate-180`, so we
- * don't ship two icons or branch on context. The component still reads
- * `dir` only for the accessibility label.
+ * don't ship two icons or branch on context.
  */
 export default function BackButton({
   to,
@@ -59,12 +57,17 @@ export default function BackButton({
 }: BackButtonProps) {
   const navigate = useNavigate();
   const location = useLocation();
-  const { } = useApp();
-  const label = ariaLabel ?? ('رجوع');
+  const label = ariaLabel ?? 'رجوع';
 
   const handleClick = useCallback(() => {
-    if (onClick) { onClick(); return; }
-    if (to) { navigate(to); return; }
+    if (onClick) {
+      onClick();
+      return;
+    }
+    if (to) {
+      navigate(to);
+      return;
+    }
     // `location.key === 'default'` means this is the very first entry
     // in the browser tab's session for this app — i.e. the user
     // landed here via deep-link / refresh / external link and has no
@@ -78,28 +81,8 @@ export default function BackButton({
   }, [onClick, to, fallback, navigate, location.key]);
 
   return (
-    <button
-      type="button"
-      onClick={handleClick}
-      aria-label={label}
-      className={cn(
-        // Footprint — 44×44 (h-11 w-11) for premium touch ergonomics (minimum 44x44px).
-        // Stay visually quiet next to page titles while maintaining robust a11y.
-        'inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl',
-        'bg-foreground/[0.04] text-foreground/85',
-        'hover:bg-foreground/[0.08] hover:text-foreground',
-        'active:bg-foreground/[0.12] active:scale-95',
-        'transition-[background-color,color,transform] duration-150 ease-out',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40',
-        // Avoid layout shift when the icon swaps in dynamic content.
-        '[-webkit-tap-highlight-color:transparent]',
-        className,
-      )}
-    >
-      <ChevronLeft
-        className="h-[18px] w-[18px] stroke-[1.75] rtl:rotate-180"
-        aria-hidden="true"
-      />
-    </button>
+    <IconButton onClick={handleClick} aria-label={label} className={className}>
+      <ChevronLeft className="h-5 w-5 rtl:rotate-180" aria-hidden="true" />
+    </IconButton>
   );
 }

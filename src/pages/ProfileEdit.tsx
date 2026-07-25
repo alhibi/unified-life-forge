@@ -463,7 +463,7 @@ export default function ProfileEditPage() {
                       <Check className="w-3 h-3 text-primary-foreground" />
                     </div>
                   )}
-                  <span className="absolute bottom-1.5 start-2 text-[10px] font-medium text-white/90 drop-shadow">
+                  <span className="absolute bottom-1.5 start-2 rounded-md bg-black/70 px-1.5 py-0.5 text-[10px] font-medium text-white">
                     {t.labelAr}
                   </span>
                 </button>

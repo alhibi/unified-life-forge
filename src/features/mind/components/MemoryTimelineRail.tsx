@@ -60,14 +60,18 @@ export default function MemoryTimelineRail({
         expanded ? 'w-[260px]' : 'w-[88px]',
       )}
     >
-      <div className="h-full rounded-2xl border border-white/5 bg-black/40 backdrop-blur-md flex flex-col overflow-hidden">
+      <div className="h-full rounded-2xl border border-white/10 bg-black/80 flex flex-col overflow-hidden">
         <button
           onClick={() => setExpanded((v) => !v)}
           className="text-[10px] tracking-[0.2em] uppercase text-[color:#F2E7C9]/60 px-3 py-2 text-start hover:text-[color:#F2E7C9]/90 transition-colors"
         >
-          {(expanded ? 'طيّ' : 'الذاكرة')}
+          {expanded ? 'طيّ' : 'الذاكرة'}
         </button>
-        <div ref={parentRef} className="flex-1 overflow-y-auto overscroll-contain scrollbar-thin" onMouseLeave={onLeave}>
+        <div
+          ref={parentRef}
+          className="flex-1 overflow-y-auto overscroll-contain scrollbar-thin"
+          onMouseLeave={onLeave}
+        >
           <div style={{ height: virt.getTotalSize(), width: '100%', position: 'relative' }}>
             {virt.getVirtualItems().map((v) => {
               const row = rows[v.index];
@@ -92,34 +96,41 @@ export default function MemoryTimelineRail({
                     <button
                       onMouseEnter={() => onHover([row.note.id])}
                       onFocus={() => onHover([row.note.id])}
-                      onClick={() => { onSelect(row.note.id); onHover([row.note.id]); }}
+                      onClick={() => {
+                        onSelect(row.note.id);
+                        onHover([row.note.id]);
+                      }}
                       className={cn(
-                        'w-full text-start px-3 py-1.5 flex items-center gap-2 group transition-colors',
+                        'w-full border-s-2 text-start px-3 py-1.5 flex items-center gap-2 group transition-colors',
                         activeIds.includes(row.note.id)
-                          ? 'bg-white/[0.03]'
-                          : 'hover:bg-white/[0.02]',
+                          ? 'border-primary bg-primary/10'
+                          : 'border-transparent hover:bg-white/[0.04]',
                       )}
                     >
                       <span
-                        className="w-1.5 h-1.5 rounded-full shrink-0"
+                        className={cn(
+                          'w-1.5 h-1.5 rounded-full shrink-0 transition-transform',
+                          activeIds.includes(row.note.id) && 'scale-125 ring-2 ring-primary/30',
+                        )}
                         style={{
                           background: row.note.hemisphere === 'organic' ? '#FFC9A0' : '#C9A84C',
-                          boxShadow: activeIds.includes(row.note.id)
-                            ? `0 0 8px ${row.note.hemisphere === 'organic' ? '#FFC9A0' : '#C9A84C'}`
-                            : 'none',
                         }}
                       />
                       <span className="flex-1 min-w-0">
-                        <span className={cn(
-                          'block text-[11px] leading-tight truncate',
-                          'text-[color:#F2E7C9]/85 group-hover:text-[color:#F2E7C9]',
-                        )}
-                        style={{ fontFamily: '"Cormorant Garamond", serif' }}
+                        <span
+                          className={cn(
+                            'block text-[11px] leading-tight truncate',
+                            'text-[color:#F2E7C9]/85 group-hover:text-[color:#F2E7C9]',
+                          )}
+                          style={{ fontFamily: '"Cormorant Garamond", serif' }}
                         >
-                          {row.note.title || ('بدون عنوان')}
+                          {row.note.title || 'بدون عنوان'}
                         </span>
                         {expanded && (
-                          <span className="block text-[10px] text-[color:#F2E7C9]/40 mt-0.5" style={{ fontFamily: '"IBM Plex Mono", monospace' }}>
+                          <span
+                            className="block text-[10px] text-[color:#F2E7C9]/40 mt-0.5"
+                            style={{ fontFamily: '"IBM Plex Mono", monospace' }}
+                          >
                             {new Date(row.note.createdAt).toLocaleDateString('ar')}
                           </span>
                         )}
@@ -133,10 +144,7 @@ export default function MemoryTimelineRail({
                       title={row.event.summary}
                       className="w-full flex items-center gap-2 px-3 py-1 group"
                     >
-                      <span
-                        className="w-1 h-1 rounded-full shrink-0 bg-[color:#F2E7C9]"
-                        style={{ boxShadow: '0 0 6px #F2E7C9' }}
-                      />
+                      <span className="w-1 h-1 rounded-full shrink-0 bg-[color:#F2E7C9]" />
                       {expanded && (
                         <span className="flex-1 text-[10px] text-[color:#F2E7C9]/50 truncate italic">
                           {row.event.summary}

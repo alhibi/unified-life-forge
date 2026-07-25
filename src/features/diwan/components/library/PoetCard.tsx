@@ -21,9 +21,12 @@ export default function PoetCard({ poet, index = 0 }: Props) {
   const { prefetchPoet } = useDiwanPrefetch();
   const prefetch = () => prefetchPoet(poet.slug);
 
-  const lifespan = poet.birth_year && poet.death_year
-    ? `${poet.birth_year}–${poet.death_year}م`
-    : poet.death_year ? `ت ${poet.death_year}م` : null;
+  const lifespan =
+    poet.birth_year && poet.death_year
+      ? `${poet.birth_year}–${poet.death_year}م`
+      : poet.death_year
+        ? `ت ${poet.death_year}م`
+        : null;
 
   // الحرف الأول من اسم الشاعر لختم الشمع
   const firstLetter = poet.name_ar ? poet.name_ar.trim().charAt(0) : 'ش';
@@ -44,10 +47,7 @@ export default function PoetCard({ poet, index = 0 }: Props) {
           {/* ختم الشمع (Wax Seal) بدل الأفاتار */}
           <div
             className="w-[46px] h-[46px] rounded-full flex items-center justify-center shrink-0"
-            style={{
-              background: 'hsl(var(--primary))',
-              boxShadow: 'var(--shadow-sm)',
-            }}
+            style={{ background: 'hsl(var(--primary))' }}
           >
             <span className="font-amiri font-bold text-[20px] text-[#F5DFC9] leading-none select-none">
               {firstLetter}
@@ -70,9 +70,7 @@ export default function PoetCard({ poet, index = 0 }: Props) {
                 )}
               </div>
               {lifespan && (
-                <span className="text-[12px] font-tajawal text-[#7E7259] shrink-0">
-                  {lifespan}
-                </span>
+                <span className="text-[12px] font-tajawal text-[#7E7259] shrink-0">{lifespan}</span>
               )}
             </div>
 
@@ -88,16 +86,19 @@ export default function PoetCard({ poet, index = 0 }: Props) {
                 <span className="flex items-center gap-1">
                   <ScrollText className="w-3.5 h-3.5 text-[#7E7259]/80" />
                   <span>
-                    {poet.poems_count} {' '}
-                    <span className="text-[#B8AA8E]">{poet.poems_count === 1 ? 'قصيدة' : 'قصائد'}</span>
+                    {poet.poems_count}{' '}
+                    <span className="text-[#B8AA8E]">
+                      {poet.poems_count === 1 ? 'قصيدة' : 'قصائد'}
+                    </span>
                   </span>
                 </span>
               )}
-              {poet.poems_count > 0 && poet.verses_count > 0 && <span className="opacity-40">·</span>}
+              {poet.poems_count > 0 && poet.verses_count > 0 && (
+                <span className="opacity-40">·</span>
+              )}
               {poet.verses_count > 0 && (
                 <span>
-                  {poet.verses_count} {' '}
-                  <span className="text-[#B8AA8E]">بيت شعر</span>
+                  {poet.verses_count} <span className="text-[#B8AA8E]">بيت شعر</span>
                 </span>
               )}
             </div>

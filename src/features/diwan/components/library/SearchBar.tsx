@@ -44,7 +44,7 @@ export default function SearchBar({
 
   // live suggestions
   const suggest = useDiwanSuggest(suggestions && focused && !hideOnce ? local : '');
-  const items = suggestions && focused && !hideOnce ? suggest.data ?? [] : [];
+  const items = suggestions && focused && !hideOnce ? (suggest.data ?? []) : [];
 
   // close on outside click
   useEffect(() => {
@@ -63,15 +63,16 @@ export default function SearchBar({
         type="search"
         autoFocus={autoFocus}
         value={local}
-        onChange={(e) => { setLocal(e.target.value); setHideOnce(false); }}
+        onChange={(e) => {
+          setLocal(e.target.value);
+          setHideOnce(false);
+        }}
         onFocus={() => setFocused(true)}
         placeholder={placeholder}
         className="w-full ps-7 pe-10 py-3 bg-transparent text-[#F2E9D8] placeholder-[#7E7259] focus:outline-none transition-all font-tajawal text-[15px]"
         style={{
           border: 'none',
-          borderBottom: focused
-            ? '1px solid var(--wax)'
-            : '1px solid var(--hairline-strong)',
+          borderBottom: focused ? '1px solid var(--wax)' : '1px solid var(--hairline-strong)',
         }}
       />
       {local && (
@@ -102,17 +103,17 @@ export default function SearchBar({
                         ? `/diwan/library/poet/${it.slug}`
                         : `/diwan/library/poem/${it.slug}`
                     }
-                    onClick={() => { setHideOnce(true); setFocused(false); }}
+                    onClick={() => {
+                      setHideOnce(true);
+                      setFocused(false);
+                    }}
                     className="flex items-center gap-3 px-4 py-3 hover:bg-[rgba(242,233,216,0.03)] active:bg-[rgba(242,233,216,0.06)] transition-colors border-b border-[var(--hairline)] last:border-b-0"
                   >
                     {/* Wax Seal for Poet, Scroll icon for Poem */}
                     {it.kind === 'poet' ? (
                       <div
                         className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
-                        style={{
-                          background: 'hsl(var(--primary))',
-                          boxShadow: 'var(--shadow-sm)',
-                        }}
+                        style={{ background: 'hsl(var(--primary))' }}
                       >
                         <span className="font-amiri font-bold text-[13px] text-[#F5DFC9] leading-none select-none">
                           {it.label.trim().charAt(0)}
@@ -126,7 +127,10 @@ export default function SearchBar({
                     <div className="flex-1 min-w-0">
                       <p
                         className="text-[14px] font-semibold text-[#F2E9D8] truncate"
-                        style={{ fontFamily: it.kind === 'poet' ? "'Amiri', serif" : "'Tajawal', sans-serif" }}
+                        style={{
+                          fontFamily:
+                            it.kind === 'poet' ? "'Amiri', serif" : "'Tajawal', sans-serif",
+                        }}
                       >
                         {it.label}
                       </p>

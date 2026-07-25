@@ -389,16 +389,16 @@ export default function LiteraryGraph({ onSelectPoet, initialPoetId }: Props) {
 
       {/* Zoom controls */}
       <div className="ui-panel absolute top-4 start-4 flex flex-col gap-1.5 z-raised">
-        <button onClick={() => doZoom(0.25)} className="w-10 h-10 rounded-2xl bg-card/80 backdrop-blur-md border border-border/30 flex items-center justify-center active:scale-[0.98] transition-all hover:bg-card">
+        <button onClick={() => doZoom(0.25)} className="w-10 h-10 rounded-2xl bg-card border border-border flex items-center justify-center active:scale-[0.98] transition-all hover:bg-accent">
           <ZoomIn className="w-4.5 h-4.5 text-foreground" />
         </button>
-        <button onClick={() => doZoom(-0.25)} className="w-10 h-10 rounded-2xl bg-card/80 backdrop-blur-md border border-border/30 flex items-center justify-center active:scale-[0.98] transition-all hover:bg-card">
+        <button onClick={() => doZoom(-0.25)} className="w-10 h-10 rounded-2xl bg-card border border-border flex items-center justify-center active:scale-[0.98] transition-all hover:bg-accent">
           <ZoomOut className="w-4.5 h-4.5 text-foreground" />
         </button>
-        <button onClick={() => setTransform({ x: 0, y: 0, s: 1 })} className="w-10 h-10 rounded-2xl bg-card/80 backdrop-blur-md border border-border/30 flex items-center justify-center active:scale-[0.98] transition-all hover:bg-card">
+        <button onClick={() => setTransform({ x: 0, y: 0, s: 1 })} className="w-10 h-10 rounded-2xl bg-card border border-border flex items-center justify-center active:scale-[0.98] transition-all hover:bg-accent">
           <Maximize2 className="w-4.5 h-4.5 text-foreground" />
         </button>
-        <button onClick={() => setShowFilters(!showFilters)} className={`w-10 h-10 rounded-2xl backdrop-blur-md border border-border/30 flex items-center justify-center active:scale-[0.98] transition-all ${showFilters ? 'bg-primary/15 border-primary/30' : 'bg-card/80 hover:bg-card'}`}>
+        <button onClick={() => setShowFilters(!showFilters)} className={`w-10 h-10 rounded-2xl border border-border flex items-center justify-center active:scale-[0.98] transition-all ${showFilters ? 'bg-primary/15 border-primary/30' : 'bg-card hover:bg-accent'}`}>
           <Filter className={`w-4.5 h-4.5 ${showFilters ? 'text-primary' : 'text-foreground'}`} />
         </button>
       </div>
@@ -411,7 +411,7 @@ export default function LiteraryGraph({ onSelectPoet, initialPoetId }: Props) {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: -10 }}
             transition={{ type: 'spring', stiffness: 300, damping: 28 }}
-            className="ui-panel absolute top-[200px] start-4 bg-card/90 backdrop-blur-md border border-border/30 rounded-2xl p-3.5 z-raised w-[170px]"
+            className="ui-panel absolute top-[200px] start-4 bg-card border border-border rounded-2xl p-3.5 z-raised w-[170px]"
           >
             <p className="text-[11px] font-bold text-foreground mb-2.5">نوع العلاقة</p>
             <div className="space-y-1">
@@ -452,7 +452,7 @@ export default function LiteraryGraph({ onSelectPoet, initialPoetId }: Props) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 30, scale: 0.95 }}
             transition={{ type: 'spring', stiffness: 350, damping: 28 }}
-            className="ui-panel absolute bottom-[85px] start-4 end-4 max-h-[38%] overflow-y-auto bg-card/90 backdrop-blur-md border border-border/30 rounded-3xl p-5 z-sticky"
+            className="ui-panel absolute bottom-[85px] start-4 end-4 max-h-[38%] overflow-y-auto bg-card border border-border rounded-3xl p-5 z-sticky"
           >
             {/* Header */}
             <div className="flex items-center justify-between mb-4">
@@ -521,7 +521,7 @@ export default function LiteraryGraph({ onSelectPoet, initialPoetId }: Props) {
 
       {/* ─── Mini Timeline Bar ─── */}
       <div className="ui-panel absolute bottom-4 start-4 end-4 z-raised">
-        <div className="bg-card/80 backdrop-blur-md border border-border/30 rounded-2xl px-3 py-2.5 ">
+        <div className="bg-card border border-border rounded-2xl px-3 py-2.5 ">
           <div className="flex items-center gap-1">
             {(['jahili', 'mukhadram', 'islami', 'umawi', 'abbasi', 'andalusi'] as const).map((eraId) => {
               const color = eraColors[eraId];

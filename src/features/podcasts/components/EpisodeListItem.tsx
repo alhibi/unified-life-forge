@@ -193,7 +193,7 @@ const EpisodeListItem = memo(function EpisodeListItem({
       // tinted border this gives both visual and assistive-tech cues
       // about which episode is the active one.
       aria-current={isCurrent ? 'true' : undefined}
-      className="rounded-3xl border border-border/40 bg-card/70 backdrop-blur-sm p-4"
+      className="rounded-3xl border border-border bg-card p-4"
       style={{
         // Tint the active row's border with the seed color so the
         // currently-playing episode visually pops.

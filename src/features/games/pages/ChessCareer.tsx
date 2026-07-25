@@ -253,7 +253,7 @@ export default function ChessCareerPage() {
         {selected && (
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-drawer bg-black/70 backdrop-blur-sm flex items-end sm:items-center justify-center p-4"
+            className="fixed inset-0 z-drawer bg-black/70 flex items-end sm:items-center justify-center p-4"
             onClick={() => setSelected(null)}
           >
             <motion.div

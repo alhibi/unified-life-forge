@@ -821,7 +821,7 @@ export default function MemoryGame() {
         <AnimatePresence>
           {isPaused && gameStarted && !solved && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-black/70 backdrop-blur-sm rounded-2xl flex items-center justify-center">
+              className="absolute inset-0 bg-black/80 rounded-2xl flex items-center justify-center">
               <button onClick={() => setIsPaused(false)} className="px-6 py-3 rounded-2xl bg-pink-500 text-white font-black">
                 <Play className="w-4 h-4 inline me-1.5" />{'استئناف'}
               </button>
@@ -957,7 +957,7 @@ export default function MemoryGame() {
  <AnimatePresence>
  {achievementToast && (
  <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 30 }}
- className="fixed bottom-24 left-1/2 -translate-x-1/2 z-drawer rounded-2xl px-4 py-3 border border-pink-500/40 bg-pink-500/15 backdrop-blur-md flex items-center gap-3">
+ className="fixed bottom-24 left-1/2 -translate-x-1/2 z-drawer rounded-2xl px-4 py-3 border border-pink-500/40 bg-card flex items-center gap-3">
  <span className="text-2xl">{achievementToast.icon}</span>
  <div>
  <p className="text-[10px] text-pink-200 font-semibold uppercase tracking-wider">{'إنجاز جديد'}</p>

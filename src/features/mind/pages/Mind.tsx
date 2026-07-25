@@ -56,7 +56,7 @@ export default function MindPage() {
       <div className="absolute top-0 inset-x-0 z-raised flex items-center justify-between px-4 pt-[max(env(safe-area-inset-top),12px)] pb-2 pointer-events-none">
         <button
           onClick={() => navigate(-1)}
-          className="pointer-events-auto h-9 w-9 rounded-full bg-white/[0.06] backdrop-blur-md border border-white/10 flex items-center justify-center active:scale-95 transition-transform"
+          className="pointer-events-auto h-9 w-9 rounded-full bg-black/70 border border-white/10 flex items-center justify-center active:scale-95 transition-transform"
           aria-label={'رجوع'}
         >
           <BackIcon className="w-4 h-4 text-[color:#F2E7C9]/80" />

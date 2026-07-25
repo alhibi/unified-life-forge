@@ -37,7 +37,7 @@ function scaleKeys(scale: string): string[] {
     }
   }
   const body = CONFIG.slice(start, end);
-  return [...body.matchAll(/^\s{6,}"?([a-z0-9-]+)"?\s*:/gm)].map((m) => m[1]);
+  return [...body.matchAll(/^\s{6,}['"]?([a-z0-9-]+)['"]?\s*:/gm)].map((m) => m[1]);
 }
 
 function walk(dir: string, out: string[] = []): string[] {
@@ -58,7 +58,19 @@ const SOURCES = walk(SRC).map((f) => ({
 const BUILTIN: Record<string, string[]> = {
   zIndex: ['0', '10', '20', '30', '40', '50', 'auto'],
   fontSize: [
-    'xs', 'sm', 'base', 'lg', 'xl', '2xl', '3xl', '4xl', '5xl', '6xl', '7xl', '8xl', '9xl',
+    'xs',
+    'sm',
+    'base',
+    'lg',
+    'xl',
+    '2xl',
+    '3xl',
+    '4xl',
+    '5xl',
+    '6xl',
+    '7xl',
+    '8xl',
+    '9xl',
   ],
 };
 
@@ -85,7 +97,12 @@ describe.each([
         if (scale === 'fontSize' && !/^(micro|mini|meta|body|lead|title|display)$/.test(name)) {
           continue;
         }
-        if (scale === 'zIndex' && !/^(base|scrim|raised|sticky|header|float|drawer|sheet|picker|nested|deep|fullscreen|player|queue|overlay|lightbox|toast)(-above)?$/.test(name)) {
+        if (
+          scale === 'zIndex' &&
+          !/^(base|scrim|raised|sticky|header|float|drawer|sheet|picker|nested|deep|fullscreen|player|queue|overlay|lightbox|toast)(-above)?$/.test(
+            name,
+          )
+        ) {
           continue;
         }
         if (!missing.has(name)) missing.set(name, []);
@@ -111,7 +128,11 @@ describe('generated CSS', () => {
     const used = new Set<string>();
     for (const { text } of SOURCES) {
       for (const match of text.matchAll(/\bz-([a-z][a-z-]{2,})\b/g)) {
-        if (/^(base|scrim|raised|sticky|header|float|drawer|sheet|picker|nested|deep|fullscreen|player|queue|overlay|lightbox|toast)(-above)?$/.test(match[1])) {
+        if (
+          /^(base|scrim|raised|sticky|header|float|drawer|sheet|picker|nested|deep|fullscreen|player|queue|overlay|lightbox|toast)(-above)?$/.test(
+            match[1],
+          )
+        ) {
           used.add(match[1]);
         }
       }

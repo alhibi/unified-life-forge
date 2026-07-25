@@ -325,7 +325,124 @@ function clamp(v: number, min: number, max: number) {
 }
 
 // ─── Token Generation ───────────────────────────────────────
+/**
+ * Canonical application palette.
+ *
+ * The neutral canvas, surfaces, borders, status colours and contrast stay
+ * identical across every preset. A preset may change only the single accent
+ * hue, within a deliberately narrow saturation range. This keeps user choice
+ * without allowing a screen or theme to invent a second visual language.
+ */
 export function generateThemeTokens(
+  preset: ThemePreset,
+  style: ThemeStyle,
+  isDark: boolean,
+  isBlack: boolean,
+): Record<string, string> {
+  const accentStrength: Record<ThemeStyle, number> = {
+    neutral: 18,
+    tonal: 28,
+    vibrant: 38,
+    expressive: 46,
+  };
+  const accentHue = preset.id === 'paper' || preset.id === 'default' ? 28 : preset.primary[0];
+  const accentSat = preset.id === 'mono' ? 0 : (accentStrength[style] ?? accentStrength.tonal);
+
+  if (!isDark) {
+    return {
+      '--background': '36 18% 96%',
+      '--foreground': '30 16% 14%',
+      '--card': '38 24% 99%',
+      '--card-foreground': '30 16% 14%',
+      '--popover': '38 24% 99%',
+      '--popover-foreground': '30 16% 14%',
+      '--primary': hsl(accentHue, accentSat, 34),
+      '--primary-foreground': '38 30% 98%',
+      '--secondary': '36 14% 91%',
+      '--secondary-foreground': '30 14% 24%',
+      '--muted': '36 14% 91%',
+      '--muted-foreground': '30 10% 38%',
+      '--accent': '36 14% 91%',
+      '--accent-foreground': hsl(accentHue, accentSat, 30),
+      '--destructive': '0 58% 42%',
+      '--destructive-foreground': '0 0% 100%',
+      '--success': '145 42% 34%',
+      '--success-foreground': '0 0% 100%',
+      '--warning': '35 68% 38%',
+      '--warning-foreground': '35 80% 10%',
+      '--error': '0 58% 42%',
+      '--error-foreground': '0 0% 100%',
+      '--border': '34 13% 82%',
+      '--input': '34 13% 68%',
+      '--ring': hsl(accentHue, accentSat, 34),
+      '--scrim': '24 14% 8%',
+      '--sidebar-background': '36 18% 96%',
+      '--sidebar-foreground': '30 14% 24%',
+      '--sidebar-primary': hsl(accentHue, accentSat, 34),
+      '--sidebar-primary-foreground': '38 30% 98%',
+      '--sidebar-accent': '36 14% 91%',
+      '--sidebar-accent-foreground': hsl(accentHue, accentSat, 30),
+      '--sidebar-border': '34 13% 82%',
+      '--sidebar-ring': hsl(accentHue, accentSat, 34),
+      '--live': hsl(accentHue, accentSat, 40),
+      '--live-soft': hsl(accentHue, accentSat * 0.78, 56),
+      '--live-glow': hsl(accentHue, accentSat * 0.9, 52),
+      '--radius': '1rem',
+    };
+  }
+
+  const backgroundLightness = isBlack ? 0 : 10;
+  const cardLightness = isBlack ? 4 : 15;
+  const secondaryLightness = isBlack ? 8 : 21;
+  const borderLightness = isBlack ? 16 : 29;
+
+  return {
+    '--background': hsl(30, isBlack ? 0 : 9, backgroundLightness),
+    '--foreground': '34 20% 92%',
+    '--card': hsl(30, isBlack ? 0 : 8, cardLightness),
+    '--card-foreground': '34 20% 92%',
+    '--popover': hsl(30, isBlack ? 0 : 8, cardLightness),
+    '--popover-foreground': '34 20% 92%',
+    '--primary': hsl(accentHue, accentSat * 0.9, 72),
+    '--primary-foreground': hsl(30, isBlack ? 0 : 14, 14),
+    '--secondary': hsl(30, isBlack ? 0 : 8, secondaryLightness),
+    '--secondary-foreground': '34 18% 88%',
+    '--muted': hsl(30, isBlack ? 0 : 8, secondaryLightness),
+    '--muted-foreground': '34 12% 72%',
+    '--accent': hsl(30, isBlack ? 0 : 8, secondaryLightness),
+    '--accent-foreground': hsl(accentHue, accentSat * 0.9, 78),
+    '--destructive': '0 58% 68%',
+    '--destructive-foreground': '0 20% 10%',
+    '--success': '145 38% 64%',
+    '--success-foreground': '145 30% 12%',
+    '--warning': '35 65% 68%',
+    '--warning-foreground': '35 40% 12%',
+    '--error': '0 58% 68%',
+    '--error-foreground': '0 20% 10%',
+    '--border': hsl(30, isBlack ? 0 : 8, borderLightness),
+    '--input': hsl(30, isBlack ? 0 : 8, isBlack ? 24 : 36),
+    '--ring': hsl(accentHue, accentSat * 0.9, 72),
+    '--scrim': '24 14% 4%',
+    '--sidebar-background': hsl(30, isBlack ? 0 : 9, backgroundLightness),
+    '--sidebar-foreground': '34 18% 88%',
+    '--sidebar-primary': hsl(accentHue, accentSat * 0.9, 72),
+    '--sidebar-primary-foreground': hsl(30, isBlack ? 0 : 14, 14),
+    '--sidebar-accent': hsl(30, isBlack ? 0 : 8, secondaryLightness),
+    '--sidebar-accent-foreground': hsl(accentHue, accentSat * 0.9, 78),
+    '--sidebar-border': hsl(30, isBlack ? 0 : 8, borderLightness),
+    '--sidebar-ring': hsl(accentHue, accentSat * 0.9, 72),
+    '--live': hsl(accentHue, accentSat * 0.9, 68),
+    '--live-soft': hsl(accentHue, accentSat * 0.72, 58),
+    '--live-glow': hsl(accentHue, accentSat * 0.9, 72),
+    '--radius': '1rem',
+  };
+}
+
+/**
+ * Legacy token generator kept for import compatibility with experiments and
+ * migration tooling. Runtime application chrome uses generateThemeTokens.
+ */
+export function generateLegacyThemeTokens(
   preset: ThemePreset,
   style: ThemeStyle,
   isDark: boolean,

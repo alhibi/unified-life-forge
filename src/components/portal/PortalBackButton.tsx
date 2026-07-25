@@ -40,7 +40,7 @@ export default function PortalBackButton() {
           whileTap={{ scale: 0.92 }}
           onClick={() => navigate('/')}
           aria-label="العودة إلى البوابة"
-          className={`fixed ${sideClass} z-float flex items-center justify-center rounded-full border border-border/60 bg-background/90 text-foreground shadow-md backdrop-blur-md`}
+          className={`fixed ${sideClass} z-float flex items-center justify-center rounded-full border border-border bg-background text-foreground`}
           style={{
             width: FLOATING_DOCK_SIZE,
             height: FLOATING_DOCK_SIZE,

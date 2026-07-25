@@ -720,7 +720,7 @@ export default function ArchiveReader() {
                       />
                     </span>
                   </button>
-                  <div className="flex items-center gap-3 pt-2 sticky bottom-0 -mx-5 px-5 py-3 bg-background/95 backdrop-blur border-t border-border/40">
+                  <div className="flex items-center gap-3 pt-2 sticky bottom-0 -mx-5 px-5 py-3 bg-background border-t border-border">
                     <Button variant="ghost" size="sm" onClick={() => setPrefs(DEFAULT_PREFS)}>
                       إعادة ضبط
                     </Button>

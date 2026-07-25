@@ -6,6 +6,10 @@ SmartHub has two layers of UI building blocks:
 2. **App primitives** in `src/components/ui/app-shell.tsx` — the SmartHub
    look-and-feel layer that every page and feature must reuse.
 
+The visual language is deliberately restrained: warm semantic neutrals,
+one controlled accent, opaque surfaces, hairline borders, no decorative
+shadows, blur, gradients, glows, noise, or glass effects.
+
 ## The rule
 
 > No page or feature may roll its own `bg-card rounded-2xl p-4` card,
@@ -20,28 +24,29 @@ not inline a one-off.
 ### `<PageShell>`
 
 The outer wrapper for every full-screen route. Owns:
-- `pt-14 pb-28 px-5`
-- `min-h-100dvh`
+
+- safe-area aware `pt-14` / `pb-page` and 16px inline gutters
+- `min-height: 100dvh`
 - max-width container (`max-w-lg mx-auto`)
 
 Props:
-- `flush` — no horizontal padding (for edge-to-edge tab dock pages like Mihrab).
-- `centered` — vertical center the content (auth, empty states).
+
+- `flush` — removes only the standard top clearance when a page owns its header.
+- `centered` — wraps content in the canonical centered max-width column.
 
 ```tsx
 <PageShell>
-  <Section label={t('home.greeting')}>
-    …
-  </Section>
+  <Section label={t('home.greeting')}>…</Section>
 </PageShell>
 ```
 
 ### `<AppCard>`
 
-The only allowed card surface. 16px radius, p-4, neutral border, flat (no
-shadows, no gradients — see `mem/constraints/no-shadows-no-gradients.md`).
+The only allowed card surface. 16px radius, p-4, neutral border, flat: no
+shadows, blur, gradients, noise, or glow.
 
 Props:
+
 - `compact` — `p-3` instead of `p-4`.
 - `flat` — no surface-depth chrome (truly minimal).
 - `pressable` — scale(0.98) on press, for tap targets.
@@ -49,16 +54,32 @@ Props:
 
 ### `<IconButton>`
 
-Every header / toolbar / inline icon control. 40×40, rounded-xl,
-`bg-accent/50` on hover, scale(0.96) on press.
+Every header / toolbar / inline icon control. 44×44, 10px radius,
+`bg-accent/50` with a restrained hover state and the global 0.98 press response.
 
 ### `<Section>`
 
 Labeled vertical group (`app-stack` spacing).
 
 Props:
+
 - `label` — small 11px uppercase muted label above the group.
-- `tight` — `app-stack-sm` (gap-3) instead of `app-stack` (gap-5).
+- `tight` — `app-stack-sm` (gap-3 / 12px) instead of `app-stack` (gap-6 / 24px).
+
+### Controls and switching
+
+- `<Button>` and `<IconButton>` are the only button chrome.
+- `<Input>`, `<Textarea>`, and `<Select>` share `.app-control`.
+- `<Switch>` owns boolean toggles.
+- `<Tabs>`, `<TabsList>`, `<TabsTrigger>`, and `<TabsContent>` own segmented
+  navigation and section switching.
+
+### Transient surfaces
+
+`Dialog`, `AlertDialog`, `Drawer`, `Sheet`, `ResponsiveDrawer`, menus,
+popovers, and tooltips share `.app-scrim`, `.app-overlay-surface`, and
+`.app-overlay-close`. They are opaque and border-defined; no caller may add
+blur, shadows, or local scrim colours.
 
 ## CSS utilities (from `index.css`)
 
@@ -75,8 +96,9 @@ composing inside `app-shell.tsx` or another primitive — not in pages.
 ## What pages must NOT do
 
 - Write `bg-card rounded-2xl border border-border p-4` by hand.
-- Add `box-shadow`, `drop-shadow`, `linear-gradient`, `radial-gradient`,
-  `text-shadow` (see `no-shadows-no-gradients` constraint).
+- Add `box-shadow`, `drop-shadow`, `text-shadow`, decorative blur/glass,
+  glow/halo/noise, `linear-gradient`, `radial-gradient`, or `conic-gradient`.
+  A gradient is allowed only inside a data visualization when it encodes data.
 - Hardcode colors (`#0a0a0a`, `text-white`, `bg-[#1a1a1e]`). Use semantic
   tokens: `bg-background`, `text-foreground`, `bg-card`, `text-muted-foreground`,
   `border-border`, `bg-accent`, `text-primary`.

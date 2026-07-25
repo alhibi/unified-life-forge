@@ -40,10 +40,10 @@ import { useLiveHijriDate } from '@/features/calendar/hooks/useLiveHijriDate';
 interface PrayerTime {
   name: PrayerKey;
   ar: string;
-  time24: string;        // "HH:MM" — used only for parsing
-  time: string;          // "h:mm AM" — preformatted for display
-  rawTimeMs: number;     // epoch ms for ordering
-  arcT: number;          // 0..1 position on the day-arc
+  time24: string; // "HH:MM" — used only for parsing
+  time: string; // "h:mm AM" — preformatted for display
+  rawTimeMs: number; // epoch ms for ordering
+  arcT: number; // 0..1 position on the day-arc
   dotLight: string;
   dotDark: string;
 }
@@ -78,8 +78,8 @@ const PRAYER_DOT_DARK: Record<PrayerKey, string> = {
 const MAKRUH_RED = '#E04030';
 const MAKRUH_BADGE_AMBER = '#FFB300';
 const MAKRUH_BADGE_RED = '#E53935';
-const MAKRUH_TINT_SOLAR = 'rgba(229, 115, 115, 0.12)';   // zawal
-const MAKRUH_TINT_HORIZON = 'rgba(255, 213, 79, 0.12)';  // sunrise/sunset
+const MAKRUH_TINT_SOLAR = 'rgba(229, 115, 115, 0.12)'; // zawal
+const MAKRUH_TINT_HORIZON = 'rgba(255, 213, 79, 0.12)'; // sunrise/sunset
 
 // Sun/moon palette
 const SUN_COLOR = '#FAC82D';
@@ -139,7 +139,7 @@ function computeMakruhZones(
   sunriseMs: number | null,
   dhuhrMs: number | null,
   maghribMs: number | null,
-  solarNoonMs: number
+  solarNoonMs: number,
 ): MakruhZone[] {
   const zones: MakruhZone[] = [];
   const min15 = 15 * 60_000;
@@ -187,9 +187,9 @@ const STARS: { x: number; y: number; r: number; delayMs: number }[] = (() => {
 const ARC_W = 320;
 const ARC_H = 100;
 const ARC_PAD_X = 22;
-const ARC_LINE_Y = 40;        // khushu: horizon line baseline at 40dp
-const ARC_DAY_AMPL = 14;      // khushu: upward bell amplitude during day
-const ARC_NIGHT_AMPL = 9;     // khushu: downward bump amplitude at night
+const ARC_LINE_Y = 40; // khushu: horizon line baseline at 40dp
+const ARC_DAY_AMPL = 14; // khushu: upward bell amplitude during day
+const ARC_NIGHT_AMPL = 9; // khushu: downward bump amplitude at night
 
 interface ArcGeom {
   dayStart: number;
@@ -203,10 +203,7 @@ function arcCurveY(t: number, geom: ArcGeom): number {
     return ARC_LINE_Y - ARC_DAY_AMPL * Math.sin(Math.PI * norm);
   }
   const nightDur = Math.max(0.0001, 1 - (geom.dayEnd - geom.dayStart));
-  const norm =
-    t > geom.dayEnd
-      ? (t - geom.dayEnd) / nightDur
-      : (t + (1 - geom.dayEnd)) / nightDur;
+  const norm = t > geom.dayEnd ? (t - geom.dayEnd) / nightDur : (t + (1 - geom.dayEnd)) / nightDur;
   return ARC_LINE_Y + ARC_NIGHT_AMPL * Math.sin(Math.PI * norm);
 }
 
@@ -270,14 +267,18 @@ function loadDoneStates(stamp: string): Record<PrayerKey, boolean> {
     if (parsed?.stamp === stamp && parsed?.states) {
       return { ...empty, ...parsed.states };
     }
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
   return empty;
 }
 
 function saveDoneStates(stamp: string, states: Record<PrayerKey, boolean>) {
   try {
     localStorage.setItem(DONE_KEY, JSON.stringify({ stamp, states }));
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
 }
 
 // ─── Component ──────────────────────────────────────────────────────────────
@@ -295,16 +296,24 @@ export default function PrayerTimes() {
   // Done-states keyed by yyyy-MM-dd, auto-reset on day rollover
   const [stamp, setStamp] = useState(todayStamp);
   const [doneStates, setDoneStates] = useState<Record<PrayerKey, boolean>>(() =>
-    loadDoneStates(todayStamp())
+    loadDoneStates(todayStamp()),
   );
 
   // Animation triggers per-row: each value is an ever-increasing counter that
   // re-fires the keyframe whenever it changes (mirrors khushu's pattern).
   const [shakeCounter, setShakeCounter] = useState<Record<PrayerKey, number>>({
-    Fajr: 0, Dhuhr: 0, Asr: 0, Maghrib: 0, Isha: 0,
+    Fajr: 0,
+    Dhuhr: 0,
+    Asr: 0,
+    Maghrib: 0,
+    Isha: 0,
   });
   const [guideCounter, setGuideCounter] = useState<Record<PrayerKey, number>>({
-    Fajr: 0, Dhuhr: 0, Asr: 0, Maghrib: 0, Isha: 0,
+    Fajr: 0,
+    Dhuhr: 0,
+    Asr: 0,
+    Maghrib: 0,
+    Isha: 0,
   });
 
   const schoolParam = prayerMadhab === 'hanafi' ? 1 : 0;
@@ -327,7 +336,13 @@ export default function PrayerTimes() {
           calcMethod === 'auto' || typeof calcMethod !== 'number'
             ? pickMethodForLocation(lat, lng).method
             : (calcMethod as ReturnType<typeof pickMethodForLocation>['method']);
-        const timings = await fetchPrayerTimingsCached(lat, lng, schoolParam, latAdjParam, resolvedMethod);
+        const timings = await fetchPrayerTimingsCached(
+          lat,
+          lng,
+          schoolParam,
+          latAdjParam,
+          resolvedMethod,
+        );
         if (timings) {
           // Build PrayerTime[] with absolute epoch ms anchored to TODAY.
           // We anchor by parsing each HH:MM into today's date; the slot-detect
@@ -342,16 +357,14 @@ export default function PrayerTimes() {
             : timings.Maghrib
               ? timeToDateToday(timings.Maghrib, anchor).getTime()
               : null;
-          const dhuhrMs = timings.Dhuhr
-            ? timeToDateToday(timings.Dhuhr, anchor).getTime()
-            : null;
+          const dhuhrMs = timings.Dhuhr ? timeToDateToday(timings.Dhuhr, anchor).getTime() : null;
           const maghribMs = timings.Maghrib
             ? timeToDateToday(timings.Maghrib, anchor).getTime()
             : null;
           const solarNoonMs =
             sunriseMs != null && sunsetMs != null
               ? (sunriseMs + sunsetMs) / 2
-              : dhuhrMs ?? anchor.getTime();
+              : (dhuhrMs ?? anchor.getTime());
 
           const ampm = { am: t('prayer.am'), pm: t('prayer.pm') };
           const result: PrayerTime[] = PRAYER_KEYS.map((key) => {
@@ -382,7 +395,7 @@ export default function PrayerTimes() {
         setLoading(false);
       }
     },
-    [schoolParam, latAdjParam, dstEnabled, calcMethod, language, t]
+    [schoolParam, latAdjParam, dstEnabled, calcMethod, language, t],
   );
 
   // Resolve location through the singleton hook. The hook bootstraps from
@@ -433,25 +446,23 @@ export default function PrayerTimes() {
   const sunriseMs = extraTimings.Sunrise
     ? timeToDateToday(extraTimings.Sunrise, now).getTime()
     : null;
-  const sunsetMs = extraTimings.Sunset
-    ? timeToDateToday(extraTimings.Sunset, now).getTime()
-    : null;
+  const sunsetMs = extraTimings.Sunset ? timeToDateToday(extraTimings.Sunset, now).getTime() : null;
   const dhuhrMs = prayers.find((p) => p.name === 'Dhuhr')?.rawTimeMs ?? null;
   const maghribMs = prayers.find((p) => p.name === 'Maghrib')?.rawTimeMs ?? null;
   const solarNoonMs =
-    sunriseMs != null && sunsetMs != null ? (sunriseMs + sunsetMs) / 2 : dhuhrMs ?? nowMs;
+    sunriseMs != null && sunsetMs != null ? (sunriseMs + sunsetMs) / 2 : (dhuhrMs ?? nowMs);
 
   const sunT = useMemo(() => tToArc(nowMs, solarNoonMs), [nowMs, solarNoonMs]);
   const makruhZones = useMemo(
     () => computeMakruhZones(sunriseMs, dhuhrMs, maghribMs, solarNoonMs),
-    [sunriseMs, dhuhrMs, maghribMs, solarNoonMs]
+    [sunriseMs, dhuhrMs, maghribMs, solarNoonMs],
   );
   const arcGeom: ArcGeom = useMemo(
     () => ({
       dayStart: makruhZones.find((z) => z.label === 'Sunrise')?.tStart ?? 0.25,
       dayEnd: makruhZones.find((z) => z.label === 'Sunset')?.tEnd ?? 0.75,
     }),
-    [makruhZones]
+    [makruhZones],
   );
   const isNight = sunT < arcGeom.dayStart || sunT > arcGeom.dayEnd;
   const currentMakruh = makruhZones.find((z) => sunT >= z.tStart && sunT <= z.tEnd);
@@ -486,44 +497,43 @@ export default function PrayerTimes() {
     ? formatTime12(extraTimings.Sunset, { am: t('prayer.am'), pm: t('prayer.pm') })
     : '';
 
- // ─── Layout ───────────────────────────────────────────────────────────────
- return (
- <motion.div
- initial={{ opacity: 0, y: 12 }}
- animate={{ opacity: 1, y: 0 }}
- transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
- className="space-y-4"
- >
- {/* ═══ Card 1: Prayer hero + 1dp separator + day arc — merged ══════ */}
-  <div className="rounded-[24px] border border-foreground/[0.05] bg-card text-card-foreground relative overflow-hidden shadow-[0_18px_38px_-28px_hsl(var(--foreground)/0.55)]">
-   <Hero
-     currentPrayer={currentPrayer}
-     nextPrayer={nextPrayer}
-     locationLabel={locationName || t('prayer.locationFallback')}
-   />
-   {/* 1dp horizontal separator at ~6% alpha (matches reference) */}
-   <div className="h-px bg-foreground/[0.06]" />
-   <ArcStrip
-     prayers={prayers}
-     sunT={sunT}
-     nextName={slot.next}
-     makruhZones={makruhZones}
-     currentMakruh={currentMakruh}
-     arcGeom={arcGeom}
-     isNight={isNight}
-     isDark={isDark}
-     sunriseStr={sunriseStr}
-     sunsetStr={sunsetStr}
-     language={language}
-     t={t}
-   />
- </div>
+  // ─── Layout ───────────────────────────────────────────────────────────────
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+      className="space-y-4"
+    >
+      {/* ═══ Card 1: Prayer hero + 1dp separator + day arc — merged ══════ */}
+      <div className="app-card-bare relative overflow-hidden">
+        <Hero
+          currentPrayer={currentPrayer}
+          nextPrayer={nextPrayer}
+          locationLabel={locationName || t('prayer.locationFallback')}
+        />
+        {/* 1dp horizontal separator at ~6% alpha (matches reference) */}
+        <div className="h-px bg-foreground/[0.06]" />
+        <ArcStrip
+          prayers={prayers}
+          sunT={sunT}
+          nextName={slot.next}
+          makruhZones={makruhZones}
+          currentMakruh={currentMakruh}
+          arcGeom={arcGeom}
+          isNight={isNight}
+          isDark={isDark}
+          sunriseStr={sunriseStr}
+          sunsetStr={sunsetStr}
+          language={language}
+          t={t}
+        />
+      </div>
 
-   {/* ═══ Card 2: Hijri occasions strip ═══════════════════════════════ */}
-  <div className="rounded-3xl border border-border bg-card overflow-hidden">
-  <HijriCalendarStrip language={language} t={t} />
-  </div>
-
+      {/* ═══ Card 2: Hijri occasions strip ═══════════════════════════════ */}
+      <div className="app-card-bare overflow-hidden">
+        <HijriCalendarStrip language={language} t={t} />
+      </div>
     </motion.div>
   );
 }
@@ -548,9 +558,7 @@ function Hero({
           <span className="text-[10px] font-semibold tracking-[0.09em] uppercase text-muted-foreground/80 truncate">
             {(locationLabel || 'LOCATION').toUpperCase()}
           </span>
-          <span className="text-[10px] font-bold uppercase text-primary/75 shrink-0">
-            API
-          </span>
+          <span className="text-[10px] font-bold uppercase text-primary/75 shrink-0">API</span>
         </div>
         <div className="flex items-end justify-between gap-2">
           <span className="truncate text-[20px] font-semibold leading-none">
@@ -622,15 +630,17 @@ function ArcStrip({
   // Tint overlay when inside a makruh zone
   let tint = 'transparent';
   if (currentMakruh) {
-    tint =
-      currentMakruh.label === 'Zawal' ? MAKRUH_TINT_SOLAR : MAKRUH_TINT_HORIZON;
+    tint = currentMakruh.label === 'Zawal' ? MAKRUH_TINT_SOLAR : MAKRUH_TINT_HORIZON;
   }
 
   // Arc paths
   const fullPath = useMemo(() => buildArcPath(0, 1, 60, arcGeom), [arcGeom]);
   const pastPath = useMemo(
-    () => (sunT > 0 ? buildArcPath(0, Math.min(1, sunT), Math.max(1, Math.floor(sunT * 60)), arcGeom) : ''),
-    [sunT, arcGeom]
+    () =>
+      sunT > 0
+        ? buildArcPath(0, Math.min(1, sunT), Math.max(1, Math.floor(sunT * 60)), arcGeom)
+        : '',
+    [sunT, arcGeom],
   );
 
   const sunX = arcX(sunT);
@@ -658,11 +668,13 @@ function ArcStrip({
                 cx={ARC_PAD_X + s.x * ((ARC_W - 2 * ARC_PAD_X) / 130)}
                 cy={Math.min(
                   ARC_LINE_Y + ARC_NIGHT_AMPL,
-                  ARC_LINE_Y - ARC_DAY_AMPL + (s.y / 60) * (ARC_DAY_AMPL + ARC_NIGHT_AMPL + 12)
+                  ARC_LINE_Y - ARC_DAY_AMPL + (s.y / 60) * (ARC_DAY_AMPL + ARC_NIGHT_AMPL + 12),
                 )}
                 r={s.r}
                 fill="currentColor"
-                animate={{ opacity: [isDark ? 0.1 : 0.05, isDark ? 0.5 : 0.25, isDark ? 0.1 : 0.05] }}
+                animate={{
+                  opacity: [isDark ? 0.1 : 0.05, isDark ? 0.5 : 0.25, isDark ? 0.1 : 0.05],
+                }}
                 transition={{
                   duration: 1.8,
                   repeat: Infinity,
@@ -781,12 +793,7 @@ function ArcStrip({
             <>
               {/* Crescent moon: filled circle minus offset surface circle */}
               <circle cx={sunX} cy={sunY} r={6} fill={MOON_COLOR} fillOpacity={0.85} />
-              <circle
-                cx={sunX + 2.5}
-                cy={sunY - 1}
-                r={5}
-                fill={isDark ? '#0b1230' : '#ffffff'}
-              />
+              <circle cx={sunX + 2.5} cy={sunY - 1} r={5} fill={isDark ? '#0b1230' : '#ffffff'} />
             </>
           ) : (
             <motion.circle
@@ -809,7 +816,10 @@ function ArcStrip({
             <span className="text-[10px] font-medium leading-none text-muted-foreground/70">
               Sunrise
             </span>
-            <span className="mt-0.5 text-[10px] font-medium tabular-nums leading-none text-foreground" dir="ltr">
+            <span
+              className="mt-0.5 text-[10px] font-medium tabular-nums leading-none text-foreground"
+              dir="ltr"
+            >
               {sunriseStr}
             </span>
           </div>
@@ -821,7 +831,10 @@ function ArcStrip({
             <span className="text-[10px] font-medium leading-none text-muted-foreground/70">
               Sunset
             </span>
-            <span className="mt-0.5 text-[10px] font-medium tabular-nums leading-none text-foreground" dir="ltr">
+            <span
+              className="mt-0.5 text-[10px] font-medium tabular-nums leading-none text-foreground"
+              dir="ltr"
+            >
               {sunsetStr}
             </span>
           </div>
@@ -835,13 +848,8 @@ function ArcStrip({
           className="absolute top-1.5 end-2 px-1.5 py-0.5 rounded text-[10px] font-bold tracking-wide"
           style={{
             backgroundColor:
-              currentMakruh.label === 'Zawal'
-                ? `${MAKRUH_BADGE_RED}30`
-                : `${MAKRUH_BADGE_AMBER}30`,
-            color:
-              currentMakruh.label === 'Zawal'
-                ? MAKRUH_BADGE_RED
-                : MAKRUH_BADGE_AMBER,
+              currentMakruh.label === 'Zawal' ? `${MAKRUH_BADGE_RED}30` : `${MAKRUH_BADGE_AMBER}30`,
+            color: currentMakruh.label === 'Zawal' ? MAKRUH_BADGE_RED : MAKRUH_BADGE_AMBER,
           }}
         >
           {t('prayer.makruh').toUpperCase()} ·{' '}
@@ -917,7 +925,9 @@ function Slab({
         aria-controls="prayer-slab-list"
         className="group w-full flex items-center justify-between mb-2 px-0 py-0 rounded-lg
           transition-colors hover:bg-foreground/[0.03] active:scale-[0.99]"
-        style={{ transition: 'transform 120ms cubic-bezier(0.34,1.56,0.64,1), background-color 200ms ease' }}
+        style={{
+          transition: 'transform 120ms cubic-bezier(0.34,1.56,0.64,1), background-color 200ms ease',
+        }}
       >
         <span className="text-[10px] font-semibold tracking-[0.09em] uppercase text-muted-foreground/90">
           {t('prayer.todaysPrayers')}
@@ -1034,7 +1044,7 @@ function SlabRow({
         { transform: 'translateX(-3px)' },
         { transform: 'translateX(0)' },
       ],
-      { duration: 360, easing: 'ease-out' }
+      { duration: 360, easing: 'ease-out' },
     );
     return () => anim.cancel();
   }, [shakeKey]);
@@ -1069,11 +1079,7 @@ function SlabRow({
         {/* Name (English/transliterated) */}
         <span
           className={`text-[14px] flex-1 truncate ${
-            isPrayed
-              ? 'text-foreground/40 font-light'
-              : isNext
-                ? 'font-semibold'
-                : 'font-light'
+            isPrayed ? 'text-foreground/40 font-light' : isNext ? 'font-semibold' : 'font-light'
           }`}
         >
           {prayer.ar}
@@ -1088,9 +1094,7 @@ function SlabRow({
 
         {/* Arabic name (only when UI lang is not Arabic) */}
         {language !== 'ar' && (
-          <span className="text-[14px] text-foreground/50 shrink-0 me-2">
-            {prayer.ar}
-          </span>
+          <span className="text-[14px] text-foreground/50 shrink-0 me-2">{prayer.ar}</span>
         )}
 
         {/* Time */}
@@ -1112,20 +1116,11 @@ function SlabRow({
  * occasions as scrollable pills. Tapping the ALL button or the arrow navigates
  * to the full /occasions calendar page.
  */
-function HijriCalendarStrip({
-  language,
-  t,
-}: {
-  language: string;
-  t: (k: string) => string;
-}) {
+function HijriCalendarStrip({ language, t }: { language: string; t: (k: string) => string }) {
   const navigate = useNavigate();
   const { hijri, todayISO, offset } = useLiveHijriDate();
   // Recompute when the day flips OR when the Saudi offset changes.
-  const occasions = useMemo(
-    () => getUpcomingOccasions(6),
-    [todayISO, offset],
-  );
+  const occasions = useMemo(() => getUpcomingOccasions(6), [todayISO, offset]);
 
   // Accent hex per color class
   const accentMap: Record<string, string> = {
@@ -1156,9 +1151,7 @@ function HijriCalendarStrip({
           className="flex items-center gap-0.5 text-primary/80 hover:text-primary transition-colors"
           aria-label={'عرض التقويم كاملاً'}
         >
-          <span className="text-[10px] font-bold uppercase tracking-wide">
-            {'الكل'}
-          </span>
+          <span className="text-[10px] font-bold uppercase tracking-wide">{'الكل'}</span>
           <ChevronLeft className="w-3 h-3" />
         </button>
       </div>
@@ -1187,9 +1180,7 @@ function HijriCalendarStrip({
                   className="text-[10px] font-bold uppercase tracking-wide"
                   style={{ color: accent }}
                 >
-                  {isToday
-                    ? ('اليوم')
-                    : `${daysLeft} يوم`}
+                  {isToday ? 'اليوم' : `${daysLeft} يوم`}
                 </span>
                 <span className="text-[10px] text-muted-foreground/70 tabular-nums">
                   {occ.hijriDay} {occ.hijriMonth}
