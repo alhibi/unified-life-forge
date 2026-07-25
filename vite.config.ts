@@ -4,6 +4,7 @@ import { componentTagger } from 'lovable-tagger';
 import path from 'path';
 import { defineConfig } from 'vite';
 
+import { appShellServiceWorker } from './build/appShellServiceWorker';
 import { phosphorPruneWeights } from './build/phosphorPruneWeights';
 
 export default defineConfig(({ mode }) => ({
@@ -48,6 +49,7 @@ export default defineConfig(({ mode }) => ({
     react(),
     mcpPlugin(),
     phosphorPruneWeights(),
+    appShellServiceWorker(),
     mode === 'development' && componentTagger(),
   ].filter(Boolean),
   resolve: {
