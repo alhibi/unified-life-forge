@@ -17,6 +17,7 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import ProgressRing from '@/components/ProgressRing';
 import { AppCard } from '@/components/ui/app-shell';
 import { formatHijriDate } from '@/features/calendar/data/islamicOccasions';
 import { useLiveHijriDate } from '@/features/calendar/hooks/useLiveHijriDate';
@@ -26,7 +27,6 @@ import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 import { CalendarDays, ChevronLeft, Crosshair, Droplets, Wind } from '@/lib/icons';
 import { MOTION } from '@/lib/motion';
 
-import ProgressRing from './ProgressRing';
 import RollingDigits from './RollingDigits';
 import { toArabicDigits, useNextPrayer } from './useNextPrayer';
 

@@ -4,9 +4,16 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { useApp } from '@/contexts/AppContext';
 import GameShell from '@/features/games/components/GameShell';
+import MatchReportDialog from '@/features/games/components/MatchReportDialog';
 import { botById, BotPersonality } from '@/features/games/data/chessBots';
 import { recognizeOpening } from '@/features/games/data/chessOpenings';
 import { recordCareerResult } from '@/features/games/pages/ChessCareer';
+import {
+  dayKey,
+  type GameMode as ProgressionMode,
+  type MatchReport,
+  reportMatch,
+} from '@/features/games/progression';
 import { playSfx, vibrate } from '@/features/games/utils/gameFeedback';
 import { Clock, Crown, Flag, Lightbulb,Play, RotateCcw, Undo2 } from '@/lib/icons';
 
@@ -848,6 +855,8 @@ export default function ChessPage() {
   const [showModeSelector, setShowModeSelector] = useState(false);
   const [aiThinking, setAiThinking] = useState(false);
   const [promotionPending, setPromotionPending] = useState<{ from: Square; to: Square } | null>(null);
+  // Post-session reward screen — see MatchReportDialog.
+  const [matchReport, setMatchReport] = useState<MatchReport | null>(null);
   const [timeControl, setTimeControl] = useState<TimeControl>(() => (localStorage.getItem('chess-tc') as TimeControl) || 'none');
   const [clockW, setClockW] = useState<number>(() => TC[(localStorage.getItem('chess-tc') as TimeControl) || 'none'].seconds);
   const [clockB, setClockB] = useState<number>(() => TC[(localStorage.getItem('chess-tc') as TimeControl) || 'none'].seconds);
@@ -942,6 +951,32 @@ export default function ChessPage() {
       else result = winner === playerColor ? 'win' : 'loss';
       recordCareerResult(activeBot.id, result);
     }
+
+    // Feed the shared progression spine.
+    const mode: ProgressionMode = activeBot
+      ? 'chess-career'
+      : timeControl !== 'none'
+        ? 'chess-blitz'
+        : gameMode === 'computer'
+          ? 'chess-versus-ai'
+          : 'chess-local';
+
+    // In local play a human won on this device either way, so the session counts
+    // as a win. Against the engine the outcome is from the player's perspective.
+    const outcome =
+      winner === 'draw' ? 'draw' : gameMode === 'local' ? 'win' : winner === playerColor ? 'win' : 'loss';
+
+    setMatchReport(
+      reportMatch({
+        game: 'chess',
+        mode,
+        outcome,
+        // Difficulty only means something when an engine is involved.
+        difficulty: gameMode === 'computer' ? aiDifficulty : undefined,
+        durationMs: gameTimer * 1000,
+        score: game.moveCount,
+      }),
+    );
   };
 
   const getMoveNotation = (board: BoardState, sr: number, sc: number, tr: number, tc: number, piece: { type: PieceType; color: Color }, isCapture: boolean): string => {
@@ -1714,6 +1749,7 @@ export default function ChessPage() {
           <span className="text-[10px] font-medium">{t('chess.newGame')}</span>
         </button>
       </div>
+      <MatchReportDialog report={matchReport} onClose={() => setMatchReport(null)} day={dayKey()} />
     </GameShell>
   );
 }

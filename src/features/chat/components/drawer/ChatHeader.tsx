@@ -24,8 +24,10 @@ import { cn } from '@/lib/utils';
 
 import { formatSelfDestructLabel } from '../chatUtils';
 import { MUTE_DURATION_OPTIONS, SELF_DESTRUCT_OPTIONS } from '../constants';
+import { EncryptionBadge } from '../EncryptionPanel';
 import { TypingDots } from '../MessageBubble';
 import type { useChat } from '../useChat';
+import { useEncryptionStatus } from '../useEncryptionStatus';
 import { renderAvatar } from './chatAvatar';
 import { fetchSharedMedia } from './sharedMedia';
 
@@ -52,6 +54,10 @@ interface Props {
  * Extracted verbatim from ChatDrawer.tsx, where it was a 370-line inline block.
  */
 export default function ChatHeader({ chat, BackIcon, totalUnread }: Props) {
+  // Lock badge next to the peer's name. Only ever shown when the conversation is
+  // genuinely end-to-end encrypted — see useEncryptionStatus.
+  const encryption = useEncryptionStatus(chat.user?.id, chat.activeConv?.otherUserId);
+
   return (
       <div className="z-header h-14 px-3 flex items-center gap-2 app-sticky-header border-b border-border/20 shrink-0">
         {chat.selectionMode ? (
@@ -181,6 +187,8 @@ export default function ChatHeader({ chat, BackIcon, totalUnread }: Props) {
                 </AnimatePresence>
               </div>
             </button>
+
+            <EncryptionBadge status={encryption.status} onClick={() => chat.setShowProfilePopup(true)} />
 
             {chat.selfDestructSeconds && (
               <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-accent/20">

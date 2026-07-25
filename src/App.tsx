@@ -99,13 +99,9 @@ function NetworkConnectivityListener() {
 const loadSudoku = () => import("./features/games/pages/Sudoku");
 const loadChess = () => import("./features/games/pages/Chess");
 const loadMemory = () => import("./features/games/pages/MemoryGame");
-const loadDice = () => import("./features/games/pages/DiceGame");
-const loadFocus = () => import("./features/games/pages/FocusGame");
 const loadChessPuzzle = () => import("./features/games/pages/ChessPuzzle");
 const loadChessCareer = () => import("./features/games/pages/ChessCareer");
 const loadMemoryAdventure = () => import("./features/games/pages/MemoryAdventure");
-const loadDiceTournament = () => import("./features/games/pages/DiceTournament");
-const loadFocusDecathlon = () => import("./features/games/pages/FocusDecathlon");
 const loadSettings = () => import("./pages/Settings");
 const loadDuas = () => import("./features/duas/pages/Duas");
 // Wave-1 chat surface — three new lazy pages backed by the new
@@ -235,10 +231,6 @@ registerRoute('/games/chess/puzzles',     loadChessPuzzle);
 registerRoute('/games/chess/career',      loadChessCareer);
 registerRoute('/games/memory',            loadMemory);
 registerRoute('/games/memory/adventure',  loadMemoryAdventure);
-registerRoute('/games/dice',              loadDice);
-registerRoute('/games/dice/tournament',   loadDiceTournament);
-registerRoute('/games/focus',             loadFocus);
-registerRoute('/games/focus/decathlon',   loadFocusDecathlon);
 registerRoute('/diwan/library',           loadLibrary);
 registerRoute('/diwan/library/search',    loadLibrarySearch);
 registerRoute('/diwan/library/poets',     loadLibraryPoets);
@@ -257,13 +249,9 @@ registerRoute('/chat',            loadChatTab);
 const SudokuPage = lazy(loadSudoku);
 const ChessPage = lazy(loadChess);
 const MemoryGame = lazy(loadMemory);
-const DiceGamePage = lazy(loadDice);
-const FocusGamePage = lazy(loadFocus);
 const ChessPuzzlePage = lazy(loadChessPuzzle);
 const ChessCareerPage = lazy(loadChessCareer);
 const MemoryAdventurePage = lazy(loadMemoryAdventure);
-const DiceTournamentPage = lazy(loadDiceTournament);
-const FocusDecathlonPage = lazy(loadFocusDecathlon);
 const SettingsPage = lazy(loadSettings);
 const DuasPage = lazy(loadDuas);
 const GroupsIndexPage   = lazy(loadGroupsIndex);
@@ -635,10 +623,6 @@ function AnimatedRoutes() {
                   <Route path="/games/chess/career" element={<ErrorBoundary><ChessCareerPage /></ErrorBoundary>} />
                   <Route path="/games/memory" element={<ErrorBoundary><MemoryGame /></ErrorBoundary>} />
                   <Route path="/games/memory/adventure" element={<ErrorBoundary><MemoryAdventurePage /></ErrorBoundary>} />
-                  <Route path="/games/dice" element={<ErrorBoundary><DiceGamePage /></ErrorBoundary>} />
-                  <Route path="/games/dice/tournament" element={<ErrorBoundary><DiceTournamentPage /></ErrorBoundary>} />
-                  <Route path="/games/focus" element={<ErrorBoundary><FocusGamePage /></ErrorBoundary>} />
-                  <Route path="/games/focus/decathlon" element={<ErrorBoundary><FocusDecathlonPage /></ErrorBoundary>} />
                   <Route path="/occasions" element={<ErrorBoundary><AllOccasionsPage /></ErrorBoundary>} />
                   <Route path="/reading" element={<ErrorBoundary><ReadingPage /></ErrorBoundary>} />
                   <Route path="/settings/theme" element={<ErrorBoundary><ThemeSettingsPage /></ErrorBoundary>} />

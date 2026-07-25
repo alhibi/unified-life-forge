@@ -20,7 +20,9 @@ import {
 import { cn } from '@/lib/utils';
 
 import ChatImage from '../ChatImage';
+import EncryptionPanel from '../EncryptionPanel';
 import type { useChat } from '../useChat';
+import { useEncryptionStatus } from '../useEncryptionStatus';
 import { renderAvatar } from './chatAvatar';
 import { fetchSharedMedia } from './sharedMedia';
 
@@ -47,6 +49,8 @@ export default function ProfilePanel({
   BackIcon,
   onRequestDeleteConversation,
 }: Props) {
+  const encryption = useEncryptionStatus(chat.user?.id, chat.activeConv?.otherUserId);
+
   return (
     <AnimatePresence>
       {chat.showProfilePopup && chat.activeConv && (
@@ -188,6 +192,16 @@ export default function ProfilePanel({
           <div className="flex-1 overflow-y-auto mt-3 px-4 pb-6">
             {chat.profileTab === 'info' ? (
               <div className="space-y-3">
+                {/* Encryption state, safety number and key-change warning. */}
+                <div className="bg-card border border-border/20 rounded-2xl p-4">
+                  <EncryptionPanel
+                    bare
+                    status={encryption}
+                    peerName={
+                      chat.activeConv?.otherDisplayName || chat.activeConv?.otherUsername || 'الطرف الآخر'
+                    }
+                  />
+                </div>
                 <div className="bg-card border border-border/20 rounded-2xl p-4">
                   <div className="grid grid-cols-3 gap-3 text-center">
                     <div>

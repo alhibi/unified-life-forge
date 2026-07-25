@@ -1,8 +1,29 @@
-import { AnimatePresence, motion } from 'framer-motion';
-import React, { useEffect, useState } from 'react';
-import { createPortal } from 'react-dom';
+/**
+ * Mihrab → Dhikr tab.
+ *
+ * Two changes of substance from the previous version:
+ *
+ *  1. It opens with a working tasbih (`DhikrCounter`). The tab used to be a
+ *     browser for dua *text* with nothing to actually count.
+ *  2. The three hand-rolled modals are gone. They rendered their own
+ *     `createPortal`, their own `bg-black/60` scrim, their own body-scroll lock
+ *     (which wrote `position: fixed` onto <body> and restored scroll manually),
+ *     and their own Escape handling — none of which participated in the app's
+ *     overlay contract, so a dialog could be left open behind a navigation and
+ *     focus was never trapped. They now use the shared `Dialog`, which owns the
+ *     scrim (`.app-scrim`), the stacking level, the focus trap, the scroll lock
+ *     and the enter/exit timings.
+ */
+import { motion } from 'framer-motion';
+import React, { useState } from 'react';
 
-import { useApp } from '@/contexts/AppContext';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { type NawawiHadith, nawawiHadiths } from '@/data/nawawiHadiths';
 import {
   duaCategories,
@@ -10,13 +31,13 @@ import {
   type FrequentDua,
   frequentDuas,
 } from '@/features/duas/data/duas';
+import DhikrCounter from '@/features/mihrab/components/DhikrCounter';
 import {
   BookOpen,
   Building,
   Car,
   Check,
   ChevronLeft,
-  ChevronRight,
   CloudRain,
   Copy,
   DoorOpen,
@@ -33,23 +54,10 @@ import {
   Star,
   Sun,
   Users,
-  X,
   Zap,
 } from '@/lib/icons';
+import { pageItem as item, pageStagger as stagger } from '@/lib/motion';
 import { notify } from '@/lib/notify';
-
-/**
- * Mihrab → Dhikr tab.
- *
- * The body of the legacy `/duas` page, repackaged as a tab inside the
- * Mihrab hub. The original Duas page had its own min-h-screen wrapper,
- * SEO tag, page title and pt-14 padding — none of those belong inside
- * a tab body, so they're stripped here and provided by `Mihrab.tsx`.
- *
- * Modal portals (category detail, Nawawi list, Nawawi detail) are
- * rendered through `document.body` so they still escape the tab
- * stacking context just as they did on the standalone page.
- */
 
 const iconMap: Record<string, React.ElementType> = {
   Moon,
@@ -72,31 +80,68 @@ const iconMap: Record<string, React.ElementType> = {
   CloudRain,
 };
 
-import { pageItem as item, pageStagger as stagger } from '@/lib/motion';
+/** Arabic scripture body copy — serif face, generous leading. */
+const SCRIPTURE_STYLE: React.CSSProperties = {
+  fontFamily: "'Amiri', 'Noto Sans Arabic', serif",
+};
 
-function ModalPortal({ children }: { children: React.ReactNode }) {
-  if (typeof document === 'undefined') return null;
-  return createPortal(children, document.body);
+function CopyButton({ text, label }: { text: string; label: string }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        void navigator.clipboard.writeText(text);
+        setCopied(true);
+        notify.copied();
+        window.setTimeout(() => setCopied(false), 1500);
+      }}
+      aria-label={label}
+      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors duration-fast hover:bg-muted hover:text-foreground"
+    >
+      {copied ? (
+        <Check className="h-4 w-4 text-success" aria-hidden />
+      ) : (
+        <Copy className="h-4 w-4" aria-hidden />
+      )}
+    </button>
+  );
 }
 
-function useBodyScrollLock(locked: boolean) {
-  useEffect(() => {
-    if (!locked) return;
-    const scrollY = window.scrollY;
-    document.body.style.position = 'fixed';
-    document.body.style.top = `-${scrollY}px`;
-    document.body.style.left = '0';
-    document.body.style.right = '0';
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.position = '';
-      document.body.style.top = '';
-      document.body.style.left = '';
-      document.body.style.right = '';
-      document.body.style.overflow = '';
-      window.scrollTo(0, scrollY);
-    };
-  }, [locked]);
+function DuaDialog({
+  open,
+  onOpenChange,
+  title,
+  duas,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  title: string;
+  duas: { id: number; text: string; source?: string }[];
+}) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-h-[85dvh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+          <DialogDescription>{`${duas.length} دعاء`}</DialogDescription>
+        </DialogHeader>
+        <div className="space-y-2">
+          {duas.map((dua) => (
+            <div key={dua.id} className="rounded-md border border-border p-3">
+              <p className="text-lead leading-loose text-foreground" dir="rtl" style={SCRIPTURE_STYLE}>
+                {dua.text}
+              </p>
+              <div className="mt-2 flex items-center justify-between gap-2">
+                <span className="min-w-0 truncate text-mini text-muted-foreground">{dua.source ?? ''}</span>
+                <CopyButton text={dua.text} label="نسخ الدعاء" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
 }
 
 function FrequentDuaCard({ dua }: { dua: FrequentDua }) {
@@ -106,19 +151,20 @@ function FrequentDuaCard({ dua }: { dua: FrequentDua }) {
   return (
     <>
       <button
+        type="button"
         onClick={() => setOpen(true)}
-        className="flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 active:scale-95 transition-all duration-150"
+        className="flex min-h-11 flex-col items-center gap-1.5 rounded-md p-2 transition-colors duration-fast hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
-        <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-          <Icon className="w-5 h-5 text-primary" />
-        </div>
-        <span className="text-[10px] text-foreground font-medium text-center leading-tight line-clamp-2 w-16">
+        <span className="flex h-11 w-11 items-center justify-center rounded-md bg-secondary text-foreground">
+          <Icon className="h-5 w-5" aria-hidden />
+        </span>
+        <span className="line-clamp-2 w-16 text-center text-micro font-medium leading-tight text-foreground">
           {dua.titleAr}
         </span>
       </button>
-      <DuaModal
+      <DuaDialog
         open={open}
-        onClose={() => setOpen(false)}
+        onOpenChange={setOpen}
         title={dua.titleAr}
         duas={[
           { id: 1, text: dua.text, source: dua.source },
@@ -129,338 +175,156 @@ function FrequentDuaCard({ dua }: { dua: FrequentDua }) {
   );
 }
 
-function DuaModal({
-  open,
-  onClose,
-  title,
-  duas,
+function NawawiDialogs({
+  listOpen,
+  onListOpenChange,
+  selected,
+  onSelect,
 }: {
-  open: boolean;
-  onClose: () => void;
-  title: string;
-  duas: { id: number; text: string; source?: string }[];
+  listOpen: boolean;
+  onListOpenChange: (open: boolean) => void;
+  selected: NawawiHadith | null;
+  onSelect: (hadith: NawawiHadith | null) => void;
 }) {
-  const [copiedId, setCopiedId] = useState<number | null>(null);
-
-  const copyDua = (text: string, id: number) => {
-    navigator.clipboard.writeText(text);
-    setCopiedId(id);
-    notify.copied();
-    setTimeout(() => setCopiedId(null), 1500);
-  };
-
   return (
-    <AnimatePresence>
-      {open && (
-        <ModalPortal>
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-fullscreen flex items-center justify-center p-4 bg-black/60"
-            onClick={onClose}
-          >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.92 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.92 }}
-              transition={{ type: 'spring', damping: 25, stiffness: 350 }}
-              onClick={(e) => e.stopPropagation()}
-              className="bg-card w-full max-w-md rounded-xl max-h-[80vh] flex flex-col"
-            >
-              <div className="flex items-center justify-between px-5 py-4 border-b border-border/50">
-                <h2 className="text-lg font-bold text-foreground">{title}</h2>
+    <>
+      <Dialog open={listOpen} onOpenChange={onListOpenChange}>
+        <DialogContent className="max-h-[85dvh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>الأربعون النووية</DialogTitle>
+            <DialogDescription>{`${nawawiHadiths.length} حديثاً`}</DialogDescription>
+          </DialogHeader>
+          <ul className="space-y-1.5">
+            {nawawiHadiths.map((hadith) => (
+              <li key={hadith.id}>
                 <button
-                  onClick={onClose}
-                  className="p-1.5 rounded-full hover:bg-muted/60 transition-colors"
+                  type="button"
+                  onClick={() => {
+                    onListOpenChange(false);
+                    onSelect(hadith);
+                  }}
+                  className="flex min-h-11 w-full items-center gap-3 rounded-md p-2 text-start transition-colors duration-fast hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
-                  <X className="w-5 h-5 text-muted-foreground" />
-                </button>
-              </div>
-              <div className="overflow-y-auto flex-1 p-4 space-y-3">
-                {duas.map((dua, i) => (
-                  <motion.div
-                    key={dua.id}
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.04, duration: 0.3 }}
-                    className="bg-muted/40 rounded-xl p-4 space-y-2"
-                  >
-                    <p
-                      className="text-foreground text-base leading-loose font-medium text-end"
-                      dir="rtl"
-                      style={{ fontFamily: "'Amiri', 'Noto Sans Arabic', serif" }}
-                    >
-                      {dua.text}
-                    </p>
-                    <div className="flex items-center justify-between">
-                      {dua.source && (
-                        <span className="text-[11px] text-primary/70 font-medium">
-                          {dua.source}
-                        </span>
-                      )}
-                      <button
-                        onClick={() => copyDua(dua.text, dua.id)}
-                        className="p-1.5 rounded-lg hover:bg-muted transition-colors ms-auto"
-                      >
-                        {copiedId === dua.id ? (
-                          <Check className="w-4 h-4 text-success" />
-                        ) : (
-                          <Copy className="w-4 h-4 text-muted-foreground" />
-                        )}
-                      </button>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
-          </motion.div>
-        </ModalPortal>
-      )}
-    </AnimatePresence>
-  );
-}
-
-function NawawiModal({
-  open,
-  onClose,
-  hadith,
-}: {
-  open: boolean;
-  onClose: () => void;
-  hadith: NawawiHadith;
-}) {
-  const [copied, setCopied] = useState(false);
-
-  const copyText = () => {
-    navigator.clipboard.writeText(hadith.text);
-    setCopied(true);
-    notify.copied();
-    setTimeout(() => setCopied(false), 1500);
-  };
-
-  return (
-    <AnimatePresence>
-      {open && (
-        <ModalPortal>
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-fullscreen flex items-center justify-center p-4 bg-black/60"
-            onClick={onClose}
-          >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.92 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.92 }}
-              transition={{ type: 'spring', damping: 25, stiffness: 350 }}
-              onClick={(e) => e.stopPropagation()}
-              className="bg-card w-full max-w-md rounded-xl max-h-[80vh] flex flex-col"
-            >
-              <div className="flex items-center justify-between px-5 py-4 border-b border-border/50">
-                <div className="flex items-center gap-2">
-                  <span className="w-7 h-7 rounded-full bg-primary/20 text-primary text-xs font-bold flex items-center justify-center">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-sm border border-border text-micro font-semibold tabular-nums text-muted-foreground">
                     {hadith.id}
                   </span>
-                  <h2 className="text-base font-bold text-foreground">{hadith.title}</h2>
-                </div>
-                <button
-                  onClick={onClose}
-                  className="p-1.5 rounded-full hover:bg-muted/60 transition-colors"
-                >
-                  <X className="w-5 h-5 text-muted-foreground" />
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-meta font-semibold text-foreground">{hadith.title}</span>
+                    <span className="block truncate text-mini text-muted-foreground" dir="rtl">
+                      {hadith.text.slice(0, 70)}…
+                    </span>
+                  </span>
+                  <ChevronLeft className="h-4 w-4 shrink-0 text-muted-foreground rtl:rotate-180" aria-hidden />
                 </button>
-              </div>
-              <div className="overflow-y-auto flex-1 p-4">
-                <div className="bg-muted/40 rounded-xl p-4 space-y-3">
-                  <p
-                    className="text-foreground text-base leading-[2] font-medium text-end"
-                    dir="rtl"
-                    style={{ fontFamily: "'Amiri', 'Noto Sans Arabic', serif" }}
-                  >
-                    {hadith.text}
-                  </p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-[11px] text-primary/70 font-medium">{hadith.source}</span>
-                    <button
-                      onClick={copyText}
-                      className="p-1.5 rounded-lg hover:bg-muted transition-colors"
-                    >
-                      {copied ? (
-                        <Check className="w-4 h-4 text-success" />
-                      ) : (
-                        <Copy className="w-4 h-4 text-muted-foreground" />
-                      )}
-                    </button>
-                  </div>
+              </li>
+            ))}
+          </ul>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={selected !== null} onOpenChange={(open) => !open && onSelect(null)}>
+        <DialogContent className="max-h-[85dvh] overflow-y-auto">
+          {selected && (
+            <>
+              <DialogHeader>
+                <DialogTitle>{`${selected.id}. ${selected.title}`}</DialogTitle>
+                <DialogDescription>{selected.source}</DialogDescription>
+              </DialogHeader>
+              <div className="rounded-md border border-border p-3">
+                <p className="text-lead leading-loose text-foreground" dir="rtl" style={SCRIPTURE_STYLE}>
+                  {selected.text}
+                </p>
+                <div className="mt-2 flex justify-end">
+                  <CopyButton text={selected.text} label="نسخ الحديث" />
                 </div>
               </div>
-            </motion.div>
-          </motion.div>
-        </ModalPortal>
-      )}
-    </AnimatePresence>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 
 export default function DhikrTab() {
-  const { dir } = useApp();
   const [openCat, setOpenCat] = useState<DuaCategory | null>(null);
   const [openNawawi, setOpenNawawi] = useState<NawawiHadith | null>(null);
   const [showNawawiList, setShowNawawiList] = useState(false);
-  useBodyScrollLock(!!openCat || !!openNawawi || showNawawiList);
-  const Arrow = dir === 'rtl' ? ChevronLeft : ChevronRight;
 
   return (
     <>
-      <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-6">
-        {/* Al-Nawawi's Forty Hadiths — featured */}
+      <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-4">
         <motion.div variants={item}>
-          <button
-            onClick={() => setShowNawawiList(true)}
-            className="w-full flex items-center gap-3 p-4 rounded-xl border border-primary/30 hover:border-primary/50 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 transition-all duration-150"
-          >
-            <div className="w-12 h-12 rounded-lg bg-primary/20 flex items-center justify-center shrink-0">
-              <BookOpen className="w-6 h-6 text-primary" />
-            </div>
-            <div className="flex-1 text-start">
-              <p className="text-sm font-bold text-foreground">الأربعون النووية</p>
-              <p className="text-[11px] text-muted-foreground">
-                42 حديثاً نبوياً
-              </p>
-            </div>
-            <Arrow className="w-4 h-4 text-muted-foreground shrink-0" />
-          </button>
+          <DhikrCounter />
         </motion.div>
 
-        {/* Frequent Duas */}
-        <motion.div variants={item} className="space-y-3">
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-primary" />
-            <h2 className="text-sm font-bold text-foreground">أدعية متكررة</h2>
-          </div>
+        <motion.button
+          variants={item}
+          type="button"
+          onClick={() => setShowNawawiList(true)}
+          className="app-card app-card-pressable flex w-full items-center gap-3 text-start"
+        >
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-secondary text-foreground">
+            <BookOpen className="h-5 w-5" aria-hidden />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-meta font-semibold text-foreground">الأربعون النووية</span>
+            <span className="mt-0.5 block text-mini text-muted-foreground">{`${nawawiHadiths.length} حديثاً نبوياً`}</span>
+          </span>
+          <ChevronLeft className="h-4 w-4 shrink-0 text-muted-foreground rtl:rotate-180" aria-hidden />
+        </motion.button>
+
+        <motion.section variants={item} aria-label="أدعية متكررة">
+          <p className="app-section-label mb-2">أدعية متكررة</p>
           <div className="grid grid-cols-4 gap-1">
             {frequentDuas.map((dua) => (
               <FrequentDuaCard key={dua.id} dua={dua} />
             ))}
           </div>
-        </motion.div>
+        </motion.section>
 
-        {/* Categories */}
-        <motion.div variants={item} className="space-y-3">
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-primary" />
-            <h2 className="text-sm font-bold text-foreground">أقسام الأدعية</h2>
-          </div>
-          <div className="space-y-2.5">
+        <motion.section variants={item} aria-label="أقسام الأدعية">
+          <p className="app-section-label mb-2">أقسام الأدعية</p>
+          <div className="space-y-2">
             {duaCategories.map((cat) => {
               const Icon = iconMap[cat.icon] || Star;
               return (
-                <motion.button
+                <button
                   key={cat.id}
-                  variants={item}
+                  type="button"
                   onClick={() => setOpenCat(cat)}
-                  className="surface-depth surface-depth-pressable w-full flex items-center gap-3 p-3.5 rounded-xl border-s-[3px] border-s-primary/50 hover:border-primary/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1"
+                  className="app-card app-card-compact app-card-pressable flex w-full items-center gap-3 text-start"
                 >
-                  <div className="w-11 h-11 rounded-lg flex items-center justify-center shrink-0 bg-primary/10">
-                    <Icon className="w-5 h-5 text-primary" />
-                  </div>
-                  <div className="flex-1 text-start">
-                    <p className="text-sm font-bold text-foreground">{cat.titleAr}</p>
-                    <p className="text-[11px] text-muted-foreground">
-                      {cat.duas.length} دعاء
-                    </p>
-                  </div>
-                  <Arrow className="w-4 h-4 text-muted-foreground shrink-0" />
-                </motion.button>
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-secondary text-foreground">
+                    <Icon className="h-5 w-5" aria-hidden />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-meta font-semibold text-foreground">{cat.titleAr}</span>
+                    <span className="mt-0.5 block text-mini text-muted-foreground">{`${cat.duas.length} دعاء`}</span>
+                  </span>
+                  <ChevronLeft className="h-4 w-4 shrink-0 text-muted-foreground rtl:rotate-180" aria-hidden />
+                </button>
               );
             })}
           </div>
-        </motion.div>
+        </motion.section>
       </motion.div>
 
-      {/* Category Detail Modal */}
       {openCat && (
-        <DuaModal
-          open={!!openCat}
-          onClose={() => setOpenCat(null)}
+        <DuaDialog
+          open={openCat !== null}
+          onOpenChange={(open) => !open && setOpenCat(null)}
           title={openCat.titleAr}
           duas={openCat.duas}
         />
       )}
 
-      {/* Nawawi List Modal */}
-      <AnimatePresence>
-        {showNawawiList && (
-          <ModalPortal>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="fixed inset-0 z-fullscreen flex items-center justify-center p-4 bg-black/60"
-              onClick={() => setShowNawawiList(false)}
-            >
-              <motion.div
-                initial={{ opacity: 0, scale: 0.92 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.92 }}
-                transition={{ type: 'spring', damping: 25, stiffness: 350 }}
-                onClick={(e) => e.stopPropagation()}
-                className="bg-card w-full max-w-md rounded-xl max-h-[85vh] flex flex-col"
-              >
-                <div className="flex items-center justify-between px-5 py-4 border-b border-border/50">
-                  <h2 className="text-lg font-bold text-foreground">الأربعون النووية</h2>
-                  <button
-                    onClick={() => setShowNawawiList(false)}
-                    className="p-1.5 rounded-full hover:bg-muted/60 transition-colors"
-                  >
-                    <X className="w-5 h-5 text-muted-foreground" />
-                  </button>
-                </div>
-                <div className="overflow-y-auto flex-1 p-3 space-y-1.5">
-                  {nawawiHadiths.map((h, i) => (
-                    <motion.button
-                      key={h.id}
-                      initial={{ opacity: 0, y: 6 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: i * 0.02, duration: 0.25 }}
-                      onClick={() => {
-                        setShowNawawiList(false);
-                        setOpenNawawi(h);
-                      }}
-                      className="w-full flex items-center gap-3 p-3 rounded-xl bg-muted/30 hover:bg-muted/60 active:scale-[0.98] transition-all duration-150 text-start"
-                    >
-                      <span className="w-8 h-8 rounded-full bg-primary/15 text-primary text-xs font-bold flex items-center justify-center shrink-0">
-                        {h.id}
-                      </span>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-bold text-foreground truncate">{h.title}</p>
-                        <p className="text-[11px] text-muted-foreground truncate" dir="rtl">
-                          {h.text.slice(0, 60)}...
-                        </p>
-                      </div>
-                      <Arrow className="w-4 h-4 text-muted-foreground shrink-0" />
-                    </motion.button>
-                  ))}
-                </div>
-              </motion.div>
-            </motion.div>
-          </ModalPortal>
-        )}
-      </AnimatePresence>
-
-      {/* Nawawi Hadith Detail Modal */}
-      {openNawawi && (
-        <NawawiModal
-          open={!!openNawawi}
-          onClose={() => setOpenNawawi(null)}
-          hadith={openNawawi}
-        />
-      )}
+      <NawawiDialogs
+        listOpen={showNawawiList}
+        onListOpenChange={setShowNawawiList}
+        selected={openNawawi}
+        onSelect={setOpenNawawi}
+      />
     </>
   );
 }

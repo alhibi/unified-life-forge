@@ -5,6 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { formatLastSeen, useOnlineUserIds, useOtherUserPresence, useTick,useUserOnline } from '@/hooks/usePresence';
 import { supabase } from '@/integrations/supabase/client';
 import { newClientId } from '@/lib/chat/clientId';
+import { ensureIdentityPublished } from '@/lib/chat/crypto';
 import { canDecodeHeicNatively, convertHeicToJpeg,looksLikeHeic } from '@/lib/chat/heic';
 import { packImageMeta, readableFileName } from '@/lib/chat/imageMeta';
 
@@ -14,6 +15,13 @@ describeError,   MAX_STAGED_IMAGES,
 validateFile, } from './chatNotify';
 import { getMessagePreview,getSignedFileUrl } from './chatUtils';
 import { fetchConversations } from './internal/conversationsQuery';
+import {
+  decryptBody,
+  ENCRYPTED_PENDING_TEXT,
+  ENCRYPTED_UNREADABLE_TEXT,
+  encryptOutgoingText,
+  isEncrypted,
+} from './internal/e2ee';
 import { fetchMessagesWithReactions } from './internal/messagesQuery';
 import { useInChatSearch } from './internal/useInChatSearch';
 import { useTypingChannel } from './internal/useTypingChannel';
@@ -115,6 +123,9 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
   const stagedPreviewsRef = useRef<string[]>([]);
   const userIdRef = useRef<string | undefined>(user?.id);
   const activeConvIdRef = useRef<string | null>(null);
+  /** Peer of the open conversation. Needed inside the (synchronous) realtime
+   *  handler to open end-to-end encrypted bodies without re-subscribing. */
+  const activePeerIdRef = useRef<string | null>(null);
   const conversationsRef = useRef<Conversation[]>(conversations);
   const chatPrefsRef = useRef(chatPrefs);
   const messagesRef = useRef<Message[]>(messages);
@@ -123,6 +134,15 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
   useEffect(() => { stagedPreviewsRef.current = stagedPreviews; }, [stagedPreviews]);
   useEffect(() => { userIdRef.current = user?.id; }, [user?.id]);
   useEffect(() => { activeConvIdRef.current = activeConv?.id ?? null; }, [activeConv?.id]);
+  useEffect(() => { activePeerIdRef.current = activeConv?.otherUserId ?? null; }, [activeConv?.otherUserId]);
+
+  // Publish this device's public key once per session so peers can encrypt to
+  // us. Generating the identity is idempotent and the private half never leaves
+  // this device (see lib/chat/crypto/keys.ts).
+  useEffect(() => {
+    if (!user?.id) return;
+    void ensureIdentityPublished(user.id);
+  }, [user?.id]);
   useEffect(() => { conversationsRef.current = conversations; }, [conversations]);
   useEffect(() => { chatPrefsRef.current = chatPrefs; }, [chatPrefs]);
   useEffect(() => { messagesRef.current = messages; }, [messages]);
@@ -348,7 +368,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     try {
       let result: { messages: Message[]; reactions: Reaction[] };
       try {
-        result = await fetchMessagesWithReactions(activeConv.id, user.id);
+        result = await fetchMessagesWithReactions(activeConv.id, user.id, activeConv.otherUserId);
       } catch (err) {
         chatError('conversationGone', describeError(err));
         return;
@@ -487,6 +507,30 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
 
         if (payload.eventType === 'INSERT') {
           const msg = payload.new as Message;
+
+          // ── End-to-end encryption boundary (incoming, realtime) ───────────
+          // The realtime callback is synchronous, so an encrypted body is
+          // inserted with a placeholder and patched in place once the envelope
+          // is open. Blocking the handler on decryption would delay every other
+          // side effect below (delivery receipts, sounds, scroll).
+          if (isEncrypted(msg.content)) {
+            const peer = activePeerIdRef.current;
+            const original = msg.content;
+            msg.content = ENCRYPTED_PENDING_TEXT;
+            if (peer) {
+              void decryptBody(
+                { myUserId: uid, peerUserId: peer, conversationId: msg.conversation_id },
+                msg.sender_id,
+                original,
+              ).then((text) => {
+                setMessages(prev =>
+                  prev.map(m => (m.id === msg.id ? { ...m, content: text } : m)),
+                );
+              });
+            } else {
+              msg.content = ENCRYPTED_UNREADABLE_TEXT;
+            }
+          }
 
           if (activeId && msg.conversation_id === activeId) {
             setMessages(prev => {
@@ -667,10 +711,24 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     const optimisticId = `optimistic_${clientId}`;
     const now = new Date().toISOString();
 
+    // ── End-to-end encryption boundary (outgoing) ──────────────────────────
+    // The row that reaches the server carries the ciphertext; the optimistic
+    // row below keeps the plaintext so the sender sees what they typed. When no
+    // peer key is published yet this returns the plaintext unchanged — a message
+    // is never lost because encryption could not be arranged.
+    const peerId = isCurrentConv ? activeConv?.otherUserId : conversations.find(c => c.id === convId)?.otherUserId;
+    const { content: wireContent } = peerId
+      ? await encryptOutgoingText(
+          { myUserId: user.id, peerUserId: peerId, conversationId: convId },
+          type,
+          content,
+        )
+      : { content };
+
     const insertData: Record<string, unknown> = {
       conversation_id: convId,
       sender_id: user.id,
-      content,
+      content: wireContent,
       message_type: type,
       file_url: fileUrl || null,
       file_name: fileName || null,
@@ -744,7 +802,9 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
       if (realMsg) {
         setMessages(prev => prev.map(m =>
           m.id === optimisticId
-            ? { ...(realMsg as Message), status: 'sent' }
+            // `content` (plaintext), not realMsg.content (ciphertext): the sender
+            // must keep reading their own message.
+            ? { ...(realMsg as Message), content, status: 'sent' }
             : m,
         ));
       }

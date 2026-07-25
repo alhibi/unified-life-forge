@@ -46,6 +46,8 @@ function loadStats(): SudokuStats {
   } catch { return def; }
 }
 import { getGameProgress,saveGameProgress } from '../api';
+import MatchReportDialog from '../components/MatchReportDialog';
+import { dayKey, type GameMode, type MatchReport, reportMatch } from '../progression';
 
 function saveStats(stats: SudokuStats) {
   localStorage.setItem('sudoku-stats', JSON.stringify(stats));
@@ -236,6 +238,8 @@ export default function SudokuPage() {
   });
   const [noteMode, setNoteMode] = useState(false);
   const [stats, setStats] = useState<SudokuStats>(loadStats);
+  // Post-session reward screen. The game used to grant progress silently.
+  const [matchReport, setMatchReport] = useState<MatchReport | null>(null);
 
   useEffect(() => {
     const syncStats = async () => {
@@ -299,6 +303,23 @@ export default function SudokuPage() {
     }
     setStats(s); saveStats(s);
     playSfx('win'); vibrate([60, 60, 200]);
+
+    // Feed the shared progression spine. `mini` is a smaller board rather than a
+    // distinct ruleset, so it reports as classic.
+    const mode: GameMode = isDaily ? 'sudoku-daily' : var_ === 'x' ? 'sudoku-x' : 'sudoku-classic';
+    setMatchReport(
+      reportMatch({
+        game: 'sudoku',
+        mode,
+        outcome: 'win',
+        difficulty: diff,
+        durationMs: time * 1000,
+        mistakes: errs,
+        hints,
+        // The record for a sudoku mode is the fastest clean solve.
+        record: { value: time, lowerIsBetter: true },
+      }),
+    );
   };
 
   const newGame = (diff: Difficulty, var_: Variant = variant, daily = false) => {
@@ -871,6 +892,7 @@ export default function SudokuPage() {
           </motion.div>
         )}
       </AnimatePresence>
+      <MatchReportDialog report={matchReport} onClose={() => setMatchReport(null)} day={dayKey()} />
     </GameShell>
   );
 }

@@ -47,6 +47,7 @@ import {
   X,
 } from '@/lib/icons';
 
+import ChaptersPanel, { CurrentChapterLine } from './ChaptersPanel';
 import QueueSheet from './QueueSheet';
 
 const SKIP = 15;
@@ -170,6 +171,7 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
   // from the seek bar. Now they live behind a discreet "Show notes"
   // toggle that expands an animated panel on demand.
   const [descOpen, setDescOpen] = useState(false);
+  const [chaptersOpen, setChaptersOpen] = useState(false);
   // Briefly flash a "Link copied" badge after the share fallback.
   const [copiedLink, setCopiedLink] = useState(false);
 
@@ -190,6 +192,7 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
       setSleepOpen(false);
       setSpeedOpen(false);
       setDescOpen(false);
+      setChaptersOpen(false);
       setQueueOpen(false);
       setCopiedLink(false);
     }
@@ -201,6 +204,7 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
   // hero view rather than carrying over the previous reader state.
   useEffect(() => {
     setDescOpen(false);
+    setChaptersOpen(false);
   }, [player.current?.episode.id]);
 
   // Sanitize the episode description once per render. Computed here
@@ -422,7 +426,20 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
                   <p className="text-sm text-foreground/70 mt-0.5 line-clamp-1 font-medium">
                     {player.current.podcastTitle}
                   </p>
+                  {/* Chapter readout. Its own component so the 4 Hz progress
+                      tick does not re-render the whole hero. */}
+                  <CurrentChapterLine chapters={player.current.episode.chapters ?? []} />
                 </div>
+
+                {/* Chapter jump list — only rendered when the feed declares
+                    Podlove Simple Chapters. */}
+                <ChaptersPanel
+                  chapters={player.current.episode.chapters ?? []}
+                  durationSeconds={player.current.episode.duration ?? 0}
+                  onSeek={player.seek}
+                  open={chaptersOpen}
+                  onToggle={() => setChaptersOpen((v) => !v)}
+                />
 
                 {/* ── Show-notes toggle + collapsible panel ─────────────
                   The episode description used to be permanently

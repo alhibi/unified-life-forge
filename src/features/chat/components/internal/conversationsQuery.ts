@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 import { getMessagePreview } from '../chatUtils';
 import type { Conversation } from '../types';
+import { decryptBody } from './e2ee';
 
 /**
  * Fetch the caller's conversations enriched with:
@@ -74,10 +75,23 @@ export async function fetchConversations(user: User): Promise<Conversation[]> {
     unreadCountMap.set(m.conversation_id, (unreadCountMap.get(m.conversation_id) || 0) + 1);
   }
 
-  return convs.map((conv) => {
+  // The preview is decrypted too: a list of rows all reading "encrypted message"
+  // would make the whole screen useless, and the key agreement is cached per
+  // peer so this costs one AES open per conversation.
+  return Promise.all(convs.map(async (conv) => {
     const otherId = conv.user1_id === user.id ? conv.user2_id : conv.user1_id;
     const profile = profiles.find(p => p.user_id === otherId);
-    const lastMsg = lastMsgMap.get(conv.id);
+    const rawLastMsg = lastMsgMap.get(conv.id);
+    const lastMsg = rawLastMsg
+      ? {
+          ...rawLastMsg,
+          content: await decryptBody(
+            { myUserId: user.id, peerUserId: otherId, conversationId: conv.id },
+            rawLastMsg.sender_id,
+            rawLastMsg.content,
+          ),
+        }
+      : undefined;
     const unreadCount = unreadCountMap.get(conv.id) || 0;
 
     return {
@@ -98,5 +112,5 @@ export async function fetchConversations(user: User): Promise<Conversation[]> {
       lastMessageDelivered: lastMsg?.sender_id === user.id ? !!lastMsg?.delivered_at : undefined,
       unreadCount,
     } as Conversation;
-  });
+  }));
 }

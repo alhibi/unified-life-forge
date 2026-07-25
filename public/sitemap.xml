@@ -23,13 +23,9 @@
   <url><loc>https://amv.life/games/sudoku</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
   <url><loc>https://amv.life/games/chess</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
   <url><loc>https://amv.life/games/memory</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://amv.life/games/dice</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://amv.life/games/focus</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
   <url><loc>https://amv.life/games/chess/puzzles</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
   <url><loc>https://amv.life/games/chess/career</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
   <url><loc>https://amv.life/games/memory/adventure</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://amv.life/games/dice/tournament</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://amv.life/games/focus/decathlon</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
   <url><loc>https://amv.life/chat</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://amv.life/chat/groups</loc><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://amv.life/chat/settings</loc><changefreq>monthly</changefreq><priority>0.3</priority></url>
