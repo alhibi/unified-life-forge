@@ -11,11 +11,7 @@ import WeatherWidget from '@/weather/components/WeatherWidget';
 import UmmahPulse from '@/components/UmmahPulse';
 
 import SmartGreeting from '@/components/SmartGreeting';
-import { useNavigate } from 'react-router-dom';
-import { MessageCircle, UserCircle, Sparkles, ChevronLeft, FileText, Settings, MapPinned } from '@/lib/icons';
-import { getAppleEmojiUrl, isEmojiAvatarValue } from '@/utils/emojiAvatar';
-import { getDefaultAvatarForUser } from '@/utils/defaultAvatar';
-import { PageShell, IconButton, AppCard } from '@/components/ui/app-shell';
+import { PageShell } from '@/components/ui/app-shell';
 
 import { pageStagger as stagger, pageItem as item } from '@/lib/motion';
 
@@ -30,11 +26,7 @@ export default function Now() {
     if (locationStatus === 'idle') void requestLocation();
   }, [locationStatus, requestLocation]);
 
-  const { t, language } = useApp();
-  const { user, username, profile } = useAuth();
-
-  const navigate = useNavigate();
-  const { unreadCount } = useUnreadMessages();
+  const { language } = useApp();
 
   return (
     <PageShell>
@@ -62,59 +54,7 @@ export default function Now() {
       </h1>
       <motion.div variants={stagger} initial="hidden" animate="show" className="contents">
         <motion.div variants={item}>
-          <div className="flex items-center justify-between gap-3">
-            <SmartGreeting />
-            <div className="flex items-center gap-2 shrink-0">
-              {user && (
-                <IconButton onClick={() => navigate('/chat')} aria-label="المحادثات">
-                  <MessageCircle className="h-5 w-5" />
-                  {unreadCount > 0 && (
-                    <span className="absolute -top-1 -end-1 bg-destructive text-destructive-foreground text-[10px] rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 font-bold animate-pulse">
-                      {unreadCount}
-                    </span>
-                  )}
-                </IconButton>
-              )}
-              <IconButton
-                onClick={() => navigate('/settings')}
-                aria-label={language === 'ar' ? 'الإعدادات' : 'Einstellungen'}
-              >
-                <Settings className="h-5 w-5" />
-              </IconButton>
-              {/* Avatar shortcut → /profile or /settings.
-                  Replaces the previous Newspaper button (which moved
-                  into the new /browse hub) and the Settings tab in
-                  the bottom nav (which was retired in the IA reorg).
-                  Signed-in users see their actual avatar; signed-out
-                  users see a generic UserCircle that still navigates
-                  to /settings (where the auth flow lives). */}
-              <button
-                onClick={() => navigate(user ? '/profile' : '/settings')}
-                className="relative w-10 h-10 rounded-full ring-2 ring-primary/20 overflow-hidden active:scale-95 transition-transform"
-                aria-label={
-                  user
-                    ? (language === 'ar' ? 'الملف الشخصي' : 'Profil')
-                    : (language === 'ar' ? 'الإعدادات' : 'Einstellungen')
-                }
-              >
-                {user ? (
-                  profile?.avatar_url && profile.avatar_url.startsWith('http') ? (
-                    <img src={profile.avatar_url} alt="" className="w-full h-full object-cover object-top" />
-                  ) : profile?.avatar_url && isEmojiAvatarValue(profile.avatar_url) ? (
-                    <span className="w-full h-full flex items-center justify-center bg-accent/40">
-                      <img src={getAppleEmojiUrl(profile.avatar_url) || ''} alt="" className="w-6 h-6" />
-                    </span>
-                  ) : (
-                    <img src={getDefaultAvatarForUser(username || 'U')} alt="" className="w-full h-full object-cover" />
-                  )
-                ) : (
-                  <span className="w-full h-full flex items-center justify-center bg-accent/40">
-                    <UserCircle className="h-5 w-5 text-foreground" />
-                  </span>
-                )}
-              </button>
-            </div>
-          </div>
+          <SmartGreeting />
         </motion.div>
 
         <motion.section variants={item} aria-labelledby="home-prayer-h">
