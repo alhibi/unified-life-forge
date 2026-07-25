@@ -25,10 +25,13 @@ export default function LibraryPoetPage() {
   const [page, setPage] = useState(0);
   const [showTimeline, setShowTimeline] = useState(false);
 
-  const poet  = useDiwanPoet(slug);
-  const eras  = useDiwanEras();
+  const poet = useDiwanPoet(slug);
+  const eras = useDiwanEras();
   const poems = useDiwanPoetPoems({
-    poetSlug: slug ?? '', q: q || null, page, pageSize: PAGE,
+    poetSlug: slug ?? '',
+    q: q || null,
+    page,
+    pageSize: PAGE,
   });
 
   // قائمة مُجمَّعة عبر الصفحات
@@ -46,9 +49,9 @@ export default function LibraryPoetPage() {
   useEffect(() => {
     const data = poems.data;
     if (!data) return;
-    setItems(prev => {
+    setItems((prev) => {
       if (page === 0) return data;
-      const seen = new Set(prev.map(p => p.slug));
+      const seen = new Set(prev.map((p) => p.slug));
       const merged = [...prev];
       for (const p of data) if (!seen.has(p.slug)) merged.push(p);
       return merged;
@@ -64,9 +67,9 @@ export default function LibraryPoetPage() {
     const el = sentinelRef.current;
     if (!el) return;
     const io = new IntersectionObserver(
-      entries => {
+      (entries) => {
         if (entries[0]?.isIntersecting && !poems.isFetching) {
-          setPage(p => p + 1);
+          setPage((p) => p + 1);
         }
       },
       { rootMargin: '400px 0px' },
@@ -77,15 +80,18 @@ export default function LibraryPoetPage() {
 
   const p = poet.data;
   const hasTimeline = !!(slug && poetTimelines[slug]);
-  const lifespan = p?.birth_year && p?.death_year
-    ? `${p.birth_year}–${p.death_year}م`
-    : p?.death_year ? `ت ${p.death_year}م` : null;
+  const lifespan =
+    p?.birth_year && p?.death_year
+      ? `${p.birth_year}–${p.death_year}م`
+      : p?.death_year
+        ? `ت ${p.death_year}م`
+        : null;
 
   const firstLetter = p?.name_ar ? p.name_ar.trim().charAt(0) : 'ش';
 
   const eraName = useMemo(() => {
     if (!p) return null;
-    return p.era_id ? eras.data?.find(e => e.id === p.era_id)?.name_ar ?? null : null;
+    return p.era_id ? (eras.data?.find((e) => e.id === p.era_id)?.name_ar ?? null) : null;
   }, [p, eras.data]);
 
   if (poet.isLoading) {
@@ -101,7 +107,9 @@ export default function LibraryPoetPage() {
     return (
       <div className="min-h-screen bg-background pt-14 px-5 text-center">
         <BackButton fallback="/mihrab" />
-        <p className="text-muted-foreground mt-8 font-tajawal">لم يُعثر على هذا الشاعر في دواوين العرب.</p>
+        <p className="text-muted-foreground mt-8 font-tajawal">
+          لم يُعثر على هذا الشاعر في دواوين العرب.
+        </p>
       </div>
     );
   }
@@ -116,23 +124,19 @@ export default function LibraryPoetPage() {
       <div className="max-w-lg mx-auto">
         {/* Header with back button */}
         <div className="flex items-center justify-between mb-6">
-          <BackButton fallback="/mihrab" className="w-10 h-10 rounded-full border border-border bg-card flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-primary active:scale-95 transition-all" />
+          <BackButton
+            fallback="/mihrab"
+            className="w-10 h-10 rounded-full border border-border bg-card flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-primary active:scale-95 transition-all"
+          />
           <FallbackBadge />
         </div>
 
         {/* Profile Card / Bio Container */}
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-6"
-        >
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
           {/* ختم شمع كبير في المنتصف */}
           <div
             className="w-[78px] h-[78px] rounded-full flex items-center justify-center mx-auto mb-4"
-            style={{
-              background: 'hsl(var(--primary))',
-              boxShadow: 'var(--shadow-md)',
-            }}
+            style={{ background: 'hsl(var(--primary))' }}
           >
             <span className="font-amiri font-bold text-[32px] text-primary-foreground leading-none select-none">
               {firstLetter}
@@ -182,9 +186,7 @@ export default function LibraryPoetPage() {
               <p className="font-amiri text-[22px] font-bold text-primary leading-none mb-1 select-all">
                 {p.verses_count}
               </p>
-              <p className="text-[11px] text-muted-foreground font-tajawal select-none">
-                بيت شعر
-              </p>
+              <p className="text-[11px] text-muted-foreground font-tajawal select-none">بيت شعر</p>
             </div>
             <div className="text-center border-e border-border/60 flex flex-col justify-center items-center">
               <p className="font-amiri text-[15px] font-bold text-primary leading-snug mb-1 truncate max-w-full px-1">
@@ -200,7 +202,7 @@ export default function LibraryPoetPage() {
           <div className="flex items-center justify-center gap-2 mb-6">
             {hasTimeline && (
               <button
-                onClick={() => setShowTimeline(s => !s)}
+                onClick={() => setShowTimeline((s) => !s)}
                 className={`flex items-center gap-2 px-4 py-2 rounded-md text-[11px] font-bold transition-all ${
                   showTimeline
                     ? 'bg-primary/10 text-primary border border-primary/20'
@@ -236,16 +238,14 @@ export default function LibraryPoetPage() {
 
         {/* Search poems */}
         <div className="mb-5">
-          <SearchBar
-            value={q}
-            placeholder="ابحث في قصائده وملاحمه…"
-            onChange={setQ}
-          />
+          <SearchBar value={q} placeholder="ابحث في قصائده وملاحمه…" onChange={setQ} />
         </div>
 
         {/* Poems Heading */}
         <div className="flex items-center gap-2 mb-3 px-1">
-          <span className="text-[10px] text-primary" aria-hidden="true">◆</span>
+          <span className="text-[10px] text-primary" aria-hidden="true">
+            ◆
+          </span>
           <h3 className="text-[13px] font-bold uppercase tracking-wider text-muted-foreground font-tajawal">
             قصائده وديوانه
           </h3>
@@ -253,7 +253,7 @@ export default function LibraryPoetPage() {
 
         {poems.isLoading && page === 0 ? (
           <div className="space-y-4 pt-2">
-            {[0, 1, 2].map(i => (
+            {[0, 1, 2].map((i) => (
               <div key={i} className="py-4 border-b border-border/60">
                 <div className="h-4 bg-muted/40 rounded w-1/4 animate-pulse mb-2" />
                 <div className="h-3 bg-muted/30 rounded w-3/4 animate-pulse" />
@@ -266,18 +266,25 @@ export default function LibraryPoetPage() {
           </div>
         ) : (
           <div className="flex flex-col">
-            {items.map((pm, i) => <PoemCard key={pm.slug} poem={pm} index={i} />)}
+            {items.map((pm, i) => (
+              <PoemCard key={pm.slug} poem={pm} index={i} />
+            ))}
             {showLoadMore && (
               <>
                 <div ref={sentinelRef} aria-hidden className="h-2" />
                 <button
-                  onClick={() => setPage(pg => pg + 1)}
+                  onClick={() => setPage((pg) => pg + 1)}
                   disabled={poems.isFetching}
                   className="w-full mt-4 py-3 rounded-lg bg-card border border-border text-[12px] font-semibold text-muted-foreground hover:text-foreground hover:border-primary active:scale-[0.98] transition disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                   {poems.isFetching ? (
-                    <><Loader2 className="w-3.5 h-3.5 animate-spin text-primary" /> جاري فتح المزيد من الرقوق…</>
-                  ) : 'تحميل المزيد من قصائده'}
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin text-primary" /> جاري فتح المزيد
+                      من الرقوق…
+                    </>
+                  ) : (
+                    'تحميل المزيد من قصائده'
+                  )}
                 </button>
               </>
             )}

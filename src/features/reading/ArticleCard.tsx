@@ -558,14 +558,14 @@ export function HeroArticleCard({
  <div className="absolute inset-0" />
  <div className="absolute top-3 start-3 flex items-center gap-2">
  <SourcePill name={article.source} size="md" />
- <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-black/40 text-white/95 backdrop-blur-sm">
+ <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-black/70 text-white/95">
  {article.source}
  </span>
  </div>
  <button
  type="button"
  onClick={(e) => { e.stopPropagation(); onToggleBookmark(); }}
- className="absolute top-3 end-3 p-2 rounded-full bg-black/40 backdrop-blur-sm hover:bg-black/55 transition-colors"
+ className="absolute top-3 end-3 p-2 rounded-full bg-black/70 hover:bg-black/80 transition-colors"
  aria-label={isBookmarked
  ? ('إلغاء الحفظ')
           : ('حفظ')}

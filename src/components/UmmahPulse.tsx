@@ -2,9 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '@/contexts/AppContext';
-import {
-  X, Search, MapPin, Clock, Compass, Info,
-} from 'lucide-react';
+import { X, Search, MapPin, Clock, Compass, Info } from 'lucide-react';
 import {
   getCityPrayerInfo,
   qiblaBearing,
@@ -57,71 +55,701 @@ interface City {
 }
 
 const CITIES: City[] = [
-  { name: 'Makkah',        nameAr: 'مكة المكرمة',  country: 'Saudi Arabia',  countryAr: 'السعودية',   flag: '🇸🇦', lat: 21.4225, lng: 39.8262, tz: 'Asia/Riyadh',       method: 'UmmAlQura', region: 'arab' },
-  { name: 'Madinah',       nameAr: 'المدينة',      country: 'Saudi Arabia',  countryAr: 'السعودية',   flag: '🇸🇦', lat: 24.4672, lng: 39.6142, tz: 'Asia/Riyadh',       method: 'UmmAlQura', region: 'arab' },
-  { name: 'Riyadh',        nameAr: 'الرياض',       country: 'Saudi Arabia',  countryAr: 'السعودية',   flag: '🇸🇦', lat: 24.7136, lng: 46.6753, tz: 'Asia/Riyadh',       method: 'UmmAlQura', region: 'arab' },
-  { name: 'Cairo',         nameAr: 'القاهرة',      country: 'Egypt',         countryAr: 'مصر',        flag: '🇪🇬', lat: 30.0444, lng: 31.2357, tz: 'Africa/Cairo',      method: 'Egyptian',  region: 'arab' },
-  { name: 'Baghdad',       nameAr: 'بغداد',        country: 'Iraq',          countryAr: 'العراق',     flag: '🇮🇶', lat: 33.3152, lng: 44.3661, tz: 'Asia/Baghdad',      method: 'Karachi',   region: 'arab', asrShadow: 2 },
-  { name: 'Damascus',      nameAr: 'دمشق',         country: 'Syria',         countryAr: 'سوريا',      flag: '🇸🇾', lat: 33.5138, lng: 36.2765, tz: 'Asia/Damascus',     method: 'Egyptian',  region: 'arab' },
-  { name: 'Amman',         nameAr: 'عمّان',        country: 'Jordan',        countryAr: 'الأردن',     flag: '🇯🇴', lat: 31.9539, lng: 35.9106, tz: 'Asia/Amman',        method: 'Jordan',    region: 'arab' },
-  { name: 'Sanaa',         nameAr: 'صنعاء',        country: 'Yemen',         countryAr: 'اليمن',      flag: '🇾🇪', lat: 15.3694, lng: 44.1910, tz: 'Asia/Aden',         method: 'MWL',       region: 'arab' },
-  { name: 'Dubai',         nameAr: 'دبي',          country: 'UAE',           countryAr: 'الإمارات',   flag: '🇦🇪', lat: 25.2048, lng: 55.2708, tz: 'Asia/Dubai',        method: 'Dubai',     region: 'arab' },
-  { name: 'Doha',          nameAr: 'الدوحة',       country: 'Qatar',         countryAr: 'قطر',        flag: '🇶🇦', lat: 25.2854, lng: 51.5310, tz: 'Asia/Qatar',        method: 'Qatar',     region: 'arab' },
-  { name: 'Kuwait City',   nameAr: 'الكويت',       country: 'Kuwait',        countryAr: 'الكويت',     flag: '🇰🇼', lat: 29.3759, lng: 47.9774, tz: 'Asia/Kuwait',       method: 'Kuwait',    region: 'arab' },
-  { name: 'Manama',        nameAr: 'المنامة',      country: 'Bahrain',       countryAr: 'البحرين',    flag: '🇧🇭', lat: 26.2285, lng: 50.5860, tz: 'Asia/Bahrain',      method: 'Kuwait',    region: 'arab' },
-  { name: 'Muscat',        nameAr: 'مسقط',         country: 'Oman',          countryAr: 'عُمان',      flag: '🇴🇲', lat: 23.5880, lng: 58.3829, tz: 'Asia/Muscat',       method: 'Kuwait',    region: 'arab' },
-  { name: 'Beirut',        nameAr: 'بيروت',        country: 'Lebanon',       countryAr: 'لبنان',      flag: '🇱🇧', lat: 33.8938, lng: 35.5018, tz: 'Asia/Beirut',       method: 'Egyptian',  region: 'arab' },
-  { name: 'Jerusalem',     nameAr: 'القدس',        country: 'Palestine',     countryAr: 'فلسطين',     flag: '🇵🇸', lat: 31.7683, lng: 35.2137, tz: 'Asia/Hebron',       method: 'Egyptian',  region: 'arab' },
-  { name: 'Gaza',          nameAr: 'غزة',          country: 'Palestine',     countryAr: 'فلسطين',     flag: '🇵🇸', lat: 31.5018, lng: 34.4668, tz: 'Asia/Gaza',         method: 'Egyptian',  region: 'arab' },
-  { name: 'Khartoum',      nameAr: 'الخرطوم',      country: 'Sudan',         countryAr: 'السودان',    flag: '🇸🇩', lat: 15.5007, lng: 32.5599, tz: 'Africa/Khartoum',   method: 'Egyptian',  region: 'africa' },
-  { name: 'Tripoli',       nameAr: 'طرابلس',       country: 'Libya',         countryAr: 'ليبيا',      flag: '🇱🇾', lat: 32.8872, lng: 13.1913, tz: 'Africa/Tripoli',    method: 'MWL',       region: 'africa' },
-  { name: 'Tunis',         nameAr: 'تونس',         country: 'Tunisia',       countryAr: 'تونس',       flag: '🇹🇳', lat: 36.8065, lng: 10.1815, tz: 'Africa/Tunis',      method: 'Tunisia',   region: 'africa' },
-  { name: 'Algiers',       nameAr: 'الجزائر',      country: 'Algeria',       countryAr: 'الجزائر',    flag: '🇩🇿', lat: 36.7538, lng: 3.0588,  tz: 'Africa/Algiers',    method: 'Algerian',  region: 'africa' },
-  { name: 'Casablanca',    nameAr: 'الدار البيضاء',country: 'Morocco',       countryAr: 'المغرب',     flag: '🇲🇦', lat: 33.5731, lng: -7.5898, tz: 'Africa/Casablanca', method: 'Morocco',   region: 'africa' },
-  { name: 'Nouakchott',    nameAr: 'نواكشوط',      country: 'Mauritania',    countryAr: 'موريتانيا',  flag: '🇲🇷', lat: 18.0735, lng: -15.9582,tz: 'Africa/Nouakchott', method: 'MWL',       region: 'africa' },
-  { name: 'Dakar',         nameAr: 'داكار',        country: 'Senegal',       countryAr: 'السنغال',    flag: '🇸🇳', lat: 14.7167, lng: -17.4677,tz: 'Africa/Dakar',      method: 'MWL',       region: 'africa' },
-  { name: 'Lagos',         nameAr: 'لاغوس',        country: 'Nigeria',       countryAr: 'نيجيريا',    flag: '🇳🇬', lat: 6.5244,  lng: 3.3792,  tz: 'Africa/Lagos',      method: 'MWL',       region: 'africa' },
-  { name: 'Mogadishu',     nameAr: 'مقديشو',       country: 'Somalia',       countryAr: 'الصومال',    flag: '🇸🇴', lat: 2.0469,  lng: 45.3182, tz: 'Africa/Mogadishu',  method: 'MWL',       region: 'africa' },
-  { name: 'Istanbul',      nameAr: 'إسطنبول',      country: 'Türkiye',       countryAr: 'تركيا',      flag: '🇹🇷', lat: 41.0082, lng: 28.9784, tz: 'Europe/Istanbul',   method: 'Turkey',    region: 'europe', asrShadow: 2 },
-  { name: 'Ankara',        nameAr: 'أنقرة',        country: 'Türkiye',       countryAr: 'تركيا',      flag: '🇹🇷', lat: 39.9334, lng: 32.8597, tz: 'Europe/Istanbul',   method: 'Turkey',    region: 'europe',  asrShadow: 2 },
-  { name: 'Tehran',        nameAr: 'طهران',        country: 'Iran',          countryAr: 'إيران',      flag: '🇮🇷', lat: 35.6892, lng: 51.3890, tz: 'Asia/Tehran',       method: 'Tehran',    region: 'asia' },
-  { name: 'Kabul',         nameAr: 'كابول',        country: 'Afghanistan',   countryAr: 'أفغانستان',  flag: '🇦🇫', lat: 34.5553, lng: 69.2075, tz: 'Asia/Kabul',        method: 'Karachi',   region: 'asia', asrShadow: 2 },
-  { name: 'Tashkent',      nameAr: 'طشقند',        country: 'Uzbekistan',    countryAr: 'أوزبكستان',  flag: '🇺🇿', lat: 41.2995, lng: 69.2401, tz: 'Asia/Tashkent',     method: 'Karachi',   region: 'asia', asrShadow: 2 },
-  { name: 'Baku',          nameAr: 'باكو',         country: 'Azerbaijan',    countryAr: 'أذربيجان',   flag: '🇦🇿', lat: 40.4093, lng: 49.8671, tz: 'Asia/Baku',         method: 'Tehran',    region: 'asia' },
-  { name: 'Karachi',       nameAr: 'كراتشي',       country: 'Pakistan',      countryAr: 'باكستان',    flag: '🇵🇰', lat: 24.8607, lng: 67.0011, tz: 'Asia/Karachi',      method: 'Karachi',   region: 'asia', asrShadow: 2 },
-  { name: 'Lahore',        nameAr: 'لاهور',        country: 'Pakistan',      countryAr: 'باكستان',    flag: '🇵🇰', lat: 31.5497, lng: 74.3436, tz: 'Asia/Karachi',      method: 'Karachi',   region: 'asia', asrShadow: 2 },
-  { name: 'Islamabad',     nameAr: 'إسلام آباد',   country: 'Pakistan',      countryAr: 'باكستان',    flag: '🇵🇰', lat: 33.6844, lng: 73.0479, tz: 'Asia/Karachi',      method: 'Karachi',   region: 'asia', asrShadow: 2 },
-  { name: 'Dhaka',         nameAr: 'دكا',          country: 'Bangladesh',    countryAr: 'بنغلاديش',   flag: '🇧🇩', lat: 23.8103, lng: 90.4125, tz: 'Asia/Dhaka',        method: 'Karachi',   region: 'asia', asrShadow: 2 },
-  { name: 'Delhi',         nameAr: 'دلهي',         country: 'India',         countryAr: 'الهند',      flag: '🇮🇳', lat: 28.6139, lng: 77.2090, tz: 'Asia/Kolkata',      method: 'Karachi',   region: 'asia', asrShadow: 2 },
-  { name: 'Mumbai',        nameAr: 'مومباي',       country: 'India',         countryAr: 'الهند',      flag: '🇮🇳', lat: 19.0760, lng: 72.8777, tz: 'Asia/Kolkata',      method: 'Karachi',   region: 'asia', asrShadow: 2 },
-  { name: 'Hyderabad',     nameAr: 'حيدر آباد',    country: 'India',         countryAr: 'الهند',      flag: '🇮🇳', lat: 17.3850, lng: 78.4867, tz: 'Asia/Kolkata',      method: 'Karachi',   region: 'asia', asrShadow: 2 },
-  { name: 'Jakarta',       nameAr: 'جاكرتا',       country: 'Indonesia',     countryAr: 'إندونيسيا',  flag: '🇮🇩', lat: -6.2088, lng: 106.8456,tz: 'Asia/Jakarta',      method: 'Kemenag',   region: 'asia' },
-  { name: 'Surabaya',      nameAr: 'سورابايا',     country: 'Indonesia',     countryAr: 'إندونيسيا',  flag: '🇮🇩', lat: -7.2575, lng: 112.7521,tz: 'Asia/Jakarta',      method: 'Kemenag',   region: 'asia' },
-  { name: 'Kuala Lumpur',  nameAr: 'كوالالمبور',   country: 'Malaysia',      countryAr: 'ماليزيا',    flag: '🇲🇾', lat: 3.1390,  lng: 101.6869,tz: 'Asia/Kuala_Lumpur', method: 'JAKIM',     region: 'asia' },
-  { name: 'Singapore',     nameAr: 'سنغافورة',     country: 'Singapore',     countryAr: 'سنغافورة',   flag: '🇸🇬', lat: 1.3521,  lng: 103.8198,tz: 'Asia/Singapore',    method: 'Singapore', region: 'asia' },
-  { name: 'Brunei',        nameAr: 'بروناي',       country: 'Brunei',        countryAr: 'بروناي',     flag: '🇧🇳', lat: 4.9031,  lng: 114.9398,tz: 'Asia/Brunei',       method: 'JAKIM',     region: 'asia' },
-  { name: 'Moscow',        nameAr: 'موسكو',        country: 'Russia',        countryAr: 'روسيا',      flag: '🇷🇺', lat: 55.7558, lng: 37.6173, tz: 'Europe/Moscow',     method: 'Russia',    region: 'europe', asrShadow: 2 },
-  { name: 'Sarajevo',      nameAr: 'سراييفو',      country: 'Bosnia',        countryAr: 'البوسنة',    flag: '🇧🇦', lat: 43.8563, lng: 18.4131, tz: 'Europe/Sarajevo',   method: 'MWL',       region: 'europe',  asrShadow: 2 },
-  { name: 'Tirana',        nameAr: 'تيرانا',       country: 'Albania',       countryAr: 'ألبانيا',    flag: '🇦🇱', lat: 41.3275, lng: 19.8187, tz: 'Europe/Tirane',     method: 'MWL',       region: 'europe' },
-  { name: 'London',        nameAr: 'لندن',         country: 'United Kingdom',countryAr: 'بريطانيا',   flag: '🇬🇧', lat: 51.5074, lng: -0.1278, tz: 'Europe/London',     method: 'MWL',       region: 'europe' },
-  { name: 'Paris',         nameAr: 'باريس',        country: 'France',        countryAr: 'فرنسا',      flag: '🇫🇷', lat: 48.8566, lng: 2.3522,  tz: 'Europe/Paris',      method: 'UOIF',      region: 'europe' },
-  { name: 'Berlin',        nameAr: 'برلين',        country: 'Germany',       countryAr: 'ألمانيا',    flag: '🇩🇪', lat: 52.5200, lng: 13.4050, tz: 'Europe/Berlin',     method: 'MWL',       region: 'europe' },
-  { name: 'Rome',          nameAr: 'روما',         country: 'Italy',         countryAr: 'إيطاليا',    flag: '🇮🇹', lat: 41.9028, lng: 12.4964, tz: 'Europe/Rome',       method: 'MWL',       region: 'europe' },
-  { name: 'Madrid',        nameAr: 'مدريد',        country: 'Spain',         countryAr: 'إسبانيا',    flag: '🇪🇸', lat: 40.4168, lng: -3.7038, tz: 'Europe/Madrid',     method: 'MWL',       region: 'europe' },
-  { name: 'New York',      nameAr: 'نيويورك',      country: 'United States', countryAr: 'أمريكا',     flag: '🇺🇸', lat: 40.7128, lng: -74.0060,tz: 'America/New_York',  method: 'ISNA',      region: 'americas' },
-  { name: 'Chicago',       nameAr: 'شيكاغو',       country: 'United States', countryAr: 'أمريكا',     flag: '🇺🇸', lat: 41.8781, lng: -87.6298,tz: 'America/Chicago',   method: 'ISNA',      region: 'americas' },
-  { name: 'Los Angeles',   nameAr: 'لوس أنجلوس',   country: 'United States', countryAr: 'أمريكا',     flag: '🇺🇸', lat: 34.0522, lng: -118.2437,tz:'America/Los_Angeles',method: 'ISNA',      region: 'americas' },
-  { name: 'Toronto',       nameAr: 'تورنتو',       country: 'Canada',        countryAr: 'كندا',       flag: '🇨🇦', lat: 43.6532, lng: -79.3832,tz: 'America/Toronto',   method: 'ISNA',      region: 'americas' },
-  { name: 'Sydney',        nameAr: 'سيدني',        country: 'Australia',     countryAr: 'أستراليا',   flag: '🇦🇺', lat: -33.8688,lng: 151.2093,tz: 'Australia/Sydney',  method: 'MWL',       region: 'oceania' },
+  {
+    name: 'Makkah',
+    nameAr: 'مكة المكرمة',
+    country: 'Saudi Arabia',
+    countryAr: 'السعودية',
+    flag: '🇸🇦',
+    lat: 21.4225,
+    lng: 39.8262,
+    tz: 'Asia/Riyadh',
+    method: 'UmmAlQura',
+    region: 'arab',
+  },
+  {
+    name: 'Madinah',
+    nameAr: 'المدينة',
+    country: 'Saudi Arabia',
+    countryAr: 'السعودية',
+    flag: '🇸🇦',
+    lat: 24.4672,
+    lng: 39.6142,
+    tz: 'Asia/Riyadh',
+    method: 'UmmAlQura',
+    region: 'arab',
+  },
+  {
+    name: 'Riyadh',
+    nameAr: 'الرياض',
+    country: 'Saudi Arabia',
+    countryAr: 'السعودية',
+    flag: '🇸🇦',
+    lat: 24.7136,
+    lng: 46.6753,
+    tz: 'Asia/Riyadh',
+    method: 'UmmAlQura',
+    region: 'arab',
+  },
+  {
+    name: 'Cairo',
+    nameAr: 'القاهرة',
+    country: 'Egypt',
+    countryAr: 'مصر',
+    flag: '🇪🇬',
+    lat: 30.0444,
+    lng: 31.2357,
+    tz: 'Africa/Cairo',
+    method: 'Egyptian',
+    region: 'arab',
+  },
+  {
+    name: 'Baghdad',
+    nameAr: 'بغداد',
+    country: 'Iraq',
+    countryAr: 'العراق',
+    flag: '🇮🇶',
+    lat: 33.3152,
+    lng: 44.3661,
+    tz: 'Asia/Baghdad',
+    method: 'Karachi',
+    region: 'arab',
+    asrShadow: 2,
+  },
+  {
+    name: 'Damascus',
+    nameAr: 'دمشق',
+    country: 'Syria',
+    countryAr: 'سوريا',
+    flag: '🇸🇾',
+    lat: 33.5138,
+    lng: 36.2765,
+    tz: 'Asia/Damascus',
+    method: 'Egyptian',
+    region: 'arab',
+  },
+  {
+    name: 'Amman',
+    nameAr: 'عمّان',
+    country: 'Jordan',
+    countryAr: 'الأردن',
+    flag: '🇯🇴',
+    lat: 31.9539,
+    lng: 35.9106,
+    tz: 'Asia/Amman',
+    method: 'Jordan',
+    region: 'arab',
+  },
+  {
+    name: 'Sanaa',
+    nameAr: 'صنعاء',
+    country: 'Yemen',
+    countryAr: 'اليمن',
+    flag: '🇾🇪',
+    lat: 15.3694,
+    lng: 44.191,
+    tz: 'Asia/Aden',
+    method: 'MWL',
+    region: 'arab',
+  },
+  {
+    name: 'Dubai',
+    nameAr: 'دبي',
+    country: 'UAE',
+    countryAr: 'الإمارات',
+    flag: '🇦🇪',
+    lat: 25.2048,
+    lng: 55.2708,
+    tz: 'Asia/Dubai',
+    method: 'Dubai',
+    region: 'arab',
+  },
+  {
+    name: 'Doha',
+    nameAr: 'الدوحة',
+    country: 'Qatar',
+    countryAr: 'قطر',
+    flag: '🇶🇦',
+    lat: 25.2854,
+    lng: 51.531,
+    tz: 'Asia/Qatar',
+    method: 'Qatar',
+    region: 'arab',
+  },
+  {
+    name: 'Kuwait City',
+    nameAr: 'الكويت',
+    country: 'Kuwait',
+    countryAr: 'الكويت',
+    flag: '🇰🇼',
+    lat: 29.3759,
+    lng: 47.9774,
+    tz: 'Asia/Kuwait',
+    method: 'Kuwait',
+    region: 'arab',
+  },
+  {
+    name: 'Manama',
+    nameAr: 'المنامة',
+    country: 'Bahrain',
+    countryAr: 'البحرين',
+    flag: '🇧🇭',
+    lat: 26.2285,
+    lng: 50.586,
+    tz: 'Asia/Bahrain',
+    method: 'Kuwait',
+    region: 'arab',
+  },
+  {
+    name: 'Muscat',
+    nameAr: 'مسقط',
+    country: 'Oman',
+    countryAr: 'عُمان',
+    flag: '🇴🇲',
+    lat: 23.588,
+    lng: 58.3829,
+    tz: 'Asia/Muscat',
+    method: 'Kuwait',
+    region: 'arab',
+  },
+  {
+    name: 'Beirut',
+    nameAr: 'بيروت',
+    country: 'Lebanon',
+    countryAr: 'لبنان',
+    flag: '🇱🇧',
+    lat: 33.8938,
+    lng: 35.5018,
+    tz: 'Asia/Beirut',
+    method: 'Egyptian',
+    region: 'arab',
+  },
+  {
+    name: 'Jerusalem',
+    nameAr: 'القدس',
+    country: 'Palestine',
+    countryAr: 'فلسطين',
+    flag: '🇵🇸',
+    lat: 31.7683,
+    lng: 35.2137,
+    tz: 'Asia/Hebron',
+    method: 'Egyptian',
+    region: 'arab',
+  },
+  {
+    name: 'Gaza',
+    nameAr: 'غزة',
+    country: 'Palestine',
+    countryAr: 'فلسطين',
+    flag: '🇵🇸',
+    lat: 31.5018,
+    lng: 34.4668,
+    tz: 'Asia/Gaza',
+    method: 'Egyptian',
+    region: 'arab',
+  },
+  {
+    name: 'Khartoum',
+    nameAr: 'الخرطوم',
+    country: 'Sudan',
+    countryAr: 'السودان',
+    flag: '🇸🇩',
+    lat: 15.5007,
+    lng: 32.5599,
+    tz: 'Africa/Khartoum',
+    method: 'Egyptian',
+    region: 'africa',
+  },
+  {
+    name: 'Tripoli',
+    nameAr: 'طرابلس',
+    country: 'Libya',
+    countryAr: 'ليبيا',
+    flag: '🇱🇾',
+    lat: 32.8872,
+    lng: 13.1913,
+    tz: 'Africa/Tripoli',
+    method: 'MWL',
+    region: 'africa',
+  },
+  {
+    name: 'Tunis',
+    nameAr: 'تونس',
+    country: 'Tunisia',
+    countryAr: 'تونس',
+    flag: '🇹🇳',
+    lat: 36.8065,
+    lng: 10.1815,
+    tz: 'Africa/Tunis',
+    method: 'Tunisia',
+    region: 'africa',
+  },
+  {
+    name: 'Algiers',
+    nameAr: 'الجزائر',
+    country: 'Algeria',
+    countryAr: 'الجزائر',
+    flag: '🇩🇿',
+    lat: 36.7538,
+    lng: 3.0588,
+    tz: 'Africa/Algiers',
+    method: 'Algerian',
+    region: 'africa',
+  },
+  {
+    name: 'Casablanca',
+    nameAr: 'الدار البيضاء',
+    country: 'Morocco',
+    countryAr: 'المغرب',
+    flag: '🇲🇦',
+    lat: 33.5731,
+    lng: -7.5898,
+    tz: 'Africa/Casablanca',
+    method: 'Morocco',
+    region: 'africa',
+  },
+  {
+    name: 'Nouakchott',
+    nameAr: 'نواكشوط',
+    country: 'Mauritania',
+    countryAr: 'موريتانيا',
+    flag: '🇲🇷',
+    lat: 18.0735,
+    lng: -15.9582,
+    tz: 'Africa/Nouakchott',
+    method: 'MWL',
+    region: 'africa',
+  },
+  {
+    name: 'Dakar',
+    nameAr: 'داكار',
+    country: 'Senegal',
+    countryAr: 'السنغال',
+    flag: '🇸🇳',
+    lat: 14.7167,
+    lng: -17.4677,
+    tz: 'Africa/Dakar',
+    method: 'MWL',
+    region: 'africa',
+  },
+  {
+    name: 'Lagos',
+    nameAr: 'لاغوس',
+    country: 'Nigeria',
+    countryAr: 'نيجيريا',
+    flag: '🇳🇬',
+    lat: 6.5244,
+    lng: 3.3792,
+    tz: 'Africa/Lagos',
+    method: 'MWL',
+    region: 'africa',
+  },
+  {
+    name: 'Mogadishu',
+    nameAr: 'مقديشو',
+    country: 'Somalia',
+    countryAr: 'الصومال',
+    flag: '🇸🇴',
+    lat: 2.0469,
+    lng: 45.3182,
+    tz: 'Africa/Mogadishu',
+    method: 'MWL',
+    region: 'africa',
+  },
+  {
+    name: 'Istanbul',
+    nameAr: 'إسطنبول',
+    country: 'Türkiye',
+    countryAr: 'تركيا',
+    flag: '🇹🇷',
+    lat: 41.0082,
+    lng: 28.9784,
+    tz: 'Europe/Istanbul',
+    method: 'Turkey',
+    region: 'europe',
+    asrShadow: 2,
+  },
+  {
+    name: 'Ankara',
+    nameAr: 'أنقرة',
+    country: 'Türkiye',
+    countryAr: 'تركيا',
+    flag: '🇹🇷',
+    lat: 39.9334,
+    lng: 32.8597,
+    tz: 'Europe/Istanbul',
+    method: 'Turkey',
+    region: 'europe',
+    asrShadow: 2,
+  },
+  {
+    name: 'Tehran',
+    nameAr: 'طهران',
+    country: 'Iran',
+    countryAr: 'إيران',
+    flag: '🇮🇷',
+    lat: 35.6892,
+    lng: 51.389,
+    tz: 'Asia/Tehran',
+    method: 'Tehran',
+    region: 'asia',
+  },
+  {
+    name: 'Kabul',
+    nameAr: 'كابول',
+    country: 'Afghanistan',
+    countryAr: 'أفغانستان',
+    flag: '🇦🇫',
+    lat: 34.5553,
+    lng: 69.2075,
+    tz: 'Asia/Kabul',
+    method: 'Karachi',
+    region: 'asia',
+    asrShadow: 2,
+  },
+  {
+    name: 'Tashkent',
+    nameAr: 'طشقند',
+    country: 'Uzbekistan',
+    countryAr: 'أوزبكستان',
+    flag: '🇺🇿',
+    lat: 41.2995,
+    lng: 69.2401,
+    tz: 'Asia/Tashkent',
+    method: 'Karachi',
+    region: 'asia',
+    asrShadow: 2,
+  },
+  {
+    name: 'Baku',
+    nameAr: 'باكو',
+    country: 'Azerbaijan',
+    countryAr: 'أذربيجان',
+    flag: '🇦🇿',
+    lat: 40.4093,
+    lng: 49.8671,
+    tz: 'Asia/Baku',
+    method: 'Tehran',
+    region: 'asia',
+  },
+  {
+    name: 'Karachi',
+    nameAr: 'كراتشي',
+    country: 'Pakistan',
+    countryAr: 'باكستان',
+    flag: '🇵🇰',
+    lat: 24.8607,
+    lng: 67.0011,
+    tz: 'Asia/Karachi',
+    method: 'Karachi',
+    region: 'asia',
+    asrShadow: 2,
+  },
+  {
+    name: 'Lahore',
+    nameAr: 'لاهور',
+    country: 'Pakistan',
+    countryAr: 'باكستان',
+    flag: '🇵🇰',
+    lat: 31.5497,
+    lng: 74.3436,
+    tz: 'Asia/Karachi',
+    method: 'Karachi',
+    region: 'asia',
+    asrShadow: 2,
+  },
+  {
+    name: 'Islamabad',
+    nameAr: 'إسلام آباد',
+    country: 'Pakistan',
+    countryAr: 'باكستان',
+    flag: '🇵🇰',
+    lat: 33.6844,
+    lng: 73.0479,
+    tz: 'Asia/Karachi',
+    method: 'Karachi',
+    region: 'asia',
+    asrShadow: 2,
+  },
+  {
+    name: 'Dhaka',
+    nameAr: 'دكا',
+    country: 'Bangladesh',
+    countryAr: 'بنغلاديش',
+    flag: '🇧🇩',
+    lat: 23.8103,
+    lng: 90.4125,
+    tz: 'Asia/Dhaka',
+    method: 'Karachi',
+    region: 'asia',
+    asrShadow: 2,
+  },
+  {
+    name: 'Delhi',
+    nameAr: 'دلهي',
+    country: 'India',
+    countryAr: 'الهند',
+    flag: '🇮🇳',
+    lat: 28.6139,
+    lng: 77.209,
+    tz: 'Asia/Kolkata',
+    method: 'Karachi',
+    region: 'asia',
+    asrShadow: 2,
+  },
+  {
+    name: 'Mumbai',
+    nameAr: 'مومباي',
+    country: 'India',
+    countryAr: 'الهند',
+    flag: '🇮🇳',
+    lat: 19.076,
+    lng: 72.8777,
+    tz: 'Asia/Kolkata',
+    method: 'Karachi',
+    region: 'asia',
+    asrShadow: 2,
+  },
+  {
+    name: 'Hyderabad',
+    nameAr: 'حيدر آباد',
+    country: 'India',
+    countryAr: 'الهند',
+    flag: '🇮🇳',
+    lat: 17.385,
+    lng: 78.4867,
+    tz: 'Asia/Kolkata',
+    method: 'Karachi',
+    region: 'asia',
+    asrShadow: 2,
+  },
+  {
+    name: 'Jakarta',
+    nameAr: 'جاكرتا',
+    country: 'Indonesia',
+    countryAr: 'إندونيسيا',
+    flag: '🇮🇩',
+    lat: -6.2088,
+    lng: 106.8456,
+    tz: 'Asia/Jakarta',
+    method: 'Kemenag',
+    region: 'asia',
+  },
+  {
+    name: 'Surabaya',
+    nameAr: 'سورابايا',
+    country: 'Indonesia',
+    countryAr: 'إندونيسيا',
+    flag: '🇮🇩',
+    lat: -7.2575,
+    lng: 112.7521,
+    tz: 'Asia/Jakarta',
+    method: 'Kemenag',
+    region: 'asia',
+  },
+  {
+    name: 'Kuala Lumpur',
+    nameAr: 'كوالالمبور',
+    country: 'Malaysia',
+    countryAr: 'ماليزيا',
+    flag: '🇲🇾',
+    lat: 3.139,
+    lng: 101.6869,
+    tz: 'Asia/Kuala_Lumpur',
+    method: 'JAKIM',
+    region: 'asia',
+  },
+  {
+    name: 'Singapore',
+    nameAr: 'سنغافورة',
+    country: 'Singapore',
+    countryAr: 'سنغافورة',
+    flag: '🇸🇬',
+    lat: 1.3521,
+    lng: 103.8198,
+    tz: 'Asia/Singapore',
+    method: 'Singapore',
+    region: 'asia',
+  },
+  {
+    name: 'Brunei',
+    nameAr: 'بروناي',
+    country: 'Brunei',
+    countryAr: 'بروناي',
+    flag: '🇧🇳',
+    lat: 4.9031,
+    lng: 114.9398,
+    tz: 'Asia/Brunei',
+    method: 'JAKIM',
+    region: 'asia',
+  },
+  {
+    name: 'Moscow',
+    nameAr: 'موسكو',
+    country: 'Russia',
+    countryAr: 'روسيا',
+    flag: '🇷🇺',
+    lat: 55.7558,
+    lng: 37.6173,
+    tz: 'Europe/Moscow',
+    method: 'Russia',
+    region: 'europe',
+    asrShadow: 2,
+  },
+  {
+    name: 'Sarajevo',
+    nameAr: 'سراييفو',
+    country: 'Bosnia',
+    countryAr: 'البوسنة',
+    flag: '🇧🇦',
+    lat: 43.8563,
+    lng: 18.4131,
+    tz: 'Europe/Sarajevo',
+    method: 'MWL',
+    region: 'europe',
+    asrShadow: 2,
+  },
+  {
+    name: 'Tirana',
+    nameAr: 'تيرانا',
+    country: 'Albania',
+    countryAr: 'ألبانيا',
+    flag: '🇦🇱',
+    lat: 41.3275,
+    lng: 19.8187,
+    tz: 'Europe/Tirane',
+    method: 'MWL',
+    region: 'europe',
+  },
+  {
+    name: 'London',
+    nameAr: 'لندن',
+    country: 'United Kingdom',
+    countryAr: 'بريطانيا',
+    flag: '🇬🇧',
+    lat: 51.5074,
+    lng: -0.1278,
+    tz: 'Europe/London',
+    method: 'MWL',
+    region: 'europe',
+  },
+  {
+    name: 'Paris',
+    nameAr: 'باريس',
+    country: 'France',
+    countryAr: 'فرنسا',
+    flag: '🇫🇷',
+    lat: 48.8566,
+    lng: 2.3522,
+    tz: 'Europe/Paris',
+    method: 'UOIF',
+    region: 'europe',
+  },
+  {
+    name: 'Berlin',
+    nameAr: 'برلين',
+    country: 'Germany',
+    countryAr: 'ألمانيا',
+    flag: '🇩🇪',
+    lat: 52.52,
+    lng: 13.405,
+    tz: 'Europe/Berlin',
+    method: 'MWL',
+    region: 'europe',
+  },
+  {
+    name: 'Rome',
+    nameAr: 'روما',
+    country: 'Italy',
+    countryAr: 'إيطاليا',
+    flag: '🇮🇹',
+    lat: 41.9028,
+    lng: 12.4964,
+    tz: 'Europe/Rome',
+    method: 'MWL',
+    region: 'europe',
+  },
+  {
+    name: 'Madrid',
+    nameAr: 'مدريد',
+    country: 'Spain',
+    countryAr: 'إسبانيا',
+    flag: '🇪🇸',
+    lat: 40.4168,
+    lng: -3.7038,
+    tz: 'Europe/Madrid',
+    method: 'MWL',
+    region: 'europe',
+  },
+  {
+    name: 'New York',
+    nameAr: 'نيويورك',
+    country: 'United States',
+    countryAr: 'أمريكا',
+    flag: '🇺🇸',
+    lat: 40.7128,
+    lng: -74.006,
+    tz: 'America/New_York',
+    method: 'ISNA',
+    region: 'americas',
+  },
+  {
+    name: 'Chicago',
+    nameAr: 'شيكاغو',
+    country: 'United States',
+    countryAr: 'أمريكا',
+    flag: '🇺🇸',
+    lat: 41.8781,
+    lng: -87.6298,
+    tz: 'America/Chicago',
+    method: 'ISNA',
+    region: 'americas',
+  },
+  {
+    name: 'Los Angeles',
+    nameAr: 'لوس أنجلوس',
+    country: 'United States',
+    countryAr: 'أمريكا',
+    flag: '🇺🇸',
+    lat: 34.0522,
+    lng: -118.2437,
+    tz: 'America/Los_Angeles',
+    method: 'ISNA',
+    region: 'americas',
+  },
+  {
+    name: 'Toronto',
+    nameAr: 'تورنتو',
+    country: 'Canada',
+    countryAr: 'كندا',
+    flag: '🇨🇦',
+    lat: 43.6532,
+    lng: -79.3832,
+    tz: 'America/Toronto',
+    method: 'ISNA',
+    region: 'americas',
+  },
+  {
+    name: 'Sydney',
+    nameAr: 'سيدني',
+    country: 'Australia',
+    countryAr: 'أستراليا',
+    flag: '🇦🇺',
+    lat: -33.8688,
+    lng: 151.2093,
+    tz: 'Australia/Sydney',
+    method: 'MWL',
+    region: 'oceania',
+  },
 ];
 
-const REGION_LABELS: Record<Region, { ar: string; }> = {
-  arab:     { ar: 'العالم العربي', },
-  africa:   { ar: 'أفريقيا', },
-  asia:     { ar: 'آسيا', },
-  europe:   { ar: 'أوروبا', },
-  americas: { ar: 'الأمريكتان', },
-  oceania:  { ar: 'أوقيانوسيا', },
+const REGION_LABELS: Record<Region, { ar: string }> = {
+  arab: { ar: 'العالم العربي' },
+  africa: { ar: 'أفريقيا' },
+  asia: { ar: 'آسيا' },
+  europe: { ar: 'أوروبا' },
+  americas: { ar: 'الأمريكتان' },
+  oceania: { ar: 'أوقيانوسيا' },
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -141,14 +769,14 @@ const RAD = Math.PI / 180;
 
 function getSubsolar(date: Date): { lng: number; decl: number } {
   const D = date.getTime() / 86400000 - 10957.5; // days from J2000
-  const g = ((357.529 + 0.98560028 * D) % 360 + 360) % 360;
-  const q = ((280.459 + 0.98564736 * D) % 360 + 360) % 360;
-  const L = (q + 1.915 * Math.sin(g * RAD) + 0.020 * Math.sin(2 * g * RAD)) % 360;
+  const g = (((357.529 + 0.98560028 * D) % 360) + 360) % 360;
+  const q = (((280.459 + 0.98564736 * D) % 360) + 360) % 360;
+  const L = (q + 1.915 * Math.sin(g * RAD) + 0.02 * Math.sin(2 * g * RAD)) % 360;
   const e = 23.439 - 0.00000036 * D;
   const decl = Math.asin(Math.sin(e * RAD) * Math.sin(L * RAD)) / RAD;
   const RAh = Math.atan2(Math.cos(e * RAD) * Math.sin(L * RAD), Math.cos(L * RAD)) / RAD / 15;
   let eot = q / 15 - ((RAh + 24) % 24);
-  if (eot > 12)  eot -= 24;
+  if (eot > 12) eot -= 24;
   if (eot < -12) eot += 24;
   const utcMin = date.getUTCHours() * 60 + date.getUTCMinutes() + date.getUTCSeconds() / 60;
   const subLng = -((utcMin + eot * 60 - 720) / 4);
@@ -163,7 +791,10 @@ function buildNightPaths(date: Date): string[] {
   for (let lat = -90; lat <= 90; lat += 2) {
     const latR = lat * RAD;
     const cosH = -Math.tan(latR) * Math.tan(declRad);
-    if (cosH >= 1)  { pts.push({ lng: subLng + 180, lat }); continue; }
+    if (cosH >= 1) {
+      pts.push({ lng: subLng + 180, lat });
+      continue;
+    }
     if (cosH <= -1) continue;
     const H_ang = Math.acos(cosH) / RAD;
     pts.push({ lng: subLng + H_ang, lat });
@@ -171,18 +802,23 @@ function buildNightPaths(date: Date): string[] {
   for (let lat = 90; lat >= -90; lat -= 2) {
     const latR = lat * RAD;
     const cosH = -Math.tan(latR) * Math.tan(declRad);
-    if (cosH >= 1)  { pts.push({ lng: subLng - 180, lat }); continue; }
+    if (cosH >= 1) {
+      pts.push({ lng: subLng - 180, lat });
+      continue;
+    }
     if (cosH <= -1) continue;
     const H_ang = Math.acos(cosH) / RAD;
     pts.push({ lng: subLng + 360 - H_ang, lat });
   }
 
   const shift = (dx: number) =>
-    pts.map((p, i) => {
-      const x = ((p.lng + 180) / 360) * W + dx;
-      const y = ((90 - p.lat) / 180) * H;
-      return `${i === 0 ? 'M' : 'L'}${x.toFixed(1)},${y.toFixed(1)}`;
-    }).join(' ') + ' Z';
+    pts
+      .map((p, i) => {
+        const x = ((p.lng + 180) / 360) * W + dx;
+        const y = ((90 - p.lat) / 180) * H;
+        return `${i === 0 ? 'M' : 'L'}${x.toFixed(1)},${y.toFixed(1)}`;
+      })
+      .join(' ') + ' Z';
 
   return [shift(-W), shift(0), shift(W)];
 }
@@ -191,14 +827,14 @@ function buildNightPaths(date: Date): string[] {
 // UI meta
 // ─────────────────────────────────────────────────────────────────────────────
 const SLOT_META: Record<PrayerSlot, { ar: string; color: string }> = {
-  fajr:    { ar: 'الفجر',     color: 'hsl(43, 96%, 66%)'  },
-  shuruq:  { ar: 'الشروق', color: 'hsl(32, 95%, 64%)'  },
-  duha:    { ar: 'الضحى',        color: 'hsl(48, 92%, 60%)'  },
-  dhuhr:   { ar: 'الظهر',       color: 'hsl(196, 78%, 62%)' },
-  asr:     { ar: 'العصر',         color: 'hsl(18, 78%, 60%)'  },
-  maghrib: { ar: 'المغرب',     color: 'hsl(348, 76%, 62%)' },
-  isha:    { ar: 'العشاء',       color: 'hsl(252, 62%, 66%)' },
-  night:   { ar: 'الليل',       color: 'hsl(220, 25%, 55%)' },
+  fajr: { ar: 'الفجر', color: 'hsl(43, 96%, 66%)' },
+  shuruq: { ar: 'الشروق', color: 'hsl(32, 95%, 64%)' },
+  duha: { ar: 'الضحى', color: 'hsl(48, 92%, 60%)' },
+  dhuhr: { ar: 'الظهر', color: 'hsl(196, 78%, 62%)' },
+  asr: { ar: 'العصر', color: 'hsl(18, 78%, 60%)' },
+  maghrib: { ar: 'المغرب', color: 'hsl(348, 76%, 62%)' },
+  isha: { ar: 'العشاء', color: 'hsl(252, 62%, 66%)' },
+  night: { ar: 'الليل', color: 'hsl(220, 25%, 55%)' },
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -250,7 +886,9 @@ function UmmahPulse() {
     if (!expanded) return;
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
-    return () => { document.body.style.overflow = prev; };
+    return () => {
+      document.body.style.overflow = prev;
+    };
   }, [expanded]);
 
   // Esc closes (selection first, then modal)
@@ -280,16 +918,16 @@ function UmmahPulse() {
         const info = getCityPrayerInfo(c.lat, c.lng, c.tz, c.method, now, cityShadow, c.adj);
         return { ...c, info, shadowUsed: cityShadow };
       }),
-    [now, userShadowFactor]
+    [now, userShadowFactor],
   );
 
   const fajrCities = useMemo(
     () => cityDetails.filter((c) => c.info.slot === 'fajr'),
-    [cityDetails]
+    [cityDetails],
   );
   const maghribCities = useMemo(
     () => cityDetails.filter((c) => c.info.slot === 'maghrib'),
-    [cityDetails]
+    [cityDetails],
   );
 
   // Fajr band center (~15° east of terminator, sunrise side)
@@ -318,10 +956,10 @@ function UmmahPulse() {
   }, [cityDetails, filter, regionFilter, search]);
 
   const selectedCityDetails = selectedCity
-    ? cityDetails.find((c) => c.name === selectedCity) ?? null
+    ? (cityDetails.find((c) => c.name === selectedCity) ?? null)
     : null;
 
-  const t = (ar: string, de: string) => (ar);
+  const t = (ar: string, de: string) => ar;
 
   // ── Map render ────────────────────────────────────────────────────────────
   const renderMapSvg = (opts: { large?: boolean } = {}) => {
@@ -336,7 +974,7 @@ function UmmahPulse() {
     // Cities currently in an "active" prayer (fajr/maghrib) — these get
     // animated qibla arcs from the map to Makkah for an extra wow factor.
     const activeForArcs = cityDetails
-      .filter(c => (c.info.slot === 'fajr' || c.info.slot === 'maghrib') && c.name !== 'Makkah')
+      .filter((c) => (c.info.slot === 'fajr' || c.info.slot === 'maghrib') && c.name !== 'Makkah')
       .sort((a, b) => a.name.localeCompare(b.name))
       .slice(0, large ? 8 : 4);
 
@@ -345,10 +983,7 @@ function UmmahPulse() {
         viewBox={`0 0 ${W} ${H}`}
         className="w-full h-auto block select-none"
         preserveAspectRatio="xMidYMid meet"
-        aria-label={t(
-          'خريطة العالم مع موجة الفجر الحية',
-          'Weltkarte mit Live-Fadschr-Welle'
-        )}
+        aria-label={t('خريطة العالم مع موجة الفجر الحية', 'Weltkarte mit Live-Fadschr-Welle')}
       >
         <defs>
           {/* ── Google-Maps-Dark inspired palette ─────────────────────────
@@ -357,65 +992,65 @@ function UmmahPulse() {
 
           {/* Ocean — graphite navy with a faint center glow */}
           <radialGradient id={`ocean${idSuffix}`} cx="50%" cy="50%" r="78%">
-            <stop offset="0%"   stopColor="hsl(216, 36%, 12%)" />
-            <stop offset="55%"  stopColor="hsl(220, 42%, 8%)"  />
-            <stop offset="100%" stopColor="hsl(225, 50%, 4%)"  />
+            <stop offset="0%" stopColor="hsl(216, 36%, 12%)" />
+            <stop offset="55%" stopColor="hsl(220, 42%, 8%)" />
+            <stop offset="100%" stopColor="hsl(225, 50%, 4%)" />
           </radialGradient>
 
           {/* Soft top/bottom vignette for cinematic depth */}
           <linearGradient id={`vignette${idSuffix}`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%"   stopColor="hsl(225, 70%, 3%)"  stopOpacity="0.55" />
-            <stop offset="22%"  stopColor="hsl(225, 70%, 3%)"  stopOpacity="0"    />
-            <stop offset="78%"  stopColor="hsl(225, 70%, 3%)"  stopOpacity="0"    />
-            <stop offset="100%" stopColor="hsl(225, 70%, 3%)"  stopOpacity="0.55" />
+            <stop offset="0%" stopColor="hsl(225, 70%, 3%)" stopOpacity="0.55" />
+            <stop offset="22%" stopColor="hsl(225, 70%, 3%)" stopOpacity="0" />
+            <stop offset="78%" stopColor="hsl(225, 70%, 3%)" stopOpacity="0" />
+            <stop offset="100%" stopColor="hsl(225, 70%, 3%)" stopOpacity="0.55" />
           </linearGradient>
 
           {/* Land (day side) — refined dark slate, slight top-light */}
           <linearGradient id={`landFill${idSuffix}`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%"   stopColor="hsl(214, 16%, 28%)" />
-            <stop offset="55%"  stopColor="hsl(216, 18%, 23%)" />
+            <stop offset="0%" stopColor="hsl(214, 16%, 28%)" />
+            <stop offset="55%" stopColor="hsl(216, 18%, 23%)" />
             <stop offset="100%" stopColor="hsl(220, 22%, 18%)" />
           </linearGradient>
 
           {/* Land (night side) — same family but darker, almost ink */}
           <linearGradient id={`landNight${idSuffix}`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%"   stopColor="hsl(220, 24%, 14%)" />
-            <stop offset="100%" stopColor="hsl(224, 30%, 9%)"  />
+            <stop offset="0%" stopColor="hsl(220, 24%, 14%)" />
+            <stop offset="100%" stopColor="hsl(224, 30%, 9%)" />
           </linearGradient>
 
           {/* Fajr — warm gold dawn band */}
           <radialGradient id={`fajrGlow${idSuffix}`} cx="50%" cy="50%" r="50%">
-            <stop offset="0%"   stopColor="hsl(46, 100%, 78%)" stopOpacity="0.85" />
-            <stop offset="35%"  stopColor="hsl(38, 95%, 62%)"  stopOpacity="0.45" />
-            <stop offset="70%"  stopColor="hsl(28, 88%, 48%)"  stopOpacity="0.15" />
-            <stop offset="100%" stopColor="hsl(20, 80%, 35%)"  stopOpacity="0"    />
+            <stop offset="0%" stopColor="hsl(46, 100%, 78%)" stopOpacity="0.85" />
+            <stop offset="35%" stopColor="hsl(38, 95%, 62%)" stopOpacity="0.45" />
+            <stop offset="70%" stopColor="hsl(28, 88%, 48%)" stopOpacity="0.15" />
+            <stop offset="100%" stopColor="hsl(20, 80%, 35%)" stopOpacity="0" />
           </radialGradient>
 
           {/* Maghrib — coral / rose dusk band */}
           <radialGradient id={`maghribGlow${idSuffix}`} cx="50%" cy="50%" r="50%">
-            <stop offset="0%"   stopColor="hsl(8, 88%, 70%)"   stopOpacity="0.7"  />
-            <stop offset="45%"  stopColor="hsl(345, 70%, 52%)" stopOpacity="0.32" />
-            <stop offset="85%"  stopColor="hsl(290, 50%, 38%)" stopOpacity="0.08" />
-            <stop offset="100%" stopColor="hsl(245, 55%, 22%)" stopOpacity="0"    />
+            <stop offset="0%" stopColor="hsl(8, 88%, 70%)" stopOpacity="0.7" />
+            <stop offset="45%" stopColor="hsl(345, 70%, 52%)" stopOpacity="0.32" />
+            <stop offset="85%" stopColor="hsl(290, 50%, 38%)" stopOpacity="0.08" />
+            <stop offset="100%" stopColor="hsl(245, 55%, 22%)" stopOpacity="0" />
           </radialGradient>
 
           {/* Sun corona + bright core */}
           <radialGradient id={`sunCorona${idSuffix}`} cx="50%" cy="50%" r="50%">
-            <stop offset="0%"   stopColor="hsl(48, 100%, 95%)" stopOpacity="1"    />
-            <stop offset="22%"  stopColor="hsl(46, 100%, 78%)" stopOpacity="0.85" />
-            <stop offset="55%"  stopColor="hsl(36, 98%, 55%)"  stopOpacity="0.45" />
-            <stop offset="100%" stopColor="hsl(26, 92%, 38%)"  stopOpacity="0"    />
+            <stop offset="0%" stopColor="hsl(48, 100%, 95%)" stopOpacity="1" />
+            <stop offset="22%" stopColor="hsl(46, 100%, 78%)" stopOpacity="0.85" />
+            <stop offset="55%" stopColor="hsl(36, 98%, 55%)" stopOpacity="0.45" />
+            <stop offset="100%" stopColor="hsl(26, 92%, 38%)" stopOpacity="0" />
           </radialGradient>
           <radialGradient id={`sunCore${idSuffix}`} cx="50%" cy="50%" r="50%">
-            <stop offset="0%"   stopColor="hsl(50, 100%, 97%)" stopOpacity="1" />
+            <stop offset="0%" stopColor="hsl(50, 100%, 97%)" stopOpacity="1" />
             <stop offset="100%" stopColor="hsl(45, 100%, 72%)" stopOpacity="1" />
           </radialGradient>
 
           {/* Moon */}
           <radialGradient id={`moonGrad${idSuffix}`} cx="40%" cy="40%" r="60%">
-            <stop offset="0%"   stopColor="hsl(220, 22%, 94%)" stopOpacity="1"    />
-            <stop offset="70%"  stopColor="hsl(220, 28%, 72%)" stopOpacity="0.85" />
-            <stop offset="100%" stopColor="hsl(220, 35%, 45%)" stopOpacity="0"    />
+            <stop offset="0%" stopColor="hsl(220, 22%, 94%)" stopOpacity="1" />
+            <stop offset="70%" stopColor="hsl(220, 28%, 72%)" stopOpacity="0.85" />
+            <stop offset="100%" stopColor="hsl(220, 35%, 45%)" stopOpacity="0" />
           </radialGradient>
 
           {/* Soft blur filters */}
@@ -428,13 +1063,17 @@ function UmmahPulse() {
 
           {/* Clip path for night-only rendering */}
           <clipPath id={`nightClip${idSuffix}`}>
-            {nightPaths.map((d, i) => <path key={i} d={d} />)}
+            {nightPaths.map((d, i) => (
+              <path key={i} d={d} />
+            ))}
           </clipPath>
 
           {/* 8-pointed star sparkle for the brightest stars */}
           <symbol id={`sparkle${idSuffix}`} viewBox="-3 -3 6 6">
-            <path d="M0,-3 L0.4,-0.4 L3,0 L0.4,0.4 L0,3 L-0.4,0.4 L-3,0 L-0.4,-0.4 Z"
-                  fill="hsl(48, 100%, 96%)" />
+            <path
+              d="M0,-3 L0.4,-0.4 L3,0 L0.4,0.4 L0,3 L-0.4,0.4 L-3,0 L-0.4,-0.4 Z"
+              fill="hsl(48, 100%, 96%)"
+            />
           </symbol>
         </defs>
 
@@ -446,11 +1085,17 @@ function UmmahPulse() {
           {STARS.map((s, i) => (
             <motion.circle
               key={i}
-              cx={s.x} cy={s.y} r={s.r}
+              cx={s.x}
+              cy={s.y}
+              r={s.r}
               fill="hsl(220, 40%, 95%)"
               fillOpacity={s.o}
               animate={i % 7 === 0 ? { opacity: [s.o, s.o * 0.35, s.o] } : undefined}
-              transition={i % 7 === 0 ? { duration: 2.5 + (i % 5) * 0.6, repeat: Infinity, ease: 'easeInOut' } : undefined}
+              transition={
+                i % 7 === 0
+                  ? { duration: 2.5 + (i % 5) * 0.6, repeat: Infinity, ease: 'easeInOut' }
+                  : undefined
+              }
             />
           ))}
           {/* a few standout sparkle stars */}
@@ -460,8 +1105,10 @@ function UmmahPulse() {
               <motion.use
                 key={`spk-${i}`}
                 href={`#sparkle${idSuffix}`}
-                x={s.x - 3} y={s.y - 3}
-                width={6} height={6}
+                x={s.x - 3}
+                y={s.y - 3}
+                width={6}
+                height={6}
                 opacity={0.85}
                 animate={{ opacity: [0.85, 0.25, 0.85] }}
                 transition={{ duration: 3.5 + (i % 4), repeat: Infinity, ease: 'easeInOut' }}
@@ -473,28 +1120,51 @@ function UmmahPulse() {
         {/* Subtle latitude/longitude grid — Google-Maps-dark style */}
         <g stroke="hsl(216, 22%, 32%)" fill="none" strokeWidth="0.22">
           {/* Equator slightly stronger */}
-          <line x1={0} y1={H / 2} x2={W} y2={H / 2}
-                strokeOpacity="0.28" strokeWidth="0.32" />
+          <line x1={0} y1={H / 2} x2={W} y2={H / 2} strokeOpacity="0.28" strokeWidth="0.32" />
           {[66.5, 23.5, -23.5, -66.5].map((lat) => (
-            <line key={lat} x1={0} y1={((90 - lat) / 180) * H} x2={W} y2={((90 - lat) / 180) * H}
-                  strokeOpacity="0.14" strokeDasharray="2 3" />
+            <line
+              key={lat}
+              x1={0}
+              y1={((90 - lat) / 180) * H}
+              x2={W}
+              y2={((90 - lat) / 180) * H}
+              strokeOpacity="0.14"
+              strokeDasharray="2 3"
+            />
           ))}
           {[-150, -120, -90, -60, -30, 0, 30, 60, 90, 120, 150].map((lng) => (
-            <line key={lng} x1={((lng + 180) / 360) * W} y1={0} x2={((lng + 180) / 360) * W} y2={H}
-                  strokeOpacity="0.08" strokeDasharray="1.5 3" />
+            <line
+              key={lng}
+              x1={((lng + 180) / 360) * W}
+              y1={0}
+              x2={((lng + 180) / 360) * W}
+              y2={H}
+              strokeOpacity="0.08"
+              strokeDasharray="1.5 3"
+            />
           ))}
         </g>
 
         {/* Continents — daytime layer (dark slate), then night overlay clipped */}
         <g>
           <path d={CONTINENTS} fill={`url(#landFill${idSuffix})`} />
-          <path d={CONTINENTS} fill="none"
-                stroke="hsl(214, 22%, 42%)" strokeOpacity="0.55" strokeWidth="0.28" />
+          <path
+            d={CONTINENTS}
+            fill="none"
+            stroke="hsl(214, 22%, 42%)"
+            strokeOpacity="0.55"
+            strokeWidth="0.28"
+          />
         </g>
         <g clipPath={`url(#nightClip${idSuffix})`}>
           <path d={CONTINENTS} fill={`url(#landNight${idSuffix})`} />
-          <path d={CONTINENTS} fill="none"
-                stroke="hsl(220, 28%, 38%)" strokeOpacity="0.4" strokeWidth="0.24" />
+          <path
+            d={CONTINENTS}
+            fill="none"
+            stroke="hsl(220, 28%, 38%)"
+            strokeOpacity="0.4"
+            strokeWidth="0.24"
+          />
         </g>
 
         {/* Night veil — single soft layer, no harsh edge */}
@@ -511,7 +1181,10 @@ function UmmahPulse() {
           return (
             <motion.g key={`mag-${Math.round(p.x / 4)}`}>
               <motion.ellipse
-                cx={p.x} cy={H / 2} rx={20} ry={H / 2 + 4}
+                cx={p.x}
+                cy={H / 2}
+                rx={20}
+                ry={H / 2 + 4}
                 fill={`url(#maghribGlow${idSuffix})`}
                 filter={`url(#bigBlur${idSuffix})`}
                 animate={{ opacity: [0.4, 0.7, 0.4] }}
@@ -520,7 +1193,10 @@ function UmmahPulse() {
               {/* duplicate for horizontal wrap */}
               {p.x < 26 && (
                 <motion.ellipse
-                  cx={p.x + W} cy={H / 2} rx={20} ry={H / 2 + 4}
+                  cx={p.x + W}
+                  cy={H / 2}
+                  rx={20}
+                  ry={H / 2 + 4}
                   fill={`url(#maghribGlow${idSuffix})`}
                   filter={`url(#bigBlur${idSuffix})`}
                   animate={{ opacity: [0.4, 0.7, 0.4] }}
@@ -529,7 +1205,10 @@ function UmmahPulse() {
               )}
               {p.x > W - 26 && (
                 <motion.ellipse
-                  cx={p.x - W} cy={H / 2} rx={20} ry={H / 2 + 4}
+                  cx={p.x - W}
+                  cy={H / 2}
+                  rx={20}
+                  ry={H / 2 + 4}
                   fill={`url(#maghribGlow${idSuffix})`}
                   filter={`url(#bigBlur${idSuffix})`}
                   animate={{ opacity: [0.4, 0.7, 0.4] }}
@@ -547,15 +1226,33 @@ function UmmahPulse() {
           animate={{ opacity: [0.55, 0.85, 0.7] }}
           transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
         >
-          <ellipse cx={fajrCenter.x} cy={H / 2} rx={26} ry={H / 2 + 4}
-                   fill={`url(#fajrGlow${idSuffix})`} filter={`url(#bigBlur${idSuffix})`} />
+          <ellipse
+            cx={fajrCenter.x}
+            cy={H / 2}
+            rx={26}
+            ry={H / 2 + 4}
+            fill={`url(#fajrGlow${idSuffix})`}
+            filter={`url(#bigBlur${idSuffix})`}
+          />
           {fajrCenter.x < 30 && (
-            <ellipse cx={fajrCenter.x + W} cy={H / 2} rx={26} ry={H / 2 + 4}
-                     fill={`url(#fajrGlow${idSuffix})`} filter={`url(#bigBlur${idSuffix})`} />
+            <ellipse
+              cx={fajrCenter.x + W}
+              cy={H / 2}
+              rx={26}
+              ry={H / 2 + 4}
+              fill={`url(#fajrGlow${idSuffix})`}
+              filter={`url(#bigBlur${idSuffix})`}
+            />
           )}
           {fajrCenter.x > W - 30 && (
-            <ellipse cx={fajrCenter.x - W} cy={H / 2} rx={26} ry={H / 2 + 4}
-                     fill={`url(#fajrGlow${idSuffix})`} filter={`url(#bigBlur${idSuffix})`} />
+            <ellipse
+              cx={fajrCenter.x - W}
+              cy={H / 2}
+              rx={26}
+              ry={H / 2 + 4}
+              fill={`url(#fajrGlow${idSuffix})`}
+              filter={`url(#bigBlur${idSuffix})`}
+            />
           )}
         </motion.g>
 
@@ -598,10 +1295,15 @@ function UmmahPulse() {
 
         {/* Moon (antipodal to sun) */}
         <g>
-          <circle cx={moonPoint.x} cy={moonPoint.y} r={5.5}
-                  fill={`url(#moonGrad${idSuffix})`} filter={`url(#softBlur${idSuffix})`} opacity="0.85" />
-          <circle cx={moonPoint.x} cy={moonPoint.y} r={2.1}
-                  fill="hsl(220, 20%, 95%)" />
+          <circle
+            cx={moonPoint.x}
+            cy={moonPoint.y}
+            r={5.5}
+            fill={`url(#moonGrad${idSuffix})`}
+            filter={`url(#softBlur${idSuffix})`}
+            opacity="0.85"
+          />
+          <circle cx={moonPoint.x} cy={moonPoint.y} r={2.1} fill="hsl(220, 20%, 95%)" />
           <circle cx={moonPoint.x - 0.6} cy={moonPoint.y - 0.5} r={0.5} fill="hsl(220, 30%, 70%)" />
           <circle cx={moonPoint.x + 0.4} cy={moonPoint.y + 0.6} r={0.4} fill="hsl(220, 30%, 65%)" />
         </g>
@@ -609,7 +1311,9 @@ function UmmahPulse() {
         {/* Subsolar sun — corona + rays + bright core */}
         <g>
           <motion.circle
-            cx={sunPoint.x} cy={sunPoint.y} r={11}
+            cx={sunPoint.x}
+            cy={sunPoint.y}
+            r={11}
             fill={`url(#sunCorona${idSuffix})`}
             animate={{ scale: [1, 1.15, 1] }}
             transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
@@ -621,16 +1325,25 @@ function UmmahPulse() {
             transition={{ duration: 60, repeat: Infinity, ease: 'linear' }}
           >
             {[0, 45, 90, 135, 180, 225, 270, 315].map((deg) => {
-              const r1 = 4, r2 = 7.5;
+              const r1 = 4,
+                r2 = 7.5;
               const a = (deg * Math.PI) / 180;
               const x1 = sunPoint.x + Math.cos(a) * r1;
               const y1 = sunPoint.y + Math.sin(a) * r1;
               const x2 = sunPoint.x + Math.cos(a) * r2;
               const y2 = sunPoint.y + Math.sin(a) * r2;
               return (
-                <line key={deg} x1={x1} y1={y1} x2={x2} y2={y2}
-                      stroke="hsl(48, 100%, 88%)" strokeOpacity="0.85"
-                      strokeWidth="0.6" strokeLinecap="round" />
+                <line
+                  key={deg}
+                  x1={x1}
+                  y1={y1}
+                  x2={x2}
+                  y2={y2}
+                  stroke="hsl(48, 100%, 88%)"
+                  strokeOpacity="0.85"
+                  strokeWidth="0.6"
+                  strokeLinecap="round"
+                />
               );
             })}
           </motion.g>
@@ -648,17 +1361,21 @@ function UmmahPulse() {
           const isMakkah = c.name === 'Makkah';
           const baseR = isMakkah ? 2.4 : isActive ? 1.7 : 1.25;
           return (
-            <g key={`${c.name}-${c.lat}-${c.lng}`}
-               style={{ cursor: 'pointer' }}
-               onClick={(e) => {
-                 e.stopPropagation();
-                 setSelectedCity(c.name === selectedCity ? null : c.name);
-               }}>
+            <g
+              key={`${c.name}-${c.lat}-${c.lng}`}
+              style={{ cursor: 'pointer' }}
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedCity(c.name === selectedCity ? null : c.name);
+              }}
+            >
               <circle cx={x} cy={y} r={5} fill="transparent" />
               {/* outer halo for any active prayer */}
               {isActive && (
                 <motion.circle
-                  cx={x} cy={y} r={baseR + 1.2}
+                  cx={x}
+                  cy={y}
+                  r={baseR + 1.2}
                   fill={color}
                   fillOpacity={0.16}
                   animate={{ r: [baseR + 0.8, baseR + 3.4, baseR + 0.8], opacity: [0.32, 0, 0.32] }}
@@ -672,10 +1389,17 @@ function UmmahPulse() {
               )}
               {/* solid dot */}
               <circle
-                cx={x} cy={y}
+                cx={x}
+                cy={y}
                 r={baseR}
                 fill={isMakkah ? 'hsl(48, 100%, 72%)' : color}
-                stroke={isSelected ? 'hsl(0, 0%, 100%)' : isMakkah ? 'hsl(48,100%,95%)' : 'hsl(220, 30%, 96%)'}
+                stroke={
+                  isSelected
+                    ? 'hsl(0, 0%, 100%)'
+                    : isMakkah
+                      ? 'hsl(48,100%,95%)'
+                      : 'hsl(220, 30%, 96%)'
+                }
                 strokeOpacity={isSelected ? 1 : isMakkah ? 0.9 : 0.4}
                 strokeWidth={isSelected ? 0.7 : isMakkah ? 0.4 : 0.22}
               />
@@ -683,7 +1407,9 @@ function UmmahPulse() {
               {isMakkah && (
                 <>
                   <motion.circle
-                    cx={x} cy={y} r={4}
+                    cx={x}
+                    cy={y}
+                    r={4}
                     fill="none"
                     stroke="hsl(48, 100%, 72%)"
                     strokeWidth="0.5"
@@ -693,7 +1419,9 @@ function UmmahPulse() {
                     style={{ transformOrigin: `${x}px ${y}px` }}
                   />
                   <motion.circle
-                    cx={x} cy={y} r={3.6}
+                    cx={x}
+                    cy={y}
+                    r={3.6}
                     fill="none"
                     stroke="hsl(48, 100%, 72%)"
                     strokeWidth="0.4"
@@ -707,63 +1435,111 @@ function UmmahPulse() {
         })}
 
         {/* Tooltip for selected city (glassmorphic) */}
-        {large && selectedCityDetails && (() => {
-          const p = project(selectedCityDetails.lat, selectedCityDetails.lng);
-          const tipW = 86;
-          const tipH = 30;
-          const flip = p.x > W - tipW - 4;
-          const tx = flip ? p.x - tipW - 6 : p.x + 6;
-          const ty = Math.max(2, Math.min(H - tipH - 2, p.y - tipH / 2));
-          const c = selectedCityDetails;
-          const slotColor = SLOT_META[c.info.slot].color;
-          const nextName = SLOT_META[c.info.next.name].ar;
-          const rem = c.info.next.minutesUntil;
-          const hh = Math.floor(rem / 60);
-          const mm = rem % 60;
-          return (
-            <g pointerEvents="none">
-              {/* leader line */}
-              <line x1={p.x} y1={p.y} x2={flip ? tx + tipW : tx} y2={ty + tipH / 2}
-                    stroke={slotColor} strokeWidth="0.4" strokeOpacity="0.7"
-                    strokeDasharray="1 1" />
-              {/* card */}
-              <rect x={tx} y={ty} width={tipW} height={tipH} rx={3.5}
-                    fill="hsl(220, 36%, 6%)" fillOpacity="0.85" />
-              <rect x={tx} y={ty} width={tipW} height={tipH} rx={3.5}
-                    fill="none" stroke={slotColor} strokeOpacity="0.85" strokeWidth="0.55" />
-              {/* accent bar */}
-              <rect x={tx} y={ty} width={1.4} height={tipH} rx={0.7} fill={slotColor} />
-              <text x={tx + 4} y={ty + 7.5}
-                    fontSize="5" fill="hsl(0, 0%, 98%)" fontWeight="700">
-                {c.nameAr}
-              </text>
-              <text x={tx + 4} y={ty + 14.5} fontSize="4"
-                    fill={slotColor} fontWeight="700">
-                {SLOT_META[c.info.slot].ar}
-              </text>
-              <text x={tx + tipW - 4} y={ty + 14.5} fontSize="4.5"
-                    fill="hsl(0, 0%, 98%)" textAnchor="end" fontWeight="700" letterSpacing="0.3">
-                {c.info.localClock}
-              </text>
-              <text x={tx + 4} y={ty + 23} fontSize="3.5"
-                    fill="hsl(220, 15%, 75%)">
-                {`→ ${nextName} بعد ${hh ? hh + 'س ' : ''}${mm}د`}
-              </text>
-              <text x={tx + tipW - 4} y={ty + 23} fontSize="3.2"
-                    fill="hsl(220, 15%, 65%)" textAnchor="end">
-                {c.flag} {c.countryAr}
-              </text>
-            </g>
-          );
-        })()}
+        {large &&
+          selectedCityDetails &&
+          (() => {
+            const p = project(selectedCityDetails.lat, selectedCityDetails.lng);
+            const tipW = 86;
+            const tipH = 30;
+            const flip = p.x > W - tipW - 4;
+            const tx = flip ? p.x - tipW - 6 : p.x + 6;
+            const ty = Math.max(2, Math.min(H - tipH - 2, p.y - tipH / 2));
+            const c = selectedCityDetails;
+            const slotColor = SLOT_META[c.info.slot].color;
+            const nextName = SLOT_META[c.info.next.name].ar;
+            const rem = c.info.next.minutesUntil;
+            const hh = Math.floor(rem / 60);
+            const mm = rem % 60;
+            return (
+              <g pointerEvents="none">
+                {/* leader line */}
+                <line
+                  x1={p.x}
+                  y1={p.y}
+                  x2={flip ? tx + tipW : tx}
+                  y2={ty + tipH / 2}
+                  stroke={slotColor}
+                  strokeWidth="0.4"
+                  strokeOpacity="0.7"
+                  strokeDasharray="1 1"
+                />
+                {/* card */}
+                <rect
+                  x={tx}
+                  y={ty}
+                  width={tipW}
+                  height={tipH}
+                  rx={3.5}
+                  fill="hsl(220, 36%, 6%)"
+                  fillOpacity="0.85"
+                />
+                <rect
+                  x={tx}
+                  y={ty}
+                  width={tipW}
+                  height={tipH}
+                  rx={3.5}
+                  fill="none"
+                  stroke={slotColor}
+                  strokeOpacity="0.85"
+                  strokeWidth="0.55"
+                />
+                {/* accent bar */}
+                <rect x={tx} y={ty} width={1.4} height={tipH} rx={0.7} fill={slotColor} />
+                <text x={tx + 4} y={ty + 7.5} fontSize="5" fill="hsl(0, 0%, 98%)" fontWeight="700">
+                  {c.nameAr}
+                </text>
+                <text x={tx + 4} y={ty + 14.5} fontSize="4" fill={slotColor} fontWeight="700">
+                  {SLOT_META[c.info.slot].ar}
+                </text>
+                <text
+                  x={tx + tipW - 4}
+                  y={ty + 14.5}
+                  fontSize="4.5"
+                  fill="hsl(0, 0%, 98%)"
+                  textAnchor="end"
+                  fontWeight="700"
+                  letterSpacing="0.3"
+                >
+                  {c.info.localClock}
+                </text>
+                <text x={tx + 4} y={ty + 23} fontSize="3.5" fill="hsl(220, 15%, 75%)">
+                  {`→ ${nextName} بعد ${hh ? hh + 'س ' : ''}${mm}د`}
+                </text>
+                <text
+                  x={tx + tipW - 4}
+                  y={ty + 23}
+                  fontSize="3.2"
+                  fill="hsl(220, 15%, 65%)"
+                  textAnchor="end"
+                >
+                  {c.flag} {c.countryAr}
+                </text>
+              </g>
+            );
+          })()}
 
         {/* Compass cardinals on map edges */}
-        <g pointerEvents="none" fill="hsl(0, 0%, 98%)" fillOpacity="0.55"
-           fontSize="4.5" fontWeight="700" fontFamily="ui-sans-serif, system-ui">
-          <text x={W / 2} y={6} textAnchor="middle">N</text>
-          <text x={W / 2} y={H - 2} textAnchor="middle">S</text>
-          <text x={3} y={H / 2 + 1.5}>W</text>
-          <text x={W - 7} y={H / 2 + 1.5}>E</text>
+        <g
+          pointerEvents="none"
+          fill="hsl(0, 0%, 98%)"
+          fillOpacity="0.55"
+          fontSize="4.5"
+          fontWeight="700"
+          fontFamily="ui-sans-serif, system-ui"
+        >
+          <text x={W / 2} y={6} textAnchor="middle">
+            N
+          </text>
+          <text x={W / 2} y={H - 2} textAnchor="middle">
+            S
+          </text>
+          <text x={3} y={H / 2 + 1.5}>
+            W
+          </text>
+          <text x={W - 7} y={H / 2 + 1.5}>
+            E
+          </text>
         </g>
       </svg>
     );
@@ -774,12 +1550,12 @@ function UmmahPulse() {
     const meta = SLOT_META[c.info.slot];
     const qibla = qiblaBearing(c.lat, c.lng);
     const prayerRows: Array<{ key: PrayerSlot; min: number }> = [
-      { key: 'fajr',    min: c.info.fajr    },
-      { key: 'shuruq',  min: c.info.sunrise },
-      { key: 'dhuhr',   min: c.info.dhuhr   },
-      { key: 'asr',     min: c.info.asr     },
+      { key: 'fajr', min: c.info.fajr },
+      { key: 'shuruq', min: c.info.sunrise },
+      { key: 'dhuhr', min: c.info.dhuhr },
+      { key: 'asr', min: c.info.asr },
       { key: 'maghrib', min: c.info.maghrib },
-      { key: 'isha',    min: c.info.isha    },
+      { key: 'isha', min: c.info.isha },
     ];
     const rem = c.info.next.minutesUntil;
     const hh = Math.floor(rem / 60);
@@ -839,7 +1615,9 @@ function UmmahPulse() {
             </span>
           </div>
           <div className="text-[12px] font-bold tabular-nums text-primary">
-            {hh > 0 && `${hh}${t('س', 'h')} `}{mm}{t('د', 'm')}
+            {hh > 0 && `${hh}${t('س', 'h')} `}
+            {mm}
+            {t('د', 'm')}
           </div>
         </div>
 
@@ -852,17 +1630,20 @@ function UmmahPulse() {
               <div
                 key={key}
                 className={`rounded-lg px-1.5 py-2 text-center transition-all ${
-                  isCurrent
-                    ? 'shadow-sm'
-                    : 'bg-muted/30'
+                  isCurrent ? 'shadow-sm' : 'bg-muted/30'
                 }`}
-                style={isCurrent ? {
-                  background: m.color.replace('hsl(', 'hsla(').replace(')', ', 0.15)'),
-                  boxShadow: `inset 0 0 0 1px ${m.color}`,
-                } : undefined}
+                style={
+                  isCurrent
+                    ? {
+                        background: m.color.replace('hsl(', 'hsla(').replace(')', ', 0.15)'),
+                      }
+                    : undefined
+                }
               >
-                <p className="text-[10px] font-semibold leading-tight"
-                   style={{ color: isCurrent ? m.color : 'hsl(var(--muted-foreground))' }}>
+                <p
+                  className="text-[10px] font-semibold leading-tight"
+                  style={{ color: isCurrent ? m.color : 'hsl(var(--muted-foreground))' }}
+                >
                   {m.ar}
                 </p>
                 <p className="text-[10px] font-bold tabular-nums text-foreground mt-0.5" dir="ltr">
@@ -877,9 +1658,7 @@ function UmmahPulse() {
         <div className="px-4 py-2.5 border-t border-border/30 flex items-center justify-between gap-3 text-[10px]">
           <div className="flex items-center gap-1.5 text-muted-foreground min-w-0">
             <Info className="w-3 h-3 shrink-0" />
-            <span className="truncate">
-              {METHOD_LABELS[c.method].ar}
-            </span>
+            <span className="truncate">{METHOD_LABELS[c.method].ar}</span>
             <span
               className="shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-primary/10 text-primary"
               title={t('مذهب العصر الرسمي للبلد', 'Offizielles Asr-Madhab des Landes')}
@@ -905,10 +1684,7 @@ function UmmahPulse() {
       className="relative rounded-3xl overflow-hidden border border-border/40 bg-card shadow-lg"
     >
       {/* Header */}
-      <div
-        className="flex items-center justify-between px-4 pt-4 pb-2"
-        dir={'rtl'}
-      >
+      <div className="flex items-center justify-between px-4 pt-4 pb-2" dir={'rtl'}>
         <div className="flex items-center gap-2.5">
           <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
             <Compass className="w-4.5 h-4.5 text-primary" strokeWidth={2} />
@@ -929,24 +1705,29 @@ function UmmahPulse() {
         <QiblaCompass />
 
         {/* Quick stats row — 5 prayer summaries */}
-        <div
-          className="grid grid-cols-5 gap-1.5 mt-2.5"
-          dir={'rtl'}
-        >
-          {([
-            ['fajr',    fajrCities.length],
-            ['dhuhr',   cityDetails.filter(c => c.info.slot === 'dhuhr').length],
-            ['asr',     cityDetails.filter(c => c.info.slot === 'asr').length],
-            ['maghrib', maghribCities.length],
-            ['isha',    cityDetails.filter(c => c.info.slot === 'isha').length],
-          ] as [PrayerSlot, number][]).map(([slot, count]) => (
+        <div className="grid grid-cols-5 gap-1.5 mt-2.5" dir={'rtl'}>
+          {(
+            [
+              ['fajr', fajrCities.length],
+              ['dhuhr', cityDetails.filter((c) => c.info.slot === 'dhuhr').length],
+              ['asr', cityDetails.filter((c) => c.info.slot === 'asr').length],
+              ['maghrib', maghribCities.length],
+              ['isha', cityDetails.filter((c) => c.info.slot === 'isha').length],
+            ] as [PrayerSlot, number][]
+          ).map(([slot, count]) => (
             <button
               key={slot}
-              onClick={() => { setFilter(slot); setExpanded(true); }}
+              onClick={() => {
+                setFilter(slot);
+                setExpanded(true);
+              }}
               className="flex flex-col items-center justify-center py-1.5 px-1 rounded-xl bg-card border border-border/30 active:scale-95 transition-transform"
             >
               <div className="flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full" style={{ background: SLOT_META[slot].color }} />
+                <span
+                  className="w-1.5 h-1.5 rounded-full"
+                  style={{ background: SLOT_META[slot].color }}
+                />
                 <span className="text-[10px] font-semibold text-foreground">
                   {SLOT_META[slot].ar}
                 </span>
@@ -964,219 +1745,231 @@ function UmmahPulse() {
         >
           {t(
             'اضغط على أي وقت صلاة لعرض كل المدن ومواقيتها الرسمية',
-            'Tippe eine Gebetszeit für offizielle Zeiten aller Städte'
+            'Tippe eine Gebetszeit für offizielle Zeiten aller Städte',
           )}
         </p>
       </div>
 
       {/* Fullscreen modal */}
-      {typeof document !== 'undefined' && createPortal(
-        <AnimatePresence>
-          {expanded && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="fixed inset-0 z-fullscreen bg-background/95 backdrop-blur-md flex flex-col"
-              dir={'rtl'}
-            >
-              {/* Top bar */}
-              <div className="flex items-center justify-between px-5 pt-[max(env(safe-area-inset-top),1rem)] pb-3 border-b border-border/30">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
-                    <Compass className="w-5 h-5 text-primary" />
-                  </div>
-                  <div>
-                    <h2 className="text-[15px] font-bold text-foreground leading-tight">
-                      {t('بوصلة القبلة', 'Qibla-Kompass')}
-                    </h2>
-                    <p className="text-[11px] text-muted-foreground leading-tight mt-0.5">
-                      {t('مواقيت الصلاة في مدن العالم', 'Gebetszeiten in Städten weltweit')}
-                    </p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => { setExpanded(false); setSelectedCity(null); }}
-                  className="w-10 h-10 rounded-2xl bg-card border border-border/40 flex items-center justify-center active:scale-95 transition-transform"
-                  aria-label={t('إغلاق', 'Schließen')}
-                >
-                  <X className="w-4.5 h-4.5 text-foreground" />
-                </button>
-              </div>
-
-              {/* Scrollable content */}
-              <div className="flex-1 overflow-y-auto pb-[max(env(safe-area-inset-bottom),1.5rem)]">
-                {/* Selected city detail */}
-                <AnimatePresence mode="wait">
-                  {selectedCityDetails && (
-                    <div className="px-4 pt-3">
-                      {renderCityDetailPanel(selectedCityDetails)}
+      {typeof document !== 'undefined' &&
+        createPortal(
+          <AnimatePresence>
+            {expanded && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="fixed inset-0 z-fullscreen bg-background flex flex-col"
+                dir={'rtl'}
+              >
+                {/* Top bar */}
+                <div className="flex items-center justify-between px-5 pt-[max(env(safe-area-inset-top),1rem)] pb-3 border-b border-border/30">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
+                      <Compass className="w-5 h-5 text-primary" />
                     </div>
-                  )}
-                </AnimatePresence>
-
-                {/* Slot filter */}
-                <div className="px-4 pt-3">
-                  <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-1">
-                    {(['all', ...PRAYER_SLOT_ORDER] as const).map((s) => {
-                      const active = filter === s;
-                      const label = s === 'all'
-                        ? t('الكل', 'Alle')
-                        : SLOT_META[s].ar;
-                      const count = s === 'all' ? CITIES.length : cityDetails.filter(c => c.info.slot === s).length;
-                      return (
-                        <button
-                          key={s}
-                          onClick={() => setFilter(s)}
-                          className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-[11px] font-semibold transition-all ${
-                            active
-                              ? 'bg-primary text-primary-foreground border-primary shadow-sm'
-                              : 'bg-card border-border/40 text-foreground hover:bg-muted/40'
-                          }`}
-                        >
-                          {s !== 'all' && (
-                            <span className="w-1.5 h-1.5 rounded-full" style={{ background: SLOT_META[s].color }} />
-                          )}
-                          <span>{label}</span>
-                          <span className={`tabular-nums ${active ? 'text-primary-foreground/80' : 'text-muted-foreground'}`}>
-                            {count}
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Region filter */}
-                <div className="px-4 pt-2">
-                  <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-1">
-                    {(['all', 'arab', 'africa', 'asia', 'europe', 'americas', 'oceania'] as const).map((r) => {
-                      const active = regionFilter === r;
-                      const label = r === 'all'
-                        ? t('كل المناطق', 'Alle Regionen')
-                        : REGION_LABELS[r].ar;
-                      return (
-                        <button
-                          key={r}
-                          onClick={() => setRegionFilter(r)}
-                          className={`shrink-0 px-2.5 py-1 rounded-full border text-[10px] font-medium transition-all ${
-                            active
-                              ? 'bg-foreground/90 text-background border-foreground'
-                              : 'bg-card border-border/30 text-muted-foreground hover:text-foreground'
-                          }`}
-                        >
-                          {label}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Search */}
-                <div className="px-4 pt-3">
-                  <div className="relative">
-                    <Search className={`w-3.5 h-3.5 absolute top-1/2 -translate-y-1/2 ${'end-3'} text-muted-foreground pointer-events-none`} />
-                    <input
-                      value={search}
-                      onChange={(e) => setSearch(e.target.value)}
-                      placeholder={t('ابحث عن مدينة أو دولة…', 'Stadt oder Land suchen…')}
-                      className={`w-full py-2 text-[12px] rounded-xl bg-card border border-border/40 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 ${
-                        'pe-9 ps-3'
-                      }`}
-                      dir={'rtl'}
-                    />
-                  </div>
-                </div>
-
-                {/* City list */}
-                <div className="px-4 pt-3 space-y-1.5">
-                  <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide px-1 mb-2 flex items-center justify-between">
-                    <span className="flex items-center gap-1.5">
-                      <MapPin className="w-3 h-3" />
-                      {t('المدن', 'Städte')}
-                    </span>
-                    <span className="normal-case tracking-normal">
-                      {sortedCities.length} {t('نتيجة', 'Treffer')}
-                    </span>
-                  </p>
-
-                  {sortedCities.length === 0 ? (
-                    <div className="text-center text-[12px] text-muted-foreground py-6">
-                      {t('لا توجد نتائج', 'Keine Treffer')}
+                    <div>
+                      <h2 className="text-[15px] font-bold text-foreground leading-tight">
+                        {t('بوصلة القبلة', 'Qibla-Kompass')}
+                      </h2>
+                      <p className="text-[11px] text-muted-foreground leading-tight mt-0.5">
+                        {t('مواقيت الصلاة في مدن العالم', 'Gebetszeiten in Städten weltweit')}
+                      </p>
                     </div>
-                  ) : (
-                    sortedCities.map((c) => {
-                      const meta = SLOT_META[c.info.slot];
-                      const isSelected = c.name === selectedCity;
-                      const rem = c.info.next.minutesUntil;
-                      const hh = Math.floor(rem / 60);
-                      const mm = rem % 60;
-                      return (
-                        <motion.button
-                          key={c.name}
-                          layout
-                          onClick={() => setSelectedCity(isSelected ? null : c.name)}
-                          className={`w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl border transition-all text-start ${
-                            isSelected
-                              ? 'bg-primary/5 border-primary/40 shadow-sm'
-                              : 'bg-card border-border/30 active:scale-[0.99]'
-                          }`}
-                        >
-                          <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                            <span className="text-xl leading-none shrink-0">{c.flag}</span>
-                            <span
-                              className="w-2 h-2 rounded-full shrink-0"
-                              style={{
-                                background: meta.color,
-                                boxShadow: c.info.slot === 'fajr' ? `0 0 8px ${meta.color}` : 'none',
-                              }}
-                            />
-                            <div className="min-w-0 flex-1">
-                              <p className="text-[13px] font-semibold text-foreground truncate leading-tight">
-                                {c.nameAr}
-                                {c.name === 'Makkah' && (
-                                  <span className="ms-1.5 text-[10px] px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-600 font-bold align-middle">
-                                    ★
-                                  </span>
-                                )}
-                              </p>
-                              <p className="text-[10px] text-muted-foreground tabular-nums leading-tight mt-0.5 flex items-center gap-1.5" dir="ltr">
-                                <span>{c.info.localClock}</span>
-                                <span className="opacity-60">·</span>
-                                <span className="opacity-80">
-                                  → {hh > 0 ? `${hh}h ` : ''}{mm}m
-                                </span>
-                              </p>
-                            </div>
-                          </div>
-                          <span
-                            className="text-[11px] font-bold px-2.5 py-1 rounded-full shrink-0"
-                            style={{
-                              background: meta.color.replace('hsl(', 'hsla(').replace(')', ', 0.15)'),
-                              color: meta.color,
-                            }}
+                  </div>
+                  <button
+                    onClick={() => {
+                      setExpanded(false);
+                      setSelectedCity(null);
+                    }}
+                    className="w-10 h-10 rounded-2xl bg-card border border-border/40 flex items-center justify-center active:scale-95 transition-transform"
+                    aria-label={t('إغلاق', 'Schließen')}
+                  >
+                    <X className="w-4.5 h-4.5 text-foreground" />
+                  </button>
+                </div>
+
+                {/* Scrollable content */}
+                <div className="flex-1 overflow-y-auto pb-[max(env(safe-area-inset-bottom),1.5rem)]">
+                  {/* Selected city detail */}
+                  <AnimatePresence mode="wait">
+                    {selectedCityDetails && (
+                      <div className="px-4 pt-3">{renderCityDetailPanel(selectedCityDetails)}</div>
+                    )}
+                  </AnimatePresence>
+
+                  {/* Slot filter */}
+                  <div className="px-4 pt-3">
+                    <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-1">
+                      {(['all', ...PRAYER_SLOT_ORDER] as const).map((s) => {
+                        const active = filter === s;
+                        const label = s === 'all' ? t('الكل', 'Alle') : SLOT_META[s].ar;
+                        const count =
+                          s === 'all'
+                            ? CITIES.length
+                            : cityDetails.filter((c) => c.info.slot === s).length;
+                        return (
+                          <button
+                            key={s}
+                            onClick={() => setFilter(s)}
+                            className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-[11px] font-semibold transition-all ${
+                              active
+                                ? 'bg-primary text-primary-foreground border-primary shadow-sm'
+                                : 'bg-card border-border/40 text-foreground hover:bg-muted/40'
+                            }`}
                           >
-                            {meta.ar}
-                          </span>
-                        </motion.button>
-                      );
-                    })
-                  )}
-                </div>
+                            {s !== 'all' && (
+                              <span
+                                className="w-1.5 h-1.5 rounded-full"
+                                style={{ background: SLOT_META[s].color }}
+                              />
+                            )}
+                            <span>{label}</span>
+                            <span
+                              className={`tabular-nums ${active ? 'text-primary-foreground/80' : 'text-muted-foreground'}`}
+                            >
+                              {count}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
 
-                <p className="text-[10px] text-muted-foreground text-center mt-5 px-6 leading-relaxed">
-                  {t(
-                    'حسابات فلكية بدقّة الدقيقة (Meeus) مع الطرق الرسمية لكل بلد (أم القرى، ديانت، الأوقاف، كراتشي، كيمنترج، جاكيم، …) • مذهب العصر يتبع كل دولة رسميًا • يُحدَّث كل 15 ثانية',
-                    'Minutengenaue Astronomie (Meeus) mit den offiziellen Methoden jedes Landes (Umm al-Qura, Diyanet, Habous, Karatschi, Kemenag, JAKIM, …) · Asr-Madhab folgt offizieller Praxis jedes Landes · Aktualisierung alle 15 s'
-                  )}
-                </p>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>,
-        document.body
-      )}
+                  {/* Region filter */}
+                  <div className="px-4 pt-2">
+                    <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-1">
+                      {(
+                        ['all', 'arab', 'africa', 'asia', 'europe', 'americas', 'oceania'] as const
+                      ).map((r) => {
+                        const active = regionFilter === r;
+                        const label =
+                          r === 'all' ? t('كل المناطق', 'Alle Regionen') : REGION_LABELS[r].ar;
+                        return (
+                          <button
+                            key={r}
+                            onClick={() => setRegionFilter(r)}
+                            className={`shrink-0 px-2.5 py-1 rounded-full border text-[10px] font-medium transition-all ${
+                              active
+                                ? 'bg-foreground/90 text-background border-foreground'
+                                : 'bg-card border-border/30 text-muted-foreground hover:text-foreground'
+                            }`}
+                          >
+                            {label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Search */}
+                  <div className="px-4 pt-3">
+                    <div className="relative">
+                      <Search
+                        className={`w-3.5 h-3.5 absolute top-1/2 -translate-y-1/2 ${'end-3'} text-muted-foreground pointer-events-none`}
+                      />
+                      <input
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        placeholder={t('ابحث عن مدينة أو دولة…', 'Stadt oder Land suchen…')}
+                        className={`w-full py-2 text-[12px] rounded-xl bg-card border border-border/40 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 ${'pe-9 ps-3'}`}
+                        dir={'rtl'}
+                      />
+                    </div>
+                  </div>
+
+                  {/* City list */}
+                  <div className="px-4 pt-3 space-y-1.5">
+                    <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide px-1 mb-2 flex items-center justify-between">
+                      <span className="flex items-center gap-1.5">
+                        <MapPin className="w-3 h-3" />
+                        {t('المدن', 'Städte')}
+                      </span>
+                      <span className="normal-case tracking-normal">
+                        {sortedCities.length} {t('نتيجة', 'Treffer')}
+                      </span>
+                    </p>
+
+                    {sortedCities.length === 0 ? (
+                      <div className="text-center text-[12px] text-muted-foreground py-6">
+                        {t('لا توجد نتائج', 'Keine Treffer')}
+                      </div>
+                    ) : (
+                      sortedCities.map((c) => {
+                        const meta = SLOT_META[c.info.slot];
+                        const isSelected = c.name === selectedCity;
+                        const rem = c.info.next.minutesUntil;
+                        const hh = Math.floor(rem / 60);
+                        const mm = rem % 60;
+                        return (
+                          <motion.button
+                            key={c.name}
+                            layout
+                            onClick={() => setSelectedCity(isSelected ? null : c.name)}
+                            className={`w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl border transition-all text-start ${
+                              isSelected
+                                ? 'bg-primary/5 border-primary/40 shadow-sm'
+                                : 'bg-card border-border/30 active:scale-[0.99]'
+                            }`}
+                          >
+                            <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                              <span className="text-xl leading-none shrink-0">{c.flag}</span>
+                              <span
+                                className="w-2 h-2 rounded-full shrink-0"
+                                style={{ background: meta.color }}
+                              />
+                              <div className="min-w-0 flex-1">
+                                <p className="text-[13px] font-semibold text-foreground truncate leading-tight">
+                                  {c.nameAr}
+                                  {c.name === 'Makkah' && (
+                                    <span className="ms-1.5 text-[10px] px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-600 font-bold align-middle">
+                                      ★
+                                    </span>
+                                  )}
+                                </p>
+                                <p
+                                  className="text-[10px] text-muted-foreground tabular-nums leading-tight mt-0.5 flex items-center gap-1.5"
+                                  dir="ltr"
+                                >
+                                  <span>{c.info.localClock}</span>
+                                  <span className="opacity-60">·</span>
+                                  <span className="opacity-80">
+                                    → {hh > 0 ? `${hh}h ` : ''}
+                                    {mm}m
+                                  </span>
+                                </p>
+                              </div>
+                            </div>
+                            <span
+                              className="text-[11px] font-bold px-2.5 py-1 rounded-full shrink-0"
+                              style={{
+                                background: meta.color
+                                  .replace('hsl(', 'hsla(')
+                                  .replace(')', ', 0.15)'),
+                                color: meta.color,
+                              }}
+                            >
+                              {meta.ar}
+                            </span>
+                          </motion.button>
+                        );
+                      })
+                    )}
+                  </div>
+
+                  <p className="text-[10px] text-muted-foreground text-center mt-5 px-6 leading-relaxed">
+                    {t(
+                      'حسابات فلكية بدقّة الدقيقة (Meeus) مع الطرق الرسمية لكل بلد (أم القرى، ديانت، الأوقاف، كراتشي، كيمنترج، جاكيم، …) • مذهب العصر يتبع كل دولة رسميًا • يُحدَّث كل 15 ثانية',
+                      'Minutengenaue Astronomie (Meeus) mit den offiziellen Methoden jedes Landes (Umm al-Qura, Diyanet, Habous, Karatschi, Kemenag, JAKIM, …) · Asr-Madhab folgt offizieller Praxis jedes Landes · Aktualisierung alle 15 s',
+                    )}
+                  </p>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>,
+          document.body,
+        )}
     </div>
   );
 }

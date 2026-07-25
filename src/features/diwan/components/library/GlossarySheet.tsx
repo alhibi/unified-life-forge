@@ -79,7 +79,7 @@ export default function GlossarySheet({ open, word, entries, versePreview, onClo
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             onClick={onClose}
-            className="fixed inset-0 z-drawer bg-black/55 backdrop-blur-[2px]"
+            className="fixed inset-0 z-drawer bg-black/60"
             aria-hidden="true"
           />
 

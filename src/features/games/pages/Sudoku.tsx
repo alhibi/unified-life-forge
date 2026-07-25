@@ -657,7 +657,7 @@ export default function SudokuPage() {
           {(!gameStarted || isPaused) && !solved && (
             <motion.div
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="absolute inset-0 z-sticky rounded-2xl bg-card/95 backdrop-blur-sm flex items-center justify-center"
+              className="absolute inset-0 z-sticky rounded-2xl bg-card flex items-center justify-center"
               onClick={!gameStarted ? startGame : togglePause}
             >
               <div className="flex flex-col items-center gap-3">
@@ -793,7 +793,7 @@ export default function SudokuPage() {
         {smartHint && (
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-drawer bg-black/70 backdrop-blur-sm flex items-end sm:items-center justify-center p-4"
+            className="fixed inset-0 z-drawer bg-black/70 flex items-end sm:items-center justify-center p-4"
             onClick={() => setSmartHint(null)}
           >
             <motion.div

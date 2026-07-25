@@ -1,8 +1,14 @@
 import React, { useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
-  ClipboardCopy, Feather, ChevronLeft, ChevronRight,
-  ExternalLink, Sparkles, Heart, Loader2,
+  ClipboardCopy,
+  Feather,
+  ChevronLeft,
+  ChevronRight,
+  ExternalLink,
+  Sparkles,
+  Heart,
+  Loader2,
 } from '@/lib/icons';
 import { motion } from 'framer-motion';
 import SEO from '@/components/SEO';
@@ -27,7 +33,7 @@ import type { DiwanGlossaryEntry, DiwanVerse } from '@/features/diwan/lib/types'
 
 // أدوات تطبيع عربية
 const TASHKEEL_REPLACE = /[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED\u0640]/g;
-const TASHKEEL_HAS     = /[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED\u0640]/;
+const TASHKEEL_HAS = /[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED\u0640]/;
 
 function normalizeArabic(s: string): string {
   return (s ?? '')
@@ -54,23 +60,23 @@ export default function LibraryPoemPage() {
   const { dir } = useApp();
   const Chevron = dir === 'rtl' ? ChevronLeft : ChevronRight;
 
-  const poem     = useDiwanPoem(slug);
+  const poem = useDiwanPoem(slug);
   const glossary = useDiwanGlossary(slug);
 
   // المفضّلة
-  const sbReady     = isSupabaseReady();
-  const { user }    = useAuth();
-  const favIds      = useDiwanFavoriteIds();
-  const toggleFav   = useDiwanToggleFavorite();
+  const sbReady = isSupabaseReady();
+  const { user } = useAuth();
+  const favIds = useDiwanFavoriteIds();
+  const toggleFav = useDiwanToggleFavorite();
   const isFavorited = !!(poem.data && favIds.data?.has(poem.data.id));
 
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
-  const [tashkeel,  setTashkeel]  = useState(true); // تفعيل التشكيل افتراضياً لو وجد
+  const [tashkeel, setTashkeel] = useState(true); // تفعيل التشكيل افتراضياً لو وجد
   const [showContext, setShowContext] = useState(true); // مفتاح إظهار السياق التاريخي
 
   // glossary lookup
-  const [sheetOpen,    setSheetOpen]    = useState(false);
-  const [sheetWord,    setSheetWord]    = useState<string | null>(null);
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [sheetWord, setSheetWord] = useState<string | null>(null);
   const [sheetVerseTx, setSheetVerseTx] = useState<string | undefined>();
   const [sheetEntries, setSheetEntries] = useState<DiwanGlossaryEntry[]>([]);
 
@@ -90,15 +96,18 @@ export default function LibraryPoemPage() {
   // توفر التشكيل
   const hasDiacriticData = useMemo(() => {
     const verses = poem.data?.verses ?? [];
-    return verses.some(v =>
-      (v.hemistich1_diacritized && v.hemistich1_diacritized.trim().length > 0) ||
-      (v.hemistich2_diacritized && v.hemistich2_diacritized.trim().length > 0)
+    return verses.some(
+      (v) =>
+        (v.hemistich1_diacritized && v.hemistich1_diacritized.trim().length > 0) ||
+        (v.hemistich2_diacritized && v.hemistich2_diacritized.trim().length > 0),
     );
   }, [poem.data]);
 
   const originalHasTashkeel = useMemo(() => {
     const verses = poem.data?.verses ?? [];
-    return verses.some(v => TASHKEEL_HAS.test(v.hemistich1) || TASHKEEL_HAS.test(v.hemistich2 ?? ''));
+    return verses.some(
+      (v) => TASHKEEL_HAS.test(v.hemistich1) || TASHKEEL_HAS.test(v.hemistich2 ?? ''),
+    );
   }, [poem.data]);
 
   const showTashkeelBtn = hasDiacriticData || originalHasTashkeel;
@@ -106,18 +115,22 @@ export default function LibraryPoemPage() {
   // تحضير الأبيات للعرض
   const displayVerses: DiwanVerse[] = useMemo(() => {
     const verses = poem.data?.verses ?? [];
-    return verses.map(v => {
+    return verses.map((v) => {
       const useDia = tashkeel;
       return {
         ...v,
         hemistich1: useDia
-          ? (v.hemistich1_diacritized?.trim() || v.hemistich1)
-          : (originalHasTashkeel ? stripDiacritics(v.hemistich1) : v.hemistich1),
+          ? v.hemistich1_diacritized?.trim() || v.hemistich1
+          : originalHasTashkeel
+            ? stripDiacritics(v.hemistich1)
+            : v.hemistich1,
         hemistich2: useDia
-          ? (v.hemistich2_diacritized?.trim() || v.hemistich2)
-          : (originalHasTashkeel
-              ? (v.hemistich2 ? stripDiacritics(v.hemistich2) : null)
-              : v.hemistich2),
+          ? v.hemistich2_diacritized?.trim() || v.hemistich2
+          : originalHasTashkeel
+            ? v.hemistich2
+              ? stripDiacritics(v.hemistich2)
+              : null
+            : v.hemistich2,
         hemistich1_diacritized: v.hemistich1_diacritized,
         hemistich2_diacritized: v.hemistich2_diacritized,
       };
@@ -128,7 +141,7 @@ export default function LibraryPoemPage() {
   const approxYear = useMemo(() => {
     if (!poem.data) return null;
     const ctx = poemContexts.find(
-      c => c.poemTitle === poem.data?.title && c.poetId === poem.data?.poet_slug
+      (c) => c.poemTitle === poem.data?.title && c.poetId === poem.data?.poet_slug,
     );
     return ctx?.year ?? null;
   }, [poem.data]);
@@ -143,7 +156,9 @@ export default function LibraryPoemPage() {
     return (
       <div className="min-h-screen bg-[#16130F] pt-14 px-5 flex flex-col items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-[var(--wax)] mb-2" />
-        <p className="text-[13px] text-[#7E7259] font-tajawal">جاري فتح رقوق القصيدة وفض أختامها…</p>
+        <p className="text-[13px] text-[#7E7259] font-tajawal">
+          جاري فتح رقوق القصيدة وفض أختامها…
+        </p>
       </div>
     );
   }
@@ -152,7 +167,9 @@ export default function LibraryPoemPage() {
     return (
       <div className="min-h-screen bg-[#16130F] pt-14 px-5 text-center">
         <BackButton fallback="/mihrab" />
-        <p className="text-[#B8AA8E] mt-8 font-tajawal">لم يُعثر على هذه القصيدة في الدواوين المحفوظة.</p>
+        <p className="text-[#B8AA8E] mt-8 font-tajawal">
+          لم يُعثر على هذه القصيدة في الدواوين المحفوظة.
+        </p>
       </div>
     );
   }
@@ -160,9 +177,7 @@ export default function LibraryPoemPage() {
   const p = poem.data;
 
   const copyVerse = (verse: DiwanVerse) => {
-    const text = verse.hemistich2
-      ? `${verse.hemistich1}    ${verse.hemistich2}`
-      : verse.hemistich1;
+    const text = verse.hemistich2 ? `${verse.hemistich1}    ${verse.hemistich2}` : verse.hemistich1;
     navigator.clipboard.writeText(text);
     setCopiedIdx(verse.position);
     notify.copied();
@@ -170,10 +185,11 @@ export default function LibraryPoemPage() {
   };
 
   const copyAll = () => {
-    const text = `${p.title}\n${p.poet_name}${p.era_name ? ' — ' + p.era_name : ''}\n\n` +
-      displayVerses.map(v =>
-        v.hemistich2 ? `${v.hemistich1}    ${v.hemistich2}` : v.hemistich1
-      ).join('\n');
+    const text =
+      `${p.title}\n${p.poet_name}${p.era_name ? ' — ' + p.era_name : ''}\n\n` +
+      displayVerses
+        .map((v) => (v.hemistich2 ? `${v.hemistich1}    ${v.hemistich2}` : v.hemistich1))
+        .join('\n');
     navigator.clipboard.writeText(text);
     notify.copied();
   };
@@ -184,9 +200,7 @@ export default function LibraryPoemPage() {
     setSheetWord(word || null);
     setSheetEntries(entries);
     setSheetVerseTx(
-      verse.hemistich2
-        ? `${verse.hemistich1}   ·   ${verse.hemistich2}`
-        : verse.hemistich1,
+      verse.hemistich2 ? `${verse.hemistich1}   ·   ${verse.hemistich2}` : verse.hemistich1,
     );
     setSheetOpen(true);
   };
@@ -216,12 +230,13 @@ export default function LibraryPoemPage() {
         {/* Header */}
         <div className="flex items-start gap-4 mb-5">
           <div className="mt-1 shrink-0">
-            <BackButton fallback="/mihrab" className="w-10 h-10 rounded-full border border-[var(--hairline-strong)] bg-[#1D1811] flex items-center justify-center text-[#B8AA8E] hover:text-[#F2E9D8] hover:border-[#B8AA8E] active:scale-95 transition-all" />
+            <BackButton
+              fallback="/mihrab"
+              className="w-10 h-10 rounded-full border border-[var(--hairline-strong)] bg-[#1D1811] flex items-center justify-center text-[#B8AA8E] hover:text-[#F2E9D8] hover:border-[#B8AA8E] active:scale-95 transition-all"
+            />
           </div>
           <div className="flex-1 min-w-0">
-            <h1
-              className="text-[22px] font-bold text-[#F2E9D8] font-amiri leading-tight"
-            >
+            <h1 className="text-[22px] font-bold text-[#F2E9D8] font-amiri leading-tight">
               {p.title}
             </h1>
             <Link
@@ -283,8 +298,7 @@ export default function LibraryPoemPage() {
             </span>
           )}
           <span className="px-2.5 py-1 rounded-[5px] text-[11px] font-medium border border-[var(--hairline-strong)] text-[#B8AA8E] font-tajawal">
-            {displayVerses.length} {' '}
-            {displayVerses.length === 1 ? 'بيت' : 'أبيات'}
+            {displayVerses.length} {displayVerses.length === 1 ? 'بيت' : 'أبيات'}
           </span>
           {approxYear && (
             <span className="px-2.5 py-1 rounded-[5px] text-[11px] font-medium border border-[var(--hairline-strong)] text-[#7E7259] font-tajawal select-none">
@@ -304,7 +318,7 @@ export default function LibraryPoemPage() {
         <div className="flex flex-wrap items-center gap-2 mb-6 px-1 select-none">
           {showTashkeelBtn && (
             <button
-              onClick={() => setTashkeel(t => !t)}
+              onClick={() => setTashkeel((t) => !t)}
               aria-pressed={tashkeel}
               className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-[12px] font-bold transition-all border ${
                 tashkeel
@@ -320,7 +334,7 @@ export default function LibraryPoemPage() {
 
           {hasContext && (
             <button
-              onClick={() => setShowContext(c => !c)}
+              onClick={() => setShowContext((c) => !c)}
               aria-pressed={showContext}
               className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-[12px] font-bold transition-all border ${
                 showContext
@@ -341,9 +355,7 @@ export default function LibraryPoemPage() {
         </div>
 
         {/* Historical Context Card */}
-        {showContext && (
-          <PoemContextCard poemTitle={p.title} poetId={p.poet_slug} />
-        )}
+        {showContext && <PoemContextCard poemTitle={p.title} poetId={p.poet_slug} />}
 
         {/* Verses Paper (المخطوطة) */}
         <motion.div
@@ -351,7 +363,6 @@ export default function LibraryPoemPage() {
           animate="show"
           variants={{ show: { transition: { staggerChildren: 0.02 } } }}
           className="rounded-[14px] bg-[#1E1912] border border-[var(--hairline-strong)] p-4 sm:p-6 mb-6"
-          style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.25)' }}
         >
           {displayVerses.length === 0 ? (
             <p className="text-center text-[#7E7259] py-8 text-[13px] font-tajawal">

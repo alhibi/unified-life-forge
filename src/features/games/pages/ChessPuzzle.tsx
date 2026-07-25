@@ -480,7 +480,7 @@ export default function ChessPuzzlePage() {
           {showWrongFeedback && (
             <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
               className="absolute inset-0 z-header flex items-center justify-center pointer-events-none">
-              <div className="px-4 py-2 rounded-xl bg-rose-500/20 border border-rose-500/40 backdrop-blur-md">
+              <div className="px-4 py-2 rounded-xl bg-card border border-destructive">
                 <X className="w-8 h-8 text-rose-300 mx-auto" />
               </div>
             </motion.div>

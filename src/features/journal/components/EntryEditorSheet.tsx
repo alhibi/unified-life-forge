@@ -5,8 +5,8 @@ import { Button } from '@/components/ui/button';
 import { computeWordCount, type JournalEntry, type JournalMood } from '../types';
 
 const MOODS: { id: JournalMood; label: string; hint: string; accent: string }[] = [
-  { id: 'organic',    label: 'عاطفي',  hint: 'مشاعر، حدس، دفء',    accent: '#C8A96E' },
-  { id: 'balanced',   label: 'متوازن', hint: 'بين القلب والعقل',   accent: '#F2E7C9' },
+  { id: 'organic', label: 'عاطفي', hint: 'مشاعر، حدس، دفء', accent: '#C8A96E' },
+  { id: 'balanced', label: 'متوازن', hint: 'بين القلب والعقل', accent: '#F2E7C9' },
   { id: 'analytical', label: 'تحليلي', hint: 'أفكار، منطق، ترتيب', accent: '#7EB8C9' },
 ];
 
@@ -14,7 +14,12 @@ interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   entry?: JournalEntry | null;
-  onSubmit: (v: { title: string; content: string; mood: JournalMood; tags: string[] }) => Promise<void> | void;
+  onSubmit: (v: {
+    title: string;
+    content: string;
+    mood: JournalMood;
+    tags: string[];
+  }) => Promise<void> | void;
   saving?: boolean;
 }
 
@@ -46,10 +51,7 @@ export default function EntryEditorSheet({ open, onOpenChange, entry, onSubmit, 
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent
-        dir="rtl"
-        className="max-h-[90vh] bg-background border-t border-border"
-      >
+      <DrawerContent dir="rtl" className="max-h-[90vh] bg-background border-t border-border">
         <VisuallyHidden>
           <DrawerTitle>محرر المذكرة</DrawerTitle>
           <DrawerDescription>إضافة أو تعديل مدخلة في مذكرتي</DrawerDescription>
@@ -57,12 +59,8 @@ export default function EntryEditorSheet({ open, onOpenChange, entry, onSubmit, 
 
         <div className="mx-auto w-full max-w-lg px-5 pb-8 pt-5 space-y-5 overflow-y-auto">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg text-foreground">
-              {entry ? 'تعديل مدخلة' : 'مدخلة جديدة'}
-            </h2>
-            <span className="text-[11px] text-muted-foreground tracking-wider">
-              {words} كلمة
-            </span>
+            <h2 className="text-lg text-foreground">{entry ? 'تعديل مدخلة' : 'مدخلة جديدة'}</h2>
+            <span className="text-[11px] text-muted-foreground tracking-wider">{words} كلمة</span>
           </div>
 
           <input
@@ -99,7 +97,6 @@ export default function EntryEditorSheet({ open, onOpenChange, entry, onSubmit, 
                         ? 'border-primary/60 bg-card'
                         : 'border-border bg-card/30 hover:bg-card/60'
                     }`}
-                    style={active ? { boxShadow: `inset 0 0 0 1px ${m.accent}55` } : undefined}
                   >
                     <div
                       className="mx-auto mb-2 h-2 w-2 rounded-full"

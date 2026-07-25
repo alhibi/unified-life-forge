@@ -395,7 +395,7 @@ export function SuggestedFeedsView({
           initial={{ y: 80, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 80, opacity: 0 }}
-          className="sticky bottom-0 inset-x-0 px-4 py-3 border-t border-border/40 bg-card/95 backdrop-blur-md flex items-center gap-3 z-raised"
+          className="sticky bottom-0 inset-x-0 px-4 py-3 border-t border-border bg-card flex items-center gap-3 z-raised"
         >
           <span className="text-sm font-semibold flex-1">
             {`تم اختيار ${selected.size} ${selected.size === 1 ? 'مصدر' : 'مصادر'}`}

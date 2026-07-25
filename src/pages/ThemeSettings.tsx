@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import React, { useEffect, useState } from 'react';
 
 import BackButton from '@/components/BackButton';
+import { Switch } from '@/components/ui/switch';
 import SEO from '@/components/SEO';
 import { useApp } from '@/contexts/AppContext';
 import {
@@ -26,29 +27,22 @@ import {
   Zap,
 } from '@/lib/icons';
 
-
-
 import { pageItem as item, pageStagger as stagger } from '@/lib/motion';
 import {
   createDynamicPreset,
   extractDominantColor,
+  generateThemeTokens,
   themePresets,
   type ThemeStyle,
 } from '@/utils/themeEngine';
 
 function ToggleSwitch({ value, onChange }: { value: boolean; onChange: () => void }) {
   return (
-    <button
-      onClick={onChange}
-      className={`relative w-[50px] h-[28px] rounded-full transition-colors duration-300 shrink-0 ${value ? 'bg-primary' : 'bg-muted'}`}
-      dir="ltr"
-    >
-      <motion.div
-        className="absolute top-[4px] w-[20px] h-[20px] rounded-full bg-primary-foreground"
-        animate={{ left: value ? 26 : 4 }}
-        transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-      />
-    </button>
+    <Switch
+      checked={value}
+      onCheckedChange={onChange}
+      aria-label={value ? 'إيقاف الخيار' : 'تفعيل الخيار'}
+    />
   );
 }
 
@@ -63,34 +57,34 @@ const themeStyles: {
   {
     id: 'tonal',
     icon: Droplets,
-    name: 'ناعم',
-    nameEn: 'Tonal Spot',
-    desc: 'ألوان هادئة ومريحة',
-    descEn: 'Soft & calm colors',
+    name: 'متوازن',
+    nameEn: 'Balanced',
+    desc: 'إبراز هادئ للاستخدام اليومي',
+    descEn: 'Calm everyday accent',
   },
   {
     id: 'vibrant',
     icon: Sparkles,
-    name: 'حيوي',
-    nameEn: 'Vibrant',
-    desc: 'ألوان غنية ومشبعة',
-    descEn: 'Rich & saturated',
+    name: 'واضح',
+    nameEn: 'Clear',
+    desc: 'إبراز أوضح مع أسطح محايدة',
+    descEn: 'Clearer accent, neutral surfaces',
   },
   {
     id: 'neutral',
     icon: Circle,
-    name: 'محايد',
-    nameEn: 'Neutral',
-    desc: 'تدرجات رمادية خفيفة',
-    descEn: 'Subtle grayscale',
+    name: 'خافت',
+    nameEn: 'Muted',
+    desc: 'أقل تشبعاً وأكثر هدوءاً',
+    descEn: 'Lower saturation and quieter',
   },
   {
     id: 'expressive',
     icon: Zap,
-    name: 'معبّر',
-    nameEn: 'Expressive',
-    desc: 'تباين عالي وجريء',
-    descEn: 'High contrast & bold',
+    name: 'قوي',
+    nameEn: 'Strong',
+    desc: 'أقوى درجة مسموحة للإبراز',
+    descEn: 'Strongest allowed accent',
   },
 ];
 
@@ -159,13 +153,15 @@ function ThemePresetsCategorized({
 
   // Sync activeTab only when colorTheme actually changes from outside
   useEffect(() => {
-    if (prevThemeRef.current !== colorTheme) {
-      prevThemeRef.current = colorTheme;
-      const matchedCategory = THEME_CATEGORIES.find((cat) => cat.presets.includes(colorTheme))?.id;
-      if (matchedCategory) {
-        setActiveTab(matchedCategory);
-      }
-    }
+    if (prevThemeRef.current === colorTheme) return;
+    prevThemeRef.current = colorTheme;
+    const matchedCategory = THEME_CATEGORIES.find((cat) => cat.presets.includes(colorTheme))?.id;
+    if (!matchedCategory) return;
+
+    // Schedule external theme synchronization outside the effect body to
+    // avoid a cascading render while preserving user-driven category tabs.
+    const timeout = window.setTimeout(() => setActiveTab(matchedCategory), 0);
+    return () => window.clearTimeout(timeout);
   }, [colorTheme]);
 
   const currentCategoryPresets = themePresets.filter((preset) => {
@@ -180,7 +176,7 @@ function ThemePresetsCategorized({
           {'لوحة الألوان'}
         </h2>
         <p className="text-[10px] text-muted-foreground/80 mt-0.5">
-          {'اختر التناغم اللوني المفضل لديك عبر التصنيفات الراقية'}
+          {'اختر لون إبراز واحداً؛ تبقى الأسطح والخلفيات محايدة ومتناسقة'}
         </p>
       </div>
 
@@ -204,8 +200,7 @@ function ThemePresetsCategorized({
               <span
                 className={`relative z-raised block text-center truncate ${isSelected ? 'text-foreground' : 'text-muted-foreground'}`}
               >
-                {cat.nameAr.split(' ')[0]}{' '}
-                {/* shortened for mobile spacing */}
+                {cat.nameAr.split(' ')[0]} {/* shortened for mobile spacing */}
               </span>
             </button>
           );
@@ -236,7 +231,7 @@ function ThemePresetsCategorized({
                 <div
                   className={`relative w-12 h-12 rounded-full overflow-hidden border-2 transition-all duration-300 ${
                     isActive
-                      ? 'border-primary scale-110 shadow-[0_0_12px_rgba(var(--live),0.2)]'
+                      ? 'border-primary scale-110'
                       : 'border-border/50 group-hover:border-border'
                   }`}
                 >
@@ -289,7 +284,6 @@ function ThemePresetsCategorized({
 
 export default function ThemeSettingsPage() {
   const {
-    
     theme,
     setTheme,
     blackMode,
@@ -298,8 +292,6 @@ export default function ThemeSettingsPage() {
     setColorTheme,
     paletteStyle,
     setPaletteStyle,
-
-
   } = useApp();
 
   // Auto-theme by prayer time
@@ -356,17 +348,28 @@ export default function ThemeSettingsPage() {
     input.click();
   };
 
-  // Get preview colors for each preset
+  // Preview the exact tokens applied by the runtime theme engine.
+  const getPresetPreviewTokens = (
+    preset: (typeof themePresets)[0],
+    mode: 'light' | 'dark' = theme,
+  ) =>
+    generateThemeTokens(
+      preset,
+      paletteStyle as ThemeStyle,
+      mode === 'dark',
+      mode === 'dark' && blackMode,
+    );
+
+  const getPreviewColor = (preset: (typeof themePresets)[0], mode: 'light' | 'dark' = theme) =>
+    `hsl(${getPresetPreviewTokens(preset, mode)['--primary']})`;
+
   const getPreviewColors = (preset: (typeof themePresets)[0]) => {
-    const [pH, pS, pL] = preset.primary;
-    const [sH, sS, sL] = preset.secondary;
-    const [aH, aS, aL] = preset.accent;
-    const [nH, nS] = preset.neutral;
+    const tokens = getPresetPreviewTokens(preset);
     return [
-      `hsl(${pH}, ${pS}%, ${pL}%)`,
-      `hsl(${sH}, ${sS}%, ${sL}%)`,
-      `hsl(${aH}, ${aS}%, ${aL}%)`,
-      `hsl(${nH}, ${nS}%, 85%)`,
+      `hsl(${tokens['--primary']})`,
+      `hsl(${tokens['--live-soft']})`,
+      `hsl(${tokens['--card']})`,
+      `hsl(${tokens['--secondary']})`,
     ];
   };
 
@@ -374,9 +377,7 @@ export default function ThemeSettingsPage() {
     <div className="min-h-screen bg-background pb-page px-5 pt-14">
       <SEO
         title={'المظهر والألوان — SmartHub'}
-        description={
-          'اختر السمة والألوان ونمط اللوحة لتجربتك في SmartHub.'
-        }
+        description={'اختر السمة والألوان ونمط اللوحة لتجربتك في SmartHub.'}
         path="/settings/theme"
       />
       <motion.div
@@ -398,8 +399,6 @@ export default function ThemeSettingsPage() {
           </div>
         </motion.div>
 
-
-
         {/* Appearance Mode */}
         <motion.div variants={item} className="premium-card-elevated p-5">
           <h2 className="font-semibold text-[13px] text-muted-foreground text-center mb-4 uppercase tracking-wider">
@@ -414,9 +413,7 @@ export default function ThemeSettingsPage() {
                   onClick={() => setTheme(mode)}
                   className="flex flex-col items-center gap-2.5 relative focus:outline-none select-none"
                 >
-                  <div
-                    className="relative w-[56px] h-[56px] rounded-full flex items-center justify-center overflow-hidden bg-secondary"
-                  >
+                  <div className="relative w-[56px] h-[56px] rounded-full flex items-center justify-center overflow-hidden bg-secondary">
                     {isActive && (
                       <motion.div
                         layoutId="activeThemeMode"
@@ -479,7 +476,7 @@ export default function ThemeSettingsPage() {
                     const cur = prayerMap[slot.id];
                     const preset =
                       themePresets.find((p) => p.id === cur?.colorTheme) || themePresets[0];
-                    const [pH, pS, pL] = preset.primary;
+                    const previewColor = getPreviewColor(preset, cur?.mode ?? 'light');
                     const isExpanded = expandedSlot === slot.id;
                     const Icon = slot.icon;
                     return (
@@ -498,7 +495,7 @@ export default function ThemeSettingsPage() {
                           <div className="flex items-center gap-2">
                             <div
                               className="w-5 h-5 rounded-full border border-border"
-                              style={{ backgroundColor: `hsl(${pH}, ${pS}%, ${pL}%)` }}
+                              style={{ backgroundColor: previewColor }}
                             />
                             {cur?.mode === 'dark' ? (
                               <Moon className="w-3 h-3 text-muted-foreground" />
@@ -531,9 +528,7 @@ export default function ThemeSettingsPage() {
                                           : 'bg-secondary text-muted-foreground'
                                       }`}
                                     >
-                                      {m === 'light'
-                                        ? 'فاتح'
-                                        : 'داكن'}
+                                      {m === 'light' ? 'فاتح' : 'داكن'}
                                     </button>
                                   ))}
                                 </div>
@@ -542,7 +537,7 @@ export default function ThemeSettingsPage() {
                                     .filter((p) => p.id !== 'dynamic')
                                     .slice(0, 18)
                                     .map((p) => {
-                                      const [h, s, l] = p.primary;
+                                      const previewColor = getPreviewColor(p, cur?.mode || 'light');
                                       const isSel = cur?.colorTheme === p.id;
                                       return (
                                         <button
@@ -553,7 +548,7 @@ export default function ThemeSettingsPage() {
                                           className={`relative w-full aspect-square rounded-full border-2 transition-all ${
                                             isSel ? 'border-primary scale-110' : 'border-border/50'
                                           }`}
-                                          style={{ backgroundColor: `hsl(${h}, ${s}%, ${l}%)` }}
+                                          style={{ backgroundColor: previewColor }}
                                         >
                                           {isSel && (
                                             <Check
@@ -579,12 +574,9 @@ export default function ThemeSettingsPage() {
         </motion.div>
 
         {/* Theme Style */}
-        <motion.div
-          variants={item}
-          className="premium-card-elevated p-5"
-        >
+        <motion.div variants={item} className="premium-card-elevated p-5">
           <h2 className="font-semibold text-[13px] text-muted-foreground text-center mb-4 uppercase tracking-wider">
-            {'توزيع الألوان'}
+            {'قوة لون الإبراز'}
           </h2>
           <div className="grid grid-cols-2 gap-2.5">
             {themeStyles.map((ts) => {
@@ -614,9 +606,7 @@ export default function ThemeSettingsPage() {
                     >
                       {ts.name}
                     </p>
-                    <p className="text-[10px] text-muted-foreground truncate">
-                      {ts.desc}
-                    </p>
+                    <p className="text-[10px] text-muted-foreground truncate">{ts.desc}</p>
                   </div>
                   {isActive && (
                     <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}>
@@ -646,12 +636,8 @@ export default function ThemeSettingsPage() {
               <ImageIcon className="w-5 h-5 text-primary" />
             </div>
             <div className="flex-1 text-start">
-              <h3 className="font-semibold text-[14px] text-foreground">
-                {'ثيم ديناميكي'}
-              </h3>
-              <p className="text-[11px] text-muted-foreground mt-0.5">
-                {'استخرج الألوان من صورة'}
-              </p>
+              <h3 className="font-semibold text-[14px] text-foreground">{'ثيم ديناميكي'}</h3>
+              <p className="text-[11px] text-muted-foreground mt-0.5">{'استخرج الألوان من صورة'}</p>
             </div>
             <Palette className="w-5 h-5 text-muted-foreground shrink-0" />
           </button>
@@ -665,12 +651,8 @@ export default function ThemeSettingsPage() {
           >
             <ToggleSwitch value={blackMode} onChange={() => {}} />
             <div className="flex-1 text-start">
-              <h3 className="font-semibold text-[14px] text-foreground">
-                {'الوضع الأسود'}
-              </h3>
-              <p className="text-[11px] text-muted-foreground mt-0.5">
-                {'أسود حقيقي لشاشات OLED'}
-              </p>
+              <h3 className="font-semibold text-[14px] text-foreground">{'الوضع الأسود'}</h3>
+              <p className="text-[11px] text-muted-foreground mt-0.5">{'أسود حقيقي لشاشات OLED'}</p>
             </div>
             <Contrast className="w-5 h-5 text-muted-foreground shrink-0" />
           </button>
@@ -705,9 +687,7 @@ export default function ThemeSettingsPage() {
                   </span>
                 </div>
                 <div className="flex-1 h-8 rounded-xl bg-accent flex items-center justify-center">
-                  <span className="text-[11px] font-semibold text-accent-foreground">
-                    {'مميز'}
-                  </span>
+                  <span className="text-[11px] font-semibold text-accent-foreground">{'مميز'}</span>
                 </div>
               </div>
               <div className="flex gap-2">

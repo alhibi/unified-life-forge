@@ -61,7 +61,7 @@ export default function MicroMap({ lat, lng, elevationM = 0, }: MicroMapProps) {
                 repeat: Infinity,
                 ease: "easeInOut"
               }}
-              className="absolute -inset-4 rounded-full bg-primary/30 blur-sm"
+              className="absolute -inset-4 rounded-full border border-primary/30"
             />
             <div className="relative w-4 h-4 rounded-full bg-primary border-2 border-background flex items-center justify-center shadow-lg">
               <span className="w-1.5 h-1.5 rounded-full bg-background" />
@@ -71,14 +71,14 @@ export default function MicroMap({ lat, lng, elevationM = 0, }: MicroMapProps) {
 
         {/* Float Control badge */}
         <div className="absolute bottom-3 start-3 end-3 flex items-center justify-between gap-3 pointer-events-none">
-          <div className="flex items-center gap-1.5 bg-background/90 backdrop-blur border border-border/30 px-2.5 py-1.5 rounded-xl shadow-md pointer-events-auto">
+          <div className="flex items-center gap-1.5 bg-background border border-border px-2.5 py-1.5 rounded-xl pointer-events-auto">
             <MapPin className="w-3.5 h-3.5 text-primary" />
             <span className="font-montserrat font-bold text-[11px] text-foreground tabular-nums">
               {lat.toFixed(4)}, {lng.toFixed(4)}
             </span>
           </div>
 
-          <div className="flex items-center gap-1.5 bg-background/90 backdrop-blur border border-border/30 px-2.5 py-1.5 rounded-xl shadow-md">
+          <div className="flex items-center gap-1.5 bg-background border border-border px-2.5 py-1.5 rounded-xl">
             <Compass className="w-3.5 h-3.5 text-primary" />
             <span className="font-montserrat font-bold text-[11px] text-foreground tabular-nums">
               {elevationM} m

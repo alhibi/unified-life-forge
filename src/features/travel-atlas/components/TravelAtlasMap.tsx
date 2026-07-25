@@ -273,7 +273,7 @@ export default function TravelAtlasMap({
           type="button"
           size="icon"
           variant="secondary"
-          className="h-10 w-10 rounded-2xl border border-border/70 bg-background/90 shadow-depth backdrop-blur"
+          className="h-10 w-10 rounded-2xl border border-border/70 bg-background"
           onClick={() => zoomTo(zoom + 1)}
           aria-label={'تكبير الخريطة'}
         >
@@ -283,7 +283,7 @@ export default function TravelAtlasMap({
           type="button"
           size="icon"
           variant="secondary"
-          className="h-10 w-10 rounded-2xl border border-border/70 bg-background/90 shadow-depth backdrop-blur"
+          className="h-10 w-10 rounded-2xl border border-border/70 bg-background"
           onClick={() => zoomTo(zoom - 1)}
           aria-label={'تصغير الخريطة'}
         >
@@ -292,7 +292,7 @@ export default function TravelAtlasMap({
       </div>
 
       {inBoundsPlaces.length === 0 && (
-        <div className="pointer-events-none absolute inset-x-4 top-4 z-raised rounded-2xl border border-border/70 bg-background/90 px-4 py-3 text-center text-body text-muted-foreground shadow-depth backdrop-blur">
+        <div className="pointer-events-none absolute inset-x-4 top-4 z-raised rounded-2xl border border-border/70 bg-background px-4 py-3 text-center text-body text-muted-foreground">
           {'أضف مكانًا ليظهر على الخريطة.'}
         </div>
       )}

@@ -48,9 +48,8 @@ function describeAuthError(error: Error, mode: 'signIn' | 'signUp'): string {
   }
 
   // 7. Fallback: surface the raw message so we never silently mislead the user again.
-  return error.message || ('حدث خطأ غير متوقع');
+  return error.message || 'حدث خطأ غير متوقع';
 }
-
 
 /**
  * Password strength scoring (0..4).
@@ -77,22 +76,22 @@ function scorePassword(pw: string): number {
 }
 
 export default function AuthPage() {
-  const { } = useApp();
+  const {} = useApp();
   const { signIn, signUp } = useAuth();
   const navigate = useNavigate();
   // Preserve the OAuth consent `next` URL so users who arrive from an
   // external MCP client return to `/.lovable/oauth/consent?...` after
   // sign-in / sign-up instead of landing on `/settings`.
   const rawNext = new URLSearchParams(
-    typeof window !== "undefined" ? window.location.search : "",
-  ).get("next");
+    typeof window !== 'undefined' ? window.location.search : '',
+  ).get('next');
   const nextTarget = (() => {
     if (!rawNext) return null;
     // Only accept same-origin relative paths.
-    if (!rawNext.startsWith("/") || rawNext.startsWith("//")) return null;
+    if (!rawNext.startsWith('/') || rawNext.startsWith('//')) return null;
     return rawNext;
   })();
-  const successTarget = nextTarget ?? "/settings";
+  const successTarget = nextTarget ?? '/settings';
   const [isLogin, setIsLogin] = useState(true);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -131,9 +130,7 @@ export default function AuthPage() {
     // backend, so we only block obviously weak choices client-side to avoid
     // an unhelpful round-trip.
     if (!isLogin && strength < 2) {
-      toast.error(
-        'كلمة المرور ضعيفة. أضف أحرفاً كبيرة أو أرقاماً أو رموزاً.',
-      );
+      toast.error('كلمة المرور ضعيفة. أضف أحرفاً كبيرة أو أرقاماً أو رموزاً.');
       return;
     }
 
@@ -173,17 +170,24 @@ export default function AuthPage() {
     if (typeof s === 'boolean') setCapsLock(s);
   };
 
-  const strengthLabels: Record<number, { ar: string; }> = {
-    0: { ar: 'قصيرة جداً', },
-    1: { ar: 'ضعيفة', },
-    2: { ar: 'مقبولة', },
-    3: { ar: 'قوية', },
-    4: { ar: 'ممتازة', },
+  const strengthLabels: Record<number, { ar: string }> = {
+    0: { ar: 'قصيرة جداً' },
+    1: { ar: 'ضعيفة' },
+    2: { ar: 'مقبولة' },
+    3: { ar: 'قوية' },
+    4: { ar: 'ممتازة' },
   };
-  const strengthColors = ['#3f3f46', '#ef4444', '#f59e0b', '#c78a4e', '#22c55e'];
+  const strengthColors = [
+    'hsl(var(--muted-foreground))',
+    'hsl(var(--destructive))',
+    'hsl(var(--warning))',
+    'hsl(var(--primary))',
+    'hsl(var(--success))',
+  ];
 
   const canSubmit =
-    !loading && !success &&
+    !loading &&
+    !success &&
     username.trim().length >= 3 &&
     password.length >= 6 &&
     (isLogin || strength >= 2);
@@ -191,8 +195,7 @@ export default function AuthPage() {
   return (
     <div
       dir={'rtl'}
-      className="min-h-screen w-full flex items-center justify-center p-4 relative overflow-hidden"
-      style={{ backgroundColor: '#0f0f11' }}
+      className="min-h-screen w-full flex items-center justify-center bg-background text-foreground p-4 relative overflow-hidden"
     >
       <SEO
         title="تسجيل الدخول — SmartHub"
@@ -205,27 +208,10 @@ export default function AuthPage() {
         type="button"
         aria-label={'إغلاق'}
         onClick={() => navigate('/')}
-        className="absolute top-6 start-6 w-11 h-11 rounded-full flex items-center justify-center border border-white/5 hover:border-[#c78a4e]/40 transition-colors z-sticky"
-        style={{ backgroundColor: '#1a1a1e' }}
+        className="app-icon-btn absolute top-6 start-6 z-sticky"
       >
-        <X className="w-4 h-4" style={{ color: '#9ca3af' }} />
+        <X className="w-5 h-5 text-muted-foreground" />
       </button>
-
-      {/* Ambient cinematic backdrop — breathing copper halos */}
-      <motion.div
-        aria-hidden
-        className="pointer-events-none absolute -top-40 -right-40 w-[520px] h-[520px] rounded-full blur-[120px]"
-        style={{ backgroundColor: 'rgba(199, 138, 78, 0.18)' }}
-        animate={{ opacity: [0.5, 0.9, 0.5], scale: [1, 1.05, 1] }}
-        transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
-      />
-      <motion.div
-        aria-hidden
-        className="pointer-events-none absolute -bottom-40 -left-40 w-[480px] h-[480px] rounded-full blur-[120px]"
-        style={{ backgroundColor: 'rgba(199, 138, 78, 0.10)' }}
-        animate={{ opacity: [0.4, 0.75, 0.4], scale: [1, 1.08, 1] }}
-        transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut', delay: 1.2 }}
-      />
 
       <motion.div
         className="relative w-full max-w-md"
@@ -233,32 +219,15 @@ export default function AuthPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
       >
-        {/* Soft outer glow */}
-        <div
-          aria-hidden
-          className="absolute -inset-1 rounded-3xl blur-2xl opacity-30"
-          style={{ backgroundColor: '#c78a4e' }}
-        />
-
-        <div
-          className="relative rounded-2xl overflow-hidden shadow-2xl border"
-          style={{ backgroundColor: '#1a1a1e', borderColor: 'rgba(255,255,255,0.06)' }}
-        >
+        <div data-ui-surface="card" className="app-card-bare relative overflow-hidden">
           {/* Top accent bar */}
-          <div
-            className="h-1.5 w-full"
-            style={{
-              backgroundColor: '#c78a4e',
-              boxShadow: '0 0 15px rgba(199,138,78,0.35)',
-            }}
-          />
+          <div className="h-1 w-full bg-primary" />
 
           {/* Success flash overlay */}
           <AnimatePresence>
             {success && (
               <motion.div
-                className="absolute inset-0 flex items-center justify-center z-raised"
-                style={{ backgroundColor: 'rgba(15,15,17,0.85)', backdropFilter: 'blur(4px)' }}
+                className="absolute inset-0 flex items-center justify-center bg-background/95 z-raised"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -267,10 +236,9 @@ export default function AuthPage() {
                   initial={{ scale: 0.4, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ type: 'spring', damping: 12, stiffness: 220 }}
-                  className="w-16 h-16 rounded-full flex items-center justify-center"
-                  style={{ backgroundColor: 'rgba(199,138,78,0.15)', border: '1px solid #c78a4e' }}
+                  className="w-16 h-16 rounded-full flex items-center justify-center bg-primary/10 border border-primary/40"
                 >
-                  <Shield className="w-7 h-7" style={{ color: '#c78a4e' }} />
+                  <Shield className="w-7 h-7 text-primary" />
                 </motion.div>
               </motion.div>
             )}
@@ -282,51 +250,36 @@ export default function AuthPage() {
               <AnimatePresence mode="wait">
                 <motion.h1
                   key={isLogin ? 'in' : 'up'}
-                  className="text-2xl md:text-3xl font-bold tracking-tight text-white mb-2"
+                  className="text-display font-bold text-foreground mb-2"
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -8 }}
                   transition={{ duration: 0.25 }}
                 >
-                  {isLogin
-                    ? ('تسجيل الدخول')
-                    : ('إنشاء حساب')}
+                  {isLogin ? 'تسجيل الدخول' : 'إنشاء حساب'}
                 </motion.h1>
               </AnimatePresence>
-              <p className="text-sm" style={{ color: '#9ca3af' }}>
-                {isLogin
-                  ? ('مرحباً بك مجدداً')
-                  : ('ابدأ رحلتك في SmartHub')}
+              <p className="text-body text-muted-foreground">
+                {isLogin ? 'مرحباً بك مجدداً' : 'ابدأ رحلتك في SmartHub'}
               </p>
             </div>
 
             {!isSupabaseConfigured && (
-              <div
-                className="mb-5 rounded-xl border p-3 text-[12px] leading-relaxed"
-                style={{
-                  borderColor: 'rgba(245, 158, 11, 0.30)',
-                  backgroundColor: 'rgba(245, 158, 11, 0.10)',
-                  color: '#fde68a',
-                }}
-              >
-                {'وضع محلي: الخادم غير مُهيأ، فتُحفظ حساباتك على هذا الجهاز فقط (مشفّرة) ولن تتم المزامنة.'}
+              <div className="mb-5 rounded-md border border-warning/30 bg-warning/10 p-3 text-mini leading-relaxed text-warning">
+                {
+                  'وضع محلي: الخادم غير مُهيأ، فتُحفظ حساباتك على هذا الجهاز فقط (مشفّرة) ولن تتم المزامنة.'
+                }
               </div>
             )}
 
             <form onSubmit={handleSubmit} className="space-y-5" noValidate>
               {/* Username */}
               <div>
-                <label
-                  className="block text-sm font-semibold mb-2"
-                  style={{ color: '#c78a4e' }}
-                >
+                <label className="block text-body font-semibold text-primary mb-2">
                   {'اسم المستخدم'}
                 </label>
                 <div className="relative group">
-                  <UserCircle
-                    className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none"
-                    style={{ color: '#6b7280' }}
-                  />
+                  <UserCircle className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none text-muted-foreground" />
                   <input
                     ref={usernameRef}
                     type="text"
@@ -335,10 +288,7 @@ export default function AuthPage() {
                       setUsername(e.target.value.replace(/[^a-zA-Z0-9_]/g, '').slice(0, 32))
                     }
                     placeholder={'أدخل اسم المستخدم'}
-                    className="w-full text-white border border-transparent focus:outline-none py-3.5 ps-9 pe-4 rounded-xl transition-all duration-300 placeholder:text-gray-600"
-                    style={{ backgroundColor: '#2a2a2e', fontSize: 16 }}
-                    onFocus={(e) => (e.currentTarget.style.borderColor = 'rgba(199,138,78,0.5)')}
-                    onBlur={(e) => (e.currentTarget.style.borderColor = 'transparent')}
+                    className="app-control ps-9 pe-4 text-base"
                     autoComplete="username"
                     autoCapitalize="none"
                     autoCorrect="off"
@@ -349,24 +299,18 @@ export default function AuthPage() {
                     aria-label={'اسم المستخدم'}
                   />
                 </div>
-                <p className="text-[11px] mt-1.5" style={{ color: '#6b7280' }}>
+                <p className="text-micro mt-1.5 text-muted-foreground">
                   {'أحرف إنجليزية وأرقام فقط'}
                 </p>
               </div>
 
               {/* Password */}
               <div>
-                <label
-                  className="block text-sm font-semibold mb-2"
-                  style={{ color: '#c78a4e' }}
-                >
+                <label className="block text-body font-semibold text-primary mb-2">
                   {'كلمة المرور'}
                 </label>
                 <div className="relative group">
-                  <Lock
-                    className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none"
-                    style={{ color: '#6b7280' }}
-                  />
+                  <Lock className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none text-muted-foreground" />
                   <input
                     type={showPassword ? 'text' : 'password'}
                     value={password}
@@ -374,10 +318,7 @@ export default function AuthPage() {
                     onKeyDown={handleKey}
                     onKeyUp={handleKey}
                     placeholder={'••••••••'}
-                    className="w-full text-white border border-transparent focus:outline-none py-3.5 ps-9 pe-11 rounded-xl transition-all duration-300 placeholder:text-gray-600"
-                    style={{ backgroundColor: '#2a2a2e', fontSize: 16 }}
-                    onFocus={(e) => (e.currentTarget.style.borderColor = 'rgba(199,138,78,0.5)')}
-                    onBlur={(e) => (e.currentTarget.style.borderColor = 'transparent')}
+                    className="app-control ps-9 pe-11 text-base"
                     autoComplete={isLogin ? 'current-password' : 'new-password'}
                     dir="ltr"
                     disabled={loading || success}
@@ -387,16 +328,10 @@ export default function AuthPage() {
                     type="button"
                     tabIndex={-1}
                     onClick={() => setShowPassword((v) => !v)}
-                    className="absolute end-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg flex items-center justify-center transition-colors hover:bg-white/5"
-                    aria-label={
-                      showPassword
-                        ? ('إخفاء كلمة المرور')
-                        : ('إظهار كلمة المرور')
-                    }
+                    className="absolute end-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-md flex items-center justify-center text-muted-foreground transition-colors hover:bg-accent"
+                    aria-label={showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'}
                   >
-                    {showPassword
-                      ? <EyeOff className="w-4 h-4" style={{ color: '#9ca3af' }} />
-                      : <Eye className="w-4 h-4" style={{ color: '#9ca3af' }} />}
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
 
@@ -407,8 +342,7 @@ export default function AuthPage() {
                       initial={{ opacity: 0, y: -4 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -4 }}
-                      className="text-[11px] mt-1.5"
-                      style={{ color: '#f59e0b' }}
+                      className="text-micro mt-1.5 text-warning"
                     >
                       {'Caps Lock مفعّل'}
                     </motion.p>
@@ -431,7 +365,7 @@ export default function AuthPage() {
                             className="h-1 flex-1 rounded-full transition-colors duration-300"
                             style={{
                               backgroundColor:
-                                strength > i ? strengthColors[strength] : '#2a2a2e',
+                                strength > i ? strengthColors[strength] : 'hsl(var(--muted))',
                             }}
                           />
                         ))}
@@ -451,27 +385,20 @@ export default function AuthPage() {
               <button
                 type="submit"
                 disabled={!canSubmit}
-                className="relative w-full font-bold py-4 rounded-xl overflow-hidden transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed active:scale-[0.98] mt-2"
-                style={{
-                  backgroundColor: '#c78a4e',
-                  color: '#0f0f11',
-                  boxShadow: '0 10px 30px -12px rgba(199,138,78,0.5)',
-                }}
+                className="relative w-full bg-primary text-primary-foreground font-bold py-3 rounded-md overflow-hidden transition-colors duration-fast disabled:opacity-60 disabled:cursor-not-allowed mt-2"
               >
                 <span className="relative z-raised inline-flex items-center justify-center gap-2">
                   {loading ? (
                     <span
                       className="animate-spin w-4 h-4 border-2 rounded-full"
                       style={{
-                        borderColor: 'rgba(15,15,17,0.35)',
-                        borderTopColor: '#0f0f11',
+                        borderColor: 'hsl(var(--primary-foreground) / 0.35)',
+                        borderTopColor: 'hsl(var(--primary-foreground))',
                       }}
                     />
                   ) : (
                     <>
-                      {isLogin
-                        ? ('دخول')
-                        : ('إنشاء الحساب')}
+                      {isLogin ? 'دخول' : 'إنشاء الحساب'}
                       <ArrowRight className="w-4 h-4" />
                     </>
                   )}
@@ -488,19 +415,11 @@ export default function AuthPage() {
                   setIsLogin(!isLogin);
                   setPassword('');
                 }}
-                className="text-sm transition-colors"
-                style={{ color: '#9ca3af' }}
+                className="text-body text-muted-foreground transition-colors"
               >
-                {isLogin
-                  ? ('ليس لديك حساب؟ ')
-                  : ('لديك حساب؟ ')}
-                <span
-                  className="font-semibold"
-                  style={{ color: '#c78a4e', textDecoration: 'underline', textUnderlineOffset: 4 }}
-                >
-                  {isLogin
-                    ? ('إنشاء حساب جديد')
-                    : ('تسجيل الدخول')}
+                {isLogin ? 'ليس لديك حساب؟ ' : 'لديك حساب؟ '}
+                <span className="font-semibold text-primary underline underline-offset-4">
+                  {isLogin ? 'إنشاء حساب جديد' : 'تسجيل الدخول'}
                 </span>
               </button>
             </div>
@@ -508,11 +427,9 @@ export default function AuthPage() {
         </div>
 
         {/* Privacy caption */}
-        <div className="mt-6 flex items-center justify-center gap-2 text-[11px]" style={{ color: '#6b7280' }}>
+        <div className="mt-6 flex items-center justify-center gap-2 text-micro text-muted-foreground">
           <Shield className="w-3 h-3" />
-          <span>
-            {'جميع البيانات مشفرة ومحمية'}
-          </span>
+          <span>{'جميع البيانات مشفرة ومحمية'}</span>
         </div>
       </motion.div>
     </div>

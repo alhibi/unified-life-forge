@@ -119,7 +119,7 @@ export default function CountryMapPage() {
           type="button"
           onClick={() => setAddOpen(true)}
           aria-label={'إضافة مكان'}
-          className="absolute bottom-6 end-4 z-raised inline-flex h-12 items-center gap-2 rounded-full border border-border bg-background/95 px-4 text-body font-semibold text-foreground shadow-lg backdrop-blur transition-transform hover:scale-[1.02] active:scale-[0.98]"
+          className="absolute bottom-6 end-4 z-raised inline-flex h-12 items-center gap-2 rounded-full border border-border bg-background px-4 text-body font-semibold text-foreground transition-transform hover:scale-[1.02] active:scale-[0.98]"
         >
           <Plus className="h-4 w-4 text-[hsl(var(--live))]" aria-hidden="true" />
           {'إضافة مكان'}

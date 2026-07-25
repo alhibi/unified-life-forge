@@ -18,8 +18,8 @@ interface PageHeaderProps {
   /** Where to land when there is no history. Default `/`. */
   backFallback?: string;
   /**
-   * Stick the header to the top of the viewport with a backdrop blur.
-   * One canonical token — no per-page tweaking of opacity/blur/border.
+   * Stick the header to the top of the viewport on an opaque surface.
+   * One canonical token — no per-page opacity, blur or border tweaks.
    */
   sticky?: boolean;
   /**
@@ -35,10 +35,9 @@ interface PageHeaderProps {
  * Layout: `[ back ] [ icon ] [ title / subtitle ] [ right actions ]`
  *
  * Visual contract:
- *   • One height (py-3 → ~48 px header).
- *   • One sticky token (z-header, bg/85 + blur-md, hairline border-b/30).
- *   • One title weight (semibold, 17 px) — easily overridden by passing
- *     a custom node.
+ *   • One height (min-h-14 / 56px).
+ *   • One sticky token (z-header + opaque semantic surface + hairline).
+ *   • One title token (`text-title`) and one subtitle token (`text-micro`).
  *   • Back-button comes from the unified `<BackButton/>` (smart back,
  *     aria-label, ghost styling).
  *
@@ -61,26 +60,19 @@ export default function PageHeader({
   return (
     <header
       className={cn(
-        'flex items-center gap-2 px-4 py-3',
-        sticky &&
-          'z-header app-sticky-header border-b border-border/50',
+        'flex min-h-14 items-center gap-2 px-4 py-2',
+        sticky && 'z-header app-sticky-header',
         className,
       )}
     >
-      {!hideBack && (
-        <BackButton to={backTo} fallback={backFallback} />
-      )}
+      {!hideBack && <BackButton to={backTo} fallback={backFallback} />}
 
       <div className="flex-1 min-w-0 flex items-center gap-2">
         {icon && <span className="shrink-0 inline-flex">{icon}</span>}
         <div className="min-w-0">
-          <h1 className="text-[17px] font-semibold tracking-tight text-foreground truncate leading-tight">
-            {title}
-          </h1>
+          <h1 className="text-title font-semibold text-foreground truncate">{title}</h1>
           {subtitle && (
-            <div className="text-[11px] text-muted-foreground truncate leading-tight mt-1">
-              {subtitle}
-            </div>
+            <div className="mt-0.5 text-micro text-muted-foreground truncate">{subtitle}</div>
           )}
         </div>
       </div>
@@ -89,9 +81,9 @@ export default function PageHeader({
         <div className="shrink-0 flex items-center gap-2">{right}</div>
       ) : !hideBack ? (
         // Optical balance — the title row visually centers between back
-        // and this 36 px placeholder. Without this, short titles pull
+        // and this 44 px placeholder. Without this, short titles pull
         // toward the start edge on wide screens, which feels off.
-        <div className="w-9 shrink-0" aria-hidden="true" />
+        <div className="w-11 shrink-0" aria-hidden="true" />
       ) : null}
     </header>
   );

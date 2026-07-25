@@ -28,8 +28,8 @@
     --ink-text-faint: #8d887f;
     --wax: #8a5b3d;
     --wax-soft: rgba(138, 91, 61, 0.12);
-    --wax-soft2: rgba(138, 91, 61, 0.20);
-    --hairline: rgba(52, 47, 41, 0.10);
+    --wax-soft2: rgba(138, 91, 61, 0.2);
+    --hairline: rgba(52, 47, 41, 0.1);
     --hairline-strong: rgba(52, 47, 41, 0.18);
 
     --ease-linear-app: cubic-bezier(0.25, 0.1, 0.25, 1);
@@ -76,6 +76,7 @@
     --border: 34 13% 82%;
     --input: 34 13% 72%;
     --ring: 28 42% 34%;
+    --scrim: 24 14% 8%;
     --radius: 1rem;
     --sidebar-background: 36 18% 96%;
     --sidebar-foreground: 30 14% 24%;
@@ -86,12 +87,12 @@
     --sidebar-border: 34 13% 82%;
     --sidebar-ring: 28 42% 34%;
 
-    /* Micro-ambient elevation, tinted to the surface rather than black. */
+    /* Flat-surface contract: legacy shadow variables resolve to none. */
     --shadow-color: 30 18% 14%;
-    --shadow-sm: 0 1px 2px hsl(var(--shadow-color) / 0.08), 0 4px 8px -4px hsl(var(--shadow-color) / 0.08);
-    --shadow-card: 0 1px 2px hsl(var(--shadow-color) / 0.08), 0 8px 16px -8px hsl(var(--shadow-color) / 0.10);
-    --shadow-elevated: 0 1px 2px hsl(var(--shadow-color) / 0.08), 0 12px 24px -10px hsl(var(--shadow-color) / 0.12);
-    --shadow-intense: 0 1px 2px hsl(var(--shadow-color) / 0.08), 0 16px 32px -14px hsl(var(--shadow-color) / 0.14);
+    --shadow-sm: none;
+    --shadow-card: none;
+    --shadow-elevated: none;
+    --shadow-intense: none;
     --font-display:
       'IBM Plex Sans Arabic', 'Noto Sans Arabic', system-ui, -apple-system, 'Segoe UI', sans-serif;
     --font-body:
@@ -130,6 +131,7 @@
     --border: 30 8% 29%;
     --input: 30 8% 36%;
     --ring: 29 40% 72%;
+    --scrim: 24 14% 4%;
     --sidebar-background: 30 9% 10%;
     --sidebar-foreground: 34 18% 88%;
     --sidebar-primary: 29 40% 72%;
@@ -318,13 +320,11 @@
 }
 
 @layer components {
-  /* Crisp glass: a quiet tinted surface, one hairline, light blur. */
+  /* Canonical floating surface: opaque, quiet and defined by one hairline. */
   .glass-overlay {
-    background-color: hsl(var(--card) / 0.94);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    background-color: hsl(var(--popover));
     border: 1px solid hsl(var(--border) / 0.72);
-    box-shadow: var(--shadow-elevated);
+    box-shadow: none;
     will-change: transform, opacity;
     transform: translateZ(0);
   }
@@ -440,10 +440,9 @@
     contain: layout style;
   }
 
-  /* The canonical card: chrome above + the standard gutter and elevation. */
+  /* The canonical card: one surface, one border and one standard gutter. */
   .app-card {
     padding: 1rem;
-    box-shadow: var(--shadow-card);
   }
   /* Tighter gutter for list rows. This used to also be `padding: 1rem`, i.e.
      a class that promised "compact" and changed nothing. */
@@ -466,8 +465,7 @@
     transition:
       transform 120ms var(--ease-spring),
       background-color 150ms var(--ease-out-expo),
-      border-color 150ms ease-out,
-      box-shadow 150ms ease-out;
+      border-color 150ms ease-out;
     cursor: pointer;
     will-change: transform;
   }
@@ -475,7 +473,6 @@
   .surface-depth-pressable:active {
     transform: scale(0.98);
     background-color: hsl(var(--accent) / 0.4);
-    box-shadow: var(--shadow-sm);
   }
   @media (prefers-reduced-motion: reduce) {
     .app-card-pressable:active,
@@ -497,15 +494,13 @@
   .app-sticky-header-card {
     position: sticky;
     top: 0;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-bottom: 1px solid hsl(var(--border) / 0.5);
+    border-bottom: 1px solid hsl(var(--border) / 0.64);
   }
   .app-sticky-header {
-    background-color: hsl(var(--background) / 0.92);
+    background-color: hsl(var(--background));
   }
   .app-sticky-header-card {
-    background-color: hsl(var(--card) / 0.92);
+    background-color: hsl(var(--card));
   }
 
   /* The canonical icon button used in headers/toolbars. 44x44, rounded-md (10px). */
@@ -574,6 +569,85 @@
     color: hsl(var(--destructive));
   }
 
+  /* ── Shared control chrome ───────────────────────────────────────
+     Inputs, textareas and selects use one geometry and focus treatment.
+     Component files only add behaviour-specific layout around this class. */
+  .app-control {
+    width: 100%;
+    min-height: 2.75rem;
+    border: 1px solid hsl(var(--input));
+    border-radius: 0.625rem;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1.375rem;
+    transition:
+      background-color var(--duration-fast) linear,
+      border-color var(--duration-fast) linear;
+  }
+  .app-control::placeholder {
+    color: hsl(var(--muted-foreground));
+  }
+  .app-control:hover:not(:disabled) {
+    border-color: hsl(var(--foreground) / 0.32);
+  }
+  .app-control:focus,
+  .app-control:focus-visible {
+    border-color: hsl(var(--ring));
+    outline: 2px solid hsl(var(--ring) / 0.22);
+    outline-offset: 1px;
+  }
+  .app-control:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+  .app-control-multiline {
+    min-height: 5rem;
+    resize: vertical;
+  }
+
+  /* ── Shared transient-surface chrome ─────────────────────────────
+     Every modal, drawer and menu uses the same scrim, surface and close
+     affordance. Opaque surfaces and borders replace blur and shadows. */
+  .app-scrim {
+    position: fixed;
+    inset: 0;
+    background-color: hsl(var(--scrim) / 0.72);
+  }
+  .app-overlay-surface {
+    background-color: hsl(var(--card));
+    color: hsl(var(--card-foreground));
+    border: 1px solid hsl(var(--border) / 0.72);
+    border-radius: 1rem;
+    box-shadow: none;
+  }
+  .app-overlay-close {
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 0.625rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: hsl(var(--muted-foreground));
+  }
+  .app-overlay-close:hover {
+    background-color: hsl(var(--accent));
+    color: hsl(var(--foreground));
+  }
+  .app-drawer-handle {
+    width: 3rem;
+    height: 0.25rem;
+    border-radius: 999px;
+    background-color: hsl(var(--muted-foreground) / 0.42);
+  }
+
+  /* Marks surfaces governed by the design system. Decorative images remain
+     possible inside content, but UI chrome itself is always flat. */
+  [data-ui-surface] {
+    background-image: none;
+    box-shadow: none;
+  }
 }
 
 @layer utilities {
@@ -972,8 +1046,8 @@ body {
 }
 
 /* ── Native press feedback — the ONLY definition ──────────────
-   • Press-in:  scale 1 → 0.96, 80ms ease-out-cubic
-   • Press-out: scale 0.96 → 1, 120ms spring-ish curve
+   • Press-in:  scale 1 → 0.98, 80ms ease-out-cubic
+   • Press-out: scale 0.98 → 1, 120ms spring-ish curve
    Three competing rules used to exist (0.98 in @layer base, 0.96 here,
    and `.active-tactile { scale(0.98) !important }`); whichever loaded
    last silently won. Anything that needs different physics opts out with
@@ -996,7 +1070,7 @@ a[class*='rounded']:active {
   transition:
     transform var(--motion-press-in) var(--motion-ease-out-cubic),
     opacity var(--motion-press-in) var(--motion-ease-out-cubic);
-  transform: scale(0.96);
+  transform: scale(0.98);
   opacity: 0.92;
 }
 button[data-no-press]:active,
@@ -1168,7 +1242,6 @@ html.theme-transition *::after {
     transition: none !important;
   }
 }
-
 
 /* ─── Native Android Chat Performance ─── */
 .will-change-scroll {
@@ -1355,34 +1428,12 @@ input.podcast-seek::-moz-range-track {
   /* intentionally empty */
 }
 
-/* Slow drifting gradient blobs that fill the ambient backdrop. They
-   share the same drift keyframe but are offset in duration / direction
-   so the underlying motion is never in lockstep. */
-@keyframes podcast-blob-drift {
-  0%,
-  100% {
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-  33% {
-    transform: translate3d(8%, -6%, 0) scale(1.08);
-  }
-  66% {
-    transform: translate3d(-6%, 8%, 0) scale(0.95);
-  }
-}
-.podcast-blob {
-  position: absolute;
-  border-radius: 9999px;
-  filter: blur(60px);
-  opacity: 0.55;
-  pointer-events: none;
-  will-change: transform;
-}
-.podcast-blob-a {
-  animation: podcast-blob-drift 22s ease-in-out infinite;
-}
+/* Legacy ambient-art hooks are retained for compatibility but render
+   nothing. Decorative blurred blobs are forbidden by the surface contract. */
+.podcast-blob,
+.podcast-blob-a,
 .podcast-blob-b {
-  animation: podcast-blob-drift 28s ease-in-out infinite reverse;
+  display: none;
 }
 
 /* NOTE: `@keyframes podcast-mini-glow` was removed for the same reason as
@@ -1618,7 +1669,6 @@ input.podcast-seek:active::-moz-range-thumb {
 .container-query-wrapper {
   container-type: inline-size;
 }
-
 
 /* ── Travel Atlas map ─────────────────────────────────────────
    Raster tiles keep the atlas stable on low-memory/WebGL-hostile devices.

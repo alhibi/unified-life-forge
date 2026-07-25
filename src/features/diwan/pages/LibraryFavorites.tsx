@@ -33,7 +33,10 @@ export default function LibraryFavoritesPage() {
         {/* Header */}
         <div className="flex items-start gap-4 mb-6">
           <div className="mt-1 shrink-0">
-            <BackButton fallback="/mihrab" className="w-10 h-10 rounded-full border border-[var(--hairline-strong)] bg-[#1D1811] flex items-center justify-center text-[#B8AA8E] hover:text-[#F2E9D8] hover:border-[#B8AA8E] active:scale-95 transition-all" />
+            <BackButton
+              fallback="/mihrab"
+              className="w-10 h-10 rounded-full border border-[var(--hairline-strong)] bg-[#1D1811] flex items-center justify-center text-[#B8AA8E] hover:text-[#F2E9D8] hover:border-[#B8AA8E] active:scale-95 transition-all"
+            />
           </div>
           <div className="flex-1 min-w-0">
             {/* عنوان علوي صغير بلون wax */}
@@ -54,13 +57,10 @@ export default function LibraryFavoritesPage() {
         </div>
 
         {showAuthCallout ? (
-          <AuthCallout
-            sbReady={sbReady}
-            onSignIn={() => navigate('/auth')}
-          />
+          <AuthCallout sbReady={sbReady} onSignIn={() => navigate('/auth')} />
         ) : fav.isLoading ? (
           <div className="space-y-4 pt-2">
-            {[0, 1, 2].map(i => (
+            {[0, 1, 2].map((i) => (
               <div key={i} className="py-4 border-b border-[var(--hairline)]">
                 <div className="h-4 bg-[rgba(242,233,216,0.08)] rounded w-1/4 animate-pulse mb-2" />
                 <div className="h-3 bg-[rgba(242,233,216,0.05)] rounded w-3/4 animate-pulse" />
@@ -92,10 +92,7 @@ function AuthCallout({ sbReady, onSignIn }: { sbReady: boolean; onSignIn: () => 
     <div className="text-center py-16 px-6 flex flex-col items-center justify-center">
       <div
         className="w-[64px] h-[64px] rounded-full flex items-center justify-center mb-4"
-        style={{
-          background: 'hsl(var(--primary))',
-          boxShadow: 'var(--shadow-sm)',
-        }}
+        style={{ background: 'hsl(var(--primary))' }}
       >
         <span className="font-amiri font-bold text-[24px] text-[#F5DFC9] leading-none select-none">
           ♥
@@ -128,9 +125,7 @@ function EmptyFavorites() {
       <span className="font-amiri text-[28px] text-[var(--wax)] mb-3 animate-pulse select-none">
         ✦
       </span>
-      <p className="text-[15px] font-bold text-[#F2E9D8] font-tajawal">
-        مفضّلتك فارغة بعد
-      </p>
+      <p className="text-[15px] font-bold text-[#F2E9D8] font-tajawal">مفضّلتك فارغة بعد</p>
       <p className="text-[12px] text-[#B8AA8E] mt-2 max-w-xs mx-auto leading-relaxed font-tajawal">
         افتح أيّ قصيدة عظيمة ثم انقر على رمز القلب في رأس الصفحة لحفظها هنا والعودة لرقوقها متى شئت.
       </p>

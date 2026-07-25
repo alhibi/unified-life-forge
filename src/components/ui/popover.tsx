@@ -1,7 +1,7 @@
-import * as React from "react";
-import * as PopoverPrimitive from "@radix-ui/react-popover";
+import * as React from 'react';
+import * as PopoverPrimitive from '@radix-ui/react-popover';
 
-import { cn } from "@/lib/utils";
+import { cn } from '@/lib/utils';
 
 const Popover = PopoverPrimitive.Root;
 
@@ -10,14 +10,15 @@ const PopoverTrigger = PopoverPrimitive.Trigger;
 const PopoverContent = React.forwardRef<
   React.ElementRef<typeof PopoverPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Content>
->(({ className, align = "center", sideOffset = 4, ...props }, ref) => (
+>(({ className, align = 'center', sideOffset = 4, ...props }, ref) => (
   <PopoverPrimitive.Portal>
     <PopoverPrimitive.Content
       ref={ref}
       align={align}
       sideOffset={sideOffset}
+      data-ui-surface="popover"
       className={cn(
-        "glass-overlay z-drawer w-72 rounded-md p-4 text-popover-foreground outline-none",
+        'glass-overlay z-drawer w-72 rounded-md p-4 text-popover-foreground outline-none',
         className,
       )}
       {...props}

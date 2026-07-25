@@ -352,7 +352,7 @@ export default function WellnessPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-drawer flex items-end justify-center bg-black/50 backdrop-blur-sm"
+            className="fixed inset-0 z-drawer flex items-end justify-center bg-black/60"
             onClick={() => setShowPrivacy(false)}
           >
             <motion.div
@@ -404,7 +404,7 @@ export default function WellnessPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-drawer flex items-center justify-center bg-black/60 backdrop-blur-sm px-4"
+            className="fixed inset-0 z-drawer flex items-center justify-center bg-black/60 px-4"
             onClick={() => dismissOnboarding(false)}
             role="dialog"
             aria-modal="true"

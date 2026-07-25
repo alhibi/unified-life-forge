@@ -358,9 +358,11 @@ function GenerationOverlay({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.35 }}
-          className="fixed inset-0 z-nested flex flex-col items-center justify-center px-6 bg-background/92 backdrop-blur-md"
+          className="fixed inset-0 z-nested flex flex-col items-center justify-center px-6 bg-background"
           style={{
-            background: isError ? 'hsl(var(--destructive) / 0.08)' : 'hsl(var(--background) / 0.92)',
+            background: isError
+              ? 'color-mix(in srgb, hsl(var(--destructive)) 8%, hsl(var(--background)))'
+              : 'hsl(var(--background))',
           }}
         >
           {/* Breathing ambient rings */}
@@ -382,7 +384,7 @@ function GenerationOverlay({
           {!isFiled && !isError && (
             <button
               onClick={onCancel}
-              className="absolute top-6 end-6 w-10 h-10 rounded-full bg-muted/60 backdrop-blur flex items-center justify-center active:scale-90 transition-transform"
+              className="absolute top-6 end-6 w-10 h-10 rounded-full bg-muted flex items-center justify-center active:scale-90 transition-transform"
               aria-label="إلغاء"
             >
               <X className="w-4 h-4 text-foreground" />
@@ -450,10 +452,10 @@ function GenerationOverlay({
                       animate={{ rotate: -360 }}
                       transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
                     >
-                      <span className="absolute -top-1 left-1/2 w-2 h-2 -translate-x-1/2 rounded-full bg-primary shadow-[0_0_12px_hsl(var(--primary))]" />
+                      <span className="absolute -top-1 left-1/2 w-2 h-2 -translate-x-1/2 rounded-full bg-primary" />
                     </motion.div>
                     <motion.div
-                      className="relative w-20 h-20 rounded-full bg-primary/15 backdrop-blur flex items-center justify-center border border-primary/40"
+                      className="relative w-20 h-20 rounded-full bg-primary/15 flex items-center justify-center border border-primary/40"
                       animate={{ scale: [1, 1.08, 1] }}
                       transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
                     >

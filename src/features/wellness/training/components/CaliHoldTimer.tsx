@@ -91,7 +91,7 @@ export default function CaliHoldTimer({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-sheet bg-black/85 backdrop-blur-md flex items-center justify-center"
+          className="fixed inset-0 z-sheet bg-black/85 flex items-center justify-center"
         >
           <motion.div
             initial={{ scale: 0.92 }}

@@ -163,7 +163,7 @@ export const LinkPreview: React.FC<LinkPreviewProps> = ({ url, }) => {
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     loading="lazy"
                   />
-                  <div className="absolute top-2 end-2 w-7 h-7 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center border border-white/5 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="absolute top-2 end-2 w-7 h-7 rounded-full bg-black/70 flex items-center justify-center border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity">
                     <ExternalLink className="w-3.5 h-3.5 text-white/80" />
                   </div>
                 </div>

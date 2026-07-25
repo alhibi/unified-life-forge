@@ -223,7 +223,7 @@ export default function RadarMap({
         {activeLayer === 'radar' && (
           <div className="absolute inset-0 flex items-center justify-center p-4">
             {tileTemplate ? (
-              <div className="text-center bg-card/90 border border-border/60 rounded-xl p-4 shadow-lg backdrop-blur max-w-xs animate-fade-in">
+              <div className="text-center bg-card border border-border rounded-xl p-4 max-w-xs animate-fade-in">
                 <div className="text-[10px] uppercase tracking-widest text-primary/80 mb-1">{'تغطية رادار حي'}</div>
                 <div className="text-sm font-bold font-montserrat text-foreground mb-3 tabular-nums">
                   {allFrames.length > 0
@@ -253,12 +253,12 @@ export default function RadarMap({
 
         {/* Ambient Overlay details */}
         <div className="absolute bottom-3 start-3 end-3 flex justify-between text-[10px] text-muted-foreground pointer-events-none">
-          <div className="flex items-center gap-1 bg-background/60 backdrop-blur border border-border/30 px-2 py-1 rounded-md">
+          <div className="flex items-center gap-1 bg-background border border-border px-2 py-1 rounded-md">
             <Wind className="w-3.5 h-3.5 text-primary" />
             <span className="font-semibold tabular-nums text-foreground">{windSpeedKph} km/h</span>
             <span className="uppercase text-muted-foreground">{windDirectionDeg}°</span>
           </div>
-          <div className="flex items-center gap-1 bg-background/60 backdrop-blur border border-border/30 px-2 py-1 rounded-md">
+          <div className="flex items-center gap-1 bg-background border border-border px-2 py-1 rounded-md">
             <Droplets className="w-3.5 h-3.5 text-primary" />
             <span className="font-semibold tabular-nums text-foreground">{precipIntensity} mm/h</span>
           </div>

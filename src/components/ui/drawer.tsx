@@ -1,7 +1,7 @@
-import * as React from "react";
-import { Drawer as DrawerPrimitive } from "vaul";
+import * as React from 'react';
+import { Drawer as DrawerPrimitive } from 'vaul';
 
-import { cn } from "@/lib/utils";
+import { cn } from '@/lib/utils';
 
 // Escape key handler for drawers
 function useEscapeKey(callback: () => void) {
@@ -17,10 +17,13 @@ function useEscapeKey(callback: () => void) {
   }, [callback]);
 }
 
-const Drawer = ({ shouldScaleBackground = true, ...props }: React.ComponentProps<typeof DrawerPrimitive.Root>) => (
+const Drawer = ({
+  shouldScaleBackground = false,
+  ...props
+}: React.ComponentProps<typeof DrawerPrimitive.Root>) => (
   <DrawerPrimitive.Root shouldScaleBackground={shouldScaleBackground} {...props} />
 );
-Drawer.displayName = "Drawer";
+Drawer.displayName = 'Drawer';
 
 const DrawerTrigger = DrawerPrimitive.Trigger;
 
@@ -32,7 +35,7 @@ const DrawerOverlay = React.forwardRef<
   React.ElementRef<typeof DrawerPrimitive.Overlay>,
   React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Overlay>
 >(({ className, ...props }, ref) => (
-  <DrawerPrimitive.Overlay ref={ref} className={cn("fixed inset-0 z-drawer bg-foreground/30 backdrop-blur-[2px]", className)} {...props} />
+  <DrawerPrimitive.Overlay ref={ref} className={cn('app-scrim z-drawer', className)} {...props} />
 ));
 DrawerOverlay.displayName = DrawerPrimitive.Overlay.displayName;
 
@@ -54,7 +57,7 @@ const DrawerContent = React.forwardRef<
   React.useEffect(() => {
     if (autoFocus && drawerContentRef.current) {
       const focusableElements = drawerContentRef.current.querySelectorAll(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
       );
       if (focusableElements.length > 0) {
         (focusableElements[0] as HTMLElement).focus();
@@ -69,8 +72,9 @@ const DrawerContent = React.forwardRef<
       <DrawerOverlay />
       <DrawerPrimitive.Content
         ref={ref}
+        data-ui-surface="drawer"
         className={cn(
-          "fixed inset-x-0 bottom-0 z-drawer mt-24 flex h-auto flex-col rounded-t-lg border border-border/60 bg-card text-card-foreground shadow-lg",
+          'app-overlay-surface fixed inset-x-0 bottom-0 z-drawer flex h-auto flex-col rounded-b-none rounded-t-xl',
           className,
         )}
         onOpenAutoFocus={(e) => {
@@ -84,23 +88,14 @@ const DrawerContent = React.forwardRef<
         }}
         {...props}
       >
-        <div 
-          className="mx-auto mt-4 h-2 w-24 rounded-sm bg-muted touch-manipulation cursor-pointer"
-          style={{ 
-            minWidth: '44px',
-            minHeight: '44px',
-          }}
-          role="button"
-          tabIndex={0}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault();
-              onClose?.();
-            }
-          }}
+        <button
+          type="button"
+          className="mx-auto flex h-11 w-16 items-center justify-center"
           onClick={onClose}
-          aria-label="Close drawer"
-        />
+          aria-label="إغلاق الدرج"
+        >
+          <span className="app-drawer-handle" />
+        </button>
         {children}
       </DrawerPrimitive.Content>
     </DrawerPortal>
@@ -109,14 +104,14 @@ const DrawerContent = React.forwardRef<
 DrawerContent.displayName = DrawerPrimitive.Content.displayName;
 
 const DrawerHeader = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn("grid gap-1.5 p-4 text-center sm:text-start", className)} {...props} />
+  <div className={cn('grid gap-1 p-4 text-start', className)} {...props} />
 );
-DrawerHeader.displayName = "DrawerHeader";
+DrawerHeader.displayName = 'DrawerHeader';
 
 const DrawerFooter = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn("mt-auto flex flex-col gap-2 p-4", className)} {...props} />
+  <div className={cn('mt-auto flex flex-col gap-2 p-4', className)} {...props} />
 );
-DrawerFooter.displayName = "DrawerFooter";
+DrawerFooter.displayName = 'DrawerFooter';
 
 const DrawerTitle = React.forwardRef<
   React.ElementRef<typeof DrawerPrimitive.Title>,
@@ -124,7 +119,7 @@ const DrawerTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DrawerPrimitive.Title
     ref={ref}
-    className={cn("text-lg font-semibold leading-none tracking-tight", className)}
+    className={cn('text-title font-semibold', className)}
     {...props}
   />
 ));
@@ -134,7 +129,11 @@ const DrawerDescription = React.forwardRef<
   React.ElementRef<typeof DrawerPrimitive.Description>,
   React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Description>
 >(({ className, ...props }, ref) => (
-  <DrawerPrimitive.Description ref={ref} className={cn("text-sm text-muted-foreground", className)} {...props} />
+  <DrawerPrimitive.Description
+    ref={ref}
+    className={cn('text-body text-muted-foreground', className)}
+    {...props}
+  />
 ));
 DrawerDescription.displayName = DrawerPrimitive.Description.displayName;
 

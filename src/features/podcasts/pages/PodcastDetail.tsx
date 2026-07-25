@@ -444,7 +444,7 @@ export default function PodcastDetail() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.25 }}
-                className="rounded-2xl bg-card/90 backdrop-blur-md border border-border/60 p-4 shadow-sm"
+                className="rounded-2xl bg-card border border-border p-4"
               >
                 <div
                   // When `<p>` blocks are present `line-clamp-N` doesn't
@@ -491,7 +491,7 @@ export default function PodcastDetail() {
 
             {/* Metadata rows */}
             {feed.data && (
-              <div className="rounded-2xl bg-card/90 backdrop-blur-md border border-border/60 divide-y divide-border/40 overflow-hidden shadow-sm">
+              <div className="rounded-2xl bg-card border border-border divide-y divide-border/40 overflow-hidden">
                 {displayLink && (
                   <a
                     href={displayLink}

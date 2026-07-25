@@ -15,9 +15,7 @@ interface PoemContextCardProps {
  */
 export default function PoemContextCard({ poemTitle, poetId }: PoemContextCardProps) {
   // Find matching context
-  const ctx = poemContexts.find(
-    c => c.poemTitle === poemTitle && c.poetId === poetId
-  );
+  const ctx = poemContexts.find((c) => c.poemTitle === poemTitle && c.poetId === poetId);
 
   if (!ctx) return null;
 
@@ -33,31 +31,19 @@ export default function PoemContextCard({ poemTitle, poetId }: PoemContextCardPr
       }}
     >
       {/* علامة معينة صغيرة (◆) فوق الحافة العلوية اليمنى */}
-      <div
-        className="absolute -top-[7px] end-[24px] z-raised w-[14px] h-[14px] bg-[#16130F] flex items-center justify-center text-[10px] text-[var(--wax)] leading-none select-none font-bold"
-        style={{ textShadow: '0 0 4px var(--ink-bg)' }}
-      >
+      <div className="absolute -top-[7px] end-[24px] z-raised w-[14px] h-[14px] bg-[#16130F] flex items-center justify-center text-[10px] text-[var(--wax)] leading-none select-none font-bold">
         ◆
       </div>
 
-      <div
-        className="p-5 rounded-[12px] border border-dashed border-[var(--hairline-strong)] bg-[var(--ink-bg-elev)] text-[#B8AA8E] relative"
-        style={{ boxShadow: '0 4px 15px rgba(0, 0, 0, 0.15)' }}
-      >
+      <div className="p-5 rounded-[12px] border border-dashed border-[var(--hairline-strong)] bg-[var(--ink-bg-elev)] text-[#B8AA8E] relative">
         {/* Event Title */}
         <div className="flex items-center gap-2 mb-2.5">
           <MapPin className="w-3.5 h-3.5 text-[var(--wax)] flex-shrink-0" />
-          <p className="text-[12px] font-bold text-[#F2E9D8] font-tajawal">
-            {ctx.event}
-          </p>
+          <p className="text-[12px] font-bold text-[#F2E9D8] font-tajawal">{ctx.event}</p>
         </div>
 
         {/* Context description */}
-        <p
-          className="text-[12px] text-[#B8AA8E] leading-[1.85] font-tajawal ps-1"
-        >
-          {ctx.context}
-        </p>
+        <p className="text-[12px] text-[#B8AA8E] leading-[1.85] font-tajawal ps-1">{ctx.context}</p>
 
         {/* Year badge */}
         {ctx.year && (
@@ -75,5 +61,5 @@ export default function PoemContextCard({ poemTitle, poetId }: PoemContextCardPr
 
 // Utility to check if a poem has context available
 export function hasPoemContext(poemTitle: string, poetId: string): boolean {
-  return poemContexts.some(c => c.poemTitle === poemTitle && c.poetId === poetId);
+  return poemContexts.some((c) => c.poemTitle === poemTitle && c.poetId === poetId);
 }

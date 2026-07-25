@@ -234,11 +234,9 @@ export default function GamesPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 + i * 0.05, duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
               onClick={() => navigate(world.path)}
-              className="group relative overflow-hidden rounded-3xl bg-card border border-border/50 p-5 active:scale-[0.98] transition-all hover:shadow-lg text-start flex flex-col gap-3"
+              className="group relative overflow-hidden rounded-3xl bg-card border border-border/50 p-5 active:scale-[0.98] transition-colors text-start flex flex-col gap-3"
               style={{ borderColor: 'hsl(var(--primary) / 0.2)' }}
             >
-              <div className="absolute top-0 right-0 w-32 h-32 opacity-10 blur-2xl pointer-events-none rounded-full transform translate-x-10 -translate-y-10" style={{ backgroundColor: 'hsl(var(--primary) / 0.06)' }} />
-
               <div className="relative z-raised flex items-center justify-between">
                 <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-inner" style={{ backgroundColor: 'hsl(var(--primary) / 0.08)' }}>
                   <Icon className="w-6 h-6 stroke-[2]" style={{ color: 'hsl(var(--primary))' }} />

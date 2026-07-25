@@ -45,7 +45,7 @@ export function SwipeableMessage({
         className="absolute top-1/2 -translate-y-1/2 start-0 pointer-events-none z-base"
         style={{ opacity: replyIconOpacity, scale: replyIconScale }}
       >
-        <div className="w-8 h-8 rounded-full bg-primary/15 flex items-center justify-center backdrop-blur-sm">
+        <div className="w-8 h-8 rounded-full bg-primary/15 flex items-center justify-center">
           <Reply className="w-4 h-4 text-primary" />
         </div>
       </motion.div>
@@ -465,7 +465,7 @@ export const QuickReactionBar = React.memo(function QuickReactionBar({
   return (
     <motion.div
       className={cn(
-        'flex items-center gap-0.5 px-2 py-1.5 rounded-full bg-card/95 backdrop-blur-md  border border-border/30',
+        'flex items-center gap-0.5 px-2 py-1.5 rounded-full bg-card border border-border',
         isMine ? 'origin-bottom-right' : 'origin-bottom-left',
       )}
       initial={{ scale: 0.5, opacity: 0, y: 10 }}
