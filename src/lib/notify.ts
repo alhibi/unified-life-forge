@@ -1,26 +1,20 @@
 /**
- * Unified bilingual toast helper.
+ * Unified toast helper.
  *
- * Centralizes the dozens of `toast.success(isAr ? 'تم النسخ' : 'Copied')`
+ * Centralizes the dozens of copy/success/error toast call-sites
  * call-sites scattered across the app into a single consistent API,
  * so wording, duration and tone stay uniform.
  *
- * Language is auto-detected from `<html dir>` (rtl ⇒ Arabic, otherwise
- * English — the app's two locales). Pass `lang` explicitly to override.
- *
- * Note: callers may still pass the legacy 'de' string for backward
- * compatibility — it's silently treated as 'en'. This avoids touching
- * every legacy call-site while we migrate the codebase.
+ * Language is auto-detected from `<html dir>`; the app defaults to Arabic.
  */
 import { toast } from 'sonner';
 
 type Lang = 'ar' | 'en';
-type LegacyLang = Lang | 'de';
 type Pair = { ar: string; en: string };
 
-function normaliseLang(lang?: LegacyLang): Lang {
+function normaliseLang(lang?: Lang): Lang {
   if (lang === 'ar') return 'ar';
-  if (lang === 'en' || lang === 'de') return 'en';
+  if (lang === 'en') return 'en';
   return detectLang();
 }
 
@@ -29,7 +23,7 @@ function detectLang(): Lang {
   return document.documentElement.dir === 'rtl' ? 'ar' : 'en';
 }
 
-function pick(p: Pair, lang?: LegacyLang): string {
+function pick(p: Pair, lang?: Lang): string {
   return p[normaliseLang(lang)];
 }
 
@@ -48,20 +42,20 @@ const M = {
 } as const;
 
 export const notify = {
-  copied:           (lang?: LegacyLang) => toast.success(pick(M.copied, lang)),
-  linkCopied:       (lang?: LegacyLang) => toast.success(pick(M.linkCopied, lang)),
-  copyFailed:       (lang?: LegacyLang) => toast.error(pick(M.copyFailed, lang)),
-  deleted:          (lang?: LegacyLang) => toast.success(pick(M.deleted, lang)),
-  refreshed:        (lang?: LegacyLang) => toast.success(pick(M.refreshed, lang)),
-  refreshFailed:    (lang?: LegacyLang) => toast.error(pick(M.refreshFailed, lang)),
-  networkOffline:   (lang?: LegacyLang) => toast.error(pick(M.networkOffline, lang)),
-  signInRequired:   (lang?: LegacyLang) => toast.error(pick(M.signInRequired, lang)),
-  duplicateFeed:    (lang?: LegacyLang) => toast.error(pick(M.duplicateFeed, lang)),
-  feedAdded:        (lang?: LegacyLang) => toast.success(pick(M.feedAdded, lang)),
-  feedRemoved:      (lang?: LegacyLang) => toast.success(pick(M.feedRemoved, lang)),
+  copied:           (lang?: Lang) => toast.success(pick(M.copied, lang)),
+  linkCopied:       (lang?: Lang) => toast.success(pick(M.linkCopied, lang)),
+  copyFailed:       (lang?: Lang) => toast.error(pick(M.copyFailed, lang)),
+  deleted:          (lang?: Lang) => toast.success(pick(M.deleted, lang)),
+  refreshed:        (lang?: Lang) => toast.success(pick(M.refreshed, lang)),
+  refreshFailed:    (lang?: Lang) => toast.error(pick(M.refreshFailed, lang)),
+  networkOffline:   (lang?: Lang) => toast.error(pick(M.networkOffline, lang)),
+  signInRequired:   (lang?: Lang) => toast.error(pick(M.signInRequired, lang)),
+  duplicateFeed:    (lang?: Lang) => toast.error(pick(M.duplicateFeed, lang)),
+  feedAdded:        (lang?: Lang) => toast.success(pick(M.feedAdded, lang)),
+  feedRemoved:      (lang?: Lang) => toast.success(pick(M.feedRemoved, lang)),
 
   /** Escape hatch — free-form bilingual message. */
-  success: (pair: Pair, lang?: LegacyLang) => toast.success(pick(pair, lang)),
-  error:   (pair: Pair, lang?: LegacyLang) => toast.error(pick(pair, lang)),
-  info:    (pair: Pair, lang?: LegacyLang) => toast.info(pick(pair, lang)),
+  success: (pair: Pair, lang?: Lang) => toast.success(pick(pair, lang)),
+  error:   (pair: Pair, lang?: Lang) => toast.error(pick(pair, lang)),
+  info:    (pair: Pair, lang?: Lang) => toast.info(pick(pair, lang)),
 };
