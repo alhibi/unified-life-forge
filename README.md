@@ -73,12 +73,12 @@ src/
 ├─ main.tsx                  # Entry point (boots motion, SW, telemetry)
 ├─ components/
 │  ├─ ui/                    # shadcn primitives + app-shell
-│  ├─ chat/                  # Messenger surfaces
 │  └─ portal/                # Portal launcher chrome
 ├─ pages/                    # Route components not yet migrated to features/
-├─ features/                 # archive, calendar, clipboard, diwan, duas, games,
-│                            # journal, knowledge, mind, now, pkm, podcasts,
-│                            # reading, travel-atlas, weather, wellness
+├─ features/                 # account, archive, calendar, chat, clipboard,
+│                            # diwan, duas, games, journal, knowledge, mind,
+│                            # now, pkm, podcasts, reading, travel-atlas,
+│                            # weather, wellness
 ├─ hooks/                    # useAuth, usePresence, usePrayerTimesCache, ...
 ├─ contexts/                 # AppContext (theme, settings), VoicePlayerContext
 ├─ integrations/supabase/    # Client + generated DB types

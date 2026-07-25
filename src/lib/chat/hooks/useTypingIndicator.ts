@@ -2,7 +2,7 @@
 // useTypingIndicator — broadcast my typing state on the `chat-typing:<chatId>`
 // presence channel and observe other members' state.
 //
-// Built on top of the shared singleton in `src/components/chat/typingChannels.ts`,
+// Built on top of the shared singleton in `src/features/chat/components/typingChannels.ts`,
 // extended here to use the new `chat-typing:<id>` topic. Reusing the existing
 // refcounted singleton keeps the websocket count stable when many list-row
 // observers + the active conversation read the same topic.

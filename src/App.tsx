@@ -44,7 +44,7 @@ import Portal from "./pages/Portal";
 // never open it. Both are prefetched on idle below, so the first tap still
 // feels immediate.
 const loadGames = () => import("./features/games/pages/Games");
-const loadChatTab = () => import("./pages/Chat");
+const loadChatTab = () => import("@/features/chat/pages/Chat");
 const GamesPage = lazy(loadGames);
 const ChatPage = lazy(loadChatTab);
 
@@ -111,9 +111,9 @@ const loadDuas = () => import("./features/duas/pages/Duas");
 // data layer. Kept off the eager bundle since group/channel chats
 // and chat settings are reachable only via deep-link or via the
 // "Groups & Channels" entry in the legacy chat list.
-const loadGroupsIndex   = () => import("./pages/GroupsIndex");
-const loadGroupChat     = () => import("./pages/GroupChat");
-const loadChatSettings  = () => import("./pages/ChatSettings");
+const loadGroupsIndex   = () => import("@/features/chat/pages/GroupsIndex");
+const loadGroupChat     = () => import("@/features/chat/pages/GroupChat");
+const loadChatSettings  = () => import("@/features/chat/pages/ChatSettings");
 const loadTheme = () => import("./pages/ThemeSettings");
 const loadAuth = () => import("./pages/Auth");
 const loadProfile = () => import("./pages/ProfileEdit");

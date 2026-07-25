@@ -25,9 +25,9 @@ import {
 import { setInChatConversation } from '@/lib/inChatConversation';
 import { cn, debounce } from '@/lib/utils';
 
-import { useAppleEmojiReady } from './chat/appleEmoji';
-import ChatImage from './chat/ChatImage';
-import ChatInput from './chat/ChatInput';
+import { useAppleEmojiReady } from './appleEmoji';
+import ChatImage from './ChatImage';
+import ChatInput from './ChatInput';
 import {
   formatClockTime,
   formatDateSeparator,
@@ -35,35 +35,35 @@ import {
   renderHighlighted,
   renderRichText,
   stripMarkers,
-} from './chat/chatUtils';
+} from './chatUtils';
 import {
   WALLPAPERS,
-} from './chat/constants';
-import ConversationList from './chat/ConversationList';
-import { getBubbleRadius } from './chat/drawer/bubbleRadius';
-import { renderAvatar } from './chat/drawer/chatAvatar';
-import ChatHeader from './chat/drawer/ChatHeader';
-import MessageActionMenu from './chat/drawer/MessageActionMenu';
-import ProfilePanel from './chat/drawer/ProfilePanel';
-import { useFileDropZone } from './chat/drawer/useFileDropZone';
-import { useMessageGestures } from './chat/drawer/useMessageGestures';
-import VoiceBubble from './chat/drawer/VoiceBubble';
-import ForwardPicker from './chat/ForwardPicker';
-import { LinkPreview } from './chat/LinkPreview';
+} from './constants';
+import ConversationList from './ConversationList';
+import { getBubbleRadius } from './drawer/bubbleRadius';
+import { renderAvatar } from './drawer/chatAvatar';
+import ChatHeader from './drawer/ChatHeader';
+import MessageActionMenu from './drawer/MessageActionMenu';
+import ProfilePanel from './drawer/ProfilePanel';
+import { useFileDropZone } from './drawer/useFileDropZone';
+import { useMessageGestures } from './drawer/useMessageGestures';
+import VoiceBubble from './drawer/VoiceBubble';
+import ForwardPicker from './ForwardPicker';
+import { LinkPreview } from './LinkPreview';
 import {
   ForwardedBadge,
   MessageTicks,
   ReactionPill,
   SwipeableMessage,
   TypingDots,
-} from './chat/MessageBubble';
-import MessageInfo from './chat/MessageInfo';
-import { MessageRowErrorBoundary } from './chat/MessageRowErrorBoundary';
-import type { ActionMenuState, ChatDrawerProps, Message } from './chat/types';
-import { useChat } from './chat/useChat';
-import { useVoiceRecording } from './chat/useVoiceRecording';
-import { VirtualMessageList, type VirtualMessageListHandle } from './chat/VirtualMessageList';
-import WallpaperPicker from './chat/WallpaperPicker';
+} from './MessageBubble';
+import MessageInfo from './MessageInfo';
+import { MessageRowErrorBoundary } from './MessageRowErrorBoundary';
+import type { ActionMenuState, ChatDrawerProps, Message } from './types';
+import { useChat } from './useChat';
+import { useVoiceRecording } from './useVoiceRecording';
+import { VirtualMessageList, type VirtualMessageListHandle } from './VirtualMessageList';
+import WallpaperPicker from './WallpaperPicker';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // ChatDrawer – root of the entire messaging experience.

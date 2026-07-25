@@ -11,9 +11,9 @@ import ErrorBoundary from '@/components/ErrorBoundary';
 import { Button } from '@/components/ui/button';
 import { useSmartBack } from '@/hooks/useSmartBack';
 import { useChats, isGroup, isChannel, isChatPinned, type ChatSummary } from '@/lib/chat';
-import GroupAvatar from '@/components/chat/groups/GroupAvatar';
-import GroupCreatorSheet from '@/components/chat/groups/GroupCreatorSheet';
-import { formatTime } from '@/components/chat/chatUtils';
+import GroupAvatar from '@/features/chat/components/groups/GroupAvatar';
+import GroupCreatorSheet from '@/features/chat/components/groups/GroupCreatorSheet';
+import { formatTime } from '@/features/chat/components/chatUtils';
 
 /**
  * /chat/groups — index of every group + channel the user belongs to.

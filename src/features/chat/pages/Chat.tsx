@@ -8,7 +8,7 @@ import { useSmartBack } from '@/hooks/useSmartBack';
 import { Button } from '@/components/ui/button';
 import ErrorBoundary from '@/components/ErrorBoundary';
 
-const ChatDrawer = lazy(() => import('@/components/ChatDrawer'));
+const ChatDrawer = lazy(() => import('@/features/chat/components/ChatDrawer'));
 
 // Skeleton matches the chat layout while the lazy chunk loads, so the
 // transition from the bottom-nav tap to the chat surface stays smooth.

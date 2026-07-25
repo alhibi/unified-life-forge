@@ -18,15 +18,15 @@ import {
   newClientId, isAdmin as roleIsAdmin,
   type ChatMessage, type ChatSummary,
 } from '@/lib/chat';
-import GroupAvatar from '@/components/chat/groups/GroupAvatar';
-import GroupComposer from '@/components/chat/groups/GroupComposer';
-import GroupMessageBubble from '@/components/chat/groups/GroupMessageBubble';
-import GroupInfoSheet from '@/components/chat/groups/GroupInfoSheet';
-import MemberListSheet from '@/components/chat/groups/MemberListSheet';
-import { TypingDots } from '@/components/chat/MessageBubble';
-import { formatDateSeparator } from '@/components/chat/chatUtils';
-import { useAppleEmojiReady } from '@/components/chat/appleEmoji';
-import { QUICK_EMOJIS } from '@/components/chat/constants';
+import GroupAvatar from '@/features/chat/components/groups/GroupAvatar';
+import GroupComposer from '@/features/chat/components/groups/GroupComposer';
+import GroupMessageBubble from '@/features/chat/components/groups/GroupMessageBubble';
+import GroupInfoSheet from '@/features/chat/components/groups/GroupInfoSheet';
+import MemberListSheet from '@/features/chat/components/groups/MemberListSheet';
+import { TypingDots } from '@/features/chat/components/MessageBubble';
+import { formatDateSeparator } from '@/features/chat/components/chatUtils';
+import { useAppleEmojiReady } from '@/features/chat/components/appleEmoji';
+import { QUICK_EMOJIS } from '@/features/chat/components/constants';
 import { toast } from 'sonner';
 
 /**
@@ -58,7 +58,7 @@ export default function GroupChatPage() {
   const goBack = useSmartBack('/chat/groups');
 
   // Trigger the Apple-emoji map preload + re-render on ready (see
-  // ../components/chat/appleEmoji.tsx) so message bodies in this group
+  // ../components/appleEmoji.tsx) so message bodies in this group
   // chat upgrade from native unicode emojis to iPhone artwork.
   const _appleEmojiReady = useAppleEmojiReady();
 
