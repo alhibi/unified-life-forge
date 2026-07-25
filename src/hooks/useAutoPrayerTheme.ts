@@ -41,7 +41,7 @@ export function getPrayerThemeMap(): typeof DEFAULT_PRAYER_THEME_MAP {
   try {
     const raw = localStorage.getItem(STORAGE_KEY_MAP);
     if (raw) return { ...DEFAULT_PRAYER_THEME_MAP, ...JSON.parse(raw) };
-  } catch {}
+  } catch { /* unreadable or malformed - fall through to defaults */ }
   return DEFAULT_PRAYER_THEME_MAP;
 }
 

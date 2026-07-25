@@ -243,7 +243,7 @@ export default function ArchiveReader() {
   useEffect(() => {
     try {
       localStorage.setItem(PREFS_KEY, JSON.stringify(prefs));
-    } catch {}
+    } catch { /* quota or private mode */ }
   }, [prefs]);
 
   useEffect(() => {
@@ -303,7 +303,7 @@ export default function ArchiveReader() {
       await navigator.clipboard.writeText(`${doc.title}\n\n${doc.content}`);
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
-    } catch {}
+    } catch { /* clipboard permission denied */ }
   };
 
   if (loading)

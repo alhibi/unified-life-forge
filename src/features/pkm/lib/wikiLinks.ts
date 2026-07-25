@@ -5,7 +5,7 @@
  * link target. Case-insensitive matching, whitespace-collapsed.
  */
 
-const WIKI_RE = /\[\[([^\[\]\n]+)\]\]/g;
+const WIKI_RE = /\[\[([^[\]\n]+)\]\]/g;
 
 export function extractWikiLinks(md: string): string[] {
   if (!md) return [];

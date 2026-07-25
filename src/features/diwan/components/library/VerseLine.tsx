@@ -237,7 +237,7 @@ function VerseLine({
 export default React.memo(VerseLine);
 
 // Helpers
-const PUNCT_BOUNDARY = /^[\u060C\u061B\u061F\.,!?:;«»"'()[\]{}—\-]+|[\u060C\u061B\u061F\.,!?:;«»"'()[\]{}—\-]+$/g;
+const PUNCT_BOUNDARY = /^[\u060C\u061B\u061F.,!?:;«»"'()[\]{}—-]+|[\u060C\u061B\u061F.,!?:;«»"'()[\]{}—-]+$/g;
 function stripPunctuation(s: string): string {
   return s.replace(PUNCT_BOUNDARY, '');
 }

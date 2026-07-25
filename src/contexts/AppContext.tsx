@@ -179,7 +179,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       }
       toRemove.forEach((k) => localStorage.removeItem(k));
     } catch { /* storage may be blocked in private mode — ignore */ }
-    FEATURE_SCRATCH_KEYS.forEach((k) => { try { localStorage.removeItem(k); } catch {} });
+    FEATURE_SCRATCH_KEYS.forEach((k) => { try { localStorage.removeItem(k); } catch { /* storage may be blocked */ } });
 
     // Re-seed default values + state.
     setLanguageState('ar'); localStorage.setItem('app-language', 'ar');
@@ -505,7 +505,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       try {
         const saved = localStorage.getItem('app-dynamic-preset');
         if (saved) preset = JSON.parse(saved);
-      } catch {}
+      } catch { /* malformed preset - fall through to the first built-in */ }
     }
     if (!preset) preset = themePresets[0];
 

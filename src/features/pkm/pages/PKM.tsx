@@ -611,7 +611,7 @@ function Editor({
 
   // Word count + reading time
   const stats = useMemo(() => {
-    const text = body.replace(/```[\s\S]*?```/g, '').replace(/[#*_`>[\]()\-]/g, ' ');
+    const text = body.replace(/```[\s\S]*?```/g, '').replace(/[#*_`>[\]()-]/g, ' ');
     const words = text.trim().split(/\s+/).filter(Boolean).length;
     const chars = body.length;
     const minutes = Math.max(1, Math.round(words / 200));

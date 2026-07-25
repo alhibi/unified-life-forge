@@ -7,10 +7,7 @@ absoluteHumidity_gm3,
 apparentTemperature_C,   classifyThermalComfort,   dewPoint_C, discomfortIndex,
 vaporPressureDeficit_kPa, wetBulb_C} from '../compute/ThermalCalculator';
 
-interface MeteorologyConsoleProps {
-}
-
-export default function MeteorologyConsole(_props: MeteorologyConsoleProps) {
+export default function MeteorologyConsole() {
   const [simTemp, setSimTemp] = useState<number>(25);
   const [simRH, setSimRH] = useState<number>(50);
   const [simWind, setSimWind] = useState<number>(15);

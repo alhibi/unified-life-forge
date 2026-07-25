@@ -79,7 +79,7 @@ async function fetchWithRetry(url: string, attempt = 1): Promise<string> {
     let text = new TextDecoder('utf-8').decode(buf);
     // detect heuristically: لو فيه كثير من الرموز الغريبة جرّب 1256
     if ((text.match(/Ã|Ø|Ù/g) ?? []).length > 50) {
-      try { text = new TextDecoder('windows-1256').decode(buf); } catch {}
+      try { text = new TextDecoder('windows-1256').decode(buf); } catch { /* keep the utf-8 decode */ }
     }
     return text;
   } catch (e) {

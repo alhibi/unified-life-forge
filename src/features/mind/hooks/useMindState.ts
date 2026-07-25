@@ -55,7 +55,7 @@ const EMPTY: MindState = {
 
 function countWords(md: string): number {
   if (!md) return 0;
-  const clean = md.replace(/```[\s\S]*?```/g, ' ').replace(/[#*_>`\[\]()~-]/g, ' ');
+  const clean = md.replace(/```[\s\S]*?```/g, ' ').replace(/[#*_>`[\]()~-]/g, ' ');
   return clean.trim().split(/\s+/).filter(Boolean).length;
 }
 

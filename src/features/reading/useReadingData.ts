@@ -63,8 +63,7 @@ const STALE_THRESHOLD = 10 * 60 * 1000; // 10 min
  * so callers can keep them in `useEffect` deps without retriggering
  * on every state change.
  */
-export function useReadingData(opts: { }) {
-  const { } = opts;
+export function useReadingData() {
 
   const [feedSources, setFeedSources] = useState<FeedSource[]>(getStoredFeeds);
   const [articles, setArticles] = useState<FeedItem[]>([]);

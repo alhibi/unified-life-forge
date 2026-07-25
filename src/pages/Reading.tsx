@@ -65,7 +65,7 @@ export default function ReadingPage() {
   const { language } = useApp();
   const navigate = useNavigate();
 
-  const data = useReadingData({ });
+  const data = useReadingData();
   const {
     feedSources,
     enabledFeeds,

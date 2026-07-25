@@ -143,24 +143,13 @@ export default function FocusGame() {
   const refreshStats = () => setStats(loadStats());
 
   const rules = useMemo(() => {
-    if (true) {
-      switch (mode) {
-        case 'reaction': return ['انتظر اللون الأخضر', 'اضغط فور ظهور الإشارة', 'لا تضغط قبل ظهورها', 'الأسرع متوسطاً يفوز'];
-        case 'choice':   return ['اضغط الدائرة الموافقة للون المطلوب', 'الدوائر تظهر في أماكن عشوائية', 'الدقة + السرعة كلاهما يُحسبان', 'كل خطأ يكلّفك في الدقة'];
-        case 'stroop':   return ['الكلمة قد تُعرض بلون مختلف عن معناها', 'اضغط على اللون الذي يطابق الكلمة (ليس لونها)', 'تدريب يقوّي تركيز الدماغ', 'الخطأ شائع، خذ نفساً'];
-        case 'sequence': return ['ستضيء عدة دوائر بالترتيب', 'كرّر التسلسل بنفس الترتيب', 'كل جولة يطول التسلسل', 'خطأ واحد ينهي الجولة'];
-        case 'nback':    return [`اضغط "تطابق" إذا كان الموضع نفس الموضع قبل ${DIFFS[difficulty].nbackN} خطوة`, 'اختبار للذاكرة العاملة (تستخدمه ناسا للرواد)', 'لا تضغط إذا لم يطابق', 'دقة عالية = ذاكرة قوية'];
-        case 'aim':      return ['اضغط الأهداف بأسرع ما يمكن', 'الأهداف تتقلص وتتحرك', 'دقة أكبر = نقاط أكثر', `${DIFFS[difficulty].aimDuration} ثانية فقط!`];
-      }
-    } else {
-      switch (mode) {
-        case 'reaction': return ['Warte auf das grüne Signal', 'Tippe sobald es erscheint', 'Nicht zu früh tippen', 'Bester Durchschnitt zählt'];
-        case 'choice':   return ['Tippe den geforderten Farbkreis', 'Kreise erscheinen zufällig', 'Genauigkeit + Speed zählen', 'Fehler senken die Quote'];
-        case 'stroop':   return ['Das Wort kann anders gefärbt sein', 'Wähle die Farbe, die das Wort BENENNT', 'Trainiert kognitive Kontrolle', 'Fehler sind normal'];
-        case 'sequence': return ['Mehrere Kreise leuchten in Reihenfolge', 'Wiederhole exakt', 'Sequenz wird länger', 'Ein Fehler beendet die Runde'];
-        case 'nback':    return [`Tippe "Match" wenn Position gleich wie vor ${DIFFS[difficulty].nbackN} Schritt(en)`, 'Trainiert Arbeitsgedächtnis (NASA-Test)', 'Nichts tippen wenn kein Match', 'Hohe Genauigkeit = starkes Gedächtnis'];
-        case 'aim':      return ['Triff die Ziele so schnell wie möglich', 'Ziele schrumpfen und bewegen sich', 'Mehr Genauigkeit = mehr Punkte', `Nur ${DIFFS[difficulty].aimDuration}s!`];
-      }
+    switch (mode) {
+      case 'reaction': return ['انتظر اللون الأخضر', 'اضغط فور ظهور الإشارة', 'لا تضغط قبل ظهورها', 'الأسرع متوسطاً يفوز'];
+      case 'choice':   return ['اضغط الدائرة الموافقة للون المطلوب', 'الدوائر تظهر في أماكن عشوائية', 'الدقة + السرعة كلاهما يُحسبان', 'كل خطأ يكلّفك في الدقة'];
+      case 'stroop':   return ['الكلمة قد تُعرض بلون مختلف عن معناها', 'اضغط على اللون الذي يطابق الكلمة (ليس لونها)', 'تدريب يقوّي تركيز الدماغ', 'الخطأ شائع، خذ نفساً'];
+      case 'sequence': return ['ستضيء عدة دوائر بالترتيب', 'كرّر التسلسل بنفس الترتيب', 'كل جولة يطول التسلسل', 'خطأ واحد ينهي الجولة'];
+      case 'nback':    return [`اضغط "تطابق" إذا كان الموضع نفس الموضع قبل ${DIFFS[difficulty].nbackN} خطوة`, 'اختبار للذاكرة العاملة (تستخدمه ناسا للرواد)', 'لا تضغط إذا لم يطابق', 'دقة عالية = ذاكرة قوية'];
+      case 'aim':      return ['اضغط الأهداف بأسرع ما يمكن', 'الأهداف تتقلص وتتحرك', 'دقة أكبر = نقاط أكثر', `${DIFFS[difficulty].aimDuration} ثانية فقط!`];
     }
     return [];
   }, [mode, difficulty]);
