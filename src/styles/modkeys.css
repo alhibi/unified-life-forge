@@ -290,17 +290,24 @@
   gap: 10px;
   padding: 0 16px;
   border-bottom: 0;
-  background: color-mix(in oklab, var(--mk-bg) 82%, transparent);
-  backdrop-filter: saturate(140%) blur(14px);
-  -webkit-backdrop-filter: saturate(140%) blur(14px);
+  background: var(--mk-side);
+  color: var(--mk-side-tx);
   position: sticky;
   top: 0;
-  margin-bottom: 10px;
-  box-shadow:
-    0 1px 0 color-mix(in oklab, var(--mk-ink) 6%, transparent),
-    0 10px 24px -18px color-mix(in oklab, var(--mk-ink) 40%, transparent);
+  margin-bottom: 12px;
+  box-shadow: none;
   z-index: 20;
-  transition: background 0.35s, box-shadow 0.35s;
+  transition: background 0.35s, color 0.35s;
+}
+.mk-topbar .mk-brand,
+.mk-topbar .mk-brand b {
+  color: var(--mk-side-tx);
+}
+.mk-topbar .mk-icon-btn {
+  color: var(--mk-side-tx);
+}
+.mk-topbar .mk-icon-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
 }
 @media (min-width: 1024px) {
   .mk-topbar {
@@ -538,7 +545,7 @@
 }
 @media (min-width: 1024px) {
   .mk-content {
-    grid-template-columns: minmax(0, 1fr) 314px;
+    grid-template-columns: minmax(0, 1fr);
     grid-template-rows: minmax(0, 1fr) auto;
     gap: 0 26px;
     padding: 0 28px 18px;
@@ -772,15 +779,15 @@
 .mk-tile {
   background: var(--mk-card);
   border: 1.5px solid transparent;
-  border-radius: 15px;
-  padding: 14px 14px 16px;
+  border-radius: 14px;
+  padding: 11px 11px 12px;
   position: relative;
   text-align: start;
   transition: border-color 0.2s, transform 0.2s, background 0.2s;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  min-height: 138px;
+  gap: 9px;
+  min-height: 112px;
 }
 .mk-tile:hover {
   transform: translateY(-2px);
@@ -793,9 +800,9 @@
   transform: translateY(0) scale(0.985);
 }
 .mk-tile .mk-tile-ic {
-  width: 44px;
-  height: 44px;
-  border-radius: 11px;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
   background: var(--mk-card2);
   color: var(--mk-ink);
   display: flex;
@@ -810,24 +817,24 @@
 }
 .mk-tile .nm {
   font-family: var(--mk-ar);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
   color: var(--mk-ink);
   line-height: 1.3;
 }
 .mk-tile .tg {
   font-family: var(--mk-ar);
-  font-size: 11.5px;
+  font-size: 10.5px;
   color: var(--mk-ink2);
-  margin-top: 3px;
-  line-height: 1.5;
+  margin-top: 2px;
+  line-height: 1.45;
 }
 .mk-tile .cap {
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 700;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.13em;
   color: var(--mk-ink3);
-  margin-top: 8px;
+  margin-top: 6px;
   font-family: 'Inter', system-ui, sans-serif;
 }
 .mk-tile .chk {
