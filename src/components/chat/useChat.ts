@@ -1226,12 +1226,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
 
     try {
       const { data, error } = await supabase
-        .from('profiles')
-        .select('user_id, username, display_name, avatar_url')
-        .ilike('username', `%${searchUser.trim()}%`)
-        .neq('user_id', user.id)
-        .order('username', { ascending: true })
-        .limit(1);
+        .rpc('search_profiles', { q: searchUser.trim(), lim: 1 });
 
       if (error) { chatError('searchFailed', isAr, describeError(error, isAr)); return; }
 
