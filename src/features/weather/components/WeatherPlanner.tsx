@@ -91,7 +91,7 @@ export default function WeatherPlanner({
       <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-primary/40" />
 
       <header className="mb-4">
-        <h2 className="font-montserrat font-semibold text-[20px] leading-none text-foreground flex items-center gap-2">
+        <h2 className="font-semibold text-[20px] leading-none text-foreground flex items-center gap-2">
           <Shield className="w-5 h-5 text-primary" />
           {'مخطط الأنشطة والتحذيرات الذكية'}
         </h2>
@@ -125,7 +125,7 @@ export default function WeatherPlanner({
                 />
               </svg>
               <div>
-                <span className="font-montserrat text-[32px] font-extrabold text-foreground leading-none tabular-nums">{exerciseScore}%</span>
+                <span className="text-[32px] font-extrabold text-foreground leading-none tabular-nums">{exerciseScore}%</span>
                 <p className="text-xs text-muted-foreground mt-1 font-semibold">
                   {exerciseScore >= 80
                     ? ('أجواء ممتازة وملائمة للجري')

@@ -9,16 +9,9 @@ import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 import {
   ChevronDown,
   Cloud,
-  CloudDrizzle,
-  CloudFog,
-  CloudLightning,
-  CloudRain,
-  CloudSnow,
-  Cloudy,
   Droplets,
   Eye,
   Layers,
-  MoonStar,
   RefreshCw,
   Settings,
   Sliders,
@@ -28,7 +21,8 @@ import {
 } from '@/lib/icons';
 
 import CitySearch from '../components/CitySearch';
-import InteractiveCharts from '../components/InteractiveCharts';
+import EnsembleTrustPanel from '../components/EnsembleTrustPanel';
+import HourlyTrendPanel from '../components/HourlyTrendPanel';
 import MeteorologyConsole from '../components/MeteorologyConsole';
 import MicroMap from '../components/MicroMap';
 import RadarMap from '../components/RadarMap';
@@ -36,47 +30,21 @@ import WeatherPlanner from '../components/WeatherPlanner';
 import { snapshotAllSources, type SourceHealth } from '../engine/SourceHealthMonitor';
 import { useWeather } from '../hooks/useWeather';
 import { useWeatherForecast } from '../hooks/useWeatherForecast';
+import { describeWeatherCode, labelForWeatherCode } from '../lib/conditions';
+import {
+  aqiAdvice,
+  aqiCategoryLabel,
+  beaufortLabel,
+  cloudTypeLabel,
+  comfortLabel,
+  compassLabel,
+  uvCategoryLabel,
+} from '../lib/vocabulary';
 
-function iconForCode(code: number, isDay: boolean) {
-  if (code <= 1) return isDay ? Sun : MoonStar;
-  if (code === 2) return Cloudy;
-  if (code === 3) return Cloud;
-  if (code === 45 || code === 48) return CloudFog;
-  if (code >= 51 && code <= 57) return CloudDrizzle;
-  if (code >= 61 && code <= 67) return CloudRain;
-  if (code >= 71 && code <= 77) return CloudSnow;
-  if (code >= 80 && code <= 82) return CloudRain;
-  if (code >= 85 && code <= 86) return CloudSnow;
-  if (code >= 95) return CloudLightning;
-  return isDay ? Sun : MoonStar;
-}
-
-function weatherLabel(code: number) {
-  if (code <= 1) return 'سماء صافية';
-  if (code === 2) return 'غائم جزئياً';
-  if (code === 3) return 'غائم';
-  if (code === 45 || code === 48) return 'ضباب';
-  if (code >= 51 && code <= 57) return 'رذاذ';
-  if (code >= 61 && code <= 67) return 'مطر';
-  if (code >= 71 && code <= 77) return 'ثلج';
-  if (code >= 80 && code <= 82) return 'زخات مطر';
-  if (code >= 85 && code <= 86) return 'زخات ثلج';
-  if (code >= 95) return 'عواصف رعدية';
-  return '—';
-}
-
-function comfortLabel(value: string) {
-  const map: Record<string, string> = {
-    dangerously_cold: 'برد خطِر',
-    cold: 'بارد',
-    cool: 'لطيف بارد',
-    comfortable: 'مريح',
-    warm: 'دافئ',
-    hot: 'حار',
-    dangerously_hot: 'حرارة خطِرة',
-  };
-  return map[value] ?? value.replace(/_/g, ' ');
-}
+// Weather-code vocabulary lives in ../lib/conditions — the page used to carry
+// its own copy of both the glyph map and the Arabic labels, which drifted from
+// the widget's copy (code 80 read "زخات مطر" here and "أمطار" there).
+const iconForCode = (code: number, isDay: boolean) => describeWeatherCode(code, isDay).icon;
 
 function timeLabel(value: string | number | undefined, locale: string) {
   if (!value) return '—';
@@ -95,7 +63,7 @@ function Panel({ title, sub, children }: { title?: string; sub?: string; childre
       {(title || sub) && (
         <header className="px-4 pt-4 pb-3 flex items-end justify-between gap-3">
           {title && (
-            <h2 className="font-montserrat font-semibold text-[18px] leading-none text-foreground">
+            <h2 className="font-semibold text-[18px] leading-none text-foreground">
               {title}
             </h2>
           )}
@@ -133,7 +101,7 @@ function Metric({
         <span className="text-[11px] tracking-[0.12em] uppercase truncate">{label}</span>
       </div>
       <div className="mt-1 flex items-baseline gap-1 tabular-nums" dir="ltr">
-        <span className="font-montserrat font-bold text-[22px] leading-none text-foreground">
+        <span className="font-bold text-[22px] leading-none text-foreground">
           {value}
         </span>
         {unit && <span className="text-[12px] text-primary/90 font-bold">{unit}</span>}
@@ -195,7 +163,7 @@ function GaugeTile({
         </svg>
         <div className="min-w-0">
           <div className="flex items-baseline gap-1 tabular-nums" dir="ltr">
-            <span className="font-montserrat font-bold text-[22px] leading-none text-foreground">
+            <span className="font-bold text-[22px] leading-none text-foreground">
               {value}
             </span>
             {unit && <span className="text-[11px] text-primary/90 font-bold">{unit}</span>}
@@ -344,7 +312,7 @@ function HourlyRibbon({
                       })}
                 </div>
                 <Icon className="w-4 h-4 mx-auto my-1.5 text-primary" strokeWidth={1.4} />
-                <div className="font-montserrat font-bold text-[18px] leading-none text-foreground tabular-nums">
+                <div className="font-bold text-[18px] leading-none text-foreground tabular-nums">
                   {Math.round(e.temperature_c)}°
                 </div>
                 <div className="mt-2 h-8 rounded-full bg-foreground/5 relative overflow-hidden">
@@ -460,7 +428,7 @@ function WindCompass({
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-baseline gap-1 tabular-nums" dir="ltr">
-            <span className="font-montserrat font-extrabold text-[32px] leading-none text-foreground">
+            <span className="font-extrabold text-[32px] leading-none text-foreground">
               {Math.round(speed)}
             </span>
             <span className="text-[12px] text-primary/90 font-bold">km/h</span>
@@ -567,7 +535,7 @@ function AQIGauge({
             <circle cx={cx} cy={cy} r="4" fill="hsl(var(--foreground))" />
           </svg>
           <div className="absolute inset-x-0 -bottom-1 text-center">
-            <div className="font-montserrat font-bold text-[24px] leading-none text-foreground tabular-nums">
+            <div className="font-bold text-[24px] leading-none text-foreground tabular-nums">
               {Math.round(caqi)}
             </div>
             <div
@@ -606,11 +574,13 @@ function AQIGauge({
                 </span>
               </div>
               <div className="mt-1.5 h-1 rounded-full bg-foreground/8 overflow-hidden">
+                {/* scaleX keeps the fill on the compositor; `width` would
+                    relayout the row on every frame (design-system §8). */}
                 <motion.div
-                  className="h-full rounded-full"
+                  className="h-full w-full origin-left rounded-full"
                   style={{ background: color }}
-                  initial={{ width: 0 }}
-                  animate={{ width: `${Math.min(100, ratio * 100)}%` }}
+                  initial={{ scaleX: 0 }}
+                  animate={{ scaleX: Math.min(1, ratio) }}
                   transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
                 />
               </div>
@@ -695,7 +665,7 @@ function LiveSunArc({
           <div className="flex items-center justify-center gap-1 text-[11px] tracking-[0.12em] uppercase text-foreground/90 font-semibold">
             <Sunrise className="w-3 h-3 text-primary" /> {'شروق'}
           </div>
-          <div className="mt-1 font-montserrat font-bold text-[18px] leading-none text-foreground tabular-nums">
+          <div className="mt-1 font-bold text-[18px] leading-none text-foreground tabular-nums">
             {timeLabel(sunrise, locale)}
           </div>
         </div>
@@ -703,7 +673,7 @@ function LiveSunArc({
           <div className="flex items-center justify-center gap-1 text-[11px] tracking-[0.12em] uppercase text-foreground/90 font-semibold">
             <Sun className="w-3 h-3 text-primary" /> {'الآن'}
           </div>
-          <div className="mt-1 font-montserrat font-bold text-[18px] leading-none text-foreground tabular-nums">
+          <div className="mt-1 font-bold text-[18px] leading-none text-foreground tabular-nums">
             {elevationDeg.toFixed(0)}°
           </div>
           <div className="text-[11px] text-primary/90 font-bold tabular-nums">
@@ -714,7 +684,7 @@ function LiveSunArc({
           <div className="flex items-center justify-center gap-1 text-[11px] tracking-[0.12em] uppercase text-foreground/90 font-semibold">
             <Sunset className="w-3 h-3 text-primary" /> {'غروب'}
           </div>
-          <div className="mt-1 font-montserrat font-bold text-[18px] leading-none text-foreground tabular-nums">
+          <div className="mt-1 font-bold text-[18px] leading-none text-foreground tabular-nums">
             {timeLabel(sunset, locale)}
           </div>
         </div>
@@ -777,7 +747,10 @@ function DailyRangeStrip({
 }
 
 export default function Weather() {
-  const locale = 'en-GB';
+  // Arabic-only app (design-system §1). This was 'en-GB', which is why the
+  // 7-day strip printed "Sun / Mon / Tue" and clock labels used English
+  // formatting inside otherwise Arabic copy.
+  const locale = 'ar';
   const [selectedCoords, setSelectedCoords] = useState<{
     lat: number;
     lng: number;
@@ -826,7 +799,7 @@ export default function Weather() {
   if (status === 'loading' && !snapshot) {
     return (
       <div className="min-h-screen p-6 grid place-items-center bg-background text-foreground">
-        <span className="font-montserrat font-semibold text-xl text-primary animate-pulse">
+        <span className="font-semibold text-xl text-primary animate-pulse">
           {'نقرأ الغلاف الجوي ونجمع الأرصاد…'}
         </span>
       </div>
@@ -879,7 +852,7 @@ export default function Weather() {
         <div className="px-4 py-3 flex items-center gap-3">
           <BackButton />
           <div className="flex-1 min-w-0 text-center">
-            <h1 className="font-montserrat font-bold text-[20px] leading-none text-foreground truncate">
+            <h1 className="font-bold text-[20px] leading-none text-foreground truncate">
               {selectedCoords?.name || 'لوحة الأرصاد الجوية والفيزياء'}
             </h1>
             <p
@@ -958,15 +931,15 @@ export default function Weather() {
                         {comfortLabel(snapshot.temperature.thermal_comfort_level)}
                       </p>
                       <div className="mt-3 flex items-end gap-3" dir="ltr">
-                        <span className="font-montserrat text-[82px] leading-[0.72] text-foreground tabular-nums font-extrabold">
+                        <span className="text-[82px] leading-[0.72] text-foreground tabular-nums font-extrabold">
                           {Math.round(snapshot.temperature.actual_c)}°
                         </span>
-                        <span className="mb-1 font-montserrat text-[24px] leading-none text-primary/90 font-bold tabular-nums">
+                        <span className="mb-1 text-[24px] leading-none text-primary/90 font-bold tabular-nums">
                           /{Math.round(snapshot.temperature.apparent_c)}°
                         </span>
                       </div>
                       <p className="mt-4 text-[14px] text-foreground/95 font-extrabold">
-                        {weatherLabel(currentHour?.weather_code ?? 0)}
+                        {labelForWeatherCode(currentHour?.weather_code ?? 0)}
                       </p>
                       <p
                         className="mt-2 text-[12px] text-foreground/90 font-bold tabular-nums"
@@ -991,7 +964,7 @@ export default function Weather() {
                           {'ثقة التنبؤ'}
                         </div>
                         <div
-                          className="font-montserrat font-bold text-[22px] leading-none text-foreground tabular-nums"
+                          className="font-bold text-[22px] leading-none text-foreground tabular-nums"
                           dir="ltr"
                         >
                           {conf}%
@@ -1003,10 +976,12 @@ export default function Weather() {
                     className="mt-5 h-1.5 rounded-full bg-foreground/15 overflow-hidden"
                     dir="ltr"
                   >
+                    {/* scaleX, not width: animating width relayouts on every
+                        frame (design-system §8). */}
                     <motion.div
-                      className="h-full rounded-full bg-primary"
-                      initial={{ width: 0 }}
-                      animate={{ width: `${conf}%` }}
+                      className="h-full w-full origin-left rounded-full bg-primary"
+                      initial={{ scaleX: 0 }}
+                      animate={{ scaleX: conf / 100 }}
                       transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
                     />
                   </div>
@@ -1037,7 +1012,7 @@ export default function Weather() {
                           {m.label}
                         </div>
                         <div className="mt-1 flex items-baseline justify-center gap-0.5 tabular-nums">
-                          <span className="font-montserrat font-bold text-[18px] leading-none text-foreground">
+                          <span className="font-bold text-[18px] leading-none text-foreground">
                             {m.value}
                           </span>
                           {m.unit && (
@@ -1050,6 +1025,9 @@ export default function Weather() {
                 </div>
               </section>
 
+              {/* Provenance for the blended numbers above. */}
+              <EnsembleTrustPanel snapshot={snapshot} />
+
               {/* Dynamic Hourly Ribbon Slider */}
               <HourlyRibbon entries={hourly} iconFor={iconForCode} locale={locale} />
 
@@ -1059,7 +1037,7 @@ export default function Weather() {
                   label={'مؤشر UV'}
                   value={snapshot.solar.uv_index.toFixed(1)}
                   pctValue={snapshot.solar.uv_index / 11}
-                  hint={snapshot.solar.uv_category}
+                  hint={uvCategoryLabel(snapshot.solar.uv_category)}
                   icon={<Sun />}
                 />
                 <GaugeTile
@@ -1075,13 +1053,13 @@ export default function Weather() {
                   value={Math.round(snapshot.sky.cloud_cover_total_percent)}
                   unit="%"
                   pctValue={snapshot.sky.cloud_cover_total_percent / 100}
-                  hint={snapshot.sky.cloud_type}
+                  hint={cloudTypeLabel(snapshot.sky.cloud_type)}
                   icon={<Cloud />}
                 />
                 <GaugeTile
                   label={'مدى الرؤية الأفقية'}
                   value={Math.round(snapshot.sky.visibility_km)}
-                  unit="km"
+                  unit="كم"
                   pctValue={Math.min(1, snapshot.sky.visibility_km / 20)}
                   icon={<Eye />}
                 />
@@ -1090,14 +1068,14 @@ export default function Weather() {
               {/* Real Air Quality Indicator (AQI) with pollutant meters */}
               <AQIGauge
                 caqi={snapshot.airQuality.aqi_eu_caqi}
-                category={snapshot.airQuality.aqi_category}
+                category={aqiCategoryLabel(snapshot.airQuality.aqi_category)}
                 pm25={snapshot.airQuality.pm25_ugm3}
                 pm10={snapshot.airQuality.pm10_ugm3}
                 o3={snapshot.airQuality.o3_ugm3}
                 no2={snapshot.airQuality.no2_ugm3}
                 so2={snapshot.airQuality.so2_ugm3}
                 co={snapshot.airQuality.co_mgm3}
-                advisory={snapshot.airQuality.health_advisory}
+                advisory={aqiAdvice(snapshot.airQuality.aqi_us)}
                 healthScore={snapshot.biological.outdoor_health_score}
                 source={snapshot.airQuality.source_station_name}
               />
@@ -1131,8 +1109,8 @@ export default function Weather() {
                 elevationM={Math.round(snapshot.meta.location.elevation_m)}
               />
 
-              {/* NEW Component: Interactive SVG & Motion Charts Suite */}
-              <InteractiveCharts entries={hourly} />
+              {/* Canvas-rendered ensemble trend: blended line + model spread band. */}
+              <HourlyTrendPanel entries={hourly} />
 
               {/* Multi-day forecasts */}
               <DailyRangeStrip
@@ -1161,7 +1139,7 @@ export default function Weather() {
                   <Metric
                     label={'قاعدة السحب'}
                     value={snapshot.sky.cloud_base_m ?? '—'}
-                    unit={snapshot.sky.cloud_base_m ? 'm' : ''}
+                    unit={snapshot.sky.cloud_base_m ? 'م' : ''}
                   />
                   {snapshot.instability.cape_jkg !== null && (
                     <Metric
@@ -1192,8 +1170,8 @@ export default function Weather() {
                 speed={snapshot.wind.speed_kph}
                 gusts={snapshot.wind.gusts_kph}
                 dirDeg={snapshot.wind.direction_deg}
-                cardinal={snapshot.wind.direction_cardinal_16pt}
-                beaufort={snapshot.wind.beaufort_description}
+                cardinal={compassLabel(snapshot.wind.direction_cardinal_16pt, true)}
+                beaufort={beaufortLabel(snapshot.wind.beaufort_scale)}
               />
 
               {/* NEW Component: Realtime Particle simulator & interactive radar */}
@@ -1226,18 +1204,18 @@ export default function Weather() {
                   <Metric
                     label={'هبات الرياح'}
                     value={Math.round(snapshot.wind.gusts_kph)}
-                    unit="km/h"
-                    hint={snapshot.wind.beaufort_description}
+                    unit="كم/س"
+                    hint={beaufortLabel(snapshot.wind.beaufort_scale)}
                   />
                   <Metric
                     label={'مسافة الرياح اليومية'}
                     value={snapshot.wind.wind_run_km_day ?? 0}
-                    unit="km"
+                    unit="كم"
                   />
                   <Metric
                     label={'قاعدة السحب'}
                     value={snapshot.sky.cloud_base_m ?? '—'}
-                    unit={snapshot.sky.cloud_base_m ? 'm' : ''}
+                    unit={snapshot.sky.cloud_base_m ? 'م' : ''}
                   />
                   <Metric
                     label={'احتمالية الضباب'}

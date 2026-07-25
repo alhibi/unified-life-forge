@@ -53,7 +53,7 @@ export default function MeteorologyConsole() {
       <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-primary/40" />
 
       <header className="mb-4">
-        <h2 className="font-montserrat font-semibold text-[20px] leading-none text-foreground flex items-center gap-2">
+        <h2 className="font-semibold text-[20px] leading-none text-foreground flex items-center gap-2">
           <Sliders className="w-5 h-5 text-primary" />
           {'مختبر المحاكاة والرياضيات المترولوجية'}
         </h2>
@@ -67,7 +67,7 @@ export default function MeteorologyConsole() {
         <div className="space-y-1.5 bg-background/30 border border-border/40 p-3 rounded-xl">
           <div className="flex justify-between text-xs font-semibold">
             <span className="text-foreground flex items-center gap-1"><Thermometer className="w-3.5 h-3.5 text-primary" /> {'الحرارة المحاكية'}</span>
-            <span className="font-montserrat text-foreground font-bold tabular-nums">{simTemp}°C</span>
+            <span className="text-foreground font-bold tabular-nums">{simTemp}°C</span>
           </div>
           <input
             type="range"
@@ -83,7 +83,7 @@ export default function MeteorologyConsole() {
         <div className="space-y-1.5 bg-background/30 border border-border/40 p-3 rounded-xl">
           <div className="flex justify-between text-xs font-semibold">
             <span className="text-foreground flex items-center gap-1"><Droplets className="w-3.5 h-3.5 text-primary" /> {'الرطوبة النسبية'}</span>
-            <span className="font-montserrat text-foreground font-bold tabular-nums">{simRH}%</span>
+            <span className="text-foreground font-bold tabular-nums">{simRH}%</span>
           </div>
           <input
             type="range"
@@ -99,7 +99,7 @@ export default function MeteorologyConsole() {
         <div className="space-y-1.5 bg-background/30 border border-border/40 p-3 rounded-xl">
           <div className="flex justify-between text-xs font-semibold">
             <span className="text-foreground flex items-center gap-1">💨 {'سرعة الرياح'}</span>
-            <span className="font-montserrat text-foreground font-bold tabular-nums">{simWind} km/h</span>
+            <span className="text-foreground font-bold tabular-nums">{simWind} km/h</span>
           </div>
           <input
             type="range"
@@ -125,7 +125,7 @@ export default function MeteorologyConsole() {
         ].map((item, idx) => (
           <div key={idx} className="rounded-xl border border-border/40 bg-secondary/20 p-3 text-center flex flex-col justify-between">
             <span className="text-[11px] tracking-wider uppercase text-foreground font-semibold">{item.label}</span>
-            <div className="my-2 flex items-baseline justify-center gap-0.5 font-montserrat text-[24px] leading-none text-foreground font-bold tabular-nums">
+            <div className="my-2 flex items-baseline justify-center gap-0.5 text-[24px] leading-none text-foreground font-bold tabular-nums">
               <span>{item.value}</span>
               {item.unit && <span className="text-xs text-primary/90 ms-0.5 font-semibold">{item.unit}</span>}
             </div>
