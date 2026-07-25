@@ -356,70 +356,6 @@ export default function Portal() {
     </>
   );
 
-  const panel = (
-    <aside className="mk-rpanel">
-      <div className="mk-rp-head">
-        <h2>{isAr ? 'التطبيق المحدد' : 'AUSGEWÄHLT'}</h2>
-      </div>
-      <div className="mk-rp-body">
-        <div className="mk-grp">
-          <div className="mk-glabel">{isAr ? 'الاسم' : 'Name'}</div>
-          <div className="mk-gname">{isAr ? current.label : current.labelDe}</div>
-          <button className="mk-chip-btn on" onClick={() => navigate(current.path)}>
-            {isAr ? 'افتح الآن' : 'Öffnen'}
-          </button>
-          <div className="mk-hint">{isAr ? current.description : current.descriptionDe}</div>
-        </div>
-
-        <div className="mk-grp">
-          <div className="mk-sec-title">{isAr ? 'الأقسام' : 'BEREICHE'}</div>
-          {current.links.map(l => (
-            <button key={l.path} className="mk-opt" onClick={() => navigate(l.path)}>
-              <span>
-                <span className="t1 block">{isAr ? l.ar : l.de}</span>
-                <span className="t2 block">{isAr ? l.note : l.noteDe}</span>
-              </span>
-              <span className="arrow">
-                <Chevron size={15} />
-              </span>
-            </button>
-          ))}
-        </div>
-
-        <div className="mk-grp">
-          <div className="mk-sec-title">{isAr ? 'إعدادات سريعة' : 'SCHNELLEINSTELLUNGEN'}</div>
-          <button
-            className="mk-tog-row"
-            onClick={() => setTheme(isDark ? 'light' : 'dark')}
-            aria-pressed={isDark}
-          >
-            <span>
-              <span className="t1 block">{isAr ? 'الوضع الليلي' : 'Dunkelmodus'}</span>
-              <span className="t2 block">
-                {isAr ? 'يبدّل لوحة الألوان بالكامل' : 'Wechselt die Palette'}
-              </span>
-            </span>
-            <span className={`mk-tog${isDark ? ' on' : ''}`} aria-hidden />
-          </button>
-          <button className="mk-tog-row" onClick={() => setList(v => !v)} aria-pressed={list}>
-            <span>
-              <span className="t1 block">{isAr ? 'عرض القائمة' : 'Listenansicht'}</span>
-              <span className="t2 block">
-                {isAr ? 'صف واحد لكل تطبيق' : 'Eine Zeile pro App'}
-              </span>
-            </span>
-            <span className={`mk-tog${list ? ' on' : ''}`} aria-hidden />
-          </button>
-          <div className="mk-hint">
-            {isAr
-              ? 'مرّر على أي تطبيق ليظهر تفصيله هنا، واضغط لفتحه.'
-              : 'Über eine App fahren zeigt Details, Klick öffnet sie.'}
-          </div>
-        </div>
-      </div>
-    </aside>
-  );
-
   return (
     <div className="mk preserve-fx">
       <SEO
@@ -640,8 +576,6 @@ export default function Portal() {
                 </div>
               </div>
 
-              {/* ---- right panel (desktop only via CSS) ---- */}
-              {panel}
             </div>
 
             <div className="mk-foot">
