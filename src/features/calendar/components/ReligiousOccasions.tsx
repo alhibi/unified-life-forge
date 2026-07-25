@@ -1,9 +1,10 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+
 import { useApp } from '@/contexts/AppContext';
-import { CalendarDays, ChevronLeft, ChevronRight } from '@/lib/icons';
-import { getUpcomingOccasions, getDaysUntil, formatGregorianDate } from '@/features/calendar/data/islamicOccasions';
 import type { IslamicOccasion } from '@/features/calendar/data/islamicOccasions';
+import { formatGregorianDate,getDaysUntil, getUpcomingOccasions } from '@/features/calendar/data/islamicOccasions';
+import { CalendarDays, ChevronLeft, ChevronRight } from '@/lib/icons';
 
 function OccasionCard({ occasion, t }: { occasion: IslamicOccasion; t: (key: string) => string }) {
   const daysLeft = getDaysUntil(occasion.gregorianDate);

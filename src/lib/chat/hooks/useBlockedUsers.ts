@@ -1,8 +1,10 @@
 // useBlockedUsers — backs the block-list section of /chat/settings.
 
 import { useQuery } from '@tanstack/react-query';
-import { isSupabaseConfigured } from '@/integrations/supabase/client';
+
 import { useAuth } from '@/hooks/useAuth';
+import { isSupabaseConfigured } from '@/integrations/supabase/client';
+
 import * as api from '../api';
 import { chatKeys } from '../queryKeys';
 

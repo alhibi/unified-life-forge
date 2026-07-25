@@ -5,16 +5,18 @@
  * total, equipment requirements, and the highlights bullet list.
  */
 
+import { AnimatePresence,motion } from 'framer-motion';
 import React, { useMemo, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+
 import { Calendar, ChevronRight, Clock, Filter, Library, Users, X } from '@/lib/icons';
+
 import {
   EXPERIENCE_LABELS,
   GOAL_LABELS,
-  PROGRAMS,
   programByKey,
+  PROGRAMS,
 } from '../programsLibrary';
-import type { ProgramDef, ProgramExperience, LocalizedString } from '../types';
+import type { LocalizedString,ProgramDef, ProgramExperience } from '../types';
 
 export interface ProgramsLibraryViewProps {
   /** Currently active program key (drawn highlighted). */

@@ -4,17 +4,19 @@
  * Reads the workout history → ACWR + soreness → recommendation.
  */
 
-import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { ShieldAlert, Sparkles, Activity, AlertTriangle } from '@/lib/icons';
+import React, { useMemo } from 'react';
+
+import { Activity, AlertTriangle,ShieldAlert, Sparkles } from '@/lib/icons';
+
+import type { WorkoutSession } from '../../wellnessDb';
 import {
   acwr,
-  readinessLabel,
   READINESS_LABEL_COLOR,
   READINESS_LABEL_TEXT,
+  readinessLabel,
   shouldDeload,
 } from '../periodizationEngine';
-import type { WorkoutSession } from '../../wellnessDb';
 
 export interface DeloadAdvisorProps {
   workouts: WorkoutSession[];

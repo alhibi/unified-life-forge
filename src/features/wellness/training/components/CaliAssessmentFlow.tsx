@@ -5,17 +5,19 @@
  * places the user on each skill ladder and recommends suitable programs.
  */
 
+import { AnimatePresence,motion } from 'framer-motion';
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+
 import { Award, Check, ChevronLeft, ChevronRight, X } from '@/lib/icons';
+
 import {
   ASSESSMENT_QUESTIONS,
   computeAssessment,
   TIER_RECOMMENDATION,
 } from '../caliAssessment';
-import { caliProgramByKey, CALI_EXP_LABELS } from '../caliPrograms';
-import type { AssessmentResult } from '../types';
+import { CALI_EXP_LABELS,caliProgramByKey } from '../caliPrograms';
 import { skillByKey } from '../caliSkillTree';
+import type { AssessmentResult } from '../types';
 
 export interface CaliAssessmentFlowProps {
   open: boolean;

@@ -1,20 +1,20 @@
+import { AnimatePresence,motion } from 'framer-motion';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useApp } from '@/contexts/AppContext';
+
 import GameShell from '@/features/games/components/GameShell';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Puzzle, Check, X, RotateCcw, ArrowRight, Sparkles, Lightbulb } from '@/lib/icons';
-import { playSfx, vibrate } from '@/features/games/utils/gameFeedback';
 import {
-  PUZZLES,
   ChessPuzzle,
-  PuzzleTheme,
-  fenToBoard,
   fenSideToMove,
+  fenToBoard,
   moveFromUci,
-  uciFromMove,
-  PuzzlePiece,
   PuzzleBoard,
+  PuzzlePiece,
+  PUZZLES,
+  PuzzleTheme,
+  uciFromMove,
 } from '@/features/games/data/chessPuzzles';
+import { playSfx, vibrate } from '@/features/games/utils/gameFeedback';
+import { ArrowRight, Check, Lightbulb,Puzzle, RotateCcw, Sparkles, X } from '@/lib/icons';
 
 // =============================================================================
 // Helpers
@@ -117,7 +117,7 @@ function loadStats(): PuzzleStats {
     };
   } catch { return { ...DEFAULT }; }
 }
-import { saveGameProgress, getGameProgress } from '../api';
+import { getGameProgress,saveGameProgress } from '../api';
 
 function saveStatsFn(s: PuzzleStats) {
   localStorage.setItem('chess-puzzle-stats', JSON.stringify(s));
@@ -150,7 +150,6 @@ function pickNextPuzzle(stats: PuzzleStats, theme: PuzzleTheme | 'all'): ChessPu
 // Component
 // =============================================================================
 export default function ChessPuzzlePage() {
-  const { } = useApp();
   const [stats, setStats] = useState<PuzzleStats>(loadStats);
 
   useEffect(() => {

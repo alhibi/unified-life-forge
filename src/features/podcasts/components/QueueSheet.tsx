@@ -15,7 +15,6 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { createPortal } from 'react-dom';
 
-import { useApp } from '@/contexts/AppContext';
 import { usePodcastPlayer } from '@/features/podcasts/contexts/PodcastPlayerContext';
 import { upgradeArtwork } from '@/features/podcasts/lib/itunes';
 import { ChevronDown, ChevronUp, ListMusic, Music, Trash2, X } from '@/lib/icons';
@@ -35,7 +34,6 @@ function formatDurationShort(durationSec: number): string {
 
 export default function QueueSheet({ open, onClose }: QueueSheetProps) {
   const player = usePodcastPlayer();
-  const { } = useApp();
 
   const items = player.queueItems;
 

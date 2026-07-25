@@ -6,21 +6,23 @@
  * shows the next-tier target weight.
  */
 
-import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
+import React, { useMemo } from 'react';
+
 import { Award, ChevronRight, Trophy } from '@/lib/icons';
+
+import { EXERCISES } from '../../exerciseCatalog';
+import type { AthleteProfile, WorkoutSession } from '../../wellnessDb';
+import { bestsByExercise } from '../prDetector';
+import { wilks } from '../progressionEngine';
 import {
   classifyLift,
   LEVEL_COLORS,
   LEVEL_LABELS,
-  STRENGTH_LEVELS,
   listStandardsExercises,
   powerliftingTotal,
+  STRENGTH_LEVELS,
 } from '../strengthStandards';
-import { wilks } from '../progressionEngine';
-import { bestsByExercise } from '../prDetector';
-import type { AthleteProfile, WorkoutSession } from '../../wellnessDb';
-import { EXERCISES } from '../../exerciseCatalog';
 
 export interface StrengthStandardsViewProps {
   workouts: WorkoutSession[];

@@ -1,12 +1,13 @@
-import { describe, it, expect } from 'vitest';
-import { aggregate } from '../engine/EnsembleAggregator';
-import { CircuitBreaker } from '../engine/CircuitBreaker';
+import { describe, expect,it } from 'vitest';
+
 import { MemoryCache } from '../cache/MemoryCache';
 import {
-  wetBulb_C, dewPoint_C, vaporPressureDeficit_kPa, heatIndex_C, windChill_C,
-  classifyThermalComfort, apparentTemperature_C,
+apparentTemperature_C,
+  classifyThermalComfort, dewPoint_C, heatIndex_C, vaporPressureDeficit_kPa,   wetBulb_C, windChill_C,
 } from '../compute/ThermalCalculator';
-import { degreesToCardinal16, beaufortScale } from '../compute/UnitConverter';
+import { beaufortScale,degreesToCardinal16 } from '../compute/UnitConverter';
+import { CircuitBreaker } from '../engine/CircuitBreaker';
+import { aggregate } from '../engine/EnsembleAggregator';
 
 describe('EnsembleAggregator', () => {
   it('weighted average of 5 sources', () => {

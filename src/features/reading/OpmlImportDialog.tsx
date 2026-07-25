@@ -1,14 +1,16 @@
+import { AnimatePresence,motion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'sonner';
+
+import { Button } from '@/components/ui/button';
 import {
   Check, ChevronDown, FolderOpen, Loader2, Plus, Upload, X,
 } from '@/lib/icons';
-import { Button } from '@/components/ui/button';
-import { toast } from 'sonner';
-import type { FeedSource } from './types';
+
 import { CATEGORIES } from './feeds';
 import { parseOpml } from './opml';
 import { SourcePill } from './SourcePill';
+import type { FeedSource } from './types';
 
 /**
  * OpmlImportDialog — a polished, drag-and-drop OPML import flow.

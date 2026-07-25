@@ -1,10 +1,12 @@
 import { useState } from 'react';
-import { useOptimizer, type OptimizerMode } from '../hooks/useOptimizer';
-import DiffViewer from './DiffViewer';
+
+import { Sparkles,X } from '@/lib/icons';
+import { cn } from '@/lib/utils';
+
+import { type OptimizerMode,useOptimizer } from '../hooks/useOptimizer';
 import { extractTags } from '../lib/tagParser';
 import { extractWikiLinks } from '../lib/wikiLinks';
-import { X, Sparkles } from '@/lib/icons';
-import { cn } from '@/lib/utils';
+import DiffViewer from './DiffViewer';
 
 /**
  * Slide-in panel that runs the note optimizer edge function and lets

@@ -82,8 +82,9 @@ export function effectiveThreshold(
   return threshold;
 }
 
-import { saveGameProgress } from '../api';
 import { isSupabaseConfigured } from '@/integrations/supabase/client';
+
+import { saveGameProgress } from '../api';
 
 // =============================================================================
 // Tournament state machine — persisted to localStorage so refresh resumes.

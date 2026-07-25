@@ -1,35 +1,36 @@
+import { motion } from 'framer-motion';
 import React, { useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import {
-  ClipboardCopy,
-  Feather,
-  ChevronLeft,
-  ChevronRight,
-  ExternalLink,
-  Sparkles,
-  Heart,
-  Loader2,
-} from '@/lib/icons';
-import { motion } from 'framer-motion';
-import SEO from '@/components/SEO';
+
 import BackButton from '@/components/BackButton';
+import SEO from '@/components/SEO';
 import { useApp } from '@/contexts/AppContext';
-import { notify } from '@/lib/notify';
-import {
-  useDiwanGlossary,
-  useDiwanPoem,
-  useDiwanFavoriteIds,
-  useDiwanToggleFavorite,
-} from '@/features/diwan/lib/hooks';
-import { isSupabaseReady } from '@/features/diwan/lib/env';
-import { useAuth } from '@/hooks/useAuth';
-import PoemContextCard, { hasPoemContext } from '@/features/diwan/components/PoemContextCard';
-import { poemContexts } from '@/features/diwan/data/poetTimelines';
+import FallbackBadge from '@/features/diwan/components/library/FallbackBadge';
+import GlossarySheet from '@/features/diwan/components/library/GlossarySheet';
 import SimilarPoems from '@/features/diwan/components/library/SimilarPoems';
 import VerseLine from '@/features/diwan/components/library/VerseLine';
-import GlossarySheet from '@/features/diwan/components/library/GlossarySheet';
-import FallbackBadge from '@/features/diwan/components/library/FallbackBadge';
+import PoemContextCard, { hasPoemContext } from '@/features/diwan/components/PoemContextCard';
+import { poemContexts } from '@/features/diwan/data/poetTimelines';
+import { isSupabaseReady } from '@/features/diwan/lib/env';
+import {
+  useDiwanFavoriteIds,
+  useDiwanGlossary,
+  useDiwanPoem,
+  useDiwanToggleFavorite,
+} from '@/features/diwan/lib/hooks';
 import type { DiwanGlossaryEntry, DiwanVerse } from '@/features/diwan/lib/types';
+import { useAuth } from '@/hooks/useAuth';
+import {
+  ChevronLeft,
+  ChevronRight,
+  ClipboardCopy,
+  ExternalLink,
+  Feather,
+  Heart,
+  Loader2,
+  Sparkles,
+} from '@/lib/icons';
+import { notify } from '@/lib/notify';
 
 // أدوات تطبيع عربية
 const TASHKEEL_REPLACE = /[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED\u0640]/g;

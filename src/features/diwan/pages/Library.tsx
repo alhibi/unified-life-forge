@@ -1,27 +1,28 @@
+import { AnimatePresence,motion } from 'framer-motion';
 import React, { lazy, Suspense, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+
+import BackButton from '@/components/BackButton';
+import SEO from '@/components/SEO';
+import { useApp } from '@/contexts/AppContext';
+import FallbackBadge from '@/features/diwan/components/library/FallbackBadge';
+import { useDiwanStats } from '@/features/diwan/lib/hooks';
 import {
-  Library as LibraryIcon,
-  Users,
-  Search,
+  BookOpen,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
-  ScrollText,
-  Feather,
-  Sparkles,
-  BookOpen,
-  Heart,
-  Network,
-  ChevronDown,
   ChevronUp,
+  Feather,
+  Heart,
+  Library as LibraryIcon,
   Loader2,
+  Network,
+  ScrollText,
+  Search,
+  Sparkles,
+  Users,
 } from '@/lib/icons';
-import SEO from '@/components/SEO';
-import BackButton from '@/components/BackButton';
-import FallbackBadge from '@/features/diwan/components/library/FallbackBadge';
-import { useApp } from '@/contexts/AppContext';
-import { useDiwanStats } from '@/features/diwan/lib/hooks';
 
 // LiteraryGraph بكسلًا فقط عند توسيع القسم.
 const LiteraryGraph = lazy(() => import('@/features/diwan/components/LiteraryGraph'));

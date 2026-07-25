@@ -1,5 +1,6 @@
-import { describe, it, expect } from 'vitest';
 import React from 'react';
+import { describe, expect,it } from 'vitest';
+
 import { parseSnippet, renderSearchSnippet } from './useChatSearch';
 
 describe('chat search snippet parsing and rendering', () => {

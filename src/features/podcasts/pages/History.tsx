@@ -10,7 +10,6 @@ import { useNavigate } from 'react-router-dom';
 
 import BackButton from '@/components/BackButton';
 import SEO from '@/components/SEO';
-import { useApp } from '@/contexts/AppContext';
 import { upgradeArtwork } from '@/features/podcasts/lib/itunes';
 import { encodeFeedUrl } from '@/features/podcasts/lib/route';
 import {
@@ -60,7 +59,6 @@ function HistoryRow({
   onClick: () => void;
   onRemove: () => void;
 }) {
-  const { } = useApp();
   const lang = 'ar';
   const artwork = entry.podcastImageUrl;
   const pct =
@@ -127,7 +125,6 @@ function HistoryRow({
 
 export default function HistoryPage() {
   const navigate = useNavigate();
-  const { } = useApp();
   const lang = 'ar';
   const history = useHistory();
 

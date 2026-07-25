@@ -1,11 +1,11 @@
+import { AnimatePresence,motion } from 'framer-motion';
 import React, { useState } from 'react';
-import SEO from '@/components/SEO';
 import { useNavigate } from 'react-router-dom';
-import { useApp } from '@/contexts/AppContext';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, Volume2, Droplet, User, Star, Users, UtensilsCrossed, Shirt, Copy, BookOpen } from '@/lib/icons';
-import { untimedSunnahData } from '@/data/untimedSunnahData';
+
 import PageHeader from '@/components/PageHeader';
+import SEO from '@/components/SEO';
+import { untimedSunnahData } from '@/data/untimedSunnahData';
+import { BookOpen,ChevronDown, Copy, Droplet, Shirt, Star, User, Users, UtensilsCrossed, Volume2 } from '@/lib/icons';
 import { notify } from '@/lib/notify';
 
 const iconMap: Record<string, React.ElementType> = {
@@ -20,7 +20,6 @@ const iconMap: Record<string, React.ElementType> = {
 
 export default function UntimedSunnah() {
   const navigate = useNavigate();
-  const { dir } = useApp();
   const [openCatId, setOpenCatId] = useState<string | null>(null);
   const [openItemKey, setOpenItemKey] = useState<string | null>(null);
 

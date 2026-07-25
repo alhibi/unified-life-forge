@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { Search, MapPin, Star, History, X, Loader } from '@/lib/icons';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence,motion } from 'framer-motion';
+import React, { useEffect,useState } from 'react';
+
+import { History, Loader,MapPin, Search, Star, X } from '@/lib/icons';
 
 export interface SearchedCity {
   id: number;

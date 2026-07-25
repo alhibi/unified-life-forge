@@ -1,20 +1,20 @@
 import { useNavigate } from 'react-router-dom';
+
+import { useWeatherData } from '@/features/weather/hooks/useWeatherData';
 import {
+  ChevronLeft,
   Cloud,
-  Sun,
+  CloudDrizzle,
+  CloudFog,
+  CloudLightning,
   CloudRain,
   CloudSnow,
-  CloudLightning,
-  CloudDrizzle,
   Cloudy,
-  CloudFog,
-  MoonStar,
-  Wind as WindIcon,
   Droplets,
-  ChevronLeft,
+  MoonStar,
+  Sun,
+  Wind as WindIcon,
 } from '@/lib/icons';
-import { useApp } from '@/contexts/AppContext';
-import { useWeatherData } from '@/features/weather/hooks/useWeatherData';
 
 function iconFor(code: number, isDay: boolean) {
   if (code <= 1) return isDay ? Sun : MoonStar;
@@ -46,7 +46,6 @@ function conditionLabel(code: number): string {
 
 export default function WeatherWidget() {
   const navigate = useNavigate();
-  const { } = useApp();
   const { data } = useWeatherData('ar');
 
   if (!data) {

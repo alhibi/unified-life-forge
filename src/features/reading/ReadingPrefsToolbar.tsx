@@ -1,13 +1,14 @@
 import {
-  ArrowDownAZ, ArrowDownWideNarrow, ArrowUpWideNarrow,
-  CalendarDays, LayoutGrid, List, Rows3, SlidersHorizontal,
-} from '@/lib/icons';
-import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { Switch } from '@/components/ui/switch';
+import {
+  ArrowDownAZ, ArrowDownWideNarrow, ArrowUpWideNarrow,
+  CalendarDays, LayoutGrid, List, Rows3, SlidersHorizontal,
+} from '@/lib/icons';
+
 import type { Density, GroupMode, ListPrefs, SortMode } from './listPrefs';
 
 /**

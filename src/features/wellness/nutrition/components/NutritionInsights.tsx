@@ -5,7 +5,6 @@
 import { motion } from 'framer-motion';
 import React, { useMemo } from 'react';
 
-import { useApp } from '@/contexts/AppContext';
 import { Award, Brain, Dumbbell, Leaf, Shield, Sparkles, Star, Zap } from '@/lib/icons';
 
 import {
@@ -45,7 +44,6 @@ interface InsightSection {
 }
 
 export default function NutritionInsights() {
-  const { } = useApp();
   const lang: Lang = 'ar';
 
   const sections: InsightSection[] = useMemo(

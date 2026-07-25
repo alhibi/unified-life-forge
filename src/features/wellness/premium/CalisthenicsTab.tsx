@@ -12,27 +12,27 @@
  * IndexedDB via the same `WorkoutSession` schema (mapped via skillKey).
  */
 
+import { AnimatePresence,motion } from 'framer-motion';
 import React, { useEffect, useMemo, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+
+import { useApp } from '@/contexts/AppContext';
 import {
   Activity, Award, BookOpen, ChevronLeft, Flame, Library, Play,
   Target, Timer, TrendingUp, Trophy,
 } from '@/lib/icons';
-import { useApp } from '@/contexts/AppContext';
 
+import { caliProgramByKey } from '../training/caliPrograms';
 // Data
 import { CATEGORY_LABEL, skillByKey, SKILLS } from '../training/caliSkillTree';
 import { masteredSkills, totalCaliXP, weeksToNextStep } from '../training/caliVolumeMath';
-import { caliProgramByKey } from '../training/caliPrograms';
-import type { AssessmentResult } from '../training/types';
-
-// Components
-import CaliSkillTreeView from '../training/components/CaliSkillTreeView';
-import CaliProgressionLadder from '../training/components/CaliProgressionLadder';
-import CaliHoldTimer from '../training/components/CaliHoldTimer';
 import CaliAssessmentFlow from '../training/components/CaliAssessmentFlow';
+import CaliHoldTimer from '../training/components/CaliHoldTimer';
 import CaliKnowledgeSheet from '../training/components/CaliKnowledgeSheet';
 import CaliProgramView from '../training/components/CaliProgramView';
+import CaliProgressionLadder from '../training/components/CaliProgressionLadder';
+// Components
+import CaliSkillTreeView from '../training/components/CaliSkillTreeView';
+import type { AssessmentResult } from '../training/types';
 
 interface Props {
   /** Optional cross-tab navigation callback (parent prop, currently unused). */

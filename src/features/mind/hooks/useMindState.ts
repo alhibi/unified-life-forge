@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
-import { pkmDb, type LocalNote } from '@/features/pkm/lib/db';
+
+import { type LocalNote,pkmDb } from '@/features/pkm/lib/db';
 import { extractWikiLinks, normalizeTitle } from '@/features/pkm/lib/wikiLinks';
 import { supabase } from '@/integrations/supabase/client';
+
 import { fullnessLevel, noteMass, vitality } from '../lib/growth';
 import type { Hemisphere } from './useMemoryAnchor';
 
@@ -53,7 +55,7 @@ const EMPTY: MindState = {
 
 function countWords(md: string): number {
   if (!md) return 0;
-  const clean = md.replace(/```[\s\S]*?```/g, ' ').replace(/[#*_>`\[\]()~-]/g, ' ');
+  const clean = md.replace(/```[\s\S]*?```/g, ' ').replace(/[#*_>`[\]()~-]/g, ' ');
   return clean.trim().split(/\s+/).filter(Boolean).length;
 }
 

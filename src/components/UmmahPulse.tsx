@@ -1,21 +1,23 @@
+import { AnimatePresence,motion } from 'framer-motion';
+import { Clock, Compass, Info,MapPin, Search, X } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+
 import { useApp } from '@/contexts/AppContext';
-import { X, Search, MapPin, Clock, Compass, Info } from 'lucide-react';
 import {
-  getCityPrayerInfo,
-  qiblaBearing,
   bearingToCompass,
-  formatLocalMinutes,
   type CalculationMethodId,
-  type PrayerAdjustments,
-  type PrayerSlot,
+  formatLocalMinutes,
+  getCityPrayerInfo,
   METHOD_LABELS,
   PRAYER_SLOT_ORDER,
+  type PrayerAdjustments,
+  type PrayerSlot,
+  qiblaBearing,
 } from '@/utils/prayerAstronomy';
-import { WORLD_LAND_PATH } from './UmmahPulse.worldPath';
+
 import QiblaCompass from './QiblaCompass';
+import { WORLD_LAND_PATH } from './UmmahPulse.worldPath';
 
 /**
  * Ummah Pulse — a live planetary view of Islamic prayer across the world.
@@ -959,7 +961,6 @@ function UmmahPulse() {
     ? (cityDetails.find((c) => c.name === selectedCity) ?? null)
     : null;
 
-  const t = (ar: string, de: string) => ar;
 
   // ── Map render ────────────────────────────────────────────────────────────
   const renderMapSvg = (opts: { large?: boolean } = {}) => {
@@ -983,7 +984,7 @@ function UmmahPulse() {
         viewBox={`0 0 ${W} ${H}`}
         className="w-full h-auto block select-none"
         preserveAspectRatio="xMidYMid meet"
-        aria-label={t('خريطة العالم مع موجة الفجر الحية', 'Weltkarte mit Live-Fadschr-Welle')}
+        aria-label={'خريطة العالم مع موجة الفجر الحية'}
       >
         <defs>
           {/* ── Google-Maps-Dark inspired palette ─────────────────────────
@@ -1578,7 +1579,7 @@ function UmmahPulse() {
                 </h3>
                 {c.name === 'Makkah' && (
                   <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-600 font-bold">
-                    ★ {t('قبلة', 'Qibla')}
+                    ★ {'قبلة'}
                   </span>
                 )}
               </div>
@@ -1608,16 +1609,16 @@ function UmmahPulse() {
           <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
             <Clock className="w-3 h-3" />
             <span>
-              {t('القادمة', 'Nächstes')}:
+              {'القادمة'}:
               <span className="font-semibold text-foreground ms-1">
                 {SLOT_META[c.info.next.name].ar}
               </span>
             </span>
           </div>
           <div className="text-[12px] font-bold tabular-nums text-primary">
-            {hh > 0 && `${hh}${t('س', 'h')} `}
+            {hh > 0 && `${hh}${'س'} `}
             {mm}
-            {t('د', 'm')}
+            {'د'}
           </div>
         </div>
 
@@ -1661,9 +1662,9 @@ function UmmahPulse() {
             <span className="truncate">{METHOD_LABELS[c.method].ar}</span>
             <span
               className="shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-primary/10 text-primary"
-              title={t('مذهب العصر الرسمي للبلد', 'Offizielles Asr-Madhab des Landes')}
+              title={'مذهب العصر الرسمي للبلد'}
             >
-              {c.shadowUsed === 2 ? t('عصر حنفي', 'Asr Hanafi') : t('عصر جمهور', 'Asr Mehrheit')}
+              {c.shadowUsed === 2 ? 'عصر حنفي' : 'عصر جمهور'}
             </span>
           </div>
           <div className="flex items-center gap-1.5 text-muted-foreground shrink-0">
@@ -1691,10 +1692,10 @@ function UmmahPulse() {
           </div>
           <div>
             <h3 className="text-[14px] font-bold text-foreground leading-tight">
-              {t('بوصلة القبلة', 'Qibla-Kompass')}
+              {'بوصلة القبلة'}
             </h3>
             <p className="text-[11px] text-muted-foreground leading-tight mt-0.5">
-              {t('اتجاه مكة مع مواقيت مدن العالم', 'Richtung Mekka mit Weltgebetszeiten')}
+              {'اتجاه مكة مع مواقيت مدن العالم'}
             </p>
           </div>
         </div>
@@ -1743,10 +1744,7 @@ function UmmahPulse() {
           className="text-[10px] text-muted-foreground text-center mt-2.5 leading-relaxed px-2"
           dir={'rtl'}
         >
-          {t(
-            'اضغط على أي وقت صلاة لعرض كل المدن ومواقيتها الرسمية',
-            'Tippe eine Gebetszeit für offizielle Zeiten aller Städte',
-          )}
+          {'اضغط على أي وقت صلاة لعرض كل المدن ومواقيتها الرسمية'}
         </p>
       </div>
 
@@ -1771,10 +1769,10 @@ function UmmahPulse() {
                     </div>
                     <div>
                       <h2 className="text-[15px] font-bold text-foreground leading-tight">
-                        {t('بوصلة القبلة', 'Qibla-Kompass')}
+                        {'بوصلة القبلة'}
                       </h2>
                       <p className="text-[11px] text-muted-foreground leading-tight mt-0.5">
-                        {t('مواقيت الصلاة في مدن العالم', 'Gebetszeiten in Städten weltweit')}
+                        {'مواقيت الصلاة في مدن العالم'}
                       </p>
                     </div>
                   </div>
@@ -1784,7 +1782,7 @@ function UmmahPulse() {
                       setSelectedCity(null);
                     }}
                     className="w-10 h-10 rounded-2xl bg-card border border-border/40 flex items-center justify-center active:scale-95 transition-transform"
-                    aria-label={t('إغلاق', 'Schließen')}
+                    aria-label={'إغلاق'}
                   >
                     <X className="w-4.5 h-4.5 text-foreground" />
                   </button>
@@ -1804,7 +1802,7 @@ function UmmahPulse() {
                     <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-1">
                       {(['all', ...PRAYER_SLOT_ORDER] as const).map((s) => {
                         const active = filter === s;
-                        const label = s === 'all' ? t('الكل', 'Alle') : SLOT_META[s].ar;
+                        const label = s === 'all' ? 'الكل' : SLOT_META[s].ar;
                         const count =
                           s === 'all'
                             ? CITIES.length
@@ -1845,7 +1843,7 @@ function UmmahPulse() {
                       ).map((r) => {
                         const active = regionFilter === r;
                         const label =
-                          r === 'all' ? t('كل المناطق', 'Alle Regionen') : REGION_LABELS[r].ar;
+                          r === 'all' ? 'كل المناطق' : REGION_LABELS[r].ar;
                         return (
                           <button
                             key={r}
@@ -1872,7 +1870,7 @@ function UmmahPulse() {
                       <input
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        placeholder={t('ابحث عن مدينة أو دولة…', 'Stadt oder Land suchen…')}
+                        placeholder={'ابحث عن مدينة أو دولة…'}
                         className={`w-full py-2 text-[12px] rounded-xl bg-card border border-border/40 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 ${'pe-9 ps-3'}`}
                         dir={'rtl'}
                       />
@@ -1884,16 +1882,16 @@ function UmmahPulse() {
                     <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide px-1 mb-2 flex items-center justify-between">
                       <span className="flex items-center gap-1.5">
                         <MapPin className="w-3 h-3" />
-                        {t('المدن', 'Städte')}
+                        {'المدن'}
                       </span>
                       <span className="normal-case tracking-normal">
-                        {sortedCities.length} {t('نتيجة', 'Treffer')}
+                        {sortedCities.length} {'نتيجة'}
                       </span>
                     </p>
 
                     {sortedCities.length === 0 ? (
                       <div className="text-center text-[12px] text-muted-foreground py-6">
-                        {t('لا توجد نتائج', 'Keine Treffer')}
+                        {'لا توجد نتائج'}
                       </div>
                     ) : (
                       sortedCities.map((c) => {
@@ -1959,10 +1957,7 @@ function UmmahPulse() {
                   </div>
 
                   <p className="text-[10px] text-muted-foreground text-center mt-5 px-6 leading-relaxed">
-                    {t(
-                      'حسابات فلكية بدقّة الدقيقة (Meeus) مع الطرق الرسمية لكل بلد (أم القرى، ديانت، الأوقاف، كراتشي، كيمنترج، جاكيم، …) • مذهب العصر يتبع كل دولة رسميًا • يُحدَّث كل 15 ثانية',
-                      'Minutengenaue Astronomie (Meeus) mit den offiziellen Methoden jedes Landes (Umm al-Qura, Diyanet, Habous, Karatschi, Kemenag, JAKIM, …) · Asr-Madhab folgt offizieller Praxis jedes Landes · Aktualisierung alle 15 s',
-                    )}
+                    {'حسابات فلكية بدقّة الدقيقة (Meeus) مع الطرق الرسمية لكل بلد (أم القرى، ديانت، الأوقاف، كراتشي، كيمنترج، جاكيم، …) • مذهب العصر يتبع كل دولة رسميًا • يُحدَّث كل 15 ثانية'}
                   </p>
                 </div>
               </motion.div>

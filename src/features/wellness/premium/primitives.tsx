@@ -20,9 +20,11 @@
  *  here from inline definitions for shared use.
  */
 
-import React, { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import { motion } from 'framer-motion';
+import React, { type ReactNode,useEffect, useId, useRef, useState } from 'react';
+
 import type { LucideIcon } from '@/lib/icons';
+
 import { SoftSurface, withAlpha } from './surfaces';
 
 /* ─────────────────────── ProgressRing ─────────────────────── */
@@ -360,7 +362,7 @@ export interface FastingRingProps {
   lang: 'ar';
 }
 
-export function FastingRing({ elapsedSec, targetHours, size = 200, active, protocol, lang }: FastingRingProps) {
+export function FastingRing({ elapsedSec, targetHours, size = 200, active, protocol, lang: _lang }: FastingRingProps) {
   const targetSec = targetHours * 3600;
   const ratio = Math.max(0, Math.min(1, elapsedSec / targetSec));
   const remainingSec = Math.max(0, targetSec - elapsedSec);

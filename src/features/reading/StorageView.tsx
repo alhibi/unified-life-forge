@@ -1,17 +1,19 @@
-import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+
 import {
   ChevronLeft, Database, HardDrive, Image as ImageIcon,
   RefreshCw, Trash2,
 } from '@/lib/icons';
-import { toast } from 'sonner';
+
+import { ConfirmDialog } from './ConfirmDialog';
 import { offlineDb } from './offlineDb';
 import {
-  type OfflinePrefs,
   getOfflinePrefs,
+  type OfflinePrefs,
   storeOfflinePrefs,
 } from './storage';
-import { ConfirmDialog } from './ConfirmDialog';
 
 /**
  * StorageView — the "manage what's saved on this device" panel for

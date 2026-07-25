@@ -8,6 +8,7 @@
 //   3. `cancel()` closes the picker without sending anything.
 
 import { useCallback, useState } from 'react';
+
 import { newClientId } from '../clientId';
 import type { ChatMessage } from '../types';
 import { useChatMutations } from './useChatMutations';

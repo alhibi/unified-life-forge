@@ -9,8 +9,8 @@
  * Bilingual labels for accessibility.
  */
 
-import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import React, { useState } from 'react';
 
 export interface RpeRirPickerProps {
   value: number | null;

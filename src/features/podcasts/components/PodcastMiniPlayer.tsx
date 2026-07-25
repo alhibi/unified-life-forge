@@ -23,12 +23,12 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { KeyboardEvent, lazy, memo, MouseEvent, Suspense, useCallback, useState } from 'react';
 
-import { FLOATING_STACK_OFFSET } from '@/lib/layout';
 import {
   usePodcastPlayer,
   usePodcastPlayerProgress,
 } from '@/features/podcasts/contexts/PodcastPlayerContext';
 import { Loader2, Pause, Play, RotateCcw, RotateCw } from '@/lib/icons';
+import { FLOATING_STACK_OFFSET } from '@/lib/layout';
 
 // The mini-player is mounted on EVERY route, so a static import of
 // PlayerSheet pulled it — plus QueueSheet and all of DOMPurify — into the

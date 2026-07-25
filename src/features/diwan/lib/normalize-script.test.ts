@@ -9,13 +9,14 @@
  */
 
 import { describe, expect, it } from 'vitest';
+
 import {
-  normalizeArabic,
   buildSlug,
   extractMeter,
   extractRhyme,
-  splitVerse,
   extractYears,
+  normalizeArabic,
+  splitVerse,
 } from '../../../../scripts/diwan/normalize.ts';
 
 describe('normalizeArabic', () => {

@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
+
 import {
-  type NotificationPrefs,
   getNotificationPrefs,
+  type NotificationPrefs,
   notificationsActive,
   storeNotificationPrefs,
 } from './storage';

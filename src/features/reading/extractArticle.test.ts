@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+
 import {
   FULL_CONTENT_THRESHOLD,
   needsContentUpgrade,

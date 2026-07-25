@@ -13,12 +13,21 @@
  * Strictly UI — persistence is the parent's job (passed via `onFinish`).
  */
 
-import React, { useEffect, useMemo, useState, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence,motion } from 'framer-motion';
+import React, { useCallback,useEffect, useMemo, useState } from 'react';
+
+import { confirmDialog } from '@/lib/confirmDialog';
 import {
   BookOpen, Calculator, Flame, Plus, Save,
   Trash2, X,
 } from '@/lib/icons';
+
+import {
+  type Exercise,
+  EXERCISES,
+  MUSCLE_LABELS,
+  resolveExercise,
+} from '../../exerciseCatalog';
 import type {
   ExerciseEntry,
   SetEntry,
@@ -26,21 +35,14 @@ import type {
   WorkoutSession,
 } from '../../wellnessDb';
 import { todayIso } from '../../wellnessDb';
-import {
-  EXERCISES,
-  resolveExercise,
-  type Exercise,
-  MUSCLE_LABELS,
-} from '../../exerciseCatalog';
 import { sessionVolumeKg } from '../progressionEngine';
-import ExercisePickerSheet from './ExercisePickerSheet';
 import CueCardSheet from './CueCardSheet';
-import WarmupSheet from './WarmupSheet';
+import ExercisePickerSheet from './ExercisePickerSheet';
+import PlateCalculator from './PlateCalculator';
 import RestTimer from './RestTimer';
 import RpeRirPicker from './RpeRirPicker';
 import SetRow from './SetRow';
-import PlateCalculator from './PlateCalculator';
-import { confirmDialog } from '@/lib/confirmDialog';
+import WarmupSheet from './WarmupSheet';
 
 export type SessionType = 'strength' | 'cardio' | 'hiit' | 'mobility' | 'sport';
 
@@ -104,7 +106,7 @@ const T = {
 
 const TYPE_OPTS: SessionType[] = ['strength', 'cardio', 'hiit', 'mobility'];
 
-function fmtDuration(ms: number, lang: 'ar'): string {
+function fmtDuration(ms: number, _lang: 'ar'): string {
   const sec = Math.max(0, Math.floor(ms / 1000));
   const m = Math.floor(sec / 60);
   const s = sec % 60;

@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Volume2, Play, Pause, RotateCcw, ChevronRight } from '@/lib/icons';
+import React, { useEffect, useRef,useState } from 'react';
 import { toast } from 'sonner';
+
+import { ChevronRight,Pause, Play, RotateCcw, Volume2 } from '@/lib/icons';
 
 interface ArticleSpeechPlayerProps {
   textToSpeak: string;

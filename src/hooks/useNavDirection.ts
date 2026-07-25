@@ -24,6 +24,7 @@
  */
 import { useEffect, useMemo, useRef } from 'react';
 import { useLocation, useNavigationType } from 'react-router-dom';
+
 import type { NavMode } from '@/lib/motion';
 
 // Inferred from react-router so we don't depend on whether the named

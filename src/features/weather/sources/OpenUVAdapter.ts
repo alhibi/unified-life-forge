@@ -1,8 +1,8 @@
 // OpenUV — medically precise UV with skin-type personalization. BYOK.
 
-import { BaseAdapter, safeJson, readEnv, type AdapterContext } from './BaseAdapter';
 import { SOURCE_REGISTRY, type SourceId } from '../types/SourceRegistry';
 import type { PartialSnapshot } from '../types/WeatherSnapshot';
+import { type AdapterContext,BaseAdapter, readEnv, safeJson } from './BaseAdapter';
 
 interface OUResp {
   result?: {

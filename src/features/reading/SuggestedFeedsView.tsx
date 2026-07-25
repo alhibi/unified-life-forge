@@ -1,17 +1,19 @@
-import { useDeferredValue, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Check, ChevronLeft, Plus, Search, Star, X } from '@/lib/icons';
-import { Button } from '@/components/ui/button';
+import { useDeferredValue, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
-import type { FeedSource } from './types';
+
+import { Button } from '@/components/ui/button';
+import { Check, ChevronLeft, Plus, Search, Star, X } from '@/lib/icons';
+
 import {
   CATEGORIES,
-  LANGUAGES,
-  SUGGESTED_FEEDS,
   detectFeedLanguage,
+  LANGUAGES,
   normalizeSearch,
+  SUGGESTED_FEEDS,
 } from './feeds';
 import { SourcePill } from './SourcePill';
+import type { FeedSource } from './types';
 
 type LangId = (typeof LANGUAGES)[number]['id'];
 

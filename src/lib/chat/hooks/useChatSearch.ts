@@ -35,9 +35,10 @@
 //   highlight pass while the RPC is in flight.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import React, { useMemo } from 'react';
 import { useQuery, type UseQueryResult } from '@tanstack/react-query';
-import { supabase, isSupabaseConfigured } from '@/integrations/supabase/client';
+import React, { useMemo } from 'react';
+
+import { isSupabaseConfigured,supabase } from '@/integrations/supabase/client';
 
 /** A single hit returned by the FTS RPC. Mirrors the SQL TABLE result. */
 export interface ChatSearchHit {

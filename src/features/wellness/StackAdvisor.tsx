@@ -1,19 +1,21 @@
+import { AnimatePresence,motion } from 'framer-motion';
 import React, { useMemo, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, ChevronDown, Zap, FlaskConical, Utensils, AlertTriangle, Check } from '@/lib/icons';
+
 import { useApp } from '@/contexts/AppContext';
+import { AlertTriangle, Check,ChevronDown, FlaskConical, Sparkles, Utensils, Zap } from '@/lib/icons';
+
+import { FoodIcon } from './foodIcons';
 import {
-  NUTRIENTS,
-  NUTRIENT_LIST,
-  SYNERGIES,
-  INTERACTIONS,
-  FOODS,
   DOMAIN_META,
   EVIDENCE_LABEL,
+  FOODS,
+  INTERACTIONS,
   type Lang,
+  NUTRIENT_LIST,
+  NUTRIENTS,
+  SYNERGIES,
 } from './wellnessData';
 import type { Supplement } from './wellnessDb';
-import { FoodIcon } from './foodIcons';
 
 function FoodChip({ foodKey, label }: { foodKey: string; label: string }) {
   return (

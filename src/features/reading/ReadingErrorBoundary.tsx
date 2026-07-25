@@ -1,7 +1,9 @@
-import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { motion } from 'framer-motion';
-import { AlertTriangle, Database, RefreshCw, Trash2, WifiOff } from '@/lib/icons';
+import { Component, type ErrorInfo, type ReactNode } from 'react';
+
 import { Button } from '@/components/ui/button';
+import { AlertTriangle, Database, RefreshCw, Trash2, WifiOff } from '@/lib/icons';
+
 import { offlineDb } from './offlineDb';
 
 /**
@@ -149,7 +151,7 @@ export class ReadingErrorBoundary extends Component<Props, State> {
 // ─── Fallback UI components ────────────────────────────────────────────────
 
 function ErrorFallback({
-  lang,
+  lang: _lang,
   error,
   errorKind,
   retryCount,
@@ -279,7 +281,7 @@ function ErrorFallback({
 }
 
 function FatalErrorFallback({
-  lang,
+  lang: _lang,
   error,
   onClearAndRetry,
   clearing,

@@ -6,9 +6,14 @@
  * overshooting their recovery capacity.
  */
 
-import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { TrendingUp, TrendingDown, Minus } from '@/lib/icons';
+import React, { useMemo } from 'react';
+
+import { Minus,TrendingDown, TrendingUp } from '@/lib/icons';
+
+import { MUSCLE_LABELS, type MuscleGroup } from '../../exerciseCatalog';
+import type { WorkoutSession } from '../../wellnessDb';
+import { hardSetsByMuscle } from '../analyticsEngine';
 import {
   classifyVolume,
   VOLUME_LANDMARKS,
@@ -16,9 +21,6 @@ import {
   ZONE_COLOR,
   ZONE_LABEL,
 } from '../volumeLandmarks';
-import { hardSetsByMuscle } from '../analyticsEngine';
-import type { WorkoutSession } from '../../wellnessDb';
-import { MUSCLE_LABELS, type MuscleGroup } from '../../exerciseCatalog';
 
 export interface VolumeBarsProps {
   workouts: WorkoutSession[];

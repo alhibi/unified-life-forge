@@ -1,10 +1,10 @@
 // Tomorrow.io — hyper-local minute-by-minute precipitation + lightning.
 // Stub until VITE_TOMORROW_API_KEY is supplied; returns {} silently otherwise.
 
-import { BaseAdapter, safeJson, readEnv, type AdapterContext } from './BaseAdapter';
+import type { ForecastLayers, MinutelyEntry } from '../types/ForecastLayer';
 import { SOURCE_REGISTRY, type SourceId } from '../types/SourceRegistry';
 import type { PartialSnapshot } from '../types/WeatherSnapshot';
-import type { ForecastLayers, MinutelyEntry } from '../types/ForecastLayer';
+import { type AdapterContext,BaseAdapter, readEnv, safeJson } from './BaseAdapter';
 
 interface TIResp {
   data?: {

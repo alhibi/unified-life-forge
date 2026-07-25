@@ -7,8 +7,9 @@
  * Pure SVG — no external dependency. Sized to fit any container.
  */
 
-import React from 'react';
 import { motion } from 'framer-motion';
+import React from 'react';
+
 import type { MuscleGroup } from '../../exerciseCatalog';
 import { MUSCLE_LABELS } from '../../exerciseCatalog';
 

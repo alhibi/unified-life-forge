@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { Play, Pause, RefreshCw, Layers, Wind, Droplets } from '@/lib/icons';
+
+import { Droplets,Layers, Pause, Play, RefreshCw, Wind } from '@/lib/icons';
 
 interface RadarMapProps {
   pastTimestamps: number[];

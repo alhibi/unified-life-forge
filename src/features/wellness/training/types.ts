@@ -12,7 +12,7 @@
  */
 
 import type { MuscleGroup } from '../exerciseCatalog';
-import type { SetEntry, WorkoutSession, AthleteProfile, Sex } from '../wellnessDb';
+import type { AthleteProfile, SetEntry, Sex,WorkoutSession } from '../wellnessDb';
 
 /* ────────────────── Bilingual labels ────────────────── */
 
@@ -401,4 +401,4 @@ export interface FrequencyCell {
 
 /* ────────────────── Re-export helpers ────────────────── */
 
-export type { SetEntry, WorkoutSession, AthleteProfile, Sex, MuscleGroup };
+export type { AthleteProfile, MuscleGroup,SetEntry, Sex, WorkoutSession };

@@ -8,29 +8,9 @@ var define_import_meta_env_default = { MODE: "production", BASE_URL: "/", DEV: f
 // src/lib/mcp/index.ts
 import { auth, defineMcp } from "npm:@lovable.dev/mcp-js@0.22.0";
 
-// src/lib/mcp/tools/whoami.ts
+// src/lib/mcp/tools/create-note.ts
 import { defineTool } from "npm:@lovable.dev/mcp-js@0.22.0";
-var whoami_default = defineTool({
-  name: "whoami",
-  title: "Who am I",
-  description: "Return the signed-in SmartHub user's id and email.",
-  inputSchema: {},
-  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
-  handler: (_input, ctx) => {
-    if (!ctx.isAuthenticated()) {
-      return { content: [{ type: "text", text: "Not authenticated" }], isError: true };
-    }
-    const info = { user_id: ctx.getUserId(), email: ctx.getUserEmail() };
-    return {
-      content: [{ type: "text", text: JSON.stringify(info) }],
-      structuredContent: info
-    };
-  }
-});
-
-// src/lib/mcp/tools/list-notes.ts
 import { createClient } from "npm:@supabase/supabase-js@^2.100.1";
-import { defineTool as defineTool2 } from "npm:@lovable.dev/mcp-js@0.22.0";
 import { z } from "npm:zod@^4.4.3";
 function supabaseForUser(ctx) {
   return createClient(
@@ -42,34 +22,31 @@ function supabaseForUser(ctx) {
     }
   );
 }
-var list_notes_default = defineTool2({
-  name: "list_notes",
-  title: "List notes",
-  description: "List the signed-in user's SmartHub notes, newest first.",
+var create_note_default = defineTool({
+  name: "create_note",
+  title: "Create note",
+  description: "Create a new SmartHub note for the signed-in user.",
   inputSchema: {
-    limit: z.number().int().min(1).max(100).optional().describe("Max notes to return (default 20)."),
-    search: z.string().optional().describe("Optional case-insensitive substring to match against note title.")
+    title: z.string().trim().min(1).describe("Note title."),
+    content_md: z.string().optional().describe("Markdown body of the note.")
   },
-  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
-  handler: async ({ limit, search }, ctx) => {
+  annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
+  handler: async ({ title, content_md }, ctx) => {
     if (!ctx.isAuthenticated()) {
       return { content: [{ type: "text", text: "Not authenticated" }], isError: true };
     }
-    const sb = supabaseForUser(ctx);
-    let q = sb.from("pkm_notes").select("id,title,status,updated_at").eq("is_deleted", false).order("updated_at", { ascending: false }).limit(limit ?? 20);
-    if (search && search.trim()) q = q.ilike("title", `%${search.trim()}%`);
-    const { data, error } = await q;
+    const { data, error } = await supabaseForUser(ctx).from("pkm_notes").insert({ user_id: ctx.getUserId(), title, content_md: content_md ?? "" }).select("id,title,updated_at").maybeSingle();
     if (error) return { content: [{ type: "text", text: error.message }], isError: true };
     return {
-      content: [{ type: "text", text: JSON.stringify(data ?? []) }],
-      structuredContent: { notes: data ?? [] }
+      content: [{ type: "text", text: JSON.stringify(data) }],
+      structuredContent: { note: data }
     };
   }
 });
 
 // src/lib/mcp/tools/get-note.ts
+import { defineTool as defineTool2 } from "npm:@lovable.dev/mcp-js@0.22.0";
 import { createClient as createClient2 } from "npm:@supabase/supabase-js@^2.100.1";
-import { defineTool as defineTool3 } from "npm:@lovable.dev/mcp-js@0.22.0";
 import { z as z2 } from "npm:zod@^4.4.3";
 function supabaseForUser2(ctx) {
   return createClient2(
@@ -81,7 +58,7 @@ function supabaseForUser2(ctx) {
     }
   );
 }
-var get_note_default = defineTool3({
+var get_note_default = defineTool2({
   name: "get_note",
   title: "Get note",
   description: "Fetch a single SmartHub note by id, including its markdown content.",
@@ -101,9 +78,9 @@ var get_note_default = defineTool3({
   }
 });
 
-// src/lib/mcp/tools/create-note.ts
+// src/lib/mcp/tools/list-notes.ts
+import { defineTool as defineTool3 } from "npm:@lovable.dev/mcp-js@0.22.0";
 import { createClient as createClient3 } from "npm:@supabase/supabase-js@^2.100.1";
-import { defineTool as defineTool4 } from "npm:@lovable.dev/mcp-js@0.22.0";
 import { z as z3 } from "npm:zod@^4.4.3";
 function supabaseForUser3(ctx) {
   return createClient3(
@@ -115,24 +92,47 @@ function supabaseForUser3(ctx) {
     }
   );
 }
-var create_note_default = defineTool4({
-  name: "create_note",
-  title: "Create note",
-  description: "Create a new SmartHub note for the signed-in user.",
+var list_notes_default = defineTool3({
+  name: "list_notes",
+  title: "List notes",
+  description: "List the signed-in user's SmartHub notes, newest first.",
   inputSchema: {
-    title: z3.string().trim().min(1).describe("Note title."),
-    content_md: z3.string().optional().describe("Markdown body of the note.")
+    limit: z3.number().int().min(1).max(100).optional().describe("Max notes to return (default 20)."),
+    search: z3.string().optional().describe("Optional case-insensitive substring to match against note title.")
   },
-  annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
-  handler: async ({ title, content_md }, ctx) => {
+  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
+  handler: async ({ limit, search }, ctx) => {
     if (!ctx.isAuthenticated()) {
       return { content: [{ type: "text", text: "Not authenticated" }], isError: true };
     }
-    const { data, error } = await supabaseForUser3(ctx).from("pkm_notes").insert({ user_id: ctx.getUserId(), title, content_md: content_md ?? "" }).select("id,title,updated_at").maybeSingle();
+    const sb = supabaseForUser3(ctx);
+    let q = sb.from("pkm_notes").select("id,title,status,updated_at").eq("is_deleted", false).order("updated_at", { ascending: false }).limit(limit ?? 20);
+    if (search && search.trim()) q = q.ilike("title", `%${search.trim()}%`);
+    const { data, error } = await q;
     if (error) return { content: [{ type: "text", text: error.message }], isError: true };
     return {
-      content: [{ type: "text", text: JSON.stringify(data) }],
-      structuredContent: { note: data }
+      content: [{ type: "text", text: JSON.stringify(data ?? []) }],
+      structuredContent: { notes: data ?? [] }
+    };
+  }
+});
+
+// src/lib/mcp/tools/whoami.ts
+import { defineTool as defineTool4 } from "npm:@lovable.dev/mcp-js@0.22.0";
+var whoami_default = defineTool4({
+  name: "whoami",
+  title: "Who am I",
+  description: "Return the signed-in SmartHub user's id and email.",
+  inputSchema: {},
+  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
+  handler: (_input, ctx) => {
+    if (!ctx.isAuthenticated()) {
+      return { content: [{ type: "text", text: "Not authenticated" }], isError: true };
+    }
+    const info = { user_id: ctx.getUserId(), email: ctx.getUserEmail() };
+    return {
+      content: [{ type: "text", text: JSON.stringify(info) }],
+      structuredContent: info
     };
   }
 });

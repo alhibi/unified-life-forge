@@ -1,16 +1,17 @@
-import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, ZoomIn, ZoomOut, Maximize2, Filter } from '@/lib/icons';
+import { AnimatePresence,motion } from 'framer-motion';
+import React, { useCallback, useEffect, useMemo,useRef, useState } from 'react';
+
 import {
-  poetNodes,
-  literaryRelations,
   eraColors,
-  relationLabels,
-  relationColors,
-  type PoetNode,
   type LiteraryRelation,
+  literaryRelations,
+  type PoetNode,
+  poetNodes,
+  relationColors,
+  relationLabels,
   type RelationType,
 } from '@/features/diwan/data/literaryConnections';
+import { Filter,Maximize2, X, ZoomIn, ZoomOut } from '@/lib/icons';
 
 // ─── Types ───────────────────────────────────────────────────────────
 interface SimNode extends PoetNode {
@@ -281,7 +282,7 @@ export default function LiteraryGraph({ onSelectPoet, initialPoetId }: Props) {
             })}
 
           {/* ─── Nodes with depth/parallax effect ─── */}
-          {nodes.map((node, idx) => {
+          {nodes.map((node, _idx) => {
             const active = focusIds.size === 0 || focusIds.has(node.id);
             const isSel = selected?.id === node.id;
             const conns = connectionCount[node.id] || 0;

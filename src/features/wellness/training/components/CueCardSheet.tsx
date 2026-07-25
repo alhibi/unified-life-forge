@@ -4,9 +4,11 @@
  * the active session and the program detail view.
  */
 
+import { AnimatePresence,motion } from 'framer-motion';
 import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+
 import { AlertTriangle, BookOpen, CheckCircle, Info, Wind, X } from '@/lib/icons';
+
 import { cuesFor, GENERIC_SAFETY, GENERIC_WARMUP } from '../coachingCues';
 import type { CueCard, LocalizedString } from '../types';
 

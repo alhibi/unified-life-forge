@@ -10,16 +10,18 @@
  *  • Recent picks for quick re-add
  */
 
+import { AnimatePresence,motion } from 'framer-motion';
 import React, { useMemo, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+
 import { Plus, Search, Star, X } from '@/lib/icons';
+
 import {
-  EXERCISE_LIST,
-  MUSCLE_LABELS,
-  TYPE_LABELS,
   type Equipment,
   type Exercise,
+  EXERCISE_LIST,
+  MUSCLE_LABELS,
   type MuscleGroup,
+  TYPE_LABELS,
 } from '../../exerciseCatalog';
 import BodySilhouette from './BodySilhouette';
 

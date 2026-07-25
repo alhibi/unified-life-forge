@@ -1,16 +1,24 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import type { FeedItem, FeedSource, FeedStatus } from './types';
+
+import { supabase } from '@/integrations/supabase/client';
+import { dedupe, withRetry } from '@/lib/fetchRetry';
+
+import { fetchFeedsClientSide, isSupabaseAvailable } from './clientFetcher';
+import {
+  extractArticleBody,
+  needsContentUpgrade,
+  plainTextLength,
+} from './extractArticle';
 import { offlineDb } from './offlineDb';
 import {
-  LAST_REFRESH_KEY,
+  deleteBookmark,
   getBookmarks,
   getOfflinePrefs,
   getReadArticles,
   getStoredFeeds,
+  LAST_REFRESH_KEY,
   setBookmarkArticle,
-  deleteBookmark,
   storeFeeds,
   storeReadArticles,
 } from './storage';
@@ -18,13 +26,7 @@ import {
   hydrateReadingFromCloud,
   subscribeReadingStorage,
 } from './storage';
-import { fetchFeedsClientSide, isSupabaseAvailable } from './clientFetcher';
-import { dedupe, withRetry } from '@/lib/fetchRetry';
-import {
-  extractArticleBody,
-  needsContentUpgrade,
-  plainTextLength,
-} from './extractArticle';
+import type { FeedItem, FeedSource, FeedStatus } from './types';
 
 
 // ─── Constants for stability & memory management ───────────────────────────
@@ -61,8 +63,7 @@ const STALE_THRESHOLD = 10 * 60 * 1000; // 10 min
  * so callers can keep them in `useEffect` deps without retriggering
  * on every state change.
  */
-export function useReadingData(opts: { }) {
-  const { } = opts;
+export function useReadingData() {
 
   const [feedSources, setFeedSources] = useState<FeedSource[]>(getStoredFeeds);
   const [articles, setArticles] = useState<FeedItem[]>([]);

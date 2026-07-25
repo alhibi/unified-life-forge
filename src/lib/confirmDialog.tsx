@@ -1,4 +1,6 @@
+import { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -9,7 +11,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { useEffect, useState } from 'react';
 
 /**
  * Themed, RTL-aware replacement for `window.confirm`.

@@ -4,6 +4,7 @@
 // Reference: Meeus, "Astronomical Algorithms" (the basis of SunCalc).
 
 import * as SunCalc from 'suncalc';
+
 import type { MoonPhaseName, WeatherSnapshot } from '../types/WeatherSnapshot';
 
 function iso(d: Date | null | undefined): string {

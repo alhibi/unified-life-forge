@@ -1,11 +1,11 @@
+import { AnimatePresence,motion } from 'framer-motion';
 import React, { useMemo, useState } from 'react';
-import SEO from '@/components/SEO';
+
 import BackButton from '@/components/BackButton';
-import { useApp } from '@/contexts/AppContext';
-import { motion, AnimatePresence } from 'framer-motion';
+import SEO from '@/components/SEO';
 import {
-  getEventsForMonth,
   formatGregorianDate,
+  getEventsForMonth,
   HIJRI_MONTHS,
   type ResolvedIslamicEvent,
 } from '@/features/calendar/data/islamicOccasions';
@@ -25,7 +25,6 @@ const ACCENT: Record<string, string> = {
 };
 
 export default function AllOccasions() {
-  const { } = useApp();
   const { hijri: today, todayISO, offset } = useLiveHijriDate();
 
   const [selectedMonth, setSelectedMonth] = useState<number>(today.month);

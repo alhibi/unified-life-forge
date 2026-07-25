@@ -16,7 +16,6 @@ import DOMPurify from 'dompurify';
 import { motion } from 'framer-motion';
 import { memo, useMemo } from 'react';
 
-import { useApp } from '@/contexts/AppContext';
 import {
   type PlayingEpisodeMeta,
   usePodcastPlayer,
@@ -45,7 +44,7 @@ interface EpisodeListItemProps {
   allEpisodes?: PodcastEpisode[];
 }
 
-function formatRelativeDate(ms: number, lang: 'ar'): string {
+function formatRelativeDate(ms: number, _lang: 'ar'): string {
   if (!ms) return '';
   const date = new Date(ms);
   const now = Date.now();
@@ -69,7 +68,7 @@ function formatRelativeDate(ms: number, lang: 'ar'): string {
  */
 const NEW_BADGE_WINDOW_MS = 14 * 86_400_000;
 
-function formatRemaining(durationSec: number, positionSec: number, lang: 'ar'): string {
+function formatRemaining(durationSec: number, positionSec: number, _lang: 'ar'): string {
   const remaining = Math.max(0, Math.round(durationSec - positionSec));
   if (!remaining) return '';
   const m = Math.floor(remaining / 60);
@@ -95,7 +94,6 @@ const EpisodeListItem = memo(function EpisodeListItem({
   seedL,
   allEpisodes,
 }: EpisodeListItemProps) {
-  const { } = useApp();
   const lang = 'ar';
   const player = usePodcastPlayer();
   const playState = usePlayState(episode.id, episode.duration);

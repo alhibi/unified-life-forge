@@ -1,5 +1,6 @@
 import { supabase as _supabase } from '@/integrations/supabase/client';
 
+import type { CountryCatalogEntry } from './countriesCatalog';
 import {
   parseCountryBounds,
   parsePoint,
@@ -8,7 +9,6 @@ import {
   type TravelCountry,
   type TravelPlace,
 } from './types';
-import type { CountryCatalogEntry } from './countriesCatalog';
 
 // Travel Atlas tables are provisioned but not yet in the generated types.
 const supabase = _supabase as unknown as any;

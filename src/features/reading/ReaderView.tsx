@@ -1,26 +1,28 @@
+import { AnimatePresence,motion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'sonner';
+
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { supabase } from '@/integrations/supabase/client';
 import {
   Bookmark, BookmarkCheck, ChevronLeft, Clipboard, ExternalLink,
   History, Loader2, Trash2, Type, X,
 } from '@/lib/icons';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { supabase } from '@/integrations/supabase/client';
 import { sanitizeRssHtml } from '@/utils/sanitizeRssHtml';
-import type { ReaderPrefs } from './types';
+
+import { offlineDb } from './offlineDb';
 import { ReaderPrefsPopover } from './ReaderPrefsPopover';
 import { ArticleDetailSkeleton } from './Skeletons';
-import { offlineDb } from './offlineDb';
-import { readingMinutes, safeHref, timeAgo } from './utils';
 import {
-  type ReaderHistoryEntry,
   clearReaderHistory,
   getReaderHistory,
   pushReaderHistory,
+  type ReaderHistoryEntry,
   removeReaderHistoryEntry,
 } from './storage';
-import { toast } from 'sonner';
+import type { ReaderPrefs } from './types';
+import { readingMinutes, safeHref, timeAgo } from './utils';
 
 /**
  * ReaderView — turns any URL the user pastes into a clean, readable

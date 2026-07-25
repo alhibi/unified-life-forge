@@ -1,8 +1,8 @@
 // WAQI — World Air Quality Index. Real ground-station readings (best source).
 
-import { BaseAdapter, safeJson, readEnv, type AdapterContext } from './BaseAdapter';
 import { SOURCE_REGISTRY, type SourceId } from '../types/SourceRegistry';
 import type { PartialSnapshot } from '../types/WeatherSnapshot';
+import { type AdapterContext,BaseAdapter, readEnv, safeJson } from './BaseAdapter';
 
 interface WAQIResp {
   status: string;

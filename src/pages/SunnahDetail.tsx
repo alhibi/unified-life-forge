@@ -1,11 +1,12 @@
+import { AnimatePresence,motion } from 'framer-motion';
 import React, { useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronRight, ChevronLeft, Heart, Share2, Copy, BookOpen } from '@/lib/icons';
-import { sunnahDetailData, SunnahDetailItem } from '@/data/sunnahDetailData';
-import { useApp } from '@/contexts/AppContext';
-import { notify } from '@/lib/notify';
+
 import BackButton from '@/components/BackButton';
+import { useApp } from '@/contexts/AppContext';
+import { sunnahDetailData, SunnahDetailItem } from '@/data/sunnahDetailData';
+import { BookOpen,ChevronLeft, ChevronRight, Copy, Heart, Share2 } from '@/lib/icons';
+import { notify } from '@/lib/notify';
 
 function DetailedView({ data }: { data: { label: string; accent: string; items: SunnahDetailItem[] } }) {
   const [searchParams] = useSearchParams();
@@ -104,7 +105,6 @@ function DetailedView({ data }: { data: { label: string; accent: string; items: 
 
 function SimpleListView({ data }: { data: { label: string; accent: string; items: { title: string }[] } }) {
   const navigate = useNavigate();
-  const { dir } = useApp();
   
 
   const container = { hidden: {}, show: { transition: { staggerChildren: 0.04 } } };

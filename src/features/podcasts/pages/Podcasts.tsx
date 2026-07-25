@@ -87,7 +87,6 @@ function CountryDialog({
   value: string;
   onSelect: (cc: string) => void;
 }) {
-  const { } = useApp();
   const [query, setQuery] = useState('');
 
   const filtered = useMemo(() => {
@@ -263,7 +262,6 @@ function RegionDialog({
 /* -------------------------------------------------------------------------- */
 
 function PoweredByApplePodcasts() {
-  const { } = useApp();
   return (
     <a
       href="https://www.apple.com/legal/internet-services/itunes/appstorebadges/"

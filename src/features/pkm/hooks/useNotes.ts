@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
-import { pkmDb, newId, type LocalNote, type NoteStatus, type OutboxEntry } from '../lib/db';
+
 import { supabase } from '@/integrations/supabase/client';
+
+import { type LocalNote, newId, type NoteStatus, type OutboxEntry,pkmDb } from '../lib/db';
 
 /**
  * Reactive access to the local notes table. All mutations write through

@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
-import { useApp } from "@/contexts/AppContext";
 import { Loader2, ShieldCheck } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useNavigate,useSearchParams } from "react-router-dom";
+
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 
 type AuthorizationDetails = {
   client?: { name?: string; client_uri?: string; logo_uri?: string };
@@ -25,7 +25,6 @@ const oauth = (supabase.auth as unknown as { oauth: OAuthApi }).oauth;
 export default function OAuthConsent() {
   const [params] = useSearchParams();
   const { user, loading } = useAuth();
-  const { } = useApp();
   const navigate = useNavigate();
   const authorizationId = params.get("authorization_id") ?? "";
   const [details, setDetails] = useState<AuthorizationDetails | null>(null);

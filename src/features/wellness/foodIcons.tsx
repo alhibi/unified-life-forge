@@ -9,6 +9,7 @@
  * All SVGs are inline React components — no external dependencies, no emoji.
  */
 import React from 'react';
+
 import { CATEGORY_META, categoryOf } from './foodCategories';
 
 const S = { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };

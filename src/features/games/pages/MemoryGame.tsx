@@ -1,14 +1,14 @@
-import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import { useApp } from '@/contexts/AppContext';
+import { AnimatePresence,motion } from 'framer-motion';
+import React, { useCallback, useEffect, useMemo, useRef,useState } from 'react';
+import { useNavigate,useSearchParams } from 'react-router-dom';
+
 import GameShell from '@/features/games/components/GameShell';
-import {
-  RefreshCw, Play, Pause, Eye, Shuffle as ShuffleIcon, Sparkles, Trophy, Brain,
-  Timer as TimerIcon, Calendar, Zap, Award, Flame, Lock,
-} from '@/lib/icons';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { AdventureStage, gradeStage, recordStageResult,STAGES } from '@/features/games/data/memoryAdventure';
 import { playSfx, vibrate } from '@/features/games/utils/gameFeedback';
-import { STAGES, AdventureStage, gradeStage, recordStageResult } from '@/features/games/data/memoryAdventure';
+import {
+Award, Brain,
+Calendar, Eye, Flame, Lock,
+Pause, Play,   RefreshCw, Shuffle as ShuffleIcon, Sparkles,   Timer as TimerIcon, Trophy, Zap, } from '@/lib/icons';
 
 type Difficulty = 'easy' | 'medium' | 'hard' | 'expert';
 type Mode = 'classic' | 'endless' | 'timeattack' | 'daily' | 'versus' | 'adventure';
@@ -109,7 +109,7 @@ function loadStats(): MemoryStats {
     };
   } catch { return { ...DEFAULT_STATS }; }
 }
-import { saveGameProgress, getGameProgress } from '../api';
+import { getGameProgress,saveGameProgress } from '../api';
 
 function saveStatsFn(s: MemoryStats) {
   localStorage.setItem('memory-stats', JSON.stringify(s));
@@ -159,7 +159,6 @@ function buildDeck(pairCount: number, theme: Theme, seed?: number): string[] {
 // Component
 // =============================================================================
 export default function MemoryGame() {
-  const { } = useApp();
 
   // Persistent settings
   const [mode, setMode] = useState<Mode>(() => (localStorage.getItem('memory-mode') as Mode) || 'classic');
@@ -648,22 +647,12 @@ export default function MemoryGame() {
 
   // GameShell rules (mode-specific)
   const rules = useMemo(() => {
-    if (true) {
-      switch (mode) {
-        case 'classic':    return ['اقلب البطاقات لإيجاد كل الأزواج', 'كومبو ×3 وأكثر يمنحك نقاطاً إضافية', 'وقت أقل = نقاط أكثر', 'اربح بدون استخدام أدوات لتحقيق "إتقان"'];
-        case 'endless':    return ['كل مستوى يضيف بطاقات أكثر', 'لا توجد نهاية، فقط حدود ذاكرتك', 'كل مستوى يمنح XP', 'حافظ على الكومبو لتسريع التقدم'];
-        case 'timeattack': return ['60 ثانية، أكبر عدد ممكن من الأزواج', 'اللوحة تتجدد بأزواج أكثر بعد كل حل', 'سرعة + دقة تساوي نتيجة عالية', 'الوقت لا يتوقف!'];
-        case 'daily':      return ['نفس اللغز لكل اللاعبين اليوم', 'لكل يوم تحدّ واحد فقط', 'سلسلة الأيام تمنحك مكافآت ضخمة', 'يتجدد عند منتصف الليل (UTC)'];
-        case 'versus':     return ['تتناوب أنت والذكاء على الكشف', 'من يطابق زوجاً يلعب مرة أخرى', 'الذكاء يتذكر البطاقات التي رآها', 'أكثر أزواج = الفوز'];
-      }
-    } else {
-      switch (mode) {
-        case 'classic':    return ['Drehe Karten, finde alle Paare', 'Combo ×3+ gibt Bonuspunkte', 'Schneller = mehr Punkte', 'Ohne Power-ups = "Perfekt"'];
-        case 'endless':    return ['Jedes Level mehr Karten', 'Kein Ende — nur dein Gedächtnis', 'XP pro Level', 'Combo halten beschleunigt'];
-        case 'timeattack': return ['60s, so viele Paare wie möglich', 'Brett wächst nach jedem Solve', 'Speed + Genauigkeit = Top-Score', 'Die Zeit läuft!'];
-        case 'daily':      return ['Gleiches Rätsel weltweit pro Tag', 'Eine Challenge pro Tag', 'Tagesserie = große Belohnung', 'Reset 00:00 UTC'];
-        case 'versus':     return ['Du und KI wechseln sich ab', 'Treffer = nochmal dran', 'Die KI merkt sich gesehene Karten', 'Wer mehr Paare findet, gewinnt'];
-      }
+    switch (mode) {
+      case 'classic':    return ['اقلب البطاقات لإيجاد كل الأزواج', 'كومبو ×3 وأكثر يمنحك نقاطاً إضافية', 'وقت أقل = نقاط أكثر', 'اربح بدون استخدام أدوات لتحقيق "إتقان"'];
+      case 'endless':    return ['كل مستوى يضيف بطاقات أكثر', 'لا توجد نهاية، فقط حدود ذاكرتك', 'كل مستوى يمنح XP', 'حافظ على الكومبو لتسريع التقدم'];
+      case 'timeattack': return ['60 ثانية، أكبر عدد ممكن من الأزواج', 'اللوحة تتجدد بأزواج أكثر بعد كل حل', 'سرعة + دقة تساوي نتيجة عالية', 'الوقت لا يتوقف!'];
+      case 'daily':      return ['نفس اللغز لكل اللاعبين اليوم', 'لكل يوم تحدّ واحد فقط', 'سلسلة الأيام تمنحك مكافآت ضخمة', 'يتجدد عند منتصف الليل (UTC)'];
+      case 'versus':     return ['تتناوب أنت والذكاء على الكشف', 'من يطابق زوجاً يلعب مرة أخرى', 'الذكاء يتذكر البطاقات التي رآها', 'أكثر أزواج = الفوز'];
     }
     return [];
   }, [mode]);

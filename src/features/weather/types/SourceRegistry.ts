@@ -2,8 +2,8 @@
 // The engine consumes this to know which adapters to call, their weights
 // in the ensemble, and their current circuit-breaker state.
 
-import type { PartialSnapshot } from './WeatherSnapshot';
 import type { ForecastLayers } from './ForecastLayer';
+import type { PartialSnapshot } from './WeatherSnapshot';
 
 export type SourceId =
   | 'open-meteo' | 'met-norway' | 'noaa' | 'tomorrow' | 'openweathermap'

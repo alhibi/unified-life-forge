@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
-import { Sun, CheckCircle, AlertTriangle, Info, Shield, Droplets, Leaf } from '@/lib/icons';
+
+import { AlertTriangle, CheckCircle, Droplets, Info, Leaf,Shield, Sun } from '@/lib/icons';
 
 interface WeatherPlannerProps {
   aqiUs: number;

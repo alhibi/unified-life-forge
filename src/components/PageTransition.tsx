@@ -1,9 +1,10 @@
 import { motion, useReducedMotion, type Variants } from 'framer-motion';
-import { ReactNode, createContext, forwardRef, memo, useContext, useLayoutEffect, useMemo } from 'react';
+import { createContext, forwardRef, memo, ReactNode, useContext, useLayoutEffect, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
-import { navLoaded } from '@/lib/navPerf';
+
 import { useApp } from '@/contexts/AppContext';
 import { MOTION, type NavMode } from '@/lib/motion';
+import { navLoaded } from '@/lib/navPerf';
 
 /**
  * PageTransition — strict iOS push / pop with parallax.

@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Map, MapPin, Navigation, Compass } from '@/lib/icons';
+import { useEffect, useState } from 'react';
+
+import { Compass,Map, MapPin, Navigation } from '@/lib/icons';
 
 interface MicroMapProps {
   lat: number;

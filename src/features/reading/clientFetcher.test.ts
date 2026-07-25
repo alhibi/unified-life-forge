@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { getProxyHealth, fetchFeedsClientSide } from './clientFetcher';
+
+import { fetchFeedsClientSide,getProxyHealth } from './clientFetcher';
 
 describe('clientFetcher security settings', () => {
   it('has an empty default proxy pool to ensure no public CORS proxies are used', () => {

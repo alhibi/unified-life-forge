@@ -1,10 +1,10 @@
-import React, { useEffect } from 'react';
-import { useAuth } from '@/hooks/useAuth';
-import { useApp } from '@/contexts/AppContext';
-import { ShieldAlert, ArrowRight } from '@/lib/icons';
-import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 import SEO from '@/components/SEO';
+import { useAuth } from '@/hooks/useAuth';
+import { ArrowRight,ShieldAlert } from '@/lib/icons';
 
 interface AuthGuardProps {
   children: React.ReactNode;
@@ -18,7 +18,6 @@ export default function AuthGuard({
   fallbackDescAr = 'يرجى تسجيل الدخول للوصول إلى هذا القسم ومزامنة بياناتك بأمان.',
 }: AuthGuardProps) {
   const { user, loading } = useAuth();
-  const { } = useApp();
   const navigate = useNavigate();
 
   // Handle session expiration toast notification centrally

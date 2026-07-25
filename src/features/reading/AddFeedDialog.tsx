@@ -1,21 +1,23 @@
+import { AnimatePresence,motion } from 'framer-motion';
 import { useEffect, useMemo, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import {
-  Check, Clock, Globe, Link2, Loader2, Plus, Search, X,
-} from '@/lib/icons';
+import { toast } from 'sonner';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+import {
+  Check, Clock, Globe, Link2, Loader2, Plus, Search, X,
+} from '@/lib/icons';
+
+import { getCustomFolders } from './foldersStorage';
 import { SourcePill } from './SourcePill';
 import {
-  type FeedFrequency,
   describeFrequency,
+  type FeedFrequency,
   getFeedFrequencies,
   setFeedFrequency,
 } from './storage';
 import { timeAgo } from './utils';
-import { getCustomFolders } from './foldersStorage';
 
 /**
  * AddFeedDialog — turns "I have a website I read every day" into an
@@ -286,7 +288,7 @@ export function AddFeedDialog({
 
 // ─── Stage components ─────────────────────────────────────────────────
 
-function EmptyHint({ }: { }) {
+function EmptyHint() {
   return (
     <div className="flex flex-col items-center justify-center text-center py-10 gap-3">
       <Globe className="h-10 w-10 text-muted-foreground/30" />

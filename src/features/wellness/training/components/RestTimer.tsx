@@ -8,8 +8,9 @@
  *   • Auto-starts when invoked from a finished set
  */
 
+import { AnimatePresence,motion } from 'framer-motion';
 import React, { useEffect, useRef, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+
 import { Pause, Play, Plus, RotateCcw, Volume2, VolumeX, X } from '@/lib/icons';
 
 export interface RestTimerProps {

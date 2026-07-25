@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
 import { format, parse } from 'date-fns';
 import { ar } from 'date-fns/locale';
-import { CalendarIcon } from '@/lib/icons';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import React, { useState } from 'react';
+
 import { Calendar } from '@/components/ui/calendar';
-import { cn } from '@/lib/utils';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useApp } from '@/contexts/AppContext';
+import { CalendarIcon } from '@/lib/icons';
+import { cn } from '@/lib/utils';
 
 interface Props {
   /** ISO yyyy-MM-dd */

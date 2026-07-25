@@ -3,9 +3,11 @@
  * unlock criteria, regressions. Tap a step to mark it cleared.
  */
 
-import React from 'react';
 import { motion } from 'framer-motion';
+import React from 'react';
+
 import { ArrowDown, BookOpen, Check, ChevronRight, Lock, Target } from '@/lib/icons';
+
 import { skillByKey } from '../caliSkillTree';
 import { weeksToNextStep } from '../caliVolumeMath';
 import type { SkillProgressionStep } from '../types';

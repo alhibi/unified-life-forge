@@ -1,7 +1,9 @@
 // useWeatherForecast — returns the full forecast layers bundle.
 
 import { useEffect, useState } from 'react';
+
 import { useDeviceLocation } from '@/hooks/useDeviceLocation';
+
 import { weatherEngine } from '../engine/WeatherEngine';
 import type { ForecastLayers } from '../types/ForecastLayer';
 import { EMPTY_FORECAST } from '../types/ForecastLayer';

@@ -9,11 +9,11 @@
  */
 
 import {
-  PrayerTimes as AdhanPrayerTimes,
-  Coordinates,
   CalculationMethod,
+  Coordinates,
   HighLatitudeRule,
   Madhab,
+  PrayerTimes as AdhanPrayerTimes,
   SunnahTimes,
 } from 'adhan';
 

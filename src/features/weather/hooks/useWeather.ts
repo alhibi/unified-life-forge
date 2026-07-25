@@ -4,8 +4,10 @@
 // all subscribers.
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+
 import { useDeviceLocation } from '@/hooks/useDeviceLocation';
-import { weatherEngine, type EngineResult } from '../engine/WeatherEngine';
+
+import { type EngineResult,weatherEngine } from '../engine/WeatherEngine';
 import type { WeatherSnapshot } from '../types/WeatherSnapshot';
 
 export type WeatherStatus = 'idle' | 'loading' | 'success' | 'error';
@@ -76,7 +78,7 @@ export function useWeather(
     }).catch(e => {
       if (reqId.current !== myId) return;
       setError((e as Error).message);
-      setStatus(prev => snapshot ? 'success' : 'error');
+      setStatus(_prev => snapshot ? 'success' : 'error');
       setIsRefreshing(false);
     });
   }, [location?.lat, location?.lng, language, refreshNonce]);

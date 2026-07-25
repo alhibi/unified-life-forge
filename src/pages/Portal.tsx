@@ -26,14 +26,11 @@
  * `src/styles/modkeys.css` under `--mk-*` so the app's own theme engine
  * (which rewrites `--background`, `--primary`, …) never disturbs them.
  */
+import '@/styles/modkeys.css';
+
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import SEO from '@/components/SEO';
-import { useApp } from '@/contexts/AppContext';
-import { useAuth } from '@/hooks/useAuth';
-import { useUnreadMessages } from '@/hooks/useUnreadMessages';
-import { getAppleEmojiUrl, isEmojiAvatarValue } from '@/utils/emojiAvatar';
-import { getDefaultAvatarForUser } from '@/utils/defaultAvatar';
+
 import AppTile, { type AppTileDef } from '@/components/portal/AppTile';
 import {
   MkArrow,
@@ -54,7 +51,12 @@ import {
   MkSun,
   MkUser,
 } from '@/components/portal/MkIcons';
-import '@/styles/modkeys.css';
+import SEO from '@/components/SEO';
+import { useApp } from '@/contexts/AppContext';
+import { useAuth } from '@/hooks/useAuth';
+import { useUnreadMessages } from '@/hooks/useUnreadMessages';
+import { getDefaultAvatarForUser } from '@/utils/defaultAvatar';
+import { getAppleEmojiUrl, isEmojiAvatarValue } from '@/utils/emojiAvatar';
 
 /* ── data ─────────────────────────────────────────────────────────── */
 

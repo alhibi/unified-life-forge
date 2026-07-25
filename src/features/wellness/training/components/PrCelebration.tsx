@@ -5,11 +5,13 @@
  * show this modal with confetti + the list of PRs hit. Animates beautifully.
  */
 
+import { AnimatePresence,motion } from 'framer-motion';
 import React, { useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+
 import { Trophy, X } from '@/lib/icons';
+
+import { type Exercise,resolveExercise } from '../../exerciseCatalog';
 import type { PersonalRecord } from '../types';
-import { resolveExercise, type Exercise } from '../../exerciseCatalog';
 
 export interface PrCelebrationProps {
   records: PersonalRecord[];

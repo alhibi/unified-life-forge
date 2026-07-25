@@ -1,14 +1,15 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Loader2 } from '@/lib/icons';
-import SEO from '@/components/SEO';
+
 import BackButton from '@/components/BackButton';
-import SearchBar from '@/features/diwan/components/library/SearchBar';
+import SEO from '@/components/SEO';
 import EraPills from '@/features/diwan/components/library/EraPills';
-import PoetCard from '@/features/diwan/components/library/PoetCard';
 import FallbackBadge from '@/features/diwan/components/library/FallbackBadge';
+import PoetCard from '@/features/diwan/components/library/PoetCard';
+import SearchBar from '@/features/diwan/components/library/SearchBar';
 import { useDiwanEras, useDiwanPoets } from '@/features/diwan/lib/hooks';
 import type { DiwanPoetSummary } from '@/features/diwan/lib/types';
+import { Loader2 } from '@/lib/icons';
 
 const PAGE = 30;
 

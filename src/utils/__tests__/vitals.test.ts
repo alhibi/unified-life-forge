@@ -1,4 +1,5 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest';
+import { beforeEach,describe, expect, it, vi } from 'vitest';
+
 import { instrumentWebVitals } from '../vitals';
 
 describe('Web Vitals Instrumenter', () => {

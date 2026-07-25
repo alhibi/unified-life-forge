@@ -16,7 +16,7 @@
 // `useChatSettings` (in hooks/useChatSettings.ts) wraps these for React.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { supabase, isSupabaseConfigured } from '@/integrations/supabase/client';
+import { isSupabaseConfigured,supabase } from '@/integrations/supabase/client';
 
 // ── Shape ────────────────────────────────────────────────────────────────────
 

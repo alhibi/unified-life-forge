@@ -10,7 +10,7 @@
  * — Arabic and German strings were authored side-by-side.
  */
 
-import type { ProgramDef, PrescribedExercise, PrescribedSet, LocalizedString } from './types';
+import type { LocalizedString,PrescribedExercise, PrescribedSet, ProgramDef } from './types';
 
 /* ────────────────── Helpers ────────────────── */
 

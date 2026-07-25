@@ -1,9 +1,9 @@
 // MET Norway / Yr.no — best-in-class short-range Nordic model.
 // Requires a descriptive User-Agent per their terms of service.
 
-import { BaseAdapter, safeJson, type AdapterContext } from './BaseAdapter';
 import { SOURCE_REGISTRY, type SourceId } from '../types/SourceRegistry';
 import type { PartialSnapshot } from '../types/WeatherSnapshot';
+import { type AdapterContext,BaseAdapter, safeJson } from './BaseAdapter';
 
 const UA = 'SmartHub/1.0 (https://amv.life)';
 

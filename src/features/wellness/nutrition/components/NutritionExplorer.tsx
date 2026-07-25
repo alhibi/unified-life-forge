@@ -7,7 +7,6 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import React, { useCallback, useMemo, useState } from 'react';
 
-import { useApp } from '@/contexts/AppContext';
 import {
   Apple,
   Brain,
@@ -82,7 +81,6 @@ const SMART_SECTIONS = [
 ] as const;
 
 export default function NutritionExplorer() {
-  const { } = useApp();
   const lang: Lang = 'ar';
 
   // Re-render when the cloud-backed favorites / recents cache changes.

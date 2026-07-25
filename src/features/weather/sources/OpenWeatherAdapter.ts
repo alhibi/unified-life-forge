@@ -1,8 +1,8 @@
 // OpenWeatherMap One Call 3.0 — global fallback. BYOK.
 
-import { BaseAdapter, safeJson, readEnv, type AdapterContext } from './BaseAdapter';
 import { SOURCE_REGISTRY, type SourceId } from '../types/SourceRegistry';
 import type { PartialSnapshot } from '../types/WeatherSnapshot';
+import { type AdapterContext,BaseAdapter, readEnv, safeJson } from './BaseAdapter';
 
 interface OWMResp {
   current?: { temp: number; feels_like: number; humidity: number; dew_point: number;

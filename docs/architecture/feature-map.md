@@ -7,7 +7,7 @@ Legend: ✅ done · 🟡 partial · 🔴 not started · ⚪ N/A
 
 | Feature | Pages | UI | Data | Status |
 |---|---|---|---|---|
-| **Chat / Messaging** | `pages/Chat.tsx`, `GroupChat.tsx`, `GroupsIndex.tsx`, `ChatSettings.tsx` | `components/chat/` + `ChatDrawer.tsx` | `lib/chat/` (canonical) + leak in `components/chat/useChat.ts` | 🟡 |
+| **Chat / Messaging** | `features/chat/pages/` | `features/chat/components/` (incl. `ChatDrawer.tsx` + `drawer/`) | `lib/chat/` (canonical) + leak in `features/chat/components/useChat.ts` | 🟡 |
 | **Reading (RSS)** | `pages/Reading.tsx` | `features/reading/` | hooks colocated; page imports `supabase` directly | 🟡 |
 | **Wellness** | `pages/Wellness.tsx` | `features/wellness/` | local IndexedDB only | ✅ |
 | **Diwan (Poetry)** | `features/diwan/pages/` | `features/diwan/components/` | `features/diwan/lib/` + `features/diwan/data/` | ✅ |
@@ -25,6 +25,21 @@ Legend: ✅ done · 🟡 partial · 🔴 not started · ⚪ N/A
 | **Auth** | `pages/Auth.tsx` | — | `hooks/useAuth.tsx`, `lib/auth/localAuthStore.ts` | 🟡 |
 | **Tafsir / QuranVirtues** | `pages/Tafsir.tsx`, `QuranVirtues.tsx` | embedded | embedded | 🔴 |
 | **Browse** | `pages/Browse.tsx`, `pages/browse/*` | — | shell for Reading + Podcasts | ⚪ |
+
+### Outstanding work on Chat
+
+The component and page layers now live under `src/features/chat/`, and
+`ChatDrawer.tsx` has been split into `features/chat/components/drawer/`. Two
+items remain before the row can go ✅:
+
+1. **`src/lib/chat/` → `features/chat/lib/`.** Blocked on
+   `src/contexts/ImageUploadContext.tsx`, which imports
+   `lib/chat/mediaPipeline`. The generic parts of that pipeline (image
+   compression, HEIC conversion) need lifting to `src/lib/` first, otherwise
+   an app-wide context would depend on a feature.
+2. **Supabase calls outside a data layer.** `features/chat/components/useChat.ts`
+   and `drawer/sharedMedia.ts` query Supabase directly, which §2.1 of
+   `CONTRIBUTING.md` forbids. They belong in the chat data layer.
 
 ## Phased migration order
 

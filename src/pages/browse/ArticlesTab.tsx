@@ -1,12 +1,12 @@
+import { motion } from 'framer-motion';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useApp } from '@/contexts/AppContext';
-import { motion } from 'framer-motion';
-import {
-  Newspaper, BookmarkCheck, Search, Settings2, Bell, BookOpen,
-  ChevronLeft, ChevronRight,
-} from '@/lib/icons';
 
+import { useApp } from '@/contexts/AppContext';
+import {
+Bell, BookmarkCheck, BookOpen,
+  ChevronLeft, ChevronRight,
+  Newspaper, Search, Settings2, } from '@/lib/icons';
 /**
  * Browse → Articles tab ("اقرأ").
  *
@@ -19,8 +19,7 @@ import {
  * remembers it). For first visits, they all land on the article list,
  * which is the right default.
  */
-
-import { pageStagger as stagger, pageItem as item } from '@/lib/motion';
+import { pageItem as item,pageStagger as stagger } from '@/lib/motion';
 
 export default function ArticlesTab() {
   const { dir } = useApp();

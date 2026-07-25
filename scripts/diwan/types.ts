@@ -8,10 +8,10 @@
  */
 
 export {
-  KNOWN_METERS,
-  KNOWN_KINDS,
-  type Meter,
   type Kind,
+  KNOWN_KINDS,
+  KNOWN_METERS,
+  type Meter,
 } from '../../src/lib/diwan/constants.ts';
 
 export interface RawEra {

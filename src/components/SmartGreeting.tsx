@@ -12,10 +12,11 @@
  * Uses the Latin numeral system in both languages (per localization rule).
  */
 import { useEffect, useMemo, useState } from 'react';
+
 import { useApp } from '@/contexts/AppContext';
+import { useWeatherData } from '@/features/weather/hooks/useWeatherData';
 import { useAuth } from '@/hooks/useAuth';
 import { useDeviceLocation } from '@/hooks/useDeviceLocation';
-import { useWeatherData } from '@/features/weather/hooks/useWeatherData';
 import { fetchPrayerTimings } from '@/hooks/usePrayerTimesCache';
 
 const PRAYER_AR: Record<string, string> = {

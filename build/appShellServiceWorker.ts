@@ -74,7 +74,7 @@ export function appShellServiceWorker(): Plugin {
       }
 
       fs.writeFileSync(path.join(outDir, 'sw.js'), code);
-      // eslint-disable-next-line no-console
+       
       console.log(`\n  sw.js emitted — v${version}, ${entries.length} precached entries`);
     },
   };

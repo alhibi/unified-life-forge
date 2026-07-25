@@ -3,9 +3,10 @@
 // لا في وضع التطوير ولا في الـ demo، ويتحوّل التحميل إلى "ضخم" تلقائيًا
 // متى توفّرت قاعدة بيانات adab.com.
 
-import { poetryEras } from '@/features/diwan/data/poetryData';
-import { poetNodes } from '@/features/diwan/data/literaryConnections';
 import { diwanLocalGlossary } from '@/features/diwan/data/diwanGlossary';
+import { poetNodes } from '@/features/diwan/data/literaryConnections';
+import { loadPoetryEras } from '@/features/diwan/data/poetryData';
+
 import type {
   DiwanEra,
   DiwanGlossaryEntry,
@@ -53,9 +54,14 @@ interface Idx {
   poemsByPoet: Record<string, (DiwanPoemSearchResult & { _verses: DiwanVerse[] })[]>;
 }
 
-let _idx: Idx | null = null;
-function buildIdx(): Idx {
-  if (_idx) return _idx;
+let _idx: Promise<Idx> | null = null;
+function buildIdx(): Promise<Idx> {
+  _idx ??= buildIdxOnce();
+  return _idx;
+}
+
+async function buildIdxOnce(): Promise<Idx> {
+  const poetryEras = await loadPoetryEras();
   const ERA_META: Record<string, { sort: number; color: string; period: string; start?: number; end?: number }> = {
     jahili:    { sort: 1, color: '#d97706', period: 'قبل 622م',  start: 500,  end: 622 },
     mukhadram: { sort: 2, color: '#059669', period: 'حول 622م',  start: 600,  end: 661 },
@@ -74,6 +80,11 @@ function buildIdx(): Idx {
     color:      ERA_META[e.id]?.color ?? '#6366f1',
     sort_order: ERA_META[e.id]?.sort ?? 99,
     description: null,
+    // Only the local path knows this — the remote `diwan_eras` table has no
+    // such column, so EraPills renders the badge only when it is present.
+    // Previously the component imported the corpus directly and showed local
+    // counts even when the list beside them came from Supabase.
+    poets_count: e.poets.length,
   }));
   const nodeById = new Map(poetNodes.map(n => [n.id, n]));
 
@@ -153,17 +164,16 @@ function buildIdx(): Idx {
   const poetsByEra = groupBy(poets, (po: any) => po.era_id ?? '') as Record<string, (DiwanPoetSummary & { _eraName: string })[]>;
   const poemsByPoet = groupBy(poems, (pm: any) => pm.poet_slug ?? '') as Record<string, (DiwanPoemSearchResult & { _verses: DiwanVerse[] })[]>;
 
-  _idx = { eras, poets, poems, poetsBySlug, poemsBySlug, poetsByEra, poemsByPoet };
-  return _idx;
+  return { eras, poets, poems, poetsBySlug, poemsBySlug, poetsByEra, poemsByPoet };
 }
 
 // ─── واجهات تطابق api.ts ──────────────────────────────────────────────
-export function localEras(): DiwanEra[] {
-  return buildIdx().eras;
+export async function localEras(): Promise<DiwanEra[]> {
+  return (await buildIdx()).eras;
 }
 
-export function localStats(): DiwanLibraryStats {
-  const i = buildIdx();
+export async function localStats(): Promise<DiwanLibraryStats> {
+  const i = await buildIdx();
   return {
     poets_count:  i.poets.length,
     poems_count:  i.poems.length,
@@ -172,8 +182,8 @@ export function localStats(): DiwanLibraryStats {
   };
 }
 
-export function localPoets(p: { era?: string | null; q?: string | null; page?: number; pageSize?: number } = {}): DiwanPoetSummary[] {
-  const i = buildIdx();
+export async function localPoets(p: { era?: string | null; q?: string | null; page?: number; pageSize?: number } = {}): Promise<DiwanPoetSummary[]> {
+  const i = await buildIdx();
   const q = p.q ? norm(p.q) : '';
   // High-performance O(1) group lookup using poetsByEra
   const baseList = p.era ? (i.poetsByEra[p.era] ?? []) : i.poets;
@@ -186,12 +196,12 @@ export function localPoets(p: { era?: string | null; q?: string | null; page?: n
   return list.slice(page * size, page * size + size);
 }
 
-export function localPoetBySlug(slug: string): DiwanPoetSummary | null {
-  return buildIdx().poetsBySlug.get(slug) ?? null;
+export async function localPoetBySlug(slug: string): Promise<DiwanPoetSummary | null> {
+  return (await buildIdx()).poetsBySlug.get(slug) ?? null;
 }
 
-export function localPoetPoems(p: { poetSlug: string; q?: string | null; meter?: string | null; rhyme?: string | null; page?: number; pageSize?: number }): DiwanPoemSummary[] {
-  const i = buildIdx();
+export async function localPoetPoems(p: { poetSlug: string; q?: string | null; meter?: string | null; rhyme?: string | null; page?: number; pageSize?: number }): Promise<DiwanPoemSummary[]> {
+  const i = await buildIdx();
   const q = p.q ? norm(p.q) : '';
   // High-performance O(1) group lookup using poemsByPoet
   const baseList = i.poemsByPoet[p.poetSlug] ?? [];
@@ -204,12 +214,12 @@ export function localPoetPoems(p: { poetSlug: string; q?: string | null; meter?:
   return list.slice(page * size, page * size + size);
 }
 
-export function localPoem(slug: string): DiwanPoemDetail | null {
-  return buildIdx().poemsBySlug.get(slug) ?? null;
+export async function localPoem(slug: string): Promise<DiwanPoemDetail | null> {
+  return (await buildIdx()).poemsBySlug.get(slug) ?? null;
 }
 
-export function localSearchPoems(p: { q?: string | null; era?: string | null; poet_slug?: string | null; page?: number; pageSize?: number }): DiwanPoemSearchResult[] {
-  const i = buildIdx();
+export async function localSearchPoems(p: { q?: string | null; era?: string | null; poet_slug?: string | null; page?: number; pageSize?: number }): Promise<DiwanPoemSearchResult[]> {
+  const i = await buildIdx();
   const q = p.q ? norm(p.q) : '';
   let list = i.poems.filter(pm =>
     (!p.era || pm.era_id === p.era) &&
@@ -225,9 +235,9 @@ export function localSearchPoems(p: { q?: string | null; era?: string | null; po
   return list.slice(page * size, page * size + size).map(({ _verses, ...rest }) => rest);
 }
 
-export function localSearchVerses(p: { q: string; era?: string | null; page?: number; pageSize?: number }): DiwanVerseSearchResult[] {
+export async function localSearchVerses(p: { q: string; era?: string | null; page?: number; pageSize?: number }): Promise<DiwanVerseSearchResult[]> {
   if (!p.q) return [];
-  const i = buildIdx();
+  const i = await buildIdx();
   const q = norm(p.q);
   const out: DiwanVerseSearchResult[] = [];
   for (const pm of i.poems) {
@@ -252,8 +262,8 @@ export function localSearchVerses(p: { q: string; era?: string | null; page?: nu
 }
 
 // ─── جديد: قصائد مشابهة ────────────────────────────────────────────────
-export function localSimilarPoems(poemSlug: string, limit = 6): DiwanSimilarPoem[] {
-  const idx = buildIdx();
+export async function localSimilarPoems(poemSlug: string, limit = 6): Promise<DiwanSimilarPoem[]> {
+  const idx = await buildIdx();
   const src = idx.poems.find(p => p.slug === poemSlug);
   if (!src) return [];
   const scored = idx.poems
@@ -280,10 +290,10 @@ export function localSimilarPoems(poemSlug: string, limit = 6): DiwanSimilarPoem
 }
 
 // ─── جديد: اقتراحات أثناء الكتابة ───────────────────────────────────────
-export function localSuggest(prefix: string, limit = 8): DiwanSuggestItem[] {
+export async function localSuggest(prefix: string, limit = 8): Promise<DiwanSuggestItem[]> {
   const q = norm(prefix);
   if (!q || q.length < 1) return [];
-  const idx = buildIdx();
+  const idx = await buildIdx();
   const items: DiwanSuggestItem[] = [];
 
   for (const po of idx.poets) {
@@ -325,7 +335,7 @@ export function localSuggest(prefix: string, limit = 8): DiwanSuggestItem[] {
 }
 
 // ─── جديد: شرح المفردات ────────────────────────────────────────────────
-export function localGlossary(poemSlug: string): DiwanGlossaryEntry[] {
+export async function localGlossary(poemSlug: string): Promise<DiwanGlossaryEntry[]> {
   const all = diwanLocalGlossary[poemSlug] ?? [];
   return all.map(g => ({
     word: g.word,
@@ -338,10 +348,10 @@ export function localGlossary(poemSlug: string): DiwanGlossaryEntry[] {
 // ─── جديد: بحث موحّد (محلّي) ───────────────────────────────────────────
 // يحاكي diwan_smart_search عبر مزج 3 مصادر بأوزان متشابهة:
 // poet ×1.5, poem ×1.2, verse ×1.0.
-export function localSmartSearch(q: string, limit = 12): DiwanSmartSearchItem[] {
+export async function localSmartSearch(q: string, limit = 12): Promise<DiwanSmartSearchItem[]> {
   if (!q || q.trim().length === 0) return [];
   const qn = norm(q);
-  const idx = buildIdx();
+  const idx = await buildIdx();
   const out: DiwanSmartSearchItem[] = [];
 
   // شعراء

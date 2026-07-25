@@ -1,8 +1,9 @@
-import * as maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
+
 import { AnimatePresence, motion } from 'framer-motion';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Minus, Plus } from 'lucide-react';
+import * as maplibregl from 'maplibre-gl';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -357,7 +358,7 @@ function PhotoMarker({
   x,
   y,
   place,
-  language,
+  language: _language,
   isTransitioning,
   onClick,
 }: {

@@ -1,6 +1,8 @@
 import { useEffect, useRef } from 'react';
+
 import { supabase } from '@/integrations/supabase/client';
-import { pkmDb, type OutboxEntry, type LocalNote } from '../lib/db';
+
+import { type LocalNote,type OutboxEntry, pkmDb } from '../lib/db';
 
 const BATCH = 20;
 const INTERVAL_MS = 5000;

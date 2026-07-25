@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { packImageMeta, unpackFileName, readableFileName, IMG_META_PREFIX } from './imageMeta';
+
+import { IMG_META_PREFIX,packImageMeta, readableFileName, unpackFileName } from './imageMeta';
 
 describe('imageMeta', () => {
   describe('packImageMeta', () => {

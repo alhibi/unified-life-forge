@@ -14,8 +14,9 @@
  */
 
 import { supabase } from '@/integrations/supabase/client';
-import type { FeedItem, FeedSource, ReaderPrefs } from './types';
 import type { Json } from '@/integrations/supabase/types';
+
+import type { FeedItem, FeedSource, ReaderPrefs } from './types';
 
 const DEFAULT_PREFS: ReaderPrefs = {
   fontSize: 'md',

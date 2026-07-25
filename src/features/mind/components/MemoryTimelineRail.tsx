@@ -1,7 +1,9 @@
-import { useMemo, useRef, useState } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
+import { useMemo, useRef, useState } from 'react';
+
 import { cn } from '@/lib/utils';
-import type { MindNote, MindEvent } from '../hooks/useMindState';
+
+import type { MindEvent,MindNote } from '../hooks/useMindState';
 
 type Row =
   | { kind: 'year'; year: number }

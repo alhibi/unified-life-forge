@@ -1,9 +1,9 @@
+import { AnimatePresence,motion } from 'framer-motion';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useApp } from '@/contexts/AppContext';
+
 import GameShell from '@/features/games/components/GameShell';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Zap, Award, RotateCcw, ChevronRight, Trophy } from '@/lib/icons';
 import { playSfx, vibrate } from '@/features/games/utils/gameFeedback';
+import { Award, ChevronRight, RotateCcw, Trophy,Zap } from '@/lib/icons';
 
 // =============================================================================
 // Focus Decathlon — five back- micro-tests run in a fixed sequence.
@@ -106,8 +106,9 @@ function loadSave(): DecathlonSave {
     return { best: s.best ?? null, history: s.history ?? [] };
   } catch { return { best: null, history: [] }; }
 }
-import { saveGameProgress, getGameProgress } from '../api';
 import { isSupabaseConfigured } from '@/integrations/supabase/client';
+
+import { getGameProgress,saveGameProgress } from '../api';
 
 function saveSave(s: DecathlonSave) {
   localStorage.setItem(KEY, JSON.stringify(s));
@@ -128,7 +129,6 @@ function indexBand(idx: number) {
 // Component
 // =============================================================================
 export default function FocusDecathlonPage() {
-  const { } = useApp();
 
   type Phase = 'briefing' | 'event' | 'result';
   const [phase, setPhase] = useState<Phase>('briefing');

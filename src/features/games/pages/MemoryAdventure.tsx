@@ -1,11 +1,11 @@
+import { AnimatePresence,motion } from 'framer-motion';
 import React, { useMemo, useState } from 'react';
-import { useApp } from '@/contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
+
 import GameShell from '@/features/games/components/GameShell';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Map, Star, Lock, Crown, ChevronRight, Sparkles, Flame } from '@/lib/icons';
-import { STAGES, loadAdventure, isStageUnlocked, AdventureStage } from '@/features/games/data/memoryAdventure';
+import { AdventureStage,isStageUnlocked, loadAdventure, STAGES } from '@/features/games/data/memoryAdventure';
 import { playSfx, vibrate } from '@/features/games/utils/gameFeedback';
+import { ChevronRight, Crown, Flame,Lock, Map, Sparkles, Star } from '@/lib/icons';
 
 // =============================================================================
 // Stage select hub: a vertical island chain. Each stage is a pin with its
@@ -27,7 +27,6 @@ const TWIST_LABELS: Record<string, { ar: string; emoji: string }> = {
 };
 
 export default function MemoryAdventurePage() {
-  const { } = useApp();
   const navigate = useNavigate();
   const [save] = useState(loadAdventure);
   const [selected, setSelected] = useState<AdventureStage | null>(null);

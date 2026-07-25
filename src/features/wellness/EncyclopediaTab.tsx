@@ -9,27 +9,28 @@
  * Designed mobile-first, fully RTL/LTR aware, polished animations.
  */
 
-import React, { useState, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import {
-  Search, X, ChevronDown, Dumbbell, Apple, BookOpen, Zap,
-  Trophy, Flame, AlertCircle, Target, Lightbulb, Clock, Activity, Heart, Brain, Moon, Sparkles,
-  Filter, Sprout, Droplet, Wind, Sun, Compass,
-} from '@/lib/icons';
+import { AnimatePresence,motion } from 'framer-motion';
+import React, { useMemo,useState } from 'react';
+
 import { useApp } from '@/contexts/AppContext';
+import {
+Activity, AlertCircle, Apple, BookOpen, Brain, ChevronDown, Clock, Compass,
+Droplet, Dumbbell,   Filter, Flame, Heart, Lightbulb, Moon,   Search, Sparkles,
+Sprout, Sun, Target,   Trophy, Wind, X, Zap,
+} from '@/lib/icons';
 
 import {
-  CALISTHENICS_ATLAS, CATEGORY_LABELS, CALI_PHILOSOPHIES,
-  type CalisthenicsSkill, type SkillCategory,
+CALI_PHILOSOPHIES,
+  CALISTHENICS_ATLAS,   type CalisthenicsSkill, CATEGORY_LABELS, type SkillCategory,
 } from './calisthenicsAtlas';
 import {
-  FOOD_ATLAS, FOOD_GROUP_LABELS, MEAL_TIME_LABELS,
-  type FoodAtlasEntry, type FoodGroup,
+  FOOD_ATLAS, FOOD_GROUP_LABELS,   type FoodAtlasEntry, type FoodGroup,
+MEAL_TIME_LABELS,
 } from './foodAtlas';
 import {
-  HEALTH_ENCYCLOPEDIA, CATEGORY_LABELS_ENC,
+CATEGORY_LABELS_ENC,
   type EncyclopediaCategory,
-} from './healthEncyclopedia';
+  HEALTH_ENCYCLOPEDIA, } from './healthEncyclopedia';
 
 /* ═══════════════════════════════════════════════════════════════════
  *  Translations

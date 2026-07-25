@@ -27,7 +27,6 @@ import { useLocation, useParams } from 'react-router-dom';
 
 import BackButton from '@/components/BackButton';
 import SEO from '@/components/SEO';
-import { useApp } from '@/contexts/AppContext';
 import DynamicPodcastTheme from '@/features/podcasts/components/DynamicPodcastTheme';
 import EpisodeListItem from '@/features/podcasts/components/EpisodeListItem';
 import { extractSeedColor } from '@/features/podcasts/lib/colorExtract';
@@ -81,7 +80,6 @@ export default function PodcastDetail() {
   const decoded = useMemo(() => decodeRouteId(routeId), [routeId]);
   const location = useLocation();
   const hint = (location.state ?? null) as RouteHint | null;
-  const { } = useApp();
 
   // Step 1 — get podcast metadata.
   // Three branches in order of preference:

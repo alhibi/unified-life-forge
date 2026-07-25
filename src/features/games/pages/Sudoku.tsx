@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { AnimatePresence,motion } from 'framer-motion';
+import React, { useCallback,useEffect, useMemo, useState } from 'react';
+
 import { useApp } from '@/contexts/AppContext';
-import { Grid3X3, Lightbulb, Clock, Eraser, PenLine, Trophy, Undo2, Pause, Play, Calendar, Sparkles, X, Zap, Brain } from '@/lib/icons';
-import { motion, AnimatePresence } from 'framer-motion';
 import GameShell from '@/features/games/components/GameShell';
 import { playSfx, vibrate } from '@/features/games/utils/gameFeedback';
 import { nextHint, SolverHint, TECHNIQUE_LABELS } from '@/features/games/utils/sudokuSolver';
+import { Brain,Calendar, Clock, Eraser, Grid3X3, Lightbulb, Pause, PenLine, Play, Sparkles, Trophy, Undo2, X, Zap } from '@/lib/icons';
 
 type Board = (number | null)[][];
 type Difficulty = 'easy' | 'medium' | 'hard' | 'expert';
@@ -44,7 +45,7 @@ function loadStats(): SudokuStats {
     };
   } catch { return def; }
 }
-import { saveGameProgress, getGameProgress } from '../api';
+import { getGameProgress,saveGameProgress } from '../api';
 
 function saveStats(stats: SudokuStats) {
   localStorage.setItem('sudoku-stats', JSON.stringify(stats));

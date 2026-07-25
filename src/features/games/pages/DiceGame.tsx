@@ -1,14 +1,14 @@
+import { AnimatePresence,motion } from 'framer-motion';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useApp } from '@/contexts/AppContext';
+import { useNavigate,useSearchParams } from 'react-router-dom';
+
 import GameShell from '@/features/games/components/GameShell';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Dices, RotateCcw, Crown, Bot, User as UserIcon, PiggyBank, Trophy, Flame } from '@/lib/icons';
-import { useSearchParams, useNavigate } from 'react-router-dom';
-import { playSfx, vibrate } from '@/features/games/utils/gameFeedback';
 import {
   DICE_BOTS, DicePersonality, effectiveThreshold,
-  loadTournament, saveTournament, recordPlayerMatch,
-} from '@/features/games/data/diceTournament';
+  loadTournament, recordPlayerMatch,
+saveTournament, } from '@/features/games/data/diceTournament';
+import { playSfx, vibrate } from '@/features/games/utils/gameFeedback';
+import { Bot, Crown, Dices, Flame,PiggyBank, RotateCcw, Trophy, User as UserIcon } from '@/lib/icons';
 
 // =============================================================================
 // Dice rendering
@@ -246,7 +246,7 @@ const DEFAULT_DICE_STATS: DiceStats = {
 function loadStats(): DiceStats {
   try { return { ...DEFAULT_DICE_STATS, ...JSON.parse(localStorage.getItem('dice-stats') || '{}') }; } catch { return { ...DEFAULT_DICE_STATS }; }
 }
-import { saveGameProgress, getGameProgress } from '../api';
+import { getGameProgress,saveGameProgress } from '../api';
 
 function saveStatsFn(s: DiceStats) {
   localStorage.setItem('dice-stats', JSON.stringify(s));
@@ -260,7 +260,6 @@ type Mode = 'yatzy' | 'highroll' | 'pig';
 type Turn = 'player' | 'ai';
 
 export default function DiceGame() {
-  const { } = useApp();
   const [mode, setMode] = useState<Mode>(() => (localStorage.getItem('dice-mode') as Mode) || 'yatzy');
   const [aiLevel, setAiLevel] = useState<'easy' | 'hard'>(() => (localStorage.getItem('dice-ai') as 'easy' | 'hard') || 'hard');
 
@@ -856,7 +855,7 @@ function PigView({ aiLevel, tournamentBot, onTournamentResult }: {
 // =============================================================================
 // HighRoll View
 // =============================================================================
-function HighRollView({ }: { }) {
+function HighRollView() {
   const [hrPlayer, setHrPlayer] = useState(1);
   const [hrAi, setHrAi] = useState(1);
   const [hrScore, setHrScore] = useState({ p: 0, a: 0 });

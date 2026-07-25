@@ -13,10 +13,11 @@
 // It also gates all network activity on `isSupabaseConfigured` so a missing
 // .env doesn't cause a stream of failed requests in the console.
 
-import { useEffect, useState } from 'react';
 import type { RealtimeChannel } from '@supabase/supabase-js';
-import { supabase, isSupabaseConfigured } from '@/integrations/supabase/client';
+import { useEffect, useState } from 'react';
+
 import { useAuth } from '@/hooks/useAuth';
+import { isSupabaseConfigured,supabase } from '@/integrations/supabase/client';
 
 type Listener = (count: number) => void;
 

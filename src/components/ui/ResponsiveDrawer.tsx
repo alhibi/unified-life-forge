@@ -1,5 +1,5 @@
 import React from 'react';
-import { useIsMobile } from '@/hooks/use-mobile';
+
 import {
   Dialog,
   DialogContent,
@@ -16,6 +16,7 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from '@/components/ui/drawer';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ResponsiveDrawerProps {
   open?: boolean;

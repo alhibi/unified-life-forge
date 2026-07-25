@@ -15,6 +15,7 @@
  */
 
 import React from 'react';
+
 import type { MuscleGroup } from '@/features/wellness/exerciseCatalog';
 
 interface Props {
@@ -66,7 +67,7 @@ export default function MuscleBodyMap({
   secondary = [],
   size = 'md',
   showLegend = true,
-  lang = 'ar',
+  lang: _lang = 'ar',
 }: Props) {
   const { width, height } = SIZES[size];
   const bodyW = width / 2 - 8; // each body takes half width

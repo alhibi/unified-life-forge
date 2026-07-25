@@ -13,6 +13,7 @@
 // element the host component picks.
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+
 import type { ChatMessage } from '../types';
 
 const NEAR_BOTTOM_PX = 120;

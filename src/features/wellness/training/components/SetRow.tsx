@@ -5,9 +5,11 @@
  */
 
 import React from 'react';
+
 import { Check, X } from '@/lib/icons';
-import RpeRirPicker from './RpeRirPicker';
+
 import type { SetEntry } from '../../wellnessDb';
+import RpeRirPicker from './RpeRirPicker';
 
 export interface SetRowProps {
   index: number;

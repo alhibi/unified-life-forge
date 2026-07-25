@@ -1,13 +1,14 @@
+import { useReducedMotion } from 'framer-motion';
 import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useReducedMotion } from 'framer-motion';
+
 import SEO from '@/components/SEO';
-import { useApp } from '@/contexts/AppContext';
-import { useMindState } from '../hooks/useMindState';
+import { ArrowRight } from '@/lib/icons';
+
 import MemoryTimelineRail from '../components/MemoryTimelineRail';
 import MindFallback2D from '../components/MindFallback2D';
+import { useMindState } from '../hooks/useMindState';
 import { formatAge } from '../lib/growth';
-import { ArrowRight } from '@/lib/icons';
 
 const MindScene = lazy(() => import('../components/MindScene'));
 
@@ -20,7 +21,6 @@ function hasWebGL(): boolean {
 
 export default function MindPage() {
   const navigate = useNavigate();
-  const { } = useApp();
   const reduced = !!useReducedMotion();
   const mind = useMindState();
   const [webgl] = useState(() => (typeof window !== 'undefined' ? hasWebGL() : true));

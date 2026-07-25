@@ -3,7 +3,7 @@
 // Wave-1 chat types.
 //
 // These models replace the loosely-typed `Conversation` + `Message` shapes in
-// `src/components/chat/types.ts` with discriminated unions that distinguish
+// `src/features/chat/components/types.ts` with discriminated unions that distinguish
 // raw DB rows from hydrated, view-ready models. The legacy types are still
 // exported for back-compat — code that hasn't been migrated to the new model
 // reads the deprecated names without changes.

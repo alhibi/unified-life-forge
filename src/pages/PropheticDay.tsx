@@ -1,10 +1,11 @@
-import React from 'react';
-import SEO from '@/components/SEO';
-import { useNavigate } from 'react-router-dom';
-import { useApp } from '@/contexts/AppContext';
-import { Moon, Sunrise, Sun, BookOpen, CloudSun, SunDim, Sunset, MoonStar } from '@/lib/icons';
-import PageHeader from '@/components/PageHeader';
 import { motion } from 'framer-motion';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+
+import PageHeader from '@/components/PageHeader';
+import SEO from '@/components/SEO';
+import { useApp } from '@/contexts/AppContext';
+import { BookOpen, CloudSun, Moon, MoonStar,Sun, SunDim, Sunrise, Sunset } from '@/lib/icons';
 
 interface TimeSection {
   titleAr: string;
@@ -93,7 +94,7 @@ const sections: TimeSection[] = [
   },
 ];
 
-import { pageStagger as stagger, pageItem as fadeItem } from '@/lib/motion';
+import { pageItem as fadeItem,pageStagger as stagger } from '@/lib/motion';
 
 export default function PropheticDay() {
   const navigate = useNavigate();

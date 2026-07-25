@@ -1,9 +1,11 @@
 // Auto-switch color theme & light/dark mode based on the current prayer time slot.
 // Integrates with existing prayer times cache + AppContext.
 import { useEffect, useRef } from 'react';
+
 import { useApp } from '@/contexts/AppContext';
-import { fetchPrayerTimings } from './usePrayerTimesCache';
+
 import { getCurrentDeviceLocation } from './useDeviceLocation';
+import { fetchPrayerTimings } from './usePrayerTimesCache';
 
 export type PrayerSlot = 'fajr' | 'sunrise' | 'dhuhr' | 'asr' | 'maghrib' | 'isha';
 
@@ -39,7 +41,7 @@ export function getPrayerThemeMap(): typeof DEFAULT_PRAYER_THEME_MAP {
   try {
     const raw = localStorage.getItem(STORAGE_KEY_MAP);
     if (raw) return { ...DEFAULT_PRAYER_THEME_MAP, ...JSON.parse(raw) };
-  } catch {}
+  } catch { /* unreadable or malformed - fall through to defaults */ }
   return DEFAULT_PRAYER_THEME_MAP;
 }
 

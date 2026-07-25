@@ -1,6 +1,7 @@
-import { useEffect, useRef, useCallback, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import type { RealtimeChannel } from '@supabase/supabase-js';
+import { useCallback, useEffect, useRef, useState } from 'react';
+
+import { supabase } from '@/integrations/supabase/client';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Presence tracking — two parallel signals:

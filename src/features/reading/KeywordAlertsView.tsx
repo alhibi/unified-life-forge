@@ -1,18 +1,20 @@
+import { AnimatePresence,motion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import {
-  Bell, BellOff, BellRing, ChevronLeft, ChevronDown, ExternalLink,
-  Loader2, LogIn, Moon, Pencil, Plus, Trash2, X,
-} from '@/lib/icons';
+import { toast } from 'sonner';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
-import type { FeedSource } from './types';
-import { timeAgo } from './utils';
-import { SourcePill } from './SourcePill';
-import { useNotifications } from './useNotifications';
+import {
+  Bell, BellOff, BellRing, ChevronDown, ChevronLeft, ExternalLink,
+  Loader2, LogIn, Moon, Pencil, Plus, Trash2, X,
+} from '@/lib/icons';
+
 import { ConfirmDialog } from './ConfirmDialog';
+import { SourcePill } from './SourcePill';
+import type { FeedSource } from './types';
+import { useNotifications } from './useNotifications';
+import { timeAgo } from './utils';
 
 /**
  * KeywordAlertsView — manages a per-user list of keywords. The cron

@@ -1,15 +1,15 @@
+import { AnimatePresence,motion } from 'framer-motion';
 import React, { useState } from 'react';
-import { useApp } from '@/contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
+
 import GameShell from '@/features/games/components/GameShell';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Trophy, Sparkles, ChevronRight, Play, RotateCcw } from '@/lib/icons';
 import {
-  DICE_BOTS, DicePersonality,
-  TournamentState, TournamentMatch,
-  loadTournament, buildTournament, clearTournament, saveTournament, simulateMatch,
-} from '@/features/games/data/diceTournament';
+buildTournament, clearTournament,   DICE_BOTS, DicePersonality,
+  loadTournament, saveTournament, simulateMatch,
+TournamentMatch,
+  TournamentState, } from '@/features/games/data/diceTournament';
 import { playSfx, vibrate } from '@/features/games/utils/gameFeedback';
+import { ChevronRight, Play, RotateCcw,Sparkles, Trophy } from '@/lib/icons';
 
 // =============================================================================
 // Bracket page: shows the 4-player tree, the tournament's status, and a CTA
@@ -32,7 +32,6 @@ function emojiOf(slot: string): string {
 }
 
 export default function DiceTournamentPage() {
-  const { } = useApp();
   const navigate = useNavigate();
   const [state, setState] = useState<TournamentState | null>(loadTournament);
 

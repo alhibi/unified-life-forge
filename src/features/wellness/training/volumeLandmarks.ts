@@ -15,7 +15,7 @@
  */
 
 import type { MuscleGroup } from '../exerciseCatalog';
-import type { VolumeLandmarks, LocalizedString } from './types';
+import type { LocalizedString,VolumeLandmarks } from './types';
 
 export const VOLUME_LANDMARKS: Record<MuscleGroup, VolumeLandmarks> = {
   chest:      { mv: 8,  mev: 10, mav: 16, mrv: 22 },

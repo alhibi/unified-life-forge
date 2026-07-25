@@ -1,19 +1,21 @@
-import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
+import { useMemo,useState } from 'react';
+import { toast } from 'sonner';
+
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   AlertCircle, Check, ChevronLeft, Database, Download, Plus,
   Rss, Settings2, Star, Trash2, Upload, X,
 } from '@/lib/icons';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { toast } from 'sonner';
-import type { FeedSource, FeedStatus } from './types';
-import { SourcePill } from './SourcePill';
-import { downloadOpml } from './opml';
+
 import { AddFeedDialog } from './AddFeedDialog';
-import { OpmlImportDialog } from './OpmlImportDialog';
 import { ConfirmDialog } from './ConfirmDialog';
 import { getCustomFolders } from './foldersStorage';
+import { downloadOpml } from './opml';
+import { OpmlImportDialog } from './OpmlImportDialog';
+import { SourcePill } from './SourcePill';
+import type { FeedSource, FeedStatus } from './types';
 
 /**
  * Lets the user add, remove, enable/disable feeds and shows per-feed

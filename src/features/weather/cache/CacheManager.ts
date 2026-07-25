@@ -5,11 +5,11 @@
 //   2. write(key, value) populates all three tiers.
 //   3. evictForLocation(lat,lng) wipes everything when the user moves > 500m.
 
-import type { WeatherSnapshot } from '../types/WeatherSnapshot';
 import type { ForecastLayers } from '../types/ForecastLayer';
-import { MemoryCache } from './MemoryCache';
+import type { WeatherSnapshot } from '../types/WeatherSnapshot';
 import { IndexedDBCache, type Store } from './IndexedDBCache';
 import { LocalStorageCache } from './LocalStorageCache';
+import { MemoryCache } from './MemoryCache';
 
 export interface CachedBundle {
   snapshot: WeatherSnapshot;

@@ -16,7 +16,7 @@
  * so the UI can render "—" instead of crashing.
  */
 
-import type { AthleteProfile, Sex, ActivityLevel, FitnessGoal, WorkoutSession, SetEntry } from './wellnessDb';
+import type { ActivityLevel, AthleteProfile, FitnessGoal, SetEntry,Sex, WorkoutSession } from './wellnessDb';
 
 /* ─────────────────────────── Helpers ─────────────────────────── */
 

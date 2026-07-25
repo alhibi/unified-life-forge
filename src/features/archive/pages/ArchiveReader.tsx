@@ -243,7 +243,7 @@ export default function ArchiveReader() {
   useEffect(() => {
     try {
       localStorage.setItem(PREFS_KEY, JSON.stringify(prefs));
-    } catch {}
+    } catch { /* quota or private mode */ }
   }, [prefs]);
 
   useEffect(() => {
@@ -303,7 +303,7 @@ export default function ArchiveReader() {
       await navigator.clipboard.writeText(`${doc.title}\n\n${doc.content}`);
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
-    } catch {}
+    } catch { /* clipboard permission denied */ }
   };
 
   if (loading)
@@ -810,7 +810,7 @@ export default function ArchiveReader() {
             <ReactMarkdown
               components={{
                 h1: () => null,
-                h2: ({ node, children, ...props }) => {
+                h2: ({ node: _node, children, ...props }) => {
                   const text = extractText(children);
                   const hid = makeHeadingId(text);
                   return (
@@ -827,7 +827,7 @@ export default function ArchiveReader() {
                     </h2>
                   );
                 },
-                h3: ({ node, children, ...props }) => {
+                h3: ({ node: _node, children, ...props }) => {
                   const text = extractText(children);
                   const hid = makeHeadingId(text);
                   return (
@@ -841,14 +841,14 @@ export default function ArchiveReader() {
                     </h3>
                   );
                 },
-                p: ({ node, ...props }) => <p className="reveal mb-4" {...props} />,
-                ul: ({ node, ...props }) => (
+                p: ({ node: _node, ...props }) => <p className="reveal mb-4" {...props} />,
+                ul: ({ node: _node, ...props }) => (
                   <ul className="reveal list-disc pe-6 mb-4 space-y-1" {...props} />
                 ),
-                ol: ({ node, ...props }) => (
+                ol: ({ node: _node, ...props }) => (
                   <ol className="reveal list-decimal pe-6 mb-4 space-y-1" {...props} />
                 ),
-                blockquote: ({ node, ...props }) => (
+                blockquote: ({ node: _node, ...props }) => (
                   <blockquote
                     className="reveal pe-3 my-4 italic"
                     style={{
@@ -858,7 +858,7 @@ export default function ArchiveReader() {
                     {...props}
                   />
                 ),
-                code: ({ node, ...props }) => (
+                code: ({ node: _node, ...props }) => (
                   <code
                     className="px-1 py-0.5 rounded text-[0.9em]"
                     style={{ background: isThemed ? 'rgba(127,127,127,0.2)' : 'hsl(var(--muted))' }}
@@ -871,7 +871,7 @@ export default function ArchiveReader() {
                     style={{ borderColor: borderColor ?? 'hsl(var(--border) / 0.4)' }}
                   />
                 ),
-                a: ({ node, ...props }) => (
+                a: ({ node: _node, ...props }) => (
                   <a
                     {...props}
                     className="underline underline-offset-2"

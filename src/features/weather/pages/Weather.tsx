@@ -1,20 +1,13 @@
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
-import { Helmet } from 'react-helmet-async';
-import { motion, AnimatePresence } from 'framer-motion';
 import './weather-theme.css';
+
+import { AnimatePresence,motion } from 'framer-motion';
+import { type ReactNode,useEffect, useMemo, useState } from 'react';
+import { Helmet } from 'react-helmet-async';
+
 import BackButton from '@/components/BackButton';
-import { useApp } from '@/contexts/AppContext';
-import { useWeather } from '../hooks/useWeather';
-import { useWeatherForecast } from '../hooks/useWeatherForecast';
-import { snapshotAllSources, type SourceHealth } from '../engine/SourceHealthMonitor';
-import CitySearch from '../components/CitySearch';
-import InteractiveCharts from '../components/InteractiveCharts';
-import MeteorologyConsole from '../components/MeteorologyConsole';
-import RadarMap from '../components/RadarMap';
-import WeatherPlanner from '../components/WeatherPlanner';
-import MicroMap from '../components/MicroMap';
 import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 import {
+  ChevronDown,
   Cloud,
   CloudDrizzle,
   CloudFog,
@@ -24,16 +17,25 @@ import {
   Cloudy,
   Droplets,
   Eye,
+  Layers,
   MoonStar,
   RefreshCw,
+  Settings,
+  Sliders,
   Sun,
   Sunrise,
   Sunset,
-  Settings,
-  Layers,
-  Sliders,
-  ChevronDown,
 } from '@/lib/icons';
+
+import CitySearch from '../components/CitySearch';
+import InteractiveCharts from '../components/InteractiveCharts';
+import MeteorologyConsole from '../components/MeteorologyConsole';
+import MicroMap from '../components/MicroMap';
+import RadarMap from '../components/RadarMap';
+import WeatherPlanner from '../components/WeatherPlanner';
+import { snapshotAllSources, type SourceHealth } from '../engine/SourceHealthMonitor';
+import { useWeather } from '../hooks/useWeather';
+import { useWeatherForecast } from '../hooks/useWeatherForecast';
 
 function iconForCode(code: number, isDay: boolean) {
   if (code <= 1) return isDay ? Sun : MoonStar;
@@ -207,7 +209,7 @@ function GaugeTile({
   );
 }
 
-function SourceHealthPanel({}: {}) {
+function SourceHealthPanel() {
   const [rows, setRows] = useState<SourceHealth[]>([]);
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -775,7 +777,6 @@ function DailyRangeStrip({
 }
 
 export default function Weather() {
-  const {} = useApp();
   const locale = 'en-GB';
   const [selectedCoords, setSelectedCoords] = useState<{
     lat: number;

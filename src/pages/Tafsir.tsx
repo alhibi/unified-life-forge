@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence,motion } from 'framer-motion';
+import React, { useCallback, useEffect, useMemo,useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { BookOpen, Search, ChevronDown, ArrowRight, Loader2, BookMarked, X, Copy, Check, Minus, Plus, Bookmark, BookmarkCheck, ChevronUp } from '@/lib/icons';
+
 import BackButton from '@/components/BackButton';
 import SEO from '@/components/SEO';
 import { useApp } from '@/contexts/AppContext';
+import { ArrowRight, Bookmark, BookmarkCheck, BookMarked, BookOpen, Check, ChevronDown, ChevronUp,Copy, Loader2, Minus, Plus, Search, X } from '@/lib/icons';
 
 // ─── DATA ────────────────────────────────────────────────────────────────────
 
@@ -53,7 +54,7 @@ function loadState(): LastPosition | null {
   try { const s = localStorage.getItem(STORAGE_KEY); return s ? JSON.parse(s) : null; } catch { return null; }
 }
 function saveState(pos: LastPosition) {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(pos)); } catch {}
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(pos)); } catch { /* quota or private mode */ }
 }
 
 const BOOKMARKS_KEY = 'tafsir-bookmarks';
@@ -61,7 +62,7 @@ function loadBookmarks(): string[] {
   try { const s = localStorage.getItem(BOOKMARKS_KEY); return s ? JSON.parse(s) : []; } catch { return []; }
 }
 function saveBookmarks(b: string[]) {
-  try { localStorage.setItem(BOOKMARKS_KEY, JSON.stringify(b)); } catch {}
+  try { localStorage.setItem(BOOKMARKS_KEY, JSON.stringify(b)); } catch { /* quota or private mode */ }
 }
 
 // ─── ANIMATIONS ──────────────────────────────────────────────────────────────

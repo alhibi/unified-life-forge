@@ -28,8 +28,8 @@
 //     the user hits Send.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { compressForChat, type CompressedImage } from './imageCompression';
-import { looksLikeHeic, convertHeicToJpeg } from './heic';
+import { convertHeicToJpeg,looksLikeHeic } from './heic';
+import { type CompressedImage,compressForChat } from './imageCompression';
 
 /** Max parallel compression jobs. 2 is a good balance for mobile.
  *  – On a single-core phone, two queued jobs hide network latency without

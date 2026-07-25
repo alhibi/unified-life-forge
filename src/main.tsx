@@ -1,7 +1,4 @@
 /* entry */
-import { createRoot } from "react-dom/client";
-import { HelmetProvider } from "react-helmet-async";
-import App from "./App.tsx";
 import "./index.css";
 // Atmospheric Intelligence Engine typography — restraint over noise.
 import "@fontsource/cormorant-garamond/400.css";
@@ -10,47 +7,22 @@ import "@fontsource/cormorant-garamond/600.css";
 import "@fontsource/montserrat/300.css";
 import "@fontsource/montserrat/400.css";
 import "@fontsource/montserrat/500.css";
-import { registerServiceWorker } from "./lib/registerServiceWorker";
+
+import { createRoot } from "react-dom/client";
+import { HelmetProvider } from "react-helmet-async";
+
+import App from "./App.tsx";
 import { bootMotion } from "./lib/bootMotion";
-import { scrubVerboseDetails } from "@/components/ErrorBoundary";
+import { registerServiceWorker } from "./lib/registerServiceWorker";
+import { initTelemetry } from "./lib/telemetry";
 import { instrumentWebVitals } from "./utils/vitals";
 
-// Centralized Observability & Telemetry Readiness
-const telemetryLogBuffer: Array<{
-  timestamp: string;
-  type: string;
-  message: string;
-  stack?: string;
-  route: string;
-}> = [];
-
-function captureTelemetryError(type: string, message: string, stack?: string) {
-  const cleanMsg = scrubVerboseDetails(message);
-  const cleanStack = stack ? scrubVerboseDetails(stack) : undefined;
-  const logEntry = {
-    timestamp: new Date().toISOString(),
-    type,
-    message: cleanMsg,
-    stack: cleanStack,
-    route: window.location.pathname,
-  };
-  telemetryLogBuffer.push(logEntry);
-  if (telemetryLogBuffer.length > 100) telemetryLogBuffer.shift(); // Keep last 100 entries
-
-  // In production this would write directly to Sentry, Datadog or a custom telemetry drain.
-  console.warn(`[Telemetry Intercept - ${type}]:`, cleanMsg);
-}
-
-window.addEventListener('error', (event) => {
-  captureTelemetryError('UncaughtError', event.message, event.error?.stack);
-});
-
-window.addEventListener('unhandledrejection', (event) => {
-  const reason = event.reason;
-  const message = reason instanceof Error ? reason.message : String(reason);
-  const stack = reason instanceof Error ? reason.stack : undefined;
-  captureTelemetryError('UnhandledRejection', message, stack);
-});
+// Error telemetry. Installs the global error/unhandledrejection listeners and
+// forwards scrubbed events to Sentry when VITE_SENTRY_DSN is configured,
+// otherwise keeps them in an in-memory ring buffer readable via
+// window.__telemetry(). Installed first so failures during the rest of boot
+// are captured too. See src/lib/telemetry.ts.
+initTelemetry();
 
 // Native-feel motion setup: honor prefers-reduced-motion globally,
 // promote <body> to a GPU layer, and pre-warm the compositor before

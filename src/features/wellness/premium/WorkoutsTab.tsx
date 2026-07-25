@@ -13,35 +13,36 @@
  * that owns the active-session draft and triggers the PR detector.
  */
 
+import { AnimatePresence,motion } from 'framer-motion';
 import React, { useEffect, useMemo, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+
+import { useApp } from '@/contexts/AppContext';
 import {
   Activity, BarChart3, Calendar, Dumbbell, Flame, History,
   Library, Play, TrendingUp, Trophy,
 } from '@/lib/icons';
-import { useApp } from '@/contexts/AppContext';
-import type { AthleteProfile, UUID, WorkoutSession } from '../wellnessDb';
+
 import { EXERCISES } from '../exerciseCatalog';
+import { activityStreak,sessionStats, topExercises } from '../training/analyticsEngine';
+import DeloadAdvisor from '../training/components/DeloadAdvisor';
+import FrequencyHeatmap from '../training/components/FrequencyHeatmap';
+import HistoryList from '../training/components/HistoryList';
+import OneRmTrendChart from '../training/components/OneRmTrendChart';
+import PlateCalculator from '../training/components/PlateCalculator';
+import PrCelebration from '../training/components/PrCelebration';
+import ProgramsLibraryView from '../training/components/ProgramsLibraryView';
+// UI components
+import SessionPlayer from '../training/components/SessionPlayer';
+import StrengthStandardsView from '../training/components/StrengthStandardsView';
+import VolumeBars, { VolumeZoneLegend } from '../training/components/VolumeBars';
+import { detectPrs } from '../training/prDetector';
+import { programByKey } from '../training/programsLibrary';
 import {
   bestE1RMFromSets,
   sessionVolumeKg,
 } from '../training/progressionEngine';
-import { detectPrs } from '../training/prDetector';
-import { topExercises, sessionStats, activityStreak } from '../training/analyticsEngine';
 import type { PersonalRecord } from '../training/types';
-import { programByKey } from '../training/programsLibrary';
-
-// UI components
-import SessionPlayer from '../training/components/SessionPlayer';
-import PrCelebration from '../training/components/PrCelebration';
-import VolumeBars, { VolumeZoneLegend } from '../training/components/VolumeBars';
-import OneRmTrendChart from '../training/components/OneRmTrendChart';
-import FrequencyHeatmap from '../training/components/FrequencyHeatmap';
-import StrengthStandardsView from '../training/components/StrengthStandardsView';
-import HistoryList from '../training/components/HistoryList';
-import DeloadAdvisor from '../training/components/DeloadAdvisor';
-import ProgramsLibraryView from '../training/components/ProgramsLibraryView';
-import PlateCalculator from '../training/components/PlateCalculator';
+import type { AthleteProfile, UUID, WorkoutSession } from '../wellnessDb';
 
 interface Props {
   workouts: WorkoutSession[];
@@ -381,7 +382,7 @@ export default function WorkoutsTab({ workouts, profile, onSave, onDelete }: Pro
 /* ──────────────── Sub-components ──────────────── */
 
 function HeroStats({
-  totalSessions, currentStreak, longestStreak, weekVolume, lang,
+  totalSessions, currentStreak, longestStreak, weekVolume, lang: _lang,
 }: { totalSessions: number; currentStreak: number; longestStreak: number; weekVolume: number; lang: 'ar' }) {
   return (
     <motion.div

@@ -1,11 +1,11 @@
+import { AnimatePresence,motion } from 'framer-motion';
 import React, { useEffect, useMemo, useState } from 'react';
-import { useApp } from '@/contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
+
 import GameShell from '@/features/games/components/GameShell';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Crown, Lock, Check, Swords, ChevronRight, Trophy, Sparkles } from '@/lib/icons';
-import { BOTS, BotPersonality } from '@/features/games/data/chessBots';
+import { BotPersonality,BOTS } from '@/features/games/data/chessBots';
 import { playSfx, vibrate } from '@/features/games/utils/gameFeedback';
+import { Check, ChevronRight, Crown, Lock, Sparkles,Swords, Trophy } from '@/lib/icons';
 
 // =============================================================================
 // Career-mode storage
@@ -38,8 +38,9 @@ function loadCareer(): CareerStats {
     };
   } catch { return { ...DEFAULT_CAREER }; }
 }
-import { saveGameProgress, getGameProgress } from '../api';
 import { isSupabaseConfigured } from '@/integrations/supabase/client';
+
+import { getGameProgress,saveGameProgress } from '../api';
 
 export function saveCareer(s: CareerStats) {
   localStorage.setItem(KEY, JSON.stringify(s));
@@ -76,7 +77,6 @@ export function recordCareerResult(botId: string, result: 'win' | 'loss' | 'draw
 // Component
 // =============================================================================
 export default function ChessCareerPage() {
-  const { } = useApp();
   const navigate = useNavigate();
   const [career, setCareer] = useState<CareerStats>(loadCareer);
 

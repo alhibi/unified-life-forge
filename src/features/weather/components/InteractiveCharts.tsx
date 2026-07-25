@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Activity, Thermometer, Wind, CloudSun, Sparkles } from '@/lib/icons';
+import React, { useState } from 'react';
+
+import { Activity, CloudSun, Sparkles,Thermometer, Wind } from '@/lib/icons';
 
 interface ChartEntry {
   timestamp_unix: number;

@@ -1,5 +1,5 @@
-import { findBacklinks } from '../lib/wikiLinks';
 import type { LocalNote } from '../lib/db';
+import { findBacklinks } from '../lib/wikiLinks';
 
 export default function BacklinksPanel({
   note,

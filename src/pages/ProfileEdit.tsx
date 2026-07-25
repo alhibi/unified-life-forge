@@ -1,22 +1,20 @@
-import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { useApp } from '@/contexts/AppContext';
-import { useAuth } from '@/hooks/useAuth';
+import { AnimatePresence,motion } from 'framer-motion';
+import React, { useCallback, useEffect, useMemo,useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import {
-  Check, Pencil, ImagePlus, Copy, LogOut, Sparkles, Shield,
-  UserCircle, AlertTriangle, Palette,
-} from '@/lib/icons';
-import BackButton from '@/components/BackButton';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+
+import BackButton from '@/components/BackButton';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { useAuth } from '@/hooks/useAuth';
+import {
+AlertTriangle,   Check, Copy, ImagePlus, LogOut, Palette,
+Pencil, Shield,
+Sparkles,   UserCircle, } from '@/lib/icons';
+import { pageItem as item,pageStagger as stagger } from '@/lib/motion';
 import { isUsernameAvailable, updateProfileAndAuth, uploadAvatar } from '@/services/supabase/profiles';
-
-import { EMOJI_AVATARS, isEmojiAvatarValue, getAppleEmojiUrl } from '@/utils/emojiAvatar';
 import { getDefaultAvatarForUser } from '@/utils/defaultAvatar';
-
-import { pageStagger as stagger, pageItem as item } from '@/lib/motion';
+import { EMOJI_AVATARS, getAppleEmojiUrl,isEmojiAvatarValue } from '@/utils/emojiAvatar';
 
 // ── Cover themes ──────────────────────────────────────────────────────
 // Six curated gradients tuned to the Obsidian Cinematic palette. Stored
@@ -40,7 +38,6 @@ const COVER_THEMES: CoverTheme[] = [
 const coverKey = (uid?: string) => `profile_cover_theme:${uid || 'anon'}`;
 
 export default function ProfileEditPage() {
-  const { } = useApp();
   const { user, loading, username: authUsername, profile, refreshProfile, signOut } = useAuth();
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);

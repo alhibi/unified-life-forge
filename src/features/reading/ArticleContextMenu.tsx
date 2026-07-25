@@ -1,9 +1,6 @@
 import { ReactNode } from 'react';
-import {
-  Bookmark, BookmarkCheck, ChevronsDown, ChevronsUp, Circle,
-  CircleCheck, Copy, ExternalLink, Share2,
-} from '@/lib/icons';
 import { toast } from 'sonner';
+
 import {
   ContextMenu,
   ContextMenuContent,
@@ -11,6 +8,11 @@ import {
   ContextMenuSeparator,
   ContextMenuTrigger,
 } from '@/components/ui/context-menu';
+import {
+  Bookmark, BookmarkCheck, ChevronsDown, ChevronsUp, Circle,
+  CircleCheck, Copy, ExternalLink, Share2,
+} from '@/lib/icons';
+
 import type { FeedItem } from './types';
 import { safeHref } from './utils';
 

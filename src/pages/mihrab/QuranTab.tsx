@@ -1,10 +1,11 @@
+import { motion } from 'framer-motion';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+
 import { useApp } from '@/contexts/AppContext';
-import { motion } from 'framer-motion';
 import {
-  BookMarked, Sparkles, ChevronLeft, ChevronRight, RotateCcw,
-} from '@/lib/icons';
+  BookMarked, ChevronLeft, ChevronRight, RotateCcw,
+Sparkles, } from '@/lib/icons';
 
 /**
  * Mihrab → Quran tab.
@@ -46,7 +47,7 @@ function readLastPosition(): LastTafsirPosition | null {
   } catch { return null; }
 }
 
-import { pageStagger as stagger, pageItem as item } from '@/lib/motion';
+import { pageItem as item,pageStagger as stagger } from '@/lib/motion';
 
 export default function QuranTab() {
   const { dir } = useApp();

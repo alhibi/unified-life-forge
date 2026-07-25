@@ -1,9 +1,9 @@
 import React from 'react';
-import SEO from '@/components/SEO';
-import BackButton from '@/components/BackButton';
-import { useApp } from '@/contexts/AppContext';
 import { Link } from 'react-router-dom';
-import { BookOpen, Clock, Compass, ChevronLeft } from '@/lib/icons';
+
+import BackButton from '@/components/BackButton';
+import SEO from '@/components/SEO';
+import { BookOpen, ChevronLeft,Clock, Compass } from '@/lib/icons';
 
 /**
  * /mihrab/prayer-guide — long-form, SEO-targeted educational guide
@@ -49,7 +49,6 @@ const FAQ: Record<Lang, FaqItem[]> = {
 };
 
 export default function PrayerGuide() {
-  const { } = useApp();
   const lang: Lang = 'ar';
 
   const title = 'الدليل الشامل لأوقات الصلاة وطرق الحساب — SmartHub';

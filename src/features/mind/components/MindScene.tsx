@@ -1,10 +1,11 @@
-import { useMemo, useRef, Suspense } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, QuadraticBezierLine } from '@react-three/drei';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { Suspense,useMemo, useRef } from 'react';
 import * as THREE from 'three';
-import { renderParams } from '../lib/growth';
+
 import { anchorFor, type Hemisphere } from '../hooks/useMemoryAnchor';
 import type { MindState } from '../hooks/useMindState';
+import { renderParams } from '../lib/growth';
 
 const MIND_TOKENS = {
   void: '#0A0A0A',
@@ -35,7 +36,7 @@ function OrganicHemisphere({ radius, glow }: { radius: number; glow: number }) {
     g.computeVertexNormals();
     return g;
   }, []);
-  useFrame((_, dt) => {
+  useFrame((_, _dt) => {
     if (!ref.current) return;
     const m = ref.current.material as THREE.MeshStandardMaterial;
     // Gentle breathing.
