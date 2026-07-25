@@ -15,6 +15,10 @@ import { offlineDb } from './offlineDb';
 import { ReaderPrefsPopover } from './ReaderPrefsPopover';
 import { ArticleDetailSkeleton } from './Skeletons';
 import { SourcePill } from './SourcePill';
+import {
+  getArticleReadingProgress,
+  storeArticleReadingProgress,
+} from './storage';
 import type { FeedItem, ReaderPrefs } from './types';
 import { formatDate, readingMinutes, safeHref } from './utils';
 
@@ -84,6 +88,7 @@ export function ArticleReader({
   const scrollRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
   const [progress, setProgress] = useState(0);
+  const progressRef = useRef(0);
   const [headerHeight, setHeaderHeight] = useState(57);
 
   /**
@@ -325,11 +330,16 @@ export function ArticleReader({
     const handler = () => {
       const max = el.scrollHeight - el.clientHeight;
       const ratio = max > 0 ? el.scrollTop / max : 0;
-      setProgress(Math.min(1, Math.max(0, ratio)));
+      const nextProgress = Math.min(1, Math.max(0, ratio));
+      progressRef.current = nextProgress;
+      setProgress(nextProgress);
     };
     el.addEventListener('scroll', handler, { passive: true });
     handler();
-    return () => el.removeEventListener('scroll', handler);
+    return () => {
+      el.removeEventListener('scroll', handler);
+      storeArticleReadingProgress(article.link, progressRef.current);
+    };
   }, [article.link]);
 
   // Measure the header so the progress bar lands flush against it,
@@ -349,9 +359,29 @@ export function ArticleReader({
     return () => window.removeEventListener('resize', measure);
   }, []);
 
-  // Reset to top whenever the article changes
+  // Restore an article's saved position only when the article itself changes.
+  // Content upgrades can reflow the page while someone is actively reading;
+  // re-applying an old stored ratio in that case would cause a visible jump.
   useEffect(() => {
-    if (scrollRef.current) scrollRef.current.scrollTop = 0;
+    const savedProgress = getArticleReadingProgress(article.link);
+    progressRef.current = 0;
+    const restore = () => {
+      const el = scrollRef.current;
+      if (!el) return;
+      el.scrollTop = 0;
+      if (savedProgress > 0) {
+        const max = Math.max(0, el.scrollHeight - el.clientHeight);
+        el.scrollTop = max * savedProgress;
+      }
+      progressRef.current = savedProgress;
+      setProgress(savedProgress);
+    };
+    const frame = requestAnimationFrame(restore);
+    const timer = window.setTimeout(restore, 180);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.clearTimeout(timer);
+    };
   }, [article.link]);
 
   const onShare = async () => {

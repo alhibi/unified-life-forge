@@ -113,11 +113,10 @@ export function AddFeedDialog({
     // If the user inputs a name or a partial domain, we auto-enrich it
     if (!/^https?:\/\//i.test(trimmed)) {
       if (trimmed.includes('.') && !trimmed.includes(' ')) {
-        trimmed = 'https://' + trimmed;
+        trimmed = `https://${trimmed}`;
       } else {
-        // Search heuristic - try searching via common sources or guess domain
-        trimmed = 'https://www.google.com/search?q=' + encodeURIComponent(trimmed + ' RSS feed');
-        toast.info('تم تحويل البحث للاكتشاف الذكي لعناوين الويب');
+        toast.error('أدخل رابط موقع أو رابط RSS، مثل example.com');
+        return;
       }
     }
 

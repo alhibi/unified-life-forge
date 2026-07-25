@@ -45,6 +45,93 @@ const MIN_REFRESH_INTERVAL = 5 * 60 * 1000; // 5 min
 const MAX_REFRESH_INTERVAL = 4 * 60 * 60 * 1000; // 4 hours
 /** Staleness threshold — auto-refresh on mount if older than this. */
 const STALE_THRESHOLD = 10 * 60 * 1000; // 10 min
+/** The Edge Function caps one request at 15 feeds; the client batches transparently. */
+const EDGE_BATCH_SIZE = 15;
+
+type EdgeRefreshData = {
+  statuses?: FeedStatus[];
+};
+
+/**
+ * Fetch every enabled source even when a library is larger than the Edge
+ * Function's per-request safety cap. This used to submit the whole library
+ * and silently refresh only its first 15 feeds.
+ */
+async function refreshFeedsInBatches(
+  feeds: ReadonlyArray<FeedSource>,
+  onProgress?: (completed: number, currentFeed: string) => void,
+): Promise<{ data: EdgeRefreshData | null; failedUrls: string[] }> {
+  const batches: FeedSource[][] = [];
+  for (let index = 0; index < feeds.length; index += EDGE_BATCH_SIZE) {
+    batches.push(feeds.slice(index, index + EDGE_BATCH_SIZE));
+  }
+
+  const statuses: FeedStatus[] = [];
+  const failedUrls = new Set<string>();
+  let completed = 0;
+
+  for (const batch of batches) {
+    const nameMap: Record<string, string> = {};
+    batch.forEach((feed) => { nameMap[feed.url] = feed.name; });
+    onProgress?.(completed, batch.length === 1 ? batch[0].name : `تحديث ${batch.length} مصادر…`);
+
+    const { data, error } = await dedupe(
+      `fetch-rss:${batch.map((feed) => feed.url).sort().join('|')}`,
+      () => withRetry(
+        () => supabase.functions.invoke('fetch-rss', {
+          body: {
+            urls: batch.map((feed) => feed.url),
+            limit: 100,
+            fetchFullContent: true,
+            store: true,
+            nameMap,
+          },
+        }),
+        { attempts: 2, baseMs: 600 },
+      ),
+    );
+
+    const received = !error && Array.isArray(data?.statuses)
+      ? data.statuses as FeedStatus[]
+      : [];
+    const receivedByUrl = new Map(received.map((status) => [status.url, status]));
+    for (const feed of batch) {
+      const status = receivedByUrl.get(feed.url);
+      if (status) {
+        statuses.push(status);
+        if (status.status === 'error') failedUrls.add(feed.url);
+      } else {
+        statuses.push({
+          url: feed.url,
+          status: 'error',
+          itemCount: 0,
+          error: error instanceof Error
+            ? error.message
+            : error
+              ? 'تعذّر الاتصال بخدمة التحديث'
+              : 'لم تُرجع الخدمة حالة المصدر',
+        });
+        failedUrls.add(feed.url);
+      }
+    }
+    completed += batch.length;
+    onProgress?.(completed, completed === feeds.length ? 'جاري تحميل المقالات…' : 'الانتقال إلى الدفعة التالية…');
+  }
+
+  return {
+    data: statuses.length ? { statuses } : null,
+    failedUrls: Array.from(failedUrls),
+  };
+}
+
+function normalizeFeedUrl(input: string): string {
+  const url = new URL(input.trim());
+  url.hash = '';
+  // Hostnames are case-insensitive. URL normalises them and preserves query
+  // parameters, which some legitimate feeds require for language or edition.
+  return url.toString();
+}
+
 
 /**
  * Centralised data layer for the reading feature.
@@ -316,6 +403,7 @@ export function useReadingData() {
       });
       try {
         let succeeded = false;
+        let fallbackFeeds = feeds;
 
         // Try Supabase edge function first (if available)
         if (isSupabaseAvailable()) {
@@ -324,76 +412,46 @@ export function useReadingData() {
             currentFeed: 'جاري الاتصال بالخادم السحابي...',
           }));
           try {
-            const nameMap: Record<string, string> = {};
-            feeds.forEach((f) => { nameMap[f.url] = f.name; });
-
-            // Dedupe + retry the edge invocation: parallel refresh
-            // triggers (auto-refresh tick colliding with a manual
-            // button press) collapse to a single in-flight request,
-            // and transient 5xx / network blips get 2 backoff attempts
-            // before we fall through to the client-side fallback.
-            const { data, error } = await dedupe(
-              `fetch-rss:${feeds.map(f => f.url).sort().join('|')}`,
-              () => withRetry(
-                () => supabase.functions.invoke('fetch-rss', {
-                  body: {
-                    urls: feeds.map((f) => f.url),
-                    limit: 100,
-                    fetchFullContent: true,
-                    store: true,
-                    nameMap,
-                  },
-                }),
-                { attempts: 2, baseMs: 600 },
-              ),
+            const { data, failedUrls } = await refreshFeedsInBatches(
+              feeds,
+              (completed, currentFeed) => {
+                setSyncProgress((prev) => ({
+                  ...prev,
+                  current: completed,
+                  currentFeed,
+                }));
+              },
             );
 
-            if (!error && data) {
-              const statusesArr: FeedStatus[] = Array.isArray(data?.statuses)
-                ? (data.statuses as FeedStatus[])
-                : [];
-              if (statusesArr.length) setStatuses(statusesArr);
+            if (data) {
+              const statusesArr = data.statuses || [];
+              setStatuses(statusesArr);
+              const failedFeeds = feeds.filter((feed) => failedUrls.includes(feed.url));
+              const successfulCount = feeds.length - failedFeeds.length;
+              fallbackFeeds = failedFeeds;
 
-              // Last-resort fallback: if every requested feed errored
-              // server-side (Supabase egress blocked, regional outage,
-              // CDN-level ), don't mark this refresh as
-              // "succeeded" — fall through to the client-side proxy
-              // path. The browser can sometimes reach feeds the edge
-              // function can't, especially on networks where the user
-              // sits behind a captive portal whitelisting only their
-              // own region.
-              const allFailed = statusesArr.length > 0
-                && statusesArr.every((s) => s.status === 'error');
+              setSyncProgress({
+                active: true,
+                total: feeds.length,
+                current: feeds.length - failedFeeds.length,
+                successCount: successfulCount,
+                errorCount: failedFeeds.length,
+                currentFeed: failedFeeds.length > 0
+                  ? 'جاري تجربة المصادر المتعذّرة مباشرة…'
+                  : 'جاري تحميل المقالات…',
+              });
 
-              if (allFailed) {
-                console.warn(
-                  '[Reading] All feeds errored server-side, retrying client-side',
-                );
-                // Leave succeeded=false; client-side block runs next.
-              } else {
-                const failedFeeds = statusesArr.filter((s) => s.status === 'error');
-                if (failedFeeds.length > 0 && !silent) {
-                  toast.warning(
-                    `تم التحديث، لكن فشل ${failedFeeds.length} مصدر`,
-                  );
-                }
-                setSyncProgress({
-                  active: true,
-                  total: feeds.length,
-                  current: feeds.length,
-                  successCount: feeds.length - failedFeeds.length,
-                  errorCount: failedFeeds.length,
-                  currentFeed: 'جاري تحميل المقالات...',
-                });
+              if (successfulCount > 0) {
                 await loadFromDB();
-                // After loadFromDB updates state, auto-save the freshly
-                // loaded articles to IndexedDB so they're available offline.
-                // We do this in the background — no need to await.
                 const currentArticlesSnapshot = articlesRef.current;
                 if (currentArticlesSnapshot.length > 0) {
                   void offlineDb.saveArticlesBatch(currentArticlesSnapshot).catch(() => {});
                 }
                 succeeded = true;
+              }
+
+              if (failedFeeds.length > 0 && !silent) {
+                toast.warning(`تعذّر تحديث ${failedFeeds.length} مصدر من الخادم، نجرب اتصالاً مباشراً`);
               }
             }
           } catch (e) {
@@ -401,8 +459,9 @@ export function useReadingData() {
           }
         }
 
-        // Fallback: client-side fetch via CORS proxy (Progressive, real-time streaming)
-        if (!succeeded) {
+        // Fallback: use direct browser retrieval only for sources the Edge
+        // Function could not refresh, preserving successful server batches.
+        if (!succeeded || fallbackFeeds.length > 0) {
           const controller = new AbortController();
           const limit = 3;
           let activeRequests = 0;
@@ -410,25 +469,26 @@ export function useReadingData() {
           const failedSources: string[] = [];
           const allFreshArticles: FeedItem[] = [];
 
+          const completedBeforeFallback = feeds.length - fallbackFeeds.length;
           setSyncProgress({
             active: true,
             total: feeds.length,
-            current: 0,
-            successCount: 0,
+            current: completedBeforeFallback,
+            successCount: completedBeforeFallback,
             errorCount: 0,
-            currentFeed: 'جاري جلب المصادر مباشرة...',
+            currentFeed: 'جاري جلب المصادر المتعذّرة مباشرة…',
           });
 
           await new Promise<void>((resolvePromise) => {
             const next = async () => {
-              if (currentIndex >= feeds.length) {
+              if (currentIndex >= fallbackFeeds.length) {
                 if (activeRequests === 0) {
                   resolvePromise();
                 }
                 return;
               }
 
-              const feed = feeds[currentIndex++];
+              const feed = fallbackFeeds[currentIndex++];
               activeRequests++;
 
               setSyncProgress((prev) => ({
@@ -480,7 +540,7 @@ export function useReadingData() {
               }
             };
 
-            for (let c = 0; c < Math.min(limit, feeds.length); c++) {
+            for (let c = 0; c < Math.min(limit, fallbackFeeds.length); c++) {
               void next();
             }
           });
@@ -891,6 +951,16 @@ export function useReadingData() {
         });
         if (error) throw error;
         const responseData = typeof data === 'string' ? JSON.parse(data) : data;
+        const latestStatuses: FeedStatus[] = Array.isArray(responseData?.statuses)
+          ? responseData.statuses as FeedStatus[]
+          : [];
+        if (latestStatuses.length > 0) {
+          setStatuses((previous) => {
+            const next = new Map(previous.map((status) => [status.url, status]));
+            latestStatuses.forEach((status) => next.set(status.url, status));
+            return Array.from(next.values());
+          });
+        }
         const feeds = responseData?.feeds || [];
         const fresh: FeedItem[] = [];
         for (const f of feeds) {
@@ -927,6 +997,10 @@ export function useReadingData() {
             `لا توجد مقالات من ${feed.name}`,
           );
         }
+        const now = new Date().toISOString();
+        setLastRefresh(now);
+        try { localStorage.setItem(LAST_REFRESH_KEY, now); } catch { /* quota or private mode */ }
+        setLastError(null);
       } catch (e: unknown) {
         const msg = e instanceof Error ? e.message : '';
         toast.error(
@@ -937,18 +1011,25 @@ export function useReadingData() {
     [],
   );
 
+  const refreshFeed = useCallback((url: string) => {
+    const feed = feedSourcesRef.current.find((source) => source.url === url);
+    if (!feed) return;
+    void refreshFeeds(false, [feed]);
+  }, [refreshFeeds]);
+
   const addFeed = useCallback(
     (url: string, name: string, category: string) => {
-      const trimmed = url.trim();
-      if (!trimmed) return false;
-      // Hard-validate the URL before persisting. A malformed feed URL
-      // (typo, copy-paste from rich text, accidental space) silently
-      // sat in localStorage on the previous version, then errored on
-      // every refresh forever. Reject upfront so the user sees the
-      // problem at add-time, when they can correct it.
+      const rawUrl = url.trim();
+      if (!rawUrl) return false;
+      // Normalise hashes and hostname casing before storing. This prevents the
+      // same feed being subscribed twice through equivalent pasted URLs.
+      // Reject malformed or unsupported links before they can sit in the
+      // library and fail on every future refresh.
       let parsed: URL;
+      let normalizedUrl: string;
       try {
-        parsed = new URL(trimmed);
+        parsed = new URL(rawUrl);
+        normalizedUrl = normalizeFeedUrl(rawUrl);
       } catch {
         toast.error('الرابط غير صالح');
         return false;
@@ -960,12 +1041,14 @@ export function useReadingData() {
         return false;
       }
       const current = feedSourcesRef.current;
-      if (current.some((f) => f.url === trimmed)) {
+      if (current.some((f) => {
+        try { return normalizeFeedUrl(f.url) === normalizedUrl; } catch { return f.url === normalizedUrl; }
+      })) {
         toast.error('هذا المصدر موجود');
         return false;
       }
       const feed: FeedSource = {
-        url: trimmed,
+        url: normalizedUrl,
         name: name.trim() || parsed.hostname,
         category: category || 'news',
         enabled: true,
@@ -1014,20 +1097,25 @@ export function useReadingData() {
       feeds: ReadonlyArray<{ url: string; name: string; category: string; enabled?: boolean }>,
     ): Promise<{ added: number; skipped: number }> => {
       const current = feedSourcesRef.current;
-      const existingByUrl = new Map(current.map((f) => [f.url, f] as const));
+      const existingByUrl = new Map(
+        current.map((feed) => {
+          try { return [normalizeFeedUrl(feed.url), feed] as const; } catch { return [feed.url, feed] as const; }
+        }),
+      );
       const fresh: FeedSource[] = [];
       let skipped = 0;
       for (const f of feeds) {
-        const url = f.url.trim();
-        if (!url) {
+        const rawUrl = f.url.trim();
+        if (!rawUrl) {
           skipped++;
           continue;
         }
-        // Validate URL before queuing — bad URLs in OPML imports
-        // would otherwise sit in localStorage failing forever.
+        // Validate and normalise each OPML URL before queuing it.
         let parsed: URL;
+        let url: string;
         try {
-          parsed = new URL(url);
+          parsed = new URL(rawUrl);
+          url = normalizeFeedUrl(rawUrl);
         } catch {
           skipped++;
           continue;
@@ -1296,6 +1384,7 @@ export function useReadingData() {
     addSuggestedFeed,
     addFeedsBulk,
     removeFeed,
+    refreshFeed,
     toggleFeedEnabled,
     recacheNow,
     persistOpenedArticle,
